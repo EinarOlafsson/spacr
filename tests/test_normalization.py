@@ -118,6 +118,7 @@ def test_an_unknown_mode_falls_back_to_what_spacr_did_before():
 
 @pytest.mark.parametrize("mode", NORMALIZATIONS)
 def test_every_offered_mode_describes_itself(mode):
+    """A log line that raises takes the run with it, so every mode yields text."""
     assert describe_normalization(mode)
 
 
@@ -292,12 +293,6 @@ def test_it_accepts_the_tuple_a_dataloader_yields():
     batch = (np.full((4, 2, 8, 8), 0.25), np.zeros(4))
     mean, _std = dataset_statistics([batch])
     assert mean == pytest.approx((0.25, 0.25))
-
-
-@pytest.mark.parametrize("mode", NORMALIZATIONS)
-def test_describe_never_raises_even_when_the_numbers_are_missing(mode):
-    """A log line that raises takes the run with it."""
-    assert describe_normalization(mode)
 
 
 # ---------------------------------------------------------------------------

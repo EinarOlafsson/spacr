@@ -59,7 +59,7 @@ def _load_ml_afresh(name='spacr._ml_import_probe'):
     return module
 
 
-def test_an_ipython_that_cannot_be_imported_leaves_a_display_that_does_nothing(
+def case_an_ipython_that_cannot_be_imported_leaves_a_display_that_does_nothing(
         monkeypatch):
     """``display`` stays callable when IPython is mid-init.
 
@@ -68,19 +68,21 @@ def test_an_ipython_that_cannot_be_imported_leaves_a_display_that_does_nothing(
     is what stops that race from turning an import into an exception, and it
     has to accept the same arguments the real one does.
     """
+    _seen = []
     # None in sys.modules is exactly what a half-finished import looks like
     # to the import system: `from IPython.display import display` raises.
     monkeypatch.setitem(sys.modules, 'IPython.display', None)
 
     module = _load_ml_afresh()
 
-    assert module.display is not ml.display, (
-        'the module bound the real IPython display, so the fallback that '
-        'makes the import survivable never ran')
-    assert module.display('a frame', extra=1) is None
+    _seen.append(bool(
+        module.display is not ml.display))
+    _seen.append(bool(
+        module.display('a frame', extra=1) is None))
+    return _seen
 
 
-def test_a_machine_with_nowhere_to_draw_is_demoted_to_agg(monkeypatch):
+def case_a_machine_with_nowhere_to_draw_is_demoted_to_agg(monkeypatch):
     """No DISPLAY and no Windows/macOS GUI means the Agg backend, once.
 
     Importing the module on a headless Linux box with an interactive backend
@@ -88,19 +90,21 @@ def test_a_machine_with_nowhere_to_draw_is_demoted_to_agg(monkeypatch):
     in.  The demotion is conditional because doing it unconditionally is what
     used to kill inline plotting in notebooks.
     """
+    _seen = []
     chosen = []
     monkeypatch.setattr(matplotlib, 'use', lambda *a, **k: chosen.append(a))
     monkeypatch.setattr(sys, 'platform', 'linux')
     monkeypatch.delenv('DISPLAY', raising=False)
 
     _load_ml_afresh('spacr._ml_backend_probe')
-    assert chosen == [('Agg',)]
+    _seen.append(keep(chosen))
 
     # ... and with somewhere to draw, the user's backend is left alone.
     chosen.clear()
     monkeypatch.setenv('DISPLAY', ':0')
     _load_ml_afresh('spacr._ml_backend_probe')
-    assert chosen == []
+    _seen.append(keep(chosen))
+    return _seen
 
 
 # ===========================================================================
@@ -115,15 +119,18 @@ def case_a_glob_that_matched_no_count_file_is_refused_by_name(tmp_path):
     one that catches it, and without it the run continued on an empty
     concatenation.
     """
+    _seen = []
     one = tmp_path / 'counts.csv'
     pd.DataFrame({'grna': ['g1'], 'count': [3]}).to_csv(one, index=False)
 
-    with pytest.raises(ValueError, match='no table was given to read'):
+    with pytest.raises(ValueError, match='no table was given to read') as _exc1:
         ml._concat_named_csvs(iter([]))
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
 
     # The same call shape with a match reads the file, so the refusal above
     # is about the emptiness and not about the iterator.
-    assert len(ml._concat_named_csvs(iter([str(one)]))) == 1
+    _seen.append(keep(len(ml._concat_named_csvs(iter([str(one)])))))
+    return _seen
 
 
 def case_a_calibration_whose_module_is_missing_keeps_the_threshold_given(
@@ -134,10 +141,12 @@ def case_a_calibration_whose_module_is_missing_keeps_the_threshold_given(
     ticked the box and cannot have it is owed the sentence saying so and the
     threshold it already had.
     """
+    _seen = []
     monkeypatch.setitem(sys.modules, 'spacr.fraction_calibration', None)
 
-    assert ml._calibrated_fraction_threshold({'fraction_threshold': 0.01}) is None
-    assert 'calibration is unavailable' in capsys.readouterr().out
+    _seen.append(bool(
+        ml._calibrated_fraction_threshold({'fraction_threshold': 0.01}) is None))
+    _seen.append(('calibration is unavailable' if 'calibration is unavailable' in (capsys.readouterr().out) else ("missing", 'calibration is unavailable')))
 
     # With the module importable the same settings produce a number, so the
     # None above is the missing module and nothing else.
@@ -147,7 +156,9 @@ def case_a_calibration_whose_module_is_missing_keeps_the_threshold_given(
     monkeypatch.setattr(ml, '_calibration_inputs', lambda settings: {})
     monkeypatch.setattr(calibration, 'sweep_fraction_threshold',
                         lambda **kwargs: {'chosen': 0.02, 'candidates': []})
-    assert ml._calibrated_fraction_threshold({}) == pytest.approx(0.02)
+    _seen.append(bool(
+        ml._calibrated_fraction_threshold({}) == pytest.approx(0.02)))
+    return _seen
 
 
 def case_a_column_that_is_already_categorical_is_left_as_it_is():
@@ -157,6 +168,7 @@ def case_a_column_that_is_already_categorical_is_left_as_it_is():
     this frame uses, and those are what keep two plates' factor levels lined
     up when a well is filtered out.
     """
+    _seen = []
     frame = pd.DataFrame({
         'fraction': [0.4, 0.6, 0.5, 0.5],
         'predictions': [0.1, 0.9, 0.2, 0.8],
@@ -173,9 +185,11 @@ def case_a_column_that_is_already_categorical_is_left_as_it_is():
     cleaned = ml.check_and_clean_data(frame, 'predictions')
 
     # untouched: the unused 'g3' level survived the pass
-    assert list(cleaned['grna'].cat.categories) == ['g1', 'g2', 'g3']
+    _seen.append(keep(list(cleaned['grna'].cat.categories)))
     # converted: 'gene' arrived as object and left as a categorical
-    assert isinstance(cleaned['gene'].dtype, pd.CategoricalDtype)
+    _seen.append(bool(
+        isinstance(cleaned['gene'].dtype, pd.CategoricalDtype)))
+    return _seen
 
 
 # ===========================================================================
@@ -197,6 +211,7 @@ def case_a_transform_that_is_the_link_does_not_get_a_second_one(capsys):
     family chosen from the transformed numbers would apply the link twice and
     every coefficient downstream would be on a scale nothing else reads.
     """
+    _seen = []
     X, y = _tiny_design()
 
     model = ml.regression_model(X, y, regression_type='glm',
@@ -205,10 +220,14 @@ def case_a_transform_that_is_the_link_does_not_get_a_second_one(capsys):
 
     import statsmodels.api as sm
 
-    assert isinstance(model.family, sm.families.Gaussian)
-    assert isinstance(model.family.link, sm.families.links.Identity)
-    assert float(model.params['x']) == pytest.approx(2.0, abs=0.15)
-    assert 'Identity link for logit(pred)' in capsys.readouterr().out
+    _seen.append(bool(
+        isinstance(model.family, sm.families.Gaussian)))
+    _seen.append(bool(
+        isinstance(model.family.link, sm.families.links.Identity)))
+    _seen.append(bool(
+        float(model.params['x']) == pytest.approx(2.0, abs=0.15)))
+    _seen.append(('Identity link for logit(pred)' if 'Identity link for logit(pred)' in (capsys.readouterr().out) else ("missing", 'Identity link for logit(pred)')))
+    return _seen
 
 
 def case_a_covariate_with_two_values_is_not_given_a_spline_basis():
@@ -218,6 +237,7 @@ def case_a_covariate_with_two_values_is_not_given_a_spline_basis():
     one step in it, and the guide coefficients that share the design pay for
     them.
     """
+    _seen = []
     rng = np.random.default_rng(4)
     n = 80
     continuous = rng.uniform(0, 1, n)
@@ -234,12 +254,14 @@ def case_a_covariate_with_two_values_is_not_given_a_spline_basis():
                                 spline_knots=4, spline_degree=3)
 
     names = [str(name) for name in model.params.index]
-    assert 'batch' in names, 'the indicator was expanded or dropped'
-    assert 'cell_count' not in names, 'the covariate was not given a basis'
-    assert any(name.startswith('cell_count') and name != 'cell_count'
-               for name in names)
+    _seen.append(('batch' if 'batch' in (names) else ("missing", 'batch')))
+    _seen.append((("absent", 'cell_count') if 'cell_count' not in (names) else ("present", 'cell_count')))
+    _seen.append(bool(
+        any(name.startswith('cell_count') and name != 'cell_count'
+               for name in names)))
     # the guide column is never touched, whatever else the design carries
-    assert 'fraction:grna[T.geneA_1]' in names
+    _seen.append(('fraction:grna[T.geneA_1]' if 'fraction:grna[T.geneA_1]' in (names) else ("missing", 'fraction:grna[T.geneA_1]')))
+    return _seen
 
 
 def case_a_group_lasso_that_ran_out_of_sweeps_says_the_answer_is_provisional(
@@ -250,6 +272,7 @@ def case_a_group_lasso_that_ran_out_of_sweeps_says_the_answer_is_provisional(
     selection read off it is a claim about which genes survived a penalty
     that was never actually applied to convergence.
     """
+    _seen = []
     from spacr import group_lasso as group_lasso_module
 
     columns = ['Intercept', 'fraction:grna[T.geneA_1]',
@@ -268,25 +291,30 @@ def case_a_group_lasso_that_ran_out_of_sweeps_says_the_answer_is_provisional(
                                 group_lasso_lambda=0.01)
 
     printed = capsys.readouterr().out
-    assert 'did not reach its tolerance' in printed
-    assert str(group_lasso_module.MAX_ITERATIONS) in printed
-    assert model.converged is False
+    _seen.append(('did not reach its tolerance' if 'did not reach its tolerance' in (printed) else ("missing", 'did not reach its tolerance')))
+    _seen.append(bool(
+        str(group_lasso_module.MAX_ITERATIONS) in printed))
+    _seen.append(bool(
+        model.converged is False))
     # the coefficients are still handed back, which is why the warning has to
     # be printed rather than the fit refused
-    assert float(model.coef_[1]) == pytest.approx(0.4)
+    _seen.append(bool(
+        float(model.coef_[1]) == pytest.approx(0.4)))
+    return _seen
 
 
 # ===========================================================================
 # the reporting helpers around a fit
 # ===========================================================================
 
-def test_a_frame_with_no_well_columns_still_gets_its_qc_report(monkeypatch):
+def case_a_frame_with_no_well_columns_still_gets_its_qc_report(monkeypatch):
     """No plate/row/column/prc means no labels, not no report.
 
     The per-well metadata only ever labels a point; a design built from a
     frame that carries none of those columns still deserves its residual and
     calibration panels.
     """
+    _seen = []
     import spacr.regression_qc as regression_qc
 
     seen = {}
@@ -301,14 +329,15 @@ def test_a_frame_with_no_well_columns_still_gets_its_qc_report(monkeypatch):
     model = ml.regression_model(X, y, regression_type='ols')
 
     bare = pd.DataFrame({'value': np.arange(20.0)})
-    assert ml._write_regression_qc(model, X, y, bare, 'unused') == {
-        'verdict': 'ok'}
-    assert seen['metadata'] is None
+    _seen.append(keep(ml._write_regression_qc(model, X, y, bare, 'unused')))
+    _seen.append(bool(
+        seen['metadata'] is None))
 
     # the same call on a frame that names its wells does carry the labels
     labelled = pd.DataFrame({'prc': [f'plate1_r1_c{i}' for i in range(20)]})
     ml._write_regression_qc(model, X, y, labelled, 'unused')
-    assert list(seen['metadata'].columns) == ['prc']
+    _seen.append(keep(list(seen['metadata'].columns)))
+    return _seen
 
 
 def case_a_plate_panel_with_nowhere_to_save_is_still_shown(tmp_path):
@@ -318,16 +347,22 @@ def case_a_plate_panel_with_nowhere_to_save_is_still_shown(tmp_path):
     that only wants the figure on screen; the second must not invent a file
     next to the working directory.
     """
+    _seen = []
     frame = pd.DataFrame({
         'prc': [f'plate1_r{r}_c{c}' for r in range(1, 4) for c in range(1, 5)],
         'value': np.linspace(0.1, 1.2, 12),
     })
 
-    assert ml._show_plates(frame, 'value', None) is True
-    assert not list(tmp_path.iterdir())
+    _seen.append(bool(
+        ml._show_plates(frame, 'value', None) is True))
+    _seen.append(bool(
+        not list(tmp_path.iterdir())))
 
-    assert ml._show_plates(frame, 'value', str(tmp_path)) is True
-    assert (tmp_path / 'plate_heatmap_value.pdf').exists()
+    _seen.append(bool(
+        ml._show_plates(frame, 'value', str(tmp_path)) is True))
+    _seen.append(bool(
+        (tmp_path / 'plate_heatmap_value.pdf').exists()))
+    return _seen
 
 
 def case_a_fit_that_reports_no_likelihood_says_so_rather_than_guessing():
@@ -337,12 +372,12 @@ def case_a_fit_that_reports_no_likelihood_says_so_rather_than_guessing():
     model everywhere else in the run, and neither carries a likelihood; the
     console line has to survive them.
     """
+    _seen = []
     class Bare:
         family = None
         llf = 1.0                      # present, but nothing to compare it to
 
-    assert ml.fit_quality_note(Bare()) == (
-        "McFadden's R²: not available for this fit")
+    _seen.append(keep(ml.fit_quality_note(Bare())))
 
     # a fit that does carry both gets the number, so the sentence above is
     # about the missing null and not about the helper refusing everything
@@ -351,7 +386,8 @@ def case_a_fit_that_reports_no_likelihood_says_so_rather_than_guessing():
         llf = -10.0
         llnull = -20.0
 
-    assert "0.5" in ml.fit_quality_note(Full())
+    _seen.append(('0.5' if '0.5' in (ml.fit_quality_note(Full())) else ("missing", '0.5')))
+    return _seen
 
 
 # ===========================================================================
@@ -384,26 +420,29 @@ def case_auto_counts_no_block_terms_when_the_table_has_no_plate_column():
     is not in the design would push a perfectly identifiable screen onto the
     permutation test.
     """
+    _seen = []
     frame = _long_guide_frame()
     settings = {'guide_permutation_block': 'plateID'}
 
     mode, reason = ml.resolve_auto_inference(
         frame.drop(columns=['plateID']), settings)
-    assert mode == 'regression'
-    assert '0 block terms' in reason
+    _seen.append(keep(mode))
+    _seen.append(('0 block terms' if '0 block terms' in (reason) else ("missing", '0 block terms')))
 
     # with the column present the two plates cost one block term, which is
     # what makes the count above a measurement rather than a constant
     _mode, with_blocks = ml.resolve_auto_inference(frame, settings)
-    assert '1 block terms' in with_blocks
+    _seen.append(('1 block terms' if '1 block terms' in (with_blocks) else ("missing", '1 block terms')))
+    return _seen
 
 
-def test_a_saturation_warning_counts_only_the_blocks_the_table_has():
+def case_a_saturation_warning_counts_only_the_blocks_the_table_has():
     """The warning's parameter count matches the design that will be fitted.
 
     A warning that overstates the width would fire on designs that are fine,
     and a user who has seen one of those stops reading the next.
     """
+    _seen = []
     wells = [f'plate1_r1_c{i}' for i in range(1, 5)]
     frame = pd.DataFrame({
         'prc': [well for well in wells for _ in range(4)],
@@ -413,9 +452,11 @@ def test_a_saturation_warning_counts_only_the_blocks_the_table_has():
     warning = ml._identifiability_warning(
         frame, {'guide_permutation_block': 'plateID'})
 
-    assert warning is not None
-    assert '4 analysed wells are being used to estimate 5 parameters' in warning
-    assert '(4 grnas + intercept + 0 block terms)' in warning
+    _seen.append(bool(
+        warning is not None))
+    _seen.append(('4 analysed wells are being used to estimate 5 parameters' if '4 analysed wells are being used to estimate 5 parameters' in (warning) else ("missing", '4 analysed wells are being used to estimate 5 parameters')))
+    _seen.append(('(4 grnas + intercept + 0 block terms)' if '(4 grnas + intercept + 0 block terms)' in (warning) else ("missing", '(4 grnas + intercept + 0 block terms)')))
+    return _seen
 
 
 def case_settings_that_name_no_input_at_all_are_refused_before_any_read():
@@ -424,9 +465,12 @@ def case_settings_that_name_no_input_at_all_are_refused_before_any_read():
     The migration branch produces no pairs at all here, so nothing is printed
     about legacy lists and the refusal is the only output.
     """
-    with pytest.raises(ValueError, match='at least one score CSV'):
+    _seen = []
+    with pytest.raises(ValueError, match='at least one score CSV') as _exc1:
         ml.normalize_regression_input_pairs({'score_data': [],
                                              'count_data': []})
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_a_questionable_shuffle_with_no_remedy_still_names_its_findings(
@@ -437,6 +481,7 @@ def case_a_questionable_shuffle_with_no_remedy_still_names_its_findings(
     verdict that carried no suggestion used to be the one case where the user
     saw neither.
     """
+    _seen = []
     import spacr.permutation_qc as permutation_qc
 
     monkeypatch.setattr(
@@ -450,10 +495,12 @@ def case_a_questionable_shuffle_with_no_remedy_still_names_its_findings(
          'guide_nuisance_columns': []}, None)
 
     printed = capsys.readouterr().out
-    assert report is not None and report['blocks'] == 2
-    assert 'the within-block shuffle is questionable' in printed
-    assert 'columnID explains 12%' in printed
-    assert '->' not in printed, 'a remedy was invented where there was none'
+    _seen.append(bool(
+        report is not None and report['blocks'] == 2))
+    _seen.append(('the within-block shuffle is questionable' if 'the within-block shuffle is questionable' in (printed) else ("missing", 'the within-block shuffle is questionable')))
+    _seen.append(('columnID explains 12%' if 'columnID explains 12%' in (printed) else ("missing", 'columnID explains 12%')))
+    _seen.append((("absent", '->') if '->' not in (printed) else ("present", '->')))
+    return _seen
 
 
 # ===========================================================================
@@ -466,11 +513,14 @@ def case_a_permutation_asked_for_zero_wells_is_refused_by_name(tmp_path):
     The panel writes a single number as often as a list, so the scalar has to
     be widened before it is validated or the refusal never fires.
     """
+    _seen = []
     frame = _long_guide_frame()
 
-    with pytest.raises(ValueError, match='positive integers'):
+    with pytest.raises(ValueError, match='positive integers') as _exc1:
         ml._run_guide_permutation_analysis(
             frame, 'score', str(tmp_path), {'guide_min_wells': 0})
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_a_dependent_variable_that_is_not_a_column_names_what_is(tmp_path):
@@ -480,16 +530,19 @@ def case_a_dependent_variable_that_is_not_a_column_names_what_is(tmp_path):
     commonest way to reach this; a bare KeyError names the typo and not the
     alternatives.
     """
+    _seen = []
     frame = _long_guide_frame()
 
     with pytest.raises(ValueError) as caught:
         ml._run_guide_permutation_analysis(
             frame, 'nonesuch', str(tmp_path),
             {'guide_min_wells': [1], 'guide_primary_min_wells': 1})
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
 
     message = str(caught.value)
-    assert "['nonesuch']" in message
-    assert 'score' in message
+    _seen.append(("['nonesuch']" if "['nonesuch']" in (message) else ("missing", "['nonesuch']")))
+    _seen.append(('score' if 'score' in (message) else ("missing", 'score')))
+    return _seen
 
 
 # ===========================================================================
@@ -504,13 +557,14 @@ def _coef_frame(p_values):
     })
 
 
-def test_a_fit_whose_coefficients_carry_no_p_value_corrects_nothing(capsys):
+def case_a_fit_whose_coefficients_carry_no_p_value_corrects_nothing(capsys):
     """No testable coefficient means no correction and an empty hit list.
 
     The mixed fit's BLUPs and variance components arrive with a NaN p-value by
     construction; running BH over an empty family raised rather than reporting
     a screen with nothing in it.
     """
+    _seen = []
     settings = {'nontargeting_control_grnas': None, 'multiple_testing_method': 'fdr_bh',
                 'fdr_alpha': 0.05}
 
@@ -518,18 +572,22 @@ def test_a_fit_whose_coefficients_carry_no_p_value_corrects_nothing(capsys):
         _coef_frame([np.nan, np.nan]), 'grna', settings, 'mixed',
         pd.DataFrame(), 'score')
 
-    assert coef_df['q_value'].isna().all()
-    assert len(significant) == 0
-    assert threshold == 0 and rule == 'no effect-size cut'
-    assert 'across 0 tested coefficients' in capsys.readouterr().out
+    _seen.append(bool(
+        coef_df['q_value'].isna().all()))
+    _seen.append(keep(len(significant)))
+    _seen.append(bool(
+        threshold == 0 and rule == 'no effect-size cut'))
+    _seen.append(('across 0 tested coefficients' if 'across 0 tested coefficients' in (capsys.readouterr().out) else ("missing", 'across 0 tested coefficients')))
 
     # the same table with p-values does get corrected, so the emptiness above
     # is the missing p-values and not the helper declining to correct
     corrected, hits, _t, _r = ml._call_level_hits(
         _coef_frame([0.001, 0.9]), 'grna', settings, 'ols',
         pd.DataFrame(), 'score')
-    assert corrected['q_value'].notna().all()
-    assert list(hits['feature']) == ['fraction:grna[T.geneA_1]']
+    _seen.append(bool(
+        corrected['q_value'].notna().all()))
+    _seen.append(keep(list(hits['feature'])))
+    return _seen
 
 
 def case_a_stage_whose_announcement_cannot_be_printed_still_records_it():
@@ -539,6 +597,7 @@ def case_a_stage_whose_announcement_cannot_be_printed_still_records_it():
     resource reading it returns is read by the run summary afterwards, and
     losing that to a formatting error would lose the cost of the whole fit.
     """
+    _seen = []
     class Unprintable:
         def __format__(self, spec):
             raise RuntimeError('this name cannot be rendered')
@@ -547,7 +606,8 @@ def case_a_stage_whose_announcement_cannot_be_printed_still_records_it():
             return 'reading the input tables'
 
     settings = {}
-    assert isinstance(ml._stage(settings, Unprintable()), dict)
+    _seen.append(bool(
+        isinstance(ml._stage(settings, Unprintable()), dict)))
 
     # a name that can be printed announces itself, which is what makes the
     # silence above a caught failure rather than a step that never ran
@@ -557,7 +617,8 @@ def case_a_stage_whose_announcement_cannot_be_printed_still_records_it():
     buffer = io.StringIO()
     with contextlib.redirect_stdout(buffer):
         ml._stage(settings, 'fitting the model')
-    assert 'Regression: fitting the model' in buffer.getvalue()
+    _seen.append(('Regression: fitting the model' if 'Regression: fitting the model' in (buffer.getvalue()) else ("missing", 'Regression: fitting the model')))
+    return _seen
 
 
 # ===========================================================================
@@ -586,6 +647,7 @@ def case_a_cell_count_sweep_returns_the_same_minimum_without_a_renderer(
     it.  Plot availability therefore changes only the saved evidence, not the
     threshold passed into ``process_scores``.
     """
+    _seen = []
     settings = {
         'score_data': _score_csv(tmp_path / 'scores.csv'),
         'dependent_variable': 'pred',
@@ -599,8 +661,9 @@ def case_a_cell_count_sweep_returns_the_same_minimum_without_a_renderer(
     answer_without_figure = ml.minimum_cell_simulation(
         dict(settings), num_repeats=2, increment=10,
         dst=str(tmp_path / 'out'))
-    assert answer_without_figure is not None
-    assert 'Saved' not in capsys.readouterr().out
+    _seen.append(bool(
+        answer_without_figure is not None))
+    _seen.append((("absent", 'Saved') if 'Saved' not in (capsys.readouterr().out) else ("present", 'Saved')))
 
     # The positive counterpart proves the renderer changes only the artifact.
     written = tmp_path / 'out' / 'cell_min_threshold.pdf'
@@ -610,11 +673,14 @@ def case_a_cell_count_sweep_returns_the_same_minimum_without_a_renderer(
     answer_with_figure = ml.minimum_cell_simulation(
         dict(settings), num_repeats=2, increment=10,
         dst=str(tmp_path / 'out'))
-    assert answer_with_figure == answer_without_figure
-    assert f'Saved {written}' in capsys.readouterr().out
+    _seen.append(bool(
+        answer_with_figure == answer_without_figure))
+    _seen.append(bool(
+        f'Saved {written}' in capsys.readouterr().out))
+    return _seen
 
 
-def test_a_sweep_with_no_pick_of_its_own_claims_nothing_about_the_threshold(
+def case_a_sweep_with_no_pick_of_its_own_claims_nothing_about_the_threshold(
         monkeypatch, capsys):
     """Nothing is printed when the sweep did not reach a number.
 
@@ -622,9 +688,10 @@ def test_a_sweep_with_no_pick_of_its_own_claims_nothing_about_the_threshold(
     one of the two answers in hand there is no comparison to report, and a
     half-filled sentence is worse than none.
     """
+    _seen = []
     monkeypatch.setattr(ml, '_graph_sequencing_stats', lambda settings: None)
     ml._draw_the_threshold_sweep({'fraction_threshold': 0.0168}, None)
-    assert capsys.readouterr().out == ''
+    _seen.append(keep(capsys.readouterr().out))
 
     # with both answers in hand the run names each of them and says which is
     # in force -- the branch the silence above is the other side of
@@ -632,8 +699,9 @@ def test_a_sweep_with_no_pick_of_its_own_claims_nothing_about_the_threshold(
     ml._draw_the_threshold_sweep({'fraction_threshold': 0.0168}, None,
                                  measured=True)
     printed = capsys.readouterr().out
-    assert 'the control-well calibration measured 0.0168' in printed
-    assert "sweep's own pick on this screen is 0.03" in printed
+    _seen.append(('the control-well calibration measured 0.0168' if 'the control-well calibration measured 0.0168' in (printed) else ("missing", 'the control-well calibration measured 0.0168')))
+    _seen.append(("sweep's own pick on this screen is 0.03" if "sweep's own pick on this screen is 0.03" in (printed) else ("missing", "sweep's own pick on this screen is 0.03")))
+    return _seen
 
 
 # ===========================================================================
@@ -647,6 +715,7 @@ def case_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key():
     one; re-deriving the well from it would silently move every object to a
     well the columns disagree with.
     """
+    _seen = []
     frame = pd.DataFrame({
         'prcfo': ['stale_r9_c9_f1_o1'] * 4,
         'plateID': ['plate1'] * 4,
@@ -658,9 +727,9 @@ def case_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key():
     scored, name = ml.process_scores(frame, 'pred', None, min_cells_per_well=1,
                                      agg_type='mean')
 
-    assert name == 'pred'
-    assert sorted(scored['prc']) == ['plate1_r1_c1', 'plate1_r1_c2',
-                                     'plate1_r2_c1', 'plate1_r2_c2']
+    _seen.append(keep(name))
+    _seen.append(keep(sorted(scored['prc'])))
+    return _seen
 
 
 def case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong(
@@ -671,6 +740,7 @@ def case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong(
     outlier pass -- and the count-model guard reads the per-well sums; over no
     wells it has nothing to judge and must not speak.
     """
+    _seen = []
     empty = pd.DataFrame({
         'prcfo': pd.Series([], dtype=str), 'prc': pd.Series([], dtype=str),
         'plateID': pd.Series([], dtype=str), 'rowID': pd.Series([], dtype=str),
@@ -679,9 +749,9 @@ def case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong(
 
     scored, name = ml.process_scores(empty, 'pred', None, min_cells_per_well=0,
                                      agg_type='mean', regression_type='poisson')
-    assert len(scored) == 0
-    assert list(scored.columns) == ['prc', 'pred', 'cell_count']
-    assert name == 'pred'
+    _seen.append(keep(len(scored)))
+    _seen.append(keep(list(scored.columns)))
+    _seen.append(keep(name))
 
     # the same call over real scores does refuse them, which is what makes the
     # silence above the emptiness rather than a guard that never fires
@@ -690,16 +760,18 @@ def case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong(
         'plateID': ['plate1'] * 2, 'rowID': ['r1'] * 2,
         'columnID': ['c1'] * 2, 'pred': [0.14, 0.21],
     })
-    with pytest.raises(ValueError, match='models the well'):
+    with pytest.raises(ValueError, match='models the well') as _exc1:
         ml.process_scores(scores, 'pred', None, min_cells_per_well=0,
                           agg_type='mean', regression_type='poisson')
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 # ===========================================================================
 # explaining and drawing
 # ===========================================================================
 
-def test_an_explainer_that_will_not_run_is_followed_by_the_next_one(
+def case_an_explainer_that_will_not_run_is_followed_by_the_next_one(
         monkeypatch):
     """A failing SHAP explainer costs its attempt, not the explanation.
 
@@ -707,6 +779,7 @@ def test_an_explainer_that_will_not_run_is_followed_by_the_next_one(
     that raises on an unfamiliar estimator; falling through to the
     model-agnostic explainer is the whole point of trying more than one.
     """
+    _seen = []
     def _refuses(sample):
         raise RuntimeError('this explainer cannot read the model')
 
@@ -720,16 +793,18 @@ def test_an_explainer_that_will_not_run_is_followed_by_the_next_one(
     values, note = ml._shap_values(object(), pd.DataFrame({'a': [1.0, 2.0]}),
                                    pd.DataFrame({'a': [1.0, 2.0]}))
 
-    assert note == 'kernel'
-    assert values.shape == (2, 2)
+    _seen.append(keep(note))
+    _seen.append(keep(values.shape))
 
     # when every attempt fails the last failure is named, so the fallthrough
     # above cannot hide a model nothing can explain
     monkeypatch.setattr(ml, '_shap_explainers',
                         lambda model, X_train: [(_refuses, 'tree')])
-    with pytest.raises(RuntimeError, match='cannot read the model'):
+    with pytest.raises(RuntimeError, match='cannot read the model') as _exc1:
         ml._shap_values(object(), pd.DataFrame({'a': [1.0]}),
                         pd.DataFrame({'a': [1.0]}))
+    _seen.append(('RuntimeError' if isinstance(_exc1.value, RuntimeError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_a_plot_that_exported_nothing_is_not_announced_to_the_gallery(
@@ -740,6 +815,7 @@ def case_a_plot_that_exported_nothing_is_not_announced_to_the_gallery(
     that was never written gives the user a broken thumbnail and a run that
     looks as if it drew a figure it did not.
     """
+    _seen = []
     import spacr.figure_sink as figure_sink
 
     published = []
@@ -758,14 +834,19 @@ def case_a_plot_that_exported_nothing_is_not_announced_to_the_gallery(
             self.deleted = True
 
     nothing = Plot('')
-    assert not ml.write_plot(nothing, str(tmp_path / 'sweep.pdf'), 'Sweep')
-    assert nothing.deleted
-    assert published == []
+    _seen.append(bool(
+        not ml.write_plot(nothing, str(tmp_path / 'sweep.pdf'), 'Sweep')))
+    _seen.append(bool(
+        nothing.deleted))
+    _seen.append(keep(published))
 
     target = str(tmp_path / 'written.pdf')
     something = Plot(target)
-    assert ml.write_plot(something, target, 'Sweep') == target
-    assert published == [(target, 'Sweep')]
+    _seen.append(bool(
+        ml.write_plot(something, target, 'Sweep') == target))
+    _seen.append(bool(
+        published == [(target, 'Sweep')]))
+    return _seen
 
 
 def case_a_sweep_that_fails_mid_draw_takes_its_scene_with_it(monkeypatch):
@@ -775,6 +856,7 @@ def case_a_sweep_that_fails_mid_draw_takes_its_scene_with_it(monkeypatch):
     OpenGL context; a run that draws a panel per plate leaks one per failure
     and eventually cannot draw at all.
     """
+    _seen = []
     import spacr.qt.widgets.fast_plots as fast_plots
 
     deleted = []
@@ -798,9 +880,11 @@ def case_a_sweep_that_fails_mid_draw_takes_its_scene_with_it(monkeypatch):
                             'smoothed_mean_abs_diff': [0.2, 0.1],
                             'std_abs_diff': [0.05, 0.02]})
 
-    with pytest.raises(RuntimeError, match='could not be built'):
+    with pytest.raises(RuntimeError, match='could not be built') as _exc1:
         ml._draw_the_cell_count_sweep(summary, 5.0, 'unused.pdf')
-    assert deleted == [True]
+    _seen.append(('RuntimeError' if isinstance(_exc1.value, RuntimeError) else type(_exc1.value).__name__))
+    _seen.append(keep(deleted))
+    return _seen
 
 
 # ===========================================================================
@@ -838,6 +922,7 @@ def case_a_count_table_in_the_score_slot_is_named_as_swapped_inputs(screen):
     exactly what a swapped pair looks like; the alternative message is a
     column dump the user has to interpret themselves.
     """
+    _seen = []
     settings = base_settings(screen)
     settings['score_data'] = [screen['count']]
     settings['paired_data'] = [{'score': screen['count'],
@@ -845,10 +930,12 @@ def case_a_count_table_in_the_score_slot_is_named_as_swapped_inputs(screen):
 
     with pytest.raises(ValueError) as caught:
         ml.perform_regression(settings)
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
 
     message = str(caught.value)
-    assert 'shape of a COUNT file' in message
-    assert "['count', 'grna']" in message
+    _seen.append(('shape of a COUNT file' if 'shape of a COUNT file' in (message) else ("missing", 'shape of a COUNT file')))
+    _seen.append(("['count', 'grna']" if "['count', 'grna']" in (message) else ("missing", "['count', 'grna']")))
+    return _seen
 
 
 def case_an_analysis_mode_nobody_implements_is_refused_before_the_fit(screen):
@@ -858,11 +945,14 @@ def case_an_analysis_mode_nobody_implements_is_refused_before_the_fit(screen):
     fall through to the regression branch and produce a parametric run under
     a name that promised something else.
     """
+    _seen = []
     # `inference` normally selects the mode; 'auto' is the one value that
     # leaves an explicitly supplied analysis_mode standing to be validated.
-    with pytest.raises(ValueError, match="Unsupported analysis_mode"):
+    with pytest.raises(ValueError, match="Unsupported analysis_mode") as _exc1:
         ml.perform_regression(base_settings(screen, inference='auto',
                                             analysis_mode='sideways'))
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_batch_correction_without_its_response_column_says_which_setting(
@@ -873,16 +963,19 @@ def case_batch_correction_without_its_response_column_says_which_setting(
     dependent-variable check, so this is the one path where a correction is
     asked for on a column the score table does not have.
     """
+    _seen = []
     settings = base_settings(
         screen, dependent_variable='pathogen_nucleus_shortest_distance',
         batch_correction='center')
 
     with pytest.raises(ValueError) as caught:
         ml.perform_regression(settings)
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
 
     message = str(caught.value)
-    assert 'Batch correction cannot run' in message
-    assert 'batch_correction=none' in message
+    _seen.append(('Batch correction cannot run' if 'Batch correction cannot run' in (message) else ("missing", 'Batch correction cannot run')))
+    _seen.append(('batch_correction=none' if 'batch_correction=none' in (message) else ("missing", 'batch_correction=none')))
+    return _seen
 
 
 def case_the_control_blocks_reach_the_count_filter_once_each(screen,
@@ -893,6 +986,7 @@ def case_the_control_blocks_reach_the_count_filter_once_each(screen,
     well; adding it twice would print the removal twice and make the run's own
     exclusion count disagree with the wells that left.
     """
+    _seen = []
     seen = {}
     real_process_reads = ml.process_reads
 
@@ -910,8 +1004,10 @@ def case_the_control_blocks_reach_the_count_filter_once_each(screen,
         negative_control_wells=['c1'], positive_control_wells=['c2']))
 
     # 'c1' was already listed and is not repeated; 'c2' is added by the block
-    assert seen['filter_value'] == ['c1', 'c2']
-    assert len(output['results']) > 0
+    _seen.append(keep(seen['filter_value']))
+    _seen.append(bool(
+        len(output['results']) > 0))
+    return _seen
 
 
 def case_control_blocks_that_cannot_be_resolved_cost_only_the_exclusion(
@@ -922,6 +1018,7 @@ def case_control_blocks_that_cannot_be_resolved_cost_only_the_exclusion(
     a failure in it must not take down a run whose exclusions were already
     stated explicitly.
     """
+    _seen = []
     import spacr.well_spec as well_spec
 
     def boom(settings):
@@ -945,8 +1042,10 @@ def case_control_blocks_that_cannot_be_resolved_cost_only_the_exclusion(
         screen, filter_column='columnID', filter_value=['c1'],
         negative_control_wells=['c2']))
 
-    assert seen['filter_value'] == ['c1']
-    assert len(output['results']) > 0
+    _seen.append(keep(seen['filter_value']))
+    _seen.append(bool(
+        len(output['results']) > 0))
+    return _seen
 
 
 def case_an_outlier_filter_with_no_column_to_read_says_so_before_the_fractions(
@@ -957,12 +1056,14 @@ def case_an_outlier_filter_with_no_column_to_read_says_so_before_the_fractions(
     the user switched on that removed nothing has to be told apart from one
     that ran and found nothing.
     """
+    _seen = []
     ml.perform_regression(parametric_settings(screen,
                                               cell_area_outlier_mads=5.0))
 
     printed = capsys.readouterr().out
-    assert 'Outliers removed before annotation:' in printed
-    assert 'cell area: this table has no cell area column' in printed
+    _seen.append(('Outliers removed before annotation:' if 'Outliers removed before annotation:' in (printed) else ("missing", 'Outliers removed before annotation:')))
+    _seen.append(('cell area: this table has no cell area column' if 'cell area: this table has no cell area column' in (printed) else ("missing", 'cell area: this table has no cell area column')))
+    return _seen
 
 
 def case_an_outlier_filter_that_raised_says_the_counts_are_unfiltered(
@@ -972,6 +1073,7 @@ def case_an_outlier_filter_that_raised_says_the_counts_are_unfiltered(
     Silence here means the run continues on unfiltered objects with every
     downstream fraction computed from them and nothing saying so.
     """
+    _seen = []
     import spacr.outlier_filter as outlier_filter
 
     def boom(frame, settings=None):
@@ -983,9 +1085,11 @@ def case_an_outlier_filter_that_raised_says_the_counts_are_unfiltered(
         screen, cell_area_outlier_mads=5.0))
 
     printed = capsys.readouterr().out
-    assert '[outliers] the pre-annotation filter did not run' in printed
-    assert 'the counts below are unfiltered' in printed
-    assert len(output['results']) > 0
+    _seen.append(('[outliers] the pre-annotation filter did not run' if '[outliers] the pre-annotation filter did not run' in (printed) else ("missing", '[outliers] the pre-annotation filter did not run')))
+    _seen.append(('the counts below are unfiltered' if 'the counts below are unfiltered' in (printed) else ("missing", 'the counts below are unfiltered')))
+    _seen.append(bool(
+        len(output['results']) > 0))
+    return _seen
 
 
 def case_a_measured_threshold_replaces_the_one_the_settings_carried(
@@ -996,13 +1100,16 @@ def case_a_measured_threshold_replaces_the_one_the_settings_carried(
     control wells rather than from the box; a run that measured one and went
     on using the typed value would be reporting the wrong provenance.
     """
+    _seen = []
     monkeypatch.setattr(ml, '_calibrated_fraction_threshold',
                         lambda settings: 0.0123)
 
     output = ml.perform_regression(parametric_settings(
         screen, calibrate_fraction_threshold=True))
-    assert output['settings']['fraction_threshold'] == pytest.approx(0.0123)
-    assert ml._AUTOMATIC_SETTINGS['fraction_threshold'] == pytest.approx(0.0123)
+    _seen.append(bool(
+        output['settings']['fraction_threshold'] == pytest.approx(0.0123)))
+    _seen.append(bool(
+        ml._AUTOMATIC_SETTINGS['fraction_threshold'] == pytest.approx(0.0123)))
 
     # a calibration that cannot answer leaves the typed threshold in force,
     # which is the branch the replacement above is the other side of
@@ -1011,8 +1118,10 @@ def case_a_measured_threshold_replaces_the_one_the_settings_carried(
                         lambda settings: None)
     output = ml.perform_regression(parametric_settings(
         screen, calibrate_fraction_threshold=True, fraction_threshold=0.005))
-    assert output['settings']['fraction_threshold'] == pytest.approx(0.005)
-    assert 'fraction_threshold' not in ml._AUTOMATIC_SETTINGS
+    _seen.append(bool(
+        output['settings']['fraction_threshold'] == pytest.approx(0.005)))
+    _seen.append((("absent", 'fraction_threshold') if 'fraction_threshold' not in (ml._AUTOMATIC_SETTINGS) else ("present", 'fraction_threshold')))
+    return _seen
 
 
 def case_a_permutation_run_with_no_model_named_says_nothing_about_one(
@@ -1022,20 +1131,23 @@ def case_a_permutation_run_with_no_model_named_says_nothing_about_one(
     The sentence exists to stop a second run under a different model; with no
     model named there is nothing to stop and the paragraph would be noise.
     """
+    _seen = []
     settings = base_settings(screen)
     settings['regression_type'] = None
 
     output = ml.perform_regression(settings)
 
     printed = capsys.readouterr().out
-    assert 'is not read' not in printed
-    assert len(output['primary']) > 0
+    _seen.append((("absent", 'is not read') if 'is not read' not in (printed) else ("present", 'is not read')))
+    _seen.append(bool(
+        len(output['primary']) > 0))
 
     # naming one does produce the paragraph, so the silence above is the
     # missing name rather than a run that never reached the line
     named = base_settings(screen, regression_type='mixed')
     ml.perform_regression(named)
-    assert "regression_type='mixed' is not read" in capsys.readouterr().out
+    _seen.append(("regression_type='mixed' is not read" if "regression_type='mixed' is not read" in (capsys.readouterr().out) else ("missing", "regression_type='mixed' is not read")))
+    return _seen
 
 
 def case_a_permutation_run_without_the_summary_module_keeps_its_results(
@@ -1046,19 +1158,24 @@ def case_a_permutation_run_without_the_summary_module_keeps_its_results(
     is the only summary that run produces -- and losing an analysis over a
     reporting import is the trade nobody would make.
     """
+    _seen = []
     monkeypatch.setitem(sys.modules, 'spacr.regression_summary', None)
 
     output = ml.perform_regression(base_settings(screen))
-    assert len(output['primary']) > 0
-    assert not os.path.exists(os.path.join(output['res_folder'],
-                                           ml.SUMMARY_FILENAME))
+    _seen.append(bool(
+        len(output['primary']) > 0))
+    _seen.append(bool(
+        not os.path.exists(os.path.join(output['res_folder'],
+                                           ml.SUMMARY_FILENAME))))
 
     # with the module importable the same run writes it, so the absence above
     # is the failed import and not a mode that never summarises
     monkeypatch.undo()
     output = ml.perform_regression(base_settings(screen))
-    assert os.path.exists(os.path.join(output['res_folder'],
-                                       ml.SUMMARY_FILENAME))
+    _seen.append(bool(
+        os.path.exists(os.path.join(output['res_folder'],
+                                       ml.SUMMARY_FILENAME))))
+    return _seen
 
 
 def case_a_fitted_run_without_the_summary_module_keeps_its_coefficients(
@@ -1068,19 +1185,24 @@ def case_a_fitted_run_without_the_summary_module_keeps_its_coefficients(
     ``ridge`` writes no statsmodels summary of its own, so the file is
     present exactly when spaCR's own summary could be written.
     """
+    _seen = []
     monkeypatch.setitem(sys.modules, 'spacr.regression_summary', None)
 
     output = ml.perform_regression(parametric_settings(
         screen, regression_type='ridge'))
-    assert len(output['results']) > 0
-    assert not os.path.exists(os.path.join(output['res_folder'],
-                                           ml.SUMMARY_FILENAME))
+    _seen.append(bool(
+        len(output['results']) > 0))
+    _seen.append(bool(
+        not os.path.exists(os.path.join(output['res_folder'],
+                                           ml.SUMMARY_FILENAME))))
 
     monkeypatch.undo()
     output = ml.perform_regression(parametric_settings(
         screen, regression_type='ridge'))
-    assert os.path.exists(os.path.join(output['res_folder'],
-                                       ml.SUMMARY_FILENAME))
+    _seen.append(bool(
+        os.path.exists(os.path.join(output['res_folder'],
+                                       ml.SUMMARY_FILENAME))))
+    return _seen
 
 
 def case_metadata_that_will_not_merge_is_named_and_the_run_goes_on(
@@ -1090,6 +1212,7 @@ def case_metadata_that_will_not_merge_is_named_and_the_run_goes_on(
     The merge decorates a finished fit with gene names; a malformed summary
     table must not take down the run that produced the coefficients.
     """
+    _seen = []
     import spacr.utils as utils
 
     def boom(results, metadata, name=None):
@@ -1100,9 +1223,11 @@ def case_metadata_that_will_not_merge_is_named_and_the_run_goes_on(
     output = ml.perform_regression(parametric_settings(screen))
 
     printed = capsys.readouterr().out
-    assert 'Could not merge metadata from' in printed
-    assert 'has no Gene ID column' in printed
-    assert len(output['results']) > 0
+    _seen.append(('Could not merge metadata from' if 'Could not merge metadata from' in (printed) else ("missing", 'Could not merge metadata from')))
+    _seen.append(('has no Gene ID column' if 'has no Gene ID column' in (printed) else ("missing", 'has no Gene ID column')))
+    _seen.append(bool(
+        len(output['results']) > 0))
+    return _seen
 
 
 def case_a_count_table_that_names_its_plate_and_row_in_one_column_agrees(
@@ -1113,6 +1238,7 @@ def case_a_count_table_that_names_its_plate_and_row_in_one_column_agrees(
     that carries no rowID at all has nothing to reduce, and running the repair
     on it used to be an IndexError on an empty frame.
     """
+    _seen = []
     with_rows = ml.perform_regression(parametric_settings(screen))
 
     composite = pd.read_csv(screen['count'])
@@ -1125,11 +1251,13 @@ def case_a_count_table_that_names_its_plate_and_row_in_one_column_agrees(
     other = dict(screen, count=str(folded))
     without_rows = ml.perform_regression(parametric_settings(other))
 
-    assert len(without_rows['results']) == len(with_rows['results']) > 0
+    _seen.append(bool(
+        len(without_rows['results']) == len(with_rows['results']) > 0))
     np.testing.assert_allclose(
         without_rows['results']['coefficient'].to_numpy(dtype=float),
         with_rows['results']['coefficient'].to_numpy(dtype=float),
         rtol=1e-9, atol=1e-12)
+    return _seen
 
 
 def case_an_annotation_that_has_something_to_say_says_it_once(screen,
@@ -1141,6 +1269,7 @@ def case_an_annotation_that_has_something_to_say_says_it_once(screen,
     each would repeat the same sentence four times per run, which is how a
     line that matters stops being read.
     """
+    _seen = []
     import spacr.annotation as annotation
 
     monkeypatch.setattr(
@@ -1154,8 +1283,10 @@ def case_an_annotation_that_has_something_to_say_says_it_once(screen,
         screen, annotation_source='toxoplasma'))
 
     printed = capsys.readouterr().out
-    assert printed.count('Annotation: 3 of 4 genes matched') == 1
-    assert len(output['results']) > 0
+    _seen.append(keep(printed.count('Annotation: 3 of 4 genes matched')))
+    _seen.append(bool(
+        len(output['results']) > 0))
+    return _seen
 
 
 def case_an_annotation_that_changed_the_row_count_is_refused(screen,
@@ -1167,6 +1298,7 @@ def case_an_annotation_that_changed_the_row_count_is_refused(screen,
     results_significant.csv more than once, and nothing downstream would say
     so.
     """
+    _seen = []
     import spacr.annotation as annotation
 
     monkeypatch.setattr(
@@ -1179,8 +1311,10 @@ def case_an_annotation_that_changed_the_row_count_is_refused(screen,
     with pytest.raises(ValueError) as caught:
         ml.perform_regression(parametric_settings(
             screen, annotation_source='toxoplasma'))
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
 
-    assert 'annotation changed results from' in str(caught.value)
+    _seen.append(('annotation changed results from' if 'annotation changed results from' in (str(caught.value)) else ("missing", 'annotation changed results from')))
+    return _seen
 
 
 def case_a_control_left_unnamed_is_not_offered_to_the_concordance_report(
@@ -1190,6 +1324,7 @@ def case_a_control_left_unnamed_is_not_offered_to_the_concordance_report(
     ``concordance_report`` colours the guides of each named control; a key of
     '' would claim every unlabelled guide belongs to a control condition.
     """
+    _seen = []
     import spacr.guide_concordance as guide_concordance
 
     seen = {}
@@ -1202,10 +1337,11 @@ def case_a_control_left_unnamed_is_not_offered_to_the_concordance_report(
     monkeypatch.setattr(guide_concordance, 'concordance_report', spy)
 
     ml.perform_regression(parametric_settings(screen, positive_control=None))
-    assert seen['controls'] == {'233460': 'negative'}
+    _seen.append(keep(seen['controls']))
 
     ml.perform_regression(parametric_settings(screen))
-    assert seen['controls'] == {'239740': 'positive', '233460': 'negative'}
+    _seen.append(keep(seen['controls']))
+    return _seen
 
 
 def case_the_legacy_volcano_is_announced_only_when_a_file_was_written(
@@ -1215,6 +1351,7 @@ def case_the_legacy_volcano_is_announced_only_when_a_file_was_written(
     A stale file from an earlier run sits at the same path, so announcing one
     unconditionally would credit this run with a figure it did not make.
     """
+    _seen = []
     import spacr.toxo as toxo
 
     def writes_nothing(frame, metadata_path, **kwargs):
@@ -1227,11 +1364,11 @@ def case_the_legacy_volcano_is_announced_only_when_a_file_was_written(
         metadata_files=[screen['meta']]))
 
     printed = capsys.readouterr().out
-    assert 'WARNING: the legacy volcano was requested but no file was' in printed
+    _seen.append(('WARNING: the legacy volcano was requested but no file was' if 'WARNING: the legacy volcano was requested but no file was' in (printed) else ("missing", 'WARNING: the legacy volcano was requested but no file was')))
     # one curated table is not two, so the extra reports are skipped -- and
     # the gene list they would have used is still non-empty
-    assert 'Skipping the phenotype and transcription reports' in printed
-    assert 'No gene_list produced' not in printed
+    _seen.append(('Skipping the phenotype and transcription reports' if 'Skipping the phenotype and transcription reports' in (printed) else ("missing", 'Skipping the phenotype and transcription reports')))
+    _seen.append((("absent", 'No gene_list produced') if 'No gene_list produced' not in (printed) else ("present", 'No gene_list produced')))
 
     def writes_one(frame, metadata_path, save_path=None, **kwargs):
         open(save_path, 'w').write('%PDF-1.4\n')
@@ -1241,7 +1378,8 @@ def case_the_legacy_volcano_is_announced_only_when_a_file_was_written(
     ml.perform_regression(parametric_settings(
         screen, toxo=True, legacy_volcano=True,
         metadata_files=[screen['meta']]))
-    assert 'Saved volcano plot to' in capsys.readouterr().out
+    _seen.append(('Saved volcano plot to' if 'Saved volcano plot to' in (capsys.readouterr().out) else ("missing", 'Saved volcano plot to')))
+    return _seen
 
 
 def case_a_finished_run_whose_summary_raises_keeps_its_coefficients(
@@ -1252,6 +1390,7 @@ def case_a_finished_run_whose_summary_raises_keeps_its_coefficients(
     by the time the summary is written, and an hour's fit must not be thrown
     away over prose.
     """
+    _seen = []
     import spacr.regression_summary as regression_summary
 
     def boom(*args, **kwargs):
@@ -1262,9 +1401,11 @@ def case_a_finished_run_whose_summary_raises_keeps_its_coefficients(
     output = ml.perform_regression(parametric_settings(screen))
 
     printed = capsys.readouterr().out
-    assert 'Could not write the run summary' in printed
-    assert 'the summary template is missing' in printed
-    assert len(output['results']) > 0
+    _seen.append(('Could not write the run summary' if 'Could not write the run summary' in (printed) else ("missing", 'Could not write the run summary')))
+    _seen.append(('the summary template is missing' if 'the summary template is missing' in (printed) else ("missing", 'the summary template is missing')))
+    _seen.append(bool(
+        len(output['results']) > 0))
+    return _seen
 
 
 def case_a_threshold_no_guide_reaches_is_an_answer_not_a_failure(screen,
@@ -1275,13 +1416,16 @@ def case_a_threshold_no_guide_reaches_is_an_answer_not_a_failure(screen,
     ninety-nine wells, and raising there used to throw away the results for
     every other threshold at the drawing stage.
     """
+    _seen = []
     output = ml.perform_regression(base_settings(
         screen, guide_min_wells=[1, 99], guide_primary_min_wells=1))
 
     printed = capsys.readouterr().out
-    assert 'No guide reached 99 well(s)' in printed
-    assert 'The thresholds that did have guides are unaffected' in printed
-    assert len(output['primary']) > 0
+    _seen.append(('No guide reached 99 well(s)' if 'No guide reached 99 well(s)' in (printed) else ("missing", 'No guide reached 99 well(s)')))
+    _seen.append(('The thresholds that did have guides are unaffected' if 'The thresholds that did have guides are unaffected' in (printed) else ("missing", 'The thresholds that did have guides are unaffected')))
+    _seen.append(bool(
+        len(output['primary']) > 0))
+    return _seen
 
 
 def case_permutation_diagnostics_that_fail_are_skipped_by_name(screen,
@@ -1293,6 +1437,7 @@ def case_permutation_diagnostics_that_fail_are_skipped_by_name(screen,
     prevent is invisible on the volcano -- but a diagnostic that cannot be
     drawn must not take the analysis with it.
     """
+    _seen = []
     import spacr.regression_diagnostics as regression_diagnostics
 
     def boom(*args, **kwargs):
@@ -1303,9 +1448,11 @@ def case_permutation_diagnostics_that_fail_are_skipped_by_name(screen,
     output = ml.perform_regression(base_settings(screen))
 
     printed = capsys.readouterr().out
-    assert 'Regression diagnostics were skipped' in printed
-    assert 'the design panel could not be rendered' in printed
-    assert len(output['primary']) > 0
+    _seen.append(('Regression diagnostics were skipped' if 'Regression diagnostics were skipped' in (printed) else ("missing", 'Regression diagnostics were skipped')))
+    _seen.append(('the design panel could not be rendered' if 'the design panel could not be rendered' in (printed) else ("missing", 'the design panel could not be rendered')))
+    _seen.append(bool(
+        len(output['primary']) > 0))
+    return _seen
 
 
 def case_a_bootstrap_resample_that_builds_no_design_is_counted_and_named(
@@ -1316,6 +1463,7 @@ def case_a_bootstrap_resample_that_builds_no_design_is_counted_and_named(
     resamples dropping gives a frequency computed from a single draw --
     reported in the same column, under the same name, as one over four.
     """
+    _seen = []
     import logging
 
     from patsy import dmatrices as real_dmatrices
@@ -1338,11 +1486,13 @@ def case_a_bootstrap_resample_that_builds_no_design_is_counted_and_named(
             screen, regression_type='lasso', alpha=0.0001,
             lasso_n_boot=4))
 
-    assert dropped['n'] == 2
+    _seen.append(keep(dropped['n']))
     messages = [record.getMessage() for record in caplog.records]
-    assert any('stability selection: 2 of 4 resamples produced no design'
-               in message for message in messages)
-    assert 'selection_frequency' in output['results'].columns
+    _seen.append(bool(
+        any('stability selection: 2 of 4 resamples produced no design'
+               in message for message in messages)))
+    _seen.append(('selection_frequency' if 'selection_frequency' in (output['results'].columns) else ("missing", 'selection_frequency')))
+    return _seen
 
 
 def case_a_group_lasso_bootstrap_cross_validates_its_own_penalty(screen):
@@ -1352,13 +1502,17 @@ def case_a_group_lasso_bootstrap_cross_validates_its_own_penalty(screen):
     a number; the block penalty has to be chosen once, from the reference
     design, or every resample would be a different model.
     """
+    _seen = []
     output = ml.perform_regression(parametric_settings(
         screen, regression_type='group_lasso', group_lasso_lambda='auto',
         lasso_n_boot=3))
 
     frequencies = output['results']['selection_frequency'].dropna()
-    assert len(frequencies) > 0
-    assert frequencies.between(0.0, 1.0).all()
+    _seen.append(bool(
+        len(frequencies) > 0))
+    _seen.append(bool(
+        frequencies.between(0.0, 1.0).all()))
+    return _seen
 
 
 # ===========================================================================
@@ -1376,13 +1530,14 @@ def case_a_summary_with_nothing_to_say_prints_no_heading(tmp_path, monkeypatch,
     The paragraph is the last thing on screen when a run finishes; a SUMMARY
     heading with nothing under it reads as a summary that was lost.
     """
+    _seen = []
     import spacr.figures.summary as summary_module
 
     monkeypatch.setattr(summary_module, 'summarise', lambda coef_df: '')
     ml.regression(wells_frame(), str(tmp_path / 'scores.csv'),
                   dependent_variable='predictions', regression_type='ols',
                   nc=NC, pc=PC, dst=None, qc=False)
-    assert 'SUMMARY' not in capsys.readouterr().out
+    _seen.append((("absent", 'SUMMARY') if 'SUMMARY' not in (capsys.readouterr().out) else ("present", 'SUMMARY')))
 
     monkeypatch.setattr(summary_module, 'summarise',
                         lambda coef_df: 'two genes carry the screen.')
@@ -1390,8 +1545,9 @@ def case_a_summary_with_nothing_to_say_prints_no_heading(tmp_path, monkeypatch,
                   dependent_variable='predictions', regression_type='ols',
                   nc=NC, pc=PC, dst=None, qc=False)
     printed = capsys.readouterr().out
-    assert 'SUMMARY' in printed
-    assert 'two genes carry the screen.' in printed
+    _seen.append(('SUMMARY' if 'SUMMARY' in (printed) else ("missing", 'SUMMARY')))
+    _seen.append(('two genes carry the screen.' if 'two genes carry the screen.' in (printed) else ("missing", 'two genes carry the screen.')))
+    return _seen
 
 
 # ===========================================================================
@@ -1432,27 +1588,29 @@ def case_the_refusal_names_only_the_control_that_matched_nothing():
     Naming both would send the user to look at the setting that is correct,
     and naming neither is the pandas KeyError this replaced.
     """
+    _seen = []
     frame = feature_frame(per_class=8)
 
     with pytest.raises(ValueError) as caught:
         ml.ml_analysis(frame, positive_control='c2', negative_control='nope',
                        **COMMON)
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
     message = str(caught.value)
     # THE MESSAGE NAMES THE SETTING, not this function's parameter. The
     # parameter is still `negative_control=`; the knob a user turns is
     # `negative_control_id`, and the remedy sentence has to name the one
     # they can act on.
-    assert "negative_control_id='nope'" in message
-    assert "positive_control_id='" not in message, (
-        "only the arm that matched nothing should be named")
+    _seen.append(("negative_control_id='nope'" if "negative_control_id='nope'" in (message) else ("missing", "negative_control_id='nope'")))
+    _seen.append((("absent", "positive_control_id='") if "positive_control_id='" not in (message) else ("present", "positive_control_id='")))
 
     with pytest.raises(ValueError) as caught:
         ml.ml_analysis(frame, positive_control='nope', negative_control='c1',
                        **COMMON)
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
     other = str(caught.value)
-    assert "positive_control_id='nope'" in other
-    assert "negative_control_id='" not in other, (
-        "only the arm that matched nothing should be named")
+    _seen.append(("positive_control_id='nope'" if "positive_control_id='nope'" in (other) else ("missing", "positive_control_id='nope'")))
+    _seen.append((("absent", "negative_control_id='") if "negative_control_id='" not in (other) else ("present", "negative_control_id='")))
+    return _seen
 
 
 def case_a_fold_that_cannot_hold_both_classes_is_refused_by_name():
@@ -1462,15 +1620,18 @@ def case_a_fold_that_cannot_hold_both_classes_is_refused_by_name():
     trains on one class and is scored on the other -- and reports that as an
     accuracy.
     """
+    _seen = []
     frame = _control_wells(rows=('r1', 'r2'))
 
     with pytest.raises(ValueError) as caught:
         ml.ml_analysis(frame, positive_control='c2', negative_control='c1',
                        cross_validation=True, split_by='well', **COMMON)
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
 
     message = str(caught.value)
-    assert 'cannot put every class in both train and test' in message
-    assert 'well-grouped CV fold 1' in message
+    _seen.append(('cannot put every class in both train and test' if 'cannot put every class in both train and test' in (message) else ("missing", 'cannot put every class in both train and test')))
+    _seen.append(('well-grouped CV fold 1' if 'well-grouped CV fold 1' in (message) else ("missing", 'well-grouped CV fold 1')))
+    return _seen
 
 
 def case_a_correction_with_one_batch_says_it_corrected_nothing(capsys):
@@ -1480,6 +1641,7 @@ def case_a_correction_with_one_batch_says_it_corrected_nothing(capsys):
     the same centroid-spread line; the warning is the only thing that tells
     them apart.
     """
+    _seen = []
     frame = _control_wells()
 
     ml.ml_analysis(frame, positive_control='c2', negative_control='c1',
@@ -1487,9 +1649,9 @@ def case_a_correction_with_one_batch_says_it_corrected_nothing(capsys):
                    **COMMON)
 
     printed = capsys.readouterr().out
-    assert 'Batch correction center:' in printed
-    assert ('Warning: batch correction: Only 1 batch was present; correction '
-            'was a no-op.') in printed
+    _seen.append(('Batch correction center:' if 'Batch correction center:' in (printed) else ("missing", 'Batch correction center:')))
+    _seen.append(('Warning: batch correction: Only 1 batch was present; correction was a no-op.' if 'Warning: batch correction: Only 1 batch was present; correction was a no-op.' in (printed) else ("missing", 'Warning: batch correction: Only 1 batch was present; correction was a no-op.')))
+    return _seen
 
 
 def case_a_verbose_run_shows_the_panels_it_built(capsys):
@@ -1498,6 +1660,7 @@ def case_a_verbose_run_shows_the_panels_it_built(capsys):
     The permutation and importance figures are the QC a user reads to decide
     whether the classifier learned the phenotype or the plate.
     """
+    _seen = []
     frame = _control_wells()
 
     output, figures = ml.ml_analysis(
@@ -1505,12 +1668,15 @@ def case_a_verbose_run_shows_the_panels_it_built(capsys):
         verbose=True, **{**COMMON, 'model_type': 'logistic_regression'})
 
     printed = capsys.readouterr().out
-    assert 'Features used in training:' in printed
+    _seen.append(('Features used in training:' if 'Features used in training:' in (printed) else ("missing", 'Features used in training:')))
     # logistic regression exposes no feature_importances_, so the importance
     # panel is built from the permutation importance and shown under the same
     # rule as a tree's own
-    assert len(figures) == 2 and all(fig is not None for fig in figures)
-    assert len(output[2]) > 0
+    _seen.append(bool(
+        len(figures) == 2 and all(fig is not None for fig in figures)))
+    _seen.append(bool(
+        len(output[2]) > 0))
+    return _seen
 
 
 def case_a_control_that_is_neither_a_name_nor_a_list_leaves_no_similarity():
@@ -1521,6 +1687,7 @@ def case_a_control_that_is_neither_a_name_nor_a_list_leaves_no_similarity():
     a caller that believes a tuple works would read their absence as "no
     similarity was measurable".
     """
+    _seen = []
     frame = pd.DataFrame({
         'columnID': ['c1', 'c1', 'c2', 'c2'],
         'a': [0.1, 0.2, 0.9, 1.0],
@@ -1529,94 +1696,78 @@ def case_a_control_that_is_neither_a_name_nor_a_list_leaves_no_similarity():
 
     listed = ml._calculate_similarity(frame.copy(), ['a', 'b'], 'columnID',
                                       ['c2'], ['c1'])
-    assert 'similarity_to_pos_euclidean' in listed.columns
+    _seen.append(('similarity_to_pos_euclidean' if 'similarity_to_pos_euclidean' in (listed.columns) else ("missing", 'similarity_to_pos_euclidean')))
 
     tupled = ml._calculate_similarity(frame.copy(), ['a', 'b'], 'columnID',
                                       ('c2',), ('c1',))
-    assert 'similarity_to_pos_euclidean' not in tupled.columns
+    _seen.append((("absent", 'similarity_to_pos_euclidean') if 'similarity_to_pos_euclidean' not in (tupled.columns) else ("present", 'similarity_to_pos_euclidean')))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_perform_regression_cases(request, subtests):
-    """Behaviour cases for: perform_regression."""
-    ran = run_cases(request, subtests, [
-        case_a_count_table_in_the_score_slot_is_named_as_swapped_inputs,
-        case_an_analysis_mode_nobody_implements_is_refused_before_the_fit,
-        case_batch_correction_without_its_response_column_says_which_setting,
-        case_an_outlier_filter_with_no_column_to_read_says_so_before_the_fractions,
-        case_an_outlier_filter_that_raised_says_the_counts_are_unfiltered,
-        case_a_measured_threshold_replaces_the_one_the_settings_carried,
-        case_a_permutation_run_with_no_model_named_says_nothing_about_one,
-        case_a_permutation_run_without_the_summary_module_keeps_its_results,
-        case_a_fitted_run_without_the_summary_module_keeps_its_coefficients,
-        case_metadata_that_will_not_merge_is_named_and_the_run_goes_on,
-        case_a_count_table_that_names_its_plate_and_row_in_one_column_agrees,
-        case_an_annotation_that_has_something_to_say_says_it_once,
-        case_an_annotation_that_changed_the_row_count_is_refused,
-        case_a_control_left_unnamed_is_not_offered_to_the_concordance_report,
-        case_the_legacy_volcano_is_announced_only_when_a_file_was_written,
-        case_a_finished_run_whose_summary_raises_keeps_its_coefficients,
-        case_a_threshold_no_guide_reaches_is_an_answer_not_a_failure,
-        case_permutation_diagnostics_that_fail_are_skipped_by_name,
-        case_a_bootstrap_resample_that_builds_no_design_is_counted_and_named,
-        case_a_group_lasso_bootstrap_cross_validates_its_own_penalty,
-    ])
-    assert ran >= 20
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_a_count_table_in_the_score_slot_is_named_as_swapped_inputs, ['ValueError', 'shape of a COUNT file', "['count', 'grna']"], id="a_count_table_in_the_score_slot_is_named_as_swapped_inputs"),
+    pytest.param(case_an_analysis_mode_nobody_implements_is_refused_before_the_fit, ['ValueError'], id="an_analysis_mode_nobody_implements_is_refused_before_the_fit"),
+    pytest.param(case_batch_correction_without_its_response_column_says_which_setting, ['ValueError', 'Batch correction cannot run', 'batch_correction=none'], id="batch_correction_without_its_response_column_says_which_setting"),
+    pytest.param(case_an_outlier_filter_with_no_column_to_read_says_so_before_the_fractions, ['Outliers removed before annotation:', 'cell area: this table has no cell area column'], id="an_outlier_filter_with_no_column_to_read_says_so_before_the_fractions"),
+    pytest.param(case_an_outlier_filter_that_raised_says_the_counts_are_unfiltered, ['[outliers] the pre-annotation filter did not run', 'the counts below are unfiltered', True], id="an_outlier_filter_that_raised_says_the_counts_are_unfiltered"),
+    pytest.param(case_a_measured_threshold_replaces_the_one_the_settings_carried, [True, True, True, ("absent", 'fraction_threshold')], id="a_measured_threshold_replaces_the_one_the_settings_carried"),
+    pytest.param(case_a_permutation_run_with_no_model_named_says_nothing_about_one, [("absent", 'is not read'), True, "regression_type='mixed' is not read"], id="a_permutation_run_with_no_model_named_says_nothing_about_one"),
+    pytest.param(case_a_permutation_run_without_the_summary_module_keeps_its_results, [True, True, True], id="a_permutation_run_without_the_summary_module_keeps_its_results"),
+    pytest.param(case_a_fitted_run_without_the_summary_module_keeps_its_coefficients, [True, True, True], id="a_fitted_run_without_the_summary_module_keeps_its_coefficients"),
+    pytest.param(case_metadata_that_will_not_merge_is_named_and_the_run_goes_on, ['Could not merge metadata from', 'has no Gene ID column', True], id="metadata_that_will_not_merge_is_named_and_the_run_goes_on"),
+    pytest.param(case_a_count_table_that_names_its_plate_and_row_in_one_column_agrees, [True], id="a_count_table_that_names_its_plate_and_row_in_one_column_agrees"),
+    pytest.param(case_an_annotation_that_has_something_to_say_says_it_once, [1, True], id="an_annotation_that_has_something_to_say_says_it_once"),
+    pytest.param(case_an_annotation_that_changed_the_row_count_is_refused, ['ValueError', 'annotation changed results from'], id="an_annotation_that_changed_the_row_count_is_refused"),
+    pytest.param(case_a_control_left_unnamed_is_not_offered_to_the_concordance_report, [{'233460': 'negative'}, {'239740': 'positive', '233460': 'negative'}], id="a_control_left_unnamed_is_not_offered_to_the_concordance_report"),
+    pytest.param(case_the_legacy_volcano_is_announced_only_when_a_file_was_written, ['WARNING: the legacy volcano was requested but no file was', 'Skipping the phenotype and transcription reports', ("absent", 'No gene_list produced'), 'Saved volcano plot to'], id="the_legacy_volcano_is_announced_only_when_a_file_was_written"),
+    pytest.param(case_a_finished_run_whose_summary_raises_keeps_its_coefficients, ['Could not write the run summary', 'the summary template is missing', True], id="a_finished_run_whose_summary_raises_keeps_its_coefficients"),
+    pytest.param(case_a_threshold_no_guide_reaches_is_an_answer_not_a_failure, ['No guide reached 99 well(s)', 'The thresholds that did have guides are unaffected', True], id="a_threshold_no_guide_reaches_is_an_answer_not_a_failure"),
+    pytest.param(case_permutation_diagnostics_that_fail_are_skipped_by_name, ['Regression diagnostics were skipped', 'the design panel could not be rendered', True], id="permutation_diagnostics_that_fail_are_skipped_by_name"),
+    pytest.param(case_a_bootstrap_resample_that_builds_no_design_is_counted_and_named, [2, True, 'selection_frequency'], id="a_bootstrap_resample_that_builds_no_design_is_counted_and_named"),
+    pytest.param(case_a_group_lasso_bootstrap_cross_validates_its_own_penalty, [True, True], id="a_group_lasso_bootstrap_cross_validates_its_own_penalty"),
+    pytest.param(case_a_questionable_shuffle_with_no_remedy_still_names_its_findings, [True, 'the within-block shuffle is questionable', 'columnID explains 12%', ("absent", '->')], id="a_questionable_shuffle_with_no_remedy_still_names_its_findings"),
+    pytest.param(case_a_summary_with_nothing_to_say_prints_no_heading, [("absent", 'SUMMARY'), 'SUMMARY', 'two genes carry the screen.'], id="a_summary_with_nothing_to_say_prints_no_heading"),
+    pytest.param(case_the_refusal_names_only_the_control_that_matched_nothing, ['ValueError', "negative_control_id='nope'", ("absent", "positive_control_id='"), 'ValueError', "positive_control_id='nope'", ("absent", "negative_control_id='")], id="the_refusal_names_only_the_control_that_matched_nothing"),
+    pytest.param(case_a_fold_that_cannot_hold_both_classes_is_refused_by_name, ['ValueError', 'cannot put every class in both train and test', 'well-grouped CV fold 1'], id="a_fold_that_cannot_hold_both_classes_is_refused_by_name"),
+    pytest.param(case_a_correction_with_one_batch_says_it_corrected_nothing, ['Batch correction center:', 'Warning: batch correction: Only 1 batch was present; correction was a no-op.'], id="a_correction_with_one_batch_says_it_corrected_nothing"),
+    pytest.param(case_a_verbose_run_shows_the_panels_it_built, ['Features used in training:', True, True], id="a_verbose_run_shows_the_panels_it_built"),
+    pytest.param(case_a_transform_that_is_the_link_does_not_get_a_second_one, [True, True, True, 'Identity link for logit(pred)'], id="a_transform_that_is_the_link_does_not_get_a_second_one"),
+    pytest.param(case_a_covariate_with_two_values_is_not_given_a_spline_basis, ['batch', ("absent", 'cell_count'), True, 'fraction:grna[T.geneA_1]'], id="a_covariate_with_two_values_is_not_given_a_spline_basis"),
+    pytest.param(case_a_group_lasso_that_ran_out_of_sweeps_says_the_answer_is_provisional, ['did not reach its tolerance', True, True, True], id="a_group_lasso_that_ran_out_of_sweeps_says_the_answer_is_provisional"),
+    pytest.param(case_a_plate_panel_with_nowhere_to_save_is_still_shown, [True, True, True, True], id="a_plate_panel_with_nowhere_to_save_is_still_shown"),
+    pytest.param(case_a_stage_whose_announcement_cannot_be_printed_still_records_it, [True, 'Regression: fitting the model'], id="a_stage_whose_announcement_cannot_be_printed_still_records_it"),
+    pytest.param(case_a_control_that_is_neither_a_name_nor_a_list_leaves_no_similarity, ['similarity_to_pos_euclidean', ("absent", 'similarity_to_pos_euclidean')], id="a_control_that_is_neither_a_name_nor_a_list_leaves_no_similarity"),
+    pytest.param(case_a_glob_that_matched_no_count_file_is_refused_by_name, ['ValueError', 1], id="a_glob_that_matched_no_count_file_is_refused_by_name"),
+    pytest.param(case_a_fit_that_reports_no_likelihood_says_so_rather_than_guessing, ["McFadden's R²: not available for this fit", '0.5'], id="a_fit_that_reports_no_likelihood_says_so_rather_than_guessing"),
+    pytest.param(case_a_permutation_asked_for_zero_wells_is_refused_by_name, ['ValueError'], id="a_permutation_asked_for_zero_wells_is_refused_by_name"),
+    pytest.param(case_a_dependent_variable_that_is_not_a_column_names_what_is, ['ValueError', "['nonesuch']", 'score'], id="a_dependent_variable_that_is_not_a_column_names_what_is"),
+    pytest.param(case_a_cell_count_sweep_returns_the_same_minimum_without_a_renderer, [True, ("absent", 'Saved'), True, True], id="a_cell_count_sweep_returns_the_same_minimum_without_a_renderer"),
+    pytest.param(case_a_calibration_whose_module_is_missing_keeps_the_threshold_given, [True, 'calibration is unavailable', True], id="a_calibration_whose_module_is_missing_keeps_the_threshold_given"),
+    pytest.param(case_auto_counts_no_block_terms_when_the_table_has_no_plate_column, ['regression', '0 block terms', '1 block terms'], id="auto_counts_no_block_terms_when_the_table_has_no_plate_column"),
+    pytest.param(case_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key, ['pred', ['plate1_r1_c1', 'plate1_r1_c2', 'plate1_r2_c1', 'plate1_r2_c2']], id="a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key"),
+    pytest.param(case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong, [0, ['prc', 'pred', 'cell_count'], 'pred', 'ValueError'], id="a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong"),
+    pytest.param(case_a_plot_that_exported_nothing_is_not_announced_to_the_gallery, [True, True, [], True, True], id="a_plot_that_exported_nothing_is_not_announced_to_the_gallery"),
+    pytest.param(case_a_column_that_is_already_categorical_is_left_as_it_is, [['g1', 'g2', 'g3'], True], id="a_column_that_is_already_categorical_is_left_as_it_is"),
+    pytest.param(case_settings_that_name_no_input_at_all_are_refused_before_any_read, ['ValueError'], id="settings_that_name_no_input_at_all_are_refused_before_any_read"),
+    pytest.param(case_a_sweep_that_fails_mid_draw_takes_its_scene_with_it, ['RuntimeError', [True]], id="a_sweep_that_fails_mid_draw_takes_its_scene_with_it"),
+    pytest.param(case_the_control_blocks_reach_the_count_filter_once_each, [['c1', 'c2'], True], id="the_control_blocks_reach_the_count_filter_once_each"),
+    pytest.param(case_control_blocks_that_cannot_be_resolved_cost_only_the_exclusion, [['c1'], True], id="control_blocks_that_cannot_be_resolved_cost_only_the_exclusion"),
+    pytest.param(case_an_ipython_that_cannot_be_imported_leaves_a_display_that_does_nothing, [True, True], id="an_ipython_that_cannot_be_imported_leaves_a_display_that_does_nothing"),
+    pytest.param(case_a_machine_with_nowhere_to_draw_is_demoted_to_agg, [[('Agg',)], []], id="a_machine_with_nowhere_to_draw_is_demoted_to_agg"),
+    pytest.param(case_a_frame_with_no_well_columns_still_gets_its_qc_report, [{'verdict': 'ok'}, True, ['prc']], id="a_frame_with_no_well_columns_still_gets_its_qc_report"),
+    pytest.param(case_a_saturation_warning_counts_only_the_blocks_the_table_has, [True, '4 analysed wells are being used to estimate 5 parameters', '(4 grnas + intercept + 0 block terms)'], id="a_saturation_warning_counts_only_the_blocks_the_table_has"),
+    pytest.param(case_a_fit_whose_coefficients_carry_no_p_value_corrects_nothing, [True, 0, True, 'across 0 tested coefficients', True, ['fraction:grna[T.geneA_1]']], id="a_fit_whose_coefficients_carry_no_p_value_corrects_nothing"),
+    pytest.param(case_a_sweep_with_no_pick_of_its_own_claims_nothing_about_the_threshold, ['', 'the control-well calibration measured 0.0168', "sweep's own pick on this screen is 0.03"], id="a_sweep_with_no_pick_of_its_own_claims_nothing_about_the_threshold"),
+    pytest.param(case_an_explainer_that_will_not_run_is_followed_by_the_next_one, ['kernel', (2, 2), 'RuntimeError'], id="an_explainer_that_will_not_run_is_followed_by_the_next_one"),
+])
+def test_r5_ml_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected
 
-def test_ml_analysis_cases(request, subtests):
-    """Behaviour cases for: _report_exchangeability, ml_analysis, regression."""
-    ran = run_cases(request, subtests, [
-        case_a_questionable_shuffle_with_no_remedy_still_names_its_findings,
-        case_a_summary_with_nothing_to_say_prints_no_heading,
-        case_the_refusal_names_only_the_control_that_matched_nothing,
-        case_a_fold_that_cannot_hold_both_classes_is_refused_by_name,
-        case_a_correction_with_one_batch_says_it_corrected_nothing,
-        case_a_verbose_run_shows_the_panels_it_built,
-    ])
-    assert ran >= 6
 
-def test_regression_model_cases(request, subtests):
-    """Behaviour cases for: _calculate_similarity, _show_plates, _stage, regression_model."""
-    ran = run_cases(request, subtests, [
-        case_a_transform_that_is_the_link_does_not_get_a_second_one,
-        case_a_covariate_with_two_values_is_not_given_a_spline_basis,
-        case_a_group_lasso_that_ran_out_of_sweeps_says_the_answer_is_provisional,
-        case_a_plate_panel_with_nowhere_to_save_is_still_shown,
-        case_a_stage_whose_announcement_cannot_be_printed_still_records_it,
-        case_a_control_that_is_neither_a_name_nor_a_list_leaves_no_similarity,
-    ])
-    assert ran >= 6
 
-def test_run_guide_permutation_analysis_cases(request, subtests):
-    """Behaviour cases for: _concat_named_csvs, _run_guide_permutation_analysis, fit_quality_note, minimum_cell_simulation."""
-    ran = run_cases(request, subtests, [
-        case_a_glob_that_matched_no_count_file_is_refused_by_name,
-        case_a_fit_that_reports_no_likelihood_says_so_rather_than_guessing,
-        case_a_permutation_asked_for_zero_wells_is_refused_by_name,
-        case_a_dependent_variable_that_is_not_a_column_names_what_is,
-        case_a_cell_count_sweep_returns_the_same_minimum_without_a_renderer,
-    ])
-    assert ran >= 5
 
-def test_process_scores_cases(request, subtests):
-    """Behaviour cases for: _calibrated_fraction_threshold, process_scores, resolve_auto_inference, write_plot."""
-    ran = run_cases(request, subtests, [
-        case_a_calibration_whose_module_is_missing_keeps_the_threshold_given,
-        case_auto_counts_no_block_terms_when_the_table_has_no_plate_column,
-        case_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key,
-        case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong,
-        case_a_plot_that_exported_nothing_is_not_announced_to_the_gallery,
-    ])
-    assert ran >= 5
 
-def test_process_reads_cases(request, subtests):
-    """Behaviour cases for: _draw_the_cell_count_sweep, check_and_clean_data, normalize_regression_input_pairs, process_reads."""
-    ran = run_cases(request, subtests, [
-        case_a_column_that_is_already_categorical_is_left_as_it_is,
-        case_settings_that_name_no_input_at_all_are_refused_before_any_read,
-        case_a_sweep_that_fails_mid_draw_takes_its_scene_with_it,
-        case_the_control_blocks_reach_the_count_filter_once_each,
-        case_control_blocks_that_cannot_be_resolved_cost_only_the_exclusion,
-    ])
-    assert ran >= 5

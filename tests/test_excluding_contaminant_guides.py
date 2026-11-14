@@ -191,14 +191,18 @@ class TestAMisspelledExclusionIsLoud:
     which is how a known contaminant survives the filter meant to remove
     it."""
 
-    def test_it_is_named_in_the_notes(self, screen):
+    @pytest.mark.parametrize("excluded, fragments", [
+        (["TGGT1_NOT_HERE"], ("match nothing", "TGGT1_NOT_HERE")),
+        (["TGGT1_220950_1", "TGGT1_NOT_HERE"],
+         ("excluded 1 guide", "match nothing")),
+    ], ids=["named_in_the_notes", "reported_alongside_what_did_match"])
+    def test_it_is_named_in_the_notes(self, screen, excluded, fragments):
         objects, counts = screen
         plan = select_montage(objects, counts, "TGGT1_233460_4", 1.0,
-                              score_column="pred",
-                              exclude_grnas=["TGGT1_NOT_HERE"])
+                              score_column="pred", exclude_grnas=excluded)
         said = _note(plan)
-        assert "match nothing" in said
-        assert "TGGT1_NOT_HERE" in said
+        for fragment in fragments:
+            assert fragment in said
 
     def test_and_nothing_is_removed(self, screen):
         objects, counts = screen
@@ -208,16 +212,6 @@ class TestAMisspelledExclusionIsLoud:
                                 score_column="pred",
                                 exclude_grnas=["TGGT1_NOT_HERE"])
         assert _cells(missed) == _cells(plain)
-
-    def test_unmatched_is_reported_alongside_what_did_match(self, screen):
-        objects, counts = screen
-        plan = select_montage(
-            objects, counts, "TGGT1_233460_4", 1.0, score_column="pred",
-            exclude_grnas=["TGGT1_220950_1", "TGGT1_NOT_HERE"])
-        said = _note(plan)
-        assert "excluded 1 guide" in said
-        assert "match nothing" in said
-
 
 class TestItIsAControlSetting:
 

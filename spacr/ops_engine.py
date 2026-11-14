@@ -707,7 +707,10 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
     :param well: the well name.
     :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
     :param reference: the cycle carrying the nuclear stain.
-    :param settings: read for ``ops_raster_overlap``.
+    :param settings: read for ``ops_raster_overlap``,
+        ``ops_registration_precision``, ``ops_stitch_read_threads``,
+        ``ops_stitch_edge_workers``, ``ops_placement_seed`` and
+        ``ops_placement_seed_export``.
     :param gpu: let the registration use the card.
     :returns: the stitch report.
     """
@@ -723,17 +726,39 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
                for site, files in cycle_files[reference].items()}
     sites = sorted(site for site, source in sources.items() if source)
     unreadable: list = []
-    read = functools.lru_cache(maxsize=64)(
-        lambda site: _read_plane(sources[site], unreadable))
-    first = next((site for site in sites if read(site) is not None), None)
-    if first is None:
-        raise ValueError(f"no nuclear tile of well {well} could be read")
-    ordered = [first] + [site for site in sites if site != first]
-    layout = round_well_layout(max(cycle_files[reference]) + 1)
     overlap = _setting_number(settings.get("ops_raster_overlap"),
                               "ops_raster_overlap", _RASTER_OVERLAP)
-    result = stitch_well(read, layout, overlap=overlap,
-                         tolerance=_STITCH_TOLERANCE, gpu=gpu, sites=ordered)
+    precision = _registration_choice(settings.get("ops_registration_precision"),
+                                     "ops_registration_precision")
+    if settings.get("ops_placement_seed"):
+        return _stitch_seeded(db, plate, well, cycle_files, reference,
+                              settings, gpu, sources, sites, overlap,
+                              precision, started)
+    probe = functools.partial(_nuclear_plane, sources, [])
+    if next((site for site in sites if probe(site) is not None), None) is None:
+        raise ValueError(f"no nuclear tile of well {well} could be read")
+    layout = round_well_layout(max(cycle_files[reference]) + 1)
+    threads = int(_setting_number(settings.get("ops_stitch_read_threads"),
+                                  "ops_stitch_read_threads",
+                                  _STITCH_READ_THREADS))
+    workers = max(1, int(_setting_number(settings.get("ops_stitch_edge_workers"),
+                                         "ops_stitch_edge_workers", 1)))
+    plane = functools.partial(_nuclear_plane, sources, unreadable)
+    reader = (_TileReadAhead(plane, _first_use_order(layout, sites), threads)
+              if threads > 1 else None)
+    read = reader.get if reader is not None else functools.lru_cache(
+        maxsize=64)(plane)
+    try:
+        first = next((site for site in sites if read(site) is not None), None)
+        if first is None:
+            raise ValueError(f"no nuclear tile of well {well} could be read")
+        ordered = [first] + [site for site in sites if site != first]
+        result = stitch_well(read, layout, overlap=overlap,
+                             tolerance=_STITCH_TOLERANCE, gpu=gpu, sites=ordered,
+                             edge_workers=workers, precision=precision)
+    finally:
+        if reader is not None:
+            reader.close()
     placed = _largest_component(result.edges, sites)
     origin_y = min(result.placements[site][0] for site in placed)
     origin_x = min(result.placements[site][1] for site in placed)
@@ -755,10 +780,488 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
         "canvas": list(result.canvas), "expected_canvas": list(result.expected_canvas),
         "canvas_agrees": bool(result.canvas_agrees()), "raster_overlap": overlap,
         "unreadable": unreadable, "seconds": round(time.perf_counter() - started, 1),
+        "placement": "solved", "registration_precision": precision,
+        "read_threads": threads, "edge_workers": workers,
     }
+    if bool(settings.get("ops_placement_seed_export", True)):
+        rows = {site: (result.placements[site][0] - origin_y,
+                       result.placements[site][1] - origin_x) for site in placed}
+        report["placement_seed_file"] = _export_placement_seed(
+            db, plate, well, reference, rows, (height, width),
+            (origin_y, origin_x), sources, layout.site_count, overlap)
     _say(f"{well} stitch: {result.summary()}; {len(placed)} of {len(sites)} "
          f"in the solved component, {report['seconds']} s")
     return report
+
+
+#: How many threads read the nuclear tiles of a well for the stitch
+#: (``ops_stitch_read_threads``, item 936). On well A1 of Funk et al. 2022
+#: plates A and B, four reader threads halved the stitch step's wall time
+#: (234-237 s to 114-132 s, tiles on network storage) for about 25-35 extra
+#: CPU s per well, with ``ops_geometry`` bit-identical.
+_STITCH_READ_THREADS = 4
+
+
+def _nuclear_plane(sources: Mapping[int, Any], unreadable: list,
+                   site: int) -> Optional[np.ndarray]:
+    """One site's nuclear plane, or None, recording a failure.
+
+    :param sources: ``site -> (path, plane)``.
+    :param unreadable: where a failure is recorded.
+    :param site: the site.
+    :returns: the plane as float32, or None.
+    """
+    return _read_plane(sources[site], unreadable)
+
+
+def _first_use_order(layout, sites: Sequence[int]) -> List[int]:
+    """The order the stitch first asks for each site.
+
+    :param layout: the well layout.
+    :param sites: the sites with a nuclear plane.
+    :returns: the sites in the order the layout's pairs first use them,
+        then any site no pair uses.
+    """
+    known = set(sites)
+    order: List[int] = []
+    seen = set()
+    for a, b, _axis in layout.pairs():
+        for site in (a, b):
+            if site in known and site not in seen:
+                seen.add(site)
+                order.append(site)
+    order.extend(site for site in sites if site not in seen)
+    return order
+
+
+class _TileReadAhead:
+    """Read a well's tiles ahead of the stitch on a few threads (item 936).
+
+    The stitch asks for tiles in the order its pairs use them, and each read
+    from network storage mostly waits. This reads the next tiles of that
+    order on ``threads`` threads while the stitch registers the current
+    ones, keeps the 64 most recently used, and gives back exactly what one
+    sequential read would: a tile asked for out of order, or after it was
+    dropped, is read on the spot. The reads are I/O, so the threads start
+    together rather than ten seconds apart like spaCR's processing pools.
+
+    :param read: ``site -> plane``.
+    :param order: the sites in the order they will be asked for.
+    :param threads: how many reader threads.
+    :param keep: how many read tiles to keep.
+    """
+
+    def __init__(self, read, order: Sequence[int], threads: int,
+                 keep: int = 64):
+        """Start the reader threads.
+
+        :param read: ``site -> plane``.
+        :param order: the expected order of requests.
+        :param threads: reader threads.
+        :param keep: tiles kept after use.
+        """
+        from collections import OrderedDict
+        from concurrent.futures import ThreadPoolExecutor as _ReaderThreads
+
+        self._read = read
+        self._order = list(order)
+        self._next = 0
+        self._ahead = 4 * int(threads)
+        self._futures: Dict[int, Any] = {}
+        self._kept: "OrderedDict[int, Any]" = OrderedDict()
+        self._keep = int(keep)
+        self._pool = _ReaderThreads(max_workers=int(threads),
+                                    thread_name_prefix="ops-stitch-read")
+        self._top_up()
+
+    def _top_up(self) -> None:
+        """Queue reads until ``4 x threads`` are waiting to be used."""
+        while len(self._futures) < self._ahead and self._next < len(self._order):
+            site = self._order[self._next]
+            self._next += 1
+            if site not in self._kept and site not in self._futures:
+                self._futures[site] = self._pool.submit(self._read, site)
+
+    def get(self, site: int):
+        """The plane of ``site``, as the sequential read gives it.
+
+        :param site: the site.
+        :returns: the plane, or None for an unreadable tile.
+        """
+        if site in self._kept:
+            self._kept.move_to_end(site)
+            return self._kept[site]
+        future = self._futures.pop(site, None)
+        value = future.result() if future is not None else self._read(site)
+        self._kept[site] = value
+        while len(self._kept) > self._keep:
+            self._kept.popitem(last=False)
+        self._top_up()
+        return value
+
+    def close(self) -> None:
+        """Stop the threads and drop every queued read."""
+        for future in self._futures.values():
+            future.cancel()
+        self._futures.clear()
+        self._kept.clear()
+        self._pool.shutdown(wait=True)
+
+
+def _compose_canvas(placements: Mapping[int, Tuple[float, float]],
+                    shape: Tuple[int, int]) -> Tuple[int, int]:
+    """The canvas the objects phase composes a well on.
+
+    :param placements: ``site -> (y, x)`` in well pixels.
+    :param shape: the tile ``(height, width)``.
+    :returns: ``(height, width)``: the furthest tile corner, rounded up.
+    """
+    return (int(np.ceil(max(y for y, _ in placements.values()))) + shape[0],
+            int(np.ceil(max(x for _, x in placements.values()))) + shape[1])
+
+
+def _plane_record(source: Optional[Tuple[str, Optional[int]]]):
+    """``(file name, byte size)`` of a plane's file, never its pixels.
+
+    :param source: ``(path, plane)``.
+    :returns: the pair, or None when the file cannot be listed.
+    """
+    if not source:
+        return None
+    try:
+        return os.path.basename(source[0]), int(os.path.getsize(source[0]))
+    except OSError:
+        return None
+
+
+def _plane_dtype(source: Optional[Tuple[str, Optional[int]]]) -> Optional[str]:
+    """The pixel type a plane's file stores, read from its header.
+
+    :param source: ``(path, plane)``.
+    :returns: the dtype name, or None when the header cannot be read.
+    """
+    if not source:
+        return None
+    try:
+        import tifffile
+
+        with tifffile.TiffFile(source[0]) as handle:
+            return str(handle.series[0].dtype)
+    except Exception:                                    # noqa: BLE001
+        return None
+
+
+def _seed_settings_hash(overlap: int) -> str:
+    """The hash of the settings that decide a well's placement.
+
+    :param overlap: the raster overlap the stitch used.
+    :returns: a sha256 hex digest.
+    """
+    import hashlib
+
+    text = json.dumps({"ops_raster_overlap": int(overlap),
+                       "tolerance": _STITCH_TOLERANCE}, sort_keys=True)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _tile_records(sources: Mapping[int, Any],
+                  sites) -> Dict[int, Tuple[str, int]]:
+    """``site -> (file name, byte size)`` for the sites whose file is listed.
+
+    :param sources: ``site -> (path, plane)``.
+    :param sites: the sites.
+    :returns: the records.
+    """
+    found = {}
+    for site in sites:
+        record = _plane_record(sources.get(site))
+        if record is not None:
+            found[site] = record
+    return found
+
+
+def _export_placement_seed(db: str, plate: str, well: str, reference: int,
+                           placements: Mapping[int, Tuple[float, float]],
+                           shape: Tuple[int, int], origin: Tuple[float, float],
+                           sources: Mapping[int, Any], n_tiles: int,
+                           overlap: int) -> Optional[str]:
+    """Write the well's placement file after a solved stitch (item 940).
+
+    ``<plate>_<well>.ops_placement.json`` in the well's folder beside the
+    database: the ``ops_geometry`` rows just written, with the provenance a
+    later subset run checks (:func:`spacr.stitch_core.validate_placement_seed`).
+    A file that cannot be written is logged, not raised: the stitch itself
+    succeeded.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param reference: the reference cycle.
+    :param placements: ``site -> (y, x)`` as stored.
+    :param shape: the tile ``(height, width)``.
+    :param origin: ``(origin_y, origin_x)`` as stored.
+    :param sources: ``site -> (path, plane)`` of the nuclear planes.
+    :param n_tiles: the layout's tile count.
+    :param overlap: the raster overlap the stitch used.
+    :returns: the path written, or None.
+    """
+    from .stitch_core import write_placement_seed
+
+    folder = os.path.join(os.path.dirname(os.path.abspath(db)), str(well))
+    path = os.path.join(folder, f"{plate}_{well}.ops_placement.json")
+    try:
+        return write_placement_seed(
+            path, plate=plate, well=well, placements=placements,
+            tile_shape=shape, origin=origin,
+            canvas=_compose_canvas(placements, shape), acquisition="sbs",
+            cycle=int(reference),
+            dtype=_plane_dtype(sources.get(min(placements))),
+            n_tiles_in_well=int(n_tiles), raster_overlap=int(overlap),
+            tile_files=_tile_records(sources, placements),
+            settings_hash=_seed_settings_hash(overlap))
+    except (OSError, ValueError) as failure:
+        LOG.warning("the placement file of well %s could not be written: %s",
+                    well, failure)
+        return None
+
+
+def _load_seed_setting(value: Any, plate: str, well: str):
+    """The placement seed ``ops_placement_seed`` names, read and checked.
+
+    :param value: a ``.ops_placement.json`` file, a folder holding
+        ``<plate>_<well>.ops_placement.json``, or a ``measurements.db``
+        whose ``ops_geometry`` rows are taken
+        (:func:`spacr.stitch_core.ops_seed_from_db`).
+    :param plate: the plate name.
+    :param well: the well name.
+    :returns: the seed from :func:`spacr.stitch_core.load_placement_seed`.
+    """
+    from .stitch_core import load_placement_seed, ops_seed_from_db
+
+    path = os.fspath(value)
+    if os.path.isdir(path):
+        path = os.path.join(path, f"{plate}_{well}.ops_placement.json")
+    if path.lower().endswith(".db"):
+        return load_placement_seed(ops_seed_from_db(path, plate, well))
+    return load_placement_seed(path)
+
+
+def _seed_pixel_check(seed: Mapping[str, Any], positions, sources, sites,
+                      layout, overlap: int, precision: str, gpu: bool,
+                      well: str, tolerance: float,
+                      unreadable: list) -> Dict[str, Any]:
+    """Re-register up to six seam pairs and compare them with the seed.
+
+    :param seed: the loaded seed.
+    :param positions: ``site -> (y, x)`` from the seed.
+    :param sources: ``site -> (path, plane)``.
+    :param sites: the sites of this run.
+    :param layout: the well layout.
+    :param overlap: the raster overlap.
+    :param precision: the registration precision.
+    :param gpu: let the registration use the card.
+    :param well: the well name, for the message.
+    :param tolerance: the largest accepted disagreement in pixels.
+    :param unreadable: where unreadable planes are recorded.
+    :returns: the pairs compared and the outcome.
+    :raises ValueError: naming the pair and both offsets, when one
+        disagrees by more than ``tolerance``.
+    """
+    from .ops_register import register_edge
+    from .qt.i18n import tr
+
+    known = set(sites)
+    pairs = [(a, b, axis) for a, b, axis in layout.pairs()
+             if a in known and b in known][:6]
+    compared = []
+    for a, b, axis in pairs:
+        tile_a = _read_plane(sources[a], unreadable)
+        tile_b = _read_plane(sources[b], unreadable)
+        if tile_a is None or tile_b is None:
+            continue
+        found = register_edge(tile_a, tile_b, axis, expected_overlap=overlap,
+                              tolerance=_STITCH_TOLERANCE, gpu=gpu,
+                              precision=precision)
+        if not found.accepted:
+            continue
+        stored = (positions[b][0] - positions[a][0],
+                  positions[b][1] - positions[a][1])
+        gap = float(np.hypot(stored[0] - found.dy, stored[1] - found.dx))
+        compared.append({"pair": [a, b], "file": list(stored),
+                         "measured": [found.dy, found.dx], "px": gap})
+        if gap > tolerance:
+            raise ValueError(tr(
+                "placement file {path}: sites {a} and {b} of well {well} are "
+                "{stored} apart in the file but {measured} in the tiles, "
+                "{gap} px more than ops_placement_seed_tolerance {tolerance}",
+                path=seed.get("path"), a=a, b=b, well=well,
+                stored=[round(v, 2) for v in stored],
+                measured=[found.dy, found.dx], gap=round(gap, 2),
+                tolerance=tolerance))
+    return {"asked": True, "pairs": compared, "tolerance_px": tolerance,
+            "passed": True}
+
+
+def _stitch_seeded(db: str, plate: str, well: str, cycle_files, reference: int,
+                   settings: Mapping[str, Any], gpu: bool, sources, sites,
+                   overlap: int, precision: str,
+                   started: float) -> Dict[str, Any]:
+    """Place the well's tiles from a placement seed instead of solving (item 940).
+
+    The seed's positions are written to ``ops_geometry`` in the seed's
+    whole-well frame -- its origin, not one re-zeroed to this run's tiles --
+    for the sites of this run, so the objects phase composes each window
+    the full run composed from the same tiles, at the same places. No pair
+    is registered and nothing is solved, and the largest-component rule is
+    not applied: the file defines the placement. With
+    ``ops_placement_seed_check_pixels`` up to six seam pairs are registered
+    and compared with the file, within ``ops_placement_seed_tolerance``
+    pixels; the positions are never changed.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param cycle_files: ``cycle -> site -> channel -> path``.
+    :param reference: the reference cycle.
+    :param settings: read for the ``ops_placement_seed*`` keys.
+    :param gpu: let the optional pixel check use the card.
+    :param sources: ``site -> (path, plane)`` of the nuclear planes.
+    :param sites: the sites with a nuclear plane.
+    :param overlap: the raster overlap.
+    :param precision: the registration precision of the pixel check.
+    :param started: when the phase started.
+    :returns: the stitch report, marked ``placement: seeded``. The well's
+        layout is the seed's (``n_tiles_in_well``), not one fitted to this
+        run's highest site, which a subset need not hold; under 'subset' the
+        run's highest site must lie inside it, under 'strict' the counts
+        must agree.
+    :raises ValueError: when the seed does not belong to this run, or the
+        pixel check disagrees.
+    """
+    import pandas as pd
+
+    from .stitch_core import seed_to_placements, validate_placement_seed
+
+    from .ops_layout import round_well_layout
+
+    seed = _load_seed_setting(settings.get("ops_placement_seed"), plate, well)
+    mode = str(settings.get("ops_placement_seed_mode") or "subset").strip().lower()
+    unreadable: list = []
+    count = max(cycle_files[reference]) + 1
+    first, plane = None, None
+    for site in sites:
+        plane = _read_plane(sources[site], unreadable)
+        if plane is not None:
+            first = site
+            break
+    if first is None:
+        raise ValueError(f"no nuclear tile of well {well} could be read")
+    shape = (int(plane.shape[0]), int(plane.shape[1]))
+    warnings = validate_placement_seed(
+        seed, plate=plate, well=well, sites=sites, mode=mode,
+        n_tiles_in_well=count, tile_shape=shape,
+        dtype=_plane_dtype(sources.get(first)), acquisition="sbs",
+        cycle=reference, tile_files=_tile_records(sources, sites))
+    positions = seed_to_placements(seed, sites)
+    check: Dict[str, Any] = {"asked": False}
+    if bool(settings.get("ops_placement_seed_check_pixels", False)):
+        layout = round_well_layout(int(seed.get("n_tiles_in_well") or count))
+        check = _seed_pixel_check(
+            seed, positions, sources, sites, layout, overlap, precision, gpu,
+            well, float(_setting_number(
+                settings.get("ops_placement_seed_tolerance"),
+                "ops_placement_seed_tolerance", 2.0)), unreadable)
+    origin_y, origin_x = (float(v) for v in seed["origin"])
+    frame = pd.DataFrame([{
+        "plate": plate, "well": well, "cycle": reference, "site": site,
+        "y": positions[site][0], "x": positions[site][1],
+        "origin_y": origin_y, "origin_x": origin_x,
+        "tile_height": shape[0], "tile_width": shape[1],
+    } for site in sorted(positions)])
+    _replace_well_rows(db, "ops_geometry", frame, plate, well)
+    listed = {int(tile["site"]) for tile in seed["tiles"]}
+    report = {
+        "placement": "seeded", "sites": len(sites), "placed": len(positions),
+        "edges_proposed": None, "edges_accepted": None,
+        "canvas": list(seed["canvas"]), "raster_overlap": overlap,
+        "placement_seed": {
+            "path": seed.get("path"), "sha256": seed.get("sha256"),
+            "schema_version": seed.get("schema_version"), "mode": mode,
+            "tiles_used": len(positions), "tiles_in_file": len(listed),
+            "provenance": seed.get("provenance"), "check": check,
+            "warnings": warnings,
+        },
+        "unreadable": unreadable,
+        "seconds": round(time.perf_counter() - started, 1),
+    }
+    _say(f"{well} stitch: {len(positions)} of {len(listed)} tiles placed from "
+         f"the placement file {seed.get('path')}, nothing solved, "
+         f"{report['seconds']} s")
+    return report
+
+
+def _seeded_compose(settings: Mapping[str, Any], plate: str, well: str,
+                    usable: Mapping[int, Tuple[float, float]],
+                    shape: Tuple[int, int]):
+    """The seed's canvas and the tiles it lists that this run does not use.
+
+    :param settings: read for ``ops_placement_seed``.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param usable: ``site -> (y, x)`` of the tiles this run composes.
+    :param shape: the tile ``(height, width)``.
+    :returns: ``(canvas, unlisted)`` -- the seed's canvas and ``site -> (y,
+        x)`` of the seed's other tiles -- or None without a seed.
+    """
+    from .stitch_core import seed_to_placements
+
+    if not settings.get("ops_placement_seed"):
+        return None
+    seed = _load_seed_setting(settings.get("ops_placement_seed"), plate, well)
+    others = {site: place for site, place in seed_to_placements(seed).items()
+              if site not in usable}
+    return (int(seed["canvas"][0]), int(seed["canvas"][1])), others
+
+
+def _partial_windows(windows, usable: Mapping[int, Tuple[float, float]],
+                     others: Mapping[int, Tuple[float, float]],
+                     shape: Tuple[int, int]) -> List[List[int]]:
+    """Windows a seeded run composes that an unlisted tile also covers.
+
+    A window's pixels depend on every tile that covers it, so a window
+    covered by this run's tiles and by a tile the seed lists but this run
+    does not use differs from the full run where that tile contributed. These
+    windows are composed and reported (item 940), and are left out of
+    identity checks.
+
+    :param windows: the windows of the run.
+    :param usable: ``site -> (y, x)`` of the tiles this run composes.
+    :param others: ``site -> (y, x)`` of the seed's other tiles.
+    :param shape: the tile ``(height, width)``.
+    :returns: ``[top, left]`` of each such window.
+    """
+    found = []
+    for window in windows:
+        if _touches(window, others, shape) and _touches(window, usable, shape):
+            found.append([int(window.top), int(window.left)])
+    return found
+
+
+def _touches(window, placements: Mapping[int, Tuple[float, float]],
+             shape: Tuple[int, int]) -> bool:
+    """Whether any tile, at its rounded position, overlaps ``window``.
+
+    :param window: an :class:`spacr.ops_compose.Window`.
+    :param placements: ``site -> (y, x)``.
+    :param shape: the tile ``(height, width)``.
+    :returns: True when one does, by the rounding ``compose_window`` uses.
+    """
+    for top, left in placements.values():
+        t_top, t_left = int(round(float(top))), int(round(float(left)))
+        if (t_top < window.bottom and t_top + shape[0] > window.top
+                and t_left < window.right and t_left + shape[1] > window.left):
+            return True
+    return False
 
 
 def _placements(db: str, plate: str, well: str):
@@ -1327,8 +1830,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
         lambda site: _read_plane(sources[site], unreadable))
     usable = {site: place for site, place in placements.items()
               if sources[site] is not None and read(site) is not None}
-    canvas = (int(np.ceil(max(y for y, _ in usable.values()))) + shape[0],
-              int(np.ceil(max(x for _, x in usable.values()))) + shape[1])
+    seeded = _seeded_compose(settings, plate, well, usable, shape)
+    canvas = seeded[0] if seeded else _compose_canvas(usable, shape)
     blend = _compose_blend(settings)
     model = _cellpose_model(settings, gpu)
     diameter = settings.get("cellpose_diameter")
@@ -1339,6 +1842,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
                                          _WINDOW_OVERLAP))
     windows = list(windows_over(canvas, size=_WINDOW,
                                 overlap=window_overlap))
+    partial = (_partial_windows(windows, usable, seeded[1], shape)
+               if seeded else None)
     seconds = Counter()
     observations: list = []
     gains = []
@@ -1406,6 +1911,9 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
         "seconds": {k: round(v, 1) for k, v in seconds.items()},
         "total_seconds": round(time.perf_counter() - started, 1),
     }
+    if seeded:
+        report.update({"placement": "seeded", "partial_windows": partial,
+                       "n_partial_windows": len(partial)})
     _say(f"{well} objects: {len(objects)} from {len(observations)} observations "
          f"in {report['total_seconds']} s")
     return report
@@ -1600,7 +2108,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     """
     from scipy import ndimage
 
-    from .ops_cycles import align_field
+    from .ops_cycles import (FFT_BACKEND, FFT_PRECISION, _fft_backend_used,
+                             align_field)
     from .ops_sbs import (attribute_reads, call_reads, called_bases,
                           estimate_read_locations, extract_bases, find_peaks)
 
@@ -1633,14 +2142,21 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         return {**base, "skipped": "the reference cycle could not be read"}
 
     tick = time.perf_counter()
+    diagnostics = (_field_diagnostics_before(task, planes, unreadable)
+                   if task.get("diagnostics_folder") else None)
     field = align_field(planes, reference=reference, gpu=gpu,
                         channel_mode=str(task.get("channel_mode")
                                          or "background"),
+                        registrations=(diagnostics["registrations"]
+                                       if diagnostics is not None else None),
                         **task.get("registration", {}))
     ticks["align"] = time.perf_counter() - tick
     base.update(kept=list(field.kept), refused=list(field.refused),
                 refused_channels=[list(pair) for pair in field.refused_channels],
-        spot_replaced=[list(pair) for pair in field.spot_replaced])
+        spot_replaced=[list(pair) for pair in field.spot_replaced],
+        registration_backend=_fft_backend_used(
+            task.get("registration", {}).get("backend", FFT_BACKEND), gpu,
+            task.get("registration", {}).get("precision", FFT_PRECISION)))
     if len(field.kept) < _MIN_CYCLES:
         return {**base, "skipped": f"{len(field.kept)} usable cycles"}
 
@@ -1664,6 +2180,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     shifts += [abs(v) for per in field.channel_shifts.values()
                for pair in per for v in pair]
     margin = 5 + max(shifts + [0])
+    if diagnostics is not None:
+        _write_field_diagnostics(task, field, filtered, diagnostics, base)
     if task.get("rule_a"):
         result = _decode_field_rule_a(task, field, stack, filtered, spotnet,
                                       margin, gpu)
@@ -1736,6 +2254,185 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     return result
 
 
+def _registration_choice(value: Any, key: str) -> str:
+    """``ops_registration_precision`` or ``ops_registration_backend``, checked.
+
+    :param value: the setting's value; None or empty takes the default.
+    :param key: which of the two keys it is.
+    :returns: the value, lower case; the default when the key is unset.
+    :raises ValueError: for a value the registration does not offer.
+    """
+    from .ops_cycles import (FFT_BACKEND, FFT_BACKENDS, FFT_PRECISION,
+                             FFT_PRECISIONS)
+
+    precision = key == "ops_registration_precision"
+    allowed = FFT_PRECISIONS if precision else FFT_BACKENDS
+    value = str(value or (FFT_PRECISION if precision
+                          else FFT_BACKEND)).strip().lower()
+    if value not in allowed:
+        raise ValueError(f"{key} must be one of {list(allowed)}; got {value!r}")
+    return value
+
+
+def _registration_report(tasks, results) -> Dict[str, Any]:
+    """The decode report's ``registration`` entry (item 932).
+
+    :param tasks: the field tasks.
+    :param results: every field's result.
+    :returns: the precision and backend asked for, how many fields ran on
+        each backend, and the diagnostics folder or None.
+    """
+    asked = tasks[0]["registration"] if tasks else {}
+    folder = tasks[0].get("diagnostics_folder") if tasks else None
+    table = _field_diagnostics_table(folder)
+    path = None
+    if table is not None and len(table):
+        path = os.path.join(folder, "field_diagnostics.csv")
+        table.to_csv(path, index=False)
+    return {
+        "precision": asked.get("precision"), "backend": asked.get("backend"),
+        "fields_by_backend": dict(Counter(r["registration_backend"]
+                                          for r in results
+                                          if "registration_backend" in r)),
+        "field_diagnostics": folder, "field_diagnostics_table": path,
+    }
+
+
+def _field_diagnostics_table(folder: Optional[str]):
+    """One row per field from the diagnostics JSONs, or None when there are none.
+
+    The decode-yield study's per-field table (its ``field_diag``): the
+    weakest channel and cycle registration peaks, the median cycle peak,
+    the largest channel shift, the refused cycles, the DAPI focus and each
+    cycle's focus and mean 99.9th percentile. The diagnostics are optional
+    (``ops_field_diagnostics``, off by default), so a missing folder gives
+    None and a field written without a key gives NaN in its columns rather
+    than an error.
+
+    :param folder: ``<well>/decode_diagnostics``, or None.
+    :returns: a DataFrame sorted by site, or None.
+    """
+    import glob
+
+    import pandas as pd
+
+    if not folder or not os.path.isdir(folder):
+        return None
+    rows = []
+    for path in sorted(glob.glob(os.path.join(folder, "site*.json"))):
+        try:
+            with open(path, encoding="utf-8") as handle:
+                record = json.load(handle)
+        except (OSError, ValueError):
+            continue
+        registrations = record.get("registrations") or []
+        cycles = len(record.get("kept") or []) + len(record.get("refused") or [])
+        channels = [r[2] for r in registrations[:3 * cycles]]
+        across = [r[2] for r in registrations[3 * cycles:]]
+        shifts = [abs(v) for per in (record.get("channel_shifts") or {}).values()
+                  for pair in per for v in pair]
+        diag = record.get("diag") or {}
+        row = {"site": record.get("site"),
+               "chan_peak_min": min(channels) if channels else np.nan,
+               "cycle_peak_min": min(across) if across else np.nan,
+               "cycle_peak_median": float(np.median(across)) if across else np.nan,
+               "max_chan_shift": max(shifts) if shifts else np.nan,
+               "refused": len(record.get("refused") or []),
+               "dapi_focus": diag.get("dapi_focus", np.nan)}
+        for cycle, values in sorted(diag.items()):
+            if isinstance(values, dict):
+                row[f"focus_c{cycle}"] = values.get("focus_lapvar", np.nan)
+                row[f"p999_c{cycle}"] = (float(np.mean(values["p999"]))
+                                         if values.get("p999") else np.nan)
+        rows.append(row)
+    if not rows:
+        return None
+    return pd.DataFrame(rows).sort_values("site", kind="stable").reset_index(drop=True)
+
+
+def _field_diagnostics_before(task: Mapping[str, Any], planes,
+                              unreadable: list) -> Dict[str, Any]:
+    """The per-field diagnostics measured on the raw planes (item 932).
+
+    Off unless ``ops_field_diagnostics`` is set: no rule reads them, and on
+    a 1,480 px field they cost about 4 CPU s of the decode.
+
+    :param task: the field's task; ``dapi`` is the reference cycle's DAPI
+        source, or None.
+    :param planes: ``cycle -> raw planes``, None for a cycle not read.
+    :param unreadable: the field's unreadable sources, appended to.
+    :returns: ``diag`` (per cycle the planes' 50th and 99.9th percentiles
+        and the variance of the Laplacian of the cycle's
+        :func:`spacr.ops_cycles.sbs_mean_target`; ``dapi_focus``, the
+        variance of the Laplacian of the DAPI plane divided by its 99th
+        percentile) and an empty ``registrations`` list for
+        :func:`spacr.ops_cycles.align_field` to fill.
+    """
+    from scipy import ndimage
+
+    from .ops_cycles import sbs_mean_target
+
+    diag: Dict[str, Any] = {}
+    for cycle in task["cycles"]:
+        found = planes.get(cycle)
+        if found is None:
+            continue
+        laplace = ndimage.laplace(np.asarray(sbs_mean_target(found), np.float32))
+        diag[str(cycle)] = {
+            "p50": [float(np.percentile(plane, 50)) for plane in found],
+            "p999": [float(np.percentile(plane, 99.9)) for plane in found],
+            "focus_lapvar": float(laplace.var())}
+    dapi = _read_plane(task["dapi"], unreadable) if task.get("dapi") else None
+    if dapi is not None:
+        dapi = np.asarray(dapi, np.float32)
+        diag["dapi_focus"] = float(ndimage.laplace(
+            dapi / max(np.percentile(dapi, 99), 1)).var())
+    return {"diag": diag, "registrations": []}
+
+
+def _write_field_diagnostics(task: Mapping[str, Any], field, filtered,
+                             diagnostics: Mapping[str, Any],
+                             base: Mapping[str, Any]) -> str:
+    """Write one field's diagnostics as ``site<NNNN>.json`` (item 932).
+
+    The keys are the decode-yield study's field JSON: ``diag``,
+    ``log_p999`` (per kept cycle, each channel's 99.9th percentile after the
+    -LoG filter), ``registrations`` (every background registration as
+    ``[dy, dx, peak_ratio, accepted]``) and the field's alignment.
+
+    :param task: the field's task, with ``diagnostics_folder``.
+    :param field: the aligned field.
+    :param filtered: the aligned stack after the -LoG filter.
+    :param diagnostics: from :func:`_field_diagnostics_before`, its
+        ``registrations`` filled by the alignment.
+    :param base: the field's result so far.
+    :returns: the path written.
+    """
+    folder = task["diagnostics_folder"]
+    os.makedirs(folder, exist_ok=True)
+    record = {
+        "site": int(task["site"]), "kept": list(field.kept),
+        "refused": list(field.refused), "missing": list(field.missing),
+        "cycle_shifts": {str(k): list(v) for k, v in field.cycle_shifts.items()},
+        "channel_shifts": {str(k): [list(p) for p in v]
+                           for k, v in field.channel_shifts.items()},
+        "spot_replaced": [list(p) for p in field.spot_replaced],
+        "channel_mode": str(task.get("channel_mode") or "background"),
+        "registration": dict(task.get("registration", {}),
+                             used=base.get("registration_backend")),
+        "registrations": [list(r) for r in diagnostics["registrations"]],
+        "diag": diagnostics["diag"],
+        "log_p999": {str(c): [float(np.percentile(filtered[i, k], 99.9))
+                              for k in range(filtered.shape[1])]
+                     for i, c in enumerate(field.kept)},
+        "unreadable": [list(map(str, item)) for item in base.get("unreadable", [])],
+    }
+    path = os.path.join(folder, f"site{int(task['site']):04d}.json")
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(record, handle)
+    return path
+
+
 def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
                          spotnet, margin: int, gpu: bool) -> Dict[str, Any]:
     """The rest of :func:`_decode_field` under the item-873 decode rules.
@@ -1752,13 +2449,16 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     :param gpu: let the peak finder use the card.
     :returns: ``n_cycles``, ``spots``, ``attributed``, ``ambiguous``,
         ``exact``, ``max_channel_shift``, ``rule_a`` (from
-        :func:`spacr.ops_decode.field_calls`) and, when the field cache is
-        stored, ``cache``.
+        :func:`spacr.ops_decode.field_calls`) -- or, when the rule carries
+        ``auto`` (item 939), ``candidates``, the field's calls at every grid
+        setting, which the well's chosen thresholds turn into ``rule_a`` --
+        and, when the field cache is stored, ``cache``.
     """
     from scipy import ndimage
 
     from .ops_decode import (field_calls, field_evidence, matcher_for,
-                             save_field_cache, _CACHE_FLOOR)
+                             save_field_cache, _CACHE_FLOOR, _field_candidates,
+                             _field_votes)
     from .ops_sbs import estimate_read_locations, find_peaks
 
     rule = task["rule_a"]
@@ -1779,16 +2479,31 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         pixel_percentile=rule["pixel_percentile"] if rule["pixels"] else None,
         features=bool(rule.get("features")))
     matcher, decoys = matcher_for(_LIBRARY, _DECOYS)
-    calls = field_calls(
-        evidence, rule, sorted(_LIBRARY), matcher, decoys,
-        threshold=rule["threshold"], footprint=rule["footprint"],
-        max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
-        single_read_quality=rule["single_read_quality"],
-        crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
+    auto = rule.get("auto")
+    if auto:
+        votes = _field_votes(
+            evidence, rule, sorted(_LIBRARY), matcher,
+            threshold=rule["threshold"], footprint=rule["footprint"],
+            max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+            single_read_quality=float("-inf"),
+            pixel_qualities=auto["pixel_qualities"],
+            crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
+        calls = _field_candidates(votes, auto["floors"], auto["pixel_qualities"],
+                                  decoys, bool(rule["pixels"]))
+        calls.update({key: votes[key] for key in (
+            "reads", "reads_owned", "reads_near", "reads_ambiguous")})
+    else:
+        calls = field_calls(
+            evidence, rule, sorted(_LIBRARY), matcher, decoys,
+            threshold=rule["threshold"], footprint=rule["footprint"],
+            max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+            single_read_quality=rule["single_read_quality"],
+            crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
     out = {"n_cycles": len(field.kept), "spots": calls["reads"],
            "attributed": calls["reads_near"] - calls["reads_ambiguous"],
            "ambiguous": calls["reads_ambiguous"], "exact": None,
-           "rule_a": calls, "ids": np.zeros(0, np.int64), "calls": [],
+           ("candidates" if auto else "rule_a"): calls,
+           "ids": np.zeros(0, np.int64), "calls": [],
            "quality": np.zeros(0, np.float32),
            "max_channel_shift": int(max([abs(v) for per in field.channel_shifts.values()
                                          for pair in per for v in pair] + [0]))}
@@ -2021,10 +2736,12 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
         "assigned_by_source": dict(sources),
         "ops_barcodes_rows": int(len(frame)), "ops_reads_rows": None,
         "cell_rule": "mapped", "decode_rules": {
-            k: v for k, v in rule_a.items() if k not in ("active",)},
+            k: v for k, v in rule_a.items()
+            if k not in ("active", "threshold_choice")},
         "crosstalk": crosstalk, "channel_registration": channel_mode,
         "channels_spot_registered": sum(len(r.get("spot_replaced", ()))
                                         for r in decoded),
+        "registration": _registration_report(tasks, results),
         "read_threshold": rule_a["threshold"], "footprint": rule_a["footprint"],
         "spot_detector": detector, "store_reads": bool(store_reads),
         "base_channels": list(channels), "workers": workers,
@@ -2034,11 +2751,69 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
                                    if "seconds" in r), Counter())),
         "total_seconds": round(time.perf_counter() - started, 1),
     }
+    if rule_a.get("threshold_choice"):
+        report["thresholds"] = rule_a["threshold_choice"]
     _say(f"{well} decode: {len(frame)} objects assigned "
          f"({fdr['pct']} % of {fdr['nuclei']} nuclei), FDR "
          f"{fdr['fdr_per_100']} per 100, {len(decoded)} fields, "
          f"{report['total_seconds']} s")
     return report
+
+
+def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
+                           decoys) -> Dict[str, Any]:
+    """Choose a well's call thresholds from its decoys and make its calls.
+
+    Item 939: every decoded field carries its calls at each grid setting
+    (``candidates``); :func:`spacr.ops_decode.choose_well_thresholds` picks
+    the setting, each field's ``rule_a`` is rebuilt at it, and the choice is
+    written to ``results/ops_decode/decode_thresholds_<well>.json`` and the
+    plate's ``decode_thresholds_<plate>.csv``.
+
+    :param db: the measurements database.
+    :param plate: the plate.
+    :param well: the well.
+    :param rule_a: the rule the fields were decoded under, with ``auto``.
+    :param thresholds: from :func:`spacr.ops_decode.threshold_settings`.
+    :param decoded: the decoded fields; their ``candidates`` are replaced by
+        ``rule_a``.
+    :param decoys: the decoy barcodes.
+    :returns: the rule with the chosen ``single_read_quality`` and
+        ``pixel_quality`` and the choice under ``threshold_choice``.
+    """
+    from .ops_decode import (_candidate_calls, choose_well_thresholds,
+                             _write_threshold_report)
+
+    auto = rule_a["auto"]
+    fields = sorted(decoded, key=lambda r: r["site"])
+    counts = (np.stack([r["candidates"]["counts"] for r in fields]) if fields
+              else np.zeros((0, len(auto["floors"]), len(auto["pixel_qualities"]), 2),
+                            np.int64))
+    choice = choose_well_thresholds(
+        counts, [r["candidates"]["nuclei"] for r in fields],
+        [r["site"] for r in fields], auto["floors"], auto["pixel_qualities"],
+        k=int(rule_a["decoy_k"]), scale=float(rule_a["fdr_scale"]),
+        fdr_max=thresholds["fdr_max"], ci=thresholds["ci"],
+        tune_fraction=thresholds["tune_fraction"], seed=thresholds["seed"])
+    decoy_set = frozenset(decoys)
+    for r in fields:
+        candidates = r.pop("candidates")
+        r["rule_a"] = _candidate_calls(candidates, choice["single_read_quality"],
+                                       choice["pixel_quality"], decoy_set)
+    choice["paths"] = _write_threshold_report(db, plate, well, choice)
+    if not choice["auto_met"]:
+        _say(f"{well} decode: no grid setting kept the decoy FDR at or below "
+             f"{thresholds['fdr_max']} per 100 on the tuning fields; the "
+             "strictest setting is used (auto_met False)")
+    _say(f"{well} decode: auto thresholds single-read quality "
+         f"{choice['single_read_quality']}, pixel quality "
+         f"{choice['pixel_quality']}; report fields "
+         f"{choice['report']['genotyped_pct']} % genotyped, FDR "
+         f"{choice['report']['fdr_per_100']} per 100")
+    return {**rule_a, "single_read_quality": choice["single_read_quality"],
+            "pixel_quality": choice["pixel_quality"],
+            "threshold_choice": {key: value for key, value in choice.items()
+                                 if key != "grid"}}
 
 
 def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
@@ -2058,15 +2833,18 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     :param reference: the cycle the objects' frame was stitched on.
     :param settings: read for ``n_workers``, ``ops_base_channels``,
         ``ops_read_threshold``, ``ops_footprint``, ``ops_store_reads``,
-        ``ops_spot_detector`` and the cell rule's four keys -- see
-        :func:`_cell_rule`.
+        ``ops_spot_detector``, the cell rule's four keys -- see
+        :func:`_cell_rule` -- and the threshold mode
+        (:func:`spacr.ops_decode.threshold_settings`).
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
-    :returns: the decode report. Its ``ops_barcodes_rows`` and
+    :returns: the decode report; in auto threshold mode with the chosen
+        thresholds under ``thresholds``. Its ``ops_barcodes_rows`` and
         ``ops_reads_rows`` count this well's rows only, the number a
         ``plate``/``well`` filter on the stored table returns;
         ``ops_reads_rows`` is None when reads were not stored.
-    :raises ValueError: when the objects are not ready.
+    :raises ValueError: when the objects are not ready, or auto threshold
+        mode lacks the decode rules or decoys it needs.
     """
     import multiprocessing
     from .resource_log import _parallel_process_executor as ProcessPoolExecutor
@@ -2077,7 +2855,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     from .ops_sbs import assign_reads_to_objects, correct_to_library
     from .ops_store import objects_ready
 
-    from .ops_decode import decode_rule, resolve_settings, unplaced_sites
+    from .ops_decode import (decode_rule, resolve_settings, threshold_settings,
+                             unplaced_sites)
 
     started = time.perf_counter()
     settings = resolve_settings(settings)
@@ -2135,9 +2914,22 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         "spot_overrule_share": float(_setting_number(
             settings.get("ops_spot_overrule_share"), "ops_spot_overrule_share",
             0.5)),
+        "precision": _registration_choice(
+            settings.get("ops_registration_precision"), "ops_registration_precision"),
+        "backend": _registration_choice(
+            settings.get("ops_registration_backend"), "ops_registration_backend"),
     }
+    diagnostics_folder = (os.path.join(os.path.dirname(os.path.abspath(db)),
+                                       well, "decode_diagnostics")
+                          if bool(settings.get("ops_field_diagnostics", False))
+                          else None)
     decoys: List[str] = []
     rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
+    thresholds = threshold_settings(settings, rule_a)
+    if thresholds["mode"] == "auto" and not (rule_a["active"] and rule == "mapped"):
+        raise ValueError("ops_decode_threshold_mode 'auto' needs the item-873 "
+                         "decode rules (ops_decode_preset rule_a_s2), "
+                         "ops_cell_rule 'mapped' and a guide library")
     if rule_a["active"] and rule == "mapped":
         from .ops_sbs import decoy_library
 
@@ -2151,6 +2943,13 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         })
         if rule_a["decoy_k"] > 0:
             decoys = decoy_library(library, k=rule_a["decoy_k"])
+        if thresholds["mode"] == "auto":
+            if not decoys:
+                raise ValueError("ops_decode_threshold_mode 'auto' found no "
+                                 "decoys for this library; check "
+                                 "ops_decoy_library_k and the library")
+            rule_a["auto"] = {"floors": thresholds["floors"],
+                              "pixel_qualities": thresholds["pixel_qualities"]}
         cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),
                                     well, "decode_cache")
     else:
@@ -2166,9 +2965,12 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         near = np.flatnonzero((oy > top - 30) & (oy < top + shape[0] + 30)
                               & (ox > left - 30) & (ox < left + shape[1] + 30))
         planes = {}
+        dapi = None
         for cycle in cycles:
             sources = _plane_sources(cycle_files[cycle].get(site, {}))
             planes[cycle] = [sources.get(name) for name in channels]
+            if cycle == reference:
+                dapi = sources.get("DAPI")
         tasks.append({
             "site": site, "planes": planes, "cycles": cycles,
             "reference": reference,
@@ -2180,6 +2982,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             "crosstalk": crosstalk, "channel_mode": channel_mode,
             "registration": registration, "rule_a": rule_a,
             "cache_folder": cache_folder,
+            "diagnostics_folder": diagnostics_folder,
+            "dapi": dapi if diagnostics_folder else None,
         })
 
     library_set = frozenset(library)
@@ -2215,6 +3019,9 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                     _say(f"{well} decode: {count} of {len(tasks)} fields")
 
     decoded = [r for r in results if "skipped" not in r]
+    if rule_a is not None and rule_a.get("auto"):
+        rule_a = _apply_auto_thresholds(db, plate, well, rule_a, thresholds,
+                                        decoded, decoys)
     if rule_a is not None:
         return _decode_rule_a_report(
             db, plate, well, settings, rule_a, tasks, results, decoded,
@@ -2322,6 +3129,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         "crosstalk": crosstalk, "channel_registration": channel_mode,
         "channels_spot_registered": sum(len(r.get("spot_replaced", ()))
                                         for r in decoded),
+        "registration": _registration_report(tasks, results),
         "min_reads": min_reads, "min_fraction": min_fraction,
         "reads_mapped": reads_mapped,
         "objects_with_a_mapped_read": objects_with_mapped,
@@ -3236,13 +4044,21 @@ def _ph_gpu_check(task: Mapping[str, Any], rtol: float = 1e-4
         beyond ``rtol``. The run then goes on: the check reports, it does
         not stop the run.
     """
-    from .ops_run_infra import compare_tables
+    from .measure import check_gpu_measurement
 
-    gpu, _unreadable, _shape = _ph_measure_table({**task, "measure_gpu": True})
-    cpu, _unreadable, _shape = _ph_measure_table({**task, "measure_gpu": False})
-    if gpu is None or cpu is None:
-        return {"site": task["site"], "skipped": "the field is unreadable"}
-    return {"site": task["site"], **compare_tables(gpu, cpu, rtol=rtol)}
+    outside = check_gpu_measurement(task, dict(task), measure=_ph_check_table,
+                                    rtol=rtol)
+    return {"site": task["site"], **outside.attrs["summary"]}
+
+
+def _ph_check_table(field: Mapping[str, Any], task: Mapping[str, Any]):
+    """The table :func:`_ph_measure_table` measures for ``task``, or None.
+
+    :param field: the ``ph_measure`` task the check was given.
+    :param task: that task with ``measure_gpu`` set by
+        :func:`spacr.measure.check_gpu_measurement`.
+    """
+    return _ph_measure_table(task)[0]
 
 
 def _ph_profile_features(settings: Mapping[str, Any]) -> Optional[List[str]]:
@@ -3711,7 +4527,7 @@ def _ph_field_check(plate: str, well: str, cells, candidates, refined_rows,
 
 
 #: The models ``ops_align_model`` may name, the first being the default.
-_PH_ALIGN_MODELS = ("similarity", "tile_affine")
+_PH_ALIGN_MODELS = ("tile_affine", "similarity")
 
 
 def _ph_align_options(settings: Mapping[str, Any]
@@ -3726,7 +4542,7 @@ def _ph_align_options(settings: Mapping[str, Any]
     """
     from .qt.i18n import tr
 
-    model = str(settings.get("ops_align_model") or "similarity"
+    model = str(settings.get("ops_align_model") or _PH_ALIGN_MODELS[0]
                 ).strip().lower()
     if model not in _PH_ALIGN_MODELS:
         raise ValueError(tr(
@@ -7924,9 +8740,9 @@ def run_ops(settings: Mapping[str, Any], *,
         (:func:`spacr.ops_modules.run_module_phase`) and ``"mitocarta"``
         scores clusterings against MitoCarta and an external module table
         (:func:`spacr.ops_clusters.run_mitocarta_benchmark`); like the
-        profile path, both hold the BLAS and OpenMP pools to one thread while
-        ``ops_deterministic_blas`` is on (the result's
-        ``atlas_blas_threads``).
+        profile path, both hold the BLAS and OpenMP pools at
+        ``ops_blas_threads`` threads while ``ops_deterministic_blas`` is on
+        (the result's ``atlas_blas_threads``).
         ``"stress"``, after ``report``,
         times the finished store and writes
         ``results/ops_stress/stress_test.csv``
@@ -7954,8 +8770,8 @@ def run_ops(settings: Mapping[str, Any], *,
         clustering) and ``"cluster_bench_test"`` (item 929, the calibrated
         consensus test) phases run inside :func:`spacr.ops_tvn.run_profile_phases`. Like the
         profile path, the flat-field and score phases hold the BLAS and
-        OpenMP pools to one thread while ``ops_deterministic_blas`` is on
-        (the result's ``blas_threads``). With ``ops_layout`` set to
+        OpenMP pools at ``ops_blas_threads`` threads while
+        ``ops_deterministic_blas`` is on (the result's ``blas_threads``). With ``ops_layout`` set to
         ``'cpg_cropped'`` (alpha, items 919 and 920) only ``"cpg_index"``,
         ``"cpg_merged"`` and ``"prefix_decode"`` run
         (:func:`spacr.cpg_cropped.run_cpg_phases`,
@@ -7985,7 +8801,7 @@ def run_ops(settings: Mapping[str, Any], *,
         if any(phase not in _PROFILE_PHASES for phase in phases):
             raise ValueError("the profile phases run on their own; run "
                              f"{list(_PROFILE_PHASES)} without the image phases")
-        from .ops_tvn import _pinned_blas, run_profile_phases
+        from .ops_tvn import _blas_threads, _pinned_blas, run_profile_phases
 
         profile = [phase for phase in phases
                    if phase in ("profile", "evaluate", "cluster_sweep", "etest",
@@ -7993,7 +8809,8 @@ def run_ops(settings: Mapping[str, Any], *,
         result = run_profile_phases(settings, profile, report=_say) if profile else {}
         atlas = [phase for phase in phases if phase in ("modules", "mitocarta")]
         if atlas:
-            with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+            pin = bool(settings.get("ops_deterministic_blas", True))
+            with _pinned_blas(pin, _blas_threads(settings)) as pinned:
                 if "modules" in atlas:
                     from .ops_modules import run_module_phase
 
@@ -8009,18 +8826,20 @@ def run_ops(settings: Mapping[str, Any], *,
             raise ValueError("the nuclear flat-field phases run on their own; run "
                              f"{list(_FLAT_PHASES)} without the image phases")
         from .ops_flatfield import run_flat_phases
-        from .ops_tvn import _pinned_blas
+        from .ops_tvn import _blas_threads, _pinned_blas
 
-        with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+        pin = bool(settings.get("ops_deterministic_blas", True))
+        with _pinned_blas(pin, _blas_threads(settings)) as pinned:
             result = run_flat_phases(settings, phases, report=_say)
         return {**result, "blas_threads": pinned}
     if "score" in phases:
         if list(phases) != ["score"]:
             raise ValueError("the score phase runs on its own")
         from .ops_scoring import score_ops_profiles
-        from .ops_tvn import _pinned_blas
+        from .ops_tvn import _blas_threads, _pinned_blas
 
-        with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+        pin = bool(settings.get("ops_deterministic_blas", True))
+        with _pinned_blas(pin, _blas_threads(settings)) as pinned:
             result = score_ops_profiles(settings, report=_say)
         return {**result, "blas_threads": pinned}
     if "compare_calls" in phases and str(settings.get("ops_compare_match") or "centroid") == "mask_overlap":
@@ -8128,7 +8947,8 @@ def run_ops(settings: Mapping[str, Any], *,
     well_phases = [p for p in phases if p not in _PH_PLATE_PHASES
                    and p not in ("decode_qc", "compare_calls")]
     only_qc = set(phases) <= {"decode_qc", "compare_calls"}
-    for well in ([] if only_qc else chosen):
+    well_list = [] if only_qc else list(chosen)
+    for well_number, well in enumerate(well_list, start=1):
         folder = os.path.join(destination, well)
         report_path = os.path.join(folder, "ops_report.json")
         if settings.get("ops_gpu_admission") and os.path.exists(
@@ -8141,6 +8961,8 @@ def run_ops(settings: Mapping[str, Any], *,
                                          well, well_phases, settings)
             if resumed is not None:
                 out["wells"][well] = resumed
+                print(f"Progress: {well_number}/{len(well_list)}, "
+                      f"operation_type: OPS wells", flush=True)
                 continue
         report: Dict[str, Any] = {}
         if not sequencing and os.path.isfile(report_path):
@@ -8228,6 +9050,8 @@ def run_ops(settings: Mapping[str, Any], *,
                 delete_local=bool(settings.get("ops_archive_delete_local")),
                 report=report)
         out["wells"][well] = report
+        print(f"Progress: {well_number}/{len(well_list)}, "
+              f"operation_type: OPS wells", flush=True)
     if _wants_decode_qc(settings, phases):
         from .ops_decode import results_folder, run_decode_qc
 
@@ -10383,6 +11207,8 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
     empty = 0
     channels = 0
     for index, piece in enumerate(windows):
+        print(f"Progress: {index}/{len(windows)}, "
+              f"operation_type: Segmenting tiles", flush=True)
         tick = time.perf_counter()
         bounds = (col0 + piece.left, row0 + piece.top, piece.width,
                   piece.height)
@@ -10440,6 +11266,8 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
         np.save(os.path.join(scratch, f"{stem}_nuclei.npy"), nuclei)
         observations.extend(found)
         stems[piece.offset()] = (index, stem)
+    print(f"Progress: {len(windows)}/{len(windows)}, "
+          f"operation_type: Segmenting tiles", flush=True)
     tick = time.perf_counter()
     groups = sew(observations)
     unseen = len(unseen_records(groups))
@@ -10688,7 +11516,7 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
     in_cell = np.zeros(total, dtype=bool)
     best = (None, -1)
     tick = time.perf_counter()
-    for _row, field in fields.iterrows():
+    for field_number, (_row, field) in enumerate(fields.iterrows(), start=1):
         frame_xy = _st_field_frame(xy0, field)
         radius = radius0 / float(field["scale_x"])
         width, height = int(field["width"]), int(field["height"])
@@ -10723,6 +11551,8 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
                     prcfo=_st_prcfo(prcf, coverage["object_label"])))
             if kind == kinds[0] and len(labels) > best[1]:
                 best = (field, len(labels))
+        print(f"Progress: {field_number}/{len(fields)}, "
+              f"operation_type: Assigning spots", flush=True)
     assign_seconds = time.perf_counter() - tick
     output = os.path.join(masks_dir, "spatial_transcriptomics")
     os.makedirs(output, exist_ok=True)

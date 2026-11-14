@@ -1,0 +1,73 @@
+EVERY OPS MEASUREMENT FEATURE IN THE GENERAL MEASURE MODULE, FROM ONE IMPLEMENTATION
+=====================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-13 (alpha, under ALPHA_FEATURES[934]; profile_features stays visible); step 6 proof below — the OPS phenotype path and Measure compute every per-object measurement with the same spacr.measure functions. New public spacr.measure.measure_mass_displacement (the one mass displacement: measure_intensity_moments and OPS read it through _mass_displacement_columns), spacr.measure.measure_channel_pair_pearson (Pearson's r of every channel pair per object, combinations order, NaN where a channel is constant; the arithmetic of _pearson_by_label) and spacr.measure.check_gpu_measurement (one field measured with measure_gpu True then False, compared with spacr.ops_run_infra.compare_tables; ops_engine._ph_gpu_check is now a thin call to it and returns the same report). spacr.measure._form_factor is the one form factor (shape_extended, Measure, OPS). spacr.ops_sample.funk_object_features is a renaming wrapper over the two measure functions; measure_phenotype_field renames channel_<i> through spacr.measure._channel_named (channel_1 never matches inside channel_10). spacr.ops_settings.OPS_TO_MEASURE_KEYS maps every OPS measurement setting to its Measure setting; ops_sample._measurement_settings builds its dict through it. Measure settings: funk_object_features (False), zernike (None), channel_names (None), measure_gpu_check (True), measure_gpu_check_rtol (1e-4). The default settings take none of the new code paths, so Measure's default output is unchanged. spacr/measure.py, spacr/ops_sample.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, spacr/qt/screens/settings_model.py, tests/test_measure_ops_features_934.py.
+Requested: maintainer (2026-11-13; spec proposals/bmc_paper_items/ITEM_measure_ops_features_general.md, decisions 2026-11-13: profile_features stays visible; OPS keeps channel-named columns and Measure offers channel_names; Funk's mass displacement a separate column only if its definition differs (it does not); post-measure OPS analyses are a later item).
+Owner: paper session (measure lane).
+Source: spacr.ops_sample.funk_object_features and measure_phenotype_field (nightly 6afe2e8f8c); READINESS.md "Measure feature families" (Ready).
+Related: 566 (measure_gpu), 752 (OPS phenotype path), 788, 872 (_ph_gpu_check), measure profile families (0bed2ff593).
+
+SETTINGS (Measure; Measurements group, GPU Measurement α group)
+funk_object_features (False) -> {role}_channel_<c>_mass_displacement (unless
+  profile_features has intensity_moments), {role}_correlation_channel_<a>_channel_<b>,
+  {role}_form_factor (unless profile_features has shape_extended); 2-D only.
+zernike (None = as before, on when mahotas is importable; True = always, the
+  run stops before any field without mahotas; False = never).
+channel_names (None) -> one lowercased, unique name per entry of channels; the
+  object-table columns read cell_dapi_mean_intensity instead of
+  cell_channel_0_mean_intensity, as OPS writes them. Image table unchanged.
+measure_gpu_check (True), measure_gpu_check_rtol (1e-4): with measure_gpu on and
+  a CUDA device visible, the first field is measured on both paths and the run
+  stops before any field when a column is outside the tolerance.
+OPS -> Measure (OPS_TO_MEASURE_KEYS): ops_ph_texture -> homogeneity (with
+homogeneity_distances [2, 4, 8]), ops_ph_funk_features -> funk_object_features,
+ops_ph_zernike -> zernike, ops_ph_measure_gpu -> measure_gpu,
+ops_ph_measure_gpu_check -> measure_gpu_check, ops_ph_channels -> channel_names,
+ops_ph_profile_features -> profile_features, ops_ph_granularity_subsample ->
+profile_granularity_subsample.
+
+DEFINITIONS
+Funk's mass displacement and spaCR's intensity_moments mass displacement are the
+same definition (centroid to intensity-weighted centroid, pixels), so no
+separate column. The OPS Funk columns now come from the spaCR code: they move
+by at most 1 ulp (np.hypot in place of sqrt of squares). Pearson is
+np.corrcoef's, clipped to [-1, 1] as np.corrcoef clips; NaN for a constant
+channel. Form factor is NaN, not inf, for a zero perimeter.
+
+STEP 6 (spaCR, 2026-11-13; Funk 2022 plate A well A1 site 514, 960 cells,
+production OPS masks, 4 channels, max-projected raw field)
+- OPS refactor, nightly 6afe2e8f8c vs this branch, same field and masks:
+  production call (texture) 407 of 407 columns byte-identical; with
+  funk_features 421 of 429 byte-identical, the 8 mass-displacement columns
+  within 2.22e-16 relative (1 ulp; 144-191 of 960 cells per column).
+- Paper reference (phenotype_cells_A1.parquet, site 514, 406 feature
+  columns, float64 stored as float32): 357 of 406 identical for nightly and
+  for this branch alike (largest relative difference 2.1e-7); the 49 others
+  predate this item (frozen run 8147e421e5), not changed by it.
+- OPS = Measure, same float32 field and masks, OPS_TO_MEASURE_KEYS settings,
+  channel_names, texture, Funk features and Zernike (mahotas installed):
+  475 of 475 OPS columns written by spacr.measure with identical values
+  (0 missing, 0 unequal); the ratchet test runs the same comparison on a
+  synthetic field.
+- OPS = Measure end to end (measure_crop on the merged field, uint16 as
+  Measure stores it): 425 of 425 OPS columns present, 326 byte-identical,
+  99 intensity statistics (mean, integrated, std, cv, gini, percentiles)
+  within 1.83e-7 relative, because OPS measures a float32 copy and Measure
+  the uint16 field (float32 vs float64 accumulation), not a definition
+  difference. 960 cells in each of cell, nucleus and cytoplasm.
+- Time, interleaved nightly/branch on one pinned core (taskset 31,
+  OMP_NUM_THREADS=1), 5 pairs per mode; the machine load was 33-62 on 32
+  cores, so wall ranges are wide. CPU-second medians: production call 89.6
+  (nightly) vs 87.8 (branch), ratio 0.98; with Funk features 109.0 vs 104.7,
+  0.96. cProfile of the production call: the same call counts, 104.3 vs
+  104.8 CPU s. The first, non-interleaved 46.6 s vs 72.9 s was load.
+  funk_object_features alone was 2x slower before a fix in this item (each
+  helper re-copied every channel out of the (H, W, C) image); the mask is now
+  validated once, the foreground pixels of all channels gathered once
+  (_channel_values) and each channel centred once for all pairs: median 3.76
+  vs 3.76 CPU s, ratio 1.00 (18 repeats each), values unchanged.
+- Not run: the GPU-marked check on a card (no GPU turn taken); covered by a
+  planted 1 % perturbation test on CPU.
+Scripts and outputs: /mnt/firecuda2/codex/scratch-docs/proof_934/ (scripts/,
+out/compare.json, out/function_identity.json).

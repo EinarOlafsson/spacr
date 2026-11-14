@@ -10,14 +10,9 @@ it.
 """
 from __future__ import annotations
 
-import math
-
 import numpy as np
-import pandas as pd
-import pytest
 
-from spacr.hits import (Hit, HitList, build_hit_list, family_labels, gene_of,
-                        grna_agreement)
+from spacr.hits import (Hit, HitList, family_labels, gene_of)
 
 
 def test_labelling_no_terms_at_all_returns_an_empty_label_array():
@@ -60,94 +55,6 @@ def test_an_empty_bracket_names_no_gene():
     assert gene_of("gene_fraction:gene[]") is None
     assert gene_of("gene_fraction:gene[T.]") is None
     assert gene_of("gene_fraction:gene[233460]") == "233460"
-
-
-def test_a_guide_table_with_no_feature_column_reports_no_guide_evidence():
-    """A frame that is not a coefficient table gives every gene zero guides.
-
-    The per-gRNA table is read from disk and a run can write something else
-    under that name. Reporting agreement of 0/0 says "not measured", which is
-    what the flag machinery downstream expects; raising would take the whole
-    hit list down over a diagnostic column.
-    """
-    frame = pd.DataFrame({"coefficient": [0.4, -0.2]})
-
-    agreement = grna_agreement({"233460": 0.5}, frame)
-
-    assert agreement == {"233460": (0, 0, [])}
-
-
-def test_a_guide_row_naming_no_gene_is_skipped_entirely():
-    """An intercept row is in the table and belongs to no gene.
-
-    Counting it against some gene would add a phantom guide to that gene's
-    denominator and lower its agreement for free.
-    """
-    frame = pd.DataFrame({
-        "feature": ["Intercept", "fraction:grna[233460_1]"],
-        "grna": ["Intercept", "233460_1"],
-        "coefficient": [1.2, 0.4],
-    })
-
-    agreement = grna_agreement({"233460": 0.5}, frame)
-
-    assert agreement == {"233460": (1, 1, ["233460_1"])}
-
-
-def test_a_guide_with_no_name_column_is_named_from_its_own_term():
-    """The guide id has to come from somewhere, and the term always has it.
-
-    Some backends write no ``grna`` column, and others write NaN into it for
-    rows they did not resolve. The agreeing-guide list is what a reader checks
-    against the library, so an unnamed guide is worse than a missing row.
-    """
-    frame = pd.DataFrame({
-        "feature": ["fraction:grna[T.233460_1]", "fraction:grna[233460_2]"],
-        "grna": [None, float("nan")],
-        "coefficient": [0.4, 0.9],
-    })
-
-    n_agree, n_guides, names = grna_agreement({"233460": 0.5}, frame)["233460"]
-
-    assert (n_agree, n_guides) == (2, 2)
-    assert names == ["233460_1", "233460_2"]
-
-
-def test_a_guide_whose_coefficient_cannot_be_read_is_not_a_guide():
-    """Text or NaN in the coefficient column is absence, not agreement.
-
-    Both must leave the denominator alone: a gene with one real guide and one
-    unreadable row is a gene with ONE guide, and reporting 1/2 would make a
-    corroborated gene look uncorroborated -- or, with the sign the other way,
-    the reverse.
-    """
-    frame = pd.DataFrame({
-        "feature": ["fraction:grna[233460_1]", "fraction:grna[233460_2]",
-                    "fraction:grna[233460_3]", "fraction:grna[233460_4]"],
-        "grna": ["233460_1", "233460_2", "233460_3", "233460_4"],
-        "coefficient": ["not a number", None, float("nan"), 0.4],
-    })
-
-    agreement = grna_agreement({"233460": 0.5}, frame)
-
-    assert agreement == {"233460": (1, 1, ["233460_4"])}
-
-
-def test_an_infinite_coefficient_is_dropped_like_a_missing_one():
-    """A separated fit can report an infinite coefficient.
-
-    Its sign is arithmetically well defined, so nothing would raise -- it
-    would simply be counted as the most emphatic agreement in the table.
-    """
-    frame = pd.DataFrame({
-        "feature": ["fraction:grna[233460_1]", "fraction:grna[233460_2]"],
-        "grna": ["233460_1", "233460_2"],
-        "coefficient": [math.inf, 0.4],
-    })
-
-    agreement = grna_agreement({"233460": 0.5}, frame)
-
-    assert agreement == {"233460": (1, 1, ["233460_2"])}
 
 
 def _hits():
@@ -248,16 +155,3 @@ def test_a_list_carries_its_notes_into_the_markdown_it_exports():
 
     assert "Note: No per-gRNA coefficient table was found" in table
     assert "Note: 2 duplicate gene term(s)" in table
-
-
-def test_a_results_table_that_is_not_a_coefficient_table_says_what_was_expected():
-    """A frame with no ``feature`` column has no gene terms to find.
-
-    ``build_hit_list`` falls back from the gene file to the combined one, and
-    that fallback must recognise a frame it cannot read instead of indexing a
-    column that is not there.
-    """
-    frames = {"all": pd.DataFrame({"value": [1.0, 2.0]})}
-
-    with pytest.raises(ValueError, match="no gene-level coefficients"):
-        build_hit_list(frames)

@@ -370,20 +370,17 @@ def _script(tmp_path, body, name="macro.py"):
     return path
 
 
-def test_a_file_with_no_record_is_not_a_macro(tmp_path):
-    """The exporter's input may be any Python file; say so plainly."""
-    path = _script(tmp_path, "X = 1\n")
-
-    with pytest.raises(MacroError, match="carries no MACRO record"):
-        macro.read_macro(path)
-
-
-def test_a_newer_schema_asks_for_a_newer_spacr(tmp_path):
-    """Reading a record this build does not understand would misreport it."""
-    path = _script(tmp_path, f"MACRO = {{'schema': {macro.MACRO_SCHEMA + 5}}}\n")
-
-    with pytest.raises(MacroError, match="Upgrade spaCR"):
-        macro.read_macro(path)
+@pytest.mark.parametrize("script, refusal", [
+    pytest.param("X = 1\n", "carries no MACRO record",
+                 id="a-file-with-no-record-is-not-a-macro"),
+    pytest.param(f"MACRO = {{'schema': {macro.MACRO_SCHEMA + 5}}}\n", "Upgrade spaCR",
+                 id="a-newer-schema-asks-for-a-newer-spacr"),
+])
+def test_a_script_that_is_not_a_readable_macro_is_refused(tmp_path, script, refusal):
+    """The exporter's input may be any Python file, and reading a record this
+    build does not understand would misreport it."""
+    with pytest.raises(MacroError, match=refusal):
+        macro.read_macro(_script(tmp_path, script))
 
 
 def test_assignments_the_reader_cannot_evaluate_are_skipped(tmp_path):

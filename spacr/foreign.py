@@ -3468,6 +3468,9 @@ def import_project(settings: Optional[TMapping[str, Any]] = None,
     result = run_import(plan, dst,
                         overwrite=bool(resolved.get('overwrite')),
                         measure=bool(resolved.get('measure')),
-                        crops=bool(resolved.get('crops')))
+                        crops=bool(resolved.get('crops')),
+                        progress=lambda index, total, _message: print(
+                            f'Progress: {index}/{total}, '
+                            f'operation_type: Importing project', flush=True))
     print(result.summary())
     return result

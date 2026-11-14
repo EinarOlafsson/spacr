@@ -114,7 +114,9 @@ def test_merge_ownership_rules(tmp_path, rule):
     db = str(tmp_path / "measurements.db")
     _two_fields(db)
     cells = _overlap_cells(tmp_path, db)
-    report = ops_engine._ph_merge(db, PLATE, "A1", {"ops_ownership": rule},
+    # no ops_geometry in this synthetic well: merge with 'similarity'
+    report = ops_engine._ph_merge(db, PLATE, "A1", {"ops_ownership": rule,
+                                                    "ops_align_model": "similarity"},
                                   str(tmp_path), False)
     merged = read_table(db, "ops_merge").merge(
         cells[["site", "label", "well_x"]], on=["site", "label"])

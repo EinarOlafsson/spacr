@@ -486,21 +486,6 @@ def test_a_running_job_is_polled_so_a_stop_can_be_honoured(tmp_path,
     assert "done" in log.read_text(encoding="utf-8")
 
 
-def test_a_stop_pressed_mid_job_stops_the_child_and_says_so(tmp_path,
-                                                            monkeypatch):
-    log = tmp_path / "01_mask-1.log"
-    monkeypatch.setattr(batch, "job_command", lambda job, settings, python=None:
-                        [sys.executable, "-c",
-                         "import time; time.sleep(30)"])
-    token = CancellationToken()
-    with installed_token(token):
-        token.cancel("the user pressed Stop")
-        with pytest.raises(PipelineCancelled):
-            batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
-                                    str(log))
-    assert "cancelled safely" in log.read_text(encoding="utf-8")
-
-
 def test_the_in_process_runner_calls_the_cli_and_tees_its_output(tmp_path,
                                                                  monkeypatch):
     from spacr import cli
@@ -801,24 +786,6 @@ def test_a_queue_that_never_started_has_no_duration():
     assert result.ok is True
 
 
-def test_a_child_that_ignores_a_polite_stop_is_killed(tmp_path, monkeypatch):
-    """Terminate, wait, then kill: a wedged Cellpose process must not hold
-    the queue open for the rest of the night."""
-    log = tmp_path / "01_mask-1.log"
-    monkeypatch.setattr(batch, "job_command", lambda job, settings, python=None:
-                        [sys.executable, "-c",
-                         "import signal, time; "
-                         "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
-                         "time.sleep(60)"])
-    token = CancellationToken()
-    with installed_token(token):
-        token.cancel("the user pressed Stop")
-        with pytest.raises(PipelineCancelled):
-            batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
-                                    str(log))
-    assert "cancelled safely" in log.read_text(encoding="utf-8")
-
-
 def test_a_job_that_was_still_running_when_the_queue_halted_is_not_run(
         tmp_path):
     """`not_run` and `running` are different things, and a queue file that
@@ -840,3 +807,25 @@ def test_a_job_that_was_still_running_when_the_queue_halted_is_not_run(
     assert queue.find("mask-1").status == batch.STATUS_FAILED
     assert queue.find("mask-2").status == batch.STATUS_NOT_RUN
     assert result.not_run == [queue.find("mask-2")]
+
+
+@pytest.mark.parametrize("child", [
+    pytest.param("import time; time.sleep(30)", id="mid_job_stop"),
+    # Terminate, wait, then kill: a wedged Cellpose process must not hold the
+    # queue open for the rest of the night.
+    pytest.param("import signal, time; "
+                 "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+                 "time.sleep(60)", id="child_that_ignores_a_polite_stop"),
+])
+def test_a_stop_pressed_mid_job_stops_the_child_and_says_so(
+        tmp_path, monkeypatch, child):
+    log = tmp_path / "01_mask-1.log"
+    monkeypatch.setattr(batch, "job_command", lambda job, settings, python=None:
+                        [sys.executable, "-c", child])
+    token = CancellationToken()
+    with installed_token(token):
+        token.cancel("the user pressed Stop")
+        with pytest.raises(PipelineCancelled):
+            batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
+                                    str(log))
+    assert "cancelled safely" in log.read_text(encoding="utf-8")

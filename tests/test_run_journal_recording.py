@@ -24,6 +24,7 @@ import pytest
 from spacr import pipeline_v2 as PV
 from spacr import run_journal as RJ
 from tests.refused_access import refused
+from spacr.settings import SETTINGS_SCHEMA_VERSION
 
 POSIX = os.name != "nt"
 ROOT = hasattr(os, "geteuid") and os.geteuid() == 0
@@ -726,7 +727,7 @@ def test_open_run_always_closes_with_a_manifest(
             assert manifest["app_key"] == "measure"
             assert json.loads((run.dir / "settings.json").read_text(
                 encoding="utf-8")) == {"diameter": 30,
-                                       "spacr_settings_version": 931}
+                                       "spacr_settings_version": SETTINGS_SCHEMA_VERSION}
             if raised is not None:
                 assert run.error_traceback.endswith(f"ValueError: {raised}\n")
                 assert manifest["traceback"] == run.error_traceback

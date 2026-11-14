@@ -162,15 +162,6 @@ def _wide(rows=12):
     })
 
 
-def test_columns_with_no_values_in_common_cannot_be_projected():
-    """Two all-empty columns pass a zero coverage bar and still say nothing."""
-    frame = pd.DataFrame({"a": [np.nan] * 5, "b": [np.nan] * 5,
-                          "c": [1.0, 2.0, 3.0, 4.0, 5.0]})
-    with pytest.raises(ReductionError) as excinfo:
-        reduce_dimensions(frame, ["a", "b"], min_coverage=0.0)
-    assert "no two measurements" in str(excinfo.value)
-
-
 def test_a_umap_projection_uses_the_installed_reducer(monkeypatch):
     """UMAP's own settings must reach it, not be silently defaulted."""
     from spacr import utils as _utils

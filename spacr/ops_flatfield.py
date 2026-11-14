@@ -47,7 +47,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -528,7 +528,7 @@ _DEFAULT_RIDGE = {"local_quadratic_log": 1e-6, "local_linear": 1e-9}
 
 
 def nuclear_median_grid(cy, cx, values, *, block: int = FLAT_BLOCK,
-                        size: int = 185) -> Tuple[np.ndarray, np.ndarray]:
+                        size: Union[int, Tuple[int, int]] = 185) -> Tuple[np.ndarray, np.ndarray]:
     """Per map cell, the median of the nuclei's values and how many there are.
 
     :param cy: nucleus centroid rows, in field pixels.
@@ -552,16 +552,25 @@ def nuclear_median_grid(cy, cx, values, *, block: int = FLAT_BLOCK,
     cx = np.asarray(cx, np.float64)
     values = np.asarray(values, np.float64)
     keep = np.isfinite(values) & np.isfinite(cy) & np.isfinite(cx)
-    iy = np.clip((cy[keep] // block).astype(int), 0, size - 1)
-    ix = np.clip((cx[keep] // block).astype(int), 0, size - 1)
-    grouped = pd.DataFrame({"k": iy * size + ix, "v": values[keep]}).groupby("k").v
-    median = np.full(size * size, np.nan)
-    count = np.zeros(size * size)
+    rows, cols = _grid_shape(size)
+    iy = np.clip((cy[keep] // block).astype(int), 0, rows - 1)
+    ix = np.clip((cx[keep] // block).astype(int), 0, cols - 1)
+    grouped = pd.DataFrame({"k": iy * cols + ix, "v": values[keep]}).groupby("k").v
+    median = np.full(rows * cols, np.nan)
+    count = np.zeros(rows * cols)
     medians = grouped.median()
     sizes = grouped.size()
     median[medians.index] = medians.to_numpy()
     count[sizes.index] = sizes.to_numpy()
-    return median.reshape(size, size), count.reshape(size, size)
+    return median.reshape(rows, cols), count.reshape(rows, cols)
+
+
+def _grid_shape(size) -> Tuple[int, int]:
+    """``(rows, cols)`` of a map or field size given as one number or a pair."""
+    if np.ndim(size) == 0:
+        return int(size), int(size)
+    rows, cols = size
+    return int(rows), int(cols)
 
 
 def normalise_flat(surface: np.ndarray, offset: float, *, floor: float = 0.10,
@@ -578,10 +587,9 @@ def normalise_flat(surface: np.ndarray, offset: float, *, floor: float = 0.10,
     :returns: ``(flat, centre)``: ``clip((surface - b) / (centre - b),
         floor)`` and the centre's mean on the camera's scale.
     """
-    size = surface.shape[0]
+    rows, cols = surface.shape[:2]
     half = int(centre_cells) // 2
-    low, high = size // 2 - half, size // 2 + half
-    centre = surface[low:high, low:high].mean()
+    centre = surface[rows // 2 - half:rows // 2 + half, cols // 2 - half:cols // 2 + half].mean()
     return np.clip((surface - offset) / (centre - offset), floor, None), float(centre)
 
 
@@ -616,11 +624,11 @@ def _local_fit(values: np.ndarray, weights: np.ndarray, terms, sigma: float,
     """
     from scipy import ndimage
 
-    size = values.shape[0]
-    yy, xx = np.mgrid[:size, :size].astype(np.float64)
+    rows, cols = values.shape[:2]
+    yy, xx = np.mgrid[:rows, :cols].astype(np.float64)
     count = len(terms)
-    moments = np.zeros((size, size, count, count))
-    right = np.zeros((size, size, count))
+    moments = np.zeros((rows, cols, count, count))
+    right = np.zeros((rows, cols, count))
     for i, (a1, b1) in enumerate(terms):
         right[..., i] = ndimage.gaussian_filter(weights * values * xx ** a1 * yy ** b1, sigma,
                                                 mode="constant")
@@ -639,7 +647,8 @@ def fit_nuclear_flat(median: np.ndarray, count: np.ndarray, offset: float, *,
                      fit: str = "local_quadratic_log", sigma_px: float = 32.0,
                      block: int = FLAT_BLOCK, ridge: Optional[float] = None,
                      floor: float = 0.10, centre_cells: int = 2 * FLAT_CENTRE_HALF,
-                     map_grid: str = "block_centre", field_px: Optional[int] = None,
+                     map_grid: str = "block_centre",
+                     field_px: Optional[Union[int, Tuple[int, int]]] = None,
                      centre_offset: float = 8.0) -> Tuple[np.ndarray, Dict[str, object]]:
     """A flat-field map from per-cell nuclear medians (item 912).
 
@@ -679,7 +688,7 @@ def fit_nuclear_flat(median: np.ndarray, count: np.ndarray, offset: float, *,
     if map_grid not in FLAT_MAP_GRIDS:
         raise ValueError(f"the map grid must be one of {list(FLAT_MAP_GRIDS)}; got {map_grid!r}")
     median = np.asarray(median, np.float64)
-    size = median.shape[0]
+    rows, cols = median.shape[:2]
     valid = np.isfinite(median)
     weights = np.where(valid, np.asarray(count, np.float64), 0.0)
     values = np.where(valid, median, 0.0)
@@ -703,13 +712,15 @@ def fit_nuclear_flat(median: np.ndarray, count: np.ndarray, offset: float, *,
         target = np.log(np.clip(values - offset, 1, None)) if fit == "local_quadratic_log" else values
         coefficients = _local_fit(target, weights, terms, sigma, ridge)
         if map_grid == "lookup":
-            t = lookup_positions(size, int(field_px or size * block), block=block,
-                                 centre_offset=centre_offset)
-            ys, xs = np.meshgrid(t, t, indexing="ij")
-            near = np.clip(np.rint(t).astype(int), 0, size - 1)
-            coefficients = coefficients[near[:, None], near[None, :]]
+            px_rows, px_cols = _grid_shape(field_px) if field_px else (rows * block, cols * block)
+            ty = lookup_positions(rows, px_rows, block=block, centre_offset=centre_offset)
+            tx = lookup_positions(cols, px_cols, block=block, centre_offset=centre_offset)
+            ys, xs = np.meshgrid(ty, tx, indexing="ij")
+            near_y = np.clip(np.rint(ty).astype(int), 0, rows - 1)
+            near_x = np.clip(np.rint(tx).astype(int), 0, cols - 1)
+            coefficients = coefficients[near_y[:, None], near_x[None, :]]
         else:
-            ys, xs = np.mgrid[:size, :size].astype(np.float64)
+            ys, xs = np.mgrid[:rows, :cols].astype(np.float64)
         surface = _evaluate(coefficients, terms, ys, xs)
         if fit == "local_quadratic_log":
             surface = np.exp(surface) + offset
@@ -815,11 +826,12 @@ def _field_keys(frame) -> np.ndarray:
 def build_nuclear_flat(nuclei, *, column: str, offset: float,
                        holdout: Sequence[Tuple[str, int]] = (),
                        cy: str = "nucleus_cy", cx: str = "nucleus_cx",
-                       block: int = FLAT_BLOCK, size: Optional[int] = None,
+                       block: int = FLAT_BLOCK, size: Optional[Union[int, Tuple[int, int]]] = None,
                        fit: str = "local_quadratic_log", sigma_px: float = 32.0,
                        ridge: Optional[float] = None, floor: float = 0.10,
                        centre_cells: int = 2 * FLAT_CENTRE_HALF,
-                       map_grid: str = "block_centre", field_px: Optional[int] = None,
+                       map_grid: str = "block_centre",
+                       field_px: Optional[Union[int, Tuple[int, int]]] = None,
                        centre_offset: float = 8.0, lookup: str = "block_centre"
                        ) -> Tuple[np.ndarray, Dict[str, object]]:
     """One plate's nuclear-median flat-field map from its per-nucleus table.
@@ -868,7 +880,12 @@ def build_nuclear_flat(nuclei, *, column: str, offset: float,
     if field_px is None:
         largest = float(np.nanmax(train[[cy, cx]].to_numpy(np.float64)))
         field_px = (int(largest) // block + 1) * block
-    size = int(size or int(field_px) // block)
+    if size:
+        size = _grid_shape(size)
+    else:
+        size = tuple(n // block for n in _grid_shape(field_px))
+    if size[0] == size[1] and np.ndim(field_px) == 0:
+        size = size[0]
     median, count = nuclear_median_grid(train[cy].to_numpy(), train[cx].to_numpy(),
                                         train[column].to_numpy(), block=block, size=size)
     flat, fitted = fit_nuclear_flat(median, count, float(offset), fit=fit, sigma_px=sigma_px,
@@ -881,7 +898,9 @@ def build_nuclear_flat(nuclei, *, column: str, offset: float,
     info: Dict[str, object] = {
         "estimator": "nuclear_median", "column": column, "offset": float(offset),
         "floor": float(floor), "fit": fit, "sigma_px": float(sigma_px), "ridge": fitted["ridge"],
-        "block": int(block), "size": size, "field_px": int(field_px), "map_grid": map_grid,
+        "block": int(block), "size": size if np.ndim(size) == 0 else list(size),
+        "field_px": int(field_px) if np.ndim(field_px) == 0 else [int(n) for n in field_px],
+        "map_grid": map_grid,
         "lookup": lookup, "centre_offset": float(centre_offset), "centre_cells": int(centre_cells),
         "held_out_fields": [f"{w}:{s}" for w, s in holdout],
         "n_training_nuclei": int(len(train)), "n_heldout_nuclei": int(held.sum()),
