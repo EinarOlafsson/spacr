@@ -9429,7 +9429,7 @@ ALPHA_FEATURES = {
             'align_placement_seed', 'align_placement_seed_export')},
     },
     940: {
-        'settings': ('ops_placement_seed', 'ops_placement_seed_mode', 'ops_placement_seed_export', 'ops_placement_seed_check_pixels', 'ops_placement_seed_tolerance',),
+        'settings': ('ops_placement_seed', 'ops_placement_seed_mode', 'ops_placement_seed_export', 'ops_placement_seed_check_pixels', 'ops_placement_seed_tolerance', 'ops_ph_placement_seed',),
     },
     934: {
         'settings': ('funk_object_features', 'zernike', 'channel_names',

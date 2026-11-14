@@ -59,9 +59,11 @@ LOG = logging.getLogger(__name__)
 
 __all__ = [
     "ACCEPTANCES", "DEFAULT_ANCHOR_WEIGHT", "DEFAULT_MIN_NCC", "GAUGES",
-    "OPS_TO_ALIGN_KEYS", "PLACEMENT_SCHEMA", "PLACEMENT_SCHEMA_VERSION",
+    "OPS_TO_ALIGN_KEYS", "PH_PLACEMENT_SCHEMA", "PH_PLACEMENT_SCHEMA_VERSION",
+    "PLACEMENT_SCHEMA", "PLACEMENT_SCHEMA_VERSION",
     "SEED_MODES", "StripRegistration", "feather_weights",
-    "load_placement_seed", "ops_seed_from_db", "register_strip_pair",
+    "load_phenotype_placement_seed", "load_placement_seed",
+    "ops_seed_from_db", "phenotype_raster_from_seed", "register_strip_pair",
     "seed_to_placements", "solve_positions", "validate_placement_seed",
     "write_placement_seed",
 ]
@@ -978,3 +980,137 @@ def ops_seed_from_db(db: str, plate: str, well: str, *,
         "path": f"{db}#ops_geometry", "sha256": None,
     }
     return seed
+
+
+#: The ``schema`` value of a phenotype placement seed (item 940).
+PH_PLACEMENT_SCHEMA = "spacr.ops_ph_placement_seed"
+
+#: The phenotype placement seed version this spaCR reads.
+PH_PLACEMENT_SCHEMA_VERSION = 1
+
+#: The keys every phenotype placement seed carries.
+_PH_SEED_REQUIRED = ("schema", "schema_version", "plate", "well",
+                     "phenotype_fields", "frame", "raster", "transform")
+
+#: The frames a phenotype placement seed may be written in.
+_PH_SEED_FRAMES = ("sbs_tile_anchored",)
+
+
+def load_phenotype_placement_seed(source: Any) -> Dict[str, Any]:
+    """Read a phenotype placement seed and check its schema (item 940).
+
+    The file holds one well's phenotype acquisition raster (origin, column
+    step, row step), the well's field scale and rotation, and the sequencing
+    tile positions the raster was measured against (schema
+    ``spacr.ops_ph_placement_seed``, frame ``sbs_tile_anchored``).
+
+    :param source: a path to the JSON file.
+    :returns: the file's content, with ``"path"`` and ``"sha256"`` added.
+    :raises ValueError: for an unreadable or corrupt file, another schema, a
+        newer version, a missing key, or another frame.
+    """
+    path = os.fspath(source)
+    try:
+        with open(path, "rb") as handle:
+            raw = handle.read()
+    except OSError as failure:
+        raise ValueError(_tr(
+            "phenotype placement seed {path} cannot be read: {reason}",
+            path=path, reason=failure)) from failure
+    try:
+        seed = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError) as failure:
+        raise ValueError(_tr(
+            "phenotype placement seed {path} is not valid JSON ({reason})",
+            path=path, reason=failure)) from failure
+    schema = seed.get("schema") if isinstance(seed, dict) else None
+    if schema != PH_PLACEMENT_SCHEMA:
+        raise ValueError(_tr(
+            "{path} is not a phenotype placement seed: its schema is "
+            "{schema}, not {expected}", path=path, schema=schema,
+            expected=PH_PLACEMENT_SCHEMA))
+    try:
+        version = int(seed.get("schema_version"))
+    except (TypeError, ValueError):
+        version = PH_PLACEMENT_SCHEMA_VERSION + 1
+    if version != PH_PLACEMENT_SCHEMA_VERSION:
+        raise ValueError(_tr(
+            "phenotype placement seed version {version} is not one this "
+            "spaCR reads ({supported}); update spaCR",
+            version=seed.get("schema_version"),
+            supported=PH_PLACEMENT_SCHEMA_VERSION))
+    missing = [key for key in _PH_SEED_REQUIRED if key not in seed]
+    kind = (seed.get("frame") or {}).get("kind") if not missing else None
+    if not missing and kind not in _PH_SEED_FRAMES:
+        missing = ["frame.kind 'sbs_tile_anchored'"]
+    if missing:
+        raise ValueError(_tr(
+            "phenotype placement seed {path} is missing {keys}",
+            path=path, keys=", ".join(missing)))
+    seed["path"], seed["sha256"] = path, hashlib.sha256(raw).hexdigest()
+    return seed
+
+
+def phenotype_raster_from_seed(seed: Mapping[str, Any],
+                               placements: Mapping[int, Tuple[float, float]],
+                               *, plate: str, well: str,
+                               fields: int) -> Dict[str, Any]:
+    """Every phenotype field's centre, from a seed, on this run's stitch.
+
+    The seed's raster is moved onto this run's sequencing frame by the mean,
+    over the seed's reference tiles this run placed, of (this run's
+    placement - the stored placement). The steps, scale and rotation are
+    used as stored. No phenotype field is aligned.
+
+    :param seed: from :func:`load_phenotype_placement_seed`.
+    :param placements: ``sequencing site -> (y, x)`` of this run's stitch.
+    :param plate: this run's plate.
+    :param well: this run's well.
+    :param fields: this run's phenotype field count (highest site + 1).
+    :returns: ``centres`` (``site -> (y, x)`` for every field of the layout),
+        ``scale``, ``rotation_deg``, ``field_shape``, ``offset`` (the
+        ``(dy, dx)`` added) and ``reference_tiles`` (the tiles it used).
+    :raises ValueError: when the seed names another plate or well, another
+        field count, or none of its reference tiles is placed in this run.
+    """
+    from .ops_layout import round_well_layout
+
+    if (str(seed["plate"]).strip() != str(plate).strip()
+            or _well_key(seed["well"]) != _well_key(well)):
+        raise ValueError(_tr(
+            "the phenotype placement seed is for {seed_plate} {seed_well}, "
+            "not {plate} {well}", seed_plate=seed["plate"],
+            seed_well=seed["well"], plate=plate, well=well))
+    if int(seed["phenotype_fields"]) != int(fields):
+        raise ValueError(_tr(
+            "the phenotype placement seed describes {seed} phenotype fields; "
+            "this run's layout has {run}", seed=seed["phenotype_fields"],
+            run=fields))
+    stored = {int(site): (float(tile["y"]), float(tile["x"]))
+              for site, tile in seed["frame"].get("reference_tiles", {}).items()}
+    used = sorted(site for site in stored if site in placements)
+    if not used:
+        raise ValueError(_tr(
+            "none of the phenotype placement seed's reference tiles {tiles} "
+            "is placed in this run", tiles=sorted(stored)))
+    offset = np.mean([[float(placements[site][0]) - stored[site][0],
+                       float(placements[site][1]) - stored[site][1]]
+                      for site in used], axis=0)
+    raster = seed["raster"]
+    origin = np.asarray(raster["origin"], float) + offset
+    column_step = np.asarray(raster["column_step"], float)
+    row_step = np.asarray(raster["row_step"], float)
+    grid = np.asarray(round_well_layout(int(fields)).positions(), float)
+    centres = origin + np.outer(grid[:, 0], column_step) + np.outer(
+        grid[:, 1], row_step)
+    transform = seed["transform"]
+    return {
+        "centres": {site: (float(y), float(x))
+                    for site, (y, x) in enumerate(centres)},
+        "scale": float(transform["scale"]),
+        "rotation_deg": float(transform["rotation_deg"]),
+        "field_shape": (int(transform["field_shape"][0]),
+                        int(transform["field_shape"][1])),
+        "offset": (float(offset[0]), float(offset[1])),
+        "reference_tiles": used,
+    }
