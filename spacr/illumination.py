@@ -1224,12 +1224,13 @@ def _nuclei_from_database(path: str, channel: int):
         illumination correction on, so its nuclear means are already
         corrected; the message names the column.
     """
-    import sqlite3
-
     import pandas as pd
 
+    from .database_concurrency import connect
+
     column = _nuclear_column(channel)
-    with sqlite3.connect(f'file:{path}?mode=ro', uri=True) as connection:
+    connection = connect(path, readonly=True)
+    try:
         tables = {r[0] for r in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
         if 'nucleus' not in tables:
@@ -1251,9 +1252,12 @@ def _nuclei_from_database(path: str, channel: int):
         missing = [c for c in ('file_name', 'object_label', cy, cx, column) if c not in names]
         if missing:
             raise IlluminationError(f"the nucleus table of {path!r} lacks {missing}.")
-        frame = pd.read_sql_query(
-            f'SELECT file_name, object_label, "{cy}", "{cx}", "{column}" FROM nucleus',
-            connection)
+        selected = ('file_name', 'object_label', cy, cx, column)
+        frame = pd.DataFrame(connection.execute(
+            f'SELECT file_name, object_label, "{cy}", "{cx}", "{column}" FROM nucleus'
+        ).fetchall(), columns=list(selected))
+    finally:
+        connection.close()
     index = _field_index(frame['file_name'].astype(str))
     keys = frame['file_name'].astype(str).map(index)
     return pd.DataFrame({
@@ -1291,9 +1295,10 @@ def _nuclei_table(nuclei, channel: int, *, paths: Sequence[str],
     path = str(nuclei)
     if path.endswith('.db'):
         return _nuclei_from_database(path, channel)
-    if path.endswith('.parquet'):
-        return pd.read_parquet(path)
-    return pd.read_csv(path)
+    from .tabular import read_table
+
+    return read_table(path, canonicalise=False, report=None,
+                      repair_plate_ids=False)
 
 
 def _nuclear_offset(plate: str, dark: float, dark_per_plate) -> float:
@@ -1687,9 +1692,11 @@ validate_nuclear_flat`): ``(I - b) / F + b`` per pixel, then the nuclear
                                 'illumination', 'validation')
     if save_dir:
         os.makedirs(save_dir, exist_ok=True)
-        radial.to_csv(os.path.join(save_dir, 'radial.csv'), index=False)
-        pd.concat(cells_out, ignore_index=True).to_csv(
-            os.path.join(save_dir, 'heldout_nuclei.csv'), index=False)
+        from .tabular import write_table
+
+        write_table(radial, os.path.join(save_dir, 'radial.csv'), canonicalise=False)
+        write_table(pd.concat(cells_out, ignore_index=True),
+                    os.path.join(save_dir, 'heldout_nuclei.csv'), canonicalise=False)
         with open(os.path.join(save_dir, 'radial_summary.json'), 'w', encoding='utf-8') as handle:
             json.dump(summaries, handle, indent=1, default=float)
     return radial
