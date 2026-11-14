@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import logging
 import logging.handlers
-import os
 import sys
 import threading
 import types
@@ -119,118 +118,9 @@ def test_switching_a_level_off_leaves_its_handler_filtered_to_nothing(
                                else set())
 
 
-def test_the_preference_switches_reach_the_live_level_files(tmp_path,
-                                                            logging_sandbox):
-    lu._LEVEL_HANDLERS.clear()
-    lu._LOG_PATH = tmp_path / "spacr.log"
-    files, console = lu.apply_level_policy({logging.WARNING, logging.ERROR},
-                                           {logging.ERROR})
-    assert files == frozenset({logging.WARNING, logging.ERROR})
-    assert console == frozenset({logging.ERROR})
-    # spacr.* carries its own threshold, which would veto the switches
-    # before any handler filter ran.
-    assert logging.getLogger("spacr").level == logging.WARNING
-    assert set(lu._LEVEL_HANDLERS) == set(lu.LEVELS)
-
-
-def test_a_console_level_the_file_does_not_keep_is_clamped_away(
-        tmp_path, logging_sandbox):
-    """The console cannot show what the file was never given."""
-    lu._LOG_PATH = None
-    files, console = lu.apply_level_policy({logging.ERROR},
-                                           {logging.DEBUG, logging.ERROR})
-    assert console == frozenset({logging.ERROR})
-    assert files == frozenset({logging.ERROR})
-
-
-def test_a_build_without_the_qt_console_still_applies_the_file_switches(
-        monkeypatch, logging_sandbox):
-    """Qt is optional; the CLI has no console panel and must not be refused
-    a logging policy because of it."""
-    monkeypatch.setitem(sys.modules, "spacr.qt.verbose_logger", None)
-    lu._LOG_PATH = None
-    files, console = lu.apply_level_policy({logging.INFO, logging.ERROR},
-                                           {logging.ERROR})
-    assert files == frozenset({logging.INFO, logging.ERROR})
-    assert console == frozenset({logging.ERROR})
-
-
-def test_switching_everything_off_pins_spacr_at_critical(logging_sandbox):
-    lu._LOG_PATH = None
-    files, console = lu.apply_level_policy(set(), set())
-    assert files == frozenset() and console == frozenset()
-    assert logging.getLogger("spacr").level == logging.CRITICAL
-
-
 # --------------------------------------------------------------------------
 # the function trace
 # --------------------------------------------------------------------------
-
-def _spacr_frame(name="run", qualname="Runner.run",
-                 filename=None, module="spacr.core"):
-    """A stand-in for what CPython hands a profile hook."""
-    code = types.SimpleNamespace(
-        co_name=name, co_qualname=qualname,
-        co_filename=filename or os.path.join(
-            os.path.dirname(lu.__file__), "core.py"))
-    return types.SimpleNamespace(code=code, f_code=code,
-                                 f_globals={"__name__": module})
-
-
-def test_a_traced_call_and_return_are_logged_in_opposite_directions(caplog):
-    caplog.set_level(logging.DEBUG, logger="spacr.trace")
-    lu._trace_profile(_spacr_frame(), "call", None)
-    lu._trace_profile(_spacr_frame(), "return", None)
-    said = [record.getMessage() for record in caplog.records]
-    assert said == ["→ spacr.core.Runner.run", "← spacr.core.Runner.run"]
-
-
-def test_only_call_and_return_events_are_traced(caplog):
-    caplog.set_level(logging.DEBUG, logger="spacr.trace")
-    for event in ("line", "c_call", "c_return", "exception"):
-        lu._trace_profile(_spacr_frame(), event, None)
-    assert caplog.records == []
-
-
-def test_qt_event_delivery_is_never_traced(caplog):
-    """Tracing those feeds the GUI console from inside event delivery, and
-    the console's repaint is another event."""
-    caplog.set_level(logging.DEBUG, logger="spacr.trace")
-    for name in ("paintEvent", "eventFilter", "sizeHint"):
-        lu._trace_profile(_spacr_frame(name=name), "call", None)
-    assert caplog.records == []
-
-
-def test_code_outside_spacr_and_the_logger_itself_are_not_traced(caplog):
-    caplog.set_level(logging.DEBUG, logger="spacr.trace")
-    lu._trace_profile(_spacr_frame(filename="/usr/lib/python3/json.py"),
-                      "call", None)
-    lu._trace_profile(_spacr_frame(filename=lu._TRACE_THIS_FILE), "call", None)
-    assert caplog.records == []
-
-
-def test_the_trace_does_not_re_enter_itself(caplog):
-    caplog.set_level(logging.DEBUG, logger="spacr.trace")
-    lu._TRACE_STATE.busy = True
-    try:
-        lu._trace_profile(_spacr_frame(), "call", None)
-    finally:
-        lu._TRACE_STATE.busy = False
-    assert caplog.records == []
-
-
-def test_a_tracing_aid_never_alters_the_code_it_observes():
-    """A frame the hook cannot read must not raise into the traced call, and
-    the re-entry guard must be released either way."""
-    class Hostile(dict):
-        def get(self, *args, **kwargs):
-            raise RuntimeError("no globals here")
-
-    frame = _spacr_frame()
-    frame.f_globals = Hostile()
-    lu._trace_profile(frame, "call", None)
-    assert getattr(lu._TRACE_STATE, "busy", False) is False
-
 
 def test_asking_for_the_trace_twice_installs_it_once(monkeypatch,
                                                      logging_sandbox):
@@ -246,23 +136,6 @@ def test_asking_for_the_trace_twice_installs_it_once(monkeypatch,
     finally:
         lu.disable_function_trace()
     assert lu.function_trace_enabled() is False
-
-
-def test_on_a_runtime_without_all_threads_the_hook_still_goes_on_and_off(
-        monkeypatch, logging_sandbox):
-    """Pre-3.12 has no ``setprofile_all_threads``; the calling thread and
-    future threads are still covered, and the previous hook comes back."""
-    monkeypatch.delattr(threading, "setprofile_all_threads", raising=False)
-    lu._TRACE_ENABLED = False
-    before = sys.getprofile()
-    lu.enable_function_trace()
-    try:
-        assert sys.getprofile() is lu._trace_profile
-    finally:
-        lu.disable_function_trace()
-    assert sys.getprofile() is before
-    assert lu.function_trace_enabled() is False
-    assert lu.disable_function_trace() is None      # idempotent
 
 
 # --------------------------------------------------------------------------

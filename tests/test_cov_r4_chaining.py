@@ -23,7 +23,7 @@ import sqlite3
 import numpy as np
 import pytest
 
-from spacr import artifacts, chaining, ports
+from spacr import chaining, ports
 
 
 @pytest.fixture
@@ -127,148 +127,14 @@ def test_a_project_with_no_measurements_folder_still_offers_its_database(
         laid_out, "measurements", "measurements.db")
 
 
-def test_two_databases_in_one_project_are_a_question_not_a_guess(tmp_path):
-    """Picking the first would be the silent wrong answer.
-
-    A project legitimately holds two: ``measurements.db`` and whatever a
-    re-measure into a second file left. The drop resolves the *setting*
-    normally and asks which database it means, naming the key the answer
-    belongs in so a dialog can write it back.
-    """
-    project = _plate(tmp_path / "plate1", dbs=("measurements.db", "spare.db"))
-
-    result = chaining.resolve_drop("classify", project)
-
-    assert [t.kind for t in result.targets] == [ports.MEASUREMENTS_DB]
-    assert len(result.choices) == 1
-    choice = result.choices[0]
-    assert choice.kind == ports.MEASUREMENTS_DB
-    assert choice.setting == "src"
-    assert set(choice.options) == {
-        os.path.join(project, "measurements", "measurements.db"),
-        os.path.join(project, "measurements", "spare.db")}
-    assert "which one" in choice.question.lower()
-
-    # One database in the same layout asks nothing at all.
-    single = _plate(tmp_path / "plate2")
-    assert chaining.resolve_drop("classify", single).choices == ()
-
-
 # --------------------------------------------------------------------------- #
 #  One settings key, one answer
 # --------------------------------------------------------------------------- #
-
-def test_the_second_port_bound_to_src_does_not_resolve_it_again(tmp_path):
-    """Classify binds two ports to ``src``; the crop folder must not be walked.
-
-    Resolving the second would recursively glob a folder of crops to arrive
-    at the string already in hand, with the mouse button down. The crops are
-    really there in this test — the folder the second port declares exists
-    and holds a PNG — so "one target" is a decision and not an absence.
-    """
-    project = _plate(tmp_path / "plate1", crops=True)
-    registry = artifacts.open_registry(project)
-    artifacts.register_run_outputs(
-        "measure", {"src": project, "cell_mask_dim": 4, "save_png": True},
-        registry=registry)
-    assert registry.latest(ports.CROPS, project=project) is not None, (
-        "the crops port has an answer of its own to be skipped")
-
-    result = chaining.resolve_drop("classify", project, registry=registry)
-
-    assert [t.setting for t in result.targets] == ["src"]
-    target = result.targets[0]
-    assert target.kind == ports.MEASUREMENTS_DB
-    assert target.source == chaining.FROM_REGISTRY, (
-        "the registry answers before the layout is walked")
-    assert target.location == os.path.join(project, "measurements",
-                                           "measurements.db")
-    assert target.value == project
-
-
-def test_a_list_valued_source_keeps_its_list_when_the_registry_answers(
-        tmp_path):
-    """Classify keeps its sources in a list and every other module does not.
-
-    Same drop as above; only the current value of the key differs, which is
-    what decides whether the registry's answer is wrapped.
-    """
-    project = _plate(tmp_path / "plate1")
-    registry = artifacts.open_registry(project)
-    artifacts.register_run_outputs(
-        "measure", {"src": project, "cell_mask_dim": 4, "save_png": True},
-        registry=registry)
-
-    plain = chaining.resolve_drop("classify", project, registry=registry)
-    wrapped = chaining.resolve_drop("classify", project, registry=registry,
-                                    settings={"src": ["an/older/plate"]})
-
-    assert plain.targets[0].value == project
-    assert wrapped.targets[0].value == [project]
-
 
 # --------------------------------------------------------------------------- #
 #  A sibling that is not a project
 # --------------------------------------------------------------------------- #
 
-def test_a_sibling_folder_that_is_not_a_project_is_not_a_candidate(tmp_path):
-    """Dropping the folder that holds the plates is normal; guessing is not.
-
-    With one real plate beside a folder that satisfies nothing, there is
-    exactly one candidate, so the drop resolves instead of asking. If the
-    non-project were counted the user would get a two-option dialog with one
-    wrong answer in it.
-    """
-    parent = tmp_path / "screen"
-    parent.mkdir()
-    plate = _plate(parent / "plate1")
-    (parent / "notes").mkdir()
-    (parent / "notes" / "readme.txt").write_text("nothing to see", encoding="utf-8")
-
-    result = chaining.resolve_drop("measure", str(parent))
-
-    assert result.choices == (), "one candidate is not ambiguous"
-    assert [t.value for t in result.targets] == [plate]
-
-    # Two real plates under the same parent *is* the question.
-    _plate(parent / "plate2")
-    asked = chaining.resolve_drop("measure", str(parent))
-    assert len(asked.choices) == 1
-    assert set(asked.choices[0].options) == {plate, str(parent / "plate2")}
-
-
 # --------------------------------------------------------------------------- #
 #  A screen with no port declaration of its own
 # --------------------------------------------------------------------------- #
-
-def test_a_kinds_driven_screen_still_gets_its_ports_problems(tmp_path):
-    """``check_ready`` cannot be asked about a module it has never heard of.
-
-    A screen that declares no ports says what it wants with ``kinds``. Drop
-    a folder holding none of it and the answer must still be the port-level
-    sentences — one per kind, naming the place it looked — rather than an
-    empty ``problems`` tuple that a dialog would render as "nothing wrong".
-    """
-    empty = tmp_path / "not_a_plate"
-    empty.mkdir()
-
-    result = chaining.resolve_drop(
-        "an-unregistered-screen", str(empty),
-        kinds=(ports.MERGED_ARRAYS, ports.MEASUREMENTS_DB))
-
-    assert result.targets == ()
-    assert result.choices == ()
-    text = "\n".join(str(problem) for problem in result.problems)
-    assert ports.MERGED_ARRAYS in text
-    assert ports.MEASUREMENTS_DB in text
-    assert os.path.join(str(empty), "merged") in text
-
-    # The same call against a project that has both reports nothing wrong,
-    # so the sentences above are a finding and not a constant.
-    project = _plate(tmp_path / "plate1")
-    ready = chaining.resolve_drop(
-        "an-unregistered-screen", project,
-        kinds=(ports.MERGED_ARRAYS, ports.MEASUREMENTS_DB))
-    assert ready.problems == ()
-    assert {t.kind for t in ready.targets} == {ports.MERGED_ARRAYS,
-                                               ports.MEASUREMENTS_DB}

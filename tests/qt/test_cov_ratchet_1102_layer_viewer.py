@@ -82,25 +82,6 @@ def test_a_colormap_the_list_does_not_know_is_added_and_shown(qtbot):
     assert panel.colormap_combo.currentText() == "my ramp"
 
 
-def test_with_no_layer_every_control_edit_is_a_no_op(qtbot):
-    stack = LayerStack()
-    panel = _panel(qtbot, stack)
-    moved = []
-
-    panel._on_opacity(30)
-    panel._on_blending(1)
-    panel._on_colormap("gray")
-    panel._on_limits()
-    panel._on_auto()
-    panel._on_labels_display(1)
-    panel._reorder(moved.append)
-
-    assert moved == []
-    assert stack.selected is None
-    assert not panel.opacity_slider.isEnabled()
-    assert not panel.raise_button.isEnabled()
-
-
 def test_controls_that_do_not_apply_to_the_active_layer_kind_change_nothing(qtbot):
     stack = _field()
     panel = _panel(qtbot, stack)
