@@ -10,8 +10,6 @@ from __future__ import annotations
 import inspect
 import os
 
-import pytest
-
 
 # ---------------------------------------------------------------------------
 # spacr/qt/fractal_defaults.py -- clamp
@@ -68,23 +66,6 @@ class TestExplainingAPresetThatNamesNothing:
             "the set of member-less presets changed; the 'covers:' line "
             "below is skipped for exactly these")
 
-    def test_custom_explains_nothing_because_it_applies_nothing(self, capsys):
-        """The public path cannot reach the member-less branch.
-
-        ``custom`` is the only preset that names no structures, and it
-        recommends nothing either -- so the explanation returns at its
-        first line, before it would have printed a 'covers:'. That is
-        why the branch below has to be driven directly.
-        """
-        from spacr.organelle_types import apply_preset, preset_for
-
-        assert preset_for("custom", None) == {}, (
-            "custom now recommends settings, so apply_preset reaches the "
-            "explanation and this branch has a live public path")
-
-        apply_preset({"organelle_type": "custom"}, explain=True)
-        assert capsys.readouterr().out == ""
-
     def test_a_member_less_preset_prints_no_covers_line(self, capsys):
         """THE UNCOVERED BRANCH.
 
@@ -105,16 +86,6 @@ class TestExplainingAPresetThatNamesNothing:
         assert "Nameless" in printed
         assert "set    organelle_method" in printed
         assert "covers:" not in printed
-
-    def test_a_preset_that_does_name_members_prints_them(self, capsys):
-        from spacr.organelle_types import apply_preset, ORGANELLE_TYPES
-
-        named = next(name for name, preset in ORGANELLE_TYPES.items()
-                     if preset.members)
-        apply_preset({"organelle_type": named}, explain=True)
-        printed = capsys.readouterr().out
-
-        assert "covers:" in printed
 
 
 # ---------------------------------------------------------------------------

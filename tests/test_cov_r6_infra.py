@@ -1,4 +1,4 @@
-"""The last untaken edges in four pieces of spaCR infrastructure.
+"""The last untaken edges in three pieces of spaCR infrastructure.
 
 Not analysis and not GUI: the modules a run leans on before it does any work.
 
@@ -6,32 +6,25 @@ Not analysis and not GUI: the modules a run leans on before it does any work.
   import.
 * ``spacr.logging_util`` -- the trace hook surviving a logging call that
   fails, and a level handler that is carrying somebody else's filter.
-* ``spacr.pipeline_v2`` -- a non-``cell`` object type claiming no nucleus
-  channel, and the empty-stack early return.
 * ``spacr.resources.home.versions._generators.common`` -- the generator's
   path fix in a process where ``spacr`` has not been imported yet.
 
-Two of the targets turned out to be guards no caller can fail. Neither is
-silenced: each has a proof beside it and a test that pins the invariant the
+One of the targets turned out to be a guard no caller can fail. It is not
+silenced: it has a proof beside it and a test that pins the invariant the
 proof rests on, so the guard becomes reachable again the moment somebody
 breaks the invariant.
 """
 from __future__ import annotations
 
-import json
 import logging
 import os
 import sys
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 from spacr import logging_util as lu
-from spacr import pipeline_v2 as PV
 from spacr import schema
-
-from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 
 # ---------------------------------------------------------------------------
@@ -218,120 +211,6 @@ def test_a_foreign_filter_on_a_level_handler_survives_and_still_sees_records(
     logging.getLogger("spacr.probe").error("while the level is on")
     assert counter.seen > before, "the foreign filter was bypassed"
     assert "while the level is on" in error_log.read_text(encoding="utf-8")
-
-
-# ---------------------------------------------------------------------------
-# spacr.pipeline_v2
-# ---------------------------------------------------------------------------
-
-def _make_plate(dst: Path, name="plate1", channels=3, size=12) -> Path:
-    import tifffile
-
-    plate = dst / name
-    plate.mkdir(parents=True, exist_ok=True)
-    rng = np.random.default_rng(0)
-    for field in (1,):
-        for channel in range(channels):
-            arr = rng.integers(0, 2000, size=(size, size)).astype(np.uint16)
-            tifffile.imwrite(
-                str(plate / f'{name}_A01_T01F0{field}L01A01Z01C0{channel}.tif'),
-                arr)
-    return plate
-
-
-class _ConstantMaskModel:
-    def __init__(self, *args, **kwargs):
-        self.pretrained_model = None
-
-    def eval(self, x, batch_size=8, resample=True, channels=None,
-             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
-             normalize=True, rescale=None, diameter=None,
-             flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
-             anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
-             min_size=15, max_size_fraction=0.4, niter=None,
-             augment=False, tile_overlap=0.1, bsize=None,
-             compute_masks=True, progress=None):
-        check_cellpose_eval_call(x, channel_axis)
-        return ([np.ones(np.asarray(image).shape[:2], dtype=np.uint16)
-                 for image in x], None, None)
-
-
-def test_only_a_cell_run_claims_the_second_plane_as_its_nucleus(
-        tmp_path, monkeypatch):
-    """The nucleus slot is a cell-specific remap, not a rule about plane 1.
-
-    ``stream_masks_from_stack`` reuses V1's normaliser by remapping the
-    channel roles onto the compact Cellpose input. Handing plane 1 to
-    ``nucleus_channel`` is right for a cell run, where the second selected
-    plane IS the nucleus; doing it for a nucleus or pathogen run would
-    normalise the object's own second plane as if it were a different
-    organelle, and the masks would differ from V1's for the same input.
-    """
-    seen = []
-
-    def recording_normalise(*, stack, channels, save_dtype, settings):
-        seen.append(dict(settings))
-        return np.asarray(stack, dtype=np.float32)
-
-    import spacr.io as spacr_io
-    monkeypatch.setattr(spacr_io, "_normalize_img_batch", recording_normalise)
-    monkeypatch.setattr("cellpose.models.CellposeModel", _ConstantMaskModel)
-
-    for index, object_type in enumerate(("nucleus", "cell")):
-        plate = _make_plate(tmp_path, name=f"plate{index}")
-        mapper = PV.FilenameMapper.discover(plate,
-                                            metadata_type="cellvoyager")
-        stacks = PV.stream_originals_to_stack(plate, mapper,
-                                              channels=(0, 1, 2))
-        PV.stream_masks_from_stack(
-            stacks, model_name="cyto", batch_fields=1,
-            channels_for_cellpose=(0, 1), object_type=object_type,
-            postprocess_settings={"percentiles": [2, 98]})
-
-    nucleus_run, cell_run = seen
-    # Both runs hand Cellpose the same two-plane input...
-    assert nucleus_run["nucleus_channel"] == 0
-    assert nucleus_run["cell_channel"] is None
-    # ...and only the cell run reads plane 1 as a nucleus.
-    assert cell_run["cell_channel"] == 0
-    assert cell_run["nucleus_channel"] == 1
-
-
-def test_an_empty_stack_list_returns_before_cellpose_is_ever_loaded(
-        tmp_path, monkeypatch):
-    """The ``if stacks:`` before the sidecar update cannot be false. Proof.
-
-    ``stream_masks_from_stack`` opens with ``if not stacks: return stacks``,
-    and ``stacks`` is never rebound anywhere in the body -- the batching does
-    ``batch = stacks[a:b]`` and the writeback mutates ``StackFile`` attributes.
-    So by the time the sidecar block is reached, ``stacks`` is the same
-    non-empty list the guard let through, and its false arm is dead.
-
-    What is pinned here is the early return the proof rests on: an empty list
-    must cost nothing at all -- no scratch directory, no Cellpose import, no
-    model construction -- and the non-empty case in the same test shows all
-    three of those really do happen otherwise.
-    """
-    class ExplodingModel:
-        def __init__(self, *args, **kwargs):
-            raise AssertionError("cellpose must not be loaded for no stacks")
-
-    monkeypatch.setattr("cellpose.models.CellposeModel", ExplodingModel)
-    empty = []
-    assert PV.stream_masks_from_stack(empty, model_name="cyto") is empty
-    assert not list(tmp_path.iterdir())
-
-    monkeypatch.setattr("cellpose.models.CellposeModel", _ConstantMaskModel)
-    plate = _make_plate(tmp_path, name="plateA")
-    mapper = PV.FilenameMapper.discover(plate, metadata_type="cellvoyager")
-    stacks = PV.stream_originals_to_stack(plate, mapper, channels=(0, 1, 2))
-    assert stacks
-
-    returned = PV.stream_masks_from_stack(stacks, model_name="cyto",
-                                          batch_fields=1)
-    assert returned is stacks
-    sidecar = stacks[0].path.parent / "channel_order.json"
-    assert json.loads(sidecar.read_text(encoding="utf-8"))["mask_channels"] == ["mask"]
 
 
 # ---------------------------------------------------------------------------

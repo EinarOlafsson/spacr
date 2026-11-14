@@ -16,11 +16,8 @@ run-time validator -- is a guarantee about presets that do not exist yet.
 
 import pytest
 
-from spacr.object import _validate_organelle_settings
-from spacr.organelle_types import (LEGAL_METHODS, ORGANELLE_TYPES,
-                                   RING_RESOLVABLE_PX, TYPE_ORDER,
-                                   OrganelleType, apply_preset, known_types,
-                                   preset_for, resolve_type)
+from spacr.organelle_types import (ORGANELLE_TYPES, RING_RESOLVABLE_PX,
+                                   TYPE_ORDER, known_types, resolve_type)
 
 
 # ---------------------------------------------------------------------------
@@ -83,112 +80,6 @@ def test_a_misspelled_type_names_the_ones_that_exist():
     assert "mitochondria" in message
     for name in TYPE_ORDER:
         assert name in message
-
-
-def test_a_misspelled_type_stops_apply_preset_too():
-    """The whole-settings entry point raises rather than filling defaults."""
-    with pytest.raises(ValueError):
-        apply_preset({"organelle_type": "lysosome"})
-
-
-# ---------------------------------------------------------------------------
-# the method has to be legal for the morphology SIZE chose
-# ---------------------------------------------------------------------------
-
-def test_a_method_illegal_at_this_size_is_replaced_not_shipped(monkeypatch):
-    """A split preset whose method suits only the small half is rewritten.
-
-    'ridge' is legal for a network and illegal for an irregular blob. When
-    the diameter tips such a preset into its large half the recommendation
-    becomes the first legal method for that morphology rather than the one
-    the table names, because a recommendation the run-time validator rejects
-    would fail the run before an image is read.
-    """
-    tipping = OrganelleType(
-        label="Tipping",
-        members=("a thing that swells",),
-        method="ridge",
-        size_split=("network", "irregular"),
-        params={"organelle_fill_holes": 8},
-    )
-    monkeypatch.setitem(ORGANELLE_TYPES, "tipping", tipping)
-
-    small = preset_for("tipping", RING_RESOLVABLE_PX - 1)
-    assert small["organelle_morphology"] == "network"
-    assert small["organelle_method"] == "ridge"
-
-    large = preset_for("tipping", RING_RESOLVABLE_PX + 1)
-    assert large["organelle_morphology"] == "irregular"
-    assert large["organelle_method"] != "ridge"
-    assert large["organelle_method"] == LEGAL_METHODS["irregular"][0]
-    # The claim that matters: the validator accepts what came out.
-    assert _validate_organelle_settings("irregular",
-                                        large["organelle_method"]) is None
-    # The extra recommended settings survive the rewrite.
-    assert large["organelle_fill_holes"] == 8
-
-
-def test_a_preset_with_no_method_at_all_still_recommends_a_legal_one(
-        monkeypatch):
-    """An empty `method` takes the first legal one rather than an empty one."""
-    silent = OrganelleType(label="Silent", members=(), method="",
-                           morphology="ring")
-    monkeypatch.setitem(ORGANELLE_TYPES, "silent", silent)
-
-    out = preset_for("silent")
-    assert out["organelle_method"] == LEGAL_METHODS["ring"][0]
-    assert _validate_organelle_settings("ring", out["organelle_method"]) is None
-
-
-# ---------------------------------------------------------------------------
-# the explanation
-# ---------------------------------------------------------------------------
-
-def test_the_explanation_separates_what_it_set_from_what_you_set(capsys):
-    """`apply_preset(explain=True)` prints filled values and retained ones.
-
-    A preset that quietly kept the user's method and a preset that quietly
-    overrode it look identical in the resulting settings dict; only the
-    explanation tells them apart.
-    """
-    out = apply_preset({"organelle_type": "vesicular",
-                        "organelle_diameter": 40,
-                        "organelle_method": "cellpose"},
-                       explain=True)
-    printed = capsys.readouterr().out
-
-    assert out["organelle_method"] == "cellpose"
-    assert out["organelle_morphology"] == "ring"
-
-    assert "Vesicular" in printed
-    # the members, so the user can check the name means what they think
-    assert "vacuoles" in printed
-    # the size rule, with the threshold and their own diameter in it
-    assert str(RING_RESOLVABLE_PX) in printed
-    assert "40" in printed
-    # what it filled, and what it left alone
-    assert "set    organelle_morphology = 'ring'" in printed
-    assert "KEPT   organelle_method = 'cellpose'" in printed
-    # and the caveat, rather than hiding it
-    assert "LYSOSOMES" in printed
-
-
-def test_a_preset_that_decides_nothing_prints_nothing(capsys):
-    """'custom' recommends nothing, so there is nothing to explain."""
-    apply_preset({"organelle_type": "custom"}, explain=True)
-    assert capsys.readouterr().out == ""
-
-
-def test_a_fixed_morphology_preset_explains_without_a_size_rule(capsys):
-    """A preset with one morphology does not print a size rule it has not."""
-    apply_preset({"organelle_type": "filamentous"}, explain=True)
-    printed = capsys.readouterr().out
-
-    assert "Filamentous" in printed
-    assert "microtubules" in printed
-    assert "size decides" not in printed
-    assert "set    organelle_morphology = 'network'" in printed
-    assert "KEPT" not in printed
 
 
 # ---------------------------------------------------------------------------

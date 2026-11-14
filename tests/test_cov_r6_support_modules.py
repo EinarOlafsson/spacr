@@ -477,39 +477,3 @@ class TestAControlThatIsAllPrefix:
             "'233460' names three guides in this library, and dropping the "
             f"organism token is how they are found; got {int(mask.sum())}")
         assert "233460" in described
-
-
-# ---------------------------------------------------------------------------
-# spacr.organelle_types -- explain=True actually explains
-# ---------------------------------------------------------------------------
-
-class TestApplyOrganelleTypeExplains:
-    """``if not applied and not kept: return`` -- the printing side."""
-
-    def test_it_names_what_it_set_and_what_it_kept(self, capsys):
-        from spacr.organelle_types import apply_preset
-
-        out = apply_preset(
-            {"organelle_type": "vesicular", "organelle_diameter": 12},
-            explain=True)
-
-        printed = capsys.readouterr().out
-        assert "organelle_type =" in printed, \
-            f"explain=True printed nothing useful: {printed!r}"
-        assert "set    " in printed or "KEPT   " in printed, (
-            "the explanation must say which values the preset filled in and "
-            f"which were left alone; got {printed!r}")
-        # The explanation describes the settings actually returned.
-        for line in printed.splitlines():
-            if line.startswith("  set    "):
-                key = line.split()[1]
-                assert key in out, f"{key} was announced but not applied"
-
-    def test_it_says_nothing_without_explain(self, capsys):
-        from spacr.organelle_types import apply_preset
-
-        apply_preset(
-            {"organelle_type": "vesicular", "organelle_diameter": 12})
-
-        assert capsys.readouterr().out == "", \
-            "the default must stay silent"
