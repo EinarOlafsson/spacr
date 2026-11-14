@@ -214,20 +214,32 @@ def test_process_chunk_rejects_a_wrong_sized_tuple(n):
     assert "9 values" in str(exc.value) and "10 values" in str(exc.value)
 
 
-def test_process_chunk_rejects_a_non_sequence_payload():
-    with pytest.raises(ValueError) as exc:
-        SEQ.process_chunk(object())
-    assert "an unknown count" in str(exc.value)
-
-
-def test_process_chunk_rejects_a_non_positive_window(tmp_path):
-    c, g, r = _refs(tmp_path)
-    with pytest.raises(ValueError) as exc:
-        SEQ.process_chunk(([_fastq(_read())], _REGEX, _TARGET, -8, 0,
-                           c, g, r, False))
+@pytest.mark.parametrize("payload, fragment", [
+    pytest.param(lambda refs: ("just", "three", "things"),
+                 "9 values for single-end", id="three-values-not-nine"),
+    pytest.param(lambda refs: object(), "an unknown count",
+                 id="not-a-sequence-at-all"),
     # 364 renamed `expected_end` to `window_length`, and the message went
     # with it so it names the setting the user has.
-    assert "window_length must be a positive integer" in str(exc.value)
+    pytest.param(lambda refs: ([_fastq(_read())], _REGEX, _TARGET, -8, 0,
+                               *refs, False),
+                 "window_length must be a positive integer",
+                 id="zero-window"),
+    pytest.param(lambda refs: ([], _REGEX, _TARGET, -8, 0, *refs, False),
+                 "window_length must be a positive integer",
+                 id="zero-window-and-no-reads"),
+    pytest.param(lambda refs: (["@r0\nACGT\n+"], _REGEX, _TARGET, -8,
+                               _WINDOW, *refs, False),
+                 "four lines", id="record-of-three-lines"),
+    pytest.param(lambda refs: ([_fastq(_read())], ["@r0\nACGT\n+\nIII"],
+                               _REGEX, _TARGET, -8, _WINDOW, *refs, False),
+                 "R2 record 1", id="paired-names-the-broken-R2-record"),
+])
+def test_process_chunk_refuses_a_chunk_it_cannot_read(tmp_path, payload,
+                                                      fragment):
+    with pytest.raises(ValueError) as exc:
+        SEQ.process_chunk(payload(_refs(tmp_path)))
+    assert fragment in str(exc.value)
 
 
 @pytest.mark.parametrize("record,fragment", [
@@ -245,15 +257,6 @@ def test_process_chunk_rejects_malformed_fastq_records(
     assert fragment in str(exc.value)
     # The label says which read, so a 40M-read file can be repaired.
     assert "R1 record 1" in str(exc.value)
-
-
-def test_process_chunk_paired_labels_the_R2_record_that_is_broken(tmp_path):
-    c, g, r = _refs(tmp_path)
-    good = _fastq(_read())
-    with pytest.raises(ValueError) as exc:
-        SEQ.process_chunk(([good], ["@r0\nACGT\n+\nIII"], _REGEX, _TARGET,
-                           -8, _WINDOW, c, g, r, False))
-    assert "R2 record 1" in str(exc.value)
 
 
 def test_process_chunk_paired_rejects_unequal_chunk_lengths(tmp_path):
@@ -1075,31 +1078,26 @@ def test_graph_sequencing_stats_drops_analysis_excluded_wells_before_choosing(tm
     assert kept != dropped
 
 
-def test_graph_sequencing_stats_takes_the_row_after_the_last_separator(
-        tmp_path):
-    """rowID arrives as '<plate>_<row>' in some count CSVs; mixed is legal."""
+@pytest.mark.parametrize("composite_row, log", [
+    # rowID arrives as '<plate>_<row>' in some count CSVs; mixed is legal.
+    # Before the fix a plain 'r2' alongside a composite raised IndexError and
+    # the caller lost the threshold it had already computed.
+    pytest.param(True, False, id="row-after-the-last-separator"),
+    pytest.param(False, True, id="log-axes"),
+])
+def test_graph_sequencing_stats_returns_its_threshold(tmp_path, composite_row,
+                                                      log):
     from spacr import schema
     csv = tmp_path / "counts.csv"
     df = _counts_frame()
-    sep = schema.KEY_SEPARATOR
-    df.loc[df["rowID"] == "r1", "rowID"] = f"exp1{sep}plate1{sep}r1"
+    if composite_row:
+        sep = schema.KEY_SEPARATOR
+        df.loc[df["rowID"] == "r1", "rowID"] = f"exp1{sep}plate1{sep}r1"
     df.to_csv(csv, index=False)
-    # Before the fix a plain 'r2' alongside a composite raised IndexError and
-    # the caller lost the threshold it had already computed.
     thr = SEQ.graph_sequencing_stats({
         "count_data": str(csv), "target_unique_count": 3,
         "filter_column": "columnID", "analysis_excluded_wells": [],
-        "log_x": False, "log_y": False})
-    assert thr is not None
-
-
-def test_graph_sequencing_stats_log_axes(tmp_path):
-    csv = tmp_path / "counts.csv"
-    _counts_frame().to_csv(csv, index=False)
-    thr = SEQ.graph_sequencing_stats({
-        "count_data": str(csv), "target_unique_count": 3,
-        "filter_column": "columnID", "analysis_excluded_wells": [],
-        "log_x": True, "log_y": True})
+        "log_x": log, "log_y": log})
     assert thr is not None
 
 

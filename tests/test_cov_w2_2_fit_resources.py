@@ -18,6 +18,8 @@ import builtins
 import sys
 import types
 
+import pytest
+
 from spacr.fit_resources import (
     RESOURCE_KEY,
     STAGE_KEY,
@@ -132,20 +134,15 @@ def test_the_gpu_reading_is_the_high_water_mark_not_the_current_one(
     assert gpu_allocated() == 900 * 1024 * 1024
 
 
-def test_a_card_that_is_not_there_is_not_a_measurement(monkeypatch):
-    """Torch imported but no CUDA reports None rather than zero bytes."""
+def _a_torch_without_a_card(monkeypatch):
     _fake_torch(monkeypatch, available=False, peak_bytes=1234)
-    assert gpu_allocated() is None
 
 
-def test_a_torch_that_raises_when_asked_reports_nothing(monkeypatch):
-    """A CUDA layer that throws does not throw out of the diagnostic."""
+def _a_torch_whose_cuda_layer_raises(monkeypatch):
     _fake_torch(monkeypatch, raises=RuntimeError("driver mismatch"))
-    assert gpu_allocated() is None
 
 
-def test_torch_is_never_imported_to_take_a_measurement(monkeypatch):
-    """With no Torch in `sys.modules` the answer is None and no import runs."""
+def _no_torch_in_sys_modules(monkeypatch):
     monkeypatch.delitem(sys.modules, "torch", raising=False)
     real_import = builtins.__import__
 
@@ -156,6 +153,26 @@ def test_torch_is_never_imported_to_take_a_measurement(monkeypatch):
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr(builtins, "__import__", refuse_torch)
+
+
+def _torch_registered_as_unavailable(monkeypatch):
+    # Importing torch to take a measurement would make the measurement the
+    # most expensive thing in the stage.
+    monkeypatch.setitem(sys.modules, "torch", None)
+
+
+@pytest.mark.parametrize("setup", [
+    pytest.param(_a_torch_without_a_card, id="torch_imported_but_no_cuda"),
+    pytest.param(_a_torch_whose_cuda_layer_raises,
+                 id="cuda_layer_raises_when_asked"),
+    pytest.param(_no_torch_in_sys_modules,
+                 id="torch_is_never_imported_to_measure"),
+    pytest.param(_torch_registered_as_unavailable,
+                 id="torch_blocked_in_sys_modules"),
+], )
+def test_a_gpu_that_cannot_be_read_is_not_a_measurement(monkeypatch, setup):
+    """None, never zero bytes, and never an exception or an import of Torch."""
+    setup(monkeypatch)
     assert gpu_allocated() is None
 
 

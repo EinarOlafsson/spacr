@@ -47,18 +47,19 @@ def case_a_count_file_holding_more_plates_is_narrowed_to_the_score_file(
     the other plates' rows would put wells in the join that the score side
     cannot match, and the pairing check would then read as a broken screen.
     """
+    _seen = []
     score = write(score_frame(('plate1',)), tmp_path / 'scores.csv')
     count = write(count_frame(('plate1', 'plate2')), tmp_path / 'counts.csv')
 
     counts, scores, audit = ml.load_regression_input_pairs(
         [{'score': score, 'count': count}])
 
-    assert list(counts['plateID'].unique()) == ['plate1']
-    assert list(scores['plateID'].unique()) == ['plate1']
-    assert audit[0]['rule'] == 'matched count rows to score-file plate subset'
-    assert audit[0]['plate'] == 'plate1'
-    assert 'matched count rows to score-file plate subset' in \
-        capsys.readouterr().out
+    _seen.append(keep(list(counts['plateID'].unique())))
+    _seen.append(keep(list(scores['plateID'].unique())))
+    _seen.append(keep(audit[0]['rule']))
+    _seen.append(keep(audit[0]['plate']))
+    _seen.append(('matched count rows to score-file plate subset' if 'matched count rows to score-file plate subset' in (capsys.readouterr().out) else ("missing", 'matched count rows to score-file plate subset')))
+    return _seen
 
 
 def case_a_count_file_of_several_plates_is_assigned_by_the_pair_row(tmp_path):
@@ -68,6 +69,7 @@ def case_a_count_file_of_several_plates_is_assigned_by_the_pair_row(tmp_path):
     score file carries none; the pair row already says which plate the row is,
     and it is used only when the count file actually holds that plate.
     """
+    _seen = []
     score = write(
         score_frame(('plate1',)).drop(columns=['plateID']),
         tmp_path / 'scores.csv')
@@ -76,10 +78,12 @@ def case_a_count_file_of_several_plates_is_assigned_by_the_pair_row(tmp_path):
     counts, scores, audit = ml.load_regression_input_pairs(
         [{'score': score, 'count': count}])
 
-    assert list(counts['plateID'].unique()) == ['plate1']
-    assert list(scores['plateID'].unique()) == ['plate1']
-    assert audit[0]['rule'].startswith('assigned from pair row order')
-    assert 'count file holds 2 plates' in audit[0]['rule']
+    _seen.append(keep(list(counts['plateID'].unique())))
+    _seen.append(keep(list(scores['plateID'].unique())))
+    _seen.append(bool(
+        audit[0]['rule'].startswith('assigned from pair row order')))
+    _seen.append(('count file holds 2 plates' if 'count file holds 2 plates' in (audit[0]['rule']) else ("missing", 'count file holds 2 plates')))
+    return _seen
 
 
 def case_two_files_naming_different_plates_are_refused(tmp_path):
@@ -92,25 +96,30 @@ def case_two_files_naming_different_plates_are_refused(tmp_path):
     wrong plate. That is the exact failure the paired table exists to end,
     so it raises and names both sides rather than picking.
     """
+    _seen = []
     score = write(score_frame(('plate1',)), tmp_path / 'scores.csv')
     count = write(count_frame(('plate3', 'plate4')), tmp_path / 'counts.csv')
 
     with pytest.raises(ValueError) as caught:
         ml.load_regression_input_pairs([{'score': score, 'count': count}])
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
 
     message = str(caught.value)
-    assert 'conflicts' in message
-    assert "'plate1'" in message
-    assert "'plate3'" in message and "'plate4'" in message
+    _seen.append(('conflicts' if 'conflicts' in (message) else ("missing", 'conflicts')))
+    _seen.append(("'plate1'" if "'plate1'" in (message) else ("missing", "'plate1'")))
+    _seen.append(bool(
+        "'plate3'" in message and "'plate4'" in message))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_load_regression_input_pairs_cases(request, subtests):
-    """Behaviour cases for: load_regression_input_pairs."""
-    ran = run_cases(request, subtests, [
-        case_a_count_file_holding_more_plates_is_narrowed_to_the_score_file,
-        case_a_count_file_of_several_plates_is_assigned_by_the_pair_row,
-        case_two_files_naming_different_plates_are_refused,
-    ])
-    assert ran >= 3
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_a_count_file_holding_more_plates_is_narrowed_to_the_score_file, [['plate1'], ['plate1'], 'matched count rows to score-file plate subset', 'plate1', 'matched count rows to score-file plate subset'], id="a_count_file_holding_more_plates_is_narrowed_to_the_score_file"),
+    pytest.param(case_a_count_file_of_several_plates_is_assigned_by_the_pair_row, [['plate1'], ['plate1'], True, 'count file holds 2 plates'], id="a_count_file_of_several_plates_is_assigned_by_the_pair_row"),
+    pytest.param(case_two_files_naming_different_plates_are_refused, ['ValueError', 'conflicts', "'plate1'", True], id="two_files_naming_different_plates_are_refused"),
+])
+def test_12_ml_inputs_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected

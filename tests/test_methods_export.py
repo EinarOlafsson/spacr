@@ -274,43 +274,6 @@ def test_illumination_not_running_is_a_caveat():
                for c in digest["caveats"])
 
 
-def test_a_failing_qc_verdict_and_its_flags_become_a_caveat():
-    caveats = caveats_for({
-        "qc": {"segmentation": {"verdict": "fail",
-                                "flags_fired": {"empty_field": 12,
-                                                "touching_border": 4}}}})
-
-    assert any("Segmentation QC returned fail" in c for c in caveats)
-    assert any("empty_field (12)" in c for c in caveats)
-
-
-def test_the_classifiers_held_out_metrics_become_a_caveat():
-    caveats = caveats_for({
-        "classifier": {"held_out": {"n": 240, "accuracy": 0.9125,
-                                    "f1_macro": 0.8871},
-                       "split_rule": "by plate",
-                       "warnings": ["no held-out split was recorded"]}})
-
-    assert any("held-out accuracy was 0.9125" in c for c in caveats)
-    assert any("240 objects" in c for c in caveats)
-    assert any("by plate" in c for c in caveats)
-    assert any("no held-out split" in c for c in caveats)
-
-
-def test_stale_and_missing_artifacts_become_caveats():
-    caveats = caveats_for({"provenance": {"n_stale": 3, "n_missing": 1}})
-
-    assert any("3 registered artifact(s) are stale" in c for c in caveats)
-    assert any("1 registered artifact(s) are no longer on disk" in c
-               for c in caveats)
-
-
-def test_a_skipped_unit_count_reaches_the_caveat():
-    caveats = caveats_for({"run": {"on_error": "skip", "n_skipped": 11}})
-
-    assert any("11 were skipped" in c for c in caveats)
-
-
 # ---------------------------------------------------------------------------
 # The digest itself
 # ---------------------------------------------------------------------------

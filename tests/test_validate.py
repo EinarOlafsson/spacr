@@ -826,13 +826,20 @@ def test_describe_plan_lists_every_source_folder(tmp_path):
 
 def test_validate_does_not_import_torch_or_cellpose():
     """spacr.validate itself must stay light; that is its whole reason to exist."""
-    import inspect
+    import subprocess
+    import sys
+    from pathlib import Path
 
-    import spacr.validate as V
+    import spacr
 
-    source = inspect.getsource(V)
-    for banned in ("import torch", "import cellpose", "from cellpose"):
-        assert banned not in source, f"spacr.validate must not {banned}"
+    code = ("import sys, spacr.validate; "
+            "print(sorted(m for m in ('torch', 'cellpose') if m in sys.modules))")
+    done = subprocess.run(
+        [sys.executable, "-c", code], capture_output=True, text=True,
+        env={**os.environ,
+             "PYTHONPATH": str(Path(spacr.__file__).resolve().parent.parent)},
+        check=True)
+    assert done.stdout.strip() == "[]"
 
 
 def test_validate_reads_only_one_array_header_not_the_plate(tmp_path, monkeypatch):

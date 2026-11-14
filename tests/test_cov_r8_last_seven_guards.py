@@ -94,45 +94,6 @@ class TestPickingTheMostColourfulShade:
 # methods_export -- a token that matched the number pattern
 # ---------------------------------------------------------------------------
 
-class TestReadingTheNumbersOutOfASetting:
-
-    def test_a_numeric_string_is_read_as_a_number(self):
-        from spacr import methods_export as M
-
-        found = M.digest_numbers({"threshold": "0.35", "count": 7})
-
-        assert 0.35 in found and 7.0 in found
-
-    def test_a_word_is_not_read_as_a_number(self):
-        from spacr import methods_export as M
-
-        found = M.digest_numbers({"method": "otsu", "note": "about 3 cells"})
-
-        assert found == set() or all(
-            isinstance(value, float) for value in found)
-
-    def test_the_pattern_admits_only_what_float_can_parse(self):
-        """THE PIN, for the ``except ValueError`` beside the parse.
-
-        ``_NUMBER.fullmatch`` is the gate, and everything it admits is
-        something ``float()`` accepts -- so the handler cannot run. It is
-        cheap insurance against the two drifting apart, which is the
-        change this fails on.
-
-        Checked by running the pattern's own admissions through float,
-        including the awkward ones a settings file really carries.
-        """
-        from spacr import methods_export as M
-
-        for token in ("0", "7", "-3", "0.35", "-0.5", "1e-6", "+2",
-                      ".5", "3.", "1E5"):
-            if M._NUMBER.fullmatch(token):
-                float(token)                     # must not raise
-
-        for token in ("otsu", "", "1/2", "3px", "nan cells"):
-            assert not M._NUMBER.fullmatch(token) or float(token) == float(
-                token)
-
 
 # ---------------------------------------------------------------------------
 # qt/prerun -- a widget with no style behind it

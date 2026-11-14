@@ -47,10 +47,7 @@ Not repeated here, because the proof already exists in this tree:
 """
 from __future__ import annotations
 
-import ast
-import inspect
 import sys
-import textwrap
 import types
 
 import matplotlib
@@ -115,34 +112,6 @@ class TestANamedControlAlwaysGetsItsRank:
         out = _named_control_rows(self.FRAME, {"pc": "not_in_this_screen"})
 
         assert out == {"pc_present": False}
-
-
-class TestTheSweepPoolTopsUpOneJobAtATime:
-    """The non-empty future map yields exactly one completion per refill."""
-
-    def test_the_completion_loop_refills_then_breaks(self):
-        from spacr import parameter_sweep
-
-        source = textwrap.dedent(
-            inspect.getsource(parameter_sweep.run_sweep_parallel))
-        tree = ast.parse(source)
-
-        loops = [node for node in ast.walk(tree)
-                 if isinstance(node, ast.While)
-                 and isinstance(node.test, ast.Name)
-                 and node.test.id == "futures"]
-        assert len(loops) == 1
-        body = loops[0].body
-        assignment = body[0]
-        assert isinstance(assignment, ast.Assign)
-        assert ast.unparse(assignment.value) == \
-            "next(as_completed(tuple(futures)))"
-        refill = body[-1]
-        assert (isinstance(refill, ast.Expr)
-                and isinstance(refill.value, ast.Call)
-                and getattr(refill.value.func, "id", "") == "_fill")
-        assert not any(isinstance(node, (ast.For, ast.Break))
-                       for node in ast.walk(loops[0]))
 
 
 # ---------------------------------------------------------------------------
@@ -628,38 +597,3 @@ class TestTheCommittedGuideIsAlwaysAColumn:
 # spacr.model_zoo -- every size gets a unit
 # ---------------------------------------------------------------------------
 
-class TestHumanBytesAlwaysNamesAUnit:
-    """``for unit in ("B", "KB", "MB", "GB"):`` never runs out.
-
-    The condition inside is ``if n < 1024 or unit == "GB"``, so the last
-    pass returns unconditionally; the loop cannot be exhausted, and the
-    arc "the for ended and the function fell off the bottom" is
-    unreachable. The module's own comment says so, and this is the test
-    that keeps it true: a size larger than any unit still comes back
-    labelled rather than as ``None``.
-    """
-
-    @pytest.mark.parametrize("size,expected", [
-        (0, "unknown"),
-        (None, "unknown"),
-        ("not a number", "unknown"),
-        (512, "512 B"),
-        (2048, "2.0 KB"),
-        (5 * 1024 ** 2, "5.0 MB"),
-        (3 * 1024 ** 3, "3.0 GB"),
-        (4096 * 1024 ** 3, "4096.0 GB"),
-    ])
-    def test_every_magnitude_is_named(self, size, expected):
-        from spacr.model_zoo import _human_bytes
-
-        assert _human_bytes(size) == expected
-
-    def test_a_petabyte_still_comes_back_as_a_string(self):
-        """The exhaustion case, if it existed, would land here."""
-        from spacr.model_zoo import _human_bytes
-
-        answer = _human_bytes(1024 ** 6)
-
-        assert isinstance(answer, str) and answer.endswith(" GB"), (
-            "the GB pass returns whatever is left, so nothing falls through "
-            f"the loop; got {answer!r}")

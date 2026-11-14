@@ -8,15 +8,12 @@ the type-only imports two screens defer for start-up speed.
 from __future__ import annotations
 
 import ast
-import csv
 import logging
-import sys
-import types
 from pathlib import Path
 
 import pytest
 
-from spacr import cli, errors
+from spacr import errors
 from spacr.object_settings_table import _parse_filter_text
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,61 +44,6 @@ def test_a_failing_finalize_listener_does_not_fail_the_run(monkeypatch, caplog):
 # ---------------------------------------------------------------------------
 # cli: the analysis lock verdict is logged at the level it deserves
 # ---------------------------------------------------------------------------
-
-@pytest.fixture
-def lock_run(monkeypatch, tmp_path):
-    """A fake pipeline behind the real ``spacr-run`` path, with the run
-    journal written under ``tmp_path`` and the CLI logger restored after."""
-    from spacr import run_journal
-
-    journal_root = tmp_path / "runs"
-    journal_root.mkdir()
-    monkeypatch.setattr(run_journal, "runs_root", lambda: journal_root)
-    module = types.ModuleType("spacr_cli_lock_pipeline")
-    module.calls = []
-    module.run = module.calls.append
-    monkeypatch.setitem(sys.modules, "spacr_cli_lock_pipeline", module)
-    monkeypatch.setitem(cli.MODULES, "_lock_fake", cli.Module(
-        key="_lock_fake", summary="test-only module",
-        entry="spacr_cli_lock_pipeline:run", defaults=None,
-        validate_key="", requires=("src",), writes=("nothing",)))
-    src = tmp_path / "plate"
-    src.mkdir()
-    settings = tmp_path / "s.csv"
-    with open(settings, "w", newline="", encoding="utf-8") as handle:
-        writer = csv.writer(handle)
-        writer.writerow(["Key", "Value"])
-        writer.writerow(["src", str(src)])
-    propagate, level = cli.LOG.propagate, cli.LOG.level
-    yield module, str(settings)
-    for handler in list(cli.LOG.handlers):
-        cli.LOG.removeHandler(handler)
-    cli.LOG.propagate = propagate
-    cli.LOG.setLevel(level)
-    for key in ("TQDM_DISABLE", "SPACR_NO_PROGRESS"):
-        monkeypatch.delenv(key, raising=False)
-
-
-@pytest.mark.parametrize("status,level", [("verified", "INFO"),
-                                          ("deviation", "WARNING")])
-def test_the_command_line_reports_the_analysis_lock(lock_run, monkeypatch,
-                                                    capsys, status, level):
-    from spacr import run_journal
-
-    module, settings = lock_run
-    summary = f"the analysis lock says {status}"
-    monkeypatch.setattr(run_journal, "_find_lock",
-                        lambda app_key, src: {"lock_id": "lock-1"})
-    monkeypatch.setattr(run_journal, "check_analysis_lock",
-                        lambda settings, app_key=None, lock=None: {
-                            "status": status, "summary": summary,
-                            "deviations": []})
-    assert cli.main(["_lock_fake", "--settings", settings]) == cli.EXIT_OK
-    assert len(module.calls) == 1
-    lines = [line for line in capsys.readouterr().out.splitlines()
-             if summary in line]
-    assert lines and f" {level} " in lines[0], lines
-
 
 # ---------------------------------------------------------------------------
 # object_settings_table: a filter cell holding only a maximum

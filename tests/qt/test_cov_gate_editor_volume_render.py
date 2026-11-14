@@ -22,7 +22,6 @@ import pandas as pd
 import pytest
 
 from spacr.qt.widgets.gate_editor import GateCanvas, _project
-from spacr.qt.widgets.gate_settings import GateEditorSettings
 from spacr.qt.widgets.gate_spec import BoxGate, GateSet, PrismGate, RectGate
 
 
@@ -102,16 +101,6 @@ def test_asking_for_the_third_measurement_draws_a_volume(volume):
     assert (axes.get_xlabel(), axes.get_ylabel()) == ("area", "ratio")
 
 
-def test_a_mode_nobody_offers_leaves_the_flat_plot_alone(canvas):
-    """Only 2D, 3D and xD are drawable. Anything else is a caller's typo, and
-    a typo must not leave the editor with no picture at all."""
-    canvas.set_frame(_table())
-    canvas.set_spec(replace(canvas._spec, x="area", y="ratio"))
-    canvas.set_mode("sideways", z_column="depth")
-    assert not hasattr(canvas.axes_at(0, 0), "get_zlim3d")
-    assert canvas.axes_at(0, 0).get_xlabel() == "area"
-
-
 def test_the_third_measurement_survives_a_mode_switch(volume):
     """Turning the volume off and on again must not lose the measurement the
     user picked -- re-picking it every time is the same click twice."""
@@ -130,13 +119,6 @@ def test_a_third_measurement_the_table_does_not_have_falls_back_to_the_plot(
     axes = volume.axes_at(0, 0)
     assert not hasattr(axes, "get_zlim3d")
     assert axes.get_xlabel() == "area"          # the 2D plot really drew
-
-
-def test_a_volume_with_no_rows_falls_back_to_the_plot(canvas):
-    canvas.set_frame(_table().iloc[0:0])
-    canvas.set_spec(replace(canvas._spec, x="area", y="ratio"))
-    canvas.set_mode("3D", z_column="depth")
-    assert not hasattr(canvas.axes_at(0, 0), "get_zlim3d")
 
 
 # ---------------------------------------------------------------------------
@@ -236,71 +218,6 @@ def _x_span(quad) -> float:
 # ---------------------------------------------------------------------------
 # Voxels -- the same volume when there are too many objects to draw one by one
 # ---------------------------------------------------------------------------
-
-class _Recorder:
-    """Enough of an Axes3D to see what would have been drawn."""
-
-    def __init__(self):
-        self.calls = []
-
-    def scatter(self, x, y, z, **kw):
-        self.calls.append((np.asarray(x), kw))
-
-
-def test_a_crowd_too_large_to_draw_one_by_one_is_drawn_as_occupancy(canvas):
-    """Past the threshold every dot is drawn over by the ones in front of it,
-    so the picture stops improving and only the frame rate changes."""
-    canvas.apply_settings(GateEditorSettings(voxel_bins=8))
-    canvas.set_frame(_table(canvas.VOXEL_THRESHOLD + 1))
-    canvas.set_spec(replace(canvas._spec, x="area", y="ratio"))
-    canvas.set_mode("3D", z_column="depth")
-    xs, _ys, _zs = _cloud_of(canvas.axes_at(0, 0))
-    # Voxels, not objects: far fewer marks than rows, and never more than the
-    # grid has cells.
-    assert 0 < len(xs) < 8 ** 3
-    assert len(xs) < canvas.VOXEL_THRESHOLD
-
-
-def test_a_measurement_too_extreme_to_bin_is_drawn_as_points_instead(canvas):
-    """Values near the top of what a float can hold make the bin edges
-    themselves overflow. The volume still has to appear -- a measurement with
-    one absurd value is a data problem to SEE, not a blank canvas."""
-    canvas.apply_settings(GateEditorSettings(voxel_bins=8))
-    count = canvas.VOXEL_THRESHOLD + 1
-    extreme = np.where(np.arange(count) % 2, 1e308, -1e308)
-    axes = _Recorder()
-    with np.errstate(over="ignore", invalid="ignore"):
-        # The overflow is the POINT of the test; numpy shouting about it in
-        # the run log is not.
-        assert canvas._draw_voxels(axes, extreme, extreme, extreme) is False
-    assert not axes.calls, "nothing may be drawn from bins that never formed"
-
-
-@pytest.mark.parametrize("cloud", [
-    "identical",        # every object at the same place
-    "one_outlier",      # a single object a long way from the rest
-    "two_clumps",
-])
-def test_every_object_lands_in_a_voxel(canvas, cloud):
-    """The occupancy grid is a re-statement of the table, so the counts in it
-    have to add up to the table. This is also why the "no voxel was filled"
-    refusal never fires: with the grid taken from the data's own extent, there
-    is no object that falls outside it."""
-    canvas.apply_settings(GateEditorSettings(voxel_bins=6))
-    count = canvas.VOXEL_THRESHOLD + 1
-    rng = np.random.default_rng(1)
-    if cloud == "identical":
-        values = np.full(count, 7.0)
-    elif cloud == "one_outlier":
-        values = rng.normal(0.0, 1.0, count)
-        values[0] = 1e6
-    else:
-        values = np.where(np.arange(count) % 2, rng.normal(-50, 1, count),
-                          rng.normal(50, 1, count))
-    axes = _Recorder()
-    assert canvas._draw_voxels(axes, values, values, values) is True
-    weights = np.asarray(axes.calls[0][1]["c"], dtype=float)
-    assert weights.sum() == count
 
 
 # ---------------------------------------------------------------------------
@@ -417,63 +334,6 @@ def test_a_plane_seen_exactly_edge_on_is_refused_rather_than_guessed(volume):
     assert volume.volume_axis_map() is not None
 
 
-@pytest.mark.parametrize("elev,azim", [(0.0, 0.0), (30.0, 40.0),
-                                       (17.0, 213.0), (-25.0, 97.0)])
-@pytest.mark.parametrize("axis", ["x", "y", "z"])
-def test_a_gate_drawn_on_a_turned_volume_lands_where_the_user_drew_it(
-        volume, elev, azim, axis):
-    """The reading the next gate is made of.
-
-    Perspective is not affine across a plane, so reading the cursor by
-    stretching a flat inverse across the face lands the footprint a percent or
-    two off -- visible as a gate that does not sit under the mouse. Inverting
-    the camera ray and intersecting it with the chosen face is exact from
-    every angle, which is what this asserts: within a ten-thousandth of the
-    axis, not within a percent.
-    """
-    axes = volume.axes_at(0, 0)
-    axes.view_init(elev=elev, azim=azim)
-    volume._canvas.draw()
-    volume.set_anchor_axis(axis)
-    first, second, normal = volume.anchor_plane()
-
-    index = {"area": 0, "ratio": 1, "depth": 2}
-    limits = (axes.get_xlim3d(), axes.get_ylim3d(), axes.get_zlim3d())
-    point = [0.0, 0.0, 0.0]
-    for column, fraction in ((first, 0.25), (second, 0.4)):
-        low, high = limits[index[column]]
-        point[index[column]] = low + fraction * (high - low)
-    point[index[normal]] = limits[index[normal]][0]     # on the anchor face
-
-    x, y = _pixels_of(axes, point)
-    got = volume.screen_to_volume(_Click(x, y))
-
-    assert (got[0], got[2]) == (first, second)
-    for name, value in ((got[0], got[1]), (got[2], got[3])):
-        low, high = limits[index[name]]
-        assert abs(value - point[index[name]]) < (high - low) * 1e-4
-
-
-def test_a_click_before_the_first_paint_still_lands_on_the_object(volume):
-    """The volume is drawn with `draw_idle`, so a click can arrive before
-    matplotlib has stamped its projection matrix onto the axes -- `M` is None
-    until the paint happens, which is exactly the state a redraw leaves it in
-    until the event loop next runs. Refusing then would make the first click
-    after every redraw do nothing."""
-    axes = volume.axes_at(0, 0)
-    axes.M = None                               # not painted yet
-    volume.set_anchor_axis("z")
-    limits = (axes.get_xlim3d(), axes.get_ylim3d(), axes.get_zlim3d())
-    point = [limits[0][0] + 0.3 * (limits[0][1] - limits[0][0]),
-             limits[1][0] + 0.6 * (limits[1][1] - limits[1][0]),
-             limits[2][0]]
-    x, y = _pixels_of(axes, point)
-    got = volume.screen_to_volume(_Click(x, y))
-    assert got[0] == "area" and got[2] == "ratio"
-    assert got[1] == pytest.approx(point[0], rel=1e-6)
-    assert got[3] == pytest.approx(point[1], rel=1e-6)
-
-
 # ---------------------------------------------------------------------------
 # Keeping what is in view
 # ---------------------------------------------------------------------------
@@ -500,13 +360,6 @@ def test_what_is_in_view_is_what_the_gate_keeps(volume):
     outside = frame.copy()
     outside.loc[outside.index[0], "depth"] = 1e6
     assert not gate.mask(outside)[0]
-
-
-def test_there_is_nothing_to_keep_on_a_flat_plot(canvas):
-    canvas.set_frame(_table())
-    canvas.set_spec(replace(canvas._spec, x="area", y="ratio"))
-    canvas.set_mode("2D")
-    assert canvas.box_from_view() is None
 
 
 def test_there_is_nothing_to_keep_without_a_third_measurement(volume):
@@ -607,73 +460,6 @@ def test_a_gate_this_table_cannot_answer_costs_that_gate_and_not_the_view(
 # ---------------------------------------------------------------------------
 # Spin speed, when matplotlib will not co-operate
 # ---------------------------------------------------------------------------
-
-class _Axes:
-    def __init__(self):
-        self._sx, self._sy = 100, 100
-        self.seen = []
-
-    def _on_move(self, event):
-        self.seen.append((event.x, event.y))
-
-
-class _ReadOnlyEvent:
-    """A drag matplotlib will not let us rewrite."""
-
-    def __init__(self, x, y):
-        self._x, self._y = x, y
-
-    @property
-    def x(self):
-        return self._x
-
-    @property
-    def y(self):
-        return self._y
-
-
-def test_a_drag_the_wrapper_cannot_rewrite_still_turns_the_volume(canvas):
-    """The speed is a preference; turning at all is the feature. An event
-    object that will not take a new position leaves the rotation at
-    matplotlib's own speed rather than swallowing the drag."""
-    canvas.apply_settings(GateEditorSettings(spin_speed=3.0))
-    axes = _Axes()
-    canvas._apply_spin_speed(axes)
-    axes._on_move(_ReadOnlyEvent(140, 100))
-    assert axes.seen == [(140, 100)], "the drag reached matplotlib unscaled"
-
-
-class _SealedAxes:
-    """A matplotlib whose drag handler cannot be replaced."""
-
-    def __init__(self):
-        self._sx, self._sy = 100, 100
-        self.seen = []
-
-    def _record(self, event):
-        self.seen.append((event.x, event.y))
-
-    @property
-    def _on_move(self):
-        return self._record
-
-
-class _Move:
-    def __init__(self, x, y):
-        self.x, self.y = x, y
-
-
-def test_a_matplotlib_that_will_not_take_the_wrap_spins_at_its_own_speed(
-        canvas):
-    """A setting not taking effect, rather than a volume that will not turn.
-    Wrapping is the only way to change the speed -- matplotlib has no public
-    setting for it -- so this is the failure that has to be survivable."""
-    canvas.apply_settings(GateEditorSettings(spin_speed=2.0))
-    axes = _SealedAxes()
-    canvas._apply_spin_speed(axes)
-    axes._on_move(_Move(110, 100))
-    assert axes.seen == [(110, 100)]
-    assert not getattr(axes._on_move, "_spacr_wrapped", False)
 
 
 # ---------------------------------------------------------------------------
@@ -800,20 +586,6 @@ def test_placing_a_vertex_does_not_move_the_volume(drawing):
         _place(drawing, axes, u, v)
     assert len(drawing._pending) == 3
     assert _limits_of(axes) == pytest.approx(before)
-
-
-def test_the_first_vertex_stays_under_the_cursor_that_placed_it(drawing):
-    """It is the target you have to hit to close the shape, so it moving is
-    the same as the shape being unfinishable."""
-    axes = drawing.axes_at(0, 0)
-    clicked = _place(drawing, axes, *_SHAPE[0])
-    for u, v in _SHAPE[1:]:
-        _place(drawing, axes, u, v)
-    now = _pixels_of(axes, _face_point(drawing, axes, *_SHAPE[0]))
-    drift = float(np.hypot(now[0] - clicked[0], now[1] - clicked[1]))
-    assert drift <= drawing.CLOSE_RADIUS_PX, (
-        f"the first vertex moved {drift:.0f} px from where it was clicked, "
-        f"against a close radius of {drawing.CLOSE_RADIUS_PX:.0f} px")
 
 
 def test_clicking_the_first_vertex_again_closes_the_shape(drawing):

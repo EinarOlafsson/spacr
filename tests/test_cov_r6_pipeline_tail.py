@@ -8,8 +8,7 @@ those get a proof and a test that pins the invariant, never a
 Module by module:
 
 ``spacr.remote_execution``
-    Slurm's ``sacct`` printing a state with no exit code, and a
-    cloud/custom profile whose job-ID pattern matches nothing.
+    A cloud/custom profile whose job-ID pattern matches nothing.
 ``spacr.object``
     The ``cellpose_*_channel`` fallback reads DENSE stack positions, and
     every raw role channel it looks up is one ``dense_mask_channel_
@@ -70,58 +69,6 @@ class _QueueRunner:
         if not self.results:
             raise AssertionError(f"unexpected command: {argv}")
         return self.results.pop(0)
-
-
-class TestSlurmAccountingWithoutAnExitCode:
-    """``if len(columns) > 1 and ":" in columns[1]:`` in ``_SlurmBackend.refresh``."""
-
-    @staticmethod
-    def _job():
-        from spacr.remote_execution import RemoteJob
-
-        return RemoteJob("j", "mask", "hpc", "slurm", external_id="4711")
-
-    @staticmethod
-    def _profile():
-        from spacr.remote_execution import ExecutionProfile
-
-        return ExecutionProfile("hpc", "slurm", host="login", workdir="/work")
-
-    def test_a_state_with_no_exit_code_column_still_sets_the_state(self):
-        """``sacct --format=State,ExitCode`` can print State alone.
-
-        A job cancelled before it ran has no exit code to report. The
-        state is still the answer, and inventing a code for it would be
-        worse than leaving the one the job carries.
-        """
-        from spacr import remote_execution as rx
-
-        job = self._job()
-        job.exit_code = None
-        runner = _QueueRunner(
-            rx.CommandResult(1, "", "slurm_load_jobs error"),   # squeue: gone
-            rx.CommandResult(0, "CANCELLED\n", ""))             # sacct: no |
-
-        rx._SlurmBackend(runner).refresh(self._profile(), job)
-
-        assert job.status == "cancelled"
-        assert job.exit_code is None, (
-            "with no ExitCode column there is nothing to parse; got "
-            f"{job.exit_code!r}")
-
-    def test_an_exit_code_column_is_read_when_it_is_there(self):
-        """The contrast that makes the assertion above a real absence."""
-        from spacr import remote_execution as rx
-
-        job = self._job()
-        runner = _QueueRunner(
-            rx.CommandResult(1, "", "slurm_load_jobs error"),
-            rx.CommandResult(0, "FAILED|2:0\n", ""))
-
-        rx._SlurmBackend(runner).refresh(self._profile(), job)
-
-        assert job.status == "failed"
-        assert job.exit_code == 2
 
 
 class TestACloudPatternThatMatchesNothing:

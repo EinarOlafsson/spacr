@@ -8,6 +8,7 @@ socket is opened and no install is ever performed.
 """
 from __future__ import annotations
 
+import builtins
 import io
 import sys
 import types
@@ -165,28 +166,60 @@ def test_a_successful_pair_of_fetches_keeps_the_short_nightly_hash(
 # The stdlib the version lookup depends on
 # ---------------------------------------------------------------------------
 
-def test_an_interpreter_without_importlib_metadata_reports_no_version(
-        monkeypatch):
-    """A build whose ``importlib.metadata`` lacks the API answers ``None``.
+def _the_distribution_is_not_installed(monkeypatch):
+    """The ordinary absent-package answer, distinct from a broken stdlib."""
 
-    The frozen desktop builds are assembled by a bundler that only ships the
-    modules it can see being imported, so this import is not guaranteed. The
-    lookup has to degrade to "I do not know" rather than take the process
-    down; ``pytest`` itself is installed here, so a working lookup would
-    return a version string.
-    """
-    assert updater.installed_version("pytest") is not None  # the control
 
+def _the_version_lookup_throws(monkeypatch):
+    import importlib.metadata as md
+
+    def explode(_name):
+        raise RuntimeError("metadata store is corrupt")
+
+    monkeypatch.setattr(md, "version", explode)
+
+
+def _the_stdlib_module_is_missing(monkeypatch):
+    """A bundler that ships only what it saw imported can leave the module
+    out; a frozen desktop build is exactly that."""
+    real_import = builtins.__import__
+
+    def refusing(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "importlib.metadata":
+            raise ImportError("frozen build has no importlib.metadata")
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", refusing)
+
+
+def _the_stdlib_module_has_no_version_function(monkeypatch):
+    """``pytest`` itself is installed here, so a working lookup would return
+    a version string; this build's module lacks the API."""
     stripped = types.ModuleType("importlib.metadata")  # no version(), no error
     monkeypatch.setitem(sys.modules, "importlib.metadata", stripped)
 
-    assert updater.installed_version("pytest") is None
+
+def test_an_installed_package_has_a_version():
+    """The control for the rows below."""
+    assert isinstance(updater.installed_version("pytest"), str)
 
 
-def test_a_package_that_is_not_installed_has_no_version():
-    """The ordinary absent-package answer, distinct from a broken stdlib."""
-    assert updater.installed_version(
-        "a-distribution-nobody-published-42") is None
+@pytest.mark.parametrize("package, arrange", [
+    pytest.param("a-distribution-nobody-published-42",
+                 _the_distribution_is_not_installed,
+                 id="distribution-not-installed"),
+    pytest.param("numpy", _the_version_lookup_throws,
+                 id="lookup-throws"),
+    pytest.param("numpy", _the_stdlib_module_is_missing,
+                 id="importlib-metadata-missing"),
+    pytest.param("pytest", _the_stdlib_module_has_no_version_function,
+                 id="importlib-metadata-without-version"),
+])
+def test_the_updater_answers_none_when_it_cannot_know_the_version(
+        monkeypatch, package, arrange):
+    """"I do not know" rather than a crash in the About dialog."""
+    arrange(monkeypatch)
+    assert updater.installed_version(package) is None
 
 
 # ---------------------------------------------------------------------------

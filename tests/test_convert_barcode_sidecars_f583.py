@@ -77,30 +77,6 @@ def test_matching_explicit_and_sidecar_evidence_are_both_retained(tmp_path):
     assert [entry['kind'] for entry in receipt['barcode_origins']['plate1']] == ['explicit', 'barcode.txt']
 
 
-@pytest.mark.parametrize('text', ['00123', 'plate1=00123', 'Alpha plate=00123;Alpha plate=00123',
-                                  'Alpha plate=00123;Alpha plate=00456', 'Alpha plate=', '', 'bad\x00text'])
-def test_ambiguous_or_bad_root_sidecar_refused_before_image_writes(tmp_path, text):
-    settings = _input(tmp_path, multi=True)
-    (Path(settings['src']) / 'barcode.txt').write_text(text, encoding="utf-8")
-    with pytest.raises(ConfigurationError, match='sidecar'):
-        cv.convert_folder(settings)
-    assert not Path(settings['dst']).exists()
-
-
-@pytest.mark.parametrize('conflict', ['explicit', 'parent'])
-def test_conflicting_evidence_refused_before_conversion(tmp_path, conflict):
-    settings = _input(tmp_path, multi=True)
-    root = Path(settings['src'])
-    (root / 'Alpha plate/barcode.txt').write_text('00123', encoding="utf-8")
-    if conflict == 'explicit':
-        settings['plate_barcodes'] = {'plate1': '999', 'plate2': '00456'}
-    else:
-        (root / 'barcode.txt').write_text('Alpha plate=999;Zulu plate=00456', encoding="utf-8")
-    with pytest.raises(ConfigurationError, match='Conflicting barcode assignments'):
-        cv.convert_folder(settings)
-    assert not Path(settings['dst']).exists()
-
-
 @pytest.mark.parametrize('kind', ['changed', 'deleted', 'introduced'])
 def test_late_sidecar_change_never_publishes_success(tmp_path, monkeypatch, kind):
     settings = _input(tmp_path)
@@ -126,26 +102,6 @@ def test_late_sidecar_change_never_publishes_success(tmp_path, monkeypatch, kind
     assert not (Path(settings['dst']) / 'plate_barcode_linkage').exists()
 
 
-@pytest.mark.needs_symlink
-@pytest.mark.parametrize('kind', ['symlink', 'directory', 'oversized', 'invalid_utf8'])
-def test_unsafe_sidecar_refused(tmp_path, kind):
-    settings = _input(tmp_path)
-    path = Path(settings['src']) / 'barcode.txt'
-    if kind == 'symlink':
-        other = tmp_path / 'external.txt'
-        other.write_text('00123', encoding="utf-8")
-        path.symlink_to(other)
-    elif kind == 'directory':
-        path.mkdir()
-    elif kind == 'oversized':
-        path.write_bytes(b'0' * (64 * 1024 + 1))
-    else:
-        path.write_bytes(b'\xff\xfe')
-    with pytest.raises(ConfigurationError, match='sidecar'):
-        cv.convert_folder(settings)
-    assert not Path(settings['dst']).exists()
-
-
 def test_blank_source_keeps_sidecar_irrelevant_and_preview_writes_nothing(tmp_path):
     settings = _input(tmp_path)
     path = Path(settings['src']) / 'barcode.txt'
@@ -167,3 +123,64 @@ def test_real_cli_import_discovers_source_barcode(tmp_path):
     config.write_text(json.dumps(settings), encoding="utf-8")
     assert cli.main(['convert', '--settings', str(config)]) == cli.EXIT_OK
     assert (Path(settings['dst']) / 'plate_barcode_linkage/complete.json').is_file()
+
+
+def _root_sidecar_text(text):
+    def setup(tmp_path, settings):
+        (Path(settings['src']) / 'barcode.txt').write_text(text, encoding="utf-8")
+    return setup
+
+
+def _conflict_with_an_explicit_barcode(tmp_path, settings):
+    (Path(settings['src']) / 'Alpha plate/barcode.txt').write_text('00123', encoding="utf-8")
+    settings['plate_barcodes'] = {'plate1': '999', 'plate2': '00456'}
+
+
+def _conflict_with_a_parent_sidecar(tmp_path, settings):
+    root = Path(settings['src'])
+    (root / 'Alpha plate/barcode.txt').write_text('00123', encoding="utf-8")
+    (root / 'barcode.txt').write_text('Alpha plate=999;Zulu plate=00456', encoding="utf-8")
+
+
+def _an_unsafe_sidecar(kind):
+    def setup(tmp_path, settings):
+        path = Path(settings['src']) / 'barcode.txt'
+        if kind == 'symlink':
+            other = tmp_path / 'external.txt'
+            other.write_text('00123', encoding="utf-8")
+            path.symlink_to(other)
+        elif kind == 'directory':
+            path.mkdir()
+        elif kind == 'oversized':
+            path.write_bytes(b'0' * (64 * 1024 + 1))
+        else:
+            path.write_bytes(b'\xff\xfe')
+    return setup
+
+
+@pytest.mark.parametrize('multi, setup, match', [
+    *[pytest.param(True, _root_sidecar_text(text), 'sidecar', id=name)
+      for name, text in [('bare-barcode-for-several-plates', '00123'),
+                         ('unknown-plate-name', 'plate1=00123'),
+                         ('same-assignment-twice', 'Alpha plate=00123;Alpha plate=00123'),
+                         ('two-barcodes-for-one-plate', 'Alpha plate=00123;Alpha plate=00456'),
+                         ('no-barcode-after-the-equals-sign', 'Alpha plate='),
+                         ('empty-file', ''),
+                         ('nul-byte', 'bad\x00text')]],
+    pytest.param(True, _conflict_with_an_explicit_barcode, 'Conflicting barcode assignments',
+                 id='conflict-with-an-explicit-barcode'),
+    pytest.param(True, _conflict_with_a_parent_sidecar, 'Conflicting barcode assignments',
+                 id='conflict-with-a-parent-sidecar'),
+    pytest.param(False, _an_unsafe_sidecar('symlink'), 'sidecar', id='symlink',
+                 marks=pytest.mark.needs_symlink),
+    pytest.param(False, _an_unsafe_sidecar('directory'), 'sidecar', id='directory'),
+    pytest.param(False, _an_unsafe_sidecar('oversized'), 'sidecar', id='oversized'),
+    pytest.param(False, _an_unsafe_sidecar('invalid_utf8'), 'sidecar', id='invalid-utf8'),
+])
+def test_a_sidecar_that_cannot_be_trusted_is_refused_before_any_image_is_written(
+        tmp_path, multi, setup, match):
+    settings = _input(tmp_path, multi=multi)
+    setup(tmp_path, settings)
+    with pytest.raises(ConfigurationError, match=match):
+        cv.convert_folder(settings)
+    assert not Path(settings['dst']).exists()

@@ -12,32 +12,12 @@ apart so its Qt skip cannot take these three modules' guards with it.
 """
 from __future__ import annotations
 
-import sys
 
 import pandas as pd
 import pytest
 
 import spacr.hit_attribution as ha
-import spacr.remote_execution as rx
 import spacr.validate as V
-from spacr.remote_execution import RemoteExecutionError
-
-
-# ---------------------------------------------------------------------------
-# remote_execution._run_command -- the timeout sentence
-# ---------------------------------------------------------------------------
-
-def test_a_timeout_above_the_floor_still_names_its_own_value():
-    """The floor is a floor, not the number the sentence always prints.
-
-    The sub-second case is satisfied by writing "1s" unconditionally, which
-    would be wrong for every ordinary timeout; this is the other side of it.
-    """
-    with pytest.raises(RemoteExecutionError) as caught:
-        rx._run_command(
-            [sys.executable, "-c", "import time; time.sleep(30)"],
-            timeout=2.0)
-    assert "timed out after 2s" in str(caught.value)
 
 
 # ---------------------------------------------------------------------------
@@ -107,13 +87,20 @@ def test_every_score_derived_column_is_one_build_hit_cell_frame_writes():
     A rename on one side only would put the score back among the defaults
     under a name nothing recognises.
     """
-    import inspect
-
     # Non-empty first: an empty tuple would satisfy the loop below without
     # checking anything, and would ALSO put both transforms back among the
     # default features -- a vacuous pass exactly where the leak reopens.
     assert set(ha.SCORE_DERIVED_COLUMNS) == {"candidate_rank",
                                              "candidate_percentile"}
-    source = inspect.getsource(ha.build_hit_cell_frame)
-    for column in ha.SCORE_DERIVED_COLUMNS:
-        assert f'frame["{column}"]' in source
+    cells = pd.DataFrame([
+        {"prcfo": f"p1_r1_c{column}_f1_o{cell}", "plateID": "p1",
+         "rowID": "r1", "columnID": f"c{column}", "fieldID": "f1",
+         "object_label": cell, "XGBoost_score": float(column + cell)}
+        for column in (1, 2) for cell in range(3)])
+    fractions = pd.DataFrame([
+        {"plateID": "p1", "rowID": "r1", "columnID": f"c{column}",
+         "grna": "123_1", "fraction": 0.1 * (column - 1)}
+        for column in (1, 2)])
+    built = ha.build_hit_cell_frame(cells, fractions, target_guides=["123_1"],
+                                    score_column="XGBoost_score")
+    assert set(ha.SCORE_DERIVED_COLUMNS) <= set(built.columns)

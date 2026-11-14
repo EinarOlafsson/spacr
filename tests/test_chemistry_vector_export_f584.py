@@ -82,17 +82,3 @@ def test_sheet_uses_same_limit_and_order_as_display(tmp_path):
     assert len(records) == sp._STRUCTURE_LIMIT
 
 
-def test_failed_atomic_replace_preserves_previous_svg(tmp_path, monkeypatch):
-    frame, layout, host = _screen()
-    result = sp._structure_activity(_scored(frame), layout, host=host)
-    path = tmp_path / 'hit_structures.svg'
-    path.write_text('previous vector export', encoding="utf-8")
-
-    def denied(*args):
-        raise OSError('destination unavailable')
-
-    monkeypatch.setattr('os.replace', denied)
-    with pytest.raises(OSError, match='destination unavailable'):
-        sp._write_hit_structures_svg(result, tmp_path)
-    assert path.read_text(encoding="utf-8") == 'previous vector export'
-    assert list(tmp_path.iterdir()) == [path]

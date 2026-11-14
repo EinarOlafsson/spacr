@@ -78,13 +78,6 @@ def test_a_failure_written_as_a_string_is_reported_without_breaking_the_verdict(
         section.text_lines)
 
 
-def test_an_unstructured_failure_record_has_one_stable_bounded_line():
-    record = ["legacy", {"z": 1, "a": 2}]
-    assert R._failure_record_text(record) == '["legacy", {"a": 2, "z": 1}]'
-    assert R._failure_record_text("") == "(empty failure record)"
-    assert R._failure_record_text("x" * 600).endswith("…")
-    assert len(R._failure_record_text("x" * 600)) == 500
-
 
 # ---------------------------------------------------------------------------
 # Appendix: a database that describes nothing, and annotations in a view

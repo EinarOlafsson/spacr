@@ -20,23 +20,20 @@ import spacr.schema as S
 
 class TestRowIdentifiers:
 
-    @pytest.mark.parametrize("letters,expected", [
-        ("A", "r1"), ("B", "r2"), ("P", "r16"),
-        ("a", "r1"), ("p", "r16"),
+    @pytest.mark.parametrize("spelled, expected", [
+        pytest.param("A", "r1", id="upper-A"),
+        pytest.param("B", "r2", id="upper-B"),
+        pytest.param("P", "r16", id="upper-P"),
+        pytest.param("a", "r1", id="lower-a"),
+        pytest.param("p", "r16", id="lower-p"),
+        pytest.param("  C  ", "r3", id="surrounding-space-is-ignored"),
+        # 1536-well plates run past Z, so AA is row 27.
+        pytest.param("AA", "r27", id="two-letter-row-is-read-past-z"),
+        pytest.param("r5", "r5", id="already-canonical-is-unchanged"),
+        pytest.param("1", "r1", id="bare-number-is-a-row-index"),
     ])
-    def test_a_plate_row_letter_becomes_a_canonical_row(self, letters,
-                                                        expected):
-        assert S.row_id(letters) == expected
-
-    def test_surrounding_space_is_ignored(self):
-        assert S.row_id("  C  ") == "r3"
-
-    def test_a_two_letter_row_is_read_past_z(self):
-        """1536-well plates run past Z, so AA is row 27."""
-        assert S.row_id("AA") == "r27"
-
-    def test_an_already_canonical_row_is_unchanged(self):
-        assert S.row_id("r5") == "r5"
+    def test_a_row_spelling_becomes_its_canonical_row(self, spelled, expected):
+        assert S.row_id(spelled) == expected
 
     def test_a_well_label_yields_the_row_it_names(self):
         """`A1` is a well, and its row is A -- so `row_id` answers r1.
@@ -49,10 +46,6 @@ class TestRowIdentifiers:
         assert S.row_id("A1") == "r1"
         assert S.row_id("A01") == "r1"
         assert S.row_id("A") == "r1"
-
-    def test_a_bare_number_is_read_as_a_row_index(self):
-        assert S.row_id("1") == "r1"
-
 
 class TestTheLetterIndexThatIsAlwaysFound:
     """`if index is not None:` cannot be false.

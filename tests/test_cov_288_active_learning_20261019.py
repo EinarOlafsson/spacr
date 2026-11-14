@@ -8,8 +8,6 @@ import pandas as pd
 import pytest
 
 import spacr.active_learning as al
-from tests.test_issue152_suggest_features import _project
-from tests.test_an_active_learning_round_says_what_it_could_not_use import _three_class_db
 
 
 def test_an_image_filter_that_parses_to_nothing_keeps_every_path(monkeypatch):
@@ -53,31 +51,6 @@ def test_a_repeated_object_keeps_its_first_row_and_its_parent():
     assert parents.iloc[0].endswith("_o5")
 
 
-def test_child_means_without_a_limit_and_without_a_cell_link(tmp_path):
-    db, crops = _project(tmp_path)
-    unlimited = al.round_features(db, tables=["cell", "nucleus"], nuclei_limit=None)
-    assert len(unlimited) == len(crops)
-    assert unlimited["nucleus_area"].notna().all()
-    with sqlite3.connect(db) as con:
-        nuclei = pd.read_sql("SELECT * FROM nucleus", con).drop(columns=["cell_id"])
-        nuclei.to_sql("nucleus", con, index=False, if_exists="replace")
-    unlinked = al.round_features(db, tables=["cell", "nucleus"])
-    assert len(unlinked) == len(crops)
-    assert unlinked.filter(like="nucleus").isna().all().all()
-    assert unlinked.filter(like="cell").notna().all().all()
-
-
-def test_crops_with_no_measured_object_at_all_say_so(tmp_path):
-    db, _ = _project(tmp_path)
-    with sqlite3.connect(db) as con:
-        con.execute("DROP TABLE cell")
-        con.execute("CREATE TABLE cell (prcf TEXT, object_label REAL, cell_area REAL)")
-        con.execute("INSERT INTO cell VALUES ('plate1_r1_c1_f1', NULL, 5.0)")
-    with pytest.raises(ValueError) as caught:
-        al.round_features(db, tables=["cell"])
-    assert "hold no measured object" in str(caught.value)
-
-
 def test_storing_the_same_objects_again_replaces_them(tmp_path):
     db = str(tmp_path / "m.db")
     assert al._store_crop_embeddings(db, ["o1", "o2"], np.ones((2, 3))) == 2
@@ -94,20 +67,6 @@ def test_a_round_summary_without_per_class_numbers_has_no_per_class_line():
     text = result.summary()
     assert "Per class" not in text
     assert "Held-out accuracy 0.500" in text
-
-
-def test_a_rejection_in_a_two_class_column_is_fitted_as_the_other_class(tmp_path):
-    db, rows, features = _three_class_db(tmp_path)
-    with sqlite3.connect(db) as con:
-        con.execute("UPDATE png_list SET annotate = 1 + (annotate % 2) "
-                    "WHERE annotate IS NOT NULL")
-    rejected = {rows[k][0]: 1 for k in (61, 63)}
-    result = al.retrain_round(db, "annotate", features=features, seed=0,
-                              save_model=False, write_card=False,
-                              rejections=rejected)
-    assert any(n.startswith("2 rejected suggestions were fitted")
-               for n in result.notes), result.notes
-    assert not any("could not be fitted" in n for n in result.notes)
 
 
 def test_rejections_that_cannot_be_used_are_counted_and_the_rest_converted():

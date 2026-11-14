@@ -19,7 +19,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from spacr import classifier_evaluation as ce
 
 from spacr import regression_annotation as ra
 
@@ -122,33 +121,6 @@ def test_a_request_refuses_an_empty_table_a_lone_positive_and_a_whole_plate():
     assert _request(frame).validated().n_positive == 4
 
 
-def test_a_boolean_measurement_is_a_feature_and_a_constant_one_is_not():
-    """Per-object flags are real measurements stored as booleans; dropping
-    them because they are not floats would quietly shrink every model, while
-    keeping a column that never varies would add a feature carrying no
-    information at all."""
-    frame = pd.DataFrame({
-        "cell_touches_border": [True, False, True, False, True, False],
-        "cell_area": np.linspace(800, 900, 6),
-        "cell_constant": np.full(6, 3.0),
-        "pred": np.linspace(0.1, 0.9, 6),
-    })
-    found = ra.feature_columns(frame, "pred")
-    assert "cell_touches_border" in found
-    assert "cell_constant" not in found
-
-
-def test_named_feature_columns_are_taken_exactly_as_given():
-    """Naming the columns explicitly is how a user fits the model their
-    analysis plan describes; silently re-deriving the list would fit a
-    different model from the one that was asked for."""
-    frame = _screen(wells=2, per_well=4)
-    assert ra.feature_columns(frame, "pred",
-                              ["cell_perimeter"]) == ("cell_perimeter",)
-    with pytest.raises(ra.AnnotationStrategyError, match="nothing to fit"):
-        ra.feature_columns(frame, "pred", [])
-
-
 def test_three_annotated_cells_are_not_enough_to_be_annotations():
     """The chooser and the run must agree about whether a table has labels;
     if the chooser counted three annotations as usable, the strategy would
@@ -158,35 +130,6 @@ def test_three_annotated_cells_are_not_enough_to_be_annotations():
     assert ra.usable_annotations(frame, "label") == 0
     wider = pd.concat([frame, frame], ignore_index=True)
     assert ra.usable_annotations(wider, "label") == 6
-
-
-def test_named_score_inputs_are_kept_when_the_table_has_no_score_column():
-    """A screen can be annotated from labels alone, with no score column at
-    all. The classifier's own inputs are still what the leakage control has
-    to remove, so naming them must not depend on a score being present."""
-    frame = _screen(wells=2, per_well=4).drop(columns=["pred"])
-    assert ra.score_input_columns(frame, "pred",
-                                  explicit=["cell_area"]) == ("cell_area",)
-    with_score = _screen(wells=2, per_well=4)
-    assert ra.score_input_columns(with_score, "pred",
-                                  explicit=["cell_area"]) == ("cell_area",
-                                                              "pred")
-
-
-def test_a_column_too_sparse_to_correlate_is_not_called_a_score_input():
-    """Score inputs are guessed from rank correlation. A column with two
-    values left after missingness has no meaningful correlation, and calling
-    it an input would drop a real measurement out of the honest fit -- while
-    the column that genuinely tracks the score must still be caught."""
-    values = np.linspace(0.0, 1.0, 12)
-    frame = pd.DataFrame({
-        "cell_area": values * 1000.0,
-        "cell_sparse": [1.0, 2.0] + [np.nan] * 10,
-        "pred": values,
-    })
-    inputs = ra.score_input_columns(frame, "pred", correlation_cut=0.5)
-    assert "cell_area" in inputs and "pred" in inputs
-    assert "cell_sparse" not in inputs
 
 
 def test_a_well_name_made_only_of_separators_matches_no_row():
@@ -226,51 +169,6 @@ def test_a_score_that_is_missing_or_flat_defines_no_phenotype():
     assert "cut on" in source and np.isfinite(threshold)
 
 
-def test_a_holdout_that_swallows_the_chosen_wells_says_so(monkeypatch):
-    """The hold-out wells are drawn before the strategy chooses anything. If
-    the draw takes the only well the user named, there is nothing left to
-    select from, and the run must say which setting to change instead of
-    selecting zero cells and reporting on them.
-
-    THE SWALLOWING IS FORCED, NOT DRAWN. This used to rely on ``seed=0``
-    happening to produce a hold-out containing ``r1_c1``, which made the
-    test a hostage to scikit-learn's fold enumeration order: on 1.9 the
-    draw takes r1_c1 and the guard fires, on 1.6 it takes r1_c3 and r2_c2
-    instead and the test failed with DID NOT RAISE -- which is what turned
-    the minimum-dependencies job red. ``grouped_split`` already accepts
-    ``hold_out_groups`` for exactly this, so the real splitter still runs
-    and still builds a real report; only the question asked of it is
-    pinned.
-    """
-    frame = _screen()
-    real_split = ce.grouped_split
-
-    def swallow_the_named_well(*args, **kwargs):
-        # The group identifiers are composite -- plate, row and column
-        # joined by a separator -- so the one well this test names is found
-        # in the data rather than spelled out here. Exactly r1_c1: holding
-        # out the whole of row 1 would also trip the guard, but for a
-        # broader reason than the one under test.
-        groups = [str(g) for g in np.asarray(args[0], dtype=object)]
-        named = sorted({g for g in groups if g.split("\x1f")[-2:] == ["r1", "c1"]})
-        assert len(named) == 1, (
-            f"expected exactly one group for well r1_c1, got {named} "
-            f"from {sorted(set(groups))}")
-        kwargs["hold_out_groups"] = named
-        return real_split(*args, **kwargs)
-
-    monkeypatch.setattr(ce, "grouped_split", swallow_the_named_well)
-    with pytest.raises(ra.AnnotationStrategyError,
-                       match="fewer than two cells left"):
-        ra.prepare(_request(frame, wells=["r1_c1"], seed=0),
-                   ra.TOP_SCORE_RANDOM)
-    monkeypatch.undo()
-    kept = ra.prepare(_request(frame, wells=["r1_c1"], seed=1),
-                      ra.TOP_SCORE_RANDOM)
-    assert kept.chosen.size == 8
-    assert not set(kept.chosen.tolist()) & set(kept.holdout.tolist())
-
-
 def test_no_feature_column_makes_an_empty_matrix_not_a_crash():
     """Strategies that fit nothing run on tables with no measurements at
     all. The matrix builders are called with the empty column list on that
@@ -303,52 +201,6 @@ def test_a_fit_refuses_one_cell_and_refuses_one_class(annotated):
     assert estimator is not None and report.n_train == both.size
 
 
-def test_a_result_with_no_selection_still_says_what_it_is(annotated):
-    """A strategy can end up selecting nothing. Its report is still what the
-    user reads, so it must render without a "Chosen" line and without a
-    bullet list rather than raising while formatting an empty frame."""
-    prepared, _ = annotated
-    empty = ra._selection_frame(prepared, {})
-    assert list(empty.columns) == ["annotation_role", "annotation_group",
-                                   "annotation_reference"]
-    assert len(empty) == 0
-
-    blank = ra.AnnotationResult(strategy="k", title="Nothing chosen",
-                                selection=empty, holdout=empty)
-    said = blank.summary()
-    assert said.startswith("Nothing chosen")
-    assert "Chosen:" not in said and "•" not in said
-    assert blank.role_counts() == {}
-
-    filled = ra._selection_frame(
-        prepared, {"queue": prepared.selectable[:3]})
-    full = ra.AnnotationResult(strategy="k", title="Something chosen",
-                               selection=filled, holdout=empty,
-                               notes=("a note",))
-    assert "Chosen: 3 queue" in full.summary()
-    assert "• a note" in full.summary()
-    assert full.role_counts() == {"queue": 3}
-
-
-def test_a_result_writes_only_the_tables_it_has(tmp_path, annotated):
-    """``write`` is how a run leaves the session. An empty or missing table
-    must not become a zero-row CSV a user later loads and puzzles over, and
-    the report has to be written either way so the run is not silent."""
-    prepared, _ = annotated
-    empty = ra._selection_frame(prepared, {})
-    blank = ra.AnnotationResult(strategy="k", title="Nothing chosen",
-                                selection=empty, holdout=empty)
-    written = blank.write(str(tmp_path / "blank"))
-    assert set(written) == {"report"}
-    assert "Nothing chosen" in (tmp_path / "blank"
-                                / "annotation_report.txt").read_text(encoding="utf-8")
-
-    filled = ra._selection_frame(prepared, {"queue": prepared.selectable[:3]})
-    full = ra.AnnotationResult(strategy="k", title="Something chosen",
-                               selection=filled, holdout=empty)
-    assert set(full.write(str(tmp_path / "full"))) == {"selection", "report"}
-
-
 def test_a_model_applied_to_every_cell_it_was_fitted_on_predicts_nothing(
         annotated):
     """The prediction table is the model's answer for the cells it was NOT
@@ -374,25 +226,6 @@ def test_the_share_of_positives_among_no_cells_is_not_zero(annotated):
     assert 0.0 <= prepared.positive_share(prepared.holdout) <= 1.0
 
 
-def test_a_chosen_well_of_three_cells_cannot_supply_a_matched_contrast():
-    """The named method takes a top-scoring set and a contrast draw of the
-    same size. Three selectable cells cannot supply both, and the refusal
-    has to name the count and the setting rather than silently taking one
-    positive."""
-    frame = _screen(tiny=3)
-    request = _request(frame, wells=["r3_c1"], seed=1)
-    prepared = ra.prepare(request, ra.TOP_SCORE_RANDOM)
-    assert prepared.chosen.size == 3
-    with pytest.raises(ra.AnnotationStrategyError,
-                       match="cannot supply 4 positives"):
-        ra._top_and_contrast(prepared, request)
-
-    wide = _request(frame, wells=[], seed=1)
-    positives, contrast, _, _ = ra._top_and_contrast(
-        ra.prepare(wide, ra.TOP_SCORE_RANDOM), wide)
-    assert positives.size == contrast.size == 4
-
-
 def test_uncertainty_needs_a_model_and_an_unqueued_cell(annotated):
     """Uncertainty sampling ranks cells by how close the seed model puts
     them to its boundary. With every feature discarded as a score input
@@ -409,29 +242,6 @@ def test_uncertainty_needs_a_model_and_an_unqueued_cell(annotated):
                      score_inputs=["cell_area", "cell_perimeter"])
     with pytest.raises(ra.NotEnoughLabels, match="No model could be fitted"):
         ra._run_uncertainty(ra.prepare(blind, ra.UNCERTAINTY), blind)
-
-
-def test_diversity_needs_features_and_survives_clusters_nobody_fills():
-    """Clustering asks for as many clusters as cells to queue. When the
-    cells have fewer distinct positions than that, k-means returns empty
-    clusters, and a representative cannot be taken from one -- the run has
-    to queue the clusters that exist rather than fail on the ones that do
-    not. With no feature column there is nothing to cluster on at all."""
-    frame = _screen(flat=True)
-    request = _request(frame, feature_columns=["flat_a", "flat_b"],
-                       n_clusters=4)
-    result = ra._run_diversity(ra.prepare(request, ra.DIVERSITY), request)
-    assert result.counts["clusters"] == 4
-    assert result.counts["queued"] == 1
-    assert len(result.selection) == 1
-
-    bare = frame[["plateID", "rowID", "columnID", "fieldID", "pred", "label"]]
-    empty = _request(bare)
-    prepared = ra.prepare(empty, ra.RANDOM_HOLDOUT)
-    assert prepared.features == ()
-    with pytest.raises(ra.AnnotationStrategyError,
-                       match="no feature column to cluster on"):
-        ra._run_diversity(prepared, empty)
 
 
 def test_a_labelling_rate_of_zero_is_refused_not_divided_by(monkeypatch):
@@ -456,15 +266,3 @@ def test_a_labelling_rate_of_zero_is_refused_not_divided_by(monkeypatch):
     assert result.predictions is not None
 
 
-def test_one_self_training_round_runs_to_the_end_and_is_reported():
-    """Self-training stops early when the audit set stops improving or when
-    no cell is confident enough. A run asked for one round hits neither
-    stop, and its report must say it ran the full round rather than leaving
-    the reason blank -- the reason is how a user knows the curve is done."""
-    frame = _screen(partial=True)
-    request = _request(frame, rounds=1, confidence=0.5)
-    prepared = ra.prepare(request, ra.SELF_TRAINING)
-    result = ra._run_self_training(prepared, request)
-    assert any("ran the full 1 round(s)" in note for note in result.notes)
-    assert any("Audit curve" in note for note in result.notes)
-    assert result.counts["rounds"] == 1

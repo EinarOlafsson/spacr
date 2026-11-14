@@ -435,6 +435,8 @@ class AvailabilityPanel(QFrame):
             y = point.y()
             if y + size.height() > available.bottom():
                 y = max(available.top(), rect.top() - size.height() - 2)
+            y = min(max(y, available.top()),
+                    max(available.bottom() - size.height(), available.top()))
             point = QPoint(x, y)
         self.move(point)
 

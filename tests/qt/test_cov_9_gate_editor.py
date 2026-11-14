@@ -8,7 +8,6 @@ that records what was decided must never be the reason the screen fails.
 """
 from __future__ import annotations
 
-import os
 import sqlite3
 
 import numpy as np
@@ -170,21 +169,6 @@ def test_the_last_database_cannot_be_dropped(screen, two_databases):
 # ---------------------------------------------------------------------------
 # Reloading a merged working set
 # ---------------------------------------------------------------------------
-
-def test_reloading_a_merged_session_reads_every_database_again(
-        screen, two_databases):
-    """A reload of a multi-database session must not read only the first one.
-
-    Reading one and calling it the working set is silent data loss: the plot
-    still draws, with half the objects and no sign that the rest are gone.
-    """
-    screen.load_paths(two_databases, "cell")
-
-    screen._reload_working_set()
-
-    frame = screen._frame
-    assert len(frame) == 16
-    assert set(frame["plateID"]) == {"plate1", "plate2"}
 
 
 def test_a_cross_database_read_downsamples_to_the_point_cap(

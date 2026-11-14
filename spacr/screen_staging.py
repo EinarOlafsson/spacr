@@ -70,7 +70,7 @@ IMPORT_NAMINGS = ('cellvoyager',)
 IMPORT_MODES = ('symlink', 'copy')
 
 #: The well tables :func:`aggregate_wells` can write.
-AGGREGATE_LEVELS = ('well_mean', 'well_median')
+AGGREGATE_LEVELS = ('well_mean', 'well_median', 'well_default')
 
 #: The object tables :func:`export_plate_parquet` reads, and the prefixes of
 #: the feature columns :func:`aggregate_wells` aggregates.
@@ -110,6 +110,9 @@ _DEFAULTS: Dict[str, Any] = {
     'aggregate_control_percentiles': '1,99',
     'aggregate_heterogeneity': False,
     'aggregate_dir': '',
+    'aggregation_defaults': 'per_feature',
+    'aggregation_count_sum': True,
+    'aggregation_report': True,
     'record_timing': True,
 }
 
@@ -134,6 +137,9 @@ _TOOLTIPS: Dict[str, str] = {
     'aggregate_control_percentiles': "(str) - The two percentiles of the control cells to write per plate and feature, comma-separated. Default '1,99'.",
     'aggregate_heterogeneity': "(bool) - Also writes wells_heterogeneity.parquet, with each feature's per-well standard deviation and 10-90% spread, which show how much the cells of a well differ. On adds a file and some run time; off keeps only the mean and median tables. Default False.",
     'aggregate_dir': "(str) - Folder the well tables and the control percentiles are written to; it is created when missing. Blank writes to <src>/tables. The file names are fixed, so a second run into the same folder overwrites the first. Default blank.",
+    'aggregation_defaults': "(str) - How the aggregate phase summarises each feature per well. 'per_feature' also writes wells_default.parquet, where every column takes its own default: the median for intensities, sizes, textures and correlations, the mean for shares, the share of cells for yes/no flags (<column>_fraction), the per-cell mean plus the total (<column>_sum) for counts, the axial circular mean for orientations, and identifiers and positions are left out. 'legacy' writes only the tables aggregate_levels names, as before spaCR 1.5.1.8. Settings files saved before keep 'legacy'. Default 'per_feature'.",
+    'aggregation_count_sum': "(bool) - With aggregation_defaults 'per_feature', also writes each count's total per well as <column>_sum beside its per-cell mean. Off keeps only the mean. Default True.",
+    'aggregation_report': "(bool) - With aggregation_defaults 'per_feature', writes aggregation_plan.csv beside the well tables: each column, the method it got and why. Default True.",
     'record_timing': "(bool) - Writes each phase's wall-clock and CPU seconds, and whether a GPU was seen, to <src>/settings/screen_timing.json. Off skips that file; the screen run itself is unchanged. Default True.",
 }
 
@@ -144,7 +150,9 @@ _CATEGORIES: Dict[str, List[str]] = {
     'Screen export and aggregate': ['export_parquet', 'export_parquet_dir', 'aggregate_levels',
                                     'aggregate_metadata', 'aggregate_metadata_columns',
                                     'aggregate_control', 'aggregate_control_percentiles',
-                                    'aggregate_heterogeneity', 'aggregate_dir'],
+                                    'aggregate_heterogeneity', 'aggregate_dir',
+                                    'aggregation_defaults', 'aggregation_count_sum',
+                                    'aggregation_report'],
 }
 
 _DESCRIPTION = (
@@ -463,6 +471,23 @@ def _feature_columns(frame: pd.DataFrame, prefixes: Sequence[str] = FEATURE_PREF
     return [column for column in frame.columns if str(column).startswith(tuple(prefixes))]
 
 
+def _unprefixed_summary_columns(frame: pd.DataFrame, features: Sequence[str]) -> List[str]:
+    """Counts and flags without a feature prefix, such as ``n_pathogens``.
+
+    :param frame: the per-cell plate table.
+    :param features: the prefixed feature columns already chosen.
+    :returns: the numeric columns outside ``features`` whose summary rule is
+        a count (``mean_sum``) or a flag (``fraction``).
+    """
+    from .merge_tables import aggregation_for
+
+    chosen = set(features)
+    return [column for column in frame.columns
+            if column not in chosen and column not in ('plate', 'well')
+            and pd.api.types.is_numeric_dtype(frame[column])
+            and aggregation_for(column, level='summary') in ('mean_sum', 'fraction')]
+
+
 def _percentile_pair(value: Any) -> List[float]:
     """The control percentiles as quantiles, from '1,99' or a pair."""
     parts = [float(part) for part in _names(value)] if not isinstance(value, (list, tuple)) \
@@ -473,11 +498,13 @@ def _percentile_pair(value: Any) -> List[float]:
 
 
 def aggregate_wells(parquet_files: Iterable[Any], dst: Any, *,
-                    levels: Any = AGGREGATE_LEVELS,
+                    levels: Any = ('well_mean', 'well_median'),
                     controls: Optional[Set[Tuple[str, str]]] = None,
                     control_name: str = 'DMSO', percentiles: Any = (1, 99),
                     heterogeneity: bool = False,
-                    prefixes: Sequence[str] = FEATURE_PREFIXES) -> Dict[str, Any]:
+                    prefixes: Sequence[str] = FEATURE_PREFIXES,
+                    count_sum: bool = True,
+                    report: bool = True) -> Dict[str, Any]:
     """Aggregate per-cell plate files into well tables.
 
     Each plate file is aggregated on its own (a well lies on one plate) by
@@ -486,6 +513,10 @@ def aggregate_wells(parquet_files: Iterable[Any], dst: Any, *,
 
     * ``wells_mean.parquet`` / ``wells_median.parquet``: the mean or median
       of every feature, with ``n_cells``;
+    * ``wells_default.parquet`` (level ``'well_default'``): every column
+      by its own default (:func:`spacr.merge_tables.aggregate_by_feature`),
+      the counts and flags without a feature prefix included, with
+      ``aggregation_plan.csv`` beside it when ``report`` is set;
     * ``wells_heterogeneity.parquet``: each feature's standard deviation
       (``<feature>__sd``) and 10-90% spread (``<feature>__p90mp10``), with
       ``n_cells``;
@@ -497,7 +528,8 @@ def aggregate_wells(parquet_files: Iterable[Any], dst: Any, *,
 
     :param parquet_files: the per-plate files of :func:`export_plate_parquet`.
     :param dst: the output folder; created if absent.
-    :param levels: ``'well_mean'`` and/or ``'well_median'``.
+    :param levels: any of ``'well_mean'``, ``'well_median'`` and
+        ``'well_default'``.
     :param controls: the control ``(plate, well)`` pairs (see
         :func:`control_wells`); ``None`` writes no percentiles.
     :param control_name: names the percentile file.
@@ -505,6 +537,8 @@ def aggregate_wells(parquet_files: Iterable[Any], dst: Any, *,
     :param heterogeneity: also write the heterogeneity table.
     :param prefixes: the prefixes of the feature columns; the embedding
         aggregate (item 896) passes ``('emb_',)``.
+    :param count_sum: in ``wells_default``, also write each count's total.
+    :param report: write ``aggregation_plan.csv`` with ``wells_default``.
     :returns: ``{"paths", "plates", "n_cells", "n_features"}``.
     :raises ValueError: for an unknown level, no input files, or files
         without feature columns.
@@ -519,7 +553,8 @@ def aggregate_wells(parquet_files: Iterable[Any], dst: Any, *,
     if not files:
         raise ValueError('no plate files to aggregate')
     quantiles = _percentile_pair(percentiles)
-    means, medians, spreads, limits = [], [], [], []
+    means, medians, spreads, limits, defaults = [], [], [], [], []
+    plan = None
     n_cells, n_features = 0, 0
     for path in files:
         frame = read_table(path, canonicalise=False, report=None)
@@ -536,6 +571,15 @@ def aggregate_wells(parquet_files: Iterable[Any], dst: Any, *,
             median = grouped.median().copy()
             median['n_cells'] = size
             medians.append(median.reset_index())
+        if 'well_default' in chosen:
+            from .merge_tables import aggregate_by_feature
+
+            extra = _unprefixed_summary_columns(frame, features)
+            table = aggregate_by_feature(frame, ['plate', 'well'],
+                                         columns=[*features, *extra],
+                                         count_sum=count_sum)
+            plan = pd.DataFrame(table.attrs.pop('aggregation_plan', []))
+            defaults.append(table)
         if heterogeneity:
             spread = pd.concat([grouped.std().add_suffix('__sd'),
                                 (grouped.quantile(0.9) - grouped.quantile(0.1)).add_suffix('__p90mp10')],
@@ -558,13 +602,37 @@ def aggregate_wells(parquet_files: Iterable[Any], dst: Any, *,
     folder.mkdir(parents=True, exist_ok=True)
     paths = []
     for name, parts in (('wells_mean', means), ('wells_median', medians),
+                        ('wells_default', defaults),
                         ('wells_heterogeneity', spreads),
                         (f'{str(control_name).strip().lower() or "control"}_percentiles', limits)):
         if parts:
             paths.append(write_table(pd.concat(parts, ignore_index=True),
                                      folder / f'{name}.parquet', canonicalise=False))
+    if defaults and report and plan is not None:
+        plan_path = folder / 'aggregation_plan.csv'
+        plan.to_csv(plan_path, index=False)
+        paths.append(plan_path)
     return {'paths': paths, 'plates': len(files), 'n_cells': int(n_cells),
             'n_features': int(n_features)}
+
+
+def _aggregate_levels(settings: Mapping[str, Any]) -> List[str]:
+    """The well tables a run writes: ``aggregate_levels``, plus
+    ``well_default`` when ``aggregation_defaults`` is ``'per_feature'``.
+
+    :raises ValueError: for an ``aggregation_defaults`` other than
+        ``'legacy'`` or ``'per_feature'``.
+    """
+    from .merge_tables import AGGREGATION_DEFAULTS
+
+    mode = str(settings.get('aggregation_defaults', 'legacy')).strip().lower()
+    if mode not in AGGREGATION_DEFAULTS:
+        raise ValueError(f'aggregation_defaults must be one of {AGGREGATION_DEFAULTS}, '
+                         f'not {mode!r}')
+    levels = [level.strip().lower() for level in _names(settings['aggregate_levels'])]
+    if mode == 'per_feature' and 'well_default' not in levels:
+        levels.append('well_default')
+    return levels
 
 
 def _phases(value: Any) -> List[str]:
@@ -678,10 +746,12 @@ def run_screen(settings: Mapping[str, Any]) -> Dict[str, Any]:
         result['aggregate'] = clock.run(
             'aggregate', aggregate_wells, files,
             settings.get('aggregate_dir') or os.path.join(src, 'tables'),
-            levels=settings['aggregate_levels'], controls=controls,
+            levels=_aggregate_levels(settings), controls=controls,
             control_name=settings['aggregate_control'],
             percentiles=settings['aggregate_control_percentiles'],
-            heterogeneity=bool(settings['aggregate_heterogeneity']))
+            heterogeneity=bool(settings['aggregate_heterogeneity']),
+            count_sum=bool(settings.get('aggregation_count_sum', True)),
+            report=bool(settings.get('aggregation_report', True)))
     result['timing'] = clock.phases
     if settings.get('record_timing'):
         path = Path(src) / 'settings' / 'screen_timing.json'

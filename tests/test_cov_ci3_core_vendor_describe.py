@@ -183,17 +183,18 @@ def _czi(metadata, scenes):
     return types.SimpleNamespace(metadata=lambda: metadata, scenes=scenes)
 
 
-def test_czi_waits_for_declared_scenes(tmp_path, monkeypatch):
-    scene = types.SimpleNamespace(sizes={'T': 1, 'Y': 4, 'X': 4})
-    _reader(monkeypatch, CziFile=_czi('<SizeS>3</SizeS>', {0: scene}))
-    with pytest.raises(ValueError, match='1 of 3 declared scenes are in the file'):
-        core._watch_container_fields(str(tmp_path / 'a.czi'), 'a.czi')
-
-
-def test_czi_with_an_unsupported_axis_is_refused(tmp_path, monkeypatch):
-    scene = types.SimpleNamespace(sizes={'A': 2, 'Y': 4, 'X': 4})
-    _reader(monkeypatch, CziFile=_czi('', {0: scene}))
-    with pytest.raises(ValueError, match=r"CZI axes \['A'\] are not supported"):
+@pytest.mark.parametrize("metadata, sizes, said", [
+    pytest.param('<SizeS>3</SizeS>', {'T': 1, 'Y': 4, 'X': 4},
+                 '1 of 3 declared scenes are in the file',
+                 id="waits_for_declared_scenes"),
+    pytest.param('', {'A': 2, 'Y': 4, 'X': 4},
+                 r"CZI axes \['A'\] are not supported",
+                 id="unsupported_axis"),
+])
+def test_czi_that_is_incomplete_or_unsupported_is_refused(tmp_path, monkeypatch, metadata, sizes, said):
+    scene = types.SimpleNamespace(sizes=sizes)
+    _reader(monkeypatch, CziFile=_czi(metadata, {0: scene}))
+    with pytest.raises(ValueError, match=said):
         core._watch_container_fields(str(tmp_path / 'a.czi'), 'a.czi')
 
 
@@ -277,22 +278,17 @@ def _companion(path, body):
     return str(path)
 
 
-def test_ome_companion_image_needs_pixels(tmp_path):
-    path = _companion(tmp_path / 'a.companion.ome', '<Image ID="Image:0"/>')
-    with pytest.raises(ValueError, match='OME image 0 has no Pixels'):
-        core._watch_ome_companion_fields(path, 'a.companion.ome')
-
-
-def test_ome_companion_refuses_a_bad_dimension_order(tmp_path):
-    path = _companion(tmp_path / 'a.companion.ome',
-                      '<Image ID="Image:0"><Pixels DimensionOrder="XYZZT" SizeZ="2"/></Image>')
-    with pytest.raises(ValueError, match="dimension order 'ZZT'"):
-        core._watch_ome_companion_fields(path, 'a.companion.ome')
-
-
-def test_ome_companion_without_images_is_refused(tmp_path):
-    path = _companion(tmp_path / 'a.companion.ome', '')
-    with pytest.raises(ValueError, match='the companion declares no images'):
+@pytest.mark.parametrize("body, said", [
+    pytest.param('<Image ID="Image:0"/>', 'OME image 0 has no Pixels',
+                 id="image_needs_pixels"),
+    pytest.param('<Image ID="Image:0"><Pixels DimensionOrder="XYZZT" SizeZ="2"/></Image>',
+                 "dimension order 'ZZT'", id="bad_dimension_order"),
+    pytest.param('', 'the companion declares no images',
+                 id="no_images_declared"),
+])
+def test_ome_companion_that_cannot_be_read_is_refused(tmp_path, body, said):
+    path = _companion(tmp_path / 'a.companion.ome', body)
+    with pytest.raises(ValueError, match=said):
         core._watch_ome_companion_fields(path, 'a.companion.ome')
 
 

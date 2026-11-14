@@ -71,6 +71,7 @@ LARGE_SITE_DEFAULTS: Dict[str, Any] = {
     "seg_nucleus_diameter_range": [10.0, 80.0],
     "seg_diameter_sites": 9,
     "seg_diameter_min_objects": 50,
+    "seg_cells_from_nucleus_seeds": False,
 }
 
 #: What ``seg_preset='cell_painting_phalloidin'`` sets, after PERISCOPE's
@@ -980,12 +981,98 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                            masks=lambda f, p: _cellpose_masks(nucleus_model, f, p))
     body = normalize_site(np.stack([stack[..., names.index(c)] for c in settings["cell_channels"]],
                                    axis=-1))
+    if settings.get("seg_cells_from_nucleus_seeds"):
+        cellprob = _site_cellprob(body, lambda x: _eval_flows(cell_model, x, settings,
+                                                              channel_axis=-1),
+                                  tile_px=tile, overlap_px=overlap)
+        del body
+        return pair_nuclei_with_cells(nuclei, cells_from_nucleus_seeds(nuclei, cellprob))
     cells = segment_tiled(body, lambda x: _eval_labels(cell_model, x, settings, None,
                                                        channel_axis=-1),
                           tile_px=tile, overlap_px=overlap, iou=iou, align=True,
                           flows=lambda x: _eval_flows(cell_model, x, settings, channel_axis=-1),
                           masks=lambda f, p: _cellpose_masks(cell_model, f, p))
     return pair_nuclei_with_cells(nuclei, cells)
+
+
+def cells_from_nucleus_seeds(nuclei: np.ndarray, cellprob: np.ndarray, *,
+                             cellprob_threshold: float = 0.0) -> np.ndarray:
+    """Grow one cell from every nucleus inside the cell network's foreground.
+
+    The cell model can merge two touching cells into one mask. Pairing then
+    keeps one nucleus of the merged cell and drops the other, so both cells
+    and nuclei are undercounted. Here every nucleus seeds its own cell
+    instead. The foreground is every pixel whose cell probability is above
+    ``cellprob_threshold``, together with the nuclei themselves. A seeded
+    watershed divides it. The watershed floods the foreground outward from
+    the nuclei, in order of the distance to the nearest nucleus. A pixel
+    therefore goes to the nearest nucleus that it is connected to through
+    the foreground. The boundary between two touching cells runs halfway
+    between their nuclei, as with CellProfiler's distance method. It does
+    not follow the cell model's own boundaries.
+
+    The result does not depend on how the site was tiled, provided the
+    nuclei and the cell probability cover the whole site. Foreground that no
+    nucleus can reach stays 0.
+
+    :param nuclei: a 2-D nucleus label image of the whole site.
+    :param cellprob: the cell model's probability map (logits) of the same
+        shape, as Cellpose returns it.
+    :param cellprob_threshold: pixels above this value are foreground; 0
+        matches the threshold of Cellpose's own mask step.
+    :returns: an int32 cell label image in which cell ``k`` holds nucleus
+        ``k`` whole.
+    :raises ValueError: when the two images differ in shape or are not 2-D.
+    """
+    from scipy import ndimage
+    from skimage.segmentation import watershed
+
+    nuclei, cellprob = np.asarray(nuclei), np.asarray(cellprob)
+    if nuclei.ndim != 2 or nuclei.shape != cellprob.shape:
+        raise ValueError(f"nuclei {nuclei.shape} and cellprob {cellprob.shape} must be "
+                         "2-D images of one shape")
+    foreground = (cellprob > cellprob_threshold) | (nuclei > 0)
+    distance = ndimage.distance_transform_edt(nuclei == 0)
+    return watershed(distance, nuclei, mask=foreground).astype(np.int32)
+
+
+def _site_cellprob(image: np.ndarray,
+                   flows: Callable[[np.ndarray], Tuple[np.ndarray, np.ndarray]], *,
+                   tile_px: int, overlap_px: int) -> np.ndarray:
+    """The network's cell probability for a whole site, from tiles on
+    Cellpose's network grid with stitched outputs, as :func:`segment_tiled`
+    places them; a site within one tile runs untiled. When no tile of
+    ``tile_px`` fits the network grid with that overlap, the tiles of
+    :func:`tile_grid` are stitched the same way."""
+    shape = tuple(int(v) for v in np.shape(image)[:2])
+    overlap = _flow_overlap(tile_px, overlap_px, True, flows, True) or int(overlap_px)
+    layout = tiling_layout(shape, tile_px, overlap, True)
+    if len(layout["boxes"]) == 1:
+        return np.asarray(flows(image)[1], np.float32)
+    padded = layout["padded"]
+    if padded != shape:
+        image = np.pad(image, [(0, padded[0] - shape[0]), (0, padded[1] - shape[1])]
+                       + [(0, 0)] * (np.ndim(image) - 2))
+    _, cellprob = stitch_tile_flows(
+        [((y0, y1, x0, x1),) + tuple(flows(image[y0:y1, x0:x1]))
+         for y0, y1, x0, x1 in layout["boxes"]], padded)
+    return np.ascontiguousarray(cellprob[:shape[0], :shape[1]])
+
+
+def _edge_step(nuclei: np.ndarray, cells: np.ndarray, settings: Mapping[str, Any]
+               ) -> Tuple[np.ndarray, np.ndarray, Dict[str, int]]:
+    """The crop-edge policy on one site's paired labels.
+
+    Cells follow ``seg_edge_policy``. A nucleus is kept with its cell, or,
+    with ``seg_cells_from_nucleus_seeds``, by the same policy applied to the
+    nucleus itself, so that it is dropped only when it touches the border.
+    """
+    cells_kept, edge = apply_edge_policy(cells, settings["seg_edge_policy"])
+    if settings.get("seg_cells_from_nucleus_seeds"):
+        nuclei_kept, _ = apply_edge_policy(nuclei, settings["seg_edge_policy"])
+    else:
+        nuclei_kept = np.where(np.isin(nuclei, np.unique(cells_kept)), nuclei, 0)
+    return nuclei_kept, cells_kept, edge
 
 
 def mask_agreement(labels: np.ndarray, reference: np.ndarray, *, iou: float = 0.5,
@@ -1196,8 +1283,7 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                     json.dump(control, handle, indent=2, sort_keys=True)
             nuclei, cells, paired = segment_cell_painting_site(stack, channels, local, models,
                                                                nucleus_diameter=diameter)
-            cells_kept, edge = apply_edge_policy(cells, local["seg_edge_policy"])
-            nuclei_kept = np.where(np.isin(nuclei, np.unique(cells_kept)), nuclei, 0)
+            nuclei_kept, cells_kept, edge = _edge_step(nuclei, cells, local)
             table = measure_chunked(cells_kept, stack, band_px=int(local["seg_measure_band_px"]),
                                     channel_names=channels)
             sampler.sample_once()

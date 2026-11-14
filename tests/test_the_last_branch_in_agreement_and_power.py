@@ -58,61 +58,40 @@ def test_a_string_and_an_integer_label_compare_equal():
 # annotation_power.quality_report — arcs 299 -> 307 and 328 -> 332
 # ---------------------------------------------------------------------------
 
-def test_a_screen_where_every_guide_is_reachable_says_nothing_about_the_rest():
-    """The ``if unreachable:`` branch not taken.
-
-    "0 guides never reach it in any well" is a sentence that makes a healthy
-    screen look like it has a finding. The paragraph is printed only when
-    there is something to report, and a well-designed library is exactly the
-    case that had never been passed through the report.
-    """
+@pytest.mark.parametrize("report, printed, silent", [
+    # "0 guides never reach it in any well" makes a healthy screen look like
+    # it has a finding: the paragraph is printed only when there is something
+    # to report.
+    pytest.param({"power": {"guides": 1000, "guides_reachable": 1000,
+                            "guides_reachable_share": 1.0,
+                            "guides_unreachable": 0}},
+                 ["guides reachable anywhere"],
+                 ["never reach it in any well"],
+                 id="every_guide_reachable_says_nothing_about_the_rest"),
+    pytest.param({"power": {"guides": 1000, "guides_reachable": 940,
+                            "guides_reachable_share": 0.94,
+                            "guides_unreachable": 60}},
+                 ["60 guides never reach it in any well"], [],
+                 id="unreachable_guides_are_named"),
+    # NaN when no specificity at the current shape would do: "raise
+    # specificity to nan" reads as an instruction, and it is not one.
+    pytest.param({"size": {"library_if_wells_fixed": 500.0,
+                           "specificity_needed_at_current_shape":
+                               float("nan")}},
+                 ["cut the library to"], ["raise specificity", "nan"],
+                 id="no_specificity_target_when_none_is_attainable"),
+    pytest.param({"size": {"library_if_wells_fixed": 500.0,
+                           "specificity_needed_at_current_shape": 0.99875}},
+                 ["raise specificity to 0.99875"], [],
+                 id="attainable_specificity_target_to_five_places"),
+])
+def test_the_quality_report_prints_a_paragraph_only_when_it_has_a_finding(
+        report, printed, silent):
     from spacr.annotation_power import quality_report
 
-    text = quality_report({}, power={"guides": 1000,
-                                     "guides_reachable": 1000,
-                                     "guides_reachable_share": 1.0,
-                                     "guides_unreachable": 0})
+    text = quality_report({}, **report)
 
-    assert "guides reachable anywhere" in text
-    assert "never reach it in any well" not in text
-
-
-def test_unreachable_guides_are_named_when_there_are_any():
-    """The taken side, so the silence above is visibly a decision."""
-    from spacr.annotation_power import quality_report
-
-    text = quality_report({}, power={"guides": 1000,
-                                     "guides_reachable": 940,
-                                     "guides_reachable_share": 0.94,
-                                     "guides_unreachable": 60})
-
-    assert "60 guides never reach it in any well" in text
-
-
-def test_no_specificity_target_is_offered_when_none_is_attainable():
-    """The ``if np.isfinite(needed_sp):`` branch not taken.
-
-    The value is NaN when no specificity at the current shape would do -- the
-    screen cannot be fixed that way. Printing "raise specificity to nan" is
-    worse than printing nothing: it reads as an instruction, and it is not one.
-    """
-    from spacr.annotation_power import quality_report
-
-    text = quality_report({}, size={"library_if_wells_fixed": 500.0,
-                                    "specificity_needed_at_current_shape":
-                                        float("nan")})
-
-    assert "cut the library to" in text
-    assert "raise specificity" not in text
-    assert "nan" not in text.lower().replace("annotate", "")
-
-
-def test_an_attainable_specificity_target_is_offered():
-    """The taken side, printed to five places as the report promises."""
-    from spacr.annotation_power import quality_report
-
-    text = quality_report({}, size={"library_if_wells_fixed": 500.0,
-                                    "specificity_needed_at_current_shape":
-                                        0.99875})
-
-    assert "raise specificity to 0.99875" in text
+    for fragment in printed:
+        assert fragment in text
+    for fragment in silent:
+        assert fragment not in text.lower().replace("annotate", "")

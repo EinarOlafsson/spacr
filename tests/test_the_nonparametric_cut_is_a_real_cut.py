@@ -146,27 +146,6 @@ def test_the_labeller_marks_nc_pc_control_and_other():
     assert list(labels) == ["control", "nc", "pc", "other"]
 
 
-def test_the_labeller_survives_a_control_list_that_round_tripped_as_integers():
-    """A gene id typed into the GUI comes back out of a settings CSV as an
-    int. The inline version this replaced compared it to a string guide and
-    silently labelled nothing, which is one of the two ways `condition`
-    collapses to a single value."""
-    features = pd.Series(["fraction:grna[233460]", "fraction:grna[999]"])
-    guides = pd.Series(["233460", "999"])
-    labels = label_control_condition(features, guides, controls=[233460])
-    assert list(labels) == ["control", "other"]
-
-
-def test_a_control_free_screen_labels_everything_other_instead_of_raising():
-    """`controls=None` is what perform_regression documents for a screen with
-    no non-targeting guides. The inline version did `row['grna'] in controls`
-    and raised TypeError on it."""
-    features = pd.Series(["fraction:grna[a]", "fraction:grna[b]"])
-    labels = label_control_condition(features, pd.Series(["a", "b"]),
-                                     controls=None)
-    assert list(labels) == ["other", "other"]
-
-
 def test_nc_wins_over_pc_and_over_the_control_list():
     """A guide named in two places is reported once, and always the same way,
     or two panels reading the same table disagree about the null."""
@@ -426,21 +405,6 @@ def test_the_run_draws_the_cut_on_every_support_family(tmp_path):
 #  ... and the settings-panel control that is still greyed out
 # --------------------------------------------------------------------------- #
 
-def test_the_permutation_run_reads_both_threshold_settings():
-    """It reads them, so they are not dead settings under this inference.
-
-    This is the half of the answer that lives in the run, and it is the
-    evidence that the settings-panel rule below is stale.
-    """
-    import inspect
-
-    from spacr.ml import _run_guide_permutation_analysis
-
-    source = inspect.getsource(_run_guide_permutation_analysis)
-    assert "settings.get('threshold_method'" in source
-    assert "settings.get('threshold_multiplier'" in source
-
-
 def test_the_settings_panel_offers_the_two_threshold_controls_under_permutation():
     """The controls the maintainer went looking for and could not find.
 
@@ -465,3 +429,28 @@ def test_the_settings_panel_offers_the_two_threshold_controls_under_permutation(
         assert rule is None or rule["predicate"](active, {}), (
             f"{key} is read by the guide-permutation run, so the panel must "
             f"offer it under nonparametric inference")
+
+
+@pytest.mark.parametrize("features, guides, kwargs, expected", [
+    # `nc='23346'` claiming `233460` is the defect this replaces.
+    pytest.param(["fraction:grna[233460_1]", "fraction:grna[2334600_1]"],
+                 ["233460_1", "2334600_1"], {"nc": "23346"},
+                 ["other", "other"], id="a_control_is_not_a_substring"),
+    # A gene id typed into the GUI comes back out of a settings CSV as an int.
+    # The inline version compared it to a string guide and silently labelled
+    # nothing, one of the two ways `condition` collapses to a single value.
+    pytest.param(["fraction:grna[233460]", "fraction:grna[999]"],
+                 ["233460", "999"], {"controls": [233460]},
+                 ["control", "other"], id="controls_that_round_tripped_as_ints"),
+    # `controls=None` is what perform_regression documents for a screen with
+    # no non-targeting guides; the inline version raised TypeError on it.
+    pytest.param(["fraction:grna[a]", "fraction:grna[b]"], ["a", "b"],
+                 {"controls": None}, ["other", "other"],
+                 id="a_control_free_screen_labels_everything_other"),
+])
+def test_the_labeller_names_whole_controls_and_never_raises_on_odd_lists(
+        features, guides, kwargs, expected):
+    labels = label_control_condition(pd.Series(features), pd.Series(guides),
+                                     **kwargs)
+    assert list(labels) == expected
+
