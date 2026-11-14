@@ -171,6 +171,7 @@ def test_every_registration_names_a_known_kind_and_a_real_thing():
     from spacr.qt.app import APPS
     from spacr.qt.screens.map_barcodes import page_fold_host
     from spacr.qt.screens.settings_model import resolve_default_settings
+    from spacr.validate import APP_FUNCTIONS
 
     for host in EXTRA_SETTINGS_HOSTS:
         resolve_default_settings(host)
@@ -190,9 +191,12 @@ def test_every_registration_names_a_known_kind_and_a_real_thing():
                        for quote in ('"', "'")), (item, name)
         for key in entry.get("apps", ()):
             # A page fold (OPS-style: a host switch opening a module page)
-            # has no APPS row but is a module the gate hides all the same.
+            # has no APPS row but is a module the gate hides all the same;
+            # so is an API-only module (item 921's ops_large_sites), which
+            # the workflow map and user guides leave out while it is alpha.
             assert (key in {row[0] for row in APPS}
-                    or page_fold_host(key) is not None), (item, key)
+                    or page_fold_host(key) is not None
+                    or key in APP_FUNCTIONS), (item, key)
 
 
 def _hosts_for(keys):

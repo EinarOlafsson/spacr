@@ -9489,6 +9489,7 @@ ALPHA_FEATURES = {
             'seg_nucleus_diameter_range', 'seg_gpu', 'seg_tiling_control_px',
             'seg_diameter_sites', 'seg_diameter_min_objects',
             'seg_cells_from_nucleus_seeds')},
+        'apps': ('ops_large_sites',),
     },
     945: {
         'module_settings': {'ops_large_sites': (
