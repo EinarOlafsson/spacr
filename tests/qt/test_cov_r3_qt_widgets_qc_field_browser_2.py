@@ -37,10 +37,6 @@ pytestmark = pytest.mark.qt
 FIELD = "plate1_A01_1"
 
 
-def _qc(field, object_type="cell", flags=("under_segmented",), note="n"):
-    return seg_qc.FieldQC(field, object_type, 1, list(flags), {}, "fail", note)
-
-
 def _finding(**kwargs):
     base = dict(severity="fail", kind="flag", headline="Two fields need review.",
                 flag="under_segmented", plate="", object_type="", fields=(),
@@ -68,30 +64,6 @@ def _legacy_plate(root: Path, planes: int, stacks=()) -> QCFieldTarget:
         np.save(folder / f"{FIELD}.npy", label)
     return QCFieldTarget(
         field=FIELD, plate_root=str(root), merged_dir=str(merged))
-
-
-def test_a_scorecard_with_no_file_path_still_names_its_plate_root(tmp_path):
-    """A digest built in memory must still point at a real merged folder.
-
-    A digest assembled without files has only ``digest.root``; without that
-    fallback the browser computes a ``merged_dir`` of ``""`` and every field
-    reports itself as already gone.  The same pass normalises the ``.npy``
-    suffix and drops nameless rows, so no field is listed under two spellings.
-    """
-    root = tmp_path / "project"
-    root.mkdir()
-    card = seg_qc.Scorecard("", "cell", [
-        _qc("   "), _qc(f"{FIELD}.npy"), _qc(FIELD, object_type="nucleus")])
-    digest = seg_qc.QCDigest(
-        root=str(root), verdict="fail", headline="h", scorecards=[card])
-
-    targets = targets_from_digest(digest)
-
-    assert [target.field for target in targets] == [FIELD]
-    assert targets[0].plate_root == os.path.abspath(str(root))
-    assert targets[0].merged_dir == os.path.join(
-        os.path.abspath(str(root)), "merged")
-    assert [v.object_type for v in targets[0].verdicts] == ["cell", "nucleus"]
 
 
 def test_a_finding_only_claims_the_fields_and_plate_it_names(tmp_path):

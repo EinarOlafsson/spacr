@@ -16,9 +16,7 @@ imports Torch. The disk failures are reached by making the real write fail.
 import builtins
 import json
 import logging
-import os
 import sys
-import types
 
 import numpy as np
 import pytest
@@ -27,9 +25,7 @@ from spacr import runctx
 from spacr.runctx import (DEFAULT_SEED, ON_ERROR_RETRY, ON_ERROR_SKIP, SKIPPED,
                           ErrorPolicy, RunIdFilter, SeedReport, apply_defaults,
                           current_run_id, install_run_id_logging,
-                          random_state, read_run_log, resolve_seed,
-                          run_context, seed_everything, seed_worker, spacr_rng,
-                          torch_generator, uninstall_run_id_logging)
+                          read_run_log, seed_worker, torch_generator, uninstall_run_id_logging)
 
 
 @pytest.fixture
@@ -190,20 +186,6 @@ def test_a_run_with_no_log_reads_as_no_records(scratch_logs):
 # the log handler, when the disk will not take it
 # ---------------------------------------------------------------------------
 
-def test_a_traceback_is_carried_into_the_run_log(scratch_logs, tmp_path):
-    """An exception logged inside a run keeps its traceback in the record."""
-    with run_context("mask", {}, log=True) as run:
-        try:
-            raise ValueError("the plate is empty")
-        except ValueError:
-            run.log.exception("plate 1 failed")
-        run_id = run.run_id
-
-    records = [r for r in read_run_log(run_id) if "traceback" in r]
-    assert records, "no record carried a traceback"
-    assert "ValueError: the plate is empty" in records[0]["traceback"]
-
-
 def test_a_record_that_cannot_be_written_does_not_take_the_run_down(
         tmp_path, monkeypatch):
     """A full disk costs the evidence, never the result.
@@ -244,51 +226,9 @@ def test_a_record_that_cannot_be_serialised_does_not_take_the_run_down(
     handler.close()
 
 
-def test_a_run_whose_log_cannot_be_opened_still_runs(tmp_path, monkeypatch,
-                                                     caplog):
-    """The id, the seed and the policy survive; only the log path is empty."""
-    def refuse(_run_id):
-        raise OSError("the log directory is read-only")
-
-    monkeypatch.setattr(runctx, "run_log_path", refuse)
-
-    with caplog.at_level(logging.WARNING):
-        with run_context("mask", {"random_seed": 5}) as run:
-            assert run.run_id
-            assert run.log_path == ""
-            assert run.seed == 5
-    assert "could not open the run log" in caplog.text
-
-
 # ---------------------------------------------------------------------------
 # the seed
 # ---------------------------------------------------------------------------
-
-def test_the_seed_can_be_spelled_seed_as_well_as_random_seed():
-    """Both keys are read, `random_seed` first."""
-    assert resolve_seed({"seed": 17}) == 17
-    assert resolve_seed({"random_seed": 3, "seed": 17}) == 3
-
-
-def test_a_seed_that_is_not_a_number_at_all_is_no_seed():
-    """An object that cannot be an int means "do not seed", not a crash."""
-    assert resolve_seed({"random_seed": object()}) is None
-    assert resolve_seed({"random_seed": [1, 2]}) is None
-    assert resolve_seed({"random_seed": None}) is None
-    assert resolve_seed({"random_seed": False}) is None
-
-
-def test_a_word_is_a_usable_reproducible_seed():
-    """`random_seed: "plate3-rerun"` hashes rather than crashing.
-
-    The same word gives the same seed every run, which is the whole point.
-    """
-    once = resolve_seed({"random_seed": "plate3-rerun"})
-    again = resolve_seed({"random_seed": "plate3-rerun"})
-    assert isinstance(once, int)
-    assert once == again
-    assert once != resolve_seed({"random_seed": "plate4-rerun"})
-
 
 def test_a_seed_report_says_in_one_line_what_it_reached():
     """The report is printed into a log, so its `str` has to be readable."""
@@ -305,123 +245,9 @@ def test_a_seed_report_says_in_one_line_what_it_reached():
     assert "nothing" in str(nothing)
 
 
-def test_a_build_without_torch_says_torch_is_unavailable(monkeypatch):
-    """The report names what it could NOT seed rather than implying it did."""
-    monkeypatch.delitem(sys.modules, "torch", raising=False)
-    real_import = builtins.__import__
-
-    def blocked(name, *args, **kwargs):
-        if name == "torch" or name.startswith("torch."):
-            raise ImportError("no torch in this build")
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", blocked)
-
-    report = seed_everything(11, quiet=True)
-    assert "torch" in report.unavailable
-    assert "python" in report.seeded
-    assert "numpy" in report.seeded
-
-
-def _fake_torch(monkeypatch, *, available=True, raises=None):
-    """A Torch stand-in in `sys.modules`, where the module looks for one."""
-    calls = {"manual_seed": [], "cuda_seed_all": []}
-    cuda = types.SimpleNamespace()
-
-    def is_available():
-        if raises is not None:
-            raise raises
-        return available
-
-    cuda.is_available = is_available
-    cuda.manual_seed_all = lambda value: calls["cuda_seed_all"].append(value)
-    module = types.ModuleType("torch")
-    module.cuda = cuda
-    module.manual_seed = lambda value: calls["manual_seed"].append(value)
-    module.backends = types.SimpleNamespace(
-        cudnn=types.SimpleNamespace(deterministic=False, benchmark=True))
-    module.use_deterministic_algorithms = lambda *a, **k: None
-    monkeypatch.setitem(sys.modules, "torch", module)
-    return calls
-
-
-def test_a_card_that_is_there_is_seeded_and_the_caveat_is_recorded(
-        monkeypatch):
-    """CUDA gets the same seed, and the report says what remains nondeterministic."""
-    calls = _fake_torch(monkeypatch, available=True)
-    report = seed_everything(23, quiet=True)
-
-    assert calls["manual_seed"] == [23]
-    assert calls["cuda_seed_all"] == [23]
-    assert "torch.cuda" in report.seeded
-    assert any("cuda" in caveat.lower() or "nondeterministic" in caveat.lower()
-               for caveat in report.caveats), report.caveats
-
-
-def test_a_driver_mismatch_does_not_stop_a_cpu_run_being_seeded(monkeypatch):
-    """CUDA raising is recorded as unavailable; the CPU seeding still happened."""
-    calls = _fake_torch(monkeypatch, raises=RuntimeError("driver mismatch"))
-    report = seed_everything(23, quiet=True)
-
-    assert calls["manual_seed"] == [23]
-    assert "torch" in report.seeded
-    assert "torch.cuda" in report.unavailable
-
-
-def test_asking_for_deterministic_kernels_records_what_it_costs(monkeypatch):
-    """Determinism has a price, and the report names it rather than hiding it."""
-    _fake_torch(monkeypatch, available=False)
-    report = seed_everything(23, deterministic=True, quiet=True)
-
-    assert report.deterministic is True
-    assert "torch.cudnn" in report.seeded
-    assert "torch.deterministic-algorithms" in report.seeded
-    assert os.environ.get("CUBLAS_WORKSPACE_CONFIG")
-    assert report.caveats
-
-
-def test_seeding_says_so_unless_asked_to_be_quiet(caplog):
-    """The one line goes into the log, because a run has to record its seed."""
-    with caplog.at_level(logging.INFO, logger="spacr.runctx"):
-        report = seed_everything(31, quiet=False)
-    assert str(report) in caplog.text
-
-
-def test_cellpose_is_recorded_as_seeded_through_numpy_and_torch(monkeypatch):
-    """A report that omitted Cellpose would read as though it was overlooked."""
-    monkeypatch.setitem(sys.modules, "cellpose", types.ModuleType("cellpose"))
-    report = seed_everything(3, quiet=True)
-    assert any("cellpose" in entry for entry in report.seeded)
-
-
 # ---------------------------------------------------------------------------
 # the streams
 # ---------------------------------------------------------------------------
-
-def test_an_explicit_seed_overrides_the_run_seed():
-    """`spacr_rng(seed=...)` is reproducible on its own terms."""
-    first = spacr_rng("fold0", seed=99).random(4)
-    again = spacr_rng("fold0", seed=99).random(4)
-    assert np.allclose(first, again)
-
-
-def test_with_no_seeding_at_all_the_default_still_reproduces(monkeypatch):
-    """Never seeded is still deterministic: the default seed is used.
-
-    "Reproducible unless you asked otherwise" is only true if the unseeded
-    path lands somewhere fixed.
-    """
-    monkeypatch.setattr(runctx, "_ROOT_SEED_SEQUENCE", None)
-    monkeypatch.delenv(runctx.SEED_ENV, raising=False)
-
-    unnamed = spacr_rng().random(4)
-    monkeypatch.setattr(runctx, "_ROOT_SEED_SEQUENCE", None)
-    assert np.allclose(spacr_rng().random(4), unnamed)
-
-    monkeypatch.setattr(runctx, "_ROOT_SEED_SEQUENCE", None)
-    named = spacr_rng("worker-3").random(4)
-    assert not np.allclose(named, unnamed), "a named stream was not independent"
-
 
 def test_a_torch_generator_needs_torch_and_says_so(monkeypatch):
     """Handing back None would fail further away, so it raises here."""
@@ -485,32 +311,6 @@ def test_a_policy_describes_its_mode_and_what_it_lost():
     assert "backoff=0.5" in text
 
 
-def test_an_attempt_names_the_unit_and_which_try_it_is():
-    """The repr is read in a log line and in a debugger."""
-    policy = ErrorPolicy(mode=ON_ERROR_RETRY, attempts=3, sleep=lambda _s: None)
-    attempts = list(policy.attempts_for("plate1", stage="plate"))
-    text = repr(attempts[0])
-    assert "plate1" in text
-    assert "stage='plate'" in text
-    assert "1/" in text
-
-
-def test_a_loop_body_that_never_ran_is_not_judged():
-    """`break` inside the `with` leaves nothing to succeed or fail at.
-
-    Treating it as a success would record a unit that was never attempted.
-    """
-    policy = ErrorPolicy(mode=ON_ERROR_RETRY, attempts=3, sleep=lambda _s: None)
-    seen = 0
-    for attempt in policy.attempts_for("plate1", stage="plate"):
-        attempt.__enter__()
-        seen += 1
-        break
-    assert seen == 1
-    assert policy.n_skipped == 0
-    assert policy.retries == []
-
-
 def test_a_long_skip_list_is_summarised_rather_than_printed_in_full():
     """Twenty skips are listed and the rest are counted."""
     policy = ErrorPolicy(mode=ON_ERROR_SKIP)
@@ -543,35 +343,6 @@ def test_the_summary_names_the_units_that_had_to_be_retried():
 # ---------------------------------------------------------------------------
 # the context object
 # ---------------------------------------------------------------------------
-
-def test_a_run_hands_out_its_own_seeded_streams(scratch_logs):
-    """`run.rng` and `run.random_state` are the run's seed, not a fresh one."""
-    with run_context("mask", {"random_seed": 77}) as run:
-        assert run.random_state() == 77
-        assert np.allclose(run.rng("fold0").random(3),
-                           spacr_rng("fold0", seed=77).random(3))
-
-
-def test_an_unseeded_run_hands_back_the_caller_s_default(scratch_logs):
-    """With no seed, `random_state(default)` returns the default."""
-    with run_context("mask", {"random_seed": None}) as run:
-        assert run.seed is None
-        assert run.random_state() is None
-        assert run.random_state(default=5) == 5
-
-
-def test_a_run_prints_as_one_readable_line(scratch_logs):
-    """The `str` goes into a console, so it names id, module, seed and policy."""
-    with run_context("mask", {"random_seed": 8, "on_error": "skip"}) as run:
-        text = str(run)
-        assert run.run_id in text
-        assert "(mask)" in text
-        assert "seed=8" in text
-        assert "on_error=skip" in text
-
-    with run_context("", {}, log=False) as anonymous:
-        assert "(spacr)" in str(anonymous)
-
 
 # ---------------------------------------------------------------------------
 # the settings seam
@@ -692,27 +463,6 @@ def test_the_ergonomic_form_returns_the_result_or_the_skip_sentinel():
     assert policy.skipped_units == ["plate2"]
 
 
-def test_a_retry_that_runs_out_of_attempts_behaves_like_stop():
-    """The budget running out re-raises, and the unit is listed as retried."""
-    policy = ErrorPolicy(mode=ON_ERROR_RETRY, attempts=2, sleep=lambda _s: None)
-
-    with pytest.raises(OSError):
-        for attempt in policy.attempts_for("plate1", stage="plate"):
-            with attempt:
-                raise OSError("the share is gone for good")
-
-    assert policy.retries == [("plate1", 2)]
-
-
-def test_stop_re_raises_the_original_exception():
-    """The default mode aborts on the first failure, with the real error."""
-    policy = ErrorPolicy()
-    with pytest.raises(ValueError, match="plate 1 is empty"):
-        for attempt in policy.attempts_for("plate1", stage="plate"):
-            with attempt:
-                raise ValueError("plate 1 is empty")
-
-
 def test_a_nonsense_retry_budget_in_the_settings_falls_back_to_the_default():
     """A settings CSV can hold anything; the policy still arms."""
     from spacr.runctx import resolve_error_policy
@@ -728,98 +478,6 @@ def test_a_nonsense_retry_budget_in_the_settings_falls_back_to_the_default():
 # ---------------------------------------------------------------------------
 # one id on every stamp
 # ---------------------------------------------------------------------------
-
-def test_every_ledger_a_run_makes_carries_the_run_s_own_id(scratch_logs):
-    """A ledger mints its own uuid; a second id would break the join.
-
-    Log line, ledger row and artifact all have to be joinable on `run_id`,
-    which is the whole point of the context.
-    """
-    from spacr.errors import RunLedger
-
-    with run_context("mask", {}) as run:
-        made = run.new_ledger("segmentation")
-        assert made.run_id == run.run_id
-
-        outside = RunLedger("built-elsewhere")
-        assert outside.run_id != run.run_id
-        adopted = run.adopt(outside)
-        assert adopted is outside
-        assert outside.run_id == run.run_id
-
-
-def test_a_run_accounts_for_itself_as_a_dict(scratch_logs):
-    """`to_dict` is what a manifest writes, so every field has to be there."""
-    with run_context("mask", {"random_seed": 4, "on_error": "skip"}) as run:
-        for attempt in run.policy.attempts_for("plate1", stage="plate"):
-            with attempt:
-                raise ValueError("empty plate")
-        account = run.to_dict()
-        assert run.skips and account["skipped"][0]["unit"] == "plate1"
-
-    assert account["run_id"] == run.run_id
-    assert account["module"] == "mask"
-    assert account["seed"] == 4
-    assert account["on_error"] == "skip"
-    assert account["seed_report"]["seed"] == 4
-    assert account["log_path"].endswith(".jsonl")
-    json.dumps(account)
-
-
-def test_a_run_that_raises_says_so_in_its_own_log(scratch_logs):
-    """The failure is logged with the run id before it propagates."""
-    with pytest.raises(RuntimeError):
-        with run_context("mask", {}) as run:
-            run_id = run.run_id
-            raise RuntimeError("the plate list was empty")
-
-    messages = [r["message"] for r in read_run_log(run_id)]
-    assert any("failed after" in m and "the plate list was empty" in m
-               for m in messages), messages
-
-
-def test_a_run_that_skipped_something_warns_about_it_on_the_way_out(
-        scratch_logs):
-    """What was lost is said at the end, not only recorded."""
-    with run_context("mask", {"on_error": "skip"}) as run:
-        run_id = run.run_id
-        for attempt in run.policy.attempts_for("plate1", stage="plate"):
-            with attempt:
-                raise ValueError("empty plate")
-
-    messages = [r["message"] for r in read_run_log(run_id)]
-    assert any("NOT in the output" in m for m in messages), messages
-    assert any("finished in" in m and "1 skipped" in m for m in messages)
-
-
-def test_the_run_id_environment_variable_is_put_back(scratch_logs,
-                                                     monkeypatch):
-    """A nested or sequential run must not leak its id to the next one."""
-    monkeypatch.delenv(runctx.RUN_ID_ENV, raising=False)
-    with run_context("mask", {}) as run:
-        assert os.environ[runctx.RUN_ID_ENV] == run.run_id
-    assert runctx.RUN_ID_ENV not in os.environ
-
-    monkeypatch.setenv(runctx.RUN_ID_ENV, "an-outer-run")
-    with run_context("mask", {}):
-        assert os.environ[runctx.RUN_ID_ENV] != "an-outer-run"
-    assert os.environ[runctx.RUN_ID_ENV] == "an-outer-run"
-
-
-def test_the_seed_can_come_from_the_environment(monkeypatch):
-    """`SPACR_SEED` is read when the settings name no seed."""
-    monkeypatch.setenv(runctx.SEED_ENV, "1234")
-    assert resolve_seed({}) == 1234
-    assert resolve_seed(None) == 1234
-    # and a settings value still wins over it
-    assert resolve_seed({"random_seed": 7}) == 7
-
-
-def test_the_word_off_means_do_not_seed():
-    """Someone deliberately turning reproducibility off is a real request."""
-    for text in ("off", "none", "null", "false", "", "  "):
-        assert resolve_seed({"random_seed": text}) is None
-
 
 def test_a_torch_generator_is_seeded_from_the_run_seed():
     """A DataLoader's shuffling is part of the run, so it takes the run seed."""

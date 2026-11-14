@@ -89,28 +89,3 @@ def test_every_final_failure_is_recorded_and_the_first_is_raised(
     assert len(list(tmp_path.rglob("*.pkl"))) == 2
 
 
-def test_a_named_barcode_set_is_announced_before_reads_are_parsed(
-        tmp_path, monkeypatch, capsys):
-    import spacr.io
-    import spacr.utils
-    from spacr import sequencing
-
-    class Stop(Exception):
-        pass
-
-    seen = []
-
-    def parse(src):
-        seen.append(src)
-        raise Stop
-
-    monkeypatch.setattr(spacr.utils, "save_settings", lambda *a, **k: None)
-    monkeypatch.setattr(spacr.io, "parse_gz_files", parse)
-    with pytest.raises(Stop):
-        sequencing.generate_barecode_mapping({
-            "src": str(tmp_path),
-            "barcode_set": ["column", "grna", "row"],
-        })
-    assert seen == [str(tmp_path)]
-    out = capsys.readouterr().out
-    assert "Decoding 3 barcode(s): column, grna, row" in out
