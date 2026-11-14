@@ -387,6 +387,23 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_control_seed": 0,
 }
 
+#: The Measure setting each OPS phenotype measurement setting stands for
+#: (item 934). The OPS phenotype path measures through spacr.measure's own
+#: functions; ``spacr.ops_sample._measurement_settings`` builds its Measure
+#: settings through this map, and a Measure run with the mapped settings and
+#: ``homogeneity_distances=[2, 4, 8]`` writes the OPS columns with the same
+#: values.
+OPS_TO_MEASURE_KEYS: Dict[str, str] = {
+    "ops_ph_texture": "homogeneity",
+    "ops_ph_funk_features": "funk_object_features",
+    "ops_ph_zernike": "zernike",
+    "ops_ph_measure_gpu": "measure_gpu",
+    "ops_ph_measure_gpu_check": "measure_gpu_check",
+    "ops_ph_channels": "channel_names",
+    "ops_ph_profile_features": "profile_features",
+    "ops_ph_granularity_subsample": "profile_granularity_subsample",
+}
+
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
 #:
 #: ``None`` is admissible for every path-like and every "work it out" default,

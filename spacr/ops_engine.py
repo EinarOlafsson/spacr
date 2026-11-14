@@ -3236,13 +3236,21 @@ def _ph_gpu_check(task: Mapping[str, Any], rtol: float = 1e-4
         beyond ``rtol``. The run then goes on: the check reports, it does
         not stop the run.
     """
-    from .ops_run_infra import compare_tables
+    from .measure import check_gpu_measurement
 
-    gpu, _unreadable, _shape = _ph_measure_table({**task, "measure_gpu": True})
-    cpu, _unreadable, _shape = _ph_measure_table({**task, "measure_gpu": False})
-    if gpu is None or cpu is None:
-        return {"site": task["site"], "skipped": "the field is unreadable"}
-    return {"site": task["site"], **compare_tables(gpu, cpu, rtol=rtol)}
+    outside = check_gpu_measurement(task, dict(task), measure=_ph_check_table,
+                                    rtol=rtol)
+    return {"site": task["site"], **outside.attrs["summary"]}
+
+
+def _ph_check_table(field: Mapping[str, Any], task: Mapping[str, Any]):
+    """The table :func:`_ph_measure_table` measures for ``task``, or None.
+
+    :param field: the ``ph_measure`` task the check was given.
+    :param task: that task with ``measure_gpu`` set by
+        :func:`spacr.measure.check_gpu_measurement`.
+    """
+    return _ph_measure_table(task)[0]
 
 
 def _ph_profile_features(settings: Mapping[str, Any]) -> Optional[List[str]]:
