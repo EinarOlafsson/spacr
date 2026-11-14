@@ -425,9 +425,13 @@ def test_old_stamped_settings_keep_the_export_off():
     """The DEFAULT_CHANGES row: a file stamped before 940's version keeps export off."""
     from spacr import settings as spacr_settings
 
-    version = max(spacr_settings.DEFAULT_CHANGES)
+    # 940's row is 935 (renumbered at landing); later rows may follow it.
+    row = [v for v, change in spacr_settings.DEFAULT_CHANGES.items()
+           if "ops_placement_seed_export" in change]
+    assert len(row) == 1
+    version = row[0]
     assert spacr_settings.DEFAULT_CHANGES[version] == {"ops_placement_seed_export": False}
-    assert spacr_settings.SETTINGS_SCHEMA_VERSION == version
+    assert spacr_settings.SETTINGS_SCHEMA_VERSION >= version
     old = {}
     applied = spacr_settings._fold_older_defaults(old, version - 1)
     assert old["ops_placement_seed_export"] is False

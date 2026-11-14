@@ -5560,12 +5560,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # functions of spacr.ops_decode.
     # Moved 2026-11-13 for item 931 (was c82380fb...): compose_window's new
     # `blend` keyword (feathered tile blending).
-    # Moved 2026-11-13 for items 937, 936 and 940 (was a330e2b5...): the new
-    # `level` and `defaults` of spacr.merge_tables.aggregation_for, `defaults`
-    # of aggregation_plan and MergePolicy, phase_correlate's new `precision`
-    # keyword and stitch_well's new `edge_workers` keyword; the new
-    # stitch_core callables are checked by their arrival contract.
-) == 'REMEASURE'
+    # Moved 2026-11-13 by the second landing train (was a330e2b5...),
+    # re-measured after its last merge: item 937's new `level` and `defaults`
+    # of spacr.merge_tables.aggregation_for, `defaults` of aggregation_plan
+    # and MergePolicy, items 936/940's phase_correlate `precision` and
+    # stitch_well `edge_workers` keywords, and the OPS stage-3 Hybrid profile's
+    # changed parameters; new callables are checked by their arrival contracts.
+) == '17089b9ef306ff4835e4893dac0def491ecc793a5d8f2726e29ddca8616bf503'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

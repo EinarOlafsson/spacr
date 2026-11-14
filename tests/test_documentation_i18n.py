@@ -33,7 +33,8 @@ TOOLS = ROOT / "tools"
 # 2026-11-01 item 749: +1, spacr.qt.screens.organism_screen.OrganismScreen.refresh_maturity_visibility.
 # 2026-11-03 item 749: +3, spacr.qt.widgets.dock.SectionHeader.set_open, .event and .paintEvent.
 # 2026-11-05 items 791, 770, 771: +22, sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, the spacr.division_analysis module and its fourteen functions, and batch_correction's EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_243
+# 2026-11-13 items 936/940: +2, the spacr.stitch_core module docstring and spacr.stitch_core.StripRegistration.shift (measured after the second landing train's last merge; the ten new stitch_core callables are in their arrival contract).
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_245
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",
