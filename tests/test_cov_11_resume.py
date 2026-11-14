@@ -98,40 +98,29 @@ def _write(tmp_path, name, payload):
     return str(path)
 
 
-def test_a_file_that_stops_inside_its_header_length_is_refused(tmp_path):
-    """One byte of a two-byte length field is a crash scar, not a header."""
-    path = _write(tmp_path, "short_len.npy", _MAGIC + b"\x01\x00" + b"\x10")
-
-    with pytest.raises(ValueError, match="header length"):
-        read_npy_header(path)
+def _npy_with_header(body):
+    return _MAGIC + b"\x01\x00" + struct.pack("<H", len(body)) + body
 
 
-def test_a_header_shorter_than_it_claims_is_refused(tmp_path):
-    """The header says 118 bytes and the file holds four: it never finished."""
-    path = _write(tmp_path, "short_header.npy",
-                  _MAGIC + b"\x01\x00" + struct.pack("<H", 118) + b"{'sh")
+@pytest.mark.parametrize("payload, refusal", [
+    # One byte of a two-byte length field is a crash scar, not a header.
+    pytest.param(_MAGIC + b"\x01\x00" + b"\x10", "header length",
+                 id="stops-inside-the-header-length"),
+    # The header says 118 bytes and the file holds four: it never finished.
+    pytest.param(_MAGIC + b"\x01\x00" + struct.pack("<H", 118) + b"{'sh",
+                 "ends inside its header", id="shorter-than-it-claims"),
+    # A header of garbage means the bytes after it are garbage too.
+    pytest.param(_npy_with_header(b"this is not a dict at all      \n"),
+                 "unparseable", id="not-python"),
+    # A parseable header with no shape cannot say how long the file should be.
+    pytest.param(_npy_with_header(b"[1, 2, 3]                      \n"),
+                 "not a shape dict", id="not-a-shape-dict"),
+])
+def test_a_npy_file_whose_header_cannot_be_read_is_refused(tmp_path, payload,
+                                                          refusal):
+    path = _write(tmp_path, "broken.npy", payload)
 
-    with pytest.raises(ValueError, match="ends inside its header"):
-        read_npy_header(path)
-
-
-def test_a_header_that_is_not_python_is_refused(tmp_path):
-    """A header of garbage means the bytes after it are garbage too."""
-    body = b"this is not a dict at all      \n"
-    path = _write(tmp_path, "junk.npy",
-                  _MAGIC + b"\x01\x00" + struct.pack("<H", len(body)) + body)
-
-    with pytest.raises(ValueError, match="unparseable"):
-        read_npy_header(path)
-
-
-def test_a_header_that_is_not_a_shape_dict_is_refused(tmp_path):
-    """A parseable header with no shape cannot say how long the file should be."""
-    body = b"[1, 2, 3]                      \n"
-    path = _write(tmp_path, "listheader.npy",
-                  _MAGIC + b"\x01\x00" + struct.pack("<H", len(body)) + body)
-
-    with pytest.raises(ValueError, match="not a shape dict"):
+    with pytest.raises(ValueError, match=refusal):
         read_npy_header(path)
 
 

@@ -89,25 +89,24 @@ def test_a_missing_program_says_which_one_and_what_to_do():
     assert "execution profile" in str(caught.value)
 
 
-def test_a_command_that_hangs_is_timed_out_and_named():
+@pytest.mark.parametrize("requested, named", [
+    pytest.param(1.0, "Command timed out after 1s", id="one-second"),
+    # ``timeout`` is floored at one second before the call, so the sentence
+    # has to be formatted from the floored value: a 0.1 s request that waited
+    # a whole second must not report 0.1 s -- a number the user cannot
+    # reconcile with the wall clock.
+    pytest.param(0.1, "Command timed out after 1s", id="sub-second-is-floored"),
+    # The floor is a floor, not the number the sentence always prints.
+    pytest.param(2.0, "Command timed out after 2s", id="above-the-floor"),
+])
+def test_a_command_that_hangs_is_timed_out_and_named_by_the_time_waited(
+        requested, named):
     with pytest.raises(RemoteExecutionError) as caught:
         rx._run_command(
             [sys.executable, "-c", "import time; time.sleep(30)"],
-            timeout=1.0)
-    assert "Command timed out after 1s" in str(caught.value)
+            timeout=requested)
+    assert named in str(caught.value)
     assert sys.executable in str(caught.value)
-
-
-def test_a_timeout_message_names_the_time_that_was_actually_waited():
-    """``timeout`` is floored at one second before the call, so the sentence
-    has to be formatted from the floored value: a 0.1 s request that waited a
-    whole second must not report 0.1 s -- a number the user cannot reconcile
-    with the wall clock."""
-    with pytest.raises(RemoteExecutionError) as caught:
-        rx._run_command(
-            [sys.executable, "-c", "import time; time.sleep(30)"],
-            timeout=0.1)
-    assert "timed out after 1s" in str(caught.value)
 
 
 def test_a_file_that_cannot_be_executed_is_reported_not_raised(tmp_path):
@@ -371,20 +370,17 @@ def test_the_root_itself_maps_to_the_remote_root():
 # Command templates
 # ---------------------------------------------------------------------------
 
-def test_a_template_with_an_unbalanced_quote_is_named():
-    with pytest.raises(RemoteExecutionError,
-                       match="Submit command cannot be parsed"):
-        rx._split_template('cloud submit "unterminated', "Submit command")
-
-
-def test_an_empty_template_is_named():
-    with pytest.raises(RemoteExecutionError, match="Submit command is empty."):
-        rx._split_template("   ", "Submit command")
-
-
-def test_a_template_that_starts_with_a_flag_has_no_program():
-    with pytest.raises(RemoteExecutionError, match="must begin with a program"):
-        rx._split_template("--flag value", "Submit command")
+@pytest.mark.parametrize("template, refusal", [
+    pytest.param('cloud submit "unterminated',
+                 "Submit command cannot be parsed", id="unbalanced-quote"),
+    pytest.param("   ", "Submit command is empty.", id="empty"),
+    pytest.param("--flag value", "must begin with a program",
+                 id="starts-with-a-flag-so-no-program"),
+])
+def test_a_template_that_cannot_name_a_program_is_refused_by_name(template,
+                                                                  refusal):
+    with pytest.raises(RemoteExecutionError, match=refusal):
+        rx._split_template(template, "Submit command")
 
 
 def test_options_may_start_with_a_flag_because_they_are_not_a_program():
@@ -410,18 +406,16 @@ def test_a_windows_template_unquotes_a_program_path_with_spaces():
                     "describe", "{job_id}"]
 
 
-def test_an_unknown_placeholder_is_named_in_braces():
-    with pytest.raises(RemoteExecutionError,
-                       match=r"unknown placeholder \{queue\}"):
-        rx._render_template("cloud submit {queue}", {"job_id": "a"},
-                            "Submit command")
-
-
-def test_broken_placeholder_syntax_is_reported_not_raised_raw():
-    with pytest.raises(RemoteExecutionError,
-                       match="invalid placeholder syntax"):
-        rx._render_template("cloud submit {", {"job_id": "a"},
-                            "Submit command")
+@pytest.mark.parametrize("template, refusal", [
+    pytest.param("cloud submit {queue}", r"unknown placeholder \{queue\}",
+                 id="unknown-placeholder-is-named-in-braces"),
+    pytest.param("cloud submit {", "invalid placeholder syntax",
+                 id="broken-syntax-is-reported-not-raised-raw"),
+])
+def test_a_template_with_a_bad_placeholder_is_refused_by_name(template,
+                                                              refusal):
+    with pytest.raises(RemoteExecutionError, match=refusal):
+        rx._render_template(template, {"job_id": "a"}, "Submit command")
 
 
 def test_a_placeholder_is_substituted_inside_one_argument():
@@ -599,13 +593,20 @@ def test_an_exit_code_slurm_cannot_spell_leaves_the_state_alone(
     assert job.exit_code == 0
 
 
-def test_a_slurm_log_that_does_not_exist_yet_says_so(slurm_profile):
+@pytest.mark.parametrize("answer, expected", [
+    pytest.param(CommandResult(1, "", "tail: No such file"),
+                 "The Slurm log has not been created yet.",
+                 id="not-created-yet-says-so"),
+    pytest.param(CommandResult(0, "the tail\n", ""), "the tail\n",
+                 id="returned-when-it-is-there"),
+])
+def test_a_slurm_log_is_what_the_tail_returned_or_says_it_is_not_there_yet(
+        slurm_profile, answer, expected):
     job = RemoteJob("j", "mask", "hpc", "slurm", external_id="4711",
                     log_reference="/work/job.log")
-    runner = QueueRunner(CommandResult(1, "", "tail: No such file"))
+    runner = QueueRunner(answer)
 
-    assert rx._SlurmBackend(runner).logs(slurm_profile, job, 50) == (
-        "The Slurm log has not been created yet.")
+    assert rx._SlurmBackend(runner).logs(slurm_profile, job, 50) == expected
 
 
 def test_a_slurm_log_that_failed_for_another_reason_is_raised(slurm_profile):
@@ -615,13 +616,6 @@ def test_a_slurm_log_that_failed_for_another_reason_is_raised(slurm_profile):
 
     with pytest.raises(RemoteExecutionError, match="Slurm log retrieval"):
         rx._SlurmBackend(runner).logs(slurm_profile, job, 50)
-
-
-def test_a_slurm_log_is_returned_when_it_is_there(slurm_profile):
-    job = RemoteJob("j", "mask", "hpc", "slurm", external_id="4711",
-                    log_reference="/work/job.log")
-    runner = QueueRunner(CommandResult(0, "the tail\n", ""))
-    assert rx._SlurmBackend(runner).logs(slurm_profile, job, 50) == "the tail\n"
 
 
 @pytest.fixture
