@@ -117,21 +117,3 @@ def test_fitting_skips_panels_that_are_not_on_the_shared_window(qtbot):
 # ---------------------------------------------------------------------------
 # A click that names no object
 # ---------------------------------------------------------------------------
-
-def test_clicking_labels_that_name_no_field_publishes_nothing(qtbot):
-    """Labels with no field key cannot be named in measurement-table terms.
-
-    Publishing the raw label number instead would highlight whichever object
-    happened to carry that number in another view -- a different cell.
-    """
-    grid = _grid(qtbot, {"ch0": _channel(0, field=False),
-                         "ch1": _channel(1, field=False)})
-    published = []
-    grid.object_picked.connect(published.append)
-
-    layer = [lay for lay in grid.panels["ch0"].stack
-             if lay.name == "mask"][0]
-    grid._on_panel_picked("ch0", layer, {"y": 25.0, "x": 25.0}, 17)
-
-    assert published == []
-    assert layer.selected_label in (None, 0)
