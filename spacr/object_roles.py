@@ -130,6 +130,8 @@ EXACT_LABELS = {
     "power_score_per": "Statistical power — scoring level",
     "power_seed": "Statistical power — random seed",
     "power_wells_per_plate": "Statistical power — wells per plate",
+    "zernike": "Zernike moments",
+    "ops_ph_zernike": "Ops ph Zernike moments",
 }
 
 CASED_TERMS = {
