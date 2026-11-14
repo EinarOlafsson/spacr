@@ -2549,7 +2549,7 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
 
     from .ops_decode import (field_calls, field_evidence, matcher_for,
                              save_field_cache, _CACHE_FLOOR, _field_candidates,
-                             _field_votes)
+                             _field_votes, _joint_field_candidates)
     from .ops_sbs import estimate_read_locations, find_peaks
 
     rule = task["rule_a"]
@@ -2562,16 +2562,27 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         surface = score - ndimage.minimum_filter(score, size=5)
         strength = (surface[peaks[:, 0], peaks[:, 1]] if peaks.size
                     else np.zeros(0, np.float32))
-    floor = min(_CACHE_FLOOR, rule["threshold"]) if rule["store_cache"] \
-        else rule["threshold"]
+    auto = rule.get("auto")
+    spots = list(auto.get("spot_thresholds") or ()) if auto else []
+    floor = min([rule["threshold"]] + spots[:1])
+    floor = min(_CACHE_FLOOR, floor) if rule["store_cache"] else floor
     evidence = field_evidence(
         stack, filtered, score, peaks, strength, field.kept, task, edge=margin,
         floor=floor,
         pixel_percentile=rule["pixel_percentile"] if rule["pixels"] else None,
         features=bool(rule.get("features")))
     matcher, decoys = matcher_for(_LIBRARY, _DECOYS)
-    auto = rule.get("auto")
-    if auto:
+    if spots:
+        calls = _joint_field_candidates(
+            evidence, rule, sorted(_LIBRARY), matcher, decoys, spot_thresholds=spots,
+            floors=auto["floors"], pixel_qualities=auto["pixel_qualities"],
+            footprint=rule["footprint"], max_distance=rule["max_distance"],
+            min_fraction=rule["min_fraction"],
+            crosstalk=str(task.get("crosstalk") or "none"))
+        nearest = int(np.argmin([abs(t - rule["threshold"]) for t in spots]))
+        calls.update({key: calls["by_spot"][nearest][key] for key in (
+            "reads", "reads_owned", "reads_near", "reads_ambiguous")})
+    elif auto:
         votes = _field_votes(
             evidence, rule, sorted(_LIBRARY), matcher,
             threshold=rule["threshold"], footprint=rule["footprint"],
@@ -2859,7 +2870,12 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
     (``candidates``); :func:`spacr.ops_decode.choose_well_thresholds` picks
     the setting, each field's ``rule_a`` is rebuilt at it, and the choice is
     written to ``results/ops_decode/decode_thresholds_<well>.json`` and the
-    plate's ``decode_thresholds_<plate>.csv``.
+    plate's ``decode_thresholds_<plate>.csv``. Item 942: with read
+    thresholds to try (``spot_thresholds``), another objective or the
+    'lowest_fdr' fallback, the shared tuner
+    :func:`spacr.ops_decode.tune_thresholds` chooses the read threshold and
+    the call thresholds together, and the well's genotyped-vs-FDR curve is
+    written to ``decode_tuning_curve_<well>.csv`` and ``.png``.
 
     :param db: the measurements database.
     :param plate: the plate.
@@ -2869,42 +2885,87 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
     :param decoded: the decoded fields; their ``candidates`` are replaced by
         ``rule_a``.
     :param decoys: the decoy barcodes.
-    :returns: the rule with the chosen ``single_read_quality`` and
-        ``pixel_quality`` and the choice under ``threshold_choice``.
+    :returns: the rule with the chosen ``single_read_quality``,
+        ``pixel_quality`` and, when tuned, ``threshold``, and the choice under
+        ``threshold_choice``.
     """
-    from .ops_decode import (_candidate_calls, choose_well_thresholds,
-                             _write_threshold_report)
+    from .ops_decode import (_candidate_calls, choose_well_thresholds, tune_thresholds,
+                             write_tuning_curve, _write_threshold_report,
+                             results_folder)
 
     auto = rule_a["auto"]
     fields = sorted(decoded, key=lambda r: r["site"])
-    counts = (np.stack([r["candidates"]["counts"] for r in fields]) if fields
-              else np.zeros((0, len(auto["floors"]), len(auto["pixel_qualities"]), 2),
-                            np.int64))
-    choice = choose_well_thresholds(
-        counts, [r["candidates"]["nuclei"] for r in fields],
-        [r["site"] for r in fields], auto["floors"], auto["pixel_qualities"],
-        k=int(rule_a["decoy_k"]), scale=float(rule_a["fdr_scale"]),
-        fdr_max=thresholds["fdr_max"], ci=thresholds["ci"],
-        tune_fraction=thresholds["tune_fraction"], seed=thresholds["seed"])
+    spots = list(auto.get("spot_thresholds") or ())
+    grid_shape = (len(auto["floors"]), len(auto["pixel_qualities"]))
+    nuclei = [r["candidates"]["nuclei"] for r in fields]
+    sites = [r["site"] for r in fields]
+    joint = bool(spots) or thresholds["unreachable"] != "strictest" \
+        or thresholds["objective"] != "recall_at_fdr"
+    if joint:
+        shape = (max(len(spots), 1),) + grid_shape
+        counts = (np.stack([r["candidates"]["counts"].reshape(shape + (2,))
+                            for r in fields]) if fields
+                  else np.zeros((0,) + shape + (2,), np.int64))
+        tuned = tune_thresholds(
+            counts, nuclei, sites,
+            [("read_threshold", spots or [float(rule_a["threshold"])]),
+             ("single_read_quality", auto["floors"]),
+             ("pixel_quality", auto["pixel_qualities"])],
+            k=int(rule_a["decoy_k"]), scale=float(rule_a["fdr_scale"]),
+            objective=thresholds["objective"], fdr_max=thresholds["fdr_max"],
+            f_beta=thresholds["f_beta"], unreachable=thresholds["unreachable"],
+            ci=thresholds["ci"], tune_fraction=thresholds["tune_fraction"],
+            seed=thresholds["seed"])
+        choice = {"single_read_quality": tuned["chosen"]["single_read_quality"],
+                  "pixel_quality": tuned["chosen"]["pixel_quality"],
+                  "read_threshold": tuned["chosen"]["read_threshold"],
+                  **{key: value for key, value in tuned.items()
+                     if key not in ("chosen", "index")}}
+        spot_index = tuned["index"][0]
+    else:
+        counts = (np.stack([r["candidates"]["counts"] for r in fields]) if fields
+                  else np.zeros((0,) + grid_shape + (2,), np.int64))
+        choice = choose_well_thresholds(
+            counts, nuclei, sites, auto["floors"], auto["pixel_qualities"],
+            k=int(rule_a["decoy_k"]), scale=float(rule_a["fdr_scale"]),
+            fdr_max=thresholds["fdr_max"], ci=thresholds["ci"],
+            tune_fraction=thresholds["tune_fraction"], seed=thresholds["seed"])
+        spot_index = None
     decoy_set = frozenset(decoys)
     for r in fields:
         candidates = r.pop("candidates")
+        if spots:
+            candidates = candidates["by_spot"][spot_index]
+            r.update({"spots": candidates["reads"],
+                      "attributed": candidates["reads_near"] - candidates["reads_ambiguous"],
+                      "ambiguous": candidates["reads_ambiguous"]})
         r["rule_a"] = _candidate_calls(candidates, choice["single_read_quality"],
                                        choice["pixel_quality"], decoy_set)
     choice["paths"] = _write_threshold_report(db, plate, well, choice)
+    if joint:
+        choice["paths"].update({f"curve_{key}": path for key, path in write_tuning_curve(
+            choice, results_folder(db), f"decode_tuning_curve_{well}",
+            title=f"{plate} {well}: decode auto thresholds").items()})
     if not choice["auto_met"]:
+        fallback = ("the setting with the lowest FDR"
+                    if joint and thresholds["unreachable"] == "lowest_fdr"
+                    else "the strictest setting")
         _say(f"{well} decode: no grid setting kept the decoy FDR at or below "
-             f"{thresholds['fdr_max']} per 100 on the tuning fields; the "
-             "strictest setting is used (auto_met False)")
-    _say(f"{well} decode: auto thresholds single-read quality "
-         f"{choice['single_read_quality']}, pixel quality "
+             f"{thresholds['fdr_max']} per 100 on the tuning fields; "
+             f"{fallback} is used (auto_met False)")
+    _say(f"{well} decode: auto thresholds "
+         + (f"read threshold {choice['read_threshold']}, " if spots else "")
+         + f"single-read quality {choice['single_read_quality']}, pixel quality "
          f"{choice['pixel_quality']}; report fields "
          f"{choice['report']['genotyped_pct']} % genotyped, FDR "
          f"{choice['report']['fdr_per_100']} per 100")
-    return {**rule_a, "single_read_quality": choice["single_read_quality"],
-            "pixel_quality": choice["pixel_quality"],
-            "threshold_choice": {key: value for key, value in choice.items()
-                                 if key != "grid"}}
+    chosen_rule = {**rule_a, "single_read_quality": choice["single_read_quality"],
+                   "pixel_quality": choice["pixel_quality"],
+                   "threshold_choice": {key: value for key, value in choice.items()
+                                        if key != "grid"}}
+    if spots:
+        chosen_rule["threshold"] = choice["read_threshold"]
+    return chosen_rule
 
 
 def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
@@ -3040,7 +3101,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                                  "decoys for this library; check "
                                  "ops_decoy_library_k and the library")
             rule_a["auto"] = {"floors": thresholds["floors"],
-                              "pixel_qualities": thresholds["pixel_qualities"]}
+                              "pixel_qualities": thresholds["pixel_qualities"],
+                              "spot_thresholds": thresholds["spot_thresholds"]}
         cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),
                                     well, "decode_cache")
     else:

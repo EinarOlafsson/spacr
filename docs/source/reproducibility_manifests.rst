@@ -115,6 +115,10 @@ default after a higher-numbered item takes the next free number:
   leaves Gabor, granularity and colocalisation out.
 - 938 (item 945): ``seg_mask_vram_gb`` was ``0`` (the
   large-site mask step had no card-memory cap of its own); it is now ``6``.
+- 939 (item 942): ``ops_decode_auto_spot_grid`` was ``[]`` and
+  ``ops_decode_auto_unreachable`` ``'strictest'`` (item 939's auto mode
+  tuned the calling thresholds only and fell back to the strictest setting);
+  they are now ``[150.0, 200.0, 250.0, 315.0, 400.0]`` and ``'lowest_fdr'``.
 
 Public API
 ----------

@@ -2534,8 +2534,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 937
-SETTINGS_SCHEMA_VERSION = 938
+SETTINGS_SCHEMA_VERSION = 939
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2549,6 +2548,8 @@ DEFAULT_CHANGES = {
           'ops_ph_profile_optional_families': [
               'texture_gabor', 'colocalisation', 'colocalisation_extra']},
     938: {'seg_mask_vram_gb': 0},
+    939: {'ops_decode_auto_spot_grid': [],
+          'ops_decode_auto_unreachable': 'strictest'},
 }
 
 
@@ -9670,6 +9671,14 @@ ALPHA_FEATURES = {
         'settings': ('ops_decode_threshold_mode', 'ops_decode_fdr_max',
                      'ops_decode_auto_grid', 'ops_decode_auto_ci',
                      'ops_decode_auto_tune_fraction', 'ops_decode_auto_seed'),
+    },
+    942: {
+        'settings': ('ops_decode_auto_spot_grid', 'ops_decode_auto_objective',
+                     'ops_decode_auto_f_beta', 'ops_decode_auto_unreachable',
+                     'ops_prefix_decoy_k', 'ops_prefix_decoy_seed',
+                     'ops_prefix_fdr_scale', 'ops_prefix_min_read_quality',
+                     'ops_prefix_threshold_tuning', 'ops_prefix_fdr_target_pct',
+                     'ops_prefix_tuning_grid'),
     },
 }
 

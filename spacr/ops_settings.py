@@ -193,6 +193,10 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_decode_auto_ci": True,
     "ops_decode_auto_tune_fraction": 0.5,
     "ops_decode_auto_seed": 0,
+    "ops_decode_auto_spot_grid": [150.0, 200.0, 250.0, 315.0, 400.0],
+    "ops_decode_auto_objective": "recall_at_fdr",
+    "ops_decode_auto_f_beta": 1.0,
+    "ops_decode_auto_unreachable": "lowest_fdr",
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
     "ops_decode_qc": False,
@@ -405,6 +409,13 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_quality_method": "spacr",
     "ops_random_barcode_control": True,
     "ops_control_seed": 0,
+    "ops_prefix_decoy_k": 0,
+    "ops_prefix_decoy_seed": 1,
+    "ops_prefix_fdr_scale": 1.0,
+    "ops_prefix_min_read_quality": 0.0,
+    "ops_prefix_threshold_tuning": "none",
+    "ops_prefix_fdr_target_pct": 0.1,
+    "ops_prefix_tuning_grid": None,
 }
 
 #: The Measure setting each OPS phenotype measurement setting stands for
@@ -599,6 +610,10 @@ OPS_TYPES: Dict[str, object] = {
     "ops_decode_auto_ci": bool,
     "ops_decode_auto_tune_fraction": (float, int),
     "ops_decode_auto_seed": int,
+    "ops_decode_auto_spot_grid": (list, str, type(None)),
+    "ops_decode_auto_objective": str,
+    "ops_decode_auto_f_beta": (float, int),
+    "ops_decode_auto_unreachable": str,
     "ops_decode_skip_unplaced_sites": bool,
     "ops_store_field_cache": bool,
     "ops_decode_qc": bool,
@@ -811,6 +826,13 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_quality_method": str,
     "ops_random_barcode_control": bool,
     "ops_control_seed": int,
+    "ops_prefix_decoy_k": int,
+    "ops_prefix_decoy_seed": int,
+    "ops_prefix_fdr_scale": (float, int),
+    "ops_prefix_min_read_quality": (float, int),
+    "ops_prefix_threshold_tuning": str,
+    "ops_prefix_fdr_target_pct": (float, int),
+    "ops_prefix_tuning_grid": (dict, str, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -873,6 +895,10 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_decode_auto_ci",
         "ops_decode_auto_tune_fraction",
         "ops_decode_auto_seed",
+        "ops_decode_auto_spot_grid",
+        "ops_decode_auto_objective",
+        "ops_decode_auto_f_beta",
+        "ops_decode_auto_unreachable",
         "ops_decode_skip_unplaced_sites",
         "ops_store_field_cache",
         "ops_decode_qc",
@@ -896,6 +922,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_crosstalk", "ops_prefix_masks", "ops_quality_min_reads",
         "ops_prefix_quality_method",
         "ops_random_barcode_control", "ops_control_seed",
+        "ops_prefix_decoy_k", "ops_prefix_decoy_seed", "ops_prefix_fdr_scale",
+        "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
+        "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid",
         "ops_compare_match", "ops_compare_reference_masks",
         "ops_compare_spacr_masks", "ops_compare_reference_objects",
         "ops_compare_iou", "ops_compare_reference_calls",
@@ -2519,24 +2548,25 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "neighbour distances; values below 1 count as 1. Default 1.268. "
         "Alpha.",
     "ops_decode_threshold_mode":
-        "(str) - How the two call thresholds of the rule (a) decode, "
-        "ops_single_read_quality and ops_pixel_quality, are set. 'manual' "
+        "(str) - How the thresholds of the rule (a) decode are set. 'manual' "
         "uses the values you enter. 'auto' chooses them well by well from "
-        "the well's decoy calls: half of the well's fields try every "
-        "setting of ops_decode_auto_grid, the setting that genotypes the "
-        "most nuclei with a decoy FDR at or below ops_decode_fdr_max is "
-        "used for the whole well, and the other half reports its FDR. The "
-        "spot thresholds (ops_read_threshold, ops_spot_min_peak) stay as "
-        "entered. Auto needs ops_decode_preset rule_a_s2 and decoys "
-        "(ops_decoy_library_k above 0); the choices are written to "
-        "results/ops_decode/decode_thresholds_<plate>.csv. On Funk et al. "
-        "2022 plate D it kept the FDR at 0.093 per 100 calls with 67.9 % of "
-        "linked nuclei genotyped. Default 'manual'. Alpha.",
+        "the well's decoy calls, spot detection and calling together: half "
+        "of the well's fields try every combination of the read thresholds "
+        "in ops_decode_auto_spot_grid (ops_read_threshold) and the call "
+        "thresholds in ops_decode_auto_grid (ops_single_read_quality, "
+        "ops_pixel_quality), the combination chosen by "
+        "ops_decode_auto_objective is used for the whole well, and the other "
+        "half reports its FDR. Auto needs ops_decode_preset rule_a_s2 and "
+        "decoys (ops_decoy_library_k above 0); the choices are written to "
+        "results/ops_decode/decode_thresholds_<plate>.csv and each well's "
+        "genotyped-vs-FDR curve to decode_tuning_curve_<well>.csv and .png. "
+        "Default 'manual'. Alpha.",
     "ops_decode_fdr_max":
         "(float) - The highest decoy-estimated false calls per 100 real "
         "calls that auto thresholds may accept (0.1 means 0.1 %). Used with "
-        "ops_decode_threshold_mode 'auto'. A well where no setting meets it "
-        "gets the strictest setting and auto_met False in its report. "
+        "ops_decode_threshold_mode 'auto' and objective 'recall_at_fdr'. A "
+        "well where no setting meets it gets the setting chosen by "
+        "ops_decode_auto_unreachable and auto_met False in its report. "
         "Default 0.1. Alpha.",
     "ops_decode_auto_grid":
         "(dict) - The values auto thresholds try, as "
@@ -2558,6 +2588,32 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - The seed of the random split of each well's fields for "
         "auto thresholds; the same seed gives the same split and the same "
         "choice on a rerun. Default 0. Alpha.",
+    "ops_decode_auto_spot_grid":
+        "(list) - The read thresholds (ops_read_threshold, the spot strength "
+        "a read needs) that auto thresholds try together with the call "
+        "thresholds, so spot detection is tuned with calling. Each field is "
+        "read once down to the lowest value. Empty keeps ops_read_threshold "
+        "as entered, as settings saved before item 942 do. Default 150, 200, "
+        "250, 315 and 400. Alpha.",
+    "ops_decode_auto_objective":
+        "(str) - What auto thresholds maximise, in the OPS decode and in the "
+        "spacer-prefix decode. 'recall_at_fdr' genotypes the most cells with "
+        "a decoy FDR at or below the target (ops_decode_fdr_max, or "
+        "ops_prefix_fdr_target_pct). 'f_score' takes the highest F-score of "
+        "precision (one minus the FDR) and recall (the share of cells "
+        "genotyped), weighted by ops_decode_auto_f_beta. Default "
+        "'recall_at_fdr'. Alpha.",
+    "ops_decode_auto_f_beta":
+        "(float) - The weight of recall against precision in the 'f_score' "
+        "objective: 1 weighs them equally, below 1 favours precision (fewer "
+        "false calls), above 1 favours recall (more cells). Default 1. "
+        "Alpha.",
+    "ops_decode_auto_unreachable":
+        "(str) - What auto thresholds use when no setting meets the FDR "
+        "target. 'lowest_fdr' takes the setting with the lowest FDR reached "
+        "and reports it; 'strictest' takes the strictest setting, as "
+        "settings saved before item 942 do. Either way the report says "
+        "auto_met False. Default 'lowest_fdr'. Alpha.",
     "ops_decode_skip_unplaced_sites":
         "(bool) - Decode only the sites the stitch placed and list the "
         "others in the decode and FDR reports. Off stops the well with an "
@@ -3058,6 +3114,48 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - Seed of the shuffled-whitelist control. Another seed draws "
         "another shuffled whitelist, so the control's chance match rate moves "
         "a little while the real calls stay the same. Default 0. Alpha.",
+    "ops_prefix_decoy_k":
+        "(int) - How many decoy prefixes per library prefix the spacer-prefix "
+        "decode matches together with the library: base-shuffled 12-mers at "
+        "least two edits from every prefix. A read as close to a decoy as to "
+        "a guide matches neither, and a cell whose top barcode is a decoy is "
+        "counted, never genotyped, which gives each site, well and plate a "
+        "decoy FDR (site_summary.csv, fdr_<plate>_<well>.json). 4 is "
+        "recommended; 0 matches no decoys. Default 0. Alpha.",
+    "ops_prefix_decoy_seed":
+        "(int) - Seed of the decoy prefixes (ops_prefix_decoy_k); the same "
+        "seed draws the same decoys. Default 1. Alpha.",
+    "ops_prefix_fdr_scale":
+        "(float) - How much likelier a read is to land on a wrong guide "
+        "than on a decoy prefix, which turns decoy calls into an FDR; values "
+        "below 1 count as 1. No calibration exists for spacer-prefix "
+        "libraries yet. Default 1. Alpha.",
+    "ops_prefix_min_read_quality":
+        "(float) - The weakest read the spacer-prefix decode calls cells "
+        "from, as its worst cycle's margin between the two brightest bases. "
+        "Weaker reads are dropped before the cell calls. 0 keeps every read. "
+        "Default 0. Alpha.",
+    "ops_prefix_threshold_tuning":
+        "(str) - How the spacer-prefix decode sets its thresholds. 'none' "
+        "uses the values you enter. 'per_well_decoy' chooses them well by "
+        "well from decoy calls only, spot detection and calling together: "
+        "half of the well's sites try every combination of "
+        "ops_prefix_tuning_grid (read threshold, read quality, mismatches), "
+        "the combination chosen by ops_decode_auto_objective is used for the "
+        "whole well, and the other half reports its FDR. Needs "
+        "ops_prefix_decoy_k above 0. Each well's grid, curve and choice are "
+        "written to threshold_tuning_<plate>_<well>.csv, .png and .json. "
+        "Default 'none'. Alpha.",
+    "ops_prefix_fdr_target_pct":
+        "(float) - The highest decoy FDR, in %, that 'per_well_decoy' "
+        "tuning may accept (0.1 means 0.1 %). Default 0.1. Alpha.",
+    "ops_prefix_tuning_grid":
+        "(dict) - The values 'per_well_decoy' tuning tries, as "
+        "{'ops_read_threshold': [...], 'ops_prefix_min_read_quality': [...], "
+        "'ops_prefix_max_distance': [...]}; a threshold left out keeps its "
+        "entered value. Empty uses read thresholds 40, 60, 80, 100, 130 and "
+        "160, read qualities 0, 0.05, 0.1, 0.15 and 0.25, and 1 or 0 "
+        "mismatches. Default empty. Alpha.",
     "ops_stress_report":
         "(bool) - At the end of the run, time the store as the reference "
         "stress test did (database rows, queries for one field, one gene, "
