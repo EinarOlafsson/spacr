@@ -166,6 +166,22 @@ def test_the_page_and_the_measure_panel_offer_the_same_illumination_keys(
         'illumination_per_plate', 'illumination_max_fields',
         'illumination_dark', 'illumination_on_missing', 'illumination_qc',
         'illumination_vendor_profile', 'illumination_vendor_channel_map',
+        # Item 933: the nuclear-median estimator's settings.
+        'illumination_nuclear_channel',
+        'illumination_nuclei',
+        'illumination_dark_per_plate',
+        'illumination_block_px',
+        'illumination_fit',
+        'illumination_sigma_px',
+        'illumination_ridge',
+        'illumination_floor',
+        'illumination_centre_cells',
+        'illumination_lookup',
+        'illumination_map_grid',
+        'illumination_centre_offset',
+        'illumination_holdout_n',
+        'illumination_seed',
+        'illumination_validate',
     }
 
     panels = {}

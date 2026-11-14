@@ -111,9 +111,13 @@ def _placed(db, sites=(0, 1)):
     return frame
 
 
+# The synthetic well has no ops_geometry (no stitch phase), so it merges
+# with 'similarity'; 'tile_affine', the default since item 930's switch,
+# needs the stitch phase's tile positions.
 SETTINGS = {"plate": PLATE, "ops_ph_channels": "DAPI,GFP,AF750",
             "ops_ph_downsample": 1, "ops_ph_texture": False, "n_workers": 1,
-            "ops_gpu": False, "ops_ph_cell_model": "cyto3"}
+            "ops_gpu": False, "ops_ph_cell_model": "cyto3",
+            "ops_align_model": "similarity"}
 
 
 def _sequencing(db, tmp_path, cells):

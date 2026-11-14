@@ -3265,12 +3265,12 @@ def _validated_bmc_paper_items_4_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json").read_text(encoding="utf-8"))
-    assert len(entries) == 106
+    assert len(entries) == 107
     assert {"spacr.cpg_cropped", "spacr.ops_prefix", "spacr.ops_image_umap",
             "spacr.ops_large_sites", "spacr.ops_decode.run_compare_masks",
             "spacr.ops_scoring.score_profile_benchmarks"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
-    assert len(found) == 102
+    assert len(found) == 103
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
         assert item.parameters == item.accepted_documented_parameters
@@ -3397,6 +3397,52 @@ def _validated_tile_affine_930_callables(callables):
     assert found.keys() == entries.keys()
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_nuclear_flatfield_933_callables(callables):
+    """Check the public callables of item 933 (the nuclear-median estimator of the general illumination correction) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert set(entries) == {
+        "spacr.illumination.NuclearIlluminationField",
+        "spacr.illumination.NuclearIlluminationField.correct_field",
+        "spacr.illumination.NuclearIlluminationField.correct_window",
+        "spacr.illumination.NuclearIlluminationField.describe",
+        "spacr.illumination.estimate_nuclear_illumination",
+        "spacr.illumination.validate_illumination",
+    }
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_run_progress_938_callables(callables):
+    """Check the public callables of item 938 (run progress with percent done and time left) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "938_run_progress_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(entries) == 20
+    assert all(symbol == "spacr.qt.run_progress"
+               or symbol.startswith("spacr.qt.run_progress.")
+               or symbol == "spacr.qt.bridge.RunHandle.seconds_left"
+               for symbol in entries)
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert len(found) == 16
+    for symbol, item in found.items():
         assert item.parameters == item.accepted_documented_parameters
         assert item.variant_count == 1 and item.docless_variant_count == 0
         assert item.docstring == entries[symbol]
@@ -3568,6 +3614,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_paper_remaining_910_899_callables(callables)
     callables = _validated_consensus_bench_928_929_callables(callables)
     callables = _validated_tile_affine_930_callables(callables)
+    callables = _validated_nuclear_flatfield_933_callables(callables)
+    callables = _validated_run_progress_938_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5048,7 +5096,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # contract (871_911_bmc_paper_items_api_arrivals_2026-11-09.json).
     # 2026-11-13 item 931: 20,254 -> 20,255, the optional `blend` keyword of
     # spacr.ops_compose.compose_window (feathered tile blending).
-    assert sum(len(item.parameters) for item in callables) == 20255
+        # 20,255 -> 20,258 on 2026-11-13: item 932's align_field gains the
+    # optional precision, backend and registrations (all defaulted, so the
+    # required total below does not move).
+    assert sum(len(item.parameters) for item in callables) == 20258
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5155,6 +5206,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # model_zoo_picker.drawing_in_steps, MakeMasksScreen.showEvent,
     # SettingsSearchBar.event, PairedFileTableWidget.eventFilter and
     # Toggle.changeEvent; no existing row changed.
+    # Moved 2026-11-13 for item 932 (was 530b264e...): spacr.ops_cycles.align_field's
+    # three new optional parameters (item 932); the parameter total above
+    # moves by the same three and the required total does not.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -5381,7 +5435,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # functions of spacr.ops_decode.
     # Moved 2026-11-13 for item 931 (was c82380fb...): compose_window's new
     # `blend` keyword (feathered tile blending).
-) == '530b264e7641c72cfac77d008ecf714816f45a5fff548c19048b9743a059c492'
+) == 'a330e2b57717c690784dcdc2f8572940829eec19a2e093e82e6a384acae76fcd'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -6282,7 +6336,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("871_911_bmc_paper_items_api_arrivals_2026-11-09.json", 171),
         ("884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json", 376),
         ("912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json", 54),
-        ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 106),
+        ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 107),
         ("annotate_jump_api_arrivals_2026-11-11.json", 4),
         ("issue_186_png_list_annotations_api_arrivals_2026-11-11.json", 3),
         ("gate_editor_png_list_annotations_api_arrivals_2026-11-12.json", 1),
@@ -6291,6 +6345,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("910_899_paper_remaining_api_arrivals_2026-11-12.json", 3),
         ("928_929_ops_consensus_bench_api_arrivals_2026-11-12.json", 22),
         ("930_ops_tile_affine_api_arrivals_2026-11-13.json", 4),
+        ("933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json", 6),
+        ("938_run_progress_api_arrivals_2026-11-13.json", 20),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6883,7 +6939,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "measure_profile_families_api_arrivals_2026-11-12.json",
                      "910_899_paper_remaining_api_arrivals_2026-11-12.json",
                      "928_929_ops_consensus_bench_api_arrivals_2026-11-12.json",
-                     "930_ops_tile_affine_api_arrivals_2026-11-13.json"):
+                     "930_ops_tile_affine_api_arrivals_2026-11-13.json",
+                     "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json",
+                     "938_run_progress_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7018,7 +7076,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "measure_profile_families_api_arrivals_2026-11-12.json",
                      "910_899_paper_remaining_api_arrivals_2026-11-12.json",
                      "928_929_ops_consensus_bench_api_arrivals_2026-11-12.json",
-                     "930_ops_tile_affine_api_arrivals_2026-11-13.json"):
+                     "930_ops_tile_affine_api_arrivals_2026-11-13.json",
+                     "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json",
+                     "938_run_progress_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

@@ -190,3 +190,47 @@ Spec defaults: centre-normalised maps (identical to OPS); offset restore only wi
 3. **Non-OPS nuclear channels.** Is a nuclear map also wanted for non-DNA channels? A cytoplasmic stain has no "nucleus median", but a per-cell median map could be built the same way from cell masks.
 4. **Validation dataset outside OPS.** Is the bundled example plate plus one BBBC021 plate acceptable for the corner check?
 5. **Segmentation stage.** Should a two-pass mode be offered (segment nuclei uncorrected, build the nuclear map, re-segment corrected), or is the refusal enough?
+
+## Implementation (2026-11-13, branch claude-933-flatfield-1113; feature workflow steps 5 and 6)
+Built as alpha under `ALPHA_FEATURES[933]` (15 settings plus the `illumination_estimator` choice `'nuclear_median'`). Record: `features/feature_list/933_illumination_nuclear_flatfield.txt`.
+
+**What was built**
+- `spacr.illumination.estimate_nuclear_illumination` builds the nuclear channel's map with `spacr.ops_flatfield.build_nuclear_flat` and reads it at field pixels with `spacr.ops_flatfield.flat_planes`. These are the OPS functions themselves, not copies. The other channels go through `estimate_illumination` (polynomial by default).
+- `NuclearIlluminationField` (a subclass of `IlluminationField`) keeps the block map, the 912 build record and a per-channel offset-restore flag.
+  - `IlluminationCorrector` and `correct_window` apply `(I − b)/F + b` to the nuclear channel in the float32 order of `ops_flatfield.correct_field`, and today's formula to every other channel.
+  - Embedding crops add the offset back too.
+  - A model holding a nuclear field saves as format 2; a model without one is unchanged (format 1).
+- `prepare_illumination_model` dispatches on `illumination_estimator == 'nuclear_median'`. `illumination_validate` runs `validate_illumination` after the build.
+- `validate_illumination(settings)` holds out fields per plate (`holdout_fields`) and re-measures their nuclei exactly with `validate_nuclear_flat`. It compares the result against the polynomial field of the same channel and writes `radial.csv`, `radial_summary.json` and `heldout_nuclei.csv`.
+- **Refusals.**
+  - No offset, or an offset of 0.
+  - A `measurements.db` whose run had `illumination_correction` on. The message names the column.
+  - Mask generation, unless a saved model is given. The message names `illumination_for_later_masks`.
+  - A median of fewer than 1 nucleus per map cell.
+- `spacr/ops_flatfield.py` accepts rectangular fields: `size` and `field_px` may be a `(rows, cols)` pair. Square maps are byte-identical, and the 912 tests pass unchanged. No 912 docstring changed.
+
+**Deviations from the design above (and why)**
+1. **No `spacr/flatfield_core.py`.** Moving the functions renames fifteen catalogued public symbols: the 912 arrival contract and the nine-locale records are keyed by `spacr.ops_flatfield.*`. `spacr.illumination` imports from `spacr.ops_flatfield` instead. It is still one implementation, and a test asserts that the general path defines none of the map maths.
+2. **`estimate_illumination` keeps its signature and docstring.** The estimator is the new public `estimate_nuclear_illumination`. `estimate_illumination(estimator='nuclear_median')` refuses and names it.
+3. **`illumination_estimator` stays a string**, with no per-channel dict. The nuclear channel gets the nuclear map and the others get the polynomial; the API's `other_estimator` may choose `'smooth'`.
+4. **Where the nucleus table comes from when `nuclei` is None.** The merged nucleus masks are read first when `nucleus_mask_dim` is set, because they give exact raw means and unweighted centroids. The run's `measurements.db` is read only otherwise, for two reasons: its nucleus table has only intensity-weighted centroids, and on a re-measure it would otherwise refuse the table its own corrected run wrote.
+5. **Mask generation refuses outright.** spaCR makes the cell, nucleus and pathogen masks in one pass, so no later mask stage has the nuclei.
+6. **Not built.** The radial panel in the QC figure. The validation writes the radial table instead.
+
+**Identity with OPS** (`tests/test_illumination_nuclear_flatfield_933.py`, plus a plate A run)
+- **Synthetic data.**
+  - The block map has the same md5 as `build_nuclear_flat` for both grids.
+  - The plane equals `flat_planes` (`np.array_equal`).
+  - The settings path, using `illumination_*` keys translated from `ops_defaults` through `OPS_TO_ILLUMINATION_KEYS`, gives the OPS map's md5, also after save and load.
+  - The corrected float32 DNA plane equals `ops_flatfield.correct_field` (`np.array_equal`, tolerance 0).
+  - Nuclear means re-measured from the corrected field equal `field_nucleus_means` (exact arm) within 1e-6 relative.
+- **Plate A** (the 912 reference table, 10,067,435 training nuclei, same 24 held-out fields): byte-identical maps. `lookup` matches `flat_DAPI_v2.npy` (md5 `f0dbfb9da3e6ab3c1e38a63485491146`) and `block_centre` matches `flat_DAPI_nuc_lq2_centres.npy`. Plate B's table is not on local disk.
+
+**Default identity.** Run side by side, origin/nightly `spacr/illumination.py` and this branch give the same md5s on a synthetic plate for polynomial and smooth: model arrays, the manifest without its timestamp, and the float32 and uint16 corrected pixels.
+
+**Step 6 (validation).** Scripts, logs and tables are in `/nas_mnt/data/sync/papers/BMCspacr/reanalysis/illumination_933_step6/`. The results are in the feature record.
+- **Example plate:** refused (median 0 nuclei per map cell; 16 fields, 806 nuclei).
+- **BBBC021 Week1_22123:** largest ring deviation 0.0245 for nuclear_median, against 0.138 for the polynomial and 0.176 raw.
+  - The point criterion is met in all 7 rings.
+  - The upper-CI criterion is not met in the inner rings.
+  - Shuffled control: maximum deviation 0.125 by default and 0.031 at block 32 / sigma 128. Neither meets the 0.02 criterion.
