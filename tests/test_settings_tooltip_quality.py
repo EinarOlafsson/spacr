@@ -1498,6 +1498,17 @@ if app_key == "mask":
     for app, key in ops_measure_arrivals:
         assert resolve_default_settings(app)[key] == ops_measure_defaults[key]
     recognized_arrivals |= ops_measure_arrivals
+    # Item 941 (2026-11-13): profile_optional_families ("Default None."),
+    # resolved by Measure and External Masks, two claims. Each claim is the
+    # resolved default, so none is a variant.
+    optional_arrivals = {pair for pair in compared_pairs
+                         if pair[1] == "profile_optional_families"} - set(variants.keys())
+    assert optional_arrivals == {(app, "profile_optional_families")
+                                 for app in ("measure", "external_masks")}
+    assert not optional_arrivals & recognized_arrivals
+    for app, key in optional_arrivals:
+        assert resolve_default_settings(app)[key] is None
+    recognized_arrivals |= optional_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

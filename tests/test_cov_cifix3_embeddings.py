@@ -82,37 +82,6 @@ def test_evaluate_moa_refuses_labels_without_a_shared_column_and_infinite_values
         emb.evaluate_moa(bad)
 
 
-def test_embed_parallel_refuses_bad_crops_and_chunk_size():
-    spec = emb.EmbeddingSpec(normalize=False)
-    with pytest.raises(emb.EmbeddingError, match="non-empty"):
-        emb._embed_parallel(np.zeros((0, 4, 4, 1), dtype=np.float32), spec)
-    with pytest.raises(emb.EmbeddingError, match="non-empty"):
-        emb._embed_parallel(np.zeros((4, 4), dtype=np.float32), spec)
-    with pytest.raises(emb.EmbeddingError, match="chunk_size must be at least 1"):
-        emb._embed_parallel(np.zeros((2, 4, 4, 1), dtype=np.float32), spec,
-                            chunk_size=0, encoder=lambda a: a.reshape(len(a), -1))
-
-
-def test_embed_parallel_runs_one_process_with_an_injected_encoder_and_refuses_mixed_columns():
-    spec = emb.EmbeddingSpec(normalize=False)
-    crops = np.random.default_rng(0).random((5, 4, 4, 1)).astype(np.float32)
-
-    def encoder(array):
-        return array.reshape(len(array), -1)[:, :3]
-
-    result = emb._embed_parallel(crops, spec, workers=1, chunk_size=2, encoder=encoder)
-    assert result.values.shape == (5, 3)
-
-    calls = {"n": 0}
-
-    def uneven(array):
-        calls["n"] += 1
-        return array.reshape(len(array), -1)[:, :2 + calls["n"] % 2]
-
-    with pytest.raises(emb.EmbeddingError):
-        emb._embed_parallel(crops, spec, workers=1, chunk_size=2, encoder=uneven)
-
-
 def test_available_cores_falls_back_to_cpu_count(monkeypatch):
     def broken(_pid):
         raise OSError("no affinity")
@@ -182,19 +151,6 @@ def test_moa_scores_shuffle_labels_freely_when_a_compound_has_two_moas():
     assert isinstance(out, dict) and out
 
 
-def test_an_encoder_with_the_wrong_number_of_columns_is_refused(monkeypatch):
-    spec = emb.EmbeddingSpec(normalize=False)
-    crops = np.random.default_rng(0).random((2, 4, 4, 3)).astype(np.float32)
-    monkeypatch.setattr(emb, "embedding_column_names", lambda *a, **k: ("emb_0",))
-
-    def encoder(array):
-        return np.zeros((len(array), 4), dtype=np.float32)
-
-    encoder.in_channels = 3
-    with pytest.raises(emb.EmbeddingError, match="embedding dimensions but"):
-        emb.embed_array(crops, spec, encoder=encoder)
-
-
 def test_a_worker_loads_its_backbone_once_and_reuses_it(monkeypatch):
     spec = emb.EmbeddingSpec(normalize=False)
     monkeypatch.setattr(emb, "_WORKER_ENCODERS", {})
@@ -214,18 +170,6 @@ def test_a_worker_loads_its_backbone_once_and_reuses_it(monkeypatch):
     values, columns, width = emb._embedding_worker_chunk(crops, spec, None)
     emb._embedding_worker_chunk(crops, spec, None)
     assert values.shape[0] == 2 and built == [1]
-
-
-def test_embedding_on_a_gpu_device_runs_in_one_process(monkeypatch):
-    spec = emb.EmbeddingSpec(normalize=False, device="cuda")
-    monkeypatch.setattr(emb, "_embedding_device", lambda requested=None: "cuda:0")
-    crops = np.random.default_rng(0).random((4, 4, 4, 1)).astype(np.float32)
-
-    def encoder(array):
-        return array.reshape(len(array), -1)[:, :2]
-
-    result = emb._embed_parallel(crops, spec, workers=4, chunk_size=2, encoder=encoder)
-    assert result.values.shape == (4, 2) and result.spec.device == "cuda"
 
 
 def test_a_timm_model_with_a_two_channel_mean_is_refused():

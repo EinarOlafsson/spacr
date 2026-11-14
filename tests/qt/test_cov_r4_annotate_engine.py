@@ -13,33 +13,22 @@ happy path:
   and not an ``AttributeError`` on ``None``;
 * an outline filter on a crop with **no objects in it at all**, where the
   label count is zero and there is nothing to take a mean of;
-* the two measurement joins (``fetch_filtered_paths`` and ``gate_paths``)
-  meeting a frame that **already carries its ``prcfo`` key as a column**,
-  or that already carries the annotation column, so neither may be reset or
-  overwritten;
 * the save worker being **stopped before it ever ran**, which must keep the
   queued edit rather than swallow it;
 * a writer that fails a transaction and is then restarted onto a database
   that has vanished — the FIRST, actionable error is the one the user keeps.
 
-Two guards in this module cannot be reached at all. They are not silenced;
-the invariant that makes each of them dead is asserted instead, so the day
-someone breaks the invariant a test fails here rather than a branch quietly
-coming alive. See ``test_every_readable_filter_yields_at_least_one_token``
-(``parse_image_type``'s empty-token guard) and
-``test_the_annotation_column_survives_every_step_after_it_is_added``
-(``fetch_filtered_paths``'s re-check of the column it just created).
+The measurement joins and the image-filter parser are covered by
+``tests/qt/test_annotate_engine_crop_queries.py``.
 
 Offscreen, offline, no real Cellpose checkpoint, no sleeps.
 """
 from __future__ import annotations
 
-import re
 import shutil
 import sqlite3
 
 import numpy as np
-import pandas as pd
 import pytest
 from PIL import Image
 
@@ -47,8 +36,7 @@ from spacr.qt import annotate_engine as ae
 from spacr.qt.annotate_engine import (OutlineCancelled, SaveWorker,
                                       cache_budget_entries, class_counts,
                                       drop_cache_budget_entry,
-                                      fetch_filtered_paths,
-                                      forget_outline_masks, outline_image, parse_image_type)
+                                      forget_outline_masks, outline_image)
 from tests.conftest import (MISSING_CHANNEL_AXIS,
                             check_cellpose_eval_call)
 
@@ -147,26 +135,6 @@ def png_list_db(tmp_path):
     return str(path)
 
 
-@pytest.fixture
-def stub_joined_tables(monkeypatch):
-    """Drive ``spacr.io``'s two readers, whose frames decide the join path.
-
-    The shape of the joined frame is the whole subject here -- whether it
-    carries ``prcfo`` as a column or as an index, and whether the annotation
-    column is already on it -- and no on-disk schema can express the second
-    of those, since the join builds it.
-    """
-    def install(joined, png_list=None):
-        import spacr.io as io
-
-        monkeypatch.setattr(io, "_read_and_join_tables",
-                            lambda *_a, **_k: joined.copy())
-        monkeypatch.setattr(
-            io, "_read_db",
-            lambda *_a, **_k: [(png_list if png_list is not None
-                                else pd.DataFrame()).copy()])
-    return install
-
 
 # ---------------------------------------------------------------------------
 # A stop hook that cannot be asked
@@ -263,52 +231,6 @@ def test_an_object_filter_on_a_featureless_crop_draws_nothing():
 # Joins that already carry what the merge would have built
 # ---------------------------------------------------------------------------
 
-def test_a_join_that_already_carries_its_key_is_not_reset(tmp_path,
-                                                          stub_joined_tables):
-    """``reset_index`` is for a frame INDEXED by prcfo, not one holding it.
-
-    Resetting an index that is not prcfo would push a meaningless level in
-    as a column and the merge would then find no key at all.
-    """
-    db = tmp_path / "measurements.db"
-    db.write_bytes(b"")
-    as_column = pd.DataFrame({"prcfo": ["o1", "o2", "o3"],
-                              "cell_area": [50.0, 500.0, 900.0]})
-    crops = pd.DataFrame({
-        "prcfo": ["o1", "o2", "o3"],
-        "png_path": ["/c/o1.png", "/c/o2.png", "/c/o3.png"]}).set_index("prcfo")
-    stub_joined_tables(as_column, crops)
-
-    rows = fetch_filtered_paths(str(db), "annotate", ["cell_area"], [100.0],
-                                ["higher"])
-
-    assert [path for path, _annotation in rows] == ["/c/o2.png", "/c/o3.png"]
-    assert all(annotation is None for _path, annotation in rows)
-
-
-def test_an_annotation_already_on_the_join_is_returned_not_blanked(
-        tmp_path, stub_joined_tables):
-    """The column is CREATED when missing, never recreated over real values."""
-    db = tmp_path / "measurements.db"
-    db.write_bytes(b"")
-    with_annotations = pd.DataFrame({
-        "png_path": ["/c/o1.png", "/c/o2.png"],
-        "cell_area": [500.0, 900.0],
-        "annotate": [1, 2]})
-    stub_joined_tables(with_annotations)
-
-    rows = fetch_filtered_paths(str(db), "annotate", ["cell_area"], [10.0],
-                               ["higher"])
-
-    assert [tuple(row) for row in rows] == [("/c/o1.png", 1), ("/c/o2.png", 2)]
-
-    # ... and the same frame WITHOUT the column comes back with it, empty.
-    stub_joined_tables(with_annotations.drop(columns=["annotate"]))
-    blank = fetch_filtered_paths(str(db), "annotate", ["cell_area"], [10.0],
-                                 ["higher"])
-    assert [path for path, _a in blank] == ["/c/o1.png", "/c/o2.png"]
-    assert all(annotation is None for _p, annotation in blank)
-
 
 # ---------------------------------------------------------------------------
 # The save worker
@@ -390,79 +312,3 @@ def test_the_first_writer_failure_is_the_one_the_user_keeps(tmp_path):
 # ---------------------------------------------------------------------------
 # The two guards that cannot be reached
 # ---------------------------------------------------------------------------
-
-def test_every_readable_filter_yields_at_least_one_token():
-    """Why ``parse_image_type``'s empty-token guard is dead code.
-
-    ``parse_image_type`` returns early on an empty expression, so by the time
-    it tokenises, ``text`` is non-empty AFTER ``str.strip()`` -- it holds at
-    least one character that ``str.isspace()`` calls False. The tokeniser's
-    pattern is ``\\(|\\)|[^\\s()]+``, whose third alternative matches every
-    character that is neither whitespace nor a parenthesis and whose first
-    two match the parentheses, so ``re.findall`` cannot return an empty list
-    for such a string (``re``'s ``\\s`` and ``str.isspace`` are the same
-    predicate -- both are ``Py_UNICODE_ISSPACE`` -- and that equality is
-    asserted below over the whole code space). Every one of the tokeniser's
-    four branches then appends at least one token.
-
-    So ``if not tokens: return "", []`` cannot fire. What is pinned here is
-    the invariant, not the guard: if the pattern or a branch ever stops
-    producing a token, this fails instead of the guard silently coming alive
-    and turning a typo into "no filter at all".
-    """
-    assert not [cp for cp in range(0x110000)
-                if chr(cp).isspace() != bool(re.fullmatch(r"\s", chr(cp)))]
-
-    awkward = ["a", "!", "!a", "(", ")", "()", "(a)", "a AND NOT b",
-               " x ", "\x1cq", "((", "NOT", "-", "\U0001f600"]
-    for expression in awkward:
-        stripped = expression.strip()
-        assert stripped, f"{expression!r} is not a case this guard sees"
-        assert ae._tokenise_image_type(stripped), (
-            f"{expression!r} tokenised to nothing")
-
-    # And the guard's own contract for the input it really does get: an
-    # expression that is only whitespace filters nothing.
-    assert parse_image_type("   ") == ("", [])
-    assert parse_image_type(None) == ("", [])
-    assert parse_image_type("!a") == ("(NOT png_path LIKE ?)", ["%a%"])
-
-
-def test_the_annotation_column_survives_every_step_after_it_is_added(
-        tmp_path, stub_joined_tables):
-    """Why ``fetch_filtered_paths``'s second column check is dead code.
-
-    The function adds ``annotation_column`` to the frame when the join did
-    not bring one, and then re-checks for it just before selecting. Nothing
-    between the two can remove a column: ``_apply_threshold`` returns either
-    the frame or a boolean row selection of it, and ``dropna(subset=...)``
-    and the ``image_type`` mask are row selections too. So the second check
-    cannot fail and its ``return []`` is unreachable.
-
-    The steps in between are what this pins. Each is driven here against a
-    frame that arrived WITHOUT the column, and the column is still there --
-    carrying ``None`` -- on the far side of all three.
-    """
-    db = tmp_path / "measurements.db"
-    joined = pd.DataFrame({
-        "png_path": ["/c/o1.png", "/c/o2.png", None, "/c/keep_o4.png"],
-        "cell_area": [50.0, 500.0, 900.0, 900.0]})
-    with sqlite3.connect(db) as connection:
-        joined[['png_path']].to_sql('png_list', connection, index=False)
-    stub_joined_tables(joined)
-
-    # threshold (drops o1), dropna on png_path (drops the None), and the
-    # image_type mask (drops o2) all run between the add and the re-check.
-    rows = fetch_filtered_paths(str(db), "annotate", ["cell_area"], [100.0],
-                                ["higher"], image_type="keep")
-
-    assert [tuple(row) for row in rows] == [("/c/keep_o4.png", None)]
-
-    # Every row is a PAIR: the column exists even though the join had none.
-    assert all(len(row) == 2 for row in rows)
-
-    # ... and when the thresholds empty the frame entirely, the answer is
-    # still a well-formed (empty) list rather than the guard's early return.
-    stub_joined_tables(joined)
-    assert fetch_filtered_paths(str(db), "annotate", ["cell_area"],
-                                [10000.0], ["higher"]) == []

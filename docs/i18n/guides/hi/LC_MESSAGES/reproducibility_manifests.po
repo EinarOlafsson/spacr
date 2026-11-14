@@ -123,6 +123,10 @@ msgstr "935 (आइटम 940 का डिफ़ॉल्ट बदलाव): 
 msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
 msgstr "936: ``ops_blas_threads`` पहले ``1`` था और ``ops_consensus_space`` ``'refit'``; अब ये ``2`` और ``'hybrid'`` हैं।"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "937 (item 941): ``profile_optional_families`` and ``ops_ph_profile_optional_families`` were ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, the slow families the ``'profiling'`` preset measured; they are now ``None``, so ``'profiling'`` leaves Gabor, granularity and colocalisation out."
+msgstr "937 (आइटम 941): ``profile_optional_families`` और ``ops_ph_profile_optional_families`` पहले ``['texture_gabor', 'colocalisation', 'colocalisation_extra']`` थे, वे धीमे परिवार जिन्हें ``'profiling'`` प्रीसेट मापता था; अब वे ``None`` हैं, इसलिए ``'profiling'`` Gabor, कणिकता और सह-स्थानीयकरण को छोड़ देता है।"
+
 msgid "Public API"
 msgstr "सार्वजनिक API"
 

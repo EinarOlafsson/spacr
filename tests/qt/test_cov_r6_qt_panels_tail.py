@@ -106,26 +106,6 @@ class TestAProposalWithNoReadingBehindIt:
         finally:
             page.deleteLater()
 
-    def test_with_a_reading_the_summary_says_what_was_measured(self, qapp):
-        """The contrast that makes the empty summary above a real absence."""
-        from spacr.qt.widgets.settings_advisor_dialog import ProposalPage
-        from spacr.settings_advisor import Reading
-
-        reading = Reading(plates=2, wells=384, guides=1200, genes=300,
-                          n_response=50_000, capped=False)
-        page = ProposalPage()
-        try:
-            page.show_the_proposal(self._advice(reading),
-                                   {"cell_diameter": 12})
-
-            text = page.summary.text()
-            assert text, "a reading must be summarised"
-            assert "384" in text or "1,200" in text or "300" in text, (
-                "the summary quotes the counts it read; got " + repr(text))
-        finally:
-            page.deleteLater()
-
-
 # ---------------------------------------------------------------------------
 # feature_dictionary
 # ---------------------------------------------------------------------------

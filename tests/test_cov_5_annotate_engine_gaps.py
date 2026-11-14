@@ -10,11 +10,9 @@ from __future__ import annotations
 
 import os
 import sys
-import threading
 import time
 import types
 
-import pandas as pd
 import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -26,35 +24,6 @@ from spacr.qt import annotate_engine as AE                     # noqa: E402
 
 pytestmark = pytest.mark.qt
 
-
-@pytest.fixture()
-def db(tmp_path):
-    """A file that exists, since every entry point stats it first."""
-    path = tmp_path / "measurements.db"
-    path.write_bytes(b"")
-    return str(path)
-
-
-def _measurements():
-    """A joined frame indexed by prcfo, with no crop path on it."""
-    frame = pd.DataFrame({"prcfo": ["o1", "o2", "o3"],
-                          "cell_area": [50.0, 500.0, 900.0]})
-    return frame.set_index("prcfo")
-
-
-def _png_list():
-    return pd.DataFrame({"prcfo": ["o1", "o2", "o3"],
-                         "png_path": ["/crops/o1.png", "/crops/o2.png",
-                                      "/crops/o3.png"]}).set_index("prcfo")
-
-
-def _patch_readers(monkeypatch, joined, png_list):
-    import spacr.io as io
-
-    monkeypatch.setattr(io, "_read_and_join_tables",
-                        lambda *_a, **_k: joined.copy())
-    monkeypatch.setattr(io, "_read_db",
-                        lambda *_a, **_k: [png_list.copy()])
 
 
 # ---------------------------------------------------------------------------
@@ -109,75 +78,10 @@ def test_no_column_and_no_database_are_both_nothing_to_do(tmp_path):
 # Threshold-filtered crops
 # ---------------------------------------------------------------------------
 
-def test_the_crop_path_is_merged_back_on_when_the_join_dropped_it(db,
-                                                                   monkeypatch):
-    _patch_readers(monkeypatch, _measurements(), _png_list())
-
-    rows = AE.fetch_filtered_paths(db, "test", ["cell_area"], [100.0],
-                                   ["higher"])
-
-    assert [path for path, _annotation in rows] == ["/crops/o2.png",
-                                                    "/crops/o3.png"]
-    assert all(annotation is None for _path, annotation in rows)
-
-
-def test_an_image_type_narrows_the_crops_after_the_merge(db, monkeypatch):
-    import sqlite3
-
-    with sqlite3.connect(db) as connection:
-        _png_list().reset_index().to_sql('png_list', connection, index=False)
-    _patch_readers(monkeypatch, _measurements(), _png_list())
-
-    rows = AE.fetch_filtered_paths(db, "test", ["cell_area"], [10.0],
-                                   ["higher"], image_type="o3")
-
-    assert [path for path, _a in rows] == ["/crops/o3.png"]
-
-
-def test_a_png_list_that_cannot_be_joined_yields_no_crops(db, monkeypatch):
-    """Guessing a row order would open crops of the wrong objects."""
-    unjoinable = pd.DataFrame({"png_path": ["/crops/o1.png"]})
-    _patch_readers(monkeypatch, _measurements(), unjoinable)
-
-    assert AE.fetch_filtered_paths(db, "test", ["cell_area"], [10.0],
-                                   ["higher"]) == []
-
-
-def test_a_database_that_is_not_there_yields_no_crops(tmp_path):
-    assert AE.fetch_filtered_paths(str(tmp_path / "absent.db"), "test",
-                                   ["cell_area"], [1.0], ["higher"]) == []
-    assert AE.fetch_filtered_paths(str(tmp_path), "test", [], [], []) == []
-
 
 # ---------------------------------------------------------------------------
 # Gate-filtered crops
 # ---------------------------------------------------------------------------
-
-def _gate(low):
-    from spacr.qt.widgets.gate_spec import ThresholdGate
-
-    return ThresholdGate(name="big cells", column="cell_area", low=low)
-
-
-def test_a_gated_population_reaches_its_crops_through_the_same_merge(
-        db, monkeypatch):
-    """A population gated on screen and one annotated from it must match."""
-    _patch_readers(monkeypatch, _measurements(), _png_list())
-
-    paths = AE.gate_paths(db, [_gate(100.0)])
-
-    assert paths == ["/crops/o2.png", "/crops/o3.png"]
-
-
-def test_gating_with_no_gates_selects_nothing(db):
-    assert AE.gate_paths(db, []) == []
-
-
-def test_a_gated_population_with_no_reachable_crops_is_empty(db, monkeypatch):
-    _patch_readers(monkeypatch, _measurements(),
-                   pd.DataFrame({"png_path": ["/crops/o1.png"]}))
-
-    assert AE.gate_paths(db, [_gate(10.0)]) == []
 
 
 # ---------------------------------------------------------------------------
@@ -313,40 +217,3 @@ def test_a_filter_whose_value_is_not_a_pair_is_ignored():
 # ---------------------------------------------------------------------------
 # the image-type expression
 # ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize("expression", ["", "   ", None])
-def test_an_empty_image_filter_selects_everything(expression):
-    """No expression is not an expression that matches nothing.
-
-    ``("", [])`` is the caller's signal to add no WHERE clause at all. A
-    filter that matched nothing would show an empty annotator for a run whose
-    filter box the user simply never touched.
-    """
-    from spacr.qt.annotate_engine import parse_image_type
-
-    assert parse_image_type(expression) == ("", [])
-
-
-def test_punctuation_left_in_the_box_is_a_filter_not_an_error():
-    """The tokeniser keeps anything that is not whitespace.
-
-    A box holding a stray comma is read as a literal to match on, which finds
-    nothing and says so by showing nothing -- rather than raising a syntax
-    message about a character the user did not mean to type. Pinned because
-    it is the reason `if not tokens` below it can never fire: whitespace-only
-    text is already gone by then, and everything else produces a token.
-    """
-    from spacr.qt.annotate_engine import parse_image_type
-
-    sql, params = parse_image_type("   ,,,   ")
-
-    assert sql and params == ["%,,,%"]
-
-
-def test_a_real_expression_still_produces_a_clause():
-    """Otherwise the three empty cases prove nothing."""
-    from spacr.qt.annotate_engine import parse_image_type
-
-    sql, params = parse_image_type("nucleus")
-
-    assert sql and params
