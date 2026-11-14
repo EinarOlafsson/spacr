@@ -6256,9 +6256,6 @@ def _read_db(db_loc, tables):
                 "SELECT name FROM sqlite_master WHERE type='table'"
             ).fetchall()
         }
-        
-        print('existing_tables:', existing_tables)
-        print('tables:', tables)
 
         for table in tables:
             if table not in existing_tables:
