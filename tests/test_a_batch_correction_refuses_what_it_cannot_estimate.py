@@ -35,45 +35,57 @@ def test_a_single_estimate_has_no_spread_to_learn_a_prior_from():
         "estimates that coincide leave no shrinkage room")
 
 
-def test_an_unknown_method_names_the_ones_that_exist(frame):
-    features, batch = frame
-
-    with pytest.raises(ValueError) as caught:
-        correct_batch_effects(features, batch, method="quantile")
-
-    assert "quantile" in str(caught.value)
-    assert str(METHODS) in str(caught.value)
-
-
-def test_an_unknown_missing_control_policy_is_refused(frame):
-    features, batch = frame
-
-    with pytest.raises(ValueError, match="must be 'error' or 'skip'"):
-        correct_batch_effects(features, batch, method="center",
-                              missing_control="ignore")
-
-
-def test_a_row_with_no_plate_label_is_not_guessed_at(frame):
-    features, batch = frame
+def _a_row_with_no_plate_label(features, batch):
     batch = batch.copy()
     batch.iloc[3] = np.nan
-
-    with pytest.raises(ValueError) as caught:
-        correct_batch_effects(features, batch, method="center",
-                              batch_column="plateID")
-
-    assert "plateID is missing for 1 feature row(s)" in str(caught.value)
+    return features, batch, {"method": "center", "batch_column": "plateID"}
 
 
-def test_a_text_column_in_the_feature_matrix_is_named(frame):
-    features, batch = frame
+def _a_text_column_among_the_features(features, batch):
     features = features.copy()
     features["well"] = ["A1"] * len(features)
+    return features, batch, {"method": "center"}
+
+
+def _a_control_name_matching_nothing(features, batch):
+    control = pd.Series(["negative"] * len(features))
+    return features, batch, {"method": "control_center", "control": control,
+                             "control_values": "neg", "min_samples": 2}
+
+
+def _an_unknown_method(features, batch):
+    return features, batch, {"method": "quantile"}
+
+
+def _an_unknown_missing_control_policy(features, batch):
+    return features, batch, {"method": "center", "missing_control": "ignore"}
+
+
+@pytest.mark.parametrize("setup, fragments", [
+    pytest.param(_a_row_with_no_plate_label,
+                 ["plateID is missing for 1 feature row(s)"],
+                 id="row_with_no_plate_label_is_not_guessed_at"),
+    pytest.param(_a_text_column_among_the_features,
+                 ["non-numeric values in: ['well']"],
+                 id="text_column_in_the_feature_matrix_is_named"),
+    pytest.param(_a_control_name_matching_nothing,
+                 ["The column holds ['negative']"],
+                 id="control_name_matching_nothing_reports_the_column"),
+    pytest.param(_an_unknown_method, ["quantile", str(METHODS)],
+                 id="unknown_method_names_the_ones_that_exist"),
+    pytest.param(_an_unknown_missing_control_policy,
+                 ["must be 'error' or 'skip'"],
+                 id="unknown_missing_control_policy"),
+])
+def test_a_correction_that_cannot_be_estimated_is_refused_with_the_reason(
+        frame, setup, fragments):
+    features, batch, kwargs = setup(*frame)
 
     with pytest.raises(ValueError) as caught:
-        correct_batch_effects(features, batch, method="center")
+        correct_batch_effects(features, batch, **kwargs)
 
-    assert "non-numeric values in: ['well']" in str(caught.value)
+    for fragment in fragments:
+        assert fragment in str(caught.value)
 
 
 def _controls_thin_in_the_second_batch(rows):
@@ -110,19 +122,6 @@ def test_skip_leaves_the_uncorrectable_batch_alone_and_says_so(frame):
     assert not corrected.loc[batch == "p1"].equals(
         features.loc[batch == "p1"]), "the batch that had controls was shifted"
     assert report.controls == 4, "every matched control row is counted"
-
-
-def test_a_control_name_that_matches_nothing_reports_what_the_column_holds(
-        frame):
-    features, batch = frame
-    control = pd.Series(["negative"] * len(features))
-
-    with pytest.raises(ValueError) as caught:
-        correct_batch_effects(features, batch, method="control_center",
-                              control=control, control_values="neg",
-                              min_samples=2)
-
-    assert "The column holds ['negative']" in str(caught.value)
 
 
 def test_metadata_without_the_batch_column_names_the_column_it_wanted(frame):

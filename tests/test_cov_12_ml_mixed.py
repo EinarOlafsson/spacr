@@ -66,11 +66,16 @@ def case_no_control_named_leaves_the_response_exactly_as_it_was():
     number computed from nothing or fail; returning the frame untouched with a
     zero offset lets the caller say so.
     """
+    _seen = []
     frame = pd.DataFrame({'grna': ['g1', 'g2'], 'score': [0.4, 0.6]})
 
-    assert ml.centre_on_controls(frame, 'score', '') == (frame, 0.0)
-    assert ml.centre_on_controls(frame, 'missing_column', 'nc') == (frame, 0.0)
-    assert ml.centre_on_controls(frame, 'score', '   ') == (frame, 0.0)
+    _seen.append(bool(
+        ml.centre_on_controls(frame, 'score', '') == (frame, 0.0)))
+    _seen.append(bool(
+        ml.centre_on_controls(frame, 'missing_column', 'nc') == (frame, 0.0)))
+    _seen.append(bool(
+        ml.centre_on_controls(frame, 'score', '   ') == (frame, 0.0)))
+    return _seen
 
 
 def case_control_rows_with_no_finite_value_shift_nothing():
@@ -79,12 +84,15 @@ def case_control_rows_with_no_finite_value_shift_nothing():
     A median over an empty selection is NaN, and subtracting NaN would erase
     the whole response column.
     """
+    _seen = []
     frame = pd.DataFrame({'grna': ['nc', 'nc', 'g1'],
                           'score': [np.nan, np.inf, 0.6]})
     shifted, offset = ml.centre_on_controls(frame, 'score', 'nc')
 
-    assert offset == 0.0
-    assert shifted is frame
+    _seen.append(keep(offset))
+    _seen.append(bool(
+        shifted is frame))
+    return _seen
 
 
 def case_a_control_median_of_exactly_zero_is_not_a_shift():
@@ -93,12 +101,15 @@ def case_a_control_median_of_exactly_zero_is_not_a_shift():
     Copying the frame to subtract zero costs memory on a screen-sized table and
     reports an offset that did nothing.
     """
+    _seen = []
     frame = pd.DataFrame({'grna': ['nc', 'nc', 'g1'],
                           'score': [-0.2, 0.2, 0.6]})
     shifted, offset = ml.centre_on_controls(frame, 'score', 'nc')
 
-    assert offset == 0.0
-    assert shifted is frame
+    _seen.append(keep(offset))
+    _seen.append(bool(
+        shifted is frame))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -113,6 +124,7 @@ def case_a_gpu_fit_that_runs_out_of_memory_falls_back_to_the_cpu(
     gone by the time the fit asks for it. Failing there would lose a run that
     the CPU can complete, twenty minutes in and with nobody to ask.
     """
+    _seen = []
     import spacr.mixed_gpu as mixed_gpu
 
     def out_of_memory(y, X, groups):
@@ -130,10 +142,12 @@ def case_a_gpu_fit_that_runs_out_of_memory_falls_back_to_the_cpu(
                                     regression_backend='torch')
 
     printed = capsys.readouterr().out
-    assert 'The GPU ran out of memory during the mixed fit' in printed
-    assert 'same model, same numbers' in printed
-    assert list(result.params.index) == ['a', 'b', 'Group Var']
-    assert abs(float(result.fe_params['a']) - 1.5) < 0.25
+    _seen.append(('The GPU ran out of memory during the mixed fit' if 'The GPU ran out of memory during the mixed fit' in (printed) else ("missing", 'The GPU ran out of memory during the mixed fit')))
+    _seen.append(('same model, same numbers' if 'same model, same numbers' in (printed) else ("missing", 'same model, same numbers')))
+    _seen.append(keep(list(result.params.index)))
+    _seen.append(bool(
+        abs(float(result.fe_params['a']) - 1.5) < 0.25))
+    return _seen
 
 
 def case_a_gpu_failure_that_is_not_memory_is_not_quietly_retried(
@@ -143,6 +157,7 @@ def case_a_gpu_failure_that_is_not_memory_is_not_quietly_retried(
     Falling back for every failure would turn a genuinely wrong torch fit into
     a silent CPU run, and nothing would say the GPU path is broken.
     """
+    _seen = []
     import spacr.mixed_gpu as mixed_gpu
 
     def broken(y, X, groups):
@@ -156,9 +171,11 @@ def case_a_gpu_failure_that_is_not_memory_is_not_quietly_retried(
     groups = np.repeat(np.arange(4), 10)
     y = design['a'] + rng.normal(0, 0.3, 40)
 
-    with pytest.raises(RuntimeError, match='kernel image'):
+    with pytest.raises(RuntimeError, match='kernel image') as _exc1:
         ml.perform_mixed_model(y, design, groups,
                                regression_backend='torch')
+    _seen.append(('RuntimeError' if isinstance(_exc1.value, RuntimeError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_a_gpu_fit_that_succeeds_is_returned_with_its_summary_line(
@@ -168,6 +185,7 @@ def case_a_gpu_fit_that_succeeds_is_returned_with_its_summary_line(
     Nothing downstream may be able to tell which backend ran, so the result
     object is passed through untouched and only the console says.
     """
+    _seen = []
     import spacr.mixed_gpu as mixed_gpu
 
     fitted = types.SimpleNamespace(
@@ -181,9 +199,11 @@ def case_a_gpu_fit_that_succeeds_is_returned_with_its_summary_line(
     groups = np.repeat(np.arange(4), 10)
     y = design['a'] + rng.normal(0, 0.3, 40)
 
-    assert ml.perform_mixed_model(y, design, groups,
-                                  regression_backend='torch') is fitted
-    assert 'torch REML: converged' in capsys.readouterr().out
+    _seen.append(bool(
+        ml.perform_mixed_model(y, design, groups,
+                                  regression_backend='torch') is fitted))
+    _seen.append(('torch REML: converged' if 'torch REML: converged' in (capsys.readouterr().out) else ("missing", 'torch REML: converged')))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -197,6 +217,7 @@ def case_the_nested_fit_on_the_gpu_uses_the_same_call_shape(
     It takes statsmodels' argument shape on purpose, so who fits the model
     cannot become a second code path with its own bugs.
     """
+    _seen = []
     import spacr.mixed_gpu as mixed_gpu
 
     seen = {}
@@ -219,15 +240,18 @@ def case_the_nested_fit_on_the_gpu_uses_the_same_call_shape(
     formula = ml.prepare_formula('score', random_row_column_effects=True,
                                  level='gene')
 
-    with pytest.raises(ValueError, match='MixedLM could not fit'):
+    with pytest.raises(ValueError, match='MixedLM could not fit') as _exc1:
         ml.fit_mixed_model(frame, formula, dst=None,
                            random_row_column_effects=True,
                            regression_backend='torch')
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
 
-    assert seen['formula'] == formula
-    assert seen['vc_formula']['grna'] == '0 + C(grna)'
-    assert seen['vc_formula']['rowID'] == '0 + C(rowID)'
-    assert seen['vc_formula']['columnID'] == '0 + C(columnID)'
+    _seen.append(bool(
+        seen['formula'] == formula))
+    _seen.append(keep(seen['vc_formula']['grna']))
+    _seen.append(keep(seen['vc_formula']['rowID']))
+    _seen.append(keep(seen['vc_formula']['columnID']))
+    return _seen
 
 
 def case_a_backend_refusal_survives_the_nested_fit_untouched(cuda_present,
@@ -237,6 +261,7 @@ def case_a_backend_refusal_survives_the_nested_fit_untouched(cuda_present,
     Wrapped in "MixedLM could not fit this frame" it would send the user
     looking at their screen for a missing CUDA device.
     """
+    _seen = []
     import spacr.mixed_gpu as mixed_gpu
 
     def refuse(formula, frame, groups, vc_formula=None):
@@ -246,9 +271,11 @@ def case_a_backend_refusal_survives_the_nested_fit_untouched(cuda_present,
     frame = mixed_model_frame()
     formula = ml.prepare_formula('score', level='gene')
 
-    with pytest.raises(MixedBackendUnavailable, match='no CUDA device'):
+    with pytest.raises(MixedBackendUnavailable, match='no CUDA device') as _exc1:
         ml.fit_mixed_model(frame, formula, dst=None,
                            regression_backend='torch')
+    _seen.append(('MixedBackendUnavailable' if isinstance(_exc1.value, MixedBackendUnavailable) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_a_cache_that_will_not_empty_does_not_stop_the_cpu_fallback(
@@ -258,6 +285,7 @@ def case_a_cache_that_will_not_empty_does_not_stop_the_cpu_fallback(
     The fallback exists because the run must finish. A torch that will not
     release its cache is one more reason to be on the CPU, not a reason to fail.
     """
+    _seen = []
     import torch
     import spacr.mixed_gpu as mixed_gpu
 
@@ -279,8 +307,9 @@ def case_a_cache_that_will_not_empty_does_not_stop_the_cpu_fallback(
     result = ml.perform_mixed_model(y, design, groups,
                                     regression_backend='torch')
 
-    assert 'The GPU ran out of memory' in capsys.readouterr().out
-    assert list(result.params.index) == ['a', 'b', 'Group Var']
+    _seen.append(('The GPU ran out of memory' if 'The GPU ran out of memory' in (capsys.readouterr().out) else ("missing", 'The GPU ran out of memory')))
+    _seen.append(keep(list(result.params.index)))
+    return _seen
 
 
 def case_a_nested_gpu_fit_that_succeeds_reports_its_backend(cuda_present,
@@ -292,6 +321,7 @@ def case_a_nested_gpu_fit_that_succeeds_reports_its_backend(cuda_present,
     who fits it cannot become a second code path with its own bugs -- and the
     run says which backend produced the numbers.
     """
+    _seen = []
     import spacr.mixed_gpu as mixed_gpu
 
     frame = mixed_model_frame()
@@ -313,30 +343,35 @@ def case_a_nested_gpu_fit_that_succeeds_reports_its_backend(cuda_present,
                                         regression_backend='torch')
 
     printed = capsys.readouterr().out
-    assert 'torch nested REML: converged' in printed
-    assert 'regression_backend=' in printed
-    assert model is fitted
+    _seen.append(('torch nested REML: converged' if 'torch nested REML: converged' in (printed) else ("missing", 'torch nested REML: converged')))
+    _seen.append(('regression_backend=' if 'regression_backend=' in (printed) else ("missing", 'regression_backend=')))
+    _seen.append(bool(
+        model is fitted))
     # The variance component keeps its value and loses its p-value: the null
     # it would test sits on the boundary of the parameter space.
     variance_row = coef_df.loc[coef_df['feature'] == 'gene Var']
-    assert float(variance_row['coefficient'].iloc[0]) == pytest.approx(0.02)
-    assert np.isnan(float(variance_row['p_value'].iloc[0]))
+    _seen.append(bool(
+        float(variance_row['coefficient'].iloc[0]) == pytest.approx(0.02)))
+    _seen.append(bool(
+        np.isnan(float(variance_row['p_value'].iloc[0]))))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_perform_mixed_model_cases(request, subtests):
-    """Behaviour cases for: centre_on_controls, perform_mixed_model, prepare_formula."""
-    ran = run_cases(request, subtests, [
-        case_no_control_named_leaves_the_response_exactly_as_it_was,
-        case_control_rows_with_no_finite_value_shift_nothing,
-        case_a_control_median_of_exactly_zero_is_not_a_shift,
-        case_a_gpu_fit_that_runs_out_of_memory_falls_back_to_the_cpu,
-        case_a_gpu_failure_that_is_not_memory_is_not_quietly_retried,
-        case_a_gpu_fit_that_succeeds_is_returned_with_its_summary_line,
-        case_the_nested_fit_on_the_gpu_uses_the_same_call_shape,
-        case_a_backend_refusal_survives_the_nested_fit_untouched,
-        case_a_cache_that_will_not_empty_does_not_stop_the_cpu_fallback,
-        case_a_nested_gpu_fit_that_succeeds_reports_its_backend,
-    ])
-    assert ran >= 10
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_no_control_named_leaves_the_response_exactly_as_it_was, [True, True, True], id="no_control_named_leaves_the_response_exactly_as_it_was"),
+    pytest.param(case_control_rows_with_no_finite_value_shift_nothing, [0.0, True], id="control_rows_with_no_finite_value_shift_nothing"),
+    pytest.param(case_a_control_median_of_exactly_zero_is_not_a_shift, [0.0, True], id="a_control_median_of_exactly_zero_is_not_a_shift"),
+    pytest.param(case_a_gpu_fit_that_runs_out_of_memory_falls_back_to_the_cpu, ['The GPU ran out of memory during the mixed fit', 'same model, same numbers', ['a', 'b', 'Group Var'], True], id="a_gpu_fit_that_runs_out_of_memory_falls_back_to_the_cpu"),
+    pytest.param(case_a_gpu_failure_that_is_not_memory_is_not_quietly_retried, ['RuntimeError'], id="a_gpu_failure_that_is_not_memory_is_not_quietly_retried"),
+    pytest.param(case_a_gpu_fit_that_succeeds_is_returned_with_its_summary_line, [True, 'torch REML: converged'], id="a_gpu_fit_that_succeeds_is_returned_with_its_summary_line"),
+    pytest.param(case_the_nested_fit_on_the_gpu_uses_the_same_call_shape, ['ValueError', True, '0 + C(grna)', '0 + C(rowID)', '0 + C(columnID)'], id="the_nested_fit_on_the_gpu_uses_the_same_call_shape"),
+    pytest.param(case_a_backend_refusal_survives_the_nested_fit_untouched, ['MixedBackendUnavailable'], id="a_backend_refusal_survives_the_nested_fit_untouched"),
+    pytest.param(case_a_cache_that_will_not_empty_does_not_stop_the_cpu_fallback, ['The GPU ran out of memory', ['a', 'b', 'Group Var']], id="a_cache_that_will_not_empty_does_not_stop_the_cpu_fallback"),
+    pytest.param(case_a_nested_gpu_fit_that_succeeds_reports_its_backend, ['torch nested REML: converged', 'regression_backend=', True, True, True], id="a_nested_gpu_fit_that_succeeds_reports_its_backend"),
+])
+def test_12_ml_mixed_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected

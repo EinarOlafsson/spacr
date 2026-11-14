@@ -174,18 +174,27 @@ def test_the_recommendation_carries_its_evidence():
 # It measures; it does not tune
 # ---------------------------------------------------------------------------
 
-def test_nothing_here_writes_a_setting():
+def test_nothing_here_writes_a_setting(tmp_path, monkeypatch):
     """A benchmark that changed n_jobs would make a run's speed depend on
     when the benchmark last ran, which is the opposite of reproducible."""
-    import inspect
+    import os
 
-    from spacr import benchmark as module
+    from spacr import settings as spacr_settings
 
-    source = inspect.getsource(module)
-    for forbidden in ("set_default", "settings[", "save_settings",
-                      "os.environ["):
-        assert forbidden not in source, (
-            f"the benchmark writes state via {forbidden!r}")
+    def writes(*_args, **_kwargs):
+        raise AssertionError("the benchmark wrote a setting")
+
+    monkeypatch.setattr(spacr_settings, "save_settings", writes, raising=False)
+    monkeypatch.chdir(tmp_path)
+    environment = dict(os.environ)
+
+    measurement = benchmark(lambda item: item, [0, 1, 2], warmup=0)
+    format_report(measurement, recommend_workers(
+        measurement, cores=8, available_bytes=32 * GIB))
+    available_memory_bytes()
+
+    assert dict(os.environ) == environment
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_available_memory_is_a_number():
