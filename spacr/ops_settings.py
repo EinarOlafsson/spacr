@@ -1266,12 +1266,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - A placement file from an earlier full run: "
         "<plate>_<well>.ops_placement.json, a folder holding it, or that "
         "run's measurements.db. With it the stitch phase does not register "
-        "or solve: each tile of this run is put where the file says, in the "
-        "whole well's frame, so a run on a few fields composes the same "
+        "or solve: each tile of this run is put where the file says, in the"
+        " whole well's frame, so a run on a few fields composes the same "
         "windows as the full run. The file is checked against the plate, "
         "well, tiles, tile size and cycle first. A seeded run is not a "
-        "replacement for a full run in a paper; its report says 'placement: "
-        "seeded'. Empty solves as usual. Alpha.",
+        "replacement for a full run in a paper; its report says 'placement:"
+        " seeded'. Empty solves as usual. Default None. Alpha.",
     "ops_placement_seed_mode":
         "(str) - 'subset' lets the run use any of the tiles the placement "
         "file lists; 'strict' needs exactly the file's tiles and also "
@@ -1295,11 +1295,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - A phenotype placement seed: a JSON file with the "
         "well's phenotype raster, scale and rotation from an earlier full "
         "run (schema spacr.ops_ph_placement_seed). With it the phenotype "
-        "phase aligns no anchor fields: every field is placed from the file, "
-        "moved onto this run's stitch by the sequencing tiles the file "
-        "lists, so a run on a few fields at the well's rim can be placed. "
-        "Its report says 'placement: seeded'. Empty aligns anchors as "
-        "usual. Alpha.",
+        "phase aligns no anchor fields: every field is placed from the "
+        "file, moved onto this run's stitch by the sequencing tiles the "
+        "file lists, so a run on a few fields at the well's rim can be "
+        "placed. Its report says 'placement: seeded'. Empty aligns anchors "
+        "as usual. Default None. Alpha.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "
@@ -1376,30 +1376,24 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str, list or None) - Also measure spaCR's image-based profiling "
         "families on the nucleus, cell and cytoplasm, as Measure's "
         "profile_features does: 'profiling' adds edge intensity, intensity "
-        "moments, radial distribution, extra shape, Haralick, PFTAS and LBP "
-        "texture, periphery and outside-ring intensity (with an enclosed "
-        "flag) and neighbours; ops_ph_profile_optional_families adds the "
-        "slow Gabor, colocalisation and granularity families to it; 'all' "
-        "adds every family; a list picks families. Turn ops_ph_zernike on "
-        "with it for the full profiling set. Empty measures exactly as "
-        "before. Default None. Alpha.",
+        "moments, radial distribution, extra shape, Haralick, PFTAS and LBP"
+        " texture, periphery and outside-ring intensity and neighbours; "
+        "ops_ph_profile_optional_families adds the slow Gabor, "
+        "colocalisation and granularity families to it; 'all' adds every "
+        "family; a list picks families. Turn ops_ph_zernike on with it for "
+        "the full profiling set. Empty measures exactly as before. Default "
+        "None. Alpha.",
     "ops_ph_profile_optional_families":
         "(bool, str, list or None) - The slow families that 'profiling' in "
         "ops_ph_profile_features also measures, as Measure's "
-        "profile_optional_families. Off by default; on reproduces "
-        "Brieflow's full set. True or 'all' adds all five; names pick them "
-        "one by one. Cost in CPU seconds per 100,000 cells: texture_gabor "
-        "11,000 to 17,400; colocalisation (Pearson and Manders) 6,300 to "
-        "9,050; colocalisation_extra (Spearman, ICQ, K1/K2, rank-weighted "
-        "colocalisation, mutual information and spot-based colocalisation) "
-        "7,000; colocalisation_costes 8,050; granularity 58,900 at "
-        "ops_ph_granularity_subsample 1.0. All the other profiling families "
-        "together cost about 11,600. On the 639,673 cells of Funk et al. "
-        "2022 well A1 none of the five added anything beyond random "
-        "measurements of the same number. A settings file saved before "
-        "this setting existed keeps texture_gabor, colocalisation and "
-        "colocalisation_extra, which 'profiling' measured then. Default "
-        "None. Alpha.",
+        "profile_optional_families: texture_gabor, colocalisation, "
+        "colocalisation_extra, colocalisation_costes and granularity. "
+        "Together they cost several times the rest of 'profiling' "
+        "(granularity alone about 58,900 CPU seconds per 100,000 cells). "
+        "True or 'all' adds all five, which reproduces Brieflow's full set;"
+        " names pick them one by one. Settings files saved before this "
+        "setting keep texture_gabor, colocalisation and "
+        "colocalisation_extra. Default None. Alpha.",
     "ops_ph_granularity_subsample":
         "(float) - Sieve the field scaled by this factor for the "
         "granularity family, as CellProfiler's image sample size. 0.25, "
@@ -1686,16 +1680,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "ph_masks phase. Default 'closer_match'. Alpha.",
     "ops_align_model":
         "(str) - How the merge phase aligns each phenotype field to the "
-        "sequencing nuclei. 'tile_affine' re-solves one scale, rotation and "
-        "shift per field, then fits one affine per field and one per "
+        "sequencing nuclei. 'tile_affine' re-solves one scale, rotation and"
+        " shift per field, then fits one affine per field and one per "
         "sequencing tile the field covers, and moves each nucleus with its "
         "tile's affine; it needs the tile positions of the 'stitch' phase. "
-        "On Funk "
-        "et al. 2022 plates A-D it put 97.0-97.5 % of nuclei within 2 px of "
-        "their sequencing nucleus instead of 94.7-95.8 %, at about 0.017 s "
-        "per field on one CPU core. 'similarity' stops after the first "
-        "step, the default before spaCR 1.5.1.8; settings files saved "
-        "before then keep it. Default 'tile_affine'.",
+        "On Funk et al. 2022 plates A-D it put 97.0-97.5 % of nuclei within"
+        " 2 px of their sequencing nucleus instead of 94.7-95.8 %. "
+        "'similarity' stops after the first step, the default before spaCR "
+        "1.5.1.8; settings files saved before then keep it. Default "
+        "'tile_affine'.",
     "ops_align_tile_min_nuclei":
         "(int) - The fewest phenotype nuclei a field must have in one "
         "sequencing tile for that tile to get its own affine; fewer keep "
@@ -2525,16 +2518,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str) - How the two call thresholds of the rule (a) decode, "
         "ops_single_read_quality and ops_pixel_quality, are set. 'manual' "
         "uses the values you enter. 'auto' chooses them well by well from "
-        "the well's decoy calls: half of the well's fields try every "
-        "setting of ops_decode_auto_grid, the setting that genotypes the "
-        "most nuclei with a decoy FDR at or below ops_decode_fdr_max is "
-        "used for the whole well, and the other half reports its FDR. The "
-        "spot thresholds (ops_read_threshold, ops_spot_min_peak) stay as "
-        "entered. Auto needs ops_decode_preset rule_a_s2 and decoys "
-        "(ops_decoy_library_k above 0); the choices are written to "
-        "results/ops_decode/decode_thresholds_<plate>.csv. On Funk et al. "
-        "2022 plate D it kept the FDR at 0.093 per 100 calls with 67.9 % of "
-        "linked nuclei genotyped. Default 'manual'. Alpha.",
+        "decoy calls: half of the well's fields try every setting of "
+        "ops_decode_auto_grid, the one that genotypes the most nuclei with "
+        "a decoy FDR at or below ops_decode_fdr_max is used for the whole "
+        "well, and the other half reports its FDR. Auto needs "
+        "ops_decode_preset rule_a_s2 and ops_decoy_library_k above 0; the "
+        "choices are written to "
+        "results/ops_decode/decode_thresholds_<plate>.csv. Default "
+        "'manual'. Alpha.",
     "ops_decode_fdr_max":
         "(float) - The highest decoy-estimated false calls per 100 real "
         "calls that auto thresholds may accept (0.1 means 0.1 %). Used with "
