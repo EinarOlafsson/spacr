@@ -2493,8 +2493,14 @@ def _guide_inputs(settings: Mapping[str, Any], genes: Optional[pd.DataFrame], gu
     Ready rows (``ops_cluster_rows``) are clustered as given, with their
     guides from ``ops_consensus_guides`` (a table with ``gene``,
     ``n_cells`` and the same numeric columns). Otherwise the profile
-    phase's gene and guide tables are used and every draw is embedded as
-    the evaluate phase embeds them.
+    phase's gene and guide tables are put in the Hybrid space
+    (:func:`spacr.ops_reference.hybrid_profile_rows`: the gene-level
+    embedding the evaluate phase uses, fitted once on the gene rows, with
+    the guide rows sent through the same transform), rounded to single
+    precision (the precision of the profile tables and of the plate A rows
+    Design F clustered; on plate A one replicate in 20 changes its
+    partition without the rounding), and every draw moves the genes within
+    that space.
 
     :raises ValueError: when no rows or no guide rows are available, or a
         listed gene is not a row.
@@ -2510,12 +2516,20 @@ def _guide_inputs(settings: Mapping[str, Any], genes: Optional[pd.DataFrame], gu
         names, rows = _sweep_rows_from_table(table)
         columns = [c for c in table.columns if c not in ("gene", "n_cells")
                    and pd.api.types.is_numeric_dtype(table[c])]
-        transform = None
     elif genes is not None:
         kept = genes[genes["n_cells"] > int(settings.get("ops_profile_min_cells", 10))]
         columns = [c for c in kept.columns if c.startswith(("PC_", "w_"))]
-        names, rows = kept["gene"].astype(str).to_numpy(), kept[columns].to_numpy(float)
-        transform = ops_reference.embed_gene_profiles
+        if guide_source:
+            guides = read_table(str(guide_source), canonicalise=False, report=None)
+        if guides is None:
+            raise ValueError("guide-bootstrap consensus needs the guide rows: set ops_consensus_guides (gene, "
+                             "n_cells and the profile's columns) or run the profile phase first")
+        hybrid, guides = ops_reference.hybrid_profile_rows(kept.reset_index(drop=True), guides, columns)
+        columns = [c for c in hybrid.columns if c.startswith("E_")]
+        names = hybrid["gene"].astype(str).to_numpy()
+        rows = hybrid[columns].to_numpy(np.float32).astype(float)
+        guides = guides.assign(**{c: guides[c].to_numpy(np.float32).astype(float) for c in columns})
+        guide_source = None
     else:
         raise ValueError("the consensus and bench phases need gene rows: run the profile phase first or set "
                          "ops_cluster_rows")
@@ -2543,7 +2557,7 @@ def _guide_inputs(settings: Mapping[str, Any], genes: Optional[pd.DataFrame], gu
     return {"names": names, "rows": rows, "guide_rows": guides[columns].to_numpy(float),
             "guide_genes": guides["gene"].astype(str).to_numpy(),
             "guide_cells": guides["n_cells"].to_numpy(float), "position": position, "order": np.array(order),
-            "mask": mask, "transform": transform, "prefix": prefix}
+            "mask": mask, "prefix": prefix}
 
 
 def _draw(data: Mapping[str, Any], seed: Optional[int], copy: Optional[int] = None, noise: float = 1.7e-3
@@ -2555,7 +2569,7 @@ def _draw(data: Mapping[str, Any], seed: Optional[int], copy: Optional[int] = No
     rows = rows[data["position"]]
     if copy is not None:
         rows = jitter_rows(rows, copy, noise)
-    return rows if data["transform"] is None else data["transform"](rows)
+    return rows
 
 
 def _consensus_options(settings: Mapping[str, Any], n_genes: int) -> SimpleNamespace:
@@ -2631,9 +2645,9 @@ def cluster_consensus_phase(settings: Mapping[str, Any], genes: Optional[pd.Data
     profile's own rows with seed ``ops_consensus_seed``.
 
     :param settings: read for ``ops_cluster_rows`` and
-        ``ops_consensus_guides`` (ready rows and their guide rows; the
-        profile phase's gene and guide tables, embedded as the evaluate
-        phase embeds them, when empty), ``ops_cluster_gene_list`` (the
+        ``ops_consensus_guides`` (ready rows and their guide rows; when
+        empty, the profile phase's gene and guide tables in the Hybrid
+        space of :func:`spacr.ops_reference.hybrid_profile_rows`), ``ops_cluster_gene_list`` (the
         targeting genes clustered, in order; every targeting row when
         empty; control rows are always clustered and never counted),
         ``ops_consensus_bootstraps``, ``ops_consensus_seed``,

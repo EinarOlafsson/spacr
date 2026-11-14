@@ -3839,6 +3839,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("910_899_paper_remaining_api_arrivals_2026-11-12.json", 3),
         ("928_929_ops_consensus_bench_api_arrivals_2026-11-12.json", 22),
         ("930_ops_tile_affine_api_arrivals_2026-11-13.json", 4),
+        ("stage3_hybrid_profile_api_arrivals_2026-11-13.json", 2),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

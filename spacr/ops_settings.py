@@ -1703,9 +1703,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(dict or None) - How cells become gene profiles: lof (1 drops the 1% "
         "intensity outliers), impute ('median' or 'knn'), pca ('c0' per-well "
         "standardised, or 'brieflow'), agg ('guide' = median of guide medians, "
-        "or 'gene' = median of all cells) and nt ('pseudo' = four control "
-        "guides per pseudo-gene, or 'barcode'). Empty is lof 0, median, c0, "
-        "guide, pseudo. Default None. Alpha.",
+        "'gene' = median of all cells, or 'gene_trim' = their 10% trimmed "
+        "mean), nt ('pseudo' = four control guides per pseudo-gene, or "
+        "'barcode') and tvn ('spacr', or 'brieflow' = Brieflow's control "
+        "axes). The Hybrid profile is lof 1, knn, brieflow, gene, barcode, "
+        "brieflow with whitening epsilon 0. Empty is lof 0, median, c0, "
+        "guide, pseudo, spacr. Default None. Alpha.",
     "ops_profile_min_cells":
         "(int) - Genes and pseudo-genes with this many cells or fewer are left "
         "out of the profile table and the metrics; raising it drops weakly "

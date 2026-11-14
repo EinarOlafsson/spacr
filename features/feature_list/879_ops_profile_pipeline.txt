@@ -65,3 +65,31 @@ INTEGRATION NOTES (2026-11-09, integration branch)
   2.6e-3) with mAP within 1.6e-5, as recorded under RESULT above. It comes
   from the float32 summation order of the reference's multi-threaded PCA, is
   not a spaCR bug, and spaCR re-runs are now bit-identical with each other.
+- 2026-11-13 — OPS stage 3, Hybrid profile (branch claude-hybrid-profile-proof-1113). The
+  Hybrid gene profile (Brieflow's cell recipe on spaCR cells, then one gene-level
+  embedding: standardise + PCA 99 %) is now built by spaCR exactly. Gaps closed:
+  (1) ops_profile_recipe gains tvn ('spacr' default, unchanged; 'brieflow' =
+  tvn_on_controls(rotation='brieflow'): scikit-learn's PCA of the control cells at
+  the embedding's precision, as Brieflow's tvn_on_controls). With the default eigh
+  rotation the TVN cells differed from Brieflow's by up to 0.018; the per-cell PCA
+  was already identical. (2) agg 'gene_trim': the 10 % two-sided trimmed mean of
+  every gene's and guide's cells (scipy.stats.trim_mean in cell order, as Design D
+  dd_cells.py); an option, not the default. (3) spacr.ops_tvn.cells_to_profiles,
+  the middle of profile_cell_tables, open to cells filtered elsewhere.
+  (4) spacr.ops_reference.hybrid_profile_rows: gene rows and guide rows in one
+  fitted gene-level space (= sl_common.Embedder). Proof (plate A, the same
+  per-cell inputs, bf_tmp_spacrcells): gene and guide tables equal to
+  X_bf_spacrcells(_guides) with difference 0; the Hybrid matrix equal to the
+  bundle's bfr_E_ctx / Design D c_hyb (5,299 x 95) with difference 0 at their
+  stored float32 precision and 0 against the reference harness re-run in float64;
+  the trim aggregation and gene level equal to Design D's
+  A_bf_e0__gene_trim(_guides) and H2_trim with difference 0 when run on the same
+  TVN cells (Design D's dd_cells.py streamed build; spaCR's in-memory TVN of the
+  same cells differs from that build by up to 2.5e-4 on the trimmed table, as the
+  median tables of the two builds differ by 1.8e-3). The match needs the
+  reference's BLAS thread count (2): ops_deterministic_blas False and two
+  threads; one thread moves the whitened weak axes (profile up to 0.07 off).
+  See /nas_mnt/data/sync/papers/BMCspacr/reanalysis/spacr_stage3_hybrid_proof/.
+  Hybrid settings: recipe lof 1, impute knn, pca brieflow, agg gene, nt barcode,
+  tvn brieflow; ops_tvn_whiten_epsilon 0; ops_profile_gene_universe =
+  strategies_lit universe_full.json. tests/test_ops_hybrid_profile_stage3.py.

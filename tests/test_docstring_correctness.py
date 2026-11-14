@@ -3380,6 +3380,27 @@ def _validated_consensus_bench_928_929_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_hybrid_profile_stage3_callables(callables):
+    """Check the public callables of the OPS stage 3 Hybrid profile (cells_to_profiles, hybrid_profile_rows) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "stage3_hybrid_profile_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert set(entries) == {
+        "spacr.ops_reference.hybrid_profile_rows",
+        "spacr.ops_tvn.cells_to_profiles",
+    }
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_tile_affine_930_callables(callables):
     """Check the public callables of item 930 (per-tile affine alignment of phenotype fields) against their source."""
     import json
@@ -3568,6 +3589,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_paper_remaining_910_899_callables(callables)
     callables = _validated_consensus_bench_928_929_callables(callables)
     callables = _validated_tile_affine_930_callables(callables)
+    callables = _validated_hybrid_profile_stage3_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -6291,6 +6313,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("910_899_paper_remaining_api_arrivals_2026-11-12.json", 3),
         ("928_929_ops_consensus_bench_api_arrivals_2026-11-12.json", 22),
         ("930_ops_tile_affine_api_arrivals_2026-11-13.json", 4),
+        ("stage3_hybrid_profile_api_arrivals_2026-11-13.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6883,7 +6906,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "measure_profile_families_api_arrivals_2026-11-12.json",
                      "910_899_paper_remaining_api_arrivals_2026-11-12.json",
                      "928_929_ops_consensus_bench_api_arrivals_2026-11-12.json",
-                     "930_ops_tile_affine_api_arrivals_2026-11-13.json"):
+                     "930_ops_tile_affine_api_arrivals_2026-11-13.json",
+                     "stage3_hybrid_profile_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7018,7 +7042,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "measure_profile_families_api_arrivals_2026-11-12.json",
                      "910_899_paper_remaining_api_arrivals_2026-11-12.json",
                      "928_929_ops_consensus_bench_api_arrivals_2026-11-12.json",
-                     "930_ops_tile_affine_api_arrivals_2026-11-13.json"):
+                     "930_ops_tile_affine_api_arrivals_2026-11-13.json",
+                     "stage3_hybrid_profile_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
