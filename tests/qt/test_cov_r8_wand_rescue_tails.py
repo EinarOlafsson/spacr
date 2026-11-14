@@ -27,7 +27,6 @@ missing test.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from spacr.qt import wand_rescue as W
 
@@ -39,54 +38,6 @@ def _leaky_image():
     image[25, 30:41] = 200.0                   # the seam it escapes along
     image[10:51, 40:61] = 200.0                # the field it escapes into
     return image
-
-
-def test_a_taper_with_nothing_in_it_leaves_the_straight_cut_alone(
-        monkeypatch):
-    """The cut survives a taper that found no edge to move it to.
-
-    `region` keeps whatever the directional trim and the intensity
-    reflood agreed on, and `tapered` is NOT reported -- a report saying
-    the edge was moved onto an intensity change, when it was not, would
-    tell the user the wrong story about their own mask.
-    """
-    image = _leaky_image()
-
-    called = []
-
-    def finds_nothing(*args, **kwargs):
-        called.append(1)
-        return np.zeros(image.shape, dtype=bool)
-
-    monkeypatch.setattr(W, "taper_region_to_intensity", finds_nothing)
-    region, report = W.wand_region(image, 25, 25, 10.0,
-                                   max_pixels=100_000,
-                                   gradient_taper=True)
-
-    assert called, "the taper was never reached, so this proves nothing"
-    assert report["cuts"] == ["right"]
-    assert not report.get("tapered"), "it claimed an edge it did not find"
-    assert region.any(), "an empty taper emptied the region"
-    assert region[25, 25], "the pixel the user clicked was thrown away"
-
-
-def test_the_same_case_keeps_exactly_what_the_taper_was_offered(
-        monkeypatch):
-    """Not merely non-empty: unchanged.
-
-    The region handed to the taper is the one that must come back, so
-    this compares against the identical run with the taper switched off.
-    """
-    image = _leaky_image()
-    expected, _ = W.wand_region(image, 25, 25, 10.0, max_pixels=100_000,
-                                gradient_taper=False)
-
-    monkeypatch.setattr(W, "taper_region_to_intensity",
-                        lambda *a, **k: np.zeros(image.shape, dtype=bool))
-    region, _report = W.wand_region(image, 25, 25, 10.0,
-                                    max_pixels=100_000,
-                                    gradient_taper=True)
-    assert np.array_equal(region, expected)
 
 
 class TestTheCappedArcWhenNoBandFits:

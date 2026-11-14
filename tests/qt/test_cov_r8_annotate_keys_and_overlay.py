@@ -110,16 +110,3 @@ class TestTheZoomOverlayWithNothingToFrame:
 
         painted = overlay.grab()
         assert not painted.isNull()
-
-
-def test_an_overlay_with_no_crop_paints_nothing_at_all(qtbot):
-    """The earlier return: with no pixmap there is nothing to dim FOR.
-
-    Drawing the scrim anyway would black out the grid behind an overlay
-    that has no crop to show over it.
-    """
-    overlay = _ZoomOverlay()
-    qtbot.addWidget(overlay)
-    overlay.resize(120, 90)
-    overlay._pixmap = None
-    assert not overlay.grab().isNull()

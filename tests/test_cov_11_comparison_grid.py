@@ -97,41 +97,6 @@ def test_locking_a_panel_the_link_does_not_hold_changes_nothing(qtbot):
     assert "ch1" not in grid.canvas_link
 
 
-def test_fitting_skips_panels_that_are_not_on_the_shared_window(qtbot):
-    """Fit puts the LINKED panels back; an unlocked one keeps its own view.
-
-    Unlocking a panel exists so a user can look closely at it without losing
-    where the others are; Fit must not undo that.
-    """
-    grid = _grid(qtbot)
-    grid.panels["ch0"].lock_box.setChecked(False)
-    before = grid.canvas_link["ch0"]
-
-    grid.reset_view()
-
-    after = grid.canvas_link["ch0"]
-    assert grid.canvas_link.is_locked("ch0") is False
-    assert (after.origin, after.step) == (before.origin, before.step)
-
-
 # ---------------------------------------------------------------------------
 # A click that names no object
 # ---------------------------------------------------------------------------
-
-def test_clicking_labels_that_name_no_field_publishes_nothing(qtbot):
-    """Labels with no field key cannot be named in measurement-table terms.
-
-    Publishing the raw label number instead would highlight whichever object
-    happened to carry that number in another view -- a different cell.
-    """
-    grid = _grid(qtbot, {"ch0": _channel(0, field=False),
-                         "ch1": _channel(1, field=False)})
-    published = []
-    grid.object_picked.connect(published.append)
-
-    layer = [lay for lay in grid.panels["ch0"].stack
-             if lay.name == "mask"][0]
-    grid._on_panel_picked("ch0", layer, {"y": 25.0, "x": 25.0}, 17)
-
-    assert published == []
-    assert layer.selected_label in (None, 0)

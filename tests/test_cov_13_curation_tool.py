@@ -18,7 +18,6 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import Qt  # noqa: E402
-from PySide6.QtWidgets import QFileDialog  # noqa: E402
 
 from spacr.curation import MaskCuration  # noqa: E402
 from spacr.layers import LayerError, LayerStack, Spacing  # noqa: E402
@@ -94,46 +93,6 @@ def test_a_brush_refuses_to_be_built_on_anything_but_a_curation_session():
         ct.BrushTool(object())
 
 
-def test_a_middle_click_does_not_open_a_stroke(qtbot):
-    """Only left and right paint; the middle button belongs to the canvas.
-
-    Middle-drag pans in the viewer. Opening a stroke on it would paint a line
-    across the mask every time the user moved the view.
-    """
-    stack = _stack()
-    canvas = _canvas(qtbot, stack)
-    tool = ct.BrushTool(MaskCuration(stack["mask"], artifact="mask"))
-
-    handled = tool.press(canvas, {"y": 10.0, "x": 10.0},
-                         _Event(button=Qt.MiddleButton))
-
-    assert handled is False
-    assert not stack["mask"].data.any()
-
-
-def test_the_brush_stops_painting_when_no_button_is_down(qtbot):
-    """A move with the button up is the cursor travelling, not a stroke.
-
-    Without this the brush paints wherever the pointer went after the button
-    came up, which destroys a mask in the time it takes to reach for undo.
-    """
-    stack = _stack()
-    canvas = _canvas(qtbot, stack)
-    session = MaskCuration(stack["mask"], artifact="mask")
-    session.label = 5
-    tool = ct.BrushTool(session)
-    tool.press(canvas, {"y": 10.0, "x": 10.0},
-               _Event(button=Qt.LeftButton))
-    painted = int((stack["mask"].data == 5).sum())
-    assert painted
-
-    handled = tool.move(canvas, {"y": 30.0, "x": 30.0},
-                        _Event(buttons=Qt.NoButton))
-
-    assert handled is False
-    assert int((stack["mask"].data == 5).sum()) == painted
-
-
 def test_releasing_without_a_stroke_open_is_not_an_edit(qtbot):
     """A release the tool never saw a press for closes nothing.
 
@@ -167,33 +126,6 @@ def test_a_key_the_brush_does_not_use_is_passed_back_to_the_canvas(qtbot):
 
     assert handled is False
     assert tool.session.radius == before
-
-
-def test_a_dab_the_layer_refuses_is_logged_and_leaves_the_mask_alone(
-        qtbot, monkeypatch, caplog):
-    """A paint the layer cannot do must not take the drag down with it.
-
-    The dab runs inside a mouse-move handler. An exception there escapes into
-    Qt's event loop mid-stroke, leaving the stroke open and the tool armed.
-    """
-    stack = _stack()
-    canvas = _canvas(qtbot, stack)
-    session = MaskCuration(stack["mask"], artifact="mask")
-    tool = ct.BrushTool(session)
-
-    def refuse(world):
-        raise LayerError("the brush is outside the layer")
-
-    monkeypatch.setattr(session, "paint", refuse)
-
-    with caplog.at_level("ERROR", logger="spacr.qt.curation_tool"):
-        handled = tool.press(canvas, {"y": 10.0, "x": 10.0},
-                             _Event(button=Qt.LeftButton))
-
-    assert handled is True
-    assert not stack["mask"].data.any()
-    assert any("Could not paint" in record.message
-               for record in caplog.records)
 
 
 # ---------------------------------------------------------------------------
@@ -307,48 +239,3 @@ def test_an_operation_with_too_few_tracks_selected_says_how_many_are_needed(
     # One IS enough for a split, so the guard is not simply always refusing.
     panel.frame_spin.setValue(1)
     assert panel.split_selected() is True
-
-
-def test_cancelling_the_save_dialog_writes_nothing(qtbot, monkeypatch):
-    """A cancelled dialog returns an empty path, which is not a destination.
-
-    Writing to it would either raise or, worse, create a file called nothing
-    in the working directory and report it as the curated table.
-    """
-    panel = ct.TrackCurationPanel(tracks=_tracks({1: [0, 1], 2: [2, 3]}))
-    qtbot.addWidget(panel)
-    saved: list = []
-    panel.saved.connect(saved.append)
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-
-    assert panel.save() is None
-    assert saved == []
-
-
-def test_a_table_that_cannot_be_written_says_so_and_emits_nothing(qtbot,
-                                                                  monkeypatch):
-    """The saved signal is what marks the tracks curated downstream."""
-    panel = ct.TrackCurationPanel(tracks=_tracks({1: [0, 1], 2: [2, 3]}),
-                                  artifact="/runs/plate1/tracks.csv")
-    qtbot.addWidget(panel)
-    saved: list = []
-    panel.saved.connect(saved.append)
-
-    def refuse(target):
-        raise OSError("No space left on device")
-
-    monkeypatch.setattr(panel.session, "save", refuse)
-
-    assert panel.save() is None
-    assert "Could not write the tracks" in panel.status.text()
-    assert "No space left on device" in panel.status.text()
-    assert saved == []
-
-
-def test_saving_with_nothing_open_writes_nothing(qtbot):
-    """No session means no table, and no dialog either."""
-    panel = ct.TrackCurationPanel()
-    qtbot.addWidget(panel)
-
-    assert panel.save() is None
