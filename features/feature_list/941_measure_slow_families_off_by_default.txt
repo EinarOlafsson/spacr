@@ -1,0 +1,51 @@
+OPS AND MEASURE PROFILING: GABOR, GRANULARITY AND COLOCALISATION OFF BY DEFAULT
+================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-13, alpha (ALPHA_FEATURES[941]). The 'profiling' preset of profile_features (Measure) and ops_ph_profile_features (OPS) no longer measures texture_gabor, colocalisation, colocalisation_extra, colocalisation_costes or granularity; profile_optional_families and ops_ph_profile_optional_families (default None) add them back. DEFAULT_CHANGES[937] (placeholder schema version, after the Hybrid profile's 936) gives older settings files the three families 'profiling' measured then. spacr/measure.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, spacr/qt/screens/settings_model.py, docs/source/reproducibility_manifests.rst, tests/test_measure_optional_families_941.py.
+Requested: maintainer (decided 2026-11-13; overrides the earlier "colocalisation on by default" decision).
+Owner: paper session (measure lane).
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/profile_design_d/REPORT_A1_newfamilies_20261113.md (D-F2).
+Related: 934 (OPS measurement features in Measure), 937 (aggregation rules), measure profile families (0bed2ff593).
+
+WHY
+On the 639,673 matched cells of Funk et al. 2022 plate A well A1, spaCR's new
+measurement set matches Brieflow (no detectable difference on CORUM complexes
+or STRING pairs), and no family adds anything beyond random columns of the
+same size. The five slow families cost, in CPU s per 100,000 cells (one
+thread, three compartments): Gabor 11,000-17,400, granularity 58,900 (at
+subsample 1.0), colocalisation 6,300-9,050, colocalisation_extra 7,000,
+Costes 8,050. All other profiling families together: about 11,600.
+
+SETTINGS (alpha)
+profile_optional_families (Measure, Measurements group) and
+ops_ph_profile_optional_families (OPS phenotype group; mapped to the Measure
+key in OPS_TO_MEASURE_KEYS). None/False/'' = none (default); True or 'all' =
+all five (Brieflow's full set); a list or comma string of names from
+spacr.measure.PROFILE_FEATURE_OPTIONAL picks them. They widen 'profiling'
+only: explicit family names and 'all' in profile_features are unchanged, and
+without 'profiling' they add nothing (so an older file with an explicit list
+or None still measures exactly what it did).
+Default change: DEFAULT_CHANGES[937] = {'profile_optional_families':
+['texture_gabor', 'colocalisation', 'colocalisation_extra'],
+'ops_ph_profile_optional_families': the same}; SETTINGS_SCHEMA_VERSION 937.
+
+API
+spacr.measure.profile_optional_families(value) (new);
+spacr.measure.profile_feature_families(value, optional=None) (new optional
+argument); spacr.measure.PROFILE_FEATURE_OPTIONAL (new);
+PROFILE_FEATURE_DEFAULT loses texture_gabor, colocalisation and
+colocalisation_extra. measure_profile_features(families='profiling') follows
+the new preset.
+
+DOWNSTREAM
+merge_tables (SUMMARY_AGGREGATION_RULES, PER_FEATURE_AGGREGATION_RULES),
+aggregate_by_feature, the OPS feature columns and embeddings.aggregate_profiles
+are rule- or column-driven: the remaining columns get the same methods and
+values with or without the slow ones (tested). OPS part markers carry the
+resolved family list, so a resumed OPS run re-measures parts measured under
+the old preset.
+
+PROOF (plate A well A1, three fields)
+See the hand-over report: column sets of the new default against D-F2 pass A,
+and of all five on against passes A + B + granularity; CPU time per field.

@@ -123,6 +123,10 @@ msgstr "935 (le changement de valeur par défaut de l’élément 940) : ``ops_p
 msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
 msgstr "936 : ``ops_blas_threads`` valait ``1`` et ``ops_consensus_space`` ``'refit'`` ; ils valent désormais ``2`` et ``'hybrid'``."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "937 (item 941): ``profile_optional_families`` and ``ops_ph_profile_optional_families`` were ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, the slow families the ``'profiling'`` preset measured; they are now ``None``, so ``'profiling'`` leaves Gabor, granularity and colocalisation out."
+msgstr "937 (élément 941) : ``profile_optional_families`` et ``ops_ph_profile_optional_families`` valaient ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, les familles lentes que mesurait le préréglage ``'profiling'`` ; elles valent maintenant ``None``, si bien que ``'profiling'`` laisse de côté Gabor, la granularité et la colocalisation."
+
 msgid "Public API"
 msgstr "API publique"
 

@@ -4065,7 +4065,10 @@ def _ph_profile_features(settings: Mapping[str, Any]) -> Optional[List[str]]:
     """The profiling families ``ops_ph_profile_features`` asks for, or None.
 
     :param settings: read for ``ops_ph_profile_features``
-        (:func:`spacr.measure.profile_feature_families`).
+        (:func:`spacr.measure.profile_feature_families`) and
+        ``ops_ph_profile_optional_families``, the slow families
+        ``'profiling'`` also measures
+        (:func:`spacr.measure.profile_optional_families`).
     :returns: the family names, or None when the setting is empty, so a run
         without it measures, and marks its parts, exactly as before.
     :raises ValueError: for a name that is not a family.
@@ -4073,7 +4076,8 @@ def _ph_profile_features(settings: Mapping[str, Any]) -> Optional[List[str]]:
     from .measure import profile_feature_families
 
     families = profile_feature_families(
-        settings.get("ops_ph_profile_features"))
+        settings.get("ops_ph_profile_features"),
+        settings.get("ops_ph_profile_optional_families"))
     return list(families) or None
 
 
@@ -4081,7 +4085,8 @@ def _ph_granularity_subsample(settings: Mapping[str, Any]
                                ) -> Optional[float]:
     """``ops_ph_granularity_subsample`` when granularity is measured, else None.
 
-    :param settings: read for ``ops_ph_profile_features`` and
+    :param settings: read for ``ops_ph_profile_features``,
+        ``ops_ph_profile_optional_families`` and
         ``ops_ph_granularity_subsample`` (default 1.0).
     :returns: the subsample factor, or None when no granularity is
         measured, so the part marker of a run without it is unchanged.
