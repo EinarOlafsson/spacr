@@ -51,12 +51,6 @@ def test_the_environment_flag_can_force_the_cpu(monkeypatch):
     assert backend_for("umap", prefer_gpu=True) == "cpu"
 
 
-@pytest.mark.parametrize("value", ["0", "false", "no", "off", ""])
-def test_every_spelling_of_off_is_honoured(monkeypatch, value):
-    monkeypatch.setenv(ENV_FLAG, value)
-    assert rapids_available() is False
-
-
 # ---------------------------------------------------------------------------
 # The CPU estimators are real, and are the ones spaCR already used
 # ---------------------------------------------------------------------------

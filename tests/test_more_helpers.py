@@ -190,14 +190,15 @@ def test_plot_random_cmap_first_slot_is_transparent_black():
     assert a == 1.0
 
 
-def test_plot_get_colours_merged_returns_three_tuples():
+@pytest.mark.parametrize("order, expected", [
+    pytest.param("gbr", [[0, 1, 0], [0, 0, 1], [1, 0, 0]], id="snap-gbr"),
+    pytest.param("rgb", [[1, 0, 0], [0, 1, 0], [0, 0, 1]], id="snap-rgb"),
+    pytest.param("bgr", [[0, 0, 1], [0, 1, 0], [1, 0, 0]], id="snap-bgr"),
+])
+def test_plot_get_colours_merged_gives_one_triple_per_outline_channel(order, expected):
+    """The cell, nucleus and pathogen outline colours, as three-element triples."""
     from spacr.plot import _get_colours_merged
-    # The function returns per-channel BGR/RGB/GBR color triples for
-    # cell/nucleus/pathogen outlines. Verify structure is 3-element iterable.
-    out = _get_colours_merged("gbr")
-    assert out is not None
-    # Some form of list-like collection.
-    assert hasattr(out, "__len__")
+    assert _get_colours_merged(order) == expected
 
 
 @pytest.mark.parametrize("order", ["rgb", "bgr", "gbr", "rbg"])

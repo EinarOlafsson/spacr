@@ -21,6 +21,8 @@ import warnings
 
 import pytest
 
+from tests.test_cov_ml_perform_regression import (  # noqa: F401  (fixtures)
+    heavy_stubs, screen, stubs, toxo_stubs)
 from spacr import multiple_testing as mt
 from spacr.regression_diagnostics import (
     collinear_guide_pairs,
@@ -547,40 +549,25 @@ def test_a_healthy_join_passes_silently():
     assert len(frames[2]) > 0, "the fixture joined nothing, so nothing was checked"
 
 
-def test_far_more_count_wells_than_score_wells_is_normal():
-    """The shape of every real screen, and the one this guard first rejected.
-
-    Sequencing covers the whole plate; imaging keeps only the wells that
+@pytest.mark.parametrize("n_sequenced, n_imaged", [
+    pytest.param(1344, 463, id="far-more-count-wells-than-score-wells-is-the-shape-of-every-real-screen"),
+    pytest.param(100, 89, id="partial-but-adequate-overlap-is-allowed"),
+])
+def test_wells_that_were_sequenced_but_never_imaged_are_not_a_pairing_failure(n_sequenced, n_imaged):
+    """Sequencing covers the whole plate; imaging keeps only the wells that
     survive segmentation and the minimum-cell filter. On the TSG101 screen
     that is 463 imaged wells against 1,344 sequenced wells with all 463
     paired -- a perfect join that read as 34% when the denominator was the
-    sequencing side, and the run was refused.
-    """
+    sequencing side, and the run was refused."""
     from spacr.ml import _check_score_count_pairing
 
     independent = pd.DataFrame({
-        "prc": [f"plate1_r{i}_c1" for i in range(1344)]})
+        "prc": [f"plate1_r{i}_c1" for i in range(n_sequenced)]})
     dependent = pd.DataFrame({
-        "prc": [f"plate1_r{i}_c1" for i in range(463)], "pred": 0.5})
+        "prc": [f"plate1_r{i}_c1" for i in range(n_imaged)], "pred": 0.5})
     merged = independent.merge(dependent, on="prc")
 
-    assert len(merged) == 463, (
-        "every imaged well should pair; the fixture is not the shape the "
-        "docstring describes")
-    assert _check_score_count_pairing(independent, dependent, merged) is None
-
-
-def test_partial_but_adequate_overlap_is_allowed():
-    """Sequencing legitimately covers wells that were never imaged."""
-    from spacr.ml import _check_score_count_pairing
-
-    independent = pd.DataFrame({
-        "prc": [f"plate1_r{i}_c1" for i in range(100)]})
-    dependent = pd.DataFrame({
-        "prc": [f"plate1_r{i}_c1" for i in range(89)], "pred": 0.5})
-    merged = independent.merge(dependent, on="prc")
-
-    assert len(merged) == 89, "89 of the imaged wells should pair"
+    assert len(merged) == n_imaged, "every imaged well should pair"
     assert _check_score_count_pairing(independent, dependent, merged) is None
 
 
@@ -1264,132 +1251,44 @@ class TestTheNonparametricTableMatchesTheParametricOne:
         assert support.loc["225160"]["n_guides"] == 2
 
 
-class TestTheVolcanoIsNotAToxoplasmaFeature:
+def _a_volcano_that_writes_its_file(*_args, **kwargs):
+    with open(kwargs["save_path"], "w", encoding="utf-8") as handle:
+        handle.write("pdf")
+
+
+def _a_volcano_that_cannot_draw(*_args, **_kwargs):
+    raise ValueError("no q_value column to plot")
+
+
+@pytest.mark.parametrize("toxo, plain_volcano, said, not_said", [
+    pytest.param(False, _a_volcano_that_writes_its_file, ["Saved volcano plot to "], [],
+                 id="toxoplasma-off-draws-the-plain-volcano-and-says-where-it-went"),
+    pytest.param(False, _a_volcano_that_cannot_draw,
+                 ["Could not draw the volcano plot", "ValueError"], ["Saved volcano plot to "],
+                 id="a-drawing-failure-does-not-sink-the-finished-run"),
+    pytest.param(True, _a_volcano_that_writes_its_file, [],
+                 ["Saved volcano plot to ", "Could not draw the volcano plot"],
+                 id="toxoplasma-on-is-left-to-the-compartment-coloured-volcano"),
+])
+def test_the_volcano_is_not_a_toxoplasma_feature(
+        screen, toxo_stubs, monkeypatch, capsys, toxo, plain_volcano, said, not_said):
     """A run with toxo=False wrote sixteen diagnostic figures and not the one
-    the user came for, silently.
+    the user came for, silently.  The compartment COLOURING needs the LOPIT
+    table; the volcano does not.  With Toxoplasma on, the plain volcano must
+    not be drawn over the coloured one; and the regression is complete and
+    written by the time the figure is drawn, so one that will not draw is
+    reported and stepped over rather than taking the finished run down."""
+    import spacr.plot
+    from spacr.ml import perform_regression
+    from tests.test_cov_ml_perform_regression import parametric_settings
 
-    The compartment COLOURING needs the LOPIT table; the volcano does not.
-    Gating the whole figure on an organism-specific flag meant every non-toxo
-    user of the module got no volcano and no explanation.
-    """
+    monkeypatch.setattr(spacr.plot, "volcano_plot", plain_volcano)
+    perform_regression(parametric_settings(screen, toxo=toxo, legacy_volcano=True))
 
-    @staticmethod
-    def _the_fallback_block():
-        """The real fallback ``if`` out of ``_perform_regression``, compiled.
-
-        The branch lives a thousand lines inside a function that reads CSVs
-        and fits models, so lifting it out is what makes the rule DRIVABLE
-        rather than readable. It is found by the condition it tests -- the
-        Toxoplasma switch and the legacy-volcano switch together -- so the
-        locator survives any rewording around it.
-        """
-        import ast
-        import inspect
-
-        import spacr.ml as ml
-
-        tree = ast.parse(inspect.getsource(ml))
-        functions = [node for node in ast.walk(tree)
-                     if isinstance(node, ast.FunctionDef)
-                     and node.name == "_perform_regression"]
-        assert len(functions) == 1, "_perform_regression was not found once"
-        guards = [node for node in ast.walk(functions[0])
-                  if isinstance(node, ast.If)
-                  and "_toxoplasma_is_on" in ast.unparse(node.test)
-                  and "draw_legacy_volcano" in ast.unparse(node.test)]
-        assert len(guards) == 1, (
-            "the fallback volcano is no longer a single branch guarded by "
-            "the Toxoplasma switch and the legacy-volcano switch together")
-        module = ast.Module(body=list(guards), type_ignores=[])
-        ast.fix_missing_locations(module)
-        return compile(module, "<spacr.ml: the fallback volcano>", "exec")
-
-    @staticmethod
-    def _run(block, *, toxo, volcano_path, legacy=True):
-        """Run the branch with the locals ``_perform_regression`` gives it."""
-        import os
-
-        exec(block, {
-            "__name__": "spacr.ml",
-            "__package__": "spacr",
-            "os": os,
-            "_toxoplasma_is_on": lambda _settings: toxo,
-            "draw_legacy_volcano": legacy,
-            "settings": {"legacy_volcano": legacy, "fdr_alpha": 0.05,
-                         "regression_type": "ols"},
-            "results_path_gene": "results_gene.csv",
-            "reg_threshold": 0.5,
-            "volcano_path": str(volcano_path),
-        })
-
-    def test_the_fallback_is_reached_when_toxo_is_off(self, tmp_path,
-                                                     monkeypatch):
-        """The guard, exercised both ways rather than read.
-
-        The sentinel is ``_toxoplasma_is_on(settings)`` since the rename on
-        2026-08-17 (instruction 133, "change the toxo settings to
-        Toxoplasma") -- but the name is not the rule. The rule is that a run
-        with Toxoplasma OFF gets a volcano, and a run with it ON is left to
-        the compartment-coloured one rather than having a plain volcano drawn
-        over it.
-        """
-        import spacr.plot
-
-        drawn = []
-        monkeypatch.setattr(
-            spacr.plot, "volcano_plot",
-            lambda *_a, **kwargs: drawn.append(kwargs.get("save_path")))
-
-        block = self._the_fallback_block()
-        path = tmp_path / "regression_volcano_plot.pdf"
-
-        self._run(block, toxo=True, volcano_path=path)
-        assert drawn == [], (
-            "the plain volcano was drawn over the Toxoplasma-coloured one")
-
-        self._run(block, toxo=False, volcano_path=path)
-        assert drawn == [str(path)], (
-            "a run with Toxoplasma off drew no volcano at all, which is the "
-            "sixteen-diagnostics-and-not-the-figure silence this exists for")
-
-    def test_it_still_announces_where_the_file_went(self, tmp_path,
-                                                    monkeypatch, capsys):
-        """Every other artefact says where it went; the volcano used not to,
-        which made 'drew one' and 'drew none' indistinguishable."""
-        import spacr.plot
-
-        path = tmp_path / "regression_volcano_plot.pdf"
-
-        def draw(*_args, **kwargs):
-            with open(kwargs["save_path"], "w", encoding="utf-8") as handle:
-                handle.write("pdf")
-
-        monkeypatch.setattr(spacr.plot, "volcano_plot", draw)
-        self._run(self._the_fallback_block(), toxo=False, volcano_path=path)
-
-        assert f"Saved volcano plot to {path}" in capsys.readouterr().out
-
-    def test_a_drawing_failure_does_not_sink_the_run(self, tmp_path,
-                                                     monkeypatch, capsys):
-        """The regression is complete and written by this point, so a figure
-        that will not draw must be reported and stepped over -- not allowed
-        to take the finished run down with it.
-
-        Not raising IS the assertion; the printed line is what keeps the
-        failure from being silent.
-        """
-        import spacr.plot
-
-        def explode(*_args, **_kwargs):
-            raise ValueError("no q_value column to plot")
-
-        monkeypatch.setattr(spacr.plot, "volcano_plot", explode)
-        self._run(self._the_fallback_block(), toxo=False,
-                  volcano_path=tmp_path / "regression_volcano_plot.pdf")
-
-        printed = capsys.readouterr().out
-        assert "Could not draw the volcano plot" in printed
-        assert "ValueError" in printed
+    printed = capsys.readouterr().out
+    assert [w for w in said if w in printed] == said
+    assert [w for w in not_said if w in printed] == []
+    assert (len(toxo_stubs["volcano"]) == 1) is toxo
 
 
 class TestASettingThatCannotDoAnythingIsGreyedOut:
