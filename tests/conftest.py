@@ -3178,6 +3178,84 @@ def hf_toxo_mito_field(tmp_path_factory):
     }
 
 
+def _ops_e2e_tier(tier: str) -> Path:
+    """The unpacked OPS end-to-end test data of one tier, fetched once.
+
+    The core tier is the ``ops_e2e`` example set; the full tier is the opt-in
+    :data:`spacr.example_archives.OPS_E2E_FULL_ARCHIVE`. Both come from the
+    pinned revision and are refused when their SHA-256 differs. A tier already
+    unpacked in the example cache is used without any request, so the tests
+    run offline once it is there. Only an unreachable network or a server
+    error skips; a checksum mismatch, a missing file or a spaCR error fails.
+    Workers of one ``-n`` run take a file lock, so the archive is fetched once.
+
+    :param tier: ``'core'`` or ``'full'``.
+    :returns: the tier root, ``.../ops_testdata_funk2022_A1``.
+    """
+    from spacr import example_archives as ea
+
+    core = ea.example_set_folder("ops_e2e")
+    if tier == "core":
+        folder = core
+        archive = ea.EXAMPLE_ARCHIVES[ea.OPS_E2E_EXAMPLE_REPO]
+    else:
+        folder = core.parent / ea.OPS_E2E_FULL_FOLDER
+        archive = ea.OPS_E2E_FULL_ARCHIVE
+    present = ea.example_set("ops_e2e").is_present
+    root = folder / "ops_testdata_funk2022_A1"
+    if present(folder):
+        return root
+    from tests.resource_capabilities import endpoint_available
+    if not endpoint_available():
+        pytest.skip("network / huggingface.co unreachable and the OPS "
+                    f"end-to-end {tier} tier is not cached")
+    requests = pytest.importorskip("requests")
+    folder.parent.mkdir(parents=True, exist_ok=True)
+    lock = open(folder.parent / f".{folder.name}.lock", "w")
+    try:
+        try:
+            import fcntl
+            fcntl.flock(lock, fcntl.LOCK_EX)
+        except ImportError:
+            pass
+        if not present(folder):
+            folder.mkdir(parents=True, exist_ok=True)
+            try:
+                tar = ea.download_archive(ea.OPS_E2E_EXAMPLE_REPO, archive,
+                                          folder, chunk_size=1 << 20)
+            except (requests.exceptions.ConnectionError,
+                    requests.exceptions.Timeout) as exc:
+                pytest.skip(f"huggingface.co unreachable: {exc}")
+            except requests.exceptions.HTTPError as exc:
+                status = getattr(exc.response, "status_code", 0) or 0
+                if status >= 500:
+                    pytest.skip(f"huggingface.co server error {status}")
+                raise
+            ea.extract_example_archive(tar, folder)
+            Path(tar).unlink(missing_ok=True)
+    finally:
+        lock.close()
+    assert present(folder), f"{archive} unpacked without its markers"
+    return root
+
+
+@pytest.fixture(scope="session")
+def ops_e2e_core():
+    """The OPS end-to-end test data, core tier (about 194 MB, cached)."""
+    return _ops_e2e_tier("core")
+
+
+@pytest.fixture(scope="session")
+def ops_e2e_full():
+    """The OPS end-to-end test data, full tier (1.25 GB, cached).
+
+    Opt-in: skips unless ``SPACR_OPS_E2E_FULL=1``, and never runs in CI.
+    """
+    if os.environ.get("SPACR_OPS_E2E_FULL") != "1":
+        pytest.skip("set SPACR_OPS_E2E_FULL=1 to fetch and test the full tier")
+    return _ops_e2e_tier("full")
+
+
 @pytest.fixture(scope="session")
 def spacr_pipeline_run(tmp_path_factory, hf_toxo_mito_multi_fields):
     """
