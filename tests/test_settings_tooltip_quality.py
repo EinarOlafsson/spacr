@@ -1475,6 +1475,15 @@ if app_key == "mask":
     for app, key in profiling_arrivals:
         assert resolve_default_settings(app)[key] == profiling_defaults[key]
     recognized_arrivals |= profiling_arrivals
+    # Item 933 (2026-11-13): the fifteen alpha settings of the nuclear-median
+    # illumination estimator arrive wherever the illumination keys are shown.
+    from spacr.illumination import NUCLEAR_SETTINGS_DEFAULTS
+    nuclear_arrivals = {pair for pair in compared_pairs
+                        if pair[1] in NUCLEAR_SETTINGS_DEFAULTS} - set(variants.keys())
+    assert nuclear_arrivals and not nuclear_arrivals & recognized_arrivals
+    for app, key in nuclear_arrivals:
+        assert resolve_default_settings(app)[key] == NUCLEAR_SETTINGS_DEFAULTS[key]
+    recognized_arrivals |= nuclear_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
@@ -1711,14 +1720,19 @@ def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
     # concentration_column, concentration_unit, vehicle_control,
     # replicate_column) are greyed unless screen_type is 'drug_screen',
     # and every reason names screen_type.
-    assert len(witnessed) == 87
+    # 87 -> 132 on 2026-11-13, item 933: the fifteen nuclear-median
+    # illumination settings are greyed unless illumination correction is on
+    # and illumination_estimator is 'nuclear_median', in Make Masks, Measure
+    # and External Masks, and every reason names both.
+    assert len(witnessed) == 132
     # 35 -> 34 with it: `load_path_regex` was witnessed in exactly one app,
     # so the pair count and the distinct-key count fall by one together.
     # 34 -> 35 with it: bleach_correction is one new distinct key.
     # 35 -> 48 with item 595: thirteen new distinct keys.
     # 48 -> 49 with item 583: one new distinct key.
     # 49 -> 57 with them: eight new distinct keys, one app.
-    assert len({key for _app, key in witnessed}) == 57
+    # 57 -> 72 with item 933: fifteen new distinct keys.
+    assert len({key for _app, key in witnessed}) == 72
     assert not failures
 
 

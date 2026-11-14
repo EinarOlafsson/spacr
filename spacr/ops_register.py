@@ -369,9 +369,35 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
     peak_y, peak_x = np.unravel_index(flat, surface.shape)
     height = float(surface.flat[flat])
     mean = float(np.abs(surface).mean())
-    ratio = height / mean if mean > 0 else 0.0
+    return _read_peak(int(peak_y), int(peak_x), height, mean, first.shape,
+                      expected=expected, tolerance=tolerance,
+                      min_peak_ratio=min_peak_ratio, backend=used)
 
-    height_px, width_px = first.shape
+
+def _read_peak(peak_y: int, peak_x: int, height: float, mean: float,
+               shape: Tuple[int, int], *, expected: Tuple[int, int] = (0, 0),
+               tolerance=None, min_peak_ratio: float = MIN_PEAK_RATIO,
+               backend: str = "numpy") -> Registration:
+    """Turn a correlation surface's peak into a :class:`Registration`.
+
+    :func:`phase_correlate` and the batched cycle registration of
+    :mod:`spacr.ops_cycles` (item 932) read their surfaces through this one
+    function, so a shift is unwrapped and accepted by the same rule however
+    the surface was computed.
+
+    :param peak_y: the row of the surface's largest value.
+    :param peak_x: its column.
+    :param height: that largest value.
+    :param mean: the mean absolute value of the surface.
+    :param shape: the surface's ``(rows, columns)``.
+    :param expected: as :func:`phase_correlate`.
+    :param tolerance: as :func:`phase_correlate`.
+    :param min_peak_ratio: as :func:`phase_correlate`.
+    :param backend: the name recorded on the result.
+    :returns: the registration, accepted or not.
+    """
+    ratio = height / mean if mean > 0 else 0.0
+    height_px, width_px = shape
     dy = unwrap(peak_y, height_px, expected[0])
     dx = unwrap(peak_x, width_px, expected[1])
     if expected == (0, 0):
@@ -396,7 +422,7 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
     else:
         accepted = ratio >= min_peak_ratio and not at_origin
     return Registration(dy=dy, dx=dx, peak_ratio=ratio, accepted=accepted,
-                        backend=used)
+                        backend=backend)
 
 
 def register_edge(first: np.ndarray, second: np.ndarray, axis: str, *,

@@ -44,6 +44,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cell_rule": "mapped",
     "ops_crosstalk": "argmax_median",
     "ops_channel_registration": "spots",
+    "ops_registration_precision": "float32",
+    "ops_registration_backend": "gpu",
+    "ops_field_diagnostics": False,
     "ops_read_mismatches": 0,
     "ops_min_reads": None,
     "ops_min_fraction": 0.6,
@@ -70,7 +73,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_pool_interphase": False,
     "ops_feature_qc": True,
     "ops_ownership": "closer_match",
-    "ops_align_model": "similarity",
+    "ops_align_model": "tile_affine",
     "ops_align_tile_min_nuclei": 200,
     "ops_align_match_radius": 3.0,
     "ops_align_trim_passes": 3,
@@ -412,6 +415,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cell_rule": str,
     "ops_crosstalk": str,
     "ops_channel_registration": str,
+    "ops_registration_precision": str,
+    "ops_registration_backend": str,
+    "ops_field_diagnostics": bool,
     "ops_read_mismatches": int,
     "ops_min_reads": (int, type(None)),
     "ops_min_fraction": (float, int),
@@ -777,6 +783,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
         "ops_store_reads", "ops_spot_detector", "ops_channel_registration",
+        "ops_registration_precision", "ops_registration_backend",
+        "ops_field_diagnostics",
         "ops_crosstalk",
         "ops_cell_rule",
         "ops_read_mismatches", "ops_min_reads", "ops_min_fraction",
@@ -1103,6 +1111,26 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "a believed spot answer within ops_registration_refine_px of the "
         "background answer, correcting small residual shifts. Default "
         "'spots'.",
+    "ops_registration_precision":
+        "(str) - The precision of the Fourier transforms that register the "
+        "sequencing channels and cycles. 'float32' takes about half the "
+        "time of 'float64' and, on 443 fields of the Funk et al. 2022 "
+        "plates, gave the same shifts, reads and calls; 'float64' is the "
+        "arithmetic used before, kept for an exact rerun of older results. "
+        "Default 'float32'.",
+    "ops_registration_backend":
+        "(str) - Where those transforms run. 'gpu' batches each cycle's "
+        "transforms on a CUDA card, with the same shifts and calls as "
+        "'cpu' and about a third less time per field, and uses the CPU "
+        "when there is no card, when ops_gpu is off, or when the decode "
+        "runs in several workers (n_workers above 1). 'cpu' never uses the "
+        "card. Default 'gpu'.",
+    "ops_field_diagnostics":
+        "(bool) - Also write each sequencing field's diagnostics to "
+        "<well>/decode_diagnostics/: intensity percentiles and focus per "
+        "cycle, DAPI focus, the spot filter's 99.9th percentile and every "
+        "registration's shift and peak. No decode result reads them; they "
+        "cost about a fifth of the field step. Default False.",
     "ops_crosstalk":
         "(str) - How the base caller undoes dye bleed-through between the "
         "four channels, after each cycle is put on a common scale. "
@@ -1518,26 +1546,29 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "ph_masks phase. Default 'closer_match'. Alpha.",
     "ops_align_model":
         "(str) - How the merge phase aligns each phenotype field to the "
-        "sequencing nuclei. 'similarity' re-solves one scale, rotation and "
-        "shift per field, as before. 'tile_affine' then fits one affine per "
-        "field and one per sequencing tile the field covers, and moves each "
-        "nucleus with its tile's affine; on Funk et al. 2022 plates A-D it "
-        "put 97.0-97.5 % of nuclei within 2 px of their sequencing nucleus "
-        "instead of 94.7-95.8 %, at about 0.017 s per field on one CPU "
-        "core. Default 'similarity'. Alpha.",
+        "sequencing nuclei. 'tile_affine' re-solves one scale, rotation and "
+        "shift per field, then fits one affine per field and one per "
+        "sequencing tile the field covers, and moves each nucleus with its "
+        "tile's affine; it needs the tile positions of the 'stitch' phase. "
+        "On Funk "
+        "et al. 2022 plates A-D it put 97.0-97.5 % of nuclei within 2 px of "
+        "their sequencing nucleus instead of 94.7-95.8 %, at about 0.017 s "
+        "per field on one CPU core. 'similarity' stops after the first "
+        "step, the default before spaCR 1.5.1.8; settings files saved "
+        "before then keep it. Default 'tile_affine'.",
     "ops_align_tile_min_nuclei":
         "(int) - The fewest phenotype nuclei a field must have in one "
         "sequencing tile for that tile to get its own affine; fewer keep "
         "the field's affine. Used with ops_align_model 'tile_affine'. "
-        "Default 200. Alpha.",
+        "Default 200.",
     "ops_align_match_radius":
         "(float) - How close, in sequencing pixels, a moved phenotype "
         "nucleus and a sequencing nucleus must be to pair while the "
-        "'tile_affine' model is fitted. Default 3. Alpha.",
+        "'tile_affine' model is fitted. Default 3.",
     "ops_align_trim_passes":
         "(int) - How many times the 'tile_affine' model pairs the nuclei, "
         "drops pairs further apart than 3 x their median (at least 0.5 px) "
-        "and re-fits. Default 3. Alpha.",
+        "and re-fits. Default 3.",
     "ops_merge_threshold":
         "(float) - How far, in sequencing pixels, a phenotype nucleus may "
         "land from a sequencing nucleus after alignment and still be called "

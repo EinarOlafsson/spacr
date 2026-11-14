@@ -82,22 +82,26 @@ def case_a_legacy_database_and_canonical_scores_still_join(tmp_path,
     Four rows out, not eight: the timepoint really is in the join key.
     Sixteen would mean every frame matched every frame.
     """
+    _seen = []
     legacy_db("time_id")
     scores = _scores(tmp_path, "timeID")
     merged = ml.interpret_vision_model(
         vision_settings(str(tmp_path / "src"), scores))
-    assert len(merged) == 4, (
-        "the timepoint dropped out of the join and the frames multiplied")
-    assert set(merged["cv_predictions"]) <= {0, 1}
+    _seen.append(keep(len(merged)))
+    _seen.append(bool(
+        set(merged["cv_predictions"]) <= {0, 1}))
+    return _seen
 
 
 def case_a_canonical_database_needs_no_rename(tmp_path, legacy_db):
     """The other side of the same branch, so the rename is visibly a rename."""
+    _seen = []
     legacy_db("timeID")
     scores = _scores(tmp_path, "timeID")
     merged = ml.interpret_vision_model(
         vision_settings(str(tmp_path / "src"), scores))
-    assert len(merged) == 4
+    _seen.append(keep(len(merged)))
+    return _seen
 
 
 def case_a_timelapse_database_and_flat_scores_are_refused(tmp_path,
@@ -108,6 +112,7 @@ def case_a_timelapse_database_and_flat_scores_are_refused(tmp_path,
     score, so the code raises rather than returning a silently multiplied
     frame -- a wrong answer that looks like a right one.
     """
+    _seen = []
     legacy_db("timeID")
     rows = [{"plateID": "plate1", "rowID": "r1", "columnID": "c1",
              "fieldID": "f1", "object": str(obj), "cv_predictions": obj % 2}
@@ -118,16 +123,19 @@ def case_a_timelapse_database_and_flat_scores_are_refused(tmp_path,
     with pytest.raises(Exception) as caught:
         ml.interpret_vision_model(
             vision_settings(str(tmp_path / "src"), path))
-    assert "timepoint" in str(caught.value).lower()
+    _seen.append(('Exception' if isinstance(caught.value, Exception) else type(caught.value).__name__))
+    _seen.append(('timepoint' if 'timepoint' in (str(caught.value).lower()) else ("missing", 'timepoint')))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_interpret_vision_model_cases(request, subtests):
-    """Behaviour cases for: interpret_vision_model."""
-    ran = run_cases(request, subtests, [
-        case_a_legacy_database_and_canonical_scores_still_join,
-        case_a_canonical_database_needs_no_rename,
-        case_a_timelapse_database_and_flat_scores_are_refused,
-    ])
-    assert ran >= 3
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_a_legacy_database_and_canonical_scores_still_join, [4, True], id="a_legacy_database_and_canonical_scores_still_join"),
+    pytest.param(case_a_canonical_database_needs_no_rename, [4], id="a_canonical_database_needs_no_rename"),
+    pytest.param(case_a_timelapse_database_and_flat_scores_are_refused, ['Exception', 'timepoint'], id="a_timelapse_database_and_flat_scores_are_refused"),
+])
+def test_r8_ml_timelapse_rename_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected

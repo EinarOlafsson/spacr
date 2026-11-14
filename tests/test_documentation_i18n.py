@@ -3830,7 +3830,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("871_911_bmc_paper_items_api_arrivals_2026-11-09.json", 171),
         ("884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json", 376),
         ("912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json", 54),
-        ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 106),
+        ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 107),
         ("annotate_jump_api_arrivals_2026-11-11.json", 4),
         ("issue_186_png_list_annotations_api_arrivals_2026-11-11.json", 3),
         ("gate_editor_png_list_annotations_api_arrivals_2026-11-12.json", 1),
@@ -3839,6 +3839,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("910_899_paper_remaining_api_arrivals_2026-11-12.json", 3),
         ("928_929_ops_consensus_bench_api_arrivals_2026-11-12.json", 22),
         ("930_ops_tile_affine_api_arrivals_2026-11-13.json", 4),
+        ("933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json", 6),
+        ("938_run_progress_api_arrivals_2026-11-13.json", 20),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

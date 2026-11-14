@@ -344,7 +344,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
             "spacr.gene_class_images.MemmapCrops.__len__",
             "spacr.gene_class_images.OpsCropDataset.__getitem__",
             "spacr.gene_class_images.OpsCropDataset.__len__"} <= dunders
-    assert len(dunders) == 226
+    # 226 -> 227 on 2026-11-13: run_progress.ProgressSample.__repr__ (item
+    # 938), the readable form of one parsed progress line.
+    assert "spacr.qt.run_progress.ProgressSample.__repr__" in dunders
+    assert len(dunders) == 227
+    # The historical digest below is checked on the surface without it.
+    dunders = dunders - {"spacr.qt.run_progress.ProgressSample.__repr__"}
     # It is counted here and left out of the historical fingerprints below,
     # which it would otherwise move.
     dunders = dunders - {"spacr.layers.VolumeLens.__post_init__"}
@@ -2289,7 +2294,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **paper_item_3_arrivals}
     paper_item_4_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json").read_text(encoding="utf-8"))
-    assert len(paper_item_4_arrivals) == 106
+    assert len(paper_item_4_arrivals) == 107
     assert {key: docs[key] for key in paper_item_4_arrivals} == paper_item_4_arrivals
     assert not paper_item_4_arrivals.keys() & (
         zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
@@ -2368,6 +2373,24 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **tile_affine_arrivals}
+    nuclear_flatfield_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(nuclear_flatfield_arrivals) == 6
+    assert {key: docs[key] for key in nuclear_flatfield_arrivals} == nuclear_flatfield_arrivals
+    assert not nuclear_flatfield_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **nuclear_flatfield_arrivals}
+    run_progress_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "938_run_progress_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(run_progress_arrivals) == 20
+    assert {key: docs[key] for key in run_progress_arrivals} == run_progress_arrivals
+    assert not run_progress_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **run_progress_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

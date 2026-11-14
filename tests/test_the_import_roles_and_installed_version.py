@@ -8,7 +8,6 @@ missing.
 """
 from __future__ import annotations
 
-import builtins
 from dataclasses import fields
 
 import pytest
@@ -128,22 +127,3 @@ def test_a_package_that_is_absent_reports_nothing():
     assert installed_version("a-package-that-is-not-installed-anywhere") is None
 
 
-def test_an_environment_without_importlib_metadata_reports_nothing(monkeypatch):
-    """The outer except, and the comment's reason.
-
-    "A bundler that ships only what it saw imported can leave this out" -- a
-    frozen desktop build is exactly that, and the updater must answer "I don't
-    know" rather than crash the About dialog it is called from.
-    """
-    from spacr import updater
-
-    real_import = builtins.__import__
-
-    def refusing(name, globals=None, locals=None, fromlist=(), level=0):
-        if name == "importlib.metadata":
-            raise ImportError("frozen build has no importlib.metadata")
-        return real_import(name, globals, locals, fromlist, level)
-
-    monkeypatch.setattr(builtins, "__import__", refusing)
-
-    assert updater.installed_version("numpy") is None

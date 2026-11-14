@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-13 11:37-0500\n"
+"POT-Creation-Date: 2026-11-13 18:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
@@ -96,12 +96,20 @@ msgid "A file written before a release changed a default does not hold the chang
 msgstr "Un archivo escrito antes de que una versión cambiara un valor predeterminado no contiene la clave modificada, así que se ejecutaría con el nuevo valor predeterminado. Cuando ``spacr-run``, ``spacr repro``, la cola de lotes o Importar ajustes leen un archivo de ajustes, cada clave cuyo valor predeterminado cambió después de la versión del archivo, y que el archivo no establece, recibe el valor predeterminado que tenía entonces. Un archivo sin ``spacr_settings_version``, como uno escrito a mano, se lee como la versión más antigua, y el registro nombra cada valor predeterminado antiguo que se le asignó. Una clave que el archivo establece siempre prevalece. Para usar los valores predeterminados actuales, establezca esas claves o añada al archivo el ``spacr_settings_version`` actual."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
-msgstr "Los cambios se guardan en una sola tabla, ``DEFAULT_CHANGES`` en ``spacr/settings.py``, indexada por el número del elemento que cambió el valor predeterminado:"
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default. A key is always above every earlier one, so an item that changes a default after a higher-numbered item takes the next free number:"
+msgstr "Los cambios se guardan en una sola tabla, ``DEFAULT_CHANGES`` en ``spacr/settings.py``, indexada por el número del elemento que cambió el valor predeterminado. Una clave siempre es mayor que todas las anteriores, por lo que un elemento que cambia un valor predeterminado después de un elemento con un número mayor toma el siguiente número libre:"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
 msgstr "931: ``ops_compose_blend`` era ``'average'``; ahora es ``'feather'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "932: ``ops_registration_precision`` was ``'float64'`` and ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and ``'gpu'``."
+msgstr "932: ``ops_registration_precision`` era ``'float64'`` y ``ops_registration_backend`` ``'cpu'``; ahora son ``'float32'`` y ``'gpu'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
+msgstr "933 (el cambio de valor predeterminado del elemento 930): ``ops_align_model`` era ``'similarity'``; ahora es ``'tile_affine'``."
 
 msgid "Public API"
 msgstr "API pública"
