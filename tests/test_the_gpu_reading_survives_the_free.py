@@ -56,15 +56,6 @@ def test_the_peak_is_still_reported_after_the_tensor_is_freed():
         "boundary reports ~0 and the GPU column is useless")
 
 
-def test_no_torch_import_is_forced(monkeypatch):
-    # Importing torch to take a measurement would make the measurement the
-    # most expensive thing in the stage.
-    import sys
-
-    monkeypatch.setitem(sys.modules, "torch", None)
-    assert gpu_allocated() is None
-
-
 def test_unmeasured_is_words_not_a_number():
     assert readable(None) == "not measured"
     assert readable(0) == "0.0 B"

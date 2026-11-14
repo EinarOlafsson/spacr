@@ -31,18 +31,21 @@ class TestTheGateWhenTracingHasNotBeenImported:
 
     def case_an_unset_environment_variable_keeps_it_out(self):
         """The point of the gate: no import, no cost, no tracing."""
-        assert ml._flowview_event("begin", {}, "classify") is False
-        assert "spacr.flowview.trace" not in sys.modules
+        _seen = []
+        _seen.append(bool(
+            ml._flowview_event("begin", {}, "classify") is False))
+        _seen.append((("absent", 'spacr.flowview.trace') if 'spacr.flowview.trace' not in (sys.modules) else ("present", 'spacr.flowview.trace')))
+        return _seen
 
     @pytest.mark.parametrize("value", ["", "0", "off", "false", "no",
                                        "maybe", "  "])
-    def case_a_value_that_is_not_a_yes_keeps_it_out(self, monkeypatch, value):
+    def test_a_value_that_is_not_a_yes_keeps_it_out(self, monkeypatch, value):
         monkeypatch.setenv("SPACR_FLOWVIEW", value)
         assert ml._flowview_event("begin", {}, "classify") is False
 
     @pytest.mark.parametrize("value", ["1", "on", "true", "yes",
                                        "TRUE", " Yes "])
-    def case_a_yes_is_read_whatever_its_case_or_spacing(self, monkeypatch,
+    def test_a_yes_is_read_whatever_its_case_or_spacing(self, monkeypatch,
                                                         value):
         """The env value is stripped and case-folded before it is judged.
 
@@ -54,6 +57,7 @@ class TestTheGateWhenTracingHasNotBeenImported:
 
     def case_an_import_that_fails_is_answered_no(self, monkeypatch):
         """FlowView is an optional extra; not having it is not an error."""
+        _seen = []
         import builtins
 
         monkeypatch.setenv("SPACR_FLOWVIEW", "1")
@@ -65,25 +69,31 @@ class TestTheGateWhenTracingHasNotBeenImported:
             return real_import(name, globals, locals, fromlist, level)
 
         monkeypatch.setattr(builtins, "__import__", refuse)
-        assert ml._flowview_event("begin", {}, "classify") is False
+        _seen.append(bool(
+            ml._flowview_event("begin", {}, "classify") is False))
+        return _seen
 
 
 class TestTheGateWhenTracingIsThereButUnusable:
 
     def case_a_module_that_says_it_is_disabled_is_answered_no(self,
                                                               monkeypatch):
+        _seen = []
         import types
 
         module = types.ModuleType("spacr.flowview.trace")
         module.is_enabled = lambda: False
         monkeypatch.setitem(sys.modules, "spacr.flowview.trace", module)
-        assert ml._flowview_event("begin", {}, "classify") is False
+        _seen.append(bool(
+            ml._flowview_event("begin", {}, "classify") is False))
+        return _seen
 
     def case_a_module_that_raises_when_asked_is_answered_no(self,
                                                             monkeypatch):
         """`except BaseException` -- the outer guard, and it is broad
         on purpose: a KeyboardInterrupt during a run must not be turned
         into a tracing exception either."""
+        _seen = []
         import types
 
         module = types.ModuleType("spacr.flowview.trace")
@@ -93,7 +103,9 @@ class TestTheGateWhenTracingIsThereButUnusable:
 
         module.is_enabled = explode
         monkeypatch.setitem(sys.modules, "spacr.flowview.trace", module)
-        assert ml._flowview_event("begin", {}, "classify") is False
+        _seen.append(bool(
+            ml._flowview_event("begin", {}, "classify") is False))
+        return _seen
 
     def case_an_unknown_action_is_answered_no_rather_than_raising(
             self, monkeypatch):
@@ -102,12 +114,15 @@ class TestTheGateWhenTracingIsThereButUnusable:
         One that is not there must read as "not traced", not as an
         AttributeError out of a pipeline.
         """
+        _seen = []
         import types
 
         module = types.ModuleType("spacr.flowview.trace")
         module.is_enabled = lambda: True
         monkeypatch.setitem(sys.modules, "spacr.flowview.trace", module)
-        assert ml._flowview_event("no_such_action") is False
+        _seen.append(bool(
+            ml._flowview_event("no_such_action") is False))
+        return _seen
 
 
 class TestThePipelineDecorator:
@@ -120,6 +135,7 @@ class TestThePipelineDecorator:
         The scientific error is what the caller must see. Reporting is a
         side effect that happens on the way past.
         """
+        _seen = []
         events = []
 
         def fake_event(action, *args):
@@ -132,15 +148,18 @@ class TestThePipelineDecorator:
         def explodes(_settings):
             raise ValueError("the model did not converge")
 
-        with pytest.raises(ValueError, match="did not converge"):
+        with pytest.raises(ValueError, match="did not converge") as _exc1:
             explodes({"a": 1})
+        _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
 
-        assert [a for a, _ in events] == ["begin", "fail"]
-        assert isinstance(events[1][1][0], ValueError), (
-            "the scientific error was not the one reported")
+        _seen.append(keep([a for a, _ in events]))
+        _seen.append(bool(
+            isinstance(events[1][1][0], ValueError)))
+        return _seen
 
     def case_a_failure_while_inactive_reports_nothing(self, monkeypatch):
         """If the graph never began there is nothing to fail."""
+        _seen = []
         events = []
         monkeypatch.setattr(
             ml, "_flowview_event",
@@ -150,12 +169,15 @@ class TestThePipelineDecorator:
         def explodes(_settings):
             raise ValueError("boom")
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as _exc1:
             explodes({})
-        assert events == ["begin"], "it reported a failure it never began"
+        _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+        _seen.append(keep(events))
+        return _seen
 
     def case_a_successful_function_returns_its_own_result(self,
                                                           monkeypatch):
+        _seen = []
         events = []
 
         def fake_event(action, *args):
@@ -168,11 +190,13 @@ class TestThePipelineDecorator:
         def works(_settings):
             return {"score": 0.9}
 
-        assert works({}) == {"score": 0.9}
-        assert events == ["begin", "finish"]
+        _seen.append(keep(works({})))
+        _seen.append(keep(events))
+        return _seen
 
     def case_the_settings_are_read_from_a_keyword_too(self, monkeypatch):
         """`args[0] if args else kwargs.get("settings")` -- callers use both."""
+        _seen = []
         seen = []
 
         def fake_event(action, *args):
@@ -187,24 +211,24 @@ class TestThePipelineDecorator:
             return settings
 
         works(settings={"from": "keyword"})
-        assert seen == [{"from": "keyword"}]
+        _seen.append(keep(seen))
+        return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_flowview_event_cases(request, subtests):
-    """Behaviour cases for: _flowview_event, _flowview_pipeline."""
-    ran = run_cases(request, subtests, [
-        (TestTheGateWhenTracingHasNotBeenImported, 'case_an_unset_environment_variable_keeps_it_out'),
-        (TestTheGateWhenTracingHasNotBeenImported, 'case_a_value_that_is_not_a_yes_keeps_it_out'),
-        (TestTheGateWhenTracingHasNotBeenImported, 'case_a_yes_is_read_whatever_its_case_or_spacing'),
-        (TestTheGateWhenTracingHasNotBeenImported, 'case_an_import_that_fails_is_answered_no'),
-        (TestTheGateWhenTracingIsThereButUnusable, 'case_a_module_that_says_it_is_disabled_is_answered_no'),
-        (TestTheGateWhenTracingIsThereButUnusable, 'case_a_module_that_raises_when_asked_is_answered_no'),
-        (TestTheGateWhenTracingIsThereButUnusable, 'case_an_unknown_action_is_answered_no_rather_than_raising'),
-        (TestThePipelineDecorator, 'case_a_failing_function_reports_the_failure_and_re_raises'),
-        (TestThePipelineDecorator, 'case_a_failure_while_inactive_reports_nothing'),
-        (TestThePipelineDecorator, 'case_a_successful_function_returns_its_own_result'),
-        (TestThePipelineDecorator, 'case_the_settings_are_read_from_a_keyword_too'),
-    ])
-    assert ran >= 11
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param((TestTheGateWhenTracingHasNotBeenImported, 'case_an_unset_environment_variable_keeps_it_out'), [True, ("absent", 'spacr.flowview.trace')], id="an_unset_environment_variable_keeps_it_out"),
+    pytest.param((TestTheGateWhenTracingHasNotBeenImported, 'case_an_import_that_fails_is_answered_no'), [True], id="an_import_that_fails_is_answered_no"),
+    pytest.param((TestTheGateWhenTracingIsThereButUnusable, 'case_a_module_that_says_it_is_disabled_is_answered_no'), [True], id="a_module_that_says_it_is_disabled_is_answered_no"),
+    pytest.param((TestTheGateWhenTracingIsThereButUnusable, 'case_a_module_that_raises_when_asked_is_answered_no'), [True], id="a_module_that_raises_when_asked_is_answered_no"),
+    pytest.param((TestTheGateWhenTracingIsThereButUnusable, 'case_an_unknown_action_is_answered_no_rather_than_raising'), [True], id="an_unknown_action_is_answered_no_rather_than_raising"),
+    pytest.param((TestThePipelineDecorator, 'case_a_failing_function_reports_the_failure_and_re_raises'), ['ValueError', ['begin', 'fail'], True], id="a_failing_function_reports_the_failure_and_re_raises"),
+    pytest.param((TestThePipelineDecorator, 'case_a_failure_while_inactive_reports_nothing'), ['ValueError', ['begin']], id="a_failure_while_inactive_reports_nothing"),
+    pytest.param((TestThePipelineDecorator, 'case_a_successful_function_returns_its_own_result'), [{'score': 0.9}, ['begin', 'finish']], id="a_successful_function_returns_its_own_result"),
+    pytest.param((TestThePipelineDecorator, 'case_the_settings_are_read_from_a_keyword_too'), [[{'from': 'keyword'}]], id="the_settings_are_read_from_a_keyword_too"),
+])
+def test_r8_ml_flowview_gate_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected
