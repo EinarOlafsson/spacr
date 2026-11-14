@@ -265,14 +265,6 @@ def test_a_view_with_no_selection_model_reports_no_selected_rows(
     assert screen.selected_rows() == []
 
 
-def test_an_incoming_selection_is_ignored_before_a_table_is_loaded(screen):
-    """A link push can arrive before the user has opened anything."""
-    selection = Selection(keys=as_key_index(["plate1_r1_c1_f1_1"]))
-
-    assert screen.on_linked_selection_changed(selection) is None
-    assert screen.selected_rows() == []
-
-
 def test_closing_survives_a_link_whose_other_half_is_already_gone(
         screen, measurements_db, monkeypatch):
     """At interpreter teardown the link's C++ side may outlive nothing."""

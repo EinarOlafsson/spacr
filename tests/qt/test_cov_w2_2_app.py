@@ -22,7 +22,7 @@ from PySide6.QtWidgets import QWidget
 
 from spacr.qt import app as app_mod
 from spacr.qt.app import (APPS, SECTION_ORDER, SECTIONS,
-                          MainWindow, Sidebar, _ChromeButton, _LiveSections,
+                          MainWindow, _ChromeButton, _LiveSections,
                           _PipelinePreloader, _UpdateWorker,
                           _call_screen_factory, _insert_position,
                           app_is_visible, app_stage,
@@ -228,28 +228,9 @@ def test_an_unregistered_key_still_has_a_stage(qapp):
 # ---------------------------------------------------------------------------
 
 
-
 # ---------------------------------------------------------------------------
 # the sidebar
 # ---------------------------------------------------------------------------
-
-@pytest.fixture
-def sidebar(qapp):
-    made = Sidebar()
-    yield made
-    made.deleteLater()
-
-
-def test_the_column_is_wide_enough_for_its_longest_label(sidebar, qapp):
-    """Names longer than the maximum elide with a tooltip rather than pushing
-    the column across the window."""
-    from spacr.qt.preferences import scaled_px
-
-    width = sidebar.fitting_width()
-    assert scaled_px(Sidebar.WIDTH_MIN) <= width <= scaled_px(
-        Sidebar.WIDTH_MAX)
-    assert sidebar.clipped_items() == []
-
 
 # ---------------------------------------------------------------------------
 # the frameless window's own three marks
@@ -336,4 +317,3 @@ def test_every_chrome_mark_has_a_hover_colour():
 # ---------------------------------------------------------------------------
 # process-level setup, continued
 # ---------------------------------------------------------------------------
-

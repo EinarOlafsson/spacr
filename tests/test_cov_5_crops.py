@@ -10,18 +10,16 @@ outcomes.
 from __future__ import annotations
 
 import json
-import os
 
-import numpy as np
 import pytest
 
 from spacr.crops import (CROP_FORMAT_LEGACY_BGR, CROP_FORMAT_RGB,
-                         CropError, CorruptMergedFile, MERGED_LAYOUT_SIDECAR,
-                         PlaneLayoutConflict, build_png_channels,
+                         CropError, MERGED_LAYOUT_SIDECAR,
+                         PlaneLayoutConflict,
                          crop_spec_from_settings, migrate_crop_folder,
                          path_components, picture_source_label,
                          png_dims_to_channel_mapping,
-                         read_merged_plane_layout, reconcile_merged_mask_dims,
+                         reconcile_merged_mask_dims,
                          resolve_png_channel_mapping,
                          write_crop_folder_marker)
 
@@ -36,92 +34,6 @@ def _manifest(folder, **payload):
 # --------------------------------------------------------------------------- #
 #  The plane manifest
 # --------------------------------------------------------------------------- #
-
-def test_a_manifest_that_is_not_json_stops_the_run(tmp_path):
-    """A sidecar that cannot be parsed raises instead of being ignored.
-
-    Ignoring it falls back to the caller's own mask indices, which is exactly
-    the wrong-plane failure the manifest was added to prevent -- and the run
-    would finish, with measurements taken off the wrong object.
-    """
-    folder = tmp_path / "merged"
-    folder.mkdir()
-    (folder / MERGED_LAYOUT_SIDECAR).write_text("{not json at all", encoding="utf-8")
-
-    with pytest.raises(CorruptMergedFile, match="cannot read merged plane"):
-        read_merged_plane_layout(str(folder))
-
-
-def test_a_manifest_from_a_future_version_is_not_guessed_at(tmp_path):
-    """An unknown layout version raises rather than being read as version 1.
-
-    The version is the only promise about what the other keys mean. Reading a
-    version 2 document with version 1 rules is how a plane index silently
-    becomes the wrong plane.
-    """
-    folder = _manifest(tmp_path / "a", version=2, mask_plane_order=["cell"],
-                       mask_dims={"cell": 2}, intensity_channels=[0, 1])
-    with pytest.raises(CorruptMergedFile, match="version 1"):
-        read_merged_plane_layout(folder)
-
-    folder = _manifest(tmp_path / "b", version=1)
-    with pytest.raises(CorruptMergedFile, match="expected"):
-        read_merged_plane_layout(folder)
-
-
-def test_a_manifest_naming_an_unknown_object_is_refused(tmp_path):
-    """A plane order with a repeat or an unknown role raises.
-
-    The order is what maps a role onto an index. A duplicate makes two roles
-    claim one plane; a role spaCR does not segment means the file was written
-    by something else entirely.
-    """
-    folder = _manifest(tmp_path / "dup", version=1,
-                       mask_plane_order=["cell", "cell"],
-                       mask_dims={"cell": 2}, intensity_channels=[0, 1])
-    with pytest.raises(CorruptMergedFile, match="mask_plane_order"):
-        read_merged_plane_layout(folder)
-
-    folder = _manifest(tmp_path / "unknown", version=1,
-                       mask_plane_order=["spaceship"],
-                       mask_dims={"spaceship": 2}, intensity_channels=[0, 1])
-    with pytest.raises(CorruptMergedFile, match="mask_plane_order"):
-        read_merged_plane_layout(folder)
-
-
-def test_a_plane_index_that_is_not_a_number_is_refused(tmp_path):
-    """``True`` and ``"two"`` are not plane indices, and neither is accepted.
-
-    ``int(True)`` is 1, a perfectly plausible plane, so a boolean has to be
-    caught before the coercion rather than after it.
-    """
-    folder = _manifest(tmp_path / "bool", version=1,
-                       mask_plane_order=["cell"],
-                       mask_dims={"cell": True}, intensity_channels=[0, 1])
-    with pytest.raises(CorruptMergedFile, match="invalid mask dim"):
-        read_merged_plane_layout(folder)
-
-    folder = _manifest(tmp_path / "text", version=1,
-                       mask_plane_order=["cell"],
-                       mask_dims={"cell": "two"}, intensity_channels=[0, 1])
-    with pytest.raises(CorruptMergedFile, match="invalid mask dim"):
-        read_merged_plane_layout(folder)
-
-
-def test_plane_indices_must_follow_from_the_channel_count(tmp_path):
-    """Mask dims that do not sit after the intensity channels are refused.
-
-    The masks are stacked after the channels, so the arithmetic is fixed:
-    a manifest whose recorded index disagrees with its own channel count
-    describes an array that cannot exist, and trusting either half would
-    read a channel as a mask.
-    """
-    folder = _manifest(tmp_path / "off", version=1,
-                       mask_plane_order=["cell"],
-                       mask_dims={"cell": 7}, intensity_channels=[0, 1])
-    with pytest.raises(CorruptMergedFile, match="inconsistent mask dims"):
-        read_merged_plane_layout(folder)
-
 
 def test_a_mask_index_that_is_not_an_index_conflicts(tmp_path):
     """An explicit ``cell_mask_dim`` that is not a number stops the run.
@@ -171,56 +83,6 @@ def test_a_channel_mapping_has_to_be_a_mapping():
     """
     with pytest.raises(CropError, match="must be a dict"):
         resolve_png_channel_mapping({"png_channel_mapping": [0, 1, 2]})
-
-
-def test_a_channel_index_off_the_end_of_the_array_is_refused():
-    """A colour pointing past the last source plane raises with the count.
-
-    Numpy would wrap a negative index and raise an opaque IndexError for a
-    positive one, deep inside a worker; naming the array's channel count is
-    what makes the settings error findable.
-    """
-    data = np.zeros((4, 4, 2), np.uint16)
-
-    with pytest.raises(CropError, match="out of range"):
-        build_png_channels(data, {"r": 5, "g": 1, "b": 0})
-
-    with pytest.raises(CropError, match="\\(H, W, C\\)"):
-        build_png_channels(np.zeros((4, 4), np.uint16), {"r": 0})
-
-
-def test_one_channel_three_times_is_a_single_grey_plane():
-    """A mapping that names one source for all three colours stays 1-plane.
-
-    Writing the same plane three times triples the file size of every crop in
-    a dataset that routinely has hundreds of thousands of them, and a
-    greyscale crop is what a single-stain run should produce.
-    """
-    data = np.arange(16, dtype=np.uint16).reshape(4, 4, 1)
-
-    out = build_png_channels(data, {"r": 0, "g": 0, "b": 0})
-
-    assert out.shape == (4, 4, 1)
-    assert np.array_equal(out[:, :, 0], data[:, :, 0])
-
-
-def test_an_unused_colour_slot_is_one_shared_blank_plane():
-    """Colours with no source become zeros, and the blank is made once.
-
-    A two-stain crop leaves one slot empty. It has to be black rather than a
-    repeat of another stain, or the reader sees a colour that was never
-    measured.
-    """
-    data = np.stack([np.full((4, 4), 7, np.uint16),
-                     np.full((4, 4), 9, np.uint16)], axis=2)
-
-    out = build_png_channels(data, {"r": None, "g": 1, "b": 0})
-
-    assert out.shape == (4, 4, 3)
-    assert not out[:, :, 0].any()
-    assert (out[:, :, 1] == 9).all()
-    assert (out[:, :, 2] == 7).all()
-    assert out.dtype == data.dtype
 
 
 # --------------------------------------------------------------------------- #

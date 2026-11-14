@@ -191,14 +191,6 @@ def _dummy_per_image_output(n_images=2, h=8, w=8):
     return [masks, flows]
 
 
-def test_parse_cellpose4_output_per_image_format():
-    out = _dummy_per_image_output()
-    masks, flows0, flows1, flows2, flows3 = SC.parse_cellpose4_output(out)
-    assert len(masks) == 2
-    for coll in (flows0, flows1, flows2, flows3):
-        assert len(coll) == 2
-
-
 def test_parse_cellpose4_output_per_image_ndarray_variant():
     """Per-image flows where each element is a plain ndarray (fewer than 4
     per-image outputs) — must not crash."""

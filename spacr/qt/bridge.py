@@ -612,6 +612,62 @@ def apply_worker_budget(
     return max(allocations, default=1)
 
 
+def _new_run_progress(app_key: str):
+    """A fresh :class:`spacr.qt.run_progress.RunProgress` for ``app_key``."""
+    from .run_progress import RunProgress
+    return RunProgress(app_key)
+
+
+def _observe_progress(handle, text: str) -> None:
+    """Feed every progress line in ``text`` to ``handle``'s run record.
+
+    ``handle.progress`` keeps the newest line's ``(done, total)``, as it did
+    before the run record existed.
+
+    :param handle: a run handle with ``progress`` and ``run_progress``.
+    :param text: what the worker printed.
+    """
+    from .run_progress import parse_progress
+    for sample in parse_progress(text):
+        handle.progress = (sample.done, sample.total)
+        handle.run_progress.observe(sample)
+
+
+def _fraction_or_tuple(fraction: Optional[float],
+                       progress: Optional[tuple]) -> Optional[float]:
+    """``fraction``, or ``done / total`` from ``progress`` when it is ``None``.
+
+    :param fraction: the run record's overall fraction, or ``None``.
+    :param progress: a ``(done, total)`` tuple, or ``None``.
+    :returns: a fraction in ``0..1``, or ``None`` when neither is known.
+    """
+    if fraction is not None:
+        return fraction
+    if not progress:
+        return None
+    done, total = progress
+    return None if total <= 0 else max(0.0, min(1.0, done / total))
+
+
+def _synced(handle):
+    """``handle``'s run record, its pause state matched to the run's gate.
+
+    Read whenever the record is asked, which the module bar and the Home
+    banner do every second, so a pause starts counting within that second.
+
+    :param handle: a run handle with ``run_progress`` and ``gate``.
+    :returns: the run record.
+    """
+    record = handle.run_progress
+    try:
+        gate = handle.gate
+    except AttributeError:
+        gate = None
+    if gate is not None:
+        record.sync_pause(gate.is_paused())
+    return record
+
+
 class RunHandle(QObject):
     """One in-flight job: what it is, how far along, and its pause gate.
 
@@ -651,6 +707,9 @@ class RunHandle(QObject):
         self.started_at = time.time()
         #: ``(done, total)`` from the last progress line, or ``None``.
         self.progress: Optional[tuple] = None
+        #: Overall fraction and time left across the run's stages, see
+        #: :class:`spacr.qt.run_progress.RunProgress`.
+        self.run_progress = _new_run_progress(self.app_key)
         #: Last non-blank line the job printed — what it is doing now.
         self.last_line = ""
         #: Whether a still-running instance of this job is a reason to
@@ -718,11 +777,21 @@ class RunHandle(QObject):
                 pass
 
     def fraction(self) -> Optional[float]:
-        """Completed fraction in ``0..1``, or ``None`` when unknown."""
-        if not self.progress:
-            return None
-        done, total = self.progress
-        return None if total <= 0 else max(0.0, min(1.0, done / total))
+        """Overall completed fraction in ``0..1``, or ``None`` when unknown.
+
+        Weighted across the module's declared stages and never lower than
+        an earlier answer; see :mod:`spacr.qt.run_progress`. A ``progress``
+        tuple set directly by its owner, as the batch queue does, is read
+        when no progress line has been seen.
+        """
+        return _fraction_or_tuple(_synced(self).fraction(), self.progress)
+
+    def seconds_left(self) -> Optional[float]:
+        """Estimated seconds until the run ends, or ``None`` while unknown.
+
+        Time spent paused at the run's gate does not count toward the rate.
+        """
+        return _synced(self).seconds_left()
 
     def retire(self) -> None:
         """The job's thread has stopped — drop out of the registry.
@@ -751,10 +820,7 @@ class RunHandle(QObject):
         if not text:
             return
         self.last_line = text.splitlines()[-1][:200]
-        matches = list(_PROGRESS_RE.finditer(text))
-        if matches:
-            match = matches[-1]
-            self.progress = (int(match.group(1)), int(match.group(2)))
+        _observe_progress(self, text)
         self.changed.emit()
 
 
@@ -942,6 +1008,7 @@ class _ExternalJobHandle(QObject):
         self.worker_count = 1
         self.started_at = time.time()
         self.progress: Optional[tuple] = None
+        self.run_progress = _new_run_progress(self.app_key)
         self.last_line = ""
         self.blocks_shutdown = bool(blocks_shutdown)
         self.user_visible = bool(user_visible)
@@ -961,10 +1028,11 @@ class _ExternalJobHandle(QObject):
 
     def fraction(self) -> Optional[float]:
         """Completed fraction in ``0..1``, or ``None`` when unknown."""
-        if not self.progress:
-            return None
-        done, total = self.progress
-        return None if total <= 0 else max(0.0, min(1.0, done / total))
+        return _fraction_or_tuple(self.run_progress.fraction(), self.progress)
+
+    def seconds_left(self) -> Optional[float]:
+        """Estimated seconds until the job ends, or ``None`` while unknown."""
+        return self.run_progress.seconds_left()
 
     def request_cancel(self, reason: str = "cancelled by the user") -> None:
         """Ask the job to stop; nothing happens when it cannot be stopped.
@@ -984,6 +1052,8 @@ class _ExternalJobHandle(QObject):
         """
         if done is not None and total:
             self.progress = (int(done), int(total))
+            from .run_progress import ProgressSample
+            self.run_progress.observe(ProgressSample(done, total))
         text = str(line or "").strip()
         if text:
             self.last_line = text.splitlines()[-1][:200]

@@ -39,10 +39,16 @@ def test_create_database_produces_valid_sqlite(tmp_path):
         conn.close()
 
 
-def test_create_database_idempotent(tmp_path):
-    db = tmp_path / "twice.db"
-    IO._create_database(str(db))
-    IO._create_database(str(db))
+@pytest.mark.parametrize("parent, times", [
+    pytest.param(("twice",), 2, id="called-twice-is-idempotent"),
+    pytest.param(("nested", "path"), 1, id="in-a-nested-directory"),
+])
+def test_create_database_makes_the_file(tmp_path, parent, times):
+    folder = tmp_path.joinpath(*parent)
+    folder.mkdir(parents=True, exist_ok=True)
+    db = folder / "test.db"
+    for _ in range(times):
+        IO._create_database(str(db))
     assert db.exists()
 
 

@@ -724,6 +724,13 @@ def decoy_library(library: Sequence[str], k: int = 4,
     return out
 
 
+#: The letters the one-mismatch index of :class:`LibraryMatcher` covers.
+_ACGT = frozenset("ACGT")
+
+#: The index's marker for a string one substitution from two barcodes.
+_TIED = -2
+
+
 class LibraryMatcher:
     """The unique closest barcode within a distance, with ``N`` as a wildcard.
 
@@ -747,6 +754,7 @@ class LibraryMatcher:
                       if self.entries else np.zeros((0, 0), np.uint8))
         self.known = {entry: i for i, entry in enumerate(self.entries)}
         self.cache: Dict[Tuple[str, int], Tuple[Optional[str], int]] = {}
+        self._neighbours: Optional[Dict[str, int]] = None
 
     def match(self, read: str, max_distance: int) -> Tuple[Optional[str], int]:
         """Match one read.
@@ -766,6 +774,10 @@ class LibraryMatcher:
         elif (max_distance == 0 and "N" not in read) or len(read) != self.width \
                 or not self.entries:
             result = (None, -1)
+        elif max_distance == 1 and _ACGT.issuperset(read):
+            hit = self._one_mismatch().get(read)
+            result = ((None, -1) if hit is None or hit == _TIED
+                      else (self.entries[hit], 1))
         else:
             letters = np.frombuffer(read.encode("ascii"), dtype=np.uint8)
             distance = ((self.table != letters) & (letters != ord("N"))).sum(1)
@@ -776,6 +788,32 @@ class LibraryMatcher:
                 result = (self.entries[int(distance.argmin())], best)
         self.cache[key] = result
         return result
+
+    def _one_mismatch(self) -> Dict[str, int]:
+        """Every string one substitution from a barcode, built on first use.
+
+        Maps the string to the barcode's index, or to :data:`_TIED` when it
+        is one substitution from two barcodes. A read of A, C, G and T only
+        that is not itself a barcode is at distance one from the barcodes
+        this lists for it and from no other, so a lookup gives the scan's
+        answer exactly (item 932: 78 % less time on the rule step of the
+        decode-yield study, the same calls). A read with ``N`` or any other
+        letter, or a wider distance, still goes through the scan.
+
+        :returns: the neighbour index.
+        """
+        if self._neighbours is None:
+            neighbours: Dict[str, int] = {}
+            for index, entry in enumerate(self.entries):
+                for position in range(len(entry)):
+                    for base in "ACGT":
+                        if base == entry[position]:
+                            continue
+                        near = entry[:position] + base + entry[position + 1:]
+                        neighbours[near] = (index if near not in neighbours
+                                            else _TIED)
+            self._neighbours = neighbours
+        return self._neighbours
 
 
 def _argmax_median_unmix64(values: np.ndarray) -> np.ndarray:

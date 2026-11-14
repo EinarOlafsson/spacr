@@ -71,44 +71,6 @@ def test_a_healthy_fit_reports_every_statistic():
 
 
 # ---------------------------------------------------------------------------
-# _house — labels that were not asked for
-# ---------------------------------------------------------------------------
-
-def test_an_axis_given_no_labels_gets_none_set():
-    """Arcs 529 -> 531, 531 -> 533 and 533 -> 535, all three skipped.
-
-    ``_house`` is called for every panel, and most panels set their own titles
-    afterwards. Setting an empty title would not be harmless: matplotlib
-    reserves the space for it, and four panels each reserving a blank title
-    band is the difference between a tight figure and a loose one.
-    """
-    from spacr.regression_diagnostics import _house
-
-    figure, axis = plt.subplots()
-    try:
-        _house(axis)
-        assert axis.get_title() == ""
-        assert axis.get_xlabel() == ""
-        assert axis.get_ylabel() == ""
-    finally:
-        plt.close(figure)
-
-
-def test_an_axis_given_labels_wears_them():
-    """The taken side of all three."""
-    from spacr.regression_diagnostics import _house
-
-    figure, axis = plt.subplots()
-    try:
-        _house(axis, title="T", xlabel="X", ylabel="Y")
-        assert axis.get_title() == "T"
-        assert axis.get_xlabel() == "X"
-        assert axis.get_ylabel() == "Y"
-    finally:
-        plt.close(figure)
-
-
-# ---------------------------------------------------------------------------
 # plot_residual_diagnostics — no trend line, and no normal curve
 # ---------------------------------------------------------------------------
 

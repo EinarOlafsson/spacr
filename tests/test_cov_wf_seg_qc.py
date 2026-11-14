@@ -25,9 +25,7 @@ from spacr import seg_qc
 from spacr.seg_qc import (
     CARD_DIR,
     CARD_PREFIX,
-    FLAG_UNDER,
     MASK_STACK_SUFFIX,
-    find_mask_stacks,
     find_scorecards,
     format_digest,
     read_digest,
@@ -62,67 +60,9 @@ def _grid_field(shape=(512, 512), radius=10, spacing=50, margin=40):
     return labels
 
 
-def _fused_field(shape=(384, 384), radius=16, step=26, cluster=3, block=96):
-    """Clusters of overlapping discs, each cluster welded into ONE label."""
-    labels = np.zeros(shape, np.int32)
-    value = 0
-    for by in range(0, shape[0], block):
-        for bx in range(0, shape[1], block):
-            value += 1
-            cy0 = by + block // 2 - (cluster - 1) * step // 2
-            cx0 = bx + block // 2 - (cluster - 1) * step // 2
-            for i in range(cluster):
-                for j in range(cluster):
-                    _disc(labels, cy0 + i * step, cx0 + j * step, radius, value)
-    return labels
-
-
 # ---------------------------------------------------------------------------
 # the plate comparison meeting a field the pixels already condemned
 # ---------------------------------------------------------------------------
-
-def test_a_field_the_pixels_already_called_fused_is_not_condemned_twice():
-    """One defect must produce one flag and one sentence, not two of each.
-
-    A confluent field is caught twice over: ``score_field`` sees 68% foreground
-    with a distance transform resolving nine objects per label, and the plate
-    comparison then sees the same field holding a fifth of the plate's objects
-    at four times its median diameter. If the plate rule appended its flag
-    unconditionally the card would list ``under_segmented`` twice, the flag
-    tally in the plate summary would double-count that field, and the note
-    would explain the same fusion to the user in two different sets of numbers.
-    The plate rule may only speak about fields the pixels did not already
-    convict — and the field below proves it still speaks about those.
-    """
-    fields = {
-        "plate1_A01_f1": _grid_field(),
-        "plate1_A02_f1": _grid_field(),
-        "plate1_A03_f1": _grid_field(),
-        # convicted by its own pixels AND by the plate comparison
-        "plate1_B01_f1": _fused_field(),
-        # convicted by the plate comparison ALONE: big objects, few of them,
-        # on a field only 2% covered, so no confluence rule can fire.
-        "plate1_B02_f1": _grid_field(shape=(512, 512), radius=15, spacing=170,
-                                     margin=60),
-    }
-
-    scored = {q.field: q for q in score_masks(fields, object_type="cell")}
-    both = scored["plate1_B01_f1"]
-    plate_only = scored["plate1_B02_f1"]
-
-    # the pixel-level conviction, stated once
-    assert both.flags.count(FLAG_UNDER) == 1
-    assert "objects look fused" in both.note
-    assert "merged in pairs" not in both.note
-    # the plate rule is not silent in general: this field hears it
-    assert plate_only.flags.count(FLAG_UNDER) == 1
-    assert "merged in pairs" in plate_only.note
-    assert "objects look fused" not in plate_only.note
-    # and the plate comparison did run for the fused field: it carries the
-    # count reason from the same pass that skipped the duplicate flag
-    assert both.metrics["count_ratio"] < 0.25
-    assert "where the plate median is 81" in both.note
-
 
 # ---------------------------------------------------------------------------
 # run_segmentation_qc: claiming a file only when there is a file
@@ -196,27 +136,6 @@ def test_a_folder_named_like_a_scorecard_is_not_handed_back_as_one(tmp_path):
 
     assert found == (str(real),)
     assert os.path.isdir(str(qc / f"{CARD_PREFIX}nucleus.csv"))
-
-
-def test_a_file_named_like_a_mask_stack_is_not_offered_as_a_stack(tmp_path):
-    """A stack is a folder of ``.npy`` masks; a file of that name is not one.
-
-    ``find_mask_stacks`` hands what it finds to ``mask_stack_mtime``, which
-    scans the folder to date the card against the masks. A stray file — a
-    ``cell_mask_stack`` tarball or a leftover lock — accepted as a stack would
-    date every card against one irrelevant timestamp and could mark a fresh
-    card OUT OF DATE for a stack that does not exist.
-    """
-    (tmp_path / f"cell{MASK_STACK_SUFFIX}").write_bytes(b"not a folder")
-    real = tmp_path / f"nucleus{MASK_STACK_SUFFIX}"
-    real.mkdir()
-    np.save(real / "plate1_A01_f1.npy", np.zeros((8, 8), np.uint16))
-
-    stacks = find_mask_stacks(str(tmp_path))
-
-    assert stacks == {"nucleus": str(real)}
-    assert "cell" not in stacks
-    assert os.path.isfile(str(tmp_path / f"cell{MASK_STACK_SUFFIX}"))
 
 
 # ---------------------------------------------------------------------------

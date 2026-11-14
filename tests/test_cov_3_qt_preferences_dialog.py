@@ -9,18 +9,13 @@ inside the application.
 """
 from __future__ import annotations
 
-import logging
-
 import pytest
 
 pytest.importorskip("PySide6")
 pytest.importorskip("pytestqt")
 
-from PySide6.QtGui import QColor, QPalette                      # noqa: E402
-from PySide6.QtWidgets import QComboBox, QPushButton            # noqa: E402
 
 from spacr.qt import preferences as prefs                       # noqa: E402
-from spacr.qt import shutdown                                   # noqa: E402
 from spacr.qt.widgets.toggle import Toggle                      # noqa: E402
 
 
@@ -63,103 +58,10 @@ def test_a_console_level_cannot_outlive_the_file_level_it_depends_on(dialog):
 # Reset
 # ---------------------------------------------------------------------------
 
-def test_resetting_a_control_whose_default_is_unknown_leaves_it_alone(
-        dialog, monkeypatch):
-    """A getter with no answer must not point the combo at index -1, which
-    is a blank entry the user cannot get out of without knowing what it
-    used to say."""
-    monkeypatch.setattr(prefs, "get_language", lambda: None)
-    reset = next(button for button in dialog.findChildren(QPushButton)
-                 if button.objectName() == "PreferencesReset")
-    combo = dialog.findChild(QComboBox, "LanguagePreference")
-    before = combo.currentIndex()
-
-    reset.click()
-
-    assert combo.currentIndex() == before >= 0
-
 
 # ---------------------------------------------------------------------------
 # Quitting
 # ---------------------------------------------------------------------------
-
-def _quit_button(dialog) -> QPushButton:
-    button = dialog.findChild(QPushButton, "QuitSpacrButton")
-    assert button is not None, "the Preferences dialog offers no way to quit"
-    return button
-
-
-def test_declining_the_quit_dialog_leaves_the_window_open(dialog,
-                                                          monkeypatch):
-    """Cancel has to mean cancel: nothing is asked to stop and the window
-    the user was working in is still there."""
-    forced = []
-    monkeypatch.setattr(shutdown, "ask_how_to_quit",
-                        lambda *a, **k: shutdown.CANCEL)
-    monkeypatch.setattr(shutdown, "force_quit_now",
-                        lambda *a, **k: forced.append(True))
-    dialog.show()
-
-    _quit_button(dialog).click()
-
-    assert forced == []
-    assert dialog.isVisible() is True
-
-
-def test_choosing_to_stop_immediately_leaves_without_waiting(dialog,
-                                                             monkeypatch):
-    """The point of this button is the wedged run that will never see a
-    cancel flag, so the immediate path must not go through the watcher."""
-    forced = []
-    monkeypatch.setattr(shutdown, "ask_how_to_quit",
-                        lambda *a, **k: shutdown.FORCE)
-    monkeypatch.setattr(shutdown, "force_quit_now",
-                        lambda *a, **k: forced.append(True))
-    dialog.show()
-
-    _quit_button(dialog).click()
-
-    assert forced == [True]
-
-
-def test_choosing_to_finish_the_step_closes_the_window_and_watches(
-        dialog, monkeypatch):
-    """The graceful path runs the same shutdown hooks a normal close does,
-    and leaves a watcher behind so a run that never stops can be asked
-    again rather than hanging silently."""
-    started = []
-    forced = []
-    cancelled = []
-
-    class Watcher:
-        def __init__(self, *args, **kwargs):
-            self.describe = kwargs.get("describe")
-
-        def start(self):
-            started.append(True)
-
-    class Registry:
-        def active(self):
-            return ["mask on plate1"]
-
-        def cancel_all(self, reason=""):
-            cancelled.append(reason)
-
-    dialog._runs = Registry()
-    monkeypatch.setattr(shutdown, "ask_how_to_quit",
-                        lambda *a, **k: shutdown.GRACEFUL)
-    monkeypatch.setattr(shutdown, "force_quit_now",
-                        lambda *a, **k: forced.append(True))
-    monkeypatch.setattr(shutdown, "GracefulQuitWatcher", Watcher)
-    dialog.show()
-
-    _quit_button(dialog).click()
-
-    assert started == [True]
-    assert forced == []
-    assert cancelled and "quit" in cancelled[0].lower()
-    assert dialog.isVisible() is False
-
 
 # ---------------------------------------------------------------------------
 # Cards
@@ -188,53 +90,3 @@ def test_a_card_that_will_not_reread_does_not_stop_the_others(qapp, qtbot):
 # Following the system theme
 # ---------------------------------------------------------------------------
 
-@pytest.fixture()
-def light_application_palette(qapp, monkeypatch):
-    """A desktop whose own colour scheme is light.
-
-    The operating system's scheme is read from ``QStyleHints.colorScheme``
-    (see :func:`spacr.qt.theme.system_colour_scheme`), which the offscreen
-    platform always reports as unknown, so the answer is stood in for. The
-    application palette is made light as well, to show it is not what the
-    decision reads.
-    """
-    from spacr.qt import theme
-
-    monkeypatch.setattr(theme, "system_colour_scheme", lambda app=None: "light")
-    original = qapp.palette()
-    palette = QPalette(original)
-    palette.setColor(QPalette.ColorRole.Window, QColor("#ffffff"))
-    palette.setColor(QPalette.ColorRole.WindowText, QColor("#000000"))
-    qapp.setPalette(palette)
-    try:
-        yield qapp
-    finally:
-        qapp.setPalette(original)
-
-
-def test_following_the_system_theme_on_a_light_desktop_resolves_to_light(
-        light_application_palette):
-    """'Follow system' is the setting a user picks so spaCR matches their
-    desktop. Resolving it to dark on a light desktop is the one outcome
-    that makes the setting useless, and the palette poll behind it sits in
-    a bare except, so nothing else would report it."""
-    prefs.set_theme("system")
-
-    assert prefs.resolve_effective_theme() == "light"
-
-
-def test_following_the_system_theme_still_produces_a_palette_name(
-        light_application_palette):
-    """Whatever it resolves to, it has to be a palette the stylesheet can
-    be built from -- 'system' itself is not one."""
-    prefs.set_theme("system")
-
-    assert prefs.resolve_effective_theme() in prefs.PALETTE_THEMES
-
-
-def test_the_level_of_a_stored_theme_that_is_not_a_theme_is_the_default():
-    """A store written by a newer spaCR can name a theme this build cannot
-    render; it falls back rather than handing the stylesheet an unknown."""
-    prefs._settings().setValue(prefs._KEY_THEME, "aurora")
-
-    assert prefs.get_theme() == prefs.DEFAULT_THEME

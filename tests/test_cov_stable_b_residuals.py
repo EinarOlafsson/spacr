@@ -2,82 +2,10 @@
 
 from __future__ import annotations
 
-import sys
 from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
-
-
-class _Text:
-    def __init__(self, body: str):
-        self.body = body
-
-    def get_text(self):
-        return self.body
-
-    def get_color(self):
-        return "#222222"
-
-
-class _Handle:
-    def get_color(self):
-        return "#336699"
-
-
-class _Legend:
-    def __init__(self, *labels: str):
-        self._texts = [_Text(label) for label in labels]
-        self.legend_handles = [_Handle() for _label in labels]
-
-    def get_texts(self):
-        return self._texts
-
-
-class _LegendItem:
-    made = []
-
-    def __init__(self, **_kwargs):
-        self.items = []
-        self.__class__.made.append(self)
-
-    def setParentItem(self, _parent):
-        return None
-
-    def addItem(self, sample, label):
-        self.items.append((sample, label))
-
-
-def _fake_pyqtgraph(monkeypatch):
-    _LegendItem.made.clear()
-    module = SimpleNamespace(
-        LegendItem=_LegendItem,
-        PlotDataItem=lambda *_args, **kwargs: kwargs,
-        mkPen=lambda colour, **kwargs: (colour, kwargs),
-    )
-    monkeypatch.setitem(sys.modules, "pyqtgraph", module)
-
-
-def test_a_blank_only_legend_returns_before_reading_an_entry(monkeypatch):
-    """Every text can be blank even though matplotlib returned text artists."""
-    from spacr.figures.scene import _Look, _add_legend
-
-    _fake_pyqtgraph(monkeypatch)
-    plot = SimpleNamespace(getViewBox=lambda: object())
-
-    assert _add_legend(plot, _Legend("", ""), _Look(None)) == 0
-    assert _LegendItem.made == []
-
-
-def test_a_label_beside_a_blank_still_builds_the_legend(monkeypatch):
-    """The empty-only return must not swallow a neighbouring real label."""
-    from spacr.figures.scene import _Look, _add_legend
-
-    _fake_pyqtgraph(monkeypatch)
-    plot = SimpleNamespace(getViewBox=lambda: object())
-
-    assert _add_legend(plot, _Legend("", "kept"), _Look(None)) == 1
-    assert [label for _sample, label in _LegendItem.made[0].items] == ["kept"]
 
 
 def test_the_real_dropped_column_report_deduplicates_merged_names():

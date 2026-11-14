@@ -120,16 +120,14 @@ def test_stat_tests_multi_group_non_normal_kruskal():
 # perform_posthoc_tests — Tukey (normal) + Dunn (non-normal, 183-188)
 # ---------------------------------------------------------------------------
 
-def test_posthoc_tukey_when_normal():
-    df = _multi_group(normal=True)
-    out = ST.perform_posthoc_tests(df, "grp", "val", is_normal=True)
-    assert out and out[0]["Test Name"] == "Tukey HSD"
-
-
-def test_posthoc_dunn_when_not_normal():
-    df = _multi_group(normal=False)
-    out = ST.perform_posthoc_tests(df, "grp", "val", is_normal=False)
-    assert out and out[0]["Test Name"] == "Dunn's Post-hoc"
+@pytest.mark.parametrize("normal, test_name", [
+    pytest.param(True, "Tukey HSD", id="tukey-when-normal"),
+    pytest.param(False, "Dunn's Post-hoc", id="dunn-when-not-normal"),
+])
+def test_posthoc_test_follows_normality(normal, test_name):
+    df = _multi_group(normal=normal)
+    out = ST.perform_posthoc_tests(df, "grp", "val", is_normal=normal)
+    assert out and out[0]["Test Name"] == test_name
 
 
 def test_posthoc_two_groups_returns_empty():

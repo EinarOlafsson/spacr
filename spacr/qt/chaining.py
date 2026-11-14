@@ -241,6 +241,7 @@ class ChainingBar(QFrame):
         #: Set when a refresh was dropped for that reason, so exactly one
         #: catch-up runs when the in-flight one lands.
         self._resolve_again: Optional[bool] = None
+        self._resolver.job_failed.connect(self._on_resolve_failed)
         from . import path_probe as _probe
 
         def _root_answered(_path: str, _answer: bool) -> None:
@@ -710,6 +711,38 @@ class ChainingBar(QFrame):
 
         if self._host_closed() or not self._resolver.submit(work, done):
             self._resolving = False
+
+    def _on_resolve_failed(self, reason: str) -> None:
+        """Recover when a resolution raised, and say so in the strip.
+
+        `JobRunner` never calls the `done` callback of a job whose worker
+        raised, so `_resolving` would stay True for the rest of the session
+        and every later refresh would only set `_resolve_again`. This slot,
+        connected to the runner's ``job_failed``, clears `_resolving`, logs
+        the reason as a warning, shows it on the staleness row, and runs the
+        catch-up refresh held in `_resolve_again` if one is pending. A
+        failure raised by `done` itself arrives here too, with `_resolving`
+        already cleared and `_resolve_again` already handled, so nothing is
+        restarted twice.
+
+        :param reason: the exception text the runner reports.
+        """
+        LOG.warning("could not resolve the chaining strip for %s: %s",
+                    self.app_key, reason)
+        self._resolving = False
+        if self._host_closed():
+            return
+        from .i18n import tr
+        self._stale.setText(
+            tr("⚠ Could not look up chained inputs: {reason}",
+               reason=reason))
+        self._stale.setToolTip(reason)
+        self._stale.show()
+        self._fix.hide()
+        self.setVisible(True)
+        again, self._resolve_again = self._resolve_again, None
+        if again is not None:
+            self.refresh(finished=bool(again))
 
     def _paint(self, resolution, notes, *, finished: bool) -> None:
         """Draw a finished resolution. GUI thread only."""
