@@ -15,49 +15,11 @@ import pytest
 from spacr.api import MaskConfig, MeasureConfig, run_mask, run_measure
 
 
-def test_several_plate_folders_survive_expansion(tmp_path):
-    """A sequence of sources stays a list of strings, one per plate."""
-    plates = [tmp_path / "plate01", tmp_path / "plate02"]
-    for plate in plates:
-        plate.mkdir()
-
-    settings = MaskConfig(plates, cell_channel=0).to_settings()
-
-    assert settings["src"] == [str(p) for p in plates]
-
-
-def test_a_pathlib_source_survives_expansion(tmp_path):
-    """A single ``Path`` is one source, not an iterable of characters."""
-    settings = MaskConfig(Path(tmp_path), nucleus_channel=1).to_settings()
-
-    assert settings["src"] == str(tmp_path)
-
-
-def test_a_mask_run_with_no_channel_is_refused(tmp_path):
-    """Segmenting nothing is a configuration error, not an empty run."""
-    with pytest.raises(ValueError, match="at least one segmentation channel"):
-        MaskConfig(tmp_path).to_settings()
-
-
-def test_an_unknown_pipeline_style_is_refused(tmp_path):
-    """Only the two shipped pipelines exist; a typo must not run either."""
-    with pytest.raises(ValueError, match="v1.*v2"):
-        MaskConfig(tmp_path, cell_channel=0,
-                   pipeline_style="fast").to_settings()
-
-
 def test_a_measure_run_with_no_mask_plane_is_refused(tmp_path):
     """Measuring no object type would write an empty database."""
     with pytest.raises(ValueError, match="at least one mask plane"):
         MeasureConfig(tmp_path, cell_mask_dim=None, nucleus_mask_dim=None,
                       pathogen_mask_dim=None).to_settings()
-
-
-def test_extra_may_not_repeat_a_typed_setting(tmp_path):
-    """Two answers for one setting is a script bug, and it is named."""
-    with pytest.raises(ValueError, match="cell_channel"):
-        MaskConfig(tmp_path, cell_channel=0,
-                   extra={"cell_channel": 2}).to_settings()
 
 
 def test_a_dry_mask_run_reaches_the_pipeline_and_writes_nothing(

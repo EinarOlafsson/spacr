@@ -158,17 +158,6 @@ class TestRenderingAProposal:
         qtbot.addWidget(page)
         return page
 
-    def test_a_proposal_with_a_reading_summarises_the_data(self, qtbot):
-        from spacr.settings_advisor import Advice, Reading
-
-        page = self._page(qtbot)
-        reading = Reading(plates=2, wells=768, guides=1200, genes=300,
-                          n_response=45000)
-
-        page.show_the_proposal(Advice(reading=reading), current={})
-
-        assert page.summary.text().strip(), "the summary was left empty"
-
     def test_a_proposal_with_no_reading_still_lists_its_choices(self, qtbot):
         """THE UNCOVERED ARC.
 

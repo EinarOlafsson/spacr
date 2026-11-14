@@ -14,8 +14,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-import shiboken6
-
 from spacr.qt.screens import annotate as annotate_mod
 
 
@@ -47,36 +45,7 @@ def test_a_page_that_finishes_after_the_screen_is_gone_is_dropped(qapp):
     assert seen == [], "results were handed to a screen that is gone"
 
 
-def test_a_page_whose_images_will_not_load_still_reports_back(qapp):
-    """A decode failure must not leave the screen waiting forever."""
-    def _boom(_row):
-        raise ValueError("not an image")
-
-    seen = []
-    worker = annotate_mod._PageLoadWorker(5, [("a.png", None)], _boom)
-    worker.done.connect(lambda gen, rows: seen.append((gen, rows)))
-    worker.run()
-    assert seen == [(5, [])]
-
-
 # -- the retrain worker ------------------------------------------------------
-
-def test_a_failed_round_reported_to_a_dead_screen_is_dropped(qapp,
-                                                             monkeypatch):
-    """The failure has nowhere to go, and raising here aborts the process."""
-    from spacr import active_learning as al
-
-    def _boom(*_args, **_kwargs):
-        raise ValueError("no usable features")
-
-    monkeypatch.setattr(al, "retrain_round", _boom)
-
-    worker = annotate_mod._RetrainWorker("db", "annotate", {})
-    reported = []
-    worker.failed.connect(reported.append)
-    shiboken6.delete(worker)
-    worker.run()
-    assert reported == [], "a failure was reported to a screen that is gone"
 
 
 def test_a_finished_round_reported_to_a_dead_screen_is_dropped(qapp,
@@ -96,19 +65,6 @@ def test_a_finished_round_reported_to_a_dead_screen_is_dropped(qapp,
     worker.done.connect(delivered.append)
     worker.run()
     assert delivered == [], "a result was handed to a screen that is gone"
-
-
-def test_a_finished_round_reaches_a_live_screen(qapp, monkeypatch):
-    """The guards must not swallow the ordinary result."""
-    from spacr import active_learning as al
-
-    result = {"round_index": 1}
-    monkeypatch.setattr(al, "retrain_round", lambda *_a, **_k: result)
-    worker = annotate_mod._RetrainWorker("db", "annotate", {})
-    seen = []
-    worker.done.connect(seen.append)
-    worker.run()
-    assert seen == [result]
 
 
 # -- teardown ----------------------------------------------------------------

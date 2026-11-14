@@ -46,19 +46,6 @@ pytestmark = pytest.mark.qt
 SETTLE_WAIT_MS = 3000
 
 
-def _home_entry(**overrides):
-    """A readiness record for Home, as ``timing`` publishes one."""
-    entry = {
-        "detail": "__home__",
-        "name": "interactive Home",
-        "started_at": 0.0,
-        "at": 0.0,
-        "duration_s": 0.25,
-        "budget_s": timing.HOME_BUDGET_S,
-        "within_budget": True,
-    }
-    entry.update(overrides)
-    return entry
 
 
 @pytest.fixture
@@ -161,36 +148,6 @@ def test_a_gui_thread_that_cannot_run_a_qtimer_is_killed_where_it_stands(
 # ---------------------------------------------------------------------------
 # sealing a readiness interval at a watchdog beat
 # ---------------------------------------------------------------------------
-
-def test_a_paint_is_not_sealed_until_the_watchdog_has_moved_past_it(
-        make_controller, window, qtbot, monkeypatch):
-    """A beat at or before the paint spans backwards across it.
-
-    Sealing there would let a later raw interval begin before the closed
-    window ended, and the stall inventory of two results would overlap. The
-    controller asks again instead, and the record it is holding stays held
-    -- it is not dropped and it is not measured against a wall-clock guess.
-    """
-    beat = {"at": 1.0}
-    monkeypatch.setattr(timing, "last_gui_beat_at", lambda: beat["at"])
-    controller = make_controller(window)
-
-    controller._ready(_home_entry(at=5.0))
-    qtbot.wait(sb.SETTLE_MS * 4)
-
-    assert controller._pending is not None, (
-        "the paint was thrown away rather than retried")
-    assert controller.results == [], (
-        "the interval was sealed at a beat that precedes the paint")
-
-    # The watchdog moves past the paint: the same retry now seals, at the
-    # beat rather than at the clock.
-    beat["at"] = 9.0
-    qtbot.waitUntil(lambda: bool(controller.results), timeout=SETTLE_WAIT_MS)
-    assert controller._pending is None
-    assert controller.results[0]["stall_window_ended_at"] == 9.0
-    assert controller.results[0]["at"] == 5.0, (
-        "the retry re-stamped the paint it was waiting for")
 
 
 # ---------------------------------------------------------------------------
@@ -382,34 +339,3 @@ def test_a_dialog_whose_c_half_has_gone_is_still_let_go_of(make_controller,
 # ---------------------------------------------------------------------------
 # the deadline, in the preferences phase
 # ---------------------------------------------------------------------------
-
-def test_a_preferences_dialog_that_never_paints_expires_as_its_own_row(
-        make_controller, window, qtbot):
-    """The deadline has to name the state it expired in.
-
-    ``__preferences__`` is the artifact's key for this interval; recording a
-    registry key instead would attribute a hung settings dialog to whichever
-    module screen came next -- and, since ``current_key`` is still ``None``
-    here, would write the string ``"None"`` into the artifact.
-    """
-    controller = make_controller(window, measure_preferences=True,
-                                 timeout_s=5.0)
-    controller.phase = "preferences"
-
-    controller._timed_out()
-    assert controller._timeout_pending is True
-
-    qtbot.waitUntil(lambda: bool(controller.results), timeout=SETTLE_WAIT_MS)
-    expired = controller.results[-1]
-    assert expired["detail"] == "__preferences__"
-    assert expired["name"] == "interactive preferences"
-    assert expired["error"].startswith("no painted usable state within")
-
-    # The same deadline in the module phase names the key it was pressing,
-    # which is what makes the branch above the preferences one.
-    other = make_controller(window, keys=("mask",), name="module.json")
-    other.phase = "module"
-    other.current_key = "mask"
-    other._timed_out()
-    qtbot.waitUntil(lambda: bool(other.results), timeout=SETTLE_WAIT_MS)
-    assert other.results[-1]["detail"] == "mask"

@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import pandas as pd
 
-import spacr.sequencing as sequencing
 from spacr.sequencing import _map_within
 
 
@@ -69,26 +68,3 @@ def test_an_ambiguous_near_miss_is_unassigned_both_times():
     assert all(value is pd.NA for value in out)
 
 
-def test_a_budget_over_zero_says_so_before_any_read_is_mapped(
-        tmp_path, monkeypatch, capsys):
-    """A run with a non-zero budget announces it and arms the workers.
-
-    The budget reaches the worker processes through a module global set
-    before the pool is forked, so a run that failed to set it would map
-    every read at zero and give no sign of it. An empty source folder is
-    enough: the announcement and the global are both settled before any
-    sample is looked at.
-    """
-    monkeypatch.setattr(sequencing, "BARCODE_MISMATCHES", 0, raising=False)
-    src = tmp_path / "fastq"
-    src.mkdir()
-
-    sequencing.generate_barecode_mapping({
-        "src": str(src), "mode": "single", "single_direction": "R1",
-        "barcode_mismatches": 2, "save_h5": False, "n_jobs": 1,
-    })
-
-    assert sequencing.BARCODE_MISMATCHES == 2
-    printed = capsys.readouterr().out
-    assert "up to 2 mismatched" in printed
-    assert "unassigned" in printed

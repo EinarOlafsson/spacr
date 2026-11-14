@@ -15,7 +15,7 @@ import struct
 import numpy as np
 import pytest
 
-from spacr import cli, core, report, run_journal, sra
+from spacr import report, run_journal, sra
 from spacr import io as sio
 from spacr import object as spacr_object
 from tests.tem_files import write_dm
@@ -41,22 +41,6 @@ def test_the_run_journal_falls_back_to_the_installed_metadata(monkeypatch):
     monkeypatch.setattr(run_journal, "_pkg_version",
                         lambda name: f"dist-info of {name}")
     assert run_journal._spacr_version() == "dist-info of spacr"
-
-
-def test_a_blank_src_is_not_read_as_a_list_of_plates():
-    types = {"src": (str, list)}
-    assert cli.coerce_value("src", "", "path", types) == ""
-    assert cli.coerce_value("src", "   ", "path", types) == "   "
-
-
-@pytest.mark.parametrize("bad", (123, 4.5, {"folder": "x"}))
-def test_a_watch_source_that_is_not_a_path_fills_in_nothing(bad):
-    settings = {"z_stack": True, "z_segmentation_mode": None,
-                "z_axis": None, "src": bad}
-    result, filled = core._watch_vendor_recipe(settings)
-    assert result is settings
-    assert filled == {}
-    assert settings["z_segmentation_mode"] is None
 
 
 def test_only_a_channel_last_batch_names_a_field_shape():

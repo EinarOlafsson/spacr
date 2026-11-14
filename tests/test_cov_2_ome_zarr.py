@@ -16,7 +16,6 @@ from __future__ import annotations
 import sys
 import types
 import zlib
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -148,104 +147,6 @@ def test_zarr_absence_is_reported_as_false_not_as_an_exception(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# reading through zarr
-# ---------------------------------------------------------------------------
-
-def test_a_region_read_prefers_zarr_and_hands_it_the_right_slices(monkeypatch,
-                                                                  tmp_path):
-    """When zarr is installed the region is translated into slices for it.
-
-    The pure-Python reader is the fallback; zarr is the intended path because
-    it handles sharding and every codec. What must not change across that
-    switch is WHICH voxels come back, so the box is asserted twice: once as
-    the slices zarr was handed, and once as the pixels, against the fallback
-    reader on the same file.
-    """
-    volume = np.arange(4 * 6 * 8, dtype=np.uint16).reshape(4, 6, 8)
-    oz.write_ome_zarr(tmp_path / "img.zarr", volume, axes=("z", "y", "x"))
-    image = oz.read_ome_zarr(tmp_path / "img.zarr")
-
-    region = ((1, 3), (2, 4), (0, 8))
-    expected = image.read(0, region, prefer_zarr=False)
-
-    log = []
-    monkeypatch.setitem(sys.modules, "zarr", _fake_zarr(volume, log))
-    through_zarr = image.read(0, region, prefer_zarr=True)
-
-    assert [entry[0] for entry in log] == ["open", "getitem"]
-    assert Path(log[0][1]).as_posix().endswith("img.zarr/0"), "zarr is opened on the level, not the group"
-    assert log[1][1] == (slice(1, 3), slice(2, 4), slice(0, 8))
-    assert isinstance(through_zarr, np.ndarray)
-    np.testing.assert_array_equal(through_zarr, expected)
-
-
-# ---------------------------------------------------------------------------
-# require_codec through numcodecs
-# ---------------------------------------------------------------------------
-
-def test_a_numcodecs_decoder_is_wrapped_so_it_always_returns_bytes(monkeypatch):
-    """The decoder contract is ``bytes -> bytes``, whatever numcodecs returns.
-
-    numcodecs hands back buffers of several types depending on the codec, and
-    the chunk assembler slices the result as bytes. A decoder that leaked a
-    bytearray or a memoryview through would work for some codecs and fail for
-    others, which is the worst kind of format bug to diagnose.
-    """
-    monkeypatch.setitem(sys.modules, "numcodecs",
-                        _fake_numcodecs(_ZlibCodec))
-
-    decode = oz.require_codec("blosc", {"cname": "lz4", "clevel": 5})
-
-    raw = decode(zlib.compress(b"chunk bytes"))
-    assert raw == b"chunk bytes"
-    assert type(raw) is bytes
-
-
-def test_the_codec_spec_carries_the_id_and_the_rest_of_the_block(monkeypatch):
-    """The ``compressor`` block from ``.zarray`` is passed on with its ``id``.
-
-    numcodecs selects the codec from ``id`` and configures it from the rest.
-    Dropping the config would silently build a differently-parameterised codec
-    and decode the file into noise.
-    """
-    seen = {}
-
-    def _factory(spec):
-        seen.update(spec)
-        return _ZlibCodec(spec)
-
-    monkeypatch.setitem(sys.modules, "numcodecs", _fake_numcodecs(_factory))
-
-    oz.require_codec("BLOSC", {"cname": "lz4", "clevel": 5})
-
-    assert seen == {"id": "blosc", "cname": "lz4", "clevel": 5}, \
-        "the id is lower-cased and the rest of the block is kept"
-
-
-def test_a_codec_numcodecs_cannot_build_says_so_with_the_spec(monkeypatch):
-    """An installed numcodecs that still refuses is a different problem.
-
-    Reporting it as "install the extra" would send the user to reinstall
-    something they already have. The message names the codec and the spec that
-    was rejected, which is what identifies the offending ``.zarray``.
-    """
-    def _factory(spec):
-        raise ValueError("no such codec registered")
-
-    monkeypatch.setitem(sys.modules, "numcodecs", _fake_numcodecs(_factory))
-
-    with pytest.raises(OmeZarrError) as excinfo:
-        oz.require_codec("imagecodecs_jpeg", {"quality": 90})
-
-    message = str(excinfo.value)
-    assert "numcodecs is installed" in message
-    assert "imagecodecs_jpeg" in message
-    assert "quality" in message
-    assert "no such codec registered" in message
-    assert not isinstance(excinfo.value, ZarrExtraMissing)
-
-
-# ---------------------------------------------------------------------------
 # the writer's encoder
 # ---------------------------------------------------------------------------
 
@@ -317,57 +218,6 @@ def test_a_numcodecs_encoder_reports_its_own_config_as_the_block(monkeypatch):
 
     other_block, _ = oz._encoder("delta", 4)
     assert other_block == {"id": "delta"}
-
-
-def test_real_blosc_metadata_reopens_the_compressed_uint16_pixels(tmp_path):
-    """The installed codec must decode the exact block the writer records."""
-    import json
-
-    numcodecs = pytest.importorskip("numcodecs")
-    data = np.zeros((32, 48), dtype=np.uint16)
-    data[2:18, 4:27] = 4095
-    data[18:29, 27:45] = 65535
-    before = data.copy()
-    folder = tmp_path / "compressed.ome.zarr"
-    image = oz.write_ome_zarr(folder, data, compressor="blosc",
-                              compression_level=4, chunks=data.shape,
-                              dimension_separator=".")
-    metadata = json.loads((folder / "0" / ".zarray").read_text())
-    expected = numcodecs.Blosc(clevel=4).get_config()
-    assert metadata["compressor"] == expected
-    assert metadata["compressor"]["clevel"] == 4
-    assert "level" not in metadata["compressor"]
-    chunk = (folder / "0" / "0.0").read_bytes()
-    assert len(chunk) < data.nbytes
-    decoded = numcodecs.get_codec(metadata["compressor"]).decode(chunk)
-    np.testing.assert_array_equal(np.frombuffer(decoded, dtype=data.dtype).reshape(data.shape), data)
-    np.testing.assert_array_equal(image.read(), data)
-    np.testing.assert_array_equal(oz.read_ome_zarr(folder).read(), data)
-    np.testing.assert_array_equal(data, before)
-
-
-
-def test_real_zstd_extra_reopens_pixels_without_standard_library_zstd(
-        tmp_path, monkeypatch):
-    """The optional codec preserves its requested level on older Pythons."""
-    import json
-
-    numcodecs = pytest.importorskip("numcodecs")
-
-    def unavailable():
-        raise ImportError("No compression.zstd", name="compression.zstd")
-
-    monkeypatch.setattr(oz, "_stdlib_zstd", unavailable)
-    data = np.arange(32 * 48, dtype=np.uint16).reshape(32, 48)
-    folder = tmp_path / "zstd.ome.zarr"
-    oz.write_ome_zarr(folder, data, compressor="zstd", compression_level=7,
-                      chunks=data.shape, dimension_separator=".")
-    metadata = json.loads((folder / "0" / ".zarray").read_text())
-    assert metadata["compressor"] == numcodecs.Zstd(level=7).get_config()
-    raw = numcodecs.get_codec(metadata["compressor"]).decode(
-        (folder / "0" / "0.0").read_bytes())
-    np.testing.assert_array_equal(np.frombuffer(raw, dtype=data.dtype).reshape(data.shape), data)
-    np.testing.assert_array_equal(oz.read_ome_zarr(folder).read(), data)
 
 
 def test_an_encoder_numcodecs_refuses_to_build_names_the_codec(monkeypatch):

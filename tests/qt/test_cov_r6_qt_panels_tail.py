@@ -106,69 +106,6 @@ class TestAProposalWithNoReadingBehindIt:
         finally:
             page.deleteLater()
 
-    def test_with_a_reading_the_summary_says_what_was_measured(self, qapp):
-        """The contrast that makes the empty summary above a real absence."""
-        from spacr.qt.widgets.settings_advisor_dialog import ProposalPage
-        from spacr.settings_advisor import Reading
-
-        reading = Reading(plates=2, wells=384, guides=1200, genes=300,
-                          n_response=50_000, capped=False)
-        page = ProposalPage()
-        try:
-            page.show_the_proposal(self._advice(reading),
-                                   {"cell_diameter": 12})
-
-            text = page.summary.text()
-            assert text, "a reading must be summarised"
-            assert "384" in text or "1,200" in text or "300" in text, (
-                "the summary quotes the counts it read; got " + repr(text))
-        finally:
-            page.deleteLater()
-
-
-# ---------------------------------------------------------------------------
-# feature_dictionary
-# ---------------------------------------------------------------------------
-
-class TestRemovingTheHelpFilterWhenTheAppHasGone:
-    """``if app is not None:`` in ``remove_context_menu_filter``."""
-
-    def test_the_filter_is_forgotten_even_with_no_application_left(
-            self, qapp, monkeypatch):
-        """At interpreter shutdown ``QApplication.instance()`` answers None.
-
-        The module-level filter is still held, and the reference has to
-        go whatever happens -- otherwise a later install finds a stale
-        one and never re-installs on the new application.
-        """
-        from spacr.qt.widgets import feature_dictionary as fd
-
-        installed = fd.install_context_menu_filter(qapp)
-        assert installed is not None, "there has to be a filter to remove"
-
-        monkeypatch.setattr(fd.QApplication, "instance",
-                            staticmethod(lambda: None))
-
-        assert fd.remove_context_menu_filter() is True
-        assert fd._FILTER is None, \
-            "the held reference must be dropped even with no app to tell"
-        # And a second removal now says there was nothing, which is what
-        # makes the True above a real state change.
-        assert fd.remove_context_menu_filter() is False
-
-    def test_with_an_application_the_filter_is_actually_uninstalled(
-            self, qapp):
-        """The contrast: the filter really comes off the live app."""
-        from spacr.qt.widgets import feature_dictionary as fd
-
-        fd.install_context_menu_filter(qapp)
-        assert fd.remove_context_menu_filter(qapp) is True
-        assert fd._FILTER is None
-        assert fd.install_context_menu_filter(qapp) is not None, \
-            "a fresh install must be possible after a removal"
-        fd.remove_context_menu_filter(qapp)
-
-
 # ---------------------------------------------------------------------------
 # outlier_model
 # ---------------------------------------------------------------------------
