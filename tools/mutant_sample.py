@@ -119,8 +119,30 @@ def _register_lines():
         len(_SOURCE), None, _SOURCE.splitlines(True), _ORIGIN)
 
 
+def _under_the_pyside_feature_check():
+    """Whether PySide6's ``__feature__`` import check is on the stack.
+
+    On every import that touches PySide6, shibokensupport's ``feature.py``
+    (``_mod_uses_pyside``) calls ``inspect.getsource`` on the importing
+    module. When that module is the target, whichever test happened to
+    trigger the import looked like a test that reads the target's text, was
+    excluded, and its kills were lost. That read is PySide6's, not the
+    test's.
+    """
+    frame = sys._getframe(1)
+    while frame is not None:
+        code = frame.f_code
+        if (code.co_name == "_mod_uses_pyside"
+                or "shibokensupport" in code.co_filename):
+            return True
+        frame = frame.f_back
+    return False
+
+
 def _note_reader():
     """Record the running test as one that reads the module's source."""
+    if _under_the_pyside_feature_check():
+        return
     nodeid = _CURRENT[0]
     if _READERS and nodeid is not None and nodeid not in _SEEN:
         _SEEN.add(nodeid)
