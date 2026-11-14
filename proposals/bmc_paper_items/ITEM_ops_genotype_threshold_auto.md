@@ -20,6 +20,7 @@ spaCR's decode uses fixed thresholds. In the S2 proof, plate D's false-call rate
 - **Mapping to check while implementing:**
   - The S2-it1 scripts tune a "single-read floor" (production rule 0.06) and "pixel quality" (0.10).
   - Confirm which nightly keys these are (expected: `ops_single_read_quality` and `ops_pixel_quality`) and why the floor default differs (0.03 vs 0.06). Record the answer in this spec before coding.
+  - **Answer (2026-11-13, implementation):** confirmed. The single-read floor is `ops_single_read_quality` (in `spacr.ops_sbs.vote_mapped_reads`, a guide backed by one read is kept only when that read's quality reaches it; the study's `s2it_rule.calls` keeps `n_support >= 2 or bestq >= floor`, the same rule). Pixel quality is `ops_pixel_quality` (`vote_pixels(min_quality=...)`). The panel default 0.03 is the decode before item 873 (`ops_engine._SINGLE_READ_QUALITY`, the `vote_mapped_reads` default); the study's production value 0.06 comes from `ops_decode_preset: rule_a_s2` (`RULE_A_S2`), which replaces a key left at its default. Auto mode needs that preset, so it starts from the study's rule.
 - **Reference implementation:**
   - `BMCspacr/reanalysis/proof_stage1_stage2/iterations/scripts/s2it_analyse.py` (grid FLOORS × pixel quality; selection on a random half of each well's fields; confirmation on the other half);
   - `s2it_global.py` (one global setting);

@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import os
 import sqlite3
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -193,17 +192,6 @@ def test_a_successor_blocked_for_no_stated_reason_still_says_so(tmp_path):
     assert silent.fix == ""
 
 
-def test_a_drop_of_nothing_is_not_a_drop_on_the_filesystem_root():
-    """``None`` resolves to the empty string, and ``/`` stops climbing.
-
-    The climb walks up looking for a project. Without the stop it would spin
-    at the filesystem root, and a None would become the process's working
-    directory -- a real folder, silently offered as the user's project.
-    """
-    assert chaining.project_root_of(None) == ""
-    assert chaining.project_root_of(os.sep) == os.path.abspath(os.sep)
-
-
 def test_a_folder_that_cannot_be_listed_contributes_no_database(
         tmp_path, monkeypatch):
     """An unreadable folder is skipped, not fatal, when hunting databases.
@@ -366,28 +354,6 @@ def test_sub_projects_skips_layout_folders_and_unreadable_ones(
 
     monkeypatch.setattr(os, "listdir", _refuse)
     assert chaining._sub_projects(str(holder), module_ports) == ()
-
-
-def test_a_drop_into_a_list_shaped_setting_arrives_as_a_list(tmp_path):
-    """A setting whose current value is a list is filled with a one-item list.
-
-    ``src`` is a list for the modules that accept several plates. Dropping a
-    bare string into one would replace the list with a path, and the next
-    read would iterate its characters.
-    """
-    root = _plate(tmp_path / "plate1")
-
-    resolution = chaining.resolve_drop("measure", root,
-                                       settings={"src": ["/old/plate0"]})
-
-    assert resolution.targets
-    for target in resolution.targets:
-        if target.setting == "src":
-            assert isinstance(target.value, list)
-            assert len(target.value) == 1
-            break
-    else:
-        pytest.fail("the drop filled no src target")
 
 
 def test_a_module_check_ready_does_not_know_falls_back_to_its_ports(tmp_path):

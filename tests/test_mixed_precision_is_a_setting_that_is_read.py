@@ -154,64 +154,7 @@ class TestItIsARealSetting:
         assert "memory" in said
         # The numbers live in `resolve_mixed_precision`'s docstring rather
         # than the hover: four model names and six ratios is a table, and a
-        # tooltip is a sentence. It is also what the translator choked on --
-        # a hover that is mostly protected literals comes back untranslated.
-        import inspect
-
-        from spacr.deep_spacr import resolve_mixed_precision
-
-        table = inspect.getdoc(resolve_mixed_precision)
-        assert "3090" in table and "1.77x" in table
-
-
-class TestTheLoopUsesIt:
-    def test_the_gradients_are_scaled(self):
-        """float16 gradients underflow to zero without a scaler, and the
-        model simply does not learn -- silently, which is worse than not
-        having the feature."""
-        import inspect
-
-        from spacr import deep_spacr
-
-        source = inspect.getsource(deep_spacr.train_model)
-        scaler_source = inspect.getsource(deep_spacr._gradient_scaler)
-        # The forward and backward of one batch moved into _train_batch with
-        # the GPU memory governor (732965ef2f); train_model hands it the scaler.
-        batch_source = inspect.getsource(deep_spacr._train_batch)
-        assert "_gradient_scaler" in source
-        assert "GradScaler" in scaler_source
-        assert "_train_batch(" in source and "scaler=scaler" in source
-        assert "scaler.scale(step(rows, device, mixed_precision)).backward()" \
-            in batch_source
-        assert "scaler.step(optimizer)" in source
-
-    def test_the_forward_and_the_loss_are_inside_the_context(self):
-        """Only those. The optimiser step must run in full precision, and
-        a context that wrapped it would defeat the scaler."""
-        import inspect
-        import re
-
-        from spacr import deep_spacr
-
-        source = inspect.getsource(deep_spacr._train_batch)
-        block = source[source.index("with autocasting("):]
-        block = block[:block.index("scaler.scale(")]
-        assert "model(part)" in block
-        assert "loss_fn(" in block
-        assert "optimizer.step" not in block
-        assert "optimizer.step" not in source
-
-    def test_the_accumulation_flush_scales_too(self):
-        """The leftover-gradient flush at the end of an epoch is a second
-        optimiser step, and an unscaled one would step on float16
-        gradients."""
-        import inspect
-
-        from spacr import deep_spacr
-
-        source = inspect.getsource(deep_spacr.train_model)
-        assert source.count("scaler.step(optimizer)") == 2
-        assert "optimizer.step()" not in source
+        # tooltip is a sentence.
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(),
@@ -264,3 +207,83 @@ def test_a_real_cuda_training_run_uses_half_precision(tmp_path, capsys,
     assert all(bool(torch.isfinite(p).all()) for p in params)
     assert next(iter(params)).device.type == "cuda"
     assert os.path.exists(path)
+
+
+class _RecordingScaler:
+    """A gradient scaler that multiplies the loss and writes down each step."""
+
+    def __init__(self, factor=1.0):
+        self.factor, self.steps, self.updates = factor, 0, 0
+
+    def scale(self, loss):
+        return loss * self.factor
+
+    def is_enabled(self):
+        return self.factor != 1.0
+
+    def get_scale(self):
+        return self.factor
+
+    def step(self, optimizer):
+        self.steps += 1
+        optimizer.step()
+
+    def update(self):
+        self.updates += 1
+
+
+class TestTheLoopUsesIt:
+    def test_the_gradients_are_scaled(self):
+        """float16 gradients underflow to zero without a scaler, and the
+        model simply does not learn -- silently, which is worse than not
+        having the feature."""
+        from spacr.deep_spacr import _train_batch
+
+        data = torch.rand(4, 3, generator=torch.Generator().manual_seed(0))
+        target = torch.tensor([0, 1, 0, 1])
+
+        def gradient(factor):
+            torch.manual_seed(1)
+            model = torch.nn.Linear(3, 2)
+            _train_batch(model, data, target, scaler=_RecordingScaler(factor),
+                         loss_fn=torch.nn.functional.cross_entropy,
+                         mixed_precision=False, device=torch.device("cpu"),
+                         head_dim=2)
+            return model.weight.grad.clone()
+
+        assert torch.allclose(gradient(8.0), 8.0 * gradient(1.0))
+
+    def test_the_optimiser_only_steps_through_the_scaler(self, monkeypatch):
+        """Each optimiser step goes through the scaler, and the leftover
+        gradient flush at the end of an epoch is a second one: an unscaled
+        step would move the weights on float16 gradients."""
+        from spacr import deep_spacr
+
+        scaler = _RecordingScaler()
+        monkeypatch.setattr(deep_spacr, "_gradient_scaler",
+                            lambda device, enabled: scaler)
+        monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+        model = torch.nn.Sequential(torch.nn.Linear(4, 2))
+        monkeypatch.setattr("spacr.utils.choose_model", lambda *a, **k: model)
+        monkeypatch.setattr(
+            "spacr.deep_spacr.evaluate_model_performance",
+            lambda model, loader, epoch, **kw: ({
+                "accuracy": 0.5, "Accuracy": 0.5, "neg_accuracy": 0.5,
+                "pos_accuracy": 0.5, "prauc": 0.5, "optimal_threshold": 0.5,
+                "f1_macro": 0.5, "loss": 0.7, "epoch": int(epoch)},
+                [None, None]))
+        monkeypatch.setattr("spacr.io._save_progress", lambda *a: None)
+        generator = torch.Generator().manual_seed(0)
+        loaders = [(torch.rand(4, 4, generator=generator),
+                    torch.tensor([0, 1, 0, 1]), [f"b{n}_{i}.png" for i in range(4)])
+                   for n in range(3)]
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as folder:
+            deep_spacr.train_model(
+                folder, folder, "resnet18", loaders, epochs=1,
+                optimizer_type="adam", num_classes=2, schedule=None,
+                gradient_accumulation=True, gradient_accumulation_steps=2,
+                intermedeate_save=False, tensorboard=False)
+        assert (scaler.steps, scaler.updates) == (2, 2)
+

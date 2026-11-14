@@ -60,40 +60,38 @@ def test_a_single_mask_with_no_flows_at_all_still_unpacks():
     assert f1 == [None] and f4 == [None]
 
 
-def test_a_batched_stack_is_not_taken_for_one_image():
-    """The comment's own reasoning: an (N, H, W) stack has ndim 3.
+def _two_flows_per_image(n):
+    return [[np.zeros((2, 8, 8)), np.zeros((8, 8))] for _ in range(n)]
 
-    Treating a batch as one image would return every field's mask as a single
-    array, and the caller would write one field's objects under every field's
-    name.
-    """
+
+def _four_flows_per_image(n):
+    return [[np.zeros((8, 8, 3), dtype=np.float32),
+             np.zeros((2, 8, 8), dtype=np.float32),
+             np.zeros((8, 8), dtype=np.float32),
+             np.zeros((8, 8), dtype=np.float32)] for _ in range(n)]
+
+
+@pytest.mark.parametrize("masks_in, flows, images", [
+    # The comment's own reasoning: an (N, H, W) stack has ndim 3. Treating a
+    # batch as one image would return every field's mask as a single array,
+    # and the caller would write one field's objects under every field's name.
+    pytest.param(np.zeros((3, 8, 8), dtype=np.int32), _two_flows_per_image(3),
+                 3, id="batched-stack-is-not-one-image"),
+    # A list of per-field masks is the commonest batched return, and it must
+    # not hit the single-image path even though each element is 2-D.
+    pytest.param([np.zeros((8, 8), dtype=np.int32) for _ in range(2)],
+                 _two_flows_per_image(2), 2,
+                 id="list-of-2d-masks-is-not-one-image"),
+    pytest.param([np.ones((8, 8), dtype=np.int32) * (i + 1) for i in range(2)],
+                 _four_flows_per_image(2), 2,
+                 id="per-image-four-flow-format"),
+])
+def test_a_batched_result_is_not_taken_for_one_image(masks_in, flows, images):
     from spacr.spacr_cellpose import parse_cellpose4_output
 
-    stack = np.zeros((3, 8, 8), dtype=np.int32)
-    # Per-image flows: one entry per image, which is Case B.
-    flows = [[np.zeros((2, 8, 8)), np.zeros((8, 8))] for _ in range(3)]
+    masks, f1, f2, f3, f4 = parse_cellpose4_output((masks_in, flows))
 
-    masks, f1, _f2, _f3, _f4 = parse_cellpose4_output((stack, flows))
-
-    assert len(masks) == 3
-    assert len(f1) == 3
-
-
-def test_a_list_of_two_dimensional_masks_is_not_taken_for_one_image():
-    """The other half of the comment: a list fails the isinstance.
-
-    A list of per-field masks is the commonest batched return, and it must not
-    hit the single-image path even though each element is 2-D.
-    """
-    from spacr.spacr_cellpose import parse_cellpose4_output
-
-    masks_in = [np.zeros((8, 8), dtype=np.int32) for _ in range(2)]
-    flows = [[np.zeros((2, 8, 8)), np.zeros((8, 8))] for _ in range(2)]
-
-    masks, f1, _f2, _f3, _f4 = parse_cellpose4_output((masks_in, flows))
-
-    assert len(masks) == 2
-    assert len(f1) == 2
+    assert [len(part) for part in (masks, f1, f2, f3, f4)] == [images] * 5
 
 
 def test_the_four_array_batched_format_is_split_per_image():

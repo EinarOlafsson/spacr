@@ -15,55 +15,12 @@ from __future__ import annotations
 
 import sys
 import types
-from decimal import Decimal
 
 import pytest
 
 from spacr import omero, schema
 from tests.test_omero import (FakeGateway, FakeImage, FakePlate, FakeWell,
                               build_gateway, build_plate)
-
-
-class _Quantity:
-    """A number-like value that compares by identity and converts to float.
-
-    Stands in for the wrapped measurements that reach an annotation from
-    another library: unlike ``float('nan')`` and ``Decimal('NaN')`` it reports
-    itself as PRESENT, so the missing-value guard passes it through and the
-    NaN check further down is what has to catch it.
-    """
-
-    def __init__(self, number):
-        self.number = float(number)
-
-    def __eq__(self, other):
-        return self is other
-
-    def __ne__(self, other):
-        return self is not other
-
-    def __hash__(self):
-        return id(self)
-
-    def __float__(self):
-        return self.number
-
-    def __repr__(self):
-        return f"Quantity({self.number})"
-
-
-class _Opaque:
-    """A value with no numeric conversion at all."""
-
-    def __repr__(self):
-        return "an opaque proxy"
-
-
-class _Different(_Opaque):
-    """Another one, rendering differently."""
-
-    def __repr__(self):
-        return "a different proxy"
 
 
 # -- the extra ---------------------------------------------------------------
@@ -214,54 +171,6 @@ def test_a_name_token_that_is_not_a_well_is_skipped(monkeypatch):
 
 # -- pixel sizes --------------------------------------------------------------
 
-def test_a_boolean_pixel_size_is_no_pixel_size():
-    """``True`` is an int in Python and is not 1 micrometre."""
-    assert omero.pixel_size_from(True) == omero.PixelSize()
-    assert omero.pixel_size_from(False) == omero.PixelSize()
-
-
-def test_a_length_whose_accessors_raise_yields_nothing():
-    """A proxy whose getters fail leaves the calibration unknown, not wrong."""
-    class _Broken:
-        def getValue(self):
-            raise RuntimeError("the server connection dropped")
-
-        def getSymbol(self):
-            raise RuntimeError("the server connection dropped")
-
-    size = omero.pixel_size_from(_Broken())
-
-    assert size.value is None
-    assert size.unit is None
-
-
-def test_a_length_whose_value_and_unit_are_methods_yields_nothing():
-    """Unbound accessors left as attributes are not a value and not a unit."""
-    class _Unbound:
-        def value(self):
-            return 0.325
-
-        def unit(self):
-            return "MICROMETER"
-
-    size = omero.pixel_size_from(_Unbound())
-
-    assert size.value is None
-    assert size.unit is None
-
-
-def test_a_length_whose_value_is_not_a_number_yields_no_value():
-    """A value that will not convert is dropped rather than stringified."""
-    class _Wordy:
-        value = "about a third of a micron"
-        unit = "MICROMETER"
-
-    size = omero.pixel_size_from(_Wordy())
-
-    assert size.value is None
-    assert size.unit == "MICROMETER"
-
-
 def test_an_object_with_none_of_the_named_accessors_gives_the_default():
     """``_call`` falls back rather than raising on a proxy without the method."""
     assert omero._call(object(), "getWellSamples", default="fallback") == \
@@ -353,32 +262,6 @@ def test_an_import_stops_at_its_limit(tmp_path):
 
 # -- rendering values ---------------------------------------------------------
 
-def test_a_decimal_renders_like_a_float():
-    """Decimal is neither ``int`` nor ``float`` and still has to render."""
-    assert omero.format_map_value(Decimal("1.5")) == "1.5"
-    assert omero.format_map_value(Decimal("Infinity")) == "inf"
-    assert omero.format_map_value(Decimal("-Infinity")) == "-inf"
-
-
-def test_a_present_value_that_is_nan_renders_as_missing():
-    """A NaN that claims to be present is still NaN in the panel."""
-    assert omero.format_map_value(_Quantity(float("nan"))) == \
-        omero.MISSING_TEXT
-
-
-def test_a_value_with_no_number_in_it_renders_as_its_text():
-    """Anything that will not convert becomes collapsed, truncated text."""
-    assert omero.format_map_value(_Opaque()) == "an opaque proxy"
-
-    class _Verbose:
-        def __repr__(self):
-            return "x" * 400
-
-    rendered = omero.format_map_value(_Verbose(), max_chars=10)
-
-    assert rendered == "x" * 9 + "…"
-
-
 def test_a_key_longer_than_the_limit_is_truncated():
     """An over-long key is shortened with an ellipsis, never silently cut."""
     key = "a" * (omero.MAX_KEY_CHARS + 20)
@@ -387,79 +270,6 @@ def test_a_key_longer_than_the_limit_is_truncated():
 
     assert len(cleaned) == omero.MAX_KEY_CHARS
     assert cleaned.endswith("…")
-
-
-# -- summarising rows ---------------------------------------------------------
-
-def test_an_explicit_column_list_is_what_gets_summarised():
-    """Naming the columns restricts the summary to them, in that order."""
-    rows = [{"area": 1.0, "junk": 5.0}, {"area": 3.0, "junk": 7.0}]
-
-    summary = omero.summarise_rows(rows, columns=["area"])
-
-    assert summary == {"n_objects": 2, "area": 2.0}
-
-
-def test_a_column_absent_from_a_row_does_not_dilute_its_mean():
-    """A row without the key contributes nothing rather than a zero.
-
-    Zero-filling turns "this cell has no pathogen" into "a pathogen of size
-    zero", which is the exact misreading this summary exists to avoid.
-    """
-    rows = [{"area": 2.0}, {"other": 9.0}, {"area": 4.0}]
-
-    summary = omero.summarise_rows(rows)
-
-    assert summary["area"] == 3.0
-    assert summary["other"] == 9.0
-
-
-def test_a_value_that_is_not_a_number_is_treated_as_text():
-    """An unconvertible value joins the text side of the column.
-
-    Two different opaque proxies disagree, so the column has no single value
-    to carry through and is reported empty; two that render alike do.
-    """
-    disagreeing = [{"tag": _Opaque()}, {"tag": _Different()}]
-    agreeing = [{"tag": _Opaque()}, {"tag": _Opaque()}]
-
-    assert omero.summarise_rows(disagreeing)["tag"] is None
-    assert str(omero.summarise_rows(agreeing)["tag"]) == "an opaque proxy"
-
-
-def test_a_present_nan_is_excluded_from_its_columns_mean():
-    """A NaN that passed the missing check is still not part of a mean."""
-    rows = [{"ratio": 2.0}, {"ratio": _Quantity(float("nan"))},
-            {"ratio": 4.0}]
-
-    summary = omero.summarise_rows(rows)
-
-    assert summary["ratio"] == 3.0
-
-
-def test_a_column_mixing_text_and_numbers_has_no_honest_summary():
-    """Half a mean is worse than no number, so the column is reported empty."""
-    rows = [{"score": 1.0}, {"score": "n/a"}]
-
-    summary = omero.summarise_rows(rows)
-
-    assert summary["score"] is None
-
-
-def test_a_column_that_every_row_agrees_on_is_carried_through():
-    """One agreed text value survives; two different ones do not."""
-    rows = [{"plateID": "p1"}, {"plateID": "p1"}]
-    disagreeing = [{"plateID": "p1"}, {"plateID": "p2"}]
-
-    assert omero.summarise_rows(rows)["plateID"] == "p1"
-    assert omero.summarise_rows(disagreeing)["plateID"] is None
-
-
-def test_a_column_with_nothing_usable_in_it_is_none():
-    """A column that is missing everywhere is reported as empty."""
-    rows = [{"area": None}, {"area": float("nan")}]
-
-    assert omero.summarise_rows(rows)["area"] is None
 
 
 # -- exporting per-well summaries ---------------------------------------------

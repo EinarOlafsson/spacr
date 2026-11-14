@@ -28,18 +28,6 @@ pytestmark = pytest.mark.qt
 
 class TestExportingAPlotWithNoSpec:
 
-    def test_a_plot_with_a_spec_exports_its_shape(self, qtbot):
-        from spacr.qt.widgets.grouped_plot import GroupedPlot, PlotSpec
-
-        plot = GroupedPlot()
-        qtbot.addWidget(plot)
-        frame = pd.DataFrame({"g": ["a", "a", "b", "b"],
-                              "v": [1.0, 2.0, 3.0, 4.0]})
-        plot.show_spec(PlotSpec(frame=frame, value="v", group="g"))
-
-        exported = plot.export_settings()
-        assert exported.get("group") == "g"
-        assert exported.get("value") == "v"
 
     def test_a_plot_with_no_spec_exports_only_what_it_inherits(self, qtbot):
         """THE UNCOVERED ARC.

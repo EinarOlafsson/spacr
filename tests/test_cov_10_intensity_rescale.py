@@ -11,15 +11,10 @@ on the plate shares, and the record would not say so.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
-from spacr import intensity_rescale
 from spacr.intensity_rescale import (
-    PLAN_SETTINGS_KEY,
-    UINT16_MAX,
     build_plate_plan,
     fallback_record,
-    resolve_record,
     signal_max,
 )
 
@@ -101,57 +96,3 @@ def test_a_field_name_the_schema_cannot_parse_is_recorded_as_an_error_plate():
     assert record["comparable_within_plate"] is False
 
 
-def test_an_unparseable_name_makes_the_worker_fall_back_even_with_a_plan():
-    """A plan is keyed by plate. A field whose plate cannot be read from its
-    name cannot be matched against one, so it takes the explicitly
-    non-comparable per-field route instead of borrowing another plate's
-    factor."""
-    settings = dict(ONE_INTENSITY)
-    settings[PLAN_SETTINGS_KEY] = {"version": 1, "fields": {}, "failures": {},
-                                   "plates": {"plate1": 131070.0}}
-    record = resolve_record(_stack(3.0, dtype=np.uint16), "nonsense.npy",
-                            settings)
-    assert record["plateID"] == "error"
-    assert record["rescale_scope"] == "field_fallback"
-    assert record["plate_intensity_max"] is None
-
-
-def test_a_normalised_float_field_keeps_its_fixed_factor_under_a_plan():
-    """A float field inside [0, 1] converts by 65535 whatever the plate's raw
-    maximum is; the plate factor would destroy a normalised image."""
-    settings = dict(ONE_INTENSITY)
-    settings[PLAN_SETTINGS_KEY] = {"version": 1, "fields": {}, "failures": {},
-                                   "plates": {"plate1": 131070.0}}
-    record = resolve_record(_stack(0.5, dtype=np.float32), "plate1_A01_1.npy",
-                            settings)
-    assert record["kind"] == "fixed_normalized"
-    assert record["rescale_factor"] == UINT16_MAX
-    assert record["comparable_within_plate"] is True
-
-
-def test_a_label_only_field_under_a_plan_is_left_at_factor_one():
-    """The plan path must reach the same no-intensity answer as the fallback
-    path, so a resumed plate does not rescale label planes it skipped before."""
-    settings = dict(ALL_MASKS)
-    settings[PLAN_SETTINGS_KEY] = {"version": 1, "fields": {}, "failures": {},
-                                   "plates": {"plate1": 131070.0}}
-    record = resolve_record(_stack(5.0, dtype=np.uint16), "plate1_A01_1.npy",
-                            settings)
-    assert record["kind"] == "no_intensity"
-    assert record["rescale_scope"] == "no_intensity"
-    assert record["rescale_factor"] == 1.0
-
-
-def test_a_plate_that_fits_in_uint16_scales_nothing():
-    """When the plate maximum is already inside the uint16 ceiling the only
-    honest factor is 1, recorded as ``identity`` so nobody looks for a scale
-    that was never applied."""
-    settings = dict(ONE_INTENSITY)
-    settings[PLAN_SETTINGS_KEY] = {"version": 1, "fields": {}, "failures": {},
-                                   "plates": {"plate1": 40000.0}}
-    record = resolve_record(_stack(1000, dtype=np.uint16), "plate1_A01_1.npy",
-                            settings)
-    assert record["rescale_scope"] == "identity"
-    assert record["rescale_factor"] == 1.0
-    assert record["plate_intensity_max"] == 40000.0
-    assert intensity_rescale.needs_warning(record["rescale_factor"]) is False

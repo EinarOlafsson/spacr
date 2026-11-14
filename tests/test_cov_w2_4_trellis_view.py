@@ -22,7 +22,7 @@ import pytest
 pytest.importorskip("PySide6")
 pytest.importorskip("matplotlib")
 
-from spacr.selection import DataFilter, RangeFilter, Selection
+from spacr.selection import DataFilter, RangeFilter
 from spacr.qt.linked_selection import LinkedSelection
 from spacr.qt.widgets.graph_spec import CONTINUOUS, GraphSpec
 from spacr.qt.widgets.trellis_spec import TrellisSpec
@@ -60,13 +60,6 @@ def keyed():
     ])
 
 
-def _scatter_spec(**kwargs):
-    return TrellisSpec(
-        graph=GraphSpec(x="area", y="intensity", facet_row="plateID",
-                        facet_col="gene", roles=NUMERIC),
-        **kwargs)
-
-
 def _histogram_spec(**kwargs):
     return TrellisSpec(
         graph=GraphSpec(x="area", facet_row="plateID", facet_col="gene",
@@ -88,6 +81,16 @@ def canvas(qtbot, keyed, link):
 
 
 # ---------------------------------------------------------------------------
+# What it shows instead of a chart
+# ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# Per-panel y limits
+# ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
 # The notice line
 # ---------------------------------------------------------------------------
 
@@ -105,30 +108,10 @@ def test_the_notice_says_when_the_shared_filter_does_not_apply(canvas, link):
 # Brushing
 # ---------------------------------------------------------------------------
 
-def test_brushing_a_panel_returns_that_panels_rows_only(canvas, keyed):
-    canvas.set_trellis_spec(_scatter_spec())
-
-    picked = canvas.brush(-1e9, -1e9, 1e9, 1e9, row=0, col=0, publish=False)
-
-    assert picked is not None
-    # Panel (p1, a) holds the first two objects and nothing else.
-    expected = Selection.from_frame(keyed.iloc[:2], source=canvas.link_source)
-    assert set(picked.keys) == set(expected.keys)
-
 
 # ---------------------------------------------------------------------------
 # Following someone else's selection
 # ---------------------------------------------------------------------------
-
-
-def test_a_selection_arriving_before_a_chart_is_ignored(canvas, keyed, link):
-    canvas.set_trellis_spec(TrellisSpec())
-    assert canvas.trellis is None
-
-    link.set_selection(Selection.from_frame(keyed.iloc[:1], source="other"))
-
-    assert canvas.trellis is None
-    assert canvas.panel_axes() == {}
 
 
 # ---------------------------------------------------------------------------

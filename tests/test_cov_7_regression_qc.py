@@ -464,18 +464,19 @@ def _design(n=6):
                          "x": np.linspace(0.0, 1.0, n)})
 
 
-def test_a_response_and_a_design_of_different_lengths_are_refused():
-    """They must be the rows of the same fit, and the message says so."""
-    with pytest.raises(ValueError, match="rows of the same fit"):
-        rq.build_context(_Fit(fittedvalues=np.zeros(6)), _design(6),
-                         np.zeros(5))
-
-
-def test_a_model_that_produced_the_wrong_number_of_fitted_values_is_refused():
-    """A fit over other rows would attribute every residual to the wrong well."""
-    with pytest.raises(ValueError, match="fitted values"):
-        rq.build_context(_Fit(fittedvalues=np.zeros(4)), _design(6),
-                         np.zeros(6))
+@pytest.mark.parametrize("fitted, design_rows, response, refusal", [
+    # They must be the rows of the same fit, and the message says so.
+    pytest.param(6, 6, 5, "rows of the same fit",
+                 id="response-and-design-of-different-lengths"),
+    # A fit over other rows would attribute every residual to the wrong well.
+    pytest.param(4, 6, 6, "fitted values",
+                 id="model-produced-the-wrong-number-of-fitted-values"),
+])
+def test_a_context_over_mismatched_rows_is_refused(fitted, design_rows,
+                                                   response, refusal):
+    with pytest.raises(ValueError, match=refusal):
+        rq.build_context(_Fit(fittedvalues=np.zeros(fitted)),
+                         _design(design_rows), np.zeros(response))
 
 
 def test_weights_that_are_not_the_fitted_rows_are_refused():

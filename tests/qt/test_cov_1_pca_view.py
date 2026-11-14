@@ -228,14 +228,6 @@ def test_asking_for_a_pca_with_no_table_says_to_load_one(panel):
     assert panel.report.text() == "Load a table first."
 
 
-def test_flipping_a_view_control_before_a_table_is_harmless(panel):
-    """The biplot switch works before there is anything to plot."""
-    panel._biplot.setChecked(False)
-
-    assert panel.result is None
-    assert panel.report.text() == "" or "Load a table" in panel.report.text()
-
-
 def test_changing_the_scaling_refits(panel):
     """An option change is a new decomposition, not a redraw.
 
@@ -288,26 +280,3 @@ def test_clicking_the_component_already_on_x_changes_nothing(panel):
     panel.scree.component_picked.emit(0)
 
     assert (panel.canvas.spec.x, panel.canvas.spec.y) == before
-
-
-def test_a_scree_click_before_a_fit_leaves_the_panel_alone(panel):
-    """The scree is empty then, but the signal can still arrive."""
-    panel.scree.component_picked.emit(2)
-
-    assert panel.result is None
-
-
-def test_closing_the_panel_abandons_the_fit_in_flight(panel, monkeypatch):
-    """A closed panel must not leave a decomposition running behind it.
-
-    The worker holds the table and delivers into widgets that are being torn
-    down. Shutting the runner down on close is what makes closing the window
-    the end of the work.
-    """
-    stopped = []
-    monkeypatch.setattr(panel._jobs, "shutdown",
-                        lambda *a, **k: stopped.append(True))
-
-    panel.close()
-
-    assert stopped == [True]

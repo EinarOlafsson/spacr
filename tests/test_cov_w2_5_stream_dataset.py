@@ -279,26 +279,16 @@ def test_a_stack_that_will_not_load_is_counted_with_its_error(selection,
     assert report["trouble"][0].startswith("plate1_A01_2_0: ")
 
 
-def test_an_object_id_that_is_not_a_number_is_counted_not_dropped(
-        selection, merged, tmp_path):
-    """`png_list` spells it ``'o2'``; a row that cannot be parsed still counts."""
+@pytest.mark.parametrize("object_id", [
+    # `png_list` spells it ``'o2'``; a row that cannot be parsed still counts.
+    pytest.param("not an object", id="object-id-that-is-not-a-number"),
+    # A selection naming an object the field does not hold is reported.
+    pytest.param("99", id="label-absent-from-the-mask"),
+])
+def test_an_object_that_cannot_be_written_is_counted_not_dropped(
+        selection, merged, tmp_path, object_id):
     table = selection.copy()
-    table.loc[table.index[0], "objectID"] = "not an object"
-    written = []
-
-    report = sd.stream(table, merged, str(tmp_path / "out"),
-                       write=_collect(written))
-
-    assert report["written"] == 5
-    assert report["missing"] == 1
-
-
-def test_a_label_absent_from_the_mask_is_counted_not_dropped(selection,
-                                                             merged,
-                                                             tmp_path):
-    """A selection naming an object the field does not hold is reported."""
-    table = selection.copy()
-    table.loc[table.index[0], "objectID"] = "99"
+    table.loc[table.index[0], "objectID"] = object_id
     written = []
 
     report = sd.stream(table, merged, str(tmp_path / "out"),

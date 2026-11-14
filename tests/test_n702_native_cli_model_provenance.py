@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from spacr import cli, model_zoo as zoo, run_journal
+from spacr.settings import SETTINGS_SCHEMA_VERSION
 
 
 @pytest.mark.parametrize('cached', [False, True])
@@ -58,7 +59,7 @@ def test_actual_cli_journal_records_original_pin_and_effective_verified_model(tm
     assert len(observed) == 1
     directory = observed[0]
     recorded = json.loads((directory / 'settings.json').read_text(encoding="utf-8"))
-    stamped = {'spacr_settings_version': 931, **original}
+    stamped = {'spacr_settings_version': SETTINGS_SCHEMA_VERSION, **original}
     assert recorded == stamped
     assert cli.load_settings_file(str(directory / 'settings.csv')) == stamped
     manifest = json.loads((directory / 'manifest.json').read_text(encoding="utf-8"))

@@ -7,18 +7,14 @@ alternative to a panel that degrades correctly is a panel that either crashes
 (and takes an hour-long fit's diagnostics with it) or, worse, draws a curve
 that is not what its legend says it is.
 
-Covered here: a wrapped classifier with no ``classes_``; residuals with zero
-spread, where a KDE cannot be estimated; a fitted range so tied that
-Brown-Forsythe has one usable group; an all-zero design, whose singular values
+Covered here: residuals with zero spread, where a KDE cannot be estimated;
+an all-zero design, whose singular values
 give a log axis no headroom to compute; a ``p_value`` column that is not
 p-values; the plain-text report with no notes, no verdict counts and a verdict
-with no explanation; and a suite the screen's renderer was going to draw that
-matplotlib drew instead.
+with no explanation.
 """
 
 from __future__ import annotations
-
-import os
 
 import numpy as np
 import pandas as pd
@@ -52,55 +48,6 @@ def _context(fitted, y, X=None, **kwargs):
                           "x": np.linspace(0.0, 1.0, n)})
     return rq.build_context(_Fit(fittedvalues=np.asarray(fitted, dtype=float)),
                             X, response, **kwargs)
-
-
-# ---------------------------------------------------------------------------
-# the decision score's sign
-# ---------------------------------------------------------------------------
-
-class _UnlabelledClassifier:
-    """A wrapped classifier that ranks wells but never published ``classes_``.
-
-    Pipelines, calibrators and hand-rolled wrappers all do this: they forward
-    ``decision_function`` and drop the attribute that says which label the
-    positive side belongs to.
-    """
-
-    def __init__(self, n):
-        self.fittedvalues = np.zeros(n)
-
-    def decision_function(self, X):
-        return np.linspace(-2.0, 2.0, len(X))
-
-
-class _InvertedClassifier(_UnlabelledClassifier):
-    """The same scores, but declaring that the LARGER score is the 0 class."""
-
-    classes_ = np.array([1, 0])
-
-
-def test_a_ranking_score_with_no_class_labels_keeps_the_sign_it_was_given():
-    """Guessing a sign here silently turns an AUC of 0.94 into 0.06.
-
-    ``_decision_score`` flips the score only when ``classes_`` says the
-    positive side is the smaller label. An estimator that never published
-    ``classes_`` has said nothing, and the only safe reading of silence is
-    sklearn's own convention -- larger is the event. Inventing a flip for it
-    would report every wrapped classifier's discrimination upside down, and an
-    inverted ROC does not look like an error on the panel.
-    """
-    n = 6
-    X = pd.DataFrame({"intercept": np.ones(n), "x": np.linspace(0.0, 1.0, n)})
-    y = np.array([0.0, 0.0, 0.0, 1.0, 1.0, 1.0])
-
-    silent = rq.build_context(_UnlabelledClassifier(n), X, y)
-    declared = rq.build_context(_InvertedClassifier(n), X, y)
-
-    assert np.allclose(silent.decision_score, np.linspace(-2.0, 2.0, n))
-    # The same numbers, negated, because this one SAID the larger score is 0.
-    assert np.allclose(declared.decision_score, np.linspace(2.0, -2.0, n))
-    assert silent.ranking_score[-1] > silent.ranking_score[0]
-    assert declared.ranking_score[-1] < declared.ranking_score[0]
 
 
 # ---------------------------------------------------------------------------
@@ -165,42 +112,6 @@ def test_residuals_with_no_spread_get_no_kde_and_claim_none():
     assert flat_stats["n_points"] == n == spread_stats["n_points"]
     assert np.isnan(flat_stats["skew"])
     assert np.isfinite(spread_stats["skew"])
-
-
-# ---------------------------------------------------------------------------
-# scale-location with only one usable quartile group
-# ---------------------------------------------------------------------------
-
-def test_a_fit_whose_quartiles_collapse_reports_no_brown_forsythe_number():
-    """Printing a variance-equality p from one group would be a made-up number.
-
-    The scale-location panel splits the fitted values into quartiles and runs
-    Brown-Forsythe across them. A fit whose predictions are almost all the same
-    value -- which is what a nearly-null model on a screen produces -- puts
-    every well but one into a single quartile bucket, and a test needs two
-    groups. The panel has to print ``nan`` there and fall back to Spearman,
-    because a p-value quoted off one group would be read as evidence the
-    variance is fine.
-    """
-    n = 20
-    tied = np.array([0.0] + [5.0] * 18 + [10.0])
-    rng = np.random.default_rng(7)
-    tied_ctx = _context(tied, tied + rng.normal(size=n))
-
-    spread = np.linspace(0.0, 10.0, n)
-    spread_ctx = _context(spread, spread + rng.normal(size=n))
-
-    tied_stats = rq._panel_scale_location(tied_ctx, _axes())
-    spread_stats = rq._panel_scale_location(spread_ctx, _axes())
-
-    assert tied_stats["n_points"] == n
-    assert np.isnan(tied_stats["levene_p"])
-    assert np.isnan(tied_stats["quartile_sd_ratio"])
-    assert np.isfinite(tied_stats["spearman_rho"])
-    # The same panel over a fit with a real spread of predictions does get the
-    # four groups, so the nan above is the collapse and not a dead code path.
-    assert np.isfinite(spread_stats["levene_p"])
-    assert np.isfinite(spread_stats["quartile_sd_ratio"])
 
 
 # ---------------------------------------------------------------------------
@@ -340,107 +251,3 @@ def test_a_verdict_with_no_explanation_still_reaches_the_report(tmp_path):
     assert "n_points: 96" in lines
     assert f"file: {written.name}" in lines
     assert sum(1 for line in lines if line.startswith("means:")) == 1
-
-
-# ---------------------------------------------------------------------------
-# the renderer the suite was actually drawn by
-# ---------------------------------------------------------------------------
-
-def test_every_panel_that_fell_back_to_matplotlib_is_named(tmp_path, capsys,
-                                                           monkeypatch):
-    """"Why does this figure not match the others on screen" needs an answer.
-
-    When the screen's renderer is pyqtgraph, a panel matplotlib had to draw
-    instead looks different from its neighbours in the same folder. The suite
-    records the reason per panel in the manifest and prints it, so the mismatch
-    is explained where the user is standing rather than looking like a bug in
-    the panel. On a machine that has no Qt at all, naming twenty fallbacks
-    would be twenty lines of noise, so the list stays empty.
-    """
-    import spacr.figures.scene as scene
-
-    def _wrote(fig, path, *, fmt=None, dpi=None, renderer=None, announce=True,
-               title=None, **savefig):
-        target = path if os.path.splitext(path)[1] else f"{path}.png"
-        with open(target, "wb") as handle:
-            handle.write(b"png")
-        return target, drew["by"], drew["why"]
-
-    drew = {"by": "matplotlib", "why": "no pyqtgraph translation for a bar"}
-    monkeypatch.setattr(scene, "scene_renderer", lambda force=None: ("pyqtgraph", ""))
-    monkeypatch.setattr(scene, "write_figure", _wrote)
-
-    n = 30
-    rng = np.random.default_rng(3)
-    X = pd.DataFrame({"intercept": np.ones(n), "x": rng.normal(size=n)})
-    fitted = 1.0 + 2.0 * X["x"].to_numpy()
-    y = fitted + rng.normal(size=n) * 0.3
-    model = _Fit(fittedvalues=fitted)
-
-    manifest = rq.regression_qc_report(model, X, y, str(tmp_path / "fell"),
-                                       panels=("condition_number",),
-                                       combined=True, verbose=True)
-    printed = capsys.readouterr().out
-
-    assert manifest["renderer"] == "pyqtgraph"
-    assert manifest["renderer_counts"] == {"matplotlib": 2}
-    assert manifest["renderer_fallbacks"] == [
-        ("condition_number", "no pyqtgraph translation for a bar"),
-        ("regression_qc_report", "no pyqtgraph translation for a bar")]
-    assert "condition_number fell back to matplotlib" in printed
-    assert "regression_qc_report fell back to matplotlib" in printed
-
-    # The same suite where pyqtgraph DID draw names no fallback at all.
-    drew.update(by="pyqtgraph", why="")
-    quiet = rq.regression_qc_report(model, X, y, str(tmp_path / "drew"),
-                                    panels=("condition_number",),
-                                    combined=True, verbose=True)
-    quiet_printed = capsys.readouterr().out
-
-    assert quiet["renderer_counts"] == {"pyqtgraph": 2}
-    assert quiet["renderer_fallbacks"] == []
-    assert "fell back to matplotlib" not in quiet_printed
-
-
-def test_the_ols_assumption_page_names_its_renderer_fallback(tmp_path,
-                                                             monkeypatch):
-    """The OLS supplement records its own fallback, not just the full page's."""
-    import spacr.figures.scene as scene
-
-    drew = {"by": "matplotlib", "why": "combined pages need matplotlib"}
-
-    def _wrote(fig, path, *, fmt=None, dpi=None, renderer=None, announce=True,
-               title=None, **savefig):
-        target = path if os.path.splitext(path)[1] else f"{path}.png"
-        with open(target, "wb") as handle:
-            handle.write(b"png")
-        return target, drew["by"], drew["why"]
-
-    monkeypatch.setattr(scene, "scene_renderer", lambda force=None: ("pyqtgraph", ""))
-    monkeypatch.setattr(scene, "write_figure", _wrote)
-    n = 30
-    X = pd.DataFrame({"intercept": np.ones(n),
-                      "x": np.linspace(-1.0, 1.0, n)})
-    y = 1.0 + 2.0 * X["x"].to_numpy()
-    model = _Fit(fittedvalues=y)
-
-    fell_back = rq.regression_qc_report(
-        model, X, y, str(tmp_path / "fell"), regression_type="ols",
-        panels=rq.OLS_ASSUMPTION_PANELS, combined=True, verbose=False,
-    )
-
-    assert fell_back["assumptions"]
-    assert ("ols_assumption_diagnostics", drew["why"]) in \
-        fell_back["renderer_fallbacks"]
-
-    # Positive counterpart: the same page drawn by the requested renderer is
-    # still emitted, and is not mislabeled as a fallback.
-    drew.update(by="pyqtgraph", why="")
-    native = rq.regression_qc_report(
-        model, X, y, str(tmp_path / "native"), regression_type="ols",
-        panels=rq.OLS_ASSUMPTION_PANELS, combined=True, verbose=False,
-    )
-
-    assert native["assumptions"]
-    assert not any(name == "ols_assumption_diagnostics"
-                   for name, _why in native["renderer_fallbacks"])

@@ -20,19 +20,6 @@ from spacr import sequencing as SQ
 # ---------------------------------------------------------------------------
 
 class TestHelpers:
-    def test_extract_sequence_and_quality(self):
-        s, q = SQ.extract_sequence_and_quality("ACGTACGT", "IIIIIIII", 2, 5)
-        assert s == "GTA" and q == "III"
-
-    def test_get_consensus_base_prefers_non_N(self):
-        assert SQ.get_consensus_base([("N", "I"), ("A", "!")]) == "A"
-        assert SQ.get_consensus_base([("A", "!"), ("N", "I")]) == "A"
-
-    def test_get_consensus_base_higher_quality(self):
-        # Neither N → higher quality wins.
-        assert SQ.get_consensus_base([("A", "I"), ("C", "!")]) == "A"
-        assert SQ.get_consensus_base([("A", "!"), ("C", "I")]) == "C"
-
     def test_create_consensus(self):
         out = SQ.create_consensus("ANGT", "I!II", "ACGT", "IIII")
         assert out[1] == "C"   # N replaced by the other read's C

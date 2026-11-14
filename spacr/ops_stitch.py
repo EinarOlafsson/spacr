@@ -193,6 +193,7 @@ def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
                 skew: Optional[int] = None,
                 gpu: bool = True,
                 sites: Optional[Sequence[int]] = None,
+                edge_workers: int = 1,
                 **kwargs) -> StitchedWell:
     """Register a well's tiles against each other and solve their positions.
 
@@ -217,6 +218,15 @@ def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
     :param gpu: passed through to the registration.
     :param sites: which sites to place. None uses every site the layout
         holds.
+    :param edge_workers: how many worker processes register the edges
+        (item 936). 1, the default, registers them one after another in this
+        process. More cuts each pair's two overlap strips here and registers
+        them in that many processes, on the CPU, with the same edges,
+        acceptances and placements; on well A1 of Funk et al. 2022 three
+        workers cut the placement wall time about three-fold at the same
+        CPU time. Workers start ten seconds apart, as every spaCR process
+        pool does, so the gain shows only on wells that take longer than
+        that.
     :param kwargs: passed to :func:`spacr.ops_register.register_edge`.
     :returns: the stitch, its edges and its residuals.
     :raises ValueError: when the well holds no tiles at all, which is a
@@ -244,9 +254,14 @@ def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
 
     known = set(every_site)
     edges: Dict[Tuple[int, int], object] = {}
-    for a, b, axis in layout.pairs():
-        if a not in known or b not in known:
-            continue
+    jobs = [(a, b, axis) for a, b, axis in layout.pairs()
+            if a in known and b in known]
+    if int(edge_workers or 1) > 1 and len(jobs) > 1:
+        options = dict(kwargs, expected_overlap=overlap, tolerance=tolerance,
+                       gpu=False, **({} if skew is None else {"skew": skew}))
+        edges = _parallel_edges(read, jobs, int(edge_workers), options)
+        jobs = []
+    for a, b, axis in jobs:
         try:
             edges[(a, b)] = register_edge(
                 read(a), read(b), axis, expected_overlap=overlap,
@@ -264,3 +279,103 @@ def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
     return StitchedWell(placements=placements, edges=edges,
                         tile_shape=tile_shape, layout=layout,
                         overlap=overlap)
+
+
+def _failed_edge():
+    """The registration recorded for a pair that could not be registered."""
+    from .ops_register import Registration
+
+    return Registration(dy=0, dx=0, peak_ratio=0.0, accepted=False,
+                        backend="none")
+
+
+def _edge_task(task):
+    """Register one pair's strips in a worker process (item 936).
+
+    :param task: ``(pair, strip_first, strip_second, axis, extent, options)``
+        as :func:`_parallel_edges` cut them.
+    :returns: ``(pair, registration)``; a pair that raises is recorded as
+        refused, as the serial loop of :func:`stitch_well` records it.
+    """
+    from .ops_register import _register_strips
+
+    pair, strip_first, strip_second, axis, extent, options = task
+    try:
+        return pair, _register_strips(strip_first, strip_second, axis,
+                                      extent, **options)
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not register the pair %s-%s", *pair, exc_info=True)
+        return pair, _failed_edge()
+
+
+def _parallel_edges(read: Callable, jobs, workers: int,
+                    options: Dict[str, object]) -> Dict[Tuple[int, int], object]:
+    """Register ``jobs`` in ``workers`` processes, in the layout's order.
+
+    Only the two overlap strips of a pair travel to a worker, cut here
+    exactly as :func:`spacr.ops_register.register_edge` cuts them, and at
+    most four tasks per worker wait at once, so the well's tiles are never
+    all copied into the queue.
+
+    :param read: ``site -> 2-D tile``.
+    :param jobs: ``(a, b, axis)`` per pair.
+    :param workers: how many processes.
+    :param options: the keywords of
+        :func:`spacr.ops_register._register_strips`.
+    :returns: ``(a, b) -> registration`` in the order of ``jobs``.
+    """
+    import multiprocessing
+
+    from .ops_register import STRIP_FRACTION
+    from .resource_log import _parallel_process_executor
+
+    fraction = options.pop("overlap_fraction", STRIP_FRACTION)
+    found: Dict[Tuple[int, int], object] = {}
+
+    context = multiprocessing.get_context("spawn")
+    pending = []
+    with _parallel_process_executor(workers, mp_context=context) as pool:
+        for task in _edge_strips(read, jobs, fraction, options, found):
+            pending.append(pool.submit(_edge_task, task))
+            if len(pending) >= 4 * workers:
+                pair, registration = pending.pop(0).result()
+                found[pair] = registration
+        for future in pending:
+            pair, registration = future.result()
+            found[pair] = registration
+    return {(a, b): found[(a, b)] for a, b, _axis in jobs}
+
+
+def _edge_strips(read: Callable, jobs, fraction: float, options, found):
+    """Cut each pair's two overlap strips for :func:`_parallel_edges`.
+
+    :param read: ``site -> 2-D tile``.
+    :param jobs: ``(a, b, axis)`` per pair.
+    :param fraction: the share of the tile a strip takes.
+    :param options: the keywords each task carries.
+    :param found: where a pair that cannot be cut is recorded as refused.
+    :returns: an iterator of :func:`_edge_task` tasks.
+    """
+    from .ops_register import _edge_band
+
+    for a, b, axis in jobs:
+        try:
+            first = np.asarray(read(a))
+            second = np.asarray(read(b))
+            if (axis not in ("vertical", "horizontal")
+                    or first.shape != second.shape or first.ndim != 2):
+                raise ValueError(f"pair {a}-{b} cannot be registered")
+            down = axis == "vertical"
+            extent = first.shape[0] if down else first.shape[1]
+            band = _edge_band(extent, fraction)
+            if down:
+                strips = (np.ascontiguousarray(first[-band:, :]),
+                          np.ascontiguousarray(second[:band, :]))
+            else:
+                strips = (np.ascontiguousarray(first[:, -band:]),
+                          np.ascontiguousarray(second[:, :band]))
+        except Exception:                                # noqa: BLE001
+            LOG.debug("could not read the pair %s-%s", a, b, exc_info=True)
+            found[(a, b)] = _failed_edge()
+            continue
+        yield ((a, b), strips[0], strips[1], axis, extent, options)
