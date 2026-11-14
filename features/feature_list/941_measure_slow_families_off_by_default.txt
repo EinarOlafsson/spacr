@@ -46,6 +46,12 @@ values with or without the slow ones (tested). OPS part markers carry the
 resolved family list, so a resumed OPS run re-measures parts measured under
 the old preset.
 
-PROOF (plate A well A1, three fields)
-See the hand-over report: column sets of the new default against D-F2 pass A,
-and of all five on against passes A + B + granularity; CPU time per field.
+PROOF (plate A well A1, fields 976 and 274, read-only D-F2 inputs)
+measure_phenotype_field (texture, Zernike, granularity subsample 1.0), OPS
+settings resolved through _ph_profile_features: no families 453 columns, new
+default 2,134 (= the union of D-F2 pass A's 1,770 and the 453 base columns,
+exactly; no slow column; pass A values within 3.6e-15), all five on 2,908
+(= the union of passes A, B and G and the base, exactly; 774 added by the flag). CPU s per
+field at load 26-29 (1,553 / 1,470 cells): no families 86 / 85, default
+174 / 171, all on 774 / 778; per 100,000 cells about 11,200-11,600 for the
+default and 49,900-52,900 with all five on (4.5 times slower).

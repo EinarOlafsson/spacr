@@ -1,6 +1,0 @@
-# Item 941: what is left (drop this file at landing)
-1. Regenerate: tools/build_setting_consumer_map.py, tools/settings_flow.py --rst (settings_flow_index, setting_api_targets), tools/build_instruction_index.py (FEATURE_LIST/00_INDEX).
-2. Ratchets not yet run: raw-reader, nested-function, documented-callable, hash-comment (only #: lines added).
-3. Translations: new branch stacked on spacr-translations-hybrid-1113 (d30e18f7; it lacks 937/939 translations). Records: labels of profile_optional_families and ops_ph_profile_optional_families; tooltips of those two plus the changed profile_features and ops_ph_profile_features (archive the old ones); API spacr.measure.profile_optional_families #0-#3 and profile_feature_families #2 (new :param optional), #3/#4 (moved). Then regenerate the manifest. Source extractor: /mnt/firecuda2/codex/scratch-docs/a941/extract_sources.py
-4. A1 check results: /mnt/firecuda2/codex/scratch-docs/a941/a941_site-{976,274,493}.json
-5. Placeholder 937: settings.py (SETTINGS_SCHEMA_VERSION, DEFAULT_CHANGES, the _fold_older_defaults docstring), reproducibility_manifests.rst plus its 9 guide .po files, features/feature_list/941_*.txt, release notes (no number given there).
