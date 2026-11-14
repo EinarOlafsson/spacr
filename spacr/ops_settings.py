@@ -301,6 +301,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_deterministic_blas": True,
     "ops_blas_threads": 2,
     "ops_ph_acquisitions": None,
+    "ops_ph_use_acquisition": None,
     "ops_ph_pipeline": False,
     "ops_ph_measure_workers": None,
     "ops_ph_stage_dir": None,
@@ -707,6 +708,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_deterministic_blas": bool,
     "ops_blas_threads": int,
     "ops_ph_acquisitions": (dict, str, type(None)),
+    "ops_ph_use_acquisition": (str, type(None)),
     "ops_ph_pipeline": bool,
     "ops_ph_measure_workers": (int, type(None)),
     "ops_ph_stage_dir": (str, type(None)),
@@ -1008,7 +1010,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_eval_heldout_folds", "ops_eval_decoys",
         "ops_eval_time_split", "ops_eval_covariates",
         "ops_deterministic_blas", "ops_blas_threads",
-        "ops_ph_acquisitions", "ops_ph_pipeline", "ops_ph_measure_workers",
+        "ops_ph_acquisitions", "ops_ph_use_acquisition", "ops_ph_pipeline",
+        "ops_ph_measure_workers",
         "ops_ph_stage_dir", "ops_ph_stage_ahead", "ops_ph_stage_threads",
         "ops_ph_measure_gpu_check", "ops_archive_root", "ops_archive_verify",
         "ops_archive_delete_local", "ops_gpu_admission", "ops_gpu_idle_checks",
@@ -2861,6 +2864,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "not read. The later folders' channels become "
         "ops_ph_secondary_channels when that is empty. Empty: one "
         "acquisition. Default None. Alpha.",
+    "ops_ph_use_acquisition":
+        "(str or None) - For a phenotype_source that holds more than one "
+        "acquisition carrying the same channel, the one acquisition to use: "
+        "its folder under phenotype_source, or the channel set its file "
+        "names carry, for example DAPI-GFP-A594 for "
+        "20X_DAPI-GFP-A594_A1_A594_Site-0.tif. Only that acquisition's tiles "
+        "are read. Empty: such a folder is refused with a message that names "
+        "the acquisitions; a folder with one acquisition is read as before. "
+        "Not together with ops_ph_acquisitions. Default None. Alpha.",
     "ops_ph_pipeline":
         "(bool) - Hand each phenotype field to the measurement workers as "
         "soon as its masks are saved, so the next field is segmented while "
