@@ -113,6 +113,8 @@ default after a higher-numbered item takes the next free number:
   'colocalisation', 'colocalisation_extra']``, the slow families the
   ``'profiling'`` preset measured; they are now ``None``, so ``'profiling'``
   leaves Gabor, granularity and colocalisation out.
+- 938 (item 945): ``seg_mask_vram_gb`` was ``0`` (the
+  large-site mask step had no card-memory cap of its own); it is now ``6``.
 
 Public API
 ----------

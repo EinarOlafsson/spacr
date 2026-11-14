@@ -570,6 +570,8 @@ FUTURE FEATURES
 
   941  OPS AND MEASURE PROFILING: GABOR, GRANULARITY AND COLOCALISATION OFF BY DEFAULT
        941_measure_slow_families_off_by_default.txt
+  945  OPS LARGE SITES: THE WHOLE-SITE CELLPOSE MASK STEP UNDER A VRAM CAP, THROUGH THE GPU GOVERNOR, WITH A CPU FALLBACK
+       945_ops_large_site_mask_step_vram_cap.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
