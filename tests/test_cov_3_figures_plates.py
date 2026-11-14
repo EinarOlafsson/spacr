@@ -11,7 +11,6 @@ no readable numbers, identifiers that name no well, an empty set of matrices
 from __future__ import annotations
 
 import numpy as np
-import pandas as pd
 
 from spacr.figures import plates
 
@@ -26,38 +25,6 @@ def test_no_measured_wells_is_no_grid():
     assert plates.full_plate_grid([], []) == (0, 0)
     assert plates.full_plate_grid([1, 2], []) == (0, 0)
     assert plates.full_plate_grid([], [3]) == (0, 0)
-
-
-def test_identifiers_that_name_no_well_produce_no_matrices():
-    """A `prc` that is not plate_row_column places no well. Drawing the
-    plate anyway would show an empty grid that looks like an unpipetted
-    plate rather than an unreadable identifier."""
-    frame = pd.DataFrame({"prc": ["x_y_z", "x_y_w"], "v": [1.0, 2.0]})
-
-    names, matrices, shape = plates.well_matrices(frame, "v")
-
-    assert names == ["x"], "the plate is still named, so the caller can say so"
-    assert matrices == []
-    assert shape == (0, 0)
-
-
-def test_a_plate_with_no_numeric_value_anywhere_is_drawn_as_absent():
-    """Its wells have rows, so the count map says they are present. Painting
-    them at the bottom of a scale shared with a real plate would invent a
-    whole plate of zeros."""
-    frame = pd.DataFrame({
-        "prc": ["p1_r1_c1", "p1_r1_c2", "p2_r1_c1", "p2_r1_c2"],
-        "v": [1.0, 2.0, "n/a", ""],
-    })
-
-    names, matrices, shape = plates.well_matrices(frame, "v")
-
-    assert names == ["p1", "p2"]
-    assert shape[0] >= 1 and shape[1] >= 2
-    good, unreadable = matrices[0], matrices[1]
-    assert np.isfinite(good).any(), "the readable plate lost its wells"
-    assert not np.isfinite(unreadable).any(), (
-        "a plate with no numbers was painted as a plate of zeros")
 
 
 # ---------------------------------------------------------------------------

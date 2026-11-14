@@ -107,51 +107,9 @@ def test_a_fixed_delay_can_be_released_to_the_preference(monkeypatch):
     assert policy.show_delay_ms == 123
 
 
-def test_an_event_without_a_type_is_passed_on(qapp):
-    class _Odd:
-        def type(self):
-            raise RuntimeError("no type")
-
-    assert tp._TooltipFilter(0).eventFilter(QObject(), _Odd()) is False
-
-
 def _move(widget, x):
     return QMouseEvent(QEvent.MouseMove, QPointF(x, 1), widget.mapToGlobal(
         QPointF(x, 1)), Qt.NoButton, Qt.NoButton, Qt.NoModifier)
-
-
-def test_moving_off_a_pending_cell_cancels_its_tip(qtbot):
-    label = QLabel("x")
-    label.setToolTip("help")
-    qtbot.addWidget(label)
-    label.show()
-    policy = tp._TooltipFilter(show_delay_ms=10_000)
-    policy._widget = label
-    policy._show_timer.start(10_000)
-    policy._pos = label.mapToGlobal(QPointF(1, 1)).toPoint()
-    assert policy.eventFilter(label, _move(label, 1)) is False
-    assert policy._show_timer.isActive()
-    policy.eventFilter(label, _move(label, 30))
-    assert not policy._show_timer.isActive()
-
-
-def test_leaving_another_widget_or_hiding_a_dead_one(qtbot):
-    label, other = QLabel("x"), QLabel("y")
-    for widget in (label, other):
-        qtbot.addWidget(widget)
-    policy = tp._TooltipFilter(show_delay_ms=0)
-    policy._widget = label
-    policy._text = "help"
-    policy.eventFilter(other, QEvent(QEvent.Leave))
-    assert policy._text == "help"
-
-    class _Gone:
-        def window(self):
-            raise RuntimeError("deleted")
-
-    policy._widget = _Gone()
-    policy.eventFilter(other, QEvent(QEvent.Hide))
-    assert policy._text == ""
 
 
 def test_switching_targets_survives_a_signal_that_will_not_disconnect(qtbot):

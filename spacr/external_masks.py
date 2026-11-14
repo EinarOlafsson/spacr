@@ -822,7 +822,7 @@ def run_external_masks(plan: ExternalMaskPlan,
 
     merged_paths: List[str] = []
     from .foreign import _read_mask
-    for stem in plan.stems:
+    for stem_number, stem in enumerate(plan.stems, start=1):
         channels = mappings_by_stem.get(stem, {})
         if len(channels) != plan.n_channels:
             raise ConfigurationError(
@@ -866,6 +866,8 @@ def run_external_masks(plan: ExternalMaskPlan,
              for plane in [*image_planes, *mask_planes]], axis=-1)
         merged_paths.append(_save_npy(
             os.path.join(dst, "merged", f"{stem}.npy"), merged))
+        print(f"Progress: {stem_number}/{len(plan.stems)}, "
+              f"operation_type: Writing merged arrays", flush=True)
 
     plane_layout = {
         "version": 1,

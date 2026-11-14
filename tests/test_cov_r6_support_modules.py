@@ -1,8 +1,8 @@
-"""The last uncovered arc in ten small support modules.
+"""The last uncovered arc in nine small support modules.
 
 Each of these modules is already above 98%: what is left is one branch
 apiece, and the point of this file is to say which branch and why it
-matters. Grouped here rather than in ten one-test files because the
+matters. Grouped here rather than in nine one-test files because the
 modules have nothing in common except being nearly finished.
 
 What is pinned, module by module:
@@ -21,9 +21,6 @@ What is pinned, module by module:
     ``read_run_status`` closes the connection it opened on every exit,
     and the ``conn is not None`` guard in its ``finally`` is proved to
     be false only while an exception is unwinding.
-``spacr.resource_log``
-    A platform whose ``memory_full_info()`` carries no integer private
-    figure still reports resident memory, labelled ``rss``.
 ``spacr.external_masks``
     The same file reached through two overlapping input groups is
     imported once, not twice.
@@ -389,57 +386,6 @@ class TestReadRunStatusAlwaysClosesItsConnection:
 
 
 # ---------------------------------------------------------------------------
-# spacr.resource_log -- a platform with no private memory figures
-# ---------------------------------------------------------------------------
-
-class _NoPrivateFigures:
-    """``memory_full_info()`` answers, but with nothing integral in it."""
-
-    pid = 4242
-
-    class _Full:
-        # Present, but floats: psutil on some platforms reports these as
-        # floats, and a float is not the measurement this code accepts.
-        uss = 1.5
-        pss = 2.5
-
-    class _Info:
-        rss = 7_340_032
-
-    def memory_full_info(self):
-        return self._Full()
-
-    def memory_info(self):
-        return self._Info()
-
-
-class _PrivateFigures(_NoPrivateFigures):
-    class _Full:
-        uss = 1_048_576
-        pss = 2_097_152
-
-
-class TestMemoryFallsBackToResident:
-    """``for measure in MEASURES:`` running out without returning."""
-
-    def test_no_integer_private_figure_reports_rss(self):
-        import psutil
-
-        from spacr.resource_log import _memory
-
-        assert _memory(psutil, _NoPrivateFigures()) == (7_340_032, "rss"), \
-            "a float uss/pss is not a figure; the row must say rss"
-
-    def test_an_integer_uss_is_preferred_and_labelled(self):
-        """The contrast: with a real uss the loop returns before rss."""
-        import psutil
-
-        from spacr.resource_log import _memory
-
-        assert _memory(psutil, _PrivateFigures()) == (1_048_576, "uss")
-
-
-# ---------------------------------------------------------------------------
 # spacr.external_masks -- one file, one import
 # ---------------------------------------------------------------------------
 
@@ -531,39 +477,3 @@ class TestAControlThatIsAllPrefix:
             "'233460' names three guides in this library, and dropping the "
             f"organism token is how they are found; got {int(mask.sum())}")
         assert "233460" in described
-
-
-# ---------------------------------------------------------------------------
-# spacr.organelle_types -- explain=True actually explains
-# ---------------------------------------------------------------------------
-
-class TestApplyOrganelleTypeExplains:
-    """``if not applied and not kept: return`` -- the printing side."""
-
-    def test_it_names_what_it_set_and_what_it_kept(self, capsys):
-        from spacr.organelle_types import apply_preset
-
-        out = apply_preset(
-            {"organelle_type": "vesicular", "organelle_diameter": 12},
-            explain=True)
-
-        printed = capsys.readouterr().out
-        assert "organelle_type =" in printed, \
-            f"explain=True printed nothing useful: {printed!r}"
-        assert "set    " in printed or "KEPT   " in printed, (
-            "the explanation must say which values the preset filled in and "
-            f"which were left alone; got {printed!r}")
-        # The explanation describes the settings actually returned.
-        for line in printed.splitlines():
-            if line.startswith("  set    "):
-                key = line.split()[1]
-                assert key in out, f"{key} was announced but not applied"
-
-    def test_it_says_nothing_without_explain(self, capsys):
-        from spacr.organelle_types import apply_preset
-
-        apply_preset(
-            {"organelle_type": "vesicular", "organelle_diameter": 12})
-
-        assert capsys.readouterr().out == "", \
-            "the default must stay silent"

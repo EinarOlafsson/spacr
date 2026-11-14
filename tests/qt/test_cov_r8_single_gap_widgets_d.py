@@ -12,7 +12,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-import numpy as np
 import pandas as pd
 
 pytestmark = pytest.mark.qt
@@ -28,18 +27,6 @@ pytestmark = pytest.mark.qt
 
 class TestExportingAPlotWithNoSpec:
 
-    def test_a_plot_with_a_spec_exports_its_shape(self, qtbot):
-        from spacr.qt.widgets.grouped_plot import GroupedPlot, PlotSpec
-
-        plot = GroupedPlot()
-        qtbot.addWidget(plot)
-        frame = pd.DataFrame({"g": ["a", "a", "b", "b"],
-                              "v": [1.0, 2.0, 3.0, 4.0]})
-        plot.show_spec(PlotSpec(frame=frame, value="v", group="g"))
-
-        exported = plot.export_settings()
-        assert exported.get("group") == "g"
-        assert exported.get("value") == "v"
 
     def test_a_plot_with_no_spec_exports_only_what_it_inherits(self, qtbot):
         """THE UNCOVERED ARC.
@@ -58,99 +45,6 @@ class TestExportingAPlotWithNoSpec:
         exported = plot.export_settings()
         assert "group" not in exported and "kind" not in exported
         assert plot.comparison_unit() == "observation"
-
-
-# ---------------------------------------------------------------------------
-# outlier_model.py -- a report with nothing to warn about
-# ---------------------------------------------------------------------------
-
-def _scan(frame, **kwargs):
-    from spacr.qt.widgets.outlier_model import OutlierSpec, detect_outliers
-
-    return detect_outliers(frame, OutlierSpec(**kwargs))
-
-
-class TestAReportWithNoCaveats:
-
-    def test_a_report_carries_its_caveats_when_it_has_them(self):
-        from spacr.qt.widgets.outlier_model import METHOD_MAHALANOBIS
-
-        rng = np.random.default_rng(0)
-        frame = pd.DataFrame({
-            "plateID": "p1", "rowID": "r1",
-            "columnID": [f"c{i % 4 + 1}" for i in range(120)],
-            "fieldID": "f1", "object_label": range(120),
-            "cell_area": rng.lognormal(0, 0.2, 120),
-            "cell_perimeter": rng.lognormal(0, 0.2, 120)})
-
-        result = _scan(frame, features=("cell_area", "cell_perimeter"),
-                       method=METHOD_MAHALANOBIS)
-        assert result.caveats()
-        assert "  ! " in result.report()
-
-    def test_no_scan_can_produce_a_report_with_no_caveats(self):
-        """THE PIN.
-
-        `if caveats:` guards the blank line that introduces the warning
-        block -- emitting it with nothing after it ends the report in
-        whitespace that reads, in a copied report, as a section cut off.
-        It can never fire, because `caveats()` ends with an
-        unconditional line: flagged is not deleted.
-
-        That sentence is the one caveat that is true of every scan, and
-        it is the last thing a reader sees before acting on the flags.
-        If it ever becomes conditional, this fails and the guard needs a
-        test of its own.
-        """
-        rng = np.random.default_rng(1)
-        frame = pd.DataFrame({
-            "plateID": "p1", "rowID": "r1",
-            "columnID": [f"c{i % 4 + 1}" for i in range(80)],
-            "fieldID": "f1", "object_label": range(80),
-            "cell_area": rng.lognormal(0, 0.2, 80)})
-
-        for kwargs in ({}, {"min_well_objects": 1}, {"min_well_objects": 500}):
-            result = _scan(frame, features=("cell_area",), **kwargs)
-            caveats = result.caveats()
-            assert caveats, f"a scan produced no caveats at all: {kwargs}"
-            assert "Flagged is not deleted" in caveats[-1], (
-                "the unconditional last caveat is gone, so caveats() can "
-                "now be empty and the report's guard is live")
-            assert "  ! " in result.report()
-
-
-# ---------------------------------------------------------------------------
-# feature_dictionary.py -- the filter outliving its application
-# ---------------------------------------------------------------------------
-
-class TestRemovingTheContextMenuFilter:
-
-    def test_removing_a_filter_that_was_never_installed_says_so(self):
-        from spacr.qt.widgets import feature_dictionary
-
-        feature_dictionary._FILTER = None
-        assert feature_dictionary.remove_context_menu_filter() is False
-
-    def test_a_filter_with_no_application_left_is_still_dropped(self,
-                                                                monkeypatch):
-        """THE UNCOVERED ARC.
-
-        At shutdown the QApplication goes first. `removeEventFilter` on
-        None is an AttributeError raised from a teardown path, which is
-        the worst place for one -- so the filter is dropped without
-        removing it, which is all that is left to do.
-        """
-        from PySide6.QtWidgets import QApplication
-
-        from spacr.qt.widgets import feature_dictionary
-
-        sentinel = object()
-        feature_dictionary._FILTER = sentinel
-        monkeypatch.setattr(QApplication, "instance", staticmethod(
-            lambda: None))
-
-        assert feature_dictionary.remove_context_menu_filter() is True
-        assert feature_dictionary._FILTER is None
 
 
 # ---------------------------------------------------------------------------

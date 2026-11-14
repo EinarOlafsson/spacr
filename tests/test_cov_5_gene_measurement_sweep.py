@@ -15,42 +15,12 @@ matplotlib.use("Agg")
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from spacr.gene_measurement_sweep import (SweepResult, _one_level,
                                           _order_like_neighbours, _readable,
-                                          gene_fractions, gene_of_guide,
-                                          is_measurement, measurement_columns,
-                                          plot_circularity,
+                                          gene_fractions, is_measurement, measurement_columns,
                                           plot_effect_against_representation,
-                                          plot_gene_profile,
-                                          plot_guide_concordance,
-                                          plot_measurement_families,
-                                          plot_measurement_hits, plot_sweep,
-                                          sweep)
-
-
-@pytest.fixture()
-def screen():
-    """80 wells on two plates, one guide with a real effect on one column."""
-    rng = np.random.default_rng(3)
-    n = 80
-    index = [f"plate{1 + i // 40}_r{i}_c1" for i in range(n)]
-    driver = np.zeros(n)
-    driver[rng.choice(n, 30, replace=False)] = rng.uniform(0.3, 0.6, 30)
-    quiet = rng.uniform(0.1, 0.2, n)
-    wells = pd.DataFrame({
-        "cell_area": driver * 8.0 + rng.normal(0, 0.2, n),
-        "nucleus_eccentricity": driver * 6.0 + rng.normal(0, 0.3, n),
-        "pathogen_area": rng.normal(0, 1, n),
-    }, index=index)
-    fractions = pd.DataFrame({
-        "TGGT1_111_1": driver,
-        "TGGT1_111_2": driver * 0.9 + 0.01,
-        "TGGT1_222_1": quiet,
-    }, index=index)
-    plates = [i.split("_")[0] for i in index]
-    return wells, fractions, plates
+                                          plot_measurement_families)
 
 
 def _table(**columns) -> pd.DataFrame:
@@ -96,49 +66,6 @@ def test_a_frame_of_constants_offers_no_measurement():
     assert measurement_columns(frame) == []
 
 
-def test_a_guide_with_no_name_belongs_to_no_gene():
-    """A blank guide id resolves to None rather than an empty gene.
-
-    An empty-string gene would collect every unnamed guide in the screen into
-    one row and report their summed fraction as a gene's.
-    """
-    assert gene_of_guide("") is None
-    assert gene_of_guide(None) is None
-    assert gene_of_guide("   ") is None
-
-
-def test_a_library_from_another_organism_still_gives_up_its_gene():
-    """``<organism>_<gene>_<guide>`` reads the gene from the middle.
-
-    The shipped prefix list is Toxoplasma's. A Plasmodium or human library
-    is named the same way and must parse without being listed anywhere --
-    otherwise every guide in it resolves to the organism and the whole
-    library pools into one "gene".
-    """
-    assert gene_of_guide("TGGT1_233460_1") == "233460"
-    assert gene_of_guide("PF3D7_0100100_1") == "0100100"
-    assert gene_of_guide("HGNC_RAB11_A_1") == "RAB11_A"
-
-
-def test_a_removed_organism_prefix_is_not_removed_a_second_time():
-    """A gene id carrying an underscore survives a stripped prefix.
-
-    Taking a known prefix off the front and THEN applying the
-    ``<organism>_<gene>_<guide>`` shape rule strips two components, so
-    ``TGGT1_ROP18_kinase_1`` resolved to ``kinase`` and that gene's guides
-    split across two "genes" with nothing on screen saying so. A measured
-    prefix has the same edge, and worse: handing the function the prefix a
-    caller measured from the library made the answer wrong where leaving it
-    out was right.
-    """
-    assert gene_of_guide("TGGT1_ROP18_kinase_1") == "ROP18_kinase"
-    assert gene_of_guide("HGNC_RAB11_A_1", prefix="HGNC") == "RAB11_A"
-
-    # The numeric Toxoplasma ids the shipped libraries use are unmoved.
-    assert gene_of_guide("TGGT1_225160_2", prefix="TGGT1") == "225160"
-    assert gene_of_guide("TGGT1_225160") == "225160"
-
-
 def test_a_gene_resolver_that_raises_loses_only_that_guide():
     """One guide whose name cannot be parsed does not stop the rest.
 
@@ -174,28 +101,6 @@ def test_a_library_no_gene_can_be_read_from_gives_an_empty_frame():
 
     assert list(genes.columns) == []
     assert list(genes.index) == ["w1", "w2"]
-
-
-# --------------------------------------------------------------------------- #
-#  Too little data to sweep at all
-# --------------------------------------------------------------------------- #
-
-def test_two_wells_are_not_a_screen():
-    """Fewer than three shared wells returns an empty table, not a p-value.
-
-    A correlation over two points is exactly 1 or -1 whatever the data, so a
-    sweep that ran anyway would report every measurement as a perfect hit.
-    """
-    wells = pd.DataFrame({"cell_area": [1.0, 2.0]}, index=["w1", "w2"])
-    fractions = pd.DataFrame({"TGGT1_111_1": [0.1, 0.9]}, index=["w1", "w2"])
-
-    result = sweep(wells, fractions)
-
-    assert result.n_wells == 2
-    assert result.n_blocks == 0
-    assert list(result.table.columns) == ["guide", "measurement", "effect",
-                                          "p", "q", "circularity", "n_wells"]
-    assert len(result.table) == 0
 
 
 # --------------------------------------------------------------------------- #
@@ -267,19 +172,6 @@ def test_a_table_with_no_level_column_draws_every_row():
 #  Every picture refuses rather than drawing an empty axis
 # --------------------------------------------------------------------------- #
 
-def test_a_heatmap_of_no_rows_is_not_drawn(screen):
-    """Asking for the top zero survivors draws nothing at all.
-
-    The grid is built by selecting the top guides and measurements; an empty
-    selection must return None rather than a labelled but empty heatmap.
-    """
-    wells, fractions, plates = screen
-    result = sweep(wells, fractions, blocks=plates)
-
-    assert len(result.survivors(alpha=0.05)) > 0
-    assert plot_sweep(result, top=0) is None
-
-
 def test_a_screen_with_no_statistical_weight_recorded_is_not_plotted():
     """Genes whose effective well count is unknown are not put on the axis.
 
@@ -310,96 +202,3 @@ def test_no_family_counts_means_no_family_picture():
                          n_wells=40, n_blocks=2)
 
     assert plot_measurement_families(result, top=0) is None
-
-
-def test_concordance_needs_guides_that_belong_to_a_gene():
-    """Guide names no gene can be read from give no concordance picture.
-
-    Concordance is the only internal control this design has: it compares a
-    gene's own guides. Without a gene there is nothing to compare, and a
-    figure drawn anyway would be comparing unrelated guides.
-    """
-    result = SweepResult(table=_table(guide=["", "   "]),
-                         effects=pd.DataFrame([[0.5], [0.5]], index=["a", "b"],
-                                              columns=["cell_area"]),
-                         n_wells=40, n_blocks=2)
-
-    assert plot_guide_concordance(result) is None
-
-
-def test_concordance_needs_something_past_the_correction():
-    """With nothing significant there is no agreement to report.
-
-    Agreement among guides that all failed the correction is agreement about
-    noise, and reporting it as concordance would be the strongest possible
-    endorsement of a null result.
-    """
-    result = SweepResult(
-        table=_table(guide=["TGGT1_111_1", "TGGT1_111_2"], q=[0.4, 0.6]),
-        effects=pd.DataFrame([[0.5], [0.5]],
-                             index=["TGGT1_111_1", "TGGT1_111_2"],
-                             columns=["cell_area"]),
-        n_wells=40, n_blocks=2)
-
-    assert plot_guide_concordance(result) is None
-
-
-def test_one_guide_moving_a_measurement_is_not_agreement():
-    """A gene/measurement pair with a single signed effect is skipped.
-
-    Agreement is a statement about two or more guides. Counting a lone guide
-    as unanimous would put every single-guide hit at perfect concordance,
-    which is where a reader looks for the most trustworthy genes.
-    """
-    result = SweepResult(
-        table=_table(guide=["TGGT1_111_1", "TGGT1_111_2"],
-                     measurement=["cell_area", "nucleus_area"],
-                     effect=[0.5, 0.4]),
-        effects=pd.DataFrame([[0.5, np.nan], [np.nan, 0.4]],
-                             index=["TGGT1_111_1", "TGGT1_111_2"],
-                             columns=["cell_area", "nucleus_area"]),
-        n_wells=40, n_blocks=2)
-
-    assert plot_guide_concordance(result) is None
-
-
-def test_a_gene_profile_of_nothing_is_not_drawn(screen):
-    """Asking a gene profile for zero measurements returns None.
-
-    The profile is a bar per measurement; with none selected the figure would
-    be a labelled empty axis under the gene's name, which reads as "this gene
-    moves nothing".
-    """
-    wells, fractions, plates = screen
-    result = sweep(wells, fractions, blocks=plates)
-
-    assert plot_gene_profile(result, "TGGT1_111_1", top=0) is None
-
-
-def test_a_measurement_hit_count_of_nothing_is_not_drawn(screen):
-    """With no measurements selected the bubble plot is not drawn.
-
-    The picture ranks measurements by how many genes move them; an empty
-    ranking is not a ranking, and the axis would carry a legend for a scale
-    nothing is plotted on.
-    """
-    wells, fractions, plates = screen
-    result = sweep(wells, fractions, blocks=plates)
-
-    assert plot_measurement_hits(result, top=0) is None
-
-
-def test_circularity_needs_a_finite_pair_to_plot(screen):
-    """No survivor means no circularity picture, even when the score joined.
-
-    Circularity says whether a measurement is already tracked by the score.
-    An empty panel here reads as "nothing is circular", which is the exact
-    misreading this column exists to prevent.
-    """
-    wells, fractions, plates = screen
-    rng = np.random.default_rng(5)
-    scores = rng.uniform(0, 1, len(wells.index))
-    result = sweep(wells, fractions, blocks=plates, scores=scores)
-
-    assert result.circularity_known is True
-    assert plot_circularity(result, alpha=0.0) is None

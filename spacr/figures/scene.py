@@ -974,8 +974,11 @@ def _carry_ticks(plot, axes) -> None:
         converted = [_plain_text(label) for label in labels]
         if not all(understood for _, understood in converted):
             continue
+        is_log = getattr(matplotlib_axis, "get_scale",
+                             lambda: "linear")() == "log"
         plot.getAxis(name).setTicks(
-            [[(float(position), body)
+            [[(math.log10(max(float(position), 1e-300)) if is_log
+               else float(position), body)
               for position, (body, _) in zip(locations, converted) if body]])
 
 
@@ -1078,7 +1081,7 @@ def _translate_axes(plot, axes, look, report: SceneReport) -> None:
     rectangles = []
     for artist in axes.get_children():
         name = type(artist).__name__
-        if artist is axes.patch:
+        if artist is axes.patch or artist is axes.title:
             continue
         if name in IGNORED or _is_chrome_artist(artist):
             continue

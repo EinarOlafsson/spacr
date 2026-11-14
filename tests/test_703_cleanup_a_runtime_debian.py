@@ -88,21 +88,18 @@ def test_runtime_staging_accepts_relative_path_configuration_files(tmp_path):
 
 
 @pytest.mark.posix_only
-def test_recovery_refuses_a_journal_readable_by_others(updated):
+@pytest.mark.parametrize("pid, journal_mode, refusal", [
+    pytest.param(43210, 0o644, "owner-only journal", id="a-journal-readable-by-others"),
+    pytest.param(0, None, "previous desktop process identity", id="pid-zero"),
+    pytest.param(True, None, "previous desktop process identity", id="pid-true"),
+    pytest.param("43210", None, "previous desktop process identity", id="pid-as-text"),
+])
+def test_recovery_refuses_what_it_cannot_trust_and_changes_nothing(updated, pid, journal_mode, refusal):
     prefix, transaction, machine, _original, run = updated
-    (transaction / "transaction.json").chmod(0o644)
+    if journal_mode is not None:
+        (transaction / "transaction.json").chmod(journal_mode)
     before = _snapshot(prefix.parent)
-    with pytest.raises(ValueError, match="owner-only journal"):
-        ic._recover_runtime_update(str(transaction), 43210, machine=machine, runner=run, wait=lambda pid: True)
-    assert _snapshot(prefix.parent) == before
-
-
-@pytest.mark.posix_only
-@pytest.mark.parametrize("pid", [0, True, "43210"])
-def test_recovery_requires_a_real_previous_desktop_process(updated, pid):
-    prefix, transaction, machine, _original, run = updated
-    before = _snapshot(prefix.parent)
-    with pytest.raises(ValueError, match="previous desktop process identity"):
+    with pytest.raises(ValueError, match=refusal):
         ic._recover_runtime_update(str(transaction), pid, machine=machine, runner=run, wait=lambda pid: True)
     assert _snapshot(prefix.parent) == before
 

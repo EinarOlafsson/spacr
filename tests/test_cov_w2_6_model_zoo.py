@@ -121,17 +121,15 @@ def test_something_that_cannot_be_opened_does_not_look_like_a_checkpoint(
     assert mz._looks_like_checkpoint(tmp_path / "folder") is False
 
 
-def test_an_html_error_page_saved_by_a_failed_download_is_refused(tmp_path):
+@pytest.mark.parametrize("content, refusal", [
+    pytest.param(b"<html><body>404 Not Found</body></html>", "not a PyTorch checkpoint",
+                 id="an-html-error-page-saved-by-a-failed-download"),
+    pytest.param(b"", "empty", id="an-interrupted-download-leaves-an-empty-file"),
+])
+def test_a_file_that_is_not_a_checkpoint_is_refused(tmp_path, content, refusal):
     path = tmp_path / "model.pth"
-    path.write_bytes(b"<html><body>404 Not Found</body></html>")
-    with pytest.raises(mz.ModelUnreadable, match="not a PyTorch checkpoint"):
-        mz.inspect_checkpoint(path)
-
-
-def test_an_interrupted_download_leaves_exactly_an_empty_file(tmp_path):
-    path = tmp_path / "model.pth"
-    path.write_bytes(b"")
-    with pytest.raises(mz.ModelUnreadable, match="empty"):
+    path.write_bytes(content)
+    with pytest.raises(mz.ModelUnreadable, match=refusal):
         mz.inspect_checkpoint(path)
 
 
@@ -568,16 +566,7 @@ def test_an_unusable_entry_names_its_position_and_what_is_wrong(tmp_path):
         mz.load_catalogue_file(path)
 
 
-def test_a_catalogue_named_by_the_environment_joins_the_listing(tmp_path,
-                                                                monkeypatch):
-    path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps({"models": [
-        {"name": "lab_cyto.CP_model", "sha256": "b" * 64,
-         "trained_on": "our own plates"}]}), encoding="utf-8")
-    monkeypatch.setenv(mz.CATALOGUE_ENV_VAR, str(path))
-    names = [e.name for e in mz.catalogue(include_bundled=False,
-                                          include_plugins=False)]
-    assert "lab_cyto.CP_model" in names
+
 
 
 # --------------------------------------------------------------------------
@@ -824,47 +813,56 @@ def test_a_keep_alive_chunk_with_no_bytes_in_it_is_skipped(tmp_path):
     assert seen == [0, len(payload)]
 
 
-def test_a_download_that_arrives_empty_installs_nothing(tmp_path):
+def _dies_midway(_uri):
+    yield ZIP_HEADER
+    raise ConnectionError("the server went away")
+
+
+def _dies_midway_with_a_size(_uri):
+    def chunks():
+        yield ZIP_HEADER + b"h" * 100
+        raise ConnectionError("the network went away")
+    return chunks(), 4100
+
+
+class _CancelArrivesAfterTheFirstChunk:
+    """An opener and a cancel callback that share one flag, set once a chunk has been served."""
+
+    def __init__(self):
+        self.now = False
+
+    def opener(self, _uri):
+        def chunks():
+            for _ in range(50):
+                self.now = True
+                yield b"h" * 64
+        return chunks(), 3200
+
+
+_MID_STREAM = _CancelArrivesAfterTheFirstChunk()
+
+
+@pytest.mark.parametrize("name, opener, cancel, error, match", [
+    pytest.param("cyto.CP_model", lambda uri: iter([]), None,
+                 mz.ModelZooError, "returned no data", id="empty-download"),
+    pytest.param("cyto.CP_model", lambda uri: iter([ZIP_HEADER + b"x"]), None,
+                 mz.ChecksumMismatch, "NOT installed", id="wrong-hash"),
+    pytest.param("cyto.CP_model", lambda uri: iter([ZIP_HEADER, b"more"]), lambda: True,
+                 mz.DownloadCancelled, "nothing was written", id="cancelled"),
+    pytest.param("cyto.CP_model", _dies_midway, None,
+                 ConnectionError, "the server went away", id="dead-server"),
+    pytest.param("hela_60x.CP_model", _dies_midway_with_a_size, None,
+                 ConnectionError, "the network went away", id="dies-halfway-with-a-known-size"),
+    pytest.param("hela_60x.CP_model", _MID_STREAM.opener, lambda: _MID_STREAM.now,
+                 mz.DownloadCancelled, "hela_60x.CP_model", id="cancelled-mid-stream"),
+])
+def test_a_fetch_that_fails_installs_nothing(tmp_path, name, opener, cancel, error, match):
+    """Whatever stops a download, the destination holds no file (not even a temporary one)."""
     dest = tmp_path / "dest"
-    entry = mz.ModelEntry(key="cyto", name="cyto.CP_model", source="remote",
-                          uri="mirror://cyto", sha256="a" * 64)
-    with pytest.raises(mz.ModelZooError, match="returned no data"):
-        mz.fetch(entry, dest, opener=lambda uri: iter([]))
-    assert list(dest.iterdir()) == []
-
-
-def test_a_download_whose_hash_is_wrong_is_not_installed(tmp_path):
-    """A checkpoint that fails this still loads and still produces masks --
-    they are just not the masks the author's model produces."""
-    dest = tmp_path / "dest"
-    entry = mz.ModelEntry(key="cyto", name="cyto.CP_model", source="remote",
-                          uri="mirror://cyto", sha256="b" * 64)
-    with pytest.raises(mz.ChecksumMismatch, match="NOT installed"):
-        mz.fetch(entry, dest, opener=lambda uri: iter([ZIP_HEADER + b"x"]))
-    assert list(dest.iterdir()) == []
-
-
-def test_a_cancelled_download_leaves_the_destination_untouched(tmp_path):
-    dest = tmp_path / "dest"
-    entry = mz.ModelEntry(key="cyto", name="cyto.CP_model", source="remote",
-                          uri="mirror://cyto", sha256="c" * 64)
-    with pytest.raises(mz.DownloadCancelled, match="nothing was written"):
-        mz.fetch(entry, dest, cancel=lambda: True,
-                 opener=lambda uri: iter([ZIP_HEADER, b"more"]))
-    assert list(dest.iterdir()) == []
-
-
-def test_a_dead_server_leaves_no_partial_file_at_a_model_name(tmp_path):
-    dest = tmp_path / "dest"
-    entry = mz.ModelEntry(key="cyto", name="cyto.CP_model", source="remote",
-                          uri="mirror://cyto", sha256="d" * 64)
-
-    def _dies_midway(_uri):
-        yield ZIP_HEADER
-        raise ConnectionError("the server went away")
-
-    with pytest.raises(ConnectionError):
-        mz.fetch(entry, dest, opener=_dies_midway)
+    entry = mz.ModelEntry(key=name.split(".")[0], name=name, source="remote",
+                          uri="mirror://model", sha256="a" * 64)
+    with pytest.raises(error, match=match):
+        mz.fetch(entry, dest, opener=opener, cancel=cancel)
     assert list(dest.iterdir()) == []
 
 
@@ -913,24 +911,6 @@ def _with_providers(monkeypatch, contributions, loader=None):
     monkeypatch.setattr(plugins, "record_diagnostic",
                         lambda *args: diagnostics.append(args))
     return diagnostics
-
-
-def test_a_plugin_can_contribute_models_to_the_listing(monkeypatch):
-    entry = mz.ModelEntry(key="lab_cyto", name="lab_cyto.CP_model",
-                          source="remote", sha256="f" * 64)
-    _with_providers(monkeypatch, [("lab", _Contribution(lambda: [entry]))])
-    names = [e.name for e in mz.catalogue(include_bundled=False,
-                                          remote=False)]
-    assert "lab_cyto.CP_model" in names
-
-
-def test_a_plugin_may_contribute_one_model_rather_than_a_list(monkeypatch):
-    _with_providers(monkeypatch, [
-        ("lab", _Contribution(lambda: {"name": "one.CP_model",
-                                       "sha256": "a" * 64}))])
-    names = [e.name for e in mz.catalogue(include_bundled=False,
-                                          remote=False)]
-    assert "one.CP_model" in names
 
 
 def test_a_provider_that_is_not_callable_is_reported_not_ignored(monkeypatch):
@@ -1063,43 +1043,74 @@ def test_a_close_that_fails_does_not_mask_the_failure_it_is_cleaning_up(
 # sizes a person reads
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("size,expected", [
-    (1, "1 B"), (999, "999 B"),
-    (1024, "1.0 KB"), (5 * 1024 ** 2, "5.0 MB"),
-    (3 * 1024 ** 3, "3.0 GB"),
+@pytest.mark.parametrize("size, expected", [
+    pytest.param(1, "1 B", id="one-byte"),
+    pytest.param(512, "512 B", id="bytes-have-no-decimals"),
+    pytest.param(999, "999 B", id="just-under-a-kilobyte"),
+    pytest.param(1024, "1.0 KB", id="a-kilobyte"),
+    pytest.param(1536, "1.5 KB", id="one-and-a-half-kilobytes"),
+    pytest.param(2048, "2.0 KB", id="two-kilobytes"),
+    pytest.param(5 * 1024 ** 2, "5.0 MB", id="megabytes"),
+    pytest.param(3 * 1024 ** 3, "3.0 GB", id="gigabytes"),
+    pytest.param(4096 * 1024 ** 3, "4096.0 GB", id="past-every-unit-stays-in-gb"),
+    pytest.param(9999 * 1024 ** 3, "9999.0 GB", id="ten-thousand-gb-reads-as-obviously-wrong"),
+    pytest.param(1024 ** 6, "1073741824.0 GB", id="snap-a-petabyte-is-still-a-labelled-gb-string"),
+    pytest.param(0, "unknown", id="zero-is-a-failed-download-not-0-B"),
+    pytest.param(0.0, "unknown", id="zero-float-is-unknown"),
+    pytest.param(-1, "unknown", id="negative-is-unknown"),
+    pytest.param(None, "unknown", id="no-size-is-unknown"),
+    pytest.param("not a number", "unknown", id="text-is-unknown"),
+    pytest.param(object(), "unknown", id="an-object-is-unknown"),
 ])
-def test_a_size_is_shown_in_the_largest_unit_that_fits(size, expected):
+def test_a_size_is_shown_in_the_largest_unit_that_fits_or_says_unknown(size, expected):
     """Bytes have no decimals and everything above them has one.
 
     A weights file is the number a user compares against their disk, so "3.0
     GB" and "3221225472" are not equally useful -- and "3.2e+09 B" would be
-    worse than either.
+    worse than either.  The ladder stops at GB deliberately: nothing spaCR
+    downloads is measured in terabytes, and a number that can only arrive
+    from a corrupt manifest should read as obviously wrong.  ``unknown`` is
+    the honest label for a missing or zero size; "0 B" would tell the user
+    the download is free, and a raise would take down a catalogue listing
+    over one bad row.
     """
     from spacr.model_zoo import _human_bytes
 
     assert _human_bytes(size) == expected
 
 
-def test_a_size_beyond_gigabytes_stays_in_gigabytes():
-    """The ladder stops at GB deliberately.
-
-    Nothing spaCR downloads is measured in terabytes, and inventing a TB rung
-    for a number that can only arrive from a corrupt manifest would make a
-    wrong figure look plausible. Ten thousand gigabytes reads as obviously
-    wrong, which is the useful failure.
-    """
-    from spacr.model_zoo import _human_bytes
-
-    assert _human_bytes(9999 * 1024 ** 3) == "9999.0 GB"
+_LAB_ENTRY = mz.ModelEntry(key="lab_cyto", name="lab_cyto.CP_model",
+                           source="remote", sha256="f" * 64)
 
 
-@pytest.mark.parametrize("size", [0, -1, None, "not a number", object()])
-def test_a_size_that_is_not_one_reads_as_unknown(size):
-    """A manifest may carry no size, or a string, or a zero.
+def _env_catalogue(tmp_path, monkeypatch, document):
+    path = tmp_path / "catalogue.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    monkeypatch.setenv(mz.CATALOGUE_ENV_VAR, str(path))
 
-    ``unknown`` is the honest label; "0 B" would tell the user the download is
-    free, and a raise would take down a catalogue listing over one bad row.
-    """
-    from spacr.model_zoo import UNKNOWN, _human_bytes
 
-    assert _human_bytes(size) == UNKNOWN
+@pytest.mark.parametrize("contribute, kwargs, expected", [
+    pytest.param(
+        lambda tmp_path, mp: _env_catalogue(tmp_path, mp, {"models": [
+            {"name": "lab_cyto.CP_model", "sha256": "b" * 64,
+             "trained_on": "our own plates"}]}),
+        {"include_bundled": False, "include_plugins": False}, "lab_cyto.CP_model",
+        id="a-catalogue-file-named-by-the-environment-with-a-models-key"),
+    pytest.param(
+        lambda tmp_path, mp: _env_catalogue(tmp_path, mp, [
+            {"name": "extra.CP_model", "sha256": "c" * 64, "trained_on": "u2os 20x"}]),
+        {}, "extra.CP_model",
+        id="a-catalogue-file-named-by-the-environment-as-a-bare-list"),
+    pytest.param(
+        lambda tmp_path, mp: _with_providers(mp, [("lab", _Contribution(lambda: [_LAB_ENTRY]))]),
+        {"include_bundled": False, "remote": False}, "lab_cyto.CP_model",
+        id="a-plugin-contributes-a-list-of-models"),
+    pytest.param(
+        lambda tmp_path, mp: _with_providers(mp, [
+            ("lab", _Contribution(lambda: {"name": "one.CP_model", "sha256": "a" * 64}))]),
+        {"include_bundled": False, "remote": False}, "one.CP_model",
+        id="a-plugin-contributes-one-model-rather-than-a-list"),
+])
+def test_a_contributed_model_joins_the_listing(tmp_path, monkeypatch, contribute, kwargs, expected):
+    contribute(tmp_path, monkeypatch)
+    assert expected in [e.name for e in mz.catalogue(**kwargs)]

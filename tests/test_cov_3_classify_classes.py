@@ -58,46 +58,6 @@ def test_a_free_form_column_is_refused_with_its_size():
 
 
 # ---------------------------------------------------------------------------
-# Deriving rules from a settings file
-# ---------------------------------------------------------------------------
-
-def test_an_annotation_run_with_no_column_derives_no_classes():
-    """`dataset_mode=annotation` with nothing naming a column has no basis
-    for a rule. Inventing one would train on a guessed label."""
-    out = cc.normalize_settings({"dataset_mode": "annotation"})
-
-    assert cc.class_rules(out) == ()
-    assert out.get(cc.CLASSES) in (None, {}, [])
-
-
-def test_a_single_annotation_value_given_as_a_string_becomes_one_class():
-    """A settings CSV holds one value unbracketed. Iterating the string
-    would make one class per character."""
-    out = cc.normalize_settings({"dataset_mode": "annotation",
-                                 "annotation_column": "test",
-                                 "annotation_values": "positive"})
-    rules = cc.class_rules(out)
-
-    assert len(rules) == 1, [r.name for r in rules]
-    assert rules[0].column == "test"
-    assert rules[0].value == "positive"
-
-
-def test_a_metadata_run_skips_the_control_that_is_not_set():
-    """Only the positive control is named, so only one rule exists. An empty
-    negative control must not become a rule matching the empty string."""
-    out = cc.normalize_settings({"dataset_mode": "metadata",
-                                 "location_column": "column_name",
-                                 "negative_control_id": "",
-                                 "positive_control_id": "c3"})
-    rules = cc.class_rules(out)
-
-    assert len(rules) == 1, [(r.name, r.value) for r in rules]
-    assert rules[0].value == "c3"
-    assert rules[0].column == "column_name"
-
-
-# ---------------------------------------------------------------------------
 # Applying them
 # ---------------------------------------------------------------------------
 

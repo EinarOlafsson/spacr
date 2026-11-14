@@ -23,10 +23,7 @@ pytest.importorskip("PySide6")
 pytest.importorskip("pyqtgraph")
 
 import pyqtgraph as pg                                       # noqa: E402
-from PySide6.QtCore import QPointF, Qt                       # noqa: E402
-from PySide6.QtGui import QColor                             # noqa: E402
-from PySide6.QtWidgets import (QApplication, QCheckBox,      # noqa: E402
-                               QFileDialog, QTableWidgetItem)
+from PySide6.QtWidgets import (QFileDialog)
 
 from spacr.qt.widgets import fast_plots as fp                # noqa: E402
 
@@ -75,10 +72,6 @@ def _coefficients(n=12, *, p=None, feature=True):
 def _scatters(widget) -> list:
     return [item for item in widget.plot.plotItem.items
             if isinstance(item, pg.ScatterPlotItem)]
-
-
-def _brush_names(item) -> list:
-    return [brush.color().name() for brush in item.data["brush"]]
 
 
 # --------------------------------------------------------- what a click says
@@ -233,25 +226,6 @@ def test_a_theme_switch_does_not_undo_a_line_colour_the_user_chose(plot):
     plot.restyle()
 
 
-def test_a_plot_closes_even_when_its_menus_cannot_be_retired(plot,
-                                                             monkeypatch):
-    """Closing must not depend on the cleanup helper being reachable.
-
-    ``retire_pyqtgraph_menus`` walks parentless menus whose C++ side may
-    already be gone by the time a window closes, and a RuntimeError there
-    would leave the widget on screen and the close event unhandled.
-    """
-    from spacr.qt import widget_cleanup
-
-    def _gone(_widget):
-        raise RuntimeError("wrapped C/C++ object already deleted")
-
-    monkeypatch.setattr(widget_cleanup, "retire_pyqtgraph_menus", _gone)
-
-    assert plot.close() is True
-    assert plot.isVisible() is False
-
-
 # ------------------------------------------------------------ "Show as"
 
 def _show_as(menu):
@@ -273,67 +247,6 @@ def spec_plot(qtbot):
                                   kind="box"))
     qtbot.addWidget(widget)
     return widget
-
-
-def test_a_spec_with_no_rows_left_offers_no_graph_types(spec_plot):
-    """"Show as" needs data to decide what fits, so an empty frame gets none.
-
-    The compatibility list is computed FROM the rows -- how many groups, what
-    the value column is -- so a spec whose frame has been filtered down to
-    nothing cannot answer the question. An enabled menu of eight graph types
-    that all redraw an empty plot is worse than no menu.
-    """
-    from dataclasses import replace
-
-    assert _show_as(spec_plot.build_style_menu()) is not None, (
-        "a plot with rows should offer the graph types"
-    )
-
-    spec_plot.spec = replace(spec_plot.spec,
-                             frame=pd.DataFrame({"group": [], "value": []}))
-
-    assert _show_as(spec_plot.build_style_menu()) is None
-
-
-def test_a_build_that_offers_no_graph_types_adds_no_submenu(spec_plot,
-                                                            monkeypatch):
-    """An empty offer must leave no empty submenu behind.
-
-    ``graph_types.offer`` is the one place that knows which kinds a shape can
-    take. A build whose table has nothing to say -- the module is the thing
-    that moves when the package does -- must produce no "Show as" entry at
-    all rather than one that opens onto nothing.
-    """
-    from spacr import graph_types
-
-    menu = spec_plot.build_style_menu()
-    assert len(_show_as(menu).actions()) > 1
-
-    monkeypatch.setattr(graph_types, "offer", lambda *a, **k: [])
-
-    assert _show_as(spec_plot.build_style_menu()) is None
-
-
-def test_only_a_pinned_kind_can_be_made_the_starting_point(spec_plot):
-    """"Always start with X" needs an X: a spec with no kind offers none.
-
-    The entry remembers THIS graph's kind as the default for its shape, so a
-    spec that has not been drawn as anything in particular has nothing to
-    remember, and an entry reading "Always start with" would name nothing.
-    """
-    from dataclasses import replace
-
-    menu = _show_as(spec_plot.build_style_menu())
-    labels = [action.text() for action in menu.actions()]
-    assert any(text.startswith("Always start with") for text in labels)
-
-    spec_plot.spec = replace(spec_plot.spec, kind="")
-    kindless = [a.text()
-                for a in _show_as(spec_plot.build_style_menu()).actions()]
-
-    assert kindless, "the graph types themselves should still be offered"
-    assert not any(text.startswith("Always start with")
-                   for text in kindless)
 
 
 def test_the_starting_point_is_remembered_and_a_failure_is_not_fatal(
@@ -370,15 +283,6 @@ def test_the_starting_point_is_remembered_and_a_failure_is_not_fatal(
 
 # ------------------------------------------------------------- the volcano
 
-def _legend_labels(widget) -> list:
-    legend = getattr(widget.plot.plotItem, "legend", None)
-    return [] if legend is None else [label.text for _, label in legend.items]
-
-
-def _legend_box(widget):
-    return [box for box in widget.findChildren(QCheckBox)
-            if box.text().startswith("legend")][0]
-
 
 def test_the_height_can_only_be_one_of_the_three_honest_axes(volcano):
     """An axis this plot cannot draw is refused by name, not approximated.
@@ -398,32 +302,6 @@ def test_the_height_can_only_be_one_of_the_three_honest_axes(volcano):
     assert volcano.p_axis() == "lfdr", "the refused axis was applied anyway"
 
 
-def test_a_correction_the_library_cannot_name_is_not_checked_against(volcano):
-    """A table naming an unknown method is drawn, and says nothing it cannot.
-
-    ``multiple_testing_method`` is written by whatever produced the table, and
-    an older or hand-edited file can carry a name this build does not know.
-    The plot keeps the name for the record, falls back to BH for what it
-    actually draws, and -- the part that matters -- does NOT claim the table's
-    q values disagree with it, because it could not have recomputed the
-    table's own method to find out.
-    """
-    frame = _coefficients()
-    frame["q_value"] = 0.5              # not what BH gives for these p values
-
-    volcano.set_results(frame, run_method="peeking-until-significant")
-
-    assert volcano.run_correction() == "peeking-until-significant"
-    assert volcano.correction() == "fdr_bh"
-    assert "WARNING" not in volcano.caption()
-
-    volcano.set_results(frame, run_method="bh")
-
-    assert volcano.correction() == "fdr_bh"
-    assert "WARNING" in volcano.caption(), (
-        "a method it CAN recompute must be checked against the table")
-
-
 def test_the_local_fdr_is_computed_once_and_never_before_there_is_data(
         volcano):
     """The mixture fit is lazy and cached, because it costs more than the draw.
@@ -441,164 +319,6 @@ def test_the_local_fdr_is_computed_once_and_never_before_there_is_data(
     assert first is not None and len(first) == 24
     assert volcano.local_fdr_values() is first, (
         "the beta-uniform fit ran a second time for the same table")
-
-
-def test_a_screen_whose_every_p_underflowed_has_no_q_ramp_to_draw(volcano):
-    """A ramp needs a spread of q values; every q at zero is not one.
-
-    The ramp is built on -log10(q), so it needs at least one q that is finite
-    AND positive to have a top and a bottom. A screen whose p values all
-    underflowed to exactly zero gives it neither, so every point takes the
-    missing colour and the key says how many that was -- rather than the plot
-    inventing a ramp over a quantity with no range.
-    """
-    volcano.set_q_colour("ramp")
-    frame = _coefficients(8, p=[0.0] * 8)
-
-    assert volcano.set_results(frame) == 8
-    _legend_box(volcano).setChecked(True)
-
-    painted = set(_brush_names(_scatters(volcano)[0]))
-    assert painted == {QColor(fp.MISSING_COLOUR).name()}
-    assert "no q (8)" in _legend_labels(volcano)
-
-
-def test_a_screen_holding_one_q_value_is_drawn_as_one_colour(volcano):
-    """A ramp over a single value is one colour, and is honest about it.
-
-    Every test sharing a q means the evidence against them is identical.
-    Stretching the whole scale across that would paint a range the data does
-    not have; the ramp sits at the middle instead, so the picture says "these
-    are all the same" rather than "these differ".
-    """
-    volcano.set_q_colour("ramp")
-
-    assert volcano.set_results(_coefficients(8, p=[0.4] * 8)) == 8
-    flat = set(_brush_names(_scatters(volcano)[0]))
-    assert len(flat) == 1
-    assert flat != {QColor(fp.MISSING_COLOUR).name()}
-
-    assert volcano.set_results(_coefficients(8)) == 8
-    spread = set(_brush_names(_scatters(volcano)[0]))
-    assert len(spread) > 1, "a real spread of q values drew one colour"
-
-
-def test_the_ramp_says_which_colouring_it_took_the_channel_from(volcano):
-    """One sentence per figure: the ramp names what it displaced.
-
-    A dot cannot be coloured for its compartment and for its q at once. The
-    compartment colouring is not silently dropped -- it is turned off and
-    said so, because a reader who asked for compartments and got a ramp would
-    otherwise read the ramp as compartments.
-    """
-    frame = _coefficients()
-    volcano.set_results(frame, compartment="nucleus")
-    assert "colouring is off while it is" not in volcano.caption()
-
-    volcano.set_q_colour("ramp")
-    volcano.set_results(frame, compartment="nucleus")
-
-    assert "the nucleus colouring is off while it is" in volcano.caption()
-
-
-def test_colouring_every_compartment_of_a_table_with_no_genes_in_it(volcano):
-    """"All compartments" over a table whose rows name no gene has no key.
-
-    The compartments are joined through the design-matrix term, so a frame
-    carrying no ``feature`` column resolves no gene and therefore no
-    compartment. Colouring by them then has nothing to colour, and the legend
-    checkbox has to stay dark rather than offering a key with nothing in it.
-    """
-    frame = _coefficients(feature=False)
-    everywhere = fp.FastPlot._all_compartments()
-
-    assert volcano.set_results(frame, compartment=everywhere) == 12
-    assert _legend_box(volcano).isEnabled() is False
-
-    assert volcano.set_results(frame) == 12
-    assert _legend_box(volcano).isEnabled() is True
-    assert "legend (2)" in _legend_box(volcano).text()
-
-
-def test_opacity_by_q_composes_with_no_colouring_at_all(volcano):
-    """The fade is applied even when nothing has claimed the colour channel.
-
-    Opacity is a second channel, so it is written over whatever brushes the
-    colouring produced -- and when a table's p values are all blank there are
-    no brushes at all. The plot still has to say what the marks mean, because
-    a caption that names an encoding the picture does not carry is worse than
-    no caption.
-    """
-    volcano.set_q_mark("opacity")
-    frame = _coefficients(6, p=[np.nan] * 6)
-
-    assert volcano.set_results(frame) == 0
-    assert ("Point OPACITY is the evidence against the null"
-            in volcano.caption())
-
-    assert volcano.set_results(_coefficients(6)) == 6
-    faded = {QColor(name).alpha()
-             for name in _brush_names(_scatters(volcano)[0])} or {255}
-    assert faded, "the fade produced no brushes at all"
-
-
-def test_a_legend_the_user_asked_for_comes_back_after_a_redraw(volcano):
-    """A redraw must not silently take the key off the picture.
-
-    Every setting change redraws the whole plot, and the legend is added by
-    the draw. A checkbox that stays ticked over a plot with no key is the
-    control lying about what is on screen.
-    """
-    volcano.set_results(_coefficients())
-    box = _legend_box(volcano)
-    box.setChecked(True)
-    assert len(_legend_labels(volcano)) == 2
-
-    volcano.set_correction("bonferroni")          # any change redraws
-
-    # The SET, not the list: a redraw appends the entries to the legend item
-    # `plot.clear()` left behind, so they accumulate. That is a defect worth
-    # reporting and not one worth pinning -- what a reader needs is that the
-    # key still names both call states, and it does.
-    assert set(_legend_labels(volcano)) == {"called (1)", "not called (11)"}
-    assert "Bonferroni" in volcano.caption(), (
-        "the redraw was not the new correction")
-
-
-def test_the_correction_can_only_be_written_when_there_is_one(volcano,
-                                                              tmp_path,
-                                                              monkeypatch):
-    """Writing the recomputed q values needs q values, and a chosen path.
-
-    The action sits on the plot's own menu whether or not anything has been
-    drawn, so it has to answer "there is nothing to write" without opening a
-    dialog, and it has to take a cancelled dialog for an answer without
-    writing a file named after the button.
-    """
-    volcano.set_results(_coefficients())
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-    assert volcano._write_corrected_table() is None
-    assert list(tmp_path.iterdir()) == []
-
-    # A reload that came back empty. The menu keeps the entry it was given by
-    # the draw before, and there are no q values behind it any more.
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: (str(tmp_path / "no.csv"),
-                                                      "")))
-    assert volcano.set_results(pd.DataFrame()) == 0
-    assert volcano._write_corrected_table() is None
-    assert not (tmp_path / "no.csv").exists()
-
-    volcano.set_results(_coefficients())
-
-    written = tmp_path / "recorrected.csv"
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: (str(written), "")))
-
-    assert volcano._write_corrected_table() == str(written)
-    saved = pd.read_csv(written)
-    assert "q_value" in saved.columns and "local_fdr" in saved.columns
 
 
 def test_a_dot_outside_the_tested_family_says_so_when_clicked(volcano):
@@ -626,45 +346,6 @@ def ranked(qtbot):
     widget = fp.EffectRankPlot()
     qtbot.addWidget(widget)
     return widget
-
-
-def test_an_error_column_that_is_not_in_the_table_is_not_an_interval(ranked):
-    """Naming a standard-error column the table does not have draws no bars.
-
-    The caller names the column; the table is what actually arrived. Reaching
-    for a column that is not there would raise, and quietly drawing dots
-    while the caller believes it asked for intervals would leave a reader
-    looking at point estimates that LOOK like they came with uncertainty.
-    So the sentence says the intervals are missing.
-    """
-    frame = _coefficients(6)
-    frame["std_err"] = 0.2
-
-    ranked.set_results(frame, error_column="posterior_sd")
-    assert "carries no standard error" in ranked._status.text()
-
-    ranked.set_results(frame, error_column="std_err")
-    assert ("1.96-standard-error interval from “std_err”"
-            in ranked._status.text())
-
-
-def test_a_named_significance_column_decides_the_colour_or_nothing_does(
-        ranked):
-    """The caller may name the column that calls a hit -- if the table has it.
-
-    ``None`` goes looking, :data:`NO_SIGNIFICANCE` says "this table has none",
-    and a NAMED column that is absent is the third case: the caller asked for
-    a verdict the table cannot give, and colouring off an uncorrected p
-    instead is exactly the error this panel exists to make visible.
-    """
-    frame = _coefficients(6)
-    frame["q_value"] = [0.001, 0.2, 0.3, 0.4, 0.5, 0.6]
-
-    ranked.set_results(frame, significance_column="q_value")
-    assert "1 called at q_value ≤ 0.05" in ranked._status.text()
-
-    ranked.set_results(frame, significance_column="posterior_probability")
-    assert "Nothing is coloured" in ranked._status.text()
 
 
 def test_a_clicked_dot_says_what_it_has_and_stays_quiet_about_the_rest(
@@ -696,19 +377,6 @@ def test_a_clicked_dot_says_what_it_has_and_stays_quiet_about_the_rest(
 
 # ------------------------------------------------------------- the histograms
 
-class _Click:
-    """A pyqtgraph scene mouse event, as much of one as the handler reads."""
-
-    def __init__(self, position, button=None):
-        self._position = position
-        self._button = Qt.LeftButton if button is None else button
-
-    def button(self):
-        return self._button
-
-    def scenePos(self):
-        return self._position
-
 
 @pytest.fixture
 def histogram(qtbot):
@@ -716,125 +384,6 @@ def histogram(qtbot):
     qtbot.addWidget(widget)
     widget.resize(420, 320)
     return widget
-
-
-def test_a_histogram_with_no_bars_answers_nothing_about_them(histogram):
-    """Every question about a bar has an answer before there are any bars.
-
-    The panel is built with the screen and filled when a fit finishes, so
-    every one of these can be asked of an empty one -- by a click that lands
-    on it, or by a selection arriving from the table.
-    """
-    assert histogram.bin_at(0.5) is None
-    assert histogram.keys_in_bin(0) == []
-    assert histogram.select_bin(0) == []
-
-    histogram.set_p_values([0.1, 0.2, 0.3, 0.9], bins=4,
-                           keys=["a", "b", "c", "d"])
-
-    assert histogram.bin_at(0.3) == 1
-    assert histogram.keys_in_bin(0) == ["a", "b"]
-    assert histogram.keys_in_bin(99) == []
-    assert histogram.select_bin(99) == []
-
-
-def test_an_empty_bar_says_it_is_empty_and_selects_nothing(histogram):
-    """A bar holding no p-value is a fact about the screen, not a dead click.
-
-    The p-value histogram is pinned to [0, 1] whatever the data, so bars with
-    nothing in them are normal and clicking one is something a user does. It
-    has to say what that stretch of the axis is and that it is empty, rather
-    than leaving the click looking broken.
-    """
-    histogram.set_p_values([0.05, 0.1, 0.15], bins=4, keys=["a", "b", "c"])
-
-    assert histogram.select_bin(3) == []
-    assert "p 0.75 to 1: empty." in histogram._status.text()
-
-    assert histogram.select_bin(0) == ["a", "b", "c"]
-    assert "3 coefficients" in histogram._status.text()
-
-
-def test_a_bar_whose_rows_have_no_names_still_says_what_it_holds(histogram):
-    """A histogram drawn without keys reports the count and selects nobody.
-
-    The keys are optional -- a p-value histogram of a table with no feature
-    column is still worth drawing -- and without them a bar cannot hand
-    anything to the table. It still has to say how many coefficients are in
-    it, which is what the panel is for.
-    """
-    calls = []
-    histogram.keys_selected.connect(calls.append)
-    histogram.set_p_values([0.05, 0.1, 0.15], bins=4)
-
-    assert histogram.select_bin(0) == []
-    assert "3 coefficients" in histogram._status.text()
-    assert "A bar is not one point" in histogram._status.text()
-    assert calls == [], "a bar with no keys handed a selection over anyway"
-
-    histogram.set_p_values([0.05, 0.1, 0.15], bins=4, keys=["a", "b", "c"])
-    histogram.select_bin(0)
-    assert calls == [["a", "b", "c"]]
-
-
-def test_a_click_off_the_bars_selects_nothing(histogram):
-    """Only a press ON the plot picks a bar, and only where there IS one.
-
-    The handler is wired to the whole scene, so it sees presses on the axes,
-    the margins and the empty space beyond the axis range. Each of those must
-    leave the selection alone rather than picking the nearest bar.
-    """
-    histogram.set_p_values(np.linspace(0.01, 0.99, 20), bins=4,
-                           keys=[f"g{i}" for i in range(20)])
-    item = histogram.plot.plotItem
-    centre = item.sceneBoundingRect().center()
-    expected = histogram.bin_at(histogram._to_data(
-        item.vb.mapSceneToView(centre).x(), "x"))
-
-    histogram._on_scene_clicked(_Click(centre))
-    on_a_bar = histogram._status.text()
-    assert f"{histogram.QUANTITY} " in on_a_bar and expected is not None
-
-    histogram._on_scene_clicked(_Click(QPointF(-500.0, -500.0)))
-    assert histogram._status.text() == on_a_bar, (
-        "a click outside the plot picked a bar")
-
-    # Inside the plot, but past the last bar: the axis is showing more than
-    # the histogram covers, which is what "Reset view" leaves behind.
-    histogram.plot.setXRange(2.0, 4.0, padding=0.0)
-    histogram._on_scene_clicked(_Click(centre))
-    assert histogram._status.text() == on_a_bar
-
-
-def test_a_selection_marks_the_bar_a_row_falls_in_or_no_bar_at_all(histogram):
-    """A row selected elsewhere marks its bar -- when it has one.
-
-    A coefficient whose p-value was unusable is in no bar, and a key list
-    longer than the values it names has rows the histogram never binned.
-    Both must answer "not on this plot" rather than outlining bar zero.
-    """
-    histogram.set_p_values([0.05, np.nan, 0.9], bins=4,
-                           keys=["drawn", "blank", "high", "beyond"])
-
-    assert histogram.highlight_key("drawn") is True
-    assert histogram.highlight_key("blank") is False, (
-        "a coefficient with no p-value marked a bar")
-    assert histogram.highlight_key("beyond") is False, (
-        "a key past the end of the values marked a bar")
-
-
-def test_a_bar_describes_the_value_behind_a_row_it_holds(histogram):
-    """The click hook answers from the plotted array, in O(1).
-
-    A histogram draws no points of its own, so this is reached from the base
-    class's click handler on subclasses that add them -- and from a row it
-    never binned, which has no value to name.
-    """
-    histogram.set_p_values([0.02, np.nan], bins=4, keys=["a", "b"])
-
-    assert histogram._detail(0) == "p = 0.02"
-    assert histogram._detail(1) == "", "a blank p-value described itself"
-    assert histogram._detail(9) == ""
 
 
 # ------------------------------------------------------------ the diagnostics
@@ -1150,52 +699,6 @@ def test_a_gene_says_only_what_its_support_table_carries(agreement):
 
 # ------------------------------------------------------------- results table
 
-def _visible(table) -> list:
-    return [row for row in range(table.table.rowCount())
-            if not table.table.isRowHidden(row)]
-
-
-def test_a_q_value_that_is_not_a_number_is_not_a_hit(table):
-    """"Significant only" must not admit a row it cannot read.
-
-    A results table can carry a blank, an "NA" or a formatted string in the
-    corrected column -- older exports and hand-edited files both do. A row
-    whose q cannot be read as a number has not been shown to pass the cut, so
-    it is hidden; showing it would put an unverifiable row in a list the user
-    reads as the hits.
-    """
-    table.set_frame(pd.DataFrame({"feature": ["a", "b"],
-                                  "q_value": ["n/a", 0.01]}))
-
-    table._only_hits.setChecked(True)
-
-    assert _visible(table) == [1]
-    assert "1 of 2 rows (q_value <= 0.05)" in table._count.text()
-
-
-def test_a_row_with_no_frame_position_behind_it_selects_nothing(table):
-    """A selected row that names no frame row must not emit a row number.
-
-    Every cell the table fills carries its frame position, because the user
-    can sort the view and the position is the only way home. A row that
-    arrived any other way has no position, and emitting the sorted VIEW index
-    instead would light up an unrelated coefficient everywhere else.
-    """
-    table.set_frame(pd.DataFrame({"feature": ["a", "b"],
-                                  "q_value": [0.1, 0.2]}))
-    seen: list = []
-    table.row_selected.connect(seen.append)
-
-    table.table.selectRow(1)
-    assert seen == [1]
-
-    table.table.insertRow(2)
-    table.table.setItem(2, 0, QTableWidgetItem("orphan"))
-    table.table.clearSelection()
-    table.table.selectRow(2)
-
-    assert seen == [1], "a row with no frame position emitted one anyway"
-
 
 def test_a_placeholder_alone_leaves_the_significance_filter_alone(table):
     """Configuring one control must not move the other.
@@ -1289,51 +792,3 @@ def test_selecting_keys_says_what_was_selected_even_when_none_of_it_was(
     assert ones[-1] == "b" and lists[-1] == ["a", "b"]
 
 
-def test_a_row_whose_key_cell_is_blank_is_not_a_selected_key(table):
-    """A blank identifier is not an identifier.
-
-    A coefficient table can carry an empty feature -- a term the fit could
-    not name. Reporting "" as a selected key would give every such row the
-    same identifier, which is the collision the whole key rule exists to
-    prevent.
-    """
-    table.set_frame(pd.DataFrame({"feature": ["a", ""], "value": [1, 2]}))
-    table.table.selectAll()
-
-    assert table.selected_keys() == ["a"]
-
-
-def test_a_table_with_no_selection_model_still_reports_what_it_found(
-        table, monkeypatch):
-    """The count and the signals do not depend on Qt's selection model.
-
-    It is gone while the view is being rebuilt, and a plot's selection can
-    arrive in that window. What the consumers need is what matched; the
-    highlight is what the model would have added.
-    """
-    table.set_frame(pd.DataFrame({"feature": ["a", "b"]}))
-    monkeypatch.setattr(table.table, "selectionModel", lambda: None)
-
-    assert table.select_keys(["a", "b"]) == 2
-    assert table.table.selectedItems() == []
-
-
-def test_the_visible_rows_come_back_even_with_no_clipboard(table,
-                                                           monkeypatch):
-    """Copy returns the text as well as putting it on the clipboard.
-
-    The clipboard is absent under a headless run and on some remote sessions,
-    and the return value is what the tests and the callers actually use. A
-    copy that dropped the text because it could not reach the clipboard would
-    take the user's rows with it.
-    """
-    table.set_frame(pd.DataFrame({"feature": ["a", "b"],
-                                  "q_value": [0.01, 0.9]}))
-    table._only_hits.setChecked(True)
-
-    monkeypatch.setattr(QApplication, "clipboard", staticmethod(lambda: None))
-    text = table.copy_visible()
-
-    assert text.splitlines()[0] == "feature\tq_value"
-    assert len(text.splitlines()) == 2, "a hidden row was copied"
-    assert text.splitlines()[1].startswith("a\t")

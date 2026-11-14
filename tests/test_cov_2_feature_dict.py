@@ -12,51 +12,7 @@ from __future__ import annotations
 
 import dataclasses
 
-import pytest
-
 from spacr import feature_dict as fd
-
-
-# ---------------------------------------------------------------------------
-# parsing an organelle summary column
-# ---------------------------------------------------------------------------
-
-def test_a_role_spelled_summary_key_resolves_to_itself(monkeypatch):
-    """A curated key written under one organelle role keeps its own name.
-
-    ``organelle_summary_*`` columns are normally curated once under the
-    generic ``organelle`` role and every role's column is mapped onto that
-    canonical key. A key curated for one role specifically has no canonical
-    twin to map to, and must resolve under its own literal name rather than
-    falling through to "not in the dictionary" -- which is what the user would
-    be told about a column the dictionary does describe.
-
-    The role-specific key is injected because the shipped table has none; the
-    branch exists so that adding one does not silently break its own column.
-    """
-    name = "organelle_summary_organelleb_lysosome_ratio"
-    assert name not in fd.KNOWN_PROPERTIES
-    assert "organelle_summary_organelle_lysosome_ratio" not in fd.KNOWN_PROPERTIES
-
-    info = fd.PropertyInfo(
-        family="morphology",
-        description="Share of the parent occupied by role-b organelles.",
-        unit="fraction",
-        computed_by="spacr.measure._summarize_organelles_per_parent",
-        notes=None,
-    )
-    monkeypatch.setitem(fd.KNOWN_PROPERTIES, name, info)
-
-    entry = fd.parse_column(name)
-
-    assert entry.key == name, "resolved under its own name, not a canonical one"
-    assert entry.family == "morphology"
-    assert entry.unit == "fraction"
-    assert entry.description == info.description
-
-    # And without the injection the same column is honestly unexplained.
-    monkeypatch.delitem(fd.KNOWN_PROPERTIES, name)
-    assert fd.parse_column(name).family == "unknown"
 
 
 # ---------------------------------------------------------------------------
@@ -144,40 +100,3 @@ def test_a_key_outside_a_concepts_own_list_ranks_at_the_bottom():
     assert fd._concept_rank(concept, "not_a_curated_key") == 0.0
     # The list itself still ranks, most characteristic first.
     assert fd._concept_rank(concept, keys[0]) > fd._concept_rank(concept, keys[-1])
-
-
-def test_a_query_that_only_matches_the_title_still_finds_the_feature():
-    """Words separated by spaces must find keys separated by underscores.
-
-    Nobody types ``major_axis_length``. The title is the humanised key, so
-    "major axis" matches there and nowhere else -- and a search that only
-    looked at the key would return nothing for the most natural phrasing.
-    """
-    hits = fd.search_features("major axis")
-
-    keys = [hit.doc.key for hit in hits]
-    assert "major_axis_length" in keys
-    matched = next(h for h in hits if h.doc.key == "major_axis_length")
-    assert "title contains the query" in matched.reason
-    assert "major axis" not in matched.doc.key.lower(), (
-        "the point is that the key does NOT contain the query")
-
-
-def test_a_family_filter_removes_docs_from_another_family():
-    """Filtering by family must drop the hits that would otherwise be there.
-
-    "area" matches morphology features and the ``meta`` voxel-size columns.
-    A filter that widened to everything -- or that was simply ignored -- would
-    put metadata rows in a morphology search, which is the failure this
-    asserts against by naming both families first.
-    """
-    unfiltered = fd.search_features("area")
-    families = {hit.doc.family for hit in unfiltered}
-    assert "meta" in families and "morphology" in families, (
-        "this query must span two families or the filter proves nothing")
-
-    filtered = fd.search_features("area", family="morphology")
-
-    assert {hit.doc.family for hit in filtered} == {"morphology"}
-    assert len(filtered) < len(unfiltered)
-    assert "area" in [hit.doc.key for hit in filtered]

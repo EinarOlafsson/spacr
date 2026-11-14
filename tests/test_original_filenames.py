@@ -59,13 +59,68 @@ def test_canonical_composite_ids_and_multiindex_are_preserved(tmp_path):
     assert mapped.acquisition_name.iloc[0] == "sample.tif"
 
 
-def test_timepoints_cannot_be_silently_combined(tmp_path):
-    path = csv_map(tmp_path, [modern(), modern(time=2, source="/raw/second.tif")])
-    with pytest.raises(ValueError, match="Ambiguous"):
-        enrich(pd.DataFrame({"prcf": ["plate1_r1_c1_f1"]}), path)
-    mapped, _ = enrich(pd.DataFrame({"prcf": ["plate1_r1_c1_f1"],
-                                     "cell_filename": ["plate1_A01_1_2.npy"]}), path)
-    assert mapped.original_filename.iloc[0] == "second.tif"
+def _shared_basename_across_plates():
+    one, two = modern(), modern(plate="plate2", source="/raw/other.tif")
+    one["target"] = two["target"] = "shared.tif"
+    return [one, two]
+
+
+def _channel_image(**override):
+    base = {"kind": "image", "plate": "plate1", "well": "A01", "field": 1,
+            "time": 1, "new_path": "/sorted/C01/plate1_A01_T0001F001L01C01.tif",
+            "original_path": "/raw/image.tif", "status": "moved"}
+    return dict(base, **override)
+
+
+_TWO_TIMES = [modern(), modern(time=2, source="/raw/second.tif")]
+_PRCF = {"prcf": ["plate1_r1_c1_f1"]}
+
+
+@pytest.mark.parametrize("records, name, frame, expected", [
+    pytest.param(_TWO_TIMES, "conversion_map.csv",
+                 {**_PRCF, "cell_filename": ["plate1_A01_1_2.npy"]}, "second.tif",
+                 id="the-time-in-the-cell-filename-picks-the-timepoint"),
+    pytest.param(_shared_basename_across_plates(), "conversion_map.csv",
+                 {"filename": ["shared.tif"], "prcf": ["plate2_r1_c1_f1"]}, "other.tif",
+                 id="an-explicit-plate-resolves-a-shared-basename"),
+    pytest.param([_channel_image(), _channel_image(kind="mask", original_path="/raw/mask.tif"),
+                  _channel_image(status="error", original_path="/raw/failed.tif")],
+                 "channel_sorting_manifest.csv", _PRCF, "image.tif",
+                 id="channel-manifest-ignores-masks-and-failed-images"),
+    pytest.param([{"kind": "image", "original_path": "/raw/x.tif",
+                   "new_path": "plate1_A01_T0001F001L01A01Z01C01.tif", "status": "moved",
+                   "plate": "plate1", "well": "A01", "field": "1", "time": "1"},
+                  {"kind": "folder", "original_path": "/raw", "new_path": "plate1",
+                   "status": "moved", "plate": "plate1", "well": "A01", "field": "1",
+                   "time": "1"}],
+                 "channel_sorting_manifest.csv", _PRCF, "x.tif",
+                 id="a-channel-sorting-manifest-is-read"),
+    pytest.param([modern()], "conversion_map.csv",
+                 {**_PRCF, "filename": [""]}, "sample.tif",
+                 id="an-empty-filename-cell-is-ignored"),
+    pytest.param([modern(), modern(time=2, source="time2.nd2")], "conversion_map.csv",
+                 {"plateID": ["plate1"], "rowID": [1.0], "columnID": [1.0],
+                  "fieldID": [1.0], "time_id": [2.0]}, "time2.nd2",
+                 id="legacy-time-id-alias-and-float-identities"),
+])
+def test_enrich_restores_the_original_filename(tmp_path, records, name, frame, expected):
+    mapped, _ = enrich(pd.DataFrame(frame), csv_map(tmp_path, records, name))
+    assert mapped.original_filename.iloc[0] == expected
+
+
+@pytest.mark.parametrize("records, frame, refusal", [
+    pytest.param(_TWO_TIMES, _PRCF, "Ambiguous",
+                 id="two-timepoints-are-not-silently-combined"),
+    pytest.param(_shared_basename_across_plates(), {"filename": ["shared.tif"]}, "Ambiguous",
+                 id="a-shared-basename-without-a-plate-is-ambiguous"),
+    pytest.param([modern(), modern(time=2, source="time2.nd2")],
+                 {"plateID": ["plate1"], "rowID": [1.0], "columnID": [1.0],
+                  "fieldID": [1.0], "time_id": [2.0], "timeID": "t1"},
+                 "Conflicting timeID and time_id", id="timeID-and-time_id-disagree"),
+])
+def test_enrich_refuses_an_identity_it_cannot_resolve(tmp_path, records, frame, refusal):
+    with pytest.raises(ValueError, match=refusal):
+        enrich(pd.DataFrame(frame), csv_map(tmp_path, records))
 
 
 @pytest.mark.parametrize("prcf, filename", [
@@ -80,16 +135,6 @@ def test_conflicting_time_identity_is_rejected(tmp_path, prcf, filename):
         enrich(pd.DataFrame({"prcf": [prcf], "filename": [filename]}), path)
 
 
-def test_duplicate_basename_across_plates_needs_explicit_plate(tmp_path):
-    one, two = modern(), modern(plate="plate2", source="/raw/other.tif")
-    one["target"] = two["target"] = "shared.tif"
-    path = csv_map(tmp_path, [one, two])
-    with pytest.raises(ValueError, match="Ambiguous"):
-        enrich(pd.DataFrame({"filename": ["shared.tif"]}), path)
-    mapped, _ = enrich(pd.DataFrame({"filename": ["shared.tif"], "prcf": ["plate2_r1_c1_f1"]}), path)
-    assert mapped.original_filename.iloc[0] == "other.tif"
-
-
 @pytest.mark.parametrize("source_column,value,expected", [
     ("Original File", "acquisition.nd2", "acquisition.nd2"),
     ("Original File(s)", "z2.tif;z1.tif;z2.tif", "z1.tif; z2.tif"),
@@ -100,17 +145,6 @@ def test_legacy_rename_logs(tmp_path, source_column, value, expected):
     mapped, report = enrich(pd.DataFrame({"file_name": ["plate1_A01_1_1.npy"]}), path)
     assert mapped.original_filename.iloc[0] == expected
     assert report["format"] == "rename_log"
-
-
-def test_channel_manifest_ignores_masks_and_failed_images(tmp_path):
-    base = {"kind": "image", "plate": "plate1", "well": "A01", "field": 1,
-            "time": 1, "new_path": "/sorted/C01/plate1_A01_T0001F001L01C01.tif",
-            "original_path": "/raw/image.tif", "status": "moved"}
-    path = csv_map(tmp_path, [base, dict(base, kind="mask", original_path="/raw/mask.tif"),
-                             dict(base, status="error", original_path="/raw/failed.tif")],
-                   "channel_sorting_manifest.csv")
-    mapped, _ = enrich(pd.DataFrame({"prcf": ["plate1_r1_c1_f1"]}), path)
-    assert mapped.original_filename.iloc[0] == "image.tif"
 
 
 def test_failed_conversion_is_not_restored(tmp_path):
@@ -160,16 +194,6 @@ def test_discovery_is_bounded_and_includes_readonly_database(tmp_path):
     _, repeated = enrich(pd.DataFrame({"prcf": ["plate1_r1_c1_f1"]}), db,
                           expected_sha256=report["sha256"])
     assert report["sha256"] == repeated["sha256"]
-
-
-def test_legacy_time_alias_and_nullable_numeric_identities(tmp_path):
-    path = csv_map(tmp_path, [modern(), modern(time=2, source="time2.nd2")])
-    frame = pd.DataFrame({"plateID": ["plate1"], "rowID": [1.0],
-                          "columnID": [1.0], "fieldID": [1.0], "time_id": [2.0]})
-    mapped, _ = enrich(frame, path)
-    assert mapped.original_filename.iloc[0] == "time2.nd2"
-    with pytest.raises(ValueError, match="Conflicting timeID and time_id"):
-        enrich(frame.assign(timeID="t1"), path)
 
 
 def test_database_digest_is_stable_across_row_reordering(tmp_path):

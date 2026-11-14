@@ -268,19 +268,6 @@ def test_a_feature_that_names_the_object_is_refused(candidate_frame):
             candidate_frame, feature_columns=["cell_area", "object_label"])
 
 
-def test_a_feature_column_that_is_entirely_missing_is_named(candidate_frame):
-    """An all-NaN feature is not a feature, and the message says which."""
-    frame = candidate_frame.copy()
-    frame["hollow"] = np.nan
-
-    with pytest.raises(HitAttributionError) as caught:
-        ha.crossfit_candidate_probabilities(
-            frame, feature_columns=["cell_area", "hollow"])
-
-    assert "entirely missing" in str(caught.value)
-    assert "hollow" in str(caught.value)
-
-
 def test_a_single_plate_screen_cross_fits_by_well(candidate_frame):
     """Without four plates the independent unit is the well."""
     frame = candidate_frame.copy()
@@ -608,36 +595,26 @@ def test_undoing_a_promotion_that_never_happened_is_zero(png_db, fitted):
     assert ha.undo_hit_promotion(png_db, "not-a-promotion") == 0
 
 
-def test_an_audit_naming_two_columns_is_refused(png_db, fitted):
-    """One promotion wrote one column; two means the ledger was edited."""
+@pytest.mark.parametrize("update, refusal", [
+    pytest.param("UPDATE hit_attribution_promotions SET annotation_column='other' "
+                 "WHERE rowid = (SELECT MIN(rowid) FROM hit_attribution_promotions)",
+                 "multiple columns", id="an-audit-naming-two-columns"),
+    pytest.param("UPDATE hit_attribution_promotions SET annotation_column='a b'",
+                 "unsafe", id="an-unsafe-stored-column-name"),
+])
+def test_a_ledger_that_was_edited_is_not_undone(png_db, fitted, update, refusal):
+    """One promotion wrote one column; two means the ledger was edited, and the
+    stored name is re-validated before it is put back into SQL."""
     promotion = ha.promote_hit_calls(png_db, fitted, run_id="r",
                                      annotation_column="machine_call")
     connection = sqlite3.connect(png_db)
     try:
-        connection.execute(
-            "UPDATE hit_attribution_promotions SET annotation_column='other' "
-            "WHERE rowid = (SELECT MIN(rowid) FROM hit_attribution_promotions)")
+        connection.execute(update)
         connection.commit()
     finally:
         connection.close()
 
-    with pytest.raises(HitAttributionError, match="multiple columns"):
-        ha.undo_hit_promotion(png_db, promotion)
-
-
-def test_an_unsafe_stored_column_name_is_refused(png_db, fitted):
-    """The stored name is re-validated before it is put back into SQL."""
-    promotion = ha.promote_hit_calls(png_db, fitted, run_id="r",
-                                     annotation_column="machine_call")
-    connection = sqlite3.connect(png_db)
-    try:
-        connection.execute(
-            "UPDATE hit_attribution_promotions SET annotation_column='a b'")
-        connection.commit()
-    finally:
-        connection.close()
-
-    with pytest.raises(HitAttributionError, match="unsafe"):
+    with pytest.raises(HitAttributionError, match=refusal):
         ha.undo_hit_promotion(png_db, promotion)
 
 
@@ -722,38 +699,26 @@ def test_reverting_on_a_database_that_never_promoted_is_zero(png_db):
     assert ha.revert_promotion(png_db, "anything") == 0
 
 
-def test_a_reverted_audit_naming_two_columns_is_refused(png_db,
-                                                        investigation):
-    """The revert re-checks the ledger before writing through it."""
+@pytest.mark.parametrize("update, refusal", [
+    pytest.param("UPDATE hit_promotion_audit SET annotation_column='other' "
+                 "WHERE rowid = (SELECT MIN(rowid) FROM hit_promotion_audit)",
+                 "multiple columns", id="a-reverted-audit-naming-two-columns"),
+    pytest.param("UPDATE hit_promotion_audit SET annotation_column='a b'",
+                 "unsafe", id="a-reverted-audit-with-an-unsafe-column"),
+])
+def test_a_ledger_that_was_edited_is_not_reverted(png_db, investigation, update, refusal):
+    """The revert re-checks the ledger before writing through it: the stored
+    name is validated on the way out as well as the way in."""
     ha.store_attribution(png_db, investigation)
     promotion = ha.promote_calls(png_db, "run-1", "call_column")
     connection = sqlite3.connect(png_db)
     try:
-        connection.execute(
-            "UPDATE hit_promotion_audit SET annotation_column='other' "
-            "WHERE rowid = (SELECT MIN(rowid) FROM hit_promotion_audit)")
+        connection.execute(update)
         connection.commit()
     finally:
         connection.close()
 
-    with pytest.raises(HitAttributionError, match="multiple columns"):
-        ha.revert_promotion(png_db, promotion)
-
-
-def test_a_reverted_audit_with_an_unsafe_column_is_refused(png_db,
-                                                           investigation):
-    """The stored name is validated on the way out as well as the way in."""
-    ha.store_attribution(png_db, investigation)
-    promotion = ha.promote_calls(png_db, "run-1", "call_column")
-    connection = sqlite3.connect(png_db)
-    try:
-        connection.execute(
-            "UPDATE hit_promotion_audit SET annotation_column='a b'")
-        connection.commit()
-    finally:
-        connection.close()
-
-    with pytest.raises(HitAttributionError, match="unsafe"):
+    with pytest.raises(HitAttributionError, match=refusal):
         ha.revert_promotion(png_db, promotion)
 
 

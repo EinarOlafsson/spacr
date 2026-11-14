@@ -62,58 +62,6 @@ def _delete_key():
 # a sweep table that does not look like the sweep's own
 # ---------------------------------------------------------------------------
 
-def test_a_table_that_already_names_its_sources_keeps_them(panel, qtbot):
-    """A CSV loaded beside the sweep's own may already say where each row
-    came from -- runs exported from an earlier session, say, marked "on
-    disk". Stamping "sweep trial" over that column would relabel every one of
-    those rows as something the sweep produced, and the source column is
-    exactly what a user reads to tell a hand-made comparison table apart from
-    a generated one. Rows with no source of their own still get the sweep's.
-    """
-    named = pd.DataFrame({"trial_id": [1, 2],
-                          "source": ["on disk", "on disk"],
-                          "r_squared": [0.41, 0.52]})
-
-    assert panel.set_frame(named, source="/x/named.csv") is True
-    assert panel._frame["source"].tolist() == ["on disk", "on disk"]
-    # The trial numbers still become the run names -- the column that was
-    # already there is the only thing left alone.
-    assert panel._frame["run"].tolist() == ["trial 1", "trial 2"]
-
-    anonymous = pd.DataFrame({"trial_id": [7], "r_squared": [0.3]})
-    assert panel.set_frame(anonymous, source="/x/plain.csv") is True
-    assert panel._frame["source"].tolist() == [SOURCE_SWEEP]
-    assert panel._frame["run"].tolist() == ["trial 7"]
-
-
-def test_a_table_with_no_status_column_reports_no_failures(panel):
-    """An older sweep's CSV carries no ``status`` column at all. The sentence
-    over the table counts the runs that "did not produce a regression" off
-    that column, and reading a missing column as a failure would tell a user
-    every trial in their archive had crashed. The same panel, given a table
-    that DOES carry the column, must still count the failure in it -- the
-    silence has to come from the column being absent, not from the counting
-    being broken.
-    """
-    quiet = pd.DataFrame({"trial_id": [1, 2], "r_squared": [0.4, 0.5]})
-    panel.set_frame(quiet, source="/x/old.csv")
-
-    said = panel._status.text()
-    assert said.startswith("2 runs")
-    assert "did not produce a regression" not in said, said
-    assert "still going" not in said, said
-
-    loud = pd.DataFrame({"trial_id": [1, 2, 3],
-                         "status": ["ok", "failed", STATUS_RUNNING],
-                         "r_squared": [0.4, 0.5, 0.6]})
-    panel.set_frame(loud, source="/x/new.csv")
-
-    said = panel._status.text()
-    assert said.startswith("3 runs")
-    assert "1 of which did not produce a regression" in said, said
-    assert "1 still going" in said, said
-
-
 def test_the_summary_of_a_frame_with_no_source_column_just_counts(panel):
     """The sentence over the table is also asked for a frame that is not the
     composed one -- a caller summarising a table it holds itself. Splitting

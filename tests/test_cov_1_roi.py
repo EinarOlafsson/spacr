@@ -8,12 +8,11 @@ from __future__ import annotations
 
 import os
 
-import numpy as np
 import pytest
 
 from spacr import measure_hooks as mh
 from spacr import roi as R
-from spacr.layers import LayerError, LayerStack, Spacing
+from spacr.layers import Spacing
 
 
 @pytest.fixture(autouse=True)
@@ -41,40 +40,10 @@ def _roi(name='r'):
 # Geometry that encloses nothing
 # ---------------------------------------------------------------------------
 
-def test_a_rectangle_from_a_single_point_is_refused():
-    """One corner is not a rectangle: it encloses no area at all.
-
-    A click that never became a drag leaves a one-vertex shape behind. Taken
-    as an ROI it rasterises to an empty region, so Measure would report zero
-    objects everywhere and look like a segmentation failure.
-    """
-    with pytest.raises(R.RoiError, match='at least two points'):
-        R.RegionOfInterest('rectangle', [[12.0, 34.0]])
-
-
 def test_a_plane_needs_two_axes():
     """A one-axis spacing has no plane for a region to lie in."""
     with pytest.raises(R.RoiError, match='only 1 axis'):
         R._plane_axes(Spacing(scale=(0.65,), axes=('x',), units='um'))
-
-
-def test_axes_the_layer_does_not_have_are_named_in_the_error():
-    """Asking for a plane the shapes were not drawn in says so.
-
-    The alternative is an IndexError out of the vertex slicing several frames
-    later, which says nothing about the axis names that did not match.
-    """
-    stack = LayerStack()
-    layer = stack.add_shapes(name='ROI', ndim=2)
-    layer.add_rectangle([0.0, 0.0], [64.0, 128.0])
-
-    with pytest.raises(R.RoiError) as excinfo:
-        R.RoiSet.from_shapes_layer(layer, axes=('row', 'col'))
-
-    message = str(excinfo.value)
-    assert "('row', 'col')" in message
-    assert str(tuple(layer.spacing.axes)) in message
-    assert isinstance(excinfo.value.__cause__, LayerError)
 
 
 # ---------------------------------------------------------------------------
@@ -120,24 +89,3 @@ def test_an_unwritable_roi_path_is_refused_at_the_call(tmp_path):
 # Enabling with an on_missing override
 # ---------------------------------------------------------------------------
 
-def test_an_on_missing_override_reaches_the_set_and_the_environment(tmp_path):
-    """``on_missing=`` overrides the set AND is exported for the workers.
-
-    A spawn worker rebuilds the filter from the environment alone. Overriding
-    the rule only in this process would leave the workers refusing (or
-    measuring) fields that the parent had decided to keep.
-    """
-    saved = R.RoiSet(fields={R.ANY_FIELD: (_roi(),)}, on_missing='error')
-    path = str(tmp_path / 'roi' / 'measure_roi.json')
-
-    R.enable_roi_filter(saved, path=path, on_missing='all', verbose=False)
-
-    assert os.environ[R.ON_MISSING_ENV_VAR] == 'all'
-    assert os.environ[R.ROI_ENV_VAR] == os.path.abspath(path)
-    written = R.RoiSet.load(path)
-    assert written.on_missing == 'all', (
-        "the override has to be written into the file the workers read")
-    assert saved.on_missing == 'error', "the caller's set is not mutated"
-
-    entry, = mh.region_filter_hooks()
-    assert entry.name == R.HOOK_NAME

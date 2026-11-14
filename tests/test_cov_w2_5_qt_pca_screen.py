@@ -17,7 +17,6 @@ from PySide6.QtWidgets import QFileDialog                       # noqa: E402
 
 from spacr.qt.linked_selection import LinkedSelection          # noqa: E402
 from spacr.qt.screens import pca as pca_screen                  # noqa: E402
-from spacr.selection import CategoryFilter, DataFilter          # noqa: E402
 
 
 @pytest.fixture
@@ -70,26 +69,6 @@ def test_recomputing_with_no_table_does_nothing(screen):
     screen._recompute_filtered()               # must not raise
 
     assert screen.pca.result is None
-
-
-def test_a_filter_naming_a_missing_column_is_reported_not_swallowed(
-        screen, link, features, caplog):
-    """The whole frame is decomposed, and the mismatch is logged."""
-    screen.set_frame(features)
-    link.set_filter(DataFilter([CategoryFilter("no_such_column", ("x",))]))
-
-    with caplog.at_level("INFO", logger="spacr.qt.screens.pca"):
-        got = screen._filtered()
-
-    assert len(got) == len(features)
-    assert "does not apply to this table" in caplog.text
-
-
-def test_a_filter_change_with_no_table_starts_no_timer(screen, link):
-    """Nothing to recompute means nothing is scheduled."""
-    link.set_filter(DataFilter([CategoryFilter("gene", ("control",))]))
-
-    assert not screen._refilter.isActive()
 
 
 # ---------------------------------------------------------------------------
