@@ -9596,6 +9596,11 @@ ALPHA_FEATURES = {
         'settings': ('gpu_memory_fraction', 'gpu_memory_margin_gb',
                      'gpu_adaptive_batch', 'gpu_fallback_policy'),
     },
+    939: {
+        'settings': ('ops_decode_threshold_mode', 'ops_decode_fdr_max',
+                     'ops_decode_auto_grid', 'ops_decode_auto_ci',
+                     'ops_decode_auto_tune_fraction', 'ops_decode_auto_seed'),
+    },
 }
 
 

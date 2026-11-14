@@ -178,6 +178,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_pixel_quality": 0.1,
     "ops_decoy_library_k": 0,
     "ops_fdr_scale": 1.268,
+    "ops_decode_threshold_mode": "manual",
+    "ops_decode_fdr_max": 0.1,
+    "ops_decode_auto_grid": None,
+    "ops_decode_auto_ci": True,
+    "ops_decode_auto_tune_fraction": 0.5,
+    "ops_decode_auto_seed": 0,
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
     "ops_decode_qc": False,
@@ -549,6 +555,12 @@ OPS_TYPES: Dict[str, object] = {
     "ops_pixel_quality": (float, int),
     "ops_decoy_library_k": int,
     "ops_fdr_scale": (float, int),
+    "ops_decode_threshold_mode": str,
+    "ops_decode_fdr_max": (float, int),
+    "ops_decode_auto_grid": (dict, str, type(None)),
+    "ops_decode_auto_ci": bool,
+    "ops_decode_auto_tune_fraction": (float, int),
+    "ops_decode_auto_seed": int,
     "ops_decode_skip_unplaced_sites": bool,
     "ops_store_field_cache": bool,
     "ops_decode_qc": bool,
@@ -811,6 +823,12 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_pixel_quality",
         "ops_decoy_library_k",
         "ops_fdr_scale",
+        "ops_decode_threshold_mode",
+        "ops_decode_fdr_max",
+        "ops_decode_auto_grid",
+        "ops_decode_auto_ci",
+        "ops_decode_auto_tune_fraction",
+        "ops_decode_auto_seed",
         "ops_decode_skip_unplaced_sites",
         "ops_store_field_cache",
         "ops_decode_qc",
@@ -2361,6 +2379,46 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "was measured for the Funk et al. 2022 library from its guides' "
         "neighbour distances; values below 1 count as 1. Default 1.268. "
         "Alpha.",
+    "ops_decode_threshold_mode":
+        "(str) - How the two call thresholds of the rule (a) decode, "
+        "ops_single_read_quality and ops_pixel_quality, are set. 'manual' "
+        "uses the values you enter. 'auto' chooses them well by well from "
+        "the well's decoy calls: half of the well's fields try every "
+        "setting of ops_decode_auto_grid, the setting that genotypes the "
+        "most nuclei with a decoy FDR at or below ops_decode_fdr_max is "
+        "used for the whole well, and the other half reports its FDR. The "
+        "spot thresholds (ops_read_threshold, ops_spot_min_peak) stay as "
+        "entered. Auto needs ops_decode_preset rule_a_s2 and decoys "
+        "(ops_decoy_library_k above 0); the choices are written to "
+        "results/ops_decode/decode_thresholds_<plate>.csv. On Funk et al. "
+        "2022 plate D it kept the FDR at 0.093 per 100 calls with 67.9 % of "
+        "linked nuclei genotyped. Default 'manual'. Alpha.",
+    "ops_decode_fdr_max":
+        "(float) - The highest decoy-estimated false calls per 100 real "
+        "calls that auto thresholds may accept (0.1 means 0.1 %). Used with "
+        "ops_decode_threshold_mode 'auto'. A well where no setting meets it "
+        "gets the strictest setting and auto_met False in its report. "
+        "Default 0.1. Alpha.",
+    "ops_decode_auto_grid":
+        "(dict) - The values auto thresholds try, as "
+        "{'ops_single_read_quality': [...], 'ops_pixel_quality': [...]}; a "
+        "threshold left out keeps its entered value. Empty uses the BMC "
+        "study's grid: single-read quality 0.06, 0.08, 0.10, 0.12, 0.15, "
+        "0.20, 0.25, 0.30 and 0.40 by pixel quality 0.10, 0.15, 0.20, 0.30 "
+        "and 0.40. Default empty. Alpha.",
+    "ops_decode_auto_ci":
+        "(bool) - Judge each auto setting by the upper end of its FDR's 95 % "
+        "interval (1,000 field resamples) rather than by the estimate, so a "
+        "setting is accepted only when the FDR is very likely at or below "
+        "ops_decode_fdr_max. Default True. Alpha.",
+    "ops_decode_auto_tune_fraction":
+        "(float) - The share of a well's fields, drawn at random, that "
+        "auto thresholds choose on; the other fields only report the "
+        "chosen setting's FDR and genotyped share. Default 0.5. Alpha.",
+    "ops_decode_auto_seed":
+        "(int) - The seed of the random split of each well's fields for "
+        "auto thresholds; the same seed gives the same split and the same "
+        "choice on a rerun. Default 0. Alpha.",
     "ops_decode_skip_unplaced_sites":
         "(bool) - Decode only the sites the stitch placed and list the "
         "others in the decode and FDR reports. Off stops the well with an "

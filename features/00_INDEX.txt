@@ -555,6 +555,8 @@ FUTURE FEATURES
 
   933  THE OPS NUCLEAR-MEDIAN FLAT-FIELD IN spaCR'S GENERAL ILLUMINATION CORRECTION
        933_illumination_nuclear_flatfield.txt
+  939  OPS GENOTYPING THRESHOLDS, MANUAL OR AUTO: CHOSEN PER WELL FROM DECOYS AT A MAXIMUM FDR
+       939_ops_decode_threshold_auto.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

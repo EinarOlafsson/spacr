@@ -1941,13 +1941,16 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     :param gpu: let the peak finder use the card.
     :returns: ``n_cycles``, ``spots``, ``attributed``, ``ambiguous``,
         ``exact``, ``max_channel_shift``, ``rule_a`` (from
-        :func:`spacr.ops_decode.field_calls`) and, when the field cache is
-        stored, ``cache``.
+        :func:`spacr.ops_decode.field_calls`) -- or, when the rule carries
+        ``auto`` (item 939), ``candidates``, the field's calls at every grid
+        setting, which the well's chosen thresholds turn into ``rule_a`` --
+        and, when the field cache is stored, ``cache``.
     """
     from scipy import ndimage
 
     from .ops_decode import (field_calls, field_evidence, matcher_for,
-                             save_field_cache, _CACHE_FLOOR)
+                             save_field_cache, _CACHE_FLOOR, _field_candidates,
+                             _field_votes)
     from .ops_sbs import estimate_read_locations, find_peaks
 
     rule = task["rule_a"]
@@ -1968,16 +1971,31 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         pixel_percentile=rule["pixel_percentile"] if rule["pixels"] else None,
         features=bool(rule.get("features")))
     matcher, decoys = matcher_for(_LIBRARY, _DECOYS)
-    calls = field_calls(
-        evidence, rule, sorted(_LIBRARY), matcher, decoys,
-        threshold=rule["threshold"], footprint=rule["footprint"],
-        max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
-        single_read_quality=rule["single_read_quality"],
-        crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
+    auto = rule.get("auto")
+    if auto:
+        votes = _field_votes(
+            evidence, rule, sorted(_LIBRARY), matcher,
+            threshold=rule["threshold"], footprint=rule["footprint"],
+            max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+            single_read_quality=float("-inf"),
+            pixel_qualities=auto["pixel_qualities"],
+            crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
+        calls = _field_candidates(votes, auto["floors"], auto["pixel_qualities"],
+                                  decoys, bool(rule["pixels"]))
+        calls.update({key: votes[key] for key in (
+            "reads", "reads_owned", "reads_near", "reads_ambiguous")})
+    else:
+        calls = field_calls(
+            evidence, rule, sorted(_LIBRARY), matcher, decoys,
+            threshold=rule["threshold"], footprint=rule["footprint"],
+            max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+            single_read_quality=rule["single_read_quality"],
+            crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
     out = {"n_cycles": len(field.kept), "spots": calls["reads"],
            "attributed": calls["reads_near"] - calls["reads_ambiguous"],
            "ambiguous": calls["reads_ambiguous"], "exact": None,
-           "rule_a": calls, "ids": np.zeros(0, np.int64), "calls": [],
+           ("candidates" if auto else "rule_a"): calls,
+           "ids": np.zeros(0, np.int64), "calls": [],
            "quality": np.zeros(0, np.float32),
            "max_channel_shift": int(max([abs(v) for per in field.channel_shifts.values()
                                          for pair in per for v in pair] + [0]))}
@@ -2210,7 +2228,8 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
         "assigned_by_source": dict(sources),
         "ops_barcodes_rows": int(len(frame)), "ops_reads_rows": None,
         "cell_rule": "mapped", "decode_rules": {
-            k: v for k, v in rule_a.items() if k not in ("active",)},
+            k: v for k, v in rule_a.items()
+            if k not in ("active", "threshold_choice")},
         "crosstalk": crosstalk, "channel_registration": channel_mode,
         "channels_spot_registered": sum(len(r.get("spot_replaced", ()))
                                         for r in decoded),
@@ -2224,11 +2243,69 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
                                    if "seconds" in r), Counter())),
         "total_seconds": round(time.perf_counter() - started, 1),
     }
+    if rule_a.get("threshold_choice"):
+        report["thresholds"] = rule_a["threshold_choice"]
     _say(f"{well} decode: {len(frame)} objects assigned "
          f"({fdr['pct']} % of {fdr['nuclei']} nuclei), FDR "
          f"{fdr['fdr_per_100']} per 100, {len(decoded)} fields, "
          f"{report['total_seconds']} s")
     return report
+
+
+def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
+                           decoys) -> Dict[str, Any]:
+    """Choose a well's call thresholds from its decoys and make its calls.
+
+    Item 939: every decoded field carries its calls at each grid setting
+    (``candidates``); :func:`spacr.ops_decode.choose_well_thresholds` picks
+    the setting, each field's ``rule_a`` is rebuilt at it, and the choice is
+    written to ``results/ops_decode/decode_thresholds_<well>.json`` and the
+    plate's ``decode_thresholds_<plate>.csv``.
+
+    :param db: the measurements database.
+    :param plate: the plate.
+    :param well: the well.
+    :param rule_a: the rule the fields were decoded under, with ``auto``.
+    :param thresholds: from :func:`spacr.ops_decode.threshold_settings`.
+    :param decoded: the decoded fields; their ``candidates`` are replaced by
+        ``rule_a``.
+    :param decoys: the decoy barcodes.
+    :returns: the rule with the chosen ``single_read_quality`` and
+        ``pixel_quality`` and the choice under ``threshold_choice``.
+    """
+    from .ops_decode import (_candidate_calls, choose_well_thresholds,
+                             _write_threshold_report)
+
+    auto = rule_a["auto"]
+    fields = sorted(decoded, key=lambda r: r["site"])
+    counts = (np.stack([r["candidates"]["counts"] for r in fields]) if fields
+              else np.zeros((0, len(auto["floors"]), len(auto["pixel_qualities"]), 2),
+                            np.int64))
+    choice = choose_well_thresholds(
+        counts, [r["candidates"]["nuclei"] for r in fields],
+        [r["site"] for r in fields], auto["floors"], auto["pixel_qualities"],
+        k=int(rule_a["decoy_k"]), scale=float(rule_a["fdr_scale"]),
+        fdr_max=thresholds["fdr_max"], ci=thresholds["ci"],
+        tune_fraction=thresholds["tune_fraction"], seed=thresholds["seed"])
+    decoy_set = frozenset(decoys)
+    for r in fields:
+        candidates = r.pop("candidates")
+        r["rule_a"] = _candidate_calls(candidates, choice["single_read_quality"],
+                                       choice["pixel_quality"], decoy_set)
+    choice["paths"] = _write_threshold_report(db, plate, well, choice)
+    if not choice["auto_met"]:
+        _say(f"{well} decode: no grid setting kept the decoy FDR at or below "
+             f"{thresholds['fdr_max']} per 100 on the tuning fields; the "
+             "strictest setting is used (auto_met False)")
+    _say(f"{well} decode: auto thresholds single-read quality "
+         f"{choice['single_read_quality']}, pixel quality "
+         f"{choice['pixel_quality']}; report fields "
+         f"{choice['report']['genotyped_pct']} % genotyped, FDR "
+         f"{choice['report']['fdr_per_100']} per 100")
+    return {**rule_a, "single_read_quality": choice["single_read_quality"],
+            "pixel_quality": choice["pixel_quality"],
+            "threshold_choice": {key: value for key, value in choice.items()
+                                 if key != "grid"}}
 
 
 def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
@@ -2248,15 +2325,18 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     :param reference: the cycle the objects' frame was stitched on.
     :param settings: read for ``n_workers``, ``ops_base_channels``,
         ``ops_read_threshold``, ``ops_footprint``, ``ops_store_reads``,
-        ``ops_spot_detector`` and the cell rule's four keys -- see
-        :func:`_cell_rule`.
+        ``ops_spot_detector``, the cell rule's four keys -- see
+        :func:`_cell_rule` -- and the threshold mode
+        (:func:`spacr.ops_decode.threshold_settings`).
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
-    :returns: the decode report. Its ``ops_barcodes_rows`` and
+    :returns: the decode report; in auto threshold mode with the chosen
+        thresholds under ``thresholds``. Its ``ops_barcodes_rows`` and
         ``ops_reads_rows`` count this well's rows only, the number a
         ``plate``/``well`` filter on the stored table returns;
         ``ops_reads_rows`` is None when reads were not stored.
-    :raises ValueError: when the objects are not ready.
+    :raises ValueError: when the objects are not ready, or auto threshold
+        mode lacks the decode rules or decoys it needs.
     """
     import multiprocessing
     from .resource_log import _parallel_process_executor as ProcessPoolExecutor
@@ -2267,7 +2347,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     from .ops_sbs import assign_reads_to_objects, correct_to_library
     from .ops_store import objects_ready
 
-    from .ops_decode import decode_rule, resolve_settings, unplaced_sites
+    from .ops_decode import (decode_rule, resolve_settings, threshold_settings,
+                             unplaced_sites)
 
     started = time.perf_counter()
     settings = resolve_settings(settings)
@@ -2336,6 +2417,11 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                           else None)
     decoys: List[str] = []
     rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
+    thresholds = threshold_settings(settings, rule_a)
+    if thresholds["mode"] == "auto" and not (rule_a["active"] and rule == "mapped"):
+        raise ValueError("ops_decode_threshold_mode 'auto' needs the item-873 "
+                         "decode rules (ops_decode_preset rule_a_s2), "
+                         "ops_cell_rule 'mapped' and a guide library")
     if rule_a["active"] and rule == "mapped":
         from .ops_sbs import decoy_library
 
@@ -2349,6 +2435,13 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         })
         if rule_a["decoy_k"] > 0:
             decoys = decoy_library(library, k=rule_a["decoy_k"])
+        if thresholds["mode"] == "auto":
+            if not decoys:
+                raise ValueError("ops_decode_threshold_mode 'auto' found no "
+                                 "decoys for this library; check "
+                                 "ops_decoy_library_k and the library")
+            rule_a["auto"] = {"floors": thresholds["floors"],
+                              "pixel_qualities": thresholds["pixel_qualities"]}
         cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),
                                     well, "decode_cache")
     else:
@@ -2418,6 +2511,9 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                     _say(f"{well} decode: {count} of {len(tasks)} fields")
 
     decoded = [r for r in results if "skipped" not in r]
+    if rule_a is not None and rule_a.get("auto"):
+        rule_a = _apply_auto_thresholds(db, plate, well, rule_a, thresholds,
+                                        decoded, decoys)
     if rule_a is not None:
         return _decode_rule_a_report(
             db, plate, well, settings, rule_a, tasks, results, decoded,
