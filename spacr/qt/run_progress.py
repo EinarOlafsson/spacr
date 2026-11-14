@@ -223,7 +223,10 @@ class RunProgress:
             self._paused_at = None
 
     def sync_pause(self, paused: bool) -> None:
-        """Follow a pause gate's state: pause or resume to match ``paused``."""
+        """Follow a pause gate's state: pause or resume to match ``paused``.
+
+        :param paused: whether the gate is paused now.
+        """
         if paused:
             self.pause()
         else:
