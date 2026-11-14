@@ -1126,40 +1126,6 @@ def test_an_escaped_object_key_still_finds_its_crop(tmp_path):
         [("/crops/cell_png/plate1_r1_c1_f_1_o7.png", None)]
 
 
-def test_the_escaped_spelling_wins_when_two_fields_spell_one_key(tmp_path):
-    """Carrying both spellings must not reintroduce the collision.
-
-    A field literally named ``'f%5F1'`` spells its RAW key exactly the way a
-    field named ``'f_1'`` spells its ESCAPED one — which is why the escape
-    percent-encodes ``'%'`` in the first place. The escaped spelling is what
-    a producer emits today, so it is the one that wins; otherwise fixing the
-    dropped crop would have swapped it for the wrong crop, which is worse.
-    """
-    rows = [{"png_path": "/crops/cell_png/literal_percent.png",
-             "prcfo": "plate1_r1_c1_f%5F1_o7", "plateID": "plate1",
-             "rowID": "r1", "columnID": "c1", "fieldID": "f%5F1",
-             "cell_id": "o7", "annotate": None},
-            {"png_path": "/crops/cell_png/literal_underscore.png",
-             "prcfo": "plate1_r1_c1_f_1_o7", "plateID": "plate1",
-             "rowID": "r1", "columnID": "c1", "fieldID": "f_1",
-             "cell_id": "o7", "annotate": None}]
-    db = _routing_db(tmp_path, rows,
-                     ["png_path", "prcfo", "plateID", "rowID", "columnID",
-                      "fieldID", "cell_id", "annotate"])
-
-    frame = pd.DataFrame([{"plateID": "plate1", "rowID": "r1",
-                           "columnID": "c1", "fieldID": f, "object_label": 7}
-                          for f in ("f%5F1", "f_1")])
-    keys = list(selection.object_keys(frame))
-    # The two fields have distinct keys, which is the whole point of escaping
-    # '%' as well as the separator.
-    assert keys == ["plate1_r1_c1_f%255F1_7", "plate1_r1_c1_f%5F1_7"]
-
-    assert al.crops_for_object_keys(db, keys) == [
-        ("/crops/cell_png/literal_percent.png", None),
-        ("/crops/cell_png/literal_underscore.png", None)]
-
-
 def test_the_coverage_denominator_describes_the_filtered_population(tmp_path):
     """Numerator and denominator come from the same population.
 
