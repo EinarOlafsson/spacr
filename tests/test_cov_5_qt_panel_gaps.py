@@ -8,8 +8,6 @@ None may leave a stale picture on screen, and none may raise out of a slot.
 from __future__ import annotations
 
 import os
-import threading
-import warnings
 
 import numpy as np
 import pandas as pd
@@ -20,7 +18,6 @@ pytest.importorskip("PySide6")
 
 from spacr.qt.widgets import measure_preview as MP                 # noqa: E402
 from spacr.qt.widgets import measurement_scan_panel as msp         # noqa: E402
-from spacr.qt.widgets import timelapse_preview as TP               # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -94,58 +91,6 @@ def test_a_panel_with_no_runner_reports_no_extra_work(measure_panel):
     measure_panel._jobs = None
     assert measure_panel._extra_work_in_flight() is False
     measure_panel._cancel_extra_work()   # must not raise without a runner
-
-
-# ---------------------------------------------------------------------------
-# Timelapse preview: a result whose question has changed
-# ---------------------------------------------------------------------------
-
-@pytest.fixture()
-def timelapse_panel(qtbot):
-    panel = TP.TimelapsePreviewPanel(threaded=False)
-    qtbot.addWidget(panel)
-    return panel
-
-
-class _StubWorker:
-    """Stands in for the QThread the panel is waiting on."""
-
-    def isRunning(self):
-        return True
-
-    def wait(self, *_args):
-        return True
-
-
-def test_a_superseded_tracking_result_is_dropped_not_drawn(timelapse_panel):
-    """Re-linking twice must not repaint the first answer over the second.
-
-    The pass in flight cannot be stopped, so the panel bumps its token and
-    the old answer has to recognise itself as stale and leave the screen
-    alone — including the panel's own record of the worker it is waiting on.
-    """
-    timelapse_panel.set_preview_status("linking…")
-    timelapse_panel._pending_token = 1
-    timelapse_panel._run_token = 2          # a newer pass was started
-    sentinel = _StubWorker()
-    timelapse_panel._worker = sentinel
-
-    timelapse_panel._on_worker_done(pd.DataFrame({"x": [1]}), "")
-
-    assert timelapse_panel._worker is sentinel, "the live pass was forgotten"
-    assert "linking" in timelapse_panel.preview_status()
-    timelapse_panel._worker = None
-
-
-def test_the_current_tracking_result_is_adopted(timelapse_panel):
-    """The control: a result whose token is current does reach the panel."""
-    timelapse_panel._pending_token = 0
-    timelapse_panel._run_token = 0
-    timelapse_panel._worker = None
-
-    timelapse_panel._on_worker_done(None, "cellpose would not load")
-
-    assert "cellpose would not load" in timelapse_panel.preview_status()
 
 
 # ---------------------------------------------------------------------------

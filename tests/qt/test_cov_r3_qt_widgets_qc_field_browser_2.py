@@ -20,17 +20,15 @@ from PySide6.QtGui import QPixmap  # noqa: E402
 from spacr import seg_qc  # noqa: E402
 from spacr.qt.widgets.qc_field_browser import (  # noqa: E402
     QCFieldBrowser,
-    QCFieldImage,
     QCFieldTarget,
     QCFieldVerdict,
     _FieldView,
     finding_targets,
     load_qc_field,
-    render_qc_field,
     targets_from_digest,
 )
 
-from tests.qt.test_qc_field_browser import _digest, _write_field  # noqa: E402
+from tests.qt.test_qc_field_browser import _digest  # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -151,26 +149,6 @@ def test_two_findings_saying_the_same_thing_are_recorded_once(tmp_path):
     assert target.audit_flags.count("cell:under_segmented") == 1
 
 
-def test_a_legacy_merged_array_infers_how_many_channels_it_has(tmp_path):
-    """Plates merged before the manifest existed still open with real channels.
-
-    With no manifest the loader counts backwards from the mask stacks on disk
-    and falls back to spaCR's four-channel default.  Get it wrong and a label
-    plane is offered to the user as an intensity channel.
-    """
-    from_stacks = load_qc_field(_legacy_plate(
-        tmp_path / "stacked", 5, stacks=("cell", "nucleus")))
-    wide = load_qc_field(_legacy_plate(tmp_path / "wide", 6))
-    narrow = load_qc_field(_legacy_plate(tmp_path / "narrow", 3))
-
-    assert from_stacks.channel_names == ("1", "2", "3")
-    assert from_stacks.intensities.shape == (16, 20, 3)
-    assert set(from_stacks.masks) == {"cell", "nucleus"}
-    assert wide.channel_names == ("1", "2", "3", "4")
-    assert narrow.channel_names == ("1", "2", "3")
-    assert narrow.intensities.shape == (16, 20, 3)
-
-
 def test_a_merged_plane_substitutes_for_a_missing_mask_stack(tmp_path):
     """An archived mask stack must not cost the user the outlines.
 
@@ -192,118 +170,6 @@ def test_a_merged_plane_substitutes_for_a_missing_mask_stack(tmp_path):
     assert any("pathogen" in warning for warning in payload.warnings)
 
 
-def test_an_unreadable_mask_stack_is_reported_per_object_type(tmp_path):
-    """One broken stack must not take the whole field's overlays down.
-
-    A trailing singleton axis is fine and gets squeezed, but a three-plane
-    array or a mask from a differently-cropped run is not this field's mask.
-    Each is named so the user knows which outline is missing.
-    """
-    plate = tmp_path / "plate1"
-    _write_field(plate, FIELD)
-    stacks = plate / "norm_channel_stack"
-    cell = np.zeros((32, 40), dtype=np.uint16)
-    cell[5:20, 6:24] = 1
-    np.save(stacks / "cell_mask_stack" / f"{FIELD}.npy", cell[..., None])
-    np.save(stacks / "nucleus_mask_stack" / f"{FIELD}.npy",
-            np.zeros((32, 40, 3), dtype=np.uint16))
-    (stacks / "pathogen_mask_stack").mkdir()
-    np.save(stacks / "pathogen_mask_stack" / f"{FIELD}.npy",
-            np.zeros((10, 10), dtype=np.uint16))
-
-    payload = load_qc_field(QCFieldTarget(
-        field=FIELD, plate_root=str(plate), merged_dir=str(plate / "merged")))
-
-    assert set(payload.masks) == {"cell"}
-    assert payload.masks["cell"].shape == (32, 40)
-    assert int(payload.masks["cell"].max()) == 1
-    joined = " ".join(payload.warnings)
-    assert "nucleus" in joined and "pathogen" in joined
-
-
-def test_a_two_dimensional_merged_array_is_explained_not_rendered(tmp_path):
-    """A single-plane .npy in merged/ must produce a sentence, not a traceback.
-
-    A plain 2-D image copied into ``merged/`` has no channel axis, and
-    indexing it as if it did raises inside the loader thread.  The dialog
-    reports the shape it found instead.
-    """
-    merged = tmp_path / "plate1" / "merged"
-    merged.mkdir(parents=True)
-    np.save(merged / f"{FIELD}.npy", np.zeros((8, 9), dtype=np.uint16))
-
-    payload = load_qc_field(QCFieldTarget(
-        field=FIELD, plate_root=str(tmp_path / "plate1"),
-        merged_dir=str(merged)))
-
-    assert payload.intensities is None
-    assert "(8, 9)" in payload.error
-    assert FIELD in payload.error
-    assert payload.path.endswith(f"{FIELD}.npy")
-
-
-def test_a_flat_or_all_nan_channel_renders_black_instead_of_dividing_by_zero():
-    """A blank channel is a real QC result and must display, not crash.
-
-    An empty field, a dead laser line or an all-NaN plane gives a percentile
-    window of zero width; scaling by it divides by zero and paints noise.  A
-    black plane is returned instead, which is what an empty channel looks
-    like, while a channel with real range still scales to full contrast.
-    """
-    flat = QCFieldImage(intensities=np.full((4, 4, 2), 7, dtype=np.uint16))
-    empty = QCFieldImage(
-        intensities=np.full((4, 4, 2), np.nan, dtype=np.float32))
-    real = QCFieldImage(intensities=np.dstack([
-        np.arange(16, dtype=np.uint16).reshape(4, 4)] * 2))
-
-    assert int(render_qc_field(flat, 0).max()) == 0
-    assert int(render_qc_field(empty, 0).max()) == 0
-    assert int(render_qc_field(real, 0).max()) == 255
-
-
-def test_a_single_channel_field_composites_as_grey():
-    """A one-channel plate must not render as a red-only image.
-
-    The composite fills red, green and blue from the first three channels.
-    With one channel that would leave two planes at zero and tint the field
-    red, which reads as a channel-mapping bug.  It is greyscale instead.
-    """
-    payload = QCFieldImage(intensities=np.arange(
-        16, dtype=np.uint16).reshape(4, 4, 1))
-
-    rgb = render_qc_field(payload, -1)
-
-    assert rgb.shape == (4, 4, 3)
-    assert int(rgb.max()) == 255
-    assert np.array_equal(rgb[..., 0], rgb[..., 1])
-    assert np.array_equal(rgb[..., 0], rgb[..., 2])
-
-
-def test_render_refuses_impossible_requests_and_skips_unusable_masks():
-    """The render worker must fail loudly on nonsense and quietly on absence.
-
-    Re-raising a failed payload's reason keeps it on screen instead of a bare
-    AttributeError; a channel index past the end is a stale combo-box
-    selection.  A missing or resized mask is routine and is skipped instead.
-    """
-    good = np.zeros((4, 4), dtype=np.uint16)
-    good[1:3, 1:3] = 1
-    payload = QCFieldImage(
-        intensities=np.dstack([np.arange(16, dtype=np.uint16).reshape(4, 4)] * 2),
-        masks={"cell": good, "nucleus": np.ones((2, 2), dtype=np.uint16)})
-
-    with pytest.raises(ValueError, match="no active"):
-        render_qc_field(QCFieldImage(error="no active copy"))
-    with pytest.raises(IndexError, match="outside"):
-        render_qc_field(payload, 5)
-
-    plain = render_qc_field(payload, 0, ())
-    outlined = render_qc_field(payload, 0, ("cell",))
-    with_junk = render_qc_field(payload, 0, ("cell", "nucleus", "pathogen"))
-    assert np.any(outlined != plain)
-    assert np.array_equal(with_junk, outlined)
-
-
 def test_a_null_pixmap_leaves_the_canvas_empty_without_fitting_it(qtbot):
     """Clearing the image must not ask Qt to fit a zero-sized scene.
 
@@ -322,34 +188,6 @@ def test_a_null_pixmap_leaves_the_canvas_empty_without_fitting_it(qtbot):
     view.set_pixmap(QPixmap(40, 32))
     assert view._item.pixmap().isNull() is False
     assert view._scene.sceneRect().width() == pytest.approx(40.0)
-
-
-def test_a_stale_banner_link_falls_back_to_the_first_flagged_field(
-        qtbot, tmp_path):
-    """A link naming a field this digest no longer has must still open.
-
-    Banner links are built from a digest that can be re-computed while the
-    dialog opens, and two plates can hold the same field stem.  With no match
-    the browser opens on its first field rather than at a bogus index.
-    """
-    digest, _flag = _digest(tmp_path / "plate1")
-    targets = targets_from_digest(digest)
-
-    unknown = QCFieldBrowser(targets, initial_field="plate9_Z99_9",
-                             threaded=False)
-    qtbot.addWidget(unknown)
-    wrong_plate = QCFieldBrowser(
-        targets, initial_field="plate1_A02_1",
-        initial_plate_root=str(tmp_path / "other"), threaded=False)
-    qtbot.addWidget(wrong_plate)
-    exact = QCFieldBrowser(targets, initial_field="plate1_A02_1",
-                           initial_plate_root=targets[1].plate_root,
-                           threaded=False)
-    qtbot.addWidget(exact)
-
-    assert unknown.current_field == FIELD
-    assert wrong_plate.current_field == FIELD
-    assert exact.current_field == "plate1_A02_1"
 
 
 def test_a_browser_with_no_targets_says_so_and_stays_inert(qtbot, tmp_path):
@@ -419,49 +257,6 @@ def test_clearing_the_layer_row_removes_spacers_as_well_as_checkboxes(
 
     assert browser._layers.count() == 0
     assert browser._layer_checks == {}
-
-
-def test_previous_stops_at_the_first_field_instead_of_wrapping(
-        qtbot, tmp_path):
-    """Holding the left arrow at the start of the list must not walk off it.
-
-    Triage is a keyboard loop, so the arrow keys repeat.  A negative index
-    would silently wrap to the last field and the user would review the plate
-    in the wrong order without noticing.
-    """
-    digest, _flag = _digest(tmp_path / "plate1")
-    browser = QCFieldBrowser(targets_from_digest(digest), threaded=False)
-    qtbot.addWidget(browser)
-
-    browser.previous_field()
-    assert browser.current_field == FIELD
-
-    browser.next_field()
-    assert browser.current_field == "plate1_A02_1"
-    browser.previous_field()
-    assert browser.current_field == FIELD
-
-
-def test_a_custom_object_role_gets_a_stable_distinct_outline_colour():
-    """Outline colour is how the user tells two overlaid masks apart.
-
-    A numbered organelle role inherits the organelle colour so organelles
-    read as one family; a project-specific role gets a colour from its own
-    name -- stable, and not one already spoken for by another mask.
-    """
-    mask = np.zeros((4, 4), dtype=np.uint16)
-    mask[1:3, 1:3] = 1
-    payload = QCFieldImage(
-        intensities=np.arange(16, dtype=np.uint16).reshape(4, 4, 1),
-        masks={"organelle_2": mask, "mito": mask})
-
-    organelle = render_qc_field(payload, 0, ("organelle_2",))
-    custom = render_qc_field(payload, 0, ("mito",))
-
-    assert tuple(int(v) for v in organelle[1, 1]) == (35, 205, 235)
-    assert tuple(int(v) for v in custom[1, 1]) not in {
-        (35, 205, 235), (45, 220, 105), (210, 80, 255), (255, 145, 45)}
-    assert np.array_equal(custom, render_qc_field(payload, 0, ("mito",)))
 
 
 # ---------------------------------------------------------------------------

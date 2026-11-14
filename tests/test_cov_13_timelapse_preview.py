@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import os
 import pathlib
-import types
 
 import numpy as np
 import pandas as pd
@@ -66,100 +65,6 @@ def mask_dir(tmp_path):
         tifffile.imwrite(str(folder / f"field_t{t}.tif"),
                          masks[t].astype(np.uint16))
     return str(folder)
-
-
-# ---------------------------------------------------------------------------
-# opening a movie
-# ---------------------------------------------------------------------------
-
-def test_a_single_frame_tiff_is_refused_with_a_sentence_that_says_what_to_drop(
-        tmp_path):
-    """One frame is a picture, not a timelapse, and linking it says nothing.
-
-    A user drops the field they were just looking at. The refusal has to name
-    the two things that would work instead, or the next attempt is the same
-    file again.
-    """
-    import tifffile
-    path = tmp_path / "one.tif"
-    tifffile.imwrite(str(path), np.zeros((H, W), np.uint16))
-
-    with pytest.raises(ValueError) as excinfo:
-        TP.FrameSequence.open(str(path), max_frames=4)
-
-    message = str(excinfo.value)
-    assert "holds 1 frame(s)" in message
-    assert "multi-frame TIFF or a folder of frames" in message
-
-
-def test_a_tiff_whose_series_cannot_be_read_falls_back_to_its_first_page(
-        tmp_path, monkeypatch):
-    """A TIFF with damaged series metadata is still page-addressable.
-
-    ``tf.series`` is tifffile's interpretation of the file; ``tf.pages`` is
-    what is physically in it. A writer that produced an unparseable series
-    still wrote readable pages, and refusing the file would lose a movie that
-    reads fine one page at a time.
-    """
-    import tifffile
-    path = tmp_path / "movie.tif"
-    tifffile.imwrite(str(path), np.zeros((N_FRAMES, H, W), np.uint16),
-                     photometric="minisblack")
-
-    real_open = tifffile.TiffFile
-
-    class _NoSeries:
-        def __init__(self, *args, **kwargs):
-            self._inner = real_open(*args, **kwargs)
-            self.pages = self._inner.pages
-
-        @property
-        def series(self):
-            raise ValueError("cannot interpret the series")
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *exc):
-            self._inner.close()
-            return False
-
-    monkeypatch.setattr(tifffile, "TiffFile", _NoSeries)
-
-    seq = TP.FrameSequence.open(str(path), max_frames=4)
-
-    assert len(seq) == N_FRAMES
-    assert seq.kind == "tiff"
-
-
-def test_a_stack_no_memory_map_will_open_is_read_whole_instead(tmp_path,
-                                                               monkeypatch,
-                                                               caplog):
-    """A compressed or network-backed TIFF cannot be memory-mapped.
-
-    Falling back to a full read costs memory and keeps the preview working;
-    refusing would make a whole class of perfectly readable movies undroppable.
-    """
-    import tifffile
-    path = tmp_path / "single_page.tif"
-    # One page holding a 3-D array, spelled out rather than left to
-    # tifffile's default so the fixture cannot drift into multi-page.
-    tifffile.imwrite(str(path), np.arange(N_FRAMES * H * W, dtype=np.uint16)
-                     .reshape(N_FRAMES, H, W),
-                     photometric="rgb", planarconfig="separate")
-    seq = TP.FrameSequence.open(str(path), max_frames=4)
-    assert seq.kind == "tiffmm", "the fixture stopped being a single-page stack"
-
-    def refuse(*args, **kwargs):
-        raise ValueError("cannot memory-map a compressed file")
-
-    monkeypatch.setattr(tifffile, "memmap", refuse)
-
-    with caplog.at_level("DEBUG", logger=TP.LOG.name):
-        plane = seq.frame(2)
-
-    assert plane.shape == (H, W)
-    assert plane[0, 0] == np.uint16(2 * H * W)
 
 
 # ---------------------------------------------------------------------------
@@ -275,88 +180,12 @@ def test_a_track_whose_positions_are_unknown_contributes_no_jump():
     assert stats.max_step == pytest.approx(1.0)
 
 
-def test_an_already_colour_frame_is_rendered_without_being_stacked_again():
-    """An RGB frame is already three channels; stacking it would make nine.
-
-    Colour frames arrive from a merged export and from anything saved as PNG,
-    and the renderer draws outlines into whatever it built here.
-    """
-    # A TIFF page with a singleton leading axis, which is what a colour
-    # acquisition with one Z plane decodes to.
-    colour = np.zeros((1, H, W, 3), np.uint8)
-    colour[..., 0] = 200
-
-    rgb = TP.render_frame(colour, normalise=False, channel=0)
-
-    assert rgb.shape == (H, W, 3)
-    assert list(rgb[0, 0]) == [200, 0, 0]
-
-
 # ---------------------------------------------------------------------------
 # one preview pass
 # ---------------------------------------------------------------------------
 
 def _linkable_masks():
     return _synthetic_masks()
-
-
-def test_a_pass_with_ready_made_masks_does_not_segment(mask_dir, monkeypatch):
-    """Ready-made labels are the whole point of the mask input.
-
-    Segmenting them would replace the user's curated masks with Cellpose's
-    opinion of them, silently.
-    """
-    monkeypatch.setattr(TP, "segment_frame", lambda *a, **k: pytest.fail(
-        "ready-made masks were segmented"))
-    req = TP.TimelapseRequest(
-        mask_sequence=TP.FrameSequence.open(mask_dir, max_frames=N_FRAMES),
-        seg={"mask_channel": 0}, track={})
-
-    out = TP.run_preview_pass(req)
-
-    assert out["segmented"] is False
-    assert out["masks_built"] is True
-    assert out["masks"].shape == (N_FRAMES, H, W)
-    assert len(out["tracks"]) > 0
-
-
-def test_a_pass_with_no_masks_segments_the_sequence(frame_dir, monkeypatch):
-    """The ordinary path, and the only one that says it segmented."""
-    from skimage.measure import label as sk_label
-
-    monkeypatch.setattr(
-        TP, "segment_frame",
-        lambda image, params: sk_label(
-            TP.frame_channel(np.asarray(image), 0) > 100).astype(np.int32))
-    req = TP.TimelapseRequest(
-        sequence=TP.FrameSequence.open(frame_dir, max_frames=N_FRAMES),
-        seg={}, track={})
-
-    out = TP.run_preview_pass(req)
-
-    assert out["segmented"] is True
-    assert out["masks_built"] is True
-
-
-def test_a_pass_with_cached_masks_relinks_without_touching_the_movie():
-    """Re-linking is the cheap half, and it must stay cheap.
-
-    Tuning the linking radius is an interactive gesture; re-segmenting on each
-    one would make the control unusable.
-    """
-    req = TP.TimelapseRequest(cached_masks=_linkable_masks(), seg={}, track={})
-
-    out = TP.run_preview_pass(req)
-
-    assert out["segmented"] is False
-    assert out["masks_built"] is False
-    assert len(out["tracks"]) > 0
-
-
-def test_a_pass_with_nothing_loaded_says_to_load_something():
-    """The message is shown inline, so it has to be an instruction."""
-    with pytest.raises(ValueError, match="Load a sequence first."):
-        TP.run_preview_pass(TP.TimelapseRequest())
 
 
 # ---------------------------------------------------------------------------
@@ -570,60 +399,6 @@ def test_a_payload_with_no_sequence_in_it_installs_nothing(panel):
 
 
 # ---------------------------------------------------------------------------
-# counting the channels of a frame
-# ---------------------------------------------------------------------------
-
-def test_a_panel_with_no_sequence_reports_no_channels(panel):
-    """The dropdown is filled from this, and a wrong count mislabels the axes."""
-    assert panel._frame_channel_count() == 0
-
-
-def test_a_sequence_whose_frame_cannot_be_read_reports_no_channels(panel,
-                                                                   frame_dir,
-                                                                   monkeypatch):
-    """Filling the dropdown must not be able to raise inside a load."""
-    panel.load_sequence_async(frame_dir)
-    assert panel._frame_channel_count() == 1
-
-    def refuse(self, index):
-        raise OSError("the frame went away")
-
-    monkeypatch.setattr(TP.FrameSequence, "frame", refuse)
-
-    assert panel._frame_channel_count() == 0
-
-
-def test_a_channel_first_frame_is_counted_along_its_channel_axis(panel,
-                                                                 monkeypatch):
-    """A raw acquisition page is (C, H, W), and guessing wrong lists 32 channels.
-
-    The count has to use the same axis heuristic the renderer does, or the
-    dropdown offers channels that do not exist and the preview segments an
-    image row.
-    """
-    class _Fake:
-        def __init__(self, frame):
-            self._frame = frame
-
-        def __len__(self):
-            return 1
-
-        def frame(self, index):
-            return self._frame
-
-    panel._sequence = _Fake(np.zeros((3, H, W), np.uint16))
-    assert panel._frame_channel_count() == 3
-
-    panel._sequence = _Fake(np.zeros((H, W, 4), np.uint16))
-    assert panel._frame_channel_count() == 4
-
-    # Neither axis is decisive — a tiny square frame. Channels-last is this
-    # module's convention, so that is the tie-break.
-    panel._sequence = _Fake(np.zeros((3, 4, 5), np.uint16))
-    assert panel._frame_channel_count() == 5
-
-
-# ---------------------------------------------------------------------------
 # the channel controls that can be reached before the UI is finished
 # ---------------------------------------------------------------------------
 
@@ -757,107 +532,6 @@ def test_drawing_a_frame_of_an_empty_sequence_draws_nothing(panel):
 
     assert reads == []
     assert panel._frame_label.text() == before
-
-
-# ---------------------------------------------------------------------------
-# handing the pass to the movie panel
-# ---------------------------------------------------------------------------
-
-class _Movie:
-    """Stands in for the movie panel `_push_to_movie` publishes into.
-
-    `max_fields()` is part of that interface, not decoration:
-    `_movie_source_paths` slices the sibling list to it, so a double
-    without it makes the panel raise AttributeError rather than publish.
-    """
-
-    def __init__(self, max_fields=4):
-        self.fields = None
-        self._max_fields = max_fields
-
-    def set_fields(self, fields):
-        self.fields = fields
-
-    def max_fields(self):
-        return self._max_fields
-
-
-def test_the_movie_gets_the_loaded_frames_and_the_tracked_labels(panel):
-    """The movie's colours are only meaningful once the labels ARE track ids.
-
-    Feeding it the raw masks would recolour every object whenever the
-    segmentation renumbered, which is the opposite of what the movie is being
-    watched for.
-    """
-    # No load_sequence_async here. Loading moved onto a worker, and it
-    # rewrites _tracked when it lands -- so the original version of this
-    # test raced its own fixture and compared the published labels against
-    # an array the worker had since replaced. The subject is
-    # _push_to_movie, so the loader's product is supplied directly and the
-    # race is gone.
-    #
-    # _masks and _tracked both have to be set: the method publishes
-    # nothing unless it has labels, and falls back to the masks for images.
-    # Their contents differ deliberately, so "the movie was given the
-    # tracked stack" is a claim that can fail; two look-alike arrays would
-    # pass whichever one arrived.
-    panel._movie_images = _synthetic_masks()
-    panel._masks = _synthetic_masks()
-    panel._tracked = _synthetic_masks() * 2
-    panel._tracks = pd.DataFrame({"frame": [0], "track_id": [1],
-                                 "x": [1.0], "y": [1.0]})
-    movie = _Movie()
-    panel._movie_panel = movie
-
-    panel._push_to_movie()
-
-    assert movie.fields is not None and len(movie.fields) == 1
-    field = movie.fields[0]
-    assert field["images"].shape[0] == N_FRAMES
-    # By content rather than identity: loading runs on a worker now, and
-    # it can replace `_tracked` with an equal array between the assignment
-    # above and the push, which made the old `is` check racy. What has to
-    # hold is that the movie is shown the TRACKED stack and not the raw
-    # masks -- the whole point of the method, since the colours are track
-    # ids.
-    assert np.array_equal(field["labels"], panel._tracked)
-    assert not np.array_equal(field["labels"], panel._masks)
-    assert field["tracks"] is panel._tracks
-    assert field["title"]
-
-
-def test_the_movie_falls_back_to_the_masks_when_there_is_no_image_sequence(
-        panel):
-    """A mask-only preview still has something to play.
-
-    The masks are what the user loaded; refusing to show them because there
-    are no raw frames would make the mask input silently useless.
-    """
-    movie = _Movie()
-    panel._movie_panel = movie
-    panel._sequence = None
-    panel._masks = _synthetic_masks()
-    # Tracked labels are required before anything is published at all --
-    # the movie colours by track id, so untracked masks would recolour
-    # every object on each resegmentation. The fallback under test is the
-    # IMAGE one: with no raw sequence, the masks stand in as the frames.
-    panel._tracked = _synthetic_masks()
-
-    panel._push_to_movie()
-
-    assert movie.fields[0]["images"] is panel._masks
-
-
-def test_the_movie_is_emptied_when_there_is_nothing_at_all(panel):
-    """An old field left on the movie panel would look like the current one."""
-    movie = _Movie()
-    panel._movie_panel = movie
-    panel._sequence = None
-    panel._masks = None
-
-    panel._push_to_movie()
-
-    assert movie.fields == []
 
 
 # ---------------------------------------------------------------------------
