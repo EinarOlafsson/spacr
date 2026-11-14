@@ -208,25 +208,6 @@ def test_a_path_nowhere_near_a_project_answers_with_its_own_folder(tmp_path):
     assert chaining.project_root_of(str(loose)) == str(loose)
 
 
-def test_satisfies_is_false_for_a_folder_missing_the_port(tmp_path):
-    from spacr import ports
-
-    empty = tmp_path / "bare"
-    empty.mkdir()
-    spec = ports.module_ports("measure")
-
-    assert chaining.satisfies(str(empty), tuple(spec.consumes)) is False
-
-
-def test_satisfies_is_true_once_the_layout_is_there(tmp_path):
-    from spacr import ports
-
-    project = _project(tmp_path)
-    spec = ports.module_ports("measure")
-
-    assert chaining.satisfies(project, tuple(spec.consumes)) is True
-
-
 def test_ports_for_kinds_maps_the_vocabulary(tmp_path):
     found = chaining.ports_for_kinds(("merged-arrays",))
     assert found

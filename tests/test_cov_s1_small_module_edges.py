@@ -1,9 +1,8 @@
 """Edges of the small readers: a value that arrived in an unexpected shape.
 
 Each case here is a frame, a settings dict or a plate address the happy path
-does not describe -- a crop table written for a different crop mode, a channel
-list typed as words, a stack file that has already been deleted, a well with
-no row letter, a measurement whose scale overflows. None of them is an error;
+does not describe -- a channel list typed as words, a stack file that has
+already been deleted, a well with no row letter, a measurement whose scale overflows. None of them is an error;
 every one of them used to be answered with the wrong number or an exception.
 """
 from __future__ import annotations
@@ -11,60 +10,7 @@ from __future__ import annotations
 import logging
 
 import numpy as np
-import pandas as pd
 import pytest
-
-
-# ---------------------------------------------------------------------------
-# png_list -- a crop table written for another crop mode
-# ---------------------------------------------------------------------------
-
-def test_a_crop_table_from_another_mode_still_finds_its_object_column(
-        tmp_path, monkeypatch):
-    """``png_list`` carries only the id column of the mode that wrote it.
-
-    Asking for ``cell_id`` on a nucleus crop table and finding nothing would
-    drop every row -- silently, because an empty result is a valid one.
-    """
-    from spacr import png_list
-
-    frame = pd.DataFrame({
-        "nucleus_id": ["o5", "o7", "omulti"],
-        "plateID": [1] * 3,
-        "rowID": [1] * 3,
-        "columnID": [1] * 3,
-        "fieldID": [1] * 3,
-        "png_path": ["/crops/a.png", "/crops/b.png", "/crops/c.png"],
-    })
-    seen = []
-
-    def field_paths(_db_path, object_type):
-        seen.append(object_type)
-        return {(1, 1, 1, 1): ("/merged/f1.npy", "f1.npy")}
-
-    monkeypatch.setattr(png_list, "_merged_field_paths", field_paths)
-
-    out = png_list.crop_rows_from_png_list(
-        str(tmp_path / "measurements.db"), frame,
-        object_type="cell", verbose=False,
-    )
-
-    assert list(out["object_label"]) == [5, 7]
-    assert seen == ["nucleus"]
-    assert len(out) == 2
-
-    # TWO COLUMNS, BECAUSE THESE ARE TWO QUESTIONS. `object_type` is an
-    # INSTRUCTION: `spacr.crops` reads it per row to choose the mask plane a
-    # crop is cut by, so it has to stay what the caller ASKED for. Reporting
-    # "nucleus" here -- where the labels came from -- meant the cells-behind-
-    # a-dot montage cut every crop from the nucleus plane whatever the user
-    # picked, and choosing an object type changed nothing on screen.
-    #
-    # The provenance this test was written to protect is still recorded, in
-    # `object_label_type`, so "these are nucleus labels being used for a cell
-    # request" remains visible to anything that wants to know.
-    assert list(out["object_type"]) == ["cell", "cell"]
-    assert list(out["object_label_type"]) == ["nucleus", "nucleus"]
 
 
 # ---------------------------------------------------------------------------

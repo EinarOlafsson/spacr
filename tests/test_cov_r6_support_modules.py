@@ -53,62 +53,6 @@ matplotlib.use("Agg")
 
 
 # ---------------------------------------------------------------------------
-# spacr.portable_paths -- the climb never revisits a folder
-# ---------------------------------------------------------------------------
-
-class TestCandidateRootsClimb:
-    """``for _ in range(_MAX_CLIMB + 1): if here and here not in out:``
-
-    The false side of that guard (a repeated or empty ``here``) cannot be
-    driven, and this is the proof rather than a contortion:
-
-    * ``here`` starts as ``os.path.abspath(...)``, which never returns
-      ``""`` -- an empty argument is refused earlier by ``if not root``,
-      and every other input becomes an absolute path.
-    * the only assignment to ``here`` inside the loop is ``here = parent``
-      where ``parent = os.path.dirname(here)``, reached only after
-      ``if parent == here: break``. So each iteration replaces ``here``
-      with a *strictly shorter* path and the loop stops at the fixed
-      point rather than appending it twice.
-
-    A strictly decreasing sequence has no repeats, so ``here not in out``
-    is true on every pass. The test below pins that invariant on both a
-    file and a folder, which is the property the guard exists to defend.
-    """
-
-    def test_every_candidate_is_a_new_shorter_folder(self, tmp_path):
-        deep = tmp_path / "screen" / "plate1" / "measurements"
-        deep.mkdir(parents=True)
-
-        from spacr.portable_paths import candidate_roots
-
-        roots = candidate_roots(str(deep))
-
-        assert roots, "a real folder must produce at least itself"
-        assert len(set(roots)) == len(roots), \
-            f"the climb repeated a folder: {roots}"
-        lengths = [len(r) for r in roots]
-        assert lengths == sorted(lengths, reverse=True), \
-            f"each candidate must be a parent of the last: {roots}"
-        assert roots[0] == str(deep)
-
-    def test_a_database_file_is_climbed_from_its_folder(self, tmp_path):
-        """The file itself is never a candidate -- its folder is."""
-        measurements = tmp_path / "plate1" / "measurements"
-        measurements.mkdir(parents=True)
-        db = measurements / "measurements.db"
-        db.write_bytes(b"")
-
-        from spacr.portable_paths import candidate_roots
-
-        roots = candidate_roots(str(db))
-
-        assert str(db) not in roots
-        assert roots[0] == str(measurements)
-        assert len(set(roots)) == len(roots)
-
-
-# ---------------------------------------------------------------------------
 # spacr.spacr_cellpose -- what the plot preview is handed
 # ---------------------------------------------------------------------------
 

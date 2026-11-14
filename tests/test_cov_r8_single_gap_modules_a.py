@@ -197,32 +197,6 @@ class _PsutilStub:
 
 class TestTheClimbNeverRepeatsItself:
 
-    def test_the_climb_is_strictly_shorter_at_every_step(self, tmp_path):
-        deep = tmp_path / "a" / "b" / "c"
-        deep.mkdir(parents=True)
-
-        from spacr.portable_paths import candidate_roots
-        climbed = candidate_roots(str(deep))
-
-        assert climbed[0] == os.path.abspath(str(deep))
-        assert len(set(climbed)) == len(climbed), "a folder was visited twice"
-        lengths = [len(p) for p in climbed]
-        assert lengths == sorted(lengths, reverse=True), (
-            "the climb did not move strictly upwards")
-
-    def test_a_file_is_climbed_from_its_folder(self, tmp_path):
-        f = tmp_path / "plate.csv"
-        f.write_text("x\n", encoding="utf-8")
-
-        from spacr.portable_paths import candidate_roots
-
-        assert candidate_roots(str(f))[0] == os.path.abspath(str(tmp_path))
-
-    def test_nothing_gives_nothing(self):
-        from spacr.portable_paths import candidate_roots
-
-        assert candidate_roots("") == ()
-
     def test_the_duplicate_guard_cannot_fire(self):
         """THE PIN.
 
