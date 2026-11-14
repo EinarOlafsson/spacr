@@ -923,6 +923,8 @@ def _identity_sets(paths: Iterable[Any]) -> Dict[str, set]:
 def _content_sha256(path: Any) -> Tuple[str, str]:
     """Return ``(sha256, error)`` for one file without loading it into memory."""
     try:
+        if path is None or str(path) == "":
+            return "", "no file path given (empty path)"
         candidate = Path(str(path))
         if not candidate.is_file():
             return "", f"{candidate}: file does not exist"
@@ -1582,6 +1584,8 @@ def cross_calibrate_probabilities(
     calibrated = np.empty_like(probs)
     temperatures: Dict[str, float] = {}
     for fold in unique_folds:
+        if isinstance(fold, np.generic):
+            fold = fold.item()
         target = folds == fold
         fit = ~target
         try:

@@ -289,8 +289,8 @@ def identify_masks_finetune(settings):
             stop = time.time()
             duration = (stop - start)
             time_ls.append(duration)
-            files_processed = len(images)
-            files_to_process = file_index+1            
+            files_processed = i + file_index + 1
+            files_to_process = len(all_image_files)
             print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="generate cellpose masks")
             
             if settings['verbose']:

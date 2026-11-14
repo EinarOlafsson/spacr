@@ -117,9 +117,14 @@ def test_convert_cq1_well_id_keeps_a_token_that_names_no_well(well_id, capsys):
 # mask_object_count
 # ---------------------------------------------------------------------------
 
-def test_mask_object_count_zero_for_empty_mask():
-    m = np.zeros((10, 10), dtype=np.int32)
-    assert U.mask_object_count(m) == 0
+@pytest.mark.parametrize("mask, expected", [
+    pytest.param(np.zeros((10, 10), dtype=np.int32), 0, id="empty-mask"),
+    # ids 5, 7, 12: the label values do not have to be sequential
+    pytest.param(np.array([[0, 5, 5], [0, 0, 12], [7, 7, 12]]), 3,
+                 id="arbitrary-ids"),
+])
+def test_mask_object_count_counts_the_nonzero_labels(mask, expected):
+    assert U.mask_object_count(mask) == expected
 
 
 def test_mask_object_count_ignores_background(synth_mask_2d):
@@ -127,11 +132,6 @@ def test_mask_object_count_ignores_background(synth_mask_2d):
     # Number of positive-integer labels in the mask.
     expected = len(np.unique(synth_mask_2d)) - (1 if 0 in np.unique(synth_mask_2d) else 0)
     assert n == expected
-
-
-def test_mask_object_count_arbitrary_ids():
-    m = np.array([[0, 5, 5], [0, 0, 12], [7, 7, 12]])
-    assert U.mask_object_count(m) == 3  # ids 5, 7, 12
 
 
 # ---------------------------------------------------------------------------

@@ -63,7 +63,8 @@ SUM, MIN, MAX, MEAN, MEDIAN, FIRST = "sum", "min", "max", "mean", "median", "fir
 AGGREGATIONS: Tuple[str, ...] = (SUM, MIN, MAX, MEAN, MEDIAN, FIRST)
 
 #: Additional explicit methods offered by the typed custom merge editor.
-EXPLICIT_AGGREGATIONS: Tuple[str, ...] = AGGREGATIONS + ("last", "count", "nunique", "any", "all")
+EXPLICIT_AGGREGATIONS: Tuple[str, ...] = AGGREGATIONS + ("last", "count", "nunique", "any", "all",
+                                                         "circmean_axial")
 
 #: Column-name patterns -> aggregation, FIRST MATCH WINS, so the order is the
 #: rule. Anything unmatched falls to :data:`DEFAULT_AGGREGATION`.
@@ -91,10 +92,47 @@ AGGREGATION_RULES: Tuple[Tuple[str, str], ...] = (
     (r"(^|_)(centroid|center|centre|coord|bbox|position|_x|_y)(_|$)", MEAN),
 )
 
+#: The child -> parent rules as they stood before item 937, kept verbatim so
+#: ``aggregation_defaults='legacy'`` reproduces every older merge exactly.
+AGGREGATION_RULES_V1: Tuple[Tuple[str, str], ...] = AGGREGATION_RULES
+
 #: What an unrecognised numeric measurement gets. MEAN rather than SUM: a
 #: measurement nobody thought about is more often an intensity or a ratio than
 #: an extent, and a wrong mean is a smaller error than a wrong total.
 DEFAULT_AGGREGATION = MEAN
+
+#: An axis direction averaged on the circle of doubled angles (item 937).
+CIRCMEAN_AXIAL = "circmean_axial"
+
+#: How ``aggregation_defaults`` reads: the rules before item 937, or one
+#: explicit rule per measurement family.
+AGGREGATION_DEFAULTS: Tuple[str, ...] = ("legacy", "per_feature")
+
+#: The child -> parent rules under ``aggregation_defaults='per_feature'``
+#: (item 937): five corrections and the named profiling families, then
+#: :data:`AGGREGATION_RULES_V1`. A named family keeps the method it already
+#: got (the mean), so only the corrections change a value: provenance stamps
+#: are taken once, an orientation is averaged as an axis, ``area_bbox`` takes
+#: the largest box (a union's box is not the sum of boxes), fractions and
+#: flags are averaged rather than summed, and ``n_<object>`` counts add up.
+PER_FEATURE_AGGREGATION_RULES: Tuple[Tuple[str, str], ...] = (
+    (r"(^|_)(n_z|measurement_ndim|voxel_size_[a-z0-9_]+)$", FIRST),
+    (r"(^|_)orientation$", CIRCMEAN_AXIAL),
+    (r"(^|_)area_bbox$", MAX),
+    (r"(^|_)(fraction|frac_at_d_\d+|frac_high\d+|frac_low\d+|"
+     r"percent_touching)(_|$)", MEAN),
+    (r"(^|_)is_[a-z0-9_]+$|^(mitotic|touches_field_edge|owned|enclosed|"
+     r"infected|monolayer_ok)$", MEAN),
+    (r"^n_[a-z]+$", SUM),
+    (r"(^|_)(neighbors_within_\d+|touching_neighbors)$", MEAN),
+    (r"(^|_)(haralick|pftas|lbp|gabor|granularity|homogeneity|blur|"
+     r"radial_cv|mass_displacement|weighted_hu|form_factor|compactness|"
+     r"cv_intensity|gini_intensity|mode_intensity|pearson_correlation|"
+     r"correlation|spearman|icq|nmi|k1|k2|rwc1|rwc2|costes_m1|costes_m2|"
+     r"manders_m1|manders_m2|manders_overlap_coefficient|"
+     r"puncta_overlap_ij|puncta_overlap_ji|nearest_neighbor_distance|"
+     r"second_neighbor_distance|distance_to_[a-z_]+)(_|$)", MEAN),
+) + AGGREGATION_RULES_V1
 
 #: Non-numeric columns take the first value: text does not add up.
 TEXT_AGGREGATION = FIRST
@@ -157,6 +195,8 @@ class MergePolicy:
         output to cells that contributed a child.
     :param keep_uninfected: preserve cells without pathogens or organelles as
         the uninfected control population even while consolidating.
+    :param defaults: the roll-up rules, ``'legacy'`` or ``'per_feature'``
+        (:func:`aggregation_for`).
     """
 
     primary: str = DEFAULT_PRIMARY
@@ -164,12 +204,14 @@ class MergePolicy:
     overrides: Mapping[str, str] = None
     consolidate_on_cell: bool = True
     keep_uninfected: bool = True
+    defaults: str = "legacy"
 
     def __post_init__(self) -> None:
         """Validate the NA policy and retain a private copy of overrides."""
         if self.na not in NA_POLICIES:
             raise MergeError(
                 f"na={self.na!r} is not one of {list(NA_POLICIES)}")
+        _rollup_rules(self.defaults)
         object.__setattr__(self, "overrides", dict(self.overrides or {}))
 
     def how_for(self, table: str) -> str:
@@ -204,15 +246,28 @@ class MergePolicy:
 
 
 def aggregation_for(column: str, *, numeric: bool = True,
-                    overrides: Optional[Mapping[str, str]] = None) -> str:
+                    overrides: Optional[Mapping[str, str]] = None,
+                    level: str = "parent", defaults: str = "legacy") -> str:
     """How ``column`` combines when several children roll up into one parent.
 
     :param column: measurement column name matched against the ordered
         :data:`AGGREGATION_RULES`.
     :param numeric: text columns take the first value whatever their name.
     :param overrides: explicit choices, which always win.
-    :returns: one of :data:`AGGREGATIONS`.
+    :param level: ``'parent'`` for the child -> parent roll-up, or
+        ``'summary'`` for the cell -> well, guide or gene summary, whose
+        rules are :data:`SUMMARY_AGGREGATION_RULES` (see
+        :func:`summary_aggregation_plan`).
+    :param defaults: the roll-up rules, ``'legacy'`` (:data:`AGGREGATION_RULES`)
+        or ``'per_feature'`` (:data:`PER_FEATURE_AGGREGATION_RULES`).
+    :returns: one of :data:`EXPLICIT_AGGREGATIONS`, or at the summary level
+        one of :data:`SUMMARY_METHODS`.
+    :raises MergeError: for an unknown method, level or defaults.
     """
+    if str(level) == "summary":
+        return _summary_rule(column, numeric=numeric, overrides=overrides)[0]
+    if str(level) != "parent":
+        raise MergeError(f"level={level!r} is not 'parent' or 'summary'")
     if overrides and column in overrides:
         chosen = str(overrides[column])
         if chosen not in EXPLICIT_AGGREGATIONS:
@@ -223,18 +278,34 @@ def aggregation_for(column: str, *, numeric: bool = True,
     if not numeric:
         return TEXT_AGGREGATION
     name = str(column).lower()
-    for pattern, how in AGGREGATION_RULES:
+    for pattern, how in _rollup_rules(defaults):
         if re.search(pattern, name):
             return how
     return DEFAULT_AGGREGATION
 
 
+def _rollup_rules(defaults: str) -> Tuple[Tuple[str, str], ...]:
+    """The child -> parent rule table that ``defaults`` names."""
+    if defaults == "legacy":
+        return AGGREGATION_RULES
+    if defaults == "per_feature":
+        return PER_FEATURE_AGGREGATION_RULES
+    raise MergeError(f"aggregation_defaults={defaults!r} is not one of "
+                     f"{list(AGGREGATION_DEFAULTS)}")
+
+
 def aggregation_plan(frame: pd.DataFrame, *,
                      overrides: Optional[Mapping[str, str]] = None,
-                     skip: Sequence[str] = ()) -> Dict[str, str]:
+                     skip: Sequence[str] = (),
+                     defaults: str = "legacy") -> Dict[str, str]:
     """The aggregation chosen for every column -- what the user gets shown.
 
     :param frame: child-object table whose columns will be rolled up.
+    :param overrides: explicit column -> method choices, which always win.
+    :param skip: columns left out of the plan, such as the group keys.
+    :param defaults: ``'legacy'`` or ``'per_feature'``, as in
+        :func:`aggregation_for`.
+    :returns: column -> method, in the frame's column order.
 
     Returned rather than applied silently so the settings panel can display
     it and the user can override any of it.
@@ -245,8 +316,357 @@ def aggregation_plan(frame: pd.DataFrame, *,
             continue
         numeric = pd.api.types.is_numeric_dtype(frame[column])
         plan[column] = aggregation_for(column, numeric=numeric,
-                                       overrides=overrides)
+                                       overrides=overrides, defaults=defaults)
     return plan
+
+
+def _grouped_axial_mean(grouped, columns: Sequence[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Axial circular mean and resultant length of ``columns`` per group.
+
+    :param grouped: a ``DataFrameGroupBy`` over the rows.
+    :param columns: the angle columns, in radians.
+    :returns: ``(angles, coherence)``, both indexed by group.
+    """
+    frame = grouped.obj[list(columns)].astype(float)
+    keys = grouped.keys if isinstance(grouped.keys, list) else [grouped.keys]
+    by = [grouped.obj[key] for key in keys]
+    sin = np.sin(2.0 * frame).groupby(by, dropna=False, sort=grouped.sort,
+                                       observed=True).mean()
+    cos = np.cos(2.0 * frame).groupby(by, dropna=False, sort=grouped.sort,
+                                       observed=True).mean()
+    return 0.5 * np.arctan2(sin, cos), np.hypot(sin, cos)
+
+
+def _apply_rollup_plan(grouped, plan: Mapping[str, str]) -> pd.DataFrame:
+    """Aggregate one grouped child table by a roll-up plan.
+
+    Sums keep NaN for a group with no value, ``any``/``all`` stay boolean
+    with NaN for an empty group, and ``circmean_axial`` takes the axial
+    circular mean (:func:`circmean_axial`).
+    """
+    axial = [column for column, how in plan.items() if how == CIRCMEAN_AXIAL]
+    out = grouped.agg({column: (MEAN if how == CIRCMEAN_AXIAL else how)
+                       for column, how in plan.items()})
+    summed = [column for column, how in plan.items() if how == SUM]
+    if summed:
+        out[summed] = grouped[summed].sum(min_count=1)
+    for column, how in plan.items():
+        if how in ("any", "all"):
+            out[column] = out[column].astype("boolean").mask(grouped[column].count().eq(0))
+    if axial:
+        angles, _coherence = _grouped_axial_mean(grouped, axial)
+        out[axial] = angles.reindex(out.index)
+    return out
+
+
+def circmean_axial(values) -> Tuple[float, float]:
+    """The mean direction of axes, and how strongly they share one.
+
+    :param values: angles in radians of undirected axes, such as
+        ``orientation`` from :func:`skimage.measure.regionprops` (in
+        ``[-pi/2, pi/2]``); NaN values are left out.
+    :returns: ``(angle, coherence)``: ``angle`` = ``atan2(mean sin 2t,
+        mean cos 2t) / 2`` in ``(-pi/2, pi/2]``, and ``coherence``, the
+        length of the mean resultant of ``2t``: 1 when every axis points
+        the same way, near 0 for axes in every direction. Both are NaN
+        without a value.
+
+    An axis at +89 degrees and one at -89 degrees are 2 degrees apart, but
+    their arithmetic mean is 0 degrees, perpendicular to both. Doubling the
+    angle makes an axis a point on the circle (period pi), where the mean of
+    the unit vectors is the mean direction (Mardia and Jupp 2000, section
+    2.4).
+    """
+    angles = np.asarray(values, dtype=float).ravel()
+    angles = angles[np.isfinite(angles)]
+    if not angles.size:
+        return float("nan"), float("nan")
+    sin, cos = float(np.sin(2.0 * angles).mean()), float(np.cos(2.0 * angles).mean())
+    return 0.5 * float(np.arctan2(sin, cos)), float(np.hypot(sin, cos))
+
+
+#: The methods of the cell -> well, guide or gene summary (item 937).
+#: ``drop`` leaves the column out; ``constant`` keeps the group's one value
+#: and stops when a group has two; ``fraction`` is the mean of a flag,
+#: written as ``<column>_fraction``; ``mean_sum`` is the per-cell mean plus
+#: the total as ``<column>_sum``; ``circmean_axial`` is
+#: :func:`circmean_axial` plus ``<column>_coherence``; ``fisher_z_mean``
+#: averages correlations as ``tanh(mean(atanh(r)))`` with ``r`` clipped to
+#: +-0.999; ``trimmed_mean`` drops 10 % of each tail.
+SUMMARY_METHODS: Tuple[str, ...] = (
+    "median", "mean", "trimmed_mean", "fisher_z_mean", "fraction",
+    "mean_sum", "sum", "min", "max", "circmean_axial", "constant", "first",
+    "drop",
+)
+
+#: Cell -> well, guide or gene defaults, ``(pattern, method, reason)``,
+#: FIRST MATCH WINS on the lower-cased column name (item 937). A numeric
+#: column no rule names takes the median and is listed as ``unruled`` in
+#: :func:`summary_aggregation_plan`.
+SUMMARY_AGGREGATION_RULES: Tuple[Tuple[str, str, str], ...] = (
+    (r"(^|_)(measurement_units|measurement_ndim|n_z|voxel_size_[a-z0-9_]+|"
+     r"measurement_spacing_[xyz])$", "constant",
+     "A provenance stamp, not a measurement: it is kept once, and a group "
+     "that mixes two values mixes units, so the summary stops."),
+    (r"^(plate|plateid|plate_name|well|wellid|row|rowid|row_name|column|"
+     r"columnid|column_name|field|fieldid|field_name|site|tile|timeid|"
+     r"time_id|guide|sgrna|gene|gene_symbol_0|barcode|file_name|path_name|"
+     r"png_path)$|(^|_)(object_label|label|labels|id|ids|object_id|prcfo|"
+     r"prcf|prc)$", "drop",
+     "An identifier has no average; the group keys name the row."),
+    (r"^(distance|refined)$", "drop",
+     "Bookkeeping of the phenotype-to-sequencing link, not a phenotype."),
+    (r"(^|_)area_bbox$", "median",
+     "A per-cell size; the median resists debris and clumps."),
+    (r"(^|_)(centroid|bbox|coords?)(_|-|$)|(^|_)c[xy]$|"
+     r"(^|_)distance_to_field_edge$", "drop",
+     "Where a cell sits in its field is an acquisition artefact, not a "
+     "phenotype."),
+    (r"(^|_)orientation$", "circmean_axial",
+     "An axis angle wraps at +-pi/2: +89 and -89 degrees are 2 degrees apart "
+     "but average to 0. The axial circular mean does not, and the coherence "
+     "says whether the cells share a direction at all."),
+    (r"(^|_)is_[a-z0-9_]+$|(^|_)(mitotic|mitotic_noflat|touches_field_edge|"
+     r"owned|enclosed|infected|monolayer_ok)$", "fraction",
+     "A yes/no flag: its mean is the share of cells with it, where a median "
+     "gives only 0 or 1."),
+    (r"(^|_)(neighbors_within_\d+|neighbours_within_\d+|touching_neighbors|"
+     r"touching_neighbours)$", "mean",
+     "Each neighbour pair is counted from both sides, so a total counts it "
+     "twice; the per-cell mean is the local density."),
+    (r"^n_[a-z_]+$|(^|_)(count|[a-z]+_count|n_objects|"
+     r"skeleton_branch_points)$", "mean_sum",
+     "A count per cell: the per-cell mean compares wells with different "
+     "numbers of cells, and <column>_sum keeps the total."),
+    (r"(^|_)(fraction|frac_at_d_\d+|mean_frac_\d+|frac_high\d+|frac_low\d+|"
+     r"percent_touching|eccentricity|solidity|extent|form_factor|"
+     r"manders_m[12]|costes_m[12]|rwc[12]|m[12]_correlation(_\d+)?|"
+     r"manders_overlap_coefficient|overlap_coefficient|puncta_overlap_ij|"
+     r"puncta_overlap_ji)(_|$)", "mean",
+     "A share bounded by 0 and 1: the mean is the expected share per cell "
+     "and has no heavy tail, where the median of many zeros hides a shift."),
+    (r"(^|_)(haralick|pftas|lbp|gabor|granularity|homogeneity|blur)(_|$)",
+     "median",
+     "A per-cell texture statistic; the median, as Brieflow and "
+     "CellProfiler profiles use, resists outlier cells."),
+    (r"(^|_)(pearson_correlation|pearson|spearman|icq|nmi|k[12])$|"
+     r"(^|_)correlation_[a-z0-9_]+$", "median",
+     "A correlation coefficient: the median needs no Fisher transform, "
+     "which breaks at r = +-1 in small objects; fisher_z_mean is an "
+     "override."),
+    (r"(^|_)(mean|median|min|max|integrated|mode)_intensity$|"
+     r"(^|_)(percentile_\d+|(mean|max|min|integrated)_edge|mean_radius|"
+     r"median_radius|mass_displacement|inside_outside_ratio)$|"
+     r"(^|_)(outside|periphery)_[a-z0-9_]+$", "median",
+     "An intensity or its location: per-cell intensities are skewed by "
+     "bright debris and mitotic cells, so the median, the image-profiling "
+     "standard, is robust."),
+    (r"(^|_)(std|range|iqr|mad|cv|gini|skew|kurtosis|entropy)_intensity$|"
+     r"(^|_)(std_edge|radial_cv_\d+)$", "median",
+     "The spread of one cell's pixels: a per-cell statistic to summarise, "
+     "robustly, not to pool."),
+    (r"(^|_)(area|area_filled|area_convex|convex_area|filled_area|"
+     r"perimeter|perimeter_crofton|major_axis_length|minor_axis_length|"
+     r"axis_major_length|axis_minor_length|equivalent_diameter(_area)?|"
+     r"feret_diameter_max|max_radius|radius_px|euler_number|compactness|"
+     r"skeleton_length|hu_\d+|weighted_hu_\d+|zernike_\d+)$|"
+     r"(^|_)volume(_|$)", "median",
+     "A per-cell size or shape, skewed by clumps and debris; the median is "
+     "robust. Compactness is not bounded above, so it is here and not with "
+     "the shares."),
+    (r"(^|_)(nearest_neighbor_distance|second_neighbor_distance|"
+     r"distance_to_[a-z_]+|centre_to_[a-z_]+|center_to_[a-z_]+|"
+     r"relative_radial_position)$", "median",
+     "A distance, skewed by sparse regions; the median is robust."),
+    (r"^emb_", "median",
+     "An embedding dimension, reduced as embedding_aggregate's well_median."),
+)
+
+#: What a numeric column no summary rule names gets.
+SUMMARY_DEFAULT = "median"
+
+_SUMMARY_UNRULED = ("A column no rule names takes the robust median; it is "
+                    "listed so a new feature without a rule is seen.")
+
+
+def _summary_rule(column: str, *, numeric: bool = True,
+                  overrides: Optional[Mapping[str, str]] = None) -> Tuple[str, str, str]:
+    """``(method, rule, reason)`` for one column at the summary level."""
+    name = str(column).lower()
+    overrides = dict(overrides or {})
+    matched = ([column] if column in overrides
+               else [key for key in overrides if re.search(str(key), name)][:1])
+    for key in matched:
+        chosen = str(overrides[key])
+        if chosen not in SUMMARY_METHODS:
+            raise MergeError(f"{chosen!r} is not a summary aggregation; "
+                             f"choose from {list(SUMMARY_METHODS)}")
+        return chosen, f"override:{key}", "Chosen in aggregation_overrides."
+    for pattern, method, reason in SUMMARY_AGGREGATION_RULES:
+        if re.search(pattern, name):
+            if not numeric and method != "constant":
+                break
+            return method, pattern, reason
+    if not numeric:
+        return "drop", "text", "Text has no average; it is left out."
+    return SUMMARY_DEFAULT, "unruled", _SUMMARY_UNRULED
+
+
+def summary_aggregation_plan(frame: pd.DataFrame, *,
+                             overrides: Optional[Mapping[str, str]] = None,
+                             skip: Sequence[str] = ()) -> pd.DataFrame:
+    """The method every column gets when cells are summarised per group.
+
+    :param frame: the per-cell table (or only its columns and dtypes).
+    :param overrides: column name or regular expression -> one of
+        :data:`SUMMARY_METHODS`; wins over :data:`SUMMARY_AGGREGATION_RULES`.
+    :param skip: columns left out, such as the group keys.
+    :returns: one row per column: ``column``, ``method``, ``rule`` (the
+        matching pattern, ``override:<key>``, ``text`` or ``unruled``),
+        ``reason`` and ``family`` (from
+        :func:`spacr.feature_dict.parse_column`).
+    :raises MergeError: for an override that is not a summary method.
+    """
+    from .feature_dict import parse_column
+
+    rows = []
+    for column in frame.columns:
+        if column in skip:
+            continue
+        numeric = (pd.api.types.is_numeric_dtype(frame[column])
+                   or pd.api.types.is_bool_dtype(frame[column]))
+        method, rule, reason = _summary_rule(column, numeric=numeric,
+                                             overrides=overrides)
+        try:
+            family = parse_column(str(column)).family
+        except Exception:
+            family = "unknown"
+        rows.append({"column": column, "method": method, "rule": rule,
+                     "reason": reason, "family": family})
+    return pd.DataFrame(rows, columns=["column", "method", "rule", "reason",
+                                       "family"])
+
+
+def _fisher_z(values: pd.DataFrame) -> pd.DataFrame:
+    """Fisher's z of correlations, clipped to +-0.999 first."""
+    return np.arctanh(values.astype(float).clip(-0.999, 0.999))
+
+
+def _summarise_block(method: str, values: pd.DataFrame, by) -> pd.DataFrame:
+    """One summary method over ``values`` grouped by the ``by`` series.
+
+    :param method: a numeric method of :data:`SUMMARY_METHODS`.
+    :param values: the columns that take it, as floats.
+    :param by: the group series, aligned with ``values``.
+    :returns: one row per group, one column per input column.
+    """
+    if method == "fisher_z_mean":
+        return np.tanh(_fisher_z(values).groupby(by, sort=True, observed=True,
+                                                 dropna=False).mean())
+    group = values.groupby(by, sort=True, observed=True, dropna=False)
+    if method == "median":
+        return group.median()
+    if method in ("mean", "fraction", "mean_sum"):
+        return group.mean()
+    if method == "sum":
+        return group.sum(min_count=1)
+    if method == "min":
+        return group.min()
+    if method == "max":
+        return group.max()
+    if method == "trimmed_mean":
+        return group.agg(_trimmed_mean_10)
+    raise MergeError(f"{method!r} is not a numeric summary method")
+
+
+def _trimmed_mean_10(series: pd.Series) -> float:
+    """The mean after 10 % of each tail is dropped; NaN without a value."""
+    from scipy.stats import trim_mean
+
+    values = series.dropna()
+    return float(trim_mean(values, 0.1)) if len(values) else float("nan")
+
+
+def aggregate_by_feature(frame: pd.DataFrame, by, *,
+                         columns: Optional[Sequence[str]] = None,
+                         overrides: Optional[Mapping[str, str]] = None,
+                         count_sum: bool = True, drop_positions: bool = True,
+                         n_column: str = "n_cells") -> pd.DataFrame:
+    """One row per group, each column summarised by its own default.
+
+    :param frame: one row per cell.
+    :param by: the group column or columns, such as ``['plate', 'well']``.
+    :param columns: the columns to summarise; all but ``by`` when None.
+    :param overrides: as :func:`summary_aggregation_plan`.
+    :param count_sum: write ``<column>_sum`` beside a count's per-cell mean.
+    :param drop_positions: leave positions out; False takes their median.
+    :param n_column: the name of the cells-per-group column.
+    :returns: the group keys, ``n_column`` and the summaries, in the
+        frame's column order; a flag ``x`` becomes ``x_fraction``, an
+        orientation gains ``<column>_coherence`` and a count
+        ``<column>_sum``. ``attrs['aggregation_plan']`` holds the plan's
+        rows (:func:`summary_aggregation_plan`) as a list of dicts.
+    :raises MergeError: when a provenance stamp differs within a group.
+    """
+    keys = [by] if isinstance(by, str) else list(by)
+    chosen = [c for c in (frame.columns if columns is None else columns)
+              if c not in keys and c in frame.columns]
+    plan = summary_aggregation_plan(frame[chosen], overrides=overrides)
+    if not drop_positions:
+        moved = plan["rule"].str.contains("centroid", regex=False) & plan["method"].eq("drop")
+        plan.loc[moved, "method"] = "median"
+    grouped = frame.groupby(keys, sort=True, observed=True, dropna=False)
+    size = grouped.size()
+    methods = dict(zip(plan["column"], plan["method"]))
+    numeric = frame[[c for c, m in methods.items() if m not in ("drop", "constant", "first")]]
+    numeric = numeric.astype({c: float for c in numeric.columns
+                              if pd.api.types.is_bool_dtype(numeric[c])})
+    by_values = [frame[key] for key in keys]
+    group = numeric.groupby(by_values, sort=True, observed=True, dropna=False)
+    results: Dict[str, pd.Series] = {}
+    for method in ("median", "mean", "fraction", "mean_sum", "sum", "min",
+                   "max", "fisher_z_mean", "trimmed_mean"):
+        names = [c for c, m in methods.items() if m == method]
+        if names:
+            results.update(_summarise_block(method, numeric[names], by_values).items())
+    axial = [c for c, m in methods.items() if m == "circmean_axial"]
+    coherence = {}
+    if axial:
+        sin = np.sin(2.0 * numeric[axial]).groupby(by_values, sort=True, observed=True,
+                                                   dropna=False).mean()
+        cos = np.cos(2.0 * numeric[axial]).groupby(by_values, sort=True, observed=True,
+                                                   dropna=False).mean()
+        results.update((0.5 * np.arctan2(sin, cos)).items())
+        coherence = dict(np.hypot(sin, cos).items())
+    totals = {}
+    if count_sum:
+        counted = [c for c, m in methods.items() if m == "mean_sum"]
+        if counted:
+            totals = dict(group[counted].sum(min_count=1).items())
+    for column, method in methods.items():
+        if method not in ("constant", "first"):
+            continue
+        values = frame.groupby(keys, sort=True, observed=True, dropna=False)[column]
+        if method == "constant" and (values.nunique(dropna=True) > 1).any():
+            raise MergeError(f"{column} differs within a group, so one summary "
+                             f"row would mix two values (such as two units); "
+                             f"summarise the groups apart")
+        results[column] = values.first()
+    out: Dict[str, pd.Series] = {n_column: size}
+    for column, method in methods.items():
+        if method == "drop" or column not in results:
+            continue
+        name = f"{column}_fraction" if method == "fraction" else column
+        out[name] = results[column]
+        if column in coherence:
+            out[f"{column}_coherence"] = coherence[column]
+        if column in totals:
+            out[f"{column}_sum"] = totals[column]
+    table = pd.concat(out, axis=1) if out else pd.DataFrame(index=size.index)
+    table.index = size.index
+    table = table.reset_index()
+    table.attrs["aggregation_plan"] = plan.to_dict("records")
+    return table
 
 
 def _connect(db_path: str) -> sqlite3.Connection:
@@ -407,14 +827,7 @@ def _collapse_duplicate_observations(frame, keys, table, overrides):
                 numeric=pd.api.types.is_numeric_dtype(frame[column]),
                 overrides={column: chosen} if chosen is not None else None)
     if methods:
-        collapsed = grouped.agg(methods)
-        summed = [column for column, method in methods.items() if method == SUM]
-        if summed:
-            collapsed[summed] = grouped[summed].sum(min_count=1)
-        for column, method in methods.items():
-            if method in ('any', 'all'):
-                collapsed[column] = collapsed[column].astype('boolean').mask(grouped[column].count().eq(0))
-        collapsed = collapsed.reset_index()
+        collapsed = _apply_rollup_plan(grouped, methods).reset_index()
     else:
         collapsed = duplicates[keys].drop_duplicates().copy()
     collapsed.index = pd.Index([duplicates.index[indices[0]] for indices in grouped.indices.values()])
@@ -561,16 +974,11 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
             f"matched to a parent; re-run Measure with the parent mask set")
 
     overrides = aggregation_overrides(policy, name)
-    plan = aggregation_plan(child, overrides=overrides, skip=keys)
+    plan = aggregation_plan(child, overrides=overrides, skip=keys,
+                            defaults=policy.defaults)
     grouped = child.groupby(list(keys), dropna=False)
 
-    out = grouped.agg(plan)
-    summed = [column for column, how in plan.items() if how == SUM]
-    if summed:
-        out[summed] = grouped[summed].sum(min_count=1)
-    for column, how in plan.items():
-        if how in ("any", "all"):
-            out[column] = out[column].astype("boolean").mask(grouped[column].count().eq(0))
+    out = _apply_rollup_plan(grouped, plan)
     count_column = "count"
     while count_column in out or f"{name}_{count_column}" in out:
         count_column = "source_" + count_column

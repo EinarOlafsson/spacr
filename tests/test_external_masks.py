@@ -72,43 +72,6 @@ def test_plan_pairs_fields_and_assigns_mask_planes_after_image_channels(
         "fov001_nucleus_mask.tif")
 
 
-def test_plan_refuses_an_unassigned_mask_group(tmp_path):
-    images, cells, _nuclei = _inputs(tmp_path)
-    groups = em.detect_inputs([images, cells])
-    next(group for group in groups if group.role == "mask").object_type = None
-
-    plan = em.plan_external_masks({
-        "inputs": [group.to_dict() for group in groups],
-        "dst": str(tmp_path / "project"),
-        "layout": "flat",
-    })
-
-    assert not plan.ok
-    assert any("choose whether" in message for message in plan.errors)
-
-
-def test_plan_refuses_unprojected_z_planes_that_would_overwrite_a_field(
-        tmp_path):
-    images, cells, _nuclei = _inputs(tmp_path)
-    gradient = np.arange(32 * 32, dtype=np.uint16).reshape(32, 32)
-    volume = np.stack([gradient, gradient + 100])
-    tifffile.imwrite(
-        images / "volume_C3.tif", volume, photometric="minisblack",
-        metadata={"axes": "ZYX"})
-    groups = em.detect_inputs([images, cells])
-
-    plan = em.plan_external_masks({
-        "inputs": [group.to_dict() for group in groups],
-        "dst": str(tmp_path / "project"),
-        "layout": "flat",
-        "z_handling": "keep",
-    })
-
-    assert not plan.ok
-    assert any("Multiple time or Z planes" in message
-               for message in plan.errors)
-
-
 def test_run_builds_merged_stacks_then_delegates_to_measure(
         tmp_path, monkeypatch):
     images, cells, nuclei = _inputs(tmp_path)

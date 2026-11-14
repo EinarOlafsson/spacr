@@ -344,7 +344,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
             "spacr.gene_class_images.MemmapCrops.__len__",
             "spacr.gene_class_images.OpsCropDataset.__getitem__",
             "spacr.gene_class_images.OpsCropDataset.__len__"} <= dunders
-    assert len(dunders) == 226
+    # 226 -> 227 on 2026-11-13: run_progress.ProgressSample.__repr__ (item
+    # 938), the readable form of one parsed progress line.
+    assert "spacr.qt.run_progress.ProgressSample.__repr__" in dunders
+    assert len(dunders) == 227
+    # The historical digest below is checked on the surface without it.
+    dunders = dunders - {"spacr.qt.run_progress.ProgressSample.__repr__"}
     # It is counted here and left out of the historical fingerprints below,
     # which it would otherwise move.
     dunders = dunders - {"spacr.layers.VolumeLens.__post_init__"}
@@ -1571,7 +1576,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-11-03 item 749: +3/-0, spacr.qt.widgets.dock.SectionHeader.set_open, .event and .paintEvent
     # (reviewed in spacr-translations 26599a10).
     # 2026-11-05 items 791, 770, 771: +22/-0, sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, the spacr.division_analysis module and its fourteen functions, and batch_correction's EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
-    expected = 13_215
+    # 2026-11-13 items 936/940: +2/-0, the spacr.stitch_core module docstring and spacr.stitch_core.StripRegistration.shift
+    # (the ten new callables are in 936_940_stitch_core_api_arrivals_2026-11-13.json; nine-language records on spacr-translations translations-936-940-1113).
+    expected = 13_217
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
@@ -2289,7 +2296,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **paper_item_3_arrivals}
     paper_item_4_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json").read_text(encoding="utf-8"))
-    assert len(paper_item_4_arrivals) == 106
+    assert len(paper_item_4_arrivals) == 107
     assert {key: docs[key] for key in paper_item_4_arrivals} == paper_item_4_arrivals
     assert not paper_item_4_arrivals.keys() & (
         zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
@@ -2368,6 +2375,69 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **tile_affine_arrivals}
+    nuclear_flatfield_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(nuclear_flatfield_arrivals) == 6
+    assert {key: docs[key] for key in nuclear_flatfield_arrivals} == nuclear_flatfield_arrivals
+    assert not nuclear_flatfield_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **nuclear_flatfield_arrivals}
+    threshold_auto_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(threshold_auto_arrivals) == 2
+    assert {key: docs[key] for key in threshold_auto_arrivals} == threshold_auto_arrivals
+    assert not threshold_auto_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **threshold_auto_arrivals}
+    aggregation_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "937_aggregation_feature_defaults_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(aggregation_arrivals) == 3
+    assert {key: docs[key] for key in aggregation_arrivals} == aggregation_arrivals
+    assert not aggregation_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **aggregation_arrivals}
+    stitch_core_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "936_940_stitch_core_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(stitch_core_arrivals) == 10
+    assert {key: docs[key] for key in stitch_core_arrivals} == stitch_core_arrivals
+    assert not stitch_core_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **stitch_core_arrivals}
+    measure_ops_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "934_measure_ops_features_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(measure_ops_arrivals) == 3
+    assert {key: docs[key] for key in measure_ops_arrivals} == measure_ops_arrivals
+    assert not measure_ops_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **measure_ops_arrivals}
+    hybrid_profile_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "stage3_hybrid_profile_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(hybrid_profile_arrivals) == 2
+    assert {key: docs[key] for key in hybrid_profile_arrivals} == hybrid_profile_arrivals
+    assert not hybrid_profile_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **hybrid_profile_arrivals}
+    run_progress_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "938_run_progress_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(run_progress_arrivals) == 20
+    assert {key: docs[key] for key in run_progress_arrivals} == run_progress_arrivals
+    assert not run_progress_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **run_progress_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }
@@ -2436,7 +2506,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
     # 2026-11-03 item 749: 13,190 -> 13,193 with `expected` above.
     # 2026-11-05 items 791, 770, 771: 13,193 -> 13,215 with `expected` above.
-    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_215
+    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_217
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

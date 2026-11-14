@@ -376,22 +376,28 @@ def test_the_numpyro_model_is_the_horseshoe_poisson_with_the_offset(
     assert not np.allclose(recorder.rate, raw_rate)
 
 
-def test_a_divergent_numpyro_transition_is_not_a_converged_fit(
-        monkeypatch, model_data):
+@pytest.mark.parametrize("backend, install, draws, n_divergent", [
+    pytest.param("numpyro", _install_numpyro, 6, 3, id="numpyro"),
+    # Same rule as numpyro, through pymc's ``sample_stats``.
+    pytest.param("pymc", lambda *a, **k: _install_pymc(*a, **k), 2, 4,
+                 id="pymc"),
+])
+def test_a_divergent_transition_is_not_a_converged_fit(
+        monkeypatch, model_data, backend, install, draws, n_divergent):
     """Divergences are counted and reported, and they cost convergence."""
-    recorder = _install_numpyro(
-        monkeypatch, beta_draws=np.zeros((6, 3)),
-        intercept_draws=np.zeros(6), n_divergent=3,
+    recorder = install(
+        monkeypatch, beta_draws=np.zeros((draws, 3)),
+        intercept_draws=np.zeros(draws), n_divergent=n_divergent,
     )
 
-    diverged = pm.fit_model(model_data, backend="numpyro", standardize=True)
+    diverged = pm.fit_model(model_data, backend=backend, standardize=True)
     assert diverged.converged is False
-    assert diverged.diagnostics["n_divergent"] == 3
+    assert diverged.diagnostics["n_divergent"] == n_divergent
     assert diverged.diagnostics["beta_scale"] == (
         "per standard deviation of log10expression")
 
     recorder.n_divergent = 0
-    clean = pm.fit_model(model_data, backend="numpyro", standardize=True)
+    clean = pm.fit_model(model_data, backend=backend, standardize=True)
     assert clean.converged is True
     assert clean.diagnostics["n_divergent"] == 0
 
@@ -523,26 +529,6 @@ def test_the_pymc_backend_hands_back_a_fit_that_names_itself(
         @ recorder.deterministic["beta"])
     assert recorder.rate == pytest.approx(expected_rate)
     assert recorder.observed.tolist() == model_data.Npositive.tolist()
-
-
-def test_a_divergent_pymc_transition_is_not_a_converged_fit(
-        monkeypatch, model_data):
-    """Same rule as numpyro, through pymc's ``sample_stats``."""
-    recorder = _install_pymc(
-        monkeypatch, beta_draws=np.zeros((2, 3)),
-        intercept_draws=np.zeros(2), n_divergent=4,
-    )
-
-    diverged = pm.fit_model(model_data, backend="pymc", standardize=True)
-    assert diverged.converged is False
-    assert diverged.diagnostics["n_divergent"] == 4
-    assert diverged.diagnostics["beta_scale"] == (
-        "per standard deviation of log10expression")
-
-    recorder.n_divergent = 0
-    clean = pm.fit_model(model_data, backend="pymc", standardize=True)
-    assert clean.converged is True
-    assert clean.diagnostics["n_divergent"] == 0
 
 
 def test_auto_prefers_numpyro_over_pymc_when_both_are_installed(

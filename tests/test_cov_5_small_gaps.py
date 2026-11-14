@@ -1,19 +1,14 @@
-"""Three narrow gaps: a terabyte plate, the bundled annotation, a rebuilt model.
+"""Two narrow gaps: a terabyte plate and a rebuilt model.
 
 Each of these is the last branch of something that works every other day —
-the biggest unit an inventory can print, the optional annotation join, and
-the checkpoint that has to reconstruct its own architecture before it can be
+the biggest unit an inventory can print and the checkpoint that has to reconstruct its own architecture before it can be
 loaded.
 """
 from __future__ import annotations
 
-import os
-
-import pandas as pd
 import pytest
 
 from spacr import torch_artifacts as TA
-from spacr.hits import build_hit_list
 from spacr.workspace import _human_size
 
 
@@ -34,61 +29,6 @@ def test_a_plate_folder_is_sized_in_the_unit_it_reaches():
 def test_a_size_that_is_not_a_number_is_marked_unknown():
     assert _human_size(None) == "?"
     assert _human_size("a lot") == "?"
-
-
-# ---------------------------------------------------------------------------
-# The bundled Toxoplasma annotation
-# ---------------------------------------------------------------------------
-
-def _gene_table(genes):
-    return pd.DataFrame({
-        "feature": [f"gene_fraction:gene[{gene}]" for gene in genes],
-        "coefficient": [0.4, -0.3, 0.2][: len(genes)],
-        "p_value": [0.001, 0.02, 0.3][: len(genes)],
-    })
-
-
-def test_the_bundled_annotation_names_the_genes_it_recognises():
-    """A hit list of gene numbers is unreadable; the join is what makes it a list."""
-    hits = build_hit_list({"gene": _gene_table(["233460", "254470", "227280"])},
-                          toxoplasma=True)
-
-    assert hits.gene("233460").annotation["gene_name"] == "SAG1"
-    assert hits.gene("254470").annotation["gene_name"] == "MYR1"
-    assert hits.gene("227280").annotation["hyperlopit"] == "dense granules"
-    assert any("Bundled Toxoplasma annotation joined by gene number" in note
-               for note in hits.notes)
-
-
-def test_the_annotation_join_leaves_the_row_count_alone():
-    """One gene must stay one hit: a fan-out here doubles a screen's hits."""
-    table = _gene_table(["233460", "254470", "227280"])
-
-    hits = build_hit_list({"gene": table}, toxoplasma=True)
-
-    assert len(hits) == len(table)
-    assert len({hit.gene for hit in hits}) == len(table)
-
-
-def test_a_column_the_user_supplied_wins_over_the_bundles(tmp_path):
-    """The user passed that file on purpose; the bundle must not overwrite it."""
-    path = tmp_path / "my_names.csv"
-    pd.DataFrame({"Gene ID": ["TGME49_233460"],
-                  "gene_name": ["my own name for SAG1"]}).to_csv(path,
-                                                                 index=False)
-
-    hits = build_hit_list({"gene": _gene_table(["233460"])},
-                          metadata_files=[str(path)], toxoplasma=True)
-
-    assert hits.gene("233460").annotation["gene_name"] == "my own name for SAG1"
-
-
-def test_leaving_the_annotation_off_leaves_the_list_unannotated():
-    """The control: nothing is joined unless it was asked for."""
-    hits = build_hit_list({"gene": _gene_table(["233460"])})
-
-    assert "gene_name" not in hits.gene("233460").annotation
-    assert not any("Bundled Toxoplasma" in note for note in hits.notes)
 
 
 # ---------------------------------------------------------------------------

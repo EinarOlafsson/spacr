@@ -1,0 +1,122 @@
+ALIGN & STITCH ON THE OPS STITCH CORE, AND THE S1 STITCH SPEED-UPS
+=================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-13. The core engine of Align & Stitch is alpha (align_engine='core', ALPHA_FEATURES[936] on the align module's form; default 'legacy'). The stitch speed-ups (float32 strip registration, reader threads) are default behaviour, not alpha; parallel edges are a setting with default 1. spacr/stitch_core.py (new), spacr/align.py, spacr/ops_register.py, spacr/ops_stitch.py, spacr/ops_compose.py, spacr/ops_cycles.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_stitch_core_936_940.py.
+Requested: maintainer (item 936 reserved 2026-11-13; S1 stitch speed card signed off 2026-11-13, REPORT_stitch_speed.md "Ready for a spaCR implementation").
+Owner: paper session (stage 1 lane).
+Source: proposals/bmc_paper_items/ITEM_align_stitch_shared_core.md; BMCspacr/reanalysis/proof_stage1_stage2/stitch_speed/scripts/cands.py (candidates 1 + 3, 4) and prod6.py (candidate 6).
+Related: 930, 931, 932 (FFT engine, settings schema version), 940 (placement seed), 921, the stitch determinism commit 5797246603.
+
+SHARED CORE (spacr.stitch_core)
+One module both stitchers take their code from. The OPS objects are the
+same objects, not copies: stitch_core.phase_correlate is
+ops_register.phase_correlate, and likewise unwrap, available_backends,
+register_edge, register_pairs, Registration, _read_peak, solve_placements,
+compose_window, windows_over, Window, ComposeError, overlap_gain,
+stitch_well and StitchedWell; FFTEngine is ops_cycles._FFTEngine (932).
+They stay defined where they were, so every OPS import, test and API page
+and its translations are unchanged (the spec proposed moving them; keeping
+them avoids re-keying every catalogue record, and a grep ratchet in the
+tests keeps a second definition out). New in the core:
+- register_strip_pair: register_edge's strip registration plus Align &
+  Stitch's checks: acceptance 'peak_ratio' (the OPS rule), 'ncc' (NCC of the
+  shifted strips) or 'both'; optional sub-pixel refinement (upsample > 1, a
+  matrix-DFT refinement over 1.5 px, skimage's 'phase' method without
+  skimage); strips may be passed already cut (extent=), so Align & Stitch
+  reads only the strips.
+- solve_positions(edges, sites, gauge='lowest_site' | 'anchor', weights,
+  anchors, anchor_weight, blas_threads=1): 'lowest_site' is
+  ops_solve.solve_placements; 'anchor' is Align & Stitch's weighted solve
+  with nominal anchors. align.solve_positions keeps its signature and calls
+  it with blas_threads=None, so its numbers are bit for bit as before
+  (test against a verbatim copy of the old arithmetic).
+- feather_weights(tile_shape, rows, cols, mode='distance' | 'ramp', width):
+  'distance' is 931's distance-to-edge + 1 (float64), used by
+  compose_window; 'ramp' is Align & Stitch's linear ramp with the 1e-3
+  floor, used by write_stack (align._ramp now lives in the core).
+- OPS_TO_ALIGN_KEYS, the documented mapping from OPS settings to the new
+  Align & Stitch keys.
+
+ALIGN & STITCH CORE ENGINE (alpha)
+New keys in align.default_settings, alpha on the align form:
+align_engine ('legacy'; 'core'), registration_precision ('float64';
+'float32'), registration_backend ('cpu'; 'gpu'), acceptance ('both',
+the maintainer's choice for general users; 'peak_ratio', 'ncc'),
+min_peak_ratio (None = ops_register.MIN_PEAK_RATIO), strip_fraction (None =
+the nominal overlap; 0.30 is OPS), expected_overlap_px, tolerance_px,
+skew_px (None = SKEW_PX), solve_gauge ('anchor'; 'lowest_site'), compose
+('bands'; 'windows'), compose_window_px (4096), compose_window_overlap
+(256), align_placement_seed (None), align_placement_seed_export (False).
+blend gains 'feather_distance' (931's weights, float64 accumulation).
+The core engine registers the four grid neighbours (second tile below or
+right, ordered as WellLayout.pairs), reads only the strips, keeps upsample
+(1/10 px by default for general users; 1 for OPS), and solves on one BLAS
+thread. Under 'lowest_site' each connected component is moved so its
+lowest tile sits at its nominal position. align.write_windows writes
+compose='windows' output: one float32 .npy per window composed by
+compose_window, plus windows.json. With align_engine='legacy' (the default)
+align_folder writes the same stack, table and plan text as before.
+Maintainer decisions (2026-11-13) applied: acceptance 'both' for general
+users; 1/10 px kept for general users, integer for OPS; image_stitch.py
+stays a documented exception; cross-magnification stays OPS-only (no
+second-acquisition mode in Align & Stitch, so the ops_merge affine
+functions stay in ops_merge); the legacy engine is kept.
+Not built here: the Align & Stitch Qt screen controls for the new keys (the
+screen is hand-built; the keys work from settings files, the CLI and
+align_folder), the per-edge peak-ratio/NCC preview, and spec tests 5
+(accuracy on a non-OPS tiled set) and 9 (four-way CPU timing).
+
+STITCH SPEED-UPS (S1 card, default behaviour)
+1 + 3: phase_correlate(precision='float32') computes the CPU surface with
+scipy.fft rfft2/irfft2 in float32 on one thread through the CPU engine of
+ops_cycles (932's _FFTEngine, ops_cycles._cpu_engine), one float32
+conversion per strip, the cross-power spectrum normalised in place in the
+bit-identical operand order (conjugate b into b, multiply by a into b,
+|b| with zeros read as 1, divide), |surface| for the peak ratio written in
+place after the peak is read. 'float64' (phase_correlate's default) is the
+old NumPy arithmetic bit for bit. The OPS stitch phase reads
+ops_registration_precision (932's key, default 'float32'; older stamped
+files get 'float64' through DEFAULT_CHANGES[932]).
+4: ops_stitch_edge_workers (default 1): stitch_well(edge_workers=N) cuts
+each pair's two strips in the parent and registers them in N spawned
+processes (CPU), at most 4 tasks per worker queued, results put back in
+layout order; workers start 10 s apart like every spaCR process pool.
+6: ops_stitch_read_threads (default 4): ops_engine._TileReadAhead reads the
+nuclear tiles in the order the stitch first uses them on N I/O threads,
+keeps the 64 most recently used (as the old LRU cache did), and reads a
+tile asked out of order on the spot, so it returns exactly what one reader
+returns. Default 4, from the card's production measurement: the stitch
+step's wall time halves (234-237 s to 114-132 s per well on plates A and
+B, NAS reads) for 25-35 extra CPU s per well; the stitch runs once per
+well, so the CPU cost is small next to the wall time saved, and the
+maintainer's time rule favours the step that waits on the network.
+
+PROOF (plate A well A1, cycle-1 DAPI, 333 tiles, gpu off)
+Real production stitch phase (ops_engine._stitch on the NAS files, page cache
+of the 333 files dropped before every arm), one process, gpu off, two rounds
+with the arm order reversed, machine load 51-59 (shared, busy):
+  arm                                  wall s (r1 / r2)   process CPU s (r1 / r2)
+  old: float64, 1 reader (pre-936)     300.4 / 288.8      98.0 / 69.9
+  new defaults: float32, 4 readers      96.5 /  85.1      77.7 / 54.9
+  new + 2 edge workers                  96.4 /  90.1      55.5+45.3 / 43.5+36.5 (parent+children)
+All six runs: 624/624 edges accepted, canvas 26,855 x 26,865, ops_geometry
+byte-identical to round 1's old arm (DataFrame.equals), and within
+1.56e-10 px of production ops_geometry (plate A, all 333 sites).
+The stitch step is ~3.2x faster in wall time with the new defaults (most of
+it the reader threads; the reads dominate), and its CPU time did not rise
+(float32 saves more than the readers cost under this load). Two edge workers
+gave no further wall gain on this well: reading, not registration, is the
+slow part, and workers start 10 s apart; the setting stays at 1.
+(3 workers were not run, because of the session's 3-process limit.)
+
+TESTS
+tests/test_stitch_core_936_940.py: shared objects and the grep ratchet;
+float32 = float64 integer shifts, acceptances and placements; float64 =
+the old surface bit for bit; parallel edges = serial edges and placements;
+read-ahead = one reader; engine ops_geometry with 4 reader threads equal
+byte for byte to 1; legacy align solve = the old arithmetic; core solve
+deterministic; core engine with OPS settings = stitch_well (edges,
+acceptances, placements <= 1e-9 px); write_windows = compose_window;
+sub-pixel = skimage's phase refinement within 0.1 px; non-adjacent pairs
+refused under 'both'; OPS_TO_ALIGN_KEYS complete.
