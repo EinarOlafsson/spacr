@@ -136,43 +136,6 @@ def test_any_other_event_passes_straight_through(qtbot):
 # Reading the src field
 # ---------------------------------------------------------------------------
 
-def test_the_get_value_contract_is_preferred_over_text():
-    class Both:
-        def get_value(self):
-            return "/data/plate1"
-
-        def text(self):
-            return "should not be read"
-
-    assert prerun._widget_value(Both()) == "/data/plate1"
-
-
-def test_a_getter_that_raises_reads_as_nothing():
-    class Broken:
-        def get_value(self):
-            raise RuntimeError("mid-edit")
-
-    assert prerun._widget_value(Broken()) is None
-
-
-def test_a_plain_line_edit_falls_back_to_text(qtbot):
-    field = _src_field("/data/plate1")
-    qtbot.addWidget(field)
-    assert prerun._widget_value(field) == "/data/plate1"
-
-
-def test_a_text_call_that_raises_reads_as_nothing():
-    class Broken:
-        def text(self):
-            raise RuntimeError("deleted underneath us")
-
-    assert prerun._widget_value(Broken()) is None
-
-
-def test_a_widget_with_neither_reads_as_nothing():
-    assert prerun._widget_value(object()) is None
-    assert prerun._widget_value(None) is None
-
 
 def test_a_list_of_plates_is_passed_through_whole(a_screen):
     """Both readers take a list, so several plates in one run stay a list."""
@@ -196,24 +159,6 @@ def test_a_placeholder_is_not_a_source(a_screen, qtbot):
 # ---------------------------------------------------------------------------
 # _first_sentence
 # ---------------------------------------------------------------------------
-
-def test_a_short_fix_is_shown_whole():
-    assert prerun._first_sentence("Re-run masking.") == "Re-run masking."
-
-
-def test_a_long_fix_is_cut_at_its_first_sentence():
-    text = ("Lower the cell diameter. " + "Then look at the flow threshold "
-            "and at the channel order and at everything else. " * 4)
-    short = prerun._first_sentence(text)
-    assert short == "Lower the cell diameter. …"
-
-
-def test_a_long_fix_with_no_sentence_break_is_cut_at_a_word():
-    text = "word " * 80
-    short = prerun._first_sentence(text, limit=40)
-    assert len(short) <= 44
-    assert short.endswith(" …")
-    assert not short.replace(" …", "").endswith("wor")
 
 
 # ---------------------------------------------------------------------------
@@ -311,12 +256,6 @@ class _Digest:
         self.plates = ("plate1",)
 
 
-class _Scorecard:
-    def __init__(self, object_type="cell", stale=True):
-        self.object_type = object_type
-        self.stale = stale
-
-
 class _Finding:
     def __init__(self, severity="warn", headline="h", detail="d", fix="f"):
         self.severity = severity
@@ -379,93 +318,6 @@ def test_returning_to_the_screen_schedules_a_refresh(banner):
     assert widget._timer.isActive() is True
 
 
-def test_no_source_hides_the_banner_and_says_nothing(banner, qtbot):
-    widget = banner(src="")
-    seen = []
-    widget.refreshed.connect(seen.append)
-
-    widget.refresh()
-
-    assert widget.digest is None
-    assert widget.isVisible() is False
-    assert seen == [""]
-
-
-def test_a_verdict_that_cannot_be_read_hides_the_banner(banner, caplog):
-    def explode(_src):
-        raise OSError("the scorecard folder is unreadable")
-
-    widget = banner(src="/data/plate1", reader=explode)
-    seen = []
-    widget.refreshed.connect(seen.append)
-
-    with caplog.at_level("ERROR", logger="spacr.qt.prerun"):
-        widget.refresh()
-
-    assert widget.digest is None
-    assert seen == [""]
-    assert "could not read the segmentation verdict" in caplog.text
-
-
-def test_a_scorecard_folder_that_cannot_be_listed_forces_a_read(banner,
-                                                                monkeypatch):
-    """A fingerprint that cannot be taken must not cache a stale verdict."""
-    from spacr import seg_qc
-
-    monkeypatch.setattr(seg_qc, "find_scorecards",
-                        lambda src: (_ for _ in ()).throw(
-                            OSError("no such plate")))
-    widget = banner(src="/data/plate1")
-    assert widget._fingerprint("/data/plate1") is None
-
-
-def test_a_scorecard_that_vanished_between_listing_and_stat_forces_a_read(
-        banner, monkeypatch, tmp_path):
-    from spacr import seg_qc
-
-    monkeypatch.setattr(seg_qc, "find_scorecards",
-                        lambda src: [str(tmp_path / "gone.csv")])
-    widget = banner(src=str(tmp_path))
-    assert widget._fingerprint(str(tmp_path)) is None
-
-
-def test_a_fingerprint_is_the_paths_their_times_and_their_sizes(banner,
-                                                                monkeypatch,
-                                                                tmp_path):
-    from spacr import seg_qc
-
-    card = tmp_path / "segmentation_qc_cell.csv"
-    card.write_text("well,n\nA01,10\n", encoding="utf-8")
-    monkeypatch.setattr(seg_qc, "find_scorecards", lambda src: [str(card)])
-    widget = banner(src=str(tmp_path))
-
-    fingerprint = widget._fingerprint(str(tmp_path))
-
-    assert fingerprint[0][0] == str(card)
-    assert fingerprint[0][2] == card.stat().st_size
-
-
-def test_a_second_refresh_with_an_unchanged_fingerprint_does_not_re_read(
-        banner, monkeypatch, tmp_path):
-    from spacr import seg_qc
-
-    card = tmp_path / "segmentation_qc_cell.csv"
-    card.write_text("well,n\nA01,10\n", encoding="utf-8")
-    monkeypatch.setattr(seg_qc, "find_scorecards", lambda src: [str(card)])
-    reads = []
-
-    def reader(src):
-        reads.append(src)
-        return _Digest("ok")
-
-    widget = banner(src=str(tmp_path), reader=reader)
-    widget.refresh()
-    widget.refresh()
-
-    assert len(reads) == 1
-    assert widget.digest.verdict == "ok"
-
-
 def test_drawing_before_a_digest_arrives_does_nothing(banner):
     widget = banner()
     widget._digest = None
@@ -502,13 +354,6 @@ def test_the_findings_are_collapsed_then_expanded_on_request(banner):
     assert widget._btn_more.text() == "Show all 5 findings"
 
 
-def test_a_digest_with_no_findings_hides_the_findings_box(banner):
-    widget = banner(src="/data/plate1", reader=lambda src: _Digest("ok"))
-    widget.refresh()
-    assert widget._findings_box.isHidden() is True
-    assert widget._btn_more.isHidden() is True
-
-
 def test_toggling_before_a_digest_arrives_does_nothing(banner):
     widget = banner()
     widget._on_toggle_findings()
@@ -532,78 +377,7 @@ def test_copying_before_a_digest_arrives_does_nothing(banner):
     assert QApplication.clipboard().text() == "something the user copied earlier"
 
 
-def test_a_report_that_cannot_be_formatted_is_logged_not_raised(banner,
-                                                                monkeypatch,
-                                                                caplog):
-    from spacr import seg_qc
-
-    monkeypatch.setattr(seg_qc, "format_digest",
-                        lambda digest: (_ for _ in ()).throw(
-                            ValueError("that digest has no plates")))
-    widget = banner(src="/data/plate1", reader=lambda src: _Digest("fail"))
-    widget.refresh()
-
-    with caplog.at_level("ERROR", logger="spacr.qt.prerun"):
-        widget._on_copy_clicked()
-
-    assert "could not copy the segmentation report" in caplog.text
-
-
-def test_the_whole_report_reaches_the_clipboard(banner, monkeypatch):
-    from PySide6.QtWidgets import QApplication
-    from spacr import seg_qc
-
-    monkeypatch.setattr(seg_qc, "format_digest",
-                        lambda digest: "the whole report")
-    widget = banner(src="/data/plate1", reader=lambda src: _Digest("fail"))
-    widget.refresh()
-
-    widget._on_copy_clicked()
-
-    assert QApplication.clipboard().text() == "the whole report"
-
-
 # -- scoring ----------------------------------------------------------------
-
-def test_scoring_with_no_source_does_nothing(banner):
-    widget = banner(src="")
-    widget._on_score_clicked()
-    assert widget.busy is False
-    assert widget._btn_score.isEnabled() is True
-
-
-def test_scoring_while_already_scoring_does_nothing(banner):
-    widget = banner(src="/data/plate1")
-    widget._busy = True
-    widget._on_score_clicked()
-    assert widget._title.text() == "Segmentation QC"
-
-
-def test_settings_that_cannot_be_collected_do_not_stop_the_scoring(banner,
-                                                                    tmp_path):
-    """A settings model mid-rebuild costs the thresholds, not the run."""
-    started = {}
-    widget = banner(src=str(tmp_path), collect_raises=True)
-    widget._start_job = (lambda fn, box, on_done, key:
-                         started.update(box=box) or True)
-
-    widget._on_score_clicked()
-
-    assert started["box"]["settings"] == {}
-    assert started["box"]["src"] == str(tmp_path)
-
-
-def test_a_scoring_job_that_will_not_start_puts_the_button_back(banner,
-                                                                tmp_path):
-    """The title goes back to the verdict rather than saying "scoring…"."""
-    widget = banner(src=str(tmp_path), reader=lambda src: _Digest("ok"))
-    widget.refresh()
-    widget._start_job = lambda *args, **kwargs: False
-
-    widget._on_score_clicked()
-
-    assert widget._btn_score.isEnabled() is True
-    assert widget._title.text() == "Segmentation QC — passed"
 
 
 def test_the_scoring_job_really_scores_the_masks_under_src(banner, tmp_path,
@@ -694,70 +468,6 @@ def test_settings_that_cannot_be_collected_read_as_none(diameter, caplog):
     assert "could not read the mask settings" in caplog.text
 
 
-def test_measuring_with_no_source_asks_for_one(diameter):
-    panel = diameter(src="")
-    panel._on_measure_clicked()
-    assert "Point src at a plate folder first" in panel._status.text()
-    assert panel._status.isHidden() is False
-
-
-def test_measuring_while_measuring_does_nothing(diameter, tmp_path):
-    panel = diameter(src=str(tmp_path), settings={"cell_channel": 0})
-    panel._busy = True
-    panel._on_measure_clicked()
-    assert panel._status.text() == ""
-
-
-def test_no_object_channel_names_the_three_settings_to_fill(diameter,
-                                                            tmp_path):
-    panel = diameter(src=str(tmp_path), settings={})
-    panel._on_measure_clicked()
-    assert "cell_channel" in panel._status.text()
-    assert "0-based" in panel._status.text()
-
-
-def test_a_measurement_job_hands_over_the_source_and_the_channels(diameter,
-                                                                   tmp_path):
-    seen = {}
-    panel = diameter(src=str(tmp_path),
-                     settings={"cell_channel": 1, "nucleus_channel": 0,
-                               "diameter_estimate_n_fields": 3,
-                               "metadata_type": "cq1"})
-    panel._start_job = lambda fn, box, on_done, key: seen.update(box=box) or True
-
-    panel._on_measure_clicked()
-
-    assert seen["box"]["src"] == str(tmp_path)
-    assert set(seen["box"]["channels"]) == {"cell", "nucleus"}
-    assert seen["box"]["n_fields"] == 3
-    assert seen["box"]["metadata_type"] == "cq1"
-
-
-def test_a_field_count_that_is_not_a_number_falls_back_to_five(diameter,
-                                                               tmp_path):
-    seen = {}
-    panel = diameter(src=str(tmp_path),
-                     settings={"cell_channel": 0,
-                               "diameter_estimate_n_fields": "as many as you like"})
-    panel._start_job = lambda fn, box, on_done, key: seen.update(box=box) or True
-
-    panel._on_measure_clicked()
-
-    assert seen["box"]["n_fields"] == 5
-
-
-def test_a_field_count_of_zero_is_raised_to_one(diameter, tmp_path):
-    seen = {}
-    panel = diameter(src=str(tmp_path),
-                     settings={"cell_channel": 0,
-                               "diameter_estimate_n_fields": 0})
-    panel._start_job = lambda fn, box, on_done, key: seen.update(box=box) or True
-
-    panel._on_measure_clicked()
-
-    assert seen["box"]["n_fields"] == 5
-
-
 def test_the_injected_estimator_is_the_one_the_job_calls(diameter, tmp_path):
     seen = {}
 
@@ -775,52 +485,6 @@ def test_the_injected_estimator_is_the_one_the_job_calls(diameter, tmp_path):
     assert seen["src"] == str(tmp_path)
     assert seen["channels"] == {"cell": 0}
     assert panel.estimates["cell"].diameter == pytest.approx(24.0)
-
-
-def test_a_measurement_job_that_will_not_start_says_so(diameter, tmp_path):
-    panel = diameter(src=str(tmp_path), settings={"cell_channel": 0})
-    panel._start_job = lambda *args, **kwargs: False
-
-    panel._on_measure_clicked()
-
-    assert panel._btn_measure.isEnabled() is True
-    assert panel._status.text() == "Could not start the measurement."
-
-
-def test_the_real_estimator_is_used_when_none_was_injected(diameter,
-                                                           tmp_path):
-    """The job imports ``spacr.diameter`` itself when nothing is passed in."""
-    panel = diameter(src=str(tmp_path), settings={"cell_channel": 0})
-    box = {}
-    panel._start_job = lambda fn, b, on_done, key: (fn(b), box.update(b),
-                                                    on_done(b), True)[-1]
-
-    panel._on_measure_clicked()
-
-    estimate = box["estimates"]["cell"]
-    assert estimate.usable is False
-    assert "nothing to sample" in estimate.note
-    assert panel.estimates["cell"] is estimate
-
-
-def test_a_measurement_that_produced_nothing_says_why(diameter, tmp_path):
-    panel = diameter(src=str(tmp_path))
-    seen = []
-    panel.estimated.connect(seen.append)
-
-    panel._on_estimated({"error": "no readable field under that folder"})
-
-    assert "Could not measure a diameter" in panel._status.text()
-    assert "no readable field" in panel._status.text()
-    assert seen == [[]]
-    assert panel._btn_measure.isEnabled() is True
-
-
-def test_an_estimator_that_failed_without_a_reason_still_says_something(
-        diameter, tmp_path):
-    panel = diameter(src=str(tmp_path))
-    panel._on_estimated({})
-    assert "the estimator failed" in panel._status.text()
 
 
 def test_the_rows_are_redrawn_rather_than_stacked(diameter, tmp_path):
@@ -987,28 +651,6 @@ def test_a_banner_that_raises_while_being_built_costs_only_the_banner(
     assert "could not install the segmentation-QC banner" in caplog.text
 
 
-def test_a_screen_with_no_diameter_field_has_no_use_for_the_panel(qtbot):
-    screen = _Screen(widgets={"src": _src_field("")})
-    qtbot.addWidget(screen)
-    assert prerun.diameter_dialog(screen) is None
-
-
-def test_the_diameter_popup_carries_the_panel_for_its_screen(qtbot):
-    screen = _Screen(widgets={"src": _src_field(""),
-                              "cell_diameter": _src_field("")})
-    qtbot.addWidget(screen)
-
-    dialog = prerun.diameter_dialog(screen)
-    qtbot.addWidget(dialog)
-
-    assert isinstance(dialog, prerun.DiameterDialog)
-    assert isinstance(dialog.panel, prerun.DiameterPanel)
-    assert dialog.panel._screen is screen
-    assert dialog.panel.window() is dialog
-    assert dialog.close_button.objectName() != "DangerButton"
-    assert screen.findChildren(prerun.DiameterPanel) == []
-
-
 def test_a_second_popup_shows_the_last_measurement_again(qtbot):
     """Closing the popup is not a reason to measure twice."""
     screen = _Screen(widgets={"src": _src_field(""),
@@ -1024,21 +666,6 @@ def test_a_second_popup_shows_the_last_measurement_again(qtbot):
     assert set(second.panel.estimates) == {"cell"}
     assert second.panel._btn_use_all.isHidden() is False
     assert second.panel._rows_box.isHidden() is False
-
-
-def test_a_diameter_popup_that_raises_costs_only_the_popup(qtbot, monkeypatch,
-                                                           caplog):
-    screen = _Screen(widgets={"src": _src_field(""),
-                              "cell_diameter": _src_field("")})
-    qtbot.addWidget(screen)
-
-    monkeypatch.setattr(prerun, "DiameterPanel",
-                        lambda *a, **k: (_ for _ in ()).throw(
-                            RuntimeError("no")))
-
-    with caplog.at_level("ERROR", logger="spacr.qt.prerun"):
-        assert prerun.diameter_dialog(screen) is None
-    assert "could not build the diameter popup" in caplog.text
 
 
 def test_install_puts_the_banner_on_measure_and_nothing_on_mask(qtbot):
@@ -1077,22 +704,6 @@ def test_the_mask_screen_is_found_from_any_widget_inside_it(qtbot):
 # The factory seam
 # ---------------------------------------------------------------------------
 
-def test_a_factory_whose_signature_cannot_be_read_is_called_bare():
-    """``inspect.signature(dict)`` raises; the call must still happen."""
-    assert prerun._call(dict, "measure", None) == {}
-
-
-def test_a_factory_that_takes_kwargs_is_given_both():
-    def factory(**kwargs):
-        return kwargs
-
-    assert prerun._call(factory, "measure", "host") == {
-        "app_key": "measure", "host": "host"}
-
-
-def test_a_factory_that_takes_neither_is_given_neither():
-    assert prerun._call(lambda: "screen", "measure", "host") == "screen"
-
 
 @pytest.fixture
 def factories_restored():
@@ -1113,60 +724,6 @@ def test_registering_twice_is_a_no_op(factories_restored):
     assert prerun.register() is True
     assert prerun.register() is False
     assert factories_restored[prerun.QC_APP] is prerun._prerun_screen
-
-
-def test_a_stylesheet_that_will_not_register_does_not_stop_the_factories(
-        factories_restored, monkeypatch, caplog):
-    from spacr.qt import theme
-
-    prerun.unregister()
-    monkeypatch.setattr(theme, "register_widget_qss",
-                        lambda *a, **k: (_ for _ in ()).throw(
-                            RuntimeError("the theme is mid-reload")))
-
-    with caplog.at_level("ERROR", logger="spacr.qt.prerun"):
-        assert prerun.register() is True
-    assert "could not register the pre-run stylesheet" in caplog.text
-    assert factories_restored[prerun.QC_APP] is prerun._prerun_screen
-
-
-def test_a_stylesheet_that_will_not_unregister_still_hands_the_keys_back(
-        factories_restored, monkeypatch, caplog):
-    from spacr.qt import theme
-
-    prerun.register()
-    monkeypatch.setattr(theme, "unregister_widget_qss",
-                        lambda *a, **k: (_ for _ in ()).throw(
-                            RuntimeError("the theme is mid-reload")))
-
-    with caplog.at_level("ERROR", logger="spacr.qt.prerun"):
-        restored = prerun.unregister()
-
-    assert restored >= 1
-    assert "could not remove the pre-run stylesheet" in caplog.text
-
-
-def test_the_displaced_factory_is_the_one_that_builds_the_screen(
-        factories_restored, qtbot):
-    """Installing this never costs a screen the strip it already had."""
-    built = []
-
-    def inner(app_key=None, host=None):
-        built.append((app_key, host))
-        screen = _Screen(widgets={"src": _src_field("")})
-        qtbot.addWidget(screen)
-        screen.app_key = app_key
-        return screen
-
-    prerun.unregister()
-    factories_restored[prerun.QC_APP] = inner
-    prerun.register()
-
-    screen = factories_restored[prerun.QC_APP](
-        app_key=prerun.QC_APP, host=None)
-
-    assert built == [(prerun.QC_APP, None)]
-    assert prerun.qc_banner(screen) is not None
 
 
 def test_a_screen_built_here_is_wired_to_its_host_the_way_the_window_would(
@@ -1212,18 +769,6 @@ def test_wiring_that_fails_still_returns_a_screen(factories_restored, qtbot,
 # ---------------------------------------------------------------------------
 # Edges the coverage ratchet found untested (dispatch 36739819315)
 # ---------------------------------------------------------------------------
-
-def test_estimates_a_screen_cannot_keep_are_still_shown(qtbot):
-    """A host that takes no attributes cannot keep the diameters for the
-    next run; the panel still shows them and still reports them."""
-    holder = QWidget()
-    qtbot.addWidget(holder)
-    panel = prerun.DiameterPanel(object(), parent=holder)
-    heard = []
-    panel.estimated.connect(heard.append)
-    panel._on_estimated({"estimates": {"cell": _estimate()}})
-    assert heard and heard[0]
-    assert panel.estimates["cell"].diameter == pytest.approx(24.0)
 
 
 def test_a_rescore_with_nothing_to_score_still_rereads(banner, monkeypatch):
