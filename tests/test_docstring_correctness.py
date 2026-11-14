@@ -3428,6 +3428,27 @@ def _validated_nuclear_flatfield_933_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_run_progress_938_callables(callables):
+    """Check the public callables of item 938 (run progress with percent done and time left) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "938_run_progress_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(entries) == 20
+    assert all(symbol == "spacr.qt.run_progress"
+               or symbol.startswith("spacr.qt.run_progress.")
+               or symbol == "spacr.qt.bridge.RunHandle.seconds_left"
+               for symbol in entries)
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert len(found) == 16
+    for symbol, item in found.items():
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_bmc_paper_remaining_callables(callables):
     """Check the public callables that finish BMC paper items 890, 891, 916 and 917 against their source."""
     import json
@@ -3594,6 +3615,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_consensus_bench_928_929_callables(callables)
     callables = _validated_tile_affine_930_callables(callables)
     callables = _validated_nuclear_flatfield_933_callables(callables)
+    callables = _validated_run_progress_938_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -6324,6 +6346,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("928_929_ops_consensus_bench_api_arrivals_2026-11-12.json", 22),
         ("930_ops_tile_affine_api_arrivals_2026-11-13.json", 4),
         ("933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json", 6),
+        ("938_run_progress_api_arrivals_2026-11-13.json", 20),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6917,7 +6940,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "910_899_paper_remaining_api_arrivals_2026-11-12.json",
                      "928_929_ops_consensus_bench_api_arrivals_2026-11-12.json",
                      "930_ops_tile_affine_api_arrivals_2026-11-13.json",
-                     "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json"):
+                     "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json",
+                     "938_run_progress_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7053,7 +7077,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "910_899_paper_remaining_api_arrivals_2026-11-12.json",
                      "928_929_ops_consensus_bench_api_arrivals_2026-11-12.json",
                      "930_ops_tile_affine_api_arrivals_2026-11-13.json",
-                     "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json"):
+                     "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json",
+                     "938_run_progress_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
