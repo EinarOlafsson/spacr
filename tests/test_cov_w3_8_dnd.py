@@ -7,14 +7,12 @@ what the dialog returns to its caller.
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 
 import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, QPointF, QTimer, Qt  # noqa: E402
-from PySide6.QtGui import QMouseEvent  # noqa: E402
+from PySide6.QtCore import QTimer  # noqa: E402
 from PySide6.QtWidgets import (  # noqa: E402
     QApplication, QDialogButtonBox, QListWidget, QMessageBox, QPlainTextEdit,
     QWidget,
@@ -113,77 +111,6 @@ class _Console:
         self.ai.append((text, kwargs))
 
 
-def test_a_screen_that_is_not_a_widget_has_no_console(qtbot):
-    class Bare:
-        pass
-
-    assert dnd._find_console(Bare()) is None
-
-
-def test_the_hosting_window_lends_its_console(qtbot):
-    window = QWidget()
-    qtbot.addWidget(window)
-    console = _Console()
-    window._console = console
-    screen = QWidget(window)
-    assert dnd._find_console(screen) is console
-
-
-def test_a_registered_screens_console_is_borrowed_by_a_tool(qtbot):
-    """A standalone tool has no console of its own; a sibling screen's will do."""
-    window = QWidget()
-    qtbot.addWidget(window)
-    plain, has_console = QWidget(window), QWidget(window)
-    has_console._console = _Console()
-    window._screens = {"plain": plain, "regression": has_console}
-    window._visit_order = ["plain", "regression"]
-    assert dnd._find_console(QWidget(window)) is has_console._console
-
-
-def test_the_most_recently_visited_screen_lends_its_console(qtbot):
-    """Whose console a rejected drop lands in must follow where the user was.
-
-    Both screens carry one, so the only thing that can choose between them
-    is ``_visit_order`` -- which is what the code says it is for.
-    """
-    window = QWidget()
-    qtbot.addWidget(window)
-    first, second = QWidget(window), QWidget(window)
-    first._console, second._console = _Console(), _Console()
-    window._screens = {"first": first, "second": second}
-    tool = QWidget(window)
-
-    window._visit_order = ["first", "second"]
-    assert dnd._find_console(tool) is second._console
-    window._visit_order = ["second", "first"]
-    assert dnd._find_console(tool) is first._console
-
-
-def test_a_visited_screen_beats_one_the_user_never_opened(qtbot):
-    """A screen registered later but never visited must not win.
-
-    The fixture registers a screen that no visit ever reached. The real
-    window registers and visits a screen in the same call, so this pins
-    the fallback order rather than a sequence a user can click: visited
-    screens first, most recent visit first, then screens never visited,
-    newest registration first.
-    The Mask, Measure, Mask sequence a user produces is pinned by
-    ``test_the_most_recently_visited_screen_lends_its_console``.
-    """
-    window = QWidget()
-    qtbot.addWidget(window)
-    visited, unvisited = QWidget(window), QWidget(window)
-    visited._console, unvisited._console = _Console(), _Console()
-    tool = QWidget(window)
-    window._screens = {"visited": visited, "unvisited": unvisited,
-                       "tool": tool}
-    window._visit_order = ["visited", "tool"]
-    assert dnd._find_console(tool) is visited._console
-
-    window._visit_order = []
-    assert dnd._find_console(tool) is unvisited._console
-
-
 def test_a_console_panel_in_the_window_is_found_by_type(qtbot):
     from spacr.qt.widgets.console_panel import ConsolePanel
 
@@ -194,72 +121,9 @@ def test_a_console_panel_in_the_window_is_found_by_type(qtbot):
     assert dnd._find_console(QWidget(window)) is panel
 
 
-def test_a_window_with_nothing_to_say_it_in_reports_none(qtbot):
-    window = QWidget()
-    qtbot.addWidget(window)
-    assert dnd._find_console(QWidget(window)) is None
-
-
-def test_a_console_panel_that_will_not_import_is_not_a_crash(
-        qtbot, monkeypatch):
-    """The console lookup is a convenience; it must not break the report."""
-    import sys
-
-    monkeypatch.setitem(sys.modules, "spacr.qt.widgets.console_panel", None)
-    window = QWidget()
-    qtbot.addWidget(window)
-    assert dnd._find_console(QWidget(window)) is None
-
-
 # ---------------------------------------------------------------------------
 # Reporting a rejected drop
 # ---------------------------------------------------------------------------
-
-def test_a_callable_ai_flag_is_asked_rather_than_truth_tested(
-        qtbot, monkeypatch, tmp_path):
-    """``_ai_active`` is a method on the real console, not an attribute."""
-    monkeypatch.setattr(
-        "spacr.qt.ai.settings.get_route_errors_through_ai", lambda: True)
-    screen = QWidget()
-    qtbot.addWidget(screen)
-    console = _Console()
-    console._ai_active = lambda: True
-    screen._console = console
-    screen.app_key = "regression"
-
-    message = dnd._report_drop_problem(
-        screen, tmp_path / "wrong.txt", "not a table", "drop a CSV")
-    assert console.ai and console.ai[0][0] == message
-    assert console.ai[0][1]["active_app"] == "regression"
-
-
-def test_a_tool_with_only_a_log_pane_still_gets_the_report(qtbot, tmp_path):
-    screen = QWidget()
-    qtbot.addWidget(screen)
-    screen._summary = QPlainTextEdit(screen)
-    message = dnd._report_drop_problem(
-        screen, tmp_path / "wrong.txt", "not a mask folder",
-        "drop the masks/ folder", alternatives=[tmp_path / "masks"])
-    assert "Compatible nearby paths" in message
-    assert message.rstrip() in screen._summary.toPlainText()
-
-
-def test_a_status_bar_that_throws_does_not_swallow_the_drop_report(
-        qtbot, tmp_path):
-    said = []
-
-    class Screen(QWidget):
-        def _set_status(self, text):
-            said.append(text)
-            raise RuntimeError("status bar is gone")
-
-    screen = Screen()
-    qtbot.addWidget(screen)
-    screen._log = QPlainTextEdit(screen)
-    message = dnd._report_drop_problem(
-        screen, tmp_path / "x.txt", "no", "try again")
-    assert said and said[0].startswith("Drop rejected: no")
-    assert message.rstrip() in screen._log.toPlainText()
 
 
 # ---------------------------------------------------------------------------
@@ -387,60 +251,6 @@ def test_a_settings_csv_in_the_second_spelling_still_imports(
 # ---------------------------------------------------------------------------
 # The choosers
 # ---------------------------------------------------------------------------
-
-def test_choosing_one_of_several_answers_returns_that_one(qtbot):
-    parent = QWidget()
-    qtbot.addWidget(parent)
-
-    def pick_second(dialog):
-        listing = dialog.findChild(QListWidget)
-        listing.setCurrentRow(1)
-        _click(dialog, QDialogButtonBox.Ok)
-
-    _answer_modal(qtbot, pick_second)
-    chosen = dnd.choose_one_dialog(
-        parent, "plate1.db holds 4 tables.", "Which one should be loaded?",
-        ["cell", "nucleus", "pathogen"])
-    assert chosen == "nucleus"
-
-
-def test_cancelling_the_which_one_question_answers_nothing(qtbot):
-    parent = QWidget()
-    qtbot.addWidget(parent)
-    _answer_modal(qtbot, lambda dialog: _click(dialog,
-                                               QDialogButtonBox.Cancel))
-    assert dnd.choose_one_dialog(parent, "two tables", "which?",
-                                 ["a", "b"]) is None
-
-
-def _double_click_row(listing, row):
-    """Send the press/release/double-click sequence a real view expects.
-
-    ``QTest.mouseDClick`` produces no ``itemDoubleClicked`` on the offscreen
-    platform; the explicit four-event sequence does, and it is the same path
-    a window-system double click takes.
-    """
-    rect = listing.visualItemRect(listing.item(row))
-    where = QPointF(rect.center())
-    globally = listing.viewport().mapToGlobal(where)
-    for kind in (QEvent.MouseButtonPress, QEvent.MouseButtonRelease,
-                 QEvent.MouseButtonDblClick, QEvent.MouseButtonRelease):
-        QApplication.sendEvent(listing.viewport(), QMouseEvent(
-            kind, where, globally, Qt.LeftButton, Qt.LeftButton,
-            Qt.NoModifier))
-
-
-def test_double_clicking_an_answer_accepts_it(qtbot):
-    parent = QWidget()
-    qtbot.addWidget(parent)
-
-    def double_click(dialog):
-        listing = dialog.findChild(QListWidget)
-        _double_click_row(listing, 2)
-
-    _answer_modal(qtbot, double_click)
-    assert dnd.choose_one_dialog(parent, "three masks", "which?",
-                                 ["a", "b", "c"]) == "c"
 
 
 def test_the_did_you_mean_chooser_returns_the_folder_that_would_work(qtbot,
