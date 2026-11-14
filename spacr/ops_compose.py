@@ -166,6 +166,8 @@ def compose_window(window: Window,
         raise ComposeError(
             f"blend must be one of {list(_BLENDS)}; got {blend!r}")
     feather = blend == "feather"
+    if feather:
+        from .stitch_core import feather_weights
 
     total = np.zeros((window.height, window.width),
                      dtype=np.float64 if feather else dtype)
@@ -197,11 +199,8 @@ def compose_window(window: Window,
         rows = slice(wy0 - window.top, wy1 - window.top)
         cols = slice(wx0 - window.left, wx1 - window.left)
         if feather:
-            ys = np.arange(ty0, ty1)
-            xs = np.arange(tx0, tx1)
-            weight = np.minimum.outer(np.minimum(ys, shape[0] - 1 - ys),
-                                      np.minimum(xs, shape[1] - 1 - xs)
-                                      ).astype(np.float64) + 1.0
+            weight = feather_weights(shape, (ty0, ty1), (tx0, tx1),
+                                     mode="distance")
             total[rows, cols] += patch.astype(np.float64) * weight
             weights[rows, cols] += weight
         else:

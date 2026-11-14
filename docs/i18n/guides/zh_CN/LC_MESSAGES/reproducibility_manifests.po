@@ -111,6 +111,10 @@ msgstr "932: ``ops_registration_precision`` 原为 ``'float64'``，``ops_registr
 msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
 msgstr "933（条目 930 的默认值切换）：``ops_align_model`` 原为 ``'similarity'``；现在为 ``'tile_affine'``。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "934 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
+msgstr "934（条目 940 的默认值切换）：``ops_placement_seed_export`` 原为 ``False``；现在为 ``True``。"
+
 msgid "Public API"
 msgstr "公共 API"
 

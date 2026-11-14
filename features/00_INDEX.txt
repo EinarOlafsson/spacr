@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-744 Lifecycle: new, 169 Lifecycle: future in features/feature_list/.
+745 Lifecycle: new, 170 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -552,6 +552,9 @@ FUTURE FEATURES
 
   929  OPS CALIBRATED CLUSTER TEST: PAIRED GUIDE-BOOTSTRAP REPLICATES, EXACT SIGN-FLIP P, TWO-LEVEL CI, JITTER GATE
        929_ops_calibrated_cluster_test.txt
+
+  940  OPS PLACEMENT SEEDED FROM A SAVED FILE (A SUBSET RUN COMPOSES WITH THE WHOLE-WELL POSITIONS OF AN EARLIER RUN)
+       940_ops_placement_seed_file.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -2043,5 +2046,7 @@ NEW FEATURES
        931_ops_compose_feather_blend.txt
   932  OPS SBS GENOTYPING DECODE SPEED-UP: FLOAT32 OR GPU REGISTRATION, NO STACK COPIES, DIAGNOSTICS OFF, HASH MATCHER
        932_ops_sbs_genotyping_speed.txt
+  936  ALIGN & STITCH ON THE OPS STITCH CORE, AND THE S1 STITCH SPEED-UPS
+       936_align_stitch_shared_core.txt
   938  MODULE PROGRESS BARS SHOW PERCENT DONE AND TIME LEFT, ON THE MODULE AND ON HOME
        938_module_progress_bars_show_percent_and_time_left.txt

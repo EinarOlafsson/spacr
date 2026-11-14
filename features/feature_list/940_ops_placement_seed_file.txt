@@ -1,0 +1,81 @@
+OPS PLACEMENT SEEDED FROM A SAVED FILE (A SUBSET RUN COMPOSES WITH THE WHOLE-WELL POSITIONS OF AN EARLIER RUN)
+=============================================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-13, alpha (ALPHA_FEATURES[940]). Under development per proposals/READINESS.md: seeded runs are test data and live-mode output only, never paper results. spacr/stitch_core.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, spacr/settings_spec.py, tests/test_stitch_core_936_940.py, tests/data/ops_placement_v1.json.
+Requested: maintainer (decided 2026-11-13; the test-data card's open question 2).
+Owner: paper session (stage 1 lane).
+Source: proposals/bmc_paper_items/ITEM_ops_placement_seed_file.md (its "Maintainer decisions" are applied).
+Related: 936 (the code lives in spacr.stitch_core), 935 (live mode), 930, 931, 932, 921.
+
+FILE
+<plate>_<well>.ops_placement.json, schema 'spacr.ops_placement', schema_version
+1: plate, well, acquisition ('sbs' | 'phenotype' | 'align'), cycle,
+tile_shape, dtype, n_tiles_in_well (highest site + 1), tiles [{site, y, x,
+file, bytes}] in the whole-well frame exactly as ops_geometry stores them,
+origin (origin_y, origin_x), canvas (the objects phase's compose canvas),
+raster_overlap, optional tile_groups, provenance (spacr_version, git_hash,
+settings_hash, tile_ids_sha256, source_files_sha256 over (site, file name,
+byte size), created). Written atomically, keys sorted, floats round-trip
+exactly. A newer schema_version is refused ("update spaCR"); older ones go
+through _upgrade_seed. Reading straight from a finished measurements.db
+(ops_seed_from_db) stays supported: ops_placement_seed may name the json,
+a folder holding it, or the .db.
+
+SETTINGS (alpha)
+ops_placement_seed (None), ops_placement_seed_mode ('subset'; 'strict'),
+ops_placement_seed_export (True: every solved stitch writes
+<dst>/<well>/<plate>_<well>.ops_placement.json), ops_placement_seed_check_pixels
+(False), ops_placement_seed_tolerance (2.0 px).
+Default change: export on. DEFAULT_CHANGES[934] = {'ops_placement_seed_export':
+False}, SETTINGS_SCHEMA_VERSION 934 (placeholder number; the master renumbers
+at landing), so files stamped before keep export off.
+
+BEHAVIOUR
+With a seed the stitch phase registers nothing and solves nothing: it
+validates the file (plate/well with zero padding ignored, tile IDs per
+mode, layout count, tile shape and dtype, acquisition and cycle, changed
+source files = warning under 'subset' and error under 'strict', another
+spaCR version = warning), optionally re-registers up to six seams and
+raises naming the pair beyond the tolerance, then writes the run's sites to
+ops_geometry in the file's global frame (its origin, no re-zeroing, no
+largest-component rule). The report says placement: seeded, edges None,
+and placement_seed {path, sha256, schema_version, mode, tiles_used,
+tiles_in_file, provenance, check, warnings}. The objects phase composes on
+the file's canvas, so windows are cut on the full run's grid, and reports
+partial_windows (windows an unlisted tile also covers; composed, flagged,
+left out of identity checks). Solved runs report placement: solved and the
+path of the file they wrote.
+
+NOT BUILT HERE
+Phenotype seeding from tile groups (spec test 3: the file format carries
+tile_groups and validation refuses tile_affine without them, but the
+phenotype/merge phases do not read a seed yet); recording the seed sha in
+the run journal and cli_repro refusing a changed seed (spec test 7; the
+well report carries the sha256); the end-to-end test-data run (test 9,
+waits for the A1 subset); the GUI fold (the settings show in the OPS panel
+through the generic form, alpha).
+
+PROOF (plate A well A1)
+The new-defaults arm of the 936 proof wrote
+<dst>/A1/20200202_6W-LaC024A_A1.ops_placement.json. A seeded run on 16
+central fields (sites 124, 144-146, 164-169, 185-188, 208, 209) with
+ops_placement_seed_check_pixels: validated, 6 seams re-registered and within
+0.07-0.23 px of the file, ops_geometry rows equal to the full run's (same y,
+x and origin, exactly), 6.5 s for the stitch phase. Of the 1,024-px windows
+(overlap 96) that touch the subset, all 13 covered only by listed tiles are
+byte-identical to the full-run composite (feathered); 42 partial windows were
+flagged and left out. A solved run on the same 16 fields cannot run at all:
+the layout is fitted from the highest site (210), and no round well holds 210
+fields -- which is the reason for the seed.
+
+TESTS
+tests/test_stitch_core_936_940.py: export writes the ops_geometry rows
+exactly; a seeded subset writes the full run's rows in the same frame;
+every window covered only by listed tiles equals the full-run composite
+byte for byte and partial windows are found; round trip and the same bytes
+twice; the version-1 fixture is read; eleven mismatch errors with their
+messages; corrupt, newer and foreign files refused; another spaCR version
+warns; the pixel check catches a tile 5 px off and passes a right file
+without moving anything; measurements.db as a seed; export off writes
+nothing; old stamped settings keep export off.

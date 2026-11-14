@@ -2528,12 +2528,13 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 933
+SETTINGS_SCHEMA_VERSION = 934
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
           'ops_registration_backend': 'cpu'},
     933: {'ops_align_model': 'similarity'},
+    934: {'ops_placement_seed_export': False},
 }
 
 
@@ -2593,6 +2594,9 @@ def _fold_older_defaults(settings, version, known=None):
     is listed under that number in docs/source/reproducibility_manifests.rst.
     933 is item 930's switch of ``ops_align_model`` to ``'tile_affine'``:
     it landed after 932, so it could not take 930.
+    934 is item 940's switch of ``ops_placement_seed_export`` to True: every
+    solved stitch writes a placement file, and files stamped before keep
+    it off.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9357,6 +9361,17 @@ ALPHA_FEATURES = {
     },
     916: {
         'settings': ('ops_cluster_rows', 'ops_cluster_graph', 'ops_cluster_knn', 'ops_cluster_sweep_resolutions', 'ops_cluster_seeds', 'ops_cluster_target_clusters', 'ops_cluster_shuffles', 'ops_cluster_reference_dir', 'ops_cluster_gene_list', 'ops_cluster_published',),
+    },
+    936: {
+        'module_settings': {'align': (
+            'align_engine', 'registration_precision', 'registration_backend',
+            'acceptance', 'min_peak_ratio', 'strip_fraction',
+            'expected_overlap_px', 'tolerance_px', 'skew_px', 'solve_gauge',
+            'compose', 'compose_window_px', 'compose_window_overlap',
+            'align_placement_seed', 'align_placement_seed_export')},
+    },
+    940: {
+        'settings': ('ops_placement_seed', 'ops_placement_seed_mode', 'ops_placement_seed_export', 'ops_placement_seed_check_pixels', 'ops_placement_seed_tolerance',),
     },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides',),

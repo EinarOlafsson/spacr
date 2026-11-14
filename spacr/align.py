@@ -111,6 +111,7 @@ import pandas as pd
 from . import schema
 from .crops import open_merged_field
 from .errors import ConfigurationError, RunLedger
+from .stitch_core import _WEIGHT_FLOOR, _ramp, feather_weights
 
 __all__ = [
     'ALIGN_TABLE',
@@ -134,6 +135,10 @@ __all__ = [
     'solve_positions',
     'plan_canvas',
     'write_stack',
+    'write_windows',
+    'ALIGN_ENGINES',
+    'COMPOSE_MODES',
+    'METHOD_SEEDED',
     'save_coordinates',
     'read_coordinates',
     'format_plan',
@@ -156,7 +161,7 @@ METHOD_UNREADABLE = 'unreadable'       #: never placed; see AlignPlan.unplaced
 ORDERS = ('row-major', 'column-major', 'snake-row', 'snake-column')
 
 #: Seam handling understood by :func:`write_stack`.
-BLEND_MODES = ('feather', 'average', 'none')
+BLEND_MODES = ('feather', 'average', 'none', 'feather_distance')
 
 #: File suffixes :func:`scan_tiles` picks up.
 IMAGE_SUFFIXES = ('.npy', '.tif', '.tiff')
@@ -189,10 +194,6 @@ DEFAULT_MAX_BUFFER_BYTES = 64 << 20
 #: entirely from its pairs, large enough to fix the gauge and to place a
 #: tile that has no pairs at all.
 DEFAULT_ANCHOR_WEIGHT = 1e-3
-
-#: Floor on the feather ramp so a pixel covered only by one tile's extreme
-#: edge still receives that tile's value instead of a zero.
-_WEIGHT_FLOOR = 1e-3
 
 #: A well token: up to TWO letters, then the column digits. Two, not one,
 #: because a 1536-well plate runs past Z into ``AA01``. With one letter
@@ -1416,41 +1417,23 @@ def solve_positions(n_tiles: int,
 
     edge_list = [(int(i), int(j), float(dy), float(dx), float(w))
                  for i, j, dy, dx, w in edges]
-    n_rows = len(edge_list) + n_tiles
-    rows: List[int] = []
-    cols: List[int] = []
-    vals: List[float] = []
-    rhs = np.zeros((n_rows, 2), dtype=np.float64)
+    solution = _core_solution(n_tiles, edge_list, nominal,
+                              anchor_weight=anchor_weight, blas_threads=None)
 
-    for r, (i, j, dy, dx, w) in enumerate(edge_list):
-        weight = max(float(w), 1e-6)
-        rows.extend((r, r))
-        cols.extend((j, i))
-        vals.extend((weight, -weight))
-        rhs[r, 0] = weight * dy
-        rhs[r, 1] = weight * dx
-    for k in range(n_tiles):
-        r = len(edge_list) + k
-        rows.append(r)
-        cols.append(k)
-        vals.append(float(anchor_weight))
-        rhs[r] = float(anchor_weight) * nominal[k]
+    residuals, degrees = _edge_residuals(n_tiles, edge_list, solution)
+    return solution, residuals, degrees
 
-    if n_tiles <= 512:
-        design = np.zeros((n_rows, n_tiles), dtype=np.float64)
-        for r, c, v in zip(rows, cols, vals):
-            design[r, c] += v
-        solution, *_ = np.linalg.lstsq(design, rhs, rcond=None)
-    else:
-        from scipy.sparse import coo_matrix
-        from scipy.sparse.linalg import lsqr
-        design = coo_matrix((vals, (rows, cols)),
-                            shape=(n_rows, n_tiles)).tocsr()
-        solution = np.column_stack([
-            lsqr(design, rhs[:, k], atol=1e-12, btol=1e-12,
-                 iter_lim=max(2000, 20 * n_tiles))[0]
-            for k in range(2)])
 
+def _edge_residuals(n_tiles: int,
+                    edge_list: Sequence[Tuple[int, int, float, float, float]],
+                    solution: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Per-tile RMS residual and accepted-edge count of a solve.
+
+    :param n_tiles: number of tiles.
+    :param edge_list: ``(i, j, dy, dx, weight)`` per accepted pair.
+    :param solution: ``(n_tiles, 2)`` solved positions.
+    :returns: ``(residuals, degrees)``.
+    """
     residual_sum = np.zeros(n_tiles, dtype=np.float64)
     degrees = np.zeros(n_tiles, dtype=int)
     for i, j, dy, dx, _w in edge_list:
@@ -1464,7 +1447,31 @@ def solve_positions(n_tiles: int,
     residuals = np.zeros(n_tiles, dtype=np.float64)
     hit = degrees > 0
     residuals[hit] = np.sqrt(residual_sum[hit] / degrees[hit])
-    return solution, residuals, degrees
+    return residuals, degrees
+
+
+def _core_solution(n_tiles: int,
+                   edge_list: Sequence[Tuple[int, int, float, float, float]],
+                   nominal: np.ndarray, *, anchor_weight: float,
+                   blas_threads: Optional[int]) -> np.ndarray:
+    """The anchored solve of :func:`spacr.stitch_core.solve_positions`, as rows.
+
+    :param n_tiles: number of tiles.
+    :param edge_list: ``(i, j, dy, dx, weight)`` per accepted pair.
+    :param nominal: ``(n_tiles, 2)`` anchors.
+    :param anchor_weight: weight of the anchor equations.
+    :param blas_threads: BLAS threads during the solve; None leaves them,
+        which keeps the legacy engine's numbers as they were.
+    :returns: ``(n_tiles, 2)`` positions.
+    """
+    from .stitch_core import solve_positions as core_solve
+
+    placed = core_solve(list(edge_list), list(range(n_tiles)), gauge='anchor',
+                        anchors={k: (nominal[k, 0], nominal[k, 1])
+                                 for k in range(n_tiles)},
+                        anchor_weight=float(anchor_weight),
+                        blas_threads=blas_threads)
+    return np.array([placed[k] for k in range(n_tiles)], dtype=np.float64)
 
 
 def _sequential_positions(n_tiles: int,
@@ -1562,6 +1569,46 @@ def estimate_offsets(tiles: Sequence[Tile],
     :returns: an :class:`AlignPlan`; nothing has been allocated or written.
     :raises ConfigurationError: no readable tiles at all.
     """
+    return _estimate_offsets(
+        tiles, reference_channel=reference_channel,
+        min_confidence=min_confidence, min_overlap_px=min_overlap_px,
+        upsample=upsample, neighbour_radius=neighbour_radius,
+        max_shift=max_shift, anchor_weight=anchor_weight, dtype=dtype,
+        max_open_tiles=max_open_tiles, ledger=ledger)
+
+
+def _estimate_offsets(tiles: Sequence[Tile],
+                     *,
+                     reference_channel: Optional[int] = None,
+                     min_confidence: float = DEFAULT_MIN_CONFIDENCE,
+                     min_overlap_px: int = DEFAULT_MIN_OVERLAP_PX,
+                     upsample: int = DEFAULT_UPSAMPLE,
+                     neighbour_radius: int = 1,
+                     max_shift: Optional[float] = None,
+                     anchor_weight: float = DEFAULT_ANCHOR_WEIGHT,
+                     dtype: Optional[Any] = None,
+                     max_open_tiles: int = 8,
+                     ledger: Optional[RunLedger] = None,
+                     core: Optional[Mapping[str, Any]] = None) -> AlignPlan:
+    """:func:`estimate_offsets` with a choice of engine (item 936).
+
+    :param tiles: as :func:`estimate_offsets`.
+    :param reference_channel: as :func:`estimate_offsets`.
+    :param min_confidence: as :func:`estimate_offsets`.
+    :param min_overlap_px: as :func:`estimate_offsets`.
+    :param upsample: as :func:`estimate_offsets`.
+    :param neighbour_radius: as :func:`estimate_offsets`; the core engine
+        registers the four edge neighbours only.
+    :param max_shift: as :func:`estimate_offsets`; legacy engine only.
+    :param anchor_weight: as :func:`estimate_offsets`.
+    :param dtype: as :func:`estimate_offsets`.
+    :param max_open_tiles: as :func:`estimate_offsets`.
+    :param ledger: as :func:`estimate_offsets`.
+    :param core: None runs the legacy engine, byte for byte as before;
+        a mapping of the core settings (:func:`_core_options`) registers
+        and solves through :mod:`spacr.stitch_core`.
+    :returns: an :class:`AlignPlan`.
+    """
     tiles = list(tiles)
     if reference_channel is None:
         chosen = {int(tile.channel) for tile in tiles if tile.readable}
@@ -1630,6 +1677,14 @@ def estimate_offsets(tiles: Sequence[Tile],
             ledger.record_success(only.path, stage='align')
         return plan
 
+    if core is not None:
+        return _plan_core(plan, usable, core,
+                          reference_channel=int(reference_channel),
+                          upsample=int(upsample),
+                          min_confidence=float(min_confidence),
+                          anchor_weight=float(anchor_weight),
+                          max_open_tiles=int(max_open_tiles), ledger=ledger)
+
     candidates: List[Tuple[Tile, Tile]] = []
     for a_pos, tile_a in enumerate(usable):
         for tile_b in usable[a_pos + 1:]:
@@ -1677,6 +1732,31 @@ def estimate_offsets(tiles: Sequence[Tile],
     positions, residuals, degrees = solve_positions(
         len(usable), edges, nominal, anchor_weight=float(anchor_weight))
 
+    return _place_from_solution(plan, usable, slot, edges, positions,
+                                residuals, degrees, ledger)
+
+
+def _place_from_solution(plan: AlignPlan, usable: Sequence[Tile],
+                         slot: Mapping[int, int],
+                         edges: Sequence[Tuple[int, int, float, float, float]],
+                         positions: np.ndarray, residuals: np.ndarray,
+                         degrees: np.ndarray,
+                         ledger: Optional[RunLedger]) -> AlignPlan:
+    """Turn a solve into the plan's placements, warnings and geometry.
+
+    Both engines of :func:`estimate_offsets` finish here, so a tile is
+    marked registered or nominal, and the plan warned, by one rule.
+
+    :param plan: the plan whose ``overlaps`` are filled in.
+    :param usable: the readable tiles, in solve order.
+    :param slot: tile index -> solve row.
+    :param edges: ``(i, j, dy, dx, weight)`` per accepted pair, in solve rows.
+    :param positions: ``(n, 2)`` solved positions.
+    :param residuals: ``(n,)`` per-tile residuals.
+    :param degrees: ``(n,)`` accepted pairs per tile.
+    :param ledger: optional run ledger.
+    :returns: the plan, finished.
+    """
     best_conf = np.zeros(len(usable), dtype=np.float64)
     refused: Dict[int, List[str]] = {}
     for pair in plan.overlaps:
@@ -1725,6 +1805,319 @@ def estimate_offsets(tiles: Sequence[Tile],
             f'coordinates only')
 
     plan.feather = _feather_width(plan, usable)
+    _finalise_geometry(plan)
+    return plan
+
+
+#: The Align & Stitch engines (item 936). ``'legacy'`` is the registration,
+#: solve and band writer before item 936, byte for byte; ``'core'``
+#: registers, solves and composes through :mod:`spacr.stitch_core`, the code
+#: the OPS stitch uses.
+ALIGN_ENGINES = ('legacy', 'core')
+
+#: The composition layouts of the core engine: one stack written in bands,
+#: or overlapping windows (:func:`spacr.stitch_core.windows_over`).
+COMPOSE_MODES = ('bands', 'windows')
+
+#: A tile placed from a placement seed file rather than a solve (item 940).
+METHOD_SEEDED = 'seeded'
+
+
+def _core_options(resolved: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """The core engine's settings, checked, or None for the legacy engine.
+
+    :param resolved: the settings of :func:`default_settings`.
+    :returns: the options :func:`_plan_core` reads, or None when
+        ``align_engine`` is ``'legacy'``.
+    :raises ConfigurationError: for an unknown engine, acceptance, gauge,
+        precision, backend or compose mode.
+    """
+    from .stitch_core import ACCEPTANCES, FFT_BACKENDS, FFT_PRECISIONS, GAUGES
+
+    engine = str(resolved.get('align_engine') or 'legacy').strip().lower()
+    if engine not in ALIGN_ENGINES:
+        raise ConfigurationError(
+            f'align_engine must be one of {ALIGN_ENGINES}, got {engine!r}')
+    if engine == 'legacy':
+        return None
+    checks = (('acceptance', ACCEPTANCES, 'both'),
+              ('solve_gauge', GAUGES, 'anchor'),
+              ('registration_precision', FFT_PRECISIONS, 'float64'),
+              ('registration_backend', FFT_BACKENDS, 'cpu'),
+              ('compose', COMPOSE_MODES, 'bands'))
+    options: Dict[str, Any] = {}
+    for key, allowed, fallback in checks:
+        value = str(resolved.get(key) or fallback).strip().lower()
+        if value not in allowed:
+            raise ConfigurationError(
+                f'{key} must be one of {tuple(allowed)}, got {value!r}')
+        options[key] = value
+    from .stitch_core import MIN_PEAK_RATIO
+
+    ratio = resolved.get('min_peak_ratio')
+    options['min_peak_ratio'] = float(MIN_PEAK_RATIO if ratio is None else ratio)
+    for key in ('expected_overlap_px', 'tolerance_px', 'skew_px'):
+        value = resolved.get(key)
+        options[key] = None if value in (None, '') else int(value)
+    fraction = resolved.get('strip_fraction')
+    options['strip_fraction'] = None if fraction in (None, '') else float(fraction)
+    options['compose_window_px'] = int(resolved.get('compose_window_px') or 4096)
+    options['compose_window_overlap'] = int(
+        resolved.get('compose_window_overlap') or 256)
+    options['align_placement_seed'] = resolved.get('align_placement_seed') or None
+    options['align_placement_seed_export'] = bool(
+        resolved.get('align_placement_seed_export'))
+    return options
+
+
+def _components(n_tiles: int,
+                edges: Sequence[Tuple[int, int, float, float, float]]) -> List[int]:
+    """The lowest tile of each tile's connected component.
+
+    :param n_tiles: number of tiles.
+    :param edges: ``(i, j, ...)`` per accepted pair.
+    :returns: per tile, the lowest index in its component.
+    """
+    parent = list(range(n_tiles))
+    for i, j, *_rest in edges:
+        a, b = int(i), int(j)
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        while parent[b] != b:
+            parent[b] = parent[parent[b]]
+            b = parent[b]
+        if a != b:
+            parent[max(a, b)] = min(a, b)
+    roots = []
+    for k in range(n_tiles):
+        a = k
+        while parent[a] != a:
+            a = parent[a]
+        roots.append(a)
+    return roots
+
+
+def _core_pairs(usable: Sequence[Tile]) -> List[Tuple[Tile, Tile, str]]:
+    """The edge neighbours the core engine registers, in OPS order.
+
+    The four grid neighbours of each tile, once each, with the second tile
+    below (``'vertical'``) or to the right (``'horizontal'``) of the first,
+    ordered by the first tile's index and then the second's -- the order
+    :meth:`spacr.ops_layout.WellLayout.pairs` gives OPS.
+
+    :param usable: the readable tiles.
+    :returns: ``(first, second, axis)`` per pair.
+    """
+    at = {(t.grid_row, t.grid_col): t for t in usable}
+    found = []
+    for tile in usable:
+        for (drow, dcol), axis in (((1, 0), 'vertical'), ((0, 1), 'horizontal')):
+            other = at.get((tile.grid_row + drow, tile.grid_col + dcol))
+            if other is not None:
+                found.append((tile.index, other.index, tile, other, axis))
+    found.sort(key=_pair_order)
+    return [(a, b, axis) for _i, _j, a, b, axis in found]
+
+
+def _pair_order(entry: Tuple[Any, ...]) -> Tuple[int, int]:
+    """Sort key of :func:`_core_pairs`: the two tile indices.
+
+    :param entry: ``(first index, second index, ...)``.
+    :returns: the two indices.
+    """
+    return entry[0], entry[1]
+
+
+def _core_register(tile_a: Tile, tile_b: Tile, axis: str,
+                   reader_a: '_TileReader', reader_b: '_TileReader',
+                   options: Mapping[str, Any], *, reference_channel: int,
+                   upsample: int, min_confidence: float) -> PairResult:
+    """Register one edge pair through :func:`spacr.stitch_core.register_strip_pair`.
+
+    Only the two overlap strips are read, from memory-mapped windows.
+
+    :param tile_a: the upper or left tile.
+    :param tile_b: the tile below or to the right.
+    :param axis: ``'vertical'`` or ``'horizontal'``.
+    :param reader_a: ``tile_a``'s reader.
+    :param reader_b: ``tile_b``'s reader.
+    :param options: from :func:`_core_options`.
+    :param reference_channel: the plane registration runs on.
+    :param upsample: sub-pixel factor; 1 keeps integer shifts.
+    :param min_confidence: the NCC threshold.
+    :returns: the pair, accepted or refused.
+    """
+    from .stitch_core import SKEW_PX, _edge_band, register_strip_pair
+
+    nominal_dy = tile_b.nominal_y - tile_a.nominal_y
+    nominal_dx = tile_b.nominal_x - tile_a.nominal_x
+    base = PairResult(i=tile_a.index, j=tile_b.index, dy=nominal_dy,
+                      dx=nominal_dx, nominal_dy=nominal_dy,
+                      nominal_dx=nominal_dx)
+    if (tile_a.height, tile_a.width) != (tile_b.height, tile_b.width):
+        return _replace_pair(base, note='the core engine registers tiles of '
+                                        'one shape; these two differ')
+    down = axis == 'vertical'
+    extent = tile_a.height if down else tile_a.width
+    gap = nominal_dy if down else nominal_dx
+    expected = options['expected_overlap_px']
+    if expected is None:
+        expected = int(round(extent - gap))
+    if expected <= 0:
+        return _replace_pair(base, note='tiles do not overlap at their '
+                                        'nominal positions')
+    fraction = options['strip_fraction']
+    band = (_edge_band(extent, fraction) if fraction is not None
+            else max(8, min(extent, int(expected))))
+    channel = [int(reference_channel)]
+    if down:
+        strip_a = reader_a.window(extent - band, extent, 0, tile_a.width,
+                                  channel)[:, :, 0]
+        strip_b = reader_b.window(0, band, 0, tile_b.width, channel)[:, :, 0]
+    else:
+        strip_a = reader_a.window(0, tile_a.height, extent - band, extent,
+                                  channel)[:, :, 0]
+        strip_b = reader_b.window(0, tile_b.height, 0, band, channel)[:, :, 0]
+    skew = options['skew_px']
+    found = register_strip_pair(
+        strip_a, strip_b, axis, extent=extent, expected_overlap=int(expected),
+        tolerance=options['tolerance_px'],
+        skew=SKEW_PX if skew is None else skew,
+        acceptance=options['acceptance'],
+        min_peak_ratio=options['min_peak_ratio'], min_ncc=min_confidence,
+        upsample=upsample, precision=options['registration_precision'],
+        gpu=options['registration_backend'] == 'gpu')
+    confidence = 1.0 if found.ncc is None else max(0.0, float(found.ncc))
+    if not found.accepted:
+        return _replace_pair(base, confidence=confidence,
+                             overlap_px=found.overlap_px, note=found.note)
+    return PairResult(i=tile_a.index, j=tile_b.index, dy=float(found.dy),
+                      dx=float(found.dx), nominal_dy=nominal_dy,
+                      nominal_dx=nominal_dx, confidence=confidence,
+                      accepted=True, overlap_px=found.overlap_px, note='')
+
+
+def _plan_core(plan: AlignPlan, usable: Sequence[Tile],
+               options: Mapping[str, Any], *, reference_channel: int,
+               upsample: int, min_confidence: float, anchor_weight: float,
+               max_open_tiles: int, ledger: Optional[RunLedger]) -> AlignPlan:
+    """Register and solve through :mod:`spacr.stitch_core` (item 936).
+
+    With OPS settings -- ``acceptance='peak_ratio'``,
+    ``strip_fraction=0.30``, ``upsample=1``, ``solve_gauge='lowest_site'`` --
+    the edges, acceptances and placements are those of
+    :func:`spacr.ops_stitch.stitch_well` on the same tiles. Under
+    ``'lowest_site'`` each connected component is then moved so its lowest
+    tile sits at that tile's nominal position (a move of zero when that
+    position is the origin). With a placement seed the solve is skipped
+    (:func:`_plan_seeded`).
+
+    :param plan: the plan to fill.
+    :param usable: the readable tiles.
+    :param options: from :func:`_core_options`.
+    :param reference_channel: the plane registration runs on.
+    :param upsample: sub-pixel factor.
+    :param min_confidence: the NCC threshold.
+    :param anchor_weight: the anchor weight under ``'anchor'``.
+    :param max_open_tiles: how many tiles may be mapped at once.
+    :param ledger: optional run ledger.
+    :returns: the plan, finished.
+    """
+    from .stitch_core import solve_positions as core_solve
+
+    slot = {tile.index: k for k, tile in enumerate(usable)}
+    if options.get('align_placement_seed'):
+        return _plan_seeded(plan, usable, slot, options, ledger)
+    pairs = _core_pairs(usable)
+    cache = _ReaderCache(max_open=int(max_open_tiles))
+    try:
+        for tile_a, tile_b, axis in pairs:
+            try:
+                pair = _core_register(
+                    tile_a, tile_b, axis, cache.get(tile_a), cache.get(tile_b),
+                    options, reference_channel=reference_channel,
+                    upsample=upsample, min_confidence=min_confidence)
+            except Exception as exc:
+                pair = _replace_pair(
+                    PairResult(i=tile_a.index, j=tile_b.index,
+                               dy=tile_b.nominal_y - tile_a.nominal_y,
+                               dx=tile_b.nominal_x - tile_a.nominal_x,
+                               nominal_dy=tile_b.nominal_y - tile_a.nominal_y,
+                               nominal_dx=tile_b.nominal_x - tile_a.nominal_x),
+                    note=f'{type(exc).__name__}: {exc}')
+            plan.overlaps.append(pair)
+    finally:
+        cache.close()
+    if not pairs:
+        plan.warnings.append(
+            'no two tiles are grid neighbours — every tile is placed by '
+            'stage position alone. Check the grid and the order.')
+    n_tiles = len(usable)
+    nominal = np.array([[t.nominal_y, t.nominal_x] for t in usable],
+                       dtype=np.float64)
+    edges = [(slot[p.i], slot[p.j], p.dy, p.dx, p.confidence)
+             for p in plan.overlaps if p.accepted]
+    if options['solve_gauge'] == 'lowest_site':
+        placed = core_solve({(i, j): (dy, dx) for i, j, dy, dx, _w in edges},
+                            list(range(n_tiles)))
+        roots = _components(n_tiles, edges)
+        positions = np.array([[placed[k][0] + nominal[roots[k], 0],
+                               placed[k][1] + nominal[roots[k], 1]]
+                              for k in range(n_tiles)], dtype=np.float64)
+    else:
+        positions = _core_solution(n_tiles, edges, nominal,
+                                   anchor_weight=anchor_weight, blas_threads=1)
+    residuals, degrees = _edge_residuals(n_tiles, edges, positions)
+    return _place_from_solution(plan, usable, slot, edges, positions,
+                                residuals, degrees, ledger)
+
+
+def _plan_seeded(plan: AlignPlan, usable: Sequence[Tile],
+                 slot: Mapping[int, int], options: Mapping[str, Any],
+                 ledger: Optional[RunLedger]) -> AlignPlan:
+    """Place the tiles from an ``acquisition='align'`` placement file (item 940).
+
+    No pair is registered and nothing is solved: each tile takes the
+    position the file holds for its index, and is marked
+    :data:`METHOD_SEEDED`.
+
+    :param plan: the plan to fill.
+    :param usable: the readable tiles.
+    :param slot: tile index -> row.
+    :param options: from :func:`_core_options`, with the seed path.
+    :param ledger: optional run ledger.
+    :returns: the plan, finished.
+    :raises ValueError: when the file does not fit these tiles.
+    """
+    from .stitch_core import (load_placement_seed, seed_to_placements,
+                              validate_placement_seed)
+
+    seed = load_placement_seed(options['align_placement_seed'])
+    first = usable[0]
+    validate_placement_seed(
+        seed, plate=first.plate or seed.get('plate'),
+        well=first.well or seed.get('well'),
+        sites=[t.index for t in usable], mode='subset',
+        tile_shape=(first.height, first.width), acquisition='align')
+    positions = seed_to_placements(seed, [t.index for t in usable])
+    origin = seed.get('origin') or [0.0, 0.0]
+    placements = []
+    for tile in usable:
+        y, x = positions[tile.index]
+        placements.append(Placement(
+            tile=tile, y=float(y) + float(origin[0]),
+            x=float(x) + float(origin[1]), confidence=1.0,
+            method=METHOD_SEEDED,
+            note=f"placed from {seed.get('path')}"))
+        if ledger is not None:
+            ledger.record_success(tile.path, stage='align')
+    plan.placements = placements
+    plan.warnings.append(
+        f"placement: seeded from {seed.get('path')} (sha256 "
+        f"{str(seed.get('sha256'))[:12]}); no pair was registered and "
+        f"nothing was solved")
+    plan.feather = int(seed.get('raster_overlap') or 1)
     _finalise_geometry(plan)
     return plan
 
@@ -1824,22 +2217,23 @@ def plan_canvas(placements: Sequence[Placement],
 
 
 
-def _band_bytes_per_row(spec: CanvasSpec) -> int:
+def _band_bytes_per_row(spec: CanvasSpec, accumulator: int = 4) -> int:
     """Bytes of RAM one canvas row of band costs.
 
     A float32 accumulator (``4 * channels``), a float32 weight plane
     (``4``) and the cast output band (``itemsize * channels``). All three
     are live at once at the moment the band is written, so all three are
     counted — a budget that ignores the output band understates the peak
-    by a third.
+    by a third. ``blend='feather_distance'`` accumulates in float64
+    (``accumulator=8``), as the OPS composer does.
     """
-    return int(spec.width) * (4 * int(spec.channels) + 4
+    return int(spec.width) * (accumulator * int(spec.channels) + accumulator
                               + int(np.dtype(spec.dtype).itemsize)
                               * int(spec.channels))
 
 
 def _band_rows(spec: CanvasSpec, max_buffer_bytes: int,
-               requested: Optional[int]) -> int:
+               requested: Optional[int], accumulator: int = 4) -> int:
     """Rows of canvas held in RAM at once.
 
     Solving :func:`_band_bytes_per_row` for ``rows`` under
@@ -1850,23 +2244,8 @@ def _band_rows(spec: CanvasSpec, max_buffer_bytes: int,
         return 1
     if requested is not None:
         return int(max(1, min(int(requested), spec.height)))
-    rows = int(max_buffer_bytes) // max(1, _band_bytes_per_row(spec))
+    rows = int(max_buffer_bytes) // max(1, _band_bytes_per_row(spec, accumulator))
     return int(max(1, min(rows if rows > 0 else 1, spec.height)))
-
-
-def _ramp(start: int, stop: int, extent: int, feather: int) -> np.ndarray:
-    """Linear feather weight for tile-local indices ``[start, stop)``.
-
-    Rises from :data:`_WEIGHT_FLOOR` at the tile edge to 1.0 ``feather``
-    pixels in, and mirrors at the far edge. The floor matters: a pixel
-    covered only by one tile's outermost row must still take that tile's
-    value, not a zero.
-    """
-    index = np.arange(int(start), int(stop), dtype=np.float32)
-    distance = np.minimum(index + 0.5, float(extent) - 0.5 - index)
-    if feather <= 0:
-        return np.ones_like(distance)
-    return np.clip(distance / float(feather), _WEIGHT_FLOOR, 1.0)
 
 
 def _cast_to(values: np.ndarray, dtype: np.dtype) -> np.ndarray:
@@ -2069,9 +2448,10 @@ def write_stack(plan: AlignPlan, dst: Union[str, os.PathLike],
         result.warnings.append('nothing to write: no placed tiles')
         return result
 
-    rows = _band_rows(spec, int(max_buffer_bytes), band_rows)
+    wide = 8 if blend == 'feather_distance' else 4
+    rows = _band_rows(spec, int(max_buffer_bytes), band_rows, accumulator=wide)
     result.band_rows = rows
-    result.peak_buffer_bytes = int(rows) * _band_bytes_per_row(spec)
+    result.peak_buffer_bytes = int(rows) * _band_bytes_per_row(spec, wide)
 
     if dry_run:
         result.status = 'empty'
@@ -2094,6 +2474,7 @@ def write_stack(plan: AlignPlan, dst: Union[str, os.PathLike],
 
     ramp_width = int(feather) if feather is not None else int(plan.feather)
     out_dtype = np.dtype(spec.dtype)
+    accumulate = np.float64 if blend == 'feather_distance' else np.float32
 
     boxes: List[Tuple[Placement, int, int, float, float]] = []
     for placement in placements:
@@ -2111,8 +2492,8 @@ def write_stack(plan: AlignPlan, dst: Union[str, os.PathLike],
         for y0 in range(0, spec.height, rows):
             y1 = min(spec.height, y0 + rows)
             band_h = y1 - y0
-            acc = np.zeros((band_h, spec.width, spec.channels), dtype=np.float32)
-            wsum = np.zeros((band_h, spec.width), dtype=np.float32)
+            acc = np.zeros((band_h, spec.width, spec.channels), dtype=accumulate)
+            wsum = np.zeros((band_h, spec.width), dtype=accumulate)
             for placement, cy, cx, fy, fx in boxes:
                 tile = placement.tile
                 th, tw = tile.height, tile.width
@@ -2154,8 +2535,11 @@ def write_stack(plan: AlignPlan, dst: Union[str, os.PathLike],
                     block = block[margin:margin + (ty1 - ty0),
                                   margin:margin + (tx1 - tx0)]
                 if blend == 'feather':
-                    weight = (_ramp(ty0, ty1, th, ramp_width)[:, None]
-                              * _ramp(tx0, tx1, tw, ramp_width)[None, :])
+                    weight = feather_weights((th, tw), (ty0, ty1), (tx0, tx1),
+                                             mode='ramp', width=ramp_width)
+                elif blend == 'feather_distance':
+                    weight = feather_weights((th, tw), (ty0, ty1), (tx0, tx1),
+                                             mode='distance')
                 else:
                     weight = np.ones((ty1 - ty0, tx1 - tx0), dtype=np.float32)
                 dy0, dx0 = cy + ty0 - y0, cx + tx0
@@ -2193,6 +2577,124 @@ def write_stack(plan: AlignPlan, dst: Union[str, os.PathLike],
             result.warnings.append(f'could not stamp {out_path}: {exc}')
     return result
 
+
+
+class _PlaneReader:
+    """``tile index -> one whole channel plane``, for the window writer.
+
+    :param tiles: ``index -> Tile``.
+    :param cache: the reader cache the planes are read through.
+    :param channel: the channel to read.
+    """
+
+    def __init__(self, tiles: Mapping[int, Tile], cache: '_ReaderCache',
+                 channel: int):
+        """Keep where the planes come from.
+
+        :param tiles: ``index -> Tile``.
+        :param cache: the reader cache.
+        :param channel: the channel to read.
+        """
+        self.tiles, self.cache, self.channel = tiles, cache, int(channel)
+
+    def __call__(self, index: int) -> np.ndarray:
+        """Read one tile's plane of this channel, as float32.
+
+        :param index: the tile index.
+        :returns: the 2-D plane; zeros for a channel the tile lacks.
+        """
+        tile = self.tiles[index]
+        if self.channel >= tile.n_channels:
+            return np.zeros((tile.height, tile.width), dtype=np.float32)
+        return self.cache.get(tile).window(0, tile.height, 0, tile.width,
+                                           [self.channel])[:, :, 0]
+
+
+def write_windows(plan: AlignPlan, dst: Union[str, os.PathLike], *,
+                  size: int = 4096, overlap: int = 256,
+                  blend: str = 'feather_distance', label: str = 'stitched',
+                  max_open_tiles: int = 8,
+                  overwrite: bool = False) -> AlignResult:
+    """Compose the plan as overlapping windows instead of one stack (item 936).
+
+    The windows are those of :func:`spacr.stitch_core.windows_over` over the
+    plan's canvas, and each is composed by
+    :func:`spacr.stitch_core.compose_window`, the OPS composer, one channel
+    at a time: a window here has the same pixels as the OPS window of the
+    same tiles at the same positions. Each window is written as
+    ``<label>_window_<top>_<left>.npy`` (float32, channels last) into
+    ``<dst>/<label>_windows/``, with ``windows.json`` listing every window's
+    position in the canvas and the canvas origin.
+
+    :param plan: from :func:`estimate_offsets`.
+    :param dst: the output folder.
+    :param size: window edge in pixels.
+    :param overlap: how many pixels neighbouring windows share.
+    :param blend: ``'feather_distance'`` (the OPS feathering) or
+        ``'average'``.
+    :param label: the name the files start with.
+    :param max_open_tiles: how many tiles may be mapped at once.
+    :param overwrite: replace an existing window folder; False refuses.
+    :returns: an :class:`AlignResult` whose ``stack_path`` is the folder.
+    :raises ConfigurationError: for another blend, or an existing folder
+        without ``overwrite``.
+    """
+    from .stitch_core import compose_window, windows_over
+
+    ops_blend = {'feather_distance': 'feather', 'average': 'average'}.get(blend)
+    if ops_blend is None:
+        raise ConfigurationError(
+            f"compose='windows' blends with 'feather_distance' or 'average', "
+            f"not {blend!r}")
+    placements = [p for p in plan.placements if p.tile.readable]
+    spec = plan_canvas(placements, dtype=plan.dtype)
+    result = AlignResult(plan=plan, canvas=spec, writer='windows')
+    if not placements or spec.height <= 0 or spec.width <= 0:
+        result.warnings.append('nothing to write: no placed tiles')
+        return result
+    folder = os.path.join(os.fspath(dst), f'{label}_windows')
+    if os.path.exists(folder) and not overwrite:
+        raise ConfigurationError(
+            f'{folder} already exists — pass overwrite=True to replace it.')
+    os.makedirs(folder, exist_ok=True)
+    tiles = {p.tile.index: p.tile for p in placements}
+    where = {p.tile.index: (p.y - spec.origin_y, p.x - spec.origin_x)
+             for p in placements}
+    shapes = {(t.height, t.width) for t in tiles.values()}
+    shape = shapes.pop() if len(shapes) == 1 else None
+    if shape is None:
+        raise ConfigurationError(
+            "compose='windows' needs tiles of one shape; use compose='bands'")
+    cache = _ReaderCache(max_open=int(max_open_tiles))
+    listed = []
+    try:
+        for window in windows_over((spec.height, spec.width), size=int(size),
+                                   overlap=int(overlap)):
+            planes = []
+            covered = None
+            for channel in range(spec.channels):
+                image, count = compose_window(
+                    window, where, _PlaneReader(tiles, cache, channel),
+                    tile_shape=shape, dtype=np.float32, blend=ops_blend)
+                planes.append(image)
+                covered = count if covered is None else covered
+            if covered is None or not covered.any():
+                continue
+            name = f'{label}_window_{window.top}_{window.left}.npy'
+            np.save(os.path.join(folder, name), np.stack(planes, axis=-1))
+            listed.append({'file': name, 'top': window.top, 'left': window.left,
+                           'height': window.height, 'width': window.width})
+    finally:
+        cache.close()
+    with open(os.path.join(folder, 'windows.json'), 'w', encoding='utf-8') as handle:
+        json.dump({'canvas': [spec.height, spec.width, spec.channels],
+                   'origin': [spec.origin_y, spec.origin_x],
+                   'size': int(size), 'overlap': int(overlap),
+                   'blend': blend, 'windows': listed}, handle, indent=1)
+    result.stack_path = folder
+    result.n_written = len(placements)
+    result.status = 'complete'
+    return result
 
 
 #: Columns of :data:`ALIGN_TABLE`, in order.
@@ -2478,9 +2980,52 @@ def default_settings(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, 
         'overwrite': False,
         'preview_only': False,
         'group_by_well': True,
+        'align_engine': 'legacy',
+        'registration_precision': 'float64',
+        'registration_backend': 'cpu',
+        'acceptance': 'both',
+        'min_peak_ratio': None,
+        'strip_fraction': None,
+        'expected_overlap_px': None,
+        'tolerance_px': None,
+        'skew_px': None,
+        'solve_gauge': 'anchor',
+        'compose': 'bands',
+        'compose_window_px': 4096,
+        'compose_window_overlap': 256,
+        'align_placement_seed': None,
+        'align_placement_seed_export': False,
     }
     resolved.update(dict(settings or {}))
     return resolved
+
+
+def _export_align_seed(plan: AlignPlan, dst: Union[str, os.PathLike],
+                       label: str) -> str:
+    """Write a solved plan's positions as an ``acquisition='align'`` seed.
+
+    The positions are written as solved, with origin ``(0, 0)``, so a
+    seeded run reads back the same floats.
+
+    :param plan: a solved plan.
+    :param dst: the output folder.
+    :param label: the group label the file is named after.
+    :returns: the path written.
+    """
+    from .stitch_core import write_placement_seed
+
+    placed = [p for p in plan.placements if p.tile.readable]
+    first = placed[0].tile
+    spec = plan_canvas(placed, dtype=plan.dtype)
+    os.makedirs(os.fspath(dst), exist_ok=True)
+    return write_placement_seed(
+        os.path.join(os.fspath(dst), f'{label or "stitched"}.ops_placement.json'),
+        plate=first.plate, well=first.well,
+        placements={p.tile.index: (p.y, p.x) for p in placed},
+        tile_shape=(first.height, first.width), origin=(0.0, 0.0),
+        canvas=(spec.height, spec.width), acquisition='align',
+        dtype=plan.dtype, n_tiles_in_well=len(plan.tiles),
+        raster_overlap=int(plan.feather))
 
 
 def align_folder(settings: Optional[Mapping[str, Any]] = None,
@@ -2519,11 +3064,12 @@ def align_folder(settings: Optional[Mapping[str, Any]] = None,
         base = src if isinstance(src, (str, os.PathLike)) else '.'
         dst = os.path.normpath(os.fspath(base)) + '_stitched'
 
+    core = _core_options(resolved)
     ledger = RunLedger('align')
     results: List[AlignResult] = []
     first_write = True
     for key, members in sorted(groups.items()):
-        plan = estimate_offsets(
+        plan = _estimate_offsets(
             members,
             reference_channel=(
                 None if resolved.get('reference_channel') is None
@@ -2533,7 +3079,7 @@ def align_folder(settings: Optional[Mapping[str, Any]] = None,
             upsample=int(resolved.get('upsample')),
             neighbour_radius=int(resolved.get('neighbour_radius')),
             max_shift=resolved.get('max_shift'),
-            ledger=ledger)
+            ledger=ledger, core=core)
         label = '_'.join(part for part in key if part) or os.path.basename(str(src))
         print(f'--- {label} ---')
         print(format_plan(plan))
@@ -2546,6 +3092,15 @@ def align_folder(settings: Optional[Mapping[str, Any]] = None,
                                            int(resolved['max_buffer_bytes']),
                                            resolved.get('band_rows')),
                                        warnings=['preview only — nothing written']))
+        elif core is not None and core['compose'] == 'windows':
+            result = write_windows(
+                plan, dst, size=core['compose_window_px'],
+                overlap=core['compose_window_overlap'],
+                blend=str(resolved.get('blend') or 'feather_distance'),
+                label=label or 'stitched',
+                overwrite=bool(resolved.get('overwrite')))
+            print(result.summary())
+            results.append(result)
         else:
             result = write_stack(
                 plan, dst,
@@ -2559,6 +3114,11 @@ def align_folder(settings: Optional[Mapping[str, Any]] = None,
                 name=(f'{label}_stitched.npy' if label else None))
             print(result.summary())
             results.append(result)
+
+        if (core is not None and core['align_placement_seed_export']
+                and not core['align_placement_seed'] and dst is not None):
+            results[-1].warnings.append('placement seed written to '
+                                        + _export_align_seed(plan, dst, label))
 
         db_path = resolved.get('db_path')
         if db_path:

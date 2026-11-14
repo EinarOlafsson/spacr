@@ -275,6 +275,7 @@ def convert_settings_dict_for_gui(settings):
         'ops_channel_registration': ('combo', ['spots', 'background', 'spots_refine'], 'spots'),
         'ops_registration_precision': ('combo', ['float32', 'float64'], 'float32'),
         'ops_registration_backend': ('combo', ['gpu', 'cpu'], 'gpu'),
+        'ops_placement_seed_mode': ('combo', ['subset', 'strict'], 'subset'),
         'figure_condition_aggregate': ('combo', ['mean', 'median'], 'mean'),
         'figure_size_stat': ('combo', ['mean', 'median'], 'mean'),
         'figure_metric': ('combo', ['area', 'cleared_fraction'], 'area'),

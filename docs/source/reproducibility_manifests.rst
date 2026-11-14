@@ -101,6 +101,8 @@ default after a higher-numbered item takes the next free number:
   ``'gpu'``.
 - 933 (item 930's default switch): ``ops_align_model`` was
   ``'similarity'``; it is now ``'tile_affine'``.
+- 934 (item 940's default switch): ``ops_placement_seed_export`` was
+  ``False``; it is now ``True``.
 
 Public API
 ----------

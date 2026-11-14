@@ -38,6 +38,13 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_raster_overlap": 213,
     "ops_window_overlap": 96,
     "ops_compose_blend": "feather",
+    "ops_stitch_read_threads": 4,
+    "ops_stitch_edge_workers": 1,
+    "ops_placement_seed": None,
+    "ops_placement_seed_mode": "subset",
+    "ops_placement_seed_export": True,
+    "ops_placement_seed_check_pixels": False,
+    "ops_placement_seed_tolerance": 2.0,
     "ops_footprint": 10.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
@@ -409,6 +416,13 @@ OPS_TYPES: Dict[str, object] = {
     "ops_raster_overlap": int,
     "ops_window_overlap": int,
     "ops_compose_blend": str,
+    "ops_stitch_read_threads": int,
+    "ops_stitch_edge_workers": int,
+    "ops_placement_seed": (str, type(None)),
+    "ops_placement_seed_mode": str,
+    "ops_placement_seed_export": bool,
+    "ops_placement_seed_check_pixels": bool,
+    "ops_placement_seed_tolerance": (float, int),
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
     "ops_spot_detector": str,
@@ -779,6 +793,10 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS alignment": [
         "cellpose_model", "cellpose_diameter", "ops_raster_overlap",
         "ops_window_overlap", "ops_compose_blend",
+        "ops_stitch_read_threads", "ops_stitch_edge_workers",
+        "ops_placement_seed", "ops_placement_seed_mode",
+        "ops_placement_seed_export", "ops_placement_seed_check_pixels",
+        "ops_placement_seed_tolerance",
     ],
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
@@ -1113,9 +1131,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "'spots'.",
     "ops_registration_precision":
         "(str) - The precision of the Fourier transforms that register the "
-        "sequencing channels and cycles. 'float32' takes about half the "
+        "sequencing channels and cycles and, on the CPU, the stitch's tile "
+        "pairs. 'float32' takes about half the "
         "time of 'float64' and, on 443 fields of the Funk et al. 2022 "
-        "plates, gave the same shifts, reads and calls; 'float64' is the "
+        "plates, gave the same shifts, reads and calls, and on well A1 of "
+        "plates A to D the same stitch positions; 'float64' is the "
         "arithmetic used before, kept for an exact rerun of older results. "
         "Default 'float32'.",
     "ops_registration_backend":
@@ -1176,6 +1196,52 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "2022 its seams scored like an unstitched tile. 'average' gives "
         "every tile the same weight, as before, and leaves a step at each "
         "tile edge. Default 'feather'.",
+    "ops_stitch_read_threads":
+        "(int) - How many threads read the well's nuclear tiles while the "
+        "stitch places them. The tiles are read ahead in the order the "
+        "stitch uses them, so reading from network storage overlaps with "
+        "the registration; the positions are the same for any number. On "
+        "Funk et al. 2022 plates A and B, 4 threads halved the stitch "
+        "step's time (about 235 s to about 120 s per well) for about 30 "
+        "extra CPU seconds per well. 1 reads one tile at a time, as before "
+        "spaCR 1.5.1.8. Default 4.",
+    "ops_stitch_edge_workers":
+        "(int) - How many worker processes register the stitch's tile "
+        "pairs. 1 registers them one after another. More registers them "
+        "on the CPU in that many processes with the same positions; with 3 "
+        "workers the placement of a Funk et al. 2022 well took about a "
+        "third of the time at the same total CPU time. Workers start ten "
+        "seconds apart, so this helps only wells whose placement takes "
+        "longer than that. Default 1.",
+    "ops_placement_seed":
+        "(str or None) - A placement file from an earlier full run: "
+        "<plate>_<well>.ops_placement.json, a folder holding it, or that "
+        "run's measurements.db. With it the stitch phase does not register "
+        "or solve: each tile of this run is put where the file says, in the "
+        "whole well's frame, so a run on a few fields composes the same "
+        "windows as the full run. The file is checked against the plate, "
+        "well, tiles, tile size and cycle first. A seeded run is not a "
+        "replacement for a full run in a paper; its report says 'placement: "
+        "seeded'. Empty solves as usual. Alpha.",
+    "ops_placement_seed_mode":
+        "(str) - 'subset' lets the run use any of the tiles the placement "
+        "file lists; 'strict' needs exactly the file's tiles and also "
+        "refuses source files that changed since the file was written. "
+        "Default 'subset'. Alpha.",
+    "ops_placement_seed_export":
+        "(bool) - Write <plate>_<well>.ops_placement.json into the well's "
+        "folder after every solved stitch, so a later run on part of the "
+        "well can use ops_placement_seed. A few kilobytes per well. Off for "
+        "settings files saved before spaCR 1.5.1.8. Default True. Alpha.",
+    "ops_placement_seed_check_pixels":
+        "(bool) - Also re-register up to six seams between this run's tiles "
+        "and stop if any disagrees with the placement file by more than "
+        "ops_placement_seed_tolerance. The positions are never changed. "
+        "Default False. Alpha.",
+    "ops_placement_seed_tolerance":
+        "(float) - How many pixels a re-registered seam may differ from the "
+        "placement file under ops_placement_seed_check_pixels. Default 2. "
+        "Alpha.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "

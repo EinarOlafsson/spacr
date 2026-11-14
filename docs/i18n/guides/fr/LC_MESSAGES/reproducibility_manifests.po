@@ -111,6 +111,10 @@ msgstr "932 : ``ops_registration_precision`` valait ``'float64'`` et ``ops_regis
 msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
 msgstr "933 (le changement de valeur par défaut de l’élément 930) : ``ops_align_model`` valait ``'similarity'`` ; il vaut désormais ``'tile_affine'``."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "934 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
+msgstr "934 (le changement de valeur par défaut de l’élément 940) : ``ops_placement_seed_export`` valait ``False`` ; il vaut désormais ``True``."
+
 msgid "Public API"
 msgstr "API publique"
 
