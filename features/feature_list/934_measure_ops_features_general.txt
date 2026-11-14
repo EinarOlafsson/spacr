@@ -56,10 +56,17 @@ production OPS masks, 4 channels, max-projected raw field)
   within 1.83e-7 relative, because OPS measures a float32 copy and Measure
   the uint16 field (float32 vs float64 accumulation), not a definition
   difference. 960 cells in each of cell, nucleus and cytoplasm.
-- Time on the loaded machine, one thread, not interleaved (other jobs ran
-  beside the branch run, so not a gate): OPS production call 46.6 s
-  (nightly) and 72.9 s (branch); measure_crop 245.9 s for the same field
-  with periphery, outside, distances and the image table.
+- Time, interleaved nightly/branch on one pinned core (taskset 31,
+  OMP_NUM_THREADS=1), 5 pairs per mode; the machine load was 33-62 on 32
+  cores, so wall ranges are wide. CPU-second medians: production call 89.6
+  (nightly) vs 87.8 (branch), ratio 0.98; with Funk features 109.0 vs 104.7,
+  0.96. cProfile of the production call: the same call counts, 104.3 vs
+  104.8 CPU s. The first, non-interleaved 46.6 s vs 72.9 s was load.
+  funk_object_features alone was 2x slower before a fix in this item (each
+  helper re-copied every channel out of the (H, W, C) image); the mask is now
+  validated once, the foreground pixels of all channels gathered once
+  (_channel_values) and each channel centred once for all pairs: median 3.76
+  vs 3.76 CPU s, ratio 1.00 (18 repeats each), values unchanged.
 - Not run: the GPU-marked check on a card (no GPU turn taken); covered by a
   planted 1 % perturbation test on CPU.
 Scripts and outputs: /mnt/firecuda2/codex/scratch-docs/proof_934/ (scripts/,

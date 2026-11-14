@@ -401,23 +401,21 @@ def funk_object_features(labels: np.ndarray, image: np.ndarray,
     """
     import pandas as pd
 
-    from .measure import (measure_channel_pair_pearson,
-                          measure_mass_displacement)
+    from .measure import _funk_object_columns
 
     labels = np.asarray(labels).astype(np.int64)
     image = np.asarray(image, np.float64)
-    present = np.unique(labels[labels > 0])
-    out = {"label": present.astype(np.int64)}
-    if present.size == 0:
-        return pd.DataFrame(out)
+    if not (labels > 0).any():
+        return pd.DataFrame({"label": np.zeros(0, np.int64)})
     names = [str(n).lower() for n in channel_names]
-    shift = measure_mass_displacement(labels, image)
+    present, columns = _funk_object_columns(labels, image, names)
+    out = {"label": present.astype(np.int64)}
     for index, name in enumerate(names):
-        out[f"{prefix}_{name}_mass_displacement"] = shift[
-            f"channel_{index}_mass_displacement"].to_numpy()
-    pairs = measure_channel_pair_pearson(labels, image, names)
-    for column in pairs.columns[1:]:
-        out[f"{prefix}_{column}"] = pairs[column].to_numpy()
+        out[f"{prefix}_{name}_mass_displacement"] = columns[
+            f"channel_{index}_mass_displacement"]
+    for column, values in columns.items():
+        if column.startswith("correlation_"):
+            out[f"{prefix}_{column}"] = values
     return pd.DataFrame(out)
 
 

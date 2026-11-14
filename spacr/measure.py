@@ -2418,9 +2418,10 @@ def _add_funk_frames(dfs, roles, masks, channel_arrays, families):
         if mask is None or np.max(mask) == 0:
             continue
         labels = _profile_inputs(mask, None)[0]
-        parts = [measure_channel_pair_pearson(labels, image)]
-        if 'intensity_moments' not in families:
-            parts.insert(0, measure_mass_displacement(labels, image))
+        present, columns = _funk_object_columns(
+            labels, image,
+            mass_displacement='intensity_moments' not in families)
+        parts = [pd.DataFrame({'label': present, **columns})]
         if 'shape_extended' not in families:
             props = regionprops_table(
                 labels, properties=('label', 'area', 'perimeter'))
@@ -3404,8 +3405,19 @@ def _weighted_centre(flat, rows, cols, weights, size):
     return centre_r, centre_c, mu00
 
 
-def _mass_displacement_columns(flat, rows, cols, inside, size, present,
-                               image):
+def _channel_values(image, inside):
+    """Every channel's intensities at the foreground pixels, one contiguous array each.
+
+    :param image: ``(H, W, C)`` intensities.
+    :param inside: the flat foreground mask of :func:`_foreground`.
+    :returns: a list of ``C`` float arrays in foreground order, gathered in
+        one pass over the image.
+    """
+    pixels = np.ascontiguousarray(image.reshape(-1, image.shape[-1])[inside].T)
+    return list(pixels)
+
+
+def _mass_displacement_columns(flat, rows, cols, size, present, values):
     """``channel_<c>_mass_displacement`` of every channel, indexed by ``present``.
 
     The one implementation of mass displacement: the distance in pixels
@@ -3414,11 +3426,12 @@ def _mass_displacement_columns(flat, rows, cols, inside, size, present,
     the OPS phenotype path (``spacr.ops_sample.funk_object_features``)
     write it.
     """
-    shape_r, shape_c, _area = _weighted_centre(
-        flat, rows, cols, np.ones(flat.size), size)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        area = np.bincount(flat, None, size).astype(np.float64)
+        shape_r = np.bincount(flat, rows, size) / area
+        shape_c = np.bincount(flat, cols, size) / area
     out = {}
-    for c in range(image.shape[-1]):
-        weights = image[..., c].ravel()[inside]
+    for c, weights in enumerate(values):
         centre_r, centre_c, _mass = _weighted_centre(
             flat, rows, cols, weights, size)
         out[f'channel_{c}_mass_displacement'] = np.hypot(
@@ -3518,10 +3531,10 @@ def measure_intensity_moments(labels, image):
     labels, image, present = _profile_inputs(labels, image)
     out = {'label': present}
     flat, rows, cols, inside, size = _foreground(labels)
+    values = _channel_values(image, inside)
     displacement = _mass_displacement_columns(
-        flat, rows, cols, inside, size, present, image)
-    for c in range(image.shape[-1]):
-        weights = image[..., c].ravel()[inside]
+        flat, rows, cols, size, present, values)
+    for c, weights in enumerate(values):
         _r, _c, _mass, hu = _weighted_moments(
             flat, rows, cols, weights, size, present)
         name = f'channel_{c}_mass_displacement'
@@ -3551,7 +3564,7 @@ def measure_mass_displacement(labels, image):
     flat, rows, cols, inside, size = _foreground(labels)
     out = {'label': present}
     out.update(_mass_displacement_columns(
-        flat, rows, cols, inside, size, present, image))
+        flat, rows, cols, size, present, _channel_values(image, inside)))
     return pd.DataFrame(out)
 
 
@@ -3576,25 +3589,78 @@ def measure_channel_pair_pearson(labels, image, channel_names=None):
     (``ops_ph_funk_features``) and Measure (``funk_object_features``) both
     write these columns from this function.
     """
+    labels, image, present = _profile_inputs(labels, image)
+    names = _pair_names(channel_names, image.shape[-1])
+    flat, _rows, _cols, inside, size = _foreground(labels)
+    out = {'label': present}
+    out.update(_pearson_pair_columns(flat, size, present,
+                                     _channel_values(image, inside), names))
+    return pd.DataFrame(out)
+
+
+def _pair_names(channel_names, channels):
+    """The lowercased column names of ``channels`` channels, ``channel_<i>`` by default.
+
+    :raises ValueError: when ``channel_names`` does not give one per channel.
+    """
+    if channel_names is None:
+        return [f'channel_{c}' for c in range(channels)]
+    names = [str(name).lower() for name in channel_names]
+    if len(names) != channels:
+        raise ValueError(f"{len(names)} channel names for {channels} channels")
+    return names
+
+
+def _pearson_pair_columns(flat, size, present, values, names):
+    """``correlation_<a>_<b>`` of every channel pair, indexed by ``present``.
+
+    Each channel is centred on its label means once and reused by every
+    pair; the arithmetic is :func:`_pearson_by_label`'s, value for value.
+    """
     from itertools import combinations
 
+    count = np.bincount(flat, None, size)
+    centred, squares = [], []
+    with np.errstate(invalid='ignore', divide='ignore'):
+        for channel in values:
+            mean = np.bincount(flat, channel, size) / count
+            delta = channel - mean[flat]
+            centred.append(delta)
+            squares.append(np.bincount(flat, delta * delta, size))
+        out = {}
+        for first, second in combinations(range(len(values)), 2):
+            sxx, syy = squares[first], squares[second]
+            sxy = np.bincount(flat, centred[first] * centred[second], size)
+            r = sxy / np.sqrt(sxx * syy)
+            r = np.where((sxx > 0) & (syy > 0), np.clip(r, -1, 1), np.nan)
+            out[f'correlation_{names[first]}_{names[second]}'] = r[present]
+    return out
+
+
+def _funk_object_columns(labels, image, channel_names=None,
+                         mass_displacement=True):
+    """Funk et al. 2022's per-object columns of one mask, from one pass over it.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` intensities over it.
+    :param channel_names: names for the correlation columns, as
+        :func:`measure_channel_pair_pearson` takes them.
+    :param mass_displacement: include ``channel_<c>_mass_displacement``.
+    :returns: ``(present, columns)``: the labels in ascending order and the
+        columns of :func:`measure_mass_displacement` and
+        :func:`measure_channel_pair_pearson`, value for value, with the
+        mask validated and its foreground found once for both.
+    """
     labels, image, present = _profile_inputs(labels, image)
-    channels = image.shape[-1]
-    if channel_names is None:
-        names = [f'channel_{c}' for c in range(channels)]
-    else:
-        names = [str(name).lower() for name in channel_names]
-        if len(names) != channels:
-            raise ValueError(
-                f"{len(names)} channel names for {channels} channels")
-    flat, _rows, _cols, inside, size = _foreground(labels)
-    values = [image[..., c].ravel()[inside] for c in range(channels)]
-    out = {'label': present}
-    for first, second in combinations(range(channels), 2):
-        r, _dx, _dy = _pearson_by_label(
-            flat, values[first], values[second], size)
-        out[f'correlation_{names[first]}_{names[second]}'] = r[present]
-    return pd.DataFrame(out)
+    names = _pair_names(channel_names, image.shape[-1])
+    flat, rows, cols, inside, size = _foreground(labels)
+    values = _channel_values(image, inside)
+    columns = {}
+    if mass_displacement:
+        columns.update(_mass_displacement_columns(
+            flat, rows, cols, size, present, values))
+    columns.update(_pearson_pair_columns(flat, size, present, values, names))
+    return present, columns
 
 
 def _form_factor(area, perimeter):
