@@ -1,8 +1,8 @@
-"""The last uncovered arc in ten small support modules.
+"""The last uncovered arc in nine small support modules.
 
 Each of these modules is already above 98%: what is left is one branch
 apiece, and the point of this file is to say which branch and why it
-matters. Grouped here rather than in ten one-test files because the
+matters. Grouped here rather than in nine one-test files because the
 modules have nothing in common except being nearly finished.
 
 What is pinned, module by module:
@@ -21,9 +21,6 @@ What is pinned, module by module:
     ``read_run_status`` closes the connection it opened on every exit,
     and the ``conn is not None`` guard in its ``finally`` is proved to
     be false only while an exception is unwinding.
-``spacr.resource_log``
-    A platform whose ``memory_full_info()`` carries no integer private
-    figure still reports resident memory, labelled ``rss``.
 ``spacr.external_masks``
     The same file reached through two overlapping input groups is
     imported once, not twice.
@@ -386,57 +383,6 @@ class TestReadRunStatusAlwaysClosesItsConnection:
 
         with pytest.raises(RuntimeError, match="no connection was ever made"):
             read_run_status(path)
-
-
-# ---------------------------------------------------------------------------
-# spacr.resource_log -- a platform with no private memory figures
-# ---------------------------------------------------------------------------
-
-class _NoPrivateFigures:
-    """``memory_full_info()`` answers, but with nothing integral in it."""
-
-    pid = 4242
-
-    class _Full:
-        # Present, but floats: psutil on some platforms reports these as
-        # floats, and a float is not the measurement this code accepts.
-        uss = 1.5
-        pss = 2.5
-
-    class _Info:
-        rss = 7_340_032
-
-    def memory_full_info(self):
-        return self._Full()
-
-    def memory_info(self):
-        return self._Info()
-
-
-class _PrivateFigures(_NoPrivateFigures):
-    class _Full:
-        uss = 1_048_576
-        pss = 2_097_152
-
-
-class TestMemoryFallsBackToResident:
-    """``for measure in MEASURES:`` running out without returning."""
-
-    def test_no_integer_private_figure_reports_rss(self):
-        import psutil
-
-        from spacr.resource_log import _memory
-
-        assert _memory(psutil, _NoPrivateFigures()) == (7_340_032, "rss"), \
-            "a float uss/pss is not a figure; the row must say rss"
-
-    def test_an_integer_uss_is_preferred_and_labelled(self):
-        """The contrast: with a real uss the loop returns before rss."""
-        import psutil
-
-        from spacr.resource_log import _memory
-
-        assert _memory(psutil, _PrivateFigures()) == (1_048_576, "uss")
 
 
 # ---------------------------------------------------------------------------

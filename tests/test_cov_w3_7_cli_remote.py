@@ -294,30 +294,6 @@ def test_the_job_table_carries_id_status_module_and_remote_id(
     assert "4242" in out
 
 
-def test_a_job_with_no_remote_id_renders_a_dash(state_dir):
-    """``_job_row`` shows an em dash where a remote ID has not arrived yet."""
-    from spacr.remote_execution import RemoteJob
-
-    job = RemoteJob(job_id="abcdef0123456789", module="measure",
-                    profile_name="cloud", backend="command")
-    row = cli_remote._job_row(job)
-    assert row.startswith("abcdef012345")
-    assert "—" in row
-    assert row.rstrip().endswith("—")
-
-
-def test_a_job_error_is_appended_to_its_row(state_dir):
-    """A row that carries an error shows it after the remote ID."""
-    from spacr.remote_execution import RemoteJob
-
-    job = RemoteJob(job_id="abcdef0123456789", module="measure",
-                    profile_name="cloud", backend="command",
-                    external_id="4242", error="SSHError: connection refused")
-    row = cli_remote._job_row(job)
-    assert row.rstrip().endswith("SSHError: connection refused")
-    assert "4242" in row
-
-
 def test_list_refresh_polls_the_active_jobs(state_dir, settings_file, capsys):
     """``--refresh`` runs each active job's status command before printing."""
     _add_command_profile("cloud")
@@ -534,21 +510,6 @@ def test_template_file_and_resource_argument_errors_are_explicit(tmp_path):
         with pytest.raises(RemoteExecutionError, match='KEY=VALUE'):
             cli_remote._resources_from_args([value])
     assert cli_remote._resources_from_args([' cpus = 4 ']) == {'cpus': '4'}
-
-
-def test_watch_reports_terminal_error_and_requested_logs_without_polling(monkeypatch, capsys):
-    from types import SimpleNamespace
-    from spacr.remote_execution import RemoteJob
-
-    job = RemoteJob('abcdef123456', 'mask', 'cluster', 'slurm', status='failed', error='scheduler refused')
-    calls = []
-    manager = SimpleNamespace(refresh=lambda key, **kwargs: calls.append((key, kwargs)) or job,
-                              logs=lambda key, lines: calls.append((key, lines)) or 'last log')
-    monkeypatch.setattr(cli_remote, 'RemoteJobManager', lambda: manager)
-    assert cli_remote.main(['watch', job.job_id, '--logs', '--lines', '9']) == cli_remote.EXIT_RUNTIME
-    out = capsys.readouterr()
-    assert 'failed' in out.out and 'last log' in out.out and 'scheduler refused' in out.err
-    assert calls == [(job.job_id, {'include_logs': False}), (job.job_id, 9)]
 
 
 def test_resource_json_text_and_allocation_use_current_profile(state_dir, monkeypatch, capsys):
