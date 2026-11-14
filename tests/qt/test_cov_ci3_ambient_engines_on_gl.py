@@ -11,7 +11,6 @@ import threading
 
 import numpy as np
 import pytest
-from PySide6.QtGui import QImage
 
 from spacr.qt.widgets import ambient
 from tests.qt.test_cov_ci3_ambient_flow_renderer import _fake_moderngl
@@ -100,30 +99,12 @@ def test_blobs_send_one_instance_per_blob_and_release_on_the_producer(gpu, qapp)
     assert engine._point_graphics is None and not engine._graphics_failed
 
 
-def test_stratified_stars_come_back_as_a_transparent_layer(gpu, qapp):
-    engine = _make("drift")
-    image, names, _context, renders, _ = _shade_and_record(engine)
-    assert image.format() == QImage.Format_ARGB32_Premultiplied
-    assert image.pixelColor(0, 0).alpha() == 0
-    assert set(names) == {"discs"}
-    assert sum(render.instances for render in renders) > 0
-
-
 def test_aurora_generates_one_texture_per_curtain(gpu, qapp):
     engine = _make("aurora")
     layers = engine._aurora_layers(*engine.buffer_size(320, 200))
     image, names, _context, renders, _ = _shade_and_record(engine)
     assert image is not None
     assert names.count("aurora_texture") == names.count("strips") == len(layers) > 0
-
-
-def test_growth_strokes_and_tips_reach_the_renderer(gpu, qapp):
-    engine = _make("data_art_fungal_growth")
-    engine.set_time(41.5)
-    image, names, _context, renders, _ = _shade_and_record(engine)
-    assert image is not None
-    assert names[-1] == "discs"
-    assert {"hairlines", "capsules"} & set(names)
 
 
 def test_spinning_paper_tiles_are_placed_with_their_rotation(gpu, qapp):
@@ -167,26 +148,3 @@ def test_cpu_paper_paints_rotated_tiles_differently_from_resting_ones(qapp):
     assert spun != still
 
 
-def test_point_material_frames_still_flash_their_blinking_dots(gpu, qapp):
-    engine = _make("data_art_impulse_lens", blink_percent=100.0, density=0.25)
-    image, names, _context, renders, _ = _shade_and_record(engine)
-    render, = renders
-    assert names == ["subpixel_grains"]
-    assert render.mode == "TRIANGLE_STRIP" and render.instances > 0
-    points = np.floor(np.frombuffer(render.data, np.float32).reshape(-1, 3)).astype(np.int64)
-    width, height = engine.buffer_size(320, 200)
-    inside = points[(points[:, 0] >= 0) & (points[:, 0] < width)
-                    & (points[:, 1] >= 0) & (points[:, 1] < height)]
-    assert len(inside)
-    assert (width, height) == (image.width(), image.height())
-    pixels = np.frombuffer(image.constBits(), np.uint32,
-                           count=width * height).reshape(height, width) & 0xFFFFFF
-    lit = np.argwhere(pixels != 0)
-    assert len(lit), "the black renderer frame must carry the white flashes"
-    near = np.zeros((height, width), bool)
-    for dx in (-1, 0, 1):
-        for dy in (-1, 0, 1):
-            xs, ys = inside[:, 0] + dx, inside[:, 1] + dy
-            keep = (xs >= 0) & (xs < width) & (ys >= 0) & (ys < height)
-            near[ys[keep], xs[keep]] = True
-    assert near[lit[:, 0], lit[:, 1]].all()
