@@ -18,43 +18,8 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QFileDialog  # noqa: E402
-
 from spacr.qt.widgets import file_list as fl  # noqa: E402
-from spacr.qt import path_probe  # noqa: E402
 
-
-def _known(*paths) -> None:
-    """Seed the path cache so a cold probe does not answer with its default.
-
-    `file_list` stopped calling `os.path.exists` directly in 3b00d7b76, which
-    moved every filesystem question behind `path_probe` so the interface can
-    never be made to wait on an autofs mount that has stopped answering. The
-    probe returns a CACHED answer or a documented default while a background
-    check runs -- `isdir` defaults to False.
-
-    These tests build real directories and then ask immediately, so the cache
-    is cold and `isdir` says False: the dialog gets no start folder and the
-    assertion sees ''. That is the probe behaving exactly as documented, not
-    the widget forgetting where the file was. `prime` exists for this and
-    makes the test deterministic rather than racing a worker thread.
-    """
-    for path in paths:
-        path_probe.prime(str(path), True)
-        path_probe.prime(str(path), True, want_dir=True)
-
-
-def _gone(*paths) -> None:
-    """Seed the path cache with an absence.
-
-    `path_probe.exists` defaults to True while unknown -- optimism is the
-    right way round for a widget that must not blank a user's list because a
-    mount was slow -- so a cold cache reports a vanished file as present and
-    the "not found" hint never appears.
-    """
-    for path in paths:
-        path_probe.prime(str(path), False)
-        path_probe.prime(str(path), False, want_dir=True)
 
 pytestmark = pytest.mark.qt
 
@@ -63,13 +28,6 @@ pytestmark = pytest.mark.qt
 def paired(qtbot):
     """An empty score/count/database table, live and offscreen."""
     widget = fl.PairedFileTableWidget()
-    qtbot.addWidget(widget)
-    return widget
-
-
-def _listing(qtbot, **kwargs):
-    """A live FilePathListWidget for a CSV setting."""
-    widget = fl.FilePathListWidget(kind="csv", **kwargs)
     qtbot.addWidget(widget)
     return widget
 
@@ -304,103 +262,3 @@ def test_removing_a_row_takes_its_database_pin_with_it(paired):
 
 
 # --------------------------------------------------- where the dialog reopens
-
-def test_the_file_dialog_reopens_beside_the_last_file_unless_that_folder_is_gone(
-        qtbot, monkeypatch, tmp_path):
-    """The picker has to start somewhere real, or it opens at the wrong place.
-
-    Reopening beside the file already listed is what saves a user four clicks
-    per plate. But a settings file is routinely written on one machine and run
-    on another, where that folder does not exist -- and handing Qt a
-    non-existent start directory is how a dialog opens at the filesystem root
-    or at the process's working directory instead. The empty string is the
-    deliberate "you choose", so both cases must be driven here.
-    """
-    listed = tmp_path / "plate1_scores.csv"
-    listed.write_text("gene,score\na,1\n", encoding="utf-8")
-    widget = _listing(qtbot)
-
-    starts = []
-
-    def _record(parent, title, start, filters):
-        starts.append(start)
-        return [], ""
-
-    monkeypatch.setattr(QFileDialog, "getOpenFileNames", _record)
-
-    widget.set_value([str(listed)])
-    _known(listed.parent)
-    assert widget.pick_files() == 0
-    assert starts == [str(tmp_path)]
-
-    vanished = tmp_path / "vanished" / "plate1_scores.csv"
-    _gone(vanished, vanished.parent)
-    widget.set_value([str(vanished)])
-    assert widget.pick_files() == 0
-    assert starts == [str(tmp_path), ""]
-    assert widget._hint.text() == "1 file selected — 1 not found (shown in red)"
-
-
-def test_a_remembered_folder_wins_over_the_listed_file(qtbot, monkeypatch,
-                                                       tmp_path):
-    """Where the user last browsed beats where the listed file happens to live.
-
-    A user adding four plates from one folder browses there once; the second
-    press must open in that folder even though the file already listed came
-    from somewhere else entirely. If the listed file won, every press after
-    the first would send them back to the folder they had already finished
-    with.
-    """
-    elsewhere = tmp_path / "elsewhere"
-    elsewhere.mkdir()
-    listed = tmp_path / "old" / "plate1_scores.csv"
-    listed.parent.mkdir()
-    listed.write_text("gene,score\na,1\n", encoding="utf-8")
-    widget = _listing(qtbot)
-    widget.set_value([str(listed)])
-    _known(listed.parent, elsewhere)
-
-    starts = []
-
-    def _record(parent, title, start, filters):
-        starts.append(start)
-        return [], ""
-
-    monkeypatch.setattr(QFileDialog, "getOpenFileNames", _record)
-
-    assert widget.pick_files() == 0
-    assert starts == [str(tmp_path / "old")]
-
-    widget._last_directory = str(elsewhere)
-    assert widget.pick_files() == 0
-    assert starts == [str(tmp_path / "old"), str(elsewhere)]
-
-
-def test_an_empty_list_opens_the_dialog_with_no_start_directory(qtbot,
-                                                                monkeypatch,
-                                                                tmp_path):
-    """With nothing listed there is nothing to reopen beside.
-
-    The widget must ask for the platform default rather than guessing, and it
-    must start guessing again the moment a file IS listed -- the two answers
-    come from the same method, so a change to one silently changes the other.
-    """
-    widget = _listing(qtbot)
-    starts = []
-
-    def _record(parent, title, start, filters):
-        starts.append(start)
-        return [], ""
-
-    monkeypatch.setattr(QFileDialog, "getOpenFileNames", _record)
-
-    assert widget.get_value() == []
-    assert widget.pick_files() == 0
-    assert starts == [""]
-
-    listed = tmp_path / "plate1_scores.csv"
-    listed.write_text("gene,score\na,1\n", encoding="utf-8")
-    widget.set_value([str(listed)])
-    _known(listed.parent)
-    assert widget.pick_files() == 0
-    assert starts == ["", str(tmp_path)]

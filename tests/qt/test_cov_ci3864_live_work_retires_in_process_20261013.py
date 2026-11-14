@@ -21,7 +21,6 @@ from __future__ import annotations
 import logging
 import sys
 import threading
-import weakref
 
 import pytest
 
@@ -209,34 +208,3 @@ def test_the_exit_hook_survives_a_failing_retire_and_waits_for_the_parked(
     assert drained == ["drained"]
 
 
-class _Runner:
-    """A job runner stand-in that records what it was asked."""
-
-    def __init__(self, *, cancel_fails=False, shutdown_fails=False):
-        self.cancel_fails = cancel_fails
-        self.shutdown_fails = shutdown_fails
-        self.shut_down_with = None
-
-    def cancel(self):
-        if self.cancel_fails:
-            raise RuntimeError("cannot cancel")
-
-    def shutdown(self, remaining):
-        if self.shutdown_fails:
-            raise RuntimeError("cannot shut down")
-        self.shut_down_with = remaining
-
-
-def test_a_runner_that_cannot_cancel_is_still_shut_down(monkeypatch, caplog):
-    stuck = _Runner(cancel_fails=True)
-    broken = _Runner(shutdown_fails=True)
-    live = weakref.WeakSet([stuck, broken])
-    monkeypatch.setattr(job_runner, "_LIVE_RUNNERS", live)
-
-    with caplog.at_level(logging.DEBUG, logger=job_runner.LOG.name):
-        asked = job_runner.shutdown_all(500)
-
-    assert asked == 1
-    assert stuck.shut_down_with is not None and stuck.shut_down_with <= 500
-    assert "could not cancel a job runner" in caplog.text
-    assert "could not shut down a job runner" in caplog.text

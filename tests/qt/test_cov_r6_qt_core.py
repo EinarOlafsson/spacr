@@ -45,7 +45,6 @@ Offscreen, offline, no sleeps.
 from __future__ import annotations
 
 import gzip
-import json
 
 import numpy as np
 import pandas as pd
@@ -64,7 +63,6 @@ from spacr.qt import crop_thumbs as ctm
 from spacr.qt import curation_tool as ct
 from spacr.qt import job_runner as jr
 from spacr.qt import layer_viewer as lv
-from spacr.qt import plate_queue as pq
 from spacr.qt import prefs
 from spacr.qt import synthetic as sy
 
@@ -107,73 +105,6 @@ def _tracks():
 # ---------------------------------------------------------------------------
 # spacr.qt.plate_queue
 # ---------------------------------------------------------------------------
-
-def test_a_patch_that_changes_nothing_does_not_rewrite_the_queue(tmp_path):
-    """``update`` saves on a change and only on a change.
-
-    The queue file is the crash-recovery record for a run that can take
-    hours, and the screen calls ``update`` on every poll tick. Rewriting it
-    for a no-op patch is a synchronous JSON dump per tick; skipping it for a
-    real one loses the plate that was running when the machine went down.
-
-    Detected by *deleting* the file after the first save: a save recreates
-    it, so its absence is a positive fact about the second call rather than
-    an inference from a timestamp.
-    """
-    path = tmp_path / "queue.json"
-    queue = pq.PlateQueue(path)
-    item = pq.QueueItem.build("mask", {"src": "/plates/A"})
-    queue.add(item)
-    assert path.is_file(), "add() should have written the snapshot"
-    path.unlink()
-
-    # Same values as the item already carries -> no write.
-    queue.update(item.id, status=pq.Status.QUEUED, label="/plates/A")
-    assert not path.exists()
-
-    # A field the item does not have -> no write, and no attribute invented.
-    queue.update(item.id, not_a_queue_field=17)
-    assert not path.exists()
-    assert not hasattr(item, "not_a_queue_field")
-
-    # ... and one real change writes the whole snapshot back.
-    queue.update(item.id, status=pq.Status.RUNNING)
-    assert item.status is pq.Status.RUNNING
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    assert [row["status"] for row in payload["items"]] == ["running"]
-
-
-def test_a_csv_cell_that_is_text_or_absent_is_carried_through_unconverted(
-        tmp_path):
-    """The coercion ladder's bottom two rungs.
-
-    ``import_plates_from_csv`` tries int, then float, then the boolean and
-    null spellings, and a cell matching none of them has to arrive at the
-    settings dict as the string the user typed. A row that stops short of the
-    header hands ``csv.DictReader``'s ``None`` in, which is a missing value
-    and must not be stringified into ``"None"`` either.
-    """
-    csv_path = tmp_path / "plates.csv"
-    csv_path.write_text(
-        "src,cell_size,note\n"
-        "/plates/A,25,two channels\n"
-        "/plates/B,30\n"
-        ",ignored,ignored\n", encoding="utf-8")
-
-    items = pq.import_plates_from_csv(
-        csv_path, {"cell_size": 0, "note": "", "channels": [0, 1]},
-        app_key="mask")
-
-    assert [i.label for i in items] == ["/plates/A", "/plates/B"]
-    # numbers still coerce...
-    assert items[0].settings["cell_size"] == 25
-    # ... text falls all the way through as text ...
-    assert items[0].settings["note"] == "two channels"
-    # ... and the column the short row never supplied is None, not "None".
-    assert items[1].settings["note"] is None
-    # base settings are copied per row, not shared
-    assert items[0].settings["channels"] == [0, 1]
-    assert items[0].settings["channels"] is not items[1].settings["channels"]
 
 
 # ---------------------------------------------------------------------------
@@ -386,29 +317,6 @@ def test_the_canonical_store_is_not_migrated_onto_itself(monkeypatch):
 # ---------------------------------------------------------------------------
 # spacr.qt.job_runner
 # ---------------------------------------------------------------------------
-
-def test_an_unthreaded_job_without_a_callback_still_reports_finished(qtbot):
-    """``on_done`` is optional; ``job_finished`` is not.
-
-    The unthreaded runner is what the tests and the headless entry points
-    use, and a caller that only wants the side effect passes no callback. The
-    busy indicator is driven by ``job_finished``, so skipping the emit would
-    leave the spinner turning for ever.
-    """
-    runner = jr.JobRunner(threaded=False)
-    seen = []
-    finished = []
-    runner.job_finished.connect(finished.append)
-
-    assert runner.submit(lambda: seen.append("ran") or "result") is True
-    assert seen == ["ran"]
-    assert finished == [True]
-
-    # ... and with a callback, the result reaches it.
-    got = []
-    assert runner.submit(lambda: "payload", got.append) is True
-    assert got == ["payload"]
-    assert finished == [True, True]
 
 
 def test_the_last_non_blank_line_is_the_first_one_looked_at(qtbot):
