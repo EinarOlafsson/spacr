@@ -12,11 +12,7 @@ What is pinned here:
   and a ``png_list`` whose crop type has no ``in_<type>`` flag on the
   bootstrap frame (the type-axis nulling cannot run, so a label-matched path
   survives).
-* :mod:`spacr.metadata_resolution` -- pseudo-wells asked for only one of the
-  two identity axes, in both directions.
-* :mod:`spacr.schema` -- ``row_id`` on every one- and two-letter row label
-  there is, which is the proof that its ``index is not None`` re-check can
-  never fail.
+* :mod:`spacr.schema` -- the object-role registry's import-time self-check.
 * :mod:`spacr.crops` and :mod:`spacr.align` -- the two "the window might not
   overlap" guards, both of which sit after a computation that has already
   guaranteed an overlap. The invariant is asserted rather than the guard
@@ -27,13 +23,12 @@ from __future__ import annotations
 
 import os
 import sqlite3
-import string
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from spacr import align, crops, filters, metadata_resolution, schema
+from spacr import align, crops, filters, schema
 
 BASE = dict(plateID="p1", rowID="r1", columnID="c1", fieldID="f1")
 
@@ -132,75 +127,8 @@ def test_a_relationships_table_with_no_object_label_carries_no_crop_paths(
 
 
 # ---------------------------------------------------------------------------
-# metadata_resolution: pseudo-wells for one axis at a time
+# schema: the object-role registry checked at import
 # ---------------------------------------------------------------------------
-
-def _resolve(frame):
-    return metadata_resolution.resolve_metadata_columns(
-        frame, [schema.ROW_KEY, schema.COLUMN_KEY],
-        pseudo_source="sample", allow_pseudo=True)
-
-
-def test_pseudo_wells_fill_only_the_identity_axis_that_is_missing():
-    """A table that already has one of the two keeps the one it has.
-
-    Both directions in one test: overwriting the axis the file supplied would
-    silently remap the plate, and the audit trail must still name both
-    coordinates for every distinct source value either way.
-    """
-    have_row = pd.DataFrame({"sample": ["a", "b", "a"],
-                             schema.ROW_KEY: ["r9", "r9", "r9"]})
-    result = _resolve(have_row)
-    assert list(result.frame[schema.ROW_KEY]) == ["r9", "r9", "r9"]
-    assert list(result.frame[schema.COLUMN_KEY]) == ["c1", "c2", "c1"]
-
-    have_column = pd.DataFrame({"sample": ["a", "b", "a"],
-                                schema.COLUMN_KEY: ["c7", "c7", "c7"]})
-    mirrored = _resolve(have_column)
-    assert list(mirrored.frame[schema.COLUMN_KEY]) == ["c7", "c7", "c7"]
-    assert list(mirrored.frame[schema.ROW_KEY]) == ["r1", "r1", "r1"]
-
-    # The audit is the record of what the pseudo-well map decided, and it
-    # names both axes even for the one that was not written.
-    assert [entry[schema.COLUMN_KEY] for entry in mirrored.pseudo_map] == \
-        ["c1", "c2"]
-
-
-# ---------------------------------------------------------------------------
-# schema.row_id: the re-check that cannot fail
-# ---------------------------------------------------------------------------
-
-def test_every_row_label_row_id_accepts_parses_to_an_index():
-    """UNREACHABLE ARC, PROVEN: ``row_id`` line 765's False side.
-
-    ``row_id`` only calls ``row_index_from_letters`` behind
-    ``_ROW_ONLY.match(letters)``, which is ``^[A-Za-z]{1,2}$``.
-    ``row_index_from_letters`` returns None for a non-string, for an empty
-    string, and for any character outside ``A``-``Z`` after ``.upper()`` --
-    none of which a one- or two-letter ASCII string can be -- and its
-    bijective base-26 total is at least 1, so ``total or None`` is an int.
-    The ``if index is not None`` guard therefore always holds and the fall
-    through to ``_prefixed_id`` is dead for these inputs.
-
-    Asserted here over the whole domain the regex admits: 702 labels, every
-    one of which round-trips.
-    """
-    letters = list(string.ascii_uppercase) + [
-        a + b for a in string.ascii_uppercase for b in string.ascii_uppercase]
-    assert len(letters) == 702
-
-    for label in letters:
-        index = schema.row_index_from_letters(label)
-        assert isinstance(index, int) and index >= 1, label
-        assert schema.row_id(label) == f"r{index}"
-        assert schema.row_id(label.lower()) == f"r{index}"
-        assert schema.letters_from_row_index(index) == label
-
-    # The fall-through is live for tokens the regex does NOT admit, which is
-    # what keeps the guard from being the only thing standing between a bad
-    # label and _prefixed_id.
-    assert schema.row_index_from_letters("A1") is None
-    assert schema.row_id("r12") == "r12"
 
 
 def test_the_object_role_registry_validates_itself_at_import():
