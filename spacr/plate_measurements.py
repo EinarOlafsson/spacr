@@ -774,7 +774,7 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
         else:
             table_overrides = mt.aggregation_overrides(policy, table)
             plan_for_table = aggregation_plan(frame, overrides=table_overrides,
-                                              skip=keys)
+                                              skip=keys, defaults=policy.defaults)
             ambiguous = ambiguous_identifiers(frame, keys,
                                               plan=plan_for_table,
                                               overrides=table_overrides)
