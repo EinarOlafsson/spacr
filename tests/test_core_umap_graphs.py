@@ -368,20 +368,6 @@ def test_generate_screen_graphs_writes_results(umap_src):
     assert os.path.isdir(out) and os.listdir(out)
 
 
-def test_reducer_hyperparameter_search_runs(umap_src):
-    pytest.importorskip("umap")
-    from spacr.core import reducer_hyperparameter_search
-    settings = _umap_settings(umap_src)
-    out = reducer_hyperparameter_search(
-        settings=settings,
-        reduction_params=[{"n_neighbors": 5}],
-        dbscan_params=[{"eps": 0.5, "min_samples": 3}],
-        kmeans_params=[{"n_clusters": 2}],
-        save=False, show=False)
-    # returns a figure or None depending on backend; the call must not raise
-    assert out is None or out is not None
-
-
 def test_reducer_search_accepts_dict_params_and_returns_fig(umap_src):
     """Bare dicts (not lists) are wrapped; return_fig hands back the figure."""
     pytest.importorskip("umap")
@@ -420,19 +406,6 @@ def test_reducer_search_saves_figure(umap_src):
     for root, _dirs, files in os.walk(umap_src):
         pdfs += [f for f in files if f.endswith(".pdf")]
     assert pdfs, "save=True should write a search figure"
-
-
-def test_reducer_search_row_limit_and_exclude(umap_src):
-    """row_limit sampling + exclude_conditions filtering inside the search."""
-    pytest.importorskip("umap")
-    from spacr.core import reducer_hyperparameter_search
-    out = reducer_hyperparameter_search(
-        settings=_umap_settings(umap_src, row_limit=30,
-                                exclude_conditions="pc", verbose=True),
-        reduction_params=[{"n_neighbors": 5}],
-        dbscan_params=[{"eps": 0.5, "min_samples": 3}],
-        kmeans_params=None, save=False, show=False)
-    assert out is None or out is not None
 
 
 def test_reducer_search_prints_row_exclusion_note(umap_src, capsys):
@@ -510,3 +483,23 @@ def test_the_grid_is_still_one_setting_away(umap_src, monkeypatch):
         umap_src, plot_images=True, plot_cluster_grids=True, image_nr=2))
 
     assert drawn == ["grid"]
+
+
+@pytest.mark.parametrize("overrides, kmeans_params, panels", [
+    pytest.param({}, [{"n_clusters": 2}], 2, id="snap-dbscan-and-kmeans"),
+    # color_by groups the scatter by a metadata column instead of cluster.
+    pytest.param({"color_by": "columnID"}, None, 1, id="snap-color-by-column"),
+    # row_limit sampling + exclude_conditions filtering inside the search.
+    pytest.param({"row_limit": 30, "exclude_conditions": "pc",
+                  "verbose": True}, None, 1, id="snap-row-limit-and-exclude"),
+])
+def test_reducer_hyperparameter_search_draws_one_panel_per_clustering(
+        umap_src, overrides, kmeans_params, panels):
+    pytest.importorskip("umap")
+    from spacr.core import reducer_hyperparameter_search
+    fig = reducer_hyperparameter_search(
+        settings=_umap_settings(umap_src, **overrides),
+        reduction_params=[{"n_neighbors": 5}],
+        dbscan_params=[{"eps": 0.5, "min_samples": 3}],
+        kmeans_params=kmeans_params, save=False, show=False, return_fig=True)
+    assert len(fig.axes) == panels

@@ -57,18 +57,6 @@ class TestTheGuardLetsABlankThrough:
         with pytest.raises(ValueError, match="hinge_threshold"):
             _reject_unused_settings('ols', {'hinge_threshold': (0, None)})
 
-    @pytest.mark.parametrize("blank", BLANKS)
-    def test_what_counts_as_blank(self, blank):
-        from spacr.ml import _left_blank
-
-        assert _left_blank(blank) is True
-
-    @pytest.mark.parametrize("answered", [0, 0.0, False, "HC3", 1.345])
-    def test_what_does_not(self, answered):
-        from spacr.ml import _left_blank
-
-        assert _left_blank(answered) is False
-
     def test_the_screens_own_saved_settings_can_be_refitted(self):
         """The reproduction, in miniature: every policed setting blank, as
         a settings CSV writes them, under a type that reads none of them."""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-13 11:37-0500\n"
+"POT-Creation-Date: 2026-11-13 18:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -96,12 +96,32 @@ msgid "A file written before a release changed a default does not hold the chang
 msgstr "En fil som skrevs innan en version ändrade ett standardvärde innehåller inte den ändrade nyckeln, så den skulle köras med det nya standardvärdet. När en inställningsfil läses av ``spacr-run``, ``spacr repro``, batchkön eller Importinställningar får varje nyckel vars standardvärde ändrades efter filens version, och som filen inte anger, det standardvärde den hade då. En fil utan ``spacr_settings_version``, till exempel en handskriven, läses som den äldsta versionen, och loggen namnger varje gammalt standardvärde den fick. En nyckel som filen anger vinner alltid. För att använda dagens standardvärden anger du de nycklarna eller lägger till den aktuella ``spacr_settings_version`` i filen."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
-msgstr "Ändringarna hålls i en enda tabell, ``DEFAULT_CHANGES`` i ``spacr/settings.py``, med numret på det objekt som ändrade standardvärdet som nyckel:"
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default. A key is always above every earlier one, so an item that changes a default after a higher-numbered item takes the next free number:"
+msgstr "Ändringarna hålls i en enda tabell, ``DEFAULT_CHANGES`` i ``spacr/settings.py``, med numret på det objekt som ändrade standardvärdet som nyckel. En nyckel ligger alltid över alla tidigare, så ett objekt som ändrar ett standardvärde efter ett objekt med högre nummer tar nästa lediga nummer:"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
 msgstr "931: ``ops_compose_blend`` var ``'average'``; nu är det ``'feather'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "932: ``ops_registration_precision`` was ``'float64'`` and ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and ``'gpu'``."
+msgstr "932: ``ops_registration_precision`` var ``'float64'`` och ``ops_registration_backend`` ``'cpu'``; nu är de ``'float32'`` och ``'gpu'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
+msgstr "933 (objekt 930:s byte av standardvärde): ``ops_align_model`` var ``'similarity'``; nu är det ``'tile_affine'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now ``'per_feature'``, so the screen pipeline also writes a well table in which every feature takes its own default."
+msgstr "934 (objekt 937): ``aggregation_defaults`` var ``'legacy'``; nu är det ``'per_feature'``, så screeningpipelinen skriver också en brunnstabell där varje egenskap får sitt eget standardvärde."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "935 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
+msgstr "935 (objekt 940:s byte av standardvärde): ``ops_placement_seed_export`` var ``False``; nu är det ``True``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
+msgstr "936: ``ops_blas_threads`` var ``1`` och ``ops_consensus_space`` ``'refit'``; nu är de ``2`` och ``'hybrid'``."
 
 msgid "Public API"
 msgstr "Publikt API"

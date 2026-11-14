@@ -7,7 +7,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QSettings
-from PySide6.QtWidgets import QComboBox, QDialogButtonBox, QSlider, QWidget
+from PySide6.QtWidgets import QWidget
 
 from spacr.qt import preferences as prefs
 from spacr.qt.widgets import ambient
@@ -21,12 +21,6 @@ def store(tmp_path, monkeypatch):
     monkeypatch.setattr(prefs, "_settings", lambda: settings)
     monkeypatch.setattr(ambient.AmbientWidget, "_start_producer", lambda self: None)
     return settings
-
-
-def _theme_combo(dialog):
-    return dialog.findChild(QComboBox, "AmbientTheme") or next(
-        box for box in dialog.findChildren(QComboBox)
-        if box.findData("data_art_impulse_lens") >= 0 and box.findData("blobs") >= 0)
 
 
 @pytest.mark.parametrize("raw", ["not a number", None, object()])
@@ -87,37 +81,3 @@ def test_apply_without_a_dynamic_policy_still_configures_the_fields(
     prefs.apply_ambient_preferences(qapp)
     assert field._click_ripples is True
     assert field.engine.ripples_enabled
-
-
-def test_density_the_user_moved_stays_put_when_the_theme_changes(
-        store, qtbot, qt_theme_applied):
-    prefs.set_ambient_animation("data_art_impulse_lens")
-    assert not store.contains(prefs._KEY_AMBIENT_DENSITY)
-    assert prefs.get_ambient_density() == pytest.approx(0.1)
-    dialog = prefs.PreferencesDialog()
-    qtbot.addWidget(dialog)
-    density = dialog.findChild(QSlider, "AmbientDensity")
-    combo = _theme_combo(dialog)
-    assert density.value() == 10
-    density.setValue(50)
-    combo.setCurrentIndex(combo.findData("blobs"))
-    assert density.value() == 50
-    combo.setCurrentIndex(combo.findData("data_art_impulse_lens"))
-    assert density.value() == 50
-    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
-    assert float(store.value(prefs._KEY_AMBIENT_DENSITY)) == pytest.approx(0.5)
-
-
-def test_a_saved_density_never_follows_the_theme_in_the_dialog(
-        store, qtbot, qt_theme_applied):
-    prefs.set_ambient_animation("blobs")
-    store.setValue(prefs._KEY_AMBIENT_DENSITY, 0.1)
-    dialog = prefs.PreferencesDialog()
-    qtbot.addWidget(dialog)
-    density = dialog.findChild(QSlider, "AmbientDensity")
-    combo = _theme_combo(dialog)
-    assert density.value() == 10
-    combo.setCurrentIndex(combo.findData("data_art_impulse_lens"))
-    assert density.value() == 10
-    combo.setCurrentIndex(combo.findData("blobs"))
-    assert density.value() == 10

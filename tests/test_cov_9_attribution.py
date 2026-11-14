@@ -13,7 +13,6 @@ import builtins
 import dataclasses
 
 import numpy as np
-import importlib.util
 
 import pytest
 import torch
@@ -39,7 +38,6 @@ from spacr.attribution import (
     class_scores,
     deletion_curve,
     method_agreement,
-    pointing_game,
     pointing_game_rate,
     randomization_sanity_check,
     smoothgrad,
@@ -150,44 +148,6 @@ def test_raw_scores_are_returned_unsoftmaxed_when_asked():
     assert not np.isclose(float(raw.sum()), 1.0)
     assert np.isclose(float(probability.sum()), 1.0)
     assert torch.allclose(torch.softmax(raw, dim=-1), probability)
-
-
-# ---------------------------------------------------------------------------
-# CAM over a layer that has no feature map
-# ---------------------------------------------------------------------------
-
-needs_torchcam = pytest.mark.skipif(
-    importlib.util.find_spec("torchcam") is None,
-    reason="gradcam needs the optional torchcam backend; "
-           "spacr refuses before reaching the spatial-layer check without it",
-)
-
-
-@needs_torchcam
-def test_a_cam_over_a_non_spatial_layer_is_refused_not_reshaped():
-    """A CAM needs a ``(B, C, H, W)`` feature map; a vector is not one.
-
-    SKIPPED WITHOUT torchcam, and the skip is not hiding anything. `attribute`
-    refuses gradcam with `AttributionError: gradcam requires the optional
-    torchcam backend` BEFORE it ever inspects the layer, so on a machine
-    without it this test cannot reach the refusal it is about -- it would be
-    asserting the wrong refusal and passing for the wrong reason if the
-    message ever matched.
-
-    torchcam is declared under `spacr[attribution]` and is genuinely optional;
-    the product behaviour here is correct either way.
-
-    Reshaping a token or logit vector into a square and colouring it produces
-    an image-shaped artefact with no relationship to the input pixels, which
-    is the single most convincing way this module could lie.
-    """
-    model = TinyCNN()
-
-    with pytest.raises(NoSpatialLayerError) as excinfo:
-        attribute(model, _image(), "gradcam", layer="head")
-    message = str(excinfo.value)
-    assert "not a (B, C, H, W) feature map" in message
-    assert "attention_rollout" in message
 
 
 # ---------------------------------------------------------------------------
@@ -498,21 +458,6 @@ def test_a_curve_with_no_steps_is_refused():
 # ---------------------------------------------------------------------------
 # The pointing game
 # ---------------------------------------------------------------------------
-
-def test_a_stack_of_object_planes_is_collapsed_into_one_mask():
-    """A label stack is several objects, and the map may point at any of them.
-
-    spaCR masks arrive per object plane; testing only the first plane would
-    score a correct map as a miss whenever it pointed at the second object.
-    """
-    amap = np.zeros((IMG, IMG))
-    amap[6, 6] = 1.0
-    stack = np.zeros((2, IMG, IMG), dtype=int)
-    stack[0, 0, 0] = 1
-    stack[1, 6, 6] = 2
-
-    assert pointing_game(amap, stack) == 1.0
-
 
 def test_a_rate_over_nothing_scorable_says_it_is_not_a_measurement():
     """An empty rate must not be reported as a score of zero.

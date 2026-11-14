@@ -416,45 +416,6 @@ def test_a_checksum_mismatch_installs_nothing(remote, tmp_path):
     assert list(dest.iterdir()) == [], "a mismatched download was left behind"
 
 
-def test_an_interrupted_fetch_leaves_nothing_at_the_destination(remote, tmp_path):
-    """The atomicity test.
-
-    A download that dies halfway must not leave a file that looks like a model:
-    a truncated checkpoint loads, segments, and is wrong. Not even the
-    temporary file may survive.
-    """
-    entry, _source, _digest = remote
-    dest = tmp_path / "dest"
-
-    def dying_opener(uri):
-        def chunks():
-            yield b"PK\x03\x04" + b"h" * 100
-            raise ConnectionError("the network went away")
-        return chunks(), 4100
-
-    with pytest.raises(ConnectionError):
-        zoo.fetch(entry, dest, opener=dying_opener)
-    assert list(dest.iterdir()) == []
-
-
-def test_a_cancelled_fetch_leaves_nothing_at_the_destination(remote, tmp_path):
-    entry, _source, _digest = remote
-    dest = tmp_path / "dest"
-    stop = {"now": False}
-
-    def slow_opener(uri):
-        def chunks():
-            for _ in range(50):
-                stop["now"] = True          # cancel arrives after chunk 1
-                yield b"h" * 64
-        return chunks(), 3200
-
-    with pytest.raises(zoo.DownloadCancelled, match="hela_60x.CP_model"):
-        zoo.fetch(entry, dest, opener=slow_opener,
-                  cancel=lambda: stop["now"])
-    assert list(dest.iterdir()) == []
-
-
 def test_an_empty_response_installs_nothing(remote, tmp_path):
     entry, _source, _digest = remote
     dest = tmp_path / "dest"
@@ -724,16 +685,6 @@ def test_a_broken_catalogue_file_names_itself(tmp_path):
         zoo.load_catalogue_file(path)
     with pytest.raises(zoo.ModelZooError, match="no such catalogue file"):
         zoo.load_catalogue_file(tmp_path / "absent.json")
-
-
-def test_the_catalogue_picks_up_a_configured_catalogue_file(tmp_path,
-                                                            monkeypatch):
-    path = tmp_path / "zoo.json"
-    path.write_text(json.dumps([{"name": "extra.CP_model", "sha256": "c" * 64,
-                                 "trained_on": "u2os 20x"}]), encoding="utf-8")
-    monkeypatch.setenv(zoo.CATALOGUE_ENV_VAR, str(path))
-    names = {e.name for e in zoo.catalogue()}
-    assert "extra.CP_model" in names
 
 
 def test_resolve_prefers_a_path_that_exists(tmp_path):

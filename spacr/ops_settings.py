@@ -38,12 +38,22 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_raster_overlap": 213,
     "ops_window_overlap": 96,
     "ops_compose_blend": "feather",
+    "ops_stitch_read_threads": 4,
+    "ops_stitch_edge_workers": 1,
+    "ops_placement_seed": None,
+    "ops_placement_seed_mode": "subset",
+    "ops_placement_seed_export": True,
+    "ops_placement_seed_check_pixels": False,
+    "ops_placement_seed_tolerance": 2.0,
     "ops_footprint": 10.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
     "ops_cell_rule": "mapped",
     "ops_crosstalk": "argmax_median",
     "ops_channel_registration": "spots",
+    "ops_registration_precision": "float32",
+    "ops_registration_backend": "gpu",
+    "ops_field_diagnostics": False,
     "ops_read_mismatches": 0,
     "ops_min_reads": None,
     "ops_min_fraction": 0.6,
@@ -70,7 +80,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_pool_interphase": False,
     "ops_feature_qc": True,
     "ops_ownership": "closer_match",
-    "ops_align_model": "similarity",
+    "ops_align_model": "tile_affine",
     "ops_align_tile_min_nuclei": 200,
     "ops_align_match_radius": 3.0,
     "ops_align_trim_passes": 3,
@@ -175,6 +185,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_pixel_quality": 0.1,
     "ops_decoy_library_k": 0,
     "ops_fdr_scale": 1.268,
+    "ops_decode_threshold_mode": "manual",
+    "ops_decode_fdr_max": 0.1,
+    "ops_decode_auto_grid": None,
+    "ops_decode_auto_ci": True,
+    "ops_decode_auto_tune_fraction": 0.5,
+    "ops_decode_auto_seed": 0,
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
     "ops_decode_qc": False,
@@ -281,6 +297,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_eval_time_split": False,
     "ops_eval_covariates": None,
     "ops_deterministic_blas": True,
+    "ops_blas_threads": 2,
     "ops_ph_acquisitions": None,
     "ops_ph_pipeline": False,
     "ops_ph_measure_workers": None,
@@ -334,6 +351,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_consensus_min_stability": 0.5,
     "ops_consensus_match_count": True,
     "ops_consensus_guides": None,
+    "ops_consensus_space": 'hybrid',
     "ops_bench_replicates": 20,
     "ops_bench_replicate_seed": 7000,
     "ops_bench_cluster_seed": 100,
@@ -387,6 +405,23 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_control_seed": 0,
 }
 
+#: The Measure setting each OPS phenotype measurement setting stands for
+#: (item 934). The OPS phenotype path measures through spacr.measure's own
+#: functions; ``spacr.ops_sample._measurement_settings`` builds its Measure
+#: settings through this map, and a Measure run with the mapped settings and
+#: ``homogeneity_distances=[2, 4, 8]`` writes the OPS columns with the same
+#: values.
+OPS_TO_MEASURE_KEYS: Dict[str, str] = {
+    "ops_ph_texture": "homogeneity",
+    "ops_ph_funk_features": "funk_object_features",
+    "ops_ph_zernike": "zernike",
+    "ops_ph_measure_gpu": "measure_gpu",
+    "ops_ph_measure_gpu_check": "measure_gpu_check",
+    "ops_ph_channels": "channel_names",
+    "ops_ph_profile_features": "profile_features",
+    "ops_ph_granularity_subsample": "profile_granularity_subsample",
+}
+
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
 #:
 #: ``None`` is admissible for every path-like and every "work it out" default,
@@ -406,12 +441,22 @@ OPS_TYPES: Dict[str, object] = {
     "ops_raster_overlap": int,
     "ops_window_overlap": int,
     "ops_compose_blend": str,
+    "ops_stitch_read_threads": int,
+    "ops_stitch_edge_workers": int,
+    "ops_placement_seed": (str, type(None)),
+    "ops_placement_seed_mode": str,
+    "ops_placement_seed_export": bool,
+    "ops_placement_seed_check_pixels": bool,
+    "ops_placement_seed_tolerance": (float, int),
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
     "ops_spot_detector": str,
     "ops_cell_rule": str,
     "ops_crosstalk": str,
     "ops_channel_registration": str,
+    "ops_registration_precision": str,
+    "ops_registration_backend": str,
+    "ops_field_diagnostics": bool,
     "ops_read_mismatches": int,
     "ops_min_reads": (int, type(None)),
     "ops_min_fraction": (float, int),
@@ -543,6 +588,12 @@ OPS_TYPES: Dict[str, object] = {
     "ops_pixel_quality": (float, int),
     "ops_decoy_library_k": int,
     "ops_fdr_scale": (float, int),
+    "ops_decode_threshold_mode": str,
+    "ops_decode_fdr_max": (float, int),
+    "ops_decode_auto_grid": (dict, str, type(None)),
+    "ops_decode_auto_ci": bool,
+    "ops_decode_auto_tune_fraction": (float, int),
+    "ops_decode_auto_seed": int,
     "ops_decode_skip_unplaced_sites": bool,
     "ops_store_field_cache": bool,
     "ops_decode_qc": bool,
@@ -649,6 +700,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_eval_time_split": bool,
     "ops_eval_covariates": (str, type(None)),
     "ops_deterministic_blas": bool,
+    "ops_blas_threads": int,
     "ops_ph_acquisitions": (dict, str, type(None)),
     "ops_ph_pipeline": bool,
     "ops_ph_measure_workers": (int, type(None)),
@@ -702,6 +754,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_consensus_min_stability": (float, int),
     "ops_consensus_match_count": bool,
     "ops_consensus_guides": (str, type(None)),
+    "ops_consensus_space": str,
     "ops_bench_replicates": int,
     "ops_bench_replicate_seed": int,
     "ops_bench_cluster_seed": int,
@@ -773,10 +826,16 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS alignment": [
         "cellpose_model", "cellpose_diameter", "ops_raster_overlap",
         "ops_window_overlap", "ops_compose_blend",
+        "ops_stitch_read_threads", "ops_stitch_edge_workers",
+        "ops_placement_seed", "ops_placement_seed_mode",
+        "ops_placement_seed_export", "ops_placement_seed_check_pixels",
+        "ops_placement_seed_tolerance",
     ],
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
         "ops_store_reads", "ops_spot_detector", "ops_channel_registration",
+        "ops_registration_precision", "ops_registration_backend",
+        "ops_field_diagnostics",
         "ops_crosstalk",
         "ops_cell_rule",
         "ops_read_mismatches", "ops_min_reads", "ops_min_fraction",
@@ -803,6 +862,12 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_pixel_quality",
         "ops_decoy_library_k",
         "ops_fdr_scale",
+        "ops_decode_threshold_mode",
+        "ops_decode_fdr_max",
+        "ops_decode_auto_grid",
+        "ops_decode_auto_ci",
+        "ops_decode_auto_tune_fraction",
+        "ops_decode_auto_seed",
         "ops_decode_skip_unplaced_sites",
         "ops_store_field_cache",
         "ops_decode_qc",
@@ -936,7 +1001,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_eval_references", "ops_eval_split", "ops_eval_null_size",
         "ops_eval_heldout_folds", "ops_eval_decoys",
         "ops_eval_time_split", "ops_eval_covariates",
-        "ops_deterministic_blas",
+        "ops_deterministic_blas", "ops_blas_threads",
         "ops_ph_acquisitions", "ops_ph_pipeline", "ops_ph_measure_workers",
         "ops_ph_stage_dir", "ops_ph_stage_ahead", "ops_ph_stage_threads",
         "ops_ph_measure_gpu_check", "ops_archive_root", "ops_archive_verify",
@@ -975,6 +1040,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_consensus_min_stability",
         "ops_consensus_match_count",
         "ops_consensus_guides",
+        "ops_consensus_space",
         "ops_bench_replicates",
         "ops_bench_replicate_seed",
         "ops_bench_cluster_seed",
@@ -1103,6 +1169,28 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "a believed spot answer within ops_registration_refine_px of the "
         "background answer, correcting small residual shifts. Default "
         "'spots'.",
+    "ops_registration_precision":
+        "(str) - The precision of the Fourier transforms that register the "
+        "sequencing channels and cycles and, on the CPU, the stitch's tile "
+        "pairs. 'float32' takes about half the "
+        "time of 'float64' and, on 443 fields of the Funk et al. 2022 "
+        "plates, gave the same shifts, reads and calls, and on well A1 of "
+        "plates A to D the same stitch positions; 'float64' is the "
+        "arithmetic used before, kept for an exact rerun of older results. "
+        "Default 'float32'.",
+    "ops_registration_backend":
+        "(str) - Where those transforms run. 'gpu' batches each cycle's "
+        "transforms on a CUDA card, with the same shifts and calls as "
+        "'cpu' and about a third less time per field, and uses the CPU "
+        "when there is no card, when ops_gpu is off, or when the decode "
+        "runs in several workers (n_workers above 1). 'cpu' never uses the "
+        "card. Default 'gpu'.",
+    "ops_field_diagnostics":
+        "(bool) - Also write each sequencing field's diagnostics to "
+        "<well>/decode_diagnostics/: intensity percentiles and focus per "
+        "cycle, DAPI focus, the spot filter's 99.9th percentile and every "
+        "registration's shift and peak. No decode result reads them; they "
+        "cost about a fifth of the field step. Default False.",
     "ops_crosstalk":
         "(str) - How the base caller undoes dye bleed-through between the "
         "four channels, after each cycle is put on a common scale. "
@@ -1148,6 +1236,52 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "2022 its seams scored like an unstitched tile. 'average' gives "
         "every tile the same weight, as before, and leaves a step at each "
         "tile edge. Default 'feather'.",
+    "ops_stitch_read_threads":
+        "(int) - How many threads read the well's nuclear tiles while the "
+        "stitch places them. The tiles are read ahead in the order the "
+        "stitch uses them, so reading from network storage overlaps with "
+        "the registration; the positions are the same for any number. On "
+        "Funk et al. 2022 plates A and B, 4 threads halved the stitch "
+        "step's time (about 235 s to about 120 s per well) for about 30 "
+        "extra CPU seconds per well. 1 reads one tile at a time, as before "
+        "spaCR 1.5.1.8. Default 4.",
+    "ops_stitch_edge_workers":
+        "(int) - How many worker processes register the stitch's tile "
+        "pairs. 1 registers them one after another. More registers them "
+        "on the CPU in that many processes with the same positions; with 3 "
+        "workers the placement of a Funk et al. 2022 well took about a "
+        "third of the time at the same total CPU time. Workers start ten "
+        "seconds apart, so this helps only wells whose placement takes "
+        "longer than that. Default 1.",
+    "ops_placement_seed":
+        "(str or None) - A placement file from an earlier full run: "
+        "<plate>_<well>.ops_placement.json, a folder holding it, or that "
+        "run's measurements.db. With it the stitch phase does not register "
+        "or solve: each tile of this run is put where the file says, in the "
+        "whole well's frame, so a run on a few fields composes the same "
+        "windows as the full run. The file is checked against the plate, "
+        "well, tiles, tile size and cycle first. A seeded run is not a "
+        "replacement for a full run in a paper; its report says 'placement: "
+        "seeded'. Empty solves as usual. Alpha.",
+    "ops_placement_seed_mode":
+        "(str) - 'subset' lets the run use any of the tiles the placement "
+        "file lists; 'strict' needs exactly the file's tiles and also "
+        "refuses source files that changed since the file was written. "
+        "Default 'subset'. Alpha.",
+    "ops_placement_seed_export":
+        "(bool) - Write <plate>_<well>.ops_placement.json into the well's "
+        "folder after every solved stitch, so a later run on part of the "
+        "well can use ops_placement_seed. A few kilobytes per well. Off for "
+        "settings files saved before spaCR 1.5.1.8. Default True. Alpha.",
+    "ops_placement_seed_check_pixels":
+        "(bool) - Also re-register up to six seams between this run's tiles "
+        "and stop if any disagrees with the placement file by more than "
+        "ops_placement_seed_tolerance. The positions are never changed. "
+        "Default False. Alpha.",
+    "ops_placement_seed_tolerance":
+        "(float) - How many pixels a re-registered seam may differ from the "
+        "placement file under ops_placement_seed_check_pixels. Default 2. "
+        "Alpha.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "
@@ -1518,26 +1652,29 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "ph_masks phase. Default 'closer_match'. Alpha.",
     "ops_align_model":
         "(str) - How the merge phase aligns each phenotype field to the "
-        "sequencing nuclei. 'similarity' re-solves one scale, rotation and "
-        "shift per field, as before. 'tile_affine' then fits one affine per "
-        "field and one per sequencing tile the field covers, and moves each "
-        "nucleus with its tile's affine; on Funk et al. 2022 plates A-D it "
-        "put 97.0-97.5 % of nuclei within 2 px of their sequencing nucleus "
-        "instead of 94.7-95.8 %, at about 0.017 s per field on one CPU "
-        "core. Default 'similarity'. Alpha.",
+        "sequencing nuclei. 'tile_affine' re-solves one scale, rotation and "
+        "shift per field, then fits one affine per field and one per "
+        "sequencing tile the field covers, and moves each nucleus with its "
+        "tile's affine; it needs the tile positions of the 'stitch' phase. "
+        "On Funk "
+        "et al. 2022 plates A-D it put 97.0-97.5 % of nuclei within 2 px of "
+        "their sequencing nucleus instead of 94.7-95.8 %, at about 0.017 s "
+        "per field on one CPU core. 'similarity' stops after the first "
+        "step, the default before spaCR 1.5.1.8; settings files saved "
+        "before then keep it. Default 'tile_affine'.",
     "ops_align_tile_min_nuclei":
         "(int) - The fewest phenotype nuclei a field must have in one "
         "sequencing tile for that tile to get its own affine; fewer keep "
         "the field's affine. Used with ops_align_model 'tile_affine'. "
-        "Default 200. Alpha.",
+        "Default 200.",
     "ops_align_match_radius":
         "(float) - How close, in sequencing pixels, a moved phenotype "
         "nucleus and a sequencing nucleus must be to pair while the "
-        "'tile_affine' model is fitted. Default 3. Alpha.",
+        "'tile_affine' model is fitted. Default 3.",
     "ops_align_trim_passes":
         "(int) - How many times the 'tile_affine' model pairs the nuclei, "
         "drops pairs further apart than 3 x their median (at least 0.5 px) "
-        "and re-fits. Default 3. Alpha.",
+        "and re-fits. Default 3.",
     "ops_merge_threshold":
         "(float) - How far, in sequencing pixels, a phenotype nucleus may "
         "land from a sequencing nucleus after alignment and still be called "
@@ -1703,9 +1840,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(dict or None) - How cells become gene profiles: lof (1 drops the 1% "
         "intensity outliers), impute ('median' or 'knn'), pca ('c0' per-well "
         "standardised, or 'brieflow'), agg ('guide' = median of guide medians, "
-        "or 'gene' = median of all cells) and nt ('pseudo' = four control "
-        "guides per pseudo-gene, or 'barcode'). Empty is lof 0, median, c0, "
-        "guide, pseudo. Default None. Alpha.",
+        "'gene' = median of all cells, or 'gene_trim' = their 10% trimmed "
+        "mean), nt ('pseudo' = four control guides per pseudo-gene, or "
+        "'barcode') and tvn ('spacr', or 'brieflow' = Brieflow's control "
+        "axes). The Hybrid profile is lof 1, knn, brieflow, gene, barcode, "
+        "brieflow with whitening epsilon 0. Empty is lof 0, median, c0, "
+        "guide, pseudo, spacr. Default None. Alpha.",
     "ops_profile_min_cells":
         "(int) - Genes and pseudo-genes with this many cells or fewer are left "
         "out of the profile table and the metrics; raising it drops weakly "
@@ -1912,6 +2052,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - The guide rows of ops_cluster_rows (gene, n_cells "
         "and the same numeric columns), which the bootstraps redraw. Empty "
         "uses the profile phase's guide table. Default None. Alpha.",
+    "ops_consensus_space":
+        "(str) - The space cluster_consensus and cluster_bench_test cluster "
+        "the profile phase's own gene and guide tables in: 'hybrid' embeds "
+        "them once at the gene level and moves every guide bootstrap within "
+        "that space, as the published analysis does; 'refit' fits the "
+        "embedding again on every bootstrap, as spaCR did before. Ready "
+        "rows (ops_cluster_rows) are clustered as given either way. Default "
+        "'hybrid'. Alpha.",
     "ops_bench_replicates":
         "(int) - Paired replicates R of the calibrated cluster test: each a "
         "guide bootstrap plus its own clustering seed. 20 is the value whose "
@@ -2022,11 +2170,20 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "in the retrieval power curve; every draw is then tested against it "
         "instead of against all cells. Default None. Alpha.",
     "ops_deterministic_blas":
-        "(bool) - Run the profile phases with the BLAS and OpenMP libraries "
-        "held to one thread, so a re-run of the same settings file writes "
-        "bit-identical profiles and metrics. Off is faster on many cores, "
-        "and the last digits of the PCA and TVN can then change from run to "
-        "run. Default True. Alpha.",
+        "(bool) - Run the profile, atlas, flat-field and score phases with "
+        "the BLAS and OpenMP libraries held at ops_blas_threads threads, so "
+        "a re-run of the same settings file writes bit-identical profiles "
+        "and metrics. Off leaves the thread count to the environment: faster "
+        "on many cores, but the last digits of the PCA and TVN can then "
+        "change from run to run. Default True. Alpha.",
+    "ops_blas_threads":
+        "(int) - How many threads the BLAS and OpenMP libraries get while "
+        "ops_deterministic_blas holds them. The thread count changes the "
+        "last digits of the single-precision PCA, which TVN with whitening "
+        "epsilon 0 can enlarge, so a result is reproduced exactly only at "
+        "the thread count it was made with: 2 reproduces the plate A Hybrid "
+        "profile; files written before this setting ran with 1. Default 2. "
+        "Alpha.",
     "ops_modules_runs":
         "(int) - How many resampled PHATE + Leiden runs the modules phase "
         "clusters the gene profiles in. Each run takes 90 % of the genes, "
@@ -2330,6 +2487,46 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "was measured for the Funk et al. 2022 library from its guides' "
         "neighbour distances; values below 1 count as 1. Default 1.268. "
         "Alpha.",
+    "ops_decode_threshold_mode":
+        "(str) - How the two call thresholds of the rule (a) decode, "
+        "ops_single_read_quality and ops_pixel_quality, are set. 'manual' "
+        "uses the values you enter. 'auto' chooses them well by well from "
+        "the well's decoy calls: half of the well's fields try every "
+        "setting of ops_decode_auto_grid, the setting that genotypes the "
+        "most nuclei with a decoy FDR at or below ops_decode_fdr_max is "
+        "used for the whole well, and the other half reports its FDR. The "
+        "spot thresholds (ops_read_threshold, ops_spot_min_peak) stay as "
+        "entered. Auto needs ops_decode_preset rule_a_s2 and decoys "
+        "(ops_decoy_library_k above 0); the choices are written to "
+        "results/ops_decode/decode_thresholds_<plate>.csv. On Funk et al. "
+        "2022 plate D it kept the FDR at 0.093 per 100 calls with 67.9 % of "
+        "linked nuclei genotyped. Default 'manual'. Alpha.",
+    "ops_decode_fdr_max":
+        "(float) - The highest decoy-estimated false calls per 100 real "
+        "calls that auto thresholds may accept (0.1 means 0.1 %). Used with "
+        "ops_decode_threshold_mode 'auto'. A well where no setting meets it "
+        "gets the strictest setting and auto_met False in its report. "
+        "Default 0.1. Alpha.",
+    "ops_decode_auto_grid":
+        "(dict) - The values auto thresholds try, as "
+        "{'ops_single_read_quality': [...], 'ops_pixel_quality': [...]}; a "
+        "threshold left out keeps its entered value. Empty uses the BMC "
+        "study's grid: single-read quality 0.06, 0.08, 0.10, 0.12, 0.15, "
+        "0.20, 0.25, 0.30 and 0.40 by pixel quality 0.10, 0.15, 0.20, 0.30 "
+        "and 0.40. Default empty. Alpha.",
+    "ops_decode_auto_ci":
+        "(bool) - Judge each auto setting by the upper end of its FDR's 95 % "
+        "interval (1,000 field resamples) rather than by the estimate, so a "
+        "setting is accepted only when the FDR is very likely at or below "
+        "ops_decode_fdr_max. Default True. Alpha.",
+    "ops_decode_auto_tune_fraction":
+        "(float) - The share of a well's fields, drawn at random, that "
+        "auto thresholds choose on; the other fields only report the "
+        "chosen setting's FDR and genotyped share. Default 0.5. Alpha.",
+    "ops_decode_auto_seed":
+        "(int) - The seed of the random split of each well's fields for "
+        "auto thresholds; the same seed gives the same split and the same "
+        "choice on a rerun. Default 0. Alpha.",
     "ops_decode_skip_unplaced_sites":
         "(bool) - Decode only the sites the stitch placed and list the "
         "others in the decode and FDR reports. Off stops the well with an "

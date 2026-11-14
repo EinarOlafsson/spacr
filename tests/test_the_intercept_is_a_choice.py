@@ -19,6 +19,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from tests.test_cov_ml_perform_regression import (  # noqa: F401  (fixtures)
+    heavy_stubs, screen, stubs)
 from spacr.ml import INTERCEPT_MODES, centre_on_controls, prepare_formula
 
 
@@ -240,16 +242,30 @@ def test_the_dropdown_is_greyed_when_no_model_is_fitted():
     assert rule['predicate']({'inference': 'auto'}, {}) is True
 
 
-def test_perform_regression_forwards_what_the_panel_set():
+@pytest.mark.parametrize("settings_keys, expected", [
+    pytest.param({"intercept": "zero", "intercept_value": 2.5}, ("zero", 2.5),
+                 id="what-the-panel-set-reaches-the-fit"),
+    pytest.param({"intercept": None, "intercept_value": None}, ("fitted", 0.0),
+                 id="blank-keys-mean-a-fitted-intercept"),
+])
+def test_perform_regression_forwards_what_the_panel_set(
+        monkeypatch, screen, stubs, settings_keys, expected):
     """The last link: the panel writes a settings key and the run has to hand
-    it to the fit. It is read with `.get` because a settings CSV written
-    before the key existed must still run, and what it meant is a fitted
-    intercept."""
-    import inspect
+    it to the fit.  A settings file written before the key existed (or a blank
+    cell) must still run, and what it meant is a fitted intercept."""
+    import spacr.ml as ML
+    from tests.test_cov_ml_perform_regression import parametric_settings
 
-    from spacr.ml import _perform_regression
+    seen = {}
+    real = ML.regression_levels
 
-    source = inspect.getsource(_perform_regression)
-    assert "intercept=str(settings.get('intercept') or 'fitted')" in source
-    assert "intercept_value=float(settings.get('intercept_value') or 0.0)" \
-        in source
+    def spy(*args, **kwargs):
+        seen["intercept"] = (kwargs["intercept"], kwargs["intercept_value"])
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(ML, "regression_levels", spy)
+    ML.perform_regression(parametric_settings(screen, **settings_keys))
+
+    assert seen["intercept"] == expected
+
+

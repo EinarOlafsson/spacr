@@ -655,3 +655,136 @@ def test_stitched_flows_and_one_mask_step_reproduce_cellpose_untiled():
                               flows=lambda x: ols._eval_flows(model, x, {}),
                               masks=lambda f, p: ols._cellpose_masks(model, f, p))
     assert np.array_equal(tiled, ols.relabel_raster(whole(image)))
+
+
+def _sha256(*arrays):
+    """One digest of int32 label images, in order."""
+    import hashlib
+
+    digest = hashlib.sha256()
+    for array in arrays:
+        digest.update(np.ascontiguousarray(array, np.int32).tobytes())
+    return digest.hexdigest()
+
+
+def _two_touching_cells(shape=(60, 100)):
+    """Cell probability of two overlapping discs (one merged blob) and the
+    two nuclei at their centres."""
+    blob = _discs(shape, [(30, 35), (30, 65)], 20)
+    cellprob = np.where(blob, 4.0, -4.0).astype(np.float32)
+    nuclei = (_discs(shape, [(30, 35)], 5) * 1 + _discs(shape, [(30, 65)], 5) * 2).astype(np.int32)
+    return nuclei, cellprob
+
+
+def test_two_touching_cells_with_two_nuclei_become_two_cells():
+    nuclei, cellprob = _two_touching_cells()
+    cells = ols.cells_from_nucleus_seeds(nuclei, cellprob)
+    assert cells.dtype == np.int32 and set(np.unique(cells)) == {0, 1, 2}
+    for k in (1, 2):
+        assert np.all(cells[nuclei == k] == k)
+    assert np.array_equal(cells > 0, cellprob > 0)
+    assert np.all(cells[:, :49] != 2) and np.all(cells[:, 51:] != 1)
+    assert abs(int((cells == 1).sum()) - int((cells == 2).sum())) <= 60
+
+
+def test_one_nucleus_takes_the_whole_blob_and_background_stays_zero():
+    nuclei, cellprob = _two_touching_cells()
+    one = np.where(nuclei == 2, 0, nuclei)
+    lonely = _discs(cellprob.shape, [(8, 92)], 4)
+    cellprob = np.where(lonely, 3.0, cellprob).astype(np.float32)
+    cells = ols.cells_from_nucleus_seeds(one, cellprob)
+    assert set(np.unique(cells)) == {0, 1}
+    assert np.array_equal(cells == 1, _discs(cellprob.shape, [(30, 35), (30, 65)], 20))
+    assert np.all(cells[cellprob <= 0] == 0) and np.all(cells[lonely] == 0)
+    outside = np.zeros_like(one)
+    outside[2:5, 2:5] = 7
+    kept = ols.cells_from_nucleus_seeds(outside, np.full(one.shape, -1.0, np.float32))
+    assert np.array_equal(kept, outside)
+    stricter = ols.cells_from_nucleus_seeds(one, cellprob, cellprob_threshold=5.0)
+    assert np.array_equal(stricter, one)
+    with pytest.raises(ValueError, match="one shape"):
+        ols.cells_from_nucleus_seeds(one, cellprob[:, :-1])
+
+
+def test_with_seeded_cells_a_nucleus_is_dropped_only_when_it_touches_the_border():
+    shape = (40, 60)
+    nuclei = np.zeros(shape, np.int32)
+    cells = np.zeros(shape, np.int32)
+    cells[2:20, 0:20] = 1
+    nuclei[8:12, 8:12] = 1
+    cells[2:20, 25:45] = 2
+    nuclei[8:12, 30:34] = 2
+    cells[22:40, 30:59] = 3
+    nuclei[30:40, 50:55] = 3
+    on = ols.large_site_settings({"seg_cells_from_nucleus_seeds": True})
+    kept_n, kept_c, edge = ols._edge_step(nuclei, cells, on)
+    assert set(np.unique(kept_c)) == {0, 2} and edge["excluded"] == 2
+    assert set(np.unique(kept_n)) == {0, 1, 2}
+    off = ols.large_site_settings({})
+    assert off["seg_cells_from_nucleus_seeds"] is False
+    kept_n, kept_c, _ = ols._edge_step(nuclei, cells, off)
+    assert set(np.unique(kept_c)) == {0, 2} and set(np.unique(kept_n)) == {0, 2}
+    kept_n, kept_c, _ = ols._edge_step(nuclei, cells, dict(on, seg_edge_policy="keep"))
+    assert np.array_equal(kept_n, nuclei) and np.array_equal(kept_c, cells)
+
+
+def test_seeded_cells_in_the_preset_give_every_nucleus_a_cell_tiled_as_untiled():
+    stack, centres = _site()
+    touching = _discs(stack.shape[:2], [(250, 420), (250, 446)], 10)
+    stack[..., 0] = np.where(touching, 1000, stack[..., 0])
+    stack[..., 1] = np.where(_discs(stack.shape[:2], [(250, 420), (250, 446)], 25), 1000,
+                             stack[..., 1])
+    channels = ols.LARGE_SITE_DEFAULTS["seg_site_channels"]
+    out = {}
+    for tile in (0, 256):
+        nucleus_model, cell_model = _FakeModel(2.0), _FakeModel(0.5)
+        settings = ols.large_site_settings({"seg_preset": "cell_painting_phalloidin",
+                                            "seg_tile_px": tile, "seg_tile_overlap_px": 64,
+                                            "seg_cells_from_nucleus_seeds": True})
+        out[tile] = ols.segment_cell_painting_site(stack, channels, settings,
+                                                   (nucleus_model, cell_model),
+                                                   nucleus_diameter=20.0)
+        assert all(call.get("compute_masks") is False and call.get("channel_axis") == -1
+                   for call in cell_model.calls)
+    nuclei, cells, counts = out[0]
+    assert np.array_equal(nuclei, out[256][0]) and np.array_equal(cells, out[256][1])
+    assert counts["nuclei"] == counts["paired"] == cells.max() == len(centres) + 2
+    assert counts["extra_nuclei_in_cell"] == 0
+    for k in range(1, int(cells.max()) + 1):
+        assert np.all(cells[nuclei == k] == k)
+    nucleus_model, cell_model = _models()
+    plain = ols.segment_cell_painting_site(
+        stack, channels, ols.large_site_settings({"seg_preset": "cell_painting_phalloidin",
+                                                  "seg_tile_px": 0}),
+        (nucleus_model, cell_model), nucleus_diameter=20.0)
+    assert plain[2]["extra_nuclei_in_cell"] == 1 and plain[1].max() == len(centres) + 1
+
+
+def test_with_seeded_cells_off_the_preset_and_the_run_give_the_labels_they_gave_before(tmp_path):
+    """The labels below are pinned from the code before seeded cells were
+    added (nightly baf91a3f0f), on the synthetic site of this file."""
+    stack, _ = _site()
+    channels = ols.LARGE_SITE_DEFAULTS["seg_site_channels"]
+    for tile in (256, 0):
+        nuclei, cells, _ = ols.segment_cell_painting_site(
+            stack, channels, ols.large_site_settings({"seg_preset": "cell_painting_phalloidin",
+                                                      "seg_tile_px": tile,
+                                                      "seg_tile_overlap_px": 64}),
+            _models(), nucleus_diameter=20.0)
+        assert _sha256(nuclei, cells) == \
+            "22f0cf0b0b3d748b90c5978502a156b332b2b75e215a117fcaddd182b330c7a0"
+    well, ref = _write_well(tmp_path, stack, channels)
+    base = {"seg_preset": "cell_painting_phalloidin", "seg_sites_src": str(well),
+            "seg_tile_px": 256, "seg_tile_overlap_px": 64, "seg_report_reference": str(ref),
+            "seg_measure_band_px": 200, "seg_diameter_min_objects": 3}
+    for dst, extra in (("absent", {}), ("off", {"seg_cells_from_nucleus_seeds": False})):
+        ols.run_large_site_segmentation(dict(base, seg_dst=str(tmp_path / dst), **extra),
+                                        models=_models(), available_bytes=2 ** 40)
+    labels = [np.load(tmp_path / "absent" / "labels" / f"1_{kind}.npy")
+              for kind in ("nuclei", "cells")]
+    assert _sha256(*labels) == "061e9005e821570655901d2b7c8794e599fd5563855cc4707750fc052f348d5b"
+    for name in ("labels/1_nuclei.npy", "labels/1_cells.npy", "labels/2_nuclei.npy",
+                 "labels/2_cells.npy", "tables/1_cells.parquet", "agreement_well.csv"):
+        assert (tmp_path / "absent" / name).read_bytes() == (tmp_path / "off" / name).read_bytes()
+    saved = json.loads((tmp_path / "absent" / "settings.json").read_text())
+    assert saved["seg_cells_from_nucleus_seeds"] is False

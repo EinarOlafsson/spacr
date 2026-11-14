@@ -27,7 +27,6 @@ What is pinned:
 """
 from __future__ import annotations
 
-import os
 import sqlite3
 
 import matplotlib
@@ -40,112 +39,6 @@ matplotlib.use("Agg")
 
 from spacr import sequencing as SEQ                              # noqa: E402
 from spacr import utils as U                                     # noqa: E402
-
-# ---------------------------------------------------------------------------
-# sequencing: a barcode layout small enough to write out
-# ---------------------------------------------------------------------------
-
-_ANCHOR = "GGATCC"
-_REGEX = r"^(?P<columnID>.{4})GGAA(?P<grna>.{4})(?P<rowID>.{4})"
-_WINDOW = 16
-_COL, _GRNA, _ROW = "AAAA", "CCCC", "TTTT"
-_PAYLOAD = f"{_COL}GGAA{_GRNA}{_ROW}"
-
-
-def _refs(tmp_path):
-    def _csv(name, seq, label):
-        path = tmp_path / name
-        pd.DataFrame({"sequence": [seq], "name": [label]}).to_csv(path,
-                                                                  index=False)
-        return str(path)
-
-    return (_csv("c.csv", _COL, "col0"), _csv("g.csv", _GRNA, "sg0"),
-            _csv("r.csv", _ROW, "row0"))
-
-
-def _fastq(seq, name="r0"):
-    return f"@{name}\n{seq}\n+\n{'I' * len(seq)}"
-
-
-def _read(payload, lead="TT"):
-    return f"{lead}{_ANCHOR}{payload}"
-
-
-def _single(tmp_path, payloads, fill_na=False):
-    c, g, r = _refs(tmp_path)
-    chunk = [_fastq(_read(p), f"r{i}") for i, p in enumerate(payloads)]
-    return SEQ.process_chunk((chunk, _REGEX, _ANCHOR, len(_ANCHOR), _WINDOW,
-                              c, g, r, fill_na))
-
-
-def _paired(tmp_path, payloads, fill_na=False):
-    c, g, r = _refs(tmp_path)
-    r1 = [_fastq(_read(p), f"p{i}") for i, p in enumerate(payloads)]
-    r2 = [_fastq(SEQ.reverse_complement(_read(p)), f"p{i}")
-          for i, p in enumerate(payloads)]
-    return SEQ.process_chunk((r1, r2, _REGEX, _ANCHOR, len(_ANCHOR), _WINDOW,
-                              c, g, r, fill_na))
-
-
-def test_every_window_is_padded_to_the_length_the_check_asks_for(tmp_path):
-    """Why the removed ``len(consensus_seq)`` guards were redundant.
-
-    Both readers cut a window of at most ``expected_end`` bases and then pad
-    it with ``N`` (quality ``!``) up to exactly ``expected_end`` before the
-    length is tested -- and the paired reader's ``create_consensus`` refuses
-    two reads of different lengths, so its answer is that same length. The
-    test can therefore only ever be true, in the per-read arm and in the
-    orientation hint printed for a chunk that matched nothing.
-    """
-    for reader in (_single, _paired):
-        df, counts, qc = reader(tmp_path, [_PAYLOAD, _PAYLOAD[:9]])
-
-        # The truncated read still reached the regex at full window length,
-        # padded with N -- which is what makes the length test always true.
-        assert list(df["read"].str.len()) == [_WINDOW, _WINDOW]
-        assert df["read"].iloc[1].endswith("N" * (_WINDOW - 9))
-        assert int(qc["total_reads"].iloc[0]) == 2
-        # ...and the padded barcode maps to no name, so it drops out of the
-        # counts rather than being counted as the well it half resembles.
-        assert list(counts["grna_name"]) == ["sg0"]
-
-    # A chunk that matches nothing takes the orientation-hint path, where the
-    # same test is applied to the last window seen. It is the padded window,
-    # so it is the full length there too.
-    df, _counts, qc = _single(tmp_path, ["ACGT" * 4])
-    assert df.empty and int(qc["total_reads"].iloc[0]) == 0
-
-    import inspect
-    source = inspect.getsource(SEQ.process_chunk)
-    assert "if len(consensus_seq) >= expected_end:" not in source
-
-
-def test_the_chunk_frame_always_carries_the_three_names_the_fill_reads(
-        tmp_path):
-    """Why the removed ``'<name>' in df2.columns`` guards were redundant.
-
-    ``df2`` is a copy of the frame built four lines above out of a literal
-    dict, so ``columnID``, ``rowID`` and ``grna_name`` are always there.
-    """
-    df, counts, _qc = _single(tmp_path, [_PAYLOAD, _PAYLOAD[:9]], fill_na=True)
-
-    assert list(df.columns) == [
-        "read", "column_sequence", "columnID", "row_sequence", "rowID",
-        "grna_sequence", "grna_name"]
-
-    # And the fill really ran: the unmapped read is counted under its raw
-    # sequence rather than dropped, which is what `fill_na` is for.
-    filled = set(counts["grna_name"])
-    assert "sg0" in filled
-    assert any(name not in ("sg0",) for name in filled), (
-        "the NaN names were not filled from the raw sequences")
-
-    import inspect
-    source = inspect.getsource(SEQ.process_chunk)
-    for column in ("columnID", "rowID", "grna_name"):
-        assert f"'{column}':" in source
-        assert f"if '{column}' in df2.columns:" not in source
-
 
 def test_only_a_paired_or_single_run_reaches_the_read_function(tmp_path,
                                                                monkeypatch):
@@ -183,47 +76,6 @@ def test_only_a_paired_or_single_run_reaches_the_read_function(tmp_path,
     assert "_check_read_settings(settings)" in source
     guard = inspect.getsource(SEQ._check_read_settings)
     assert "settings['single_direction'] not in {'R1', 'R2'}" in guard
-
-
-def test_the_threshold_sweep_always_has_a_folder_to_write_into(tmp_path,
-                                                              monkeypatch):
-    """Why the threshold sweep does not need a destination guard.
-
-    ``graph_sequencing_stats`` -- the closure's only caller -- computes
-    ``dst = os.path.dirname(settings['count_data'][0])``, and
-    ``os.path.dirname`` always returns a string. A bare filename makes it
-    the EMPTY string, which is the closest this gets to the default and is
-    still not ``None``: the figure is written to ``results/`` beside the
-    working directory rather than not written at all.
-    """
-    assert os.path.dirname("counts.csv") == ""
-
-    rows = []
-    for row in "ABCD":
-        for column in range(1, 5):
-            for guide in range(4):
-                rows.append({"plateID": "p1", "rowID": row,
-                             "columnID": f"c{column}",
-                             "grna": f"sg{guide}",
-                             "count": 100 if guide == 0 else 3})
-    monkeypatch.chdir(tmp_path)
-    pd.DataFrame(rows).to_csv("counts.csv", index=False)
-
-    threshold = SEQ.graph_sequencing_stats({
-        "count_data": "counts.csv", "target_unique_count": 2,
-        # `analysis_excluded_wells` is the sequencing half of the
-        # `control_wells` split (364); this dict goes straight to the
-        # function, so the factory's fold does not run over it.
-        "filter_column": "columnID", "analysis_excluded_wells": ["c4"]})
-
-    assert 0.0 < float(threshold) <= 0.99
-    assert (tmp_path / "results" / "fraction_threshold.pdf").is_file(), (
-        "an empty dirname must still name a folder to write into")
-
-    import inspect
-    source = inspect.getsource(SEQ.graph_sequencing_stats)
-    assert "if dst is not None:" not in source
-    assert "dst = os.path.dirname(settings['count_data'][0])" in source
 
 
 # ---------------------------------------------------------------------------

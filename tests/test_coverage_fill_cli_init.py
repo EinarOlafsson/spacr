@@ -90,6 +90,36 @@ def _make_run(tmp_path, with_hashes=False):
     return run.dir
 
 
+def _boom(settings):
+    raise ValueError("replay failed")
+
+
+@pytest.mark.parametrize("folder, pipeline, rc", [
+    pytest.param("missing", "real", 2, id="missing_folder"),
+    pytest.param("no_manifest", "real", 2, id="folder_without_a_manifest"),
+    pytest.param("run", "none", 2, id="no_pipeline_entry"),
+    pytest.param("run", "raises", 1, id="replay_raises"),
+    pytest.param("run", "succeeds", 0, id="replay_succeeds"),
+])
+def test_cli_repro_exit_code_says_how_the_replay_went(
+        tmp_path, monkeypatch, folder, pipeline, rc):
+    import spacr.run_journal as rj
+    import spacr.cli_repro as C
+    monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
+    if pipeline != "real":
+        monkeypatch.setattr(C, "_resolve_pipeline", lambda k: {
+            "none": None, "raises": _boom,
+            "succeeds": (lambda settings: None)}[pipeline])
+    if folder == "run":
+        target = _make_run(tmp_path)
+    else:
+        target = tmp_path / "does_not_exist"
+        if folder == "no_manifest":
+            target = tmp_path / "empty_folder"
+            target.mkdir()
+    assert C.main([str(target)]) == rc
+
+
 def test_cli_show_prints_model_hashes(tmp_path, monkeypatch, capsys):
     # --show with model_hashes present (lines 45-49).
     import spacr.run_journal as rj
@@ -109,42 +139,6 @@ def test_cli_resolve_pipeline_exception_returns_none(monkeypatch):
         lambda k: (_ for _ in ()).throw(RuntimeError("boom")))
     # Even if resolve raises, _resolve_pipeline returns None.
     assert C._resolve_pipeline("mask") is None
-
-
-def test_cli_no_pipeline_entry_returns_2(tmp_path, monkeypatch):
-    # entry is None → error + return 2 (lines 116-118).
-    import spacr.run_journal as rj
-    monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
-    import spacr.cli_repro as C
-    monkeypatch.setattr(C, "_resolve_pipeline", lambda k: None)
-    d = _make_run(tmp_path)
-    rc = C.main([str(d)])
-    assert rc == 2
-
-
-def test_cli_replay_raises_returns_1(tmp_path, monkeypatch):
-    # entry raises during replay → status failed + return 1 (130-134).
-    import spacr.run_journal as rj
-    monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
-    import spacr.cli_repro as C
-    def _boom(settings):
-        raise ValueError("replay failed")
-    monkeypatch.setattr(C, "_resolve_pipeline", lambda k: _boom)
-    d = _make_run(tmp_path)
-    rc = C.main([str(d)])
-    assert rc == 1
-
-
-def test_cli_replay_success_returns_0(tmp_path, monkeypatch):
-    # Successful replay → "done" + return 0 (line 140 area).
-    import spacr.run_journal as rj
-    monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
-    import spacr.cli_repro as C
-    monkeypatch.setattr(C, "_resolve_pipeline",
-                        lambda k: (lambda settings: None))
-    d = _make_run(tmp_path)
-    rc = C.main([str(d)])
-    assert rc == 0
 
 
 # ---------------------------------------------------------------------------

@@ -258,6 +258,8 @@ def write_crop_shard(merged: Any, cells: pd.DataFrame, out: Any, *, plate: str,
         field = load_illumination_model(os.fspath(illumination)).field_for(key)
         gain = field.gain_stack(channels)
         dark = np.broadcast_to(field._offset_stack(channels), gain.shape)
+        restore = (field._restore_stack(channels) if hasattr(field, '_restore_stack')
+                   else np.zeros(len(channels), np.float32))
     n, half, k = len(cells), size // 2, len(channels)
     folder = Path(out)
     folder.mkdir(parents=True, exist_ok=True)
@@ -289,7 +291,12 @@ def write_crop_shard(merged: Any, cells: pd.DataFrame, out: Any, *, plate: str,
                     d = np.zeros((size, size, k), np.float32)
                     g[sy0 - y0:sy1 - y0, sx0 - x0:sx1 - x0] = gain[sy0:sy1, sx0:sx1]
                     d[sy0 - y0:sy1 - y0, sx0 - x0:sx1 - x0] = dark[sy0:sy1, sx0:sx1]
-                    window = np.rint((window - d) * g)
+                    if np.any(restore):
+                        r = np.zeros((size, size, k), np.float32)
+                        r[sy0 - y0:sy1 - y0, sx0 - x0:sx1 - x0] = restore
+                        window = np.rint((window - d) * g + r)
+                    else:
+                        window = np.rint((window - d) * g)
                 clipped = int((window > 65535).sum())
                 cell_mask = fld.read_mask_window('cell', y0, y1, x0, x1)
                 bits = (cell_mask == label).astype(np.uint8)

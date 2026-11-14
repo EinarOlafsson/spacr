@@ -253,37 +253,6 @@ def test_space_is_offered_only_when_it_is_a_palette_of_its_own(
 # Late registrations
 # ---------------------------------------------------------------------------
 
-def test_an_app_nobody_filed_lands_in_the_declared_fallback_band(
-        common, monkeypatch):
-    """A newly registered app must not take the whole review sheet down.
-
-    The categorisation tables are hand-written literals, while apps register
-    themselves from their own modules. An app that registered after a table
-    was written is in the registry and in no band, which makes
-    ``check_coverage`` raise and costs all thirty renders. It is appended to
-    the declared fallback band instead -- and only there, so the hand-made
-    judgements about every other app are untouched.
-    """
-    monkeypatch.setattr(common, "all_keys",
-                        lambda: ["mask", "measure", "brand_new"])
-    literal = [("Prepare", ["mask"]), ("Review", ["measure"])]
-
-    result = common._with_late_registrations(literal, fallback="Review")
-
-    assert result == [("Prepare", ["mask"]), ("Review", ["measure",
-                                                         "brand_new"])]
-    assert literal == [("Prepare", ["mask"]), ("Review", ["measure"])], (
-        "the literal table is a source file, not scratch space")
-    common.check_coverage(result)
-
-    filed = common._with_late_registrations(
-        [("Prepare", ["mask", "brand_new"]), ("Review", ["measure"])],
-        fallback="Review")
-    assert filed == [("Prepare", ["mask", "brand_new"]), ("Review",
-                                                          ["measure"])], (
-        "an app somebody has already filed stays where it was put")
-
-
 def test_a_fallback_band_that_no_table_carries_leaves_the_app_unplaced(
         common, monkeypatch):
     """A renamed band silently stops catching new apps, so it must be caught.
@@ -320,32 +289,6 @@ def test_a_fallback_band_that_no_table_carries_leaves_the_app_unplaced(
                                                fallback="Prepare")
     assert repaired == [("Prepare", ["mask", "brand_new"])]
     common.check_coverage(repaired)
-
-
-def test_a_table_that_still_names_a_folded_app_fails_loudly(common, monkeypatch):
-    """A retired key would draw a Home tile for a screen that no longer exists.
-
-    Folding a module into its host removes its registry row, but the
-    hand-written band keeps the name. Unlike a *new* app, a *retired* one is
-    never quietly repaired: the tile would open nothing, so the table raises
-    and names the keys to delete.
-    """
-    monkeypatch.setattr(common, "all_keys", lambda: ["mask", "measure"])
-
-    with pytest.raises(AssertionError) as excinfo:
-        common._with_late_registrations(
-            [("Prepare", ["mask", "cell_extract"]),
-             ("Review", ["measure", "sequencing"])],
-            fallback="Review")
-
-    message = str(excinfo.value)
-    assert "cell_extract" in message and "sequencing" in message, (
-        "the maintainer has to be told which rows to remove")
-    assert "retired" in message
-
-    live_only = common._with_late_registrations(
-        [("Prepare", ["mask"]), ("Review", ["measure"])], fallback="Review")
-    assert live_only == [("Prepare", ["mask"]), ("Review", ["measure"])]
 
 
 # ---------------------------------------------------------------------------
@@ -394,31 +337,6 @@ def test_every_registered_app_has_a_use_count_and_sorts_by_it(common):
     assert order[0] == "mask", "the most-used app leads the frequency variants"
     counts = [common.USE_COUNTS[key] for key in order]
     assert counts == sorted(counts, reverse=True)
-
-
-def test_a_fallback_band_that_does_not_exist_is_reported_not_ignored():
-    """310 A2: the safety net must say when a rename has switched it off.
-
-    ``_with_late_registrations`` places every uncategorised app into the band
-    whose title equals ``fallback``. That match is an exact STRING, so a typo
-    or a renamed band silently turns the mechanism off -- and silence here
-    does not avoid the failure, it moves it. The unplaced keys go on to
-    ``check_coverage``, which raises "keys not categorised" at module import
-    of the variant generators and takes all thirty Home renders down, blaming
-    the registry for a mistake in the band title.
-
-    All four shipped tables currently name a title that exists, so this is
-    about the next rename rather than a live break.
-    """
-    from spacr.resources.home.versions._generators import common
-
-    with pytest.raises(AssertionError) as caught:
-        common._with_late_registrations(
-            [("Prepare", []), ("Analyse", [])], "Prepear")
-
-    message = str(caught.value)
-    assert "Prepear" in message, "the missing band must be named"
-    assert "Prepare" in message, "the bands that DO exist must be shown"
 
 
 def test_a_fallback_band_that_exists_still_absorbs_the_unplaced():

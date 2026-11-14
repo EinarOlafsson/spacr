@@ -767,9 +767,9 @@ class spacrDataset(Dataset):
                 if not os.path.isdir(class_path):
                     continue
                 with os.scandir(class_path) as entries:
-                    class_files = [entry.path for entry in entries
-                                   if not entry.name.startswith('.')
-                                   and entry.is_file()]
+                    class_files = sorted(entry.path for entry in entries
+                                         if not entry.name.startswith('.')
+                                         and entry.is_file())
                 self.filenames.extend(class_files)
                 self.labels.extend([self.classes.index(class_name)] * len(class_files))
         
@@ -4842,9 +4842,16 @@ def _read_and_join_tables(db_path, table_names=None,
                           duplicate_column_policy='warn',
                           keep_uninfected=True,
                           collapse_duplicate_identity=True,
-                          require_crops=True):
+                          require_crops=True,
+                          aggregation_defaults='legacy'):
     """
     Reads and joins tables from a SQLite database.
+
+    ``aggregation_defaults='per_feature'`` (item 937) rolls the
+    many-per-cell tables up with :func:`spacr.merge_tables.roll_up`'s rules
+    (:data:`spacr.merge_tables.PER_FEATURE_AGGREGATION_RULES`), so this join
+    and the merge module agree. ``'legacy'``, the default, keeps the mean
+    of every numeric column it always took.
 
     **A column that arrives from two tables is compared, not duplicated.**
     Cell and cytoplasm are both keyed to the same object, so a join hands
@@ -5026,12 +5033,19 @@ def _read_and_join_tables(db_path, table_names=None,
                       f"Re-run Measure with cell_mask_dim set to link them.")
                 del dataframes[entity]
                 continue
-            numeric_cols = dataframes[entity].select_dtypes(include=[np.number]).columns.tolist()
-            non_numeric_cols = dataframes[entity].select_dtypes(exclude=[np.number]).columns.tolist()
-            agg_dict = {col: 'mean' for col in numeric_cols}
-            agg_dict.update({col: 'first' for col in non_numeric_cols if col not in ['cell_id', 'prcf']})
             grouping_cols = ['cell_id', 'prcf']
-            agg_df = dataframes[entity].groupby(grouping_cols).agg(agg_dict)
+            if aggregation_defaults == 'legacy':
+                numeric_cols = dataframes[entity].select_dtypes(include=[np.number]).columns.tolist()
+                non_numeric_cols = dataframes[entity].select_dtypes(exclude=[np.number]).columns.tolist()
+                agg_dict = {col: 'mean' for col in numeric_cols}
+                agg_dict.update({col: 'first' for col in non_numeric_cols if col not in ['cell_id', 'prcf']})
+                agg_df = dataframes[entity].groupby(grouping_cols).agg(agg_dict)
+            else:
+                from .merge_tables import _apply_rollup_plan, aggregation_plan
+                plan = aggregation_plan(dataframes[entity], skip=grouping_cols,
+                                        defaults=aggregation_defaults)
+                agg_df = _apply_rollup_plan(
+                    dataframes[entity].groupby(grouping_cols), plan)
             agg_df['count_' + entity] = dataframes[entity].groupby(grouping_cols).size()
             dataframes[entity] = agg_df
     joined_df = None
@@ -6242,9 +6256,6 @@ def _read_db(db_loc, tables):
                 "SELECT name FROM sqlite_master WHERE type='table'"
             ).fetchall()
         }
-        
-        print('existing_tables:', existing_tables)
-        print('tables:', tables)
 
         for table in tables:
             if table not in existing_tables:

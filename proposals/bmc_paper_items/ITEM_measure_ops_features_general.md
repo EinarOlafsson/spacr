@@ -142,3 +142,12 @@ profile_features stays visible (no alpha gate, users already have it); OPS keeps
 2. Should channel-named columns (`channel_names`) be offered in Measure at all, or should OPS move to `channel_<i>` names with a name map in the database? The second changes OPS column names and therefore the paper's reference tables.
 3. If Funk's mass displacement and spaCR's differ by definition, which should be the Measure default under `intensity_moments`?
 4. Should the post-measure OPS analyses (mitotic call, cell-state stratification, neighbour-effect tests) also become general-module features (for example, under Measure analysis)? That would be a separate item.
+
+## Build note (2026-11-13, measure lane, branch claude-934-measure-1113)
+Built as features/feature_list/934_measure_ops_features_general.txt describes (steps 5 and 6).
+- Public: `spacr.measure.measure_mass_displacement`, `measure_channel_pair_pearson`, `check_gpu_measurement`; data `spacr.ops_settings.OPS_TO_MEASURE_KEYS`. Arrival contract `934_measure_ops_features_api_arrivals_2026-11-13.json`.
+- Measure settings `funk_object_features`, `zernike`, `channel_names`, `measure_gpu_check`, `measure_gpu_check_rtol` under `ALPHA_FEATURES[934]`; `profile_features` and `profile_granularity_subsample` stay visible (decision 1).
+- Mass displacement: same definition in both; no separate column. OPS Funk columns move by at most 1 ulp (hypot). Form factor via `spacr.measure._form_factor` (NaN for a zero perimeter).
+- The ratchet is value-level rather than a `MEASURE_COLUMN_SOURCES` registry: `tests/test_measure_ops_features_934.py` runs the OPS call with its switches on and spacr.measure with the mapped settings on the same field and fails on any OPS column Measure does not write with the same value (self-test with a planted column).
+- A1/514: OPS default 407/407 byte-identical to nightly; Funk 421/429 identical, 8 within 2.2e-16 relative; OPS = Measure at the function level 475/475 exact (with Zernike); `measure_crop` end to end 425/425 present, 326 exact, 99 within 1.83e-7 (uint16 vs float32 input). The reference parquet matches 357/406 for nightly and branch alike (pre-existing).
+- Not done: GPU test 6 on a card; test 8 timing gate (the machine was loaded; times reported only); 931 schema version unchanged (new keys, no changed default); translations not written (listed in the hand-over).

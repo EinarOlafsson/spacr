@@ -213,12 +213,16 @@ def _specificity_for(guides_per_well: float, sensitivity: float,
     """The specificity that would make a typical well's guide reachable.
 
     The other lever, and usually the cheaper one to reach for -- though
-    these numbers show how far it has to move.
+    these numbers show how far it has to move. When every cell carries the
+    guide (one guide per well) no specificity is required and ``0.0`` is
+    returned.
     """
     pi = 1.0 / float(guides_per_well) if guides_per_well > 0 else 0.0
     t, se = float(decision), float(sensitivity)
     if pi <= 0 or t >= 1.0:
         return float("nan")
+    if pi >= 1.0:
+        return 0.0
     false_positive = pi * se * (1.0 - t) / (t * (1.0 - pi))
     return float(np.clip(1.0 - false_positive, 0.0, 1.0))
 

@@ -92,35 +92,45 @@ def _measurements(rows=8, columns=3):
         {f"m{i}": rng.normal(size=rows) for i in range(columns)})
 
 
-def test_a_reduction_method_that_is_not_offered_lists_the_ones_that_are():
-    with pytest.raises(ReductionError, match="'ica' is not one of"):
-        reduce_dimensions(_measurements(), ["m0", "m1"], method="ica")
-
-
-def test_one_measurement_is_not_a_projection():
-    with pytest.raises(ReductionError,
-                       match="needs at least two measurements"):
-        reduce_dimensions(_measurements(), ["m0", "not_a_column"])
-
-
-def test_columns_that_are_mostly_empty_are_left_out_and_counted():
+def _mostly_empty():
     frame = _measurements(rows=10, columns=3)
     frame.loc[1:, "m1"] = np.nan
     frame.loc[1:, "m2"] = np.nan
-
-    with pytest.raises(ReductionError) as caught:
-        reduce_dimensions(frame, ["m0", "m1", "m2"], min_coverage=0.5)
-
-    assert "only 1 of 3 measurement(s) are at least 50% complete" \
-        in str(caught.value)
+    return frame
 
 
-def test_two_objects_are_not_enough_to_project():
+def _two_objects_only():
     frame = _measurements(rows=6, columns=2)
     frame.loc[2:, :] = np.nan
+    return frame
 
+
+def _two_empty_columns():
+    return pd.DataFrame({"a": [np.nan] * 5, "b": [np.nan] * 5,
+                         "c": [1.0, 2.0, 3.0, 4.0, 5.0]})
+
+
+@pytest.mark.parametrize("frame, columns, kwargs, message", [
+    pytest.param(_measurements, ["m0", "m1"], {"method": "ica"}, "'ica' is not one of",
+                 id="a-method-that-is-not-offered-lists-the-ones-that-are"),
+    pytest.param(_measurements, ["m0", "m1"], {"method": "magic"}, "not one of",
+                 id="another-unknown-method-is-refused"),
+    pytest.param(_measurements, ["m0", "not_a_column"], {},
+                 "needs at least two measurements", id="one-measurement-is-not-a-projection"),
+    pytest.param(_mostly_empty, ["m0", "m1", "m2"], {"min_coverage": 0.5},
+                 "only 1 of 3 measurement(s) are at least 50% complete",
+                 id="mostly-empty-columns-are-left-out-and-counted"),
+    pytest.param(_two_objects_only, ["m0", "m1"], {"min_coverage": 0.0},
+                 "only 2 object(s) have any of these measurements",
+                 id="two-objects-are-not-enough-to-project"),
+    pytest.param(_two_empty_columns, ["a", "b"], {"min_coverage": 0.0}, "no two measurements",
+                 id="columns-with-no-values-in-common-cannot-be-projected"),
+])
+def test_a_projection_that_cannot_be_made_says_which_setting_to_change(
+        frame, columns, kwargs, message):
     with pytest.raises(ReductionError) as caught:
-        reduce_dimensions(frame, ["m0", "m1"], min_coverage=0.0)
+        reduce_dimensions(frame(), columns, **kwargs)
 
-    assert "only 2 object(s) have any of these measurements" \
-        in str(caught.value)
+    assert message in str(caught.value)
+
+

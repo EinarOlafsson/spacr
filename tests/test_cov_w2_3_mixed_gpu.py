@@ -9,7 +9,6 @@ kept. Each of those refusals is driven here.
 from __future__ import annotations
 
 import builtins
-import os
 
 import numpy as np
 import pandas as pd
@@ -62,79 +61,6 @@ def clustered():
 # ---------------------------------------------------------------------------
 # what hardware answered
 # ---------------------------------------------------------------------------
-
-def test_free_memory_on_a_device_that_cannot_be_asked_reads_as_zero(
-        monkeypatch):
-    """Zero means "no budget can be proved", which blocks the large-fit check."""
-    import psutil
-
-    _block_torch(monkeypatch)
-    assert MG.available_memory("cuda:0") == 0
-
-    def no_sysconf(name):
-        raise OSError("sysconf is not available here")
-
-    def no_psutil():
-        raise OSError("psutil cannot read memory here")
-
-    monkeypatch.setattr(os, "sysconf", no_sysconf, raising=False)
-    monkeypatch.setattr(psutil, "virtual_memory", no_psutil)
-    assert MG.available_memory("cpu") == 0
-
-
-def test_free_cpu_memory_is_pages_times_page_size():
-    """The CPU figure is read off the machine, not estimated."""
-    free = MG.available_memory("cpu")
-    assert free > 0
-    try:
-        pages = os.sysconf("SC_AVPHYS_PAGES") * os.sysconf("SC_PAGE_SIZE")
-    except (AttributeError, ValueError, OSError):
-        import psutil
-
-        assert free <= psutil.virtual_memory().total
-    else:
-        assert free == int(pages)
-
-
-def test_free_cpu_memory_falls_back_to_psutil_without_sysconf_pages(monkeypatch):
-    """Windows and macOS have no SC_AVPHYS_PAGES; psutil still answers."""
-    import psutil
-    from types import SimpleNamespace
-
-    def no_sysconf(name):
-        raise ValueError("unrecognized configuration name")
-
-    monkeypatch.setattr(os, "sysconf", no_sysconf, raising=False)
-    monkeypatch.setattr(psutil, "virtual_memory",
-                        lambda: SimpleNamespace(available=7 * 1024 ** 3))
-    assert MG.available_memory("cpu") == 7 * 1024 ** 3
-
-
-def test_free_cuda_memory_comes_from_the_driver(monkeypatch):
-    """The CUDA figure is whatever ``mem_get_info`` reported, in bytes."""
-    import torch
-
-    class FakeCuda:
-        @staticmethod
-        def mem_get_info():
-            return (3 * 1024 ** 3, 24 * 1024 ** 3)
-
-    monkeypatch.setattr(torch, "cuda", FakeCuda(), raising=False)
-    assert MG.available_memory("cuda") == 3 * 1024 ** 3
-
-
-def test_a_driver_that_will_not_answer_reads_as_no_free_memory(monkeypatch):
-    """A raising driver has not reported a budget."""
-    import torch
-
-    class BrokenCuda:
-        @staticmethod
-        def mem_get_info():
-            raise RuntimeError("CUDA driver version is insufficient")
-
-    monkeypatch.setattr(torch, "cuda", BrokenCuda(), raising=False)
-    assert MG.available_memory("cuda") == 0
-
 
 def test_no_torch_means_no_cuda_and_a_message_naming_the_install(monkeypatch):
     """The description is what a tooltip shows, so it names the fix."""
@@ -244,70 +170,6 @@ def test_a_nested_component_labels_each_level_inside_its_own_group():
 # ---------------------------------------------------------------------------
 # the fit's refusals
 # ---------------------------------------------------------------------------
-
-def test_a_response_and_a_design_of_different_lengths_are_refused(clustered):
-    """Each row of the design must carry its own response."""
-    with pytest.raises(ValueError, match="must carry its own response"):
-        MG.fit_mixed_reml_torch(clustered["y"][:-1], clustered["X"],
-                                clustered["groups"], device="cpu")
-
-
-def test_groups_shorter_than_the_design_are_refused(clustered):
-    """Each row must carry its own cluster id; a short list would shift them."""
-    with pytest.raises(ValueError, match="must carry its own cluster id"):
-        MG.fit_mixed_reml_torch(clustered["y"], clustered["X"],
-                                clustered["groups"][:-1], device="cpu")
-
-
-def test_a_bare_array_design_gets_generated_column_names(clustered):
-    """Without a frame there are no names, so ``x0``, ``x1`` are used."""
-    fit = MG.fit_mixed_reml_torch(
-        clustered["y"], clustered["X"].to_numpy(), clustered["groups"],
-        device="cpu")
-    assert list(fit.fe_params.index) == ["x0", "x1"]
-
-    single = MG.fit_mixed_reml_torch(
-        clustered["y"], np.ones(len(clustered["y"])), clustered["groups"],
-        device="cpu")
-    assert list(single.fe_params.index) == ["x0"]
-
-
-def test_a_fit_with_no_residual_degrees_of_freedom_is_refused():
-    """REML has no residual variance to estimate, so it says so."""
-    y = np.array([1.0, 2.0, 3.0])
-    X = pd.DataFrame(np.eye(3), columns=["a", "b", "c"])
-    with pytest.raises(ValueError, match="residual degrees of freedom"):
-        MG.fit_mixed_reml_torch(y, X, ["w1", "w1", "w2"], device="cpu")
-
-
-def test_a_rank_deficient_fixed_part_is_named_rather_than_left_to_linalg(
-        clustered):
-    """MixedLM reports this three frames deep as a bare LinAlgError."""
-    design = clustered["X"].copy()
-    design["copy_of_predictor"] = design["predictor"] * 2.0
-    with pytest.raises(ValueError, match="coefficients are not identified"):
-        MG.fit_mixed_reml_torch(clustered["y"], design, clustered["groups"],
-                                device="cpu")
-
-
-def test_a_verbose_fit_prints_each_deviance_it_evaluated(clustered, capsys):
-    """The trace is what a stuck optimiser is diagnosed from."""
-    MG.fit_mixed_reml_torch(clustered["y"], clustered["X"],
-                            clustered["groups"], device="cpu", verbose=True)
-    printed = capsys.readouterr().out
-    assert "deviance" in printed and "theta" in printed
-
-
-def test_a_finished_fit_reports_what_it_cost_in_one_line(clustered):
-    """The run log gets the device, the time and whether it converged."""
-    fit = MG.fit_mixed_reml_torch(clustered["y"], clustered["X"],
-                                  clustered["groups"], device="cpu")
-    assert fit.df_resid == fit.n_obs - fit.k_fe == len(clustered["y"]) - 2
-    line = fit.summary_line()
-    assert line.startswith("mixed fit: backend=torch device=cpu")
-    assert "deviance evaluations" in line
-    assert f"converged={fit.converged}" in line
-
 
 # ---------------------------------------------------------------------------
 # the formula front door

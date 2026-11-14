@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from spacr import intensity_rescale as rescale
+from spacr.settings import SETTINGS_SCHEMA_VERSION
 
 KEY = 'intensity_calibration_reference_plate'
 
@@ -89,7 +90,7 @@ def test_alpha_registry_and_csv_json_roundtrip(tmp_path):
     settings = {'src': '/dataset', KEY: 'plate2'}
     target = tmp_path / 'selected.csv'
     write_settings_file(settings, target)
-    stamped = {'spacr_settings_version': 931, **settings}  # item 931
+    stamped = {'spacr_settings_version': SETTINGS_SCHEMA_VERSION, **settings}  # item 931
     assert load_settings_file(str(target)) == stamped
     assert load_settings_file(str(target.with_suffix('.json'))) == stamped
 

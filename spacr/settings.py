@@ -2041,6 +2041,8 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('confluency_qc_threshold', 0.8)
     settings.setdefault('bleach_correction', 'none')
     settings.setdefault('measure_gpu', False)
+    settings.setdefault('measure_gpu_check', True)
+    settings.setdefault('measure_gpu_check_rtol', 1e-4)
     settings.setdefault('gpu_memory_fraction', None)
     settings.setdefault('gpu_memory_margin_gb', 1.5)
     settings.setdefault('gpu_adaptive_batch', True)
@@ -2134,6 +2136,9 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('homogeneity_distances', [8,16,32])
     settings.setdefault('profile_features', None)
     settings.setdefault('profile_granularity_subsample', 1.0)
+    settings.setdefault('funk_object_features', False)
+    settings.setdefault('zernike', None)
+    settings.setdefault('channel_names', None)
 
     settings.setdefault('voxel_size_z_um', None)
     settings.setdefault('voxel_size_xy_um', None)
@@ -2528,9 +2533,15 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 931
+SETTINGS_SCHEMA_VERSION = 936
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
+    932: {'ops_registration_precision': 'float64',
+          'ops_registration_backend': 'cpu'},
+    933: {'ops_align_model': 'similarity'},
+    934: {'aggregation_defaults': 'legacy'},
+    935: {'ops_placement_seed_export': False},
+    936: {'ops_blas_threads': 1, 'ops_consensus_space': 'refit'},
 }
 
 
@@ -2584,7 +2595,19 @@ def _fold_older_defaults(settings, version, known=None):
 
     TO CHANGE A DEFAULT: add one row to ``DEFAULT_CHANGES``, keyed by the
     item number that changes it and holding the OLD default, and raise
-    ``SETTINGS_SCHEMA_VERSION`` to that number.
+    ``SETTINGS_SCHEMA_VERSION`` to that number. The key must be above every
+    existing key, because files are already stamped with the current
+    version; an item whose number is lower takes the next free number and
+    is listed under that number in docs/source/reproducibility_manifests.rst.
+    933 is item 930's switch of ``ops_align_model`` to ``'tile_affine'``:
+    it landed after 932, so it could not take 930. 934 is item 937's
+    ``aggregation_defaults`` ``'per_feature'`` (the screen pipeline's
+    per-feature well table); older files keep ``'legacy'``.
+    935 is item 940's switch of ``ops_placement_seed_export`` to True: every
+    solved stitch writes a placement file, and files stamped before keep
+    it off.
+    936 is the OPS stage-3 Hybrid profile's ``ops_blas_threads`` (2, was
+    1) and ``ops_consensus_space`` (``'hybrid'``, was ``'refit'``).
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -3912,6 +3935,21 @@ expected_types = {
     "illumination_vendor_profile": str,
     "illumination_vendor_channel_map": str,
     "illumination_on_missing": str,
+    "illumination_nuclear_channel": (int, type(None)),
+    "illumination_nuclei": (str, type(None)),
+    "illumination_dark_per_plate": (dict, str, type(None)),
+    "illumination_block_px": int,
+    "illumination_fit": str,
+    "illumination_sigma_px": float,
+    "illumination_ridge": (float, type(None)),
+    "illumination_floor": float,
+    "illumination_centre_cells": int,
+    "illumination_lookup": str,
+    "illumination_map_grid": str,
+    "illumination_centre_offset": float,
+    "illumination_holdout_n": int,
+    "illumination_seed": int,
+    "illumination_validate": bool,
     "dst": str,
     "db_path": str,
     "predictions_file": str,
@@ -4386,6 +4424,11 @@ expected_types = {
     "homogeneity_distances": list,
     "profile_features": (str, list, type(None)),
     "profile_granularity_subsample": (float, int),
+    "funk_object_features": bool,
+    "zernike": (bool, type(None)),
+    "channel_names": (list, str, type(None)),
+    "measure_gpu_check": bool,
+    "measure_gpu_check_rtol": (float, int),
     "save_arrays": bool,
     "cytoplasm": bool,
     "merge_edge_pathogen_cells": bool,
@@ -5707,6 +5750,9 @@ tooltips = {
     "homogeneity": "(bool) - Compute grey-level co-occurrence-matrix homogeneity for every object in every channel, adding one homogeneity_distance_<d> column per entry in homogeneity_distances. Homogeneity is high for smooth, evenly filled objects and low for punctate or grainy ones, so keep it on for texture phenotypes; disabling it noticeably speeds up measurement. Default True.",
     "profile_features": "(str, list or None) - Add image-based profiling measurement families to every 2-D object. 'profiling' adds the families that cost under about 5,000 CPU seconds per 100,000 cells: edge intensity, intensity moments (mass displacement and intensity-weighted Hu moments), CellProfiler-style radial distribution (4 rings), extra shape descriptors (form factor, compactness, Hu moments, radii), Haralick texture (13 statistics), threshold adjacency statistics (PFTAS), rotation-invariant LBP histograms, Gabor filter-bank energy, boundary (periphery) and surrounding-ring (outside) intensity with an enclosed flag, extra colocalisation (Spearman, ICQ, K1/K2, rank-weighted colocalisation, which also turns on calculate_correlation's Pearson and Manders block), mutual information and spot-based colocalisation, and neighbours (the spatial block). 'all' also adds Costes-threshold Manders and the granularity spectrum, which are slow. A list or comma-separated names picks families one by one. Empty adds nothing, so a settings file without it measures exactly as before. Default None.",
     "profile_granularity_subsample": "(float) - Sieve each field scaled by this factor for the granularity profiling family, as CellProfiler's image sample size. 0.25, CellProfiler's default, is about 16 times faster than 1.0, which sieves every pixel. Only read when granularity is among profile_features. Default 1.0.",
+    "funk_object_features": "(bool) - Add the object features of Funk et al. 2022 (optical pooled screens) to every 2-D object: the mass displacement of every channel (the distance from the object's centroid to its intensity-weighted centroid), Pearson's r of every channel pair over the object's pixels (correlation_<a>_<b>), and the form factor (4 pi area / perimeter squared). The OPS setting ops_ph_funk_features gives the same values from the same functions. Mass displacement and form factor are not repeated when profile_features already writes them. Default False.",
+    "zernike": "(bool or None) - Zernike moments of each object's shape (zernike_0 to zernike_24), which need the mahotas package (spacr[zernike]). None computes them when mahotas is installed and skips them otherwise, so the same settings file can give different columns on two computers. True always computes them and stops the run when mahotas is missing; False never computes them. The OPS setting ops_ph_zernike is the same switch. Default None.",
+    "channel_names": "(list or None) - One short name per entry of channels, for example ['dapi', 'gfp', 'a594', 'af750']. The measurement columns then carry these names in place of channel_<i> (cell_dapi_mean_intensity instead of cell_channel_0_mean_intensity), as the OPS phenotype tables (ops_ph_channels) do. Names are lowercased and must be unique, without spaces. Plots and analyses that ask for channel_<i> columns do not find renamed ones. Empty keeps the channel_<i> names. Default None.",
     "homogeneity_distances": "(list) - Pixel offsets used to build each object's grey-level co-occurrence matrix; every entry adds one homogeneity_distance_<d> feature per channel. Small offsets capture fine-grained texture, large ones capture coarse structure, and offsets larger than the object itself carry no signal. More entries means more features and slower measurement. Default [8, 16, 32].",
     "image_nr": "(int) - How many example object crops to draw on the embedding plot: that many per cluster when plot_by_cluster is on (smaller clusters show all they have), otherwise that many sampled at random overall. It also sets how many images each cluster contributes to the cluster-grid figure. Raise it for a fuller montage, lower it when thumbnails hide the points. Default 16.",
     "image_size": "(int) - Side length in pixels of the center crop taken from each object PNG before model input. Images are cropped rather than rescaled, so larger values add zero padding and smaller values discard peripheral object pixels. This value also defines the backbone input resolution and must match the crop size used to generate the dataset. Default 224.",
@@ -5811,6 +5857,8 @@ tooltips = {
     "confluency_channel": "(int or None) - The merged-array channel that the texture, intensity and phase confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture or phase, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
     "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. For phase, the field is first resized by 15/window, so raise it in proportion when cells are more pixels across than in the classifier's training images. Ignored by the masks and intensity sources. Default 15.",
     "bleach_correction": "(str) - Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
+    "measure_gpu_check": "(bool) - Before a measure_gpu run, measure the first field on the CPU and on the GPU and compare every column; when a column differs by more than measure_gpu_check_rtol, the run stops before any field is measured and lists the columns. Only read with measure_gpu on and a CUDA device visible. The OPS setting ops_ph_measure_gpu_check runs the same check. Default True.",
+    "measure_gpu_check_rtol": "(float) - The relative tolerance of measure_gpu_check: a column passes when every value is within this fraction of its CPU value, or both are missing. Default 0.0001.",
     "measure_gpu": "(bool) - Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. With cuCIM installed (the 'gpu' extra), the per-object morphology table is computed on the GPU too; without it, morphology stays on the CPU. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
     "measurement_backend": "(str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
     "measurement_backend_target": "(str) - The DuckDB file, Parquet folder or PostgreSQL connection string the measurements are copied to. Blank puts measurements.duckdb or measurements.parquetdb beside measurements.db, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for sqlite. Default blank.",
@@ -6585,9 +6633,9 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "profile_granularity_subsample", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "profile_granularity_subsample", "funk_object_features", "zernike", "channel_names", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
-    "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
+    "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map", "illumination_nuclear_channel", "illumination_nuclei", "illumination_dark_per_plate", "illumination_block_px", "illumination_fit", "illumination_sigma_px", "illumination_ridge", "illumination_floor", "illumination_centre_cells", "illumination_lookup", "illumination_map_grid", "illumination_centre_offset", "illumination_holdout_n", "illumination_seed", "illumination_validate"],
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "crop_intensity", "save_arrays", "export_vvvv"],
 
@@ -6727,7 +6775,7 @@ categories = {
     ],
 
     "GPU Measurement α": [
-        "measure_gpu",
+        "measure_gpu", "measure_gpu_check", "measure_gpu_check_rtol",
     ],
     "GPU Memory α": [
         "gpu_memory_fraction", "gpu_memory_margin_gb", "gpu_adaptive_batch",
@@ -7455,6 +7503,20 @@ def get_setting_dependencies():
             f"{settings.get('illumination_vendor_profile')!r} and "
             f"{settings.get('illumination_model')!r}. The value is kept and saved."),
     )
+
+    for _key in ('illumination_nuclear_channel', 'illumination_nuclei', 'illumination_dark_per_plate', 'illumination_block_px', 'illumination_fit', 'illumination_sigma_px', 'illumination_ridge', 'illumination_floor', 'illumination_centre_cells', 'illumination_lookup', 'illumination_map_grid', 'illumination_centre_offset', 'illumination_holdout_n', 'illumination_seed', 'illumination_validate',):
+        setting_dependencies[_key] = rule(
+            ('illumination_correction', 'illumination_estimator'),
+            lambda settings, context: (
+                bool(settings.get('illumination_correction', False))
+                and str(settings.get('illumination_estimator') or '') == 'nuclear_median'),
+            lambda settings, context: (
+                "The nuclear-median settings are only read when "
+                "illumination_correction is on and illumination_estimator is "
+                f"'nuclear_median'. They are "
+                f"{settings.get('illumination_correction', False)!r} and "
+                f"{settings.get('illumination_estimator')!r}. The value is kept and saved."),
+        )
 
     setting_dependencies['bleach_correction'] = rule(
         ('timelapse',),
@@ -8662,6 +8724,10 @@ ALPHA_FEATURES = {
             'moa_eval_controls', 'moa_eval_shuffles', 'moa_eval_knn_shuffles', 'moa_eval_replicates',
             'moa_eval_seeds', 'moa_eval_per_moa', 'moa_eval_workers', 'moa_eval_dst',)},
     },
+    937: {
+        'module_settings': {'screen': (
+            'aggregation_defaults', 'aggregation_count_sum', 'aggregation_report',)},
+    },
     893: {
         'module_settings': {'screen': (
             'screen_phases', 'import_source', 'import_naming', 'import_regex',
@@ -8876,7 +8942,7 @@ ALPHA_FEATURES = {
         'settings': ('ops_profile_cells', 'ops_profile_wells', 'ops_profile_run',
                      'ops_profile_recipe', 'ops_profile_min_cells',
                      'ops_profile_active_filter', 'ops_eval_covariates',
-                     'ops_deterministic_blas'),
+                     'ops_deterministic_blas', 'ops_blas_threads'),
     },
     880: {
         'settings': ('ops_eval_null_size',),
@@ -9350,11 +9416,27 @@ ALPHA_FEATURES = {
     916: {
         'settings': ('ops_cluster_rows', 'ops_cluster_graph', 'ops_cluster_knn', 'ops_cluster_sweep_resolutions', 'ops_cluster_seeds', 'ops_cluster_target_clusters', 'ops_cluster_shuffles', 'ops_cluster_reference_dir', 'ops_cluster_gene_list', 'ops_cluster_published',),
     },
-    930: {
-        'settings': ('ops_align_model', 'ops_align_tile_min_nuclei', 'ops_align_match_radius', 'ops_align_trim_passes',),
+    933: {
+        'settings': ('illumination_nuclear_channel', 'illumination_nuclei', 'illumination_dark_per_plate', 'illumination_block_px', 'illumination_fit', 'illumination_sigma_px', 'illumination_ridge', 'illumination_floor', 'illumination_centre_cells', 'illumination_lookup', 'illumination_map_grid', 'illumination_centre_offset', 'illumination_holdout_n', 'illumination_seed', 'illumination_validate',),
+        'choices': {'illumination_estimator': ('nuclear_median',)},
+    },
+    936: {
+        'module_settings': {'align': (
+            'align_engine', 'registration_precision', 'registration_backend',
+            'acceptance', 'min_peak_ratio', 'strip_fraction',
+            'expected_overlap_px', 'tolerance_px', 'skew_px', 'solve_gauge',
+            'compose', 'compose_window_px', 'compose_window_overlap',
+            'align_placement_seed', 'align_placement_seed_export')},
+    },
+    940: {
+        'settings': ('ops_placement_seed', 'ops_placement_seed_mode', 'ops_placement_seed_export', 'ops_placement_seed_check_pixels', 'ops_placement_seed_tolerance',),
+    },
+    934: {
+        'settings': ('funk_object_features', 'zernike', 'channel_names',
+                     'measure_gpu_check', 'measure_gpu_check_rtol'),
     },
     928: {
-        'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides',),
+        'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },
     929: {
         'settings': ('ops_bench_replicates', 'ops_bench_replicate_seed', 'ops_bench_cluster_seed', 'ops_bench_gate_copies', 'ops_bench_gate_noise', 'ops_bench_gate_alpha', 'ops_bench_gate_limit', 'ops_bench_margin_quantile', 'ops_bench_gate_record', 'ops_bench_gate_arm', 'ops_bench_half', 'ops_bench_null_permutations',),
@@ -9379,7 +9461,8 @@ ALPHA_FEATURES = {
             'seg_site_channels', 'seg_sites', 'seg_dst', 'seg_workers',
             'seg_measure_band_px', 'seg_nucleus_channel', 'seg_nucleus_model',
             'seg_nucleus_diameter_range', 'seg_gpu', 'seg_tiling_control_px',
-            'seg_diameter_sites', 'seg_diameter_min_objects')},
+            'seg_diameter_sites', 'seg_diameter_min_objects',
+            'seg_cells_from_nucleus_seeds')},
     },
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval', 'ops_power_gene_list', 'ops_power_reference_rows',),
@@ -9556,6 +9639,11 @@ ALPHA_FEATURES = {
     803: {
         'settings': ('gpu_memory_fraction', 'gpu_memory_margin_gb',
                      'gpu_adaptive_batch', 'gpu_fallback_policy'),
+    },
+    939: {
+        'settings': ('ops_decode_threshold_mode', 'ops_decode_fdr_max',
+                     'ops_decode_auto_grid', 'ops_decode_auto_ci',
+                     'ops_decode_auto_tune_fraction', 'ops_decode_auto_seed'),
     },
 }
 
