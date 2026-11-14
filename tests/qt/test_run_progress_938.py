@@ -18,6 +18,13 @@ from PySide6.QtWidgets import QLabel, QProgressBar  # noqa: E402
 from spacr.qt import bridge as B  # noqa: E402
 from spacr.qt import run_progress as RP  # noqa: E402
 
+# A two-stage module of the test's own, so these tests do not move when the
+# measured weights of a real module are updated (item 938).
+RP.MODULE_STAGES["two_stage_938"] = (
+    (("Merging Arrays",), 0.10),
+    (("Measure and Crop",), 0.90),
+)
+
 pytestmark = pytest.mark.qt
 
 
@@ -57,7 +64,7 @@ def _isolated_worker_journal(monkeypatch, tmp_path):
 @pytest.fixture
 def handle():
     worker = B.PipelineWorker(lambda settings: None, {})
-    made = B.RunHandle("measure", worker, QThread())
+    made = B.RunHandle("two_stage_938", worker, QThread())
     yield made
     made.worker = None
     made.thread = None
@@ -169,7 +176,7 @@ def test_worker_time_left_is_used_and_counts_down():
 
 def test_declared_stages_weight_one_overall_bar_that_never_goes_back():
     clock = _Clock()
-    record = RP.RunProgress("measure", clock=clock)
+    record = RP.RunProgress("two_stage_938", clock=clock)
     assert record.declares_stages
 
     record.observe(RP.ProgressSample(5, 10, "Merging Arrays"))
@@ -187,7 +194,7 @@ def test_declared_stages_weight_one_overall_bar_that_never_goes_back():
 
 def test_worker_time_left_counts_only_on_the_last_declared_stage():
     clock = _Clock()
-    record = RP.RunProgress("measure", clock=clock)
+    record = RP.RunProgress("two_stage_938", clock=clock)
     clock.tick(40)
     record.observe(RP.ProgressSample(5, 10, "Merging Arrays",
                                      seconds_left=7.0))
@@ -279,10 +286,10 @@ def test_the_home_banner_shows_percent_and_time_left(qapp, handle):
     from spacr.qt.widgets.home import RunningBanner
 
     clock = _Clock()
-    handle.run_progress = RP.RunProgress("measure", clock=clock)
+    handle.run_progress = RP.RunProgress("two_stage_938", clock=clock)
     clock.tick(40)
     handle._on_line(_line(5, 10, "Measure and Crop", minutes=12.0) + "\n")
-    banner = RunningBanner(lambda key: None, {"measure": "Measure"})
+    banner = RunningBanner(lambda key: None, {"two_stage_938": "Two stage"})
     banner.bind(handle)
 
     assert banner._bar.maximum() == 100
@@ -309,7 +316,7 @@ def test_the_module_bar_shows_the_same_text_as_the_banner(qapp, handle):
     from spacr.qt.widgets.home import RunningBanner
 
     clock = _Clock()
-    handle.run_progress = RP.RunProgress("measure", clock=clock)
+    handle.run_progress = RP.RunProgress("two_stage_938", clock=clock)
     clock.tick(40)
     handle._on_line(_line(5, 10, "Measure and Crop", minutes=12.0) + "\n")
     screen = SimpleNamespace(_progress=QProgressBar(), _progress_eta=QLabel(),
@@ -333,7 +340,7 @@ def test_the_module_bar_follows_the_registered_run_and_stops(qapp, monkeypatch):
     reg = B.RunRegistry()
     monkeypatch.setattr(B, "_REGISTRY", reg)
     worker = B.PipelineWorker(lambda settings: None, {})
-    run = reg.register(B.RunHandle("measure", worker, QThread()))
+    run = reg.register(B.RunHandle("two_stage_938", worker, QThread()))
     screen = SimpleNamespace(_progress=QProgressBar(), _progress_eta=QLabel(),
                              _progress_handle=None, _progress_timer=QTimer())
     screen._refresh_run_progress = lambda: AppScreen._refresh_run_progress(

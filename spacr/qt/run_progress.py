@@ -17,9 +17,11 @@ loop inside a stage) does not move the bar once a declared stage has
 started. A module that declares nothing keeps the fraction of whichever
 stage is printing and names it.
 
-The weights are read from the code (which stage does the per-image heavy
-work), not yet measured on a reference dataset; item 938 records that the
-measurement is still owed.
+The weights of ``mask`` and ``measure`` are measured shares of the run time on
+a reference dataset (item 938, timing harness under ``item938/``); those of
+the other modules, and the stages of ``mask`` marked "guess", are still read
+from the code (which stage does the per-image heavy work) and await a
+measurement.
 
 **Time left.** The worker's own ``Time_left`` is used when it prints one and
 it covers the rest of the run, that is when the module declares no stages or
@@ -60,7 +62,24 @@ _MASK_GPU_LINE_RE = re.compile(r"\[mask GPUs\] \w+ Progress:")
 #: which carry no ``operation_type`` of their own.
 MASK_GPU_LABEL = "mask GPUs"
 
+#: Make Masks, measured (item 938, BBBC021 plate Week1_22123, 240 fields, one GPU
+#: worker, two runs; shares of the wall time to each stage's last count). The
+#: Concatinating and Normalizing loops run five times (one pass per channel
+#: group), so each label carries all five passes; the bar passes both stages on
+#: the first pass and holds there until the masks start. The three stages marked
+#: "guess" did not print on that run and keep their earlier guessed weights.
 _MASK_STAGES: Tuple[Tuple[Tuple[str, ...], float], ...] = (
+    (("Consolidating images",), 0.04),  # guess: not exercised by the reference run
+    (("Merging channels into npy stacks", "Preprocessing filenames"), 0.101),
+    (("Concatinating",), 0.127),
+    (("Normalizing",), 0.033),
+    (("*_mask_gen", MASK_GPU_LABEL), 0.668),
+    (("adjust_cell_masks",), 0.05),  # guess: not exercised by the reference run
+    (("Merging Arrays",), 0.036),
+    (("Plot mask outlines",), 0.05),  # guess: plots were off in the reference run
+)
+#: Timelapse keeps the earlier guessed weights: no reference run has measured it.
+_TIMELAPSE_STAGES: Tuple[Tuple[Tuple[str, ...], float], ...] = (
     (("Consolidating images",), 0.04),
     (("Merging channels into npy stacks", "Preprocessing filenames"), 0.04),
     (("Concatinating",), 0.08),
@@ -83,10 +102,11 @@ _CLASSIFY_STAGES: Tuple[Tuple[Tuple[str, ...], float], ...] = (
 #: Weights need not sum to one; they are normalised.
 MODULE_STAGES: Dict[str, Tuple[Tuple[Tuple[str, ...], float], ...]] = {
     "mask": _MASK_STAGES,
-    "timelapse": _MASK_STAGES,
+    "timelapse": _TIMELAPSE_STAGES,
+    # Measured: the field loop is 99 % of the run and "Merging Arrays" never
+    # prints in a measure run, so the loop is the only counted stage.
     "measure": (
-        (("Merging Arrays",), 0.10),
-        (("Measure and Crop",), 0.90),
+        (("Measure and Crop",), 1.0),
     ),
     "external_masks": (
         (("Writing merged arrays",), 0.30),
