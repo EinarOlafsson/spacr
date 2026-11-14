@@ -1484,6 +1484,20 @@ if app_key == "mask":
     for app, key in nuclear_arrivals:
         assert resolve_default_settings(app)[key] == NUCLEAR_SETTINGS_DEFAULTS[key]
     recognized_arrivals |= nuclear_arrivals
+    # Item 934 (2026-11-13): the OPS measurement switches in Measure, each
+    # resolved by Measure and External Masks, ten claims in all. Each claim
+    # is the resolved default, so none is a variant.
+    ops_measure_defaults = {"funk_object_features": False, "zernike": None,
+                            "channel_names": None, "measure_gpu_check": True,
+                            "measure_gpu_check_rtol": 1e-4}
+    ops_measure_arrivals = {pair for pair in compared_pairs
+                            if pair[1] in ops_measure_defaults} - set(variants.keys())
+    assert ops_measure_arrivals == {(app, key) for app in ("measure", "external_masks")
+                                    for key in ops_measure_defaults}
+    assert not ops_measure_arrivals & recognized_arrivals
+    for app, key in ops_measure_arrivals:
+        assert resolve_default_settings(app)[key] == ops_measure_defaults[key]
+    recognized_arrivals |= ops_measure_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

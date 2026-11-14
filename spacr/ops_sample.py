@@ -351,19 +351,21 @@ def _measurement_settings(channels: int, texture: bool,
         :func:`spacr.measure._intensity_measurements` read.
     """
     from .measure import profile_feature_families
+    from .ops_settings import OPS_TO_MEASURE_KEYS
 
     families = profile_feature_families(profile_features)
+    ops = {"ops_ph_texture": bool(texture), "ops_ph_measure_gpu": bool(gpu),
+           "ops_ph_profile_features": list(families) or None,
+           "ops_ph_granularity_subsample": float(granularity_subsample)}
     return {
         "cell_mask_dim": channels, "nucleus_mask_dim": channels + 1,
         "pathogen_mask_dim": None, "cytoplasm": True,
         "radial_dist": False,
         "calculate_correlation": "colocalisation" in families,
-        "profile_features": list(families) or None,
-        "profile_granularity_subsample": float(granularity_subsample),
-        "homogeneity": bool(texture), "homogeneity_distances": [2, 4, 8],
+        "homogeneity_distances": [2, 4, 8],
         "distance_gaussian_sigma": 10, "spatial_measurements": False,
         "channels": list(range(channels)), "verbose": False,
-        "measure_gpu": bool(gpu),
+        **{OPS_TO_MEASURE_KEYS[key]: value for key, value in ops.items()},
     }
 
 
@@ -397,9 +399,10 @@ def funk_object_features(labels: np.ndarray, image: np.ndarray,
     Both are computed from per-label sums, centred on each label's mean, so
     a field is one pass rather than one regionprops object per cell.
     """
-    from itertools import combinations
-
     import pandas as pd
+
+    from .measure import (measure_channel_pair_pearson,
+                          measure_mass_displacement)
 
     labels = np.asarray(labels).astype(np.int64)
     image = np.asarray(image, np.float64)
@@ -407,32 +410,14 @@ def funk_object_features(labels: np.ndarray, image: np.ndarray,
     out = {"label": present.astype(np.int64)}
     if present.size == 0:
         return pd.DataFrame(out)
-    size = int(labels.max()) + 1
-    flat = labels.ravel()
-    inside = flat > 0
-    flat = flat[inside]
-    count = np.bincount(flat, minlength=size).astype(np.float64)
-    rows, cols = np.indices(labels.shape, dtype=np.float64)
-    rows, cols = rows.ravel()[inside], cols.ravel()[inside]
-    with np.errstate(invalid="ignore", divide="ignore"):
-        centre_r = np.bincount(flat, rows, size) / count
-        centre_c = np.bincount(flat, cols, size) / count
-        names = [str(n).lower() for n in channel_names]
-        centred = []
-        for index, name in enumerate(names):
-            value = image[..., index].ravel()[inside]
-            total = np.bincount(flat, value, size)
-            weighted_r = np.bincount(flat, value * rows, size) / total
-            weighted_c = np.bincount(flat, value * cols, size) / total
-            out[f"{prefix}_{name}_mass_displacement"] = np.sqrt(
-                (centre_r - weighted_r) ** 2
-                + (centre_c - weighted_c) ** 2)[present]
-            centred.append(value - (total / count)[flat])
-        squares = [np.bincount(flat, v * v, size) for v in centred]
-        for first, second in combinations(range(len(names)), 2):
-            product = np.bincount(flat, centred[first] * centred[second], size)
-            out[f"{prefix}_correlation_{names[first]}_{names[second]}"] = (
-                product / np.sqrt(squares[first] * squares[second]))[present]
+    names = [str(n).lower() for n in channel_names]
+    shift = measure_mass_displacement(labels, image)
+    for index, name in enumerate(names):
+        out[f"{prefix}_{name}_mass_displacement"] = shift[
+            f"channel_{index}_mass_displacement"].to_numpy()
+    pairs = measure_channel_pair_pearson(labels, image, names)
+    for column in pairs.columns[1:]:
+        out[f"{prefix}_{column}"] = pairs[column].to_numpy()
     return pd.DataFrame(out)
 
 
@@ -489,7 +474,9 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     import pandas as pd
     from scipy import ndimage
 
-    from .measure import _intensity_measurements, _morphological_measurements
+    from .measure import (_channel_named, _form_factor,
+                          _intensity_measurements,
+                          _morphological_measurements)
 
     image = np.asarray(image, np.float32)
     nuclei = np.asarray(nuclei, np.int32)
@@ -513,8 +500,7 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     intensity = _intensity_measurements(
         cells, nuclei, blank, blank, cytoplasm, image, settings,
         sizes=[1, 2, 3, 4, 5], periphery=False, outside=False)
-    names = {f"channel_{index}": str(name).lower()
-             for index, name in enumerate(channel_names)}
+    names = [str(name).lower() for name in channel_names]
     labels = np.unique(nuclei[nuclei > 0])
     centres = np.asarray(ndimage.center_of_mass(
         np.ones_like(nuclei), nuclei, labels), float).reshape(-1, 2)
@@ -530,9 +516,7 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
             for column in frame.columns:
                 if column == "label":
                     continue
-                text = str(column)
-                for old, new in names.items():
-                    text = text.replace(old, new)
+                text = _channel_named(str(column), names)
                 if not text.startswith(f"{prefix}_"):
                     text = f"{prefix}_{text}"
                 renamed[column] = text
@@ -555,9 +539,8 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
             area, perimeter = f"{prefix}_area", f"{prefix}_perimeter"
             if (area in out and perimeter in out
                     and f"{prefix}_form_factor" not in out):
-                with np.errstate(invalid="ignore", divide="ignore"):
-                    out[f"{prefix}_form_factor"] = (
-                        4 * np.pi * out[area].to_numpy(np.float64)
-                        / out[perimeter].to_numpy(np.float64) ** 2)
+                out[f"{prefix}_form_factor"] = _form_factor(
+                    out[area].to_numpy(np.float64),
+                    out[perimeter].to_numpy(np.float64))
     keep = [c for c in out.columns if pd.api.types.is_numeric_dtype(out[c])]
     return out.loc[:, keep].reset_index(drop=True)

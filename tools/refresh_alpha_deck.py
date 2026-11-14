@@ -139,6 +139,7 @@ GROUPS = (
         (929, "OPS calibrated cluster test with jitter gate"),
         (936, "Align & Stitch on the OPS stitch core"),
         (940, "OPS placement seeded from a saved file"),
+        (934, "OPS measurement features in Measure"),
         (912, "OPS DNA flat-field map from nuclei, held-out check"),
         (913, "OPS copairs and EFAAR scores on shared genes"),
         (923, "OPS CORUM r, STRING AUPRC and zero-TPM hit calls"),
