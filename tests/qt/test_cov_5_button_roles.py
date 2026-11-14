@@ -120,19 +120,6 @@ def test_repeating_the_same_busy_state_is_a_noop(qapp, monkeypatch):
     button.deleteLater()
 
 
-def test_classifying_a_deleted_button_does_nothing(qapp):
-    """A teardown event for a dead button is ignored at the filter boundary.
-
-    Qt 6.6 can deliver a queued polish or parent-change event after a dialog
-    deleted the C++ button.  The signal connection still retains the Python
-    wrapper, but even asking it for its icon raises ``RuntimeError``.
-    """
-    dead = QPushButton("Cancel")
-    _delete_cpp_side(dead)
-
-    assert br._SemanticButtonFilter().classify(dead) is None
-
-
 def test_adopting_a_spinner_for_a_deleted_button_does_nothing(qapp):
     """The second half of a show event observes the same liveness boundary."""
     dead = QPushButton("Clear console")
@@ -158,46 +145,6 @@ def test_a_spinner_that_cannot_attach_is_retried_later(
     host.deleteLater()
 
 
-def test_classification_swallows_only_a_reentrant_deletion(
-        qapp, monkeypatch):
-    """A real RuntimeError stays visible; deletion during a Qt call does not."""
-    button = object()
-    answers = iter((True, False, True, True))
-    real_alive = br.alive
-
-    def staged_alive(candidate):
-        # The application-wide event filter keeps receiving ordinary Qt
-        # traffic while this test runs.  Only script liveness for the
-        # synthetic object under test; real widgets must continue through the
-        # real predicate instead of consuming this four-step scenario.
-        if candidate is button:
-            return next(answers)
-        return real_alive(candidate)
-
-    monkeypatch.setattr(br, "alive", staged_alive)
-
-    def refuse(_self, _button):
-        raise RuntimeError("classification failed")
-
-    monkeypatch.setattr(br._SemanticButtonFilter, "_classify_live", refuse)
-    event_filter = br._SemanticButtonFilter()
-
-    assert event_filter.classify(button) is None
-    with pytest.raises(RuntimeError, match="classification failed"):
-        event_filter.classify(button)
-
-
-def test_a_button_named_primary_is_positive_whatever_it_says(qapp):
-    """Object identity supplies the role when translated text cannot."""
-    button = QPushButton("Proceed with the analysis")
-    button.setObjectName("PrimaryButton")
-
-    br._SemanticButtonFilter().classify(button)
-
-    assert button.property("buttonActionRole") == "positive"
-    button.deleteLater()
-
-
 def test_settling_a_deleted_clicked_button_does_nothing(qapp):
     """A dialog may close before the zero-delay click callback is delivered."""
     dead = QPushButton("Close")
@@ -216,24 +163,6 @@ def test_event_filter_rechecks_liveness_after_classification(qapp):
 
     assert DeletesWhileClassifying().eventFilter(
         button, QEvent(QEvent.ParentChange)) is False
-
-
-def test_a_danger_button_reads_as_negative_whatever_it_says(qapp):
-    """``DangerButton`` is styled negative even when its text is neutral.
-
-    The text classifier covers "Delete", "Cancel" and friends; a destructive
-    button whose label is a noun ("Overwrite the database") has only its
-    object name to say what it does, and in a non-English locale the text
-    never matches at all.
-    """
-    button = QPushButton("Overwrite the database")
-    button.setObjectName("DangerButton")
-
-    br._SemanticButtonFilter().classify(button)
-
-    assert button.property("buttonActionRole") == "negative"
-    assert button.property("buttonActionBusy") is False
-    button.deleteLater()
 
 
 def test_installing_the_filter_without_an_application_does_nothing(

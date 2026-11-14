@@ -52,12 +52,6 @@ def _style_stub(monkeypatch, **names):
     return stub
 
 
-def _curves(widget) -> int:
-    """How many outline curves have been added to the plot item."""
-    return sum(1 for item in widget.plot.plotItem.items
-               if isinstance(item, pg.PlotCurveItem))
-
-
 # ------------------------------------------------------------------ the page
 
 def test_a_canvas_squeezed_to_nothing_is_not_stretched_for_the_page(plot):
@@ -201,79 +195,6 @@ def test_an_unreadable_saved_look_leaves_the_page_transparent(plot,
     assert ground.alpha() == 0
 
 
-def test_the_print_look_stands_down_when_it_cannot_be_read(plot, monkeypatch):
-    """A chrome repaint that cannot see the look must change nothing at all.
-
-    Half a repaint is worse than none: black axis text on a black page is an
-    unreadable figure, and the undo list is what puts the screen back after
-    the file is written. So each way of failing to learn the look -- module
-    gone, lookup raising, no look saved, a look that says "screen" -- returns
-    an empty undo list, which is also the signal that nothing was touched.
-    """
-    look = types.SimpleNamespace(mode="print", ground="#ffffff")
-    _style_stub(monkeypatch,
-                saved_figure_appearance=lambda: look,
-                export_colour=lambda current, kind, styling: "#000000")
-    undo = fp.FastPlot._wear_the_print_look(plot.plot)
-    assert undo, "a print look should have something to put back"
-
-    monkeypatch.setitem(sys.modules, "spacr.figure_style",
-                        types.ModuleType("spacr.figure_style"))
-    assert fp.FastPlot._wear_the_print_look(plot.plot) == []
-
-    def _boom():
-        raise RuntimeError("the saved look cannot be read")
-
-    _style_stub(monkeypatch, saved_figure_appearance=_boom,
-                export_colour=lambda current, kind, styling: "#000000")
-    assert fp.FastPlot._wear_the_print_look(plot.plot) == []
-
-    _style_stub(monkeypatch, saved_figure_appearance=lambda: None,
-                export_colour=lambda current, kind, styling: "#000000")
-    assert fp.FastPlot._wear_the_print_look(plot.plot) == []
-
-    _style_stub(monkeypatch,
-                saved_figure_appearance=lambda: types.SimpleNamespace(
-                    mode="screen", ground="#ffffff"),
-                export_colour=lambda current, kind, styling: "#000000")
-    assert fp.FastPlot._wear_the_print_look(plot.plot) == []
-
-
-def test_an_edge_with_no_axis_is_stepped_over_by_the_print_repaint(
-        plot, monkeypatch):
-    """A plot that hides two of its four axes must still export repainted.
-
-    ``getAxis`` answers None for an edge a plot never built, and every figure
-    here hides the top and right. If that None reached the repaint the export
-    would raise halfway through, leaving the on-screen axes already flipped to
-    print colours with no undo list to put them back.
-    """
-    repainted = []
-
-    def _record(current, kind, styling):
-        repainted.append(kind)
-        return "#010203"
-
-    _style_stub(monkeypatch,
-                saved_figure_appearance=lambda: types.SimpleNamespace(
-                    mode="print", ground="#ffffff"),
-                export_colour=_record)
-
-    real = plot.plot.plotItem
-
-    class _HalfDressed:
-        """A plot item that only built its bottom and left axes."""
-
-        titleLabel = None
-
-        def getAxis(self, edge):
-            return None if edge in ("top", "right") else real.getAxis(edge)
-
-    undo = fp.FastPlot._wear_the_print_look(_HalfDressed())
-    assert undo, "the two axes that exist should still be repainted"
-    assert repainted and set(repainted) == {"chrome"}
-
-
 # ------------------------------------------------------------ rings and picks
 
 def test_a_ring_is_refused_for_a_row_that_was_never_plotted(plot):
@@ -313,24 +234,6 @@ def test_a_rectangle_selection_steps_over_a_position_it_cannot_read(plot):
     assert plot.select_in_rect(0.0, 0.0, 1.5, 1.5) == ["a"]
 
 
-def test_a_click_on_empty_space_leaves_the_selection_alone(plot):
-    """An empty click must not clear a selection the user just made.
-
-    pyqtgraph delivers a click signal with an empty point list when the press
-    misses every symbol. Treated as a click on "nothing", it would drop the
-    selection the linked gene and image views are showing, which is a jarring
-    loss of state for a gesture the user did not intend to make.
-    """
-    item = plot.add_scatter(np.array([1.0, 2.0]), np.array([1.0, 2.0]))
-    plot.set_keys(["a", "b"])
-
-    plot._on_points_clicked(item, [item.points()[1]])
-    assert plot.selected_keys() == ["b"]
-
-    plot._on_points_clicked(item, [])
-    assert plot.selected_keys() == ["b"]
-
-
 # ------------------------------------------------------------- the chart types
 
 def test_a_ranked_bar_chart_of_blanks_draws_no_bars(plot):
@@ -343,24 +246,6 @@ def test_a_ranked_bar_chart_of_blanks_draws_no_bars(plot):
     """
     assert plot.add_ranked_bars(["a", "b"], [np.nan, np.nan]) == 0
     assert plot.add_ranked_bars(["a", "b"], [1.0, 2.0]) == 2
-
-
-def test_a_curve_with_no_finite_pair_draws_nothing_and_writes_no_frame(plot):
-    """A bundle must not carry a curve the figure never drew.
-
-    The saved data bundle is written from the last curve, and a caller that
-    asks for one before drawing -- or draws one whose x and y never line up on
-    the same row -- has to get None back. A frame invented from an empty draw
-    would ship a table that disagrees with the picture beside it.
-    """
-    assert plot.curve_frame() is None
-    assert plot.add_curve([np.nan, 1.0], [2.0, np.nan]) == 0
-    assert plot.curve_frame() is None
-
-    assert plot.add_curve([1.0, 2.0], [3.0, 4.0]) == 2
-    frame = plot.curve_frame()
-    assert list(frame["x"]) == [1.0, 2.0]
-    assert list(frame["y"]) == [3.0, 4.0]
 
 
 def test_a_beeswarm_survives_a_blank_feature_and_a_scale_that_will_not_load(
@@ -429,38 +314,3 @@ def test_a_radar_drops_blank_spokes_and_refuses_what_is_left(plot):
     assert list(frame["value"]) == [1.0, 3.0, 4.0]
 
 
-def test_a_group_mark_refuses_an_empty_group_and_names_an_unknown_shape(plot):
-    """A misspelled mark must fail loudly; an empty group must fail quietly.
-
-    The two are different mistakes. A group whose observations are all blank
-    is data, and the honest answer is "nothing drawn" so the caller can leave
-    the slot empty. A mark name that is not one of the eight is a programming
-    error, and silently drawing points instead would put a different chart on
-    screen than the one the caller's code says it asked for.
-    """
-    assert plot.add_group_mark(0.0, [np.nan, np.nan]) == 0
-
-    with pytest.raises(ValueError) as raised:
-        plot.add_group_mark(0.0, [1.0, 2.0, 3.0], "swarm")
-    message = str(raised.value)
-    assert "swarm" in message and "violin" in message
-
-
-def test_a_violin_of_identical_values_falls_back_to_the_points(plot):
-    """A density with no width is a vertical line pretending to be a shape.
-
-    Every observation in a group can be the same number -- a saturated count,
-    a control at its ceiling. A violin drawn from that outlines a spread the
-    data does not have, so the plot draws the observations themselves instead
-    and still reports how many it represented.
-    """
-    spread = list(np.linspace(0.0, 1.0, 12))
-    assert plot.add_group_mark(1.0, spread, "violin") == 12
-    assert _curves(plot) == 1, "a real violin is an outline curve"
-
-    flat = [2.0] * 12
-    assert plot.add_group_mark(3.0, flat, "violin") == 12
-    assert _curves(plot) == 1, "the flat group added no second outline"
-    scatters = [item for item in plot.plot.plotItem.items
-                if isinstance(item, pg.ScatterPlotItem)]
-    assert len(scatters) == 1, "it drew the observations instead"

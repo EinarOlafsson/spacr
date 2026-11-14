@@ -154,12 +154,17 @@ def test_reverse_complement_basic():
     assert SEQ.reverse_complement("ATCG") == "CGAT"
 
 
-def test_extract_sequence_and_quality():
+@pytest.mark.parametrize("start, end, expected_sequence, expected_quality", [
+    pytest.param(2, 6, "GTAC", "IIII", id="inside-the-read"),
+    pytest.param(2, 5, "GTA", "III", id="end-before-the-last-base"),
+    pytest.param(5, 100, "CGT", "III", id="end-beyond-the-read-is-clamped"),
+])
+def test_extract_sequence_and_quality(start, end, expected_sequence,
+                                      expected_quality):
     seq = "ACGTACGT"
     qual = "IIIIIIII"
-    s, q = SEQ.extract_sequence_and_quality(seq, qual, 2, 6)
-    assert s == "GTAC"
-    assert q == "IIII"
+    assert SEQ.extract_sequence_and_quality(seq, qual, start, end) == (
+        expected_sequence, expected_quality)
 
 
 @pytest.mark.parametrize("reads, expected", [
@@ -174,9 +179,11 @@ def test_extract_sequence_and_quality():
     # Ties break toward the first read; otherwise quality decides.
     ([("A", "I"), ("C", "I")], "A"),
     ([("A", "!"), ("C", "I")], "C"),
+    ([("A", "I"), ("C", "!")], "A"),
 ], ids=["n-first", "n-last", "higher-quality-second", "higher-quality-first",
         "n-with-better-quality-first", "n-with-better-quality-last",
-        "tie-goes-to-the-first-read", "quality-breaks-the-tie"])
+        "tie-goes-to-the-first-read", "quality-breaks-the-tie",
+        "quality-keeps-the-first-read"])
 def test_get_consensus_base_prefers_a_call_then_quality_then_the_first_read(
         reads, expected):
     assert SEQ.get_consensus_base(reads) == expected

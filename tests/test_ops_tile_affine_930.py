@@ -5,8 +5,11 @@ field and one per sequencing tile group of the field (at least
 ``ops_align_tile_min_nuclei`` nuclei), fitted on mutual nearest pairs with
 trimmed passes, each nucleus moved by its tile group's affine. The tests use a
 synthetic well whose truth differs by tile, so a single transform per field
-cannot recover it. The default ``ops_align_model`` 'similarity' leaves the
-merge outputs unchanged.
+cannot recover it. 'similarity' leaves the merge outputs as before item 930.
+
+Since 2026-11-13 'tile_affine' is the default (maintainer decision; it left
+alpha). Settings files stamped before schema version 933, or not stamped,
+rerun with 'similarity' through ``DEFAULT_CHANGES[933]``.
 """
 
 from __future__ import annotations
@@ -173,9 +176,13 @@ def _tables(db):
             read_table(db, "ops_phenotype").reset_index(drop=True))
 
 
-def test_the_default_model_leaves_the_merge_unchanged(tmp_path):
+SIMILARITY = {"ops_align_model": "similarity"}
+
+
+def test_similarity_leaves_the_merge_as_before_930(tmp_path):
     db = _well(tmp_path)
-    ops_engine._ph_merge(db, PLATE, WELL, {}, str(tmp_path), False)
+    ops_engine._ph_merge(db, PLATE, WELL, dict(SIMILARITY), str(tmp_path),
+                         False)
     default = _tables(db)
     report = ops_engine._ph_merge(db, PLATE, WELL, {
         "ops_align_model": "similarity", "ops_align_tile_min_nuclei": 5,
@@ -188,9 +195,33 @@ def test_the_default_model_leaves_the_merge_unchanged(tmp_path):
     assert not [c for c in explicit[1].columns if c.startswith("align_")]
 
 
+def test_the_default_model_is_tile_affine(tmp_path):
+    """A settings dict without ops_align_model, and the module defaults,
+    run the tile-affine model and give the explicit tile-affine tables."""
+    from spacr.ops_settings import OPS_DEFAULTS
+
+    assert OPS_DEFAULTS["ops_align_model"] == "tile_affine"
+    assert ops_engine._PH_ALIGN_MODELS[0] == "tile_affine"
+    db = _well(tmp_path)
+    report = ops_engine._ph_merge(db, PLATE, WELL, {}, str(tmp_path), False)
+    assert report["align"]["model"] == "tile_affine"
+    default = _tables(db)
+    assert default[1].iloc[0]["align_model"] == "tile_affine"
+    ops_engine._ph_merge(db, PLATE, WELL, {"ops_align_model": "tile_affine"},
+                         str(tmp_path), False)
+    explicit = _tables(db)
+    pd.testing.assert_frame_equal(default[0], explicit[0])
+    pd.testing.assert_frame_equal(default[1], explicit[1])
+    defaults = {key: OPS_DEFAULTS[key] for key in OPS_DEFAULTS
+                if key.startswith("ops_align_")}
+    ops_engine._ph_merge(db, PLATE, WELL, defaults, str(tmp_path), False)
+    pd.testing.assert_frame_equal(default[0], _tables(db)[0])
+
+
 def test_tile_affine_links_closer_and_records_its_geometry(tmp_path):
     db = _well(tmp_path)
-    ops_engine._ph_merge(db, PLATE, WELL, {}, str(tmp_path), False)
+    ops_engine._ph_merge(db, PLATE, WELL, dict(SIMILARITY), str(tmp_path),
+                         False)
     similarity = _tables(db)
     report = ops_engine._ph_merge(db, PLATE, WELL,
                                   {"ops_align_model": "tile_affine"},
@@ -209,7 +240,8 @@ def test_tile_affine_links_closer_and_records_its_geometry(tmp_path):
     # the similarity re-solve it started from is still stored
     assert row["refined_scale"] == similarity[1].iloc[0]["refined_scale"]
     # a later similarity run leaves no tile-affine geometry behind
-    ops_engine._ph_merge(db, PLATE, WELL, {}, str(tmp_path), False)
+    ops_engine._ph_merge(db, PLATE, WELL, dict(SIMILARITY), str(tmp_path),
+                         False)
     again = _tables(db)
     pd.testing.assert_frame_equal(similarity[0], again[0])
     pd.testing.assert_frame_equal(similarity[1], again[1])
@@ -240,3 +272,73 @@ def test_tile_affine_needs_the_tile_positions_and_a_known_model(tmp_path):
                              {"ops_align_model": "tile_affine",
                               "ops_align_trim_passes": 0},
                              str(tmp_path), False)
+
+
+def _settings_file(path, rows):
+    import csv
+
+    with open(path, "w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["Key", "Value"])
+        writer.writerows(rows)
+    return str(path)
+
+
+def test_a_settings_file_from_before_the_switch_reruns_with_similarity(
+        tmp_path, caplog):
+    """The reproducibility rule: files without a stamp, or stamped 931 or
+    932, were written while 'similarity' was the default and rerun with it;
+    a file stamped 933 or later, and a run resolved today, get
+    'tile_affine'; a key the file sets always wins. The row is keyed 933,
+    not 930, because files were already stamped 932 when 930's default
+    changed."""
+    import logging
+
+    from spacr.cli import resolve_module, resolve_settings
+    from spacr.settings import (DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION,
+                                SETTINGS_VERSION_KEY)
+
+    assert DEFAULT_CHANGES[933] == {"ops_align_model": "similarity"}
+    assert SETTINGS_SCHEMA_VERSION >= 933
+    assert 930 not in DEFAULT_CHANGES
+    ops = resolve_module("ops")
+    with caplog.at_level(logging.WARNING, logger="spacr.settings"):
+        old = resolve_settings(ops, _settings_file(
+            tmp_path / "old.csv", [("plate", "P1")]))
+    assert old["ops_align_model"] == "similarity"
+    assert "ops_align_model='similarity'" in caplog.text
+    for stamp in ("931", "932"):
+        older = resolve_settings(ops, _settings_file(
+            tmp_path / f"{stamp}.csv",
+            [(SETTINGS_VERSION_KEY, stamp), ("plate", "P1")]))
+        assert older["ops_align_model"] == "similarity", stamp
+        # the tile_affine parameters kept their defaults; no row for them
+        assert older["ops_align_tile_min_nuclei"] == 200
+    new = resolve_settings(ops, _settings_file(
+        tmp_path / "933.csv", [(SETTINGS_VERSION_KEY, "933"), ("plate", "P1")]))
+    assert new["ops_align_model"] == "tile_affine"
+    assert resolve_settings(ops, None)["ops_align_model"] == "tile_affine"
+    explicit = resolve_settings(ops, _settings_file(
+        tmp_path / "explicit.csv",
+        [(SETTINGS_VERSION_KEY, "932"), ("plate", "P1"),
+         ("ops_align_model", "tile_affine")]))
+    assert explicit["ops_align_model"] == "tile_affine"
+    chosen = resolve_settings(ops, _settings_file(
+        tmp_path / "chosen.csv",
+        [(SETTINGS_VERSION_KEY, str(SETTINGS_SCHEMA_VERSION)),
+         ("plate", "P1"), ("ops_align_model", "similarity")]))
+    assert chosen["ops_align_model"] == "similarity"
+
+
+def test_the_align_settings_left_alpha():
+    from spacr.ops_settings import OPS_TOOLTIPS
+    from spacr.settings import ALPHA_FEATURES
+
+    assert 930 not in ALPHA_FEATURES
+    keys = ("ops_align_model", "ops_align_tile_min_nuclei",
+            "ops_align_match_radius", "ops_align_trim_passes")
+    for entry in ALPHA_FEATURES.values():
+        assert not set(keys) & set(entry.get("settings", ())), entry
+    for key in keys:
+        assert not OPS_TOOLTIPS[key].rstrip().endswith("Alpha."), key
+    assert "Default 'tile_affine'." in OPS_TOOLTIPS["ops_align_model"]

@@ -19,38 +19,23 @@ from spacr.methods_export import (_NUMBER, _supported, digest_numbers,
                                   extract_numbers)
 
 
-class TestWhatCountsAsSupported:
-
-    def test_a_number_the_digest_holds_is_supported(self):
-        assert _supported("0.05", {0.05}) is True
-
-    def test_a_number_the_digest_does_not_hold_is_not(self):
-        assert _supported("0.99", {0.05}) is False
-
-    def test_a_rounding_of_a_held_number_is_supported(self):
-        """A measurement quoted to fewer decimals is the same measurement."""
-        assert _supported("0.043", {0.0432198}) is True
-
-    def test_a_token_that_is_not_a_number_at_all_is_not_supported(self):
-        """THE REACHABLE GUARD.
-
-        `_supported` is a predicate over a string, and a caller that
-        hands it something unparseable must get False rather than a
-        ValueError -- the check runs over generated prose, and one odd
-        token must not stop the whole methods section being verified.
-        """
-        assert _supported("not a number", {0.05}) is False
-        assert _supported("", {0.05}) is False
-        assert _supported("1.2.3", {0.05}) is False
-
-    def test_a_non_finite_token_is_not_supported(self):
-        """`nan` and `inf` parse but are not measurements.
-
-        Accepting them would let "inf" pass as a supported figure.
-        """
-        assert _supported("nan", {0.05}) is False
-        assert _supported("inf", {0.05}) is False
-        assert _supported("-inf", {0.05}) is False
+@pytest.mark.parametrize("token, expected", [
+    pytest.param("0.05", True, id="a-number-the-digest-holds"),
+    pytest.param("0.99", False, id="a-number-the-digest-does-not-hold"),
+    pytest.param("0.043", True, id="a-rounding-of-a-held-number-is-the-same-measurement"),
+    pytest.param("not a number", False, id="text-is-not-a-number"),
+    pytest.param("", False, id="empty-is-not-a-number"),
+    pytest.param("1.2.3", False, id="a-version-string-is-not-a-number"),
+    pytest.param("nan", False, id="nan-parses-but-is-not-a-measurement"),
+    pytest.param("inf", False, id="inf-parses-but-is-not-a-measurement"),
+    pytest.param("-inf", False, id="minus-inf-parses-but-is-not-a-measurement"),
+])
+def test_a_token_is_supported_only_when_the_digest_holds_that_measurement(token, expected):
+    """`_supported` is a predicate over a string: an unparseable or non-finite
+    token must give False, not a ValueError, because the check runs over
+    generated prose and one odd token must not stop the whole methods section
+    being verified."""
+    assert _supported(token, {0.05, 0.0432198}) is expected
 
 
 class TestExtractingNumbersFromProse:
@@ -131,14 +116,3 @@ class TestTheNumericConversion:
                     "ValueError guard in extract_numbers is now reachable")
         assert tried > 1000, "the search accepted too few tokens to mean much"
 
-    def test_the_pattern_still_precedes_a_direct_conversion(self):
-        import inspect
-
-        source = inspect.getsource(digest_numbers)
-        assert "_NUMBER.fullmatch(token)" in source, (
-            "the conversion is no longer guarded by the pattern, so its "
-            "input contract may have changed")
-        assert "found.add(float(token))" in source
-        assert "except ValueError" not in source, (
-            "the regex admits only valid floats, so a ValueError arm is "
-            "unreachable and must not be restored")

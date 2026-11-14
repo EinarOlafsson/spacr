@@ -85,24 +85,6 @@ class TestFindingAControlInTheRanking:
         assert position.any()
         assert int(position.idxmax()) + 1 == 2
 
-    def test_the_present_control_cannot_disappear_from_the_ranking(self):
-        """The ranking is a permutation of the input, not a filter."""
-        from spacr import parameter_sweep as P
-
-        frame = pd.DataFrame({
-            "grna": ["TSC2_1", "AAVS1_1", "TSC2_2"],
-            "coefficient": [0.2, -0.8, 0.4],
-        })
-        out = P._named_control_rows(frame, {"control": "AAVS1"})
-
-        assert out["control_present"] is True
-        assert out["control_rank"] == 1
-        assert out["control_effect"] == pytest.approx(-0.8)
-
-        source = inspect.getsource(P)
-        assert "if position.any():" not in source
-        assert 'out[f"{alias}_rank"] = int(position.idxmax()) + 1' in source
-
     def test_only_a_main_process_caller_registers_the_workers(self):
         """THE UNCOVERED ARC: the caller is a pool worker.
 

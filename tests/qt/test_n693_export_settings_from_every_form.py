@@ -30,6 +30,7 @@ from spacr.qt.screens.app_screen import (
     AppScreen,
     default_settings_csv_path,
 )
+from spacr.settings import SETTINGS_SCHEMA_VERSION
 
 pytestmark = pytest.mark.qt
 
@@ -240,7 +241,7 @@ def test_the_csv_loads_with_the_non_gui_loaders(qtbot, monkeypatch,
         qtbot, monkeypatch, tmp_path, "measure")
     # Item 931: the plain loaders keep the settings schema stamp the export
     # leads with; the GUI import and spacr-run read and remove it.
-    expected = {"spacr_settings_version": 931, **expected}
+    expected = {"spacr_settings_version": SETTINGS_SCHEMA_VERSION, **expected}
     for loaded in (load_settings_file(str(path)),
                    load_settings(str(path), setting_key="Key",
                                  setting_value="Value")):

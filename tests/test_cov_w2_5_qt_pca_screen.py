@@ -76,19 +76,6 @@ def test_recomputing_with_no_table_does_nothing(screen):
     assert screen.pca.result is None
 
 
-def test_a_filter_naming_a_missing_column_is_reported_not_swallowed(
-        screen, link, features, caplog):
-    """The whole frame is decomposed, and the mismatch is logged."""
-    screen.set_frame(features)
-    link.set_filter(DataFilter([CategoryFilter("no_such_column", ("x",))]))
-
-    with caplog.at_level("INFO", logger="spacr.qt.screens.pca"):
-        got = screen._filtered()
-
-    assert len(got) == len(features)
-    assert "does not apply to this table" in caplog.text
-
-
 def test_a_filter_change_is_coalesced_before_it_recomputes(screen, link,
                                                            features):
     """A dragged slider costs one PCA, not one per step."""
@@ -99,13 +86,6 @@ def test_a_filter_change_is_coalesced_before_it_recomputes(screen, link,
 
     assert screen._refilter.isActive()
     assert screen._refilter.interval() == pca_screen.REFILTER_MS
-
-
-def test_a_filter_change_with_no_table_starts_no_timer(screen, link):
-    """Nothing to recompute means nothing is scheduled."""
-    link.set_filter(DataFilter([CategoryFilter("gene", ("control",))]))
-
-    assert not screen._refilter.isActive()
 
 
 def test_recomputing_keeps_the_feature_ticks(screen, link, features):

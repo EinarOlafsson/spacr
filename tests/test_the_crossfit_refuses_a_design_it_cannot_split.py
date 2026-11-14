@@ -77,46 +77,34 @@ def test_a_well_whose_target_status_disagrees_is_refused():
             frame, feature_columns=["area", "perimeter"])
 
 
-def test_a_feature_that_carries_an_identifier_is_refused():
-    """The leakage guard, naming the offending columns.
+@pytest.mark.parametrize("column, value, fragments", [
+    pytest.param("columnID_numeric", 1.0, ["leak", "columnID_numeric"],
+                 id="an-identifier-feature-is-a-leak"),
+    pytest.param("never_measured", np.nan, ["entirely missing", "never_measured"],
+                 id="an-all-missing-feature-is-named"),
+    pytest.param("hollow", np.nan, ["entirely missing", "hollow"],
+                 id="a-second-all-missing-feature-is-named"),
+])
+def test_a_feature_that_cannot_be_trusted_is_refused_by_name(column, value, fragments):
+    """The leakage guard and the all-NaN guard, each naming the offending column.
 
     A model given the well id memorises which wells were targets and scores
-    near perfectly on a screen with no signal. Naming the columns is what
-    lets the user drop the right ones rather than guessing.
+    near perfectly on a screen with no signal.  Median-filling an all-NaN
+    column produces a constant, which contributes nothing while looking like a
+    feature -- so the model would be trained on fewer measurements than the
+    report says it used.  Naming the column is what lets the user drop the
+    right one rather than guessing.
     """
     from spacr.hit_attribution import (HitAttributionError,
                                        crossfit_candidate_probabilities)
 
     frame = _frame()
-    frame["columnID_numeric"] = 1.0
+    frame[column] = value
 
     with pytest.raises(HitAttributionError) as excinfo:
-        crossfit_candidate_probabilities(
-            frame, feature_columns=["area", "columnID_numeric"])
+        crossfit_candidate_probabilities(frame, feature_columns=["area", column])
 
-    assert "leak" in str(excinfo.value)
-    assert "columnID_numeric" in str(excinfo.value)
-
-
-def test_a_feature_that_is_entirely_missing_is_refused_by_name():
-    """The all-NaN guard.
-
-    Median-filling an all-NaN column produces a constant, and a constant
-    feature contributes nothing while looking like a feature -- so the model
-    would be trained on fewer measurements than the report says it used.
-    """
-    from spacr.hit_attribution import (HitAttributionError,
-                                       crossfit_candidate_probabilities)
-
-    frame = _frame()
-    frame["never_measured"] = np.nan
-
-    with pytest.raises(HitAttributionError) as excinfo:
-        crossfit_candidate_probabilities(
-            frame, feature_columns=["area", "never_measured"])
-
-    assert "entirely missing" in str(excinfo.value)
-    assert "never_measured" in str(excinfo.value)
+    assert [f for f in fragments if f in str(excinfo.value)] == fragments
 
 
 def test_a_workable_design_returns_a_probability_per_row():

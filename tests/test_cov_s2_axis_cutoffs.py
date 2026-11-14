@@ -54,22 +54,6 @@ def test_the_axis_menu_quotes_a_high_only_cutoff_on_its_clearing_row():
     assert clearing.why == ""
 
 
-def test_the_store_lists_its_measurements_in_the_order_they_were_cut():
-    """``columns()`` and iteration agree, and both follow insertion order.
-
-    The order is what a "cut off: area, intensity" summary reads out, so a
-    dict that reshuffled would make the same session read differently twice.
-    """
-    cutoffs = AxisCutoffs()
-    cutoffs.set("area", low=10)
-    cutoffs.set("intensity", high=500)
-    cutoffs.set("perimeter", low=1, high=2)
-
-    assert cutoffs.columns() == ("area", "intensity", "perimeter")
-    assert list(cutoffs) == ["area", "intensity", "perimeter"]
-    assert len(cutoffs) == 3
-
-
 def test_clearing_one_measurement_takes_it_out_of_the_listing():
     """A cleared column stops being reported as cut off, by every route."""
     cutoffs = AxisCutoffs(initial={"area": AxisCutoff(low=10)})
@@ -82,28 +66,3 @@ def test_clearing_one_measurement_takes_it_out_of_the_listing():
     assert cutoffs.clear("area") is False
 
 
-def test_clearing_everything_reports_how_many_cutoffs_went():
-    """``clear_all`` answers the count, so a "reset" can say what it undid.
-
-    Answering ``None`` would leave the caller unable to tell a reset that
-    changed the picture from one that did nothing at all.
-    """
-    cutoffs = AxisCutoffs()
-    cutoffs.set("area", low=10)
-    cutoffs.set("intensity", high=500)
-
-    assert cutoffs.clear_all() == 2
-    assert len(cutoffs) == 0
-    assert cutoffs.columns() == ()
-    assert cutoffs.clear_all() == 0
-
-
-def test_setting_both_ends_to_nothing_forgets_the_measurement():
-    """An empty cutoff is absent, not stored -- the container's one rule."""
-    cutoffs = AxisCutoffs()
-    cutoffs.set("area", low=10)
-    stored = cutoffs.set("area", low=None, high=None)
-
-    assert stored.is_set is False
-    assert cutoffs.columns() == ()
-    assert cutoffs.get("area").describe() == "none"

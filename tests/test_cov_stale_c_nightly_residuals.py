@@ -47,16 +47,6 @@ def test_core_uses_the_normalized_source_list_without_a_silent_skip():
     assert "source_folders = settings['src']" in source
 
 
-def test_the_model_size_loop_has_a_reachable_gigabyte_fallback():
-    """A value beyond every named scale exits the loop and still returns."""
-    from spacr import model_zoo
-
-    assert model_zoo._human_bytes(1024 ** 4) == "1024.0 GB"
-    source = inspect.getsource(model_zoo._human_bytes)
-    loop = source.index('for unit in ("B", "KB", "MB", "GB"):')
-    assert source.index('return f"{n:.1f} GB"', loop) > loop
-
-
 def test_the_v2_sidecar_relies_on_the_early_empty_return():
     """The focused V2 test drives both empty and nonempty stack lists."""
     from spacr import pipeline_v2

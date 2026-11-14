@@ -1292,7 +1292,8 @@ def mitotic_calls(cells: pd.DataFrame, *, dna: str, area: str,
 
 def aggregate_guides(cells: pd.DataFrame, features: Sequence[str], *,
                      guide: str = "guide", gene: str = "gene",
-                     mitotic: Optional[str] = None) -> pd.DataFrame:
+                     mitotic: Optional[str] = None,
+                     method: str = "median") -> pd.DataFrame:
     """One row per guide: its gene, cell count and per-feature medians.
 
     :param cells: one row per cell, already normalised if wanted.
@@ -1301,11 +1302,25 @@ def aggregate_guides(cells: pd.DataFrame, features: Sequence[str], *,
     :param gene: the gene column.
     :param mitotic: an optional boolean column; its mean becomes
         ``mitotic_fraction`` and its sum ``mitotic_cells``.
+    :param method: ``'median'`` (every feature; the OPS profiles, as
+        Brieflow) or ``'per_feature'``, each feature by its own default
+        (:func:`spacr.merge_tables.aggregate_by_feature`; flags become
+        ``<feature>_fraction``, counts gain ``<feature>_sum`` and
+        orientations ``<feature>_coherence``).
     :returns: ``guide, gene, n_cells, [mitotic_cells, mitotic_fraction,]
         <features>``.
+    :raises ValueError: for an unknown ``method``.
     """
+    _check_profile_method(method)
     grouped = cells.groupby([guide, gene], sort=True, observed=True)
-    out = grouped[list(features)].median()
+    if method == "per_feature":
+        from .merge_tables import aggregate_by_feature
+
+        out = aggregate_by_feature(cells, [guide, gene], columns=list(features)
+                                   ).set_index([guide, gene]).drop(columns="n_cells")
+        out.attrs.pop("aggregation_plan", None)
+    else:
+        out = grouped[list(features)].median()
     out.insert(0, "n_cells", grouped.size())
     if mitotic is not None:
         flags = cells[mitotic].astype(bool)
@@ -1323,11 +1338,56 @@ AGGREGATE_LEVELS: Tuple[str, ...] = ("guides", "cells")
 NT_ROW_MODES: Tuple[str, ...] = ("pseudo", "barcode")
 
 
+#: How guide and gene profiles reduce their features (item 937).
+PROFILE_METHODS: Tuple[str, ...] = ("median", "per_feature")
+
+
+def _check_profile_method(method: str) -> None:
+    """Refuse a profile reduction other than :data:`PROFILE_METHODS`."""
+    if method not in PROFILE_METHODS:
+        raise ValueError(f"method must be one of {list(PROFILE_METHODS)}; "
+                         f"got {method!r}")
+
+
+def _guide_summary_overrides(features: Sequence[str]) -> Dict[str, str]:
+    """How a gene reduces its guides' per-feature summaries.
+
+    A guide median is reduced by the median, as before; a mean, share or
+    per-cell count by the mean (each guide one vote); a count total by the
+    sum; an orientation by the axial circular mean and its coherence by the
+    mean.
+
+    :param features: the cell-level feature names.
+    :returns: guide-table column -> summary method, keyed by exact name.
+    """
+    from .merge_tables import aggregation_for
+
+    out: Dict[str, str] = {}
+    for feature in features:
+        method = aggregation_for(feature, level="summary")
+        if method == "drop":
+            continue
+        if method == "fraction":
+            out[f"{feature}_fraction"] = "mean"
+        elif method == "mean_sum":
+            out[feature] = "mean"
+            out[f"{feature}_sum"] = "sum"
+        elif method == "circmean_axial":
+            out[feature] = "circmean_axial"
+            out[f"{feature}_coherence"] = "mean"
+        elif method in ("constant", "first", "median", "min", "max", "sum"):
+            out[feature] = method
+        else:
+            out[feature] = "mean"
+    return out
+
+
 def aggregate_genes(guides: pd.DataFrame, features: Sequence[str], *,
                     level: str = "guides",
                     cells: Optional[pd.DataFrame] = None,
                     gene: str = "gene",
-                    min_cells: Optional[int] = None) -> pd.DataFrame:
+                    min_cells: Optional[int] = None,
+                    method: str = "median") -> pd.DataFrame:
     """One row per gene: the median of its guides' medians, or of its cells.
 
     :param guides: the table :func:`aggregate_guides` returns.
@@ -1339,6 +1399,11 @@ def aggregate_genes(guides: pd.DataFrame, features: Sequence[str], *,
     :param gene: the gene column of ``cells``.
     :param min_cells: when set, genes with this many cells or fewer are
         left out.
+    :param method: ``'median'`` or ``'per_feature'``, as in
+        :func:`aggregate_guides`. With ``'per_feature'`` and ``level=
+        'guides'`` a gene reduces its guides' summaries by the matching
+        method: medians by the median, means and shares by the mean, totals
+        by the sum.
     :returns: ``gene, n_guides, n_cells, [mitotic_cells, mitotic_index,]
         <features>``. The mitotic index pools the gene's cells -- mitotic
         cells over all cells -- which is how the published per-gene
@@ -1358,16 +1423,35 @@ def aggregate_genes(guides: pd.DataFrame, features: Sequence[str], *,
     if level not in AGGREGATE_LEVELS:
         raise ValueError(f"level must be one of {list(AGGREGATE_LEVELS)}; "
                          f"got {level!r}")
+    _check_profile_method(method)
     grouped = guides.groupby("gene", sort=True)
     if level == "cells":
         if cells is None:
             raise ValueError("level='cells' needs the cell table")
         by_cell = cells.groupby(gene, sort=True)
-        out = by_cell[list(features)].median()
+        if method == "per_feature":
+            from .merge_tables import aggregate_by_feature
+
+            out = aggregate_by_feature(cells, gene, columns=list(features)
+                                       ).set_index(gene).drop(columns="n_cells")
+            out.attrs.pop("aggregation_plan", None)
+        else:
+            out = by_cell[list(features)].median()
         out.index.name = "gene"
         out.insert(0, "n_guides", grouped.size().reindex(out.index)
                    .fillna(0).astype(int))
         out.insert(1, "n_cells", by_cell.size())
+    elif method == "per_feature":
+        from .merge_tables import aggregate_by_feature
+
+        overrides = _guide_summary_overrides(features)
+        columns = [name for name in overrides if name in guides.columns]
+        out = aggregate_by_feature(guides, "gene", columns=columns,
+                                   overrides=overrides, count_sum=False
+                                   ).set_index("gene").drop(columns="n_cells")
+        out.attrs.pop("aggregation_plan", None)
+        out.insert(0, "n_guides", grouped.size())
+        out.insert(1, "n_cells", grouped["n_cells"].sum())
     else:
         out = grouped[list(features)].median()
         out.insert(0, "n_guides", grouped.size())

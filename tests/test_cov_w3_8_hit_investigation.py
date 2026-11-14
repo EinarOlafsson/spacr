@@ -95,14 +95,20 @@ def _write_db(tmp_path, cells=None, png=None):
     return database
 
 
-def test_a_prediction_file_without_the_score_column_is_refused(tmp_path):
+@pytest.mark.parametrize("columns, refusal", [
+    pytest.param({"prcfo": ["p1_r01_c01_f1_o1"], "other": [0.3]}, "'phenotype_score'",
+                 id="no-score-column-names-the-configured-one"),
+    pytest.param({"filename": ["a.png"], "phenotype_score": [0.3]},
+                 "prcfo or the configured crop-path column",
+                 id="no-identity-column-leaves-nothing-to-join-on"),
+])
+def test_a_prediction_file_that_cannot_be_joined_is_refused(tmp_path, columns, refusal):
     """The configured score column is named back so the user can fix it."""
     database = _write_db(tmp_path)
     predictions = tmp_path / "predictions.csv"
-    pd.DataFrame({"prcfo": ["p1_r01_c01_f1_o1"], "other": [0.3]}).to_csv(
-        predictions, index=False)
+    pd.DataFrame(columns).to_csv(predictions, index=False)
 
-    with pytest.raises(HitAttributionError, match="'phenotype_score'"):
+    with pytest.raises(HitAttributionError, match=refusal):
         _read_cells(str(database), str(predictions), "phenotype_score", "path")
 
 
@@ -174,19 +180,6 @@ def test_predictions_joined_on_prcfo(tmp_path):
 
     assert dict(zip(cells["prcfo"], cells["phenotype_score"])) == {
         "p1_r01_c01_f1_o1": 0.3, "p1_r01_c01_f1_o2": 0.4}
-
-
-def test_predictions_with_neither_prcfo_nor_the_path_column_are_refused(
-        tmp_path):
-    """Without an identity column there is nothing to join objects on."""
-    database = _write_db(tmp_path)
-    predictions = tmp_path / "predictions.csv"
-    pd.DataFrame({"filename": ["a.png"], "phenotype_score": [0.3]}).to_csv(
-        predictions, index=False)
-
-    with pytest.raises(HitAttributionError,
-                       match="prcfo or the configured crop-path column"):
-        _read_cells(str(database), str(predictions), "phenotype_score", "path")
 
 
 def test_predictions_joined_on_the_crop_basename(tmp_path):

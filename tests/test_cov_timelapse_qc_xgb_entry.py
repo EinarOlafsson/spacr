@@ -1241,6 +1241,9 @@ def _scn_recompute_uses_pool_when_n_jobs_gt_one(tmp_path, panel_calls, monkeypat
             created["n_args"] = len(list(iterable))
             return [fn(a) for a in iterable]
 
+        def imap(self, fn, iterable):
+            return iter(self.map(fn, iterable))
+
     monkeypatch.setattr(resource_log, "_parallel_pool", _FakePool)
     monkeypatch.setattr(tl, "_process_merged_group", lambda args: _fake_group_df())
 

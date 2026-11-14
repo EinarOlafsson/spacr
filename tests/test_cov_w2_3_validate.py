@@ -110,10 +110,20 @@ def test_a_pattern_without_a_channel_group_scores_no_hits(tmp_path):
     assert inv.raw_channels is None
 
 
-def test_a_src_that_looks_like_a_list_but_is_not_one_stays_one_path():
-    """``[not, python]`` is treated as the literal path it is."""
-    assert V._src_values({"src": "[a, b]"}) == ["[a, b]"]
-    assert V._src_values({"src": "['/one', '/two']"}) == ["/one", "/two"]
+@pytest.mark.parametrize("src, expected", [
+    # ``[not, python]`` is treated as the literal path it is.
+    pytest.param("[a, b]", ["[a, b]"], id="not-python-stays-one-path"),
+    pytest.param("['/one', '/two']", ["/one", "/two"], id="a-list-literal-splits"),
+    # ``src`` is split only when the brackets really are one list literal.
+    # This parses to a tuple of lists rather than the list of paths the caller
+    # meant, so the original string is kept intact rather than silently
+    # reinterpreted.
+    pytest.param("['/a'],['/b']", ["['/a'],['/b']"],
+                 id="bracketed-but-not-one-list-stays-one-path"),
+    pytest.param("['/a', '/b']", ["/a", "/b"], id="two-paths-split"),
+])
+def test_a_src_is_split_only_when_it_is_one_list_literal(src, expected):
+    assert V._src_values({"src": src}) == expected
 
 
 def test_external_mask_groups_are_reduced_to_the_folders_they_live_in(tmp_path):

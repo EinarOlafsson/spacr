@@ -9,6 +9,8 @@ from __future__ import annotations
 from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 
+import pytest
+
 import spacr.version as version
 
 
@@ -29,13 +31,62 @@ def _wheel_tree(tmp_path: Path) -> Path:
     return package
 
 
-def test_a_source_checkout_reports_its_own_literal_over_stale_metadata(monkeypatch):
+def _a_stale_dist_info_beside_a_newer_checkout(monkeypatch, tmp_path):
     """The literal in spacr/_version.py wins when the checkout is imported."""
     monkeypatch.setattr(version, "package_version", lambda name: "1.5.1.3")
     monkeypatch.setattr(version, "_runs_from_source", lambda *a: True)
     monkeypatch.setattr(version, "_source_version", lambda: "1.5.1.4")
 
-    assert version.get_version() == "1.5.1.4"
+
+def _a_frozen_installer_without_dist_info(monkeypatch, tmp_path):
+    """A frozen bundle with no dist-info falls back to spacr/_version.py."""
+    package = tmp_path / "_internal" / "spacr"
+    package.mkdir(parents=True)
+
+    def _absent(name):
+        raise PackageNotFoundError(name)
+
+    monkeypatch.setattr(version, "distribution", _absent)
+    monkeypatch.setattr(version, "package_version", _absent)
+    monkeypatch.setattr(version, "_PACKAGE_DIR", package)
+    monkeypatch.setattr(version, "_source_version", lambda: "1.5.1.4")
+
+
+def _a_frozen_installer_that_copied_its_dist_info(monkeypatch, tmp_path):
+    """A frozen bundle that copied its dist-info owns its files like a wheel."""
+    package = tmp_path / "_internal" / "spacr"
+    package.mkdir(parents=True)
+    (package / "version.py").write_text("", encoding="utf-8")
+    monkeypatch.setattr(version, "distribution",
+                        lambda name: _Dist(package.parent))
+    monkeypatch.setattr(version, "package_version", lambda name: "1.5.1.4")
+    monkeypatch.setattr(version, "_PACKAGE_DIR", package)
+
+
+def _no_distribution_and_no_source_literal(monkeypatch, tmp_path):
+    """Every candidate distribution missing resolves to ``"unknown"``."""
+    def _absent(name):
+        raise PackageNotFoundError(name)
+
+    monkeypatch.setattr(version, "package_version", _absent)
+    monkeypatch.setattr(version, "_runs_from_source", lambda *a: False)
+    monkeypatch.setattr(version, "_source_version", lambda: None)
+
+
+@pytest.mark.parametrize("arrange, expected", [
+    pytest.param(_a_stale_dist_info_beside_a_newer_checkout, "1.5.1.4",
+                 id="source-checkout-literal-beats-stale-metadata"),
+    pytest.param(_a_frozen_installer_without_dist_info, "1.5.1.4",
+                 id="frozen-without-metadata-reports-bundled-literal"),
+    pytest.param(_a_frozen_installer_that_copied_its_dist_info, "1.5.1.4",
+                 id="frozen-with-metadata-reports-its-metadata"),
+    pytest.param(_no_distribution_and_no_source_literal, "unknown",
+                 id="nothing-to-read-reports-unknown"),
+])
+def test_get_version_reports_the_version_of_the_files_that_run(
+        monkeypatch, tmp_path, arrange, expected):
+    arrange(monkeypatch, tmp_path)
+    assert version.get_version() == expected
 
 
 def test_a_tree_with_setup_py_beside_it_is_a_checkout(tmp_path):
@@ -82,36 +133,6 @@ def test_a_nightly_wheel_is_owned_through_the_second_candidate(monkeypatch, tmp_
     monkeypatch.setattr(version, "distribution", _only_nightly)
 
     assert version._runs_from_source(package) is False
-
-
-def test_a_frozen_installer_without_metadata_reports_the_bundled_literal(
-        monkeypatch, tmp_path):
-    """A frozen bundle with no dist-info falls back to spacr/_version.py."""
-    package = tmp_path / "_internal" / "spacr"
-    package.mkdir(parents=True)
-
-    def _absent(name):
-        raise PackageNotFoundError(name)
-
-    monkeypatch.setattr(version, "distribution", _absent)
-    monkeypatch.setattr(version, "package_version", _absent)
-    monkeypatch.setattr(version, "_PACKAGE_DIR", package)
-    monkeypatch.setattr(version, "_source_version", lambda: "1.5.1.4")
-
-    assert version.get_version() == "1.5.1.4"
-
-
-def test_a_frozen_installer_with_metadata_reports_its_metadata(monkeypatch, tmp_path):
-    """A frozen bundle that copied its dist-info owns its files like a wheel."""
-    package = tmp_path / "_internal" / "spacr"
-    package.mkdir(parents=True)
-    (package / "version.py").write_text("", encoding="utf-8")
-    monkeypatch.setattr(version, "distribution",
-                        lambda name: _Dist(package.parent))
-    monkeypatch.setattr(version, "package_version", lambda name: "1.5.1.4")
-    monkeypatch.setattr(version, "_PACKAGE_DIR", package)
-
-    assert version.get_version() == "1.5.1.4"
 
 
 def test_this_checkout_reports_the_literal_it_ships():

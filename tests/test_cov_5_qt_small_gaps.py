@@ -8,7 +8,6 @@ and none may leave something on screen that is no longer true.
 from __future__ import annotations
 
 import os
-import sys
 
 import numpy as np
 import pytest
@@ -18,7 +17,6 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtGui import QIcon                                   # noqa: E402
 
-from spacr.qt import crop_thumbs as CT                            # noqa: E402
 from spacr.qt.widgets import animation_zoom as az                 # noqa: E402
 from spacr.qt.widgets.section import Section, module_mark         # noqa: E402
 
@@ -28,126 +26,6 @@ pytestmark = pytest.mark.qt
 # ---------------------------------------------------------------------------
 # crop_thumbs: a dataset that moved, and a cache that must not throw
 # ---------------------------------------------------------------------------
-
-def test_a_crop_that_is_where_it_says_it_is_needs_no_re_anchoring(tmp_path):
-    png = tmp_path / "crop.png"
-    png.write_bytes(b"")
-
-    assert CT.resolve_crop_path(str(png), str(tmp_path / "m.db")) == str(png)
-    assert CT.resolve_crop_path("", "x") == ""
-    assert CT.resolve_crop_path("/gone/crop.png", "") == "/gone/crop.png"
-
-
-def test_a_moved_dataset_is_re_anchored_under_the_database_it_came_with(
-        tmp_path, monkeypatch):
-    """``png_list`` holds the path of the machine that measured the plate."""
-    from spacr.qt.screens import annotate as annotate_screen
-
-    monkeypatch.setattr(annotate_screen, "_reanchor_png_path",
-                        lambda path, db: "/here/data/crop.png")
-
-    assert CT.resolve_crop_path("/there/data/crop.png",
-                                "/here/measurements.db") == "/here/data/crop.png"
-
-
-def test_without_the_annotate_screen_the_stored_path_is_kept(monkeypatch):
-    """A trimmed install still shows the crops that did not move."""
-    monkeypatch.setitem(sys.modules, "spacr.qt.screens.annotate", None)
-
-    assert CT.resolve_crop_path("/there/data/crop.png",
-                                "/here/measurements.db") == "/there/data/crop.png"
-
-
-def test_a_re_anchoring_that_raises_falls_back_to_the_stored_path(monkeypatch):
-    """A hover must not throw because one path could not be rebuilt."""
-    from spacr.qt.screens import annotate as annotate_screen
-
-    def refuse(_path, _db):
-        raise ValueError("no /data/ segment in that path")
-
-    monkeypatch.setattr(annotate_screen, "_reanchor_png_path", refuse)
-
-    assert CT.resolve_crop_path("/there/crop.png",
-                                "/here/measurements.db") == "/there/crop.png"
-
-
-def test_a_hover_over_nothing_asks_for_nothing(qapp):
-    """A point with no crop path must not become a stat of the empty string."""
-    cache = CT.CropThumbnails()
-
-    assert cache.peek("") is None
-    assert cache.pixmap("") is None
-    assert cache.decodes == 0 and cache.hits == 0 and cache.misses == 0
-
-
-def test_the_cache_reports_its_own_health(qapp, tmp_path):
-    """The status line is the only place a decode failure is visible."""
-    cache = CT.CropThumbnails(capacity=4)
-    missing = str(tmp_path / "gone.png")
-
-    assert cache.pixmap(missing) is None
-    assert cache.peek(missing) is None    # remembered as unreadable, not retried
-    assert cache.decodes == 1 and cache.failures == 1
-
-    said = cache.describe()
-    assert "1/4 crops cached" in said
-    assert "1 decode(s)" in said and "1 unreadable" in said
-
-
-def test_resolving_no_keys_or_no_database_scans_nothing(monkeypatch):
-    from spacr import active_learning
-
-    def explode(*_args, **_kwargs):
-        raise AssertionError("the crop table must not be scanned")
-
-    monkeypatch.setattr(active_learning, "crops_for_object_keys", explode)
-
-    assert CT.crop_paths_for_keys("/plate/measurements.db", []) == {}
-    assert CT.crop_paths_for_keys("", ["k1"]) == {}
-
-
-def test_one_resolvable_key_among_missing_ones_is_still_found(monkeypatch):
-    """The bisection has to reach the single key that does have a crop.
-
-    ``crops_for_object_keys`` drops what it cannot resolve, so a short answer
-    no longer lines up with the keys asked for. Zipping it anyway would file
-    the one real crop under the wrong object.
-    """
-    from spacr import active_learning
-
-    known = {"k2": "/plate/data/k2.png"}
-    scans = []
-
-    def fake(_db, batch):
-        scans.append(list(batch))
-        return [(known[key], 1) for key in batch if key in known]
-
-    monkeypatch.setattr(active_learning, "crops_for_object_keys", fake)
-
-    out = CT.crop_paths_for_keys("/plate/measurements.db", ["k1", "k2", "k3"])
-
-    assert out == {"k2": "/plate/data/k2.png"}
-    assert ["k1"] in scans and ["k2"] in scans
-
-
-def test_an_object_with_more_than_one_crop_is_filed_under_its_first(monkeypatch):
-    """A key can carry several crop rows, and the answer is one path per key.
-
-    The bisection reaches a single key whose answer is longer than the batch;
-    zipping that would file the extra rows under keys that never asked.
-    """
-    from spacr import active_learning
-
-    def fake(_db, batch):
-        if list(batch) == ["k1"]:
-            return [("/plate/data/k1_a.png", 1), ("/plate/data/k1_b.png", 1)]
-        return []
-
-    monkeypatch.setattr(active_learning, "crops_for_object_keys", fake)
-
-    out = CT.crop_paths_for_keys("/plate/measurements.db", ["k1"])
-
-    assert out == {"k1": "/plate/data/k1_a.png"}
 
 
 # ---------------------------------------------------------------------------

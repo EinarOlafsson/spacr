@@ -516,24 +516,6 @@ def test_an_artifact_reached_through_a_symlink_is_never_pruned(crops_artifact):
     assert os.path.isdir(os.path.join(root, "data"))
 
 
-def test_a_kind_no_module_claims_to_produce_cannot_be_remade(crops_artifact):
-    """Deleting it would be permanent, whatever the registry row says."""
-    root, registry, artifact = crops_artifact
-    reason = DM.is_prunable(
-        dataclasses.replace(artifact, kind="unicorn-dust"),
-        root=root, registry=registry)
-    assert "no module declares that it produces unicorn-dust" in reason
-
-
-def test_a_row_naming_a_module_that_does_not_produce_that_kind_is_kept(
-        crops_artifact):
-    """The registry disagrees with the ports; re-running would not remake it."""
-    root, registry, artifact = crops_artifact
-    reason = DM.is_prunable(dataclasses.replace(artifact, module="mask"),
-                            root=root, registry=registry)
-    assert "mask is not a declared producer" in reason
-
-
 def test_an_artifact_registered_with_no_fingerprint_is_kept(crops_artifact):
     """With nothing to compare against, "unchanged since the run" is unprovable."""
     root, registry, artifact = crops_artifact
@@ -577,3 +559,20 @@ def test_an_artifact_already_gone_from_disk_is_not_a_deletion(crops_artifact):
     shutil.rmtree(os.path.join(root, "data"))
     assert DM.is_prunable(artifact, root=root,
                           registry=registry) == "it is already gone from disk"
+
+
+@pytest.mark.parametrize("changes, said", [
+    # Deleting it would be permanent, whatever the registry row says.
+    pytest.param({"kind": "unicorn-dust"},
+                 "no module declares that it produces unicorn-dust",
+                 id="a_kind_no_module_claims_to_produce"),
+    # The registry disagrees with the ports; re-running would not remake it.
+    pytest.param({"module": "mask"}, "mask is not a declared producer",
+                 id="a_module_that_does_not_produce_that_kind"),
+])
+def test_an_artifact_that_could_not_be_remade_is_kept_with_the_reason(
+        crops_artifact, changes, said):
+    root, registry, artifact = crops_artifact
+    reason = DM.is_prunable(dataclasses.replace(artifact, **changes),
+                            root=root, registry=registry)
+    assert said in reason

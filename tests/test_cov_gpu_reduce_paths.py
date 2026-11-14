@@ -26,7 +26,7 @@ import pytest
 @pytest.fixture
 def no_rapids(monkeypatch):
     """cuML and cupy absent, and the env flag permissive."""
-    monkeypatch.delenv("SPACR_NO_RAPIDS", raising=False)
+    monkeypatch.delenv("SPACR_USE_RAPIDS", raising=False)
     for name in ("cuml", "cupy"):
         monkeypatch.setitem(sys.modules, name, None)   # import -> ImportError
     return monkeypatch
@@ -46,106 +46,71 @@ def _fake_cupy(devices):
 
 
 # --------------------------------------------------------------------------- #
-#  rapids_available -- both halves, because either alone is a crash later
+#  rapids_available and install_plan -- the answers the button can give
 # --------------------------------------------------------------------------- #
 
-def test_no_cuml_means_not_available(no_rapids):
-    from spacr.gpu_reduce import rapids_available
-
-    assert rapids_available() is False
+_INSTALLED = object()      # a fake cuml is present
+_NO_CUPY = object()        # importing cupy raises
 
 
-def test_cuml_without_a_device_is_not_available(monkeypatch):
+def _the_machine(monkeypatch, *, cuml, cupy, env=None, python_ok=None):
+    """Put fake cuml/cupy (or none) in sys.modules, the way the code branches on them."""
+    from spacr import gpu_reduce
+
+    monkeypatch.delenv(gpu_reduce.ENV_FLAG, raising=False)
+    if env is not None:
+        monkeypatch.setenv(gpu_reduce.ENV_FLAG, env)
+    monkeypatch.setitem(sys.modules, "cuml", _fake_cuml() if cuml is _INSTALLED else None)
+    if cupy is _NO_CUPY or cupy is None:
+        monkeypatch.setitem(sys.modules, "cupy", None)
+    else:
+        monkeypatch.setitem(sys.modules, "cupy", _fake_cupy(devices=cupy))
+    if python_ok is not None:
+        monkeypatch.setattr(gpu_reduce, "python_supported", lambda: python_ok)
+    return gpu_reduce
+
+
+@pytest.mark.parametrize("cuml, cupy, env, expected", [
+    pytest.param(None, None, None, False, id="no-cuml"),
+    pytest.param(_INSTALLED, 0, None, False, id="cuml-without-a-device"),
+    pytest.param(_INSTALLED, _NO_CUPY, None, False, id="cuml-without-a-working-cupy"),
+    pytest.param(_INSTALLED, 1, None, True, id="cuml-with-a-device"),
+    pytest.param(_INSTALLED, 1, "0", False, id="flag-0-is-off"),
+    pytest.param(_INSTALLED, 1, "false", False, id="flag-false-is-off"),
+    pytest.param(_INSTALLED, 1, "no", False, id="flag-no-is-off"),
+    pytest.param(_INSTALLED, 1, "off", False, id="flag-off-is-off"),
+    pytest.param(_INSTALLED, 1, "", False, id="flag-empty-is-off"),
+])
+def test_rapids_is_available_only_with_cuml_a_device_and_the_flag_not_off(
+        monkeypatch, cuml, cupy, env, expected):
     """cuML imports happily with no GPU and then fails at fit time. Calling
     that 'available' turns an optional accelerator into a crash on exactly
     the machines that did not ask for one."""
-    monkeypatch.delenv("SPACR_NO_RAPIDS", raising=False)
-    monkeypatch.setitem(sys.modules, "cuml", _fake_cuml())
-    monkeypatch.setitem(sys.modules, "cupy", _fake_cupy(devices=0))
-
-    from spacr.gpu_reduce import rapids_available
-
-    assert rapids_available() is False
+    gpu_reduce = _the_machine(monkeypatch, cuml=cuml, cupy=cupy, env=env)
+    assert gpu_reduce.rapids_available() is expected
 
 
-def test_cuml_without_a_working_cupy_is_not_available(monkeypatch):
-    monkeypatch.delenv("SPACR_NO_RAPIDS", raising=False)
-    monkeypatch.setitem(sys.modules, "cuml", _fake_cuml())
-    monkeypatch.setitem(sys.modules, "cupy", None)
-
-    from spacr.gpu_reduce import rapids_available
-
-    assert rapids_available() is False
-
-
-def test_cuml_with_a_device_is_available(monkeypatch):
-    monkeypatch.delenv("SPACR_NO_RAPIDS", raising=False)
-    monkeypatch.setitem(sys.modules, "cuml", _fake_cuml())
-    monkeypatch.setitem(sys.modules, "cupy", _fake_cupy(devices=1))
-
-    from spacr.gpu_reduce import rapids_available
-
-    assert rapids_available() is True
-
-
-# --------------------------------------------------------------------------- #
-#  install_plan -- the four answers the button can give
-# --------------------------------------------------------------------------- #
-
-def test_plan_is_ready_when_a_device_answered(monkeypatch):
-    monkeypatch.delenv("SPACR_NO_RAPIDS", raising=False)
-    monkeypatch.setitem(sys.modules, "cuml", _fake_cuml())
-    monkeypatch.setitem(sys.modules, "cupy", _fake_cupy(devices=2))
-
-    from spacr.gpu_reduce import install_plan
-
-    plan = install_plan()
-    assert plan["action"] == "ready"
-    assert "2 device" in plan["message"]
-
-
-def test_plan_is_no_device_when_cuml_is_there_and_the_gpu_is_not(monkeypatch):
-    """Installing more cannot fix a missing device, so the message must not
-    offer to."""
-    monkeypatch.delenv("SPACR_NO_RAPIDS", raising=False)
-    monkeypatch.setitem(sys.modules, "cuml", _fake_cuml())
-    monkeypatch.setitem(sys.modules, "cupy", _fake_cupy(devices=0))
-
-    from spacr.gpu_reduce import install_plan
-
-    plan = install_plan()
-    assert plan["action"] == "no_device"
-    assert "nvidia-smi" in plan["message"]
-    # It must not OFFER an install -- more packages cannot conjure a device.
-    assert "installing again cannot fix" in plan["message"]
-    assert "GIGABYTES" not in plan["message"]
-
-
-def test_plan_is_wrong_python_and_says_which(no_rapids, monkeypatch):
-    """"Make a 3.11 environment" is actionable; a pip resolver error is
-    not."""
-    from spacr import gpu_reduce
-
-    monkeypatch.setattr(gpu_reduce, "python_supported", lambda: False)
-
+@pytest.mark.parametrize("cuml, cupy, python_ok, action, present, absent", [
+    pytest.param(_INSTALLED, 2, None, "ready", ["2 device"], [],
+                 id="a-device-answered"),
+    pytest.param(_INSTALLED, 0, None, "no_device",
+                 ["nvidia-smi", "installing again cannot fix"], ["GIGABYTES"],
+                 id="cuml-without-a-device-offers-no-install"),
+    pytest.param(None, None, False, "wrong_python", ["3.11", "conda create"], [],
+                 id="wrong-python-says-which"),
+    pytest.param(None, None, True, "install", ["GIGABYTES", "RESTARTED"], [],
+                 id="supported-python-warns-about-size-and-restart"),
+])
+def test_the_install_plan_gives_each_situation_its_own_sentence(
+        monkeypatch, cuml, cupy, python_ok, action, present, absent):
+    """\"Make a 3.11 environment\" is actionable; a pip resolver error is not. A
+    multi-gigabyte download with no warning reads as a hang, and pip can
+    upgrade numpy underneath a process that has already imported it."""
+    gpu_reduce = _the_machine(monkeypatch, cuml=cuml, cupy=cupy, python_ok=python_ok)
     plan = gpu_reduce.install_plan()
-    assert plan["action"] == "wrong_python"
-    assert "3.11" in plan["message"]
-    assert "conda create" in plan["message"]
-
-
-def test_plan_is_install_and_warns_about_the_size(no_rapids, monkeypatch):
-    """A multi-gigabyte download with no warning reads as a hang, and the
-    restart requirement is not optional -- pip can upgrade numpy underneath
-    a process that has already imported it."""
-    from spacr import gpu_reduce
-
-    monkeypatch.setattr(gpu_reduce, "python_supported", lambda: True)
-
-    plan = gpu_reduce.install_plan()
-    assert plan["action"] == "install"
-    assert "GIGABYTES" in plan["message"]
-    assert "RESTARTED" in plan["message"]
+    assert plan["action"] == action
+    assert [w for w in present if w in plan["message"]] == present
+    assert [w for w in absent if w in plan["message"]] == []
 
 
 def test_the_install_command_targets_this_interpreter():
@@ -181,7 +146,7 @@ def test_describe_tells_an_uninstalled_user_what_to_do(no_rapids):
 
 def test_describe_distinguishes_no_device_from_not_installed(monkeypatch):
     """Two very different problems that would otherwise read the same."""
-    monkeypatch.delenv("SPACR_NO_RAPIDS", raising=False)
+    monkeypatch.delenv("SPACR_USE_RAPIDS", raising=False)
     monkeypatch.setitem(sys.modules, "cuml", _fake_cuml("24.10"))
     monkeypatch.setitem(sys.modules, "cupy", _fake_cupy(devices=0))
 
@@ -193,7 +158,7 @@ def test_describe_distinguishes_no_device_from_not_installed(monkeypatch):
 
 
 def test_describe_counts_the_devices(monkeypatch):
-    monkeypatch.delenv("SPACR_NO_RAPIDS", raising=False)
+    monkeypatch.delenv("SPACR_USE_RAPIDS", raising=False)
     monkeypatch.setitem(sys.modules, "cuml", _fake_cuml("24.10"))
     monkeypatch.setitem(sys.modules, "cupy", _fake_cupy(devices=4))
 

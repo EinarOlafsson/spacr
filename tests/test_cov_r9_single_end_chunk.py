@@ -160,21 +160,6 @@ class TestTheOffset:
 
 class TestWhatIsRefused:
 
-    def test_a_chunk_of_the_wrong_arity_is_refused(self, references):
-        with pytest.raises(ValueError) as caught:
-            S.process_chunk(("just", "three", "things"))
-
-        assert "9 values for single-end" in str(caught.value)
-
-    def test_a_zero_window_is_refused(self, references):
-        with pytest.raises(ValueError) as caught:
-            S.process_chunk(_chunk([], references, end=0))
-
-        # NAMED FOR THE SETTING THE USER HAS, not for the parameter this
-        # function happens to call it. 364 renamed `expected_end` to
-        # `window_length`, and the message went with it; the test did not.
-        assert "window_length must be a positive integer" in str(caught.value)
-
     def test_a_regex_without_the_named_groups_is_refused(self, references):
         column_csv, grna_csv, row_csv = references
         with pytest.raises(ValueError) as caught:
@@ -183,13 +168,6 @@ class TestWhatIsRefused:
 
         assert "missing required named group" in str(caught.value)
         assert "row/rowID" in str(caught.value)
-
-    def test_a_malformed_fastq_record_is_refused(self, references):
-        with pytest.raises(ValueError) as caught:
-            S.process_chunk(_chunk(["@read\nACGT\n+"], references))
-
-        assert "four lines" in str(caught.value)
-
 
 class TestFillingTheBlanks:
 

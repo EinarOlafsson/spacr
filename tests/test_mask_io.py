@@ -15,24 +15,18 @@ def _fake_mask() -> np.ndarray:
     return m
 
 
-def test_save_mask_default_is_tiff(tmp_path: Path):
+@pytest.mark.parametrize("name, kwargs, suffix", [
+    pytest.param("foo", {}, ".tif", id="default_is_tiff"),
+    pytest.param("foo", {"fmt": "npy"}, ".npy", id="explicit_npy"),
+    # User passed .npy in the path: it wins over the default tif.
+    pytest.param("foo.npy", {}, ".npy", id="extension_overrides_fmt"),
+])
+def test_save_mask_writes_the_format_it_was_asked_for(tmp_path: Path, name,
+                                                      kwargs, suffix):
     from spacr.mask_io import save_mask
-    p = save_mask(tmp_path / "foo", _fake_mask())
-    assert p.suffix == ".tif"
+    p = save_mask(tmp_path / name, _fake_mask(), **kwargs)
+    assert p.suffix == suffix
     assert p.is_file()
-
-
-def test_save_mask_respects_explicit_npy(tmp_path: Path):
-    from spacr.mask_io import save_mask
-    p = save_mask(tmp_path / "foo", _fake_mask(), fmt="npy")
-    assert p.suffix == ".npy"
-
-
-def test_save_mask_extension_overrides_fmt(tmp_path: Path):
-    from spacr.mask_io import save_mask
-    # User passed .npy in the path — should win over default tif
-    p = save_mask(tmp_path / "foo.npy", _fake_mask())
-    assert p.suffix == ".npy"
 
 
 def test_load_mask_finds_tif_by_stem(tmp_path: Path):

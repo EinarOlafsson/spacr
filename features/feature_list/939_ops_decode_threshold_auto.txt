@@ -1,0 +1,119 @@
+OPS GENOTYPING THRESHOLDS, MANUAL OR AUTO: CHOSEN PER WELL FROM DECOYS AT A MAXIMUM FDR
+=====================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-13 (alpha, under ALPHA_FEATURES[939]; default 'manual', so no decode changes unless a user picks 'auto'); proof on plate A well A1 and plate D well A1 below — ops_decode_threshold_mode 'manual' keeps every decode threshold as entered (ops_read_threshold and ops_spot_min_peak for spot detection, ops_single_read_quality and ops_pixel_quality for the calls); 'auto' decodes each field once, keeps its calls at every setting of a single-read floor x pixel-quality grid (spacr.ops_decode._field_votes / _field_candidates / _candidate_calls), and spacr.ops_decode.choose_well_thresholds picks the well's setting: fields with nuclei, in site order, split by numpy.random.default_rng(ops_decode_auto_seed).permutation into a tuning share (ops_decode_auto_tune_fraction) and a report share; on the tuning share the passing settings are those whose decoy FDR (upper end of the 95 % field-bootstrap interval, 1,000 resamples, seed 1, with ops_decode_auto_ci; else the estimate) is at most ops_decode_fdr_max (default 0.1 per 100); the passing setting with the most real calls wins, ties to the higher floor then the higher pixel quality; no passing setting -> the strictest setting and auto_met False. Results: decode report 'thresholds', results/ops_decode/decode_thresholds_<well>.json (with the whole tuning grid) and decode_thresholds_<plate>.csv (one row per well: chosen thresholds, auto_met, tuning/report/all-field genotyped % and FDR with CI). spacr/ops_decode.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, spacr/settings_spec.py, tests/test_ops_decode_threshold_auto_939.py.
+Requested: maintainer, 2026-11-13: "in spacr the user should be able to set the thresholds for spot detection, or set spacr to auto where spacr tries to maximize detection and minimize false discovery rate. one of the options should be FDR max and its default should be 0.1."
+Owner: paper session (stage 2 lane).
+Source: BMCspacr/reanalysis/proof_stage1_stage2/iterations/scripts/s2it_analyse.py arm (iii) (per-well choice) with s2it_rule.py (calls, stats, fdr, fdr_ci); grid FLOORS x PIXQ of the same script; spec proposals/bmc_paper_items/ITEM_ops_genotype_threshold_auto.md.
+Related: 873 (rule (a) + S2 decode and the decoy FDR), 931 (settings schema version), 932 (decode speed), READINESS.md stage 2.
+
+SETTINGS (all alpha, ALPHA_FEATURES[939])
+ops_decode_threshold_mode ('manual' default; 'auto'), ops_decode_fdr_max
+(0.1, false calls per 100 real calls), ops_decode_auto_grid (empty = the
+S2-it1 grid: single-read quality 0.06, 0.08, 0.10, 0.12, 0.15, 0.20, 0.25,
+0.30, 0.40 x pixel quality 0.10, 0.15, 0.20, 0.30, 0.40; a dict or JSON
+string with either key; a key left out keeps its entered value; without the
+pixel fallback only the floor is tuned), ops_decode_auto_ci (True),
+ops_decode_auto_tune_fraction (0.5), ops_decode_auto_seed (0).
+Auto needs the item-873 decode (ops_decode_preset rule_a_s2, ops_cell_rule
+'mapped', a library) and decoys (ops_decoy_library_k >= 1); otherwise the
+decode stops with a ValueError saying which is missing.
+
+SETTINGS SCHEMA VERSION: NO ROW
+'manual' is the default and is exactly the decode before 939, so a settings
+file without these keys (unstamped or stamped <= 933) reruns as it ran.
+No DEFAULT_CHANGES row and no SETTINGS_SCHEMA_VERSION change. If 'auto'
+becomes the default later (spec open question 4), add a row keeping old
+files on 'manual'.
+
+MAPPING (spec question, answered)
+The study's "single-read floor" is ops_single_read_quality and its "pixel
+quality" is ops_pixel_quality. The panel default 0.03 is the decode before
+873 (ops_engine._SINGLE_READ_QUALITY); 0.06 is the rule_a_s2 preset, which
+auto mode requires.
+
+PUBLIC API (arrival contract
+tests/data/release_contracts/939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json)
+spacr.ops_decode.threshold_settings, spacr.ops_decode.choose_well_thresholds;
+module data AUTO_GRID, THRESHOLD_MODES. field_calls keeps its signature and
+docstring; its body now runs through the private _field_votes and
+_assemble_calls, shared with auto mode.
+
+DEVIATIONS FROM THE SPEC
+- ops_decode_auto_scope ('well' | 'plate' | 'global') is not built: only
+  per-well choice exists. Plate or global scope needs every well's
+  candidates at once (wells decode one at a time), which is a second
+  pass; spec open question 2 asks the maintainer which scope is wanted.
+- A well where no setting passes gets the STRICTEST grid setting (spec);
+  the study script took the setting with the lowest point FDR. On every
+  well checked a setting passed, so the two never differed.
+- Small-data guard (acceptance 6): a tuning share with zero decoy calls is
+  judged as holding three (95 % bound of a zero count), and fewer than two
+  tuning fields gives auto_met False.
+- Seeds: each well draws its own split from default_rng(seed), so wells are
+  order-independent. The study drew all wells of a plate from one rng
+  (20261112 for D then C, 20261113 for A then B), so only the first well of
+  each plate (A1) has the study's split at the study's seed.
+
+PROOF
+Inputs reused, no decode rerun: the production field caches of the
+decode-yield study (decode_yield_2026-11-04/plates/plateA_final/cache, read
+only) and the S2-it1 extract tables (proof_s1s2/iter/out/s2it_extract).
+Scripts and outputs: /mnt/firecuda2/codex/scratch-docs/item939
+(a1_spacr.py, a1_compare.py, fieldcheck.py; a1_compare_A_A1.json,
+a1_compare_D_A1_studycounts.json).
+
+1. Field identity (plate A A1, all 333 fields, the 45 grid settings):
+   spaCR's auto field step (_field_votes -> _field_candidates ->
+   _candidate_calls, rule_a_s2, k=4, 81,780 decoys) against the study's
+   s2it_rule.calls on its extract tables: same 333 fields, same owned
+   nuclei per field, real/decoy counts equal at every field x setting, and
+   the md5 of every field's sorted (object, guide, decoy) call table equal
+   at 14,985 / 14,985 field x setting points. Manual field_calls after the
+   refactor equals the 8dc1e8babb field_calls (calls, evidence rows, counts)
+   on field A1/0, and auto rebuilt at each of the 45 settings equals
+   field_calls run at that setting.
+2. Selection, plate A A1 (study split: rng 20261113, A1 is its first draw).
+   Study arm (iii) logic on its tables and spaCR choose_well_thresholds on
+   spaCR's counts give the same choice and bit-identical numbers:
+   chosen single-read quality 0.06, pixel quality 0.10 (auto_met True);
+   top tuning settings 0.06/0.10 481,398 calls, 0.06/0.15 480,601,
+   0.08/0.10 480,257 (no tie).
+   tuning half 166 fields, 632,883 nuclei: 76.06 % genotyped,
+   FDR 0.0596 per 100 (95 % CI 0.0535-0.0663);
+   report half 167 fields, 646,095 nuclei: 76.28 % genotyped,
+   FDR 0.0558 (0.0497-0.0612); phenotype-linked nuclei 77.25 %;
+   whole well 974,253 calls of 1,278,978 nuclei = 76.17 %, FDR 0.0577
+   (0.0532-0.0617), the same calls as the production rule (plate A's FDR
+   is far under 0.1, so the loosest grid setting passes and wins).
+   With the default seed 0: same thresholds, report half 76.38 %, FDR CI
+   upper 0.067.
+3. Selection, plate D A1 (study split rng 20261112, first draw), on the
+   study's tables: chosen 0.06/0.10 as recorded in s2it_results.json; tuning
+   69.39 %, FDR 0.0910 (0.0835-0.0990); report half 69.33 %, FDR 0.0835
+   (0.0766-0.0902), linked nuclei 70.65 %; spaCR's numbers equal the
+   script's to the last bit.
+4. Time (plate A A1, same run, fields interleaved, load average about 100):
+   manual field_calls 846.7 CPU s per well (median 2.17 s per field), auto
+   field step 851.6 CPU s (median 2.43 s), so auto adds about 0.6 % per
+   field; the well-level choice (45 settings, 1,000 bootstrap draws) takes
+   0.12 CPU s.
+5. Not checked here: the other 22 wells of A-D (acceptance 1 in full).
+   spaCR seeds each well on its own, so only each plate's first well shares
+   the study's split; a full check would pass the study's per-well halves.
+
+Unit tests: tests/test_ops_decode_threshold_auto_939.py (11): defaults
+(manual, FDR max 0.1), validation, every grid setting rebuilds field_calls
+(random field), the study's pandas selection re-implemented and matched on
+synthetic wells for three seeds, FDR max respected, strictest fallback with
+auto_met False, zero-decoy and one-field guards, determinism and field-order
+independence, ties to the stricter setting, old settings files stay manual,
+engine end to end (report, JSON, plate CSV), and the decoy and rule_a_s2
+errors.
+
+GUI
+The mode switch is a combo (manual/auto) next to ops_decode_fdr_max in the
+OPS decoding category (alpha; visible with "Show alpha features"). The
+per-well table of chosen thresholds is
+results/ops_decode/decode_thresholds_<plate>.csv; no new widget.

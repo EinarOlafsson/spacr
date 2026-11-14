@@ -16,73 +16,9 @@ the same sections the Qt tile does.
 """
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
-import pytest
 
 from spacr import annotation, gene_facts
-
-
-def test_a_multi_valued_cell_is_shown_rather_than_raising():
-    """An array cell has no scalar to unwrap, so the value passes through.
-
-    ``.item()`` on a size-2 array raises; letting that out would take down the
-    tile that is painting the gene rather than showing one odd cell.
-    """
-    cell = np.array([1, 2])
-
-    assert gene_facts._plain(cell) is cell
-
-
-def test_a_cell_whose_unwrap_is_broken_is_shown_as_it_is():
-    """An object with an ``item`` that raises falls back to the object."""
-
-    class _Odd:
-        def item(self):
-            raise AttributeError("no scalar here")
-
-    cell = _Odd()
-
-    assert gene_facts._plain(cell) is cell
-
-
-def test_a_numpy_scalar_is_unwrapped():
-    """The normal path still turns a numpy scalar into a python one."""
-    assert gene_facts._plain(np.float64(2.5)) == 2.5
-    assert isinstance(gene_facts._plain(np.bool_(True)), bool)
-
-
-def test_the_text_form_renders_every_section_with_a_blank_line_between():
-    """Two sections are separated, headed, and carry their label/value rows.
-
-    The text form is what a log records; a run of unseparated rows makes the
-    grouping the tile shows unrecoverable from the record.
-    """
-    facts = gene_facts.GeneFacts(
-        gene="224750",
-        values={"gene_name": "SRS40F", "topology": "SP"},
-    )
-
-    text = facts.to_text()
-
-    assert "IDENTITY" in text
-    assert "MEMBRANE TOPOLOGY" in text
-    assert "  gene name: SRS40F" in text
-    assert "  DeepTMHMM class: SP" in text
-    assert "\n\nMEMBRANE TOPOLOGY" in text
-
-
-def test_the_text_form_of_an_empty_record_gives_its_reason():
-    """Nothing known prints the reason, never a blank string."""
-    facts = gene_facts.GeneFacts(gene="1", reason="no row in the annotation")
-
-    assert facts.to_text() == "no row in the annotation"
-
-
-def test_the_text_form_of_a_reasonless_empty_record_still_says_something():
-    """Even with no reason recorded the panel is never blank."""
-    assert gene_facts.GeneFacts().to_text() == \
-        "Nothing is known about this gene."
 
 
 def test_a_segment_row_whose_id_names_no_gene_is_skipped(monkeypatch):

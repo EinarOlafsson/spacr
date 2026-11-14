@@ -13,7 +13,8 @@
 # gnome-shell, browsers) always holds graphics contexts and keeps the
 # utilisation counter at 20-50 %, so utilisation is useless as a signal;
 # compute processes are what another session's work looks like.
-# Chrome never blocks the queue, even when nvidia-smi lists it as compute.
+# Chrome and the Mullvad VPN window never block the queue, even when
+# nvidia-smi lists them as compute.
 #
 #   tools/gpu_turn.sh <label> <command...>
 #   tools/gpu_turn.sh 507-cellpose3-timing python tools/some_probe.py
@@ -155,7 +156,7 @@ compute_pids() {
         executable=$(readlink "/proc/$pid/exe" 2>/dev/null || true)
         executable=${executable% (deleted)}
         case "${executable##*/}" in
-            chrome|chromium|chromium-browser|google-chrome|google-chrome-stable)
+            chrome|chromium|chromium-browser|google-chrome|google-chrome-stable|mullvad-gui)
                 continue ;;
         esac
         tr '\0' '\n' < "/proc/$pid/cmdline" 2>/dev/null | grep -Fxq -- '--type=gpu-process' \

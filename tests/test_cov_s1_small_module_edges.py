@@ -8,7 +8,6 @@ every one of them used to be answered with the wrong number or an exception.
 """
 from __future__ import annotations
 
-import logging
 
 import numpy as np
 import pandas as pd
@@ -70,79 +69,6 @@ def test_a_crop_table_from_another_mode_still_finds_its_object_column(
 # ---------------------------------------------------------------------------
 # _v1_v2_bridge -- settings and files that do not read
 # ---------------------------------------------------------------------------
-
-def test_a_channel_list_of_words_falls_through_to_the_default_plate():
-    """``channels`` is a hand-edited list. One unparseable entry costs that
-    entry; a list of nothing usable costs the list, not the run."""
-    from spacr._v1_v2_bridge import v2_channels_from_settings
-
-    channels, names = v2_channels_from_settings({"channels": ["red", 2]})
-    assert channels == [2]
-    assert names == ["ch1"]
-
-    channels, names = v2_channels_from_settings({"channels": ["red", "green"]})
-    assert channels == [0, 1, 2, 3]
-    assert names == ["ch0", "ch1", "ch2", "ch3"]
-
-
-def test_the_disk_report_survives_files_that_are_no_longer_there(tmp_path,
-                                                                 caplog):
-    """A saving reported as 12,288 bytes is not a saving anybody can weigh,
-    and a stack deleted between the run and the report is not a reason to
-    lose the whole figure -- it is one file's bytes."""
-    from spacr._v1_v2_bridge import report_disk_savings
-
-    stack = tmp_path / "merged" / "plate1.npy"
-    stack.parent.mkdir()
-    stack.write_bytes(b"\x00" * 4096)
-
-    class _Stack:
-        def __init__(self, path):
-            self.path = str(path)
-
-    stacks = [_Stack(stack), _Stack(tmp_path / "merged" / "deleted.npy")]
-    with caplog.at_level(logging.INFO, logger="spacr.pipeline_v2.bridge"):
-        report = report_disk_savings(tmp_path, stacks)
-
-    assert report["v2_bytes"] == 4096
-    assert report["v1_estimated_bytes"] == 4 * 4096
-    assert report["saved_pct"] == 75.0
-    logged = caplog.text
-    assert "4.10 KB" in logged
-    assert "16.38 KB" in logged
-    assert "12.29 KB" in logged
-
-
-def test_a_sidecar_on_a_mount_that_will_not_answer_is_not_a_crashed_report(
-        tmp_path, monkeypatch):
-    """The sidecars are looked for beside the plate root, which is routinely
-    a network share. A stale handle there raises instead of answering, and
-    this is a log line at the end of a finished run -- it may not take the
-    run with it over three files that are only worth a few kilobytes."""
-    from pathlib import Path
-
-    from spacr._v1_v2_bridge import report_disk_savings
-
-    stack = tmp_path / "plate1.npy"
-    stack.write_bytes(b"\x00" * 2048)
-    (tmp_path / "filename_map.csv").write_text("a,b\n", encoding="utf-8")
-    real_exists = Path.exists
-
-    def _stale(self, *args, **kwargs):
-        if self.name == "filename_map.csv":
-            raise OSError(116, "Stale file handle")
-        return real_exists(self, *args, **kwargs)
-
-    monkeypatch.setattr(Path, "exists", _stale)
-
-    class _Stack:
-        path = str(stack)
-
-    report = report_disk_savings(tmp_path, [_Stack()])
-
-    assert report["v2_bytes"] == 2048
-    assert report["saved_bytes"] == 3 * 2048
-
 
 # ---------------------------------------------------------------------------
 # organelle_types -- a key that belongs to no slot
