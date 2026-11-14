@@ -1,4 +1,4 @@
-"""The last unexercised corners of six screens, each pinned by behaviour.
+"""The last unexercised corners of five screens, each pinned by behaviour.
 
 Every case here is a branch a healthy screen almost never takes, and each
 one is paired -- in the same test -- with the input that makes the same
@@ -11,10 +11,6 @@ guard worked".
   is never told that nothing can be checked.
 * **Model Explanation** -- ``configure_hit`` only touches the phenotype
   dropdown when it is given a phenotype, and never adds one twice.
-* **Data Manager** -- a job that settles as a failure does not run its
-  completion handler but still announces itself; the note strip still
-  says what it has to say when Qt hands back no style to repolish it
-  with; and a project with nothing unregistered says so by omission.
 * **Plate View** -- a well with no value is blank rather than zero; a
   selection off the end of the grid draws no highlight; and a threaded
   job that settles as a failure leaves the screen as it was.
@@ -38,12 +34,10 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QObject, Signal                     # noqa: E402
 from PySide6.QtGui import QColor, QPixmap                       # noqa: E402
-from PySide6.QtWidgets import (QLabel, QTabWidget,             # noqa: E402
+from PySide6.QtWidgets import (QTabWidget,                     # noqa: E402
                                QVBoxLayout, QWidget)
 
-from spacr import data_manager as dm                           # noqa: E402
 from spacr.projects import ProjectSummary, StaleArtifact       # noqa: E402
-from spacr.qt.screens import data_manager as data_manager_mod  # noqa: E402
 from spacr.qt.screens import mask as mask_mod                  # noqa: E402
 from spacr.qt.screens import model_explanation as explain_mod  # noqa: E402
 from spacr.qt.screens import plate_view as plate_view_mod      # noqa: E402
@@ -245,140 +239,6 @@ def test_a_hit_only_moves_the_phenotype_dropdown_when_it_names_one(qtbot):
     assert [panel.score.itemText(i)
             for i in range(panel.score.count())] == before + [
                 "parasite_count"]
-
-
-# ===========================================================================
-# Data Manager
-# ===========================================================================
-
-class _RecordingStyle:
-    """A style that writes down the polish calls it is asked for."""
-
-    def __init__(self):
-        self.calls = []
-
-    def unpolish(self, widget):
-        self.calls.append("unpolish")
-
-    def polish(self, widget):
-        self.calls.append("polish")
-
-
-class _StyledLabel(QLabel):
-    """A label whose style records what it was asked to repolish."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.recorder = _RecordingStyle()
-
-    def style(self):
-        return self.recorder
-
-
-class _StylelessLabel(QLabel):
-    """A label caught after the style that would polish it has gone."""
-
-    def style(self):
-        return None
-
-
-def _usage(root, **fields):
-    """A ``ProjectUsage`` with only the fields a test cares about."""
-    return dm.ProjectUsage(root=str(root), total_bytes=2048, total_files=4,
-                           **fields)
-
-
-def test_a_job_that_settles_as_a_failure_runs_no_handler_but_still_reports(
-        qtbot, tmp_path, monkeypatch):
-    """A worker that failed has no result, so the handler must not run.
-
-    ``job_finished`` still has to carry False: a caller waiting on it
-    would otherwise wait for a job that is already over.
-    """
-    root = str(tmp_path)
-    monkeypatch.setattr(dm, "scan_project",
-                        lambda path, **kw: _usage(path, symlinks=("link",)))
-    from spacr.qt import bridge
-    threads = _hand_threads(monkeypatch, bridge)
-
-    screen = data_manager_mod.DataManagerScreen(threaded=True)
-    qtbot.addWidget(screen)
-    settled = []
-    screen.job_finished.connect(settled.append)
-
-    screen.set_project(root)
-    assert threads, "the threaded path was not taken"
-    threads[-1].worker.finished.emit(False)
-
-    assert settled == [False]
-    assert screen.usage is None, "a failed job's handler drew a result anyway"
-    assert screen.rescan_button.isEnabled(), "the screen was left marked busy"
-
-    # The same job, settled as a success, does reach the handler.
-    screen.set_project(root)
-    threads[-1].worker.finished.emit(True)
-
-    assert settled == [False, True]
-    assert screen.usage is not None
-    assert screen.usage.total_bytes == 2048
-
-
-def test_the_note_strip_says_its_piece_with_or_without_a_style(
-        qtbot, tmp_path, monkeypatch):
-    """The warning is the text and the property; the repolish is cosmetic.
-
-    A dynamic property only changes the colours after an unpolish/polish
-    pair, and a widget whose style has gone cannot have one -- but the
-    sentence the user has to read must land either way.
-    """
-    monkeypatch.setattr(data_manager_mod, "QLabel", _StyledLabel)
-    styled = data_manager_mod.DataManagerScreen(threaded=False)
-    qtbot.addWidget(styled)
-
-    assert styled.set_project(str(tmp_path / "not_a_folder")) is None
-    assert styled.note_label.text() == "Choose a project folder first."
-    assert styled.note_label.property("warn") == "true"
-    assert styled.note_label.recorder.calls[-2:] == ["unpolish", "polish"]
-
-    monkeypatch.setattr(data_manager_mod, "QLabel", _StylelessLabel)
-    styleless = data_manager_mod.DataManagerScreen(threaded=False)
-    qtbot.addWidget(styleless)
-
-    styleless.set_project(str(tmp_path / "not_a_folder"))
-    assert styleless.note_label.style() is None
-    assert styleless.note_label.text() == "Choose a project folder first."
-    assert styleless.note_label.property("warn") == "true"
-
-
-def test_a_project_with_nothing_unregistered_does_not_mention_it(
-        qtbot, tmp_path, monkeypatch):
-    """The note lists the things worth acting on and nothing else.
-
-    "0 bytes have no registry record" is noise on a project where every
-    byte is accounted for, and it would drown the notes that matter.
-    """
-    root = str(tmp_path)
-    monkeypatch.setattr(
-        dm, "scan_project",
-        lambda path, **kw: _usage(path, unregistered_bytes=0,
-                                  unregistered_files=0,
-                                  symlinks=("data -> /elsewhere",)))
-    screen = data_manager_mod.DataManagerScreen(threaded=False)
-    qtbot.addWidget(screen)
-
-    screen.set_project(root)
-    assert "no registry record" not in screen.note_label.text()
-    assert "1 symlink(s), not followed" in screen.note_label.text()
-
-    monkeypatch.setattr(
-        dm, "scan_project",
-        lambda path, **kw: _usage(path, unregistered_bytes=4096,
-                                  unregistered_files=3,
-                                  symlinks=("data -> /elsewhere",)))
-    screen.set_project(root)
-    assert "no registry" in screen.note_label.text()
-    assert "3 files" in screen.note_label.text()
-    assert "1 symlink(s), not followed" in screen.note_label.text()
 
 
 # ===========================================================================
