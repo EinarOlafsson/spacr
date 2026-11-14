@@ -1766,6 +1766,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'probe_lr',
     'profile_features',
     'profile_granularity_subsample',
+    'profile_optional_families',
     'profiling',
     'profiling_correlation_threshold',
     'profiling_databases',

@@ -2135,6 +2135,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('homogeneity', True)
     settings.setdefault('homogeneity_distances', [8,16,32])
     settings.setdefault('profile_features', None)
+    settings.setdefault('profile_optional_families', None)
     settings.setdefault('profile_granularity_subsample', 1.0)
     settings.setdefault('funk_object_features', False)
     settings.setdefault('zernike', None)
@@ -2533,7 +2534,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 936
+SETTINGS_SCHEMA_VERSION = 937
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2542,6 +2543,10 @@ DEFAULT_CHANGES = {
     934: {'aggregation_defaults': 'legacy'},
     935: {'ops_placement_seed_export': False},
     936: {'ops_blas_threads': 1, 'ops_consensus_space': 'refit'},
+    937: {'profile_optional_families': [
+              'texture_gabor', 'colocalisation', 'colocalisation_extra'],
+          'ops_ph_profile_optional_families': [
+              'texture_gabor', 'colocalisation', 'colocalisation_extra']},
 }
 
 
@@ -2608,6 +2613,12 @@ def _fold_older_defaults(settings, version, known=None):
     it off.
     936 is the OPS stage-3 Hybrid profile's ``ops_blas_threads`` (2, was
     1) and ``ops_consensus_space`` (``'hybrid'``, was ``'refit'``).
+    937 is item 941's removal of Gabor and colocalisation from the
+    ``'profiling'`` preset of ``profile_features`` and
+    ``ops_ph_profile_features``: files stamped before get
+    ``profile_optional_families`` and ``ops_ph_profile_optional_families``
+    with the three families ``'profiling'`` measured then, so their columns
+    are unchanged.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -4423,6 +4434,7 @@ expected_types = {
     "homogeneity": bool,
     "homogeneity_distances": list,
     "profile_features": (str, list, type(None)),
+    "profile_optional_families": (bool, str, list, type(None)),
     "profile_granularity_subsample": (float, int),
     "funk_object_features": bool,
     "zernike": (bool, type(None)),
@@ -5748,7 +5760,8 @@ tooltips = {
     "grouping": "(str) - How per-object values collapse to one number per well in the plate heatmap: 'mean' averages heatmap_feature over the objects in a well, 'sum' totals them, 'count' ignores the feature and colors wells by object count. Use 'count' to spot uneven seeding or dropout, 'mean' for phenotype strength. Default 'mean'; any other value raises ValueError.",
     "heatmap_feature": "(str) - Numeric column that is aggregated per well and color-mapped in the plate heatmap after ML scoring, e.g. 'predictions' for the classifier score or 'recruitment' for the pathogen/cytoplasm intensity ratio. Must be a numeric column of the scored dataframe or the run raises ValueError listing the valid names. Default 'predictions'.",
     "homogeneity": "(bool) - Compute grey-level co-occurrence-matrix homogeneity for every object in every channel, adding one homogeneity_distance_<d> column per entry in homogeneity_distances. Homogeneity is high for smooth, evenly filled objects and low for punctate or grainy ones, so keep it on for texture phenotypes; disabling it noticeably speeds up measurement. Default True.",
-    "profile_features": "(str, list or None) - Add image-based profiling measurement families to every 2-D object. 'profiling' adds the families that cost under about 5,000 CPU seconds per 100,000 cells: edge intensity, intensity moments (mass displacement and intensity-weighted Hu moments), CellProfiler-style radial distribution (4 rings), extra shape descriptors (form factor, compactness, Hu moments, radii), Haralick texture (13 statistics), threshold adjacency statistics (PFTAS), rotation-invariant LBP histograms, Gabor filter-bank energy, boundary (periphery) and surrounding-ring (outside) intensity with an enclosed flag, extra colocalisation (Spearman, ICQ, K1/K2, rank-weighted colocalisation, which also turns on calculate_correlation's Pearson and Manders block), mutual information and spot-based colocalisation, and neighbours (the spatial block). 'all' also adds Costes-threshold Manders and the granularity spectrum, which are slow. A list or comma-separated names picks families one by one. Empty adds nothing, so a settings file without it measures exactly as before. Default None.",
+    "profile_features": "(str, list or None) - Add image-based profiling measurement families to every 2-D object. 'profiling' adds the families that cost under about 5,000 CPU seconds per 100,000 cells: edge intensity, intensity moments (mass displacement and intensity-weighted Hu moments), CellProfiler-style radial distribution (4 rings), extra shape descriptors (form factor, compactness, Hu moments, radii), Haralick texture (13 statistics), threshold adjacency statistics (PFTAS), rotation-invariant LBP histograms, boundary (periphery) and surrounding-ring (outside) intensity with an enclosed flag, and neighbours (the spatial block). profile_optional_families adds the slow Gabor, colocalisation and granularity families to 'profiling'; 'all' adds every family. A list or comma-separated names picks families one by one. Empty adds nothing, so a settings file without it measures exactly as before. Default None.",
+    "profile_optional_families": "(bool, str, list or None) - The slow families that 'profiling' in profile_features also measures. Off by default; on reproduces Brieflow's full set. True or 'all' adds all five; names pick them one by one. Cost in CPU seconds per 100,000 cells: texture_gabor (Gabor filter-bank energy) 11,000 to 17,400; colocalisation (Pearson and Manders) 6,300 to 9,050; colocalisation_extra (Spearman, ICQ, K1/K2, rank-weighted colocalisation, mutual information and spot-based colocalisation) 7,000; colocalisation_costes (Costes-threshold Manders) 8,050; granularity (the granularity spectrum at profile_granularity_subsample 1.0) 58,900. All the other profiling families together cost about 11,600. On the 639,673 cells of Funk et al. 2022 well A1 none of the five added anything beyond random measurements of the same number. Family names and 'all' in profile_features are not changed by it. A settings file saved before this setting existed keeps texture_gabor, colocalisation and colocalisation_extra, which 'profiling' measured then. Default None.",
     "profile_granularity_subsample": "(float) - Sieve each field scaled by this factor for the granularity profiling family, as CellProfiler's image sample size. 0.25, CellProfiler's default, is about 16 times faster than 1.0, which sieves every pixel. Only read when granularity is among profile_features. Default 1.0.",
     "funk_object_features": "(bool) - Add the object features of Funk et al. 2022 (optical pooled screens) to every 2-D object: the mass displacement of every channel (the distance from the object's centroid to its intensity-weighted centroid), Pearson's r of every channel pair over the object's pixels (correlation_<a>_<b>), and the form factor (4 pi area / perimeter squared). The OPS setting ops_ph_funk_features gives the same values from the same functions. Mass displacement and form factor are not repeated when profile_features already writes them. Default False.",
     "zernike": "(bool or None) - Zernike moments of each object's shape (zernike_0 to zernike_24), which need the mahotas package (spacr[zernike]). None computes them when mahotas is installed and skips them otherwise, so the same settings file can give different columns on two computers. True always computes them and stops the run when mahotas is missing; False never computes them. The OPS setting ops_ph_zernike is the same switch. Default None.",
@@ -6633,7 +6646,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "profile_granularity_subsample", "funk_object_features", "zernike", "channel_names", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "profile_optional_families", "profile_granularity_subsample", "funk_object_features", "zernike", "channel_names", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map", "illumination_nuclear_channel", "illumination_nuclei", "illumination_dark_per_plate", "illumination_block_px", "illumination_fit", "illumination_sigma_px", "illumination_ridge", "illumination_floor", "illumination_centre_cells", "illumination_lookup", "illumination_map_grid", "illumination_centre_offset", "illumination_holdout_n", "illumination_seed", "illumination_validate"],
 
@@ -9434,6 +9447,10 @@ ALPHA_FEATURES = {
     934: {
         'settings': ('funk_object_features', 'zernike', 'channel_names',
                      'measure_gpu_check', 'measure_gpu_check_rtol'),
+    },
+    941: {
+        'settings': ('profile_optional_families',
+                     'ops_ph_profile_optional_families'),
     },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),

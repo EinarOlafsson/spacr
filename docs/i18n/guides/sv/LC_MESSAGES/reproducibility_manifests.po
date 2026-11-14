@@ -123,6 +123,10 @@ msgstr "935 (objekt 940:s byte av standardvärde): ``ops_placement_seed_export``
 msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
 msgstr "936: ``ops_blas_threads`` var ``1`` och ``ops_consensus_space`` ``'refit'``; nu är de ``2`` och ``'hybrid'``."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "937 (item 941): ``profile_optional_families`` and ``ops_ph_profile_optional_families`` were ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, the slow families the ``'profiling'`` preset measured; they are now ``None``, so ``'profiling'`` leaves Gabor, granularity and colocalisation out."
+msgstr "937 (punkt 941): ``profile_optional_families`` och ``ops_ph_profile_optional_families`` var ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, de långsamma familjer som förinställningen ``'profiling'`` mätte; nu är de ``None``, så ``'profiling'`` utelämnar Gabor, granularitet och kolokalisering."
+
 msgid "Public API"
 msgstr "Publikt API"
 

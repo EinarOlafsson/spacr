@@ -735,6 +735,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cluster_reference_dir",
     "ops_cluster_gene_list",
     "ops_cluster_published",
+    # Item 941 (2026-11-13): the slow profiling families that 'profiling'
+    # left out, added back on request in Measure and in OPS.
+    "profile_optional_families",
+    "ops_ph_profile_optional_families",
     # Item 931 (2026-11-13): feathered blending of the OPS sequencing
     # mosaic (OPS stage 1, seam arm none:feather).
     "ops_compose_blend",
