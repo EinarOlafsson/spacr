@@ -2326,7 +2326,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "background_mask_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -3882,7 +3882,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -4718,7 +4718,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -4956,7 +4956,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_cycle_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -7116,7 +7116,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose3_add_nucleus_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -7317,7 +7317,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_all",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -7409,7 +7409,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -7591,7 +7591,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_masks",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -7638,7 +7638,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_model",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -11775,7 +11775,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "confluency_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -20965,7 +20965,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -23506,7 +23506,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_nuclear_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -36416,7 +36416,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -41942,7 +41942,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_flatfield_nuclear_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -43665,7 +43665,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_ph_cell_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -47349,7 +47349,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_adaptive_block_size",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -47405,7 +47405,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_adaptive_offset",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -47425,7 +47425,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_background",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -47499,7 +47499,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_cellprob_threshold",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -47537,7 +47537,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_chann_dim",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -47737,7 +47737,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -47746,7 +47746,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -47811,7 +47811,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_clahe",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -47831,7 +47831,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_clahe_clip_limit",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -47923,7 +47923,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48078,7 +48078,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_dog_sigma_high",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48116,7 +48116,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_dog_sigma_low",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48154,7 +48154,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_fill_holes",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48228,7 +48228,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_flow_threshold",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48275,7 +48275,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_hysteresis_high",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48304,7 +48304,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_hysteresis_low",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48351,7 +48351,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_max_sigma",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48407,7 +48407,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_min_sigma",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48463,7 +48463,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_num_sigma",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48528,7 +48528,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_threshold",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48710,7 +48710,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48766,7 +48766,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_within_cells",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48795,7 +48795,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_max_area",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48842,7 +48842,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_max_intensity",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -48889,7 +48889,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_method",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49062,7 +49062,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49127,7 +49127,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_min_intensity",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49174,7 +49174,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_model_name",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49239,7 +49239,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_morph_radius",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49277,7 +49277,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_morphology",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49315,7 +49315,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_network_threshold",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49335,7 +49335,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_perimeter_fraction",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49382,7 +49382,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_remove_border",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49429,7 +49429,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_remove_border_objects",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49494,7 +49494,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_resample",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49514,7 +49514,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ridge_filter",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49543,7 +49543,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ridge_sigmas",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49581,7 +49581,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_fill_method",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49610,7 +49610,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_min_prominence",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49630,7 +49630,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_sigma_inner",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49659,7 +49659,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_sigma_outer",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49688,7 +49688,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_rolling_ball",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49708,7 +49708,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_rolling_ball_radius",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49728,7 +49728,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_signal_to_noise",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49775,7 +49775,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_skeletonize",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49795,7 +49795,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_tophat_radius",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49824,7 +49824,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_type",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49889,7 +49889,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_unet_model_path",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49909,7 +49909,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_unet_threshold",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -49929,7 +49929,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_watershed_spots",
-    "line": 373,
+    "line": 375,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -50133,7 +50133,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -51073,7 +51073,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -52013,7 +52013,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -53122,7 +53122,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -53864,7 +53864,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_measure_cross_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -54571,7 +54571,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_reference_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -55672,7 +55672,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -62855,7 +62855,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -78842,7 +78842,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -79812,7 +79812,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "translocation_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -79985,7 +79985,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "translocation_control_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -82240,7 +82240,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "vacuole_signal_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -83737,7 +83737,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_dead_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -83919,7 +83919,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_live_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -85134,7 +85134,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "wound_channel",
-    "line": 374,
+    "line": 376,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
