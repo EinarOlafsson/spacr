@@ -433,29 +433,21 @@ class TestEdgeLines:
         out = report_disk_savings(tmp_path, [])
         assert out["v2_bytes"] > 0
 
-    def test_custom_feature_non_callable_public_symbol(
-            self, tmp_path, monkeypatch):
+    @pytest.mark.parametrize("source, skipped", [
+        # CONSTANT is public + non-callable: skipped.
+        ("CONSTANT = 42\ndef feat(mask, image): return 1\n", "CONSTANT"),
+        # Re-export a C builtin (len): inspect.signature raises for it, and
+        # its __module__ ('builtins') != the module, so it is skipped.
+        ("mylen = len\ndef feat(mask, image): return 1\n", "mylen"),
+    ], ids=["non_callable_public_symbol", "builtin_signature_unavailable"])
+    def test_custom_feature_discovery_skips_what_is_not_a_feature(
+            self, tmp_path, monkeypatch, source, skipped):
         from spacr import custom_features as CF
         d = tmp_path / "f"; d.mkdir()
         monkeypatch.setattr(CF, "features_dir", lambda: d)
-        # CONSTANT is public + non-callable → skipped (line 93).
-        (d / "c.py").write_text(
-            "CONSTANT = 42\ndef feat(mask, image): return 1\n", encoding="utf-8")
+        (d / "c.py").write_text(source, encoding="utf-8")
         names = [f.name for f in CF.discover_features()]
-        assert "CONSTANT" not in names and "feat" in names
-
-    def test_custom_feature_builtin_signature_unavailable(
-            self, tmp_path, monkeypatch):
-        # A callable whose signature() raises is skipped (106-107).
-        from spacr import custom_features as CF
-        d = tmp_path / "f"; d.mkdir()
-        monkeypatch.setattr(CF, "features_dir", lambda: d)
-        # Re-export a C builtin (len) — inspect.signature raises for it,
-        # and its __module__ ('builtins') != the module, so it's skipped.
-        (d / "b.py").write_text(
-            "mylen = len\ndef feat(mask, image): return 1\n", encoding="utf-8")
-        names = [f.name for f in CF.discover_features()]
-        assert "mylen" not in names and "feat" in names
+        assert skipped not in names and "feat" in names
 
     def test_read_settings_raises_on_corrupt_json(self, tmp_path):
         """Absent is ``{}``; present-but-unparseable is an error.

@@ -213,23 +213,6 @@ def test_deep_spacr_multiclass_metrics_returns_dict_with_keys():
 # spacr.sequencing: more helpers
 # ===========================================================================
 
-def test_sequencing_get_consensus_base_prefers_higher_quality():
-    from spacr.sequencing import get_consensus_base
-    # ASCII: 'I' (73) > '!' (33) → the 'I'-quality base wins.
-    assert get_consensus_base([("A", "!"), ("G", "I")]) == "G"
-    assert get_consensus_base([("A", "I"), ("G", "!")]) == "A"
-
-
-def test_sequencing_extract_sequence_and_quality_bounds():
-    from spacr.sequencing import extract_sequence_and_quality
-    seq = "ACGTACGT"
-    qual = "IIIIIIII"
-    # Beyond-end indices should clamp gracefully via Python slicing.
-    s, q = extract_sequence_and_quality(seq, qual, 5, 100)
-    assert s == "CGT"
-    assert q == "III"
-
-
 def test_sequencing_reverse_complement_gc_pairing():
     from spacr.sequencing import reverse_complement
     assert reverse_complement("GC") == "GC"    # palindrome

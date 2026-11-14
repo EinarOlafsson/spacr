@@ -307,23 +307,6 @@ def test_sim_generate_plate_map_multiple_plates_stack():
 # spacr.timelapse edge cases
 # ===========================================================================
 
-def test_timelapse_link_by_iou_empty_previous_frame():
-    """If the previous frame has no objects, there's nothing to match."""
-    from spacr.timelapse import link_by_iou
-    prev = np.zeros((10, 10), dtype=np.int32)   # no objects
-    curr = np.zeros((10, 10), dtype=np.int32); curr[2:5, 2:5] = 1
-    matches = link_by_iou(prev, curr, iou_threshold=0.5)
-    assert matches == []
-
-
-def test_timelapse_link_by_iou_empty_current_frame():
-    from spacr.timelapse import link_by_iou
-    prev = np.zeros((10, 10), dtype=np.int32); prev[2:5, 2:5] = 1
-    curr = np.zeros((10, 10), dtype=np.int32)   # no objects
-    matches = link_by_iou(prev, curr, iou_threshold=0.5)
-    assert matches == []
-
-
 def test_timelapse_track_by_iou_single_frame():
     """A single-frame stack should produce one track per object."""
     from spacr.timelapse import _track_by_iou

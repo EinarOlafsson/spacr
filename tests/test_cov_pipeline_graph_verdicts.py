@@ -66,16 +66,16 @@ def test_the_label_names_the_module_and_the_file():
     assert "measurements.db" in label
 
 
-def test_a_trailing_separator_does_not_produce_an_empty_name():
-    """A folder artifact is often registered with a trailing slash, and
-    basename() of that is the empty string -- which would draw a blank."""
-    assert _node(path="/screens/plate1/merged/").label.endswith("merged")
-
-
-def test_a_path_that_is_only_a_separator_falls_back_to_itself():
-    """Nothing legible to shorten to, so show the path rather than nothing.
-    This is the `or self.path` half of the expression."""
-    assert _node(path="/").label.endswith("/")
+@pytest.mark.parametrize("path, ends_with", [
+    # A folder artifact is often registered with a trailing slash, and
+    # basename() of that is the empty string -- which would draw a blank.
+    pytest.param("/screens/plate1/merged/", "merged",
+                 id="trailing-separator-does-not-produce-an-empty-name"),
+    # Nothing legible to shorten to, so show the path rather than nothing.
+    pytest.param("/", "/", id="only-a-separator-falls-back-to-itself"),
+])
+def test_a_node_label_is_never_blank(path, ends_with):
+    assert _node(path=path).label.endswith(ends_with)
 
 
 # --------------------------------------------------------------------------- #
