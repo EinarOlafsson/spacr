@@ -144,6 +144,7 @@ GROUPS = (
         (920, "OPS spacer-prefix decode with quality classes"),
         (921, "Large cropped sites: tiled segmentation, RAM cap"),
         (918, "OPS gene map: profile clusters, labels, medoid crops"),
+        (939, "OPS automatic genotyping thresholds"),
         (584, "Chemistry-aware hits: SMILES, clusters, SAR"),
         (585, "Sample-size planner for arrayed assays"),
         (534, "Spatial transcriptomics: Visium, Xenium; spatial masks, barcodes"),

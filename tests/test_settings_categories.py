@@ -743,6 +743,14 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_registration_precision",
     "ops_registration_backend",
     "ops_field_diagnostics",
+    # Item 939 (2026-11-13): automatic per-well genotyping thresholds from
+    # decoys (S2-it1 arm iii).
+    "ops_decode_threshold_mode",
+    "ops_decode_fdr_max",
+    "ops_decode_auto_grid",
+    "ops_decode_auto_ci",
+    "ops_decode_auto_tune_fraction",
+    "ops_decode_auto_seed",
     # Item 930 (2026-11-13): per-tile affine alignment of phenotype fields
     # to the sequencing nuclei (OPS stage 1, arm vii).
     "ops_align_model",
