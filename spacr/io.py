@@ -767,9 +767,9 @@ class spacrDataset(Dataset):
                 if not os.path.isdir(class_path):
                     continue
                 with os.scandir(class_path) as entries:
-                    class_files = [entry.path for entry in entries
-                                   if not entry.name.startswith('.')
-                                   and entry.is_file()]
+                    class_files = sorted(entry.path for entry in entries
+                                         if not entry.name.startswith('.')
+                                         and entry.is_file())
                 self.filenames.extend(class_files)
                 self.labels.extend([self.classes.index(class_name)] * len(class_files))
         
