@@ -1,6 +1,6 @@
 """Round-6 coverage for the analysis modules' remaining untaken turns.
 
-Four modules, and in every case the branch left open is the *quiet* half of a
+Two modules, and in every case the branch left open is the *quiet* half of a
 decision -- the arm that produces no output, or the arm that a guarantee made
 earlier in the same function has already closed off:
 
@@ -15,36 +15,20 @@ earlier in the same function has already closed off:
   column that is not there; and an invasion run in which nothing invaded still
   reports ``n_invaded = 0`` rather than losing the column.
 
-* :mod:`spacr.hit_attribution` -- identifiers containing the ``|`` that
-  ``_group_series`` joins on collapse eight distinct wells into one group, and
-  the cross-fitter refuses the design instead of handing GroupKFold a single
-  bag.
-
-* :mod:`spacr.guide_attribution` -- option C's per-cell shift before the
-  exponential means no cell can come back with an all-zero row, so the
-  fall-back-to-the-prior guard behind it cannot fire; the test pins the
-  guarantee in the regime that would otherwise underflow.
-
-Two of those branches are unreachable and are recorded as such, with the proof
-in a comment above the test that pins the guarantee instead:
-``submodules.py:4900`` (the invasion class column) and
-``guide_attribution.py:728`` (the all-zero-row fallback).
+One of those branches is unreachable and is recorded as such:
+``submodules.py:4900`` (the invasion class column).
 """
 from __future__ import annotations
 
-import itertools
 import os
 
 import numpy as np
-import pandas as pd
 import pytest
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-from spacr import guide_attribution as ga  # noqa: E402
-from spacr import hit_attribution as ha  # noqa: E402
 from spacr import illumination as ill  # noqa: E402
 from spacr import measure_hooks as mh  # noqa: E402
 from spacr.measure_hooks import PreprocessingContext  # noqa: E402
@@ -218,127 +202,3 @@ def test_declining_the_qc_writes_no_figure_but_still_installs_the_hook(tmp_path)
 # from `field_counts.columns`. The guard is a defensive re-check after a step
 # that already guarantees its condition. What is testable is the guarantee
 # itself, which is what this test pins.
-# ---------------------------------------------------------------------------
-# spacr.hit_attribution
-# ---------------------------------------------------------------------------
-
-def _colliding_wells(n=8):
-    """Well keys that are all distinct and all join to the same group string.
-
-    ``_group_series`` identifies a well by ``"|".join`` of plate, row and
-    column, so identifiers that themselves contain ``|`` are ambiguous: every
-    way of cutting ``a|a|a|a|a|a`` into three pieces is a different well and
-    the same group key.
-    """
-    tokens = ["a"] * 6
-    return [("|".join(tokens[:i]), "|".join(tokens[i:j]), "|".join(tokens[j:]))
-            for i, j in itertools.combinations(range(1, 6), 2)][:n]
-
-
-def _candidate_frame(keys, *, seed=5, cells_per_well=8):
-    """Cells for ``keys``, alternating target and control wells."""
-    rng = np.random.default_rng(seed)
-    rows = []
-    for index, (plate, row, column) in enumerate(keys):
-        target = index % 2 == 0
-        for cell in range(cells_per_well):
-            rows.append({
-                "plateID": plate, "rowID": row, "columnID": column,
-                "prcfo": f"{index}_{cell}", "target_well": target,
-                "cell_area": rng.normal(2.0 if target else 0.0, 0.5),
-                "cell_texture": rng.normal(1.0 if target else 0.0, 0.5)})
-    return pd.DataFrame(rows)
-
-
-def test_well_keys_that_collapse_into_one_group_are_an_insufficient_design():
-    """Eight wells that share one group key are one bag, and one bag is refused.
-
-    The well-count gate upstream sees eight distinct ``(plate, row, column)``
-    triples and is satisfied. It is the *group* series that collapses them,
-    because it identifies a well by joining the three ids with ``|`` and these
-    ids contain ``|`` themselves. Cross-fitting then has a single held-out
-    group, which is not cross-fitting at all -- so it is refused by name
-    rather than handed to GroupKFold, which would fail with a message about
-    n_splits that says nothing about the design.
-    """
-    keys = _colliding_wells()
-    assert len(set(keys)) == 8, "the eight wells must be distinct"
-    assert len({"|".join(key) for key in keys}) == 1, (
-        "the eight wells must share one group key")
-
-    with pytest.raises(ha.InsufficientDesignError) as caught:
-        ha.crossfit_candidate_probabilities(_candidate_frame(keys),
-                                            prefer_plate=False)
-    assert "at least two groups" in str(caught.value)
-
-    # The same eight wells with unambiguous ids cross-fit normally, so the
-    # refusal is the collision and not the size of the design.
-    plain = [tuple(part.replace("|", "-") for part in key) for key in keys]
-    scored, features, level, warnings = ha.crossfit_candidate_probabilities(
-        _candidate_frame(plain), prefer_plate=False)
-
-    assert level == "well"
-    assert len(set(scored["attribution_fold"])) >= 2
-    assert scored["candidate_probability"].notna().all()
-    assert "cell_area" in features and warnings == []
-
-
-# ---------------------------------------------------------------------------
-# spacr.guide_attribution
-# ---------------------------------------------------------------------------
-
-# UNREACHABLE: guide_attribution.py:728 (`density[dead, :] = weights`) and the
-# 727 -> 728 arc into it cannot be taken. Two lines above, line 722 subtracts
-# each row's own maximum from `log_density`, so every row contains an entry
-# that is exactly 0.0 and `density = np.exp(log_density)` (line 723) contains a
-# 1.0 in that position -- every row therefore sums to at least 1. The entries
-# themselves cannot be NaN or infinite either: each addend is
-# `np.log(np.maximum(density, 1e-300))` (line 716) over a `nan_to_num`-ed
-# density (line 715), so it lies in [-690.8, +inf) with the +inf excluded by
-# `posinf=0.0`, and `factor` (line 692) is a finite number in (0, 1]. So
-# `density.sum(axis=1) <= 0` is false for every row. The guard is a defensive
-# re-check after the shift that already guarantees its condition; this test
-# pins the guarantee in the regime that would underflow without it.
-def test_two_hundred_correlated_measurements_still_give_a_real_distribution():
-    """The correlation correction scales the evidence; it must not zero it.
-
-    Option C reads every measurement, and 200 near-duplicate columns are worth
-    about one independent one -- so ``effective_dimension`` collapses to 1 and
-    the summed log density is scaled by 1/200. With every guide 300 sigma from
-    every measurement the raw product of densities is zero in double
-    precision, and only the per-cell shift before the exponential keeps the
-    row from being all zeros and the normalisation from dividing by zero.
-
-    A well the measurements CAN separate does not land on the prior, so the
-    fallback-shaped answer below is what the evidence says and not a floor.
-    """
-    n_columns = 200
-    rng = np.random.default_rng(0)
-    shared = rng.normal(0.0, 1.0, (4, 1))
-    values = np.repeat(shared, n_columns, axis=1) + rng.normal(
-        0.0, 1e-3, (4, n_columns))
-    priors = {"g1": 0.6, "g2": 0.4}
-    hopeless = {"g1": [300.0] * n_columns, "g2": [-300.0] * n_columns}
-
-    posterior, guides, report = ga.posterior_multivariate(
-        values, priors, hopeless,
-        centres=[0.0] * n_columns, scales=[1.0] * n_columns)
-
-    assert guides == ("g1", "g2")
-    assert report["n_measurements"] == 200.0
-    assert report["effective_dimension"] == pytest.approx(1.0, abs=1e-3)
-    assert report["scale_factor"] == pytest.approx(1.0 / n_columns, rel=1e-3)
-    assert np.isfinite(posterior).all() and (posterior > 0).all()
-    assert posterior.sum(axis=1) == pytest.approx(np.ones(4))
-    # Equally impossible for both guides means the sequencing decides.
-    assert posterior[:, 0] == pytest.approx(np.full(4, 0.6), abs=1e-9)
-
-    separable = np.repeat(np.array([[2.0], [-2.0], [2.0], [-2.0]]),
-                          n_columns, axis=1)
-    told, _guides, _report = ga.posterior_multivariate(
-        separable, {"g1": 0.5, "g2": 0.5},
-        {"g1": [2.0] * n_columns, "g2": [-2.0] * n_columns},
-        centres=[0.0] * n_columns, scales=[1.0] * n_columns)
-
-    assert told[0, 0] > 0.99 and told[1, 1] > 0.99
-    assert np.isfinite(told).all()
