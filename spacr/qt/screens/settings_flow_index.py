@@ -1950,6 +1950,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'seg_dst',
     'seg_edge_policy',
     'seg_gpu',
+    'seg_mask_device',
+    'seg_mask_vram_gb',
     'seg_max_ram_gb',
     'seg_measure_band_px',
     'seg_nucleus_channel',

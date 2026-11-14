@@ -188,3 +188,13 @@ MEASURED 2026-11-14: stage weights, estimator choice, 50 % error table
 - Still not counted: train_cellpose (one Cellpose train_seg call, no epoch
   callback; the harness runs end with no Progress line), ops, spatial_*,
   align, illumination and the other modules listed above.
+
+TRANSLATIONS 2026-11-14 (landing train 4)
+- The six new strings and the API records of spacr.qt.run_progress and
+  RunHandle.seconds_left are reviewed in nine languages in spacr-translations
+  (2026-11-13-progress-938-1113-ai-review.json). The follow-up's rewritten
+  weights and time-left paragraphs of the run_progress module docstring, the
+  progress_share block of generate_cellpose_masks_sam and the convert, import
+  and normalizing progress reporters are reviewed in
+  2026-11-14-train4-945-938-ai-review.json (pinned at 9d5b71b617). Still owed:
+  the tutorials that show a running bar, and the modules listed as not counted.
