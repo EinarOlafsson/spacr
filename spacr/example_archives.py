@@ -60,6 +60,7 @@ __all__ = [
     "OPS_E2E_EXAMPLE_REPO",
     "OPS_E2E_FULL_ARCHIVE",
     "OPS_E2E_FULL_FOLDER",
+    "OPS_E2E_REFERENCE_ARCHIVES",
     "OPS_E2E_REVISION",
     "OPS_EXAMPLE_REPO",
     "READS_EXAMPLE_REPO",
@@ -162,8 +163,17 @@ OPS_E2E_FULL_ARCHIVE = "ops_testdata_funk2022_A1_full.tar"
 #: Where the full tier unpacks, beside the core tier's ``ops_e2e`` folder.
 OPS_E2E_FULL_FOLDER = "ops_e2e_full"
 
-#: The pinned revision of :data:`OPS_E2E_EXAMPLE_REPO` both tiers come from.
-OPS_E2E_REVISION = "4e45cdc1ae80ee3401779df7282d251da2bf058c"
+#: The phenotype and merge references of each tier (revision 2), keyed by
+#: tier. Each unpacks over its tier's folder and adds only new paths under
+#: ``reference/``; the tier archives themselves are unchanged.
+OPS_E2E_REFERENCE_ARCHIVES: Dict[str, str] = {
+    "core": "ops_testdata_funk2022_A1_rev2_core.tar",
+    "full": "ops_testdata_funk2022_A1_rev2_full.tar",
+}
+
+#: The pinned revision of :data:`OPS_E2E_EXAMPLE_REPO` every archive comes
+#: from: revision 2, which keeps revision 1's tier archives byte for byte.
+OPS_E2E_REVISION = "b2e1b09f636d1fc1e4188fe3787eef6bac106d36"
 
 #: Dose-Response's example: four replicate A549 plates of one LINCS Cell
 #: Painting plate map (Cell Painting Gallery cpg0004-lincs, CC0 1.0), as
@@ -281,6 +291,8 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
 #: :data:`EXAMPLE_ARCHIVES` already lists, so no example set downloads them.
 EXAMPLE_OPT_IN_ARCHIVES: Dict[str, str] = {
     OPS_E2E_FULL_ARCHIVE: OPS_E2E_EXAMPLE_REPO,
+    "ops_testdata_funk2022_A1_rev2_core.tar": OPS_E2E_EXAMPLE_REPO,
+    "ops_testdata_funk2022_A1_rev2_full.tar": OPS_E2E_EXAMPLE_REPO,
 }
 
 #: The SHA-256 each pinned archive must have, keyed by archive name.
@@ -296,6 +308,8 @@ EXAMPLE_ARCHIVE_SHA256: Dict[str, str] = {
     "spacr-example-timelapse-mammalian.tar": "2261aa6f2e0877fec3fab51ab9a9c075a61fe34844106a547005ef154fad7bb5",
     "ops_testdata_funk2022_A1_core.tar": "e16758546e242ff6c6462e12c4e412d6fb0980d7b419024fbed63f4fe54adca0",
     OPS_E2E_FULL_ARCHIVE: "6e4d9a6cbcdbf3ef96025c097093631306a2763eb799b36bee1c5577f5eabb20",
+    "ops_testdata_funk2022_A1_rev2_core.tar": "f262d3b635d22cd001d39b27c55f8574789d8a43385a7da07c1907ef41a56a6c",
+    "ops_testdata_funk2022_A1_rev2_full.tar": "2bb52bdb85a5e3441e863bc4050327c900af5b02570f8b77a6fb89dcc2c8ef58",
 }
 
 
@@ -303,6 +317,8 @@ EXAMPLE_ARCHIVE_REVISIONS: Dict[str, str] = {
     "spacr-example-import.tar": "15a1a32fe7b001eea62304fce34619eb45a6afea",
     "ops_testdata_funk2022_A1_core.tar": OPS_E2E_REVISION,
     OPS_E2E_FULL_ARCHIVE: OPS_E2E_REVISION,
+    "ops_testdata_funk2022_A1_rev2_core.tar": OPS_E2E_REVISION,
+    "ops_testdata_funk2022_A1_rev2_full.tar": OPS_E2E_REVISION,
 }
 
 

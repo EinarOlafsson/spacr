@@ -3178,16 +3178,42 @@ def hf_toxo_mito_field(tmp_path_factory):
     }
 
 
+def _ops_e2e_unpacked(ea, folder: Path, archive: str) -> None:
+    """Download one pinned OPS end-to-end archive into ``folder`` and unpack it.
+
+    :param ea: the :mod:`spacr.example_archives` module.
+    :param folder: where it unpacks.
+    :param archive: the archive's name in the repository.
+    """
+    requests = pytest.importorskip("requests")
+    try:
+        tar = ea.download_archive(ea.OPS_E2E_EXAMPLE_REPO, archive, folder,
+                                  chunk_size=1 << 20)
+    except (requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout) as exc:
+        pytest.skip(f"huggingface.co unreachable: {exc}")
+    except requests.exceptions.HTTPError as exc:
+        status = getattr(exc.response, "status_code", 0) or 0
+        if status >= 500:
+            pytest.skip(f"huggingface.co server error {status}")
+        raise
+    ea.extract_example_archive(tar, folder)
+    Path(tar).unlink(missing_ok=True)
+
+
 def _ops_e2e_tier(tier: str) -> Path:
     """The unpacked OPS end-to-end test data of one tier, fetched once.
 
     The core tier is the ``ops_e2e`` example set; the full tier is the opt-in
-    :data:`spacr.example_archives.OPS_E2E_FULL_ARCHIVE`. Both come from the
-    pinned revision and are refused when their SHA-256 differs. A tier already
-    unpacked in the example cache is used without any request, so the tests
-    run offline once it is there. Only an unreachable network or a server
-    error skips; a checksum mismatch, a missing file or a spaCR error fails.
-    Workers of one ``-n`` run take a file lock, so the archive is fetched once.
+    :data:`spacr.example_archives.OPS_E2E_FULL_ARCHIVE`. Each tier's
+    phenotype and merge references (revision 2,
+    :data:`spacr.example_archives.OPS_E2E_REFERENCE_ARCHIVES`) are unpacked
+    over it. Everything comes from the pinned revision and is refused when
+    its SHA-256 differs. A tier already unpacked in the example cache is used
+    without any request, so the tests run offline once it is there. Only an
+    unreachable network or a server error skips; a checksum mismatch, a
+    missing file or a spaCR error fails. Workers of one ``-n`` run take a
+    file lock, so each archive is fetched once.
 
     :param tier: ``'core'`` or ``'full'``.
     :returns: the tier root, ``.../ops_testdata_funk2022_A1``.
@@ -3203,13 +3229,13 @@ def _ops_e2e_tier(tier: str) -> Path:
         archive = ea.OPS_E2E_FULL_ARCHIVE
     present = ea.example_set("ops_e2e").is_present
     root = folder / "ops_testdata_funk2022_A1"
-    if present(folder):
+    references = root / "reference" / "PROVENANCE_rev2_addendum.json"
+    if present(folder) and references.is_file():
         return root
     from tests.resource_capabilities import endpoint_available
     if not endpoint_available():
         pytest.skip("network / huggingface.co unreachable and the OPS "
                     f"end-to-end {tier} tier is not cached")
-    requests = pytest.importorskip("requests")
     folder.parent.mkdir(parents=True, exist_ok=True)
     lock = open(folder.parent / f".{folder.name}.lock", "w")
     try:
@@ -3218,24 +3244,15 @@ def _ops_e2e_tier(tier: str) -> Path:
             fcntl.flock(lock, fcntl.LOCK_EX)
         except ImportError:
             pass
+        folder.mkdir(parents=True, exist_ok=True)
         if not present(folder):
-            folder.mkdir(parents=True, exist_ok=True)
-            try:
-                tar = ea.download_archive(ea.OPS_E2E_EXAMPLE_REPO, archive,
-                                          folder, chunk_size=1 << 20)
-            except (requests.exceptions.ConnectionError,
-                    requests.exceptions.Timeout) as exc:
-                pytest.skip(f"huggingface.co unreachable: {exc}")
-            except requests.exceptions.HTTPError as exc:
-                status = getattr(exc.response, "status_code", 0) or 0
-                if status >= 500:
-                    pytest.skip(f"huggingface.co server error {status}")
-                raise
-            ea.extract_example_archive(tar, folder)
-            Path(tar).unlink(missing_ok=True)
+            _ops_e2e_unpacked(ea, folder, archive)
+        if not references.is_file():
+            _ops_e2e_unpacked(ea, folder, ea.OPS_E2E_REFERENCE_ARCHIVES[tier])
     finally:
         lock.close()
     assert present(folder), f"{archive} unpacked without its markers"
+    assert references.is_file(), "the revision-2 references unpacked without their addendum"
     return root
 
 
