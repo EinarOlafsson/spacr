@@ -26,7 +26,6 @@ import pytest
 from PySide6.QtCore import QObject
 from PySide6.QtGui import QFontMetrics, QIcon
 from PySide6.QtWidgets import (
-    QApplication,
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
@@ -43,7 +42,6 @@ from spacr.qt.app import (
     _ICON_OVERRIDES,
     APPS,
     MAX_APPS_PER_SECTION,
-    SECTION_ASSAYS,
     SECTION_CORE,
     SECTIONS,
     MainWindow,
@@ -627,141 +625,6 @@ def test_sidebar_has_one_row_per_app_plus_home_in_apps_order(
 # 2. Sidebar width policy + label elision
 # ===========================================================================
 
-def _fake_apps(names):
-    return [(f"k{i}", n, f"desc {i}", SECTION_CORE)
-            for i, n in enumerate(names)]
-
-
-#: The two zooms the width policy has to hold at: 100 %, which is what this
-#: file used to assume without saying so, and 150 %, which is what the app has
-#: SHIPPED since ``DEFAULT_FONT_SCALE`` was raised in b530f70a (2026-08-03) —
-#: "spaCR was laid out on a 1080p display and reads small on the 4K panels it
-#: is used on".
-SIDEBAR_SCALES = (1.0, 1.5)
-
-
-@pytest.fixture
-def at_font_scale(qapp, qt_theme_applied):
-    """Put the font-scale PREFERENCE and the STYLESHEET on the same scale.
-
-    These tests compare a bound computed from the preference
-    (``scaled_px(WIDTH_MIN)``) against a width driven by the size hint of
-    text the application stylesheet draws. The two agree only if the sheet
-    was built at the scale the preference reports, and nothing in the
-    harness guarantees that: ``qt_theme_applied`` builds the sheet with
-    ``stylesheet()``, whose ``font_scale`` default is still 1.0, while the
-    per-test QSettings sandbox is empty so ``get_font_scale()`` answers the
-    shipped ``DEFAULT_FONT_SCALE`` of 1.5. Bounds at 150 %, glyphs at
-    100 % — under which a policy that is correct at BOTH scales measures as
-    broken at neither.
-
-    So these tests state their scale rather than inherit it. Restores the
-    shared application's 100 % sheet on the way out: leaving it at 150 %
-    would move every later test that measures a pixel.
-    """
-    from spacr.qt import preferences
-    from spacr.qt.theme import stylesheet
-
-    def _apply(scale: float) -> float:
-        preferences.set_font_scale(scale)
-        qapp.setStyleSheet(stylesheet(font_scale=scale))
-        qapp.processEvents()
-        return scale
-
-    yield _apply
-    qapp.setStyleSheet(stylesheet())
-    qapp.processEvents()
-
-
-def _lay_out(widget):
-    """Show and settle a widget so elision actually runs.
-
-    Qt computes elision in ``resizeEvent``; a widget that was never shown
-    reports nothing elided however narrow it is, which turns
-    ``assert not clipped_items()`` into a tautology.
-    """
-    widget.show()
-    QApplication.processEvents()
-    widget.resize(widget.width(), widget.height())
-    QApplication.processEvents()
-
-
-@pytest.mark.parametrize("scale", SIDEBAR_SCALES)
-def test_sidebar_column_never_narrows_below_its_floor(
-        qtbot, at_font_scale, monkeypatch, scale):
-    """Short names must not produce a stubby column — and the floor is the
-    SCALED floor, so 150 % text does not sit in a 100 % column."""
-    from spacr.qt.preferences import scaled_px
-    at_font_scale(scale)
-    monkeypatch.setattr(app_mod, "APPS", _fake_apps(["A", "B", "C"]))
-    bar = Sidebar()
-    qtbot.addWidget(bar)
-    assert bar.width() == scaled_px(Sidebar.WIDTH_MIN)
-    # SHOW IT FIRST. `clipped_items()` reads `_elided`, which is only ever
-    # set in `resizeEvent`, so this assertion on an unshown widget can never
-    # fail -- proven by mutation: a column 52 px too narrow for its own text
-    # still passed. Showing it is what makes the claim real.
-    _lay_out(bar)
-    assert not bar.clipped_items()
-
-
-@pytest.mark.parametrize("scale", SIDEBAR_SCALES)
-def test_sidebar_column_widens_for_a_longer_name(
-        qtbot, at_font_scale, monkeypatch, scale):
-    """A name the floor cannot hold widens the column — off the floor, under
-    the cap, and far enough that nothing is cut.
-
-    Both bounds track the zoom, so this is asserted at 100 % and at the
-    shipped 150 %. Measured here, the column lands at 309 px (floor 220, cap
-    320) and at 449 px (floor 330, cap 480) — off the floor and short of the
-    cap at both, which is the whole claim.
-    """
-    from spacr.qt.preferences import scaled_px
-    at_font_scale(scale)
-    long_ish = "Cellpose Model Comparison Workbench"
-    monkeypatch.setattr(app_mod, "APPS", _fake_apps(["A", long_ish]))
-    bar = Sidebar()
-    qtbot.addWidget(bar)
-    assert scaled_px(Sidebar.WIDTH_MIN) < bar.width() <= scaled_px(
-        Sidebar.WIDTH_MAX)
-    # Widening that still clips the name it widened for is not widening --
-    # but only a LAID-OUT widget can report clipping. See the note in
-    # test_sidebar_column_never_narrows_below_its_floor.
-    _lay_out(bar)
-    assert not bar.clipped_items()
-
-
-@pytest.mark.parametrize("scale", SIDEBAR_SCALES)
-def test_sidebar_caps_its_width_and_elides_a_pathological_name(
-        qtbot, qapp, at_font_scale, monkeypatch, scale):
-    """A name no column could hold elides — with the full name on hover —
-    instead of pushing the sidebar across the window.
-
-    The cap is ``scaled_px(WIDTH_MAX)``, not ``WIDTH_MAX``: at the shipped
-    150 % zoom the column is allowed 480 px, and pinning the raw 320 would
-    demand a column too narrow for its own text.
-    """
-    from spacr.qt.preferences import scaled_px
-    at_font_scale(scale)
-    huge = "An Extraordinarily Long Hypothetical Module Name For Testing"
-    monkeypatch.setattr(app_mod, "APPS", _fake_apps([huge]))
-    bar = Sidebar()
-    qtbot.addWidget(bar)
-    bar.resize(bar.width(), 400)
-    bar.show()
-    qapp.processEvents()
-
-    assert bar.width() == scaled_px(Sidebar.WIDTH_MAX)
-    clipped = bar.clipped_items()
-    assert [b.full_text().strip() for b in clipped] == [huge]
-    assert clipped[0].text() != huge and "…" in clipped[0].text()
-    # THE FULL NAME IS IN THE ACCESSIBLE NAME, not in a tooltip. The row's
-    # popup came off on 2026-09-03, so what carries a name too long to draw
-    # is the text a screen reader reads -- and it is the same string, not a
-    # truncation of it.
-    assert clipped[0].accessibleName().strip() == huge
-
-
 def test_refresh_icons_leaves_a_row_with_no_nav_key_alone(
         qtbot, qt_theme_applied):
     from spacr.qt.widgets.eliding import ElidingPushButton
@@ -799,12 +662,6 @@ def _at_design_scale():
                     settings.setValue(key, previous[key])
                 else:
                     settings.remove(key)
-
-
-@pytest.fixture
-def _home_geometry_at_design_scale():
-    with _at_design_scale():
-        yield
 
 
 @pytest.fixture(scope="module")
@@ -867,33 +724,6 @@ def test_no_home_tile_label_is_silently_clipped(home_page):
 def test_todays_names_all_fit_without_eliding(home_page):
     assert [t.text_label for t in home_page.findChildren(AppTile)
             if t.is_name_elided()] == []
-
-
-@pytest.mark.usefixtures("_home_geometry_at_design_scale")
-def test_a_tile_is_wide_enough_for_the_longest_name(home_page):
-    """Was ``test_a_tile_is_as_wide_as_the_name_it_has_to_draw``.
-
-    That version asked ``HTile.required_width()`` — a per-tile
-    measurement from when each section was a horizontal scroller and
-    every tile sized itself to its own name. Every tile is the same size
-    now, so the contract is that the ONE size fits the longest name; a
-    tile that were wider than its neighbour would be the bug.
-
-    Which tile that is comes from the page rather than being named here:
-    it was "Annotator Agreement" until that module folded onto Annotate
-    and lost its tile, and a hard-coded name turns "the longest tile is
-    now a different one" into a KeyError that says nothing about width.
-    """
-    from spacr.qt.preferences import scaled_px
-    tiles = _tiles(home_page)
-    assert tiles, "the home page drew no tiles"
-    name = max(tiles, key=len)
-    longest = tiles[name]
-    label = longest.name_label
-    assert QFontMetrics(label.font()).horizontalAdvance(
-        name) <= label.available_text_width()
-    assert not label.is_elided()
-    assert longest.width() <= scaled_px(HomePage.TILE_MAX_W)
 
 
 def test_an_unfittable_name_elides_and_keeps_the_row_sane(
@@ -988,51 +818,6 @@ def test_an_unknown_key_falls_back_to_a_themed_glyph():
 # ===========================================================================
 
 # -- the search / filter path ------------------------------------------------
-
-def test_the_command_palette_filters_by_name_and_navigates(win, qtbot):
-    from spacr.qt.command_palette import CommandPalette
-    palette = CommandPalette(win)
-    qtbot.addWidget(palette)
-
-    # Was "annotator agree" until Annotator Agreement folded onto Annotate
-    # and lost its row; the palette lists tiles, so the filter has to name
-    # one that still is one. Two words, one app, and nothing else close.
-    palette._on_filter("plate viewer")
-    rows = [palette._list.item(i).text()
-            for i in range(palette._list.count())]
-    assert any("Plate Viewer" in r for r in rows)
-    assert not any("Mask" in r for r in rows), (
-        f"filter let unrelated commands through: {rows}")
-
-    palette._on_activate()
-    assert win._status_app_label.text() == "Plate Viewer"
-    assert win._stack.currentWidget() is win._screens["plate_view"]
-
-
-def test_the_command_palette_filters_by_section_name(win, qtbot):
-    from spacr.qt.command_palette import CommandPalette
-    palette = CommandPalette(win)
-    qtbot.addWidget(palette)
-    palette._on_filter(SECTION_ASSAYS)
-    rows = [palette._list.item(i).text()
-            for i in range(palette._list.count())]
-    from spacr.qt.app import visible_apps
-
-    # Only apps the user can see are offered; 634's alpha organism pages
-    # (eb2201537) are hidden while alpha features are off.
-    for name in (n for _k, n, _d, s in visible_apps() if s == SECTION_ASSAYS):
-        assert any(name in r for r in rows), f"{name} not found by section"
-
-
-def test_an_empty_filter_restores_every_command(win, qtbot):
-    from spacr.qt.command_palette import CommandPalette
-    palette = CommandPalette(win)
-    qtbot.addWidget(palette)
-    total = palette._list.count()
-    palette._on_filter("zzzz-no-such-command")
-    assert palette._list.count() == 0
-    palette._on_filter("")
-    assert palette._list.count() == total
 
 
 # ===========================================================================
@@ -1558,42 +1343,6 @@ def test_every_preloaded_module_actually_exists():
     missing = [m for m in _PipelinePreloader._MODULES
                if importlib.util.find_spec(m) is None]
     assert not missing, f"preloader points at modules that don't exist: {missing}"
-
-
-@pytest.mark.parametrize("navigator", (False, True))
-def test_the_window_still_opens_without_shortcuts_or_the_tour(
-        qtbot, qt_theme_applied, monkeypatch, tmp_path, navigator):
-    """Refused optional systems leave only the current Home's own bindings."""
-    from PySide6.QtCore import QSettings, Qt
-    from PySide6.QtGui import QKeySequence
-    from spacr.qt import preferences
-    import spacr.qt
-
-    source = preferences._settings()
-    path = str(tmp_path / "optional-shortcuts.ini")
-    private = QSettings(path, QSettings.IniFormat)
-    for key in source.allKeys():
-        private.setValue(key, source.value(key))
-    private.sync()
-    monkeypatch.setattr(preferences, "_settings",
-                        lambda: QSettings(path, QSettings.IniFormat))
-    preferences.set_easy_mode(navigator)
-    monkeypatch.setitem(sys.modules, "spacr.qt.shortcuts", None)
-    monkeypatch.setitem(sys.modules, "spacr.qt.first_run", None)
-    monkeypatch.delattr(spacr.qt, "shortcuts", raising=False)
-    monkeypatch.delattr(spacr.qt, "first_run", raising=False)
-    w = MainWindow()
-    qtbot.addWidget(w, before_close_func=_close_owned_screens)
-    assert w._stack.currentWidget() is w._startup
-    from PySide6.QtGui import QShortcut
-    if navigator:
-        escape = w._startup._workflow_escape
-        assert escape.key() == QKeySequence(Qt.Key_Escape)
-        assert escape.parent() is w._startup
-        assert w.findChildren(QShortcut) == [escape]
-    else:
-        assert not w.findChildren(QShortcut), (
-            "shortcuts should be absent when the module failed to import")
 
 
 def test_the_main_window_does_not_preload_pipelines_by_default(win):

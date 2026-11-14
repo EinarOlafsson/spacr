@@ -78,11 +78,20 @@ class TestTheMiddleOne:
 
 class TestTheWellSetIsDerivedThenEditable:
 
-    def test_it_is_derived_from_the_guides(self, objects):
-        assert wells_of(objects, ["g1"]) == ["p1_r1_c1", "p1_r1_c2"]
-
-    def test_different_guides_give_different_wells(self, objects):
-        assert wells_of(objects, ["q"]) == ["p1_r1_c3"]
+    @pytest.mark.parametrize("guides, reverse_the_table, expected", [
+        pytest.param(["g1"], False, ["p1_r1_c1", "p1_r1_c2"],
+                     id="derived-from-the-guides"),
+        pytest.param(["q"], False, ["p1_r1_c3"],
+                     id="different-guides-give-different-wells"),
+        # So a user narrowing the set sees them in the order the screen was
+        # laid out.
+        pytest.param(["g1"], True, ["p1_r1_c2", "p1_r1_c1"],
+                     id="the-order-is-the-tables-not-sorted"),
+    ])
+    def test_the_well_set_is_derived_from_the_guides_in_table_order(
+            self, objects, guides, reverse_the_table, expected):
+        table = objects.iloc[::-1] if reverse_the_table else objects
+        assert wells_of(table, guides) == expected
 
     def test_narrowing_it_narrows_the_plot(self, objects):
         out, report = select(objects, scope="wells", guides=["g1"],
@@ -93,13 +102,6 @@ class TestTheWellSetIsDerivedThenEditable:
     def test_narrowing_to_nothing_draws_nothing(self, objects):
         out, _ = select(objects, scope="wells", guides=["g1"], wells=[])
         assert len(out) == 0
-
-    def test_the_order_is_the_tables_not_sorted(self, objects):
-        """So a user narrowing the set sees them in the order the screen was
-        laid out."""
-        shuffled = objects.iloc[::-1]
-        assert wells_of(shuffled, ["g1"]) == ["p1_r1_c2", "p1_r1_c1"]
-
 
 class TestNoSelectionIsAnAnswer:
 

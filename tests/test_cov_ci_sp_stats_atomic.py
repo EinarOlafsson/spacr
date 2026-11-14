@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import tempfile
 import types
 import xml.etree.ElementTree as ET
 
@@ -48,31 +47,24 @@ def test_a_vector_report_is_complete_and_has_no_scratch_file(
     assert sorted(p.name for p in tmp_path.iterdir()) == ["hit_structures.svg"]
 
 
-def test_a_failed_replace_keeps_the_previous_report_and_cleans_up(
-        structure, tmp_path, monkeypatch):
+@pytest.mark.parametrize("target, message", [
+    pytest.param("os.replace", "destination is unavailable",
+                 id="the-final-replace-fails"),
+    pytest.param("tempfile.NamedTemporaryFile", "cannot create scratch file",
+                 id="the-scratch-file-cannot-be-created"),
+])
+def test_a_failed_write_keeps_the_previous_report_and_leaves_no_scratch(
+        structure, tmp_path, monkeypatch, target, message):
     destination = tmp_path / "hit_structures.svg"
     destination.write_text("previous complete report", encoding="utf-8")
 
-    def refuse_replace(*_args):
-        raise OSError("destination is unavailable")
+    def refuse(*_args, **_kwargs):
+        raise OSError(message)
 
-    monkeypatch.setattr("os.replace", refuse_replace)
-    with pytest.raises(OSError, match="destination is unavailable"):
+    monkeypatch.setattr(target, refuse)
+    with pytest.raises(OSError, match=message):
         sp_stats._write_hit_structures_svg(structure, tmp_path)
     assert destination.read_text(encoding="utf-8") == "previous complete report"
     assert list(tmp_path.iterdir()) == [destination]
 
 
-def test_a_failed_scratch_creation_does_not_touch_the_previous_report(
-        structure, tmp_path, monkeypatch):
-    destination = tmp_path / "hit_structures.svg"
-    destination.write_text("previous complete report", encoding="utf-8")
-
-    def refuse_scratch(*_args, **_kwargs):
-        raise OSError("cannot create scratch file")
-
-    monkeypatch.setattr(tempfile, "NamedTemporaryFile", refuse_scratch)
-    with pytest.raises(OSError, match="cannot create scratch file"):
-        sp_stats._write_hit_structures_svg(structure, tmp_path)
-    assert destination.read_text(encoding="utf-8") == "previous complete report"
-    assert list(tmp_path.iterdir()) == [destination]

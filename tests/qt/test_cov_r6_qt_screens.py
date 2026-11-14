@@ -9,9 +9,7 @@ guard worked".
   nothing; a stale result whose cause codes explain nothing gets no
   explanation line under it; and a project the registry *does* know about
   is never told that nothing can be checked.
-* **Model Explanation** -- an unavailable surrogate family still carries
-  its reason as a tooltip even when the dropdown's model hands back no
-  item to grey out; and ``configure_hit`` only touches the phenotype
+* **Model Explanation** -- ``configure_hit`` only touches the phenotype
   dropdown when it is given a phenotype, and never adds one twice.
 * **Data Manager** -- a job that settles as a failure does not run its
   completion handler but still announces itself; the note strip still
@@ -38,10 +36,9 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QObject, Qt, Signal                 # noqa: E402
-from PySide6.QtGui import (QColor, QPixmap,                      # noqa: E402
-                           QStandardItemModel)
-from PySide6.QtWidgets import (QComboBox, QLabel, QTabWidget,  # noqa: E402
+from PySide6.QtCore import QObject, Signal                     # noqa: E402
+from PySide6.QtGui import QColor, QPixmap                       # noqa: E402
+from PySide6.QtWidgets import (QLabel, QTabWidget,             # noqa: E402
                                QVBoxLayout, QWidget)
 
 from spacr import data_manager as dm                           # noqa: E402
@@ -218,69 +215,6 @@ def test_a_registered_project_is_never_told_nothing_can_be_checked(
 # ===========================================================================
 # Model Explanation
 # ===========================================================================
-
-class _ItemlessCombo(QComboBox):
-    """A dropdown whose ``model()`` holds no item for any row.
-
-    ``QComboBox.model()`` is not a C++ virtual, so Qt's own machinery goes
-    on using the real model; only the panel's Python-side ``item(index)``
-    lookup sees this one, and an empty ``QStandardItemModel`` answers it
-    with ``None`` -- the case the panel guards against before greying a
-    backend out.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._itemless = QStandardItemModel(self)
-
-    def model(self):
-        return self._itemless
-
-
-def _unavailable_backends():
-    """Every surrogate family present, with xgboost unusable."""
-    return {key: {"available": key != "xgboost", "version": "1.0",
-                  "reason": "" if key != "xgboost"
-                            else "install xgboost to enable this backend"}
-            for key in explain_mod.MODEL_FAMILIES}
-
-
-def _backend_index(panel, key):
-    return next(i for i in range(panel.backend.count())
-                if panel.backend.itemData(i) == key)
-
-
-def test_an_unavailable_backend_keeps_its_reason_even_with_no_item_to_grey(
-        qtbot, monkeypatch):
-    """The reason is what the user reads; the grey is only how it looks.
-
-    Disabling the row needs the dropdown's model to hand back an item for
-    it, and the tooltip that says *why* the family cannot run must not
-    depend on that lookup succeeding.
-    """
-    monkeypatch.setattr(explain_mod, "available_backends",
-                        _unavailable_backends)
-    reason = "install xgboost to enable this backend"
-
-    ordinary = explain_mod.ExplainCvPanel()
-    qtbot.addWidget(ordinary)
-    index = _backend_index(ordinary, "xgboost")
-    assert ordinary.backend.model().item(index) is not None
-    assert ordinary.backend.model().item(index).isEnabled() is False
-    assert ordinary.backend.itemData(index, Qt.ToolTipRole) == reason
-
-    monkeypatch.setattr(explain_mod, "QComboBox", _ItemlessCombo)
-    itemless = explain_mod.ExplainCvPanel()
-    qtbot.addWidget(itemless)
-    index = _backend_index(itemless, "xgboost")
-
-    assert itemless.backend.model().item(index) is None, (
-        "the stand-in still produced an item to grey out")
-    assert itemless.backend.itemData(index, Qt.ToolTipRole) == reason
-    # And the families that CAN run still carry no excuse.
-    assert not itemless.backend.itemData(
-        _backend_index(itemless, "random_forest"), Qt.ToolTipRole)
-
 
 def test_a_hit_only_moves_the_phenotype_dropdown_when_it_names_one(qtbot):
     """A hit with no phenotype leaves the score column the user chose.

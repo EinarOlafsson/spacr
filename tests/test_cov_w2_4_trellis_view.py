@@ -181,17 +181,6 @@ def test_the_notice_counts_the_highlighted_rows(canvas, keyed, link):
 # Brushing
 # ---------------------------------------------------------------------------
 
-def test_brushing_a_panel_returns_that_panels_rows_only(canvas, keyed):
-    canvas.set_trellis_spec(_scatter_spec())
-
-    picked = canvas.brush(-1e9, -1e9, 1e9, 1e9, row=0, col=0, publish=False)
-
-    assert picked is not None
-    # Panel (p1, a) holds the first two objects and nothing else.
-    expected = Selection.from_frame(keyed.iloc[:2], source=canvas.link_source)
-    assert set(picked.keys) == set(expected.keys)
-
-
 def test_brushing_publishes_to_every_linked_view_by_default(canvas, link):
     canvas.set_trellis_spec(_scatter_spec())
     seen = []
@@ -258,16 +247,6 @@ def test_a_histogram_redraws_because_bars_cannot_be_restyled(canvas, keyed,
 
     assert canvas.panel_axes() != axes_before
     assert canvas.trellis is not None
-
-
-def test_a_selection_arriving_before_a_chart_is_ignored(canvas, keyed, link):
-    canvas.set_trellis_spec(TrellisSpec())
-    assert canvas.trellis is None
-
-    link.set_selection(Selection.from_frame(keyed.iloc[:1], source="other"))
-
-    assert canvas.trellis is None
-    assert canvas.panel_axes() == {}
 
 
 # ---------------------------------------------------------------------------

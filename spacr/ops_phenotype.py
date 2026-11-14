@@ -686,6 +686,21 @@ def phenotype_site_map(phenotype_sites: Union["WellLayout", int],
             f"tile_shape {tile_shape!r} is not a (height, width) of two "
             "positive sizes")
     predicted = phenotype_centres(phenotype_sites, anchors)
+    return _nearest_tiles(predicted, sbs_centres, height, width)
+
+
+def _nearest_tiles(predicted: Mapping[int, Tuple[float, float]],
+                   sbs_centres: Mapping[int, Tuple[float, float]],
+                   height: float, width: float) -> Dict[int, int]:
+    """Each field's nearest sequencing tile among the tiles containing it.
+
+    :param predicted: ``{phenotype site: (y, x)}`` field centres.
+    :param sbs_centres: ``{sequencing site: (y, x)}`` tile centres.
+    :param height: a sequencing tile's height in well-frame pixels.
+    :param width: its width.
+    :returns: ``{phenotype site: sequencing site}``, as
+        :func:`phenotype_site_map` returns it.
+    """
     if not sbs_centres:
         return {}
     tiles = [int(site) for site in sbs_centres]

@@ -109,13 +109,16 @@ class TestTheConsoleSaysWhatWasActuallyJoined:
     accession, and was reported as not matching.
     """
 
-    def test_a_gene_with_no_name_still_counts_as_matched(self, capsys):
-        frame = pd.DataFrame({"gene": ["TGGT1_200010", "TGME49_200130",
-                                       "TGGT1_999999"]})
+    @pytest.mark.parametrize("genes, said", [
+        # A gene with no NAME still counts as matched.
+        (["TGGT1_200010", "TGME49_200130", "TGGT1_999999"],
+         "2 matched the annotation"),
+        (["TGGT1_999999"], "0 matched the annotation"),
+    ], ids=["a_gene_with_no_name_still_counts", "nothing_matches_says_zero"])
+    def test_the_console_counts_the_genes_that_joined(self, capsys, genes, said):
+        annotate(pd.DataFrame({"gene": genes}), key_column="gene")
 
-        annotate(frame, key_column="gene")
-
-        assert "2 matched the annotation" in capsys.readouterr().out
+        assert said in capsys.readouterr().out
 
     def test_that_gene_really_has_no_name_but_does_have_annotation(self):
         got = annotate(pd.DataFrame({"gene": ["TGME49_200130"]}),
@@ -124,11 +127,6 @@ class TestTheConsoleSaysWhatWasActuallyJoined:
         assert pd.isna(got["gene_name"].iloc[0])
         assert got["product_description"].iloc[0]
         assert got["uniprot"].iloc[0]
-
-    def test_a_table_where_nothing_matches_says_zero(self, capsys):
-        annotate(pd.DataFrame({"gene": ["TGGT1_999999"]}), key_column="gene")
-
-        assert "0 matched the annotation" in capsys.readouterr().out
 
     def test_quiet_says_nothing(self, capsys):
         annotate(pd.DataFrame({"gene": ["TGGT1_200010"]}), key_column="gene",

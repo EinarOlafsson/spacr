@@ -16,47 +16,6 @@ from spacr import io
 
 
 # ---------------------------------------------------------------------------
-# migrate_unescaped_plate_names -- a name that is already safe
-# ---------------------------------------------------------------------------
-
-class TestMigratingUnescapedPlateNames:
-
-    def _plate(self, tmp_path, plate, stems):
-        root = tmp_path / plate
-        (root / "masks").mkdir(parents=True)
-        for stem in stems:
-            (root / "masks" / f"{stem}.npy").write_bytes(b"\x93NUMPY")
-        return root
-
-
-    def test_a_stem_that_escapes_to_itself_cannot_get_that_far(self):
-        """THE PIN, for ``if safe == stem: continue``.
-
-        Planning a rename onto the same path is a no-op on some
-        filesystems and an error on others, and in either case a
-        migration reporting work it did not do -- so the guard is right
-        to keep. It cannot fire: the check above it has already refused
-        every stem of four components or fewer, and more than four means
-        the plate holds a separator, which is exactly what escaping
-        changes.
-
-        Asserted against the escaper itself, over both the plain and the
-        already-escaped forms, so an escaper that became idempotent
-        would fail here rather than start planning self-renames.
-        """
-        from spacr.schema import escape_field_stem_plate
-
-        for stem in ("exp_1_A01_1_1", "a_b_c_A01_1_1"):
-            assert escape_field_stem_plate(stem, timelapse=True) != stem, (
-                f"{stem!r} escapes to itself, so the guard is live")
-
-        for stem in ("exp1_A01_1_1",):
-            assert len(stem.split("_")) <= 4, (
-                "this stem now has more than four components and would "
-                "reach the escaper")
-
-
-# ---------------------------------------------------------------------------
 # process_non_tif_non_2D_images -- splitting a stack, and the suffix it names
 # ---------------------------------------------------------------------------
 

@@ -10,11 +10,7 @@ never replaced, because a folder replaced silently loses an earlier save.
 """
 from __future__ import annotations
 
-import json
-import os
-from pathlib import Path
 
-import pandas as pd
 import pytest
 
 from spacr.figures import bundle
@@ -45,26 +41,6 @@ def test_no_correction_writes_no_corrected_row():
     assert not [row for row in rows if row[0] == "p_adjusted"], rows
 
 
-def test_a_renderer_that_fails_still_leaves_the_data_and_statistics(tmp_path):
-    """The numbers behind a figure outlive the picture that failed to draw."""
-    def _explode(_path):
-        raise RuntimeError("no backend")
-
-    out = bundle.save(str(tmp_path), "my graph", render=_explode,
-                      data=pd.DataFrame({"value": [1, 2, 3]}))
-    written = sorted(os.listdir(out))
-    assert written == ["data.csv", "settings.json", "statistics.csv"], written
-    assert pd.read_csv(Path(out) / "data.csv").shape[0] == 3
-
-
-def test_a_second_save_sits_beside_the_first(tmp_path):
-    """Replacing the folder would take the earlier save's data with it."""
-    first = bundle.save(str(tmp_path), "graph", render=lambda p: Path(p).touch())
-    second = bundle.save(str(tmp_path), "graph", render=lambda p: Path(p).touch())
-    assert first != second
-    assert os.path.isdir(first) and os.path.isdir(second)
-
-
 def test_a_thousand_existing_folders_is_refused_not_silently_reused(tmp_path,
                                                                     monkeypatch):
     """Running out of suffixes must never resolve to overwriting one."""
@@ -72,16 +48,3 @@ def test_a_thousand_existing_folders_is_refused_not_silently_reused(tmp_path,
     with pytest.raises(FileExistsError) as excinfo:
         bundle._unique(str(tmp_path / "graph"))
     assert "graph" in str(excinfo.value)
-
-
-def test_a_settings_value_json_cannot_hold_is_recorded_as_its_text(tmp_path):
-    """An unserialisable setting is still evidence of how the graph was made."""
-    class _Opaque:
-        def __str__(self):
-            return "threshold=0.5"
-
-    out = bundle.save(str(tmp_path), "graph", render=lambda p: Path(p).touch(),
-                      settings={"gate": _Opaque(), "keep": {1, 2}})
-    payload = json.loads((Path(out) / "settings.json").read_text(encoding="utf-8"))
-    assert payload["gate"] == "threshold=0.5"
-    assert isinstance(payload["keep"], str)

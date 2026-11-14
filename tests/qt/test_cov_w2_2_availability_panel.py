@@ -16,8 +16,8 @@ documents them as being for.
 
 import pytest
 import shiboken6
-from PySide6.QtCore import QEvent, QPoint, Qt
-from PySide6.QtGui import QKeyEvent
+from PySide6.QtCore import QEvent, QPoint, QRect, Qt
+from PySide6.QtGui import QGuiApplication, QKeyEvent
 from PySide6.QtWidgets import QMessageBox, QWidget
 
 from spacr.qt.widgets import availability_panel as ap
@@ -152,9 +152,21 @@ def test_the_corridor_falls_back_to_the_panel_itself(panel, qapp):
     assert panel.corridor() == panel.geometry()
 
 
+def test_a_panel_anchored_far_above_every_screen_is_clamped_vertically(panel,
+                                                                       qapp):
+    """The dock is clamped to the screen on y as well as on x."""
+    anchor = QWidget()
+    panel.show_for(anchor, [_entry()],
+                   anchor_rect=QRect(-100000, -100000, 10, 10), immediate=True)
+    available = QGuiApplication.primaryScreen().availableGeometry()
+    assert panel.y() >= available.top()
+    assert panel.y() + panel.sizeHint().height() <= available.bottom() + 1
+
+
 # ---------------------------------------------------------------------------
 # staying alive across the gap
 # ---------------------------------------------------------------------------
+
 
 def test_focus_is_handed_back_even_when_it_has_nowhere_to_go(panel, qapp):
     """The widget that had focus can be destroyed while the panel is up."""
@@ -171,9 +183,11 @@ def test_focus_is_handed_back_even_when_it_has_nowhere_to_go(panel, qapp):
 # the one Install receiver
 # ---------------------------------------------------------------------------
 
+
 # ---------------------------------------------------------------------------
 # what pressing the word does
 # ---------------------------------------------------------------------------
+
 
 def test_the_default_dialogs_are_a_question_and_an_information(qapp,
                                                                monkeypatch):

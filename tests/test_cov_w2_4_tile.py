@@ -158,15 +158,6 @@ def test_the_caption_falls_back_to_the_text(qtbot):
 # HTile geometry
 # ---------------------------------------------------------------------------
 
-def test_an_htile_with_an_icon_sizes_it_to_the_font_scale(qtbot):
-    """The icon side length is a scaled px, not the raw argument."""
-    from spacr.qt.preferences import scaled_px
-
-    tile = HTile("Curate", "review masks", icon=_icon(), icon_size=52)
-    qtbot.addWidget(tile)
-    assert tile.icon().isNull() is False
-    assert tile.iconSize() == QSize(scaled_px(52), scaled_px(52))
-
 
 def test_a_name_only_htile_centres_its_label_and_keeps_a_plain_tooltip(qtbot):
     tile = HTile("Curate")

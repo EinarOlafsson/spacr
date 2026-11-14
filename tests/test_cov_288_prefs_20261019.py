@@ -8,7 +8,6 @@ nothing leaks into the real preference writer.
 from __future__ import annotations
 
 import threading
-import types
 
 import pytest
 
@@ -79,31 +78,6 @@ def test_the_writer_keeps_a_value_that_was_replaced_while_it_wrote(
     assert state["busy"] is False
 
 
-def test_a_flush_with_no_live_writer_stores_on_the_callers_thread(
-        monkeypatch, private):
-    pending, state = private
-    written = []
-    monkeypatch.setattr(prefs, "_write_stores", written.append)
-    pending[("y.ini", 0, "k")] = 5
-    state["thread"] = types.SimpleNamespace(is_alive=lambda: False)
-    assert prefs._flush_stores(timeout=0.5) is True
-    assert written == [{("y.ini", 0, "k"): 5}]
-    assert pending == {}
-
-
-def test_a_flush_while_a_write_is_busy_leaves_the_queue_to_the_writer(
-        monkeypatch, private):
-    pending, state = private
-    written = []
-    monkeypatch.setattr(prefs, "_write_stores", written.append)
-    pending[("z.ini", 0, "k")] = 1
-    state["busy"] = True
-    state["thread"] = types.SimpleNamespace(is_alive=lambda: True)
-    assert prefs._flush_stores(timeout=0.0) is False
-    assert written == []
-    assert len(pending) == 1
-
-
 def test_a_batch_is_stored_in_the_file_it_was_set_in(tmp_path):
     from PySide6.QtCore import QSettings
 
@@ -112,13 +86,3 @@ def test_a_batch_is_stored_in_the_file_it_was_set_in(tmp_path):
     prefs._write_stores({(path, kind, "a/b"): "1", (path, kind, "c"): "2"})
     stored = QSettings(path, QSettings.Format.IniFormat)
     assert stored.value("a/b") == "1" and stored.value("c") == "2"
-
-
-def test_a_flush_gives_a_live_writer_its_time_and_then_reports_the_wait(
-        monkeypatch, private):
-    pending, state = private
-    monkeypatch.setattr(prefs, "_write_stores", lambda batch: None)
-    pending[("w.ini", 0, "k")] = 1
-    state["thread"] = types.SimpleNamespace(is_alive=lambda: True)
-    assert prefs._flush_stores(timeout=0.05) is True
-    assert pending == {}

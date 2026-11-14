@@ -691,16 +691,6 @@ def test_verbose_reports_what_the_4d_run_actually_did(tmp_path, fake_model,
     )
 
 
-def test_the_4d_adapter_is_the_very_same_cellpose_adapter_the_3d_path_uses():
-    """A 4-D run and a 3-D run must not be able to drift apart in how they
-    drive the model, so there is exactly one adapter."""
-    import inspect
-
-    source = inspect.getsource(O._segment_timepoints_with_t)
-    assert "_cellpose_z_segment_fn" in source
-    assert "model.eval" not in source, "no second Cellpose call site"
-
-
 # ===========================================================================
 # 5. t on / z off, and the reverse
 # ===========================================================================

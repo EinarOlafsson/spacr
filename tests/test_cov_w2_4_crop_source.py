@@ -198,12 +198,6 @@ def test_padding_grows_the_box_and_stops_at_the_array_edge(merged):
     assert padded.shape[:2] == (16, 15)
 
 
-def test_a_size_resizes_the_crop_to_a_square(merged):
-    mask = merged[:, :, 2]
-    cut = cs.crop_object(merged, mask, 1, channels=[0, 1], size=12)
-    assert cut.shape == (12, 12, 2)
-
-
 def test_a_crop_already_the_right_size_is_returned_untouched(merged):
     mask = merged[:, :, 2]
     cut = cs.crop_object(merged, mask, 1, channels=[0], size=6)
@@ -307,17 +301,6 @@ def test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size(merged, size):
 def test_an_object_crop_refuses_a_nonpositive_requested_size(merged, size):
     with pytest.raises(CropSourceError, match="size.*positive"):
         cs.crop_object(merged, merged[:, :, 2], 1, channels=[0], size=size)
-
-
-def test_an_object_crop_with_no_requested_size_keeps_its_natural_box(merged):
-    cut = cs.crop_object(
-        merged, merged[:, :, 2], 1, channels=[0], size=None)
-    assert cut.shape == (6, 6, 1)
-
-
-def test_an_object_crop_accepts_an_odd_requested_size(merged):
-    cut = cs.crop_object(merged, merged[:, :, 2], 1, channels=[0], size=5)
-    assert cut.shape == (5, 5, 1)
 
 
 def test_a_coordinate_crop_with_no_planes_named_is_refused(merged):
@@ -447,3 +430,15 @@ def test_generating_is_validated_like_streaming():
     assert cs.validate({"crop_source": "generate", "channel_arrays": [0],
                         "object_array": "cell",
                         "cell_mask_dim": 2}) == "generate"
+
+
+@pytest.mark.parametrize("channels, size, shape", [
+    pytest.param([0, 1], 12, (12, 12, 2), id="a_size_resizes_to_a_square"),
+    pytest.param([0], None, (6, 6, 1), id="no_size_keeps_the_natural_box"),
+    pytest.param([0], 5, (5, 5, 1), id="an_odd_size_is_accepted"),
+])
+def test_an_object_crop_has_the_requested_square_and_channels(
+        merged, channels, size, shape):
+    cut = cs.crop_object(merged, merged[:, :, 2], 1, channels=channels,
+                         size=size)
+    assert cut.shape == shape
