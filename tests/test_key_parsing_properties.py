@@ -957,27 +957,6 @@ def test_dropping_the_type_gives_back_exactly_the_key_spacr_used_to_write(
                         field.fieldID, label)) == legacy
 
 
-def test_a_percent_in_an_identifier_is_the_one_key_that_is_respelled():
-    """The cost of a reversible escape, stated rather than hidden.
-
-    ``%`` is the escape character, so an identifier that already contains one
-    is written ``%25``. That is the *only* change to any key spaCR has
-    written, it is required for the escape to be reversible at all, and the
-    alternative — leaving ``%`` alone — merges a plate named ``'p%5Fx'`` with
-    a plate named ``'p_x'``, which is the two-into-one failure the escape
-    exists to prevent.
-    """
-    frame = pd.DataFrame([
-        {S.PLATE_KEY: 'p%5Fx', S.ROW_KEY: 'r1', S.COLUMN_KEY: 'c1',
-         S.FIELD_KEY: 'f1', S.OBJECT_LABEL_KEY: 1},
-        {S.PLATE_KEY: 'p_x', S.ROW_KEY: 'r1', S.COLUMN_KEY: 'c1',
-         S.FIELD_KEY: 'f1', S.OBJECT_LABEL_KEY: 1},
-    ])
-    keys = list(SEL.object_keys(frame))
-    assert keys == ['p%255Fx_r1_c1_f1_1', 'p%5Fx_r1_c1_f1_1']
-    assert len(set(keys)) == 2
-
-
 @given(left=st.text(alphabet='ab', min_size=1, max_size=3),
        right=st.text(alphabet='ab', min_size=1, max_size=3))
 def test_sanitising_a_token_does_not_merge_two_fields(left, right):

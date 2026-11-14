@@ -15,28 +15,39 @@ from spacr import ml as ML
 # create_volcano_filename
 # ---------------------------------------------------------------------------
 
-def test_create_volcano_filename_regular():
+def case_create_volcano_filename_regular():
+    _seen = []
     out = ML.create_volcano_filename("/a/b/scores.csv", "ols", 0.1, "/dst")
-    assert out.endswith("ols_scores_volcano_plot.pdf")
-    assert out.startswith("/dst")
+    _seen.append(bool(
+        out.endswith("ols_scores_volcano_plot.pdf")))
+    _seen.append(bool(
+        out.startswith("/dst")))
+    return _seen
 
 
-def test_create_volcano_filename_quantile_no_dst():
+def case_create_volcano_filename_quantile_no_dst():
+    _seen = []
     out = ML.create_volcano_filename("/a/b/scores.csv", "quantile", 0.25, None)
-    assert "0.25_scores_volcano_plot.pdf" in out
-    assert out.startswith("/a/b")
+    _seen.append(('0.25_scores_volcano_plot.pdf' if '0.25_scores_volcano_plot.pdf' in (out) else ("missing", '0.25_scores_volcano_plot.pdf')))
+    _seen.append(bool(
+        out.startswith("/a/b")))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
 # scale_variables
 # ---------------------------------------------------------------------------
 
-def test_scale_variables():
+def case_scale_variables():
+    _seen = []
     X = pd.DataFrame({"a": [1.0, 2, 3], "b": [4.0, 5, 6]})
     y = np.array([[0.0], [1.0], [2.0]])
     Xs, ys = ML.scale_variables(X, y)
-    assert Xs.shape == X.shape
-    assert 0.0 <= float(Xs["a"].min()) and float(Xs["a"].max()) <= 1.0
+    _seen.append(bool(
+        Xs.shape == X.shape))
+    _seen.append(bool(
+        0.0 <= float(Xs["a"].min()) and float(Xs["a"].max()) <= 1.0))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -44,23 +55,32 @@ def test_scale_variables():
 # ---------------------------------------------------------------------------
 
 def case_select_glm_family_binomial():
+    _seen = []
     fam = ML.select_glm_family(np.array([0, 1, 0, 1]))
-    assert "Binomial" in type(fam).__name__
+    _seen.append(('Binomial' if 'Binomial' in (type(fam).__name__) else ("missing", 'Binomial')))
+    return _seen
 
 
 def case_select_glm_family_quasibinomial():
+    _seen = []
     fam = ML.select_glm_family(np.array([0.1, 0.5, 0.9]))
-    assert fam is not None
+    _seen.append(bool(
+        fam is not None))
+    return _seen
 
 
 def case_select_glm_family_poisson():
+    _seen = []
     fam = ML.select_glm_family(np.array([1, 2, 3, 10]))
-    assert "Poisson" in type(fam).__name__
+    _seen.append(('Poisson' if 'Poisson' in (type(fam).__name__) else ("missing", 'Poisson')))
+    return _seen
 
 
 def case_select_glm_family_gaussian():
+    _seen = []
     fam = ML.select_glm_family(np.array([-1.5, 2.3, 5.1]))
-    assert "Gaussian" in type(fam).__name__
+    _seen.append(('Gaussian' if 'Gaussian' in (type(fam).__name__) else ("missing", 'Gaussian')))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -68,24 +88,34 @@ def case_select_glm_family_gaussian():
 # ---------------------------------------------------------------------------
 
 def case_check_distribution_binary():
-    assert ML.check_distribution(np.array([0, 1, 0, 1])) == "logit"
+    _seen = []
+    _seen.append(keep(ML.check_distribution(np.array([0, 1, 0, 1]))))
+    return _seen
 
 
 def case_check_distribution_beta():
+    _seen = []
     rng = np.random.default_rng(0)
     y = rng.uniform(0.2, 0.8, 100)
-    assert ML.check_distribution(y) in ("beta", "quasi_binomial", "glm", "ols")
+    _seen.append(bool(
+        ML.check_distribution(y) in ("beta", "quasi_binomial", "glm", "ols")))
+    return _seen
 
 
 def case_check_distribution_boundary_quasibinomial():
+    _seen = []
     y = np.array([0.0, 0.5, 1.0, 0.5])
-    assert ML.check_distribution(y) == "quasi_binomial"
+    _seen.append(keep(ML.check_distribution(y)))
+    return _seen
 
 
 def case_check_distribution_normal_ols():
+    _seen = []
     rng = np.random.default_rng(1)
     y = rng.normal(10, 2, 200)
-    assert ML.check_distribution(y) in ("ols", "glm")
+    _seen.append(bool(
+        ML.check_distribution(y) in ("ols", "glm")))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -93,27 +123,36 @@ def case_check_distribution_normal_ols():
 # ---------------------------------------------------------------------------
 
 def case_pick_glm_binary():
+    _seen = []
     fam = ML.pick_glm_family_and_link(np.array([0, 1, 1, 0]))
-    assert "Binomial" in type(fam).__name__
+    _seen.append(('Binomial' if 'Binomial' in (type(fam).__name__) else ("missing", 'Binomial')))
+    return _seen
 
 
 def case_pick_glm_strict_0_1_is_binomial_not_a_refusal():
     # Was "raises ValueError: Use BetaModel"; a proportion is a binomial mean
     # and the neighbouring branch already fitted it as one.
+    _seen = []
     fam = ML.pick_glm_family_and_link(np.array([0.2, 0.5, 0.8]))
-    assert "Binomial" in type(fam).__name__
+    _seen.append(('Binomial' if 'Binomial' in (type(fam).__name__) else ("missing", 'Binomial')))
+    return _seen
 
 
 def case_pick_glm_count_poisson():
     # Non-normal count data → Poisson.
+    _seen = []
     fam = ML.pick_glm_family_and_link(np.array([1, 2, 3, 4, 100, 2, 3]))
-    assert fam is not None
+    _seen.append(bool(
+        fam is not None))
+    return _seen
 
 
 def case_pick_glm_gaussian_normal():
+    _seen = []
     rng = np.random.default_rng(2)
     fam = ML.pick_glm_family_and_link(rng.normal(5, 1, 300))
-    assert "Gaussian" in type(fam).__name__
+    _seen.append(('Gaussian' if 'Gaussian' in (type(fam).__name__) else ("missing", 'Gaussian')))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -134,12 +173,18 @@ def test_apply_transformation(t):
 # ---------------------------------------------------------------------------
 
 def case_check_normality_true(capsys):
+    _seen = []
     rng = np.random.default_rng(3)
-    assert ML.check_normality(rng.normal(0, 1, 100), "x", verbose=True) in (True, False)
+    _seen.append(bool(
+        ML.check_normality(rng.normal(0, 1, 100), "x", verbose=True) in (True, False)))
+    return _seen
 
 
 def case_check_normality_false():
-    assert ML.check_normality([0, 0, 0, 0, 100], "y") in (True, False)
+    _seen = []
+    _seen.append(bool(
+        ML.check_normality([0, 0, 0, 0, 100], "y") in (True, False)))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -147,15 +192,19 @@ def case_check_normality_false():
 # ---------------------------------------------------------------------------
 
 def case_clean_controls_removes_values():
+    _seen = []
     df = pd.DataFrame({"col": ["a", "b", "c", "a"], "v": [1, 2, 3, 4]})
     out = ML.clean_controls(df, ["a"], "col")
-    assert "a" not in out["col"].values
+    _seen.append((("absent", 'a') if 'a' not in (out["col"].values) else ("present", 'a')))
+    return _seen
 
 
 def case_clean_controls_missing_column_noop():
+    _seen = []
     df = pd.DataFrame({"x": [1, 2]})
     out = ML.clean_controls(df, ["a"], "nonexistent")
-    assert len(out) == 2
+    _seen.append(keep(len(out)))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -163,10 +212,13 @@ def case_clean_controls_missing_column_noop():
 # ---------------------------------------------------------------------------
 
 def case_find_optimal_threshold():
+    _seen = []
     y_true = np.array([0, 0, 1, 1, 1])
     y_proba = np.array([0.1, 0.4, 0.35, 0.8, 0.9])
     t = ML.find_optimal_threshold(y_true, y_proba)
-    assert 0.0 <= float(t) <= 1.0
+    _seen.append(bool(
+        0.0 <= float(t) <= 1.0))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -176,14 +228,18 @@ def case_find_optimal_threshold():
 def case_prepare_formula_variants():
     # False → rowID/columnID as FIXED effects; True → they become
     # random effects (handled separately) so they drop from the formula.
+    _seen = []
     fixed = ML.prepare_formula("recruitment", random_row_column_effects=False)
     random = ML.prepare_formula("recruitment", random_row_column_effects=True)
-    assert "recruitment ~" in fixed
-    assert "rowID" in fixed and "columnID" in fixed
-    assert "rowID" not in random
+    _seen.append(('recruitment ~' if 'recruitment ~' in (fixed) else ("missing", 'recruitment ~')))
+    _seen.append(bool(
+        "rowID" in fixed and "columnID" in fixed))
+    _seen.append((("absent", 'rowID') if 'rowID' not in (random) else ("present", 'rowID')))
+    return _seen
 
 
 def case_save_summary_to_file(tmp_path):
+    _seen = []
     import statsmodels.api as sm
     rng = np.random.default_rng(4)
     x = rng.normal(0, 1, 50)
@@ -192,38 +248,39 @@ def case_save_summary_to_file(tmp_path):
     model = sm.OLS(y, X).fit()
     out = tmp_path / "summary.csv"
     ML.save_summary_to_file(model, file_path=str(out))
-    assert out.exists()
+    _seen.append(bool(
+        out.exists()))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_select_glm_family_cases(request, subtests):
-    """Behaviour cases for: find_optimal_threshold, pick_glm_family_and_link, save_summary_to_file, select_glm_family."""
-    ran = run_cases(request, subtests, [
-        case_select_glm_family_binomial,
-        case_select_glm_family_quasibinomial,
-        case_select_glm_family_poisson,
-        case_select_glm_family_gaussian,
-        case_pick_glm_binary,
-        case_pick_glm_strict_0_1_is_binomial_not_a_refusal,
-        case_pick_glm_count_poisson,
-        case_pick_glm_gaussian_normal,
-        case_find_optimal_threshold,
-        case_save_summary_to_file,
-    ])
-    assert ran >= 10
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_select_glm_family_binomial, ['Binomial'], id="select_glm_family_binomial"),
+    pytest.param(case_select_glm_family_quasibinomial, [True], id="select_glm_family_quasibinomial"),
+    pytest.param(case_select_glm_family_poisson, ['Poisson'], id="select_glm_family_poisson"),
+    pytest.param(case_select_glm_family_gaussian, ['Gaussian'], id="select_glm_family_gaussian"),
+    pytest.param(case_pick_glm_binary, ['Binomial'], id="pick_glm_binary"),
+    pytest.param(case_pick_glm_strict_0_1_is_binomial_not_a_refusal, ['Binomial'], id="pick_glm_strict_0_1_is_binomial_not_a_refusal"),
+    pytest.param(case_pick_glm_count_poisson, [True], id="pick_glm_count_poisson"),
+    pytest.param(case_pick_glm_gaussian_normal, ['Gaussian'], id="pick_glm_gaussian_normal"),
+    pytest.param(case_find_optimal_threshold, [True], id="find_optimal_threshold"),
+    pytest.param(case_save_summary_to_file, [True], id="save_summary_to_file"),
+    pytest.param(case_check_distribution_binary, ['logit'], id="check_distribution_binary"),
+    pytest.param(case_check_distribution_beta, [True], id="check_distribution_beta"),
+    pytest.param(case_check_distribution_boundary_quasibinomial, ['quasi_binomial'], id="check_distribution_boundary_quasibinomial"),
+    pytest.param(case_check_distribution_normal_ols, [True], id="check_distribution_normal_ols"),
+    pytest.param(case_check_normality_true, [True], id="check_normality_true"),
+    pytest.param(case_check_normality_false, [True], id="check_normality_false"),
+    pytest.param(case_clean_controls_removes_values, [("absent", 'a')], id="clean_controls_removes_values"),
+    pytest.param(case_clean_controls_missing_column_noop, [2], id="clean_controls_missing_column_noop"),
+    pytest.param(case_prepare_formula_variants, ['recruitment ~', True, ("absent", 'rowID')], id="prepare_formula_variants"),
+    pytest.param(case_create_volcano_filename_regular, [True, True], id="create_volcano_filename_regular"),
+    pytest.param(case_create_volcano_filename_quantile_no_dst, ['0.25_scores_volcano_plot.pdf', True], id="create_volcano_filename_quantile_no_dst"),
+    pytest.param(case_scale_variables, [True, True], id="scale_variables"),
+])
+def test_fill_ml_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected
 
-def test_check_distribution_cases(request, subtests):
-    """Behaviour cases for: check_distribution, check_normality, clean_controls, prepare_formula."""
-    ran = run_cases(request, subtests, [
-        case_check_distribution_binary,
-        case_check_distribution_beta,
-        case_check_distribution_boundary_quasibinomial,
-        case_check_distribution_normal_ols,
-        case_check_normality_true,
-        case_check_normality_false,
-        case_clean_controls_removes_values,
-        case_clean_controls_missing_column_noop,
-        case_prepare_formula_variants,
-    ])
-    assert ran >= 9

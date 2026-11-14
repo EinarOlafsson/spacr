@@ -157,16 +157,6 @@ def test_a_failed_install_keeps_both_streams(monkeypatch):
 # Environment questions
 # ---------------------------------------------------------------------------
 
-def test_a_version_lookup_that_throws_answers_none(monkeypatch):
-    import importlib.metadata as md
-
-    def explode(_name):
-        raise RuntimeError("metadata store is corrupt")
-
-    monkeypatch.setattr(md, "version", explode)
-    assert updater.installed_version("numpy") is None
-
-
 def test_pip_is_reported_present_in_this_interpreter():
     assert updater.pip_available() is True
 

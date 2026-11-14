@@ -15,46 +15,32 @@ from spacr.refit import _first_usable_count_path
 class TestChoosingACountPath:
     """`count_data` may be one path, several, or nothing usable."""
 
-    def test_a_single_path_is_taken(self):
+    @pytest.mark.parametrize("count_data, expected", [
+        pytest.param("/tmp/counts.csv", "/tmp/counts.csv",
+                     id="a-single-path-is-taken"),
+        pytest.param(["/tmp/a.csv", "/tmp/b.csv"], "/tmp/a.csv",
+                     id="the-first-usable-of-several-is-taken"),
+        # THE LOOP'S SECOND PASS. A settings form that offers several count
+        # slots leaves the unused ones empty, so the list arriving here
+        # routinely starts with blanks.
+        pytest.param(["", None, "   ", "/tmp/real.csv"], "/tmp/real.csv",
+                     id="empty-entries-are-skipped-to-reach-a-real-one"),
+        # A path pasted with a trailing newline is still that path.
+        pytest.param("  /tmp/counts.csv \n", "/tmp/counts.csv",
+                     id="a-path-is-stripped-before-it-is-judged"),
+        # `os.fspath` raises TypeError on an int or a dict; skipping it lets
+        # a later entry answer rather than failing the whole refit.
+        pytest.param([42, {"a": 1}, "/tmp/real.csv"], "/tmp/real.csv",
+                     id="an-entry-that-is-not-path-like-is-skipped"),
+    ])
+    def test_the_first_usable_count_path_is_taken(self, count_data, expected):
         assert _first_usable_count_path(
-            {"count_data": "/tmp/counts.csv"}) == "/tmp/counts.csv"
-
-    def test_the_first_usable_of_several_is_taken(self):
-        assert _first_usable_count_path(
-            {"count_data": ["/tmp/a.csv", "/tmp/b.csv"]}) == "/tmp/a.csv"
-
-    def test_empty_entries_are_skipped_to_reach_a_real_one(self):
-        """THE LOOP'S SECOND PASS.
-
-        A settings form that offers several count slots leaves the
-        unused ones empty, so the list arriving here routinely starts
-        with blanks. Stopping at the first entry would find nothing.
-        """
-        assert _first_usable_count_path(
-            {"count_data": ["", None, "   ", "/tmp/real.csv"]}
-        ) == "/tmp/real.csv"
+            {"count_data": count_data}) == expected
 
     def test_nothing_usable_answers_none(self):
         assert _first_usable_count_path({"count_data": ["", None]}) is None
         assert _first_usable_count_path({"count_data": []}) is None
         assert _first_usable_count_path({}) is None
-
-    def test_a_path_is_stripped_before_it_is_judged(self):
-        """A path pasted with a trailing newline is still that path."""
-        assert _first_usable_count_path(
-            {"count_data": "  /tmp/counts.csv \n"}) == "/tmp/counts.csv"
-
-    def test_an_entry_that_is_not_path_like_is_skipped(self):
-        """THE UNCOVERED GUARD.
-
-        `os.fspath` raises TypeError on an int, a dict, or anything else
-        a settings file can contain by mistake. Skipping it lets a later
-        entry answer, rather than failing the whole refit over one bad
-        cell.
-        """
-        assert _first_usable_count_path(
-            {"count_data": [42, {"a": 1}, "/tmp/real.csv"]}
-        ) == "/tmp/real.csv"
 
     def test_only_bad_entries_answer_none_rather_than_raising(self):
         assert _first_usable_count_path({"count_data": [42, object()]}) is None
