@@ -122,11 +122,22 @@ class TestStampingTheVerdict:
 
 class TestTheHouseStyle:
 
-    def test_an_axis_is_titled_and_labelled(self, axis):
-        RD._house(axis, title="Residuals", xlabel="fitted", ylabel="resid")
-        assert axis.get_title() == "Residuals"
-        assert axis.get_xlabel() == "fitted"
-        assert axis.get_ylabel() == "resid"
+    @pytest.mark.parametrize("labels, expected", [
+        pytest.param({"title": "Residuals", "xlabel": "fitted",
+                      "ylabel": "resid"},
+                     ("Residuals", "fitted", "resid"), id="labels-are-worn"),
+        pytest.param({"title": "T", "xlabel": "X", "ylabel": "Y"},
+                     ("T", "X", "Y"), id="short-labels-are-worn"),
+        # Setting an empty title would not be harmless: matplotlib reserves
+        # the space for it, and four panels each reserving a blank title
+        # band is the difference between a tight figure and a loose one.
+        pytest.param({}, ("", "", ""), id="no-labels-sets-none"),
+    ])
+    def test_an_axis_is_titled_and_labelled_only_as_asked(self, axis, labels,
+                                                          expected):
+        RD._house(axis, **labels)
+        assert (axis.get_title(), axis.get_xlabel(),
+                axis.get_ylabel()) == expected
 
     def test_no_gridlines_ever(self, axis):
         """`grid(False)` is explicit because a caller with a grid-on

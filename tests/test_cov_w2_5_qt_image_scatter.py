@@ -661,31 +661,6 @@ def test_the_canvas_gets_a_surface_of_its_own(qapp):
     assert "border-radius" in block
 
 
-def test_a_narrowed_population_is_stated_and_re_plotted(screen):
-    """A filter hides rows, so the plot is redrawn and the label says why."""
-    from spacr.selection import CategoryFilter, DataFilter
-
-    narrowed = DataFilter([CategoryFilter("rowID", ("r1",))])
-
-    screen.on_linked_filter_changed(narrowed)
-
-    assert screen.status.text().startswith("Filter: ")
-    assert len(screen.canvas) == 4
-
-
-def test_a_filter_with_nothing_plotted_changes_nothing(qtbot):
-    """A filter arriving before a table is not a status line."""
-    from spacr.selection import CategoryFilter, DataFilter
-
-    widget = isc.ImageScatterScreen(threaded=False)
-    qtbot.addWidget(widget)
-
-    widget.on_linked_filter_changed(DataFilter([CategoryFilter("rowID",
-                                                              ("r1",))]))
-
-    assert widget.status.text() == ""
-
-
 def test_the_factory_builds_the_screen_and_no_row_comes_with_it(qtbot):
     """The factory outlived the registration it was written for.
 

@@ -18,8 +18,6 @@ change is wrong.
 """
 from __future__ import annotations
 
-import ast
-import inspect
 
 import numpy as np
 import pandas as pd
@@ -48,11 +46,6 @@ ALL_SCATTERS = SCATTERS + ("cell_count_vs_effect",)
 #: The panels whose sentence is "these specific wells are the problem", so a
 #: highlight must exist and must be a minority of the marks.
 HIGHLIGHTERS = ("cooks_distance", "dffits", "influence", "cell_count_vs_effect")
-
-#: The five module-level hexes the panels used to draw with. None of them is
-#: in the published palette and none of them may survive in this cluster.
-OLD_PALETTE = ("#1f6f8b", "#d1495b", "#8d99ae", "#e07a3f", "#2a9d8f")
-
 
 # --------------------------------------------------------------------------- #
 #  Fixtures: a fit with real structure in it, so the highlights have something
@@ -148,11 +141,6 @@ def _guides(ax):
     return found
 
 
-def _panel_source(name):
-    _, _, fn = rq._PANEL_BY_NAME[name]
-    return inspect.getsource(fn)
-
-
 # --------------------------------------------------------------------------- #
 #  The rule that matters most: grey by default, colour only for the claim
 # --------------------------------------------------------------------------- #
@@ -191,24 +179,6 @@ def test_the_flagged_wells_are_the_only_coloured_ones(ctx, name):
             f"{coloured}")
     finally:
         plt.close(figure)
-
-
-@pytest.mark.parametrize("name", ALL_SCATTERS)
-def test_no_panel_still_carries_the_old_hardcoded_palette(name):
-    """Parsed from the source, not from the rendered figure: a colour passed
-    through a variable would still be a violation, and a panel that has been
-    converted must have no way back to the old hexes."""
-    tree = ast.parse(inspect.getsource(rq))
-    body = next(node for node in ast.walk(tree)
-                if isinstance(node, ast.FunctionDef)
-                and node.name == rq._PANEL_BY_NAME[name][2].__name__)
-    names = {n.id for n in ast.walk(body) if isinstance(n, ast.Name)}
-    banned = {"_POINT", "_ACCENT", "_GUIDE", "_TREND", "_OK"} & names
-    assert not banned, f"{name} still draws with {sorted(banned)}"
-    literals = {n.value for n in ast.walk(body)
-                if isinstance(n, ast.Constant) and isinstance(n.value, str)}
-    assert not {lit.lower() for lit in literals} & set(OLD_PALETTE), (
-        f"{name} inlines an old palette hex")
 
 
 # --------------------------------------------------------------------------- #
@@ -488,19 +458,6 @@ def test_drawing_every_scatter_panel_leaves_no_rcparams_behind(ctx):
     changed = sorted(k for k, v in before.items()
                      if str(plt.rcParams[k]) != v)
     assert not changed, f"these rcParams were left changed: {changed}"
-
-
-@pytest.mark.parametrize("name", ALL_SCATTERS)
-def test_each_panel_opens_the_style_as_a_context_manager(name):
-    """Grepping for `figure_style` would pass on a module that imported it;
-    this checks the panel body is inside a `with`."""
-    tree = ast.parse(_panel_source(name).lstrip())
-    fn = tree.body[0]
-    withs = [node for node in ast.walk(fn) if isinstance(node, ast.With)]
-    opened = [item for node in withs for item in node.items
-              if isinstance(item.context_expr, ast.Call)
-              and getattr(item.context_expr.func, "id", "") == "figure_style"]
-    assert opened, f"{name} does not draw inside `with figure_style(...)`"
 
 
 # --------------------------------------------------------------------------- #

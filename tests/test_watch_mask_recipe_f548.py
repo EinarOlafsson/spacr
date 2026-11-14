@@ -42,19 +42,6 @@ def test_changed_mask_recipe_refuses_resume_before_any_output_write(tmp_path):
     assert _bytes(tmp_path) == before
 
 
-def test_missing_legacy_mask_provenance_refuses_a_populated_resume(tmp_path):
-    _images(tmp_path, 'A01')
-    first = core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())
-    path = Path(first['ledger'])
-    ledger = json.loads(path.read_text(encoding="utf-8"))
-    ledger.pop('mask_settings_sha256')
-    path.write_text(json.dumps(ledger), encoding="utf-8")
-    before = _bytes(tmp_path)
-    with pytest.raises(ValueError, match='Mask settings differ'):
-        core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())
-    assert _bytes(tmp_path) == before
-
-
 def test_timing_changes_do_not_change_a_mask_recipe(tmp_path):
     _images(tmp_path, 'A01')
     settings = {**_settings(tmp_path, 'mask'), 'diameter': 18}

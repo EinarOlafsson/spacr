@@ -163,6 +163,7 @@ def _ml_settings(src, **over):
 def case_generate_ml_scores_writes_every_artifact_and_updates_png_list(tmp_path, rng):
     """The full DB -> model -> results/ path: 10-tuple + heatmap returned,
     all CSV/PDF artifacts on disk, and the scores back on png_list."""
+    _seen = []
     from spacr.ml import generate_ml_scores
 
     src = _make_src(tmp_path, "plate1", rng)
@@ -170,15 +171,20 @@ def case_generate_ml_scores_writes_every_artifact_and_updates_png_list(tmp_path,
     output, plate_heatmap = generate_ml_scores(settings)
 
     # --- returned objects
-    assert isinstance(plate_heatmap, matplotlib.figure.Figure)
-    assert len(output) == 10
+    _seen.append(bool(
+        isinstance(plate_heatmap, matplotlib.figure.Figure)))
+    _seen.append(keep(len(output)))
     scored_df, permutation_df, feature_importance_df = output[0], output[1], output[2]
-    assert len(scored_df) == N_OBJ
-    assert {"predictions", "prcfo", "prc", "data_usage"}.issubset(scored_df.columns)
-    assert set(scored_df["predictions"].unique()).issubset({0, 1})
+    _seen.append(bool(
+        len(scored_df) == N_OBJ))
+    _seen.append(bool(
+        {"predictions", "prcfo", "prc", "data_usage"}.issubset(scored_df.columns)))
+    _seen.append(bool(
+        set(scored_df["predictions"].unique()).issubset({0, 1})))
     # only channel-1 features survive filter_dataframe_features
     features = output[9]
-    assert features and all("channel_1" in f for f in features)
+    _seen.append(bool(
+        features and all("channel_1" in f for f in features)))
 
     # --- artifacts on disk
     res = os.path.join(src, "results", "random_forest", "channel_1")
@@ -189,13 +195,18 @@ def case_generate_ml_scores_writes_every_artifact_and_updates_png_list(tmp_path,
         assert os.path.getsize(os.path.join(res, name)) > 0, name
 
     written = pd.read_csv(os.path.join(res, "results.csv"))
-    assert len(written) == N_OBJ
-    assert "predictions" in written.columns
-    assert pd.read_csv(os.path.join(res, "ml_features.csv"))["feature"].tolist() == features
-    assert len(pd.read_csv(os.path.join(res, "permutation.csv"))) == len(permutation_df)
-    assert len(pd.read_csv(os.path.join(res, "feature_importance.csv"))) == len(feature_importance_df)
+    _seen.append(bool(
+        len(written) == N_OBJ))
+    _seen.append(('predictions' if 'predictions' in (written.columns) else ("missing", 'predictions')))
+    _seen.append(bool(
+        pd.read_csv(os.path.join(res, "ml_features.csv"))["feature"].tolist() == features))
+    _seen.append(bool(
+        len(pd.read_csv(os.path.join(res, "permutation.csv"))) == len(permutation_df)))
+    _seen.append(bool(
+        len(pd.read_csv(os.path.join(res, "feature_importance.csv"))) == len(feature_importance_df)))
     # the settings snapshot for a str src (not the *_list variant)
-    assert os.path.isfile(os.path.join(src, "settings", "generate_ml_scores.csv"))
+    _seen.append(bool(
+        os.path.isfile(os.path.join(src, "settings", "generate_ml_scores.csv"))))
 
     # --- the scores are back on png_list, on the right row
     #
@@ -209,8 +220,9 @@ def case_generate_ml_scores_writes_every_artifact_and_updates_png_list(tmp_path,
     # of appending a 'predictions_1' sibling. ml_pred is new: it carries the
     # probability, which the ML stage never stored at all, namespaced so a
     # later CV run writing 'pred' cannot overwrite it.
-    assert settings["csv_path"] == os.path.join(res, "results.csv")
-    assert settings["table_name"] == "png_list"
+    _seen.append(bool(
+        settings["csv_path"] == os.path.join(res, "results.csv")))
+    _seen.append(keep(settings["table_name"]))
     con = sqlite3.connect(os.path.join(src, "measurements", "measurements.db"))
     try:
         png_back = pd.read_sql_query(
@@ -218,21 +230,29 @@ def case_generate_ml_scores_writes_every_artifact_and_updates_png_list(tmp_path,
         names = [r[1] for r in con.execute("PRAGMA table_info(png_list)")]
     finally:
         con.close()
-    assert len(png_back) == N_OBJ
-    assert png_back["predictions"].notna().all()
-    assert png_back["ml_pred"].notna().all()
-    assert set(png_back["predictions"].unique()).issubset({0, 1})
-    assert names.count("predictions") == 1
-    assert not [n for n in names if n.startswith("predictions_")]
+    _seen.append(bool(
+        len(png_back) == N_OBJ))
+    _seen.append(bool(
+        png_back["predictions"].notna().all()))
+    _seen.append(bool(
+        png_back["ml_pred"].notna().all()))
+    _seen.append(bool(
+        set(png_back["predictions"].unique()).issubset({0, 1})))
+    _seen.append(keep(names.count("predictions")))
+    _seen.append(bool(
+        not [n for n in names if n.startswith("predictions_")]))
     # every object got *its own* score, matched on prcfo
     by_prcfo = dict(zip(png_back["prcfo"], png_back["predictions"]))
-    assert by_prcfo == dict(zip(scored_df["prcfo"], scored_df["predictions"]))
+    _seen.append(bool(
+        by_prcfo == dict(zip(scored_df["prcfo"], scored_df["predictions"]))))
+    return _seen
 
 
-def test_classify_flowview_matches_run_journal_and_database(
+def case_classify_flowview_matches_run_journal_and_database(
     tmp_path, rng, monkeypatch
 ):
     """The public ML adapter leaves one reconciled graph and run record."""
+    _seen = []
     from spacr import flowview, run_journal
     from spacr.checkpoint import fingerprint
     from spacr.classify import classify
@@ -259,20 +279,25 @@ def test_classify_flowview_matches_run_journal_and_database(
         if not previous_enabled:
             flowview.disable()
 
-    assert len(result[0][0]) == N_OBJ
-    assert graph.settings_digest == fingerprint(settings)
-    assert tuple(graph.nodes) == CLASSIFY_NODE_IDS
-    assert all(
+    _seen.append(bool(
+        len(result[0][0]) == N_OBJ))
+    _seen.append(bool(
+        graph.settings_digest == fingerprint(settings)))
+    _seen.append(bool(
+        tuple(graph.nodes) == CLASSIFY_NODE_IDS))
+    _seen.append(bool(
+        all(
         node.state is NodeState.DONE for node in graph.nodes.values()
-    )
+    )))
 
     manifest = json.loads(
         (run.dir / "manifest.json").read_text(encoding="utf-8")
     )
-    assert manifest["schema_version"] == 3
-    assert [stage["id"] for stage in manifest["stages"]] == list(
+    _seen.append(keep(manifest["schema_version"]))
+    _seen.append(bool(
+        [stage["id"] for stage in manifest["stages"]] == list(
         CLASSIFY_NODE_IDS
-    )
+    )))
     evidence_by_id = {
         stage["id"]: stage for stage in manifest["stages"]
     }
@@ -285,28 +310,31 @@ def test_classify_flowview_matches_run_journal_and_database(
         assert evidence["duration_s"] == node.ended_at - node.started_at
         assert evidence["metrics"] == node.metrics
 
-    assert graph.nodes["source"].metrics == {"sources": 1}
-    assert graph.nodes["tables"].metrics == {
+    _seen.append(keep(graph.nodes["source"].metrics))
+    _seen.append(bool(
+        graph.nodes["tables"].metrics == {
         "objects": N_OBJ,
         "databases": 1,
         "tables": 4,
-    }
-    assert graph.nodes["dataset"].metrics["objects"] == N_OBJ
-    assert graph.nodes["dataset"].metrics["training_objects"] == 32
+    }))
+    _seen.append(bool(
+        graph.nodes["dataset"].metrics["objects"] == N_OBJ))
+    _seen.append(keep(graph.nodes["dataset"].metrics["training_objects"]))
     split_metrics = graph.nodes["split"].metrics
-    assert split_metrics["objects"] == 32
-    assert (
+    _seen.append(keep(split_metrics["objects"]))
+    _seen.append(bool(
         split_metrics["train_objects"] + split_metrics["test_objects"]
-        == split_metrics["objects"]
-    )
-    assert graph.nodes["training"].metrics["objects"] == 32
-    assert graph.nodes["evaluation"].metrics["objects"] == N_OBJ
-    assert graph.nodes["scores"].metrics == {
+        == split_metrics["objects"]))
+    _seen.append(keep(graph.nodes["training"].metrics["objects"]))
+    _seen.append(bool(
+        graph.nodes["evaluation"].metrics["objects"] == N_OBJ))
+    _seen.append(bool(
+        graph.nodes["scores"].metrics == {
         "objects": N_OBJ,
         "matched_objects": N_OBJ,
         "unmatched_objects": 0,
         "databases": 1,
-    }
+    }))
 
     with sqlite3.connect(
         os.path.join(src, "measurements", "measurements.db")
@@ -315,7 +343,8 @@ def test_classify_flowview_matches_run_journal_and_database(
             "SELECT COUNT(*) FROM png_list "
             "WHERE predictions IS NOT NULL AND ml_pred IS NOT NULL"
         ).fetchone()[0]
-    assert written == graph.nodes["scores"].metrics["matched_objects"]
+    _seen.append(bool(
+        written == graph.nodes["scores"].metrics["matched_objects"]))
 
     log_text = (run.dir / "log.txt").read_text(encoding="utf-8")
     for stage in manifest["stages"]:
@@ -327,6 +356,7 @@ def test_classify_flowview_matches_run_journal_and_database(
             stage["metrics"], sort_keys=True, separators=(",", ":")
         )
         assert f"metrics={encoded_metrics}" in log_text
+    return _seen
 
 
 def case_generate_ml_scores_refuses_to_invent_a_second_annotation_class(
@@ -338,6 +368,7 @@ def case_generate_ml_scores_refuses_to_invent_a_second_annotation_class(
     meaningless. Unknown objects are for scoring after two real classes have
     been annotated, not a source of synthetic controls.
     """
+    _seen = []
     from spacr.ml import generate_ml_scores
 
     # 12 of the 48 objects annotated with 1.0, the rest NaN.
@@ -347,36 +378,43 @@ def case_generate_ml_scores_refuses_to_invent_a_second_annotation_class(
     settings = _ml_settings(src, annotation_column="test")
     with pytest.raises(ValueError) as excinfo:
         generate_ml_scores(settings)
+    _seen.append(('ValueError' if isinstance(excinfo.value, ValueError) else type(excinfo.value).__name__))
 
     message = str(excinfo.value)
-    assert "only one observed class" in message
-    assert "12 labelled object rows" in message
-    assert "Annotate objects in a second class" in message
-    assert "will not assign them a training label" in message
-    assert settings["location_column"] == "columnID"
-    assert settings["positive_control_id"] == "c2"
-    assert settings["negative_control_id"] == "c1"
+    _seen.append(('only one observed class' if 'only one observed class' in (message) else ("missing", 'only one observed class')))
+    _seen.append(('12 labelled object rows' if '12 labelled object rows' in (message) else ("missing", '12 labelled object rows')))
+    _seen.append(('Annotate objects in a second class' if 'Annotate objects in a second class' in (message) else ("missing", 'Annotate objects in a second class')))
+    _seen.append(('will not assign them a training label' if 'will not assign them a training label' in (message) else ("missing", 'will not assign them a training label')))
+    _seen.append(keep(settings["location_column"]))
+    _seen.append(keep(settings["positive_control_id"]))
+    _seen.append(keep(settings["negative_control_id"]))
+    return _seen
 
 
 def case_generate_ml_scores_names_an_annotation_column_with_no_labels(
         tmp_path, rng):
     """An empty label column fails before control matching or sklearn."""
+    _seen = []
     from spacr.ml import generate_ml_scores
 
     src = _make_src(
         tmp_path, "plate_annot_empty", rng, annotation=[None] * N_OBJ)
     with pytest.raises(ValueError) as excinfo:
         generate_ml_scores(_ml_settings(src, annotation_column="test"))
+    _seen.append(('ValueError' if isinstance(excinfo.value, ValueError) else type(excinfo.value).__name__))
 
     message = str(excinfo.value)
-    assert "annotation_column='test'" in message
-    assert f"0 non-empty labels across {N_OBJ} joined object rows" in message
-    assert "n_samples=0" not in message
+    _seen.append(("annotation_column='test'" if "annotation_column='test'" in (message) else ("missing", "annotation_column='test'")))
+    _seen.append(bool(
+        f"0 non-empty labels across {N_OBJ} joined object rows" in message))
+    _seen.append((("absent", 'n_samples=0') if 'n_samples=0' not in (message) else ("present", 'n_samples=0')))
+    return _seen
 
 
 def case_generate_ml_scores_annotation_column_autoselects_controls(tmp_path, rng):
     """Two annotated classes with no controls configured: positive/negative
     control are auto-derived from the unique annotation values."""
+    _seen = []
     from spacr.ml import generate_ml_scores
 
     annotation = [float(i % 2) for i in range(N_OBJ)]
@@ -385,40 +423,50 @@ def case_generate_ml_scores_annotation_column_autoselects_controls(tmp_path, rng
                             positive_control=None, negative_control=None)
     output, _ = generate_ml_scores(settings)
 
-    assert settings["positive_control_id"] == "0.0"
-    assert settings["negative_control_id"] == "1.0"
+    _seen.append(keep(settings["positive_control_id"]))
+    _seen.append(keep(settings["negative_control_id"]))
     # every row is a control here, so nothing is left unused
-    assert "not_used" not in set(output[0]["data_usage"].unique())
-    assert len(output[0]) == N_OBJ
+    _seen.append((("absent", 'not_used') if 'not_used' not in (set(output[0]["data_usage"].unique())) else ("present", 'not_used')))
+    _seen.append(bool(
+        len(output[0]) == N_OBJ))
+    return _seen
 
 
 def case_generate_ml_scores_annotation_column_missing_raises(tmp_path, rng):
     """A png_list without the requested annotation column is a hard error."""
+    _seen = []
     from spacr.ml import generate_ml_scores
 
     src = _make_src(tmp_path, "plate_annot3", rng, annotation=None)
-    with pytest.raises(ValueError, match="prcfo"):
+    with pytest.raises(ValueError, match="prcfo") as _exc1:
         generate_ml_scores(_ml_settings(src, annotation_column="test"))
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_generate_ml_scores_unknown_heatmap_feature_raises(tmp_path, rng):
     """heatmap_feature must name a numeric column of the scored frame."""
+    _seen = []
     from spacr.ml import generate_ml_scores
 
     src = _make_src(tmp_path, "plate_heat", rng)
-    with pytest.raises(ValueError, match="not_a_feature"):
+    with pytest.raises(ValueError, match="not_a_feature") as _exc1:
         generate_ml_scores(_ml_settings(src, heatmap_feature="not_a_feature"))
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_generate_ml_scores_survives_missing_pathogen_channel_column(tmp_path, rng):
     """recruitment must be skipped (not crash) when the pathogen intensity
     column is absent while the cytoplasm one is present."""
+    _seen = []
     from spacr.ml import generate_ml_scores
 
     src = _make_src(tmp_path, "plate_norec", rng,
                     drop_columns=("pathogen_channel_1_mean_intensity",))
     output, _ = generate_ml_scores(_ml_settings(src))
-    assert "predictions" in output[0].columns
+    _seen.append(('predictions' if 'predictions' in (output[0].columns) else ("missing", 'predictions')))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -457,6 +505,7 @@ def case_ml_analysis_prunes_features_and_drops_cells_per_well(capsys, rng):
     """verbose + prune_features + a model that exposes feature_importances_:
     SelectKBest caps the feature space, cells_per_well is dropped and both
     figures are produced."""
+    _seen = []
     import spacr.ml as ML
 
     df = _feature_df()
@@ -469,24 +518,30 @@ def case_ml_analysis_prunes_features_and_drops_cells_per_well(capsys, rng):
     scored_df, permutation_df, feature_importance_df = output[0], output[1], output[2]
     features = output[9]
     # SelectKBest kept exactly k features, all from the original space
-    assert len(features) == 4
-    assert set(features).issubset(set(FEATURES))
-    assert list(output[4].columns) == features        # X_train
+    _seen.append(keep(len(features)))
+    _seen.append(bool(
+        set(features).issubset(set(FEATURES))))
+    _seen.append(bool(
+        list(output[4].columns) == features))
     # the metadata column never reaches the model
-    assert "cells_per_well" not in scored_df.columns
-    assert len(permutation_df) == 4
-    assert len(feature_importance_df) == 4
-    assert type(output[3]).__name__ == "ExtraTreesClassifier"
-    assert isinstance(figs[0], matplotlib.figure.Figure)
-    assert isinstance(figs[1], matplotlib.figure.Figure)
+    _seen.append((("absent", 'cells_per_well') if 'cells_per_well' not in (scored_df.columns) else ("present", 'cells_per_well')))
+    _seen.append(keep(len(permutation_df)))
+    _seen.append(keep(len(feature_importance_df)))
+    _seen.append(keep(type(output[3]).__name__))
+    _seen.append(bool(
+        isinstance(figs[0], matplotlib.figure.Figure)))
+    _seen.append(bool(
+        isinstance(figs[1], matplotlib.figure.Figure)))
     out = capsys.readouterr().out
-    assert "Removed 2 features using SelectKBest" in out
-    assert "Optimal threshold:" in out
-    assert "Classification Report:" in out
+    _seen.append(('Removed 2 features using SelectKBest' if 'Removed 2 features using SelectKBest' in (out) else ("missing", 'Removed 2 features using SelectKBest')))
+    _seen.append(('Optimal threshold:' if 'Optimal threshold:' in (out) else ("missing", 'Optimal threshold:')))
+    _seen.append(('Classification Report:' if 'Classification Report:' in (out) else ("missing", 'Classification Report:')))
+    return _seen
 
 
 def case_ml_analysis_cross_validation_averages_folds(capsys, rng):
     """cross_validation=True aggregates 5 folds and re-scores every row."""
+    _seen = []
     import spacr.ml as ML
 
     output, figs = ML.ml_analysis(
@@ -495,21 +550,26 @@ def case_ml_analysis_cross_validation_averages_folds(capsys, rng):
         cross_validation=True, verbose=True, **COMMON)
 
     scored_df, metrics_df = output[0], output[8]
-    assert "accuracy" in metrics_df.index
+    _seen.append(('accuracy' if 'accuracy' in (metrics_df.index) else ("missing", 'accuracy')))
     # the refit model scored every row of the frame, not just the controls
-    assert scored_df["predictions"].notna().all()
-    assert {"prediction_probability_class_0",
-            "prediction_probability_class_1"}.issubset(scored_df.columns)
+    _seen.append(bool(
+        scored_df["predictions"].notna().all()))
+    _seen.append(bool(
+        {"prediction_probability_class_0",
+            "prediction_probability_class_1"}.issubset(scored_df.columns)))
     probs = scored_df[["prediction_probability_class_0",
                        "prediction_probability_class_1"]].sum(axis=1)
-    assert np.allclose(probs.to_numpy(), 1.0)
+    _seen.append(bool(
+        np.allclose(probs.to_numpy(), 1.0)))
     out = capsys.readouterr().out
-    assert "Fold 5 - Optimal threshold:" in out
-    assert "Fold 5 Classification Report:" in out
+    _seen.append(('Fold 5 - Optimal threshold:' if 'Fold 5 - Optimal threshold:' in (out) else ("missing", 'Fold 5 - Optimal threshold:')))
+    _seen.append(('Fold 5 Classification Report:' if 'Fold 5 Classification Report:' in (out) else ("missing", 'Fold 5 Classification Report:')))
+    return _seen
 
 
 def case_ml_analysis_applies_batch_correction_before_training(capsys, rng):
     """The shared correction runs on features while plate metadata stays out."""
+    _seen = []
     import spacr.ml as ML
 
     df = _feature_df(per_class=24)
@@ -533,14 +593,17 @@ def case_ml_analysis_applies_batch_correction_before_training(capsys, rng):
         **COMMON,
     )
 
-    assert output[0]["predictions"].notna().all()
-    assert "plateID" not in output[9]
-    assert "Batch correction center:" in capsys.readouterr().out
+    _seen.append(bool(
+        output[0]["predictions"].notna().all()))
+    _seen.append((("absent", 'plateID') if 'plateID' not in (output[9]) else ("present", 'plateID')))
+    _seen.append(('Batch correction center:' if 'Batch correction center:' in (capsys.readouterr().out) else ("missing", 'Batch correction center:')))
+    return _seen
 
 
 def case_ml_analysis_matches_list_controls_numerically(rng):
     """Controls given as a list: each entry is matched exactly, numerically
     and as a stripped string, and un-matchable entries are skipped."""
+    _seen = []
     import spacr.ml as ML
 
     df = _feature_df(loc_values=("1", "2", "3"))
@@ -552,11 +615,13 @@ def case_ml_analysis_matches_list_controls_numerically(rng):
         model_type="random_forest", n_estimators=8, verbose=False, **COMMON)
 
     usage = output[0]["data_usage"].value_counts().to_dict()
-    assert usage["not_used"] == 40           # the '3' wells
-    assert usage["train"] + usage["test"] == 80
-    assert usage["test"] == 20               # test_size=0.25 of the controls
+    _seen.append(keep(usage["not_used"]))
+    _seen.append(keep(usage["train"] + usage["test"]))
+    _seen.append(keep(usage["test"]))
     # the '3' wells were never labelled
-    assert output[0].loc[output[0]["columnID"] == "3", "data_usage"].eq("not_used").all()
+    _seen.append(bool(
+        output[0].loc[output[0]["columnID"] == "3", "data_usage"].eq("not_used").all()))
+    return _seen
 
 
 def case_ml_analysis_duplicate_location_column_matches_nothing(rng):
@@ -570,21 +635,24 @@ def case_ml_analysis_duplicate_location_column_matches_nothing(rng):
     because the fix is to the table rather than to the control values: no
     amount of correcting positive_control helps.
     """
+    _seen = []
     import spacr.ml as ML
 
     df = _feature_df(per_class=20)
     df["dup"] = df["columnID"]
     df.columns = ["columnID" if c == "dup" else c for c in df.columns]
 
-    with pytest.raises(ValueError, match="columns named 'columnID'"):
+    with pytest.raises(ValueError, match="columns named 'columnID'") as _exc1:
         ML.ml_analysis(df, positive_control="c2", negative_control="c1",
                        model_type="random_forest", n_estimators=5,
                        verbose=False, **COMMON)
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 @pytest.mark.parametrize("model_type,cls_name", [("svm", "CalibratedClassifierCV"),
                                                  ("mlp", "MLPClassifier")])
-def case_ml_analysis_models_without_feature_importances(model_type, cls_name, rng):
+def test_ml_analysis_models_without_feature_importances(model_type, cls_name, rng):
     """svm / mlp have no `feature_importances_`, and they get the panel
     anyway -- from the PERMUTATION importance, which is model-agnostic by
     construction and was already computed a few lines earlier.
@@ -651,6 +719,7 @@ def _install_stub(monkeypatch, mod_name, attr_name, cls):
 
 def case_ml_analysis_lightgbm_forwards_hyperparameters(monkeypatch, rng):
     """model_type='lightgbm' builds LGBMClassifier with spacr's hyperparameters."""
+    _seen = []
     import spacr.ml as ML
 
     _install_stub(monkeypatch, "lightgbm", "LGBMClassifier", _StubLGBMClassifier)
@@ -660,16 +729,17 @@ def case_ml_analysis_lightgbm_forwards_hyperparameters(monkeypatch, rng):
         reg_alpha=0.3, reg_lambda=2.0, verbose=False, **COMMON)
 
     model = output[3]
-    assert isinstance(model, _StubLGBMClassifier)
-    assert model.get_params() == {
-        "n_estimators": 6, "learning_rate": 0.05, "reg_alpha": 0.3,
-        "reg_lambda": 2.0, "random_state": 42, "n_jobs": 1,
-    }
-    assert output[0]["predictions"].isin([0, 1]).all()
+    _seen.append(bool(
+        isinstance(model, _StubLGBMClassifier)))
+    _seen.append(keep(model.get_params()))
+    _seen.append(bool(
+        output[0]["predictions"].isin([0, 1]).all()))
+    return _seen
 
 
 def case_ml_analysis_catboost_forwards_hyperparameters(monkeypatch, rng):
     """model_type='catboost' maps spacr's kwargs onto CatBoost's names."""
+    _seen = []
     import spacr.ml as ML
 
     _install_stub(monkeypatch, "catboost", "CatBoostClassifier",
@@ -680,16 +750,16 @@ def case_ml_analysis_catboost_forwards_hyperparameters(monkeypatch, rng):
         reg_lambda=3.0, verbose=False, **COMMON)
 
     model = output[3]
-    assert isinstance(model, _StubCatBoostClassifier)
-    assert model.get_params() == {
-        "iterations": 7, "learning_rate": 0.05, "l2_leaf_reg": 3.0,
-        "random_state": 42, "thread_count": 1, "verbose": False,
-    }
-    assert output[0]["predictions"].isin([0, 1]).all()
+    _seen.append(bool(
+        isinstance(model, _StubCatBoostClassifier)))
+    _seen.append(keep(model.get_params()))
+    _seen.append(bool(
+        output[0]["predictions"].isin([0, 1]).all()))
+    return _seen
 
 
 @pytest.mark.parametrize("model_type", ["lightgbm", "catboost"])
-def case_ml_analysis_missing_optional_backend_raises_actionable_importerror(
+def test_ml_analysis_missing_optional_backend_raises_actionable_importerror(
         model_type, monkeypatch, rng):
     """When the optional package cannot be imported the user gets an
     ImportError naming the pip install, not a bare ModuleNotFoundError."""
@@ -704,32 +774,27 @@ def case_ml_analysis_missing_optional_backend_raises_actionable_importerror(
                        n_estimators=5, verbose=False, **COMMON)
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_ml_analysis_cases(request, subtests):
-    """Behaviour cases for: ml_analysis."""
-    ran = run_cases(request, subtests, [
-        case_ml_analysis_prunes_features_and_drops_cells_per_well,
-        case_ml_analysis_cross_validation_averages_folds,
-        case_ml_analysis_applies_batch_correction_before_training,
-        case_ml_analysis_matches_list_controls_numerically,
-        case_ml_analysis_duplicate_location_column_matches_nothing,
-        case_ml_analysis_models_without_feature_importances,
-        case_ml_analysis_lightgbm_forwards_hyperparameters,
-        case_ml_analysis_catboost_forwards_hyperparameters,
-        case_ml_analysis_missing_optional_backend_raises_actionable_importerror,
-    ])
-    assert ran >= 9
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_ml_analysis_prunes_features_and_drops_cells_per_well, [4, True, True, ("absent", 'cells_per_well'), 4, 4, 'ExtraTreesClassifier', True, True, 'Removed 2 features using SelectKBest', 'Optimal threshold:', 'Classification Report:'], id="ml_analysis_prunes_features_and_drops_cells_per_well"),
+    pytest.param(case_ml_analysis_cross_validation_averages_folds, ['accuracy', True, True, True, 'Fold 5 - Optimal threshold:', 'Fold 5 Classification Report:'], id="ml_analysis_cross_validation_averages_folds"),
+    pytest.param(case_ml_analysis_applies_batch_correction_before_training, [True, ("absent", 'plateID'), 'Batch correction center:'], id="ml_analysis_applies_batch_correction_before_training"),
+    pytest.param(case_ml_analysis_matches_list_controls_numerically, [40, 80, 20, True], id="ml_analysis_matches_list_controls_numerically"),
+    pytest.param(case_ml_analysis_duplicate_location_column_matches_nothing, ['ValueError'], id="ml_analysis_duplicate_location_column_matches_nothing"),
+    pytest.param(case_ml_analysis_lightgbm_forwards_hyperparameters, [True, {'n_estimators': 6, 'learning_rate': 0.05, 'reg_alpha': 0.3, 'reg_lambda': 2.0, 'random_state': 42, 'n_jobs': 1}, True], id="ml_analysis_lightgbm_forwards_hyperparameters"),
+    pytest.param(case_ml_analysis_catboost_forwards_hyperparameters, [True, {'iterations': 7, 'learning_rate': 0.05, 'l2_leaf_reg': 3.0, 'random_state': 42, 'thread_count': 1, 'verbose': False}, True], id="ml_analysis_catboost_forwards_hyperparameters"),
+    pytest.param(case_generate_ml_scores_writes_every_artifact_and_updates_png_list, [True, 10, True, True, True, True, True, 'predictions', True, True, True, True, True, 'png_list', True, True, True, True, 1, True, True], id="generate_ml_scores_writes_every_artifact_and_updates_png_list"),
+    pytest.param(case_generate_ml_scores_refuses_to_invent_a_second_annotation_class, ['ValueError', 'only one observed class', '12 labelled object rows', 'Annotate objects in a second class', 'will not assign them a training label', 'columnID', 'c2', 'c1'], id="generate_ml_scores_refuses_to_invent_a_second_annotation_class"),
+    pytest.param(case_generate_ml_scores_names_an_annotation_column_with_no_labels, ['ValueError', "annotation_column='test'", True, ("absent", 'n_samples=0')], id="generate_ml_scores_names_an_annotation_column_with_no_labels"),
+    pytest.param(case_generate_ml_scores_annotation_column_autoselects_controls, ['0.0', '1.0', ("absent", 'not_used'), True], id="generate_ml_scores_annotation_column_autoselects_controls"),
+    pytest.param(case_generate_ml_scores_annotation_column_missing_raises, ['ValueError'], id="generate_ml_scores_annotation_column_missing_raises"),
+    pytest.param(case_generate_ml_scores_unknown_heatmap_feature_raises, ['ValueError'], id="generate_ml_scores_unknown_heatmap_feature_raises"),
+    pytest.param(case_generate_ml_scores_survives_missing_pathogen_channel_column, ['predictions'], id="generate_ml_scores_survives_missing_pathogen_channel_column"),
+    pytest.param(case_classify_flowview_matches_run_journal_and_database, [True, True, True, True, 3, True, {'sources': 1}, True, True, 32, 32, True, 32, True, True, True], id="classify_flowview_matches_run_journal_and_database"),
+])
+def test_ml_ml_scores_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected
 
-def test_generate_ml_scores_cases(request, subtests):
-    """Behaviour cases for: generate_ml_scores."""
-    ran = run_cases(request, subtests, [
-        case_generate_ml_scores_writes_every_artifact_and_updates_png_list,
-        case_generate_ml_scores_refuses_to_invent_a_second_annotation_class,
-        case_generate_ml_scores_names_an_annotation_column_with_no_labels,
-        case_generate_ml_scores_annotation_column_autoselects_controls,
-        case_generate_ml_scores_annotation_column_missing_raises,
-        case_generate_ml_scores_unknown_heatmap_feature_raises,
-        case_generate_ml_scores_survives_missing_pathogen_channel_column,
-    ])
-    assert ran >= 7

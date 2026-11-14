@@ -3323,7 +3323,10 @@ def _segment_plaque_folder(settings, model_path):
     if well_resize:
         print(f"well resize on: longest side {well_resize['side']:g} px, "
               f"enlargement at most {well_resize['max_factor']:g}x")
+    from .utils import print_progress
+    time_ls = []
     for index, name in enumerate(names, start=1):
+        started = time.time()
         image = _plaque_imread(os.path.join(src, name))
         labels, metrics = segment_plaque_image(model, image, settings, return_metrics=True,
                                                well_resize=well_resize)
@@ -3339,6 +3342,9 @@ def _segment_plaque_folder(settings, model_path):
             os.path.join(dst, f'{stem}.diagnostics.csv'))
         print(f"segmented {index}/{len(names)}: {name}, "
               f"{int(np.asarray(labels).max())} plaque(s)")
+        time_ls.append(time.time() - started)
+        print_progress(index, len(names), n_jobs=1, time_ls=time_ls,
+                       operation_type='Segmenting plaques')
     return len(names)
 
 

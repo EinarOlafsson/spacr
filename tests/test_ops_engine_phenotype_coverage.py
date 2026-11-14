@@ -434,7 +434,9 @@ def test_merge_matches_the_placed_field_and_skips_an_unplaced_one(tmp_path):
     write_table(db, "ops_objects", pd.DataFrame({
         "plate": PLATE, "well": "A1", "object_id": [11, 12, 13, 14],
         "centroid_y": targets[:, 0], "centroid_x": targets[:, 1]}))
-    report = ops_engine._ph_merge(db, PLATE, "A1", {"ops_merge_threshold": 2},
+    # no ops_geometry in this synthetic well: merge with 'similarity'
+    report = ops_engine._ph_merge(db, PLATE, "A1", {"ops_merge_threshold": 2,
+                                                    "ops_align_model": "similarity"},
                                   str(tmp_path), False)
     assert report["cells"] == 8 and report["fields"] == 2
     assert report["merged"] == 4

@@ -67,10 +67,13 @@ def case_distribution_panels_that_cannot_be_imported_send_the_caller_back(
     The helper's contract is that False means "draw it the old way"; raising
     instead would lose a completed fit over a picture.
     """
+    _seen = []
     block_figures(monkeypatch)
-    assert ml._show_well_distributions(frame_with_fractions(),
-                                       'pathogen_rate', None) is False
-    assert 'Could not load the distribution panels' in capsys.readouterr().out
+    _seen.append(bool(
+        ml._show_well_distributions(frame_with_fractions(),
+                                       'pathogen_rate', None) is False))
+    _seen.append(('Could not load the distribution panels' if 'Could not load the distribution panels' in (capsys.readouterr().out) else ("missing", 'Could not load the distribution panels')))
+    return _seen
 
 
 def case_a_distribution_panel_that_raises_is_named_and_the_rest_still_draw(
@@ -80,6 +83,7 @@ def case_a_distribution_panel_that_raises_is_named_and_the_rest_still_draw(
     The two panels are independent; a response column the builder cannot handle
     must not also cost the guide-fraction histogram.
     """
+    _seen = []
     from spacr.figures import distributions
 
     real_build = distributions.build_panel
@@ -92,12 +96,13 @@ def case_a_distribution_panel_that_raises_is_named_and_the_rest_still_draw(
     monkeypatch.setattr(distributions, 'build_panel', selective)
     plt.close('all')
 
-    assert ml._show_well_distributions(frame_with_fractions(),
+    _seen.append(bool(
+        ml._show_well_distributions(frame_with_fractions(),
                                        'pathogen_rate', None, plot=False) \
-        is True
-    assert 'Distribution panel guide_fraction did not draw' in \
-        capsys.readouterr().out
+        is True))
+    _seen.append(('Distribution panel guide_fraction did not draw' if 'Distribution panel guide_fraction did not draw' in (capsys.readouterr().out) else ("missing", 'Distribution panel guide_fraction did not draw')))
     plt.close('all')
+    return _seen
 
 
 def case_panels_that_drew_nothing_are_closed_rather_than_shown(monkeypatch):
@@ -106,6 +111,7 @@ def case_panels_that_drew_nothing_are_closed_rather_than_shown(monkeypatch):
     An empty axes shown to the user reads as "the distribution is empty" when
     it means the builder had nothing to plot.
     """
+    _seen = []
     from spacr.figures import distributions
 
     def empty(key, frame, **kwargs):
@@ -114,10 +120,12 @@ def case_panels_that_drew_nothing_are_closed_rather_than_shown(monkeypatch):
     monkeypatch.setattr(distributions, 'build_panel', empty)
     plt.close('all')
 
-    assert ml._show_well_distributions(frame_with_fractions(),
+    _seen.append(bool(
+        ml._show_well_distributions(frame_with_fractions(),
                                        'pathogen_rate', None,
-                                       plot=False) is False
-    assert plt.get_fignums() == []
+                                       plot=False) is False))
+    _seen.append(keep(plt.get_fignums()))
+    return _seen
 
 
 def case_a_distribution_panel_that_cannot_be_saved_is_still_counted_as_drawn(
@@ -127,6 +135,7 @@ def case_a_distribution_panel_that_cannot_be_saved_is_still_counted_as_drawn(
     The panel was drawn and the user can see it; refusing to report that
     because the disk was full would hide the figure that does exist.
     """
+    _seen = []
     import spacr.plot as plot_module
 
     def boom(*args, **kwargs):
@@ -135,11 +144,14 @@ def case_a_distribution_panel_that_cannot_be_saved_is_still_counted_as_drawn(
     monkeypatch.setattr(plot_module, 'save_figure', boom)
     plt.close('all')
 
-    assert ml._show_well_distributions(frame_with_fractions(),
+    _seen.append(bool(
+        ml._show_well_distributions(frame_with_fractions(),
                                        'pathogen_rate', str(tmp_path),
-                                       plot=False) is True
-    assert not list(tmp_path.iterdir())
+                                       plot=False) is True))
+    _seen.append(bool(
+        not list(tmp_path.iterdir())))
     plt.close('all')
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -152,9 +164,12 @@ def case_a_plate_panel_that_cannot_be_imported_returns_false(monkeypatch,
 
     Same trade as the distributions: the run has already produced the numbers.
     """
+    _seen = []
     block_figures(monkeypatch)
-    assert ml._show_plates(frame_with_fractions(), 'fraction', None) is False
-    assert 'Could not load the plate panel' in capsys.readouterr().out
+    _seen.append(bool(
+        ml._show_plates(frame_with_fractions(), 'fraction', None) is False))
+    _seen.append(('Could not load the plate panel' if 'Could not load the plate panel' in (capsys.readouterr().out) else ("missing", 'Could not load the plate panel')))
+    return _seen
 
 
 def case_a_plate_panel_that_raises_is_reported_by_name(monkeypatch, capsys):
@@ -162,14 +177,17 @@ def case_a_plate_panel_that_raises_is_reported_by_name(monkeypatch, capsys):
 
     A screen whose plate layout the builder cannot read still has a valid fit.
     """
+    _seen = []
     import spacr.figures.plates as plates_module
 
     def boom(*args, **kwargs):
         raise ValueError('no plate layout in this frame')
 
     monkeypatch.setattr(plates_module, 'build_plates', boom)
-    assert ml._show_plates(frame_with_fractions(), 'fraction', None) is False
-    assert 'The plate panel did not draw' in capsys.readouterr().out
+    _seen.append(bool(
+        ml._show_plates(frame_with_fractions(), 'fraction', None) is False))
+    _seen.append(('The plate panel did not draw' if 'The plate panel did not draw' in (capsys.readouterr().out) else ("missing", 'The plate panel did not draw')))
+    return _seen
 
 
 def case_a_plate_panel_with_nothing_on_it_is_closed(monkeypatch):
@@ -177,14 +195,17 @@ def case_a_plate_panel_with_nothing_on_it_is_closed(monkeypatch):
 
     Leaving the blank figure open puts an empty plate map in the gallery.
     """
+    _seen = []
     import spacr.figures.plates as plates_module
 
     monkeypatch.setattr(plates_module, 'build_plates',
                         lambda *a, **k: (plt.figure(), Panel(drawn=False)))
     plt.close('all')
 
-    assert ml._show_plates(frame_with_fractions(), 'fraction', None) is False
-    assert plt.get_fignums() == []
+    _seen.append(bool(
+        ml._show_plates(frame_with_fractions(), 'fraction', None) is False))
+    _seen.append(keep(plt.get_fignums()))
+    return _seen
 
 
 def case_a_plate_panel_that_cannot_be_saved_is_still_shown(monkeypatch,
@@ -193,6 +214,7 @@ def case_a_plate_panel_that_cannot_be_saved_is_still_shown(monkeypatch,
 
     The figure reached the screen, which is what the return value promises.
     """
+    _seen = []
     import spacr.plot as plot_module
     import spacr.figures.plates as plates_module
 
@@ -203,10 +225,13 @@ def case_a_plate_panel_that_cannot_be_saved_is_still_shown(monkeypatch,
                             OSError('read-only file system')))
     plt.close('all')
 
-    assert ml._show_plates(frame_with_fractions(), 'fraction',
-                           str(tmp_path)) is True
-    assert not list(tmp_path.iterdir())
+    _seen.append(bool(
+        ml._show_plates(frame_with_fractions(), 'fraction',
+                           str(tmp_path)) is True))
+    _seen.append(bool(
+        not list(tmp_path.iterdir())))
     plt.close('all')
+    return _seen
 
 
 def case_drawn_helpers_release_their_figures_and_preserve_the_callers(
@@ -217,6 +242,7 @@ def case_drawn_helpers_release_their_figures_and_preserve_the_callers(
     during that call, then its exact pyplot manager must be released without
     disturbing a figure the caller already had open.
     """
+    _seen = []
     caller = plt.figure()
     before = tuple(plt.get_fignums())
     shown = []
@@ -244,19 +270,22 @@ def case_drawn_helpers_release_their_figures_and_preserve_the_callers(
         assert tuple(plt.get_fignums()) == before
     finally:
         plt.close(caller)
+    return _seen
 
 
-def test_house_style_panels_that_cannot_be_imported_draw_none(monkeypatch,
+def case_house_style_panels_that_cannot_be_imported_draw_none(monkeypatch,
                                                               capsys):
     """A blocked figures import returns a count of zero, not an exception.
 
     The count is what the caller prints; zero says plainly that no panel was
     drawn.
     """
+    _seen = []
     block_figures(monkeypatch)
     coef = pd.DataFrame({'coefficient': [0.1], 'p_value': [0.01]})
-    assert ml._show_house_style_panels(coef) == 0
-    assert 'Could not load the figure style' in capsys.readouterr().out
+    _seen.append(keep(ml._show_house_style_panels(coef)))
+    _seen.append(('Could not load the figure style' if 'Could not load the figure style' in (capsys.readouterr().out) else ("missing", 'Could not load the figure style')))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -269,9 +298,14 @@ def case_an_empty_coefficient_table_writes_no_sheet(tmp_path):
     A fit that produced no rows must not leave an empty PDF that reads as a
     result.
     """
-    assert ml._write_regression_sheet(None, tmp_path) is None
-    assert ml._write_regression_sheet(pd.DataFrame(), tmp_path) is None
-    assert not list(tmp_path.iterdir())
+    _seen = []
+    _seen.append(bool(
+        ml._write_regression_sheet(None, tmp_path) is None))
+    _seen.append(bool(
+        ml._write_regression_sheet(pd.DataFrame(), tmp_path) is None))
+    _seen.append(bool(
+        not list(tmp_path.iterdir())))
+    return _seen
 
 
 def case_a_sheet_that_cannot_be_built_is_reported_and_costs_nothing_else(
@@ -281,6 +315,7 @@ def case_a_sheet_that_cannot_be_built_is_reported_and_costs_nothing_else(
     This is the publication figure; losing the whole run because it could not
     be composed would be the worst possible trade.
     """
+    _seen = []
     import spacr.figures as figures_module
 
     def boom(*args, **kwargs):
@@ -289,8 +324,10 @@ def case_a_sheet_that_cannot_be_built_is_reported_and_costs_nothing_else(
     monkeypatch.setattr(figures_module, 'build_sheet', boom)
     coef = pd.DataFrame({'coefficient': [0.1], 'p_value': [0.01]})
 
-    assert ml._write_regression_sheet(coef, tmp_path) is None
-    assert 'Could not draw the regression figure' in capsys.readouterr().out
+    _seen.append(bool(
+        ml._write_regression_sheet(coef, tmp_path) is None))
+    _seen.append(('Could not draw the regression figure' if 'Could not draw the regression figure' in (capsys.readouterr().out) else ("missing", 'Could not draw the regression figure')))
+    return _seen
 
 
 def case_a_sheet_whose_figure_cannot_be_closed_is_still_written(monkeypatch,
@@ -301,6 +338,7 @@ def case_a_sheet_whose_figure_cannot_be_closed_is_still_written(monkeypatch,
     The PDF and its legend are already on disk by then, so a close that raises
     must not turn a written figure into a reported failure.
     """
+    _seen = []
     import spacr.figures as figures_module
     import spacr.figure_sink as sink_module
 
@@ -319,34 +357,33 @@ def case_a_sheet_whose_figure_cannot_be_closed_is_still_written(monkeypatch,
 
     path = ml._write_regression_sheet(coef, tmp_path)
 
-    assert path == str(tmp_path / 'regression_figure.pdf')
+    _seen.append(bool(
+        path == str(tmp_path / 'regression_figure.pdf')))
     legend = (tmp_path / 'regression_figure_legend.txt').read_text(encoding="utf-8")
-    assert legend == 'Panel a, the volcano.\n'
-    assert '2 panels, 1 not applicable' in capsys.readouterr().out
+    _seen.append(keep(legend))
+    _seen.append(('2 panels, 1 not applicable' if '2 panels, 1 not applicable' in (capsys.readouterr().out) else ("missing", '2 panels, 1 not applicable')))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_show_well_distributions_cases(request, subtests):
-    """Behaviour cases for: _show_well_distributions."""
-    ran = run_cases(request, subtests, [
-        case_distribution_panels_that_cannot_be_imported_send_the_caller_back,
-        case_a_distribution_panel_that_raises_is_named_and_the_rest_still_draw,
-        case_panels_that_drew_nothing_are_closed_rather_than_shown,
-        case_a_distribution_panel_that_cannot_be_saved_is_still_counted_as_drawn,
-        case_drawn_helpers_release_their_figures_and_preserve_the_callers,
-    ])
-    assert ran >= 5
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_distribution_panels_that_cannot_be_imported_send_the_caller_back, [True, 'Could not load the distribution panels'], id="distribution_panels_that_cannot_be_imported_send_the_caller_back"),
+    pytest.param(case_a_distribution_panel_that_raises_is_named_and_the_rest_still_draw, [True, 'Distribution panel guide_fraction did not draw'], id="a_distribution_panel_that_raises_is_named_and_the_rest_still_draw"),
+    pytest.param(case_panels_that_drew_nothing_are_closed_rather_than_shown, [True, []], id="panels_that_drew_nothing_are_closed_rather_than_shown"),
+    pytest.param(case_a_distribution_panel_that_cannot_be_saved_is_still_counted_as_drawn, [True, True], id="a_distribution_panel_that_cannot_be_saved_is_still_counted_as_drawn"),
+    pytest.param(case_drawn_helpers_release_their_figures_and_preserve_the_callers, [], id="drawn_helpers_release_their_figures_and_preserve_the_callers"),
+    pytest.param(case_a_plate_panel_that_cannot_be_imported_returns_false, [True, 'Could not load the plate panel'], id="a_plate_panel_that_cannot_be_imported_returns_false"),
+    pytest.param(case_a_plate_panel_that_raises_is_reported_by_name, [True, 'The plate panel did not draw'], id="a_plate_panel_that_raises_is_reported_by_name"),
+    pytest.param(case_a_plate_panel_with_nothing_on_it_is_closed, [True, []], id="a_plate_panel_with_nothing_on_it_is_closed"),
+    pytest.param(case_a_plate_panel_that_cannot_be_saved_is_still_shown, [True, True], id="a_plate_panel_that_cannot_be_saved_is_still_shown"),
+    pytest.param(case_an_empty_coefficient_table_writes_no_sheet, [True, True, True], id="an_empty_coefficient_table_writes_no_sheet"),
+    pytest.param(case_a_sheet_that_cannot_be_built_is_reported_and_costs_nothing_else, [True, 'Could not draw the regression figure'], id="a_sheet_that_cannot_be_built_is_reported_and_costs_nothing_else"),
+    pytest.param(case_a_sheet_whose_figure_cannot_be_closed_is_still_written, [True, 'Panel a, the volcano.\n', '2 panels, 1 not applicable'], id="a_sheet_whose_figure_cannot_be_closed_is_still_written"),
+    pytest.param(case_house_style_panels_that_cannot_be_imported_draw_none, [0, 'Could not load the figure style'], id="house_style_panels_that_cannot_be_imported_draw_none"),
+])
+def test_12_ml_figures_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected
 
-def test_show_plates_cases(request, subtests):
-    """Behaviour cases for: _show_plates, _write_regression_sheet."""
-    ran = run_cases(request, subtests, [
-        case_a_plate_panel_that_cannot_be_imported_returns_false,
-        case_a_plate_panel_that_raises_is_reported_by_name,
-        case_a_plate_panel_with_nothing_on_it_is_closed,
-        case_a_plate_panel_that_cannot_be_saved_is_still_shown,
-        case_an_empty_coefficient_table_writes_no_sheet,
-        case_a_sheet_that_cannot_be_built_is_reported_and_costs_nothing_else,
-        case_a_sheet_whose_figure_cannot_be_closed_is_still_written,
-    ])
-    assert ran >= 7

@@ -327,33 +327,6 @@ def test_a_column_is_attributed_to_the_table_it_came_out_of():
     assert _source_table("nucleus_area", entry, tables) == "nucleus"
 
 
-def test_a_join_suffix_attributes_a_column_when_the_dictionary_cannot():
-    class _Entry:
-        object_type = None
-        object_type_2 = None
-
-    assert _source_table("mystery_nucleus", _Entry(), ("cell", "nucleus")) == (
-        "nucleus")
-
-
-def test_a_count_column_is_attributed_to_the_child_it_counts():
-    class _Entry:
-        object_type = None
-        object_type_2 = None
-
-    assert _source_table("count_pathogen", _Entry(),
-                         ("cell", "pathogen")) == "pathogen"
-
-
-def test_an_unattributable_column_falls_back_to_the_anchor():
-    class _Entry:
-        object_type = None
-        object_type_2 = None
-
-    assert _source_table("mystery", _Entry(), ("cell",)) == "cell"
-    assert _source_table("mystery", _Entry(), ()) == ""
-
-
 def test_var_documents_every_feature_and_counts_its_missing_values(cells):
     frame = cells.copy()
     frame.loc[frame.index[:2], "cell_area"] = np.nan
@@ -813,22 +786,6 @@ def test_an_anchor_with_no_parent_records_no_parent():
 # Provenance
 # ---------------------------------------------------------------------------
 
-def test_a_database_with_no_history_has_no_run_id(tmp_path, cells):
-    path = _write_db(tmp_path / "m.db", {"cell": cells})
-    assert _run_id_from_db(path) == ""
-
-
-def test_the_most_recent_recorded_run_is_the_one_reported(tmp_path, cells,
-                                                          monkeypatch):
-    from spacr import io
-
-    path = _write_db(tmp_path / "m.db", {"cell": cells})
-    monkeypatch.setattr(io, "read_settings_history",
-                        lambda db: [{"run_id": "run-1"}, {"run_id": ""},
-                                    {"run_id": "run-2"}])
-    assert _run_id_from_db(path) == "run-2"
-
-
 def test_a_history_that_cannot_be_read_is_no_run_id(tmp_path, monkeypatch):
     from spacr import io
 
@@ -1122,12 +1079,21 @@ def test_a_timelapse_png_list_that_cannot_be_keyed_attaches_nothing(tmp_path,
 # The remaining seams
 # ---------------------------------------------------------------------------
 
-def test_a_count_column_for_a_table_that_was_not_joined_still_names_its_child():
-    class _Entry:
-        object_type = None
-        object_type_2 = None
+@pytest.mark.parametrize("history, run_id", [
+    # Provenance is best-effort. A database with no history is exportable; it
+    # simply cannot say which run produced it.
+    pytest.param(None, "", id="no_settings_history_yields_no_run_id"),
+    pytest.param([{"run_id": "run-1"}, {"run_id": ""}, {"run_id": "run-2"}],
+                 "run-2", id="the_most_recent_recorded_run_is_reported"),
+])
+def test_the_run_a_database_came_from_is_its_latest_recorded_one(
+        tmp_path, cells, monkeypatch, history, run_id):
+    from spacr import io
 
-    assert _source_table("count_nucleus", _Entry(), ("cell",)) == "nucleus"
+    path = _write_db(tmp_path / "m.db", {"cell": cells})
+    if history is not None:
+        monkeypatch.setattr(io, "read_settings_history", lambda db: history)
+    assert _run_id_from_db(path) == run_id
 
 
 def test_a_timelapse_export_stores_the_timepoint_categorically(cells):

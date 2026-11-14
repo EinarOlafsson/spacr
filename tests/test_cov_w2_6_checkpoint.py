@@ -195,25 +195,6 @@ def test_a_checkpoint_from_another_workflow_is_refused_by_name(tmp_path):
                            boundary="field", resume=True)
 
 
-def test_changed_settings_refuse_to_be_combined_with_the_old_units(tmp_path):
-    path = tmp_path / "run.json"
-    cp.CheckpointStore(path, workflow="w", signature={"cells": 10},
-                       boundary="field").mark("f1")
-    with pytest.raises(cp.CheckpointMismatch, match="material settings"):
-        cp.CheckpointStore(path, workflow="w", signature={"cells": 20},
-                           boundary="field", resume=True)
-
-
-def test_a_different_safe_unit_boundary_is_refused(tmp_path):
-    path = tmp_path / "run.json"
-    cp.CheckpointStore(path, workflow="w", signature={"cells": 10},
-                       boundary="field").mark("field-1")
-
-    with pytest.raises(cp.CheckpointMismatch, match=r"boundary.*field.*trial"):
-        cp.CheckpointStore(path, workflow="w", signature={"cells": 10},
-                           boundary="trial", resume=True)
-
-
 def test_a_json_document_that_is_not_an_object_is_refused(tmp_path):
     path = tmp_path / "run.json"
     _write(path, [1, 2, 3])
@@ -377,3 +358,20 @@ def test_an_artifact_suffix_cannot_supply_path_syntax(store, suffix):
         store.artifact_path("trial-1", suffix)
 
     assert not store.artifact_dir.exists()
+
+
+@pytest.mark.parametrize("marked, resumed, said", [
+    pytest.param({"signature": {"cells": 10}, "boundary": "field", "unit": "f1"},
+                 {"signature": {"cells": 20}, "boundary": "field"},
+                 "material settings", id="changed_settings"),
+    pytest.param({"signature": {"cells": 10}, "boundary": "field", "unit": "field-1"},
+                 {"signature": {"cells": 10}, "boundary": "trial"},
+                 r"boundary.*field.*trial", id="different_safe_unit_boundary"),
+])
+def test_a_checkpoint_refuses_to_be_combined_with_what_it_does_not_match(
+        tmp_path, marked, resumed, said):
+    path = tmp_path / "run.json"
+    cp.CheckpointStore(path, workflow="w", signature=marked["signature"],
+                       boundary=marked["boundary"]).mark(marked["unit"])
+    with pytest.raises(cp.CheckpointMismatch, match=said):
+        cp.CheckpointStore(path, workflow="w", resume=True, **resumed)

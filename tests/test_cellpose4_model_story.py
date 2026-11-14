@@ -305,19 +305,28 @@ def _mask_settings(src, **over):
     return s
 
 
-def test_the_sam_generator_loads_the_users_checkpoint(tmp_path, sam_pipeline):
+@pytest.mark.parametrize("object_name, checkpoint, settings_key, extra", [
+    pytest.param("cell", "my_cells.pth", "cell_model_name", {},
+                 id="the-per-object-model-name"),
+    pytest.param("pathogen", "my_pathogens.pth", "pathogen_model", {"pathogen_channel": 1},
+                 id="the-older-pathogen-model-key"),
+])
+def test_the_sam_generator_loads_the_users_checkpoint(
+        tmp_path, sam_pipeline, object_name, checkpoint, settings_key, extra):
     """generate_cellpose_masks_sam is the pipeline's DEFAULT path and it
     hard-coded pretrained_model='cpsam', so a model trained in spaCR's own
-    Train Cellpose module was discarded on every run without a word."""
+    Train Cellpose module was discarded on every run without a word.
+    ``pathogen_model`` predates the per-object *_model_name keys; the v1
+    generator honoured it and the SAM one must not disagree."""
     import spacr.object as O
 
-    ckpt = tmp_path / "my_cells.pth"
+    ckpt = tmp_path / checkpoint
     ckpt.write_bytes(b"x")
     src = tmp_path / "stack"
     _write_npz(src)
 
     O.generate_cellpose_masks_sam(
-        str(src), _mask_settings(src, cell_model_name=str(ckpt)), "cell")
+        str(src), _mask_settings(src, **extra, **{settings_key: str(ckpt)}), object_name)
 
     assert sam_pipeline["model"].pretrained_model == str(ckpt)
 
@@ -329,24 +338,6 @@ def test_the_sam_generator_still_defaults_to_cpsam(tmp_path, sam_pipeline):
     _write_npz(src)
     O.generate_cellpose_masks_sam(str(src), _mask_settings(src), "cell")
     assert sam_pipeline["model"].pretrained_model == "cpsam"
-
-
-def test_the_sam_generator_honours_the_older_pathogen_model_key(tmp_path,
-                                                                sam_pipeline):
-    """pathogen_model predates the per-object *_model_name keys; the v1
-    generator honoured it and the SAM one must not disagree."""
-    import spacr.object as O
-
-    ckpt = tmp_path / "my_pathogens.pth"
-    ckpt.write_bytes(b"x")
-    src = tmp_path / "stack"
-    _write_npz(src)
-
-    O.generate_cellpose_masks_sam(
-        str(src), _mask_settings(src, pathogen_channel=1,
-                                 pathogen_model=str(ckpt)), "pathogen")
-
-    assert sam_pipeline["model"].pretrained_model == str(ckpt)
 
 
 def test_the_sam_generator_stops_on_a_checkpoint_that_is_not_there(

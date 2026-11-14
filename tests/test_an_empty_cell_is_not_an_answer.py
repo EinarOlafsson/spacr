@@ -31,16 +31,27 @@ import pytest
 from spacr.ml import _left_blank
 
 
-@pytest.mark.parametrize("value", [None, "", "   ", "\t\n",
-                                   float("nan"), np.nan, np.float64("nan")])
-def test_every_spelling_of_empty_is_empty(value):
-    assert _left_blank(value) is True
-
-
-@pytest.mark.parametrize("value", [0, 0.0, 0.5, False, "HC3", "auto", -1])
-def test_an_answer_is_not_empty(value):
-    """Zero and False are answers. Only NaN and blank text are not."""
-    assert _left_blank(value) is False
+@pytest.mark.parametrize("value, expected", [
+    pytest.param(None, True, id="none-is-blank"),
+    pytest.param("", True, id="empty-text-is-blank"),
+    pytest.param("   ", True, id="spaces-are-blank"),
+    pytest.param("\t", True, id="tab-is-blank"),
+    pytest.param("\t\n", True, id="tab-newline-is-blank"),
+    pytest.param(float("nan"), True, id="float-nan-is-blank"),
+    pytest.param(np.nan, True, id="np-nan-is-blank"),
+    pytest.param(np.float64("nan"), True, id="np-float64-nan-is-blank"),
+    pytest.param(0, False, id="zero-is-an-answer"),
+    pytest.param(0.0, False, id="zero-float-is-an-answer"),
+    pytest.param(0.5, False, id="half-is-an-answer"),
+    pytest.param(1.345, False, id="a-tuning-constant-is-an-answer"),
+    pytest.param(-1, False, id="minus-one-is-an-answer"),
+    pytest.param(False, False, id="false-is-an-answer"),
+    pytest.param("HC3", False, id="a-covariance-type-is-an-answer"),
+    pytest.param("auto", False, id="auto-is-an-answer"),
+])
+def test_only_nan_and_blank_text_count_as_empty(value, expected):
+    """Zero and False are answers. Only None, NaN and blank text are not."""
+    assert _left_blank(value) is expected
 
 
 def test_the_nan_comes_from_reading_a_real_settings_file(tmp_path):

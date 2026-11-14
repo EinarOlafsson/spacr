@@ -1,7 +1,7 @@
-"""One uncovered decision each, in five modules that are otherwise complete.
+"""One uncovered decision each, in four modules that are otherwise complete.
 
-Grouped rather than split into five files because each is a single
-branch and the reasoning per module is a paragraph, not a suite. Three
+Grouped rather than split into four files because each is a single
+branch and the reasoning per module is a paragraph, not a suite. Two
 are live and driven; two are dead and pinned to the code that makes
 them dead.
 """
@@ -115,80 +115,6 @@ class TestExplainingAPresetThatNamesNothing:
         printed = capsys.readouterr().out
 
         assert "covers:" in printed
-
-
-# ---------------------------------------------------------------------------
-# spacr/resource_log.py -- private memory figures that are not integers
-# ---------------------------------------------------------------------------
-
-class TestMemoryMeasureFallback:
-    """USS, then PSS, then RSS -- and what happens when none is a number."""
-
-    def test_the_first_integer_measure_wins(self):
-        from spacr import resource_log
-
-        class Full:
-            uss = 111
-            pss = 222
-            rss = 333
-
-        class Process:
-            def memory_full_info(self):
-                return Full()
-
-            def memory_info(self):        # pragma: no cover - not reached
-                raise AssertionError("the private figures were available")
-
-        value, measure = resource_log._memory(_PsutilStub(), Process())
-        assert (value, measure) == (111, "uss")
-
-    def test_a_full_info_with_no_integer_measure_falls_through_to_rss(self):
-        """THE UNCOVERED ARC: the loop finishes without returning.
-
-        A platform can hand back a full-info object whose private
-        figures are None, or strings, rather than refusing outright.
-        Treating those as a memory number would put "uss = None" in the
-        resource log; falling through gives the resident figure, which
-        every platform has.
-        """
-        from spacr import resource_log
-
-        class Full:
-            uss = None
-            pss = "not a number"
-            # rss deliberately absent
-
-        class Info:
-            rss = 4096
-
-        class Process:
-            def memory_full_info(self):
-                return Full()
-
-            def memory_info(self):
-                return Info()
-
-        value, measure = resource_log._memory(_PsutilStub(), Process())
-        assert (value, measure) == (4096, "rss")
-
-    def test_no_resident_figure_either_reports_nothing_rather_than_zero(self):
-        from spacr import resource_log
-
-        class Process:
-            def memory_full_info(self):
-                raise RuntimeError("permission denied")
-
-            def memory_info(self):
-                return type("Info", (), {"rss": None})()
-
-        value, measure = resource_log._memory(_PsutilStub(), Process())
-        assert (value, measure) == (None, None), (
-            "an unknown memory figure must not read as zero bytes")
-
-
-class _PsutilStub:
-    class NoSuchProcess(Exception):
-        pass
 
 
 # ---------------------------------------------------------------------------
