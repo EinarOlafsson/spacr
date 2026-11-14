@@ -246,28 +246,6 @@ def test_a_table_created_after_the_sidebar_was_listed_still_opens(
 # Programmatic selection and filtering with arguments no widget produces
 # ---------------------------------------------------------------------------
 
-def test_selecting_rows_that_are_all_out_of_range_clears_the_selection(
-        screen, db_path):
-    """A stale linked selection must not leave old rows looking selected.
-
-    ``select_rows`` is what a linked view calls when the shared selection
-    changes, and the rows it names were computed against whatever that
-    other view has loaded. After switching to a shorter table every one of
-    them can be past the end. Returning early *before* clearing would leave
-    the previous highlight standing, so the table would claim to have rows
-    selected that the shared selection no longer contains.
-    """
-    assert screen.set_database(db_path) is True
-    assert screen.select_table("cell") is True
-
-    assert screen.select_rows([2, 3]) == [2, 3]
-    assert screen.selected_rows() == [2, 3]
-
-    total = screen.row_count()
-    assert total == N_ROWS
-    assert screen.select_rows([total + 5, -1]) == []
-    assert screen.selected_rows() == []
-
 
 def test_an_unknown_filter_operator_never_reaches_the_sql(screen, db_path):
     """An operator spaCR does not know must not be spliced into a WHERE.

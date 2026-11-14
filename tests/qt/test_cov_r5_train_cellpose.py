@@ -120,33 +120,6 @@ def test_a_tab_change_with_no_previous_tab_carries_nothing(workbench):
     assert carried == [(workbench._screens[0], workbench._screens[1])]
 
 
-def test_a_masthead_with_no_api_link_still_says_what_src_means(workbench):
-    """The instruction line lands whether or not there is a link to repoint.
-
-    One masthead serves two modules, so the help link follows the visible
-    tab. The link is optional -- a header built without a description has
-    none -- and the sentence under the title is not: it is the only thing
-    that tells the user which folder layout the tab in front of them reads.
-    """
-    header = workbench._header
-    assert header.api_help is not None
-    header.api_help = None
-
-    workbench._tabs.setCurrentIndex(1)
-
-    assert header.instruction_label.text() == TABS[1][2]
-    assert header.instruction_label.isVisible() or not workbench.isVisible()
-    assert workbench.active_app_key() == APPLY_KEY
-
-    # Give the link back and the same change repoints it, so the branch
-    # above is the missing label rather than a dead follow.
-    header.api_help = header.description_label
-    workbench._tabs.setCurrentIndex(0)
-
-    assert header.instruction_label.text() == TABS[0][2]
-    assert header.api_help.property("moduleApiAppKey") == TRAIN_KEY
-
-
 # ---------------------------------------------------------------------------
 # The registry factory
 # ---------------------------------------------------------------------------

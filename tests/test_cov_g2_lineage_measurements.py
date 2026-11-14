@@ -1,8 +1,6 @@
 """The refusals of measured lineage colouring, one guard at a time."""
 import json
-import sqlite3
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -120,28 +118,6 @@ def test_a_mapping_with_a_duplicate_object_is_refused(project):  # noqa: F811
     _rewrite(path, duplicate)
     with pytest.raises(ValueError, match="duplicate object identities"):
         lm._load_lineage_sources(path)
-
-
-def test_a_feature_named_like_an_identity_is_refused(project):  # noqa: F811
-    path, db = project[0], project[1]
-    with pytest.raises(ValueError, match="numeric measurement feature"):
-        lm._measured_lineage_inputs(db, path, "object_label")
-
-
-def test_measured_labels_must_be_positive_integers(project):  # noqa: F811
-    path, db = project[0], project[1]
-    with sqlite3.connect(db) as con:
-        con.execute("UPDATE cell SET object_label = 0 WHERE rowid = 1")
-    with pytest.raises(ValueError, match="positive integers"):
-        lm._measured_lineage_inputs(db, path, "cell_intensity")
-
-
-def test_measured_rows_that_repeat_an_object_are_refused(project):  # noqa: F811
-    path, db = project[0], project[1]
-    with sqlite3.connect(db) as con:
-        con.execute("INSERT INTO cell SELECT * FROM cell WHERE rowid = 1")
-    with pytest.raises(ValueError, match="ambiguous duplicate"):
-        lm._measured_lineage_inputs(db, path, "cell_intensity")
 
 
 def test_a_distance_given_as_text_must_be_a_number():

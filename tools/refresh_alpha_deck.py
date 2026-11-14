@@ -183,7 +183,25 @@ GROUPS = (
         (803, "GPU memory budget on a shared card"),
     )),
 )
-LEFT_GROUPS = 4
+LEFT_GROUPS = 4  # kept for readers; the columns are now balanced by _columns()
+
+
+def _columns():
+    """Split GROUPS into two columns of equal length, cutting one group if needed."""
+    total = sum(len(rows) for _, rows in GROUPS)
+    half = (total + 1) // 2
+    left, right, seen = [], [], 0
+    for category, rows in GROUPS:
+        if seen >= half:
+            right.append((category, rows))
+        elif seen + len(rows) <= half:
+            left.append((category, rows))
+        else:
+            cut = half - seen
+            left.append((category, rows[:cut]))
+            right.append((category + "\n(continued)", rows[cut:]))
+        seen += len(rows)
+    return left, right
 # Alpha organism pages (ALPHA_SPECIES), drawn as a strip with their Home icons.
 SPECIES_ITEM = 634
 SPECIES = (
@@ -290,11 +308,11 @@ def _draw_pdf(target, count, page_size):
         label("ALPHA", 2910, 123, 160, 64, 32, "#d63fa1", True)
         # Rows shrink from 36 px so the longer column ends above the species strip.
         longest = max(sum(len(rows) for _, rows in column)
-                      for column in (GROUPS[:LEFT_GROUPS], GROUPS[LEFT_GROUPS:]))
+                      for column in _columns())
         row_height = min(36, int((1545 - 375) // longest))
         # The captions shrink with the rows, so a line never spills into the next.
         caption_size = min(27, row_height - 4)
-        for x, groups in ((120, GROUPS[:LEFT_GROUPS]), (1640, GROUPS[LEFT_GROUPS:])):
+        for x, groups in zip((120, 1640), _columns()):
             painter.fillRect(QRectF(x, 310, 1440, 65), QColor("#222932"))
             label("Category", x + 14, 310, 345, 65, 34, bold=True)
             label("Alpha feature", x + 388, 310, 1035, 65, 34, bold=True)

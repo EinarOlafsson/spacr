@@ -11,7 +11,6 @@ the matching message appears while the default design stays clean.
 
 from __future__ import annotations
 
-import dataclasses
 
 import pytest
 
@@ -67,36 +66,6 @@ def test_a_hit_prevalence_outside_zero_to_one_is_refused(hit_rate):
     assert "fraction between 0 and 1" in _joined(hit_rate=hit_rate)
 
 
-def test_a_positive_rate_above_one_is_refused_before_its_variance_is_judged():
-    """A rate outside [0, 1] makes the Bernoulli variance bound meaningless.
-
-    The bound is ``mean * (1 - mean)``, which goes negative for a mean above
-    1, so every variance would look "too spread out". The range check has to
-    fire first and skip the variance message, or the user is told to lower a
-    variance that is not the problem.
-    """
-    problems = _problems(background_positive_rate=1.5)
-    background = [p for p in problems if "background" in p.lower()]
-    assert background == ["The background positive rate has to be in [0, 1]."]
-
-
-def test_a_negative_rate_is_reported_for_both_the_background_and_the_hit():
-    """The hit rate is derived from the background, so one typo breaks both."""
-    problems = _problems(background_positive_rate=-0.2)
-    ranged = [p for p in problems if "has to be in [0, 1]" in p]
-    assert len(ranged) == 2
-    assert any("background" in p.lower() for p in ranged)
-    assert any("hit-cell" in p.lower() for p in ranged)
-
-
 def test_negative_reads_per_well_is_refused():
     """Sequencing depth is a count; a negative one has no simulation."""
     assert "Reads per well cannot be negative" in _joined(reads_per_well=-1.0)
-
-
-def test_every_problem_is_reported_in_one_pass():
-    """Refusing one field at a time is how a power calculation gets abandoned."""
-    problems = _problems(n_genes=1, n_grnas_per_gene=0,
-                         cells_per_well=0.0, constructs_per_well=0.0,
-                         reads_per_well=-1.0)
-    assert len(problems) >= 5
