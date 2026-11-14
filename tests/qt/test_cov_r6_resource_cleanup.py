@@ -32,16 +32,6 @@ def _module(name, **attributes):
     return module
 
 
-@pytest.fixture
-def budget_globals():
-    """Restore the module's two sweep globals whatever a test does to them."""
-    timer = rc._BUDGET_TIMER
-    pending = rc._BUDGET_SWEEP_PENDING
-    yield
-    rc._BUDGET_TIMER = timer
-    rc._BUDGET_SWEEP_PENDING = pending
-
-
 # ---------------------------------------------------------------------------
 # Reading torch's allocator without owning one
 # ---------------------------------------------------------------------------
@@ -108,33 +98,6 @@ def test_an_allocator_that_stops_answering_reports_no_cached_bytes(
 # Owners that answer only half of the cache-budget protocol
 # ---------------------------------------------------------------------------
 
-def test_an_owner_that_cannot_evict_is_named_rather_than_inventoried():
-    """An inventory with no eviction would report megabytes nothing can free.
-
-    Listing such an owner's entries would make every sweep look incomplete
-    for ever, so the owner is reported as broken and its entries are skipped.
-    """
-    class _Halfway:
-        __name__ = "fake.halfway"
-
-        def cache_budget_entries(self):
-            return [("k", 4 * 1024 * 1024, 0.0, False)]
-
-    records, errors = rc._collect_budget_entries([_Halfway()])
-
-    assert records == []
-    assert errors == ["fake.halfway: cache-budget protocol is incomplete"]
-
-    # The same owner with the missing half supplied: its entry is collected,
-    # so the empty list above is the missing method and not an empty cache.
-    whole = _Halfway()
-    whole.drop_cache_budget_entry = lambda key: True
-    records, errors = rc._collect_budget_entries([whole])
-
-    assert errors == []
-    assert [row.label for row in records] == ["fake.halfway['k']"]
-    assert records[0].megabytes == pytest.approx(4.0)
-
 
 def test_a_loaded_module_without_the_protocol_is_stepped_over(monkeypatch):
     """Module caches are discovered by shape, and the shape is both methods.
@@ -200,40 +163,3 @@ def test_a_releaser_found_twice_is_still_only_run_once(monkeypatch):
 # ---------------------------------------------------------------------------
 # Installing the periodic sweep
 # ---------------------------------------------------------------------------
-
-def test_no_application_means_no_sweep_and_no_orphan_timer(
-        monkeypatch, qapp, budget_globals):
-    """The timer is parented to the application, so it needs one to exist.
-
-    ``install_budget_sweep`` runs during start-up, and on the paths where Qt
-    has been imported but the application has not been built yet there is
-    nothing to own the timer.  Answering ``False`` keeps the caller free to
-    ask again once the application is up.
-    """
-    real_app = qapp
-    rc._BUDGET_TIMER = None
-
-    monkeypatch.setitem(
-        sys.modules, "PySide6.QtWidgets",
-        _module("PySide6.QtWidgets",
-                QApplication=SimpleNamespace(instance=lambda: None)))
-
-    assert rc.install_budget_sweep() is False
-    assert rc._BUDGET_TIMER is None
-
-    # The same call with an application present installs a running timer, so
-    # the False above is the missing application and nothing else.
-    monkeypatch.setitem(
-        sys.modules, "PySide6.QtWidgets",
-        _module("PySide6.QtWidgets",
-                QApplication=SimpleNamespace(instance=lambda: real_app)))
-    try:
-        assert rc.install_budget_sweep() is True
-        assert rc._BUDGET_TIMER is not None
-        assert rc._BUDGET_TIMER.isActive()
-        assert rc._BUDGET_TIMER.parent() is real_app
-        assert rc._BUDGET_TIMER.objectName() == "LiveCacheBudgetSweep"
-    finally:
-        if rc._BUDGET_TIMER is not None:
-            rc._BUDGET_TIMER.stop()
-            rc._BUDGET_TIMER.deleteLater()

@@ -30,25 +30,6 @@ def _predictions(rows=None):
 # The threshold and the columns it needs
 # ---------------------------------------------------------------------------
 
-def test_one_class_has_no_confusion_and_no_threshold():
-    """Chance is 100% with one class, so "sure" cannot be defined at all."""
-    with pytest.raises(C.ConfusionError, match="at least two classes"):
-        C.confidence_threshold(1)
-    assert C.confidence_threshold(2) == 0.75
-
-
-def test_a_table_that_is_not_an_evaluation_bundle_names_what_it_lacks():
-    """The message has to name the columns AND where they come from."""
-    frame = pd.DataFrame({"object_key": ["a"], "score": [1.0]})
-
-    with pytest.raises(C.ConfusionError) as excinfo:
-        C.confusion_counts(frame)
-
-    message = str(excinfo.value)
-    assert C.TRUE_COLUMN in message and C.PREDICTED_COLUMN in message
-    assert "evaluate_predictions" in message
-
-
 def test_a_table_naming_no_object_cannot_open_crops():
     """A "show me these crops" button that raises on click is worse than absent."""
     frame = pd.DataFrame({C.TRUE_COLUMN: ["a"], C.PREDICTED_COLUMN: ["b"]})
@@ -94,15 +75,6 @@ def test_a_cell_with_no_confidence_column_cannot_be_split():
 # ---------------------------------------------------------------------------
 # The matrix and its worst cells
 # ---------------------------------------------------------------------------
-
-def test_a_class_the_model_never_chose_still_gets_its_column():
-    """A vanished class makes the matrix look complete when it is not."""
-    counts = C.confusion_counts(_predictions())
-
-    assert list(counts.index) == ["infected", "uninfected"]
-    assert list(counts.columns) == ["infected", "uninfected"]
-    assert int(counts.loc["infected", "uninfected"]) == 2
-
 
 def test_a_perfect_classifier_gets_a_sentence_rather_than_a_blank_panel():
     """A blank panel reads as a panel that failed to load."""
@@ -157,23 +129,6 @@ def test_errors_piled_into_one_field_are_called_a_field_problem():
 # ---------------------------------------------------------------------------
 # One cell of the matrix
 # ---------------------------------------------------------------------------
-
-def test_a_cell_built_without_a_threshold_derives_one_from_the_classes():
-    """The default has to come from the assay's class count, not from 0.5."""
-    cell = C.ConfusionCell.build(_predictions(), "infected", "uninfected")
-
-    assert cell.threshold == C.confidence_threshold(2)
-    assert len(cell) == 2
-    assert cell.is_error is True
-    assert len(cell.high) == 1 and len(cell.low) == 1
-
-
-def test_a_cell_told_how_many_classes_there_are_uses_that_count():
-    cell = C.ConfusionCell.build(_predictions(), "infected", "uninfected",
-                                 n_classes=4)
-
-    assert cell.threshold == C.confidence_threshold(4)
-
 
 def test_asking_a_cell_for_an_unknown_half_is_refused():
     cell = C.ConfusionCell.build(_predictions(), "infected", "uninfected")

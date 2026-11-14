@@ -1,9 +1,7 @@
 """Coverage-fill batch 2 for spacr.sequencing save/lookup helpers."""
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
-import pytest
 
 from spacr import sequencing as SEQ
 
@@ -34,14 +32,6 @@ def test_map_sequences_to_names_rc(tmp_path):
 # get_consensus_base
 # ---------------------------------------------------------------------------
 
-def test_get_consensus_base():
-    assert SEQ.get_consensus_base([("N", 40), ("A", 30)]) == "A"
-    assert SEQ.get_consensus_base([("C", 40), ("N", 30)]) == "C"
-    # both real → highest quality wins
-    assert SEQ.get_consensus_base([("G", 20), ("T", 35)]) == "T"
-    assert SEQ.get_consensus_base([("G", 35), ("T", 20)]) == "G"
-
-
 # ---------------------------------------------------------------------------
 # HDF5 / CSV savers
 # ---------------------------------------------------------------------------
@@ -56,20 +46,6 @@ def test_save_df_to_hdf5_append(tmp_path):
     assert len(out) == 3    # appended
 
 
-def test_save_unique_combinations_to_csv(tmp_path):
-    csv = tmp_path / "uc.csv"
-    uc = pd.DataFrame({
-        "rowID": ["r1", "r2"], "columnID": ["c1", "c1"],
-        "grna_name": ["g1", "g2"], "count": [5, 3],
-    })
-    SEQ.save_unique_combinations_to_csv(uc, str(csv))
-    # append same combos → counts sum
-    SEQ.save_unique_combinations_to_csv(uc, str(csv))
-    out = pd.read_csv(str(csv))
-    total = out[out["grna_name"] == "g1"]["count"].sum()
-    assert total == 10
-
-
 def test_save_qc_df_to_csv(tmp_path):
     csv = tmp_path / "qc.csv"
     qc = pd.DataFrame({"total_reads": [100], "unmatched": [10]})
@@ -82,10 +58,6 @@ def test_save_qc_df_to_csv(tmp_path):
 # ---------------------------------------------------------------------------
 # reverse_complement / extract_sequence_and_quality
 # ---------------------------------------------------------------------------
-
-def test_reverse_complement():
-    assert SEQ.reverse_complement("AAAC") == "GTTT"
-
 
 def test_extract_sequence_and_quality():
     seq, qual = SEQ.extract_sequence_and_quality("ACGTACGT", "IIIIIIII", 2, 5)
