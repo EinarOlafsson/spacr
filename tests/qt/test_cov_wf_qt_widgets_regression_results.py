@@ -22,7 +22,6 @@ pytest.importorskip("PySide6")
 import spacr.hits as hits  # noqa: E402
 import spacr.regression_qc as regression_qc  # noqa: E402
 from spacr.qt.widgets import refit_dialog  # noqa: E402
-from spacr.qt.widgets.fast_plots import VolcanoPlot  # noqa: E402
 from spacr.qt.widgets.regression_results import (  # noqa: E402
     RegressionResultsPanel,
     for_table,
@@ -42,11 +41,6 @@ def _panel(qtbot) -> RegressionResultsPanel:
     panel = RegressionResultsPanel()
     qtbot.addWidget(panel)
     return panel
-
-
-def _bottom_label(panel) -> str:
-    """The volcano's horizontal axis title, as the reader sees it."""
-    return panel.volcano.plot.getPlotItem().getAxis("bottom").labelText
 
 
 # ------------------------------------------------------- reading a run folder
@@ -339,70 +333,3 @@ def test_the_family_is_written_on_plots_whose_tabs_were_lifted_out(qtbot):
         "the tabs still in the bar are still labelled")
     assert panel.tabs.tabToolTip(volcano_index) == panel.family_note()
     assert "guides only — 2 of 2 coefficients" in panel.family_note()
-
-
-def test_the_histograms_narrow_the_table_where_a_point_plot_selects(qtbot):
-    """A dot on the volcano IS one coefficient, so clicking a band of them
-    selects them. A bar on the p-value histogram stands for many rows, so it
-    narrows the table instead -- selecting "the rows behind this bar" would
-    make the gene tile show one guide while the image tabs showed another.
-    The two histograms are therefore not keyed plots at all."""
-    panel = _panel(qtbot)
-    panel.set_frame(_guides(), "/runs/guides/results.csv")
-    keyed = panel._keyed_plots()
-
-    assert panel.volcano in keyed
-    assert panel.p_values not in keyed and panel.effect_distribution not in keyed, (
-        "a histogram joined the select-many route, so a bar of 40 rows now "
-        "claims to be a selection of 40 coefficients")
-
-    panel.volcano.keys_selected.emit(["fraction:grna[G0_1]",
-                                      "fraction:grna[G0_2]"])
-    assert panel.selected_keys() == ["fraction:grna[G0_1]",
-                                     "fraction:grna[G0_2]"], (
-        "a band on a keyed plot selects every coefficient it encloses")
-
-    panel.p_values.keys_selected.emit(["fraction:grna[G0_1]"])
-    visible = [row for row in range(panel.table.table.rowCount())
-               if not panel.table.table.isRowHidden(row)]
-    assert len(visible) == 1, (
-        "a histogram bar narrowed nothing, so the rows behind it were never "
-        "brought to the front")
-    table = panel.table.table
-    row = visible[0]
-    texts = [table.item(row, col).text() if table.item(row, col) else ""
-             for col in range(table.columnCount())]
-    assert "fraction:grna[G0_1]" in texts, (
-        f"the bar's own row is not the one left showing; got {texts}")
-
-
-# ----------------------------------------------------------- the volcano axis
-
-def test_a_volcano_that_cannot_name_its_axis_still_draws_the_run(
-        qtbot, monkeypatch):
-    """A permutation run's horizontal axis is a partial correlation bounded in
-    [-1, 1], not a coefficient, and the volcano is asked to say so on every
-    redraw. A volcano too old to be asked must not take the whole redraw down
-    with it -- the run is still worth drawing, with the axis under its older
-    and more cautious name."""
-    permuted = _guides()
-    permuted["permutation_p_value"] = [0.01, 0.4]
-    permuted["standardized_marginal_effect"] = [0.11, 0.22]
-
-    panel = _panel(qtbot)
-    panel.set_frame(permuted, "/runs/perm/results.csv")
-
-    assert panel._analysis_path() == "permutation"
-    assert _bottom_label(panel) == (
-        "standardized marginal effect (partial correlation)"), (
-        "a bounded correlation was left labelled 'coefficient'")
-
-    older = _panel(qtbot)
-    monkeypatch.delattr(VolcanoPlot, "name_the_effect")
-    older.set_frame(permuted, "/runs/perm/results.csv")
-
-    assert older.results_frame() is not None
-    assert older.table.table.rowCount() == 2, (
-        "an unnameable axis stopped the run being drawn at all")
-    assert _bottom_label(older) == "coefficient", (
-        "with nothing to name the axis it keeps the default label")

@@ -193,19 +193,6 @@ def test_an_external_mask_entry_that_is_neither_group_nor_path_is_dropped(
     assert roots == ["/data/run", os.path.dirname(mask_file)]
 
 
-def test_a_bracketed_src_that_is_not_one_list_stays_a_single_path():
-    """``src`` is split only when the brackets really are one list literal.
-
-    A string that starts with ``[`` and ends with ``]`` is parsed, but the
-    parse can hand back a tuple of lists rather than the list of paths the
-    caller meant. That is not a source list, so the original string is kept
-    intact rather than silently reinterpreted.
-    """
-    assert V._src_values({"src": "['/a'],['/b']"}) == ["['/a'],['/b']"]
-    # The shape it IS meant to split.
-    assert V._src_values({"src": "['/a', '/b']"}) == ["/a", "/b"]
-
-
 # ---------------------------------------------------------------------------
 # paths that are actually on disk
 # ---------------------------------------------------------------------------

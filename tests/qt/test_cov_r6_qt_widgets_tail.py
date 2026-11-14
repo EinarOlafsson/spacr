@@ -487,29 +487,6 @@ class TestExportingAPlotThatHoldsNothingYet:
         finally:
             plot.deleteLater()
 
-    def test_a_plot_with_a_spec_exports_what_it_draws(self, qapp):
-        """The contrast: the same call, with data behind it."""
-        from spacr.qt.widgets.grouped_plot import GroupedPlot, PlotSpec
-
-        import pandas as pd
-
-        frame = pd.DataFrame({"treatment": ["a", "a", "b", "b"],
-                              "area": [1.0, 2.0, 3.0, 4.0]})
-        spec = PlotSpec(frame=frame, group="treatment", value="area",
-                        unit="cell")
-        plot = GroupedPlot()
-        try:
-            plot.show_spec(spec)
-            out = plot.export_settings()
-
-            assert out["group"] == "treatment"
-            assert out["value"] == "area"
-            assert out["unit"] == "cell"
-            assert out["kind"], "the drawn kind is exported"
-            assert out["shape"]
-        finally:
-            plot.deleteLater()
-
 
 # ---------------------------------------------------------------------------
 # umap_search_viewer

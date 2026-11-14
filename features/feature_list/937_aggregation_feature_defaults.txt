@@ -1,0 +1,33 @@
+A DEFAULT AGGREGATION FOR EVERY MEASURED FEATURE WHEN TABLES ARE MERGED (WELL, GUIDE, GENE AND CHILD-TO-PARENT)
+
+Lifecycle: future
+Status: DONE 2026-11-13 (alpha, under ALPHA_FEATURES[937]; aggregation_defaults 'per_feature' is the default for new screen settings files, older files keep 'legacy' through DEFAULT_CHANGES[934]) — spacr.merge_tables.SUMMARY_AGGREGATION_RULES gives every column of a per-cell table its own method, with the reason, when cells are summarised per well, guide or gene: identifiers, positions and link bookkeeping dropped; provenance stamps kept once (a group that mixes two values stops the summary); intensities, intensity spreads, sizes, shapes, textures, correlation coefficients, distances and embeddings by the median; shares bounded by 0 and 1 by the mean; yes/no flags as <column>_fraction; counts as the per-cell mean plus <column>_sum; neighbour counts by the mean only; orientations by the axial circular mean plus <column>_coherence; a column no rule names takes the median and is listed as 'unruled'. spacr.merge_tables.aggregate_by_feature applies it (overrides by name or regex; fisher_z_mean and trimmed_mean as override methods); summary_aggregation_plan returns column, method, rule, reason and family; circmean_axial is the axial mean. Child -> parent roll-up: PER_FEATURE_AGGREGATION_RULES (MergePolicy(defaults='per_feature'), aggregation_for(..., defaults=...)) corrects five legacy rules (fractions averaged, not summed; n_<object> counts summed; orientation axial mean; area_bbox max; stamps first) and names every profiling family with the method it already got; AGGREGATION_RULES_V1 keeps the legacy table verbatim and stays the default. Consumers: screen_staging.aggregate_wells level 'well_default' (wells_default.parquet and aggregation_plan.csv; run_screen adds it under aggregation_defaults='per_feature'); gene_measurement_compare.aggregate_guides / aggregate_genes method='per_feature' (default 'median', so the OPS profiles and the 928/929 proofs are unchanged); io._read_and_join_tables(aggregation_defaults='per_feature') rolls up with the merge module's rules. spacr/merge_tables.py, spacr/screen_staging.py, spacr/gene_measurement_compare.py, spacr/io.py, spacr/plate_measurements.py, spacr/settings.py, tests/test_aggregation_feature_defaults_937.py.
+Requested: maintainer, 2026-11-13 ("the aggregation code for merging tables should have default aggregation methods for all of the new features that make sense").
+Owner: item 937 lane, 2026-11-13.
+Source: proposals/bmc_paper_items/ITEM_aggregation_feature_defaults.md (maintainer decisions 2026-11-13, commit 75530455f4).
+Related: 79 (child -> parent rules), 893 (screen aggregate), 896 (embedding aggregate), 883 (gene = median over cells), 928, 929, 931 (settings schema version), 934 (new Measure features).
+
+MAINTAINER DECISIONS (2026-11-13)
+Counts: per-cell mean as the main column plus a _sum total. Correlations:
+median. area_bbox: max at roll-up. OPS gene profiles stay the median for
+every feature (Brieflow); no ops_aggregate_method setting was added, the
+library keeps method='median' as the default. per_feature becomes the
+default for new settings files; existing files stay legacy through the
+settings-schema version.
+
+DEVIATIONS FROM THE SPEC TABLE (with reasons)
+- compactness is in the size/shape row (median), not the shares row: it is
+  2*pi*sum(r^2)/area^2, at least 1 and unbounded above.
+- k1/k2 (Manders' split coefficients) are with the correlations (median):
+  they are not bounded by 1.
+- M1_correlation_<t> / M2_correlation_<t> (the thresholded Manders M1/M2)
+  are with the shares (mean), like manders_m1/m2: they are fractions of
+  intensity, not correlation coefficients.
+- The GUI read-only plan table, the ops_aggregate_method setting and the
+  assay_report methods are not part of this item (the maintainer kept OPS
+  on the median; assay_report's listed columns are unchanged).
+
+SETTINGS (screen pipeline, alpha)
+aggregation_defaults ('per_feature'; 'legacy'), aggregation_count_sum (True),
+aggregation_report (True). DEFAULT_CHANGES[934] = {'aggregation_defaults':
+'legacy'} (placeholder number; the master renumbers at landing).

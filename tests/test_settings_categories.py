@@ -362,7 +362,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_profile_shrinkage", "ops_profile_weighting", "ops_profile_similarity",
     "ops_reference_dir", "ops_eval_references", "ops_eval_split",
     "ops_eval_null_size", "ops_eval_heldout_folds", "ops_eval_decoys",
-    "ops_eval_time_split", "ops_eval_covariates", "ops_deterministic_blas",
+    "ops_eval_time_split", "ops_eval_covariates", "ops_deterministic_blas", "ops_blas_threads",
     # NEW SETTINGS (2026-11-09, BMC paper items 898-901 and 909-911, lane E).
     *PREDICTION_DEFAULTS, *TITRATION_DEFAULTS, *TRANSLOCATION_DEFAULTS,
     "timelapse_division_onset", "timelapse_division_onset_ci",
@@ -738,6 +738,54 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 931 (2026-11-13): feathered blending of the OPS sequencing
     # mosaic (OPS stage 1, seam arm none:feather).
     "ops_compose_blend",
+    # Item 932 (2026-11-13): the genotyping decode speed-up -- registration
+    # precision and backend, and the optional per-field diagnostics.
+    "ops_registration_precision",
+    "ops_registration_backend",
+    "ops_field_diagnostics",
+    # Item 933 (2026-11-13): the nuclear-median estimator of the general
+    # illumination correction (the OPS flat-field of item 912).
+    "illumination_nuclear_channel",
+    "illumination_nuclei",
+    "illumination_dark_per_plate",
+    "illumination_block_px",
+    "illumination_fit",
+    "illumination_sigma_px",
+    "illumination_ridge",
+    "illumination_floor",
+    "illumination_centre_cells",
+    "illumination_lookup",
+    "illumination_map_grid",
+    "illumination_centre_offset",
+    "illumination_holdout_n",
+    "illumination_seed",
+    "illumination_validate",
+    # Item 939 (2026-11-13): automatic per-well genotyping thresholds from
+    # decoys (S2-it1 arm iii).
+    "ops_decode_threshold_mode",
+    "ops_decode_fdr_max",
+    "ops_decode_auto_grid",
+    "ops_decode_auto_ci",
+    "ops_decode_auto_tune_fraction",
+    "ops_decode_auto_seed",
+    # Items 936 and 940 (2026-11-13): stitch reader threads and edge
+    # workers, and the placement seed file.
+    "ops_stitch_read_threads",
+    "ops_stitch_edge_workers",
+    "ops_placement_seed",
+    "ops_placement_seed_mode",
+    "ops_placement_seed_export",
+    "ops_placement_seed_check_pixels",
+    "ops_placement_seed_tolerance",
+    # Item 934 (2026-11-13): the OPS measurement switches in Measure --
+    # Funk et al.'s object features, the explicit Zernike switch and
+    # channel-named columns under Measurements, and the CPU/GPU self-check
+    # under "GPU Measurement α".
+    "funk_object_features",
+    "zernike",
+    "channel_names",
+    "measure_gpu_check",
+    "measure_gpu_check_rtol",
     # Item 930 (2026-11-13): per-tile affine alignment of phenotype fields
     # to the sequencing nuclei (OPS stage 1, arm vii).
     "ops_align_model",
@@ -758,6 +806,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_consensus_force_genes",
     "ops_consensus_min_stability",
     "ops_consensus_match_count",
+    "ops_consensus_space",
     "ops_consensus_guides",
     "ops_bench_replicates",
     "ops_bench_replicate_seed",
@@ -1172,6 +1221,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "aggregate_levels", "aggregate_metadata", "aggregate_metadata_columns",
     "aggregate_control", "aggregate_control_percentiles",
     "aggregate_heterogeneity", "aggregate_dir", "record_timing",
+    # 937, alpha: per-feature well aggregation of the screen pipeline.
+    "aggregation_defaults", "aggregation_count_sum", "aggregation_report",
     # 896, alpha: crop shards, embeddings and well embedding profiles
     # (`spacr/embedding_profiles.py`), two headings of its own.
     "embedding_src", "embedding_cells", "embedding_wells", "crop_store",

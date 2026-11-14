@@ -149,70 +149,73 @@ class TestWhatItSays:
         assert "training" in pick_device(what="training")[1]
 
 
-class TestNoEntryPointAsksTheOldQuestion:
-    def test_the_training_and_inference_paths_ask_for_room(self):
-        """Device selection asks for room; RNG snapshots ask for capability."""
-        import ast
-        import inspect
+class TestCapabilityIsNotRoom:
+    """Device selection asks for room; RNG snapshots ask only for capability."""
 
+    def test_the_attribution_block_never_asks_cuda_when_there_is_no_card(
+            self, monkeypatch):
         from spacr import deep_spacr
 
-        # PARSED, not grepped: the sentence describing the defect appears in
-        # `pick_device`'s own docstring, and a text search finds it there.
-        tree = ast.parse(inspect.getsource(deep_spacr))
-        allowed = {"pick_device", "_empty_device_cache"}
-        rng_assignment = ast.parse(
-            "devices = list(range(torch.cuda.device_count())) "
-            "if torch.cuda.is_available() else []").body[0]
-        rng_check = None
-        stray = []
-        for node in ast.walk(tree):
-            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                continue
-            if node.name in allowed:
-                continue
-            if node.name == "_deterministic_attribution":
-                assignment = next((part for part in ast.walk(node)
-                    if isinstance(part, ast.Assign)
-                    and ast.dump(part) == ast.dump(rng_assignment)), None)
-                assert assignment is not None, "CUDA snapshot guard changed"
-                readers = [part for part in ast.walk(node)
-                    if isinstance(part, ast.Name) and part.id == "devices"
-                    and isinstance(part.ctx, ast.Load)]
-                assert len(readers) == 1
-                assert any(isinstance(part, ast.Call)
-                    and ast.dump(part.func) == ast.dump(ast.parse(
-                        "torch.random.fork_rng", mode="eval").body)
-                    and any(keyword.arg == "devices"
-                        and keyword.value is readers[0]
-                        for keyword in part.keywords)
-                    for part in ast.walk(node))
-                rng_check = assignment.value.test
-            for inner in ast.walk(node):
-                if not isinstance(inner, ast.Call):
-                    continue
-                target = inner.func
-                if (isinstance(target, ast.Attribute)
-                        and target.attr == "is_available"
-                        and isinstance(target.value, ast.Attribute)
-                        and target.value.attr == "cuda"
-                        and inner is not rng_check):
-                    stray.append(f"{node.name}:{inner.lineno}")
-        assert rng_check is not None, "CUDA RNG preservation was not checked"
-        assert not stray, (
-            f"{len(stray)} call site(s) still ask only whether a GPU "
-            f"exists: {stray}")
+        def never(*_args, **_kwargs):
+            raise AssertionError("asked CUDA about a card that is not there")
 
-    def test_the_test_suite_skips_gpu_tests_on_a_busy_card(self):
-        """One conftest hook rather than a guard per file -- every test
-        that needs the card already carries `@pytest.mark.gpu`, and a guard
-        written into each file is a guard the next file will not have."""
-        import inspect
+        monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+        monkeypatch.setattr(torch.cuda, "device_count", never)
+        before = torch.backends.cudnn.benchmark
+        with deep_spacr._deterministic_attribution(seed=3):
+            assert torch.backends.cudnn.deterministic is True
+            assert torch.backends.cudnn.benchmark is False
+        assert torch.backends.cudnn.benchmark == before
+
+    def test_the_cache_is_released_only_where_there_is_a_card(self, monkeypatch):
+        from spacr import deep_spacr
+
+        calls = []
+        monkeypatch.setattr(torch.cuda, "empty_cache", lambda: calls.append(1))
+        monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+        deep_spacr._empty_device_cache()
+        assert calls == []
+        monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+        deep_spacr._empty_device_cache()
+        assert calls == [1]
+
+
+class TestTheTestSuiteSkipsGpuTestsOnABusyCard:
+    """One conftest hook rather than a guard per file -- every test that needs
+    the card already carries `@pytest.mark.gpu`."""
+
+    @staticmethod
+    def _item(marked):
+        import types
+
+        return types.SimpleNamespace(
+            stash={},
+            get_closest_marker=lambda name: object() if (
+                marked and name == "gpu") else None)
+
+    def _conftest(self):
         import sys
 
         conftest = sys.modules.get("conftest") or sys.modules.get(
             "tests.conftest")
         assert conftest is not None
-        assert hasattr(conftest, "pytest_runtest_setup")
-        source = inspect.getsource(conftest.pytest_runtest_setup)
-        assert '"gpu"' in source
+        return conftest
+
+    def test_a_gpu_test_is_skipped_with_the_reason_when_the_card_is_full(
+            self, monkeypatch):
+        conftest = self._conftest()
+        monkeypatch.setattr(conftest, "_no_room_on_the_gpu",
+                            lambda: "the card is held by another session")
+        with pytest.raises(pytest.skip.Exception,
+                           match="held by another session"):
+            conftest.pytest_runtest_setup(self._item(marked=True))
+
+    def test_a_test_that_does_not_need_the_card_is_not_asked_about_it(
+            self, monkeypatch):
+        conftest = self._conftest()
+
+        def never():
+            raise AssertionError("an unmarked test asked about the GPU")
+
+        monkeypatch.setattr(conftest, "_no_room_on_the_gpu", never)
+        conftest.pytest_runtest_setup(self._item(marked=False))

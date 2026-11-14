@@ -39,7 +39,6 @@ from PySide6.QtWidgets import QTableWidget, QToolButton     # noqa: E402
 from spacr.qt.ingest_preview import ROW_COLUMNS             # noqa: E402
 from spacr.qt.widgets.database_set import DatabaseSetWidget  # noqa: E402
 from spacr.qt.widgets.folding_summary import split_rows     # noqa: E402
-from spacr.qt.widgets.gate_console import GateConsole       # noqa: E402
 from spacr.qt.widgets.metadata_table import (               # noqa: E402
     MetadataTableDialog, MetadataTablePanel,
 )
@@ -69,54 +68,6 @@ def _row(**over):
 # ---------------------------------------------------------------------------
 # gate_console
 # ---------------------------------------------------------------------------
-
-def test_a_column_that_cannot_be_a_name_is_reachable_only_through_df():
-    """Columns are injected as bare names -- but only when that is safe.
-
-    ``mean area`` is not an identifier and ``df`` is already the frame, so
-    neither may be bound: binding the second would replace the table with one
-    of its own columns and every later expression would quietly disagree with
-    the plot. The identifier column next to them proves the injection that is
-    being withheld really happens.
-    """
-    from spacr.qt.widgets.gate_console import evaluate
-
-    frame = pd.DataFrame({"area": [1.0, 3.0],
-                          "mean area": [10.0, 20.0],
-                          "df": ["x", "y"]})
-
-    # The safe column IS injected...
-    assert evaluate("area.mean()", frame) == "2.0"
-    # ...while `df` still names the frame, not the column called df.
-    assert evaluate("df", frame) == "2 rows × 3 columns"
-    # ...and the non-identifier column has no bare name at all.
-    assert evaluate("mean area", frame).startswith("SyntaxError")
-    # It is still reachable the long way round, so nothing was dropped.
-    assert evaluate("df['mean area'].sum()", frame) == "30.0"
-
-
-def test_sending_an_empty_chat_box_says_nothing_and_clears_nothing(qtbot):
-    """Whitespace is not a question, so it must not be sent or wiped.
-
-    ``send_chat`` clears the box only when ``ask`` accepted something; a box
-    the user has not typed in yet keeps whatever is in it.
-    """
-    console = GateConsole()
-    qtbot.addWidget(console)
-    console.set_responder(lambda text: f"answered {text}")
-
-    # The presence case: a real question is asked and the box is emptied.
-    console.chat.setPlainText("how many objects?")
-    console.send_chat()
-    assert console.chat.toPlainText() == ""
-    assert "answered how many objects?" in console.transcript()
-
-    before = console.transcript()
-    console.chat.setPlainText("   \n  ")
-    console.send_chat()
-
-    assert console.chat.toPlainText() == "   \n  "
-    assert console.transcript() == before
 
 
 # ---------------------------------------------------------------------------

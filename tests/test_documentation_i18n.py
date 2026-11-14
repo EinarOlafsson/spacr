@@ -33,7 +33,8 @@ TOOLS = ROOT / "tools"
 # 2026-11-01 item 749: +1, spacr.qt.screens.organism_screen.OrganismScreen.refresh_maturity_visibility.
 # 2026-11-03 item 749: +3, spacr.qt.widgets.dock.SectionHeader.set_open, .event and .paintEvent.
 # 2026-11-05 items 791, 770, 771: +22, sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, the spacr.division_analysis module and its fourteen functions, and batch_correction's EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_243
+# 2026-11-13 items 936/940: +2, the spacr.stitch_core module docstring and spacr.stitch_core.StripRegistration.shift (measured after the second landing train's last merge; the ten new stitch_core callables are in their arrival contract).
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_245
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",
@@ -3830,7 +3831,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("871_911_bmc_paper_items_api_arrivals_2026-11-09.json", 171),
         ("884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json", 376),
         ("912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json", 54),
-        ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 106),
+        ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 107),
         ("annotate_jump_api_arrivals_2026-11-11.json", 4),
         ("issue_186_png_list_annotations_api_arrivals_2026-11-11.json", 3),
         ("gate_editor_png_list_annotations_api_arrivals_2026-11-12.json", 1),
@@ -3839,6 +3840,13 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("910_899_paper_remaining_api_arrivals_2026-11-12.json", 3),
         ("928_929_ops_consensus_bench_api_arrivals_2026-11-12.json", 22),
         ("930_ops_tile_affine_api_arrivals_2026-11-13.json", 4),
+        ("933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json", 6),
+        ("939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json", 2),
+        ("937_aggregation_feature_defaults_api_arrivals_2026-11-13.json", 3),
+        ("936_940_stitch_core_api_arrivals_2026-11-13.json", 10),
+        ("934_measure_ops_features_api_arrivals_2026-11-13.json", 3),
+        ("stage3_hybrid_profile_api_arrivals_2026-11-13.json", 2),
+        ("938_run_progress_api_arrivals_2026-11-13.json", 20),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

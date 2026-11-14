@@ -58,6 +58,27 @@ def test_save_bool_is_expanded_to_list(tmp_path):
     assert isinstance(s["save"], list) and len(s["save"]) == 3
 
 
+@pytest.mark.parametrize("overrides, stub_preprocess, said", [
+    pytest.param({"verbose": True}, False, "Mask Generation Settings",
+                 id="verbose_pretty_prints_settings"),
+    pytest.param({"test_mode": True}, False, "Test mode",
+                 id="test_mode_is_announced"),
+    # preprocess=True + masks=False emits the mismatch warning.
+    pytest.param({"preprocess": True, "masks": False}, True,
+                 "preprocess = True", id="preprocess_without_masks_warns"),
+])
+def test_the_run_says_what_mode_it_is_in(tmp_path, capsys, monkeypatch,
+                                         overrides, stub_preprocess, said):
+    import spacr.core as core
+    import spacr.io as sio
+    if stub_preprocess:
+        monkeypatch.setattr(sio, "preprocess_img_data",
+                            lambda s: (s, s["src"]), raising=True)
+    src = tmp_path / "plate1"; src.mkdir()
+    core.preprocess_generate_masks(_base_settings(src, **overrides))
+    assert said in capsys.readouterr().out
+
+
 def test_timelapse_disables_randomize(tmp_path):
     from spacr.core import preprocess_generate_masks
     src = tmp_path / "plate1"; src.mkdir()
@@ -72,32 +93,6 @@ def test_settings_written_to_settings_folder(tmp_path):
     src = tmp_path / "plate1"; src.mkdir()
     preprocess_generate_masks(_base_settings(src))
     assert os.path.isdir(src / "settings")
-
-
-def test_verbose_pretty_prints_settings(tmp_path, capsys):
-    from spacr.core import preprocess_generate_masks
-    src = tmp_path / "plate1"; src.mkdir()
-    preprocess_generate_masks(_base_settings(src, verbose=True))
-    assert "Mask Generation Settings" in capsys.readouterr().out
-
-
-def test_test_mode_announced(tmp_path, capsys):
-    from spacr.core import preprocess_generate_masks
-    src = tmp_path / "plate1"; src.mkdir()
-    preprocess_generate_masks(_base_settings(src, test_mode=True))
-    assert "Test mode" in capsys.readouterr().out
-
-
-def test_preprocess_without_masks_warns(tmp_path, capsys, monkeypatch):
-    """preprocess=True + masks=False emits the mismatch warning."""
-    import spacr.core as core
-    import spacr.io as sio
-    monkeypatch.setattr(sio, "preprocess_img_data",
-                        lambda s: (s, s["src"]), raising=True)
-    src = tmp_path / "plate1"; src.mkdir()
-    core.preprocess_generate_masks(
-        _base_settings(src, preprocess=True, masks=False))
-    assert "preprocess = True" in capsys.readouterr().out
 
 
 def test_src_accepts_a_list_of_folders(tmp_path):

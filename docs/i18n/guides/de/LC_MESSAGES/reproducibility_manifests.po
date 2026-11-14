@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-13 11:37-0500\n"
+"POT-Creation-Date: 2026-11-13 18:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
@@ -96,12 +96,32 @@ msgid "A file written before a release changed a default does not hold the chang
 msgstr "Eine Datei, die geschrieben wurde, bevor ein Release einen Standardwert geändert hat, enthält den geänderten Schlüssel nicht und würde daher mit dem neuen Standardwert laufen. Wenn eine Einstellungsdatei von ``spacr-run``, ``spacr repro``, der Batch-Warteschlange oder Einstellungen importieren gelesen wird, erhält jeder Schlüssel, dessen Standardwert sich nach der Version der Datei geändert hat und den die Datei nicht setzt, den Standardwert, den er damals hatte. Eine Datei ohne ``spacr_settings_version``, etwa eine von Hand geschriebene, wird als älteste Version gelesen, und das Protokoll nennt jeden alten Standardwert, den sie erhalten hat. Ein Schlüssel, den die Datei setzt, hat immer Vorrang. Um die heutigen Standardwerte zu verwenden, setzen Sie diese Schlüssel oder fügen Sie der Datei die aktuelle ``spacr_settings_version`` hinzu."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
-msgstr "Die Änderungen werden in einer Tabelle geführt, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, mit der Nummer des Items als Schlüssel, das den Standardwert geändert hat:"
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default. A key is always above every earlier one, so an item that changes a default after a higher-numbered item takes the next free number:"
+msgstr "Die Änderungen werden in einer Tabelle geführt, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, mit der Nummer des Items als Schlüssel, das den Standardwert geändert hat. Ein Schlüssel liegt immer über allen früheren, daher nimmt ein Item, das einen Standardwert nach einem Item mit höherer Nummer ändert, die nächste freie Nummer:"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
 msgstr "931: ``ops_compose_blend`` war ``'average'``; jetzt ist es ``'feather'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "932: ``ops_registration_precision`` was ``'float64'`` and ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and ``'gpu'``."
+msgstr "932: ``ops_registration_precision`` war ``'float64'`` und ``ops_registration_backend`` ``'cpu'``; jetzt sind sie ``'float32'`` und ``'gpu'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
+msgstr "933 (die Standardwert-Umstellung von Item 930): ``ops_align_model`` war ``'similarity'``; jetzt ist es ``'tile_affine'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now ``'per_feature'``, so the screen pipeline also writes a well table in which every feature takes its own default."
+msgstr "934 (Item 937): ``aggregation_defaults`` war ``'legacy'``; jetzt ist es ``'per_feature'``, sodass die Screen-Pipeline zusätzlich eine Well-Tabelle schreibt, in der jedes Merkmal seinen eigenen Standardwert erhält."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "935 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
+msgstr "935 (die Standardwert-Umstellung von Item 940): ``ops_placement_seed_export`` war ``False``; jetzt ist es ``True``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
+msgstr "936: ``ops_blas_threads`` war ``1`` und ``ops_consensus_space`` ``'refit'``; jetzt sind sie ``2`` und ``'hybrid'``."
 
 msgid "Public API"
 msgstr "Öffentliche API"

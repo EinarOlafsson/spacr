@@ -157,24 +157,25 @@ def test_a_guide_seen_in_one_well_is_flagged_even_when_the_design_is_fine():
     assert verdict.statistic == "guides in <=1 well"
 
 
-def test_a_rank_deficient_design_fails_and_names_the_way_out():
-    """Rank below the parameter count means no unique coefficient vector."""
-    report = {"wells": 587, "parameters": 824, "design_rank": 500,
-              "identifiable": False, "wells_per_parameter": 0.71,
-              "guides_in_one_well": 0, "condition_number": 1e18}
+@pytest.mark.parametrize("report, level, detail_fragment", [
+    # Rank below the parameter count means no unique coefficient vector.
+    pytest.param({"wells": 587, "parameters": 824, "design_rank": 500,
+                  "identifiable": False, "wells_per_parameter": 0.71,
+                  "guides_in_one_well": 0, "condition_number": 1e18},
+                 "fail", "permutation test",
+                 id="rank-deficient-fails-and-names-the-way-out"),
+    # Under two wells per parameter every coefficient rests on a handful.
+    pytest.param({"wells": 30, "parameters": 20, "design_rank": 20,
+                  "identifiable": True, "wells_per_parameter": 1.5,
+                  "guides_in_one_well": 0, "condition_number": 40.0},
+                 "check", "1.50 wells per parameter",
+                 id="thin-but-identifiable-is-a-check-not-a-failure"),
+])
+def test_a_design_is_failed_or_checked_by_how_much_it_can_identify(
+        report, level, detail_fragment):
     verdict = score_design(report)
-    assert verdict.level == "fail"
-    assert "permutation test" in verdict.detail
-
-
-def test_a_thin_but_identifiable_design_is_a_check_not_a_failure():
-    """Under two wells per parameter every coefficient rests on a handful."""
-    report = {"wells": 30, "parameters": 20, "design_rank": 20,
-              "identifiable": True, "wells_per_parameter": 1.5,
-              "guides_in_one_well": 0, "condition_number": 40.0}
-    verdict = score_design(report)
-    assert verdict.level == "check"
-    assert "1.50 wells per parameter" in verdict.detail
+    assert verdict.level == level
+    assert detail_fragment in verdict.detail
 
 
 def test_a_healthy_design_passes(fractions):

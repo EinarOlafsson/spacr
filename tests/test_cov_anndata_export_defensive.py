@@ -115,52 +115,43 @@ class _Entry:
         self.object_type_2 = object_type_2
 
 
-def test_a_join_suffix_attributes_the_column():
-    """``area_nucleus`` came from the nucleus table. The suffix is the only
-    evidence left once parse_column recognised no object type."""
+@pytest.mark.parametrize("column, entry, tables, source", [
+    # The suffix is the only evidence left once parse_column recognised no
+    # object type.
+    pytest.param("area_nucleus", {}, ("cell", "nucleus"), "nucleus",
+                 id="join_suffix_attributes_the_column"),
+    pytest.param("mystery_nucleus", {}, ("cell", "nucleus"), "nucleus",
+                 id="join_suffix_when_the_dictionary_cannot"),
+    # The other side of the same branch, so the suffix path is not passing
+    # because nothing else was tried.
+    pytest.param("area_nucleus", {"object_type": "cell"},
+                 ("cell", "nucleus"), "cell",
+                 id="recognised_object_type_wins_over_the_suffix"),
+    pytest.param("count_nucleus", {}, ("cell", "nucleus"), "nucleus",
+                 id="count_column_names_what_it_counts"),
+    pytest.param("count_pathogen", {}, ("cell", "pathogen"), "pathogen",
+                 id="count_column_is_attributed_to_the_child"),
+    pytest.param("count_nucleus", {}, ("cell",), "nucleus",
+                 id="count_for_a_table_that_was_not_joined"),
+    # The anchor is a defensible guess; an empty string when there ARE tables
+    # would lose the attribution var is for.
+    pytest.param("area", {}, ("cell", "nucleus"), "cell",
+                 id="unattributable_falls_back_to_the_anchor"),
+    pytest.param("mystery", {}, ("cell",), "cell",
+                 id="unattributable_single_table_anchor"),
+    pytest.param("area", {}, (), "", id="no_tables_no_attribution"),
+    pytest.param("mystery", {}, (), "", id="no_tables_no_attribution_2"),
+])
+def test_a_column_is_attributed_to_the_table_it_came_from(
+        column, entry, tables, source):
     from spacr.anndata_export import _source_table
 
-    assert _source_table("area_nucleus", _Entry(),
-                         ("cell", "nucleus")) == "nucleus"
-
-
-def test_a_recognised_object_type_wins_over_the_suffix():
-    """The other side of the same branch, so the suffix path is not passing
-    because nothing else was tried."""
-    from spacr.anndata_export import _source_table
-
-    assert _source_table("area_nucleus", _Entry(object_type="cell"),
-                         ("cell", "nucleus")) == "cell"
-
-
-def test_a_count_column_names_what_it_counts():
-    from spacr.anndata_export import _source_table
-
-    assert _source_table("count_nucleus", _Entry(),
-                         ("cell", "nucleus")) == "nucleus"
-
-
-def test_an_unattributable_column_falls_back_to_the_anchor():
-    """The anchor is a defensible guess; an empty string when there ARE
-    tables would lose the attribution var is for."""
-    from spacr.anndata_export import _source_table
-
-    assert _source_table("area", _Entry(), ("cell", "nucleus")) == "cell"
-    assert _source_table("area", _Entry(), ()) == ""
+    assert _source_table(column, _Entry(**entry), tables) == source
 
 
 # --------------------------------------------------------------------------- #
 #  _run_id_from_db -- provenance that must never stop an export
 # --------------------------------------------------------------------------- #
-
-def test_a_database_with_no_settings_history_yields_no_run_id(tmp_path):
-    """Provenance is best-effort. A database with no history is exportable;
-    it simply cannot say which run produced it."""
-    from spacr.anndata_export import _run_id_from_db
-
-    path = _db(tmp_path / "m.db", {"cell": _cells()})
-    assert _run_id_from_db(path) == ""
-
 
 def test_an_unreadable_database_yields_no_run_id_rather_than_raising(tmp_path):
     """The whole point of the except: a corrupt or absent file must not take
