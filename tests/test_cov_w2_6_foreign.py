@@ -127,25 +127,45 @@ def test_a_literal_factor_is_taken_at_its_word():
     assert _mapping(transform="area").is_literal is False
 
 
-def test_dividing_by_zero_is_not_a_unit_conversion():
-    mapping = _mapping(transform="/0")
-    assert mapping.literal_factor is None
-    factor, reason = mapping.resolve(0.65)
-    assert factor is None
-    assert "unknown transform" in reason
-
-
 def test_an_identity_copy_needs_nothing_at_all():
     assert _mapping().resolve(None) == (1.0, "")
 
 
-def test_declaring_a_conversion_and_then_not_converting_is_refused():
-    """It would copy the values unchanged into a column labelled as
-    converted, which is the shape of the whole bug."""
-    factor, reason = _mapping(transform="identity", unit_in="um^2",
-                              unit_out="px^2").resolve(0.65)
-    assert factor is None
-    assert 'transform is "identity"' in reason
+@pytest.mark.parametrize("kwargs, pixel_size, factor, said", [
+    pytest.param({"transform": "identity", "unit_in": "um^2",
+                  "unit_out": "px^2"}, 0.65, None, 'transform is "identity"',
+                 id="declared_conversion_not_converting"),
+    pytest.param({"transform": "area", "unit_out": "px^2"}, 0.65, None,
+                 "needs unit_in", id="no_unit_in"),
+    pytest.param({"transform": "area", "unit_in": "counts",
+                  "unit_out": "px^2"}, 0.65, None, "has no meaning",
+                 id="unit_neither_length_nor_area"),
+    pytest.param({"transform": "area", "unit_in": "um^2",
+                  "unit_out": "counts"}, 0.65, None,
+                 "needs unit_out to be a pixel or micrometre",
+                 id="unit_out_not_pixel_or_micrometre"),
+    pytest.param({"transform": "area", "unit_in": "um^2",
+                  "unit_out": "um^2"}, 0.65, None, "nothing to convert",
+                 id="same_family_nothing_to_convert"),
+    pytest.param({"transform": "area", "unit_in": "um", "unit_out": "px"},
+                 0.65, None, "power-2 conversion", id="power_mismatch"),
+    # The value is not multiplied by 1.0 and pretended to be pixels.
+    pytest.param({"transform": "area", "unit_in": "um^2",
+                  "unit_out": "px^2"}, None, None, "no pixel size was given",
+                 id="unknown_pixel_size_never_becomes_one"),
+    pytest.param({"transform": "/0"}, 0.65, None, "unknown transform",
+                 id="dividing_by_zero_is_not_a_conversion"),
+    pytest.param({"transform": "*0.65"}, None, 0.65, "",
+                 id="literal_multiplier"),
+    pytest.param({"transform": "/1000"}, None, 0.001, "",
+                 id="literal_divisor"),
+    pytest.param({}, None, 1.0, "", id="identity_copy_needs_nothing"),
+])
+def test_a_mapping_resolves_to_a_factor_or_to_the_reason_there_is_none(
+        kwargs, pixel_size, factor, said):
+    got, reason = _mapping(**kwargs).resolve(pixel_size)
+    assert got == factor
+    assert said in reason if said else reason == ""
 
 
 def test_a_transform_nobody_defined_lists_the_ones_that_exist():
@@ -154,49 +174,6 @@ def test_a_transform_nobody_defined_lists_the_ones_that_exist():
     assert "unknown transform" in reason
     for name in foreign.TRANSFORMS:
         assert name in reason
-
-
-def test_a_conversion_with_no_unit_in_is_not_guessable():
-    factor, reason = _mapping(transform="area", unit_out="px^2").resolve(
-        0.65)
-    assert factor is None
-    assert "needs unit_in" in reason
-
-
-def test_a_unit_that_is_neither_length_nor_area_cannot_be_converted():
-    factor, reason = _mapping(transform="area", unit_in="counts",
-                              unit_out="px^2").resolve(0.65)
-    assert factor is None
-    assert "has no meaning" in reason
-
-
-def test_a_unit_out_that_is_not_a_pixel_or_micrometre_is_refused():
-    factor, reason = _mapping(transform="area", unit_in="um^2",
-                              unit_out="counts").resolve(0.65)
-    assert factor is None
-    assert "needs unit_out to be a pixel or micrometre" in reason
-
-
-def test_converting_a_unit_into_its_own_family_has_nothing_to_convert():
-    factor, reason = _mapping(transform="area", unit_in="um^2",
-                              unit_out="um^2").resolve(0.65)
-    assert factor is None
-    assert "nothing to convert" in reason
-
-
-def test_a_power_mismatch_between_transform_and_units_is_refused():
-    factor, reason = _mapping(transform="area", unit_in="um",
-                              unit_out="px").resolve(0.65)
-    assert factor is None
-    assert "power-2 conversion" in reason
-
-
-def test_an_unknown_pixel_size_never_silently_becomes_one():
-    """The value is not multiplied by 1.0 and pretended to be pixels."""
-    factor, reason = _mapping(transform="area", unit_in="um^2",
-                              unit_out="px^2").resolve(None)
-    assert factor is None
-    assert "no pixel size was given" in reason
 
 
 def test_a_pixel_size_that_is_not_a_number_is_refused_by_name():
@@ -381,30 +358,6 @@ def test_an_edited_map_comes_back_exactly_as_edited(tmp_path, foreign_table):
 def test_a_map_file_that_is_not_there_says_which_one(tmp_path):
     with pytest.raises(ConfigurationError, match="does not exist"):
         foreign.load_column_map(tmp_path / "absent.csv")
-
-
-def test_a_map_file_with_nothing_in_it_is_refused(tmp_path):
-    path = tmp_path / "empty.csv"
-    path.write_text("# only a comment\n", encoding="utf-8")
-    with pytest.raises(ConfigurationError, match="no rows"):
-        foreign.load_column_map(path)
-
-
-def test_a_csv_that_is_not_a_column_map_names_what_is_missing(tmp_path):
-    path = tmp_path / "other.csv"
-    path.write_text("gene,value\nA,1\n", encoding="utf-8")
-    with pytest.raises(ConfigurationError, match="missing column"):
-        foreign.load_column_map(path)
-
-
-def test_a_source_column_mapped_twice_is_refused(tmp_path):
-    """Which one applies would be undefined."""
-    path = tmp_path / "column_map.csv"
-    path.write_text("source,target,transform,unit_in,unit_out,note\n"
-                    "Area,foreign_area,identity,,,\n"
-                    "Area,cell_area,area,um^2,px^2,\n", encoding="utf-8")
-    with pytest.raises(ConfigurationError, match="twice"):
-        foreign.load_column_map(path)
 
 
 def test_a_blank_line_in_the_middle_of_a_map_is_skipped(tmp_path):
@@ -927,3 +880,21 @@ def test_mask_folders_may_be_given_as_pairs():
 def test_an_object_type_with_no_plane_in_a_merged_array_is_refused():
     with pytest.raises(ConfigurationError, match="Unknown mask object type"):
         foreign._mask_folders({"mitochondrion": "/m"})
+
+
+@pytest.mark.parametrize("text, said", [
+    pytest.param("# only a comment\n", "no rows", id="nothing_in_it"),
+    pytest.param("gene,value\nA,1\n", "missing column",
+                 id="not_a_column_map"),
+    # Which one applies would be undefined.
+    pytest.param("source,target,transform,unit_in,unit_out,note\n"
+                 "Area,foreign_area,identity,,,\n"
+                 "Area,cell_area,area,um^2,px^2,\n", "twice",
+                 id="source_column_mapped_twice"),
+])
+def test_a_map_file_that_cannot_be_read_as_a_column_map_is_refused(
+        tmp_path, text, said):
+    path = tmp_path / "column_map.csv"
+    path.write_text(text, encoding="utf-8")
+    with pytest.raises(ConfigurationError, match=said):
+        foreign.load_column_map(path)

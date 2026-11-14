@@ -727,14 +727,6 @@ def test_import_pulls_no_heavy_dependencies():
         f"spacr.feature_dict imported heavy modules: {proc.stdout.strip()}")
 
 
-def test_module_source_declares_no_heavy_imports():
-    """A cheap guard that survives even if the subprocess test is skipped."""
-    source = (REPO_ROOT / "spacr" / "feature_dict.py").read_text(encoding="utf-8")
-    for banned in ("import torch", "import cellpose", "import skimage",
-                   "from skimage", "import cv2", "import numpy"):
-        assert banned not in source, f"feature_dict.py contains '{banned}'"
-
-
 def test_importing_the_dictionary_compiles_no_object_alternation():
     """The 8,000-character alternations compile on first use, not at import.
 

@@ -37,16 +37,17 @@ def frame():
     return pd.DataFrame(rows)
 
 
-@pytest.mark.parametrize("level", ["object", "well", "plate", "plateID"])
-def test_every_documented_level_runs(level, frame):
-    results, _pairwise, _fig = plot_proportion_stacked_bars(
-        {"verbose": False}, frame, "condition", bin_column="cls", level=level)
-    assert not results.empty
-
-
-@pytest.mark.parametrize("level", ["PLATE", " plate ", "Well"])
-def test_the_level_is_read_case_and_space_tolerantly(level, frame):
-    """A settings CSV round-trips whatever the user typed."""
+@pytest.mark.parametrize("level", [
+    pytest.param("object", id="object"),
+    pytest.param("well", id="well"),
+    pytest.param("plate", id="plate"),
+    pytest.param("plateID", id="plateID"),
+    # A settings CSV round-trips whatever the user typed.
+    pytest.param("PLATE", id="upper-case"),
+    pytest.param(" plate ", id="padded"),
+    pytest.param("Well", id="capitalised"),
+])
+def test_every_documented_level_runs_however_it_is_spelled(level, frame):
     results, _pairwise, _fig = plot_proportion_stacked_bars(
         {"verbose": False}, frame, "condition", bin_column="cls", level=level)
     assert not results.empty

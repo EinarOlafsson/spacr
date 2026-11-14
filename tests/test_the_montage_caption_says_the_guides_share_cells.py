@@ -47,18 +47,14 @@ class TestTheCaptionSaysTheGuidesShareCells:
     @pytest.mark.parametrize("fragment", [
         "the guides are not given DIFFERENT cells",
         "can add to more than the well holds",   # what a reader would do
+        # Not a bug and not a shrug: the per-cell attribution is the fix.
+        "not a miscount",
+        "attribution",
     ])
     def test_the_arithmetic_says_the_guides_share_cells(self, fragment):
         said = _plan().arithmetic()
 
         assert fragment in said
-
-    def test_it_says_which_heuristic_this_is_and_what_fixes_it(self):
-        """Not a bug and not a shrug: the per-cell attribution is the fix."""
-        said = _plan().arithmetic()
-
-        assert "not a miscount" in said
-        assert "attribution" in said
 
     def test_it_reaches_the_caption_a_user_reads(self):
         assert "not given DIFFERENT cells" in _plan().caption()
