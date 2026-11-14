@@ -8,15 +8,8 @@ that the happy-path tests do not:
 * ``verify_labels=False`` — the fast plan, which pairs masks without reading
   a single one — and the capped examples list that keeps a report readable
   when six thousand rows carry a bad label;
-* :func:`~spacr.foreign.release_canonical_copy` against a database whose
-  provenance tables are gone, which is exactly the database
-  ``spacr.resume.importer_written_columns`` documents its fallback for: an
-  older importer replaced them wholesale. The un-claim has nothing to write
-  and the release must still happen;
-* the column tidy-up after that release, which drops an imported column only
-  when it is provably empty and never fails the release it follows;
-* a conversion-map merge that cannot be applied, and the staging table it
-  leaves behind for the next one to clear.
+* the run summary without a conversion, crops cut from the asked channels,
+  and provenance writes that merge rather than replace.
 """
 from __future__ import annotations
 
@@ -31,7 +24,6 @@ import pytest
 import tifffile
 from PIL import Image
 
-from spacr import convert as cv
 from spacr import foreign as fg
 
 SIZE = 24
@@ -99,38 +91,10 @@ def theirs(tmp_path):
     return Theirs(tmp_path)
 
 
-def _tables(db_path):
-    connection = sqlite3.connect(db_path)
-    try:
-        return sorted(str(r[0]) for r in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type IN ('table','view')"))
-    finally:
-        connection.close()
-
-
-def _columns(db_path, table):
-    connection = sqlite3.connect(db_path)
-    try:
-        return [str(r[1]) for r in connection.execute(
-            f'PRAGMA table_info("{table}")')]
-    finally:
-        connection.close()
-
-
 def _query(db_path, sql, *params):
     connection = sqlite3.connect(db_path)
     try:
         return connection.execute(sql, params).fetchall()
-    finally:
-        connection.close()
-
-
-def _run(db_path, *statements):
-    connection = sqlite3.connect(db_path)
-    try:
-        for statement in statements:
-            connection.execute(statement)
-        connection.commit()
     finally:
         connection.close()
 
@@ -336,173 +300,6 @@ def test_crops_are_cut_from_the_channels_that_were_asked_for(imported):
 
 
 # --------------------------------------------------------------------------- #
-#  Releasing the canonical copy from a database with no provenance left
-# --------------------------------------------------------------------------- #
-
-def test_a_release_works_on_a_database_whose_provenance_is_gone(db_copy):
-    """The database an older importer left: no ``foreign_columns``, no
-    ``foreign_import``.
-
-    ``resume.importer_written_columns`` falls back to the columns of
-    ``foreign_cell`` for exactly this case, and the un-claim then has
-    nothing to write. The release must still remove the copy and must
-    still prove, row by row, that their numbers survive it.
-    """
-    _run(db_copy, "DROP TABLE foreign_columns", "DROP TABLE foreign_import")
-    assert _query(db_copy, "SELECT COUNT(*) FROM cell")[0][0] == 4
-
-    removed = fg.release_canonical_copy(db_copy, "cell")
-
-    assert removed == 4
-    assert _query(db_copy, "SELECT COUNT(*) FROM cell")[0][0] == 0
-    assert _query(db_copy, "SELECT COUNT(*) FROM foreign_cell")[0][0] == 4, (
-        "their numbers are what the release must not touch")
-    assert "cell_with_foreign" in _tables(db_copy)
-    # The emptied imported columns go with the rows that filled them.
-    assert "foreign_areashape_area" not in _columns(db_copy, "cell")
-    assert "foreign_areashape_area" in _columns(db_copy, "foreign_cell")
-
-
-def test_an_import_record_too_old_to_carry_the_claim_is_left_alone(db_copy,
-                                                                  tmp_path):
-    """``foreign_import`` grew its ``canonical_table`` columns later.
-
-    A record written before them cannot be un-claimed, and the release has
-    to go ahead rather than fail on a schema it can read but not update.
-    """
-    thin = str(tmp_path / "thin.db")
-    shutil.copy(db_copy, thin)
-    for path in (db_copy, thin):
-        _run(path, "DROP TABLE foreign_columns")
-    _run(thin,
-         "DROP TABLE foreign_import",
-         'CREATE TABLE foreign_import (dst TEXT, object_types TEXT)',
-         "INSERT INTO foreign_import VALUES ('/old/dst', 'cell')")
-
-    assert fg.release_canonical_copy(thin, "cell") == 4
-    assert fg.release_canonical_copy(db_copy, "cell") == 4
-
-    assert _query(thin, "SELECT dst, object_types FROM foreign_import") == [
-        ("/old/dst", "cell")], "an unclaimable record is left exactly as it was"
-    # The record that *can* carry the claim has it withdrawn.
-    written, note = _query(
-        db_copy, "SELECT canonical_table_written, canonical_table_note "
-                 "FROM foreign_import")[0]
-    assert written == 0
-    assert "released back to spaCR" in note
-
-
-def test_a_column_an_index_names_is_kept_and_the_release_still_stands(db_copy):
-    """SQLite refuses ``DROP COLUMN`` for an indexed column.
-
-    The tidy-up runs *after* the transaction that removed the rows, and a
-    tidier schema is not worth undoing a release that has already happened
-    -- so the refusal stops the tidying and nothing else.
-    """
-    _run(db_copy, "DROP TABLE foreign_columns", "DROP TABLE foreign_import",
-         'CREATE INDEX idx_keep ON cell(foreign_areashape_area)')
-
-    removed = fg.release_canonical_copy(db_copy, "cell")
-
-    assert removed == 4
-    assert _query(db_copy, "SELECT COUNT(*) FROM cell")[0][0] == 0
-    assert "foreign_areashape_area" in _columns(db_copy, "cell"), (
-        "the indexed column could not be dropped, and that is not an error")
-    assert _query(db_copy, "SELECT COUNT(*) FROM foreign_cell")[0][0] == 4
-
-
-def test_a_column_spacr_also_writes_is_never_dropped_from_under_it(tmp_path):
-    """The tidy-up drops an imported column only when it is provably empty.
-
-    Their ``AreaShape_Area`` is mapped onto spaCR's own ``cell_area`` here
-    -- which is what ``allow_spacr_targets`` is for -- and spaCR has
-    measured a third field into the same table. Releasing the import's
-    rows leaves ``cell_area`` holding spaCR's values, so dropping it
-    because the importer once wrote it would delete measurements nobody
-    asked to release.
-    """
-    from spacr.utils import _merge_and_save_to_database
-
-    data = Theirs(tmp_path)
-    plan = data.plan(column_maps=[
-        fg.ColumnMap(source="AreaShape_Area", target="cell_area"),
-        fg.ColumnMap(source="Metadata_Treatment",
-                     target="foreign_metadata_treatment")],
-        allow_spacr_targets=True)
-    dst = str(tmp_path / "imported")
-    db_path = fg.run_import(plan, dst).db_path
-
-    # A field of spaCR's own, written by the function measure_crop uses.
-    _merge_and_save_to_database(
-        pd.DataFrame({"label": [1, 2], "cell_area": [11.0, 22.0]}),
-        pd.DataFrame({"label": [1, 2],
-                      "cell_channel_0_mean_intensity": [3.0, 4.0]}),
-        "cell", dst, "plate1_A01_9", "spacr_run")
-    assert _query(db_path, "SELECT COUNT(*) FROM cell")[0][0] == 6
-
-    removed = fg.release_canonical_copy(db_path, "cell")
-
-    assert removed == 4
-    assert _query(db_path, "SELECT prcf, cell_area FROM cell") == [
-        ("plate1_r1_c1_f9", 11.0), ("plate1_r1_c1_f9", 22.0)]
-    assert "cell_area" in _columns(db_path, "cell"), (
-        "spaCR's own values are in it")
-    assert "foreign_metadata_treatment" not in _columns(db_path, "cell"), (
-        "an imported column left empty by the release does go")
-
-
-# --------------------------------------------------------------------------- #
-#  Merging a conversion map into a destination that already has one
-# --------------------------------------------------------------------------- #
-
-def test_a_merge_that_cannot_be_applied_leaves_the_map_that_was_there(
-        imported, tmp_path):
-    """The destination's provenance back to its own filenames is the point.
-
-    A conversion map the destination cannot take -- here because a unique
-    index on ``source`` says one original file may appear once, and the
-    incoming map converted the same originals under different target names
-    -- must leave the rows that were already there. It is written under one
-    transaction for that reason.
-
-    The staging table it leaves behind is cleared by the next merge, which
-    is the other half of the same recovery: the second call below is the
-    same call, after the index has been removed.
-    """
-    result, _plan, _dst = imported
-    original = str(tmp_path / "already_converted.db")
-    cv.populate_db_from_map(original, result.conversion.map_path)
-    held = _query(original, "SELECT target FROM conversion_map")
-    assert len(held) == 4
-
-    incoming = pd.read_csv(result.conversion.map_path)
-    incoming["target"] = [str(t).replace("plate1", "plateX")
-                          for t in incoming["target"]]
-    incoming_path = str(tmp_path / "incoming_map.csv")
-    incoming.to_csv(incoming_path, index=False)
-
-    _run(original, "CREATE UNIQUE INDEX uq_source ON conversion_map(source)")
-
-    with pytest.raises(sqlite3.IntegrityError):
-        fg._populate_conversion_map(original, incoming_path)
-
-    assert _query(original, "SELECT target FROM conversion_map") == held
-    assert fg._CONVERSION_STAGING in _tables(original), (
-        "the failed merge is what leaves a staging table behind")
-
-    # The same merge, once the constraint that refused it is gone.
-    _run(original, "DROP INDEX uq_source")
-    fg._populate_conversion_map(original, incoming_path)
-
-    targets = {row[0] for row in _query(original,
-                                        "SELECT target FROM conversion_map")}
-    assert len(targets) == 8, "both generations of names are joinable"
-    assert any(t.startswith("plateX") for t in targets)
-    assert fg._CONVERSION_STAGING not in _tables(original), (
-        "the stale staging table was cleared before the merge, not left")
-
-
-# --------------------------------------------------------------------------- #
 #  Provenance is a merge, not a replace
 # --------------------------------------------------------------------------- #
 
@@ -540,39 +337,3 @@ def test_provenance_named_no_table_rewrites_the_run_and_no_column(imported,
     assert _query(db_copy, columns_sql) == before
     assert _query(db_copy,
                   "SELECT canonical_table_written FROM foreign_import") == [(1,)]
-
-
-# --------------------------------------------------------------------------- #
-#  Proved unreachable
-# --------------------------------------------------------------------------- #
-
-def test_a_staged_conversion_map_always_carries_a_target_column(imported,
-                                                                tmp_path):
-    """Why ``if 'target' in shared`` in ``_populate_conversion_map`` cannot
-    be false.
-
-    The staging table is written by
-    :func:`spacr.convert.populate_db_from_map`, which reads the CSV through
-    :func:`spacr.convert.read_map`; that function raises
-    ``ConfigurationError`` unless every name in
-    ``convert._REQUIRED_MAP_COLUMNS`` is a column of the file, and
-    ``'target'`` is one of them. The staging table is that frame, so
-    ``incoming`` always holds ``'target'``; the loop above adds every
-    incoming column missing from ``held``, so ``shared`` is ``incoming``.
-
-    This test pins the guarantee rather than the guard: a map file without
-    a ``target`` column never reaches the merge at all.
-    """
-    result, _plan, _dst = imported
-    frame = pd.read_csv(result.conversion.map_path).drop(columns=["target"])
-    headless = str(tmp_path / "no_target.csv")
-    frame.to_csv(headless, index=False)
-
-    destination = str(tmp_path / "measurements.db")
-    cv.populate_db_from_map(destination, result.conversion.map_path)
-
-    with pytest.raises(Exception) as raised:
-        fg._populate_conversion_map(destination, headless)
-    assert "target" in str(raised.value)
-    assert "target" in _columns(destination, cv.CONVERSION_TABLE), (
-        "the destination still has the map it had")

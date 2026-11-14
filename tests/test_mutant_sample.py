@@ -83,6 +83,24 @@ PIN = textwrap.dedent('''
 ''')
 
 
+FEATURE_CHECK = textwrap.dedent('''
+    import inspect
+
+    from toy import calc
+
+
+    def _mod_uses_pyside(module):
+        """Stands in for PySide6's __feature__ check, which reads the source
+        of a module that imports PySide6."""
+        return "PySide6" in inspect.getsource(module)
+
+
+    def test_clamp_after_an_import_that_ran_the_feature_check():
+        assert _mod_uses_pyside(calc) is False
+        assert calc.clamp(50) == 10
+''')
+
+
 @pytest.fixture
 def toy(tmp_path):
     """A package ``toy`` with ``calc.py`` and two test files beside it."""
@@ -93,6 +111,8 @@ def toy(tmp_path):
     (tmp_path / "checks" / "test_strong.py").write_text(STRONG, encoding="utf-8")
     (tmp_path / "checks" / "test_weak.py").write_text(WEAK, encoding="utf-8")
     (tmp_path / "checks" / "test_pin.py").write_text(PIN, encoding="utf-8")
+    (tmp_path / "checks" / "test_feature.py").write_text(FEATURE_CHECK,
+                                                         encoding="utf-8")
     (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
     return tmp_path
 
@@ -283,6 +303,21 @@ def test_a_behavioural_mutant_is_still_killed_next_to_a_pin(toy):
     [row] = report["mutants"]
     assert row["results"]["strong"]["outcome"] == "killed"
     assert report["excluded_tests"] == PIN_IDS
+
+
+def test_a_read_made_by_the_pyside_feature_check_is_not_a_source_reader(toy):
+    """PySide6 reads an importing module's source; the test that ran the import keeps its kills."""
+    report = mutant_sample.run_sample(
+        module=toy / "toy" / "calc.py", root=toy, seed=0, count=1, lines=[9],
+        kinds=["compare"], timeout=120,
+        test_sets={"feature": ["checks/test_feature.py"]},
+        exclude_source_readers=True,
+    )
+
+    [row] = report["mutants"]
+    assert row["results"]["feature"]["outcome"] == "killed"
+    assert report["source_readers"] == {"feature": []}
+    assert report["excluded_tests"] == []
 
 
 def test_excluded_source_readers_no_longer_count_as_kills(toy):

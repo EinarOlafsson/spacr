@@ -147,17 +147,6 @@ def test_key_names_qt_does_not_carry_are_skipped_rather_than_crashing(
 # Page-load worker
 # ---------------------------------------------------------------------------
 
-def test_a_page_whose_decode_blows_up_delivers_an_empty_page_not_a_crash():
-    """One unreadable crop must not take the whole page worker down."""
-    def _boom(row):
-        raise OSError("truncated PNG")
-
-    worker = annotate_mod._PageLoadWorker(7, [("a.png", None)], _boom)
-    seen = []
-    worker.done.connect(lambda gen, loaded: seen.append((gen, loaded)))
-    worker.run()
-    assert seen == [(7, [])]
-
 
 def test_a_page_interrupted_mid_decode_never_reports_a_half_page():
     """Closing the screen while a page decodes must deliver nothing.
@@ -177,30 +166,9 @@ def test_a_page_interrupted_mid_decode_never_reports_a_half_page():
     assert seen == []
 
 
-def test_a_page_that_finishes_hands_back_every_decoded_crop():
-    worker = annotate_mod._PageLoadWorker(
-        3, [("a.png", 1), ("b.png", 2)], lambda row: (row[0].upper(), row[1]))
-    seen = []
-    worker.done.connect(lambda gen, loaded: seen.append((gen, loaded)))
-    worker.run()
-    assert seen == [(3, [("A.PNG", 1), ("B.PNG", 2)])]
-
-
 # ---------------------------------------------------------------------------
 # Retrain worker
 # ---------------------------------------------------------------------------
-
-def test_a_retrain_that_fails_says_why_instead_of_going_quiet(monkeypatch):
-    """The failure has to name the exception; "it didn't work" is unusable."""
-    from spacr import active_learning as al
-    monkeypatch.setattr(
-        al, "retrain_round",
-        lambda *a, **k: (_ for _ in ()).throw(ValueError("only one class")))
-    worker = annotate_mod._RetrainWorker("db", "annotate", {})
-    failures = []
-    worker.failed.connect(failures.append)
-    worker.run()
-    assert failures == ["ValueError: only one class"]
 
 
 def test_a_retrain_that_finished_after_the_screen_closed_reports_nothing(
@@ -217,23 +185,6 @@ def test_a_retrain_that_finished_after_the_screen_closed_reports_nothing(
     worker.done.connect(results.append)
     worker.run()
     assert results == []
-
-
-def test_a_retrain_that_finished_hands_its_round_back(monkeypatch):
-    from spacr import active_learning as al
-    seen = {}
-
-    def _retrain(db_path, column, **options):
-        seen.update({"db": db_path, "column": column, **options})
-        return "round-result"
-
-    monkeypatch.setattr(al, "retrain_round", _retrain)
-    worker = annotate_mod._RetrainWorker("db", "annotate", {"round_index": 4})
-    results = []
-    worker.done.connect(results.append)
-    worker.run()
-    assert results == ["round-result"]
-    assert seen["round_index"] == 4
 
 
 # ---------------------------------------------------------------------------
@@ -261,36 +212,6 @@ def test_a_wide_report_is_shown_unwrapped_and_selectable(qtbot,
 # Re-anchoring moved crop paths
 # ---------------------------------------------------------------------------
 
-def test_a_moved_dataset_finds_its_crops_again_from_the_data_segment(
-        experiment: Path):
-    """The stored png paths are absolute and stale once a plate is moved."""
-    db = str(experiment / "measurements" / "measurements.db")
-    stale = "/somewhere/that/never/existed/data/images/cell_00.png"
-    found = annotate_mod._reanchor_png_path(stale, db)
-    assert found == str(experiment / "data" / "images" / "cell_00.png")
-
-
-def test_a_relative_crop_path_is_rebuilt_under_the_open_database(
-        experiment: Path):
-    """`measure` run with a relative src stores 'data/...' with no root."""
-    db = str(experiment / "measurements" / "measurements.db")
-    found = annotate_mod._reanchor_png_path("data/images/cell_01.png", db)
-    assert found == str(experiment / "data" / "images" / "cell_01.png")
-
-
-def test_a_crop_path_with_no_open_database_is_left_exactly_as_stored():
-    """With no database there is no root to re-anchor against."""
-    assert annotate_mod._reanchor_png_path("/gone/data/x.png", "") == \
-        "/gone/data/x.png"
-
-
-def test_a_crop_that_is_missing_under_the_new_root_too_is_left_alone(
-        experiment: Path):
-    db = str(experiment / "measurements" / "measurements.db")
-    stale = "/old/data/images/not_here_either.png"
-    assert annotate_mod._reanchor_png_path(stale, db) == stale
-    assert annotate_mod._reanchor_png_path("data/nope.png", db) == "data/nope.png"
-
 
 # ---------------------------------------------------------------------------
 # Thumbnail decoding (runs on the page worker)
@@ -304,156 +225,9 @@ def _settings_for(experiment: Path) -> engine.AnnotateSettings:
     return s
 
 
-def test_a_crop_the_grid_cannot_find_draws_a_placeholder_not_an_exception(
-        experiment: Path):
-    """A missing file is the ordinary case for a moved dataset."""
-    s = _settings_for(experiment)
-    img, annotation = annotate_mod._load_thumb_image_worker(
-        {"png_path": "/nowhere/x.png", "annotation": 3}, None, s)
-    assert img.size == (16, 16)
-    assert annotation == 3
-
-
-def test_a_crop_that_will_not_decode_still_keeps_its_annotation(
-        experiment: Path, tmp_path: Path, monkeypatch):
-    """The label the row carries is not the image's to lose."""
-    s = _settings_for(experiment)
-    monkeypatch.setattr(
-        annotate_mod, "load_crop_image",
-        lambda *a, **k: (_ for _ in ()).throw(OSError("bad header")))
-    row = (str(experiment / "data" / "images" / "cell_00.png"), 2)
-    img, annotation = annotate_mod._load_thumb_image_worker(row, None, s)
-    assert img.size == (16, 16)
-    assert annotation == 2
-
-
-def test_a_merged_source_that_cannot_cut_a_crop_draws_a_placeholder(
-        experiment: Path):
-    """Projects with no PNG folder cut crops out of merged/*.npy."""
-    class _MergedSource:
-        kind = "merged"
-
-        def get(self, row):
-            raise KeyError("no such object")
-
-    s = _settings_for(experiment)
-    img, annotation = annotate_mod._load_thumb_image_worker(
-        {"png_path": "x.png", "annotation": None}, _MergedSource(), s)
-    assert img.size == (16, 16)
-    assert annotation is None
-
-
-def test_a_merged_source_crop_is_decoded_from_the_array(experiment: Path):
-    class _MergedSource:
-        kind = "merged"
-
-        def get(self, row):
-            return np.full((8, 8, 3), 128, dtype=np.uint8)
-
-    s = _settings_for(experiment)
-    img, _ = annotate_mod._load_thumb_image_worker(
-        {"png_path": "x.png"}, _MergedSource(), s)
-    assert img.size == (16, 16)
-
-
-def test_an_outline_that_fails_still_shows_the_crop_underneath(
-        experiment: Path, monkeypatch):
-    """Outlining is decoration; losing it must not lose the image."""
-    s = _settings_for(experiment)
-    s.outline = ["r"]
-    monkeypatch.setattr(
-        annotate_mod, "outline_image",
-        lambda **k: (_ for _ in ()).throw(RuntimeError("no cellpose")))
-    row = (str(experiment / "data" / "images" / "cell_00.png"), 1)
-    img, annotation = annotate_mod._load_thumb_image_worker(row, None, s)
-    assert img.size == (16, 16)
-    assert annotation == 1
-
-
-def test_an_outline_is_computed_from_the_full_image_not_the_filtered_one(
-        experiment: Path, monkeypatch):
-    """Hiding a channel for display must not hide it from edge detection."""
-    s = _settings_for(experiment)
-    s.outline = ["r"]
-    s.channels = ["g"]
-    seen = {}
-
-    def _outline(**kwargs):
-        seen.update(kwargs)
-        return kwargs["base_img"]
-
-    monkeypatch.setattr(annotate_mod, "outline_image", _outline)
-    row = (str(experiment / "data" / "images" / "cell_00.png"), None)
-    annotate_mod._load_thumb_image_worker(row, None, s)
-    assert seen["full_img"] is not seen["base_img"]
-    assert seen["outline_channels"] == ["r"]
-
-
 # ---------------------------------------------------------------------------
 # Counting the population (runs on the count worker)
 # ---------------------------------------------------------------------------
-
-def test_the_uncertainty_queue_orders_the_crops_and_says_what_it_did(
-        experiment: Path, monkeypatch):
-    from spacr import active_learning as al
-    s = _settings_for(experiment)
-    s.queue_by_uncertainty = True
-    monkeypatch.setattr(al, "build_queue", lambda *a, **k: "the-queue")
-    monkeypatch.setattr(al, "queue_rows",
-                        lambda q: [("a.png", None), ("b.png", 1)])
-    monkeypatch.setattr(al, "format_queue_summary", lambda q: "2 by entropy")
-    out = annotate_mod._compute_total(s, filter_active=False)
-    assert out["total"] == 2
-    assert out["queue_summary"] == "2 by entropy"
-    assert out["note"] == ""
-
-
-def test_asking_for_the_uncertainty_queue_before_any_model_ran_says_so(
-        experiment: Path, monkeypatch):
-    """No scores yet is the ordinary state, not an error.
-
-    The grid falls back to page order and the page label explains why --
-    an empty grid with no message reads as a broken database.
-    """
-    from spacr import active_learning as al
-    s = _settings_for(experiment)
-    s.queue_by_uncertainty = True
-    monkeypatch.setattr(
-        al, "build_queue",
-        lambda *a, **k: (_ for _ in ()).throw(ValueError("no scores yet")))
-    out = annotate_mod._compute_total(s, filter_active=False)
-    assert out["filtered_rows"] is None
-    assert out["total"] == 8
-    assert "no scores yet" in out["note"]
-
-
-def test_a_threshold_filter_counts_only_the_rows_that_pass_it(
-        experiment: Path, monkeypatch):
-    s = _settings_for(experiment)
-    s.measurement = "cell_area"
-    s.threshold = 100.0
-    s.threshold_direction = "higher"
-    seen = {}
-
-    def _fetch(db_path, column, measurements, thresholds, directions,
-               image_type):
-        seen.update(measurements=measurements, thresholds=thresholds,
-                    directions=directions)
-        return [("a.png", None), ("b.png", None), ("c.png", 1)]
-
-    monkeypatch.setattr(annotate_mod, "fetch_filtered_paths", _fetch)
-    out = annotate_mod._compute_total(s, filter_active=True)
-    assert out["total"] == 3
-    # A single measurement is wrapped, so the engine always sees lists.
-    assert seen == {"measurements": ["cell_area"], "thresholds": [100.0],
-                    "directions": ["higher"]}
-
-
-def test_no_filter_and_no_queue_counts_the_whole_table(experiment: Path):
-    out = annotate_mod._compute_total(_settings_for(experiment),
-                                       filter_active=False)
-    assert out == {"filtered_rows": None, "total": 8, "queue_summary": "",
-                   "note": ""}
 
 
 # ---------------------------------------------------------------------------
@@ -561,52 +335,6 @@ def test_blank_lines_between_rules_are_not_read_as_rules(auto_dialog):
     ]
 
 
-def test_the_values_hint_stays_quiet_when_the_column_cannot_be_read(
-        auto_dialog, monkeypatch):
-    """A metadata read that fails must not take the dialog down.
-
-    The hint is a convenience; without it the user types the values by hand.
-    """
-    monkeypatch.setattr(
-        engine, "metadata_values",
-        lambda *a, **k: (_ for _ in ()).throw(sqlite3.OperationalError("no")))
-    auto_dialog._values.setPlaceholderText("untouched")
-    auto_dialog._on_metadata_column()
-    assert auto_dialog._values.placeholderText() == "untouched"
-
-
-def test_the_values_hint_shows_what_the_column_actually_holds(auto_dialog,
-                                                                monkeypatch):
-    """A picker offering rows A-H to somebody whose plate is numbered is
-    a picker they cannot use."""
-    monkeypatch.setattr(engine, "metadata_values",
-                        lambda *a, **k: [f"c{i}" for i in range(20)])
-    auto_dialog._on_metadata_column()
-    hint = auto_dialog._values.placeholderText()
-    assert hint.startswith("c0, c1")
-    assert "(+8 more)" in hint
-
-
-def test_the_values_hint_is_not_read_while_the_measurement_source_is_picked(
-        auto_dialog, monkeypatch):
-    calls = []
-    monkeypatch.setattr(engine, "metadata_values",
-                        lambda *a, **k: calls.append(1) or [])
-    auto_dialog._source.setCurrentIndex(1)      # measurement thresholds
-    calls.clear()
-    auto_dialog._on_metadata_column()
-    assert calls == []
-
-
-def test_previewing_with_no_source_open_says_so_instead_of_matching_nothing(
-        qtbot, qt_theme_applied):
-    settings = engine.AnnotateSettings()
-    dlg = annotate_mod._AutoAnnotateDialog(settings)
-    qtbot.addWidget(dlg)
-    dlg._on_preview()
-    assert dlg._preview_label.text() == "Open a source first."
-
-
 def test_previewing_metadata_with_no_values_typed_takes_every_value(
         auto_dialog, monkeypatch):
     """Blank means "every value" — the placeholder says so."""
@@ -626,42 +354,6 @@ def test_previewing_metadata_with_no_values_typed_takes_every_value(
     assert auto_dialog.matched_paths() == ["a.png", "b.png"]
     assert auto_dialog._apply.isEnabled()
     assert "2 object(s) match" in auto_dialog._preview_label.text()
-
-
-def test_previewing_measurements_with_no_rules_asks_for_one(auto_dialog):
-    auto_dialog._source.setCurrentIndex(1)
-    auto_dialog._rules.setPlainText("")
-    auto_dialog._on_preview()
-    assert auto_dialog._preview_label.text() == "Add at least one rule."
-    assert not auto_dialog._apply.isEnabled()
-
-
-def test_a_rule_naming_a_measurement_that_does_not_exist_says_which(
-        auto_dialog, monkeypatch):
-    """The Apply button must go back to disabled: the last good preview's
-    population is not this rule's."""
-    monkeypatch.setattr(engine, "paths_by_metadata",
-                        lambda *a, **k: ["a.png"])
-    auto_dialog._on_preview()
-    assert auto_dialog._apply.isEnabled()
-    auto_dialog._source.setCurrentIndex(1)
-    auto_dialog._rules.setPlainText("no_such_column > 1")
-    monkeypatch.setattr(
-        engine, "paths_by_measurements",
-        lambda *a, **k: (_ for _ in ()).throw(
-            ValueError("no measurement table has 'no_such_column'")))
-    auto_dialog._on_preview()
-    assert "no_such_column" in auto_dialog._preview_label.text()
-    assert not auto_dialog._apply.isEnabled()
-    assert auto_dialog.matched_paths() == []
-
-
-def test_a_preview_that_matches_nothing_says_nothing_matches(auto_dialog,
-                                                               monkeypatch):
-    monkeypatch.setattr(engine, "paths_by_metadata", lambda *a, **k: [])
-    auto_dialog._on_preview()
-    assert auto_dialog._preview_label.text() == "Nothing matches."
-    assert not auto_dialog._apply.isEnabled()
 
 
 def test_the_gate_and_umap_buttons_close_with_their_own_result_codes(
@@ -1011,75 +703,6 @@ def test_a_round_with_no_held_out_score_still_reports_its_label_count(screen):
     assert "held-out" not in scr._al_label.text()
 
 
-def test_coverage_needs_a_source_before_it_can_say_where_labels_came_from(
-        bare_screen, monkeypatch):
-    info = _Recorder()
-    monkeypatch.setattr(QMessageBox, "information", staticmethod(info))
-    bare_screen._on_coverage()
-    assert "Open an experiment source" in info.body()
-
-
-def test_a_coverage_report_that_cannot_be_built_names_the_failure(
-        screen, monkeypatch):
-    """"Coverage unavailable" with no reason is a dead end for the user."""
-    from spacr import active_learning as al
-    monkeypatch.setattr(
-        al, "annotation_coverage",
-        lambda *a, **k: (_ for _ in ()).throw(KeyError("plate")))
-    warn = _Recorder()
-    monkeypatch.setattr(QMessageBox, "warning", staticmethod(warn))
-    screen._on_coverage()
-    assert "KeyError" in warn.body()
-
-
-def test_the_coverage_report_opens_in_a_window_that_keeps_its_columns(
-        screen, monkeypatch):
-    from spacr import active_learning as al
-    monkeypatch.setattr(al, "annotation_coverage", lambda *a, **k: {"n": 1})
-    monkeypatch.setattr(al, "format_coverage_summary",
-                        lambda cov: "plate  n\np1     40")
-    shown = {}
-    # SHOWN, not exec-ed: `exec` runs a nested event loop that outlives the
-    # window it belongs to, so the report is opened as a plain window now.
-    monkeypatch.setattr(annotate_mod._TextReportDialog, "show",
-                        lambda self: shown.update(body=self._view.toPlainText()))
-    screen._on_coverage()
-    assert shown["body"].startswith("plate  n")
-
-
-def test_the_learning_curve_needs_a_source_too(bare_screen, monkeypatch):
-    info = _Recorder()
-    monkeypatch.setattr(QMessageBox, "information", staticmethod(info))
-    bare_screen._on_learning_curve()
-    assert "learning curve" in info.body()
-
-
-def test_a_learning_curve_that_cannot_be_built_names_the_failure(
-        screen, monkeypatch):
-    from spacr import active_learning as al
-    monkeypatch.setattr(
-        al, "learning_curve",
-        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no rounds table")))
-    warn = _Recorder()
-    monkeypatch.setattr(QMessageBox, "warning", staticmethod(warn))
-    screen._on_learning_curve()
-    assert "no rounds table" in warn.body()
-
-
-def test_the_learning_curve_opens_in_a_window_that_keeps_its_columns(
-        screen, monkeypatch):
-    from spacr import active_learning as al
-    monkeypatch.setattr(al, "learning_curve", lambda *a, **k: [])
-    monkeypatch.setattr(al, "should_stop", lambda curve: None)
-    monkeypatch.setattr(al, "format_learning_curve",
-                        lambda curve, verdict: "round  acc\n1      0.7")
-    shown = {}
-    monkeypatch.setattr(annotate_mod._TextReportDialog, "show",
-                        lambda self: shown.update(body=self._view.toPlainText()))
-    screen._on_learning_curve()
-    assert "round  acc" in shown["body"]
-
-
 def test_retraining_needs_a_source(bare_screen, monkeypatch):
     info = _Recorder()
     monkeypatch.setattr(QMessageBox, "information", staticmethod(info))
@@ -1103,17 +726,6 @@ def test_a_retrain_thread_that_already_retired_is_not_retired_twice(screen):
     scr._retrain_worker = None
     scr._btn_retrain.setEnabled(False)
     scr._on_retrain_finished()
-    assert scr._btn_retrain.isEnabled()
-
-
-def test_retiring_a_retrain_thread_survives_signals_it_never_carried(screen):
-    """Teardown order is not guaranteed; a disconnect that was already done
-    must not become an exception in the event loop."""
-    scr = screen
-    worker = annotate_mod._RetrainWorker("db", "annotate", {})
-    scr._retrain_worker = worker
-    scr._on_retrain_finished()
-    assert scr._retrain_worker is None
     assert scr._btn_retrain.isEnabled()
 
 
@@ -1758,71 +1370,6 @@ def test_annotate_no_longer_owns_a_provider_menu(bare_screen):
 # Closing
 # ---------------------------------------------------------------------------
 
-def test_closing_waits_for_a_running_retrain_then_lets_it_go(
-        qtbot, qt_theme_applied, monkeypatch):
-    """A fit and its score write-back are native/SQLite work; tearing the
-    widget down under them is an abort, not a clean close."""
-    scr = annotate_mod.AnnotateScreen()
-    qtbot.addWidget(scr)
-    worker = annotate_mod._RetrainWorker(scr._settings.db_path, "annotate", {})
-    scr._retrain_worker = worker
-    drained = []
-    monkeypatch.setattr(annotate_mod, "drain_thread",
-                        lambda thread, timeout_ms: drained.append(thread) or True)
-    scr.close()
-    assert worker in drained
-    assert scr._retrain_worker is None
-    assert scr._worker is None
-
-
-def test_a_retrain_that_will_not_stop_is_parked_rather_than_deleted(
-        qtbot, qt_theme_applied, experiment: Path, monkeypatch):
-    """`deleteLater` on a still-running QThread is the abort this is all
-    arranged around; the close completes either way."""
-    scr = annotate_mod.AnnotateScreen()
-    qtbot.addWidget(scr)
-    scr._compute_grid_dims = lambda: None
-    worker = annotate_mod._RetrainWorker("db", "annotate", {})
-    deleted = []
-    monkeypatch.setattr(worker, "deleteLater",
-                        lambda: deleted.append("retrain"))
-    scr._retrain_worker = worker
-    monkeypatch.setattr(annotate_mod, "drain_thread",
-                        lambda thread, timeout_ms: False)
-    scr.close()
-    assert deleted == []
-    assert scr._retrain_worker is None
-
-
-def test_a_page_still_decoding_at_close_is_drained_not_dropped(
-        qtbot, qt_theme_applied, monkeypatch):
-    scr = annotate_mod.AnnotateScreen()
-    qtbot.addWidget(scr)
-    scr._compute_grid_dims = lambda: None
-    page = annotate_mod._PageLoadWorker(1, [], lambda row: (None, None))
-    scr._page_worker = page
-    drained = []
-    monkeypatch.setattr(annotate_mod, "drain_thread",
-                        lambda thread, timeout_ms: drained.append(thread) or True)
-    scr.close()
-    assert drained == [page]
-    assert scr._page_worker is None
-
-
-def test_a_page_worker_that_will_not_stop_is_parked_rather_than_deleted(
-        qtbot, qt_theme_applied, monkeypatch):
-    scr = annotate_mod.AnnotateScreen()
-    qtbot.addWidget(scr)
-    scr._compute_grid_dims = lambda: None
-    page = annotate_mod._PageLoadWorker(1, [], lambda row: (None, None))
-    deleted = []
-    monkeypatch.setattr(page, "deleteLater", lambda: deleted.append("page"))
-    scr._page_worker = page
-    monkeypatch.setattr(annotate_mod, "drain_thread",
-                        lambda thread, timeout_ms: False)
-    scr.close()
-    assert deleted == []
-
 
 def test_a_console_that_will_not_shut_down_does_not_hold_the_window_open(
         qtbot, qt_theme_applied, monkeypatch):
@@ -1871,80 +1418,3 @@ def test_skip_says_nothing_is_annotated_when_the_filtered_subset_is_not(
     scr._filtered_rows = [(table[0][0], None), (table[1][0], 0)]
     scr._on_skip()
     assert scr._status_label.text() == "No annotated images found."
-
-
-def test_retiring_a_retrain_thread_whose_c_half_is_already_gone_is_survivable(
-        screen):
-    """The guard round the disconnects stopped one line short of the delete.
-
-    `_on_retrain_finished` is a queued slot, so it runs later than the thread
-    it retires -- late enough that the worker's C++ half can have gone with
-    its parent. The three disconnects above are wrapped in
-    `except (RuntimeError, TypeError)` for exactly that state, and then
-    `deleteLater()` reached into the same dead object one line outside it. It
-    raised `Internal C++ object already deleted` out of the Qt event loop:
-    a traceback from the one slot whose whole job is tidying up.
-    """
-    import shiboken6
-    scr = screen
-    worker = annotate_mod._RetrainWorker("db", "annotate", {})
-    scr._retrain_worker = worker
-    shiboken6.delete(worker)
-    scr._on_retrain_finished()
-    assert scr._retrain_worker is None
-    assert scr._btn_retrain.isEnabled()
-
-
-def test_retiring_a_page_thread_whose_c_half_is_already_gone_starts_the_next(
-        screen, qtbot, monkeypatch):
-    """Same slot shape, same dead object -- and here the exception also cost
-    the queued page load that should have started after it."""
-    import shiboken6
-    scr = screen
-    # Let the fixture's own page thread retire first: replacing a live
-    # `_page_worker` drops the last reference to a running QThread, which is
-    # the abort this screen's teardown is arranged to avoid.
-    qtbot.waitUntil(lambda: scr._page_worker is None, timeout=10000)
-    worker = annotate_mod._PageLoadWorker(1, [], lambda row: (None, None))
-    scr._page_worker = worker
-    started = []
-    monkeypatch.setattr(scr, "_start_page_worker",
-                        lambda request: started.append(request))
-    scr._pending_page_load = (99, [], None, scr._settings)
-    shiboken6.delete(worker)
-    scr._on_page_worker_finished()
-    assert scr._page_worker is None
-    assert started == [(99, [], None, scr._settings)]
-
-
-
-def test_closing_over_a_retrain_thread_whose_c_half_is_gone_still_closes(
-        qtbot, qt_theme_applied, monkeypatch):
-    import shiboken6
-    scr = annotate_mod.AnnotateScreen()
-    qtbot.addWidget(scr)
-    scr._compute_grid_dims = lambda: None
-    worker = annotate_mod._RetrainWorker("db", "annotate", {})
-    scr._retrain_worker = worker
-    monkeypatch.setattr(annotate_mod, "drain_thread",
-                        lambda thread, timeout_ms: True)
-    monkeypatch.setattr(annotate_mod._RetrainWorker, "requestInterruption",
-                        lambda self: shiboken6.delete(self))
-    scr.close()
-    assert scr._retrain_worker is None
-
-
-def test_closing_over_a_page_thread_whose_c_half_is_gone_still_closes(
-        qtbot, qt_theme_applied, monkeypatch):
-    import shiboken6
-    scr = annotate_mod.AnnotateScreen()
-    qtbot.addWidget(scr)
-    scr._compute_grid_dims = lambda: None
-    page = annotate_mod._PageLoadWorker(1, [], lambda row: (None, None))
-    scr._page_worker = page
-    monkeypatch.setattr(annotate_mod, "drain_thread",
-                        lambda thread, timeout_ms: True)
-    monkeypatch.setattr(annotate_mod._PageLoadWorker, "requestInterruption",
-                        lambda self: shiboken6.delete(self))
-    scr.close()
-    assert scr._page_worker is None

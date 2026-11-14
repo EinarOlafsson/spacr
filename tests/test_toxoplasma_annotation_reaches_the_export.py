@@ -133,15 +133,6 @@ def test_the_input_table_is_not_touched():
     pd.testing.assert_frame_equal(frame, before)
 
 
-def test_a_table_naming_no_gene_comes_back_unchanged(capsys):
-    """Not a block of empty columns, which reads as "found nothing"."""
-    frame = pd.DataFrame({"plate": ["p1", "p2"], "value": [1.0, 2.0]})
-    out = annotation.annotate(frame)
-    pd.testing.assert_frame_equal(out, frame)
-    assert "names no gene column" in capsys.readouterr().out
-
-
-
 def test_a_quiet_table_naming_no_gene_is_returned_without_output(capsys):
     """A quiet export without gene identifiers remains the caller's table."""
     frame = pd.DataFrame(
@@ -171,6 +162,20 @@ def test_a_column_the_table_already_has_is_not_overwritten(capsys):
     assert "already on this table" not in capsys.readouterr().out
 
 
+@pytest.mark.parametrize("frame, kwargs", [
+    # Not a block of empty columns, which reads as "found nothing".
+    pytest.param(pd.DataFrame({"plate": ["p1", "p2"], "value": [1.0, 2.0]}),
+                 {}, id="a_table_naming_no_gene"),
+    pytest.param(pd.DataFrame({"plate": ["p1"]}), {"key_column": "nope"},
+                 id="a_named_key_column_that_is_not_there"),
+])
+def test_a_table_without_a_gene_column_comes_back_unchanged(
+        capsys, frame, kwargs):
+    out = annotation.annotate(frame, **kwargs)
+    pd.testing.assert_frame_equal(out, frame)
+    assert "names no gene column" in capsys.readouterr().out
+
+
 def test_a_source_entirely_present_is_skipped_with_a_reason(capsys):
     frame = _coefficients()
     for name in ("hyperlopit",):
@@ -198,13 +203,6 @@ def test_the_key_column_can_be_named_outright():
     frame = pd.DataFrame({"a": ["TGME49_201180"], "b": ["TGME49_224750"]})
     out = annotation.annotate(frame, key_column="b", quiet=True)
     assert out.iloc[0]["gene_name"] == "SRS40F"
-
-
-def test_a_named_key_column_that_is_not_there_falls_back(capsys):
-    frame = pd.DataFrame({"plate": ["p1"]})
-    out = annotation.annotate(frame, key_column="nope")
-    pd.testing.assert_frame_equal(out, frame)
-    assert "names no gene column" in capsys.readouterr().out
 
 
 def test_an_empty_table_is_returned_as_is():

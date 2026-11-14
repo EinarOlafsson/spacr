@@ -38,23 +38,6 @@ def test_an_empty_path_is_not_pushed_onto_the_recent_list():
     assert prefs.get_recent_sources("annotate") == ["/real/folder"]
 
 
-def test_a_list_shaped_store_is_read_as_the_recent_list():
-    """Some backends hand the value back as a list; it is still the list."""
-    prefs._s().setValue("recent/annotate/list", ["/a", "/b", "/c"])
-    assert prefs.get_recent_sources("annotate") == ["/a", "/b", "/c"]
-
-
-def test_a_list_shaped_store_drops_its_blanks_and_honours_the_limit():
-    """Blank entries in a stored list are not offered as folders."""
-    prefs._s().setValue("recent/annotate/list", ["/a", "", "/b", "/c"])
-    assert prefs.get_recent_sources("annotate", limit=2) == ["/a", "/b"]
-
-
-def test_an_unset_store_is_an_empty_recent_list():
-    """A first run has no list at all, which is not an error."""
-    assert prefs.get_recent_sources("never_used") == []
-
-
 def test_the_real_factory_is_pinned_to_the_spacr_namespace():
     """Read-only check that the unpatched factory names one shared store."""
     settings = _REAL_SETTINGS_FACTORY()

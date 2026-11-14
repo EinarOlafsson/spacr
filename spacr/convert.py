@@ -3237,7 +3237,10 @@ def convert_folder(settings: Optional[TMapping[str, Any]] = None,
                      overwrite=bool(resolved.get('overwrite')),
                      map_name=str(resolved.get('map_name') or MAP_FILENAME),
                      resume=bool(resolved.get('resume', False)),
-                     checkpoint_path=resolved.get('checkpoint_path'))
+                     checkpoint_path=resolved.get('checkpoint_path'),
+                     progress=lambda index, total, _name: print(
+                         f'Progress: {index - 1}/{total}, '
+                         f'operation_type: Converting images', flush=True))
     print(result.summary())
     _finish_conversion_barcodes(barcode_linkage, result)
 

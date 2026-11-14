@@ -146,14 +146,25 @@ def test_metadata_mode_selects_on_metadata_type_by(plate):
         assert kept == per_class
 
 
-def test_metadata_mode_selects_on_row_id_when_asked(plate):
-    """The setting is honoured, not just tolerated: rowID groups everything
-    into one class because every well in the fixture is row A."""
+@pytest.mark.parametrize("overrides, classes", [
+    pytest.param({"metadata_type_by": "rowID", "class_metadata": [["r1"]]}, ["r1"],
+                 id="rowID-is-honoured-not-just-tolerated"),
+    pytest.param({"class_metadata": ["c1", "c2"]}, ["c1", "c2"],
+                 id="plain-strings-mean-one-class-per-value"),
+    pytest.param({"class_metadata": "[['c1'], ['c2']]"}, ["c1", "c2"],
+                 id="a-string-from-a-settings-csv-is-parsed"),
+])
+def test_class_metadata_builds_the_classes_it_names(plate, overrides, classes):
+    """The flat form ``['c1','c2']`` predates the nested one and still means
+    one class per value.  A settings CSV stores ``"[['c1'], ['c2']]"``;
+    iterating the string gave one class per character ('[', '[', "'", 'c',
+    '1'), so the first thing the old code did with the configuration was look
+    up ``png_df['condition']`` for a class named '['.  ``rowID`` groups
+    everything into one class because every well in the fixture is row A."""
     from spacr.io import generate_training_dataset
 
-    train, _ = generate_training_dataset(
-        _settings(plate, metadata_type_by='rowID', class_metadata=[['r1']]))
-    assert sorted(os.listdir(train)) == ['r1']
+    train, _ = generate_training_dataset(_settings(plate, **overrides))
+    assert sorted(os.listdir(train)) == classes
 
 
 def test_inner_lists_group_several_wells_into_one_class(plate):
@@ -172,16 +183,6 @@ def test_inner_lists_group_several_wells_into_one_class(plate):
     one = sum(len(list((Path(root) / 'c3').glob('*.png'))) for root in (train, test))
     # balance_to_smallest trims the two-well class down to the one-well class
     assert both == one == len(FIELDS) * len(OBJECTS)
-
-
-def test_plain_string_entries_still_work(plate):
-    """The flat form ``['c1','c2']`` predates the nested one and still means
-    one class per value."""
-    from spacr.io import generate_training_dataset
-
-    train, _ = generate_training_dataset(
-        _settings(plate, class_metadata=['c1', 'c2']))
-    assert sorted(os.listdir(train)) == ['c1', 'c2']
 
 
 # ---------------------------------------------------------------------------
@@ -236,20 +237,6 @@ def test_nothing_naming_a_column_falls_back_to_columnID(plate):
     assert _class_column({}) == 'columnID'
     train, _test = generate_training_dataset(
         _settings(plate, metadata_type_by=''))
-    assert sorted(os.listdir(train)) == ['c1', 'c2']
-
-
-def test_class_metadata_arriving_as_a_string_is_parsed(plate):
-    """A settings CSV stores ``"[['c1'], ['c2']]"``.
-
-    Iterating the string gave one class per character -- '[', '[', "'", 'c',
-    '1' -- so the first thing the old code did with the user's configuration
-    was look up ``png_df['condition']`` for a class named '['.
-    """
-    from spacr.io import generate_training_dataset
-
-    train, _ = generate_training_dataset(
-        _settings(plate, class_metadata="[['c1'], ['c2']]"))
     assert sorted(os.listdir(train)) == ['c1', 'c2']
 
 

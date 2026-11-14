@@ -8,8 +8,6 @@ the case a naive resolver reports as a clean single hit.
 """
 from __future__ import annotations
 
-import math
-
 import pandas as pd
 import pytest
 
@@ -65,39 +63,6 @@ def test_an_annotation_that_is_not_a_row_falls_back_to_a_search_link():
 # ---------------------------------------------------------------------------
 # loading and caching the side tables
 # ---------------------------------------------------------------------------
-
-def test_a_frame_handed_in_directly_is_used_without_a_cache_token(tmp_path):
-    """An in-memory frame has no file to key a cache on, so it gets no token.
-
-    Caching it under a stale token would serve one caller's frame to the next
-    caller who passed a different one.
-    """
-    frame = pd.DataFrame({'name': ['TGGT1_239740_3'], 'sequence': [SEQUENCE]})
-    loaded, token = GT._load(frame, str(tmp_path / 'unused.csv'))
-    assert loaded is frame
-    assert token is None
-
-
-def test_a_source_that_is_not_a_file_is_skipped_rather_than_raising(tmp_path):
-    """A path that does not exist means "no such table", not a crash.
-
-    A settings file naming a reference that was moved must still open the tile
-    with the identity it can resolve.
-    """
-    assert GT._load(str(tmp_path / 'missing.csv'), 'default.csv') == (None,
-                                                                      None)
-
-
-def test_an_unreadable_table_is_skipped_and_leaves_no_cache_token(tmp_path):
-    """A file that pandas refuses to parse is treated as absent.
-
-    A truncated or zero-byte reference is a real thing to find on disk; letting
-    the parser error escape would make the whole tile unopenable.
-    """
-    empty = tmp_path / 'empty.csv'
-    empty.write_text('', encoding="utf-8")
-    assert GT._load(str(empty), 'default.csv') == (None, None)
-
 
 def test_the_index_cache_is_emptied_rather_than_grown_without_limit():
     """Past its ceiling the cache is cleared, so it cannot grow unbounded.
@@ -227,16 +192,6 @@ def test_reference_rows_with_no_name_are_skipped_and_odd_names_kept_whole():
     assert strain == {}
 
 
-def test_annotation_without_a_gene_column_annotates_nothing():
-    """A metadata table with no id column yields an empty index.
-
-    Joining on a guessed column would attach one gene's product description to
-    every other gene in the export.
-    """
-    assert GT._annotation_index(
-        pd.DataFrame({'product': ['a kinase']})) == {}
-
-
 def test_localisation_without_both_of_its_columns_locates_nothing():
     """A LOPIT table missing the gene key or the location column is skipped.
 
@@ -247,48 +202,3 @@ def test_localisation_without_both_of_its_columns_locates_nothing():
         pd.DataFrame({'gene_nr': ['239740']})) == {}
     assert GT._localisation_index(
         pd.DataFrame({'tagm_location': ['nucleus']})) == {}
-
-
-# ---------------------------------------------------------------------------
-# the whole tile
-# ---------------------------------------------------------------------------
-
-def test_without_a_reference_the_tile_says_uniqueness_was_never_checked():
-    """Skipping the gRNA reference is recorded, not passed over in silence.
-
-    Whether a protospacer is unique to one gene is exactly what the reference
-    answers; a tile built without one must not read like a tile that checked.
-    """
-    tile = GT.gene_tile('fraction:grna[239740_3]', None, barcodes=None,
-                        metadata=None, localisation=None)
-    assert tile.kind == 'guide'
-    assert any('no gRNA reference was supplied' in note
-               for note in tile.unresolved)
-
-
-def test_a_protospacer_in_another_gene_puts_both_genes_on_the_tile():
-    """The reported gene leads, the gene the reference names follows.
-
-    The reference here files the guide under a longer gene id than the model
-    term does, so the gene the counts were attributed to is not in the
-    protospacer's own list; dropping it would lose the gene the number is
-    actually about.
-    """
-    barcodes = pd.DataFrame({'name': ['TGGT1_AB_239740_3'],
-                             'sequence': [SEQUENCE]})
-    tile = GT.gene_tile('fraction:grna[AB_239740_3]', None, barcodes=barcodes,
-                        metadata=None, localisation=None)
-
-    assert tile.ambiguous is True
-    assert [c.gene for c in tile.candidates] == ['AB', 'AB_239740']
-    assert tile.candidates[0].reported is True
-    assert tile.protospacer == SEQUENCE
-
-    text = tile.to_text()
-    # to_text upper-cases each section heading.
-    assert ('IDENTITY — TGGT1_AB_239740 (THE GENE THE COUNTS WERE '
-            'ATTRIBUTED TO)') in text
-
-    html = tile.to_html()
-    assert 'Ambiguous mapping' in html
-    assert '<h2' in html

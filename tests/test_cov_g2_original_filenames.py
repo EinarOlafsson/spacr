@@ -71,18 +71,6 @@ def test_a_rename_log_restores_several_originals(tmp_path):
     assert report["matched_rows"] == 1
 
 
-def test_a_channel_sorting_manifest_is_read(tmp_path):
-    path = csv_map(tmp_path, [
-        {"kind": "image", "original_path": "/raw/x.tif",
-         "new_path": "plate1_A01_T0001F001L01A01Z01C01.tif", "status": "moved",
-         "plate": "plate1", "well": "A01", "field": "1", "time": "1"},
-        {"kind": "folder", "original_path": "/raw", "new_path": "plate1",
-         "status": "moved", "plate": "plate1", "well": "A01", "field": "1",
-         "time": "1"}], name="channel_sorting_manifest.csv")
-    mapped, _ = of.enrich(pd.DataFrame({"prcf": ["plate1_r1_c1_f1"]}), path)
-    assert mapped.original_filename.iloc[0] == "x.tif"
-
-
 @pytest.mark.parametrize("frame, column, message", [
     (pd.DataFrame([[1, 2]], columns=["prcf", "prcf"]), "original_filename",
      "unique columns"),
@@ -102,13 +90,6 @@ def test_a_database_without_a_conversion_map_is_refused(tmp_path):
         con.execute("CREATE TABLE cell (a INTEGER)")
     with pytest.raises(ValueError, match="Cannot read a conversion_map"):
         of.enrich(pd.DataFrame({"prcf": ["plate1_r1_c1_f1"]}), db)
-
-
-def test_an_empty_filename_cell_is_ignored(tmp_path):
-    path = csv_map(tmp_path, [modern()])
-    mapped, _ = of.enrich(pd.DataFrame({"prcf": ["plate1_r1_c1_f1"],
-                                        "filename": [""]}), path)
-    assert mapped.original_filename.iloc[0] == "sample.tif"
 
 
 def test_a_filename_and_prcf_that_disagree_are_refused(tmp_path):

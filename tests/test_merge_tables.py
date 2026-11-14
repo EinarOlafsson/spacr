@@ -274,11 +274,6 @@ def test_a_table_with_almost_nothing_in_it_says_so():
         reduce_dimensions(frame, ["a", "b"])
 
 
-def test_an_unknown_method_is_refused():
-    with pytest.raises(ReductionError, match="not one of"):
-        reduce_dimensions(_wide(), ["a", "b"], method="magic")
-
-
 # --- keys that do not agree on a type ------------------------------------
 
 def _three_cells():

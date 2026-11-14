@@ -470,20 +470,19 @@ def test_a_beta_transform_names_the_squeeze_it_applied():
     assert fields["transform"].value == BETA_SQUEEZE_NOTE
 
 
-def test_plate_position_left_out_of_the_model_is_said_out_loud():
-    """A screen fitted without row/column effects is a different analysis."""
+@pytest.mark.parametrize("settings, said", [
+    # A screen fitted without row/column effects is a different analysis.
+    pytest.param({"model_plate_position": False}, "OUT of the model entirely",
+                 id="left-out-of-the-model-is-said-out-loud"),
+    # Variance components and fixed effects are not the same model.
+    pytest.param({"random_row_column_effects": True}, "VARIANCE COMPONENTS",
+                 id="random-effects-are-distinguished-from-fixed"),
+])
+def test_how_plate_position_enters_the_model_is_said_in_the_summary(settings,
+                                                                    said):
     fields = _fields(RS._fitted_section,
-                     _run(regression_type=None,
-                          settings={"model_plate_position": False}))
-    assert "OUT of the model entirely" in fields["plate_position"].value
-
-
-def test_plate_position_as_random_effects_is_distinguished_from_fixed():
-    """Variance components and fixed effects are not the same model."""
-    fields = _fields(RS._fitted_section,
-                     _run(regression_type=None,
-                          settings={"random_row_column_effects": True}))
-    assert "VARIANCE COMPONENTS" in fields["plate_position"].value
+                     _run(regression_type=None, settings=settings))
+    assert said in fields["plate_position"].value
 
 
 def test_plate_position_defaults_to_fixed_effects():

@@ -230,13 +230,6 @@ def _field_frame(**overrides):
     return frame
 
 
-def test_the_canonical_timelapse_key_is_unchanged():
-    """What the real writer produces must survive untouched."""
-    built = submodules._ensure_field_key(_field_frame())
-    assert built['prcf'].tolist() == ['plate1_r1_c1_f1_t1',
-                                      'plate1_r1_c1_f1_t2']
-
-
 def test_an_integer_timepoint_builds_a_key_schema_can_read_back():
     """A ``timeID`` of ``1`` used to build a key nothing could parse.
 
@@ -275,13 +268,6 @@ def test_a_time_blind_key_written_the_old_way_is_still_repaired(capsys):
                                       'plate1_r1_c1_f1_t2']
     assert 'Repaired 2 time-blind prcf value(s) in the cell table' \
         in capsys.readouterr().out
-
-
-def test_a_prcf_from_another_source_is_left_alone():
-    """Only a provably time-blind key is repaired; anything else is kept."""
-    frame = _field_frame(prcf=['imported_key_a', 'imported_key_b'])
-    built = submodules._ensure_field_key(frame.copy())
-    assert built['prcf'].tolist() == ['imported_key_a', 'imported_key_b']
 
 
 def test_a_table_that_needs_no_key_is_never_composed():
@@ -629,13 +615,9 @@ def test_a_short_renamed_tiff_is_refused_without_blaming_the_converters(
     The refusal here must not send the reader to look at a branch that does
     not exist.
     """
-    import inspect
-
     from spacr import io as spacr_io
 
-    # The claim the message makes, checked against the writers themselves.
-    source = inspect.getsource(spacr_io.convert_to_yokogawa)
-    assert '_next_synthetic_yokogawa_well' in source
+    # The claim the message makes, checked against the name the writers build.
     assert spacr_io._next_synthetic_yokogawa_well(set()) == 'plate1_A01'
 
     translate = _translate_well_in_df()

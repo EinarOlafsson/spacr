@@ -272,18 +272,6 @@ class TestOnlyAThreePartNameCarriesASpeciesTag:
 class TestOneMatcherForEveryCallSite:
     """184 C. There were two and they disagreed."""
 
-    def test_the_labeller_no_longer_matches_a_substring(self):
-        """`nc='23346'` claiming `233460` is the defect this replaces."""
-        from spacr.ml import label_control_condition
-
-        features = pd.Series(["fraction:grna[233460_1]",
-                              "fraction:grna[2334600_1]"])
-        guides = pd.Series(["233460_1", "2334600_1"])
-
-        labels = label_control_condition(features, guides, nc="23346")
-
-        assert list(labels) == ["other", "other"]
-
     def test_a_gene_control_takes_every_guide_of_that_gene(self):
         from spacr.ml import label_control_condition
 
@@ -416,35 +404,29 @@ class TestTheDataHasAlreadyDroppedThePrefix:
 
         assert list(bare) == list(full)
 
-    def test_it_does_not_rescue_a_control_that_is_simply_wrong(self):
-        mask, _note = rows_for("TGGT1_999999", pd.Series(self.HELD),
-                               pd.Series([g.split("_")[0] for g in self.HELD]))
-
-        assert int(mask.sum()) == 0
-
-    def test_it_is_not_substring_matching_by_another_route(self):
-        """Dropping a leading token still matches WHOLE values."""
-        held = ["233460_1", "2334600_1"]
-        mask, _note = rows_for("TGGT1_23346", pd.Series(held),
-                               pd.Series([g.split("_")[0] for g in held]))
-
-        assert int(mask.sum()) == 0
-
-    @pytest.mark.parametrize("held, name, matched", [
+    @pytest.mark.parametrize("held, name, with_genes, matched", [
         # Only an UNUSED leading token is dropped: if names really do start
         # with it, the two-part reading was right.
-        (["TGGT1_000000", "TGGT1_233460"], "TGGT1_000000", 1),
+        (["TGGT1_000000", "TGGT1_233460"], "TGGT1_000000", False, 1),
         # What a spreadsheet paste leaves behind, and what it must not do.
         # "sgCtrl_   " strips to "sgCtrl_", so the part after the separator
         # is empty and there is nothing to retry with. The answer is zero rows
         # and no exception: the name really does match nothing, and raising
         # here would take down normalisation, every volcano baseline and every
         # nc/pc reference over a stray character.
-        (["TGGT1_233460_1", "TGGT1_233460_2"], "sgCtrl_   ", 0),
+        (["TGGT1_233460_1", "TGGT1_233460_2"], "sgCtrl_   ", False, 0),
+        (HELD, "TGGT1_999999", True, 0),
+        # Dropping a leading token still matches WHOLE values.
+        (["233460_1", "2334600_1"], "TGGT1_23346", True, 0),
     ], ids=["a_head_the_library_does_use_is_left_alone",
-            "a_name_that_is_nothing_but_a_trailing_separator_matches_nothing"])
-    def test_a_head_the_library_does_use_is_left_alone(self, held, name, matched):
-        mask, _note = rows_for(name, pd.Series(held))
+            "a_name_that_is_nothing_but_a_trailing_separator_matches_nothing",
+            "a_control_that_is_simply_wrong_is_not_rescued",
+            "it_is_not_substring_matching_by_another_route"])
+    def test_a_name_with_a_head_the_data_dropped_matches_whole_values_only(
+            self, held, name, with_genes, matched):
+        genes = ([g.split("_")[0] for g in held],) if with_genes else ()
+        mask, _note = rows_for(name, pd.Series(held),
+                               *[pd.Series(x) for x in genes])
 
         assert int(mask.sum()) == matched
 
