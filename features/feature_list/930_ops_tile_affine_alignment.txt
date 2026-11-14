@@ -1,22 +1,42 @@
 OPS PER-TILE AFFINE ALIGNMENT OF PHENOTYPE FIELDS TO THE SEQUENCING NUCLEI
 ==========================================================================
 
-Lifecycle: future
-Status: IMPLEMENTED 2026-11-13 (alpha, under ALPHA_FEATURES[930]); step 6 reproduction proof below — with ops_align_model 'tile_affine' the merge phase refines each field's re-solved similarity (refine_field_transform, unchanged) into one affine per field and one per sequencing tile group of the field (spacr.ops_merge.tile_affine_transform: mutual nearest pairs within ops_align_match_radius, ops_align_trim_passes passes, pairs beyond max(3 x median, 0.5) px dropped before each least-squares fit; a group is the field nuclei whose nearest sequencing tile centre (ops_geometry, first cycle) is that tile under the field affine, and gets its own affine with at least ops_align_tile_min_nuclei nuclei; every fit must stay within 2 % scale, 1 degree rotation and 2 % anisotropy of the stored seed, else the field keeps the similarity and a group the field affine). Each nucleus is moved by its group's affine (tile_affine_to_well) before it is paired. ops_phenotype records align_model, align_device ('cpu'), the field affine (align_a11..align_a22, align_ty, align_tx), align_tile_groups and align_tile_transforms (JSON rows: tile site, nuclei, a11, a12, a21, a22, ty, tx). The fits run on one BLAS thread. spacr/ops_merge.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_tile_affine_930.py.
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-13; DEFAULT since 2026-11-13 (maintainer decision: ops_align_model 'tile_affine' is the default and the four ops_align_* settings left alpha; settings files stamped before schema version 933 keep 'similarity' through DEFAULT_CHANGES[933]); step 6 reproduction proof below — with ops_align_model 'tile_affine' the merge phase refines each field's re-solved similarity (refine_field_transform, unchanged) into one affine per field and one per sequencing tile group of the field (spacr.ops_merge.tile_affine_transform: mutual nearest pairs within ops_align_match_radius, ops_align_trim_passes passes, pairs beyond max(3 x median, 0.5) px dropped before each least-squares fit; a group is the field nuclei whose nearest sequencing tile centre (ops_geometry, first cycle) is that tile under the field affine, and gets its own affine with at least ops_align_tile_min_nuclei nuclei; every fit must stay within 2 % scale, 1 degree rotation and 2 % anisotropy of the stored seed, else the field keeps the similarity and a group the field affine). Each nucleus is moved by its group's affine (tile_affine_to_well) before it is paired. ops_phenotype records align_model, align_device ('cpu'), the field affine (align_a11..align_a22, align_ty, align_tx), align_tile_groups and align_tile_transforms (JSON rows: tile site, nuclei, a11, a12, a21, a22, ty, tx). The fits run on one BLAS thread. spacr/ops_merge.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_tile_affine_930.py.
 Requested: maintainer (OPS stage 1 iteration card S1-it1, arm (vii), signed off 2026-11-13; feature workflow steps 5 and 6).
 Owner: paper session (stage 1 lane).
 Source: proof_s1s2/iter/scripts/s1it_arms.py arm (vii) (polish, mutual, fit_affine, ok_bounds, run_arms) and arm (ii), the field affine it starts from; s1it_vii_gpu.py (GPU-batched variant, not ported).
 Related: 752 (the merge phase), 921, READINESS.md stage 1.
 
 SETTINGS
-ops_align_model ('similarity'; 'tile_affine'), ops_align_tile_min_nuclei (200),
-ops_align_match_radius (3.0 px), ops_align_trim_passes (3). The similarity
-re-solve keeps its own radius (min(3, ops_merge_threshold)).
+ops_align_model ('tile_affine', the default; 'similarity'),
+ops_align_tile_min_nuclei (200), ops_align_match_radius (3.0 px),
+ops_align_trim_passes (3). The similarity re-solve keeps its own radius
+(min(3, ops_merge_threshold)). None of the four is alpha any more.
 
-DEFAULT IDENTITY
-With ops_align_model 'similarity' (default) ops_merge and ops_phenotype are
-the same as before (tests/test_ops_tile_affine_930.py::
-test_the_default_model_leaves_the_merge_unchanged, and plate A well A1
+DEFAULT SWITCH (2026-11-13, maintainer decision)
+'tile_affine' became the default of ops_align_model and the four settings
+left ALPHA_FEATURES (and the alpha slide list in tools/refresh_alpha_deck.py).
+Evidence, plate A (Funk et al. 2022) well A1, against Brieflow on the same
+nuclei: 97.5 % vs 95.7 % of cells within 2 px, residual 0.61 vs 0.86 px,
+0 vs 7 failed fields, 0.017 vs 0.49 CPU s per field (proof_stage1_stage2/
+iterations/REPORT_iterations.md and iterations2/REPORT_iterations2.md; the
+alignment was re-checked unchanged with the feathered composites of 931).
+Reproducibility: DEFAULT_CHANGES[933] = {'ops_align_model': 'similarity'} and
+SETTINGS_SCHEMA_VERSION 933. The row is keyed 933, not 930, because the key
+must be above 932, the version files were already stamped with. A settings
+file or journal without a stamp, or stamped 931 or 932, that does not set
+ops_align_model reruns with 'similarity'; a file stamped 933 or later gets
+'tile_affine'. 'tile_affine' needs the stitch phase's ops_geometry rows;
+a well without them stops with that message, as before.
+Tests: tests/test_ops_tile_affine_930.py (the default is tile_affine, the
+explicit and pre-933 similarity paths are unchanged) and
+tests/test_settings_schema_version_931.py.
+
+DEFAULT IDENTITY (before the switch)
+With ops_align_model 'similarity' ops_merge and ops_phenotype are the same
+as before item 930 (tests/test_ops_tile_affine_930.py::
+test_similarity_leaves_the_merge_as_before_930, and plate A well A1
 compared with the nightly code below). A later similarity run removes the
 align_* columns a tile-affine run wrote.
 

@@ -352,7 +352,7 @@ def test_the_default_settings_leave_the_sweep_outputs_identical(monkeypatch, tmp
     from spacr.settings import ALPHA_FEATURES
 
     keys = [*ALPHA_FEATURES[928]["settings"], *ALPHA_FEATURES[929]["settings"]]
-    assert len(keys) == 25 and OPS_DEFAULTS["ops_consensus_enabled"] is False
+    assert len(keys) == 26 and OPS_DEFAULTS["ops_consensus_enabled"] is False
     base = _phase_settings(tmp_path, ops_cluster_knn=4, ops_cluster_seeds="42",
                            ops_cluster_sweep_resolutions={"knn": [1], "phate": [3]}, ops_cluster_target_clusters=4)
     for key in ("ops_consensus_bootstraps", "ops_consensus_k", "ops_consensus_guides"):

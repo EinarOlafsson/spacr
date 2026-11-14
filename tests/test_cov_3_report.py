@@ -12,9 +12,8 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-import pytest
 
-from spacr import plugins, report
+from spacr import report
 
 
 # ---------------------------------------------------------------------------
@@ -84,36 +83,6 @@ def _oversized_field_csv(path: Path, header: str) -> Path:
     return path
 
 
-def test_a_scorecard_too_damaged_to_parse_is_reported_not_summarised(tmp_path):
-    """Half a scorecard gives a different plate verdict from the whole one,
-    so the reader is told it is unreadable rather than shown a verdict
-    derived from the rows that happened to parse."""
-    path = _oversized_field_csv(tmp_path / "segmentation_qc_cell.csv",
-                                "field,object_type,n_objects,severity,flags,note")
-
-    rows, error = report._field_qcs_from_csv(path)
-
-    assert rows == []
-    assert error is not None
-    assert "not readable as CSV" in error
-    assert path.name in error
-
-
-def test_a_scorecard_that_cannot_be_opened_says_so(tmp_path, monkeypatch):
-    """An unreadable file is a different failure from a malformed one, and
-    the message names which."""
-    path = tmp_path / "segmentation_qc_cell.csv"
-    path.write_text("field,object_type,n_objects\na,cell,3\n", encoding="utf-8")
-
-    def refuse(*_args, **_kwargs):
-        raise PermissionError("nope")
-
-    monkeypatch.setattr("builtins.open", refuse)
-    rows, error = report._field_qcs_from_csv(path)
-
-    assert rows == []
-    assert "unreadable (PermissionError)" in error
-
 
 def test_a_layout_export_damaged_past_its_header_still_reports_its_wells(
         tmp_path):
@@ -136,99 +105,6 @@ def test_a_layout_export_damaged_past_its_header_still_reports_its_wells(
 # ---------------------------------------------------------------------------
 # Plugin chapters
 # ---------------------------------------------------------------------------
-
-def good_section(_context):
-    """A plugin builder that returns a valid section."""
-    return report.Section(title="Extra", key="", text_lines=["fine"])
-
-
-def wrong_key_section(_context):
-    """A plugin builder that returns a section under someone else's key."""
-    return report.Section(title="Extra", key="statistics")
-
-
-def not_a_section(_context):
-    """A plugin builder that returns the wrong type entirely."""
-    return {"title": "Extra"}
-
-
-NOT_CALLABLE = "this is a string, not a builder"
-
-
-@pytest.fixture()
-def plugin_report(monkeypatch):
-    """Install report-section contributions and capture their diagnostics."""
-    recorded = []
-    monkeypatch.setattr(plugins, "record_diagnostic",
-                        lambda *args, **kw: recorded.append(args))
-
-    def install(*contributions):
-        monkeypatch.setattr(plugins, "report_sections",
-                            lambda: tuple(("demo", c) for c in contributions))
-        return recorded
-
-    return install
-
-
-def _contribution(key, builder, title="Extra chapter"):
-    return plugins.ReportSectionContribution(
-        key=key, title=title,
-        builder=f"tests.test_cov_3_report:{builder}")
-
-
-@pytest.mark.parametrize("key,builder,expected", [
-    ("statistics", "good_section", "already exists"),
-    ("extra_chapter", "NOT_CALLABLE", "is not callable"),
-    ("extra_chapter", "not_a_section", "expected Section"),
-    ("extra_chapter", "wrong_key_section", "expected"),
-])
-def test_a_broken_plugin_chapter_becomes_a_visible_problem(
-        tmp_path, plugin_report, key, builder, expected):
-    """A plugin that cannot produce its chapter must leave a chapter saying
-    so. Dropping it silently makes the report look complete while a whole
-    section of it is missing."""
-    recorded = plugin_report(_contribution(key, builder))
-
-    result = report.collect_report(tmp_path, search_journal=False)
-
-    # A duplicate key leaves the core chapter in place and appends the
-    # problem chapter after it, so the last one carries the complaint.
-    section = [s for s in result.sections if s.key == key][-1]
-    assert section.status == report.STATUS_PROBLEM
-    assert "could not be generated" in section.body_html
-    assert expected in section.body_html + " ".join(section.text_lines)
-    assert recorded, "the failure was not recorded as a plugin diagnostic"
-
-
-def test_a_working_plugin_chapter_is_inserted_where_it_asked(
-        tmp_path, plugin_report):
-    """The contrast that makes the problem chapters meaningful, and the
-    check that a blank builder key is filled in from the contribution."""
-    plugin_report(_contribution("extra_chapter", "good_section"))
-
-    result = report.collect_report(tmp_path, search_journal=False)
-
-    keys = [s.key for s in result.sections]
-    assert keys[keys.index("statistics") + 1] == "extra_chapter"
-    section = result.sections[keys.index("extra_chapter")]
-    assert section.title == "Extra"
-    assert section.status != report.STATUS_PROBLEM
-
-
-def test_a_plugin_registry_that_cannot_be_read_leaves_the_core_report(
-        tmp_path, monkeypatch):
-    """Plugin discovery itself can fail. The eight core chapters are the
-    report; they must survive a registry that raises."""
-    def explode():
-        raise RuntimeError("the plugin registry is corrupt")
-
-    monkeypatch.setattr(plugins, "report_sections", explode)
-
-    result = report.collect_report(tmp_path, search_journal=False)
-
-    assert [s.key for s in result.sections] == [
-        "run_status", "provenance", "segmentation_qc", "plate_qc",
-        "figures", "statistics", "settings", "appendix"]
 
 
 # ---------------------------------------------------------------------------

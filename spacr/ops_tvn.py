@@ -135,7 +135,7 @@ def _scale_rows(values: np.ndarray, reference: np.ndarray, epsilon: float) -> np
 def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
                     batches: Optional[np.ndarray] = None, *,
                     components: Components = None, whiten_epsilon: float = 3.0,
-                    coral_ridge: float = 0.5) -> Tuple[np.ndarray, Dict[str, Any]]:
+                    coral_ridge: float = 0.5, rotation: str = "eigh") -> Tuple[np.ndarray, Dict[str, Any]]:
     """Whiten an embedding on its control cells and align batches with CORAL.
 
     :param embedding: one row per cell, for example PCA components.
@@ -155,10 +155,18 @@ def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
         a different scale.
     :param coral_ridge: the multiple of the identity added to every
         covariance before CORAL.
+    :param rotation: how the control axes are found. ``'eigh'``, the
+        default, takes them from a double-precision eigendecomposition of
+        the control covariance (:func:`_control_basis`); ``'brieflow'``
+        fits scikit-learn's ``PCA`` on the control cells at the embedding's
+        own precision, as Brieflow's ``tvn_on_controls`` does, which with
+        ``whiten_epsilon`` 0 and a single-precision embedding reproduces
+        Brieflow's TVN value for value.
     :returns: ``(embedding, info)``. ``info`` lists the axes kept and the
         batches CORAL skipped because they had fewer control cells than
         axes or a singular covariance.
-    :raises ValueError: when there are no control cells.
+    :raises ValueError: when there are no control cells or ``rotation`` is
+        unknown.
 
     The steps follow Brieflow's ``tvn_on_controls``: centre and scale on all
     control cells, rotate onto the principal axes of the control cells,
@@ -168,8 +176,15 @@ def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
     control = np.asarray(control, bool)
     if not control.any():
         raise ValueError("TVN needs control cells; none are marked")
+    if rotation not in ("eigh", "brieflow"):
+        raise ValueError(f"rotation must be 'eigh' or 'brieflow'; got {rotation!r}")
     x = _scale_rows(embedding, embedding[control], float(whiten_epsilon))
-    x = _control_rotation(x[control], components).transform(x)
+    if rotation == "brieflow":
+        from sklearn.decomposition import PCA
+
+        x = PCA(n_components=_component_arg(components)).fit(x[control]).transform(x)
+    else:
+        x = _control_rotation(x[control], components).transform(x)
     info: Dict[str, Any] = {"axes": int(x.shape[1]), "coral_skipped": []}
     if batches is None:
         return _scale_rows(x, x[control], float(whiten_epsilon)), info
@@ -804,13 +819,19 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
 #: outlier filter, median imputation, the per-well standardised PCA, gene =
 #: median of its guides, non-targeting guides pooled four at a time into
 #: pseudo-genes.
-PROFILE_RECIPE: Dict[str, Any] = {"lof": 0, "impute": "median", "pca": "c0", "agg": "guide", "nt": "pseudo"}
+PROFILE_RECIPE: Dict[str, Any] = {"lof": 0, "impute": "median", "pca": "c0", "agg": "guide", "nt": "pseudo",
+                                  "tvn": "spacr"}
 
 #: The channels whose mean intensities the outlier filter looks at.
 PROFILE_CHANNELS = ("dapi", "gfp", "a594", "af750")
 
 _RECIPE_CHOICES = {"lof": (0, 1), "impute": ("median", "knn"), "pca": ("c0", "brieflow"),
-                   "agg": ("guide", "gene"), "nt": ("pseudo", "barcode")}
+                   "agg": ("guide", "gene", "gene_trim"), "nt": ("pseudo", "barcode"),
+                   "tvn": ("spacr", "brieflow")}
+
+#: The share of a gene's (or guide's) cells cut from each end by the
+#: ``gene_trim`` aggregation before the mean is taken.
+PROFILE_TRIM_FRACTION = 0.1
 
 
 def profile_recipe(value: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
@@ -821,8 +842,15 @@ def profile_recipe(value: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
         intensities; ``impute`` ``'knn'`` fills gaps by five nearest
         neighbours, as Brieflow does; ``pca`` ``'brieflow'`` fits the PCA on
         100,000 cells standardised by well with Brieflow's sampling; ``agg``
-        ``'gene'`` takes the median of all of a gene's cells; ``nt``
-        ``'barcode'`` keeps each non-targeting guide as its own row.
+        ``'gene'`` takes the median of all of a gene's cells, and
+        ``'gene_trim'`` their 10 % trimmed mean
+        (:data:`PROFILE_TRIM_FRACTION` cut from each end,
+        ``scipy.stats.trim_mean``; guide rows then take the same trimmed
+        mean of their cells); ``nt`` ``'barcode'`` keeps each non-targeting
+        guide as its own row; ``tvn`` ``'brieflow'`` finds the TVN control
+        axes as Brieflow does (:func:`tvn_on_controls` ``rotation``
+        ``'brieflow'``), which the Hybrid profile needs to match Brieflow's
+        recipe value for value.
     :returns: the recipe.
     :raises ValueError: for an unknown key or choice.
     """
@@ -1047,6 +1075,107 @@ def _cell_tables(value: Any, plate: str, wells: Optional[Sequence[str]]) -> List
     return out
 
 
+def cells_to_profiles(values: List[np.ndarray], metas: List[pd.DataFrame], recipe: Mapping[str, Any], *,
+                      whiten_epsilon: float, control_prefix: str = "nontargeting",
+                      control_guides: Sequence[str] = (), min_cells: int = 10, universe: Any = None,
+                      keep_cells: bool = False) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+    """Gene and guide profiles from filtered per-cell features, one array per well.
+
+    The middle of :func:`profile_cell_tables`, open to cells filtered
+    elsewhere (for example the cell matrices Brieflow's filter step writes):
+    the per-cell PCA (:func:`_profile_embedding`), TVN on the control cells
+    with the well as batch (:func:`tvn_on_controls`; ``whiten_epsilon`` 0 is
+    Brieflow's TVN at single precision, a positive value runs at double),
+    then the guide and gene rows of the recipe's ``agg`` and ``nt`` choices
+    (:func:`profile_recipe`), keeping genes with more than ``min_cells``
+    cells.
+
+    :param values: a list of one float array per well, cells by features,
+        the same columns in every well. A ``'c0'`` recipe scales them in
+        place, and the list is emptied once the PCA has used them, to free
+        the memory.
+    :param metas: one table per well, row for row: ``gene_symbol_0``
+        (control genes suffixed ``_<guide>``), ``cell_barcode_0`` and
+        ``batch_values``.
+    :param recipe: a :func:`profile_recipe`.
+    :param whiten_epsilon: the TVN whitening epsilon.
+    :param control_prefix: the control gene prefix.
+    :param control_guides: every control guide of the screen; the
+        ``'pseudo'`` NT rows pool them.
+    :param min_cells: gene rows need more cells than this.
+    :param universe: the gene list (a table with ``gene``, a JSON list or
+        its path) the gene rows are put in the order of, followed by the
+        control rows; guide rows of other genes are dropped. None keeps
+        every gene in sorted order.
+    :param keep_cells: also return the per-cell TVN components.
+    :returns: ``(genes, guides, info)``: ``genes`` has ``gene``,
+        ``n_cells`` and ``PC_*``; ``guides`` has ``guide``, ``gene``,
+        ``n_cells`` and ``PC_*``; ``info`` has ``cells``, ``pcs``,
+        ``tvn_dims``, ``runtime`` and ``kept_cells`` (``(components,
+        meta)`` or None).
+    """
+    import time
+
+    from .tabular import read_table
+
+    prefix, epsilon = str(control_prefix), float(whiten_epsilon)
+    timing: Dict[str, Any] = {}
+    started = time.time()
+    embedding, n_components = _profile_embedding(values, metas, recipe)
+    values.clear()
+    meta = pd.concat(metas, ignore_index=True)
+    control = meta.gene_symbol_0.str.startswith(prefix).to_numpy()
+    batches = meta.batch_values.to_numpy()
+    rotation = "brieflow" if recipe.get("tvn") == "brieflow" else "eigh"
+    if epsilon > 0:
+        embedding = tvn_on_controls(embedding.astype(np.float64), control, batches, whiten_epsilon=epsilon,
+                                    rotation=rotation)[0]
+    else:
+        embedding = tvn_on_controls(embedding, control, batches, whiten_epsilon=0.0, rotation=rotation)[0]
+    timing["pca_tvn_s"] = round(time.time() - started, 1)
+    started = time.time()
+    pcs = [f"PC_{j}" for j in range(embedding.shape[1])]
+    guide = np.where(control, meta.gene_symbol_0.str.split("_", n=1).str[1], meta.cell_barcode_0).astype(str)
+    gene = np.where(control, prefix, meta.gene_symbol_0).astype(str)
+    if recipe["nt"] == "pseudo":
+        gene = nt_pseudo_genes(guide, gene, sorted(control_guides), control_prefix=prefix)
+    else:
+        gene = np.where(control, np.char.add(f"{prefix}_", guide), gene)
+    kept_cells = None
+    if keep_cells:
+        kept = [c for c in ("gene_symbol_0", "cell_barcode_0", "well") if c in meta]
+        kept_cells = (embedding.astype(np.float32), meta[kept].reset_index(drop=True))
+    cells = pd.DataFrame(embedding.astype(np.float32), columns=pcs)
+    cells["guide"], cells["gene"] = guide, gene
+    cells = cells[cells.gene != "nontargeting_drop"]
+    statistic = _trimmed_means if recipe["agg"] == "gene_trim" else _medians
+    grouped = cells.groupby(["guide", "gene"])
+    guides = statistic(grouped, cells, pcs)
+    guides.insert(0, "n_cells", grouped.size())
+    guides = guides.reset_index()
+    if recipe["agg"] in ("gene", "gene_trim"):
+        grouped = cells.groupby("gene")
+        genes = statistic(grouped, cells, pcs)
+        genes.insert(0, "n_cells", grouped.size())
+    else:
+        grouped = guides.groupby("gene")
+        genes = grouped[pcs].median()
+        genes.insert(0, "n_cells", grouped.n_cells.sum())
+    genes = genes[genes.n_cells > min_cells].reset_index()
+    if universe:
+        listed = (read_table(universe, canonicalise=False, report=None).gene.astype(str).tolist()
+                  if isinstance(universe, str) and not universe.endswith(".json") else
+                  _json_list(universe))
+        have = set(genes.gene)
+        is_control = genes.gene.str.lower().str.startswith((prefix.lower(), "ntpseudo"))
+        order = [g for g in listed if g in have] + list(genes.gene[is_control])
+        genes = genes.set_index("gene").loc[order].reset_index()
+        guides = guides[guides.gene.isin(set(order))].reset_index(drop=True)
+    timing["aggregate_s"] = round(time.time() - started, 1)
+    return genes, guides, {"cells": int(len(cells)), "pcs": n_components, "tvn_dims": int(embedding.shape[1]),
+                           "runtime": timing, "kept_cells": kept_cells}
+
+
 def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[str], None]] = None,
                         state: str = "interphase_rule", classifier: Optional[Mapping[str, Any]] = None
                         ) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
@@ -1059,8 +1188,10 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
     ``ops_tvn_whiten_epsilon``; 0 is Brieflow's TVN and is computed at
     single precision as Brieflow does, a positive value at double), and
     reduced to guides (median of cells) and genes (median of guides, or of
-    cells), keeping rows with more than ``ops_profile_min_cells`` cells. A
-    hits table can then keep only active genes and the control rows.
+    cells; with the ``gene_trim`` recipe both take the 10 % trimmed mean of
+    their cells), keeping rows with more than ``ops_profile_min_cells``
+    cells (:func:`cells_to_profiles`). A hits table can then keep only
+    active genes and the control rows.
 
     :param settings: read for ``ops_profile_cells`` (a folder of
         ``raw_<well>.parquet`` tables with ``well``, ``sgRNA``, ``gene``,
@@ -1125,54 +1256,13 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
         say(f"profile: {plate} {well}: {len(meta)} {state} cells")
     timing["load_and_filter_s"] = round(time.time() - started, 1)
     started = time.time()
-    embedding, n_components = _profile_embedding(values, metas, recipe)
-    del values
-    meta = pd.concat(metas, ignore_index=True)
-    control = meta.gene_symbol_0.str.startswith(prefix).to_numpy()
-    batches = meta.batch_values.to_numpy()
-    if epsilon > 0:
-        embedding = tvn_on_controls(embedding.astype(np.float64), control, batches, whiten_epsilon=epsilon)[0]
-    else:
-        embedding = tvn_on_controls(embedding, control, batches, whiten_epsilon=0.0)[0]
-    timing["pca_tvn_s"] = round(time.time() - started, 1)
+    genes, guides, made = cells_to_profiles(
+        values, metas, recipe, whiten_epsilon=epsilon, control_prefix=prefix, control_guides=control_guides,
+        min_cells=min_cells, universe=settings.get("ops_profile_gene_universe"),
+        keep_cells=bool(settings.get("ops_etest", False)))
+    timing.update(made.pop("runtime"))
     started = time.time()
-    pcs = [f"PC_{j}" for j in range(embedding.shape[1])]
-    guide = np.where(control, meta.gene_symbol_0.str.split("_", n=1).str[1], meta.cell_barcode_0).astype(str)
-    gene = np.where(control, prefix, meta.gene_symbol_0).astype(str)
-    if recipe["nt"] == "pseudo":
-        gene = nt_pseudo_genes(guide, gene, sorted(control_guides), control_prefix=prefix)
-    else:
-        gene = np.where(control, np.char.add(f"{prefix}_", guide), gene)
-    kept_cells = None
-    if bool(settings.get("ops_etest", False)):
-        kept = [c for c in ("gene_symbol_0", "cell_barcode_0", "well") if c in meta]
-        kept_cells = (embedding.astype(np.float32), meta[kept].reset_index(drop=True))
-    cells = pd.DataFrame(embedding.astype(np.float32), columns=pcs)
-    cells["guide"], cells["gene"] = guide, gene
-    cells = cells[cells.gene != "nontargeting_drop"]
-    grouped = cells.groupby(["guide", "gene"])
-    guides = grouped[pcs].median()
-    guides.insert(0, "n_cells", grouped.size())
-    guides = guides.reset_index()
-    if recipe["agg"] == "gene":
-        grouped = cells.groupby("gene")
-        genes = grouped[pcs].median()
-        genes.insert(0, "n_cells", grouped.size())
-    else:
-        grouped = guides.groupby("gene")
-        genes = grouped[pcs].median()
-        genes.insert(0, "n_cells", grouped.n_cells.sum())
-    genes = genes[genes.n_cells > min_cells].reset_index()
-    universe = settings.get("ops_profile_gene_universe")
-    if universe:
-        listed = (read_table(universe, canonicalise=False, report=None).gene.astype(str).tolist()
-                  if isinstance(universe, str) and not universe.endswith(".json") else
-                  _json_list(universe))
-        have = set(genes.gene)
-        is_control = genes.gene.str.lower().str.startswith((prefix.lower(), "ntpseudo"))
-        order = [g for g in listed if g in have] + list(genes.gene[is_control])
-        genes = genes.set_index("gene").loc[order].reset_index()
-        guides = guides[guides.gene.isin(set(order))].reset_index(drop=True)
+    pcs = [c for c in genes.columns if str(c).startswith("PC_")]
     adjusted: Dict[str, Any] = {}
     if shrinkage:
         genes, guides, adjusted["shrinkage"] = _profile_shrink(genes, guides, pcs, prefix, settings)
@@ -1187,12 +1277,36 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
         genes = genes[genes.gene.isin(keep) | is_control].reset_index(drop=True)
         is_control = guides.gene.str.lower().str.startswith((prefix.lower(), "ntpseudo"))
         guides = guides[guides.gene.isin(keep) | is_control].reset_index(drop=True)
-    timing["aggregate_s"] = round(time.time() - started, 1)
+    timing["aggregate_s"] = round(timing["aggregate_s"] + time.time() - started, 1)
+    kept_cells = made.pop("kept_cells")
     info = {"kept_cells": kept_cells} if kept_cells is not None else {}
-    info.update({"cells": int(len(cells)), "pcs": n_components, "tvn_dims": int(embedding.shape[1]),
-                 "features": len(columns), "recipe": recipe, "tvn_whiten_epsilon": epsilon, "runtime": timing,
-                 **adjusted})
+    info.update({**made, "features": len(columns), "recipe": recipe, "tvn_whiten_epsilon": epsilon,
+                 "runtime": timing, **adjusted})
     return genes, guides, info
+
+
+def _medians(grouped, cells: pd.DataFrame, pcs: Sequence[str]) -> pd.DataFrame:
+    """The median of every group's cells."""
+    return grouped[list(pcs)].median()
+
+
+def _trimmed_means(grouped, cells: pd.DataFrame, pcs: Sequence[str]) -> pd.DataFrame:
+    """The 10 % trimmed mean of every group's cells, at the cells' precision.
+
+    Each group's cells are taken in table order and reduced with
+    ``scipy.stats.trim_mean`` (:data:`PROFILE_TRIM_FRACTION` from each end),
+    as the Design D aggregation does, so the result matches it value for
+    value.
+    """
+    from scipy.stats import trim_mean
+
+    values = cells[list(pcs)].to_numpy()
+    index = grouped.size().index
+    positions = grouped.indices
+    out = np.zeros((len(index), len(pcs)), values.dtype)
+    for row, key in enumerate(index):
+        out[row] = trim_mean(values[positions[key]], PROFILE_TRIM_FRACTION, axis=0)
+    return pd.DataFrame(out, index=index, columns=list(pcs))
 
 
 def _json_list(value: Any) -> List[str]:
@@ -1281,35 +1395,50 @@ _BLAS_THREAD_VARIABLES = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_TH
                           "BLIS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS")
 
 
-@contextmanager
-def _pinned_blas(pin: bool):
-    """Hold the BLAS and OpenMP thread pools to one thread while the block runs.
+def _blas_threads(settings: Mapping[str, Any]) -> int:
+    """The thread count ``ops_blas_threads`` asks for, its default when unset."""
+    from .ops_settings import OPS_DEFAULTS
 
-    A matrix product summed over several threads may add in another order
-    from one run to the next, so the last bits of a PCA or a covariance can
-    differ; one thread fixes the order. threadpoolctl limits the pools
-    already loaded; without it the thread-count variables are set, which
-    only reaches libraries loaded afterwards. Both are restored on exit.
+    value = settings.get("ops_blas_threads")
+    value = OPS_DEFAULTS["ops_blas_threads"] if value is None else int(value)
+    if value < 1:
+        raise ValueError(f"ops_blas_threads must be at least 1; got {value}")
+    return value
+
+
+@contextmanager
+def _pinned_blas(pin: bool, threads: int = 1):
+    """Hold the BLAS and OpenMP thread pools at ``threads`` threads while the block runs.
+
+    A matrix product summed over several threads adds in an order that
+    depends on the thread count, so the last bits of a PCA or a covariance
+    change with it; a fixed count fixes them, and a result is reproduced
+    exactly only at the count it was made with. threadpoolctl limits the
+    pools already loaded; without it the thread-count variables are set,
+    which only reaches libraries loaded afterwards. Both are restored on
+    exit.
 
     :param pin: False leaves every pool as it is.
+    :param threads: the thread count (``ops_blas_threads``).
     :returns: a context manager that yields ``"threadpoolctl"``,
         ``"environment"`` or None (nothing pinned).
     """
     if not pin:
         yield None
         return
+    threads = int(threads)
     try:
         from threadpoolctl import threadpool_limits
     except ImportError:
         threadpool_limits = None
     if threadpool_limits is not None:
-        with threadpool_limits(limits=1):
+        with threadpool_limits(limits=threads):
             yield "threadpoolctl"
         return
     saved = {name: os.environ.get(name) for name in _BLAS_THREAD_VARIABLES}
     try:
         for name in _BLAS_THREAD_VARIABLES:
-            os.environ[name] = "1"
+            os.environ[name] = str(threads)
         yield "environment"
     finally:
         for name, value in saved.items():
@@ -1339,8 +1468,9 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
         ``ops_eval_covariates`` (a table with ``gene`` and
         ``cells_per_guide``; the guide table's own cells per guide when
         empty), ``ops_deterministic_blas`` (True holds the BLAS and OpenMP
-        pools to one thread, so a re-run of the same settings file gives
-        bit-identical tables), the ``ops_eval_*`` settings and those of
+        pools at ``ops_blas_threads`` threads, so a re-run of the same
+        settings file gives bit-identical tables), the ``ops_eval_*``
+        settings and those of
         :func:`profile_cell_tables`.
     :param phases: ``"profile"``, ``"evaluate"`` or both, and the alpha
         ``"etest"`` (item 917, :func:`spacr.gene_measurement_compare.etest_phase`;
@@ -1392,7 +1522,8 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
 
         classifier = load_mitotic_classifier(str(settings["ops_mitotic_model"]))
     by_state: Dict[str, Any] = {}
-    with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+    pin = bool(settings.get("ops_deterministic_blas", True))
+    with _pinned_blas(pin, _blas_threads(settings)) as pinned:
         if settings.get("ops_mitotic_index_test") and "profile" in phases:
             outputs.update(_mitotic_index_outputs(settings, classifier, folder, say))
         for number, state in enumerate(states):
@@ -1434,6 +1565,7 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
                     info[phase] = run_phase(settings, gene_rows, guide_rows, str(settings["dst_root"]), report=say)
                     outputs.update(info[phase]["outputs"])
     info["blas_threads"] = pinned
+    info["blas_thread_count"] = _blas_threads(settings) if pinned else None
     extra = (("ops_mitotic_", "ops_guide_efficacy") if states != ["interphase_rule"]
              or settings.get("ops_mitotic_index_test") else ())
     recorded = ("ops_profile_", "ops_eval_", "ops_reference_") + extra + tuple(
@@ -1444,7 +1576,8 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
                                      ("cluster_bench_test", "ops_consensus_"),
                                      ("cluster_bench_test", "ops_bench_")) if phase in phases)
     keys = sorted(k for k in settings if k.startswith(recorded)
-                  or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas"))
+                  or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas",
+                           "ops_blas_threads"))
     record = {"settings": {k: settings[k] for k in keys}, "phases": list(phases), "outputs": outputs, **info}
     with open(os.path.join(folder, "runtime.json"), "w", encoding="utf-8") as handle:
         json.dump(record, handle, indent=1, default=str)

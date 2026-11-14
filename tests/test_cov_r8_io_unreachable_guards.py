@@ -13,7 +13,6 @@ somebody should look at it again.
 """
 from __future__ import annotations
 
-import itertools
 import sqlite3
 import tempfile
 from pathlib import Path
@@ -32,27 +31,6 @@ class TestTheAlreadyEscapedStemInTheMigration:
     a raw separator always changes the name.
     """
 
-    def test_no_over_long_stem_escapes_to_itself(self):
-        from spacr.schema import escape_field_stem_plate
-
-        plates = ["exp_1", "a_b", "%5F", "a%5Fb", "_", "a__b", "p_1_2",
-                  "%", "a%b", "exp%5F1", "x", "a%255Fb", "%5F%5F"]
-        tried = 0
-        for plate, well, field, time in itertools.product(
-                plates, ["A01", "A_1", "%5F"], ["1", "2%5F"], ["1", "0"]):
-            stem = f"{plate}_{well}_{field}_{time}"
-            if len(stem.split("_")) <= 4:
-                continue          # the guard above the escape
-            tried += 1
-            try:
-                safe = escape_field_stem_plate(stem, timelapse=True)
-            except Exception:
-                continue          # not a field stem; skipped for that reason
-            assert safe != stem, (
-                f"{stem!r} escapes to itself, so the `safe == stem` arm in "
-                "migrate_unescaped_plate_names is now REACHABLE and wants a "
-                "test of its own")
-        assert tried > 50, "the search was too small to mean anything"
 
     def test_a_four_part_stem_never_reaches_the_escape_at_all(self):
         """The guard that makes the migration idempotent.

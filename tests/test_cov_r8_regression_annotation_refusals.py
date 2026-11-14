@@ -50,24 +50,22 @@ class TestTheLabelledCountRefusalTheGuardAboveItRetired:
             "the earlier refusal changed; the labelled-count guard below "
             "it may now be reachable")
 
-    def test_a_single_well_cannot_make_a_grouped_split(self):
-        """The other refusal that fires before the count.
-
-        Every labelled cell coming from one well means the hold-out
-        would be that well, and the fit would be measured on the only
-        group it never saw -- which is not a hold-out, it is a different
-        experiment.
-        """
-        frame = _plate(wells=1, per_well=4)
+    @pytest.mark.parametrize("wells, n_positive, refusal", [
+        # Every labelled cell coming from one well means the hold-out would
+        # be that well, and the fit would be measured on the only group it
+        # never saw -- which is not a hold-out, it is a different experiment.
+        pytest.param(1, 2, "every labelled cell comes from one well",
+                     id="a-single-well-cannot-make-a-grouped-split"),
+        pytest.param(2, 1, "one cell cannot make a class",
+                     id="one-positive-cannot-make-a-class"),
+    ])
+    def test_a_design_that_cannot_be_split_is_refused_by_name(
+            self, wells, n_positive, refusal):
+        """The refusals that fire before the labelled-count guard."""
+        frame = _plate(wells=wells, per_well=4)
         with pytest.raises(ra.AnnotationStrategyError) as caught:
-            ra.prepare(_request(frame, n_positive=2))
-        assert "every labelled cell comes from one well" in str(caught.value)
-
-    def test_one_positive_cannot_make_a_class(self):
-        frame = _plate(wells=2, per_well=4)
-        with pytest.raises(ra.AnnotationStrategyError) as caught:
-            ra.prepare(_request(frame, n_positive=1))
-        assert "one cell cannot make a class" in str(caught.value)
+            ra.prepare(_request(frame, n_positive=n_positive))
+        assert refusal in str(caught.value)
 
     def test_an_ordinary_screen_is_not_refused(self):
         """So the refusals above are visibly refusals."""
@@ -98,16 +96,6 @@ class TestTheSelfTrainingFallbackThatCannotFire:
             f"rounds={rounds} produced no result; the `best is None` "
             "fallback may now be reachable")
 
-    def test_the_loop_bound_is_still_clamped_to_one(self):
-        import inspect
-
-        source = inspect.getsource(ra._run_self_training)
-        assert "range(max(1, int(request.rounds)))" in source, (
-            "the round count is no longer clamped to at least one, so the "
-            "`best is None` fallback may now be reachable")
-        assert "if best is None or report.balanced_accuracy" in source, (
-            "the first round no longer assigns best unconditionally")
-
     def test_a_run_reports_the_round_it_settled_on(self):
         """The live behaviour the fallback would have replaced."""
         frame = _plate()
@@ -119,40 +107,35 @@ class TestTheSelfTrainingFallbackThatCannotFire:
 
 class TestNeighbourPropagationWithNothingToPropagateFrom:
 
-    def test_seeds_outside_the_selectable_pool_are_refused(self,
-                                                           monkeypatch):
-        """A seed that is not in the pool cannot carry its label anywhere.
-
-        Propagating from nothing would return the input unchanged and
-        call it a result. `Prepared` is frozen, so the seeds are moved by
-        replacing `_seed_training` -- which is where they come from.
-        """
+    @pytest.mark.parametrize("target, replacement, refusal", [
+        # A seed that is not in the pool cannot carry its label anywhere.
+        # `Prepared` is frozen, so the seeds are moved by replacing
+        # `_seed_training` -- which is where they come from.
+        pytest.param(
+            "_seed_training",
+            lambda frame: (lambda *_a, **_k: (
+                np.asarray([10 ** 9, 10 ** 9 + 1], dtype=int),
+                np.zeros(len(frame), dtype=int), [])),
+            "seed cell", id="seeds-outside-the-selectable-pool"),
+        # A neighbour search needs a space to measure a distance in.
+        pytest.param(
+            "_standardised",
+            lambda frame: (lambda *_a, **_k: np.empty((5, 0))),
+            "no feature column", id="no-feature-column-to-measure-in"),
+    ])
+    def test_propagating_from_nothing_is_refused_by_name(
+            self, monkeypatch, target, replacement, refusal):
+        """Propagating from nothing would return the input unchanged and
+        call it a result."""
         frame = _plate()
         request = _request(frame)
         prepared = ra.prepare(request)
 
-        monkeypatch.setattr(
-            ra, "_seed_training",
-            lambda *_a, **_k: (np.asarray([10 ** 9, 10 ** 9 + 1], dtype=int),
-                               np.zeros(len(frame), dtype=int), []))
+        monkeypatch.setattr(ra, target, replacement(frame))
 
         with pytest.raises(ra.AnnotationStrategyError) as caught:
             ra._run_neighbour_propagation(prepared, request)
-        assert "seed cell" in str(caught.value)
-
-    def test_no_feature_column_to_measure_a_distance_in_is_refused(
-            self, monkeypatch):
-        """The refusal above it: a neighbour search needs a space."""
-        frame = _plate()
-        request = _request(frame)
-        prepared = ra.prepare(request)
-
-        monkeypatch.setattr(ra, "_standardised",
-                            lambda *_a, **_k: np.empty((5, 0)))
-        with pytest.raises(ra.AnnotationStrategyError) as caught:
-            ra._run_neighbour_propagation(prepared, request)
-        assert "no feature column" in str(caught.value)
-
+        assert refusal in str(caught.value)
 
 class TestTheRadiusTheRunReports:
     """The radius is normally a quantile of the seed-to-neighbour

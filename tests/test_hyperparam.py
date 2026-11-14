@@ -380,21 +380,22 @@ class TestRandomSearch:
         two = random_search(lambda p: p["a"], sp, 8, seed=2)
         assert [t.params for t in one.trials] != [t.params for t in two.trials]
 
-    def test_respects_n_trials(self):
-        sp = SearchSpace({"a": list(range(20)), "b": list(range(20))})
-        r = random_search(lambda p: 1.0, sp, 5, seed=0)
-        assert len(r.trials) == 5
+    @pytest.mark.parametrize("space, n_trials, kwargs", [
+        pytest.param({"a": list(range(20)), "b": list(range(20))}, 5, {},
+                     id="respects-n-trials"),
+        pytest.param({"a": [1, 2]}, 6, {"allow_duplicates": True},
+                     id="allow-duplicates-keeps-the-requested-count"),
+    ])
+    def test_the_requested_number_of_trials_is_run(self, space, n_trials, kwargs):
+        r = random_search(lambda p: 1.0, SearchSpace(space), n_trials, seed=0, **kwargs)
+        assert len(r.trials) == n_trials
+
 
     def test_no_duplicate_configurations_by_default(self):
         sp = SearchSpace({"a": [1, 2, 3], "b": [1, 2, 3]})
         r = random_search(lambda p: 1.0, sp, 9, seed=0)
         keys = [tuple(sorted(t.params.items())) for t in r.trials]
         assert len(set(keys)) == len(keys) == 9
-
-    def test_allow_duplicates_keeps_the_requested_count(self):
-        sp = SearchSpace({"a": [1, 2]})
-        r = random_search(lambda p: 1.0, sp, 6, seed=0, allow_duplicates=True)
-        assert len(r.trials) == 6
 
     def test_a_space_smaller_than_n_trials_shrinks_and_says_so(self):
         sp = SearchSpace({"a": [1, 2, 3]})
@@ -1389,42 +1390,40 @@ def test_lazy_module_reports_an_incompatible_installed_version(monkeypatch):
 # format_search
 # ---------------------------------------------------------------------------
 
+def _fails_on_half(p):
+    if p["a"] == 0.5:
+        raise RuntimeError("boom")
+    return p["a"]
+
+
 class TestFormatSearch:
     def test_report_leads_with_the_criterion(self, space):
         text = format_search(grid_search(linear_fit, space, metric="acc"))
         assert text.splitlines()[0] == "Hyperparameter search — criterion: acc"
 
-    def test_report_lists_failures_with_their_errors(self, space):
-        def fit(p):
-            if p["a"] == 0.5:
-                raise RuntimeError("boom")
-            return p["a"]
-
-        text = format_search(grid_search(fit, space))
-        assert "Failed trials (2)" in text
-        assert "RuntimeError: boom" in text
-
-    def test_report_shows_the_spread_next_to_the_winner(self, space):
-        text = format_search(grid_search(linear_fit, space))
-        assert "Best:" in text
-        assert "Spread over 6 successful trials" in text
-        assert "Noise yardstick" in text
-
-    def test_report_truncates_long_tables(self):
-        sp = SearchSpace({"a": list(range(30))})
-        text = format_search(grid_search(lambda p: float(p["a"]), sp),
-                             max_rows=5)
-        assert "… 25 more" in text
-
-    def test_all_failed_report_says_so(self, space):
-        text = format_search(
-            grid_search(lambda p: (_ for _ in ()).throw(ValueError("x")),
-                        space))
-        assert "All 6 trials failed" in text
-
-    def test_empty_result_says_nothing_ran(self):
-        r = SearchResult(space=SearchSpace({"a": [1]}), metric="acc")
-        assert "No trials were run." in format_search(r)
+    @pytest.mark.parametrize("run, max_rows, fragments", [
+        pytest.param(
+            lambda space: grid_search(_fails_on_half, space), None,
+            ["Failed trials (2)", "RuntimeError: boom"], id="failures-with-their-errors"),
+        pytest.param(
+            lambda space: grid_search(linear_fit, space), None,
+            ["Best:", "Spread over 6 successful trials", "Noise yardstick"],
+            id="the-spread-next-to-the-winner"),
+        pytest.param(
+            lambda space: grid_search(lambda p: float(p["a"]),
+                                      SearchSpace({"a": list(range(30))})), 5,
+            ["… 25 more"], id="long-tables-are-truncated"),
+        pytest.param(
+            lambda space: grid_search(lambda p: (_ for _ in ()).throw(ValueError("x")), space),
+            None, ["All 6 trials failed"], id="all-failed-says-so"),
+        pytest.param(
+            lambda space: SearchResult(space=SearchSpace({"a": [1]}), metric="acc"), None,
+            ["No trials were run."], id="empty-result-says-nothing-ran"),
+    ])
+    def test_the_report_says_what_happened(self, space, run, max_rows, fragments):
+        kwargs = {} if max_rows is None else {"max_rows": max_rows}
+        text = format_search(run(space), **kwargs)
+        assert [f for f in fragments if f in text] == fragments
 
 
 # ---------------------------------------------------------------------------

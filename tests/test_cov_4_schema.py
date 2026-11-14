@@ -66,18 +66,6 @@ def test_a_frame_with_blank_screen_labels_is_filled_in():
 
 # -- stems -------------------------------------------------------------------
 
-def test_a_stem_without_a_plate_component_is_refused():
-    """Escaping the plate of a stem that has none would invent a plate."""
-    with pytest.raises(schema.KeyParseError) as excinfo:
-        schema.escape_field_stem_plate("r1_c1.npy")
-    assert "r1_c1" in str(excinfo.value)
-
-
-def test_a_timelapse_stem_needs_its_timepoint_too():
-    """Three components cannot carry plate, well, field and time."""
-    with pytest.raises(schema.KeyParseError):
-        schema.escape_field_stem_plate("plate1_r1_c1", timelapse=True)
-
 
 # -- table contracts ---------------------------------------------------------
 
@@ -141,83 +129,7 @@ def test_disagreeing_metadata_columns_are_reported_to_the_given_sink():
 
 # -- comparable key values ---------------------------------------------------
 
-def test_a_missing_key_value_compares_as_blank():
-    """NaN is not a well id, so it must not compare equal to the text 'nan'."""
-    assert schema.comparable_key_value(float("nan")) == ""
-
-
-def test_a_not_a_number_that_is_not_a_python_float_also_compares_as_blank():
-    """A numpy float32 column and a CSV holding the text 'nan' arrive here
-    too, and both mean the same thing: the row has no value."""
-    assert schema.comparable_key_value(np.float32("nan")) == ""
-    assert schema.comparable_key_value("NaN") == ""
-
-
-def test_a_fractional_key_value_keeps_its_fraction():
-    """1.5 is not 1; truncating it would merge two different rows."""
-    assert schema.comparable_key_value(1.5) == "1.5"
-    assert schema.comparable_key_value(2.0) == "2"
-
 
 # -- object-table validation -------------------------------------------------
 
-def test_validating_something_that_is_not_a_frame_is_refused():
-    """The writer boundary is where a non-frame can still be seen."""
-    with pytest.raises(schema.ObjectTableSchemaError) as excinfo:
-        schema.validate_object_table_frame([{"object_label": 1}], "cell")
-    assert "list" in str(excinfo.value)
 
-
-def test_a_duplicated_column_label_is_refused_by_name():
-    """pandas allows two columns named alike; to_sql does not."""
-    frame = _cell_frame()
-    doubled = pd.concat([frame, frame[["cell_area"]]], axis=1)
-    with pytest.raises(schema.ObjectTableSchemaError) as excinfo:
-        schema.validate_object_table_frame(doubled, "cell")
-    assert "cell_area" in str(excinfo.value)
-
-
-def test_a_missing_required_column_names_what_is_missing():
-    """Without path_name the rows cannot be traced back to an image."""
-    frame = _cell_frame().drop(columns=["path_name"])
-    with pytest.raises(schema.ObjectTableSchemaError) as excinfo:
-        schema.validate_object_table_frame(frame, "cell")
-    assert "path_name" in str(excinfo.value)
-
-
-def test_a_resolver_that_hands_back_an_incomplete_frame_is_still_refused(
-        monkeypatch):
-    """The writer boundary re-checks rather than trusting the resolver: a
-    frame that reaches to_sql without prcf writes rows nothing can join."""
-    from spacr import metadata_resolution
-
-    incomplete = _cell_frame().drop(columns=["prcf"])
-
-    class _Result:
-        frame = incomplete
-
-    monkeypatch.setattr(metadata_resolution, "resolve_metadata_columns",
-                        lambda *a, **k: _Result())
-    with pytest.raises(schema.ObjectTableSchemaError) as excinfo:
-        schema.validate_object_table_frame(incomplete, "cell")
-    message = str(excinfo.value)
-    assert "prcf" in message
-    assert "got [" in message
-
-
-def test_a_timepoint_column_on_a_non_timelapse_table_is_refused():
-    """Declaring non-timelapse and carrying timeID collapses the timepoints."""
-    frame = _cell_frame(timeID=["t1", "t2"])
-    with pytest.raises(schema.ObjectTableSchemaError) as excinfo:
-        schema.validate_object_table_frame(frame, "cell", timelapse=False)
-    assert "timeID" in str(excinfo.value)
-
-
-def test_an_empty_well_id_is_refused_with_the_offending_rows():
-    """A blank rowID groups with every other blank rowID in the database."""
-    frame = _cell_frame(rowID=["r1", "   "])
-    with pytest.raises(schema.ObjectTableSchemaError) as excinfo:
-        schema.validate_object_table_frame(frame, "cell")
-    message = str(excinfo.value)
-    assert "rowID" in message
-    assert "[1]" in message

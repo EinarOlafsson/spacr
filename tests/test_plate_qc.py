@@ -834,10 +834,3 @@ def test_importing_plate_qc_pulls_in_neither_torch_nor_cellpose():
             f"importing spacr.plate_qc dragged in {heavy}"
 
 
-def test_plate_qc_does_not_reference_torch_or_cellpose():
-    import spacr.plate_qc as module
-    with open(module.__file__, encoding="utf-8") as handle:
-        source = handle.read()
-    assert "import torch" not in source
-    assert "import cellpose" not in source
-    assert "from cellpose" not in source

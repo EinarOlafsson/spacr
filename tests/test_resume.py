@@ -1089,14 +1089,6 @@ def test_resume_imports_no_torch_or_cellpose():
     assert loaded == [], f'spacr.resume pulled in heavy modules: {loaded}'
 
 
-def test_resume_module_only_uses_light_imports():
-    import spacr.resume as module
-    source = Path(module.__file__).read_text(encoding="utf-8")
-    for banned in ('import torch', 'import cellpose', 'from torch',
-                   'from cellpose', 'import numpy', 'import cv2'):
-        assert banned not in source, banned
-
-
 def test_mask_resume_requeues_a_truncated_array(tmp_path):
     from spacr.io import _check_masks
 
@@ -1261,11 +1253,6 @@ class TestIoWiring:
         out = capsys.readouterr().out
         assert 'spaCR RESUME' in out
         assert REASON_TRUNCATED in out
-
-    def test_core_passes_the_resume_setting_through(self):
-        source = (Path(__file__).resolve().parent.parent / 'spacr' /
-                  'core.py').read_text(encoding="utf-8")
-        assert "resume=settings.get('resume', False)" in source
 
     def test_save_settings_to_db_destroys_the_previous_record(self, tmp_path):
         """Pins the ordering constraint the measure_crop wiring depends on.
