@@ -8740,9 +8740,9 @@ def run_ops(settings: Mapping[str, Any], *,
         (:func:`spacr.ops_modules.run_module_phase`) and ``"mitocarta"``
         scores clusterings against MitoCarta and an external module table
         (:func:`spacr.ops_clusters.run_mitocarta_benchmark`); like the
-        profile path, both hold the BLAS and OpenMP pools to one thread while
-        ``ops_deterministic_blas`` is on (the result's
-        ``atlas_blas_threads``).
+        profile path, both hold the BLAS and OpenMP pools at
+        ``ops_blas_threads`` threads while ``ops_deterministic_blas`` is on
+        (the result's ``atlas_blas_threads``).
         ``"stress"``, after ``report``,
         times the finished store and writes
         ``results/ops_stress/stress_test.csv``
@@ -8770,8 +8770,8 @@ def run_ops(settings: Mapping[str, Any], *,
         clustering) and ``"cluster_bench_test"`` (item 929, the calibrated
         consensus test) phases run inside :func:`spacr.ops_tvn.run_profile_phases`. Like the
         profile path, the flat-field and score phases hold the BLAS and
-        OpenMP pools to one thread while ``ops_deterministic_blas`` is on
-        (the result's ``blas_threads``). With ``ops_layout`` set to
+        OpenMP pools at ``ops_blas_threads`` threads while
+        ``ops_deterministic_blas`` is on (the result's ``blas_threads``). With ``ops_layout`` set to
         ``'cpg_cropped'`` (alpha, items 919 and 920) only ``"cpg_index"``,
         ``"cpg_merged"`` and ``"prefix_decode"`` run
         (:func:`spacr.cpg_cropped.run_cpg_phases`,
@@ -8801,7 +8801,7 @@ def run_ops(settings: Mapping[str, Any], *,
         if any(phase not in _PROFILE_PHASES for phase in phases):
             raise ValueError("the profile phases run on their own; run "
                              f"{list(_PROFILE_PHASES)} without the image phases")
-        from .ops_tvn import _pinned_blas, run_profile_phases
+        from .ops_tvn import _blas_threads, _pinned_blas, run_profile_phases
 
         profile = [phase for phase in phases
                    if phase in ("profile", "evaluate", "cluster_sweep", "etest",
@@ -8809,7 +8809,8 @@ def run_ops(settings: Mapping[str, Any], *,
         result = run_profile_phases(settings, profile, report=_say) if profile else {}
         atlas = [phase for phase in phases if phase in ("modules", "mitocarta")]
         if atlas:
-            with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+            pin = bool(settings.get("ops_deterministic_blas", True))
+            with _pinned_blas(pin, _blas_threads(settings)) as pinned:
                 if "modules" in atlas:
                     from .ops_modules import run_module_phase
 
@@ -8825,18 +8826,20 @@ def run_ops(settings: Mapping[str, Any], *,
             raise ValueError("the nuclear flat-field phases run on their own; run "
                              f"{list(_FLAT_PHASES)} without the image phases")
         from .ops_flatfield import run_flat_phases
-        from .ops_tvn import _pinned_blas
+        from .ops_tvn import _blas_threads, _pinned_blas
 
-        with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+        pin = bool(settings.get("ops_deterministic_blas", True))
+        with _pinned_blas(pin, _blas_threads(settings)) as pinned:
             result = run_flat_phases(settings, phases, report=_say)
         return {**result, "blas_threads": pinned}
     if "score" in phases:
         if list(phases) != ["score"]:
             raise ValueError("the score phase runs on its own")
         from .ops_scoring import score_ops_profiles
-        from .ops_tvn import _pinned_blas
+        from .ops_tvn import _blas_threads, _pinned_blas
 
-        with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+        pin = bool(settings.get("ops_deterministic_blas", True))
+        with _pinned_blas(pin, _blas_threads(settings)) as pinned:
             result = score_ops_profiles(settings, report=_say)
         return {**result, "blas_threads": pinned}
     if "compare_calls" in phases and str(settings.get("ops_compare_match") or "centroid") == "mask_overlap":

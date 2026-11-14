@@ -114,8 +114,14 @@ msgstr "933 (आइटम 930 का डिफ़ॉल्ट बदलाव): 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now ``'per_feature'``, so the screen pipeline also writes a well table in which every feature takes its own default."
 msgstr "934 (आइटम 937): ``aggregation_defaults`` पहले ``'legacy'`` था; अब यह ``'per_feature'`` है, इसलिए स्क्रीन पाइपलाइन एक वेल तालिका भी लिखती है जिसमें हर फ़ीचर अपना डिफ़ॉल्ट लेता है।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "935 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
 msgstr "935 (आइटम 940 का डिफ़ॉल्ट बदलाव): ``ops_placement_seed_export`` पहले ``False`` था; अब यह ``True`` है।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
+msgstr "936: ``ops_blas_threads`` पहले ``1`` था और ``ops_consensus_space`` ``'refit'``; अब ये ``2`` और ``'hybrid'`` हैं।"
 
 msgid "Public API"
 msgstr "सार्वजनिक API"

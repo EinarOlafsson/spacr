@@ -114,8 +114,14 @@ msgstr "933 (a mudança de padrão do item 930): ``ops_align_model`` era ``'simi
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now ``'per_feature'``, so the screen pipeline also writes a well table in which every feature takes its own default."
 msgstr "934 (item 937): ``aggregation_defaults`` era ``'legacy'``; agora é ``'per_feature'``, de modo que o pipeline de triagem também grava uma tabela de poços em que cada característica usa o seu próprio padrão."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "935 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
 msgstr "935 (a mudança de padrão do item 940): ``ops_placement_seed_export`` era ``False``; agora é ``True``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
+msgstr "936: ``ops_blas_threads`` era ``1`` e ``ops_consensus_space`` ``'refit'``; agora são ``2`` e ``'hybrid'``."
 
 msgid "Public API"
 msgstr "API pública"

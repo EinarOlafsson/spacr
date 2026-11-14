@@ -362,7 +362,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_profile_shrinkage", "ops_profile_weighting", "ops_profile_similarity",
     "ops_reference_dir", "ops_eval_references", "ops_eval_split",
     "ops_eval_null_size", "ops_eval_heldout_folds", "ops_eval_decoys",
-    "ops_eval_time_split", "ops_eval_covariates", "ops_deterministic_blas",
+    "ops_eval_time_split", "ops_eval_covariates", "ops_deterministic_blas", "ops_blas_threads",
     # NEW SETTINGS (2026-11-09, BMC paper items 898-901 and 909-911, lane E).
     *PREDICTION_DEFAULTS, *TITRATION_DEFAULTS, *TRANSLOCATION_DEFAULTS,
     "timelapse_division_onset", "timelapse_division_onset_ci",
@@ -806,6 +806,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_consensus_force_genes",
     "ops_consensus_min_stability",
     "ops_consensus_match_count",
+    "ops_consensus_space",
     "ops_consensus_guides",
     "ops_bench_replicates",
     "ops_bench_replicate_seed",

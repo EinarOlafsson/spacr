@@ -114,8 +114,14 @@ msgstr "933 (breyting atriðis 930 á sjálfgefnu gildi): ``ops_align_model`` va
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now ``'per_feature'``, so the screen pipeline also writes a well table in which every feature takes its own default."
 msgstr "934 (atriði 937): ``aggregation_defaults`` var ``'legacy'``; nú er það ``'per_feature'``, svo skimunarferlið skrifar líka brunnatöflu þar sem hver eiginleiki fær sitt eigið sjálfgefna gildi."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "935 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
 msgstr "935 (breyting atriðis 940 á sjálfgefnu gildi): ``ops_placement_seed_export`` var ``False``; nú er það ``True``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
+msgstr "936: ``ops_blas_threads`` var ``1`` og ``ops_consensus_space`` ``'refit'``; nú eru þau ``2`` og ``'hybrid'``."
 
 msgid "Public API"
 msgstr "Opinbert API"

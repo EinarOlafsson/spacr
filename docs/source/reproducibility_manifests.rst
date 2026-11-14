@@ -106,6 +106,8 @@ default after a higher-numbered item takes the next free number:
   every feature takes its own default.
 - 935 (item 940's default switch): ``ops_placement_seed_export`` was
   ``False``; it is now ``True``.
+- 936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space``
+  ``'refit'``; they are now ``2`` and ``'hybrid'``.
 
 Public API
 ----------

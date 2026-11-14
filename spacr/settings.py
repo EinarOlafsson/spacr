@@ -2533,7 +2533,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 935
+SETTINGS_SCHEMA_VERSION = 936
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2541,6 +2541,7 @@ DEFAULT_CHANGES = {
     933: {'ops_align_model': 'similarity'},
     934: {'aggregation_defaults': 'legacy'},
     935: {'ops_placement_seed_export': False},
+    936: {'ops_blas_threads': 1, 'ops_consensus_space': 'refit'},
 }
 
 
@@ -2605,6 +2606,8 @@ def _fold_older_defaults(settings, version, known=None):
     935 is item 940's switch of ``ops_placement_seed_export`` to True: every
     solved stitch writes a placement file, and files stamped before keep
     it off.
+    936 is the OPS stage-3 Hybrid profile's ``ops_blas_threads`` (2, was
+    1) and ``ops_consensus_space`` (``'hybrid'``, was ``'refit'``).
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -8939,7 +8942,7 @@ ALPHA_FEATURES = {
         'settings': ('ops_profile_cells', 'ops_profile_wells', 'ops_profile_run',
                      'ops_profile_recipe', 'ops_profile_min_cells',
                      'ops_profile_active_filter', 'ops_eval_covariates',
-                     'ops_deterministic_blas'),
+                     'ops_deterministic_blas', 'ops_blas_threads'),
     },
     880: {
         'settings': ('ops_eval_null_size',),
@@ -9433,7 +9436,7 @@ ALPHA_FEATURES = {
                      'measure_gpu_check', 'measure_gpu_check_rtol'),
     },
     928: {
-        'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides',),
+        'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },
     929: {
         'settings': ('ops_bench_replicates', 'ops_bench_replicate_seed', 'ops_bench_cluster_seed', 'ops_bench_gate_copies', 'ops_bench_gate_noise', 'ops_bench_gate_alpha', 'ops_bench_gate_limit', 'ops_bench_margin_quantile', 'ops_bench_gate_record', 'ops_bench_gate_arm', 'ops_bench_half', 'ops_bench_null_permutations',),
