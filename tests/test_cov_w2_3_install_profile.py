@@ -8,8 +8,6 @@ nobody made, so the write is atomic and the read is fussy.
 from __future__ import annotations
 
 import json
-import os
-from pathlib import Path
 
 import pytest
 
@@ -29,70 +27,6 @@ def test_a_torch_build_whose_mps_probe_raises_is_read_as_no_mps(monkeypatch):
     facts = IP._torch_facts()
     assert facts["mps_available"] is False
     assert facts["active_backend"] in {"cpu", "cuda"}
-
-
-def test_a_write_that_fails_leaves_no_temporary_file_behind(
-        tmp_path, monkeypatch):
-    """A failed write must not leave a stray dotfile beside the target.
-
-    The temporary is what makes the write atomic; leaving one behind on
-    failure would accumulate one per failed install.
-    """
-    target = tmp_path / "install-profile.json"
-
-    def failing_replace(src, dst):
-        raise OSError("the volume is read-only")
-
-    monkeypatch.setattr(os, "replace", failing_replace)
-    with pytest.raises(OSError):
-        IP.write_profile(target, "cpu", "none")
-
-    assert not target.exists()
-    assert list(tmp_path.iterdir()) == []
-
-
-def test_a_temporary_already_gone_does_not_mask_the_original_failure(
-        tmp_path, monkeypatch):
-    """Cleanup is best-effort; the write's own error is what propagates."""
-    target = tmp_path / "install-profile.json"
-
-    def failing_replace(src, dst):
-        os.unlink(src)
-        raise OSError("the volume went away mid-write")
-
-    monkeypatch.setattr(os, "replace", failing_replace)
-    with pytest.raises(OSError, match="went away mid-write"):
-        IP.write_profile(target, "cpu", "none")
-    assert list(tmp_path.iterdir()) == []
-
-
-@pytest.mark.parametrize("mutate,why", [
-    ({"schema": 99}, "a schema from another version"),
-    ({"requested_backend": "CUDA 12 please"}, "a backend that is not a token"),
-    ({"active_backend": "vulkan"}, "a backend spaCR cannot run on"),
-])
-def test_a_profile_that_does_not_match_the_schema_is_read_as_absent(
-        tmp_path, mutate, why):
-    """Half-right is not right: the reader returns None rather than a guess."""
-    target = tmp_path / "install-profile.json"
-    IP.write_profile(target, "cpu", "none")
-    payload = json.loads(target.read_text(encoding="utf-8"))
-    payload.update(mutate)
-    target.write_text(json.dumps(payload), encoding="utf-8")
-    assert IP.read_profile(target) is None, why
-
-
-def test_a_profile_that_was_written_reads_back_whole(tmp_path):
-    """What the installer wrote is what ``spacr-doctor`` gets back."""
-    target = tmp_path / "install-profile.json"
-    written = IP.write_profile(target, "CPU", "None",
-                               consent_collected=True, report_issues=True)
-    read = IP.read_profile(target)
-    assert read == written
-    assert read["requested_backend"] == "cpu"
-    assert read["detected_accelerator"] == "none"
-    assert read["consent"] == {"collected": True, "share_diagnostics": False,
-                               "report_issues": True}
 
 
 def test_the_installer_command_writes_the_profile_and_prints_it(

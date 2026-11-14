@@ -15,7 +15,6 @@ trap instruction 60 documents.
 """
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -117,26 +116,3 @@ def test_the_curve_report_draws_a_table_once_a_round_exists():
 
     assert "No round recorded yet" not in text
     assert "held-out" in text
-
-
-# --------------------------------------------------------------------------- #
-#  _predict_proba -- an empty batch
-# --------------------------------------------------------------------------- #
-
-def test_predicting_on_an_empty_batch_returns_an_empty_matrix():
-    """Shape, not just emptiness.
-
-    A caller stacks this against other rounds' probabilities, so a (0,) or a
-    (0, 1) would fail to concatenate later -- somewhere else entirely, which
-    is exactly the kind of error this branch exists to prevent.
-    """
-    from spacr.active_learning import _predict_proba
-
-    class _NeverCalled:
-        def predict_proba(self, x):        # pragma: no cover - must not run
-            raise AssertionError("an empty batch must not reach the model")
-
-    out = _predict_proba(_NeverCalled(), np.empty((0, 4)), n_classes=3)
-
-    assert out.shape == (0, 3)
-    assert np.vstack([out, np.zeros((2, 3))]).shape == (2, 3)

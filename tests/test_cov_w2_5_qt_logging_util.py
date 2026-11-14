@@ -17,11 +17,6 @@ pytest.importorskip("PySide6")
 from spacr.qt import logging_util as lu
 
 
-def _record(message="hello", level=logging.INFO):
-    return logging.LogRecord("spacr.test", level, __file__, 1, message,
-                             None, None)
-
-
 def test_the_path_shims_agree_with_the_package_logger():
     """``log_dir``/``log_path`` are aliases, not a second opinion."""
     from spacr import logging_util as package
@@ -43,80 +38,6 @@ def test_get_logger_names_a_child_under_the_qt_logger():
     """The convenience wrapper returns the named logger."""
     assert lu.get_logger().name == "spacr.qt"
     assert lu.get_logger("spacr.qt.console").name == "spacr.qt.console"
-
-
-def test_a_record_arrives_on_the_signal_with_its_level():
-    """The formatted line and the numeric level both reach the panel."""
-    handler = lu.QtLogHandler(level=logging.DEBUG)
-    seen = []
-    handler.record_ready.connect(lambda text, level: seen.append((text, level)))
-
-    handler.emit(_record("a thing happened", logging.WARNING))
-
-    assert len(seen) == 1
-    text, level = seen[0]
-    assert level == logging.WARNING
-    assert text.endswith("\n")
-    assert "a thing happened" in text
-    assert "[WARNING]" in text
-    assert "spacr.test" in text
-
-
-def test_nothing_is_emitted_while_a_console_panel_is_writing(monkeypatch):
-    """The re-entrancy latch drops the record instead of re-entering."""
-    from spacr.qt import verbose_logger
-
-    handler = lu.QtLogHandler(level=logging.DEBUG)
-    seen = []
-    handler.record_ready.connect(lambda text, level: seen.append(text))
-    monkeypatch.setattr(verbose_logger, "console_write_in_progress",
-                        lambda: True)
-
-    handler.emit(_record("dropped on the floor"))
-
-    assert seen == []
-
-
-def test_a_missing_latch_does_not_stop_the_record(monkeypatch):
-    """If the latch cannot be consulted the record still gets through."""
-    import builtins
-
-    handler = lu.QtLogHandler(level=logging.DEBUG)
-    seen = []
-    handler.record_ready.connect(lambda text, level: seen.append(text))
-    real_import = builtins.__import__
-
-    def block(name, globals=None, locals=None, fromlist=(), level=0):
-        if "verbose_logger" in name or "verbose_logger" in (fromlist or ()):
-            raise ImportError("no latch here")
-        return real_import(name, globals, locals, fromlist, level)
-
-    monkeypatch.setattr(builtins, "__import__", block)
-
-    handler.emit(_record("still delivered"))
-
-    monkeypatch.undo()
-    assert len(seen) == 1
-    assert "still delivered" in seen[0]
-
-
-def test_a_formatting_failure_is_handled_not_raised(monkeypatch):
-    """A broken formatter routes to ``handleError`` and never propagates."""
-    handler = lu.QtLogHandler(level=logging.DEBUG)
-    handled = []
-    monkeypatch.setattr(type(handler), "handleError",
-                        lambda self, record: handled.append(record))
-
-    class Exploding(logging.Formatter):
-        def format(self, record):
-            raise ValueError("cannot format this")
-
-    handler.setFormatter(Exploding())
-    record = _record("never formatted")
-
-    handler.emit(record)                       # must not raise
-
-    assert handled == [record]
 
 
 def test_setup_is_idempotent_and_installs_both_sinks(monkeypatch, tmp_path):

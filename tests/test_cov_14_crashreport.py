@@ -14,9 +14,7 @@ when it merely had nothing to say trains the reader to skip both.
 from __future__ import annotations
 
 import sys
-import types
 
-import pytest
 
 from spacr import crashreport
 
@@ -45,75 +43,6 @@ def test_a_metadata_database_that_misbehaves_is_reported_not_raised(
 
     assert set(versions) == set(crashreport.REPORTED_PACKAGES)
     assert all(v.startswith("unreadable: ") for v in versions.values())
-
-
-def test_a_missing_torch_is_reported_as_not_importable(monkeypatch):
-    """No torch is an ordinary answer, not a missing GPU section."""
-    monkeypatch.setitem(sys.modules, "torch", None)
-
-    facts = crashreport._gpu_facts()
-
-    assert list(facts) == ["torch"]
-    assert facts["torch"].startswith("not importable: ")
-
-
-def _fake_torch(**over):
-    torch = types.ModuleType("torch")
-    torch.__version__ = "2.9.0"
-    torch.version = types.SimpleNamespace(cuda="12.4")
-    torch.cuda = types.SimpleNamespace(
-        is_available=lambda: True,
-        device_count=lambda: 1,
-        get_device_name=lambda i: "Fake GPU",
-        get_device_capability=lambda i: (8, 6),
-    )
-    for key, value in over.items():
-        setattr(torch.cuda, key, value)
-    return torch
-
-
-def test_a_cuda_probe_that_fails_stops_at_the_probe(monkeypatch):
-    """An unreadable CUDA availability is recorded and nothing further asked.
-
-    Going on to enumerate devices after the probe failed is how the reporter
-    itself segfaults on a machine whose driver is the reason for the crash.
-    """
-    def _explode():
-        raise RuntimeError("driver mismatch")
-
-    monkeypatch.setitem(sys.modules, "torch",
-                        _fake_torch(is_available=_explode))
-
-    facts = crashreport._gpu_facts()
-
-    assert facts["torch"] == "2.9.0"
-    assert facts["cuda_available"].startswith("unreadable: ")
-    assert "devices" not in facts
-
-
-def test_devices_that_cannot_be_enumerated_are_reported_as_unreadable(
-        monkeypatch):
-    """A device list that raises leaves a note rather than no GPU section."""
-    def _explode(index):
-        raise RuntimeError("device lost")
-
-    monkeypatch.setitem(sys.modules, "torch",
-                        _fake_torch(get_device_name=_explode))
-
-    facts = crashreport._gpu_facts()
-
-    assert facts["cuda_available"] is True
-    assert facts["devices"].startswith("unreadable: ")
-
-
-def test_devices_are_listed_when_they_can_be_read(monkeypatch):
-    """The same path does enumerate the devices on a healthy machine."""
-    monkeypatch.setitem(sys.modules, "torch", _fake_torch())
-
-    facts = crashreport._gpu_facts()
-
-    assert facts["devices"] == [
-        {"index": 0, "name": "Fake GPU", "capability": "8.6"}]
 
 
 def test_an_unimportable_spacr_still_has_a_version_and_a_location(

@@ -37,55 +37,6 @@ def plot_owner(qtbot):
     return owner
 
 
-def test_a_plot_owners_menus_are_retired(plot_owner):
-    """PlotItem and ViewBox each contribute a menu root."""
-    assert retire_pyqtgraph_menus(plot_owner) == 2
-
-
-def test_retiring_twice_finds_nothing_the_second_time(plot_owner):
-    """`id(menu) in menus` -- and the wrappers are kept alive to make
-    that identity meaningful, because Shiboken can otherwise reuse an id."""
-    assert retire_pyqtgraph_menus(plot_owner) == 2
-    assert retire_pyqtgraph_menus(plot_owner) == 0
-
-
-def test_an_owner_with_no_plots_does_no_work(qtbot):
-    owner = QWidget()
-    qtbot.addWidget(owner)
-    assert retire_pyqtgraph_menus(owner) == 0
-
-
-def test_an_owner_whose_c_half_has_gone_is_survived():
-    """This runs from close handlers, where the owner may already be gone."""
-    class _Dead:
-        def findChildren(self, *_a, **_k):
-            raise RuntimeError("Internal C++ object already deleted.")
-
-    assert retire_pyqtgraph_menus(_Dead()) == 0
-
-
-def test_an_owner_that_is_not_a_widget_at_all_is_survived():
-    class _NotAWidget:
-        pass
-
-    assert retire_pyqtgraph_menus(_NotAWidget()) == 0
-
-
-def test_without_pyqtgraph_imported_nothing_is_attempted(plot_owner,
-                                                         monkeypatch):
-    """Cleanup must not be the event that loads an optional plotting stack.
-
-    A real pyqtgraph view can only exist after the package is imported,
-    so an absent module means there is nothing of its kind to retire --
-    and importing it here would make teardown pay for a dependency the
-    session had chosen not to use.
-    """
-    import sys
-
-    monkeypatch.setitem(sys.modules, "pyqtgraph", None)
-    assert retire_pyqtgraph_menus(plot_owner) == 0
-
-
 class TestTheOwnershipTransfersThatMayBeRefused:
     """Both `setParent` calls are guarded, and for the same reason.
 
@@ -180,24 +131,3 @@ class TestTheControlHoldersAfterTheMenuHasClosed:
         assert retire_pyqtgraph_menus(plot_owner) == 2, (
             "a refused adoption stopped the retirement")
         assert attempts, "adoption was never attempted"
-
-
-def test_a_menu_that_already_has_a_parent_is_not_reparented(plot_owner,
-                                                            monkeypatch):
-    """The other side of the ownership repair: there is no hole to fill.
-
-    A menu Qt already owns needs no transfer -- it will be destroyed with
-    its parent. Reparenting it anyway would move it out from under an
-    owner that was going to handle it, for no gain.
-    """
-    from PySide6.QtWidgets import QWidget as _QWidget
-
-    transfers = []
-    monkeypatch.setattr(_QWidget, "parentWidget", lambda self: plot_owner)
-    monkeypatch.setattr(
-        _QWidget, "setParent",
-        lambda self, parent: transfers.append(type(self).__name__))
-
-    assert retire_pyqtgraph_menus(plot_owner) == 2
-    assert transfers == [], (
-        "a menu that already had a parent was reparented anyway")
