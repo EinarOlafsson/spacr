@@ -1,0 +1,97 @@
+OPS LARGE SITES: THE WHOLE-SITE CELLPOSE MASK STEP UNDER A VRAM CAP, THROUGH THE GPU GOVERNOR, WITH A CPU FALLBACK
+===============================================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-14 (bug fix, alpha under ALPHA_FEATURES[921]); CPU-tested with a fake card and fake out-of-memory errors. The real-card check (the gpu-marked test and the 10-site PERISCOPE run below) is not done. spacr/ops_large_sites.py, spacr/settings.py, docs/source/reproducibility_manifests.rst, tests/test_ops_large_site_mask_vram_945.py, tests/test_ops_large_sites_921.py (stand-in mask step takes the new keywords), tests/test_ops_hybrid_profile_stage3.py (schema version >= 936), tests/test_gpu_memory_governor.py (the mask step is a governed GPU path), arrival contract tests/data/release_contracts/945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json (3 new callables) and the 918-923 contract re-pinned for 3 changed docstrings; the nine-language reviews of those 6 docstrings and the 2 tooltips are still to be made, and the API catalog assembly (tests/test_documentation_i18n.py) errors on the 3 changed docstrings before they are pinned.
+Requested: paper session (PERISCOPE P1 benchmark S3), 2026-11-13; maintainer's rule: GPU jobs on Home are capped at 6 GB each.
+Owner: paper session.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/periscope_benchmark/item_drafts/ITEM_DRAFT_large_site_mask_step_vram.md
+Related: 921 (the module), the GPU governor (spacr/_gpu_governor.py), 872 (GPU admission).
+
+BUG
+Item 921 runs Cellpose's mask step (resize_and_compute_masks: flow
+following, seed finding and the flow check, remove_bad_flow_masks ->
+flow_error -> masks_to_flows_gpu) once on the whole stitched 5,500 px site,
+on the model's device, outside the GPU governor. Under a 6 GB per-process cap
+site 15 (6,328 cells) stopped the run with torch.OutOfMemoryError (1.47 GiB
+in _extend_centers_gpu).
+
+FIX
+- _cellpose_masks(model, flows, cellprob, *, settings, record, label): a
+  model off CUDA keeps item 921's call unchanged (no governor). On a CUDA
+  card (_governed_mask_step):
+  - seg_mask_device='cpu': the whole step on the CPU.
+  - 'gpu', or 'auto' when the estimate (mask_step_bytes) fits the budget
+    (_mask_step_budget): item 921's call whole on the card through the
+    governor (_guarded), so an out-of-memory error is retried and then run
+    on the CPU instead of stopping the run. Labels byte-identical to before
+    whenever it does not run out of memory.
+  - otherwise: the flow following on the card when it fits, else the CPU;
+    the flow check in full-width row bands sized to the budget
+    (flow_check_bands, _band_flow_errors, _banded_flow_check), each band
+    through the governor; a band that does not fit runs on the CPU, and
+    after a band falls back on an out-of-memory error the rest run on the
+    CPU too.
+- Budget: the governor's (free memory less gpu_memory_margin_gb and other
+  spaCR jobs' claims, under gpu_memory_fraction), and no more than
+  seg_mask_vram_gb less what the job already holds (its allocator's reserved
+  memory plus a CUDA context).
+- Estimates: dynamics 32 B per site pixel + 64 B per cell pixel; flow check
+  24 B per band pixel + 320 B per mask pixel (the whole-site step measured
+  342 B per cell pixel on CP186A Well1 site 76).
+- Banded = whole on one device: a band holds its masks plus, as context,
+  every mask they touch (an edge pixel's flow reads its neighbour mask's
+  diffusion; without the context 17 of 40 synthetic masks got other errors),
+  each mask's diffusion reads only its own pixels, its centre comes from its
+  own bounding box, niter is the whole image's (2 x the largest extent), and
+  above Cellpose's float32 switch (4e7 padded pixels) a band is padded with
+  empty rows past it, so it diffuses in the same precision. Flow errors then
+  equal the whole step's up to PyTorch's summation order (at most 1 ulp,
+  1.2e-16 relative, measured on CPU), so labels are identical unless a
+  mask's error lies that close to 0.4. Card vs CPU differ only by float
+  order (921 tolerance: every object at IoU >= 0.9).
+- Recorded: sites.csv gains mask_step_device ('gpu', 'gpu_banded', 'cpu',
+  'mixed', or 'in_eval' when the site fitted one tile and Cellpose's eval
+  made the masks under the governor), mask_step_reason ('fits', 'setting',
+  'cap', 'oom', 'model_on_cpu'; joined by ';') and mask_step_bands;
+  <seg_dst>/mask_step.json holds every step's note (objects, device, reason,
+  estimate_gb, budget_gb, bands) per site, for the survey and for the
+  control; the run's result gains mask_steps. A 'cap' or 'oom' step is
+  logged as a warning on spacr.ops_large_sites.
+
+SETTINGS (alpha, ALPHA_FEATURES[921] module_settings 'ops_large_sites')
+- seg_mask_vram_gb (float, default 6.0; 0 = no cap of its own).
+- seg_mask_device ('auto' | 'gpu' | 'cpu', default 'auto').
+Tooltips and the "Mask step GPU memory" heading are in
+spacr.ops_large_sites.LARGE_SITE_TOOLTIPS / LARGE_SITE_CATEGORIES (the module
+is CLI-only and does not register a GUI form; the other 921 keys still have
+no tooltips).
+
+DEFAULT CHANGE
+DEFAULT_CHANGES[938] = {'seg_mask_vram_gb': 0} (938 is a placeholder
+number; SETTINGS_SCHEMA_VERSION 936 -> 938): an unstamped or older settings
+file runs without the 6 GB cap, under the governor's budget only. Labels are
+unchanged by the cap unless the flow following itself does not fit (sites of
+roughly 8,000 px and more under 6 GB), which then runs on the CPU. A
+PERISCOPE settings file without a stamp should set seg_mask_vram_gb: 6.
+
+TESTS (CPU; tests/test_ops_large_site_mask_vram_945.py)
+Banded flow check = Cellpose's whole step at four budgets (and it drops
+masks); every mask in one band, wholly; the float32 padding rows; a fitting
+site runs the whole call on the card; a binding cap bands with identical
+labels; an unmeetable cap runs on the CPU and logs why; out-of-memory on the
+whole step, the bands, or both falls back with identical labels; 'cpu' never
+touches the card; a CPU model skips the governor; settings, tooltips,
+category, validation and the DEFAULT_CHANGES row; the sites.csv summary; a
+settings run with a fake out-of-memory, 'cpu' and a binding cap gives the
+same cell labels and records each. gpu-marked: on a real card, banded =
+uncapped exactly and the CPU within IoU >= 0.9 per object (skips without
+CUDA).
+
+REMAINING (GPU machine)
+1. pytest -m gpu tests/test_ops_large_site_mask_vram_945.py on a card.
+2. Proof check from the draft: on sites 76 and 15, labels with
+   seg_mask_device='cpu' identical to 'gpu' or IoU >= 0.9 per object; a
+   6 GB-capped run (seg_mask_vram_gb 6, gpu_memory_fraction for the
+   network) of the 10 P1 sites finishes with no out-of-memory stop; with
+   'gpu', labels byte-identical to 921's.

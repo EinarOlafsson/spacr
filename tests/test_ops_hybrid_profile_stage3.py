@@ -244,7 +244,7 @@ def test_older_settings_files_keep_one_thread_and_the_refit_space():
     from spacr.settings import DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION, _fold_older_defaults
 
     assert DEFAULT_CHANGES[936] == {"ops_blas_threads": 1, "ops_consensus_space": "refit"}
-    assert SETTINGS_SCHEMA_VERSION == 936
+    assert SETTINGS_SCHEMA_VERSION >= 936
     old = {"plate": "P1"}
     applied = _fold_older_defaults(old, 931, known={"plate", "ops_blas_threads", "ops_consensus_space"})
     assert applied == {"ops_blas_threads": (1, 936), "ops_consensus_space": ("refit", 936)}

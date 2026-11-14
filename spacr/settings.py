@@ -2533,7 +2533,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 936
+SETTINGS_SCHEMA_VERSION = 938
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2542,6 +2542,7 @@ DEFAULT_CHANGES = {
     934: {'aggregation_defaults': 'legacy'},
     935: {'ops_placement_seed_export': False},
     936: {'ops_blas_threads': 1, 'ops_consensus_space': 'refit'},
+    938: {'seg_mask_vram_gb': 0},
 }
 
 
@@ -2608,6 +2609,9 @@ def _fold_older_defaults(settings, version, known=None):
     it off.
     936 is the OPS stage-3 Hybrid profile's ``ops_blas_threads`` (2, was
     1) and ``ops_consensus_space`` (``'hybrid'``, was ``'refit'``).
+    938 (a placeholder number) is item 945's ``seg_mask_vram_gb``: the
+    large-site mask step is sized to 6 GB of card memory, and files stamped
+    before keep 0, no cap of its own.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9462,7 +9466,7 @@ ALPHA_FEATURES = {
             'seg_measure_band_px', 'seg_nucleus_channel', 'seg_nucleus_model',
             'seg_nucleus_diameter_range', 'seg_gpu', 'seg_tiling_control_px',
             'seg_diameter_sites', 'seg_diameter_min_objects',
-            'seg_cells_from_nucleus_seeds')},
+            'seg_cells_from_nucleus_seeds', 'seg_mask_vram_gb', 'seg_mask_device')},
     },
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval', 'ops_power_gene_list', 'ops_power_reference_rows',),
