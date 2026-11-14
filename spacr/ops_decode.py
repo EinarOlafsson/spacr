@@ -626,13 +626,17 @@ def threshold_settings(settings: Mapping[str, Any],
 
     :param settings: the run's settings, read for
         ``ops_decode_threshold_mode``, ``ops_decode_fdr_max``,
-        ``ops_decode_auto_grid``, ``ops_decode_auto_ci``,
-        ``ops_decode_auto_tune_fraction`` and ``ops_decode_auto_seed``.
+        ``ops_decode_auto_grid``, ``ops_decode_auto_spot_grid``,
+        ``ops_decode_auto_tune_fraction``, ``ops_decode_auto_seed`` and the
+        shared tuner's ``ops_decode_auto_ci``, ``ops_decode_auto_objective``,
+        ``ops_decode_auto_f_beta`` and ``ops_decode_auto_unreachable``.
     :param rule: from :func:`decode_rule`; a grid without the pixel quality,
         or a rule without the pixel fallback, keeps ``pixel_quality``.
     :returns: ``mode``; in auto mode also ``floors`` and ``pixel_qualities``
-        (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``tune_fraction`` and
-        ``seed``.
+        (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``objective``,
+        ``f_beta``, ``unreachable``, ``tune_fraction``, ``seed`` and
+        ``spot_thresholds`` (the read thresholds tried jointly, sorted; empty
+        when the read threshold stays as entered).
     :raises ValueError: for an unknown mode, an FDR target that is not
         above 0, a tuning fraction outside (0, 1), a grid that is not a
         mapping of the two thresholds to lists of numbers 0 or above, or
@@ -696,13 +700,77 @@ def threshold_settings(settings: Mapping[str, Any],
             raise ValueError(f"ops_decode_auto_grid {key} needs values of 0 "
                              f"or more; got {values!r}")
         axes[key] = values
+    spots = _spot_grid(settings.get("ops_decode_auto_spot_grid", AUTO_SPOT_GRID),
+                      "ops_decode_auto_spot_grid")
+    return {"mode": mode, "floors": axes["ops_single_read_quality"],
+            "pixel_qualities": axes["ops_pixel_quality"], "fdr_max": fdr_max,
+            **_tuning_options(settings), "tune_fraction": tune, "seed": seed,
+            "spot_thresholds": spots}
+
+
+#: The read thresholds (``ops_read_threshold``, the spot strength a read
+#: needs) auto mode tries jointly with the call thresholds (item 942) when
+#: ``ops_decode_auto_spot_grid`` is not set. The field cache keeps spots
+#: from strength 100.
+AUTO_SPOT_GRID: Tuple[float, ...] = (150.0, 200.0, 250.0, 315.0, 400.0)
+
+
+def _spot_grid(value: Any, key: str) -> List[float]:
+    """The read thresholds a tuner tries, sorted, or none.
+
+    :param value: a list of numbers, a comma-separated string, or None or
+        an empty list for none (the read threshold stays as entered).
+    :param key: the setting's name, for the error message.
+    :returns: the distinct values in ascending order (the loosest first).
+    :raises ValueError: for a value that is not a number of 0 or more.
+    """
+    if value is None or value == "" or (isinstance(value, (list, tuple)) and not value):
+        return []
+    if isinstance(value, str):
+        value = [part for part in value.replace(";", ",").split(",") if part.strip()]
+    try:
+        values = sorted({float(v) for v in value})
+    except (TypeError, ValueError):
+        raise ValueError(f"{key} must be a list of numbers; got {value!r}") from None
+    if values and values[0] < 0:
+        raise ValueError(f"{key} needs values of 0 or more; got {values!r}")
+    return values
+
+
+def _tuning_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """The shared tuner's objective settings (item 942), checked.
+
+    :param settings: read for ``ops_decode_auto_objective``,
+        ``ops_decode_auto_f_beta``, ``ops_decode_auto_unreachable`` and
+        ``ops_decode_auto_ci``; the OPS decode and the spacer-prefix decode
+        both use them.
+    :returns: ``ci``, ``objective``, ``f_beta`` and ``unreachable`` for
+        :func:`tune_thresholds`.
+    :raises ValueError: for an unknown objective or unreachable rule, or an
+        F-score beta that is not above 0.
+    """
     ci = settings.get("ops_decode_auto_ci")
     if isinstance(ci, str):
         ci = ci.strip().lower() not in ("false", "0", "no", "off")
-    return {"mode": mode, "floors": axes["ops_single_read_quality"],
-            "pixel_qualities": axes["ops_pixel_quality"], "fdr_max": fdr_max,
-            "ci": True if ci is None or ci == "" else bool(ci),
-            "tune_fraction": tune, "seed": seed}
+    objective = str(settings.get("ops_decode_auto_objective")
+                    or TUNING_OBJECTIVES[0]).strip().lower()
+    if objective not in TUNING_OBJECTIVES:
+        raise ValueError(f"ops_decode_auto_objective must be one of "
+                         f"{list(TUNING_OBJECTIVES)}; got {objective!r}")
+    unreachable = str(settings.get("ops_decode_auto_unreachable")
+                      or TUNING_UNREACHABLE[0]).strip().lower()
+    if unreachable not in TUNING_UNREACHABLE:
+        raise ValueError(f"ops_decode_auto_unreachable must be one of "
+                         f"{list(TUNING_UNREACHABLE)}; got {unreachable!r}")
+    beta = settings.get("ops_decode_auto_f_beta")
+    try:
+        beta = 1.0 if beta is None or beta == "" else float(beta)
+    except (TypeError, ValueError):
+        raise ValueError("ops_decode_auto_f_beta must be a number") from None
+    if not beta > 0:
+        raise ValueError(f"ops_decode_auto_f_beta must be above 0; got {beta}")
+    return {"ci": True if ci is None or ci == "" else bool(ci),
+            "objective": objective, "f_beta": beta, "unreachable": unreachable}
 
 
 def _prune_tallies(tallies: Mapping[str, Any], keys) -> Dict[str, Any]:
@@ -768,6 +836,59 @@ def _field_candidates(votes: Dict[str, Any], floors: Sequence[float],
         votes = {**votes, "tallies": _prune_tallies(votes["tallies"], keys)}
     return {"counts": counts, "nuclei": len(owned),
             "votes": {**votes, "pixel": pixel}}
+
+
+def _joint_field_candidates(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
+                            library: Sequence[str], matcher, decoys, *,
+                            spot_thresholds: Sequence[float], floors: Sequence[float],
+                            pixel_qualities: Sequence[float], footprint: float,
+                            max_distance: int, min_fraction: float,
+                            crosstalk: str) -> Dict[str, Any]:
+    """One field's calls at every read threshold and call-threshold setting (item 942).
+
+    Spot detection and calling are tuned together: for each read threshold
+    the reads at or below it are dropped, the reads left are called and
+    voted again (the library calibration refits on them), and
+    :func:`_field_candidates` counts the calls at every call-threshold
+    setting. The pixel fallback reads no spot, so its votes are made once.
+
+    :param evidence: from :func:`field_evidence`, kept down to the lowest
+        read threshold.
+    :param rule: from :func:`decode_rule`.
+    :param library: the guide barcodes.
+    :param matcher: from :func:`matcher_for`.
+    :param decoys: the decoy set.
+    :param spot_thresholds: the read thresholds, ascending.
+    :param floors: the single-read floors of the grid.
+    :param pixel_qualities: the pixel qualities of the grid.
+    :param footprint: how far beyond a boundary a read may lie, in pixels.
+    :param max_distance: the mismatches a read may carry.
+    :param min_fraction: the share of the votes the guide must hold.
+    :param crosstalk: the unmixing method.
+    :returns: ``counts`` -- ``(read thresholds, floors, pixel qualities, 2)``
+        real and decoy calls -- ``nuclei``, and ``by_spot``, one
+        :func:`_field_candidates` result per read threshold with its read
+        counts.
+    """
+    by_spot: List[Dict[str, Any]] = []
+    pixel = None
+    for threshold in spot_thresholds:
+        votes = _field_votes(
+            evidence, rule if pixel is None else {**rule, "pixels": False}, library,
+            matcher, threshold=float(threshold), footprint=footprint,
+            max_distance=max_distance, min_fraction=min_fraction,
+            single_read_quality=float("-inf"), pixel_qualities=pixel_qualities,
+            crosstalk=crosstalk, evidence_rows=True)
+        if pixel is None:
+            pixel = votes["pixel"]
+        votes["pixel"] = pixel
+        calls = _field_candidates(votes, floors, pixel_qualities, decoys,
+                                  bool(rule["pixels"]))
+        calls.update({key: votes[key] for key in (
+            "reads", "reads_owned", "reads_near", "reads_ambiguous")})
+        by_spot.append(calls)
+    return {"counts": np.stack([c["counts"] for c in by_spot]),
+            "nuclei": by_spot[0]["nuclei"] if by_spot else 0, "by_spot": by_spot}
 
 
 def _candidate_calls(candidates: Mapping[str, Any], floor: float,
@@ -906,15 +1027,173 @@ def choose_well_thresholds(counts, nuclei, sites, floors: Sequence[float],
         setting.
     :raises ValueError: when the shapes disagree or ``k`` is below 1.
     """
-    counts = np.asarray(counts, np.int64)
-    nuclei = np.asarray(nuclei, np.int64)
-    sites = np.asarray(sites, np.int64)
     floors = [float(v) for v in floors]
     pixel_qualities = [float(v) for v in pixel_qualities]
+    counts = np.asarray(counts, np.int64)
     if counts.shape[1:] != (len(floors), len(pixel_qualities), 2) \
             or len(nuclei) != len(counts) or len(sites) != len(counts):
         raise ValueError("counts must be (fields, floors, pixel qualities, 2) "
                          "with one nuclei count and site per field")
+    choice = tune_thresholds(
+        counts, nuclei, sites, [("single_read_quality", floors),
+                                ("pixel_quality", pixel_qualities)],
+        k=k, scale=scale, fdr_max=fdr_max, ci=ci, tune_fraction=tune_fraction,
+        seed=seed, unreachable="strictest")
+    return {"single_read_quality": choice["chosen"]["single_read_quality"],
+            "pixel_quality": choice["chosen"]["pixel_quality"],
+            "auto_met": choice["auto_met"], "fdr_max": choice["fdr_max"],
+            "ci": choice["ci"], "tune_fraction": choice["tune_fraction"],
+            "seed": choice["seed"], "tune_sites": choice["tune_sites"],
+            "report_sites": choice["report_sites"], "tune": choice["tune"],
+            "report": choice["report"], "all_fields": choice["all_fields"],
+            "grid": [{key: value for key, value in row.items()
+                      if key in _GRID_ROW_939} for row in choice["grid"]]}
+
+
+#: The keys of a grid row of :func:`choose_well_thresholds` (item 939).
+_GRID_ROW_939 = ("single_read_quality", "pixel_quality", "real", "decoy",
+                 "genotyped_pct", "fdr_per_100", "fdr_ci95", "passes")
+
+#: The objectives :func:`tune_thresholds` may maximise, the first being the
+#: default: the most genotyped cells under the FDR target, or an F-score of
+#: precision (one minus the FDR) and recall (the genotyped share).
+TUNING_OBJECTIVES = ("recall_at_fdr", "f_score")
+
+#: What :func:`tune_thresholds` does when no setting meets the FDR target:
+#: use the setting with the lowest FDR bound (the default), or the strictest
+#: setting (item 939's rule).
+TUNING_UNREACHABLE = ("lowest_fdr", "strictest")
+
+
+def _grid_score(counts: np.ndarray, nuclei: np.ndarray, idx: Sequence[int],
+                k: int, scale: float, ci: bool) -> Dict[str, np.ndarray]:
+    """The tuning share's score of every grid setting.
+
+    :param counts: ``(fields, *grid, 2)`` real and decoy calls.
+    :param nuclei: cells per field.
+    :param idx: the tuning fields.
+    :param k: decoys per guide.
+    :param scale: the FDR calibration.
+    :param ci: judge the interval's upper end rather than the estimate.
+    :returns: :func:`_half_stats`'s numbers over the grid, and ``bound``,
+        the FDR each setting is judged by: a share with no decoy call is
+        judged as holding :data:`_AUTO_ZERO_DECOYS`.
+    """
+    idx = np.asarray(idx)
+    score = _half_stats(counts[idx], nuclei[idx],
+                        _bootstrap_rows(len(idx), _AUTO_REPS, _AUTO_BOOT_SEED),
+                        k, scale)
+    bound = score["fdr_hi"] if ci else score["fdr"]
+    floor_bound = 100.0 * max(float(scale), 1.0) / float(k) \
+        * _AUTO_ZERO_DECOYS / np.maximum(score["real"], 1)
+    score["bound"] = np.where(score["decoy"] == 0, np.maximum(bound, floor_bound),
+                              bound)
+    return score
+
+
+def _f_score(fdr_per_100: np.ndarray, genotyped_pct: np.ndarray,
+             beta: float) -> np.ndarray:
+    """The F-score of precision (one minus the FDR) and recall (genotyped share).
+
+    :param fdr_per_100: the FDR estimate, per 100 calls.
+    :param genotyped_pct: the share of cells genotyped, in %.
+    :param beta: recall counts ``beta`` times as much as precision.
+    :returns: ``(1 + b²) P R / (b² P + R)``, 0 where both are 0.
+    """
+    precision = np.clip(1.0 - np.asarray(fdr_per_100, float) / 100.0, 0.0, 1.0)
+    recall = np.clip(np.asarray(genotyped_pct, float) / 100.0, 0.0, 1.0)
+    b2 = float(beta) ** 2
+    denominator = b2 * precision + recall
+    return np.where(denominator > 0, (1 + b2) * precision * recall
+                    / np.where(denominator > 0, denominator, 1.0), 0.0)
+
+
+def _pareto(fdr_values: Sequence[float], real: Sequence[int]) -> List[bool]:
+    """Which settings no other setting beats on both FDR and real calls.
+
+    :param fdr_values: each setting's FDR.
+    :param real: each setting's real calls.
+    :returns: one flag per setting: True when no setting has an FDR at most
+        as high and more real calls, or a lower FDR and as many.
+    """
+    order = sorted(range(len(real)), key=lambda i: (fdr_values[i], -real[i]))
+    best, out = -1, [False] * len(real)
+    for i in order:
+        if real[i] > best:
+            out[i], best = True, real[i]
+    return out
+
+
+def tune_thresholds(counts, nuclei, sites, axes: Sequence[Tuple[str, Sequence[float]]],
+                    *, k: int, scale: float, objective: str = "recall_at_fdr",
+                    fdr_max: float = 0.1, f_beta: float = 1.0,
+                    unreachable: str = "lowest_fdr", ci: bool = True,
+                    tune_fraction: float = 0.5, seed: int = 0) -> Dict[str, Any]:
+    """Choose one well's thresholds jointly from its decoy calls (item 942).
+
+    The shared tuner of the OPS decode (``ops_decode_threshold_mode``
+    'auto') and the spacer-prefix decode (``ops_prefix_threshold_tuning``
+    'per_well_decoy'). Each axis is one threshold, spot detection or
+    calling, with its values ordered from the loosest to the strictest;
+    every combination is one grid setting. The well's fields with cells, in
+    site order, are split at random (``numpy.random.default_rng(seed)``)
+    into a tuning share and a report share, as :func:`choose_well_thresholds`
+    splits them. Only the tuning share chooses, and only decoy calls are
+    read, never a reference call set.
+
+    With ``objective`` 'recall_at_fdr' a setting passes when its decoy FDR
+    -- the upper end of the 95 % field-bootstrap interval with ``ci``, else
+    the estimate; a share with no decoy call is judged as holding three --
+    is at most ``fdr_max``, and the passing setting with the most real calls
+    wins. With none passing, ``unreachable`` 'lowest_fdr' takes the setting
+    with the lowest such FDR (then the most real calls) and 'strictest' the
+    last value of every axis; ``auto_met`` is then False. With 'f_score' the
+    setting with the highest F-score of precision (one minus the FDR
+    estimate) and recall (the genotyped share) wins. Ties go to the stricter
+    setting, the later axes deciding last.
+
+    :param counts: ``(fields, *axis lengths, 2)`` real and decoy calls per
+        field and setting.
+    :param nuclei: cells per field, the genotyped share's denominator.
+    :param sites: the site of each field.
+    :param axes: ``(name, values)`` per axis, in the order of ``counts``.
+    :param k: decoys per guide.
+    :param scale: the FDR calibration (:func:`fdr`).
+    :param objective: a name in :data:`TUNING_OBJECTIVES`.
+    :param fdr_max: the most false calls per 100 real calls accepted.
+    :param f_beta: how much more recall counts than precision in the F-score.
+    :param unreachable: a name in :data:`TUNING_UNREACHABLE`.
+    :param ci: judge the interval's upper end rather than the estimate.
+    :param tune_fraction: the share of the fields that choose.
+    :param seed: the split's seed.
+    :returns: ``chosen`` (axis name -> value), ``auto_met``, ``objective``,
+        ``fdr_max``, ``f_beta``, ``unreachable``, ``ci``, ``tune_fraction``,
+        ``seed``, ``fdr_lowest`` (the lowest FDR bound any setting reached
+        on the tuning share), ``tune_sites`` and ``report_sites``; ``tune``,
+        ``report`` and ``all_fields`` -- cells, real and decoy calls,
+        genotyped %, FDR and its interval at the chosen setting -- and
+        ``grid``: one row per setting with its axis values, the tuning
+        share's numbers, ``fdr_bound``, ``f_score``, ``passes``, ``pareto``
+        (on the genotyped-vs-FDR front) and ``chosen``.
+    :raises ValueError: when the shapes disagree, ``k`` is below 1, or the
+        objective or the unreachable rule is unknown.
+    """
+    if objective not in TUNING_OBJECTIVES:
+        raise ValueError(f"the tuning objective must be one of "
+                         f"{list(TUNING_OBJECTIVES)}; got {objective!r}")
+    if unreachable not in TUNING_UNREACHABLE:
+        raise ValueError(f"the unreachable rule must be one of "
+                         f"{list(TUNING_UNREACHABLE)}; got {unreachable!r}")
+    names = [str(name) for name, _ in axes]
+    values = [[float(v) for v in vals] for _, vals in axes]
+    counts = np.asarray(counts, np.int64)
+    nuclei = np.asarray(nuclei, np.int64)
+    sites = np.asarray(sites, np.int64)
+    shape = tuple(len(v) for v in values)
+    if counts.ndim != len(shape) + 2 or counts.shape[1:] != shape + (2,) \
+            or len(nuclei) != len(counts) or len(sites) != len(counts):
+        raise ValueError("counts must be (fields, *axis lengths, 2) with one "
+                         "cell count and site per field")
     if int(k) < 1:
         raise ValueError("choosing thresholds needs decoys (k of 1 or more)")
     order = [i for i in np.argsort(sites, kind="stable") if nuclei[i] > 0]
@@ -923,48 +1202,119 @@ def choose_well_thresholds(counts, nuclei, sites, floors: Sequence[float],
     n_tune = int(n * float(tune_fraction))
     tune = [order[i] for i in sorted(perm[:n_tune])]
     report = [order[i] for i in sorted(perm[n_tune:])]
-    strict = (len(floors) - 1, len(pixel_qualities) - 1)
-    met = False
+    chosen = tuple(len(v) - 1 for v in values)
+    met, lowest = False, None
     rows: List[Dict[str, Any]] = []
-    chosen = strict
     if len(tune) >= 2:
-        idx = np.asarray(tune)
-        score = _half_stats(counts[idx], nuclei[idx],
-                            _bootstrap_rows(len(idx), _AUTO_REPS, _AUTO_BOOT_SEED),
-                            k, scale)
-        bound = score["fdr_hi"] if ci else score["fdr"]
-        floor_bound = 100.0 * max(float(scale), 1.0) / float(k) \
-            * _AUTO_ZERO_DECOYS / np.maximum(score["real"], 1)
-        bound = np.where(score["decoy"] == 0, np.maximum(bound, floor_bound), bound)
-        passing = bound <= float(fdr_max)
-        best = None
-        for i, floor in enumerate(floors):
-            for j, q in enumerate(pixel_qualities):
-                rows.append({"single_read_quality": floor, "pixel_quality": q,
-                             "real": int(score["real"][i, j]),
-                             "decoy": int(score["decoy"][i, j]),
-                             "genotyped_pct": float(score["genotyped_pct"][i, j]),
-                             "fdr_per_100": float(score["fdr"][i, j]),
-                             "fdr_ci95": [float(score["fdr_lo"][i, j]),
-                                          float(score["fdr_hi"][i, j])],
-                             "passes": bool(passing[i, j])})
-                if passing[i, j]:
-                    key = (int(score["real"][i, j]), i, j)
-                    if best is None or key > best:
-                        best = key
+        score = _grid_score(counts, nuclei, tune, k, scale, ci)
+        passing = score["bound"] <= float(fdr_max)
+        f_scores = _f_score(score["fdr"], score["genotyped_pct"], f_beta)
+        lowest = float(score["bound"].min())
+        best = fallback = None
+        for position in np.ndindex(*shape):
+            real = int(score["real"][position])
+            rows.append({**{name: values[a][position[a]] for a, name in enumerate(names)},
+                         "real": real, "decoy": int(score["decoy"][position]),
+                         "genotyped_pct": float(score["genotyped_pct"][position]),
+                         "fdr_per_100": float(score["fdr"][position]),
+                         "fdr_ci95": [float(score["fdr_lo"][position]),
+                                      float(score["fdr_hi"][position])],
+                         "fdr_bound": float(score["bound"][position]),
+                         "f_score": float(f_scores[position]),
+                         "passes": bool(passing[position])})
+            if objective == "f_score":
+                key = (float(f_scores[position]),) + position
+            elif passing[position]:
+                key = (real,) + position
+            else:
+                key = None
+            if key is not None and (best is None or key > best):
+                best = key
+            low = (-float(score["bound"][position]), real) + position
+            if fallback is None or low > fallback:
+                fallback = low
         if best is not None:
-            chosen, met = (best[1], best[2]), True
+            chosen, met = tuple(best[1:]), True
+        elif unreachable == "lowest_fdr":
+            chosen = tuple(fallback[2:])
+        front = _pareto([r["fdr_bound"] for r in rows], [r["real"] for r in rows])
+        flat_chosen = int(np.ravel_multi_index(chosen, shape))
+        for i, row in enumerate(rows):
+            row["pareto"] = bool(front[i])
+            row["chosen"] = i == flat_chosen
 
-    return {"single_read_quality": floors[chosen[0]],
-            "pixel_quality": pixel_qualities[chosen[1]], "auto_met": bool(met),
-            "fdr_max": float(fdr_max), "ci": bool(ci),
+    flat_counts = counts.reshape(len(counts), 1, -1, 2)
+    flat_position = (0, int(np.ravel_multi_index(chosen, shape)))
+    parts = {part: _chosen_summary(flat_counts, nuclei, fields, flat_position, k, scale)
+             for part, fields in (("tune", tune), ("report", report),
+                                  ("all_fields", order))}
+    return {"chosen": {name: values[a][chosen[a]] for a, name in enumerate(names)},
+            "index": [int(i) for i in chosen], "auto_met": bool(met),
+            "objective": objective, "fdr_max": float(fdr_max),
+            "f_beta": float(f_beta), "unreachable": unreachable, "ci": bool(ci),
             "tune_fraction": float(tune_fraction), "seed": int(seed),
+            "fdr_lowest": lowest, "axes": {name: values[a] for a, name in enumerate(names)},
             "tune_sites": [int(sites[i]) for i in tune],
             "report_sites": [int(sites[i]) for i in report],
-            "tune": _chosen_summary(counts, nuclei, tune, chosen, k, scale),
-            "report": _chosen_summary(counts, nuclei, report, chosen, k, scale),
-            "all_fields": _chosen_summary(counts, nuclei, order, chosen, k, scale),
-            "grid": rows}
+            **parts, "grid": rows}
+
+
+def write_tuning_curve(choice: Mapping[str, Any], folder: str, name: str,
+                       title: str = "") -> Dict[str, str]:
+    """Write one well's genotyped-vs-FDR curve and the chosen point.
+
+    :param choice: from :func:`tune_thresholds`.
+    :param folder: the folder written into, created.
+    :param name: the file stem, for example ``pr_curve_A1``.
+    :param title: the figure title.
+    :returns: the paths of ``<name>.csv`` (every grid setting's tuning
+        numbers, with ``pareto`` and ``chosen``) and ``<name>.png`` (genotyped
+        % against the decoy FDR bound, the front drawn as a line, the chosen
+        setting marked); no figure without grid rows.
+    """
+    import pandas as pd
+
+    from .tabular import write_table
+
+    os.makedirs(folder, exist_ok=True)
+    rows = [{key: (value if key != "fdr_ci95" else None) for key, value in row.items()}
+            for row in choice["grid"]]
+    for row, source in zip(rows, choice["grid"]):
+        row.pop("fdr_ci95")
+        row["fdr_ci_low"], row["fdr_ci_high"] = source["fdr_ci95"]
+    paths = {"csv": os.path.join(folder, f"{name}.csv")}
+    write_table(pd.DataFrame(rows), paths["csv"], canonicalise=False)
+    if not rows:
+        return paths
+    import matplotlib
+
+    matplotlib.use("Agg", force=False)
+    import matplotlib.pyplot as plt
+
+    frame = pd.DataFrame(rows)
+    front = frame[frame["pareto"]].sort_values("fdr_bound")
+    figure, axis = plt.subplots(figsize=(5.0, 3.8), dpi=150)
+    axis.scatter(frame["fdr_bound"], frame["genotyped_pct"], s=12, color="#7f9cb8",
+                 alpha=0.6, label="grid settings")
+    axis.plot(front["fdr_bound"], front["genotyped_pct"], color="#1f4e79", lw=1.4,
+              label="front")
+    picked = frame[frame["chosen"]]
+    axis.scatter(picked["fdr_bound"], picked["genotyped_pct"], s=60, color="#0e8a8a",
+                 edgecolor="black", zorder=3, label="chosen")
+    if choice.get("objective") == "recall_at_fdr":
+        axis.axvline(float(choice["fdr_max"]), color="grey", ls="--", lw=0.8,
+                     label="FDR target")
+    axis.set_xscale("symlog", linthresh=0.01)
+    axis.set_xlim(left=0)
+    axis.set_xlabel("decoy FDR per 100 calls (tuning fields)")
+    axis.set_ylabel("cells genotyped (%)")
+    axis.set_title(title or name, fontsize=9)
+    axis.legend(fontsize=7, frameon=False)
+    figure.tight_layout()
+    paths["png"] = os.path.join(folder, f"{name}.png")
+    figure.savefig(paths["png"])
+    plt.close(figure)
+    return paths
 
 
 def _write_threshold_report(db: str, plate: str, well: str,
@@ -991,6 +1341,9 @@ def _write_threshold_report(db: str, plate: str, well: str,
            "single_read_quality": choice["single_read_quality"],
            "pixel_quality": choice["pixel_quality"],
            "auto_met": choice["auto_met"], "fdr_max": choice["fdr_max"]}
+    if "read_threshold" in choice:
+        row.update({"read_threshold": choice["read_threshold"],
+                    "objective": choice["objective"]})
     for part in ("tune", "report", "all_fields"):
         numbers = choice[part]
         interval = numbers["fdr_ci95"] or [None, None]

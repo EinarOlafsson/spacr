@@ -3848,6 +3848,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("stage3_hybrid_profile_api_arrivals_2026-11-13.json", 2),
         ("938_run_progress_api_arrivals_2026-11-13.json", 20),
         ("941_measure_optional_families_api_arrivals_2026-11-13.json", 1),
+        ("942_ops_autotune_api_arrivals_2026-11-14.json", 3),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

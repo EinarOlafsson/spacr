@@ -772,6 +772,19 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_decode_auto_ci",
     "ops_decode_auto_tune_fraction",
     "ops_decode_auto_seed",
+    # Item 942 (2026-11-14): joint tuning of spot detection and calling,
+    # and the spacer-prefix decode's decoys and per-well tuning.
+    "ops_decode_auto_spot_grid",
+    "ops_decode_auto_objective",
+    "ops_decode_auto_f_beta",
+    "ops_decode_auto_unreachable",
+    "ops_prefix_decoy_k",
+    "ops_prefix_decoy_seed",
+    "ops_prefix_fdr_scale",
+    "ops_prefix_min_read_quality",
+    "ops_prefix_threshold_tuning",
+    "ops_prefix_fdr_target_pct",
+    "ops_prefix_tuning_grid",
     # Items 936 and 940 (2026-11-13): stitch reader threads and edge
     # workers, and the placement seed file.
     "ops_stitch_read_threads",

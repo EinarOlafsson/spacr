@@ -2447,6 +2447,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **optional_families_arrivals}
+    autotune_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "942_ops_autotune_api_arrivals_2026-11-14.json").read_text(encoding="utf-8"))
+    assert len(autotune_arrivals) == 3
+    assert {key: docs[key] for key in autotune_arrivals} == autotune_arrivals
+    assert not autotune_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **autotune_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

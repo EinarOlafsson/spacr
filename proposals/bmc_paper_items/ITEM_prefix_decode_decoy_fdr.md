@@ -47,3 +47,9 @@ The P1 benchmark therefore had to compute the FDR in a scoring script that re-ma
 
 ## Scope decision (master, 2026-11-14)
 The joint precision-and-recall tuning (spot detection and calling thresholds together) also replaces 939's auto mode, which tunes only the calling threshold. It is built here, in 942, as one shared tuner used by both the prefix decode and the OPS decode (939's ops_decode_threshold_mode='auto'); no separate item.
+
+## Implementation (2026-11-14, branch claude-942-autotune-1114)
+- Shared tuner `spacr.ops_decode.tune_thresholds` (objectives `recall_at_fdr` and `f_score`; unreachable target -> `lowest_fdr` or `strictest`), curve writer `write_tuning_curve`; used by `ops_decode_threshold_mode='auto'` (new `ops_decode_auto_spot_grid` joint read-threshold axis) and by `ops_prefix_threshold_tuning='per_well_decoy'`.
+- Prefix decoys: `spacr.ops_prefix.prefix_decoy_library`; settings as specified plus `ops_prefix_min_read_quality` and `ops_prefix_tuning_grid` (read threshold x read quality x mismatches). The prefix tuner reads the shared `ops_decode_auto_*` objective, CI, split fraction and seed settings.
+- Schema 938: old settings files keep 939's auto mode (`ops_decode_auto_spot_grid=[]`, `ops_decode_auto_unreachable='strictest'`).
+- Proof numbers and outputs: features/feature_list/942_ops_decode_joint_autotune_decoy_fdr.txt and BMCspacr/reanalysis/periscope_benchmark/out/autotune_942/. The P1-scorer identity check, the shuffle calibration (S2 c) and the 85-site confirmation were not run.
