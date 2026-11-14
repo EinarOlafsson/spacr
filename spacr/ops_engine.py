@@ -383,7 +383,60 @@ def _say(message: str) -> None:
     LOG.info(message)
 
 
-def _index_tiles(root: str, scheme: Optional[str] = None
+def _tile_acquisition(root: str, path: str) -> Tuple[str, str]:
+    """Which acquisition a tile belongs to, by folder and by file name.
+
+    :param root: the folder that was searched.
+    :param path: the tile, under ``root``.
+    :returns: ``(folder, group)``: the tile's folder relative to ``root``
+        (``"."`` when it lies in ``root`` itself) and the channel set its
+        name carries (``DAPI-GFP-A594`` for
+        ``20X_DAPI-GFP-A594_A1_A594_Site-0.tif``, upper case), or ``""``
+        for a name that carries none.
+    """
+    folder = os.path.relpath(os.path.dirname(path), root)
+    found = (None if _TILE_PATTERN.search(os.path.basename(path))
+             else _UNCYCLED_TILE_PATTERN.search(os.path.basename(path)))
+    return folder, (found["acquisition"].upper() if found else "")
+
+
+def _in_acquisition(root: str, path: str, acquisition: str) -> bool:
+    """Whether a tile belongs to the acquisition ``ops_ph_use_acquisition`` names.
+
+    :param root: the folder that was searched.
+    :param path: the tile, under ``root``.
+    :param acquisition: a folder under ``root`` (or any folder name on the
+        way to the tile) or the channel set the tile names carry; case is
+        ignored.
+    :returns: True when the tile's folder or its name matches.
+    """
+    folder, group = _tile_acquisition(root, path)
+    wanted = os.path.normpath(acquisition.strip()).upper()
+    parts = [part.upper() for part in folder.split(os.sep) if part != "."]
+    return (wanted == group or wanted in parts
+            or wanted == os.path.normpath(folder).upper())
+
+
+def _clash_names(root: str, first: str, second: str) -> Tuple[str, str]:
+    """The two acquisitions two clashing tiles come from, as a user names them.
+
+    :param root: the folder that was searched.
+    :param first: one tile.
+    :param second: the other tile, same well, site and channel.
+    :returns: their folders relative to ``root`` when those differ, else
+        the channel sets their names carry, else the file names.
+    """
+    (folder_a, group_a), (folder_b, group_b) = (
+        _tile_acquisition(root, first), _tile_acquisition(root, second))
+    if folder_a != folder_b:
+        return folder_a, folder_b
+    if group_a and group_b and group_a != group_b:
+        return group_a, group_b
+    return os.path.basename(first), os.path.basename(second)
+
+
+def _index_tiles(root: str, scheme: Optional[str] = None,
+                 acquisition: Optional[str] = None
                  ) -> Dict[str, Dict[int, Dict[int, Dict[str, str]]]]:
     """Every tile under ``root``, as ``well -> cycle -> site -> channel -> path``.
 
@@ -391,6 +444,8 @@ def _index_tiles(root: str, scheme: Optional[str] = None
     :param scheme: which naming scheme counts -- ``"cycled"`` for a
         sequencing acquisition, ``"uncycled"`` for a phenotype one, None to
         take whichever the folder turns out to use.
+    :param acquisition: ``ops_ph_use_acquisition``: when set, only the
+        tiles of that acquisition are indexed (:func:`_in_acquisition`).
     :returns: the index; empty when nothing matched. An acquisition whose
         names carry no cycle -- the phenotype half -- is filed under cycle
         :data:`_UNCYCLED_CYCLE`.
@@ -421,7 +476,10 @@ def _index_tiles(root: str, scheme: Optional[str] = None
     ``A594`` file per site, and the walk used to keep whichever it reached
     last. Naming each acquisition's folder and channels in
     ``ops_ph_acquisitions`` (:func:`_ph_acquisition_index`) indexes such a
-    plate.
+    plate; naming one of them in ``ops_ph_use_acquisition`` (item 947)
+    indexes that one alone. The refusal names the two acquisitions -- their
+    folders, or the channel sets their file names carry -- and the shared
+    channel, in sorted order, and nothing is chosen for the user.
 
     :raises ValueError: when two files carry the same well, cycle, site
         and channel token.
@@ -438,17 +496,24 @@ def _index_tiles(root: str, scheme: Optional[str] = None
                 if parsed is None:
                     continue
                 well, cycle, site, channel, _magnification = parsed
+                path = os.path.join(folder, name)
+                if acquisition and not _in_acquisition(root, path, acquisition):
+                    break
                 held = found[which].setdefault(well, {}).setdefault(
                     cycle, {}).setdefault(site, {})
-                path = os.path.join(folder, name)
                 if channel in held and held[channel] != path:
+                    (one, first), (other, second) = sorted(zip(
+                        _clash_names(root, held[channel], path),
+                        (held[channel], path)))
                     raise ValueError(tr(
-                        "two files under {root} carry channel {channel} for "
-                        "well {well}, site {site}: {first} and {second}. Name "
-                        "each acquisition's folder and channels in "
-                        "ops_ph_acquisitions, or point the setting at one "
-                        "acquisition.", root=root, channel=channel, well=well,
-                        site=site, first=held[channel], second=path))
+                        "{root} holds two acquisitions that both carry "
+                        "channel {channel}: {one} and {other} (well {well}, "
+                        "site {site}: {first} and {second}). Set "
+                        "ops_ph_use_acquisition to the one to use, for "
+                        "example {one}, or name each acquisition's folder and "
+                        "channels in ops_ph_acquisitions.", root=root,
+                        channel=channel, one=one, other=other, well=well,
+                        site=site, first=first, second=second))
                 held[channel] = path
                 break
     for which in wanted:
@@ -3513,6 +3578,50 @@ def _ph_acquisitions(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
         raise ValueError(tr("ops_ph_acquisitions names no acquisition"))
     return {"folders": folders,
             "register_on": str(register_on).upper() if register_on else None}
+
+
+def _ph_use_acquisition(settings: Mapping[str, Any]) -> Optional[str]:
+    """``ops_ph_use_acquisition`` read: the one phenotype acquisition to index.
+
+    :param settings: read for ``ops_ph_use_acquisition`` and
+        ``ops_ph_acquisitions``.
+    :returns: the folder or channel set named, or None when it is empty.
+    :raises ValueError: when ``ops_ph_acquisitions`` is set as well; the two
+        settings say different things about the same folder.
+    """
+    from .qt.i18n import tr
+
+    chosen = str(settings.get("ops_ph_use_acquisition") or "").strip()
+    if not chosen:
+        return None
+    if settings.get("ops_ph_acquisitions"):
+        raise ValueError(tr(
+            "ops_ph_use_acquisition ({chosen}) and ops_ph_acquisitions are "
+            "both set; use one acquisition with the first, or name each "
+            "acquisition's folder and channels with the second",
+            chosen=chosen))
+    return chosen
+
+
+def _no_such_acquisition(root: str, chosen: str) -> None:
+    """Refuse an ``ops_ph_use_acquisition`` that matches no tile under ``root``.
+
+    :param root: ``phenotype_source``.
+    :param chosen: the setting's value.
+    :raises ValueError: always, naming the acquisitions that are there.
+    """
+    from .qt.i18n import tr
+
+    present = set()
+    for folder, _folders, files in os.walk(root, followlinks=True):
+        for name in files:
+            if _match_tile(name) is not None:
+                where, group = _tile_acquisition(root, os.path.join(folder, name))
+                present.add(where if where != "." else (group or where))
+    raise ValueError(tr(
+        "ops_ph_use_acquisition is {chosen}, but no tile under {root} belongs "
+        "to it; the acquisitions there are {present}", chosen=chosen,
+        root=root, present=", ".join(sorted(present)) or "none"))
 
 
 def _ph_acquisition_index(root: str, acquisitions: Mapping[str, Any]
@@ -9067,6 +9176,7 @@ def run_ops(settings: Mapping[str, Any], *,
             raise ValueError(
                 f"phenotype_source must be the folder of phenotype tiles; "
                 f"got {phenotype_root!r}")
+        chosen_acquisition = _ph_use_acquisition(settings)
         acquisitions = _ph_acquisitions(settings)
         if acquisitions is not None:
             phenotype_index, ignored = _ph_acquisition_index(
@@ -9080,8 +9190,11 @@ def run_ops(settings: Mapping[str, Any], *,
                     c for _folder, names in acquisitions["folders"][1:]
                     for c in names)
         else:
-            phenotype_index = (_index_tiles(str(phenotype_root), "uncycled")
-                               or _index_tiles(str(phenotype_root), "cycled"))
+            phenotype_index = (
+                _index_tiles(str(phenotype_root), "uncycled", chosen_acquisition)
+                or _index_tiles(str(phenotype_root), "cycled", chosen_acquisition))
+            if chosen_acquisition and not phenotype_index:
+                _no_such_acquisition(str(phenotype_root), chosen_acquisition)
         if not phenotype_index:
             raise ValueError(
                 f"no tile under {phenotype_root} is named like "

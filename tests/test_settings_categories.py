@@ -795,6 +795,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_placement_seed_check_pixels",
     "ops_placement_seed_tolerance",
     "ops_ph_placement_seed",
+    # Item 947 (2026-11-14): the one phenotype acquisition to read from a
+    # folder that holds two sharing a channel.
+    "ops_ph_use_acquisition",
     # Item 934 (2026-11-13): the OPS measurement switches in Measure --
     # Funk et al.'s object features, the explicit Zernike switch and
     # channel-named columns under Measurements, and the CPU/GPU self-check
