@@ -157,11 +157,14 @@ __all__ = [
     'ON_MISSING_ENV_VAR',
     'IlluminationError',
     'IlluminationField',
+    'NuclearIlluminationField',
     'IlluminationModel',
     'IlluminationCorrector',
     'PreparedIllumination',
     'SegmentationIlluminationSession',
     'estimate_illumination',
+    'estimate_nuclear_illumination',
+    'validate_illumination',
     'load_illumination_model',
     'plate_of_field',
     'position_intensity_slope',
@@ -333,6 +336,10 @@ class IlluminationField:
         return (np.stack(planes, axis=-1).astype(np.float32, copy=False)
                 + scalars)
 
+    def _restore_stack(self, channels: Sequence[int]) -> np.ndarray:
+        """``(C,)`` offsets added back after dividing; none for this field."""
+        return np.zeros(len(list(channels)), dtype=np.float32)
+
     def correct_window(self, window, channels: Sequence[int],
                        y0: int = 0, x0: int = 0) -> np.ndarray:
         """Correct a crop window cut from a field, without the rest of the field.
@@ -424,6 +431,157 @@ class IlluminationField:
         return '\n'.join(lines)
 
 
+@dataclass(frozen=True)
+class NuclearIlluminationField(IlluminationField):
+    """An illumination field whose nuclear channel is a nuclear-median map (item 933).
+
+    The nuclear channel's plane is the map
+    :func:`spacr.ops_flatfield.build_nuclear_flat` fits to the median nuclear
+    intensity per map cell, read at every field pixel exactly as the OPS
+    phenotype path reads it (:func:`spacr.ops_flatfield.flat_planes`). It is
+    1 over the central square of the field, not 1 on average, and that
+    channel is corrected with the camera offset added back, as in OPS::
+
+        corrected = (observed - b) / flatfield + b
+
+    Every other channel keeps the estimator it was given and today's
+    formula, ``(observed - dark) * (1 / flatfield)``.
+
+    :param plate: as for :class:`IlluminationField`.
+    :param channels: as for :class:`IlluminationField`.
+    :param flatfield: ``(C, Y, X)`` float32 planes; the nuclear channel's
+        is the nuclear map read at every pixel, 1 at the centre.
+    :param dark: per channel, the offset; the nuclear channel's is the
+        plate's camera offset ``b``.
+    :param n_fields: the fields whose nuclei built the map.
+    :param estimator: ``'nuclear_median'``.
+    :param degree: the polynomial degree of the other channels, or 0.
+    :param bin_size: the map cell edge in field pixels.
+    :param floored: as for :class:`IlluminationField`.
+    :param darkfield: as for :class:`IlluminationField`; None here.
+    :param restore: per channel, in :attr:`channels` order, whether the
+        offset is added back after dividing; True for the nuclear channel.
+    :param block_maps: ``{channel: (rows, cols) float32 map}`` of the
+        nuclear channels, the map before it is read at field pixels.
+    :param map_records: ``{channel: record}``, the record
+        :func:`spacr.ops_flatfield.build_nuclear_flat` returns with each map
+        (offset, fit, lookup, nucleus counts, corner mean, versions).
+    """
+
+    restore: Tuple[bool, ...] = ()
+    block_maps: Optional[Dict[int, np.ndarray]] = None
+    map_records: Optional[Dict[int, Dict[str, Any]]] = None
+
+    def _restore_stack(self, channels: Sequence[int]) -> np.ndarray:
+        """``(C,)`` offsets added back after dividing: the dark where restored, else 0."""
+        return np.asarray([self.dark[self.index_of(c)] if self._restored(c) else 0.0
+                           for c in channels], dtype=np.float32)
+
+    def _restored(self, channel: int) -> bool:
+        """Whether ``channel`` is corrected with its offset added back."""
+        position = self.index_of(channel)
+        return bool(self.restore[position]) if position < len(self.restore) else False
+
+    def correct_field(self, array, channels: Sequence[int]) -> np.ndarray:
+        """Correct a whole field, channel by channel, in float32.
+
+        A restored channel is ``(observed - b) / flatfield + b``, computed
+        in the same order and dtype as
+        :func:`spacr.ops_flatfield.correct_field`, so the two give the same
+        float32 pixels for the same map. Any other channel is
+        ``(observed - dark) * (1 / flatfield)``, as for every other field.
+
+        :param array: ``(Y, X, C)`` or ``(Z, Y, X, C)`` intensities, one
+            plane per channel along the last axis.
+        :param channels: the merged-stack channel of each plane, in order.
+        :returns: the corrected float32 array, in ``array``'s shape.
+        :raises IlluminationError: when the model does not cover a channel.
+        """
+        out = np.asarray(array).astype(np.float32)
+        for index, channel in enumerate(int(c) for c in channels):
+            position = self.index_of(channel)
+            plane = self.flatfield[position]
+            offset = self.dark[position]
+            if self._restored(channel):
+                out[..., index] = (out[..., index] - offset) / plane + offset
+            else:
+                out[..., index] = (out[..., index] - offset) * (1.0 / plane)
+        return out
+
+    def correct_window(self, window, channels: Sequence[int],
+                       y0: int = 0, x0: int = 0) -> np.ndarray:
+        """Correct a crop window with the pixels' values of the whole-field correction.
+
+        :param window: ``(h, w, C)`` intensities, or ``(h, w)`` for one
+            channel, cut at rows ``y0:y0 + h`` and columns ``x0:x0 + w``.
+        :param channels: the merged-stack channel of each plane of
+            ``window``.
+        :param y0: the field row of the window's first row; may be negative.
+        :param x0: the field column of the window's first column; may be
+            negative.
+        :returns: the corrected float32 window in ``window``'s shape, with
+            the pixels outside the field set to 0.
+        :raises IlluminationError: when the window has no pixel inside the
+            field or does not match ``channels``.
+        """
+        array = np.asarray(window)
+        single = array.ndim == 2
+        if single:
+            array = array[..., np.newaxis]
+        channels = [int(c) for c in channels]
+        if array.ndim != 3 or array.shape[-1] != len(channels):
+            raise IlluminationError(
+                f"a crop window of shape {np.shape(window)} does not match "
+                f"channels {channels}; pass (h, w, C) with one channel per "
+                f"plane, or (h, w) with one channel.")
+        height, width = self.shape
+        rows, cols = int(array.shape[0]), int(array.shape[1])
+        y0, x0 = int(y0), int(x0)
+        top, bottom = max(0, y0), min(height, y0 + rows)
+        left, right = max(0, x0), min(width, x0 + cols)
+        if bottom <= top or right <= left:
+            raise IlluminationError(
+                f"the crop window at row {y0}, column {x0} ({rows}x{cols}) "
+                f"lies outside the {height}x{width} field of plate "
+                f"{self.plate!r}.")
+        out = np.zeros(array.shape, dtype=np.float32)
+        inside = array[top - y0:bottom - y0, left - x0:right - x0].astype(np.float32)
+        for index, channel in enumerate(channels):
+            position = self.index_of(channel)
+            plane = self.flatfield[position, top:bottom, left:right]
+            offset = self.dark[position]
+            if self._restored(channel):
+                value = (inside[..., index] - offset) / plane + offset
+            else:
+                value = (inside[..., index] - offset) * (1.0 / plane)
+            out[top - y0:bottom - y0, left - x0:right - x0, index] = value
+        return out[..., 0] if single else out
+
+    def describe(self) -> str:
+        """One line per channel; a nuclear channel names its map and offset."""
+        lines = []
+        nonuniform = self.nonuniformity()
+        for position, channel in enumerate(self.channels):
+            plane = self.flatfield[position]
+            if self._restored(channel):
+                record = dict((self.map_records or {}).get(int(channel)) or {})
+                lines.append(
+                    f"plate {self.plate}, channel {channel}: nuclear-median map "
+                    f"{plane.min():.3f}-{plane.max():.3f} (1.000 at the centre), "
+                    f"corner mean {float(record.get('corner_mean', float('nan'))):.3f}, "
+                    f"{record.get('fit', '')} over {record.get('n_training_nuclei', 0)} "
+                    f"nuclei, offset {self.dark[position]:g} added back")
+            else:
+                lines.append(
+                    f"plate {self.plate}, channel {channel}: gain field "
+                    f"{plane.min():.3f}-{plane.max():.3f} (mean 1.000), "
+                    f"non-uniformity {100 * nonuniform[int(channel)]:.1f}%, "
+                    f"{self.estimator}"
+                    f"{f' degree {self.degree}' if self.degree else ''} over "
+                    f"{self.n_fields} field(s), dark={self.dark[position]:g}")
+        return '\n'.join(lines)
+
+
 @dataclass
 class IlluminationModel:
     """Estimated illumination fields for every plate in a source folder.
@@ -502,7 +660,16 @@ class IlluminationModel:
             if item.darkfield is not None:
                 arrays[f'{slot}_dark'] = np.asarray(item.darkfield,
                                                     dtype=np.float32)
-        payload = {'index': index, 'meta': self.meta, 'format': 1}
+            if isinstance(item, NuclearIlluminationField):
+                index[slot]['kind'] = NUCLEAR_ESTIMATOR
+                index[slot]['restore'] = [bool(r) for r in item.restore]
+                index[slot]['map_records'] = {
+                    str(int(c)): dict(r) for c, r in (item.map_records or {}).items()}
+                for channel, block in (item.block_maps or {}).items():
+                    arrays[f'{slot}_block{int(channel)}'] = np.asarray(block, dtype=np.float32)
+        nuclear = any(isinstance(item, NuclearIlluminationField)
+                      for item in self.fields.values())
+        payload = {'index': index, 'meta': self.meta, 'format': 2 if nuclear else 1}
         np.savez_compressed(path, manifest=np.asarray(json.dumps(payload)),
                             **arrays)
         return path
@@ -530,6 +697,9 @@ class IlluminationModel:
                     darkfield = (np.asarray(handle[f'{slot}_dark'],
                                             dtype=np.float32)
                                  if f'{slot}_dark' in handle.files else None)
+                    if entry.get('kind') == NUCLEAR_ESTIMATOR:
+                        fields[entry['key']] = _load_nuclear_field(handle, slot, entry, flat)
+                        continue
                     fields[entry['key']] = IlluminationField(
                         plate=entry['plate'],
                         channels=tuple(int(c) for c in entry['channels']),
@@ -548,6 +718,22 @@ class IlluminationModel:
                 f"illumination model {path!r} could not be read: "
                 f"{type(exc).__name__}: {exc}") from exc
         return cls(fields=fields, meta=dict(payload.get('meta', {})))
+
+
+def _load_nuclear_field(handle, slot: str, entry: Mapping[str, Any],
+                        flat: np.ndarray) -> 'NuclearIlluminationField':
+    """One :class:`NuclearIlluminationField` back from a saved model (format 2)."""
+    blocks = {int(name[len(slot) + 6:]): np.asarray(handle[name], dtype=np.float32)
+              for name in handle.files if name.startswith(f'{slot}_block')}
+    return NuclearIlluminationField(
+        plate=entry['plate'], channels=tuple(int(c) for c in entry['channels']),
+        flatfield=flat, dark=np.asarray(entry['dark'], dtype=np.float32),
+        n_fields=int(entry['n_fields']), estimator=str(entry['estimator']),
+        degree=int(entry['degree']), bin_size=int(entry['bin_size']),
+        floored=int(entry.get('floored', 0)),
+        restore=tuple(bool(r) for r in entry.get('restore', ())),
+        block_maps=blocks,
+        map_records={int(c): dict(r) for c, r in dict(entry.get('map_records') or {}).items()})
 
 
 def load_illumination_model(path: str) -> IlluminationModel:
@@ -822,6 +1008,10 @@ def estimate_illumination(src, channels: Sequence[int], *,
         raise IlluminationError(
             'illumination correction needs at least one channel to estimate; '
             "settings['channels'] was empty.")
+    if estimator == NUCLEAR_ESTIMATOR:
+        raise IlluminationError(
+            "the 'nuclear_median' estimator is fitted to nuclei, not to the "
+            "pixel median; call estimate_nuclear_illumination.")
     if estimator not in ('polynomial', 'smooth'):
         raise IlluminationError(
             f"unknown illumination estimator {estimator!r}; use 'polynomial' "
@@ -924,6 +1114,592 @@ def estimate_illumination(src, channels: Sequence[int], *,
     }
     return IlluminationModel(fields=fields, meta=meta)
 
+
+
+NUCLEAR_ESTIMATOR = 'nuclear_median'
+
+OPS_TO_ILLUMINATION_KEYS = {
+    'ops_flatfield_nuclear_channel': 'illumination_nuclear_channel',
+    'ops_flatfield_nuclei': 'illumination_nuclei',
+    'ops_flatfield_dark': 'illumination_dark_per_plate',
+    'ops_flatfield_block_px': 'illumination_block_px',
+    'ops_flatfield_fit': 'illumination_fit',
+    'ops_flatfield_sigma_px': 'illumination_sigma_px',
+    'ops_flatfield_ridge': 'illumination_ridge',
+    'ops_flatfield_floor': 'illumination_floor',
+    'ops_flatfield_centre_cells': 'illumination_centre_cells',
+    'ops_flatfield_lookup': 'illumination_lookup',
+    'ops_flatfield_map_grid': 'illumination_map_grid',
+    'ops_flatfield_centre_offset': 'illumination_centre_offset',
+    'ops_flatfield_holdout_n': 'illumination_holdout_n',
+    'ops_flatfield_seed': 'illumination_seed',
+}
+
+
+MIN_NUCLEI_PER_MAP_CELL = 1.0
+
+
+RELATIVE_RADIAL_EDGES = (0.0, 0.25, 0.5, 0.65, 0.75, 0.85, 0.92, 1.0)
+
+
+def _field_index(stems: Iterable[str]) -> Dict[str, Tuple[str, str, int]]:
+    """``{stem: (plate, well, site)}`` for merged field stems.
+
+    The well is the second underscore token; the sites of a well are
+    numbered 0, 1, ... in sorted stem order, so the same folder always gives
+    the same numbers whichever table the nuclei come from.
+    """
+    by_well: Dict[Tuple[str, str], list] = {}
+    for stem in sorted(set(str(s) for s in stems)):
+        tokens = stem.split('_')
+        well = tokens[1] if len(tokens) > 1 else stem
+        by_well.setdefault((plate_of_field(stem), well), []).append(stem)
+    out = {}
+    for (plate, well), names in by_well.items():
+        for site, stem in enumerate(sorted(names)):
+            out[stem] = (plate, well, site)
+    return out
+
+
+def _nuclear_column(channel: int) -> str:
+    """The nucleus-table column of a channel's mean intensity."""
+    return f'nucleus_channel_{int(channel)}_mean_intensity'
+
+
+def _nuclei_from_merged(paths: Sequence[str], channel: int,
+                        mask_dim: int) -> Tuple[Any, Tuple[int, int]]:
+    """Per nucleus of the merged fields: centroid and raw mean of ``channel``.
+
+    :returns: ``(table, (H, W))``: one row per nucleus with ``plate``,
+        ``well``, ``site``, ``file``, ``label``, ``nucleus_cy``,
+        ``nucleus_cx`` (the mask centroid) and the channel's mean intensity
+        with no correction applied, and the field shape.
+    """
+    import pandas as pd
+
+    index = _field_index(os.path.splitext(os.path.basename(p))[0] for p in paths)
+    parts, shape = [], None
+    for path in sorted(paths):
+        data = np.load(path, mmap_mode='r')
+        if data.ndim != 3:
+            raise IlluminationError(
+                f"{path!r} is a {data.ndim}-D array; the nuclear-median map "
+                f"reads (Y, X, C) fields with the nucleus mask as a plane.")
+        if max(int(channel), int(mask_dim)) >= data.shape[-1]:
+            raise IlluminationError(
+                f"{path!r} has {data.shape[-1]} planes, so the nuclear channel "
+                f"{channel} or the nucleus mask plane {mask_dim} does not exist.")
+        if shape is None:
+            shape = (int(data.shape[0]), int(data.shape[1]))
+        elif (int(data.shape[0]), int(data.shape[1])) != shape:
+            continue
+        labels = np.asarray(data[..., int(mask_dim)]).astype(np.int64).ravel()
+        image = np.asarray(data[..., int(channel)], dtype=np.float64).ravel()
+        n = int(labels.max(initial=0)) + 1
+        count = np.bincount(labels, minlength=n).astype(np.float64)
+        found = np.nonzero(count)[0]
+        found = found[found > 0]
+        if not len(found):
+            continue
+        rows, cols = np.divmod(np.arange(labels.size), shape[1])
+        stem = os.path.splitext(os.path.basename(path))[0]
+        plate, well, site = index[stem]
+        parts.append(pd.DataFrame({
+            'plate': plate, 'well': well, 'site': site, 'file': stem, 'label': found,
+            'nucleus_cy': (np.bincount(labels, rows, n) / count)[found],
+            'nucleus_cx': (np.bincount(labels, cols, n) / count)[found],
+            _nuclear_column(channel): (np.bincount(labels, image, n) / count)[found]}))
+    if not parts:
+        raise IlluminationError(
+            f"no nucleus was found in plane {mask_dim} of the merged fields; "
+            f"the nuclear-median map needs the nucleus masks (run mask "
+            f"generation first, or set illumination_nuclei to a nucleus table).")
+    return pd.concat(parts, ignore_index=True), shape
+
+
+def _nuclei_from_database(path: str, channel: int):
+    """Per nucleus from a ``measurements.db``: weighted centroid and mean.
+
+    :raises IlluminationError: when the database's run measured with
+        illumination correction on, so its nuclear means are already
+        corrected; the message names the column.
+    """
+    import pandas as pd
+
+    from .database_concurrency import connect
+
+    column = _nuclear_column(channel)
+    connection = connect(path, readonly=True)
+    try:
+        tables = {r[0] for r in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        if 'nucleus' not in tables:
+            raise IlluminationError(f"{path!r} has no nucleus table.")
+        if 'settings' in tables:
+            row = connection.execute(
+                "SELECT setting_value FROM settings WHERE setting_key="
+                "'illumination_correction'").fetchone()
+            if row and str(row[0]).strip().lower() in ('true', '1'):
+                raise IlluminationError(
+                    f"the nucleus table of {path!r} was measured with "
+                    f"illumination_correction on, so {column} is already "
+                    f"corrected; a map fitted to it would divide the "
+                    f"illumination out twice. Measure once with the correction "
+                    f"off, or point illumination_nuclei at an uncorrected table.")
+        cy, cx = (f'nucleus_channel_{int(channel)}_centroid_weighted-0',
+                  f'nucleus_channel_{int(channel)}_centroid_weighted-1')
+        names = {r[1] for r in connection.execute('PRAGMA table_info(nucleus)')}
+        missing = [c for c in ('file_name', 'object_label', cy, cx, column) if c not in names]
+        if missing:
+            raise IlluminationError(f"the nucleus table of {path!r} lacks {missing}.")
+        selected = ('file_name', 'object_label', cy, cx, column)
+        frame = pd.DataFrame(connection.execute(
+            f'SELECT file_name, object_label, "{cy}", "{cx}", "{column}" FROM nucleus'
+        ).fetchall(), columns=list(selected))
+    finally:
+        connection.close()
+    index = _field_index(frame['file_name'].astype(str))
+    keys = frame['file_name'].astype(str).map(index)
+    return pd.DataFrame({
+        'plate': [k[0] for k in keys], 'well': [k[1] for k in keys],
+        'site': [k[2] for k in keys], 'file': frame['file_name'].astype(str),
+        'label': frame['object_label'].to_numpy(),
+        'nucleus_cy': frame[cy].to_numpy(np.float64),
+        'nucleus_cx': frame[cx].to_numpy(np.float64),
+        column: frame[column].to_numpy(np.float64)})
+
+
+def _nuclei_table(nuclei, channel: int, *, paths: Sequence[str],
+                  mask_dim: Optional[int], run_root: str):
+    """The per-nucleus table the map is fitted to, from wherever it is.
+
+    ``nuclei`` may be a DataFrame, a ``.db`` (a spaCR measurements
+    database), or a ``.parquet`` / ``.csv`` table. With None the nucleus
+    masks of the merged fields are read when ``mask_dim`` is known, else the
+    run's ``measurements/measurements.db``.
+    """
+    import pandas as pd
+
+    if nuclei is None or (isinstance(nuclei, str) and not nuclei.strip()):
+        if mask_dim is not None and str(mask_dim).strip() != '':
+            return _nuclei_from_merged(paths, channel, int(mask_dim))[0]
+        database = os.path.join(run_root, 'measurements', 'measurements.db')
+        if os.path.isfile(database):
+            return _nuclei_from_database(database, channel)
+        raise IlluminationError(
+            "the nuclear-median map needs nuclei: set nucleus_mask_dim (the "
+            "merged plane of the nucleus masks), illumination_nuclei (a nucleus "
+            f"table), or measure once so {database} exists.")
+    if isinstance(nuclei, pd.DataFrame):
+        return nuclei
+    path = str(nuclei)
+    if path.endswith('.db'):
+        return _nuclei_from_database(path, channel)
+    from .tabular import read_table
+
+    return read_table(path, canonicalise=False, report=None,
+                      repair_plate_ids=False)
+
+
+def _nuclear_offset(plate: str, dark: float, dark_per_plate) -> float:
+    """The camera offset of the nuclear channel for ``plate``.
+
+    ``dark_per_plate`` (``{plate: offset}``, or a JSON file of one, or a
+    ``flat_info.json`` whose method records an offset) wins over ``dark``.
+    """
+    value = None
+    table = dark_per_plate
+    if isinstance(table, str) and table.strip():
+        with open(table, encoding='utf-8') as handle:
+            table = json.load(handle)
+        if isinstance(table, Mapping) and 'method' in table:
+            offsets = [v.get('offset') for v in dict(table['method']).values()
+                       if isinstance(v, Mapping) and v.get('offset') is not None]
+            table = {str(table.get('plate', plate)): offsets[0]} if offsets else {}
+    if isinstance(table, Mapping):
+        value = table.get(plate, table.get(str(plate), table.get(ALL_PLATES)))
+    elif table is not None and not isinstance(table, str):
+        value = table
+    if value is None:
+        value = dark
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        value = float('nan')
+    if not np.isfinite(value) or value == 0.0:
+        raise IlluminationError(
+            f"the nuclear-median map of plate {plate!r} needs the camera offset "
+            f"of the nuclear channel: set illumination_dark_per_plate "
+            f"({{plate: offset}}) or a non-zero illumination_dark. It is never "
+            f"taken as 0, because the map divides (nucleus - offset) and a "
+            f"missing offset bends it toward the corners.")
+    return value
+
+
+def _nuclear_planes(table, column: str, offset: float, shape: Tuple[int, int],
+                    options: Mapping[str, Any]):
+    """The nuclear map of one plate and its plane at every field pixel.
+
+    The map is :func:`spacr.ops_flatfield.build_nuclear_flat` and the plane
+    is :func:`spacr.ops_flatfield.flat_planes`, the two functions the OPS
+    phenotype path uses, so both are the same bytes as OPS for the same
+    nuclei and options.
+
+    A map whose median cell holds fewer than ``MIN_NUCLEI_PER_MAP_CELL``
+    nuclei is refused: most cells are then empty and the local fit there is
+    set by the ridge, not by nuclei. On the 16-field example plate (806
+    nuclei, median 0 per cell) the default fit ran to 1e12 under shuffled
+    positions.
+    """
+    from .ops_flatfield import build_nuclear_flat, flat_planes
+
+    flat, record = build_nuclear_flat(table, column=column, offset=offset,
+                                      field_px=tuple(shape), **dict(options))
+    per_cell = float(record['nuclei_per_cell']['median'])
+    if per_cell < MIN_NUCLEI_PER_MAP_CELL:
+        raise IlluminationError(
+            f"the nuclear-median map has a median of {per_cell:g} nuclei per "
+            f"{record['block']} px map cell ({record['n_training_nuclei']} nuclei "
+            f"over a {shape[0]}x{shape[1]} field); with most cells empty the local "
+            f"fit is not determined there. Use more fields, a larger "
+            f"illumination_block_px, or the polynomial estimator.")
+    lookups = {'MAP': {'lookup': record['lookup'], 'block': record['block'],
+                       'centre_offset': record['centre_offset']}}
+    plane = flat_planes({'MAP': flat}, shape, lookups)['MAP']
+    return flat, record, np.asarray(plane, dtype=np.float32)
+
+
+def estimate_nuclear_illumination(src, channels: Sequence[int], *,
+                                  nuclear_channel: int,
+                                  dark: float = 0.0,
+                                  dark_per_plate=None,
+                                  nuclei=None,
+                                  nucleus_mask_dim: Optional[int] = None,
+                                  options: Optional[Mapping[str, Any]] = None,
+                                  per_plate: bool = True,
+                                  other_estimator: str = 'polynomial',
+                                  degree: int = 4,
+                                  max_fields: int = 50,
+                                  grid: int = 256,
+                                  verbose: bool = True) -> IlluminationModel:
+    """Estimate an illumination model whose nuclear channel is a nuclear-median map.
+
+    The OPS flat-field of item 912 in the general correction (item 933).
+    The nuclear channel's map is fitted to the nuclei themselves: the median
+    raw nuclear intensity per map cell, a count-weighted local quadratic fit
+    of its log above the camera offset, 1 over the central square, read at
+    block centres. A nucleus is bright where the light is, so the map
+    follows the illumination into the corners, where a pixel median, which
+    is mostly background between cells, falls less steeply than the cells.
+    That channel is corrected with the offset added back. Every other
+    channel is estimated by :func:`estimate_illumination` with
+    ``other_estimator``, exactly as it would be on its own.
+
+    :param src: the merged field folder(s), as for
+        :func:`estimate_illumination`.
+    :param channels: merged-stack channels to estimate; must include
+        ``nuclear_channel``.
+    :param nuclear_channel: the DNA channel the nuclei are measured in.
+    :param dark: the camera offset of every other channel, and of the
+        nuclear channel when ``dark_per_plate`` gives none.
+    :param dark_per_plate: ``{plate: offset}`` of the nuclear channel, or
+        the path of a JSON file holding one or of an OPS ``flat_info.json``.
+        The nuclear offset must be known and non-zero.
+    :param nuclei: the per-nucleus table: a DataFrame or a ``.parquet``,
+        ``.csv`` or spaCR ``.db`` file, with ``well``, ``site``,
+        ``nucleus_cy``, ``nucleus_cx``, the channel's raw nuclear mean
+        ``nucleus_channel_<k>_mean_intensity`` and, for several plates,
+        ``plate``. None reads the nucleus masks of the merged fields (plane
+        ``nucleus_mask_dim``), or else the run's ``measurements.db``.
+    :param nucleus_mask_dim: the merged plane holding the nucleus masks.
+    :param options: keyword arguments of
+        :func:`spacr.ops_flatfield.build_nuclear_flat`: ``block``, ``fit``,
+        ``sigma_px``, ``ridge``, ``floor``, ``centre_cells``, ``map_grid``,
+        ``centre_offset``, ``lookup`` and ``holdout``.
+    :param per_plate: one map per plate (default) or one for every plate.
+    :param other_estimator: ``'polynomial'`` or ``'smooth'`` for the other
+        channels.
+    :param degree: see :func:`estimate_illumination`.
+    :param max_fields: see :func:`estimate_illumination`; the nuclear map
+        uses the nuclei of every field.
+    :param grid: see :func:`estimate_illumination`.
+    :param verbose: print one line per channel and plate.
+    :returns: an :class:`IlluminationModel` of
+        :class:`NuclearIlluminationField` items.
+    :raises IlluminationError: for a missing channel, offset, nucleus table
+        or nucleus, or a table measured with the correction on.
+    """
+    import pandas as pd
+
+    channels = [int(c) for c in channels]
+    nuclear_channel = int(nuclear_channel)
+    if nuclear_channel not in channels:
+        raise IlluminationError(
+            f"the nuclear channel {nuclear_channel} is not among the channels "
+            f"{channels} being corrected.")
+    grouped = _merged_files(src)
+    if not grouped:
+        raise IlluminationError(
+            f"no .npy fields found under {list(_source_folders(src))}; there "
+            f"is nothing to estimate an illumination field from.")
+    if not per_plate:
+        grouped = {ALL_PLATES: sorted(p for paths in grouped.values() for p in paths)}
+    others = [c for c in channels if c != nuclear_channel]
+    other_model = (estimate_illumination(
+        src, others, per_plate=per_plate, estimator=other_estimator, degree=degree,
+        max_fields=max_fields, grid=grid, dark=dark, verbose=False) if others else None)
+    run_root = os.path.dirname(_source_folders(src)[0])
+    every_path = [p for paths in grouped.values() for p in paths]
+    table = _nuclei_table(nuclei, nuclear_channel, paths=every_path,
+                          mask_dim=nucleus_mask_dim, run_root=run_root)
+    column = _nuclear_column(nuclear_channel)
+    if column not in table.columns:
+        raise IlluminationError(f"the nucleus table lacks {column!r}.")
+    options = dict(options or {})
+    fields, offsets = {}, {}
+    for plate in sorted(grouped):
+        first = np.load(grouped[plate][0], mmap_mode='r')
+        shape = (int(first.shape[-3]), int(first.shape[-2]))
+        part = table
+        if plate != ALL_PLATES and 'plate' in table.columns:
+            part = table[table['plate'].astype(str) == str(plate)]
+        if not len(part):
+            raise IlluminationError(f"the nucleus table has no nucleus of plate {plate!r}.")
+        offset = _nuclear_offset(plate, dark, dark_per_plate)
+        offsets[str(plate)] = offset
+        flat, record, plane = _nuclear_planes(part, column, offset, shape, options)
+        planes, darks, restore = [], [], []
+        other = other_model.field_for(plate) if other_model is not None else None
+        if other is not None and other.shape != shape:
+            raise IlluminationError(
+                f"plate {plate!r}: the other channels' field is {other.shape} "
+                f"but the nuclear map is {shape}.")
+        for channel in channels:
+            if channel == nuclear_channel:
+                planes.append(plane)
+                darks.append(offset)
+                restore.append(True)
+            else:
+                planes.append(other.flatfield[other.index_of(channel)])
+                darks.append(float(other.dark[other.index_of(channel)]))
+                restore.append(False)
+        n_fields = int(pd.DataFrame({'w': part['well'].astype(str),
+                                     's': part['site'].astype(str)}).drop_duplicates().shape[0])
+        item = NuclearIlluminationField(
+            plate=str(plate), channels=tuple(channels),
+            flatfield=np.stack(planes, axis=0).astype(np.float32, copy=False),
+            dark=np.asarray(darks, dtype=np.float32), n_fields=n_fields,
+            estimator=NUCLEAR_ESTIMATOR,
+            degree=int(other.degree) if other is not None else 0,
+            bin_size=int(record['block']),
+            floored=int(other.floored) if other is not None else 0,
+            restore=tuple(restore), block_maps={nuclear_channel: flat},
+            map_records={nuclear_channel: record})
+        fields[str(plate)] = item
+        if verbose:
+            print(item.describe())
+    meta = {
+        'src': list(_source_folders(src)),
+        'channels': channels,
+        'per_plate': bool(per_plate),
+        'estimator': NUCLEAR_ESTIMATOR,
+        'other_estimator': other_estimator,
+        'nuclear_channel': nuclear_channel,
+        'nuclear_options': {k: (list(v) if isinstance(v, tuple) else v)
+                            for k, v in options.items() if k != 'holdout'},
+        'nuclear_offsets': offsets,
+        'normalisation': 'centre',
+        'offset_restore': 'nuclear channel',
+        'degree': int(degree),
+        'max_fields': int(max_fields),
+        'grid': int(grid),
+        'dark': float(dark),
+        'created': time.strftime('%Y-%m-%d %H:%M:%S'),
+        'application_contract_version': 1,
+        'channel_index_space': 'persisted-intensity-axis',
+        'estimated_from_intensity_state': 'raw',
+    }
+    return IlluminationModel(fields=fields, meta=meta)
+
+
+def _nuclear_settings_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """The :func:`spacr.ops_flatfield.build_nuclear_flat` options the settings give.
+
+    ``OPS_TO_ILLUMINATION_KEYS`` pairs each ``ops_flatfield_*`` setting of
+    the OPS map (item 912) with the ``illumination_*`` setting read here.
+    The channel and the nucleus table differ in kind (OPS names the DNA
+    channel and gives a table per plate; here the channel is a merged-stack
+    index), and ``ops_flatfield_field_px`` has no counterpart because the
+    field shape is read from the merged fields.
+    """
+    from .ops_flatfield import FLAT_LOOKUPS, FLAT_MAP_GRIDS, NUCLEAR_FITS
+
+    ridge = settings.get('illumination_ridge')
+    options = {
+        'block': int(settings.get('illumination_block_px') or 16),
+        'fit': str(settings.get('illumination_fit') or NUCLEAR_FITS[0]),
+        'sigma_px': float(settings.get('illumination_sigma_px') or 32.0),
+        'ridge': None if ridge in (None, '') else float(ridge),
+        'floor': float(settings.get('illumination_floor') or 0.10),
+        'centre_cells': int(settings.get('illumination_centre_cells') or 18),
+        'map_grid': str(settings.get('illumination_map_grid') or FLAT_MAP_GRIDS[0]),
+        'centre_offset': float(settings.get('illumination_centre_offset', 8.0)),
+        'lookup': str(settings.get('illumination_lookup') or FLAT_LOOKUPS[0])}
+    for key, allowed in (('fit', NUCLEAR_FITS), ('map_grid', FLAT_MAP_GRIDS),
+                         ('lookup', FLAT_LOOKUPS)):
+        if options[key] not in allowed:
+            raise IlluminationError(
+                f"illumination_{key} must be one of {list(allowed)}; got {options[key]!r}.")
+    return options
+
+
+def _nuclear_channel_setting(settings: Mapping[str, Any]) -> int:
+    """``illumination_nuclear_channel`` as an int, or a clear refusal."""
+    value = settings.get('illumination_nuclear_channel')
+    if value is None or str(value).strip() == '':
+        raise IlluminationError(
+            "illumination_estimator 'nuclear_median' needs "
+            "illumination_nuclear_channel, the merged-stack channel of the DNA stain.")
+    return int(value)
+
+
+def _estimate_from_settings(settings: Mapping[str, Any], source, wanted,
+                            talk) -> IlluminationModel:
+    """The nuclear-median model the settings describe."""
+    return estimate_nuclear_illumination(
+        source, wanted,
+        nuclear_channel=_nuclear_channel_setting(settings),
+        dark=float(settings.get('illumination_dark', 0.0) or 0.0),
+        dark_per_plate=settings.get('illumination_dark_per_plate'),
+        nuclei=settings.get('illumination_nuclei'),
+        nucleus_mask_dim=settings.get('nucleus_mask_dim'),
+        options=_nuclear_settings_options(settings),
+        per_plate=bool(settings.get('illumination_per_plate', True)),
+        degree=int(settings.get('illumination_degree', 4)),
+        max_fields=int(settings.get('illumination_max_fields', 50)),
+        verbose=talk)
+
+
+def validate_illumination(settings: Mapping[str, Any], *,
+                          save_dir: Optional[str] = None,
+                          bootstrap: int = 2000,
+                          verbose: Optional[bool] = None):
+    """Check a nuclear-median map on held-out fields, against the polynomial.
+
+    Per plate, ``illumination_holdout_n`` fields are drawn
+    (:func:`spacr.ops_flatfield.holdout_fields`, seed
+    ``illumination_seed``) and left out of the nuclear map. Their nuclei are
+    re-measured exactly with each map (:func:`spacr.ops_flatfield.\
+validate_nuclear_flat`): ``(I - b) / F + b`` per pixel, then the nuclear
+    mean. The rings of the radial table are measured from the field centre:
+    the OPS rings (0 to 2,100 px) on a field that large, else rings at 0,
+    25, 50, 65, 75, 85, 92 and 100 % of the centre-to-corner distance. Every
+    version is scored on the same held-out nuclei.
+
+    The versions are the raw nuclear mean (``as measured``), the nuclear map
+    (``exact_nuclear_median``) and the polynomial field of the same channel
+    from :func:`estimate_illumination` (``exact_polynomial``). The
+    polynomial is estimated from up to ``illumination_max_fields`` fields of
+    the whole plate, held-out ones included, and is applied here with the
+    same offset added back, so the comparison does not favour the nuclear
+    map.
+
+    :param settings: Measure or Illumination settings: ``src``,
+        ``channels``, ``nucleus_mask_dim`` (required; the held-out fields
+        are re-measured from their masks), ``illumination_nuclear_channel``,
+        ``illumination_dark`` / ``illumination_dark_per_plate``, the map
+        options, ``illumination_holdout_n``, ``illumination_seed``,
+        ``illumination_degree`` and ``illumination_max_fields``.
+    :param save_dir: where ``radial.csv``, ``radial_summary.json`` and
+        ``heldout_nuclei.csv`` go; ``<run>/illumination/validation`` when
+        None, ``''`` to write nothing.
+    :param bootstrap: field bootstraps for the 95 % intervals.
+    :param verbose: overrides ``settings['verbose']``.
+    :returns: the radial table of every plate (column ``plate`` added). Its
+        ``attrs['summary']`` holds each plate's summary: the largest ring
+        deviation from 1 per version over rings with 100 or more nuclei, and
+        the sanity checks.
+    :raises IlluminationError: without the nucleus mask plane, the nuclear
+        channel or the offset.
+    """
+    import pandas as pd
+
+    from .ops_flatfield import RADIAL_EDGES, holdout_fields, validate_nuclear_flat
+
+    talk = settings.get('verbose', True) if verbose is None else verbose
+    source = settings.get('src')
+    mask_dim = settings.get('nucleus_mask_dim')
+    if mask_dim is None or str(mask_dim).strip() == '':
+        raise IlluminationError(
+            "validate_illumination re-measures the held-out nuclei from their "
+            "masks; set nucleus_mask_dim, the merged plane of the nucleus masks.")
+    channel = _nuclear_channel_setting(settings)
+    column = _nuclear_column(channel)
+    options = _nuclear_settings_options(settings)
+    grouped = _merged_files(source)
+    if not grouped:
+        raise IlluminationError(f"no .npy fields found under {list(_source_folders(source))}.")
+    polynomial = estimate_illumination(
+        source, [channel], per_plate=bool(settings.get('illumination_per_plate', True)),
+        estimator='polynomial', degree=int(settings.get('illumination_degree', 4)),
+        max_fields=int(settings.get('illumination_max_fields', 50)), verbose=False)
+    tables, summaries, cells_out = [], {}, []
+    for plate in sorted(grouped):
+        table, shape = _nuclei_from_merged(grouped[plate], channel, int(mask_dim))
+        fields = sorted({(str(w), int(s)) for w, s in zip(table['well'], table['site'])})
+        held = holdout_fields(fields, int(settings.get('illumination_holdout_n') or 24),
+                              int(settings.get('illumination_seed') or 0))
+        offset = _nuclear_offset(plate, float(settings.get('illumination_dark', 0.0) or 0.0),
+                                 settings.get('illumination_dark_per_plate'))
+        flat, record, _plane = _nuclear_planes(table, column, offset, shape,
+                                               {**options, 'holdout': held})
+        files = dict(zip(zip(table['well'].astype(str), table['site'].astype(int)), table['file']))
+        folder = os.path.dirname(grouped[plate][0])
+        images = {}
+        for well, site in held:
+            data = np.load(os.path.join(folder, files[(well, site)] + '.npy'), mmap_mode='r')
+            images[(well, site)] = (np.asarray(data[..., channel], dtype=np.float64),
+                                    np.asarray(data[..., int(mask_dim)]))
+        maps = {'nuclear_median': flat,
+                'polynomial': polynomial.field_for(plate).flatfield[0]}
+        lookups = {'nuclear_median': {'lookup': record['lookup'], 'block': record['block'],
+                                      'centre_offset': record['centre_offset']}}
+        radius = float(np.hypot(shape[0] / 2, shape[1] / 2))
+        edges = (list(RADIAL_EDGES) if radius >= RADIAL_EDGES[-1] else
+                 [radius * f for f in RELATIVE_RADIAL_EDGES])
+        cells, radial, summary = validate_nuclear_flat(
+            table, images, maps, column=column, offset=offset, lookups=lookups,
+            edges=edges, bootstrap=int(bootstrap))
+        radial.insert(0, 'plate', plate)
+        cells.insert(0, 'plate', plate)
+        summary['offset'] = offset
+        summary['held_out_fields'] = [f'{w}:{s}' for w, s in held]
+        summary['edges_px'] = [float(e) for e in edges]
+        summary['map'] = {k: record[k] for k in ('fit', 'sigma_px', 'block', 'lookup',
+                                                  'map_grid', 'corner_mean',
+                                                  'n_training_nuclei', 'n_heldout_nuclei')}
+        tables.append(radial)
+        cells_out.append(cells)
+        summaries[str(plate)] = summary
+        if talk:
+            for version in ('as measured', 'exact_polynomial', 'exact_nuclear_median'):
+                print(f"plate {plate}, {version}: largest ring deviation "
+                      f"{summary[version]['max_abs_dev_bins_ge100_cells']}")
+    radial = pd.concat(tables, ignore_index=True)
+    radial.attrs['summary'] = summaries
+    if save_dir is None:
+        save_dir = os.path.join(os.path.dirname(_source_folders(source)[0]),
+                                'illumination', 'validation')
+    if save_dir:
+        os.makedirs(save_dir, exist_ok=True)
+        from .tabular import write_table
+
+        write_table(radial, os.path.join(save_dir, 'radial.csv'), canonicalise=False)
+        write_table(pd.concat(cells_out, ignore_index=True),
+                    os.path.join(save_dir, 'heldout_nuclei.csv'), canonicalise=False)
+        with open(os.path.join(save_dir, 'radial_summary.json'), 'w', encoding='utf-8') as handle:
+            json.dump(summaries, handle, indent=1, default=float)
+    return radial
 
 
 _VENDOR_IMAGE_SUFFIXES = ('.tif', '.tiff', '.npy', '.czi')
@@ -1432,7 +2208,10 @@ class IlluminationCorrector:
                 f"onto a different sensor geometry; re-estimate over these "
                 f"fields.")
 
-        corrected = (array.astype(np.float32) - darks) * gains
+        if isinstance(item, NuclearIlluminationField) and any(item.restore):
+            corrected = item.correct_field(array, context.channels)
+        else:
+            corrected = (array.astype(np.float32) - darks) * gains
         return self._to_input_dtype(corrected, array, context)
 
     def _gains_for(self, item: IlluminationField, channels: Sequence[int]):
@@ -2600,6 +3379,9 @@ def prepare_illumination_model(
             channel_map=settings.get('illumination_vendor_channel_map', ''),
             verbose=talk)
         model_path = os.path.join(folder, 'illumination_model.npz')
+    elif str(settings.get('illumination_estimator', '')) == NUCLEAR_ESTIMATOR:
+        model = _estimate_from_settings(settings, source, wanted, talk)
+        model_path = os.path.join(folder, 'illumination_model.npz')
     else:
         model = estimate_illumination(
             source,
@@ -2620,6 +3402,10 @@ def prepare_illumination_model(
             str(path) for path in report.get('_figures', {}).values()))
     if not existing:
         model_path = model.save(model_path)
+    if (settings.get('illumination_validate', False) and not existing
+            and str(settings.get('illumination_estimator', '')) == NUCLEAR_ESTIMATOR):
+        validate_illumination({**dict(settings), 'src': source},
+                              save_dir=os.path.join(folder, 'validation'), verbose=talk)
 
     on_missing = str(settings.get('illumination_on_missing', 'error'))
     corrector = IlluminationCorrector(
@@ -2690,6 +3476,16 @@ def prepare_segmentation_illumination(
     :param pipeline_style: segmentation pipeline style, ``'v1'`` or ``'v2'``
         (case-insensitive); any other value raises :class:`IlluminationError`.
     """
+    if (settings.get('illumination_correction', False)
+            and str(settings.get('illumination_estimator', '')) == NUCLEAR_ESTIMATOR
+            and not str(settings.get('illumination_model', '') or '').strip()):
+        raise IlluminationError(
+            "illumination_estimator 'nuclear_median' fits its map to the nuclei, "
+            "which mask generation has not found yet, so it cannot correct the "
+            "images the masks are segmented from. Leave illumination off for mask "
+            "generation (also illumination_for_later_masks), or use 'polynomial' "
+            "there, and use 'nuclear_median' in Measure once the nucleus masks "
+            "exist; a saved nuclear model can be reused through illumination_model.")
     prepared = prepare_illumination_model(
         settings, src=src, channels=channels,
         qc_stage='segmentation_input', verbose=verbose)
@@ -2728,7 +3524,29 @@ def illumination_settings(settings=None):
     settings.setdefault('illumination_qc', True)
     settings.setdefault('illumination_vendor_profile', '')
     settings.setdefault('illumination_vendor_channel_map', '')
+    for key, value in NUCLEAR_SETTINGS_DEFAULTS.items():
+        settings.setdefault(key, value)
     return settings
+
+
+NUCLEAR_SETTINGS_DEFAULTS = {
+    'illumination_nuclear_channel': None,
+    'illumination_nuclei': None,
+    'illumination_dark_per_plate': None,
+    'illumination_block_px': 16,
+    'illumination_fit': 'local_quadratic_log',
+    'illumination_sigma_px': 32.0,
+    'illumination_ridge': None,
+    'illumination_floor': 0.10,
+    'illumination_centre_cells': 18,
+    'illumination_lookup': 'block_centre',
+    'illumination_map_grid': 'block_centre',
+    'illumination_centre_offset': 8.0,
+    'illumination_holdout_n': 24,
+    'illumination_seed': 0,
+    'illumination_validate': False,
+}
+
 
 
 _TOOLTIPS = {
@@ -2748,7 +3566,10 @@ _TOOLTIPS = {
         "'polynomial' fits a low-order surface, which cannot bend around a "
         "cell and is the right choice for a lamp profile plus a vignette; "
         "'smooth' Gaussian-blurs the median instead and can follow a dust "
-        "shadow the polynomial would miss. Default polynomial."),
+        "shadow the polynomial would miss; 'nuclear_median' (alpha) fits the "
+        "map to the median brightness of the DNA-stain nuclei in small blocks "
+        "of the field, follows a steep corner fall, and needs "
+        "illumination_nuclear_channel. Default polynomial."),
     'illumination_degree': (
         '(int) - Order of the fitted illumination surface. 4 gives fifteen '
         'terms, enough for a lamp profile, a vignette and a tilt. Raising it '
@@ -2797,6 +3618,66 @@ _TOOLTIPS = {
         'Harmony profiles are applied at Harmony\'s own scale, so the '
         'corrected pixels match Harmony\'s corrected export. Empty means '
         'estimate. Default empty.'),
+    'illumination_nuclear_channel': (
+        "(int) - Nuclear-median estimator: the channel of the DNA stain whose "
+        "nuclei the map is fitted to. Required for 'nuclear_median'; the other "
+        "channels use the polynomial estimator. Default None."),
+    'illumination_nuclei': (
+        '(str) - Nuclear-median estimator: a per-nucleus table (.parquet, .csv '
+        'or a measurements.db) with the raw nuclear mean of the DNA channel. '
+        'None reads the nucleus masks of the merged fields. A table measured '
+        'with illumination correction on is refused. Default None.'),
+    'illumination_dark_per_plate': (
+        '(dict or str) - Nuclear-median estimator: the camera offset of the DNA '
+        'channel per plate, as plate:offset pairs or the path of a JSON file. '
+        'Without it, illumination_dark is used, and it must not be 0. Default None.'),
+    'illumination_block_px': (
+        '(int) - Nuclear-median estimator: the edge of one map cell in field '
+        'pixels. Each cell holds the median of the nuclei that fall in it. Default 16.'),
+    'illumination_fit': (
+        "(str) - Nuclear-median estimator: how the cell medians are smoothed. "
+        "'local_quadratic_log' fits a weighted quadratic to their log around "
+        "every cell and follows a steep corner fall; 'gaussian' and "
+        "'local_linear' are the simpler fits it was compared with. Default "
+        "local_quadratic_log."),
+    'illumination_sigma_px': (
+        '(float) - Nuclear-median estimator: the width of the Gaussian weight '
+        'of the local fit, in field pixels. Larger is smoother and follows the '
+        'corners less closely. Default 32.0.'),
+    'illumination_ridge': (
+        '(float) - Nuclear-median estimator: a small value added to each local '
+        'fit to keep it stable where few nuclei fall. None uses 1e-6 for the '
+        'quadratic fit and 1e-9 for the linear fit. Default None.'),
+    'illumination_floor': (
+        '(float) - Nuclear-median estimator: the lowest map value, so no pixel '
+        'is multiplied by more than one over this. Default 0.1.'),
+    'illumination_centre_cells': (
+        '(int) - Nuclear-median estimator: the edge, in map cells, of the '
+        'central square the map is set to 1 over. Default 18.'),
+    'illumination_lookup': (
+        "(str) - Nuclear-median estimator: how the map is read at field pixels. "
+        "'block_centre' puts each map value at the centre of the block it was "
+        "measured on; 'zoom_endpoints' reads maps made the earlier way. Default "
+        "block_centre."),
+    'illumination_map_grid': (
+        "(str) - Nuclear-median estimator: where the fit is evaluated. "
+        "'block_centre' at each cell's centre; 'lookup' at the place the zoom "
+        "lookup reads it from, for maps read with zoom_endpoints. Default "
+        "block_centre."),
+    'illumination_centre_offset': (
+        '(float) - Nuclear-median estimator: the field-pixel offset of a map '
+        "cell's centre from its first pixel. Default 8.0."),
+    'illumination_holdout_n': (
+        '(int) - Nuclear-median estimator: how many fields per plate the '
+        'validation leaves out of the map and re-measures. Default 24.'),
+    'illumination_seed': (
+        '(int) - Nuclear-median estimator: the seed of the draw of validation '
+        'fields; the same seed draws the same fields again. Default 0.'),
+    'illumination_validate': (
+        '(bool) - Nuclear-median estimator: after the map is built, re-measure '
+        'the nuclei of held-out fields with it and with the polynomial field, '
+        'and write the intensity per distance from the field centre beside the '
+        'model. Default False.'),
 }
 
 _TYPES = {
@@ -2811,6 +3692,21 @@ _TYPES = {
     'illumination_qc': bool,
     'illumination_vendor_profile': str,
     'illumination_vendor_channel_map': str,
+    'illumination_nuclear_channel': (int, type(None)),
+    'illumination_nuclei': (str, type(None)),
+    'illumination_dark_per_plate': (dict, str, type(None)),
+    'illumination_block_px': int,
+    'illumination_fit': str,
+    'illumination_sigma_px': float,
+    'illumination_ridge': (float, type(None)),
+    'illumination_floor': float,
+    'illumination_centre_cells': int,
+    'illumination_lookup': str,
+    'illumination_map_grid': str,
+    'illumination_centre_offset': float,
+    'illumination_holdout_n': int,
+    'illumination_seed': int,
+    'illumination_validate': bool,
 }
 
 _DESCRIPTION = (

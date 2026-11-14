@@ -1131,13 +1131,13 @@ class RunningBanner(QFrame):
         handle = self._handle
         if handle is None:
             return
-        fraction = handle.fraction()
-        if fraction is None:
-            self._bar.setRange(0, 0)
-        else:
-            self._bar.setRange(0, 100)
-            self._bar.setValue(int(round(fraction * 100)))
+        from ..run_progress import describe_progress, show_on_bar
+
+        percent, time_left = describe_progress(handle)
+        show_on_bar(self._bar, percent)
         bits = [_fmt_elapsed(handle.elapsed())]
+        if time_left:
+            bits.append(time_left)
         if handle.progress:
             bits.append(f"{handle.progress[0]} of {handle.progress[1]}")
         if handle.gate.is_paused():

@@ -2,7 +2,7 @@ MODULE PROGRESS BARS SHOW PERCENT DONE AND TIME LEFT, ON THE MODULE AND ON HOME
 ==============================================================================
 
 Lifecycle: new
-Status: OPEN 2026-11-13
+Status: PARTIAL 2026-11-13 (items 1-4 and 6 built; item 5 audited, nine modules newly counted; acceptance measurements on a reference dataset and the 9-locale strings still owed)
 Requested: maintainer, 2026-11-13 ("the progress bar in each module does not
 reflect the time that is left for the analysis. This is often printed in the
 console. Where possible, implement a progress bar that shows how far along the
@@ -61,3 +61,59 @@ ACCEPTANCE
   offscreen Qt.
 - Tutorials that show a running bar are re-recorded once this lands (current
   layout only).
+
+NOTE 2026-11-13 (built)
+- spacr/qt/run_progress.py: RunProgress is the per-run record (overall
+  fraction 0-1, seconds left or None). parse_progress reads n/total,
+  operation_type and Time_left (ignored on a 0/n line, where print_progress
+  reports 0.000 min); "[mask GPUs] ... Progress:" lines get the label
+  "mask GPUs". MODULE_STAGES declares weighted stages by operation_type
+  pattern for mask, timelapse, measure, external_masks, classify and
+  classify_merged; the overall bar never goes backwards, a skipped stage
+  counts as passed, and a label the declared module does not list (the
+  nested merge_<role> lines inside mask generation) does not move it. The
+  weights come from reading the code, not from timing a reference dataset;
+  measuring them is still owed (acceptance item 1).
+- Time left: the worker's Time_left when the module declares no stages or
+  is on its last declared stage; otherwise remaining fraction / an
+  exponential moving average of the rate (weight 0.3, one sample per >= 2
+  active seconds). Nothing before 5 % or 30 active seconds ("estimating…").
+  Paused time is not active time: the record follows the run's PauseGate
+  each time it is read (once a second), the estimate holds while paused and
+  resumes from the last rate. Display: "less than a minute left", "about
+  N min left", "about H h M min left" (five-minute steps above an hour).
+- bridge.RunHandle and _ExternalJobHandle carry run_progress; fraction() is
+  the overall fraction, seconds_left() is new. The module run bar shows the
+  percent in the bar and "about X left" beside it (RunTimeLeft label,
+  refreshed on every line and once a second); Home's RunningBanner shows the
+  same bar text and time left, both through run_progress.describe_progress.
+- Item 5 audit. Newly counted: convert (Converting images, through the
+  existing progress callback), foreign (Importing project, existing
+  callback), ops (OPS wells), spatial_masks (Segmenting tiles), spatial_map
+  (Assigning spots), analyze_plaques segmentation (Segmenting plaques),
+  external_masks (Writing merged arrays), motility (Tracking well groups;
+  the pool now uses imap so groups count as they finish). cellpose_masks
+  printed batch size over file index; it now prints files done over all
+  files. Already counted: mask, timelapse, measure, classify,
+  classify_merged (deep learning path), cellpose_masks, map_barcodes
+  (restarts per sample), activation.
+- Not counted, with the reason: umap (one opaque UMAP/clustering call;
+  the database loop is usually one), train_cellpose (one Cellpose train_seg
+  call with no epoch callback), ml_analyze and classify_merged's ML path
+  (single fit, permutation importance and SHAP calls), regression (one model
+  fit; only optional bootstraps loop), recruitment, invasion, replication
+  (table work, the source loop is usually one), barcode_qc (eight
+  vectorised table stages, no item loop), explain_cv (one surrogate fit),
+  anndata_export (table reads and one write), align (the group loop is one
+  unless group_by_well; the per-group work has no counter), illumination
+  (the field loop restarts per plate and is capped at 50 fields; a global
+  total would need a pre-pass), the pipeline_style='v2' mask path (no
+  progress calls in pipeline_v2).
+- Tests: tests/qt/test_run_progress_938.py.
+- Still owed: the 9-locale translations of the new strings ("estimating…",
+  "less than a minute left", "about {minutes} min left", "about {hours} h
+  left", "about {hours} h {minutes} min left", "{percent} %"), the API
+  catalogue records for spacr.qt.run_progress and RunHandle.seconds_left,
+  the per-module timing on a reference dataset with the naive
+  elapsed/fraction control row, and re-recording tutorials that show a
+  running bar.

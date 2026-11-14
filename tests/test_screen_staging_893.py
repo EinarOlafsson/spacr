@@ -313,8 +313,10 @@ def test_run_screen_exports_and_aggregates_from_one_settings_dict(tmp_path, monk
     assert result["phases"] == ["measure", "export", "aggregate"]
     assert result["export"][0]["n_cells"] == 6
     tables = sorted(path.name for path in (src / "tables").glob("*.parquet"))
-    assert tables == ["dmso_percentiles.parquet", "wells_heterogeneity.parquet",
-                      "wells_mean.parquet", "wells_median.parquet"]
+    assert tables == ["dmso_percentiles.parquet", "wells_default.parquet",
+                      "wells_heterogeneity.parquet", "wells_mean.parquet",
+                      "wells_median.parquet"]
+    assert (src / "tables" / "aggregation_plan.csv").exists()
     assert [row["phase"] for row in result["timing"]] == ["measure", "export", "aggregate"]
     assert (src / "settings" / "screen_settings.csv").exists()
     with pytest.raises(ValueError, match="screen_phases"):
@@ -332,5 +334,6 @@ def test_the_screen_module_is_registered_and_alpha():
     defaults = cli.module_defaults(module)
     assert defaults["screen_phases"] == "import,prep,masks,measure,export,aggregate"
     assert "nucleus_channel" in defaults and "cell_min_size" in defaults
-    assert set(ALPHA_FEATURES[893]["module_settings"]["screen"]) == set(ss._DEFAULTS)
+    assert (set(ALPHA_FEATURES[893]["module_settings"]["screen"])
+            | set(ALPHA_FEATURES[937]["module_settings"]["screen"])) == set(ss._DEFAULTS)
     assert ss.screen_defaults({"src": "x", "aggregate_control": "none"})["aggregate_control"] == "none"

@@ -120,14 +120,33 @@ def test_link_by_iou_identical_frames_all_match():
     assert set(matches) == {(1, 1), (2, 2)}
 
 
-def test_link_by_iou_disjoint_frames_no_matches():
+def _frame_with_squares(size, *squares):
+    """A label frame of ``size`` x ``size`` with one filled square per
+    ``(label, top, bottom, left, right)`` entry."""
+    frame = np.zeros((size, size), dtype=np.int32)
+    for label, top, bottom, left, right in squares:
+        frame[top:bottom, left:right] = label
+    return frame
+
+
+@pytest.mark.parametrize("previous, current, threshold", [
+    pytest.param(_frame_with_squares(30, (1, 0, 5, 0, 5)),
+                 _frame_with_squares(30, (3, 25, 30, 25, 30)), 0.1,
+                 id="disjoint-frames"),
+    pytest.param(_frame_with_squares(20, (1, 0, 10, 0, 10)),
+                 _frame_with_squares(20, (2, 8, 18, 8, 18)), 0.5,
+                 id="overlap-4px-of-196-is-below-threshold"),
+    pytest.param(_frame_with_squares(10),
+                 _frame_with_squares(10, (1, 2, 5, 2, 5)), 0.5,
+                 id="previous-frame-has-no-objects"),
+    pytest.param(_frame_with_squares(10, (1, 2, 5, 2, 5)),
+                 _frame_with_squares(10), 0.5,
+                 id="current-frame-has-no-objects"),
+])
+def test_link_by_iou_emits_no_match_when_nothing_overlaps_enough(
+        previous, current, threshold):
     from spacr.timelapse import link_by_iou
-    prev = np.zeros((30, 30), dtype=np.int32)
-    prev[0:5, 0:5] = 1
-    curr = np.zeros((30, 30), dtype=np.int32)
-    curr[25:30, 25:30] = 3
-    matches = link_by_iou(prev, curr, iou_threshold=0.1)
-    assert matches == []
+    assert link_by_iou(previous, current, iou_threshold=threshold) == []
 
 
 def test_link_by_iou_relabel_matches_by_iou_only():

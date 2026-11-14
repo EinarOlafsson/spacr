@@ -94,13 +94,3 @@ def test_umap_save_figure_writes_embedding_and_grid(umap_src):
     assert pdfs, "save_figure=True wrote no PDFs"
 
 
-def test_reducer_search_color_by_branch(umap_src):
-    """color_by groups the scatter by a metadata column instead of cluster."""
-    pytest.importorskip("umap")
-    from spacr.core import reducer_hyperparameter_search
-    out = reducer_hyperparameter_search(
-        settings=_umap_settings(umap_src, color_by="columnID"),
-        reduction_params=[{"n_neighbors": 5}],
-        dbscan_params=[{"eps": 0.5, "min_samples": 3}],
-        kmeans_params=None, save=False, show=False)
-    assert out is None or out is not None

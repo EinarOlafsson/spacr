@@ -109,24 +109,16 @@ def test_a_one_dimensional_measurement_is_read_as_one_column():
 # Whether a guide is attributable at all
 # ---------------------------------------------------------------------------
 
-def test_a_guide_no_cell_carries_is_not_attributable():
-    """A prior of zero can never reach the threshold, at any effect size.
+@pytest.mark.parametrize("effect, prior, expected", [
+    pytest.param(10.0, 0.0, (False, 0.0), id="a-guide-no-cell-carries-is-never-attributable"),
+    pytest.param(0.0, 1.0, (True, 1.0), id="the-only-guide-in-a-well-is-always-attributable"),
+])
+def test_the_extremes_of_the_prior_decide_attribution_whatever_the_effect(effect, prior, expected):
+    """A prior of zero can never reach the threshold, at any effect size: with
+    no prior mass there is no score at which a cell would be called for the
+    guide, and the ceiling search is skipped.  A prior of one is certainty
+    before any score is seen: a singly-infected well leaves nothing to
+    compete, so the ceiling is 1 and the answer does not depend on the effect."""
+    assert attributable(effect=effect, scale=1.0, prior=prior) == expected
 
-    A guide absent from a well's sequencing must come back False without the
-    ceiling search: with no prior mass there is no score at which a cell would
-    be called for it.
-    """
-    ok, ceiling = attributable(effect=10.0, scale=1.0, prior=0.0)
-    assert ok is False
-    assert ceiling == 0.0
 
-
-def test_the_only_guide_in_a_well_is_always_attributable():
-    """A prior of one is certainty before any score is seen.
-
-    A singly-infected well leaves nothing to compete, so the ceiling is 1 and
-    the answer does not depend on the effect size at all.
-    """
-    ok, ceiling = attributable(effect=0.0, scale=1.0, prior=1.0)
-    assert ok is True
-    assert ceiling == 1.0
