@@ -117,6 +117,20 @@ def test_an_unknown_path_is_stat_ed_off_the_gui_thread_and_announced_once(
         path_probe.forget(text)
         assert path_probe.isdir(text, wait=True) is True
         path_probe.forget(text)
+    with subtests.test(msg="a path already being stat-ed is not queued twice"):
+        text = str(tmp_path / "in-flight")
+        path_probe.forget(text)
+        with path_probe._lock:
+            path_probe._pending.add((text, False))
+        try:
+            queued = path_probe._queue.qsize()
+            assert path_probe.exists(text, default=False) is False
+            assert path_probe.exists(text, default=True) is True
+            assert path_probe._queue.qsize() == queued
+            assert path_probe.known(text) is None
+        finally:
+            with path_probe._lock:
+                path_probe._pending.discard((text, False))
     with subtests.test(msg="an empty path is never probed"):
         assert (path_probe.exists(""), path_probe.exists(None),
                 path_probe.known("")) == (False, False, None)

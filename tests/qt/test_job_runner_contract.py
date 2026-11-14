@@ -301,3 +301,22 @@ def test_shutdown_all_cancels_everything_then_shares_one_budget(
         assert len(asked) == 1 and 0 <= asked[0] <= 25
         assert job_runner.SHUTDOWN_BUDGET_MS == 2000
         del live_runner
+
+
+def test_retiring_releases_only_the_jobs_whose_thread_has_stopped(
+        qapp, monkeypatch):
+    """The sweep drops stopped jobs and their finished ids and keeps the ones still running."""
+    runner = JobRunner()
+    stopped, running = object(), object()
+    runner._jobs.clear()
+    runner._jobs.update({1: (stopped, "w1"), 2: (running, "w2"),
+                         3: (stopped, "w3")})
+    runner._finished_ids.clear()
+    runner._finished_ids.update({1, 2, 3})
+    monkeypatch.setattr(job_runner, "thread_has_stopped",
+                        lambda thread: thread is stopped)
+
+    runner._retire_finished_jobs()
+
+    assert runner._jobs == {2: (running, "w2")}
+    assert runner._finished_ids == {2}

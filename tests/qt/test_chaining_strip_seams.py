@@ -557,3 +557,56 @@ def test_installing_the_strip_sweeps_its_scaffolding_but_not_its_surfaces(
         assert type(swept) is ChainingBar
         assert swept._btn_use.text() == "Use it"
         assert qt_chaining.chaining_bar(other) is swept
+
+
+def test_a_resolution_that_raises_frees_the_strip_and_says_why(
+        subtests, qtbot, make_bar, monkeypatch, caplog):
+    """A failed lookup clears the busy flag, shows and logs the reason, and replays a held refresh."""
+    reason = "registry is corrupt"
+    shown = f"⚠ Could not look up chained inputs: {reason}"
+    warning = f"could not resolve the chaining strip for measure: {reason}"
+    cases = [
+        # (id, held refresh, host closed, replayed refreshes, stale shown)
+        ("nothing held", None, False, [], True),
+        ("a held refresh after a finished run is replayed", True, False,
+         [True], True),
+        ("a held plain refresh is replayed", False, False, [False], True),
+        ("a closed host is only freed", True, True, [], False),
+    ]
+    for case_id, held, closed, replayed, stale in cases:
+        with subtests.test(msg=case_id), monkeypatch.context() as m:
+            strip = make_bar()
+            strip._fix.show()
+            calls = []
+            m.setattr(strip, "refresh",
+                      lambda finished=False: calls.append(finished))
+            m.setattr(strip, "_host_closed", lambda: closed)
+            strip._resolving, strip._resolve_again = True, held
+            caplog.clear()
+            with caplog.at_level(logging.WARNING, logger="spacr.qt.chaining"):
+                strip._on_resolve_failed(reason)
+            assert strip._resolving is False
+            assert calls == replayed
+            assert [r.getMessage() for r in caplog.records
+                    if r.name == "spacr.qt.chaining"] == [warning]
+            assert strip._stale.isHidden() is (not stale)
+            if stale:
+                assert (strip._stale.text(), strip._stale.toolTip()) == (
+                    shown, reason)
+                assert strip._fix.isHidden() is True
+                assert strip._resolve_again is None
+            else:
+                assert strip._resolve_again is held
+
+    with subtests.test(msg="a worker that raises no longer wedges the strip"), \
+            monkeypatch.context() as m:
+        def corrupt(*_a, **_k):
+            raise RuntimeError(reason)
+
+        m.setattr(core_chaining, "resolve_settings", corrupt)
+        strip = make_bar()
+        strip.refresh()
+        _settle(strip)
+        assert strip._resolving is False
+        assert reason in strip._stale.text()
+        assert strip._stale.isHidden() is False
