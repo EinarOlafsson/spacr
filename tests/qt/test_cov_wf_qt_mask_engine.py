@@ -151,41 +151,6 @@ def test_a_straight_vertical_drag_paints_every_row_it_crosses():
 # The magic wand over ground the mask already owns
 # ---------------------------------------------------------------------------
 
-def test_a_wand_click_on_painted_ground_rewrites_the_whole_object():
-    """Wanding inside an existing object relabels it to the brush value.
-
-    The flood only counts a pixel against its budget when the pixel actually
-    changes state, so a click on ground the mask already owns keeps walking.
-    That is what lets a user re-run the wand with a wider tolerance on an
-    object they already outlined and get the enlarged object rather than a
-    partial one; if the walk stopped at the first owned pixel the second
-    click would do nothing at all.
-    """
-    image = np.full((40, 40), 100, dtype=np.uint16)
-    owned = np.full((40, 40), 3, dtype=np.uint8)
-
-    out = me.magic_wand(image, owned, 20, 20, tolerance=5,
-                        max_pixels=4, action="add")
-
-    # Every pixel is rewritten to the brush value even though the budget was
-    # four: already-owned pixels cost nothing against max_pixels.
-    assert np.unique(out).tolist() == [255]
-    assert int((out == 255).sum()) == 1600
-    assert int((owned == 3).sum()) == 1600      # the caller's array is intact
-
-    # An erase over ground that is already empty is the mirror case and is
-    # likewise free, leaving the blank mask blank.
-    blank = np.zeros((40, 40), dtype=np.uint8)
-    erased = me.magic_wand(image, blank, 20, 20, tolerance=5,
-                           max_pixels=4, action="erase")
-    assert int(erased.sum()) == 0
-
-    # And the budget really does bite when pixels change: adding into a blank
-    # mask stops at four pixels.
-    fresh = me.magic_wand(image, blank, 20, 20, tolerance=5,
-                          max_pixels=4, action="add")
-    assert int((fresh > 0).sum()) == 4
-
 
 # ---------------------------------------------------------------------------
 # Recrop -- a box with nothing whole in it

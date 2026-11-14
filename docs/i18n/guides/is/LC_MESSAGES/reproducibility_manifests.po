@@ -123,6 +123,10 @@ msgstr "935 (breyting atriðis 940 á sjálfgefnu gildi): ``ops_placement_seed_e
 msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
 msgstr "936: ``ops_blas_threads`` var ``1`` og ``ops_consensus_space`` ``'refit'``; nú eru þau ``2`` og ``'hybrid'``."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "937 (item 941): ``profile_optional_families`` and ``ops_ph_profile_optional_families`` were ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, the slow families the ``'profiling'`` preset measured; they are now ``None``, so ``'profiling'`` leaves Gabor, granularity and colocalisation out."
+msgstr "937 (atriði 941): ``profile_optional_families`` og ``ops_ph_profile_optional_families`` voru ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, hægu flokkarnir sem forstillingin ``'profiling'`` mældi; nú eru þau ``None``, svo ``'profiling'`` sleppir Gabor, kornastærð og samstaðsetningu."
+
 msgid "Public API"
 msgstr "Opinbert API"
 

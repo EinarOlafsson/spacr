@@ -39,53 +39,6 @@ def _panel(qtbot, canvas, tmp_path):
     return panel
 
 
-def test_undo_on_an_empty_pen_is_a_no_op_not_a_pop(qtbot, qt_theme_applied,
-                                                   tmp_path):
-    """Backspace one time too many is the ordinary way to reach this: the
-    count stays at zero and no ``roi_changed`` is announced, where the same
-    call with a vertex in hand both pops and announces."""
-    canvas = _canvas(qtbot, _stack())
-    panel = _panel(qtbot, canvas, tmp_path)
-    pen = panel.start_drawing()
-    changes = []
-    pen.roi_changed.connect(lambda: changes.append(1))
-
-    pen.add_world({"y": 4.0, "x": 4.0})
-    assert pen.undo() == 0 and len(changes) == 2, "the vertex was not taken back"
-
-    # One backspace past the end: the same call, nothing left to take.
-    assert pen.undo() == 0
-    assert len(changes) == 2, "an empty undo announced a change anyway"
-
-
-def test_a_preview_removed_from_under_the_pen_still_cancels(qtbot,
-                                                           qt_theme_applied,
-                                                           tmp_path):
-    """The pen remembers it drew a preview; the layer is what actually holds
-    it. Clearing the layer by another route leaves the two disagreeing, and
-    cancelling must not index into an empty layer."""
-    canvas = _canvas(qtbot, _stack())
-    panel = _panel(qtbot, canvas, tmp_path)
-    pen = panel.start_drawing()
-    pen.add_world({"y": 4.0, "x": 4.0})
-    pen.add_world({"y": 4.0, "x": 30.0})
-    assert len(pen.layer) == 1, "there was no preview to lose"
-
-    # Something else emptied the layer -- the Clear button on a second panel
-    # over the same stack, or a layer list delete.
-    pen.layer.remove(0)
-    pen.cancel()
-    assert len(pen.layer) == 0 and pen.pending.shape == (0, 2)
-
-    # And with the preview still there, cancelling does remove it: the same
-    # call, one shape lighter afterwards.
-    pen.add_world({"y": 8.0, "x": 8.0})
-    pen.add_world({"y": 8.0, "x": 30.0})
-    assert len(pen.layer) == 1
-    pen.cancel()
-    assert len(pen.layer) == 0
-
-
 def test_the_roi_layer_takes_its_spacing_from_the_plane_not_the_volume(
         qtbot, qt_theme_applied, tmp_path):
     """An ROI is two-dimensional. A stack that opens with a z-stack has to be

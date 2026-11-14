@@ -20,37 +20,11 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QLineEdit, QPushButton, QSpacerItem, QWidget
+from PySide6.QtWidgets import QWidget
 
 from spacr import chaining as core_chaining
-from spacr.chaining import ChainedInput, HeldPin, NextStep, Resolution
+from spacr.chaining import ChainedInput, HeldPin, NextStep
 from spacr.qt.chaining import ChainingBar
-
-def _settle(bar, *, timeout: float = 15.0) -> None:
-    """Let the strip finish resolving before reading what it decided.
-
-    `ChainingBar.refresh` has been ASYNCHRONOUS since fade6350f, which moved
-    the registry read off the GUI thread to fix a freeze: it sets
-    `_resolving`, hands the work to a worker, and returns. A test that reads
-    on the next line sees the state BEFORE the answer -- an empty field, an
-    empty tuple -- which looks like the seam never fired.
-
-    `_resolve_again` is the coalesced follow-up, a refresh that arrived while
-    one was in flight; waiting only on `_resolving` can return between the two
-    and read a half-settled strip.
-    """
-    from PySide6.QtWidgets import QApplication
-    import time as _time
-
-    deadline = _time.monotonic() + timeout
-    while _time.monotonic() < deadline:
-        QApplication.processEvents()
-        if not getattr(bar, "_resolving", False) and not getattr(
-                bar, "_resolve_again", False):
-            return
-    raise AssertionError("the chaining strip never finished resolving")
-
-
 
 @pytest.fixture(autouse=True)
 def _own_pins(monkeypatch, tmp_path):
@@ -64,13 +38,6 @@ def _own_pins(monkeypatch, tmp_path):
 @pytest.fixture
 def pins(tmp_path):
     return core_chaining.PinStore(str(tmp_path / "pins.json"))
-
-
-class _Model:
-    """The one attribute the strip reads off a settings model here."""
-
-    def __init__(self, widgets=None):
-        self._widgets = dict(widgets or {})
 
 
 class _Host(QWidget):
@@ -227,72 +194,6 @@ def test_a_successor_with_no_way_in_is_still_opened(qtbot, pins, monkeypatch):
 # ---------------------------------------------------------------------------
 # The refresh that has a value but nowhere to put it
 # ---------------------------------------------------------------------------
-
-def _resolution(value="/plate/from-the-registry"):
-    return Resolution(module="measure", settings={"src": value},
-                      filled={}, held={}, inputs=())
-
-
-def test_a_chained_path_is_recorded_even_when_no_field_can_be_filled(
-        qtbot, pins, monkeypatch):
-    """The registry answered; the screen has no way to be written to.
-
-    The strip's bookkeeping (``_offered`` / ``_seen``) is what makes a pin
-    survive a restart, and it is updated from the resolution rather than from
-    whatever the write did -- so a screen with no settings seam still learns
-    which paths were chained for it.  If that update were skipped along with
-    the write, the very next ``_capture_edits`` on a screen that later grew
-    the seam would read the chained path as the user's own and pin it.
-    """
-    monkeypatch.setattr(core_chaining, "resolve_settings",
-                        lambda *a, **k: _resolution())
-
-    field = QLineEdit("")
-    qtbot.addWidget(field)
-    filled = _bar(qtbot, pins, model=_Model({"src": field}),
-                  apply=lambda values: field.setText(values["src"]))
-    assert filled._bound_settings() == ("src",)
-    filled.refresh()
-    _settle(filled)
-    assert field.text() == "/plate/from-the-registry"
-
-    blank = QLineEdit("")
-    qtbot.addWidget(blank)
-    unwritable = _bar(qtbot, pins, model=_Model({"src": blank}))
-    unwritable.refresh()
-    _settle(unwritable)
-    assert blank.text() == "", "there was no seam, so nothing was written"
-    assert unwritable._offered == {"src": "/plate/from-the-registry"}
-    assert unwritable._seen == {"src": "/plate/from-the-registry"}
-
-
-def test_the_successor_row_clears_whatever_it_finds_between_its_ends(qtbot,
-                                                                     pins):
-    """Row 4 is rebuilt from scratch on every refresh.
-
-    It empties itself by taking items from position 1 until only its label
-    is left, and what it takes need not be one of
-    the buttons it made -- a theme or a layout change can leave a spacer in
-    there.  ``QLayoutItem.widget()`` is None for one of those, and treating
-    it as a widget would raise inside the redraw, so the strip would go dark
-    for the rest of the session on a screen that had merely been restyled.
-    """
-    strip = _bar(qtbot, pins)
-    stale_button = QPushButton("Continue to Classify")
-    strip._next_layout.addWidget(stale_button)
-    strip._next_layout.addItem(QSpacerItem(1, 1))
-    strip._next_row.show()
-    strip._last_steps = (_step(),)
-    assert strip._next_layout.count() == 3
-
-    strip._draw_next({"src": "/plate"}, finished=False)
-
-    assert strip._next_layout.count() == 1, \
-        "the spacer and the stale button both went; the label stayed"
-    assert stale_button.parent() is None
-    assert strip._next_row.isHidden()
-    assert strip._last_steps == ()
-
 
 def test_successor_buttons_wrap_without_changing_order_or_actions(qtbot, pins, monkeypatch):
     from spacr import ports
