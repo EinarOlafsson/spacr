@@ -3449,6 +3449,28 @@ def _validated_nuclear_flatfield_933_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_aggregation_defaults_937_callables(callables):
+    """Check the public callables of item 937 (a default aggregation for every measured feature) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "937_aggregation_feature_defaults_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert set(entries) == {
+        "spacr.merge_tables.aggregate_by_feature",
+        "spacr.merge_tables.circmean_axial",
+        "spacr.merge_tables.summary_aggregation_plan",
+    }
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_bmc_paper_remaining_callables(callables):
     """Check the public callables that finish BMC paper items 890, 891, 916 and 917 against their source."""
     import json
@@ -3616,6 +3638,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_tile_affine_930_callables(callables)
     callables = _validated_nuclear_flatfield_933_callables(callables)
     callables = _validated_threshold_auto_939_callables(callables)
+    callables = _validated_aggregation_defaults_937_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5099,7 +5122,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 20,255 -> 20,258 on 2026-11-13: item 932's align_field gains the
     # optional precision, backend and registrations (all defaulted, so the
     # required total below does not move).
-    assert sum(len(item.parameters) for item in callables) == 20258
+    # 20,258 -> 20,262 on 2026-11-13: item 937's optional `level` and
+    # `defaults` of spacr.merge_tables.aggregation_for, `defaults` of
+    # aggregation_plan and the `defaults` field of MergePolicy (all defaulted).
+    assert sum(len(item.parameters) for item in callables) == 20262
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5435,7 +5461,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # functions of spacr.ops_decode.
     # Moved 2026-11-13 for item 931 (was c82380fb...): compose_window's new
     # `blend` keyword (feathered tile blending).
-) == 'a330e2b57717c690784dcdc2f8572940829eec19a2e093e82e6a384acae76fcd'
+    # Moved 2026-11-13 for item 937 (was a330e2b5...): the new `level` and
+    # `defaults` of spacr.merge_tables.aggregation_for, `defaults` of
+    # aggregation_plan and MergePolicy.
+) == '35f32e2f0d2a7f9a3e04697f7e042b9d0373a70be64374a375239c28c2d0389c'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -6347,6 +6376,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("930_ops_tile_affine_api_arrivals_2026-11-13.json", 4),
         ("933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json", 6),
         ("939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json", 2),
+        ("937_aggregation_feature_defaults_api_arrivals_2026-11-13.json", 3),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6941,7 +6971,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "928_929_ops_consensus_bench_api_arrivals_2026-11-12.json",
                      "930_ops_tile_affine_api_arrivals_2026-11-13.json",
                      "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json",
-                     "939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json"):
+                     "939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json",
+                     "937_aggregation_feature_defaults_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7078,7 +7109,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "928_929_ops_consensus_bench_api_arrivals_2026-11-12.json",
                      "930_ops_tile_affine_api_arrivals_2026-11-13.json",
                      "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json",
-                     "939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json"):
+                     "939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json",
+                     "937_aggregation_feature_defaults_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

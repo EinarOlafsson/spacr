@@ -101,6 +101,9 @@ default after a higher-numbered item takes the next free number:
   ``'gpu'``.
 - 933 (item 930's default switch): ``ops_align_model`` was
   ``'similarity'``; it is now ``'tile_affine'``.
+- 934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now
+  ``'per_feature'``, so the screen pipeline also writes a well table in which
+  every feature takes its own default.
 
 Public API
 ----------

@@ -1202,6 +1202,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "aggregate_levels", "aggregate_metadata", "aggregate_metadata_columns",
     "aggregate_control", "aggregate_control_percentiles",
     "aggregate_heterogeneity", "aggregate_dir", "record_timing",
+    # 937, alpha: per-feature well aggregation of the screen pipeline.
+    "aggregation_defaults", "aggregation_count_sum", "aggregation_report",
     # 896, alpha: crop shards, embeddings and well embedding profiles
     # (`spacr/embedding_profiles.py`), two headings of its own.
     "embedding_src", "embedding_cells", "embedding_wells", "crop_store",

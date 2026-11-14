@@ -2528,12 +2528,13 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 933
+SETTINGS_SCHEMA_VERSION = 934
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
           'ops_registration_backend': 'cpu'},
     933: {'ops_align_model': 'similarity'},
+    934: {'aggregation_defaults': 'legacy'},
 }
 
 
@@ -2592,7 +2593,9 @@ def _fold_older_defaults(settings, version, known=None):
     version; an item whose number is lower takes the next free number and
     is listed under that number in docs/source/reproducibility_manifests.rst.
     933 is item 930's switch of ``ops_align_model`` to ``'tile_affine'``:
-    it landed after 932, so it could not take 930.
+    it landed after 932, so it could not take 930. 934 is item 937's
+    ``aggregation_defaults`` ``'per_feature'`` (the screen pipeline's
+    per-feature well table); older files keep ``'legacy'``.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -8698,6 +8701,10 @@ ALPHA_FEATURES = {
             'moa_eval_feature_qc', 'moa_eval_normalise', 'moa_eval_percentiles', 'moa_eval_exclude',
             'moa_eval_controls', 'moa_eval_shuffles', 'moa_eval_knn_shuffles', 'moa_eval_replicates',
             'moa_eval_seeds', 'moa_eval_per_moa', 'moa_eval_workers', 'moa_eval_dst',)},
+    },
+    937: {
+        'module_settings': {'screen': (
+            'aggregation_defaults', 'aggregation_count_sum', 'aggregation_report',)},
     },
     893: {
         'module_settings': {'screen': (
