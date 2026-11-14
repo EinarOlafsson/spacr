@@ -143,6 +143,7 @@ def test_the_panel_docks_on_screen_and_forgets_a_destroyed_anchor(
     with subtests.test(msg="off every screen lands on the primary"):
         panel, _anchor = make_panel(QRect(-100000, -100000, 10, 10))
         assert panel.x() == available.left()
+        assert panel.y() >= available.top()
 
     with subtests.test(msg="an anchor destroyed under the panel"):
         panel, anchor = make_panel()
