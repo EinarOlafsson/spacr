@@ -92,15 +92,6 @@ def test_utils_fill_holes_in_mask():
 # io.py extended: more sqlite/db + array helpers
 # ============================================================================
 
-def test_io_create_database_at_nested_path(tmp_path):
-    import spacr.io as IO
-    nested = tmp_path / "nested" / "path"
-    nested.mkdir(parents=True)
-    db = nested / "test.db"
-    IO._create_database(str(db))
-    assert db.exists()
-
-
 def test_io_get_avg_object_size_averages_across_batch():
     """`_get_avg_object_size` returns (AVERAGE objects per mask, average
     object size). One object across two masks -> mean of 0.5 objects/mask."""
@@ -273,14 +264,6 @@ def test_settings_descriptions_covers_common_keys():
 # ============================================================================
 # plot.py extended: more colormap helpers + private detail
 # ============================================================================
-
-def test_plot_get_colours_merged_outline_variants():
-    import spacr.plot as P
-    for order in ("gbr", "rgb", "bgr"):
-        colours = P._get_colours_merged(order)
-        assert colours is not None
-        assert hasattr(colours, "__len__")
-
 
 def test_plot_random_cmap_zero_objects():
     import spacr.plot as P

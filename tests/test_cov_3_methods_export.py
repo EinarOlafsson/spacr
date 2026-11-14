@@ -207,13 +207,35 @@ def test_a_run_with_no_macro_still_names_the_module_it_ran():
     assert "- None recorded." in text, "the caveat list must say it is empty"
 
 
-def test_the_retry_policy_and_a_stale_scorecard_are_both_caveats():
+@pytest.mark.parametrize("digest, fragments", [
+    pytest.param(_full_digest(),
+                 ["on_error=retry with 3 attempts", "older than the masks it describes"],
+                 id="the-retry-policy-and-a-stale-scorecard"),
+    pytest.param({"qc": {"segmentation": {"verdict": "fail",
+                                          "flags_fired": {"empty_field": 12,
+                                                          "touching_border": 4}}}},
+                 ["Segmentation QC returned fail", "empty_field (12)"],
+                 id="a-failing-qc-verdict-and-its-flags"),
+    pytest.param({"classifier": {"held_out": {"n": 240, "accuracy": 0.9125,
+                                              "f1_macro": 0.8871},
+                                 "split_rule": "by plate",
+                                 "warnings": ["no held-out split was recorded"]}},
+                 ["held-out accuracy was 0.9125", "240 objects", "by plate",
+                  "no held-out split"],
+                 id="the-classifiers-held-out-metrics"),
+    pytest.param({"provenance": {"n_stale": 3, "n_missing": 1}},
+                 ["3 registered artifact(s) are stale",
+                  "1 registered artifact(s) are no longer on disk"],
+                 id="stale-and-missing-artifacts"),
+    pytest.param({"run": {"on_error": "skip", "n_skipped": 11}},
+                 ["11 were skipped"], id="a-skipped-unit-count"),
+])
+def test_what_the_digest_records_becomes_a_caveat(digest, fragments):
     """Retries change what a failure means, and a scorecard older than the
     masks describes a segmentation nobody has looked at."""
-    caveats = me.caveats_for(_full_digest())
+    caveats = me.caveats_for(digest)
 
-    assert any("on_error=retry with 3 attempts" in c for c in caveats)
-    assert any("older than the masks it describes" in c for c in caveats)
+    assert [f for f in fragments if any(f in c for c in caveats)] == fragments
 
 
 def test_the_results_section_reports_the_segmentation_counts():
