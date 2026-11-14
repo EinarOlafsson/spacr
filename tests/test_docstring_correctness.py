@@ -5268,7 +5268,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # aggregation_plan and the `defaults` field of MergePolicy, and item 936's
     # optional `precision` of spacr.ops_register.phase_correlate and
     # `edge_workers` of spacr.ops_stitch.stitch_well (all defaulted).
-    assert sum(len(item.parameters) for item in callables) == 20264
+    # 20,264 -> 20,265 on 2026-11-14: item 938's optional `progress_share` of
+    # spacr.object.generate_cellpose_masks_sam (defaulted), the serial mask
+    # path's per-batch progress lines.
+    assert sum(len(item.parameters) for item in callables) == 20265
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5610,7 +5613,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # and MergePolicy, items 936/940's phase_correlate `precision` and
     # stitch_well `edge_workers` keywords, and the OPS stage-3 Hybrid profile's
     # changed parameters; new callables are checked by their arrival contracts.
-) == '17089b9ef306ff4835e4893dac0def491ecc793a5d8f2726e29ddca8616bf503'
+    # Moved 2026-11-14 for item 938 (was 17089b9e...): the optional
+    # `progress_share` of spacr.object.generate_cellpose_masks_sam.
+) == '6e569df7200c40ec836404fed5c2d8efbec245e64bf77f9c9249cc293be5bccc'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

@@ -132,10 +132,10 @@ def _fields(tmp_path, count=32):
     return src
 
 
-def _run(tmp_path, monkeypatch, n_jobs, cpu_count=None):
+def _run(tmp_path, monkeypatch, n_jobs, cpu_count=None, pool=None):
     src = _fields(tmp_path)
     _RecordingPool.created = []
-    monkeypatch.setattr(M, '_parallel_pool', _RecordingPool)
+    monkeypatch.setattr(M, '_parallel_pool', pool or _RecordingPool)
     # These assertions cover resolution of the requested worker count, not
     # the separate spawn/forkserver optimization that caps workers to files.
     # Python 3.14 changed Linux's default away from fork, so pin this seam.
@@ -194,3 +194,28 @@ def test_measure_crop_progress_and_pool_agree(tmp_path, monkeypatch):
 def test_measure_crop_refuses_zero_workers(tmp_path, monkeypatch):
     with pytest.raises(ConfigurationError):
         _run(tmp_path, monkeypatch, n_jobs=0, cpu_count=16)
+
+
+def test_measure_crop_time_left_uses_the_pool_the_ram_guard_left(tmp_path, monkeypatch):
+    """Item 938: Time_left divides by the workers that run, not by the n_jobs setting."""
+    seen = []
+    import spacr.utils as U
+    monkeypatch.setattr(U, 'print_progress',
+                        lambda *a, **k: seen.append(k.get('n_jobs', a[2] if len(a) > 2 else None)))
+    monkeypatch.setattr(M, '_clamp_workers_to_ram', lambda settings, jobs, plan: 1)
+    monkeypatch.setattr(M, 'process_measure_crop_results', lambda results, settings: None)
+
+    class _Done:
+        def __init__(self, index):
+            self.index = index
+
+        def get(self, timeout=None):
+            return (self.index, 0.1, 5, [], "")
+
+    class _OkPool(_RecordingPool):
+        def apply_async(self, function, args=(), **kwargs):
+            return _Done(args[0])
+
+    created = _run(tmp_path, monkeypatch, n_jobs=2, cpu_count=16, pool=_OkPool)
+    assert seen[0] == 2          # the first line, before the pool is sized
+    assert 1 in seen[1:] and 2 not in seen[1:]

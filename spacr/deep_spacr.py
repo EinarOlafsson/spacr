@@ -3791,6 +3791,18 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         _flowview_metric("objects", train_objects)
     return model, final_path
 
+def _activation_progress_counts(batch_idx, batch_size, n_batches):
+    """Images done and images in all, once batch ``batch_idx`` (counted from 0) is finished.
+
+    :param batch_idx: zero-based index of the batch just processed.
+    :param batch_size: images per batch.
+    :param n_batches: batches in the data loader.
+    :returns: ``(done, total)``; ``done`` reaches ``total`` on the last batch.
+    """
+    total = n_batches * batch_size
+    return min((batch_idx + 1) * batch_size, total), total
+
+
 def generate_activation_map(settings):
     """Generate saliency or Grad-CAM activation maps for every image in a tar dataset.
 
@@ -3998,8 +4010,8 @@ def generate_activation_map(settings):
         stop = time.time()
         duration = stop - start
         time_ls.append(duration)
-        files_processed = batch_idx * settings['batch_size']
-        files_to_process = len(data_loader) * settings['batch_size']
+        files_processed, files_to_process = _activation_progress_counts(
+            batch_idx, settings['batch_size'], len(data_loader))
         print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=settings['batch_size'], operation_type="Generating Activation Maps")
 
     if cf_limit:
