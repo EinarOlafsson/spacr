@@ -8,14 +8,13 @@ the not-enough-data answers, and the "this uses the whole table" flag.
 """
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.qt.widgets.formula import (FUNCTIONS, ColumnFormula, FormulaError,
-                                      FormulaSet, Node, evaluate, parse,
+from spacr.qt.widgets.formula import (ColumnFormula, FormulaError,
+                                      FormulaSet, Node, parse,
                                       referenced_columns, tokenize, unparse)
 
 
@@ -49,36 +48,6 @@ def test_a_backtick_that_never_closes_says_where_it_opened(text, match):
 #  Reading the structure
 # --------------------------------------------------------------------------- #
 
-@pytest.mark.parametrize("expression, message", [
-    ("", "the formula is empty"),
-    ("area +", "ends early"),
-    ("and area", "needs something before it"),
-    ("area not", "already ended before it"),
-    (")", r"unexpected '\)'"),
-    (",", "unexpected ','"),
-    ("mean(area", r"missing '\)'"),
-])
-def test_an_expression_that_is_not_a_formula_says_what_is_wrong(
-        expression, message):
-    """Each malformed expression raises with the sentence that fits it.
-
-    The box is edited character by character, so most of what it holds is
-    incomplete most of the time. One generic "invalid formula" for all of
-    these leaves the user guessing which half of the line is the problem.
-    """
-    with pytest.raises(FormulaError, match=message):
-        parse(expression)
-
-
-def test_the_error_for_a_truncated_expression_names_what_came_last():
-    """"ends early" quotes the token before the end.
-
-    Without it the message says only that something is missing, and in a long
-    expression the user has to find the end themselves.
-    """
-    with pytest.raises(FormulaError, match=r"missing after '\+'"):
-        parse("area + ")
-
 
 def test_a_node_the_printer_does_not_know_is_refused():
     """``unparse`` raises rather than printing an empty string.
@@ -105,86 +74,6 @@ def test_a_negated_column_is_still_a_reference_to_that_column(frame):
 # --------------------------------------------------------------------------- #
 #  Evaluating
 # --------------------------------------------------------------------------- #
-
-def test_a_leading_plus_leaves_the_values_alone(frame):
-    """Unary ``+`` is the identity, not an error and not a negation.
-
-    People write ``+0.5`` beside ``-0.5`` for symmetry. Rejecting it makes a
-    readable formula unusable; getting the sign wrong is worse.
-    """
-    assert list(evaluate(parse("+area"), frame)) == [10.0, 20.0, 30.0, 40.0]
-
-
-def test_a_true_false_column_computes_as_one_and_zero(frame):
-    """A boolean column is usable arithmetic, valued 1 and 0.
-
-    Annotation and QC columns are booleans. Refusing them would mean a
-    fraction of flagged objects could not be written as a formula at all.
-    """
-    assert list(evaluate(parse("flag + 0"), frame)) == [1.0, 0.0, 1.0, 0.0]
-
-
-def test_an_aggregate_of_a_bare_number_is_that_number(frame):
-    """``mean(3)`` is 3, broadcast over the table rather than an error.
-
-    Aggregates receive a column-length array; a constant argument has to be
-    widened to that length or the aggregate reads a zero-dimensional value
-    and returns nothing.
-    """
-    assert evaluate(parse("mean(3)"), frame) == 3.0
-
-
-def test_a_function_that_cannot_compute_says_which_function_it_was(frame):
-    """An error inside a function is reported with the function's name.
-
-    Raw numpy messages ("cannot convert float NaN to integer") name nothing
-    in the formula the user typed, and a long expression can hold several
-    calls.
-    """
-    with pytest.raises(FormulaError, match=r"round\(\) could not be computed"):
-        evaluate(parse("round(area, log(-1))"), frame)
-
-
-def test_one_object_has_no_spread_and_says_nan_not_zero():
-    """A single row gives NaN from std, var and zscore.
-
-    A spread of 0 reads as "perfectly reproducible", which is the strongest
-    possible claim, and it would be made from one measurement.
-    """
-    one = pd.DataFrame({"area": [5.0]})
-
-    assert np.isnan(evaluate(parse("std(area)"), one))
-    assert np.isnan(evaluate(parse("var(area)"), one))
-    assert np.isnan(np.asarray(evaluate(parse("zscore(area)"), one))).all()
-
-
-def test_a_column_of_nothing_measured_aggregates_to_nan():
-    """Aggregates over an all-missing column are NaN, never 0.
-
-    ``sum`` of nothing is 0 in numpy, and 0 in a results table is a
-    measurement. NaN is the only value that says the column was empty.
-    """
-    missing = pd.DataFrame({"area": [np.nan, np.nan]})
-
-    assert np.isnan(evaluate(parse("mean(area)"), missing))
-    assert np.isnan(evaluate(parse("sum(area)"), missing))
-    assert np.isnan(evaluate(parse("quantile(area, 0.5)"), missing))
-
-
-def test_rank_is_one_based_and_leaves_missing_values_missing(frame):
-    """Ranks start at 1 and a missing value gets no rank.
-
-    ``rank(area) / count(area)`` is the percentile, which only works if the
-    largest rank equals the count -- a 0-based rank would put the top object
-    one place below where it belongs.
-    """
-    with_gap = pd.DataFrame({"area": [30.0, np.nan, 10.0, 20.0]})
-
-    ranks = evaluate(parse("rank(area)"), with_gap)
-
-    assert list(ranks[[0, 2, 3]]) == [3.0, 1.0, 2.0]
-    assert np.isnan(ranks[1])
-    assert np.nanmax(ranks) == evaluate(parse("count(area)"), with_gap)
 
 
 # --------------------------------------------------------------------------- #

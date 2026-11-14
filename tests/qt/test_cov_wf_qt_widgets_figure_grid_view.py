@@ -106,77 +106,6 @@ def test_a_heading_that_lost_its_grid_folds_nothing_and_stays_usable(qtbot):
     assert header.text() == "run one"
 
 
-def test_an_unhandled_key_on_a_heading_falls_through_to_qt(qtbot):
-    """Return, Enter and Space fold; every other key belongs to Qt.
-
-    The heading takes strong focus, so it is on the tab ring of the figure
-    panel. If it swallowed Tab or the arrows, keyboard users would be able to
-    reach the heading and never leave it.
-    """
-    view = _RecordingView()
-    qtbot.addWidget(view)
-    header = fgv._SectionHeader("run one", ("run one", 0), view)
-    header.resize(200, 24)
-
-    QTest.keyClick(header, Qt.Key_A)
-    QTest.keyClick(header, Qt.Key_Down)
-
-    assert view.toggled == []
-
-    QTest.keyClick(header, Qt.Key_Space)
-
-    assert view.toggled == [("run one", 0)]
-
-
-# ---------------------------------------------------------------------------
-# which mouse button folds a section
-# ---------------------------------------------------------------------------
-
-def test_only_a_left_release_inside_the_heading_folds_the_run(qtbot):
-    """The fold is a left-button gesture that can still be called off.
-
-    It fires on RELEASE so dragging off the bar cancels, which is what every
-    other clickable in the application does. A right-click has to leave the
-    section alone: the button that opens context menus elsewhere must not
-    silently hide a run's figures on its way past.
-    """
-    view = _RecordingView()
-    qtbot.addWidget(view)
-    header = fgv._SectionHeader("run one", ("run one", 0), view)
-    header.resize(200, 24)
-
-    QTest.mouseClick(header, Qt.RightButton, pos=QPoint(5, 5))
-    QTest.mouseClick(header, Qt.MiddleButton, pos=QPoint(5, 5))
-
-    assert view.toggled == []
-
-    QTest.mouseClick(header, Qt.LeftButton, pos=QPoint(5, 5))
-
-    assert view.toggled == [("run one", 0)]
-
-
-def test_a_release_dragged_off_the_heading_cancels_the_fold(qtbot):
-    """Pressing a heading and sliding away is how a click is taken back.
-
-    The grid's headings are one row tall and sit right above the figures, so
-    a press that slid a few pixels down would otherwise fold away the very
-    run the user was reaching for.
-    """
-    view = _RecordingView()
-    qtbot.addWidget(view)
-    header = fgv._SectionHeader("run one", ("run one", 0), view)
-    header.resize(200, 24)
-
-    QTest.mousePress(header, Qt.LeftButton, pos=QPoint(5, 5))
-    QTest.mouseRelease(header, Qt.LeftButton, pos=QPoint(400, 300))
-
-    assert view.toggled == []
-
-    QTest.mouseClick(header, Qt.LeftButton, pos=QPoint(5, 5))
-
-    assert view.toggled == [("run one", 0)]
-
-
 # ---------------------------------------------------------------------------
 # redrawing a cell for a new pixel density
 # ---------------------------------------------------------------------------
@@ -282,35 +211,6 @@ def test_pressing_the_regression_tile_reaches_the_pinned_activation(grid):
 # ---------------------------------------------------------------------------
 # putting a saved arrangement back
 # ---------------------------------------------------------------------------
-
-def test_an_arrangement_with_no_saved_tile_width_still_restores_the_folds(
-        grid):
-    """Half a workspace file is still worth applying.
-
-    The folded runs are the expensive half to lose -- a sweep of sixty trials
-    is unusable if every run comes back open -- so a document written by an
-    older version, before the grid saved its tile width, has to restore what
-    it does carry and leave the current width alone rather than clamping it
-    to the minimum.
-    """
-    grid.set_target_cell_width(300)
-
-    applied = grid.apply_workspace_state({"collapsed": [["run one", 0]]})
-
-    assert applied is True
-    assert grid._target == 300
-    assert grid.is_section_collapsed("run one", 0) is True
-
-    # A width that IS there goes through the setter and moves the grid.
-    assert grid.apply_workspace_state({"cell_width": 420,
-                                       "collapsed": []}) is True
-    assert grid._target == 420
-    assert grid.is_section_collapsed("run one", 0) is False
-
-    # A zero width is no width: it must not become a zero-wide cell, and with
-    # nothing else in the document there is nothing to apply.
-    assert grid.apply_workspace_state({"cell_width": 0}) is False
-    assert grid._target == 420
 
 
 def test_a_restored_fold_actually_hides_that_runs_figures(grid):

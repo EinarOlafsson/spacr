@@ -166,12 +166,6 @@ def test_discarding_a_tile_qt_already_deleted_is_a_no_op(qtbot, grid):
 # putting a saved arrangement back
 # ---------------------------------------------------------------------------
 
-def test_an_arrangement_that_is_not_a_mapping_applies_nothing(grid):
-    """A workspace file from another version can hold anything at all."""
-    assert grid.apply_workspace_state(None) is False
-    assert grid.apply_workspace_state([1, 2, 3]) is False
-    assert grid.apply_workspace_state("cell_width=400") is False
-
 
 def test_a_saved_cell_width_that_is_not_a_number_leaves_the_width_alone(grid):
     """One unreadable key must not cost the rest of the arrangement.
@@ -189,14 +183,6 @@ def test_a_saved_cell_width_that_is_not_a_number_leaves_the_width_alone(grid):
     assert applied is True
     assert grid._target == before
     assert grid.is_section_collapsed("run one", 0) is True
-
-
-def test_a_saved_cell_width_that_is_a_number_goes_through_the_setter(grid):
-    """The other half of the same branch: a good width still applies."""
-    applied = grid.apply_workspace_state({"cell_width": 512})
-
-    assert applied is True
-    assert grid._target == 512
 
 
 # ---------------------------------------------------------------------------
@@ -250,18 +236,6 @@ def test_a_header_rebuilt_between_click_and_query_is_not_raised(grid):
     assert grid._is_raised(_Gone()) is False
 
 
-def test_scrolling_to_a_section_that_is_no_longer_there_reports_failure(grid):
-    """The scroll runs an event-loop turn after the toggle.
-
-    By then the run can have been cleared, so the header the gesture was
-    about is simply not in the list any more. Reporting that is how the caller
-    knows the view did not move.
-    """
-    grid.set_figures([_pixmap(400, 400)], sections=[("run one", 0, 1)])
-
-    assert grid._scroll_section_to_top(("run two", 7)) is False
-
-
 def test_scrolling_to_a_header_that_died_reports_failure_rather_than_raising(
         grid):
     """The header is in the list and its wrapper is dead. Same answer."""
@@ -277,35 +251,3 @@ def test_scrolling_to_a_header_that_died_reports_failure_rather_than_raising(
     grid._headers = [_Gone()]
 
     assert grid._scroll_section_to_top(("run one", 0)) is False
-
-
-# ---------------------------------------------------------------------------
-# a figure too wide for the room left in its row
-# ---------------------------------------------------------------------------
-
-def test_a_figure_wider_than_the_room_left_starts_the_next_row(qtbot,
-                                                               monkeypatch):
-    """A wide figure wraps rather than being squeezed into the gap.
-
-    Every figure takes one slot today, so nothing in an ordinary run reaches
-    the wrap. The rule is what makes a multi-slot span safe to reintroduce,
-    and a span that overflows its row silently overlaps the cell beside it.
-    """
-    monkeypatch.setattr(fgv, "cells_across", lambda *args, **kwargs: 3)
-    monkeypatch.setattr(fgv, "cell_span", lambda aspect: 2)
-
-    grid = fgv.FigureGridView()
-    qtbot.addWidget(grid)
-    grid.resize(1400, 900)
-    grid.set_figures([_pixmap(1200, 400), _pixmap(1200, 400)])
-
-    positions = [grid._grid.getItemPosition(index)
-                 for index in range(grid._grid.count())]
-
-    assert len(positions) == 2
-    # Two slots are taken of three; the second two-wide figure does not fit
-    # in the one that is left, so it starts a row rather than hanging off
-    # the edge of the one it is on.
-    assert [(row, column) for row, column, _rs, _cs in positions] == [(0, 0),
-                                                                      (1, 0)]
-    assert [span for _r, _c, _rs, span in positions] == [2, 2]

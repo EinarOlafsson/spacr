@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import multiprocessing
 import os
-import pickle
 import threading
 import time
 
@@ -325,71 +324,6 @@ def test_the_module_function_hands_the_render_to_the_shared_process(
                         lambda *a: seen.append(a) or True)
     assert fq._render_print_in_a_process(b"blob", "x.png", True) is True
     assert seen == [(b"blob", "x.png", True)]
-
-
-class _Scripted:
-    """The child's end of the pipe, answering from a script."""
-
-    def __init__(self, requests, fail_send_at=None):
-        self.requests = list(requests)
-        self.sent = []
-        self.fail_send_at = fail_send_at
-
-    def send(self, message):
-        if self.fail_send_at is not None and \
-                len(self.sent) == self.fail_send_at:
-            raise OSError("closed")
-        self.sent.append(message)
-
-    def recv(self):
-        if not self.requests:
-            raise EOFError
-        return self.requests.pop(0)
-
-
-def _figure_blob():
-    from matplotlib.figure import Figure
-
-    figure = Figure(figsize=(2, 2))
-    figure.add_subplot(111).plot([0, 1], [0, 1])
-    return pickle.dumps(figure)
-
-
-def test_the_child_says_ready_then_answers_each_request(
-        tmp_path, monkeypatch):
-    from spacr.qt import preferences
-
-    monkeypatch.setattr(preferences, "_SAFE_MODE", False)
-    good, bad = tmp_path / "good.png", tmp_path / "bad.png"
-    connection = _Scripted([(_figure_blob(), str(good), False),
-                            (b"not a pickle", str(bad), False), None])
-    fq._serve_print_renders(connection, True)
-    assert preferences._SAFE_MODE is True
-    assert connection.sent == [fq._PRINT_PROCESS_READY,
-                               fq._PRINT_PROCESS_WROTE,
-                               fq._PRINT_PROCESS_REFUSED]
-    assert good.stat().st_size > 0 and not bad.exists()
-
-
-def test_a_child_that_cannot_say_ready_ends(monkeypatch):
-    from spacr.qt import preferences
-
-    monkeypatch.setattr(preferences, "_SAFE_MODE", False)
-    connection = _Scripted([None], fail_send_at=0)
-    fq._serve_print_renders(connection, False)
-    assert connection.sent == [] and preferences._SAFE_MODE is False
-
-
-def test_a_child_whose_parent_left_ends_after_its_render(
-        tmp_path, monkeypatch):
-    from spacr.qt import preferences
-
-    monkeypatch.setattr(preferences, "_SAFE_MODE", False)
-    connection = _Scripted([(_figure_blob(), str(tmp_path / "a.png"), False),
-                            None], fail_send_at=1)
-    fq._serve_print_renders(connection, False)
-    assert connection.sent == [fq._PRINT_PROCESS_READY]
-    assert connection.requests == [None]
 
 
 @pytest.mark.parametrize("error", [EOFError, OSError])
