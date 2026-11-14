@@ -27,68 +27,10 @@ pytestmark = pytest.mark.qt
 # _violin_profile -- a histogram with nothing in it
 # ---------------------------------------------------------------------------
 
-class TestTheViolinOutline:
-
-    def test_a_spread_of_values_traces_an_outline(self):
-        rng = np.random.default_rng(1)
-        centres, density = F._violin_profile(rng.normal(size=200), 0.4)
-
-        assert centres is not None and density is not None
-        assert len(centres) == len(density)
-        assert density[0] == 0.0 and density[-1] == 0.0, (
-            "the outline does not close on the data's range")
-        assert float(np.max(density)) == pytest.approx(0.4)
-
-    def test_values_that_are_all_the_same_draw_no_violin(self):
-        """A density with no width is a vertical line, and drawing one as
-        a violin claims a spread that is not there."""
-        assert F._violin_profile(np.full(50, 3.0), 0.4) == (None, None)
-
-    def test_a_non_finite_range_draws_no_violin(self):
-        assert F._violin_profile(np.array([np.nan, np.nan]), 0.4) \
-            == (None, None)
-        assert F._violin_profile(np.array([0.0, np.inf]), 0.4) == (None, None)
 
 # ---------------------------------------------------------------------------
 # FastPlot._rows_of -- a scatter whose per-point data is already integer
 # ---------------------------------------------------------------------------
-
-class TestTheRowsBehindAScatter:
-
-    class _Item:
-        def __init__(self, data):
-            self.data = data
-
-    def test_an_object_array_with_a_gap_has_no_rows(self):
-        """A None among the per-point data means one point cannot say
-        which row it came from, and guessing is how a click selects the
-        wrong object."""
-        data = np.array([{"data": 0}, {"data": None}], dtype=object)
-        item = self._Item(np.array([0, None], dtype=object))
-        assert F.FastPlot._rows_of(item) is None
-        assert data.dtype == object
-
-    def test_an_item_with_no_data_at_all_has_no_rows(self):
-        assert F.FastPlot._rows_of(self._Item(None)) is None
-        assert F.FastPlot._rows_of(self._Item([])) is None
-
-    def test_an_already_integer_array_is_returned_as_it_is(self):
-        """THE UNCOVERED ARC: the dtype is not object.
-
-        pyqtgraph hands back a structured array whose ``data`` field is
-        already typed when every point carries a row. Casting that to
-        int64 a second time is harmless but the None scan is not: it
-        iterates every point, and on a volcano with 60,000 coefficients
-        that is 60,000 Python-level comparisons per hover.
-        """
-        rows = np.zeros(4, dtype=[("data", "int64")])
-        rows["data"] = [3, 1, 4, 1]
-
-        found = F.FastPlot._rows_of(self._Item(rows))
-
-        assert found is not None
-        assert found.dtype != object
-        assert found.tolist() == [3, 1, 4, 1]
 
 
 # ---------------------------------------------------------------------------

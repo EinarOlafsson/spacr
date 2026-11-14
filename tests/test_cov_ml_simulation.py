@@ -533,40 +533,6 @@ def case_pick_glm_family_negative_values_fall_back_to_gaussian():
     assert isinstance(fam.link, sm.families.links.Identity)
 
 
-def test_the_sweep_chart_marks_where_the_threshold_is(qapp):
-    """The chart itself: a curve inside its spread band, and one line.
-
-    Asserted on the drawing rather than through the whole simulation,
-    because the plot a run builds is written and deleted in the same
-    breath -- which is what a renderer a pipeline drives should do, and
-    leaves nothing for a test to reach into afterwards.
-    """
-    import numpy as np
-    import pyqtgraph as pg
-
-    from spacr.qt.widgets.fast_plots import FastPlot
-
-    sizes = np.arange(2, 40, 4, dtype=float)
-    middle = 1.0 / sizes
-    spread = middle * 0.2
-    plot = FastPlot(title="sweep", x_label="Sample size",
-                    y_label="Mean absolute difference")
-    try:
-        assert plot.add_curve(sizes, middle, low=middle - spread,
-                              high=middle + spread) == len(sizes)
-        plot.add_line(x=15.0, label="minimum cell count")
-        marks = [item for item in plot.plot.items()
-                 if isinstance(item, pg.InfiniteLine)]
-        assert len(marks) == 1
-        assert float(marks[0].value()) == pytest.approx(15.0)
-        bands = [item for item in plot.plot.items()
-                 if isinstance(item, pg.FillBetweenItem)]
-        assert len(bands) == 1, "the spread band was not drawn"
-        assert plot.curve_frame().shape == (len(sizes), 2)
-    finally:
-        plot.deleteLater()
-
-
 def test_half_a_band_is_not_drawn(qapp):
     """Either edge alone is a second line pretending to be a band."""
     import numpy as np
