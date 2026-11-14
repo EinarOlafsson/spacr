@@ -8412,7 +8412,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 3360,
+    "line": 3367,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -8421,7 +8421,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 3508,
+    "line": 3515,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -22588,7 +22588,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_block_px",
-    "line": 1534,
+    "line": 1539,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_nuclear_settings_options"
@@ -22597,7 +22597,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_block_px",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -22608,7 +22608,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_centre_cells",
-    "line": 1539,
+    "line": 1544,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_nuclear_settings_options"
@@ -22617,7 +22617,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_centre_cells",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -22628,7 +22628,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_centre_offset",
-    "line": 1541,
+    "line": 1546,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_nuclear_settings_options"
@@ -22637,7 +22637,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_centre_offset",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -22675,7 +22675,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 2553,
+    "line": 2560,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "load_segmentation_illumination_resume"
@@ -22684,7 +22684,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 2638,
+    "line": 2645,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_measurement_illumination_inputs"
@@ -22693,7 +22693,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 3347,
+    "line": 3354,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -22702,7 +22702,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 3472,
+    "line": 3479,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_segmentation_illumination"
@@ -22711,7 +22711,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 3509,
+    "line": 3516,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -22830,7 +22830,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_dark",
-    "line": 1567,
+    "line": 1572,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_estimate_from_settings"
@@ -22839,7 +22839,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_dark",
-    "line": 1647,
+    "line": 1652,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_illumination"
@@ -22848,7 +22848,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_dark",
-    "line": 3371,
+    "line": 3378,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -22857,7 +22857,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_dark",
-    "line": 3386,
+    "line": 3393,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -22866,7 +22866,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_dark",
-    "line": 3515,
+    "line": 3522,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -22877,7 +22877,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "illumination_dark_per_plate",
-    "line": 1564,
+    "line": 1569,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_estimate_from_settings"
@@ -22886,7 +22886,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_dark_per_plate",
-    "line": 1568,
+    "line": 1573,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_estimate_from_settings"
@@ -22895,7 +22895,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_dark_per_plate",
-    "line": 1648,
+    "line": 1653,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_illumination"
@@ -22904,7 +22904,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_dark_per_plate",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -22915,7 +22915,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_degree",
-    "line": 1573,
+    "line": 1578,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_estimate_from_settings"
@@ -22924,7 +22924,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_degree",
-    "line": 1639,
+    "line": 1644,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_illumination"
@@ -22933,7 +22933,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_degree",
-    "line": 3384,
+    "line": 3391,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -22942,7 +22942,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_degree",
-    "line": 3512,
+    "line": 3519,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -22953,7 +22953,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_estimator",
-    "line": 3375,
+    "line": 3382,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -22962,7 +22962,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_estimator",
-    "line": 3383,
+    "line": 3390,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -22971,7 +22971,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_estimator",
-    "line": 3399,
+    "line": 3406,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -22980,7 +22980,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_estimator",
-    "line": 3473,
+    "line": 3480,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_segmentation_illumination"
@@ -22989,7 +22989,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_estimator",
-    "line": 3511,
+    "line": 3518,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23027,7 +23027,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_fit",
-    "line": 1535,
+    "line": 1540,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_nuclear_settings_options"
@@ -23036,7 +23036,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_fit",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23047,7 +23047,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_floor",
-    "line": 1538,
+    "line": 1543,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_nuclear_settings_options"
@@ -23056,7 +23056,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_floor",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23087,7 +23087,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_holdout_n",
-    "line": 1645,
+    "line": 1650,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_illumination"
@@ -23096,7 +23096,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_holdout_n",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23107,7 +23107,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_lookup",
-    "line": 1542,
+    "line": 1547,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_nuclear_settings_options"
@@ -23116,7 +23116,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_lookup",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23127,7 +23127,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_map_grid",
-    "line": 1540,
+    "line": 1545,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_nuclear_settings_options"
@@ -23136,7 +23136,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_map_grid",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23147,7 +23147,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_max_fields",
-    "line": 1574,
+    "line": 1579,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_estimate_from_settings"
@@ -23156,7 +23156,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_max_fields",
-    "line": 1640,
+    "line": 1645,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_illumination"
@@ -23165,7 +23165,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_max_fields",
-    "line": 3385,
+    "line": 3392,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -23174,7 +23174,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_max_fields",
-    "line": 3514,
+    "line": 3521,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23185,7 +23185,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_model",
-    "line": 2569,
+    "line": 2576,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "load_segmentation_illumination_resume"
@@ -23194,7 +23194,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_model",
-    "line": 3363,
+    "line": 3370,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -23203,7 +23203,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_model",
-    "line": 3474,
+    "line": 3481,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_segmentation_illumination"
@@ -23212,7 +23212,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_model",
-    "line": 3510,
+    "line": 3517,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23340,7 +23340,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_nuclear_channel",
-    "line": 1553,
+    "line": 1558,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_nuclear_channel_setting"
@@ -23349,7 +23349,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_nuclear_channel",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23441,7 +23441,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "illumination_nuclei",
-    "line": 1564,
+    "line": 1569,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_estimate_from_settings"
@@ -23450,7 +23450,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_nuclei",
-    "line": 1569,
+    "line": 1574,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_estimate_from_settings"
@@ -23459,7 +23459,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_nuclei",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23470,7 +23470,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_on_missing",
-    "line": 2598,
+    "line": 2605,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "load_segmentation_illumination_resume"
@@ -23479,7 +23479,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_on_missing",
-    "line": 3403,
+    "line": 3410,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -23488,7 +23488,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_on_missing",
-    "line": 3447,
+    "line": 3454,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_correction"
@@ -23497,7 +23497,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_on_missing",
-    "line": 3516,
+    "line": 3523,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23508,7 +23508,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_per_plate",
-    "line": 1572,
+    "line": 1577,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_estimate_from_settings"
@@ -23517,7 +23517,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_per_plate",
-    "line": 1638,
+    "line": 1643,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_illumination"
@@ -23526,7 +23526,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_per_plate",
-    "line": 3382,
+    "line": 3389,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -23535,7 +23535,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_per_plate",
-    "line": 3513,
+    "line": 3520,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23546,7 +23546,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_qc",
-    "line": 3390,
+    "line": 3397,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -23555,7 +23555,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_qc",
-    "line": 3517,
+    "line": 3524,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23566,7 +23566,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_ridge",
-    "line": 1532,
+    "line": 1537,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_nuclear_settings_options"
@@ -23575,7 +23575,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_ridge",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23586,7 +23586,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_seed",
-    "line": 1646,
+    "line": 1651,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_illumination"
@@ -23595,7 +23595,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_seed",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23606,7 +23606,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_sigma_px",
-    "line": 1536,
+    "line": 1541,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_nuclear_settings_options"
@@ -23615,7 +23615,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_sigma_px",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23626,7 +23626,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_validate",
-    "line": 3398,
+    "line": 3405,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -23635,7 +23635,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_validate",
-    "line": 3521,
+    "line": 3528,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23646,7 +23646,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "illumination_vendor_channel_map",
-    "line": 3369,
+    "line": 3376,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -23655,7 +23655,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_vendor_channel_map",
-    "line": 3372,
+    "line": 3379,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -23664,7 +23664,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_vendor_channel_map",
-    "line": 3519,
+    "line": 3526,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -23675,7 +23675,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_vendor_profile",
-    "line": 3364,
+    "line": 3371,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -23684,7 +23684,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_vendor_profile",
-    "line": 3518,
+    "line": 3525,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -36701,7 +36701,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 1564,
+    "line": 1569,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_estimate_from_settings"
@@ -36710,7 +36710,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 1570,
+    "line": 1575,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "_estimate_from_settings"
@@ -36719,7 +36719,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 1626,
+    "line": 1631,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_illumination"
@@ -69318,7 +69318,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1625,
+    "line": 1630,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_illumination"
@@ -69327,7 +69327,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2640,
+    "line": 2647,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_measurement_illumination_inputs"
@@ -69336,7 +69336,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3354,
+    "line": 3361,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -69345,7 +69345,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3487,
+    "line": 3494,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_segmentation_illumination"
@@ -69354,7 +69354,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3507,
+    "line": 3514,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -82078,7 +82078,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1624,
+    "line": 1629,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_illumination"
@@ -82087,7 +82087,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 2592,
+    "line": 2599,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "load_segmentation_illumination_resume"
@@ -82096,7 +82096,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 3346,
+    "line": 3353,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -82105,7 +82105,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 3441,
+    "line": 3448,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_correction"
