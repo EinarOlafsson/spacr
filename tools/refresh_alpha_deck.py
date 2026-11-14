@@ -162,6 +162,7 @@ GROUPS = (
         (751, "Compare a screen with a published per-gene table"),
         (795, "Mechanism-of-action benchmark, leaving one compound out"),
         (893, "Screen plates from one settings file, well tables"),
+        (937, "Per-feature aggregation for well, guide and gene tables"),
         (894, "MoA evaluation with CellProfiler Analyst classifiers"),
         (896, "Raw crop shards, embeddings and well UMAP"),
         (575, "Export a run as a Nextflow / Snakemake workflow"),
