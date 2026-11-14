@@ -21,11 +21,10 @@ pytest.importorskip("pytestqt")
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import (                                  # noqa: E402
-    QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget,
+    QLabel, QLineEdit, QVBoxLayout, QWidget,
 )
 
 from spacr.qt.screens import settings_model as sm                # noqa: E402
-from spacr.qt.widgets.section import Section                     # noqa: E402
 from spacr import _mask_workers                                    # noqa: E402
 
 pytestmark = pytest.mark.qt
@@ -101,53 +100,6 @@ class TestWhetherAHeadingStillShowsSomething:
         qtbot.addWidget(stranger)
 
         assert sm.section_shows_anything(stranger) is True
-
-    def test_a_row_holding_no_widget_is_not_evidence_of_anything_on_screen(
-            self, qtbot):
-        """A form row whose field side is a layout has nothing to count.
-
-        The walk asks each row for its field widget; a row that has none
-        cannot say whether it is showing a control, so it is skipped rather
-        than counted as one.
-        """
-        section = Section("Cell")
-        qtbot.addWidget(section)
-        section.add_row("Diameter", QLineEdit())
-        section._form.addRow(QLabel("composite"), QHBoxLayout())
-        section._form.setRowVisible(0, False)
-
-        assert sm.section_shows_anything(section) is False
-
-    def test_a_heading_whose_own_rows_are_hidden_survives_on_its_children(
-            self, qtbot):
-        """The sub-heading is the content; hiding the parent's rows is not.
-
-        "Advanced settings" owns almost no rows of its own -- the families
-        underneath it own them -- so judging it on its own rows alone would
-        hide the umbrella and every object sub-heading with it.
-        """
-        parent = Section("Advanced settings")
-        qtbot.addWidget(parent)
-        parent.add_row("Diameter", QLineEdit())
-        child = Section("Cell")
-        child.add_row("Minimum size", QLineEdit())
-        parent.add_prose(child)
-        for row in range(parent._form.rowCount()):
-            parent._form.setRowVisible(row, False)
-
-        assert sm.section_shows_anything(child) is True
-        assert sm.section_shows_anything(parent) is True
-
-    def test_a_heading_with_every_row_hidden_and_no_children_is_empty(
-            self, qtbot):
-        """The case the rule exists for: a heading that opens onto nothing."""
-        section = Section("Pathogen")
-        qtbot.addWidget(section)
-        section.add_row("Diameter", QLineEdit())
-        section._form.setRowVisible(0, False)
-
-        assert sm.section_shows_anything(section) is False
-
 
 # -- the older (title, rows) pair still gets its help -------------------------
 

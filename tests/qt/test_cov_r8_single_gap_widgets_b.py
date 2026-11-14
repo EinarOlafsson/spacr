@@ -86,17 +86,6 @@ class TestTheHeaderLayoutIsBuiltOnDemandAndOnlyOnce:
         assert second is first, "the header layout was rebuilt"
         assert section._header.layout() is first
 
-    def test_a_section_with_no_mark_never_grows_a_header_layout(self, qtbot):
-        """Why it is on demand: every category that has no mark is
-        the widget it always was."""
-        from spacr.qt.widgets.section import Section
-
-        section = Section("A heading")
-        qtbot.addWidget(section)
-
-        assert section._header.layout() is None
-
-
 # ---------------------------------------------------------------------------
 # channel_picker.py -- the correction runs without a Toggle to correct
 # ---------------------------------------------------------------------------

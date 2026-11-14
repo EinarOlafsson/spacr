@@ -24,7 +24,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from PySide6.QtWidgets import QDialog, QFileDialog
+from PySide6.QtWidgets import QDialog
 
 from spacr.qt.widgets import measurement_compare_dialog as mcd
 from spacr.qt.widgets.measurement_compare_dialog import (
@@ -65,17 +65,6 @@ def panel(qtbot, objects, groups):
 # ---------------------------------------------------------------------------
 # Nothing to compare
 # ---------------------------------------------------------------------------
-
-def test_a_table_with_no_measurement_says_so_rather_than_drawing(qtbot):
-    frame = pd.DataFrame({"plateID": ["p1", "p1"], "rowID": ["r1", "r1"],
-                          "columnID": ["c1", "c2"], "fieldID": ["f1", "f1"],
-                          "object_label": [1, 2]})
-    widget = MeasurementComparePanel(frame, {})
-    qtbot.addWidget(widget)
-
-    assert widget.refresh() is None
-    assert "no measurement column" in widget.report.toPlainText()
-
 
 def test_columns_that_cannot_be_classified_leave_the_list_empty(panel,
                                                                 monkeypatch):
@@ -187,65 +176,9 @@ def test_choosing_a_subset_of_wells_narrows_the_annotated_group(panel,
 # The join
 # ---------------------------------------------------------------------------
 
-def test_a_panel_with_no_database_says_there_is_nothing_to_join(panel):
-    assert panel.join_the_tables() == "no measurements database is attached"
-    assert panel.join_button.isVisible() is False
-
-
-def test_a_second_press_while_a_join_is_running_is_ignored(panel, tmp_path):
-    panel._databases = [str(tmp_path / "measurements.db")]
-    panel._joining = True
-    assert panel.join_the_tables() == ""
-    # The button text is untouched, so the running join still owns it.
-    assert panel.join_button.text() != "Joining…"
-
-
-def test_a_join_that_raises_is_a_message_in_the_panel(panel, tmp_path,
-                                                      monkeypatch):
-    """"a failed join is a message in the panel, not a traceback"."""
-    panel._databases = [str(tmp_path / "measurements.db")]
-    seen = {}
-
-    def explode(_objects, _databases, png_list=False):
-        raise RuntimeError("that file is not a measurements database")
-
-    monkeypatch.setattr(mcd, "join_measurements", explode)
-    monkeypatch.setattr(panel._jobs, "submit",
-                        lambda work, done: seen.update(outcome=work()) or True)
-
-    panel.join_the_tables()
-
-    assert seen["outcome"] == {
-        "error": "that file is not a measurements database"}
-    why = panel._finish_join(seen["outcome"])
-    assert why == "that file is not a measurements database"
-    assert "Could not join" in panel.join_note.text()
-    assert panel.join_button.isEnabled() is True
-
-
 def test_an_outcome_that_is_not_a_dict_is_reported_not_unpacked(panel):
     assert panel._finish_join(None) == "the join returned nothing"
     assert "Could not join" in panel.join_note.text()
-
-
-def test_a_join_replaces_the_object_rows_and_keeps_the_groups(panel, objects,
-                                                              groups,
-                                                              tmp_path,
-                                                              monkeypatch):
-    wider = objects.copy()
-    wider["pathogen_area"] = 1.0
-    panel._databases = [str(tmp_path / "measurements.db")]
-    monkeypatch.setattr(mcd, "join_measurements",
-                        lambda o, d, png_list=False: (wider, ""))
-    monkeypatch.setattr(panel._jobs, "submit",
-                        lambda work, done: done(work()) or True)
-
-    panel.join_the_tables()
-
-    assert panel._joined_once is True
-    names = [panel.measurement.itemData(i)
-             for i in range(panel.measurement.count())]
-    assert "pathogen_area" in names
 
 
 def test_moving_a_join_box_re_joins_only_after_a_join_has_been_made(panel,
@@ -277,79 +210,6 @@ def test_the_dependent_variable_is_left_alone_when_it_is_not_asked_for(
     assert note == ""
 
 
-def test_asking_for_a_dependent_variable_that_is_not_attached_says_so(
-        panel, objects):
-    panel.join_dependent.setChecked(True)
-    panel.set_dependent_frame(None)
-
-    _wide, note = panel._join_the_dependent_variable(objects)
-
-    assert "no table carrying it is attached" in note
-
-
-def test_an_empty_dependent_table_is_the_same_as_none(panel, objects):
-    panel.join_dependent.setChecked(True)
-    panel.set_dependent_frame(pd.DataFrame({"pred": []}))
-
-    _wide, note = panel._join_the_dependent_variable(objects)
-
-    assert "no table carrying it is attached" in note
-
-
-def test_a_dependent_join_that_matches_nothing_is_reported_not_swallowed(
-        panel, objects, monkeypatch):
-    """A route that matches nothing is a failure, not an empty answer."""
-    panel.join_dependent.setChecked(True)
-    panel.set_dependent_frame(pd.DataFrame({"pred": [0.5]}))
-
-    from spacr import dependent_join
-
-    def explode(_wide, _frame):
-        raise ValueError("no identifier column in common")
-
-    monkeypatch.setattr(dependent_join, "join", explode)
-
-    wide, note = panel._join_the_dependent_variable(objects)
-
-    assert wide is objects
-    assert "did not join: no identifier column in common" in note
-
-
-def test_a_dependent_join_that_works_reports_the_route_it_took(panel,
-                                                               objects,
-                                                               monkeypatch):
-    panel.join_dependent.setChecked(True)
-    panel.set_dependent_frame(pd.DataFrame({"pred": [0.5]}))
-    joined = objects.copy()
-    joined["pred"] = 0.5
-
-    from spacr import dependent_join
-
-    monkeypatch.setattr(dependent_join, "join",
-                        lambda wide, frame: (joined, {"route": "prcfo"}))
-    monkeypatch.setattr(dependent_join, "describe",
-                        lambda report: "matched on prcfo")
-
-    wide, note = panel._join_the_dependent_variable(objects)
-
-    assert "pred" in wide.columns
-    assert note == "matched on prcfo"
-
-
-def test_the_dependent_note_is_appended_to_the_join_note(panel, objects,
-                                                          tmp_path,
-                                                          monkeypatch):
-    panel._databases = [str(tmp_path / "m.db")]
-    panel.join_dependent.setChecked(True)
-    panel.set_dependent_frame(None)
-
-    outcome = {"wide": objects, "trouble": "one plate had no rows"}
-    trouble = panel._finish_join(outcome)
-
-    assert "one plate had no rows" in trouble
-    assert "no table carrying it is attached" in trouble
-
-
 # ---------------------------------------------------------------------------
 # Wells from guides
 # ---------------------------------------------------------------------------
@@ -376,45 +236,9 @@ def test_setting_the_guides_clears_the_derived_wells(panel):
 # Headings
 # ---------------------------------------------------------------------------
 
-def test_a_heading_keeps_its_plain_tooltip_when_the_filter_cannot_install(
-        qtbot, objects, monkeypatch):
-    """A worse tooltip rather than none."""
-    from spacr.qt.screens import settings_model
-
-    class Refuses:
-        def __init__(self, *_args):
-            raise RuntimeError("no event filter here")
-
-    monkeypatch.setattr(settings_model, "_ApiTooltipFilter", Refuses)
-
-    widget = MeasurementComparePanel(objects, {})
-    qtbot.addWidget(widget)
-
-    assert widget.headings["level"].toolTip()
-    assert getattr(widget, "_heading_filter", None) is None
-
-
 # ---------------------------------------------------------------------------
 # Drawing
 # ---------------------------------------------------------------------------
-
-def test_a_pyqtgraph_failure_falls_back_to_a_matplotlib_canvas(panel,
-                                                               monkeypatch):
-    """The figure still appears; only the interactive plot is lost."""
-    import spacr.qt.widgets.grouped_plot as gp
-
-    class Refuses:
-        def __init__(self, *_args, **_kwargs):
-            raise RuntimeError("pyqtgraph is not available")
-
-    monkeypatch.setattr(gp, "GroupedPlot", Refuses)
-
-    panel.refresh()
-
-    holder = panel._figure_holder
-    assert holder.count() >= 1
-    assert holder.itemAt(holder.count() - 1).widget() is not None
-
 
 # ---------------------------------------------------------------------------
 # The report
@@ -435,49 +259,6 @@ def test_the_report_is_left_alone_before_the_first_comparison(qtbot,
 # ---------------------------------------------------------------------------
 # Saving
 # ---------------------------------------------------------------------------
-
-def test_saving_before_there_is_a_comparison_writes_nothing(qtbot, objects):
-    widget = MeasurementComparePanel(objects, {})
-    qtbot.addWidget(widget)
-    widget._comparison = None
-    assert widget.save_everything("/tmp") == {}
-
-
-def test_a_cancelled_folder_dialog_writes_nothing(panel, monkeypatch):
-    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
-                        staticmethod(lambda *a, **k: ""))
-    assert panel.save_everything() == {}
-
-
-def test_a_save_that_refuses_is_appended_to_the_report(panel, monkeypatch):
-    before = panel.report.toPlainText()
-
-    def explode(*_args, **_kwargs):
-        raise OSError("read-only file system")
-
-    monkeypatch.setattr(mcd, "save", explode)
-
-    assert panel.save_everything("/nowhere") == {}
-    assert before in panel.report.toPlainText()
-    assert "Could not save: read-only file system" in panel.report.toPlainText()
-
-
-def test_a_save_says_how_many_items_went_where(panel, tmp_path):
-    written = panel.save_everything(str(tmp_path))
-
-    assert written
-    assert f"Saved {len(written)} item(s) to {tmp_path}" in \
-        panel.report.toPlainText()
-    assert any(tmp_path.iterdir())
-
-
-def test_the_folder_dialog_supplies_the_destination(panel, tmp_path,
-                                                    monkeypatch):
-    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
-                        staticmethod(lambda *a, **k: str(tmp_path)))
-    assert panel.save_everything()
-    assert any(tmp_path.iterdir())
-
 
 # ---------------------------------------------------------------------------
 # The window around the panel

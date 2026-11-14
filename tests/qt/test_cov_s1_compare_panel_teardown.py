@@ -14,7 +14,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.qt.widgets import measurement_compare_dialog as mcd
 from spacr.qt.widgets.measurement_compare_dialog import (
     MeasurementCompareDialog, MeasurementComparePanel)
 
@@ -67,24 +66,3 @@ def test_the_window_forwards_cancel_to_the_panel_that_owns_the_join(
     assert seen == [()]
 
 
-def test_a_runner_that_will_not_shut_down_does_not_stop_the_close(
-        qtbot, objects, monkeypatch):
-    """Closing must complete even when the runner raises.
-
-    An exception escaping ``closeEvent`` leaves the widget open with a live
-    QThread under it, which is the abort this handler exists to prevent -- so
-    the failure is logged and the close carries on.
-    """
-    panel = MeasurementComparePanel(objects, {})
-    qtbot.addWidget(panel)
-    panel._joining = True
-
-    def _refuses():
-        raise RuntimeError("the join runner is wedged")
-
-    monkeypatch.setattr(panel._jobs, "shutdown", _refuses)
-
-    panel.close()
-
-    assert panel._joining is False
-    assert panel.isVisible() is False

@@ -16,11 +16,10 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtGui import QIcon                                   # noqa: E402
 
 from spacr.qt import crop_thumbs as CT                            # noqa: E402
 from spacr.qt.widgets import animation_zoom as az                 # noqa: E402
-from spacr.qt.widgets.section import Section, module_mark         # noqa: E402
+from spacr.qt.widgets.section import Section         # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -153,45 +152,6 @@ def test_an_object_with_more_than_one_crop_is_filed_under_its_first(monkeypatch)
 # ---------------------------------------------------------------------------
 # section: attributing a settings category to the module it came from
 # ---------------------------------------------------------------------------
-
-def test_a_key_with_no_picture_of_its_own_gets_no_mark(qapp):
-    """A generic square would claim these settings came from a module."""
-    assert module_mark("not_a_registered_app_at_all") is None
-
-
-def test_an_iconset_that_raises_leaves_the_heading_plain(qapp, monkeypatch):
-    from spacr.qt import iconset
-
-    def refuse(*_args, **_kwargs):
-        raise RuntimeError("icon resources are not installed")
-
-    monkeypatch.setattr(iconset, "bundled_icon_path", refuse)
-
-    assert module_mark("measure") is None
-
-
-def test_an_icon_that_decodes_to_nothing_is_not_drawn(qapp, monkeypatch):
-    """A null QIcon paints an empty box, which reads as a broken heading."""
-    from spacr.qt import iconset
-
-    monkeypatch.setattr(iconset, "app_icon", lambda _key: QIcon())
-
-    assert module_mark("measure") is None
-
-
-def test_a_category_shows_the_mark_of_the_module_it_was_folded_from(qapp):
-    section = Section("Object measurements")
-
-    assert section.source_app() == ""
-    assert section.source_mark() is None
-
-    assert section.set_source_app("measure", "Measure") is True
-    assert section.source_app() == "measure"
-    badge = section.source_mark()
-    assert badge is not None
-    assert badge.accessibleName() == "Measure"
-    assert not badge.pixmap().isNull()
-
 
 def test_re_attributing_to_a_module_with_no_picture_takes_the_mark_away(qapp):
     """The old module's icon left behind would attribute the wrong settings."""

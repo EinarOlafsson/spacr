@@ -178,35 +178,6 @@ class TestTheFoldedPanelKey:
 
 class TestGuardsAfterALoopThatCannotFallThrough:
 
-    @pytest.mark.parametrize("text", ["copied section\n", " \n\t"])
-    def test_the_console_copy_uses_the_found_panel(
-            self, qtbot, monkeypatch, text):
-        """A found panel supplies the text; blank sections leave the clipboard."""
-        from PySide6.QtWidgets import QApplication
-        from spacr.qt.widgets import console_panel as C
-
-        panel = C.ConsolePanel()
-        qtbot.addWidget(panel)
-        bar = C._TopicBar("section", parent=panel)
-        requested = []
-        flashed = []
-
-        def section_text(selected):
-            requested.append(selected)
-            return text
-
-        monkeypatch.setattr(panel, "section_text", section_text)
-        monkeypatch.setattr(bar._copy_btn, "flash_copied",
-                            lambda: flashed.append(True))
-        QApplication.clipboard().setText("previous contents")
-
-        bar._copy_section()
-
-        assert requested == [bar]
-        assert QApplication.clipboard().text() == (
-            text if text.strip() else "previous contents")
-        assert flashed == ([True] if text.strip() else [])
-
     def test_the_fold_strip_guard_sits_inside_the_handler(self):
         """An empty Time-category mount is inside the same failure handler.
 

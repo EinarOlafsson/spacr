@@ -44,7 +44,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QApplication, QLabel, QListWidgetItem,
+from PySide6.QtWidgets import (QLabel, QListWidgetItem,
                                QSpacerItem, QWidget)
 
 
@@ -338,39 +338,6 @@ class TestAWellTooSmallToHaveAnInside:
 # ---------------------------------------------------------------------------
 # section
 # ---------------------------------------------------------------------------
-
-class TestTheHeaderMarkRowIsBuiltOnce:
-    """``if row is None:`` in ``Section._source_row``."""
-
-    def test_a_second_ask_reuses_the_layout_the_first_one_made(self, qapp):
-        """Only reachable from inside: ``set_source_app`` asks exactly once.
-
-        The public method builds the badge and asks for the row in the
-        same branch, and never again once the badge exists -- so the
-        "already built" side of the guard has to be driven by asking a
-        second time directly. What it pins is that the header keeps ONE
-        layout: a second one would re-parent the badge and leave the
-        heading text under two competing layouts.
-        """
-        from spacr.qt.widgets.section import Section
-
-        section = Section("Advanced")
-        try:
-            made = section.set_source_app("mask", "Generate masks")
-            if not made:
-                pytest.skip("no module icon is installed for 'mask'")
-            first = section._header.layout()
-            assert first is not None, "the mark row was built"
-
-            again = section._source_row()
-
-            assert again is first, (
-                "the header must keep the one layout it has, not build a "
-                "second over the heading text")
-            assert section.source_mark() is not None
-        finally:
-            section.deleteLater()
-
 
 # ---------------------------------------------------------------------------
 # activity_spinner

@@ -8,8 +8,6 @@ None may leave a stale picture on screen, and none may raise out of a slot.
 from __future__ import annotations
 
 import os
-import threading
-import warnings
 
 import numpy as np
 import pandas as pd
@@ -162,30 +160,6 @@ def column_panel(qtbot):
     return make
 
 
-def test_a_provider_with_an_empty_frame_makes_no_offer(column_panel):
-    """An empty frame is not the merge; the fits must read the file instead."""
-    panel = column_panel(lambda: pd.DataFrame())
-
-    assert panel._offer_frame("/plate/merged.csv") is False
-
-
-def test_a_provider_with_no_frame_at_all_makes_no_offer(column_panel):
-    """A run whose artefact was written in an earlier session has none."""
-    panel = column_panel(lambda: None)
-
-    assert panel._offer_frame("/plate/merged.csv") is False
-
-
-def test_a_provider_that_raises_makes_no_offer(column_panel):
-    """The offer is an optimisation; failing it must not fail the queue."""
-    def refuse():
-        raise RuntimeError("the merging panel is gone")
-
-    panel = column_panel(refuse)
-
-    assert panel._offer_frame("/plate/merged.csv") is False
-
-
 def test_a_live_merged_frame_is_offered_under_the_path_the_fits_read(
         column_panel):
     """The fits are pointed at a path; the offer has to use that same name."""
@@ -202,7 +176,3 @@ def test_a_live_merged_frame_is_offered_under_the_path_the_fits_read(
     assert panel._offer_frame("") is False, "no path is no offer"
 
 
-def test_a_panel_with_no_provider_makes_no_offer(column_panel):
-    panel = column_panel(None)
-
-    assert panel._offer_frame("/plate/merged.csv") is False

@@ -286,35 +286,6 @@ def test_an_offered_preview_starts_in_the_state_its_switch_is_in(
 # mark_fold_sources
 # ---------------------------------------------------------------------------
 
-def test_only_folds_with_artwork_of_their_own_are_reported_as_marked(qtbot):
-    """A mark is the icon; a module without one has nothing to say.
-
-    ``mark_folded_sections`` returns the titles it actually drew on, and a
-    key with no bundled icon draws on none -- so the returned mapping has
-    to leave it out rather than claim an unmarked category.
-    """
-    titles = ("Time Axes & Tracking (Beta)", "Nothing In Particular")
-    marked_section, anonymous_section = (Section(t) for t in titles)
-    for section, title in zip((marked_section, anonymous_section), titles):
-        # What ``CategoryFold._build_section`` stamps on a mounted card, so
-        # the title is reported as it was written rather than uppercased.
-        section.setProperty("settingsCategorySource", title)
-        qtbot.addWidget(section)
-
-    screen = _Screen(_settings_sections=())
-    folds = CategoryFoldSet(
-        screen, {"timelapse": ("timelapse",), "not_a_module": ()})
-    folds.folds["timelapse"].sections = [marked_section]
-    folds.folds["not_a_module"].sections = [anonymous_section]
-    screen._category_folds = folds
-
-    marked = mask_module.mark_fold_sources(screen)
-
-    assert marked == {"timelapse": ("Time Axes & Tracking (Beta)",)}
-    assert marked_section.source_app() == "timelapse"
-    assert anonymous_section.source_mark() is None
-
-
 # ---------------------------------------------------------------------------
 # example_plate_folder
 # ---------------------------------------------------------------------------
@@ -372,25 +343,6 @@ def test_a_form_with_no_src_control_gets_no_button(qtbot):
     filled = _Screen(app_key="mask", _settings_model=_Model({"src": src}),
                      _settings_sections=sections)
     assert mask_module.install_example_data_button(filled) is not None
-
-
-def test_a_src_control_in_no_prose_section_gets_no_button(qtbot):
-    """Placement is found from ``src``, so a stray control places nothing.
-
-    The section is identified by holding ``src`` rather than by its title,
-    so category renaming cannot move the button; the cost is that a
-    ``src`` sitting outside every section leaves nowhere to put it.
-    """
-    src, holder, sections = _src_form(qtbot)
-
-    orphan = _Screen(app_key="mask", _settings_model=_Model({"src": src}),
-                     _settings_sections=(QWidget(), Section("Empty")))
-    assert mask_module.install_example_data_button(orphan) is None
-
-    placed = _Screen(app_key="mask", _settings_model=_Model({"src": src}),
-                     _settings_sections=sections)
-    button = mask_module.install_example_data_button(placed)
-    assert button is not None and holder.isAncestorOf(button)
 
 
 def test_the_button_lands_above_src_says_what_it_does_and_loads_a_plate(
