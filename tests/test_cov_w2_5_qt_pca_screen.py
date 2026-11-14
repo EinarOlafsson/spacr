@@ -7,8 +7,6 @@ such a session hangs. The tests read that label.
 """
 from __future__ import annotations
 
-import numpy as np
-import pandas as pd
 import pytest
 
 pytest.importorskip("PySide6")
@@ -34,25 +32,6 @@ def screen(qtbot, link):
         yield made
     finally:
         made.close()
-
-
-@pytest.fixture
-def features():
-    """Four correlated numeric features and a group column, 60 rows."""
-    rng = np.random.default_rng(7)
-    shift = np.repeat([0.0, 1.0], 30)
-    return pd.DataFrame({
-        "plateID": ["p1"] * 60,
-        "rowID": ["r1"] * 60,
-        "columnID": [f"c{i % 4 + 1}" for i in range(60)],
-        "fieldID": ["f1"] * 60,
-        "object_label": list(range(60)),
-        "f1": 10.0 + 4.0 * shift + rng.normal(scale=0.4, size=60),
-        "f2": 20.0 - 3.0 * shift + rng.normal(scale=0.4, size=60),
-        "f3": 5.0 + 2.0 * shift + rng.normal(scale=0.4, size=60),
-        "f4": rng.normal(scale=1.0, size=60),
-        "gene": ["control"] * 30 + ["treated"] * 30,
-    })
 
 
 # ---------------------------------------------------------------------------
