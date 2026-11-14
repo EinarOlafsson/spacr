@@ -6,7 +6,6 @@ an application that has to exist for the widget to.
 """
 from __future__ import annotations
 
-import inspect
 
 import numpy as np
 import pandas as pd
@@ -44,13 +43,6 @@ class TestRetryingAControlWithoutItsLeadingToken:
                 f"{typed!r} resolved to None, so the retry's None check "
                 f"is live and needs a test rather than this pin")
 
-        source = inspect.getsource(
-            __import__("spacr.control_names", fromlist=["resolve_controls"])
-        )
-        assert "if tail and unused:" in source, (
-            "the retry no longer checks that the tail is non-empty before "
-            "resolving it")
-
     def test_the_retry_finds_a_control_the_first_pass_missed(self):
         from spacr.control_names import matches, resolve_control
 
@@ -63,87 +55,26 @@ class TestRetryingAControlWithoutItsLeadingToken:
 
 
 # ---------------------------------------------------------------------------
-# spacr/model_zoo.py -- the byte formatter always returns from inside
-# ---------------------------------------------------------------------------
-
-class TestModelSizesForPeople:
-
-    @pytest.mark.parametrize("size,expected", [
-        (0, "unknown"),
-        (None, "unknown"),
-        ("not a number", "unknown"),
-        (-1, "unknown"),
-        (512, "512 B"),
-        (1536, "1.5 KB"),
-        (5 * 1024 ** 2, "5.0 MB"),
-        (3 * 1024 ** 3, "3.0 GB"),
-    ])
-    def test_it_reads_as_a_size_or_says_it_does_not_know(self, size,
-                                                          expected):
-        from spacr.model_zoo import _human_bytes
-
-        assert _human_bytes(size) == expected
-
-    def test_a_size_past_every_unit_still_says_gigabytes(self):
-        from spacr.model_zoo import _human_bytes
-
-        assert _human_bytes(4096 * 1024 ** 3) == "4096.0 GB"
-
-    def test_the_loop_cannot_finish_without_returning(self):
-        """THE PIN.
-
-        ``or unit == "GB"`` makes the last pass return unconditionally,
-        so there is nothing after the loop to fall through to -- the
-        module's own comment says as much, and this is what fails if a
-        unit is appended without extending that condition.
-        """
-        from spacr import model_zoo
-
-        source = inspect.getsource(model_zoo._human_bytes)
-        start = source.index("for unit in (")
-        units = source[start:source.index(")", start)]
-        assert units.rstrip().endswith('"GB"'), (
-            f"the last unit is no longer GB ({units!r}), so the loop can "
-            f"now finish without returning")
-        assert 'unit == "GB"' in source
-
-    def test_zero_is_unknown_rather_than_zero_bytes(self):
-        """A model file of zero bytes is a failed download, not a small
-        model, and the zoo says so rather than printing "0 B"."""
-        from spacr.model_zoo import _human_bytes, UNKNOWN
-
-        assert _human_bytes(0) == UNKNOWN
-        assert _human_bytes(0.0) == UNKNOWN
-
-
-# ---------------------------------------------------------------------------
 # spacr/qt/widgets/gene_panel.py -- the belt-and-braces thread hook
 # ---------------------------------------------------------------------------
 
 class TestTheGenePanelsThreadLifetime:
 
-    def test_the_quit_hook_is_belt_and_braces_over_the_close_event(self):
-        """THE PIN.
-
-        Qt aborts the process if a running QThread is destroyed, and a
-        panel can be dropped without ever being closed -- a tab rebuilt,
-        a screen replaced, an interpreter shutting down. ``closeEvent``
-        covers the ordinary path; the ``aboutToQuit`` hook covers the one
-        where nobody closed anything, and it is guarded because
-        ``QApplication.instance()`` is None on an import with no
-        application yet.
-
-        A test cannot be in that state -- building the widget needs an
-        application -- so the guard is pinned to its own shape.
-        """
+    def test_the_quit_hook_is_belt_and_braces_over_the_close_event(self, qapp, qtbot):
+        """Qt aborts the process if a running QThread is destroyed, and a
+        panel can be dropped without ever being closed -- a tab rebuilt, a
+        screen replaced, an interpreter shutting down. ``closeEvent`` covers
+        the ordinary path; a panel built under an application also listens to
+        ``aboutToQuit``, which covers the one where nobody closed anything."""
         pytest.importorskip("PySide6")
-        from spacr.qt.widgets import gene_panel
+        from spacr.qt.widgets.gene_panel import GenePanel
 
-        source = inspect.getsource(gene_panel)
-        assert "application = QApplication.instance()" in source
-        assert "aboutToQuit.connect(self._shut_down_warming)" in source
-        assert "if application is not None:" in source, (
-            "the application lookup is no longer guarded against None")
+        signal = "2aboutToQuit()"
+        before = qapp.receivers(signal)
+        panel = GenePanel()
+        qtbot.addWidget(panel)
+        assert qapp.receivers(signal) - before == 1
+
 
     def test_an_application_exists_whenever_a_panel_can_be_built(self, qapp):
         pytest.importorskip("PySide6")

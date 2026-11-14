@@ -277,9 +277,21 @@ def test_gui_only_modules_are_not_runnable():
     assert not (set(cli.INTERACTIVE_ONLY) & set(cli.MODULES))
 
 
-@pytest.mark.parametrize("alias,expected", sorted(cli.ALIASES.items()))
+@pytest.mark.parametrize("alias,expected", [
+    *sorted(cli.ALIASES.items()),
+    # The spellings a pasted script uses for the newer modules.
+    ("invasion", "invasion"),
+    ("analyze_invasion", "invasion"),
+    ("Invasion-Assay", "invasion"),
+    ("replication", "replication"),
+    ("analyze_replication", "replication"),
+    ("analyze_endodyogeny", "endodyogeny"),
+    ("endodyogeny", "endodyogeny"),
+    ("import_project", "foreign"),
+])
 def test_aliases_resolve_to_a_real_module(alias, expected):
-    """Every alias points at a registered module."""
+    """Every alias, and every spelling a pasted script uses, points at a
+    registered module."""
     resolved = cli.resolve_module(alias)
     assert resolved is not None and resolved.key == expected
 

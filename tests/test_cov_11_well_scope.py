@@ -25,23 +25,20 @@ def _frame():
 # Nothing to derive wells from
 # ---------------------------------------------------------------------------
 
-def test_no_guides_selected_names_no_wells():
-    """An empty selection has no wells; it does not mean every well."""
-    assert wells_of(_frame(), []) == []
+@pytest.mark.parametrize("drop, guides", [
+    # An empty selection has no wells; it does not mean every well.
+    pytest.param(None, [], id="no-guides-selected"),
+    # Wells come from the guides, so a table with no guides names none.
+    pytest.param("grna", ["g1"], id="table-without-a-guide-column"),
+    pytest.param("prc", ["g1"], id="table-without-a-well-column"),
+])
+def test_without_guides_or_wells_to_derive_from_no_wells_are_named(drop,
+                                                                  guides):
+    frame = _frame()
+    if drop is not None:
+        frame = frame.drop(columns=[drop])
 
-
-def test_a_table_without_a_guide_column_names_no_wells():
-    """Wells come from the guides, so a table with no guides names none."""
-    frame = _frame().drop(columns=["grna"])
-
-    assert wells_of(frame, ["g1"]) == []
-
-
-def test_a_table_without_a_well_column_names_no_wells():
-    """The other half of the same requirement."""
-    frame = _frame().drop(columns=["prc"])
-
-    assert wells_of(frame, ["g1"]) == []
+    assert wells_of(frame, guides) == []
 
 
 def test_wells_are_unique_in_first_occurrence_order():

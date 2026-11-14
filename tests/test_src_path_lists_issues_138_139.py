@@ -37,58 +37,57 @@ def parse(value):
     return _parse_path_list(value, _nothing_exists)
 
 
-@pytest.mark.parametrize("pasted", [ISSUE_138, ISSUE_139])
-def test_the_pasted_strings_from_the_issues_are_four_plates(pasted):
-    assert parse(pasted) == PLATES
+@pytest.mark.parametrize("pasted, expected", [
+    pytest.param(ISSUE_138, PLATES, id="issue-138-four-plates"),
+    pytest.param(ISSUE_139, PLATES, id="issue-139-four-plates"),
+    pytest.param("/data/plate1", ["/data/plate1"], id="single-folder"),
+    pytest.param("  /data/plate1  ", ["/data/plate1"], id="padded-folder"),
+    pytest.param("\u201c/data/plate1\u201d", ["/data/plate1"], id="curly-double-quotes"),
+    pytest.param("\u2018/data/plate1\u2019", ["/data/plate1"], id="curly-single-quotes"),
+    pytest.param("[/data/plate1]", ["/data/plate1"], id="bracketed-single"),
+    pytest.param('["/a", "/b"]', ["/a", "/b"], id="json-list"),
+    pytest.param("['/a', '/b',]", ["/a", "/b"], id="python-list-trailing-comma"),
+    pytest.param("[\u2018/a\u2019, \u2018/b\u2019]", ["/a", "/b"], id="curly-single-quoted-list"),
+    pytest.param('"/a", "/b"', ["/a", "/b"], id="bare-quoted-pair"),
+    pytest.param('[\u201c/a\u201d\u201c/b\u201d]', ["/a", "/b"], id="adjacent-curly-quotes-in-brackets"),
+    pytest.param("/a\n/b\n\n", ["/a", "/b"], id="newlines-with-blank-lines"),
+    pytest.param("/a\r\n/b", ["/a", "/b"], id="crlf-newlines"),
+    pytest.param("/a, /b", ["/a", "/b"], id="comma-separated"),
+    pytest.param("/a,/b,/a", ["/a", "/b"], id="comma-list-deduplicated"),
+    pytest.param("[/a, /b]", ["/a", "/b"], id="bracketed-bare-list"),
+    pytest.param("/data/plate 1, rep2", ["/data/plate 1, rep2"], id="folder-name-with-comma-and-space"),
+    pytest.param("/data/plate (1)", ["/data/plate (1)"], id="folder-name-with-parentheses"),
+    pytest.param("/data/[x]", ["/data/[x]"], id="folder-name-with-brackets"),
+    pytest.param("/data/o'brien/plate 1", ["/data/o'brien/plate 1"], id="folder-name-with-apostrophe"),
+    pytest.param('["/data/o\'brien/a", "/b"]', ["/data/o'brien/a", "/b"], id="quoted-list-with-apostrophe"),
+    pytest.param("s3://bucket/a,s3://bucket/b", ["s3://bucket/a", "s3://bucket/b"], id="s3-urls"),
+    pytest.param("./a, ../b", ["./a", "../b"], id="relative-paths"),
+    pytest.param("/a\u00a0b\u200b", ["/a b"], id="non-breaking-space-and-zero-width-space"),
+    pytest.param(r"C:\data\plate1", [r"C:\data\plate1"], id="drive-path"),
+    pytest.param(r"C:\data\plate1, D:\screen\plate2", [r"C:\data\plate1", r"D:\screen\plate2"], id="comma-separated-drives"),
+    pytest.param("C:\\data\\plate1\nC:\\data\\plate2", [r"C:\data\plate1", r"C:\data\plate2"], id="newline-separated-drives"),
+    pytest.param(r'["C:\new\plate1", "C:\\data"]', [r"C:\new\plate1", r"C:\data"], id="json-list-with-backslashes"),
+    pytest.param(r"['C:\\data\\p1', 'C:\\data\\p2']", [r"C:\data\p1", r"C:\data\p2"], id="python-list-escaped-backslashes"),
+    pytest.param('["C:\\\\data\\\\p1"]', [r"C:\data\p1"], id="json-escaped-backslashes"),
+    pytest.param("\\\\srv\\share\\p1\n\\\\srv\\share\\p2", [r"\\srv\share\p1", r"\\srv\share\p2"], id="unc-newline-separated"),
+    pytest.param(r'"\\\\srv\\sh", "\\\\srv\\sh2"', [r"\\srv\sh", r"\\srv\sh2"], id="unc-quoted-list"),
+    pytest.param("\u201cC:\\Users\\me\\plate 1\u201d", [r"C:\Users\me\plate 1"], id="curly-quoted-folder-with-space"),
+    pytest.param(None, [], id="none"),
+    pytest.param("", [], id="empty-string"),
+    pytest.param("   ", [], id="blanks"),
+    pytest.param('""', [], id="empty-quotes"),
+    pytest.param("[]", [], id="empty-brackets"),
+    pytest.param("[1, 2, 3]", ["[1, 2, 3]"], id="bracketed-numbers-stay-literal"),
+    pytest.param("[a, b]", ["[a, b]"], id="bracketed-names-stay-literal"),
+    pytest.param(5, [5], id="non-string-number"),
+])
+def test_a_pasted_path_list_is_split_into_the_folders_it_names(pasted, expected):
+    assert parse(pasted) == expected
 
 
 def test_the_issue_strings_without_closing_quotes_still_split():
     pasted = "[\n" + "\n".join("\u201c" + p for p in PLATES) + "\n]"
     assert parse(pasted) == PLATES
-
-
-@pytest.mark.parametrize("pasted, expected", [
-    ("/data/plate1", ["/data/plate1"]),
-    ("  /data/plate1  ", ["/data/plate1"]),
-    ("\u201c/data/plate1\u201d", ["/data/plate1"]),
-    ("\u2018/data/plate1\u2019", ["/data/plate1"]),
-    ("[/data/plate1]", ["/data/plate1"]),
-    ('["/a", "/b"]', ["/a", "/b"]),
-    ("['/a', '/b',]", ["/a", "/b"]),
-    ("[\u2018/a\u2019, \u2018/b\u2019]", ["/a", "/b"]),
-    ('"/a", "/b"', ["/a", "/b"]),
-    ('[\u201c/a\u201d\u201c/b\u201d]', ["/a", "/b"]),
-    ("/a\n/b\n\n", ["/a", "/b"]),
-    ("/a\r\n/b", ["/a", "/b"]),
-    ("/a, /b", ["/a", "/b"]),
-    ("/a,/b,/a", ["/a", "/b"]),
-    ("[/a, /b]", ["/a", "/b"]),
-    ("/data/plate 1, rep2", ["/data/plate 1, rep2"]),
-    ("/data/plate (1)", ["/data/plate (1)"]),
-    ("/data/[x]", ["/data/[x]"]),
-    ("/data/o'brien/plate 1", ["/data/o'brien/plate 1"]),
-    ('["/data/o\'brien/a", "/b"]', ["/data/o'brien/a", "/b"]),
-    ("s3://bucket/a,s3://bucket/b", ["s3://bucket/a", "s3://bucket/b"]),
-    ("./a, ../b", ["./a", "../b"]),
-    ("/a\u00a0b\u200b", ["/a b"]),
-])
-def test_every_accepted_form(pasted, expected):
-    assert parse(pasted) == expected
-
-
-@pytest.mark.parametrize("pasted, expected", [
-    (r"C:\data\plate1", [r"C:\data\plate1"]),
-    (r"C:\data\plate1, D:\screen\plate2", [r"C:\data\plate1", r"D:\screen\plate2"]),
-    ("C:\\data\\plate1\nC:\\data\\plate2", [r"C:\data\plate1", r"C:\data\plate2"]),
-    (r'["C:\new\plate1", "C:\\data"]', [r"C:\new\plate1", r"C:\data"]),
-    (r"['C:\\data\\p1', 'C:\\data\\p2']", [r"C:\data\p1", r"C:\data\p2"]),
-    ('["C:\\\\data\\\\p1"]', [r"C:\data\p1"]),
-    ("\\\\srv\\share\\p1\n\\\\srv\\share\\p2", [r"\\srv\share\p1", r"\\srv\share\p2"]),
-    (r'"\\\\srv\\sh", "\\\\srv\\sh2"', [r"\\srv\sh", r"\\srv\sh2"]),
-    ("\u201cC:\\Users\\me\\plate 1\u201d", [r"C:\Users\me\plate 1"]),
-])
-def test_windows_paths(pasted, expected):
-    assert parse(pasted) == expected
 
 
 def test_macos_volumes_paths():
@@ -104,15 +103,6 @@ def test_home_is_expanded():
                                        os.path.expanduser("~/b")]
     assert parse("~/a") == [os.path.expanduser("~/a")]
     assert os.path.normpath(parse("~/a")[0]) == os.path.join(home, "a")
-
-
-@pytest.mark.parametrize("value, expected", [
-    (None, []), ("", []), ("   ", []), ('""', []), ("[]", []),
-    ("[1, 2, 3]", ["[1, 2, 3]"]), ("[a, b]", ["[a, b]"]),
-    (5, [5]),
-])
-def test_values_that_name_no_folders(value, expected):
-    assert parse(value) == expected
 
 
 def test_lists_keep_their_entries_and_non_strings(tmp_path):

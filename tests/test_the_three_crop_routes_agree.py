@@ -155,25 +155,17 @@ def test_a_database_with_no_such_object_says_so(plate, tmp_path):
     assert "no pathogen rows" in " ".join(report["trouble"])
 
 
+
+
 def test_the_database_route_is_always_a_bounding_box(plate, tmp_path):
     """It has coordinates and no mask, so asking it to cut to the object is a
     request it cannot honour -- and silently returning a box would make the
     parity comparison above meaningless."""
-    import inspect
+    for flag, folder in ((True, "box"), (False, "cut")):
+        generate_annotation_dataset({
+            "src": str(plate), "stream_source": "database",
+            "object_array": "cell", "channel_arrays": [0, 1, 2],
+            "bounding_box": flag, "dst": str(tmp_path / folder)})
 
-    import spacr.annotation_dataset as module
-
-    source = inspect.getsource(module.generate_annotation_dataset)
-    assert 'True if source == "database"' in source
-
-
-def test_both_routes_use_measures_own_writer():
-    """Two writers cannot be relied on to narrow to 8-bit, pad a two-channel
-    crop, or resize identically -- and every one of those would break parity
-    in a way only a byte comparison would catch."""
-    import inspect
-
-    import spacr.annotation_dataset as module
-
-    source = inspect.getsource(module.generate_annotation_dataset)
-    assert "from .measure import _save_object_crop" in source
+    assert _crops(tmp_path / "box") == _crops(tmp_path / "cut")
+    assert len(_crops(tmp_path / "box")) == 2

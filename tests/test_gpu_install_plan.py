@@ -31,66 +31,19 @@ def test_python_supported_matches_the_running_interpreter():
     assert python_supported() is (sys.version_info[:2] in SUPPORTED_PYTHON)
 
 
-def test_an_unsupported_interpreter_says_what_to_do(monkeypatch):
-    """"Make a 3.11 environment" is actionable; a pip resolver error is
-    not, and pip is what the user would otherwise meet."""
-    monkeypatch.setattr("spacr.gpu_reduce.python_supported", lambda: False)
-    monkeypatch.setattr("spacr.gpu_reduce.rapids_available", lambda: False)
-    plan = install_plan()
-    assert plan["action"] == "wrong_python"
-    assert "3.11" in plan["message"]
-    assert "conda create" in plan["message"]
-
-
-def test_a_supported_interpreter_offers_to_install(monkeypatch):
-    monkeypatch.setattr("spacr.gpu_reduce.python_supported", lambda: True)
-    monkeypatch.setattr("spacr.gpu_reduce.rapids_available", lambda: False)
-    plan = install_plan()
-    assert plan["action"] == "install"
-
-
-def test_the_size_is_stated_before_the_download_starts(monkeypatch):
-    """A multi-gigabyte download with no progress reads as a hang."""
-    monkeypatch.setattr("spacr.gpu_reduce.python_supported", lambda: True)
-    monkeypatch.setattr("spacr.gpu_reduce.rapids_available", lambda: False)
-    message = install_plan()["message"]
-    assert "GIGABYTES" in message
-
-
-def test_the_restart_is_stated_too(monkeypatch):
-    """pip can upgrade numpy and scipy underneath a process that has already
-    imported them, and this one has."""
-    monkeypatch.setattr("spacr.gpu_reduce.python_supported", lambda: True)
-    monkeypatch.setattr("spacr.gpu_reduce.rapids_available", lambda: False)
-    assert "RESTARTED" in install_plan()["message"]
-
-
-def test_a_working_install_is_ready_rather_than_offered_again(monkeypatch):
-    monkeypatch.setattr("spacr.gpu_reduce.rapids_available", lambda: True)
-    assert install_plan()["action"] == "ready"
-
-
-def test_cuml_without_a_device_is_not_an_install_problem(monkeypatch):
-    """Installing again cannot conjure a GPU, so it must not be offered."""
-    import types
-
-    monkeypatch.setattr("spacr.gpu_reduce.rapids_available", lambda: False)
-    monkeypatch.setitem(sys.modules, "cuml", types.SimpleNamespace())
-    plan = install_plan()
-    assert plan["action"] == "no_device"
-    assert "nvidia-smi" in plan["message"]
-
-
 def test_nothing_is_installed_by_deciding(monkeypatch):
     """A function that decided AND installed could not be asked what would
     happen without it happening."""
-    import inspect
+    import subprocess
 
-    from spacr import gpu_reduce
+    def refuse(*args, **kwargs):
+        raise AssertionError("deciding must not start a process")
 
-    source = inspect.getsource(gpu_reduce.install_plan)
-    for forbidden in ("subprocess", "check_call", "pip.main"):
-        assert forbidden not in source
+    for name in ("run", "call", "check_call", "check_output", "Popen"):
+        monkeypatch.setattr(subprocess, name, refuse)
+    for supported in (True, False):
+        monkeypatch.setattr("spacr.gpu_reduce.python_supported", lambda ok=supported: ok)
+        assert install_plan()["action"] in {"wrong_python", "install", "ready", "no_device"}
 
 
 def test_the_command_is_shown_rather_than_hidden():

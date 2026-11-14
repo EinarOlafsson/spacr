@@ -12,39 +12,20 @@ import pytest
 # spacr.ml.check_distribution — model recommender for y
 # ===========================================================================
 
-def test_ml_check_distribution_binary_returns_logit(capsys):
+@pytest.mark.parametrize("y, expected", [
+    pytest.param(np.array([0, 1, 0, 1, 1, 0]), "logit", id="binary-is-logit"),
+    pytest.param(np.array([0.2, 0.4, 0.5, 0.6, 0.7]), "beta",
+                 id="strictly-inside-0-1-is-beta"),
+    pytest.param(np.array([1e-8, 0.5, 1 - 1e-8, 0.3]), "quasi_binomial",
+                 id="inside-but-near-the-boundary-is-quasi-binomial"),
+    pytest.param(np.array([0.0, 0.4, 1.0, 0.7]), "quasi_binomial",
+                 id="contains-exactly-0-and-1-is-quasi-binomial"),
+    pytest.param(np.random.default_rng(0).normal(10, 2, 500), "ols",
+                 id="snap-normal-sample-is-ols"),
+])
+def test_ml_check_distribution_recommends_the_model_for_y(y, expected, capsys):
     from spacr.ml import check_distribution
-    y = np.array([0, 1, 0, 1, 1, 0])
-    assert check_distribution(y) == "logit"
-
-
-def test_ml_check_distribution_proportion_strict_returns_beta(capsys):
-    from spacr.ml import check_distribution
-    # Values strictly between 0 and 1, not near the boundaries.
-    y = np.array([0.2, 0.4, 0.5, 0.6, 0.7])
-    assert check_distribution(y) == "beta"
-
-
-def test_ml_check_distribution_proportion_near_boundary_returns_quasibinomial(capsys):
-    from spacr.ml import check_distribution
-    y = np.array([1e-8, 0.5, 1 - 1e-8, 0.3])
-    assert check_distribution(y) == "quasi_binomial"
-
-
-def test_ml_check_distribution_bounded_with_zero_or_one_returns_quasibinomial(capsys):
-    from spacr.ml import check_distribution
-    y = np.array([0.0, 0.4, 1.0, 0.7])
-    # Contains 0 and 1 exactly → quasi_binomial branch.
-    assert check_distribution(y) == "quasi_binomial"
-
-
-def test_ml_check_distribution_normal_returns_ols(capsys, rng):
-    from spacr.ml import check_distribution
-    y = rng.normal(10, 2, 500)   # clearly normally distributed
-    # May be either 'ols' or 'glm' depending on outcome of D'Agostino test;
-    # we just assert the return is one of the documented strings.
-    out = check_distribution(y)
-    assert out in {"ols", "glm", "logit", "quasi_binomial", "beta"}
+    assert check_distribution(y) == expected
 
 
 # ===========================================================================

@@ -13,6 +13,7 @@ import pytest
 
 from spacr import cli_repro
 from spacr import run_journal as journal
+from spacr.settings import SETTINGS_SCHEMA_VERSION, SETTINGS_VERSION_KEY
 
 
 @pytest.fixture
@@ -28,6 +29,16 @@ def recorded(tmp_path, monkeypatch):
         return run.dir
 
     return record
+
+
+def _stamped(settings):
+    """``settings`` as the journal saves them: with the schema stamp.
+
+    Every saved settings file and journal carries ``spacr_settings_version``
+    (item 931), and the exported per-plate files inherit the recorded run's
+    stamp, so ``spacr-run`` replays each job under the defaults of that run.
+    """
+    return {SETTINGS_VERSION_KEY: SETTINGS_SCHEMA_VERSION, **settings}
 
 
 def _settings(folder):
@@ -92,7 +103,7 @@ def test_plate_jobs_isolate_explicit_outputs_even_when_plate_names_collide(
         assert settings["custom_model"] == original["custom_model"]
         assert settings["reference_file"] == original["reference_file"]
         assert settings[destination_key].endswith(name)
-    assert journal.load_run_settings(run) == original
+    assert journal.load_run_settings(run) == _stamped(original)
 
 
 @pytest.mark.parametrize("sources", [None, "/a/plate", ["/a/plate"]])
@@ -145,7 +156,7 @@ def test_output_database_follows_each_module_plate_without_rewriting_inputs(
         assert job["checkpoint_path"] == (
             f"/checkpoints/{name}/progress.json" if module == "convert"
             else original["checkpoint_path"])
-    assert journal.load_run_settings(run) == original
+    assert journal.load_run_settings(run) == _stamped(original)
 
 
 @pytest.mark.parametrize("module", ["explain_cv", "investigate_hit", "mask"])
@@ -212,7 +223,7 @@ def test_convert_escaped_map_outputs_are_isolated(
     cli_repro._export_workflow(run, tmp_path / engine, engine)
     for name, job in _settings(tmp_path / engine).items():
         assert job["map_name"] == expected.format(plate=name)
-    assert journal.load_run_settings(run) == original
+    assert journal.load_run_settings(run) == _stamped(original)
 
 
 @pytest.mark.parametrize("map_name", [None, "", "map.csv", "maps/map.csv",
@@ -240,7 +251,7 @@ def test_a_run_without_src_is_one_job_and_versions_pick_the_image(
     run = recorded("external_masks", {"inputs": ["/a", "/b"], "dst": "/o"})
     cli_repro._export_workflow(run, tmp_path / "wf")
     assert _settings(tmp_path / "wf") == {
-        "run": {"inputs": ["/a", "/b"], "dst": "/o"}}
+        "run": _stamped({"inputs": ["/a", "/b"], "dst": "/o"})}
     assert cli_repro._workflow_image({"env": {"spacr": "1.5.0"}}).endswith(
         ":1.5.0-cpu")
     assert cli_repro._workflow_image({"env": {"spacr": "1.5.0.dev3"}}).endswith(

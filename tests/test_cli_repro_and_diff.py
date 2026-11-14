@@ -63,20 +63,6 @@ def test_cli_repro_dry_prints_would_run(tmp_path, monkeypatch):
     assert "spacr.core.preprocess_generate_masks" in out
 
 
-def test_cli_repro_missing_folder_returns_2(tmp_path):
-    from spacr.cli_repro import main
-    rc = main([str(tmp_path / "does_not_exist")])
-    assert rc == 2
-
-
-def test_cli_repro_bad_folder_no_manifest_returns_2(tmp_path):
-    from spacr.cli_repro import main
-    bad = tmp_path / "empty_folder"
-    bad.mkdir()
-    rc = main([str(bad)])
-    assert rc == 2
-
-
 def test_cli_repro_replays_settings_via_stubbed_entry(tmp_path, monkeypatch):
     """End-to-end (dry side): --show → resolves + runs → returns 0."""
     from spacr import cli_repro

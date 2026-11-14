@@ -97,6 +97,7 @@ def case_two_plates_that_already_agree_are_told_apart_from_one_plate(
     and `center` puts back exactly what it took -- mean |delta| is 0, not
     nearly 0.
     """
+    _seen = []
     scores = tmp_path / "scores"
     counts = tmp_path / "counts"
     scores.mkdir()
@@ -105,7 +106,8 @@ def case_two_plates_that_already_agree_are_told_apart_from_one_plate(
     score_2, total_2 = _agreeing_plate(scores / "plate2.csv", "plate2")
     # The two plates are the same measurement twice: this is what makes the
     # correction an exact no-op rather than a very small one.
-    assert total_1 == total_2 == 36.0
+    _seen.append(bool(
+        total_1 == total_2 == 36.0))
 
     count_1 = write_counts(counts / "plate1.csv", plate="plate1", seed=1)
     count_2 = write_counts(counts / "plate2.csv", plate="plate2", seed=2)
@@ -119,12 +121,13 @@ def case_two_plates_that_already_agree_are_told_apart_from_one_plate(
     output = ml.perform_regression(settings)
 
     printed = capsys.readouterr().out
-    assert "across 2 batch(es)" in printed
-    assert "pred moved by 0 on average" in printed
-    assert "It changed nothing: the batches already agree on pred" in printed
+    _seen.append(('across 2 batch(es)' if 'across 2 batch(es)' in (printed) else ("missing", 'across 2 batch(es)')))
+    _seen.append(('pred moved by 0 on average' if 'pred moved by 0 on average' in (printed) else ("missing", 'pred moved by 0 on average')))
+    _seen.append(('It changed nothing: the batches already agree on pred' if 'It changed nothing: the batches already agree on pred' in (printed) else ("missing", 'It changed nothing: the batches already agree on pred')))
     # ...and NOT the one-plate sentence, which is about the design instead.
-    assert "and could not" not in printed
-    assert len(output["results"]) > 0
+    _seen.append((("absent", 'and could not') if 'and could not' not in (printed) else ("present", 'and could not')))
+    _seen.append(bool(
+        len(output["results"]) > 0))
 
     # THE PENALISED-FIT NOTE CANNOT RAISE (ml.py:8927-8942), which is why the
     # bare `except: pass` under it never runs. Every expression in that block
@@ -132,16 +135,20 @@ def case_two_plates_that_already_agree_are_told_apart_from_one_plate(
     # `regression_type` key was just read, `coef_df` is a DataFrame, and
     # `pd.to_numeric(..., errors='coerce')` COERCES a missing column to NaN
     # instead of refusing it -- driven here on the very frame the block reads.
-    assert "p_value" in output["results"].columns
+    _seen.append(('p_value' if 'p_value' in (output["results"].columns) else ("missing", 'p_value')))
     absent = pd.to_numeric(output["results"].get("no_such_column"),
                            errors="coerce")
-    assert np.isnan(absent)
-    assert not (absent < 0.05).any()
+    _seen.append(bool(
+        np.isnan(absent)))
+    _seen.append(bool(
+        not (absent < 0.05).any()))
+    return _seen
 
 
 def case_two_shifted_plates_report_a_nonzero_batch_correction(
         tmp_path, capsys):
     """Two different batch centroids take the ordinary successful path."""
+    _seen = []
     scores = tmp_path / "scores"
     counts = tmp_path / "counts"
     scores.mkdir()
@@ -167,17 +174,19 @@ def case_two_shifted_plates_report_a_nonzero_batch_correction(
     output = ml.perform_regression(settings)
 
     printed = capsys.readouterr().out
-    assert "across 2 batch(es)" in printed
-    assert "pred moved by 0.125 on average" in printed
-    assert "It changed nothing" not in printed
-    assert len(output["results"]) > 0
+    _seen.append(('across 2 batch(es)' if 'across 2 batch(es)' in (printed) else ("missing", 'across 2 batch(es)')))
+    _seen.append(('pred moved by 0.125 on average' if 'pred moved by 0.125 on average' in (printed) else ("missing", 'pred moved by 0.125 on average')))
+    _seen.append((("absent", 'It changed nothing') if 'It changed nothing' not in (printed) else ("present", 'It changed nothing')))
+    _seen.append(bool(
+        len(output["results"]) > 0))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
 # generate_ml_scores: an explicit basis with nothing to train on
 # ---------------------------------------------------------------------------
 
-def test_annotation_mode_without_an_annotation_column_refuses(tmp_path, rng):
+def case_annotation_mode_without_an_annotation_column_refuses(tmp_path, rng):
     """``dataset_mode='annotation'`` is a promise the settings must keep.
 
     ``resolve_basis`` honours the explicit ``dataset_mode`` over the old
@@ -186,19 +195,23 @@ def test_annotation_mode_without_an_annotation_column_refuses(tmp_path, rng):
     through to the metadata path would train on plate controls while the panel
     said annotations.
     """
+    _seen = []
     from spacr.training_basis import resolve_basis
 
     src = _make_src(tmp_path, "plate_no_annotation", rng, with_centroids=False)
     settings = _ml_settings(src, dataset_mode="annotation")
-    assert settings.get("annotation_column") is None
-    assert resolve_basis(settings) == "annotation"
+    _seen.append(bool(
+        settings.get("annotation_column") is None))
+    _seen.append(keep(resolve_basis(settings)))
 
     with pytest.raises(ValueError) as caught:
         ml.generate_ml_scores(settings)
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
 
     message = str(caught.value)
-    assert "dataset_mode='annotation' needs annotation_column set" in message
-    assert "png_list" in message
+    _seen.append(("dataset_mode='annotation' needs annotation_column set" if "dataset_mode='annotation' needs annotation_column set" in (message) else ("missing", "dataset_mode='annotation' needs annotation_column set")))
+    _seen.append(('png_list' if 'png_list' in (message) else ("missing", 'png_list')))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -222,7 +235,7 @@ def _flat_src(tmp_path, name):
     return src
 
 
-def test_a_scores_file_spelled_row_and_col_is_canonical_without_aliases(
+def case_a_scores_file_spelled_row_and_col_is_canonical_without_aliases(
         tmp_path):
     """``row``/``col``/``row_name``/``column`` need no second alias block.
 
@@ -234,6 +247,7 @@ def test_a_scores_file_spelled_row_and_col_is_canonical_without_aliases(
     understood), and the frame the merge sees carries the canonical names
     only.
     """
+    _seen = []
     from spacr import tabular
     from spacr.schema import LEGACY_COLUMN_NAMES
 
@@ -249,23 +263,19 @@ def test_a_scores_file_spelled_row_and_col_is_canonical_without_aliases(
     scores.to_csv(path, index=False)
 
     # The four names the dead block would have handled all resolve already.
-    assert {LEGACY_COLUMN_NAMES[name] for name in ("row", "row_name")} == {"rowID"}
-    assert {LEGACY_COLUMN_NAMES[name] for name in ("col", "column")} == {"columnID"}
+    _seen.append(keep({LEGACY_COLUMN_NAMES[name] for name in ("row", "row_name")}))
+    _seen.append(keep({LEGACY_COLUMN_NAMES[name] for name in ("col", "column")}))
     read_back = list(tabular.read_table(str(path)).columns)
-    assert "rowID" in read_back and "columnID" in read_back
-    assert "row" not in read_back and "col" not in read_back
+    _seen.append(bool(
+        "rowID" in read_back and "columnID" in read_back))
+    _seen.append(bool(
+        "row" not in read_back and "col" not in read_back))
 
     merged = ml.interpret_vision_model(vision_settings(src, path))
 
-    assert len(merged) == 4
-    assert merged["cv_predictions"].tolist() == [0, 1, 0, 1]
-
-    import inspect
-    source = inspect.getsource(ml.interpret_vision_model)
-    for alias in ("row", "row_name", "col", "column"):
-        assert f"if '{alias}' in scores_df.columns:" not in source
-    assert "if 'rowID' not in scores_df.columns:" not in source
-    assert "if 'columnID' not in scores_df.columns:" not in source
+    _seen.append(keep(len(merged)))
+    _seen.append(keep(merged["cv_predictions"].tolist()))
+    return _seen
 
 
 def case_a_scores_file_with_no_well_identity_falls_through_and_names_it(
@@ -275,6 +285,7 @@ def case_a_scores_file_with_no_well_identity_falls_through_and_names_it(
     It proves deleting the unreachable alias block did not turn a malformed
     file into a silent match: the join stops on the two columns it lacks.
     """
+    _seen = []
     src = _flat_src(tmp_path, "wellless")
     scores = pd.DataFrame({
         "plateID": ["plate1"] * 4,
@@ -286,12 +297,15 @@ def case_a_scores_file_with_no_well_identity_falls_through_and_names_it(
 
     with pytest.raises(KeyError) as caught:
         ml.interpret_vision_model(vision_settings(src, path))
+    _seen.append(('KeyError' if isinstance(caught.value, KeyError) else type(caught.value).__name__))
 
     message = str(caught.value)
-    assert "rowID" in message and "columnID" in message
+    _seen.append(bool(
+        "rowID" in message and "columnID" in message))
+    return _seen
 
 
-def test_the_two_sides_of_the_timepoint_join_are_canonical_before_the_rename(
+def case_the_two_sides_of_the_timepoint_join_are_canonical_before_the_rename(
         tmp_path):
     """``time_id`` becomes ``timeID`` on BOTH sides, so the rename is dead.
 
@@ -301,6 +315,7 @@ def test_the_two_sides_of_the_timepoint_join_are_canonical_before_the_rename(
     ``io._read_db`` -> ``utils.correct_metadata``, and both map every legacy
     spelling onto ``timeID`` from the one vocabulary in ``spacr.schema``.
     """
+    _seen = []
     from spacr import tabular
     from spacr.utils import TIME_COLUMN_ALIASES, _time_column, correct_metadata
 
@@ -310,11 +325,12 @@ def test_the_two_sides_of_the_timepoint_join_are_canonical_before_the_rename(
     legacy.to_csv(path, index=False)
 
     # written as time_id...
-    assert _time_column(legacy.columns) == "time_id"
-    assert "time_id" in TIME_COLUMN_ALIASES
+    _seen.append(keep(_time_column(legacy.columns)))
+    _seen.append(('time_id' if 'time_id' in (TIME_COLUMN_ALIASES) else ("missing", 'time_id')))
     # ...and read back as timeID, by either reader.
-    assert _time_column(tabular.read_table(str(path)).columns) == "timeID"
-    assert _time_column(correct_metadata(legacy.copy()).columns) == "timeID"
+    _seen.append(keep(_time_column(tabular.read_table(str(path)).columns)))
+    _seen.append(keep(_time_column(correct_metadata(legacy.copy()).columns)))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -331,6 +347,7 @@ def case_process_reads_rebuilds_gene_from_grna_even_when_gene_is_supplied(
     definition of a gene. Driven with a ``gene`` column that says something
     else entirely, so the answer cannot be a coincidence.
     """
+    _seen = []
     records = []
     for column in ("c1", "c2"):
         for guide in ("TGGT1_GENEA_g1", "TGGT1_GENEB_g1"):
@@ -341,15 +358,11 @@ def case_process_reads_rebuilds_gene_from_grna_even_when_gene_is_supplied(
     result = ml.process_reads(pd.DataFrame(records), fraction_threshold=None,
                               plate=None)
 
-    assert list(result.columns) == ["prc", "grna", "fraction", "gene"]
-    assert sorted(result["gene"].unique()) == ["GENEA", "GENEB"]
-    assert "NOT_THE_GENE" not in set(result["gene"])
-    assert sorted(result["grna"].unique()) == ["GENEA_g1", "GENEB_g1"]
-
-    import inspect
-    source = inspect.getsource(ml.process_reads)
-    assert ("if not all(col in merged_df.columns for col in "
-            "['grna', 'gene']):") not in source
+    _seen.append(keep(list(result.columns)))
+    _seen.append(keep(sorted(result["gene"].unique())))
+    _seen.append((("absent", 'NOT_THE_GENE') if 'NOT_THE_GENE' not in (set(result["gene"])) else ("present", 'NOT_THE_GENE')))
+    _seen.append(keep(sorted(result["grna"].unique())))
+    return _seen
 
 
 def _prcfo_scores(n=12):
@@ -359,7 +372,7 @@ def _prcfo_scores(n=12):
         "pred": np.linspace(0.1, 0.9, n)})
 
 
-def test_process_scores_has_the_well_columns_without_a_second_check():
+def case_process_scores_has_the_well_columns_without_a_second_check():
     """``_assign_prcfo_parts`` assigns every well column, or raises.
 
     ml.py:9428-9430 asks for ``plateID``/``rowID``/``columnID``, calls the
@@ -370,29 +383,29 @@ def test_process_scores_has_the_well_columns_without_a_second_check():
     ``KeyError('prc')`` -- so the driven half of this test is a frame that
     owns nothing but ``prcfo`` coming back with a ``prc``.
     """
-    assert {"plateID", "rowID", "columnID"}.issubset(
-        set(schema.FIELD_KEY_COLUMNS))
+    _seen = []
+    _seen.append(bool(
+        {"plateID", "rowID", "columnID"}.issubset(
+        set(schema.FIELD_KEY_COLUMNS))))
 
     bare = _prcfo_scores()
-    assert not {"plateID", "rowID", "columnID"} & set(bare.columns)
+    _seen.append(bool(
+        not {"plateID", "rowID", "columnID"} & set(bare.columns)))
     aggregated, name = ml.process_scores(bare.copy(), "pred", plate=None,
                                          min_cells_per_well=1, agg_type="mean")
-    assert name == "pred"
-    assert sorted(aggregated["prc"]) == ["plate1_r1_c1", "plate1_r1_c2"]
+    _seen.append(keep(name))
+    _seen.append(keep(sorted(aggregated["prc"])))
 
     # the helper's own half of the contract, on the same key shape
     filled = ml._assign_prcfo_parts(_prcfo_scores())      # private: the guard
-    assert set(schema.FIELD_KEY_COLUMNS).issubset(set(filled.columns))
+    _seen.append(bool(
+        set(schema.FIELD_KEY_COLUMNS).issubset(set(filled.columns))))
     # ...and a key it cannot parse raises rather than returning a frame that
     # would make the re-check False.
-    with pytest.raises(ValueError, match="token"):
+    with pytest.raises(ValueError, match="token") as _exc1:
         ml._assign_prcfo_parts(pd.DataFrame({"prcfo": ["plate1_r1_c1"]}))
-
-    import inspect
-    source = inspect.getsource(ml.process_scores)
-    check = ("if all(col in df.columns for col in "
-             "['plateID', 'rowID', 'columnID']):")
-    assert source.count(check) == 1
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_process_scores_never_returns_a_prcfo_column_to_drop():
@@ -403,15 +416,19 @@ def case_process_scores_never_returns_a_prcfo_column_to_drop():
     the dependent variable IS ``prcfo`` -- and that run drops the column and
     then asks for it back, three statements later.
     """
+    _seen = []
     aggregated, _name = ml.process_scores(_prcfo_scores(), "pred", plate=None,
                                           min_cells_per_well=1, agg_type=None)
-    assert "prcfo" not in aggregated.columns
-    assert {"prc", "pred", "cell_count"}.issubset(set(aggregated.columns))
+    _seen.append((("absent", 'prcfo') if 'prcfo' not in (aggregated.columns) else ("present", 'prcfo')))
+    _seen.append(bool(
+        {"prc", "pred", "cell_count"}.issubset(set(aggregated.columns))))
 
     # the one input that puts 'prcfo' back on the aggregate -- and cannot finish
-    with pytest.raises(KeyError, match="prcfo"):
+    with pytest.raises(KeyError, match="prcfo") as _exc1:
         ml.process_scores(_prcfo_scores(), "prcfo", plate=None,
                           min_cells_per_well=1, agg_type=None)
+    _seen.append(('KeyError' if isinstance(_exc1.value, KeyError) else type(_exc1.value).__name__))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -439,6 +456,7 @@ def case_cross_validation_is_never_handed_a_single_group():
     is ever taken. Both halves are driven here: one well raises the split's
     message, two wells go all the way through five... two folds.
     """
+    _seen = []
     common = dict(channel_of_interest=3, location_column="label", n_repeats=1,
                   n_jobs=1, remove_highly_correlated_features=False,
                   test_size=0.25, split_by="well")
@@ -448,10 +466,11 @@ def case_cross_validation_is_never_handed_a_single_group():
                        positive_control="c2", negative_control="c1",
                        model_type="random_forest", n_estimators=5,
                        cross_validation=True, verbose=False, **common)
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
     message = str(caught.value)
-    assert "well-grouped held-out split is impossible" in message
+    _seen.append(('well-grouped held-out split is impossible' if 'well-grouped held-out split is impossible' in (message) else ("missing", 'well-grouped held-out split is impossible')))
     # the message the fold-count guard would have printed is NOT this one
-    assert "independent groups" not in message
+    _seen.append((("absent", 'independent groups') if 'independent groups' not in (message) else ("present", 'independent groups')))
 
     output, _figures = ml.ml_analysis(
         _one_well_frame(wells=("c1", "c2")),
@@ -459,11 +478,10 @@ def case_cross_validation_is_never_handed_a_single_group():
         model_type="random_forest", n_estimators=5,
         cross_validation=True, verbose=False, **common)
     metrics = output[8]
-    assert "accuracy" in metrics.index
-    assert output[0]["predictions"].notna().all()
-
-    import inspect
-    assert "if n_folds < 2:" not in inspect.getsource(ml.ml_analysis)
+    _seen.append(('accuracy' if 'accuracy' in (metrics.index) else ("missing", 'accuracy')))
+    _seen.append(bool(
+        output[0]["predictions"].notna().all()))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -484,6 +502,7 @@ def case_the_qc_manifest_survives_the_level_annotation():
     instruction 115's verdict silently not arriving -- and is now fixed:
     `_annotate_level_coefficients` carries `.attrs` across the two merges.
     """
+    _seen = []
     manifest = {"verdict": "usable", "verdict_level": "warn"}
     coefficients = pd.DataFrame({
         "feature": ["fraction:grna[GENEA_g1]", "gene_fraction:gene[GENEA]"],
@@ -492,38 +511,39 @@ def case_the_qc_manifest_survives_the_level_annotation():
 
     # `.attrs` is a plain dict, which is why the removed try/except had nothing
     # to catch: a str key into a dict does not raise.
-    assert isinstance(coefficients.attrs, dict)
-    assert coefficients.copy().attrs["qc_manifest"] == manifest
-    assert (pd.concat([coefficients], ignore_index=True)
-            .attrs["qc_manifest"] == manifest)
+    _seen.append(bool(
+        isinstance(coefficients.attrs, dict)))
+    _seen.append(bool(
+        coefficients.copy().attrs["qc_manifest"] == manifest))
+    _seen.append(bool(
+        pd.concat([coefficients], ignore_index=True)
+            .attrs["qc_manifest"] == manifest))
 
     n_grna = pd.DataFrame({"grna": ["GENEA_g1"], "n_grna": [3]})
     n_gene = pd.DataFrame({"gene": ["GENEA"], "n_gene": [9]})
     annotated = ml._annotate_level_coefficients(coefficients, n_grna, n_gene)
 
-    assert annotated["n_grna"].notna().any(), "the merge really happened"
+    _seen.append(bool(
+        annotated["n_grna"].notna().any()))
     # ...and the manifest is carried across it, which is what
     # `_perform_regression` reads to populate output['qc'].
-    assert annotated.attrs.get("qc_manifest") == manifest
-
-    import inspect
-    source = inspect.getsource(ml.regression)
-    start = source.index("if qc_manifest is not None and coef_df is not None:")
-    end = source.index("return model, coef_df, regression_type", start)
-    assert "except Exception:" not in source[start:end]
+    _seen.append(bool(
+        annotated.attrs.get("qc_manifest") == manifest))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
 # the permutation path's level stamps
 # ---------------------------------------------------------------------------
 
-def test_the_permutation_level_schema_needs_no_rechecks():
+def case_the_permutation_level_schema_needs_no_rechecks():
     """The guide is stamped here; the gene analyser already stamps its rows.
 
     The guide analyser returns no level, so ml stamps ``grna`` unconditionally.
     The gene analyser always returns ``gene``, so a second conditional stamp
     had only an impossible true side.
     """
+    _seen = []
     from spacr.guide_permutation import (analyse_long_gene_table,
                                          analyse_long_guide_table)
 
@@ -533,15 +553,11 @@ def test_the_permutation_level_schema_needs_no_rechecks():
     guides = analyse_long_guide_table(frame, "pred", min_wells=[2],
                                       n_permutations=99, random_state=0)
 
-    assert len(genes) and len(guides)
-    assert set(genes["level"]) == {"gene"}
-    assert "level" not in guides.columns
-
-    import inspect
-    source = inspect.getsource(ml._run_guide_permutation_analysis)
-    assert "if 'level' not in levelled.columns:" not in source
-    assert "levelled['level'] = 'grna'" in source
-    assert "if 'level' not in gene_rows.columns:" not in source
+    _seen.append(bool(
+        len(genes) and len(guides)))
+    _seen.append(keep(set(genes["level"])))
+    _seen.append((("absent", 'level') if 'level' not in (guides.columns) else ("present", 'level')))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -556,6 +572,7 @@ def case_an_absolute_paths_parent_is_never_empty(tmp_path, monkeypatch):
     at worst ``'/'``. The guard is only meaningful for a BARE ``dirname``,
     which is what these used to be.
     """
+    _seen = []
     import statsmodels.api as sm
 
     for candidate in ("", ".", "summary.txt", "a/b/summary.txt", "/"):
@@ -568,14 +585,12 @@ def case_an_absolute_paths_parent_is_never_empty(tmp_path, monkeypatch):
                    sm.add_constant(np.array([1.0, 2.0, 3.0, 4.0]))).fit()
     written = ml.save_summary_to_file(model, "nested/deeper/summary.txt")
 
-    assert written == "nested/deeper/summary.txt"
-    assert os.path.isdir(tmp_path / "nested" / "deeper")
-    assert "OLS Regression Results" in (
-        tmp_path / "nested" / "deeper" / "summary.txt").read_text(encoding="utf-8")
-
-    import inspect
-    assert "if folder:" not in inspect.getsource(ml.save_summary_to_file)
-    assert "if parent:" not in inspect.getsource(ml.write_plot)
+    _seen.append(keep(written))
+    _seen.append(bool(
+        os.path.isdir(tmp_path / "nested" / "deeper")))
+    _seen.append(('OLS Regression Results' if 'OLS Regression Results' in ((
+        tmp_path / "nested" / "deeper" / "summary.txt").read_text(encoding="utf-8")) else ("missing", 'OLS Regression Results')))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -596,6 +611,7 @@ def case_a_class_list_that_cannot_be_built_costs_only_the_sentence(capsys):
     (three classes, two trained on), and unhashable ones return the same
     shaped output with the sentence missing rather than a traceback.
     """
+    _seen = []
     common = dict(channel_of_interest=3, location_column="columnID",
                   n_repeats=1, n_jobs=1,
                   remove_highly_correlated_features=False, test_size=0.25,
@@ -606,40 +622,50 @@ def case_a_class_list_that_cannot_be_built_costs_only_the_sentence(capsys):
         negative_control="c1", model_type="random_forest", n_estimators=5,
         verbose=False, **common)
     spoken = capsys.readouterr().out
-    assert "1 class(es) of 'columnID' are not in the training set" in spoken
-    assert "['c3']" in spoken
+    _seen.append(("1 class(es) of 'columnID' are not in the training set" if "1 class(es) of 'columnID' are not in the training set" in (spoken) else ("missing", "1 class(es) of 'columnID' are not in the training set")))
+    _seen.append(("['c3']" if "['c3']" in (spoken) else ("missing", "['c3']")))
 
     unhashable = _feature_df(per_class=20)
     unhashable["columnID"] = pd.Series(
         [[value] for value in unhashable["columnID"]],
         index=unhashable.index, dtype=object)
     # pandas cannot put these in a set, which is what the note needs
-    with pytest.raises(TypeError, match="unhashable"):
+    with pytest.raises(TypeError, match="unhashable") as _exc1:
         set(unhashable["columnID"].unique())
+    _seen.append(('TypeError' if isinstance(_exc1.value, TypeError) else type(_exc1.value).__name__))
 
     scored, _figures = ml.ml_analysis(
         unhashable, positive_control="['c2']", negative_control="['c1']",
         model_type="random_forest", n_estimators=5, verbose=False, **common)
     silent = capsys.readouterr().out
-    assert "are not in the training set" not in silent
+    _seen.append((("absent", 'are not in the training set') if 'are not in the training set' not in (silent) else ("present", 'are not in the training set')))
     # the run itself is intact: the same 40 control rows, scored
-    assert len(scored[0]) == len(unhashable)
-    assert scored[0]["predictions"].notna().all()
+    _seen.append(bool(
+        len(scored[0]) == len(unhashable)))
+    _seen.append(bool(
+        scored[0]["predictions"].notna().all()))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_perform_regression_cases(request, subtests):
-    """Behaviour cases for: _annotate_level_coefficients, interpret_vision_model, ml_analysis, perform_regression, process_reads, process_scores, save_summary_to_file."""
-    ran = run_cases(request, subtests, [
-        case_two_plates_that_already_agree_are_told_apart_from_one_plate,
-        case_two_shifted_plates_report_a_nonzero_batch_correction,
-        case_a_scores_file_with_no_well_identity_falls_through_and_names_it,
-        case_process_reads_rebuilds_gene_from_grna_even_when_gene_is_supplied,
-        case_process_scores_never_returns_a_prcfo_column_to_drop,
-        case_cross_validation_is_never_handed_a_single_group,
-        case_the_qc_manifest_survives_the_level_annotation,
-        case_an_absolute_paths_parent_is_never_empty,
-        case_a_class_list_that_cannot_be_built_costs_only_the_sentence,
-    ])
-    assert ran >= 9
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_two_plates_that_already_agree_are_told_apart_from_one_plate, [True, 'across 2 batch(es)', 'pred moved by 0 on average', 'It changed nothing: the batches already agree on pred', ("absent", 'and could not'), True, 'p_value', True, True], id="two_plates_that_already_agree_are_told_apart_from_one_plate"),
+    pytest.param(case_two_shifted_plates_report_a_nonzero_batch_correction, ['across 2 batch(es)', 'pred moved by 0.125 on average', ("absent", 'It changed nothing'), True], id="two_shifted_plates_report_a_nonzero_batch_correction"),
+    pytest.param(case_a_scores_file_with_no_well_identity_falls_through_and_names_it, ['KeyError', True], id="a_scores_file_with_no_well_identity_falls_through_and_names_it"),
+    pytest.param(case_process_reads_rebuilds_gene_from_grna_even_when_gene_is_supplied, [['prc', 'grna', 'fraction', 'gene'], ['GENEA', 'GENEB'], ("absent", 'NOT_THE_GENE'), ['GENEA_g1', 'GENEB_g1']], id="process_reads_rebuilds_gene_from_grna_even_when_gene_is_supplied"),
+    pytest.param(case_process_scores_never_returns_a_prcfo_column_to_drop, [("absent", 'prcfo'), True, 'KeyError'], id="process_scores_never_returns_a_prcfo_column_to_drop"),
+    pytest.param(case_cross_validation_is_never_handed_a_single_group, ['ValueError', 'well-grouped held-out split is impossible', ("absent", 'independent groups'), 'accuracy', True], id="cross_validation_is_never_handed_a_single_group"),
+    pytest.param(case_the_qc_manifest_survives_the_level_annotation, [True, True, True, True, True], id="the_qc_manifest_survives_the_level_annotation"),
+    pytest.param(case_an_absolute_paths_parent_is_never_empty, ['nested/deeper/summary.txt', True, 'OLS Regression Results'], id="an_absolute_paths_parent_is_never_empty"),
+    pytest.param(case_a_class_list_that_cannot_be_built_costs_only_the_sentence, ["1 class(es) of 'columnID' are not in the training set", "['c3']", 'TypeError', ("absent", 'are not in the training set'), True, True], id="a_class_list_that_cannot_be_built_costs_only_the_sentence"),
+    pytest.param(case_annotation_mode_without_an_annotation_column_refuses, [True, 'annotation', 'ValueError', "dataset_mode='annotation' needs annotation_column set", 'png_list'], id="annotation_mode_without_an_annotation_column_refuses"),
+    pytest.param(case_a_scores_file_spelled_row_and_col_is_canonical_without_aliases, [{'rowID'}, {'columnID'}, True, True, 4, [0, 1, 0, 1]], id="a_scores_file_spelled_row_and_col_is_canonical_without_aliases"),
+    pytest.param(case_the_two_sides_of_the_timepoint_join_are_canonical_before_the_rename, ['time_id', 'time_id', 'timeID', 'timeID'], id="the_two_sides_of_the_timepoint_join_are_canonical_before_the_rename"),
+    pytest.param(case_process_scores_has_the_well_columns_without_a_second_check, [True, True, 'pred', ['plate1_r1_c1', 'plate1_r1_c2'], True, 'ValueError'], id="process_scores_has_the_well_columns_without_a_second_check"),
+    pytest.param(case_the_permutation_level_schema_needs_no_rechecks, [True, {'gene'}, ("absent", 'level')], id="the_permutation_level_schema_needs_no_rechecks"),
+])
+def test_r6_ml_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected

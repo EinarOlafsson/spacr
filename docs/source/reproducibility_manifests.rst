@@ -92,9 +92,22 @@ file.
 
 The changes are kept in one table, ``DEFAULT_CHANGES`` in
 ``spacr/settings.py``, keyed by the number of the item that changed the
-default:
+default. A key is always above every earlier one, so an item that changes a
+default after a higher-numbered item takes the next free number:
 
 - 931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``.
+- 932: ``ops_registration_precision`` was ``'float64'`` and
+  ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and
+  ``'gpu'``.
+- 933 (item 930's default switch): ``ops_align_model`` was
+  ``'similarity'``; it is now ``'tile_affine'``.
+- 934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now
+  ``'per_feature'``, so the screen pipeline also writes a well table in which
+  every feature takes its own default.
+- 935 (item 940's default switch): ``ops_placement_seed_export`` was
+  ``False``; it is now ``True``.
+- 936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space``
+  ``'refit'``; they are now ``2`` and ``'hybrid'``.
 
 Public API
 ----------

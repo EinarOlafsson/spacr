@@ -126,37 +126,6 @@ def test_a_relationships_table_with_no_object_label_carries_no_crop_paths(
     assert list(attached["png_path"]) == ["/crops/1.png", "/crops/2.png"]
 
 
-def test_a_crop_type_with_no_membership_flag_cannot_be_nulled_by_type(
-        tmp_path, monkeypatch):
-    """``in_pathogen`` is not on the frame, so the type filter cannot run.
-
-    The bootstrap frame has no ``object_type`` axis; the ``in_<table>`` flag
-    stands in for it. When ``png_list`` was cropped by an object type this
-    database has no table for, there is no flag to test and the path matched
-    on the bare label stays. Driven through the object-table fallback, which
-    is the only route to that frame.
-    """
-    def _explode(_path):
-        raise RuntimeError("relationships unavailable")
-
-    monkeypatch.setattr(filters, "build_filters_from_relationships", _explode)
-
-    # png_list keyed by pathogen_id, but this database has no pathogen table.
-    unflagged = filters.build_filters_frame(
-        _database(tmp_path / "a", crop_column="pathogen_id"))
-    assert filters.png_crop_type(
-        str(tmp_path / "a" / "measurements.db")) == "pathogen"
-    assert "in_pathogen" not in unflagged.columns
-    assert sorted(unflagged["png_path"].dropna()) == [
-        "/crops/1.png", "/crops/2.png"]
-
-    # Cropped by cell, and `in_cell` IS on the frame: object 1 and 2 appear in
-    # both tables so they keep their path, and nothing else can claim one.
-    flagged = filters.build_filters_frame(_database(tmp_path / "b"))
-    assert "in_cell" in flagged.columns
-    assert flagged.loc[flagged["in_cell"] != 1, "png_path"].isna().all()
-
-
 # ---------------------------------------------------------------------------
 # schema: the object-role registry checked at import
 # ---------------------------------------------------------------------------

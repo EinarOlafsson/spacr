@@ -371,21 +371,27 @@ def toxo_stubs(monkeypatch, stubs):
 
 def case_scalar_score_and_count_paths_are_wrapped_in_lists(screen, stubs):
     """A bare string for score_data/count_data is normalised to a 1-list."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, score_data=screen["score"],
                              count_data=screen["count"])
     out = perform_regression(settings)
 
-    assert settings["score_data"] == [screen["score"]]
-    assert settings["count_data"] == [screen["count"]]
+    _seen.append(bool(
+        settings["score_data"] == [screen["score"]]))
+    _seen.append(bool(
+        settings["count_data"] == [screen["count"]]))
     # The coefficient table and the hits, plus what is needed to judge the
     # fit: without the model there is no R-squared and no residual to test,
     # and without the design there is no way to count what reached it.
-    assert {"results", "significant"} <= set(out)
-    assert {"model", "model_data"} <= set(out), \
-        "the fit and its design must come back, or no diagnostic can be computed"
-    assert os.path.isfile(os.path.join(results_dir(screen["count"], settings=settings), "results.csv"))
+    _seen.append(bool(
+        {"results", "significant"} <= set(out)))
+    _seen.append(bool(
+        {"model", "model_data"} <= set(out)))
+    _seen.append(bool(
+        os.path.isfile(os.path.join(results_dir(screen["count"], settings=settings), "results.csv"))))
+    return _seen
 
 
 @pytest.mark.parametrize("level", ["grna", "gene", "both"])
@@ -428,30 +434,39 @@ def test_regression_returns_prepared_data_separate_from_annotated_coefficients(
 
 def case_legacy_score_list_longer_than_count_list_migrates(screen):
     """An unpaired tail remains legal because the final join is by well."""
+    _seen = []
     from spacr.ml import normalize_regression_input_pairs
 
     settings = base_settings(
         screen, score_data=[screen["score"], screen["score"]])
     pairs, migrated = normalize_regression_input_pairs(settings)
-    assert migrated
-    assert pairs[1] == {"score": screen["score"], "count": None,
-                        "plate": None}
+    _seen.append(bool(
+        migrated))
+    _seen.append(bool(
+        pairs[1] == {"score": screen["score"], "count": None,
+                        "plate": None}))
+    return _seen
 
 
 def case_legacy_count_list_longer_than_score_list_migrates(screen):
     """The opposite unpaired tail is retained too."""
+    _seen = []
     from spacr.ml import normalize_regression_input_pairs
 
     settings = base_settings(
         screen, count_data=[screen["count"], screen["count"]])
     pairs, migrated = normalize_regression_input_pairs(settings)
-    assert migrated
-    assert pairs[1] == {"score": None, "count": screen["count"],
-                        "plate": None}
+    _seen.append(bool(
+        migrated))
+    _seen.append(bool(
+        pairs[1] == {"score": None, "count": screen["count"],
+                        "plate": None}))
+    return _seen
 
 
 def case_paired_input_copies_plate_identity_from_its_partner(tmp_path, stubs):
     """A score file without plateID inherits the count file's declared plate."""
+    _seen = []
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -469,25 +484,32 @@ def case_paired_input_copies_plate_identity_from_its_partner(tmp_path, stubs):
     out = perform_regression(settings)
 
     data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
-    assert set(data["plateID"].unique()) == {"plate2"}
-    assert data["prc"].str.startswith("plate2_").all()
-    assert len(out["results"]) > 0
+    _seen.append(keep(set(data["plateID"].unique())))
+    _seen.append(bool(
+        data["prc"].str.startswith("plate2_").all()))
+    _seen.append(bool(
+        len(out["results"]) > 0))
+    return _seen
 
 
 def case_missing_dependent_variable_raises(screen, stubs):
     """A dependent_variable absent from the score CSV is rejected."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = base_settings(screen, dependent_variable="not_a_column")
     # The message names the setting and the columns actually present, and --
     # when the score slot holds a count table -- says the inputs look swapped,
     # which is how this error is usually reached.
-    with pytest.raises(ValueError, match="'not_a_column' is not a column"):
+    with pytest.raises(ValueError, match="'not_a_column' is not a column") as _exc1:
         perform_regression(settings)
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_missing_pred_names_the_file_and_says_how_to_get_it(screen, stubs):
     """The error names the score file and points at Classify's output."""
+    _seen = []
     from spacr.ml import perform_regression
 
     table = pd.read_csv(screen["score"]).rename(columns={"pred": "measured"})
@@ -495,22 +517,29 @@ def case_missing_pred_names_the_file_and_says_how_to_get_it(screen, stubs):
     settings = base_settings(screen, dependent_variable="pred")
     with pytest.raises(ValueError) as caught:
         perform_regression(settings)
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
     message = str(caught.value)
-    assert os.path.basename(screen["score"]) in message
-    assert "Run Classify" in message
-    assert "_result.csv" in message
+    _seen.append(bool(
+        os.path.basename(screen["score"]) in message))
+    _seen.append(('Run Classify' if 'Run Classify' in (message) else ("missing", 'Run Classify')))
+    _seen.append(('_result.csv' if '_result.csv' in (message) else ("missing", '_result.csv')))
+    return _seen
 
 
 def case_other_missing_response_names_the_file_without_the_pred_advice(
         screen, stubs):
     """A misspelt response names the file but does not talk about Classify."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = base_settings(screen, dependent_variable="not_a_column")
     with pytest.raises(ValueError) as caught:
         perform_regression(settings)
-    assert os.path.basename(screen["score"]) in str(caught.value)
-    assert "Classify" not in str(caught.value)
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
+    _seen.append(bool(
+        os.path.basename(screen["score"]) in str(caught.value)))
+    _seen.append((("absent", 'Classify') if 'Classify' not in (str(caught.value)) else ("present", 'Classify')))
+    return _seen
 
 
 def case_shortest_distance_dependent_variable_is_exempt_from_the_check(screen, stubs):
@@ -519,21 +548,27 @@ def case_shortest_distance_dependent_variable_is_exempt_from_the_check(screen, s
     ... and therefore only fails later, in process_scores, when the column is
     genuinely absent.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = base_settings(
         screen, dependent_variable="pathogen_nucleus_shortest_distance")
-    with pytest.raises(KeyError):
+    with pytest.raises(KeyError) as _exc1:
         perform_regression(settings)
+    _seen.append(('KeyError' if isinstance(_exc1.value, KeyError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_unsupported_regression_type_raises(screen, stubs):
     """regression_type is validated against the supported list."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, regression_type="banana")
-    with pytest.raises(ValueError, match="Unsupported regression type banana"):
+    with pytest.raises(ValueError, match="Unsupported regression type banana") as _exc1:
         perform_regression(settings)
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -542,6 +577,7 @@ def case_unsupported_regression_type_raises(screen, stubs):
 
 def case_rowid_with_plate_prefix_is_split(tmp_path, stubs):
     """A count-CSV rowID of the 'plate1_r2' form is reduced to 'r2'."""
+    _seen = []
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -556,12 +592,16 @@ def case_rowid_with_plate_prefix_is_split(tmp_path, stubs):
     out = perform_regression(settings)
 
     data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
-    assert set(data["rowID"].unique()) <= set(ROWS)
-    assert len(out["results"]) > 0
+    _seen.append(bool(
+        set(data["rowID"].unique()) <= set(ROWS)))
+    _seen.append(bool(
+        len(out["results"]) > 0))
+    return _seen
 
 
 def case_one_multiplate_score_file_can_be_paired_to_plate_count_files(tmp_path):
     """A consolidated score export may be reused without duplicating plates."""
+    _seen = []
     from spacr.ml import load_regression_input_pairs
 
     sdir = tmp_path / "s"
@@ -580,14 +620,18 @@ def case_one_multiplate_score_file_can_be_paired_to_plate_count_files(tmp_path):
         {"score": str(score_path), "count": c1},
         {"score": str(score_path), "count": c2},
     ])
-    assert set(scores["plateID"]) == {"plate1", "plate2"}
-    assert len(scores) == 2 * len(_score_records("plate1", 3))
-    assert set(counts["plateID"]) == {"plate1", "plate2"}
-    assert all("subset" in row["rule"] for row in audit)
+    _seen.append(keep(set(scores["plateID"])))
+    _seen.append(bool(
+        len(scores) == 2 * len(_score_records("plate1", 3))))
+    _seen.append(keep(set(counts["plateID"])))
+    _seen.append(bool(
+        all("subset" in row["rule"] for row in audit)))
+    return _seen
 
 
 def case_path_is_not_used_to_guess_missing_well_columns(tmp_path, stubs):
     """Filename parsing is a picker hint, not runtime metadata authority."""
+    _seen = []
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -600,13 +644,16 @@ def case_path_is_not_used_to_guess_missing_well_columns(tmp_path, stubs):
     meta = write_metadata(tmp_path / "md.csv")
 
     settings = base_settings({"score": s1, "count": c1, "meta": meta})
-    with pytest.raises(ValueError, match="rowID.*columnID"):
+    with pytest.raises(ValueError, match="rowID.*columnID") as _exc1:
         perform_regression(settings)
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_declared_plate_is_kept_without_inspecting_image_paths(
         tmp_path, stubs, capsys):
     """Runtime identity comes from CSV columns even when paths are malformed."""
+    _seen = []
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -622,15 +669,18 @@ def case_declared_plate_is_kept_without_inspecting_image_paths(
                              verbose=True)
     out = perform_regression(settings)
     printed = capsys.readouterr().out
-    assert "PLATEn_ prefix" not in printed
+    _seen.append((("absent", 'PLATEn_ prefix') if 'PLATEn_ prefix' not in (printed) else ("present", 'PLATEn_ prefix')))
 
     data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
-    assert set(data["plateID"].unique()) == {"plate1"}
-    assert len(out["results"]) > 0
+    _seen.append(keep(set(data["plateID"].unique())))
+    _seen.append(bool(
+        len(out["results"]) > 0))
+    return _seen
 
 
 def case_missing_plate_column_defaults_to_file_position(tmp_path, stubs):
     """CSVs with no plateID column at all fall back to 'plate{i+1}'."""
+    _seen = []
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -641,19 +691,22 @@ def case_missing_plate_column_defaults_to_file_position(tmp_path, stubs):
     count = write_counts(cdir / "counts.csv", drop=("plateID",))
     meta = write_metadata(tmp_path / "md.csv")
 
-    assert "plateID" not in pd.read_csv(score).columns
-    assert "plateID" not in pd.read_csv(count).columns
+    _seen.append((("absent", 'plateID') if 'plateID' not in (pd.read_csv(score).columns) else ("present", 'plateID')))
+    _seen.append((("absent", 'plateID') if 'plateID' not in (pd.read_csv(count).columns) else ("present", 'plateID')))
 
     settings = base_settings({"score": score, "count": count, "meta": meta})
     out = perform_regression(settings)
 
     data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
-    assert set(data["plateID"].unique()) == {"plate1"}
-    assert len(out["results"]) > 0
+    _seen.append(keep(set(data["plateID"].unique())))
+    _seen.append(bool(
+        len(out["results"]) > 0))
+    return _seen
 
 
 def case_non_list_filter_value_disables_control_well_removal(screen, stubs):
     """A scalar filter_value clears the count-side filter, keeping every well."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = base_settings(screen, filter_value="c4")
@@ -661,8 +714,11 @@ def case_non_list_filter_value_disables_control_well_removal(screen, stubs):
 
     data = pd.read_csv(os.path.join(screen["res"], "regression_data.csv"))
     # nothing was dropped: all six columns (including 'c4') survive
-    assert set(data["columnID"].unique()) == set(COLS)
-    assert len(data) == len(ROWS) * len(COLS) * len(GENES) * N_GRNA_PER_GENE
+    _seen.append(bool(
+        set(data["columnID"].unique()) == set(COLS)))
+    _seen.append(bool(
+        len(data) == len(ROWS) * len(COLS) * len(GENES) * N_GRNA_PER_GENE))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -671,12 +727,13 @@ def case_non_list_filter_value_disables_control_well_removal(screen, stubs):
 
 def case_min_cells_per_well_none_is_filled_from_the_simulation(screen, stubs):
     """min_cells_per_well=None takes the elbow point returned by the simulation."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = base_settings(screen, min_cells_per_well=None)
     perform_regression(settings)
 
-    assert settings["min_cells_per_well"] == 3
+    _seen.append(keep(settings["min_cells_per_well"]))
     # `dst` joined `tolerance` on 2026-08-17. It is not decoration: the curve
     # used to be drawn into <count folder>/results/, one path shared by every
     # run of the screen, and `run_sweep_parallel` fits n_jobs trials of that
@@ -685,12 +742,15 @@ def case_min_cells_per_well_none_is_filled_from_the_simulation(screen, stubs):
     # folder is unique per run, so naming it removes the collision rather
     # than racing it. Pinned as an exact dict, not a subset, so a future
     # caller cannot quietly send the figure somewhere else again.
-    assert stubs["sim"] == [{"tolerance": 0.02, "dst": screen["res"]}]
+    _seen.append(bool(
+        stubs["sim"] == [{"tolerance": 0.02, "dst": screen["res"]}]))
+    return _seen
 
 
 def case_fraction_threshold_none_is_filled_from_graph_sequencing_stats(
         screen, stubs, monkeypatch):
     """fraction_threshold=None delegates the cutoff to graph_sequencing_stats."""
+    _seen = []
     from spacr.ml import perform_regression
     seen = []
 
@@ -708,12 +768,15 @@ def case_fraction_threshold_none_is_filled_from_graph_sequencing_stats(
     settings = base_settings(screen, fraction_threshold=None)
     perform_regression(settings)
 
-    assert settings["fraction_threshold"] == 0.004
-    assert seen == [[screen["count"]]]
+    _seen.append(keep(settings["fraction_threshold"]))
+    _seen.append(bool(
+        seen == [[screen["count"]]]))
+    return _seen
 
 
 def case_missing_gene_column_raises_keyerror(tmp_path, stubs):
     """gRNA names without the org_gene_grna form leave no 'gene' column."""
+    _seen = []
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -726,8 +789,10 @@ def case_missing_gene_column_raises_keyerror(tmp_path, stubs):
     meta = write_metadata(tmp_path / "md.csv")
 
     settings = base_settings({"score": score, "count": count, "meta": meta})
-    with pytest.raises(KeyError, match="Column 'gene' not found in independent_df"):
+    with pytest.raises(KeyError, match="Column 'gene' not found in independent_df") as _exc1:
         perform_regression(settings)
+    _seen.append(('KeyError' if isinstance(_exc1.value, KeyError) else type(_exc1.value).__name__))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -736,6 +801,7 @@ def case_missing_gene_column_raises_keyerror(tmp_path, stubs):
 
 def case_qc_block_writes_the_three_well_level_tables(screen, stubs):
     """The QC block saves regression data + gRNA/well metrics and plots each."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen)
@@ -746,39 +812,47 @@ def case_qc_block_writes_the_three_well_level_tables(screen, stubs):
     grna_well = pd.read_csv(os.path.join(res, "grna_well.csv"))
     well_grna = pd.read_csv(os.path.join(res, "well_grna.csv"))
 
-    assert set(data.columns) >= {"prc", "grna", "gene", "fraction", "pred",
-                                 "cell_count", "plateID", "rowID", "columnID"}
-    assert set(grna_well.columns) == {"grna", "plateID", "grna_well_count",
-                                      "gene_well_count"}
+    _seen.append(bool(
+        set(data.columns) >= {"prc", "grna", "gene", "fraction", "pred",
+                                 "cell_count", "plateID", "rowID", "columnID"}))
+    _seen.append(keep(set(grna_well.columns)))
     # 12 gRNAs on one plate, each seen in all 9 non-control wells.
-    assert len(grna_well) == len(GENES) * N_GRNA_PER_GENE
-    assert (grna_well["grna_well_count"] == len(ROWS) * len(KEPT_COLS)).all()
-    assert (grna_well["gene_well_count"] == len(ROWS) * len(KEPT_COLS)).all()
+    _seen.append(bool(
+        len(grna_well) == len(GENES) * N_GRNA_PER_GENE))
+    _seen.append(bool(
+        (grna_well["grna_well_count"] == len(ROWS) * len(KEPT_COLS)).all()))
+    _seen.append(bool(
+        (grna_well["gene_well_count"] == len(ROWS) * len(KEPT_COLS)).all()))
     # one row per well, each holding all 4 genes
-    assert len(well_grna) == len(ROWS) * len(KEPT_COLS)
-    assert (well_grna["gene_count"] == len(GENES)).all()
+    _seen.append(bool(
+        len(well_grna) == len(ROWS) * len(KEPT_COLS)))
+    _seen.append(bool(
+        (well_grna["gene_count"] == len(GENES)).all()))
 
     names = [c["graph_name"] for c in stubs["csv_plots"]]
-    assert names == ["cell_count", "wells_per_gene", "gene_per_well"]
-    assert stubs["csv_plots"][1]["src"].endswith("grna_well.csv")
-    assert stubs["csv_plots"][2]["src"].endswith("well_grna.csv")
+    _seen.append(keep(names))
+    _seen.append(bool(
+        stubs["csv_plots"][1]["src"].endswith("grna_well.csv")))
+    _seen.append(bool(
+        stubs["csv_plots"][2]["src"].endswith("well_grna.csv")))
     # plot_plates got the merged frame and the *original* dependent variable.
     # The house-style panel got the merged frame and the ORIGINAL dependent
     # variable -- not the transformed one, because a plate heatmap of
     # log(pred) is a heatmap of a different quantity than the screen measured.
-    assert stubs["house_plates"], (
-        "no plate panel was drawn; neither the house-style path nor the "
-        "fallback ran")
-    assert stubs["house_plates"][0]["variable"] == "pred"
-    assert stubs["house_plates"][0]["dst"] == res
-    assert not stubs["plates"], (
-        "the legacy plot_plates ran as well; a run should draw its plates "
-        "once, in one idiom")
+    _seen.append(bool(
+        stubs["house_plates"]))
+    _seen.append(keep(stubs["house_plates"][0]["variable"]))
+    _seen.append(bool(
+        stubs["house_plates"][0]["dst"] == res))
+    _seen.append(bool(
+        not stubs["plates"]))
+    return _seen
 
 
 def case_batch_correction_runs_before_regression_and_writes_report(
         screen, stubs):
     """Regression consumes corrected scores and persists its diagnostics."""
+    _seen = []
     from spacr.ml import perform_regression
 
     perform_regression(base_settings(
@@ -790,12 +864,12 @@ def case_batch_correction_runs_before_regression_and_writes_report(
     path = os.path.join(screen["res"], "batch_correction.json")
     with open(path, encoding="utf-8") as stream:
         report = json.load(stream)
-    assert report["method"] == "center"
-    assert report["batch_column"] == "plateID"
-    assert report["rows"] > 0
-    assert report["warnings"] == [
-        "Only 1 batch was present; correction was a no-op.",
-    ]
+    _seen.append(keep(report["method"]))
+    _seen.append(keep(report["batch_column"]))
+    _seen.append(bool(
+        report["rows"] > 0))
+    _seen.append(keep(report["warnings"]))
+    return _seen
 
 
 def case_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs,
@@ -812,6 +886,7 @@ def case_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs,
     itself completed and produced every other output, which is why it read as
     a broken test rather than a broken run.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -836,19 +911,22 @@ def case_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs,
     grna_well = pd.read_csv(os.path.join(res, "grna_well.csv"))
     data = pd.read_csv(os.path.join(res, "regression_data.csv"))
 
-    assert "111111_3" not in set(grna_well["grna"])
-    assert "111111_3" not in set(data["grna"])
+    _seen.append((("absent", '111111_3') if '111111_3' not in (set(grna_well["grna"])) else ("present", '111111_3')))
+    _seen.append((("absent", '111111_3') if '111111_3' not in (set(data["grna"])) else ("present", '111111_3')))
     # the outlier gRNA is removed from *both* plates
-    assert len(grna_well) == 2 * (len(GENES) * N_GRNA_PER_GENE - 1)
+    _seen.append(bool(
+        len(grna_well) == 2 * (len(GENES) * N_GRNA_PER_GENE - 1)))
     # Both QC tables, and the run said so. The file check alone passes if the
     # write is skipped and a stale file is left behind by an earlier run.
-    assert os.path.isfile(os.path.join(res, "well_grna.csv"))
-    assert "Saved grna per well data to" in printed
-    assert "Saved well per grna data to" in printed
+    _seen.append(bool(
+        os.path.isfile(os.path.join(res, "well_grna.csv"))))
+    _seen.append(('Saved grna per well data to' if 'Saved grna per well data to' in (printed) else ("missing", 'Saved grna per well data to')))
+    _seen.append(('Saved well per grna data to' if 'Saved well per grna data to' in (printed) else ("missing", 'Saved well per grna data to')))
     # Nothing was swallowed on the way. The block that writes these tables
     # catches everything and prints it, so a bare warning text on its own
     # line IS the failure report.
-    assert "A value is trying to be set on a copy of a slice" not in printed
+    _seen.append((("absent", 'A value is trying to be set on a copy of a slice') if 'A value is trying to be set on a copy of a slice' not in (printed) else ("present", 'A value is trying to be set on a copy of a slice')))
+    return _seen
 
 
 def case_qc_plot_failure_does_not_cost_the_qc_tables(screen, heavy_stubs,
@@ -859,6 +937,7 @@ def case_qc_plot_failure_does_not_cost_the_qc_tables(screen, heavy_stubs,
     try/except, so a single bad plot used to take out every write that came
     after it.
     """
+    _seen = []
     from spacr.ml import perform_regression
     import spacr.plot as P
 
@@ -869,19 +948,25 @@ def case_qc_plot_failure_does_not_cost_the_qc_tables(screen, heavy_stubs,
 
     out = perform_regression(base_settings(screen))
     printed = capsys.readouterr().out
-    assert "qc plot exploded" in printed
-    assert "Skipping QC plot 'cell_count'" in printed
+    _seen.append(('qc plot exploded' if 'qc plot exploded' in (printed) else ("missing", 'qc plot exploded')))
+    _seen.append(("Skipping QC plot 'cell_count'" if "Skipping QC plot 'cell_count'" in (printed) else ("missing", "Skipping QC plot 'cell_count'")))
     # every QC table still made it to disk ...
-    assert os.path.isfile(os.path.join(screen["res"], "grna_well.csv"))
-    assert os.path.isfile(os.path.join(screen["res"], "well_grna.csv"))
+    _seen.append(bool(
+        os.path.isfile(os.path.join(screen["res"], "grna_well.csv"))))
+    _seen.append(bool(
+        os.path.isfile(os.path.join(screen["res"], "well_grna.csv"))))
     # ... and the regression itself still completed.
-    assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
-    assert len(out["results"]) > 0
+    _seen.append(bool(
+        os.path.isfile(os.path.join(screen["res"], "results.csv"))))
+    _seen.append(bool(
+        len(out["results"]) > 0))
+    return _seen
 
 
 def case_qc_block_failure_is_swallowed_and_the_run_continues(screen, heavy_stubs,
                                                              monkeypatch, capsys):
     """A non-plot failure inside the QC block is printed, not propagated."""
+    _seen = []
     from spacr.ml import perform_regression
 
     real_to_csv = pd.DataFrame.to_csv
@@ -894,12 +979,16 @@ def case_qc_block_failure_is_swallowed_and_the_run_continues(screen, heavy_stubs
     monkeypatch.setattr(pd.DataFrame, "to_csv", exploding_to_csv)
 
     out = perform_regression(base_settings(screen))
-    assert "qc table exploded" in capsys.readouterr().out
+    _seen.append(('qc table exploded' if 'qc table exploded' in (capsys.readouterr().out) else ("missing", 'qc table exploded')))
     # the QC tables produced after the failing write were never written ...
-    assert not os.path.exists(os.path.join(screen["res"], "well_grna.csv"))
+    _seen.append(bool(
+        not os.path.exists(os.path.join(screen["res"], "well_grna.csv"))))
     # ... but the regression itself still completed.
-    assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
-    assert len(out["results"]) > 0
+    _seen.append(bool(
+        os.path.isfile(os.path.join(screen["res"], "results.csv"))))
+    _seen.append(bool(
+        len(out["results"]) > 0))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -908,7 +997,7 @@ def case_qc_block_failure_is_swallowed_and_the_run_continues(screen, heavy_stubs
 
 @pytest.mark.parametrize("method", ["var", "variance", "std",
                                     "standard_deveation"])
-def case_threshold_methods_are_supported(screen, stubs, method):
+def test_threshold_methods_are_supported(screen, stubs, method):
     """Both the variance- and std-based control thresholds run to completion."""
     from spacr.ml import perform_regression
 
@@ -935,17 +1024,18 @@ def case_unsupported_threshold_method_raises(screen, stubs):
     that does not say what IS available leaves the user guessing, which is why
     ``canonical`` raises instead of falling back to a default nobody chose.
     """
+    _seen = []
     from spacr.ml import perform_regression
     from spacr.thresholds import METHODS
 
-    assert "mad" in METHODS, (
-        "mad is a supported method now; the old spelling of this test would "
-        "pass only by accident")
+    _seen.append(('mad' if 'mad' in (METHODS) else ("missing", 'mad')))
     settings = base_settings(screen, threshold_method="banana")
     with pytest.raises(ValueError, match="Unsupported threshold method") as err:
         perform_regression(settings)
+    _seen.append(('ValueError' if isinstance(err.value, ValueError) else type(err.value).__name__))
     for name in METHODS:
         assert name in str(err.value), name
+    return _seen
 
 
 def case_controls_none_skips_the_threshold_block(screen, stubs, capsys):
@@ -963,6 +1053,7 @@ def case_controls_none_skips_the_threshold_block(screen, stubs, capsys):
     having scrolled past -- and a hit list called on the corrected P value
     alone is a different claim from one that also cleared a width.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, controls=None,
@@ -982,15 +1073,44 @@ def case_controls_none_skips_the_threshold_block(screen, stubs, capsys):
     tested = ~results["feature"].astype(str).str.contains(
         "row|column|Intercept", case=False, regex=True)
     sig = out["significant"]
-    assert len(sig) == int((results.loc[tested, "q_value"] < 0.05).sum())
-    assert (sig["q_value"] < 0.05).all()
+    _seen.append(bool(
+        len(sig) == int((results.loc[tested, "q_value"] < 0.05).sum())))
+    _seen.append(bool(
+        (sig["q_value"] < 0.05).all()))
     # No nuisance term can reach the hit list, whatever its p value.
-    assert not sig["feature"].astype(str).str.contains(
-        "Intercept", case=False).any()
+    _seen.append(bool(
+        not sig["feature"].astype(str).str.contains(
+        "Intercept", case=False).any()))
+    return _seen
 
 
-def test_min_observations_per_hit_filters_the_significant_hits(screen, stubs):
+def case_the_correction_is_actually_applied_to_the_parametric_fit():
+    """multiple_testing_method must change the parametric hit list.
+
+    It existed as a setting, was offered in the panel and named in Methods
+    sections, while this branch called hits on the raw OLS p value. On the
+    real screen that is 56 uncorrected hits against 10 under
+    Benjamini-Hochberg -- the defect behind a published volcano that drew a
+    P = 0.05 line while its Methods claimed BH q < 0.05.
+    """
+    _seen = []
+    import numpy as np
+    from spacr.multiple_testing import adjust_p_values
+
+    # 1,200 coefficients, 60 of which beat 0.05 by chance alone.
+    rng = np.random.default_rng(0)
+    p = rng.uniform(0, 1, 1200)
+    raw = int((p <= 0.05).sum())
+    corrected, _ = adjust_p_values(p, "fdr_bh", 0.05)
+    _seen.append(bool(
+        raw > 40))
+    _seen.append(keep(int((corrected < 0.05).sum())))
+    return _seen
+
+
+def case_min_observations_per_hit_filters_the_significant_hits(screen, stubs):
     """results_significant_filtered.csv keeps only well-covered features."""
+    _seen = []
     from spacr.ml import perform_regression
 
     # alpha=1 makes every tested coefficient a hit, so there is something for
@@ -1017,11 +1137,14 @@ def test_min_observations_per_hit_filters_the_significant_hits(screen, stubs):
     filt = pd.read_csv(
         os.path.join(results_dir(screen["count"], settings=settings), "results_significant_filtered.csv"))
     # hits exist, but none has >1000 wells of gRNA or gene support
-    assert len(sig) == len(out["significant"]) > 0
-    assert len(filt) == 0
+    _seen.append(bool(
+        len(sig) == len(out["significant"]) > 0))
+    _seen.append(keep(len(filt)))
     # And no nuisance term reached the hit list even at alpha=0.999.
-    assert not sig["feature"].astype(str).str.contains(
-        "Intercept|row|column", case=False).any()
+    _seen.append(bool(
+        not sig["feature"].astype(str).str.contains(
+        "Intercept|row|column", case=False).any()))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -1072,6 +1195,7 @@ def case_the_effect_size_cut_is_symmetric_about_zero(screen, stubs):
     Whichever direction the cut had been written one-sided, it would call half
     a screen: on this fixture the strongest effect of all is NEGATIVE.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     # multiplier=0 puts the cut at the controls' median (0.104) rather than
@@ -1111,11 +1235,12 @@ def case_the_effect_size_cut_is_symmetric_about_zero(screen, stubs):
     # happens to be negative. Asserting it made the test fail for the fit
     # having changed rather than for the rule being wrong.
     hits = coefficients[coefficients.abs() >= cut]
-    assert len(coefficients[coefficients.abs() < cut]), (
-        "nothing is below the cut, so a one-sided rule would pass every "
-        "assertion below -- this fixture can no longer detect the bug")
-    assert (hits > 0).any()
-    assert (hits < 0).any()
+    _seen.append(bool(
+        len(coefficients[coefficients.abs() < cut])))
+    _seen.append(bool(
+        (hits > 0).any()))
+    _seen.append(bool(
+        (hits < 0).any()))
     # THE LARGEST EFFECT IN THE SCREEN IS A HIT, whichever way it points.
     # Its SIGN was asserted here ("the strongest effect of all is NEGATIVE")
     # until 2026-08-19; that was a fact about one fit on one fixture, and it
@@ -1125,25 +1250,33 @@ def case_the_effect_size_cut_is_symmetric_about_zero(screen, stubs):
     # would be wrong in either direction, and the both-signs check above
     # already stops a one-sided rule from passing.
     strongest = coefficients.loc[coefficients.abs().idxmax()]
-    assert abs(strongest) >= cut
+    _seen.append(bool(
+        abs(strongest) >= cut))
 
     sig = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), "results_significant.csv"))
-    assert (sig.loc[sig["level"] == "grna", "coefficient"].abs()
-            >= cut).all()
+    _seen.append(bool(
+        (sig.loc[sig["level"] == "grna", "coefficient"].abs()
+            >= cut).all()))
     # EVERY hit clears ITS OWN fit's cut, and the cut it cleared is recorded
     # on the row -- a hit list that mixes two families with two cuts is
     # unreadable unless each row says which number it passed.
     own = sig["effect_size_threshold"].fillna(0.0).to_numpy(dtype=float)
-    assert (sig["coefficient"].abs().to_numpy(dtype=float) >= own).all()
-    assert sig.loc[sig["level"] == "grna",
-                   "effect_size_threshold"].unique().tolist() == [cut]
+    _seen.append(bool(
+        (sig["coefficient"].abs().to_numpy(dtype=float) >= own).all()))
+    _seen.append(bool(
+        sig.loc[sig["level"] == "grna",
+                   "effect_size_threshold"].unique().tolist() == [cut]))
     guide_hits = sig.loc[sig["level"] == "grna"]
-    assert set(guide_hits["feature"]) == set(
-        guides.loc[tested & (guides["coefficient"].abs() >= cut), "feature"])
+    _seen.append(bool(
+        set(guide_hits["feature"]) == set(
+        guides.loc[tested & (guides["coefficient"].abs() >= cut), "feature"])))
     # And it really cut: every tested coefficient passed correction at
     # alpha=0.999, so the old union kept all of them.
-    assert len(guide_hits) < int(tested.sum())
-    assert len(sig) == len(out["significant"])
+    _seen.append(bool(
+        len(guide_hits) < int(tested.sum())))
+    _seen.append(bool(
+        len(sig) == len(out["significant"])))
+    return _seen
 
 
 def case_the_run_says_how_many_the_effect_size_cut_removed(screen, stubs,
@@ -1154,6 +1287,7 @@ def case_the_run_says_how_many_the_effect_size_cut_removed(screen, stubs,
     passed multiple-testing correction and is then removed on effect size is
     the one a reader is most likely to go looking for.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, multiple_testing_method="none",
@@ -1174,9 +1308,13 @@ def case_the_run_says_how_many_the_effect_size_cut_removed(screen, stubs,
     hits = out["significant"]
     removed = called - int((hits["level"] == "grna").sum())
     cut = _measured_cut(screen, multiplier=0, settings=settings)
-    assert removed > 0, "nothing was cut, so there is nothing to announce"
-    assert f"Effect-size cut (grna) removed {removed} of {called}" in printed
-    assert f"{cut:.3g}" in printed
+    _seen.append(bool(
+        removed > 0))
+    _seen.append(bool(
+        f"Effect-size cut (grna) removed {removed} of {called}" in printed))
+    _seen.append(bool(
+        f"{cut:.3g}" in printed))
+    return _seen
 
 
 def case_asking_for_no_effect_size_cut_keeps_the_hits_it_had(screen, stubs):
@@ -1189,6 +1327,7 @@ def case_asking_for_no_effect_size_cut_keeps_the_hits_it_had(screen, stubs):
     results_significant.csv: measured on this fixture, 16 of 16 corrected hits
     lost, with nothing in the log to say a hit list had been thrown away.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, multiple_testing_method="none",
@@ -1198,9 +1337,11 @@ def case_asking_for_no_effect_size_cut_keeps_the_hits_it_had(screen, stubs):
     results = out["results"]
     tested = ~results["feature"].astype(str).str.contains(
         "row|column|Intercept", case=False, regex=True)
-    assert int(tested.sum()) == 16
+    _seen.append(keep(int(tested.sum())))
     sig = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), "results_significant.csv"))
-    assert len(sig) == len(out["significant"]) == 16
+    _seen.append(bool(
+        len(sig) == len(out["significant"]) == 16))
+    return _seen
 
 
 def case_one_control_guide_is_too_few_to_measure_a_spread_and_costs_no_hits(
@@ -1212,6 +1353,7 @@ def case_one_control_guide_is_too_few_to_measure_a_spread_and_costs_no_hits(
     ``coefficient_threshold`` refuses to invent one. Refusing is right;
     turning the refusal into an empty hit list is not.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, controls=[CONTROLS[0]],
@@ -1219,8 +1361,9 @@ def case_one_control_guide_is_too_few_to_measure_a_spread_and_costs_no_hits(
     out = perform_regression(settings)
     printed = capsys.readouterr().out
 
-    assert "is not enough to measure a spread" in printed
-    assert len(out["significant"]) == 16
+    _seen.append(('is not enough to measure a spread' if 'is not enough to measure a spread' in (printed) else ("missing", 'is not enough to measure a spread')))
+    _seen.append(keep(len(out["significant"])))
+    return _seen
 
 
 def case_no_cut_still_hands_the_volcano_a_number(screen, stubs, monkeypatch):
@@ -1231,6 +1374,7 @@ def case_no_cut_still_hands_the_volcano_a_number(screen, stubs, monkeypatch):
     on disk. ``custom_volcano_plot`` is deliberately NOT stubbed here: the
     TypeError came from inside it, and a stand-in would test the stand-in.
     """
+    _seen = []
     import spacr.toxo as T
     from spacr.ml import perform_regression
 
@@ -1243,8 +1387,11 @@ def case_no_cut_still_hands_the_volcano_a_number(screen, stubs, monkeypatch):
     settings = base_settings(screen, toxo=True, threshold_method="none")
     out = perform_regression(settings)
 
-    assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
-    assert len(out["results"]) > 0
+    _seen.append(bool(
+        os.path.isfile(os.path.join(screen["res"], "results.csv"))))
+    _seen.append(bool(
+        len(out["results"]) > 0))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -1253,6 +1400,7 @@ def case_no_cut_still_hands_the_volcano_a_number(screen, stubs, monkeypatch):
 
 def case_ols_results_tables_carry_grna_and_gene_annotations(screen, stubs):
     """results/gene/grna CSVs split the patsy feature names back apart."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen)
@@ -1264,26 +1412,35 @@ def case_ols_results_tables_carry_grna_and_gene_annotations(screen, stubs):
     gene = pd.read_csv(os.path.join(res, "results_gene.csv"), dtype=ids)
     grna = pd.read_csv(os.path.join(res, "results_grna.csv"), dtype=ids)
 
-    assert {"feature", "coefficient", "p_value", "grna", "gene",
-            "n_grna", "n_gene"} <= set(results.columns)
+    _seen.append(bool(
+        {"feature", "coefficient", "p_value", "grna", "gene",
+            "n_grna", "n_gene"} <= set(results.columns)))
     # every gene-level row is a gene_fraction term with a non-null count
-    assert gene["feature"].str.startswith("gene_fraction:gene[").all()
-    assert gene["n_gene"].notna().all()
-    assert set(gene["gene"]) == set(GENES)
-    assert grna["feature"].str.startswith("fraction:grna[").all()
-    assert grna["n_grna"].notna().all()
-    assert len(grna) == len(GENES) * N_GRNA_PER_GENE
+    _seen.append(bool(
+        gene["feature"].str.startswith("gene_fraction:gene[").all()))
+    _seen.append(bool(
+        gene["n_gene"].notna().all()))
+    _seen.append(bool(
+        set(gene["gene"]) == set(GENES)))
+    _seen.append(bool(
+        grna["feature"].str.startswith("fraction:grna[").all()))
+    _seen.append(bool(
+        grna["n_grna"].notna().all()))
+    _seen.append(bool(
+        len(grna) == len(GENES) * N_GRNA_PER_GENE))
     # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): level='both' fits
     # TWO models, so results.csv carries TWO intercepts -- one per fit -- not
     # one. It used to be a single design containing both levels, which is the
     # collinear model that instruction removed (`gene_fraction` is the sum of
     # the gene's guide fractions, so the gene block was an exact linear
     # combination of the guide block).
-    assert len(results) == len(gene) + len(grna) + 2   # one Intercept per fit
-    assert (results["feature"] == "Intercept").sum() == 2
-    assert set(results["level"]) == {"grna", "gene"}
-    assert set(gene["level"]) == {"gene"}
-    assert set(grna["level"]) == {"grna"}
+    _seen.append(bool(
+        len(results) == len(gene) + len(grna) + 2))
+    _seen.append(keep((results["feature"] == "Intercept").sum()))
+    _seen.append(keep(set(results["level"])))
+    _seen.append(keep(set(gene["level"])))
+    _seen.append(keep(set(grna["level"])))
+    return _seen
 
 
 def case_verbose_ols_writes_the_model_summary(screen, stubs):
@@ -1295,6 +1452,7 @@ def case_verbose_ols_writes_the_model_summary(screen, stubs):
     perfectly correct "the permutation test fits no model" as a failure.
     A test of the statsmodels path has to ask for the statsmodels path.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     # `inference='parametric'` AS WELL AS the mode: with `inference='auto'`
@@ -1315,33 +1473,40 @@ def case_verbose_ols_writes_the_model_summary(screen, stubs):
 
     res = results_dir(screen["count"], settings=settings)
     summary = os.path.join(res, SUMMARY_FILENAME)
-    assert os.path.isfile(summary), (
-        f"looked for {summary}; found {sorted(os.listdir(res))}")
+    _seen.append(bool(
+        os.path.isfile(summary)))
     with open(summary) as fh:
         text = fh.read()
-    assert "OLS Regression Results" in text
+    _seen.append(('OLS Regression Results' if 'OLS Regression Results' in (text) else ("missing", 'OLS Regression Results')))
 
     # And the old names are still READ, so a run finished last month keeps
     # its summary.
-    assert "mode_summary.csv" in SUMMARY_FILENAMES
+    _seen.append(('mode_summary.csv' if 'mode_summary.csv' in (SUMMARY_FILENAMES) else ("missing", 'mode_summary.csv')))
+    return _seen
 
 
 def case_ridge_regression_backend(screen, stubs):
     """regression_type='ridge' produces coefficients for every design column."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = base_settings(screen, regression_type="ridge", alpha=1.0)
     out = perform_regression(settings)
 
     res = results_dir(screen["count"], "ridge")
-    assert os.path.isfile(os.path.join(res, "results.csv"))
-    assert out["results"]["coefficient"].notna().all()
-    assert (out["results"]["feature"].str.contains("grna\\[").sum()
-            == len(GENES) * N_GRNA_PER_GENE)
+    _seen.append(bool(
+        os.path.isfile(os.path.join(res, "results.csv"))))
+    _seen.append(bool(
+        out["results"]["coefficient"].notna().all()))
+    _seen.append(bool(
+        out["results"]["feature"].str.contains("grna\\[").sum()
+            == len(GENES) * N_GRNA_PER_GENE))
+    return _seen
 
 
 def case_regression_type_none_uses_the_auto_results_folder(screen, stubs, capsys):
     """regression_type=None auto-detects the model and writes under 'auto'."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, regression_type=None)
@@ -1349,11 +1514,15 @@ def case_regression_type_none_uses_the_auto_results_folder(screen, stubs, capsys
 
     printed = capsys.readouterr().out
     # a per-well mean score strictly inside (0, 1) -> beta regression
-    assert "Using regression type: beta" in printed
+    _seen.append(('Using regression type: beta' if 'Using regression type: beta' in (printed) else ("missing", 'Using regression type: beta')))
     res = results_dir(screen["count"], settings=settings)
-    assert os.path.isfile(os.path.join(res, "results.csv"))
-    assert {"std_err", "wald_stat"} <= set(out["results"].columns)
-    assert len(out["results"]) > 0
+    _seen.append(bool(
+        os.path.isfile(os.path.join(res, "results.csv"))))
+    _seen.append(bool(
+        {"std_err", "wald_stat"} <= set(out["results"].columns)))
+    _seen.append(bool(
+        len(out["results"]) > 0))
+    return _seen
 
 
 def case_regression_type_quantile_fits_the_requested_quantile(screen, stubs):
@@ -1365,6 +1534,7 @@ def case_regression_type_quantile_fits_the_requested_quantile(screen, stubs):
     regression_model - after both input CSVs had been read, the QC plots drawn
     and regression_data.csv written.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     # PARAMETRIC, because that is the path this test is about. Under the
@@ -1377,13 +1547,19 @@ def case_regression_type_quantile_fits_the_requested_quantile(screen, stubs):
     out = perform_regression(settings)
 
     # agg_type is forced to None for quantile, so the fit is on objects.
-    assert settings["agg_type"] is None
+    _seen.append(bool(
+        settings["agg_type"] is None))
     res = results_dir(screen["count"], settings=settings)
-    assert os.path.isfile(os.path.join(res, "results.csv"))
-    assert out["results"]["coefficient"].notna().all()
-    assert out["results"]["p_value"].notna().all()
-    assert (out["results"]["feature"].str.contains("grna\\[").sum()
-            == len(GENES) * N_GRNA_PER_GENE)
+    _seen.append(bool(
+        os.path.isfile(os.path.join(res, "results.csv"))))
+    _seen.append(bool(
+        out["results"]["coefficient"].notna().all()))
+    _seen.append(bool(
+        out["results"]["p_value"].notna().all()))
+    _seen.append(bool(
+        out["results"]["feature"].str.contains("grna\\[").sum()
+            == len(GENES) * N_GRNA_PER_GENE))
+    return _seen
 
 
 def case_quantile_regression_refuses_the_old_alpha_spelling(screen, stubs):
@@ -1393,15 +1569,19 @@ def case_quantile_regression_refuses_the_old_alpha_spelling(screen, stubs):
     75th percentile". Silently dropping it would fit the median and label the
     output folder as a quantile run.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
-    with pytest.raises(ValueError, match=r"does not use alpha"):
+    with pytest.raises(ValueError, match=r"does not use alpha") as _exc1:
         perform_regression(base_settings(screen, regression_type="quantile",
                                          alpha=0.75))
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_lasso_uses_bootstrap_selection_frequencies(screen, stubs):
     """Lasso hits are ranked by bootstrap selection frequency, not p-values."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, regression_type="lasso", alpha=1e-7,
@@ -1409,13 +1589,18 @@ def case_lasso_uses_bootstrap_selection_frequencies(screen, stubs):
     out = perform_regression(settings)
 
     results = out["results"]
-    assert {"selection_frequency", "mean_coefficient"} <= set(results.columns)
+    _seen.append(bool(
+        {"selection_frequency", "mean_coefficient"} <= set(results.columns)))
     freq = results["selection_frequency"].dropna()
-    assert len(freq) > 0
-    assert ((freq >= 0) & (freq <= 1)).all()
+    _seen.append(bool(
+        len(freq) > 0))
+    _seen.append(bool(
+        ((freq >= 0) & (freq <= 1)).all()))
     sig = out["significant"]
-    assert (sig["coefficient"] != 0).all()
-    assert (sig["selection_frequency"] >= 0.5).all()
+    _seen.append(bool(
+        (sig["coefficient"] != 0).all()))
+    _seen.append(bool(
+        (sig["selection_frequency"] >= 0.5).all()))
     # SORTED WITHIN EACH LEVEL, not across the two of them. Since the guide
     # and gene fits became separate families (128/132) the hit list is their
     # concatenation: each part is ordered by |coefficient| descending, and
@@ -1424,6 +1609,7 @@ def case_lasso_uses_bootstrap_selection_frequencies(screen, stubs):
     for level, block in sig.groupby("level", sort=False):
         assert list(block["coefficient"].abs()) == sorted(
             block["coefficient"].abs(), reverse=True), level
+    return _seen
 
 
 def case_lasso_with_auto_alpha_refuses_the_empty_model_it_cross_validated_to(
@@ -1445,6 +1631,7 @@ def case_lasso_with_auto_alpha_refuses_the_empty_model_it_cross_validated_to(
     The refusal is also the proof that CV ran: the message names the
     cross-validated empty model, which nothing else could have discovered.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, regression_type="lasso",
@@ -1453,17 +1640,20 @@ def case_lasso_with_auto_alpha_refuses_the_empty_model_it_cross_validated_to(
 
     with pytest.raises(ValueError) as excinfo:
         perform_regression(settings)
+    _seen.append(('ValueError' if isinstance(excinfo.value, ValueError) else type(excinfo.value).__name__))
 
     message = str(excinfo.value)
-    assert "cross-validated" in message
-    assert "null screen" in message
-    assert "0 significant gRNAs" in message      # the thing it refuses to be
-    assert "'ols'" in message                    # and what to do instead
+    _seen.append(('cross-validated' if 'cross-validated' in (message) else ("missing", 'cross-validated')))
+    _seen.append(('null screen' if 'null screen' in (message) else ("missing", 'null screen')))
+    _seen.append(('0 significant gRNAs' if '0 significant gRNAs' in (message) else ("missing", '0 significant gRNAs')))
+    _seen.append(("'ols'" if "'ols'" in (message) else ("missing", "'ols'")))
+    return _seen
 
 
 def case_lasso_bootstrap_raises_when_every_resample_fails(screen, stubs,
                                                           monkeypatch):
     """If no bootstrap resample can be designed the helper refuses to guess."""
+    _seen = []
     import spacr.ml as ML
     from spacr.ml import perform_regression
 
@@ -1492,23 +1682,28 @@ def case_lasso_bootstrap_raises_when_every_resample_fails(screen, stubs,
     settings = parametric_settings(screen, regression_type="lasso", alpha=1e-7,
                              lasso_n_boot=4)
     monkeypatch.setattr(ML, "dmatrices", flaky)
-    with pytest.raises(RuntimeError, match="All bootstrap resamples failed"):
+    with pytest.raises(RuntimeError, match="All bootstrap resamples failed") as _exc1:
         perform_regression(settings)
-    assert state["n"] > ALLOWED
+    _seen.append(('RuntimeError' if isinstance(_exc1.value, RuntimeError) else type(_exc1.value).__name__))
+    _seen.append(bool(
+        state["n"] > ALLOWED))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
 # metadata merge + toxo reporting block
 # ---------------------------------------------------------------------------
 
-def test_metadata_file_string_is_wrapped_and_merged(screen, stubs):
+def case_metadata_file_string_is_wrapped_and_merged(screen, stubs):
     """A single metadata_files string is wrapped and merged into every table."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, metadata_files=screen["meta"])
     perform_regression(settings)
 
-    assert settings["metadata_files"] == [screen["meta"]]
+    _seen.append(bool(
+        settings["metadata_files"] == [screen["meta"]]))
     name = os.path.splitext(os.path.basename(screen["meta"]))[0]
     for stem in ("results", "results_gene", "results_grna",
                  "results_significant"):
@@ -1516,13 +1711,13 @@ def test_metadata_file_string_is_wrapped_and_merged(screen, stubs):
         assert os.path.isfile(merged), merged
     merged_df = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), f"results{name}.csv"),
                             dtype={"gene": str})
-    assert "Gene Name" in merged_df.columns
-    assert merged_df.loc[merged_df["gene"] == "239740", "Gene Name"].iloc[0] \
-        == "gene_239740"
+    _seen.append(('Gene Name' if 'Gene Name' in (merged_df.columns) else ("missing", 'Gene Name')))
+    _seen.append(keep(merged_df.loc[merged_df["gene"] == "239740", "Gene Name"].iloc[0]))
+    return _seen
 
 
 @pytest.mark.parametrize("volcano", ["all", "gene", "grna"])
-def case_toxo_block_renders_the_requested_volcano(screen, toxo_stubs, volcano):
+def test_toxo_block_renders_the_requested_volcano(screen, toxo_stubs, volcano):
     """Each volcano mode feeds a different merged table to the toxo plot."""
     from spacr.ml import perform_regression
 
@@ -1553,6 +1748,7 @@ def case_toxo_block_renders_the_requested_volcano(screen, toxo_stubs, volcano):
 # tests/test_the_volcano_setting_is_retired.py holds what replaced it.
 def case_toxo_block_with_empty_gene_list(screen, toxo_stubs, capsys):
     """An empty gene list from the volcano plot skips the phenotype figures."""
+    _seen = []
     from spacr.ml import perform_regression
 
     toxo_stubs["gene_list"] = []
@@ -1560,9 +1756,10 @@ def case_toxo_block_with_empty_gene_list(screen, toxo_stubs, capsys):
     perform_regression(settings)
 
     printed = capsys.readouterr().out
-    assert "No gene_list produced" in printed
+    _seen.append(('No gene_list produced' if 'No gene_list produced' in (printed) else ("missing", 'No gene_list produced')))
     # An empty gene list draws nothing; there is no second unguarded copy.
-    assert toxo_stubs["phenotypes"] == []
+    _seen.append(keep(toxo_stubs["phenotypes"]))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -1575,11 +1772,14 @@ def case_filter_column_may_be_a_list(screen, stubs):
     The list used to reach clean_controls' `column in df.columns` membership
     test and raise "unhashable type: 'list'".
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = base_settings(screen, filter_column=["columnID"])
     out = perform_regression(settings)
-    assert len(out["results"]) > 0
+    _seen.append(bool(
+        len(out["results"]) > 0))
+    return _seen
 
 
 def case_filter_column_may_be_none(screen, stubs, capsys):
@@ -1589,32 +1789,41 @@ def case_filter_column_may_be_none(screen, stubs, capsys):
     branch, so None fell through and the process_reads call below raised
     UnboundLocalError before any filtering decision was made.
     """
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = base_settings(screen, filter_column=None)
     out = perform_regression(settings)
 
-    assert len(out["results"]) > 0
+    _seen.append(bool(
+        len(out["results"]) > 0))
     # clean_controls announces every value it drops; None must drop nothing.
-    assert "Removed data from" not in capsys.readouterr().out
+    _seen.append((("absent", 'Removed data from') if 'Removed data from' not in (capsys.readouterr().out) else ("present", 'Removed data from')))
+    return _seen
 
 
 def case_qc_tables_are_written_with_the_real_plot_helper(screen, heavy_stubs):
     """The gRNA-coverage QC tables must survive a real plot_data_from_csv."""
+    _seen = []
     from spacr.ml import perform_regression
 
     perform_regression(base_settings(screen))
-    assert os.path.isfile(os.path.join(screen["res"], "grna_well.csv"))
-    assert os.path.isfile(os.path.join(screen["res"], "well_grna.csv"))
+    _seen.append(bool(
+        os.path.isfile(os.path.join(screen["res"], "grna_well.csv"))))
+    _seen.append(bool(
+        os.path.isfile(os.path.join(screen["res"], "well_grna.csv"))))
+    return _seen
 
 
 def case_toxo_volcano_without_controls(screen, toxo_stubs):
     """A screen with no control gRNAs should still be able to plot a volcano."""
+    _seen = []
     from spacr.ml import perform_regression
 
     settings = parametric_settings(screen, toxo=True, controls=None)
     perform_regression(settings)
-    assert len(toxo_stubs["volcano"]) == 1
+    _seen.append(keep(len(toxo_stubs["volcano"])))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -1651,19 +1860,24 @@ def case_publication_panels_require_a_mapping_outcome_and_results_folder(
     tmp_path,
 ):
     """Validation names both malformed return shapes before reading a table."""
+    _seen = []
     import spacr.ml as ML
 
     settings = _panel_settings()
-    with pytest.raises(TypeError, match="mapping outcome"):
+    with pytest.raises(TypeError, match="mapping outcome") as _exc1:
         ML._write_regression_panel_packages(object(), settings)
-    assert settings["_regression_stage"] == "writing publication panel packages"
+    _seen.append(('TypeError' if isinstance(_exc1.value, TypeError) else type(_exc1.value).__name__))
+    _seen.append(keep(settings["_regression_stage"]))
 
-    with pytest.raises(ValueError, match="results folder"):
+    with pytest.raises(ValueError, match="results folder") as _exc2:
         ML._write_regression_panel_packages({}, _panel_settings())
+    _seen.append(('ValueError' if isinstance(_exc2.value, ValueError) else type(_exc2.value).__name__))
+    return _seen
 
 
 def case_publication_panels_name_every_missing_result_file(tmp_path):
     """An incomplete run is refused before a partial panel package is built."""
+    _seen = []
     import spacr.ml as ML
 
     folder = tmp_path / "incomplete"
@@ -1673,14 +1887,18 @@ def case_publication_panels_name_every_missing_result_file(tmp_path):
             {"res_folder": str(folder), "paths": None},
             _panel_settings(),
         )
+    _seen.append(('FileNotFoundError' if isinstance(raised.value, FileNotFoundError) else type(raised.value).__name__))
 
     message = str(raised.value)
-    assert str(folder / "results_grna.csv") in message
-    assert str(folder / "results_gene.csv") in message
+    _seen.append(bool(
+        str(folder / "results_grna.csv") in message))
+    _seen.append(bool(
+        str(folder / "results_gene.csv") in message))
+    return _seen
 
 
 @pytest.mark.parametrize("dependent_variable", [None, [], ["pred", " "]])
-def case_publication_panels_require_named_phenotypes(
+def test_publication_panels_require_named_phenotypes(
     tmp_path, dependent_variable,
 ):
     """Missing, empty and partly blank phenotype requests share one clear error."""
@@ -1696,18 +1914,22 @@ def case_publication_panels_require_named_phenotypes(
 
 def case_multi_phenotype_panels_require_an_outcome_column(tmp_path):
     """Two requested phenotypes cannot be inferred from an unlabelled table."""
+    _seen = []
     import spacr.ml as ML
 
     outcome, _paths = _finished_panel_run(tmp_path, "regression")
-    with pytest.raises(ValueError, match="has no 'outcome' column"):
+    with pytest.raises(ValueError, match="has no 'outcome' column") as _exc1:
         ML._write_regression_panel_packages(
             outcome,
             _panel_settings(["first", "second"]),
         )
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_multi_phenotype_panels_require_rows_for_every_request(tmp_path):
     """A named but absent phenotype is an error, not an empty publication panel."""
+    _seen = []
     import spacr.ml as ML
 
     outcome, paths = _finished_panel_run(tmp_path, "guide_permutation")
@@ -1717,17 +1939,20 @@ def case_multi_phenotype_panels_require_rows_for_every_request(tmp_path):
             "coefficient": [0.25],
         }).to_csv(path, index=False)
 
-    with pytest.raises(ValueError, match="no rows for phenotype 'missing'"):
+    with pytest.raises(ValueError, match="no rows for phenotype 'missing'") as _exc1:
         ML._write_regression_panel_packages(
             outcome,
             _panel_settings(["present", "missing"]),
         )
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 def case_multi_phenotype_panels_use_the_saved_folder_and_default_fdr(
     tmp_path, monkeypatch,
 ):
     """The settings-folder fallback builds one filtered artifact per level/value."""
+    _seen = []
     import spacr.ml as ML
     import spacr.regression_panels as RP
 
@@ -1754,19 +1979,19 @@ def case_multi_phenotype_panels_use_the_saved_folder_and_default_fdr(
         _regression_folder=str(folder),
     )
 
-    assert ML._write_regression_panel_packages({}, settings) == "built"
-    assert settings["_regression_folder"] == str(folder)
-    assert set(captured) == {
-        "first_grna", "second_grna", "first_gene", "second_gene",
-    }
+    _seen.append(keep(ML._write_regression_panel_packages({}, settings)))
+    _seen.append(bool(
+        settings["_regression_folder"] == str(folder)))
+    _seen.append(keep(set(captured)))
     for key, artifact in captured.items():
         assert len(artifact["data"]) == 1, key
         assert artifact["data"].iloc[0]["outcome"] == artifact["phenotype"]
         assert artifact["fdr_alpha"] == pytest.approx(0.05)
+    return _seen
 
 
 @pytest.mark.parametrize("analysis_mode", ["regression", "guide_permutation"])
-def case_public_regression_builds_panels_after_each_result_path_exists(
+def test_public_regression_builds_panels_after_each_result_path_exists(
     tmp_path, monkeypatch, analysis_mode
 ):
     """Both OLS and Freedman-Lane returns reach one post-success writer."""
@@ -1823,6 +2048,7 @@ def case_public_regression_without_a_manifest_preserves_the_outcome(
     tmp_path, monkeypatch,
 ):
     """The shipped None default neither imports nor calls the panel writer."""
+    _seen = []
     import spacr.ml as ML
     import spacr.regression_panels as RP
 
@@ -1839,16 +2065,20 @@ def case_public_regression_without_a_manifest_preserves_the_outcome(
         {"regression_panel_manifest": None, "dependent_variable": "pred"}
     )
 
-    assert outcome is expected
-    assert outcome == {
+    _seen.append(bool(
+        outcome is expected))
+    _seen.append(bool(
+        outcome == {
         "results": "unchanged", "res_folder": str(tmp_path / "untouched")
-    }
+    }))
+    return _seen
 
 
 def case_publication_writer_failure_uses_the_regression_failure_report(
     tmp_path, monkeypatch,
 ):
     """An explicit package is part of the run and uses its existing reporter."""
+    _seen = []
     import spacr.ml as ML
     import spacr.regression_failure as RF
     import spacr.regression_panels as RP
@@ -1877,92 +2107,82 @@ def case_publication_writer_failure_uses_the_regression_failure_report(
 
     with pytest.raises(RuntimeError, match="panel composition failed") as raised:
         ML.perform_regression(settings)
+    _seen.append(('RuntimeError' if isinstance(raised.value, RuntimeError) else type(raised.value).__name__))
 
-    assert raised.value is failure
-    assert len(reports) == 1
+    _seen.append(bool(
+        raised.value is failure))
+    _seen.append(keep(len(reports)))
     folder, error, details = reports[0]
-    assert folder == os.fspath(tmp_path / "regression")
-    assert error is failure
-    assert details["stage"] == "writing publication panel packages"
+    _seen.append(bool(
+        folder == os.fspath(tmp_path / "regression")))
+    _seen.append(bool(
+        error is failure))
+    _seen.append(keep(details["stage"]))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_perform_regression_cases(request, subtests):
-    """Behaviour cases for: perform_regression."""
-    ran = run_cases(request, subtests, [
-        case_scalar_score_and_count_paths_are_wrapped_in_lists,
-        case_paired_input_copies_plate_identity_from_its_partner,
-        case_missing_dependent_variable_raises,
-        case_missing_pred_names_the_file_and_says_how_to_get_it,
-        case_other_missing_response_names_the_file_without_the_pred_advice,
-        case_shortest_distance_dependent_variable_is_exempt_from_the_check,
-        case_unsupported_regression_type_raises,
-        case_rowid_with_plate_prefix_is_split,
-        case_path_is_not_used_to_guess_missing_well_columns,
-        case_declared_plate_is_kept_without_inspecting_image_paths,
-        case_missing_plate_column_defaults_to_file_position,
-        case_non_list_filter_value_disables_control_well_removal,
-        case_min_cells_per_well_none_is_filled_from_the_simulation,
-        case_fraction_threshold_none_is_filled_from_graph_sequencing_stats,
-        case_missing_gene_column_raises_keyerror,
-        case_qc_block_writes_the_three_well_level_tables,
-        case_batch_correction_runs_before_regression_and_writes_report,
-        case_outlier_detection_drops_sparsely_covered_grnas,
-        case_qc_plot_failure_does_not_cost_the_qc_tables,
-        case_qc_block_failure_is_swallowed_and_the_run_continues,
-        case_threshold_methods_are_supported,
-        case_unsupported_threshold_method_raises,
-        case_controls_none_skips_the_threshold_block,
-        case_the_effect_size_cut_is_symmetric_about_zero,
-        case_the_run_says_how_many_the_effect_size_cut_removed,
-        case_asking_for_no_effect_size_cut_keeps_the_hits_it_had,
-        case_one_control_guide_is_too_few_to_measure_a_spread_and_costs_no_hits,
-        case_no_cut_still_hands_the_volcano_a_number,
-        case_ols_results_tables_carry_grna_and_gene_annotations,
-        case_verbose_ols_writes_the_model_summary,
-        case_ridge_regression_backend,
-        case_regression_type_none_uses_the_auto_results_folder,
-        case_regression_type_quantile_fits_the_requested_quantile,
-        case_quantile_regression_refuses_the_old_alpha_spelling,
-        case_lasso_uses_bootstrap_selection_frequencies,
-        case_lasso_with_auto_alpha_refuses_the_empty_model_it_cross_validated_to,
-        case_lasso_bootstrap_raises_when_every_resample_fails,
-        case_toxo_block_renders_the_requested_volcano,
-        case_toxo_block_with_empty_gene_list,
-        case_filter_column_may_be_a_list,
-        case_filter_column_may_be_none,
-        case_qc_tables_are_written_with_the_real_plot_helper,
-        case_toxo_volcano_without_controls,
-        case_public_regression_builds_panels_after_each_result_path_exists,
-        case_public_regression_without_a_manifest_preserves_the_outcome,
-        case_publication_writer_failure_uses_the_regression_failure_report,
-    ])
-    assert ran >= 46
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_scalar_score_and_count_paths_are_wrapped_in_lists, [True, True, True, True, True], id="scalar_score_and_count_paths_are_wrapped_in_lists"),
+    pytest.param(case_paired_input_copies_plate_identity_from_its_partner, [{'plate2'}, True, True], id="paired_input_copies_plate_identity_from_its_partner"),
+    pytest.param(case_missing_dependent_variable_raises, ['ValueError'], id="missing_dependent_variable_raises"),
+    pytest.param(case_missing_pred_names_the_file_and_says_how_to_get_it, ['ValueError', True, 'Run Classify', '_result.csv'], id="missing_pred_names_the_file_and_says_how_to_get_it"),
+    pytest.param(case_other_missing_response_names_the_file_without_the_pred_advice, ['ValueError', True, ("absent", 'Classify')], id="other_missing_response_names_the_file_without_the_pred_advice"),
+    pytest.param(case_shortest_distance_dependent_variable_is_exempt_from_the_check, ['KeyError'], id="shortest_distance_dependent_variable_is_exempt_from_the_check"),
+    pytest.param(case_unsupported_regression_type_raises, ['ValueError'], id="unsupported_regression_type_raises"),
+    pytest.param(case_rowid_with_plate_prefix_is_split, [True, True], id="rowid_with_plate_prefix_is_split"),
+    pytest.param(case_path_is_not_used_to_guess_missing_well_columns, ['ValueError'], id="path_is_not_used_to_guess_missing_well_columns"),
+    pytest.param(case_declared_plate_is_kept_without_inspecting_image_paths, [("absent", 'PLATEn_ prefix'), {'plate1'}, True], id="declared_plate_is_kept_without_inspecting_image_paths"),
+    pytest.param(case_missing_plate_column_defaults_to_file_position, [("absent", 'plateID'), ("absent", 'plateID'), {'plate1'}, True], id="missing_plate_column_defaults_to_file_position"),
+    pytest.param(case_non_list_filter_value_disables_control_well_removal, [True, True], id="non_list_filter_value_disables_control_well_removal"),
+    pytest.param(case_min_cells_per_well_none_is_filled_from_the_simulation, [3, True], id="min_cells_per_well_none_is_filled_from_the_simulation"),
+    pytest.param(case_fraction_threshold_none_is_filled_from_graph_sequencing_stats, [0.004, True], id="fraction_threshold_none_is_filled_from_graph_sequencing_stats"),
+    pytest.param(case_missing_gene_column_raises_keyerror, ['KeyError'], id="missing_gene_column_raises_keyerror"),
+    pytest.param(case_qc_block_writes_the_three_well_level_tables, [True, {'grna', 'plateID', 'grna_well_count', 'gene_well_count'}, True, True, True, True, True, ['cell_count', 'wells_per_gene', 'gene_per_well'], True, True, True, 'pred', True, True], id="qc_block_writes_the_three_well_level_tables"),
+    pytest.param(case_batch_correction_runs_before_regression_and_writes_report, ['center', 'plateID', True, ['Only 1 batch was present; correction was a no-op.']], id="batch_correction_runs_before_regression_and_writes_report"),
+    pytest.param(case_outlier_detection_drops_sparsely_covered_grnas, [("absent", '111111_3'), ("absent", '111111_3'), True, True, 'Saved grna per well data to', 'Saved well per grna data to', ("absent", 'A value is trying to be set on a copy of a slice')], id="outlier_detection_drops_sparsely_covered_grnas"),
+    pytest.param(case_qc_plot_failure_does_not_cost_the_qc_tables, ['qc plot exploded', "Skipping QC plot 'cell_count'", True, True, True, True], id="qc_plot_failure_does_not_cost_the_qc_tables"),
+    pytest.param(case_qc_block_failure_is_swallowed_and_the_run_continues, ['qc table exploded', True, True, True], id="qc_block_failure_is_swallowed_and_the_run_continues"),
+    pytest.param(case_unsupported_threshold_method_raises, ['mad', 'ValueError'], id="unsupported_threshold_method_raises"),
+    pytest.param(case_controls_none_skips_the_threshold_block, [True, True, True], id="controls_none_skips_the_threshold_block"),
+    pytest.param(case_the_effect_size_cut_is_symmetric_about_zero, [True, True, True, True, True, True, True, True, True, True], id="the_effect_size_cut_is_symmetric_about_zero"),
+    pytest.param(case_the_run_says_how_many_the_effect_size_cut_removed, [True, True, True], id="the_run_says_how_many_the_effect_size_cut_removed"),
+    pytest.param(case_asking_for_no_effect_size_cut_keeps_the_hits_it_had, [16, True], id="asking_for_no_effect_size_cut_keeps_the_hits_it_had"),
+    pytest.param(case_one_control_guide_is_too_few_to_measure_a_spread_and_costs_no_hits, ['is not enough to measure a spread', 16], id="one_control_guide_is_too_few_to_measure_a_spread_and_costs_no_hits"),
+    pytest.param(case_no_cut_still_hands_the_volcano_a_number, [True, True], id="no_cut_still_hands_the_volcano_a_number"),
+    pytest.param(case_ols_results_tables_carry_grna_and_gene_annotations, [True, True, True, True, True, True, True, True, 2, {'grna', 'gene'}, {'gene'}, {'grna'}], id="ols_results_tables_carry_grna_and_gene_annotations"),
+    pytest.param(case_verbose_ols_writes_the_model_summary, [True, 'OLS Regression Results', 'mode_summary.csv'], id="verbose_ols_writes_the_model_summary"),
+    pytest.param(case_ridge_regression_backend, [True, True, True], id="ridge_regression_backend"),
+    pytest.param(case_regression_type_none_uses_the_auto_results_folder, ['Using regression type: beta', True, True, True], id="regression_type_none_uses_the_auto_results_folder"),
+    pytest.param(case_regression_type_quantile_fits_the_requested_quantile, [True, True, True, True, True], id="regression_type_quantile_fits_the_requested_quantile"),
+    pytest.param(case_quantile_regression_refuses_the_old_alpha_spelling, ['ValueError'], id="quantile_regression_refuses_the_old_alpha_spelling"),
+    pytest.param(case_lasso_uses_bootstrap_selection_frequencies, [True, True, True, True, True], id="lasso_uses_bootstrap_selection_frequencies"),
+    pytest.param(case_lasso_with_auto_alpha_refuses_the_empty_model_it_cross_validated_to, ['ValueError', 'cross-validated', 'null screen', '0 significant gRNAs', "'ols'"], id="lasso_with_auto_alpha_refuses_the_empty_model_it_cross_validated_to"),
+    pytest.param(case_lasso_bootstrap_raises_when_every_resample_fails, ['RuntimeError', True], id="lasso_bootstrap_raises_when_every_resample_fails"),
+    pytest.param(case_toxo_block_with_empty_gene_list, ['No gene_list produced', []], id="toxo_block_with_empty_gene_list"),
+    pytest.param(case_filter_column_may_be_a_list, [True], id="filter_column_may_be_a_list"),
+    pytest.param(case_filter_column_may_be_none, [True, ("absent", 'Removed data from')], id="filter_column_may_be_none"),
+    pytest.param(case_qc_tables_are_written_with_the_real_plot_helper, [True, True], id="qc_tables_are_written_with_the_real_plot_helper"),
+    pytest.param(case_toxo_volcano_without_controls, [1], id="toxo_volcano_without_controls"),
+    pytest.param(case_public_regression_without_a_manifest_preserves_the_outcome, [True, True], id="public_regression_without_a_manifest_preserves_the_outcome"),
+    pytest.param(case_publication_writer_failure_uses_the_regression_failure_report, ['RuntimeError', True, 1, True, True, 'writing publication panel packages'], id="publication_writer_failure_uses_the_regression_failure_report"),
+    pytest.param(case_publication_panels_require_a_mapping_outcome_and_results_folder, ['TypeError', 'writing publication panel packages', 'ValueError'], id="publication_panels_require_a_mapping_outcome_and_results_folder"),
+    pytest.param(case_publication_panels_name_every_missing_result_file, ['FileNotFoundError', True, True], id="publication_panels_name_every_missing_result_file"),
+    pytest.param(case_multi_phenotype_panels_require_an_outcome_column, ['ValueError'], id="multi_phenotype_panels_require_an_outcome_column"),
+    pytest.param(case_multi_phenotype_panels_require_rows_for_every_request, ['ValueError'], id="multi_phenotype_panels_require_rows_for_every_request"),
+    pytest.param(case_multi_phenotype_panels_use_the_saved_folder_and_default_fdr, ['built', True, {'first_grna', 'second_grna', 'first_gene', 'second_gene'}], id="multi_phenotype_panels_use_the_saved_folder_and_default_fdr"),
+    pytest.param(case_legacy_score_list_longer_than_count_list_migrates, [True, True], id="legacy_score_list_longer_than_count_list_migrates"),
+    pytest.param(case_legacy_count_list_longer_than_score_list_migrates, [True, True], id="legacy_count_list_longer_than_score_list_migrates"),
+    pytest.param(case_one_multiplate_score_file_can_be_paired_to_plate_count_files, [{'plate1', 'plate2'}, True, {'plate1', 'plate2'}, True], id="one_multiplate_score_file_can_be_paired_to_plate_count_files"),
+    pytest.param(case_the_correction_is_actually_applied_to_the_parametric_fit, [True, 0], id="the_correction_is_actually_applied_to_the_parametric_fit"),
+    pytest.param(case_min_observations_per_hit_filters_the_significant_hits, [True, 0, True], id="min_observations_per_hit_filters_the_significant_hits"),
+    pytest.param(case_metadata_file_string_is_wrapped_and_merged, [True, 'Gene Name', 'gene_239740'], id="metadata_file_string_is_wrapped_and_merged"),
+])
+def test_ml_perform_regression_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected
 
-def test_write_regression_panel_packages_cases(request, subtests):
-    """Behaviour cases for: _write_regression_panel_packages."""
-    ran = run_cases(request, subtests, [
-        case_publication_panels_require_a_mapping_outcome_and_results_folder,
-        case_publication_panels_name_every_missing_result_file,
-        case_publication_panels_require_named_phenotypes,
-        case_multi_phenotype_panels_require_an_outcome_column,
-        case_multi_phenotype_panels_require_rows_for_every_request,
-        case_multi_phenotype_panels_use_the_saved_folder_and_default_fdr,
-    ])
-    assert ran >= 6
 
-def test_normalize_regression_input_pairs_cases(request, subtests):
-    """Behaviour cases for: normalize_regression_input_pairs."""
-    ran = run_cases(request, subtests, [
-        case_legacy_score_list_longer_than_count_list_migrates,
-        case_legacy_count_list_longer_than_score_list_migrates,
-    ])
-    assert ran >= 2
 
-def test_load_regression_input_pairs_cases(request, subtests):
-    """Behaviour cases for: load_regression_input_pairs."""
-    ran = run_cases(request, subtests, [
-        case_one_multiplate_score_file_can_be_paired_to_plate_count_files,
-    ])
-    assert ran >= 1

@@ -13,7 +13,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.qt.widgets.pca_model import (PCAError, PCASpec, component_name,
+from spacr.qt.widgets.pca_model import (PCASpec, component_name,
                                         pca)
 
 pytestmark = pytest.mark.qt
@@ -32,79 +32,6 @@ def _frame(n=200, seed=5, constant_columns=0):
     for i in range(constant_columns):
         data[f"flat_{i}"] = np.full(n, 3.0)
     return pd.DataFrame(data)
-
-
-class TestTheMatrixAlwaysHasVarianceLeft:
-    """``largest <= 0`` cannot happen, because constants are refused first."""
-
-    def test_a_normal_fit_has_a_positive_largest_singular_value(self):
-        result = pca(_frame(), PCASpec(
-            features=("cell_area", "cell_perimeter", "cell_eccentricity"),
-            n_components=2))
-
-        assert result.n_components >= 1
-        assert float(np.max(result.explained_variance)) > 0.0
-
-    def test_every_feature_constant_is_refused_before_the_decomposition(self):
-        """THE PIN, part one.
-
-        ``_drop_constant`` raises rather than handing on a matrix with no
-        variance -- and it says which columns and what value, which is
-        the message a user can act on. The guard downstream would only be
-        able to say "no variance left".
-        """
-        frame = _frame(constant_columns=3)
-
-        with pytest.raises(PCAError, match="constant"):
-            pca(frame, PCASpec(features=("flat_0", "flat_1", "flat_2"),
-                                   n_components=2))
-
-    def test_one_varying_feature_is_refused_too(self):
-        """THE PIN, part two: at least TWO columns reach the decomposition.
-
-        So the standardised matrix always has at least two columns whose
-        standard deviation is above tolerance, and its largest singular
-        value is therefore above zero.
-        """
-        frame = _frame(constant_columns=2)
-
-        with pytest.raises(PCAError, match="at least two"):
-            pca(frame, PCASpec(features=("cell_area", "flat_0", "flat_1"),
-                                   n_components=2))
-
-
-class TestTheRankIsNeverZero:
-
-    def test_rank_zero_is_arithmetically_impossible_once_largest_is_positive(
-            self):
-        """THE PIN.
-
-        rank counts singular values above
-        ``largest * max(n, p) * eps``. The largest is itself one of them,
-        so rank is zero only if ``largest <= largest * max(n, p) * eps``
-        -- that is, only if ``max(n, p) * eps >= 1``, which needs an
-        array of about 4.5e15 rows or columns. numpy cannot hold one.
-        """
-        eps = float(np.finfo(float).eps)
-        assert eps * 4_000_000_000_000_000 < 1.0, (
-            "float64 epsilon changed; the rank guard may now be reachable")
-
-        result = pca(_frame(), PCASpec(
-            features=("cell_area", "cell_perimeter", "cell_eccentricity"),
-            n_components=3))
-        assert result.n_components >= 1, "a positive-variance fit gave rank 0"
-
-    def test_duplicated_columns_reduce_the_rank_without_reaching_zero(self):
-        """A genuinely rank-deficient fit still has rank at least one."""
-        frame = _frame()
-        frame["cell_area_again"] = frame["cell_area"]
-
-        result = pca(frame, PCASpec(
-            features=("cell_area", "cell_area_again", "cell_perimeter"),
-            n_components=3))
-
-        assert result.n_components >= 1
-        assert result.n_components <= 3
 
 
 class TestSlidingTheOldXOntoY:

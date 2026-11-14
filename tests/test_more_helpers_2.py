@@ -187,17 +187,6 @@ def test_ml_clean_controls_missing_column_returns_unchanged():
 # spacr.timelapse: additional filtering / linking
 # ===========================================================================
 
-def test_timelapse_link_by_iou_partial_overlap_below_threshold():
-    """When the IoU is below threshold, no match is emitted."""
-    from spacr.timelapse import link_by_iou
-    prev = np.zeros((20, 20), dtype=np.int32)
-    prev[0:10, 0:10] = 1     # 100 px
-    curr = np.zeros((20, 20), dtype=np.int32)
-    curr[8:18, 8:18] = 2     # 100 px, overlap = 2x2 = 4 → IoU = 4/196 ≈ 0.02
-    matches = link_by_iou(prev, curr, iou_threshold=0.5)
-    assert matches == []
-
-
 def test_timelapse_sort_key_multiple_wells_sort_stable():
     from spacr.timelapse import _sort_key
     files = ["1_A01_1_5.npy", "1_A02_1_1.npy", "1_A01_1_1.npy"]

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-13 11:37-0500\n"
+"POT-Creation-Date: 2026-11-13 18:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
@@ -96,12 +96,32 @@ msgid "A file written before a release changed a default does not hold the chang
 msgstr "Um arquivo gravado antes de uma versão alterar um padrão não contém a chave alterada, então seria executado com o novo padrão. Quando um arquivo de configurações é lido por ``spacr-run``, ``spacr repro``, pela fila de lotes ou por Importar configurações, cada chave cujo padrão mudou depois da versão do arquivo, e que o arquivo não define, recebe o padrão que tinha na época. Um arquivo sem ``spacr_settings_version``, como um escrito à mão, é lido como a versão mais antiga, e o log cita cada padrão antigo que lhe foi atribuído. Uma chave que o arquivo define sempre prevalece. Para usar os padrões atuais, defina essas chaves ou adicione ao arquivo o ``spacr_settings_version`` atual."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
-msgstr "As alterações ficam em uma única tabela, ``DEFAULT_CHANGES`` em ``spacr/settings.py``, indexada pelo número do item que alterou o padrão:"
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default. A key is always above every earlier one, so an item that changes a default after a higher-numbered item takes the next free number:"
+msgstr "As alterações ficam em uma única tabela, ``DEFAULT_CHANGES`` em ``spacr/settings.py``, indexada pelo número do item que alterou o padrão. Uma chave é sempre maior que todas as anteriores, então um item que altera um padrão depois de um item de número maior usa o próximo número livre:"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
 msgstr "931: ``ops_compose_blend`` era ``'average'``; agora é ``'feather'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "932: ``ops_registration_precision`` was ``'float64'`` and ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and ``'gpu'``."
+msgstr "932: ``ops_registration_precision`` era ``'float64'`` e ``ops_registration_backend`` ``'cpu'``; agora são ``'float32'`` e ``'gpu'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
+msgstr "933 (a mudança de padrão do item 930): ``ops_align_model`` era ``'similarity'``; agora é ``'tile_affine'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now ``'per_feature'``, so the screen pipeline also writes a well table in which every feature takes its own default."
+msgstr "934 (item 937): ``aggregation_defaults`` era ``'legacy'``; agora é ``'per_feature'``, de modo que o pipeline de triagem também grava uma tabela de poços em que cada característica usa o seu próprio padrão."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "935 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
+msgstr "935 (a mudança de padrão do item 940): ``ops_placement_seed_export`` era ``False``; agora é ``True``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
+msgstr "936: ``ops_blas_threads`` era ``1`` e ``ops_consensus_space`` ``'refit'``; agora são ``2`` e ``'hybrid'``."
 
 msgid "Public API"
 msgstr "API pública"

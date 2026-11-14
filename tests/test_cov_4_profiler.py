@@ -56,16 +56,17 @@ class _NothingToPredictFrom:
 _ROWS = pd.DataFrame({"x": [1.0, 2.0]})
 
 
-def test_a_model_that_takes_an_offset_is_given_one():
-    """A count model fitted with log exposure must be offset when profiled."""
-    out = predict(_TakesAnOffset(), _ROWS, offset=[10.0, 20.0])
-    assert list(out) == [13.0, 25.0]
-
-
-def test_a_model_that_refuses_the_offset_keyword_is_predicted_without_it():
-    """The keyword is an attempt, not a requirement; the curve still draws."""
-    out = predict(_RefusesTheOffsetKeyword(), _ROWS, offset=[10.0, 20.0])
-    assert list(out) == [3.0, 5.0]
+@pytest.mark.parametrize("model, expected", [
+    # A count model fitted with log exposure must be offset when profiled.
+    pytest.param(_TakesAnOffset(), [13.0, 25.0], id="takes-an-offset"),
+    # The keyword is an attempt, not a requirement; the curve still draws.
+    pytest.param(_RefusesTheOffsetKeyword(), [3.0, 5.0],
+                 id="refuses-the-offset-keyword"),
+])
+def test_an_offset_is_offered_to_a_model_and_dropped_if_it_refuses(model,
+                                                                  expected):
+    out = predict(model, _ROWS, offset=[10.0, 20.0])
+    assert list(out) == expected
 
 
 def test_a_predict_that_cannot_align_falls_back_to_the_coefficients():

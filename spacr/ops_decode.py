@@ -461,6 +461,49 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         field owns; ``assigned_real`` and ``assigned_decoy``; and read
         counts for the well report.
     """
+    votes = _field_votes(evidence, rule, library, matcher, threshold=threshold,
+                         footprint=footprint, max_distance=max_distance,
+                         min_fraction=min_fraction,
+                         single_read_quality=single_read_quality,
+                         pixel_qualities=(rule["pixel_quality"],),
+                         crosstalk=crosstalk, evidence_rows=evidence_rows)
+    primary = votes["primary"]
+    pixel = votes["pixel"][rule["pixel_quality"]] if rule["pixels"] else {}
+    out = _assemble_calls(primary, pixel, votes, decoys)
+    if rule.get("read_stage"):
+        out["nuclei_with_read"] = nuclei_with_read(evidence, threshold)
+    if evidence_rows:
+        out["evidence"] = _evidence_rows(primary, pixel, votes["tallies"],
+                                         votes["owned"], decoys,
+                                         votes["objects"], votes["ambiguous"])
+    return out
+
+
+def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
+                 library: Sequence[str], matcher, *, threshold: float,
+                 footprint: float, max_distance: int, min_fraction: float,
+                 single_read_quality: float, pixel_qualities: Sequence[float],
+                 crosstalk: str, evidence_rows: bool) -> Dict[str, Any]:
+    """The read vote and the pixel votes of one field, before any call is kept.
+
+    :param evidence: as for :func:`field_calls`.
+    :param rule: from :func:`decode_rule`.
+    :param library: the guide barcodes.
+    :param matcher: from :func:`matcher_for`.
+    :param threshold: the read threshold on the spot strength.
+    :param footprint: how far beyond a boundary a read may lie, in pixels.
+    :param max_distance: the mismatches a read may carry.
+    :param min_fraction: the share of the votes the guide must hold.
+    :param single_read_quality: the quality a one-read guide needs.
+    :param pixel_qualities: the pixel qualities to vote the fallback at;
+        ignored when the rule has no pixel fallback.
+    :param crosstalk: the unmixing method.
+    :param evidence_rows: keep the vote tallies for the evidence rows.
+    :returns: ``primary`` (:func:`spacr.ops_sbs.vote_mapped_reads`),
+        ``pixel`` (pixel quality -> :func:`spacr.ops_sbs.vote_pixels`),
+        ``tallies``, ``owned``, ``objects`` and ``ambiguous`` (of the owned
+        reads), ``reads_per`` and the read counts of the well report.
+    """
     from collections import Counter
 
     from .ops_sbs import vote_mapped_reads, vote_pixels
@@ -488,8 +531,7 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         single_read_quality=single_read_quality,
         impute_missing=bool(rule["impute"]),
         strength=strength[selected][rows], evidence=tallies)
-    reads_per = Counter(objects.tolist())
-    pixel: Dict[int, dict] = {}
+    pixel: Dict[float, Dict[int, dict]] = {q: {} for q in pixel_qualities}
     if rule["pixels"] and "pix_values" in evidence and len(evidence["pix_values"]):
         _, pixel_codes, _, pixel_quality = _call(
             np.asarray(evidence["pix_values"], np.float32),
@@ -498,13 +540,34 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
             np.asarray(evidence["pix_gap"])[:, 0].astype(float)
             <= rule["pixel_radius"])
         chosen = np.flatnonzero(pixel_own)
-        pixel = vote_pixels(
-            np.asarray(evidence["pix_id0"])[chosen],
-            [pixel_codes[i] for i in chosen], pixel_quality[chosen], matcher,
-            min_quality=rule["pixel_quality"],
-            min_pixels=int(rule["pixel_min_pixels"]),
-            min_fraction=rule["pixel_min_fraction"])
-    owned = set(np.asarray(evidence["owned_ids"]).tolist())
+        for q in pixel_qualities:
+            pixel[q] = vote_pixels(
+                np.asarray(evidence["pix_id0"])[chosen],
+                [pixel_codes[i] for i in chosen], pixel_quality[chosen], matcher,
+                min_quality=q, min_pixels=int(rule["pixel_min_pixels"]),
+                min_fraction=rule["pixel_min_fraction"])
+    return {"primary": primary, "pixel": pixel, "tallies": tallies,
+            "owned": set(np.asarray(evidence["owned_ids"]).tolist()),
+            "objects": objects, "ambiguous": ambiguous[rows],
+            "reads_per": Counter(objects.tolist()),
+            "reads": int(selected.sum()), "reads_owned": int(len(rows)),
+            "reads_near": int(near.sum()),
+            "reads_ambiguous": int(ambiguous.sum())}
+
+
+def _assemble_calls(primary: Mapping[int, dict], pixel: Mapping[int, dict],
+                    votes: Mapping[str, Any], decoys) -> Dict[str, Any]:
+    """A field's owned calls from its read and pixel votes, primary first.
+
+    :param primary: the kept read votes.
+    :param pixel: the kept pixel votes.
+    :param votes: from :func:`_field_votes`, for ``owned``, ``reads_per``
+        and the read counts.
+    :param decoys: the decoy set.
+    :returns: the dict :func:`field_calls` returns, without ``evidence``.
+    """
+    owned = votes["owned"]
+    reads_per = votes["reads_per"]
     calls: Dict[int, dict] = {}
     for owner, hit in pixel.items():
         calls[owner] = {"guide": hit["guide"], "source": "pixel_fallback",
@@ -527,16 +590,424 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         decoy += int(hit["decoy"])
         real += int(not hit["decoy"])
         kept_calls[owner] = hit
-    out = {"calls": kept_calls, "nuclei": len(owned), "assigned_real": real,
-           "assigned_decoy": decoy, "reads": int(selected.sum()),
-           "reads_owned": int(len(rows)), "reads_near": int(near.sum()),
-           "reads_ambiguous": int(ambiguous.sum())}
-    if rule.get("read_stage"):
-        out["nuclei_with_read"] = nuclei_with_read(evidence, threshold)
-    if evidence_rows:
-        out["evidence"] = _evidence_rows(primary, pixel, tallies, owned, decoys,
-                                         objects, ambiguous[rows])
+    return {"calls": kept_calls, "nuclei": len(owned), "assigned_real": real,
+            "assigned_decoy": decoy, "reads": votes["reads"],
+            "reads_owned": votes["reads_owned"], "reads_near": votes["reads_near"],
+            "reads_ambiguous": votes["reads_ambiguous"]}
+
+
+#: The thresholds auto mode chooses between when ``ops_decode_auto_grid`` is
+#: empty: the single-read floor by the pixel-fallback quality grid of the BMC
+#: study's S2-it1 iteration (``s2it_analyse.py``, arm iii, 2026-11-12).
+AUTO_GRID: Dict[str, Tuple[float, ...]] = {
+    "ops_single_read_quality": (0.06, 0.08, 0.10, 0.12, 0.15, 0.20, 0.25,
+                                0.30, 0.40),
+    "ops_pixel_quality": (0.10, 0.15, 0.20, 0.30, 0.40),
+}
+
+#: The threshold modes ``ops_decode_threshold_mode`` may name, the first
+#: being the default.
+THRESHOLD_MODES = ("manual", "auto")
+
+#: Field-bootstrap replicates and seed of the FDR interval auto mode judges
+#: a setting by; the study's ``s2it_rule.fdr_ci`` used 1,000 and seed 1.
+_AUTO_REPS = 1000
+_AUTO_BOOT_SEED = 1
+
+#: The decoy calls a tuning half with none is judged as holding: the 95 %
+#: upper bound of a zero count (the rule of three), so a half too small to
+#: show a false call cannot pass on a falsely confident zero.
+_AUTO_ZERO_DECOYS = 3
+
+
+def threshold_settings(settings: Mapping[str, Any],
+                       rule: Mapping[str, Any]) -> Dict[str, Any]:
+    """The decode threshold mode and, in auto mode, its grid and target.
+
+    :param settings: the run's settings, read for
+        ``ops_decode_threshold_mode``, ``ops_decode_fdr_max``,
+        ``ops_decode_auto_grid``, ``ops_decode_auto_ci``,
+        ``ops_decode_auto_tune_fraction`` and ``ops_decode_auto_seed``.
+    :param rule: from :func:`decode_rule`; a grid without the pixel quality,
+        or a rule without the pixel fallback, keeps ``pixel_quality``.
+    :returns: ``mode``; in auto mode also ``floors`` and ``pixel_qualities``
+        (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``tune_fraction`` and
+        ``seed``.
+    :raises ValueError: for an unknown mode, an FDR target that is not
+        above 0, a tuning fraction outside (0, 1), a grid that is not a
+        mapping of the two thresholds to lists of numbers 0 or above, or
+        auto mode without decoys (``ops_decoy_library_k`` 0).
+    """
+    mode = str(settings.get("ops_decode_threshold_mode") or THRESHOLD_MODES[0]
+               ).strip().lower()
+    if mode not in THRESHOLD_MODES:
+        raise ValueError(f"ops_decode_threshold_mode must be one of "
+                         f"{list(THRESHOLD_MODES)}; got {mode!r}")
+    if mode == "manual":
+        return {"mode": mode}
+    if int(rule.get("decoy_k") or 0) < 1:
+        raise ValueError("ops_decode_threshold_mode 'auto' chooses thresholds "
+                         "from decoy calls; set ops_decoy_library_k to 1 or "
+                         "more (4 in the BMC study)")
+    fdr_max = settings.get("ops_decode_fdr_max")
+    fdr_max = 0.1 if fdr_max is None or fdr_max == "" else fdr_max
+    tune = settings.get("ops_decode_auto_tune_fraction")
+    tune = 0.5 if tune is None or tune == "" else tune
+    seed = settings.get("ops_decode_auto_seed")
+    seed = 0 if seed is None or seed == "" else seed
+    try:
+        fdr_max, tune, seed = float(fdr_max), float(tune), int(seed)
+    except (TypeError, ValueError):
+        raise ValueError("ops_decode_fdr_max, ops_decode_auto_tune_fraction "
+                         "and ops_decode_auto_seed must be numbers") from None
+    if not fdr_max > 0:
+        raise ValueError(f"ops_decode_fdr_max must be above 0; got {fdr_max}")
+    if not 0 < tune < 1:
+        raise ValueError("ops_decode_auto_tune_fraction must lie in (0, 1); "
+                         f"got {tune}")
+    grid = settings.get("ops_decode_auto_grid")
+    if isinstance(grid, str) and grid.strip():
+        try:
+            grid = json.loads(grid)
+        except ValueError:
+            raise ValueError("ops_decode_auto_grid must be a mapping such as "
+                             '{"ops_single_read_quality": [0.06, 0.1]}; got '
+                             f"{grid!r}") from None
+    if grid is None or grid == "" or grid == {}:
+        grid = AUTO_GRID
+    if not isinstance(grid, Mapping) or set(grid) - set(AUTO_GRID):
+        raise ValueError(f"ops_decode_auto_grid takes the keys {sorted(AUTO_GRID)}; "
+                         f"got {grid!r}")
+    axes = {}
+    for key, fixed in (("ops_single_read_quality", None),
+                       ("ops_pixel_quality", rule["pixel_quality"])):
+        values = grid.get(key)
+        if values is None or (key == "ops_pixel_quality" and not rule["pixels"]):
+            if fixed is None:
+                raise ValueError("ops_decode_auto_grid needs "
+                                 "ops_single_read_quality values")
+            values = [fixed]
+        try:
+            values = sorted({float(v) for v in values})
+        except (TypeError, ValueError):
+            raise ValueError(f"ops_decode_auto_grid {key} must be a list of "
+                             f"numbers; got {values!r}") from None
+        if not values or values[0] < 0:
+            raise ValueError(f"ops_decode_auto_grid {key} needs values of 0 "
+                             f"or more; got {values!r}")
+        axes[key] = values
+    ci = settings.get("ops_decode_auto_ci")
+    if isinstance(ci, str):
+        ci = ci.strip().lower() not in ("false", "0", "no", "off")
+    return {"mode": mode, "floors": axes["ops_single_read_quality"],
+            "pixel_qualities": axes["ops_pixel_quality"], "fdr_max": fdr_max,
+            "ci": True if ci is None or ci == "" else bool(ci),
+            "tune_fraction": tune, "seed": seed}
+
+
+def _prune_tallies(tallies: Mapping[str, Any], keys) -> Dict[str, Any]:
+    """The vote tallies the evidence rows of the given calls read, and no more.
+
+    :param tallies: from :func:`spacr.ops_sbs.vote_mapped_reads`.
+    :param keys: the ``(object, guide)`` pairs a row may be written for.
+    :returns: the same layout as plain dicts, for those objects and guides;
+        every object's full ``votes`` stays, since a row counts its guides.
+    """
+    owners = {owner for owner, _ in keys}
+    out: Dict[str, Any] = {"votes": {o: dict(tallies["votes"][o])
+                                     for o in owners if o in tallies["votes"]},
+                           "matched": {o: tallies["matched"][o]
+                                       for o in owners if o in tallies["matched"]}}
+    for name in ("exact", "corrected", "best", "qualities", "strength"):
+        table = tallies[name]
+        kept: Dict[int, dict] = {o: {} for o in owners if o in table}
+        for owner, guide in keys:
+            if owner in table and guide in table[owner]:
+                kept[owner][guide] = table[owner][guide]
+        out[name] = kept
     return out
+
+
+def _field_candidates(votes: Dict[str, Any], floors: Sequence[float],
+                      pixel_qualities: Sequence[float], decoys,
+                      pixels: bool) -> Dict[str, Any]:
+    """One field's calls at every grid setting, counted, and what rebuilds them.
+
+    :param votes: from :func:`_field_votes` with no single-read floor and
+        the pixel votes at every grid pixel quality.
+    :param floors: the single-read floors of the grid.
+    :param pixel_qualities: the pixel qualities of the grid.
+    :param decoys: the decoy set.
+    :param pixels: whether the rule has the pixel fallback.
+    :returns: ``counts`` -- ``(floors, pixel qualities, 2)`` real and decoy
+        calls -- ``nuclei``, and ``votes`` with the tallies pruned to the
+        rows any setting can write, for :func:`_candidate_calls`.
+    """
+    owned = votes["owned"]
+    primary = votes["primary"]
+    pixel = votes["pixel"] if pixels else {q: {} for q in pixel_qualities}
+    mine = [(o, h) for o, h in primary.items() if o in owned]
+    support = np.array([h["n_support"] for _, h in mine], np.int64)
+    best = np.array([h["quality"] for _, h in mine], float)
+    owners = [o for o, _ in mine]
+    is_decoy = {o: h["guide"] in decoys for o, h in mine}
+    counts = np.zeros((len(floors), len(pixel_qualities), 2), np.int64)
+    for i, floor in enumerate(floors):
+        keep = ~((support == 1) & (best < floor))
+        kept = {o for o, k in zip(owners, keep) if k}
+        decoy = sum(is_decoy[o] for o in kept)
+        for j, q in enumerate(pixel_qualities):
+            extra = [h["guide"] in decoys for o, h in pixel[q].items()
+                     if o in owned and o not in kept]
+            counts[i, j] = (len(kept) - decoy + len(extra) - sum(extra),
+                            decoy + sum(extra))
+    if votes["tallies"] is not None:
+        keys = {(o, h["guide"]) for o, h in primary.items()}
+        keys |= {(o, h["guide"]) for table in pixel.values()
+                 for o, h in table.items()}
+        votes = {**votes, "tallies": _prune_tallies(votes["tallies"], keys)}
+    return {"counts": counts, "nuclei": len(owned),
+            "votes": {**votes, "pixel": pixel}}
+
+
+def _candidate_calls(candidates: Mapping[str, Any], floor: float,
+                     pixel_quality: float, decoys) -> Dict[str, Any]:
+    """The calls :func:`field_calls` makes at one grid setting, rebuilt.
+
+    :param candidates: from :func:`_field_candidates`.
+    :param floor: the single-read floor chosen.
+    :param pixel_quality: the pixel quality chosen.
+    :param decoys: the decoy set.
+    :returns: the dict :func:`field_calls` returns at
+        ``single_read_quality=floor`` and ``ops_pixel_quality=pixel_quality``,
+        with ``evidence`` when the tallies were kept.
+    """
+    votes = candidates["votes"]
+    primary = {o: h for o, h in votes["primary"].items()
+               if not (h["n_support"] == 1 and h["quality"] < floor)}
+    pixel = votes["pixel"][pixel_quality]
+    out = _assemble_calls(primary, pixel, votes, decoys)
+    if votes["tallies"] is not None:
+        out["evidence"] = _evidence_rows(primary, pixel, votes["tallies"],
+                                         votes["owned"], decoys,
+                                         votes["objects"], votes["ambiguous"])
+    return out
+
+
+def _bootstrap_rows(n: int, reps: int, seed: int) -> np.ndarray:
+    """The field resamples of the FDR interval, drawn as the study drew them.
+
+    :param n: fields in the half.
+    :param reps: replicates.
+    :param seed: the seed.
+    :returns: ``(reps, n)`` row indices, one draw of ``n`` per replicate in
+        turn, so the stream equals ``s2it_rule.fdr_ci``'s.
+    """
+    rng = np.random.default_rng(seed)
+    return np.array([rng.integers(0, n, n) for _ in range(int(reps))],
+                    np.int64).reshape(int(reps), n)
+
+
+def _half_stats(counts: np.ndarray, nuclei: np.ndarray, draws: np.ndarray,
+                k: int, scale: float) -> Dict[str, np.ndarray]:
+    """Calls, genotyped share and decoy FDR with its interval over one half.
+
+    :param counts: ``(fields, floors, pixel qualities, 2)``.
+    :param nuclei: owned nuclei per field.
+    :param draws: from :func:`_bootstrap_rows`.
+    :param k: decoys per guide.
+    :param scale: the FDR calibration.
+    :returns: per grid setting: ``real``, ``decoy``, ``genotyped_pct``,
+        ``fdr``, ``fdr_lo`` and ``fdr_hi``, and ``nuclei``.
+    """
+    real = counts[..., 0].sum(0)
+    decoy = counts[..., 1].sum(0)
+    c = 100.0 * max(float(scale), 1.0) / float(k)
+    weights = np.stack([np.bincount(row, minlength=len(counts)) for row in draws])
+    sums = (weights @ counts.reshape(len(counts), -1)).reshape(
+        (len(draws),) + counts.shape[1:])
+    boot = c * sums[..., 1] / np.maximum(sums[..., 0], 1)
+    total = int(nuclei.sum())
+    return {"real": real, "decoy": decoy, "nuclei": total,
+            "genotyped_pct": 100.0 * real / max(total, 1),
+            "fdr": c * decoy / np.maximum(real, 1),
+            "fdr_lo": np.percentile(boot, 2.5, axis=0),
+            "fdr_hi": np.percentile(boot, 97.5, axis=0)}
+
+
+def _chosen_summary(counts: np.ndarray, nuclei: np.ndarray, fields,
+                    chosen: Tuple[int, int], k: int, scale: float
+                    ) -> Dict[str, Any]:
+    """The chosen setting's numbers over some of a well's fields.
+
+    :param counts: ``(fields, floors, pixel qualities, 2)``.
+    :param nuclei: owned nuclei per field.
+    :param fields: field indices in site order.
+    :param chosen: the grid position chosen.
+    :param k: decoys per guide.
+    :param scale: the FDR calibration.
+    :returns: fields, nuclei, real and decoy calls, genotyped %, FDR and its
+        interval (None for fewer than two fields).
+    """
+    if not len(fields):
+        return {"fields": 0, "nuclei": 0, "real": 0, "decoy": 0,
+                "genotyped_pct": None, "fdr_per_100": None, "fdr_ci95": None}
+    idx = np.asarray(fields)
+    part = counts[idx][:, chosen[0], chosen[1]][:, None, None, :]
+    stats = _half_stats(part, nuclei[idx],
+                        _bootstrap_rows(len(idx), _AUTO_REPS, _AUTO_BOOT_SEED),
+                        k, scale)
+    return {"fields": int(len(idx)), "nuclei": int(stats["nuclei"]),
+            "real": int(stats["real"][0, 0]), "decoy": int(stats["decoy"][0, 0]),
+            "genotyped_pct": float(stats["genotyped_pct"][0, 0]),
+            "fdr_per_100": float(stats["fdr"][0, 0]),
+            "fdr_ci95": ([float(stats["fdr_lo"][0, 0]), float(stats["fdr_hi"][0, 0])]
+                         if len(idx) > 1 else None)}
+
+
+def choose_well_thresholds(counts, nuclei, sites, floors: Sequence[float],
+                           pixel_qualities: Sequence[float], *, k: int,
+                           scale: float, fdr_max: float = 0.1,
+                           ci: bool = True, tune_fraction: float = 0.5,
+                           seed: int = 0) -> Dict[str, Any]:
+    """Choose one well's single-read floor and pixel quality from its decoys.
+
+    This is arm (iii) of the BMC study's S2-it1 iteration
+    (``s2it_analyse.py``): the well's fields with nuclei, in site order, are
+    split at random (``numpy.random.default_rng(seed).permutation``) into a
+    tuning share and a report share. On the tuning share every grid setting
+    is scored; a setting passes when its decoy FDR -- the upper end of the
+    95 % field-bootstrap interval (1,000 resamples, seed 1) with ``ci``,
+    else the estimate -- is at most ``fdr_max``. A tuning share with no
+    decoy call is judged as holding three, the 95 % bound of a zero count.
+    The passing setting with the most real calls wins; ties go to the higher
+    floor, then the higher pixel quality. With none passing, the strictest
+    setting (highest floor and pixel quality) is used and ``auto_met`` is
+    False. Only decoy calls are read, never a reference call set.
+
+    :param counts: ``(fields, floors, pixel qualities, 2)`` real and decoy
+        calls per field and setting.
+    :param nuclei: owned nuclei per field.
+    :param sites: the site of each field.
+    :param floors: the single-read floors, in the order of ``counts``.
+    :param pixel_qualities: the pixel qualities, in the order of ``counts``.
+    :param k: decoys per guide.
+    :param scale: the FDR calibration (:func:`fdr`).
+    :param fdr_max: the most false calls per 100 real calls accepted.
+    :param ci: judge the interval's upper end rather than the estimate.
+    :param tune_fraction: the share of the fields that choose; the rest
+        only report.
+    :param seed: the split's seed.
+    :returns: ``single_read_quality``, ``pixel_quality``, ``auto_met``,
+        ``fdr_max``, ``ci``, ``tune_fraction``, ``seed``, ``tune_sites``
+        and ``report_sites``; ``tune``, ``report`` and ``all_fields`` --
+        nuclei, real and decoy calls, genotyped %, FDR and its interval at
+        the chosen setting -- and ``grid``, the tuning score of every
+        setting.
+    :raises ValueError: when the shapes disagree or ``k`` is below 1.
+    """
+    counts = np.asarray(counts, np.int64)
+    nuclei = np.asarray(nuclei, np.int64)
+    sites = np.asarray(sites, np.int64)
+    floors = [float(v) for v in floors]
+    pixel_qualities = [float(v) for v in pixel_qualities]
+    if counts.shape[1:] != (len(floors), len(pixel_qualities), 2) \
+            or len(nuclei) != len(counts) or len(sites) != len(counts):
+        raise ValueError("counts must be (fields, floors, pixel qualities, 2) "
+                         "with one nuclei count and site per field")
+    if int(k) < 1:
+        raise ValueError("choosing thresholds needs decoys (k of 1 or more)")
+    order = [i for i in np.argsort(sites, kind="stable") if nuclei[i] > 0]
+    n = len(order)
+    perm = np.random.default_rng(int(seed)).permutation(n)
+    n_tune = int(n * float(tune_fraction))
+    tune = [order[i] for i in sorted(perm[:n_tune])]
+    report = [order[i] for i in sorted(perm[n_tune:])]
+    strict = (len(floors) - 1, len(pixel_qualities) - 1)
+    met = False
+    rows: List[Dict[str, Any]] = []
+    chosen = strict
+    if len(tune) >= 2:
+        idx = np.asarray(tune)
+        score = _half_stats(counts[idx], nuclei[idx],
+                            _bootstrap_rows(len(idx), _AUTO_REPS, _AUTO_BOOT_SEED),
+                            k, scale)
+        bound = score["fdr_hi"] if ci else score["fdr"]
+        floor_bound = 100.0 * max(float(scale), 1.0) / float(k) \
+            * _AUTO_ZERO_DECOYS / np.maximum(score["real"], 1)
+        bound = np.where(score["decoy"] == 0, np.maximum(bound, floor_bound), bound)
+        passing = bound <= float(fdr_max)
+        best = None
+        for i, floor in enumerate(floors):
+            for j, q in enumerate(pixel_qualities):
+                rows.append({"single_read_quality": floor, "pixel_quality": q,
+                             "real": int(score["real"][i, j]),
+                             "decoy": int(score["decoy"][i, j]),
+                             "genotyped_pct": float(score["genotyped_pct"][i, j]),
+                             "fdr_per_100": float(score["fdr"][i, j]),
+                             "fdr_ci95": [float(score["fdr_lo"][i, j]),
+                                          float(score["fdr_hi"][i, j])],
+                             "passes": bool(passing[i, j])})
+                if passing[i, j]:
+                    key = (int(score["real"][i, j]), i, j)
+                    if best is None or key > best:
+                        best = key
+        if best is not None:
+            chosen, met = (best[1], best[2]), True
+
+    return {"single_read_quality": floors[chosen[0]],
+            "pixel_quality": pixel_qualities[chosen[1]], "auto_met": bool(met),
+            "fdr_max": float(fdr_max), "ci": bool(ci),
+            "tune_fraction": float(tune_fraction), "seed": int(seed),
+            "tune_sites": [int(sites[i]) for i in tune],
+            "report_sites": [int(sites[i]) for i in report],
+            "tune": _chosen_summary(counts, nuclei, tune, chosen, k, scale),
+            "report": _chosen_summary(counts, nuclei, report, chosen, k, scale),
+            "all_fields": _chosen_summary(counts, nuclei, order, chosen, k, scale),
+            "grid": rows}
+
+
+def _write_threshold_report(db: str, plate: str, well: str,
+                            choice: Mapping[str, Any]) -> Dict[str, str]:
+    """Write one well's chosen thresholds and update the plate's table.
+
+    :param db: the measurements database.
+    :param plate: the plate.
+    :param well: the well.
+    :param choice: from :func:`choose_well_thresholds`.
+    :returns: the paths of ``decode_thresholds_<well>.json`` and
+        ``decode_thresholds_<plate>.csv`` under ``results/ops_decode``; the
+        table holds one row per well, this well's replaced.
+    """
+    import pandas as pd
+
+    from .tabular import read_table, write_table
+
+    folder = results_folder(db)
+    path = os.path.join(folder, f"decode_thresholds_{well}.json")
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump({"plate": plate, "well": well, **choice}, handle, indent=1)
+    row = {"plate": plate, "well": well,
+           "single_read_quality": choice["single_read_quality"],
+           "pixel_quality": choice["pixel_quality"],
+           "auto_met": choice["auto_met"], "fdr_max": choice["fdr_max"]}
+    for part in ("tune", "report", "all_fields"):
+        numbers = choice[part]
+        interval = numbers["fdr_ci95"] or [None, None]
+        row.update({f"{part}_fields": numbers["fields"],
+                    f"{part}_nuclei": numbers["nuclei"],
+                    f"{part}_genotyped_pct": numbers["genotyped_pct"],
+                    f"{part}_fdr_per_100": numbers["fdr_per_100"],
+                    f"{part}_fdr_ci_low": interval[0],
+                    f"{part}_fdr_ci_high": interval[1]})
+    table_path = os.path.join(folder, f"decode_thresholds_{plate}.csv")
+    rows = [row]
+    if os.path.isfile(table_path):
+        old = read_table(table_path, canonicalise=False, report=None)
+        rows = [r for r in old.to_dict("records") if str(r["well"]) != str(well)] + rows
+    table = pd.DataFrame(rows).sort_values("well", kind="stable")
+    write_table(table, table_path, canonicalise=False)
+    return {"thresholds": path, "plate_table": table_path}
 
 
 #: The columns of :func:`field_calls`'s evidence rows, after ``well`` and
