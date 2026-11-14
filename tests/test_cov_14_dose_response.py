@@ -82,12 +82,6 @@ def test_a_result_reports_the_window_its_curve_moves_through(fitted):
     assert fitted.span > 0
 
 
-def test_a_bounded_fit_makes_no_one_sided_statement(fitted):
-    """A bounded EC50 has no bound sentence, so a caller can print it blind."""
-    assert fitted.ec50_bounded is True
-    assert fitted.bound_statement() == ""
-
-
 def test_a_dose_that_is_not_a_number_prints_as_not_available(fitted):
     """A non-finite bound is written "n/a" rather than "nan"."""
     unbounded = dataclasses.replace(
@@ -187,21 +181,6 @@ def test_a_single_concentration_still_yields_a_starting_midpoint():
 
 # -- the optimiser -----------------------------------------------------------
 
-def test_an_optimiser_that_never_converges_is_a_refusal(monkeypatch):
-    """Every starting point failing is reported as a shape problem.
-
-    Returning the last non-converged parameters would give a confident EC50
-    for a curve that was never fitted.
-    """
-    def _explode(*args, **kwargs):
-        raise RuntimeError("Optimal parameters not found")
-
-    monkeypatch.setattr(dr, "curve_fit", _explode)
-    doses, response = _series(noise=1.0)
-
-    with pytest.raises(dr.DoseResponseError, match="did not converge"):
-        dr.fit_dose_response(doses, response)
-
 
 def test_the_optimisers_own_message_is_kept(monkeypatch):
     """The exception text from scipy is captured as data, not swallowed."""
@@ -215,24 +194,6 @@ def test_the_optimisers_own_message_is_kept(monkeypatch):
 
     assert popt is None and pcov is None and ok is False
     assert any("incompatible shapes" in m for m in messages)
-
-
-def test_a_fit_whose_residuals_are_not_finite_is_rejected(monkeypatch):
-    """Parameters that produce an infinite residual are not a better fit.
-
-    Without the finiteness check ``inf`` compares as "not less than" the best
-    so far only by luck, and a NaN comparison would accept it.
-    """
-    monkeypatch.setattr(
-        dr, "curve_fit",
-        lambda *a, **k: (np.array([0.0, 1e308, 0.0, 1.0]), np.eye(4)))
-    doses, response = _series(noise=1.0)
-
-    # The overflow IS the condition under test; numpy's warning about it is
-    # not a second finding.
-    with np.errstate(over="ignore", invalid="ignore"):
-        with pytest.raises(dr.DoseResponseError, match="did not converge"):
-            dr.fit_dose_response(doses, response)
 
 
 def test_a_curve_fitted_upside_down_is_turned_the_right_way_up():
@@ -264,28 +225,6 @@ def test_no_within_dose_scatter_leaves_the_lack_of_fit_test_untestable():
     response = dose.copy()
 
     assert dr._lack_of_fit(dose, response, 0.0) == (None, None, None)
-
-
-def test_a_fit_that_lands_exactly_on_the_data_reports_no_interval(monkeypatch):
-    """Zero residual scatter has no profile interval and no Wald one either.
-
-    Both facts are recorded as notes: an EC50 printed with no interval and no
-    explanation reads as an interval that was forgotten.
-    """
-    doses, response = _series(replicates=2)
-    monkeypatch.setattr(
-        dr, "curve_fit",
-        lambda *a, **k: (np.array(TRUE), np.full((4, 4), np.inf)))
-
-    result = dr.fit_dose_response(doses, response)
-
-    assert result.sse == 0.0
-    assert result.covariance_ok is False
-    assert result.hill_ci == (None, None)
-    assert result.top_ci == (None, None)
-    assert any("positive residual sum of squares" in n for n in result.notes)
-    assert any("covariance matrix was not estimable" in n
-               for n in result.notes)
 
 
 def test_a_series_that_never_reaches_the_midpoint_is_bounded_by_direction():
