@@ -3503,14 +3503,34 @@ def _validated_stitch_core_936_940_callables(callables):
         "spacr.align.write_windows",
         "spacr.stitch_core.StripRegistration",
         "spacr.stitch_core.feather_weights",
+        "spacr.stitch_core.load_phenotype_placement_seed",
         "spacr.stitch_core.load_placement_seed",
         "spacr.stitch_core.ops_seed_from_db",
+        "spacr.stitch_core.phenotype_raster_from_seed",
         "spacr.stitch_core.register_strip_pair",
         "spacr.stitch_core.seed_to_placements",
         "spacr.stitch_core.solve_positions",
         "spacr.stitch_core.validate_placement_seed",
         "spacr.stitch_core.write_placement_seed",
     }
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_optional_families_941_callables(callables):
+    """Check the public callable of item 941 (slow profiling families off by default) against its source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "941_measure_optional_families_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.measure.profile_optional_families"}
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert found.keys() == entries.keys()
     for symbol, item in found.items():
@@ -3736,6 +3756,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_measure_ops_features_934_callables(callables)
     callables = _validated_hybrid_profile_stage3_callables(callables)
     callables = _validated_run_progress_938_callables(callables)
+    callables = _validated_optional_families_941_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -6479,10 +6500,11 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json", 6),
         ("939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json", 2),
         ("937_aggregation_feature_defaults_api_arrivals_2026-11-13.json", 3),
-        ("936_940_stitch_core_api_arrivals_2026-11-13.json", 10),
+        ("936_940_stitch_core_api_arrivals_2026-11-13.json", 12),
         ("934_measure_ops_features_api_arrivals_2026-11-13.json", 3),
         ("stage3_hybrid_profile_api_arrivals_2026-11-13.json", 2),
         ("938_run_progress_api_arrivals_2026-11-13.json", 20),
+        ("941_measure_optional_families_api_arrivals_2026-11-13.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7084,7 +7106,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "936_940_stitch_core_api_arrivals_2026-11-13.json",
                      "934_measure_ops_features_api_arrivals_2026-11-13.json",
                      "stage3_hybrid_profile_api_arrivals_2026-11-13.json",
-                     "938_run_progress_api_arrivals_2026-11-13.json"):
+                     "938_run_progress_api_arrivals_2026-11-13.json",
+                     "941_measure_optional_families_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7226,7 +7249,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "936_940_stitch_core_api_arrivals_2026-11-13.json",
                      "934_measure_ops_features_api_arrivals_2026-11-13.json",
                      "stage3_hybrid_profile_api_arrivals_2026-11-13.json",
-                     "938_run_progress_api_arrivals_2026-11-13.json"):
+                     "938_run_progress_api_arrivals_2026-11-13.json",
+                     "941_measure_optional_families_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

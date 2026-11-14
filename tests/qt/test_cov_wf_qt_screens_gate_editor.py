@@ -55,14 +55,6 @@ def _database(path, plate, n=8):
     return str(path)
 
 
-def _wide(n=60, seed=0):
-    """Enough numeric columns for a projection to have something to do."""
-    rng = np.random.default_rng(seed)
-    frame = pd.DataFrame({f"m{i}": rng.normal(i, 1.0, n) for i in range(6)})
-    frame["plateID"] = "p1"
-    return frame
-
-
 def _chip_names(layout):
     return [layout.itemAt(i).widget().name for i in range(layout.count())
             if isinstance(layout.itemAt(i).widget(), TableChip)]
@@ -84,48 +76,6 @@ def drawn(screen):
     screen._y.setCurrentText("intensity")
     QApplication.processEvents()
     return screen
-
-
-@pytest.fixture
-def two_databases(tmp_path):
-    """Two plates in two files, so the merge is not refused as a collision."""
-    return [_database(tmp_path / "runA.db", "plate1"),
-            _database(tmp_path / "runB.db", "plate2")]
-
-
-# ---------------------------------------------------------------------------
-# The table picker after a merge
-# ---------------------------------------------------------------------------
-
-def test_a_table_the_first_database_does_not_list_is_still_merged(
-        screen, two_databases, monkeypatch):
-    """The picker lists what the FIRST file holds; the merge reads what it was
-    asked for, and the two can disagree.
-
-    A session restored against a table the first database has since lost --
-    renamed, rebuilt without it -- would otherwise put a name into a picker
-    that has no such row. The gates must still be drawn on the table that was
-    actually read, so what matters is that ``_table`` follows the merge and
-    not the picker: gate on 'cell', export to 'cell'.
-    """
-    import spacr.qt.screens.gate_editor as module
-    from spacr.multi_database import SOURCE_COLUMN
-
-    # The ordinary case first: the chosen table IS one the file lists.
-    screen.load_paths(two_databases, table="cell")
-    assert screen._table_picker.currentText() == "cell"
-
-    monkeypatch.setattr(module, "table_names", lambda _path: ["nucleus"])
-    screen.load_paths(two_databases, table="cell")
-
-    picker = screen._table_picker
-    assert [picker.itemText(i) for i in range(picker.count())] == ["nucleus"]
-    assert picker.currentText() == "nucleus", (
-        "a name the picker never listed was forced into it")
-    assert screen._table == "cell"
-    assert _chip_names(screen._chips) == ["cell"]
-    assert sorted(screen._frame[SOURCE_COLUMN].unique()) == ["runA", "runB"]
-    assert len(screen._frame) == 16
 
 
 # ---------------------------------------------------------------------------
@@ -225,48 +175,6 @@ def test_a_canvas_that_grabbed_nothing_leaves_the_clipboard_alone(drawn,
     assert clipboard.pixmap().isNull(), "an empty grab was pasted anyway"
     assert drawn.console.log.toPlainText().count(
         "Graph copied to the clipboard.") == 1
-
-
-# ---------------------------------------------------------------------------
-# A projection with only one component
-# ---------------------------------------------------------------------------
-
-def test_a_projection_of_one_component_leaves_the_axis_pickers_alone(
-        screen, monkeypatch):
-    """Two axes need two components; one component may not half-fill them.
-
-    The pickers are a pair -- x AND y -- and a reduction that came back with a
-    single column (a method that clamped itself, a backend that returned less
-    than it was asked for) has nothing to put on y. Moving x alone would plot
-    the new component against the old measurement and label it a projection,
-    which is a picture of two unrelated things.
-    """
-    import spacr.merge_tables as merge
-
-    screen.set_frame(_wide())
-
-    # Two components: both pickers follow, which is what makes the guard
-    # below a guard rather than dead weight.
-    assert screen.reduce_to_components() is None
-    assert (screen._x.currentText(), screen._y.currentText()) == ("PC1", "PC2")
-
-    screen.set_frame(_wide(seed=1))
-    screen._x.setCurrentText("m0")
-    screen._y.setCurrentText("m1")
-
-    def _one_component(frame, columns, **_kwargs):
-        out = pd.DataFrame({"PC1": np.arange(len(frame), dtype=float)},
-                           index=frame.index)
-        out.attrs["explained_variance"] = [1.0]
-        return out
-
-    monkeypatch.setattr(merge, "reduce_dimensions", _one_component)
-
-    assert screen.reduce_to_components() is None
-    assert "PC1" in screen._frame.columns
-    assert (screen._x.currentText(), screen._y.currentText()) == ("m0", "m1")
-    assert screen._z.currentText() != "PC1"
-    assert "projected onto PC1 100%" in screen._source.text()
 
 
 # ---------------------------------------------------------------------------

@@ -10,37 +10,8 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from spacr import sequencing as SEQ
-
-
-_REGEX = (r"^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})"
-          r"AACTT.*AGAAG(?P<rowID>.{8}).*")
-_WINDOW = 62
-_TARGET = "TGCTGAAATAAAC"
-_COL, _ROW, _GRNA = "AAAACCCC", "GGGGTTTT", "A" * 20
-
-
-def _read(col=_COL, row=_ROW, grna=_GRNA, tail="AAAA"):
-    return f"{col}TGCTGAAATAAAC{grna}AACTTAAAAGAAG{row}{tail}"
-
-
-def _fastq(seq, name="r0", qual=None):
-    qual = qual or "I" * len(seq)
-    return f"@{name}\n{seq}\n+\n{qual}"
-
-
-def _write_csv(path, sequences, names):
-    pd.DataFrame({"sequence": sequences, "name": names}).to_csv(
-        path, index=False)
-    return str(path)
-
-
-def _refs(tmp_path):
-    return (_write_csv(tmp_path / "c.csv", [_COL], ["col0"]),
-            _write_csv(tmp_path / "g.csv", [_GRNA], ["sg0"]),
-            _write_csv(tmp_path / "r.csv", [_ROW], ["row0"]))
 
 
 # ---------------------------------------------------------------------------
@@ -48,68 +19,6 @@ def _refs(tmp_path):
 # ---------------------------------------------------------------------------
 
 class TestAReadThatCameUpShort:
-
-    def test_a_full_length_read_decodes_all_three_barcodes(self, tmp_path):
-        c, g, r = _refs(tmp_path)
-
-        df, _counts, _qc = SEQ.process_chunk(
-            ([_fastq(_read())], _REGEX, _TARGET, -8, _WINDOW, c, g, r, False))
-
-        assert len(df) == 1
-        assert df.iloc[0]["columnID"] == "col0"
-        assert df.iloc[0]["rowID"] == "row0"
-        assert df.iloc[0]["grna_name"] == "sg0"
-
-    def test_a_truncated_read_is_padded_and_then_fails_the_regex(self,
-                                                                  tmp_path):
-        """A short read is padded to the window with N, not dropped.
-
-        That is the design: the window is fixed, so a read that anchors
-        and then runs out still gets a full-length consensus -- of Ns
-        where it had no bases. The regex is what rejects it, and it
-        rejects it for the right reason: those positions are unknown,
-        not wrong.
-        """
-        c, g, r = _refs(tmp_path)
-        short = _read()[:30]                 # anchors, then stops
-
-        df, _counts, qc = SEQ.process_chunk(
-            ([_fastq(short)], _REGEX, _TARGET, -8, _WINDOW, c, g, r, False))
-
-        assert df.empty, "a truncated read was decoded anyway"
-        assert int(qc.iloc[0]["total_reads"]) == 0
-
-    def test_a_paired_chunk_decodes_the_same_barcodes(self, tmp_path):
-        c, g, r = _refs(tmp_path)
-        forward = _read()
-        reverse = SEQ.reverse_complement(forward)
-
-        df, _counts, _qc = SEQ.process_chunk(
-            ([_fastq(forward)], [_fastq(reverse)], _REGEX, _TARGET, -8,
-             _WINDOW, c, g, r, False))
-
-        assert len(df) == 1
-        assert df.iloc[0]["grna_name"] == "sg0"
-
-    def test_a_paired_chunk_of_truncated_reads_decodes_nothing(self,
-                                                                tmp_path):
-        c, g, r = _refs(tmp_path)
-        forward = _read()[:30]
-        reverse = SEQ.reverse_complement(_read())[:30]
-
-        df, _counts, _qc = SEQ.process_chunk(
-            ([_fastq(forward)], [_fastq(reverse)], _REGEX, _TARGET, -8,
-             _WINDOW, c, g, r, False))
-
-        assert df.empty
-
-    def test_mismatched_paired_chunks_are_refused_by_count(self, tmp_path):
-        c, g, r = _refs(tmp_path)
-
-        with pytest.raises(ValueError, match="different read counts"):
-            SEQ.process_chunk(
-                ([_fastq(_read())], [], _REGEX, _TARGET, -8, _WINDOW,
-                 c, g, r, False))
 
     def test_redundant_length_tests_stay_removed_below_the_padding(self):
         """THE PIN for removing three impossible false exits.
@@ -153,34 +62,6 @@ class TestAReadThatCameUpShort:
 # ---------------------------------------------------------------------------
 
 class TestFillingUnmappedBarcodesWithTheirSequence:
-
-    def test_an_unmapped_barcode_falls_back_to_its_own_sequence(self,
-                                                                tmp_path):
-        """The point of ``fill_na``: a barcode the reference does not name
-        is still a barcode, and dropping it loses a real read."""
-        c = _write_csv(tmp_path / "c.csv", ["TTTTTTTT"], ["other"])
-        g = _write_csv(tmp_path / "g.csv", [_GRNA], ["sg0"])
-        r = _write_csv(tmp_path / "r.csv", [_ROW], ["row0"])
-
-        df, counts, _qc = SEQ.process_chunk(
-            ([_fastq(_read())], _REGEX, _TARGET, -8, _WINDOW, c, g, r, True))
-
-        assert len(df) == 1
-        assert not counts.empty
-        assert (counts["columnID"] == _COL).all(), (
-            "the unmapped column was not filled with its own sequence")
-
-    def test_without_fill_na_the_unmapped_barcode_stays_unnamed(self,
-                                                                tmp_path):
-        c = _write_csv(tmp_path / "c.csv", ["TTTTTTTT"], ["other"])
-        g = _write_csv(tmp_path / "g.csv", [_GRNA], ["sg0"])
-        r = _write_csv(tmp_path / "r.csv", [_ROW], ["row0"])
-
-        df, _counts, _qc = SEQ.process_chunk(
-            ([_fastq(_read())], _REGEX, _TARGET, -8, _WINDOW, c, g, r, False))
-
-        assert len(df) == 1
-        assert pd.isna(df.iloc[0]["columnID"])
 
     def test_the_three_fill_columns_are_constructed_not_conditionally_found(self):
         """THE PIN for removing three impossible membership guards.

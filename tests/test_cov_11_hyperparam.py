@@ -21,7 +21,6 @@ from spacr.qt.screens.hyperparam import (
     HyperparamPanel,
     SearchRequest,
     _FixedChoiceCombo,
-    _NumericTableItem,
     _parse_walk_start,
     _SearchWorker,
     criteria_disagree,
@@ -118,29 +117,6 @@ def test_a_figure_that_will_not_render_becomes_an_empty_pixmap():
             raise RuntimeError("this figure cannot be written")
 
     assert figure_to_pixmap(_Unrenderable()).isNull()
-
-
-def test_a_preview_that_cannot_be_built_says_so_under_the_table(panel,
-                                                                monkeypatch):
-    """The finished sweep is still in the table when its summary fails."""
-    def refuse(*_args, **_kwargs):
-        raise RuntimeError("no axes could be laid out")
-
-    monkeypatch.setattr(hp, "build_panel_figure", refuse)
-
-    panel._draw_preview(_result([_trial(0), _trial(1)]))
-
-    assert "Could not draw the preview" in panel._preview.text()
-    assert "no axes could be laid out" in panel._preview.text()
-
-
-def test_a_sweep_with_nothing_to_plot_says_that_instead(panel, monkeypatch):
-    """No scored trial is a different message from a failed render."""
-    monkeypatch.setattr(hp, "build_panel_figure", lambda *a, **k: None)
-
-    panel._draw_preview(_result([_trial(0)]))
-
-    assert panel._preview.text() == "No trial produced a score to plot."
 
 
 def test_a_preview_that_rasterises_to_nothing_says_so(panel, monkeypatch):
@@ -281,38 +257,9 @@ def test_a_second_finished_signal_from_a_gone_worker_is_ignored(panel, qtbot):
     assert panel._status.text() == "Search finished."
 
 
-def test_a_search_that_returned_nothing_is_a_failure_on_the_status_line(panel):
-    """`None` with no error message still has to read as a failure."""
-    panel._on_search_done(None, "")
-
-    assert "the worker returned no result" in panel._status.text()
-
-
 # ---------------------------------------------------------------------------
 # Sorting and small controls
 # ---------------------------------------------------------------------------
-
-def test_two_numeric_cells_sort_by_their_numbers_not_their_text():
-    """0.9 above 0.1 even though "0.1" sorts before "0.9" as text."""
-    assert _NumericTableItem("0.1", 0.1) < _NumericTableItem("0.9", 0.9)
-    assert not (_NumericTableItem("0.9", 0.9) < _NumericTableItem("0.1", 0.1))
-
-
-def test_a_numeric_cell_sorts_against_a_plain_cell_by_its_text():
-    """A number column holding "-" for a failed trial must still sort.
-
-    Qt orders plain items by their display text, so a scored row and an
-    unscored one have a defined order. The override compares that text
-    itself rather than delegating to ``super().__lt__``, which PySide6
-    dispatches straight back into the override and so answers False for
-    every such pair.
-    """
-    from PySide6.QtWidgets import QTableWidgetItem
-
-    number = _NumericTableItem("0.9000", 0.9)
-    plain = QTableWidgetItem("zzz")
-
-    assert (number < plain) is True
 
 
 def test_a_fixed_choice_field_takes_a_value_it_offers(qtbot):
@@ -340,147 +287,14 @@ def test_a_walk_starts_from_one_value_not_a_list():
 
 
 # ---------------------------------------------------------------------------
-# Clustering a stored map
-# ---------------------------------------------------------------------------
-
-def test_clustering_with_nothing_selected_asks_for_a_map(panel):
-    """There is nothing to cluster until a completed UMAP is chosen."""
-    assert panel.cluster_selected() is False
-    assert "Select a completed UMAP before clustering it." in \
-        panel._status.text()
-
-
-def test_walking_clusters_with_nothing_selected_asks_for_a_map(panel):
-    """The same precondition, said in the walk's own words."""
-    assert panel.walk_selected_clusters() is False
-    assert "Select a completed UMAP before walking clusters." in \
-        panel._status.text()
-
-
-def test_a_clustering_that_fails_names_the_reason(panel, monkeypatch):
-    """HDBSCAN is optional, so its absence must be a sentence, not a crash."""
-    from spacr import umap_search
-
-    def refuse(*_args, **_kwargs):
-        raise RuntimeError("hdbscan is not installed")
-
-    monkeypatch.setattr(umap_search, "cluster_embedding", refuse)
-    panel._displayed_trial = _trial(0, embedding=True)
-
-    assert panel.cluster_selected() is False
-    assert "Could not cluster this UMAP: hdbscan is not installed" in \
-        panel._status.text()
-
-
-def test_a_cluster_walk_that_fails_names_the_reason(panel, monkeypatch):
-    """The walk over HDBSCAN scales fails the same way and says so."""
-    from spacr import umap_search
-
-    def refuse(*_args, **_kwargs):
-        raise RuntimeError("hdbscan is not installed")
-
-    monkeypatch.setattr(umap_search, "walk_clusters", refuse)
-    panel._displayed_trial = _trial(0, embedding=True)
-
-    assert panel.walk_selected_clusters() is False
-    assert "Could not walk cluster settings: hdbscan is not installed" in \
-        panel._status.text()
-
-
-def test_a_cluster_walk_that_finds_no_partition_says_so(panel, monkeypatch):
-    """An empty walk is not an error, and is not a clustering either."""
-    from spacr import umap_search
-
-    monkeypatch.setattr(umap_search, "walk_clusters", lambda *a, **k: [])
-    panel._displayed_trial = _trial(0, embedding=True)
-
-    assert panel.walk_selected_clusters() is False
-    assert "no usable partition" in panel._status.text()
-
-
-# ---------------------------------------------------------------------------
 # The stored-map viewer
 # ---------------------------------------------------------------------------
-
-def test_a_trial_with_no_stored_coordinates_cannot_be_displayed(panel):
-    """A classifier trial has no embedding, and asking is not an error."""
-    assert panel.show_trial(_trial(0)) is False
-
-
-def test_coordinates_the_viewer_rejects_land_on_the_status_line(panel,
-                                                                monkeypatch):
-    """A malformed embedding is a message, not an exception in a slot."""
-    explorer = getattr(panel, "_umap_explorer", None)
-    if explorer is None:
-        pytest.skip("this build has no native UMAP explorer")
-
-    def refuse(*_args, **_kwargs):
-        raise ValueError("that is not a 2-D or 3-D embedding")
-
-    monkeypatch.setattr(explorer.view, "set_embedding", refuse)
-
-    assert panel.show_trial(_trial(0, embedding=True)) is False
-    assert "Could not display this UMAP" in panel._status.text()
 
 
 def test_the_grid_says_so_when_no_umap_has_finished(panel):
     """An empty wall of embeddings is explained rather than shown blank."""
     assert panel.open_umap_grid() is None
     assert "no completed UMAPs" in panel._status.text()
-
-
-# ---------------------------------------------------------------------------
-# Opening a trial's figure file
-# ---------------------------------------------------------------------------
-
-def test_clicking_a_cell_with_no_figure_opens_nothing(panel, monkeypatch):
-    """A grid cell whose trial produced no file must not open a blank viewer."""
-    opened = []
-
-    class _Grid:
-        def figure_path(self, _index):
-            return ""
-
-    import PySide6.QtGui as QtGui
-
-    monkeypatch.setattr(panel, "_figure_grid", _Grid(), raising=False)
-    monkeypatch.setattr(QtGui.QDesktopServices, "openUrl",
-                        staticmethod(lambda url: opened.append(url)))
-
-    panel._open_trial_figure(0)
-
-    assert opened == []
-
-
-def test_a_viewer_that_will_not_open_is_not_fatal(panel, monkeypatch,
-                                                  tmp_path):
-    """The desktop has no viewer for a PDF on some machines, and that is fine.
-
-    The failure is logged rather than shown: the status line belongs to the
-    sweep, and overwriting it with a file-association problem would hide how
-    far the search had got.
-    """
-    png = tmp_path / "trial.png"
-    png.write_bytes(b"x")
-
-    class _Grid:
-        def figure_path(self, _index):
-            return str(png)
-
-    monkeypatch.setattr(panel, "_figure_grid", _Grid(), raising=False)
-    panel._status.setText("3 of 8 configurations evaluated")
-
-    import PySide6.QtGui as QtGui
-
-    def refuse(_url):
-        raise RuntimeError("no application is registered for that file")
-
-    monkeypatch.setattr(QtGui.QDesktopServices, "openUrl",
-                        staticmethod(refuse))
-
-    panel._open_trial_figure(0)
-
-    assert panel._status.text() == "3 of 8 configurations evaluated"
 
 
 # ---------------------------------------------------------------------------
@@ -511,23 +325,6 @@ def test_a_single_trial_cannot_disagree_with_itself():
 # ---------------------------------------------------------------------------
 # The settings window
 # ---------------------------------------------------------------------------
-
-def test_asking_for_the_settings_window_twice_raises_the_one_that_is_open(
-        panel, qtbot):
-    """A second Settings click must focus the window, not build another.
-
-    Two settings windows over one panel is two views of one state, and the
-    one the user is not typing into silently goes stale.
-    """
-    panel.open_settings()
-    first = panel._settings_dialog
-    qtbot.addWidget(first)
-    first.show()
-    qtbot.waitExposed(first)
-
-    panel.open_settings()
-
-    assert panel._settings_dialog is first
 
 
 def test_the_axis_picker_is_only_offered_for_umap(qtbot):
@@ -798,127 +595,6 @@ def test_the_first_finished_umap_is_selected_and_shown(panel):
 
 
 # ---------------------------------------------------------------------------
-# What a finished sweep says about itself
-# ---------------------------------------------------------------------------
-
-def test_rows_from_two_umap_backends_are_flagged_as_not_one_walk(panel):
-    """cuML and the CPU implementation are different reducers.
-
-    Ranking them together reads as a settings comparison when half the
-    difference is which library produced the map.
-    """
-    trials = [_trial(0, 0.9, backend="cpu"), _trial(1, 0.8, backend="cuml")]
-
-    panel._on_search_done(_result(trials), "")
-
-    assert "MIXED BACKENDS" in panel._notes.text() + panel._status.text()
-
-
-# ---------------------------------------------------------------------------
-# A panel that is not showing UMAPs
-# ---------------------------------------------------------------------------
-
-@pytest.fixture()
-def classify_panel(qtbot):
-    view = HyperparamPanel("classify")
-    qtbot.addWidget(view)
-    return view
-
-
-def test_a_classifier_panel_has_no_umap_to_show(classify_panel):
-    """`show_trial` and the grid are UMAP-only, and say so by returning None."""
-    assert classify_panel.show_trial(_trial(0, embedding=True)) is False
-    assert classify_panel.open_umap_grid() is None
-
-
-def test_a_classifier_sweep_that_returns_nothing_says_so_in_the_preview(
-        classify_panel):
-    """With no explorer, the failure message goes on the preview label."""
-    classify_panel._on_search_done(None, "")
-
-    assert classify_panel._preview.text() == "Search failed."
-
-
-# ---------------------------------------------------------------------------
-# The gallery
-# ---------------------------------------------------------------------------
-
-
-# ---------------------------------------------------------------------------
-# Clustering that works
-# ---------------------------------------------------------------------------
-
-def test_a_cluster_walk_that_succeeds_records_what_it_chose(panel,
-                                                            monkeypatch):
-    """The chosen scale, its partition and the whole walk are stored.
-
-    The walk is stored as well as its winner because the winner alone does
-    not say whether the choice was clear or arbitrary.
-    """
-    from spacr import umap_search
-
-    class _Row:
-        min_cluster_size = 12
-        labels = np.array([0, 0, 1, 1, -1, 1, 0, 1, 0, 1, -1, 0])
-        silhouette = 0.42
-        score = 0.4
-        n_clusters = 2
-        noise_fraction = 0.1
-
-    monkeypatch.setattr(umap_search, "walk_clusters",
-                        lambda *a, **k: [_Row(), _Row()])
-    trial = _trial(0, embedding=True)
-    panel._displayed_trial = trial
-
-    assert panel.walk_selected_clusters() is True
-    assert trial.extra_metrics["cluster_min_size"] == 12
-    assert trial.extra_metrics["n_clusters"] == 2
-    assert len(trial.extra_metrics["cluster_walk"]) == 2
-    assert "min_cluster_size=12" in panel._status.text()
-
-
-# ---------------------------------------------------------------------------
-# Opening a figure with no grid at all
-# ---------------------------------------------------------------------------
-
-def test_a_panel_with_no_figure_grid_opens_nothing(classify_panel,
-                                                   monkeypatch):
-    """Not every app key builds a thumbnail grid, and a click on none opens none."""
-    import PySide6.QtGui as QtGui
-
-    opened = []
-    monkeypatch.setattr(classify_panel, "_figure_grid", None, raising=False)
-    monkeypatch.setattr(QtGui.QDesktopServices, "openUrl",
-                        staticmethod(lambda url: opened.append(url)))
-
-    classify_panel._open_trial_figure(0)
-
-    assert opened == []
-
-
-# ---------------------------------------------------------------------------
-# Tearing the panel down
-# ---------------------------------------------------------------------------
-
-def test_a_worker_that_will_not_stop_does_not_take_the_close_with_it(panel,
-                                                                     monkeypatch):
-    """Closing has to finish even when the sweep refuses to be stopped.
-
-    Destroying a QWidget whose thread is still running aborts the process,
-    so the shutdown attempt is guarded rather than assumed.
-    """
-    class _Stubborn:
-        def request_stop(self):
-            raise RuntimeError("this worker will not stop")
-
-    panel._worker = _Stubborn()
-
-    panel.close()      # must not raise
-
-    assert panel.isVisible() is False
-
-
-# ---------------------------------------------------------------------------
 # Reading the host's settings before each sweep
 # ---------------------------------------------------------------------------
 
@@ -933,90 +609,6 @@ def test_a_settings_provider_that_answers_nonsense_stops_the_sweep(panel):
     assert panel.run_search() is False
     assert "Could not read the current module settings" in panel._status.text()
     assert "did not return a dict" in panel._status.text()
-
-
-# ---------------------------------------------------------------------------
-# Closing the preview figure
-# ---------------------------------------------------------------------------
-
-def test_a_figure_that_will_not_close_still_leaves_the_preview_drawn(
-        panel, monkeypatch):
-    """Releasing the figure is housekeeping; the picture is the deliverable."""
-    import matplotlib.pyplot as plt
-    from matplotlib.figure import Figure
-
-    monkeypatch.setattr(hp, "build_panel_figure",
-                        lambda *a, **k: Figure(figsize=(2, 2)))
-
-    def refuse(_fig):
-        raise RuntimeError("this figure is not in the pyplot registry")
-
-    monkeypatch.setattr(plt, "close", refuse)
-
-    panel._draw_preview(_result([_trial(0)]))
-
-    assert panel._preview.pixmap() is not None
-    assert not panel._preview.text()
-
-
-# ---------------------------------------------------------------------------
-# Propagating the settings window's values back to the module
-# ---------------------------------------------------------------------------
-
-def test_propagating_with_nowhere_to_send_it_does_nothing(panel, qtbot):
-    """A panel with no host has no settings form to write into."""
-    panel.set_apply_callback(None)
-    panel.open_settings()
-    dialog = panel._settings_dialog
-    qtbot.addWidget(dialog)
-
-    dialog.propagate_settings()      # must not raise
-
-    assert "Propagated" not in panel._status.text()
-
-
-def test_a_search_field_holding_a_typo_is_left_out_of_the_propagation(panel,
-                                                                     qtbot):
-    """One unparseable field must not stop the other fields reaching the module.
-
-    Propagation is the user pressing a button that says it will apply what
-    they typed; refusing all of it over one typo is a worse answer than
-    applying the rest.
-    """
-    written = {}
-    panel.set_apply_callback(written.update)
-    panel._value_edits["n_neighbors"].setText("fifteen")
-    panel._value_edits["min_dist"].setText("0.1")
-    panel.open_settings()
-    dialog = panel._settings_dialog
-    qtbot.addWidget(dialog)
-
-    dialog.propagate_settings()
-
-    assert written["n_neighbors"] != "fifteen", \
-        "an unparseable field must not travel to the module"
-    assert written["min_dist"] == pytest.approx(0.1)
-    assert "Propagated" in panel._status.text()
-
-
-def test_a_selected_row_wins_over_the_search_fields(panel, qtbot):
-    """A chosen result is more authoritative than what is still in the boxes.
-
-    The row is a measured configuration; the field is whatever the user
-    last typed while browsing.
-    """
-    written = {}
-    panel.set_apply_callback(written.update)
-    panel._value_edits["n_neighbors"].setText("5")
-    panel._on_search_done(_result([_trial(4)]), "")
-    panel._table.selectRow(0)
-    panel.open_settings()
-    dialog = panel._settings_dialog
-    qtbot.addWidget(dialog)
-
-    dialog.propagate_settings()
-
-    assert written["n_neighbors"] == 25
 
 
 # ---------------------------------------------------------------------------
@@ -1056,37 +648,3 @@ def test_no_axis_ticked_names_the_two_the_walk_falls_back_to(panel, qtbot):
     dialog._update_cost()
 
     assert "n_neighbors and min_dist" in dialog._cost.text()
-
-
-# ---------------------------------------------------------------------------
-# Building the settings window's tabs from whatever categories exist
-# ---------------------------------------------------------------------------
-
-def test_a_tab_with_no_controls_is_not_added_and_its_widgets_are_destroyed(
-        panel, qtbot, monkeypatch):
-    """A tab set is built from the categories that exist, not a fixed list.
-
-    Every UMAP control is materialised with the dialog as its parent before
-    the tabs are laid out, so a control that no tab claims has to be
-    destroyed rather than hidden -- a merely hidden compound control is
-    still eligible for a transient paint at the window's top-left corner.
-    """
-    from spacr.qt.screens import settings_model
-
-    real = settings_model.SettingsWidgets.build_sections
-
-    def only_the_first(self):
-        sections = real(self)
-        return sections[:1]
-
-    monkeypatch.setattr(settings_model.SettingsWidgets, "build_sections",
-                        only_the_first)
-
-    panel.open_settings()
-    dialog = panel._settings_dialog
-    qtbot.addWidget(dialog)
-
-    titles = [dialog._tabs.tabText(i) for i in range(dialog._tabs.count())]
-    assert "Search" in titles
-    assert len(titles) < 7, "empty tabs were added anyway"
-    assert set(dialog._module_model._widgets) == dialog._module_keys

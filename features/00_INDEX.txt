@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-745 Lifecycle: new, 174 Lifecycle: future in features/feature_list/.
+745 Lifecycle: new, 175 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -567,6 +567,9 @@ FUTURE FEATURES
 
   940  OPS PLACEMENT SEEDED FROM A SAVED FILE (A SUBSET RUN COMPOSES WITH THE WHOLE-WELL POSITIONS OF AN EARLIER RUN)
        940_ops_placement_seed_file.txt
+
+  941  OPS AND MEASURE PROFILING: GABOR, GRANULARITY AND COLOCALISATION OFF BY DEFAULT
+       941_measure_slow_families_off_by_default.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

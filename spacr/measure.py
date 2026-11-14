@@ -1763,7 +1763,9 @@ def _intensity_measurements(
         ``homogeneity``, ``homogeneity_distances``, ``manders_thresholds``,
         ``distance_gaussian_sigma``, ``profile_features`` (the
         profiling families of :func:`measure_profile_features`, 2-D only;
-        empty adds nothing), ``profile_granularity_subsample`` and the ``<object>_mask_dim`` toggles).
+        empty adds nothing), ``profile_optional_families`` (the slow
+        families ``'profiling'`` adds, :func:`profile_optional_families`),
+        ``profile_granularity_subsample`` and the ``<object>_mask_dim`` toggles).
     :param sizes: Legacy size bins. Defaults to ``[3, 6, 12, 24]``.
     :param periphery: When True, compute periphery-intensity stats for
         nucleus/pathogen/organelle.
@@ -1935,7 +1937,8 @@ def _intensity_measurements(
                         dfs[m].append(coloc_df)
 
     families = tuple(name for name in profile_feature_families(
-        settings.get('profile_features')) if name != 'neighbours')
+        settings.get('profile_features'),
+        settings.get('profile_optional_families')) if name != 'neighbours')
     if families and ndim == 2:
         _add_profile_frames(
             dfs, ls, labels, channel_arrays, families,
@@ -3294,12 +3297,25 @@ PROFILE_FEATURE_FAMILIES = (
 )
 
 #: The families switched on by ``profile_features='profiling'``: the ones that
-#: cost little per cell. The others are named one by one or with ``'all'``.
+#: cost little per cell. The others are named one by one, with ``'all'``, or
+#: added to ``'profiling'`` by ``profile_optional_families``.
 PROFILE_FEATURE_DEFAULT = (
     'edge_intensity', 'intensity_moments', 'radial_distribution',
     'shape_extended', 'texture_haralick', 'texture_pftas',
-    'texture_lbp', 'texture_gabor', 'periphery', 'outside',
-    'colocalisation', 'colocalisation_extra', 'neighbours',
+    'texture_lbp', 'periphery', 'outside', 'neighbours',
+)
+
+#: The slow families ``'profiling'`` leaves out (item 941), which
+#: ``profile_optional_families`` adds back. On the 639,673 matched cells of
+#: Funk et al. 2022 plate A well A1 none of them added anything beyond random
+#: columns of the same size, and each costs more per 100,000 cells (CPU
+#: seconds: Gabor 11,000 to 17,400, granularity 58,900, colocalisation 6,300
+#: to 9,050, colocalisation_extra 7,000, Costes 8,050) than all the other
+#: profiling families together (about 11,600). All five on reproduce
+#: Brieflow's full measurement set.
+PROFILE_FEATURE_OPTIONAL = (
+    'texture_gabor', 'colocalisation', 'colocalisation_extra',
+    'colocalisation_costes', 'granularity',
 )
 
 #: Haralick's 13 statistics in mahotas' order (Haralick et al. 1973).
@@ -3319,7 +3335,40 @@ PROFILE_HARALICK_DISTANCE = 5
 PROFILE_RADIAL_BINS = 4
 
 
-def profile_feature_families(value):
+def profile_optional_families(value):
+    """The slow families a ``profile_optional_families`` setting adds.
+
+    :param value: ``None``, ``False``, ``''`` or an empty list for none
+        (the default); ``True`` or ``'all'`` for every family in
+        :data:`PROFILE_FEATURE_OPTIONAL`, Brieflow's full set; otherwise
+        names from :data:`PROFILE_FEATURE_OPTIONAL`, as a list or a
+        comma-separated string.
+    :returns: the families in :data:`PROFILE_FEATURE_FAMILIES` order.
+    :raises ValueError: for a name that is not an optional family.
+    """
+    if value is None or value is False or value == '':
+        return ()
+    if value is True:
+        return PROFILE_FEATURE_OPTIONAL
+    names = value.split(',') if isinstance(value, str) else list(value)
+    wanted = set()
+    for raw in names:
+        name = str(raw).strip()
+        if not name or name.lower() in ('false', 'none'):
+            continue
+        if name == 'all' or name.lower() == 'true':
+            wanted.update(PROFILE_FEATURE_OPTIONAL)
+        elif name in PROFILE_FEATURE_OPTIONAL:
+            wanted.add(name)
+        else:
+            raise ValueError(
+                f"profile_optional_families: {name!r} is not an optional "
+                f"family; use True, 'all' or names from "
+                f"{', '.join(PROFILE_FEATURE_OPTIONAL)}")
+    return tuple(name for name in PROFILE_FEATURE_FAMILIES if name in wanted)
+
+
+def profile_feature_families(value, optional=None):
     """The profiling families a ``profile_features`` setting asks for.
 
     :param value: ``None``, ``False``, ``''`` or an empty list for none;
@@ -3327,9 +3376,14 @@ def profile_feature_families(value):
         every family in :data:`PROFILE_FEATURE_FAMILIES`; otherwise family
         names, as a list or a comma-separated string, which may include
         ``'profiling'``.
+    :param optional: the ``profile_optional_families`` setting
+        (:func:`profile_optional_families`): the slow families
+        ``'profiling'`` also measures. Names and ``'all'`` are not changed
+        by it, and without ``'profiling'`` it adds nothing.
     :returns: the families in :data:`PROFILE_FEATURE_FAMILIES` order.
     :raises ValueError: for a name that is not a family.
     """
+    extra = profile_optional_families(optional)
     if value is None or value is False or value == '':
         return ()
     names = value.split(',') if isinstance(value, str) else list(value)
@@ -3340,6 +3394,7 @@ def profile_feature_families(value):
             continue
         if name == 'profiling':
             wanted.update(PROFILE_FEATURE_DEFAULT)
+            wanted.update(extra)
         elif name == 'all':
             wanted.update(PROFILE_FEATURE_FAMILIES)
         elif name in PROFILE_FEATURE_FAMILIES:

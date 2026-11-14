@@ -394,7 +394,8 @@ def test_every_ops_measurement_setting_maps_to_a_measure_setting():
     assert set(OPS_TO_MEASURE_KEYS) == {
         'ops_ph_texture', 'ops_ph_funk_features', 'ops_ph_zernike',
         'ops_ph_measure_gpu', 'ops_ph_measure_gpu_check', 'ops_ph_channels',
-        'ops_ph_profile_features', 'ops_ph_granularity_subsample'}
+        'ops_ph_profile_features', 'ops_ph_granularity_subsample',
+        'ops_ph_profile_optional_families'}
     assert set(OPS_TO_MEASURE_KEYS) <= set(OPS_DEFAULTS)
     assert set(OPS_TO_MEASURE_KEYS.values()) <= set(measure)
     assert set(ALPHA_FEATURES[934]['settings']) == set(NEW_KEYS)

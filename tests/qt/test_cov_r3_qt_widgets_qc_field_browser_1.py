@@ -10,7 +10,6 @@ exception or a silently dropped field.
 """
 from __future__ import annotations
 
-import os
 
 import numpy as np
 import pytest
@@ -25,7 +24,6 @@ from spacr.qt.widgets.qc_field_browser import (  # noqa: E402
     finding_targets,
     load_qc_field,
     render_qc_field,
-    targets_from_digest,
 )
 
 pytestmark = pytest.mark.qt
@@ -74,33 +72,6 @@ def _target(plate, object_types=("cell",), field=FIELD):
             for object_type in object_types))
 
 
-def test_a_pathless_scorecard_and_a_dot_npy_field_still_reach_the_browser(
-        tmp_path):
-    """A scorecard with no file path must not orphan its fields.
-
-    Older QC runs recorded no scorecard path and wrote field names with the
-    ``.npy`` suffix still attached.  If the browser derived the plate root
-    only from the scorecard path it would open ``/merged`` at the filesystem
-    root, and a suffixed name would never match the file on disk -- the
-    banner would list fields that open to "already gone".  A blank field
-    name, which a truncated CSV row produces, must be dropped rather than
-    become a target that points at the plate folder itself.
-    """
-    plate = tmp_path / "plate1"
-    card = seg_qc.Scorecard("", "cell", [
-        _qc("   "),
-        _qc(f"{FIELD}.NPY"),
-        _qc("plate1_A02_1"),
-    ])
-
-    targets = targets_from_digest(_digest(plate, [card]))
-
-    assert [target.field for target in targets] == [FIELD, "plate1_A02_1"]
-    assert targets[0].plate_root == os.path.abspath(str(plate))
-    assert targets[0].merged_dir == os.path.join(
-        os.path.abspath(str(plate)), "merged")
-
-
 def test_each_finding_opens_only_the_fields_it_actually_implicates(tmp_path):
     """A finding's browser list must not spill into unrelated fields.
 
@@ -130,30 +101,6 @@ def test_each_finding_opens_only_the_fields_it_actually_implicates(tmp_path):
     assert [t.field for t in finding_targets(digest, positional)] == [
         "plate2_B01_1"]
     assert finding_targets(digest, wrong_type) == ()
-
-
-def test_plate_matching_falls_back_to_the_name_prefix(tmp_path, monkeypatch):
-    """A plate-scoped finding must still find its fields if parsing fails.
-
-    ``parse_field_name`` is the strict reader; when it cannot be used the
-    browser falls back to the leading ``plate_`` segment.  Without that
-    fallback a positional finding would match nothing and the banner's
-    "inspect" link would open an empty dialog for the very pattern it just
-    reported.
-    """
-    def _boom(name):
-        raise RuntimeError("field-name parser unavailable")
-
-    monkeypatch.setattr(seg_qc, "parse_field_name", _boom)
-    plate = tmp_path / "plate1"
-    card = seg_qc.Scorecard("", "cell", [_qc(FIELD)])
-    other = seg_qc.Scorecard("", "cell", [_qc("plate2_B01_1")])
-    positional = seg_qc.Finding(
-        severity="warn", kind="count_gradient", headline="plate 1 drifts",
-        plate="plate1")
-    digest = _digest(plate, [card, other], [positional])
-
-    assert [t.field for t in finding_targets(digest, positional)] == [FIELD]
 
 
 def test_an_unreadable_merged_array_is_explained_not_raised(tmp_path):

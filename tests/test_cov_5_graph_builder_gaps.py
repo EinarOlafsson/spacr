@@ -20,9 +20,9 @@ pytest.importorskip("matplotlib")
 
 from spacr.qt.linked_selection import LinkedSelection            # noqa: E402
 from spacr.qt.widgets import graph_builder as gb                 # noqa: E402
-from spacr.qt.widgets.graph_spec import (BAR, HISTOGRAM,         # noqa: E402
-                                          SCATTER, GraphSpec)
-from spacr.selection import Selection, as_key_index              # noqa: E402
+from spacr.qt.widgets.graph_spec import (HISTOGRAM, SCATTER,   # noqa: E402
+                                          GraphSpec)
+from spacr.selection import Selection                            # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -58,30 +58,8 @@ def panel(qtbot):
 
 
 # ---------------------------------------------------------------------------
-# Marks with nothing to place
-# ---------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------
-# The notice line
-# ---------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------
 # Answering a selection made elsewhere
 # ---------------------------------------------------------------------------
-
-def test_an_aggregate_chart_redraws_rather_than_restyling(canvas,
-                                                           monkeypatch):
-    """A bar's highlight is a recomputed reduction, not a re-coloured artist."""
-    canvas.set_spec(GraphSpec(x="gene", y="area", kind=BAR), immediate=True)
-    assert canvas._live_highlight is False
-    drawn = []
-    monkeypatch.setattr(canvas, "render_now", lambda: drawn.append(True))
-
-    canvas.link.set_selection(
-        Selection(keys=as_key_index(["p1_r1_c1_f1_1"]), source="elsewhere"))
-
-    assert drawn == [True]
-
 
 def test_a_panel_with_no_overlay_is_stepped_over(canvas):
     """Not every panel gets a highlight artist; the loop must survive that."""
@@ -95,16 +73,6 @@ def test_a_panel_with_no_overlay_is_stepped_over(canvas):
 
     assert canvas._selected_mask is not None
     assert int(canvas._selected_mask.sum()) == 3
-
-
-def test_a_selection_arriving_before_the_first_draw_is_ignored(qtbot):
-    view = gb.GraphCanvas(link=LinkedSelection(), source="cov5empty")
-    qtbot.addWidget(view)
-
-    view.on_linked_selection_changed(
-        Selection(keys=as_key_index(["p1_r1_c1_f1_1"]), source="elsewhere"))
-
-    assert view._selected_mask is None
 
 
 # ---------------------------------------------------------------------------

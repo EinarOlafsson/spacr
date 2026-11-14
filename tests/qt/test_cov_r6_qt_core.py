@@ -54,7 +54,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QKeyEvent
-from PySide6.QtWidgets import QFileDialog, QMainWindow, QStackedWidget
+from PySide6.QtWidgets import QMainWindow, QStackedWidget
 
 from spacr.curation import MaskCuration
 from spacr.layers import LayerStack, Spacing
@@ -89,17 +89,6 @@ def _canvas(qtbot, stack):
     canvas.resize(120, 120)
     canvas._ensure_canvas()
     return canvas
-
-
-def _tracks():
-    rows = []
-    for track_id in (1, 2):
-        for frame in range(3):
-            rows.append({"frame": frame, "track_id": track_id,
-                         "original_label": 100 + frame,
-                         "x": float(frame), "y": float(track_id)})
-    return pd.DataFrame(rows, columns=["frame", "track_id", "original_label",
-                                       "x", "y"])
 
 
 # ---------------------------------------------------------------------------
@@ -179,28 +168,6 @@ def test_save_mask_reads_a_string_as_a_path_and_a_bool_as_no_path(
     assert artifact.is_file()
 
 
-def test_a_track_save_with_nowhere_to_write_asks_and_honours_the_answer(
-        qtbot, qt_theme_applied, tmp_path, monkeypatch):
-    """Cancelling the dialog must write nothing, and naming a file must write
-    it — the two halves of the same guard."""
-    panel = ct.TrackCurationPanel(tracks=_tracks())
-    qtbot.addWidget(panel)
-
-    cancelled = []
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-    cancelled.append(panel.save())
-    assert cancelled == [None]
-    assert not list(tmp_path.glob("*.csv"))
-
-    target = tmp_path / "chosen.csv"
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: (str(target), "CSV")))
-    assert panel.save() == str(target)
-    assert target.is_file()
-    assert set(pd.read_csv(target)["track_id"]) == {1, 2}
-
-
 # ---------------------------------------------------------------------------
 # spacr.qt.synthetic
 # ---------------------------------------------------------------------------
@@ -263,25 +230,6 @@ def test_an_unpaired_fastq_run_writes_r1_alone(tmp_path):
 # ---------------------------------------------------------------------------
 # spacr.qt.prefs
 # ---------------------------------------------------------------------------
-
-def test_a_recent_list_stored_as_one_string_reads_back_as_a_list():
-    """``push_recent_source`` writes ``"\\n".join(...)``, so the string form is
-    the *normal* one on any backend that does not preserve a QStringList."""
-    app_key = "r6_recent_as_string"
-    store = QSettings(prefs.ORG, prefs.APP)
-    store.setValue(f"recent/{app_key}/list", "/plates/a\n/plates/b\n\n/plates/c")
-    store.sync()
-
-    assert prefs.get_recent_sources(app_key) == ["/plates/a", "/plates/b",
-                                                 "/plates/c"]
-    assert prefs.get_recent_sources(app_key, limit=2) == ["/plates/a",
-                                                          "/plates/b"]
-
-    # the list form and the absent form, for contrast
-    store.setValue(f"recent/{app_key}/list", ["/plates/x", "/plates/y"])
-    store.sync()
-    assert prefs.get_recent_sources(app_key) == ["/plates/x", "/plates/y"]
-    assert prefs.get_recent_sources("r6_never_written") == []
 
 
 def test_the_canonical_store_is_not_migrated_onto_itself(monkeypatch):

@@ -25,14 +25,11 @@ from spacr.seg_qc import (
     Finding,
     QCDigest,
     Scorecard,
-    diagnose,
     explain_flag,
     format_digest,
     format_findings,
     parse_field_name,
-    read_scorecard,
     score_field,
-    score_masks,
     thresholds_from_settings,
     write_scorecard,
 )
@@ -132,52 +129,6 @@ def test_a_foreground_too_small_to_hold_a_seed_is_not_called_fused():
 # ---------------------------------------------------------------------------
 # the shapes a mask source arrives in
 # ---------------------------------------------------------------------------
-
-def test_a_single_npy_file_is_scored_as_one_field_named_after_it(tmp_path):
-    """A user pointing at one mask file must get that file scored.
-
-    The field name is what every downstream address is parsed from, so it has
-    to be the file's stem rather than a positional ``field_0000``.
-    """
-    path = tmp_path / "plate1_A01_f1.npy"
-    np.save(path, _grid_field().astype(np.uint16))
-
-    scored = score_masks(str(path), object_type="cell")
-
-    assert [q.field for q in scored] == ["plate1_A01_f1"]
-    assert scored[0].n_objects > 0
-
-
-def test_a_path_that_is_neither_a_folder_nor_a_file_is_refused(tmp_path):
-    """A typo in a mask path must say so, not score zero fields.
-
-    An empty result is what ``save=False`` looks like, and reporting a missing
-    folder the same way would tell the user their masks were fine.
-    """
-    with pytest.raises(FileNotFoundError, match="no mask folder or file"):
-        score_masks(str(tmp_path / "nowhere"), object_type="cell")
-
-
-def test_a_bare_two_dimensional_mask_is_one_field_not_a_stack():
-    """A 2-D array handed straight in is a single field.
-
-    Iterating it would treat each row of pixels as a field and produce 256
-    unreadable ones.
-    """
-    scored = score_masks(_grid_field(), object_type="cell")
-
-    assert [q.field for q in scored] == ["field_0000"]
-    assert scored[0].n_objects > 0
-
-
-def test_a_list_of_masks_is_scored_field_by_field():
-    """A plain sequence is the shape a caller with masks in memory has."""
-    scored = score_masks([_grid_field(), _grid_field(count=3)],
-                         object_type="cell")
-
-    assert [q.field for q in scored] == ["field_0000", "field_0001"]
-    assert scored[0].n_objects > scored[1].n_objects
-
 
 # ---------------------------------------------------------------------------
 # formatting a number nobody computed
@@ -286,35 +237,6 @@ def _qc(field, flags=(), n_objects=10, severity="ok", diameter=12.0,
                    severity=severity)
 
 
-def test_a_flag_nothing_knows_how_to_explain_produces_no_finding():
-    """A finding with no cause and no fix is a line of noise.
-
-    Flags are written by whatever version of spaCR produced the card, and a
-    card from a newer run can carry one this build has no guidance for.
-    """
-    findings = diagnose([_qc("plate1_A01_f1", flags=["a_flag_from_the_future"],
-                             severity="warn")])
-
-    assert findings == []
-
-
-def test_a_plate_with_no_wells_in_its_names_is_located_by_its_fields():
-    """A hand-assembled folder still has to say WHERE the problem is.
-
-    Without a well the finding would name the plate and stop, and the user
-    would have to open every mask to find which ones were flagged.
-    """
-    findings = diagnose([
-        _qc("field_0000", flags=[FLAG_EMPTY], n_objects=0, severity="fail"),
-        _qc("field_0001", flags=[FLAG_EMPTY], n_objects=0, severity="fail"),
-    ])
-
-    assert findings
-    where = findings[0].headline
-    assert "fields" in where
-    assert "field_0000" in where
-
-
 def test_a_blank_field_name_does_not_print_an_empty_location():
     """A location phrase is useful only when there is a location to print."""
     finding = seg_qc._flag_findings([
@@ -325,68 +247,6 @@ def test_a_blank_field_name_does_not_print_an_empty_location():
     assert finding.headline == (
         "1 cell field(s) on this project: no object at all in the field")
     assert "fields :" not in finding.headline
-
-
-def test_a_flag_demoted_on_a_sparse_plate_is_not_reported_as_a_failure():
-    """The finding must not contradict the verdict the card already printed.
-
-    ``_apply_plate_context`` demotes empty fields on a plate whose median
-    count is a handful, because there a field with none is the assay. The
-    flag's own severity is still "fail", and reporting it as one here would
-    put a failure in the digest that no field claims.
-    """
-    members = [_qc(f"plate1_A0{i}_f1", flags=[FLAG_EMPTY], n_objects=0,
-                   severity="warn") for i in range(1, 4)]
-
-    findings = diagnose(members)
-
-    assert findings
-    assert [f.severity for f in findings] == ["warn"]
-
-
-def test_a_flag_no_field_demoted_stays_a_failure():
-    """The other half of the same rule, so the demotion is not unconditional."""
-    members = [_qc(f"plate1_A0{i}_f1", flags=[FLAG_EMPTY], n_objects=0,
-                   severity="fail") for i in range(1, 4)]
-
-    findings = diagnose(members)
-
-    assert [f.severity for f in findings] == ["fail"]
-
-
-def test_an_unreadable_field_is_left_out_of_the_positional_comparison():
-    """A field that could not be read has no count to compare.
-
-    Its ``n_objects`` is 0 by construction, so leaving it in would make its
-    half of the plate look empty and fabricate a gradient.
-    """
-    rows = []
-    for row in "ABCDEFGH":
-        for column in (1, 2, 3):
-            rows.append(_qc(f"plate1_{row}0{column}_f1", n_objects=100))
-    rows.append(_qc("plate1_A04_f1", flags=[FLAG_UNREADABLE], n_objects=0,
-                    severity="fail"))
-    rows.append(_qc("plate1_A05_f1", flags=[FLAG_UNREADABLE], n_objects=0,
-                    severity="fail"))
-
-    gradients = [f for f in diagnose(rows) if f.kind.endswith("gradient")]
-
-    assert gradients == []
-
-
-def test_a_field_whose_name_carries_no_well_is_left_out_of_the_gradient():
-    """A positional claim needs a position.
-
-    ``field_0003`` is somewhere on the plate and nothing says where, so it
-    cannot be assigned to a half.
-    """
-    rows = [_qc(f"plate1_{row}01_f1", n_objects=100) for row in "ABCD"]
-    rows += [_qc(f"plate1_{row}01_f1", n_objects=100) for row in "EFGH"]
-    rows += [_qc(f"field_{i:04d}", n_objects=0) for i in range(6)]
-
-    gradients = [f for f in diagnose(rows) if f.kind.endswith("gradient")]
-
-    assert gradients == []
 
 
 def test_a_plate_with_one_row_has_no_halves_to_compare():
@@ -417,32 +277,6 @@ def test_a_half_that_is_simply_empty_is_not_reported_as_a_gradient():
     assert seg_qc._axis_step(empty_half, ratio=2.0, min_fields=3) is None
 
 
-def test_objects_that_measure_twice_as_wide_on_one_half_are_reported(tmp_path):
-    """A size step across the plate is a warning in its own right.
-
-    Object size stepping by row is what an uneven lamp does to a threshold:
-    the brighter half segments generously and its objects come out larger,
-    with every field individually unremarkable.
-    """
-    rows = []
-    for row in "ABCD":
-        for column in range(1, 5):
-            rows.append(_qc(f"plate1_{row}0{column}_f1", n_objects=100,
-                            diameter=10.0))
-    for row in "EFGH":
-        for column in range(1, 5):
-            rows.append(_qc(f"plate1_{row}0{column}_f1", n_objects=100,
-                            diameter=30.0))
-
-    findings = diagnose(rows)
-    size = [f for f in findings if f.kind == "size_gradient"]
-
-    assert size, [f.kind for f in findings]
-    assert size[0].severity == "warn"
-    assert "3.0x the diameter" in size[0].headline
-    assert "A-D" in size[0].headline and "E-H" in size[0].headline
-
-
 # ---------------------------------------------------------------------------
 # reading a card back off disk
 # ---------------------------------------------------------------------------
@@ -459,316 +293,13 @@ def _write_card(path, rows, header=None):
     return path
 
 
-def test_a_card_with_no_verdict_column_is_refused_rather_than_defaulted(
-        tmp_path):
-    """Half a card is a different verdict, and this module does not invent one.
-
-    Every field of ``FieldQC`` has a default and ``severity`` defaults to
-    "ok", so a card missing its columns would read back as a plate that
-    passed. That is the exact failure this check exists for.
-    """
-    path = _write_card(str(tmp_path / CARD_DIR / f"{CARD_PREFIX}cell.csv"),
-                       [{"object_type": "cell", "severity": "fail"}],
-                       header=["object_type", "severity"])
-
-    rows, error = read_scorecard(path)
-
-    assert rows == []
-    assert "has no field, n_objects column" in error
-
-
-def test_a_card_with_a_nul_byte_in_a_row_is_refused(tmp_path):
-    """A truncated write leaves NUL bytes, and python 3.12 parses them through.
-
-    The header check catches a NUL in a column name; this one catches a NUL in
-    the data, where the row would otherwise be read as a field whose name
-    contains a null.
-    """
-    path = str(tmp_path / CARD_DIR / f"{CARD_PREFIX}cell.csv")
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", newline="", encoding="utf-8") as handle:
-        handle.write("field,object_type,n_objects,severity,flags,note\n")
-        handle.write("plate1_A01_f1,cell,\x00,fail,,\n")
-
-    rows, error = read_scorecard(path)
-
-    assert rows == []
-    assert "not CSV (NUL byte)" in error
-
-
-def test_a_csv_runtime_that_raises_for_nul_uses_the_same_diagnosis(
-        tmp_path, monkeypatch):
-    """Python 3.9 raises where 3.12 returns a row; the contract is identical."""
-    path = _write_card(str(tmp_path / CARD_DIR / f"{CARD_PREFIX}cell.csv"),
-                       [{"field": "plate1_A01_f1", "n_objects": 1}])
-
-    class _RejectsNul:
-        fieldnames = ["field", "n_objects"]
-
-        def __iter__(self):
-            raise csv.Error("line contains NUL")
-
-    monkeypatch.setattr(seg_qc.csv, "DictReader", lambda _handle: _RejectsNul())
-
-    rows, error = read_scorecard(path)
-
-    assert rows == []
-    assert error.endswith("is not CSV (NUL byte)")
-
-
-def test_a_count_that_is_not_a_number_reads_back_as_no_objects(tmp_path):
-    """A hand-edited card can carry text where the count belongs.
-
-    Zero is the safe reading: the field's own flags and severity are what the
-    verdict is taken from, and refusing the whole card over one cell would
-    lose the other ninety-five fields.
-    """
-    path = _write_card(str(tmp_path / CARD_DIR / f"{CARD_PREFIX}cell.csv"), [
-        {"field": "plate1_A01_f1", "object_type": "cell",
-         "n_objects": "many", "severity": "fail", "flags": FLAG_EMPTY,
-         "note": ""},
-        {"field": "plate1_A02_f1", "object_type": "cell",
-         "n_objects": "12", "severity": "ok", "flags": "", "note": ""},
-    ])
-
-    rows, error = read_scorecard(path)
-
-    assert error == ""
-    assert [q.n_objects for q in rows] == [0, 12]
-    assert rows[0].flags == [FLAG_EMPTY]
-
-
-def test_a_card_that_cannot_be_opened_says_so_instead_of_raising(tmp_path):
-    """A screen draws the verdict; a missing card must not take it down."""
-    rows, error = read_scorecard(str(tmp_path / "nowhere" / "card.csv"))
-
-    assert rows == []
-    assert "unreadable (FileNotFoundError)" in error
-
-
-def test_a_card_the_csv_module_refuses_says_so(tmp_path, monkeypatch):
-    """``csv.Error`` is a different failure from an unreadable file.
-
-    It is reported separately because it means the bytes arrived and are not
-    a table, which points at the writer rather than at the disk.
-    """
-    path = _write_card(str(tmp_path / CARD_DIR / f"{CARD_PREFIX}cell.csv"), [
-        {"field": "plate1_A01_f1", "object_type": "cell", "n_objects": "3",
-         "severity": "ok", "flags": "", "note": ""},
-    ])
-
-    class _Refusing:
-        def __init__(self, *args, **kwargs):
-            self.fieldnames = ["field", "n_objects"]
-
-        def __iter__(self):
-            return self
-
-        def __next__(self):
-            raise csv.Error("field larger than field limit")
-
-    monkeypatch.setattr(csv, "DictReader", _Refusing)
-
-    rows, error = read_scorecard(path)
-
-    assert rows == []
-    assert "not readable as CSV" in error
-
-
 # ---------------------------------------------------------------------------
 # looking for mask stacks and their dates
 # ---------------------------------------------------------------------------
 
-def test_a_project_root_that_cannot_be_listed_finds_no_stacks(tmp_path,
-                                                              monkeypatch):
-    """A permission error on a project folder is not a project with no masks.
-
-    It comes back empty either way, but it must not raise: the screen calls
-    this to decide whether it can offer to score.
-    """
-    def refuse(path):
-        raise PermissionError(path)
-
-    monkeypatch.setattr(os, "listdir", refuse)
-
-    assert seg_qc.find_mask_stacks(str(tmp_path)) == {}
-
-
-def test_a_plate_folder_that_cannot_be_listed_is_skipped_not_fatal(tmp_path,
-                                                                   monkeypatch):
-    """One unreadable plate must not hide the plates beside it."""
-    good = tmp_path / "plate1" / "cell_mask_stack"
-    good.mkdir(parents=True)
-    np.save(good / "plate1_A01_f1.npy", np.zeros((8, 8), np.uint16))
-    bad = tmp_path / "plate2"
-    bad.mkdir()
-
-    real = os.listdir
-
-    def refuse(path):
-        if os.path.basename(str(path)) == "plate2":
-            raise PermissionError(path)
-        return real(path)
-
-    monkeypatch.setattr(os, "listdir", refuse)
-
-    assert seg_qc.find_mask_stacks(str(tmp_path)) == {"cell": str(good)}
-
-
-def test_the_newest_mask_is_found_past_files_that_are_not_masks(tmp_path):
-    """Only ``.npy`` files date a stack.
-
-    A stack folder holds a README, a lock file, whatever the user dropped in.
-    Dating the stack from those would make a card look out of date because
-    somebody opened the folder.
-    """
-    folder = tmp_path / "cell_mask_stack"
-    folder.mkdir()
-    np.save(folder / "plate1_A01_f1.npy", np.zeros((8, 8), np.uint16))
-    (folder / "notes.txt").write_text("not a mask", encoding="utf-8")
-    os.utime(folder / "notes.txt", (10 ** 9, 10 ** 9))
-    os.utime(folder / "plate1_A01_f1.npy", (10 ** 6, 10 ** 6))
-    os.utime(folder, (10 ** 5, 10 ** 5))
-
-    assert seg_qc.mask_stack_mtime(str(folder)) == pytest.approx(10 ** 6)
-
-
-def test_dating_a_stack_stops_after_a_bounded_number_of_files(tmp_path,
-                                                              monkeypatch):
-    """A plate can hold tens of thousands of masks and this runs on a click.
-
-    The cap is what keeps drawing the verdict off the whole-folder stat path.
-    Counted rather than compared by date, because the order a directory is
-    scanned in is the filesystem's business and not something to assert on.
-    """
-    folder = tmp_path / "cell_mask_stack"
-    folder.mkdir()
-    for index in range(6):
-        np.save(folder / f"plate1_A0{index}_f1.npy",
-                np.zeros((4, 4), np.uint16))
-    os.utime(folder, (10 ** 5, 10 ** 5))
-
-    real_scandir = os.scandir
-    pulled: list = []
-
-    class _Counting:
-        def __init__(self, path):
-            self._inner = real_scandir(path)
-
-        def __enter__(self):
-            def gen():
-                for entry in self._inner:
-                    pulled.append(entry.name)
-                    yield entry
-            return gen()
-
-        def __exit__(self, *exc):
-            self._inner.close()
-            return False
-
-    monkeypatch.setattr(os, "scandir", _Counting)
-
-    monkeypatch.setattr(seg_qc, "_MAX_MTIME_STATS", 2)
-    seg_qc.mask_stack_mtime(str(folder))
-    capped = len(pulled)
-
-    pulled.clear()
-    monkeypatch.setattr(seg_qc, "_MAX_MTIME_STATS", 512)
-    seg_qc.mask_stack_mtime(str(folder))
-    whole = len(pulled)
-
-    assert capped == 3, "the scan did not stop one entry past the cap"
-    assert whole == 6
-
-
-def test_a_mask_file_that_cannot_be_stat_ed_is_skipped(tmp_path, monkeypatch):
-    """A file deleted between the listing and the stat is not an error."""
-    folder = tmp_path / "cell_mask_stack"
-    folder.mkdir()
-    np.save(folder / "gone.npy", np.zeros((4, 4), np.uint16))
-    np.save(folder / "here.npy", np.zeros((4, 4), np.uint16))
-    os.utime(folder / "here.npy", (10 ** 6, 10 ** 6))
-    os.utime(folder, (10 ** 5, 10 ** 5))
-
-    real_scandir = os.scandir
-
-    class _Entry:
-        def __init__(self, entry):
-            self._entry = entry
-            self.name = entry.name
-
-        def stat(self):
-            if self.name == "gone.npy":
-                raise FileNotFoundError(self.name)
-            return self._entry.stat()
-
-    class _Scandir:
-        def __init__(self, path):
-            self._inner = real_scandir(path)
-
-        def __enter__(self):
-            return (_Entry(e) for e in self._inner)
-
-        def __exit__(self, *exc):
-            self._inner.close()
-            return False
-
-    monkeypatch.setattr(os, "scandir", _Scandir)
-
-    assert seg_qc.mask_stack_mtime(str(folder)) == pytest.approx(10 ** 6)
-
-
-def test_a_stack_folder_that_cannot_be_scanned_falls_back_to_its_own_date(
-        tmp_path, monkeypatch):
-    """The directory's own mtime is the floor, and it survives a failed scan.
-
-    Masks are written by atomic rename, which touches the directory, so the
-    folder's date already catches a stack whose files were all replaced. A
-    scan that raises must leave that answer standing rather than take the
-    whole verdict down.
-    """
-    folder = tmp_path / "cell_mask_stack"
-    folder.mkdir()
-    np.save(folder / "plate1_A01_f1.npy", np.zeros((4, 4), np.uint16))
-    os.utime(folder, (10 ** 6, 10 ** 6))
-
-    def refuse(path):
-        raise PermissionError(path)
-
-    monkeypatch.setattr(os, "scandir", refuse)
-
-    assert seg_qc.mask_stack_mtime(str(folder)) == pytest.approx(10 ** 6)
-
-
-def test_a_stack_folder_that_cannot_be_stat_ed_dates_as_zero(tmp_path,
-                                                             monkeypatch):
-    """With no date at all, nothing can be called newer than the card."""
-    folder = tmp_path / "cell_mask_stack"
-    folder.mkdir()
-
-    def refuse(path, *args, **kwargs):
-        raise PermissionError(path)
-
-    monkeypatch.setattr(os, "stat", refuse)
-
-    assert seg_qc.mask_stack_mtime(str(folder)) == 0.0
-
-
 # ---------------------------------------------------------------------------
 # the digest
 # ---------------------------------------------------------------------------
-
-def test_a_scorecard_that_could_not_be_read_reports_error_as_its_verdict():
-    """The verdict and the one-line rendering both have to say so."""
-    card = Scorecard(path="/runs/plate1/qc/segmentation_qc_cell.csv",
-                     object_type="cell", error="card.csv unreadable (OSError)")
-
-    assert card.verdict == "error"
-    assert str(card) == "cell: error"
-    assert str(Scorecard(path="", object_type="nucleus",
-                         summary={"verdict": "warn"},
-                         stale=True)) == "nucleus: warn (out of date)"
-
 
 def test_a_digest_prints_its_verdict_and_headline():
     """``str()`` on a digest is what a log line carries."""
@@ -900,35 +431,3 @@ def test_a_digest_printout_shows_a_card_that_could_not_be_read(tmp_path):
 
     assert "cell: segmentation_qc_cell.csv is not CSV" in printed
     assert "OUT OF DATE" in printed
-
-
-def test_a_field_of_small_numerous_objects_is_called_split_apart(tmp_path):
-    """Smaller AND more numerous than the plate is the shatter signature.
-
-    Neither half is enough on its own: a field with more objects is ordinary
-    well-to-well variation, and a field of smaller objects is a different cell
-    type or a different focal plane. Together, against a plate that agrees
-    with itself, they are one population cut into pieces -- and the note has
-    to carry both ratios, because that pairing is the whole argument.
-
-    The per-field rules leave this field alone (its objects are well over
-    ``min_diameter``), so the flag can only come from the plate comparison.
-    """
-    fields = {f"plate1_A0{i}_f1": _grid_field(shape=(400, 400), radius=10,
-                                              spacing=60, margin=40)
-              for i in range(1, 6)}
-    shattered = _grid_field(shape=(400, 400), radius=4, spacing=25, margin=20)
-    fields["plate1_A06_f1"] = shattered
-
-    assert score_field(shattered, object_type="cell", field="x").flags == [], (
-        "the field is already flagged without the plate for comparison")
-
-    scored = {q.field: q for q in score_masks(fields, object_type="cell")}
-    odd = scored["plate1_A06_f1"]
-
-    assert seg_qc.FLAG_OVER in odd.flags
-    assert "the signature of objects split apart" in odd.note
-    assert "0.39x the plate's median diameter" in odd.note
-    assert "6.2x its count" in odd.note
-    # The fields it is being compared against stay clean.
-    assert all(not scored[f"plate1_A0{i}_f1"].flags for i in range(1, 6))

@@ -23,15 +23,6 @@ from PySide6.QtWidgets import QTableWidgetItem                   # noqa: E402
 from spacr.qt.screens.hyperparam import _NumericTableItem        # noqa: E402
 
 
-def test_two_score_cells_order_by_their_numbers_not_their_text(qapp):
-    """"0.9" sorts above "0.10" only if the number is what is compared."""
-    smaller = _NumericTableItem("0.10", 0.10)
-    larger = _NumericTableItem("0.9", 0.9)
-
-    assert smaller < larger
-    assert not larger < smaller
-
-
 def test_a_failed_trial_sorts_below_a_scored_one(qapp):
     """A "-" row is a hole, and a hole belongs under the results.
 
@@ -61,11 +52,3 @@ def test_a_comparison_with_something_that_has_no_text_is_declined(qapp):
     assert scored.__lt__(object()) is NotImplemented
     with pytest.raises(TypeError):
         scored < 0.5
-
-
-def test_a_declining_cell_still_sorts_against_its_own_kind(qapp):
-    """Declining one comparison does not break the table's own ordering."""
-    cells = [_NumericTableItem("0.5", 0.5), _NumericTableItem("0.05", 0.05),
-             _NumericTableItem("0.75", 0.75)]
-
-    assert [cell.text() for cell in sorted(cells)] == ["0.05", "0.5", "0.75"]

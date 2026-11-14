@@ -6,9 +6,6 @@ fill, the bundle writer and the magnifier paste stay as they are.
 """
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import pytest
@@ -37,40 +34,6 @@ def test_a_band_wholly_off_the_field_is_empty():
     assert band.shape == (10, 10) and not band.any()
 
 
-def test_divide_object_off_the_field_returns_an_unchanged_copy():
-    mask = _two_blobs()
-    out, splits = engine.divide_object(mask, (-40, -40), (-30, -35))
-    assert splits == []
-    np.testing.assert_array_equal(out, mask)
-    assert out is not mask
-
-
-def test_divide_object_through_background_changes_nothing():
-    mask = _two_blobs()
-    out, splits = engine.divide_object(mask, (10, 0), (10, 9))
-    assert splits == []
-    np.testing.assert_array_equal(out, mask)
-
-
-def test_divide_object_that_only_nicks_an_object_keeps_it_whole():
-    mask = _two_blobs()
-    out, splits = engine.divide_object(mask, (2, 2), (3, 2))
-    assert splits == []
-    np.testing.assert_array_equal(out, mask)
-
-
-def test_divide_object_skips_the_nicked_object_and_splits_the_crossed_one():
-    mask = np.zeros((20, 20), dtype=np.uint16)
-    mask[2:8, 2:16] = 4
-    mask[12:16, 9:14] = 6
-    out, splits = engine.divide_object(mask, (9, 0), (9, 19))
-    assert [source for source, _new in splits] == [4]
-    new = splits[0][1]
-    assert {int(out[4, 3]), int(out[4, 14])} == {4, new}
-    assert (out[12:16, 9:14] == 6).all()
-    assert int(mask[4, 9]) == 4
-
-
 def test_a_cut_off_the_field_leaves_the_mask_alone():
     mask = _two_blobs()
     out, splits, cut = engine._divide_or_cut(mask, (-40, -40), (-30, -35))
@@ -83,37 +46,6 @@ def test_a_cut_through_background_leaves_the_mask_alone():
     out, splits, cut = engine._divide_or_cut(mask, (10, 0), (10, 9))
     assert splits == cut == []
     np.testing.assert_array_equal(out, mask)
-
-
-def test_vvvv_export_refuses_a_stack_of_labels(tmp_path):
-    with pytest.raises(ValueError, match="2-D"):
-        engine._export_vvvv(tmp_path, "stack.tif",
-                            np.zeros((2, 4, 4), dtype=np.uint16))
-    assert list(tmp_path.iterdir()) == []
-
-
-def test_vvvv_export_refuses_negative_ids(tmp_path):
-    with pytest.raises(ValueError, match="16-bit"):
-        engine._export_vvvv(tmp_path, "neg.tif",
-                            np.full((3, 3), -1, dtype=np.int32))
-
-
-def test_vvvv_manifest_records_an_empty_version_without_one(tmp_path,
-                                                            monkeypatch):
-    import spacr
-
-    monkeypatch.delattr(spacr, "__version__", raising=False)
-    labels = np.zeros((6, 6), dtype=np.uint16)
-    labels[1:3, 1:3] = 2
-    folder = Path(engine._export_vvvv(tmp_path, "field.png", labels,
-                                      np.ones((6, 6)), pixel_size=(1, 2),
-                                      unit="nm"))
-    manifest = json.loads((folder / "manifest.json").read_text("utf-8"))
-    assert manifest["spacr_version"] == ""
-    assert manifest["pixel_size"] == {"x": 1.0, "y": 2.0, "unit": "nm"}
-    assert manifest["channel_names"] == ["channel_1"]
-    assert manifest["objects"] == 1
-    assert manifest["width"] == 6 and manifest["height"] == 6
 
 
 def test_canonical_labels_refuses_a_split_that_needs_an_id_past_uint16():

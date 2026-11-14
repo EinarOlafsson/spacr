@@ -1440,7 +1440,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Plate Barcode Linkage α", ("@Plate Barcode Linkage α",)),
         ("Features", (
             "save_measurements", "calculate_correlation",
-            "profile_features", "profile_granularity_subsample",
+            "profile_features", "profile_optional_families",
+            "profile_granularity_subsample",
             "funk_object_features", "zernike", "channel_names",
             "spatial_measurements",
             "spatial_neighbor_radius",

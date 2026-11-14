@@ -283,8 +283,8 @@ def test_ops_table_is_unchanged_without_the_setting_and_gains_the_families():
         assert f"{prefix}_dapi_haralick_contrast" in added
         assert f"{prefix}_dapi_pftas_53" in added
         assert f"{prefix}_gfp_frac_at_d_3" in added
-        assert f"{prefix}_dapi_gfp_rwc1" in added
-        assert f"{prefix}_dapi_gfp_manders_m1" in added
+        assert f"{prefix}_dapi_gfp_rwc1" not in added
+        assert f"{prefix}_dapi_gfp_manders_m1" not in added
         assert f"{prefix}_gfp_mean_edge" in added
         assert f"{prefix}_form_factor" in added
     assert "cell_nearest_neighbor_distance" in added
@@ -557,7 +557,8 @@ def test_ops_measure_task_carries_the_profile_families(tmp_path):
             "cell_path": str(tmp_path / "site-3.parquet"),
             "texture": True, "staged": str(tmp_path / "stack.npy")}
     legacy, _u, _s = ops_engine._ph_measure_table(base)
-    settings = {"ops_ph_profile_features": "profiling"}
+    settings = {"ops_ph_profile_features": "profiling",
+                "ops_ph_profile_optional_families": ["colocalisation_extra"]}
     task = {**base, "profile_features": ops_engine._ph_profile_features(settings),
             "granularity_subsample": ops_engine._ph_granularity_subsample(settings)}
     table, _u, _s = ops_engine._ph_measure_table(task)
