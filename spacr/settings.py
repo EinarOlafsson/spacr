@@ -9484,7 +9484,11 @@ ALPHA_FEATURES = {
             'seg_measure_band_px', 'seg_nucleus_channel', 'seg_nucleus_model',
             'seg_nucleus_diameter_range', 'seg_gpu', 'seg_tiling_control_px',
             'seg_diameter_sites', 'seg_diameter_min_objects',
-            'seg_cells_from_nucleus_seeds', 'seg_mask_vram_gb', 'seg_mask_device')},
+            'seg_cells_from_nucleus_seeds')},
+    },
+    945: {
+        'module_settings': {'ops_large_sites': (
+            'seg_mask_vram_gb', 'seg_mask_device')},
     },
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval', 'ops_power_gene_list', 'ops_power_reference_rows',),

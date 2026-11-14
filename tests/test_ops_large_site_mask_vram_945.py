@@ -227,7 +227,7 @@ def test_the_settings_have_defaults_tooltips_a_category_and_are_checked():
     defaults = ols.large_site_settings()
     assert defaults["seg_mask_vram_gb"] == 6.0 and defaults["seg_mask_device"] == "auto"
     keys = {"seg_mask_vram_gb", "seg_mask_device"}
-    assert keys <= set(ALPHA_FEATURES[921]["module_settings"]["ops_large_sites"])
+    assert keys <= set(ALPHA_FEATURES[945]["module_settings"]["ops_large_sites"])
     assert keys == set(ols.LARGE_SITE_TOOLTIPS)
     assert keys == {k for ks in ols.LARGE_SITE_CATEGORIES.values() for k in ks}
     with pytest.raises(ValueError, match="seg_mask_device"):

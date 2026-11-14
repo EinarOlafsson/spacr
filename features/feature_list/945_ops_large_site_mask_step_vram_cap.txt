@@ -2,7 +2,7 @@ OPS LARGE SITES: THE WHOLE-SITE CELLPOSE MASK STEP UNDER A VRAM CAP, THROUGH THE
 ===============================================================================================================
 
 Lifecycle: future
-Status: IMPLEMENTED 2026-11-14 (bug fix, alpha under ALPHA_FEATURES[921]); CPU-tested with a fake card and fake out-of-memory errors. The real-card check (the gpu-marked test and the 10-site PERISCOPE run below) is not done. spacr/ops_large_sites.py, spacr/settings.py, docs/source/reproducibility_manifests.rst, tests/test_ops_large_site_mask_vram_945.py, tests/test_ops_large_sites_921.py (stand-in mask step takes the new keywords), tests/test_ops_hybrid_profile_stage3.py (schema version >= 936), tests/test_gpu_memory_governor.py (the mask step is a governed GPU path), arrival contract tests/data/release_contracts/945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json (3 new callables) and the 918-923 contract re-pinned for 3 changed docstrings; the nine-language reviews of those 6 docstrings are pinned (spacr-translations 9d5b71b617, landing train 4, 2026-11-14); the 2 tooltips and the 'Mask step GPU memory' heading (LARGE_SITE_TOOLTIPS, LARGE_SITE_CATEGORIES) are not read by any runtime catalogue yet, so they stay English until the module has a settings panel.
+Status: IMPLEMENTED 2026-11-14 (bug fix, alpha under ALPHA_FEATURES[945], the module itself under ALPHA_FEATURES[921]); CPU-tested with a fake card and fake out-of-memory errors. The real-card check (the gpu-marked test and the 10-site PERISCOPE run below) is not done. spacr/ops_large_sites.py, spacr/settings.py, docs/source/reproducibility_manifests.rst, tests/test_ops_large_site_mask_vram_945.py, tests/test_ops_large_sites_921.py (stand-in mask step takes the new keywords), tests/test_ops_hybrid_profile_stage3.py (schema version >= 936), tests/test_gpu_memory_governor.py (the mask step is a governed GPU path), arrival contract tests/data/release_contracts/945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json (3 new callables) and the 918-923 contract re-pinned for 3 changed docstrings; the nine-language reviews of those 6 docstrings are pinned (spacr-translations 9d5b71b617, landing train 4, 2026-11-14); the 2 tooltips and the 'Mask step GPU memory' heading (LARGE_SITE_TOOLTIPS, LARGE_SITE_CATEGORIES) are not read by any runtime catalogue yet, so they stay English until the module has a settings panel.
 Requested: paper session (PERISCOPE P1 benchmark S3), 2026-11-13; maintainer's rule: GPU jobs on Home are capped at 6 GB each.
 Owner: paper session.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/periscope_benchmark/item_drafts/ITEM_DRAFT_large_site_mask_step_vram.md
@@ -59,7 +59,7 @@ FIX
   control; the run's result gains mask_steps. A 'cap' or 'oom' step is
   logged as a warning on spacr.ops_large_sites.
 
-SETTINGS (alpha, ALPHA_FEATURES[921] module_settings 'ops_large_sites')
+SETTINGS (alpha, ALPHA_FEATURES[945] module_settings 'ops_large_sites')
 - seg_mask_vram_gb (float, default 6.0; 0 = no cap of its own).
 - seg_mask_device ('auto' | 'gpu' | 'cpu', default 'auto').
 Tooltips and the "Mask step GPU memory" heading are in
