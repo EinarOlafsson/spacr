@@ -47,6 +47,7 @@ __all__ = [
     "DOSE_EXAMPLE_REPO",
     "EXAMPLE_ARCHIVES",
     "EXAMPLE_ARCHIVE_SHA256",
+    "EXAMPLE_OPT_IN_ARCHIVES",
     "EXAMPLE_SETS",
     "ExampleSet",
     "HIT_EXAMPLE_REPO",
@@ -56,6 +57,10 @@ __all__ = [
     "MEASURE_EXAMPLE_REPO",
     "RECRUITMENT_EXAMPLE_REPO",
     "REPLICATION_EXAMPLE_REPO",
+    "OPS_E2E_EXAMPLE_REPO",
+    "OPS_E2E_FULL_ARCHIVE",
+    "OPS_E2E_FULL_FOLDER",
+    "OPS_E2E_REVISION",
     "OPS_EXAMPLE_REPO",
     "READS_EXAMPLE_REPO",
     "SETTINGS_REPO",
@@ -137,6 +142,28 @@ OPS_EXAMPLE_REPO = "einarolafsson/spacr-example-ops"
 #: Align & Stitch's example: a 3 x 3 block of overlapping tiles from the same
 #: well, cut from the same published screen as :data:`OPS_EXAMPLE_REPO`.
 STITCH_EXAMPLE_REPO = "einarolafsson/spacr-example-stitch"
+
+#: The OPS end-to-end test data: a 2 x 2 block of sequencing tiles (all eleven
+#: cycles) and three phenotype fields at the rim of plate A well A1 of the same
+#: published screen, with the settings files, the stored flat-field maps, the
+#: phenotype placement seed and spaCR's reference outputs.
+#:
+#: TWO TIERS OF THE SAME SITES. The core archive keeps the raw pixels only
+#: inside a region of interest and is for reader, layout, stitch and phenotype
+#: tests; the full archive holds the unmodified frames and is the one decode
+#: tests use. Only the core tier is an :data:`EXAMPLE_SETS` entry; the full
+#: tier is fetched only when :data:`OPS_E2E_FULL_ARCHIVE` is named.
+OPS_E2E_EXAMPLE_REPO = "einarolafsson/spacr-example-ops-e2e"
+
+#: The full tier of :data:`OPS_E2E_EXAMPLE_REPO`: 1.25 GB, opt-in, never part
+#: of a default or ``all`` download.
+OPS_E2E_FULL_ARCHIVE = "ops_testdata_funk2022_A1_full.tar"
+
+#: Where the full tier unpacks, beside the core tier's ``ops_e2e`` folder.
+OPS_E2E_FULL_FOLDER = "ops_e2e_full"
+
+#: The pinned revision of :data:`OPS_E2E_EXAMPLE_REPO` both tiers come from.
+OPS_E2E_REVISION = "4e45cdc1ae80ee3401779df7282d251da2bf058c"
 
 #: Dose-Response's example: four replicate A549 plates of one LINCS Cell
 #: Painting plate map (Cell Painting Gallery cpg0004-lincs, CC0 1.0), as
@@ -246,6 +273,14 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     TIMELAPSE_YEAST_EXAMPLE_REPO: "spacr-example-timelapse-yeast.tar",
     TIMELAPSE_BACTERIA_EXAMPLE_REPO: "spacr-example-timelapse-bacteria.tar",
     TIMELAPSE_MAMMALIAN_EXAMPLE_REPO: "spacr-example-timelapse-mammalian.tar",
+    OPS_E2E_EXAMPLE_REPO: "ops_testdata_funk2022_A1_core.tar",
+}
+
+#: Archives fetched only when named, keyed by archive name, with the
+#: repository each is published in. They are a second archive of a repository
+#: :data:`EXAMPLE_ARCHIVES` already lists, so no example set downloads them.
+EXAMPLE_OPT_IN_ARCHIVES: Dict[str, str] = {
+    OPS_E2E_FULL_ARCHIVE: OPS_E2E_EXAMPLE_REPO,
 }
 
 #: The SHA-256 each pinned archive must have, keyed by archive name.
@@ -259,11 +294,15 @@ EXAMPLE_ARCHIVE_SHA256: Dict[str, str] = {
     "spacr-example-timelapse-yeast.tar": "4dd911e6d075e7cf7e2f7d750374aa9543c906119fe6f06cbcdf195afaef6de0",
     "spacr-example-timelapse-bacteria.tar": "39072dce56dff12ef73cac13700f25a32f36a9c67fa590a6079d90e53e2cc928",
     "spacr-example-timelapse-mammalian.tar": "2261aa6f2e0877fec3fab51ab9a9c075a61fe34844106a547005ef154fad7bb5",
+    "ops_testdata_funk2022_A1_core.tar": "e16758546e242ff6c6462e12c4e412d6fb0980d7b419024fbed63f4fe54adca0",
+    OPS_E2E_FULL_ARCHIVE: "6e4d9a6cbcdbf3ef96025c097093631306a2763eb799b36bee1c5577f5eabb20",
 }
 
 
 EXAMPLE_ARCHIVE_REVISIONS: Dict[str, str] = {
     "spacr-example-import.tar": "15a1a32fe7b001eea62304fce34619eb45a6afea",
+    "ops_testdata_funk2022_A1_core.tar": OPS_E2E_REVISION,
+    OPS_E2E_FULL_ARCHIVE: OPS_E2E_REVISION,
 }
 
 
@@ -441,6 +480,19 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         bytes=394_000_000,
         markers=("manifest.csv", "sequencing/c11/*.tif"),
         folder="ops_screen",
+        in_default=False,
+    ),
+    ExampleSet(
+        key="ops_e2e",
+        repo=OPS_E2E_EXAMPLE_REPO,
+        summary="OPS end-to-end test data, core tier: a 2 x 2 block of "
+                "sequencing tiles and three phenotype fields of a published "
+                "optical pooled screen, with settings and reference outputs.",
+        bytes=193_884_160,
+        markers=("ops_testdata_funk2022_A1/SHA256SUMS",
+                 "ops_testdata_funk2022_A1/reference/PROVENANCE.json",
+                 "ops_testdata_funk2022_A1/settings/ops_testdata_settings.csv"),
+        folder="ops_e2e",
         in_default=False,
     ),
     ExampleSet(

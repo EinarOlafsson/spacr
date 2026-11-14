@@ -3843,7 +3843,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json", 6),
         ("939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json", 2),
         ("937_aggregation_feature_defaults_api_arrivals_2026-11-13.json", 3),
-        ("936_940_stitch_core_api_arrivals_2026-11-13.json", 10),
+        ("936_940_stitch_core_api_arrivals_2026-11-13.json", 12),
         ("934_measure_ops_features_api_arrivals_2026-11-13.json", 3),
         ("stage3_hybrid_profile_api_arrivals_2026-11-13.json", 2),
         ("938_run_progress_api_arrivals_2026-11-13.json", 20),

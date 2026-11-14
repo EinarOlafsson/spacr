@@ -45,6 +45,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_placement_seed_export": True,
     "ops_placement_seed_check_pixels": False,
     "ops_placement_seed_tolerance": 2.0,
+    "ops_ph_placement_seed": None,
     "ops_footprint": 10.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
@@ -448,6 +449,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_placement_seed_export": bool,
     "ops_placement_seed_check_pixels": bool,
     "ops_placement_seed_tolerance": (float, int),
+    "ops_ph_placement_seed": (str, type(None)),
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
     "ops_spot_detector": str,
@@ -829,7 +831,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_stitch_read_threads", "ops_stitch_edge_workers",
         "ops_placement_seed", "ops_placement_seed_mode",
         "ops_placement_seed_export", "ops_placement_seed_check_pixels",
-        "ops_placement_seed_tolerance",
+        "ops_placement_seed_tolerance", "ops_ph_placement_seed",
     ],
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
@@ -1282,6 +1284,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - How many pixels a re-registered seam may differ from the "
         "placement file under ops_placement_seed_check_pixels. Default 2. "
         "Alpha.",
+    "ops_ph_placement_seed":
+        "(str or None) - A phenotype placement seed: a JSON file with the "
+        "well's phenotype raster, scale and rotation from an earlier full "
+        "run (schema spacr.ops_ph_placement_seed). With it the phenotype "
+        "phase aligns no anchor fields: every field is placed from the file, "
+        "moved onto this run's stitch by the sequencing tiles the file "
+        "lists, so a run on a few fields at the well's rim can be placed. "
+        "Its report says 'placement: seeded'. Empty aligns anchors as "
+        "usual. Alpha.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "

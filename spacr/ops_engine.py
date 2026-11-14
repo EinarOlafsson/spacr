@@ -1572,6 +1572,10 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         raise ValueError(
             f"well {well}'s phenotype acquisition has {offered} fields, "
             f"which no round well holds: {failure}") from failure
+    if settings.get("ops_ph_placement_seed"):
+        return _phenotype_seeded(db, plate, well, sources, sites, offered,
+                                 placements, sbs_centres, shape, settings,
+                                 started)
 
     sbs_magnification, phenotype_magnification = magnifications
     scale: Optional[float] = None
@@ -1746,6 +1750,93 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
     }
     _say(f"{well} phenotype: {len(mapping)} of {len(predicted)} fields placed "
          f"on {report['sbs_tiles_used']} tiles from {len(anchors)} anchors, "
+         f"{report['seconds']} s")
+    return report
+
+
+def _phenotype_seeded(db: str, plate: str, well: str, sources, sites,
+                      fields: int, placements, sbs_centres, shape,
+                      settings: Mapping[str, Any], started: float
+                      ) -> Dict[str, Any]:
+    """Place the phenotype fields from a phenotype placement seed (item 940).
+
+    The raster, scale and rotation come from ``ops_ph_placement_seed``
+    (:func:`spacr.stitch_core.load_phenotype_placement_seed`), moved onto
+    this run's stitch by :func:`spacr.stitch_core.phenotype_raster_from_seed`.
+    No anchor is searched for or aligned, so a run on a few fields of the
+    well's rim places them as the whole-well run did. One readable field's
+    size is checked against the seed's.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param sources: ``phenotype site -> nuclear plane source``.
+    :param sites: the phenotype sites with a nuclear plane.
+    :param fields: the phenotype layout's field count.
+    :param placements: ``sequencing site -> (y, x)`` of this run's stitch.
+    :param sbs_centres: ``sequencing site -> (y, x)`` tile centres.
+    :param shape: the sequencing tile ``(height, width)``.
+    :param settings: read for ``ops_ph_placement_seed``.
+    :param started: when the phase started.
+    :returns: the phenotype report, marked ``placement: seeded``.
+    :raises ValueError: when the seed does not belong to this run or its
+        field size differs from this run's fields.
+    """
+    import pandas as pd
+
+    from .ops_phenotype import _nearest_tiles
+    from .stitch_core import (load_phenotype_placement_seed,
+                              phenotype_raster_from_seed)
+
+    seed = load_phenotype_placement_seed(settings.get("ops_ph_placement_seed"))
+    placed = phenotype_raster_from_seed(seed, placements, plate=plate,
+                                        well=well, fields=fields)
+    unreadable: list = []
+    for site in sites:
+        plane = _read_plane(sources[site], unreadable)
+        if plane is None:
+            continue
+        if tuple(plane.shape[:2]) != placed["field_shape"]:
+            raise ValueError(
+                f"phenotype field {site} of well {well} is "
+                f"{plane.shape[0]} x {plane.shape[1]} px; the phenotype "
+                f"placement seed describes {placed['field_shape'][0]} x "
+                f"{placed['field_shape'][1]} px fields")
+        break
+    predicted = placed["centres"]
+    mapping = _nearest_tiles(predicted, sbs_centres, float(shape[0]),
+                             float(shape[1]))
+    frame = pd.DataFrame([{
+        "plate": plate, "well": well, "site": site,
+        "centre_y": centre[0], "centre_x": centre[1],
+        "sbs_site": int(mapping.get(site, -1)), "is_anchor": 0, "inliers": 0,
+        "alignment_residual_px": float("nan"),
+        "raster_residual_px": float("nan"),
+    } for site, centre in sorted(predicted.items())],
+        columns=["plate", "well", "site", "centre_y", "centre_x", "sbs_site",
+                 "is_anchor", "inliers", "alignment_residual_px",
+                 "raster_residual_px"])
+    frame = _ph_transform_columns(frame, placed["scale"],
+                                  placed["rotation_deg"], placed["field_shape"])
+    frame["transform_source"] = "seed"
+    _replace_well_rows(db, "ops_phenotype", frame, plate, well)
+    report = {
+        "placement": "seeded", "seed_file": seed["path"],
+        "seed_sha256": seed["sha256"],
+        "seed_reference_tiles": placed["reference_tiles"],
+        "seed_offset_px": [round(v, 6) for v in placed["offset"]],
+        "fields": len(predicted), "tiles_found": len(sites),
+        "anchors_tried": 0, "anchors_used": 0, "anchors": [],
+        "expected_scale": placed["scale"],
+        "fields_mapped": len(mapping),
+        "fields_off_the_stitch": len(predicted) - len(mapping),
+        "sbs_tiles_used": len(set(mapping.values())),
+        "ops_phenotype_rows": int(len(frame)),
+        "unreadable": unreadable,
+        "seconds": round(time.perf_counter() - started, 1),
+    }
+    _say(f"{well} phenotype: {len(mapping)} of {len(predicted)} fields placed "
+         f"on {report['sbs_tiles_used']} tiles from the placement seed, "
          f"{report['seconds']} s")
     return report
 

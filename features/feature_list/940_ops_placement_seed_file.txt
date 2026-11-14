@@ -48,12 +48,12 @@ left out of identity checks). Solved runs report placement: solved and the
 path of the file they wrote.
 
 NOT BUILT HERE
-Phenotype seeding from tile groups (spec test 3: the file format carries
-tile_groups and validation refuses tile_affine without them, but the
-phenotype/merge phases do not read a seed yet); recording the seed sha in
+Phenotype seeding from the tile_groups of a 'phenotype' placement file
+(the file format carries tile_groups and validation refuses tile_affine
+without them; spec test 3 is completed by the phenotype raster seed below);
+recording the seed sha in
 the run journal and cli_repro refusing a changed seed (spec test 7; the
-well report carries the sha256); the end-to-end test-data run (test 9,
-waits for the A1 subset); the GUI fold (the settings show in the OPS panel
+well report carries the sha256); the GUI fold (the settings show in the OPS panel
 through the generic form, alpha).
 
 PROOF (plate A well A1)
@@ -79,3 +79,63 @@ messages; corrupt, newer and foreign files refused; another spaCR version
 warns; the pixel check catches a tile 5 px off and passes a right file
 without moving anything; measurements.db as a seed; export off writes
 nothing; old stamped settings keep export off.
+
+END-TO-END TEST DATA (spec test 9, 2026-11-13)
+The published A1 subset, einarolafsson/spacr-example-ops-e2e at revision
+4e45cdc1ae (Funk et al. 2022 plate A well A1: SBS tiles 321, 322, 331, 332
+with all 11 cycles; phenotype fields 1255, 1264, 1280). spacr/example_archives.py
+registers the core tier as the example set 'ops_e2e' (ops_testdata_funk2022_A1_core.tar,
+about 194 MB, SHA-256 and revision pinned, folder ~/.cache/spacr/example_data/ops_e2e,
+not in the default download) and the full tier as the opt-in archive
+OPS_E2E_FULL_ARCHIVE (ops_testdata_funk2022_A1_full.tar, 1.25 GB, pinned the
+same way, folder ops_e2e_full; EXAMPLE_OPT_IN_ARCHIVES lists it). The
+fixtures ops_e2e_core and ops_e2e_full (tests/conftest.py) use a cached tier
+without any request, skip only when huggingface.co is unreachable or answers
+with a server error, and fail on a checksum mismatch.
+tests/test_ops_e2e_testdata.py (network-marked, so no hosted CI selection runs
+it): core tier reader and layout (4 tiles x 11 cycles, 3 fields, 333 and 1281
+field layouts) and stitch against reference/stitch with both shipped settings
+files (tile_affine and similarity: placements within 1e-6 px, 4 of 4 edges,
+composite window md5 or max |difference| <= 1e-3), seconds; the objects
+phase against reference/objects only with SPACR_OPS_E2E_SEGMENT=1 (about 40
+min of Cellpose on a CPU; exact on the references' torch/cellpose lock,
+count within 0.5 % otherwise); the full-tier decode only with
+SPACR_OPS_E2E_FULL=1, on the reference nuclei, against
+reference/genotype/ops_barcodes exactly and gate (c) (>= 99 % same guide
+where both called, nuclei > 100 px from the subset edge; production calls
+rebuilt from provenance_call_differences.parquet). The seeded phenotype ->
+merge comparison skips with its reason until its references are published.
+
+PHENOTYPE RASTER SEED (2026-11-13, part 2; completes spec test 3)
+2026-11-13: phenotype raster seeding from the published
+spacr.ops_ph_placement_seed v1 file (frame 'sbs_tile_anchored', as shipped in
+reference/inputs/ops_ph_placement_seed.json of the A1 test data, read exactly
+as published) completes 940's spec test 3. New alpha setting
+ops_ph_placement_seed (None by default, so behaviour is unchanged and no
+DEFAULT_CHANGES row): with it the phenotype phase searches and aligns no
+anchor fields; spacr.stitch_core.load_phenotype_placement_seed reads and
+checks the file (schema, version 1, required keys, frame kind) and
+spacr.stitch_core.phenotype_raster_from_seed (public, for item 935's live
+mode) moves its raster onto this run's stitch by the mean, over the file's
+reference_tiles this run placed, of (this run's placement - the stored
+placement), then predicts every field's centre; the file's scale, rotation
+and field shape are used as stored and one readable field's size is checked.
+ops_phenotype rows carry transform_source 'seed'; the report says
+placement: seeded with the seed's path, sha256, reference tiles and offset.
+A second key instead of ops_placement_seed dispatching on schema, because
+one run needs both: a subset run solves (or seeds) the sequencing stitch
+through ops_placement_seed (folder and measurements.db forms, 'subset' and
+'strict' modes and the seam check are sequencing-tile rules) while the
+phenotype phase takes the raster file, and live mode (935) seeds both at
+once. Mismatches refused with their messages: another schema (including an
+spacr.ops_placement file), another version, a missing key, another frame,
+another plate or well, another field count, no reference tile placed,
+another field size.
+Proof (core tier, seeded): fields 1255 and 1264 get production's
+field_transform (spacr.ops_merge.field_transform of the file's centres) to
+within 1e-6 px after the reported offset is taken off, on their production
+sequencing tiles; 18 of 1,281 fields land on the 2 x 2 stitch. Without the
+seed the core tier still refuses ("0 of 0 phenotype fields aligned").
+Tests: tests/test_ops_ph_placement_seed_940.py. The would-be phenotype and
+merge references of both tiers (similarity and tile_affine) are built
+locally, not published.
