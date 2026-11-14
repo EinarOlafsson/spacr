@@ -241,18 +241,6 @@ def test_a_mask_no_field_claims_is_a_warning_not_a_failure(tmp_path):
     assert sorted(plan.masks["cell"]) == plan.stems
 
 
-def test_two_masks_for_one_field_is_a_blocking_error(tmp_path):
-    """spaCR will not silently pick one of two cell masks for a field."""
-    images, cells = _two_fields(tmp_path)
-    _write(cells / "fov001_cell_labels.tif",
-           np.zeros((32, 32), dtype=np.uint16))
-
-    plan = em.plan_external_masks(_settings(tmp_path, images, cells))
-
-    assert not plan.ok
-    assert any("both map to" in message for message in plan.errors)
-
-
 def test_the_preview_lists_channels_masks_warnings_and_problems(tmp_path):
     """The summary is what the user reads before agreeing to the import."""
     images, cells = _two_fields(tmp_path)
@@ -341,20 +329,6 @@ def test_an_image_group_with_nothing_selected_has_no_channels(tmp_path):
 
     assert plan.n_channels == 0
     assert "No readable intensity channels were detected." in plan.errors
-
-
-def test_an_existing_measurements_database_is_never_replaced(tmp_path):
-    """Re-running into the same folder would destroy earlier measurements."""
-    images, cells = _one_field(tmp_path)
-    existing = tmp_path / "project" / "measurements" / "measurements.db"
-    existing.parent.mkdir(parents=True)
-    existing.write_bytes(b"")
-
-    plan = em.plan_external_masks(_settings(tmp_path, images, cells))
-
-    assert not plan.ok
-    assert any("already has measurements/measurements.db" in message
-               for message in plan.errors)
 
 
 def test_an_image_group_contributes_no_masks(tmp_path):
@@ -659,18 +633,6 @@ def test_a_mask_beside_its_images_pairs_on_the_normalised_name(tmp_path):
         "normalised"}
 
 
-def test_a_field_with_no_mask_at_all_is_a_blocking_error(tmp_path):
-    """Importing a field whose objects were never segmented measures nothing."""
-    images, cells = _two_fields(tmp_path)
-    (cells / "fov002_cell_mask.tif").unlink()
-
-    plan = em.plan_external_masks(_settings(tmp_path, images, cells))
-
-    assert not plan.ok
-    assert any("intensity field(s) have no matching mask" in message
-               for message in plan.errors)
-
-
 def test_a_float_image_holding_whole_numbers_is_accepted(tmp_path):
     """Float dtype is not the fault; a fractional VALUE is.
 
@@ -708,3 +670,73 @@ def test_a_float_image_of_whole_numbers_still_has_to_fit_uint16(tmp_path):
 
     with pytest.raises(ConfigurationError, match="uint16"):
         em.run_external_masks(plan, settings)
+
+
+# --------------------------------------------------------------------------
+# A plan that cannot be carried out says why, and is not ok
+# --------------------------------------------------------------------------
+
+def _two_masks_for_one_field(tmp_path):
+    """spaCR will not silently pick one of two cell masks for a field."""
+    images, cells = _two_fields(tmp_path)
+    _write(cells / "fov001_cell_labels.tif",
+           np.zeros((32, 32), dtype=np.uint16))
+    return _settings(tmp_path, images, cells)
+
+
+def _a_measurements_database_already_there(tmp_path):
+    """Re-running into the same folder would destroy earlier measurements."""
+    images, cells = _one_field(tmp_path)
+    existing = tmp_path / "project" / "measurements" / "measurements.db"
+    existing.parent.mkdir(parents=True)
+    existing.write_bytes(b"")
+    return _settings(tmp_path, images, cells)
+
+
+def _a_field_with_no_mask_at_all(tmp_path):
+    """Importing a field whose objects were never segmented measures nothing."""
+    images, cells = _two_fields(tmp_path)
+    (cells / "fov002_cell_mask.tif").unlink()
+    return _settings(tmp_path, images, cells)
+
+
+def _a_mask_group_nobody_assigned_to_an_object(tmp_path):
+    images, cells = _one_field(tmp_path)
+    groups = em.detect_inputs([images, cells])
+    next(group for group in groups if group.role == "mask").object_type = None
+    return {"inputs": [group.to_dict() for group in groups],
+            "dst": str(tmp_path / "project"), "layout": "flat"}
+
+
+def _unprojected_z_planes_that_would_overwrite_a_field(tmp_path):
+    images, cells = _one_field(tmp_path)
+    gradient = np.arange(32 * 32, dtype=np.uint16).reshape(32, 32)
+    tifffile.imwrite(images / "volume_C3.tif",
+                     np.stack([gradient, gradient + 100]),
+                     photometric="minisblack", metadata={"axes": "ZYX"})
+    groups = em.detect_inputs([images, cells])
+    return {"inputs": [group.to_dict() for group in groups],
+            "dst": str(tmp_path / "project"), "layout": "flat",
+            "z_handling": "keep"}
+
+
+@pytest.mark.parametrize("prepare, said", [
+    pytest.param(_two_masks_for_one_field, "both map to",
+                 id="two_masks_for_one_field"),
+    pytest.param(_a_measurements_database_already_there,
+                 "already has measurements/measurements.db",
+                 id="existing_measurements_database_is_never_replaced"),
+    pytest.param(_a_field_with_no_mask_at_all,
+                 "intensity field(s) have no matching mask",
+                 id="field_with_no_mask"),
+    pytest.param(_a_mask_group_nobody_assigned_to_an_object, "choose whether",
+                 id="unassigned_mask_group"),
+    pytest.param(_unprojected_z_planes_that_would_overwrite_a_field,
+                 "Multiple time or Z planes", id="unprojected_z_planes"),
+])
+def test_a_plan_that_cannot_be_carried_out_is_blocked_with_its_reason(
+        tmp_path, prepare, said):
+    plan = em.plan_external_masks(prepare(tmp_path))
+
+    assert not plan.ok
+    assert any(said in message for message in plan.errors)
