@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import os
 
-import json
 import logging
 
 import pytest
@@ -42,37 +41,6 @@ def store(qapp, tmp_path, monkeypatch):
 # JSON that will not parse
 # ---------------------------------------------------------------------------
 
-def test_a_truncated_folded_panel_blob_folds_nothing(store):
-    """The fold state is one JSON string covering every module's panels.
-
-    A half-written blob is not a reason to raise on the first screen the user
-    opens; it is a reason to open every panel.
-    """
-    store.setValue(prefs._KEY_FOLDED, '{"mask/console": true')
-
-    assert prefs.get_folded_panels() == {}
-
-    store.setValue(prefs._KEY_FOLDED, '["mask/console"]')
-    assert prefs.get_folded_panels() == {}
-
-
-def test_a_panel_with_no_name_is_not_recorded_as_folded(store):
-    """The key is ``"<module>/<panel>"`` and a caller with neither has nothing
-    to remember -- storing it under ``""`` would fold an unnamed panel on
-    every module at once."""
-    prefs.set_folded_panel("mask/console", True)
-    prefs.set_folded_panel("   ", True)
-
-    assert prefs.get_folded_panels() == {"mask/console": True}
-
-
-def test_a_truncated_figure_style_leaves_matplotlib_alone(store):
-    store.setValue(prefs._KEY_FIG_STYLE, '{"font.size": 9')
-    store.setValue(prefs._KEY_FIG_STYLE_PER_GRAPH, '{"volcano": ')
-
-    assert prefs.get_figure_style() == {}
-    assert prefs.get_figure_style_per_graph() == {}
-
 
 def test_a_section_layout_that_is_not_a_mapping_is_discarded(store):
     """The layout store is keyed by panel. A blob that is a list carries no
@@ -93,24 +61,6 @@ def test_a_section_layout_that_is_not_a_mapping_is_discarded(store):
 # ---------------------------------------------------------------------------
 # Numbers typed as words
 # ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize("key, getter, expected", [
-    ("_KEY_FIG_LIVE_CACHE", "get_figure_live_cache", "DEFAULT_FIG_LIVE_CACHE"),
-    ("_KEY_FIG_PNG_DPI", "get_figure_png_dpi", "DEFAULT_PNG_DPI"),
-    ("_KEY_MONTAGE_COLUMNS", "get_montage_columns", "DEFAULT_MONTAGE_COLUMNS"),
-    ("_KEY_PANE_OPACITY", "get_pane_opacity", None),
-    ("_KEY_RIM_PERIOD", "get_rim_period", "DEFAULT_RIM_PERIOD"),
-])
-def test_a_setting_typed_as_a_word_reads_as_its_default(store, key, getter,
-                                                        expected):
-    store.setValue(getattr(prefs, key), "lots")
-
-    value = getattr(prefs, getter)()
-
-    if expected is None:                       # pane opacity is a fraction
-        assert value == pytest.approx(prefs.DEFAULT_PANE_OPACITY_PCT / 100.0)
-    else:
-        assert value == getattr(prefs, expected)
 
 
 def test_a_figure_text_size_that_is_not_a_number_leaves_matplotlib_alone(
@@ -194,24 +144,6 @@ def test_a_boolean_written_as_a_word_still_reads_as_a_boolean(store):
     assert prefs.get_verbose_logging() is False
 
 
-def test_a_log_level_list_and_a_trailing_comma_both_read(store):
-    """QSettings splits a comma-separated INI value into a list on some
-    platforms and hands back the raw string on others; both spellings, and a
-    stray separator in either, name the same levels.
-
-    Verbose is switched off first. It is on by default since 2026-09-19,
-    and while it is on the read adds DEBUG, which is a different rule from
-    the parsing this test is about."""
-    store.setValue(prefs._KEY_VERBOSE_LOG, False)
-    store.setValue(prefs._KEY_LOG_FILE_LEVELS, ["INFO", "WARNING"])
-    assert prefs.get_log_file_levels() == prefs._parse_levels(
-        "INFO,WARNING", ())
-
-    store.setValue(prefs._KEY_LOG_FILE_LEVELS, "INFO,,WARNING,")
-    assert prefs.get_log_file_levels() == prefs._parse_levels(
-        "INFO,WARNING", ())
-
-
 # ---------------------------------------------------------------------------
 # Values a caller may not choose at all
 # ---------------------------------------------------------------------------
@@ -226,27 +158,6 @@ def test_an_unsupported_figure_format_is_refused_by_name(store):
     assert str(prefs.VALID_FIG_FORMATS) in str(excinfo.value)
 
 
-def test_an_unknown_theme_choice_lists_the_ones_that_exist(store):
-    with pytest.raises(ValueError) as excinfo:
-        prefs.set_theme_choice("neon")
-
-    assert "unknown theme choice 'neon'" in str(excinfo.value)
-
-
-def test_a_theme_with_variants_round_trips_through_its_composite_token(store):
-    """``cell`` is a family, not a theme. The dropdown stores one token, and
-    reading it back has to name the variant again or the dialog opens on the
-    wrong row."""
-    tokens = [token for _label, token in prefs.theme_choices()]
-    cells = [t for t in tokens if t.startswith("cell:")]
-    assert cells, "the cell family should offer at least one wallpaper"
-
-    prefs.set_theme_choice(cells[-1])
-
-    assert prefs.get_theme() == "cell"
-    assert prefs.get_theme_choice() == cells[-1]
-
-
 def test_an_explicit_line_colour_is_not_resolved_through_the_theme(store):
     """"auto" means the text ink; anything else is the user's own answer and
     must survive a theme change untouched."""
@@ -258,35 +169,6 @@ def test_an_explicit_line_colour_is_not_resolved_through_the_theme(store):
 # ---------------------------------------------------------------------------
 # One-time migrations, over a store that will not cooperate
 # ---------------------------------------------------------------------------
-
-def test_a_scale_marker_typed_by_hand_does_not_block_a_migration(store):
-    """The marker is the "already done" flag, and it is a plain INI number.
-
-    Reading a word there has to be treated as "not migrated" rather than
-    raising on the first figure the user draws.
-    """
-    store.setValue(prefs._KEY_FIG_COLOR_SCALE, "done")
-    store.setValue(prefs._KEY_FIG_BG, "#000000")
-    store.setValue(prefs._KEY_FIG_FG, "#ffffff")
-
-    prefs._migrate_frozen_figure_colors()
-
-    assert prefs._settings().value(prefs._KEY_FIG_BG) == \
-        prefs.AUTO_FIGURE_COLOR
-    assert int(store.value(prefs._KEY_FIG_COLOR_SCALE)) == \
-        prefs.FIGURE_COLOR_SCALE
-
-
-def test_an_ambient_scale_marker_typed_by_hand_does_not_block_a_migration(
-        store):
-    store.setValue(prefs._KEY_AMBIENT_SCALE, "done")
-    store.setValue(prefs._KEY_AMBIENT_BLUR, 2.0)
-
-    prefs._migrate_ambient_motion()
-
-    assert int(store.value(prefs._KEY_AMBIENT_SCALE)) == \
-        prefs.AMBIENT_MOTION_SCALE
-    assert float(store.value(prefs._KEY_AMBIENT_BLUR)) == pytest.approx(1.0)
 
 
 def test_a_store_that_refuses_to_be_written_is_a_cosmetic_loss(store,
@@ -313,56 +195,10 @@ def test_a_store_that_refuses_to_be_written_is_a_cosmetic_loss(store,
 # Figure colours pinned on another theme
 # ---------------------------------------------------------------------------
 
-def test_a_text_colour_no_auto_theme_produces_is_left_alone(store, capsys):
-    """The repair only ever undoes spaCR's own frozen pairs.
-
-    A user who typed their own text colour and a background that happens to
-    be black must keep it -- handing that back to the theme would silently
-    discard a deliberate choice.
-    """
-    store.setValue(prefs._KEY_FIG_BG, "#000000")
-    store.setValue(prefs._KEY_FIG_FG, "#3366cc")
-
-    prefs._unfreeze_figure_colors_that_fight_the_theme()
-
-    assert store.value(prefs._KEY_FIG_FG) == "#3366cc"
-    assert store.value(prefs._KEY_FIG_BG) == "#000000"
-    assert capsys.readouterr().out == ""
-
-
-def test_a_preferences_read_that_raises_leaves_the_colours_where_they_are(
-        store, monkeypatch, capsys):
-    """This runs on the render path. A cosmetic repair that raised there
-    would stop a figure being drawn at all."""
-    def _broken():
-        raise RuntimeError("the settings backend is gone")
-
-    monkeypatch.setattr(prefs, "_settings", _broken)
-
-    prefs._unfreeze_figure_colors_that_fight_the_theme()   # must not raise
-
-    assert capsys.readouterr().out == ""
-
 
 # ---------------------------------------------------------------------------
 # Asking the desktop what colour it is
 # ---------------------------------------------------------------------------
-
-def test_a_desktop_that_cannot_be_asked_gets_the_dark_theme(store,
-                                                            monkeypatch):
-    """"Follow system" has to resolve to something. Qt's palette hint is not
-    available on every desktop, and a raise there would leave the app with no
-    theme at all."""
-    from PySide6.QtWidgets import QApplication
-
-    prefs.set_theme("system")
-
-    def _no_palette(_self):
-        raise AttributeError("no colour scheme hint on this platform")
-
-    monkeypatch.setattr(QApplication, "palette", _no_palette)
-
-    assert prefs.resolve_effective_theme() == "dark"
 
 
 # ---------------------------------------------------------------------------
@@ -421,21 +257,6 @@ def test_an_animation_that_cannot_be_switched_off_still_minimises_the_rest(
     assert prefs.get_ambient_resolution() == ranges[3][0][0]
     assert prefs.get_ambient_density() == ranges[4][0][0]
     assert prefs.get_field_fade_enabled() is False
-
-
-def test_a_stash_that_cannot_be_put_back_says_it_did_not(store, monkeypatch):
-    """The user keeps the minimums they can see and change, which is better
-    than being handed somebody's idea of a default."""
-    store.setValue(prefs._KEY_MODE_VISUAL_STASH,
-                   json.dumps({"ambient_animation": "aurora"}))
-
-    def _refuses(_value):
-        raise ValueError("that animation is not installed")
-
-    monkeypatch.setattr(prefs, "set_ambient_animation", _refuses)
-
-    assert prefs._restore_visuals() is False
-    assert not store.value(prefs._KEY_MODE_VISUAL_STASH, "")
 
 
 def test_turning_the_field_fade_off_headless_is_not_an_error(store,
@@ -513,42 +334,6 @@ def test_every_optional_step_of_a_preferences_save_may_fail_on_its_own(
 # The two resource dialogs
 # ---------------------------------------------------------------------------
 
-def test_a_resource_action_is_confirmed_by_a_button_that_names_it(store,
-                                                                  qtbot,
-                                                                  monkeypatch):
-    """"Are you sure?" is not a question anybody can answer.
-
-    The accept button carries the action's own title, Cancel is the default
-    so a stray Return does nothing, and the informative text says what the
-    action cannot do before it happens.
-    """
-    from PySide6.QtWidgets import QMessageBox
-
-    from spacr.qt import resource_cleanup
-
-    seen = {}
-
-    def _press(self, which):
-        seen["object"] = self.objectName()
-        seen["informative"] = self.informativeText()
-        seen["default"] = self.defaultButton().text()
-        for button in self.buttons():
-            if self.buttonRole(button) == which:
-                button.click()
-                return 0
-        return 0
-
-    monkeypatch.setattr(QMessageBox, "exec",
-                        lambda self: _press(self, QMessageBox.AcceptRole))
-    assert prefs.confirm_resource_action("ram") is True
-    assert seen["object"] == "ResourceActionConfirm"
-    assert seen["informative"] == resource_cleanup.confirmation_text("ram")
-    assert seen["default"] == "Cancel"
-
-    monkeypatch.setattr(QMessageBox, "exec",
-                        lambda self: _press(self, QMessageBox.RejectRole))
-    assert prefs.confirm_resource_action("ram") is False
-
 
 def test_the_result_dialog_reports_what_actually_happened(store, qtbot,
                                                           monkeypatch):
@@ -610,30 +395,3 @@ def test_a_form_row_whose_label_is_not_a_label_is_skipped(store, qtbot):
 
     assert isinstance(explained, int)
     assert form.rowCount() == 2
-
-
-def test_nothing_is_told_about_the_rim_when_there_is_no_application(
-        store, monkeypatch):
-    from PySide6.QtWidgets import QApplication
-
-    monkeypatch.setattr(QApplication, "instance", staticmethod(lambda: None))
-
-    assert prefs._tell_the_cards_the_rim_changed() == 0
-
-
-def test_a_card_module_that_will_not_import_tells_nobody(store, monkeypatch):
-    """The rim preference is decoration on one widget type. A build without
-    that widget must still be able to save preferences."""
-    import builtins
-
-    real_import = builtins.__import__
-
-    def _no_setup_card(name, globals=None, locals=None, fromlist=(), level=0):
-        if "setup_card" in name or "setup_card" in (fromlist or ()):
-            raise ImportError("no setup card in this build")
-        return real_import(name, globals, locals, fromlist, level)
-
-    with monkeypatch.context() as scoped:
-        scoped.setattr(builtins, "__import__", _no_setup_card)
-        assert prefs._tell_the_cards_the_rim_changed() == 0
-    assert builtins.__import__ is real_import

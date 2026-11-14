@@ -230,8 +230,6 @@ PARTIAL_SIGNATURE_RATCHET = {
     ("test_coverage_fill_cellpose_gpu_funcs.py", "_FakeModel"): 1,
     ("test_coverage_fill_cellpose_gpu_funcs.py", "_BadEvalModel"): 1,
     ("test_coverage_fill_pipeline_v2.py", "_FakeModel"): 1,
-    ("test_coverage_fill_pipeline_v2.py", "_CaptureModel"): 1,
-    ("test_coverage_fill_pipeline_v2.py", "_ListModel"): 1,
     ("test_zstack.py", "_M"): 1,
     # THE ONE DOUBLE THAT MUST KEEP **kwargs, because the defect it pins is
     # about a signature CONTAINING a VAR_KEYWORD parameter. The caller
@@ -260,7 +258,7 @@ PARTIAL_SIGNATURE_RATCHET = {
 }
 
 #: Total partial ``eval`` methods above, not keys.
-PARTIAL_SIGNATURE_CEILING = 13
+PARTIAL_SIGNATURE_CEILING = 11
 
 
 def _eval_doubles():

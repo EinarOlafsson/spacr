@@ -231,6 +231,17 @@ def test_a_panel_anchored_off_every_screen_still_lands_somewhere(panel,
     assert panel.x() >= available.left()
 
 
+def test_a_panel_anchored_far_above_every_screen_is_clamped_vertically(panel,
+                                                                       qapp):
+    """The dock is clamped to the screen on y as well as on x."""
+    anchor = QWidget()
+    panel.show_for(anchor, [_entry()],
+                   anchor_rect=QRect(-100000, -100000, 10, 10), immediate=True)
+    available = QGuiApplication.primaryScreen().availableGeometry()
+    assert panel.y() >= available.top()
+    assert panel.y() + panel.sizeHint().height() <= available.bottom() + 1
+
+
 # ---------------------------------------------------------------------------
 # staying alive across the gap
 # ---------------------------------------------------------------------------

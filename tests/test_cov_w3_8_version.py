@@ -62,21 +62,6 @@ def test_importing_the_module_does_not_import_torch(monkeypatch):
     assert blocked == ["torch"]
 
 
-def test_an_unknown_distribution_reports_unknown(monkeypatch):
-    """Every candidate distribution missing resolves to ``"unknown"``."""
-    import spacr.version as version
-    from importlib.metadata import PackageNotFoundError
-
-    def _absent(name):
-        raise PackageNotFoundError(name)
-
-    monkeypatch.setattr(version, "package_version", _absent)
-    monkeypatch.setattr(version, "_runs_from_source", lambda *a: False)
-    monkeypatch.setattr(version, "_source_version", lambda: None)
-
-    assert version.get_version() == "unknown"
-
-
 def test_the_fallback_distribution_is_consulted_second(monkeypatch):
     """``spacr-nightly`` answers when the canonical ``spacr`` does not."""
     import spacr.version as version

@@ -8617,6 +8617,14 @@ class AppScreen(QWidget):
         self._progress.setVisible(False)
         self._progress.setFixedWidth(240)
         status_row.addWidget(self._progress)
+        self._progress_eta = QLabel()
+        self._progress_eta.setObjectName("RunTimeLeft")
+        self._progress_eta.setVisible(False)
+        status_row.addWidget(self._progress_eta)
+        self._progress_handle = None
+        self._progress_timer = QTimer(self)
+        self._progress_timer.setInterval(1000)
+        self._progress_timer.timeout.connect(self._refresh_run_progress)
         self._gpu_progress = QLabel()
         self._gpu_progress.setObjectName("MaskGpuProgress")
         self._gpu_progress.setVisible(False)
@@ -9715,6 +9723,7 @@ class AppScreen(QWidget):
         self._watch_for_refusals()
         self._thread, worker = make_thread(entry, settings)
         self._worker = worker
+        self._follow_run_progress(worker)
         worker.line_ready.connect(self._console._display_stdout)
         worker.line_ready.connect(self._show_mask_gpu_progress)
         worker.line_ready.connect(self._show_watch_progress)
@@ -10040,6 +10049,61 @@ class AppScreen(QWidget):
             timer.timeout.connect(self._on_heartbeat)
             self._heartbeat = timer
         timer.start()
+
+    def _follow_run_progress(self, worker) -> None:
+        """Show the run's percent and time left on the module bar.
+
+        Reads the same run handle the Home banner reads, through
+        :func:`spacr.qt.run_progress.describe_progress`, so both show the
+        same numbers. Refreshed on every progress line and once a second, so
+        the time left counts down between lines.
+
+        :param worker: the pipeline worker :func:`make_thread` just made.
+        """
+        from ..bridge import registry
+        from ..run_progress import show_on_bar
+
+        self._progress_handle = next(
+            (handle for handle in registry().active()
+             if getattr(handle, "worker", None) is worker), None)
+        show_on_bar(self._progress, None)
+        self._progress_eta.clear()
+        self._progress_eta.setVisible(False)
+        if self._progress_handle is None:
+            return
+        self._progress_handle.changed.connect(self._refresh_run_progress)
+        self._progress_timer.start()
+
+    def _refresh_run_progress(self) -> None:
+        """Re-read the followed run's percent and time left."""
+        handle = getattr(self, "_progress_handle", None)
+        if handle is None:
+            return
+        from ..run_progress import describe_progress, show_on_bar
+
+        percent, time_left = describe_progress(handle)
+        show_on_bar(self._progress, percent)
+        self._progress_eta.setText(time_left)
+        self._progress_eta.setVisible(bool(time_left))
+
+    def _stop_following_run_progress(self) -> None:
+        """Stop the once-a-second refresh and put the bar back to busy."""
+        timer = getattr(self, "_progress_timer", None)
+        if timer is not None:
+            timer.stop()
+        handle = getattr(self, "_progress_handle", None)
+        self._progress_handle = None
+        if handle is not None:
+            try:
+                handle.changed.disconnect(self._refresh_run_progress)
+            except (RuntimeError, TypeError):
+                pass
+        label = getattr(self, "_progress_eta", None)
+        if label is not None:
+            label.clear()
+            label.setVisible(False)
+        from ..run_progress import show_on_bar
+        show_on_bar(self._progress, None)
 
     def _stop_the_heartbeat(self) -> None:
         """The run is over: stop talking about it."""
@@ -11654,6 +11718,7 @@ class AppScreen(QWidget):
         set_button_busy(self._btn_run, False)
         set_button_busy(self._btn_stop, False)
         self._progress.setVisible(False)
+        self._stop_following_run_progress()
         cancelled = bool(
             getattr(getattr(self, "_worker", None), "was_cancelled", False))
         refusals = self._stop_watching_refusals()

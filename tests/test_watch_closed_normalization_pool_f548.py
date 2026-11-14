@@ -224,34 +224,6 @@ def test_changed_pool_provenance_refuses_resume_without_writing(tmp_path, change
     assert recorder.calls == []
 
 
-@pytest.mark.parametrize('extra', (
-    {'watch_normalization_pool': 'unknown'}, {'randomize': True},
-    {'batch_size': 1}, {'batch_size': 2.5}, {'batch_size': True},
-    {'pipeline_style': 'v2'}, {'timelapse': True},
-    {'watch_pipeline': 'mask_measure_classify'},
-))
-def test_unsupported_cohort_recipes_refuse_before_workspace(tmp_path, extra):
-    _, watched, _ = _acquisition(tmp_path)
-    settings = _settings(watched)
-    settings.update(extra)
-    with pytest.raises(ValueError):
-        core._watch_folder_and_analyse(settings, CohortRecorder())
-    assert not (watched / 'spacr_watch').exists()
-
-
-def test_open_ended_and_unexpected_input_pools_are_refused(tmp_path):
-    source, watched, rows = _acquisition(tmp_path)
-    mapping = watched / convert.MAP_FILENAME
-    mapping.unlink()
-    with pytest.raises(ValueError, match='finite.*conversion_map'):
-        core._watch_folder_and_analyse(_settings(watched), CohortRecorder())
-    shutil.copy2(source / convert.MAP_FILENAME, mapping)
-    tifffile.imwrite(watched / 'unexpected.tif', np.ones((16, 16), dtype=np.uint16))
-    with pytest.raises(ValueError, match='unexpected or duplicate'):
-        core._watch_folder_and_analyse(_settings(watched), CohortRecorder())
-    assert not (watched / 'spacr_watch').exists()
-
-
 def test_cohort_checkpoint_completes_field_aliases_after_process_exit(tmp_path):
     source, watched, rows = _acquisition(tmp_path)
     _arrive(source, watched, rows)
@@ -411,12 +383,48 @@ def test_ambiguous_legacy_stack_identity_is_refused(tmp_path, kind):
         core._watch_closed_pool_spec(settings, manifest, 'maphash', 'maskhash')
 
 
-def test_duplicate_declared_filename_in_nested_folder_is_refused(tmp_path):
-    source, watched, rows = _acquisition(tmp_path)
+
+
+def _no_conversion_map(source, watched, rows):
+    (watched / convert.MAP_FILENAME).unlink()
+
+
+def _an_unexpected_image(source, watched, rows):
+    tifffile.imwrite(watched / 'unexpected.tif', np.ones((16, 16), dtype=np.uint16))
+
+
+def _a_declared_filename_repeated_in_a_nested_folder(source, watched, rows):
     _arrive(source, watched, rows)
     nested = watched / 'nested'
     nested.mkdir()
     shutil.copy2(source / rows[0]['target'], nested / rows[0]['target'])
-    with pytest.raises(ValueError, match='unexpected or duplicate'):
-        core._watch_folder_and_analyse(_settings(watched), CohortRecorder())
+
+
+@pytest.mark.parametrize('prepare, extra, said', [
+    *[pytest.param(None, extra, '', id=name) for name, extra in (
+        ('unknown-pool', {'watch_normalization_pool': 'unknown'}),
+        ('randomize', {'randomize': True}),
+        ('batch-size-one', {'batch_size': 1}),
+        ('fractional-batch-size', {'batch_size': 2.5}),
+        ('boolean-batch-size', {'batch_size': True}),
+        ('pipeline-style-v2', {'pipeline_style': 'v2'}),
+        ('timelapse', {'timelapse': True}),
+        ('measure-pipeline', {'watch_pipeline': 'mask_measure_classify'}),
+    )],
+    pytest.param(_no_conversion_map, {}, 'finite.*conversion_map',
+                 id='open-ended-pool-without-a-map'),
+    pytest.param(_an_unexpected_image, {}, 'unexpected or duplicate',
+                 id='unexpected-input'),
+    pytest.param(_a_declared_filename_repeated_in_a_nested_folder, {},
+                 'unexpected or duplicate', id='duplicate-in-a-nested-folder'),
+])
+def test_a_pool_that_cannot_be_closed_is_refused_before_the_workspace_exists(
+        tmp_path, prepare, extra, said):
+    source, watched, rows = _acquisition(tmp_path)
+    if prepare is not None:
+        prepare(source, watched, rows)
+    settings = _settings(watched)
+    settings.update(extra)
+    with pytest.raises(ValueError, match=said):
+        core._watch_folder_and_analyse(settings, CohortRecorder())
     assert not (watched / 'spacr_watch').exists()

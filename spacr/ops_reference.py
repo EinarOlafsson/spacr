@@ -589,15 +589,88 @@ def embed_gene_profiles(values, variance: float = 0.99, seed: int = 0) -> np.nda
     :param seed: the PCA seed.
     :returns: rows by components, double precision.
     """
-    from sklearn.decomposition import PCA
+    return _GeneEmbedding(values, variance, seed).rows
 
-    x = np.asarray(values, dtype=float)
-    x = np.where(np.isfinite(x), x, np.nan)
-    x = x[:, np.isnan(x).mean(axis=0) < 0.05]
-    x = np.where(np.isnan(x), np.nanmedian(x, axis=0), x)
-    spread = x.std(axis=0)
-    x = (x[:, spread > 0] - x[:, spread > 0].mean(axis=0)) / spread[spread > 0]
-    return PCA(n_components=variance, random_state=seed).fit_transform(x)
+
+class _GeneEmbedding:
+    """The gene-level embedding of :func:`embed_gene_profiles`, kept so other rows can be put in it.
+
+    Fitted on the gene rows exactly as :func:`embed_gene_profiles` embeds
+    them; :meth:`transform` then sends rows of the same columns (the guide
+    rows) through the same column screen, fill values, centring, scaling and
+    PCA, as the plate A Hybrid profile's harness does.
+    """
+
+    def __init__(self, values, variance: float = 0.99, seed: int = 0):
+        """Fit the embedding on ``values`` (rows by features) and keep the fitted rows as ``rows``."""
+        from sklearn.decomposition import PCA
+
+        x = np.asarray(values, dtype=float)
+        x = np.where(np.isfinite(x), x, np.nan)
+        self.keep = np.isnan(x).mean(axis=0) < 0.05
+        x = x[:, self.keep]
+        self.fill = np.nanmedian(x, axis=0)
+        x = np.where(np.isnan(x), self.fill, x)
+        spread = x.std(axis=0)
+        self.varying = spread > 0
+        self.mean, self.spread = x[:, self.varying].mean(axis=0), spread[self.varying]
+        self.pca = PCA(n_components=variance, random_state=seed)
+        self.rows = self.pca.fit_transform((x[:, self.varying] - self.mean) / self.spread)
+
+    def transform(self, values) -> np.ndarray:
+        """Rows of the fitted columns in the fitted components, double precision."""
+        x = np.asarray(values, dtype=float)[:, self.keep]
+        x = np.where(np.isfinite(x), x, self.fill)
+        return self.pca.transform((x[:, self.varying] - self.mean) / self.spread)
+
+
+def hybrid_profile_rows(genes: pd.DataFrame, guides: Optional[pd.DataFrame] = None,
+                        columns: Optional[Sequence[str]] = None, *, variance: float = 0.99, seed: int = 0
+                        ) -> Tuple[pd.DataFrame, Optional[pd.DataFrame]]:
+    """The Hybrid gene profile and its guide rows in one fitted gene-level space.
+
+    The Hybrid profile of the OPS profile path is the Brieflow cell recipe's
+    gene table (:func:`spacr.ops_tvn.profile_cell_tables` with the
+    ``brieflow`` recipe) embedded at the gene level: columns with 5 % or more
+    missing values are dropped, other gaps take the column median, constant
+    columns are dropped, the rest are standardised and a PCA keeping
+    ``variance`` of the variance is fitted on the gene rows
+    (:func:`embed_gene_profiles`). The guide rows go through that same
+    fitted transform, so a guide bootstrap
+    (:func:`spacr.ops_clusters.guide_bootstrap_profiles`) moves a gene within
+    the space it is clustered in, without refitting the embedding per draw.
+
+    :param genes: the gene table: ``gene``, ``n_cells`` and the profile
+        columns; every row is embedded (filter on ``n_cells`` first).
+    :param guides: the guide table with the same columns (``guide``,
+        ``gene``, ``n_cells``), or None.
+    :param columns: the profile columns; the ``PC_*`` (or ``w_*``) columns
+        of ``genes`` when None.
+    :param variance: the share of variance the PCA keeps.
+    :param seed: the PCA seed.
+    :returns: ``(rows, guide_rows)``: ``rows`` has ``gene``, ``n_cells`` and
+        ``E_0``, ``E_1``, ... in the order of ``genes``; ``guide_rows`` has
+        the guide table's other columns with the same ``E_*`` columns, or is
+        None without ``guides``.
+    :raises ValueError: when a profile column is missing from ``guides``.
+    """
+    if columns is None:
+        columns = [c for c in genes.columns if str(c).startswith(("PC_", "w_"))]
+    columns = list(columns)
+    fitted = _GeneEmbedding(genes[columns].to_numpy(float), variance, seed)
+    names = [f"E_{j}" for j in range(fitted.rows.shape[1])]
+    rows = pd.DataFrame(fitted.rows, columns=names)
+    rows.insert(0, "n_cells", genes["n_cells"].to_numpy())
+    rows.insert(0, "gene", genes["gene"].to_numpy())
+    if guides is None:
+        return rows, None
+    missing = [c for c in columns if c not in guides.columns]
+    if missing:
+        raise ValueError(f"the guide table lacks the profile columns {missing[:5]}")
+    keep = [c for c in guides.columns if c not in columns and not str(c).startswith(("PC_", "w_"))]
+    guide_rows = pd.DataFrame(fitted.transform(guides[columns].to_numpy(float)), columns=names)
+    guide_rows = pd.concat([guides[keep].reset_index(drop=True), guide_rows], axis=1)
+    return rows, guide_rows
 
 
 def evaluation_options(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:

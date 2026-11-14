@@ -38,31 +38,25 @@ def _git_answers(monkeypatch, *, head, status):
     monkeypatch.setattr(run_journal.subprocess, "run", fake_run)
 
 
-def test_a_working_tree_with_edits_is_recorded_as_dirty(monkeypatch):
-    """Line 159 and arc 158 -> 159.
-
-    THE POINT OF THE WHOLE FUNCTION. A journal that recorded a bare commit
-    hash for a tree with uncommitted changes would send a future reader to
-    code that never ran -- and this repository's own working tree is dirty
-    most of the time, so the marker is the common case rather than the rare
-    one.
-    """
+@pytest.mark.parametrize("status, expected", [
+    # THE POINT OF THE WHOLE FUNCTION. A journal that recorded a bare commit
+    # hash for a tree with uncommitted changes would send a future reader to
+    # code that never ran -- and this repository's own working tree is dirty
+    # most of the time, so the marker is the common case rather than the
+    # rare one.
+    pytest.param(" M spacr/measure.py\n", "abc1234+dirty",
+                 id="edits-are-recorded-as-dirty"),
+    # The other side, so the marker above is visibly conditional.
+    pytest.param("\n", "abc1234", id="clean-is-the-bare-hash"),
+])
+def test_a_working_tree_is_recorded_as_dirty_only_when_it_has_edits(
+        monkeypatch, status, expected):
     from spacr.run_journal import _git_hash
 
-    _git_answers(monkeypatch,
-                 head=_Result("abc1234\n"),
-                 status=_Result(" M spacr/measure.py\n"))
+    _git_answers(monkeypatch, head=_Result("abc1234\n"),
+                 status=_Result(status))
 
-    assert _git_hash() == "abc1234+dirty"
-
-
-def test_a_clean_working_tree_is_recorded_as_the_bare_hash(monkeypatch):
-    """The other side, so the marker above is visibly conditional."""
-    from spacr.run_journal import _git_hash
-
-    _git_answers(monkeypatch, head=_Result("abc1234\n"), status=_Result("\n"))
-
-    assert _git_hash() == "abc1234"
+    assert _git_hash() == expected
 
 
 def test_a_tree_that_is_not_a_checkout_records_nothing(monkeypatch):

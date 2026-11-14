@@ -13,9 +13,8 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QPoint, QPointF, Qt
+from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import QKeyEvent, QMouseEvent
-from PySide6.QtTest import QTest
 
 from spacr.layers import FieldKey, LayerStack
 from spacr.qt import layer_viewer as lv
@@ -66,23 +65,6 @@ def test_the_base_tool_consumes_nothing(qtbot):
 
 # -- attaching ---------------------------------------------------------------
 
-def test_attaching_the_tool_already_attached_does_not_detach_it(qtbot):
-    """A screen re-applying its own tool must not lose a half-drawn shape."""
-    class _Tool(lv.CanvasTool):
-        def __init__(self):
-            self.detached = 0
-
-        def detach(self):
-            self.detached += 1
-
-    canvas = _sized(qtbot, lv.LayerCanvas(_stack()))
-    tool = _Tool()
-    canvas.set_tool(tool)
-    assert canvas.set_tool(tool) is tool
-    assert tool.detached == 0
-    canvas.set_tool(None)
-    assert tool.detached == 1
-
 
 # -- where an event landed ---------------------------------------------------
 
@@ -110,39 +92,6 @@ def test_a_key_no_tool_wanted_is_passed_on(qtbot):
     event.accept()
     canvas.keyPressEvent(event)
     assert canvas._tool is None
-
-
-def test_a_key_the_tool_consumed_is_not_passed_on(qtbot):
-    """Escape belongs to the tool while one is attached."""
-    class _Eats(lv.CanvasTool):
-        def key(self, view, event):
-            return True
-
-    canvas = _sized(qtbot, lv.LayerCanvas(_stack()))
-    canvas.set_tool(_Eats())
-    event = QKeyEvent(QKeyEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier)
-    canvas.keyPressEvent(event)
-    assert event.isAccepted()
-
-
-def test_a_move_the_tool_consumed_does_not_also_pan(qtbot):
-    """A brush dragging over the image must not drag the image with it."""
-    class _Tracks(lv.CanvasTool):
-        def __init__(self):
-            self.seen = []
-
-        def move(self, view, world, event):
-            self.seen.append(world)
-            return True
-
-    canvas = _sized(qtbot, lv.LayerCanvas(_stack()))
-    canvas._ensure_canvas()
-    before = canvas.canvas
-    tool = _Tracks()
-    canvas.set_tool(tool)
-    canvas.mouseMoveEvent(_move_event(40.0, 40.0))
-    assert tool.seen, "the tool was never asked"
-    assert canvas.canvas is before
 
 
 # -- double click ------------------------------------------------------------

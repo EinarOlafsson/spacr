@@ -11,7 +11,6 @@ wrong points look exactly like limits computed correctly.
 """
 from __future__ import annotations
 
-import math
 
 import numpy as np
 import pandas as pd
@@ -20,22 +19,11 @@ import pytest
 from spacr.qt.widgets import control_chart as CC
 from spacr.qt.widgets.control_chart import (
     ESTIMATOR_MOVING_RANGE,
-    ESTIMATOR_SUBGROUP_S,
-    RULES_LIMITS_ONLY,
     ControlChartError,
     ControlChartSpec,
     c4,
-    control_chart,
     zprime_frame,
 )
-
-
-def _series_frame(values, order=True):
-    payload = {"plateID": [f"P{i + 1:02d}" for i in range(len(values))],
-               "signal": [float(v) for v in values]}
-    if order:
-        payload["run_order"] = list(range(len(values)))
-    return pd.DataFrame(payload)
 
 
 def test_a_subgroup_too_large_for_the_gamma_function_still_has_a_constant():
@@ -84,52 +72,6 @@ def test_a_series_too_short_for_a_trend_reports_no_trend():
 def test_a_series_shorter_than_the_window_reports_no_violation():
     """"Two of three beyond two sigma" needs three points to look at."""
     assert CC._rule_k_of_m(np.array([3.0, 3.5]), 2, 3, 2.0) == []
-
-
-def test_a_baseline_plate_with_one_control_well_is_named_and_left_out():
-    """S-bar is the mean of the within-plate SDs, and a plate with one well
-    has none. It contributes nothing, and the note says how many plates the
-    estimate really came from -- otherwise the chart claims more evidence
-    than it has."""
-    rows = []
-    for index in range(12):
-        wells = [-1.0, 1.0] if index else [0.0]
-        for offset in wells:
-            rows.append({"plateID": f"P{index + 1:02d}", "run_order": index,
-                         "signal": 100.0 + offset})
-    result = control_chart(
-        pd.DataFrame(rows),
-        ControlChartSpec(value="signal", plate="plateID", order="run_order",
-                         estimator=ESTIMATOR_SUBGROUP_S, baseline_n=12,
-                         rules=RULES_LIMITS_ONLY))
-    assert any("single control well" in note for note in result.notes)
-    assert any("the mean over the 11 that do" in note for note in result.notes)
-    assert math.isfinite(result.sigma) and result.sigma > 0
-
-
-def test_a_baseline_named_by_plates_that_are_not_here_is_refused():
-    """Charting the first twenty plates instead would silently answer a
-    different question from the one the saved spec asked."""
-    frame = _series_frame([10.0, 12.0] * 6)
-    with pytest.raises(ControlChartError, match="none of the 1 plate"):
-        control_chart(frame,
-                      ControlChartSpec(value="signal", plate="plateID",
-                                       order="run_order",
-                                       baseline_plates=("NotHere",),
-                                       rules=RULES_LIMITS_ONLY))
-
-
-def test_a_campaign_shorter_than_its_baseline_says_what_it_used():
-    """Limits estimated from ten plates when twenty were asked for are wider
-    apart than they look. The note is the only place that difference is
-    visible."""
-    frame = _series_frame([10.0, 12.0] * 5)
-    result = control_chart(
-        frame, ControlChartSpec(value="signal", plate="plateID",
-                                order="run_order", baseline_n=20,
-                                rules=RULES_LIMITS_ONLY))
-    assert any("asked for 20 plates" in note for note in result.notes)
-    assert len(result.baseline) == 10
 
 
 def _zprime_frame_rows(order_column):

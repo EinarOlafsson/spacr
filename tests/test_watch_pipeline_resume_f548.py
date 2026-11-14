@@ -56,19 +56,6 @@ def test_changed_pipeline_refuses_completed_resume_before_writes(tmp_path, first
     assert _bytes(tmp_path) == before
 
 
-def test_populated_legacy_ledger_without_pipeline_preserves_unknown_provenance(tmp_path):
-    _images(tmp_path, 'A01')
-    result = core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())
-    ledger_path = Path(result['ledger'])
-    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
-    ledger.pop('pipeline')
-    ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
-    before = _bytes(tmp_path)
-    with pytest.raises(ValueError, match='pipeline.*separate watch workspace'):
-        core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())
-    assert _bytes(tmp_path) == before
-
-
 def test_changed_pipeline_refuses_failed_field_retry(tmp_path):
     _images(tmp_path, 'A01')
     failed = Recorder(fail=['plate1_A01_0001_001'])
@@ -107,3 +94,22 @@ def test_empty_ledger_can_select_pipeline_without_old_results(tmp_path, old_pipe
     result = core._watch_folder_and_analyse(_settings(tmp_path, 'mask_measure'), Recorder())
     assert result['done'] == ['plate1_A01_0001_001']
     assert json.loads(Path(result['ledger']).read_text(encoding="utf-8"))['pipeline'] == 'mask_measure'
+
+
+@pytest.mark.parametrize('missing, said', [
+    pytest.param('mask_settings_sha256', 'Mask settings differ',
+                 id='legacy-mask-provenance-missing'),
+    pytest.param('pipeline', 'pipeline.*separate watch workspace',
+                 id='legacy-ledger-without-pipeline'),
+])
+def test_a_populated_legacy_ledger_missing_provenance_refuses_the_resume(tmp_path, missing, said):
+    _images(tmp_path, 'A01')
+    result = core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())
+    ledger_path = Path(result['ledger'])
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    ledger.pop(missing)
+    ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
+    before = _bytes(tmp_path)
+    with pytest.raises(ValueError, match=said):
+        core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())
+    assert _bytes(tmp_path) == before

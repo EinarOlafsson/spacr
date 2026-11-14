@@ -1,0 +1,27 @@
+{
+ "acquisition": "sbs",
+ "canvas": [691, 263],
+ "cycle": 1,
+ "dtype": "uint16",
+ "n_tiles_in_well": 3,
+ "origin": [10.0, 20.0],
+ "plate": "P1",
+ "provenance": {
+  "created": "2026-11-13T00:00:00+00:00",
+  "git_hash": null,
+  "settings_hash": null,
+  "source_files_sha256": null,
+  "spacr_version": "1.5.1.8",
+  "tile_ids_sha256": null
+ },
+ "raster_overlap": 35,
+ "schema": "spacr.ops_placement",
+ "schema_version": 1,
+ "tile_shape": [256, 256],
+ "tiles": [
+  {"site": 0, "x": 0.0, "y": 0.0},
+  {"site": 1, "x": 3.0, "y": 217.0},
+  {"site": 2, "x": 6.5, "y": 434.0}
+ ],
+ "well": "A1"
+}

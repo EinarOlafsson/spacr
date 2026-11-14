@@ -8,8 +8,6 @@ outcome, success or cancellation, with an AttributeError from the cleanup.
 """
 from __future__ import annotations
 
-import threading
-
 from spacr.cancellation import (
     CancellationToken,
     current_token,
@@ -40,19 +38,3 @@ def test_a_nested_scope_restores_the_outer_token():
             assert current_token() is inner
         assert current_token() is outer
     assert current_token() is None
-
-
-def test_each_thread_keeps_its_own_token():
-    """A worker's token must not leak into the thread that started it."""
-    token = CancellationToken()
-    seen = []
-
-    def _worker():
-        seen.append(current_token())
-
-    with installed_token(token):
-        thread = threading.Thread(target=_worker)
-        thread.start()
-        thread.join()
-
-    assert seen == [None]

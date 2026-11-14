@@ -59,22 +59,23 @@ def _context(mask, *, file_name='plate1_A01_F001', object_type='cell',
 # Geometry the drawing tool can hand over, and what each refusal protects
 # ---------------------------------------------------------------------------
 
-def test_an_open_shape_is_not_a_region():
-    """A line names no inside, so it cannot decide which objects to keep."""
-    with pytest.raises(R.RoiError, match='closed shape'):
-        R.RegionOfInterest('line', [[0.0, 0.0], [4.0, 4.0]])
+@pytest.mark.parametrize("kind, points, refusal", [
+    # A line names no inside, so it cannot decide which objects to keep.
+    pytest.param('line', [[0.0, 0.0], [4.0, 4.0]], 'closed shape',
+                 id="an-open-shape-is-not-a-region"),
+    # Two points are a segment; a polygon needs a third to have an area.
+    pytest.param('polygon', [[0.0, 0.0], [4.0, 4.0]], 'at least three points',
+                 id="a-two-point-polygon-encloses-nothing"),
+])
+def test_a_shape_that_encloses_nothing_is_refused(kind, points, refusal):
+    with pytest.raises(R.RoiError, match=refusal):
+        R.RegionOfInterest(kind, points)
 
 
 def test_vertices_must_be_a_table_of_points():
     """A flat list of numbers is an ambiguous pairing, not a set of points."""
     with pytest.raises(R.RoiError, match=r'\(M, 2\) array'):
         R.RegionOfInterest('polygon', [0.0, 1.0, 2.0, 3.0])
-
-
-def test_a_two_point_polygon_encloses_nothing():
-    """Two points are a segment; a polygon needs a third to have an area."""
-    with pytest.raises(R.RoiError, match='at least three points'):
-        R.RegionOfInterest('polygon', [[0.0, 0.0], [4.0, 4.0]])
 
 
 def test_a_nan_vertex_is_refused():
@@ -113,16 +114,17 @@ def test_a_field_holding_a_raw_polygon_is_refused():
         R.RoiSet(fields={'f1': [[[0.0, 0.0], [4.0, 4.0]]]})
 
 
-def test_one_axis_is_not_a_plane():
-    """A region lies in a plane, so its axes come in a distinct pair."""
-    with pytest.raises(R.RoiError, match='exactly two different'):
-        R.RoiSet(axes=('y', 'y'))
-
-
-def test_the_reversed_axis_pair_is_refused_not_transposed():
-    """(x, y) would draw the region on its side and still look like a region."""
-    with pytest.raises(R.RoiError, match='vertex order reversed'):
-        R.RoiSet(axes=('x', 'y'))
+@pytest.mark.parametrize("axes, refusal", [
+    # A region lies in a plane, so its axes come in a distinct pair.
+    pytest.param(('y', 'y'), 'exactly two different', id="one-axis-is-not-a-plane"),
+    # (x, y) would draw the region on its side and still look like a region.
+    pytest.param(('x', 'y'), 'vertex order reversed',
+                 id="the-reversed-pair-is-refused-not-transposed"),
+])
+def test_an_axis_pair_that_is_not_a_plane_the_right_way_round_is_refused(
+        axes, refusal):
+    with pytest.raises(R.RoiError, match=refusal):
+        R.RoiSet(axes=axes)
 
 
 def test_an_unknown_rule_is_refused():
@@ -232,17 +234,14 @@ def test_a_missing_roi_file_names_the_variable_that_should_point_at_it(tmp_path)
         R.RoiSet.load(missing)
 
 
-def test_a_truncated_roi_file_is_refused(tmp_path):
+@pytest.mark.parametrize("text, refusal", [
+    pytest.param('{"fields": ', 'could not be read', id="truncated-file"),
+    pytest.param('[1, 2, 3]', 'holds a list', id="a-json-list"),
+])
+def test_a_file_that_is_not_an_roi_file_is_refused(tmp_path, text, refusal):
     path = tmp_path / 'roi.json'
-    path.write_text('{"fields": ', encoding='utf-8')
-    with pytest.raises(R.RoiError, match='could not be read'):
-        R.RoiSet.load(str(path))
-
-
-def test_a_json_list_is_not_an_roi_file(tmp_path):
-    path = tmp_path / 'roi.json'
-    path.write_text('[1, 2, 3]', encoding='utf-8')
-    with pytest.raises(R.RoiError, match='holds a list'):
+    path.write_text(text, encoding='utf-8')
+    with pytest.raises(R.RoiError, match=refusal):
         R.RoiSet.load(str(path))
 
 
@@ -495,27 +494,24 @@ def test_an_unregistered_filter_says_every_object_would_be_measured():
     assert 'not registered in this process' in message
 
 
-def test_a_fork_pool_inherits_the_registry_but_would_not_survive_spawn(tmp_path):
-    """The trap: it works today and fails silently on the next machine."""
+@pytest.mark.parametrize("start_method, delivered, message_fragment", [
+    # The trap: a fork pool works today and fails silently on the next
+    # machine, so it is reported as delivered but not durable.
+    pytest.param('fork', True, 'would NOT survive',
+                 id="fork-inherits-the-registry-but-would-not-survive-spawn"),
+    pytest.param('spawn', False, 'every object in every field would be measured',
+                 id="spawn-without-the-environment-is-not-covered"),
+])
+def test_the_region_filter_reaches_a_worker_pool_only_as_its_start_method_allows(
+        start_method, delivered, message_fragment):
     roi_set = R.RoiSet(fields={R.ANY_FIELD: (_rect(),)})
     mh.register_region_filter_hook(R.RoiRegionFilter(roi_set),
                                    name=R.HOOK_NAME, priority=R.HOOK_PRIORITY)
     os.environ.pop(mh.HOOKS_ENV_VAR, None)
     os.environ.pop(R.ROI_ENV_VAR, None)
-    ok, message = R.worker_delivery_status('fork')
-    assert ok is True
-    assert 'would NOT survive' in message
-
-
-def test_a_spawn_pool_without_the_environment_is_not_covered():
-    roi_set = R.RoiSet(fields={R.ANY_FIELD: (_rect(),)})
-    mh.register_region_filter_hook(R.RoiRegionFilter(roi_set),
-                                   name=R.HOOK_NAME, priority=R.HOOK_PRIORITY)
-    os.environ.pop(mh.HOOKS_ENV_VAR, None)
-    os.environ.pop(R.ROI_ENV_VAR, None)
-    ok, message = R.worker_delivery_status('spawn')
-    assert ok is False
-    assert 'every object in every field would be measured' in message
+    ok, message = R.worker_delivery_status(start_method)
+    assert ok is delivered
+    assert message_fragment in message
 
 
 def test_the_default_start_method_is_the_one_measure_crop_will_use(monkeypatch):

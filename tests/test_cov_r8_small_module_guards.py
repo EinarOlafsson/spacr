@@ -9,7 +9,6 @@ from __future__ import annotations
 import sys
 
 import numpy as np
-import pandas as pd
 import pytest
 
 
@@ -104,63 +103,10 @@ class TestTheConditionNumber:
     one (each column normalised first, Belsley-Kuh-Welsch) is unit-free
     and is the one whose thresholds -- 30, 100, 1000 -- mean anything.
 
-    It returns three values: both ratios and the scaled spectrum.
+    It returns three values: both ratios and the scaled spectrum. Its
+    exact ratios and refusals are pinned in
+    ``tests/test_regression_qc_degenerate_fits.py``.
     """
-
-    def test_an_orthogonal_design_is_well_conditioned(self):
-        from spacr.regression_qc import condition_number
-
-        scaled, raw, spectrum = condition_number(np.eye(4))
-        assert scaled == pytest.approx(1.0)
-        assert np.isfinite(raw)
-        assert len(spectrum) == 4
-
-    def test_a_duplicated_predictor_is_singular(self):
-        """The case the number exists to catch: two identical columns."""
-        from spacr.regression_qc import condition_number
-
-        column = np.linspace(1.0, 5.0, 8).reshape(-1, 1)
-        scaled, _raw, _spectrum = condition_number(np.hstack([column,
-                                                              column]))
-        assert not np.isfinite(scaled) or scaled > 1000, (
-            "a duplicated predictor was not reported as ill-conditioned")
-
-    def test_rescaling_a_column_changes_the_raw_number_and_not_the_scaled(
-            self):
-        """The reason there are two numbers at all.
-
-        Measuring a predictor in thousands rather than units is a change
-        of units, not of science -- so the unit-free number must not
-        move, and the one statsmodels prints does.
-        """
-        from spacr.regression_qc import condition_number
-
-        rng = np.random.default_rng(0)
-        X = rng.normal(size=(30, 3))
-        scaled_a, raw_a, _ = condition_number(X)
-
-        Y = X.copy()
-        Y[:, 0] *= 1000.0
-        scaled_b, raw_b, _ = condition_number(Y)
-
-        assert scaled_b == pytest.approx(scaled_a, rel=1e-6), (
-            "the unit-free number moved when only the units changed")
-        assert not np.isclose(raw_b, raw_a), (
-            "the raw number is supposed to be dominated by the units")
-
-    def test_an_empty_design_is_refused_by_name(self):
-        """THE GUARD ABOVE, and it is why the one below cannot fire.
-
-        `if sv.size == 0: return np.inf` inside `_ratio` is unreachable:
-        the function rejects an empty design before any decomposition,
-        and `np.linalg.svd` of a non-empty matrix always returns at
-        least one singular value.
-        """
-        from spacr.regression_qc import condition_number
-
-        for shape in ((0, 3), (5, 0), (0, 0)):
-            with pytest.raises(ValueError, match="non-empty 2-D array"):
-                condition_number(np.empty(shape))
 
     def test_the_singular_values_of_any_accepted_design_are_non_empty(self):
         """The other half of the argument, checked rather than asserted."""

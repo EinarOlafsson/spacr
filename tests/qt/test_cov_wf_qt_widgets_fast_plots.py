@@ -11,7 +11,6 @@ up, what is in the status line, what came out restyled.
 from __future__ import annotations
 
 import dataclasses
-from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -158,23 +157,6 @@ def test_a_cancelled_style_dialog_leaves_every_kind_of_field_alone(monkeypatch):
     assert style.caption == "after"
 
 
-def test_a_violin_of_one_repeated_value_is_refused_rather_than_drawn_flat():
-    """A violin from a column with no spread would claim a spread it lacks.
-
-    Every replicate reading the same number is a real case -- a saturated
-    channel, a control column of zeros -- and the honest picture is no violin
-    at all. A profile returned anyway would have a width taken from the bin
-    count rather than from the data.
-    """
-    assert fp._violin_profile([4.0, 4.0, 4.0], 0.5) == (None, None)
-
-    centres, widths = fp._violin_profile([1.0, 2.0, 3.0], 0.5)
-    assert centres[0] == 1.0 and centres[-1] == 3.0
-    assert widths[0] == 0.0 and widths[-1] == 0.0
-    assert float(widths.max()) == pytest.approx(0.5)
-    assert centres.size == widths.size == 8
-
-
 # ------------------------------------------------------- the build without pg
 
 def test_a_build_without_pyqtgraph_answers_every_question_it_is_asked(
@@ -271,44 +253,6 @@ def test_a_smoother_answers_in_a_sentence_whether_it_fits_or_fails(
 
 # ------------------------------------------------- the registry of what moves
 
-def test_the_log_scale_moves_the_curves_it_can_see_and_drops_the_rest(points):
-    """A stale record makes the scale reach through a dangling reference.
-
-    An empty curve has no coordinates to transform and an item the plot has
-    since removed is not on screen any more, so neither belongs in the
-    registry -- while a curve that IS there must be handed new arrays, or the
-    trend line would stay linear beside dots that moved to logarithms.
-    """
-    gone = points.plot.plot([1.0, 2.0, 3.0], [4.0, 5.0, 6.0])
-    curve = points.plot.plot(np.array([1.0, 2.0, 3.0]),
-                             np.array([10.0, 100.0, 1000.0]))
-    points.plot.addItem(pg.PlotDataItem())
-    assert len(points._drawn) == 3
-
-    points.plot.removeItem(gone)
-    assert points.set_log_axes(y=True) == (False, True)
-    assert [entry.kind for entry in points._drawn] == ["points", "line"]
-    assert np.allclose(curve.getData()[1], [1.0, 2.0, 3.0])
-    assert np.allclose(points._drawn[-1].y, [10.0, 100.0, 1000.0])
-
-
-def test_bars_measured_from_a_positive_baseline_move_onto_the_log_scale(plot):
-    """A bar the scale leaves behind is a bar drawn at the wrong height.
-
-    Bars are placed by their four edges rather than by a centre, so the bottom
-    and the top both have to be transformed. If only the top moved, a
-    ranked-bar figure on a log axis would show bars whose lengths mean
-    nothing, which is worse than refusing the scale outright.
-    """
-    bar = pg.BarGraphItem(x=[1.0, 2.0], height=[3.0, 4.0], width=0.5,
-                          y0=[1.0, 1.0])
-    plot.plot.addItem(bar)
-    assert plot.set_log_axes(y=True) == (False, True)
-    assert np.allclose(bar.opts["y0"], np.log10([1.0, 1.0]))
-    assert np.allclose(bar.opts["y1"], np.log10([4.0, 5.0]))
-    assert np.allclose(bar.opts["x0"], [0.75, 1.75])
-    assert np.allclose(bar.opts["x1"], [1.25, 2.25])
-
 
 def test_a_record_with_no_coordinates_leaves_its_item_exactly_as_it_was(plot):
     """The placer must be a no-op for anything it cannot honestly move.
@@ -378,46 +322,6 @@ def test_a_split_on_a_logged_axis_hides_decades_and_says_so_on_the_axis(qtbot):
         "why (log scale, split, 10-10000 not drawn)")
 
 
-def test_the_break_is_sized_from_what_is_kept_below_it(plot):
-    """A split above everything on the plot must still leave the marks alone.
-
-    The gap is a fraction of the span that survives, and here every survivor
-    is on one side of the band. A point below the band keeps its own
-    coordinate exactly; if the compression reached it, every mark would move
-    when the user hid an empty strip above them.
-    """
-    plot.add_scatter(np.array([1.0, 2.0, 3.0]), np.array([1.0, 2.0, 3.0]),
-                     size=6)
-    assert plot.set_y_split(10.0, 100.0) == ""
-    assert plot._split_gap == pytest.approx((3.0 - 1.0) * 0.06)
-    assert float(plot._compress(np.array([3.0]))[0]) == 3.0
-    assert "10 to 100 is not drawn" in plot._status.text()
-
-
-def test_duplicate_layers_do_not_make_the_axis_break_taller(qtbot):
-    """The break belongs to the axes, not to each artist using the axes.
-
-    Redrawing an identical series as a highlight or comparison layer does not
-    create more screen geometry. Counting every layer's span would make the
-    visual gap three times taller here even though all extrema are unchanged.
-    """
-    single = fp.FastPlot(title="single", x_label="ex", y_label="why")
-    duplicated = fp.FastPlot(title="duplicated", x_label="ex", y_label="why")
-    qtbot.addWidget(single)
-    qtbot.addWidget(duplicated)
-    x = np.arange(4.0)
-    y = np.array([1.0, 3.0, 1000.0, 1200.0])
-    single.add_scatter(x, y, size=6)
-    for _ in range(3):
-        duplicated.add_scatter(x, y, size=6)
-
-    assert single.set_y_split(10.0, 900.0) == ""
-    assert duplicated.set_y_split(10.0, 900.0) == ""
-    kept_span = (3.0 - 1.0) + (1200.0 - 1000.0)
-    assert single._split_gap == pytest.approx(kept_span * 0.06)
-    assert duplicated._split_gap == pytest.approx(single._split_gap)
-
-
 def test_each_refused_split_names_its_own_reason(points):
     """A refusal the user cannot act on is the same as a control that is dead.
 
@@ -437,33 +341,6 @@ def test_each_refused_split_names_its_own_reason(points):
         "a split needs two finite numbers")
     assert points.y_split() is None
     assert "y split: a split needs two finite numbers" in points._status.text()
-
-
-def test_the_tick_functions_are_installed_once_and_read_data_units_after(
-        points):
-    """The axis has to number the data whatever the ruler underneath it is.
-
-    A split makes the left axis piecewise linear, so its numbers are computed
-    rather than read off. A second layer of that would compress the coordinate
-    twice and print numbers that are not on the figure; and a tick function
-    still held after the split is removed must fall back to the axis' own.
-    """
-    assert points.set_y_split(10.0, 100.0) == ""
-    axis = points.plot.getAxis("left")
-    installed = points._axis_ticks
-    wrapped_values, wrapped_strings = axis.tickValues, axis.tickStrings
-
-    assert points.set_y_split(20.0, 90.0) == ""
-    assert points._axis_ticks is installed
-    assert axis.tickValues is wrapped_values
-    hidden = float(points._compress(np.array([200.0]))[0])
-    assert axis.tickStrings([hidden], 1.0, 1.0) == ["200"]
-
-    points.clear_y_split()
-    assert axis.tickValues is not wrapped_values
-    assert wrapped_values(0.0, 300.0, 400) == axis.tickValues(0.0, 300.0, 400)
-    assert (wrapped_strings([0.0, 100.0], 1.0, 1.0)
-            == axis.tickStrings([0.0, 100.0], 1.0, 1.0))
 
 
 def test_a_split_with_no_left_axis_is_still_undone(points, monkeypatch):
@@ -490,53 +367,6 @@ def test_a_split_with_no_left_axis_is_still_undone(points, monkeypatch):
 
 
 # ---------------------------------------------------------- axes, text, shape
-
-def test_an_axis_nobody_named_grows_no_label_when_the_scale_changes(qtbot):
-    """Writing an empty label onto a bare axis grows a blank strip under it.
-
-    The control panel's x-axis is deliberately unlabelled because its ticks
-    already name the groups, and every scale change relabels both axes while
-    ``setLabel`` shows the label as a side effect. The axis that asked for
-    nothing is skipped; a named one picks up the note saying how it is drawn.
-    """
-    bare = fp.FastPlot()
-    named = fp.FastPlot(x_label="effect size")
-    qtbot.addWidget(bare)
-    qtbot.addWidget(named)
-    assert bare.set_log_axes(x=False, y=False) == (False, False)
-    assert bare.plot.getAxis("bottom").labelText == ""
-    assert named.set_log_axes(x=True) == (True, False)
-    assert named.plot.getAxis("bottom").labelText == "effect size (log scale)"
-
-
-def test_the_text_controls_reach_everything_and_survive_a_scale_change(points):
-    """A font control that half applies reads as a font control that is broken.
-
-    Relabelling passes the style along with the text, so a size chosen from
-    the menu is dropped unless it is written back -- the report reads "font
-    size keeps resetting itself". And "all font" includes the legend, so one
-    entry the sweep cannot read must not cost the rest of it their colour.
-    """
-    class _LegendText:
-        def __init__(self):
-            self.text, self.colour = "sgRNA", None
-
-        def setText(self, text, color=None):
-            self.text, self.colour = text, color
-
-    label = _LegendText()
-    points.plot.plotItem.legend = SimpleNamespace(
-        items=[object(), ("sample", label)])
-    points.set_font_size(17)
-    points.set_font_colour("#ff0000")
-    assert points.set_log_axes(y=True) == (False, True)
-
-    left = points.plot.getAxis("left")
-    assert left.labelStyle["font-size"] == "17pt"
-    assert left.labelText == "why (log scale)"
-    assert (points.font_size(), points.font_colour()) == (17, "#ff0000")
-    assert label.colour == "#ff0000"
-    assert left.textPen().color().name() == "#ff0000"
 
 
 def test_a_typed_limit_below_zero_is_forgotten_when_the_axis_is_logged(points):

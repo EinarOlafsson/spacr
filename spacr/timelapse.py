@@ -9349,11 +9349,20 @@ def automated_motility_assay(settings):
             first if os.path.isabs(str(first)) else os.path.join(merged_dir, str(first))))
         print(f"[summarise_tracks_from_merged] Using n_jobs={n_jobs}")
 
+        dfs = []
         if n_jobs == 1:
-            dfs = [_process_merged_group(args) for args in worker_args]
+            results = map(_process_merged_group, worker_args)
+            for done, result in enumerate(results, start=1):
+                dfs.append(result)
+                print(f"Progress: {done}/{len(worker_args)}, "
+                      f"operation_type: Tracking well groups", flush=True)
         else:
             with Pool(processes=n_jobs) as pool:
-                dfs = pool.map(_process_merged_group, worker_args)
+                results = pool.imap(_process_merged_group, worker_args)
+                for done, result in enumerate(results, start=1):
+                    dfs.append(result)
+                    print(f"Progress: {done}/{len(worker_args)}, "
+                          f"operation_type: Tracking well groups", flush=True)
 
         if bleach_method != 'none':
             results = [result for result in dfs if isinstance(result, tuple)]
