@@ -93,3 +93,11 @@ INTEGRATION NOTES (2026-11-09, integration branch)
   Hybrid settings: recipe lof 1, impute knn, pca brieflow, agg gene, nt barcode,
   tvn brieflow; ops_tvn_whiten_epsilon 0; ops_profile_gene_universe =
   strategies_lit universe_full.json. tests/test_ops_hybrid_profile_stage3.py.
+- 2026-11-13 — ops_blas_threads (int, default 2; maintainer decision). While
+  ops_deterministic_blas is on (default True) the profile, atlas, flat-field and
+  score phases run with the BLAS and OpenMP pools held at ops_blas_threads
+  threads (threadpoolctl, scoped to the phase; the thread variables when
+  threadpoolctl is missing). One rule: ops_deterministic_blas switches the
+  holding, ops_blas_threads sets the count. 2 reproduces the plate A Hybrid
+  profile with no environment variables. Files stamped before settings version
+  936 rerun with 1 thread (DEFAULT_CHANGES[936]).

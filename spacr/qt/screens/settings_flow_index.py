@@ -1205,6 +1205,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_consensus_min_stability',
     'ops_consensus_runs',
     'ops_consensus_seed',
+    'ops_consensus_space',
     'ops_control_prefix',
     'ops_control_seed',
     'ops_crop_all_nt',

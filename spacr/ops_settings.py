@@ -281,6 +281,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_eval_time_split": False,
     "ops_eval_covariates": None,
     "ops_deterministic_blas": True,
+    "ops_blas_threads": 2,
     "ops_ph_acquisitions": None,
     "ops_ph_pipeline": False,
     "ops_ph_measure_workers": None,
@@ -334,6 +335,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_consensus_min_stability": 0.5,
     "ops_consensus_match_count": True,
     "ops_consensus_guides": None,
+    "ops_consensus_space": 'hybrid',
     "ops_bench_replicates": 20,
     "ops_bench_replicate_seed": 7000,
     "ops_bench_cluster_seed": 100,
@@ -649,6 +651,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_eval_time_split": bool,
     "ops_eval_covariates": (str, type(None)),
     "ops_deterministic_blas": bool,
+    "ops_blas_threads": int,
     "ops_ph_acquisitions": (dict, str, type(None)),
     "ops_ph_pipeline": bool,
     "ops_ph_measure_workers": (int, type(None)),
@@ -702,6 +705,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_consensus_min_stability": (float, int),
     "ops_consensus_match_count": bool,
     "ops_consensus_guides": (str, type(None)),
+    "ops_consensus_space": str,
     "ops_bench_replicates": int,
     "ops_bench_replicate_seed": int,
     "ops_bench_cluster_seed": int,
@@ -936,7 +940,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_eval_references", "ops_eval_split", "ops_eval_null_size",
         "ops_eval_heldout_folds", "ops_eval_decoys",
         "ops_eval_time_split", "ops_eval_covariates",
-        "ops_deterministic_blas",
+        "ops_deterministic_blas", "ops_blas_threads",
         "ops_ph_acquisitions", "ops_ph_pipeline", "ops_ph_measure_workers",
         "ops_ph_stage_dir", "ops_ph_stage_ahead", "ops_ph_stage_threads",
         "ops_ph_measure_gpu_check", "ops_archive_root", "ops_archive_verify",
@@ -975,6 +979,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_consensus_min_stability",
         "ops_consensus_match_count",
         "ops_consensus_guides",
+        "ops_consensus_space",
         "ops_bench_replicates",
         "ops_bench_replicate_seed",
         "ops_bench_cluster_seed",
@@ -1915,6 +1920,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - The guide rows of ops_cluster_rows (gene, n_cells "
         "and the same numeric columns), which the bootstraps redraw. Empty "
         "uses the profile phase's guide table. Default None. Alpha.",
+    "ops_consensus_space":
+        "(str) - The space cluster_consensus and cluster_bench_test cluster "
+        "the profile phase's own gene and guide tables in: 'hybrid' embeds "
+        "them once at the gene level and moves every guide bootstrap within "
+        "that space, as the published analysis does; 'refit' fits the "
+        "embedding again on every bootstrap, as spaCR did before. Ready "
+        "rows (ops_cluster_rows) are clustered as given either way. Default "
+        "'hybrid'. Alpha.",
     "ops_bench_replicates":
         "(int) - Paired replicates R of the calibrated cluster test: each a "
         "guide bootstrap plus its own clustering seed. 20 is the value whose "
@@ -2025,11 +2038,20 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "in the retrieval power curve; every draw is then tested against it "
         "instead of against all cells. Default None. Alpha.",
     "ops_deterministic_blas":
-        "(bool) - Run the profile phases with the BLAS and OpenMP libraries "
-        "held to one thread, so a re-run of the same settings file writes "
-        "bit-identical profiles and metrics. Off is faster on many cores, "
-        "and the last digits of the PCA and TVN can then change from run to "
-        "run. Default True. Alpha.",
+        "(bool) - Run the profile, atlas, flat-field and score phases with "
+        "the BLAS and OpenMP libraries held at ops_blas_threads threads, so "
+        "a re-run of the same settings file writes bit-identical profiles "
+        "and metrics. Off leaves the thread count to the environment: faster "
+        "on many cores, but the last digits of the PCA and TVN can then "
+        "change from run to run. Default True. Alpha.",
+    "ops_blas_threads":
+        "(int) - How many threads the BLAS and OpenMP libraries get while "
+        "ops_deterministic_blas holds them. The thread count changes the "
+        "last digits of the single-precision PCA, which TVN with whitening "
+        "epsilon 0 can enlarge, so a result is reproduced exactly only at "
+        "the thread count it was made with: 2 reproduces the plate A Hybrid "
+        "profile; files written before this setting ran with 1. Default 2. "
+        "Alpha.",
     "ops_modules_runs":
         "(int) - How many resampled PHATE + Leiden runs the modules phase "
         "clusters the gene profiles in. Each run takes 90 % of the genes, "

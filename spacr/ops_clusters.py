@@ -2486,6 +2486,10 @@ def call_effects(tests: pd.DataFrame, margins: Optional[Mapping[str, float]] = N
     return out
 
 
+#: The spaces ``ops_consensus_space`` can cluster the profile phase's tables in.
+CONSENSUS_SPACES = ("hybrid", "refit")
+
+
 def _guide_inputs(settings: Mapping[str, Any], genes: Optional[pd.DataFrame], guides: Optional[pd.DataFrame]
                   ) -> Dict[str, Any]:
     """The profile rows, their guide rows and the rows clustered, for the consensus and bench phases.
@@ -2500,15 +2504,21 @@ def _guide_inputs(settings: Mapping[str, Any], genes: Optional[pd.DataFrame], gu
     precision (the precision of the profile tables and of the plate A rows
     Design F clustered; on plate A one replicate in 20 changes its
     partition without the rounding), and every draw moves the genes within
-    that space.
+    that space. ``ops_consensus_space`` ``'refit'`` keeps the behaviour
+    before it: the raw profile columns are drawn and every draw is embedded
+    again as the evaluate phase embeds them.
 
-    :raises ValueError: when no rows or no guide rows are available, or a
-        listed gene is not a row.
+    :raises ValueError: when no rows or no guide rows are available, a
+        listed gene is not a row, or ``ops_consensus_space`` is unknown.
     """
     from . import ops_reference
     from .tabular import read_table
 
     prefix = str(settings.get("ops_control_prefix") or "nontargeting")
+    space = str(settings.get("ops_consensus_space") or "hybrid").strip().lower()
+    if space not in CONSENSUS_SPACES:
+        raise ValueError(f"ops_consensus_space must be one of {list(CONSENSUS_SPACES)}; got {space!r}")
+    transform = None
     source = settings.get("ops_cluster_rows")
     guide_source = settings.get("ops_consensus_guides")
     if source:
@@ -2524,11 +2534,15 @@ def _guide_inputs(settings: Mapping[str, Any], genes: Optional[pd.DataFrame], gu
         if guides is None:
             raise ValueError("guide-bootstrap consensus needs the guide rows: set ops_consensus_guides (gene, "
                              "n_cells and the profile's columns) or run the profile phase first")
-        hybrid, guides = ops_reference.hybrid_profile_rows(kept.reset_index(drop=True), guides, columns)
-        columns = [c for c in hybrid.columns if c.startswith("E_")]
-        names = hybrid["gene"].astype(str).to_numpy()
-        rows = hybrid[columns].to_numpy(np.float32).astype(float)
-        guides = guides.assign(**{c: guides[c].to_numpy(np.float32).astype(float) for c in columns})
+        if space == "refit":
+            names, rows = kept["gene"].astype(str).to_numpy(), kept[columns].to_numpy(float)
+            transform = ops_reference.embed_gene_profiles
+        else:
+            hybrid, guides = ops_reference.hybrid_profile_rows(kept.reset_index(drop=True), guides, columns)
+            columns = [c for c in hybrid.columns if c.startswith("E_")]
+            names = hybrid["gene"].astype(str).to_numpy()
+            rows = hybrid[columns].to_numpy(np.float32).astype(float)
+            guides = guides.assign(**{c: guides[c].to_numpy(np.float32).astype(float) for c in columns})
         guide_source = None
     else:
         raise ValueError("the consensus and bench phases need gene rows: run the profile phase first or set "
@@ -2557,7 +2571,7 @@ def _guide_inputs(settings: Mapping[str, Any], genes: Optional[pd.DataFrame], gu
     return {"names": names, "rows": rows, "guide_rows": guides[columns].to_numpy(float),
             "guide_genes": guides["gene"].astype(str).to_numpy(),
             "guide_cells": guides["n_cells"].to_numpy(float), "position": position, "order": np.array(order),
-            "mask": mask, "prefix": prefix}
+            "mask": mask, "prefix": prefix, "transform": transform}
 
 
 def _draw(data: Mapping[str, Any], seed: Optional[int], copy: Optional[int] = None, noise: float = 1.7e-3
@@ -2569,7 +2583,7 @@ def _draw(data: Mapping[str, Any], seed: Optional[int], copy: Optional[int] = No
     rows = rows[data["position"]]
     if copy is not None:
         rows = jitter_rows(rows, copy, noise)
-    return rows
+    return rows if data.get("transform") is None else data["transform"](rows)
 
 
 def _consensus_options(settings: Mapping[str, Any], n_genes: int) -> SimpleNamespace:
@@ -2646,8 +2660,10 @@ def cluster_consensus_phase(settings: Mapping[str, Any], genes: Optional[pd.Data
 
     :param settings: read for ``ops_cluster_rows`` and
         ``ops_consensus_guides`` (ready rows and their guide rows; when
-        empty, the profile phase's gene and guide tables in the Hybrid
-        space of :func:`spacr.ops_reference.hybrid_profile_rows`), ``ops_cluster_gene_list`` (the
+        empty, the profile phase's gene and guide tables in the space
+        ``ops_consensus_space`` names: ``'hybrid'``, that of
+        :func:`spacr.ops_reference.hybrid_profile_rows`, or ``'refit'``,
+        the embedding fitted again on every draw), ``ops_cluster_gene_list`` (the
         targeting genes clustered, in order; every targeting row when
         empty; control rows are always clustered and never counted),
         ``ops_consensus_bootstraps``, ``ops_consensus_seed``,

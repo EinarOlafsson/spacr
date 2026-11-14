@@ -1395,35 +1395,50 @@ _BLAS_THREAD_VARIABLES = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_TH
                           "BLIS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS")
 
 
-@contextmanager
-def _pinned_blas(pin: bool):
-    """Hold the BLAS and OpenMP thread pools to one thread while the block runs.
+def _blas_threads(settings: Mapping[str, Any]) -> int:
+    """The thread count ``ops_blas_threads`` asks for, its default when unset."""
+    from .ops_settings import OPS_DEFAULTS
 
-    A matrix product summed over several threads may add in another order
-    from one run to the next, so the last bits of a PCA or a covariance can
-    differ; one thread fixes the order. threadpoolctl limits the pools
-    already loaded; without it the thread-count variables are set, which
-    only reaches libraries loaded afterwards. Both are restored on exit.
+    value = settings.get("ops_blas_threads")
+    value = OPS_DEFAULTS["ops_blas_threads"] if value is None else int(value)
+    if value < 1:
+        raise ValueError(f"ops_blas_threads must be at least 1; got {value}")
+    return value
+
+
+@contextmanager
+def _pinned_blas(pin: bool, threads: int = 1):
+    """Hold the BLAS and OpenMP thread pools at ``threads`` threads while the block runs.
+
+    A matrix product summed over several threads adds in an order that
+    depends on the thread count, so the last bits of a PCA or a covariance
+    change with it; a fixed count fixes them, and a result is reproduced
+    exactly only at the count it was made with. threadpoolctl limits the
+    pools already loaded; without it the thread-count variables are set,
+    which only reaches libraries loaded afterwards. Both are restored on
+    exit.
 
     :param pin: False leaves every pool as it is.
+    :param threads: the thread count (``ops_blas_threads``).
     :returns: a context manager that yields ``"threadpoolctl"``,
         ``"environment"`` or None (nothing pinned).
     """
     if not pin:
         yield None
         return
+    threads = int(threads)
     try:
         from threadpoolctl import threadpool_limits
     except ImportError:
         threadpool_limits = None
     if threadpool_limits is not None:
-        with threadpool_limits(limits=1):
+        with threadpool_limits(limits=threads):
             yield "threadpoolctl"
         return
     saved = {name: os.environ.get(name) for name in _BLAS_THREAD_VARIABLES}
     try:
         for name in _BLAS_THREAD_VARIABLES:
-            os.environ[name] = "1"
+            os.environ[name] = str(threads)
         yield "environment"
     finally:
         for name, value in saved.items():
@@ -1453,8 +1468,9 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
         ``ops_eval_covariates`` (a table with ``gene`` and
         ``cells_per_guide``; the guide table's own cells per guide when
         empty), ``ops_deterministic_blas`` (True holds the BLAS and OpenMP
-        pools to one thread, so a re-run of the same settings file gives
-        bit-identical tables), the ``ops_eval_*`` settings and those of
+        pools at ``ops_blas_threads`` threads, so a re-run of the same
+        settings file gives bit-identical tables), the ``ops_eval_*``
+        settings and those of
         :func:`profile_cell_tables`.
     :param phases: ``"profile"``, ``"evaluate"`` or both, and the alpha
         ``"etest"`` (item 917, :func:`spacr.gene_measurement_compare.etest_phase`;
@@ -1506,7 +1522,8 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
 
         classifier = load_mitotic_classifier(str(settings["ops_mitotic_model"]))
     by_state: Dict[str, Any] = {}
-    with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+    pin = bool(settings.get("ops_deterministic_blas", True))
+    with _pinned_blas(pin, _blas_threads(settings)) as pinned:
         if settings.get("ops_mitotic_index_test") and "profile" in phases:
             outputs.update(_mitotic_index_outputs(settings, classifier, folder, say))
         for number, state in enumerate(states):
@@ -1548,6 +1565,7 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
                     info[phase] = run_phase(settings, gene_rows, guide_rows, str(settings["dst_root"]), report=say)
                     outputs.update(info[phase]["outputs"])
     info["blas_threads"] = pinned
+    info["blas_thread_count"] = _blas_threads(settings) if pinned else None
     extra = (("ops_mitotic_", "ops_guide_efficacy") if states != ["interphase_rule"]
              or settings.get("ops_mitotic_index_test") else ())
     recorded = ("ops_profile_", "ops_eval_", "ops_reference_") + extra + tuple(
@@ -1558,7 +1576,8 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
                                      ("cluster_bench_test", "ops_consensus_"),
                                      ("cluster_bench_test", "ops_bench_")) if phase in phases)
     keys = sorted(k for k in settings if k.startswith(recorded)
-                  or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas"))
+                  or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas",
+                           "ops_blas_threads"))
     record = {"settings": {k: settings[k] for k in keys}, "phases": list(phases), "outputs": outputs, **info}
     with open(os.path.join(folder, "runtime.json"), "w", encoding="utf-8") as handle:
         json.dump(record, handle, indent=1, default=str)

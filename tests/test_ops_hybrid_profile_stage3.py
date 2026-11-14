@@ -178,3 +178,78 @@ def test_the_consensus_phase_clusters_profile_tables_in_the_hybrid_space():
                                        data["guide_cells"], 8000)[data["position"]]
     assert np.array_equal(draw, want)
     assert np.array_equal(oc._draw(data, None), data["rows"][data["position"]])
+
+
+def test_the_previous_space_refits_the_embedding_on_every_draw():
+    genes, guides, pcs = _tables(seed=7)
+    data = oc._guide_inputs({"ops_consensus_space": "refit"}, genes, guides)
+    assert np.array_equal(data["rows"], genes[pcs].to_numpy(float))
+    assert data["transform"] is R.embed_gene_profiles
+    raw = oc.guide_bootstrap_profiles(data["rows"], data["names"], data["guide_rows"], data["guide_genes"],
+                                      data["guide_cells"], 8001)[data["position"]]
+    assert np.array_equal(oc._draw(data, 8001), R.embed_gene_profiles(raw))
+    assert oc._guide_inputs({}, genes, guides)["transform"] is None
+    with pytest.raises(ValueError, match="ops_consensus_space"):
+        oc._guide_inputs({"ops_consensus_space": "pca"}, genes, guides)
+
+
+def test_ready_rows_are_clustered_as_given_in_either_space(tmp_path):
+    genes, guides, pcs = _tables(seed=8)
+    genes.to_parquet(tmp_path / "rows.parquet")
+    guides.to_parquet(tmp_path / "guides.parquet")
+    for space in ("hybrid", "refit"):
+        data = oc._guide_inputs({"ops_cluster_rows": str(tmp_path / "rows.parquet"),
+                                 "ops_consensus_guides": str(tmp_path / "guides.parquet"),
+                                 "ops_consensus_space": space}, None, None)
+        assert data["transform"] is None
+        assert np.array_equal(data["rows"], genes[pcs].to_numpy(float))
+
+
+def test_blas_threads_default_and_pin():
+    from threadpoolctl import threadpool_info
+
+    from spacr.ops_settings import OPS_DEFAULTS, ops_defaults
+
+    assert OPS_DEFAULTS["ops_blas_threads"] == 2 and ops_defaults({})["ops_blas_threads"] == 2
+    assert T._blas_threads({}) == 2 and T._blas_threads({"ops_blas_threads": 3}) == 3
+    with pytest.raises(ValueError, match="at least 1"):
+        T._blas_threads({"ops_blas_threads": 0})
+    with T._pinned_blas(True, 2) as how:
+        assert how == "threadpoolctl"
+        assert max(pool["num_threads"] for pool in threadpool_info()) <= 2
+    with T._pinned_blas(False, 2) as how:
+        assert how is None
+
+
+def test_the_profile_path_runs_at_ops_blas_threads(monkeypatch, tmp_path):
+    from threadpoolctl import threadpool_info
+
+    seen = {}
+
+    def fake_state(settings, phases, state, classifier, folder, suffix, run, outputs, say):
+        """Record the BLAS pool sizes the profile phase ran under."""
+        seen["threads"] = {pool["num_threads"] for pool in threadpool_info()}
+        return {}
+
+    monkeypatch.setattr(T, "_profile_state", fake_state)
+    out = T.run_profile_phases({"dst_root": str(tmp_path), "ops_blas_threads": 3}, phases=("profile",))
+    assert max(seen["threads"]) <= 3 and out["info"]["blas_thread_count"] == 3
+    out = T.run_profile_phases({"dst_root": str(tmp_path)}, phases=("profile",))
+    assert max(seen["threads"]) <= 2 and out["info"]["blas_thread_count"] == 2
+    out = T.run_profile_phases({"dst_root": str(tmp_path), "ops_deterministic_blas": False}, phases=("profile",))
+    assert out["info"]["blas_threads"] is None and out["info"]["blas_thread_count"] is None
+
+
+def test_older_settings_files_keep_one_thread_and_the_refit_space():
+    from spacr.settings import DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION, _fold_older_defaults
+
+    assert DEFAULT_CHANGES[936] == {"ops_blas_threads": 1, "ops_consensus_space": "refit"}
+    assert SETTINGS_SCHEMA_VERSION == 936
+    old = {"plate": "P1"}
+    applied = _fold_older_defaults(old, 931, known={"plate", "ops_blas_threads", "ops_consensus_space"})
+    assert applied == {"ops_blas_threads": (1, 936), "ops_consensus_space": ("refit", 936)}
+    assert old["ops_blas_threads"] == 1 and old["ops_consensus_space"] == "refit"
+    current = {"plate": "P1"}
+    assert _fold_older_defaults(current, SETTINGS_SCHEMA_VERSION) == {}
+    kept = {"ops_blas_threads": 4}
+    assert "ops_blas_threads" not in _fold_older_defaults(kept, 0, known={"ops_blas_threads"})

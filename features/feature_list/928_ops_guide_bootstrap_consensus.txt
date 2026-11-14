@@ -41,3 +41,8 @@ each draw re-fitted the embedding, which is not the Design F computation. Runs
 with ops_cluster_rows + ops_consensus_guides are unchanged. Downstream check on
 plate A (search genes, 20 replicates of cons_forced~hyb, same seeds) with
 spaCR's own Hybrid rows: see spacr_stage3_hybrid_proof/stage3_hybrid_proof_result.json.
+ops_consensus_space ('hybrid' default | 'refit', maintainer decision
+2026-11-13) selects the space for the profile phase's own tables: 'refit' is
+the behaviour before (raw columns drawn, the embedding fitted again on every
+draw). Files stamped before settings version 936 rerun with 'refit'
+(DEFAULT_CHANGES[936]).
