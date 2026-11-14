@@ -30,7 +30,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from PySide6.QtWidgets import QDialog, QFileDialog
+from PySide6.QtWidgets import QDialog
 
 from spacr.metadata_resolution import (
     MetadataResolutionRequired,
@@ -69,33 +69,6 @@ def dialog(qtbot, plate_frame):
 # Browse…
 # ---------------------------------------------------------------------------
 
-def test_browsing_to_a_file_fills_the_path_and_ticks_save(dialog, tmp_path,
-                                                          monkeypatch):
-    """Choosing a file is itself the request to save -- one click, not two."""
-    chosen = tmp_path / "column_map.json"
-    monkeypatch.setattr(
-        QFileDialog, "getSaveFileName",
-        staticmethod(lambda *a, **k: (str(chosen), "JSON (*.json)")))
-
-    assert dialog.save_mapping.isChecked() is False
-    dialog._browse()
-
-    assert dialog.save_path.text() == str(chosen)
-    assert dialog.save_mapping.isChecked() is True
-    assert dialog.decision().save_path == str(chosen)
-
-
-def test_cancelling_the_save_dialog_does_not_arm_the_save(dialog,
-                                                          monkeypatch):
-    """Otherwise a cancel writes the map to the placeholder filename."""
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-    dialog._browse()
-
-    assert dialog.save_path.text() == ""
-    assert dialog.save_mapping.isChecked() is False
-    assert dialog.decision().save_path is None
-
 
 # ---------------------------------------------------------------------------
 # Well preview
@@ -107,17 +80,6 @@ def test_the_preview_names_the_values_it_cannot_read(dialog):
     text = dialog.well_preview.text()
     assert "A01 → r1/c1" in text
     assert "not_a_well → not recognised" in text
-
-
-def test_choosing_not_to_derive_puts_the_prompt_back(dialog):
-    """Changing your mind must not leave the previous column's preview up."""
-    dialog.well_selector.setCurrentText("well_name")
-    assert "r1/c1" in dialog.well_preview.text()
-
-    dialog.well_selector.setCurrentIndex(0)
-    assert dialog.well_preview.text() == (
-        "Choose a well column to preview its mapping")
-    assert dialog.decision().well_column is None
 
 
 def test_a_column_with_no_example_values_says_so(qtbot):

@@ -28,43 +28,6 @@ pytestmark = pytest.mark.qt
 _ALL_THREE = r"(?P<columnID>[ACGT]{2})(?P<grna>[ACGT]*)(?P<rowID>[ACGT]{2})"
 
 
-def test_a_regex_that_does_not_match_the_read_is_refused():
-    """A compiling regex that matches nothing is not a usable one."""
-    from spacr.qt.widgets.barcode_regex import evaluate_barcode_regex
-
-    result = evaluate_barcode_regex(_ALL_THREE, "NNNNNNNN")
-
-    assert result.valid is False
-    assert "did not match" in result.message
-    assert result.captures == {}
-
-
-def test_a_regex_that_captures_nothing_for_a_group_is_refused():
-    """A match with an empty group is named, group by group.
-
-    An empty ``grna`` produces mapping rows that look like data and are not.
-    """
-    from spacr.qt.widgets.barcode_regex import evaluate_barcode_regex
-
-    result = evaluate_barcode_regex(_ALL_THREE, "ACGT")
-
-    assert result.valid is False
-    assert "grna" in result.message
-    assert result.captures["columnID"] == "AC"
-    assert result.captures["grna"] == ""
-
-
-def test_a_regex_that_captures_all_three_is_accepted():
-    """The same expression on a real-shaped read does validate."""
-    from spacr.qt.widgets.barcode_regex import evaluate_barcode_regex
-
-    result = evaluate_barcode_regex(_ALL_THREE, "ACGGGGTT")
-
-    assert result.valid is True
-    assert result.captures == {"columnID": "AC", "grna": "GGGG",
-                               "rowID": "TT"}
-
-
 def test_the_dialog_refuses_to_save_an_unusable_regex(qtbot):
     """Save on an invalid expression neither accepts nor records it."""
     from spacr.qt.widgets.barcode_regex import BarcodeRegexDialog

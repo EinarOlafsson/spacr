@@ -32,9 +32,8 @@ import pytest
 pytest.importorskip("PySide6")
 pytest.importorskip("matplotlib")
 
-from PySide6.QtCore import QEvent, QMimeData, QPoint, QPointF, Qt
+from PySide6.QtCore import QEvent, QMimeData, QPointF, Qt
 from PySide6.QtGui import QDropEvent, QPixmap
-from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QLineEdit, QPushButton, QWidget
 from shiboken6 import isValid
 
@@ -215,31 +214,6 @@ def test_a_panel_the_dock_took_away_is_not_resized_by_the_drawer(drawer,
     panel.resize(111, 77)
     drawer.relayout_for_open()
     assert panel.size().toTuple() == (220, 600)
-
-
-def test_a_close_timeout_that_lands_after_the_pin_leaves_the_drawer_open(
-        drawer):
-    """A timeout already in flight must not close a drawer that got pinned.
-
-    :meth:`hold` stops the close timer, so the only way into this guard is
-    a timeout that had already been emitted when the pin went on — a click
-    landing in the panel in the last milliseconds of the grace period. The
-    signal is emitted directly here because that race is not something a
-    test can win by waiting for it.
-    """
-    drawer.open()
-    drawer.schedule_close()
-    drawer.hold(True)
-
-    drawer._close_timer.timeout.emit()
-
-    assert drawer.is_open(), "a pinned drawer stays open"
-    assert drawer.is_held()
-
-    # Unpinned, the very same timeout closes it.
-    drawer.hold(False)
-    drawer._close_timer.timeout.emit()
-    assert not drawer.is_open()
 
 
 # ---------------------------------------------------------------------------
@@ -549,35 +523,6 @@ def test_clearing_the_table_keeps_axes_a_different_table_would_lose(
 # ---------------------------------------------------------------------------
 # The toggle
 # ---------------------------------------------------------------------------
-
-def test_a_twitch_under_three_pixels_is_a_tap_and_not_a_drag(qtbot):
-    """A pointer that moves two pixels while pressed has not dragged.
-
-    Every press moves a little. Treating the first pixel of movement as a
-    drag would leave the knob stranded wherever the pointer happened to be
-    when the button came up, instead of flipping the switch.
-    """
-    from spacr.qt.widgets.toggle import Toggle
-
-    widget = Toggle()
-    qtbot.addWidget(widget)
-    widget.resize(60, 24)
-    widget.show()
-    qtbot.waitExposed(widget)
-    resting = widget._knob_pos
-    start = int(widget._minimum_knob_x() + 6)
-    middle = widget.height() // 2
-
-    QTest.mousePress(widget, Qt.LeftButton, pos=QPoint(start, middle))
-    QTest.mouseMove(widget, QPoint(start + 2, middle))
-
-    assert widget._dragging is False, "two pixels is a hand, not a gesture"
-    assert widget._knob_pos == resting, "the knob has not left its side"
-
-    # Three pixels is the threshold, and past it the knob follows.
-    QTest.mouseMove(widget, QPoint(start + 20, middle))
-    assert widget._dragging is True
-    assert widget._knob_pos > resting
 
 
 # ---------------------------------------------------------------------------

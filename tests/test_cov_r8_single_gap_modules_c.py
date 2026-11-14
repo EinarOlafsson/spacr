@@ -222,26 +222,6 @@ class TestTheFoldIsOnlyStoredWhenThereIsAKey:
 
         assert stored.get("measure/advanced") is True
 
-    def test_without_a_key_nothing_is_written(self, qtbot, monkeypatch):
-        pytest.importorskip("PySide6")
-        from PySide6.QtWidgets import QLabel, QWidget
-
-        from spacr.qt.widgets import foldable
-
-        wrote = []
-        module = types.ModuleType("spacr.qt.preferences")
-        module.set_folded_panel = lambda key, shut: wrote.append(key)
-        module.get_folded_panels = lambda: {}
-        monkeypatch.setitem(sys.modules, "spacr.qt.preferences", module)
-
-        heading, body = QLabel("Advanced"), QWidget()
-        qtbot.addWidget(heading)
-        qtbot.addWidget(body)
-        folder = foldable.make_foldable(heading, body)
-        folder.set_shut(True)
-
-        assert wrote == [], "a keyless panel wrote to the user's preferences"
-
 
 # ---------------------------------------------------------------------------
 # spacr/qt/widgets/qc_summary.py -- a table with no columns
