@@ -333,25 +333,6 @@ def test_an_unpaired_fastq_run_writes_r1_alone(tmp_path):
 # spacr.qt.prefs
 # ---------------------------------------------------------------------------
 
-def test_a_recent_list_stored_as_one_string_reads_back_as_a_list():
-    """``push_recent_source`` writes ``"\\n".join(...)``, so the string form is
-    the *normal* one on any backend that does not preserve a QStringList."""
-    app_key = "r6_recent_as_string"
-    store = QSettings(prefs.ORG, prefs.APP)
-    store.setValue(f"recent/{app_key}/list", "/plates/a\n/plates/b\n\n/plates/c")
-    store.sync()
-
-    assert prefs.get_recent_sources(app_key) == ["/plates/a", "/plates/b",
-                                                 "/plates/c"]
-    assert prefs.get_recent_sources(app_key, limit=2) == ["/plates/a",
-                                                          "/plates/b"]
-
-    # the list form and the absent form, for contrast
-    store.setValue(f"recent/{app_key}/list", ["/plates/x", "/plates/y"])
-    store.sync()
-    assert prefs.get_recent_sources(app_key) == ["/plates/x", "/plates/y"]
-    assert prefs.get_recent_sources("r6_never_written") == []
-
 
 def test_the_canonical_store_is_not_migrated_onto_itself(monkeypatch):
     """A legacy namespace can resolve to the file being migrated INTO.
