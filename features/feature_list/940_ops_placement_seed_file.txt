@@ -139,3 +139,14 @@ seed the core tier still refuses ("0 of 0 phenotype fields aligned").
 Tests: tests/test_ops_ph_placement_seed_940.py. The would-be phenotype and
 merge references of both tiers (similarity and tile_affine) are built
 locally, not published.
+
+REVISION 2 OF THE TEST DATA (2026-11-14)
+einarolafsson/spacr-example-ops-e2e revision b2e1b09f63 (approved by the
+maintainer) keeps revision 1's tier archives byte for byte and adds
+ops_testdata_funk2022_A1_rev2_{core,full}.tar (OPS_E2E_REFERENCE_ARCHIVES,
+SHA-256 pinned): reference/phenotype (cells, masks) and reference/merge/
+{tile_affine,similarity} from the seeded phenotype run. The fixtures unpack
+them over each tier. tests/test_ops_e2e_testdata.py now compares the seeded
+phenotype placement and the merge (both models, on the reference cells, in
+seconds) and, with SPACR_OPS_E2E_SEGMENT=1, the phenotype segmentation and
+measurement (about 1 h on a CPU).

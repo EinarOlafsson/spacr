@@ -12,9 +12,11 @@ three phenotype fields, with the settings files and spaCR's reference outputs
   ``SPACR_OPS_E2E_FULL=1``.
 
 What runs by default once the network is reachable (or the tier is cached):
-the reader, layout and stitch checks, in seconds. Segmentation takes about
-40 minutes per tier on a CPU, so the objects check runs only with
-``SPACR_OPS_E2E_SEGMENT=1``. The decode check uses the reference nuclei as
+the reader, layout and stitch checks and the seeded phenotype placement and
+merge on the reference cells (revision 2's ``reference/phenotype`` and
+``reference/merge``), in seconds. Segmentation takes 40 to 60
+minutes per tier on a CPU, so the objects check and the phenotype
+segmentation and measurement check run only with ``SPACR_OPS_E2E_SEGMENT=1``. The decode check uses the reference nuclei as
 its fixed input, so a segmentation difference cannot move it. Everything is
 ``network``-marked, which every hosted CI selection excludes.
 
@@ -189,13 +191,104 @@ def test_the_objects_match_the_reference(ops_e2e_core, tmp_path):
             assert found[column].tolist() == ref[column].tolist(), column
 
 
-@pytest.mark.skip(reason=(
-    "the phenotype -> merge/align references (similarity and tile_affine) are "
-    "not in the published revision 4e45cdc1ae: that run needed the phenotype "
-    "placement seed (item 940 part 2). They are built locally and wait for "
-    "the maintainer's OK to publish a new dataset revision"))
-def test_the_seeded_phenotype_and_merge_match_the_reference(ops_e2e_core):
-    """Phenotype seeded from the shipped placement file, then merge/align."""
+def _assert_frames_equal(found: pd.DataFrame, ref: pd.DataFrame, *,
+                         rtol: float, atol: float, what: str) -> None:
+    """Two tables equal: the same columns and rows, floats within tolerance.
+
+    Rows are put in the order of every non-float column, so a table written
+    in another row order still compares.
+    """
+    assert sorted(found.columns) == sorted(ref.columns), what
+    keys = [c for c in ref.columns
+            if not np.issubdtype(ref[c].dtype, np.floating)]
+    found = found[ref.columns].sort_values(keys).reset_index(drop=True)
+    ref = ref.sort_values(keys).reset_index(drop=True)
+    assert len(found) == len(ref), what
+    for column in ref.columns:
+        if np.issubdtype(ref[column].dtype, np.floating):
+            np.testing.assert_allclose(found[column].astype(float), ref[column],
+                                       rtol=rtol, atol=atol, equal_nan=True,
+                                       err_msg=f"{what}: {column}")
+        else:
+            assert found[column].tolist() == ref[column].tolist(), (what, column)
+
+
+def _seeded_run(root: Path, dst: Path, settings_file: str):
+    """Stitch, the reference nuclei and calls, then the seeded phenotype phase.
+
+    :returns: ``(settings, database path)``.
+    """
+    from spacr.ops_engine import _replace_well_rows
+
+    settings = _settings(root, dst, settings_file)
+    settings["n_workers"] = 1
+    settings["ops_gpu"] = False
+    settings["ops_ph_placement_seed"] = str(
+        root / "reference" / "inputs" / "ops_ph_placement_seed.json")
+    db = Path(_run(settings, ["stitch"])["db"])
+    for table, path in (("ops_objects", "objects/ops_objects.parquet"),
+                        ("ops_barcodes", "genotype/ops_barcodes.parquet")):
+        _replace_well_rows(str(db), table, pd.read_parquet(
+            root / "reference" / path), PLATE, WELL)
+    report = _run(settings, ["phenotype"])["wells"][WELL]["phenotype"]
+    assert report["placement"] == "seeded"
+    return settings, db
+
+
+@pytest.mark.parametrize("model, settings_file", [
+    ("tile_affine", "ops_testdata_settings.csv"),
+    ("similarity", "ops_testdata_settings_similarity.csv")])
+def test_the_seeded_phenotype_and_merge_match_the_reference(ops_e2e_core, tmp_path,
+                                                            model, settings_file):
+    """Seeded phenotype placement, then merge, against revision 2's references.
+
+    The phenotype cells are the reference cells (``reference/phenotype``), so
+    this runs in seconds; segmenting and measuring them is the opt-in test
+    below. The calls joined are the core tier's, which are not a decode
+    reference, so only the merge is compared here, never the calls.
+    """
+    import shutil
+
+    root = ops_e2e_core
+    ref = root / "reference" / "merge" / model
+    settings, db = _seeded_run(root, tmp_path, settings_file)
+    shutil.copy(root / "reference" / "phenotype" / "ops_phenotype_cells_A1.parquet",
+                tmp_path / "ops_phenotype_cells_A1.parquet")
+    report = _run(settings, ["merge"])["wells"][WELL]["merge"]
+    expected = json.loads((ref / "merge_report.json").read_text())
+    for key in ("cells", "merged", "duplicates_dropped", "fields", "fields_refined"):
+        assert report[key] == expected[key], key
+    _assert_frames_equal(_table(db, "ops_merge"),
+                         pd.read_parquet(ref / "ops_merge.parquet"),
+                         rtol=1e-6, atol=1e-6, what="ops_merge")
+    _assert_frames_equal(_table(db, "ops_phenotype"),
+                         pd.read_parquet(ref / "ops_phenotype.parquet"),
+                         rtol=1e-6, atol=1e-6, what="ops_phenotype")
+
+
+@pytest.mark.slow
+@pytest.mark.heavy
+def test_the_phenotype_segmentation_and_measurement_match_the_reference(
+        ops_e2e_core, tmp_path):
+    """Seeded phenotype, flat field, segmentation and measurement of the cells.
+
+    About an hour of Cellpose on a CPU, so it runs only with
+    ``SPACR_OPS_E2E_SEGMENT=1``. On the references' torch and cellpose lock
+    the cell table must match (rtol 1e-5, atol 1e-6, the card's CPU
+    phenotype tolerance); on another build the cell count within 0.5 %.
+    """
+    if os.environ.get("SPACR_OPS_E2E_SEGMENT") != "1":
+        pytest.skip("set SPACR_OPS_E2E_SEGMENT=1 to segment (about 1 h on CPU)")
+    root = ops_e2e_core
+    settings, _ = _seeded_run(root, tmp_path, "ops_testdata_settings.csv")
+    _run(settings, ["ph_flatfield", "ph_segment", "ph_measure"])
+    found = pd.read_parquet(tmp_path / "ops_phenotype_cells_A1.parquet")
+    ref = pd.read_parquet(root / "reference" / "phenotype" /
+                          "ops_phenotype_cells_A1.parquet")
+    if not _pinned_environment(root):
+        assert abs(len(found) - len(ref)) <= 0.005 * len(ref)
+        return
+    _assert_frames_equal(found, ref, rtol=1e-5, atol=1e-6, what="cells")
 
 
 def _gate_c(found: pd.DataFrame, root: Path):
