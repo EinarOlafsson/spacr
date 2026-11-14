@@ -23,16 +23,20 @@ the other modules, and the stages of ``mask`` marked "guess", are still read
 from the code (which stage does the per-image heavy work) and await a
 measurement.
 
-**Time left.** The worker's own ``Time_left`` is used when it prints one and
-it covers the rest of the run, that is when the module declares no stages or
-the run is on its last declared stage. Otherwise the estimate is the
-remaining fraction divided by a smoothed rate: an exponential moving average
-of the fraction gained per active second, sampled at most every
-:data:`RATE_SAMPLE_S` seconds. Nothing is shown before :data:`WARMUP_FRACTION`
-of the run or :data:`WARMUP_S` active seconds, whichever comes first, so the
-first number is not wild. Paused time is not active time: while a run is
-paused the estimate stands still, and on resume it carries on from the last
-rate.
+**Time left.** The estimate is the elapsed active time scaled by the
+remaining fraction (``elapsed * (1 - f) / f``), the "naive" estimate. When the
+worker prints its own ``Time_left`` and the run is on its last declared stage
+(or the module declares none), the two are blended with the overall fraction as
+the weight on the worker's figure: early in the run the estimate leans on the
+elapsed time, late in the run on the worker's count of what is left. On
+captured runs of Make Masks, Measure and the simulator a smoothed rate (an
+exponential moving average, alpha 0.05 to 0.3) was no better than the naive
+estimate and far worse on short runs, so none is used; the comparison is in
+``features/feature_list/938_module_progress_bars_show_percent_and_time_left.txt``.
+Nothing is shown before :data:`WARMUP_FRACTION` of the run or :data:`WARMUP_S`
+active seconds, whichever comes first, so the first number is not wild. Paused
+time is not active time: while a run is paused the estimate stands still, and
+on resume it carries on from the elapsed active time.
 
 The class is plain Python with an injectable clock so the estimator can be
 tested without Qt or real time.
@@ -48,10 +52,6 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple
 WARMUP_FRACTION = 0.05
 #: Active seconds after which a time-left estimate may be shown.
 WARMUP_S = 30.0
-#: Weight of the newest rate sample in the moving average.
-RATE_SMOOTHING = 0.3
-#: Shortest active interval, in seconds, that yields a rate sample.
-RATE_SAMPLE_S = 2.0
 
 _PROGRESS_LINE_RE = re.compile(r"\bProgress:\s*(\d+)\s*/\s*(\d+)")
 _OPERATION_RE = re.compile(r"operation_type:\s*([^,]*?)\s*(?:,|$)")
@@ -63,20 +63,20 @@ _MASK_GPU_LINE_RE = re.compile(r"\[mask GPUs\] \w+ Progress:")
 MASK_GPU_LABEL = "mask GPUs"
 
 #: Make Masks, measured (item 938, BBBC021 plate Week1_22123, 240 fields, one GPU
-#: worker, two runs; shares of the wall time to each stage's last count). The
-#: Concatinating and Normalizing loops run five times (one pass per channel
-#: group), so each label carries all five passes; the bar passes both stages on
-#: the first pass and holds there until the masks start. The three stages marked
-#: "guess" did not print on that run and keep their earlier guessed weights.
+#: worker, three runs on a loaded machine; shares of the wall time up to each
+#: stage's last count, the unprinted tail of about 3 % left out). The
+#: Concatinating and Normalizing loops alternate once per batch of fields, so
+#: they are one stage here, and ``*_mask_gen`` lines now come once per batch of
+#: fields inside each role. The three stages marked "guess" did not print on
+#: the reference run and keep their earlier guessed weights.
 _MASK_STAGES: Tuple[Tuple[Tuple[str, ...], float], ...] = (
-    (("Consolidating images",), 0.04),  # guess: not exercised by the reference run
-    (("Merging channels into npy stacks", "Preprocessing filenames"), 0.101),
-    (("Concatinating",), 0.127),
-    (("Normalizing",), 0.033),
-    (("*_mask_gen", MASK_GPU_LABEL), 0.668),
-    (("adjust_cell_masks",), 0.05),  # guess: not exercised by the reference run
-    (("Merging Arrays",), 0.036),
-    (("Plot mask outlines",), 0.05),  # guess: plots were off in the reference run
+    (("Consolidating images",), 0.04),
+    (("Merging channels into npy stacks", "Preprocessing filenames"), 0.121),
+    (("Concatinating", "Normalizing"), 0.177),
+    (("*_mask_gen", MASK_GPU_LABEL), 0.671),
+    (("adjust_cell_masks",), 0.05),
+    (("Merging Arrays",), 0.031),
+    (("Plot mask outlines",), 0.05),
 )
 #: Timelapse keeps the earlier guessed weights: no reference run has measured it.
 _TIMELAPSE_STAGES: Tuple[Tuple[Tuple[str, ...], float], ...] = (
@@ -97,14 +97,14 @@ _CLASSIFY_STAGES: Tuple[Tuple[Tuple[str, ...], float], ...] = (
     (("Tar dataset",), 0.20),
 )
 
+#: Measure is one counted stage: the field loop is 99 % of the run and
+#: "Merging Arrays" never prints in a measure run.
 #: Declared stages per module key: ``((labels, weight), ...)`` in run order.
 #: Labels are ``fnmatch`` patterns over the printed ``operation_type``.
 #: Weights need not sum to one; they are normalised.
 MODULE_STAGES: Dict[str, Tuple[Tuple[Tuple[str, ...], float], ...]] = {
     "mask": _MASK_STAGES,
     "timelapse": _TIMELAPSE_STAGES,
-    # Measured: the field loop is 99 % of the run and "Merging Arrays" never
-    # prints in a measure run, so the loop is the only counted stage.
     "measure": (
         (("Measure and Crop",), 1.0),
     ),
@@ -202,11 +202,8 @@ class RunProgress:
         self._worker_left_at = 0.0
         self._window_start = 0.0
         self._window_fraction = 0.0
-        self._anchor_time = 0.0
-        self._anchor_fraction = 0.0
-        self._rate: Optional[float] = None
-        self._rate_left: Optional[float] = None
-        self._rate_left_at = 0.0
+        self._elapsed_left: Optional[float] = None
+        self._elapsed_left_at = 0.0
         self._last_seen = 0.0
 
     @property
@@ -293,40 +290,31 @@ class RunProgress:
                 restart_at = self._last_seen
             last = True
         if restart_at is not None:
-            self._rate = None
-            self._rate_left = None
+            self._elapsed_left = None
             self._worker_left = None
-            self._window_start = self._anchor_time = restart_at
-            self._window_fraction = self._anchor_fraction = 0.0
+            self._window_start = restart_at
+            self._window_fraction = 0.0
         elif self._fraction is not None:
             overall = max(self._fraction, overall)
         self._fraction = min(1.0, overall)
         self._label = sample.label
         self._last_seen = now
-        self._update_rate(now)
+        self._update_elapsed_estimate(now)
         if sample.seconds_left is not None and last:
             self._worker_left = max(0.0, sample.seconds_left)
             self._worker_left_at = now
         elif not last:
             self._worker_left = None
 
-    def _update_rate(self, now: float) -> None:
-        """Take a rate sample when enough active time has passed."""
-        span = now - self._anchor_time
-        if span < RATE_SAMPLE_S:
+    def _update_elapsed_estimate(self, now: float) -> None:
+        """Scale the active time since the window start by what is left."""
+        gained = self._fraction - self._window_fraction
+        elapsed = now - self._window_start
+        if gained <= 0.0 or elapsed <= 0.0:
+            self._elapsed_left = None
             return
-        gained = self._fraction - self._anchor_fraction
-        sample = max(0.0, gained) / span
-        if self._rate is None:
-            self._rate = sample
-        else:
-            self._rate = (RATE_SMOOTHING * sample
-                          + (1.0 - RATE_SMOOTHING) * self._rate)
-        self._anchor_time = now
-        self._anchor_fraction = self._fraction
-        if self._rate > 0:
-            self._rate_left = (1.0 - self._fraction) / self._rate
-            self._rate_left_at = now
+        self._elapsed_left = elapsed * (1.0 - self._fraction) / gained
+        self._elapsed_left_at = now
 
     def warmed_up(self) -> bool:
         """Whether enough of the run has passed to show an estimate."""
@@ -349,11 +337,16 @@ class RunProgress:
         if not self.warmed_up():
             return None
         now = self.active_seconds()
-        if self._worker_left is not None:
-            return max(0.0, self._worker_left - (now - self._worker_left_at))
-        if self._rate_left is None:
-            return None
-        return max(0.0, self._rate_left - (now - self._rate_left_at))
+        elapsed_based = (None if self._elapsed_left is None else
+                         max(0.0, self._elapsed_left - (now - self._elapsed_left_at)))
+        worker = (None if self._worker_left is None else
+                  max(0.0, self._worker_left - (now - self._worker_left_at)))
+        if worker is None:
+            return elapsed_based
+        if elapsed_based is None:
+            return worker
+        weight = max(0.0, min(1.0, self._fraction))
+        return (1.0 - weight) * elapsed_based + weight * worker
 
 
 def format_time_left(seconds: Optional[float]) -> str:

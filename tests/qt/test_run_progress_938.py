@@ -126,22 +126,28 @@ def test_five_percent_ends_the_warm_up_before_thirty_seconds():
     assert record.seconds_left() == pytest.approx(45.0)
 
 
-def test_the_rate_is_smoothed_so_one_fast_step_moves_it_only_partly():
+def test_the_estimate_is_the_elapsed_time_scaled_by_what_is_left():
     clock = _Clock()
     record = RP.RunProgress("", clock=clock)
     for done in range(1, 6):
         clock.tick(10)
         record.observe(RP.ProgressSample(done * 2, 100, "a"))
-    steady = record.seconds_left()
-    assert steady == pytest.approx(90 * 5.0)
+    assert record.seconds_left() == pytest.approx(50 * 0.90 / 0.10)
 
     clock.tick(10)
     record.observe(RP.ProgressSample(30, 100, "a"))
-    jumped = record.seconds_left()
-    newest_step_alone = 0.70 / (0.20 / 10.0)
-    old_rate_alone = 0.70 / 0.002
+    assert record.seconds_left() == pytest.approx(60 * 0.70 / 0.30)
 
-    assert newest_step_alone < jumped < old_rate_alone
+
+def test_the_workers_figure_weighs_more_the_further_the_run_is():
+    early, late = RP.RunProgress("", clock=_Clock()), RP.RunProgress("", clock=_Clock())
+    for record, done in ((early, 10), (late, 90)):
+        record._clock = _Clock()
+        record._clock.tick(100)
+        record.observe(RP.ProgressSample(done, 100, "a", seconds_left=1000.0))
+    # elapsed based: 900 s at 10 %, 11 s at 90 %; worker 1000 s both times
+    assert early.seconds_left() == pytest.approx(0.9 * 900.0 + 0.1 * 1000.0)
+    assert late.seconds_left() == pytest.approx(0.1 * (100 * 0.1 / 0.9) + 0.9 * 1000.0)
 
 
 def test_paused_time_does_not_count_and_the_rate_carries_on():
@@ -171,7 +177,9 @@ def test_worker_time_left_is_used_and_counts_down():
     record.observe(RP.ProgressSample(10, 100, "a", seconds_left=600.0))
     clock.tick(60)
 
-    assert record.seconds_left() == pytest.approx(540.0)
+    # elapsed estimate 5 s * 0.9 / 0.1 = 45 s has run out; the worker's 600 s
+    # has 540 s left; the worker's weight is the fraction done, 0.10.
+    assert record.seconds_left() == pytest.approx(0.9 * 0.0 + 0.1 * 540.0)
 
 
 def test_declared_stages_weight_one_overall_bar_that_never_goes_back():
@@ -201,7 +209,8 @@ def test_worker_time_left_counts_only_on_the_last_declared_stage():
     assert record._worker_left is None
     record.observe(RP.ProgressSample(5, 10, "Measure and Crop",
                                      seconds_left=300.0))
-    assert record.seconds_left() == pytest.approx(300.0)
+    elapsed_based = 40 * 0.45 / 0.55
+    assert record.seconds_left() == pytest.approx(0.45 * elapsed_based + 0.55 * 300.0)
 
 
 def test_mask_stages_take_role_lines_and_skip_nested_merge_lines():
@@ -253,7 +262,8 @@ def test_the_handle_parses_time_left_and_multi_stage_lines(handle):
 
     assert handle.progress == (5, 10)
     assert handle.fraction() == pytest.approx(0.55)
-    assert handle.seconds_left() == pytest.approx(180.0, abs=2.0)
+    # the worker's 180 s weighs 0.55; the elapsed-based part is near zero on a real clock
+    assert handle.seconds_left() == pytest.approx(0.55 * 180.0, abs=2.0)
 
 
 def test_a_paused_gate_freezes_the_handles_estimate(handle):
@@ -295,7 +305,8 @@ def test_the_home_banner_shows_percent_and_time_left(qapp, handle):
     assert banner._bar.maximum() == 100
     assert banner._bar.value() == 55
     assert banner._bar.text() == "55 %"
-    assert "about 12 min left" in banner._sub.text()
+    # 0.45 * (40 * 0.45 / 0.55) + 0.55 * 720 = 411 s
+    assert "about 7 min left" in banner._sub.text()
     assert "5 of 10" in banner._sub.text()
     banner.deleteLater()
 
@@ -326,7 +337,7 @@ def test_the_module_bar_shows_the_same_text_as_the_banner(qapp, handle):
     banner.bind(handle)
 
     assert screen._progress.text() == banner._bar.text() == "55 %"
-    assert screen._progress_eta.text() == "about 12 min left"
+    assert screen._progress_eta.text() == "about 7 min left"
     assert not screen._progress_eta.isHidden()
     assert screen._progress_eta.text() in banner._sub.text()
     banner.deleteLater()
