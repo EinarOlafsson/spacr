@@ -16,6 +16,8 @@ from spacr.qt.screens import annotate as A
 from spacr.qt.screens import make_masks as M
 from spacr.qt.widgets.qc_field_browser import QCFieldBrowser, QCFieldTarget
 
+from tests import locale_cases
+
 
 def _editor(qtbot):
     window = QMainWindow()
@@ -228,10 +230,8 @@ def test_browser_real_rebound_navigation_and_quarantine(qtbot, tmp_path):
     assert browser.current_field == targets[1].field
 
 
-@pytest.mark.parametrize("default", ["Up", "Down", "H", "J", "K", "L", "U",
-                                    "Space", "Backspace", "Return", "Enter", "?", "Esc",
-                                    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])
-def test_every_existing_annotation_handler_key_can_be_rebound_or_cleared(qtbot, default):
+def _every_existing_annotation_handler_key_can_be_rebound_or_cleared_case(qtbot, default):
+    """One case of :func:`test_every_existing_annotation_handler_key_can_be_rebound_or_cleared`."""
     screen = A.AnnotateScreen()
     qtbot.addWidget(screen)
     seen = []
@@ -249,6 +249,17 @@ def test_every_existing_annotation_handler_key_can_be_rebound_or_cleared(qtbot, 
     _event(screen, original)
     _event(screen, Qt.Key_F8)
     assert original not in seen
+
+
+def test_every_existing_annotation_handler_key_can_be_rebound_or_cleared(subtests, request):
+    for label, case in locale_cases.cases(
+            ("default", ["Up", "Down", "H", "J", "K", "L", "U",
+                                    "Space", "Backspace", "Return", "Enter", "?", "Esc",
+                                    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot',)) as fixtures:
+                _every_existing_annotation_handler_key_can_be_rebound_or_cleared_case(**fixtures, **case)
 
 
 def test_escape_rebinding_applies_to_actual_annotation_zoom_overlay(qtbot):

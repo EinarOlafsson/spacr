@@ -39,6 +39,8 @@ import pytest
 
 from spacr.qt.widgets import ambient
 
+from tests import locale_cases
+
 W, H = 2560, 1440
 
 #: Most a colour-wave frame may cost, in plain frames of the same field.
@@ -142,14 +144,8 @@ def test_a_frame_mixed_by_the_kernel_is_the_numpy_frame(monkeypatch,
     assert bytes(made.shade(320, 180).constBits()) == reference
 
 
-@pytest.mark.parametrize("background", ["#101418", "#eeeeee"])
-@pytest.mark.parametrize("palette", ["spacr", "random"])
-@pytest.mark.parametrize("spread", [False, True])
-@pytest.mark.parametrize("blend", [0, 1, 127, 254, 255])
-@pytest.mark.parametrize("compiled_scatter", [False, True])
-@pytest.mark.parametrize("blink", [0.0, 40.0])
-def test_sparse_crossfades_keep_overlaps_and_clipped_grains_exact(
-        monkeypatch, background, palette, spread, blend, compiled_scatter, blink):
+def _sparse_crossfades_keep_overlaps_and_clipped_grains_exact_case(monkeypatch, background, palette, spread, blend, compiled_scatter, blink):
+    """One case of :func:`test_sparse_crossfades_keep_overlaps_and_clipped_grains_exact`."""
     if ambient._COLOR_BLEND is None:
         _compiled_mixer()
     if not compiled_scatter:
@@ -173,6 +169,20 @@ def test_sparse_crossfades_keep_overlaps_and_clipped_grains_exact(
     monkeypatch.setattr(ambient, "_ready_color_blend", lambda: ambient._COLOR_BLEND)
     actual = made._point_material(13, 9, x, y, light, spread)
     assert bytes(actual.constBits()) == reference
+
+
+def test_sparse_crossfades_keep_overlaps_and_clipped_grains_exact(subtests, request):
+    for label, case in locale_cases.cases(
+            ("background", ["#101418", "#eeeeee"]),
+            ("palette", ["spacr", "random"]),
+            ("spread", [False, True]),
+            ("blend", [0, 1, 127, 254, 255]),
+            ("compiled_scatter", [False, True]),
+            ("blink", [0.0, 40.0]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('monkeypatch',)) as fixtures:
+                _sparse_crossfades_keep_overlaps_and_clipped_grains_exact_case(**fixtures, **case)
 
 
 def test_a_sparse_crossfade_mixes_only_the_grain_support(monkeypatch):

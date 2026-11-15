@@ -43,6 +43,8 @@ from spacr.qt.screens.settings_model import (
     resolve_default_settings,
 )
 
+from tests import locale_cases
+
 
 # Modules that render their own bespoke screen rather than the shared
 # settings form. They have no categories, so nothing here applies to them.
@@ -122,10 +124,8 @@ def _sections(screen: AppScreen) -> tuple:
 # 1. Coverage — every category of every module has written help
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("app_key,title", PAIRS,
-                         ids=[f"{a}:{t}" for a, t in PAIRS])
-def test_every_category_of_every_module_has_a_tooltip(app_key, title):
-    """The parametrised guard: a new category without a blurb fails by name."""
+def _every_category_of_every_module_has_a_tooltip_case(app_key, title):
+    """One case of :func:`test_every_category_of_every_module_has_a_tooltip`."""
     text = category_tooltip(app_key, title)
     assert text, f"{app_key}/{title} renders with no category help at all"
     assert category_tooltip_is_curated(app_key, title), (
@@ -136,10 +136,18 @@ def test_every_category_of_every_module_has_a_tooltip(app_key, title):
     )
 
 
-@pytest.mark.parametrize("app_key,title", PAIRS,
-                         ids=[f"{a}:{t}" for a, t in PAIRS])
-def test_category_help_says_more_than_the_heading(app_key, title):
-    """A blurb that restates the title tells the reader nothing new."""
+def test_every_category_of_every_module_has_a_tooltip(subtests, request):
+    """The parametrised guard: a new category without a blurb fails by name."""
+    for label, case in locale_cases.cases(
+            ("app_key,title", PAIRS, [f"{a}:{t}" for a, t in PAIRS]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _every_category_of_every_module_has_a_tooltip_case(**fixtures, **case)
+
+
+def _category_help_says_more_than_the_heading_case(app_key, title):
+    """One case of :func:`test_category_help_says_more_than_the_heading`."""
     text = category_tooltip(app_key, title)
     words = [w for w in title.replace("&", " ").split() if len(w) > 2]
     assert len(text.split()) >= 12, (
@@ -153,6 +161,16 @@ def test_category_help_says_more_than_the_heading(app_key, title):
         stripped = stripped.replace(word.lower(), "")
     assert len(stripped.split()) >= 8, (
         f"{app_key}/{title}: {text!r} is mostly the heading again")
+
+
+def test_category_help_says_more_than_the_heading(subtests, request):
+    """A blurb that restates the title tells the reader nothing new."""
+    for label, case in locale_cases.cases(
+            ("app_key,title", PAIRS, [f"{a}:{t}" for a, t in PAIRS]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _category_help_says_more_than_the_heading_case(**fixtures, **case)
 
 
 def test_no_module_renders_an_uncategorised_other_bucket():
