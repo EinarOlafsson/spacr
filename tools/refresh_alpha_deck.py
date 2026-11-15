@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
-"""Refresh the two alpha-feature slides from the current registry and reviewed labels.
+"""Refresh the alpha-feature slide from the current registry and grouped lines.
 
 Run ``python tools/refresh_alpha_deck.py`` after rebuilding the presentation.
-The alpha list fills two slides (2026-11-15: one slide of 145 rows was too
-small to read). A fresh build from ``tools/readme_deck`` still has one alpha
-slide, titled ``TITLE``: it becomes the two pages ``TITLES``, and every later
-slide moves up one number (its picture, thumbnail and GitHub page). Once split,
-only the two alpha pages, their JPEGs and thumbnails are replaced. The PDF
-keeps vector text; all other pages are preserved.
+Only the alpha page, its JPEG and its thumbnail are replaced, and the slide is
+retitled ``PUBLISHED_TITLE``. The PDF keeps vector text; all other pages and
+the viewer's numbering are preserved. A fresh build from ``tools/readme_deck``
+names the slide ``TITLE``.
 Requires PySide6, Pillow, pypdf and pdftoppm (the normal deck render tool).
+
+The slide lists lines, not single registry items (2026-11-15: 145 rows were
+too small to read). ``GROUPS`` holds ``(category, lines)`` and each line is
+``(text, item numbers)``. Every ALPHA_FEATURES item number is in exactly one
+line. To add a new alpha item, make one edit: append its number to the line it
+extends, or add a ``(text, (number,))`` line to its category. Keep the text
+truthful to every item on the line and short enough for one row; a line that
+does not fit stops the refresh. The ALPHA_SPECIES item ``SPECIES_ITEM`` is the
+species strip, not a line.
 """
 from __future__ import annotations
 
@@ -23,203 +30,138 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# The single alpha slide of a fresh build (tools/readme_deck/scripts/build.js).
+# The alpha slide of a fresh build (tools/readme_deck/scripts/build.js).
 TITLE = "Alpha features: switch them on in Preferences"
-# The two published alpha slides.
-TITLES = ("Alpha features (1 of 2)", "Alpha features (2 of 2)")
-# Each registry entry appears once, on one of the two slides. The slides split
-# GROUPS at the middle row, and each slide balances two columns.
+# The title of the published alpha slide.
+PUBLISHED_TITLE = "Alpha features"
 GROUPS = (
     ("Segmentation", (
-        (551, "StarDist segmentation backend"),
-        (552, "InstanSeg segmentation backend"),
-        (553, "Omnipose segmentation backend"),
-        (404, "DINOCell segmentation backend"),
-        (405, "SAMCell segmentation backend"),
-        (554, "Spotiflow spot detection"),
-        (475, "SpotNet spot detection"),
-        (555, "Click- and box-prompted segmentation (micro-SAM)"),
-        (568, "Segmentation uncertainty maps"),
-        (578, "Parameter-robustness report"),
-        (546, "Run CellProfiler .cppipe pipelines"),
-        (545, "Masks and ROIs in and out: QuPath, ImageJ, COCO"),
-        (558, "Virtual staining from brightfield"),
-        (493, "Mask batches across several GPUs"),
-        (801, "Several mask workers keep one GPU busy"),
-        (508, "Use Make Masks settings in Mask Generation"),
-        (691, "MitoNet: mitochondria in TEM images"),
+        ("Segmentation backends: StarDist, InstanSeg, Omnipose, DINOCell, SAMCell",
+         (551, 552, 553, 404, 405)),
+        ("Spot detection: Spotiflow, SpotNet", (554, 475)),
+        ("Click- and box-prompted segmentation (micro-SAM)", (555,)),
+        ("Segmentation uncertainty maps and parameter-robustness report", (568, 578)),
+        ("CellProfiler .cppipe pipelines, masks and ROIs via QuPath, ImageJ, COCO",
+         (546, 545)),
+        ("Virtual staining from brightfield", (558,)),
+        ("MitoNet: mitochondria in TEM images", (691,)),
+        ("GPU use: batches across GPUs, workers sharing a GPU, memory budget",
+         (493, 801, 803)),
+        ("Use Make Masks settings in Mask Generation", (508,)),
+        ("Large cropped FOVs: Gallery reader, tiled masks, RAM and VRAM caps",
+         (919, 921, 945)),
     )),
     ("Image preprocessing", (
-        (538, "Spectral unmixing (bleed-through correction)"),
-        (539, "Photobleaching correction"),
-        (543, "Vendor flat-field profiles (Harmony, ZEN)"),
-        (933, "Nuclear-median flat-field in Illumination Correction"),
-        (580, "Intensity calibration across sessions"),
-        (559, "Deep-learning image QC: focus, debris, empty fields"),
-        (557, "Self-supervised denoising (Noise2Void), low-light benchmark"),
-        (591, "Illumination, enhancement and PSF settings"),
-        (802, "Segmentation flat field kept for a later masks-only run"),
+        ("Spectral unmixing, photobleaching correction, intensity calibration",
+         (538, 539, 580)),
+        ("Flat field: vendor profiles, nuclear median, reuse in masks-only runs",
+         (543, 933, 802)),
+        ("Deep-learning image QC and Noise2Void denoising", (559, 557)),
+        ("Illumination, enhancement and PSF settings", (591,)),
     )),
     ("Measurements and\nassays", (
-        (535, "Cell-cycle phase classification"),
-        (540, "Live/dead viability and cytotoxicity index"),
-        (541, "Confluency for any channel"),
-        (536, "Scratch / wound-closure assay"),
-        (542, "Colony / CFU counting"),
-        (547, "Image-based profiling: normalise, select, mAP"),
-        (800, "Size filters from pixel size or magnification"),
-        (790, "Measure label images from CellProfiler, Cellpose, ilastik"),
-        (791, "Feature QC: flag degenerate columns"),
-        (769, "Per-cell export: cell, cytoplasm and nucleus"),
-        (770, "Batch correction: typical variation normalisation"),
-        (566, "GPU measurement (cuCIM, CuPy)"),
-        (501, "Estimate plaque scale and growth time"),
-        (900, "Plaque effects measured against the papers' reports"),
-        (911, "Plaque sizes, absolute and relative, against reports"),
-        (898, "Infection and replication across a titration"),
-        (910, "Host-nucleus effector translocation by parasite load"),
+        ("Cell-cycle phase classification", (535,)),
+        ("Viability, confluency, wound closure and colony / CFU counts",
+         (540, 541, 536, 542)),
+        ("Profiling: normalise, select, mAP, feature QC, TVN batch correction",
+         (547, 791, 770)),
+        ("Size filters from pixel size, label images from other tools", (800, 790)),
+        ("Per-cell export (cell, cytoplasm, nucleus) and GPU measurement", (769, 566)),
+        ("OPS features in Measure, slow families off by default", (934, 941)),
+        ("Plaques: scale, growth time, sizes and effects vs reports", (501, 911, 900)),
+        ("Infection by titration, effector translocation by parasite load", (898, 910)),
     )),
     ("Time-lapse", (
-        (556, "SAM2 propagation: segment once, follow each object"),
-        (426, "Timeflows: a temporal Cellpose"),
-        (537, "Lineage trees from tracks"),
-        (771, "What tracked cells do before they divide"),
-        (864, "Division results in minutes and micrometres"),
-        (867, "Division effect sizes that resample movies"),
-        (865, "Budding-yeast size control"),
-        (866, "Will this cell divide soon?"),
-        (909, "Division prediction: shape-and-motion arm, guards"),
-        (901, "When the changes before a division begin"),
-        (567, "Event detection: mitosis, egress, invasion, death"),
-        (571, "Time-to-event: Kaplan-Meier and Cox"),
+        ("Tracking: SAM2 propagation, Timeflows, lineage trees", (556, 426, 537)),
+        ("Division analysis: lead-up and onset, minutes and µm, effect sizes",
+         (771, 901, 864, 867)),
+        ("Division prediction: will it divide soon, shape-and-motion arm", (866, 909)),
+        ("Budding-yeast size control", (865,)),
+        ("Event detection and time-to-event (Kaplan-Meier, Cox)", (567, 571)),
     )),
     ("Cells and machine\nlearning", (
-        (560, "Foundation-model embeddings (SubCell, OpenPhenom, …)"),
-        (562, "Well labels to responding cells (multiple-instance)"),
-        (563, "Anomaly detection against negative controls"),
-        (565, "Find cells like this one (similarity search)"),
-        (544, "Blind scoring"),
-        (564, "Counterfactuals: morph a control cell toward a hit"),
-        (561, "Self-supervised DINO pretraining"),
-        (772, "Fixed crop scaling and a shuffled-label control"),
-        (899, "Classifier scores held out by well, with controls"),
-        (897, "Channel-adaptive CNN, ViT and well transformer"),
-        (470, "Judge every label from cross-channel ground truth"),
+        ("Embeddings: foundation models, DINO pretraining, similarity search",
+         (560, 561, 565)),
+        ("Well labels to responding cells, anomalies vs controls", (562, 563)),
+        ("Blind scoring and label checks from cross-channel ground truth", (544, 470)),
+        ("Counterfactuals: morph a control cell toward a hit", (564,)),
+        ("Classifier checks: fixed crop scaling, shuffled labels, held-out wells",
+         (772, 899)),
+        ("Channel-adaptive CNN, ViT and well transformer", (897,)),
     )),
-    ("Screens and statistics", (
-        (570, "Arrayed-screen hits: SSMD, robust z, B-score"),
-        (372, "Optical pooled screening (OPS) in Mask Generation"),
-        (752, "OPS phenotype path: segment, merge, per-gene profiles"),
-        (871, "OPS phenotype store, measurement tables and raw crops"),
-        (872, "OPS runs that resume, skip missing fields, add controls"),
-        (874, "OPS cells seen in two fields counted once"),
-        (875, "OPS yield funnel and counts against a published table"),
-        (879, "OPS profiles from stored cell tables, re-run identical"),
-        (880, "OPS gene-pair retrieval mAP against a random null"),
-        (881, "Versioned gene-pair references with held-out halves"),
-        (882, "OPS profile specificity against fitness-matched decoys"),
-        (873, "OPS decode rule (a) + S2 with a decoy FDR"),
-        (876, "What makes an OPS genotype call false"),
-        (877, "A calibrated confidence for each OPS genotype call"),
-        (878, "OPS genotype calls against other pipelines' calls"),
-        (922, "OPS cells matched to another pipeline by mask overlap"),
-        (883, "OPS gene profile over all cells; NT rows"),
-        (907, "OPS contrastive weighting against guide noise"),
-        (887, "OPS guide-efficacy blend (JACKS-style)"),
-        (890, "OPS cell-cycle-resolved gene profiles"),
-        (891, "OPS penetrance, escapers, phase tests, neighbours"),
-        (902, "OPS guide-reliability shrinkage"),
-        (903, "OPS fitness and generic-axis removal"),
-        (904, "OPS guide-level gene pairs with P values"),
-        (905, "OPS responder fraction and distribution distances"),
-        (906, "OPS embedding and fusion gene profiles"),
-        (884, "Gene graph: gene links and categories from screen profiles"),
-        (885, "Protein-knowledge blocks: ESM-2, domains, text, 3Di"),
-        (886, "Screen x knowledge fusion with explained hypotheses"),
-        (888, "OPS module atlas: anchored consensus modules"),
-        (908, "OPS MitoCarta and external-module benchmark"),
-        (889, "Gene-class training: grouped folds, decoy heads"),
-        (915, "OPS match rates in tile overlaps; read stage"),
-        (916, "OPS Leiden resolution sweep with shuffled controls"),
-        (917, "OPS per-gene E-test and cells-per-gene power"),
-        (928, "OPS guide-bootstrap consensus clustering"),
-        (929, "OPS calibrated cluster test with jitter gate"),
-        (936, "Align & Stitch on the OPS stitch core"),
-        (940, "OPS placement seeded from a saved file"),
-        (934, "OPS measurement features in Measure"),
-        (941, "Slow measurement families off by default"),
-        (912, "OPS DNA flat-field map from nuclei, held-out check"),
-        (913, "OPS copairs and EFAAR scores on shared genes"),
-        (923, "OPS CORUM r, STRING AUPRC and zero-TPM hit calls"),
-        (914, "OPS cell-state profiles and mitotic index test"),
-        (919, "Cell Painting Gallery cropped-site reader"),
-        (920, "OPS spacer-prefix decode with quality classes"),
-        (921, "Large cropped sites: tiled segmentation, RAM cap"),
-        (945, "Large sites: mask step under a VRAM cap"),
-        (947, "OPS phenotype folders with two acquisitions"),
-        (918, "OPS gene map: profile clusters, labels, medoid crops"),
-        (939, "OPS automatic genotyping thresholds"),
-        (942, "OPS decode tuning of detection and calling together"),
-        (584, "Chemistry-aware hits: SMILES, clusters, SAR"),
-        (585, "Sample-size planner for arrayed assays"),
-        (534, "Spatial transcriptomics: Visium, Xenium; spatial masks, barcodes"),
-        (583, "LIMS / plate-barcode linkage"),
+    ("Screens", (
+        ("Arrayed-screen hits (SSMD, robust z, B-score), sample-size planner",
+         (570, 585)),
+        ("Chemistry-aware hits: SMILES, clusters, SAR", (584,)),
+        ("Spatial transcriptomics: Visium, Xenium", (534,)),
+        ("LIMS / plate-barcode linkage", (583,)),
+    )),
+    ("OPS runs", (
+        ("OPS in Mask Generation, phenotype path to per-gene profiles", (372, 752)),
+        ("Stitching: Align & Stitch core, seeded placement, overlap match rates",
+         (936, 940, 915)),
+        ("Phenotype store and crops, two acquisitions, yield funnel", (871, 947, 875)),
+        ("Runs resume, skip missing fields, add controls, count cells once", (872, 874)),
+        ("DNA flat-field map from nuclei, held-out check", (912,)),
+    )),
+    ("OPS genotyping", (
+        ("Decode rule (a) + S2 with decoy FDR, spacer-prefix quality classes",
+         (873, 920)),
+        ("False calls, calibrated confidence, matching to other pipelines",
+         (876, 877, 878, 922)),
+        ("Automatic thresholds, detection and calling tuned together", (939, 942)),
+    )),
+    ("OPS gene profiles", (
+        ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),
+        ("Guide noise: contrastive weighting, efficacy blend, reliability shrinkage",
+         (907, 887, 902)),
+        ("Cell-cycle-resolved and cell-state profiles, mitotic index test", (890, 914)),
+        ("Penetrance, escapers, responder fraction, distribution distances", (891, 905)),
+        ("Fitness and generic-axis removal, embedding and fusion profiles", (903, 906)),
+    )),
+    ("OPS benchmarks", (
+        ("Gene-pair mAP vs null, guide-level P values, versioned references",
+         (880, 904, 881)),
+        ("Specificity vs decoys, CORUM, STRING, MitoCarta, zero-TPM hit calls",
+         (882, 923, 908)),
+        ("copairs and EFAAR scores, per-gene E-test and power", (913, 917)),
+    )),
+    ("OPS genes and\nclusters", (
+        ("Clusters: Leiden sweep, guide bootstrap, calibrated test, module atlas",
+         (916, 928, 929, 888)),
+        ("Gene map: profile clusters, labels, medoid crops", (918,)),
+        ("Gene graph, protein knowledge, fusion hypotheses, gene-class training",
+         (884, 885, 886, 889)),
     )),
     ("Automation and data", (
-        (548, "Watch a folder, analyse images as they arrive"),
-        (549, "Smart microscopy: send hits back for re-imaging"),
-        (550, "Cloud storage (S3 and others)"),
-        (750, "Fetch public datasets and check them against the archive"),
-        (751, "Compare a screen with a published per-gene table"),
-        (795, "Mechanism-of-action benchmark, leaving one compound out"),
-        (893, "Screen plates from one settings file, well tables"),
-        (937, "Per-feature aggregation for well, guide and gene tables"),
-        (894, "MoA evaluation with CellProfiler Analyst classifiers"),
-        (896, "Raw crop shards, embeddings and well UMAP"),
-        (575, "Export a run as a Nextflow / Snakemake workflow"),
-        (577, "Run-finished notifications (email, Slack, ntfy)"),
-        (581, "Export for R (SingleCellExperiment), tidy Parquet"),
-        (582, "Plugin and recipe catalogue"),
-        (576, "Postgres or DuckDB / Parquet measurement store"),
-        (633, "Test data on seven more modules"),
-        (685, "Export masks and objects for vvvv"),
+        ("Watch a folder as images arrive, send hits back for re-imaging", (548, 549)),
+        ("Storage: cloud (S3 and others), Postgres or DuckDB / Parquet", (550, 576)),
+        ("Public datasets: fetch, check vs archive, compare per-gene tables",
+         (750, 751)),
+        ("MoA benchmarks: leave one compound out, CellProfiler Analyst", (795, 894)),
+        ("Screen plates from one settings file, aggregation, crop shards, UMAP",
+         (893, 937, 896)),
+        ("Exports: Nextflow / Snakemake, R / Parquet, masks for vvvv", (575, 581, 685)),
+        ("Run-finished notifications (email, Slack, ntfy)", (577,)),
+        ("Plugin and recipe catalogue", (582,)),
+        ("Test data on seven more modules", (633,)),
     )),
     ("Reproducibility", (
-        (572, "Figure-integrity check"),
-        (573, "Pre-registered analysis lock"),
-        (574, "Metadata and archive packages (REMBI, IDR)"),
-        (579, "One-click Zenodo archive with a DOI"),
-        (803, "GPU memory budget on a shared card"),
+        ("Figure-integrity check and pre-registered analysis lock", (572, 573)),
+        ("Archives: REMBI / IDR metadata, one-click Zenodo DOI", (574, 579)),
     )),
 )
 
 
-def _pages():
-    """Split GROUPS between the two slides at the middle row.
-
-    Both slides then hold the same number of rows and look the same. A
-    category cut at the middle carries on the second slide as continued.
-    """
-    return _columns(GROUPS)
-
-
 def _columns(groups=GROUPS):
-    """Split groups into two columns of equal length, cutting one group if needed."""
-    total = sum(len(rows) for _, rows in groups)
-    half = (total + 1) // 2
-    left, right, seen = [], [], 0
-    for category, rows in groups:
-        if seen >= half:
-            right.append((category, rows))
-        elif seen + len(rows) <= half:
-            left.append((category, rows))
-        else:
-            cut = half - seen
-            left.append((category, rows[:cut]))
-            more = category if category.endswith("(continued)") else category + "\n(continued)"
-            right.append((more, rows[cut:]))
-        seen += len(rows)
-    return left, right
+    """Split whole categories into two columns whose lengths differ least."""
+    sizes = [len(lines) for _, lines in groups]
+    total = sum(sizes)
+    cut = min(range(len(groups) + 1),
+              key=lambda i: abs(total - 2 * sum(sizes[:i])))
+    return groups[:cut], groups[cut:]
+
+
 # Alpha organism pages (ALPHA_SPECIES), drawn as a strip with their Home icons.
 SPECIES_ITEM = 634
 SPECIES = (
@@ -231,8 +173,6 @@ SPECIES = (
     ("virus", "Virus"),
     ("mammalian", "Mammalian"),
 )
-# Filed future alpha items that are listed before they enter the registry.
-PLANNED = frozenset()
 
 
 def _registry_ids(source):
@@ -260,23 +200,35 @@ def _species_icons():
     raise ValueError("SHARED_ICON_ASSETS not found in spacr/qt/iconset.py")
 
 
+def _listed_items():
+    """Every item number on a slide line, in slide order."""
+    return [number for _, lines in GROUPS for _, numbers in lines for number in numbers]
+
+
 def _check_registry(source):
     """Return the number of alpha features listed; the species strip is extra."""
     registered = _registry_ids(source)
-    listed = [number for _, rows in GROUPS for number, _ in rows
-              if number not in PLANNED or number in registered]
+    listed = _listed_items()
     if SPECIES_ITEM in registered:
         listed.append(SPECIES_ITEM)
     if len(listed) != len(set(listed)) or set(listed) != registered:
+        duplicates = sorted({n for n in listed if listed.count(n) > 1})
         raise ValueError(
-            f"Update alpha slide labels: missing {sorted(registered - set(listed))}; "
-            f"retired {sorted(set(listed) - registered)}; duplicates are forbidden"
+            f"Update alpha slide lines: missing {sorted(registered - set(listed))}; "
+            f"retired {sorted(set(listed) - registered)}; duplicated {duplicates}"
         )
     return len(listed) - (SPECIES_ITEM in registered)
 
 
+def _footer(count):
+    lines = sum(len(lines) for _, lines in GROUPS)
+    return (f"{count} alpha features in {lines} groups and {len(SPECIES)} alpha species, "
+            "hidden until Preferences → Modules → Show alpha features and Show alpha "
+            "species are on. Early versions: expect changes.")
+
+
 def _draw_pdf(target, count, page_size):
-    """Draw the two alpha pages into one PDF, with identical geometry."""
+    """Draw the alpha page into a one-page PDF."""
     # Qt emits vector text with embedded fonts. No application window is opened.
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     from PySide6.QtCore import QMarginsF, QRectF, QSizeF, Qt
@@ -309,7 +261,7 @@ def _draw_pdf(target, count, page_size):
         font = QFont("Open Sans")
         font.setPixelSize(size)
         font.setWeight(QFont.Weight.DemiBold if bold else QFont.Weight.Normal)
-        # Refuse to publish truncated labels when a registry label changes.
+        # Refuse to publish truncated labels when a line changes.
         metrics = QFontMetricsF(font, pdf)
         if any(metrics.horizontalAdvance(line) > w for line in text.splitlines()):
             raise ValueError(f"Alpha slide label does not fit: {text}")
@@ -317,37 +269,34 @@ def _draw_pdf(target, count, page_size):
         painter.setPen(QColor(color))
         painter.drawText(QRectF(x, y, w, h), Qt.AlignmentFlag.AlignVCenter, text)
 
-    # One row height for both slides, so their geometry is identical. Rows
-    # shrink from 36 px so the longest column ends above the species strip.
-    longest = max(sum(len(rows) for _, rows in column)
-                  for page_groups in _pages() for column in _columns(page_groups))
+    columns = _columns()
+    # Rows shrink from 36 px so the longest column ends above the species strip.
+    longest = max(sum(len(lines) for _, lines in column) for column in columns)
     row_height = min(36, int((1545 - 375) // longest))
     # The captions shrink with the rows, so a line never spills into the next.
     caption_size = min(27, row_height - 4)
-    planned = len(PLANNED - set(_registry_ids(ROOT / "spacr/settings.py")))
     icons = _species_icons()
-
-    def page(title, page_groups):
+    try:
         painter.fillRect(0, 0, 3200, 1800, QColor("#0e1116"))
         label("I N T R O D U C T I O N", 120, 82, 1100, 80, 36, "#29bfb3")
-        label(title, 120, 160, 2650, 130, 94)
+        label(PUBLISHED_TITLE, 120, 160, 2650, 130, 94)
         painter.setPen(QPen(QColor("#d63fa1"), 3))
         painter.setBrush(QColor("#222932"))
         painter.drawRoundedRect(QRectF(2850, 118, 230, 76), 38, 38)
         label("ALPHA", 2910, 123, 160, 64, 32, "#d63fa1", True)
-        for x, groups in zip((120, 1640), _columns(page_groups)):
+        for x, groups in zip((120, 1640), columns):
             painter.fillRect(QRectF(x, 310, 1440, 65), QColor("#222932"))
             label("Category", x + 14, 310, 345, 65, 34, bold=True)
-            label("Alpha feature", x + 388, 310, 1035, 65, 34, bold=True)
+            label("Alpha features", x + 388, 310, 1035, 65, 34, bold=True)
             y = 375
-            for category, rows in groups:
-                painter.fillRect(QRectF(x, y, 371, len(rows) * row_height - 3),
+            for category, lines in groups:
+                painter.fillRect(QRectF(x, y, 371, len(lines) * row_height - 3),
                                  QColor("#191f27"))
-                label(category, x + 14, y, 345, len(rows) * row_height - 3)
-                for _, caption in rows:
+                label(category, x + 14, y, 345, len(lines) * row_height - 3)
+                for text, _ in lines:
                     painter.fillRect(QRectF(x + 374, y, 1066, row_height - 3),
                                      QColor("#191f27"))
-                    label(caption, x + 388, y, 1038, row_height - 3, caption_size)
+                    label(text, x + 388, y, 1038, row_height - 3, caption_size)
                     y += row_height
         top, cell_h = 1560, 110
         painter.fillRect(QRectF(120, top, 371, cell_h), QColor("#222932"))
@@ -361,41 +310,15 @@ def _draw_pdf(target, count, page_size):
                 raise ValueError(f"Species icon does not load: {path}")
             renderer.render(painter, QRectF(x + 18, top + 23, 64, 64))
             label(name, x + 96, top, cell_w - 108, cell_h, 30)
-        label(f"{count} alpha features{f' and {planned} planned' if planned else ''} and "
-              f"{len(SPECIES)} alpha species, hidden until Preferences → Modules → Show alpha "
-              "features and Show alpha species are on. Early versions: expect changes.",
-              120, 1700, 2960, 62, 30, "#acb5be")
-
-    try:
-        for number, (title, page_groups) in enumerate(zip(TITLES, _pages())):
-            if number:
-                pdf.newPage()
-            page(title, page_groups)
+        label(_footer(count), 120, 1700, 2960, 62, 30, "#acb5be")
     finally:
         painter.end()
     # Keep the application alive until the paint device is finalized.
     assert app is not None
 
 
-def _slide_name(kind, number):
-    return f"{kind}/slide_{number:02d}.jpg"
-
-
-def _alpha_slides(manifest):
-    """Index of the first alpha slide, and whether the deck still has a single one."""
-    titles = [slide["title"] for slide in manifest["slides"]]
-    single = [i for i, title in enumerate(titles) if title == TITLE]
-    split = [[i for i, title in enumerate(titles) if title == name] for name in TITLES]
-    if len(single) == 1 and not any(split):
-        return single[0], True
-    if (not single and all(len(found) == 1 for found in split)
-            and split[1][0] == split[0][0] + 1):
-        return split[0][0], False
-    raise ValueError("The deck must have one alpha-feature slide or the two alpha pages in order")
-
-
 def _viewer_pages(folder, manifest):
-    # The GitHub pages and the viewer carry the slide numbers and titles.
+    # The GitHub pages and the viewer carry the slide titles.
     spec = importlib.util.spec_from_file_location(
         "build_readme_deck", ROOT / "tools/build_readme_deck.py")
     builder = importlib.util.module_from_spec(spec)
@@ -414,21 +337,18 @@ def refresh(folder, settings_source=ROOT / "spacr/settings.py"):
     count = _check_registry(settings_source)
     manifest_path = folder / "slides.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    index, single = _alpha_slides(manifest)
+    matches = [i for i, slide in enumerate(manifest["slides"])
+               if slide["title"] in (TITLE, PUBLISHED_TITLE)]
+    if len(matches) != 1:
+        raise ValueError("The deck must have exactly one alpha-feature slide")
+    index = matches[0]
     pdf_path = folder / "spacr_deck.pdf"
     reader = PdfReader(io.BytesIO(pdf_path.read_bytes()))
-    slides = manifest["slides"]
-    if len(reader.pages) != manifest["count"] or len(slides) != manifest["count"]:
+    if len(reader.pages) != manifest["count"] or len(manifest["slides"]) != manifest["count"]:
         raise ValueError("PDF and slide manifest page counts disagree")
-    if single:
-        # Every slide from the alpha slide on must carry its numbered names,
-        # so the later ones can move up one number.
-        for number, slide in enumerate(slides[index:], index + 1):
-            if (slide["image"], slide["thumb"]) != (_slide_name("slides", number),
-                                                    _slide_name("thumbs", number)):
-                raise ValueError("Splitting the alpha slide needs numbered slide assets")
-    alpha = slides[index:index + (1 if single else 2)]
-    for path in (folder / slide[key] for slide in alpha for key in ("image", "thumb")):
+    slide = manifest["slides"][index]
+    image_path, thumb_path = (folder / slide[key] for key in ("image", "thumb"))
+    for path in (image_path, thumb_path):
         if not path.is_file() or not path.resolve().is_relative_to(folder.resolve()):
             raise ValueError("Slide assets must exist inside the deck folder")
     size = tuple(float(value) for value in (
@@ -438,50 +358,27 @@ def refresh(folder, settings_source=ROOT / "spacr/settings.py"):
         page_pdf = stage / "alpha.pdf"
         _draw_pdf(page_pdf, count, size)
         replacement = PdfReader(page_pdf)
-        if len(replacement.pages) != 2:
-            raise ValueError("The alpha list must render as two pages")
-        for page in (1, 2):
-            subprocess.run(["pdftoppm", "-f", str(page), "-l", str(page), "-singlefile",
-                            "-png", "-scale-to-x", "3200", "-scale-to-y", "1800",
-                            str(page_pdf), str(stage / f"alpha{page}")],
-                           check=True, capture_output=True, timeout=120)
-            with Image.open(stage / f"alpha{page}.png") as picture:
-                picture.convert("RGB").save(stage / f"slide{page}.jpg", quality=86,
-                                             optimize=True, subsampling=0, progressive=True)
-                picture.resize((320, 1800 * 320 // 3200), Image.Resampling.LANCZOS).convert(
-                    "RGB").save(stage / f"thumb{page}.jpg", quality=75, optimize=True)
+        if len(replacement.pages) != 1:
+            raise ValueError("The alpha list must render as one page")
+        subprocess.run(["pdftoppm", "-singlefile", "-png", "-scale-to-x", "3200",
+                        "-scale-to-y", "1800", str(page_pdf), str(stage / "alpha")],
+                       check=True, capture_output=True, timeout=120)
+        with Image.open(stage / "alpha.png") as picture:
+            picture.convert("RGB").save(stage / "slide.jpg", quality=86,
+                                         optimize=True, subsampling=0, progressive=True)
+            picture.resize((320, 1800 * 320 // 3200), Image.Resampling.LANCZOS).convert(
+                "RGB").save(stage / "thumb.jpg", quality=75, optimize=True)
         writer = PdfWriter()
         for number, page in enumerate(reader.pages):
-            if number == index:
-                writer.add_page(replacement.pages[0])
-                writer.add_page(replacement.pages[1])
-            elif single or number != index + 1:
-                writer.add_page(page)
+            writer.add_page(replacement.pages[0] if number == index else page)
         if reader.metadata:
             writer.add_metadata({str(k): str(v) for k, v in reader.metadata.items()})
         writer.write(stage / "deck.pdf")
         # All validation/rendering finishes before replacing a published artifact.
-        if single:
-            # Later slides move up one number, from the last one down.
-            for number in range(len(slides), index + 1, -1):
-                for kind in ("slides", "thumbs"):
-                    os.replace(folder / _slide_name(kind, number),
-                               folder / _slide_name(kind, number + 1))
-            for number, slide in enumerate(slides[index + 1:], index + 3):
-                slide["image"] = _slide_name("slides", number)
-                slide["thumb"] = _slide_name("thumbs", number)
-            slides.insert(index + 1, {"image": _slide_name("slides", index + 2),
-                                      "thumb": _slide_name("thumbs", index + 2),
-                                      "title": TITLES[1], "animations": []})
-            manifest["count"] = len(slides)
-        for offset, title in enumerate(TITLES):
-            slides[index + offset]["title"] = title
-        for source, target in (("deck.pdf", pdf_path),
-                               ("slide1.jpg", folder / slides[index]["image"]),
-                               ("thumb1.jpg", folder / slides[index]["thumb"]),
-                               ("slide2.jpg", folder / slides[index + 1]["image"]),
-                               ("thumb2.jpg", folder / slides[index + 1]["thumb"])):
+        for source, target in (("deck.pdf", pdf_path), ("slide.jpg", image_path),
+                               ("thumb.jpg", thumb_path)):
             os.replace(stage / source, target)
+    slide["title"] = PUBLISHED_TITLE
     manifest_path.write_text(json.dumps(manifest, indent=1, ensure_ascii=False) + "\n",
                              encoding="utf-8")
     _viewer_pages(folder, manifest)
@@ -498,7 +395,7 @@ if __name__ == "__main__":
         media = importlib.util.module_from_spec(_spec)
         _spec.loader.exec_module(media)
         media.fetch("deck", ROOT)
-    print(f"Updated alpha slides: {refresh(args.out)} registered features")
+    print(f"Updated alpha slide: {refresh(args.out)} registered features")
     if published:
-        revision = media.publish("deck", ROOT, "deck: alpha feature slides follow the registry")
+        revision = media.publish("deck", ROOT, "deck: alpha feature slide follows the registry")
         print(f"deck media pinned at {revision}" if revision else "deck media unchanged")
