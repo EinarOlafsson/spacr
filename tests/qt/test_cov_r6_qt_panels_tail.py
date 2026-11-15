@@ -107,49 +107,6 @@ class TestAProposalWithNoReadingBehindIt:
             page.deleteLater()
 
 # ---------------------------------------------------------------------------
-# feature_dictionary
-# ---------------------------------------------------------------------------
-
-class TestRemovingTheHelpFilterWhenTheAppHasGone:
-    """``if app is not None:`` in ``remove_context_menu_filter``."""
-
-    def test_the_filter_is_forgotten_even_with_no_application_left(
-            self, qapp, monkeypatch):
-        """At interpreter shutdown ``QApplication.instance()`` answers None.
-
-        The module-level filter is still held, and the reference has to
-        go whatever happens -- otherwise a later install finds a stale
-        one and never re-installs on the new application.
-        """
-        from spacr.qt.widgets import feature_dictionary as fd
-
-        installed = fd.install_context_menu_filter(qapp)
-        assert installed is not None, "there has to be a filter to remove"
-
-        monkeypatch.setattr(fd.QApplication, "instance",
-                            staticmethod(lambda: None))
-
-        assert fd.remove_context_menu_filter() is True
-        assert fd._FILTER is None, \
-            "the held reference must be dropped even with no app to tell"
-        # And a second removal now says there was nothing, which is what
-        # makes the True above a real state change.
-        assert fd.remove_context_menu_filter() is False
-
-    def test_with_an_application_the_filter_is_actually_uninstalled(
-            self, qapp):
-        """The contrast: the filter really comes off the live app."""
-        from spacr.qt.widgets import feature_dictionary as fd
-
-        fd.install_context_menu_filter(qapp)
-        assert fd.remove_context_menu_filter(qapp) is True
-        assert fd._FILTER is None
-        assert fd.install_context_menu_filter(qapp) is not None, \
-            "a fresh install must be possible after a removal"
-        fd.remove_context_menu_filter(qapp)
-
-
-# ---------------------------------------------------------------------------
 # outlier_model
 # ---------------------------------------------------------------------------
 

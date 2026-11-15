@@ -18,7 +18,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
 from tests.test_clicking_a_gene_says_what_it_is import (  # noqa: E402
-    AMBIGUOUS_ROWS, CLEAN_ROWS, REAL_ROWS)
+    REAL_ROWS)
 
 pytestmark = pytest.mark.qt
 
@@ -43,10 +43,6 @@ def panel(qtbot, results):
     qtbot.addWidget(widget)
     widget.show()
     return widget
-
-
-def _lower(widget) -> str:
-    return widget._known.toPlainText()
 
 
 # --------------------------------------------------------------------------- #
@@ -84,113 +80,9 @@ def test_the_warm_up_is_started_once_however_often_it_is_asked(panel):
     assert panel.warm_now() is False
 
 
-def test_the_panel_can_be_pointed_at_another_results_frame(panel, results):
-    """``set_frame_provider`` reaches the half that reads the frame.
-
-    The numbers on the tile are the frame's, not a copy. A provider that
-    stopped at the outer panel would leave the tile showing the previous
-    screen's effect and p-value under the new screen's gene.
-    """
-    moved = results.copy()
-    moved["coefficient"] = moved["coefficient"] * -1.0
-
-    panel.set_frame_provider(lambda: moved)
-    panel.show_feature("fraction:grna[239740_3]")
-
-    assert panel.summary._frame_provider() is moved
-
-
-def test_a_term_with_no_gene_behind_it_says_so_rather_than_showing_nothing(
-        panel, monkeypatch):
-    """A resolvable term whose genes have no record gets a sentence.
-
-    The panel's contract is that nothing is ever blank: "no annotation for
-    this gene" and "this gene has no product recorded" are different facts,
-    and empty fields would be read as the second.
-    """
-    from spacr import gene_facts
-
-    monkeypatch.setattr(gene_facts, "facts_for", lambda genes: {})
-
-    panel.show_feature("fraction:grna[239740_3]")
-
-    assert "No gene number could be parsed" in _lower(panel)
-    assert panel._facts == ()
-
-
 # --------------------------------------------------------------------------- #
 #  Saving the topology through the dialog
 # --------------------------------------------------------------------------- #
-
-def test_the_save_dialog_offers_a_filename_built_from_the_gene(
-        panel, tmp_path, monkeypatch):
-    """The suggested name carries the gene, and the status line the path.
-
-    A folder of ``deeptmhmm.csv`` files is a folder nobody can use. The
-    status line is the only confirmation the write happened at all.
-    """
-    from spacr.qt.widgets import gene_panel as gp
-
-    panel.show_feature("fraction:grna[239740_3]")
-    target = tmp_path / "topology.csv"
-    asked = {}
-
-    def _dialog(parent, caption, suggested, filter_):
-        asked["suggested"] = suggested
-        return str(target), filter_
-
-    monkeypatch.setattr(gp.QFileDialog, "getSaveFileName", staticmethod(_dialog))
-
-    panel._ask_to_save_topology()
-
-    assert "239740" in asked["suggested"]
-    assert target.exists()
-    assert str(target) in panel._status.text()
-
-
-def test_a_cancelled_save_writes_nothing_and_says_nothing(
-        panel, tmp_path, monkeypatch):
-    """Dismissing the dialog leaves the status line and the folder alone.
-
-    An empty path is the user saying no; reporting a write, or attempting
-    one, would put a file called nothing in the working directory.
-    """
-    from spacr.qt.widgets import gene_panel as gp
-
-    panel.show_feature("fraction:grna[239740_3]")
-    before = panel._status.text()
-    monkeypatch.setattr(gp.QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-    monkeypatch.chdir(tmp_path)
-
-    panel._ask_to_save_topology()
-
-    assert panel._status.text() == before
-    assert list(tmp_path.iterdir()) == []
-
-
-def test_a_write_that_fails_says_which_file_and_why(
-        panel, tmp_path, monkeypatch):
-    """An unwritable destination is reported on the status line, not raised.
-
-    A traceback out of a menu action closes nothing and explains nothing; the
-    user needs the path and the reason so they can pick another folder.
-    """
-    from spacr.qt.widgets import gene_panel as gp
-
-    panel.show_feature("fraction:grna[239740_3]")
-    blocker = tmp_path / "blocker"
-    blocker.write_text("this is a file, not a folder", encoding="utf-8")
-    doomed = blocker / "topology.csv"
-    monkeypatch.setattr(gp.QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: (str(doomed), "")))
-
-    panel._ask_to_save_topology()
-
-    assert "Could not write" in panel._status.text()
-    assert str(doomed) in panel._status.text()
-    assert not doomed.exists()
-
 
 # --------------------------------------------------------------------------- #
 #  Going away

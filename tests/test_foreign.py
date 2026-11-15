@@ -1081,6 +1081,20 @@ def test_import_project_previews_before_it_writes(theirs, tmp_path, capsys):
     assert os.path.isfile(result.db_path)
 
 
+def test_import_project_prints_progress_that_ends_at_the_total(theirs, tmp_path, capsys):
+    import re
+    settings = {"images": theirs.images, "masks": theirs.masks(),
+                "measurements": theirs.table, "dst": str(tmp_path / "out"),
+                "um_per_px": 0.5, "preview_only": False}
+    fg.import_project(settings)
+    lines = re.findall(r"Progress: (\d+)/(\d+), operation_type: Importing project",
+                       capsys.readouterr().out)
+    done = [int(a) for a, _b in lines]
+    total = int(lines[-1][1])
+    assert done == sorted(done) and done[0] == 0
+    assert done[-1] == total and {int(b) for _a, b in lines} == {total}
+
+
 def test_import_project_keeps_explicit_naming_and_indexed_well_settings(tmp_path, monkeypatch, capsys):
     from tests.test_import_example_round_trip import builder
     from spacr import import_examples

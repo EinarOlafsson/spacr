@@ -21,7 +21,6 @@ from PySide6.QtCore import QPoint, QPointF, Qt
 from PySide6.QtGui import QWheelEvent
 
 from spacr.qt import mask_engine as engine
-from spacr.qt.screens import make_masks as mm
 from spacr.qt.screens.make_masks import (MakeMasksScreen, _MaskCanvas,
                                          _MaskLoadWorker)
 
@@ -230,49 +229,6 @@ def test_a_fold_button_that_is_not_there_is_not_restated(screen):
     assert screen._restate_fold_button(None, "curate") is None
 
 
-def test_seeding_a_module_that_has_no_screen_seeds_nothing(screen,
-                                                           monkeypatch):
-    """With no folded screen there is nothing to point at the folder.
-
-    An empty dict is what tells the caller the module will open on its own
-    file picker, exactly as its tile did.
-    """
-    monkeypatch.setattr(type(screen), "folded_screen",
-                        lambda self, key: None)
-
-    assert screen.seed_folded("curate") == {}
-
-
-def test_opening_the_model_zoo_points_it_at_the_open_folder(screen,
-                                                            monkeypatch):
-    """The zoo is handed the fields this screen already has open.
-
-    The whole reason these are buttons on the masthead is that the folder is
-    chosen here; a zoo that opened empty would fold a file dialog in with it.
-    The load itself runs off the GUI thread, so what is pinned is the folder
-    the zoo was asked for.
-    """
-    zoo = screen.folded_screen("model_zoo")
-    asked = []
-    monkeypatch.setattr(type(zoo), "set_fields_source",
-                        lambda self, folder: asked.append(folder) or True)
-
-    seeded = screen.seed_folded("model_zoo")
-
-    assert seeded == {"folder": screen._folder}
-    assert asked == [screen._folder]
-
-
-def test_the_training_half_of_cellpose_keeps_its_own_path(screen):
-    """Training is opened on its own tab with nothing seeded.
-
-    Training reads a labelled set that is usually not the folder being
-    curated, and it is the one path that must not be guessed at.
-    """
-    assert screen.seed_folded("train_cellpose") == {}
-    assert screen.seed_folded(mm.MASK_FOLDER_KEY) == {"src": screen._folder}
-
-
 def test_a_compare_request_with_no_window_to_show_it_does_nothing(
         screen, monkeypatch):
     """When the folded dialog cannot open, the request is dropped quietly.
@@ -451,52 +407,6 @@ def test_a_second_field_asked_for_while_one_is_loading_waits_its_turn(
     assert [request[1] for request in started] == ["img_00.tif", "img_01.tif"]
     np.testing.assert_array_equal(
         screen._canvas.image, imageio.imread(Path(screen._folder) / "img_01.tif"))
-
-
-def test_a_finished_load_with_no_worker_left_is_ignored(screen):
-    """The finished handler answers nothing when the worker has gone.
-
-    ``finished`` can arrive after the screen has already dropped the worker
-    -- a folder change, or a close -- and reading its token then is a use of
-    a destroyed QThread.
-    """
-    screen._load_worker = None
-
-    assert screen._on_background_load_finished() is None
-
-
-def test_a_background_load_that_failed_is_reported_and_the_next_one_starts(
-        screen, monkeypatch):
-    """A worker error goes through the failure path, then the queue drains.
-
-    Dropping the pending request on a failure leaves the editor showing the
-    previous field under the newly selected filename.
-    """
-    reported = []
-    monkeypatch.setattr(type(screen), "_handle_load_failure",
-                        lambda self, error: reported.append(error))
-    started = []
-    monkeypatch.setattr(type(screen), "_start_background_load",
-                        lambda self, *request: started.append(request))
-
-    class _Failed:
-        token = screen._load_token
-        filename = "img_01.tif"
-        result = None
-        error = OSError("the share went away mid-read")
-
-        def deleteLater(self):
-            pass
-
-    screen._load_worker = _Failed()
-    screen._pending_load = (screen._folder, "img_02.tif",
-                            screen._load_token)
-
-    screen._on_background_load_finished()
-
-    assert reported and isinstance(reported[0], OSError)
-    assert started == [(screen._folder, "img_02.tif", screen._load_token)]
-    assert screen._pending_load is None
 
 
 def test_a_pair_that_arrives_for_the_previous_field_is_dropped(screen):

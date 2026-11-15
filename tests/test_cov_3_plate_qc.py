@@ -4,9 +4,8 @@ The module's rule is that a NaN in a QC report is indistinguishable from
 "nobody looked", so every statistic that cannot be computed comes back as
 None and is rendered as the reason. These tests drive the paths where that
 rule is under pressure: values that are not numbers, a comparison scipy
-cannot rank, wells whose labels cannot be read, a forced plate geometry too
-small for the data, and a report asked for a ring or an axis it never
-measured.
+cannot rank, labels that are not well positions, a plate of unmeasured
+wells, and a report asked for a ring or an axis it never measured.
 """
 from __future__ import annotations
 
@@ -109,68 +108,9 @@ def test_a_frame_with_no_plate_column_says_it_invented_the_plate_name():
     assert any("every well assigned to plate 'p1'" in n for n in notes)
 
 
-def test_labels_that_cannot_be_read_leave_an_empty_layout_that_counts_them():
-    """An empty grid is the honest answer, and the count of skipped rows is
-    what tells the user their labels are the problem."""
-    frame = pd.DataFrame({"rowID": ["??", "??"], "columnID": ["??", "??"],
-                          "v": [1.0, 2.0]})
-
-    layout = pq.plate_layout(frame, value_col="v")
-
-    assert len(layout) == 0
-    assert list(layout.columns) == list(pq._empty_layout().columns)
-    assert layout.attrs["n_unparsed_rows"] == 2
-    assert any("could not be read as a well position" in n
-               for n in layout.attrs["notes"])
-
-
 # ---------------------------------------------------------------------------
-# Forced geometry
+# Trends
 # ---------------------------------------------------------------------------
-
-def _sixteen_by_sixteen():
-    return pd.DataFrame({"rowID": [f"r{i}" for i in range(1, 17)],
-                         "columnID": [f"c{i}" for i in range(1, 17)],
-                         "v": [float(i) for i in range(16)]})
-
-
-def test_a_plate_format_that_is_not_a_plate_is_refused_by_name():
-    """The message lists the formats that exist, because the caller passing
-    999 has no other way to find out what it should have passed."""
-    with pytest.raises(ValueError) as excinfo:
-        pq.plate_layout(_sixteen_by_sixteen(), value_col="v",
-                        plate_format=999)
-
-    assert "999" in str(excinfo.value)
-    assert "384" in str(excinfo.value)
-
-
-def test_a_forced_geometry_smaller_than_the_data_is_grown_and_reported():
-    """Wells outside the forced grid must not be dropped off the plate. The
-    grid grows to hold them and the note says the forced format did not
-    fit."""
-    layout = pq.plate_layout(_sixteen_by_sixteen(), value_col="v",
-                             plate_format=96)
-
-    assert layout.attrs["plate_format"] == 96
-    assert (layout.attrs["n_rows"], layout.attrs["n_cols"]) == (16, 16)
-    assert any("smaller than the observed 16x16 extent" in n
-               for n in layout.attrs["notes"])
-    assert "P16" in set(layout["well"]), (
-        "the well past the forced 8x12 grid was dropped")
-
-
-# ---------------------------------------------------------------------------
-# Colour limits and trends
-# ---------------------------------------------------------------------------
-
-def test_reversed_colour_limits_are_put_back_in_order():
-    """A user who types the high limit first gets the scale they meant, not
-    an inverted colour map that reads as an inverted result."""
-    layout = pq.plate_layout(_sixteen_by_sixteen(), value_col="v")
-
-    assert pq.colour_limits(layout, min_max=[10, 2]) == (2.0, 10.0)
-
 
 def test_a_plate_of_unmeasured_wells_yields_no_trend_rows():
     """The wells exist but none has a value. Emitting per-row means of

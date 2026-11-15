@@ -676,7 +676,7 @@ def test_display_falls_back_to_a_noop_without_ipython(monkeypatch):
 def test_adjusted_cell_masks_are_rescored_before_merge(run_dir, stubs, monkeypatch):
     from spacr import core, object as objects, io, utils, seg_qc
 
-    def generate(src, settings, role):
+    def generate(src, settings, role, **_options):
         folder = os.path.join(src, role + '_mask_stack')
         os.makedirs(folder, exist_ok=True)
         mask = np.zeros((40, 40), np.uint16)
@@ -711,7 +711,7 @@ def test_motility_runs_once_after_all_roles_and_merged_frames(run_dir, stubs, mo
 
     events = []
 
-    def generate(src, settings, role):
+    def generate(src, settings, role, **_options):
         settings['src'] = src
         events.append(role)
 
