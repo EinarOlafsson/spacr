@@ -2252,6 +2252,7 @@ SETTING_API_TARGETS_BY_MODULE = {
     'ops_cross_field_ownership': {'spacr.ops_engine': ('', False)},
     'ops_cross_field_policy': {'spacr.ops_engine': ('', False)},
     'ops_crosstalk': {'spacr.ops_engine': ('', False)},
+    'ops_decode_threshold_mode': {'spacr.ops_engine': ('', False)},
     'ops_design': {'spacr.ops_engine': ('', False)},
     'ops_deterministic_blas': {'spacr.ops_engine': ('run_ops', True)},
     'ops_drop_failed_fields': {'spacr.ops_engine': ('', False)},
