@@ -166,7 +166,7 @@ class TestClampHoldsAValueInsideItsBounds:
 class TestNamingFilesThatAlreadyKnowTheirPlaceOnThePlate:
     """``if not have_field: ... elif not have_well:`` -- neither side."""
 
-    FILES = [f"/raw/img_{i}.tif" for i in range(4)]
+    FILES = [f"/raw/A01/img_{i}.tif" for i in range(4)]
 
     def test_with_both_known_every_file_is_one_field_of_one_well(self):
         """The caller read them off the folder structure, so nothing counts up.

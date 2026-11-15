@@ -316,9 +316,9 @@ class TestMintingTheMissingIdentifiers:
         """
         from spacr.qt.folder_metadata import assign_missing_fields
 
-        mapped = assign_missing_fields(self._names(), plate="plate1",
-                                       have_well=True, have_field=True,
-                                       have_channel=True)
+        mapped = assign_missing_fields(
+            [f"/data/A01/img_{i}.tif" for i in range(4)], plate="plate1",
+            have_well=True, have_field=True, have_channel=True)
 
         assert {m.well for m in mapped} == {"A01"}
         assert {m.field for m in mapped} == {1}
