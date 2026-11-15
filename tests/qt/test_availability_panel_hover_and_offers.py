@@ -229,3 +229,11 @@ def test_an_offer_that_cannot_be_installed_here_is_only_explained(subtests):
                 confirm=never("confirm"), dry_run=never("the resolver"),
                 install=never("pip")) == outcome
             assert seen == informed
+
+    with subtests.test(msg="the default resolver is built but never asked"):
+        seen = []
+        assert run_install_offer(
+            None, _Offer(action="elsewhere"),
+            inform=lambda t, x: seen.append((t, x)),
+            confirm=never("confirm"), install=never("pip")) == "explained"
+        assert seen == [("GPU acceleration", "GPU acceleration: elsewhere")]

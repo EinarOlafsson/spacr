@@ -229,4 +229,5 @@ def test_the_chip_strip_is_rebuilt_whatever_items_it_holds(make_editor,
             assert editor._chips_layout.count() == len(expected)
             chips = [editor._chips_layout.itemAt(i).widget()
                      for i in range(editor._chips_layout.count())]
-            assert chips[-1].value_pill.text() == "the rest, at random"
+            assert [chip.value_pill.text() for chip in chips] == (
+                expected[:-1] + ["the rest, at random"])
