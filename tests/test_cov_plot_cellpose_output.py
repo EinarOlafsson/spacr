@@ -23,13 +23,17 @@ Covered here:
     ``num_channels == 1`` axes-wrapping branch, the multi-channel branch and
     the empty-directory early-out.
 
-One strict xfail records a real defect: the two Cellpose renderers annotate
-``np.unique(mask)[1:]``, which silently drops a *real* label whenever the mask
-has no background pixels (``plot_organelle_output`` gets this right by
-filtering ``!= 0`` explicitly).
+The renderers must label every real object even when the mask has no
+background pixels (the ``*_when_mask_has_no_background`` rows).
+
+Each contract is one parametrised test per function.  The rows name a helper
+that does the setup and call (keeping its secondary checks) and returns what
+it observed; the row carries the expected value and the test body compares
+the two.
 """
 from __future__ import annotations
 
+import inspect
 import os
 
 import numpy as np
@@ -38,6 +42,12 @@ import pytest
 matplotlib = pytest.importorskip("matplotlib")
 matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt  # noqa: E402
+
+
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
 
 
 @pytest.fixture(autouse=True)
@@ -103,27 +113,20 @@ def _case_plot_cellpose4_output_builds_channel_mask_and_flow_panels():
 
     out = plot_cellpose4_output(batch, [mask], [flow], figuresize=2, nr=1)
 
-    assert out is None
     figs = _figures()
-    assert len(figs) == 1
     fig = figs[0]
-    # 2 image channels + mask + flow
-    assert len(fig.axes) == 4
-    assert _titles(fig) == [
-        "Image - Channel0", "Image - Channel1", "Mask", "Flow",
-    ]
-    # every panel got exactly one image
-    assert [len(a.get_images()) for a in fig.axes] == [1, 1, 1, 1]
     np.testing.assert_allclose(_img_array(fig.axes[0]), batch[0][..., 0])
     np.testing.assert_allclose(_img_array(fig.axes[1]), batch[0][..., 1])
     np.testing.assert_array_equal(_img_array(fig.axes[2]), mask)
     np.testing.assert_array_equal(_img_array(fig.axes[3]), flow)
-    # one annotation per foreground label, drawn on the mask panel only
-    assert sorted(t.get_text() for t in fig.axes[2].texts) == ["1", "2", "3"]
-    assert [len(a.texts) for a in fig.axes] == [0, 0, 3, 0]
     # font size follows figuresize / 2
     assert fig.axes[2].texts[0].get_fontsize() == pytest.approx(1.0)
     assert fig.axes[2].texts[0].get_color() == "white"
+    # 2 image channels + mask + flow, each panel with exactly one image; one
+    # annotation per foreground label, drawn on the mask panel only
+    return (out, len(figs), _titles(fig), [len(a.get_images()) for a in fig.axes],
+            sorted(t.get_text() for t in fig.axes[2].texts),
+            [len(a.texts) for a in fig.axes])
 
 
 def _case_plot_cellpose4_output_without_object_numbers_draws_no_text():
@@ -136,9 +139,8 @@ def _case_plot_cellpose4_output_without_object_numbers_draws_no_text():
                           print_object_number=False)
 
     fig = _figures()[0]
-    assert len(fig.axes) == 3  # 1 channel + mask + flow
-    assert _titles(fig) == ["Image - Channel0", "Mask", "Flow"]
-    assert all(len(a.texts) == 0 for a in fig.axes)
+    # 1 channel + mask + flow
+    return len(fig.axes), _titles(fig), [len(a.texts) for a in fig.axes]
 
 
 def _case_plot_cellpose4_output_nr_caps_the_number_of_figures():
@@ -149,12 +151,12 @@ def _case_plot_cellpose4_output_nr_caps_the_number_of_figures():
     flows = [_rgb_flow(16, seed=i) for i in range(4)]
 
     # nr=2 -> the third and fourth images fall through the `index < nr` guard
-    assert plot_cellpose4_output(batch, masks, flows, figuresize=2, nr=2) is None
+    out = plot_cellpose4_output(batch, masks, flows, figuresize=2, nr=2)
 
     figs = _figures()
-    assert len(figs) == 2
     for i, fig in enumerate(figs):
         np.testing.assert_array_equal(_img_array(fig.axes[2]), flows[i])
+    return out, len(figs)
 
 
 def _case_plot_cellpose4_output_accepts_2d_flow_field():
@@ -166,9 +168,8 @@ def _case_plot_cellpose4_output_accepts_2d_flow_field():
     plot_cellpose4_output(batch, [_label_mask(16, n=2)], [flow2d], figuresize=2, nr=1)
 
     fig = _figures()[0]
-    assert fig.axes[2].get_title() == "Flow"
     np.testing.assert_allclose(_img_array(fig.axes[2]), flow2d)
-    assert fig.axes[2].get_images()[0].get_cmap().name == "viridis"
+    return fig.axes[2].get_title(), fig.axes[2].get_images()[0].get_cmap().name
 
 
 def _case_plot_cellpose4_output_labels_every_object_when_mask_has_no_background():
@@ -181,7 +182,7 @@ def _case_plot_cellpose4_output_labels_every_object_when_mask_has_no_background(
     plot_cellpose4_output(batch, [mask], [_rgb_flow(16)], figuresize=2, nr=1)
 
     fig = _figures()[0]
-    assert sorted(t.get_text() for t in fig.axes[2].texts) == ["1", "2"]
+    return sorted(t.get_text() for t in fig.axes[2].texts)
 
 
 # ---------------------------------------------------------------------------
@@ -210,27 +211,19 @@ def _case_plot_organelle_output_spots_otsu_three_panels():
 
     out = plot_organelle_output(imgs, [mask], settings, figuresize=2, nr=1)
 
-    assert out is None
     figs = _figures()
-    assert len(figs) == 1
     fig = figs[0]
-    assert len(fig.axes) == 3
-    assert _titles(fig) == [
-        "Organelle channel (spots/otsu)",
-        "Mask (3 objects)",
-        "Top-hat filtered (r=3)",
-    ]
     np.testing.assert_allclose(_img_array(fig.axes[0]), imgs[0])
     np.testing.assert_array_equal(_img_array(fig.axes[1]), mask)
     # diagnostic panel is a same-shaped 2-D image, not the raw channel
     diag = _img_array(fig.axes[2])
     assert diag.shape == imgs[0].shape
     assert not np.allclose(diag, imgs[0])
-    # every foreground label annotated, background never annotated
-    assert sorted(t.get_text() for t in fig.axes[1].texts) == ["1", "2", "3"]
-    assert [len(a.texts) for a in fig.axes] == [0, 3, 0]
-    # all three panels have their frames/ticks switched off
-    assert [a.axison for a in fig.axes] == [False, False, False]
+    # every foreground label annotated, background never annotated; all three
+    # panels have their frames/ticks switched off
+    return (out, len(figs), len(fig.axes), _titles(fig),
+            sorted(t.get_text() for t in fig.axes[1].texts),
+            [len(a.texts) for a in fig.axes], [a.axison for a in fig.axes])
 
 
 def _case_plot_organelle_output_defaults_to_spots_otsu_when_settings_empty():
@@ -240,10 +233,8 @@ def _case_plot_organelle_output_defaults_to_spots_otsu_when_settings_empty():
     plot_organelle_output(imgs, [_label_mask(48, n=2)], {}, figuresize=2, nr=1)
 
     fig = _figures()[0]
-    assert fig.axes[0].get_title() == "Organelle channel (spots/otsu)"
     # default organelle_tophat_radius is 5
-    assert fig.axes[2].get_title() == "Top-hat filtered (r=5)"
-    assert fig.axes[1].get_title() == "Mask (2 objects)"
+    return _titles(fig)
 
 
 def _case_plot_organelle_output_counts_all_labels_when_mask_has_no_background():
@@ -257,11 +248,11 @@ def _case_plot_organelle_output_counts_all_labels_when_mask_has_no_background():
 
     fig = _figures()[0]
     # `0 in mask` is False here -> no background subtraction from the count
-    assert fig.axes[1].get_title() == "Mask (2 objects)"
-    assert sorted(t.get_text() for t in fig.axes[1].texts) == ["1", "2"]
     # irregular morphology routes to the gaussian diagnostic
-    assert fig.axes[0].get_title() == "Organelle channel (irregular/otsu)"
-    assert fig.axes[2].get_title().startswith("Gaussian smoothed")
+    return (fig.axes[1].get_title(),
+            sorted(t.get_text() for t in fig.axes[1].texts),
+            fig.axes[0].get_title(),
+            fig.axes[2].get_title().startswith("Gaussian smoothed"))
 
 
 def _case_plot_organelle_output_without_object_numbers_draws_no_text():
@@ -273,8 +264,7 @@ def _case_plot_organelle_output_without_object_numbers_draws_no_text():
                           figuresize=2, nr=1, print_object_number=False)
 
     fig = _figures()[0]
-    assert fig.axes[1].get_title() == "Mask (3 objects)"
-    assert all(len(a.texts) == 0 for a in fig.axes)
+    return fig.axes[1].get_title(), [len(a.texts) for a in fig.axes]
 
 
 def _case_plot_organelle_output_stops_at_the_smallest_of_masks_nr_and_batch():
@@ -285,17 +275,17 @@ def _case_plot_organelle_output_stops_at_the_smallest_of_masks_nr_and_batch():
     plot_organelle_output(imgs, masks, {}, figuresize=2, nr=5)  # nr limit = 5
 
     figs = _figures()
-    assert len(figs) == 2  # min(3, 5, 2)
     for fig, img in zip(figs, imgs):
         np.testing.assert_allclose(_img_array(fig.axes[0]), img)
+    return len(figs)  # min(3, 5, 2)
 
 
 def _case_plot_organelle_output_with_no_masks_draws_nothing():
     from spacr.plot import plot_organelle_output
 
     imgs = _organelle_batch(n=2, size=16)
-    assert plot_organelle_output(imgs, [], {}, figuresize=2, nr=3) is None
-    assert plt.get_fignums() == []
+    out = plot_organelle_output(imgs, [], {}, figuresize=2, nr=3)
+    return out, plt.get_fignums()
 
 
 # ---------------------------------------------------------------------------
@@ -312,13 +302,12 @@ def _case_plot_masks_png_file_type_unwraps_the_first_flow_element():
     # stripped by `flows = flows[0]`, then file_type='png' takes f[0].
     flows = [[[flow_rgb, np.zeros((2, 32, 32), np.float32), "not-an-array"]]]
 
-    assert plot_masks(batch, [mask], flows, figuresize=2, nr=1, file_type="png") is None
+    out = plot_masks(batch, [mask], flows, figuresize=2, nr=1, file_type="png")
 
     fig = _figures()[0]
-    assert _titles(fig) == ["Image - Channel0", "Image - Channel1", "Mask", "Flow"]
     # the flow panel shows f[0]; without the unwrap imshow would have raised
     np.testing.assert_array_equal(_img_array(fig.axes[3]), flow_rgb)
-    assert sorted(t.get_text() for t in fig.axes[2].texts) == ["1", "2", "3"]
+    return out, _titles(fig), sorted(t.get_text() for t in fig.axes[2].texts)
 
 
 def _case_plot_masks_expands_a_single_3d_image_and_wraps_bare_arrays():
@@ -331,21 +320,20 @@ def _case_plot_masks_expands_a_single_3d_image_and_wraps_bare_arrays():
     plot_masks(single, mask, flow, figuresize=2, nr=1)
 
     figs = _figures()
-    assert len(figs) == 1
     fig = figs[0]
-    assert len(fig.axes) == 3
     np.testing.assert_allclose(_img_array(fig.axes[0]), single[..., 0])
     np.testing.assert_array_equal(_img_array(fig.axes[1]), mask)
     np.testing.assert_array_equal(_img_array(fig.axes[2]), flow)
-    assert sorted(t.get_text() for t in fig.axes[1].texts) == ["1", "2"]
+    return (len(figs), len(fig.axes),
+            sorted(t.get_text() for t in fig.axes[1].texts))
 
 
 def _case_plot_masks_nr_zero_creates_no_figure():
     from spacr.plot import plot_masks
 
     batch = _batch(n=1, size=16, chans=1)
-    assert plot_masks(batch, _label_mask(16, n=2), _rgb_flow(16), nr=0) is None
-    assert plt.get_fignums() == []
+    out = plot_masks(batch, _label_mask(16, n=2), _rgb_flow(16), nr=0)
+    return out, plt.get_fignums()
 
 
 # ---------------------------------------------------------------------------
@@ -362,14 +350,12 @@ def _case_plot_4D_arrays_multichannel_plots_one_panel_per_channel(tmp_path):
     stack = np.random.default_rng(5).random((2, 16, 16, 3)).astype(np.float32)
     _write_npz(tmp_path / "field.npz", stack)
 
-    assert _plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=1, nr=2) is None
+    out = _plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=1, nr=2)
 
     figs = _figures()
-    assert len(figs) == 2  # nr=2 images out of the 2 in the stack
+    panels = []
     for i, fig in enumerate(figs):
-        assert len(fig.axes) == 3
-        assert _titles(fig) == ["Channel 0", "Channel 1", "Channel 2"]
-        assert [a.axison for a in fig.axes] == [False, False, False]
+        panels.append((len(fig.axes), _titles(fig), [a.axison for a in fig.axes]))
         for c, ax in enumerate(fig.axes):
             np.testing.assert_allclose(_img_array(ax), stack[i][:, :, c])
             # THE TITLE SCALES WITH THE PANEL NOW. It was pinned at 24 pt whatever
@@ -379,6 +365,8 @@ def _case_plot_4D_arrays_multichannel_plots_one_panel_per_channel(tmp_path):
     from spacr.plot import _montage_type_size
 
     assert ax.title.get_size() == pytest.approx(_montage_type_size(2))
+    # nr=2 images out of the 2 in the stack
+    return out, len(figs), panels
 
 
 def _case_plot_4D_arrays_single_channel_uses_one_axes(tmp_path):
@@ -390,12 +378,11 @@ def _case_plot_4D_arrays_single_channel_uses_one_axes(tmp_path):
     _plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=1, nr=1, cmap="gray")
 
     figs = _figures()
-    assert len(figs) == 1
     fig = figs[0]
-    assert len(fig.axes) == 1  # axs was wrapped in a list, not indexed as an array
-    assert fig.axes[0].get_title() == "Channel 0"
     np.testing.assert_allclose(_img_array(fig.axes[0]), stack[0][:, :, 0])
-    assert fig.axes[0].get_images()[0].get_cmap().name == "gray"
+    # axs was wrapped in a list, not indexed as an array (one axes)
+    return (len(figs), len(fig.axes), fig.axes[0].get_title(),
+            fig.axes[0].get_images()[0].get_cmap().name)
 
 
 def _case_plot_4D_arrays_nr_npz_caps_files_and_ignores_non_npz(tmp_path):
@@ -413,18 +400,18 @@ def _case_plot_4D_arrays_nr_npz_caps_files_and_ignores_non_npz(tmp_path):
     _plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=2, nr=1)
 
     figs = _figures()
-    assert len(figs) == 2  # 2 of the 3 .npz files, 1 image each
     drawn = {float(_img_array(f.axes[0])[0, 0]) for f in figs}
     assert drawn.issubset({0.0, 1.0, 2.0})
-    assert len(drawn) == 2  # two *different* files were sampled
+    # 2 of the 3 .npz files, 1 image each; two *different* files were sampled
+    return len(figs), len(drawn)
 
 
 def _case_plot_4D_arrays_empty_directory_plots_nothing(tmp_path):
     from spacr.plot import _plot_4D_arrays
 
     (tmp_path / "only.txt").write_text("nothing to plot", encoding="utf-8")
-    assert _plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=3, nr=1) is None
-    assert plt.get_fignums() == []
+    out = _plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=3, nr=1)
+    return out, plt.get_fignums()
 
 
 def _case_plot_4D_arrays_nr_larger_than_stack_is_clamped(tmp_path):
@@ -435,37 +422,88 @@ def _case_plot_4D_arrays_nr_larger_than_stack_is_clamped(tmp_path):
 
     _plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=1, nr=99)
 
-    assert len(_figures()) == 2  # min(99, num_images=2)
-    assert os.path.exists(tmp_path / "small.npz")
+    # min(99, num_images=2) figures; the source file is left in place
+    return len(_figures()), os.path.exists(tmp_path / "small.npz")
 
 
-def test_plot_cellpose_output_cases(request, subtests):
-    """Case table: 19 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+_P = pytest.param
+_FLOW_TITLES = ["Image - Channel0", "Image - Channel1", "Mask", "Flow"]
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_plot_cellpose4_output_builds_channel_mask_and_flow_panels,
-        _case_plot_cellpose4_output_without_object_numbers_draws_no_text,
-        _case_plot_cellpose4_output_nr_caps_the_number_of_figures,
-        _case_plot_cellpose4_output_accepts_2d_flow_field,
-        _case_plot_cellpose4_output_labels_every_object_when_mask_has_no_background,
-        _case_plot_organelle_output_spots_otsu_three_panels,
-        _case_plot_organelle_output_defaults_to_spots_otsu_when_settings_empty,
-        _case_plot_organelle_output_counts_all_labels_when_mask_has_no_background,
-        _case_plot_organelle_output_without_object_numbers_draws_no_text,
-        _case_plot_organelle_output_stops_at_the_smallest_of_masks_nr_and_batch,
-        _case_plot_organelle_output_with_no_masks_draws_nothing,
-        _case_plot_masks_png_file_type_unwraps_the_first_flow_element,
-        _case_plot_masks_expands_a_single_3d_image_and_wraps_bare_arrays,
-        _case_plot_masks_nr_zero_creates_no_figure,
-        _case_plot_4D_arrays_multichannel_plots_one_panel_per_channel,
-        _case_plot_4D_arrays_single_channel_uses_one_axes,
-        _case_plot_4D_arrays_nr_npz_caps_files_and_ignores_non_npz,
-        _case_plot_4D_arrays_empty_directory_plots_nothing,
-        _case_plot_4D_arrays_nr_larger_than_stack_is_clamped,
-        ],
-    )
-    assert ran >= 19
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_plot_cellpose4_output_builds_channel_mask_and_flow_panels,
+       (None, 1, _FLOW_TITLES, [1, 1, 1, 1], ["1", "2", "3"], [0, 0, 3, 0]),
+       id="builds-channel-mask-and-flow-panels"),
+    _P(_case_plot_cellpose4_output_without_object_numbers_draws_no_text,
+       (3, ["Image - Channel0", "Mask", "Flow"], [0, 0, 0]),
+       id="no-object-numbers-draws-no-text"),
+    _P(_case_plot_cellpose4_output_nr_caps_the_number_of_figures,
+       (None, 2), id="nr-caps-number-of-figures"),
+    _P(_case_plot_cellpose4_output_accepts_2d_flow_field,
+       ("Flow", "viridis"), id="accepts-2d-flow-field"),
+    _P(_case_plot_cellpose4_output_labels_every_object_when_mask_has_no_background,
+       ["1", "2"], id="labels-every-object-without-background"),
+])
+def test_plot_cellpose4_output_draws_panels_and_labels(request, helper, expected):
+    """plot_cellpose4_output draws channel, mask and flow panels with one label per object."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_plot_organelle_output_spots_otsu_three_panels,
+       (None, 1, 3,
+        ["Organelle channel (spots/otsu)", "Mask (3 objects)",
+         "Top-hat filtered (r=3)"],
+        ["1", "2", "3"], [0, 3, 0], [False, False, False]),
+       id="spots-otsu-three-panels"),
+    _P(_case_plot_organelle_output_defaults_to_spots_otsu_when_settings_empty,
+       ["Organelle channel (spots/otsu)", "Mask (2 objects)",
+        "Top-hat filtered (r=5)"], id="defaults-to-spots-otsu"),
+    _P(_case_plot_organelle_output_counts_all_labels_when_mask_has_no_background,
+       ("Mask (2 objects)", ["1", "2"], "Organelle channel (irregular/otsu)", True),
+       id="counts-all-labels-without-background"),
+    _P(_case_plot_organelle_output_without_object_numbers_draws_no_text,
+       ("Mask (3 objects)", [0, 0, 0]), id="no-object-numbers-draws-no-text"),
+    _P(_case_plot_organelle_output_stops_at_the_smallest_of_masks_nr_and_batch,
+       2, id="stops-at-smallest-of-masks-nr-batch"),
+    _P(_case_plot_organelle_output_with_no_masks_draws_nothing,
+       (None, []), id="no-masks-draws-nothing"),
+])
+def test_plot_organelle_output_draws_panels_and_counts_objects(request, helper, expected):
+    """plot_organelle_output titles its panels, counts objects and caps the figures."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_plot_masks_png_file_type_unwraps_the_first_flow_element,
+       (None, _FLOW_TITLES, ["1", "2", "3"]), id="png-file-type-unwraps-first-flow"),
+    _P(_case_plot_masks_expands_a_single_3d_image_and_wraps_bare_arrays,
+       (1, 3, ["1", "2"]), id="expands-single-3d-image-and-wraps-arrays"),
+    _P(_case_plot_masks_nr_zero_creates_no_figure,
+       (None, []), id="nr-zero-creates-no-figure"),
+])
+def test_plot_masks_coerces_inputs_and_draws(request, helper, expected):
+    """plot_masks unwraps png flows, wraps bare arrays and honours nr=0."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_plot_4D_arrays_multichannel_plots_one_panel_per_channel,
+       (None, 2, [(3, ["Channel 0", "Channel 1", "Channel 2"], [False] * 3)] * 2),
+       id="multichannel-one-panel-per-channel"),
+    _P(_case_plot_4D_arrays_single_channel_uses_one_axes,
+       (1, 1, "Channel 0", "gray"), id="single-channel-one-axes"),
+    _P(_case_plot_4D_arrays_nr_npz_caps_files_and_ignores_non_npz,
+       (2, 2), id="nr-npz-caps-files-and-ignores-non-npz"),
+    _P(_case_plot_4D_arrays_empty_directory_plots_nothing,
+       (None, []), id="empty-directory-plots-nothing"),
+    _P(_case_plot_4D_arrays_nr_larger_than_stack_is_clamped,
+       (2, True), id="nr-larger-than-stack-clamped"),
+])
+def test_plot_4d_arrays_draws_one_figure_per_image(request, helper, expected):
+    """_plot_4D_arrays draws a panel per channel for each sampled npz image, capped by nr."""
+    observed = _call(request, helper)
+    assert observed == expected

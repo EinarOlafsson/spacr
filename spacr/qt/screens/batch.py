@@ -702,6 +702,10 @@ class BatchScreen(QWidget):
         total = progress.total or len(self._queue)
         if total:
             handle.progress = (int(done), int(total))
+            record = getattr(handle, "run_progress", None)
+            if record is not None:
+                from ..run_progress import ProgressSample
+                record.observe(ProgressSample(done, total))
         if progress.message:
             handle.last_line = str(progress.message).strip()[:200]
         handle.changed.emit()

@@ -249,26 +249,33 @@ def test_every_greyed_backend_has_an_offer_that_is_not_ready():
                     regression_type, entry['key'])
 
 
-def test_an_installed_backend_with_no_device_is_not_offered_an_install(
-        monkeypatch):
-    monkeypatch.setattr(backends, "package_installed", lambda name: True)
-    monkeypatch.setattr(backends, "cuda_present_without_importing_torch",
-                        lambda: False)
-    offer = backends.backend_install_offer("torch", "mixed")
+@pytest.mark.parametrize(
+    "backend, regression_type, installed, cuda, fragment", [
+        pytest.param("torch", "mixed", True, False, "nvidia-smi",
+                     id="installed-with-no-device"),
+        pytest.param("glum", "mixed", None, None,
+                     "change the regression type",
+                     id="family-mismatch-is-not-an-install-problem"),
+        pytest.param("glum", None, None, None, "auto",
+                     id="auto-regression-type-says-so"),
+        # Installing more cannot help a backend spaCR routes no fit through;
+        # an install command there would send the user to fix their
+        # environment for a limitation that is entirely spaCR's.
+        pytest.param("gpytorch", "mixed", True, True,
+                     "routes no fit through it yet",
+                     id="installed-but-unwired"),
+    ])
+def test_an_option_that_installing_cannot_fix_says_why_instead_of_offering(
+        monkeypatch, backend, regression_type, installed, cuda, fragment):
+    if installed is not None:
+        monkeypatch.setattr(backends, "package_installed",
+                            lambda name: installed)
+    if cuda is not None:
+        monkeypatch.setattr(backends, "cuda_present_without_importing_torch",
+                            lambda: cuda)
+    offer = backends.backend_install_offer(backend, regression_type)
     assert offer.action == "impossible"
-    assert "nvidia-smi" in offer.message
-
-
-def test_a_family_mismatch_is_not_an_install_problem():
-    offer = backends.backend_install_offer("glum", "mixed")
-    assert offer.action == "impossible"
-    assert "change the regression type" in offer.message.lower()
-
-
-def test_auto_regression_type_says_so_rather_than_offering_a_package():
-    offer = backends.backend_install_offer("glum", None)
-    assert offer.action == "impossible"
-    assert "auto" in offer.message
+    assert fragment in offer.message
 
 
 # ---------------------------------------------------------------------------

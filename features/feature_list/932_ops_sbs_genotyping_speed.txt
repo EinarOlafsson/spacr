@@ -1,0 +1,119 @@
+OPS SBS GENOTYPING DECODE SPEED-UP: FLOAT32 OR GPU REGISTRATION, NO STACK COPIES, DIAGNOSTICS OFF, HASH MATCHER
+==============================================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-13 (not alpha); step 6 proof below — the sequencing field step registers with spacr.ops_cycles._FFTEngine: each reference's forward transform computed once and reused (the first channel of a cycle for its three others, the reference cycle's target for every cycle, the spot target for every spot plane); ops_registration_precision 'float32' (scipy.fft, one thread; default) or 'float64' (numpy.fft, bit for bit the arithmetic before 932); ops_registration_backend 'cpu' or 'gpu' (each cycle's transforms batched through torch.fft on a CUDA card, deterministic algorithms on while it runs, automatic CPU fallback with no card, with ops_gpu off, with several decode workers, or when the card fails mid-field). align_field translates every plane once into a preallocated float32 stack, keeps running maxima for the sbs_mean_target targets and the spot target, converts each raw plane to float32 once and keeps only shifts and targets (background mode keeps its two moves, so the stack is unchanged). The per-field diagnostics (per-plane p50/p99.9, focus variance, DAPI focus, LoG p99.9, registration log) are written to <well>/decode_diagnostics/site<NNNN>.json only with ops_field_diagnostics (off). spacr.ops_sbs.LibraryMatcher answers a read of A/C/G/T only at max_distance 1 from an index of every barcode's one-substitution neighbours (ties marked), exact by construction; reads with N or other letters and wider distances still scan. The decode report records registration: precision, backend, fields per backend used, diagnostics folder. spacr/ops_cycles.py, spacr/ops_register.py, spacr/ops_sbs.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings_spec.py, tests/test_sbs_genotyping_speed_932.py.
+Requested: maintainer (S2 speed card signed off 2026-11-13; item 932 decided 2026-11-13; feature workflow steps 5-7).
+Owner: paper session (stage 2 lane).
+Source: proof_stage1_stage2/speed/scripts/cands.py candidates 1, 2c (2a for float64), 4, 5 and 6; REPORT_speed.md "Ready for a spaCR implementation".
+Related: 873 (rule (a) + S2 decode), 931 (settings schema version and default changes), READINESS.md stage 2.
+
+SETTINGS
+ops_registration_precision ('float32'; 'float64'), ops_registration_backend
+('gpu' with automatic CPU fallback; 'cpu'), ops_field_diagnostics (False).
+Defaults before 932 (for the item-931 table of default changes):
+ops_registration_precision 'float64', ops_registration_backend 'cpu'.
+ops_field_diagnostics gets no row: spaCR's decode never wrote these
+diagnostics before 932 (only the study's sample_fields.py did), so the old
+behaviour is False.
+
+PUBLIC API
+spacr.ops_cycles.align_field gains precision, backend and registrations;
+its gpu parameter now only gates the 'gpu' backend (before 932 it let the
+background registrations reach cupy or torch through phase_correlate).
+New module data FFT_PRECISIONS, FFT_BACKENDS, FFT_PRECISION, FFT_BACKEND.
+No new public callable; register_cycles and phase_correlate are unchanged
+(phase_correlate's read-out moved into ops_register._read_peak, shared).
+
+DIAGNOSTICS READERS
+Before 932 no spaCR code computed or read these diagnostics: the decode
+cache (ops_decode.save_field_cache) never held them, and no QC panel,
+report, notebook or GUI screen in the repository reads p50/p999,
+focus_lapvar, dapi_focus, log_p999 or a registration log (searched in
+spacr/, tests/, notebooks/ and docs/). Outside spaCR (searched
+/mnt/firecuda2/ops_decode_yield, /mnt/firecuda2/codex/scratch-docs,
+/mnt/wd4tb/ops_decode_yield and the BMCspacr reanalysis tree) the readers
+are the study's own scripts: experiments.field_diag and cycle_diag.py (every
+copy of src_ruleA_*, results_v3/fp_characterisation, decode_yield code
+archive) and the S2-it2 cycle QC (iterations2/scripts
+s2it2_cycle_qc_extract.py, _analyse.py, dev_slide_s2qc.py). Every one reads
+the study's production field JSONs written by sample_fields.py, which this
+item does not touch and which always writes them, so none loses its input.
+They are frozen production code or another lane's live scripts and are
+not edited here; a run that feeds them spaCR output must set
+ops_field_diagnostics. spaCR's own reader, ops_engine._field_diagnostics_table
+(the study's field_diag columns, written as
+<well>/decode_diagnostics/field_diagnostics.csv and named in the decode
+report), returns None without the folder and NaN for a missing key, and is
+tested for both (test_a_reader_of_the_diagnostics_copes_with_their_absence).
+
+VALIDATION (step 6; scripts, tables and logs in
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/proof_stage1_stage2/speed/spacr932/,
+dev slide proof_stage1_stage2/dev_slides/dev_slide_stage2_speed_spacr.png)
+Arms: cpu32, gpu32, cpu64, gpu64 = this branch's align_field
+(channel_mode 'spots_refine', every copy change, diagnostics off) in the
+production field step (sample_fields.field, copied); pre932 = nightly
+4241ab9328's align_field with the production diagnostics; rule step with
+this branch's LibraryMatcher (pre932: the shipped scan).
+Timing: the S2 speed card's 10 plate A FOVs, one process on one pinned
+core, BLAS/OMP 1, order rotated per FOV, load 25-37, GPU capped at 6 GB
+(peak 1.19 GB), Brieflow's full SBS chain in the same process. Median per
+FOV (field + rule; CPU s / GPU s / wall s): pre932 28.6 / 0 / 30.7;
+cpu64 16.8 / 0 / 16.8; gpu64 10.2 / 0.80 / 11.0; cpu32 12.9 / 0 / 15.9;
+gpu32 9.0 / 0.63 / 9.7; Brieflow 16.7 / 0 / 17.1. Rule step 5.32 -> 0.97
+CPU s per FOV (3 runs each, same primary-call md5). FOV 6's rows were
+replaced by a rerun of FOV 6 alone (a mistakenly started process shared
+the core for 28 s); with the original rows the decision is the same.
+DEFAULT: gpu32 vs cpu32, Wilcoxon signed-rank, Holm over CPU s and wall s:
+CPU s 9.0 vs 12.9 (p 0.0059, Holm 0.012), wall s 9.7 vs 15.9 (p 0.014,
+Holm 0.014), faster on 9 of 10 FOVs in both, so 'gpu' is the default with
+automatic CPU fallback. Every 932 arm is faster than pre932 on all 10 FOVs in CPU s (and in wall s on 10/10, cpu32 9/10);
+vs Brieflow (Holm over 6 per metric): cpu32 CPU s 0.73x (p 0.012), wall
+0.91x (n.s., p 0.39), gpu32 0.53x and 0.58x (p 0.012 / 0.020), cpu64 a
+tie (1.03x / 1.00x).
+Identity (all four arms):
+  10 timing FOVs: field caches byte-identical to the current code's
+  (speed_s2 fov10/base) 10/10 for every arm and for pre932; byte-identical
+  between arms 10/10; production decode (12 rules) on cpu32 caches with
+  spaCR's matcher identical to the reference decode in 5/5 wells.
+  100 matched FOVs (plates A-D, 23 wells): identical to the production
+  caches 100/100 in every arm (shifts, spot sets and values, pixel sets and
+  values; 4/100 byte-identical, the rest after sorting rows by position,
+  production row order not being stable); byte-identical to the speed
+  card's c2c+c4+c5 caches 100/100 and between all arms 100/100; calls of
+  all 12 rules and per-FOV stats identical in 23/23 wells.
+  Plate A well A1, 333 FOVs: identical to the production caches 333/333
+  in every arm (6/333 byte-identical, the rest after sorting rows);
+  byte-identical to the speed card's c2c+c4+c5 caches 333/333 and between
+  all arms 333/333; the production decode of all 12 rules on the cpu32
+  caches with spaCR's matcher gives the production A1 decode exactly
+  (974,253 rule-(a) calls, md5 equal for every rule, 3,996 per-FOV stats
+  rows byte-identical; 42,233,616 matches answered by LibraryMatcher).
+  After the check the speed card's caches (/mnt/wd4tb/speed_s2_20261113,
+  9.1 GB) and this run's caches were deleted; the comparison JSONs stay in
+  spacr932/out/.
+Tolerance (every registration recorded on the 433 identity FOVs: 18,611
+background and 19,044 spot registrations per arm): integer shifts and
+accept/refuse identical in every pair of arms. float32 vs float64, largest
+relative difference: background peak ratio 3.9e-6, spot peak/mean 4.3e-6,
+spot surface at the background answer 3.5e-5. GPU vs CPU: float32 6.0e-6,
+4.2e-6 and 2.7e-5; float64 6.8e-15 or less. The closest spot decision
+on float64 sat 2.1 % of the peak from its threshold, about 600 times the
+largest difference (every peak/mean at least 2.2 x the 20 cut-off); spot
+and pixel values are read from the moved raw planes and are identical
+(difference 0).
+float64 bought no precision that changed a result: identical shifts, spots
+and calls on all 443 FOVs. REPRODUCIBILITY: a rerun of an older settings
+file gets float64 on the CPU (item 931 DEFAULT_CHANGES[932]), which is
+bit-identical to the old CPU arithmetic for every registration surface
+(tests: test_float64_is_the_arithmetic_before_item_932_bit_for_bit); the
+new defaults differ from it only as stated above, tolerance 0 on every
+result.
+Tests: tests/test_sbs_genotyping_speed_932.py (float32 vs float64 shifts,
+stack and calls in all three channel modes; GPU vs CPU in both precisions,
+skipped without CUDA, passed on the card; CUDA_VISIBLE_DEVICES='' fallback;
+mid-field card failure; background-mode stack equal to the old two-move
+algorithm; hash matcher equal to the scan incl. N, ties, other letters,
+widths and distances 0-2; old and new defaults give the same ops_barcodes
+on the synthetic well; diagnostics only when asked and their reader
+without them; pre-932 settings files rerun with float64 on the CPU).

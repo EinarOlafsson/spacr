@@ -271,17 +271,6 @@ class TestRegistry:
         assert "grad_cam" in message
         assert "gradcam" in message and "occlusion" in message
 
-    def test_a_missing_torchcam_backend_names_the_install_extra(
-            self, image, monkeypatch):
-        monkeypatch.setitem(sys.modules, "torchcam", None)
-        monkeypatch.setitem(sys.modules, "torchcam.methods", None)
-        with pytest.raises(AttributionError) as excinfo:
-            attribute(TinyCNN(), image, "gradcam")
-        message = str(excinfo.value)
-        assert "spacr[attribution]" in message
-        assert "eigencam" in message
-
-
 # ---------------------------------------------------------------------------
 # Every method, both head shapes
 # ---------------------------------------------------------------------------
@@ -661,13 +650,6 @@ class TestPointingGame:
         assert pointing_game(amap, inside) == 1.0
         assert pointing_game(amap, ~inside) == 0.0
 
-    def test_a_spacr_integer_label_plane_is_accepted_as_is(self):
-        amap = np.zeros((IMG, IMG), dtype=np.float32)
-        amap[9, 9] = 5.0
-        labels = np.zeros((IMG, IMG), dtype=np.int32)
-        labels[8:12, 8:12] = 7          # object id 7, as merged/*.npy stores it
-        assert pointing_game(amap, labels) == 1.0
-
     def test_tolerance_grows_the_mask(self):
         amap = np.zeros((IMG, IMG), dtype=np.float32)
         amap[5, 5] = 1.0
@@ -941,25 +923,6 @@ class TestTransformers:
         assert np.isfinite(att.map).all()
 
     @requires_torchcam
-    @pytest.mark.parametrize("model_class, model_type, fragments", [
-        # The pure-ViT trap: there *is* a Conv2d, and a CAM over it is junk.
-        # Grad-CAM on the patch embedding renders happily -- a picture of
-        # local image statistics with no class information in it. Silence
-        # here is the failure mode the item forbids.
-        (TinyViT, "vit_tiny",
-         ("vit_tiny", "patch embedding", "attention_rollout")),
-        (MLPNet, "linear_probe",
-         ("linear_probe", "no Conv2d layer", "attention_rollout")),
-    ], ids=["patch-embedding", "conv-free-model"])
-    def test_a_cam_on_a_model_without_a_spatial_layer_is_refused_by_name(
-            self, image, model_class, model_type, fragments):
-        with pytest.raises(NoSpatialLayerError) as excinfo:
-            attribute(model_class(), image, "gradcam", model_type=model_type)
-        message = str(excinfo.value)
-        for fragment in fragments:
-            assert fragment in message
-
-    @requires_torchcam
     def test_the_patch_embedding_cam_can_be_forced_explicitly(self, image):
         att = attribute(TinyViT(), image, "gradcam", allow_pre_attention=True)
         assert att.map.shape == (IMG, IMG)
@@ -969,22 +932,6 @@ class TestTransformers:
             att = attribute(TinyViT(), image, name, **_fast_kwargs(name))
             assert np.isfinite(att.map).all()
             assert att.map.shape == (IMG, IMG)
-
-    def test_rollout_on_a_model_with_no_attention_names_the_alternative(self,
-                                                                       image):
-        with pytest.raises(NoSpatialLayerError) as excinfo:
-            attribute(TinyCNN(n_out=2), image, "attention_rollout",
-                      model_type="tiny_cnn")
-        message = str(excinfo.value)
-        assert "tiny_cnn" in message
-        assert "convolutional layers" in message
-
-    def test_rollout_on_a_model_with_neither_says_so(self, image):
-        with pytest.raises(NoSpatialLayerError) as excinfo:
-            attribute(MLPNet(), image, "attention_rollout")
-        message = str(excinfo.value)
-        assert "no Conv2d layer either" in message
-        assert "no attention weights" in message
 
     def test_an_unknown_head_fusion_is_refused(self, image):
         with pytest.raises(AttributionError):
@@ -1185,3 +1132,65 @@ class TestAttributionMapGenerator:
             gen.compute_maps_and_predictions
         assert gen.compute_saliency_and_predictions == \
             gen.compute_maps_and_predictions
+
+
+@pytest.mark.parametrize("model, method, kwargs, blocked, fragments", [
+    pytest.param(TinyCNN, "gradcam", {}, ("torchcam", "torchcam.methods"),
+                 ("spacr[attribution]", "eigencam"),
+                 id="missing_torchcam_names_the_install_extra"),
+    # The pure-ViT trap: there *is* a Conv2d, and a CAM over it is junk.
+    # Grad-CAM on the patch embedding renders happily -- a picture of local
+    # image statistics with no class information in it. Silence here is the
+    # failure mode the item forbids.
+    pytest.param(TinyViT, "gradcam", {"model_type": "vit_tiny"}, (),
+                 ("vit_tiny", "patch embedding", "attention_rollout"),
+                 marks=requires_torchcam, id="cam_on_a_patch_embedding"),
+    pytest.param(MLPNet, "gradcam", {"model_type": "linear_probe"}, (),
+                 ("linear_probe", "no Conv2d layer", "attention_rollout"),
+                 marks=requires_torchcam, id="cam_on_a_conv_free_model"),
+    # A CAM needs a (B, C, H, W) feature map; reshaping a logit vector into a
+    # square would be an image-shaped artefact unrelated to the input pixels.
+    pytest.param(TinyCNN, "gradcam", {"layer": "head"}, (),
+                 ("not a (B, C, H, W) feature map", "attention_rollout"),
+                 marks=requires_torchcam, id="cam_over_a_non_spatial_layer"),
+    pytest.param(lambda: TinyCNN(n_out=2), "attention_rollout",
+                 {"model_type": "tiny_cnn"}, (),
+                 ("tiny_cnn", "convolutional layers"),
+                 id="rollout_without_attention_names_the_alternative"),
+    pytest.param(MLPNet, "attention_rollout", {}, (),
+                 ("no Conv2d layer either", "no attention weights"),
+                 id="rollout_on_a_model_with_neither"),
+])
+def test_a_method_the_model_cannot_support_is_refused_with_the_reason(
+        image, monkeypatch, model, method, kwargs, blocked, fragments):
+    for name in blocked:
+        monkeypatch.setitem(sys.modules, name, None)
+    with pytest.raises(AttributionError) as excinfo:
+        attribute(model(), image, method, **kwargs)
+    message = str(excinfo.value)
+    for fragment in fragments:
+        assert fragment in message
+
+
+def _one_plane_of_object_seven():
+    labels = np.zeros((IMG, IMG), dtype=np.int32)
+    labels[8:12, 8:12] = 7          # object id 7, as merged/*.npy stores it
+    return labels
+
+
+def _a_stack_of_two_object_planes():
+    stack = np.zeros((2, IMG, IMG), dtype=int)
+    stack[0, 0, 0] = 1
+    stack[1, 6, 6] = 2
+    return stack
+
+
+@pytest.mark.parametrize("peak, labels", [
+    pytest.param((9, 9), _one_plane_of_object_seven, id="integer_label_plane"),
+    pytest.param((6, 6), _a_stack_of_two_object_planes,
+                 id="stack_of_object_planes"),
+])
+def test_a_label_mask_of_object_ids_counts_every_object(peak, labels):
+    amap = np.zeros((IMG, IMG), dtype=np.float32)
+    amap[peak] = 5.0
+    assert pointing_game(amap, labels()) == 1.0

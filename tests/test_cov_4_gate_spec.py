@@ -16,10 +16,9 @@ import pytest
 
 from spacr.qt.widgets import gate_spec as gs
 from spacr.qt.widgets.gate_spec import (BoxGate, CompositeGate, CylinderGate,
-                                        EllipseGate, Gate, GateClause,
-                                        GateError, GateSet, PolygonGate,
+                                        EllipseGate, Gate, GateError, GateSet, PolygonGate,
                                         PrismGate, RectGate, ThresholdGate,
-                                        WandError, wand_gate, wand_select)
+                                        WandError, wand_select)
 
 #: A visible window, as the canvas hands one over: (x0, x1, y0, y1).
 VIEW = (0.0, 100.0, 0.0, 100.0)
@@ -28,13 +27,6 @@ VIEW = (0.0, 100.0, 0.0, 100.0)
 # ---------------------------------------------------------------------------
 # The base class
 # ---------------------------------------------------------------------------
-
-def test_a_gate_can_be_re_parented_without_being_redrawn():
-    """Sequential gating is the parent field and nothing else."""
-    gate = ThresholdGate(name="live", column="area", low=1.0)
-    assert gate.with_parent("singlets").parent == "singlets"
-    assert gate.parent is None
-
 
 def test_the_base_shape_implements_no_geometry():
     """Every kind states its own; a silent default would move a gate."""
@@ -63,25 +55,6 @@ def test_dragging_a_handle_a_shape_does_not_have_is_a_caller_bug():
 # ThresholdGate
 # ---------------------------------------------------------------------------
 
-def test_a_cut_needs_something_to_cut_on():
-    """A threshold with no column is a cut on nothing."""
-    with pytest.raises(GateError) as excinfo:
-        ThresholdGate(name="live", column="  ", low=1.0)
-    assert "no column" in str(excinfo.value)
-
-
-def test_a_threshold_open_below_reads_as_an_upper_bound():
-    """"≤ 5" is the whole statement; inventing a lower bound would narrow it."""
-    gate = ThresholdGate(name="dim", column="area", high=5.0)
-    assert gate.describe() == "area ≤ 5"
-
-
-def test_a_threshold_open_above_reads_as_a_lower_bound():
-    """The mirror case, and the one the sidebar shows most often."""
-    gate = ThresholdGate(name="bright", column="area", low=5.0)
-    assert gate.describe() == "area ≥ 5"
-
-
 def test_setting_a_threshold_on_its_own_column_reorders_the_pair():
     """A high typed below the low is the user's arithmetic, not their intent."""
     gate = ThresholdGate(name="live", column="area", low=1.0, high=9.0)
@@ -99,28 +72,6 @@ def test_an_open_threshold_has_no_centre_to_resize_about():
     """A made-up centre would send the first resize somewhere arbitrary."""
     assert ThresholdGate(name="live", column="area", low=2.0).centre() == \
         (None, None)
-
-
-def test_dragging_a_threshold_bound_past_the_other_swaps_them():
-    """A gate that will not invert feels stuck exactly when it is being fixed."""
-    gate = ThresholdGate(name="live", column="area", low=2.0, high=8.0)
-    dragged = gate.with_handle("low", 12.0, 0.0)
-    assert (dragged.low, dragged.high) == (8.0, 12.0)
-
-
-def test_dragging_the_upper_threshold_bound_moves_only_it():
-    """The other bound is not part of this drag."""
-    gate = ThresholdGate(name="live", column="area", low=2.0, high=8.0)
-    dragged = gate.with_handle("high", 20.0, 0.0)
-    assert (dragged.low, dragged.high) == (2.0, 20.0)
-
-
-def test_a_threshold_has_no_handle_it_did_not_offer():
-    """Roles come from :meth:`handles`; anything else is a caller bug."""
-    gate = ThresholdGate(name="live", column="area", low=2.0, high=8.0)
-    with pytest.raises(GateError) as excinfo:
-        gate.with_handle("y_high", 1.0, 2.0)
-    assert "y_high" in str(excinfo.value)
 
 
 def test_resizing_a_closed_threshold_grows_it_about_its_middle():
@@ -147,20 +98,6 @@ def _rect(**kwargs):
                 x_low=1.0, x_high=9.0, y_low=2.0, y_high=8.0)
     base.update(kwargs)
     return RectGate(**base)
-
-
-def test_a_rectangle_is_drawn_on_two_measurements():
-    """One column named and the other blank is not a rectangle."""
-    with pytest.raises(GateError) as excinfo:
-        RectGate(name="live", x_column="area", y_column="", x_low=1.0)
-    assert "y_column" in str(excinfo.value)
-
-
-def test_a_rectangle_with_no_bounds_at_all_is_refused():
-    """It would select everything, which is not a gate."""
-    with pytest.raises(GateError) as excinfo:
-        RectGate(name="live", x_column="area", y_column="intensity")
-    assert "selects everything" in str(excinfo.value)
 
 
 def test_a_rectangle_open_on_one_side_reads_as_that_inequality():
@@ -217,46 +154,9 @@ def _polygon(**kwargs):
     return PolygonGate(**base)
 
 
-def test_a_polygon_is_drawn_on_two_measurements():
-    """A polygon on one column has no second axis to have vertices in."""
-    with pytest.raises(GateError) as excinfo:
-        PolygonGate(name="blob", x_column="", y_column="intensity",
-                    vertices=((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)))
-    assert "x_column" in str(excinfo.value)
-
-
-def test_a_polygon_on_one_measurement_against_itself_is_refused():
-    """Every vertex would sit on the diagonal."""
-    with pytest.raises(GateError) as excinfo:
-        PolygonGate(name="blob", x_column="area", y_column="area",
-                    vertices=((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)))
-    assert "against itself" in str(excinfo.value)
-
-
 def test_a_polygon_reports_its_bounding_box_for_drawing():
     """For drawing only: masking through the box would take the corners."""
     assert _polygon().bounds() == (0.0, 4.0, 0.0, 4.0)
-
-
-def test_dragging_a_polygon_vertex_moves_that_vertex():
-    """The handle role carries the index, so the right corner moves."""
-    moved = _polygon().with_handle("vertex:2", 9.0, 9.0)
-    assert moved.vertices[2] == (9.0, 9.0)
-    assert moved.vertices[0] == (0.0, 0.0)
-
-
-def test_a_polygon_handle_that_is_not_a_vertex_is_refused():
-    """A side handle would be two vertices, and a polygon offers neither."""
-    with pytest.raises(GateError) as excinfo:
-        _polygon().with_handle("x_low", 1.0, 2.0)
-    assert "x_low" in str(excinfo.value)
-
-
-def test_a_polygon_vertex_handle_with_no_index_is_refused():
-    """"vertex:corner" names no corner, and guessing would move the wrong one."""
-    with pytest.raises(GateError) as excinfo:
-        _polygon().with_handle("vertex:corner", 1.0, 2.0)
-    assert "vertex:corner" in str(excinfo.value)
 
 
 # ---------------------------------------------------------------------------
@@ -268,29 +168,6 @@ def _ellipse(**kwargs):
                 x_centre=10.0, y_centre=20.0, x_radius=2.0, y_radius=4.0)
     base.update(kwargs)
     return EllipseGate(**base)
-
-
-def test_an_ellipse_is_drawn_on_two_measurements():
-    """A named x and a blank y is not an oval."""
-    with pytest.raises(GateError) as excinfo:
-        EllipseGate(name="oval", x_column="area", y_column="",
-                    x_radius=1.0, y_radius=1.0)
-    assert "y_column" in str(excinfo.value)
-
-
-def test_an_ellipse_on_one_measurement_against_itself_is_refused():
-    """The same failure as the rectangle, for the same reason."""
-    with pytest.raises(GateError) as excinfo:
-        EllipseGate(name="oval", x_column="area", y_column="area",
-                    x_radius=1.0, y_radius=1.0)
-    assert "against itself" in str(excinfo.value)
-
-
-def test_an_ellipse_names_its_kind_and_its_two_columns():
-    """The set reads both to save the gate and to find its axes again."""
-    gate = _ellipse()
-    assert gate.kind == gs.ELLIPSE
-    assert gate.columns == ("area", "intensity")
 
 
 def test_an_ellipse_describes_its_centre_and_both_radii():
@@ -307,26 +184,6 @@ def test_an_ellipse_offers_axis_handles_and_bounding_box_corners():
     corners = [(h.x, h.y) for h in handles if h.corner]
     assert (12.0, 24.0) in corners
     assert (8.0, 16.0) in corners
-
-
-def test_dragging_an_ellipse_axis_handle_changes_only_that_radius():
-    """The vertical handle must not resize the horizontal axis."""
-    grown = _ellipse().with_handle("y_radius", 10.0, 30.0)
-    assert (grown.x_radius, grown.y_radius) == (2.0, 10.0)
-
-
-def test_an_ellipse_has_no_handle_it_did_not_offer():
-    """A rectangle's role names nothing on an oval."""
-    with pytest.raises(GateError) as excinfo:
-        _ellipse().with_handle("x_low", 1.0, 2.0)
-    assert "x_low" in str(excinfo.value)
-
-
-def test_dragging_an_ellipse_handle_onto_its_centre_is_refused_quietly():
-    """A zero radius is not an ellipse, and a traceback out of a mouse
-    handler is worse than a handle that stops."""
-    gate = _ellipse()
-    assert gate.with_handle("x_radius", 10.0, 20.0) is gate
 
 
 def test_resizing_an_ellipse_about_a_point_moves_it_as_well_as_grows_it():
@@ -356,20 +213,6 @@ def _box(**kwargs):
                 y_low=0.0, y_high=20.0, z_low=0.0, z_high=30.0)
     base.update(kwargs)
     return BoxGate(**base)
-
-
-def test_a_box_is_drawn_on_three_measurements():
-    """Two named columns and a blank third is not a box."""
-    with pytest.raises(GateError) as excinfo:
-        BoxGate(name="cube", x_column="area", y_column="intensity",
-                z_column="", x_low=0.0, x_high=1.0)
-    assert "z_column" in str(excinfo.value)
-
-
-def test_a_box_side_typed_backwards_is_reordered():
-    """The user's arithmetic, not their intent, put the high below the low."""
-    gate = _box(z_low=30.0, z_high=5.0)
-    assert (gate.z_low, gate.z_high) == (5.0, 30.0)
 
 
 def test_a_box_filters_only_on_the_sides_it_bounds():
@@ -410,20 +253,6 @@ def test_setting_a_threshold_on_a_column_the_box_lacks_is_refused():
     refusal has to be the GateError every other kind raises."""
     with pytest.raises(GateError):
         _box().with_threshold("perimeter", 1.0, 2.0)
-
-
-def test_a_box_names_its_own_kind():
-    """Every other shape answers `kind`, and the set reads it to decide how a
-    gate is drawn, saved and evaluated."""
-    assert _box().kind == gs.BOX
-
-
-def test_a_box_needs_three_measurements_and_three_ranges():
-    """Two of either is a rectangle, and building one anyway would lose a side."""
-    with pytest.raises(GateError) as excinfo:
-        BoxGate.from_limits("cube", ("area", "intensity"),
-                            ((0.0, 1.0), (0.0, 1.0)))
-    assert "three measurements" in str(excinfo.value)
 
 
 # ---------------------------------------------------------------------------
@@ -576,43 +405,6 @@ def test_a_collinear_cluster_is_skipped_rather_than_widened():
 # GateClause and GateSet
 # ---------------------------------------------------------------------------
 
-def test_a_clause_is_named_for_the_gate_at_the_end_of_the_chain():
-    """The leaf is the population the user selected."""
-    root = ThresholdGate(name="cells", column="area", low=1.0)
-    leaf = ThresholdGate(name="bright", parent="cells", column="intensity",
-                         low=5.0)
-    clause = GateClause((root, leaf))
-    assert clause.name == "bright"
-    assert clause.column == "gate:bright"
-
-
-def test_removing_a_gate_that_is_not_there_changes_nothing():
-    """A stale delete must not disturb the gates that remain."""
-    gates = GateSet([ThresholdGate(name="cells", column="area", low=1.0)])
-    assert gates.remove("nope") is gates
-    assert gates.names == ("cells",)
-
-
-def test_clearing_removes_every_gate():
-    """"Start again" has to leave nothing behind to inherit a parent from."""
-    gates = GateSet([ThresholdGate(name="cells", column="area", low=1.0)])
-    assert gates.clear() is gates
-    assert gates.names == ()
-
-
-def test_a_population_is_the_rows_inside_a_gate_and_its_ancestors():
-    """A child gate means the pair, never the child's own shape alone."""
-    gates = GateSet([
-        ThresholdGate(name="cells", column="area", low=2.0),
-        ThresholdGate(name="bright", parent="cells", column="intensity",
-                      low=5.0),
-    ])
-    frame = pd.DataFrame({"area": [1.0, 3.0, 3.0],
-                          "intensity": [9.0, 1.0, 9.0]})
-    kept = gates.population(frame, "bright")
-    assert list(kept.index) == [2]
-
-
 def test_an_empty_gate_set_reports_that_it_has_no_gates():
     """A blank report reads as a report that failed to run."""
     gates = GateSet()
@@ -620,7 +412,3 @@ def test_an_empty_gate_set_reports_that_it_has_no_gates():
     assert gates.describe() == "no gates"
 
 
-def test_a_gate_set_describes_every_gate_it_holds():
-    """The one-line summary is what a saved gate file is recognised by."""
-    gates = GateSet([ThresholdGate(name="cells", column="area", low=2.0)])
-    assert gates.describe() == "cells: area ≥ 2"

@@ -75,16 +75,6 @@ def test_preloading_without_a_folder_leaves_the_source_alone(screen):
     assert screen._panel_b.model_edit.text() != "cyto3"
 
 
-# -- refusing a second run ---------------------------------------------------
-
-def test_a_second_load_while_one_is_running_is_refused_inline(screen, fields):
-    """Two loads at once would interleave two folders into one field list."""
-    screen._busy = True
-    assert screen.set_source(fields) is False
-    assert "already running" in screen.status_text()
-    assert screen.source_folder() == ""
-
-
 # -- job plumbing ------------------------------------------------------------
 
 def test_the_job_body_leaves_its_result_where_the_gui_thread_looks(
@@ -112,16 +102,3 @@ def test_the_job_body_leaves_its_result_where_the_gui_thread_looks(
     widget._on_job_settled(True)
     assert widget.is_busy() is False
     assert widget.source_folder() == fields
-
-
-def test_a_result_that_cannot_be_applied_lands_in_the_status_label(screen):
-    """Raising on the GUI thread here would take the window with it."""
-    def _refuses(_result):
-        raise ValueError("the fields did not decode")
-
-    screen._pending.append(({"result": None}, _refuses, "loading fields"))
-    settled = []
-    screen.job_finished.connect(settled.append)
-    screen._on_job_settled(True)
-    assert settled == [False]
-    assert "the fields did not decode" in screen.status_text()

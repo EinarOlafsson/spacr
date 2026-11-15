@@ -1,7 +1,8 @@
 """The branches of ``spacr.plot`` that only fire on an unusual input.
 
-Everything here is CPU-only, offline and deterministic. Each test drives one
-path that the rest of the suite never reaches, and each one asserts on what
+Everything here is CPU-only, offline and deterministic. One parametrised test
+runs a helper per row; each helper drives one path that the rest of the suite
+never reaches, and each row asserts on what
 the code actually produced -- a written file, a printed line, the arrays
 handed to ``imshow``, the artists on an axis -- rather than on the absence of
 an exception.
@@ -35,6 +36,7 @@ What is pinned, and why each one matters:
 """
 from __future__ import annotations
 
+import inspect
 import os
 import sqlite3
 
@@ -58,6 +60,12 @@ def _close_figures():
     plt.close("all")
 
 
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
+
+
 # ---------------------------------------------------------------------------
 # save_figure
 # ---------------------------------------------------------------------------
@@ -77,15 +85,15 @@ def _case_a_figure_saved_by_bare_name_lands_in_the_working_directory(
 
     bare = save_figure(fig, "bare_name.png", fmt="png")
 
-    assert os.path.dirname(bare) == ""
-    assert (tmp_path / "bare_name.png").is_file()
     assert (tmp_path / "bare_name.png").stat().st_size > 0
+    bare_observed = (os.path.dirname(bare),
+                     (tmp_path / "bare_name.png").is_file())
 
     nested = save_figure(fig, os.path.join("made", "up", "deep.png"),
                          fmt="png")
 
-    assert os.path.dirname(nested) == os.path.join("made", "up")
-    assert (tmp_path / "made" / "up" / "deep.png").is_file()
+    return (bare_observed, os.path.dirname(nested),
+            (tmp_path / "made" / "up" / "deep.png").is_file())
 
 
 # ---------------------------------------------------------------------------
@@ -155,13 +163,13 @@ def _case_an_already_normalised_float_stack_is_overlaid_like_a_uint_one(
 
     float_outline = _painted(as_float, 0)
     assert float_outline.any(), "the float stack drew no outline at all"
-    assert np.array_equal(float_outline, _painted(as_uint, 0))
-    # The outline follows the mask plane read off the tail of the stack.
-    assert float_outline[cells > 0].any()
     # The panel underneath is a real normalised image, not a flat frame.
     base = np.asarray(as_float.axes[0].images[0].get_array())
     assert base.min() == pytest.approx(0.0, abs=1e-6)
     assert base.max() == pytest.approx(1.0, abs=1e-6)
+    return (bool(np.array_equal(float_outline, _painted(as_uint, 0))),
+            # The outline follows the mask plane read off the tail of the stack.
+            bool(float_outline[cells > 0].any()))
 
 
 # ---------------------------------------------------------------------------
@@ -191,19 +199,17 @@ def _case_a_mask_panel_can_be_drawn_without_its_object_numbers():
     plot_masks(batch, [mask], [flow], figuresize=2, nr=1,
                print_object_number=True)
     numbered = plt.figure(plt.get_fignums()[-1])
-    assert sorted(t.get_text() for t in numbered.axes[1].texts) == \
-        ["1", "2", "3"]
+    numbers = sorted(t.get_text() for t in numbered.axes[1].texts)
 
     plt.close("all")
     plot_masks(batch, [mask], [flow], figuresize=2, nr=1,
                print_object_number=False)
     plain = plt.figure(plt.get_fignums()[-1])
 
-    assert list(plain.axes[1].texts) == []
-    assert [ax.get_title() for ax in plain.axes] == \
-        ["Image - Channel0", "Mask", "Flow"]
     np.testing.assert_array_equal(
         np.asarray(plain.axes[1].images[0].get_array()), mask)
+    return (numbers, [t.get_text() for t in plain.axes[1].texts],
+            [ax.get_title() for ax in plain.axes])
 
 
 # ---------------------------------------------------------------------------
@@ -245,13 +251,13 @@ def _case_a_run_with_only_a_nucleus_mask_reports_only_the_nucleus(capsys):
         filter_min_max=[[0, 10 ** 8], [10, 10 ** 8], [0, 10 ** 8]],
         nuclei_limit=True, pathogen_limit=True)
 
-    assert sorted(np.unique(out[..., 1]).tolist()) == [0, 1]
     assert np.array_equal(out[..., 0], stack[..., 0])
 
     printed = capsys.readouterr().out
-    assert "removed 1 nucleus, nucleus size from" in printed
-    assert "cells, cell size" not in printed
-    assert "pathogens, pathogen size" not in printed
+    return (sorted(np.unique(out[..., 1]).tolist()),
+            "removed 1 nucleus, nucleus size from" in printed,
+            "cells, cell size" in printed,
+            "pathogens, pathogen size" in printed)
 
 
 # ---------------------------------------------------------------------------
@@ -270,11 +276,11 @@ def _case_a_one_dimensional_crop_matches_no_panel_layout():
     plane = np.arange(64, dtype=np.float32).reshape(8, 8)
     fig = _plot_cropped_arrays(plane, "plane.npy", figuresize=2, threshold=0)
     assert isinstance(fig, matplotlib.figure.Figure)
-    assert len(fig.axes) == 1
 
-    with pytest.raises(UnboundLocalError):
+    with pytest.raises(UnboundLocalError) as raised:
         _plot_cropped_arrays(np.arange(8, dtype=np.float32), "line.npy",
                              figuresize=2)
+    return (len(fig.axes), raised.type.__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -325,10 +331,10 @@ def _case_a_strain_column_that_repeats_the_condition_gets_no_legend_to_remove(
     _plot_recruitment(_recruitment_df(("wt", "mut")), "test", 1, figuresize=4)
     distinct_intensity, distinct_grid = [plt.figure(n)
                                          for n in plt.get_fignums()]
-    assert {t.get_text()
-            for t in distinct_intensity.axes[3].get_legend().get_texts()} == \
-        {"wt", "mut"}
-    assert all(ax.get_legend() is None for ax in distinct_grid.axes[:5])
+    distinct_labels = {t.get_text() for t in
+                       distinct_intensity.axes[3].get_legend().get_texts()}
+    distinct_no_legend = all(ax.get_legend() is None
+                             for ax in distinct_grid.axes[:5])
 
     plt.close("all")
     # The strain names now repeat the condition names exactly.
@@ -336,12 +342,13 @@ def _case_a_strain_column_that_repeats_the_condition_gets_no_legend_to_remove(
                       figuresize=4)
     same_intensity, same_grid = [plt.figure(n) for n in plt.get_fignums()]
 
-    assert same_intensity.axes[3].get_legend().get_texts() == []
-    assert len(same_grid.axes) == 6
-    assert [ax.get_ylabel() for ax in same_grid.axes[:5]] == _RECRUITMENT_EXTRA
-    assert all(ax.get_legend() is None for ax in same_grid.axes[:5])
     assert all(ax.patches for ax in same_grid.axes[:5]), \
         "the panels must still be drawn, not merely left legend-free"
+    return (distinct_labels, distinct_no_legend,
+            same_intensity.axes[3].get_legend().get_texts(),
+            len(same_grid.axes),
+            [ax.get_ylabel() for ax in same_grid.axes[:5]],
+            all(ax.get_legend() is None for ax in same_grid.axes[:5]))
 
 
 # ---------------------------------------------------------------------------
@@ -355,12 +362,12 @@ def _case_a_p_value_that_is_not_a_number_has_no_answer():
     figure."""
     from spacr.plot import _finite_p_value
 
-    assert _finite_p_value(0.01) == pytest.approx(0.01)
-    assert _finite_p_value("0.02") == pytest.approx(0.02)
-    assert _finite_p_value(None) is None            # TypeError
-    assert _finite_p_value("not testable") is None  # ValueError
-    assert _finite_p_value(float("nan")) is None
-    assert _finite_p_value(float("inf")) is None
+    return (_finite_p_value(0.01),
+            _finite_p_value("0.02"),
+            _finite_p_value(None),            # TypeError
+            _finite_p_value("not testable"),  # ValueError
+            _finite_p_value(float("nan")),
+            _finite_p_value(float("inf")))
 
 
 # ---------------------------------------------------------------------------
@@ -405,21 +412,21 @@ def _case_a_y_limit_of_one_number_is_a_floor_and_anything_else_is_ignored():
     both = spacrGraph(frame.copy(), "grp", "val", graph_type="bar",
                       y_lim=[-5.0, 12.0])
     both.create_plot()
-    assert both.fig.axes[0].get_ylim() == (-5.0, 12.0)
+    both_limits = both.fig.axes[0].get_ylim()
 
     floor = spacrGraph(frame.copy(), "grp", "val", graph_type="bar",
                        y_lim=[-5.0])
     floor.create_plot()
-    assert floor.fig.axes[0].get_ylim()[0] == -5.0
+    floor_bottom = floor.fig.axes[0].get_ylim()[0]
 
     three = spacrGraph(frame.copy(), "grp", "val", graph_type="bar",
                        y_lim=[-5.0, 12.0, 99.0])
     three.create_plot()
     limits = three.fig.axes[0].get_ylim()
-    assert limits != (-5.0, 12.0)
-    assert limits[0] != -5.0
     # The plot is still a plot: only the window was left alone.
     assert three.fig.axes[0].patches
+    return (both_limits, floor_bottom, limits != (-5.0, 12.0),
+            limits[0] != -5.0)
 
 
 def _case_an_order_naming_no_group_in_the_frame_leaves_no_legend_to_remove():
@@ -438,20 +445,18 @@ def _case_an_order_naming_no_group_in_the_frame_leaves_no_legend_to_remove():
     real.create_plot()
     real_ax = real.fig.axes[0]
     assert real_ax.patches
-    assert [text.get_text() for text in real_ax.get_xticklabels()] == \
-        ["a", "b"]
+    real_ticks = [text.get_text() for text in real_ax.get_xticklabels()]
 
     missing = spacrGraph(frame.copy(), "grp", "val", graph_type="bar",
                          order=["not_a_group"])
     missing.create_plot()
     missing_ax = missing.fig.axes[0]
 
-    assert missing_ax.get_legend() is None
-    assert list(missing_ax.patches) == []
-    assert [text.get_text() for text in missing_ax.get_xticklabels()] == \
-        ["not_a_group"]
     # The statistics still ran on the frame that was handed in.
     assert not missing.results_df.empty
+    return (real_ticks, missing_ax.get_legend() is None,
+            len(missing_ax.patches),
+            [text.get_text() for text in missing_ax.get_xticklabels()])
 
 
 def _case_removing_outliers_says_nothing_when_there_are_none():
@@ -467,8 +472,8 @@ def _case_removing_outliers_says_nothing_when_there_are_none():
                        remove_outliers=True)
     graph.create_plot()
 
-    assert len(graph.df) == len(clean)
     assert bool(graph.results_df["outliers_removed_from_plot_only"].all())
+    clean_rows = (len(graph.df), len(clean))
 
     spiked = clean.copy()
     spiked.loc[0, "val"] = 5000.0
@@ -476,8 +481,8 @@ def _case_removing_outliers_says_nothing_when_there_are_none():
                          remove_outliers=True)
     trimmed.create_plot()
 
-    assert len(trimmed.df) == len(spiked) - 1
-    assert trimmed.df["val"].max() < 5000.0
+    return (clean_rows[0] - clean_rows[1], len(spiked) - len(trimmed.df),
+            bool(trimmed.df["val"].max() < 5000.0))
 
 
 def _case_a_wide_panel_stops_growing_with_the_number_of_groups():
@@ -491,19 +496,18 @@ def _case_a_wide_panel_stops_growing_with_the_number_of_groups():
     few = spacrGraph(_frame([("a", 0.0), ("b", 3.0)], n=6), "grp", "val",
                      graph_type="bar")
     few.create_plot()
-    assert tuple(few.fig.axes[0].figure.get_size_inches()) == (10.0, 10.0)
+    few_size = tuple(few.fig.axes[0].figure.get_size_inches())
 
     many_names = [(f"g{i:02d}", float(i)) for i in range(24)]
     many = spacrGraph(_frame(many_names, n=6), "grp", "val", graph_type="bar")
     many.create_plot()
     side = many.fig.axes[0].figure.get_size_inches()[0]
 
-    assert side == pytest.approx(24 * 2 / 4)
     assert side > 10.0
-    assert many.fig.axes[0].get_xlim() == (-0.5, 23.5)
+    return (few_size, side, many.fig.axes[0].get_xlim())
 
 
-def test_a_results_table_with_no_pairwise_row_names_no_pair():
+def _case_a_results_table_with_no_pairwise_row_names_no_pair():
     """``results_df`` mixes normality rows, comparison rows and post-hoc
     rows, and only the last two name two groups. A table that holds neither
     -- a graph built but never plotted, or a table with no ``Comparison``
@@ -515,20 +519,19 @@ def test_a_results_table_with_no_pairwise_row_names_no_pair():
                        graph_type="bar")
 
     # Nothing has been plotted yet, so the table is empty.
-    assert graph.results_df.empty
-    assert graph._comparison_pairs() == []
+    empty_table = (graph.results_df.empty, graph._comparison_pairs())
 
     # A table with rows but no 'Comparison' column is equally unreadable.
     graph.results_df = pd.DataFrame([{"Test Name": "Shapiro-Wilk",
                                       "p-value": 0.4}])
-    assert graph._comparison_pairs() == []
+    no_column = graph._comparison_pairs()
 
     # And once a real comparison is there, pairs come back out.
     graph.create_plot()
     pairs = graph._comparison_pairs()
-    assert pairs
-    assert all(len(pair) == 3 for pair in pairs)
-    assert ("a", "b") in [(first, second) for first, second, _p in pairs]
+    return (empty_table, no_column, bool(pairs),
+            all(len(pair) == 3 for pair in pairs),
+            ("a", "b") in [(first, second) for first, second, _p in pairs])
 
 
 def _case_a_table_of_normality_rows_alone_draws_no_bracket(capsys):
@@ -542,7 +545,7 @@ def _case_a_table_of_normality_rows_alone_draws_no_bracket(capsys):
                        graph_type="bar", annotate_stats=True)
     graph.create_plot()
     ax = graph.fig.axes[0]
-    assert _brackets(ax), "the run itself must draw brackets"
+    run_draws = bool(_brackets(ax))
 
     for line in list(ax.lines):
         line.remove()
@@ -550,9 +553,10 @@ def _case_a_table_of_normality_rows_alone_draws_no_bracket(capsys):
         {"Comparison": "Normality test for a on val", "p-value": 0.4},
         {"Comparison": "Normality test for b on val", "p-value": 0.6}])
 
-    assert graph._draw_comparison_lines(ax) == 0
-    assert _brackets(ax) == []
-    assert "No comparisons available to annotate." in capsys.readouterr().out
+    drawn_count = graph._draw_comparison_lines(ax)
+    return (run_draws, drawn_count, _brackets(ax),
+            "No comparisons available to annotate."
+            in capsys.readouterr().out)
 
 
 def _case_several_measurements_on_one_axis_are_not_bracketed():
@@ -567,16 +571,17 @@ def _case_several_measurements_on_one_axis_are_not_bracketed():
     one = spacrGraph(frame.copy(), "grp", "val", graph_type="bar",
                      annotate_stats=True)
     one.create_plot()
-    assert len(_brackets(one.fig.axes[0])) >= 1
+    one_draws = len(_brackets(one.fig.axes[0])) >= 1
 
     two = spacrGraph(frame.copy(), "grp", ["val", "val2"], graph_type="bar",
                      annotate_stats=True)
     two.create_plot()
     ax = two.fig.axes[0]
 
-    assert two._comparison_pairs(), "there are pairs; they are just not drawn"
-    assert two._draw_comparison_lines(ax) == 0
-    assert _brackets(ax) == []
+    return (one_draws,
+            # there are pairs; they are just not drawn
+            bool(two._comparison_pairs()),
+            two._draw_comparison_lines(ax), _brackets(ax))
 
 
 def _case_a_bracket_stack_on_an_axis_with_no_data_starts_at_the_view_top():
@@ -599,13 +604,13 @@ def _case_a_bracket_stack_on_an_axis_with_no_data_starts_at_the_view_top():
     graph.results_df = pd.DataFrame([{"Comparison": "a vs b",
                                       "p-value": 0.001}])
 
-    assert graph._draw_comparison_lines(ax) == 1
+    drawn_count = graph._draw_comparison_lines(ax)
 
-    drawn = _brackets(ax)
-    assert drawn == [(0.0, 1.0)]
     ys = [y for line in ax.lines for y in line.get_ydata()]
-    assert ys and all(np.isfinite(y) for y in ys)
-    assert min(ys) > 0.0, "the stack sits above the view's bottom, not at -inf"
+    assert ys
+    return (drawn_count, _brackets(ax), all(np.isfinite(y) for y in ys),
+            # the stack sits above the view bottom, not at -inf
+            min(ys) > 0.0)
 
 
 # ---------------------------------------------------------------------------
@@ -687,8 +692,7 @@ def _case_each_source_can_name_its_own_database_file(tmp_path, rng):
 
     broadcast = _db_settings([str(shared_a), str(shared_b)])
     fig, results_df, df = plot_data_from_db(broadcast)
-    assert broadcast["database"] == ["measurements.db", "measurements.db"]
-    assert len(df) == 2 * len(ROWS) * len(COLUMNS) * N_FIELDS
+    broadcast_observed = (broadcast["database"], len(df))
 
     named_a = tmp_path / "named_a"
     named_b = tmp_path / "named_b"
@@ -704,12 +708,11 @@ def _case_each_source_can_name_its_own_database_file(tmp_path, rng):
                           graph_name="Listed")
     fig2, results2, df2 = plot_data_from_db(listed)
 
-    assert listed["database"] == ["first.db", "second.db"]
-    assert len(df2) == 2 * len(ROWS) * len(COLUMNS) * N_FIELDS
     assert isinstance(fig2, matplotlib.figure.Figure)
     assert not results2.empty
     assert isinstance(fig, matplotlib.figure.Figure)
     assert not results_df.empty
+    return (broadcast_observed, (listed["database"], len(df2)))
 
 
 # ---------------------------------------------------------------------------
@@ -775,11 +778,11 @@ def _case_a_frame_that_already_names_its_wells_keeps_the_names_it_came_with(
 
     kept = pd.read_csv(tmp_path / "results" / "Kept" /
                        f"{_csv_stem(settings)}_data.csv")
-    assert set(kept["rowID"]) == {"handrow"}
-    assert set(kept["columnID"]) == {"handcol"}
-    # plateID was synthesised before the split was skipped, so it is the
-    # placeholder rather than the plate named inside prc.
-    assert set(kept["plateID"]) == {"plate1"}
+    kept_observed = (set(kept["rowID"]), set(kept["columnID"]),
+                     # plateID was synthesised before the split was skipped,
+                     # so it is the placeholder rather than the plate named
+                     # inside prc.
+                     set(kept["plateID"]))
 
     bare = tmp_path / "bare.csv"
     _prc_frame(rng, with_well_columns=False).to_csv(bare, index=False)
@@ -788,8 +791,7 @@ def _case_a_frame_that_already_names_its_wells_keeps_the_names_it_came_with(
 
     split = pd.read_csv(tmp_path / "results" / "Split" /
                         f"{_csv_stem(settings_bare)}_data.csv")
-    assert set(split["plateID"]) == {"realplate"}
-    assert set(split["rowID"]) == {"r1", "r2"}
+    return (kept_observed, set(split["plateID"]), set(split["rowID"]))
 
 
 def _case_a_keep_groups_that_is_neither_a_name_nor_a_list_filters_nothing(
@@ -810,16 +812,16 @@ def _case_a_keep_groups_that_is_neither_a_name_nor_a_list_filters_nothing(
     plot_data_from_csv(listed)
     filtered = pd.read_csv(tmp_path / "results" / "Listed" /
                            f"{_csv_stem(listed)}_data.csv")
-    assert set(filtered["group"]) == {"ctrl", "treat"}
+    filtered_groups = set(filtered["group"])
 
     odd = _csv_settings(str(csv), keep_groups=("ctrl", "treat"),
                         graph_name="Tuple")
     plot_data_from_csv(odd)
 
-    assert odd["keep_groups"] == ("ctrl", "treat"), "the value is untouched"
     unfiltered = pd.read_csv(tmp_path / "results" / "Tuple" /
                              f"{_csv_stem(odd)}_data.csv")
-    assert set(unfiltered["group"]) == {"ctrl", "treat", "drop_me"}
+    # the keep_groups value itself is left untouched
+    return (filtered_groups, odd["keep_groups"], set(unfiltered["group"]))
 
 
 # ---------------------------------------------------------------------------
@@ -924,10 +926,10 @@ def _case_an_overlay_that_came_back_empty_costs_no_file_and_no_crash(
 
     monkeypatch.setattr(P, "plot_image_mask_overlay", _small)
     fig_1, fig_2, fig_3 = plot_region(_region_settings(src))
-    assert isinstance(fig_1, matplotlib.figure.Figure)
-    assert (dst / f"{FOV_NAME}_mask_overlay.pdf").is_file()
-    assert (dst / f"{FOV_NAME}_png_grid.pdf").is_file()
-    assert (dst / f"{FOV_NAME}_activation_grid.pdf").is_file()
+    real_observed = (isinstance(fig_1, matplotlib.figure.Figure),
+                     (dst / f"{FOV_NAME}_mask_overlay.pdf").is_file(),
+                     (dst / f"{FOV_NAME}_png_grid.pdf").is_file(),
+                     (dst / f"{FOV_NAME}_activation_grid.pdf").is_file())
 
     for name in ("mask_overlay", "png_grid", "activation_grid"):
         (dst / f"{FOV_NAME}_{name}.pdf").unlink()
@@ -936,40 +938,92 @@ def _case_an_overlay_that_came_back_empty_costs_no_file_and_no_crash(
 
     empty_1, empty_2, empty_3 = plot_region(_region_settings(src))
 
-    assert empty_1 is None
-    assert isinstance(empty_2, matplotlib.figure.Figure)
-    assert isinstance(empty_3, matplotlib.figure.Figure)
-    assert not (dst / f"{FOV_NAME}_mask_overlay.pdf").exists()
-    assert (dst / f"{FOV_NAME}_png_grid.pdf").is_file()
-    assert (dst / f"{FOV_NAME}_activation_grid.pdf").is_file()
+    return (real_observed,
+            (empty_1 is None,
+             isinstance(empty_2, matplotlib.figure.Figure),
+             isinstance(empty_3, matplotlib.figure.Figure),
+             (dst / f"{FOV_NAME}_mask_overlay.pdf").exists(),
+             (dst / f"{FOV_NAME}_png_grid.pdf").is_file(),
+             (dst / f"{FOV_NAME}_activation_grid.pdf").is_file()))
 
 
-def test_plot_cases(request, subtests, capsys):
-    """Case table: 18 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+_TICK = ["a", "b"]
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_a_figure_saved_by_bare_name_lands_in_the_working_directory,
+        (("", True), os.path.join("made", "up"), True),
+        id="save-figure-bare-name-needs-no-directory"),
+    pytest.param(
         _case_an_already_normalised_float_stack_is_overlaid_like_a_uint_one,
+        (True, True), id="overlay-float-stack-matches-uint-stack"),
+    pytest.param(
         _case_a_mask_panel_can_be_drawn_without_its_object_numbers,
+        (["1", "2", "3"], [], ["Image - Channel0", "Mask", "Flow"]),
+        id="mask-panel-without-object-numbers"),
+    pytest.param(
         _case_a_run_with_only_a_nucleus_mask_reports_only_the_nucleus,
+        ([0, 1], True, False, False), id="filter-nucleus-only-reports-nucleus"),
+    pytest.param(
         _case_a_one_dimensional_crop_matches_no_panel_layout,
+        (1, "UnboundLocalError"), id="cropped-1d-matches-no-layout"),
+    pytest.param(
         _case_a_strain_column_that_repeats_the_condition_gets_no_legend_to_remove,
+        ({"wt", "mut"}, True, [], 6, _RECRUITMENT_EXTRA, True),
+        id="recruitment-redundant-hue-has-no-legend"),
+    pytest.param(
         _case_a_p_value_that_is_not_a_number_has_no_answer,
+        (pytest.approx(0.01), pytest.approx(0.02), None, None, None, None),
+        id="finite-p-value-no-answer-for-non-numbers"),
+    pytest.param(
         _case_a_y_limit_of_one_number_is_a_floor_and_anything_else_is_ignored,
+        ((-5.0, 12.0), -5.0, True, True), id="graph-y-limit-forms"),
+    pytest.param(
         _case_an_order_naming_no_group_in_the_frame_leaves_no_legend_to_remove,
+        (_TICK, True, 0, ["not_a_group"]), id="graph-order-naming-no-group"),
+    pytest.param(
         _case_removing_outliers_says_nothing_when_there_are_none,
+        (0, 1, True), id="graph-outlier-removal-only-trims-real-outliers"),
+    pytest.param(
         _case_a_wide_panel_stops_growing_with_the_number_of_groups,
+        ((10.0, 10.0), pytest.approx(24 * 2 / 4), (-0.5, 23.5)),
+        id="graph-figure-side-floor-then-growth"),
+    pytest.param(
+        _case_a_results_table_with_no_pairwise_row_names_no_pair,
+        ((True, []), [], True, True, True), id="comparison-pairs-need-pairwise-rows"),
+    pytest.param(
         _case_a_table_of_normality_rows_alone_draws_no_bracket,
+        (True, 0, [], True), id="brackets-none-for-normality-rows"),
+    pytest.param(
         _case_several_measurements_on_one_axis_are_not_bracketed,
+        (True, True, 0, []), id="brackets-none-for-several-measurements"),
+    pytest.param(
         _case_a_bracket_stack_on_an_axis_with_no_data_starts_at_the_view_top,
+        (1, [(0.0, 1.0)], True, True), id="brackets-stack-starts-at-view-top"),
+    pytest.param(
         _case_each_source_can_name_its_own_database_file,
+        ((["measurements.db", "measurements.db"],
+          2 * len(ROWS) * len(COLUMNS) * N_FIELDS),
+         (["first.db", "second.db"],
+          2 * len(ROWS) * len(COLUMNS) * N_FIELDS)),
+        id="db-per-source-database-names"),
+    pytest.param(
         _case_a_frame_that_already_names_its_wells_keeps_the_names_it_came_with,
+        (({"handrow"}, {"handcol"}, {"plate1"}), {"realplate"}, {"r1", "r2"}),
+        id="csv-existing-well-columns-kept"),
+    pytest.param(
         _case_a_keep_groups_that_is_neither_a_name_nor_a_list_filters_nothing,
+        ({"ctrl", "treat"}, ("ctrl", "treat"), {"ctrl", "treat", "drop_me"}),
+        id="csv-keep-groups-odd-type-filters-nothing"),
+    pytest.param(
         _case_an_overlay_that_came_back_empty_costs_no_file_and_no_crash,
-        ],
-    )
-    assert ran >= 18
+        ((True, True, True, True), (True, True, True, False, True, True)),
+        id="region-empty-overlay-costs-no-file"),
+])
+def test_unusual_plot_inputs_take_the_documented_branch(
+        request, helper, expected):
+    """Each helper drives one rare branch of ``spacr.plot`` and returns what
+    it observed; the row carries what the contract says it must be."""
+    observed = _call(request, helper)
+    assert observed == expected

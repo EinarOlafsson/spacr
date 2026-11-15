@@ -17,28 +17,32 @@ from spacr.row_exclusions import exclude_matching_rows, normalize_row_exclusions
 # --------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("value", [None, "", {}, [], "   "])
+@pytest.mark.parametrize("value", [
+    pytest.param(None, id="none"),
+    pytest.param("", id="empty-string"),
+    pytest.param({}, id="empty-dict"),
+    pytest.param([], id="empty-list"),
+    pytest.param("   ", id="blanks"),
+    # A settings file that literally says "none" is not a column called none.
+    pytest.param("none", id="word-none"),
+    pytest.param("None", id="word-None"),
+    pytest.param("NULL", id="word-NULL"),
+    pytest.param("null", id="word-null"),
+    pytest.param(" none ", id="padded-word-none"),
+])
 def test_an_absent_rule_is_no_exclusions(value):
     """Blank settings mean the whole table is kept."""
     assert normalize_row_exclusions(value) == {}
 
 
-@pytest.mark.parametrize("text", ["none", "None", "NULL", "null", " none "])
-def test_the_words_none_and_null_mean_no_exclusions(text):
-    """A settings file that literally says "none" is not a column called none."""
-    assert normalize_row_exclusions(text) == {}
-
-
-def test_json_text_is_accepted():
-    """The settings file stores this as JSON, so JSON must parse."""
-    assert normalize_row_exclusions('{"columnID": ["c1", "c2"]}') == {
-        "columnID": ["c1", "c2"]}
-
-
-def test_python_literal_text_is_accepted():
-    """Hand-written settings use single quotes; that is not a mistake."""
-    assert normalize_row_exclusions("{'columnID': ['c1', 'c2']}") == {
-        "columnID": ["c1", "c2"]}
+@pytest.mark.parametrize("text", [
+    # The settings file stores this as JSON, so JSON must parse.
+    pytest.param('{"columnID": ["c1", "c2"]}', id="json-text"),
+    # Hand-written settings use single quotes; that is not a mistake.
+    pytest.param("{'columnID': ['c1', 'c2']}", id="python-literal-text"),
+])
+def test_text_rules_are_parsed_as_json_or_a_python_literal(text):
+    assert normalize_row_exclusions(text) == {"columnID": ["c1", "c2"]}
 
 
 def test_text_that_is_neither_json_nor_a_literal_says_what_is_wanted():

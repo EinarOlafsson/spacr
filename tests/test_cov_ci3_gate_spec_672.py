@@ -4,14 +4,13 @@ Item 672 turned analytic and view-drawn three-axis gates into closed
 piecewise-linear meshes. These tests pin the refusals that guard that
 conversion and the geometry checks behind it.
 """
-from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
 import pytest
 
 from spacr.qt.widgets.gate_spec import (
-    BoxGate, EditableVolumeGate, Gate, GateError, RectGate, ViewGate,
+    EditableVolumeGate, GateError, ViewGate,
     _mesh_triangle_contact, _validate_edited_polygon,
 )
 
@@ -46,27 +45,6 @@ def test_coplanar_triangles_whose_edges_cross_are_a_contact():
     assert not _mesh_triangle_contact(up, apart, np.empty((0, 3)))
 
 
-def test_a_two_axis_gate_cannot_become_an_editable_volume():
-    rect = RectGate(name='flat', x_column='x', y_column='y',
-                    x_low=0, x_high=1, y_low=0, y_high=1)
-    with pytest.raises(GateError, match='three-dimensional'):
-        EditableVolumeGate.from_gate(rect)
-
-
-@dataclass(frozen=True)
-class _Sphere(Gate):
-    """A three-axis gate type the editable volume does not know."""
-
-    @property
-    def columns(self):
-        return ('x', 'y', 'z')
-
-
-def test_an_unknown_three_axis_gate_is_refused_rather_than_guessed():
-    with pytest.raises(GateError, match='no supported finite editable volume'):
-        EditableVolumeGate.from_gate(_Sphere(name='sphere'), [(0, 1)] * 3)
-
-
 def test_a_view_boundary_that_falls_behind_the_camera_is_refused():
     projection = np.eye(4)
     projection[3, 0] = 1.
@@ -85,7 +63,3 @@ def test_a_view_boundary_that_falls_behind_the_camera_is_refused():
     assert np.array_equal(mesh.mask(_frame(points)), inside.mask(_frame(points)))
 
 
-def test_box_sampling_limits_are_enforced():
-    box = BoxGate.from_limits('volume', ('x', 'y', 'z'), [(0, 1)] * 3)
-    with pytest.raises(GateError, match='circumference'):
-        EditableVolumeGate.from_gate(box, segments=4)

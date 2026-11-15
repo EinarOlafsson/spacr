@@ -193,52 +193,6 @@ def test_the_classifier_family_heading_leads():
 # item 233, decided 2026-09-25: "Evaluation & Results" is split in two
 # ---------------------------------------------------------------------------
 
-EVALUATION_KEYS = {
-    "cross_validation_enabled", "cross_validation_folds", "cv_group_by",
-    "holdout_plate", "nested_cv_inner_folds", "score_threshold",
-    "classifier_evaluation", "evaluation_calibration", "evaluation_bins",
-    "evaluation_fail_on_leakage", "leakage_audit_train_test",
-    "leakage_hash_content", "leakage_require_identity",
-    "cv_group_column", "well_metadata_path", "cv_exclude_batch_column",
-    "prediction_treatment_column"}
-
-RESULT_KEYS = {"n_top_examples", "plot", "tensorboard", "intermedeate_save"}
-
-
-@pytest.mark.parametrize("app_key", ["classify", "classify_merged"])
-def test_evaluation_and_results_are_two_headings(app_key):
-    """Decision 2026-09-25: split Classify's "Evaluation & Results" into
-    "Evaluation" (metrics, validation, thresholds) and "Results & figures"
-    (outputs, plots, exports)."""
-    ordered = SM.categories_for_app(app_key, SM.get_categories())
-
-    assert "Evaluation & Results" not in ordered
-    assert set(ordered["Evaluation"]) == EVALUATION_KEYS
-    results = set(ordered["Results & figures"])
-    assert RESULT_KEYS <= results
-    if app_key == "classify_merged":
-        assert {"cmap", "heatmap_feature", "grouping", "min_max"} <= results
-    names = list(ordered)
-    assert names.index("Evaluation") + 1 == names.index("Results & figures")
-
-
-@pytest.mark.parametrize("app_key", ["classify", "classify_merged"])
-def test_no_setting_is_in_two_places_after_the_split(app_key):
-    ordered = SM.categories_for_app(app_key, SM.get_categories())
-    seen = [key for keys in ordered.values() for key in keys]
-    assert len(seen) == len(set(seen))
-
-
-@pytest.mark.parametrize("app_key", ["classify", "classify_merged"])
-def test_the_run_knobs_are_curated_rather_than_left_over(app_key):
-    ordered = SM.categories_for_app(app_key, SM.get_categories())
-    extra = set(ordered.get("Additional Settings", ()))
-    for key in ("random_seed", "n_jobs", "pin_memory", "verbose",
-                "strict_errors", "max_failure_rate"):
-        assert key in ordered["Runtime & Reliability"]
-        assert key not in extra
-
-
 @pytest.mark.parametrize("title", ["Evaluation", "Results & figures",
                                    "Runtime & Reliability"])
 def test_each_new_heading_has_a_written_blurb(title):

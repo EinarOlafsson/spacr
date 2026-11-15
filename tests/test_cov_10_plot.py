@@ -12,9 +12,13 @@ well grid, a single measurement column asked for as a line, a paired
 comparison whose two arms are different lengths, and a proportion table with
 no replication unit in it. Each of these has a defined, visible answer, and
 the alternative in every case is a figure that looks like a result.
+
+Two parametrised tests state the contracts; a row is a helper that does the setup
+and returns what it observed, next to the value the contract promises.
 """
 from __future__ import annotations
 
+import inspect
 import os
 import types
 
@@ -38,7 +42,7 @@ def _close_figures():
 # Figure output preferences
 # ---------------------------------------------------------------------------
 
-def test_a_format_spacr_cannot_write_falls_back_to_the_default(monkeypatch):
+def _case_a_format_spacr_cannot_write_falls_back_to_the_default(monkeypatch):
     """A stale or hand-edited preference must not make every save raise.
     spaCR writes PNG, PDF, SVG and TIFF; anything else becomes the default
     rather than an extension no writer accepts."""
@@ -47,11 +51,10 @@ def test_a_format_spacr_cannot_write_falls_back_to_the_default(monkeypatch):
     monkeypatch.setattr(preferences, "get_figure_format", lambda: "bmp")
     monkeypatch.setattr(preferences, "get_figure_png_dpi", lambda: 200)
     fmt, dpi = P.figure_output_preferences()
-    assert fmt == P.DEFAULT_FIGURE_FORMAT
-    assert dpi == 200
+    return (fmt == P.DEFAULT_FIGURE_FORMAT, dpi)
 
 
-def test_a_dpi_of_zero_falls_back_to_the_default(monkeypatch):
+def _case_a_dpi_of_zero_falls_back_to_the_default(monkeypatch):
     """Zero DPI produces a zero-pixel image. The stored preference is
     replaced by the shipped default instead of writing an empty file."""
     from spacr.qt import preferences
@@ -59,14 +62,14 @@ def test_a_dpi_of_zero_falls_back_to_the_default(monkeypatch):
     monkeypatch.setattr(preferences, "get_figure_format", lambda: "png")
     monkeypatch.setattr(preferences, "get_figure_png_dpi", lambda: 0)
     fmt, dpi = P.figure_output_preferences()
-    assert (fmt, dpi) == ("png", P.DEFAULT_FIGURE_DPI)
+    return (fmt, dpi == P.DEFAULT_FIGURE_DPI)
 
 
-def test_an_unknown_forced_format_falls_back_to_the_preference():
+def _case_an_unknown_forced_format_falls_back_to_the_preference():
     """``figure_path`` is what a non-matplotlib renderer asks before it
     exports. A typo in the format must give the preferred extension, not a
     name no renderer branches on."""
-    assert P.figure_path("volcano", fmt="jpeg2000").endswith(
+    return P.figure_path("volcano", fmt="jpeg2000").endswith(
         f".{P.figure_output_preferences()[0]}")
 
 
@@ -78,14 +81,14 @@ def _case_save_figure_writes_the_preferred_format_for_an_unknown_one(tmp_path):
     written = P.save_figure(fig, str(tmp_path / "fig"), fmt="jpeg2000",
                             announce_colours=False)
     assert os.path.isfile(written)
-    assert written.endswith(f".{P.figure_output_preferences()[0]}")
+    return written.endswith(f".{P.figure_output_preferences()[0]}")
 
 
 # ---------------------------------------------------------------------------
 # Which artists are chrome, and which are data
 # ---------------------------------------------------------------------------
 
-def test_a_figure_level_legend_is_chrome_and_is_restyled():
+def _case_a_figure_level_legend_is_chrome_and_is_restyled():
     """A legend attached to the figure rather than to an axes is still the
     frame around the claim. Missing it leaves a dark legend box on a white
     page after a print-mode save."""
@@ -95,14 +98,13 @@ def test_a_figure_level_legend_is_chrome_and_is_restyled():
     without = len(list(P._chrome(fig)))
     fig.legend([line], ["series"])
     with_legend = list(P._chrome(fig))
-    assert len(with_legend) > without
     legend_texts = [artist for kind, artist, _g, _s in with_legend
                     if kind == "text" and getattr(artist, "get_text", None)
                     and artist.get_text() == "series"]
-    assert legend_texts
+    return (len(with_legend) > without, len(legend_texts))
 
 
-def test_a_colour_that_cannot_be_read_is_skipped_not_fatal():
+def _case_a_colour_that_cannot_be_read_is_skipped_not_fatal():
     """``data_colours`` reports what a reader will see. An artist whose
     colour accessor raises contributes nothing, and must not take down the
     legibility check that a save depends on."""
@@ -122,7 +124,7 @@ def test_a_colour_that_cannot_be_read_is_skipped_not_fatal():
     # Axes: a caller may hand over any figure-like, and one bad entry must
     # not stop the rest being read.
     stub = types.SimpleNamespace(axes=[object(), ax])
-    assert P.data_colours(stub) == []
+    return P.data_colours(stub)
 
 
 def _case_an_artist_that_will_not_report_its_colour_is_left_alone():
@@ -139,8 +141,9 @@ def _case_an_artist_that_will_not_report_its_colour_is_left_alone():
 
     title.get_color = _raise
     with P.print_ready(fig, mode="print", announce=False) as look:
-        assert look.flip is True
-        assert ax.title.get_color() != "#FFFFFF"
+        flipped = look.flip
+        restyled = ax.title.get_color() != "#FFFFFF"
+    return (flipped, restyled)
 
 
 def _case_an_artist_that_refuses_a_new_colour_is_not_recorded_for_restore():
@@ -159,7 +162,7 @@ def _case_an_artist_that_refuses_a_new_colour_is_not_recorded_for_restore():
     title.set_color = _raise
     with P.print_ready(fig, mode="print", announce=False):
         pass
-    assert original == "#FFFFFF"
+    return original
 
 
 def _case_a_restore_that_fails_does_not_escape_the_export():
@@ -184,8 +187,9 @@ def _case_a_restore_that_fails_does_not_escape_the_export():
     title.set_color = _flaky
     with P.print_ready(fig, mode="print", announce=False):
         pass
-    assert len(calls) == 2                      # applied, then restore tried
-    assert ax.title.get_color() == "black" or ax.title.get_color() != "#FFFFFF"
+    return (len(calls),                         # applied, then restore tried
+            ax.title.get_color() == "black"
+            or ax.title.get_color() != "#FFFFFF")
 
 
 # ---------------------------------------------------------------------------
@@ -204,9 +208,9 @@ def _case_a_field_with_no_object_masks_draws_an_empty_named_panel(tmp_path):
     fig = P.plot_image_mask_overlay_magenta_outlines(
         path, [0, 1, 2], cell_channel=None, nucleus_channel=None,
         pathogen_channel=None, figuresize=2, thickness=1, save_pdf=False)
-    assert [a.get_title() for a in fig.axes][-1] == "no objects"
     combined = fig.axes[-1].images[0].get_array()
-    assert float(np.asarray(combined).max()) == 0.0
+    return ([a.get_title() for a in fig.axes][-1],
+            float(np.asarray(combined).max()))
 
 
 def _case_a_plate_panel_that_cannot_be_drawn_says_why(capsys):
@@ -215,7 +219,7 @@ def _case_a_plate_panel_that_cannot_be_drawn_says_why(capsys):
     df = pd.DataFrame({"prc": [], "recruitment": []})
     P.plot_plates(df, "recruitment", grouping="mean", min_max="allq",
                   cmap=None, verbose=True)
-    assert "No plate heatmap drawn" in capsys.readouterr().out
+    return "No plate heatmap drawn" in capsys.readouterr().out
 
 
 def _case_a_line_across_groups_honours_the_requested_group_order(tmp_path):
@@ -228,11 +232,10 @@ def _case_a_line_across_groups_honours_the_requested_group_order(tmp_path):
         df, "g", "y", graph_type="line", order=["b", "a"],
         output_dir=str(tmp_path), save=False)
     labels = [t.get_text() for t in figure.axes[0].get_xticklabels()]
-    assert labels[:2] == ["b", "a"]
-    assert not results.empty
+    return (labels[:2], not results.empty)
 
 
-def test_a_figure_that_refuses_the_replot_recipe_is_still_returned(
+def _case_a_figure_that_refuses_the_replot_recipe_is_still_returned(
         monkeypatch, tmp_path):
     """The recipe is a convenience for the right-click menu. A figure object
     that will not carry it must still be handed back with its statistics --
@@ -254,8 +257,7 @@ def test_a_figure_that_refuses_the_replot_recipe_is_still_returned(
                        "y": [1.0, 2, 3, 4, 10, 11, 12, 13]})
     figure, results = P.create_grouped_plot(
         df, "g", "y", graph_type="bar", output_dir=str(tmp_path), save=False)
-    assert isinstance(figure, _Frozen)
-    assert not results.empty
+    return (isinstance(figure, _Frozen), not results.empty)
 
 
 def _case_paired_arms_of_different_lengths_are_refused_by_name():
@@ -268,8 +270,8 @@ def _case_paired_arms_of_different_lengths_are_refused_by_name():
     graph.create_plot()
     results = graph.get_results()
     refused = results[results["Test Name"] == "not testable"]
-    assert len(refused) == 1
-    assert "cannot be matched up" in str(refused.iloc[0]["Why This Test"])
+    return (len(refused),
+            "cannot be matched up" in str(refused.iloc[0]["Why This Test"]))
 
 
 def _case_one_measurement_column_asked_for_as_a_line_draws_across_the_groups():
@@ -283,10 +285,9 @@ def _case_one_measurement_column_asked_for_as_a_line_draws_across_the_groups():
                          summary_func="mean")
     graph.create_plot()
     axes = graph.get_figure().axes[0]
-    assert [t.get_text() for t in axes.get_xticklabels()] == ["a", "b"]
-    assert axes.get_xlabel() == "g"
-    assert axes.get_ylabel() == "y"
-    assert list(graph.summary_df["centre"]) == [3.0, 8.0]
+    return ([t.get_text() for t in axes.get_xticklabels()],
+            axes.get_xlabel(), axes.get_ylabel(),
+            list(graph.summary_df["centre"]))
 
 
 def _case_a_line_across_groups_takes_the_log_scale_it_was_asked_for():
@@ -297,14 +298,14 @@ def _case_a_line_across_groups_takes_the_log_scale_it_was_asked_for():
                        "y": [1.0, 2, 3, 4, 5, 60, 70, 80, 90, 100]})
     graph = P.spacrGraph(df, "g", "y", graph_type="line", log_y=True)
     graph.create_plot()
-    assert graph.get_figure().axes[0].get_yscale() == "log"
+    return graph.get_figure().axes[0].get_yscale()
 
 
 # ---------------------------------------------------------------------------
 # Proportion tables
 # ---------------------------------------------------------------------------
 
-def test_a_bin_named_like_the_unit_column_does_not_collide():
+def _case_a_bin_named_like_the_unit_column_does_not_collide():
     """``unstack`` turns bin VALUES into column names. When one of them is
     spelled like the unit column the reset would raise "cannot insert prc,
     already exists"; the unit column has to survive as the unit."""
@@ -314,12 +315,11 @@ def test_a_bin_named_like_the_unit_column_does_not_collide():
         "bin": ["prc", "other", "prc", "other"],
     })
     out = P.proportions_per_unit(df, "g", "bin", "prc")
-    assert sorted(out["prc"].tolist()) == ["w1", "w2"]
     assert "other" in out.columns
-    assert out["other"].tolist() == [0.5, 0.5]
+    return (sorted(out["prc"].tolist()), out["other"].tolist())
 
 
-def test_a_single_group_has_no_glm_contrast_and_says_so():
+def _case_a_single_group_has_no_glm_contrast_and_says_so():
     """One group gives a design with no contrast column. The row is still
     reported, with NaN rather than a statistic, so the table has one line per
     bin whatever the design turns out to be."""
@@ -329,9 +329,8 @@ def test_a_single_group_has_no_glm_contrast_and_says_so():
         "bin": ["hit", "miss", "hit", "miss"],
     })
     out = P.proportion_mixed_model(df, "g", "bin", "prc")
-    assert sorted(out["bin"].tolist()) == ["hit", "miss"]
-    assert out["p_value"].isna().all()
-    assert out["unit"].unique().tolist() == ["prc"]
+    return (sorted(out["bin"].tolist()), bool(out["p_value"].isna().all()),
+            out["unit"].unique().tolist())
 
 
 def _case_a_table_with_no_replication_unit_says_the_p_value_is_too_small(
@@ -346,31 +345,74 @@ def _case_a_table_with_no_replication_unit_says_the_p_value_is_too_small(
     results, _pairwise, fig = P.plot_proportion_stacked_bars(
         {"verbose": False}, df, "g", "bin", prc_column="prc", level="object")
     printed = capsys.readouterr().out
-    assert "no 'prc' column" in printed
-    assert "smaller than the experiment" in printed
-    assert results["unit"].tolist() == ["object"]
     assert fig is not None
+    return ("no 'prc' column" in printed,
+            "smaller than the experiment" in printed,
+            results["unit"].tolist())
 
 
-def test_plot_cases(request, subtests, capsys):
-    """Case table: 11 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(_case_a_format_spacr_cannot_write_falls_back_to_the_default,
+                 (True, 200), id="unwritable-format-falls-back-to-default"),
+    pytest.param(_case_a_dpi_of_zero_falls_back_to_the_default,
+                 ("png", True), id="zero-dpi-falls-back-to-default"),
+    pytest.param(_case_an_unknown_forced_format_falls_back_to_the_preference,
+                 True, id="figure-path-unknown-format-uses-preference"),
+    pytest.param(
         _case_save_figure_writes_the_preferred_format_for_an_unknown_one,
-        _case_an_artist_that_will_not_report_its_colour_is_left_alone,
+        True, id="save-figure-unknown-format-uses-preference"),
+    pytest.param(_case_a_figure_level_legend_is_chrome_and_is_restyled,
+                 (True, 1), id="figure-level-legend-is-chrome"),
+    pytest.param(_case_a_colour_that_cannot_be_read_is_skipped_not_fatal,
+                 [], id="unreadable-colour-is-skipped"),
+    pytest.param(_case_an_artist_that_will_not_report_its_colour_is_left_alone,
+                 (True, True), id="artist-without-colour-left-alone"),
+    pytest.param(
         _case_an_artist_that_refuses_a_new_colour_is_not_recorded_for_restore,
-        _case_a_restore_that_fails_does_not_escape_the_export,
-        _case_a_field_with_no_object_masks_draws_an_empty_named_panel,
-        _case_a_plate_panel_that_cannot_be_drawn_says_why,
-        _case_a_line_across_groups_honours_the_requested_group_order,
-        _case_paired_arms_of_different_lengths_are_refused_by_name,
+        "#FFFFFF", id="artist-refusing-new-colour-not-recorded"),
+    pytest.param(_case_a_restore_that_fails_does_not_escape_the_export,
+                 (2, True), id="failed-restore-does-not-escape"),
+])
+def test_figure_writing_and_plotting_fall_back_to_a_defined_answer(
+        request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(_case_a_field_with_no_object_masks_draws_an_empty_named_panel,
+                 ("no objects", 0.0), id="no-masks-draws-no-objects-panel"),
+    pytest.param(_case_a_plate_panel_that_cannot_be_drawn_says_why,
+                 True, id="plate-without-grid-says-why"),
+    pytest.param(_case_a_line_across_groups_honours_the_requested_group_order,
+                 (["b", "a"], True), id="line-honours-group-order"),
+    pytest.param(_case_a_figure_that_refuses_the_replot_recipe_is_still_returned,
+                 (True, True), id="figure-refusing-recipe-still-returned"),
+    pytest.param(_case_paired_arms_of_different_lengths_are_refused_by_name,
+                 (1, True), id="unequal-paired-arms-refused-by-name"),
+    pytest.param(
         _case_one_measurement_column_asked_for_as_a_line_draws_across_the_groups,
-        _case_a_line_across_groups_takes_the_log_scale_it_was_asked_for,
+        (["a", "b"], "g", "y", [3.0, 8.0]),
+        id="single-column-line-draws-across-groups"),
+    pytest.param(_case_a_line_across_groups_takes_the_log_scale_it_was_asked_for,
+                 "log", id="line-across-groups-takes-log-scale"),
+    pytest.param(_case_a_bin_named_like_the_unit_column_does_not_collide,
+                 (["w1", "w2"], [0.5, 0.5]),
+                 id="bin-named-like-unit-column-does-not-collide"),
+    pytest.param(_case_a_single_group_has_no_glm_contrast_and_says_so,
+                 (["hit", "miss"], True, ["prc"]),
+                 id="single-group-glm-reports-nan-per-bin"),
+    pytest.param(
         _case_a_table_with_no_replication_unit_says_the_p_value_is_too_small,
-        ],
-    )
-    assert ran >= 11
+        (True, True, ["object"]), id="no-replication-unit-warns-p-too-small"),
+])
+def test_plotters_give_a_defined_answer_when_the_data_is_thin(
+        request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected

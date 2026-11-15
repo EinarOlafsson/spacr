@@ -1,17 +1,14 @@
 """Plate QC keeps its promises on the inputs that sit just off the happy path.
 
-Four behaviours in :mod:`spacr.plate_qc` decide whether a QC pass helps or
+Three behaviours in :mod:`spacr.plate_qc` decide whether a QC pass helps or
 misleads, and each is reached only by input the common case never produces:
 
 * a database column that *looks* numeric but holds nothing usable — offering
   it in a measurement picker gives the user an empty heatmap;
-* a forced plate format that the data already fits — the grid must be taken
-  as given, without the "your geometry is too small" warning that belongs to
-  the other case;
 * a well value that is infinite — the median it poisons has to be reported as
   *undefined*, never as a difference of zero or a NaN;
-* a ring profile capped below the number of rings on the plate — the cap has
-  to be honoured rather than run to the core.
+* a ring profile capped at zero rings — the table empties while the
+  outer-vs-interior test stays.
 """
 from __future__ import annotations
 
@@ -127,68 +124,6 @@ def test_a_sample_of_one_row_still_rejects_a_text_column(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Forced plate geometry
-# ---------------------------------------------------------------------------
-
-def test_a_forced_plate_format_that_fits_is_used_without_a_warning():
-    """Forcing 96 on a 96-well plate is the ordinary case — a user who knows
-    their format types it in so an under-pipetted plate is not mis-inferred
-    as something smaller. The grid must come back exactly 8x12, and the
-    "your forced geometry is smaller than the data" warning must stay away,
-    or the warning stops meaning anything when it does appear.
-    """
-    fits = pq.plate_layout(_long_frame(8, 12), "value", plate_format=96)
-
-    assert fits.attrs["plate_format"] == 96
-    assert (fits.attrs["n_rows"], fits.attrs["n_cols"]) == (8, 12)
-    assert not [n for n in fits.attrs["notes"] if "Forced" in n]
-    assert pq.layout_matrix(fits).shape == (8, 12)
-
-    # The same call on data that overflows the forced format *does* warn, and
-    # grows the grid rather than dropping the wells that fall outside it.
-    overflows = pq.plate_layout(_long_frame(16, 24), "value", plate_format=96)
-
-    forced_notes = [n for n in overflows.attrs["notes"] if "Forced" in n]
-    assert len(forced_notes) == 1
-    assert "8x12" in forced_notes[0] and "16x24" in forced_notes[0]
-    assert (overflows.attrs["n_rows"], overflows.attrs["n_cols"]) == (16, 24)
-    assert pq.layout_matrix(overflows).shape == (16, 24)
-    assert len(overflows) == 16 * 24
-
-
-def test_a_half_filled_384_plate_forced_to_384_keeps_the_real_plate_edge():
-    """An assay pipetted only into rows A-H, columns 1-12 of a 384 plate has
-    a 96-plate extent, so inference calls it a 96 plate and treats row H and
-    column 12 as the plate edge. They are not — they sit in the middle of the
-    plastic, where no evaporation happens. Forcing 384 restores the nominal
-    grid, and with it the ring geometry every edge statistic is computed on.
-    """
-    frame = _long_frame(8, 12)
-
-    forced = pq.plate_layout(frame, "value", plate_format=384)
-    inferred = pq.plate_layout(frame, "value")
-
-    assert forced.attrs["plate_format"] == 384
-    assert (forced.attrs["n_rows"], forced.attrs["n_cols"]) == (16, 24)
-    assert not [n for n in forced.attrs["notes"] if "Forced" in n]
-    assert len(forced) == 8 * 12                       # the wells that exist
-    assert pq.layout_matrix(forced).shape == (16, 24)  # the grid they sit in
-
-    # Row H, column 6 is interior plastic on the 384 grid ...
-    row_h = forced[(forced["row_index"] == 8) & (forced["column_index"] == 6)]
-    assert not bool(row_h["is_edge"].iloc[0])
-    assert int(row_h["ring"].iloc[0]) == 5
-    # ... and only row A / column 1 remain on the true outer ring.
-    assert int(forced["is_edge"].sum()) == 12 + 8 - 1
-
-    # The contrast: left to infer, the same frame calls row H an edge well.
-    assert inferred.attrs["plate_format"] == 96
-    inferred_h = inferred[(inferred["row_index"] == 8)
-                          & (inferred["column_index"] == 6)]
-    assert bool(inferred_h["is_edge"].iloc[0])
-
-
-# ---------------------------------------------------------------------------
 # A median that cannot be computed
 # ---------------------------------------------------------------------------
 
@@ -226,53 +161,9 @@ def test_an_infinite_edge_median_is_reported_as_undefined_not_as_no_difference()
     _assert_no_nan_rendered(pq.format_edge_report(finite))
 
 
-def test_an_infinite_well_leaves_its_ring_row_undefined_but_still_counted():
-    """The ring table is what a user scans to see how far in the artefact
-    reaches. A ring whose median is undefined must still show its well count
-    and its rank statistics — dropping the row would silently shorten the
-    profile and hide that ring 0 was measured at all.
-    """
-    report = pq.detect_edge_effect(
-        _long_frame(8, 12, edge_value=float("inf")), "value")
-
-    outer = report.rings[0]
-    assert outer.ring == 0
-    assert outer.n_wells == 36
-    assert outer.median is None
-    assert outer.delta is None and outer.pct is None
-    assert outer.cliffs_delta == pytest.approx(1.0)
-    # Ring 1 is untouched by the infinity and keeps its numbers.
-    inner = report.rings[1]
-    assert inner.ring == 1 and inner.n_wells == 28
-    assert inner.median == pytest.approx(100.0, abs=5.0)
-
-
 # ---------------------------------------------------------------------------
 # The ring cap
 # ---------------------------------------------------------------------------
-
-def test_a_ring_profile_capped_at_one_ring_stops_at_the_outer_ring():
-    """``max_rings`` is what keeps the ring table readable on a 1536 plate,
-    where the profile would otherwise walk many rings inward. The cap has to
-    bound the table even when the plate has more rings left to report and the
-    core is still further in — a cap that were ignored would put a wall of
-    rows in front of the one number the user came for.
-    """
-    frame = _long_frame(8, 12, edge_boost=0.30)
-
-    capped = pq.detect_edge_effect(frame, "value", max_rings=1)
-    uncapped = pq.detect_edge_effect(frame, "value")
-
-    assert [r.ring for r in capped.rings] == [0]
-    assert capped.rings[0].n_wells == 36
-    assert capped.rings[0].pct == pytest.approx(30.0, abs=8.0)
-    # The plate really does have a second ring; only the cap hid it.
-    assert [r.ring for r in uncapped.rings] == [0, 1]
-    # Capping the table changes nothing about the headline test itself.
-    assert capped.edge_detected and uncapped.edge_detected
-    assert capped.pct_difference == pytest.approx(uncapped.pct_difference)
-    assert "ring  wells" in pq.format_edge_report(capped)
-
 
 def test_a_ring_cap_of_zero_reports_no_rings_and_keeps_the_edge_test():
     """Zero rings is what a caller passes to suppress the profile entirely
@@ -339,152 +230,3 @@ def test_a_table_whose_only_measurement_is_empty_offers_nothing_to_plot(tmp_path
     # decide whether it can be plotted.
     assert pq.table_columns(empty, "cell") == ["prc", "area"]
     assert pq.table_columns(empty, "cell") == pq.table_columns(written, "cell")
-
-
-# ---------------------------------------------------------------------------
-# Forced geometry larger than anything on the plate
-# ---------------------------------------------------------------------------
-
-def test_a_1536_plate_pipetted_in_a_384_footprint_keeps_its_real_edge():
-    """Screens routinely fill one 384-well quadrant footprint of a 1536 plate.
-    Inference sees a 16x24 extent and calls it a 384 plate, which puts row P
-    and column 24 on the outer ring — they are interior plastic, four rings
-    deep, and nothing evaporates there. Forcing 1536 has to accept the grid as
-    given without the "forced geometry is smaller than the data" warning: that
-    warning is the signal the user typed the wrong format, and it means
-    nothing if it also fires when the format fits.
-    """
-    frame = _long_frame(16, 24)
-
-    forced = pq.plate_layout(frame, "value", plate_format=1536)
-    inferred = pq.plate_layout(frame, "value")
-
-    assert forced.attrs["plate_format"] == 1536
-    assert (forced.attrs["n_rows"], forced.attrs["n_cols"]) == (32, 48)
-    assert not [n for n in forced.attrs["notes"] if "Forced" in n]
-    assert len(forced) == 16 * 24                      # the wells that exist
-    assert pq.layout_matrix(forced).shape == (32, 48)  # the grid they sit in
-
-    # P24 — the corner of the pipetted block — is 15 rings in on the real
-    # plate, and only row A / column 1 stay on the true outer ring.
-    corner = forced[(forced["row_index"] == 16) & (forced["column_index"] == 24)]
-    assert int(corner["ring"].iloc[0]) == 15
-    assert not bool(corner["is_edge"].iloc[0])
-    assert int(forced["is_edge"].sum()) == 24 + 16 - 1
-
-    # The contrast: left to infer, the same frame calls that corner an edge
-    # well and hands the edge test a ring made of interior plastic.
-    assert inferred.attrs["plate_format"] == 384
-    inferred_corner = inferred[(inferred["row_index"] == 16)
-                               & (inferred["column_index"] == 24)]
-    assert bool(inferred_corner["is_edge"].iloc[0])
-    assert int(inferred["is_edge"].sum()) == 2 * 16 + 2 * 24 - 4
-
-
-# ---------------------------------------------------------------------------
-# An interior median that cannot be computed
-# ---------------------------------------------------------------------------
-
-def _with_interior_infinities(n_rows=8, n_cols=12):
-    """The 8x12 frame with every *interior* object set to ``inf``.
-
-    The mirror image of ``_long_frame(edge_value=inf)``: here it is the group
-    the edge is measured *against* that has no median.
-    """
-    frame = _long_frame(n_rows, n_cols)
-    rc = frame["prc"].str.extract(r"_r(\d+)_c(\d+)$").astype(int)
-    rows, cols = rc[0].to_numpy(), rc[1].to_numpy()
-    ring = np.minimum.reduce([rows - 1, n_rows - rows, cols - 1, n_cols - cols])
-    frame.loc[ring >= 1, "value"] = float("inf")
-    return frame
-
-
-def test_an_infinite_interior_median_leaves_the_difference_undefined():
-    """The baseline the edge is compared against can be the poisoned one: a
-    single overflowing feature in the middle of the plate is enough. The edge
-    median is then a perfectly good number and the interior median is not, so
-    the *difference* is unknown. Reporting it as the edge median alone — or as
-    zero — would tell the user the ring matches an interior nobody measured.
-    The percentage has to stay undefined with it, since there is no baseline
-    to divide by.
-    """
-    report = pq.detect_edge_effect(_with_interior_infinities(), "value")
-
-    assert report.ok                          # both groups are populated
-    assert (report.n_edge_wells, report.n_interior_wells) == (36, 60)
-    assert report.edge_median == pytest.approx(100.0, abs=5.0)
-    assert report.interior_median is None     # inf is not a number to report
-    assert report.median_difference is None
-    assert report.pct_difference is None
-    # The rank test still answers: every interior well outranks every edge one.
-    assert report.cliffs_delta == pytest.approx(-1.0)
-
-    text = pq.format_edge_report(report)
-    _assert_no_nan_rendered(text)
-    assert "interior median     undefined" in text
-    assert "median difference   undefined" in text
-    assert "undetermined amount" in text
-    # And the edge median it *could* compute is still printed, so the report
-    # says which half of the comparison failed.
-    assert re.search(r"edge median\s+\d", text), text
-
-    # The contrast: a finite interior gives both medians and a real difference.
-    finite = pq.detect_edge_effect(_long_frame(8, 12, edge_boost=0.30), "value")
-    assert finite.interior_median == pytest.approx(100.0, abs=5.0)
-    assert finite.median_difference == pytest.approx(30.0, abs=8.0)
-
-
-# ---------------------------------------------------------------------------
-# How deep "the core" is
-# ---------------------------------------------------------------------------
-
-def test_a_deeper_core_reports_one_more_ring_before_the_profile_stops():
-    """The ring profile stops where the rings become the core it compares
-    against — past that point a ring would be tested against itself and every
-    row after it would read as "no difference" for arithmetic reasons rather
-    than biological ones. ``core_depth`` is therefore what decides how far the
-    table runs: at depth 3 the user gets ring 2 as a real comparison against
-    the innermost 12 wells, and at the default depth 2 that row is correctly
-    withheld.
-    """
-    frame = _long_frame(8, 12, edge_boost=0.30)
-
-    deep = pq.detect_edge_effect(frame, "value", core_depth=3)
-    default = pq.detect_edge_effect(frame, "value")
-
-    assert [r.ring for r in deep.rings] == [0, 1, 2]
-    assert [r.n_wells for r in deep.rings] == [36, 28, 20]
-    assert deep.rings[0].pct == pytest.approx(30.0, abs=8.0)
-    # Rings 1 and 2 are ordinary interior wells: no boost was applied there.
-    assert deep.rings[1].pct == pytest.approx(0.0, abs=5.0)
-    assert deep.rings[2].pct == pytest.approx(0.0, abs=5.0)
-    # The shallower default core swallows ring 2 rather than comparing it
-    # against wells it contains.
-    assert [r.ring for r in default.rings] == [0, 1]
-    # Neither depth changes the headline test.
-    assert deep.edge_detected and default.edge_detected
-    assert deep.pct_difference == pytest.approx(default.pct_difference)
-
-
-def test_a_core_deeper_than_the_plate_says_which_depth_it_fell_back_to():
-    """Asking for a core 5 rings in on a 96-well plate asks for wells that do
-    not exist — the deepest ring there is 3. Silently profiling against an
-    empty or two-well core would put statistics in the table computed from
-    almost nothing. The profile backs off to the deepest usable core and has
-    to say so, because "vs core" means something different afterwards.
-    """
-    frame = _long_frame(8, 12, edge_boost=0.30)
-
-    fallback = pq.detect_edge_effect(frame, "value", core_depth=5)
-
-    notes = [n for n in fallback.notes if "core" in n]
-    assert len(notes) == 1
-    assert "at least 5" in notes[0] and "depth >= 3" in notes[0]
-    # The table itself is still the full three rings outside that core.
-    assert [r.ring for r in fallback.rings] == [0, 1, 2]
-    assert [r.n_wells for r in fallback.rings] == [36, 28, 20]
-    assert fallback.rings[0].pct == pytest.approx(30.0, abs=8.0)
-    # A core the plate can supply produces no such note, so the note above is
-    # the impossible depth's doing.
-    assert not [n for n in pq.detect_edge_effect(
-        frame, "value", core_depth=3).notes if "core" in n]

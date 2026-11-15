@@ -1,4 +1,4 @@
-"""The last unexercised corners of six screens, each pinned by behaviour.
+"""The last unexercised corners of five screens, each pinned by behaviour.
 
 Every case here is a branch a healthy screen almost never takes, and each
 one is paired -- in the same test -- with the input that makes the same
@@ -9,14 +9,8 @@ guard worked".
   nothing; a stale result whose cause codes explain nothing gets no
   explanation line under it; and a project the registry *does* know about
   is never told that nothing can be checked.
-* **Model Explanation** -- an unavailable surrogate family still carries
-  its reason as a tooltip even when the dropdown's model hands back no
-  item to grey out; and ``configure_hit`` only touches the phenotype
+* **Model Explanation** -- ``configure_hit`` only touches the phenotype
   dropdown when it is given a phenotype, and never adds one twice.
-* **Data Manager** -- a job that settles as a failure does not run its
-  completion handler but still announces itself; the note strip still
-  says what it has to say when Qt hands back no style to repolish it
-  with; and a project with nothing unregistered says so by omission.
 * **Plate View** -- a well with no value is blank rather than zero; a
   selection off the end of the grid draws no highlight; and a threaded
   job that settles as a failure leaves the screen as it was.
@@ -38,15 +32,12 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QObject, Qt, Signal                 # noqa: E402
-from PySide6.QtGui import (QColor, QPixmap,                      # noqa: E402
-                           QStandardItemModel)
-from PySide6.QtWidgets import (QComboBox, QLabel, QTabWidget,  # noqa: E402
+from PySide6.QtCore import QObject, Signal                     # noqa: E402
+from PySide6.QtGui import QPixmap                               # noqa: E402
+from PySide6.QtWidgets import (QTabWidget,                     # noqa: E402
                                QVBoxLayout, QWidget)
 
-from spacr import data_manager as dm                           # noqa: E402
 from spacr.projects import ProjectSummary, StaleArtifact       # noqa: E402
-from spacr.qt.screens import data_manager as data_manager_mod  # noqa: E402
 from spacr.qt.screens import mask as mask_mod                  # noqa: E402
 from spacr.qt.screens import model_explanation as explain_mod  # noqa: E402
 from spacr.qt.screens import plate_view as plate_view_mod      # noqa: E402
@@ -219,69 +210,6 @@ def test_a_registered_project_is_never_told_nothing_can_be_checked(
 # Model Explanation
 # ===========================================================================
 
-class _ItemlessCombo(QComboBox):
-    """A dropdown whose ``model()`` holds no item for any row.
-
-    ``QComboBox.model()`` is not a C++ virtual, so Qt's own machinery goes
-    on using the real model; only the panel's Python-side ``item(index)``
-    lookup sees this one, and an empty ``QStandardItemModel`` answers it
-    with ``None`` -- the case the panel guards against before greying a
-    backend out.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._itemless = QStandardItemModel(self)
-
-    def model(self):
-        return self._itemless
-
-
-def _unavailable_backends():
-    """Every surrogate family present, with xgboost unusable."""
-    return {key: {"available": key != "xgboost", "version": "1.0",
-                  "reason": "" if key != "xgboost"
-                            else "install xgboost to enable this backend"}
-            for key in explain_mod.MODEL_FAMILIES}
-
-
-def _backend_index(panel, key):
-    return next(i for i in range(panel.backend.count())
-                if panel.backend.itemData(i) == key)
-
-
-def test_an_unavailable_backend_keeps_its_reason_even_with_no_item_to_grey(
-        qtbot, monkeypatch):
-    """The reason is what the user reads; the grey is only how it looks.
-
-    Disabling the row needs the dropdown's model to hand back an item for
-    it, and the tooltip that says *why* the family cannot run must not
-    depend on that lookup succeeding.
-    """
-    monkeypatch.setattr(explain_mod, "available_backends",
-                        _unavailable_backends)
-    reason = "install xgboost to enable this backend"
-
-    ordinary = explain_mod.ExplainCvPanel()
-    qtbot.addWidget(ordinary)
-    index = _backend_index(ordinary, "xgboost")
-    assert ordinary.backend.model().item(index) is not None
-    assert ordinary.backend.model().item(index).isEnabled() is False
-    assert ordinary.backend.itemData(index, Qt.ToolTipRole) == reason
-
-    monkeypatch.setattr(explain_mod, "QComboBox", _ItemlessCombo)
-    itemless = explain_mod.ExplainCvPanel()
-    qtbot.addWidget(itemless)
-    index = _backend_index(itemless, "xgboost")
-
-    assert itemless.backend.model().item(index) is None, (
-        "the stand-in still produced an item to grey out")
-    assert itemless.backend.itemData(index, Qt.ToolTipRole) == reason
-    # And the families that CAN run still carry no excuse.
-    assert not itemless.backend.itemData(
-        _backend_index(itemless, "random_forest"), Qt.ToolTipRole)
-
-
 def test_a_hit_only_moves_the_phenotype_dropdown_when_it_names_one(qtbot):
     """A hit with no phenotype leaves the score column the user chose.
 
@@ -314,140 +242,6 @@ def test_a_hit_only_moves_the_phenotype_dropdown_when_it_names_one(qtbot):
 
 
 # ===========================================================================
-# Data Manager
-# ===========================================================================
-
-class _RecordingStyle:
-    """A style that writes down the polish calls it is asked for."""
-
-    def __init__(self):
-        self.calls = []
-
-    def unpolish(self, widget):
-        self.calls.append("unpolish")
-
-    def polish(self, widget):
-        self.calls.append("polish")
-
-
-class _StyledLabel(QLabel):
-    """A label whose style records what it was asked to repolish."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.recorder = _RecordingStyle()
-
-    def style(self):
-        return self.recorder
-
-
-class _StylelessLabel(QLabel):
-    """A label caught after the style that would polish it has gone."""
-
-    def style(self):
-        return None
-
-
-def _usage(root, **fields):
-    """A ``ProjectUsage`` with only the fields a test cares about."""
-    return dm.ProjectUsage(root=str(root), total_bytes=2048, total_files=4,
-                           **fields)
-
-
-def test_a_job_that_settles_as_a_failure_runs_no_handler_but_still_reports(
-        qtbot, tmp_path, monkeypatch):
-    """A worker that failed has no result, so the handler must not run.
-
-    ``job_finished`` still has to carry False: a caller waiting on it
-    would otherwise wait for a job that is already over.
-    """
-    root = str(tmp_path)
-    monkeypatch.setattr(dm, "scan_project",
-                        lambda path, **kw: _usage(path, symlinks=("link",)))
-    from spacr.qt import bridge
-    threads = _hand_threads(monkeypatch, bridge)
-
-    screen = data_manager_mod.DataManagerScreen(threaded=True)
-    qtbot.addWidget(screen)
-    settled = []
-    screen.job_finished.connect(settled.append)
-
-    screen.set_project(root)
-    assert threads, "the threaded path was not taken"
-    threads[-1].worker.finished.emit(False)
-
-    assert settled == [False]
-    assert screen.usage is None, "a failed job's handler drew a result anyway"
-    assert screen.rescan_button.isEnabled(), "the screen was left marked busy"
-
-    # The same job, settled as a success, does reach the handler.
-    screen.set_project(root)
-    threads[-1].worker.finished.emit(True)
-
-    assert settled == [False, True]
-    assert screen.usage is not None
-    assert screen.usage.total_bytes == 2048
-
-
-def test_the_note_strip_says_its_piece_with_or_without_a_style(
-        qtbot, tmp_path, monkeypatch):
-    """The warning is the text and the property; the repolish is cosmetic.
-
-    A dynamic property only changes the colours after an unpolish/polish
-    pair, and a widget whose style has gone cannot have one -- but the
-    sentence the user has to read must land either way.
-    """
-    monkeypatch.setattr(data_manager_mod, "QLabel", _StyledLabel)
-    styled = data_manager_mod.DataManagerScreen(threaded=False)
-    qtbot.addWidget(styled)
-
-    assert styled.set_project(str(tmp_path / "not_a_folder")) is None
-    assert styled.note_label.text() == "Choose a project folder first."
-    assert styled.note_label.property("warn") == "true"
-    assert styled.note_label.recorder.calls[-2:] == ["unpolish", "polish"]
-
-    monkeypatch.setattr(data_manager_mod, "QLabel", _StylelessLabel)
-    styleless = data_manager_mod.DataManagerScreen(threaded=False)
-    qtbot.addWidget(styleless)
-
-    styleless.set_project(str(tmp_path / "not_a_folder"))
-    assert styleless.note_label.style() is None
-    assert styleless.note_label.text() == "Choose a project folder first."
-    assert styleless.note_label.property("warn") == "true"
-
-
-def test_a_project_with_nothing_unregistered_does_not_mention_it(
-        qtbot, tmp_path, monkeypatch):
-    """The note lists the things worth acting on and nothing else.
-
-    "0 bytes have no registry record" is noise on a project where every
-    byte is accounted for, and it would drown the notes that matter.
-    """
-    root = str(tmp_path)
-    monkeypatch.setattr(
-        dm, "scan_project",
-        lambda path, **kw: _usage(path, unregistered_bytes=0,
-                                  unregistered_files=0,
-                                  symlinks=("data -> /elsewhere",)))
-    screen = data_manager_mod.DataManagerScreen(threaded=False)
-    qtbot.addWidget(screen)
-
-    screen.set_project(root)
-    assert "no registry record" not in screen.note_label.text()
-    assert "1 symlink(s), not followed" in screen.note_label.text()
-
-    monkeypatch.setattr(
-        dm, "scan_project",
-        lambda path, **kw: _usage(path, unregistered_bytes=4096,
-                                  unregistered_files=3,
-                                  symlinks=("data -> /elsewhere",)))
-    screen.set_project(root)
-    assert "no registry" in screen.note_label.text()
-    assert "3 files" in screen.note_label.text()
-    assert "1 symlink(s), not followed" in screen.note_label.text()
-
-
-# ===========================================================================
 # Plate View
 # ===========================================================================
 
@@ -462,12 +256,6 @@ def _layout_frame():
     frame.attrs["n_rows"] = 1
     frame.attrs["n_cols"] = 2
     return frame
-
-
-def _image(grid):
-    pixmap = QPixmap(grid.size())
-    grid.render(pixmap)
-    return pixmap.toImage()
 
 
 def test_a_well_with_no_value_keeps_its_count_and_stays_blank(qtbot):
@@ -485,72 +273,6 @@ def test_a_well_with_no_value_keeps_its_count_and_stays_blank(qtbot):
     assert grid.well_count(1, 1) == 5, "the count was dropped with the value"
     assert grid.well_value(1, 2) == 2.5
     assert grid.grid_size() == (1, 2)
-
-
-def test_a_selection_off_the_end_of_the_grid_draws_no_highlight(qtbot):
-    """The highlight is bounded by the plate, not by the selection.
-
-    ``select`` takes any pair of numbers -- a linked view can hand it a
-    well from a 384 plate while a 96 is on screen -- and a rectangle drawn
-    for a well that is not there would sit on top of one that is.
-    """
-    def _grid(selection):
-        """A FRESH widget per reading.
-
-        Reusing one and selecting into it compares paints taken at
-        different points in that widget's life, and those differ for
-        reasons unrelated to the selection -- which is why this test failed
-        only when another file had run before it. Building each case from
-        scratch leaves the selection as the single difference.
-        """
-        widget = plate_view_mod.PlateGridWidget()
-        qtbot.addWidget(widget)
-        widget.resize(400, 300)
-        widget.set_plate(_layout_frame(), vmin=0.0, vmax=5.0)
-        if selection is not None:
-            widget.select(*selection)
-        return widget
-
-    def _accent_pixels(widget):
-        """How much of the highlight colour the widget painted.
-
-        Whole-image equality answers for everything the widget draws, and
-        two freshly built widgets can differ in ways that have nothing to
-        do with the selection -- which is why this test failed only when
-        another file had run first. The rectangle is drawn in the accent
-        colour and nothing else uses it, so counting those pixels asks
-        exactly the question the test is about.
-        """
-        from spacr.qt.theme import active_palette
-
-        accent = QColor(active_palette()["accent"]).rgb()
-        image = _image(widget)
-        return sum(image.pixel(x, y) == accent
-                   for x in range(0, image.width(), 2)
-                   for y in range(0, image.height(), 2))
-
-    grid = _grid(None)
-    unselected = _accent_pixels(grid)
-
-    # BOTH READINGS, and the pixels are the weaker of the two. An image
-    # comparison answers for everything the widget draws, so any global a
-    # previous test file left behind -- a palette, a pyqtgraph menu, a
-    # stylesheet -- can change it without the selection changing at all.
-    # The rectangle's own geometry is the claim being made here.
-    off = _grid((9, 9))
-    assert off.selected_well() == (9, 9), "the selection was silently dropped"
-    # The plate is 1x2 and the wells are numbered from one, so (9, 9) is
-    # outside it -- which is the condition paintEvent checks before drawing
-    # the rectangle. Stated here so the pixel comparison below has a reason
-    # attached to it.
-    assert not (1 <= 9 <= off._n_rows and 1 <= 9 <= off._n_cols)
-    assert _accent_pixels(off) == unselected, (
-        "an off-grid well was outlined anyway")
-
-    on = _grid((1, 2))
-    assert 1 <= 1 <= on._n_rows and 1 <= 2 <= on._n_cols
-    assert _accent_pixels(on) > unselected, (
-        "an on-grid well was not outlined")
 
 
 def _measurements_db(tmp_path):

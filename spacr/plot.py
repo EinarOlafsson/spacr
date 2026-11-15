@@ -501,6 +501,9 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
         chosen_fmt = preferred_fmt
     chosen_dpi = int(dpi) if dpi else preferred_dpi
 
+    if path is None:
+        return None
+
     destination = _with_extension(path, chosen_fmt)
     directory = os.path.dirname(str(destination))
     if directory:
@@ -4875,7 +4878,9 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
             channel_image_rgb = np.dstack((channel_image_normalized, channel_image_normalized, channel_image_normalized))
 
             for outline, color in zip(outlines, outline_colors):
-                for j in np.unique(outline)[1:]:
+                _labels_0 = np.unique(outline)
+                _labels_0 = _labels_0[_labels_0 != 0]
+                for j in _labels_0:
                     channel_image_rgb[outline == j] = mpl.colors.to_rgb(color)
 
             ax[v + ax_index].imshow(channel_image_rgb)
@@ -4885,13 +4890,14 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
             mask = np.take(stack, mask_dim, axis=2)
             random_cmap = _generate_mask_random_cmap(mask)
             ax[i + image.shape[-1] + ax_index].imshow(mask, cmap=random_cmap)
-            n_obj = int(len(np.unique(mask)) - 1)
+            n_obj = int(np.count_nonzero(np.unique(mask)))
             cls = (mask_names[i] if mask_names and i < len(mask_names)
                    else f'Mask {i + 1}')
             ax[i + image.shape[-1] + ax_index].set_title(
                 f'{cls} - {n_obj} object' + ('' if n_obj == 1 else 's'))
             if print_object_number:
-                unique_objects = np.unique(mask)[1:]
+                unique_objects = np.unique(mask)
+                unique_objects = unique_objects[unique_objects != 0]
                 for obj in unique_objects:
                     cy, cx = ndi.center_of_mass(mask == obj)
                     ax[i + image.shape[-1] + ax_index].text(cx, cy, str(obj), color='white', fontsize=8, ha='center', va='center')
@@ -5147,12 +5153,15 @@ def _save_scimg_plot(src, nr_imgs=16, channel_indices=None, um_per_pixel=0.1, sc
         return fig
 
     fig = _visualize_scimgs(src, channel_indices, um_per_pixel, scale_bar_length_um, show_filename, standardize, nr_imgs, fontsize, channel_names, plot)
-    _save_figure(fig, src, text='all_channels')
+    per_folder = 1 + len(channel_indices)
+    figure_total = all_folders * per_folder
+    figure_offset = (i - 1) * per_folder
+    _save_figure(fig, src, text='all_channels', i=figure_offset + 1, all_folders=figure_total)
 
-    for channel in channel_indices:
+    for figure_number, channel in enumerate(list(channel_indices), start=2):
         channel_indices=[channel]
         fig = _visualize_scimgs(src, channel_indices, um_per_pixel, scale_bar_length_um, show_filename, standardize, nr_imgs, fontsize, channel_names=None, plot=plot)
-        _save_figure(fig, src, text=f'channel_{channel}')
+        _save_figure(fig, src, text=f'channel_{channel}', i=figure_offset + figure_number, all_folders=figure_total)
 
     return
 
@@ -6275,7 +6284,8 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
             src = os.getcwd()
         results_dir = os.path.join(src, 'results')
         os.makedirs(results_dir, exist_ok=True)
-        fig_path = os.path.join(results_dir, f'{filename}.pdf')
+        stem = 'masks_comparison' if filename is None else filename
+        fig_path = os.path.join(results_dir, f'{stem}.pdf')
         fig_path = save_figure(fig, fig_path)
         print(f'Saved figure to {fig_path}')
     return

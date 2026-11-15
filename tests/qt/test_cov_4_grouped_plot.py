@@ -11,42 +11,12 @@ from __future__ import annotations
 
 import builtins
 
-import numpy as np
-import pandas as pd
 import pytest
 
-from spacr.qt.widgets.grouped_plot import GroupedPlot, PlotSpec
-
-
-def _frame():
-    return pd.DataFrame({"well": ["a", "a", "b", "b"],
-                         "area": [1.0, 2.0, 3.0, 4.0]})
+from spacr.qt.widgets.grouped_plot import GroupedPlot
 
 
 # -- what a spec can group ---------------------------------------------------
-
-def test_a_spec_whose_value_column_is_gone_groups_nothing():
-    """A saved figure reopened against another table must draw nothing."""
-    spec = PlotSpec(frame=_frame(), value="perimeter", group="well")
-    assert spec.groups() == {}
-
-
-def test_a_spec_with_no_frame_at_all_groups_nothing():
-    """A spec built before its data arrived is not an error."""
-    assert PlotSpec(frame=None, value="area").groups() == {}
-
-
-def test_a_spec_with_no_group_column_is_one_series_named_by_its_value():
-    """An ungrouped column is still a distribution worth drawing."""
-    groups = PlotSpec(frame=_frame(), value="area").groups()
-    assert list(groups) == ["area"]
-    np.testing.assert_array_equal(groups["area"], [1.0, 2.0, 3.0, 4.0])
-
-
-def test_a_group_column_the_frame_does_not_have_is_one_series():
-    """A stale group column must not silently produce an empty picture."""
-    groups = PlotSpec(frame=_frame(), value="area", group="plate").groups()
-    assert list(groups) == ["area"]
 
 
 # -- the widget --------------------------------------------------------------
@@ -88,28 +58,6 @@ def test_a_plot_holding_no_data_has_no_table_to_export(a_plot):
     """A plot drawn from bare arrays honestly has no source rows, and the
     column-mapping controls grey out on exactly that answer."""
     assert a_plot().frame() is None
-
-
-def test_a_plot_holding_a_spec_exports_the_rows_it_drew(a_plot):
-    """The exported data.csv has to be the rows behind the picture."""
-    frame = _frame()
-    plot = a_plot(PlotSpec(frame=frame, value="area", group="well"))
-    assert plot.frame() is frame
-
-
-def test_a_line_joins_its_points_in_x_order(a_plot):
-    """A line through unsorted points draws a scribble, not a series."""
-    frame = pd.DataFrame({"dose": [3.0, 1.0, 2.0],
-                          "response": [30.0, 10.0, 20.0]})
-    plot = a_plot()
-    drawn = plot.show_spec(PlotSpec(frame=frame, value="response",
-                                    group="dose", kind="line"))
-    assert drawn == 1
-    curves = [item for item in plot.plot.listDataItems()
-              if item.xData is not None]
-    assert curves, "no curve was drawn"
-    xs = list(curves[0].xData)
-    assert xs == sorted(xs), xs
 
 
 def test_a_group_keeps_its_ink_when_the_house_style_cannot_be_loaded(

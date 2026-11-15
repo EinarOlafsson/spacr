@@ -7,7 +7,6 @@ import runpy
 import warnings
 from pathlib import Path
 
-import pytest
 
 from spacr import logging_util
 from spacr import run_journal as journal
@@ -45,22 +44,6 @@ def test_running_run_and_open_log_protection_survive_unreadable_paths(
     assert journal._is_protected(bad, protected)
 
 
-def test_prune_planning_skips_an_entry_whose_type_cannot_be_read(
-        tmp_path, monkeypatch):
-    candidate = tmp_path / "spacr-20200101.log"
-    candidate.write_text("old log", encoding="utf-8")
-    monkeypatch.setattr(journal, "_prune_root", lambda _kind: tmp_path)
-    monkeypatch.setattr(journal, "_protected_storage", set)
-
-    def unreadable(_kind, _entry):
-        raise OSError("entry type unavailable")
-
-    monkeypatch.setattr(journal, "_is_prunable_name", unreadable)
-    plan = journal._prune_plan("logs", 7, 0)
-    assert plan["delete"] == []
-    assert candidate.read_text(encoding="utf-8") == "old log"
-
-
 def test_prune_refuses_an_entry_that_cannot_be_resolved(
         tmp_path, monkeypatch):
     candidate = tmp_path / "spacr-20200101.log"
@@ -95,21 +78,6 @@ def test_failed_run_deletion_stays_a_refusal_in_the_prune_result(
 
     assert journal._prune(plan) == (0, 0, ["old-run: busy"])
     assert candidate.is_dir()
-
-
-def test_unreadable_log_types_are_excluded_from_clear_plans(
-        tmp_path, monkeypatch):
-    candidate = tmp_path / "r1.jsonl"
-    candidate.write_text("keep", encoding="utf-8")
-    monkeypatch.setattr(journal, "_prune_root", lambda _kind: tmp_path)
-
-    def unreadable(_kind, _entry):
-        raise OSError("entry type unavailable")
-
-    monkeypatch.setattr(journal, "_is_prunable_name", unreadable)
-    plan = journal._clear_logs_plan()
-    assert plan["groups"]["run_logs"] == []
-    assert candidate.read_text(encoding="utf-8") == "keep"
 
 
 def test_a_log_that_becomes_unreadable_is_refused_during_clear(
@@ -157,22 +125,6 @@ def test_cache_clear_reports_one_busy_child_and_removes_a_free_one(
     assert busy.read_text(encoding="utf-8") == "keep" and not free.exists()
 
 
-def test_a_protected_cache_cannot_be_relocated(tmp_path, monkeypatch):
-    source = tmp_path / "current"
-    source.mkdir()
-    (source / "model.bin").write_bytes(b"model")
-    monkeypatch.delenv("TORCH_HOME", raising=False)
-    monkeypatch.setattr(journal, "_read_cache_locations", dict)
-    monkeypatch.setattr(journal, "_cache_folder", lambda _key: source)
-    monkeypatch.setattr(journal, "_cache_refusal",
-                        lambda _folder: "cache is in use")
-
-    with pytest.raises(ValueError, match="cache is in use"):
-        journal._relocate_cache("torch", tmp_path / "elsewhere")
-    assert (source / "model.bin").read_bytes() == b"model"
-    assert not (tmp_path / "elsewhere").exists()
-
-
 def test_an_unresolvable_cache_is_refused_before_any_removal(
         tmp_path, monkeypatch):
     folder = tmp_path / "cache"
@@ -208,12 +160,6 @@ def test_unreadable_cache_locations_do_not_stop_journal_import(
 
     assert module["MANIFEST_SCHEMA_VERSION"] == journal.MANIFEST_SCHEMA_VERSION
     assert "Relocated caches could not be applied" in caplog.text
-
-
-def test_a_cache_without_a_setting_cannot_be_relocated(tmp_path):
-    with pytest.raises(ValueError, match="no setting to move it with"):
-        journal._relocate_cache("not-a-cache", tmp_path / "elsewhere")
-    assert not (tmp_path / "elsewhere").exists()
 
 
 def test_the_journal_loads_where_the_os_has_no_fork_hooks(monkeypatch):

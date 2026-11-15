@@ -59,3 +59,8 @@ New documented callables (`cpg_cropped` index builder, loader) ship with arrival
 
 ## Effort
 - **Effort:** S (path parser, loader, completeness check, engine hook).
+
+## Note 2026-11-13: SBS-only wells and folder-name case
+- A well that has sequencing (SBS) images but no phenotype images (real case: `CP186A_Well6` in `s3://cellpainting-gallery/cpg0021-periscope/`) is skipped by `cpg_cropped_index` with a logged warning naming the well. The names are kept in `index.attrs["skipped_wells"]`, in the `skipped_wells` entry of `cpg_site_index` and in the `run_cpg_phases` report and `cpg_channels.json`. A well named in `wells=` that has no phenotype images raises an error that says so. A well with phenotype but no SBS images is unchanged.
+- `Cycle<CC>_<base>` folders, `_Well<N>` well folders and the `<Channel>_Site_<S>` file-to-folder check now match without regard to case. SBS channels are stored in the index as `Cycle<CC>_<BASE>` (two-digit cycle, upper-case base); painting channels keep their stored spelling.
+- Tests: `tests/test_cpg_cropped_sbs_only_and_case_1113.py`.

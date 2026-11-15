@@ -363,8 +363,10 @@ def link_by_iou(mask_prev, mask_next, iou_threshold=0.1):
     :param iou_threshold: minimum IoU required to accept a match. Default ``0.1``.
     :returns: list of ``(label_prev, label_next)`` matches at or above the threshold.
     """
-    labels_prev = np.unique(mask_prev)[1:]
-    labels_next = np.unique(mask_next)[1:]
+    labels_prev = np.unique(mask_prev)
+    labels_prev = labels_prev[labels_prev != 0]
+    labels_next = np.unique(mask_next)
+    labels_next = labels_next[labels_next != 0]
     bool_prev = {L: mask_prev==L for L in labels_prev}
     bool_next = {L: mask_next==L for L in labels_next}
     cost = np.ones((len(labels_prev), len(labels_next)), dtype=float)
@@ -422,7 +424,8 @@ def _track_by_iou(masks, iou_threshold=0.1):
     """
     _require_2d_frames(masks, '_track_by_iou')
     n_frames = masks.shape[0]
-    labels0 = np.unique(masks[0])[1:]
+    labels0 = np.unique(masks[0])
+    labels0 = labels0[labels0 != 0]
     next_track = 1
     track_map = {}
     for L in labels0:
@@ -437,7 +440,9 @@ def _track_by_iou(masks, iou_threshold=0.1):
             tid = track_map[(t-1, L_prev)]
             track_map[(t, L_curr)] = tid
             used_curr.add(L_curr)
-        for L in np.unique(curr)[1:]:
+        _labels_3 = np.unique(curr)
+        _labels_3 = _labels_3[_labels_3 != 0]
+        for L in _labels_3:
             if L not in used_curr:
                 track_map[(t, L)] = next_track
                 next_track += 1
@@ -9344,11 +9349,20 @@ def automated_motility_assay(settings):
             first if os.path.isabs(str(first)) else os.path.join(merged_dir, str(first))))
         print(f"[summarise_tracks_from_merged] Using n_jobs={n_jobs}")
 
+        dfs = []
         if n_jobs == 1:
-            dfs = [_process_merged_group(args) for args in worker_args]
+            results = map(_process_merged_group, worker_args)
+            for done, result in enumerate(results, start=1):
+                dfs.append(result)
+                print(f"Progress: {done}/{len(worker_args)}, "
+                      f"operation_type: Tracking well groups", flush=True)
         else:
             with Pool(processes=n_jobs) as pool:
-                dfs = pool.map(_process_merged_group, worker_args)
+                results = pool.imap(_process_merged_group, worker_args)
+                for done, result in enumerate(results, start=1):
+                    dfs.append(result)
+                    print(f"Progress: {done}/{len(worker_args)}, "
+                          f"operation_type: Tracking well groups", flush=True)
 
         if bleach_method != 'none':
             results = [result for result in dfs if isinstance(result, tuple)]

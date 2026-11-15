@@ -16,6 +16,7 @@ from spacr.cli import (
     load_settings_file,
     write_settings_file,
 )
+from spacr.settings import SETTINGS_SCHEMA_VERSION, SETTINGS_VERSION_KEY
 
 
 def test_cells_match_save_settings_except_exponent_floats():
@@ -61,11 +62,13 @@ def test_the_file_round_trips_through_both_loaders(tmp_path):
     with target.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.reader(handle))
     assert rows[0] == ["Key", "Value"]
-    assert [row[0] for row in rows[1:]] == list(settings)
-    assert load_settings_file(str(target)) == settings
-    assert load_settings(str(target)) == settings
+    # Item 931: the settings schema version leads every saved file.
+    stamped = {SETTINGS_VERSION_KEY: SETTINGS_SCHEMA_VERSION, **settings}
+    assert [row[0] for row in rows[1:]] == list(stamped)
+    assert load_settings_file(str(target)) == stamped
+    assert load_settings(str(target)) == stamped
     assert json.loads(target.with_suffix(".json").read_text(encoding="utf-8")) == json.loads(
-        json.dumps(settings))
+        json.dumps(stamped))
 
 
 def test_export_refuses_redirected_staging_without_replacing_either_existing_file(tmp_path, monkeypatch):
@@ -96,4 +99,5 @@ def test_export_refuses_redirected_staging_without_replacing_either_existing_fil
     assert caught.value.errno == errno.EINVAL
     assert len(redirected) == 1
     assert {path: path.read_bytes() for path in tmp_path.iterdir()} == original
-    assert load_settings_file(str(target)) == {'src': '/original/plate', 'threshold': 1}
+    assert load_settings_file(str(target)) == {SETTINGS_VERSION_KEY: SETTINGS_SCHEMA_VERSION,
+                                               'src': '/original/plate', 'threshold': 1}

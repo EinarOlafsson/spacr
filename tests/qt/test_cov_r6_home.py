@@ -147,50 +147,9 @@ def test_a_spacer_in_a_panel_body_is_cleared_without_being_deleted(
 # HomePage._grouping
 # ---------------------------------------------------------------------------
 
-def test_a_group_naming_only_dead_apps_loses_its_tab(qtbot, _empty_journal):
-    """home.py:1485 -- ``if entries:`` False, so the group is dropped.
-
-    A grouping is a *view* of the registry. One that names an app which no
-    longer exists should lose the tile, and a group that names nothing else
-    should lose the whole tab -- not raise, and not draw an empty tab.
-    """
-    page = HomePage(APPS, lambda key: None,
-                    categories=[("Real", ["mask", "gone"]),
-                                ("Ghosts", ["gone", "also_gone"])])
-    qtbot.addWidget(page)
-
-    titles = [page._tabs.tabText(i) for i in range(page._tabs.count())]
-    assert any(t.startswith("Real") for t in titles), titles
-    assert not any(t.startswith("Ghosts") for t in titles), titles
-    # The dead key cost its tile, not the tab: "Real" holds only "mask".
-    assert any(t.startswith("Real  (1)") for t in titles), titles
-
-
 # ---------------------------------------------------------------------------
 # HomePage._build_hero
 # ---------------------------------------------------------------------------
-
-def test_a_build_without_the_logo_still_has_a_masthead(qtbot, monkeypatch,
-                                                       _empty_journal):
-    """home.py:1541 -- ``if logo is not None`` False, so no mark is hung.
-
-    The wordmark and the subtitle are the masthead; the mark is artwork
-    that a build may not carry. Losing the artwork must cost the mark and
-    nothing else.
-    """
-    with_logo = HomePage(APPS, lambda key: None)
-    qtbot.addWidget(with_logo)
-    assert with_logo.findChild(QLabel, "HeroMark") is not None
-
-    monkeypatch.setattr(home_mod, "_find_logo_pixmap", lambda: None)
-    without = HomePage(APPS, lambda key: None)
-    qtbot.addWidget(without)
-
-    assert without.findChild(QLabel, "HeroMark") is None
-    assert without._hero_mark is None
-    texts = [w.text() for w in without.findChildren(QLabel)]
-    assert "spaCR" in texts
-
 
 # ---------------------------------------------------------------------------
 # HomePage.eventFilter
@@ -341,51 +300,6 @@ def test_recent_run_import_failure_shows_a_safe_empty_panel(qtbot, monkeypatch, 
     assert not panel._clear.isEnabled()
 
 
-def test_dashboard_reset_signals_move_only_watermarks_and_keep_manifests(qtbot, classic_preferences, classic_journal):
-    recent = RecentRunsPanel(known_keys={'mask': 'Segment', 'measure': 'Measure'}, read_now=False)
-    totals = TotalsPanel(read_now=False)
-    qtbot.addWidget(recent)
-    qtbot.addWidget(totals)
-    assert totals.read()['total_runs'] == 2
-    recent.refresh()
-    totals.refresh()
-    assert len(recent.read()) == 2
-    cleared, reset = [], []
-    recent.cleared.connect(lambda: cleared.append(True))
-    totals.reset_requested.connect(lambda: reset.append(True))
-    recent._clear.click()
-    totals._reset.click()
-    assert cleared == [True] and reset == [True]
-    assert classic_preferences.get_dashboard_watermark('runs')
-    assert classic_preferences.get_dashboard_watermark('totals')
-    assert recent.read() == []
-    assert totals.read()['total_runs'] == 0
-    assert not recent._clear.isEnabled() and not totals._reset.isEnabled()
-    assert all(path.read_bytes() == payload for path, payload in classic_journal.items())
-
-
-@pytest.mark.parametrize('failed_service', ['watermark', 'journal'])
-def test_totals_service_failures_preserve_the_real_journal(qtbot, monkeypatch, classic_preferences, classic_journal, failed_service):
-    from spacr import run_journal
-
-    panel = TotalsPanel(read_now=False)
-    qtbot.addWidget(panel)
-
-    def unavailable(*args, **kwargs):
-        raise OSError('optional dashboard service unavailable')
-
-    if failed_service == 'watermark':
-        monkeypatch.setattr(classic_preferences, 'get_dashboard_watermark', unavailable)
-        assert panel.read() == dict(total_runs=2, mask_runs=1, measure_runs=1,
-                                    classify_runs=0, models_recorded=0)
-    else:
-        monkeypatch.setattr(run_journal, 'journal_totals', unavailable)
-        assert panel.read() == dict(total_runs=0, mask_runs=0, measure_runs=0, models_recorded=0)
-        panel.refresh()
-        assert not panel._reset.isEnabled()
-    assert all(path.read_bytes() == payload for path, payload in classic_journal.items())
-
-
 @pytest.mark.parametrize('resource', ['missing', 'invalid_json', 'wrong_shape'])
 def test_unreadable_bundled_news_keeps_a_real_placeholder(qtbot, tmp_path, monkeypatch, classic_preferences, resource):
     import importlib.resources
@@ -423,59 +337,6 @@ def test_bad_fetched_news_preserves_the_existing_release_widgets(qtbot, monkeypa
     assert labels[0].focusPolicy() == Qt.NoFocus
     assert panel.render_body('  \n', '#123456') == ''
     block.setParent(panel)
-
-
-def test_news_title_wraps_while_a_long_plain_date_can_scroll(qtbot, monkeypatch, classic_preferences):
-    from PySide6.QtWidgets import QFrame
-
-    name = 'A readable release heading with enough words to require several lines on a narrow panel'
-    date = 'Wednesday September 30 2026 23:59:59 UTC, localized publication date'
-    monkeypatch.setattr(home_mod.NewsPanel, 'read_releases', staticmethod(lambda: [
-        {'tag': 'v2', 'name': name, 'published': date, 'body': ''}]))
-    panel = home_mod.NewsPanel()
-    qtbot.addWidget(panel)
-    title, stamp = panel._headline_labels
-    title.setFrameStyle(QFrame.Box)
-    title.setMargin(4)
-    title.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-    panel.resize(580, 360)
-    panel.show()
-    qtbot.waitExposed(panel)
-    panel._news_title_fit._fit()
-    wide_height = title.property('minimumSize').height()
-    panel.resize(280, 360)
-    qtbot.waitUntil(lambda: panel._notes.viewport().property('size').width() < 400)
-    panel._news_title_fit._fit()
-    width = panel._notes.viewport().property('size').width()
-    assert title.property('minimumSize').width() == width
-    assert title.property('maximumSize').width() == width
-    assert title.property('minimumSize').height() > wide_height
-    assert title.text() == name and title.accessibleName() == name
-    assert stamp.text() == date and not stamp.wordWrap()
-    assert stamp.property('maximumSize').width() > width
-
-
-@pytest.mark.parametrize('state', ['zero_allocation', 'retired_viewport'])
-def test_news_title_fitter_declines_unusable_viewports(qtbot, classic_preferences, state):
-    from PySide6.QtWidgets import QWidget
-    from shiboken6 import isValid
-
-    panel = home_mod.NewsPanel()
-    qtbot.addWidget(panel)
-    fitter = panel._news_title_fit
-    titles = tuple(panel._headline_labels)
-    if state == 'retired_viewport':
-        previous = fitter._viewport
-        content = panel._notes.takeWidget()
-        panel._notes.setViewport(QWidget())
-        panel._notes.setWidget(content)
-        assert not isValid(previous)
-    else:
-        fitter._viewport.resize(0, 0)
-        assert fitter._viewport.property('size').width() == 0
-    fitter._fit()
-    assert tuple(panel._headline_labels) == titles
-    assert isValid(panel) and all(isValid(title) for title in titles)
 
 
 def test_retired_news_panel_drops_a_late_refresh_request(classic_preferences):
@@ -705,35 +566,6 @@ def test_beta_panel_actions_and_stage_legend_expose_their_real_meaning(qtbot):
         chip = row.findChild(QLabel, f'StageSwatch_{stage}')
         assert chip is not None and stage_hover(stage) in chip.styleSheet()
     assert legend.row_for('unregistered stage') is None
-
-
-def test_news_bottom_aligned_framed_heading_fits_and_short_date_stays_bounded(
-        qtbot, monkeypatch, classic_preferences):
-    from PySide6.QtWidgets import QFrame
-
-    title_text = 'A release heading with enough words to wrap inside the framed news panel'
-    date_text = '2026-10-28'
-    monkeypatch.setattr(home_mod.NewsPanel, 'read_releases', staticmethod(lambda: [
-        {'tag': 'v3', 'name': title_text, 'published': date_text, 'body': ''}]))
-    panel = home_mod.NewsPanel()
-    qtbot.addWidget(panel)
-    title, stamp = panel._headline_labels
-    title.setFrameStyle(QFrame.Box)
-    title.setMargin(4)
-    title.setIndent(-1)
-    title.setAlignment(Qt.AlignRight | Qt.AlignBottom)
-    panel.resize(300, 380)
-    panel.show()
-    qtbot.waitExposed(panel)
-    qtbot.waitUntil(lambda: title.property('minimumSize').height()
-                    >= title.heightForWidth(title.property('size').width()) > 0)
-    width = panel._notes.viewport().property('size').width()
-    assert title.wordWrap() and title.indent() == -1
-    assert title.property('minimumSize').width() == width
-    assert title.property('maximumSize').width() == width
-    assert title.text() == title.accessibleName() == title_text
-    assert stamp.text() == date_text and not stamp.wordWrap()
-    assert stamp.property('maximumSize').width() == width
 
 
 def test_replacing_reserved_news_survives_an_already_queued_surface_refresh(

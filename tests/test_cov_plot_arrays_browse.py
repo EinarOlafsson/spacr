@@ -9,9 +9,14 @@ Covers:
 Everything runs headless on the Agg backend; no file is read that the test
 did not just write, and every assertion inspects real figure/axes/array
 state rather than merely "it did not raise".
+
+Two parametrised tests carry the contracts: the outline colour table, and the
+browsing / filtering helpers, where each row names a helper that drives one
+call and returns what it observed beside the value the contract requires.
 """
 from __future__ import annotations
 
+import inspect
 import os
 
 import numpy as np
@@ -33,6 +38,12 @@ def _no_stray_figures():
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
+
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
+
 
 def _write_tif(path, arr):
     import tifffile
@@ -156,16 +167,9 @@ def _case_plot_images_and_arrays_pairs_mask_with_normalised_image(tmp_path, caps
 
     out = plot_images_and_arrays(folders, lower_percentile=2, upper_percentile=98,
                                  threshold=10, randomize=False)
-    assert out is None
 
     figs = plt.get_fignums()
-    assert len(figs) == 1, "exactly one paired figure expected (orphan dropped)"
     axes = plt.figure(figs[0]).axes
-    assert len(axes) == 2
-    assert axes[0].get_title() == "f1 - Mask"
-    assert axes[1].get_title() == "f1 - Normalized Image"
-    # No overlay requested -> no contour lines drawn.
-    assert axes[1].lines == [] or len(axes[1].lines) == 0
 
     img = payload["f1"]["image"]
     p2, p98 = np.percentile(img, (2, 98))
@@ -176,8 +180,14 @@ def _case_plot_images_and_arrays_pairs_mask_with_normalised_image(tmp_path, caps
 
     shown_mask = np.asarray(axes[0].images[0].get_array())
     assert np.array_equal(shown_mask, payload["f1"]["mask"])
-    # 'Overlay will only work...' banner is only printed when overlay=True.
-    assert "Overlay will only work" not in capsys.readouterr().out
+    return (out is None,
+            # exactly one paired figure expected (orphan dropped)
+            len(figs), len(axes),
+            [axes[0].get_title(), axes[1].get_title()],
+            # No overlay requested -> no contour lines drawn.
+            len(axes[1].lines),
+            # 'Overlay will only work...' banner only prints when overlay=True.
+            "Overlay will only work" in capsys.readouterr().out)
 
 
 def _case_plot_images_and_arrays_overlay_draws_contours_and_skips_tiny_regions(tmp_path, capsys):
@@ -187,21 +197,24 @@ def _case_plot_images_and_arrays_overlay_draws_contours_and_skips_tiny_regions(t
 
     plot_images_and_arrays(folders, threshold=10, overlay=True, randomize=False)
 
-    assert "Overlay will only work on the first two folders" in capsys.readouterr().out
+    banner = ("Overlay will only work on the first two folders"
+              in capsys.readouterr().out)
 
     axes = plt.figure(plt.get_fignums()[0]).axes
     lines = list(axes[1].lines)
-    assert len(lines) >= 2, "one contour per >=2x2 object expected"
-    for ln in lines:
-        assert ln.get_color() == "magenta"
-        assert ln.get_linewidth() == 2
 
     # The 1-px speck at (60, 60) fails the `region.image.shape >= 2` guard,
     # so no contour vertex may land anywhere near it.
+    near_speck = False
     for ln in lines:
         xs, ys = ln.get_xdata(), ln.get_ydata()
-        assert not np.any((np.abs(np.asarray(xs) - 60) < 1.5) &
-                          (np.abs(np.asarray(ys) - 60) < 1.5))
+        near_speck |= bool(np.any((np.abs(np.asarray(xs) - 60) < 1.5) &
+                                  (np.abs(np.asarray(ys) - 60) < 1.5)))
+    return (banner,
+            len(lines) >= 2,  # one contour per >=2x2 object expected
+            {ln.get_color() for ln in lines},
+            {ln.get_linewidth() for ln in lines},
+            near_speck)
 
 
 def _case_plot_images_and_arrays_max_nr_limits_plotted_groups(tmp_path):
@@ -211,10 +224,10 @@ def _case_plot_images_and_arrays_max_nr_limits_plotted_groups(tmp_path):
 
     plot_images_and_arrays(folders, threshold=10, max_nr=2, randomize=False)
 
-    assert len(plt.get_fignums()) == 2
     titles = {plt.figure(n).axes[0].get_title() for n in plt.get_fignums()}
-    assert titles.issubset({"f1 - Mask", "f2 - Mask", "f3 - Mask"})
-    assert len(titles) == 2
+    return (len(plt.get_fignums()),
+            titles.issubset({"f1 - Mask", "f2 - Mask", "f3 - Mask"}),
+            len(titles))
 
 
 def _case_plot_images_and_arrays_randomize_shuffles_before_truncating(tmp_path, monkeypatch):
@@ -234,11 +247,11 @@ def _case_plot_images_and_arrays_randomize_shuffles_before_truncating(tmp_path, 
     P.plot_images_and_arrays(folders, threshold=10, max_nr=1.0, randomize=True)
 
     assert "before" in seen, "randomize=True must call random.shuffle"
-    assert sorted(seen["before"]) == ["f1", "f2", "f3"]
-    assert len(plt.get_fignums()) == 1
     # after reverse() the last pre-shuffle key becomes the only survivor.
     expected_key = seen["before"][-1]
-    assert plt.figure(plt.get_fignums()[0]).axes[0].get_title() == f"{expected_key} - Mask"
+    return (sorted(seen["before"]), len(plt.get_fignums()),
+            plt.figure(plt.get_fignums()[0]).axes[0].get_title()
+            == f"{expected_key} - Mask")
 
 
 def _case_plot_images_and_arrays_no_intensity_image_plots_nothing(tmp_path):
@@ -254,7 +267,7 @@ def _case_plot_images_and_arrays_no_intensity_image_plots_nothing(tmp_path):
 
     plot_images_and_arrays([str(a), str(b)], threshold=10, randomize=False)
 
-    assert plt.get_fignums() == []
+    return plt.get_fignums()
 
 
 def _case_plot_images_and_arrays_extensions_argument_filters_candidates(tmp_path):
@@ -265,12 +278,12 @@ def _case_plot_images_and_arrays_extensions_argument_filters_candidates(tmp_path
 
     # masks are .tif only, so '.npy'-only scanning breaks the pairing.
     plot_images_and_arrays(folders, threshold=10, extensions=[".npy"], randomize=False)
-    assert plt.get_fignums() == []
+    npy_only = len(plt.get_fignums())
 
     # ...while allowing both extensions restores it.
     plot_images_and_arrays(folders, threshold=10, extensions=[".npy", ".tif"],
                            randomize=False)
-    assert len(plt.get_fignums()) == 1
+    return (npy_only, len(plt.get_fignums()))
 
 
 # ---------------------------------------------------------------------------
@@ -287,16 +300,14 @@ def _case_filter_objects_in_plot_none_min_max_keeps_every_object(capsys):
                                   filter_min_max=None,
                                   nuclei_limit=True, pathogen_limit=True)
 
-    assert out.shape == stack.shape
-    assert np.array_equal(out, stack), "nothing may be removed with no limits"
-    assert _labels(out[:, :, 0]) == {0, 1, 2, 3}
-    assert _labels(out[:, :, 1]) == {0, 1, 2, 3, 4}
-    assert _labels(out[:, :, 2]) == {0, 1, 2, 3, 4}
-
     printed = capsys.readouterr().out
-    assert "removed 0 cells" in printed
-    assert "removed 0 nucleus" in printed
-    assert "removed 0 pathogens" in printed
+    return (out.shape == stack.shape,
+            # nothing may be removed with no limits
+            bool(np.array_equal(out, stack)),
+            _labels(out[:, :, 0]), _labels(out[:, :, 1]),
+            _labels(out[:, :, 2]),
+            ("removed 0 cells" in printed, "removed 0 nucleus" in printed,
+             "removed 0 pathogens" in printed))
 
 
 def _case_filter_objects_in_plot_area_filter_drops_small_cells(capsys):
@@ -318,11 +329,11 @@ def _case_filter_objects_in_plot_area_filter_drops_small_cells(capsys):
                                                   [1, 10 ** 8]],
                                   nuclei_limit=True, pathogen_limit=True)
 
-    assert _labels(out[:, :, 0]) == {0, 1, 2}, "36-px cell 3 must be filtered out"
-    # the filter only touches the plane it is applied to.
-    assert 4 in _labels(out[:, :, 1])
-    assert 4 in _labels(out[:, :, 2])
-    assert "removed 1 cells" in capsys.readouterr().out
+    # 36-px cell 3 must be filtered out; the filter only touches the plane
+    # it is applied to.
+    return (_labels(out[:, :, 0]), 4 in _labels(out[:, :, 1]),
+            4 in _labels(out[:, :, 2]),
+            "removed 1 cells" in capsys.readouterr().out)
 
 
 def _case_filter_objects_in_plot_both_limits_false_removes_multiobject_cells():
@@ -335,13 +346,10 @@ def _case_filter_objects_in_plot_both_limits_false_removes_multiobject_cells():
                                   filter_min_max=None,
                                   nuclei_limit=False, pathogen_limit=False)
 
-    assert _labels(out[:, :, 0]) == {0, 3}, "only the clean cell 3 survives"
-    # nuclei/pathogens of the removed cells are cleared too.
-    assert _labels(out[:, :, 1]) == {0, 4}
-    assert _labels(out[:, :, 2]) == {0, 4}
-    # cell 3's own objects are untouched and still in place.
-    assert out[44, 44, 1] == 4
-    assert out[50, 50, 2] == 4
+    # only the clean cell 3 survives; nuclei/pathogens of the removed cells
+    # are cleared too; cell 3's own objects are untouched and in place.
+    return (_labels(out[:, :, 0]), _labels(out[:, :, 1]),
+            _labels(out[:, :, 2]), int(out[44, 44, 1]), int(out[50, 50, 2]))
 
 
 def _case_nuclei_limit_false_removes_the_multinucleated_cell():
@@ -359,7 +367,7 @@ def _case_nuclei_limit_false_removes_the_multinucleated_cell():
                                   filter_min_max=None,
                                   nuclei_limit=False, pathogen_limit=True)
 
-    assert _labels(out[:, :, 0]) == {0, 2, 3}
+    return _labels(out[:, :, 0])
 
 
 def _case_pathogen_limit_false_removes_the_multiinfected_cell():
@@ -376,7 +384,7 @@ def _case_pathogen_limit_false_removes_the_multiinfected_cell():
                                   filter_min_max=None,
                                   nuclei_limit=True, pathogen_limit=False)
 
-    assert _labels(out[:, :, 0]) == {0, 1, 3}
+    return _labels(out[:, :, 0])
 
 
 # ---------------------------------------------------------------------------
@@ -399,9 +407,8 @@ def _case_plot_arrays_single_channel_3d_wraps_axes_in_list(tmp_path):
     plot_arrays(str(path), normalize=True)
 
     axes = plt.figure(plt.get_fignums()[0]).axes
-    assert len(axes) == 1
-    assert axes[0].get_title() == "Channel 0"
-    assert np.asarray(axes[0].images[0].get_array()).shape == (24, 24)
+    return (len(axes), axes[0].get_title(),
+            np.asarray(axes[0].images[0].get_array()).shape)
 
 
 def _case_plot_arrays_npz_uses_first_key_and_first_batch_item(tmp_path):
@@ -417,14 +424,14 @@ def _case_plot_arrays_npz_uses_first_key_and_first_batch_item(tmp_path):
 
     with np.load(path) as data:
         expected = data[list(data.keys())[0]][0]
-    assert np.array_equal(expected, first)
-
     axes = plt.figure(plt.get_fignums()[0]).axes
-    assert len(axes) == 2
-    for c, ax in enumerate(axes):
-        assert np.array_equal(np.asarray(ax.images[0].get_array()), first[:, :, c])
-    # the second key must not have been plotted.
-    assert not np.array_equal(np.asarray(axes[0].images[0].get_array()), other[:, :, 0])
+    return (bool(np.array_equal(expected, first)), len(axes),
+            all(np.array_equal(np.asarray(ax.images[0].get_array()),
+                               first[:, :, c])
+                for c, ax in enumerate(axes)),
+            # the second key must not have been plotted.
+            bool(np.array_equal(np.asarray(axes[0].images[0].get_array()),
+                                other[:, :, 0])))
 
 
 def _case_plot_arrays_directory_samples_nr_arrays(tmp_path, capsys):
@@ -443,12 +450,9 @@ def _case_plot_arrays_directory_samples_nr_arrays(tmp_path, capsys):
     printed = capsys.readouterr().out
     plotted = [ln.split("Image path: ")[1] for ln in printed.splitlines()
                if ln.startswith("Image path: ")]
-    assert len(plotted) == 2
-    assert len(set(plotted)) == 2
     allowed = {str(src / n) for n in names} | {str(src / "d.npz")}
-    assert set(plotted).issubset(allowed)
-    assert str(src / "notes.txt") not in plotted
-    assert len(plt.get_fignums()) == 2
+    return (len(plotted), len(set(plotted)), set(plotted).issubset(allowed),
+            str(src / "notes.txt") in plotted, len(plt.get_fignums()))
 
 
 def _case_plot_arrays_directory_nr_larger_than_available(tmp_path):
@@ -461,7 +465,7 @@ def _case_plot_arrays_directory_nr_larger_than_available(tmp_path):
 
     plot_arrays(str(src), nr=25, normalize=False)
 
-    assert len(plt.get_fignums()) == 2
+    return len(plt.get_fignums())
 
 
 def _case_plot_arrays_2d_array_falls_back_to_single_axes(tmp_path):
@@ -475,12 +479,10 @@ def _case_plot_arrays_2d_array_falls_back_to_single_axes(tmp_path):
     plot_arrays(str(path), normalize=False, cmap="viridis")
 
     figs = plt.get_fignums()
-    assert len(figs) == 1
     axes = plt.figure(figs[0]).axes
-    assert len(axes) == 1
-    assert axes[0].get_title() == "Channel 0"
-    assert not axes[0].axison
-    assert np.array_equal(np.asarray(axes[0].images[0].get_array()), arr)
+    return (len(figs), len(axes), axes[0].get_title(), axes[0].axison,
+            bool(np.array_equal(np.asarray(axes[0].images[0].get_array()),
+                                arr)))
 
 
 def _case_plot_arrays_2d_array_with_default_normalisation(tmp_path):
@@ -495,35 +497,71 @@ def _case_plot_arrays_2d_array_with_default_normalisation(tmp_path):
 
     plot_arrays(str(path), normalize=True)
 
-    assert len(plt.get_fignums()) == 1
-    assert plt.figure(plt.get_fignums()[0]).axes[0].get_title() == "Channel 0"
+    return (len(plt.get_fignums()),
+            plt.figure(plt.get_fignums()[0]).axes[0].get_title())
 
 
-def test_plot_arrays_browse_cases(request, subtests, capsys):
-    """Case table: 17 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
-
-    ran = run_cases(
-        request,
-        subtests,
-        [
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_plot_images_and_arrays_pairs_mask_with_normalised_image,
+        (True, 1, 2, ["f1 - Mask", "f1 - Normalized Image"], 0, False),
+        id="images-pairs-mask-with-normalised-image"),
+    pytest.param(
         _case_plot_images_and_arrays_overlay_draws_contours_and_skips_tiny_regions,
+        (True, True, {"magenta"}, {2}, False),
+        id="images-overlay-draws-contours-and-skips-tiny-regions"),
+    pytest.param(
         _case_plot_images_and_arrays_max_nr_limits_plotted_groups,
+        (2, True, 2), id="images-max-nr-limits-plotted-groups"),
+    pytest.param(
         _case_plot_images_and_arrays_randomize_shuffles_before_truncating,
+        (["f1", "f2", "f3"], 1, True),
+        id="images-randomize-shuffles-before-truncating"),
+    pytest.param(
         _case_plot_images_and_arrays_no_intensity_image_plots_nothing,
+        [], id="images-no-intensity-image-plots-nothing"),
+    pytest.param(
         _case_plot_images_and_arrays_extensions_argument_filters_candidates,
+        (0, 1), id="images-extensions-filter-candidates"),
+    pytest.param(
         _case_filter_objects_in_plot_none_min_max_keeps_every_object,
+        (True, True, {0, 1, 2, 3}, {0, 1, 2, 3, 4}, {0, 1, 2, 3, 4},
+         (True, True, True)),
+        id="filter-none-min-max-keeps-every-object"),
+    pytest.param(
         _case_filter_objects_in_plot_area_filter_drops_small_cells,
+        ({0, 1, 2}, True, True, True), id="filter-area-drops-small-cells"),
+    pytest.param(
         _case_filter_objects_in_plot_both_limits_false_removes_multiobject_cells,
+        ({0, 3}, {0, 4}, {0, 4}, 4, 4),
+        id="filter-both-limits-false-removes-multiobject-cells"),
+    pytest.param(
         _case_nuclei_limit_false_removes_the_multinucleated_cell,
+        {0, 2, 3}, id="filter-nuclei-limit-false-removes-multinucleated"),
+    pytest.param(
         _case_pathogen_limit_false_removes_the_multiinfected_cell,
+        {0, 1, 3}, id="filter-pathogen-limit-false-removes-multiinfected"),
+    pytest.param(
         _case_plot_arrays_single_channel_3d_wraps_axes_in_list,
+        (1, "Channel 0", (24, 24)), id="arrays-single-channel-3d"),
+    pytest.param(
         _case_plot_arrays_npz_uses_first_key_and_first_batch_item,
+        (True, 2, True, False), id="arrays-npz-first-key-first-batch-item"),
+    pytest.param(
         _case_plot_arrays_directory_samples_nr_arrays,
+        (2, 2, True, False, 2), id="arrays-directory-samples-nr-arrays"),
+    pytest.param(
         _case_plot_arrays_directory_nr_larger_than_available,
+        2, id="arrays-directory-nr-larger-than-available"),
+    pytest.param(
         _case_plot_arrays_2d_array_falls_back_to_single_axes,
+        (1, 1, "Channel 0", False, True), id="arrays-2d-single-axes"),
+    pytest.param(
         _case_plot_arrays_2d_array_with_default_normalisation,
-        ],
-    )
-    assert ran >= 17
+        (1, "Channel 0"), id="arrays-2d-default-normalisation"),
+])
+def test_array_browsing_and_object_filtering(request, helper, expected):
+    """Pairing, overlay, area/limit filtering and array browsing each leave
+    the figures and label planes the contract calls for."""
+    observed = _call(request, helper)
+    assert observed == expected

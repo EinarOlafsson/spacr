@@ -28,7 +28,10 @@ is asserted there.
 """
 from __future__ import annotations
 
+import functools
+import inspect
 import os
+import re
 
 import numpy as np
 import pytest
@@ -133,6 +136,23 @@ def _painted(fig, index, stack, channel):
     return np.any(~np.isclose(panel, gray[..., None]), axis=-1)
 
 
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n, p in names.items()
+                     if p.default is inspect.Parameter.empty})
+
+
+def _mismatch(a, b):
+    """Number of positions where two arrays differ (0 means identical)."""
+    return int(np.count_nonzero(np.asarray(a) != np.asarray(b)))
+
+
+def _filter_lines(out):
+    """The sorted 'Before/After filtering <kind>: <n> objects' report lines."""
+    return sorted(re.findall(r"(?:Before|After) filtering \w+: \d+ objects", out))
+
+
 RED, GREEN, BLUE, MAGENTA = (1., 0., 0.), (0., .5019607843137255, 0.), (0., 0., 1.), (1., 0., 1.)
 
 
@@ -151,9 +171,7 @@ def _case_overlay_outlines_titles_colors_and_pdf(tmp_path):
         path, [0, 1, 2], cell_channel=0, nucleus_channel=1, pathogen_channel=2,
         figuresize=2, thickness=1, save_pdf=True, mode="outlines")
 
-    assert [a.get_title() for a in fig.axes] == [
-        "cell (channel 0)", "nucleus (channel 1)",
-        "pathogen (channel 2)", "combined objects"]
+    titles = [a.get_title() for a in fig.axes]
     # Every panel is the full field, RGB, in [0, 1].
     for i in range(4):
         p = _panel(fig, i)
@@ -169,6 +187,7 @@ def _case_overlay_outlines_titles_colors_and_pdf(tmp_path):
     pdf = tmp_path / "results" / "overlay" / "fov.pdf"
     assert pdf.is_file() and pdf.stat().st_size > 0
     assert pdf.read_bytes()[:4] == b"%PDF"
+    return titles
 
 
 def _case_overlay_combined_panel_support_is_union_of_masks(tmp_path):
@@ -184,9 +203,9 @@ def _case_overlay_combined_panel_support_is_union_of_masks(tmp_path):
     combined = _panel(fig, -1)
     painted = combined.max(axis=-1) > 0
     union = (cell > 0) | (nuc > 0) | (pat > 0)
-    assert np.array_equal(painted, union)
     # Background is left pure black.
     assert np.all(combined[~union] == 0)
+    return _mismatch(painted, union)
 
 
 def _case_overlay_label_offsets_keep_objects_distinct(tmp_path):
@@ -205,12 +224,12 @@ def _case_overlay_label_offsets_keep_objects_distinct(tmp_path):
     cell_only = (cell == 1) & (nuc == 0) & (pat == 0)
     pat_px = combined[pat == 1]
     cell_px = combined[cell_only]
-    assert len(np.unique(pat_px.reshape(-1, 3), axis=0)) == 1
-    assert not np.allclose(pat_px[0], cell_px[0])
+    n_pathogen_colours = len(np.unique(pat_px.reshape(-1, 3), axis=0))
+    pathogen_recolours_cell = not np.allclose(pat_px[0], cell_px[0])
     # Two different cells get two different colours.
     c1 = combined[(cell == 1) & (nuc == 0) & (pat == 0)][0]
     c2 = combined[cell == 2][0]
-    assert not np.allclose(c1, c2)
+    return n_pathogen_colours, pathogen_recolours_cell, not np.allclose(c1, c2)
 
 
 def _case_overlay_is_deterministic_across_calls(tmp_path):
@@ -226,8 +245,7 @@ def _case_overlay_is_deterministic_across_calls(tmp_path):
     fig_b = plot_image_mask_overlay(path, [0, 1, 2], 0, 1, 2, **kw)
     panels_b = [_panel(fig_b, i).copy() for i in range(4)]
 
-    for a, b in zip(panels_a, panels_b):
-        assert np.array_equal(a, b)
+    return sum(_mismatch(a, b) for a, b in zip(panels_a, panels_b))
 
 
 # ---------------------------------------------------------------------------
@@ -246,12 +264,13 @@ def _case_overlay_masks_mode_paints_only_inside_its_own_mask(tmp_path):
 
     # Channel 1 is the nucleus channel: exactly the nucleus is repainted --
     # not the cell it sits in, not the pathogen next to it.
-    assert np.array_equal(_painted(fig, 1, stack, 1), nuc > 0)
-    assert np.array_equal(_painted(fig, 0, stack, 0), cell > 0)
-    assert np.array_equal(_painted(fig, 2, stack, 2), pat > 0)
+    mismatches = (_mismatch(_painted(fig, 1, stack, 1), nuc > 0),
+                  _mismatch(_painted(fig, 0, stack, 0), cell > 0),
+                  _mismatch(_painted(fig, 2, stack, 2), pat > 0))
     # The single nucleus is filled with one flat colour.
     inside = np.unique(_panel(fig, 1)[nuc == 1].reshape(-1, 3), axis=0)
     assert len(inside) == 1
+    return mismatches
 
 
 def _case_overlay_all_on_all_masks_mode_paints_every_channel(tmp_path):
@@ -266,9 +285,8 @@ def _case_overlay_all_on_all_masks_mode_paints_every_channel(tmp_path):
         mode="masks", all_on_all=True)
 
     union = (cell > 0) | (nuc > 0) | (pat > 0)
-    for i in range(3):
-        # Every panel is repainted on exactly the union of all three masks.
-        assert np.array_equal(_painted(fig, i, stack, i), union)
+    # Every panel is repainted on exactly the union of all three masks.
+    return tuple(_mismatch(_painted(fig, i, stack, i), union) for i in range(3))
 
 
 def _case_overlay_all_on_all_outlines_mode_draws_all_three_colors(tmp_path):
@@ -281,11 +299,8 @@ def _case_overlay_all_on_all_outlines_mode_draws_all_three_colors(tmp_path):
         path, [0, 1, 2], 0, 1, 2, figuresize=2, thickness=1, save_pdf=False,
         mode="outlines", all_on_all=True)
 
-    for i in range(3):
-        p = _panel(fig, i)
-        assert _has_color(p, RED)
-        assert _has_color(p, BLUE)
-        assert _has_color(p, GREEN)
+    return [(_has_color(_panel(fig, i), RED), _has_color(_panel(fig, i), BLUE),
+             _has_color(_panel(fig, i), GREEN)) for i in range(3)]
 
 
 def _case_overlay_all_outlines_decorates_maskless_channel(tmp_path):
@@ -298,9 +313,7 @@ def _case_overlay_all_outlines_decorates_maskless_channel(tmp_path):
         path, [0, 1, 2, 3], 0, 1, 2, figuresize=2, thickness=1, save_pdf=False,
         mode="outlines", all_outlines=True)
 
-    assert [a.get_title() for a in fig.axes] == [
-        "cell (channel 0)", "nucleus (channel 1)", "pathogen (channel 2)",
-        "channel 3", "combined objects"]
+    titles = [a.get_title() for a in fig.axes]
     extra = _panel(fig, 3)
     assert _has_color(extra, RED)
     assert _has_color(extra, BLUE)
@@ -308,6 +321,7 @@ def _case_overlay_all_outlines_decorates_maskless_channel(tmp_path):
     # Around the lone cell (no nucleus/pathogen there) only red is used.
     assert _has_color(extra, RED, region=CELL_2_BOX)
     assert not _has_color(extra, GREEN, region=CELL_2_BOX)
+    return titles
 
 
 def _case_overlay_all_outlines_masks_mode_fills_maskless_channel(tmp_path):
@@ -322,9 +336,9 @@ def _case_overlay_all_outlines_masks_mode_fills_maskless_channel(tmp_path):
         mode="masks", all_outlines=True)
 
     union = (cell > 0) | (nuc > 0) | (pat > 0)
-    assert np.array_equal(_painted(fig, 3, stack, 3), union)
     # The channels that own a mask still only show their own object.
-    assert np.array_equal(_painted(fig, 2, stack, 2), pat > 0)
+    return (_mismatch(_painted(fig, 3, stack, 3), union),
+            _mismatch(_painted(fig, 2, stack, 2), pat > 0))
 
 
 def _case_overlay_maskless_channel_left_untouched_without_all_outlines(tmp_path):
@@ -343,7 +357,7 @@ def _case_overlay_maskless_channel_left_untouched_without_all_outlines(tmp_path)
     plane = stack[..., 3].astype(np.float32)
     v_min, v_max = np.percentile(plane, (2, 98))
     expected = np.clip((plane - v_min) / (v_max - v_min + 1e-5), 0, 1)
-    assert np.allclose(extra[..., 0], expected)
+    return int((~np.isclose(extra[..., 0], expected)).sum())
 
 
 def _case_overlay_organelle_channel_adds_a_fourth_object(tmp_path):
@@ -358,13 +372,12 @@ def _case_overlay_organelle_channel_adds_a_fourth_object(tmp_path):
         path, [0, 1, 2, 3], 0, 1, 2, organelle_channel=3,
         figuresize=2, thickness=1, save_pdf=False, mode="outlines")
 
-    assert [a.get_title() for a in fig.axes] == [
-        "cell (channel 0)", "nucleus (channel 1)", "pathogen (channel 2)",
-        "organelle (channel 3)", "combined objects"]
+    titles = [a.get_title() for a in fig.axes]
     assert _has_color(_panel(fig, 3), (1.0, 1.0, 0.0))
     # The organelle really came from the last plane, not the pathogen plane.
     combined = _panel(fig, -1)
     assert (combined.max(axis=-1) > 0)[organelle == 1].all()
+    return titles
 
 
 # ---------------------------------------------------------------------------
@@ -381,13 +394,13 @@ def _case_overlay_without_any_mask_renders_no_objects_panel(tmp_path):
         path, [0, 1], cell_channel=None, nucleus_channel=None,
         pathogen_channel=None, figuresize=2, save_pdf=False)
 
-    assert [a.get_title() for a in fig.axes] == [
-        "channel 0", "channel 1", "no objects"]
+    titles = [a.get_title() for a in fig.axes]
     assert np.all(_panel(fig, -1) == 0)
     # Untouched channels stay grayscale.
     for i in (0, 1):
         p = _panel(fig, i)
         assert np.array_equal(p[..., 0], p[..., 2])
+    return titles
 
 
 def _case_overlay_empty_mask_plane_yields_black_combined_panel(tmp_path):
@@ -400,11 +413,12 @@ def _case_overlay_empty_mask_plane_yields_black_combined_panel(tmp_path):
         path, [0, 1], cell_channel=0, nucleus_channel=None,
         pathogen_channel=None, figuresize=2, thickness=1, save_pdf=False)
 
-    assert fig.axes[-1].get_title() == "combined objects"
+    title = fig.axes[-1].get_title()
     assert np.all(_panel(fig, -1) == 0)
     # Nothing was drawn on the cell channel either.
     p = _panel(fig, 0)
     assert np.array_equal(p[..., 0], p[..., 2])
+    return title
 
 
 def _case_overlay_negative_label_plane_hits_empty_colormap_guard(tmp_path):
@@ -421,7 +435,7 @@ def _case_overlay_negative_label_plane_hits_empty_colormap_guard(tmp_path):
     # Alpha is 0 everywhere (no pixel is > 0), so nothing is overlaid.
     p = _panel(fig, 0)
     assert np.array_equal(p[..., 0], p[..., 2])
-    assert np.all(_panel(fig, -1) == 0)
+    return int(np.count_nonzero(_panel(fig, -1)))
 
 
 def _case_overlay_float_stack_is_not_rescaled(tmp_path):
@@ -438,8 +452,8 @@ def _case_overlay_float_stack_is_not_rescaled(tmp_path):
     plt.close(fig_u)
     fig_f = plot_image_mask_overlay(p_f32, [0, 1, 2], 0, 1, 2, figuresize=2,
                                     thickness=1, save_pdf=False)
-    for i, ref in enumerate(panels_u):
-        assert np.allclose(_panel(fig_f, i), ref)
+    return sum(int(not np.allclose(_panel(fig_f, i), ref))
+               for i, ref in enumerate(panels_u))
 
 
 def _case_overlay_single_channel_renders(tmp_path):
@@ -452,8 +466,7 @@ def _case_overlay_single_channel_renders(tmp_path):
         path, [0], cell_channel=0, nucleus_channel=1, pathogen_channel=2,
         figuresize=2, thickness=1, save_pdf=False)
 
-    assert len(fig.axes) == 2
-    assert fig.axes[-1].get_title() == "combined objects"
+    return len(fig.axes), fig.axes[-1].get_title()
 
 
 # ---------------------------------------------------------------------------
@@ -473,17 +486,14 @@ def _case_overlay_filter_dict_drops_and_keeps_objects(tmp_path, capsys):
                      "nucleus": [(0, 10 ** 7), (0, 65000)]})  # everything kept
 
     out = capsys.readouterr().out
-    assert "Before filtering cell: 2 objects" in out
-    assert "After filtering cell: 0 objects" in out
-    assert "Before filtering nucleus: 2 objects" not in out
-    assert "Before filtering nucleus: 1 objects" in out
-    assert "After filtering nucleus: 1 objects" in out
+    lines = _filter_lines(out)
     # 'pathogen' was not in filter_dict -> untouched.
     assert "filtering pathogen" not in out
 
     painted = _panel(fig, -1).max(axis=-1) > 0
     assert np.array_equal(painted, (nuc > 0) | (pat > 0))
     assert not _has_color(_panel(fig, 0), RED)   # no cells left to outline
+    return lines
 
 
 def _case_overlay_filter_dict_intensity_window_selects_one_object(tmp_path, capsys):
@@ -505,10 +515,10 @@ def _case_overlay_filter_dict_intensity_window_selects_one_object(tmp_path, caps
         filter_dict={"cell": [(0, 10 ** 7), (10000, 65000)]})
 
     out = capsys.readouterr().out
-    assert "Before filtering cell: 2 objects" in out
-    assert "After filtering cell: 1 objects" in out
+    lines = _filter_lines(out)
     painted = _panel(fig, -1).max(axis=-1) > 0
     assert np.array_equal(painted, cell == 2)
+    return lines
 
 
 def _case_overlay_filter_dict_on_label_free_mask_reports_zero(tmp_path, capsys):
@@ -523,12 +533,12 @@ def _case_overlay_filter_dict_on_label_free_mask_reports_zero(tmp_path, capsys):
         filter_dict={"cell": [(5, 500), (0, 65000)]})
 
     out = capsys.readouterr().out
-    assert "Before filtering cell: 0 objects" in out
-    assert "After filtering cell: 0 objects" in out
+    lines = _filter_lines(out)
     # Both averages fall back to the literal 0, not NaN.
     assert "Average area cell: 0.00 pixels, Average intensity: 0.00" in out
     assert "nan" not in out
     assert np.all(_panel(fig, -1) == 0)
+    return lines
 
 
 def _case_overlay_export_tiffs_writes_one_uint16_file_per_plane(tmp_path):
@@ -543,11 +553,11 @@ def _case_overlay_export_tiffs_writes_one_uint16_file_per_plane(tmp_path):
 
     tiff_dir = tmp_path / "results" / "fov" / "tiff"
     written = sorted(os.listdir(tiff_dir))
-    assert written == [f"fov_channel_{i}.tiff" for i in range(stack.shape[-1])]
     for i in range(stack.shape[-1]):
         arr = tiff.imread(str(tiff_dir / f"fov_channel_{i}.tiff"))
         assert arr.dtype == np.uint16
         assert np.array_equal(arr, stack[..., i].astype(np.uint16))
+    return written
 
 
 # ---------------------------------------------------------------------------
@@ -564,15 +574,14 @@ def _case_magenta_variant_outlines_every_matched_channel(tmp_path):
         path, [0, 1, 2], cell_channel=0, nucleus_channel=1, pathogen_channel=2,
         figuresize=2, thickness=1, save_pdf=True, mode="outlines")
 
-    assert [a.get_title() for a in fig.axes] == [
-        "Image - Channel 0", "Image - Channel 1", "Image - Channel 2",
-        "Combined Objects Image"]
+    titles = [a.get_title() for a in fig.axes]
     for i in range(3):
         assert _has_color(_panel(fig, i), MAGENTA)
         assert not _has_color(_panel(fig, i), RED)
 
     pdf = tmp_path / "results" / "overlay" / "fov.pdf"
     assert pdf.is_file() and pdf.read_bytes()[:4] == b"%PDF"
+    return titles
 
 
 def _case_magenta_variant_reads_masks_from_the_tail_of_the_stack(tmp_path):
@@ -594,7 +603,7 @@ def _case_magenta_variant_reads_masks_from_the_tail_of_the_stack(tmp_path):
     assert ys.max() < 25 and xs.max() < 25
     # The combined panel covers the union of the three masks.
     painted = _panel(fig, -1).max(axis=-1) > 0
-    assert np.array_equal(painted, (cell > 0) | (nuc > 0) | (pat > 0))
+    return _mismatch(painted, (cell > 0) | (nuc > 0) | (pat > 0))
 
 
 def _case_magenta_variant_all_on_all_outlines_uses_object_colors(tmp_path):
@@ -607,15 +616,16 @@ def _case_magenta_variant_all_on_all_outlines_uses_object_colors(tmp_path):
         path, [0, 1, 2], 0, 1, 2, figuresize=2, thickness=1, save_pdf=False,
         mode="outlines", all_on_all=True)
 
+    observed = []
     for i in range(3):
         p = _panel(fig, i)
-        assert not _has_color(p, MAGENTA)
-        assert _has_color(p, GREEN)   # pathogen
-        assert _has_color(p, BLUE)    # nucleus
-        assert _has_color(p, RED)     # cell
-        # Around the lone cell only the cell colour is used.
-        assert _has_color(p, RED, region=CELL_2_BOX)
-        assert not _has_color(p, GREEN, region=CELL_2_BOX)
+        # Per panel: magenta, pathogen green, nucleus blue, cell red, then
+        # around the lone cell only the cell colour (red, never green).
+        observed.append((
+            _has_color(p, MAGENTA), _has_color(p, GREEN), _has_color(p, BLUE),
+            _has_color(p, RED), _has_color(p, RED, region=CELL_2_BOX),
+            _has_color(p, GREEN, region=CELL_2_BOX)))
+    return observed
 
 
 def _case_magenta_variant_masks_mode_paints_only_object_pixels(tmp_path):
@@ -628,12 +638,14 @@ def _case_magenta_variant_masks_mode_paints_only_object_pixels(tmp_path):
     fig = plot_image_mask_overlay_magenta_outlines(
         path, [0, 1, 2], 0, 1, 2, figuresize=2, save_pdf=False, mode="masks")
 
+    mismatches = []
     for idx, mask in ((0, cell), (1, nuc), (2, pat)):
-        assert np.array_equal(_painted(fig, idx, stack, idx), mask > 0)
+        mismatches.append(_mismatch(_painted(fig, idx, stack, idx), mask > 0))
         # One flat colour per label.
         p = _panel(fig, idx)
         assert len(np.unique(p[mask > 0].reshape(-1, 3), axis=0)) == len(
             np.unique(mask[mask > 0]))
+    return mismatches
 
 
 def _case_magenta_variant_masks_mode_all_on_all(tmp_path):
@@ -648,8 +660,7 @@ def _case_magenta_variant_masks_mode_all_on_all(tmp_path):
         mode="masks", all_on_all=True)
 
     union = (cell > 0) | (nuc > 0) | (pat > 0)
-    for i in range(3):
-        assert np.array_equal(_painted(fig, i, stack, i), union)
+    return tuple(_mismatch(_painted(fig, i, stack, i), union) for i in range(3))
 
 
 def _case_magenta_variant_all_outlines_only_touches_object_borders(tmp_path):
@@ -664,13 +675,12 @@ def _case_magenta_variant_all_outlines_only_touches_object_borders(tmp_path):
         mode="outlines", all_outlines=True)
 
     drawn = _painted(fig, 3, stack, 3)
-    assert drawn.any()
+    any_drawn = bool(drawn.any())
     from scipy.ndimage import binary_dilation
     union = (cell > 0) | (nuc > 0) | (pat > 0)
     near_object = binary_dilation(union, iterations=2)
     # Contours hug the objects and never fill them completely.
-    assert not drawn[~near_object].any()
-    assert drawn.sum() < union.sum()
+    return any_drawn, int(drawn[~near_object].sum()), bool(drawn.sum() < union.sum())
 
 
 def _case_magenta_variant_all_outlines_masks_mode(tmp_path):
@@ -685,7 +695,7 @@ def _case_magenta_variant_all_outlines_masks_mode(tmp_path):
         mode="masks", all_outlines=True)
 
     union = (cell > 0) | (nuc > 0) | (pat > 0)
-    assert np.array_equal(_painted(fig, 3, stack, 3), union)
+    return _mismatch(_painted(fig, 3, stack, 3), union)
 
 
 def _case_magenta_variant_all_outlines_uses_consistent_object_colors(tmp_path):
@@ -700,20 +710,10 @@ def _case_magenta_variant_all_outlines_uses_consistent_object_colors(tmp_path):
 
     extra = _panel(fig, 3)
     # Only the cell outline exists around cell 2, and cells are red.
-    assert _has_color(extra, RED, region=CELL_2_BOX)
-    assert not _has_color(extra, GREEN, region=CELL_2_BOX)
+    return (_has_color(extra, RED, region=CELL_2_BOX),
+            _has_color(extra, GREEN, region=CELL_2_BOX))
 
 
-@pytest.mark.parametrize(
-    "cell_ch, nuc_ch, pat_ch, masks_key",
-    [
-        (0, None, None, ("cell",)),
-        (0, 1, None, ("cell", "nucleus")),
-        (0, None, 2, ("cell", "pathogen")),
-        (None, 1, 2, ("nucleus", "pathogen")),
-        (None, None, 2, ("pathogen",)),
-    ],
-)
 def _case_magenta_variant_mask_dim_arithmetic(tmp_path, cell_ch, nuc_ch, pat_ch,
                                              masks_key):
     """Every cell/nucleus/pathogen combination reads the correct tail planes."""
@@ -735,7 +735,7 @@ def _case_magenta_variant_mask_dim_arithmetic(tmp_path, cell_ch, nuc_ch, pat_ch,
     for k in order:
         union |= available[k] > 0
     painted = _panel(fig, -1).max(axis=-1) > 0
-    assert np.array_equal(painted, union)
+    return _mismatch(painted, union)
 
 
 def _case_magenta_variant_filter_dict_filters_every_object_type(tmp_path, capsys):
@@ -753,14 +753,12 @@ def _case_magenta_variant_filter_dict_filters_every_object_type(tmp_path, capsys
                      "pathogen": keep_all})
 
     out = capsys.readouterr().out
-    for kind, before, after in (("pathogen", 1, 1), ("nucleus", 1, 1),
-                                ("cell", 2, 0)):
-        assert f"Before filtering {kind}: {before} objects" in out
-        assert f"After filtering {kind}: {after} objects" in out
+    lines = _filter_lines(out)
 
     painted = _panel(fig, -1).max(axis=-1) > 0
     assert np.array_equal(painted, (nuc > 0) | (pat > 0))
     assert not _has_color(_panel(fig, 0), MAGENTA)
+    return lines
 
 
 def _case_magenta_variant_filter_dict_on_empty_mask(tmp_path, capsys):
@@ -776,10 +774,10 @@ def _case_magenta_variant_filter_dict_on_empty_mask(tmp_path, capsys):
         filter_dict={"pathogen": [(5, 500), (0, 65000)]})
 
     out = capsys.readouterr().out
-    assert "Before filtering pathogen: 0 objects" in out
-    assert "After filtering pathogen: 0 objects" in out
+    lines = _filter_lines(out)
     assert "nan" not in out
     assert np.all(_panel(fig, -1) == 0)
+    return lines
 
 
 def _case_magenta_variant_export_tiffs(tmp_path):
@@ -794,10 +792,10 @@ def _case_magenta_variant_export_tiffs(tmp_path):
         export_tiffs=True)
 
     tiff_dir = tmp_path / "results" / "mag" / "tiff"
-    assert sorted(os.listdir(tiff_dir)) == [
-        f"mag_channel_{i}.tiff" for i in range(stack.shape[-1])]
+    written = sorted(os.listdir(tiff_dir))
     arr = tiff.imread(str(tiff_dir / "mag_channel_5.tiff"))
     assert np.array_equal(arr, stack[..., 5].astype(np.uint16))
+    return written
 
 
 def _case_magenta_variant_single_channel_still_renders(tmp_path):
@@ -812,52 +810,133 @@ def _case_magenta_variant_single_channel_still_renders(tmp_path):
         path, [0], cell_channel=0, nucleus_channel=1, pathogen_channel=2,
         figuresize=2, thickness=1, save_pdf=False)
 
-    assert len(fig.axes) == 2
-    assert fig.axes[0].get_title() == "Image - Channel 0"
-    assert _has_color(_panel(fig, 0), MAGENTA)
+    return (len(fig.axes), fig.axes[0].get_title(),
+            _has_color(_panel(fig, 0), MAGENTA))
 
 
-def test_plot_overlay_core_cases(request, subtests, capsys):
-    """Case table: 33 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+def _masks_dim_row(cell_ch, nuc_ch, pat_ch, masks_key, id_):
+    return pytest.param(
+        functools.partial(_case_magenta_variant_mask_dim_arithmetic, cell_ch=cell_ch,
+                          nuc_ch=nuc_ch, pat_ch=pat_ch, masks_key=masks_key),
+        0, id=id_)
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_overlay_outlines_titles_colors_and_pdf,
-        _case_overlay_combined_panel_support_is_union_of_masks,
-        _case_overlay_label_offsets_keep_objects_distinct,
-        _case_overlay_is_deterministic_across_calls,
-        _case_overlay_masks_mode_paints_only_inside_its_own_mask,
-        _case_overlay_all_on_all_masks_mode_paints_every_channel,
-        _case_overlay_all_on_all_outlines_mode_draws_all_three_colors,
+        ["cell (channel 0)", "nucleus (channel 1)", "pathogen (channel 2)",
+         "combined objects"], id="outlines-one-titled-panel-per-channel-and-pdf"),
+    pytest.param(
         _case_overlay_all_outlines_decorates_maskless_channel,
-        _case_overlay_all_outlines_masks_mode_fills_maskless_channel,
-        _case_overlay_maskless_channel_left_untouched_without_all_outlines,
+        ["cell (channel 0)", "nucleus (channel 1)", "pathogen (channel 2)",
+         "channel 3", "combined objects"], id="all-outlines-decorates-maskless-channel"),
+    pytest.param(
         _case_overlay_organelle_channel_adds_a_fourth_object,
+        ["cell (channel 0)", "nucleus (channel 1)", "pathogen (channel 2)",
+         "organelle (channel 3)", "combined objects"], id="organelle-channel-adds-panel"),
+    pytest.param(
         _case_overlay_without_any_mask_renders_no_objects_panel,
+        ["channel 0", "channel 1", "no objects"], id="no-mask-renders-no-objects-panel"),
+    pytest.param(
         _case_overlay_empty_mask_plane_yields_black_combined_panel,
-        _case_overlay_negative_label_plane_hits_empty_colormap_guard,
-        _case_overlay_float_stack_is_not_rescaled,
+        "combined objects", id="empty-mask-plane-keeps-combined-panel"),
+    pytest.param(
         _case_overlay_single_channel_renders,
-        _case_overlay_filter_dict_drops_and_keeps_objects,
-        _case_overlay_filter_dict_intensity_window_selects_one_object,
-        _case_overlay_filter_dict_on_label_free_mask_reports_zero,
-        _case_overlay_export_tiffs_writes_one_uint16_file_per_plane,
+        (2, "combined objects"), id="single-channel-renders-image-and-combined"),
+    pytest.param(
         _case_magenta_variant_outlines_every_matched_channel,
-        _case_magenta_variant_reads_masks_from_the_tail_of_the_stack,
-        _case_magenta_variant_all_on_all_outlines_uses_object_colors,
-        _case_magenta_variant_masks_mode_paints_only_object_pixels,
-        _case_magenta_variant_masks_mode_all_on_all,
-        _case_magenta_variant_all_outlines_only_touches_object_borders,
-        _case_magenta_variant_all_outlines_masks_mode,
-        _case_magenta_variant_all_outlines_uses_consistent_object_colors,
-        _case_magenta_variant_mask_dim_arithmetic,
-        _case_magenta_variant_filter_dict_filters_every_object_type,
-        _case_magenta_variant_filter_dict_on_empty_mask,
-        _case_magenta_variant_export_tiffs,
+        ["Image - Channel 0", "Image - Channel 1", "Image - Channel 2",
+         "Combined Objects Image"], id="magenta-outlines-every-matched-channel-and-pdf"),
+    pytest.param(
         _case_magenta_variant_single_channel_still_renders,
-        ],
-    )
-    assert ran >= 33
+        (2, "Image - Channel 0", True), id="magenta-single-channel-renders"),
+])
+def test_overlay_panels_and_titles(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(_case_overlay_combined_panel_support_is_union_of_masks, 0,
+                 id="combined-panel-is-union-of-masks"),
+    pytest.param(_case_overlay_label_offsets_keep_objects_distinct, (1, True, True),
+                 id="label-offsets-keep-objects-distinct"),
+    pytest.param(_case_overlay_is_deterministic_across_calls, 0,
+                 id="seeded-colormaps-are-deterministic"),
+    pytest.param(_case_overlay_masks_mode_paints_only_inside_its_own_mask, (0, 0, 0),
+                 id="masks-mode-paints-only-own-mask"),
+    pytest.param(_case_overlay_all_on_all_masks_mode_paints_every_channel, (0, 0, 0),
+                 id="all-on-all-masks-mode-paints-union-on-every-channel"),
+    pytest.param(_case_overlay_all_on_all_outlines_mode_draws_all_three_colors,
+                 [(True, True, True)] * 3, id="all-on-all-outlines-draws-three-colours"),
+    pytest.param(_case_overlay_all_outlines_masks_mode_fills_maskless_channel, (0, 0),
+                 id="all-outlines-masks-mode-fills-maskless-channel"),
+    pytest.param(_case_overlay_maskless_channel_left_untouched_without_all_outlines, 0,
+                 id="maskless-channel-stays-normalised-grayscale"),
+    pytest.param(_case_overlay_negative_label_plane_hits_empty_colormap_guard, 0,
+                 id="negative-label-plane-paints-nothing"),
+    pytest.param(_case_overlay_float_stack_is_not_rescaled, 0,
+                 id="float-stack-renders-like-uint16"),
+    pytest.param(_case_magenta_variant_reads_masks_from_the_tail_of_the_stack, 0,
+                 id="magenta-reads-masks-from-stack-tail"),
+    pytest.param(_case_magenta_variant_all_on_all_outlines_uses_object_colors,
+                 [(False, True, True, True, True, False)] * 3,
+                 id="magenta-all-on-all-uses-object-colours"),
+    pytest.param(_case_magenta_variant_masks_mode_paints_only_object_pixels, [0, 0, 0],
+                 id="magenta-masks-mode-paints-only-object-pixels"),
+    pytest.param(_case_magenta_variant_masks_mode_all_on_all, (0, 0, 0),
+                 id="magenta-masks-mode-all-on-all-paints-union"),
+    pytest.param(_case_magenta_variant_all_outlines_only_touches_object_borders,
+                 (True, 0, True), id="magenta-all-outlines-only-touch-borders"),
+    pytest.param(_case_magenta_variant_all_outlines_masks_mode, 0,
+                 id="magenta-all-outlines-masks-mode-fills-channel"),
+    pytest.param(_case_magenta_variant_all_outlines_uses_consistent_object_colors,
+                 (True, False), id="magenta-all-outlines-uses-consistent-colours"),
+    _masks_dim_row(0, None, None, ("cell",), "magenta-mask-dims-cell-only"),
+    _masks_dim_row(0, 1, None, ("cell", "nucleus"), "magenta-mask-dims-cell-nucleus"),
+    _masks_dim_row(0, None, 2, ("cell", "pathogen"), "magenta-mask-dims-cell-pathogen"),
+    _masks_dim_row(None, 1, 2, ("nucleus", "pathogen"),
+                   "magenta-mask-dims-nucleus-pathogen"),
+    _masks_dim_row(None, None, 2, ("pathogen",), "magenta-mask-dims-pathogen-only"),
+])
+def test_overlay_pixels_painted_where_the_masks_are(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
+        _case_overlay_filter_dict_drops_and_keeps_objects,
+        ["After filtering cell: 0 objects", "After filtering nucleus: 1 objects",
+         "Before filtering cell: 2 objects", "Before filtering nucleus: 1 objects"],
+        id="filter-dict-drops-and-keeps-objects"),
+    pytest.param(
+        _case_overlay_filter_dict_intensity_window_selects_one_object,
+        ["After filtering cell: 1 objects", "Before filtering cell: 2 objects"],
+        id="filter-dict-intensity-window-selects-one-object"),
+    pytest.param(
+        _case_overlay_filter_dict_on_label_free_mask_reports_zero,
+        ["After filtering cell: 0 objects", "Before filtering cell: 0 objects"],
+        id="filter-dict-label-free-mask-reports-zero"),
+    pytest.param(
+        _case_magenta_variant_filter_dict_filters_every_object_type,
+        ["After filtering cell: 0 objects", "After filtering nucleus: 1 objects",
+         "After filtering pathogen: 1 objects", "Before filtering cell: 2 objects",
+         "Before filtering nucleus: 1 objects", "Before filtering pathogen: 1 objects"],
+        id="magenta-filter-dict-filters-every-object-type"),
+    pytest.param(
+        _case_magenta_variant_filter_dict_on_empty_mask,
+        ["After filtering pathogen: 0 objects", "Before filtering pathogen: 0 objects"],
+        id="magenta-filter-dict-empty-mask-reports-zero"),
+    pytest.param(
+        _case_overlay_export_tiffs_writes_one_uint16_file_per_plane,
+        [f"fov_channel_{i}.tiff" for i in range(6)],
+        id="export-tiffs-one-file-per-plane"),
+    pytest.param(
+        _case_magenta_variant_export_tiffs,
+        [f"mag_channel_{i}.tiff" for i in range(6)],
+        id="magenta-export-tiffs-one-file-per-plane"),
+])
+def test_overlay_filter_reports_and_tiff_exports(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected

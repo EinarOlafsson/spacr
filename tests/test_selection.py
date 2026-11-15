@@ -670,38 +670,44 @@ def test_a_prcfo_reduces_to_the_same_object_as_a_measurement_key():
     assert untyped_object_key("p1_r1_c1_f1_nucleus7") == "p1_r1_c1_f1_7"
 
 
-def test_a_separator_inside_a_component_no_longer_merges_two_objects():
-    """`schema._check_plate` refuses one; `object_keys` escapes one.
+def _cell(plate, row, column, field, label=1, **extra):
+    return {"plateID": plate, "rowID": row, "columnID": column,
+            "fieldID": field, "object_label": label, **extra}
 
-    Refusing here would turn a view that shows the wrong object into a view
-    that raises, on a database the user already has and cannot rename.
-    """
-    frame = pd.DataFrame([
-        {"plateID": "p_x", "rowID": "r1", "columnID": "c1",
-         "fieldID": "f1", "object_label": 1},
-        {"plateID": "p", "rowID": "x_r1", "columnID": "c1",
-         "fieldID": "f1", "object_label": 1},
-    ])
-    keys = list(object_keys(frame))
-    assert keys == ["p%5Fx_r1_c1_f1_1", "p_x%5Fr1_c1_f1_1"]
-    assert len(set(keys)) == 2
+
+@pytest.mark.parametrize("records, kwargs, expected", [
+    # `schema._check_plate` refuses a separator inside a component;
+    # `object_keys` escapes one. Refusing here would turn a view that shows
+    # the wrong object into a view that raises, on a database the user
+    # already has and cannot rename.
+    pytest.param(
+        [_cell("p_x", "r1", "c1", "f1"), _cell("p", "x_r1", "c1", "f1")], {},
+        ["p%5Fx_r1_c1_f1_1", "p_x%5Fr1_c1_f1_1"],
+        id="separator-inside-a-component-no-longer-merges-two-objects"),
+    # ``%`` is the escape character, so an identifier that already contains
+    # one is written ``%25``. That is the only change to any key spaCR has
+    # written, and it is required for the escape to be reversible: leaving
+    # ``%`` alone merges a plate named 'p%5Fx' with a plate named 'p_x'.
+    pytest.param(
+        [_cell("p%5Fx", "r1", "c1", "f1"), _cell("p_x", "r1", "c1", "f1")], {},
+        ["p%255Fx_r1_c1_f1_1", "p%5Fx_r1_c1_f1_1"],
+        id="percent-in-an-identifier-is-the-one-respelled-key"),
+    pytest.param(
+        [_cell("p1", "r1", "c1", "f1", timeID="t1", object_type="pathogen"),
+         _cell("p1", "r1", "c1", "f1", timeID="t2", object_type="pathogen")],
+        {"timelapse": True},
+        ["p1_r1_c1_f1_t1_pathogen1", "p1_r1_c1_f1_t2_pathogen1"],
+        id="timelapse-keys-carry-the-type-too"),
+])
+def test_object_keys_are_distinct_per_object(records, kwargs, expected):
+    keys = list(object_keys(pd.DataFrame(records), **kwargs))
+    assert keys == expected
+    assert len(set(keys)) == len(records)
 
 
 def test_a_clean_frame_pays_nothing_for_the_escape():
     """The common case must stay byte for byte the key it always was."""
     assert list(object_keys(_frame(2))) == ["p1_r1_c1_f1_1", "p1_r2_c2_f1_2"]
-
-
-def test_timelapse_keys_carry_the_type_too():
-    frame = pd.DataFrame([
-        {"plateID": "p1", "rowID": "r1", "columnID": "c1", "fieldID": "f1",
-         "timeID": "t1", "object_label": 1, "object_type": "pathogen"},
-        {"plateID": "p1", "rowID": "r1", "columnID": "c1", "fieldID": "f1",
-         "timeID": "t2", "object_label": 1, "object_type": "pathogen"},
-    ])
-    keys = list(object_keys(frame, timelapse=True))
-    assert keys == ["p1_r1_c1_f1_t1_pathogen1", "p1_r1_c1_f1_t2_pathogen1"]
-    assert len(set(keys)) == 2
 
 
 # ---------------------------------------------------------------------------

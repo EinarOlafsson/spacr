@@ -73,19 +73,6 @@ class TestTheGeneMontageRingsSomething:
         marked = int(_plan(screen).objects["montage_candidate"].sum())
         assert marked < len(_plan(screen).objects)
 
-    def test_the_picker_actually_ran(self, screen):
-        """It used to return None and fall back, silently."""
-        notes = " ".join(_plan(screen).notes)
-        assert "cell(s) annotated across" in notes
-
-    def test_it_found_the_genes_wells(self, screen):
-        """`mine` was empty because a gene is never a key in guide ->
-        fraction."""
-        notes = " ".join(_plan(screen).notes)
-        assert "is in none of these wells" not in notes
-        assert "well(s) hold GRA14" in notes
-
-
 class TestItMatchesOnTheGuidesNotTheName:
     """Driven through `select_montage`, which is the only caller.
 
@@ -94,12 +81,6 @@ class TestItMatchesOnTheGuidesNotTheName:
     wrong tests the fixture rather than the code -- which it did on the
     first attempt, refusing with "no well has a guide fraction".
     """
-
-    def test_the_gene_reaches_its_guides_wells(self, screen):
-        """`mine` is found through the coefficient's guides, and the note
-        says how many wells hold it."""
-        notes = " ".join(_plan(screen).notes)
-        assert "well(s) hold GRA14" in notes
 
     def test_naming_a_guide_that_is_in_no_well_is_refused(self, screen):
         """The other half: when the guides genuinely are not there, the
@@ -133,3 +114,13 @@ class TestAGuideLevelMontageStillWorks:
                               level="grna", picking="sudoku",
                               show_all=True)
         assert int(plan.objects["montage_candidate"].sum()) > 0
+
+
+def test_the_picker_ran_and_found_the_genes_wells_through_its_guides(screen):
+    """It used to return None and fall back, silently, and `mine` was empty
+    because a gene is never a key in guide -> fraction; it is found through
+    the coefficient's guides, and the note says how many wells hold it."""
+    notes = " ".join(_plan(screen).notes)
+    assert "cell(s) annotated across" in notes
+    assert "well(s) hold GRA14" in notes
+    assert "is in none of these wells" not in notes

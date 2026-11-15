@@ -14,6 +14,8 @@ about "did it run".
 """
 from __future__ import annotations
 
+import functools
+import inspect
 import logging
 import os
 
@@ -229,17 +231,18 @@ def src_dir(tmp_path):
 
 def _case_btrack_tracks_moving_cells_end_to_end(src_dir):
     """Four drifting blobs keep one label per object across all four frames."""
+    observed = {}
     masks = _moving_masks()
     out = _run(src_dir, masks)
 
-    assert isinstance(out, list)
-    assert len(out) == 4
-    assert all(f.shape == (64, 64) and f.dtype == masks.dtype for f in out)
+    observed['isinstance(out, list)'] = bool(isinstance(out, list))
+    observed['len(out)'] = len(out)
+    observed['all((f.shape == (64, 64) and f.dtype == masks.dtype for f in out))'] = bool(all((f.shape == (64, 64) and f.dtype == masks.dtype for f in out)))
 
     # every frame carries exactly the same four track ids
     label_sets = [set(np.unique(f)) - {0} for f in out]
-    assert all(len(s) == 4 for s in label_sets)
-    assert label_sets[0] == label_sets[1] == label_sets[2] == label_sets[3]
+    observed['all((len(s) == 4 for s in label_sets))'] = bool(all((len(s) == 4 for s in label_sets)))
+    observed['label_sets[0] == label_sets[1] == label_sets[2] == label_sets[3]'] = bool(label_sets[0] == label_sets[1] == label_sets[2] == label_sets[3])
 
     # and each blob keeps its id while it drifts
     for cy, cx in CENTRES:
@@ -247,31 +250,60 @@ def _case_btrack_tracks_moving_cells_end_to_end(src_dir):
         assert len(ids) == 1 and 0 not in ids
 
     csv = _tracks_csv(src_dir)
-    assert csv.exists()
+    observed['csv.exists()'] = bool(csv.exists())
     df = pd.read_csv(csv)
-    assert len(df) == 16  # 4 objects x 4 frames
-    assert set(df["frame"]) == {0, 1, 2, 3}
-    assert df["track_id"].nunique() == 4
-    assert set(df["original_label"]) == {1, 2, 3, 4}
+    observed['len(df)'] = len(df)
+    observed["set(df['frame'])"] = set(df['frame'])
+    observed["df['track_id'].nunique()"] = df['track_id'].nunique()
+    observed["set(df['original_label'])"] = set(df['original_label'])
+    return observed
+
+
+_EXPECT_btrack_tracks_moving_cells_end_to_end = {
+    'isinstance(out, list)': True,
+    'len(out)': 4,
+    'all((f.shape == (64, 64) and f.dtype == masks.dtype for f in out))': True,
+    'all((len(s) == 4 for s in label_sets))': True,
+    'label_sets[0] == label_sets[1] == label_sets[2] == label_sets[3]': True,
+    'csv.exists()': True,
+    'len(df)': 16,
+    "set(df['frame'])": {0, 1, 2, 3},
+    "df['track_id'].nunique()": 4,
+    "set(df['original_label'])": {1, 2, 3, 4},
+}
 
 
 def _case_btrack_writes_well_metadata_parsed_from_name(src_dir):
     """The npz batch name is decomposed into plate/row/column/field/well."""
+    observed = {}
     masks = _moving_masks(n_frames=3)
     _run(src_dir, masks)
 
     df = pd.read_csv(_tracks_csv(src_dir))
-    assert set(df["file_name"]) == {"plate1_A01_1"}
-    assert set(df["plateID"]) == {"plate1"}
-    assert set(df["rowID"]) == {"r1"}
-    assert set(df["columnID"]) == {"c1"}
-    assert set(df["fieldID"]) == {"f1"}
-    assert set(df["prcf"]) == {"plate1_r1_c1_f1"}
-    assert set(df["wellID"]) == {"A01"}
+    observed["set(df['file_name'])"] = set(df['file_name'])
+    observed["set(df['plateID'])"] = set(df['plateID'])
+    observed["set(df['rowID'])"] = set(df['rowID'])
+    observed["set(df['columnID'])"] = set(df['columnID'])
+    observed["set(df['fieldID'])"] = set(df['fieldID'])
+    observed["set(df['prcf'])"] = set(df['prcf'])
+    observed["set(df['wellID'])"] = set(df['wellID'])
+    return observed
+
+
+_EXPECT_btrack_writes_well_metadata_parsed_from_name = {
+    "set(df['file_name'])": {'plate1_A01_1'},
+    "set(df['plateID'])": {'plate1'},
+    "set(df['rowID'])": {'r1'},
+    "set(df['columnID'])": {'c1'},
+    "set(df['fieldID'])": {'f1'},
+    "set(df['prcf'])": {'plate1_r1_c1_f1'},
+    "set(df['wellID'])": {'A01'},
+}
 
 
 def _case_btrack_accepts_a_list_of_2d_masks(src_dir, tmp_path):
     """A list of 2-D frames is stacked and gives the same answer as an ndarray."""
+    observed = {}
     masks = _moving_masks(n_frames=3)
     from_array = _run(src_dir, masks)
 
@@ -279,27 +311,38 @@ def _case_btrack_accepts_a_list_of_2d_masks(src_dir, tmp_path):
     (other / "masks").mkdir(parents=True)
     from_list = _run(other, [masks[t] for t in range(masks.shape[0])])
 
-    assert len(from_list) == len(from_array) == 3
+    observed['len(from_list) == len(from_array) == 3'] = bool(len(from_list) == len(from_array) == 3)
     for a, b in zip(from_array, from_list):
         np.testing.assert_array_equal(a, b)
+    return observed
 
 
-def _case_btrack_rejects_empty_mask_list(src_dir):
-    with pytest.raises(ValueError, match="empty list"):
-        _run(src_dir, [])
+_EXPECT_btrack_accepts_a_list_of_2d_masks = {
+    'len(from_list) == len(from_array) == 3': True,
+}
 
 
-def _case_btrack_rejects_ragged_mask_list(src_dir):
-    ragged = [np.zeros((8, 8), dtype=np.int32), np.zeros((8, 9), dtype=np.int32)]
-    with pytest.raises(ValueError, match="same shape"):
-        _run(src_dir, ragged)
+def _bad_masks(kind):
+    return {
+        "empty-list": [],
+        "ragged-list": [np.zeros((8, 8), dtype=np.int32), np.zeros((8, 9), dtype=np.int32)],
+        "2d-array": np.zeros((8, 8), np.int32),
+        "4d-array": np.zeros((2, 3, 4, 5), np.int32),
+    }[kind]
 
 
-@pytest.mark.parametrize("bad", [np.zeros((8, 8), np.int32),
-                                 np.zeros((2, 3, 4, 5), np.int32)])
-def _case_btrack_rejects_non_3d_masks(src_dir, bad):
-    with pytest.raises(ValueError, match="must be 3D"):
-        _run(src_dir, bad)
+def _case_btrack_rejects_masks_that_are_not_a_uniform_time_stack(src_dir, kind, message):
+    with pytest.raises(ValueError, match=message) as excinfo:
+        _run(src_dir, _bad_masks(kind))
+    return {"error": str(excinfo.value)}
+
+
+_REJECT_MESSAGES = {
+    "empty-list": "masks_3D is an empty list; nothing to track.",
+    "ragged-list": "All masks must have the same shape; got shapes={(8, 8), (8, 9)}.",
+    "2d-array": "masks_3D must be 3D (T, Y, X); got shape (8, 8)",
+    "4d-array": "masks_3D must be 3D (T, Y, X); got shape (2, 3, 4, 5)",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -307,6 +350,7 @@ def _case_btrack_rejects_non_3d_masks(src_dir, bad):
 # ---------------------------------------------------------------------------
 
 def _case_btrack_configures_tracker_from_arguments(src_dir, monkeypatch):
+    observed = {}
     from btrack import datasets as btrack_datasets
     from btrack.constants import BayesianUpdates
 
@@ -315,35 +359,57 @@ def _case_btrack_configures_tracker_from_arguments(src_dir, monkeypatch):
     out = _run(src_dir, masks, radius=37)
 
     tracker = rec["instance"]
-    assert rec["config"] == btrack_datasets.cell_config()
-    assert tracker.update_method == BayesianUpdates.APPROXIMATE
-    assert tracker.max_search_radius == 37
-    assert tracker.features == FEATURES
-    assert tracker.volume == ((0, 64), (0, 64))
-    assert rec["n_appended"] == 16  # 4 blobs x 4 frames of real segmentation
-    assert rec["track_calls"] == [{"tracking_updates": ["motion", "visual"]}]
-    assert rec["closed"] is True
+    observed["rec['config'] == btrack_datasets.cell_config()"] = bool(rec['config'] == btrack_datasets.cell_config())
+    observed['tracker.update_method == BayesianUpdates.APPROXIMATE'] = bool(tracker.update_method == BayesianUpdates.APPROXIMATE)
+    observed['tracker.max_search_radius'] = tracker.max_search_radius
+    observed['tracker.features'] = tracker.features
+    observed['tracker.volume'] = tracker.volume
+    observed["rec['n_appended']"] = rec['n_appended']
+    observed["rec['track_calls']"] = rec['track_calls']
+    observed["rec['closed'] is True"] = bool(rec['closed'] is True)
 
     # track ids came from the fake tracks: label L -> 10 * L
-    assert set(np.unique(out[0])) == {0, 10, 20, 30, 40}
+    observed['set(np.unique(out[0]))'] = set(np.unique(out[0]))
+    return observed
 
 
-@pytest.mark.parametrize("size,expected_radius", [(64, 3), (16, 1)])
+_EXPECT_btrack_configures_tracker_from_arguments = {
+    "rec['config'] == btrack_datasets.cell_config()": True,
+    'tracker.update_method == BayesianUpdates.APPROXIMATE': True,
+    'tracker.max_search_radius': 37,
+    'tracker.features': FEATURES,
+    'tracker.volume': ((0, 64), (0, 64)),
+    "rec['n_appended']": 16,
+    "rec['track_calls']": [{'tracking_updates': ['motion', 'visual']}],
+    "rec['closed'] is True": True,
+    'set(np.unique(out[0]))': {0, 10, 20, 30, 40},
+}
+
+
 def _case_btrack_derives_radius_from_image_width(src_dir, monkeypatch, size,
                                                 expected_radius):
     """radius=None -> width/20, floored at 1 for tiny images."""
+    observed = {}
     centres = CENTRES if size == 64 else [(8, 8)]
     masks = _moving_masks(n_frames=2, size=size, radius=2, centres=centres)
     rec = _install_fake_tracker(monkeypatch, _tracks_from_masks(masks))
 
     _run(src_dir, masks, radius=None)
 
-    assert rec["instance"].max_search_radius == expected_radius
-    assert rec["instance"].volume == ((0, size), (0, size))
+    observed["rec['instance'].max_search_radius == expected_radius"] = bool(rec['instance'].max_search_radius == expected_radius)
+    observed["rec['instance'].volume == ((0, size), (0, size))"] = bool(rec['instance'].volume == ((0, size), (0, size)))
+    return observed
+
+
+_EXPECT_btrack_derives_radius_from_image_width = {
+    "rec['instance'].max_search_radius == expected_radius": True,
+    "rec['instance'].volume == ((0, size), (0, size))": True,
+}
 
 
 def _case_btrack_falls_back_to_step_size_track_on_typeerror(src_dir, monkeypatch):
     """Older btrack: track(tracking_updates=...) -> TypeError -> attribute + step_size."""
+    observed = {}
     masks = _moving_masks(n_frames=3)
     rec = _install_fake_tracker(
         monkeypatch, _tracks_from_masks(masks), track_typeerror=True
@@ -351,13 +417,18 @@ def _case_btrack_falls_back_to_step_size_track_on_typeerror(src_dir, monkeypatch
 
     out = _run(src_dir, masks)
 
-    assert rec["track_calls"] == [
-        {"tracking_updates": ["motion", "visual"]},
-        {"step_size": 100},
-    ]
-    assert rec["instance"].tracking_updates == ["MOTION", "VISUAL"]
+    observed["rec['track_calls']"] = rec['track_calls']
+    observed["rec['instance'].tracking_updates"] = rec['instance'].tracking_updates
     # the fallback still produced usable tracks
-    assert set(np.unique(out[0])) == {0, 10, 20, 30, 40}
+    observed['set(np.unique(out[0]))'] = set(np.unique(out[0]))
+    return observed
+
+
+_EXPECT_btrack_falls_back_to_step_size_track_on_typeerror = {
+    "rec['track_calls']": [{'tracking_updates': ['motion', 'visual']}, {'step_size': 100}],
+    "rec['instance'].tracking_updates": ['MOTION', 'VISUAL'],
+    'set(np.unique(out[0]))': {0, 10, 20, 30, 40},
+}
 
 
 # ---------------------------------------------------------------------------
@@ -365,6 +436,7 @@ def _case_btrack_falls_back_to_step_size_track_on_typeerror(src_dir, monkeypatch
 # ---------------------------------------------------------------------------
 
 def _case_btrack_passes_glpk_options_and_uses_optimised_tracks(src_dir, monkeypatch):
+    observed = {}
     masks = _moving_masks(n_frames=3)
     rec = _install_fake_tracker(
         monkeypatch,
@@ -374,49 +446,47 @@ def _case_btrack_passes_glpk_options_and_uses_optimised_tracks(src_dir, monkeypa
 
     out = _run(src_dir, masks, optimizer_time_limit_s=2.5, optimizer_mip_gap=0.05)
 
-    assert rec["optimize_calls"] == [
-        {"backend": "glpk",
-         "options": {"options": {"tm_lim": 2500, "mip_gap": 0.05}}}
-    ]
+    observed["rec['optimize_calls']"] = rec['optimize_calls']
     # post-optimisation tracks are the ones written out
-    assert set(np.unique(out[0])) == {0, 100, 200, 300, 400}
+    observed['set(np.unique(out[0]))'] = set(np.unique(out[0]))
+    return observed
+
+
+_EXPECT_btrack_passes_glpk_options_and_uses_optimised_tracks = {
+    "rec['optimize_calls']": [{'backend': 'glpk', 'options': {'options': {'tm_lim': 2500, 'mip_gap': 0.05}}}],
+    'set(np.unique(out[0]))': {0, 100, 200, 300, 400},
+}
 
 
 def _case_btrack_optimises_with_default_options_when_none_given(src_dir, monkeypatch):
+    observed = {}
     masks = _moving_masks(n_frames=3)
     rec = _install_fake_tracker(monkeypatch, _tracks_from_masks(masks))
 
     _run(src_dir, masks, optimizer_time_limit_s=None, optimizer_mip_gap=None)
 
-    assert rec["optimize_calls"] == [{"backend": "glpk"}]
+    observed["rec['optimize_calls']"] = rec['optimize_calls']
+    return observed
 
 
-@pytest.mark.parametrize(
-    "time_limit,mip_gap,expected",
-    [
-        (0, 0.01, {"mip_gap": 0.01}),
-        (2, 0, {"tm_lim": 2000}),
-        (0, 0, None),
-    ],
-)
+_EXPECT_btrack_optimises_with_default_options_when_none_given = {
+    "rec['optimize_calls']": [{'backend': 'glpk'}],
+}
+
+
 def _case_btrack_ignores_non_positive_optimiser_settings(src_dir, monkeypatch,
-                                                        time_limit, mip_gap,
-                                                        expected):
+                                                        time_limit, mip_gap):
     """Zero time-limit / MIP gap are treated as 'unset', not as literal zeros."""
     masks = _moving_masks(n_frames=2)
     rec = _install_fake_tracker(monkeypatch, _tracks_from_masks(masks))
 
     _run(src_dir, masks, optimizer_time_limit_s=time_limit, optimizer_mip_gap=mip_gap)
 
-    if expected is None:
-        assert rec["optimize_calls"] == [{"backend": "glpk"}]
-    else:
-        assert rec["optimize_calls"] == [
-            {"backend": "glpk", "options": {"options": expected}}
-        ]
+    return {"optimize_calls": rec["optimize_calls"]}
 
 
 def _case_btrack_skips_optimisation_when_disabled(src_dir, monkeypatch):
+    observed = {}
     masks = _moving_masks(n_frames=3)
     rec = _install_fake_tracker(
         monkeypatch,
@@ -426,11 +496,19 @@ def _case_btrack_skips_optimisation_when_disabled(src_dir, monkeypatch):
 
     out = _run(src_dir, masks, run_optimization=False)
 
-    assert rec["optimize_calls"] == []
-    assert set(np.unique(out[0])) == {0, 10, 20, 30, 40}
+    observed["rec['optimize_calls']"] = rec['optimize_calls']
+    observed['set(np.unique(out[0]))'] = set(np.unique(out[0]))
+    return observed
+
+
+_EXPECT_btrack_skips_optimisation_when_disabled = {
+    "rec['optimize_calls']": [],
+    'set(np.unique(out[0]))': {0, 10, 20, 30, 40},
+}
 
 
 def _case_btrack_skips_optimisation_for_too_many_objects(src_dir, monkeypatch, caplog):
+    observed = {}
     masks = _moving_masks(n_frames=3)  # 12 real objects
     rec = _install_fake_tracker(
         monkeypatch,
@@ -441,14 +519,22 @@ def _case_btrack_skips_optimisation_for_too_many_objects(src_dir, monkeypatch, c
     with caplog.at_level(logging.WARNING, logger="spacr.timelapse"):
         out = _run(src_dir, masks, max_objects_for_optimization=5)
 
-    assert rec["optimize_calls"] == []
-    assert any("Skipping btrack global optimisation" in r.getMessage()
-               for r in caplog.records)
-    assert set(np.unique(out[0])) == {0, 10, 20, 30, 40}
+    observed["rec['optimize_calls']"] = rec['optimize_calls']
+    observed["any(('Skipping btrack global optimisation' in r.getMessage() for r in caplog.records))"] = bool(any(('Skipping btrack global optimisation' in r.getMessage() for r in caplog.records)))
+    observed['set(np.unique(out[0]))'] = set(np.unique(out[0]))
+    return observed
+
+
+_EXPECT_btrack_skips_optimisation_for_too_many_objects = {
+    "rec['optimize_calls']": [],
+    "any(('Skipping btrack global optimisation' in r.getMessage() for r in caplog.records))": True,
+    'set(np.unique(out[0]))': {0, 10, 20, 30, 40},
+}
 
 
 def _case_btrack_falls_back_to_raw_tracks_when_optimiser_fails(src_dir, monkeypatch,
                                                               caplog):
+    observed = {}
     masks = _moving_masks(n_frames=3)
     rec = _install_fake_tracker(
         monkeypatch,
@@ -460,24 +546,31 @@ def _case_btrack_falls_back_to_raw_tracks_when_optimiser_fails(src_dir, monkeypa
     with caplog.at_level(logging.WARNING, logger="spacr.timelapse"):
         out = _run(src_dir, masks)
 
-    assert len(rec["optimize_calls"]) == 1
-    assert any("global optimisation failed" in r.getMessage()
-               for r in caplog.records)
+    observed["len(rec['optimize_calls'])"] = len(rec['optimize_calls'])
+    observed["any(('global optimisation failed' in r.getMessage() for r in caplog.records))"] = bool(any(('global optimisation failed' in r.getMessage() for r in caplog.records)))
     # pre-optimisation tracks survive the failure
-    assert set(np.unique(out[0])) == {0, 10, 20, 30, 40}
-    assert _tracks_csv(src_dir).exists()
+    observed['set(np.unique(out[0]))'] = set(np.unique(out[0]))
+    observed['_tracks_csv(src_dir).exists()'] = bool(_tracks_csv(src_dir).exists())
+    return observed
+
+
+_EXPECT_btrack_falls_back_to_raw_tracks_when_optimiser_fails = {
+    "len(rec['optimize_calls'])": 1,
+    "any(('global optimisation failed' in r.getMessage() for r in caplog.records))": True,
+    'set(np.unique(out[0]))': {0, 10, 20, 30, 40},
+    '_tracks_csv(src_dir).exists()': True,
+}
 
 
 # ---------------------------------------------------------------------------
 # transient-track filtering
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("remove_transient,expect_transient", [(True, False),
-                                                               (False, True)])
 def _case_btrack_transient_filter_drops_single_frame_tracks(src_dir, monkeypatch,
                                                            remove_transient,
                                                            expect_transient):
     """A track that only exists in frame 0 survives only when filtering is off."""
+    observed = {}
     masks = _moving_masks(n_frames=3, transient_label=True)
     tracks = _tracks_from_masks(masks, factor=10, only_first_frame_for=(5,))
     _install_fake_tracker(monkeypatch, tracks)
@@ -485,12 +578,21 @@ def _case_btrack_transient_filter_drops_single_frame_tracks(src_dir, monkeypatch
     out = _run(src_dir, masks, timelapse_remove_transient=remove_transient)
 
     frame0 = set(np.unique(out[0]))
-    assert {0, 10, 20, 30, 40} <= frame0
-    assert (50 in frame0) is expect_transient
+    observed['{0, 10, 20, 30, 40} <= frame0'] = bool({0, 10, 20, 30, 40} <= frame0)
+    observed['(50 in frame0) is expect_transient'] = bool((50 in frame0) is expect_transient)
 
     df = pd.read_csv(_tracks_csv(src_dir))
-    assert (50 in set(df["track_id"])) is expect_transient
-    assert set(df["frame"]) == {0, 1, 2}
+    observed["(50 in set(df['track_id'])) is expect_transient"] = bool((50 in set(df['track_id'])) is expect_transient)
+    observed["set(df['frame'])"] = set(df['frame'])
+    return observed
+
+
+_EXPECT_btrack_transient_filter_drops_single_frame_tracks = {
+    '{0, 10, 20, 30, 40} <= frame0': True,
+    '(50 in frame0) is expect_transient': True,
+    "(50 in set(df['track_id'])) is expect_transient": True,
+    "set(df['frame'])": {0, 1, 2},
+}
 
 
 # ---------------------------------------------------------------------------
@@ -499,6 +601,7 @@ def _case_btrack_transient_filter_drops_single_frame_tracks(src_dir, monkeypatch
 
 def _case_btrack_survives_unparsable_well_metadata(src_dir, monkeypatch, caplog):
     """An IndexError out of _map_wells is logged and the CSV is still written."""
+    observed = {}
     import spacr.utils
 
     def _boom(file_name, timelapse=False):
@@ -512,27 +615,31 @@ def _case_btrack_survives_unparsable_well_metadata(src_dir, monkeypatch, caplog)
     with caplog.at_level(logging.WARNING, logger="spacr.timelapse"):
         out = _run(src_dir, masks)
 
-    assert any("Failed to parse plate, well, field" in r.getMessage()
-               for r in caplog.records)
+    observed["any(('Failed to parse plate, well, field' in r.getMessage() for r in caplog.records))"] = bool(any(('Failed to parse plate, well, field' in r.getMessage() for r in caplog.records)))
     df = pd.read_csv(_tracks_csv(src_dir))
-    assert "plateID" not in df.columns
-    assert "wellID" not in df.columns
-    assert set(df["track_id"]) == {10, 20, 30, 40}
-    assert set(np.unique(out[0])) == {0, 10, 20, 30, 40}
+    observed["'plateID' not in df.columns"] = bool('plateID' not in df.columns)
+    observed["'wellID' not in df.columns"] = bool('wellID' not in df.columns)
+    observed["set(df['track_id'])"] = set(df['track_id'])
+    observed['set(np.unique(out[0]))'] = set(np.unique(out[0]))
+    return observed
+
+
+_EXPECT_btrack_survives_unparsable_well_metadata = {
+    "any(('Failed to parse plate, well, field' in r.getMessage() for r in caplog.records))": True,
+    "'plateID' not in df.columns": True,
+    "'wellID' not in df.columns": True,
+    "set(df['track_id'])": {10, 20, 30, 40},
+    'set(np.unique(out[0]))': {0, 10, 20, 30, 40},
+}
 
 
 # ---------------------------------------------------------------------------
 # visualisation hand-off
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("plot,save,expect_call", [
-    (False, False, False),
-    (True, False, True),
-    (False, True, True),
-    (True, True, True),
-])
 def _case_btrack_hands_masks_and_tracks_to_the_visualiser(src_dir, monkeypatch,
                                                          plot, save, expect_call):
+    observed = {}
     import spacr.plot
 
     calls = []
@@ -551,7 +658,7 @@ def _case_btrack_hands_masks_and_tracks_to_the_visualiser(src_dir, monkeypatch,
     _install_fake_tracker(monkeypatch, _tracks_from_masks(masks))
     _run(src_dir, masks, plot=plot, save=save, object_type="nucleus")
 
-    assert len(calls) == (1 if expect_call else 0)
+    observed['len(calls) == (1 if expect_call else 0)'] = bool(len(calls) == (1 if expect_call else 0))
     if expect_call:
         call = calls[0]
         assert isinstance(call["masks"], np.ndarray)
@@ -565,6 +672,12 @@ def _case_btrack_hands_masks_and_tracks_to_the_visualiser(src_dir, monkeypatch,
         assert call["mode"] == "btrack"
         assert call["filenames"] == [f"plate1_A01_1_t{i}.tif" for i in range(3)]
         assert os.path.basename(call["src"]) == "masks"
+    return observed
+
+
+_EXPECT_btrack_hands_masks_and_tracks_to_the_visualiser = {
+    'len(calls) == (1 if expect_call else 0)': True,
+}
 
 
 # ---------------------------------------------------------------------------
@@ -572,14 +685,23 @@ def _case_btrack_hands_masks_and_tracks_to_the_visualiser(src_dir, monkeypatch,
 # ---------------------------------------------------------------------------
 
 def _case_btrack_with_no_objects_returns_zeroed_stack(src_dir):
+    observed = {}
     masks = np.zeros((3, 32, 32), dtype=np.int32)
     out = _run(src_dir, masks, radius=5)
 
-    assert len(out) == 3
-    assert all(int(np.count_nonzero(f)) == 0 for f in out)
+    observed['len(out)'] = len(out)
+    observed['all((int(np.count_nonzero(f)) == 0 for f in out))'] = bool(all((int(np.count_nonzero(f)) == 0 for f in out)))
+    return observed
+
+
+_EXPECT_btrack_with_no_objects_returns_zeroed_stack = {
+    'len(out)': 3,
+    'all((int(np.count_nonzero(f)) == 0 for f in out))': True,
+}
 
 
 def _case_btrack_all_tracks_transient_returns_zeroed_stack(src_dir, monkeypatch):
+    observed = {}
     masks = _moving_masks(n_frames=3)
     # every fake track lives for a single frame -> all shorter than n_frames
     tracks = _tracks_from_masks(masks, factor=10, only_first_frame_for=(1, 2, 3, 4))
@@ -587,39 +709,89 @@ def _case_btrack_all_tracks_transient_returns_zeroed_stack(src_dir, monkeypatch)
 
     out = _run(src_dir, masks, timelapse_remove_transient=True)
 
-    assert len(out) == 3
-    assert all(int(np.count_nonzero(f)) == 0 for f in out)
-    assert _tracks_csv(src_dir).exists()
+    observed['len(out)'] = len(out)
+    observed['all((int(np.count_nonzero(f)) == 0 for f in out))'] = bool(all((int(np.count_nonzero(f)) == 0 for f in out)))
+    observed['_tracks_csv(src_dir).exists()'] = bool(_tracks_csv(src_dir).exists())
+    return observed
 
 
-def test_timelapse_btrack_cases(request, subtests, caplog):
-    """Case table: 20 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+_EXPECT_btrack_all_tracks_transient_returns_zeroed_stack = {
+    'len(out)': 3,
+    'all((int(np.count_nonzero(f)) == 0 for f in out))': True,
+    '_tracks_csv(src_dir).exists()': True,
+}
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_btrack_tracks_moving_cells_end_to_end,
-        _case_btrack_writes_well_metadata_parsed_from_name,
-        _case_btrack_accepts_a_list_of_2d_masks,
-        _case_btrack_rejects_empty_mask_list,
-        _case_btrack_rejects_ragged_mask_list,
-        _case_btrack_rejects_non_3d_masks,
-        _case_btrack_configures_tracker_from_arguments,
-        _case_btrack_derives_radius_from_image_width,
-        _case_btrack_falls_back_to_step_size_track_on_typeerror,
-        _case_btrack_passes_glpk_options_and_uses_optimised_tracks,
-        _case_btrack_optimises_with_default_options_when_none_given,
-        _case_btrack_ignores_non_positive_optimiser_settings,
-        _case_btrack_skips_optimisation_when_disabled,
-        _case_btrack_skips_optimisation_for_too_many_objects,
-        _case_btrack_falls_back_to_raw_tracks_when_optimiser_fails,
-        _case_btrack_transient_filter_drops_single_frame_tracks,
-        _case_btrack_survives_unparsable_well_metadata,
-        _case_btrack_hands_masks_and_tracks_to_the_visualiser,
-        _case_btrack_with_no_objects_returns_zeroed_stack,
-        _case_btrack_all_tracks_transient_returns_zeroed_stack,
-        ],
-    )
-    assert ran >= 20
+
+# ---------------------------------------------------------------------------
+# behaviour tests: one per public-function contract, one parametrised row per case
+# ---------------------------------------------------------------------------
+
+def _run_case(case, request):
+    """Call a case helper with the fixtures named in its signature."""
+    bound = getattr(case, "keywords", {})
+    wanted = [n for n in inspect.signature(case).parameters if n not in bound]
+    return case(**{n: request.getfixturevalue(n) for n in wanted})
+
+
+_P = functools.partial
+
+
+INPUT_CASES = [
+    pytest.param(_case_btrack_tracks_moving_cells_end_to_end, _EXPECT_btrack_tracks_moving_cells_end_to_end, id="tracks-moving-cells-end-to-end"),
+    pytest.param(_case_btrack_writes_well_metadata_parsed_from_name, _EXPECT_btrack_writes_well_metadata_parsed_from_name, id="writes-well-metadata-parsed-from-name"),
+    pytest.param(_case_btrack_accepts_a_list_of_2d_masks, _EXPECT_btrack_accepts_a_list_of_2d_masks, id="accepts-a-list-of-2d-masks"),
+    pytest.param(_P(_case_btrack_rejects_masks_that_are_not_a_uniform_time_stack, kind='empty-list', message='empty list'), {'error': _REJECT_MESSAGES['empty-list']}, id="rejects-masks-that-are-not-a-uniform-time-stack-empty-list"),
+    pytest.param(_P(_case_btrack_rejects_masks_that_are_not_a_uniform_time_stack, kind='ragged-list', message='same shape'), {'error': _REJECT_MESSAGES['ragged-list']}, id="rejects-masks-that-are-not-a-uniform-time-stack-ragged-list"),
+    pytest.param(_P(_case_btrack_rejects_masks_that_are_not_a_uniform_time_stack, kind='2d-array', message='must be 3D'), {'error': _REJECT_MESSAGES['2d-array']}, id="rejects-masks-that-are-not-a-uniform-time-stack-2d-array"),
+    pytest.param(_P(_case_btrack_rejects_masks_that_are_not_a_uniform_time_stack, kind='4d-array', message='must be 3D'), {'error': _REJECT_MESSAGES['4d-array']}, id="rejects-masks-that-are-not-a-uniform-time-stack-4d-array"),
+    pytest.param(_case_btrack_with_no_objects_returns_zeroed_stack, _EXPECT_btrack_with_no_objects_returns_zeroed_stack, id="with-no-objects-returns-zeroed-stack"),
+]
+
+
+@pytest.mark.parametrize("case, expected", INPUT_CASES)
+def test_btrack_tracks_a_uniform_mask_stack_end_to_end_and_rejects_anything_else(case, expected, request):
+    """Real btrack: ids stay per object, CSV and well metadata, list input, input validation, empty stack."""
+    observed = _run_case(case, request)
+    assert observed == expected
+
+
+CONFIGURATION_CASES = [
+    pytest.param(_case_btrack_configures_tracker_from_arguments, _EXPECT_btrack_configures_tracker_from_arguments, id="configures-tracker-from-arguments"),
+    pytest.param(_P(_case_btrack_derives_radius_from_image_width, size=64, expected_radius=3), _EXPECT_btrack_derives_radius_from_image_width, id="derives-radius-from-image-width-64px"),
+    pytest.param(_P(_case_btrack_derives_radius_from_image_width, size=16, expected_radius=1), _EXPECT_btrack_derives_radius_from_image_width, id="derives-radius-from-image-width-16px"),
+    pytest.param(_case_btrack_falls_back_to_step_size_track_on_typeerror, _EXPECT_btrack_falls_back_to_step_size_track_on_typeerror, id="falls-back-to-step-size-track-on-typeerror"),
+    pytest.param(_case_btrack_passes_glpk_options_and_uses_optimised_tracks, _EXPECT_btrack_passes_glpk_options_and_uses_optimised_tracks, id="passes-glpk-options-and-uses-optimised-tracks"),
+    pytest.param(_case_btrack_optimises_with_default_options_when_none_given, _EXPECT_btrack_optimises_with_default_options_when_none_given, id="optimises-with-default-options-when-none-given"),
+    pytest.param(_P(_case_btrack_ignores_non_positive_optimiser_settings, time_limit=0, mip_gap=0.01), {'optimize_calls': [{'backend': 'glpk', 'options': {'options': {'mip_gap': 0.01}}}]}, id="ignores-non-positive-optimiser-settings-zero-time-limit"),
+    pytest.param(_P(_case_btrack_ignores_non_positive_optimiser_settings, time_limit=2, mip_gap=0), {'optimize_calls': [{'backend': 'glpk', 'options': {'options': {'tm_lim': 2000}}}]}, id="ignores-non-positive-optimiser-settings-zero-mip-gap"),
+    pytest.param(_P(_case_btrack_ignores_non_positive_optimiser_settings, time_limit=0, mip_gap=0), {'optimize_calls': [{'backend': 'glpk'}]}, id="ignores-non-positive-optimiser-settings-both-zero"),
+    pytest.param(_case_btrack_skips_optimisation_when_disabled, _EXPECT_btrack_skips_optimisation_when_disabled, id="skips-optimisation-when-disabled"),
+    pytest.param(_case_btrack_skips_optimisation_for_too_many_objects, _EXPECT_btrack_skips_optimisation_for_too_many_objects, id="skips-optimisation-for-too-many-objects"),
+    pytest.param(_case_btrack_falls_back_to_raw_tracks_when_optimiser_fails, _EXPECT_btrack_falls_back_to_raw_tracks_when_optimiser_fails, id="falls-back-to-raw-tracks-when-optimiser-fails"),
+]
+
+
+@pytest.mark.parametrize("case, expected", CONFIGURATION_CASES)
+def test_btrack_configures_the_tracker_and_the_global_optimiser_from_its_arguments(case, expected, request):
+    """Fake tracker: radius, features, volume, update method, TypeError fallback, GLPK options, skip and failure paths."""
+    observed = _run_case(case, request)
+    assert observed == expected
+
+
+OUTPUT_CASES = [
+    pytest.param(_P(_case_btrack_transient_filter_drops_single_frame_tracks, remove_transient=True, expect_transient=False), _EXPECT_btrack_transient_filter_drops_single_frame_tracks, id="transient-filter-drops-single-frame-tracks-removed"),
+    pytest.param(_P(_case_btrack_transient_filter_drops_single_frame_tracks, remove_transient=False, expect_transient=True), _EXPECT_btrack_transient_filter_drops_single_frame_tracks, id="transient-filter-drops-single-frame-tracks-kept"),
+    pytest.param(_case_btrack_survives_unparsable_well_metadata, _EXPECT_btrack_survives_unparsable_well_metadata, id="survives-unparsable-well-metadata"),
+    pytest.param(_P(_case_btrack_hands_masks_and_tracks_to_the_visualiser, plot=False, save=False, expect_call=False), _EXPECT_btrack_hands_masks_and_tracks_to_the_visualiser, id="hands-masks-and-tracks-to-the-visualiser-neither"),
+    pytest.param(_P(_case_btrack_hands_masks_and_tracks_to_the_visualiser, plot=True, save=False, expect_call=True), _EXPECT_btrack_hands_masks_and_tracks_to_the_visualiser, id="hands-masks-and-tracks-to-the-visualiser-plot"),
+    pytest.param(_P(_case_btrack_hands_masks_and_tracks_to_the_visualiser, plot=False, save=True, expect_call=True), _EXPECT_btrack_hands_masks_and_tracks_to_the_visualiser, id="hands-masks-and-tracks-to-the-visualiser-save"),
+    pytest.param(_P(_case_btrack_hands_masks_and_tracks_to_the_visualiser, plot=True, save=True, expect_call=True), _EXPECT_btrack_hands_masks_and_tracks_to_the_visualiser, id="hands-masks-and-tracks-to-the-visualiser-plot-and-save"),
+    pytest.param(_case_btrack_all_tracks_transient_returns_zeroed_stack, _EXPECT_btrack_all_tracks_transient_returns_zeroed_stack, id="all-tracks-transient-returns-zeroed-stack"),
+]
+
+
+@pytest.mark.parametrize("case, expected", OUTPUT_CASES)
+def test_btrack_writes_the_tracks_csv_filters_transient_tracks_and_hands_results_to_the_visualiser(case, expected, request):
+    """Output side: transient filtering, metadata parse failure, visualiser hand-off, all-transient result."""
+    observed = _run_case(case, request)
+    assert observed == expected

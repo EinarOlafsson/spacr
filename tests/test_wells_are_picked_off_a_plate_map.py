@@ -232,15 +232,20 @@ class TestTheAuditIsWrittenDown:
     def test_the_audit_still_matches_what_the_tooltips_say(self):
         """The list was FOUND by reading spaCR's own tooltips, so it has to
         keep matching them -- a setting that starts documenting wells and is
-        not on the list is a field with no button beside it."""
+        not on the list is a field with no button beside it.
+
+        ``ops_profile_recipe`` matches the pattern without naming a well: its
+        ``'c0'`` is the per-well standardised PCA recipe, not column 0."""
         import re
 
         from spacr.settings import tooltips
         from spacr.well_spec import WELL_SETTINGS
 
+        not_wells = {"ops_profile_recipe"}
         pattern = r"'c\d+'|'r\d+'|well location|a column \(|a row \("
         documented = {key for key, text in tooltips.items()
-                      if re.search(pattern, str(text))}
+                      if key not in not_wells
+                      and re.search(pattern, str(text))}
 
         assert documented == set(WELL_SETTINGS), (
             f"missing from the audit: {sorted(documented - set(WELL_SETTINGS))}; "

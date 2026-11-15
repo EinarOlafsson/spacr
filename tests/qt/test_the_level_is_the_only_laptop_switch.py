@@ -180,5 +180,5 @@ def test_launch_follows_the_level_and_not_the_machine(
 
 
 # The one stand-in QApplication that survives `launch`; borrowed, as
-# test_cov_r8_launch_laptop_mode.py does.
+# test_app_launch_behaviour.py does.
 from tests.qt.test_cov_qt_app import launched  # noqa: E402,F401

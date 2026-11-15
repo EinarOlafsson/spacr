@@ -18,9 +18,13 @@ something its in-module caller never hands it:
   still has to happen; only the per-type artist tweak is skipped.
 
 Both are paired against the input that DOES produce the effect, so neither
-assertion is about an absence on its own.
+assertion is about an absence on its own. One parametrised test states the
+contract of the two helpers; each row is a helper that does the setup and
+returns what it observed.
 """
 from __future__ import annotations
+
+import inspect
 
 import pandas as pd
 import pytest
@@ -60,7 +64,7 @@ class _FigureWithAStranger:
         self.axes = [stranger, *figure.axes]
 
 
-def test_the_theme_walk_steps_over_something_that_is_not_an_axes():
+def _case_the_theme_walk_steps_over_something_that_is_not_an_axes():
     from spacr.plot import _chrome
 
     figure, ax = plt.subplots()
@@ -78,8 +82,12 @@ def test_the_theme_walk_steps_over_something_that_is_not_an_axes():
     # The stranger contributed nothing and cost nothing: the same chrome
     # comes back, in the same order, and no artist in it is the stranger.
     assert with_stranger == real
-    assert all(artist is not stranger for _kind, artist, _get, _set
-               in _chrome(_FigureWithAStranger(figure, stranger)))
+    return {
+        "same_chrome_in_same_order": with_stranger == real,
+        "stranger_is_an_artist": any(
+            artist is stranger for _kind, artist, _get, _set
+            in _chrome(_FigureWithAStranger(figure, stranger))),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -120,6 +128,14 @@ def _case_a_graph_type_with_no_layout_rule_still_gets_the_shared_layout():
     assert tuple(known_fig.get_size_inches()) == (10.0, 10.0)
     assert unknown_ax.get_xlim() == (-0.5, 1.5)
     assert known_ax.get_xlim() == (-0.5, 1.5)
+    return {
+        "known_bar_widths": [p.get_width() for p in known_ax.patches],
+        "unknown_bar_widths": [p.get_width() for p in unknown_ax.patches],
+        "known_size": tuple(known_fig.get_size_inches()),
+        "unknown_size": tuple(unknown_fig.get_size_inches()),
+        "known_xlim": known_ax.get_xlim(),
+        "unknown_xlim": unknown_ax.get_xlim(),
+    }
 
 
 def _case_a_line_graph_is_left_out_of_the_layout_pass_entirely(capsys):
@@ -135,26 +151,42 @@ def _case_a_line_graph_is_left_out_of_the_layout_pass_entirely(capsys):
     graph._standerdize_figure_format(ax=line_ax, num_groups=2,
                                      graph_type="line")
 
-    assert tuple(line_fig.get_size_inches()) == (4.0, 4.0)
-    assert "Skipping layout adjustment for line graphs." in \
-        capsys.readouterr().out
+    line_size = tuple(line_fig.get_size_inches())
+    said_skipping = ("Skipping layout adjustment for line graphs."
+                     in capsys.readouterr().out)
 
     other_fig, other_ax = _bar_axes()
     graph._standerdize_figure_format(ax=other_ax, num_groups=2,
                                      graph_type="scatter")
-    assert tuple(other_fig.get_size_inches()) == (10.0, 10.0)
+    return {"line_size": line_size, "said_skipping": said_skipping,
+            "other_size": tuple(other_fig.get_size_inches())}
 
 
-def test_plot_cases(request, subtests, capsys):
-    """Case table: 2 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
+        _case_the_theme_walk_steps_over_something_that_is_not_an_axes,
+        {"same_chrome_in_same_order": True, "stranger_is_an_artist": False},
+        id="theme-walk-steps-over-a-non-axes"),
+    pytest.param(
         _case_a_graph_type_with_no_layout_rule_still_gets_the_shared_layout,
+        {"known_bar_widths": [0.1875, 0.1875],
+         "unknown_bar_widths": [0.8, 0.8],
+         "known_size": (10.0, 10.0), "unknown_size": (10.0, 10.0),
+         "known_xlim": (-0.5, 1.5), "unknown_xlim": (-0.5, 1.5)},
+        id="unknown-graph-type-keeps-bars-but-gets-shared-layout"),
+    pytest.param(
         _case_a_line_graph_is_left_out_of_the_layout_pass_entirely,
-        ],
-    )
-    assert ran >= 2
+        {"line_size": (4.0, 4.0), "said_skipping": True,
+         "other_size": (10.0, 10.0)},
+        id="line-graph-opts-out-of-the-layout-pass"),
+])
+def test_helpers_handle_input_their_in_module_callers_never_pass(
+        request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected

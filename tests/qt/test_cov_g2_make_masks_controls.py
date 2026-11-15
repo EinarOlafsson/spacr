@@ -134,41 +134,6 @@ def test_the_ensemble_model_is_picked_from_a_file(screen, monkeypatch):
     assert screen._uncertainty_ensemble.currentText() == "/models/second.pth"
 
 
-def test_a_busy_uncertainty_run_refuses_a_second_and_errors_are_kept(
-        screen, monkeypatch):
-    taken = []
-    monkeypatch.setattr(screen, "_take_uncertainty", taken.append)
-    screen._uncertainty_request = {"busy": True}
-    assert screen._start_uncertainty({}, threaded=False) is False
-    screen._uncertainty_request = None
-
-    def broken(request, models=None):
-        raise RuntimeError("model failed")
-
-    monkeypatch.setattr(mm, "_uncertainty_snapshot", broken)
-    assert screen._start_uncertainty({"x": 1}, threaded=False) is True
-    assert isinstance(taken[0][2], RuntimeError)
-
-
-def test_a_threaded_uncertainty_run_is_queued_on_its_worker(screen,
-                                                           monkeypatch):
-    submitted = []
-
-    class _Worker:
-        def __init__(self, work, done, name=None):
-            pass
-
-        def submit(self, request):
-            submitted.append(request)
-
-    monkeypatch.setattr(mm, "_NewestRequestWorker", _Worker)
-    screen._uncertainty_request = None
-    screen._uncertainty_worker = None
-    assert screen._start_uncertainty({"x": 2}, threaded=True) is True
-    assert submitted == [{"x": 2}]
-    screen._uncertainty_request = None
-
-
 def test_a_delivery_after_the_screen_is_gone_is_dropped(screen, monkeypatch):
     class _Signal:
         def emit(self, payload):

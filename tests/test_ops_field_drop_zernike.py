@@ -57,11 +57,14 @@ def _two_fields_one_misplaced(tmp_path):
 
 def test_merge_writes_the_field_check_only_when_asked(tmp_path):
     db = _two_fields_one_misplaced(tmp_path)
-    off = ops_engine._ph_merge(db, PLATE, "A1", {}, str(tmp_path), False)
+    # no ops_geometry in this synthetic well: merge with 'similarity'
+    off = ops_engine._ph_merge(db, PLATE, "A1", {"ops_align_model": "similarity"},
+                               str(tmp_path), False)
     assert off["field_check"] is None
     assert not (tmp_path / "ops_fieldcheck_A1.parquet").exists()
     report = ops_engine._ph_merge(db, PLATE, "A1",
-                                  {"ops_drop_failed_fields": True},
+                                  {"ops_drop_failed_fields": True,
+                                   "ops_align_model": "similarity"},
                                   str(tmp_path), False)
     assert report["field_check"]["dropped"] == [1]
     check = pd.read_parquet(tmp_path / "ops_fieldcheck_A1.parquet")

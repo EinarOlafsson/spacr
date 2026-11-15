@@ -209,15 +209,6 @@ def _in_corner_patch(amap, patch=4):
     return row < patch and col < patch
 
 
-class TestHiResCam:
-    def test_a_layer_off_the_gradient_path_is_refused(self, image):
-        """A frozen extractor has no gradient to weight its channels by."""
-        with pytest.raises(att.AttributionError) as excinfo:
-            att.attribute(FrozenFeatures(), image, "hirescam", target=1,
-                          layer="conv")
-        assert "received no gradient" in str(excinfo.value)
-
-
 class TestAblationCam:
     def test_a_block_returning_a_tuple_has_its_feature_map_ablated(
             self, image):
@@ -253,14 +244,6 @@ class TestShapBaselines:
         assert result.params["shap_baselines"] == "zero mean"
         assert _in_corner_patch(result.map, CORNER)
 
-    def test_without_captum_the_error_says_what_to_install(
-            self, image, monkeypatch):
-        monkeypatch.setitem(sys.modules, "captum.attr", None)
-        with pytest.raises(att.AttributionError) as excinfo:
-            att.attribute(CornerCNN(), image, "gradient_shap", target=1)
-        assert "pip install captum" in str(excinfo.value)
-
-
 class TestChefer:
     def test_a_training_model_is_put_back_in_training(self, image):
         model = TinyViT().train()
@@ -278,23 +261,6 @@ class TestChefer:
         assert not result.is_flat()
         assert _in_corner_patch(result.map)
 
-    @pytest.mark.parametrize("wiring, said", [
-        # torch averages the heads AFTER using them, so the averaged copy is
-        # not on the gradient path and has no gradient to weight.
-        ("averaged", "not on the gradient path"),
-        # cross-attention weights are not a square token grid
-        ("cross", "non-square"),
-        # need_weights=False passed positionally is left alone, and then there
-        # is nothing to weight.
-        ("no_weights", "not on the gradient path"),
-    ], ids=["weights_averaged_before_they_are_returned",
-            "cross_attention", "weights_the_caller_turned_off"])
-    def test_weights_averaged_before_they_are_returned_are_refused(
-            self, image, wiring, said):
-        with pytest.raises(att.NoSpatialLayerError) as excinfo:
-            att.attribute(TinyViT(wiring=wiring), image, "chefer", target=1)
-        assert said in str(excinfo.value)
-
     def test_a_single_head_block_returning_3d_weights_is_read(self, image):
         """A hand-rolled block whose (B, L, S) weights ARE the ones used."""
         result = att.attribute(TinyViT(wiring="single_head"), image,
@@ -302,15 +268,6 @@ class TestChefer:
         assert result.map.shape == (IMG, IMG)
         assert not result.is_flat()
         assert _in_corner_patch(result.map)
-
-    def test_tokens_that_are_not_a_grid_are_refused(self):
-        """An 8x12 image in 4x4 patches is six tokens: no square grid."""
-        wide = np.zeros((3, 8, 12), dtype="float32")
-        wide[0, :4, :4] = 1.0
-        with pytest.raises(att.NoSpatialLayerError) as excinfo:
-            att.attribute(TinyViT(cls_token=False), wide, "chefer", target=1)
-        assert "do not form a square patch grid" in str(excinfo.value)
-
 
 class MaxVitBlock(nn.Module):
     def __init__(self):
@@ -416,3 +373,45 @@ class TestTheChecksAroundTheMethods:
         assert float(layer.weight.abs().max()) < 0.5
         assert float(layer.bias) != 2.0
         assert abs(float(layer.bias)) < 0.5
+
+
+def _wide_image():
+    """An 8x12 image in 4x4 patches is six tokens: no square grid."""
+    wide = np.zeros((3, 8, 12), dtype="float32")
+    wide[0, :4, :4] = 1.0
+    return wide
+
+
+@pytest.mark.parametrize("error, model, method, kwargs, blocked, wide, said", [
+    pytest.param(att.AttributionError, FrozenFeatures, "hirescam",
+                 {"layer": "conv"}, (), False, "received no gradient",
+                 id="frozen_extractor_has_no_gradient_to_weight"),
+    pytest.param(att.AttributionError, CornerCNN, "gradient_shap", {},
+                 ("captum.attr",), False, "pip install captum",
+                 id="without_captum_says_what_to_install"),
+    # torch averages the heads AFTER using them, so the averaged copy is not
+    # on the gradient path and has no gradient to weight.
+    pytest.param(att.NoSpatialLayerError,
+                 lambda: TinyViT(wiring="averaged"), "chefer", {}, (), False,
+                 "not on the gradient path",
+                 id="weights_averaged_before_they_are_returned"),
+    pytest.param(att.NoSpatialLayerError,
+                 lambda: TinyViT(wiring="cross"), "chefer", {}, (), False,
+                 "non-square", id="cross_attention"),
+    pytest.param(att.NoSpatialLayerError,
+                 lambda: TinyViT(wiring="no_weights"), "chefer", {}, (), False,
+                 "not on the gradient path",
+                 id="weights_the_caller_turned_off"),
+    pytest.param(att.NoSpatialLayerError,
+                 lambda: TinyViT(cls_token=False), "chefer", {}, (), True,
+                 "do not form a square patch grid",
+                 id="tokens_that_are_not_a_grid"),
+])
+def test_an_explanation_that_cannot_be_made_is_refused_with_the_reason(
+        image, monkeypatch, error, model, method, kwargs, blocked, wide, said):
+    for name in blocked:
+        monkeypatch.setitem(sys.modules, name, None)
+    with pytest.raises(error) as excinfo:
+        att.attribute(model(), _wide_image() if wide else image, method,
+                      target=1, **kwargs)
+    assert said in str(excinfo.value)

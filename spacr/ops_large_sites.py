@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import glob
 import json
+import logging
 import os
 import time
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
@@ -71,6 +72,9 @@ LARGE_SITE_DEFAULTS: Dict[str, Any] = {
     "seg_nucleus_diameter_range": [10.0, 80.0],
     "seg_diameter_sites": 9,
     "seg_diameter_min_objects": 50,
+    "seg_cells_from_nucleus_seeds": False,
+    "seg_mask_vram_gb": 6.0,
+    "seg_mask_device": "auto",
 }
 
 #: What ``seg_preset='cell_painting_phalloidin'`` sets, after PERISCOPE's
@@ -122,6 +126,59 @@ FLOW_MARGIN_PX = NET_TILE_PX - 8
 SITE_FLOW_BYTES_PER_PIXEL = 3 * 4 + 330
 
 
+#: Where ``seg_mask_device`` may put Cellpose's whole-site mask step (item 945).
+MASK_DEVICES = ("auto", "gpu", "cpu")
+
+#: The GPU governor's call-site name for the whole-site mask step.
+MASK_STEP_SITE = "ops_large_sites_mask_step"
+
+#: Card bytes of the mask step's flow following and seed finding
+#: (``cellpose.dynamics.compute_masks`` without the flow check): per site
+#: pixel the flow field, the seed histogram and its maximum, the label grid;
+#: per cell pixel (cell probability above 0) the positions, the sampled flows
+#: and the final positions. Estimates from Cellpose 4's arrays, rounded up.
+MASK_DYNAMICS_BYTES_PER_PIXEL = 32
+MASK_DYNAMICS_BYTES_PER_CELL_PIXEL = 64
+
+#: Card bytes of Cellpose's flow check (``flow_error`` through
+#: ``masks_to_flows_gpu``): per pixel of the checked region the padded label
+#: image and the diffusion map; per mask pixel the 9-neighbour index tables,
+#: the neighbour flags and the gathered values. The whole-site step measured
+#: 342 bytes per cell pixel in all on CP186A Well1 site 76; the flow check is
+#: most of it.
+FLOW_CHECK_BYTES_PER_PIXEL = 24
+FLOW_CHECK_BYTES_PER_MASK_PIXEL = 320
+
+#: Cellpose's ``_extend_centers_gpu`` diffuses in float32 above this many
+#: padded pixels and in float64 below; a checked band of a site above it is
+#: padded with empty rows past it, so its masks diffuse in the same precision.
+CELLPOSE_FLOAT32_PIXELS = 4e7
+
+_LOG = logging.getLogger("spacr.ops_large_sites")
+
+#: Tooltips of the item 945 settings (the other item 921 keys have none yet).
+LARGE_SITE_TOOLTIPS: Dict[str, str] = {
+    "seg_mask_vram_gb":
+        "(float) - The most GPU memory, in GB, the job may hold while "
+        "Cellpose's whole-site mask step runs; what it already holds, such as "
+        "the models, counts. A site that needs more has its flow check run in "
+        "row bands that fit; a step that cannot fit, or that runs out of GPU "
+        "memory, runs on the CPU, and sites.csv says so. 0 sets no cap of its "
+        "own (the GPU governor's free-memory budget and gpu_memory_fraction "
+        "still apply). Default 6. Alpha.",
+    "seg_mask_device":
+        "(str) - Where the whole-site mask step runs when the models are on a "
+        "GPU: 'auto' sizes it to seg_mask_vram_gb, 'gpu' runs it whole on the "
+        "card as before (falling back to the CPU only on an out-of-memory "
+        "error), 'cpu' always on the CPU. Default 'auto'. Alpha.",
+}
+
+#: Settings-panel headings of the item 945 settings.
+LARGE_SITE_CATEGORIES: Dict[str, List[str]] = {
+    "Mask step GPU memory": ["seg_mask_device", "seg_mask_vram_gb"],
+}
+
+
 class MemoryPlanError(ValueError):
     """The per-worker RAM cap cannot be met for this site."""
 
@@ -134,7 +191,8 @@ def large_site_settings(settings: Optional[Mapping[str, Any]] = None) -> Dict[st
 
     :param settings: the caller's settings.
     :returns: a new dict.
-    :raises ValueError: for an unknown preset or edge policy.
+    :raises ValueError: for an unknown preset, edge policy or mask device, or
+        a negative ``seg_mask_vram_gb``.
     """
     given = dict(settings or {})
     out = dict(LARGE_SITE_DEFAULTS)
@@ -147,6 +205,11 @@ def large_site_settings(settings: Optional[Mapping[str, Any]] = None) -> Dict[st
     if out["seg_edge_policy"] not in EDGE_POLICIES:
         raise ValueError(f"seg_edge_policy must be one of {list(EDGE_POLICIES)}; "
                          f"got {out['seg_edge_policy']!r}")
+    if out["seg_mask_device"] not in MASK_DEVICES:
+        raise ValueError(f"seg_mask_device must be one of {list(MASK_DEVICES)}; "
+                         f"got {out['seg_mask_device']!r}")
+    if float(out["seg_mask_vram_gb"] or 0) < 0:
+        raise ValueError(f"seg_mask_vram_gb must be 0 or more; got {out['seg_mask_vram_gb']!r}")
     return out
 
 
@@ -923,21 +986,393 @@ def _eval_flows(model: Any, image: np.ndarray, settings: Mapping[str, Any],
     return np.asarray(out[1][1], np.float32), np.asarray(out[1][2], np.float32)
 
 
-def _cellpose_masks(model: Any, flows: np.ndarray, cellprob: np.ndarray) -> np.ndarray:
-    """Cellpose's mask step on a whole image's flows, with ``eval``'s defaults
-    for an image that is not resized."""
-    import torch
+def _mask_setting(settings: Optional[Mapping[str, Any]], key: str) -> Any:
+    """One item 945 setting, its default when unset or ``None``."""
+    value = (settings or {}).get(key)
+    return LARGE_SITE_DEFAULTS[key] if value is None else value
+
+
+def mask_step_bytes(shape: Tuple[int, int], cell_pixels: int) -> Dict[str, int]:
+    """Estimated card bytes of Cellpose's mask step on one whole image.
+
+    :param shape: the image's ``(height, width)``.
+    :param cell_pixels: pixels with cell probability above 0.
+    :returns: ``dynamics`` (flow following and seed finding), ``flow_check``
+        (the flow check of every mask at once) and ``whole`` (the larger of
+        the two, since the first is freed before the second runs).
+    """
+    height, width = int(shape[0]), int(shape[1])
+    dynamics = (height * width * MASK_DYNAMICS_BYTES_PER_PIXEL
+                + int(cell_pixels) * MASK_DYNAMICS_BYTES_PER_CELL_PIXEL)
+    check = _flow_check_bytes(height, width, int(cell_pixels))
+    return {"dynamics": int(dynamics), "flow_check": int(check),
+            "whole": int(max(dynamics, check))}
+
+
+def _flow_check_bytes(rows: int, width: int, mask_pixels: int) -> int:
+    """Estimated card bytes of Cellpose's flow check on a band of ``rows`` x
+    ``width`` pixels holding ``mask_pixels`` mask pixels."""
+    return int((int(rows) + 2) * (int(width) + 2) * FLOW_CHECK_BYTES_PER_PIXEL
+               + int(mask_pixels) * FLOW_CHECK_BYTES_PER_MASK_PIXEL)
+
+
+def _float32_rows(shape: Tuple[int, int]) -> int:
+    """The fewest rows a checked band needs to diffuse in the precision of the
+    whole image: 0 when the whole image diffuses in float64, else enough rows
+    to put the padded band above :data:`CELLPOSE_FLOAT32_PIXELS` too."""
+    height, width = int(shape[0]), int(shape[1])
+    if (height + 2) * (width + 2) <= CELLPOSE_FLOAT32_PIXELS:
+        return 0
+    return int(CELLPOSE_FLOAT32_PIXELS // (width + 2)) - 1
+
+
+def _touching(masks: np.ndarray) -> Dict[int, set]:
+    """The labels each mask touches side by side (4-connected)."""
+    pairs = []
+    for one, two in ((masks[:-1, :], masks[1:, :]), (masks[:, :-1], masks[:, 1:])):
+        where = (one != two) & (one > 0) & (two > 0)
+        pairs.append(np.stack([one[where], two[where]], axis=1))
+    found: Dict[int, set] = {}
+    for one, two in np.unique(np.concatenate(pairs).astype(np.int64), axis=0):
+        found.setdefault(int(one), set()).add(int(two))
+        found.setdefault(int(two), set()).add(int(one))
+    return found
+
+
+def flow_check_bands(masks: np.ndarray, budget_bytes: float
+                     ) -> List[Tuple[int, int, np.ndarray, np.ndarray]]:
+    """Full-width row bands of masks whose flow check fits ``budget_bytes``.
+
+    Cellpose's flow of a mask's edge pixel reads the diffusion of the masks
+    it touches, so a band holds its own masks and, as context, every mask
+    they touch, each wholly inside the band's rows. Masks are taken in order
+    of their top row and added to a band while its estimate
+    (:data:`FLOW_CHECK_BYTES_PER_PIXEL` per band pixel and
+    :data:`FLOW_CHECK_BYTES_PER_MASK_PIXEL` per pixel of its masks and
+    context; a band of a site above :data:`CELLPOSE_FLOAT32_PIXELS` counts
+    the padding rows it gets) fits; a mask that does not
+    fit an empty band gets a band of its own. Every mask is checked in
+    exactly one band.
+
+    :param masks: a label image with consecutive labels ``1..n``.
+    :param budget_bytes: card bytes one band may take.
+    :returns: ``(y0, y1, labels, context)`` per band, both ascending.
+    """
+    from scipy.ndimage import find_objects
+
+    masks = np.asarray(masks)
+    slices = find_objects(masks)
+    areas = np.bincount(masks.ravel())
+    touching = _touching(masks)
+    width = int(masks.shape[1])
+    least = _float32_rows(masks.shape)
+    order = sorted((s[0].start, label + 1) for label, s in enumerate(slices) if s is not None)
+
+    def extent(members: set) -> Tuple[int, int, int]:
+        """Top row, bottom row and pixels of a set of masks."""
+        return (min(slices[m - 1][0].start for m in members),
+                max(slices[m - 1][0].stop for m in members),
+                int(sum(int(areas[m]) for m in members)))
+
+    def close(core: List[int], held: set) -> Tuple[int, int, np.ndarray, np.ndarray]:
+        """One finished band."""
+        top, bottom, _ = extent(held)
+        return (top, bottom, np.array(sorted(core), np.int64),
+                np.array(sorted(held - set(core)), np.int64))
+
+    bands: List[Tuple[int, int, np.ndarray, np.ndarray]] = []
+    core: List[int] = []
+    held: set = set()
+    for _, label in order:
+        grown = held | {label} | touching.get(label, set())
+        top, bottom, pixels = extent(grown)
+        cost = _flow_check_bytes(max(bottom - top, least), width, pixels)
+        if core and cost > budget_bytes:
+            bands.append(close(core, held))
+            core, grown = [], {label} | touching.get(label, set())
+        core.append(label)
+        held = grown
+    if core:
+        bands.append(close(core, held))
+    return bands
+
+
+def _band_bytes(masks: np.ndarray, band: Tuple[int, int, np.ndarray, np.ndarray]) -> int:
+    """Estimated card bytes of one band of :func:`flow_check_bands`."""
+    held = np.concatenate([band[2], band[3]])
+    pixels = int(np.bincount(masks.ravel(), minlength=int(held.max()) + 1)[held].sum())
+    return _flow_check_bytes(max(band[1] - band[0], _float32_rows(masks.shape)),
+                            masks.shape[1], pixels)
+
+
+def _whole_mask_step(flows: np.ndarray, cellprob: np.ndarray, device: Any) -> np.ndarray:
+    """Cellpose's mask step on a whole image's flows on ``device``, with
+    ``eval``'s defaults for an image that is not resized: item 921's call."""
     from cellpose.dynamics import resize_and_compute_masks
 
-    device = getattr(model, "device", None) or torch.device("cpu")
-    return np.asarray(resize_and_compute_masks(
+    return resize_and_compute_masks(
         flows, cellprob, niter=200, cellprob_threshold=0.0, flow_threshold=0.4, do_3D=False,
-        min_size=15, max_size_fraction=0.4, resize=None, device=device), np.int32)
+        min_size=15, max_size_fraction=0.4, resize=None, device=device)
+
+
+def _mask_dynamics(flows: np.ndarray, cellprob: np.ndarray, device: Any) -> np.ndarray:
+    """The mask step without its flow check: Cellpose's ``compute_masks``
+    with ``flow_threshold=0``, everything else as :func:`_whole_mask_step`."""
+    from cellpose.dynamics import compute_masks
+
+    return compute_masks(flows, cellprob, niter=200, cellprob_threshold=0.0,
+                         flow_threshold=0.0, do_3D=False, max_size_fraction=0.4,
+                         device=device)
+
+
+def _band_flow_errors(masks: np.ndarray, flows: np.ndarray,
+                      band: Tuple[int, int, np.ndarray, np.ndarray],
+                      niter: int, rows: int, device: Any) -> np.ndarray:
+    """Cellpose's flow error (``cellpose.dynamics.flow_error``) of the masks
+    of one band, in the order of the band's labels.
+
+    The band holds its masks and their context (the masks they touch),
+    relabelled ``1..k`` in label order, and is padded with empty rows to at
+    least ``rows``. Each mask's diffusion reads only its own pixels, an edge
+    pixel's flow reads only the masks it touches, a centre comes from the
+    mask's own bounding box and ``niter`` is the whole image's, so every
+    error equals the whole-image flow check's up to PyTorch's summation
+    order (measured: at most one unit in the last place, 1.2e-16 relative),
+    which changes a label only for a mask whose error lies that close to the
+    0.4 threshold.
+    """
+    from cellpose.dynamics import masks_to_flows_gpu
+
+    y0, y1, labels, context = band
+    held = np.concatenate([labels, context])
+    held.sort()
+    lut = np.zeros(int(masks.max()) + 1, np.int32)
+    lut[held] = np.arange(1, len(held) + 1, dtype=np.int32)
+    part = np.zeros((max(y1 - y0, int(rows)), masks.shape[1]), np.int32)
+    part[:y1 - y0] = lut[masks[y0:y1]]
+    flow, slices = masks_to_flows_gpu(part, device=device, niter=int(niter))
+    error = ((flow[:, :y1 - y0] - flows[:, y0:y1] / 5.) ** 2).sum(axis=0)
+    return np.array([error[slices[j - 1][0], slices[j - 1][1]][
+        part[slices[j - 1][0], slices[j - 1][1]] == j].mean() for j in lut[labels]])
+
+
+def _mask_step_budget(device: Any, settings: Mapping[str, Any]) -> Optional[float]:
+    """Card bytes the mask step may allocate: the GPU governor's budget (free
+    memory less its margin and other spaCR jobs' claims, under
+    ``gpu_memory_fraction``), and no more than ``seg_mask_vram_gb`` less what
+    this job already holds. ``None`` when the card cannot be read."""
+    from . import _gpu_governor as governor
+
+    index = governor._device_index(device)
+    if index is None:
+        return None
+    config = governor._config(settings)
+    governor._release()
+    budget = governor._controller(MASK_STEP_SITE, device)._budget(index, config)
+    cap = float(_mask_setting(settings, "seg_mask_vram_gb") or 0)
+    if cap > 0:
+        capped = cap * 2 ** 30 - governor._held(index)
+        budget = capped if budget is None else min(budget, capped)
+    return None if budget is None else max(0.0, float(budget))
+
+
+def _banded_flow_check(masks: np.ndarray, flows: np.ndarray, device: Any, budget: float,
+                       settings: Mapping[str, Any]) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """Cellpose's flow check (``remove_bad_flow_masks``, threshold 0.4) run
+    band by band (:func:`flow_check_bands`) under the GPU governor.
+
+    A band whose estimate exceeds ``budget`` runs on the CPU; a band that
+    runs out of card memory is retried by the governor and then run on the
+    CPU, and so are the bands after it.
+
+    :returns: the checked masks and ``bands``, ``devices`` and ``reasons``.
+    """
+    import fastremap
+    import torch
+    from scipy.ndimage import find_objects
+
+    from . import _gpu_governor as governor
+
+    info: Dict[str, Any] = {"bands": 0, "devices": set(), "reasons": set()}
+    if masks.max() == 0:
+        return masks, info
+    cpu = torch.device("cpu")
+    slices = find_objects(masks)
+    niter = 2 * max((s[0].stop - s[0].start) + (s[1].stop - s[1].start) + 2
+                    for s in slices if s is not None)
+    rows = _float32_rows(masks.shape)
+    errors = np.zeros(len(slices))
+    on_card = True
+    bands = flow_check_bands(masks, budget)
+    info["bands"] = len(bands)
+    for band in bands:
+        need = _band_bytes(masks, band)
+        if on_card and need <= budget:
+            fell: List[bool] = []
+
+            def on_cpu(band=band, fell=fell):
+                """The band on the CPU, noted as a fallback."""
+                fell.append(True)
+                return _band_flow_errors(masks, flows, band, niter, rows, cpu)
+
+            found = governor._guarded(
+                lambda band=band: _band_flow_errors(masks, flows, band, niter, rows, device),
+                on_cpu, site=MASK_STEP_SITE, device=device, settings=settings)
+            if fell:
+                on_card = False
+                info["reasons"].add("oom")
+            info["devices"].add("cpu" if fell else "gpu")
+        else:
+            found = _band_flow_errors(masks, flows, band, niter, rows, cpu)
+            info["devices"].add("cpu")
+            info["reasons"].add("cap" if on_card else "oom")
+        errors[band[2] - 1] = found
+    bad = 1 + (errors > 0.4).nonzero()[0]
+    fastremap.mask(masks, bad, in_place=True)
+    fastremap.renumber(masks, in_place=True)
+    return masks, info
+
+
+def _governed_mask_step(flows: np.ndarray, cellprob: np.ndarray, device: Any,
+                        settings: Mapping[str, Any]) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """The whole-site mask step for models on a CUDA card (item 945).
+
+    ``seg_mask_device='cpu'`` runs it on the CPU. ``'gpu'``, or ``'auto'``
+    when the estimate (:func:`mask_step_bytes`) fits the budget
+    (:func:`_mask_step_budget`), runs item 921's call whole on the card
+    through the GPU governor, so an out-of-memory error is retried and then
+    run on the CPU instead of stopping the run. Otherwise the flow following
+    runs on the card when it fits (else on the CPU) and the flow check in
+    bands (:func:`_banded_flow_check`); the labels equal the whole step's on
+    the same device (see :func:`_band_flow_errors` for the one exception),
+    and differ between card and CPU only by their float order (item 921's
+    tolerance: every object at IoU >= 0.9).
+
+    :returns: the labels and a note: ``device`` (``'gpu'``, ``'gpu_banded'``,
+        ``'cpu'`` or ``'mixed'``), ``reason`` (``'fits'``, ``'setting'``,
+        ``'cap'``, ``'oom'``, joined by ``;`` when several), ``estimate_gb``,
+        ``budget_gb`` and ``bands``.
+    """
+    import torch
+    from cellpose.utils import fill_holes_and_remove_small_masks
+
+    from . import _gpu_governor as governor
+
+    cpu = torch.device("cpu")
+    mode = _mask_setting(settings, "seg_mask_device")
+    need = mask_step_bytes(np.shape(cellprob), int(np.count_nonzero(np.asarray(cellprob) > 0)))
+    note: Dict[str, Any] = {"device": "cpu", "reason": "setting",
+                            "estimate_gb": round(need["whole"] / 2 ** 30, 3),
+                            "budget_gb": None, "bands": 0}
+    if mode == "cpu":
+        return _whole_mask_step(flows, cellprob, cpu), note
+    budget = None if mode == "gpu" else _mask_step_budget(device, settings)
+    note["budget_gb"] = None if budget is None else round(budget / 2 ** 30, 3)
+    fell: List[bool] = []
+
+    def fallback(step):
+        """``step`` on the CPU, noted as a fallback."""
+        def run():
+            """Run the step on the CPU."""
+            fell.append(True)
+            return step(flows, cellprob, cpu)
+        return run
+
+    if budget is None or need["whole"] <= budget:
+        labels = governor._guarded(lambda: _whole_mask_step(flows, cellprob, device),
+                                   fallback(_whole_mask_step), site=MASK_STEP_SITE,
+                                   device=device, settings=settings)
+        note.update(device="cpu" if fell else "gpu",
+                    reason="oom" if fell else ("setting" if mode == "gpu" else "fits"))
+        return labels, note
+    reasons = set()
+    if need["dynamics"] <= budget:
+        masks = governor._guarded(lambda: _mask_dynamics(flows, cellprob, device),
+                                  fallback(_mask_dynamics), site=MASK_STEP_SITE,
+                                  device=device, settings=settings)
+        devices = {"cpu" if fell else "gpu"}
+        if fell:
+            reasons.add("oom")
+    else:
+        masks = _mask_dynamics(flows, cellprob, cpu)
+        devices, reasons = {"cpu"}, {"cap"}
+    masks, checked = _banded_flow_check(masks, flows, device, budget, settings)
+    devices |= checked["devices"]
+    reasons |= checked["reasons"]
+    if masks.dtype == np.uint32 and masks.max() < 2 ** 16:
+        masks = masks.astype(np.uint16)
+    labels = fill_holes_and_remove_small_masks(masks, min_size=15)
+    note.update(device=("gpu_banded" if devices == {"gpu"} else "cpu" if devices == {"cpu"}
+                        else "mixed"),
+                reason=";".join(sorted(reasons)) or "fits", bands=checked["bands"])
+    return labels, note
+
+
+def _cellpose_masks(model: Any, flows: np.ndarray, cellprob: np.ndarray, *,
+                    settings: Optional[Mapping[str, Any]] = None,
+                    record: Optional[List[Dict[str, Any]]] = None,
+                    label: str = "") -> np.ndarray:
+    """Cellpose's mask step on a whole image's flows, with ``eval``'s defaults
+    for an image that is not resized.
+
+    On a model off CUDA this is item 921's call on the model's device,
+    unchanged. On a CUDA card it is sized to ``seg_mask_vram_gb`` and run
+    through the GPU governor (:func:`_governed_mask_step`); a step that does
+    not fit, or runs out of card memory, runs on the CPU and is logged.
+
+    :param model: the Cellpose model whose device the step runs on.
+    :param flows: ``(2, H, W)`` network flows.
+    :param cellprob: ``(H, W)`` cell probability.
+    :param settings: read for ``seg_mask_device``, ``seg_mask_vram_gb`` and
+        the GPU governor keys.
+    :param record: a list the step's note is appended to (``objects``,
+        ``device``, ``reason``, ``estimate_gb``, ``budget_gb``, ``bands``).
+    :param label: what the masks are, for the note and the log.
+    :returns: int32 labels.
+    """
+    import torch
+
+    device = getattr(model, "device", None) or torch.device("cpu")
+    if getattr(device, "type", str(device).partition(":")[0]) != "cuda":
+        labels = _whole_mask_step(flows, cellprob, device)
+        note: Dict[str, Any] = {"device": "cpu", "reason": "model_on_cpu", "estimate_gb": None,
+                                "budget_gb": None, "bands": 0}
+    else:
+        labels, note = _governed_mask_step(flows, cellprob, device, settings or {})
+    note = dict(note, objects=label)
+    if note["reason"] not in ("fits", "setting", "model_on_cpu"):
+        _LOG.warning("[gpu] %s: the %s mask step ran on %s (%s; estimate %s GB, budget %s GB, "
+                     "seg_mask_vram_gb=%s)", MASK_STEP_SITE, label or "whole-site",
+                     note["device"], note["reason"], note["estimate_gb"], note["budget_gb"],
+                     _mask_setting(settings, "seg_mask_vram_gb"))
+    if record is not None:
+        record.append(note)
+    return np.asarray(labels, np.int32)
+
+
+def summarise_mask_steps(notes: Sequence[Mapping[str, Any]]) -> Dict[str, Any]:
+    """One site's mask-step notes as the ``sites.csv`` columns.
+
+    :param notes: what :func:`_cellpose_masks` recorded for the site.
+    :returns: ``mask_step_device`` (the one device, ``'mixed'``, or
+        ``'in_eval'`` when no stitched mask step ran because the site fitted
+        one tile and Cellpose's ``eval`` made the masks under the governor),
+        ``mask_step_reason`` and ``mask_step_bands``.
+    """
+    if not notes:
+        return {"mask_step_device": "in_eval", "mask_step_reason": "",
+                "mask_step_bands": 0}
+    devices = {str(n["device"]) for n in notes}
+    reasons = sorted({part for n in notes for part in str(n["reason"]).split(";") if part})
+    return {"mask_step_device": devices.pop() if len(devices) == 1 else "mixed",
+            "mask_step_reason": ";".join(reasons),
+            "mask_step_bands": int(sum(int(n.get("bands") or 0) for n in notes))}
 
 
 def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                                settings: Mapping[str, Any], models: Tuple[Any, Any], *,
-                               nucleus_diameter: Optional[float] = None
+                               nucleus_diameter: Optional[float] = None,
+                               mask_log: Optional[List[Dict[str, Any]]] = None
                                ) -> Tuple[np.ndarray, np.ndarray, Dict[str, int]]:
     """Nuclei and cells of one site with the ``cell_painting_phalloidin`` preset.
 
@@ -958,6 +1393,8 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
         ``eval``.
     :param nucleus_diameter: the plate's nucleus diameter; ``None`` uses
         ``nucleus_diameter`` from the settings, or no diameter.
+    :param mask_log: a list each whole-site mask step's note is appended to
+        (see :func:`_cellpose_masks`).
     :returns: ``(nuclei, cells, counts)`` with nucleus ``k`` inside cell ``k``.
     :raises ValueError: when a preset channel is not in ``channel_names``.
     """
@@ -977,15 +1414,104 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
     nuclei = segment_tiled(dna, lambda x: _eval_labels(nucleus_model, x, settings, diameter),
                            tile_px=tile, overlap_px=overlap, iou=iou, align=not diameter,
                            flows=lambda x: _eval_flows(nucleus_model, x, settings),
-                           masks=lambda f, p: _cellpose_masks(nucleus_model, f, p))
+                           masks=lambda f, p: _cellpose_masks(nucleus_model, f, p,
+                                                              settings=settings, record=mask_log,
+                                                              label="nuclei"))
     body = normalize_site(np.stack([stack[..., names.index(c)] for c in settings["cell_channels"]],
                                    axis=-1))
+    if settings.get("seg_cells_from_nucleus_seeds"):
+        cellprob = _site_cellprob(body, lambda x: _eval_flows(cell_model, x, settings,
+                                                              channel_axis=-1),
+                                  tile_px=tile, overlap_px=overlap)
+        del body
+        return pair_nuclei_with_cells(nuclei, cells_from_nucleus_seeds(nuclei, cellprob))
     cells = segment_tiled(body, lambda x: _eval_labels(cell_model, x, settings, None,
                                                        channel_axis=-1),
                           tile_px=tile, overlap_px=overlap, iou=iou, align=True,
                           flows=lambda x: _eval_flows(cell_model, x, settings, channel_axis=-1),
-                          masks=lambda f, p: _cellpose_masks(cell_model, f, p))
+                          masks=lambda f, p: _cellpose_masks(cell_model, f, p, settings=settings,
+                                                             record=mask_log, label="cells"))
     return pair_nuclei_with_cells(nuclei, cells)
+
+
+def cells_from_nucleus_seeds(nuclei: np.ndarray, cellprob: np.ndarray, *,
+                             cellprob_threshold: float = 0.0) -> np.ndarray:
+    """Grow one cell from every nucleus inside the cell network's foreground.
+
+    The cell model can merge two touching cells into one mask. Pairing then
+    keeps one nucleus of the merged cell and drops the other, so both cells
+    and nuclei are undercounted. Here every nucleus seeds its own cell
+    instead. The foreground is every pixel whose cell probability is above
+    ``cellprob_threshold``, together with the nuclei themselves. A seeded
+    watershed divides it. The watershed floods the foreground outward from
+    the nuclei, in order of the distance to the nearest nucleus. A pixel
+    therefore goes to the nearest nucleus that it is connected to through
+    the foreground. The boundary between two touching cells runs halfway
+    between their nuclei, as with CellProfiler's distance method. It does
+    not follow the cell model's own boundaries.
+
+    The result does not depend on how the site was tiled, provided the
+    nuclei and the cell probability cover the whole site. Foreground that no
+    nucleus can reach stays 0.
+
+    :param nuclei: a 2-D nucleus label image of the whole site.
+    :param cellprob: the cell model's probability map (logits) of the same
+        shape, as Cellpose returns it.
+    :param cellprob_threshold: pixels above this value are foreground; 0
+        matches the threshold of Cellpose's own mask step.
+    :returns: an int32 cell label image in which cell ``k`` holds nucleus
+        ``k`` whole.
+    :raises ValueError: when the two images differ in shape or are not 2-D.
+    """
+    from scipy import ndimage
+    from skimage.segmentation import watershed
+
+    nuclei, cellprob = np.asarray(nuclei), np.asarray(cellprob)
+    if nuclei.ndim != 2 or nuclei.shape != cellprob.shape:
+        raise ValueError(f"nuclei {nuclei.shape} and cellprob {cellprob.shape} must be "
+                         "2-D images of one shape")
+    foreground = (cellprob > cellprob_threshold) | (nuclei > 0)
+    distance = ndimage.distance_transform_edt(nuclei == 0)
+    return watershed(distance, nuclei, mask=foreground).astype(np.int32)
+
+
+def _site_cellprob(image: np.ndarray,
+                   flows: Callable[[np.ndarray], Tuple[np.ndarray, np.ndarray]], *,
+                   tile_px: int, overlap_px: int) -> np.ndarray:
+    """The network's cell probability for a whole site, from tiles on
+    Cellpose's network grid with stitched outputs, as :func:`segment_tiled`
+    places them; a site within one tile runs untiled. When no tile of
+    ``tile_px`` fits the network grid with that overlap, the tiles of
+    :func:`tile_grid` are stitched the same way."""
+    shape = tuple(int(v) for v in np.shape(image)[:2])
+    overlap = _flow_overlap(tile_px, overlap_px, True, flows, True) or int(overlap_px)
+    layout = tiling_layout(shape, tile_px, overlap, True)
+    if len(layout["boxes"]) == 1:
+        return np.asarray(flows(image)[1], np.float32)
+    padded = layout["padded"]
+    if padded != shape:
+        image = np.pad(image, [(0, padded[0] - shape[0]), (0, padded[1] - shape[1])]
+                       + [(0, 0)] * (np.ndim(image) - 2))
+    _, cellprob = stitch_tile_flows(
+        [((y0, y1, x0, x1),) + tuple(flows(image[y0:y1, x0:x1]))
+         for y0, y1, x0, x1 in layout["boxes"]], padded)
+    return np.ascontiguousarray(cellprob[:shape[0], :shape[1]])
+
+
+def _edge_step(nuclei: np.ndarray, cells: np.ndarray, settings: Mapping[str, Any]
+               ) -> Tuple[np.ndarray, np.ndarray, Dict[str, int]]:
+    """The crop-edge policy on one site's paired labels.
+
+    Cells follow ``seg_edge_policy``. A nucleus is kept with its cell, or,
+    with ``seg_cells_from_nucleus_seeds``, by the same policy applied to the
+    nucleus itself, so that it is dropped only when it touches the border.
+    """
+    cells_kept, edge = apply_edge_policy(cells, settings["seg_edge_policy"])
+    if settings.get("seg_cells_from_nucleus_seeds"):
+        nuclei_kept, _ = apply_edge_policy(nuclei, settings["seg_edge_policy"])
+    else:
+        nuclei_kept = np.where(np.isin(nuclei, np.unique(cells_kept)), nuclei, 0)
+    return nuclei_kept, cells_kept, edge
 
 
 def mask_agreement(labels: np.ndarray, reference: np.ndarray, *, iou: float = 0.5,
@@ -1090,7 +1616,10 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     ``labels/<site>_cells.npy``, ``tables/<site>_cells.parquet`` (one row per
     cell, measured by :func:`measure_chunked`), ``sites.csv`` (per site: objects,
     edge counts, the agreement with ``seg_report_reference`` when given, peak
-    memory and seconds), ``agreement_well.csv``, ``settings.json``,
+    memory, seconds and where the whole-site mask step ran:
+    :func:`summarise_mask_steps`), ``mask_step.json`` (every mask step's
+    note, per site and for the survey and the control), ``agreement_well.csv``,
+    ``settings.json``,
     ``nucleus_diameter.json`` (the diameter, whether it was fixed or
     estimated, and the survey it came from) and, with
     ``seg_tiling_control_px``, ``tiling_control.json`` (:func:`tiling_control`
@@ -1106,8 +1635,9 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     :param models: ``(nucleus_model, cell_model)``; built by
         :func:`preset_models` when ``None``, on the card when ``seg_gpu``.
     :param available_bytes: passed to :func:`plan_site_memory`.
-    :returns: ``plan``, ``sites`` (the site table as records), ``dst`` and
-        ``nucleus_diameter`` (what ``nucleus_diameter.json`` holds).
+    :returns: ``plan``, ``sites`` (the site table as records), ``dst``,
+        ``nucleus_diameter`` (what ``nucleus_diameter.json`` holds) and
+        ``mask_steps`` (what ``mask_step.json`` holds).
     :raises ValueError: when ``seg_sites_src`` or ``seg_dst`` is missing, or
         when no sampled site holds enough nuclei to estimate the diameter.
     :raises MemoryPlanError: when the RAM cap cannot be met.
@@ -1134,6 +1664,9 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     control_px = int(settings.get("seg_tiling_control_px") or 0)
     estimate = not diameter and bool(settings.get("seg_preset"))
     survey: Dict[str, Any] = {}
+    survey_steps: List[Dict[str, Any]] = []
+    control_steps: List[Dict[str, Any]] = []
+    site_steps: Dict[str, List[Dict[str, Any]]] = {}
     if estimate or control_px:
         sampled = sample_sites(sites, int(settings.get("seg_diameter_sites") or 1))
         found = {}
@@ -1150,7 +1683,8 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                 tile_px=plan["tile_px"], overlap_px=int(local["seg_tile_overlap_px"]),
                 iou=float(local["seg_stitch_iou"]), align=True,
                 flows=lambda x: _eval_flows(models[0], x, local),
-                masks=lambda f, p: _cellpose_masks(models[0], f, p))
+                masks=lambda f, p: _cellpose_masks(models[0], f, p, settings=local,
+                                                   record=survey_steps, label="nuclei"))
             del stack, dna
         survey = survey_sites(sampled, found,
                               tuple(settings.get("seg_nucleus_diameter_range") or (10.0, 80.0)),
@@ -1189,15 +1723,17 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                     tile_px=control_tile, overlap_px=overlap,
                     iou=float(local["seg_stitch_iou"]), align=True,
                     flows=lambda x: _eval_flows(models[1], x, local, channel_axis=-1),
-                    masks=lambda f, p: _cellpose_masks(models[1], f, p))
+                    masks=lambda f, p: _cellpose_masks(models[1], f, p, settings=local,
+                                                       record=control_steps, label="cells"))
                 control.update({"site": site, "region_px": side, "origin": [y0, x0],
                                 "site_nuclei": survey["objects_per_site"][site]})
                 with open(os.path.join(dst, "tiling_control.json"), "w", encoding="utf-8") as handle:
                     json.dump(control, handle, indent=2, sort_keys=True)
+            steps = site_steps.setdefault(site, [])
             nuclei, cells, paired = segment_cell_painting_site(stack, channels, local, models,
-                                                               nucleus_diameter=diameter)
-            cells_kept, edge = apply_edge_policy(cells, local["seg_edge_policy"])
-            nuclei_kept = np.where(np.isin(nuclei, np.unique(cells_kept)), nuclei, 0)
+                                                               nucleus_diameter=diameter,
+                                                               mask_log=steps)
+            nuclei_kept, cells_kept, edge = _edge_step(nuclei, cells, local)
             table = measure_chunked(cells_kept, stack, band_px=int(local["seg_measure_band_px"]),
                                     channel_names=channels)
             sampler.sample_once()
@@ -1212,6 +1748,7 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                                                                   if estimate else []),
                                "seconds": round(time.perf_counter() - started, 2)}
         row.update({f"paired_{k}": int(v) for k, v in paired.items()})
+        row.update(summarise_mask_steps(steps))
         peak = sampler.summary().get("peak_total")
         row["peak_memory_gb"] = round(peak / 2 ** 30, 3) if isinstance(peak, int) else float("nan")
         row["within_cap"] = bool(peak is not None and peak <= plan["cap_gb"] * 2 ** 30)
@@ -1223,6 +1760,11 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
         rows.append(row)
     frame = pd.DataFrame(rows)
     write_table(frame, os.path.join(dst, "sites.csv"), canonicalise=False)
+    mask_steps = {"seg_mask_device": settings["seg_mask_device"],
+                  "seg_mask_vram_gb": settings["seg_mask_vram_gb"],
+                  "sites": site_steps, "survey": survey_steps, "control": control_steps}
+    with open(os.path.join(dst, "mask_step.json"), "w", encoding="utf-8") as handle:
+        json.dump(mask_steps, handle, indent=2, sort_keys=True)
     if "cells_f1" in frame:
         well = {"sites_with_reference": int(frame["cells_f1"].notna().sum())}
         for kind in ("cells", "nuclei"):
@@ -1236,4 +1778,5 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                     frame.loc[(ratio - 1).abs() > 0.10, "site"].astype(str))
         write_table(pd.DataFrame([well]), os.path.join(dst, "agreement_well.csv"),
                     canonicalise=False)
-    return {"plan": plan, "sites": rows, "dst": dst, "nucleus_diameter": survey}
+    return {"plan": plan, "sites": rows, "dst": dst, "nucleus_diameter": survey,
+            "mask_steps": mask_steps}

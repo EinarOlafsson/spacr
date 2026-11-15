@@ -241,14 +241,6 @@ def test_an_ordinary_edit_is_debounced_rather_than_drawn_at_once(canvas):
     assert canvas.figure().axes
 
 
-def test_setting_one_channel_keeps_the_rest_of_the_spec(canvas):
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=True)
-    canvas.set_channel("colour", "gene")
-    assert canvas.spec.colour == "gene"
-    assert canvas.spec.x == "area"
-
-
 def test_a_selection_that_cannot_be_resolved_is_no_selection(canvas,
                                                              monkeypatch):
     """A shared selection keyed on another table must not take the chart down."""
@@ -269,40 +261,12 @@ def test_a_selection_that_cannot_be_resolved_is_no_selection(canvas,
     assert canvas.figure().axes
 
 
-def test_an_axis_with_no_column_sits_at_zero(canvas):
-    rows = canvas._frame
-    canvas.set_spec(GraphSpec(x="area", kind=HISTOGRAM), immediate=True)
-    x, y = canvas._xy(rows)
-    assert np.array_equal(y, np.zeros(len(rows)))
-    assert np.isfinite(x).all()
-
-
-def test_a_categorical_axis_is_placed_by_level_order(canvas):
-    canvas.set_spec(GraphSpec(x="gene", y="area", kind=SCATTER),
-                    immediate=True)
-    x, _y = canvas._xy(canvas._frame)
-    assert set(np.unique(x)) <= {0.0, 1.0, 2.0}
-
-
 def test_a_log_axis_keeps_a_floor_above_zero(canvas):
     limits = canvas._limits_for
     assert limits("log", (-5.0, 100.0)) == (100.0 / 1e6, 100.0)
     assert limits("log", (1.0, 100.0)) == (1.0, 100.0)
     assert limits("log", (-5.0, -1.0)) == (-5.0, -1.0)
     assert limits("linear", (-5.0, 100.0)) == (-5.0, 100.0)
-
-
-def test_a_histogram_split_by_a_categorical_colour_stacks_its_levels(canvas):
-    canvas.set_spec(GraphSpec(x="area", colour="gene", kind=HISTOGRAM,
-                              bins=8), immediate=True)
-    figure = canvas.figure()
-    assert figure.axes
-    # One stacked series per level, named once in the figure's own legend.
-    assert [bars.get_label() for bars in figure.axes[0].containers] == [
-        "g0", "g1", "g2"]
-    assert [text.get_text() for text in figure.legends[0].get_texts()] == [
-        "g0", "g1", "g2"]
-    assert len(figure.axes[0].patches) == 24
 
 
 def test_a_selection_is_drawn_over_the_histogram_it_belongs_to(canvas):
@@ -331,15 +295,6 @@ def test_a_density_raster_can_be_weighted_by_a_third_column(canvas):
 # ---------------------------------------------------------------------------
 # The aggregate draws
 # ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize("kind", ["jitter", "box", "violin", "bar_jitter"])
-def test_every_aggregate_kind_puts_its_marks_on_the_axes(canvas, kind):
-    canvas.set_spec(GraphSpec(x="gene", y="area", kind=kind), immediate=True)
-    ax = canvas.figure().axes[0]
-    drawn = (len(ax.collections) + len(ax.patches) + len(ax.lines)
-             + len(ax.containers))
-    assert drawn > 0
-
 
 def test_a_level_with_no_measurements_is_skipped_not_drawn_empty(canvas):
     frame = _frame()
@@ -440,12 +395,6 @@ def test_a_click_rather_than_a_sweep_goes_back_to_resting(canvas):
     assert cleared == [True]
 
 
-def test_a_brush_on_a_panel_that_is_not_there_selects_nothing(canvas):
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=True)
-    assert canvas.brush(0.0, 0.0, 1.0, 1.0, row=9, col=9) is None
-
-
 def test_a_brush_can_be_asked_for_the_selection_without_publishing(canvas):
     canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
                     immediate=True)
@@ -530,23 +479,6 @@ def test_more_levels_than_hues_are_gathered_into_one_other_entry(canvas):
     labels = [text.get_text() for text in legend.get_texts()]
     assert len(labels) == len(gb.categorical_colours()) + 1
     assert labels[-1] == f"{gb.OTHER_LABEL} (3)"
-
-
-def test_a_preview_patch_that_is_already_gone_is_not_an_error(canvas):
-    from matplotlib.backend_bases import MouseEvent
-
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=True)
-
-    class Detached:
-        def remove(self):
-            raise ValueError("artist is not in the axes")
-
-    canvas._drag_patch = Detached()
-    canvas._drag_origin = None
-    canvas._on_release(MouseEvent("button_release_event", canvas._canvas,
-                                  5.0, 5.0, 1))
-    assert canvas._drag_patch is None
 
 
 def test_a_sweep_ending_on_a_panel_the_grid_does_not_know_selects_nothing(

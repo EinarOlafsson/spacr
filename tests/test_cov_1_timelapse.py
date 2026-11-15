@@ -20,6 +20,7 @@ These run everywhere.
 """
 from __future__ import annotations
 
+import inspect
 import logging
 import os
 import sys
@@ -187,8 +188,9 @@ def _tracks_csv(tmp_path, object_type="cell", name="plate1_A01_1"):
 
 def _case_an_empty_batch_of_frames_is_refused(tmp_path, fake_btrack):
     """A batch with no frames cannot be tracked, and says so."""
-    with pytest.raises(ValueError, match="nothing to track"):
+    with pytest.raises(ValueError, match="nothing to track") as err:
         _run(tmp_path / "stack", [])
+    return str(err.value)
 
 
 def _case_frames_of_different_shapes_are_refused(tmp_path, fake_btrack):
@@ -198,14 +200,16 @@ def _case_frames_of_different_shapes_are_refused(tmp_path, fake_btrack):
     into an array that is not the images that were segmented.
     """
     masks = [np.zeros((32, 32), np.uint16), np.zeros((16, 16), np.uint16)]
-    with pytest.raises(ValueError, match="same shape"):
+    with pytest.raises(ValueError, match="same shape") as err:
         _run(tmp_path / "stack", masks)
+    return str(err.value)
 
 
 def _case_a_single_frame_is_not_a_timelapse(tmp_path, fake_btrack):
     """A 2-D mask has no time axis; the message names the shape it got."""
-    with pytest.raises(ValueError, match=r"must be 3D"):
+    with pytest.raises(ValueError, match=r"must be 3D") as err:
         _run(tmp_path / "stack", np.zeros((32, 32), np.uint16))
+    return str(err.value)
 
 
 # ---------------------------------------------------------------------------
@@ -236,6 +240,7 @@ def _case_a_batch_with_nothing_segmented_never_loads_the_native_tracker(
         "track_id", "frame", "x", "y", "original_label", "file_name",
         "plateID", "rowID", "columnID", "fieldID", "prcf", "wellID"]
     assert len(drawn) == 1, "the empty batch is still drawn when asked"
+    return {"trackers": fake_btrack["trackers"], "calls": [c[0] for c in fake_btrack["calls"]], "shape": np.asarray(out).shape, "any_label": bool(np.asarray(out).any()), "n_rows": len(table), "columns": list(table.columns), "n_drawn": len(drawn)}
 
 
 def _case_an_empty_batch_skips_drawing_when_not_requested(
@@ -250,6 +255,7 @@ def _case_an_empty_batch_skips_drawing_when_not_requested(
     assert not np.asarray(out).any()
     assert drawn == []
     assert _tracks_csv(tmp_path).is_file()
+    return {"trackers": fake_btrack["trackers"], "shape": np.asarray(out).shape, "any_label": bool(np.asarray(out).any()), "drawn": drawn, "csv_written": _tracks_csv(tmp_path).is_file()}
 
 
 # ---------------------------------------------------------------------------
@@ -288,6 +294,7 @@ def _case_a_tracked_batch_relabels_its_masks_with_the_track_ids(tmp_path,
     assert set(table["wellID"]) == {"A01"}, (
         "wellID is composed from the parsed row and column, not re-split")
     assert len(drawn) == 1
+    return {"shape": out.shape, "per_frame": per_frame, "n_rows": len(table), "track_ids": sorted(table["track_id"].unique()), "frames": sorted(set(table["frame"])), "labels": sorted(set(table["original_label"])), "plate": sorted(set(table["plateID"])), "row": sorted(set(table["rowID"])), "column": sorted(set(table["columnID"])), "well": sorted(set(table["wellID"])), "n_drawn": len(drawn)}
 
 
 def _case_the_tracker_is_configured_the_way_the_pipeline_needs_it(tmp_path,
@@ -310,6 +317,7 @@ def _case_the_tracker_is_configured_the_way_the_pipeline_needs_it(tmp_path,
                                 "minor_axis_length", "orientation", "solidity"]
     assert ("configure", "/fake/cell_config.json", None) in fake_btrack["calls"]
     assert ("track", ["motion", "visual"], None) in fake_btrack["calls"]
+    return {"volume": tracker.volume, "update_method": tracker.update_method, "radius": tracker.max_search_radius, "features": tracker.features, "configured": ("configure", "/fake/cell_config.json", None) in fake_btrack["calls"], "tracked": ("track", ["motion", "visual"], None) in fake_btrack["calls"]}
 
 
 def _case_an_older_btrack_is_driven_through_its_own_api(tmp_path, fake_btrack):
@@ -327,6 +335,7 @@ def _case_an_older_btrack_is_driven_through_its_own_api(tmp_path, fake_btrack):
     assert tracker.tracking_updates == ["MOTION", "VISUAL"]
     assert ("track", None, 100) in fake_btrack["calls"]
     assert sorted(set(np.unique(np.asarray(out)).tolist()) - {0}) == [1, 2]
+    return (tracker.tracking_updates, ("track", None, 100) in fake_btrack["calls"], sorted(set(np.unique(np.asarray(out)).tolist()) - {0}))
 
 
 # ---------------------------------------------------------------------------
@@ -343,6 +352,7 @@ def _case_the_glpk_limits_the_caller_set_are_passed_through(tmp_path,
     assert tracker.optimized == [{
         "backend": "glpk",
         "options": {"options": {"tm_lim": 1500, "mip_gap": 0.05}}}]
+    return tracker.optimized
 
 
 def _case_no_limits_means_glpk_s_own_defaults(tmp_path, fake_btrack):
@@ -357,6 +367,7 @@ def _case_no_limits_means_glpk_s_own_defaults(tmp_path, fake_btrack):
 
     tracker, = fake_btrack["trackers"]
     assert tracker.optimized == [{"backend": "glpk", "options": None}]
+    return tracker.optimized
 
 
 def _case_a_stalling_optimiser_leaves_the_tracks_it_already_had(tmp_path,
@@ -376,6 +387,7 @@ def _case_a_stalling_optimiser_leaves_the_tracks_it_already_had(tmp_path,
     assert sorted(set(np.unique(np.asarray(out)).tolist()) - {0}) == [1, 2]
     assert any("optimisation failed" in record.message
                for record in caplog.records)
+    return (sorted(set(np.unique(np.asarray(out)).tolist()) - {0}), any("optimisation failed" in record.message for record in caplog.records))
 
 
 def _case_a_batch_too_big_to_optimise_says_so_and_skips_it(tmp_path,
@@ -394,6 +406,7 @@ def _case_a_batch_too_big_to_optimise_says_so_and_skips_it(tmp_path,
     assert tracker.optimized == []
     assert any("Skipping btrack global optimisation" in record.message
                for record in caplog.records)
+    return (tracker.optimized, any("Skipping btrack global optimisation" in record.message for record in caplog.records))
 
 
 def _case_optimisation_can_be_turned_off_outright(tmp_path, fake_btrack):
@@ -403,6 +416,7 @@ def _case_optimisation_can_be_turned_off_outright(tmp_path, fake_btrack):
     tracker, = fake_btrack["trackers"]
     assert tracker.optimized == []
     assert tracker.tracks, "tracking itself still happened"
+    return (tracker.optimized, bool(tracker.tracks))
 
 
 # ---------------------------------------------------------------------------
@@ -431,6 +445,7 @@ def _case_removing_transients_can_empty_the_table_without_emptying_the_batch(
     assert {"track_id", "wellID", "original_label"} <= set(table.columns)
     assert any("no usable tracks" in record.message
                for record in caplog.records)
+    return (bool(np.asarray(out).any()), len(table), {"track_id", "wellID", "original_label"} <= set(table.columns), any("no usable tracks" in record.message for record in caplog.records))
 
 
 def _case_a_name_the_well_parser_chokes_on_still_writes_the_tracks(
@@ -457,6 +472,7 @@ def _case_a_name_the_well_parser_chokes_on_still_writes_the_tracks(
     assert "wellID" not in table.columns
     assert any("Failed to parse plate, well, field" in record.message
                for record in caplog.records)
+    return (sorted(set(np.unique(np.asarray(out)).tolist()) - {0}), len(table), "wellID" in table.columns, any("Failed to parse plate, well, field" in record.message for record in caplog.records))
 
 
 def _case_a_list_of_frames_is_stacked_before_tracking(tmp_path, fake_btrack):
@@ -474,13 +490,14 @@ def _case_a_list_of_frames_is_stacked_before_tracking(tmp_path, fake_btrack):
     assert np.asarray(out).shape == stack.shape
     table = pd.read_csv(_tracks_csv(tmp_path))
     assert sorted(table["track_id"].unique()) == [1, 2]
+    return (np.asarray(out).shape == stack.shape, sorted(table["track_id"].unique()))
 
 
 # ---------------------------------------------------------------------------
 # Peak ids
 # ---------------------------------------------------------------------------
 
-def test_a_peak_id_that_is_not_an_object_key_is_named_in_the_refusal():
+def _case_a_peak_id_that_is_not_an_object_key_is_named_in_the_refusal():
     """An id with no object in it is refused, and the refusal quotes it.
 
     The legacy spelling -- a prcf plus a bare object number -- is still read.
@@ -499,13 +516,14 @@ def test_a_peak_id_that_is_not_an_object_key_is_named_in_the_refusal():
         TL._explode_peak_ids(pd.DataFrame({"ID": ["junk_5"]}), "test")
 
     assert "junk_5" in str(excinfo.value)
+    return (list(out["object_number"]), list(out["plateID"]), "junk_5" in str(excinfo.value))
 
 
 # ---------------------------------------------------------------------------
 # numpy 1
 # ---------------------------------------------------------------------------
 
-def test_the_module_still_imports_where_trapezoid_is_called_trapz(monkeypatch):
+def _case_the_module_still_imports_where_trapezoid_is_called_trapz(monkeypatch):
     """On numpy 1 the integrator is ``trapz``; the module must still load.
 
     This is the one module in spaCR whose import fails outright when the
@@ -527,34 +545,67 @@ def test_the_module_still_imports_where_trapezoid_is_called_trapz(monkeypatch):
         spec.loader.exec_module(module)
         assert module.trapz is np.trapz
         assert callable(module._btrack_track_cells)
+        imported = (module.trapz is np.trapz, callable(module._btrack_track_cells))
     finally:
         sys.modules.pop(name, None)
+    return imported
 
 
-def test_timelapse_cases(request, subtests, caplog):
-    """Case table: 16 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+# ---------------------------------------------------------------------------
+# parametrised entry points: one test per contract, one row per scenario
+# ---------------------------------------------------------------------------
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_an_empty_batch_of_frames_is_refused,
-        _case_frames_of_different_shapes_are_refused,
-        _case_a_single_frame_is_not_a_timelapse,
-        _case_a_batch_with_nothing_segmented_never_loads_the_native_tracker,
-        _case_an_empty_batch_skips_drawing_when_not_requested,
-        _case_a_tracked_batch_relabels_its_masks_with_the_track_ids,
-        _case_the_tracker_is_configured_the_way_the_pipeline_needs_it,
-        _case_an_older_btrack_is_driven_through_its_own_api,
-        _case_the_glpk_limits_the_caller_set_are_passed_through,
-        _case_no_limits_means_glpk_s_own_defaults,
-        _case_a_stalling_optimiser_leaves_the_tracks_it_already_had,
-        _case_a_batch_too_big_to_optimise_says_so_and_skips_it,
-        _case_optimisation_can_be_turned_off_outright,
-        _case_removing_transients_can_empty_the_table_without_emptying_the_batch,
-        _case_a_name_the_well_parser_chokes_on_still_writes_the_tracks,
-        _case_a_list_of_frames_is_stacked_before_tracking,
-        ],
-    )
-    assert ran >= 16
+def _call_case(case, request):
+    wanted = inspect.signature(case).parameters
+    return case(**{k: request.getfixturevalue(k) for k in wanted})
+
+
+_btrack_refuses_or_skips_batches_that_are_not_trackable_CASES = [
+    pytest.param(_case_an_empty_batch_of_frames_is_refused, "masks_3D is an empty list; nothing to track.", id="an-empty-batch-of-frames-is-refused"),
+    pytest.param(_case_frames_of_different_shapes_are_refused, "All masks must have the same shape; got shapes={(32, 32), (16, 16)}.", id="frames-of-different-shapes-are-refused"),
+    pytest.param(_case_a_single_frame_is_not_a_timelapse, "masks_3D must be 3D (T, Y, X); got shape (32, 32)", id="a-single-frame-is-not-a-timelapse"),
+    pytest.param(_case_a_batch_with_nothing_segmented_never_loads_the_native_tracker, {"trackers": [], "calls": ["segment"], "shape": (3, 16, 16), "any_label": False, "n_rows": 0, "columns": ["track_id", "frame", "x", "y", "original_label", "file_name", "plateID", "rowID", "columnID", "fieldID", "prcf", "wellID"], "n_drawn": 1}, id="a-batch-with-nothing-segmented-never-loads-the-native-tracker"),
+    pytest.param(_case_an_empty_batch_skips_drawing_when_not_requested, {"trackers": [], "shape": (3, 16, 16), "any_label": False, "drawn": [], "csv_written": True}, id="an-empty-batch-skips-drawing-when-not-requested"),
+    pytest.param(_case_a_name_the_well_parser_chokes_on_still_writes_the_tracks, ([1, 2], 6, False, True), id="a-name-the-well-parser-chokes-on-still-writes-the-tracks"),
+]
+
+
+@pytest.mark.parametrize("case, expected", _btrack_refuses_or_skips_batches_that_are_not_trackable_CASES)
+def test_btrack_refuses_or_skips_batches_that_are_not_trackable(case, expected, request):
+    """Empty, ragged, single-frame and unsegmented batches."""
+    observed = _call_case(case, request)
+    assert observed == expected
+
+
+_btrack_configures_and_drives_the_tracker_CASES = [
+    pytest.param(_case_a_tracked_batch_relabels_its_masks_with_the_track_ids, {"shape": (3, 32, 32), "per_frame": [[1, 2]] * 3, "n_rows": 6, "track_ids": [1, 2], "frames": [0, 1, 2], "labels": [1, 2], "plate": ["plate1"], "row": ["r1"], "column": ["c1"], "well": ["A01"], "n_drawn": 1}, id="a-tracked-batch-relabels-its-masks-with-the-track-ids"),
+    pytest.param(_case_the_tracker_is_configured_the_way_the_pipeline_needs_it, {"volume": ((0, 48), (0, 48)), "update_method": "approximate", "radius": 2, "features": ["area", "major_axis_length", "minor_axis_length", "orientation", "solidity"], "configured": True, "tracked": True}, id="the-tracker-is-configured-the-way-the-pipeline-needs-it"),
+    pytest.param(_case_an_older_btrack_is_driven_through_its_own_api, (["MOTION", "VISUAL"], True, [1, 2]), id="an-older-btrack-is-driven-through-its-own-api"),
+    pytest.param(_case_the_glpk_limits_the_caller_set_are_passed_through, [{"backend": "glpk", "options": {"options": {"tm_lim": 1500, "mip_gap": 0.05}}}], id="the-glpk-limits-the-caller-set-are-passed-through"),
+    pytest.param(_case_no_limits_means_glpk_s_own_defaults, [{"backend": "glpk", "options": None}], id="no-limits-means-glpk-s-own-defaults"),
+    pytest.param(_case_a_stalling_optimiser_leaves_the_tracks_it_already_had, ([1, 2], True), id="a-stalling-optimiser-leaves-the-tracks-it-already-had"),
+    pytest.param(_case_a_batch_too_big_to_optimise_says_so_and_skips_it, ([], True), id="a-batch-too-big-to-optimise-says-so-and-skips-it"),
+    pytest.param(_case_optimisation_can_be_turned_off_outright, ([], True), id="optimisation-can-be-turned-off-outright"),
+]
+
+
+@pytest.mark.parametrize("case, expected", _btrack_configures_and_drives_the_tracker_CASES)
+def test_btrack_configures_and_drives_the_tracker(case, expected, request):
+    """Tracker configuration, optimiser limits and stall handling."""
+    observed = _call_case(case, request)
+    assert observed == expected
+
+
+_btrack_output_edge_cases_and_import_fallbacks_CASES = [
+    pytest.param(_case_removing_transients_can_empty_the_table_without_emptying_the_batch, (False, 0, True, True), id="removing-transients-can-empty-the-table-without-emptying-the-batch"),
+    pytest.param(_case_a_list_of_frames_is_stacked_before_tracking, (True, [1, 2]), id="a-list-of-frames-is-stacked-before-tracking"),
+    pytest.param(_case_a_peak_id_that_is_not_an_object_key_is_named_in_the_refusal, (["o7", "o7"], ["plate1", "plate1"], True), id="a-peak-id-that-is-not-an-object-key-is-named-in-the-refusal"),
+    pytest.param(_case_the_module_still_imports_where_trapezoid_is_called_trapz, (True, True), id="the-module-still-imports-where-trapezoid-is-called-trapz"),
+]
+
+
+@pytest.mark.parametrize("case, expected", _btrack_output_edge_cases_and_import_fallbacks_CASES)
+def test_btrack_output_edge_cases_and_import_fallbacks(case, expected, request):
+    """Transient removal, odd well names, peak ids and trapezoid import."""
+    observed = _call_case(case, request)
+    assert observed == expected

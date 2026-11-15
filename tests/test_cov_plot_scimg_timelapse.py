@@ -11,11 +11,16 @@ The two IO helpers that would otherwise render 20x20 inch figures at
 300 dpi (`spacr.io._save_figure`) or animate a real GIF
 (`spacr.io._save_mask_timelapse_as_gif`) are replaced by recorders in most
 tests so the assertions can inspect exactly what spacr.plot handed them;
-one test lets the real `_save_figure` run so the emitted PDFs are checked
+one row lets the real `_save_figure` run so the emitted PDFs are checked
 on disk.
+
+Each contract is one parametrised test.  The rows name a helper that does the
+setup and call (keeping its secondary checks) and returns what it observed;
+the row carries the expected value and the test body compares the two.
 """
 from __future__ import annotations
 
+import inspect
 import os
 
 import numpy as np
@@ -33,6 +38,16 @@ cv2 = pytest.importorskip("cv2")
 # ---------------------------------------------------------------------------
 # fixtures
 # ---------------------------------------------------------------------------
+
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
+
+
+def _names(files):
+    return [os.path.basename(f) for f in files]
+
 
 @pytest.fixture(autouse=True)
 def _close_figures():
@@ -190,11 +205,8 @@ def _case_save_scimg_plot_defaults_to_three_channels_and_forwards_args(
         channel_names=["r", "g", "b"],
         plot=False,
     )
-    assert out is None
 
-    assert [c["channel_indices"] for c in grid_recorder] == [[0, 1, 2], [0], [1], [2]]
-    # channel names are only stamped on the combined figure
-    assert [c["channel_names"] for c in grid_recorder] == [["r", "g", "b"], None, None, None]
+    # channel names are only stamped on the combined figure (returned below)
     # scalar plot arguments reach _plot_images_on_grid in the right slots
     for call in grid_recorder:
         assert call["um_per_pixel"] == 0.25
@@ -203,12 +215,13 @@ def _case_save_scimg_plot_defaults_to_three_channels_and_forwards_args(
         assert call["show_filename"] is False
         assert call["plot"] is False
 
-    assert [c["text"] for c in figure_recorder] == [
-        "all_channels", "channel_0", "channel_1", "channel_2",
-    ]
     assert all(c["src"] == scimg_dir["src"] for c in figure_recorder)
     # every saved figure is the one the grid plotter just built
     assert all(c["n_axes"] == 1 for c in figure_recorder)
+    return (out,
+            [c["channel_indices"] for c in grid_recorder],
+            [c["channel_names"] for c in grid_recorder],
+            [c["text"] for c in figure_recorder])
 
 
 def _case_save_scimg_plot_standardize_keeps_only_the_largest_size_group(
@@ -220,11 +233,11 @@ def _case_save_scimg_plot_standardize_keeps_only_the_largest_size_group(
     _save_scimg_plot(scimg_dir["src"], nr_imgs=None, channel_indices=[1],
                      standardize=True)
 
-    assert len(grid_recorder) == 2  # combined + channel_1
     for call in grid_recorder:
-        assert call["files"] == scimg_dir["same"]
         assert scimg_dir["odd"] not in call["files"]
-    assert [c["text"] for c in figure_recorder] == ["all_channels", "channel_1"]
+    # combined figure + channel_1, each over the same-sized crops only
+    return (len(grid_recorder), [_names(c["files"]) for c in grid_recorder],
+            [c["text"] for c in figure_recorder])
 
 
 def _case_save_scimg_plot_without_standardize_uses_every_image(
@@ -236,10 +249,8 @@ def _case_save_scimg_plot_without_standardize_uses_every_image(
     _save_scimg_plot(scimg_dir["src"], nr_imgs=None, channel_indices=[2],
                      standardize=False)
 
-    assert len(grid_recorder) == 2
-    for call in grid_recorder:
-        assert call["files"] == scimg_dir["all"]
-    assert [c["text"] for c in figure_recorder] == ["all_channels", "channel_2"]
+    return (len(grid_recorder), [_names(c["files"]) for c in grid_recorder],
+            [c["text"] for c in figure_recorder])
 
 
 def _case_save_scimg_plot_nr_imgs_subsamples_deterministically(
@@ -251,18 +262,21 @@ def _case_save_scimg_plot_nr_imgs_subsamples_deterministically(
     _save_scimg_plot(scimg_dir["src"], nr_imgs=2, channel_indices=[0],
                      standardize=False)
 
-    assert len(grid_recorder) == 2
     for call in grid_recorder:
-        assert len(call["files"]) == 2
         assert set(call["files"]).issubset(set(scimg_dir["all"]))
+    n_figures = len(grid_recorder)
+    sizes = [len(c["files"]) for c in grid_recorder]
     # random.seed(42) is re-applied per figure, so both figures show the same crops
-    assert grid_recorder[0]["files"] == grid_recorder[1]["files"]
+    same_within = grid_recorder[0]["files"] == grid_recorder[1]["files"]
+    first_files = grid_recorder[0]["files"]
 
     # ...and the seeding makes the choice reproducible across calls
     grid_recorder.clear()
     _save_scimg_plot(scimg_dir["src"], nr_imgs=2, channel_indices=[0],
                      standardize=False)
-    assert grid_recorder[0]["files"] == grid_recorder[1]["files"]
+    same_within_again = grid_recorder[0]["files"] == grid_recorder[1]["files"]
+    same_across_calls = grid_recorder[0]["files"] == first_files
+    return n_figures, sizes, same_within, same_within_again, same_across_calls
 
 
 def _case_save_scimg_plot_nr_imgs_larger_than_folder_keeps_all(
@@ -274,7 +288,7 @@ def _case_save_scimg_plot_nr_imgs_larger_than_folder_keeps_all(
     _save_scimg_plot(scimg_dir["src"], nr_imgs=99, channel_indices=[0],
                      standardize=False)
 
-    assert grid_recorder[0]["files"] == scimg_dir["all"]
+    return _names(grid_recorder[0]["files"])
 
 
 def _case_save_scimg_plot_writes_pdfs_to_the_figure_folder(scimg_dir):
@@ -286,16 +300,12 @@ def _case_save_scimg_plot_writes_pdfs_to_the_figure_folder(scimg_dir):
                      plot=False)
 
     fig_dir = scimg_dir["figure_dir"]
-    assert sorted(p.name for p in fig_dir.glob("*.pdf")) == [
-        "cell_plate1_all_channels.pdf",
-        "cell_plate1_channel_0.pdf",
-    ]
     for pdf in fig_dir.glob("*.pdf"):
         data = pdf.read_bytes()
         assert data.startswith(b"%PDF")
         assert len(data) > 1000
-    # _save_figure closes each figure it writes
-    assert plt.get_fignums() == []
+    # _save_figure closes each figure it writes (empty fignums)
+    return sorted(p.name for p in fig_dir.glob("*.pdf")), plt.get_fignums()
 
 
 def _case_save_scimg_plot_with_a_single_image(scimg_dir, figure_recorder):
@@ -305,7 +315,7 @@ def _case_save_scimg_plot_with_a_single_image(scimg_dir, figure_recorder):
     _save_scimg_plot(scimg_dir["src"], nr_imgs=1, channel_indices=[0],
                      standardize=False)
 
-    assert [c["text"] for c in figure_recorder] == ["all_channels", "channel_0"]
+    return [c["text"] for c in figure_recorder]
 
 
 # ---------------------------------------------------------------------------
@@ -322,18 +332,14 @@ def _case_plot_cropped_arrays_2d_label_image_gets_random_object_cmap():
     fig = _plot_cropped_arrays(arr, "field_1.npy", figuresize=3)
 
     assert isinstance(fig, plt.Figure)
-    assert len(fig.axes) == 1
     ax = fig.axes[0]
-    # 2 objects (labels 1 and 2); background 0 is not an object
-    assert ax.get_title() == "Channel one, 2 (obj.)"
-    assert ax.axison is False
     assert len(ax.images) == 1
     np.testing.assert_array_equal(np.asarray(ax.images[0].get_array()), arr)
     cmap = ax.images[0].get_cmap()
     assert isinstance(cmap, ListedColormap)
-    assert cmap.N == 3  # background + 2 objects
-    assert tuple(cmap.colors[0]) == (0.0, 0.0, 0.0, 1.0)
-    assert fig.get_size_inches().tolist() == [3.0, 3.0]
+    # 2 objects (labels 1 and 2); background 0 is not an object, so cmap.N is 3
+    return (len(fig.axes), ax.get_title(), ax.axison, cmap.N,
+            tuple(cmap.colors[0]), fig.get_size_inches().tolist())
 
 
 def _case_plot_cropped_arrays_2d_intensity_image_keeps_requested_cmap():
@@ -345,13 +351,13 @@ def _case_plot_cropped_arrays_2d_intensity_image_keeps_requested_cmap():
                                threshold=10)
 
     ax = fig.axes[0]
-    assert ax.get_title() == "Channel one"  # no ", N (obj.)" suffix
     # the registered 'inferno' map is used verbatim, not a freshly drawn
     # random label map (which would be a 3-colour ListedColormap here)
     cmap = ax.images[0].get_cmap()
-    assert cmap.name == "inferno"
-    assert cmap.N == plt.get_cmap("inferno").N == 256
+    assert cmap.N == plt.get_cmap("inferno").N
     np.testing.assert_allclose(cmap(0.0), plt.get_cmap("inferno")(0.0))
+    # the title has no ", N (obj.)" suffix
+    return ax.get_title(), cmap.name, cmap.N
 
 
 def _case_plot_cropped_arrays_3d_makes_one_axis_per_channel():
@@ -364,14 +370,11 @@ def _case_plot_cropped_arrays_3d_makes_one_axis_per_channel():
 
     fig = _plot_cropped_arrays(stack, "field_3.npy", figuresize=4, threshold=10)
 
-    assert len(fig.axes) == 3
-    assert [ax.get_title() for ax in fig.axes] == [
-        "C. 0", "C. 1, 1 (obj.)", "C. 2",
-    ]
     np.testing.assert_array_equal(
         np.asarray(fig.axes[1].images[0].get_array()), stack[:, :, 1]
     )
-    assert all(ax.axison is False for ax in fig.axes)
+    return (len(fig.axes), [ax.get_title() for ax in fig.axes],
+            [ax.axison for ax in fig.axes])
 
 
 def _case_plot_cropped_arrays_object_count_excludes_background():
@@ -387,24 +390,21 @@ def _case_plot_cropped_arrays_object_count_excludes_background():
     three[1:4, 1:4] = 1
     three[6:9, 6:9] = 2
     three[11:14, 11:14] = 3
-    assert _plot_cropped_arrays(three, "three.npy", figuresize=2).axes[0].get_title() \
-        == "Channel one, 3 (obj.)"
+    titles = [_plot_cropped_arrays(three, "three.npy", figuresize=2).axes[0].get_title()]
 
     empty = np.zeros((8, 8), dtype=np.uint8)
-    assert _plot_cropped_arrays(empty, "empty.npy", figuresize=2).axes[0].get_title() \
-        == "Channel one, 0 (obj.)"
+    titles.append(_plot_cropped_arrays(empty, "empty.npy", figuresize=2).axes[0].get_title())
 
     # No background pixel at all: the single label is still one object.
     full = np.ones((8, 8), dtype=np.uint8)
-    assert _plot_cropped_arrays(full, "full.npy", figuresize=2).axes[0].get_title() \
-        == "Channel one, 1 (obj.)"
+    titles.append(_plot_cropped_arrays(full, "full.npy", figuresize=2).axes[0].get_title())
 
     # Non-contiguous labels are counted as they are, not as max(label).
     sparse = np.zeros((8, 8), dtype=np.uint16)
     sparse[1:3, 1:3] = 7
     sparse[5:7, 5:7] = 91
-    assert _plot_cropped_arrays(sparse, "sparse.npy", figuresize=2).axes[0].get_title() \
-        == "Channel one, 2 (obj.)"
+    titles.append(_plot_cropped_arrays(sparse, "sparse.npy", figuresize=2).axes[0].get_title())
+    return titles
 
 
 def _case_plot_cropped_arrays_single_channel_stack():
@@ -415,8 +415,7 @@ def _case_plot_cropped_arrays_single_channel_stack():
     stack[2:5, 2:5, 0] = 1
     fig = _plot_cropped_arrays(stack, "field_4.npy", figuresize=2)
 
-    assert len(fig.axes) == 1
-    assert fig.axes[0].get_title().startswith("C. 0")
+    return len(fig.axes), fig.axes[0].get_title().startswith("C. 0")
 
 
 # ---------------------------------------------------------------------------
@@ -436,7 +435,6 @@ def _case_timelapse_save_builds_label_colormap_and_gif_path(
         False, ["f0.tif", "f1.tif"], "cell",
     )
 
-    assert len(gif_recorder) == 1
     call = gif_recorder[0]
 
     expected = tmp_path / "plate1" / "movies" / "gif" / "timelapse_masks_cell_well_A01.gif"
@@ -446,20 +444,17 @@ def _case_timelapse_save_builds_label_colormap_and_gif_path(
 
     assert call["masks"] is timelapse_masks
     assert call["tracks_df"] is timelapse_tracks
-    assert call["filenames"] == ["f0.tif", "f1.tif"]
 
     cmap = call["cmap"]
     assert isinstance(cmap, ListedColormap)
-    assert cmap.N == 3                                   # highest label (2) + 1
     assert np.allclose(np.asarray(cmap.colors)[:, 3], 1.0)   # fully opaque
     assert tuple(cmap.colors[0]) == (0.0, 0.0, 0.0, 1.0)     # background is black
     assert not np.allclose(cmap.colors[1], cmap.colors[0])
 
     norm = call["norm"]
-    assert (norm.vmin, norm.vmax) == (0, 2)
-
-    # plot=False -> no figure was opened
-    assert plt.get_fignums() == []
+    # cmap.N is the highest label (2) + 1; plot=False -> no figure was opened
+    return (len(gif_recorder), str(expected.relative_to(tmp_path)),
+            call["filenames"], cmap.N, (norm.vmin, norm.vmax), plt.get_fignums())
 
 
 def _case_timelapse_without_save_or_plot_writes_nothing(
@@ -475,10 +470,8 @@ def _case_timelapse_without_save_or_plot_writes_nothing(
         ["f0.tif", "f1.tif"], "nucleus",
     )
 
-    assert out is None
-    assert gif_recorder == []
-    assert not (tmp_path / "plate1" / "movies").exists()
-    assert plt.get_fignums() == []
+    return (out, gif_recorder, (tmp_path / "plate1" / "movies").exists(),
+            plt.get_fignums())
 
 
 def _case_timelapse_interactive_renders_the_first_frame_with_tracks(
@@ -498,26 +491,24 @@ def _case_timelapse_interactive_renders_the_first_frame_with_tracks(
     nums = plt.get_fignums()
     assert len(nums) == 1
     ax = plt.figure(nums[0]).axes[0]
-    assert ax.get_title() == "Frame: 0"
-    assert ax.axison is False
 
     # frame 0 carries a single object -> a single label annotation
-    assert [t.get_text() for t in ax.texts] == ["1"]
     # the mask is drawn with the shared label cmap / norm
     assert len(ax.images) == 1
     np.testing.assert_array_equal(
         np.asarray(ax.images[0].get_array()), timelapse_masks[0]
     )
-    assert ax.images[0].get_cmap().N == 3
-    assert (ax.images[0].norm.vmin, ax.images[0].norm.vmax) == (0, 2)
 
     # one black polyline per track id
     assert len(ax.lines) == timelapse_tracks["track_id"].nunique()
     for line in ax.lines:
         assert line.get_color() == "k"
         assert line.get_linewidth() == 1
-    np.testing.assert_allclose(ax.lines[0].get_xdata(), [3.0, 4.0])
-    np.testing.assert_allclose(ax.lines[0].get_ydata(), [3.0, 4.0])
+    return (ax.get_title(), ax.axison, [t.get_text() for t in ax.texts],
+            ax.images[0].get_cmap().N,
+            (ax.images[0].norm.vmin, ax.images[0].norm.vmax),
+            [float(v) for v in ax.lines[0].get_xdata()],
+            [float(v) for v in ax.lines[0].get_ydata()])
 
 
 def _case_timelapse_plot_non_interactive_displays_the_saved_gif(
@@ -538,13 +529,11 @@ def _case_timelapse_plot_non_interactive_displays_the_saved_gif(
     )
 
     gif_path = gif_recorder[0]["path"]
-    assert len(shown) == 1
     from IPython.display import Image as ipyimage
     assert isinstance(shown[0], ipyimage)
     assert shown[0].data == open(gif_path, "rb").read()
-    assert shown[0].data.startswith(b"GIF")
     # non-interactive -> the per-frame matplotlib figure was never built
-    assert plt.get_fignums() == []
+    return len(shown), shown[0].data.startswith(b"GIF"), plt.get_fignums()
 
 
 def _case_timelapse_interactive_save_does_not_display_the_gif(
@@ -565,9 +554,8 @@ def _case_timelapse_interactive_save_does_not_display_the_gif(
         ["f0.tif", "f1.tif"], "cell", interactive=True,
     )
 
-    assert len(gif_recorder) == 1
-    assert os.path.isfile(gif_recorder[0]["path"])
-    assert shown == []  # _display_gif was not reached
+    # shown stays empty: _display_gif was not reached
+    return len(gif_recorder), os.path.isfile(gif_recorder[0]["path"]), shown
 
 
 def _case_timelapse_empty_mask_list_raises(tmp_path, timelapse_tracks, gif_recorder):
@@ -577,13 +565,13 @@ def _case_timelapse_empty_mask_list_raises(tmp_path, timelapse_tracks, gif_recor
     src = tmp_path / "plate1" / "masks"
     src.mkdir(parents=True)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as excinfo:
         _visualize_and_save_timelapse_stack_with_tracks(
             [], timelapse_tracks, True, str(src), "n", False, [], "cell",
         )
 
-    assert gif_recorder == []
-    assert not (tmp_path / "plate1" / "movies").exists()
+    return (type(excinfo.value).__name__, gif_recorder,
+            (tmp_path / "plate1" / "movies").exists())
 
 
 # ---------------------------------------------------------------------------
@@ -600,13 +588,12 @@ def _case_display_gif_hands_the_raw_bytes_to_an_ipython_image(tmp_path, monkeypa
     shown = []
     monkeypatch.setattr(spacr.plot, "display", lambda obj: shown.append(obj))
 
-    assert _display_gif(str(gif)) is None
+    returned = _display_gif(str(gif))
 
     from IPython.display import Image as ipyimage
-    assert len(shown) == 1
     assert isinstance(shown[0], ipyimage)
     assert shown[0].data == gif.read_bytes()
-    assert shown[0].format == "gif"
+    return returned, len(shown), shown[0].format
 
 
 def _case_display_gif_states_the_format_rather_than_leaving_it_to_ipython(
@@ -642,13 +629,9 @@ def _case_display_gif_states_the_format_rather_than_leaving_it_to_ipython(
 
     _display_gif(str(gif))
 
-    assert len(calls) == 1
     data, args, kwargs = calls[0]
-    assert data == gif.read_bytes()
-    assert kwargs.get("format") == "gif", (
-        "spacr.plot._display_gif left the image format for IPython to guess; "
-        "IPython < 9 guesses 'png' for GIF bytes, and IPython < 9 is the only "
-        "IPython available on the Python 3.9/3.10 cells of the matrix")
+    # A missing format keyword means IPython < 9 would guess 'png' for GIF bytes.
+    return len(calls), kwargs.get("format"), data == gif.read_bytes()
 
 
 def _case_display_gif_missing_file_raises(tmp_path, monkeypatch):
@@ -658,40 +641,105 @@ def _case_display_gif_missing_file_raises(tmp_path, monkeypatch):
     shown = []
     monkeypatch.setattr(spacr.plot, "display", lambda obj: shown.append(obj))
 
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(FileNotFoundError) as excinfo:
         _display_gif(str(tmp_path / "does_not_exist.gif"))
-    assert shown == []
+    return type(excinfo.value).__name__, shown
 
 
-def test_plot_scimg_timelapse_cases(request, subtests):
-    """Case table: 21 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+_P = pytest.param
+_SAME = ["crop_0.png", "crop_1.png", "crop_2.png"]
+_ALL = _SAME + ["odd_crop.png"]
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_save_scimg_plot_defaults_to_three_channels_and_forwards_args,
-        _case_save_scimg_plot_standardize_keeps_only_the_largest_size_group,
-        _case_save_scimg_plot_without_standardize_uses_every_image,
-        _case_save_scimg_plot_nr_imgs_subsamples_deterministically,
-        _case_save_scimg_plot_nr_imgs_larger_than_folder_keeps_all,
-        _case_save_scimg_plot_writes_pdfs_to_the_figure_folder,
-        _case_save_scimg_plot_with_a_single_image,
-        _case_plot_cropped_arrays_2d_label_image_gets_random_object_cmap,
-        _case_plot_cropped_arrays_2d_intensity_image_keeps_requested_cmap,
-        _case_plot_cropped_arrays_3d_makes_one_axis_per_channel,
-        _case_plot_cropped_arrays_object_count_excludes_background,
-        _case_plot_cropped_arrays_single_channel_stack,
-        _case_timelapse_save_builds_label_colormap_and_gif_path,
-        _case_timelapse_without_save_or_plot_writes_nothing,
-        _case_timelapse_interactive_renders_the_first_frame_with_tracks,
-        _case_timelapse_plot_non_interactive_displays_the_saved_gif,
-        _case_timelapse_interactive_save_does_not_display_the_gif,
-        _case_timelapse_empty_mask_list_raises,
-        _case_display_gif_hands_the_raw_bytes_to_an_ipython_image,
-        _case_display_gif_states_the_format_rather_than_leaving_it_to_ipython,
-        _case_display_gif_missing_file_raises,
-        ],
-    )
-    assert ran >= 21
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_save_scimg_plot_defaults_to_three_channels_and_forwards_args,
+       (None, [[0, 1, 2], [0], [1], [2]], [["r", "g", "b"], None, None, None],
+        ["all_channels", "channel_0", "channel_1", "channel_2"]),
+       id="defaults-to-three-channels"),
+    _P(_case_save_scimg_plot_standardize_keeps_only_the_largest_size_group,
+       (2, [_SAME, _SAME], ["all_channels", "channel_1"]),
+       id="standardize-keeps-largest-size-group"),
+    _P(_case_save_scimg_plot_without_standardize_uses_every_image,
+       (2, [_ALL, _ALL], ["all_channels", "channel_2"]),
+       id="no-standardize-uses-every-image"),
+    _P(_case_save_scimg_plot_nr_imgs_subsamples_deterministically,
+       (2, [2, 2], True, True, True), id="nr-imgs-subsamples-deterministically"),
+    _P(_case_save_scimg_plot_nr_imgs_larger_than_folder_keeps_all,
+       _ALL, id="nr-imgs-larger-than-folder-keeps-all"),
+    _P(_case_save_scimg_plot_writes_pdfs_to_the_figure_folder,
+       (["cell_plate1_all_channels.pdf", "cell_plate1_channel_0.pdf"], []),
+       id="writes-pdfs-to-figure-folder"),
+    _P(_case_save_scimg_plot_with_a_single_image,
+       ["all_channels", "channel_0"], id="single-image-still-emits-figures"),
+])
+def test_save_scimg_plot_selects_crops_and_saves_figures(request, helper, expected):
+    """_save_scimg_plot picks the crops (size group, subsample) and saves one figure per view."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_plot_cropped_arrays_2d_label_image_gets_random_object_cmap,
+       (1, "Channel one, 2 (obj.)", False, 3, (0.0, 0.0, 0.0, 1.0), [3.0, 3.0]),
+       id="2d-label-image-random-cmap"),
+    _P(_case_plot_cropped_arrays_2d_intensity_image_keeps_requested_cmap,
+       ("Channel one", "inferno", 256), id="2d-intensity-image-keeps-cmap"),
+    _P(_case_plot_cropped_arrays_3d_makes_one_axis_per_channel,
+       (3, ["C. 0", "C. 1, 1 (obj.)", "C. 2"], [False, False, False]),
+       id="3d-one-axis-per-channel"),
+    _P(_case_plot_cropped_arrays_object_count_excludes_background,
+       ["Channel one, 3 (obj.)", "Channel one, 0 (obj.)",
+        "Channel one, 1 (obj.)", "Channel one, 2 (obj.)"],
+       id="object-count-excludes-background"),
+    _P(_case_plot_cropped_arrays_single_channel_stack,
+       (1, True), id="single-channel-stack"),
+])
+def test_plot_cropped_arrays_titles_and_colour_maps(request, helper, expected):
+    """_plot_cropped_arrays titles panels, counts objects and picks the colour map."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_timelapse_save_builds_label_colormap_and_gif_path,
+       (1, "plate1/movies/gif/timelapse_masks_cell_well_A01.gif",
+        ["f0.tif", "f1.tif"], 3, (0, 2), []),
+       id="save-builds-label-colormap-and-gif-path"),
+    _P(_case_timelapse_without_save_or_plot_writes_nothing,
+       (None, [], False, []), id="no-save-no-plot-writes-nothing"),
+    _P(_case_timelapse_interactive_renders_the_first_frame_with_tracks,
+       ("Frame: 0", False, ["1"], 3, (0, 2), [3.0, 4.0], [3.0, 4.0]),
+       id="interactive-renders-first-frame"),
+    _P(_case_timelapse_plot_non_interactive_displays_the_saved_gif,
+       (1, True, []), id="non-interactive-displays-gif"),
+    _P(_case_timelapse_interactive_save_does_not_display_the_gif,
+       (1, True, []), id="interactive-save-does-not-display-gif"),
+])
+def test_timelapse_with_tracks_saves_or_draws(request, helper, expected):
+    """The timelapse helper saves a gif, draws the first frame, or does neither."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_display_gif_hands_the_raw_bytes_to_an_ipython_image,
+       (None, 1, "gif"), id="display-gif-hands-raw-bytes"),
+    _P(_case_display_gif_states_the_format_rather_than_leaving_it_to_ipython,
+       (1, "gif", True), id="display-gif-states-format"),
+])
+def test_display_gif_passes_the_bytes_and_format(request, helper, expected):
+    """_display_gif gives IPython the file bytes and states the gif format itself."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_timelapse_empty_mask_list_raises,
+       ("ValueError", [], False), id="timelapse-empty-mask-list-refused"),
+    _P(_case_display_gif_missing_file_raises,
+       ("FileNotFoundError", []), id="display-gif-missing-file-refused"),
+])
+def test_timelapse_and_gif_refuse_missing_input_by_name(request, helper, expected):
+    """No frames or no gif file raises the named error and writes or shows nothing."""
+    observed = _call(request, helper)
+    assert observed == expected

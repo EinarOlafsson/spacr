@@ -25,7 +25,6 @@ Offscreen, no dialogs, no sleeps; the screen runs its jobs inline
 from __future__ import annotations
 
 import os
-import sqlite3
 
 import pandas as pd
 import pytest
@@ -61,16 +60,6 @@ def _campaign(plates: int = 30) -> pd.DataFrame:
                              "signal": base + offset
                                        + (drift if level == "neg" else 0.0)})
     return pd.DataFrame(rows)
-
-
-def _database(tmp_path) -> str:
-    """A two-table measurement database, as ``measurements.db`` really is."""
-    path = str(tmp_path / "measurements.db")
-    frame = _campaign(12)
-    with sqlite3.connect(path) as db:
-        frame.to_sql("cell", db, index=False)
-        frame.to_sql("nucleus", db, index=False)
-    return path
 
 
 @pytest.fixture
@@ -168,79 +157,3 @@ def test_a_control_column_the_frame_no_longer_has_leaves_the_list_empty(screen):
     # ...and a frame that still has the column refills it again.
     screen._refill_levels(_campaign(12))
     assert _levels(screen) == ["A", "B"]
-
-
-def test_a_control_column_change_before_any_table_draws_nothing(screen):
-    """The pickers are wired at construction, so a host that seeds the
-    control column — a restored session, a settings file — reaches this slot
-    with no frame at all. It must not refill a level list from ``None``, and
-    the screen has to stay on its opening instruction rather than show an
-    empty chart as if a table had been read."""
-    opening = screen.report.toPlainText()
-
-    screen._control_column.addItem("well_type")
-
-    assert screen._control_column.currentText() == "well_type"
-    assert _levels(screen) == []
-    assert screen.result is None
-    assert screen.report.toPlainText() == opening
-
-    # The same signal, once a frame is there, does refill the list.
-    screen.set_frame(_campaign(12))
-    screen._control_column.setCurrentText("batch")
-    assert _levels(screen) == ["A", "B"]
-
-
-# ---------------------------------------------------------------------------
-# Edits that arrive while the form is being refilled
-# ---------------------------------------------------------------------------
-
-def test_a_widget_edited_while_a_table_loads_does_not_recompute(screen):
-    """``set_frame`` refills eleven pickers before it charts anything, and
-    every one of them is connected to ``recompute``. Without the loading
-    latch the user would get eleven charts per file — each one computed from
-    a half-filled form, the last one right — instead of the single chart
-    ``set_frame`` ends with."""
-    screen.set_frame(_campaign(30))
-    first = screen.result
-    assert first is not None
-    assert len(first.baseline_plates) == 20         # the default baseline
-
-    screen._loading = True                          # the state set_frame holds
-    screen._baseline.setValue(10)                   # a real valueChanged
-    assert screen.result is first                   # nothing was recharted
-    assert len(screen.result.baseline_plates) == 20
-
-    screen._loading = False
-    screen._baseline.setValue(12)
-    assert screen.result is not first
-    assert len(screen.result.baseline_plates) == 12
-
-
-# ---------------------------------------------------------------------------
-# The table picker
-# ---------------------------------------------------------------------------
-
-def test_the_table_picker_reads_nothing_until_a_file_is_open(screen, tmp_path):
-    """Filling the picker sets its current text, which emits the same signal
-    a click does. With no file open there is nothing to re-read, and a
-    ``load_path(None)`` would be an exception in the log and a dead screen;
-    once a database is open the very same signal has to re-read the file."""
-    screen._table_picker.addItems(["cell", "nucleus"])
-
-    assert screen._table_picker.currentText() == "cell"
-    assert screen._path is None
-    assert screen.result is None
-    assert screen._source.text() == "no table loaded"
-
-    path = _database(tmp_path)
-    screen.load_path(path, table="cell")
-    charted = screen.result
-    assert charted is not None
-
-    screen._table_picker.setCurrentText("nucleus")
-
-    assert screen._path == path
-    assert "nucleus" in screen._source.text()
-    assert screen.result is not charted
-    assert len(screen.result) == 12

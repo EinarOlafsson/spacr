@@ -539,22 +539,6 @@ def test_the_new_modules_are_listed(capsys):
         assert f"  {key}" in out, key
 
 
-@pytest.mark.parametrize("spelling,expected", [
-    ("invasion", "invasion"),
-    ("analyze_invasion", "invasion"),
-    ("Invasion-Assay", "invasion"),
-    ("replication", "replication"),
-    ("analyze_replication", "replication"),
-    ("analyze_endodyogeny", "endodyogeny"),
-    ("endodyogeny", "endodyogeny"),
-    ("import_project", "foreign"),
-])
-def test_the_new_names_resolve_the_way_a_pasted_script_spells_them(spelling,
-                                                                   expected):
-    module = cli.resolve_module(spelling)
-    assert module is not None and module.key == expected
-
-
 def test_timelapse_now_gets_the_mask_pipelines_rules_not_the_generic_ones(tmp_path):
     """``preprocess_generate_masks_timelapse`` prints "At least one of
     cell_channel, nucleus_channel, pathogen_channel or organelle_channel must

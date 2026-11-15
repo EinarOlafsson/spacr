@@ -1166,6 +1166,54 @@ def _no_test_leaves_an_application_policy_on():
     _take_off_the_policies_put_on_since(before)
 
 
+_REPO_ROOT_FILES = (".coveragerc", "pyproject.toml", "setup.cfg")
+_CWD_BEFORE = pytest.StashKey[tuple]()
+
+
+def _remember_the_working_directory(item):
+    """Remember the working directory and the repo-root files before a test."""
+    root = Path(__file__).resolve().parent.parent
+    item.stash[_CWD_BEFORE] = (
+        os.getcwd(), [n for n in _REPO_ROOT_FILES if (root / n).exists()])
+
+
+def _no_test_leaves_the_working_directory_or_repo_root_files_changed(item):
+    """Fail a test that leaves the cwd moved or a tracked repo-root file gone.
+
+    Called from ``pytest_runtest_teardown`` AFTER every fixture has been torn
+    down, because ``monkeypatch.chdir`` is only undone then; a fixture would
+    report every such test as a leak. The cwd is restored before failing so
+    one offender does not cascade into later tests. A leaked ``os.chdir``
+    breaks every later relative-path test in the same worker, and a cleanup
+    run in the wrong cwd can delete ``.coveragerc``.
+    SPACR_CWD_GUARD_LOG, when set to a file, appends offenders there and
+    only reports (survey mode).
+    """
+    saved = item.stash.get(_CWD_BEFORE, None)
+    if saved is None:
+        return
+    before, present = saved
+    root = Path(__file__).resolve().parent.parent
+    problems = []
+    try:
+        after = os.getcwd()
+    except FileNotFoundError:
+        after = "<deleted directory>"
+    if after != before:
+        problems.append(f"working directory changed from {before} to {after}")
+        os.chdir(before)
+    missing = [n for n in present if not (root / n).exists()]
+    if missing:
+        problems.append(f"repo-root files missing after the test: {missing}")
+    if problems:
+        log = os.environ.get("SPACR_CWD_GUARD_LOG")
+        if log:
+            with open(log, "a", encoding="utf-8") as handle:
+                handle.write(f"{item.nodeid}\t{'; '.join(problems)}\n")
+        else:
+            raise AssertionError("; ".join(problems))
+
+
 @pytest.fixture(autouse=True)
 def _no_provider_stream_outlives_a_test():
     """End any AI provider subprocess a test leaves being read.
@@ -1591,7 +1639,9 @@ def pytest_runtest_teardown(item):
         item.qt_widgets = [
             (_LiveQtWidgetRef(ref), before_close)
             for ref, before_close in widgets]
-    return (yield)
+    outcome = yield
+    _no_test_leaves_the_working_directory_or_repo_root_files_changed(item)
+    return outcome
 
 
 def pytest_runtest_setup(item):
@@ -1601,6 +1651,7 @@ def pytest_runtest_setup(item):
     carries `@pytest.mark.gpu`, and a guard written into each file is a
     guard the next file will not have.
     """
+    _remember_the_working_directory(item)
     if item.get_closest_marker("posix_only") is not None and os.name == "nt":
         pytest.skip("exercises a POSIX-only code path or API")
     if item.get_closest_marker("needs_symlink") is not None and not _symlinks_available():
@@ -3125,6 +3176,101 @@ def hf_toxo_mito_field(tmp_path_factory):
         "well": "E01",
         "field": "001",
     }
+
+
+def _ops_e2e_unpacked(ea, folder: Path, archive: str) -> None:
+    """Download one pinned OPS end-to-end archive into ``folder`` and unpack it.
+
+    :param ea: the :mod:`spacr.example_archives` module.
+    :param folder: where it unpacks.
+    :param archive: the archive's name in the repository.
+    """
+    requests = pytest.importorskip("requests")
+    try:
+        tar = ea.download_archive(ea.OPS_E2E_EXAMPLE_REPO, archive, folder,
+                                  chunk_size=1 << 20)
+    except (requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout) as exc:
+        pytest.skip(f"huggingface.co unreachable: {exc}")
+    except requests.exceptions.HTTPError as exc:
+        status = getattr(exc.response, "status_code", 0) or 0
+        if status >= 500:
+            pytest.skip(f"huggingface.co server error {status}")
+        raise
+    ea.extract_example_archive(tar, folder)
+    Path(tar).unlink(missing_ok=True)
+
+
+def _ops_e2e_tier(tier: str) -> Path:
+    """The unpacked OPS end-to-end test data of one tier, fetched once.
+
+    The core tier is the ``ops_e2e`` example set; the full tier is the opt-in
+    :data:`spacr.example_archives.OPS_E2E_FULL_ARCHIVE`. Each tier's
+    phenotype and merge references (revision 2,
+    :data:`spacr.example_archives.OPS_E2E_REFERENCE_ARCHIVES`) are unpacked
+    over it. Everything comes from the pinned revision and is refused when
+    its SHA-256 differs. A tier already unpacked in the example cache is used
+    without any request, so the tests run offline once it is there. Only an
+    unreachable network or a server error skips; a checksum mismatch, a
+    missing file or a spaCR error fails. Workers of one ``-n`` run take a
+    file lock, so each archive is fetched once.
+
+    :param tier: ``'core'`` or ``'full'``.
+    :returns: the tier root, ``.../ops_testdata_funk2022_A1``.
+    """
+    from spacr import example_archives as ea
+
+    core = ea.example_set_folder("ops_e2e")
+    if tier == "core":
+        folder = core
+        archive = ea.EXAMPLE_ARCHIVES[ea.OPS_E2E_EXAMPLE_REPO]
+    else:
+        folder = core.parent / ea.OPS_E2E_FULL_FOLDER
+        archive = ea.OPS_E2E_FULL_ARCHIVE
+    present = ea.example_set("ops_e2e").is_present
+    root = folder / "ops_testdata_funk2022_A1"
+    references = root / "reference" / "PROVENANCE_rev2_addendum.json"
+    if present(folder) and references.is_file():
+        return root
+    from tests.resource_capabilities import endpoint_available
+    if not endpoint_available():
+        pytest.skip("network / huggingface.co unreachable and the OPS "
+                    f"end-to-end {tier} tier is not cached")
+    folder.parent.mkdir(parents=True, exist_ok=True)
+    lock = open(folder.parent / f".{folder.name}.lock", "w")
+    try:
+        try:
+            import fcntl
+            fcntl.flock(lock, fcntl.LOCK_EX)
+        except ImportError:
+            pass
+        folder.mkdir(parents=True, exist_ok=True)
+        if not present(folder):
+            _ops_e2e_unpacked(ea, folder, archive)
+        if not references.is_file():
+            _ops_e2e_unpacked(ea, folder, ea.OPS_E2E_REFERENCE_ARCHIVES[tier])
+    finally:
+        lock.close()
+    assert present(folder), f"{archive} unpacked without its markers"
+    assert references.is_file(), "the revision-2 references unpacked without their addendum"
+    return root
+
+
+@pytest.fixture(scope="session")
+def ops_e2e_core():
+    """The OPS end-to-end test data, core tier (about 194 MB, cached)."""
+    return _ops_e2e_tier("core")
+
+
+@pytest.fixture(scope="session")
+def ops_e2e_full():
+    """The OPS end-to-end test data, full tier (1.25 GB, cached).
+
+    Opt-in: skips unless ``SPACR_OPS_E2E_FULL=1``, and never runs in CI.
+    """
+    if os.environ.get("SPACR_OPS_E2E_FULL") != "1":
+        pytest.skip("set SPACR_OPS_E2E_FULL=1 to fetch and test the full tier")
+    return _ops_e2e_tier("full")
 
 
 @pytest.fixture(scope="session")

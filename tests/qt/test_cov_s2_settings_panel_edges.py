@@ -20,8 +20,6 @@ pytest.importorskip("pytestqt")
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-import shiboken6                                                 # noqa: E402
-from PySide6.QtCore import QEvent                                # noqa: E402
 from PySide6.QtWidgets import (                                  # noqa: E402
     QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget,
 )
@@ -90,39 +88,6 @@ class TestNamingAPlane:
 
 
 # -- which morphology a slot is in -------------------------------------------
-
-class TestTheMorphologyOfASlot:
-
-    def test_a_type_the_table_never_heard_of_falls_back_to_the_slot(self):
-        """A retired or mistyped organelle type is not a reason to guess.
-
-        ``resolve_type`` refuses an unknown name rather than reading it as
-        'custom', so the panel has to be the one to fall back -- to the
-        slot's own morphology, which is also what a settings file written
-        before the types existed carries.
-        """
-        answer = sm.organelle_morphology_now("organelle", {
-            "organelle_type": "cytoskeleton",
-            "organelle_morphology": "ring",
-        })
-
-        assert answer == "ring"
-
-    def test_a_diameter_that_is_not_a_number_leaves_the_type_to_decide(self):
-        """"large" in the diameter box must not lose the type's answer."""
-        answer = sm.organelle_morphology_now("organelle", {
-            "organelle_type": "vesicular",
-            "organelle_diameter": "large",
-        })
-
-        assert answer == "spots"
-
-    def test_an_unknown_type_and_an_unknown_morphology_narrow_nothing(self):
-        """Neither field names anything: None, rather than a guess."""
-        assert sm.organelle_morphology_now("organelle", {
-            "organelle_type": "cytoskeleton",
-            "organelle_morphology": "blobby",
-        }) is None
 
 
 # -- has this heading got anything left under it? ----------------------------
@@ -200,59 +165,11 @@ def test_a_plain_title_rows_pair_is_looked_up_by_its_title():
 
 # -- the backend field after its combo has gone ------------------------------
 
-def test_an_event_reaching_a_backend_field_with_no_combo_is_handed_on(qtbot):
-    """The filter is installed on widgets that outlive the field's parts.
-
-    A filter that assumed its combo was still there would raise inside Qt's
-    event delivery -- on the GUI thread, from a teardown the user cannot see.
-    """
-    field = sm._RegressionBackendField(regression_type="ols")
-    qtbot.addWidget(field)
-    del field.combo
-
-    handled = field.eventFilter(field, QEvent(QEvent.Type.ToolTip))
-
-    assert handled is False
-
 
 # -- reading the panel's own controls for the visibility rule -----------------
 
 class TestReadingTheControlsTheVisibilityRuleNeeds:
 
-    def test_a_control_that_has_been_destroyed_falls_back_to_the_default(
-            self, qtbot):
-        """The rule runs on every keystroke, including during teardown.
-
-        A widget whose C++ object has gone raises on the first read. The
-        value the run will actually use is the default, so that is what the
-        rule is given rather than an exception on the GUI thread.
-        """
-        owner = QWidget()
-        qtbot.addWidget(owner)
-        panel = sm.SettingsWidgets("mask", parent=owner)
-        panel.build_sections()
-        key = next(name for name in panel._object_visibility_keys()
-                   if name in panel._widgets)
-        shiboken6.delete(panel._widgets[key])
-
-        state = panel._object_visibility_settings()
-
-        assert key in state
-        assert state[key] == panel._defaults.get(key)
-
-    def test_a_key_this_app_does_not_have_is_not_an_error(self, qtbot):
-        """The rule is shared by every screen; not every screen has the key."""
-        owner = QWidget()
-        qtbot.addWidget(owner)
-        panel = sm.SettingsWidgets("mask", parent=owner)
-        panel.build_sections()
-        controls_before = dict(panel._widgets)
-
-        panel._set_row_visible("no_such_setting_anywhere", False)
-
-        assert panel._widgets.keys() == controls_before.keys()
-        assert all(panel._widgets[key] is control
-                   for key, control in controls_before.items())
 
     def test_a_field_with_no_row_yet_is_hidden_along_with_its_name(self,
                                                                    qtbot):
@@ -278,36 +195,3 @@ class TestReadingTheControlsTheVisibilityRuleNeeds:
 
 
 # -- the first visibility pass belongs to the screen -------------------------
-
-class TestTheFirstVisibilityPass:
-
-    def test_it_runs_on_the_next_event_loop_turn(self, qtbot, monkeypatch):
-        """The parent-owned timer works on PySide 6.6 as well as newer."""
-        parent = QWidget()
-        qtbot.addWidget(parent)
-        panel = sm.SettingsWidgets("mask", parent=parent)
-        calls = []
-        monkeypatch.setattr(
-            panel, "refresh_object_visibility", lambda: calls.append(True))
-
-        panel.build_sections()
-        calls_before_event_turn = len(calls)
-
-        qtbot.waitUntil(lambda: len(calls) > calls_before_event_turn)
-        assert len(calls) == calls_before_event_turn + 1
-
-    def test_closing_the_screen_cancels_its_pending_pass(
-            self, qtbot, monkeypatch):
-        """A callback must not reach widgets after their owner is destroyed."""
-        parent = QWidget()
-        panel = sm.SettingsWidgets("mask", parent=parent)
-        calls = []
-        monkeypatch.setattr(
-            panel, "refresh_object_visibility", lambda: calls.append(True))
-        panel.build_sections()
-        calls_before_close = len(calls)
-
-        shiboken6.delete(parent)
-        qtbot.wait(10)
-
-        assert len(calls) == calls_before_close

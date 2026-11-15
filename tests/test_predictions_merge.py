@@ -1319,6 +1319,10 @@ def test_the_ml_entry_point_repairs_before_reading_png_list(tmp_path, monkeypatc
     The annotation-column branch reads ``png_list`` directly, so the repair has
     to happen before the read -- the same place ``rename_columns_in_db`` sits in
     ``_read_db``.
+
+    ``png_list`` is given the ``test`` column the run trains on: since issue
+    #186 a run whose annotation column ``png_list`` lacks is refused before
+    anything is read, and that refusal would stop it short of the repair.
     """
     import spacr.io as io
     import spacr.ml as ml
@@ -1329,6 +1333,10 @@ def test_the_ml_entry_point_repairs_before_reading_png_list(tmp_path, monkeypatc
     prcfos = read(db, "prcfo")["prcfo"].tolist()
     legacy_write(db, prcfos, [0, 1, 1])
     assert read(db, "predictions")["predictions"].tolist() == [2, 1, 1]
+    con = sqlite3.connect(db)
+    con.execute("ALTER TABLE png_list ADD COLUMN test TEXT")
+    con.commit()
+    con.close()
 
     seen = {}
 

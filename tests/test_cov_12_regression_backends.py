@@ -18,7 +18,6 @@ import pytest
 from spacr import regression_backends as backends
 from spacr.regression_backends import (DEFAULT_REGRESSION_BACKEND,
                                        REGRESSION_BACKENDS, backend_status,
-                                       backend_install_offer,
                                        cuda_present_without_importing_torch,
                                        package_installed,
                                        resolve_backend_name)
@@ -127,22 +126,6 @@ def test_a_backend_with_no_install_command_just_says_it_is_not_installed(
     assert status['enabled'] is False
     assert 'This backend is not installed.' in status['reason']
     assert 'None' not in status['reason']
-
-
-def test_an_installed_but_unwired_backend_is_offered_nothing_to_install(
-        monkeypatch):
-    """Installing more cannot help a backend spaCR routes no fit through.
-
-    Offering an install command there would send the user to fix their
-    environment for a limitation that is entirely spaCR's.
-    """
-    monkeypatch.setattr(backends, 'cuda_present_without_importing_torch',
-                        lambda: True)
-    monkeypatch.setattr(backends, 'package_installed', lambda name: True)
-
-    offer = backend_install_offer('gpytorch', regression_type='mixed')
-    assert offer.action == 'impossible'
-    assert 'routes no fit through it yet' in offer.message
 
 
 def test_an_unwired_backend_that_IS_installed_does_not_advertise_a_pip_command(

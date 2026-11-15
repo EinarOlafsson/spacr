@@ -54,15 +54,6 @@ from spacr.qt.screens import settings_model as SM  # noqa: E402
 # module defaults and the plane-clearing rule
 # ---------------------------------------------------------------------------
 
-def test_the_external_mask_module_brings_its_own_defaults():
-    """``external_masks`` is the one app whose defaults live in its module."""
-    from spacr.external_masks import default_settings
-
-    resolved = SM.resolve_default_settings("external_masks")
-
-    assert resolved == default_settings({})
-    assert "inputs" in resolved
-
 
 def test_the_built_in_dispatch_answers_the_same_as_the_registration_seam(
         monkeypatch):
@@ -107,43 +98,6 @@ def test_a_type_table_that_cannot_be_read_leaves_every_plane_alone(monkeypatch):
     monkeypatch.setattr(spacr_settings, "expected_types", object())
 
     assert SM._is_clearable_plane_setting("nucleus_channel") is False
-
-
-# ---------------------------------------------------------------------------
-# a layout that claims every key
-# ---------------------------------------------------------------------------
-
-def test_a_layout_that_places_every_key_grows_no_additional_bucket():
-    """The trailing bucket exists for leftovers, and only for leftovers."""
-    placed = SM.categories_for_app("power", {})
-    leftover = SM.categories_for_app("power", {"X": ["_probe_unplaced"]})
-
-    assert "Library Design" in placed          # the spec really did render
-    assert "Additional Settings" not in placed
-    assert leftover["Additional Settings"] == ["_probe_unplaced"]
-
-
-def test_a_merged_classifier_layout_claims_every_key_it_is_given():
-    """Classify's rebuild names every group, so nothing falls out of it."""
-    claimed = SM.categories_for_app("classify", {})
-    leftover = SM.categories_for_app("classify", {"X": ["_probe_unplaced"]})
-
-    assert "Labels & Classes" in claimed
-    assert "Additional Settings" not in claimed
-    assert leftover["Additional Settings"] == ["_probe_unplaced"]
-
-
-def test_a_category_emptied_by_hiding_disappears_with_its_keys(monkeypatch):
-    """A heading with nothing under it is a heading about nothing."""
-    monkeypatch.setitem(SM._APP_HIDDEN_KEYS, "_probe_app", {"hidden_one"})
-
-    out = SM.categories_for_app("_probe_app", {
-        "Only the hidden one": ["hidden_one"],
-        "One of each": ["hidden_one", "src"],
-    })
-
-    assert "Only the hidden one" not in out
-    assert out["One of each"] == ["src"]
 
 
 # ---------------------------------------------------------------------------
@@ -201,24 +155,6 @@ def test_a_setting_with_no_prose_still_names_itself_in_the_footer():
 # ---------------------------------------------------------------------------
 # the regression design scan
 # ---------------------------------------------------------------------------
-
-def test_a_pairing_that_is_not_a_list_names_no_count_file():
-    """`paired_data` is a list of pairs; one pair on its own is not one."""
-    assert SM._count_files_of({"paired_data": [{"count": "a.csv"}]}) == ["a.csv"]
-    assert SM._count_files_of({"paired_data": {"count": "a.csv"}}) == []
-
-
-def test_a_pair_without_a_count_file_is_stepped_over():
-    """One incomplete row must not stop the rest of the list being read."""
-    assert SM._count_files_of(
-        {"paired_data": [{"count": None}, {"score": "s.csv"},
-                         {"count": "  "}, {"count": " b.csv "}]}) == ["b.csv"]
-
-
-def test_a_legacy_count_list_holding_blanks_is_stepped_over():
-    """The pre-migration `count_data` list is hand-edited, so it has holes."""
-    assert SM._count_files_of(
-        {"count_data": [None, "", "   ", "c.csv"]}) == ["c.csv"]
 
 
 def test_a_count_table_with_no_guide_column_still_counts_its_wells(tmp_path):
@@ -300,82 +236,6 @@ def test_a_label_hung_after_the_greying_is_re_enabled_with_its_own_help():
 # API dots are help, not settings
 # ---------------------------------------------------------------------------
 
-class _UrlSink(QWidget):
-    """A dot that owns its destination, as the real API dot does."""
-
-    def __init__(self):
-        super().__init__()
-        self.url = None
-
-    def set_url(self, url):
-        self.url = url
-
-
-def test_an_api_dot_is_re_pointed_and_captioned_rather_than_re_described():
-    """The dot's help names the setting it opens; the URL follows the language."""
-    owner = QWidget()
-    dot = _UrlSink()
-    dot.setParent(owner)
-    dot.setProperty("settingsAppKey", "measure")
-    dot.setProperty("settingKey", "src")
-    dot.setProperty("apiTooltipDisplayRole", "api-link")
-    field = QLineEdit(owner)
-    field.setProperty("settingsAppKey", "measure")
-    field.setProperty("settingKey", "src")
-
-    SM.refresh_api_tooltips(owner, "en")
-
-    caption = SM._api_reference_tooltip("src", "en", "measure")
-    # This asked for the raw key in the caption. Commit 53a40ebce made
-    # ``src`` render as its exact label everywhere, from one place in
-    # ``object_roles.EXACT_LABELS``, so a caption still carrying "src"
-    # would now be the bug: the dot sits beside a field the form names,
-    # and its accessible name is read out on its own. What the caption has
-    # to do is name the setting it opens, which it does.
-    #
-    # The label became "Source" on 2026-09-04 -- "Path" was being rendered
-    # as a way to walk in the nine catalogs -- so this reads the label
-    # rather than spelling it.
-    from spacr.object_roles import EXACT_LABELS
-    assert caption == "API"
-    assert dot.toolTip() == caption
-    assert dot.accessibleName() == caption
-    assert dot.url == SM.api_docs_url("measure", "src", "en")
-    # The ordinary field is still described, so the dot's silence is a
-    # decision about dots rather than about this owner.
-    assert dot.toolTip() != field.toolTip()
-
-
-def test_an_api_dot_with_no_destination_still_gets_its_caption():
-    """A dot that is a plain widget carries the caption and nothing else."""
-    owner = QWidget()
-    dot = QWidget(owner)
-    dot.setProperty("settingsAppKey", "measure")
-    dot.setProperty("settingKey", "src")
-    dot.setProperty("apiTooltipDisplayRole", "api-link")
-
-    SM.refresh_api_tooltips(owner, "en")
-
-    assert dot.toolTip() == SM._api_reference_tooltip("src", "en", "measure")
-    assert dot.accessibleDescription()
-
-
-def test_the_decoration_sweep_walks_past_the_dots_it_made():
-    """A dot carries `settingKey`, so a second pass would decorate it again."""
-    owner = QWidget()
-    QVBoxLayout(owner)
-    field = QLineEdit(owner)
-    field.setProperty("settingKey", "src")
-    dot = QLabel("i", owner)
-    dot.setProperty("settingKey", "src")
-    dot.setProperty("apiTooltipDisplayRole", "api-link")
-
-    SM.install_api_tooltips(owner, "measure")
-
-    assert field.property("settingsAppKey") == "measure"
-    assert dot.property("settingsAppKey") is None
-    assert dot.property("apiTooltipDisplayRole") == "api-link"
-
 
 def test_a_tooltip_that_cannot_be_priced_still_reaches_the_regression_box(
         monkeypatch):
@@ -398,51 +258,6 @@ def test_a_tooltip_that_cannot_be_priced_still_reaches_the_regression_box(
         "Which model to fit. ")
     assert len(priced.property("apiTooltipDescriptionSource")) > \
         len(unpriced.property("apiTooltipDescriptionSource"))
-
-
-# ---------------------------------------------------------------------------
-# finding the label a field belongs to
-# ---------------------------------------------------------------------------
-
-def test_a_label_host_hands_back_the_label_it_wraps():
-    """Decorating the host instead gives the panel two tooltips per setting."""
-    marked_host = QWidget()
-    marked_host.setObjectName("SettingLabelWithInfo")
-    QVBoxLayout(marked_host)
-    marked = QLabel("Source", marked_host)
-    marked.setProperty("settingHelpLabel", True)
-
-    plain = QLabel("Source")
-
-    assert SM._unwrap_setting_label(marked_host) is marked
-    assert SM._unwrap_setting_label(plain) is plain
-    assert SM._unwrap_setting_label(None) is None
-
-
-def test_an_undecorated_host_hands_back_its_first_captioned_label():
-    """Before the first pass there is no marked child, only a caption."""
-    host = QWidget()
-    host.setObjectName("SettingLabelWithInfo")
-    QVBoxLayout(host)
-    spacer = QLabel("   ", host)          # the info slot, still empty
-    caption = QLabel("Source", host)
-
-    found = SM._unwrap_setting_label(host)
-
-    assert found is caption and found is not spacer
-
-
-def test_a_field_in_no_form_has_no_form_label():
-    """The walk up the parent chain ends at the top, not in a guess."""
-    owner = QWidget()
-    form = QFormLayout(owner)
-    label = QLabel("Source")
-    field = QLineEdit()
-    form.addRow(label, field)
-    orphan = QLineEdit()                  # never parented, so the walk ends
-
-    assert SM._setting_label_for_field(owner, field) is label
-    assert SM._setting_label_for_field(owner, orphan) is None
 
 
 # ---------------------------------------------------------------------------
@@ -563,20 +378,6 @@ def _mouse_move(widget):
                        Qt.NoButton, Qt.NoButton, Qt.NoModifier)
 
 
-def test_an_event_from_somewhere_else_reaches_nobodys_hover_rule():
-    """The filter is installed on two objects and speaks for those two."""
-    field = SM._RegressionBackendField()
-    hovered = []
-    field._hover_closed_combo = lambda *a: hovered.append(True)
-    stranger = QWidget()
-
-    assert field.eventFilter(stranger, QEvent(QEvent.Enter)) is False
-    assert hovered == []
-
-    assert field.eventFilter(field.combo, QEvent(QEvent.Enter)) is False
-    assert hovered == [True]
-
-
 # ---------------------------------------------------------------------------
 # the chip strip
 # ---------------------------------------------------------------------------
@@ -613,123 +414,9 @@ def test_a_chip_the_strip_no_longer_holds_is_removed_without_complaint():
 # building the panel
 # ---------------------------------------------------------------------------
 
-def test_a_setting_the_factory_declines_to_build_is_left_out_of_the_panel(
-        qtbot):
-    """A widget that was never made cannot be tooltipped or laid out."""
-    owner = QWidget()
-    qtbot.addWidget(owner)
-    widgets = SM.SettingsWidgets("measure", parent=owner)
-    real = widgets._widget_for
-    declined = []
-
-    def _decline(kind, options, default, key):
-        if key == "src":
-            declined.append(key)
-            return None
-        return real(kind, options, default, key)
-
-    widgets._widget_for = _decline
-    widgets.build_sections()
-
-    assert declined == ["src"]
-    assert "src" not in widgets._widgets
-    assert widgets._widgets            # everything else was still built
-
 
 class _Voiceless(QWidget):
     """A control with none of the three value-changed signals."""
-
-
-def test_slow_event_pumps_leave_real_widget_work_between_breaths(qtbot, monkeypatch):
-    import time
-    from PySide6.QtCore import QCoreApplication, QEventLoop
-
-    owner = QWidget()
-    qtbot.addWidget(owner)
-    model = SM.SettingsWidgets("measure", parent=owner)
-    defaults = {f"owned_breath_{index}": str(index) for index in range(64)}
-    model._defaults = defaults
-    clock = [0]
-    built, pumps, flags = [], [], []
-    original = model._widget_for
-
-    def widget_for(kind, options, default, key):
-        widget = original(kind, options, default, key)
-        built.append(key)
-        clock[0] += 1
-        return widget
-
-    def process_events(mode):
-        pumps.append(len(built))
-        flags.append(mode)
-        clock[0] += 40
-
-    with monkeypatch.context() as patch:
-        patch.setattr(model, "_widget_for", widget_for)
-        patch.setattr(time, "perf_counter", lambda: clock[0] / 1000)
-        patch.setattr(QCoreApplication, "processEvents", process_events)
-        model.build_sections()
-
-    assert built == list(defaults)
-    assert list(model._widgets) == list(defaults)
-    assert flags and all(flag == QEventLoop.ExcludeUserInputEvents for flag in flags)
-    assert len(pumps) == 2, pumps
-    assert pumps[0] >= 25 and all(right - left >= 25 for left, right in zip(pumps, pumps[1:])), pumps
-
-
-def test_a_fast_panel_inside_an_open_breathes_once_the_open_has_worked(qtbot, monkeypatch):
-    """Inside a window open the settings budget runs from the open's last breath.
-
-    A panel whose own controls take under one budget still lets the event
-    loop run (a close asked for during a prewarm step) when the open had
-    already worked a budget's worth before the panel began.
-    """
-    import time
-    from PySide6.QtCore import QCoreApplication
-    from spacr.qt import screens
-
-    owner = QWidget()
-    qtbot.addWidget(owner)
-    model = SM.SettingsWidgets("measure", parent=owner)
-    defaults = {f"fast_breath_{index}": str(index) for index in range(10)}
-    model._defaults = defaults
-    clock = [1000]
-    built, pumps = [], []
-    original = model._widget_for
-
-    def widget_for(kind, options, default, key):
-        built.append(key)
-        clock[0] += 1
-        return original(kind, options, default, key)
-
-    def process_events(mode):
-        pumps.append((len(built), clock[0]))
-
-    with monkeypatch.context() as patch:
-        patch.setattr(model, "_widget_for", widget_for)
-        patch.setattr(time, "perf_counter", lambda: clock[0] / 1000)
-        patch.setattr(QCoreApplication, "processEvents", process_events)
-        patch.setattr(screens, "_a_window_is_opening_a_screen", True)
-        patch.setattr(screens, "_last_breath_at", 0.960)
-        model.build_sections()
-        breathed_at = screens._last_breath_at
-
-    assert list(model._widgets) == list(defaults)
-    assert pumps == [(0, 1000)], pumps
-    assert breathed_at == 1.0
-
-    pumps.clear()
-    model2 = SM.SettingsWidgets("measure", parent=owner)
-    model2._defaults = defaults
-    original = model2._widget_for
-    with monkeypatch.context() as patch:
-        patch.setattr(model2, "_widget_for", widget_for)
-        patch.setattr(time, "perf_counter", lambda: clock[0] / 1000)
-        patch.setattr(QCoreApplication, "processEvents", process_events)
-        patch.setattr(screens, "_a_window_is_opening_a_screen", False)
-        patch.setattr(screens, "_last_breath_at", 0.0)
-        model2.build_sections()
-    assert pumps == [], pumps
 
 
 def test_a_selector_with_no_signal_is_left_unconnected_rather_than_fatal(qtbot):
@@ -762,17 +449,6 @@ def test_a_selector_with_no_signal_is_left_unconnected_rather_than_fatal(qtbot):
                            "regression_type"))
 
 
-def test_a_combo_whose_default_is_absent_is_not_offered_an_empty_choice():
-    """An empty default is not a value the module asked for."""
-    widgets = SM.SettingsWidgets("measure")
-
-    named = widgets._widget_for("combo", ["a", "b"], "c", "_probe_named")
-    blank = widgets._widget_for("combo", ["a", "b"], None, "_probe_blank")
-
-    assert [named.itemText(i) for i in range(named.count())] == ["c", "a", "b"]
-    assert [blank.itemText(i) for i in range(blank.count())] == ["a", "b"]
-
-
 def test_a_count_that_is_not_a_number_grows_no_slots():
     """The count comes from a hand-editable CSV, so it is not always a number."""
     widgets = SM.SettingsWidgets("measure")
@@ -780,111 +456,6 @@ def test_a_count_that_is_not_a_number_grows_no_slots():
 
     assert widgets.grow_to_fit_the_organelle_count("not a number") == 2
     assert widgets._slots_built_for == 2
-
-
-# ---------------------------------------------------------------------------
-# which organelle slots are worth writing back
-# ---------------------------------------------------------------------------
-
-class _Unequal:
-    """A value that cannot be compared, as a NumPy array cannot."""
-
-    def __eq__(self, other):
-        raise ValueError("truth value is ambiguous")
-
-    __hash__ = None
-
-
-def test_a_slot_above_the_count_survives_only_when_it_says_something_new():
-    """A file written at three opens at one and still carries three."""
-    widgets = SM.SettingsWidgets("measure")
-    # What the panel invented for the slots above the count. Set here
-    # because `grow_to_fit_the_organelle_count` is the only writer and it
-    # rebuilds the whole form to do it.
-    widgets._slots_the_panel_added = {
-        "organelleb_channel": None,
-        "organellec_channel": None,
-    }
-
-    kept = widgets._organelle_slots_worth_keeping({
-        "number_of_organelles": 1,
-        "organelle_channel": 0,
-        "organelleb_channel": None,    # exactly what the panel put there
-        "organellec_channel": 2,       # the file's own answer
-    })
-
-    assert "organellec_channel" in kept          # slot three, so slot two too
-    assert "organelleb_channel" in kept
-    assert kept["organellec_channel"] == 2
-
-
-def test_a_slot_the_panel_never_invented_is_always_written_back():
-    """A value that came from anywhere else is the run's, whatever the count."""
-    widgets = SM.SettingsWidgets("measure")
-    widgets._slots_the_panel_added = {"organelleb_channel": None}
-
-    kept = widgets._organelle_slots_worth_keeping({
-        "number_of_organelles": 1,
-        "organelle_channel": 0,
-        "organelleb_channel": None,
-        "organellec_channel": 3,       # never invented here
-    })
-
-    assert kept["organellec_channel"] == 3
-
-
-def test_a_slot_holding_a_value_that_cannot_be_compared_is_kept():
-    """An unanswerable comparison is not evidence the panel put it there."""
-    widgets = SM.SettingsWidgets("measure")
-    widgets._slots_the_panel_added = {"organelleb_channel": _Unequal()}
-
-    kept = widgets._organelle_slots_worth_keeping({
-        "number_of_organelles": 1,
-        "organelle_channel": 0,
-        "organelleb_channel": _Unequal(),
-    })
-
-    assert "organelleb_channel" in kept
-
-
-def test_a_slot_whose_comparison_blows_up_is_kept(monkeypatch):
-    """An unanswerable comparison is not evidence the panel wrote the value.
-
-    The real ``_values_equal`` cannot raise -- it delegates to
-    ``spacr.run_journal.values_equal``, which answers ``False`` rather than
-    propagate anything -- so this drives the guard through the seam the
-    method imports it by.
-    """
-    from spacr.qt import settings_diff
-
-    def _explode(_a, _b):
-        raise ValueError("the truth value of an array is ambiguous")
-
-    widgets = SM.SettingsWidgets("measure")
-    widgets._slots_the_panel_added = {"organelleb_channel": 1}
-    monkeypatch.setattr(settings_diff, "_values_equal", _explode)
-
-    kept = widgets._organelle_slots_worth_keeping({
-        "number_of_organelles": 1,
-        "organelle_channel": 0,
-        "organelleb_channel": 1,
-    })
-
-    assert "organelleb_channel" in kept
-
-
-def test_slots_within_the_count_are_kept_without_asking_what_they_hold():
-    """The count reaches them, so what they hold is not the question."""
-    widgets = SM.SettingsWidgets("measure")
-    widgets._slots_the_panel_added = {"organelleb_channel": None}
-
-    kept = widgets._organelle_slots_worth_keeping({
-        "number_of_organelles": 2,
-        "organelle_channel": 0,
-        "organelleb_channel": None,
-    })
-
-    assert kept["organelleb_channel"] is None
 
 
 # ---------------------------------------------------------------------------
@@ -1039,65 +610,6 @@ def test_a_panel_of_nothing_but_parent_headings_caches_no_leaf(qtbot):
 
     assert parent_only._slot_headings() == {}
     assert list(with_leaf._slot_headings()) == [id(leaf)]
-
-
-def test_a_heading_of_an_absent_slot_is_hidden_and_shown_again(qtbot):
-    """A heading with every row hidden is a smaller wall, but a wall."""
-    widgets, section = _model_with_heading(qtbot, ("organelleb_channel",))
-    assert not section.isHidden()
-
-    widgets._hide_the_headings_of_slots_the_run_lacks(
-        {"number_of_organelles": 1})
-    assert section.isHidden()
-    assert id(section) in widgets._headings_of_absent_slots
-
-    # The same pass again: already hidden, so nothing is recorded twice.
-    widgets._hide_the_headings_of_slots_the_run_lacks(
-        {"number_of_organelles": 1})
-    assert list(widgets._headings_of_absent_slots) == [id(section)]
-
-    widgets._hide_the_headings_of_slots_the_run_lacks(
-        {"number_of_organelles": 2})
-
-    assert not section.isHidden()
-    assert widgets._headings_of_absent_slots == {}
-
-
-def test_a_slot_heading_hidden_as_alpha_is_not_shown_by_the_count(monkeypatch,
-                                                                  qtbot):
-    """Putting a slot back must not overrule Preferences."""
-    from spacr.qt import preferences
-
-    widgets, section = _model_with_heading(qtbot, ("organelleb_channel",),
-                                           stage="alpha")
-    widgets._hide_the_headings_of_slots_the_run_lacks(
-        {"number_of_organelles": 1})
-    assert section.isHidden()
-
-    monkeypatch.setattr(preferences, "get_show_alpha", lambda: False)
-    widgets._hide_the_headings_of_slots_the_run_lacks(
-        {"number_of_organelles": 2})
-
-    assert section.isHidden()
-    assert widgets._headings_of_absent_slots == {}
-
-
-def test_a_heading_that_went_away_with_its_screen_is_forgotten(qtbot):
-    """The section is destroyed by the teardown that owns it, not by this."""
-    import shiboken6
-
-    widgets, section = _model_with_heading(qtbot, ("organelleb_channel",))
-    widgets._hide_the_headings_of_slots_the_run_lacks(
-        {"number_of_organelles": 1})
-    ident = id(section)
-    assert ident in widgets._headings_of_absent_slots
-
-    shiboken6.delete(section)          # what a screen teardown leaves behind
-
-    widgets._hide_the_headings_of_slots_the_run_lacks(
-        {"number_of_organelles": 1})
-
-    assert ident not in widgets._headings_of_absent_slots
 
 
 def test_a_heading_whose_body_is_not_a_form_is_walked_past(qtbot):

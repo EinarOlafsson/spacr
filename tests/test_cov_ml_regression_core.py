@@ -102,7 +102,7 @@ def _fraction_xy(n=120, seed=0):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("alpha", ["auto", None])
-def case_regression_model_ridge_auto_alpha_uses_ridgecv(alpha, capsys):
+def test_regression_model_ridge_auto_alpha_uses_ridgecv(alpha, capsys):
     from sklearn.linear_model import RidgeCV
     from spacr.ml import regression_model
 
@@ -132,6 +132,7 @@ def case_regression_model_find_best_alpha_rejects_unknown_model(monkeypatch):
     The helper is a closure, so it is recovered from the traceback frame of
     ``regression_model`` after injecting a failure into ``LassoCV.fit``.
     """
+    _seen = []
     from spacr import ml as ML
 
     class _BoomCV:
@@ -150,15 +151,19 @@ def case_regression_model_find_best_alpha_rejects_unknown_model(monkeypatch):
     finder = None
     with pytest.raises(RuntimeError, match="boom-injected") as excinfo:
         ML.regression_model(X, y, regression_type="lasso", alpha="auto")
+    _seen.append(('RuntimeError' if isinstance(excinfo.value, RuntimeError) else type(excinfo.value).__name__))
     tb = excinfo.value.__traceback__
     while tb is not None:
         if tb.tb_frame.f_code.co_name == "regression_model":
             finder = tb.tb_frame.f_locals.get("_find_best_alpha")
         tb = tb.tb_next
 
-    assert callable(finder), "could not recover _find_best_alpha from the frame"
-    with pytest.raises(ValueError, match="unknown model_cls='bogus'"):
+    _seen.append(bool(
+        callable(finder)))
+    with pytest.raises(ValueError, match="unknown model_cls='bogus'") as _exc1:
         finder("bogus")
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -166,6 +171,7 @@ def case_regression_model_find_best_alpha_rejects_unknown_model(monkeypatch):
 # ---------------------------------------------------------------------------
 
 def case_regression_model_logit_applies_var_weights():
+    _seen = []
     from spacr.ml import regression_model
     from statsmodels.genmod.families.links import Logit
 
@@ -176,17 +182,24 @@ def case_regression_model_logit_applies_var_weights():
     weighted = regression_model(X, y, regression_type="logit", weights=weights)
     plain = regression_model(X, y, regression_type="logit")
 
-    assert np.allclose(weighted.model.var_weights, weights.to_numpy())
-    assert np.allclose(plain.model.var_weights, 1.0)
-    assert isinstance(weighted.model.family.link, Logit)
+    _seen.append(bool(
+        np.allclose(weighted.model.var_weights, weights.to_numpy())))
+    _seen.append(bool(
+        np.allclose(plain.model.var_weights, 1.0)))
+    _seen.append(bool(
+        isinstance(weighted.model.family.link, Logit)))
     # Weighting by cell count inflates the effective sample size, so the
     # standard errors must shrink relative to the unweighted fit.
-    assert weighted.bse["x"] < plain.bse["x"] / 5
+    _seen.append(bool(
+        weighted.bse["x"] < plain.bse["x"] / 5))
     # Both fits still recover the planted positive slope.
-    assert weighted.params["x"] > 0.3 and plain.params["x"] > 0.3
+    _seen.append(bool(
+        weighted.params["x"] > 0.3 and plain.params["x"] > 0.3))
+    return _seen
 
 
 def case_regression_model_probit_uses_probit_link_and_weights():
+    _seen = []
     from spacr.ml import regression_model
 
     X, y = _fraction_xy(seed=15)
@@ -194,10 +207,14 @@ def case_regression_model_probit_uses_probit_link_and_weights():
 
     model = regression_model(X, y, regression_type="probit", weights=weights)
 
-    assert type(model.model.family.link).__name__ == "probit"
-    assert np.allclose(model.model.var_weights, 50.0)
-    assert np.isfinite(model.params).all()
-    assert model.params["x"] > 0.1
+    _seen.append(keep(type(model.model.family.link).__name__))
+    _seen.append(bool(
+        np.allclose(model.model.var_weights, 50.0)))
+    _seen.append(bool(
+        np.isfinite(model.params).all()))
+    _seen.append(bool(
+        model.params["x"] > 0.1))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -205,6 +222,7 @@ def case_regression_model_probit_uses_probit_link_and_weights():
 # ---------------------------------------------------------------------------
 
 def case_regression_model_mixed_dispatches_to_perform_mixed_model(capsys):
+    _seen = []
     from spacr.ml import regression_model
 
     rng = np.random.default_rng(16)
@@ -221,14 +239,18 @@ def case_regression_model_mixed_dispatches_to_perform_mixed_model(capsys):
     model = regression_model(X, pd.Series(y), regression_type="mixed",
                              groups=groups, alpha=1.0)
 
-    assert list(model.fe_params.index) == ["x1", "x2"]
-    assert model.fe_params["x1"] == pytest.approx(1.5, abs=0.3)
-    assert model.fe_params["x2"] == pytest.approx(-0.8, abs=0.3)
-    assert "VIF:" in capsys.readouterr().out
+    _seen.append(keep(list(model.fe_params.index)))
+    _seen.append(bool(
+        model.fe_params["x1"] == pytest.approx(1.5, abs=0.3)))
+    _seen.append(bool(
+        model.fe_params["x2"] == pytest.approx(-0.8, abs=0.3)))
+    _seen.append(('VIF:' if 'VIF:' in (capsys.readouterr().out) else ("missing", 'VIF:')))
+    return _seen
 
 
 def case_regression_model_glm_reports_mcfadden_pseudo_r2(capsys):
     """Count response -> Poisson/Log GLM, plus the McFadden R2 report."""
+    _seen = []
     from spacr.ml import regression_model
 
     rng = np.random.default_rng(18)
@@ -239,16 +261,17 @@ def case_regression_model_glm_reports_mcfadden_pseudo_r2(capsys):
 
     model = regression_model(X, y, regression_type="glm")
 
-    assert type(model.model.family).__name__ == "Poisson"
-    assert type(model.model.family.link).__name__ == "Log"
-    assert model.params["x"] == pytest.approx(0.6, abs=0.15)
+    _seen.append(keep(type(model.model.family).__name__))
+    _seen.append(keep(type(model.model.family.link).__name__))
+    _seen.append(bool(
+        model.params["x"] == pytest.approx(0.6, abs=0.15)))
     out = capsys.readouterr().out
     # The sentence names the SCALE it examined (instruction 182 A), so it
     # reads "the response looks like counts" rather than "Count data
     # detected" -- the old wording said nothing about which column.
-    assert "looks like counts" in out
-    assert "McFadden's R" in out
-    assert "Generalized Linear Model Regression Results" in out
+    _seen.append(('looks like counts' if 'looks like counts' in (out) else ("missing", 'looks like counts')))
+    _seen.append(("McFadden's R" if "McFadden's R" in (out) else ("missing", "McFadden's R")))
+    _seen.append(('Generalized Linear Model Regression Results' if 'Generalized Linear Model Regression Results' in (out) else ("missing", 'Generalized Linear Model Regression Results')))
     # THE PRINTED PSEUDO-R2 MUST MATCH THE FORMULA THE FUNCTION USES, and
     # this pinned the wrong one. It was `1 - llf / (null_deviance / -2)`,
     # which equals McFadden only when the SATURATED log-likelihood is zero.
@@ -259,15 +282,20 @@ def case_regression_model_glm_reports_mcfadden_pseudo_r2(capsys):
     # instruction 182. `llnull` is the null model statsmodels fits.
     mcfadden = 1 - (model.llf / model.llnull)
     printed = float([l for l in out.splitlines() if "McFadden" in l][0].split(":")[-1])
-    assert printed == pytest.approx(mcfadden, abs=1e-4)
+    _seen.append(bool(
+        printed == pytest.approx(mcfadden, abs=1e-4)))
+    return _seen
 
 
 def case_regression_model_mixed_without_groups_raises():
+    _seen = []
     from spacr.ml import regression_model
 
     X, y = _fraction_xy(n=40, seed=17)
-    with pytest.raises(ValueError, match="Groups must be defined"):
+    with pytest.raises(ValueError, match="Groups must be defined") as _exc1:
         regression_model(X, y, regression_type="mixed", groups=None)
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -286,6 +314,7 @@ def case_regression_ols_keeps_the_design_as_measured(tmp_path, capsys):
     volcano plot ranks against each other had each been rescaled by a
     different constant.
     """
+    _seen = []
     from spacr.ml import regression
 
     df = _wells_df(seed=0)
@@ -297,84 +326,101 @@ def case_regression_ols_keeps_the_design_as_measured(tmp_path, capsys):
         regression_type="ols", nc=NC, pc=PC, dst=dst,
     )
 
-    assert reg_type == "ols"
+    _seen.append(keep(reg_type))
     # `level` says which of the two fits produced the row, so a stacked
     # results.csv can be read back apart. Instruction 132.
-    assert list(coef_df.columns) == [
-        "feature", "coefficient", "p_value", "-log10(p_value)", "grna",
-        "condition", "level",
-    ]
-    assert set(coef_df["level"]) == {"grna"}     # the default level
+    _seen.append(keep(list(coef_df.columns)))
+    _seen.append(keep(set(coef_df["level"])))
     # Row / column fixed effects are stripped from the reported coefficients.
-    assert not coef_df["feature"].str.contains("row|column").any()
+    _seen.append(bool(
+        not coef_df["feature"].str.contains("row|column").any()))
     # One coefficient per gRNA plus the intercept -- and NO gene terms, which
     # is the collinearity instruction 132 removed.
-    assert set(coef_df["feature"]) == EXPECTED_GRNA_FEATURES
-    assert len(coef_df) == 8 + 1
+    _seen.append(bool(
+        set(coef_df["feature"]) == EXPECTED_GRNA_FEATURES))
+    _seen.append(bool(
+        len(coef_df) == 8 + 1))
 
     # ...and the gene level is a SEPARATE fit of the same wells.
     _model, gene_coef, _kind = regression(
         df, csv_path, dependent_variable="predictions",
         regression_type="ols", nc=NC, pc=PC, dst=dst, level="gene",
     )
-    assert set(gene_coef["feature"]) == EXPECTED_GENE_FEATURES
-    assert set(gene_coef["level"]) == {"gene"}
-    assert np.allclose(coef_df["-log10(p_value)"], -np.log10(coef_df["p_value"]),
-                       equal_nan=True)
+    _seen.append(bool(
+        set(gene_coef["feature"]) == EXPECTED_GENE_FEATURES))
+    _seen.append(keep(set(gene_coef["level"])))
+    _seen.append(bool(
+        np.allclose(coef_df["-log10(p_value)"], -np.log10(coef_df["p_value"]),
+                       equal_nan=True)))
     # Control annotation is driven by the nc / pc identifiers.
     # Two guide rows each, not three: the third was the gene term, and the
     # gene term is a different fit now (instruction 132).
     nc_rows = coef_df[coef_df["feature"].str.contains(NC)]
     pc_rows = coef_df[coef_df["feature"].str.contains(PC)]
-    assert set(nc_rows["condition"]) == {"nc"} and len(nc_rows) == 2
-    assert set(pc_rows["condition"]) == {"pc"} and len(pc_rows) == 2
+    _seen.append(bool(
+        set(nc_rows["condition"]) == {"nc"} and len(nc_rows) == 2))
+    _seen.append(bool(
+        set(pc_rows["condition"]) == {"pc"} and len(pc_rows) == 2))
     gene_nc = gene_coef[gene_coef["feature"].str.contains(NC)]
-    assert set(gene_nc["condition"]) == {"nc"} and len(gene_nc) == 1
-    assert hasattr(model, "params") and "Intercept" in model.params.index
+    _seen.append(bool(
+        set(gene_nc["condition"]) == {"nc"} and len(gene_nc) == 1))
+    _seen.append(bool(
+        hasattr(model, "params") and "Intercept" in model.params.index))
 
     out = capsys.readouterr().out
-    assert "Using regression type: ols" in out
+    _seen.append(('Using regression type: ols' if 'Using regression type: ols' in (out) else ("missing", 'Using regression type: ols')))
     # The line names the LEVEL too, because a run fits two models now.
-    assert "Performing ols grna-level regression" in out
-    assert "Data will not be scaled" in out
+    _seen.append(('Performing ols grna-level regression' if 'Performing ols grna-level regression' in (out) else ("missing", 'Performing ols grna-level regression')))
+    _seen.append(('Data will not be scaled' if 'Data will not be scaled' in (out) else ("missing", 'Data will not be scaled')))
     # The proof that matters: the intercept column reached the fit as ones.
     intercept = model.model.exog[:, list(model.model.exog_names).index("Intercept")]
-    assert np.allclose(intercept, 1.0)
+    _seen.append(bool(
+        np.allclose(intercept, 1.0)))
     # ... and the response was not squeezed into [0, 1] on the way in.
-    assert np.allclose(np.sort(np.asarray(model.model.endog).ravel()),
-                       np.sort(df["predictions"].to_numpy()))
+    _seen.append(bool(
+        np.allclose(np.sort(np.asarray(model.model.endog).ravel()),
+                       np.sort(df["predictions"].to_numpy()))))
 
     # Both histograms were written; no volcano plot because plot=False.
-    assert (tmp_path / "predictions_histogram.pdf").stat().st_size > 0
-    assert (tmp_path / "fraction_histogram.pdf").stat().st_size > 0
-    assert not (tmp_path / "ols_scores_volcano_plot.pdf").exists()
+    _seen.append(bool(
+        (tmp_path / "predictions_histogram.pdf").stat().st_size > 0))
+    _seen.append(bool(
+        (tmp_path / "fraction_histogram.pdf").stat().st_size > 0))
+    _seen.append(bool(
+        not (tmp_path / "ols_scores_volcano_plot.pdf").exists()))
+    return _seen
 
 
 def case_regression_auto_selects_logit_for_binary_response(tmp_path, capsys):
+    _seen = []
     from spacr.ml import regression
     from statsmodels.genmod.families.links import Logit
 
     df = _wells_df(seed=1, dep_kind="binary")
-    assert set(df["predictions"].unique()) == {0.0, 1.0}
+    _seen.append(keep(set(df["predictions"].unique())))
 
     model, coef_df, reg_type = regression(
         df, str(tmp_path / "scores.csv"), dependent_variable="predictions",
         regression_type=None, nc=NC, pc=PC, dst=None,
     )
 
-    assert reg_type == "logit"
+    _seen.append(keep(reg_type))
     out = capsys.readouterr().out
-    assert "Detected binary data." in out
-    assert "Data will not be scaled" in out          # bounded response is left unscaled
-    assert type(model.model.family).__name__ == "Binomial"
-    assert isinstance(model.model.family.link, Logit)
-    assert len(coef_df) == 9          # 8 guides + intercept, one level
-    assert coef_df["p_value"].between(0, 1).all()
+    _seen.append(('Detected binary data.' if 'Detected binary data.' in (out) else ("missing", 'Detected binary data.')))
+    _seen.append(('Data will not be scaled' if 'Data will not be scaled' in (out) else ("missing", 'Data will not be scaled')))
+    _seen.append(keep(type(model.model.family).__name__))
+    _seen.append(bool(
+        isinstance(model.model.family.link, Logit)))
+    _seen.append(keep(len(coef_df)))
+    _seen.append(bool(
+        coef_df["p_value"].between(0, 1).all()))
     # dst=None -> nothing is written to disk.
-    assert list(tmp_path.iterdir()) == []
+    _seen.append(keep(list(tmp_path.iterdir())))
+    return _seen
 
 
 def case_regression_marks_explicit_controls(tmp_path):
+    _seen = []
     from spacr.ml import regression
 
     df = _wells_df(seed=2)
@@ -384,13 +430,15 @@ def case_regression_marks_explicit_controls(tmp_path):
     )
 
     by_grna = coef_df.set_index("grna")["condition"]
-    assert by_grna["gene3_a"] == "control"
-    assert by_grna["gene3_b"] == "other"
-    assert by_grna[f"{NC}_a"] == "nc"
-    assert by_grna[f"{PC}_b"] == "pc"
+    _seen.append(keep(by_grna["gene3_a"]))
+    _seen.append(keep(by_grna["gene3_b"]))
+    _seen.append(keep(by_grna[f"{NC}_a"]))
+    _seen.append(keep(by_grna[f"{PC}_b"]))
+    return _seen
 
 
 def case_regression_lasso_skips_scaling_and_reports_pvalues(tmp_path, capsys):
+    _seen = []
     from spacr.ml import regression
 
     df = _wells_df(seed=5)
@@ -399,17 +447,22 @@ def case_regression_lasso_skips_scaling_and_reports_pvalues(tmp_path, capsys):
         regression_type="lasso", alpha=0.01, nc=NC, pc=PC, dst=None,
     )
 
-    assert reg_type == "lasso"
-    assert hasattr(model, "coef_")
-    assert len(coef_df) == 9          # 8 guides + intercept, one level
-    assert "Data will not be scaled" in capsys.readouterr().out
+    _seen.append(keep(reg_type))
+    _seen.append(bool(
+        hasattr(model, "coef_")))
+    _seen.append(keep(len(coef_df)))
+    _seen.append(('Data will not be scaled' if 'Data will not be scaled' in (capsys.readouterr().out) else ("missing", 'Data will not be scaled')))
     # lasso/ridge coefficients come straight off the sklearn estimator, so the
     # feature column is the design-matrix column names.
-    assert set(coef_df["feature"]) == EXPECTED_FEATURES
-    assert len(model.coef_) >= len(coef_df)
+    _seen.append(bool(
+        set(coef_df["feature"]) == EXPECTED_FEATURES))
+    _seen.append(bool(
+        len(model.coef_) >= len(coef_df)))
+    return _seen
 
 
 def case_regression_random_row_column_effects_fits_mixed_model(tmp_path):
+    _seen = []
     from spacr.ml import regression
 
     df = _wells_df(seed=2, n_plates=2, n_rows=2, n_cols=3)
@@ -421,7 +474,7 @@ def case_regression_random_row_column_effects_fits_mixed_model(tmp_path):
     )
 
     # The mixed branch overrides whatever regression_type was requested.
-    assert reg_type == "mixed"
+    _seen.append(keep(reg_type))
     # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): mixed is now
     # y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID. The gene is
     # a FIXED effect and the guide is a RANDOM effect nested inside it, so
@@ -430,31 +483,39 @@ def case_regression_random_row_column_effects_fits_mixed_model(tmp_path):
     # the guide rows are BLUPs with no p-value.
     from spacr.ml import TERM_BLUP, TERM_FIXED
 
-    assert list(coef_df.columns) == ["feature", "coefficient", "p_value",
-                                     "term_type", "level"]
-    assert set(coef_df["level"]) == {"gene"}
-    assert "Intercept" in set(coef_df["feature"])
-    assert not any(f.startswith("fraction:grna[") for f in coef_df["feature"])
-    assert any(f.startswith("gene_fraction:gene[") for f in coef_df["feature"])
+    _seen.append(keep(list(coef_df.columns)))
+    _seen.append(keep(set(coef_df["level"])))
+    _seen.append(('Intercept' if 'Intercept' in (set(coef_df["feature"])) else ("missing", 'Intercept')))
+    _seen.append(bool(
+        not any(f.startswith("fraction:grna[") for f in coef_df["feature"])))
+    _seen.append(bool(
+        any(f.startswith("gene_fraction:gene[") for f in coef_df["feature"])))
     blups = coef_df[coef_df["term_type"] == TERM_BLUP]
-    assert len(blups) == df["grna"].nunique()
-    assert blups["p_value"].isna().all()
-    assert coef_df.loc[coef_df["term_type"] == TERM_FIXED,
-                       "p_value"].notna().any()
-    assert hasattr(model, "fe_params")
-    assert len(model.resid) == len(df)
+    _seen.append(bool(
+        len(blups) == df["grna"].nunique()))
+    _seen.append(bool(
+        blups["p_value"].isna().all()))
+    _seen.append(bool(
+        coef_df.loc[coef_df["term_type"] == TERM_FIXED,
+                       "p_value"].notna().any()))
+    _seen.append(bool(
+        hasattr(model, "fe_params")))
+    _seen.append(bool(
+        len(model.resid) == len(df)))
     # The mixed branch produces fit_mixed_model's residual histogram; the
     # dependent / fraction distributions belong to the fixed-effects branch
     # and are not drawn here.
     written = sorted(p.name for p in tmp_path.iterdir())
-    assert "residuals_histogram.pdf" in written
-    assert not any(name.startswith("fraction_histogram") for name in written)
+    _seen.append(('residuals_histogram.pdf' if 'residuals_histogram.pdf' in (written) else ("missing", 'residuals_histogram.pdf')))
+    _seen.append(bool(
+        not any(name.startswith("fraction_histogram") for name in written)))
 
     # AND THE HOUSE-STYLE OUTPUT, which every branch now produces: the panel
     # sheet and its generated legend. A mixed fit is still a fit and the
     # reader still needs the figure.
-    assert "regression_figure.pdf" in written, written
-    assert "regression_figure_legend.txt" in written, written
+    _seen.append(('regression_figure.pdf' if 'regression_figure.pdf' in (written) else ("missing", 'regression_figure.pdf')))
+    _seen.append(('regression_figure_legend.txt' if 'regression_figure_legend.txt' in (written) else ("missing", 'regression_figure_legend.txt')))
+    return _seen
 
 
 def case_the_legacy_volcano_is_written_only_when_it_is_asked_for(tmp_path):
@@ -465,6 +526,7 @@ def case_the_legacy_volcano_is_written_only_when_it_is_asked_for(tmp_path):
     run that draws both puts two volcanoes in two visual idioms on the same
     grid.
     """
+    _seen = []
     from spacr.ml import regression
 
     df = _wells_df(seed=3)
@@ -473,18 +535,21 @@ def case_the_legacy_volcano_is_written_only_when_it_is_asked_for(tmp_path):
         df, csv_path, dependent_variable="predictions",
         regression_type="ols", nc=NC, pc=PC, dst=str(tmp_path), plot=True,
     )
-    assert not (tmp_path / "ols_scores_volcano_plot.pdf").exists(), (
-        "the legacy volcano was drawn without being asked for")
+    _seen.append(bool(
+        not (tmp_path / "ols_scores_volcano_plot.pdf").exists()))
 
     regression(
         df, csv_path, dependent_variable="predictions",
         regression_type="ols", nc=NC, pc=PC, dst=str(tmp_path), plot=True,
         legacy_volcano=True,
     )
-    assert (tmp_path / "ols_scores_volcano_plot.pdf").stat().st_size > 0
+    _seen.append(bool(
+        (tmp_path / "ols_scores_volcano_plot.pdf").stat().st_size > 0))
+    return _seen
 
 
 def case_regression_passes_cell_count_weights_to_logit(tmp_path, monkeypatch):
+    _seen = []
     from spacr import ml as ML
 
     seen = {}
@@ -500,20 +565,26 @@ def case_regression_passes_cell_count_weights_to_logit(tmp_path, monkeypatch):
     ML.regression(df, str(tmp_path / "scores.csv"), dependent_variable="predictions",
                   regression_type="logit", nc=NC, pc=PC, dst=None)
 
-    assert seen["regression_type"] == "logit"
-    assert seen["weights"] is not None
-    assert np.allclose(np.asarray(seen["weights"], dtype=float),
-                       df["cell_count"].to_numpy(dtype=float))
+    _seen.append(keep(seen["regression_type"]))
+    _seen.append(bool(
+        seen["weights"] is not None))
+    _seen.append(bool(
+        np.allclose(np.asarray(seen["weights"], dtype=float),
+                       df["cell_count"].to_numpy(dtype=float))))
+    return _seen
 
 
 def case_regression_rejects_unsupported_type(tmp_path):
+    _seen = []
     from spacr.ml import regression
 
     df = _wells_df(seed=7)
-    with pytest.raises(ValueError, match="Unsupported regression type"):
+    with pytest.raises(ValueError, match="Unsupported regression type") as _exc1:
         regression(df, str(tmp_path / "scores.csv"),
                    dependent_variable="predictions",
                    regression_type="not_a_model", dst=None)
+    _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -521,6 +592,7 @@ def case_regression_rejects_unsupported_type(tmp_path):
 # ---------------------------------------------------------------------------
 
 def case_save_summary_to_file_writes_model_summary(tmp_path):
+    _seen = []
     import statsmodels.api as sm
     from spacr.ml import save_summary_to_file
 
@@ -533,8 +605,8 @@ def case_save_summary_to_file_writes_model_summary(tmp_path):
     save_summary_to_file(model, file_path=str(out))
 
     text = out.read_text(encoding="utf-8")
-    assert "OLS Regression Results" in text
-    assert "R-squared" in text
+    _seen.append(('OLS Regression Results' if 'OLS Regression Results' in (text) else ("missing", 'OLS Regression Results')))
+    _seen.append(('R-squared' if 'R-squared' in (text) else ("missing", 'R-squared')))
 
     # statsmodels stamps a second-resolution "Date:"/"Time:" row into every
     # summary, so comparing the whole text against a freshly rendered one is a
@@ -544,35 +616,32 @@ def case_save_summary_to_file_writes_model_summary(tmp_path):
         return [line for line in summary_text.splitlines()
                 if not line.lstrip().startswith(("Date:", "Time:"))]
 
-    assert _stable(text) == _stable(model.summary().as_text())
+    _seen.append(bool(
+        _stable(text) == _stable(model.summary().as_text())))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_regression_model_cases(request, subtests):
-    """Behaviour cases for: regression_model."""
-    ran = run_cases(request, subtests, [
-        case_regression_model_ridge_auto_alpha_uses_ridgecv,
-        case_regression_model_find_best_alpha_rejects_unknown_model,
-        case_regression_model_logit_applies_var_weights,
-        case_regression_model_probit_uses_probit_link_and_weights,
-        case_regression_model_mixed_dispatches_to_perform_mixed_model,
-        case_regression_model_glm_reports_mcfadden_pseudo_r2,
-        case_regression_model_mixed_without_groups_raises,
-        case_regression_passes_cell_count_weights_to_logit,
-    ])
-    assert ran >= 8
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_regression_model_find_best_alpha_rejects_unknown_model, ['RuntimeError', True, 'ValueError'], id="regression_model_find_best_alpha_rejects_unknown_model"),
+    pytest.param(case_regression_model_logit_applies_var_weights, [True, True, True, True, True], id="regression_model_logit_applies_var_weights"),
+    pytest.param(case_regression_model_probit_uses_probit_link_and_weights, ['probit', True, True, True], id="regression_model_probit_uses_probit_link_and_weights"),
+    pytest.param(case_regression_model_mixed_dispatches_to_perform_mixed_model, [['x1', 'x2'], True, True, 'VIF:'], id="regression_model_mixed_dispatches_to_perform_mixed_model"),
+    pytest.param(case_regression_model_glm_reports_mcfadden_pseudo_r2, ['Poisson', 'Log', True, 'looks like counts', "McFadden's R", 'Generalized Linear Model Regression Results', True], id="regression_model_glm_reports_mcfadden_pseudo_r2"),
+    pytest.param(case_regression_model_mixed_without_groups_raises, ['ValueError'], id="regression_model_mixed_without_groups_raises"),
+    pytest.param(case_regression_passes_cell_count_weights_to_logit, ['logit', True, True], id="regression_passes_cell_count_weights_to_logit"),
+    pytest.param(case_regression_ols_keeps_the_design_as_measured, ['ols', ['feature', 'coefficient', 'p_value', '-log10(p_value)', 'grna', 'condition', 'level'], {'grna'}, True, True, True, True, {'gene'}, True, True, True, True, True, 'Using regression type: ols', 'Performing ols grna-level regression', 'Data will not be scaled', True, True, True, True, True], id="regression_ols_keeps_the_design_as_measured"),
+    pytest.param(case_regression_auto_selects_logit_for_binary_response, [{0.0, 1.0}, 'logit', 'Detected binary data.', 'Data will not be scaled', 'Binomial', True, 9, True, []], id="regression_auto_selects_logit_for_binary_response"),
+    pytest.param(case_regression_marks_explicit_controls, ['control', 'other', 'nc', 'pc'], id="regression_marks_explicit_controls"),
+    pytest.param(case_regression_lasso_skips_scaling_and_reports_pvalues, ['lasso', True, 9, 'Data will not be scaled', True, True], id="regression_lasso_skips_scaling_and_reports_pvalues"),
+    pytest.param(case_regression_random_row_column_effects_fits_mixed_model, ['mixed', ['feature', 'coefficient', 'p_value', 'term_type', 'level'], {'gene'}, 'Intercept', True, True, True, True, True, True, True, 'residuals_histogram.pdf', True, 'regression_figure.pdf', 'regression_figure_legend.txt'], id="regression_random_row_column_effects_fits_mixed_model"),
+    pytest.param(case_the_legacy_volcano_is_written_only_when_it_is_asked_for, [True, True], id="the_legacy_volcano_is_written_only_when_it_is_asked_for"),
+    pytest.param(case_regression_rejects_unsupported_type, ['ValueError'], id="regression_rejects_unsupported_type"),
+    pytest.param(case_save_summary_to_file_writes_model_summary, ['OLS Regression Results', 'R-squared', True], id="save_summary_to_file_writes_model_summary"),
+])
+def test_ml_regression_core_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected
 
-def test_regression_cases(request, subtests):
-    """Behaviour cases for: regression, save_summary_to_file."""
-    ran = run_cases(request, subtests, [
-        case_regression_ols_keeps_the_design_as_measured,
-        case_regression_auto_selects_logit_for_binary_response,
-        case_regression_marks_explicit_controls,
-        case_regression_lasso_skips_scaling_and_reports_pvalues,
-        case_regression_random_row_column_effects_fits_mixed_model,
-        case_the_legacy_volcano_is_written_only_when_it_is_asked_for,
-        case_regression_rejects_unsupported_type,
-        case_save_summary_to_file_writes_model_summary,
-    ])
-    assert ran >= 8

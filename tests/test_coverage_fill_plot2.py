@@ -1,5 +1,14 @@
-"""Coverage-fill batch 2 for spacr.plot pure/small helpers (Agg)."""
+"""Coverage-fill batch 2 for spacr.plot pure/small helpers (Agg).
+
+Colormap and colour helpers, the object filter and the per-condition
+histogram figure.  Each helper below sets up its input, runs the function,
+keeps the secondary assertions and returns the observed quantity that the
+parametrised tests compare with the expected value of the row.
+"""
 from __future__ import annotations
+
+import functools
+import inspect
 
 import numpy as np
 import pandas as pd
@@ -18,26 +27,70 @@ def _close():
     plt.close("all")
 
 
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n, p in names.items()
+                     if p.default is inspect.Parameter.empty})
+
+
 # ---------------------------------------------------------------------------
 # colormap / colour helpers
 # ---------------------------------------------------------------------------
 
-def test_generate_mask_random_cmap_private():
-    m = np.zeros((16, 16), dtype=np.int32); m[2:6, 2:6] = 1; m[8:12, 8:12] = 2
-    cmap = P._generate_mask_random_cmap(m)
-    assert cmap.N >= 3   # background + 2 objects
+def _two_object_mask():
+    m = np.zeros((16, 16), dtype=np.int32)
+    m[2:6, 2:6] = 1
+    m[8:12, 8:12] = 2
+    return m
 
 
-@pytest.mark.parametrize("fmt,expected0", [
-    ("rgb", [1, 0, 0]), ("bgr", [0, 0, 1]),
-    ("gbr", [0, 1, 0]), ("rbg", [1, 0, 0]), ("other", [1, 0, 0])])
-def test_get_colours_merged(fmt, expected0):
+def _case_generate_mask_random_cmap_private():
+    cmap = P._generate_mask_random_cmap(_two_object_mask())
+    return cmap.N   # background + 2 objects
+
+
+def _case_random_cmap_has_at_least_n_colours():
+    return P.random_cmap(30).N >= 30
+
+
+def _case_generate_mask_random_cmap_public():
+    m = np.zeros((8, 8), dtype=np.int32)
+    m[1:4, 1:4] = 1
+    cmap = P.generate_mask_random_cmap(m)
+    return type(cmap).__name__, cmap.N
+
+
+def _case_get_colours_merged(fmt):
     out = P._get_colours_merged(fmt)
-    assert out[0] == expected0 and len(out) == 3
+    return out[0], len(out)
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(_case_generate_mask_random_cmap_private, 3,
+                 id="snap-private-mask-cmap-has-background-plus-objects"),
+    pytest.param(_case_random_cmap_has_at_least_n_colours, True,
+                 id="random-cmap-has-at-least-n-colours"),
+    pytest.param(_case_generate_mask_random_cmap_public, ("ListedColormap", 2),
+                 id="snap-public-mask-cmap-is-listed-colormap"),
+    pytest.param(functools.partial(_case_get_colours_merged, fmt="rgb"),
+                 ([1, 0, 0], 3), id="colours-merged-rgb"),
+    pytest.param(functools.partial(_case_get_colours_merged, fmt="bgr"),
+                 ([0, 0, 1], 3), id="colours-merged-bgr"),
+    pytest.param(functools.partial(_case_get_colours_merged, fmt="gbr"),
+                 ([0, 1, 0], 3), id="colours-merged-gbr"),
+    pytest.param(functools.partial(_case_get_colours_merged, fmt="rbg"),
+                 ([1, 0, 0], 3), id="colours-merged-rbg"),
+    pytest.param(functools.partial(_case_get_colours_merged, fmt="other"),
+                 ([1, 0, 0], 3), id="colours-merged-unknown-falls-back-to-rgb"),
+])
+def test_colormap_and_colour_helpers(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected
 
 
 # ---------------------------------------------------------------------------
-# _filter_objects_in_plot
+# _filter_objects_in_plot / _plot_histograms_and_stats
 # ---------------------------------------------------------------------------
 
 def _case_filter_objects_in_plot():
@@ -56,18 +109,14 @@ def _case_filter_objects_in_plot():
         pathogen_mask_dim=2, mask_dims=[0, 1, 2],
         filter_min_max=[[1, 100000], [1, 100000], [1, 100000]],
         nuclei_limit=True, pathogen_limit=True)
-    assert out.shape == stack.shape
+    return out.shape, stack.shape
 
 
-# ---------------------------------------------------------------------------
-# _plot_histograms_and_stats
-# ---------------------------------------------------------------------------
-
-def test_plot_histograms_and_stats(capsys):
-    """One 30-bin histogram per condition, each holding that condition's rows.
+def _case_plot_histograms_and_stats(capsys):
+    """One 30-bin histogram per condition, each holding that condition rows.
 
     The two conditions deliberately carry *different* row counts, so the bar
-    totals cannot both come out right by accident — and a figure that drew
+    totals cannot both come out right by accident, and a figure that drew
     nothing totals 0 for either of them.
     """
     rng = np.random.default_rng(0)
@@ -79,21 +128,20 @@ def test_plot_histograms_and_stats(capsys):
     P._plot_histograms_and_stats(df)
 
     figs = [plt.figure(n) for n in plt.get_fignums()]
-    assert len(figs) == 2                      # one per condition, no more
 
     by_condition = {}
     for fig in figs:
         assert len(fig.axes) == 1
         ax = fig.axes[0]
         by_condition[ax.get_title().rsplit(": ", 1)[1]] = ax
-    assert set(by_condition) == {"ctrl", "trt"}
 
     counts = {}
+    bars = {}
     for condition, ax in by_condition.items():
         subset = df[df["condition"] == condition]
         # 30 bins were asked for and 30 bars must be drawn.
-        assert len(ax.patches) == 30
-        # Every row of this condition — and only this condition — is binned.
+        bars[condition] = len(ax.patches)
+        # Every row of this condition, and only this condition, is binned.
         total = sum(p.get_height() for p in ax.patches)
         assert total == pytest.approx(len(subset))
         counts[condition] = total
@@ -106,10 +154,8 @@ def test_plot_histograms_and_stats(capsys):
         assert ax.get_xlabel() == "Pred Value"
         assert ax.get_ylabel() == "Count"
 
-    # Contrast: the split is uneven, so the two panels must disagree — one
-    # blank/constant pair of figures cannot satisfy both totals at once.
+    # Contrast: the split is uneven, so the two panels must disagree.
     assert counts["ctrl"] != counts["trt"]
-    assert counts["ctrl"] + counts["trt"] == len(df)
 
     out = capsys.readouterr().out
     for condition in ("ctrl", "trt"):
@@ -117,27 +163,17 @@ def test_plot_histograms_and_stats(capsys):
         assert f"Number of rows: {len(subset)}" in out
         assert (f"Count of pred values over 0.5: "
                 f"{int((subset['pred'] > 0.5).sum())}") in out
+    return (len(figs), sorted(by_condition), bars,
+            counts["ctrl"] + counts["trt"], len(df))
 
 
-# ---------------------------------------------------------------------------
-# random_cmap / generate_mask_random_cmap (public)
-# ---------------------------------------------------------------------------
-
-def test_random_cmap_and_public():
-    assert P.random_cmap(30).N >= 30
-    m = np.zeros((8, 8), dtype=np.int32); m[1:4, 1:4] = 1
-    assert P.generate_mask_random_cmap(m) is not None
-
-
-def test_plot2_cases(request, subtests):
-    """Case table: 1 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
-
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_filter_objects_in_plot,
-        ],
-    )
-    assert ran >= 1
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(_case_filter_objects_in_plot, ((24, 24, 3), (24, 24, 3)),
+                 id="filter-objects-keeps-stack-shape"),
+    pytest.param(_case_plot_histograms_and_stats,
+                 (2, ["ctrl", "trt"], {"ctrl": 30, "trt": 30}, 100, 100),
+                 id="histograms-one-30-bin-figure-per-condition"),
+])
+def test_object_filter_and_condition_histograms(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected

@@ -72,6 +72,50 @@ when its recorded owner is gone; this does not rewrite the stored manifest.
 Provenance failures are logged, with recorded warnings retained under
 ``provenance_warnings`` when the manifest can be written.
 
+Settings versions and changed defaults
+--------------------------------------
+
+Every settings file spaCR writes starts with ``spacr_settings_version``: the
+run folder's ``settings.json`` and ``settings.csv``, the settings saved next to
+a run, and the file Export settings writes. The number says which defaults the
+settings were resolved under.
+
+A file written before a release changed a default does not hold the changed
+key, so it would run with the new default. When a settings file is read by
+``spacr-run``, ``spacr repro``, the batch queue or Import settings, each key
+whose default changed after the file's version, and that the file does not set,
+gets the default it had then. A file without ``spacr_settings_version``, such
+as a hand-written one, is read as the oldest version, and the log names every
+old default it was given. A key the file sets always wins. To use today's
+defaults, set those keys or add the current ``spacr_settings_version`` to the
+file.
+
+The changes are kept in one table, ``DEFAULT_CHANGES`` in
+``spacr/settings.py``, keyed by the number of the item that changed the
+default. A key is always above every earlier one, so an item that changes a
+default after a higher-numbered item takes the next free number:
+
+- 931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``.
+- 932: ``ops_registration_precision`` was ``'float64'`` and
+  ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and
+  ``'gpu'``.
+- 933 (item 930's default switch): ``ops_align_model`` was
+  ``'similarity'``; it is now ``'tile_affine'``.
+- 934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now
+  ``'per_feature'``, so the screen pipeline also writes a well table in which
+  every feature takes its own default.
+- 935 (item 940's default switch): ``ops_placement_seed_export`` was
+  ``False``; it is now ``True``.
+- 936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space``
+  ``'refit'``; they are now ``2`` and ``'hybrid'``.
+- 937 (item 941): ``profile_optional_families`` and
+  ``ops_ph_profile_optional_families`` were ``['texture_gabor',
+  'colocalisation', 'colocalisation_extra']``, the slow families the
+  ``'profiling'`` preset measured; they are now ``None``, so ``'profiling'``
+  leaves Gabor, granularity and colocalisation out.
+- 938 (item 945): ``seg_mask_vram_gb`` was ``0`` (the
+  large-site mask step had no card-memory cap of its own); it is now ``6``.
+
 Public API
 ----------
 

@@ -149,6 +149,26 @@ ABSENT_FROM_EXPECTED_TYPES = {
         # that reads it, `spacr.external_masks`, types it as bool when it
         # registers -- late, like the rest of this group.
         "recursive",
+        # 2026-11-13: the MoA benchmark (item 795) and profiling evaluation
+        # (item 894) settings, given rows when the tooltip lane folded both
+        # modules into the settings model (b17313e207). `spacr.moa_benchmark`
+        # types all thirty-eight from their defaults (str, int, bool) in its
+        # two `register_defaults` calls at module import -- the way
+        # `spacr.sequencing_qc` types the Barcode QC rows above -- so a copy
+        # in `spacr.settings.expected_types` would be a second declaration.
+        "moa_arms", "moa_batch_column", "moa_compound_column",
+        "moa_controls", "moa_dst", "moa_label_column", "moa_labels",
+        "moa_profiles", "moa_replicates", "moa_seed", "moa_shuffles",
+        "moa_supervised_shuffles", "moa_treatment_columns", "moa_workers",
+        "moa_eval_batch", "moa_eval_batch_pattern", "moa_eval_compound",
+        "moa_eval_concentration", "moa_eval_control", "moa_eval_controls",
+        "moa_eval_dst", "moa_eval_exclude", "moa_eval_feature_qc",
+        "moa_eval_knn_shuffles", "moa_eval_label", "moa_eval_labels",
+        "moa_eval_metadata", "moa_eval_metadata_columns",
+        "moa_eval_methods", "moa_eval_normalise", "moa_eval_per_moa",
+        "moa_eval_percentiles", "moa_eval_profiles", "moa_eval_protocols",
+        "moa_eval_replicates", "moa_eval_seeds", "moa_eval_shuffles",
+        "moa_eval_workers",
     ),
     # HALF-DECLARED: in ``spacr.settings.tooltips`` from the first import and
     # in ``expected_types`` never, so a user gets prose to read and

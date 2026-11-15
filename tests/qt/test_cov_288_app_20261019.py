@@ -18,11 +18,9 @@ import types
 from pathlib import Path
 
 import pytest
-from PySide6.QtCore import QEvent, QRect, Qt
-from PySide6.QtGui import QWindowStateChangeEvent
+from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QMessageBox, QStackedWidget, QVBoxLayout, QWidget
 
-import spacr.restart_state as restart_state
 import spacr.settings as settings_mod
 import spacr.updater as updater
 from spacr.qt import app as app_mod
@@ -206,26 +204,6 @@ def test_a_held_button_an_open_popup_or_a_modal_dialog_holds_the_prewarm(
     assert _ScreenPrewarm.busy_reason(prewarm) == reason
 
 
-def test_a_window_opens_without_its_module_hints(monkeypatch, qtbot,
-                                                  qt_theme_applied):
-    import spacr.qt.module_hints as module_hints
-
-    monkeypatch.setattr(module_hints, "install_module_hints", _boom)
-    window = MainWindow()
-    qtbot.addWidget(window)
-    assert window._module_hints is None
-    assert window.statusBar() is not None
-
-
-def test_a_state_change_survives_a_broken_maximise_mark(qtbot, qt_theme_applied):
-    window = MainWindow()
-    qtbot.addWidget(window)
-    window._maximise_button = object()
-    window._drag_from = (1, 2)
-    window.changeEvent(QWindowStateChangeEvent(Qt.WindowState.WindowNoState))
-    assert window._drag_from is None
-
-
 def test_following_the_work_area_needs_a_native_window_and_survives_one_that_fails():
     calls = []
     without_handle = _fake(windowHandle=lambda: None,
@@ -294,25 +272,6 @@ def test_window_actions_are_not_lifted_before_they_exist():
         _fake(_act_minimise=object(), _act_maximise=None, _act_quit=object()),
         menu)
     assert inserted == []
-
-
-def test_a_theme_refresh_carries_on_past_every_failing_step(monkeypatch):
-    monkeypatch.setattr(preferences_mod, "_apply_alpha_widgets", _boom)
-    screen = _fake(refresh_maturity_visibility=_boom,
-                   _refresh_alpha_visibility=_boom)
-    languages = []
-    window = _fake(
-        findChildren=lambda widget_type: [],
-        _sidebar=_fake(refresh_icons=_boom, refresh_visibility=_boom),
-        _refresh_app_action_visibility=_boom,
-        _backdrop_the_dock_column=_boom,
-        _screens={"probe": screen},
-        _drop_a_redundant_screen_backdrop=_boom,
-        apply_dock_mode=_boom,
-        _rebuild_startup_page=_boom,
-        refresh_language=lambda: languages.append(True))
-    MainWindow.refresh_theme(window)
-    assert languages == [True]
 
 
 def test_an_update_check_waits_for_a_frozen_update_already_running():

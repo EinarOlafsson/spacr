@@ -13,6 +13,8 @@ ever block, and every figure is closed after each test.
 """
 from __future__ import annotations
 
+import functools
+import inspect
 import os
 
 import numpy as np
@@ -112,6 +114,13 @@ def _titles(fig):
     return [ax.get_title() for ax in fig.axes]
 
 
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n, p in names.items()
+                     if p.default is inspect.Parameter.empty})
+
+
 # ---------------------------------------------------------------------------
 # _normalize_and_outline
 # ---------------------------------------------------------------------------
@@ -128,10 +137,6 @@ def _case_normalize_and_outline_overlay_returns_rgb_image_and_one_outline_per_ma
         outline_colors=colours, outline_thickness=2)
 
     # overlay=True keeps every channel (mask dims included) in `image`.
-    assert image.shape == (H, W, 6)
-    assert overlayed.shape == (H, W, 3)
-    assert overlayed.dtype == np.float32
-    assert len(outlines) == 3
     for outline in outlines:
         assert outline.shape == (H, W)
         assert outline.dtype == np.uint8
@@ -144,10 +149,10 @@ def _case_normalize_and_outline_overlay_returns_rgb_image_and_one_outline_per_ma
     only_cell = (outlines[0] > 0) & (outlines[1] == 0) & (outlines[2] == 0)
     assert only_cell.any()
     assert np.allclose(overlayed[only_cell], np.array(colours[0], dtype=np.float32))
+    return image.shape, overlayed.shape, overlayed.dtype, len(outlines)
 
 
-@pytest.mark.parametrize("normalize,expected", [(True, (2, 98)), (False, (0, 100))])
-def _case_normalize_and_outline_percentile_selection(monkeypatch, normalize, expected):
+def _case_normalize_and_outline_percentile_selection(monkeypatch, normalize):
     """normalize=True forwards the configured percentiles; False forces 0/100."""
     import spacr.utils as U
     from spacr.plot import _normalize_and_outline, _get_colours_merged
@@ -167,7 +172,7 @@ def _case_normalize_and_outline_percentile_selection(monkeypatch, normalize, exp
         overlay_chans=[0, 1, 2], mask_dims=[3, 4, 5],
         outline_colors=_get_colours_merged("rgb"), outline_thickness=2)
 
-    assert seen["p"] == expected
+    return seen["p"]
 
 
 def _case_normalize_and_outline_remove_background_zeroes_only_intensity_channels(monkeypatch):
@@ -201,13 +206,14 @@ def _case_normalize_and_outline_remove_background_zeroes_only_intensity_channels
             expected[:, :, chan][below] = 0
 
     got = captured["array"]
-    np.testing.assert_array_equal(got, expected)
+    mismatches = int(np.count_nonzero(got != expected))
     # Non-trivial: some intensity pixels really were knocked out ...
     assert np.count_nonzero(got[:, :, 0] == 0) > 0
     assert np.count_nonzero(original[:, :, 0] == 0) == 0
     # ... while the label masks came through byte-identical.
     for dim in mask_dims:
         np.testing.assert_array_equal(got[:, :, dim], original[:, :, dim])
+    return mismatches
 
 
 def _case_normalize_and_outline_single_object_mask_is_outlined():
@@ -222,7 +228,7 @@ def _case_normalize_and_outline_single_object_mask_is_outlined():
         overlay_chans=[0, 1, 2], mask_dims=[5],
         outline_colors=_get_colours_merged("rgb"), outline_thickness=2)
 
-    assert outlines[0].max() > 0, "single-object mask produced an empty outline"
+    return int(outlines[0].max())
 
 
 # ---------------------------------------------------------------------------
@@ -266,12 +272,7 @@ def _case_plot_merged_plot_overlay_axis_layout_and_titles():
         outline_colors=_get_colours_merged("rgb"), print_object_number=False,
         mask_names=["Cell Mask", "Nucleus Mask"])
 
-    # 3 channels + 2 masks + 1 overlay panel
-    assert len(fig.axes) == 6
-    assert _titles(fig) == [
-        "Overlayed Image", "Channel 1", "Channel 2", "Channel 3",
-        "Cell Mask - 2 objects", "Nucleus Mask - 1 object",
-    ]
+    return len(fig.axes), _titles(fig)
 
 
 def _case_plot_merged_plot_without_overlay_has_no_overlay_panel():
@@ -283,9 +284,7 @@ def _case_plot_merged_plot_without_overlay_has_no_overlay_panel():
         cmap="inferno", outline_colors=_get_colours_merged("rgb"),
         print_object_number=False, mask_names=["Cell Mask", "Nucleus Mask"])
 
-    assert len(fig.axes) == 4
-    assert _titles(fig)[0] == "Channel 1"
-    assert "Overlayed Image" not in _titles(fig)
+    return len(fig.axes), _titles(fig)[0], "Overlayed Image" in _titles(fig)
 
 
 def _case_plot_merged_plot_falls_back_to_generic_mask_names():
@@ -297,10 +296,9 @@ def _case_plot_merged_plot_falls_back_to_generic_mask_names():
                   print_object_number=False)
 
     fig_none = _plot_merged_plot(mask_names=None, **common)
-    assert _titles(fig_none)[1:] == ["Mask 1 - 2 objects", "Mask 2 - 1 object"]
 
     fig_short = _plot_merged_plot(mask_names=["Cell Mask"], **common)
-    assert _titles(fig_short)[1:] == ["Cell Mask - 2 objects", "Mask 2 - 1 object"]
+    return _titles(fig_none)[1:], _titles(fig_short)[1:]
 
 
 def _case_plot_merged_plot_paints_outlines_onto_each_channel():
@@ -314,17 +312,19 @@ def _case_plot_merged_plot_paints_outlines_onto_each_channel():
         cmap="inferno", outline_colors=colours, print_object_number=False,
         mask_names=["Cell Mask"])
 
+    shapes = []
     for ax in fig.axes[:2]:  # the two channel panels
         rgb = np.asarray(ax.images[0].get_array())
         assert rgb.shape == (24, 24, 3)
         painted = rgb[outline > 0]
-        assert painted.shape == (20, 3)  # the 6x6 ring minus its 4x4 interior
+        shapes.append(painted.shape)  # the 6x6 ring minus its 4x4 interior
         np.testing.assert_allclose(
             painted, np.broadcast_to(np.array(colours[0], dtype=float), painted.shape))
         # Off-outline pixels stay grey (r == g == b) and inside [0, 1].
         off = rgb[outline == 0]
         assert np.allclose(off[:, 0], off[:, 1]) and np.allclose(off[:, 1], off[:, 2])
         assert off.min() >= 0.0 and off.max() <= 1.0
+    return shapes
 
 
 def _case_plot_merged_plot_print_object_number_labels_every_object():
@@ -337,14 +337,14 @@ def _case_plot_merged_plot_print_object_number_labels_every_object():
 
     fig = _plot_merged_plot(print_object_number=True, **common)
     cell_ax, nucleus_ax = fig.axes[1], fig.axes[2]
-    assert sorted(t.get_text() for t in cell_ax.texts) == ["1", "2"]
-    assert [t.get_text() for t in nucleus_ax.texts] == ["1"]
+    observed_texts = (sorted(t.get_text() for t in cell_ax.texts),
+                      [t.get_text() for t in nucleus_ax.texts])
     # Labels are placed at the object centroids (6x6 block at rows/cols 2:8).
     x, y = cell_ax.texts[0].get_position()
     assert x == pytest.approx(4.5) and y == pytest.approx(4.5)
 
     fig_off = _plot_merged_plot(print_object_number=False, **common)
-    assert len(fig_off.axes[1].texts) == 0
+    return observed_texts + (len(fig_off.axes[1].texts),)
 
 
 def _case_plot_merged_plot_calls_show_once_and_returns_the_figure(show_calls):
@@ -356,8 +356,7 @@ def _case_plot_merged_plot_calls_show_once_and_returns_the_figure(show_calls):
         cmap="inferno", outline_colors=_get_colours_merged("rgb"),
         print_object_number=False)
 
-    assert len(show_calls) == 1
-    assert fig in [plt.figure(n) for n in plt.get_fignums()]
+    return len(show_calls), fig in [plt.figure(n) for n in plt.get_fignums()]
 
 
 # ---------------------------------------------------------------------------
@@ -370,9 +369,8 @@ def _case_plot_merged_plots_every_file_and_returns_none(tmp_path, show_calls):
     src = _write_stacks(tmp_path, n=2)
     settings = _plot_merge_settings(nr=5)
 
-    assert plot_merged(str(src), settings) is None
-    assert len(show_calls) == 2
-    assert len(plt.get_fignums()) == 2
+    result = plot_merged(str(src), settings)
+    return result, len(show_calls), len(plt.get_fignums())
 
 
 def _case_plot_merged_returns_last_figure_once_nr_is_exceeded(tmp_path, show_calls):
@@ -385,10 +383,7 @@ def _case_plot_merged_returns_last_figure_once_nr_is_exceeded(tmp_path, show_cal
 
     assert fig is not None
     # Only `nr` figures were drawn even though 3 files were on disk.
-    assert len(show_calls) == 1
-    # 6 image channels + 3 masks + overlay panel.
-    assert len(fig.axes) == 10
-    assert _titles(fig)[0] == "Overlayed Image"
+    return len(show_calls), len(fig.axes), _titles(fig)[0]
 
 
 def _case_plot_merged_removes_uninfected_cells_when_pathogen_limit_positive(tmp_path):
@@ -401,9 +396,7 @@ def _case_plot_merged_removes_uninfected_cells_when_pathogen_limit_positive(tmp_
 
     # Cell 2 carries no pathogen -> _remove_noninfected drops it and its nucleus.
     titles = _titles(fig)
-    assert "Cell Mask - 1 object" in titles
-    assert "Nucleus Mask - 1 object" in titles
-    assert "Pathogen Mask - 1 object" in titles
+    return titles[-3:]
 
 
 def _case_plot_merged_keeps_uninfected_cells_when_pathogen_limit_zero(tmp_path):
@@ -414,8 +407,7 @@ def _case_plot_merged_keeps_uninfected_cells_when_pathogen_limit_zero(tmp_path):
 
     titles = _titles(plot_merged(str(src), settings))
 
-    assert "Cell Mask - 2 objects" in titles
-    assert "Nucleus Mask - 2 objects" in titles
+    return titles[-3:-1]
 
 
 def _case_plot_merged_filter_min_max_drops_out_of_range_objects(tmp_path):
@@ -429,8 +421,7 @@ def _case_plot_merged_filter_min_max_drops_out_of_range_objects(tmp_path):
 
     titles = _titles(plot_merged(str(src), settings))
 
-    assert "Cell Mask - 1 object" in titles
-    assert "Nucleus Mask - 2 objects" in titles
+    return titles[-3:-1]
 
 
 def _case_plot_merged_without_pathogen_mask_dim_forces_pathogen_limit(tmp_path):
@@ -445,10 +436,8 @@ def _case_plot_merged_without_pathogen_mask_dim_forces_pathogen_limit(tmp_path):
 
     assert settings["pathogen_limit"] is True
     titles = _titles(fig)
-    # Only cell + nucleus masks are plotted now: 6 channels + 2 masks + overlay.
-    assert len(fig.axes) == 9
-    assert titles[-2:] == ["Cell Mask - 2 objects", "Nucleus Mask - 2 objects"]
     assert not any("Pathogen" in t for t in titles)
+    return settings["pathogen_limit"], len(fig.axes), titles[-2:]
 
 
 def _case_plot_merged_without_overlay_drops_mask_channels_from_the_grid(tmp_path):
@@ -459,12 +448,9 @@ def _case_plot_merged_without_overlay_drops_mask_channels_from_the_grid(tmp_path
 
     fig = plot_merged(str(src), settings)
 
-    # 3 intensity channels (mask dims removed) + 3 mask panels, no overlay panel.
-    assert len(fig.axes) == 6
-    assert _titles(fig)[:3] == ["Channel 1", "Channel 2", "Channel 3"]
+    return len(fig.axes), _titles(fig)[:3]
 
 
-@pytest.mark.parametrize("verbose", [True, False])
 def _case_plot_merged_verbose_controls_settings_display(tmp_path, monkeypatch, verbose):
     import spacr.plot as P
 
@@ -475,7 +461,7 @@ def _case_plot_merged_verbose_controls_settings_display(tmp_path, monkeypatch, v
     settings = _plot_merge_settings(nr=1, verbose=verbose)
     P.plot_merged(str(src), settings)
 
-    assert shown == ([settings] if verbose else [])
+    return [obj is settings for obj in shown]
 
 
 def _case_plot_merged_with_nr_zero_plots_nothing(tmp_path):
@@ -484,8 +470,7 @@ def _case_plot_merged_with_nr_zero_plots_nothing(tmp_path):
     src = _write_stacks(tmp_path, n=1)
     settings = _plot_merge_settings(nr=0)
 
-    assert plot_merged(str(src), settings) is None
-    assert plt.get_fignums() == []
+    return plot_merged(str(src), settings), plt.get_fignums()
 
 
 # ---------------------------------------------------------------------------
@@ -529,13 +514,11 @@ def _case_plot_images_on_grid_rgb_titles_scalebar_and_padding(tmp_path):
                                show_filename=True)
 
     # ceil(sqrt(3)) = 2 cols, ceil(3/2) = 2 rows -> 4 axes, last one blank.
-    assert len(fig.axes) == 4
-    assert [ax.axison for ax in fig.axes] == [False, False, False, False]
+    observed_axes = (len(fig.axes), [ax.axison for ax in fig.axes])
     assert len(fig.axes[3].images) == 0
     assert fig.texts == []
 
-    assert [ax.get_title() for ax in fig.axes[:3]] == [
-        "img_0.png", "img_1.png", "img_2.png"]
+    observed_titles = [ax.get_title() for ax in fig.axes[:3]]
 
     # uint8 -> /255 float32, BGR->RGB applied.
     arr = np.asarray(fig.axes[0].images[0].get_array())
@@ -546,6 +529,7 @@ def _case_plot_images_on_grid_rgb_titles_scalebar_and_padding(tmp_path):
     (line,) = fig.axes[0].lines
     np.testing.assert_array_equal(line.get_xdata(), [10, 60])
     np.testing.assert_array_equal(line.get_ydata(), [6, 6])  # 16 px tall - 10
+    return observed_axes + (observed_titles,)
 
 
 def _case_plot_images_on_grid_channel_name_banner(tmp_path):
@@ -558,7 +542,7 @@ def _case_plot_images_on_grid_channel_name_banner(tmp_path):
                                channel_names=["red", "green", "blue", "extra"])
 
     # The 4th name falls off the end of channel_colors and defaults to white.
-    assert [t.get_text() for t in fig.texts] == ["red", "green", "blue", "extra"]
+    texts = [t.get_text() for t in fig.texts]
     # A CHANNEL WITH NO COLOUR OF ITS OWN TAKES THE THEME'S INK, not a hard
     # "white". The first three headers are the channel's own colour, which is
     # the skill's rule for a micrograph column header; the fourth has none,
@@ -574,6 +558,7 @@ def _case_plot_images_on_grid_channel_name_banner(tmp_path):
     assert [round(t.get_position()[0], 3) for t in fig.texts] == [0.02, 0.07, 0.12, 0.17]
     assert all(t.get_position()[1] == 0.99 for t in fig.texts)
     assert all(t.get_fontsize() == 9 for t in fig.texts)
+    return texts
 
 
 def _case_plot_images_on_grid_pads_unused_cells_with_channel_names(tmp_path):
@@ -584,8 +569,7 @@ def _case_plot_images_on_grid_pads_unused_cells_with_channel_names(tmp_path):
     fig = _plot_images_on_grid(paths, channel_indices=[0, 1, 2], um_per_pixel=0.1,
                                channel_names=["c1", "c2", "c3", "c4"])
 
-    assert len(fig.axes) == 4
-    assert fig.axes[3].axison is False
+    return len(fig.axes), fig.axes[3].axison
 
 
 def _case_plot_images_on_grid_single_channel_index_is_grayscale(tmp_path):
@@ -600,15 +584,14 @@ def _case_plot_images_on_grid_single_channel_index_is_grayscale(tmp_path):
     fig = _plot_images_on_grid(paths, channel_indices=[1], um_per_pixel=0.5,
                                show_filename=False)
 
-    assert len(fig.axes) == 2
+    n_axes = len(fig.axes)
     img = fig.axes[0].images[0]
     arr = np.asarray(img.get_array())
-    assert arr.ndim == 2
-    assert img.get_cmap().name == "gray"
     np.testing.assert_allclose(arr, expected[0][:, :, 1].astype(np.float32) / 255.0)
     assert fig.axes[0].get_title() == ""
     # 5 um default / 0.5 um-per-px = 10 px.
     np.testing.assert_array_equal(fig.axes[0].lines[0].get_xdata(), [10, 20])
+    return n_axes, arr.ndim, img.get_cmap().name
 
 
 def _case_plot_images_on_grid_two_channel_indices_are_averaged(tmp_path):
@@ -621,13 +604,12 @@ def _case_plot_images_on_grid_two_channel_indices_are_averaged(tmp_path):
                                um_per_pixel=0.1)
 
     arr = np.asarray(fig.axes[0].images[0].get_array())
-    assert arr.ndim == 2
-    assert fig.axes[0].images[0].get_cmap().name == "gray"
     # np.mean produces float64 -> the uint8/uint16 rescale branches are skipped,
     # so the data stays on the 0-255 scale.
     np.testing.assert_allclose(
         arr, np.mean(expected[:, :, [0, 2]].astype(float), axis=2))
     assert arr.max() > 1.0
+    return arr.ndim, fig.axes[0].images[0].get_cmap().name
 
 
 def _case_plot_images_on_grid_uint16_grayscale_without_channel_indices(tmp_path):
@@ -641,10 +623,9 @@ def _case_plot_images_on_grid_uint16_grayscale_without_channel_indices(tmp_path)
 
     img = fig.axes[0].images[0]
     arr = np.asarray(img.get_array())
-    assert arr.dtype == np.float32
-    assert img.get_cmap().name == "gray"
     np.testing.assert_allclose(arr, expected.astype(np.float32) / 65535.0)
     assert fig.texts == []
+    return arr.dtype, img.get_cmap().name
 
 
 def _case_plot_images_on_grid_rgb_without_channel_indices_keeps_colour(tmp_path):
@@ -658,12 +639,11 @@ def _case_plot_images_on_grid_rgb_without_channel_indices_keeps_colour(tmp_path)
 
     img = fig.axes[0].images[0]
     arr = np.asarray(img.get_array())
-    assert arr.shape == (16, 16, 3)
     assert img.cmap.name == plt.rcParams["image.cmap"]  # cmap=None -> default
     np.testing.assert_allclose(arr, expected.astype(np.float32) / 255.0)
+    return arr.shape
 
 
-@pytest.mark.parametrize("plot", [True, False])
 def _case_plot_images_on_grid_plot_flag_controls_show(tmp_path, show_calls, plot):
     from spacr.plot import _plot_images_on_grid
 
@@ -673,8 +653,8 @@ def _case_plot_images_on_grid_plot_flag_controls_show(tmp_path, show_calls, plot
     fig = _plot_images_on_grid([str(p), str(p)], channel_indices=[0, 1, 2],
                                um_per_pixel=0.1, plot=plot)
 
-    assert len(show_calls) == (1 if plot else 0)
     assert fig.get_facecolor()[:3] == (0.0, 0.0, 0.0)
+    return len(show_calls)
 
 
 def _case_plot_images_on_grid_handles_a_single_image(tmp_path):
@@ -686,46 +666,128 @@ def _case_plot_images_on_grid_handles_a_single_image(tmp_path):
     fig = _plot_images_on_grid([str(p)], channel_indices=[0, 1, 2],
                                um_per_pixel=0.1)
 
-    assert len(fig.axes) == 1
-    assert len(fig.axes[0].images) == 1
+    return len(fig.axes), len(fig.axes[0].images)
 
 
-def test_plot_merged_grid_cases(request, subtests):
-    """Case table: 28 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
-
-    ran = run_cases(
-        request,
-        subtests,
-        [
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_normalize_and_outline_overlay_returns_rgb_image_and_one_outline_per_mask,
-        _case_normalize_and_outline_percentile_selection,
+        ((H, W, 6), (H, W, 3), np.float32, 3), id="overlay-rgb-image-one-outline-per-mask"),
+    pytest.param(
+        functools.partial(_case_normalize_and_outline_percentile_selection, normalize=True),
+        (2, 98), id="normalize-forwards-configured-percentiles"),
+    pytest.param(
+        functools.partial(_case_normalize_and_outline_percentile_selection, normalize=False),
+        (0, 100), id="no-normalize-forces-0-100-percentiles"),
+    pytest.param(
         _case_normalize_and_outline_remove_background_zeroes_only_intensity_channels,
+        0, id="remove-background-zeroes-only-intensity-channels"),
+    pytest.param(
         _case_normalize_and_outline_single_object_mask_is_outlined,
+        255, id="single-object-mask-is-outlined"),
+])
+def test_normalize_and_outline_contract(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_plot_merged_plot_overlay_axis_layout_and_titles,
+        (6, ["Overlayed Image", "Channel 1", "Channel 2", "Channel 3",
+             "Cell Mask - 2 objects", "Nucleus Mask - 1 object"]),
+        id="merged-plot-overlay-layout-and-titles"),
+    pytest.param(
         _case_plot_merged_plot_without_overlay_has_no_overlay_panel,
+        (4, "Channel 1", False), id="merged-plot-without-overlay-has-no-overlay-panel"),
+    pytest.param(
         _case_plot_merged_plot_falls_back_to_generic_mask_names,
+        (["Mask 1 - 2 objects", "Mask 2 - 1 object"],
+         ["Cell Mask - 2 objects", "Mask 2 - 1 object"]),
+        id="merged-plot-generic-mask-names"),
+    pytest.param(
         _case_plot_merged_plot_paints_outlines_onto_each_channel,
+        [(20, 3), (20, 3)], id="merged-plot-paints-outline-on-each-channel"),
+    pytest.param(
         _case_plot_merged_plot_print_object_number_labels_every_object,
+        (["1", "2"], ["1"], 0), id="merged-plot-object-number-labels"),
+    pytest.param(
         _case_plot_merged_plot_calls_show_once_and_returns_the_figure,
+        (1, True), id="merged-plot-shows-once-and-returns-figure"),
+    pytest.param(
         _case_plot_merged_plots_every_file_and_returns_none,
+        (None, 2, 2), id="plot-merged-plots-every-file-returns-none"),
+    pytest.param(
         _case_plot_merged_returns_last_figure_once_nr_is_exceeded,
+        (1, 10, "Overlayed Image"), id="plot-merged-nr-caps-figures-returns-last"),
+    pytest.param(
         _case_plot_merged_removes_uninfected_cells_when_pathogen_limit_positive,
+        ["Cell Mask - 1 object", "Nucleus Mask - 1 object", "Pathogen Mask - 1 object"],
+        id="plot-merged-pathogen-limit-drops-uninfected-cells"),
+    pytest.param(
         _case_plot_merged_keeps_uninfected_cells_when_pathogen_limit_zero,
+        ["Cell Mask - 2 objects", "Nucleus Mask - 2 objects"],
+        id="plot-merged-pathogen-limit-zero-keeps-all-cells"),
+    pytest.param(
         _case_plot_merged_filter_min_max_drops_out_of_range_objects,
+        ["Cell Mask - 1 object", "Nucleus Mask - 2 objects"],
+        id="plot-merged-filter-min-max-drops-large-cell"),
+    pytest.param(
         _case_plot_merged_without_pathogen_mask_dim_forces_pathogen_limit,
+        (True, 9, ["Cell Mask - 2 objects", "Nucleus Mask - 2 objects"]),
+        id="plot-merged-no-pathogen-dim-forces-limit"),
+    pytest.param(
         _case_plot_merged_without_overlay_drops_mask_channels_from_the_grid,
-        _case_plot_merged_verbose_controls_settings_display,
+        (6, ["Channel 1", "Channel 2", "Channel 3"]),
+        id="plot-merged-without-overlay-drops-mask-channels"),
+    pytest.param(
+        functools.partial(_case_plot_merged_verbose_controls_settings_display, verbose=True),
+        [True], id="plot-merged-verbose-displays-settings"),
+    pytest.param(
+        functools.partial(_case_plot_merged_verbose_controls_settings_display, verbose=False),
+        [], id="plot-merged-quiet-displays-nothing"),
+    pytest.param(
         _case_plot_merged_with_nr_zero_plots_nothing,
+        (None, []), id="plot-merged-nr-zero-plots-nothing"),
+])
+def test_plot_merged_panels_and_titles(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_plot_images_on_grid_rgb_titles_scalebar_and_padding,
+        (4, [False, False, False, False], ["img_0.png", "img_1.png", "img_2.png"]),
+        id="grid-rgb-titles-scalebar-and-padding"),
+    pytest.param(
         _case_plot_images_on_grid_channel_name_banner,
+        ["red", "green", "blue", "extra"], id="grid-channel-name-banner"),
+    pytest.param(
         _case_plot_images_on_grid_pads_unused_cells_with_channel_names,
+        (4, False), id="grid-pads-unused-cells"),
+    pytest.param(
         _case_plot_images_on_grid_single_channel_index_is_grayscale,
+        (2, 2, "gray"), id="grid-single-channel-index-is-grayscale"),
+    pytest.param(
         _case_plot_images_on_grid_two_channel_indices_are_averaged,
+        (2, "gray"), id="grid-two-channel-indices-are-averaged"),
+    pytest.param(
         _case_plot_images_on_grid_uint16_grayscale_without_channel_indices,
+        (np.float32, "gray"), id="grid-uint16-grayscale-without-channel-indices"),
+    pytest.param(
         _case_plot_images_on_grid_rgb_without_channel_indices_keeps_colour,
-        _case_plot_images_on_grid_plot_flag_controls_show,
+        (16, 16, 3), id="grid-rgb-without-channel-indices-keeps-colour"),
+    pytest.param(
+        functools.partial(_case_plot_images_on_grid_plot_flag_controls_show, plot=True),
+        1, id="grid-plot-true-shows-once"),
+    pytest.param(
+        functools.partial(_case_plot_images_on_grid_plot_flag_controls_show, plot=False),
+        0, id="grid-plot-false-does-not-show"),
+    pytest.param(
         _case_plot_images_on_grid_handles_a_single_image,
-        ],
-    )
-    assert ran >= 28
+        (1, 1), id="grid-handles-a-single-image"),
+])
+def test_plot_images_on_grid_contract(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected

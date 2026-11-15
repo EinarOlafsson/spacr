@@ -1,6 +1,16 @@
-"""Figure-integrity helpers refuse what they cannot vouch for."""
+"""Figure-integrity helpers refuse what they cannot vouch for.
+
+Two parametrised contracts: unusable OME metadata and unreplayable steps
+are refused by name, and every other helper reports what it observed
+(statistics, records, findings, printed notices) for the input it was
+given. Each row is a module-level helper that does the setup and returns
+the observed value, and the test compares it to the expected one.
+"""
 from __future__ import annotations
 
+import functools
+import inspect
+import re
 import xml.etree.ElementTree as ET
 
 import matplotlib
@@ -31,43 +41,44 @@ def _ome(pixels_attrs, channels=(), tiffdata=(), uuid=None):
     return root
 
 
-@pytest.mark.parametrize("root, message", [
-    (ET.Element("{http://example.org}OME"), "not an OME metadata"),
-    (_ome({"SizeZ": "0"}), "invalid OME dimensions"),
-    (_ome({"SizeC": "2"}, channels=[{"SamplesPerPixel": "1"}]),
-     "inconsistent OME channel"),
-    (_ome({"SizeC": "3"}, channels=[{"SamplesPerPixel": "1"},
-                                    {"SamplesPerPixel": "2"}]),
-     "mixed OME channel"),
-    (_ome({}, tiffdata=[({"IFD": "0"}, "")]), "unresolved external"),
-    (_ome({}, tiffdata=[({"IFD": "0", "FirstZ": "4"}, None)]),
-     "invalid OME plane coordinate"),
-])
-def _case_unusable_ome_metadata_is_refused(root, message):
-    with pytest.raises(ValueError, match=message):
-        plot._ome_pixels_for_ifd(root, 0)
+
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
 
 
-def _case_a_mapping_for_another_file_is_skipped():
+def _refusal(call, fragment):
+    """The part of the ValueError message that matches ``fragment``."""
+    with pytest.raises(ValueError) as caught:
+        call()
+    found = re.search(fragment, str(caught.value))
+    return found.group(0) if found else str(caught.value)
+
+
+def _ome_refusal(root, fragment):
+    return _refusal(lambda: plot._ome_pixels_for_ifd(root, 0), fragment)
+
+
+def _mapping_for_another_file_is_skipped():
     root = _ome({}, tiffdata=[({"IFD": "0"}, "urn:uuid:other")],
                 uuid="urn:uuid:this")
-    with pytest.raises(ValueError, match="no unique OME Pixels"):
-        plot._ome_pixels_for_ifd(root, 0)
+    return _refusal(lambda: plot._ome_pixels_for_ifd(root, 0),
+                    "no unique OME Pixels")
 
 
-def test_display_ranges_accept_one_pair_and_refuse_nonsense():
-    assert plot._display_ranges([0, 255]) == [[0.0, 255.0]]
-    assert plot._display_ranges("low to high") is None
-    assert plot._display_ranges([[1, 2, 3]]) is None
+def _unknown_replay_step_is_refused():
+    image = np.arange(24, dtype=np.float32).reshape(2, 3, 4)
+    return _refusal(lambda: plot._replay_steps(image, [{"op": "rotate"}]),
+                    "cannot be replayed")
 
 
-def _case_empty_planes_are_skipped_in_clip_statistics():
+def _empty_planes_are_skipped_in_clip_statistics():
     raw = np.zeros((4, 0, 0), np.uint16)
-    stats = plot._raw_clip_stats(raw, [[0, 1]] * 4)
-    assert isinstance(stats, dict)
+    return plot._raw_clip_stats(raw, [[0, 1]] * 4)
 
 
-def test_a_tag_survives_unreadable_raw_data_and_frozen_artists():
+def _a_tag_survives_unreadable_raw_data_and_frozen_artists():
     fig, ax = plt.subplots()
     artist = ax.imshow(np.zeros((4, 4)))
 
@@ -76,18 +87,19 @@ def test_a_tag_survives_unreadable_raw_data_and_frozen_artists():
             raise RuntimeError("unreadable")
 
     plot._tag_panel(artist, raw=_Odd())
-    assert getattr(artist, plot._PANEL_TAG)["raw_stats"] is None
+    raw_stats = getattr(artist, plot._PANEL_TAG)["raw_stats"]
 
     class _Frozen:
         __slots__ = ()
 
-    assert isinstance(plot._tag_panel(_Frozen()), _Frozen)
+    frozen_returned = isinstance(plot._tag_panel(_Frozen()), _Frozen)
     plt.close(fig)
+    return raw_stats, frozen_returned
 
 
-def test_a_missing_source_is_recorded_as_missing(tmp_path, monkeypatch):
-    assert plot._source_record(str(tmp_path / "none.tif")) == {
-        "path": str(tmp_path / "none.tif"), "exists": False}
+def _a_missing_source_is_recorded_as_missing(tmp_path, monkeypatch):
+    missing = plot._source_record(str(tmp_path / "none.tif"))
+    assert missing == {"path": str(tmp_path / "none.tif"), "exists": False}
     existing = tmp_path / "a.tif"
     existing.write_bytes(b"x")
 
@@ -96,32 +108,32 @@ def test_a_missing_source_is_recorded_as_missing(tmp_path, monkeypatch):
 
     monkeypatch.setattr(plot.os.path, "getmtime", broken)
     record = plot._source_record(str(existing))
-    assert record["exists"] and "mtime" not in record
+    return missing["exists"], record["exists"], "mtime" in record
 
 
-def _case_thumbnails_need_a_real_image():
-    assert plot._panel_thumbnail(np.zeros((4, 4))) is None
-    assert plot._panel_thumbnail(np.zeros((64, 64))) is None
+def _thumbnails_need_a_real_image():
+    tiny = plot._panel_thumbnail(np.zeros((4, 4)))
+    blank = plot._panel_thumbnail(np.zeros((64, 64)))
     noisy = np.random.default_rng(0).normal(size=(64, 64))
     noisy[0, 0] = np.nan
     layout, detail = plot._panel_thumbnail(noisy)
-    assert layout.shape and detail.shape
     smooth = np.add.outer(np.arange(64.0), np.arange(64.0))
-    assert plot._panel_thumbnail(smooth) is not None
+    return (tiny, blank, layout.shape, detail.shape,
+            plot._panel_thumbnail(smooth) is not None)
 
 
-def test_the_integrity_preference_reads_false_when_unreadable(monkeypatch):
+def _the_integrity_preference_reads_false_when_unreadable(monkeypatch):
     from spacr.qt import preferences
 
     def broken():
         raise RuntimeError("settings locked")
 
     monkeypatch.setattr(preferences, "_get_figure_integrity", broken)
-    assert plot._figure_integrity_enabled() is False
+    return plot._figure_integrity_enabled()
 
 
-def _case_a_failed_integrity_check_still_writes_the_figure(tmp_path, monkeypatch,
-                                                          capsys):
+def _a_failed_integrity_check_still_writes_the_figure(tmp_path, monkeypatch,
+                                                      capsys):
     def broken(*a, **k):
         raise RuntimeError("check crashed")
 
@@ -132,11 +144,10 @@ def _case_a_failed_integrity_check_still_writes_the_figure(tmp_path, monkeypatch
     ax.imshow(np.zeros((4, 4)))
     target = tmp_path / "f.png"
     plot.save_figure(fig, target, fmt="png", close=True)
-    assert target.exists()
-    assert "could not run" in capsys.readouterr().out
+    return target.exists(), "could not run" in capsys.readouterr().out
 
 
-def _case_a_failed_provenance_sidecar_is_reported(tmp_path, monkeypatch, capsys):
+def _a_failed_provenance_sidecar_is_reported(tmp_path, monkeypatch, capsys):
     def broken(*a, **k):
         raise RuntimeError("disk full")
 
@@ -148,8 +159,7 @@ def _case_a_failed_provenance_sidecar_is_reported(tmp_path, monkeypatch, capsys)
     fig, ax = plt.subplots()
     target = tmp_path / "g.png"
     plot.save_figure(fig, target, fmt="png", close=True)
-    assert target.exists()
-    assert "sidecar" in capsys.readouterr().out
+    return target.exists(), "sidecar" in capsys.readouterr().out
 
 
 def _panel(number, **fields):
@@ -159,7 +169,7 @@ def _panel(number, **fields):
     return record
 
 
-def test_range_findings_compare_only_comparable_panels():
+def _range_findings_compare_only_comparable_panels():
     panels = [
         _panel(1, display_range=None),
         _panel(2, compare="pair", display_range=[[0.0, 1.0]]),
@@ -168,20 +178,20 @@ def test_range_findings_compare_only_comparable_panels():
         _panel(5, tagged=True, channel="DAPI", display_range=[[1.0, 1.0]]),
         _panel(6, tagged=True, channel="DAPI", display_range=[[1.0, 1.0]]),
     ]
-    findings = plot._range_findings(panels)
-    assert [f["panels"] for f in findings] == [[2, 3]]
+    return [f["panels"] for f in plot._range_findings(panels)]
 
 
-def test_lossy_and_resampling_checks_need_panels_to_judge():
-    assert plot._lossy_findings("jpg", "jpg", []) == []
+def _lossy_and_resampling_checks_need_panels_to_judge():
+    lossy = plot._lossy_findings("jpg", "jpg", [])
     panels = [{"panel": 1, "shape": [400, 400], "exported_pixels": [40, 40]},
               {"panel": 2, "shape": [4], "exported_pixels": [10, 10]},
               {"panel": 3, "shape": [4, 4], "exported_pixels": None}]
     notes = plot._resampling_findings(panels)
-    assert [n["panels"] if "panels" in n else n.get("panel") for n in notes]
+    return lossy, [n["panels"] if "panels" in n else n.get("panel")
+                   for n in notes]
 
 
-def test_the_version_reads_unknown_without_a_version_module(monkeypatch):
+def _the_version_reads_unknown_without_a_version_module(monkeypatch):
     import builtins
 
     real_import = builtins.__import__
@@ -192,12 +202,11 @@ def test_the_version_reads_unknown_without_a_version_module(monkeypatch):
         return real_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", no_version)
-    assert plot._spacr_version() == "unknown"
+    return plot._spacr_version()
 
 
-def test_finishing_without_a_writable_sidecar_still_reports(tmp_path,
-                                                            monkeypatch,
-                                                            capsys):
+def _finishing_without_a_writable_sidecar_still_reports(tmp_path, monkeypatch,
+                                                        capsys):
     from spacr import run_journal
 
     figure = tmp_path / "f.png"
@@ -215,7 +224,7 @@ def test_finishing_without_a_writable_sidecar_still_reports(tmp_path,
         {"severity": "note", "message": "fine"},
         {"severity": "warning", "message": "ranges differ"}],
         "warnings": 1, "notes": 1}}
-    assert plot._finish_integrity(report, figure) is not None
+    first = plot._finish_integrity(report, figure) is not None
     real_open = open
 
     def refuse(path, *a, **k):
@@ -229,35 +238,92 @@ def test_finishing_without_a_writable_sidecar_still_reports(tmp_path,
         raise RuntimeError("no journal")
 
     monkeypatch.setattr(run_journal, "current_run", broken)
-    assert plot._finish_integrity(report, figure) is None
-    assert "ranges differ" in capsys.readouterr().out
+    second = plot._finish_integrity(report, figure) is None
+    return first, second, "ranges differ" in capsys.readouterr().out
 
 
-def test_steps_replay_and_npy_sources_are_read(tmp_path):
+def _steps_replay_and_npy_sources_are_read(tmp_path):
     np.save(tmp_path / "a.npy", np.arange(24, dtype=np.float32).reshape(2, 3, 4))
     image = plot._read_panel_source(tmp_path / "a.npy")
     out = plot._replay_steps(image, [
         {"op": "max_project", "axis": 0}, {"op": "crop", "box": [0, 2, 0, 2]},
         {"op": "rescale", "ranges": [0, 30]}, {"op": "to_uint8"}])
-    assert out.dtype == np.uint8 and out.shape == (2, 2)
-    with pytest.raises(ValueError, match="cannot be replayed"):
-        plot._replay_steps(image, [{"op": "rotate"}])
+    return str(out.dtype), out.shape
 
 
-def test_figure_integrity_edges_cases(request, subtests, capsys):
-    """Case table: 6 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(functools.partial(
+        _ome_refusal, ET.Element("{http://example.org}OME"),
+        "not an OME metadata"), "not an OME metadata",
+        id="ome-wrong-root-element"),
+    pytest.param(functools.partial(
+        _ome_refusal, _ome({"SizeZ": "0"}), "invalid OME dimensions"),
+        "invalid OME dimensions", id="ome-zero-dimension"),
+    pytest.param(functools.partial(
+        _ome_refusal,
+        _ome({"SizeC": "2"}, channels=[{"SamplesPerPixel": "1"}]),
+        "inconsistent OME channel"),
+        "inconsistent OME channel", id="ome-channel-count-mismatch"),
+    pytest.param(functools.partial(
+        _ome_refusal,
+        _ome({"SizeC": "3"}, channels=[{"SamplesPerPixel": "1"},
+                                       {"SamplesPerPixel": "2"}]),
+        "mixed OME channel"),
+        "mixed OME channel", id="ome-mixed-channel-samples"),
+    pytest.param(functools.partial(
+        _ome_refusal, _ome({}, tiffdata=[({"IFD": "0"}, "")]),
+        "unresolved external"),
+        "unresolved external", id="ome-unresolved-external-file"),
+    pytest.param(functools.partial(
+        _ome_refusal,
+        _ome({}, tiffdata=[({"IFD": "0", "FirstZ": "4"}, None)]),
+        "invalid OME plane coordinate"),
+        "invalid OME plane coordinate", id="ome-plane-coordinate-out-of-range"),
+    pytest.param(_mapping_for_another_file_is_skipped, "no unique OME Pixels",
+                 id="ome-mapping-for-another-file-skipped"),
+    pytest.param(_unknown_replay_step_is_refused, "cannot be replayed",
+                 id="replay-unknown-step"),
+])
+def test_unusable_inputs_are_refused_by_name(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_unusable_ome_metadata_is_refused,
-        _case_a_mapping_for_another_file_is_skipped,
-        _case_empty_planes_are_skipped_in_clip_statistics,
-        _case_thumbnails_need_a_real_image,
-        _case_a_failed_integrity_check_still_writes_the_figure,
-        _case_a_failed_provenance_sidecar_is_reported,
-        ],
-    )
-    assert ran >= 6
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(functools.partial(plot._display_ranges, [0, 255]),
+                 [[0.0, 255.0]], id="display-range-one-pair"),
+    pytest.param(functools.partial(plot._display_ranges, "low to high"), None,
+                 id="display-range-text-refused"),
+    pytest.param(functools.partial(plot._display_ranges, [[1, 2, 3]]), None,
+                 id="display-range-triple-refused"),
+    pytest.param(_empty_planes_are_skipped_in_clip_statistics,
+                 {"clipped_high": 0.0, "clipped_low": 0.0,
+                  "sensor_saturated": 0.0},
+                 id="empty-planes-skipped-in-clip-stats"),
+    pytest.param(_a_tag_survives_unreadable_raw_data_and_frozen_artists,
+                 (None, True), id="tag-survives-unreadable-and-frozen"),
+    pytest.param(_a_missing_source_is_recorded_as_missing,
+                 (False, True, False), id="source-record-missing-and-no-mtime"),
+    pytest.param(_thumbnails_need_a_real_image,
+                 (None, None, (32, 32), (96, 96), True),
+                 id="snap-thumbnail-shapes"),
+    pytest.param(_the_integrity_preference_reads_false_when_unreadable, False,
+                 id="integrity-preference-unreadable-is-false"),
+    pytest.param(_a_failed_integrity_check_still_writes_the_figure,
+                 (True, True), id="failed-check-still-writes-figure"),
+    pytest.param(_a_failed_provenance_sidecar_is_reported, (True, True),
+                 id="failed-sidecar-reported"),
+    pytest.param(_range_findings_compare_only_comparable_panels, [[2, 3]],
+                 id="range-findings-comparable-only"),
+    pytest.param(_lossy_and_resampling_checks_need_panels_to_judge,
+                 ([], [[1]]), id="lossy-resampling-need-panels"),
+    pytest.param(_the_version_reads_unknown_without_a_version_module,
+                 "unknown", id="version-unknown-without-module"),
+    pytest.param(_finishing_without_a_writable_sidecar_still_reports,
+                 (True, True, True), id="finish-without-sidecar-reports"),
+    pytest.param(_steps_replay_and_npy_sources_are_read, ("uint8", (2, 2)),
+                 id="replay-steps-and-npy-source"),
+])
+def test_integrity_helpers_report_what_they_observed(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected

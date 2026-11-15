@@ -1,5 +1,10 @@
 """Round-6 coverage for the per-object measurement and track-QC branches.
 
+Two behaviour tests, one per module: what ``spacr.measure`` and
+``spacr.timelapse`` do when a field or a track table is missing something.
+Each row of a table is one named scenario (a small ``_check_*`` function
+below); a failure names the scenario.
+
 Two modules, one theme: what ``spacr.measure`` and ``spacr.timelapse`` do
 with a field or a track table that is *missing* something.
 
@@ -27,6 +32,9 @@ It also records the four branches in these two modules that no input can
 reach, with the proof, rather than silencing them.
 """
 from __future__ import annotations
+
+import inspect
+from functools import partial
 
 import numpy as np
 import pandas as pd
@@ -88,7 +96,7 @@ CH3 = np.random.default_rng(9).random((32, 32, 3)).astype(np.float32)
 # measure._analyze_cytoskeleton
 # ---------------------------------------------------------------------------
 
-def test_a_dark_object_is_skipped_and_a_lit_one_is_not():
+def _check_a_dark_object_is_skipped_and_a_lit_one_is_not():
     """measure.py:664 -- ``if np.any(region_intensity)`` False.
 
     Two objects, one of which has no signal at all in the cytoskeleton
@@ -105,13 +113,15 @@ def test_a_dark_object_is_skipped_and_a_lit_one_is_not():
 
     assert list(df["object_label"]) == [2]
     assert float(df.loc[0, "skeleton_length"]) > 0
+    return {"object_labels": list(df["object_label"]),
+            "skeleton_length_positive": float(df.loc[0, "skeleton_length"]) > 0}
 
 
 # ---------------------------------------------------------------------------
 # measure._spatial_adjacency
 # ---------------------------------------------------------------------------
 
-def test_a_gap_in_the_label_numbering_is_not_a_label():
+def _check_a_gap_in_the_label_numbering_is_not_a_label():
     """measure.py:971 -- ``if n_boundary[lab] > 0`` False.
 
     ``np.bincount`` produces a slot for every integer below the largest
@@ -128,13 +138,16 @@ def test_a_gap_in_the_label_numbering_is_not_a_label():
     assert 2 not in percent
     assert percent[1] > 0 and percent[3] > 0
     assert neighbours == {1: 1, 3: 1}
+    return {"labels_with_percent": sorted(percent),
+            "touching": [bool(percent[1] > 0), bool(percent[3] > 0)],
+            "neighbours": neighbours}
 
 
 # ---------------------------------------------------------------------------
 # measure._spatial_measurements
 # ---------------------------------------------------------------------------
 
-def test_a_scalar_spacing_never_reaches_the_centroids():
+def _check_a_scalar_spacing_never_reaches_the_centroids():
     """measure.py:1033 -- ``scale.shape[1] == coords.shape[1]`` False.
 
     ``spacing`` is reshaped to ``(1, n)`` and only multiplied into the
@@ -160,13 +173,17 @@ def test_a_scalar_spacing_never_reaches_the_centroids():
     # And it is visible in the answer the caller actually reads.
     assert int(scalar["neighbors_within_50"].iloc[0]) == 1
     assert int(per_axis["neighbors_within_50"].iloc[0]) == 0
+    return {"scalar_equals_unscaled": bool(d_scalar == pytest.approx(d_none)),
+            "per_axis_is_double": bool(d_axis == pytest.approx(2.0 * d_none)),
+            "scalar_neighbours": int(scalar["neighbors_within_50"].iloc[0]),
+            "per_axis_neighbours": int(per_axis["neighbors_within_50"].iloc[0])}
 
 
 # ---------------------------------------------------------------------------
 # measure._intensity_measurements
 # ---------------------------------------------------------------------------
 
-def test_a_float_sigma_is_not_an_int_and_loses_the_distance_block():
+def _check_a_float_sigma_is_not_an_int_and_loses_the_distance_block():
     """measure.py:1636 -- ``isinstance(sigma, int)`` False.
 
     ``distance_gaussian_sigma`` is type-checked, not truth-checked, so 1.5
@@ -177,9 +194,11 @@ def test_a_float_sigma_is_not_an_int_and_loses_the_distance_block():
 
     assert "cell_channel_0_distance_to_nucleus" in with_int.columns
     assert not [c for c in with_float.columns if "distance_to_" in c]
+    return {"int_keeps_distance": "cell_channel_0_distance_to_nucleus" in with_int.columns,
+            "float_distance_columns": [c for c in with_float.columns if "distance_to_" in c]}
 
 
-def test_no_child_object_means_no_intensity_distance():
+def _check_no_child_object_means_no_intensity_distance():
     """measure.py:1639 -- neither nucleus nor pathogen dim is configured.
 
     The distance block measures a cell channel against its *children*, so
@@ -191,9 +210,11 @@ def test_no_child_object_means_no_intensity_distance():
 
     assert "cell_channel_0_distance_to_nucleus" in both.columns
     assert not [c for c in neither.columns if "distance_to_" in c]
+    return {"both_keep_distance": "cell_channel_0_distance_to_nucleus" in both.columns,
+            "neither_distance_columns": [c for c in neither.columns if "distance_to_" in c]}
 
 
-def test_an_object_type_with_no_objects_gets_no_radial_profile():
+def _check_an_object_type_with_no_objects_gets_no_radial_profile():
     """measure.py:1644 -- ``np.max(nucleus_mask) != 0`` False.
 
     ``radial_dist`` is on for the whole field, so the pathogen profile is
@@ -205,22 +226,26 @@ def test_an_object_type_with_no_objects_gets_no_radial_profile():
 
     assert not [c for c in nucleus_frame.columns if "rad_dist" in c]
     assert [c for c in pathogen_frame.columns if "rad_dist" in c]
+    return {"nucleus_radial_columns": [c for c in nucleus_frame.columns if "rad_dist" in c],
+            "pathogen_has_radial": bool([c for c in pathogen_frame.columns if "rad_dist" in c])}
 
 
-def test_one_channel_has_nothing_to_colocalise_with():
+def _check_one_channel_has_nothing_to_colocalise_with():
     """measure.py:1690 -- ``channel_arrays.shape[-1] >= 2`` False."""
     one = _run_intensity(CH3[..., :1])[0]
     three = _run_intensity(CH3)[0]
 
     assert "cell_channel_0_channel_1_Pearson_correlation" in three.columns
     assert not [c for c in one.columns if "_correlation" in c]
+    return {"three_channels_correlate": "cell_channel_0_channel_1_Pearson_correlation" in three.columns,
+            "one_channel_correlation_columns": [c for c in one.columns if "_correlation" in c]}
 
 
 # ---------------------------------------------------------------------------
 # measure._morphological_measurements  (object distances)
 # ---------------------------------------------------------------------------
 
-def test_an_absent_mask_is_not_a_distance_partner():
+def _check_an_absent_mask_is_not_a_distance_partner():
     """measure.py:1191 -- ``mask is not None and mask.size`` False.
 
     ``_all_masks`` builds the neighbour set for the object-distance block
@@ -248,9 +273,12 @@ def test_an_absent_mask_is_not_a_distance_partner():
     assert "pathogen_centre_to_cell_surface" in without.columns
     assert not [c for c in without.columns if "nucleus" in c]
     assert "pathogen_centre_to_nucleus_surface" in with_nucleus.columns
+    return {"keeps_cell_distance": "pathogen_centre_to_cell_surface" in without.columns,
+            "nucleus_columns_without": [c for c in without.columns if "nucleus" in c],
+            "nucleus_distance_with": "pathogen_centre_to_nucleus_surface" in with_nucleus.columns}
 
 
-def _case_a_link_only_pairs_labels_that_are_in_both_masks():
+def _check_a_link_only_pairs_labels_that_are_in_both_masks():
     """timelapse.py:388 -- why ``if union > 0`` can never be False.
 
     The IoU cost matrix is built over ``np.unique(mask)[1:]``, so every row
@@ -277,13 +305,16 @@ def _case_a_link_only_pairs_labels_that_are_in_both_masks():
         assert int(b) in next_labels
         assert (prev == a).any() and (nxt == b).any()
     assert (4, 9) in [(int(a), int(b)) for a, b in matches]
+    return {"matches": sorted((int(a), int(b)) for a, b in matches),
+            "all_labels_real": all(int(a) in prev_labels and int(b) in next_labels
+                                   for a, b in matches)}
 
 
 # ---------------------------------------------------------------------------
 # measure.process_measure_crop_results
 # ---------------------------------------------------------------------------
 
-def test_a_job_with_no_figures_is_skipped_not_saved(tmp_path):
+def _check_a_job_with_no_figures_is_skipped_not_saved(tmp_path):
     """measure.py:4130 -- ``if figs is not None`` False.
 
     Two completed jobs, one of which produced no figures at all. The one
@@ -305,6 +336,7 @@ def test_a_job_with_no_figures_is_skipped_not_saved(tmp_path):
     written = sorted(p.name for p in
                      (tmp_path / "plate" / "results").rglob("*.pdf"))
     assert written == ["field_a.pdf"]
+    return {"written": written}
 
 
 # ---------------------------------------------------------------------------
@@ -345,9 +377,8 @@ def _apply(monkeypatch, tmp_path, df, scope, add_adjusted):
     return out, col, settings
 
 
-@pytest.mark.parametrize("scope", ["sideways", "per_plate"])
-def _case_qc_that_adjusts_nothing_keeps_the_original_column(
-        monkeypatch, tmp_path, scope):
+def _check_qc_that_adjusts_nothing_keeps_the_original_column(
+        scope, monkeypatch, tmp_path):
     """timelapse.py:5413 / 5451 / 5510 -- no ``adjusted_infected`` produced.
 
     'sideways' is not a scope name, which routes through the
@@ -365,9 +396,13 @@ def _case_qc_that_adjusts_nothing_keeps_the_original_column(
         monkeypatch, tmp_path, _qc_frame(), scope, add_adjusted=True)
     assert col_adj == "adjusted_infected"
     assert sorted(adjusted["adjusted_infected"]) == [0, 0, 1, 1]
+    return {"plain_column": col_plain,
+            "plain_has_adjusted": "adjusted_infected" in plain.columns,
+            "plain_rows": len(plain), "adjusted_column": col_adj,
+            "adjusted_values": sorted(adjusted["adjusted_infected"])}
 
 
-def _case_a_grouped_scope_without_its_columns_falls_back_to_combined(
+def _check_a_grouped_scope_without_its_columns_falls_back_to_combined(
         monkeypatch, tmp_path):
     """timelapse.py:5451 -- the missing-grouping-columns fallback.
 
@@ -381,9 +416,11 @@ def _case_a_grouped_scope_without_its_columns_falls_back_to_combined(
     assert col == "infected"
     assert len(out) == 4
     assert settings["infection_hist_data"] == {"seen": 4}
+    return {"column": col, "rows": len(out),
+            "hist_data": settings["infection_hist_data"]}
 
 
-def _case_an_empty_plate_group_is_skipped(monkeypatch, tmp_path):
+def _check_an_empty_plate_group_is_skipped(monkeypatch, tmp_path):
     """timelapse.py:5499 -- ``if df_group.empty: continue``.
 
     A categorical plateID with a category no row uses makes pandas hand the
@@ -415,20 +452,83 @@ def _case_an_empty_plate_group_is_skipped(monkeypatch, tmp_path):
     assert seen == [2, 2]          # p3 never reached the helper
     assert len(out) == 4
     assert col == "infected"
+    return {"group_sizes_seen": seen, "rows": len(out), "column": col}
 
 
-def test_tracking_and_measurement_cases(request, subtests):
-    """Case table: 4 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+# ---------------------------------------------------------------------------
+# the two behaviour tests
+# ---------------------------------------------------------------------------
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_a_link_only_pairs_labels_that_are_in_both_masks,
-        _case_qc_that_adjusts_nothing_keeps_the_original_column,
-        _case_a_grouped_scope_without_its_columns_falls_back_to_combined,
-        _case_an_empty_plate_group_is_skipped,
-        ],
-    )
-    assert ran >= 4
+def _run(check, request):
+    """Run a check, handing it exactly the fixtures its signature names."""
+    names = [name for name, parameter in inspect.signature(check).parameters.items()
+             if parameter.default is parameter.empty]
+    return check(**{name: request.getfixturevalue(name) for name in names})
+
+
+_MEASURE_ROWS = [
+    pytest.param(_check_a_dark_object_is_skipped_and_a_lit_one_is_not,
+                 {'object_labels': [2], 'skeleton_length_positive': True},
+                 id="cytoskeleton-dark-object-skipped-lit-one-kept"),
+    pytest.param(_check_a_gap_in_the_label_numbering_is_not_a_label,
+                 {'labels_with_percent': [1, 3], 'touching': [True, True], 'neighbours': {3: 1, 1: 1}},
+                 id="adjacency-gap-in-label-numbering-is-not-a-label"),
+    pytest.param(_check_a_scalar_spacing_never_reaches_the_centroids,
+                 {'scalar_equals_unscaled': True, 'per_axis_is_double': True, 'scalar_neighbours': 1, 'per_axis_neighbours': 0},
+                 id="spatial-scalar-spacing-never-reaches-the-centroids"),
+    pytest.param(_check_a_float_sigma_is_not_an_int_and_loses_the_distance_block,
+                 {'int_keeps_distance': True, 'float_distance_columns': []},
+                 id="intensity-float-sigma-loses-the-distance-block"),
+    pytest.param(_check_no_child_object_means_no_intensity_distance,
+                 {'both_keep_distance': True, 'neither_distance_columns': []},
+                 id="intensity-no-child-object-no-distance"),
+    pytest.param(_check_an_object_type_with_no_objects_gets_no_radial_profile,
+                 {'nucleus_radial_columns': [], 'pathogen_has_radial': True},
+                 id="intensity-empty-object-type-no-radial-profile"),
+    pytest.param(_check_one_channel_has_nothing_to_colocalise_with,
+                 {'three_channels_correlate': True, 'one_channel_correlation_columns': []},
+                 id="intensity-one-channel-no-colocalisation"),
+    pytest.param(_check_an_absent_mask_is_not_a_distance_partner,
+                 {'keeps_cell_distance': True, 'nucleus_columns_without': [], 'nucleus_distance_with': True},
+                 id="morphology-absent-mask-is-not-a-distance-partner"),
+    pytest.param(_check_a_job_with_no_figures_is_skipped_not_saved,
+                 {'written': ['field_a.pdf']},
+                 id="crop-results-job-without-figures-is-skipped"),
+]
+
+
+@pytest.mark.parametrize("check,expected", _MEASURE_ROWS)
+def test_measurements_skip_what_is_missing_and_still_report_the_rest(
+        check, expected, request):
+    observed = _run(check, request)
+
+    assert observed == expected
+
+
+_TIMELAPSE_ROWS = [
+    pytest.param(_check_a_link_only_pairs_labels_that_are_in_both_masks,
+                 {'matches': [(1, 7), (4, 9)], 'all_labels_real': True},
+                 id="link-by-iou-only-pairs-labels-in-both-masks"),
+    pytest.param(partial(_check_qc_that_adjusts_nothing_keeps_the_original_column,
+                         "sideways"),
+                 {'plain_column': 'infected', 'plain_has_adjusted': False, 'plain_rows': 4, 'adjusted_column': 'adjusted_infected', 'adjusted_values': [0, 0, 1, 1]},
+                 id="qc-unknown-scope-keeps-the-original-column"),
+    pytest.param(partial(_check_qc_that_adjusts_nothing_keeps_the_original_column,
+                         "per_plate"),
+                 {'plain_column': 'infected', 'plain_has_adjusted': False, 'plain_rows': 4, 'adjusted_column': 'adjusted_infected', 'adjusted_values': [0, 0, 1, 1]},
+                 id="qc-per-plate-keeps-the-original-column"),
+    pytest.param(_check_a_grouped_scope_without_its_columns_falls_back_to_combined,
+                 {'column': 'infected', 'rows': 4, 'hist_data': {'seen': 4}},
+                 id="qc-grouped-scope-without-columns-runs-combined"),
+    pytest.param(_check_an_empty_plate_group_is_skipped,
+                 {'group_sizes_seen': [2, 2], 'rows': 4, 'column': 'infected'},
+                 id="qc-empty-plate-group-is-skipped"),
+]
+
+
+@pytest.mark.parametrize("check,expected", _TIMELAPSE_ROWS)
+def test_track_linking_and_infection_qc_keep_the_original_data_when_nothing_is_adjusted(
+        check, expected, request):
+    observed = _run(check, request)
+
+    assert observed == expected

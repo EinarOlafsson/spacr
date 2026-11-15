@@ -10,10 +10,16 @@ text annotations) instead of merely asserting "did not raise".
 Symbols covered:
     _plot_recruitment, _plot_controls, _imshow, _imshow_gpu,
     _show_residules, _reg_v_plot
+
+Three parametrised tests carry the contracts: the recruitment and control
+figures, the tiled image canvas, and the statistics plots. Each row names a
+helper that drives one call and returns what it observed, beside the value
+the contract requires.
 """
 from __future__ import annotations
 
 import contextlib
+import inspect
 import io
 import re
 
@@ -40,6 +46,17 @@ def _close_figs():
     yield
     plt.close("all")
     matplotlib.rcParams.update(saved)
+
+
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
+
+
+def _bind(helper, *args):
+    """A fixture-free helper that runs ``helper(*args)``."""
+    return lambda: helper(*args)
 
 
 def _figs():
@@ -80,30 +97,31 @@ def _case_plot_recruitment_default_columns_builds_two_figures():
     P._plot_recruitment(df, "test", 1, figuresize=4)
 
     figs = _figs()
-    assert len(figs) == 2, "one 1x4 intensity figure + one 2xN recruitment grid"
-
     intensity, grid = figs
-    # Figure 1: cell / nucleus / cytoplasm / pathogen mean intensity.
-    assert len(intensity.axes) == 4
-    assert [ax.get_ylabel() for ax in intensity.axes] == [
-        f"{comp}_channel_1_mean_intensity"
-        for comp in ("cell", "nucleus", "cytoplasm", "pathogen")
-    ]
-    assert all(ax.get_xlabel() == "pathogen test" for ax in intensity.axes)
-    # Only the last panel keeps a legend (the others are commented out upstream).
-    assert intensity.axes[3].get_legend() is not None
-    assert {t.get_text() for t in intensity.axes[3].get_legend().get_texts()} == {"wt", "mut"}
-    # Rotated tick labels + font scaled from figuresize.
-    assert all(lbl.get_rotation() == 45 for lbl in intensity.axes[0].get_xticklabels())
-
-    # Figure 2: 5 columns -> ceil(5/2)=3 per row -> 6 axes, last one blanked.
-    assert len(grid.axes) == 6
-    assert [ax.get_ylabel() for ax in grid.axes[:5]] == _RECRUITMENT_EXTRA
-    assert grid.axes[5].axison is False
-    # i <= 5 => ylim bottom forced to 1
-    assert all(ax.get_ylim()[0] == 1.0 for ax in grid.axes[:5])
-    # Per-panel legends are removed in the grid.
-    assert all(ax.get_legend() is None for ax in grid.axes[:5])
+    legend = intensity.axes[3].get_legend()
+    return {
+        # one 1x4 intensity figure + one 2xN recruitment grid
+        "figures": len(figs),
+        # Figure 1: cell / nucleus / cytoplasm / pathogen mean intensity.
+        "intensity_panels": len(intensity.axes),
+        "intensity_ylabels": [ax.get_ylabel() for ax in intensity.axes],
+        "intensity_xlabels": {ax.get_xlabel() for ax in intensity.axes},
+        # Only the last panel keeps a legend.
+        "last_panel_has_legend": legend is not None,
+        "legend_texts": {t.get_text() for t in legend.get_texts()},
+        # Rotated tick labels.
+        "rotations": {lbl.get_rotation()
+                      for lbl in intensity.axes[0].get_xticklabels()},
+        # Figure 2: 5 columns -> ceil(5/2)=3 per row -> 6 axes, last blanked.
+        "grid_panels": len(grid.axes),
+        "grid_ylabels": [ax.get_ylabel() for ax in grid.axes[:5]],
+        "last_grid_axis_on": grid.axes[5].axison,
+        # i <= 5 => ylim bottom forced to 1
+        "grid_ylim_bottoms": {ax.get_ylim()[0] for ax in grid.axes[:5]},
+        # Per-panel legends are removed in the grid.
+        "grid_legends_removed": all(ax.get_legend() is None
+                                    for ax in grid.axes[:5]),
+    }
 
 
 def _case_a_recruitment_plot_does_not_recolour_the_next_plot():
@@ -131,12 +149,12 @@ def _case_a_recruitment_plot_does_not_recolour_the_next_plot():
                 (155 / 255, 55 / 255, 155 / 255)]
     bars = {tuple(np.round(patch.get_facecolor()[:3], 4))
             for patch in _figs()[0].axes[0].patches}
-    assert bars == {tuple(np.round(sns.desaturate(colour, 0.75), 4))
-                    for colour in intended}, (
-        "the recruitment bars lost their own colours")
-    assert matplotlib.rcParams["axes.prop_cycle"] == before, (
-        "drawing a recruitment plot left its palette on matplotlib's global "
-        "colour cycle; the next figure of the session inherits it")
+    # The bars lost their own colours if this differs; and a recruitment plot
+    # must not leave its palette on matplotlib's global colour cycle, or the
+    # next figure of the session inherits it.
+    return (bars == {tuple(np.round(sns.desaturate(colour, 0.75), 4))
+                     for colour in intended},
+            matplotlib.rcParams["axes.prop_cycle"] == before)
 
 
 def _case_plot_recruitment_extra_columns_widen_grid_and_skip_ylim_after_index_5():
@@ -147,25 +165,25 @@ def _case_plot_recruitment_extra_columns_widen_grid_and_skip_ylim_after_index_5(
     P._plot_recruitment(df, "train", 0, columns=user_cols, figuresize=4)
 
     # The caller's list must not be mutated (the function rebinds, not extends).
-    assert user_cols == ["extra_a", "extra_b"]
-
     grid = _figs()[1]
-    # 7 columns -> ceil(7/2)=4 per row -> 8 axes, last blanked.
-    assert len(grid.axes) == 8
-    assert [ax.get_ylabel() for ax in grid.axes[:7]] == user_cols + [
-        col.replace('channel_1_', 'channel_0_') for col in _RECRUITMENT_EXTRA]
-    assert grid.axes[7].axison is False
-    # i in 0..5 -> ylim bottom pinned at 1; i == 6 -> untouched (autoscaled to 0).
-    assert all(ax.get_ylim()[0] == 1.0 for ax in grid.axes[:6])
-    assert grid.axes[6].get_ylim()[0] == 0.0
+    return {
+        "user_cols_unchanged": user_cols,
+        # 7 columns -> ceil(7/2)=4 per row -> 8 axes, last blanked.
+        "grid_panels": len(grid.axes),
+        "ylabels": [ax.get_ylabel() for ax in grid.axes[:7]],
+        "last_axis_on": grid.axes[7].axison,
+        # i in 0..5 -> ylim bottom pinned at 1; i == 6 -> autoscaled to 0.
+        "pinned_bottoms": {ax.get_ylim()[0] for ax in grid.axes[:6]},
+        "seventh_bottom": grid.axes[6].get_ylim()[0],
+    }
 
 
 def _case_plot_recruitment_prints_the_column_list(capsys):
     df = _recruitment_df(channel=2)
     P._plot_recruitment(df, "test", 2, figuresize=4)
     out = capsys.readouterr().out
-    for col in _RECRUITMENT_EXTRA:
-        assert col.replace('channel_1_', 'channel_2_') in out
+    return [col.replace('channel_1_', 'channel_2_') in out
+            for col in _RECRUITMENT_EXTRA]
 
 
 # ---------------------------------------------------------------------------
@@ -184,12 +202,6 @@ def _controls_df(chans=(0, 1, 2, 3), conditions=("ctrl", "trt"), n=12, seed=1):
     return pd.DataFrame(data)
 
 
-@pytest.mark.parametrize("mask_chans,expected", [
-    ([], [0]),
-    ([0], [0, 1]),
-    ([0, 1], [0, 1, 2]),
-    ([0, 1, 2], [0, 1, 2, 3]),
-])
 def _case_plot_controls_adds_the_channel_of_interest_without_mutating(mask_chans, expected):
     """channel_of_interest is added to a copy; the list passed in is untouched."""
     n_chan = len(expected)
@@ -198,15 +210,10 @@ def _case_plot_controls_adds_the_channel_of_interest_without_mutating(mask_chans
 
     P._plot_controls(df, mask_chans, channel_of_interest=n_chan - 1, figuresize=1)
 
-    assert mask_chans == original
     fig = _figs()[0]
-    # subplots(len(conditions)=2, len(mask_chans)+1) -> one spare column.
-    assert len(fig.axes) == 2 * (n_chan + 1)
     titled = [ax.get_title() for ax in fig.axes if ax.get_title()]
-    assert titled == [
-        f"Condition: {cond} - Channel {c}"
-        for cond in ("ctrl", "trt") for c in range(n_chan)
-    ]
+    # subplots(len(conditions)=2, len(mask_chans)+1) -> one spare column.
+    return (mask_chans == original, len(fig.axes), titled)
 
 
 def _case_plot_controls_keeps_the_real_channel_numbers():
@@ -215,10 +222,11 @@ def _case_plot_controls_keeps_the_real_channel_numbers():
     P._plot_controls(df, [0], channel_of_interest=3, figuresize=1)
     fig = _figs()[0]
     titled = [ax.get_title() for ax in fig.axes if ax.get_title()]
-    assert titled[:2] == ["Condition: ctrl - Channel 0", "Condition: ctrl - Channel 3"]
     heights = [p.get_height() for p in fig.axes[1].patches]
     sub = df[df["condition"] == "ctrl"]
-    assert np.allclose(heights, [sub[f"{c}_channel_3_mean_intensity"].mean() for c in _COMPONENTS])
+    return (titled[:2],
+            bool(np.allclose(heights, [sub[f"{c}_channel_3_mean_intensity"].mean()
+                                       for c in _COMPONENTS])))
 
 
 def _case_plot_controls_bar_heights_are_the_per_condition_means():
@@ -227,6 +235,7 @@ def _case_plot_controls_bar_heights_are_the_per_condition_means():
     P._plot_controls(df, [0], channel_of_interest=1, figuresize=1)
 
     fig = _figs()[0]
+    observed = []
     for row, cond in enumerate(("ctrl", "trt")):
         sub = df[df["condition"] == cond]
         for chan in (0, 1):
@@ -234,10 +243,10 @@ def _case_plot_controls_bar_heights_are_the_per_condition_means():
             heights = [p.get_height() for p in ax.patches]
             expected = [sub[f"{c}_channel_{chan}_mean_intensity"].mean()
                         for c in _COMPONENTS]
-            assert np.allclose(heights, expected)
-            assert [t.get_text() for t in ax.get_xticklabels()] == list(_COMPONENTS)
-            assert ax.get_xlabel() == "Component"
-            assert ax.get_ylabel() == "Mean Intensity"
+            observed.append((bool(np.allclose(heights, expected)),
+                             [t.get_text() for t in ax.get_xticklabels()],
+                             ax.get_xlabel(), ax.get_ylabel()))
+    return observed
 
 
 def _case_plot_controls_single_condition_is_duplicated_into_two_rows():
@@ -246,15 +255,11 @@ def _case_plot_controls_single_condition_is_duplicated_into_two_rows():
     P._plot_controls(df, [], channel_of_interest=0, figuresize=1)
 
     fig = _figs()[0]
-    # 1 unique condition is doubled -> 2 rows; 1 channel -> 2 columns.
-    assert len(fig.axes) == 4
-    assert [ax.get_title() for ax in fig.axes] == [
-        "Condition: only - Channel 0", "",
-        "Condition: only - Channel 0", "",
-    ]
     top = [p.get_height() for p in fig.axes[0].patches]
     bottom = [p.get_height() for p in fig.axes[2].patches]
-    assert np.allclose(top, bottom)
+    # 1 unique condition is doubled -> 2 rows; 1 channel -> 2 columns.
+    return (len(fig.axes), [ax.get_title() for ax in fig.axes],
+            bool(np.allclose(top, bottom)))
 
 
 def _case_plot_controls_all_nan_column_is_plotted_as_zero():
@@ -265,8 +270,8 @@ def _case_plot_controls_all_nan_column_is_plotted_as_zero():
 
     ax = _figs()[0].axes[0]
     heights = [p.get_height() for p in ax.patches]
-    assert heights[0] == 0.0, "NaN mean must be coerced to 0, not left as NaN"
-    assert all(np.isfinite(h) and h > 0 for h in heights[1:])
+    # the NaN mean must be coerced to 0, not left as NaN
+    return (heights[0], all(np.isfinite(h) and h > 0 for h in heights[1:]))
 
 
 def _case_plot_controls_tolerates_a_missing_component_column():
@@ -275,7 +280,7 @@ def _case_plot_controls_tolerates_a_missing_component_column():
     P._plot_controls(df, [], channel_of_interest=0, figuresize=1)
 
     ax = _figs()[0].axes[0]
-    assert len(ax.patches) == 3
+    return len(ax.patches)
 
 
 # ---------------------------------------------------------------------------
@@ -287,42 +292,48 @@ def _chw_images(n=3, c=3, h=4, w=5, seed=2):
     return [rng.random((c, h, w)) for _ in range(n)]
 
 
-def test_imshow_tiles_images_into_a_labelled_canvas():
+def _case_imshow_tiles_images_into_a_labelled_canvas():
     imgs = _chw_images()
     labels = ["a", "b", "c"]
 
     fig = P._imshow(imgs, labels, nrow=2, color="red", fontsize=7)
 
-    assert isinstance(fig, plt.Figure)
     ax = fig.axes[0]
     canvas = np.asarray(ax.images[0].get_array())
-    # 3 images, 2 per row -> 2 rows x 2 cols of 4x5 tiles.
-    assert canvas.shape == (8, 10, 3)
-    assert np.allclose(canvas[0:4, 0:5], np.transpose(imgs[0], (1, 2, 0)))
-    assert np.allclose(canvas[0:4, 5:10], np.transpose(imgs[1], (1, 2, 0)))
-    assert np.allclose(canvas[4:8, 0:5], np.transpose(imgs[2], (1, 2, 0)))
-    # The unused 4th slot stays background (idx >= n_images).
-    assert np.all(canvas[4:8, 5:10] == 0)
-    # Axis off, one text per label, positioned tile-relative.
-    assert ax.axison is False
-    assert [t.get_text() for t in ax.texts] == labels
-    assert [t.get_position() for t in ax.texts] == [(2, 15), (7, 15), (2, 19)]
-    assert all(t.get_color() == "red" and t.get_fontsize() == 7 for t in ax.texts)
+    return {
+        "is_figure": isinstance(fig, plt.Figure),
+        # 3 images, 2 per row -> 2 rows x 2 cols of 4x5 tiles.
+        "canvas_shape": canvas.shape,
+        "tiles": [
+            bool(np.allclose(canvas[0:4, 0:5], np.transpose(imgs[0], (1, 2, 0)))),
+            bool(np.allclose(canvas[0:4, 5:10], np.transpose(imgs[1], (1, 2, 0)))),
+            bool(np.allclose(canvas[4:8, 0:5], np.transpose(imgs[2], (1, 2, 0)))),
+        ],
+        # The unused 4th slot stays background (idx >= n_images).
+        "spare_slot_blank": bool(np.all(canvas[4:8, 5:10] == 0)),
+        # Axis off, one text per label, positioned tile-relative.
+        "axis_on": ax.axison,
+        "texts": [t.get_text() for t in ax.texts],
+        "positions": [t.get_position() for t in ax.texts],
+        "styled": all(t.get_color() == "red" and t.get_fontsize() == 7
+                      for t in ax.texts),
+    }
 
 
-def test_imshow_single_row_when_nrow_exceeds_image_count():
+def _case_imshow_single_row_when_nrow_exceeds_image_count():
     imgs = _chw_images(n=2, h=3, w=3)
 
     fig = P._imshow(imgs, ["l0", "l1"], nrow=20)
 
     canvas = np.asarray(fig.axes[0].images[0].get_array())
-    assert canvas.shape == (3, 3 * 20, 3)          # 1 row of 20 slots
-    assert np.allclose(canvas[:, 0:3], np.transpose(imgs[0], (1, 2, 0)))
-    assert np.all(canvas[:, 6:] == 0)              # 18 empty slots
-    assert [t.get_position()[1] for t in fig.axes[0].texts] == [15, 15]
+    # 1 row of 20 slots; 18 empty slots
+    return (canvas.shape,
+            bool(np.allclose(canvas[:, 0:3], np.transpose(imgs[0], (1, 2, 0)))),
+            bool(np.all(canvas[:, 6:] == 0)),
+            [t.get_position()[1] for t in fig.axes[0].texts])
 
 
-def test_imshow_gpu_matches_the_numpy_implementation():
+def _case_imshow_gpu_matches_the_numpy_implementation():
     torch = pytest.importorskip("torch")
     rng = np.random.default_rng(3)
     batch = rng.random((3, 3, 4, 5)).astype(np.float32)
@@ -335,13 +346,13 @@ def test_imshow_gpu_matches_the_numpy_implementation():
     fig_cpu = P._imshow(list(batch), labels, nrow=2, fontsize=9)
     cpu_canvas = np.asarray(fig_cpu.axes[0].images[0].get_array())
 
-    assert gpu_canvas.shape == cpu_canvas.shape == (8, 10, 3)
-    assert np.allclose(gpu_canvas, cpu_canvas, atol=1e-6)
-    assert [t.get_text() for t in fig_gpu.axes[0].texts] == labels
-    assert fig_gpu.axes[0].axison is False
+    return (gpu_canvas.shape, cpu_canvas.shape,
+            bool(np.allclose(gpu_canvas, cpu_canvas, atol=1e-6)),
+            [t.get_text() for t in fig_gpu.axes[0].texts] == labels,
+            fig_gpu.axes[0].axison)
 
 
-def test_imshow_gpu_moves_a_cuda_tensor_to_cpu_first():
+def _case_imshow_gpu_moves_a_cuda_tensor_to_cpu_first():
     """Exercise the `if img.is_cuda` branch without a GPU by faking the flag."""
     torch = pytest.importorskip("torch")
     real = torch.rand(2, 3, 4, 4)
@@ -360,18 +371,20 @@ def test_imshow_gpu_moves_a_cuda_tensor_to_cpu_first():
     fake = FakeCudaTensor(real)
     fig = P._imshow_gpu(fake, ["p", "q"], nrow=2)
 
-    assert fake.moved is True, ".cpu() must be called for CUDA tensors"
     canvas = np.asarray(fig.axes[0].images[0].get_array())
-    assert canvas.shape == (4, 8, 3)
-    assert np.allclose(canvas[:, 0:4], real[0].permute(1, 2, 0).numpy(), atol=1e-6)
-    assert np.allclose(canvas[:, 4:8], real[1].permute(1, 2, 0).numpy(), atol=1e-6)
+    # .cpu() must be called for CUDA tensors
+    return (fake.moved, canvas.shape,
+            bool(np.allclose(canvas[:, 0:4],
+                             real[0].permute(1, 2, 0).numpy(), atol=1e-6)),
+            bool(np.allclose(canvas[:, 4:8],
+                             real[1].permute(1, 2, 0).numpy(), atol=1e-6)))
 
 
 # ---------------------------------------------------------------------------
 # _plot_histograms_and_stats
 # ---------------------------------------------------------------------------
 
-def test_plot_histograms_and_stats_reports_exact_counts_per_condition(capsys):
+def _case_plot_histograms_and_stats_reports_exact_counts_per_condition(capsys):
     """One histogram + one stats block per condition, with the real numbers."""
     df = pd.DataFrame({
         "condition": ["ctrl"] * 5 + ["trt"] * 4,
@@ -382,32 +395,35 @@ def test_plot_histograms_and_stats_reports_exact_counts_per_condition(capsys):
     P._plot_histograms_and_stats(df)
 
     out = capsys.readouterr().out
-    assert "Condition: ctrl" in out and "Condition: trt" in out
-    assert f"Mean of pred: {df[df.condition == 'ctrl']['pred'].mean()}" in out
-    assert "Count of pred values over 0.5: 3" in out
-    assert "Count of pred values under 0.5: 2" in out
-    assert "Percent positive: 60.0" in out
-    assert "Percent negative: 40.0" in out
-    assert "Count of pred values over 0.5: 1" in out
-    assert "Percent positive: 25.0" in out
+    printed = [
+        "Condition: ctrl" in out, "Condition: trt" in out,
+        f"Mean of pred: {df[df.condition == 'ctrl']['pred'].mean()}" in out,
+        "Count of pred values over 0.5: 3" in out,
+        "Count of pred values under 0.5: 2" in out,
+        "Percent positive: 60.0" in out,
+        "Percent negative: 40.0" in out,
+        "Count of pred values over 0.5: 1" in out,
+        "Percent positive: 25.0" in out,
+    ]
 
     figs = _figs()
-    assert len(figs) == 2, "one histogram figure per condition"
+    per_figure = []
     for fig, cond in zip(figs, ("ctrl", "trt")):
         ax = fig.axes[0]
-        assert ax.get_title() == f"Histogram for pred - Condition: {cond}"
-        assert len(ax.patches) == 30
-        assert ax.get_xlabel() == "Pred Value" and ax.get_ylabel() == "Count"
         mean = df[df["condition"] == cond]["pred"].mean()
-        assert any(np.allclose(ln.get_xdata(), mean) for ln in ax.lines)
-        assert ax.get_legend().get_texts()[0].get_text() == f"Mean = {mean:.2f}"
+        per_figure.append((
+            ax.get_title(), len(ax.patches), ax.get_xlabel(), ax.get_ylabel(),
+            any(np.allclose(ln.get_xdata(), mean) for ln in ax.lines),
+            ax.get_legend().get_texts()[0].get_text() == f"Mean = {mean:.2f}"))
+    # one histogram figure per condition
+    return (printed, len(figs), per_figure)
 
 
 # ---------------------------------------------------------------------------
 # _show_residules
 # ---------------------------------------------------------------------------
 
-def test_show_residules_plots_diagnostics_and_prints_shapiro(capsys):
+def _case_show_residules_plots_diagnostics_and_prints_shapiro(capsys):
     sm = pytest.importorskip("statsmodels.api")
     from scipy.stats import shapiro
 
@@ -423,17 +439,13 @@ def test_show_residules_plots_diagnostics_and_prints_shapiro(capsys):
     m = re.search(r"Shapiro-Wilk Test W-statistic: ([-\d.e+]+), p-value: ([-\d.e+]+)", out)
     assert m is not None, f"missing Shapiro-Wilk line in: {out!r}"
     exp_w, exp_p = shapiro(resid)
-    assert float(m.group(1)) == pytest.approx(exp_w, rel=1e-6)
-    assert float(m.group(2)) == pytest.approx(exp_p, rel=1e-6)
+    w_matches = float(m.group(1)) == pytest.approx(exp_w, rel=1e-6)
+    p_matches = float(m.group(2)) == pytest.approx(exp_p, rel=1e-6)
 
     axes = [ax for fig in _figs() for ax in fig.axes]
     # 1. residual histogram with 30 bins spanning the residual range
     hists = [ax for ax in axes if ax.get_title() == "Histogram of Residuals"]
-    assert len(hists) == 1
-    assert len(hists[0].patches) == 30
     edges = [p.get_x() for p in hists[0].patches]
-    assert min(edges) == pytest.approx(resid.min())
-    assert hists[0].get_xlabel() == "Residual Value"
 
     # 2. residuals-vs-fitted scatter (offsets must be exactly the model values)
     fitted = np.asarray(model.fittedvalues)
@@ -443,15 +455,23 @@ def test_show_residules_plots_diagnostics_and_prints_shapiro(capsys):
         and np.allclose(np.asarray(coll.get_offsets())[:, 0], fitted)
         and np.allclose(np.asarray(coll.get_offsets())[:, 1], resid)
     ]
-    assert len(scatters) == 1
 
     # 3. the y=0 reference line drawn under that scatter
     zero_lines = [ln for ax in axes for ln in ax.lines
                   if len(ln.get_ydata()) and np.allclose(ln.get_ydata(), 0.0)]
-    assert zero_lines, "axhline(y=0) missing from the residual plot"
+    return {
+        "shapiro_w": w_matches,
+        "shapiro_p": p_matches,
+        "histograms": len(hists),
+        "bins": len(hists[0].patches),
+        "bins_start_at_min": min(edges) == pytest.approx(resid.min()),
+        "hist_xlabel": hists[0].get_xlabel(),
+        "scatters": len(scatters),
+        "zero_line": bool(zero_lines),  # axhline(y=0) in the residual plot
+    }
 
 
-def test_show_residules_accepts_any_object_exposing_resid_and_fittedvalues(capsys):
+def _case_show_residules_accepts_any_object_exposing_resid_and_fittedvalues(capsys):
     """The helper is duck-typed: a light-weight stand-in must work too."""
     import types
 
@@ -461,16 +481,16 @@ def test_show_residules_accepts_any_object_exposing_resid_and_fittedvalues(capsy
 
     P._show_residules(model)
 
-    assert "Shapiro-Wilk Test W-statistic" in capsys.readouterr().out
     titles = {ax.get_title() for fig in _figs() for ax in fig.axes}
-    assert "Histogram of Residuals" in titles
+    return ("Shapiro-Wilk Test W-statistic" in capsys.readouterr().out,
+            "Histogram of Residuals" in titles)
 
 
 # ---------------------------------------------------------------------------
 # _reg_v_plot
 # ---------------------------------------------------------------------------
 
-def test_reg_v_plot_annotates_only_significant_points():
+def _case_reg_v_plot_annotates_only_significant_points():
     df = pd.DataFrame(
         {"effect": [1.5, -2.0, 0.3, -0.1], "p": [0.001, 0.02, 0.4, 0.9]},
         index=["g1", "g2", "g3", "g4"],
@@ -479,18 +499,10 @@ def test_reg_v_plot_annotates_only_significant_points():
     P._reg_v_plot(df)
 
     # The -log10(p) column is added in place.
-    assert "-log10(p)" in df.columns
-    assert np.allclose(df["-log10(p)"], -np.log10(df["p"]))
+    column_added = ("-log10(p)" in df.columns
+                    and bool(np.allclose(df["-log10(p)"], -np.log10(df["p"]))))
 
     ax = _figs()[0].axes[0]
-    assert ax.get_title() == "Volcano Plot"
-    assert ax.get_xlabel() == "Coefficient"
-    assert ax.get_ylabel() == "-log10(P-value)"
-    # Only p < 0.05 rows get a text label, placed at (effect, -log10(p)).
-    assert [t.get_text() for t in ax.texts] == ["g1", "g2"]
-    assert [t.get_position() for t in ax.texts] == [
-        (1.5, -np.log10(0.001)), (-2.0, -np.log10(0.02)),
-    ]
     # EVERY ROW IS SCATTERED, AND ONLY THE CALLED ONES CARRY COLOUR.
     #
     # It used to hand the scatter a scalar-mappable array of np.sign(effect)
@@ -504,11 +516,9 @@ def test_reg_v_plot_annotates_only_significant_points():
     from spacr.figures.style import ROLES
 
     offsets = np.asarray(ax.collections[0].get_offsets())
-    assert offsets.shape == (4, 2)
-    assert np.allclose(offsets[:, 0], df["effect"])
-    assert ax.collections[0].get_array() is None, (
-        "a colormap over the sign colours every point, which is the thing "
-        "the restyle removed")
+    # no colormap over the sign: that colours every point, which is the
+    # thing the restyle removed
+    no_colormap = ax.collections[0].get_array() is None
     drawn = [tuple(round(v, 3) for v in rgba[:3])
              for rgba in ax.collections[0].get_facecolors()]
     expected = []
@@ -516,39 +526,171 @@ def test_reg_v_plot_annotates_only_significant_points():
         role = ("data" if p_value >= 0.05
                 else ("up" if effect > 0 else "down"))
         expected.append(tuple(round(v, 3) for v in to_rgb(ROLES[role])))
-    assert drawn == expected
-    # Significance threshold line at p = 0.05.
-    assert any(np.allclose(ln.get_ydata(), -np.log10(0.05)) for ln in ax.lines)
+    return {
+        "column_added": column_added,
+        "title": ax.get_title(),
+        "xlabel": ax.get_xlabel(),
+        "ylabel": ax.get_ylabel(),
+        # Only p < 0.05 rows get a text label, at (effect, -log10(p)).
+        "labels": [t.get_text() for t in ax.texts],
+        "label_positions": [t.get_position() for t in ax.texts],
+        "offsets_shape": offsets.shape,
+        "x_is_effect": bool(np.allclose(offsets[:, 0], df["effect"])),
+        "no_colormap": no_colormap,
+        "colours_by_call": drawn == expected,
+        # Significance threshold line at p = 0.05.
+        "threshold_line": any(np.allclose(ln.get_ydata(), -np.log10(0.05))
+                              for ln in ax.lines),
+    }
 
 
-def test_reg_v_plot_without_significant_rows_adds_no_text():
+def _case_reg_v_plot_without_significant_rows_adds_no_text():
     df = pd.DataFrame({"effect": [0.2, -0.4], "p": [0.5, 0.9]}, index=["a", "b"])
 
     P._reg_v_plot(df, grouping="row", variable="effect", plate_number=1)
 
     ax = _figs()[0].axes[0]
-    assert len(ax.texts) == 0
-    assert np.allclose(df["-log10(p)"], [-np.log10(0.5), -np.log10(0.9)])
+    return (len(ax.texts),
+            bool(np.allclose(df["-log10(p)"],
+                             [-np.log10(0.5), -np.log10(0.9)])))
 
 
-def test_plot_recruitment_stats_cases(request, subtests, capsys):
-    """Case table: 10 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+def _controls_adding_rows():
+    rows = []
+    for mask_chans, expected in [([], [0]), ([0], [0, 1]),
+                                 ([0, 1], [0, 1, 2]),
+                                 ([0, 1, 2], [0, 1, 2, 3])]:
+        n = len(expected)
+        titles = [f"Condition: {cond} - Channel {c}"
+                  for cond in ("ctrl", "trt") for c in range(n)]
+        rows.append(pytest.param(
+            _bind(_case_plot_controls_adds_the_channel_of_interest_without_mutating,
+                  list(mask_chans), expected),
+            (True, 2 * (n + 1), titles),
+            id=f"controls-adds-channel-of-interest-{len(mask_chans)}-masks"))
+    return rows
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_plot_recruitment_default_columns_builds_two_figures,
+        {"figures": 2, "intensity_panels": 4,
+         "intensity_ylabels": [f"{comp}_channel_1_mean_intensity"
+                               for comp in ("cell", "nucleus", "cytoplasm",
+                                            "pathogen")],
+         "intensity_xlabels": {"pathogen test"},
+         "last_panel_has_legend": True, "legend_texts": {"wt", "mut"},
+         "rotations": {45.0}, "grid_panels": 6,
+         "grid_ylabels": _RECRUITMENT_EXTRA, "last_grid_axis_on": False,
+         "grid_ylim_bottoms": {1.0}, "grid_legends_removed": True},
+        id="recruitment-default-columns-build-two-figures"),
+    pytest.param(
         _case_a_recruitment_plot_does_not_recolour_the_next_plot,
+        (True, True), id="recruitment-keeps-own-colours-not-global-cycle"),
+    pytest.param(
         _case_plot_recruitment_extra_columns_widen_grid_and_skip_ylim_after_index_5,
+        {"user_cols_unchanged": ["extra_a", "extra_b"], "grid_panels": 8,
+         "ylabels": ["extra_a", "extra_b"] + [
+             col.replace('channel_1_', 'channel_0_')
+             for col in _RECRUITMENT_EXTRA],
+         "last_axis_on": False, "pinned_bottoms": {1.0},
+         "seventh_bottom": 0.0},
+        id="recruitment-extra-columns-widen-grid"),
+    pytest.param(
         _case_plot_recruitment_prints_the_column_list,
-        _case_plot_controls_adds_the_channel_of_interest_without_mutating,
+        [True] * 5, id="recruitment-prints-the-column-list"),
+    *_controls_adding_rows(),
+    pytest.param(
         _case_plot_controls_keeps_the_real_channel_numbers,
+        (["Condition: ctrl - Channel 0", "Condition: ctrl - Channel 3"], True),
+        id="controls-keep-real-channel-numbers"),
+    pytest.param(
         _case_plot_controls_bar_heights_are_the_per_condition_means,
+        [(True, list(_COMPONENTS), "Component", "Mean Intensity")] * 4,
+        id="controls-bar-heights-are-per-condition-means"),
+    pytest.param(
         _case_plot_controls_single_condition_is_duplicated_into_two_rows,
+        (4, ["Condition: only - Channel 0", "",
+             "Condition: only - Channel 0", ""], True),
+        id="controls-single-condition-duplicated-into-two-rows"),
+    pytest.param(
         _case_plot_controls_all_nan_column_is_plotted_as_zero,
+        (0.0, True), id="controls-all-nan-column-plotted-as-zero"),
+    pytest.param(
         _case_plot_controls_tolerates_a_missing_component_column,
-        ],
-    )
-    assert ran >= 10
+        3, id="controls-missing-component-column-tolerated"),
+])
+def test_recruitment_and_control_figures_show_the_documented_panels(
+        request, helper, expected):
+    """Panels, labels, colours and bar heights of the recruitment and control
+    figures follow the columns and conditions of the frame."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
+        _case_imshow_tiles_images_into_a_labelled_canvas,
+        {"is_figure": True, "canvas_shape": (8, 10, 3),
+         "tiles": [True, True, True], "spare_slot_blank": True,
+         "axis_on": False, "texts": ["a", "b", "c"],
+         "positions": [(2, 15), (7, 15), (2, 19)], "styled": True},
+        id="imshow-tiles-images-into-labelled-canvas"),
+    pytest.param(
+        _case_imshow_single_row_when_nrow_exceeds_image_count,
+        ((3, 60, 3), True, True, [15, 15]),
+        id="imshow-single-row-when-nrow-exceeds-count"),
+    pytest.param(
+        _case_imshow_gpu_matches_the_numpy_implementation,
+        ((8, 10, 3), (8, 10, 3), True, True, False),
+        id="imshow-gpu-matches-numpy"),
+    pytest.param(
+        _case_imshow_gpu_moves_a_cuda_tensor_to_cpu_first,
+        (True, (4, 8, 3), True, True), id="imshow-gpu-moves-cuda-to-cpu"),
+])
+def test_tiled_image_canvas_places_images_and_labels(
+        request, helper, expected):
+    """The tiled canvas holds each image in its slot with its label, on the
+    numpy and the tensor path alike."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
+        _case_plot_histograms_and_stats_reports_exact_counts_per_condition,
+        ([True] * 9, 2,
+         [("Histogram for pred - Condition: ctrl", 30, "Pred Value", "Count",
+           True, True),
+          ("Histogram for pred - Condition: trt", 30, "Pred Value", "Count",
+           True, True)]),
+        id="histograms-report-exact-counts-per-condition"),
+    pytest.param(
+        _case_show_residules_plots_diagnostics_and_prints_shapiro,
+        {"shapiro_w": True, "shapiro_p": True, "histograms": 1, "bins": 30,
+         "bins_start_at_min": True, "hist_xlabel": "Residual Value",
+         "scatters": 1, "zero_line": True},
+        id="residuals-diagnostics-and-shapiro"),
+    pytest.param(
+        _case_show_residules_accepts_any_object_exposing_resid_and_fittedvalues,
+        (True, True), id="residuals-accepts-duck-typed-model"),
+    pytest.param(
+        _case_reg_v_plot_annotates_only_significant_points,
+        {"column_added": True, "title": "Volcano Plot",
+         "xlabel": "Coefficient", "ylabel": "-log10(P-value)",
+         "labels": ["g1", "g2"],
+         "label_positions": [(1.5, -np.log10(0.001)),
+                             (-2.0, -np.log10(0.02))],
+         "offsets_shape": (4, 2), "x_is_effect": True, "no_colormap": True,
+         "colours_by_call": True, "threshold_line": True},
+        id="volcano-annotates-only-significant-points"),
+    pytest.param(
+        _case_reg_v_plot_without_significant_rows_adds_no_text,
+        (0, True), id="volcano-without-significant-rows-adds-no-text"),
+])
+def test_statistics_plots_report_the_numbers_of_the_data(
+        request, helper, expected):
+    """Histogram statistics, residual diagnostics and the volcano plot carry
+    the exact numbers of the frame or model handed in."""
+    observed = _call(request, helper)
+    assert observed == expected

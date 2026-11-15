@@ -88,7 +88,7 @@ from .cli import (
     EXIT_USAGE,
     INTERACTIVE_ONLY,
     SettingsError,
-    _under_todays_names,
+    _in_its_own_era,
     apply_overrides,
     load_settings_file,
     module_defaults,
@@ -781,9 +781,11 @@ def resolve_job_settings(job: Job) -> Dict[str, Any]:
         raise SettingsError(f'unknown module {job.module!r}.')
     resolved = module_defaults(module)
     if isinstance(job.settings, Mapping):
-        resolved.update(_under_todays_names(deepcopy(dict(job.settings))))
+        resolved.update(_in_its_own_era(deepcopy(dict(job.settings)),
+                                        resolved))
     elif isinstance(job.settings, str) and job.settings.strip():
-        resolved.update(_under_todays_names(load_settings_file(job.settings)))
+        resolved.update(_in_its_own_era(load_settings_file(job.settings),
+                                        resolved))
     apply_overrides(resolved, job.override_args, module)
     return resolved
 

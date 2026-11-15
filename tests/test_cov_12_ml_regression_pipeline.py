@@ -79,13 +79,17 @@ def case_an_intercept_centred_on_the_controls_says_what_it_shifted_by(
     Without the sentence, two runs of the same screen under different intercept
     modes produce different coefficients with nothing on the record saying why.
     """
+    _seen = []
     frame = wells_frame(seed=3)
     _model, coef_df, _kind = fit(frame, tmp_path, intercept='control')
 
     printed = capsys.readouterr().out
-    assert 'Intercept set to the negative controls' in printed
-    assert f"distance from {NC!r}" in printed
-    assert len(coef_df) > 0
+    _seen.append(('Intercept set to the negative controls' if 'Intercept set to the negative controls' in (printed) else ("missing", 'Intercept set to the negative controls')))
+    _seen.append(bool(
+        f"distance from {NC!r}" in printed))
+    _seen.append(bool(
+        len(coef_df) > 0))
+    return _seen
 
 
 def case_an_intercept_centred_on_a_control_that_is_absent_says_it_was_not(
@@ -95,12 +99,14 @@ def case_an_intercept_centred_on_a_control_that_is_absent_says_it_was_not(
     Silently fitting the intercept anyway would mean the coefficients are not
     what the setting asked for and nothing anywhere would say so.
     """
+    _seen = []
     frame = wells_frame(seed=4)
     fit(frame, tmp_path, intercept='control', nc='not-a-guide-in-this-screen')
 
     printed = capsys.readouterr().out
-    assert 'Intercept left as fitted' in printed
-    assert 'no rows match' in printed
+    _seen.append(('Intercept left as fitted' if 'Intercept left as fitted' in (printed) else ("missing", 'Intercept left as fitted')))
+    _seen.append(('no rows match' if 'no rows match' in (printed) else ("missing", 'no rows match')))
+    return _seen
 
 
 def case_an_intercept_pinned_at_a_value_shifts_the_response_by_it(tmp_path,
@@ -110,12 +116,14 @@ def case_an_intercept_pinned_at_a_value_shifts_the_response_by_it(tmp_path,
     An estimated intercept would land near the number and read as though the
     value had been a suggestion.
     """
+    _seen = []
     frame = wells_frame(seed=5)
     fit(frame, tmp_path, intercept='value', intercept_value=0.5)
 
     printed = capsys.readouterr().out
-    assert 'Intercept pinned at 0.5' in printed
-    assert 'distance from that value' in printed
+    _seen.append(('Intercept pinned at 0.5' if 'Intercept pinned at 0.5' in (printed) else ("missing", 'Intercept pinned at 0.5')))
+    _seen.append(('distance from that value' if 'distance from that value' in (printed) else ("missing", 'distance from that value')))
+    return _seen
 
 
 def case_an_intercept_pinned_at_zero_is_still_announced(tmp_path, capsys):
@@ -124,16 +132,19 @@ def case_an_intercept_pinned_at_zero_is_still_announced(tmp_path, capsys):
     Zero is a real answer for a centred response; leaving it unsaid would make
     the pinned run indistinguishable from the default one in the log.
     """
+    _seen = []
     frame = wells_frame(seed=6)
     before = frame['predictions'].to_numpy(dtype=float).copy()
 
     fit(frame, tmp_path, intercept='value', intercept_value=0.0)
 
-    assert 'Intercept pinned at 0' in capsys.readouterr().out
-    assert np.array_equal(frame['predictions'].to_numpy(dtype=float), before)
+    _seen.append(('Intercept pinned at 0' if 'Intercept pinned at 0' in (capsys.readouterr().out) else ("missing", 'Intercept pinned at 0')))
+    _seen.append(bool(
+        np.array_equal(frame['predictions'].to_numpy(dtype=float), before)))
+    return _seen
 
 
-def test_a_multi_screen_frame_is_blocked_on_and_the_screens_are_named(
+def case_a_multi_screen_frame_is_blocked_on_and_the_screens_are_named(
         tmp_path, capsys):
     """More than one screen becomes a design term, and the run lists them.
 
@@ -144,14 +155,17 @@ def test_a_multi_screen_frame_is_blocked_on_and_the_screens_are_named(
     cleaning; a frame that loses it pools two screens with nothing said and
     charges the difference between the experiments to the guides.
     """
+    _seen = []
     frame = wells_frame(seed=7, screens=['screenA', 'screenB'])
-    assert ml.screen_is_blockable(frame) is True
+    _seen.append(bool(
+        ml.screen_is_blockable(frame) is True))
 
     fit(frame, tmp_path)
 
     printed = capsys.readouterr().out
-    assert 'Blocking on 2 screens' in printed
-    assert "'screenA', 'screenB'" in printed
+    _seen.append(('Blocking on 2 screens' if 'Blocking on 2 screens' in (printed) else ("missing", 'Blocking on 2 screens')))
+    _seen.append(("'screenA', 'screenB'" if "'screenA', 'screenB'" in (printed) else ("missing", "'screenA', 'screenB'")))
+    return _seen
 
 
 def case_the_old_histograms_are_drawn_when_the_new_panels_cannot_be(
@@ -161,6 +175,7 @@ def case_the_old_histograms_are_drawn_when_the_new_panels_cannot_be(
     The point of the fallback is that a figure is never worth losing a fit
     over, and the run must still show the response it fitted.
     """
+    _seen = []
     drawn = []
 
     def declined(frame, response_name, dst, plot=True):
@@ -176,7 +191,8 @@ def case_the_old_histograms_are_drawn_when_the_new_panels_cannot_be(
 
     fit(wells_frame(seed=8), tmp_path, plot=True)
 
-    assert drawn == ['predictions', 'fraction']
+    _seen.append(keep(drawn))
+    return _seen
 
 
 def case_a_summary_that_cannot_be_written_does_not_lose_the_fit(
@@ -186,6 +202,7 @@ def case_a_summary_that_cannot_be_written_does_not_lose_the_fit(
     The summary is prose about numbers that are already computed; nothing about
     it is worth a run.
     """
+    _seen = []
     import spacr.figures.summary as summary_module
 
     def boom(coef_df):
@@ -195,18 +212,21 @@ def case_a_summary_that_cannot_be_written_does_not_lose_the_fit(
 
     _model, coef_df, kind = fit(wells_frame(seed=9), tmp_path)
 
-    assert kind == 'ols'
-    assert len(coef_df) > 0
-    assert 'Could not summarise the run' in capsys.readouterr().out
+    _seen.append(keep(kind))
+    _seen.append(bool(
+        len(coef_df) > 0))
+    _seen.append(('Could not summarise the run' if 'Could not summarise the run' in (capsys.readouterr().out) else ("missing", 'Could not summarise the run')))
+    return _seen
 
 
-def test_a_mixed_run_says_that_the_level_setting_is_not_read(tmp_path, capsys,
+def case_a_mixed_run_says_that_the_level_setting_is_not_read(tmp_path, capsys,
                                                              monkeypatch):
     """``regression_type='mixed'`` is already both levels, and says so.
 
     The GUI greys the level out, but a script can still set it; quietly
     ignoring it would hand back a gene table to a caller who asked for guides.
     """
+    _seen = []
     def one_fit(*args, **kwargs):
         return None, pd.DataFrame({'feature': ['Intercept'],
                                    'coefficient': [0.1],
@@ -218,20 +238,24 @@ def test_a_mixed_run_says_that_the_level_setting_is_not_read(tmp_path, capsys,
                          regression_type='mixed', level='grna')
 
     printed = capsys.readouterr().out
-    assert "regression_type='mixed' fits the gene fixed" in printed
-    assert 'is not read' in printed
+    _seen.append(("regression_type='mixed' fits the gene fixed" if "regression_type='mixed' fits the gene fixed" in (printed) else ("missing", "regression_type='mixed' fits the gene fixed")))
+    _seen.append(('is not read' if 'is not read' in (printed) else ("missing", 'is not read')))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_behaviour_cases(request, subtests):
-    """Behaviour cases for: behaviour."""
-    ran = run_cases(request, subtests, [
-        case_an_intercept_centred_on_the_controls_says_what_it_shifted_by,
-        case_an_intercept_centred_on_a_control_that_is_absent_says_it_was_not,
-        case_an_intercept_pinned_at_a_value_shifts_the_response_by_it,
-        case_an_intercept_pinned_at_zero_is_still_announced,
-        case_the_old_histograms_are_drawn_when_the_new_panels_cannot_be,
-        case_a_summary_that_cannot_be_written_does_not_lose_the_fit,
-    ])
-    assert ran >= 6
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_an_intercept_centred_on_the_controls_says_what_it_shifted_by, ['Intercept set to the negative controls', True, True], id="an_intercept_centred_on_the_controls_says_what_it_shifted_by"),
+    pytest.param(case_an_intercept_centred_on_a_control_that_is_absent_says_it_was_not, ['Intercept left as fitted', 'no rows match'], id="an_intercept_centred_on_a_control_that_is_absent_says_it_was_not"),
+    pytest.param(case_an_intercept_pinned_at_a_value_shifts_the_response_by_it, ['Intercept pinned at 0.5', 'distance from that value'], id="an_intercept_pinned_at_a_value_shifts_the_response_by_it"),
+    pytest.param(case_an_intercept_pinned_at_zero_is_still_announced, ['Intercept pinned at 0', True], id="an_intercept_pinned_at_zero_is_still_announced"),
+    pytest.param(case_the_old_histograms_are_drawn_when_the_new_panels_cannot_be, [['predictions', 'fraction']], id="the_old_histograms_are_drawn_when_the_new_panels_cannot_be"),
+    pytest.param(case_a_summary_that_cannot_be_written_does_not_lose_the_fit, ['ols', True, 'Could not summarise the run'], id="a_summary_that_cannot_be_written_does_not_lose_the_fit"),
+    pytest.param(case_a_multi_screen_frame_is_blocked_on_and_the_screens_are_named, [True, 'Blocking on 2 screens', "'screenA', 'screenB'"], id="a_multi_screen_frame_is_blocked_on_and_the_screens_are_named"),
+    pytest.param(case_a_mixed_run_says_that_the_level_setting_is_not_read, ["regression_type='mixed' fits the gene fixed", 'is not read'], id="a_mixed_run_says_that_the_level_setting_is_not_read"),
+])
+def test_12_ml_regression_pipeline_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected

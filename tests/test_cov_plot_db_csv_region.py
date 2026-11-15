@@ -13,9 +13,14 @@ Everything runs on small deterministic fixtures:
 * a merged ``.npy`` FOV + PNG crops + an activation DB for ``plot_region``.
 
 No network, no CUDA, no Cellpose.
+
+Each contract is one parametrised test.  The rows name a helper that does the
+setup and call (keeping its secondary checks) and returns what it observed;
+the row carries the expected value and the test body compares the two.
 """
 from __future__ import annotations
 
+import inspect
 import os
 import sqlite3
 
@@ -31,6 +36,12 @@ import matplotlib.pyplot as plt  # noqa: E402
 # ---------------------------------------------------------------------------
 # housekeeping
 # ---------------------------------------------------------------------------
+
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
+
 
 @pytest.fixture(autouse=True)
 def _close_figures():
@@ -167,14 +178,12 @@ def _case_plot_data_from_db_saliency_table_plots_and_saves(tmp_path, rng):
 
     assert isinstance(fig, matplotlib.figure.Figure)
     # annotate_conditions produced exactly the two host-cell conditions
-    assert sorted(df["condition"].unique().tolist()) == ["HeLa", "U2OS"]
     assert df["host_cells"].isna().sum() == 0
     # prc was built from plate/row/column
     assert df["prc"].iloc[0].startswith("plate1_r")
     assert set(df["prc"]) == {f"plate1_{r}_{c}" for r in ROWS for c in COLUMNS}
     # the stats frame carries the between-group comparison
     assert not results_df.empty
-    assert "HeLa vs U2OS (saliency_correlation)" in set(results_df["Comparison"])
     # settings snapshot + the spacrGraph outputs were written
     assert (src / "settings" / "Fig1_plot_settings_db.csv").is_file()
     out_dir = src / "results" / "Fig1"
@@ -183,7 +192,9 @@ def _case_plot_data_from_db_saliency_table_plots_and_saves(tmp_path, rng):
     saved_stats = pd.read_csv(out_dir / f"{stem}_stats.csv")
     assert len(saved_stats) == len(results_df)
     # settings['dst'] is set to <src>/results by the function
-    assert settings["dst"] == os.path.join(str(src), "results")
+    return (sorted(df["condition"].unique().tolist()),
+            "HeLa vs U2OS (saliency_correlation)" in set(results_df["Comparison"]),
+            os.path.relpath(settings["dst"], str(tmp_path)))
 
 
 def _case_plot_data_from_db_recruitment_from_merged_tables(tmp_path, rng):
@@ -214,15 +225,14 @@ def _case_plot_data_from_db_recruitment_from_merged_tables(tmp_path, rng):
     np.testing.assert_allclose(df["recruitment"].to_numpy(),
                                expected.to_numpy(), rtol=1e-9)
     assert np.isfinite(df["recruitment"].to_numpy()).all()
-    assert sorted(df["condition"].unique().tolist()) == ["HeLa", "U2OS"]
-    assert "HeLa vs U2OS (recruitment)" in set(results_df["Comparison"])
     # merged frame keeps one row per object across the four joined tables
-    assert len(df) == len(ROWS) * len(COLUMNS) * N_FIELDS
     # save=False -> spacrGraph wrote nothing, but plot_data_from_db still
     # created the (empty) output directory
     out_dir = src / "results" / "Recruit"
     assert out_dir.is_dir()
-    assert list(out_dir.iterdir()) == []
+    return (sorted(df["condition"].unique().tolist()),
+            "HeLa vs U2OS (recruitment)" in set(results_df["Comparison"]),
+            len(df), list(out_dir.iterdir()))
 
 
 def _case_plot_data_from_db_missing_data_column_returns_none(tmp_path, rng):
@@ -234,11 +244,8 @@ def _case_plot_data_from_db_missing_data_column_returns_none(tmp_path, rng):
     _make_saliency_db(str(src), rng)
 
     out = plot_data_from_db(_db_settings(str(src), data_column="not_a_column"))
-    assert out is None
-    # nothing was plotted
-    assert plt.get_fignums() == []
-    # no graph output directory was created
-    assert not (src / "results" / "Fig1").exists()
+    # nothing was plotted (empty fignums) and no graph output directory was created
+    return out, plt.get_fignums(), (src / "results" / "Fig1").exists()
 
 
 def _case_plot_data_from_db_missing_grouping_column_returns_none(tmp_path, rng):
@@ -250,16 +257,16 @@ def _case_plot_data_from_db_missing_grouping_column_returns_none(tmp_path, rng):
     _make_saliency_db(str(src), rng)
 
     out = plot_data_from_db(_db_settings(str(src), grouping_column="nope"))
-    assert out is None
-    assert not (src / "results" / "Fig1").exists()
+    return out, (src / "results" / "Fig1").exists()
 
 
 def _case_plot_data_from_db_rejects_non_str_non_list_src(tmp_path):
     """src must be a str or a list of str."""
     from spacr.plot import plot_data_from_db
 
-    with pytest.raises(ValueError, match="src must be a string or a list"):
+    with pytest.raises(ValueError, match="src must be a string or a list") as excinfo:
         plot_data_from_db(_db_settings(12345))
+    return type(excinfo.value).__name__
 
 
 def _case_plot_data_from_db_src_list_and_dropna_failures_are_caught(tmp_path, rng, capsys):
@@ -291,20 +298,19 @@ def _case_plot_data_from_db_src_list_and_dropna_failures_are_caught(tmp_path, rn
     fig, results_df, df = plot_data_from_db(settings)
 
     err = capsys.readouterr().out
-    assert "Could not drop NaN values from 'host_cell' column" in err
-    assert "Could not drop NaN values from 'pathogen' column" in err
-    assert "Could not drop NaN values from 'treatment' column" in err
+    caught = tuple(
+        f"Could not drop NaN values from '{col}' column" in err
+        for col in ("host_cell", "pathogen", "treatment"))
 
-    # 'database' was broadcast to one entry per src
-    assert settings["database"] == ["measurements.db", "measurements.db"]
     assert settings["dst"] == os.path.join(str(src_a), "results")
-    # both plates concatenated -> twice the rows of a single DB
-    assert len(df) == 2 * len(ROWS) * len(COLUMNS) * N_FIELDS
-    assert sorted(df["rowID"].unique().tolist()) == ROWS
     assert isinstance(fig, matplotlib.figure.Figure)
     assert not results_df.empty
     # save_settings appends '_list' when src is a list
     assert (src_a / "settings" / "Multi_plot_settings_db_list.csv").is_file()
+    # 'database' was broadcast to one entry per src; both plates concatenated
+    # -> twice the rows of a single DB
+    return (caught, settings["database"], len(df),
+            sorted(df["rowID"].unique().tolist()))
 
 
 # ---------------------------------------------------------------------------
@@ -367,9 +373,7 @@ def _case_plot_data_from_csv_adds_plate_and_common_columns(tmp_path, rng):
 
     out_dir = tmp_path / "results" / "CsvFig"
     saved = pd.read_csv(out_dir / f"{_csv_stem(settings)}_data.csv")
-    assert set(saved["plateID"]) == {"plate1"}
-    assert set(saved["common"]) == {"spacr"}
-    assert len(saved) == 20
+    return set(saved["plateID"]), set(saved["common"]), len(saved)
 
 
 def _case_plot_data_from_csv_two_sources_split_prc_and_keep_groups(tmp_path, rng):
@@ -396,12 +400,11 @@ def _case_plot_data_from_csv_two_sources_split_prc_and_keep_groups(tmp_path, rng
     out_dir = tmp_path / "results" / "CsvTwo"
     saved = pd.read_csv(out_dir / f"{_csv_stem(settings)}_data.csv")
     # 'drop_me' was filtered out by keep_groups
-    assert set(saved["group"]) == {"ctrl", "treat"}
     # representation='well' aggregated by prc -> one row per prc/group pair,
-    # for two plates x two kept groups x ten columns
-    assert len(saved) == 2 * 2 * 10
-    # the prc split produced real plate ids from BOTH files
-    assert set(p.split("_")[0] for p in saved["prc"]) == {"plate1", "plate2"}
+    # for two plates x two kept groups x ten columns; the prc split produced
+    # real plate ids from BOTH files
+    return (sorted(set(saved["group"])), len(saved),
+            set(p.split("_")[0] for p in saved["prc"]))
 
 
 def _case_plot_data_from_csv_prc_split_failure_is_caught(tmp_path, rng, capsys):
@@ -415,12 +418,12 @@ def _case_plot_data_from_csv_prc_split_failure_is_caught(tmp_path, rng, capsys):
     settings = _csv_settings(str(csv), graph_name="CsvBad")
     fig, results_df = plot_data_from_csv(settings)
 
-    assert "Could not split the prc column" in capsys.readouterr().out
+    reported = "Could not split the prc column" in capsys.readouterr().out
     assert isinstance(fig, matplotlib.figure.Figure)
     out_dir = tmp_path / "results" / "CsvBad"
     saved = pd.read_csv(out_dir / f"{_csv_stem(settings)}_data.csv")
     # plateID stayed the synthesised value because the split failed
-    assert set(saved["plateID"]) == {"plate1"}
+    return reported, set(saved["plateID"])
 
 
 def _case_plot_data_from_csv_keep_groups_string_is_normalised(tmp_path, rng):
@@ -433,11 +436,10 @@ def _case_plot_data_from_csv_keep_groups_string_is_normalised(tmp_path, rng):
     settings = _csv_settings(str(csv), keep_groups="ctrl", graph_name="CsvStr")
     fig, _ = plot_data_from_csv(settings)
 
-    assert settings["keep_groups"] == ["ctrl"]
     out_dir = tmp_path / "results" / "CsvStr"
     saved = pd.read_csv(out_dir / f"{_csv_stem(settings)}_data.csv")
     # both groups survived - the string branch only normalises
-    assert set(saved["group"]) == {"ctrl", "treat"}
+    return settings["keep_groups"], sorted(set(saved["group"]))
 
 
 def _case_plot_data_from_csv_remove_outliers_and_verbose(tmp_path, rng, capsys):
@@ -456,17 +458,17 @@ def _case_plot_data_from_csv_remove_outliers_and_verbose(tmp_path, rng, capsys):
     assert isinstance(fig, matplotlib.figure.Figure)
     out_dir = tmp_path / "results" / "CsvOut"
     saved = pd.read_csv(out_dir / f"{_csv_stem(settings)}_data.csv")
-    assert saved["value"].max() < 5000.0
-    assert len(saved) < len(df)
     # verbose=True routed the frame through IPython display()
-    assert capsys.readouterr().out != ""
+    return (bool(saved["value"].max() < 5000.0), len(saved) < len(df),
+            capsys.readouterr().out != "")
 
 
 def _case_plot_data_from_csv_rejects_non_str_non_list_src():
     from spacr.plot import plot_data_from_csv
 
-    with pytest.raises(ValueError, match="src must be a string or a list"):
+    with pytest.raises(ValueError, match="src must be a string or a list") as excinfo:
         plot_data_from_csv(_csv_settings(3.14))
+    return type(excinfo.value).__name__
 
 
 # ---------------------------------------------------------------------------
@@ -491,7 +493,6 @@ def _case_plot_image_grid_rgb_pads_grid_with_black_tiles(tmp_path, rng):
     fig = plot_image_grid(paths, percentiles=(2, 98))
 
     assert isinstance(fig, matplotlib.figure.Figure)
-    assert len(fig.axes) == 4
     # every axis has exactly one image and no visible frame
     for ax in fig.axes:
         assert len(ax.images) == 1
@@ -499,14 +500,12 @@ def _case_plot_image_grid_rgb_pads_grid_with_black_tiles(tmp_path, rng):
     # the three real tiles are 16x16 RGB, normalised into 0..255 uint8
     real = [ax.images[0].get_array() for ax in fig.axes[:3]]
     for arr in real:
-        assert arr.shape == (16, 16, 3)
         assert arr.dtype == np.uint8
         assert arr.min() == 0 and arr.max() == 255
     # the padding tile is the 1x3 black square
     pad = np.asarray(fig.axes[3].images[0].get_array())
-    assert pad.shape == (1, 3)
-    assert pad.max() == 0
-    assert fig.get_facecolor()[:3] == (0.0, 0.0, 0.0)
+    return (len(fig.axes), [arr.shape for arr in real], pad.shape, pad.max(),
+            tuple(fig.get_facecolor()[:3]))
 
 
 def _case_plot_image_grid_grayscale_normalises_to_full_range(tmp_path, rng):
@@ -516,12 +515,14 @@ def _case_plot_image_grid_grayscale_normalises_to_full_range(tmp_path, rng):
     paths = [_write_png(tmp_path / f"g{i}.png", rng, mode="L") for i in range(4)]
     fig = plot_image_grid(paths, percentiles=(5, 95))
 
-    assert len(fig.axes) == 4            # perfect square -> no padding tiles
+    ndims = []
     for ax in fig.axes:
         arr = np.asarray(ax.images[0].get_array())
-        assert arr.ndim == 2
+        ndims.append(arr.ndim)
         assert arr.dtype == np.uint8
         assert arr.min() == 0 and arr.max() == 255
+    # perfect square -> no padding tiles
+    return len(fig.axes), ndims
 
 
 def _case_plot_image_grid_preserves_per_channel_scaling_and_provenance(tmp_path):
@@ -543,19 +544,14 @@ def _case_plot_image_grid_preserves_per_channel_scaling_and_provenance(tmp_path)
     np.testing.assert_allclose(ranges, expected_ranges)
 
     fig = plot_image_grid([str(path)], percentiles=(20, 80))
-    assert len(fig.axes) == 1
     artist = fig.axes[0].images[0]
     shown = np.asarray(artist.get_array())
     assert shown.dtype == np.uint8
     np.testing.assert_array_equal(shown, (expected * 255).astype(np.uint8))
     provenance = getattr(artist, _PANEL_TAG)
     assert provenance["source"] == [str(path.resolve())]
-    assert provenance["raw_dtype"] == "uint8"
-    assert provenance["display_range"] == expected_ranges
-    assert provenance["steps"] == [
-        {"op": "rescale", "ranges": expected_ranges, "percentiles": [20, 80]},
-        {"op": "to_uint8"},
-    ]
+    return (len(fig.axes), provenance["raw_dtype"], provenance["display_range"],
+            provenance["steps"])
 
 
 def _case_plot_image_grid_single_image(tmp_path, rng):
@@ -564,8 +560,7 @@ def _case_plot_image_grid_single_image(tmp_path, rng):
 
     path = _write_png(tmp_path / "solo.png", rng)
     fig = plot_image_grid([path], percentiles=(2, 98))
-    assert len(fig.axes) == 1
-    assert fig.axes[0].images[0].get_array().shape == (16, 16, 3)
+    return len(fig.axes), fig.axes[0].images[0].get_array().shape
 
 
 # ---------------------------------------------------------------------------
@@ -678,11 +673,6 @@ def _case_plot_region_writes_three_pdfs(tmp_path, rng, small_overlay_canvas):
 
     for fig in (fig_1, fig_2, fig_3):
         assert isinstance(fig, matplotlib.figure.Figure)
-    # the mask overlay has one axis per channel plus the combined-objects axis
-    assert len(fig_1.axes) == 3
-    # 3 crops -> 2x2 grid for both image grids
-    assert len(fig_2.axes) == 4
-    assert len(fig_3.axes) == 4
 
     dst = src / "results" / FOV_NAME
     for suffix in ("mask_overlay", "png_grid", "activation_grid"):
@@ -690,6 +680,9 @@ def _case_plot_region_writes_three_pdfs(tmp_path, rng, small_overlay_canvas):
         assert pdf.is_file(), f"missing {pdf}"
         assert pdf.stat().st_size > 0
         assert pdf.read_bytes()[:4] == b"%PDF"
+    # the mask overlay has one axis per channel plus the combined-objects axis;
+    # 3 crops -> 2x2 grid for both image grids
+    return len(fig_1.axes), len(fig_2.axes), len(fig_3.axes)
 
 
 def _case_plot_region_without_matching_crops_returns_none_figures(
@@ -703,16 +696,15 @@ def _case_plot_region_without_matching_crops_returns_none_figures(
     fig_1, fig_2, fig_3 = plot_region(_region_settings(src))
 
     assert isinstance(fig_1, matplotlib.figure.Figure)
-    assert fig_2 is None
-    assert fig_3 is None
     out = capsys.readouterr().out
-    assert "Could not find any cropped PNGs" in out
-    assert "Could not find any activation maps" in out
 
     dst = src / "results" / FOV_NAME
-    assert (dst / f"{FOV_NAME}_mask_overlay.pdf").is_file()
-    assert not (dst / f"{FOV_NAME}_png_grid.pdf").exists()
-    assert not (dst / f"{FOV_NAME}_activation_grid.pdf").exists()
+    return (fig_2, fig_3,
+            ("Could not find any cropped PNGs" in out,
+             "Could not find any activation maps" in out),
+            ((dst / f"{FOV_NAME}_mask_overlay.pdf").is_file(),
+             (dst / f"{FOV_NAME}_png_grid.pdf").exists(),
+             (dst / f"{FOV_NAME}_activation_grid.pdf").exists()))
 
 
 def _case_plot_region_masks_mode_and_tiff_export(tmp_path, rng, small_overlay_canvas):
@@ -728,36 +720,87 @@ def _case_plot_region_masks_mode_and_tiff_export(tmp_path, rng, small_overlay_ca
                for f in (fig_1, fig_2, fig_3))
     tiff_dir = src / "results" / FOV_NAME / "tiff"
     tiffs = sorted(p.name for p in tiff_dir.glob("*.tiff"))
-    assert tiffs == [f"{FOV_NAME}_channel_{i}.tiff" for i in range(4)]
+    return tiffs
 
 
-def test_plot_db_csv_region_cases(request, subtests, capsys):
-    """Case table: 19 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+_P = pytest.param
+_ALL_OBJECTS = len(ROWS) * len(COLUMNS) * N_FIELDS
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_plot_data_from_db_saliency_table_plots_and_saves,
-        _case_plot_data_from_db_recruitment_from_merged_tables,
-        _case_plot_data_from_db_missing_data_column_returns_none,
-        _case_plot_data_from_db_missing_grouping_column_returns_none,
-        _case_plot_data_from_db_rejects_non_str_non_list_src,
-        _case_plot_data_from_db_src_list_and_dropna_failures_are_caught,
-        _case_plot_data_from_csv_adds_plate_and_common_columns,
-        _case_plot_data_from_csv_two_sources_split_prc_and_keep_groups,
-        _case_plot_data_from_csv_prc_split_failure_is_caught,
-        _case_plot_data_from_csv_keep_groups_string_is_normalised,
-        _case_plot_data_from_csv_remove_outliers_and_verbose,
-        _case_plot_data_from_csv_rejects_non_str_non_list_src,
-        _case_plot_image_grid_rgb_pads_grid_with_black_tiles,
-        _case_plot_image_grid_grayscale_normalises_to_full_range,
-        _case_plot_image_grid_preserves_per_channel_scaling_and_provenance,
-        _case_plot_image_grid_single_image,
-        _case_plot_region_writes_three_pdfs,
-        _case_plot_region_without_matching_crops_returns_none_figures,
-        _case_plot_region_masks_mode_and_tiff_export,
-        ],
-    )
-    assert ran >= 19
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_plot_data_from_db_saliency_table_plots_and_saves,
+       (["HeLa", "U2OS"], True, "plate1/results"), id="db-saliency-table-plots-and-saves"),
+    _P(_case_plot_data_from_db_recruitment_from_merged_tables,
+       (["HeLa", "U2OS"], True, _ALL_OBJECTS, []), id="db-recruitment-from-merged-tables"),
+    _P(_case_plot_data_from_db_src_list_and_dropna_failures_are_caught,
+       ((True, True, True), ["measurements.db", "measurements.db"],
+        2 * _ALL_OBJECTS, ROWS), id="db-src-list-and-dropna-failures-caught"),
+    _P(_case_plot_data_from_csv_adds_plate_and_common_columns,
+       ({"plate1"}, {"spacr"}, 20), id="csv-adds-plate-and-common-columns"),
+    _P(_case_plot_data_from_csv_two_sources_split_prc_and_keep_groups,
+       (["ctrl", "treat"], 40, {"plate1", "plate2"}),
+       id="csv-two-sources-split-prc-and-keep-groups"),
+    _P(_case_plot_data_from_csv_prc_split_failure_is_caught,
+       (True, {"plate1"}), id="csv-prc-split-failure-caught"),
+    _P(_case_plot_data_from_csv_keep_groups_string_is_normalised,
+       (["ctrl"], ["ctrl", "treat"]), id="csv-keep-groups-string-normalised"),
+    _P(_case_plot_data_from_csv_remove_outliers_and_verbose,
+       (True, True, True), id="csv-remove-outliers-and-verbose"),
+])
+def test_plot_data_from_db_and_csv_build_frames_and_outputs(request, helper, expected):
+    """plot_data_from_db and plot_data_from_csv annotate, merge, filter and save their frames."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_plot_data_from_db_missing_data_column_returns_none,
+       (None, [], False), id="db-missing-data-column-declined"),
+    _P(_case_plot_data_from_db_missing_grouping_column_returns_none,
+       (None, False), id="db-missing-grouping-column-declined"),
+    _P(_case_plot_data_from_db_rejects_non_str_non_list_src,
+       "ValueError", id="db-bad-src-refused"),
+    _P(_case_plot_data_from_csv_rejects_non_str_non_list_src,
+       "ValueError", id="csv-bad-src-refused"),
+])
+def test_plot_data_declines_or_refuses_unusable_input(request, helper, expected):
+    """A missing column returns None without output; a bad src raises the named error."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_plot_image_grid_rgb_pads_grid_with_black_tiles,
+       (4, [(16, 16, 3)] * 3, (1, 3), 0, (0.0, 0.0, 0.0)),
+       id="grid-rgb-pads-with-black-tiles"),
+    _P(_case_plot_image_grid_grayscale_normalises_to_full_range,
+       (4, [2, 2, 2, 2]), id="grid-grayscale-normalised"),
+    _P(_case_plot_image_grid_preserves_per_channel_scaling_and_provenance,
+       (1, "uint8", [[3, 12], [26, 44], [89, 116]],
+        [{"op": "rescale", "ranges": [[3, 12], [26, 44], [89, 116]],
+          "percentiles": [20, 80]},
+         {"op": "to_uint8"}]),
+       id="grid-per-channel-scaling-and-provenance"),
+    _P(_case_plot_image_grid_single_image,
+       (1, (16, 16, 3)), id="grid-single-image"),
+])
+def test_plot_image_grid_tiles_and_scales_images(request, helper, expected):
+    """plot_image_grid pads to a square grid and stretches each image by percentiles."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    _P(_case_plot_region_writes_three_pdfs,
+       (3, 4, 4), id="region-writes-three-pdfs"),
+    _P(_case_plot_region_without_matching_crops_returns_none_figures,
+       (None, None, (True, True), (True, False, False)),
+       id="region-without-matching-crops"),
+    _P(_case_plot_region_masks_mode_and_tiff_export,
+       [f"{FOV_NAME}_channel_{i}.tiff" for i in range(4)],
+       id="region-masks-mode-and-tiff-export"),
+])
+def test_plot_region_renders_figures_and_exports(request, helper, expected):
+    """plot_region saves the overlay and crop grids, or only the overlay when crops are missing."""
+    observed = _call(request, helper)
+    assert observed == expected

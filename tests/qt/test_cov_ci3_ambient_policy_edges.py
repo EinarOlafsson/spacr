@@ -16,7 +16,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QObject, QSettings, Signal
-from PySide6.QtGui import QColor, QImage, QPainter
+from PySide6.QtGui import QColor, QPainter
 
 from spacr.qt import preferences as prefs
 from spacr.qt.widgets import ambient
@@ -28,23 +28,6 @@ def isolated(tmp_path, monkeypatch):
     monkeypatch.setattr(prefs, "_settings", lambda: settings)
     monkeypatch.setattr(ambient, "_RESOURCE_POLICY", None)
     return settings
-
-
-def _on_producer(function):
-    box = {}
-
-    def run():
-        try:
-            box["value"] = function()
-        except BaseException as error:
-            box["error"] = error
-
-    thread = threading.Thread(target=run, name="spacr-ambient-shade")
-    thread.start()
-    thread.join()
-    if "error" in box:
-        raise box["error"]
-    return box["value"]
 
 
 def _engine(theme, **kwargs):
@@ -75,79 +58,6 @@ def test_the_nearest_measured_row_decides(theme, pixels, density, expected):
     assert ambient._measured_graphics_win(theme, pixels, density) is expected
 
 
-def test_automatic_follows_the_table_before_the_unmeasured_rule(qapp):
-    measured = _engine("data_art_genetic_advection", density=1.0)
-    assert measured._graphics_unmeasured(3840, 2160, work=10 ** 6) is True
-    assert measured._graphics_automatic(3840, 2160, work=10 ** 6) is False
-    lens = _engine("data_art_impulse_lens", density=0.25)
-    assert lens._graphics_unmeasured(1920, 1080, work=10 ** 6) is False
-    assert lens._graphics_automatic(1920, 1080) is True
-
-
-def test_unmeasured_data_art_wants_dense_4k_work(qapp):
-    ribbon = _engine("data_art_point_atlas")
-    assert ribbon._graphics_unmeasured(3840, 2160, work=100000) is True
-    assert ribbon._graphics_unmeasured(3840, 2160, work=99999) is False
-    assert ribbon._graphics_unmeasured(1920, 1080, work=10 ** 7) is False
-    paper = _engine("data_art_tissue_facets")
-    assert paper._graphics_unmeasured(3840, 2160) is True
-    assert paper._graphics_unmeasured(3839, 2160) is False
-
-
-class _Renderer:
-    made = 0
-
-    def __init__(self):
-        _Renderer.made += 1
-        self._owner = threading.get_ident()
-        self.closed = False
-
-    def _close(self):
-        self.closed = True
-
-
-def test_a_kept_renderer_is_reused_until_the_idle_check_expires(monkeypatch, qapp):
-    checks = []
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
-    monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: checks.append(1) or True)
-    monkeypatch.setattr(ambient, "_FlowPointGraphics", _Renderer)
-    _Renderer.made = 0
-    engine = _engine("blobs")
-    engine._graphics_backend = "gpu"
-
-    def frames():
-        first = engine._graphics_renderer(320, 200)
-        assert engine._graphics_idle_until > ambient.time.monotonic()
-        second = engine._graphics_renderer(320, 200)
-        engine._graphics_idle_until = 0.0
-        third = engine._graphics_renderer(320, 200)
-        engine._release_point_graphics()
-        return first, second, third
-
-    first, second, third = _on_producer(frames)
-    assert first is second is third
-    assert _Renderer.made == 1 and len(checks) == 2
-    assert first.closed and engine._point_graphics is None
-
-
-def test_a_constructor_error_is_remembered_for_the_engine(monkeypatch, qapp):
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
-    monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
-    attempts = []
-
-    def broken():
-        attempts.append(1)
-        raise RuntimeError("no context")
-
-    monkeypatch.setattr(ambient, "_FlowPointGraphics", broken)
-    engine = _engine("aurora")
-    engine._graphics_backend = "gpu"
-    assert _on_producer(lambda: engine._graphics_renderer(320, 200)) is None
-    assert engine._graphics_failed
-    assert _on_producer(lambda: engine._graphics_renderer(320, 200)) is None
-    assert attempts == [1]
-
-
 def test_graphics_possible_needs_the_module_and_no_failed_probe(monkeypatch):
     import importlib.util
 
@@ -163,27 +73,6 @@ def test_graphics_possible_needs_the_module_and_no_failed_probe(monkeypatch):
     monkeypatch.setattr(importlib.util, "find_spec", lambda name: object())
     monkeypatch.setattr(ambient, "_FLOW_GRAPHICS_PROBE", True)
     assert ambient._flow_graphics_possible() is True
-
-
-def test_stratified_frames_at_their_edges(qapp):
-    engine = _engine("drift")
-    assert engine.shade(0, 200) is None and engine.shade(320, -1) is None
-    canvas = QImage(4, 4, QImage.Format_RGB32)
-    canvas.fill(QColor("#123456"))
-    painter = QPainter(canvas)
-    try:
-        mode = painter.compositionMode()
-        engine.blit(painter, None, 4, 4)
-        engine.blit(painter, QImage(), 4, 4)
-        engine.blit(painter, QImage(2, 2, QImage.Format_RGB32), 0, 4)
-        assert painter.compositionMode() == mode
-    finally:
-        painter.end()
-    assert canvas.pixelColor(0, 0) == QColor("#123456")
-    engine.set_max_pixels(160 * 100)
-    image = engine.shade(320, 200)
-    assert (image.width(), image.height()) == engine.buffer_size(320, 200)
-    assert image.width() < 320 and image.format() == QImage.Format_ARGB32_Premultiplied
 
 
 def test_blinking_stars_get_their_own_white_passes(qapp):
@@ -293,28 +182,6 @@ def test_a_missing_registry_leaves_the_policy_idle(monkeypatch, qapp, caplog):
     assert not policy.blocks_gpu()
 
 
-def test_applying_skips_a_widget_whose_object_is_gone(monkeypatch, qapp):
-    class Dead:
-        pass
-
-    dead = Dead()
-    widgets = [dead]
-
-    def sync():
-        raise RuntimeError("Internal C++ object already deleted")
-
-    dead._sync_run_state = sync
-    monkeypatch.setattr(ambient, "AmbientWidget", Dead)
-    monkeypatch.setattr(ambient, "_live_ambient_widgets", lambda: widgets)
-    monkeypatch.setattr(ambient, "_live_spaceout_fractals", lambda: [])
-    policy = ambient._AnimationResourcePolicy()
-    emitted = []
-    policy.changed.connect(lambda: emitted.append(1))
-    policy.cpu_busy = True
-    policy._apply()
-    assert emitted == [1]
-
-
 class _Fractal:
     def __init__(self, error):
         self.error = error
@@ -351,107 +218,6 @@ def test_no_policy_exists_before_qt(monkeypatch):
     monkeypatch.setattr(ambient.QApplication, "instance", staticmethod(lambda: None))
     assert ambient._animation_resource_policy() is None
     assert ambient._RESOURCE_POLICY is None
-
-
-@pytest.fixture
-def refusals(monkeypatch, caplog):
-    monkeypatch.setattr(ambient, "_GRAPHICS_REFUSALS_LOGGED", set())
-    caplog.set_level("WARNING", logger=ambient.LOG.name)
-    return caplog
-
-
-def _warnings(caplog):
-    return [record.getMessage() for record in caplog.records
-            if record.levelname == "WARNING"]
-
-
-def test_each_refusal_names_its_reason_and_is_logged_once(monkeypatch, refusals, qapp):
-    monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
-    monkeypatch.setattr(ambient, "_FlowPointGraphics", _Renderer)
-    engine = _engine("blobs")
-    engine._graphics_backend = "gpu"
-
-    def reason(width=320, height=200):
-        assert engine._graphics_renderer(width, height) is None
-        return engine._graphics_refusal
-
-    assert _on_producer(lambda: reason(3841, 2160)) == (
-        "canvas larger than 3840x2160 or big-endian host")
-    assert _on_producer(lambda: reason(3841, 2160)) == (
-        "canvas larger than 3840x2160 or big-endian host")
-    monkeypatch.setattr(ambient, "_decorative_gpu_blocked", lambda: True)
-    assert _on_producer(reason) == "Dynamic animation holds the GPU for analysis"
-    monkeypatch.setattr(ambient, "_decorative_gpu_blocked", lambda: False)
-    monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: False)
-    assert _on_producer(reason) == "another process is computing on the GPU"
-    assert _warnings(refusals) == [
-        "blobs animation stays on the CPU: canvas larger than 3840x2160 or big-endian host",
-        "blobs animation stays on the CPU: Dynamic animation holds the GPU for analysis",
-        "blobs animation stays on the CPU: another process is computing on the GPU"]
-    engine._graphics_idle_until = 0.0
-    monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
-
-    def accept_then_cpu():
-        made = engine._graphics_renderer(320, 200)
-        accepted = engine._graphics_refusal
-        engine._graphics_backend = "cpu"
-        assert engine._graphics_renderer(320, 200) is None
-        return made, accepted
-
-    renderer, accepted = _on_producer(accept_then_cpu)
-    assert isinstance(renderer, _Renderer) and accepted is None
-    assert renderer.closed and engine._graphics_refusal is None
-
-
-def test_automatic_choosing_the_cpu_is_recorded_but_not_logged(refusals, qapp):
-    engine = _engine("drift")
-    engine._graphics_backend = "auto"
-    assert _on_producer(lambda: engine._graphics_renderer(1920, 1080)) is None
-    assert engine._graphics_refusal == "automatic chose the CPU"
-    assert _warnings(refusals) == []
-
-
-def test_probe_constructor_and_draw_failures_say_what_failed(monkeypatch, refusals, qapp):
-    monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: False)
-    probed = _engine("aurora")
-    probed._graphics_backend = "gpu"
-    assert _on_producer(lambda: probed._graphics_renderer(320, 200)) is None
-    assert probed._graphics_refusal == ambient._graphics_probe_refusal()
-    assert probed._graphics_failed
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
-
-    def broken():
-        raise OSError("EGL_BAD_DISPLAY")
-
-    monkeypatch.setattr(ambient, "_FlowPointGraphics", broken)
-    built = _engine("aurora")
-    built._graphics_backend = "gpu"
-    assert _on_producer(lambda: built._graphics_renderer(320, 200)) is None
-    assert built._graphics_refusal == "context creation failed: OSError: EGL_BAD_DISPLAY"
-
-    class Failing(_Renderer):
-        def _draw_blobs(self, *args):
-            raise KeyError("x" * 1000)
-
-    monkeypatch.setattr(ambient, "_FlowPointGraphics", Failing)
-    drawn = _engine("blobs")
-    drawn._graphics_backend = "gpu"
-    assert _on_producer(lambda: drawn._graphics_frame("_draw_blobs", 320, 200)) is None
-    reason = drawn._graphics_refusal
-    assert reason.startswith("_draw_blobs failed in _draw_blobs line ")
-    assert ": KeyError: " in reason and len(reason) < 700
-    assert drawn._graphics_failed and drawn._point_graphics is None
-    assert len(_warnings(refusals)) == 3
-
-
-def test_aurora_now_follows_its_measured_rows_not_the_4k_fallback(qapp):
-    aurora = _engine("aurora", density=1.0)
-    assert aurora._graphics_unmeasured(3840, 2160) is True
-    assert aurora._graphics_unmeasured(1920, 1080) is False
-    assert aurora._graphics_automatic(1920, 1080) is True
-    assert ambient._measured_graphics_win("aurora", 1920 * 1080, 1.0) is True
 
 
 def test_the_probe_refusal_names_the_platform_path(monkeypatch):
@@ -624,45 +390,6 @@ def test_gl_43_storage_binding_keeps_the_direct_buffer_protocol():
     assert '_storage_textures' not in vars(renderer)
 
 
-def test_real_field_node_visits_follow_visibility_and_motion_preferences(qtbot):
-    """Visible native selection reaches the real CPU field; leave/stillness clears it."""
-    from PySide6.QtWidgets import QWidget
-
-    prefs.set_ambient_enabled(True)
-    prefs.set_reduce_motion(False)
-    host = QWidget()
-    qtbot.addWidget(host)
-    host.resize(320, 240)
-    backdrop = ambient.AmbientWidget(host, theme='data_art_impulse_lens', seed=7)
-    backdrop.setGeometry(host.rect())
-    node = QWidget(host)
-    node.setGeometry(80, 60, 100, 80)
-    host.show()
-    try:
-        qtbot.waitUntil(lambda: backdrop._should_run())
-        serial = backdrop._art_input._node_visit[0]
-        ambient._field_visit_node(node)
-        assert backdrop._art_input._node_visit == (serial + 1, (129 / 320, 99 / 240))
-        qtbot.waitUntil(lambda: backdrop._engine._node_visit is not None)
-        ambient._field_visit_node(node, active=False)
-        assert backdrop._art_input._node_visit[1] is None
-        qtbot.waitUntil(lambda: backdrop._engine._node_visit is None)
-        prefs.set_reduce_motion(True)
-        ambient._field_visit_node(node)
-        assert backdrop._art_input._node_visit[1] is None
-        prefs.set_reduce_motion(False)
-        node.hide()
-        ambient._field_visit_node(node)
-        assert backdrop._art_input._node_visit[1] is None
-        node.show()
-        prefs.set_ambient_enabled(False)
-        ambient._field_visit_node(node)
-        assert backdrop._art_input._node_visit[1] is None
-    finally:
-        backdrop.stop()
-        host.close()
-
-
 def test_shutdown_prevents_new_kernel_warmup_without_starting_compilers(monkeypatch):
     """An owned shutdown event rejects warmup before invoking either compiler."""
     stop = threading.Event()
@@ -704,37 +431,6 @@ def test_native_graphics_name_refusal_does_not_start_a_probe(monkeypatch, platfo
     monkeypatch.setattr(ambient, 'sys', types.SimpleNamespace(platform=platform))
     monkeypatch.setattr(accelerator, '_metal_gpu_name', unavailable)
     assert ambient._mac_radeon_graphics() is False
-
-
-def test_field_visit_expires_after_real_engine_time_and_rejects_malformed_column(qtbot):
-    """Actual selected-node delivery expires through engine time without adding a wave."""
-    from PySide6.QtWidgets import QWidget
-
-    prefs.set_ambient_enabled(True)
-    prefs.set_reduce_motion(False)
-    host = QWidget()
-    qtbot.addWidget(host)
-    host.resize(240, 180)
-    backdrop = ambient.AmbientWidget(host, theme='data_art_impulse_lens', seed=7)
-    backdrop.setGeometry(host.rect())
-    node = QWidget(host)
-    node.setGeometry(20, 20, 80, 60)
-    host.show()
-    try:
-        qtbot.waitUntil(lambda: backdrop._should_run())
-        ambient._field_visit_node(node)
-        with backdrop._engine_lock:
-            backdrop._art_input._consume(backdrop._engine)
-            engine = backdrop._engine
-            assert engine._node_visit is not None
-            engine.advance(7.0)
-            assert engine._field_center()[2] == 0.0 and engine._node_visit is None
-            before = list(engine._column_waves)
-            engine._add_column_wave((.2, .8, .5, .5, .1))
-            assert list(engine._column_waves) == before
-    finally:
-        backdrop.stop()
-        host.close()
 
 
 def test_held_probe_capacity_clears_real_retired_widget_samples(qtbot):
@@ -790,100 +486,6 @@ def test_empty_and_sparse_custom_paint_probes_cover_only_actual_ink(qtbot):
     backdrop.stop()
 
 
-def test_field_dispatch_skips_noninteractive_backdrops_and_discarded_native_widgets(qtbot):
-    """Mixed background themes receive only their own supported input protocols."""
-    import shiboken6
-    from PySide6.QtWidgets import QWidget
-
-    host = QWidget()
-    qtbot.addWidget(host)
-    host.resize(240, 180)
-    classic = ambient.AmbientWidget(host, theme='blobs', seed=7)
-    node = QWidget(host)
-    ambient._field_visit_node(node)
-    ambient._field_growing_regions_for_widget(node, (ambient.QRect(-10, -10, 4, 4),))
-    assert classic._art_input is None
-    popup = QWidget(host)
-    shiboken6.delete(popup)
-    ambient._field_ripple_for_popup(popup)
-    ambient.field_ripple_for_widget(popup)
-    classic.stop()
-
-
-def test_wallpaper_held_region_and_fresh_region_paint_their_own_real_pixels(qtbot):
-    """A wallpaper-backed field uses the complete painter fallback with exact region boundaries."""
-    from PySide6.QtCore import QRect
-    from PySide6.QtGui import QPaintEvent, QRegion
-    from PySide6.QtWidgets import QWidget
-
-    host = QWidget()
-    qtbot.addWidget(host)
-    host.resize(120, 100)
-    wallpaper = QImage(120, 100, QImage.Format_RGB32)
-    wallpaper.fill(QColor('#102030'))
-    backdrop = ambient.AmbientWidget(host, theme='blobs', backdrop=wallpaper, seed=7)
-    backdrop.resize(120, 100)
-    old, fresh = QImage(120, 100, QImage.Format_RGB32), QImage(120, 100, QImage.Format_RGB32)
-    old.fill(QColor('#d02030'))
-    fresh.fill(QColor('#1040d0'))
-    held = backdrop._held_rows
-    held.frame = old
-    held.region = QRegion(QRect(24, 24, 48, 48))
-    backdrop._last_frame = fresh
-    backdrop._timer.start()
-    references = []
-    for frame in (old, fresh):
-        reference = QImage(120, 100, QImage.Format_ARGB32_Premultiplied)
-        reference.fill(0)
-        renderer = QPainter(reference)
-        backdrop._paint_base(renderer, backdrop.rect())
-        backdrop._engine.blit(renderer, frame, 120, 100)
-        renderer.end()
-        references.append(reference)
-    expected = references[1].copy()
-    renderer = QPainter(expected)
-    renderer.setClipRegion(held.region)
-    renderer.drawImage(0, 0, references[0])
-    renderer.end()
-    canvas = QImage(120, 100, QImage.Format_ARGB32_Premultiplied)
-    canvas.fill(0)
-    painter = QPainter(canvas)
-    try:
-        assert backdrop._paint_held(painter, QPaintEvent(backdrop.rect()), 120, 100)
-    finally:
-        painter.end()
-        backdrop.stop()
-    assert canvas == expected
-    assert canvas.pixelColor(40, 40) == references[0].pixelColor(40, 40)
-    assert canvas.pixelColor(100, 80) == references[1].pixelColor(100, 80)
-
-
-def test_no_fresh_frame_cannot_claim_a_complete_held_paint(qtbot):
-    """A held input alone is insufficient while the next field frame is unavailable."""
-    from PySide6.QtGui import QPaintEvent, QRegion
-    from PySide6.QtWidgets import QWidget
-
-    host = QWidget()
-    qtbot.addWidget(host)
-    backdrop = ambient.AmbientWidget(host, theme='blobs', seed=7)
-    backdrop.resize(80, 60)
-    held = backdrop._held_rows
-    held.frame = QImage(80, 60, QImage.Format_RGB32)
-    held.frame.fill(QColor('#123456'))
-    held.region = QRegion(backdrop.rect())
-    assert backdrop._last_frame is None
-    backdrop._timer.start()
-    canvas = QImage(80, 60, QImage.Format_ARGB32_Premultiplied)
-    canvas.fill(0)
-    painter = QPainter(canvas)
-    try:
-        assert not backdrop._paint_held(painter, QPaintEvent(backdrop.rect()), 80, 60)
-    finally:
-        painter.end()
-        backdrop.stop()
-    assert canvas.pixelColor(40, 30).alpha() == 0
-
-
 @pytest.mark.parametrize("kind", [
     "USB_PD",           # unknown entries do not override a real discharging
                         # battery
@@ -899,22 +501,6 @@ def test_unknown_power_supply_entries_do_not_override_a_real_discharging_battery
         for key, value in values.items():
             (folder / key).write_text(value)
     assert ambient._linux_on_battery(tmp_path) is True
-
-
-def test_parentless_field_and_zero_sized_background_have_no_covered_area(qtbot):
-    """Unembedded fields and empty layout containers cannot hold unrelated pixels."""
-    from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import QWidget
-
-    backdrop = ambient.AmbientWidget(theme='blobs', seed=7)
-    qtbot.addWidget(backdrop)
-    assert backdrop._held_rows._covered().isEmpty()
-    widget = QWidget()
-    qtbot.addWidget(widget)
-    widget.setAttribute(Qt.WA_StyledBackground, True)
-    widget.resize(0, 0)
-    assert backdrop._held_rows._paints_a_background(widget) is False
-    backdrop.stop()
 
 
 def test_held_classic_field_updates_only_live_area_and_can_be_fully_covered(qtbot, monkeypatch, request):
@@ -1006,79 +592,6 @@ def test_disallowed_external_priming_still_joins_an_owned_resident_worker(monkey
     assert done.is_set() and not worker.is_alive()
 
 
-def test_native_line_separator_with_a_child_is_not_treated_as_a_hollow_ring(qtbot):
-    """Line-shaped QFrames cover their own native paint rather than an invented ring."""
-    from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import QFrame, QWidget
-
-    host = QWidget()
-    qtbot.addWidget(host)
-    backdrop = ambient.AmbientWidget(host, theme='blobs', seed=7)
-    line = QFrame(host)
-    line.setFrameShape(QFrame.HLine)
-    line.setLineWidth(2)
-    line.setAttribute(Qt.WA_NoSystemBackground, True)
-    QWidget(line)
-    assert line.frameWidth() > 0
-    assert backdrop._held_rows._own_paint(line) is None
-    backdrop.stop()
-
-
-@pytest.mark.parametrize('route', ['popup', 'widget'])
-def test_retired_native_owner_during_ripple_lookup_is_ignored(qtbot, monkeypatch, route):
-    """A real owner retiring after lookup cannot send feedback through an invalid wrapper."""
-    import shiboken6
-    from PySide6.QtWidgets import QWidget
-
-    owner = QWidget()
-    qtbot.addWidget(owner)
-    widget = QWidget(owner)
-    qtbot.addWidget(widget)
-    lookup = widget.parentWidget if route == 'popup' else widget.window
-
-    def retired():
-        previous = lookup()
-        widget.setParent(None)
-        shiboken6.delete(owner)
-        assert not shiboken6.isValid(previous)
-        return previous
-
-    monkeypatch.setattr(widget, 'parentWidget' if route == 'popup' else 'window', retired)
-    if route == 'popup':
-        ambient._field_ripple_for_popup(widget)
-    else:
-        ambient.field_ripple_for_widget(widget)
-    assert shiboken6.isValid(widget) and not shiboken6.isValid(owner)
-
-
-def test_growing_field_regions_clip_outside_bounds_even_when_holding_is_disabled(qtbot):
-    """Geometry still reaches the real field while optional row holding is switched off."""
-    from PySide6.QtCore import QRect
-    from PySide6.QtWidgets import QWidget
-
-    prefs.set_ambient_enabled(True)
-    prefs.set_reduce_motion(False)
-    host = QWidget()
-    qtbot.addWidget(host)
-    host.resize(240, 180)
-    backdrop = ambient.AmbientWidget(host, theme='data_art_impulse_lens', seed=7)
-    backdrop.setGeometry(host.rect())
-    host.show()
-    try:
-        qtbot.waitUntil(lambda: backdrop._should_run())
-        backdrop._held_rows.enabled = False
-        inside = QRect(8, 8, 20, 30)
-        outside = QRect(-100, -100, 10, 10)
-        ambient._field_growing_regions_for_widget(host, (outside, inside), invalidate=True)
-        width, height = backdrop.width(), backdrop.height()
-        assert backdrop._art_input._growing_regions == ((8 / width, 8 / height,
-                                                         28 / width, 38 / height),)
-        assert backdrop._held_rows.frame is None
-    finally:
-        backdrop.stop()
-        host.close()
-
-
 def test_rewinding_the_animation_clock_defers_a_real_selected_node_visit(qtbot):
     """A replay rewind renders the wandering field until its recorded visit begins."""
     import math
@@ -1116,48 +629,6 @@ def test_rewinding_the_animation_clock_defers_a_real_selected_node_visit(qtbot):
     finally:
         backdrop.stop()
         host.close()
-
-
-def test_a_node_visit_waits_when_the_shading_thread_holds_the_engine(qtbot, monkeypatch):
-    """The published visit is not consumed under a lock another thread holds,
-    and is consumed on the next visit once the lock is free."""
-    from PySide6.QtWidgets import QWidget
-
-    monkeypatch.setattr(prefs, "get_ambient_enabled", lambda: True)
-    monkeypatch.setattr(prefs, "get_reduce_motion", lambda: False)
-    host = QWidget()
-    qtbot.addWidget(host)
-    host.resize(320, 240)
-    backdrop = ambient.AmbientWidget(host, theme='data_art_impulse_lens', seed=7)
-    backdrop.setGeometry(host.rect())
-    node = QWidget(host)
-    node.setGeometry(80, 60, 100, 80)
-    host.show()
-    holding, release = threading.Event(), threading.Event()
-
-    def hold():
-        with backdrop._engine_lock:
-            holding.set()
-            release.wait(5)
-
-    holder = threading.Thread(target=hold, daemon=True)
-    try:
-        qtbot.waitUntil(lambda: backdrop._should_run())
-        holder.start()
-        assert holding.wait(5)
-        consumed = []
-        monkeypatch.setattr(backdrop._art_input, "_consume",
-                            lambda engine, **kw: consumed.append(engine))
-        serial = backdrop._art_input._node_visit[0]
-        ambient._field_visit_node(node)
-        assert backdrop._art_input._node_visit[0] == serial + 1
-        assert consumed == []
-    finally:
-        release.set()
-        holder.join(5)
-        backdrop.stop()
-    ambient._field_visit_node(node)
-    assert consumed == [backdrop._engine]
 
 
 def test_an_unobserved_gpu_reason_is_logged_once(monkeypatch, caplog):

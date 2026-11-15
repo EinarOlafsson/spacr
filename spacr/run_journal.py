@@ -1245,15 +1245,24 @@ class Run:
         )
 
     def _write_settings(self) -> None:
-        """Write exact machine- and human-readable settings snapshots."""
+        """Write exact machine- and human-readable settings snapshots.
+
+        Both carry ``spacr_settings_version``, the settings schema whose
+        defaults the run resolved, so ``spacr repro`` gives a replay the
+        same defaults after a later release changes one
+        (``spacr.settings.DEFAULT_CHANGES``).
+        """
+        from .settings import _stamp_settings_version
+
+        stamped = _stamp_settings_version(self.settings)
         _atomic_write_text(
             self.dir / "settings.json",
-            json.dumps(self.settings, indent=2, default=str, sort_keys=True),
+            json.dumps(stamped, indent=2, default=str, sort_keys=True),
         )
         with open(self.dir / "settings.csv", "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             w.writerow(["Key", "Value"])
-            for k, v in self.settings.items():
+            for k, v in stamped.items():
                 w.writerow([k, "" if v is None else str(v)])
 
     def _snapshot_log_tail(self, n: int = 200) -> None:
@@ -2268,7 +2277,10 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
         """Sort a recent-run entry by parsed start time, then folder mtime."""
         s = e.get("start_utc") or ""
         try:
-            return (datetime.fromisoformat(s), e["dir"].stat().st_mtime)
+            started = datetime.fromisoformat(s)
+            if started.tzinfo is None:
+                started = started.replace(tzinfo=timezone.utc)
+            return (started, e["dir"].stat().st_mtime)
         except Exception:
             return (datetime.fromtimestamp(0, tz=timezone.utc),
                      e["dir"].stat().st_mtime)

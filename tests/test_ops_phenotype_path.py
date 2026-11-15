@@ -221,7 +221,9 @@ def test_merge_and_aggregate_run_without_a_sequencing_folder(tmp_path):
     out = ops_engine.run_ops(
         {"dst_root": str(tmp_path), "plate": PLATE, "ops_gpu": False,
          "ops_design": str(tmp_path / "design.csv"),
-         "ops_ph_channels": "DAPI"},
+         "ops_ph_channels": "DAPI",
+         # no ops_geometry in this synthetic well: merge with 'similarity'
+         "ops_align_model": "similarity"},
         wells=["A1"], phases=("merge", "aggregate"))
     merge = out["wells"]["A1"]["merge"]
     assert merge["match_rate"] > 0.97

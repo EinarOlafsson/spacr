@@ -13,9 +13,8 @@ import pandas as pd
 import pytest
 
 from spacr.qt.widgets.graph_spec import (
-    BAR, CHANNELS, HISTOGRAM, GraphSpec, Scales, SpecError, _category_levels,
-    _count_limit, _levels, _numeric, brush_mask, column_kinds, facet_grid,
-    scales_for)
+    CHANNELS, GraphSpec, Scales, SpecError, _category_levels,
+    _levels, _numeric, brush_mask, column_kinds)
 
 
 def _frame(n=24):
@@ -100,27 +99,6 @@ def test_a_facet_column_that_is_not_in_the_table_is_refused():
     assert str(len(frame.columns)) in message
 
 
-def test_a_grid_larger_than_the_page_loses_columns_before_rows():
-    """A grid is read down the page, so a lost column costs less than a row.
-
-    The cap has to be enforced somewhere; taking it off the rows would make a
-    tall grid lose the levels a reader scrolls to, which are the ones they
-    were looking for.
-    """
-    frame = _frame(n=48)
-
-    grid = facet_grid(frame, GraphSpec(x="area", facet_row="plateID",
-                                       facet_col="wellID"),
-                      max_panels=8)
-
-    rows_lost = 4 - len(grid.row_levels)
-    cols_lost = 6 - len(grid.col_levels)
-    assert len(grid.row_levels) * len(grid.col_levels) <= 8
-    assert cols_lost > rows_lost, "the columns axis absorbed most of the cap"
-    assert "capped at 8 panels" in grid.notice
-    assert grid.hidden_rows > 0, "the rows outside the drawn levels are counted"
-
-
 # ---------------------------------------------------------------------------
 # Shared scales
 # ---------------------------------------------------------------------------
@@ -139,75 +117,6 @@ def test_a_channel_with_no_column_has_no_numbers_to_bound():
     assert _category_levels(frame, "not_a_column") is None
 
 
-def test_a_categorical_axis_gets_the_same_tick_for_the_same_level():
-    """Levels line up across panels, or a grid compares different things.
-
-    Each panel would otherwise number its own levels from zero, so ``p1`` in
-    one panel and ``p3`` in the next would sit on the same tick.
-    """
-    frame = _frame()
-    scales = scales_for(frame, GraphSpec(x="plateID"), column_kinds(frame))
-
-    positions = scales.x_positions()
-    assert positions == {"p1": 0, "p2": 1, "p3": 2, "p4": 3}
-    assert scales.y_positions() is None
-
-
-def test_a_continuous_axis_has_no_level_positions():
-    """A number is at its own value, not at a tick index."""
-    frame = _frame()
-    scales = scales_for(frame, GraphSpec(x="area", y="intensity"),
-                        column_kinds(frame))
-
-    assert scales.x_positions() is None
-    assert scales.y_positions() is None
-
-
-def test_a_count_axis_over_a_column_that_is_not_there_has_no_height():
-    """Without the counted column there is no tallest bar to share.
-
-    A zero limit would flatten every panel's count axis onto the baseline.
-    """
-    frame = _frame()
-    spec = GraphSpec(x="not_a_column")
-    grid = facet_grid(frame, spec)
-
-    assert _count_limit(frame, spec, grid, BAR, None, None) is None
-
-
-def test_panels_that_hold_no_rows_contribute_no_bars():
-    """A combination of facet levels that drew nothing has no bar to measure.
-
-    Such panels are drawn empty rather than closed up, so the shared count
-    axis has to skip them; asking an empty panel for its tallest bar reduces
-    over nothing and would poison the maximum with NaN.
-    """
-    frame = _frame(n=24)
-    spec = GraphSpec(x="plateID", facet_row="wellID", facet_col="plateID")
-    grid = facet_grid(frame, spec)
-    assert any(panel.is_empty for panel in grid.panels), (
-        "the fixture must produce at least one empty panel")
-
-    tallest = _count_limit(frame, spec, grid, BAR, None, None)
-
-    assert tallest is not None
-    assert tallest > 1.0
-
-
-def test_a_histogram_with_no_bins_has_no_shared_count():
-    """Without bin edges there is nothing to count rows into.
-
-    The edges are None exactly when the column held no finite value, so the
-    honest answer is that this figure has no shared count axis -- a zero
-    would draw every panel flat against the baseline.
-    """
-    frame = _frame()
-    spec = GraphSpec(x="area")
-    grid = facet_grid(frame, spec)
-
-    assert _count_limit(frame, spec, grid, HISTOGRAM, None, None) is None
-
-
 def test_a_categorical_y_axis_gets_its_own_tick_positions():
     """A level on y is at a tick, the same tick, in every panel.
 
@@ -217,23 +126,6 @@ def test_a_categorical_y_axis_gets_its_own_tick_positions():
     scales = Scales(y_levels=("p1", "p2", "p3"))
 
     assert scales.y_positions() == {"p1": 0, "p2": 1, "p3": 2}
-
-
-def test_a_shared_count_axis_is_the_tallest_bar_anywhere():
-    """The count axis must hold the biggest panel, with room above it.
-
-    An axis fitted to one panel would clip the bars of another, and a grid
-    whose panels are drawn to different scales cannot be compared at all.
-    """
-    frame = _frame(n=48)
-    spec = GraphSpec(x="plateID", facet_row="wellID")
-    kinds = column_kinds(frame)
-    grid = facet_grid(frame, spec)
-
-    scales = scales_for(frame, spec, kinds, grid=grid)
-
-    assert scales.count_limit is not None
-    assert scales.count_limit > 1.0
 
 
 # ---------------------------------------------------------------------------

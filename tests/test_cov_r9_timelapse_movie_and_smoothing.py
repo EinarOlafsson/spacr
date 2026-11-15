@@ -1,13 +1,14 @@
 """Two timelapse paths: writing a movie from arrays, and repairing a
 single-frame centroid glitch.
 
-Five gap sites between them. One is a real arm nothing drove -- the
-two-channel frame -- and four are guards the loop above already settled,
-which is the shape most of what is left in this package turns out to be.
+The movie is written with the real OpenCV writer and read back, so the
+colour order and the float scaling are checked on decoded pixels rather
+than on the source text. The two bounds guards of the repair loop cannot
+fire (the loop only visits interior frames of tracks of three or more); the
+five-frame rows establish that a repaired track keeps its first and last
+frame and every feature value.
 """
 from __future__ import annotations
-
-import inspect
 
 import numpy as np
 import pandas as pd
@@ -16,94 +17,53 @@ import pytest
 from spacr import timelapse as T
 
 
-class TestWritingAMovie:
+def _write_and_read_back(tmp_path, frames):
+    path = tmp_path / "movie.avi"
+    T._npz_to_movie(frames, [f"f{i}" for i in range(len(frames))], str(path))
+    assert path.exists() and path.stat().st_size > 0
+    capture = T.cv2.VideoCapture(str(path))
+    try:
+        ok, decoded = capture.read()
+    finally:
+        capture.release()
+    assert ok
+    return decoded
 
-    def _write(self, tmp_path, frames):
-        path = str(tmp_path / "movie.avi")
-        T._npz_to_movie(frames, [f"f{i}" for i in range(len(frames))], path)
-        return tmp_path / "movie.avi"
 
-    def test_a_two_channel_frame_becomes_red_and_green(self, tmp_path):
-        """THE UNCOVERED ARC: ``frame.shape[2] == 2``.
-
-        Two channels is the ordinary spaCR stack -- one stain and one
-        marker -- and there is no blue to show. Mapping them to red and
-        green with blue left at zero is what makes the movie readable;
-        handing a 2-channel array straight to the writer would be a
-        shape error at the codec.
-        """
+def _frames(kind):
+    if kind == "two-channel":
         frames = [np.zeros((8, 8, 2), dtype=np.uint8) for _ in range(2)]
         frames[0][..., 0] = 200          # red channel
         frames[0][..., 1] = 100          # green channel
+        return frames
+    if kind == "float-rgb":
+        # 0-1 floats are what the normalisation upstream produces; casting
+        # them to uint8 without the scale gives an all-black movie
+        frame = np.zeros((8, 8, 3), dtype=np.float32)
+        frame[..., 0], frame[..., 1], frame[..., 2] = 0.8, 0.4, 0.2
+        return [frame, frame.copy()]
+    shapes = {"grayscale": (8, 8), "one-channel": (8, 8, 1),
+              "four-channel": (8, 8, 4)}
+    return [np.zeros(shapes[kind], dtype=np.uint8) for _ in range(2)]
 
-        written = self._write(tmp_path, frames)
 
-        assert written.exists() and written.stat().st_size > 0
+@pytest.mark.parametrize("kind,expected_bgr", [
+    pytest.param("two-channel", [0, 100, 200],
+                 id="two-channel-frame-becomes-red-and-green"),
+    pytest.param("grayscale", None, id="grayscale-frame-is-widened"),
+    pytest.param("one-channel", None, id="single-channel-frame-is-widened-too"),
+    pytest.param("four-channel", None,
+                 id="four-channel-frame-keeps-its-first-three"),
+    pytest.param("float-rgb", [51, 102, 204],
+                 id="float-frame-is-scaled-and-handed-over-as-bgr"),
+])
+def test_movie_frames_of_every_accepted_shape_are_written_with_red_green_blue_order_and_float_scaling(
+        tmp_path, kind, expected_bgr):
+    decoded = _write_and_read_back(tmp_path, _frames(kind))
 
-        capture = T.cv2.VideoCapture(str(written))
-        try:
-            ok, decoded = capture.read()
-            assert ok
-            np.testing.assert_allclose(decoded[0, 0], [0, 100, 200], atol=5)
-        finally:
-            capture.release()
-
-    def test_two_is_the_only_value_that_elif_can_see(self):
-        """THE PIN, for the ``elif``'s FALSE arm.
-
-        The block is entered only for ``ndim == 2`` or a third dimension
-        of 1 or 2, and the ``if`` above takes both of the first two --
-        so by the time the ``elif`` is reached the channel count is 2 and
-        the alternative cannot run. Enumerated rather than argued,
-        because the entry condition and the two arms are three separate
-        expressions that have to agree.
-        """
-        for ndim, channels in ((2, None), (3, 1), (3, 2)):
-            enters = ndim == 2 or (ndim == 3 and channels in (1, 2))
-            assert enters
-            first = ndim == 2 or channels == 1
-            if not first:
-                assert channels == 2, (
-                    f"a {channels}-channel frame reaches the elif and is "
-                    f"neither widened nor mapped to red/green")
-
-    def test_a_grayscale_frame_is_widened(self, tmp_path):
-        written = self._write(
-            tmp_path, [np.zeros((8, 8), dtype=np.uint8) for _ in range(2)])
-
-        assert written.exists() and written.stat().st_size > 0
-
-    def test_a_single_channel_frame_is_widened_too(self, tmp_path):
-        written = self._write(
-            tmp_path, [np.zeros((8, 8, 1), dtype=np.uint8) for _ in range(2)])
-
-        assert written.exists() and written.stat().st_size > 0
-
-    def test_a_four_channel_frame_keeps_its_first_three(self, tmp_path):
-        written = self._write(
-            tmp_path, [np.zeros((8, 8, 4), dtype=np.uint8) for _ in range(2)])
-
-        assert written.exists() and written.stat().st_size > 0
-
-    def test_a_float_frame_is_scaled_rather_than_truncated(self, tmp_path):
-        """0-1 floats are what the normalisation upstream produces, and
-        casting them to uint8 without the scale gives an all-black
-        movie."""
-        frames = [np.full((8, 8, 3), 0.5, dtype=np.float32) for _ in range(2)]
-
-        written = self._write(tmp_path, frames)
-
-        assert written.exists() and written.stat().st_size > 0
-        source = inspect.getsource(T._npz_to_movie)
-        assert "(frame * 255).astype(np.uint8)" in source
-
-    def test_the_writer_is_handed_bgr_while_the_arrays_stay_rgb(self):
-        """The boundary that is easy to lose: OpenCV writes BGR, and
-        everything above it in spaCR is RGB. A missing conversion swaps
-        the stains in every movie and nothing errors."""
-        source = inspect.getsource(T._npz_to_movie)
-
-        assert "out.write(rgb_to_cv2(frame))" in source
+    assert decoded.shape == (8, 8, 3)
+    if expected_bgr is not None:
+        np.testing.assert_allclose(decoded[0, 0], expected_bgr, atol=5)
 
 
 def _track(n_frames, glitch_at=None):
@@ -122,103 +82,34 @@ def _track(n_frames, glitch_at=None):
     return pd.DataFrame(rows)
 
 
-class TestRepairingAGlitch:
+@pytest.mark.parametrize("scenario", [
+    pytest.param("teleport", id="single-frame-teleport-is-interpolated-away"),
+    pytest.param("clean", id="clean-track-is-left-alone"),
+    pytest.param("empty", id="empty-frame-is-returned-untouched"),
+    pytest.param("two-frames", id="two-frame-track-is-too-short-to-have-an-interior"),
+    pytest.param("feature", id="feature-is-interpolated-at-the-repaired-frame"),
+])
+def test_a_single_frame_glitch_is_repaired_with_its_features_and_everything_else_is_left_alone(
+        scenario):
+    if scenario == "empty":
+        assert T._smooth_tracks_and_features(pd.DataFrame()).empty
+        return
 
-    def _case_a_single_frame_teleport_is_interpolated_away(self):
-        """The behaviour the two guards below sit inside."""
-        df = _track(5, glitch_at=2)
-
-        out = T._smooth_tracks_and_features(df)
-
+    if scenario == "teleport":
+        out = T._smooth_tracks_and_features(_track(5, glitch_at=2))
         repaired = out.loc[out["frame"] == 2, "cell_centroid-0"].iloc[0]
         assert repaired == pytest.approx(12.0), (
             "the teleported frame was not replaced by the midpoint of its "
             "neighbours")
-
-    def _case_a_clean_track_is_left_alone(self):
-        df = _track(5)
-
-        out = T._smooth_tracks_and_features(df)
-
-        assert list(out["cell_centroid-0"]) == list(df["cell_centroid-0"])
-
-    def _case_an_empty_frame_is_returned_untouched(self):
-        empty = pd.DataFrame()
-
-        assert T._smooth_tracks_and_features(empty).empty
-
-    def _case_a_two_frame_track_is_too_short_to_have_an_interior(self):
-        """The guard that makes the two below unreachable: nothing is
-        detected at all unless the track has three frames."""
-        df = _track(2, glitch_at=1)
-
-        out = T._smooth_tracks_and_features(df)
-
-        assert list(out["cell_centroid-0"]) == list(df["cell_centroid-0"])
-
-    def test_no_detected_glitch_can_sit_on_an_end_frame(self):
-        """THE PIN, for ``if i_local <= 0 or i_local >= n - 1: continue``.
-
-        The detector walks ``range(1, n - 1)``, so every index it can add
-        to ``glitch_frames`` is interior by construction -- the repair
-        loop's own bounds check can never fire. It matters because the
-        repair reads ``i_local - 1`` and ``i_local + 1``: if the detector
-        ever widened its range, this guard is what stands between that
-        and an IndexError on the first and last frame of every track.
-        """
-        source = inspect.getsource(T._smooth_tracks_and_features)
-        detect = source.index("for i_local in range(1, n - 1):")
-        repair = source.index("for i_local in glitch_frames:", detect)
-
-        assert detect < repair
-        assert "if i_local <= 0 or i_local >= n - 1:" not in source[repair:]
-
-        for n in (3, 4, 10):
-            for i_local in range(1, n - 1):
-                assert not (i_local <= 0 or i_local >= n - 1), (
-                    f"the detector can reach {i_local} on a {n}-frame track, "
-                    f"which the repair would skip")
-
-    def test_a_feature_column_is_never_shorter_than_three(self):
-        """THE PIN, for ``if len(s) < 3: continue``.
-
-        ``s`` is the whole track's values for one feature, so its length
-        is ``n`` -- and the enclosing block only runs when ``n >= 3``. The
-        guard is a second copy of that check, standing where a reader
-        would think it protects the ``i_local ± 1`` reads below it.
-        """
-        source = inspect.getsource(T._smooth_tracks_and_features)
-        gate = source.index("if n >= 3:")
-        assert "if len(s) < 3:" not in source[gate:]
-
-    def _case_a_feature_is_interpolated_at_the_repaired_frame(self):
-        """The work the inner loop does when it is not skipping: the
-        scalar features move with the centroid, so a repaired track does
-        not carry the glitch frame's area."""
+    elif scenario == "feature":
         df = _track(5, glitch_at=2)
         df.loc[df["frame"] == 2, "cell_area"] = 9999.0
-
         out = T._smooth_tracks_and_features(df)
-
         area = out.loc[out["frame"] == 2, "cell_area"].iloc[0]
         assert area != 9999.0, (
             "the glitch frame kept its feature value while its centroid was "
             "repaired, so the row is half-corrected")
-
-
-def test_repairing_a_glitch_cases(request, subtests):
-    """Case table: 5 cases of TestRepairingAGlitch run as sub-tests."""
-    from tests.case_table import run_cases
-
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        (TestRepairingAGlitch, '_case_a_single_frame_teleport_is_interpolated_away'),
-        (TestRepairingAGlitch, '_case_a_clean_track_is_left_alone'),
-        (TestRepairingAGlitch, '_case_an_empty_frame_is_returned_untouched'),
-        (TestRepairingAGlitch, '_case_a_two_frame_track_is_too_short_to_have_an_interior'),
-        (TestRepairingAGlitch, '_case_a_feature_is_interpolated_at_the_repaired_frame'),
-        ],
-    )
-    assert ran >= 5
+    else:
+        df = _track(5) if scenario == "clean" else _track(2, glitch_at=1)
+        out = T._smooth_tracks_and_features(df)
+        assert list(out["cell_centroid-0"]) == list(df["cell_centroid-0"])

@@ -11,7 +11,14 @@ WHY AVERAGE AT ALL, with the number rather than the adjective. PART 15
 measured the gain at about 1.15x on well A1 -- the raster's own 14% overlap,
 where two tiles saw the same nuclei twice. An earlier draft claimed 3.3x from
 averaging eleven cycles; there is only one DAPI acquisition, so that argument
-does not apply. These tests pin the smaller, real number.
+does not apply. These tests pin the smaller, real number, with the plain
+average asked for by name (``blend='average'``).
+
+WHY FEATHER BY DEFAULT (item 931). A plain average keeps a brightness step
+where one tile ends, and on Funk et al. 2022 its seams stepped more often
+than an unstitched tile does; weighting each tile by its distance to its
+own edge removed that. The feather tests below pin the weight definition of
+the reference script, the seam it removes and that coverage is unchanged.
 """
 from __future__ import annotations
 
@@ -48,7 +55,8 @@ def test_averaging_beats_a_single_tile(raster):
     tile, the averaging is costing reads and buying nothing."""
     truth, places, tiles, size = raster
     image, _ = compose_window(Window(0, 0, size, size), places,
-                              tiles.__getitem__, tile_shape=(TILE, TILE))
+                              tiles.__getitem__, tile_shape=(TILE, TILE),
+                              blend="average")
     top, left = places[4]
     window_truth = truth[top:top + TILE, left:left + TILE]
     single = float(np.abs(tiles[4] - window_truth).mean())
@@ -62,7 +70,8 @@ def test_the_gain_is_about_what_part_15_measured(raster):
     geometry is averaging something twice."""
     _, places, tiles, size = raster
     _, coverage = compose_window(Window(0, 0, size, size), places,
-                                 tiles.__getitem__, tile_shape=(TILE, TILE))
+                                 tiles.__getitem__, tile_shape=(TILE, TILE),
+                                 blend="average")
     assert 1.0 < overlap_gain(coverage) < 1.3
 
 
@@ -192,3 +201,118 @@ def test_the_gain_of_a_window_no_tile_reached_is_zero_not_a_nan(raster):
 
     assert coverage.max() == 0
     assert overlap_gain(coverage) == 0.0
+
+
+def _script_feather(window, places, tiles, shape):
+    """The reference script's none:feather composition (s1it2_seam_arms.py).
+
+    Weight = min(row, column, height - 1 - row, width - 1 - column) + 1 in
+    the tile's own 0-based pixels, float64 sums, ``sum(w x tile) / sum(w)``.
+    """
+    height, width = shape
+    total = np.zeros((window.height, window.width))
+    weights = np.zeros_like(total)
+    yy, xx = np.mgrid[window.top:window.bottom, window.left:window.right]
+    for site in sorted(places):
+        ty, tx = (int(round(float(v))) for v in places[site])
+        if (ty + height <= window.top or ty >= window.bottom
+                or tx + width <= window.left or tx >= window.right):
+            continue
+        wy0, wx0 = max(ty, window.top), max(tx, window.left)
+        wy1 = min(ty + height, window.bottom)
+        wx1 = min(tx + width, window.right)
+        sl = (slice(wy0 - window.top, wy1 - window.top),
+              slice(wx0 - window.left, wx1 - window.left))
+        patch = tiles[site][wy0 - ty:wy1 - ty, wx0 - tx:wx1 - tx]
+        ly, lx = yy[sl] - ty, xx[sl] - tx
+        w = np.minimum.reduce([ly, lx, height - 1 - ly,
+                               width - 1 - lx]).astype(float) + 1
+        total[sl] += patch * w
+        weights[sl] += w
+    return np.where(weights > 0, total / np.maximum(weights, 1e-9), 0)
+
+
+def test_feather_is_the_default_and_matches_the_reference_script(raster):
+    """Item 931: the default composite IS the script's none:feather, to the
+    float32 the composer returns -- on whole windows and on windows that
+    start inside a tile, where the weight must still count from the tile's
+    own edge, not the window's."""
+    _truth, places, tiles, size = raster
+    for window in (Window(0, 0, size, size), Window(37, 51, 90, 70),
+                   Window(80, 3, 20, 150)):
+        default, _ = compose_window(window, places, tiles.__getitem__,
+                                    tile_shape=(TILE, TILE))
+        feather, _ = compose_window(window, places, tiles.__getitem__,
+                                    tile_shape=(TILE, TILE), blend="feather")
+        reference = _script_feather(window, places, tiles, (TILE, TILE))
+        assert default.dtype == np.float32
+        assert default.tobytes() == feather.tobytes()
+        assert np.array_equal(default, reference.astype(np.float32))
+
+
+def test_feather_leaves_no_step_where_a_brighter_tile_ends():
+    """THE POINT OF FEATHERING. Two flat tiles of different brightness: the
+    average jumps from the two-tile mean to one tile at the overlap's edge,
+    the feather moves there by less than one weight step."""
+    tile_a = np.full((20, 40), 100.0, dtype=np.float32)
+    tile_b = np.full((20, 40), 200.0, dtype=np.float32)
+    places = {0: (0, 0), 1: (0, 30)}          # columns 30-39 overlap
+    tiles = {0: tile_a, 1: tile_b}
+    window = Window(0, 0, 20, 70)
+    average, _ = compose_window(window, places, tiles.__getitem__,
+                                tile_shape=(20, 40), blend="average")
+    feather, _ = compose_window(window, places, tiles.__getitem__,
+                                tile_shape=(20, 40), blend="feather")
+    row = 10
+    # tile a's last column is 39; from column 40 tile b is alone
+    assert average[row, 40] - average[row, 39] == pytest.approx(50.0)
+    assert feather[row, 40] - feather[row, 39] < 10.0
+    assert np.all(np.diff(feather[row, 25:45]) >= 0)
+
+
+def test_one_tile_alone_comes_back_unchanged_under_feather(raster):
+    """Where one tile covers a pixel the weights cancel: the feathered value
+    is that tile's own value, exactly, not a value scaled by its weight."""
+    _truth, places, tiles, _size = raster
+    top, left = places[4]
+    window = Window(top + OVERLAP, left + OVERLAP, TILE - 2 * OVERLAP,
+                    TILE - 2 * OVERLAP)
+    image, coverage = compose_window(window, places, tiles.__getitem__,
+                                     tile_shape=(TILE, TILE))
+    assert coverage.max() == 1
+    assert np.array_equal(
+        image, tiles[4][OVERLAP:TILE - OVERLAP, OVERLAP:TILE - OVERLAP])
+
+
+def test_coverage_is_the_same_count_for_either_blend(raster):
+    """Coverage says how many tiles reached a pixel; the blend weighs them
+    but must not change the count `overlap_gain` and the segmenter read."""
+    _truth, places, tiles, size = raster
+    window = Window(0, 0, size, size)
+    _a, average = compose_window(window, places, tiles.__getitem__,
+                                 tile_shape=(TILE, TILE), blend="average")
+    _f, feather = compose_window(window, places, tiles.__getitem__,
+                                 tile_shape=(TILE, TILE), blend="feather")
+    assert average.dtype == feather.dtype == np.uint16
+    assert np.array_equal(average, feather)
+
+
+def test_an_unknown_blend_is_refused_with_the_choices(raster):
+    """A typo must not fall back to either blend silently."""
+    _truth, places, tiles, size = raster
+    with pytest.raises(ComposeError, match="feather"):
+        compose_window(Window(0, 0, size, size), places, tiles.__getitem__,
+                       tile_shape=(TILE, TILE), blend="median")
+
+
+def test_the_engine_reads_the_blend_from_settings():
+    """``ops_compose_blend`` reaches the composer: empty is feather, the two
+    names pass, case and spaces aside, and anything else is refused."""
+    from spacr.ops_engine import _compose_blend
+
+    assert _compose_blend({}) == "feather"
+    assert _compose_blend({"ops_compose_blend": None}) == "feather"
+    assert _compose_blend({"ops_compose_blend": " Average "}) == "average"
+    assert _compose_blend({"ops_compose_blend": "feather"}) == "feather"
+    with pytest.raises(ValueError, match="ops_compose_blend"):
+        _compose_blend({"ops_compose_blend": "voronoi"})

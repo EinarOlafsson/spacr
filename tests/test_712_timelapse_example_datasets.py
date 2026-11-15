@@ -22,6 +22,7 @@ import tifffile
 from spacr import cli_download
 from spacr import example_archives as archives
 from spacr.example_archives import (EXAMPLE_ARCHIVE_SHA256, EXAMPLE_ARCHIVES,
+                                    EXAMPLE_OPT_IN_ARCHIVES,
                                     check_archive_sha256, example_set)
 from spacr.qt import mask_engine as engine
 
@@ -110,7 +111,8 @@ def test_every_timelapse_archive_has_a_sha256_pin():
     for kind in KINDS:
         pin = EXAMPLE_ARCHIVE_SHA256[f"spacr-example-timelapse-{kind}.tar"]
         assert len(pin) == 64 and int(pin, 16) >= 0
-    assert set(EXAMPLE_ARCHIVE_SHA256) <= set(EXAMPLE_ARCHIVES.values())
+    assert set(EXAMPLE_ARCHIVE_SHA256) <= (set(EXAMPLE_ARCHIVES.values())
+                                         | set(EXAMPLE_OPT_IN_ARCHIVES))
 
 
 def test_a_pinned_archive_with_other_bytes_is_refused():

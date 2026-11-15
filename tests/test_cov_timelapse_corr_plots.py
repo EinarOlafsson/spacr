@@ -15,6 +15,7 @@ rather than merely checking that a PNG appeared on disk.
 """
 from __future__ import annotations
 
+import inspect
 import os
 
 import numpy as np
@@ -171,8 +172,10 @@ def _case_feature_velocity_correlations_empty_track_df_is_a_noop(tmp_path):
     from spacr.timelapse import _feature_velocity_correlations
 
     all_df, _ = _build_corr_frames()
-    assert _feature_velocity_correlations(all_df, pd.DataFrame(), str(tmp_path)) is None
+    result = _feature_velocity_correlations(all_df, pd.DataFrame(), str(tmp_path))
+    assert result is None
     assert list(tmp_path.iterdir()) == []
+    return (result, [q.name for q in tmp_path.iterdir()])
 
 
 def _case_feature_velocity_correlations_writes_csv_with_median_aggregation(
@@ -220,7 +223,9 @@ def _case_feature_velocity_correlations_writes_csv_with_median_aggregation(
         vals = sub["abs_pearson_r"].to_numpy()
         assert np.all(np.diff(vals) <= 1e-12), f"group {grp} not sorted descending"
 
-    assert "Saved velocity–feature" in capsys.readouterr().out
+    printed = capsys.readouterr().out
+    assert "Saved velocity–feature" in printed
+    return {"columns": sorted(got.columns), "groups": sorted(set(got["group"])), "n_all": sorted(set(got.loc[got["group"] == "all", "n_tracks"])), "n_inf": sorted(set(got.loc[got["group"] == "infected", "n_tracks"])), "n_uninf": sorted(set(got.loc[got["group"] == "uninfected", "n_tracks"])), "r_area": float(r_area.iloc[0]), "r_straightness": float(r_str.iloc[0]), "saved_msg": "Saved velocity–feature" in printed}
 
 
 def _case_feature_velocity_correlations_skips_group_with_too_few_tracks(
@@ -235,19 +240,23 @@ def _case_feature_velocity_correlations_skips_group_with_too_few_tracks(
     got = pd.read_csv(tmp_path / "velocity_feature_correlations.csv")
     assert set(got["group"]) == {"all", "infected"}
     assert set(got["n_tracks"]) == {8}
-    assert "Not enough tracks for correlation (uninfected)." in capsys.readouterr().out
+    printed = capsys.readouterr().out
+    assert "Not enough tracks for correlation (uninfected)." in printed
+    return (sorted(set(got["group"])), sorted(set(got["n_tracks"])), "Not enough tracks for correlation (uninfected)." in printed)
 
 
 def _case_feature_velocity_correlations_all_groups_too_small(tmp_path, capsys):
     from spacr.timelapse import _feature_velocity_correlations
 
     all_df, track_df = _build_corr_frames(n_cells=4)
-    assert _feature_velocity_correlations(all_df, track_df, str(tmp_path)) is None
+    result = _feature_velocity_correlations(all_df, track_df, str(tmp_path))
+    assert result is None
 
     out = capsys.readouterr().out
     for label in ("all", "infected", "uninfected"):
         assert f"Not enough tracks for correlation ({label})." in out
     assert not (tmp_path / "velocity_feature_correlations.csv").exists()
+    return (result, [f"Not enough tracks for correlation ({label})." in out for label in ("all", "infected", "uninfected")], (tmp_path / "velocity_feature_correlations.csv").exists())
 
 
 def _case_feature_velocity_correlations_non_finite_velocities_are_dropped(
@@ -270,6 +279,7 @@ def _case_feature_velocity_correlations_non_finite_velocities_are_dropped(
     out = capsys.readouterr().out
     assert "Not enough tracks for correlation (infected)." in out
     assert "Not enough tracks for correlation (uninfected)." in out
+    return (sorted(set(got.loc[got["group"] == "all", "n_tracks"])), sorted(set(got["group"])), "Not enough tracks for correlation (infected)." in out, "Not enough tracks for correlation (uninfected)." in out)
 
 
 def _case_feature_velocity_correlations_no_numeric_columns(tmp_path, capsys):
@@ -287,10 +297,13 @@ def _case_feature_velocity_correlations_no_numeric_columns(tmp_path, capsys):
         }
     )
     _, track_df = _build_corr_frames(n_cells=3)
-    assert _feature_velocity_correlations(all_df, track_df, str(tmp_path)) is None
+    result = _feature_velocity_correlations(all_df, track_df, str(tmp_path))
+    assert result is None
 
-    assert "No numeric feature columns" in capsys.readouterr().out
+    printed = capsys.readouterr().out
+    assert "No numeric feature columns" in printed
     assert list(tmp_path.iterdir()) == []
+    return (result, "No numeric feature columns" in printed, list(tmp_path.iterdir()))
 
 
 def _case_feature_velocity_correlations_all_candidates_excluded(tmp_path, capsys):
@@ -321,10 +334,13 @@ def _case_feature_velocity_correlations_all_candidates_excluded(tmp_path, capsys
             "velocity": [1.0, 2.0, 3.0],
         }
     )
-    assert _feature_velocity_correlations(all_df, track_df, str(tmp_path)) is None
+    result = _feature_velocity_correlations(all_df, track_df, str(tmp_path))
+    assert result is None
 
-    assert "No numeric feature columns" in capsys.readouterr().out
+    printed = capsys.readouterr().out
+    assert "No numeric feature columns" in printed
     assert not (tmp_path / "velocity_feature_correlations.csv").exists()
+    return (result, "No numeric feature columns" in printed, (tmp_path / "velocity_feature_correlations.csv").exists())
 
 
 def _case_feature_velocity_correlations_swallows_write_failure(tmp_path, capsys):
@@ -333,12 +349,14 @@ def _case_feature_velocity_correlations_swallows_write_failure(tmp_path, capsys)
 
     all_df, track_df = _build_corr_frames(n_cells=12)
     missing = tmp_path / "does" / "not" / "exist"
-    assert _feature_velocity_correlations(all_df, track_df, str(missing)) is None
+    result = _feature_velocity_correlations(all_df, track_df, str(missing))
+    assert result is None
 
     out = capsys.readouterr().out
     assert "Feature–velocity correlation" in out
     assert "analysis failed with error:" in out
     assert not missing.exists()
+    return (result, "Feature–velocity correlation" in out, "analysis failed with error:" in out, missing.exists())
 
 
 # ===========================================================================
@@ -383,15 +401,15 @@ def _case_motility_plots_empty_track_df(tmp_path, capsys):
                                  _make_motility_plots)
 
     out_dir = tmp_path / "motility"
-    assert (
-        _make_motility_plots(
-            pd.DataFrame(), {("p1", "A01"): []}, pd.DataFrame(),
-            str(out_dir), None, None, "px/frame", {},
-        )
-        is None
+    result = _make_motility_plots(
+        pd.DataFrame(), {("p1", "A01"): []}, pd.DataFrame(),
+        str(out_dir), None, None, "px/frame", {},
     )
-    assert "motility plots were not generated." in capsys.readouterr().out
+    printed = capsys.readouterr().out
+    assert result is None
+    assert "motility plots were not generated." in printed
     assert not out_dir.exists()
+    return (result, "motility plots were not generated." in printed, out_dir.exists())
 
 
 def _case_motility_plots_no_per_well_tracks(tmp_path, capsys):
@@ -400,15 +418,15 @@ def _case_motility_plots_no_per_well_tracks(tmp_path, capsys):
 
     track_df, _, well_summary_df = _motility_inputs()
     out_dir = tmp_path / "motility"
-    assert (
-        _make_motility_plots(
-            track_df, {}, well_summary_df, str(out_dir),
-            4.0, 30.0, "µm/min", {},
-        )
-        is None
+    result = _make_motility_plots(
+        track_df, {}, well_summary_df, str(out_dir),
+        4.0, 30.0, "µm/min", {},
     )
-    assert "No per-track velocities available" in capsys.readouterr().out
+    printed = capsys.readouterr().out
+    assert result is None
+    assert "No per-track velocities available" in printed
     assert not out_dir.exists()
+    return (result, "No per-track velocities available" in printed, out_dir.exists())
 
 
 def _case_motility_plots_physical_units_and_axis_limits(
@@ -503,6 +521,7 @@ def _case_motility_plots_physical_units_and_axis_limits(
     assert "infected=4.333 (n=3)" in out
     assert "uninfected=3.000 (n=1)" in out
     assert "Saved combined motility plot" in out
+    return {"names": names, "n_figs": len(captured_figs), "labels": (combined["xlabel"], combined["ylabel"]), "combined_xlim": combined["xlim"], "combined_ylim": combined["ylim"], "combined_counts": (combined["n_lines"], combined["n_collections"], combined["n_boxes"]), "combined_texts": combined["texts"], "a01_all_texts": a01_all["texts"][:2], "a01_inf_xlim": a01_inf["xlim"], "a01_inf_ylim": a01_inf["ylim"], "a01_inf_x0": a01_inf["line_xdata"][0].tolist() if hasattr(a01_inf["line_xdata"][0], "tolist") else list(a01_inf["line_xdata"][0]), "a02_all_texts": a02_all["texts"][:2], "a02_inf_n_lines": a02_inf["n_lines"], "stats": ["Velocity stats (µm/min): all=4.000" in out, "infected=4.333 (n=3)" in out, "uninfected=3.000 (n=1)" in out, "Saved combined motility plot" in out]}
 
 
 def _case_motility_plots_pixel_units_without_well_summary(
@@ -573,6 +592,7 @@ def _case_motility_plots_pixel_units_without_well_summary(
 
     out = capsys.readouterr().out
     assert "all=2.500" in out and "infected=nan (n=0)" in out
+    return {"names": names, "n_figs": len(captured_figs), "labels": (combined["xlabel"], combined["ylabel"]), "combined_texts": combined["texts"], "per_well_texts": per_well_fig["texts"][:2], "origin_n_lines": origin_fig["n_lines"], "origin_texts": origin_fig["texts"], "stats": ["all=2.500" in out, "infected=nan (n=0)" in out]}
 
 
 def _case_motility_plots_ignores_malformed_axis_limits(tmp_path, captured_figs):
@@ -594,6 +614,7 @@ def _case_motility_plots_ignores_malformed_axis_limits(tmp_path, captured_figs):
     assert combined["texts"][3] == "1 frame = 15.5 s"
     assert combined["texts"][2] == "1 µm = 2.00 px"
     assert (out_dir / "motility_all_tracks.png").is_file()
+    return (combined["texts"][2:4], (out_dir / "motility_all_tracks.png").is_file())
 
 
 # ===========================================================================
@@ -650,6 +671,7 @@ def _case_select_infection_feature_columns_pathogen_channel_filter():
         "constant_feat", "sparse_feat", "label_text",
     ):
         assert dropped not in got
+    return got
 
 
 def _case_select_infection_feature_columns_none_channel_keeps_all_intensities():
@@ -665,6 +687,7 @@ def _case_select_infection_feature_columns_none_channel_keeps_all_intensities():
         "cell_mean_intensity_ch2",
         "cell_mean_intensity_chX",
     ]
+    return got
 
 
 def _case_select_infection_feature_columns_unparseable_channel_index_is_kept():
@@ -678,6 +701,7 @@ def _case_select_infection_feature_columns_unparseable_channel_index_is_kept():
 
     assert weird in got
     assert "cell_mean_intensity_ch0" not in got
+    return (weird in got, "cell_mean_intensity_ch0" in got)
 
 
 def _case_select_infection_feature_columns_drops_low_coverage_and_constant():
@@ -697,6 +721,7 @@ def _case_select_infection_feature_columns_drops_low_coverage_and_constant():
     assert "ten_finite" in got
     assert "nine_finite" not in got
     assert "near_constant" not in got
+    return ("ten_finite" in got, "nine_finite" in got, "near_constant" in got)
 
 
 def _case_select_infection_feature_columns_returns_empty_when_all_excluded():
@@ -718,35 +743,66 @@ def _case_select_infection_feature_columns_returns_empty_when_all_excluded():
             "well_label": ["a", "b", "c", "d"],
         }
     )
-    assert _select_infection_feature_columns(all_df, pathogen_chan=1) == []
+    got = _select_infection_feature_columns(all_df, pathogen_chan=1)
+    assert got == []
+    return got
 
 
-def test_timelapse_corr_plots_cases(request, subtests, capsys):
-    """Case table: 18 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+# ---------------------------------------------------------------------------
+# parametrised entry points: one test per contract, one row per scenario
+# ---------------------------------------------------------------------------
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_feature_velocity_correlations_empty_track_df_is_a_noop,
-        _case_feature_velocity_correlations_writes_csv_with_median_aggregation,
-        _case_feature_velocity_correlations_skips_group_with_too_few_tracks,
-        _case_feature_velocity_correlations_all_groups_too_small,
-        _case_feature_velocity_correlations_non_finite_velocities_are_dropped,
-        _case_feature_velocity_correlations_no_numeric_columns,
-        _case_feature_velocity_correlations_all_candidates_excluded,
-        _case_feature_velocity_correlations_swallows_write_failure,
-        _case_motility_plots_empty_track_df,
-        _case_motility_plots_no_per_well_tracks,
-        _case_motility_plots_physical_units_and_axis_limits,
-        _case_motility_plots_pixel_units_without_well_summary,
-        _case_motility_plots_ignores_malformed_axis_limits,
-        _case_select_infection_feature_columns_pathogen_channel_filter,
-        _case_select_infection_feature_columns_none_channel_keeps_all_intensities,
-        _case_select_infection_feature_columns_unparseable_channel_index_is_kept,
-        _case_select_infection_feature_columns_drops_low_coverage_and_constant,
-        _case_select_infection_feature_columns_returns_empty_when_all_excluded,
-        ],
-    )
-    assert ran >= 18
+def _call_case(case, request):
+    wanted = inspect.signature(case).parameters
+    return case(**{k: request.getfixturevalue(k) for k in wanted})
+
+
+_feature_velocity_correlations_write_csv_or_explain_why_not_CASES = [
+    pytest.param(_case_feature_velocity_correlations_empty_track_df_is_a_noop, (None, []), id="feature-velocity-correlations-empty-track-df-is-a-noop"),
+    pytest.param(_case_feature_velocity_correlations_writes_csv_with_median_aggregation, {"columns": ["abs_pearson_r", "feature", "group", "n_tracks", "pearson_r"], "groups": ["all", "infected", "uninfected"], "n_all": [12], "n_inf": [6], "n_uninf": [6], "r_area": pytest.approx(1.0, abs=1e-9), "r_straightness": pytest.approx(1.0, abs=1e-9), "saved_msg": True}, id="feature-velocity-correlations-writes-csv-with-median-aggregation"),
+    pytest.param(_case_feature_velocity_correlations_skips_group_with_too_few_tracks, (["all", "infected"], [8], True), id="feature-velocity-correlations-skips-group-with-too-few-tracks"),
+    pytest.param(_case_feature_velocity_correlations_all_groups_too_small, (None, [True, True, True], False), id="feature-velocity-correlations-all-groups-too-small"),
+    pytest.param(_case_feature_velocity_correlations_non_finite_velocities_are_dropped, ([8], ["all"], True, True), id="feature-velocity-correlations-non-finite-velocities-are-dropped"),
+    pytest.param(_case_feature_velocity_correlations_no_numeric_columns, (None, True, []), id="feature-velocity-correlations-no-numeric-columns"),
+    pytest.param(_case_feature_velocity_correlations_all_candidates_excluded, (None, True, False), id="feature-velocity-correlations-all-candidates-excluded"),
+    pytest.param(_case_feature_velocity_correlations_swallows_write_failure, (None, True, True, False), id="feature-velocity-correlations-swallows-write-failure"),
+]
+
+
+@pytest.mark.parametrize("case, expected", _feature_velocity_correlations_write_csv_or_explain_why_not_CASES)
+def test_feature_velocity_correlations_write_csv_or_explain_why_not(case, expected, request):
+    """Correlation CSV output, group size limits, filtering and failure handling."""
+    observed = _call_case(case, request)
+    assert observed == expected
+
+
+_motility_plots_render_or_skip_with_a_message_CASES = [
+    pytest.param(_case_motility_plots_empty_track_df, (None, True, False), id="motility-plots-empty-track-df"),
+    pytest.param(_case_motility_plots_no_per_well_tracks, (None, True, False), id="motility-plots-no-per-well-tracks"),
+    pytest.param(_case_motility_plots_physical_units_and_axis_limits, {"names": ["motility_all_tracks.png", "motility_p1_A01_all_tracks.png", "motility_p1_A01_infected_origin.png", "motility_p1_A01_uninfected_origin.png", "motility_p1_A02_all_tracks.png", "motility_p1_A02_infected_origin.png"], "n_figs": 6, "labels": ("x (µm)", "y (µm)"), "combined_xlim": pytest.approx((0.0, 100.0)), "combined_ylim": pytest.approx((0.0, 80.0)), "combined_counts": (4, 4, 1), "combined_texts": ["Infected (4.33 µm/min)", "Uninfected (3.00 µm/min)", "1 µm = 4.00 px", "1 frame = 30 s"], "a01_all_texts": ["Infected (1.00 µm/min)", "Uninfected (3.00 µm/min)"], "a01_inf_xlim": pytest.approx((-10.0, 10.0)), "a01_inf_ylim": pytest.approx((-5.0, 5.0)), "a01_inf_x0": pytest.approx([0.0, 1.0, 2.0]), "a02_all_texts": ["Infected (6.00 µm/min)", "Uninfected (n/a µm/min)"], "a02_inf_n_lines": 2, "stats": [True, True, True, True]}, id="motility-plots-physical-units-and-axis-limits"),
+    pytest.param(_case_motility_plots_pixel_units_without_well_summary, {"names": ["motility_all_tracks.png", "motility_p1_B02_all_tracks.png", "motility_p1_B02_uninfected_origin.png"], "n_figs": 3, "labels": ("x (pixels)", "y (pixels)"), "combined_texts": ["Infected (n/a px/frame)", "Uninfected (2.50 px/frame)", "1 µm = ? px", "1 frame = ? s"], "per_well_texts": ["Infected (n/a px/frame)", "Uninfected (n/a px/frame)"], "origin_n_lines": 1, "origin_texts": [], "stats": [True, True]}, id="motility-plots-pixel-units-without-well-summary"),
+    pytest.param(_case_motility_plots_ignores_malformed_axis_limits, (["1 µm = 2.00 px", "1 frame = 15.5 s"], True), id="motility-plots-ignores-malformed-axis-limits"),
+]
+
+
+@pytest.mark.parametrize("case, expected", _motility_plots_render_or_skip_with_a_message_CASES)
+def test_motility_plots_render_or_skip_with_a_message(case, expected, request):
+    """Motility figures: empty inputs, unit handling and axis limits."""
+    observed = _call_case(case, request)
+    assert observed == expected
+
+
+_select_infection_feature_columns_filters_candidates_CASES = [
+    pytest.param(_case_select_infection_feature_columns_pathogen_channel_filter, ["cell_area", "cell_mean_intensity_ch2", "cell_mean_intensity_chX"], id="select-infection-feature-columns-pathogen-channel-filter"),
+    pytest.param(_case_select_infection_feature_columns_none_channel_keeps_all_intensities, ["cell_area", "cell_mean_intensity_ch0", "cell_mean_intensity_ch1", "cell_mean_intensity_ch2", "cell_mean_intensity_chX"], id="select-infection-feature-columns-none-channel-keeps-all-intensities"),
+    pytest.param(_case_select_infection_feature_columns_unparseable_channel_index_is_kept, (True, False), id="select-infection-feature-columns-unparseable-channel-index-is-kept"),
+    pytest.param(_case_select_infection_feature_columns_drops_low_coverage_and_constant, (True, False, False), id="select-infection-feature-columns-drops-low-coverage-and-constant"),
+    pytest.param(_case_select_infection_feature_columns_returns_empty_when_all_excluded, [], id="select-infection-feature-columns-returns-empty-when-all-excluded"),
+]
+
+
+@pytest.mark.parametrize("case, expected", _select_infection_feature_columns_filters_candidates_CASES)
+def test_select_infection_feature_columns_filters_candidates(case, expected, request):
+    """Which numeric columns qualify as infection features."""
+    observed = _call_case(case, request)
+    assert observed == expected

@@ -344,6 +344,7 @@ class PlateMapPicker(QDialog):
         outer = QVBoxLayout(self)
         self._caption = QLabel("", self)
         self._caption.setObjectName("Muted")
+        self._caption.setWordWrap(True)
         outer.addWidget(self._caption)
 
         self._holder = QWidget(self)

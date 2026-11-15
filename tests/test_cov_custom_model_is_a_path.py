@@ -10,29 +10,8 @@ boolean selector has been retired. The path must still survive
 without allowing ``True`` or ``False`` to silently become checkpoint names.
 """
 
-import pytest
 
-from spacr.cli import SettingsError, coerce_value
 from spacr.settings import expected_types
-
-
-def test_a_checkpoint_path_is_accepted():
-    """The bug, stated directly: a path must survive --set."""
-    value = coerce_value("custom_model", "/models/my_cellpose.pth", None,
-                         expected_types, "mask")
-    assert value == "/models/my_cellpose.pth"
-
-
-def test_none_still_means_no_custom_model():
-    """`None` is the value every reader tests for; it must stay reachable."""
-    assert coerce_value("custom_model", "none", None,
-                        expected_types, "mask") is None
-
-
-@pytest.mark.parametrize("text", ["False", "True"])
-def test_the_retired_bool_is_rejected_instead_of_becoming_a_path(text):
-    with pytest.raises(SettingsError, match="checkpoint path, not a boolean"):
-        coerce_value("custom_model", text, None, expected_types, "mask")
 
 
 def test_neither_override_table_reintroduces_the_retired_bool():

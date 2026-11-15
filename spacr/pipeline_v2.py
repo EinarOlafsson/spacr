@@ -56,6 +56,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import logging
 import re
 import shutil
@@ -438,11 +439,16 @@ def _record_cellpose_hash(model, model_name: str) -> None:
                 continue
             if isinstance(obj, (list, tuple)):
                 ckpt_paths.extend(obj)
+            elif isinstance(obj, (str, os.PathLike)):
+                if attr == "pretrained_model":
+                    ckpt_paths.append(obj)
             else:
                 nested = getattr(obj, "pretrained_model", None)
                 if nested is not None:
                     if isinstance(nested, (list, tuple)):
                         ckpt_paths.extend(nested)
+                    elif isinstance(nested, (str, os.PathLike)):
+                        ckpt_paths.append(nested)
                     else:
                         ckpt_paths.append(nested)
         ckpt_paths = [Path(p) for p in ckpt_paths

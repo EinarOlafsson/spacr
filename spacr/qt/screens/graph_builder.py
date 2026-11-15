@@ -393,6 +393,9 @@ class _PngListAnnotationSaves:
     def _describe_save(self, kind, result):
         """Why a save left annotations unsaved, or None when it saved them all.
 
+        A save where no plate database had a ``png_list`` row matching the
+        table wrote nothing, so it stays unsaved with the per-plate warning.
+
         :returns: ``(text or None, whether a project folder would help)``.
         """
         if kind != "saved":
@@ -406,13 +409,41 @@ class _PngListAnnotationSaves:
             return tr("Not saved: no plate database was found for {count} labelled objects. "
                       "Press Save annotations and choose the project folder.",
                       count=f"{result['unrouted_labels']:,}"), True
+        entries = list(result["databases"].values())
+        if entries and all(entry.get("matched", 1) == 0 for entry in entries):
+            return tr("Not saved: {reason}", reason=self._summarise_save(result)), False
         return None, False
 
     def _summarise_save(self, report):
-        """One line saying where the labels went and what had nowhere to go."""
+        """Say where the labels went, per plate, and what had nowhere to go.
+
+        Each plate database gets its matched and updated ``png_list`` row
+        counts. A plate where no row matched leads the note as a warning with
+        a few keys of each side, since its labels were not saved anywhere
+        (issue #187).
+        """
         objects = sum(entry["objects"] for entry in report["databases"].values())
-        parts = [tr("Annotations saved to png_list: {objects} objects in {databases} database(s).",
-                    objects=f"{objects:,}", databases=len(report["databases"]))]
+        warnings = []
+        plates = []
+        for database, entry in report["databases"].items():
+            plate = Path(database).parent.parent.name or database
+            if "matched" not in entry:
+                continue
+            if entry["matched"]:
+                plates.append(tr("{plate}: {matched} png_list rows matched, {updated} updated.",
+                                 plate=plate, matched=f"{entry['matched']:,}",
+                                 updated=f"{entry['updated']:,}"))
+                continue
+            unmatched = entry.get("unmatched") or {}
+            warnings.append(tr(
+                "Warning: no png_list row in {plate} matched this table by prcfo, so nothing was "
+                "saved there. Table keys: {table}. png_list keys: {png_list}.",
+                plate=plate, table=", ".join(unmatched.get("table") or []) or tr("none"),
+                png_list=", ".join(unmatched.get("png_list") or []) or tr("none")))
+        parts = [*warnings,
+                 tr("Annotations saved to png_list: {objects} objects in {databases} database(s).",
+                    objects=f"{objects:,}", databases=len(report["databases"])),
+                 *plates]
         missing = sum(entry["no_png_list_row"] for entry in report["databases"].values())
         if missing:
             parts.append(tr("{count} objects have no png_list row.", count=f"{missing:,}"))

@@ -63,3 +63,5 @@ These specs describe spaCR features to build so that analyses now done by custom
 - one-off corpus builds: the plaque held-out set and the literature checks;
 - figure drawing (item 818 later);
 - annotation readings (cluster annotation, mitotic labels, plaque gold labels, figure readings): these are stored as data, never re-derived.
+
+**Later items (not ranked above):** 935 OPS live mode (`ITEM_ops_live_mode.md`), 936 align & stitch shared core (`ITEM_align_stitch_shared_core.md`), 939 genotype thresholds (`ITEM_ops_genotype_threshold_auto.md`), 940 placement seed file (`ITEM_ops_placement_seed_file.md`; used by 935, lands in or after 936).

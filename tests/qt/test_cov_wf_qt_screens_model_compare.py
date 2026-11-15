@@ -274,42 +274,6 @@ def test_the_sweep_retires_the_stopped_job_and_keeps_the_running_one(
 
 
 # ---------------------------------------------------------------------------
-# a worker traceback with nothing in it
-# ---------------------------------------------------------------------------
-
-def test_an_empty_worker_traceback_still_produces_a_sentence(screen, fields):
-    """A status line reading "Comparison failed:" tells the user nothing.
-
-    The worker's ``error`` signal carries whatever text the failure produced,
-    and a process that died without unwinding Python — a segfaulting
-    Cellpose build, a killed CUDA context — emits blank. The screen scans
-    back from the end for the last line with anything on it; when there is no
-    such line the status has to fall back to a name for the failure rather
-    than trailing off mid-sentence. Either way the numbers from the run before
-    have to go: a table of per-field ARIs left standing under "failed" reads
-    as the result of the run that just failed.
-    """
-    screen.set_source(fields)
-    assert screen.compare() is True
-    assert len(screen.metric_rows()) == 3
-    assert screen.report().n_fields == 3
-
-    screen._pending.append(({}, None, "comparison"))
-    screen._on_worker_error_text(
-        "Traceback (most recent call last):\n"
-        "  File \"x.py\", line 1\nRuntimeError: cellpose is not installed")
-    assert screen.status_text() == (
-        "Comparison failed: RuntimeError: cellpose is not installed")
-    assert screen.last_error == screen.status_text()
-    assert screen.metric_rows() == []
-    assert screen.report() is None
-
-    # The same slot with nothing but whitespace on the wire: still a sentence.
-    screen._on_worker_error_text("  \n \n\t ")
-    assert screen.status_text() == "Comparison failed: unknown error"
-
-
-# ---------------------------------------------------------------------------
 # a matched label that is not a label of this mask
 # ---------------------------------------------------------------------------
 

@@ -1596,8 +1596,10 @@ def save_settings(settings, name='settings', show=False):
         from .model_zoo import _validate_model_metadata
 
         _validate_model_metadata(settings)
-    settings_2 = settings.copy()
-    
+    from .settings import _stamp_settings_version
+
+    settings_2 = _stamp_settings_version(settings)
+
     if isinstance(settings_2['src'], list):
         src = settings_2['src'][0]
         name = f"{name}_list"
@@ -1741,8 +1743,8 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
         except (TypeError, ValueError):
             effective_jobs = 1
         remaining = max(0, files_to_process - files_processed)
-        time_left = (remaining * average_time / effective_jobs) / 60
         if batch_size is None:
+            time_left = (remaining * average_time / effective_jobs) / 60
             time_info = f'Time/image: {average_time:.3f}sec, Time_left: {time_left:.3f} min.'
         else:
             try:
@@ -1750,6 +1752,7 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
             except (TypeError, ValueError):
                 effective_batch_size = 1
             average_time_img = average_time / effective_batch_size
+            time_left = (remaining * average_time_img / effective_jobs) / 60
             time_info = f'Time/batch: {average_time:.3f}sec, Time/image: {average_time_img:.3f}sec, Time_left: {time_left:.3f} min.'
     else:
         time_info = None
@@ -2226,6 +2229,8 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
         df['new_measurement'] = df['cell_area']
     dfs = {condition: df_group for condition, df_group in df.groupby('condition')}
     conditions = df['condition'].dropna().unique().tolist()
+    figures_per_condition = 1 + len(channel_indices)
+    figures_saved = 0
     for condition in conditions:
         df = dfs[condition]
         df = _filter_closest_to_stat(df, column='new_measurement', n_rows=nr_imgs, use_median=False)
@@ -2233,10 +2238,14 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
         fig = _plot_images_on_grid(png_paths_by_condition, channel_indices, um_per_pixel, scale_bar_length_um, fontsize, show_filename, channel_names, plot)
         src = os.path.dirname(db_path)
         os.makedirs(src, exist_ok=True)
-        _save_figure(fig=fig, src=src, text=condition)
+        figures_saved += 1
+        _save_figure(fig=fig, src=src, text=condition, i=figures_saved,
+                     all_folders=figures_per_condition * len(conditions))
         for channel in channel_indices:
             fig = _plot_images_on_grid(png_paths_by_condition, [channel], um_per_pixel, scale_bar_length_um, fontsize, show_filename, channel_names, plot)
-            _save_figure(fig, src, text=f'channel_{channel}_{condition}')
+            figures_saved += 1
+            _save_figure(fig, src, text=f'channel_{channel}_{condition}', i=figures_saved,
+                         all_folders=figures_per_condition * len(conditions))
             plt.close()
             
 def _map_values(row, values, locs):
@@ -6168,7 +6177,9 @@ def _remove_noninfected(stack, cell_dim, nucleus_dim, pathogen_dim):
     else:
         pathogen_mask = np.zeros_like(stack)
 
-    for cell_label in np.unique(cell_mask)[1:]:
+    _labels_0 = np.unique(cell_mask)
+    _labels_0 = _labels_0[_labels_0 != 0]
+    for cell_label in _labels_0:
         cell_region = cell_mask == cell_label
         labels_in_cell = np.unique(pathogen_mask[cell_region])
         labels_in_cell = labels_in_cell[labels_in_cell != 0]
@@ -6191,7 +6202,8 @@ def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
         return stack
     pathogen_mask = stack[:, :, pathogen_dim]
     nucleus_mask = None if nucleus_dim is None else stack[:, :, nucleus_dim]
-    pathogen_labels = np.unique(pathogen_mask)[1:]
+    pathogen_labels = np.unique(pathogen_mask)
+    pathogen_labels = pathogen_labels[pathogen_labels != 0]
     for pathogen_label in pathogen_labels:
         pathogen_region = pathogen_mask == pathogen_label
         cell_in_pathogen_region = np.unique(cell_mask[pathogen_region])
@@ -6219,7 +6231,9 @@ def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_d
     nucleus_mask = None if nucleus_dim is None else stack[:, :, nucleus_dim]
     pathogen_mask = None if pathogen_dim is None else stack[:, :, pathogen_dim]
 
-    for cell_label in np.unique(cell_mask)[1:]:
+    _labels_2 = np.unique(cell_mask)
+    _labels_2 = _labels_2[_labels_2 != 0]
+    for cell_label in _labels_2:
         cell_region = cell_mask == cell_label
         labels_in_cell = np.unique(object_mask[cell_region])
         labels_in_cell = labels_in_cell[labels_in_cell != 0]
@@ -6338,7 +6352,8 @@ def _relabel_parent_with_child_labels(parent_mask, child_mask):
 
     parent_mask_new = np.zeros_like(parent_mask)
 
-    unique_child_labels = np.unique(child_labels)[1:]
+    unique_child_labels = np.unique(child_labels)
+    unique_child_labels = unique_child_labels[unique_child_labels != 0]
     for child_label in unique_child_labels:
         child_area_mask = (child_labels == child_label)
         overlapping_parent_label = np.unique(parent_labels[child_area_mask])
@@ -6347,7 +6362,9 @@ def _relabel_parent_with_child_labels(parent_mask, child_mask):
             if parent_label != 0:
                 parent_mask_new[parent_labels == parent_label] = child_label
 
-    for parent_label in np.unique(parent_mask_new)[1:]:
+    _labels_4 = np.unique(parent_mask_new)
+    _labels_4 = _labels_4[_labels_4 != 0]
+    for parent_label in _labels_4:
         parent_area_mask = (parent_mask_new == parent_label)
         child_labels_in_parent = np.unique(child_mask[parent_area_mask])
         child_labels_in_parent = child_labels_in_parent[child_labels_in_parent != 0]

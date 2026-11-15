@@ -451,29 +451,35 @@ def test_a_prcf_that_is_not_this_frames_key_is_left_alone(tmp_path, capsys):
     assert 'Repaired' not in capsys.readouterr().out
 
 
-def test_the_legacy_time_id_spelling_is_accepted(tmp_path):
-    """``time_id`` and ``timeID`` both resolve, through ``utils._time_column``."""
+@pytest.mark.parametrize("extra_columns, columns, expected", [
+    pytest.param({'timeID': ['t1', 't2']}, ['c1', 'c1'],
+                 ['plate1_r1_c1_f1_t1', 'plate1_r1_c1_f1_t2'],
+                 id="canonical-timelapse-key-is-unchanged"),
+    # ``time_id`` and ``timeID`` both resolve, through ``utils._time_column``.
+    pytest.param({'time_id': ['t1', 't2']}, ['c1', 'c1'],
+                 ['plate1_r1_c1_f1_t1', 'plate1_r1_c1_f1_t2'],
+                 id="legacy-time_id-spelling-is-accepted"),
+    # No timepoint anywhere means the key is what it always was.
+    pytest.param({}, ['c1', 'c2'],
+                 ['plate1_r1_c1_f1', 'plate1_r1_c2_f1'],
+                 id="no-timepoint-column-builds-the-four-token-key"),
+    # Only a provably time-blind key is repaired; anything else is kept.
+    pytest.param({'timeID': ['t1', 't2'],
+                  'prcf': ['imported_key_a', 'imported_key_b']},
+                 ['c1', 'c1'], ['imported_key_a', 'imported_key_b'],
+                 id="a-prcf-from-another-source-is-left-alone"),
+])
+def test_the_field_key_is_built_from_the_identifiers_it_is_given(
+        extra_columns, columns, expected):
     frame = pd.DataFrame({
         'plateID': ['plate1'] * 2,
         'rowID': ['r1'] * 2,
-        'columnID': ['c1'] * 2,
+        'columnID': columns,
         'fieldID': ['f1'] * 2,
-        'time_id': ['t1', 't2'],
+        **extra_columns,
     })
     built = submodules._ensure_field_key(frame.copy())
-    assert built['prcf'].tolist() == ['plate1_r1_c1_f1_t1', 'plate1_r1_c1_f1_t2']
-
-
-def test_no_timepoint_column_builds_the_four_token_key(tmp_path):
-    """No timepoint anywhere means the key is what it always was."""
-    frame = pd.DataFrame({
-        'plateID': ['plate1'] * 2,
-        'rowID': ['r1'] * 2,
-        'columnID': ['c1', 'c2'],
-        'fieldID': ['f1'] * 2,
-    })
-    built = submodules._ensure_field_key(frame.copy())
-    assert built['prcf'].tolist() == ['plate1_r1_c1_f1', 'plate1_r1_c2_f1']
+    assert built['prcf'].tolist() == expected
 
 
 # ---------------------------------------------------------------------------

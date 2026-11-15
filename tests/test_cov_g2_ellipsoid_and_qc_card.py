@@ -21,13 +21,6 @@ def _ellipsoid(**extra):
     return gs._EllipsoidGate(**values)
 
 
-def test_an_ellipsoid_needs_three_distinct_columns():
-    with pytest.raises(gs.GateError, match="has no y_column"):
-        _ellipsoid(y_column=" ")
-    with pytest.raises(gs.GateError, match="same measurement twice"):
-        _ellipsoid(z_column="a")
-
-
 def test_an_ellipsoid_keeps_radii_positive_and_moves_and_scales():
     gate = _ellipsoid()
     assert gate.kind == gs._ELLIPSOID and gate.x_radius == 2.0

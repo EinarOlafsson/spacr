@@ -8,9 +8,8 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.qt.widgets import gate_editor as ge  # noqa: E402
 from spacr.qt.widgets.gate_spec import (BoxGate, CompositeGate, GateSet,  # noqa: E402
-                                        ThresholdGate, ViewGate, _EllipsoidGate)
+                                        )
 from tests.qt.test_gate_editor_3d_mode_is_usable import _Mouse, screen  # noqa: E402,F401
 
 JACOBIAN = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
@@ -29,20 +28,6 @@ def _box():
                                [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)])
 
 
-def _ellipsoid():
-    return _EllipsoidGate(name="e", x_column="a", y_column="b", z_column="c",
-                          x_radius=2.0, y_radius=2.0, z_radius=2.0)
-
-
-def _view(projection=None):
-    projection = projection if projection is not None else (
-        (1.0, 0.0, 0.0, 0.0), (0.0, 1.0, 0.0, 0.0), (0.0, 0.0, 1.0, 0.0),
-        (0.0, 0.0, 0.0, 1.0))
-    return ViewGate(name="v", x_column="a", y_column="b", z_column="c",
-                    projection=projection,
-                    vertices=((-0.5, -0.5), (0.5, -0.5), (0.0, 0.5)))
-
-
 def _pull(canvas, gate, role, x=5.0, y=0.0):
     ax = canvas.axes_at(0, 0)
     canvas._handle_drag = (gate.name, role, (0.0, 0.0), gate, np.zeros(3))
@@ -50,13 +35,6 @@ def _pull(canvas, gate, role, x=5.0, y=0.0):
         return canvas._handle_moved(_Mouse(ax, x, y))
     finally:
         canvas._handle_drag = None
-
-
-def test_side_handles_move_one_face_or_radius(canvas):
-    assert _pull(canvas, _box(), "x_high").x_high == pytest.approx(6.0)
-    assert _pull(canvas, _box(), "z_high") == _box()
-    assert _pull(canvas, _ellipsoid(), "x_low").x_radius == pytest.approx(3.0)
-    assert _pull(canvas, _view(), "x_high") == _view()
 
 
 def test_invalid_anchor_deformation_reports_why_and_keeps_the_gate(canvas, monkeypatch):
@@ -73,26 +51,6 @@ def test_invalid_anchor_deformation_reports_why_and_keeps_the_gate(canvas, monke
     assert edited == []
     assert canvas._gates.to_dict() == before
     assert canvas._gates.get(gate.name) is gate
-
-
-def test_moving_whole_gates_through_the_volume(canvas):
-    moved = canvas._moved_gate(_box(), {"a": 1.0, "b": 2.0, "c": 3.0},
-                               np.zeros(3), np.zeros(3))
-    assert (moved.x_low, moved.y_high, moved.z_low) == (1.0, 3.0, 3.0)
-    flat = ThresholdGate(name="t", column="a", low=0.0)
-    assert canvas._moved_gate(flat, {}, np.zeros(3), np.zeros(3)) is flat
-    shifted = canvas._moved_gate(_view(), {}, np.zeros(3),
-                                 np.array([1.0, 0.0, 0.0]))
-    assert shifted != _view()
-    blind = _view(projection=((1.0, 0.0, 0.0, 0.0), (0.0, 1.0, 0.0, 0.0),
-                              (0.0, 0.0, 1.0, 0.0), (0.0, 0.0, 0.0, 0.0)))
-    assert canvas._moved_gate(blind, {}, np.zeros(3),
-                              np.array([1.0, 0.0, 0.0])) == blind
-
-
-def test_a_flat_gate_has_no_volume_handles(canvas):
-    assert canvas._volume_handles(ThresholdGate(name="t", column="a",
-                                                low=0.0)) == []
 
 
 def test_releasing_an_unchanged_handle_only_redraws(canvas, monkeypatch):
@@ -120,24 +78,6 @@ def test_a_stuck_live_artist_is_forgotten(canvas):
     canvas._live = _Stuck()
     canvas._clear_live()
     assert canvas._live is None
-
-
-def test_a_preview_that_clashes_draws_the_saved_gates(canvas, monkeypatch):
-    from dataclasses import replace
-
-    canvas._gates = GateSet([_box()])
-    canvas._volume_preview = replace(_box(), name="orphan", parent="missing")
-    drawn = []
-    monkeypatch.setattr(canvas, "_draw_volume_gate",
-                        lambda ax, gate, *a, **k: drawn.append(gate.name),
-                        raising=False)
-    try:
-        canvas._draw_volume_gates(canvas.axes_at(0, 0), canvas.population(),
-                                  {"fg": "#000"})
-    except Exception:
-        pass
-    canvas._volume_preview = None
-    assert list(canvas._gates.names) == ["b"]
 
 
 def test_a_click_on_the_last_vertex_adds_no_corner(canvas, monkeypatch):
@@ -190,14 +130,6 @@ def test_double_clicks_off_the_name_or_on_no_gate_ask_nothing(screen,  # noqa: F
     assert renamed == [("b", "box")]
 
 
-def test_a_view_gate_that_cannot_mask_has_no_centre_handle(canvas, monkeypatch):
-    def broken(self, frame):
-        raise ValueError("no columns")
-
-    monkeypatch.setattr(ViewGate, "mask", broken)
-    assert canvas._volume_handles(_view()) == []
-
-
 def test_dragging_without_a_handle_does_nothing(canvas, monkeypatch):
     drawn = []
     monkeypatch.setattr(canvas, "render_now", lambda: drawn.append(True))
@@ -229,16 +161,6 @@ def test_a_one_point_lasso_draws_no_ghost_and_makes_no_gate(canvas, monkeypatch)
     canvas._show_lasso_ghost()
     assert canvas._ghost == []
     assert canvas.gate_from_screen_outline([(0, 0), (1, 1)]) is None
-
-
-def test_a_gate_whose_count_is_unavailable_says_so(screen, monkeypatch):  # noqa: F811
-    tree = screen.gates.tree
-    gates = screen.gates.gates
-    gates.add(_box())
-    monkeypatch.setattr(tree, "_gate_stats", lambda: ({}, {"b": "no column"}))
-    tree.set_gates(gates, screen.gates.canvas.population())
-    item = tree.tree.topLevelItem(0)
-    assert item.text(1) == tree.UNAVAILABLE
 
 
 def _artist(owner, animated=True, figure=None):

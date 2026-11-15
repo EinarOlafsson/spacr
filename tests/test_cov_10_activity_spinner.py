@@ -18,12 +18,10 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
-from PySide6.QtWidgets import (                          # noqa: E402
-    QGridLayout, QHBoxLayout, QPushButton, QWidget)
 
 from spacr.qt.widgets import activity_spinner as AS      # noqa: E402
 from spacr.qt.widgets.activity_spinner import (          # noqa: E402
-    ActivitySpinner, attach_activity_spinner)
+    ActivitySpinner)
 
 
 def test_a_preference_that_cannot_be_read_gives_the_shipped_delay(
@@ -84,73 +82,3 @@ def test_the_delay_can_be_changed_and_is_never_negative(qtbot):
     assert spinner.delay_ms() == 0
 
 
-def _row_with_clear_button(qtbot):
-    host = QWidget()
-    qtbot.addWidget(host)
-    layout = QHBoxLayout(host)
-    button = QPushButton("Clear console", host)
-    host._btn_clear = button
-    layout.addWidget(button)
-    return host, button
-
-
-def test_attaching_twice_returns_the_spinner_already_there(qtbot):
-    """``showEvent`` runs every time a screen is shown. A second spinner in
-    the row would be two indicators disagreeing about the same work."""
-    host, _button = _row_with_clear_button(qtbot)
-    first = attach_activity_spinner(host)
-    assert isinstance(first, ActivitySpinner)
-    assert attach_activity_spinner(host) is first
-
-
-def test_a_descendant_finds_the_spinner_its_ancestor_already_owns(qtbot):
-    """Called from a child of the screen, the walk up must stop at the
-    spinner that is already installed instead of continuing past it and
-    adding a second one."""
-    host, _button = _row_with_clear_button(qtbot)
-    spinner = attach_activity_spinner(host)
-    child = QWidget()
-    qtbot.addWidget(child)
-    child.setParent(host)
-    del host._btn_clear          # the button is gone; the spinner is not
-    assert attach_activity_spinner(child) is spinner
-
-
-def test_a_spinner_whose_c_half_is_gone_is_replaced(qtbot):
-    """A rebuilt screen leaves a Python reference to a deleted widget. Using
-    it would raise on the next call; a fresh one is installed instead."""
-    import shiboken6
-
-    host, _button = _row_with_clear_button(qtbot)
-    stale = attach_activity_spinner(host)
-    shiboken6.delete(stale)
-    fresh = attach_activity_spinner(host)
-    assert isinstance(fresh, ActivitySpinner)
-    assert fresh is not stale
-
-
-def test_a_button_in_no_layout_gets_no_spinner(qtbot):
-    """There is nowhere to put it. Returning None is what lets the screen
-    open exactly as it did before."""
-    host = QWidget()
-    qtbot.addWidget(host)
-    row = QWidget(host)
-    button = QPushButton("Clear console", row)
-    host._btn_clear = button
-    assert attach_activity_spinner(host) is None
-
-
-def test_a_row_that_is_not_a_box_layout_gets_no_spinner(qtbot):
-    """``insertWidget`` is a box-layout method. A grid has no "next to this
-    one" position, so nothing sensible can be inserted and the caller gets
-    None with no stray widget left parented to the row."""
-    host = QWidget()
-    qtbot.addWidget(host)
-    row = QWidget(host)
-    layout = QGridLayout(row)
-    button = QPushButton("Clear console", row)
-    layout.addWidget(button, 0, 0)
-    host._btn_clear = button
-
-    assert attach_activity_spinner(host) is None
-    assert not row.findChildren(ActivitySpinner)

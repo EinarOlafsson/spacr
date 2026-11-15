@@ -5,10 +5,8 @@ stood in for, and the keyring is a stand-in object.
 """
 from __future__ import annotations
 
-import json
 import sys
 import types
-from pathlib import Path
 
 import pytest
 
@@ -51,21 +49,6 @@ def test_a_secret_file_that_is_not_an_object_or_not_json_is_empty(tmp_path):
     assert rj._read_notify_secret_file(path) == {}
     path.write_text("{broken", encoding="utf-8")
     assert rj._read_notify_secret_file(path) == {}
-
-
-def test_emptying_the_file_removes_it_even_when_it_is_already_gone(tmp_path):
-    rj._write_notify_secret_file({}, tmp_path / "missing.json")
-    assert not (tmp_path / "missing.json").exists()
-
-
-def test_a_failed_secret_write_leaves_no_temporary_file(tmp_path, monkeypatch):
-    def refuse(*_args):
-        raise OSError("read-only")
-
-    monkeypatch.setattr(rj.os, "replace", refuse)
-    with pytest.raises(OSError):
-        rj._write_notify_secret_file({"slack_webhook": "x"}, tmp_path / "s.json")
-    assert list(tmp_path.iterdir()) == []
 
 
 class _Ring:

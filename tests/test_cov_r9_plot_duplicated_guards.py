@@ -1,199 +1,145 @@
 """Four guards in ``plot.py`` whose other arm the caller already settled.
 
-Each is a second copy of a decision made a few lines earlier, in a
+Each was a second copy of a decision made a few lines earlier, in a
 nested helper that could be called with the un-settled value and never
 is. They are worth holding for the same reason a duplicated default
 always is: the two copies can drift, and the one that runs is not the
 one a reader is looking at.
+
+Every guard is held by what it does to a real call, one parametrised
+contract each: which folders and files are found by default, which
+transform names are refused and how a threshold is converted, and how a
+single-channel image gets outlined. Each row is a helper that does the
+call and returns what was observed.
 """
 from __future__ import annotations
 
-import ast
 import inspect
 
+import matplotlib
+
+matplotlib.use("Agg")
+
 import numpy as np
+import pandas as pd
 import pytest
 
 from spacr import plot as P
 
 
-def _nested(outer, name):
-    """The source of one nested ``def`` inside ``outer``."""
-    tree = ast.parse(inspect.getsource(outer))
-    for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef) and node.name == name:
-            return ast.get_source_segment(inspect.getsource(outer), node)
-    raise AssertionError(f"{name} is no longer nested inside {outer.__name__}")
+@pytest.fixture(autouse=True)
+def _never_block_or_leak(monkeypatch):
+    """No window opens, and no figure outlives its test."""
+    monkeypatch.setattr(P.plt, "show", lambda *a, **k: None)
+    yield
+    P.plt.close("all")
 
 
-class TestTheFileExtensionDefault:
-
-    def test_there_is_one_default_list(self):
-        """The public function owns the default; its nested helper requires
-        the already-resolved list, so two copies cannot drift apart."""
-        outer = inspect.getsource(P.plot_images_and_arrays)
-        defaults = [line for line in outer.splitlines()
-                    if "extensions = ['.npy'" in line]
-
-        assert len(defaults) == 1
-        helper = _nested(P.plot_images_and_arrays, "find_files")
-        assert "extensions=None" not in helper
-        assert "if extensions is None:" not in helper
-
-    def test_the_outer_resolves_it_before_calling(self):
-        outer = inspect.getsource(P.plot_images_and_arrays)
-        resolved = outer.index("if extensions is None:")
-        call = outer.index("file_dict = find_files(folders, extensions)")
-
-        assert resolved < call, (
-            "find_files is now called before the default is resolved, so "
-            "its own resolution is live and needs a test of its own")
-
-    def test_the_default_covers_what_the_pipeline_writes(self):
-        """The substance: these four are the array and image formats the
-        rest of spaCR saves. A missing one is a folder that looks empty."""
-        outer = inspect.getsource(P.plot_images_and_arrays)
-
-        for extension in ('.npy', '.tif', '.tiff', '.png'):
-            assert f"'{extension}'" in outer
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
 
 
-class TestTheSaveFlag:
-
-    def test_the_nested_plotter_has_no_unreachable_save_knob(self):
-        outer = inspect.getsource(P.plot_images_and_arrays)
-        helper = _nested(P.plot_images_and_arrays, "plot_from_file_dict")
-
-        assert "save=False" not in helper
-        assert "if save:" not in helper
-        assert "save_figure(" not in helper
-        assert "save" not in inspect.signature(
-            P.plot_images_and_arrays).parameters
-
-        call = outer.index("plot_from_file_dict(file_dict")
-        assert "save=" not in outer[call:call + 180]
+def _drawn_titles():
+    return sorted(figure.axes[0].get_title()
+                  for figure in map(P.plt.figure, P.plt.get_fignums()))
 
 
+def _default_extensions_cover_what_the_pipeline_writes(tmp_path):
+    """The default list finds npy, tif and tiff partners (png is found too
+    but only npy and tif data are drawn), so a missing format is a folder
+    that looks empty."""
+    import imageio
 
-class TestTheTransformNameIsCheckedTwice:
+    a, b = tmp_path / "a", tmp_path / "b"
+    a.mkdir()
+    b.mkdir()
+    mask = np.random.default_rng(0).integers(0, 5, (16, 16)).astype(np.uint8)
+    image = np.random.default_rng(1).random((16, 16))
+    np.save(a / "n_npy.npy", mask)
+    np.save(b / "n_npy.npy", image)
+    imageio.imwrite(a / "n_tif.tif", mask)
+    np.save(b / "n_tif.npy", image)
+    imageio.imwrite(a / "n_tiff.tiff", mask)
+    np.save(b / "n_tiff.npy", image)
+    imageio.imwrite(a / "n_png.png", mask)
+    np.save(b / "n_png.npy", image)
 
-    def _case_an_unknown_x_transform_is_refused_by_the_first_check(self):
-        """THE PIN, for the second ``raise ValueError(f"Unknown
-        x_transform")``.
+    P.plot_images_and_arrays([str(a), str(b)], threshold=10, randomize=False)
 
-        Two copies of the same validation, and the data transform runs
-        first -- so an unknown name is refused there and the threshold
-        helper never sees one. Driven rather than read, because what
-        matters is that the refusal HAPPENS, not which line it comes
-        from.
-        """
-        import pandas as pd
-
-        frame = pd.DataFrame({"fc": [1.0, 2.0], "p": [0.01, 0.2]})
-
-        with pytest.raises(ValueError) as caught:
-            P.volcano_plot(frame, fold_change_col="fc", p_value_col="p",
-                           x_transform="sqrt",
-                           fold_change_threshold=1.5)
-
-        assert "Unknown x_transform" in str(caught.value)
-        assert "sqrt" in str(caught.value)
-
-    def test_the_data_transform_is_the_single_vocabulary_check(self):
-        source = inspect.getsource(P.volcano_plot)
-        copies = [line.strip() for line in source.splitlines()
-                  if "Unknown x_transform" in line]
-
-        assert len(copies) == 1
-        assert "mode" in copies[0]
-
-    def _case_threshold_conversion_relies_on_the_validated_vocabulary(self):
-        transform = _nested(P.volcano_plot, "_transform_x")
-        threshold = _nested(P.volcano_plot, "_threshold_x_in_plot_units")
-
-        for name in ("log2", "log10"):
-            assert f'== "{name}"' in transform
-            assert f'== "{name}"' in threshold
-        assert 'in ("ln", "log")' in transform
-        assert 'in ("ln", "log")' not in threshold
-
-        # The rule the missing arm carries: _transform_x has already
-        # refused everything else, so the unlabelled ``return
-        # abs(np.log(t))`` IS the natural-log arm -- and it has to answer
-        # for BOTH aliases, since neither is named anywhere below.
-        # Driven, because what matters is the number it converts to.
-        import pandas as pd
-
-        frame = pd.DataFrame({"fc": [0.5, 1.0, 2.0],
-                              "p": [0.01, 0.2, 0.04]})
-        for alias in ("ln", "log"):
-            figure, axes, _ = P.volcano_plot(
-                frame, fold_change_col="fc", p_value_col="p",
-                x_transform=alias, fold_change_threshold=np.e, show=False)
-            verticals = sorted({round(float(line.get_xdata()[0]), 6)
-                                for line in axes.lines
-                                if len(set(line.get_xdata())) == 1})
-            P.plt.close(figure)
-
-            assert verticals == [-1.0, 0.0, 1.0], (
-                f"x_transform={alias!r} no longer converts its threshold "
-                f"with the natural log, so the fallback is not the arm "
-                f"the validated vocabulary leaves behind")
-
-    def _case_a_natural_log_threshold_is_converted_in_plot_units(self):
-        """The fallback is natural log because validation already reduced
-        the remaining vocabulary to ``ln`` and ``log``."""
-        import pandas as pd
-
-        frame = pd.DataFrame({"fc": [0.5, 1.0, 2.0],
-                              "p": [0.01, 0.2, 0.04]})
-        figure, axes, _ = P.volcano_plot(
-            frame, fold_change_col="fc", p_value_col="p",
-            x_transform="ln", fold_change_threshold=np.e, show=False)
-        verticals = sorted({round(float(line.get_xdata()[0]), 6)
-                            for line in axes.lines
-                            if len(set(line.get_xdata())) == 1})
-        P.plt.close(figure)
-
-        assert verticals == [-1.0, 0.0, 1.0]
+    return _drawn_titles()
 
 
-class TestGrayscaleContours:
-
-    def test_a_two_dimensional_image_is_widened_to_rgb(self):
-        """THE ARC: ``image.ndim == 2``.
-
-        A single-channel frame is the ordinary case for a mask preview,
-        and OpenCV's contour drawing needs three channels -- so the copy
-        is what stops the outline being drawn into the data.
-        """
-        image = np.zeros((8, 8), dtype=np.uint8)
-
-        widened = (np.stack([image] * 3, axis=-1) if image.ndim == 2
-                   else image.copy())
-
-        assert widened.shape == (8, 8, 3)
-        assert widened.dtype == image.dtype
-
-    def test_the_helper_only_accepts_the_callers_grayscale_plane(self):
-        helper = _nested(P.print_mask_and_flows, "apply_contours_on_image")
-
-        assert "if image.ndim == 2:" not in helper
-        assert "image.copy()" not in helper
-        assert "cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)" in helper
+def _the_public_function_has_no_save_knob():
+    return "save" in inspect.signature(P.plot_images_and_arrays).parameters
 
 
-def test_the_transform_name_is_checked_twice_cases(request, subtests):
-    """Case table: 3 cases of TestTheTransformNameIsCheckedTwice run as sub-tests."""
-    from tests.case_table import run_cases
+def _volcano_refusal(transform):
+    frame = pd.DataFrame({"fc": [1.0, 2.0], "p": [0.01, 0.2]})
+    with pytest.raises(ValueError) as caught:
+        P.volcano_plot(frame, fold_change_col="fc", p_value_col="p",
+                       x_transform=transform, fold_change_threshold=1.5)
+    message = str(caught.value)
+    assert "Unknown x_transform" in message
+    return message
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        (TestTheTransformNameIsCheckedTwice, '_case_an_unknown_x_transform_is_refused_by_the_first_check'),
-        (TestTheTransformNameIsCheckedTwice, '_case_threshold_conversion_relies_on_the_validated_vocabulary'),
-        (TestTheTransformNameIsCheckedTwice, '_case_a_natural_log_threshold_is_converted_in_plot_units'),
-        ],
-    )
-    assert ran >= 3
+
+def _an_unknown_x_transform_is_refused_by_name():
+    """Two copies of the same validation existed and the data transform runs
+    first, so an unknown name is refused there. Driven because what matters
+    is that the refusal happens, not which line it comes from."""
+    message = _volcano_refusal("sqrt")
+    return "sqrt" in message
+
+
+def _threshold_lines(alias):
+    frame = pd.DataFrame({"fc": [0.5, 1.0, 2.0], "p": [0.01, 0.2, 0.04]})
+    figure, axes, _ = P.volcano_plot(
+        frame, fold_change_col="fc", p_value_col="p",
+        x_transform=alias, fold_change_threshold=np.e, show=False)
+    verticals = sorted({round(float(line.get_xdata()[0]), 6)
+                        for line in axes.lines
+                        if len(set(line.get_xdata())) == 1})
+    P.plt.close(figure)
+    return verticals
+
+
+def _outlined_pixels(image, mask):
+    P.print_mask_and_flows(image, mask, None, overlay=True)
+    shown = np.asarray(P.plt.gcf().axes[1].images[0].get_array())
+    return shown
+
+
+def _a_two_dimensional_image_is_widened_to_rgb_and_outlined():
+    """A single-channel frame is the ordinary case for a mask preview, and
+    contour drawing needs three channels: the outline lands in the copy."""
+    image = np.zeros((16, 16))
+    mask = np.zeros((16, 16))
+    mask[4:9, 4:9] = 1
+
+    shown = _outlined_pixels(image, mask)
+
+    assert shown.dtype == np.uint8
+    return shown.shape, shown[4, 4].tolist(), bool((shown[0, 0] == 0).all())
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(_default_extensions_cover_what_the_pipeline_writes,
+                 ["n_npy - Mask", "n_tif - Mask", "n_tiff - Mask"],
+                 id="default-extensions-find-npy-tif-tiff"),
+    pytest.param(_the_public_function_has_no_save_knob, False,
+                 id="no-save-parameter"),
+    pytest.param(_an_unknown_x_transform_is_refused_by_name, True,
+                 id="unknown-x-transform-refused-by-name"),
+    pytest.param(lambda: _threshold_lines("ln"), [-1.0, 0.0, 1.0],
+                 id="ln-threshold-in-natural-log-units"),
+    pytest.param(lambda: _threshold_lines("log"), [-1.0, 0.0, 1.0],
+                 id="log-alias-threshold-in-natural-log-units"),
+    pytest.param(_a_two_dimensional_image_is_widened_to_rgb_and_outlined,
+                 ((16, 16, 3), [255, 0, 0], True),
+                 id="grayscale-widened-to-rgb-and-outlined"),
+])
+def test_guards_whose_other_arm_the_caller_settled(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected

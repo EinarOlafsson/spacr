@@ -3465,9 +3465,21 @@ def import_project(settings: Optional[TMapping[str, Any]] = None,
               f'go to {dst}.')
         return ImportResult(plan=plan, dst=dst)
 
+    seen = {'total': 0}
+
+    def report(index, total, _message):
+        """Print the steps finished before this one; the last line follows the run."""
+        seen['total'] = total
+        print(f'Progress: {index - 1}/{total}, '
+              f'operation_type: Importing project', flush=True)
+
     result = run_import(plan, dst,
                         overwrite=bool(resolved.get('overwrite')),
                         measure=bool(resolved.get('measure')),
-                        crops=bool(resolved.get('crops')))
+                        crops=bool(resolved.get('crops')),
+                        progress=report)
+    if seen['total']:
+        print(f"Progress: {seen['total']}/{seen['total']}, "
+              f'operation_type: Importing project', flush=True)
     print(result.summary())
     return result

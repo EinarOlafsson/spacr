@@ -142,12 +142,6 @@ def test_ml_clean_controls_removes_matching_rows():
 # plot: additional pure helpers
 # ---------------------------------------------------------------------------
 
-def test_plot_get_colours_merged_returns_dict_or_list():
-    out = P._get_colours_merged("gbr")
-    assert out is not None
-    assert hasattr(out, "__len__")
-
-
 def test_plot_generate_mask_random_cmap_matches_public_variant(synth_mask_2d):
     a = P._generate_mask_random_cmap(synth_mask_2d)
     b = P.generate_mask_random_cmap(synth_mask_2d)

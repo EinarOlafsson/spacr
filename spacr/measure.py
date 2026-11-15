@@ -1763,7 +1763,9 @@ def _intensity_measurements(
         ``homogeneity``, ``homogeneity_distances``, ``manders_thresholds``,
         ``distance_gaussian_sigma``, ``profile_features`` (the
         profiling families of :func:`measure_profile_features`, 2-D only;
-        empty adds nothing), ``profile_granularity_subsample`` and the ``<object>_mask_dim`` toggles).
+        empty adds nothing), ``profile_optional_families`` (the slow
+        families ``'profiling'`` adds, :func:`profile_optional_families`),
+        ``profile_granularity_subsample`` and the ``<object>_mask_dim`` toggles).
     :param sizes: Legacy size bins. Defaults to ``[3, 6, 12, 24]``.
     :param periphery: When True, compute periphery-intensity stats for
         nucleus/pathogen/organelle.
@@ -1935,7 +1937,8 @@ def _intensity_measurements(
                         dfs[m].append(coloc_df)
 
     families = tuple(name for name in profile_feature_families(
-        settings.get('profile_features')) if name != 'neighbours')
+        settings.get('profile_features'),
+        settings.get('profile_optional_families')) if name != 'neighbours')
     if families and ndim == 2:
         _add_profile_frames(
             dfs, ls, labels, channel_arrays, families,
@@ -1944,6 +1947,11 @@ def _intensity_measurements(
     elif families:
         print("3-D mask: skipping the profiling families "
               f"({', '.join(families)}); they are defined for 2-D fields.")
+    if settings.get('funk_object_features') and ndim == 2:
+        _add_funk_frames(dfs, ls, labels, channel_arrays, families)
+    elif settings.get('funk_object_features'):
+        print("3-D mask: skipping funk_object_features; Funk et al.'s "
+              "object features are defined for 2-D fields.")
 
     return tuple(pd.concat(frames, axis=1) for frames in dfs)
     
@@ -2387,6 +2395,251 @@ def _gpu_measurable(labels, image=None, spacing=None):
     return bool(np.isfinite(image).all())
 
 
+def _add_funk_frames(dfs, roles, masks, channel_arrays, families):
+    """Append Funk et al. 2022's object features of every non-empty mask.
+
+    :param dfs: one list of frames per role, as ``_intensity_measurements``
+        builds them.
+    :param roles: the role names, the column prefixes.
+    :param masks: the label masks, in the order of ``roles``.
+    :param channel_arrays: the ``(H, W, C)`` image.
+    :param families: the profiling families in this run; a column the
+        ``intensity_moments`` or ``shape_extended`` family already writes
+        is not written twice.
+
+    The setting ``funk_object_features`` adds, per object,
+    ``channel_<c>_mass_displacement`` (:func:`measure_mass_displacement`),
+    ``correlation_channel_<a>_channel_<b>``
+    (:func:`measure_channel_pair_pearson`) and ``form_factor``
+    (``4 pi area / perimeter^2`` from skimage's area and perimeter), the
+    functions the OPS phenotype path uses for ``ops_ph_funk_features``.
+    """
+    image = np.asarray(channel_arrays, dtype=np.float64)
+    if image.ndim == 2:
+        image = image[..., None]
+    for m, mask in enumerate(masks):
+        if mask is None or np.max(mask) == 0:
+            continue
+        labels = _profile_inputs(mask, None)[0]
+        present, columns = _funk_object_columns(
+            labels, image,
+            mass_displacement='intensity_moments' not in families)
+        parts = [pd.DataFrame({'label': present, **columns})]
+        if 'shape_extended' not in families:
+            props = regionprops_table(
+                labels, properties=('label', 'area', 'perimeter'))
+            parts.append(pd.DataFrame({
+                'label': np.asarray(props['label'], dtype=np.int64),
+                'form_factor': _form_factor(props['area'],
+                                            props['perimeter'])}))
+        frame = parts[0]
+        for part in parts[1:]:
+            frame = pd.concat([frame.reset_index(drop=True),
+                               part.drop(columns='label').reset_index(drop=True)],
+                              axis=1)
+        frame.columns = [col if col == 'label' else f'{roles[m]}_{col}'
+                         for col in frame.columns]
+        dfs[m].append(frame)
+
+
+def _measurement_channel_names(settings):
+    """The lowercased channel names ``channel_names`` asks for, or None.
+
+    :param settings: read for ``channel_names`` (a list of names or a
+        comma-separated string) and ``channels``.
+    :returns: one name per entry of ``channels``, or None when the setting
+        is empty, so the columns keep their ``channel_<i>`` names.
+    :raises ValueError: when the count differs from ``channels``, a name
+        is empty, has white space or ``-`` in it, or repeats.
+    """
+    value = settings.get('channel_names')
+    if value is None or value == '' or value == []:
+        return None
+    names = value.split(',') if isinstance(value, str) else list(value)
+    names = [str(name).strip().lower() for name in names]
+    channels = settings.get('channels') or []
+    if len(names) != len(channels):
+        raise ValueError(
+            f"channel_names gives {len(names)} names for {len(channels)} "
+            f"channels ({channels}); give one name per entry of channels.")
+    for name in names:
+        if not name or any(ch.isspace() or ch == '-' for ch in name):
+            raise ValueError(
+                f"channel_names: {name!r} cannot name a column; use letters, "
+                f"digits and underscores.")
+    if len(set(names)) != len(names):
+        raise ValueError(f"channel_names repeats a name: {names}")
+    return names
+
+
+_CHANNEL_COLUMN = re.compile(r'channel_(\d+)(?!\d)')
+
+
+def _channel_named(column, names):
+    """``column`` with every ``channel_<i>`` replaced by ``names[i]``.
+
+    ``channel_1`` is never matched inside ``channel_10``; an index beyond
+    ``names`` is left as it is.
+    """
+    parts = _CHANNEL_COLUMN.split(column)
+    for at in range(1, len(parts), 2):
+        index = int(parts[at])
+        parts[at] = (names[index] if index < len(names)
+                     else f'channel_{parts[at]}')
+    return ''.join(parts)
+
+
+def _rename_measurement_channels(frame, names):
+    """``frame`` with ``channel_<i>`` in its column names replaced by ``names[i]``.
+
+    :param frame: a measurement table.
+    :param names: one name per channel, as
+        :func:`_measurement_channel_names` returns them; None leaves the
+        frame as it is.
+    :returns: the renamed frame (the same object when nothing changes).
+
+    The OPS phenotype path names its columns this way
+    (``cell_dapi_mean_intensity`` rather than
+    ``cell_channel_0_mean_intensity``), through :func:`_channel_named`;
+    ``channel_names`` gives Measure the same names.
+    """
+    if not names or frame is None or not len(frame.columns):
+        return frame
+    renamed = {column: _channel_named(column, names)
+               for column in frame.columns if isinstance(column, str)}
+    if all(old == new for old, new in renamed.items()):
+        return frame
+    return frame.rename(columns=renamed)
+
+
+def _field_tables_for_check(field, settings):
+    """Measure's per-object tables of one merged field, one per role.
+
+    :param field: a merged ``.npy`` path, or the array itself.
+    :param settings: the Measure settings; ``measure_gpu`` picks the device.
+    :returns: ``{role: table}``, each keyed by ``label``.
+
+    The field is measured as it is stored: the size filters, the
+    preprocessing hooks and the PSF step of a full run are not applied,
+    because the check compares the two devices, not the run's inputs.
+    """
+    data = np.load(field) if isinstance(field, (str, os.PathLike)) else field
+    data = np.asarray(data)
+    if data.ndim == 4 and data.shape[0] == 1:
+        data = data[0]
+    blank = np.zeros(data.shape[:-1], dtype=np.int32)
+    cell, nucleus, pathogen = (
+        blank if settings.get(key) is None
+        else data[..., settings[key]].astype(np.int32)
+        for key in ('cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim'))
+    cytoplasm = blank
+    if settings.get('cytoplasm') and settings.get('cell_mask_dim') is not None:
+        cytoplasm = np.where((nucleus > 0) | (pathogen > 0), 0, cell)
+        cytoplasm = cytoplasm.astype(np.int32)
+    channel_arrays = data[..., list(settings['channels'])]
+    roles = ('cell', 'nucleus', 'pathogen', 'organelle', 'cytoplasm')
+    morphology = _morphological_measurements(
+        cell, nucleus, pathogen, blank, cytoplasm, settings,
+        zernike=settings.get('zernike'), channel_arrays=channel_arrays)
+    intensity = _intensity_measurements(
+        cell, nucleus, pathogen, blank, cytoplasm, channel_arrays, settings,
+        sizes=[1, 2, 3, 4, 5], periphery=True, outside=True)
+    tables = {}
+    for role, shape, signal in zip(roles, morphology, intensity):
+        frames = [f.loc[:, ~f.columns.duplicated()] for f in (shape, signal)
+                  if f is not None and len(f) and 'label' in f.columns]
+        if not frames:
+            continue
+        table = frames[0]
+        for frame in frames[1:]:
+            frame = frame.loc[:, [c for c in frame.columns
+                                  if c == 'label' or c not in table.columns]]
+            table = table.merge(frame, on='label', how='outer')
+        tables[role] = table
+    return tables
+
+
+def check_gpu_measurement(field, settings, *, measure=None, rtol=None):
+    """Measure one field on the CUDA card and on the CPU and compare every column.
+
+    :param field: the field: a merged ``.npy`` path or array for Measure,
+        or whatever ``measure`` takes.
+    :param settings: the measurement settings; ``measure_gpu_check_rtol``
+        (default 1e-4) is the tolerance when ``rtol`` is None.
+    :param measure: ``measure(field, settings)`` returning one table, a
+        ``{name: table}`` dict, or None for an unreadable field; it is
+        called with ``measure_gpu`` True and then False. None measures a
+        merged Measure field (cell, nucleus, pathogen and cytoplasm tables).
+    :param rtol: the relative tolerance a column must keep; values agree
+        when ``abs(gpu - cpu) <= rtol * abs(cpu)`` or both are NaN.
+    :returns: one row per column outside ``rtol``: ``table``, ``column``,
+        ``max_relative`` and ``rows_outside``; empty when the two agree.
+        ``attrs['summary']`` holds :func:`spacr.ops_run_infra.compare_tables`'s
+        record (of the one table, or ``{name: record}``), or ``{'skipped':
+        reason}`` for an unreadable field.
+
+    Measure's ``measure_gpu_check`` and the OPS phenotype path's
+    ``ops_ph_measure_gpu_check`` both run this check before a GPU run.
+    """
+    from .ops_run_infra import compare_tables
+
+    if rtol is None:
+        rtol = float(settings.get('measure_gpu_check_rtol', 1e-4) or 1e-4)
+    measure = _field_tables_for_check if measure is None else measure
+    gpu = measure(field, {**settings, 'measure_gpu': True})
+    cpu = measure(field, {**settings, 'measure_gpu': False})
+    columns = ['table', 'column', 'max_relative', 'rows_outside']
+    if gpu is None or cpu is None:
+        out = pd.DataFrame(columns=columns)
+        out.attrs['summary'] = {'skipped': 'the field is unreadable'}
+        return out
+    single = isinstance(gpu, pd.DataFrame)
+    if single:
+        gpu, cpu = {'': gpu}, {'': cpu}
+    summary, rows = {}, []
+    for name in gpu:
+        if name not in cpu:
+            continue
+        record = compare_tables(gpu[name], cpu[name], rtol=rtol)
+        summary[name] = record
+        rows.extend({'table': name, **entry} for entry in record['outside'])
+    out = pd.DataFrame(rows, columns=columns)
+    out.attrs['summary'] = summary[''] if single else summary
+    return out
+
+
+def _gpu_check_before_run(settings, files):
+    """Run :func:`check_gpu_measurement` on the first field before a GPU run.
+
+    :param settings: the Measure settings; runs only with ``measure_gpu``,
+        ``measure_gpu_check`` (default True) and a visible CUDA device.
+    :param files: the merged ``.npy`` names under ``settings['src']``.
+    :raises RuntimeError: naming every column outside
+        ``measure_gpu_check_rtol``, before any field is measured.
+    """
+    if not (settings.get('measure_gpu', False) and files
+            and settings.get('measure_gpu_check', True)):
+        return
+    if _measurement_device(settings) is None:
+        return
+    first = os.path.join(settings['src'], sorted(files)[0])
+    outside = check_gpu_measurement(first, settings)
+    if 'skipped' in outside.attrs.get('summary', {}):
+        print(f"measure_gpu_check: {os.path.basename(first)} could not be "
+              f"read; the check was skipped.")
+        return
+    if len(outside):
+        rtol = settings.get('measure_gpu_check_rtol', 1e-4)
+        raise RuntimeError(
+            f"measure_gpu_check: on {os.path.basename(first)} the GPU and "
+            f"CPU measurements differ beyond rtol {rtol:g} in "
+            f"{len(outside)} column(s); nothing was measured. Turn "
+            f"measure_gpu off, or measure_gpu_check off to run anyway.\n"
+            + outside.to_string(index=False))
+    print(f"measure_gpu_check: {os.path.basename(first)} agrees on CPU and "
+          f"GPU within rtol {settings.get('measure_gpu_check_rtol', 1e-4):g}.")
+
+
 def _torch_label_segments(labels, image, device):
     """Sort a mask's object pixels by (label, intensity) on ``device``.
 
@@ -2748,7 +3001,9 @@ def _periphery_intensity(label_mask, image):
     boxes = _label_bounding_boxes(label_mask)
     whole = _whole_field_window(np.asarray(label_mask).shape)
     cut_points = [5, 10, 25, 50, 75, 85, 95]
-    for region in np.unique(label_mask)[1:]:
+    _labels_0 = np.unique(label_mask)
+    _labels_0 = _labels_0[_labels_0 != 0]
+    for region in _labels_0:
         box = _box_for(boxes, region)
         window = whole if box is None else box
         region_boundary = boundary[window] & (label_mask[window] == region)
@@ -2994,7 +3249,9 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
         corr_data = {}
         boxes = _label_bounding_boxes(mask)
         whole = _whole_field_window(np.asarray(mask).shape)
-        for i in np.unique(mask)[1:]:
+        _labels_1 = np.unique(mask)
+        _labels_1 = _labels_1[_labels_1 != 0]
+        for i in _labels_1:
             box = _box_for(boxes, i)
             window = whole if box is None else box
             object_mask = (mask[window] == i)
@@ -3040,12 +3297,25 @@ PROFILE_FEATURE_FAMILIES = (
 )
 
 #: The families switched on by ``profile_features='profiling'``: the ones that
-#: cost little per cell. The others are named one by one or with ``'all'``.
+#: cost little per cell. The others are named one by one, with ``'all'``, or
+#: added to ``'profiling'`` by ``profile_optional_families``.
 PROFILE_FEATURE_DEFAULT = (
     'edge_intensity', 'intensity_moments', 'radial_distribution',
     'shape_extended', 'texture_haralick', 'texture_pftas',
-    'texture_lbp', 'texture_gabor', 'periphery', 'outside',
-    'colocalisation', 'colocalisation_extra', 'neighbours',
+    'texture_lbp', 'periphery', 'outside', 'neighbours',
+)
+
+#: The slow families ``'profiling'`` leaves out (item 941), which
+#: ``profile_optional_families`` adds back. On the 639,673 matched cells of
+#: Funk et al. 2022 plate A well A1 none of them added anything beyond random
+#: columns of the same size, and each costs more per 100,000 cells (CPU
+#: seconds: Gabor 11,000 to 17,400, granularity 58,900, colocalisation 6,300
+#: to 9,050, colocalisation_extra 7,000, Costes 8,050) than all the other
+#: profiling families together (about 11,600). All five on reproduce
+#: Brieflow's full measurement set.
+PROFILE_FEATURE_OPTIONAL = (
+    'texture_gabor', 'colocalisation', 'colocalisation_extra',
+    'colocalisation_costes', 'granularity',
 )
 
 #: Haralick's 13 statistics in mahotas' order (Haralick et al. 1973).
@@ -3065,7 +3335,40 @@ PROFILE_HARALICK_DISTANCE = 5
 PROFILE_RADIAL_BINS = 4
 
 
-def profile_feature_families(value):
+def profile_optional_families(value):
+    """The slow families a ``profile_optional_families`` setting adds.
+
+    :param value: ``None``, ``False``, ``''`` or an empty list for none
+        (the default); ``True`` or ``'all'`` for every family in
+        :data:`PROFILE_FEATURE_OPTIONAL`, Brieflow's full set; otherwise
+        names from :data:`PROFILE_FEATURE_OPTIONAL`, as a list or a
+        comma-separated string.
+    :returns: the families in :data:`PROFILE_FEATURE_FAMILIES` order.
+    :raises ValueError: for a name that is not an optional family.
+    """
+    if value is None or value is False or value == '':
+        return ()
+    if value is True:
+        return PROFILE_FEATURE_OPTIONAL
+    names = value.split(',') if isinstance(value, str) else list(value)
+    wanted = set()
+    for raw in names:
+        name = str(raw).strip()
+        if not name or name.lower() in ('false', 'none'):
+            continue
+        if name == 'all' or name.lower() == 'true':
+            wanted.update(PROFILE_FEATURE_OPTIONAL)
+        elif name in PROFILE_FEATURE_OPTIONAL:
+            wanted.add(name)
+        else:
+            raise ValueError(
+                f"profile_optional_families: {name!r} is not an optional "
+                f"family; use True, 'all' or names from "
+                f"{', '.join(PROFILE_FEATURE_OPTIONAL)}")
+    return tuple(name for name in PROFILE_FEATURE_FAMILIES if name in wanted)
+
+
+def profile_feature_families(value, optional=None):
     """The profiling families a ``profile_features`` setting asks for.
 
     :param value: ``None``, ``False``, ``''`` or an empty list for none;
@@ -3073,9 +3376,14 @@ def profile_feature_families(value):
         every family in :data:`PROFILE_FEATURE_FAMILIES`; otherwise family
         names, as a list or a comma-separated string, which may include
         ``'profiling'``.
+    :param optional: the ``profile_optional_families`` setting
+        (:func:`profile_optional_families`): the slow families
+        ``'profiling'`` also measures. Names and ``'all'`` are not changed
+        by it, and without ``'profiling'`` it adds nothing.
     :returns: the families in :data:`PROFILE_FEATURE_FAMILIES` order.
     :raises ValueError: for a name that is not a family.
     """
+    extra = profile_optional_families(optional)
     if value is None or value is False or value == '':
         return ()
     names = value.split(',') if isinstance(value, str) else list(value)
@@ -3086,6 +3394,7 @@ def profile_feature_families(value):
             continue
         if name == 'profiling':
             wanted.update(PROFILE_FEATURE_DEFAULT)
+            wanted.update(extra)
         elif name == 'all':
             wanted.update(PROFILE_FEATURE_FAMILIES)
         elif name in PROFILE_FEATURE_FAMILIES:
@@ -3138,6 +3447,54 @@ def _hu_from_moments(m):
     ]
 
 
+def _weighted_centre(flat, rows, cols, weights, size):
+    """Weighted centre ``(row, col)`` and total weight of every label.
+
+    :returns: ``(centre_r, centre_c, mu00)`` indexed by label, over
+        ``size`` labels; a label whose weights sum to 0 gets NaN (or inf).
+    """
+    with np.errstate(invalid='ignore', divide='ignore'):
+        mu00 = np.bincount(flat, weights, size)
+        centre_r = np.bincount(flat, weights * rows, size) / mu00
+        centre_c = np.bincount(flat, weights * cols, size) / mu00
+    return centre_r, centre_c, mu00
+
+
+def _channel_values(image, inside):
+    """Every channel's intensities at the foreground pixels, one contiguous array each.
+
+    :param image: ``(H, W, C)`` intensities.
+    :param inside: the flat foreground mask of :func:`_foreground`.
+    :returns: a list of ``C`` float arrays in foreground order, gathered in
+        one pass over the image.
+    """
+    pixels = np.ascontiguousarray(image.reshape(-1, image.shape[-1])[inside].T)
+    return list(pixels)
+
+
+def _mass_displacement_columns(flat, rows, cols, size, present, values):
+    """``channel_<c>_mass_displacement`` of every channel, indexed by ``present``.
+
+    The one implementation of mass displacement: the distance in pixels
+    from each object's centroid to its intensity-weighted centroid, as
+    :func:`measure_mass_displacement`, :func:`measure_intensity_moments` and
+    the OPS phenotype path (``spacr.ops_sample.funk_object_features``)
+    write it.
+    """
+    with np.errstate(invalid='ignore', divide='ignore'):
+        area = np.bincount(flat, None, size).astype(np.float64)
+        shape_r = np.bincount(flat, rows, size) / area
+        shape_c = np.bincount(flat, cols, size) / area
+    out = {}
+    for c, weights in enumerate(values):
+        centre_r, centre_c, _mass = _weighted_centre(
+            flat, rows, cols, weights, size)
+        out[f'channel_{c}_mass_displacement'] = np.hypot(
+            centre_r[present] - shape_r[present],
+            centre_c[present] - shape_c[present])
+    return out
+
+
 def _weighted_moments(flat, rows, cols, weights, size, present):
     """Centre, ``mu00`` and Hu invariants of each label under ``weights``.
 
@@ -3145,10 +3502,8 @@ def _weighted_moments(flat, rows, cols, weights, size, present):
         ``hu`` is a list of seven arrays. A label whose weights sum to 0
         gets NaN.
     """
+    centre_r, centre_c, mu00 = _weighted_centre(flat, rows, cols, weights, size)
     with np.errstate(invalid='ignore', divide='ignore'):
-        mu00 = np.bincount(flat, weights, size)
-        centre_r = np.bincount(flat, weights * rows, size) / mu00
-        centre_c = np.bincount(flat, weights * cols, size) / mu00
         dr = rows - centre_r[flat]
         dc = cols - centre_c[flat]
         m = [[None] * 4 for _ in range(4)]
@@ -3231,18 +3586,157 @@ def measure_intensity_moments(labels, image):
     labels, image, present = _profile_inputs(labels, image)
     out = {'label': present}
     flat, rows, cols, inside, size = _foreground(labels)
-    ones = np.ones(flat.size)
-    shape_r, shape_c, _area, _hu = _weighted_moments(
-        flat, rows, cols, ones, size, present)
-    for c in range(image.shape[-1]):
-        weights = image[..., c].ravel()[inside]
-        centre_r, centre_c, _mass, hu = _weighted_moments(
+    values = _channel_values(image, inside)
+    displacement = _mass_displacement_columns(
+        flat, rows, cols, size, present, values)
+    for c, weights in enumerate(values):
+        _r, _c, _mass, hu = _weighted_moments(
             flat, rows, cols, weights, size, present)
-        out[f'channel_{c}_mass_displacement'] = np.hypot(
-            centre_r - shape_r, centre_c - shape_c)
+        name = f'channel_{c}_mass_displacement'
+        out[name] = displacement[name]
         for k, values in enumerate(hu):
             out[f'channel_{c}_weighted_hu_{k}'] = values
     return pd.DataFrame(out)
+
+
+def measure_mass_displacement(labels, image):
+    """Mass displacement of every channel in each object.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` (or ``(H, W)``) intensities over it.
+    :returns: ``label`` and ``channel_<i>_mass_displacement`` per channel,
+        one row per label in ascending order.
+
+    The distance in pixels from the object's centroid to its
+    intensity-weighted centroid: CellProfiler's ``MassDisplacement`` and
+    the ``mass_displacement`` of Funk et al. 2022 (OpticalPooledScreens
+    ``ops/cp_emulator.py``), which define it the same way. The values are
+    those of the ``intensity_moments`` family
+    (:func:`measure_intensity_moments`), from the same code. An object whose
+    intensities sum to 0 gets NaN.
+    """
+    labels, image, present = _profile_inputs(labels, image)
+    flat, rows, cols, inside, size = _foreground(labels)
+    out = {'label': present}
+    out.update(_mass_displacement_columns(
+        flat, rows, cols, size, present, _channel_values(image, inside)))
+    return pd.DataFrame(out)
+
+
+def measure_channel_pair_pearson(labels, image, channel_names=None):
+    """Pearson's r of every channel pair over each object's pixels.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` intensities over it.
+    :param channel_names: one name per channel for the column names,
+        lowercased; ``None`` names them ``channel_<i>``.
+    :returns: ``label`` and ``correlation_<a>_<b>`` for every pair
+        ``a < b`` in :func:`itertools.combinations` order, one row per
+        label in ascending order.
+    :raises ValueError: when ``channel_names`` does not give one name per
+        channel.
+
+    The ``correlation`` of Funk et al. 2022 (OpticalPooledScreens
+    ``ops/cp_emulator.py``, ``correlation_features_multichannel``): the
+    ``np.corrcoef`` of the two channels' pixels in the object, computed for
+    a whole field from per-label sums. An object in which either channel
+    is constant gets NaN, as ``np.corrcoef`` gives. The OPS phenotype path
+    (``ops_ph_funk_features``) and Measure (``funk_object_features``) both
+    write these columns from this function.
+    """
+    labels, image, present = _profile_inputs(labels, image)
+    names = _pair_names(channel_names, image.shape[-1])
+    flat, _rows, _cols, inside, size = _foreground(labels)
+    out = {'label': present}
+    out.update(_pearson_pair_columns(flat, size, present,
+                                     _channel_values(image, inside), names))
+    return pd.DataFrame(out)
+
+
+def _pair_names(channel_names, channels):
+    """The lowercased column names of ``channels`` channels, ``channel_<i>`` by default.
+
+    :raises ValueError: when ``channel_names`` does not give one per channel.
+    """
+    if channel_names is None:
+        return [f'channel_{c}' for c in range(channels)]
+    names = [str(name).lower() for name in channel_names]
+    if len(names) != channels:
+        raise ValueError(f"{len(names)} channel names for {channels} channels")
+    return names
+
+
+def _pearson_pair_columns(flat, size, present, values, names):
+    """``correlation_<a>_<b>`` of every channel pair, indexed by ``present``.
+
+    Each channel is centred on its label means once and reused by every
+    pair; the arithmetic is :func:`_pearson_by_label`'s, value for value.
+    """
+    from itertools import combinations
+
+    count = np.bincount(flat, None, size)
+    centred, squares = [], []
+    with np.errstate(invalid='ignore', divide='ignore'):
+        for channel in values:
+            mean = np.bincount(flat, channel, size) / count
+            delta = channel - mean[flat]
+            centred.append(delta)
+            squares.append(np.bincount(flat, delta * delta, size))
+        out = {}
+        for first, second in combinations(range(len(values)), 2):
+            sxx, syy = squares[first], squares[second]
+            sxy = np.bincount(flat, centred[first] * centred[second], size)
+            r = sxy / np.sqrt(sxx * syy)
+            r = np.where((sxx > 0) & (syy > 0), np.clip(r, -1, 1), np.nan)
+            out[f'correlation_{names[first]}_{names[second]}'] = r[present]
+    return out
+
+
+def _funk_object_columns(labels, image, channel_names=None,
+                         mass_displacement=True):
+    """Funk et al. 2022's per-object columns of one mask, from one pass over it.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` intensities over it.
+    :param channel_names: names for the correlation columns, as
+        :func:`measure_channel_pair_pearson` takes them.
+    :param mass_displacement: include ``channel_<c>_mass_displacement``.
+    :returns: ``(present, columns)``: the labels in ascending order and the
+        columns of :func:`measure_mass_displacement` and
+        :func:`measure_channel_pair_pearson`, value for value, with the
+        mask validated and its foreground found once for both.
+    """
+    labels, image, present = _profile_inputs(labels, image)
+    names = _pair_names(channel_names, image.shape[-1])
+    flat, rows, cols, inside, size = _foreground(labels)
+    values = _channel_values(image, inside)
+    columns = {}
+    if mass_displacement:
+        columns.update(_mass_displacement_columns(
+            flat, rows, cols, size, present, values))
+    columns.update(_pearson_pair_columns(flat, size, present, values, names))
+    return present, columns
+
+
+def _form_factor(area, perimeter):
+    """``4 pi area / perimeter^2`` of each object; NaN where the perimeter is 0.
+
+    :param area: object areas in pixels.
+    :param perimeter: object perimeters in pixels (skimage's regionprops
+        ``perimeter``).
+    :returns: a float array of the same length.
+
+    CellProfiler's ``FormFactor`` and the ``form_factor`` of Funk et al.
+    2022 (OpticalPooledScreens ``ops/cp_emulator.py``): 1 for a disc and
+    smaller for a less compact outline. The ``shape_extended`` family
+    (:func:`measure_shape_extended`), Measure's ``funk_object_features``
+    and the OPS phenotype path all compute it here.
+    """
+    area = np.asarray(area, dtype=np.float64)
+    perimeter = np.asarray(perimeter, dtype=np.float64)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        return np.where(perimeter > 0, 4 * np.pi * area / perimeter ** 2,
+                        np.nan)
 
 
 def _object_windows(labels, present, pad=1):
@@ -3290,8 +3784,7 @@ def measure_shape_extended(labels):
             props = regionprops_table(labels, properties=('label', 'perimeter'))
             lookup = dict(zip(props['label'], props['perimeter']))
             perimeter = np.array([lookup[label] for label in present], float)
-        out['form_factor'] = np.where(
-            perimeter > 0, 4 * np.pi * area / perimeter ** 2, np.nan)
+        out['form_factor'] = _form_factor(area, perimeter)
         out['compactness'] = 2 * np.pi * spread / area ** 2
     for k, values in enumerate(hu):
         out[f'hu_{k}'] = values
@@ -10810,6 +11303,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     _morphological_measurements(
                         cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
                         cytoplasm_mask, settings,
+                        zernike=settings.get('zernike'),
                         extra_organelle_masks=extra_organelle_masks,
                         channel_arrays=channel_arrays)))
                 _flag_shared_nuclei(morphology, shared_labels)
@@ -10835,6 +11329,12 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             if vacuole_planes is not None and enabled['cell']:
                 morphology['cell'] = _with_vacuole_counts(
                     morphology['cell'], cell_mask, pathogen_mask, settings)
+            channel_names = _measurement_channel_names(settings)
+            if channel_names:
+                morphology = {role: _rename_measurement_channels(frame, channel_names)
+                              for role, frame in morphology.items()}
+                intensities = {role: _rename_measurement_channels(frame, channel_names)
+                               for role, frame in intensities.items()}
             for role in role_order:
                 if enabled[role]:
                     _merge_and_save_to_database(
@@ -12407,6 +12907,12 @@ def measure_crop(settings):
                         "Nothing was measured.", settings=settings)
                     return
 
+                _measurement_channel_names(settings)
+                if (settings.get('zernike') is True
+                        and not settings.get('measure_gpu', False)):
+                    _load_zernike_moments()
+                _gpu_check_before_run(settings, files)
+
                 if not isinstance(settings['crop_mode'], list):
                     print(f"WARNING: crop_mode should be a list with at least one element e.g. ['cell'] or ['cell','nucleus'] or [None] got: {settings['crop_mode']}")
                     settings['crop_mode'] = [settings['crop_mode']]
@@ -12506,7 +13012,7 @@ def measure_crop(settings):
                     process_measure_crop_results([result], settings)
                     files_processed = len(completed_jobs)
                     files_to_process = len(files)
-                    print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
+                    print_progress(files_processed, files_to_process, pool_jobs, time_ls=time_ls, operation_type='Measure and Crop')
 
                 def make_error_callback(job_file):
                     """Bind the filename into the pool's error callback.

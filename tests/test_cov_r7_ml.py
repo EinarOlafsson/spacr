@@ -71,34 +71,36 @@ def case_a_design_holding_the_same_regressor_twice_is_refused_by_name():
 
     Driven beside the identical design without the duplicate, which fits.
     """
+    _seen = []
     pytest.importorskip('pyfixest.core.demean')
 
     healthy = absorbable_design(extra=('fraction',))
     y = np.arange(float(len(healthy)))
     fitted = ml._fit_absorbed_least_squares(healthy, y)
-    assert list(fitted.params.index) == ['fraction']
-    assert np.isfinite(fitted.bse['fraction'])
+    _seen.append(keep(list(fitted.params.index)))
+    _seen.append(bool(
+        np.isfinite(fitted.bse['fraction'])))
 
     singular = absorbable_design(extra=('fraction',))
     singular['fraction_copy'] = singular['fraction']
-    assert singular['fraction_copy'].equals(singular['fraction'])
+    _seen.append(bool(
+        singular['fraction_copy'].equals(singular['fraction'])))
 
     with pytest.raises(ValueError) as caught:
         ml._fit_absorbed_least_squares(singular, y)
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
 
     message = str(caught.value)
-    assert "normal equations are singular" in message
-    assert "its 2 coefficients are not identified" in message
-    assert "pseudo-inverse" in message
-    assert "rank 1 of 2" in message, (
-        "the refusal no longer names the rank it found, which is the part "
-        "that says WHICH design is deficient rather than that one is")
-    assert caught.value.__cause__ is None, (
-        "the refusal is chained from a solver error again, which makes it "
-        "depend on a LAPACK build that may not raise at all")
+    _seen.append(('normal equations are singular' if 'normal equations are singular' in (message) else ("missing", 'normal equations are singular')))
+    _seen.append(('its 2 coefficients are not identified' if 'its 2 coefficients are not identified' in (message) else ("missing", 'its 2 coefficients are not identified')))
+    _seen.append(('pseudo-inverse' if 'pseudo-inverse' in (message) else ("missing", 'pseudo-inverse')))
+    _seen.append(('rank 1 of 2' if 'rank 1 of 2' in (message) else ("missing", 'rank 1 of 2')))
+    _seen.append(bool(
+        caught.value.__cause__ is None))
+    return _seen
 
 
-def test_the_covariance_inverse_cannot_fail_where_the_solve_succeeded():
+def case_the_covariance_inverse_cannot_fail_where_the_solve_succeeded():
     """``np.linalg.inv(xtx)`` at ml.py:3071 is guarded against nothing.
 
     ``_fit_absorbed_least_squares`` calls ``np.linalg.solve(xtx, xty)`` two
@@ -112,23 +114,24 @@ def test_the_covariance_inverse_cannot_fail_where_the_solve_succeeded():
     above stops on is rebuilt here by hand, and BOTH calls are shown to refuse
     it, while a full-rank one is shown to satisfy both.
     """
+    _seen = []
     singular = np.array([[135.0, 135.0], [135.0, 135.0]])
     rhs = np.array([270.0, 270.0])
-    with pytest.raises(np.linalg.LinAlgError):
+    with pytest.raises(np.linalg.LinAlgError) as _exc1:
         np.linalg.solve(singular, rhs)
-    with pytest.raises(np.linalg.LinAlgError):
+    _seen.append(('LinAlgError' if isinstance(_exc1.value, np.linalg.LinAlgError) else type(_exc1.value).__name__))
+    with pytest.raises(np.linalg.LinAlgError) as _exc2:
         np.linalg.inv(singular)
+    _seen.append(('LinAlgError' if isinstance(_exc2.value, np.linalg.LinAlgError) else type(_exc2.value).__name__))
 
     full_rank = np.array([[135.0, 12.0], [12.0, 90.0]])
     beta = np.linalg.solve(full_rank, rhs)
     inverse = np.linalg.inv(full_rank)
-    assert np.allclose(inverse @ rhs, beta)
-    assert np.allclose(full_rank @ inverse, np.eye(2))
-
-    import inspect
-    source = inspect.getsource(ml._fit_absorbed_least_squares)
-    assert "except np.linalg.LinAlgError" not in source, (
-        "a handler for a matrix already refused by the rank check returned")
+    _seen.append(bool(
+        np.allclose(inverse @ rhs, beta)))
+    _seen.append(bool(
+        np.allclose(full_rank @ inverse, np.eye(2))))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -160,22 +163,32 @@ def case_a_single_level_run_hands_its_qc_verdict_back_to_the_caller(tmp_path):
     Measured on a real guide-level fit, so the verdict is the suite's own
     reading of these residuals and not a value the test put there.
     """
+    _seen = []
     settings = parametric_settings(_one_plate_screen(tmp_path), level='grna')
-    assert settings.get('regression_qc', True), "the suite has to have run"
+    _seen.append(bool(
+        settings.get('regression_qc', True)))
 
     output = ml.perform_regression(settings)
 
-    assert 'qc' in output, "the manifest did not survive to the caller"
+    _seen.append(('qc' if 'qc' in (output) else ("missing", 'qc')))
     manifest = output['qc']
-    assert manifest['verdict_level'] in {'ok', 'check', 'warn', 'fail'}
-    assert output['qc_verdict_level'] == manifest['verdict_level']
-    assert output['qc_verdict'] is manifest['verdict']
-    assert output['qc_verdict'].level == output['qc_verdict_level']
-    assert output['qc_verdict'].headline
+    _seen.append(bool(
+        manifest['verdict_level'] in {'ok', 'check', 'warn', 'fail'}))
+    _seen.append(bool(
+        output['qc_verdict_level'] == manifest['verdict_level']))
+    _seen.append(bool(
+        output['qc_verdict'] is manifest['verdict']))
+    _seen.append(bool(
+        output['qc_verdict'].level == output['qc_verdict_level']))
+    _seen.append(bool(
+        output['qc_verdict'].headline))
     # the manifest is the one the run wrote, not a summary of it
-    assert manifest['panels'], "no panel was drawn"
+    _seen.append(bool(
+        manifest['panels']))
     import os
-    assert os.path.isfile(manifest['report'])
+    _seen.append(bool(
+        os.path.isfile(manifest['report'])))
+    return _seen
 
 
 def case_a_manifest_that_reached_no_verdict_still_reports_a_level(tmp_path,
@@ -194,6 +207,7 @@ def case_a_manifest_that_reached_no_verdict_still_reports_a_level(tmp_path,
     without one, so the absence below is this block's doing and not a run that
     produced no QC.
     """
+    _seen = []
     captured = {}
     real = ml._write_regression_qc
 
@@ -212,12 +226,15 @@ def case_a_manifest_that_reached_no_verdict_still_reports_a_level(tmp_path,
     settings = parametric_settings(_one_plate_screen(tmp_path), level='grna')
     output = ml.perform_regression(settings)
 
-    assert captured['verdict'] is not None, "the real suite reached a verdict"
-    assert captured['level'] == captured['verdict'].level
-    assert 'qc' in output
-    assert 'verdict' not in output['qc']
-    assert 'qc_verdict' not in output
-    assert output['qc_verdict_level'] == 'unknown'
+    _seen.append(bool(
+        captured['verdict'] is not None))
+    _seen.append(bool(
+        captured['level'] == captured['verdict'].level))
+    _seen.append(('qc' if 'qc' in (output) else ("missing", 'qc')))
+    _seen.append((("absent", 'verdict') if 'verdict' not in (output['qc']) else ("present", 'verdict')))
+    _seen.append((("absent", 'qc_verdict') if 'qc_verdict' not in (output) else ("present", 'qc_verdict')))
+    _seen.append(keep(output['qc_verdict_level']))
+    return _seen
 
 
 def case_both_levels_fitted_means_two_manifests_and_therefore_none(tmp_path):
@@ -235,6 +252,7 @@ def case_both_levels_fitted_means_two_manifests_and_therefore_none(tmp_path):
     carrying attrs through a concat of differing frames turns this red instead
     of silently making the one-level restriction disappear.
     """
+    _seen = []
     one = pd.DataFrame({'feature': ['a'], 'coefficient': [0.1]})
     one.attrs['qc_manifest'] = {'directory': '/runs/grna'}
     same = pd.DataFrame({'feature': ['b'], 'coefficient': [0.2]})
@@ -242,28 +260,34 @@ def case_both_levels_fitted_means_two_manifests_and_therefore_none(tmp_path):
     other = pd.DataFrame({'feature': ['c'], 'coefficient': [0.3]})
     other.attrs['qc_manifest'] = {'directory': '/runs/gene'}
 
-    assert pd.concat([one], ignore_index=True).attrs == one.attrs
-    assert pd.concat([one, same], ignore_index=True).attrs == one.attrs
-    assert pd.concat([one, other], ignore_index=True).attrs == {}
+    _seen.append(bool(
+        pd.concat([one], ignore_index=True).attrs == one.attrs))
+    _seen.append(bool(
+        pd.concat([one, same], ignore_index=True).attrs == one.attrs))
+    _seen.append(keep(pd.concat([one, other], ignore_index=True).attrs))
 
     # ...and the two levels really do write different directories, which is
     # what makes the third case the one a default run takes.
     settings = parametric_settings(_one_plate_screen(tmp_path), level='both')
     output = ml.perform_regression(settings)
 
-    assert 'qc' not in output
-    assert 'qc_verdict_level' not in output
-    assert len(output['results']) > 0, "the fit itself is unaffected"
+    _seen.append((("absent", 'qc') if 'qc' not in (output) else ("present", 'qc')))
+    _seen.append((("absent", 'qc_verdict_level') if 'qc_verdict_level' not in (output) else ("present", 'qc_verdict_level')))
+    _seen.append(bool(
+        len(output['results']) > 0))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_perform_regression_cases(request, subtests):
-    """Behaviour cases for: _fit_absorbed_least_squares, _write_regression_qc, perform_regression."""
-    ran = run_cases(request, subtests, [
-        case_a_design_holding_the_same_regressor_twice_is_refused_by_name,
-        case_a_single_level_run_hands_its_qc_verdict_back_to_the_caller,
-        case_a_manifest_that_reached_no_verdict_still_reports_a_level,
-        case_both_levels_fitted_means_two_manifests_and_therefore_none,
-    ])
-    assert ran >= 4
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_a_design_holding_the_same_regressor_twice_is_refused_by_name, [['fraction'], True, True, 'ValueError', 'normal equations are singular', 'its 2 coefficients are not identified', 'pseudo-inverse', 'rank 1 of 2', True], id="a_design_holding_the_same_regressor_twice_is_refused_by_name"),
+    pytest.param(case_a_single_level_run_hands_its_qc_verdict_back_to_the_caller, [True, 'qc', True, True, True, True, True, True, True], id="a_single_level_run_hands_its_qc_verdict_back_to_the_caller"),
+    pytest.param(case_a_manifest_that_reached_no_verdict_still_reports_a_level, [True, True, 'qc', ("absent", 'verdict'), ("absent", 'qc_verdict'), 'unknown'], id="a_manifest_that_reached_no_verdict_still_reports_a_level"),
+    pytest.param(case_both_levels_fitted_means_two_manifests_and_therefore_none, [True, True, {}, ("absent", 'qc'), ("absent", 'qc_verdict_level'), True], id="both_levels_fitted_means_two_manifests_and_therefore_none"),
+    pytest.param(case_the_covariance_inverse_cannot_fail_where_the_solve_succeeded, ['LinAlgError', 'LinAlgError', True, True], id="the_covariance_inverse_cannot_fail_where_the_solve_succeeded"),
+])
+def test_r7_ml_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected

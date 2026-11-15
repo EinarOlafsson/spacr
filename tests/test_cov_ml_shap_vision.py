@@ -224,6 +224,7 @@ def _row_labels(plot):
 def case_shap_analysis_returns_closed_summary_figure():
     """shap_analysis explains X_test and hands back a closed summary figure
     whose y ticks are the explained feature names."""
+    _seen = []
     from sklearn.linear_model import LogisticRegression
 
     from spacr.ml import shap_analysis
@@ -242,16 +243,20 @@ def case_shap_analysis_returns_closed_summary_figure():
     # scene -- it was the last thing on the explanation path keeping a
     # second renderer alive, and two renderers is how one screen comes to
     # produce two pictures of one number.
-    assert not isinstance(plot, matplotlib.figure.Figure)
-    assert _row_labels(plot) >= set(feats)
+    _seen.append(bool(
+        not isinstance(plot, matplotlib.figure.Figure)))
+    _seen.append(bool(
+        _row_labels(plot) >= set(feats)))
     # And nothing was left on the pyplot stack, because nothing went on it.
-    assert plt.get_fignums() == []
+    _seen.append(keep(plt.get_fignums()))
     plot.deleteLater()
+    return _seen
 
 
 def case_shap_analysis_tree_model_labels_every_feature():
     """A tree model routes through TreeExplainer; the returned figure still
     carries one beeswarm row per feature."""
+    _seen = []
     from sklearn.ensemble import RandomForestRegressor
 
     from spacr.ml import shap_analysis
@@ -265,12 +270,15 @@ def case_shap_analysis_tree_model_labels_every_feature():
 
     plot = shap_analysis(model, X, X.iloc[:10])
 
-    assert _row_labels(plot) >= set(feats)
+    _seen.append(bool(
+        _row_labels(plot) >= set(feats)))
     plot.deleteLater()
+    return _seen
 
 
 def case_shap_analysis_tree_classifier_selects_the_positive_class():
     """A binary tree explainer's output axis is not an interaction matrix."""
+    _seen = []
     from sklearn.ensemble import RandomForestClassifier
 
     from spacr.ml import shap_analysis
@@ -285,8 +293,10 @@ def case_shap_analysis_tree_classifier_selects_the_positive_class():
 
     plot = shap_analysis(model, X, X.iloc[:10])
 
-    assert _row_labels(plot) >= set(feats)
+    _seen.append(bool(
+        _row_labels(plot) >= set(feats)))
     plot.deleteLater()
+    return _seen
 
 
 # ===========================================================================
@@ -296,6 +306,7 @@ def case_shap_analysis_tree_classifier_selects_the_positive_class():
 def case_find_optimal_threshold_picks_the_f1_maximising_cut():
     """On a cleanly separable problem the returned threshold really is the
     F1 optimum over the precision-recall sweep."""
+    _seen = []
     from sklearn.metrics import f1_score
 
     from spacr.ml import find_optimal_threshold
@@ -305,13 +316,17 @@ def case_find_optimal_threshold_picks_the_f1_maximising_cut():
 
     t = float(find_optimal_threshold(y_true, proba))
 
-    assert 0.3 < t <= 0.7
-    assert f1_score(y_true, (proba >= t).astype(int)) == pytest.approx(1.0)
+    _seen.append(bool(
+        0.3 < t <= 0.7))
+    _seen.append(bool(
+        f1_score(y_true, (proba >= t).astype(int)) == pytest.approx(1.0)))
+    return _seen
 
 
 def case_find_optimal_threshold_ignores_undefined_f1_points():
     """Precision-recall sweeps can contain points where precision and recall
     are both 0; the F1 there is undefined and must not win the argmax."""
+    _seen = []
     from sklearn.metrics import f1_score
 
     from spacr.ml import find_optimal_threshold
@@ -324,7 +339,9 @@ def case_find_optimal_threshold_ignores_undefined_f1_points():
     t = float(find_optimal_threshold(y_true, proba))
 
     best = max(f1_score(y_true, (proba >= c).astype(int)) for c in proba)
-    assert f1_score(y_true, (proba >= t).astype(int)) == pytest.approx(best)
+    _seen.append(bool(
+        f1_score(y_true, (proba >= t).astype(int)) == pytest.approx(best)))
+    return _seen
 
 
 # ===========================================================================
@@ -349,6 +366,7 @@ def _similarity_frame(rng, n=24, constant_feature=False):
 def case_calculate_similarity_regularises_a_singular_covariance():
     """A zero-variance feature makes np.cov singular; the LinAlgError branch
     regularises the diagonal so the Mahalanobis columns still come out finite."""
+    _seen = []
     from sklearn.preprocessing import StandardScaler
 
     from spacr.ml import _calculate_similarity
@@ -360,8 +378,9 @@ def case_calculate_similarity_regularises_a_singular_covariance():
     # Precondition: the un-regularised inverse really does blow up, so the
     # except-branch below is genuinely exercised (not dead code).
     cov = np.cov(StandardScaler().fit_transform(df[feats]), rowvar=False)
-    with pytest.raises(np.linalg.LinAlgError):
+    with pytest.raises(np.linalg.LinAlgError) as _exc1:
         np.linalg.inv(cov)
+    _seen.append(('LinAlgError' if isinstance(_exc1.value, np.linalg.LinAlgError) else type(_exc1.value).__name__))
 
     out = _calculate_similarity(df.copy(), feats, "columnID", "c1", "c2")
 
@@ -370,11 +389,13 @@ def case_calculate_similarity_regularises_a_singular_covariance():
         assert out[col].notna().all()
         assert np.isfinite(out[col].to_numpy()).all()
         assert (out[col].to_numpy() >= 0).all()
+    return _seen
 
 
 def case_calculate_similarity_swallows_a_failing_metric(monkeypatch):
     """safe_similarity turns a raising distance function into NaN without
     taking the other metrics down with it."""
+    _seen = []
     rng = np.random.default_rng(8)
     feats = ["f1", "f2", "f3"]
     df = _similarity_frame(rng)
@@ -389,17 +410,24 @@ def case_calculate_similarity_swallows_a_failing_metric(monkeypatch):
 
     out = spacr.ml._calculate_similarity(df.copy(), feats, "columnID", "c1", "c2")
 
-    assert calls["n"] == 2 * len(df)          # both pos and neg, every row
-    assert out["similarity_to_pos_euclidean"].isna().all()
-    assert out["similarity_to_neg_euclidean"].isna().all()
+    _seen.append(bool(
+        calls["n"] == 2 * len(df)))
+    _seen.append(bool(
+        out["similarity_to_pos_euclidean"].isna().all()))
+    _seen.append(bool(
+        out["similarity_to_neg_euclidean"].isna().all()))
     # Everything downstream of euclidean still computed normally.
-    assert out["similarity_to_pos_cosine"].notna().all()
-    assert out["similarity_to_neg_braycurtis"].notna().all()
+    _seen.append(bool(
+        out["similarity_to_pos_cosine"].notna().all()))
+    _seen.append(bool(
+        out["similarity_to_neg_braycurtis"].notna().all()))
+    return _seen
 
 
-def test_calculate_similarity_reports_and_returns_on_assignment_failure(capsys):
+def case_calculate_similarity_reports_and_returns_on_assignment_failure(capsys):
     """If writing a similarity column raises, the outer guard prints the error
     and returns the partially-populated frame instead of propagating."""
+    _seen = []
     from spacr.ml import _calculate_similarity
 
     class _ExplodingFrame(pd.DataFrame):
@@ -433,16 +461,18 @@ def test_calculate_similarity_reports_and_returns_on_assignment_failure(capsys):
     out = _calculate_similarity(df, ["f1", "f2", "f3"], "columnID", "c1", "c2")
 
     printed = capsys.readouterr().out
-    assert "Error calculating similarity scores" in printed
-    assert "synthetic assignment failure" in printed
+    _seen.append(('Error calculating similarity scores' if 'Error calculating similarity scores' in (printed) else ("missing", 'Error calculating similarity scores')))
+    _seen.append(('synthetic assignment failure' if 'synthetic assignment failure' in (printed) else ("missing", 'synthetic assignment failure')))
     sim_cols = [c for c in out.columns if c.startswith("similarity_")]
     # Only the two euclidean columns made it in before the failure.
-    assert sim_cols == ["similarity_to_pos_euclidean", "similarity_to_neg_euclidean"]
+    _seen.append(keep(sim_cols))
+    return _seen
 
 
 def case_calculate_similarity_accepts_list_valued_controls():
     """List controls average across several wells; the resulting reference is
     the mean of the pooled subset."""
+    _seen = []
     from scipy.spatial.distance import euclidean as _euc
 
     from spacr.ml import _calculate_similarity
@@ -461,11 +491,14 @@ def case_calculate_similarity_accepts_list_valued_controls():
     out = _calculate_similarity(df.copy(), feats, "columnID", ["c2", "c3"], ["c1"])
 
     manual = _euc(df.loc[0, feats].to_numpy(float), expected_pos.to_numpy(float))
-    assert out.loc[0, "similarity_to_pos_euclidean"] == pytest.approx(manual)
+    _seen.append(bool(
+        out.loc[0, "similarity_to_pos_euclidean"] == pytest.approx(manual)))
     # Chebyshev is the max coordinate gap — check it against the same reference.
     manual_cheb = np.abs(df.loc[0, feats].to_numpy(float)
                          - expected_pos.to_numpy(float)).max()
-    assert out.loc[0, "similarity_to_pos_chebyshev"] == pytest.approx(manual_cheb)
+    _seen.append(bool(
+        out.loc[0, "similarity_to_pos_chebyshev"] == pytest.approx(manual_cheb)))
+    return _seen
 
 
 # ===========================================================================
@@ -483,6 +516,7 @@ def case_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatc
 
     A missing ``object_label`` is also filled from ``object``.
     """
+    _seen = []
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(11)
@@ -514,27 +548,37 @@ def case_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatc
         "save": False,
     })
 
-    assert len(merged) == len(grid)
-    assert set(merged["rowID"]) == {g[1] for g in grid}
-    assert set(merged["columnID"]) == {g[2] for g in grid}
+    _seen.append(bool(
+        len(merged) == len(grid)))
+    _seen.append(bool(
+        set(merged["rowID"]) == {g[1] for g in grid}))
+    _seen.append(bool(
+        set(merged["columnID"]) == {g[2] for g in grid}))
     # object_label was populated from the 'object' column and 'o'-stripped
-    assert merged["object_label"].tolist() == [str(i) for i in range(1, len(grid) + 1)]
+    _seen.append(bool(
+        merged["object_label"].tolist() == [str(i) for i in range(1, len(grid) + 1)]))
     # the DB location handed to the merge helper is derived from src
-    assert rec["locs"] == [os.path.join(str(src), "measurements", "measurements.db")]
-    assert rec["tables"] == ["cell"]
-    assert rec["nuclei_limit"] == 1000 and rec["pathogen_limit"] == 1000
+    _seen.append(bool(
+        rec["locs"] == [os.path.join(str(src), "measurements", "measurements.db")]))
+    _seen.append(keep(rec["tables"]))
+    _seen.append(bool(
+        rec["nuclei_limit"] == 1000 and rec["pathogen_limit"] == 1000))
 
     # feature-importance chart was drawn with the top-N features
     drawn = _titled(gallery, "Feature Importance")
-    assert drawn, "expected a feature-importance chart"
-    assert "Top 3 Features" in gallery[0][0]
-    assert len(_names_in(drawn[0])) == 3, "the top-N was not honoured"
-    assert not _polar_axes(), "a matplotlib figure came back"
+    _seen.append(bool(
+        drawn))
+    _seen.append(('Top 3 Features' if 'Top 3 Features' in (gallery[0][0]) else ("missing", 'Top 3 Features')))
+    _seen.append(keep(len(_names_in(drawn[0]))))
+    _seen.append(bool(
+        not _polar_axes()))
+    return _seen
 
 
 def case_interperate_vision_model_keeps_canonical_score_columns(tmp_path, monkeypatch, gallery):
     """When the scores CSV already carries rowID/columnID/object_label none of
     the legacy fallbacks fire and the merge still lines up 1:1."""
+    _seen = []
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(12)
@@ -563,18 +607,25 @@ def case_interperate_vision_model_keeps_canonical_score_columns(tmp_path, monkey
         "save": False,
     })
 
-    assert len(merged) == len(grid)
-    assert merged["cv_predictions"].tolist() == list(labels)
+    _seen.append(bool(
+        len(merged) == len(grid)))
+    _seen.append(bool(
+        merged["cv_predictions"].tolist() == list(labels)))
     # both charts (feature importance + permutation importance) exist
     titles = [title for title, _folder in gallery]
-    assert any("Feature Importance" in t for t in titles), titles
-    assert any("Permutation Importance" in t for t in titles), titles
-    assert all("Top 2 Features" in t for t in titles), titles
+    _seen.append(bool(
+        any("Feature Importance" in t for t in titles)))
+    _seen.append(bool(
+        any("Permutation Importance" in t for t in titles)))
+    _seen.append(bool(
+        all("Top 2 Features" in t for t in titles)))
+    return _seen
 
 
 def case_interperate_vision_model_shap_without_subsampling(tmp_path, monkeypatch, gallery):
     """shap_sample=False explains every merged object rather than a 1% draw,
     and the SHAP matrix is aggregated into compartment/channel radar plots."""
+    _seen = []
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(13)
@@ -604,22 +655,24 @@ def case_interperate_vision_model_shap_without_subsampling(tmp_path, monkeypatch
         "save": False,
     })
 
-    assert len(merged) == len(grid)
+    _seen.append(bool(
+        len(merged) == len(grid)))
 
     radars = _titled(gallery, "SHAP Importance by")
-    assert len(radars) == 2, [t for t, _f in gallery]
+    _seen.append(keep(len(radars)))
     label_sets = [_names_in(folder) for folder in radars]
     compartments = next(s for s in label_sets if "nucleus" in s)
-    assert compartments == {"cell", "nucleus", "cell + nucleus"}
+    _seen.append(keep(compartments))
     channels = next(s for s in label_sets if "morphology" in s)
-    assert channels == {"channel_0", "channel_1", "morphology",
-                        "channel_0 + channel_1", "channel_0 + morphology",
-                        "channel_1 + morphology"}
-    assert not _polar_axes(), "the matplotlib radar came back"
+    _seen.append(keep(channels))
+    _seen.append(bool(
+        not _polar_axes()))
+    return _seen
 
 
 def case_interperate_vision_model_shap_sample_on_a_small_plate(tmp_path, monkeypatch):
     """shap_sample must degrade gracefully when there are <100 objects."""
+    _seen = []
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(19)
@@ -649,13 +702,17 @@ def case_interperate_vision_model_shap_sample_on_a_small_plate(tmp_path, monkeyp
         "save": False,
     })
 
-    assert isinstance(merged, pd.DataFrame)
-    assert len(merged) == len(grid)
+    _seen.append(bool(
+        isinstance(merged, pd.DataFrame)))
+    _seen.append(bool(
+        len(merged) == len(grid)))
+    return _seen
 
 
 def case_interperate_vision_model_none_settings_uses_defaults(tmp_path, monkeypatch):
     """Passing None falls back to set_interperate_vision_model_defaults; the
     placeholder 'path' src is snapshotted before the run blows up on it."""
+    _seen = []
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(14)
@@ -668,20 +725,24 @@ def case_interperate_vision_model_none_settings_uses_defaults(tmp_path, monkeypa
     # still written first.
     from spacr.tabular import TabularFormatError
 
-    with pytest.raises(TabularFormatError):
+    with pytest.raises(TabularFormatError) as _exc1:
         interperate_vision_model(None)
+    _seen.append(('TabularFormatError' if isinstance(_exc1.value, TabularFormatError) else type(_exc1.value).__name__))
 
     saved = tmp_path / "path" / "settings" / "interperate_vision_model.csv"
-    assert saved.is_file()
+    _seen.append(bool(
+        saved.is_file()))
     snap_df = pd.read_csv(saved)
     defaults = dict(zip(snap_df["Key"], snap_df["Value"].astype(str)))
-    assert defaults["src"] == "path"
-    assert defaults["score_column"] == "cv_predictions"
-    assert defaults["top_features"] == "30"
+    _seen.append(keep(defaults["src"]))
+    _seen.append(keep(defaults["score_column"]))
+    _seen.append(keep(defaults["top_features"]))
+    return _seen
 
 
 def case_interperate_vision_model_save_writes_importance_tables(tmp_path, monkeypatch):
     """With save=True both importance tables are written under ``<src>/results``."""
+    _seen = []
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(15)
@@ -712,20 +773,18 @@ def case_interperate_vision_model_save_writes_importance_tables(tmp_path, monkey
 
     results_dir = src / "results"
     written = {p.name: pd.read_csv(p) for p in results_dir.glob("*.csv")}
-    assert set(written) == {"feature_importance.csv", "permutation_importance.csv"}
+    _seen.append(keep(set(written)))
     for frame in written.values():
         assert list(frame.columns) == ["feature", "importance"]
         assert len(frame) == 3            # the full table, not the top-N slice
         assert frame["importance"].is_monotonic_decreasing
-    assert set(written["feature_importance.csv"]["feature"]) == {
-        "cell_channel_0_mean_intensity",
-        "nucleus_channel_1_mean_intensity",
-        "cell_area",
-    }
+    _seen.append(keep(set(written["feature_importance.csv"]["feature"])))
+    return _seen
 
 
 def case_interperate_vision_model_save_true_writes_a_real_csv(tmp_path, monkeypatch):
     """settings['save']=True must persist the importance table to disk."""
+    _seen = []
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(16)
@@ -756,12 +815,15 @@ def case_interperate_vision_model_save_true_writes_a_real_csv(tmp_path, monkeypa
     })
 
     hits = list(tmp_path.rglob("feature_importance.csv"))
-    assert hits, "save=True should have written feature_importance.csv"
+    _seen.append(bool(
+        hits))
+    return _seen
 
 
 def case_interperate_vision_model_permutation_without_feature_importance(
         tmp_path, monkeypatch):
     """permutation_importance must be usable on its own."""
+    _seen = []
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(17)
@@ -790,13 +852,17 @@ def case_interperate_vision_model_permutation_without_feature_importance(
         "save": False,
     })
 
-    assert isinstance(merged, pd.DataFrame)
-    assert len(merged) == len(grid)
+    _seen.append(bool(
+        isinstance(merged, pd.DataFrame)))
+    _seen.append(bool(
+        len(merged) == len(grid)))
+    return _seen
 
 
 def case_interperate_vision_model_shap_without_feature_importance(
         tmp_path, monkeypatch):
     """shap must be usable without also asking for RF feature importance."""
+    _seen = []
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(18)
@@ -826,8 +892,11 @@ def case_interperate_vision_model_shap_without_feature_importance(
         "save": False,
     })
 
-    assert isinstance(merged, pd.DataFrame)
-    assert len(merged) == len(grid)
+    _seen.append(bool(
+        isinstance(merged, pd.DataFrame)))
+    _seen.append(bool(
+        len(merged) == len(grid)))
+    return _seen
 
 
 # ---------------------------------------------------------------------------
@@ -838,6 +907,7 @@ def case_interperate_vision_model_end_to_end_real_db(tmp_path, capsys, gallery):
     """Feature importance + permutation importance + SHAP all run against a
     real sqlite measurements DB, and the SHAP contributions are folded into
     compartment/channel radar plots covering every channel token."""
+    _seen = []
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(3)
@@ -867,45 +937,52 @@ def case_interperate_vision_model_end_to_end_real_db(tmp_path, capsys, gallery):
     })
 
     # ---- merged frame -----------------------------------------------------
-    assert isinstance(merged, pd.DataFrame)
-    assert len(merged) == len(grid)
-    assert "cv_predictions" in merged.columns
-    assert set(merged["cv_predictions"].unique()) <= {0, 1}
+    _seen.append(bool(
+        isinstance(merged, pd.DataFrame)))
+    _seen.append(bool(
+        len(merged) == len(grid)))
+    _seen.append(('cv_predictions' if 'cv_predictions' in (merged.columns) else ("missing", 'cv_predictions')))
+    _seen.append(bool(
+        set(merged["cv_predictions"].unique()) <= {0, 1}))
     for col in ("cell_channel_0_mean_intensity", "cell_channel_1_mean_intensity",
                 "cytoplasm_channel_2_mean_intensity",
                 "cytoplasm_channel_3_mean_intensity", "cells_per_well"):
         assert col in merged.columns
     # the 'o' prefix was stripped before the join
-    assert not merged["object_label"].str.startswith("o").any()
+    _seen.append(bool(
+        not merged["object_label"].str.startswith("o").any()))
 
     # ---- settings snapshot ------------------------------------------------
     saved = src / "settings" / "interperate_vision_model.csv"
-    assert saved.is_file()
+    _seen.append(bool(
+        saved.is_file()))
     saved_df = pd.read_csv(saved)
     snap = dict(zip(saved_df["Key"], saved_df["Value"].astype(str)))
-    assert snap["score_column"] == "cv_predictions"
+    _seen.append(keep(snap["score_column"]))
 
     # ---- all three explainers announced themselves ------------------------
     printed = capsys.readouterr().out
-    assert "Feature Importance ..." in printed
-    assert "Permutation Importance ..." in printed
-    assert "SHAP Analysis ..." in printed
+    _seen.append(('Feature Importance ...' if 'Feature Importance ...' in (printed) else ("missing", 'Feature Importance ...')))
+    _seen.append(('Permutation Importance ...' if 'Permutation Importance ...' in (printed) else ("missing", 'Permutation Importance ...')))
+    _seen.append(('SHAP Analysis ...' if 'SHAP Analysis ...' in (printed) else ("missing", 'SHAP Analysis ...')))
 
     # ---- radar plots ------------------------------------------------------
     radars = _titled(gallery, "SHAP Importance by")
-    assert len(radars) == 2, [t for t, _f in gallery]
+    _seen.append(keep(len(radars)))
     label_sets = [_names_in(folder) for folder in radars]
 
     compartment_labels = next(s for s in label_sets if "cell" in s)
     # 'cells_per_well' must have been folded into the 'cell' compartment.
-    assert compartment_labels == {"cell", "cytoplasm", "cell + cytoplasm"}
+    _seen.append(keep(compartment_labels))
 
     channel_labels = next(s for s in label_sets if "morphology" in s)
-    assert {"channel_0", "channel_1", "channel_2", "channel_3",
-            "morphology"} <= channel_labels
+    _seen.append(bool(
+        {"channel_0", "channel_1", "channel_2", "channel_3",
+            "morphology"} <= channel_labels))
     # 5 individual channels + every unordered pair of them
-    assert len(channel_labels) == 5 + (5 * 4) // 2
-    assert "channel_0 + channel_1" in channel_labels
+    _seen.append(bool(
+        len(channel_labels) == 5 + (5 * 4) // 2))
+    _seen.append(('channel_0 + channel_1' if 'channel_0 + channel_1' in (channel_labels) else ("missing", 'channel_0 + channel_1')))
 
     # ONE VALUE PER LABEL in the data beside the picture. The old assertion
     # counted vertices on the matplotlib line and allowed for the closing
@@ -915,37 +992,36 @@ def case_interperate_vision_model_end_to_end_real_db(tmp_path, capsys, gallery):
     for folder in radars:
         frame = pd.read_csv(os.path.join(folder, "data.csv"))
         assert len(frame) == len(set(frame["name"])), folder
-    assert not _polar_axes(), "the matplotlib radar came back"
+    _seen.append(bool(
+        not _polar_axes()))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_behaviour_cases(request, subtests):
-    """Behaviour cases for: behaviour."""
-    ran = run_cases(request, subtests, [
-        case_calculate_similarity_swallows_a_failing_metric,
-        case_interperate_vision_model_maps_legacy_score_columns,
-        case_interperate_vision_model_keeps_canonical_score_columns,
-        case_interperate_vision_model_shap_without_subsampling,
-        case_interperate_vision_model_shap_sample_on_a_small_plate,
-        case_interperate_vision_model_none_settings_uses_defaults,
-        case_interperate_vision_model_save_writes_importance_tables,
-        case_interperate_vision_model_save_true_writes_a_real_csv,
-        case_interperate_vision_model_permutation_without_feature_importance,
-        case_interperate_vision_model_shap_without_feature_importance,
-        case_interperate_vision_model_end_to_end_real_db,
-    ])
-    assert ran >= 11
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_calculate_similarity_swallows_a_failing_metric, [True, True, True, True, True], id="calculate_similarity_swallows_a_failing_metric"),
+    pytest.param(case_interperate_vision_model_maps_legacy_score_columns, [True, True, True, True, True, ['cell'], True, True, 'Top 3 Features', 3, True], id="interperate_vision_model_maps_legacy_score_columns"),
+    pytest.param(case_interperate_vision_model_keeps_canonical_score_columns, [True, True, True, True, True], id="interperate_vision_model_keeps_canonical_score_columns"),
+    pytest.param(case_interperate_vision_model_shap_without_subsampling, [True, 2, {'cell', 'nucleus', 'cell + nucleus'}, {'channel_0', 'channel_1', 'morphology', 'channel_0 + channel_1', 'channel_0 + morphology', 'channel_1 + morphology'}, True], id="interperate_vision_model_shap_without_subsampling"),
+    pytest.param(case_interperate_vision_model_shap_sample_on_a_small_plate, [True, True], id="interperate_vision_model_shap_sample_on_a_small_plate"),
+    pytest.param(case_interperate_vision_model_none_settings_uses_defaults, ['TabularFormatError', True, 'path', 'cv_predictions', '30'], id="interperate_vision_model_none_settings_uses_defaults"),
+    pytest.param(case_interperate_vision_model_save_writes_importance_tables, [{'feature_importance.csv', 'permutation_importance.csv'}, {'cell_channel_0_mean_intensity', 'nucleus_channel_1_mean_intensity', 'cell_area'}], id="interperate_vision_model_save_writes_importance_tables"),
+    pytest.param(case_interperate_vision_model_save_true_writes_a_real_csv, [True], id="interperate_vision_model_save_true_writes_a_real_csv"),
+    pytest.param(case_interperate_vision_model_permutation_without_feature_importance, [True, True], id="interperate_vision_model_permutation_without_feature_importance"),
+    pytest.param(case_interperate_vision_model_shap_without_feature_importance, [True, True], id="interperate_vision_model_shap_without_feature_importance"),
+    pytest.param(case_interperate_vision_model_end_to_end_real_db, [True, True, 'cv_predictions', True, True, True, 'cv_predictions', 'Feature Importance ...', 'Permutation Importance ...', 'SHAP Analysis ...', 2, {'cell', 'cytoplasm', 'cell + cytoplasm'}, True, True, 'channel_0 + channel_1', True], id="interperate_vision_model_end_to_end_real_db"),
+    pytest.param(case_shap_analysis_returns_closed_summary_figure, [True, True, []], id="shap_analysis_returns_closed_summary_figure"),
+    pytest.param(case_shap_analysis_tree_model_labels_every_feature, [True], id="shap_analysis_tree_model_labels_every_feature"),
+    pytest.param(case_shap_analysis_tree_classifier_selects_the_positive_class, [True], id="shap_analysis_tree_classifier_selects_the_positive_class"),
+    pytest.param(case_find_optimal_threshold_picks_the_f1_maximising_cut, [True, True], id="find_optimal_threshold_picks_the_f1_maximising_cut"),
+    pytest.param(case_find_optimal_threshold_ignores_undefined_f1_points, [True], id="find_optimal_threshold_ignores_undefined_f1_points"),
+    pytest.param(case_calculate_similarity_regularises_a_singular_covariance, ['LinAlgError'], id="calculate_similarity_regularises_a_singular_covariance"),
+    pytest.param(case_calculate_similarity_accepts_list_valued_controls, [True, True], id="calculate_similarity_accepts_list_valued_controls"),
+    pytest.param(case_calculate_similarity_reports_and_returns_on_assignment_failure, ['Error calculating similarity scores', 'synthetic assignment failure', ['similarity_to_pos_euclidean', 'similarity_to_neg_euclidean']], id="calculate_similarity_reports_and_returns_on_assignment_failure"),
+])
+def test_ml_shap_vision_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected
 
-def test_shap_analysis_cases(request, subtests):
-    """Behaviour cases for: _calculate_similarity, find_optimal_threshold, shap_analysis."""
-    ran = run_cases(request, subtests, [
-        case_shap_analysis_returns_closed_summary_figure,
-        case_shap_analysis_tree_model_labels_every_feature,
-        case_shap_analysis_tree_classifier_selects_the_positive_class,
-        case_find_optimal_threshold_picks_the_f1_maximising_cut,
-        case_find_optimal_threshold_ignores_undefined_f1_points,
-        case_calculate_similarity_regularises_a_singular_covariance,
-        case_calculate_similarity_accepts_list_valued_controls,
-    ])
-    assert ran >= 7

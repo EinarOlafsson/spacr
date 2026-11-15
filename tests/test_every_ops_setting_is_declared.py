@@ -157,6 +157,9 @@ def test_a_measured_default_says_the_same_thing_in_both_places(declared):
         assert ops_settings.OPS_DEFAULTS[key] == constant, key
     assert ops_settings.OPS_DEFAULTS["ops_base_channels"] == \
         ",".join(ops_engine._BASE_CHANNELS)
+    from spacr import ops_compose
+    assert ops_settings.OPS_DEFAULTS["ops_compose_blend"] == \
+        ops_compose._BLENDS[0]
 
 
 def test_the_engine_reads_every_setting_the_panel_offers(declared):

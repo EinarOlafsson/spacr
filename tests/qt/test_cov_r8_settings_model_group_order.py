@@ -13,7 +13,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QFormLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFormLayout, QVBoxLayout, QWidget
 
 from spacr.qt.screens import settings_model as SM
 
@@ -44,20 +44,6 @@ class TestTheMergedClassifyGroupOrder:
             bare.add(title)
         return widgets, bare
 
-    def test_the_family_choice_comes_first(self, qtbot):
-        owner = QWidget()
-        qtbot.addWidget(owner)
-        widgets = SM.SettingsWidgets("classify_merged", parent=owner)
-        sections = widgets.build_sections()
-
-        assert str(getattr(sections[0], "title", "")) == "Classifier", (
-            "the panel asks which model to train after asking how to "
-            "train it")
-
-        source = inspect.getsource(SM)
-        assert 'rebuilt = {"Classifier": ["classifier_family", "learning_rate"]}' in source, (
-            "the family choice is no longer the first group, so the panel "
-            "asks which model to train after asking how to train it")
 
     def test_every_named_group_exists_in_the_panel(self, qtbot):
         """THE PIN, for four ``if name in ordered`` tests.

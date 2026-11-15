@@ -63,6 +63,7 @@ def case_a_missing_location_column_lists_the_columns_and_the_likely_cause():
     is being asked for; a run left in annotation mode is the likely cause and
     saying so costs one sentence.
     """
+    _seen = []
     frame = feature_frame(per_class=6)
     for extra in range(10):
         frame[f'spare_{extra}'] = 0.0
@@ -70,10 +71,13 @@ def case_a_missing_location_column_lists_the_columns_and_the_likely_cause():
     with pytest.raises(ValueError) as caught:
         ML.ml_analysis(frame, positive_control='c2', negative_control='c1',
                        **{**COMMON, 'location_column': 'not_a_column'})
+    _seen.append(('ValueError' if isinstance(caught.value, ValueError) else type(caught.value).__name__))
 
     message = str(caught.value)
-    assert f'({len(frame.columns)} columns)' in message
-    assert 'annotation mode' in message
+    _seen.append(bool(
+        f'({len(frame.columns)} columns)' in message))
+    _seen.append(('annotation mode' if 'annotation mode' in (message) else ("missing", 'annotation mode')))
+    return _seen
 
 
 def case_a_named_holdout_plate_is_trained_without_and_scored_on():
@@ -83,6 +87,7 @@ def case_a_named_holdout_plate_is_trained_without_and_scored_on():
     the phenotype and every number it reports still looks fine; the held-out
     plate is the one number that says whether it generalises.
     """
+    _seen = []
     frame = feature_frame(per_class=30, plates=('plate1', 'plate2'))
 
     output, _figs = ML.ml_analysis(
@@ -90,16 +95,19 @@ def case_a_named_holdout_plate_is_trained_without_and_scored_on():
         split_by='plate', holdout_plate='plate2', **COMMON)
 
     scored = output[0]
-    assert 'predictions' in scored.columns
-    assert len(scored) == len(frame)
+    _seen.append(('predictions' if 'predictions' in (scored.columns) else ("missing", 'predictions')))
+    _seen.append(bool(
+        len(scored) == len(frame)))
+    return _seen
 
 
-from tests.case_table import run_cases  # noqa: E402
+from tests.observed_case import keep, observe  # noqa: E402
 
-def test_ml_analysis_cases(request, subtests):
-    """Behaviour cases for: ml_analysis."""
-    ran = run_cases(request, subtests, [
-        case_a_missing_location_column_lists_the_columns_and_the_likely_cause,
-        case_a_named_holdout_plate_is_trained_without_and_scored_on,
-    ])
-    assert ran >= 2
+@pytest.mark.parametrize(("case", "expected"), [
+    pytest.param(case_a_missing_location_column_lists_the_columns_and_the_likely_cause, ['ValueError', True, 'annotation mode'], id="a_missing_location_column_lists_the_columns_and_the_likely_cause"),
+    pytest.param(case_a_named_holdout_plate_is_trained_without_and_scored_on, ['predictions', True], id="a_named_holdout_plate_is_trained_without_and_scored_on"),
+])
+def test_12_ml_analysis_contracts(request, case, expected):
+    """One contract per row: the case records what it checked, the row states it."""
+    observed = observe(case, request)
+    assert observed == expected

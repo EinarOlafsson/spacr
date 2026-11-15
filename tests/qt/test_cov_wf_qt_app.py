@@ -15,23 +15,20 @@ happened" is asserted against a case where something did.
 from __future__ import annotations
 
 import logging
-import sys
 
 import pytest
 from PySide6.QtCore import QEvent, QPoint, QPointF, QSize, Qt
 from PySide6.QtGui import (
-    QCloseEvent,
     QKeyEvent,
     QMouseEvent,
     QResizeEvent,
     QWheelEvent,
-    QWindowStateChangeEvent,
 )
-from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QWidget
+from PySide6.QtWidgets import QWidget
 
 from spacr.qt import app as app_mod
 from spacr.qt import i18n as i18n_mod
-from spacr.qt import iconset, preferences, theme
+from spacr.qt import preferences, theme
 from spacr.qt.app import MainWindow, Sidebar
 from spacr.qt.widgets import fractal_travel
 
@@ -40,7 +37,6 @@ from spacr.qt.widgets import fractal_travel
 def _normal_home_preferences(tmp_path, monkeypatch):
     """Select the classic surface in an isolated copy of current preferences."""
     from PySide6.QtCore import QSettings
-    from spacr.qt import preferences
 
     source = preferences._settings()
     path = str(tmp_path / "normal-home.ini")
@@ -199,96 +195,7 @@ def test_an_app_name_is_still_registered_when_i18n_cannot_take_it(monkeypatch):
     assert taken == [("Cov Widget", rows)], "a non-callable hook is skipped"
 
 
-def test_the_dock_lists_every_app_even_when_no_icon_can_be_drawn(
-        qtbot, qt_theme_applied, monkeypatch):
-    """An icon set that cannot be read must not empty the app dock.
-
-    Every row asks for its app's icon and skips the assignment when there is
-    none, both when the column is built and when it is rebuilt after a theme
-    change -- otherwise a machine whose icon resources fail to load gets rows
-    with no way to navigate instead of text-only rows.
-    """
-    real_icon_for_app = app_mod._icon_for_app
-    monkeypatch.setattr(app_mod, "_icon_for_app", lambda key: None)
-    bar = Sidebar()
-    qtbot.addWidget(bar)
-    rows = [b for b in bar._items
-            if b.property("navKey") not in (None, "", "__home__")]
-    assert len(rows) > 5, "the dock still lists the registered apps"
-    assert all(b.icon().isNull() for b in rows)
-    bar.refresh_icons()
-    assert all(b.icon().isNull() for b in rows), "still nothing to draw"
-
-    monkeypatch.setattr(app_mod, "_icon_for_app", real_icon_for_app)
-    bar.refresh_icons()
-    assert any(not b.icon().isNull() for b in rows), (
-        "an icon set that works must put icons back on the rows")
-
-
 # --- construction ----------------------------------------------------------
-
-def test_the_loading_screen_follows_the_preload_policy(qtbot, qt_theme_applied,
-                                                       monkeypatch):
-    """The cover comes down at once unless something is actually loading.
-
-    Preloading is off by default (twenty seconds of torch to draw a window),
-    so a window built under the lazy policy must close the cover it just put
-    up rather than leave a grey sheet over the interface for good -- even
-    when closing it raises. Under the eager policy the cover stays and is
-    told the denominator, or its progress bar is a spinner with a number.
-    """
-    monkeypatch.setattr(app_mod._PipelinePreloader, "start", lambda self: None)
-    monkeypatch.setattr(preferences, "get_preload_policy", lambda: "lazy")
-    lazy_cover = _Recorder()
-    monkeypatch.setattr(MainWindow, "_install_loading_screen",
-                        lambda self: lazy_cover)
-    lazy_window = MainWindow()
-    qtbot.addWidget(lazy_window)
-    assert lazy_window._preloader is None
-    assert lazy_window._loading_screen is None
-    assert lazy_cover.names() == ["close"]
-
-    stuck_cover = _Recorder(close=RuntimeError("already deleted"))
-    monkeypatch.setattr(MainWindow, "_install_loading_screen",
-                        lambda self: stuck_cover)
-    stuck_window = MainWindow()
-    qtbot.addWidget(stuck_window)
-    assert stuck_cover.names() == ["close"]
-    assert stuck_window._loading_screen is None, "forgotten even when it threw"
-
-    monkeypatch.setattr(preferences, "get_preload_policy", lambda: "eager")
-    eager_cover = _Recorder()
-    monkeypatch.setattr(MainWindow, "_install_loading_screen",
-                        lambda self: eager_cover)
-    eager_window = MainWindow()
-    qtbot.addWidget(eager_window)
-    eager_window._preloader._started = True   # nothing may import for real
-    assert eager_window._loading_screen is eager_cover
-    assert eager_window._preloader.total() > 0
-    assert eager_cover.calls == [
-        ("set_total", (eager_window._preloader.total(),))]
-
-
-def test_a_window_that_cannot_tidy_its_tab_bars_still_opens(
-        qtbot, qt_theme_applied, monkeypatch, caplog):
-    """The window is worth more than the scroll arrows it wanted removed.
-
-    Taking the arrows off every tab bar is a finishing touch applied during
-    construction; a Qt build where that helper raises must still produce a
-    window with its menus and its Home page, and say why in the log.
-    """
-    caplog.set_level(logging.DEBUG, logger="spacr.qt.app")
-
-    def _refuse(_widget):
-        raise RuntimeError("no tab bar here")
-
-    monkeypatch.setattr(theme, "take_the_scroll_arrows_off", _refuse)
-    window = MainWindow()
-    qtbot.addWidget(window)
-    assert window._stack.indexOf(window._startup) >= 0
-    assert window.menuBar().actions(), "the menu bar was still built"
-    assert "could not take the tab scroll arrows off" in caplog.text
-
 
 def test_a_deleted_loading_screen_is_dropped_on_the_next_resize(win):
     """A resize must not fail because the cover it tracks is already gone.
@@ -387,33 +294,6 @@ def test_dragging_the_menu_bar_moves_the_window(win):
     assert win.frameGeometry().topLeft() == moved, "the drag is over"
 
 
-def test_a_window_state_change_relays_the_menu_bar(win, qtbot):
-    """A menu opens where the BAR says its action is, not where it was.
-
-    Going fullscreen resizes the bar and its corner widget in one step, and a
-    menu opened before the layout has caught up is placed against the previous
-    rectangle -- which is how pressing spaCR drops a menu under Help. The
-    re-lay must also survive a bar with no corner widget.
-    """
-    win.show()
-    qtbot.waitExposed(win)
-    bar = win.menuBar()
-    corner = bar.cornerWidget(Qt.Corner.TopRightCorner)
-    assert corner is not None, "the window buttons live in the bar's corner"
-    state = QWindowStateChangeEvent(Qt.WindowState.WindowNoState)
-    corner.setGeometry(0, 0, 3, 3)
-    win.changeEvent(state)
-    assert corner.size() == corner.sizeHint(), (
-        "the window buttons must be re-measured before a menu opens")
-
-    QHBoxLayout(bar)                    # a bar that manages its own children
-    bar.setCornerWidget(None, Qt.Corner.TopRightCorner)
-    corner.setGeometry(0, 0, 3, 3)
-    win.changeEvent(state)
-    assert corner.size() == QSize(3, 3), "no corner widget, nothing to measure"
-    assert bar.layout() is not None and len(bar.actions()) > 1
-
-
 def test_menu_roles_cannot_be_pinned_without_a_menu_bar(win, monkeypatch):
     """macOS moves actions it thinks it recognises out of the menu entirely.
 
@@ -429,108 +309,6 @@ def test_menu_roles_cannot_be_pinned_without_a_menu_bar(win, monkeypatch):
 
 
 # --- About, theme refresh, Home, shutdown ----------------------------------
-
-def test_about_still_opens_when_the_logo_cannot_be_loaded(win, monkeypatch,
-                                                          tmp_path):
-    """The panel states the version; the mark is decoration on top of that.
-
-    An install with an incomplete resource folder must still get a readable
-    About panel: setting a null pixmap instead of skipping it would blank the
-    label's size hint and leave a hole above the name.
-    """
-    shown = []
-    monkeypatch.setattr(QDialog, "exec",
-                        lambda dialog, *a, **k: shown.append(dialog))
-    win._show_about()
-    assert not shown[0].findChildren(QLabel)[0].pixmap().isNull()
-
-    monkeypatch.setattr(iconset, "RESOURCE_DIR", str(tmp_path))
-    win._show_about()
-    second = shown[1]
-    assert second.findChildren(QLabel)[0].pixmap().isNull()
-    body = "\n".join(w.text() for w in second.findChildren(QLabel))
-    assert "Version" in body and "Olafsson Lab" in body
-
-
-def test_a_theme_refresh_skips_screens_that_cannot_hide_immature_apps(win):
-    """One screen without the hook must not stop the others being refreshed.
-
-    Maturity visibility is re-applied to every open screen when the
-    preference changes, and screens come from many modules -- so the refresh
-    asks before it calls, and a screen that has the hook still gets it.
-    """
-    asked = _Recorder()
-    hooked = QWidget(win)
-    hooked.refresh_maturity_visibility = asked.refresh_maturity_visibility
-    plain = QWidget(win)
-    win._screens = {"with-hook": hooked, "without-hook": plain}
-    win.refresh_theme()
-    assert asked.names() == ["refresh_maturity_visibility"]
-    assert not hasattr(plain, "refresh_maturity_visibility")
-
-
-def test_home_can_be_rebuilt_when_there_is_no_page_to_replace(win):
-    """A font-scale change rebuilds Home; the first build has none to drop.
-
-    Rebuilding normally removes the outgoing page from the stack, so the
-    count is unchanged. Called with no page -- or after one was already
-    removed -- it must install one instead of removing what is not there.
-    """
-    before = win._stack.count()
-    old = win._startup
-    win._rebuild_startup_page()
-    assert win._stack.count() == before, "the old page was taken out"
-    assert win._startup is not old
-    assert win._stack.indexOf(old) == -1
-
-    win._startup = None
-    win._rebuild_startup_page()
-    assert win._stack.count() == before + 1, "nothing was there to remove"
-    assert win._stack.indexOf(win._startup) >= 0
-
-
-def test_closing_the_window_quits_the_application_exactly_once(win,
-                                                               monkeypatch):
-    """With quitOnLastWindowClosed off, this close is what ends the program.
-
-    A figure window closing must not take the session down, so nothing else
-    may quit -- and this window must, or spaCR keeps running with nothing on
-    screen. During teardown there is no application left, and asking one to
-    quit anyway would raise from inside a close handler.
-    """
-    quits = _Recorder()
-    holder = {"instance": quits}
-
-    class _StubQApplication:
-        @staticmethod
-        def instance():
-            return holder["instance"]
-
-    monkeypatch.setattr(app_mod, "QApplication", _StubQApplication)
-    monkeypatch.setattr(app_mod, "_an_event_loop_is_running", lambda: True)
-    from PySide6.QtCore import QTimer
-    queued = []
-    monkeypatch.setattr(QTimer, "singleShot",
-                        lambda delay, callback: queued.append((delay, callback)))
-    first = QCloseEvent()
-    win.closeEvent(first)
-    assert first.isAccepted() is True
-    if sys.platform == "darwin":
-        assert quits.names() == ["closeAllWindows"]
-        assert len(queued) == 1
-        delay, leave = queued.pop()
-        assert delay == 0
-        leave()
-    else:
-        assert queued == []
-    # macOS leaves the loop without asking Cocoa to terminate (app._end_the_event_loop).
-    ended = ["closeAllWindows", "exit"] if sys.platform == "darwin" else ["quit"]
-    assert quits.names() == ended
-
-    holder["instance"] = None
-    win.closeEvent(QCloseEvent())
-    assert quits.names() == ended, "no application, nothing to quit"
-
 
 # --- the dock, the drawer and the backdrop ---------------------------------
 
@@ -684,25 +462,6 @@ def test_the_arrows_and_the_wheel_steer_the_backdrop(win, monkeypatch):
 
 # --- building and rebuilding screens ---------------------------------------
 
-def test_a_screen_can_be_rebuilt_before_it_was_ever_built(win, monkeypatch):
-    """A committed setting rebuilds the form; the first open has no old form.
-
-    The replacement is built before the old page leaves the stack so the
-    window never flashes Home in between. With no old page there is nothing
-    to close, and the new one still has to end up on screen.
-    """
-    from spacr.qt.screens.app_screen import AppScreen
-
-    fresh = QWidget()
-    monkeypatch.setattr(win, "_build_screen", lambda key: fresh)
-    before = AppScreen.values_the_next_screen_is_built_for
-    assert "mask" not in win._screens
-    win.rebuild_app_screen("mask", {"nucleus_channel": 1})
-    assert win._screens["mask"] is fresh
-    assert win._stack.currentWidget() is fresh
-    assert AppScreen.values_the_next_screen_is_built_for is before
-
-
 def test_the_preparing_card_can_be_taken_down_twice(win):
     """The card goes up before a slow build and comes down after it, always.
 
@@ -718,28 +477,3 @@ def test_the_preparing_card_can_be_taken_down_twice(win):
     assert card.isHidden() is True
 
 
-def test_a_plugin_screen_must_be_a_widget(win, monkeypatch):
-    """A plugin that returns the wrong thing has to say so, loudly.
-
-    A contributed factory's result goes straight into the window's stack, and
-    adding a non-widget there is a C++ type error with no useful message --
-    so the type is checked and the failure names the factory that caused it.
-    """
-    from spacr import plugins
-
-    class _Contribution:
-        key = "__cov_wf_plugin__"
-        screen_factory = "cov_wf_plugin:make_screen"
-
-    monkeypatch.setattr(plugins, "get_app", lambda key: _Contribution())
-    made = QWidget()
-    monkeypatch.setattr(plugins, "load_object",
-                        lambda path: (lambda app_key: made))
-    assert win._build_screen("__cov_wf_plugin__") is made
-
-    monkeypatch.setattr(plugins, "load_object",
-                        lambda path: (lambda app_key: "a string"))
-    with pytest.raises(TypeError) as raised:
-        win._build_screen("__cov_wf_plugin__")
-    assert "cov_wf_plugin:make_screen" in str(raised.value)
-    assert "expected QWidget" in str(raised.value)

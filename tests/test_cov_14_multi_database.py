@@ -20,14 +20,14 @@ import pytest
 from spacr import multi_database
 
 
-def test_a_path_with_no_named_ancestor_has_no_source_label():
-    """A file at the filesystem root has no folder to be named after."""
-    assert multi_database._meaningful_parent("/measurements.db") == ""
-
-
-def test_a_path_of_only_generic_folders_has_no_source_label():
-    """Climbing off the top of a relative path ends with no label."""
-    assert multi_database._meaningful_parent("data/measurements.db") == ""
+@pytest.mark.parametrize("path, label", [
+    pytest.param("/measurements.db", "", id="at-the-filesystem-root-has-no-folder-to-be-named-after"),
+    pytest.param("data/measurements.db", "", id="only-generic-folders-ends-with-no-label"),
+    pytest.param("/screen/plate1/measurements/measurements.db", "plate1",
+                 id="the-plate-folder-above-measurements-names-the-source"),
+])
+def test_the_source_label_is_the_nearest_named_folder(path, label):
+    assert multi_database._meaningful_parent(path) == label
 
 
 def test_the_climb_stops_when_the_parent_stops_shrinking(monkeypatch):
@@ -45,12 +45,6 @@ def test_the_climb_stops_when_the_parent_stops_shrinking(monkeypatch):
     monkeypatch.setattr(os.path, "dirname", _stuck_at_the_root)
 
     assert multi_database._meaningful_parent("data/measurements.db") == ""
-
-
-def test_a_named_plate_folder_is_the_source_label():
-    """The plate folder above ``measurements/`` is what names the source."""
-    assert multi_database._meaningful_parent(
-        "/screen/plate1/measurements/measurements.db") == "plate1"
 
 
 def _database(tmp_path, declarations):
