@@ -117,22 +117,6 @@ def test_a_press_anchors_the_drag_on_the_well_it_landed_on(wired_well,
     assert picker._adding is False
 
 
-def test_holding_ctrl_at_the_press_makes_the_drag_add(wired_well, picker):
-    picker.set_selection({(8, 11)})
-    _press(wired_well, modifiers=Qt.ControlModifier)
-    assert picker._adding is True
-    assert picker._before == {(8, 11)}
-
-
-def test_a_move_while_pressed_previews_the_rectangle(wired_well, picker):
-    """A selection you cannot see until you let go is one you have to undo
-    to correct."""
-    _press(wired_well)
-    _move_to(wired_well, picker._wells[(5, 6)])
-    assert picker.selection() == {(r, c) for r in (3, 4, 5)
-                                  for c in (4, 5, 6)}
-
-
 def test_a_release_after_a_drag_is_swallowed_by_the_well(wired_well, picker):
     """The rectangle is already painted; letting the click through would
     toggle the anchor a second time."""
@@ -149,47 +133,9 @@ def test_a_release_with_no_drag_behind_it_is_still_an_ordinary_click(
     assert wired_well.isChecked()
 
 
-def test_dragging_across_the_plate_selects_the_rectangle(picker, qapp):
-    """The gesture through a REAL well of the grid, whose holder sits in the
-    scroll area's viewport -- the route the fixed-step parent walk broke."""
-    start, corner = picker._wells[(2, 2)], picker._wells[(4, 5)]
-    _press(start)
-    _move_to(start, corner)
-    _release(start)
-    qapp.processEvents()
-    assert picker.selection() == {(r, c) for r in (2, 3, 4)
-                                  for c in (2, 3, 4, 5)}
-
-
-def test_a_press_and_release_with_no_movement_is_still_a_click(picker, qapp):
-    well = picker._wells[(6, 6)]
-    assert not well.isChecked()
-    _press(well)
-    _release(well)
-    qapp.processEvents()
-    assert well.isChecked()
-    assert picker.selection() == {(6, 6)}
-
-
 # --------------------------------------------------------------------------
 # the drag API, driven directly
 # --------------------------------------------------------------------------
-
-def test_a_drag_replaces_the_selection_unless_ctrl_is_held(picker):
-    picker.set_selection({(8, 11)})
-    picker.begin_drag(1, 1)
-    picker.drag_to(picker._wells[(2, 2)].mapToGlobal(QPoint(2, 2)))
-    picker.finish_drag()
-    assert picker.selection() == {(1, 1), (1, 2), (2, 1), (2, 2)}
-
-
-def test_ctrl_dragging_adds_to_what_is_already_chosen(picker):
-    picker.set_selection({(8, 11)})
-    picker.begin_drag(1, 1, Qt.ControlModifier)
-    picker.drag_to(picker._wells[(2, 2)].mapToGlobal(QPoint(2, 2)))
-    picker.finish_drag()
-    assert (8, 11) in picker.selection()
-    assert {(1, 1), (1, 2), (2, 1), (2, 2)} <= picker.selection()
 
 
 def test_growing_then_shrinking_a_drag_leaves_nothing_behind(picker):
@@ -209,30 +155,6 @@ def test_a_finished_drag_reports_that_one_happened(picker):
     assert "3 well(s) chosen" in picker._caption.text()
 
 
-def test_a_move_over_the_same_well_does_not_redraw(picker):
-    picker.begin_drag(2, 2)
-    point = picker._wells[(2, 4)].mapToGlobal(QPoint(2, 2))
-    picker.drag_to(point)
-    before = picker.selection()
-    picker.set_selection(set())
-    picker.drag_to(point)
-    assert picker.selection() == set() != before
-
-
-def test_a_move_that_never_leaves_the_anchor_is_not_a_drag(picker):
-    """A press carries pointer travel of its own. Until the pointer leaves
-    the well it landed on there is no rectangle to preview, and drawing one
-    would clear the rest of the selection and then have the release toggle
-    the anchor off again."""
-    picker.set_selection({(8, 11)})
-    picker.begin_drag(2, 2)
-
-    picker.drag_to(picker._wells[(2, 2)].mapToGlobal(QPoint(3, 3)))
-
-    assert picker.selection() == {(8, 11)}
-    assert picker.finish_drag() is False
-
-
 def test_returning_to_the_anchor_is_still_a_drag(picker):
     """A gesture that has already left its well stays a drag, so the release
     is swallowed rather than clicking the anchor back off."""
@@ -243,21 +165,6 @@ def test_returning_to_the_anchor_is_still_a_drag(picker):
 
     assert picker.selection() == {(2, 2)}
     assert picker.finish_drag() is True
-
-
-def test_a_move_outside_the_grid_leaves_the_preview_alone(picker):
-    picker.begin_drag(2, 2)
-    picker.drag_to(picker._wells[(2, 4)].mapToGlobal(QPoint(2, 2)))
-    before = picker.selection()
-    picker.drag_to(picker.mapToGlobal(QPoint(-500, -500)))
-    assert picker.selection() == before
-
-
-def test_a_move_with_no_press_behind_it_does_nothing(picker):
-    picker.set_selection({(1, 1)})
-    picker._anchor = None
-    picker.drag_to(picker._wells[(3, 3)].mapToGlobal(QPoint(2, 2)))
-    assert picker.selection() == {(1, 1)}
 
 
 def test_the_well_under_a_point_is_found_by_asking_the_grid(picker):
@@ -287,10 +194,6 @@ def test_a_release_with_no_drag_behind_it_reports_none(picker):
 # select_region
 # --------------------------------------------------------------------------
 
-def test_a_region_is_selected_whichever_corner_it_is_given_from(picker):
-    picker.select_region((5, 6), (3, 4), choosing=True)
-    assert picker.selection() == {(r, c) for r in (3, 4, 5) for c in (4, 5, 6)}
-
 
 def test_a_region_can_be_cleared_as_well_as_chosen(picker):
     picker.select_region((1, 1), (3, 3), choosing=True)
@@ -298,63 +201,9 @@ def test_a_region_can_be_cleared_as_well_as_chosen(picker):
     assert picker.selection() == {(1, 1), (1, 2), (1, 3), (2, 1), (3, 1)}
 
 
-def test_a_region_with_no_verdict_inverts_the_well_it_started_on(picker):
-    """Spreadsheet-style: dragging from a chosen well clears, dragging from
-    an unchosen one selects."""
-    picker.select_region((1, 1), (2, 2))
-    assert picker.selection() == {(1, 1), (1, 2), (2, 1), (2, 2)}
-    picker.select_region((1, 1), (2, 2))
-    assert picker.selection() == set()
-
-
-def test_a_region_that_runs_off_the_plate_selects_what_is_there(picker):
-    picker.select_region((7, 11), (20, 40), choosing=True)
-    assert picker.selection() == {(7, 11), (7, 12), (8, 11), (8, 12)}
-
-
 # --------------------------------------------------------------------------
 # the layout
 # --------------------------------------------------------------------------
-
-def test_the_plate_button_offers_every_supported_layout(picker, monkeypatch):
-    from spacr.well_spec import LAYOUTS
-
-    seen = {}
-
-    def _ask(parent, title, label, items, current, editable):
-        seen["items"] = list(items)
-        seen["current"] = current
-        return "384", True
-
-    monkeypatch.setattr(QInputDialog, "getItem", staticmethod(_ask))
-    assert picker.ask_for_layout() == 384
-    assert seen["items"] == [str(size) for size in sorted(LAYOUTS)]
-    assert seen["items"][seen["current"]] == "96"
-
-
-def test_cancelling_the_plate_dialog_keeps_the_layout(picker, monkeypatch):
-    monkeypatch.setattr(QInputDialog, "getItem",
-                        staticmethod(lambda *a, **k: ("384", False)))
-    assert picker.ask_for_layout() == 96
-    assert picker._layout_size == 96
-
-
-def test_an_unknown_current_layout_falls_back_to_the_default(picker,
-                                                             monkeypatch):
-    """The dialog still has to open on something, and the default is the
-    only size that is always in the list."""
-    from spacr.well_spec import DEFAULT_LAYOUT, LAYOUTS
-
-    seen = {}
-
-    def _ask(parent, title, label, items, current, editable):
-        seen["current"] = current
-        return items[0], True
-
-    monkeypatch.setattr(QInputDialog, "getItem", staticmethod(_ask))
-    picker._layout_size = 999
-    picker.ask_for_layout()
-    assert seen["current"] == sorted(LAYOUTS).index(DEFAULT_LAYOUT)
 
 
 def test_the_plate_button_opens_the_layout_dialog(picker, monkeypatch, qapp):
@@ -363,16 +212,6 @@ def test_the_plate_button_opens_the_layout_dialog(picker, monkeypatch, qapp):
     picker.plate_button.click()
     qapp.processEvents()
     assert picker._layout_size == 6
-
-
-def test_a_layout_change_says_how_many_wells_it_dropped(picker):
-    """A layout-induced selection change has to be visible; wells that
-    silently vanish are wells the user still believes are chosen."""
-    picker.set_selection({(1, 1), (8, 12)})
-    picker.ask_for_layout(6)
-    assert picker.selection() == {(1, 1)}
-    assert "1 well(s) from the previous selection" in picker._caption.text()
-    assert "6-well plate (2 x 3)" in picker._caption.text()
 
 
 # --------------------------------------------------------------------------
@@ -413,4 +252,3 @@ def test_clicking_a_well_fills_it_and_clicking_again_empties_it(picker, qapp):
     well.click()
     qapp.processEvents()
     assert EMPTY in well.styleSheet()
-

@@ -1,0 +1,5 @@
+{
+  "spacr.convert.convert_folder.report": "Print the files finished before this one; the last line follows the run.",
+  "spacr.foreign.import_project.report": "Print the steps finished before this one; the last line follows the run.",
+  "spacr.io._normalizing_reporter.report": "Print the channel ``done`` of ``total`` in batch ``batch_number``."
+}

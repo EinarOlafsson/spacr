@@ -8,6 +8,8 @@ from PySide6.QtWidgets import QComboBox
 
 from spacr.qt import preferences as P
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def store(monkeypatch):
@@ -66,13 +68,8 @@ def test_every_level_explains_its_hardware():
         assert P.PERFORMANCE_LABELS[level]
 
 
-@pytest.mark.parametrize(
-    "legacy_mode,legacy_laptop",
-    list(itertools.product(
-        ("extra_performance", "performance", "balanced", "", "nonsense"),
-        ("on", "off", "automatic", ""))))
-def test_migration_from_every_legacy_pair(store, legacy_mode, legacy_laptop):
-    """"migration tests cover every legacy mode crossed with on/off/automatic"."""
+def _migration_from_every_legacy_pair_case(store, legacy_mode, legacy_laptop):
+    """One case of :func:`test_migration_from_every_legacy_pair`."""
     if legacy_mode:
         store[P._KEY_SPACR_MODE] = legacy_mode
     if legacy_laptop:
@@ -91,6 +88,18 @@ def test_migration_from_every_legacy_pair(store, legacy_mode, legacy_laptop):
     # Idempotent: a second read does not migrate again or drift.
     assert P.get_performance_level() == level
     assert P.get_performance_level() == level
+
+
+def test_migration_from_every_legacy_pair(subtests, request):
+    """"migration tests cover every legacy mode crossed with on/off/automatic"."""
+    for label, case in locale_cases.cases(
+            ("legacy_mode,legacy_laptop", list(itertools.product(
+        ("extra_performance", "performance", "balanced", "", "nonsense"),
+        ("on", "off", "automatic", "")))),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('store',)) as fixtures:
+                _migration_from_every_legacy_pair_case(**fixtures, **case)
 
 
 def test_migration_is_durable(store):

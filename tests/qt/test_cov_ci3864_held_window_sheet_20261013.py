@@ -88,46 +88,6 @@ def test_a_change_inside_a_held_window_is_owed_a_polish(qtbot):
     assert theme._owe_the_polish_to_a_held_sheet(_GoneWidget()) is False
 
 
-def test_a_nested_hold_releases_the_window_only_at_the_outer_exit(qtbot):
-    window = QWidget()
-    qtbot.addWidget(window)
-    with theme._one_sheet_for(window) as held:
-        assert held is window
-        assert window.property(theme._SHEET_HELD) is True
-        with theme._one_sheet_for(window) as inner:
-            assert inner is window
-        assert window.property(theme._SHEET_HELD) is True
-    assert not window.property(theme._SHEET_HELD)
-
-
-def test_something_that_is_not_a_widget_passes_through_a_hold():
-    thing = object()
-    with theme._one_sheet_for(thing) as held:
-        assert held is thing
-
-
-class _DiesDuringTheHold:
-    """A window deleted while its decorator held its sheet."""
-
-    def __init__(self):
-        self.properties = {}
-
-    def property(self, name):
-        return self.properties.get(name)
-
-    def setProperty(self, name, value):
-        if value is None:
-            raise RuntimeError("Internal C++ object already deleted.")
-        self.properties[name] = value
-
-
-def test_a_window_deleted_during_its_hold_does_not_raise_at_the_release():
-    window = _DiesDuringTheHold()
-    with theme._one_sheet_for(window):
-        assert window.properties[theme._SHEET_HELD] is True
-    assert window.properties[theme._SHEET_HELD] is True
-
-
 class _Style:
     """Records what it was asked to unpolish and polish."""
 

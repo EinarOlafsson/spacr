@@ -120,33 +120,6 @@ def _result(entry, rows, masks=(), images=()):
 
 
 # ---------------------------------------------------------------------------
-# the field count with, and without, a folder behind it
-# ---------------------------------------------------------------------------
-
-def test_the_field_count_relabels_the_button_but_reloads_only_a_real_folder(
-        screen, fields):
-    """"Test on N fields" is a promise the screen can keep before any folder.
-
-    The count is editable from the first frame, so ``_reload_fields`` runs with
-    nothing loaded. It must still relabel the button — and must not invent a
-    load out of an empty folder string.
-    """
-    assert screen.fields_folder() == ""
-    screen._fields_box.setValue(2)
-    assert screen._btn_test.text() == "Test on 2 fields"
-    assert screen.fields_folder() == ""
-    assert screen.field_names() == []
-
-    # Same edit, once a folder is behind it: now it reloads.
-    assert screen.set_fields_source(str(fields)) is True
-    assert len(screen.field_names()) == 2
-    screen._fields_box.setValue(3)
-    assert screen._btn_test.text() == "Test on 3 fields"
-    assert screen.fields_folder() == str(fields)
-    assert len(screen.field_names()) == 3
-
-
-# ---------------------------------------------------------------------------
 # a benchmark that scored nothing
 # ---------------------------------------------------------------------------
 

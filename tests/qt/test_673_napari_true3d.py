@@ -27,6 +27,8 @@ from spacr.qt import mask_engine as engine
 from spacr.qt.screens import make_masks as mm
 from spacr.qt.screens.make_masks import MakeMasksScreen
 
+from tests import locale_cases
+
 WAIT = 60000
 
 
@@ -223,11 +225,8 @@ def test_volume_image_fastpath_matches_image_and_complete_figure(shape, offset):
     assert np.array_equal(pixels, np.asarray(canvas.buffer_rgba()))
 
 
-@pytest.mark.parametrize('kind', ['none', 'nonarray', 'ndim', 'masked', 'rgba', 'float',
-                                'nonaffine', 'transform', 'magnification', 'unsampled',
-                                'renderer', 'dpi', 'clip', 'path', 'alpha', 'origin',
-                                'fractional', 'outside', 'filter', 'effects'])
-def test_volume_image_unsupported_inputs_preserve_original(kind):
+def _volume_image_unsupported_inputs_preserve_original_case(kind):
+    """One case of :func:`test_volume_image_unsupported_inputs_preserve_original`."""
     from matplotlib.backends.backend_agg import FigureCanvasAgg, RendererAgg
     from matplotlib.figure import Figure
     from matplotlib.patches import Circle
@@ -274,6 +273,18 @@ def test_volume_image_unsupported_inputs_preserve_original(kind):
     assert mm._VolumeStage._make_volume_image(None, artist, original, renderer,
                                               magnification, unsampled) is sentinel
     assert calls == [(renderer, magnification, unsampled)]
+
+
+def test_volume_image_unsupported_inputs_preserve_original(subtests, request):
+    for label, case in locale_cases.cases(
+            ('kind', ['none', 'nonarray', 'ndim', 'masked', 'rgba', 'float',
+                                'nonaffine', 'transform', 'magnification', 'unsampled',
+                                'renderer', 'dpi', 'clip', 'path', 'alpha', 'origin',
+                                'fractional', 'outside', 'filter', 'effects']),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _volume_image_unsupported_inputs_preserve_original_case(**fixtures, **case)
 
 
 def test_a_camera_draw_consumes_volume_pixels_for_the_axes_pose_it_composes(view, monkeypatch):

@@ -33,6 +33,8 @@ from spacr.qt.widgets.ambient import (AMBIENT_THEMES, AmbientWidget,
                                       palette_label, palette_note,
                                       palettes_for, theme_label, theme_note)
 
+from tests import locale_cases
+
 DT = 1.0 / 24.0
 DARK = "#101418"
 LIGHT = "#f6f7f9"
@@ -660,22 +662,8 @@ def test_the_buffer_is_reallocated_only_when_the_canvas_changes():
     assert engine._buffer is second
 
 
-@pytest.mark.parametrize("size", [(1, 1), (3, 400), (1920, 1080), (0, 0)])
-@pytest.mark.parametrize("theme", RENDERED_THEMES)
-def test_absurd_canvases_still_paint_without_raising(theme, size):
-    """A degenerate canvas is survivable, and survivable means two things.
-
-    "Does not raise" was the whole test, which cannot fail on anything an
-    engine does short of an exception — including painting outside the rect it
-    was given, or leaving itself in a state where the next frame is blank. Both
-    are asserted now:
-
-    * a zero-width or zero-height request paints NOTHING (the sentinel fill is
-      still intact everywhere), rather than spilling over the 1x1 image the
-      caller had to allocate to hold it;
-    * whatever the absurd size did, the engine still renders a normal frame
-      afterwards — the property that actually matters to a resizing window.
-    """
+def _absurd_canvases_still_paint_without_raising_case(theme, size):
+    """One case of :func:`test_absurd_canvases_still_paint_without_raising`."""
     sentinel = QColor("#ff00ff")
     engine = make_engine(theme, "spacr", DARK, seed=2)
     engine.set_time(9.0)
@@ -702,6 +690,29 @@ def test_absurd_canvases_still_paint_without_raising(theme, size):
     painter.end()
     assert _touched(after), (
         f"{theme} stopped painting after a {size} canvas")
+
+
+def test_absurd_canvases_still_paint_without_raising(subtests, request):
+    """A degenerate canvas is survivable, and survivable means two things.
+
+    "Does not raise" was the whole test, which cannot fail on anything an
+    engine does short of an exception — including painting outside the rect it
+    was given, or leaving itself in a state where the next frame is blank. Both
+    are asserted now:
+
+    * a zero-width or zero-height request paints NOTHING (the sentinel fill is
+      still intact everywhere), rather than spilling over the 1x1 image the
+      caller had to allocate to hold it;
+    * whatever the absurd size did, the engine still renders a normal frame
+      afterwards — the property that actually matters to a resizing window.
+    """
+    for label, case in locale_cases.cases(
+            ("size", [(1, 1), (3, 400), (1920, 1080), (0, 0)]),
+            ("theme", RENDERED_THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _absurd_canvases_still_paint_without_raising_case(**fixtures, **case)
 
 
 def test_a_half_written_engine_fails_loudly_rather_than_painting_nothing():

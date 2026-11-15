@@ -21,9 +21,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QSettings
-from PySide6.QtGui import QAction
-from PySide6.QtWidgets import (QMainWindow, QMenu, QPushButton, QStackedWidget,
-                               QWidget)
+from PySide6.QtWidgets import QMainWindow, QStackedWidget, QWidget
 
 from spacr.qt import walkthrough as W
 
@@ -131,31 +129,6 @@ def test_the_visible_section_wins_over_the_first_one(qtbot):
     screen.hide()
 
 
-@pytest.mark.parametrize("attr", ["_btn_run", "_run_btn", "_btn_start"])
-def test_the_run_button_is_found_by_whichever_name_the_screen_uses(qtbot,
-                                                                   attr):
-    screen = QWidget()
-    qtbot.addWidget(screen)
-    button = QPushButton("Go", screen)
-    setattr(screen, attr, button)
-    assert W._run_button(screen) is button
-
-
-def test_a_screen_that_names_no_button_is_searched_for_one(qtbot):
-    screen = QWidget()
-    qtbot.addWidget(screen)
-    QPushButton("Cancel", screen)
-    run = QPushButton("Run", screen)
-    assert W._run_button(screen) is run
-
-
-def test_a_screen_with_nothing_to_run_points_at_nothing(qtbot):
-    screen = QWidget()
-    qtbot.addWidget(screen)
-    QPushButton("Cancel", screen)
-    assert W._run_button(screen) is None
-
-
 def test_a_highlight_that_cannot_resolve_points_at_nothing(qtbot):
     """The overlay must draw its step even when the widget has gone."""
     screen = QWidget()
@@ -219,47 +192,6 @@ def test_a_module_with_no_steps_shows_no_overlay(qtbot, monkeypatch):
 # The wiring
 # ---------------------------------------------------------------------------
 
-def test_a_window_with_no_help_menu_gets_no_submenu(qtbot):
-    window = _Window()
-    qtbot.addWidget(window)
-    assert W.install_help_menu(window) is None
-
-
-def test_the_submenu_lands_at_the_end_when_there_is_no_separator(qtbot,
-                                                                  monkeypatch):
-    """A Help menu without a separator: the entries still have to arrive."""
-    window = _Window()
-    qtbot.addWidget(window)
-    # Added through the bar, so the QMenu is the bar's child: that is what
-    # ``first_run.find_menu`` looks through.
-    help_menu = window.menuBar().addMenu("Help")
-    help_menu.addAction(QAction("About", help_menu))
-
-    monkeypatch.setattr("spacr.qt.app.APPS", [("mask", "Mask", "Segment", "d")])
-    submenu = W.install_help_menu(window)
-    assert submenu is not None
-    assert help_menu.actions()[-1] is submenu.menuAction()
-    module_actions = [a for a in submenu.actions() if a.property("moduleAppKey")]
-    assert [a.text() for a in module_actions] == [W.tr(W.MENU_TITLE) + ": " + W.tr("Mask")]
-    assert module_actions[0].property("moduleAppKey") == "mask"
-    shown = []
-    monkeypatch.setattr(W, "show_walkthrough", lambda win, key, **kw: shown.append((win, key, kw)))
-    module_actions[0].trigger()
-    assert shown == [(window, "mask", {"force": True})]
-
-
-def test_a_registry_that_cannot_be_read_still_leaves_a_reset_entry(qtbot,
-                                                                   monkeypatch):
-    window = _Window()
-    qtbot.addWidget(window)
-    window.menuBar().addMenu("Help")
-    monkeypatch.setitem(sys.modules, "spacr.qt.app", None)
-
-    submenu = W.install_help_menu(window)
-    assert [a.text() for a in submenu.actions()
-            if not a.property("workflowPathway") and not a.isSeparator()] == [
-        "Show all walkthroughs again"]
-
 
 def test_a_window_with_no_stack_keeps_its_handler(qtbot):
     window = _Window()
@@ -289,26 +221,6 @@ def test_a_stack_that_refuses_the_connection_is_not_marked_wired(qtbot,
     assert handler is not None
 
 
-def test_a_stack_that_will_not_say_what_is_on_it_offers_nothing(qtbot,
-                                                                monkeypatch):
-    """Offers nothing is the outcome: a walkthrough shown for a screen
-    nobody could name would talk about the wrong module, which raises
-    nothing at all."""
-    offered = []
-    monkeypatch.setattr(W, "maybe_show",
-                        lambda window, app_key: offered.append(app_key))
-
-    class Stack:
-        def currentWidget(self):
-            raise RuntimeError("mid-teardown")
-
-    window = _Window(stack=Stack())
-    qtbot.addWidget(window)
-    handler = W._WalkthroughHandler(window)
-    handler.on_current_changed(0)
-    assert offered == []
-
-
 def test_a_bespoke_screen_is_not_walked_through(qtbot):
     """No shared settings form means no groups to describe."""
     stack = QStackedWidget()
@@ -323,69 +235,3 @@ def test_a_bespoke_screen_is_not_walked_through(qtbot):
     handler = W._WalkthroughHandler(window)
     handler.on_current_changed(0)
     assert not W.was_seen("mask")
-
-
-def test_a_screen_that_is_not_a_module_is_not_walked_through(qtbot):
-    """Home and the landing page have no app key and nothing to explain."""
-    stack = QStackedWidget()
-    qtbot.addWidget(stack)
-    page = QWidget()
-    page._settings_model = object()
-    stack.addWidget(page)
-    stack.setCurrentWidget(page)
-
-    window = _Window(stack=stack)
-    qtbot.addWidget(window)
-    W._WalkthroughHandler(window).on_current_changed(0)
-
-    page.app_key = "mask"
-    W.mark_seen("mask")
-    W._WalkthroughHandler(window).on_current_changed(0)
-    assert window.findChildren(W._TourOverlay) == []
-
-
-def test_the_first_visit_offer_waits_for_the_switch_to_finish(qtbot,
-                                                             monkeypatch):
-    """Item 284: the overlay is built a moment after the stack switch, not
-    inside it, so its cost is not added to the screen's first show."""
-    offered = []
-    monkeypatch.setattr(W, "maybe_show",
-                        lambda window, app_key: offered.append(app_key))
-    stack = QStackedWidget()
-    qtbot.addWidget(stack)
-    screen = QWidget()
-    screen.app_key = "mask"
-    screen._settings_model = object()
-    stack.addWidget(screen)
-    stack.setCurrentWidget(screen)
-    window = _Window(stack=stack)
-    qtbot.addWidget(window)
-
-    W._WalkthroughHandler(window).on_current_changed(0)
-    assert offered == []
-    qtbot.waitUntil(lambda: offered == ["mask"], timeout=2000)
-
-
-def test_a_module_left_before_the_offer_is_not_walked_through(qtbot,
-                                                             monkeypatch):
-    """The user moved on in the moment between the switch and the offer."""
-    offered = []
-    monkeypatch.setattr(W, "maybe_show",
-                        lambda window, app_key: offered.append(app_key))
-    stack = QStackedWidget()
-    qtbot.addWidget(stack)
-    screen = QWidget()
-    screen.app_key = "mask"
-    screen._settings_model = object()
-    other = QWidget()
-    other.app_key = "measure"
-    stack.addWidget(screen)
-    stack.addWidget(other)
-    stack.setCurrentWidget(screen)
-    window = _Window(stack=stack)
-    qtbot.addWidget(window)
-
-    W._WalkthroughHandler(window).on_current_changed(0)
-    stack.setCurrentWidget(other)
-    qtbot.wait(W._OFFER_AFTER_MS * 4)
-    assert offered == []

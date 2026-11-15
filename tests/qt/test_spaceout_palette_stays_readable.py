@@ -26,6 +26,8 @@ import pytest
 
 from spacr.qt import theme
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def dressed():
@@ -45,8 +47,12 @@ def dressed():
 # Readability — the check the colour-blind work used
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("name", theme.THEMES)
-def test_every_dressed_palette_clears_every_contrast_rule(name, dressed):
+def _every_dressed_palette_clears_every_contrast_rule_case(name, dressed):
+    """One case of :func:`test_every_dressed_palette_clears_every_contrast_rule`."""
+    assert theme.contrast_failures(name) == []
+
+
+def test_every_dressed_palette_clears_every_contrast_rule(subtests, request):
     """The requirement, measured rather than asserted about.
 
     :data:`spacr.qt.theme.CONTRAST_RULES` is 33 rules over five page
@@ -54,14 +60,28 @@ def test_every_dressed_palette_clears_every_contrast_rule(name, dressed):
     are judged through their scrim over the brightest thing that theme's
     wallpaper can put behind them. All of it, in the rainbow.
     """
-    assert theme.contrast_failures(name) == []
+    for label, case in locale_cases.cases(
+            ("name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('dressed',)) as fixtures:
+                _every_dressed_palette_clears_every_contrast_rule_case(**fixtures, **case)
 
 
-@pytest.mark.parametrize("name", theme.THEMES)
-def test_the_panels_still_separate_from_the_page(name, dressed):
+def _the_panels_still_separate_from_the_page_case(name, dressed):
+    """One case of :func:`test_the_panels_still_separate_from_the_page`."""
+    assert theme.page_separation_failures(name) == []
+
+
+def test_the_panels_still_separate_from_the_page(subtests, request):
     """The other legibility question: not "can you read it" but "can you see
     it". Judged in CIE L*, at full opacity and at 60 %."""
-    assert theme.page_separation_failures(name) == []
+    for label, case in locale_cases.cases(
+            ("name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('dressed',)) as fixtures:
+                _the_panels_still_separate_from_the_page_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize("name", theme.IMAGE_THEMES)
@@ -114,8 +134,30 @@ def test_the_scrims_are_re_solved_and_that_is_what_makes_the_last_one_pass():
 # Why it passes: hue moves, luminance does not
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("name", theme.THEMES)
-def test_every_surface_keeps_the_luminance_it_had(name):
+def _every_surface_keeps_the_luminance_it_had_case(name):
+    """One case of :func:`test_every_surface_keeps_the_luminance_it_had`."""
+    was = theme.spaceout_enabled()
+    theme.disable_spaceout()
+    plain = theme.palette_for(name)
+    theme.enable_spaceout()
+    try:
+        rainbow = theme.palette_for(name)
+        assert set(rainbow) == set(plain), "the dressing changed the keys"
+        drift = {
+            role: abs(theme.relative_luminance(rainbow[role])
+                      - theme.relative_luminance(plain[role]))
+            for role in plain
+            if role not in theme.SPACEOUT_INK_ROLES
+            and role not in theme._splash_roles(plain)
+        }
+    finally:
+        if not was:
+            theme.disable_spaceout()
+    worst = max(drift, key=drift.get)
+    assert drift[worst] < 0.006, f"{worst} moved by {drift[worst]:.4f}"
+
+
+def test_every_surface_keeps_the_luminance_it_had(subtests, request):
     """The identity the whole design rests on.
 
     Exact in the reals; on screen it is bounded by 8-bit rounding, which
@@ -139,36 +181,32 @@ def test_every_surface_keeps_the_luminance_it_had(name):
     :func:`spacr.qt.theme.splash_dim_alpha` rather than inherited from a
     luminance that did not move.
     """
-    was = theme.spaceout_enabled()
-    theme.disable_spaceout()
-    plain = theme.palette_for(name)
-    theme.enable_spaceout()
-    try:
-        rainbow = theme.palette_for(name)
-        assert set(rainbow) == set(plain), "the dressing changed the keys"
-        drift = {
-            role: abs(theme.relative_luminance(rainbow[role])
-                      - theme.relative_luminance(plain[role]))
-            for role in plain
-            if role not in theme.SPACEOUT_INK_ROLES
-            and role not in theme._splash_roles(plain)
-        }
-    finally:
-        if not was:
-            theme.disable_spaceout()
-    worst = max(drift, key=drift.get)
-    assert drift[worst] < 0.006, f"{worst} moved by {drift[worst]:.4f}"
+    for label, case in locale_cases.cases(
+            ("name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _every_surface_keeps_the_luminance_it_had_case(**fixtures, **case)
 
 
-@pytest.mark.parametrize("name", theme.THEMES)
-def test_the_hue_table_covers_every_role_the_palette_carries(name):
-    """A role nobody re-hued is passed through unchanged, which is safe and
-    is not the intention. This is what makes a new palette role fail loudly
-    here instead of showing up as one grey box in a rainbow."""
+def _the_hue_table_covers_every_role_the_palette_carries_case(name):
+    """One case of :func:`test_the_hue_table_covers_every_role_the_palette_carries`."""
     missing = sorted(set(theme.palette_for(name))
                      - set(theme.SPACEOUT_HUES)
                      - set(theme._splash_roles(theme.palette_for(name))))
     assert missing == [], f"{name} has roles with no spaceout hue: {missing}"
+
+
+def test_the_hue_table_covers_every_role_the_palette_carries(subtests, request):
+    """A role nobody re-hued is passed through unchanged, which is safe and
+    is not the intention. This is what makes a new palette role fail loudly
+    here instead of showing up as one grey box in a rainbow."""
+    for label, case in locale_cases.cases(
+            ("name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _the_hue_table_covers_every_role_the_palette_carries_case(**fixtures, **case)
 
 
 #: The widest arc of the colour wheel the dressed roles may leave empty.

@@ -5153,12 +5153,15 @@ def _save_scimg_plot(src, nr_imgs=16, channel_indices=None, um_per_pixel=0.1, sc
         return fig
 
     fig = _visualize_scimgs(src, channel_indices, um_per_pixel, scale_bar_length_um, show_filename, standardize, nr_imgs, fontsize, channel_names, plot)
-    _save_figure(fig, src, text='all_channels')
+    per_folder = 1 + len(channel_indices)
+    figure_total = all_folders * per_folder
+    figure_offset = (i - 1) * per_folder
+    _save_figure(fig, src, text='all_channels', i=figure_offset + 1, all_folders=figure_total)
 
-    for channel in channel_indices:
+    for figure_number, channel in enumerate(list(channel_indices), start=2):
         channel_indices=[channel]
         fig = _visualize_scimgs(src, channel_indices, um_per_pixel, scale_bar_length_um, show_filename, standardize, nr_imgs, fontsize, channel_names=None, plot=plot)
-        _save_figure(fig, src, text=f'channel_{channel}')
+        _save_figure(fig, src, text=f'channel_{channel}', i=figure_offset + figure_number, all_folders=figure_total)
 
     return
 

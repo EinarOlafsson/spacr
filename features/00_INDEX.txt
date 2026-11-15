@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-745 Lifecycle: new, 175 Lifecycle: future in features/feature_list/.
+746 Lifecycle: new, 177 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -570,6 +570,12 @@ FUTURE FEATURES
 
   941  OPS AND MEASURE PROFILING: GABOR, GRANULARITY AND COLOCALISATION OFF BY DEFAULT
        941_measure_slow_families_off_by_default.txt
+
+  942  OPS DECODE AUTO-TUNING OF SPOT DETECTION AND CALLING TOGETHER, AND A DECOY FDR FOR THE SPACER-PREFIX DECODE
+       942_ops_decode_joint_autotune_decoy_fdr.txt
+
+  945  OPS LARGE SITES: THE WHOLE-SITE CELLPOSE MASK STEP UNDER A VRAM CAP, THROUGH THE GPU GOVERNOR, WITH A CPU FALLBACK
+       945_ops_large_site_mask_step_vram_cap.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -2065,3 +2071,5 @@ NEW FEATURES
        936_align_stitch_shared_core.txt
   938  MODULE PROGRESS BARS SHOW PERCENT DONE AND TIME LEFT, ON THE MODULE AND ON HOME
        938_module_progress_bars_show_percent_and_time_left.txt
+  947  OPS PHENOTYPE FOLDERS THAT HOLD TWO ACQUISITIONS SHARING A CHANNEL
+       947_ops_phenotype_multi_acquisition.txt

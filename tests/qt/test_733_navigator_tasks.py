@@ -10,6 +10,8 @@ from spacr.qt.widgets.home import _EasyHomePage
 from tests.qt.test_733_easy_commands import commands, overview_seed_route
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
+from tests import locale_cases
+
 
 _ITEM = Path(__file__).resolve().parents[2] / 'features/feature_list/733_easy_mode_content_guided_home.txt'
 _PAIRS = [(original, alternate, tuple(keys.split(', ')))
@@ -20,8 +22,8 @@ _ALTERNATES = [(alternate, keys) for _original, alternate, keys in _PAIRS]
 assert len(_CASES) == len(_ALTERNATES) == 100
 
 
-@pytest.mark.parametrize('phrase,expected', _CASES)
-def test_reviewed_tasks_offer_cards_without_opening_modules(commands, qtbot, monkeypatch, phrase, expected):
+def _reviewed_tasks_offer_cards_without_opening_modules_case(commands, qtbot, monkeypatch, phrase, expected):
+    """One case of :func:`test_reviewed_tasks_offer_cards_without_opening_modules`."""
     monkeypatch.setattr(app, 'app_is_visible', lambda key: True)
     page = _EasyHomePage(commands)
     commands.setCentralWidget(page)
@@ -41,6 +43,15 @@ def test_reviewed_tasks_offer_cards_without_opening_modules(commands, qtbot, mon
     assert tuple(card._key for card in page.field.cards) == expected
     assert not commands.opened and not commands.navigated and not emitted
     assert all(not row[0].startswith('__easy_command__:') for row in rows)
+
+
+def test_reviewed_tasks_offer_cards_without_opening_modules(subtests, request):
+    for label, case in locale_cases.cases(
+            ('phrase,expected', _CASES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('commands', 'qtbot', 'monkeypatch')) as fixtures:
+                _reviewed_tasks_offer_cards_without_opening_modules_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize('value', [
@@ -102,11 +113,19 @@ def test_user_supplied_analysis_spellings_offer_image_tools(commands, phrase):
     assert not commands.opened and not commands.navigated
 
 
-@pytest.mark.parametrize('phrase,expected', _ALTERNATES)
-def test_paired_alternate_tasks_offer_cards_without_opening_modules(
-        commands, qtbot, monkeypatch, phrase, expected):
-    test_reviewed_tasks_offer_cards_without_opening_modules(
+def _paired_alternate_tasks_offer_cards_without_opening_modules_case(commands, qtbot, monkeypatch, phrase, expected):
+    """One case of :func:`test_paired_alternate_tasks_offer_cards_without_opening_modules`."""
+    _reviewed_tasks_offer_cards_without_opening_modules_case(
         commands, qtbot, monkeypatch, phrase, expected)
+
+
+def test_paired_alternate_tasks_offer_cards_without_opening_modules(subtests, request):
+    for label, case in locale_cases.cases(
+            ('phrase,expected', _ALTERNATES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('commands', 'qtbot', 'monkeypatch')) as fixtures:
+                _paired_alternate_tasks_offer_cards_without_opening_modules_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize('phrase', [
@@ -115,7 +134,7 @@ def test_paired_alternate_tasks_offer_cards_without_opening_modules(
 ])
 def test_existing_mask_analysis_tasks_offer_native_cards_on_enter(
         commands, qtbot, monkeypatch, phrase):
-    test_reviewed_tasks_offer_cards_without_opening_modules(
+    _reviewed_tasks_offer_cards_without_opening_modules_case(
         commands, qtbot, monkeypatch, phrase, ('measure', 'qc_dashboard', 'make_masks'))
 
 
@@ -125,7 +144,7 @@ def test_existing_mask_analysis_tasks_offer_native_cards_on_enter(
 ])
 def test_feature_detection_tasks_offer_measure_without_launching(
         commands, qtbot, monkeypatch, phrase):
-    test_reviewed_tasks_offer_cards_without_opening_modules(
+    _reviewed_tasks_offer_cards_without_opening_modules_case(
         commands, qtbot, monkeypatch, phrase, ('measure',))
 
 def test_hidden_native_route_keeps_the_current_page_and_reports_the_preference(

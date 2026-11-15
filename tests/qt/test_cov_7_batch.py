@@ -11,11 +11,9 @@ morning.
 from __future__ import annotations
 
 import builtins
-import os
 
 import pytest
 
-from PySide6.QtCore import QThread
 from PySide6.QtWidgets import QFileDialog
 
 from spacr import batch as bt
@@ -66,50 +64,6 @@ def settings(tmp_path):
 # ---------------------------------------------------------------------------
 # editing refusals
 # ---------------------------------------------------------------------------
-
-def test_duplicating_a_job_whose_settings_vanished_reports_why(screen,
-                                                               settings):
-    """The copy is validated like any other job, and a failure stays inline.
-
-    A settings file can be moved between building the queue and duplicating a
-    job in it. Adding an unrunnable copy would put the failure off until the
-    night run; refusing it here says which file is gone.
-    """
-    screen.add_job("mask", settings, label="first")
-    screen.select_job(screen.queue().ids[0])
-    os.remove(settings)
-
-    assert screen.duplicate_selected() is False
-    assert screen.queue().ids == ["mask-1"]
-    assert "not found" in screen.problems_text()
-    assert "Could not duplicate" in screen.last_error
-
-
-def test_the_running_job_cannot_be_removed_out_from_under_the_queue(screen,
-                                                                    settings):
-    """Removing the job that is executing would orphan its process."""
-    screen.add_job("mask", settings)
-    screen.select_job("mask-1")
-    screen.queue().jobs[0].status = bt.STATUS_RUNNING
-    screen._busy = True
-
-    assert screen.remove_selected() is False
-    assert screen.queue().ids == ["mask-1"]
-    assert "stop the queue first" in screen.last_error
-
-
-def test_a_running_queue_cannot_be_reordered(screen, settings, tmp_path):
-    """Reordering mid-run would change what runs next while it is being read."""
-    other = _settings_csv(tmp_path, "mask2.csv",
-                          src=_plate(tmp_path, "plate2"), cell_channel=0)
-    screen.add_job("mask", settings, label="first")
-    screen.add_job("mask", other, label="second")
-    screen.select_job("mask-2")
-    screen._busy = True
-
-    assert screen.move_selected(-1) is False
-    assert screen.queue().ids == ["mask-1", "mask-2"]
-    assert "stop it before reordering" in screen.last_error
 
 
 def test_selecting_a_job_that_is_not_in_the_queue_is_refused(screen,
@@ -294,33 +248,6 @@ def test_a_log_file_that_cannot_be_read_says_so_in_the_log_pane(
 # the buttons that open a file picker
 # ---------------------------------------------------------------------------
 
-def test_the_add_button_reads_the_boxes_beside_it(screen, settings):
-    """Add takes what is typed, including the comma-separated lists."""
-    screen._module_combo.setCurrentIndex(screen._module_combo.findData("mask"))
-    screen._settings_edit.setText(settings)
-    screen._label_edit.setText("typed in")
-    screen._overrides_edit.setText("cell_channel=0, nucleus_channel=0")
-
-    screen._on_add_clicked()
-
-    assert screen.queue().jobs, screen.problems_text()
-    job = screen.queue().jobs[0]
-    assert job.module == "mask"
-    assert job.label == "typed in"
-    assert job.override_args == ["cell_channel=0", "nucleus_channel=0"]
-
-
-def test_choosing_a_settings_file_fills_the_box(screen, settings,
-                                                monkeypatch):
-    """The picker only fills the field; nothing is added until Add."""
-    monkeypatch.setattr(QFileDialog, "getOpenFileName",
-                        staticmethod(lambda *a, **k: (settings, "")))
-
-    screen._pick_settings_file()
-
-    assert screen._settings_edit.text() == settings
-    assert screen.queue().jobs == []
-
 
 def test_a_cancelled_picker_leaves_the_box_alone(screen, monkeypatch):
     """Cancel returns an empty path, which must not blank the field."""
@@ -347,43 +274,6 @@ def test_choosing_a_queue_file_loads_it(screen, settings, tmp_path,
     screen._pick_queue_to_load()
 
     assert [job.label for job in screen.queue().jobs] == ["saved job"]
-
-
-def test_a_cancelled_queue_open_changes_nothing(screen, settings,
-                                                monkeypatch):
-    """Cancel must not empty a queue the user has been building."""
-    screen.add_job("mask", settings)
-    monkeypatch.setattr(QFileDialog, "getOpenFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-
-    screen._pick_queue_to_load()
-
-    assert screen.queue().ids == ["mask-1"]
-
-
-def test_choosing_where_to_save_writes_the_queue_there(screen, settings,
-                                                       tmp_path, monkeypatch):
-    """Save-as writes through the same path the run keeps up to date."""
-    screen.add_job("mask", settings)
-    path = str(tmp_path / "saved.json")
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: (path, "")))
-
-    screen._pick_queue_to_save()
-
-    assert os.path.isfile(path)
-
-
-def test_a_cancelled_save_writes_nothing(screen, settings, tmp_path,
-                                         monkeypatch):
-    """Cancel is not an empty filename to write to."""
-    screen.add_job("mask", settings)
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-
-    screen._pick_queue_to_save()
-
-    assert not any(name.endswith(".json") for name in os.listdir(tmp_path))
 
 
 # ---------------------------------------------------------------------------

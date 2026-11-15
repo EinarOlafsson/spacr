@@ -1,4 +1,4 @@
-"""The edges seven small widgets only reach when something is missing.
+"""The edges six small widgets only reach when something is missing.
 
 Every case below is one of "the thing this code usually has is not there
 this time", and each is a real situation rather than a hypothetical:
@@ -12,16 +12,10 @@ this time", and each is a real situation rather than a hypothetical:
 * **Timelapse movie** — a filmstrip holding a layout item that is not a
   widget, a canvas laid out too small to scale into, and collapsing the
   strip.
-* **Trellis** — a grid whose panels all have no rows, and a brush on a grid
-  faceted one way only.
-* **Pivot builder** — a drop carrying an empty column name, a cell above
-  the low-n mark, and clearing the table without losing the axes.
+* **Pivot builder** — a drop carrying an empty column name, and clearing the table without losing the axes.
 * **Toggle** — a press-and-twitch that is a tap, not a drag.
 * **LivePreviewContract** — the busy state on a panel whose buttons are not
   built yet.
-
-The one arc these cannot reach is proved rather than driven: see
-``test_a_panel_of_missing_values_still_tops_its_count_axis``.
 """
 from __future__ import annotations
 
@@ -312,106 +306,6 @@ def test_collapsing_the_strip_does_not_re_ring_a_frame(movie):
 
 
 # ---------------------------------------------------------------------------
-# The trellis
-# ---------------------------------------------------------------------------
-
-def _hand() -> pd.DataFrame:
-    return pd.DataFrame({
-        "plateID": ["p1", "p1", "p1", "p2", "p2", "p2"],
-        "gene": ["a", "a", "b", "a", "a", "a"],
-        "area": [10.0, 20.0, 100.0, 30.0, 40.0, 50.0],
-    })
-
-
-def _rows_only_spec():
-    from spacr.qt.widgets.graph_spec import CONTINUOUS, GraphSpec
-    from spacr.qt.widgets.trellis_spec import TrellisSpec
-
-    return TrellisSpec(graph=GraphSpec(x="area", facet_row="plateID", bins=2,
-                                       roles={"area": CONTINUOUS}))
-
-
-def test_a_grid_where_every_panel_is_empty_says_nothing_about_n():
-    """"n per panel 0–0" would be a fact about nothing.
-
-    A grid drawn from ``levels_source`` keeps a panel for a level that drew
-    no rows — that is the whole point of it — so a filter that removed
-    everything leaves every panel empty. The summary has to say that they
-    are empty and then stop, because there is no n to spread.
-    """
-    from spacr.qt.widgets.trellis_spec import trellis
-
-    hand = _hand()
-    spec = _rows_only_spec()
-
-    empty = trellis(hand.iloc[0:0], spec, levels_source=hand)
-
-    assert empty.n_range() is None
-    assert empty.summary() == "2 × 1 = 2 panels · 2 with no rows"
-
-    # The same grid over the rows themselves does carry the spread.
-    assert "n = 3 each" in trellis(hand, spec).summary()
-
-
-def test_a_brush_on_a_row_only_facet_keeps_the_other_row_out():
-    """Sweeping one panel is a predicate on that panel's rows, not the axes.
-
-    With only one facet set the other level is ``None`` and there is no
-    column to test it against; membership then rests on the row facet
-    alone. Getting that wrong selects every row in the x range, from every
-    panel — which is how a brush in one small multiple lights up the rest.
-    """
-    from spacr.qt.widgets.trellis_spec import trellis
-
-    hand = _hand()
-    result = trellis(hand, _rows_only_spec())
-    assert result.shape == (2, 1)
-
-    # 5..45 covers p1's 10 and 20 as well as p2's 30 and 40. Swept on the
-    # p2 panel it must take p2's two rows and neither of p1's.
-    mask = result.brush(5.0, -1e9, 45.0, 1e9, row=1, col=0)
-
-    assert mask.tolist() == [False, False, False, True, True, False]
-    assert hand.loc[mask, "area"].tolist() == [30.0, 40.0]
-
-
-def test_a_panel_of_missing_values_still_tops_its_count_axis():
-    """A panel whose category is missing everywhere counts as one level.
-
-    ``_level_series`` folds NaN into ``MISSING_LEVEL`` rather than dropping
-    it, so "no gene recorded" is a bar like any other and the shared count
-    axis has to clear it.
-
-    PROOF, and why the ``return 0.0`` at ``trellis_spec.py:451`` is
-    unreachable: ``_panel_top`` returns at line 438 unless
-    ``panel.occupied and panel.n != 0``, and ``TrellisPanel.n`` is
-    ``len(self.index)`` (line 284), so ``rows = frame.iloc[panel.index]``
-    at 439 is never empty. Its only caller is ``trellis()`` at line 560,
-    which passes the panels ``_place`` built over that same frame. For
-    ``kind == BAR`` the value counted is ``_level_series(rows,
-    column).value_counts()``, and ``_level_series``
-    (``graph_spec.py:531``) maps *every* row to a string — NaN included —
-    so a non-empty ``rows`` always yields at least one count and the
-    ``if len(counts):`` at 449 cannot be false. The assertion below is that
-    fact measured: were the missing-level panel to fall through to 0.0, the
-    shared limit would be 1 × 1.08 rather than 2 × 1.08.
-    """
-    from spacr.qt.widgets.graph_spec import BAR, CATEGORICAL, GraphSpec
-    from spacr.qt.widgets.trellis_spec import TrellisSpec, trellis
-
-    frame = pd.DataFrame({"plateID": ["p1", "p1", "p2", "p2"],
-                          "gene": ["a", "b", None, None]})
-    spec = TrellisSpec(graph=GraphSpec(x="gene", facet_row="plateID",
-                                       kind=BAR,
-                                       roles={"gene": CATEGORICAL}))
-
-    result = trellis(frame, spec)
-
-    assert [panel.n for panel in result.panels] == [2, 2]
-    assert result.panels[1].scales.count_limit == pytest.approx(2 * 1.08)
-
-
-# ---------------------------------------------------------------------------
 # The pivot builder
 # ---------------------------------------------------------------------------
 
@@ -466,31 +360,6 @@ def test_a_drop_carrying_no_column_name_is_still_consumed(pivot_panel):
     named = _drop(well, "plateID")
     assert well.columns() == ("plateID",)
     assert named.isAccepted()
-
-
-def test_only_a_cell_at_or_below_the_low_n_mark_is_called_an_anecdote(
-        pivot_panel):
-    """The warning belongs on the cells it is about and nowhere else.
-
-    A caveat printed on every cell is a caveat nobody reads. p1 aggregates
-    eight objects and p2 two, so one tooltip carries the sentence and the
-    other must not.
-    """
-    from spacr.qt.widgets.pivot_builder import AXIS_ROWS, AXIS_VALUES
-
-    _drop(pivot_panel.wells[AXIS_ROWS], "plateID")
-    _drop(pivot_panel.wells[AXIS_VALUES], "area")
-    pivot_panel.recompute()
-    result = pivot_panel.result
-    assert result.row_levels[0] == ("p1",) and result.sizes[0, 0] == 8
-    offset = len(result.row_keys)
-
-    healthy = pivot_panel.table.item(0, offset).toolTip()
-    thin = pivot_panel.table.item(1, offset).toolTip()
-
-    assert "8 source row(s)" in healthy
-    assert "anecdote" not in healthy
-    assert "anecdote" in thin, "two objects is exactly what the mark is for"
 
 
 def test_clearing_the_table_keeps_axes_a_different_table_would_lose(

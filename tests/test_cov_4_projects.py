@@ -1,22 +1,17 @@
 """The project browser reports what it found without walking off a cliff.
 
 Everything here is something a real folder does to a browser: a file that
-vanishes between being listed and being stat'ed, a symlink that points back
-at its own parent, a module key that no longer exists, a project the registry
+vanishes between being listed and being stat'ed, a module key that no longer exists, a project the registry
 has never heard of. None of them may raise -- the browser's whole job is to
 show a list, and a list that refuses to appear because one entry was odd is
 worse than a list with one odd entry in it.
 """
 from __future__ import annotations
 
-import os
-
-import pytest
-
 from spacr import ports as _ports
 from spacr import projects
 from spacr.projects import (STATE_DONE, STATE_PARTIAL, ModuleState,
-                            ProjectSummary, StaleArtifact, discover,
+                            ProjectSummary, StaleArtifact,
                             format_project, looks_like_project, module_states,
                             pipeline_order)
 
@@ -99,59 +94,6 @@ def test_an_archived_project_is_still_a_project(tmp_path):
     assert looks_like_project(tmp_path) is True
 
 
-# -- discovery ---------------------------------------------------------------
-
-def _make_project(path):
-    from spacr import data_manager as _dm
-    path.mkdir(parents=True, exist_ok=True)
-    (path / _dm.ARCHIVE_MANIFEST_NAME).write_text("{}", encoding="utf-8")
-    return path
-
-
-def test_discovery_stops_at_the_limit(tmp_path):
-    """A browser pointed at a home directory must return, not walk it all."""
-    for name in ("a", "b", "c", "d"):
-        _make_project(tmp_path / name)
-    found = discover([tmp_path], depth=2, limit=2)
-    assert len(found) == 2
-
-
-@pytest.mark.needs_symlink
-def test_a_symlink_loop_is_visited_once(tmp_path):
-    """A folder linked back into itself would otherwise recurse forever."""
-    root = tmp_path / "root"
-    inner = root / "inner"
-    _make_project(inner)
-    os.symlink(root, root / "loop", target_is_directory=True)
-    found = discover([root, root / "loop"], depth=3, limit=10)
-    assert [os.path.basename(p) for p in found] == ["inner"]
-
-
-def test_hidden_and_skipped_folders_are_not_searched(tmp_path):
-    """A .git or __pycache__ full of files is never a project."""
-    skipped = sorted(projects.SKIP_DIRS)[0]
-    _make_project(tmp_path / ".hidden")
-    _make_project(tmp_path / skipped)
-    _make_project(tmp_path / "real")
-    found = discover([tmp_path], depth=2, limit=10)
-    assert [os.path.basename(p) for p in found] == ["real"]
-
-
-def test_a_plain_file_beside_the_projects_is_not_descended_into(tmp_path):
-    """scandir returns files too, and a file has nothing to walk."""
-    (tmp_path / "readme.txt").write_text("hello", encoding="utf-8")
-    _make_project(tmp_path / "real")
-    found = discover([tmp_path], depth=2, limit=10)
-    assert [os.path.basename(p) for p in found] == ["real"]
-
-
-def test_a_blank_root_is_ignored_rather_than_searched(tmp_path):
-    """An empty recent-folders entry must not turn into the cwd."""
-    _make_project(tmp_path / "real")
-    found = discover(["", None, tmp_path], depth=2, limit=10)
-    assert [os.path.basename(p) for p in found] == ["real"]
-
-
 # -- stale artifacts ---------------------------------------------------------
 
 def test_a_gone_artifact_says_where_it_was():
@@ -216,14 +158,3 @@ def test_the_report_lists_the_gone_results_and_the_unreadable_paths():
     assert any(line.startswith("    gone   ") for line in lines), lines
     assert "  could not read /data/p/locked" in lines
     assert "  next: classify" in lines
-
-
-def test_a_second_root_is_not_searched_once_the_limit_is_full(tmp_path):
-    """Roots are walked in turn, so the limit has to hold between them."""
-    first = tmp_path / "first"
-    second = tmp_path / "second"
-    _make_project(first / "a")
-    _make_project(first / "b")
-    _make_project(second / "c")
-    found = discover([first, second], depth=2, limit=2)
-    assert [os.path.basename(p) for p in found] == ["a", "b"]

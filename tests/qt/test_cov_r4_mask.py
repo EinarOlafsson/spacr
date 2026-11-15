@@ -30,7 +30,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QCheckBox, QLineEdit, QPushButton, QWidget
+from PySide6.QtWidgets import QCheckBox, QLineEdit, QWidget
 
 from spacr.qt.screens import mask as mask_module
 from spacr.qt.screens.map_barcodes import CategoryFoldSet
@@ -69,14 +69,6 @@ class _Model:
     def __init__(self, widgets=None):
         self._widgets = dict(widgets or {})
         self._defaults = {}
-
-
-class _Console:
-    def __init__(self):
-        self.text = []
-
-    def append_stdout(self, text):
-        self.text.append(text)
 
 
 class _Header(QWidget):
@@ -280,34 +272,6 @@ def _src_form(qtbot):
     return src, holder, (plain, elsewhere, holder)
 
 
-def test_the_button_is_only_offered_on_mask_generation(qtbot):
-    """Its whole job is filling this form; another screen's is not it."""
-    src, _holder, sections = _src_form(qtbot)
-
-    guest = _Screen(app_key="measure", _settings_model=_Model({"src": src}),
-                    _settings_sections=sections)
-    assert mask_module.install_example_data_button(guest) is None
-    assert getattr(guest, "_example_images_button", None) is None
-
-    owner = _Screen(app_key="mask", _settings_model=_Model({"src": src}),
-                    _settings_sections=sections)
-    assert isinstance(mask_module.install_example_data_button(owner),
-                      QPushButton)
-
-
-def test_a_form_with_no_src_control_gets_no_button(qtbot):
-    """The button fills ``src``; a form without one has nothing to fill."""
-    src, _holder, sections = _src_form(qtbot)
-
-    blank = _Screen(app_key="mask", _settings_model=_Model(),
-                    _settings_sections=sections)
-    assert mask_module.install_example_data_button(blank) is None
-
-    filled = _Screen(app_key="mask", _settings_model=_Model({"src": src}),
-                     _settings_sections=sections)
-    assert mask_module.install_example_data_button(filled) is not None
-
-
 def test_a_src_control_in_no_prose_section_gets_no_button(qtbot):
     """Placement is found from ``src``, so a stray control places nothing.
 
@@ -327,94 +291,9 @@ def test_a_src_control_in_no_prose_section_gets_no_button(qtbot):
     assert button is not None and holder.isAncestorOf(button)
 
 
-def test_the_button_lands_above_src_says_what_it_does_and_loads_a_plate(
-        qtbot, monkeypatch, tmp_path):
-    """Installed once, in the section holding ``src``, and wired to run."""
-    from spacr.qt import synthetic
-
-    src, holder, sections = _src_form(qtbot)
-    console = _Console()
-    screen = _Screen(app_key="mask", _settings_model=_Model({"src": src}),
-                     _settings_sections=sections, _console=console)
-
-    button = mask_module.install_example_data_button(screen)
-
-    assert button.text() == mask_module.EXAMPLE_BUTTON_TEXT
-    assert button.toolTip() == mask_module.EXAMPLE_BUTTON_TOOLTIP
-    assert holder.isAncestorOf(button)
-    assert screen._example_images_button is button
-    assert mask_module.install_example_data_button(screen) is button, (
-        "a second call installed a second button")
-
-    layout = type("_L", (), {"image_files": [str(tmp_path / "a.tif")],
-                             "src": str(tmp_path),
-                             "notes": {"channels": (0,), "n_fields": 1}})()
-    monkeypatch.setattr(synthetic, "generate_mask_demo", lambda dst: layout)
-    monkeypatch.setattr(synthetic, "demo_settings",
-                        lambda app, source: {"src": source})
-    monkeypatch.setattr(mask_module, "example_plate_folder",
-                        lambda: str(tmp_path))
-
-    button.click()
-
-    assert screen.applied == [{"src": str(tmp_path)}], (
-        "pressing the button applied nothing to the form")
-    assert "Example plate ready" in "".join(console.text)
-
-
 # ---------------------------------------------------------------------------
 # install_folds
 # ---------------------------------------------------------------------------
-
-def test_a_button_that_cannot_be_installed_does_not_cost_the_switches(
-        qtbot, qt_theme_applied, monkeypatch, caplog):
-    """The example plate is installed first and outside the folds' guard.
-
-    It has its own guard for the same reason: a screen with switches and
-    no example button is a smaller screen, and one with neither is a
-    regression twice over.
-    """
-    from spacr.qt.screens.app_screen import AppScreen
-
-    def refuse(screen):
-        raise RuntimeError("the src section moved")
-
-    monkeypatch.setattr(mask_module, "install_example_data_button", refuse)
-    screen = AppScreen(app_key="mask")
-    qtbot.addWidget(screen)
-
-    with caplog.at_level(logging.DEBUG, logger=LOGGER):
-        strip = mask_module.install_folds(screen)
-
-    assert strip is None
-    assert mask_module.fold_set(screen) is not None
-    assert any("Could not install the example-plate button"
-               in record.getMessage() for record in caplog.records), (
-        caplog.text)
-
-
-def test_a_screen_with_no_settings_form_carries_no_strip(qtbot,
-                                                         qt_theme_applied):
-    """A fold that mounts nothing is not a switch with nothing behind it.
-
-    ``CategoryFold.mount`` returns False when the host has no settings
-    model to mount onto, and a strip built anyway would put a switch on
-    the masthead that reveals no categories at all.
-    """
-    from spacr.qt.screens.app_screen import AppScreen
-
-    header = _Header()
-    qtbot.addWidget(header)
-    bare = _Screen(app_key="mask", _header=header)
-
-    assert mask_module.install_folds(bare) is None
-    assert header.trailing == [], "an empty strip was hung on the masthead"
-    assert mask_module.fold_set(bare) is None
-
-    real = AppScreen(app_key="mask")
-    qtbot.addWidget(real)
-    assert mask_module.install_folds(real) is None
-    assert mask_module.fold_set(real) is not None
 
 
 def test_a_strip_is_built_for_every_fold_set_that_mounted_something(

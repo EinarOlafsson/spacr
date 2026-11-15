@@ -28,6 +28,8 @@ from pathlib import Path
 
 import pytest
 
+from tests import locale_cases
+
 pytest.importorskip("PySide6")
 
 SCREENS = Path(__file__).resolve().parents[2] / "spacr" / "qt" / "screens"
@@ -44,9 +46,8 @@ def _modules():
         yield f"spacr.qt.screens.{path.stem}"
 
 
-@pytest.mark.parametrize("module", list(_modules()))
-def test_the_module_imports_in_a_fresh_interpreter(module):
-    """Alone, with nothing else having loaded a Qt first."""
+def _the_module_imports_in_a_fresh_interpreter_case(module):
+    """One case of :func:`test_the_module_imports_in_a_fresh_interpreter`."""
     done = subprocess.run(
         [sys.executable, "-c", f"import {module}"],
         capture_output=True, text=True, timeout=300,
@@ -61,3 +62,13 @@ def test_the_module_imports_in_a_fresh_interpreter(module):
         tail = (done.stderr or "").strip().splitlines()[-4:]
         pytest.fail(f"{module} does not import on its own:\n" +
                     "\n".join(tail))
+
+
+def test_the_module_imports_in_a_fresh_interpreter(subtests, request):
+    """Alone, with nothing else having loaded a Qt first."""
+    for label, case in locale_cases.cases(
+            ("module", list(_modules())),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _the_module_imports_in_a_fresh_interpreter_case(**fixtures, **case)

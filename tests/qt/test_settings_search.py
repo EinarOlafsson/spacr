@@ -32,6 +32,8 @@ from spacr.qt.settings_search import (
     install,
 )
 
+from tests import locale_cases
+
 
 @pytest.fixture(autouse=True)
 def _clean_disclosure():
@@ -553,8 +555,8 @@ def _all_app_keys():
     return sorted(set(keys))
 
 
-@pytest.mark.parametrize("app_key", _all_app_keys())
-def test_every_module_with_real_settings_has_a_curated_layout(app_key):
+def _every_module_with_real_settings_has_a_curated_layout_case(app_key):
+    """One case of :func:`test_every_module_with_real_settings_has_a_curated_layout`."""
     if not needs_curated_layout(app_key):
         pytest.skip(
             f"{app_key} renders {len(resolve_default_settings(app_key))} "
@@ -568,15 +570,17 @@ def test_every_module_with_real_settings_has_a_curated_layout(app_key):
     )
 
 
-@pytest.mark.parametrize("app_key", sorted(
-    __import__("spacr.qt.screens.settings_model", fromlist=["x"])
-    ._APP_CATEGORY_SPECS))
-def test_a_curated_layout_accounts_for_every_setting(app_key):
-    """No module drops a setting off the end of its own layout.
+def test_every_module_with_real_settings_has_a_curated_layout(subtests, request):
+    for label, case in locale_cases.cases(
+            ("app_key", _all_app_keys()),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _every_module_with_real_settings_has_a_curated_layout_case(**fixtures, **case)
 
-    A key named in no group falls into the trailing "Other" bucket, which is
-    not a heading anyone chose — it is the absence of one.
-    """
+
+def _a_curated_layout_accounts_for_every_setting_case(app_key):
+    """One case of :func:`test_a_curated_layout_accounts_for_every_setting`."""
     from spacr.qt.screens.settings_model import (_APP_HIDDEN_CATEGORIES,
                                                  _APP_HIDDEN_KEYS)
     defaults = resolve_default_settings(app_key)
@@ -594,6 +598,22 @@ def test_a_curated_layout_accounts_for_every_setting(app_key):
         used.update(k for k in keys if k in defaults)
     assert not (set(defaults) - used), (
         f"{app_key} leaves {sorted(set(defaults) - used)} out of every group")
+
+
+def test_a_curated_layout_accounts_for_every_setting(subtests, request):
+    """No module drops a setting off the end of its own layout.
+
+    A key named in no group falls into the trailing "Other" bucket, which is
+    not a heading anyone chose — it is the absence of one.
+    """
+    for label, case in locale_cases.cases(
+            ("app_key", sorted(
+    __import__("spacr.qt.screens.settings_model", fromlist=["x"])
+    ._APP_CATEGORY_SPECS)),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _a_curated_layout_accounts_for_every_setting_case(**fixtures, **case)
 
 
 def test_a_layout_may_name_a_key_the_shared_map_never_heard_of():

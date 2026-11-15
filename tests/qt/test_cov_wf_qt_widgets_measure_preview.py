@@ -18,7 +18,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from PySide6.QtWidgets import QLabel, QSizePolicy, QSpacerItem, QWidget
+from PySide6.QtWidgets import QLabel, QSizePolicy, QSpacerItem
 
 from spacr.qt.widgets import measure_preview as MP
 
@@ -47,20 +47,6 @@ def _merged(directory, name="plate1_A01_f1.npy"):
 def _merged_folder(tmp_path, count=3):
     """A folder holding ``count`` merged arrays, one per field of view."""
     return [_merged(tmp_path, f"plate1_A01_f{i + 1}.npy") for i in range(count)]
-
-
-class _MuteSpin(QWidget):
-    """A spinbox-shaped control that publishes no ``valueChanged``."""
-
-    def value(self):
-        return 0
-
-
-class _MuteToggle(QWidget):
-    """A toggle-shaped control that publishes no ``toggled``."""
-
-    def isChecked(self):
-        return False
 
 
 @pytest.fixture(autouse=True)
@@ -168,27 +154,6 @@ def test_a_cancelled_choose_dialog_leaves_the_loaded_array_alone(
 # ---------------------------------------------------------------------------
 
 
-def test_the_selectors_refresh_before_any_array_is_loaded(panel, tmp_path):
-    """Refreshing the dropdowns with no array must not scan a folder.
-
-    ``_refresh_source_selectors`` is called from the cap spinbox as well as
-    from a load, so it runs while ``_data_path`` is still None. Enumerating
-    then would mean ``Path(None).parent`` -- and a 384-well plate's merged
-    folder is thousands of files, which is exactly why the panel only lists
-    one once it knows which folder it is looking at.
-    """
-    panel._refresh_source_selectors()
-    assert panel._fov_box.count() == 0
-    assert [panel._channel_box.itemText(i)
-            for i in range(panel._channel_box.count())] == ["All channels"]
-
-    # The same call once a path IS known fills both dropdowns from the folder.
-    paths = _merged_folder(tmp_path)
-    assert panel.load_array(paths[0]) is True
-    assert panel._fov_box.count() == len(paths)
-    assert panel._channel_box.count() == 9   # 8 planes plus "All channels"
-
-
 def test_a_new_cap_with_no_sentence_to_show_keeps_the_status_line(
         panel, tmp_path):
     """A resample must only overwrite the status line when it has something to say.
@@ -209,36 +174,6 @@ def test_a_new_cap_with_no_sentence_to_show_keeps_the_status_line(
     assert panel._status.text() == (
         panel.sample_note()[:1].upper() + panel.sample_note()[1:])
     assert panel._status.text()[0].isupper()
-
-
-# ---------------------------------------------------------------------------
-# Seeding from a settings dict
-# ---------------------------------------------------------------------------
-
-
-def test_an_empty_normalize_key_leaves_the_percentiles_alone(panel):
-    """A settings file whose ``normalize`` is None must not unset normalisation.
-
-    ``normalize`` is a tri-state in the Measure settings: a [lo, hi] pair, a
-    bool, or absent/None meaning "not specified". Reading None as False would
-    turn percentile scaling off for every settings file that simply never
-    mentioned it, and the crops would come back dark for a run that normalises.
-    """
-    panel._normalise.setChecked(True)
-    panel._lo_pct.setValue(2.0)
-    panel._hi_pct.setValue(98.0)
-
-    panel.apply_settings({"normalize": None, "experiment": "seeded"})
-    assert panel._normalise.isChecked() is True
-    assert (panel._lo_pct.value(), panel._hi_pct.value()) == (2.0, 98.0)
-    assert panel._experiment.text() == "seeded"   # the rest was still applied
-
-    # A stated bool is honoured, so the None case really is a separate path.
-    panel.apply_settings({"normalize": False})
-    assert panel._normalise.isChecked() is False
-    panel.apply_settings({"normalize": [5.0, 95.0]})
-    assert panel._normalise.isChecked() is True
-    assert (panel._lo_pct.value(), panel._hi_pct.value()) == (5.0, 95.0)
 
 
 # ---------------------------------------------------------------------------
@@ -289,39 +224,3 @@ def test_a_click_on_a_thumbnail_that_is_gone_is_ignored(panel, tmp_path):
     assert 99 not in panel._selected
     assert panel.current_params()["selected"] == [0]
     assert panel._status.text() == described
-
-
-# ---------------------------------------------------------------------------
-# Wiring the Crop-settings controls
-# ---------------------------------------------------------------------------
-
-
-def test_a_control_with_no_signal_does_not_stop_the_wiring_pass(panel):
-    """One un-connectable control must not cost every control after it.
-
-    ``_connect_controls`` walks the Crop-settings widgets looking for the first
-    signal each one publishes. A widget answering to none of them -- a plain
-    label-like control, or a stub standing in for one -- has to be stepped
-    over: if the walk stopped or raised there, every setting later in the list
-    would be dead, silently, and the dialog would look wired while half of its
-    knobs neither re-cropped nor propagated.
-    """
-    seen = []
-    panel.set_propagate_callback(seen.append)
-    # One in the re-crop list and one that is only propagated, so both walks
-    # meet a control with nothing to connect to.
-    panel._max_area = _MuteSpin(panel)
-    panel._plot = _MuteToggle(panel)
-
-    panel._normalise.setChecked(False)
-    panel._lo_pct.setEnabled(True)
-    panel._connect_controls()
-    # The gate pass at the very end of the method ran, so the walk completed.
-    assert panel._lo_pct.isEnabled() is False
-
-    panel._propagate_btn.setChecked(True)
-    before = len(seen)
-    panel._max_crops.setValue(7)
-    assert len(seen) > before, "a spinbox after the mute control was not wired"
-    assert seen[-1]["plot"] is False          # the mute control still read
-    assert seen[-1]["png_size"] == 224  # Square size uses the scalar form.

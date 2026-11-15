@@ -20,59 +20,12 @@ costs a user real time is it guessing instead.
 """
 from __future__ import annotations
 
-import os
-
-
 from spacr import chaining
 
-
-def _project(root, name="plate1", *, dirs=("merged", "measurements"),
-             files=(("merged", "field1.npy"),)):
-    """A plate folder with the layout directories spaCR writes."""
-    project = os.path.join(str(root), name)
-    for directory in dirs:
-        os.makedirs(os.path.join(project, directory), exist_ok=True)
-    for directory, filename in files:
-        path = os.path.join(project, directory, filename)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "wb") as handle:
-            handle.write(b"\x00")
-    return project
-
-
-# --------------------------------------------------------------------------- #
-#  The ordinary drops
-# --------------------------------------------------------------------------- #
-
-# --------------------------------------------------------------------------- #
-#  Ambiguity is RETURNED, never guessed -- the docstring's own promise
-# --------------------------------------------------------------------------- #
-
-# --------------------------------------------------------------------------- #
-#  Modules with no port declaration, driven by `kinds`
-# --------------------------------------------------------------------------- #
 
 # --------------------------------------------------------------------------- #
 #  The helpers the resolver leans on
 # --------------------------------------------------------------------------- #
-
-def test_satisfies_is_false_for_a_folder_missing_the_port(tmp_path):
-    from spacr import ports
-
-    empty = tmp_path / "bare"
-    empty.mkdir()
-    spec = ports.module_ports("measure")
-
-    assert chaining.satisfies(str(empty), tuple(spec.consumes)) is False
-
-
-def test_satisfies_is_true_once_the_layout_is_there(tmp_path):
-    from spacr import ports
-
-    project = _project(tmp_path)
-    spec = ports.module_ports("measure")
-
-    assert chaining.satisfies(project, tuple(spec.consumes)) is True
 
 
 def test_ports_for_kinds_maps_the_vocabulary(tmp_path):

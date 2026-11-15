@@ -23,6 +23,8 @@ from PySide6.QtCore import Qt
 
 from spacr.qt.screens import annotate as annotate_mod
 
+from tests import locale_cases
+
 
 ROWS, COLS = 2, 3
 PAGE = ROWS * COLS          # 6 crops per page
@@ -102,7 +104,14 @@ def _labels(screen) -> List:
 # key_token — pure normalisation, no widgets needed
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("given,expected", [
+def _key_token_from_text_case(given, expected):
+    """One case of :func:`test_key_token_from_text`."""
+    assert annotate_mod.key_token(given) == expected
+
+
+def test_key_token_from_text(subtests, request):
+    for label, case in locale_cases.cases(
+            ("given,expected", [
     ("1", "1"),
     ("9", "9"),
     ("0", "0"),
@@ -141,9 +150,11 @@ def _labels(screen) -> List:
     (Qt.Key_Enter, "enter"),
     (Qt.Key_Question, "help"),
     (Qt.Key_Escape, "escape"),
-])
-def test_key_token_from_text(given, expected):
-    assert annotate_mod.key_token(given) == expected
+]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _key_token_from_text_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize("given", ["z", "qq", "", "  ", "F5", None, object()])

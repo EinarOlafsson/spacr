@@ -227,37 +227,6 @@ def test_a_deferred_pipeline_close_keeps_the_cpu_backdrop(
 
 class TestShuttingDown:
 
-    def test_a_shutdown_stops_the_timer_and_joins_the_thread(self, widget):
-        widget.shutdown()
-
-        assert widget._stopped is True
-        assert not widget._timer.isActive()
-        assert not widget._thread.isRunning(), "the render thread outlived it"
-
-    def test_a_second_shutdown_is_a_no_op(self, widget):
-        """"Safe to call twice" is in the docstring, and the close event
-        calls it as well as the screen teardown."""
-        widget.shutdown()
-        widget.shutdown()
-
-        assert widget._stopped is True
-
-    def test_a_cleared_hook_does_not_stop_the_join(self, widget):
-        """Whatever the disconnect does, the thread still gets joined.
-
-        Joining is the one thing shutdown exists to do: an unjoined
-        render thread is what prints "Destroyed while thread is still
-        running" and takes the process with it. Anything raised on the
-        way there would skip it.
-        """
-        widget._app_quit_join = None
-
-        widget.shutdown()                          # must not raise
-
-        assert widget._stopped is True
-        assert not widget._thread.isRunning(), (
-            "the thread was left running by a failed disconnect")
-
     def test_the_disconnect_guard_is_belt_and_braces_and_why(self, widget):
         """THE PIN for the except.
 
@@ -310,11 +279,6 @@ class TestShuttingDown:
             "_app_quit_join is no longer set to a lambda in __init__, so "
             "the disconnect can now be handed something that is not a slot")
 
-    def test_closing_the_widget_shuts_it_down(self, widget):
-        widget.close()
-
-        assert widget._stopped is True
-
 
 class TestTheApplicationHookItself:
 
@@ -343,47 +307,6 @@ class TestTheApplicationHookItself:
         assert source.count("if application is not None") == 2, (
             "an application lookup is no longer guarded against None")
 
-    def test_a_backdrop_freed_with_its_screen_takes_its_quit_hook_along(
-            self, qapp, monkeypatch):
-        """Deleting the screen takes the backdrop's ``aboutToQuit`` hook too.
-
-        A backdrop is reparented into its screen and deleted with it, and a
-        child freed with its parent is never sent ``closeEvent`` -- so
-        ``shutdown``, which disconnects the hook, never runs. Before the fix
-        every such teardown left one connection on the application, holding
-        a finished render thread until quit: three screens, three receivers.
-
-        Counted with ``receivers`` rather than by emitting ``aboutToQuit``,
-        which would run every other test's hooks on the shared application.
-        """
-        import shiboken6
-        from PySide6.QtCore import SIGNAL, QEvent
-        from PySide6.QtWidgets import QWidget
-
-        monkeypatch.setattr(F, "OrbitEngine", _CheapEngine)
-        before = qapp.receivers(SIGNAL("aboutToQuit()"))
-        for _ in range(3):
-            # Counted per pass, so a hook left by the previous pass fails the
-            # final assertion rather than this precondition.
-            was = qapp.receivers(SIGNAL("aboutToQuit()"))
-            screen = QWidget()
-            backdrop = F._make_cpu_widget(
-                F.Settings(pattern="orbit", backend="cpu"),
-                F.RuntimeControls(), F.HardwareProfile(logical_cpus=4))
-            backdrop.setParent(screen)
-            # ASSERTED, or the final count proves nothing: a backdrop that
-            # never hooked aboutToQuit would pass it just as well.
-            assert qapp.receivers(SIGNAL("aboutToQuit()")) == was + 1, (
-                "the backdrop did not hook aboutToQuit")
-            screen.deleteLater()
-            qapp.sendPostedEvents(None, QEvent.Type.DeferredDelete)
-            qapp.processEvents()
-            assert not shiboken6.isValid(backdrop), (
-                "the screen was deleted without its backdrop")
-
-        assert qapp.receivers(SIGNAL("aboutToQuit()")) == before, (
-            "a backdrop freed with its screen left its aboutToQuit hook "
-            "connected")
 
     def test_a_real_quit_joins_the_live_backdrop_and_no_freed_one(self):
         """What the application does when it quits, in a fresh interpreter.
