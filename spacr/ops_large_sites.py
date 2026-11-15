@@ -1674,7 +1674,10 @@ def _periscope_shift(mask_path: str) -> Tuple[int, int]:
     table = os.path.join(os.path.dirname(os.path.dirname(mask_path)), "Image.csv")
     if not os.path.isfile(table):
         raise FileNotFoundError(f"ops_mask_agreement_frame 'periscope_align' needs {table}")
-    row = pd.read_csv(table, usecols=["Align_Xshift_DAPI_Painting", "Align_Yshift_DAPI_Painting"])
+    from .tabular import read_table
+
+    row = read_table(table, canonicalise=False, report=None,
+                     usecols=["Align_Xshift_DAPI_Painting", "Align_Yshift_DAPI_Painting"])
     return (-int(row["Align_Yshift_DAPI_Painting"].iloc[0]),
             -int(row["Align_Xshift_DAPI_Painting"].iloc[0]))
 
