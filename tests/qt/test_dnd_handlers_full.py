@@ -42,6 +42,8 @@ from spacr.qt.dnd_handlers import (
     _set_screen_setting, _set_src_on,
 )
 
+from tests import locale_cases
+
 
 # ---------------------------------------------------------------------------
 # Test doubles
@@ -1424,7 +1426,18 @@ def test_database_handler_opens_any_supported_shape(tmp_path):
 # Registry — every documented app key
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("key,cls", [
+def _registry_covers_every_documented_app_case(key, cls):
+    """One case of :func:`test_registry_covers_every_documented_app`."""
+    assert type(get_handler(key)) is cls
+
+
+    # Regression is the one measurements screen that also hosts the parameter
+    # sweep card, so its drop target has to answer for the sweep's two CSV
+    # lists as well as for measurements.db. That is a distinct handler, and
+    # this table asserts the exact type -- a subclass is not the same answer.
+def test_registry_covers_every_documented_app(subtests, request):
+    for label, case in locale_cases.cases(
+            ("key,cls", [
     ("mask", MaskDropHandler),
     ("measure", MeasureDropHandler),
     ("annotate", AnnotateDropHandler),
@@ -1457,9 +1470,11 @@ def test_database_handler_opens_any_supported_shape(tmp_path):
     ("agreement", dh.ResultsDatabaseDropHandler),
     ("train_compare", dh.TrainingRunsDropHandler),
     ("report", dh.ReportDropHandler),
-])
-def test_registry_covers_every_documented_app(key, cls):
-    assert type(get_handler(key)) is cls
+]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _registry_covers_every_documented_app_case(**fixtures, **case)
 
 
 def test_align_and_convert_drops_set_their_sources(tmp_path):

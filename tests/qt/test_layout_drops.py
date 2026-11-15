@@ -46,6 +46,8 @@ from spacr import chaining as ch
 from spacr import ports as P
 from spacr.qt import dnd_handlers as dh
 
+from tests import locale_cases
+
 
 # ---------------------------------------------------------------------------
 # A real project on disk
@@ -457,9 +459,25 @@ def _self_registering_keys():
     return {module.rsplit(".", 1)[-1] for module in SELF_REGISTERING_MODULES}
 
 
-@pytest.mark.parametrize("app_key", _app_keys())
-def test_every_registered_app_that_reads_a_path_accepts_a_drop(
-        qtbot, qt_theme_applied, app_key):
+def _every_registered_app_that_reads_a_path_accepts_a_drop_case(qtbot, qt_theme_applied, app_key):
+    """One case of :func:`test_every_registered_app_that_reads_a_path_accepts_a_drop`."""
+    from spacr.qt.app import MainWindow
+    from .test_all_module_smoke import _FactoryHost
+
+    screen = MainWindow._build_screen(_FactoryHost(), app_key)
+    qtbot.addWidget(screen)
+    if app_key in dh.NO_DROP_TARGET:
+        assert not screen.acceptDrops(), (
+            f"{app_key} is listed in NO_DROP_TARGET but accepts drops; "
+            "remove the exemption")
+        return
+    assert screen.acceptDrops(), (
+        f"{app_key} accepts no drops and no reason is recorded for it. Add a "
+        "handler to spacr.qt.dnd_handlers._HANDLERS, or an entry to "
+        "NO_DROP_TARGET saying what the screen reads instead.")
+
+
+def test_every_registered_app_that_reads_a_path_accepts_a_drop(subtests, request):
     """Built through the real factory, and asked whether it takes drops.
 
     ``acceptDrops()`` is the property, and it is asked of the screen the
@@ -476,20 +494,12 @@ def test_every_registered_app_that_reads_a_path_accepts_a_drop(
     AppScreens in one function is sixty resource pollers, and they take the
     interpreter down before any assertion is reached.
     """
-    from spacr.qt.app import MainWindow
-    from .test_all_module_smoke import _FactoryHost
-
-    screen = MainWindow._build_screen(_FactoryHost(), app_key)
-    qtbot.addWidget(screen)
-    if app_key in dh.NO_DROP_TARGET:
-        assert not screen.acceptDrops(), (
-            f"{app_key} is listed in NO_DROP_TARGET but accepts drops; "
-            "remove the exemption")
-        return
-    assert screen.acceptDrops(), (
-        f"{app_key} accepts no drops and no reason is recorded for it. Add a "
-        "handler to spacr.qt.dnd_handlers._HANDLERS, or an entry to "
-        "NO_DROP_TARGET saying what the screen reads instead.")
+    for label, case in locale_cases.cases(
+            ("app_key", _app_keys()),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'qt_theme_applied')) as fixtures:
+                _every_registered_app_that_reads_a_path_accepts_a_drop_case(**fixtures, **case)
 
 
 def test_the_screens_without_a_drop_target_really_read_no_path():

@@ -12,6 +12,8 @@ from spacr.picture_settings import (ALL_KEYS, BOTH_MODES, applies_to,
                                     bounding_box_only, greyed_in, modes,
                                     why_not)
 
+from tests import locale_cases
+
 
 def test_load_images_is_offered_first():
     assert modes()[0][0] == LOAD_IMAGES
@@ -23,9 +25,13 @@ def test_load_images_is_offered_first():
     assert modes()[2][1] == "stream images (database)"
 
 
-@pytest.mark.parametrize("key", BOTH_MODES)
-@pytest.mark.parametrize("mode", [LOAD_IMAGES, STREAM_IMAGES])
-def test_the_shared_settings_apply_to_both(key, mode):
+def _the_shared_settings_apply_to_both_case(key, mode):
+    """One case of :func:`test_the_shared_settings_apply_to_both`."""
+    assert applies_to(key, mode)
+    assert why_not(key, mode) == ""
+
+
+def test_the_shared_settings_apply_to_both(subtests, request):
     """They shape the picture AFTER it is obtained, so the route is
     irrelevant.
 
@@ -34,8 +40,13 @@ def test_the_shared_settings_apply_to_both(key, mode):
     are handed the object directly -- by the folder they read, or by the
     labelled plane they read the labels out of.
     """
-    assert applies_to(key, mode)
-    assert why_not(key, mode) == ""
+    for label, case in locale_cases.cases(
+            ("key", BOTH_MODES),
+            ("mode", [LOAD_IMAGES, STREAM_IMAGES]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _the_shared_settings_apply_to_both_case(**fixtures, **case)
 
 
 def test_the_disk_only_setting_is_greyed_when_streaming():

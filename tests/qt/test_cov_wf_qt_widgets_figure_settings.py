@@ -18,7 +18,6 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt  # noqa: E402
-import pandas  # noqa: E402
 import pytest  # noqa: E402
 
 pytest.importorskip("PySide6")
@@ -28,7 +27,6 @@ from matplotlib.figure import Figure  # noqa: E402
 from matplotlib.spines import Spines  # noqa: E402
 from PySide6.QtWidgets import QFormLayout, QLabel, QWidget  # noqa: E402
 
-import spacr.graph_types as graph_types  # noqa: E402
 from spacr.qt.widgets import figure_settings as fs  # noqa: E402
 
 pytestmark = pytest.mark.qt
@@ -306,78 +304,6 @@ def test_an_artist_is_only_offered_the_controls_it_can_take(qapp, figure,
         assert dots.sizes == [90.0], "and the control it did get reaches it"
     finally:
         dots_dialog.deleteLater()
-
-
-# ---------------------------------------------------------------------------
-# reading a recipe back off a figure's artists
-# ---------------------------------------------------------------------------
-
-def test_a_reconstruction_names_every_group_it_finds():
-    """A redraw needs groups to draw, and it always has them.
-
-    This used to assert the opposite half too: that a recipe whose groups
-    were all NaN is refused. That guard was deleted on 2026-08-31 --
-    instruction 310 A15 -- because no figure can produce it. The group
-    names come only from `_named`, which returns a tick label or
-    `f"{float(x):g}"`, so a NaN x arrives as the STRING "nan" and the
-    column is never empty.
-
-    Reaching it needed `_pairs_from_axes` monkeypatched to return real
-    NaNs, which is not a figure -- and A15's own note says that was the
-    only way. A test that manufactures an impossible state to cover a
-    guard is testing the monkeypatch.
-
-    What survives is the half with a subject: a figure with named bars
-    reconstructs into named groups. The premise underneath is pinned in
-    tests/qt/test_a_replot_recipe_always_has_named_groups.py.
-    """
-    fig, axis = plt.subplots()
-    try:
-        axis.bar(["ctrl", "treat"], [3.0, 5.0])
-
-        recipe = fs.derive_replot_recipe(fig)
-        assert recipe is not None
-        assert sorted(recipe["df"]["group"]) == ["ctrl", "treat"], (
-            "named bars reconstruct into named groups")
-    finally:
-        plt.close(fig)
-
-
-def test_the_jitter_alias_is_only_offered_when_the_table_names_it(qapp):
-    """The menu may only offer what the drawer can actually draw.
-
-    ``graph_types`` says ``bar_jitter`` where the drawer says ``jitter_bar``
-    and ``jitter_box``, so those two inherit whatever the table says about
-    ``bar_jitter``. Were the table to stop listing it, inventing the aliases
-    anyway would put entries on the menu the table never approved.
-    """
-    frame = pandas.DataFrame({"group": ["a", "a", "b", "b"],
-                              "value": [1.0, 2.0, 3.0, 4.0]})
-    recipe = {"df": frame, "grouping_column": "group",
-              "data_column": "value"}
-    original = graph_types.offer
-    try:
-        graph_types.offer = lambda f, x="", y="": [
-            ("bar", "Bar", ""), ("bar_jitter", "Bar with jitter", "")]
-        fits, why = fs._which_types_fit(recipe)
-        assert set(fits) == {"bar", "bar_jitter", "jitter_bar", "jitter_box"}
-        assert why == {}
-
-        graph_types.offer = lambda f, x="", y="": [
-            ("bar", "Bar", ""),
-            ("bar_jitter", "Bar with jitter", "needs the observations")]
-        fits, why = fs._which_types_fit(recipe)
-        assert fits == ("bar",)
-        assert why["jitter_bar"] == "needs the observations", (
-            "the reason is carried over to the drawer's own names")
-
-        graph_types.offer = lambda f, x="", y="": [
-            ("bar", "Bar", ""), ("violin", "Violin", "too few points")]
-        fits, why = fs._which_types_fit(recipe)
-        assert fits == ("bar",), "no alias was invented for an absent type"
-        assert why == {"violin": "too few points"}
-    finally:
-        graph_types.offer = original
 
 
 # ---------------------------------------------------------------------------

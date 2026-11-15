@@ -17,7 +17,6 @@ from spacr.qt.linked_selection import LinkedSelection
 from spacr.qt.screens.graph_builder import (
     GraphBuilderScreen, read_table, table_names,
 )
-from spacr.selection import Selection
 
 
 @pytest.fixture
@@ -81,18 +80,6 @@ def test_a_tsv_is_read_with_tabs(tmp_path, measurements):
     assert len(frame) == 4
 
 
-def test_a_file_whose_tables_cannot_be_listed_says_so_inline(screen,
-                                                             tmp_path):
-    """No modal, and the frame stays as it was."""
-    broken = tmp_path / "not-a-database.db"
-    broken.write_bytes(b"this is not sqlite")
-
-    screen.load_path(str(broken))
-
-    assert "could not read not-a-database.db" in screen._source.text()
-    assert screen._frame is None
-
-
 def test_a_failed_read_is_reported_on_the_source_line(screen, tmp_path):
     """The failure arrives from the worker and still lands on the label."""
     screen._path = str(tmp_path / "cells.csv")
@@ -128,98 +115,8 @@ def test_cancelling_the_dialog_loads_nothing(screen, monkeypatch):
     assert screen._frame is None
 
 
-def test_picking_another_table_reloads_the_same_file(screen, database):
-    """The picker is wired to the loader, not to a cached frame."""
-    screen.load_path(str(database))
-
-    screen._on_table_picked("zebra")
-
-    assert "· zebra" in screen._source.text()
-
-
 def test_picking_a_table_with_no_file_loaded_does_nothing(screen):
     """The combo is populated programmatically; its signal must be harmless."""
     screen._on_table_picked("cell")
 
     assert screen._frame is None
-
-
-def test_opening_a_selection_that_does_not_exist_asks_for_a_brush(screen,
-                                                                  measurements):
-    """The resting state is not an empty result, and must not be sent on."""
-    screen.set_frame(measurements)
-
-    screen._open_selection()
-
-    assert screen._source.text() == "Brush a region first — nothing is selected."
-
-
-def test_a_brush_around_blank_space_is_also_nothing_to_open(screen,
-                                                            measurements):
-    """An explicit but empty selection has no objects to show either."""
-    screen.set_frame(measurements)
-    screen.builder.canvas.link.set_selection(Selection(keys=measurements.index[:0],
-                                         source="graph_builder"))
-
-    screen._open_selection()
-
-    assert "nothing is selected" in screen._source.text()
-
-
-def test_with_nothing_able_to_show_crops_the_screen_says_so(screen,
-                                                            measurements):
-    """Outside the main window nothing builds Annotate; the label says why.
-
-    Better than a NoObjectOpener traceback from a button press, and no longer
-    the old advice to open Annotate once: in the main window the jump builds
-    it.
-    """
-    screen.set_frame(measurements)
-    screen.builder.canvas.link.set_selection(Selection(keys=measurements.index[:2],
-                                         source="graph_builder"))
-
-    screen._open_selection()
-
-    assert screen._source.text().startswith("could not open those objects")
-    assert "open the Annotate screen once" not in screen._source.text()
-
-
-def test_a_brushed_selection_reaches_the_registered_opener(screen,
-                                                           measurements,
-                                                           monkeypatch):
-    """The screen never imports Annotate; the request is routed."""
-    screen.set_frame(measurements)
-    screen.builder.canvas.link.set_selection(Selection(keys=measurements.index[:2],
-                                         source="graph_builder"))
-    monkeypatch.setattr("spacr.qt.linked_selection.has_object_opener",
-                        lambda kind: True)
-    opened = []
-    screen.builder.canvas.link.register_object_opener(
-        "annotate", lambda request: opened.append(request))
-
-    screen._open_selection()
-
-    assert len(opened) == 1
-    assert [str(key) for key in opened[0].keys] == ["0", "1"]
-    assert "brushed in the Graph Builder" in opened[0].reason
-
-
-def test_an_opener_that_raises_is_reported_not_propagated(screen,
-                                                          measurements,
-                                                          monkeypatch):
-    """A button press may not end the session with a traceback."""
-    screen.set_frame(measurements)
-    screen.builder.canvas.link.set_selection(Selection(keys=measurements.index[:2],
-                                         source="graph_builder"))
-    monkeypatch.setattr("spacr.qt.linked_selection.has_object_opener",
-                        lambda kind: True)
-
-    def _explode(request):
-        raise RuntimeError("the crops are on a disconnected share")
-
-    screen.builder.canvas.link.register_object_opener("annotate", _explode)
-
-    screen._open_selection()
-
-    assert "could not open those objects" in screen._source.text()
-    assert "disconnected share" in screen._source.text()

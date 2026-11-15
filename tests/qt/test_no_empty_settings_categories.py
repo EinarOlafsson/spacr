@@ -26,6 +26,8 @@ from PySide6.QtWidgets import QFormLayout                         # noqa: E402
 
 from spacr.qt.app import APPS                                     # noqa: E402
 
+from tests import locale_cases
+
 APP_KEYS = tuple(dict.fromkeys(row[0] for row in APPS))
 
 
@@ -77,12 +79,21 @@ def _screen(qtbot, app_key):
     return screen
 
 
-@pytest.mark.parametrize("alpha", [False, True], ids=["alpha_off", "alpha_on"])
-@pytest.mark.parametrize("app_key", APP_KEYS)
-def test_no_heading_renders_empty(qtbot, prefs, app_key, alpha):
+def _no_heading_renders_empty_case(qtbot, prefs, app_key, alpha):
+    """One case of :func:`test_no_heading_renders_empty`."""
     prefs.set_show_alpha(alpha)
     screen = _screen(qtbot, app_key)
     assert _empty_headings(screen) == []
+
+
+def test_no_heading_renders_empty(subtests, request):
+    for label, case in locale_cases.cases(
+            ("alpha", [False, True], ["alpha_off", "alpha_on"]),
+            ("app_key", APP_KEYS),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'prefs')) as fixtures:
+                _no_heading_renders_empty_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize("alpha", [False, True], ids=["alpha_off", "alpha_on"])

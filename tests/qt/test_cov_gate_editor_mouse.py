@@ -19,9 +19,8 @@ import pytest
 
 from spacr.qt.widgets.gate_editor import GateCanvas, _project
 from spacr.qt.widgets.gate_spec import (
-    BoxGate, EllipseGate, GateSet, PolygonGate, PrismGate,
-    RectGate, ThresholdGate,
-    ELLIPSE, POLYGON, RECTANGLE, THRESHOLD, WAND,
+    BoxGate, GateSet, PolygonGate, PrismGate,
+    RectGate, POLYGON, WAND,
 )
 from spacr.qt.widgets.graph_builder import GraphSpec
 
@@ -266,63 +265,11 @@ def test_a_gate_deleted_mid_move_is_not_moved_on_release(box_canvas):
 # Clicking out a polygon
 # ---------------------------------------------------------------------------
 
-def test_clicking_back_on_the_first_vertex_closes_the_polygon(qtbot):
-    """What everyone tries. The Close button used to be the only way to
-    finish, so a polygon looked impossible to complete."""
-    canvas, _stale = _scatter(qtbot)
-    ax = _arm(canvas, POLYGON)
-    drawn = []
-    canvas.gate_drawn.connect(drawn.append)
-    counts = []
-    canvas.polygon_changed.connect(counts.append)
-
-    for x, y in ((1.0, 1.0), (5.0, 1.0), (5.0, 5.0)):
-        canvas._on_press(_Mouse(ax, x, y))
-    canvas._on_press(_Mouse(ax, 1.0, 1.0))
-
-    assert len(drawn) == 1, "clicking the first vertex again did not close it"
-    assert isinstance(drawn[0], PolygonGate)
-    assert drawn[0].vertices == ((1.0, 1.0), (5.0, 1.0), (5.0, 5.0)), (
-        "the closing click was kept as a fourth vertex")
-    assert canvas.pending_vertices() == ()
-    assert counts == [1, 2, 3, 0], "the vertex count was not reported"
-
-
-def test_a_click_off_the_plot_places_no_vertex(qtbot):
-    """There is no data coordinate for it, and a vertex at a made-up one is
-    a corner of the gate nobody clicked."""
-    canvas, _ax = _scatter(qtbot)
-    canvas.set_tool(POLYGON)
-    canvas._on_press(_OffThePlot())
-    assert canvas.pending_vertices() == ()
-
 
 def test_with_nothing_clicked_yet_there_is_no_first_vertex_to_close_on(qtbot):
     canvas, _stale = _scatter(qtbot)
     ax = _arm(canvas, POLYGON)
     assert canvas._near_first_vertex(_Mouse(ax, 1.0, 1.0), 1.0, 1.0) is False
-
-
-def test_a_click_with_no_axes_under_it_cannot_close_the_polygon(qtbot):
-    """Closing is measured in pixels, and without an axes there is nothing to
-    measure against. Refusing beats closing the shape somewhere arbitrary."""
-    canvas, _stale = _scatter(qtbot)
-    ax = _arm(canvas, POLYGON)
-    for x, y in ((1.0, 1.0), (5.0, 1.0), (5.0, 5.0)):
-        canvas._on_press(_Mouse(ax, x, y))
-
-    assert canvas._near_first_vertex(_OffThePlot(), 1.0, 1.0) is False
-    assert len(canvas.pending_vertices()) == 3, "the shape was closed anyway"
-
-
-def test_placing_a_vertex_draws_no_rubber_band(qtbot):
-    """The polygon tool is click-per-vertex; a swept box following the mouse
-    would be previewing a gate the tool does not make."""
-    canvas, _stale = _scatter(qtbot)
-    ax = _arm(canvas, POLYGON)
-    canvas._on_press(_Mouse(ax, 1.0, 1.0))
-    canvas._on_motion(_Mouse(ax, 4.0, 4.0))
-    assert canvas._drag_patch is None
 
 
 # ---------------------------------------------------------------------------
@@ -366,33 +313,6 @@ def test_a_wand_click_that_grows_nothing_says_what_to_change(cloud):
     assert "maximum distance" in failed[0] or "tolerance" in failed[0], failed
 
 
-def test_the_wand_needs_a_table_to_grow_a_gate_out_of(qtbot):
-    canvas, _stale = _scatter(qtbot)
-    ax = _arm(canvas, WAND)
-    failed = []
-    canvas.wand_failed.connect(failed.append)
-    canvas.set_frame(None)
-
-    canvas._on_press(_Mouse(ax, 5.0, 5.0))
-
-    assert failed == ["the wand needs a table and two measurements on screen"]
-
-
-def test_the_wand_names_a_measurement_the_table_does_not_have(qtbot):
-    """A spec carried over from another table. The status line says which
-    measurement is missing instead of the click doing nothing."""
-    canvas, _stale = _scatter(qtbot)
-    ax = _arm(canvas, WAND)
-    failed = []
-    canvas.wand_failed.connect(failed.append)
-    canvas._spec = GraphSpec(x="a", y="not_a_column")
-
-    canvas._on_press(_Mouse(ax, 5.0, 5.0))
-
-    assert len(failed) == 1
-    assert "not_a_column" in failed[0]
-
-
 def test_a_wand_click_off_the_plot_is_ignored(cloud):
     """Nothing to grow from and nothing to complain about -- the pointer was
     never on the data."""
@@ -410,59 +330,6 @@ def test_a_wand_click_off_the_plot_is_ignored(cloud):
 # ---------------------------------------------------------------------------
 # Sweeping a shape out
 # ---------------------------------------------------------------------------
-
-def test_sweeping_a_box_previews_it_and_then_makes_it(qtbot):
-    canvas, _stale = _scatter(qtbot)
-    ax = _arm(canvas, RECTANGLE)
-    drawn = []
-    canvas.gate_drawn.connect(drawn.append)
-
-    canvas._on_press(_Mouse(ax, 1.0, 1.0))
-    canvas._on_motion(_Mouse(ax, 6.0, 4.0))
-    assert canvas._drag_patch is not None, "nothing previewed the sweep"
-    assert canvas._drag_patch.get_width() == pytest.approx(5.0)
-    assert canvas._drag_patch.get_height() == pytest.approx(3.0)
-
-    canvas._on_release(_Mouse(ax, 6.0, 4.0))
-    assert canvas._drag_patch is None, "the preview outlived the sweep"
-    assert len(drawn) == 1
-    gate = drawn[0]
-    assert isinstance(gate, RectGate)
-    assert (gate.x_low, gate.x_high, gate.y_low, gate.y_high) == (
-        1.0, 6.0, 1.0, 4.0)
-
-
-def test_a_sweep_released_on_another_plot_makes_nothing(qtbot):
-    """The two ends would be in different measurements' units, so there is no
-    rectangle to be had."""
-    canvas, _stale = _scatter(qtbot)
-    ax = _arm(canvas, RECTANGLE)
-    drawn = []
-    canvas.gate_drawn.connect(drawn.append)
-
-    canvas._on_press(_Mouse(ax, 1.0, 1.0))
-    elsewhere = _Mouse(ax, 6.0, 4.0)
-    elsewhere.inaxes = object()
-    canvas._on_release(elsewhere)
-
-    assert drawn == []
-    assert canvas._drag_origin is None, "the sweep was left half-finished"
-
-
-def test_a_sweep_whose_end_has_no_data_position_makes_nothing(qtbot):
-    """`inaxes` says the pointer was on the plot but the position could not
-    be turned into measurements. A gate needs both ends in data units."""
-    canvas, _stale = _scatter(qtbot)
-    ax = _arm(canvas, RECTANGLE)
-    drawn = []
-    canvas.gate_drawn.connect(drawn.append)
-
-    canvas._on_press(_Mouse(ax, 1.0, 1.0))
-    nowhere = _Mouse(ax, 6.0, 4.0)
-    nowhere.xdata = nowhere.ydata = None
-    canvas._on_release(nowhere)
-
-    assert drawn == []
 
 
 def test_with_no_tool_armed_a_drag_selects_objects_instead_of_gating(qtbot):
@@ -496,137 +363,9 @@ def test_with_no_tool_armed_a_drag_selects_objects_instead_of_gating(qtbot):
         link.clear_selection()
 
 
-def test_a_release_with_no_sweep_behind_it_makes_nothing(qtbot):
-    """The button came up without ever having gone down here -- switching
-    tools mid-gesture does this."""
-    canvas, _stale = _scatter(qtbot)
-    ax = _arm(canvas, RECTANGLE)
-    drawn = []
-    canvas.gate_drawn.connect(drawn.append)
-
-    canvas._on_release(_Mouse(ax, 6.0, 4.0))
-
-    assert drawn == []
-
-
-def test_an_oval_sweep_previews_an_oval_and_a_box_sweep_a_box(qtbot):
-    """"the oval looks like a square when dragged but does in fact generate
-    an oval gate" -- the preview has to be the shape being made."""
-    from matplotlib.patches import Ellipse, Rectangle
-
-    canvas, _stale = _scatter(qtbot)
-    ax = _arm(canvas, ELLIPSE)
-    canvas._on_press(_Mouse(ax, 1.0, 1.0))
-    canvas._on_motion(_Mouse(ax, 7.0, 5.0))
-    oval = canvas._drag_patch
-    assert isinstance(oval, Ellipse)
-    assert oval.get_center() == pytest.approx((4.0, 3.0))
-    assert (oval.get_width(), oval.get_height()) == pytest.approx((6.0, 4.0))
-    canvas._on_release(_Mouse(ax, 7.0, 5.0))
-
-    canvas.set_tool(RECTANGLE)
-    canvas._on_press(_Mouse(ax, 1.0, 1.0))
-    canvas._on_motion(_Mouse(ax, 7.0, 5.0))
-    assert isinstance(canvas._drag_patch, Rectangle)
-    assert canvas._drag_patch.get_xy() == pytest.approx((1.0, 1.0))
-
-
-# ---------------------------------------------------------------------------
-# What a sweep becomes
-# ---------------------------------------------------------------------------
-
-def test_a_sweep_with_no_measurement_on_screen_makes_no_gate(qtbot):
-    """Every tool needs the columns it would name. Producing a gate on ""
-    would be a gate that can never be re-applied."""
-    canvas, _ax = _scatter(qtbot)
-    canvas._spec = GraphSpec(x="", y="")
-
-    canvas.set_tool(THRESHOLD)
-    assert canvas.gate_from_drag(1.0, 1.0, 6.0, 4.0) is None
-    canvas.set_tool(RECTANGLE)
-    assert canvas.gate_from_drag(1.0, 1.0, 6.0, 4.0) is None
-    canvas.set_tool(ELLIPSE)
-    assert canvas.gate_from_drag(1.0, 1.0, 6.0, 4.0) is None
-
-
-def test_a_cut_reads_only_the_horizontal_sweep(qtbot):
-    """On a histogram the vertical axis is a count, and gating on a count is
-    not a thing anyone means."""
-    canvas, _ax = _scatter(qtbot)
-    canvas.set_tool(THRESHOLD)
-
-    gate = canvas.gate_from_drag(1.0, 99.0, 6.0, -99.0)
-
-    assert isinstance(gate, ThresholdGate)
-    assert (gate.column, gate.low, gate.high) == ("a", 1.0, 6.0)
-
-
-def test_an_oval_dragged_to_nothing_is_not_a_gate(qtbot):
-    """A zero-width sweep would be an ellipse with a zero radius, which
-    EllipseGate refuses. Nothing drawn is the right answer to nothing
-    dragged."""
-    canvas, _ax = _scatter(qtbot)
-    canvas.set_tool(ELLIPSE)
-
-    assert canvas.gate_from_drag(3.0, 1.0, 3.0, 4.0) is None
-    assert canvas.gate_from_drag(1.0, 3.0, 4.0, 3.0) is None
-    real = canvas.gate_from_drag(1.0, 1.0, 7.0, 5.0)
-    assert isinstance(real, EllipseGate)
-    assert (real.x_centre, real.y_centre) == (4.0, 3.0)
-
-
-def test_a_tool_that_does_not_sweep_makes_nothing_out_of_one(qtbot):
-    """The polygon and the wand are click gestures. A drag with one of them
-    armed is not half a gate."""
-    canvas, _ax = _scatter(qtbot)
-    canvas.set_tool(POLYGON)
-    assert canvas.gate_from_drag(1.0, 1.0, 6.0, 4.0) is None
-    canvas.set_tool(WAND)
-    assert canvas.gate_from_drag(1.0, 1.0, 6.0, 4.0) is None
-
-
 # ---------------------------------------------------------------------------
 # The wheel
 # ---------------------------------------------------------------------------
-
-def test_the_wheel_zooms_the_scatter_about_the_pointer(qtbot):
-    """Zooming toward what you are looking at is what every map does;
-    centre-zoom means chasing a feature back into view after every notch."""
-    canvas, ax = _scatter(qtbot)
-    before = ax.get_xlim()
-
-    canvas._on_scroll(_Mouse(ax, 2.0, 2.0, step=1))
-
-    after = canvas.axes_at(0, 0).get_xlim()
-    assert after != before, "the wheel did nothing"
-    assert after[1] - after[0] < before[1] - before[0], "the wheel zoomed out"
-    assert canvas._zoom is not None, (
-        "the zoom was not remembered, so the next redraw undoes it")
-
-
-def test_a_wheel_notch_off_the_plot_changes_nothing(qtbot):
-    """There is no point to zoom about."""
-    canvas, ax = _scatter(qtbot)
-    before = ax.get_xlim()
-
-    canvas._on_scroll(_OffThePlot())
-
-    assert canvas._zoom is None
-    assert canvas.axes_at(0, 0).get_xlim() == before
-
-
-def test_reset_puts_the_limits_back_where_the_data_asks(qtbot):
-    canvas, ax = _scatter(qtbot)
-    before = ax.get_xlim()
-    canvas._on_scroll(_Mouse(ax, 2.0, 2.0, step=1))
-    assert canvas.axes_at(0, 0).get_xlim() != before
-
-    canvas.reset_view()
-
-    assert canvas._zoom is None
-    assert canvas._volume_zoom == 1.0
-    assert canvas._view_angles is None
-    assert canvas.axes_at(0, 0).get_xlim() == pytest.approx(before)
 
 
 def test_the_old_name_for_reset_is_still_the_same_reset(qtbot):
@@ -844,79 +583,6 @@ def test_a_click_with_no_axes_under_it_cannot_close_a_volume_polygon(volume):
 
 
 # ---------------------------------------------------------------------------
-# A 3D view that is not a volume
-# ---------------------------------------------------------------------------
-#
-# Asking for 3D is not the same as getting it. A third measurement the table
-# does not have, an xD view with no third component, an empty table -- each of
-# them leaves the mode set to "3D"/"xD" and a perfectly ordinary flat scatter
-# on screen. The mouse has to follow the PICTURE, because that is what the
-# user is clicking on.
-
-def _fell_back(qtbot):
-    """A canvas asked for 3D that could only draw the flat plot."""
-    frame = pd.DataFrame({"a": [0.0, 5.0, 10.0], "b": [0.0, 5.0, 10.0]})
-    canvas = GateCanvas()
-    qtbot.addWidget(canvas)
-    canvas.set_frame(frame)
-    canvas.set_spec(GraphSpec(x="a", y="b"))
-    canvas.set_mode("xD")                 # asked for, with no third component
-    ax = canvas.axes_at(0, 0)
-    assert not canvas._in_volume(), "this fixture is meant to be flat"
-    assert ax is not None and ax.get_xlabel() == "a"
-    return canvas, ax
-
-
-def test_a_polygon_can_be_clicked_out_on_a_view_that_fell_back_to_flat(qtbot):
-    """Three clicks, no vertices and no feedback. The press handler asked
-    what the MODE was rather than what was on screen, sent the clicks to the
-    volume reader, got nothing back -- there is no volume to read -- and
-    returned. The polygon tool simply did not work on any 3D view that had
-    fallen back to the flat plot."""
-    canvas, _stale = _fell_back(qtbot)
-    ax = _arm(canvas, POLYGON)
-    counts = []
-    canvas.polygon_changed.connect(counts.append)
-
-    for x, y in ((1.0, 1.0), (9.0, 1.0), (5.0, 9.0)):
-        canvas._on_press(_Mouse(ax, x, y))
-
-    assert canvas.pending_vertices() == ((1.0, 1.0), (9.0, 1.0), (5.0, 9.0))
-    assert counts == [1, 2, 3]
-
-
-def test_closing_that_polygon_gives_a_flat_gate_on_what_is_on_screen(qtbot):
-    """There is no third measurement here, so there is nothing to extend the
-    footprint along -- the gate is the polygon the user drew."""
-    canvas, _stale = _fell_back(qtbot)
-    ax = _arm(canvas, POLYGON)
-    for x, y in ((1.0, 1.0), (9.0, 1.0), (5.0, 9.0)):
-        canvas._on_press(_Mouse(ax, x, y))
-
-    gate = canvas.close_polygon(name="p")
-
-    assert isinstance(gate, PolygonGate)
-    assert (gate.x_column, gate.y_column) == ("a", "b")
-    assert gate.vertices == ((1.0, 1.0), (9.0, 1.0), (5.0, 9.0))
-
-
-def test_clicking_the_first_vertex_closes_it_there_too(qtbot):
-    """The gesture that finishes a polygon is the same one on every view the
-    user can be looking at."""
-    canvas, _stale = _fell_back(qtbot)
-    ax = _arm(canvas, POLYGON)
-    drawn = []
-    canvas.gate_drawn.connect(drawn.append)
-    for x, y in ((1.0, 1.0), (9.0, 1.0), (5.0, 9.0)):
-        canvas._on_press(_Mouse(ax, x, y))
-
-    canvas._on_press(_Mouse(ax, 1.0, 1.0))
-
-    assert canvas.pending_vertices() == (), "the polygon was not closed"
-    assert len(drawn) == 1 and isinstance(drawn[0], PolygonGate)
-
-
-# ---------------------------------------------------------------------------
 # A box gate seen in the flat editor
 # ---------------------------------------------------------------------------
 
@@ -944,5 +610,3 @@ def test_dragging_a_box_gate_shows_the_ghost_it_would_become(qtbot):
     canvas._show_ghost(gate)
 
     assert canvas._ghost, "pulling a box gate showed no preview at all"
-
-

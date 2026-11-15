@@ -13,6 +13,8 @@ from PySide6.QtWidgets import QDoubleSpinBox, QLabel
 from spacr.qt import preferences as P
 from spacr.qt.widgets.fractal_mandelbrot import steering_from_one_number
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def spaceout_only(monkeypatch):
@@ -49,17 +51,26 @@ def store(monkeypatch):
     return values
 
 
-@pytest.mark.parametrize("amount", [i / 20.0 for i in range(21)])
-def test_no_steering_setting_is_jerky(amount):
+def _no_steering_setting_is_jerky_case(amount):
+    """One case of :func:`test_no_steering_setting_is_jerky`."""
+    derived = steering_from_one_number(amount, 24.0)
+    gap = derived["steering_interval_decades"] * 24.0
+    assert derived["steering_duration"] <= 0.5 * gap, (amount, derived)
+
+
+def test_no_steering_setting_is_jerky(subtests, request):
     """A move must never take more than half the gap before the next one.
 
     Set by hand a short interval and a long duration re-target the camera
     before it has finished moving, so every frame is mid-course-correction.
     Derived together they cannot disagree.
     """
-    derived = steering_from_one_number(amount, 24.0)
-    gap = derived["steering_interval_decades"] * 24.0
-    assert derived["steering_duration"] <= 0.5 * gap, (amount, derived)
+    for label, case in locale_cases.cases(
+            ("amount", [i / 20.0 for i in range(21)]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _no_steering_setting_is_jerky_case(**fixtures, **case)
 
 
 def test_calmer_means_gentler_and_rarer_not_the_same_moves_crammed():

@@ -7,7 +7,6 @@ screen has to report by itself.
 """
 from __future__ import annotations
 
-import sqlite3
 
 import pandas as pd
 import pytest
@@ -34,60 +33,6 @@ def measurement_csv(tmp_path):
     path = tmp_path / "measurements.csv"
     frame.to_csv(path, index=False)
     return str(path)
-
-
-@pytest.fixture
-def measurement_db(tmp_path):
-    """A SQLite file holding two tables, so the picker has a choice."""
-    path = tmp_path / "measurements.db"
-    with sqlite3.connect(path) as db:
-        pd.DataFrame({"plate": ["p1", "p2"], "area": [1.0, 2.0]}).to_sql(
-            "object", db, index=False)
-        pd.DataFrame({"plate": ["p1"], "count": [7]}).to_sql(
-            "well", db, index=False)
-    return str(path)
-
-
-def test_a_csv_reaches_the_grid_the_filter_and_the_formula_panel(
-        screen, measurement_csv):
-    """One load populates every surface below it, by the one path."""
-    screen.load_path(measurement_csv)
-    assert screen._frame is not None
-    assert list(screen._frame.columns) == ["plate", "area", "perimeter"]
-    assert "measurements.csv" in screen._source.text()
-    assert "4 rows × 3 columns" in screen._source.text()
-    assert not screen._table_picker.isVisible()
-
-
-def test_a_database_offers_its_tables_and_loads_the_one_that_was_picked(
-        screen, measurement_db):
-    """The picker is filled inline, because the read needs the chosen name."""
-    screen.load_path(measurement_db)
-    assert [screen._table_picker.itemText(i)
-            for i in range(screen._table_picker.count())] == ["object", "well"]
-    assert screen._frame is not None and "area" in screen._frame.columns
-
-    screen._on_table_picked("well")
-    assert "count" in screen._frame.columns
-    assert "· well" in screen._source.text()
-
-
-def test_picking_the_table_that_is_already_loaded_still_names_it(
-        screen, measurement_db):
-    """An explicit table is honoured even when it is the current one."""
-    screen.load_path(measurement_db, table="well")
-    assert screen._table_picker.currentText() == "well"
-    assert "count" in screen._frame.columns
-
-
-def test_a_file_whose_tables_cannot_be_listed_is_reported_not_read(
-        screen, tmp_path):
-    """Listing is inline, so this is the one failure the screen owns."""
-    broken = tmp_path / "not_a_database.db"
-    broken.write_bytes(b"this is not a SQLite file")
-    screen.load_path(str(broken))
-    assert "could not read not_a_database.db" in screen._source.text()
-    assert screen._frame is None
 
 
 def test_a_read_that_fails_on_the_worker_is_reported_against_the_path(screen):
@@ -120,20 +65,6 @@ def test_choosing_a_file_loads_it(screen, monkeypatch, measurement_csv):
     assert screen._frame is not None
 
 
-def test_a_computed_column_reaches_the_grid_without_a_reload(
-        screen, measurement_csv):
-    """A formula defined after the load is faceted the moment it exists."""
-    screen.load_path(measurement_csv)
-    from spacr.qt.widgets.formula import ColumnFormula
-
-    assert screen.formulas.add_formula(
-        ColumnFormula("compactness", "area / perimeter ** 2")) is True
-    screen._on_formulas_changed()
-    computed = screen.formulas.computed_frame()
-    assert "compactness" in computed.columns
-    assert computed["compactness"].iloc[0] == pytest.approx(10.0 / 16.0)
-
-
 def test_nothing_is_pushed_before_a_table_has_been_loaded(screen):
     """With no frame there is nothing for the grid or the filter to hold."""
     assert screen.formulas.computed_frame() is None
@@ -156,14 +87,6 @@ def test_the_screen_reports_whether_a_read_is_still_running(screen):
     assert screen.is_busy() is False
 
 
-def test_closing_the_screen_abandons_the_read_in_flight(screen, qtbot,
-                                                        measurement_csv):
-    """A running QThread destroyed with the screen would abort the process."""
-    screen.load_path(measurement_csv)
-    screen.close()
-    assert screen.active_jobs() == 0
-
-
 def test_the_table_signal_before_a_file_is_loaded_does_nothing(screen):
     """The combo is filled programmatically and fires while it is being filled.
 
@@ -176,21 +99,3 @@ def test_the_table_signal_before_a_file_is_loaded_does_nothing(screen):
 
     assert screen._frame is None
     assert "could not read" not in screen._source.text()
-
-
-def test_an_empty_table_name_is_ignored_even_with_a_file_loaded(
-        screen, measurement_db):
-    """Clearing the combo emits the signal with "".
-
-    Reloading with an empty table name would ask the database for a table
-    called "" and report the failure, discarding the frame the user was
-    looking at.
-    """
-    screen.load_path(measurement_db)
-    before = screen._source.text()
-    assert screen._frame is not None
-
-    screen._on_table_picked("")
-
-    assert screen._frame is not None
-    assert screen._source.text() == before

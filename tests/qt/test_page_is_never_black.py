@@ -71,6 +71,8 @@ from spacr.qt.theme import (PAGE_MIN_LSTAR, PAGE_MIN_RATIO, THEMES,
                             page_colour, page_separation_failures,
                             page_separation_report, palette_for)
 
+from tests import locale_cases
+
 #: Black. The colour this whole file exists to keep off the page.
 BLACK = (0, 0, 0)
 
@@ -196,14 +198,8 @@ def app_theme_restored(qt_theme_applied):
 # The palettes, without a screen in the way
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("theme", ALL_THEMES)
-def test_no_theme_resolves_its_page_to_black(theme):
-    """The deliverable, in one line.
-
-    Whatever else changes about the palettes, no theme may answer the
-    question "what is behind the panels" with ``#000000``. The dark theme
-    answered exactly that for as long as ``bg`` was doing this role's job.
-    """
+def _no_theme_resolves_its_page_to_black_case(theme):
+    """One case of :func:`test_no_theme_resolves_its_page_to_black`."""
     resolved = page_colour(theme)
     assert QColor(resolved).getRgb()[:3] != BLACK, (
         f"the {theme} theme's page resolves to pure black ({resolved}) — "
@@ -211,8 +207,28 @@ def test_no_theme_resolves_its_page_to_black(theme):
         "it is the defect reported three times")
 
 
-@pytest.mark.parametrize("theme", ALL_THEMES)
-def test_every_theme_separates_its_page_from_its_panels(theme):
+def test_no_theme_resolves_its_page_to_black(subtests, request):
+    """The deliverable, in one line.
+
+    Whatever else changes about the palettes, no theme may answer the
+    question "what is behind the panels" with ``#000000``. The dark theme
+    answered exactly that for as long as ``bg`` was doing this role's job.
+    """
+    for label, case in locale_cases.cases(
+            ("theme", ALL_THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _no_theme_resolves_its_page_to_black_case(**fixtures, **case)
+
+
+def _every_theme_separates_its_page_from_its_panels_case(theme):
+    """One case of :func:`test_every_theme_separates_its_page_from_its_panels`."""
+    failures = page_separation_failures(theme)
+    assert not failures, "; ".join(failures)
+
+
+def test_every_theme_separates_its_page_from_its_panels(subtests, request):
     """"Not black" is necessary and nowhere near sufficient.
 
     ``#010101`` would pass the test above and look identical to the user.
@@ -234,12 +250,21 @@ def test_every_theme_separates_its_page_from_its_panels(theme):
     Against 1.087:1 / 3.95 L* for ``#000000`` on ``surface``, which is
     what the dark theme had and is why the panels did not read as panels.
     """
-    failures = page_separation_failures(theme)
+    for label, case in locale_cases.cases(
+            ("theme", ALL_THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _every_theme_separates_its_page_from_its_panels_case(**fixtures, **case)
+
+
+def _text_still_lands_on_the_page_case(theme):
+    """One case of :func:`test_text_still_lands_on_the_page`."""
+    failures = contrast_failures(theme)
     assert not failures, "; ".join(failures)
 
 
-@pytest.mark.parametrize("theme", ALL_THEMES)
-def test_text_still_lands_on_the_page(theme):
+def test_text_still_lands_on_the_page(subtests, request):
     """The other half of the solve, and the ceiling on it.
 
     ``page`` is in :data:`spacr.qt.theme.PAGE_SURFACES`, so every rule in
@@ -253,8 +278,12 @@ def test_text_still_lands_on_the_page(theme):
     of the two lands in a band about two values wide. A change that
     brightens the dark page "a bit more" fails here.
     """
-    failures = contrast_failures(theme)
-    assert not failures, "; ".join(failures)
+    for label, case in locale_cases.cases(
+            ("theme", ALL_THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _text_still_lands_on_the_page_case(**fixtures, **case)
 
 
 def test_bg_is_still_the_window_colour():

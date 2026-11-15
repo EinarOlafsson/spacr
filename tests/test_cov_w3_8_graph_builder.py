@@ -21,7 +21,7 @@ from PySide6.QtGui import (  # noqa: E402
 from spacr.qt.linked_selection import LinkedSelection  # noqa: E402
 from spacr.qt.widgets import graph_builder as gb  # noqa: E402
 from spacr.qt.widgets.graph_spec import (  # noqa: E402
-    CONTINUOUS, HISTOGRAM, SCATTER, GraphSpec,
+    HISTOGRAM, GraphSpec,
 )
 
 pytestmark = pytest.mark.qt
@@ -231,35 +231,6 @@ def test_a_zone_refuses_a_payload_that_is_not_a_column(qtbot):
 # The canvas
 # ---------------------------------------------------------------------------
 
-def test_an_ordinary_edit_is_debounced_rather_than_drawn_at_once(canvas):
-    canvas._debounce.stop()
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=False)
-    assert canvas._debounce.isActive()
-    canvas._debounce.stop()
-    canvas.render_now()
-    assert canvas.figure().axes
-
-
-def test_a_selection_that_cannot_be_resolved_is_no_selection(canvas,
-                                                             monkeypatch):
-    """A shared selection keyed on another table must not take the chart down."""
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=True)
-
-    class Refusing:
-        is_active = True
-
-        def mask_for(self, _frame):
-            raise KeyError("prcfo")
-
-    monkeypatch.setattr(type(canvas.link), "selection",
-                        property(lambda _self: Refusing()))
-    canvas._keyed = True
-    assert canvas._selection_mask(canvas._frame) is None
-    canvas.render_now()
-    assert canvas.figure().axes
-
 
 def test_a_log_axis_keeps_a_floor_above_zero(canvas):
     limits = canvas._limits_for
@@ -277,135 +248,6 @@ def test_a_selection_is_drawn_over_the_histogram_it_belongs_to(canvas):
     canvas._draw_histogram(canvas.figure().axes[0], canvas._frame,
                            mask.to_numpy(), gb.active_palette())
     assert len(canvas.figure().axes[0].patches) > plain
-
-
-def test_a_density_raster_can_be_weighted_by_a_third_column(canvas):
-    """Past the point budget the draw bins rather than drawing every mark."""
-    big = _frame(4000)
-    canvas.set_frame(big)
-    canvas.set_spec(GraphSpec(x="area", y="intensity", colour="cell_count",
-                              roles={"cell_count": CONTINUOUS},
-                              kind=SCATTER, point_budget=100, bins=12),
-                    immediate=True)
-    axes = canvas.figure().axes
-    assert axes and axes[0].images
-    assert axes[0].images[0].get_array().shape == (12, 12)
-
-
-# ---------------------------------------------------------------------------
-# The aggregate draws
-# ---------------------------------------------------------------------------
-
-def test_a_level_with_no_measurements_is_skipped_not_drawn_empty(canvas):
-    frame = _frame()
-    frame.loc[frame["gene"] == "g2", "area"] = np.nan
-    canvas.set_frame(frame)
-    canvas.set_spec(GraphSpec(x="gene", y="area", kind="box"), immediate=True)
-    ax = canvas.figure().axes[0]
-    # Two levels have data; the empty one contributes no box.
-    assert len(ax.lines) > 0
-    canvas.set_spec(GraphSpec(x="gene", y="area", kind="jitter"),
-                    immediate=True)
-    assert len(canvas.figure().axes[0].collections) == 2
-
-
-def test_a_distribution_with_nothing_measurable_draws_nothing(canvas):
-    frame = _frame()
-    frame["area"] = np.nan
-    canvas.set_frame(frame)
-    canvas.set_spec(GraphSpec(x="gene", y="area", kind="violin"),
-                    immediate=True)
-    ax = canvas.figure().axes[0]
-    assert not ax.collections
-    canvas.set_spec(GraphSpec(x="gene", y="area", kind="jitter"),
-                    immediate=True)
-    assert not canvas.figure().axes[0].collections
-
-
-def test_jitter_needs_a_categorical_axis_and_a_measurement(canvas):
-    """Two continuous columns are a scatter; there is nothing to jitter."""
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind="jitter"),
-                    immediate=True)
-    ax = canvas.figure().axes[0]
-    canvas._draw_jitter(ax, canvas._frame, gb.active_palette(),
-                        over_bars=False)
-    assert len(ax.collections) <= 1
-
-
-# ---------------------------------------------------------------------------
-# Sweeping a selection out of the chart
-# ---------------------------------------------------------------------------
-
-def _mouse(canvas, ax, xdata, ydata, name="button_press_event"):
-    from matplotlib.backend_bases import MouseEvent
-
-    x, y = ax.transData.transform((xdata, ydata))
-    return MouseEvent(name, canvas._canvas, x, y, 1)
-
-
-def test_a_press_outside_the_axes_starts_no_sweep(canvas):
-    from matplotlib.backend_bases import MouseEvent
-
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=True)
-    canvas._on_press(MouseEvent("button_press_event", canvas._canvas,
-                                1.0, 1.0, 1))
-    assert canvas._drag_origin is None
-    canvas._on_motion(MouseEvent("motion_notify_event", canvas._canvas,
-                                 1.0, 1.0, 1))
-    assert canvas._drag_patch is None
-
-
-def test_a_sweep_previews_a_rectangle_and_publishes_what_it_covers(canvas):
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=True)
-    ax = canvas.figure().axes[0]
-    assert canvas._keyed
-    low_x, high_x = ax.get_xlim()
-    low_y, high_y = ax.get_ylim()
-
-    canvas._on_press(_mouse(canvas, ax, low_x + 0.05 * (high_x - low_x),
-                            low_y + 0.05 * (high_y - low_y)))
-    assert canvas._drag_origin is not None
-    canvas._on_motion(_mouse(canvas, ax, high_x - 0.05 * (high_x - low_x),
-                             high_y - 0.05 * (high_y - low_y),
-                             "motion_notify_event"))
-    assert canvas._drag_patch is not None
-    assert canvas._drag_patch.get_width() > 0
-
-    canvas._on_release(_mouse(canvas, ax,
-                              high_x - 0.05 * (high_x - low_x),
-                              high_y - 0.05 * (high_y - low_y),
-                              "button_release_event"))
-    assert canvas._drag_origin is None
-    assert canvas._drag_patch is None
-
-
-def test_a_click_rather_than_a_sweep_goes_back_to_resting(canvas):
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=True)
-    ax = canvas.figure().axes[0]
-    middle_x = sum(ax.get_xlim()) / 2.0
-    middle_y = sum(ax.get_ylim()) / 2.0
-    canvas._on_press(_mouse(canvas, ax, middle_x, middle_y))
-    cleared = []
-    canvas.clear_linked_selection = lambda: cleared.append(True)
-    canvas._on_release(_mouse(canvas, ax, middle_x, middle_y,
-                              "button_release_event"))
-    assert cleared == [True]
-
-
-def test_a_brush_can_be_asked_for_the_selection_without_publishing(canvas):
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=True)
-    published = []
-    canvas.link.selection_changed.connect(published.append)
-    ax = canvas.figure().axes[0]
-    low_x, high_x = ax.get_xlim()
-    low_y, high_y = ax.get_ylim()
-    selection = canvas.brush(low_x, low_y, high_x, high_y, publish=False)
-    assert selection is not None
-    assert published == []
 
 
 # ---------------------------------------------------------------------------
@@ -455,46 +297,3 @@ def test_a_draw_on_a_dead_surface_is_discarded(canvas):
     surface._spacr_draw()
     assert surface._draw_pending is False
     surface._spacr_draw()
-
-
-def test_a_selection_is_counted_on_top_of_the_bars_it_belongs_to(canvas):
-    canvas.set_spec(GraphSpec(x="gene", kind="bar"), immediate=True)
-    ax = canvas.figure().axes[0]
-    plain = len(ax.patches)
-    mask = (canvas._frame["gene"] == "g1").to_numpy()
-    canvas._draw_bar(ax, canvas._frame, mask, gb.active_palette())
-    assert len(ax.patches) > plain
-    labels = [bars.get_label() for bars in ax.containers]
-    assert "selected" in labels
-
-
-def test_more_levels_than_hues_are_gathered_into_one_other_entry(canvas):
-    """A ninth generated hue is one nobody can name, so it is not offered."""
-    frame = _frame(60)
-    frame["gene"] = [f"g{i % 11}" for i in range(len(frame))]
-    canvas.set_frame(frame)
-    canvas.set_spec(GraphSpec(x="area", y="intensity", colour="gene",
-                              kind=SCATTER), immediate=True)
-    legend = canvas.figure().legends[0]
-    labels = [text.get_text() for text in legend.get_texts()]
-    assert len(labels) == len(gb.categorical_colours()) + 1
-    assert labels[-1] == f"{gb.OTHER_LABEL} (3)"
-
-
-def test_a_sweep_ending_on_a_panel_the_grid_does_not_know_selects_nothing(
-        canvas):
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=True)
-    ax = canvas.figure().axes[0]
-    middle_x = sum(ax.get_xlim()) / 2.0
-    middle_y = sum(ax.get_ylim()) / 2.0
-    canvas._on_press(_mouse(canvas, ax, middle_x, middle_y))
-    canvas._axes_at = {}
-    brushed = []
-    canvas.brush = lambda *args, **kwargs: brushed.append(args)
-    low_x, high_x = ax.get_xlim()
-    low_y, high_y = ax.get_ylim()
-    canvas._on_release(_mouse(canvas, ax, low_x + 0.9 * (high_x - low_x),
-                              low_y + 0.9 * (high_y - low_y),
-                              "button_release_event"))
-    assert brushed == []

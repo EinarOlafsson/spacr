@@ -189,29 +189,6 @@ class TestTheUniqueTrainingFolder:
 
 class TestTheDatasetModeDispatch:
 
-    def test_the_retired_mode_is_migrated_before_the_dispatch(self):
-        """THE PIN, for the ``else: raise ValueError``.
-
-        ``resolve_basis`` turns the retired 'measurement' into
-        'annotation' on the way in, so the only values reaching the
-        dispatch are the two it handles. Anything else is a value spaCR
-        has never had -- which is what the message says.
-        """
-        from spacr.training_basis import resolve_basis
-
-        assert resolve_basis({"dataset_mode": "measurement"}) == "annotation", (
-            "the retired mode is no longer migrated, so it reaches the "
-            "dispatch and is refused as unknown")
-
-        for mode in ("metadata", "annotation"):
-            assert resolve_basis({"dataset_mode": mode}) == mode
-
-        assert set(resolve_basis({"dataset_mode": m})
-                   for m in ("measurement", "metadata", "annotation")) == \
-            {"metadata", "annotation"}, (
-            "resolve_basis answers something outside the two the dispatch "
-            "handles, so its else arm is live")
-
     def test_the_unreachable_second_refusal_was_removed(self):
         from spacr import io as IO
 

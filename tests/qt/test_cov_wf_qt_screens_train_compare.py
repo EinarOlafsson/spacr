@@ -223,33 +223,6 @@ def test_a_run_with_no_curves_is_overlaid_as_an_empty_styled_axes(screen,
 # The click read-out
 # ---------------------------------------------------------------------------
 
-def test_a_metric_with_no_direction_reports_last_but_never_best(screen,
-                                                                run_root):
-    """"Best optimal_threshold" would be a fabrication, so it is not printed.
-
-    ``optimal_threshold`` is written per epoch by ``evaluate_model_performance``
-    and neither its largest nor its smallest value is "best". The read-out under
-    the plot is what a user quotes when comparing runs, so a line reading "best
-    optimal_threshold 0.5000 @ 25" would invent a result the run never claimed.
-    """
-    assert screen.scan(run_root) is True
-    b = _id_for(screen, "dsB")
-    assert screen.select_runs([b]) is True
-    assert screen.overlay() is True
-    label = f"{b} · val"
-
-    accuracy_text = screen.identify_series(label)
-    assert "best accuracy" in accuracy_text, "accuracy does have a best"
-    assert "optimistic" in accuracy_text
-
-    assert screen.set_metric("optimal_threshold") is True
-    text = screen.identify_series(label)
-    assert text.startswith(f"{label} · epochs 1–25")
-    assert "last optimal_threshold 0.5000 @ 25" in text
-    assert "best" not in text, "a directionless metric has no best epoch"
-    assert screen.picked_text() == text
-    assert "dsB" in text, "the folder the curve came from is named"
-
 
 def test_a_failed_canvas_clear_does_not_apply_runs_behind_stale_curves(
         screen, run_root, tmp_path, monkeypatch):

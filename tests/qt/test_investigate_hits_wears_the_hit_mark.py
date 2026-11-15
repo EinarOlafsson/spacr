@@ -26,6 +26,8 @@ from PySide6.QtGui import QImage, QPainter
 from spacr.qt import iconset
 from spacr.qt.theme import THEMES
 
+from tests import locale_cases
+
 #: Edge the icons are rasterised at. Larger than any slot they are drawn
 #: into, so two silhouettes that genuinely differ cannot come out equal
 #: through sheer lack of resolution.
@@ -102,9 +104,8 @@ class TestOneAssetTwoKeys:
 class TestTheMarkSurvivesEveryTheme:
     """The bundled PNGs are re-inked per theme; both keys must survive it."""
 
-    @pytest.mark.parametrize("theme", THEMES)
-    @pytest.mark.parametrize("key", HIT_KEYS)
-    def test_the_icon_paints_real_artwork(self, qapp, theme, key):
+    def _the_icon_paints_real_artwork_case(self, qapp, theme, key):
+        """One case of :func:`test_the_icon_paints_real_artwork`."""
         icon = iconset.app_icon(key, theme=theme)
         assert not icon.isNull()
         pixels = render(icon)
@@ -112,6 +113,15 @@ class TestTheMarkSurvivesEveryTheme:
         # from a blank button, which is what this whole module exists to
         # stop. hit_list.png inks about 18 % of its square.
         assert coverage(pixels) > 0.05
+
+    def test_the_icon_paints_real_artwork(self, subtests, request):
+        for label, case in locale_cases.cases(
+                ("theme", THEMES),
+                ("key", HIT_KEYS),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('qapp',)) as fixtures:
+                    self._the_icon_paints_real_artwork_case(**fixtures, **case)
 
     @pytest.mark.parametrize("theme", ["light", "dark"])
     @pytest.mark.parametrize("key", HIT_KEYS)
@@ -125,20 +135,36 @@ class TestTheMarkSurvivesEveryTheme:
         assert (iconset.icon_ink_color(path, "light")
                 != iconset.icon_ink_color(path, "dark"))
 
-    @pytest.mark.parametrize("theme", THEMES)
-    def test_both_keys_paint_the_identical_picture(self, qapp, theme):
+    def _both_keys_paint_the_identical_picture_case(self, qapp, theme):
+        """One case of :func:`test_both_keys_paint_the_identical_picture`."""
         first = render(iconset.app_icon("investigate_hit", theme=theme))
         second = render(iconset.app_icon("hit_list", theme=theme))
         assert np.array_equal(first, second)
+
+    def test_both_keys_paint_the_identical_picture(self, subtests, request):
+        for label, case in locale_cases.cases(
+                ("theme", THEMES),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('qapp',)) as fixtures:
+                    self._both_keys_paint_the_identical_picture_case(**fixtures, **case)
 
 
 class TestNotTheFallback:
     """Investigate Hit used to draw the artwork of every unfiled key."""
 
-    @pytest.mark.parametrize("theme", THEMES)
-    def test_it_is_not_the_puzzle_piece(self, qapp, puzzle_piece, theme):
+    def _it_is_not_the_puzzle_piece_case(self, qapp, puzzle_piece, theme):
+        """One case of :func:`test_it_is_not_the_puzzle_piece`."""
         pixels = render(iconset.app_icon("investigate_hit", theme=theme))
         assert silhouette_difference(pixels, puzzle_piece) > 0.2
+
+    def test_it_is_not_the_puzzle_piece(self, subtests, request):
+        for label, case in locale_cases.cases(
+                ("theme", THEMES),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('qapp', 'puzzle_piece')) as fixtures:
+                    self._it_is_not_the_puzzle_piece_case(**fixtures, **case)
 
     def test_it_is_not_the_fontless_fallback_diamond(self, qapp):
         """The other fallback: the glyph drawn when no icon font loads."""

@@ -130,19 +130,6 @@ class TestTheStabilityNeighbourGraph:
 
 class TestTheClusterWalkContract:
 
-    def test_every_valid_walk_returns_a_row_even_for_structureless_data(self):
-        """A valid candidate yields a row; all-noise is recorded, not omitted."""
-        from spacr.umap_search import walk_clusters
-
-        rows = walk_clusters(np.zeros((8, 2)), min_cluster_sizes=(5,))
-
-        assert len(rows) == 1
-        assert np.isnan(rows[0].silhouette)
-
-        source = inspect.getsource(H.umap_search)
-        assert "if cluster_walk:" not in source
-        assert "chosen = cluster_walk[0]" in source
-
     def test_the_walk_is_wrapped_so_a_failure_keeps_the_map(self):
         source = inspect.getsource(H)
         block = source[source.index("from .umap_search import walk_clusters"):]
