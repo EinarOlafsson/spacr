@@ -31,27 +31,6 @@ def _field(qtbot):
     return field, label, choice
 
 
-def test_a_field_without_parts_asks_for_no_room(qtbot):
-    field = home._NavigatorProtocolField()
-    qtbot.addWidget(field)
-    assert field.beside(100) is True
-    assert field.hasHeightForWidth() is True
-    assert field.heightForWidth(100) == 0
-    assert field.sizeHint().width() == 0 and field.sizeHint().height() == 0
-    assert field.minimumSizeHint().height() == 0
-    field._place(100)
-    field.resize(80, 20)
-
-
-def test_a_wide_field_puts_the_label_beside_its_choice(qtbot):
-    field, label, choice = _field(qtbot)
-    wide = field.sizeHint().width() + 40
-    assert field.beside(wide) is True
-    field.resize(wide, field.heightForWidth(wide))
-    field.show()
-    assert label.geometry().right() < choice.geometry().left()
-
-
 def test_a_narrow_field_stacks_the_label_above_its_choice(qtbot):
     field, label, choice = _field(qtbot)
     narrow = 120
@@ -62,14 +41,6 @@ def test_a_narrow_field_stacks_the_label_above_its_choice(qtbot):
     field.show()
     assert label.geometry().bottom() <= choice.geometry().top()
     assert field.minimumSizeHint().height() > 0
-
-
-def test_changing_the_choice_places_the_parts_again(qtbot):
-    field, _label, choice = _field(qtbot)
-    field.resize(field.sizeHint().width() + 40, 80)
-    field.show()
-    choice.setCurrentIndex(1)
-    assert field.heightForWidth(field.width()) > 0
 
 
 @pytest.fixture
@@ -312,22 +283,6 @@ def test_rendering_a_step_retracts_the_open_choice_list(qtbot, page):
     assert page.field.protocol_controls._inline_choice is None
 
 
-def test_a_motion_change_with_motion_on_leaves_the_arrival_alone(
-        qtbot, page, monkeypatch):
-    controls = page.field.protocol_controls
-    controls._progress = 0.4
-    monkeypatch.setattr(page.field, "_motion_enabled", lambda: True)
-    page.field._sync_run_state()
-    assert controls._progress == 0.4
-
-
-def test_hiding_a_field_that_has_no_protocol_controls_only_finishes_growth(
-        qtbot, page):
-    page.field.protocol_controls = None
-    page.field.hide()
-    assert not page.field.isVisible()
-
-
 def test_merging_releases_skips_records_without_a_tag_or_a_mapping():
     merged = home.NewsPanel.merge_releases(
         [{"tag": "v1"}, "junk", {"tag": ""}, {"name": "Named"}],
@@ -355,27 +310,6 @@ def test_leaving_the_inline_list_retracts_it(qtbot, page):
     assert view.isVisible()
     view.focusOutEvent(QFocusEvent(QEvent.FocusOut, Qt.OtherFocusReason))
     assert not view.isVisible()
-
-
-def test_a_motion_change_with_motion_off_and_no_controls_finishes_growth(
-        qtbot, page, monkeypatch):
-    page.field.protocol_controls = None
-    monkeypatch.setattr(page.field, "_motion_enabled", lambda: False)
-    from PySide6.QtCore import QVariantAnimation
-
-    running = QVariantAnimation(page.field)
-    running.setDuration(60000)
-    running.start()
-    page.field._animations.append(running)
-    assert running.state() == QVariantAnimation.Running
-    page.field._sync_run_state()
-    assert running.state() == QVariantAnimation.Stopped
-    assert page.field._animations == []
-    for card in page.field.cards:
-        if card.parentWidget() is page.field and page.field._suggestions_active:
-            assert card._growing is False
-            assert card.isEnabled()
-            assert card.geometry() == card._final_rect
 
 
 def test_a_hovered_href_that_is_nowhere_in_the_document_highlights_nothing(

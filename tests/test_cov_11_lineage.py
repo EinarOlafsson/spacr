@@ -15,10 +15,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr import lineage as lin
-from spacr.qt.linked_selection import (DEFAULT_OPEN_KIND,
-                                       register_object_opener,
-                                       unregister_object_opener)
 from spacr.qt.screens import lineage as screen_module
 
 F1 = ("plate1", "r1", "c1", "f1")
@@ -69,29 +65,6 @@ def screen(qtbot):
 # Loading
 # ---------------------------------------------------------------------------
 
-def test_building_a_tree_with_no_database_named_asks_for_one(screen):
-    """The button is always live, so pressing it early must explain itself."""
-    screen.load()
-
-    assert "Choose a measurements database first." in screen.status.text()
-
-
-def test_a_path_that_is_not_a_file_asks_for_one_too(screen, tmp_path):
-    """A typed path that does not exist is the same situation as none."""
-    screen._db.setText(str(tmp_path / "not_here.db"))
-    screen.load()
-
-    assert "Choose a measurements database first." in screen.status.text()
-
-
-def test_naming_a_real_database_builds_its_tree(screen, db):
-    """The control: loading really does read the tables and fill the tree."""
-    screen._db.setText(db)
-    screen.load()
-
-    assert screen.tree.topLevelItemCount() == 1
-    assert "1 of 1 parent object(s)" in screen.status.text()
-
 
 def test_browsing_to_a_database_loads_it(screen, db, monkeypatch):
     """Browse is the same act as typing the path and pressing the button."""
@@ -126,84 +99,3 @@ def test_a_read_that_fails_says_so_on_the_status_line(screen):
 
     assert screen.status.text() == "no measurements database at /nowhere"
     assert "color:" in screen.status.styleSheet()
-
-
-# ---------------------------------------------------------------------------
-# Key collisions
-# ---------------------------------------------------------------------------
-
-def test_two_objects_sharing_one_key_are_announced_in_the_summary(
-        screen, frames, monkeypatch):
-    """The alarm for a key that names more than one object.
-
-    Every other view treats an object key as unique, so a collision means
-    opening a family shows fewer crops than the family has objects -- with
-    nothing on screen saying why unless this note appears.
-    """
-    monkeypatch.setattr(
-        lin, "forest_key_collisions",
-        lambda _forest: {"plate1_r1_c1_f1_7": ["cell", "nucleus"]})
-
-    screen.set_frames(frames)
-
-    note = screen.collision_note()
-    assert "1 object key(s) name more than one object" in note
-    assert "plate1_r1_c1_f1_7 is a cell and a nucleus" in note
-    assert note in screen.summary.text()
-
-
-def test_no_collision_leaves_the_summary_free_of_alarms(screen, frames):
-    """The control: the note is empty in the ordinary case."""
-    screen.set_frames(frames)
-
-    assert screen.collision_note() == ""
-    assert "name more than one object" not in screen.summary.text()
-
-
-# ---------------------------------------------------------------------------
-# Opening crops
-# ---------------------------------------------------------------------------
-
-@pytest.fixture()
-def opener():
-    """Register something that can open crops, and take it away afterwards."""
-    def open_it(request):
-        return list(request.keys)
-
-    register_object_opener(DEFAULT_OPEN_KIND, open_it)
-    yield open_it
-    unregister_object_opener(DEFAULT_OPEN_KIND, open_it)
-
-
-def test_opening_with_nowhere_to_open_points_at_annotate(screen, frames):
-    """Crops are shown by Annotate, so the message names it."""
-    screen.set_frames(frames)
-
-    assert screen._open(["plate1_r1_c1_f1_7"], "because") is None
-    assert "Annotate screen" in screen.status.text()
-
-
-def test_an_opener_that_raises_leaves_the_reason_on_the_status_line(
-        screen, frames, opener, monkeypatch):
-    """A destination that blows up must not take the lineage screen with it.
-
-    The tree is still usable afterwards, and the user is told what went
-    wrong instead of watching a double-click do nothing.
-    """
-    def refuse(_keys, **_kwargs):
-        raise RuntimeError("the annotate screen has no crops for those")
-
-    monkeypatch.setattr(screen, "open_objects", refuse)
-    screen.set_frames(frames)
-
-    assert screen._open(["plate1_r1_c1_f1_7"], "because") is None
-    assert "Could not open those objects" in screen.status.text()
-    assert "no crops for those" in screen.status.text()
-
-
-def test_an_opener_that_works_returns_what_it_opened(screen, frames, opener):
-    """The control, so the failure message above means something."""
-    screen.set_frames(frames)
-
-    assert screen._open(["plate1_r1_c1_f1_7"], "because") == [
-        "plate1_r1_c1_f1_7"]

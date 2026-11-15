@@ -34,6 +34,8 @@ from spacr.qt import preferences, theme
 from spacr.qt.widgets import console_panel as cp
 from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
 
+from tests import locale_cases
+
 #: AA for body text (WCAG 1.4.3).
 AA_BODY = 4.5
 
@@ -71,16 +73,8 @@ def _rendered_fill(widget: QWidget) -> str:
 # AiToggleLabel
 # ===========================================================================
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_ai_toggle_off_is_legible_on_its_own_page(qtbot, as_theme,
-                                                  theme_name):
-    """OFF inks the theme's own ``fg``, not the dark palette's white.
-
-    Measured on the version this replaces: 1.04:1 on light
-    (``#ffffff`` on ``#fafafa``). Dark/space/cell were fine, which is
-    exactly why it survived — three of four themes agreed with the
-    frozen palette.
-    """
+def _ai_toggle_off_is_legible_on_its_own_page_case(qtbot, as_theme, theme_name):
+    """One case of :func:`test_ai_toggle_off_is_legible_on_its_own_page`."""
     palette = as_theme(theme_name)
     label = AiToggleLabel()
     qtbot.addWidget(label)
@@ -91,17 +85,24 @@ def test_ai_toggle_off_is_legible_on_its_own_page(qtbot, as_theme,
         f"{_ink(label)} on a {palette['bg']} page")
 
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_ai_toggle_on_is_the_theme_invariant_accent(qtbot, as_theme,
-                                                    theme_name):
-    """ON is the same blue wherever that blue reads as text.
+def test_ai_toggle_off_is_legible_on_its_own_page(subtests, request):
+    """OFF inks the theme's own ``fg``, not the dark palette's white.
 
-    Since 2026-09-21 ("in dark mode text ... is bright, and the opposite
-    should be true for light mode") a theme on which the constant blue is
-    under 4.5:1 -- Light, and the lighter-panelled dark themes -- draws the
-    ON caption in :func:`spacr.qt.theme.button_accent_text` instead, which
-    is still that theme's accent blue.
+    Measured on the version this replaces: 1.04:1 on light
+    (``#ffffff`` on ``#fafafa``). Dark/space/cell were fine, which is
+    exactly why it survived — three of four themes agreed with the
+    frozen palette.
     """
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'as_theme')) as fixtures:
+                _ai_toggle_off_is_legible_on_its_own_page_case(**fixtures, **case)
+
+
+def _ai_toggle_on_is_the_theme_invariant_accent_case(qtbot, as_theme, theme_name):
+    """One case of :func:`test_ai_toggle_on_is_the_theme_invariant_accent`."""
     as_theme(theme_name)
     label = AiToggleLabel()
     qtbot.addWidget(label)
@@ -111,6 +112,23 @@ def test_ai_toggle_on_is_the_theme_invariant_accent(qtbot, as_theme,
     assert _ink(label) == expected
     if theme_name == "dark":
         assert expected == theme.CONSTANT_ROLES["button_accent"].lower()
+
+
+def test_ai_toggle_on_is_the_theme_invariant_accent(subtests, request):
+    """ON is the same blue wherever that blue reads as text.
+
+    Since 2026-09-21 ("in dark mode text ... is bright, and the opposite
+    should be true for light mode") a theme on which the constant blue is
+    under 4.5:1 -- Light, and the lighter-panelled dark themes -- draws the
+    ON caption in :func:`spacr.qt.theme.button_accent_text` instead, which
+    is still that theme's accent blue.
+    """
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'as_theme')) as fixtures:
+                _ai_toggle_on_is_the_theme_invariant_accent_case(**fixtures, **case)
 
 
 def test_ai_toggle_restyles_when_the_theme_changes(qtbot, monkeypatch):
@@ -148,15 +166,8 @@ def test_ai_toggle_falls_back_to_dark_when_preferences_explode(qtbot,
 # ConsolePanel
 # ===========================================================================
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_chat_bubble_text_is_legible_on_the_bubble_it_sits_in(
-        qtbot, qapp, as_theme, theme_name):
-    """The 1.00:1 case, off a real render.
-
-    The bubble's fill comes from the app stylesheet (theme-correct); its
-    text colour came from the frozen dark palette. On light that put
-    ``#ffffff`` on ``#ffffff``.
-    """
+def _chat_bubble_text_is_legible_on_the_bubble_it_sits_in_case(qtbot, qapp, as_theme, theme_name):
+    """One case of :func:`test_chat_bubble_text_is_legible_on_the_bubble_it_sits_in`."""
     as_theme(theme_name)
     bubble = cp._Bubble("assistant", "spaCR AI says something useful")
     qtbot.addWidget(bubble)
@@ -173,18 +184,23 @@ def test_chat_bubble_text_is_legible_on_the_bubble_it_sits_in(
         f"{theme_name}: bubble text is {ratio:.2f}:1 — {ink} on {fill}")
 
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_console_entries_inline_no_colour_from_another_theme(
-        qtbot, as_theme, theme_name):
-    """The cause, not the symptom.
+def test_chat_bubble_text_is_legible_on_the_bubble_it_sits_in(subtests, request):
+    """The 1.00:1 case, off a real render.
 
-    Drive the panel through every entry type it can produce, then sweep
-    every stylesheet in the tree for a hex that belongs to the dark
-    palette and *not* to the theme on screen. Constant roles
-    (``button_accent`` and friends) and the provider-branded AI colours
-    are outside the palettes, so they are not flagged — this is about
-    importing the wrong palette.
+    The bubble's fill comes from the app stylesheet (theme-correct); its
+    text colour came from the frozen dark palette. On light that put
+    ``#ffffff`` on ``#ffffff``.
     """
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'qapp', 'as_theme')) as fixtures:
+                _chat_bubble_text_is_legible_on_the_bubble_it_sits_in_case(**fixtures, **case)
+
+
+def _console_entries_inline_no_colour_from_another_theme_case(qtbot, as_theme, theme_name):
+    """One case of :func:`test_console_entries_inline_no_colour_from_another_theme`."""
     palette = as_theme(theme_name)
     panel = cp.ConsolePanel("mask")
     qtbot.addWidget(panel)
@@ -212,30 +228,49 @@ def test_console_entries_inline_no_colour_from_another_theme(
     assert not offenders, f"{theme_name}: {sorted(set(offenders))}"
 
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_stdout_block_inherits_the_console_material(qtbot, as_theme,
-                                                     theme_name):
-    """Text stays transparent so the parent ConsoleBox material is continuous.
+def test_console_entries_inline_no_colour_from_another_theme(subtests, request):
+    """The cause, not the symptom.
 
-    The ConsoleBox already owns the readable surface. Repainting each output
-    block made Glass a stack of opaque strips and previously made Light use a
-    frozen dark fill.
+    Drive the panel through every entry type it can produce, then sweep
+    every stylesheet in the tree for a hex that belongs to the dark
+    palette and *not* to the theme on screen. Constant roles
+    (``button_accent`` and friends) and the provider-branded AI colours
+    are outside the palettes, so they are not flagged — this is about
+    importing the wrong palette.
     """
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'as_theme')) as fixtures:
+                _console_entries_inline_no_colour_from_another_theme_case(**fixtures, **case)
+
+
+def _stdout_block_inherits_the_console_material_case(qtbot, as_theme, theme_name):
+    """One case of :func:`test_stdout_block_inherits_the_console_material`."""
     as_theme(theme_name)
     block = cp._StdoutBlock("hello")
     qtbot.addWidget(block)
     assert "background-color: transparent" in block.styleSheet()
 
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_the_three_text_colours_follow_the_theme(as_theme, theme_name):
-    """``color_*()`` and the legacy ``COLOR_*`` names resolve live.
+def test_stdout_block_inherits_the_console_material(subtests, request):
+    """Text stays transparent so the parent ConsoleBox material is continuous.
 
-    ``from ...console_panel import COLOR_USER`` used to freeze the dark
-    green into the importing module. Module ``__getattr__`` now serves
-    the three names against the current theme, so the old spelling is
-    correct rather than merely still working.
+    The ConsoleBox already owns the readable surface. Repainting each output
+    block made Glass a stack of opaque strips and previously made Light use a
+    frozen dark fill.
     """
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'as_theme')) as fixtures:
+                _stdout_block_inherits_the_console_material_case(**fixtures, **case)
+
+
+def _the_three_text_colours_follow_the_theme_case(as_theme, theme_name):
+    """One case of :func:`test_the_three_text_colours_follow_the_theme`."""
     palette = as_theme(theme_name)
     assert cp.color_output() == palette["accent"]
     assert cp.color_user() == palette["success"]
@@ -245,15 +280,30 @@ def test_the_three_text_colours_follow_the_theme(as_theme, theme_name):
     assert cp.COLOR_ERROR == palette["error"]
 
 
+def test_the_three_text_colours_follow_the_theme(subtests, request):
+    """``color_*()`` and the legacy ``COLOR_*`` names resolve live.
+
+    ``from ...console_panel import COLOR_USER`` used to freeze the dark
+    green into the importing module. Module ``__getattr__`` now serves
+    the three names against the current theme, so the old spelling is
+    correct rather than merely still working.
+    """
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('as_theme',)) as fixtures:
+                _the_three_text_colours_follow_the_theme_case(**fixtures, **case)
+
+
 def test_console_panel_module_still_rejects_unknown_attributes():
     """``__getattr__`` serves three names and nothing else."""
     with pytest.raises(AttributeError, match="COLOR_MAUVE"):
         cp.COLOR_MAUVE
 
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_a_user_block_is_green_in_every_theme(qtbot, as_theme, theme_name):
-    """Green still means "you typed this" — it is just this theme's green."""
+def _a_user_block_is_green_in_every_theme_case(qtbot, as_theme, theme_name):
+    """One case of :func:`test_a_user_block_is_green_in_every_theme`."""
     palette = as_theme(theme_name)
     panel = cp.ConsolePanel()
     qtbot.addWidget(panel)
@@ -265,6 +315,16 @@ def test_a_user_block_is_green_in_every_theme(qtbot, as_theme, theme_name):
     assert blocks, "the user note produced no block"
     assert any(palette["success"].lower() in (b.styleSheet() or "").lower()
                for b in blocks)
+
+
+def test_a_user_block_is_green_in_every_theme(subtests, request):
+    """Green still means "you typed this" — it is just this theme's green."""
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'as_theme')) as fixtures:
+                _a_user_block_is_green_in_every_theme_case(**fixtures, **case)
 
 
 # ===========================================================================

@@ -40,6 +40,8 @@ from spacr.qt.widgets.read_view import (
     barcode_colours,
 )
 
+from tests import locale_cases
+
 
 #: A read with no repeating structure, so a colour landing on the wrong
 #: character cannot be mistaken for one landing on the right character of an
@@ -262,17 +264,8 @@ def test_a_shown_view_repaints_itself_in_the_new_theme(qtbot,
     assert _columns_carrying(view, 0, dark) == set()
 
 
-@pytest.mark.parametrize("name", theme.THEMES)
-def test_every_barcode_colour_stays_readable_on_every_theme(name,
-                                                            monkeypatch):
-    """The measurement the colour rule exists to guarantee.
-
-    Twenty barcode types is far more than a real plate layout needs, and it
-    is deliberately more than a hand-written palette would have supplied. The
-    surfaces are resolved the way the theme module resolves them, so the two
-    image themes are judged on the scrim composited over the wallpaper rather
-    than on a colour the user never sees.
-    """
+def _every_barcode_colour_stays_readable_on_every_theme_case(name, monkeypatch):
+    """One case of :func:`test_every_barcode_colour_stays_readable_on_every_theme`."""
     monkeypatch.setattr(preferences, "resolve_effective_theme", lambda: name)
     colours = barcode_colours([f"barcode_{n}" for n in range(20)])
 
@@ -284,16 +277,25 @@ def test_every_barcode_colour_stays_readable_on_every_theme(name,
                 f"{kind} at {colour} is {ratio:.2f}:1 on {name}/{surface}")
 
 
-@pytest.mark.parametrize("name", theme.THEMES)
-def test_a_selected_read_keeps_its_barcode_colours_readable(name,
-                                                            monkeypatch):
-    """Selection paints behind the text, so it has to be judged too.
+def test_every_barcode_colour_stays_readable_on_every_theme(subtests, request):
+    """The measurement the colour rule exists to guarantee.
 
-    The selected row is filled with ``accent_soft``, which is the one surface
-    the theme already holds ``accent`` against at the same ratio. Since every
-    barcode colour carries the accent's luminance, the guarantee carries over
-    rather than needing a second solve.
+    Twenty barcode types is far more than a real plate layout needs, and it
+    is deliberately more than a hand-written palette would have supplied. The
+    surfaces are resolved the way the theme module resolves them, so the two
+    image themes are judged on the scrim composited over the wallpaper rather
+    than on a colour the user never sees.
     """
+    for label, case in locale_cases.cases(
+            ("name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('monkeypatch',)) as fixtures:
+                _every_barcode_colour_stays_readable_on_every_theme_case(**fixtures, **case)
+
+
+def _a_selected_read_keeps_its_barcode_colours_readable_case(name, monkeypatch):
+    """One case of :func:`test_a_selected_read_keeps_its_barcode_colours_readable`."""
     monkeypatch.setattr(preferences, "resolve_effective_theme", lambda: name)
     colours = barcode_colours([f"barcode_{n}" for n in range(20)])
     behind = theme.effective_surface(name, "accent_soft")
@@ -301,6 +303,22 @@ def test_a_selected_read_keeps_its_barcode_colours_readable(name,
     for kind, colour in colours.items():
         ratio = theme.contrast_ratio(colour, behind)
         assert ratio >= 4.5, f"{kind} at {colour} is {ratio:.2f}:1 on {name}"
+
+
+def test_a_selected_read_keeps_its_barcode_colours_readable(subtests, request):
+    """Selection paints behind the text, so it has to be judged too.
+
+    The selected row is filled with ``accent_soft``, which is the one surface
+    the theme already holds ``accent`` against at the same ratio. Since every
+    barcode colour carries the accent's luminance, the guarantee carries over
+    rather than needing a second solve.
+    """
+    for label, case in locale_cases.cases(
+            ("name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('monkeypatch',)) as fixtures:
+                _a_selected_read_keeps_its_barcode_colours_readable_case(**fixtures, **case)
 
 
 def test_a_selected_read_is_painted_on_the_surface_the_ratios_assume(

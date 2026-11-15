@@ -3233,14 +3233,23 @@ def convert_folder(settings: Optional[TMapping[str, Any]] = None,
               f'would be {dst}.')
         return ConversionResult(plan=conversion_plan, dst=dst)
 
+    seen = {'total': 0}
+
+    def report(index, total, _name):
+        """Print the files finished before this one; the last line follows the run."""
+        seen['total'] = total
+        print(f'Progress: {index - 1}/{total}, '
+              f'operation_type: Converting images', flush=True)
+
     result = convert(conversion_plan, dst,
                      overwrite=bool(resolved.get('overwrite')),
                      map_name=str(resolved.get('map_name') or MAP_FILENAME),
                      resume=bool(resolved.get('resume', False)),
                      checkpoint_path=resolved.get('checkpoint_path'),
-                     progress=lambda index, total, _name: print(
-                         f'Progress: {index - 1}/{total}, '
-                         f'operation_type: Converting images', flush=True))
+                     progress=report)
+    if seen['total']:
+        print(f"Progress: {seen['total']}/{seen['total']}, "
+              f'operation_type: Converting images', flush=True)
     print(result.summary())
     _finish_conversion_barcodes(barcode_linkage, result)
 

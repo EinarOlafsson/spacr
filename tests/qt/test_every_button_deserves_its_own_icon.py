@@ -50,6 +50,8 @@ from PySide6.QtWidgets import QAbstractButton
 from spacr.qt import iconset
 from spacr.qt.theme import THEMES
 
+from tests import locale_cases
+
 #: Edge the icons are rasterised at for the silhouette comparisons. Larger
 #: than the 26 px the dock draws at and the 16 px the instruction calls the
 #: floor, so two marks that genuinely differ cannot come out equal purely
@@ -284,24 +286,39 @@ class TestTheRealButtons:
 class TestTheNewMarksAreUsable:
     """"It must read at 16 px, survive re-inking, and differ in shape.\""""
 
-    @pytest.mark.parametrize("theme", THEMES)
-    @pytest.mark.parametrize("key", ["import_images", "explain_cv"])
-    def test_it_inks_a_real_shape_at_sixteen_pixels(self, qapp, theme, key):
+    def _it_inks_a_real_shape_at_sixteen_pixels_case(self, qapp, theme, key):
+        """One case of :func:`test_it_inks_a_real_shape_at_sixteen_pixels`."""
+        pixels = render(iconset.app_icon(key, theme=theme), SMALL_PX)
+        assert coverage(pixels) > 0.04
+
+    def test_it_inks_a_real_shape_at_sixteen_pixels(self, subtests, request):
         """Not "an icon exists" -- "an icon is visible in the slot it lives in".
 
         The floor is 4 %: at 16 px that is ten inked pixels, below which
         there is no silhouette left to recognise. The two marks measure
         23 % (``ml_analyze.png``) and 67 % (``fa5s.images``).
         """
-        pixels = render(iconset.app_icon(key, theme=theme), SMALL_PX)
-        assert coverage(pixels) > 0.04
+        for label, case in locale_cases.cases(
+                ("theme", THEMES),
+                ("key", ["import_images", "explain_cv"]),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('qapp',)) as fixtures:
+                    self._it_inks_a_real_shape_at_sixteen_pixels_case(**fixtures, **case)
 
-    @pytest.mark.parametrize("theme", THEMES)
-    @pytest.mark.parametrize("key", ["import_images", "explain_cv"])
-    def test_it_is_not_the_fallback_in_any_theme(self, qapp, fallback, theme,
-                                                 key):
+    def _it_is_not_the_fallback_in_any_theme_case(self, qapp, fallback, theme, key):
+        """One case of :func:`test_it_is_not_the_fallback_in_any_theme`."""
         assert silhouette_difference(
             render(iconset.app_icon(key, theme=theme)), fallback) > 0.2
+
+    def test_it_is_not_the_fallback_in_any_theme(self, subtests, request):
+        for label, case in locale_cases.cases(
+                ("theme", THEMES),
+                ("key", ["import_images", "explain_cv"]),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('qapp', 'fallback')) as fixtures:
+                    self._it_is_not_the_fallback_in_any_theme_case(**fixtures, **case)
 
     @pytest.mark.parametrize("key", ["explain_cv", "regression_diagnostics"],
                              ids=["the_borrowed_png", "the_drawn_last_one"])

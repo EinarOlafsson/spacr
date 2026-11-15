@@ -40,6 +40,8 @@ from spacr.qt.app import APPS, MainWindow
 
 from .test_all_module_smoke import _FactoryHost, _retire_graphics_menus
 
+from tests import locale_cases
+
 #: The screens a keyboard user lands on first: the Core section of the dock.
 MAIN_SCREENS = tuple(key for key, _n, _d, section in APPS
                      if section == "Core")
@@ -64,10 +66,8 @@ def _open(qtbot, monkeypatch, app_key):
     return screen
 
 
-@pytest.mark.parametrize("app_key", [key for key, *_ in APPS])
-def test_every_visible_control_has_an_accessible_name(
-        qtbot, qt_theme_applied, monkeypatch, app_key):
-    """The a11y lint: no visible control on any module screen is nameless."""
+def _every_visible_control_has_an_accessible_name_case(qtbot, qt_theme_applied, monkeypatch, app_key):
+    """One case of :func:`test_every_visible_control_has_an_accessible_name`."""
     screen = _open(qtbot, monkeypatch, app_key)
     controls = [
         widget for widget in screen.findChildren(QWidget)
@@ -84,6 +84,16 @@ def test_every_visible_control_has_an_accessible_name(
     assert not nameless, (
         f"{app_key}: {len(nameless)} visible control(s) without an "
         f"accessible name: {nameless[:10]}")
+
+
+def test_every_visible_control_has_an_accessible_name(subtests, request):
+    """The a11y lint: no visible control on any module screen is nameless."""
+    for label, case in locale_cases.cases(
+            ("app_key", [key for key, *_ in APPS]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'qt_theme_applied', 'monkeypatch')) as fixtures:
+                _every_visible_control_has_an_accessible_name_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize("app_key", MAIN_SCREENS)

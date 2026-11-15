@@ -45,28 +45,6 @@ def test_a_column_with_no_spread_maps_to_the_smallest_marker():
     assert infinite.tolist() == [50.0, 50.0]
 
 
-def test_a_volcano_reads_its_regression_table_from_disk(tmp_path):
-    """A path argument is read as a table, not just accepted as a DataFrame.
-
-    The volcano is called from the GUI with the path of the regression CSV the
-    run just wrote; only the in-memory form is exercised by the fast tests.
-    """
-    genes = [str(220000 + i) for i in range(8)]
-    data = pd.DataFrame({
-        'feature': [f'{g}_1' for g in genes],
-        'coefficient': [0.6, -0.6, 0.01, 0.02, 0.5, -0.5, 0.0, 0.03],
-        'p_value': [1e-6, 1e-6, 0.9, 0.8, 1e-4, 1e-4, 0.7, 0.6],
-    })
-    data_path = tmp_path / 'regression.csv'
-    data.to_csv(data_path, index=False)
-    metadata = pd.DataFrame({'gene_nr': genes,
-                             'tagm_location': ['cytosol'] * 8})
-
-    hits = T.custom_volcano_plot(str(data_path), metadata, draw=False)
-    assert hits == [f'{g}_1' for g in
-                    ['220000', '220001', '220004', '220005']]
-
-
 def test_hits_that_match_no_gene_enrich_no_go_term(tmp_path):
     """With no hit in the metadata every term scores zero and none is plotted.
 

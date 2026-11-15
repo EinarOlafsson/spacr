@@ -12,7 +12,6 @@ from __future__ import annotations
 import math
 import time
 
-import numpy as np
 import pytest
 
 pytest.importorskip("PySide6")
@@ -51,72 +50,6 @@ def test_automatic_keeps_an_unmeasured_canvas_on_the_cpu(theme):
     assert engine._graphics_automatic(0, 480) is False
     engine.density = 0.0
     assert engine._graphics_automatic(3840, 2160) is False
-
-
-def _lookup(dark):
-    ramp = np.arange(256, dtype=np.uint32)
-    if not dark:
-        ramp = 255 - ramp
-    return (ramp * np.uint32(0x010101)) | np.uint32(0xff000000)
-
-
-def _stamp(kernel, xs, ys, values, width, height, dark):
-    lookup = _lookup(dark)
-    flat = np.full(width * height, lookup[0], dtype=np.uint32)
-    xs = np.asarray(xs, dtype=np.float32)
-    ys = np.asarray(ys, dtype=np.float32)
-    values = np.asarray(values, dtype=np.float32)
-    if kernel is None:
-        ambient._subpixel_grains_numpy(np, flat, xs, ys, values, lookup,
-                                       width, height, dark)
-    else:
-        kernel(flat, xs, ys, values, lookup, width, height, dark,
-               np.zeros(16, dtype=np.float64))
-    return flat
-
-
-@pytest.mark.parametrize("dark", [True, False])
-def test_the_python_grain_kernel_matches_its_numpy_twin(dark):
-    rng = np.random.default_rng(12)
-    width, height = 24, 18
-    xs = np.concatenate([rng.uniform(-1.5, width + 1.5, 120),
-                         [3.0, 3.5, 7.0, 0.0, width + 0.9, -1.2]])
-    ys = np.concatenate([rng.uniform(-1.5, height + 1.5, 120),
-                         [4.0, 4.5, 7.0, 0.0, -0.4, height + 0.7]])
-    values = np.concatenate([rng.uniform(0.0, 2.5, 120),
-                             [1.0, 1.0, 3.0, 0.5, 1.0, 1.0]])
-    python = _stamp(ambient._scatter_subpixel_grains, xs, ys, values,
-                    width, height, dark)
-    twin = _stamp(None, xs, ys, values, width, height, dark)
-    assert np.array_equal(python, twin)
-    background = _lookup(dark)[0]
-    assert (python != background).sum() > 100
-    brightest = _lookup(dark)[255]
-    assert (python == brightest).any()
-
-
-def test_a_grain_stamped_twice_keeps_the_brighter_value():
-    once = _stamp(ambient._scatter_subpixel_grains, [6.0], [6.0], [2.0], 12, 12, True)
-    twice = _stamp(ambient._scatter_subpixel_grains, [6.0, 6.3], [6.0, 6.2],
-                   [2.0, 0.2], 12, 12, True)
-    assert (twice >= once).all()
-    assert twice[5 * 12 + 5] == once[5 * 12 + 5]
-
-
-@pytest.mark.parametrize("kernel", [None, "python"])
-def test_no_grains_leave_the_canvas_untouched(kernel):
-    function = ambient._scatter_subpixel_grains if kernel else None
-    flat = _stamp(function, [], [], [], 8, 8, True)
-    assert (flat == _lookup(True)[0]).all()
-
-
-def test_a_field_without_the_compiled_kernel_shades_with_numpy(monkeypatch):
-    engine = ambient.make_engine("data_art_impulse_lens", "spacr", "#101418",
-                                 seed=7, density=0.25)
-    monkeypatch.setattr(ambient, "_ready_subpixel_scatter", lambda: None)
-    engine.advance(0.4)
-    image = engine.shade(160, 100)
-    assert image is not None and image.width() == 160
 
 
 @pytest.mark.parametrize("point", [

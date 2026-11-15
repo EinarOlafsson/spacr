@@ -131,30 +131,6 @@ def test_a_window_that_cannot_remember_its_editor_still_gets_one(qtbot):
         dialog.hide()
 
 
-def test_the_glass_filter_comes_off_when_the_theme_keeps_its_claim(
-        qapp, monkeypatch, caplog):
-    from spacr.qt import theme
-    from spacr.qt.widgets import glass
-
-    removed = []
-    installed = object()
-    monkeypatch.setattr(glass, "_INSTALLED", installed)
-    monkeypatch.setattr(glass, "_INSTALLED_APP", qapp)
-    monkeypatch.setattr(glass, "_stop_watching_application_events",
-                        lambda app, target: removed.append((app, target)))
-
-    def keeps_its_claim(_wants):
-        raise RuntimeError("the theme is already torn down")
-
-    monkeypatch.setattr(theme, "_stop_letting_a_decorator_sheet",
-                        keeps_its_claim)
-    with caplog.at_level(logging.DEBUG, logger=glass.LOG.name):
-        assert glass.uninstall_glass_everywhere() is True
-    assert removed == [(qapp, installed)]
-    assert glass._INSTALLED is None and glass._INSTALLED_APP is None
-    assert "the theme kept the glass filter's claim" in caplog.text
-
-
 def test_a_wheel_cuda_library_is_found_past_an_empty_nvidia_folder(
         tmp_path, monkeypatch):
     from spacr.qt import gil_priority

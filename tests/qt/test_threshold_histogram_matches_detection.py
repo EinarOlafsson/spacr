@@ -11,6 +11,8 @@ from skimage import filters
 from spacr.qt import mask_engine as engine
 from spacr.qt.screens import make_masks as mm
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def screen(qtbot, qt_theme_applied, tmp_path):
@@ -40,10 +42,8 @@ def preview(screen, qtbot):
     return dialog
 
 
-@pytest.mark.parametrize('mode', ['otsu', 'li', 'yen', 'triangle', 'isodata', 'mean', 'minimum', 'multiotsu'])
-@pytest.mark.parametrize('bright', [True, False])
-@pytest.mark.parametrize('enhanced', [False, True])
-def test_histogram_and_markers_match_processed_detector_input(screen, qtbot, mode, bright, enhanced):
+def _histogram_and_markers_match_processed_detector_input_case(screen, qtbot, mode, bright, enhanced):
+    """One case of :func:`test_histogram_and_markers_match_processed_detector_input`."""
     choose(screen, mode)
     screen._otsu_bright.setChecked(bright)
     screen._otsu_smoothing.setValue(1.0)
@@ -64,6 +64,17 @@ def test_histogram_and_markers_match_processed_detector_input(screen, qtbot, mod
         expected = [level * 1.1 if bright else float(values.max()) - (float(values.max()) - level) * 1.1]
     assert dialog.plot.levels == pytest.approx(expected, rel=1e-6)
     assert mm._magnifier_mode_label(mode) in dialog.windowTitle()
+
+
+def test_histogram_and_markers_match_processed_detector_input(subtests, request):
+    for label, case in locale_cases.cases(
+            ('mode', ['otsu', 'li', 'yen', 'triangle', 'isodata', 'mean', 'minimum', 'multiotsu']),
+            ('bright', [True, False]),
+            ('enhanced', [False, True]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('screen', 'qtbot')) as fixtures:
+                _histogram_and_markers_match_processed_detector_input_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize('mode', ['otsu', 'sauvola', 'niblack'])

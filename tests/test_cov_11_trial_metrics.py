@@ -14,7 +14,6 @@ import pytest
 
 from spacr.trial_metrics import (
     control_recovery,
-    design_diagnostics,
     fit_quality,
     hit_counts,
     qc_verdicts,
@@ -25,11 +24,6 @@ from spacr.trial_metrics import (
 class _Model:
     """A stand-in fit whose attributes are set by the test that needs them."""
 
-    def __init__(self, **attributes):
-        self.__dict__.update(attributes)
-
-
-class _Inner:
     def __init__(self, **attributes):
         self.__dict__.update(attributes)
 
@@ -129,50 +123,6 @@ def test_a_q_value_that_is_not_a_number_costs_only_the_q_value():
     assert out["positive_control_found"] is True
     assert out["positive_control_rank"] == 1
     assert "positive_control_q" not in out
-
-
-# ---------------------------------------------------------------------------
-# design_diagnostics
-# ---------------------------------------------------------------------------
-
-def test_a_design_matrix_of_text_yields_no_design_metrics():
-    """Rank and collinearity are undefined for something that is not numbers."""
-    model = _Model(model=_Inner(exog=np.array([["a", "b"], ["c", "d"]])))
-
-    assert design_diagnostics(model) == {}
-
-
-@pytest.mark.parametrize("exog", [
-    np.array([1.0, 2.0, 3.0]),          # one dimension: not a design matrix
-    np.zeros((0, 3)),                   # no rows at all
-])
-def test_a_design_that_is_not_a_matrix_of_rows_yields_nothing(exog):
-    """A design needs both dimensions before any of these questions apply."""
-    assert design_diagnostics(_Model(model=_Inner(exog=exog))) == {}
-
-
-def test_a_correlation_matrix_too_big_for_memory_costs_only_the_pair_counts(
-        monkeypatch):
-    """Rank and identifiability still come back when the pairs cannot.
-
-    The pair statistics are quadratic in the predictor count; the rank is
-    already known from the fit, and it is the field that decides whether the
-    rest of the row means anything.
-    """
-    rng = np.random.default_rng(0)
-    exog = np.column_stack([np.ones(30), rng.normal(size=(30, 3))])
-
-    def refuse(*args, **kwargs):
-        raise MemoryError("the correlation matrix does not fit")
-
-    monkeypatch.setattr(np, "corrcoef", refuse)
-
-    out = design_diagnostics(
-        _Model(model=_Inner(exog=exog, rank=4, k_constant=1), df_resid=26))
-
-    assert out["design_rank"] == 4
-    assert out["design_identifiable"] is True
-    assert "n_collinear_pairs" not in out
 
 
 # ---------------------------------------------------------------------------

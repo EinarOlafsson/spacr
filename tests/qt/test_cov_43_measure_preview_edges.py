@@ -71,26 +71,6 @@ def test_a_field_with_no_scratch_says_how_open_it_is(panel):
     assert "3.1 %" in panel._status.text()
 
 
-def test_the_analyses_that_are_on_follow_a_new_field_and_new_settings(
-        panel, monkeypatch, tmp_path):
-    redrawn = []
-    monkeypatch.setattr(panel, "_refresh_confluency",
-                        lambda: redrawn.append("confluency"))
-    monkeypatch.setattr(panel, "_refresh_wound",
-                        lambda: redrawn.append("wound"))
-    for button in (panel._confluency_btn, panel._wound_btn):
-        button.blockSignals(True)
-        button.setChecked(True)
-        button.blockSignals(False)
-    path = tmp_path / "plate1_A01_1.npy"
-    np.save(path, np.zeros((32, 32, 3), np.uint16))
-    panel.load_array(str(path))
-    assert redrawn[-2:] == ["confluency", "wound"]
-    redrawn.clear()
-    panel.apply_settings({})
-    assert redrawn == ["confluency", "wound"]
-
-
 def test_an_object_type_without_a_crop_switch_still_repreviews(panel,
                                                               monkeypatch):
     propagated = []

@@ -11,6 +11,8 @@ from PySide6.QtGui import QImage, QPainter
 
 from spacr.qt.widgets import ambient
 
+from tests import locale_cases
+
 
 def _engine(family, **kwargs):
     kwargs.setdefault("density", 1.0)
@@ -82,12 +84,8 @@ def _uncropped_atlas_coordinates(engine, width, height):
             18.0 * xx + 8.0 * zz + engine._anchors[0][0] * np.pi * 2)
 
 
-@pytest.mark.parametrize("pointer", [None, (0, 0), (1, 1), (0, 1), (1, 0)])
-@pytest.mark.parametrize("size,density,resolution", [(1, 1, 1), (0.25, 3, 1),
-                                                    (2.5, 0.25, 1), (1, 3, 2)])
-@pytest.mark.parametrize("gravity_radius", [0, 1])
-def test_atlas_culling_keeps_exact_native_4k_pixels(
-        pointer, size, density, resolution, gravity_radius):
+def _atlas_culling_keeps_exact_native_4k_pixels_case(pointer, size, density, resolution, gravity_radius):
+    """One case of :func:`test_atlas_culling_keeps_exact_native_4k_pixels`."""
     optimized = _engine("point_atlas", size=size, density=density,
                         resolution=resolution)
     full_region = _engine("point_atlas", size=size, density=density,
@@ -110,6 +108,18 @@ def test_atlas_culling_keeps_exact_native_4k_pixels(
                               np.frombuffer(second.bits(), dtype=np.uint32))
     clipped = optimized._material_cache[key][0]
     assert len(clipped) < len(original[0]) * 0.65
+
+
+def test_atlas_culling_keeps_exact_native_4k_pixels(subtests, request):
+    for label, case in locale_cases.cases(
+            ("pointer", [None, (0, 0), (1, 1), (0, 1), (1, 0)]),
+            ("size,density,resolution", [(1, 1, 1), (0.25, 3, 1),
+                                                    (2.5, 0.25, 1), (1, 3, 2)]),
+            ("gravity_radius", [0, 1]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _atlas_culling_keeps_exact_native_4k_pixels_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize("width,height", [(1, 1), (16, 9), (128, 72), (512, 288)])

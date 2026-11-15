@@ -37,6 +37,8 @@ from spacr.qt import theme
 from spacr.qt.widgets import ambient as amb
 from spacr.qt.widgets.setup_card import (SPACEOUT_RIM_PERIOD, SetupCard)
 
+from tests import locale_cases
+
 #: The canvas every frame in this file is measured on.
 W, H = 1280, 720
 
@@ -546,8 +548,17 @@ def test_the_drift_is_not_a_loop_either(dressed):
     assert closest_repeat(rate) > 0.10
 
 
-@pytest.mark.parametrize("name", theme.THEMES)
-def test_every_offset_the_drift_can_reach_is_still_readable(name, dressed):
+def _every_offset_the_drift_can_reach_is_still_readable_case(name, dressed):
+    """One case of :func:`test_every_offset_the_drift_can_reach_is_still_readable`."""
+    for drift in theme._drift_grid():
+        with theme._dressed_at(drift):
+            assert theme.contrast_failures(name) == [], f"at {drift}°"
+            assert theme.page_separation_failures(name) == [], f"at {drift}°"
+            if name in theme.IMAGE_THEMES:
+                assert theme.scrim_failures(name) == [], f"at {drift}°"
+
+
+def test_every_offset_the_drift_can_reach_is_still_readable(subtests, request):
     """THE CHECK IS NOT SUSPENDED, and a drifting palette makes it a
     per-frame property rather than a one-off.
 
@@ -560,12 +571,12 @@ def test_every_offset_the_drift_can_reach_is_still_readable(name, dressed):
     because both composite in sRGB where equal luminances of different hue
     do not stay equal — and both are therefore SOLVED over the same grid.
     """
-    for drift in theme._drift_grid():
-        with theme._dressed_at(drift):
-            assert theme.contrast_failures(name) == [], f"at {drift}°"
-            assert theme.page_separation_failures(name) == [], f"at {drift}°"
-            if name in theme.IMAGE_THEMES:
-                assert theme.scrim_failures(name) == [], f"at {drift}°"
+    for label, case in locale_cases.cases(
+            ("name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('dressed',)) as fixtures:
+                _every_offset_the_drift_can_reach_is_still_readable_case(**fixtures, **case)
 
 
 def test_holding_the_check_is_what_the_damping_is_for(dressed):

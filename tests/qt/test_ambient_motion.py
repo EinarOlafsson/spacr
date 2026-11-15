@@ -68,6 +68,8 @@ from spacr.qt.widgets.ambient import (  # noqa: E402
 )
 from spacr.qt.widgets.ambient import make_engine as _make_engine
 
+from tests import locale_cases
+
 DARK = "#101418"
 LIGHT = "#f6f7f9"
 
@@ -772,13 +774,8 @@ def test_the_widget_exposes_them_all_and_they_reach_the_engine(qtbot):
 # adds one pass over a buffer no bigger than that, and the theme that was
 # made dearer is dearer by exactly the amount its docstring claims.
 
-@pytest.mark.parametrize("theme", BUFFERED_THEMES)
-@pytest.mark.parametrize("canvas", [(1920, 1080), (3840, 2160), (5120, 2880),
-                                    (800, 600), (37, 11)])
-def test_the_shading_pass_has_a_hard_ceiling(theme, canvas):
-    """The buffer edge is a ratio to the canvas, and a ratio alone lets a
-    bigger display quietly buy a bigger shading pass. This is the absolute
-    ceiling that stops it."""
+def _the_shading_pass_has_a_hard_ceiling_case(theme, canvas):
+    """One case of :func:`test_the_shading_pass_has_a_hard_ceiling`."""
     engine = make_engine(theme, "spacr", DARK, seed=5, resolution=2.0,
                          density=3.0)
     width, height = engine.buffer_size(*canvas)
@@ -787,6 +784,20 @@ def test_the_shading_pass_has_a_hard_ceiling(theme, canvas):
     assert width >= 1 and height >= 1
     engine.set_time(4.0)
     render(engine, *canvas)                     # and it still paints
+
+
+def test_the_shading_pass_has_a_hard_ceiling(subtests, request):
+    """The buffer edge is a ratio to the canvas, and a ratio alone lets a
+    bigger display quietly buy a bigger shading pass. This is the absolute
+    ceiling that stops it."""
+    for label, case in locale_cases.cases(
+            ("theme", BUFFERED_THEMES),
+            ("canvas", [(1920, 1080), (3840, 2160), (5120, 2880),
+                                    (800, 600), (37, 11)]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _the_shading_pass_has_a_hard_ceiling_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize("theme", BUFFERED_THEMES)
