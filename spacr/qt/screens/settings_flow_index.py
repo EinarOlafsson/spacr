@@ -1415,6 +1415,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_ph_stage_dir',
     'ops_ph_stage_threads',
     'ops_ph_texture',
+    'ops_ph_use_acquisition',
     'ops_ph_zernike',
     'ops_phase_null',
     'ops_phase_tests',
