@@ -1,4 +1,4 @@
-# ITEM DRAFT (no number yet): per-site resource log and NGS representation in the prefix decode
+# Item 944: per-site resource log and NGS representation in the prefix decode
 
 - **Number:** 944 (reserved 2026-11-14).
 

@@ -15554,6 +15554,7 @@ SETTING_CONSUMERS = {
     'ops_scoring_string_thresholds': (('spacr.ops_scoring', 'score_profile_benchmarks'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_scoring_workers': (('spacr.ops_scoring', 'score_ops_profiles'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_single_read_quality': (('spacr.ops_settings', 'ops_defaults'),),
+    'ops_sites': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_spot_detector': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_spot_min_peak': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_spot_overrule_share': (('spacr.ops_settings', 'ops_defaults'),),

@@ -79,14 +79,29 @@ def test_the_walk_asks_no_file_for_its_stat(tree, monkeypatch):
     assert not {os.fspath(p) for p in regular} & {os.fspath(s) for s in stats}
 
 
-def test_the_plan_orders_paths_as_path_objects_do(tree):
+@pytest.fixture()
+def planned_tree(tree):
+    """``tree`` without its images that sit in no well folder.
+
+    Since item 950 a layout with a well level refuses such a file instead of
+    calling it A01, so the plan tests drop the three: the top-level image,
+    its link and the image inside the folder named like a file.
+    """
+    for stray in (tree / "top.png", tree / "linked.png",
+                  tree / "plate" / "dir.tif" / "inner.tif"):
+        if stray.is_symlink() or stray.exists():
+            stray.unlink()
+    return tree
+
+
+def test_the_plan_orders_paths_as_path_objects_do(tree, planned_tree):
     files = list(_old_iter_image_files(tree))
     assert sorted(files, key=ip._path_order) == sorted(files)
     names = ["/r/a-b", "/r/a/b", "/r/a b", "/r/A", "/r/a.b", "/r/é", "/r/a/B"]
     paths = [Path(n) for n in names]
     assert sorted(paths, key=ip._path_order) == sorted(paths)
-    rows = ip.plan_folder_extraction(tree, limit=4)
-    full = ip.plan_folder_extraction(tree, limit=None)
+    rows = ip.plan_folder_extraction(planned_tree, limit=4)
+    full = ip.plan_folder_extraction(planned_tree, limit=None)
     assert rows == full[:4]
 
 
@@ -169,7 +184,8 @@ def test_reading_the_table_takes_the_rows_still_to_come(qtbot, tmp_path):
     assert full.rows() == rows
 
 
-def test_the_folder_report_plans_the_rows_the_full_walk_planned(tree):
+def test_the_folder_report_plans_the_rows_the_full_walk_planned(planned_tree):
+    tree = planned_tree
     from itertools import chain, islice
 
     from spacr.qt import dnd_handlers as dh
