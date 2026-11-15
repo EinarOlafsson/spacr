@@ -273,16 +273,35 @@ def test_a_decoy_call_is_counted_and_not_owned_calls_are_dropped():
     assert [r["object_id"] for r in rows] == [11]
 
 
-def test_every_873_setting_is_alpha_and_declared():
+#: The settings item 873 added; they left alpha with item 946.
+SETTINGS_873 = ('ops_decode_preset', 'ops_registration_refine_px',
+                'ops_spot_min_peak', 'ops_spot_overrule_share',
+                'ops_decode_library_calibration', 'ops_calibration_passes',
+                'ops_calibration_min_labels', 'ops_decode_runner_up',
+                'ops_runner_up_margin', 'ops_decode_impute_missing_cycles',
+                'ops_assign_by_cell_territory', 'ops_tie',
+                'ops_decode_quality_weighted', 'ops_vote_weight_floor',
+                'ops_decode_pixel_fallback', 'ops_pixel_percentile',
+                'ops_pixel_radius', 'ops_pixel_min_pixels',
+                'ops_pixel_min_fraction', 'ops_pixel_quality',
+                'ops_decoy_library_k', 'ops_fdr_scale',
+                'ops_decode_skip_unplaced_sites', 'ops_store_field_cache')
+
+
+def test_every_873_setting_left_alpha_and_is_declared():
     from spacr import ops_settings
 
-    entry = ALPHA_FEATURES[873]
-    for key in entry["settings"]:
+    assert 873 not in ALPHA_FEATURES
+    for entry in ALPHA_FEATURES.values():
+        assert not set(SETTINGS_873) & set(entry.get("settings", ())), entry
+        assert "spots_refine" not in entry.get("choices", {}).get(
+            "ops_channel_registration", ()), entry
+    for key in SETTINGS_873:
         assert key in ops_settings.OPS_DEFAULTS
         assert key in ops_settings.OPS_TYPES
-        assert "Alpha." in ops_settings.OPS_TOOLTIPS[key]
+        assert not ops_settings.OPS_TOOLTIPS[key].rstrip().endswith("Alpha."), key
         assert any(key in keys for keys in ops_settings.OPS_CATEGORIES.values())
-    assert entry["choices"] == {"ops_channel_registration": ("spots_refine",)}
+    assert "(alpha)" not in ops_settings.OPS_TOOLTIPS["ops_channel_registration"]
     for key in ops_decode.RULE_A_S2:
         assert key in ops_settings.OPS_DEFAULTS
     assert os.path.isfile(os.path.join(

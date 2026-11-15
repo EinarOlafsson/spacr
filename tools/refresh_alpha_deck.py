@@ -106,10 +106,10 @@ GROUPS = (
     )),
     ("OPS genotyping", (
         ("Decode rule (a) + S2 with decoy FDR, spacer-prefix quality classes",
-         (873, 920)),
+         (920,)),
         ("False calls, calibrated confidence, matching to other pipelines",
          (876, 877, 878, 922)),
-        ("Automatic thresholds, detection and calling tuned together", (939, 942)),
+        ("Automatic thresholds, detection and calling tuned together", (942,)),
     )),
     ("OPS gene profiles", (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),

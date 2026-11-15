@@ -1,0 +1,37 @@
+THE DEFAULT OPS DECODE IS THE PROVEN FUNK DECODE (RULE (A) + S2 WITH PER-WELL DECOY THRESHOLDS)
+===============================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-15. ops_decode_preset defaults to 'rule_a_s2' (was 'none') and ops_decode_threshold_mode to 'auto' (was 'manual'); ops_decode_auto_spot_grid defaults to [] (was item 942's joint grid 150, 200, 250, 315, 400), so auto mode tunes the calling thresholds only. Items 873 and 939 left alpha (ALPHA_FEATURES and the alpha deck registry, 143 alpha features). Settings schema version 940: DEFAULT_CHANGES[940] = {'ops_decode_preset': 'none', 'ops_decode_threshold_mode': 'manual', 'ops_decode_auto_spot_grid': [150.0, 200.0, 250.0, 315.0, 400.0]}, so a file stamped before 940 (or unstamped) reruns with the decode it was written under. spacr/ops_settings.py, spacr/settings.py, spacr/settings_spec.py, spacr/ops_decode.py, spacr/ops_engine.py, tools/refresh_alpha_deck.py, docs/source/reproducibility_manifests.rst.
+Requested: maintainer, 2026-11-14: "make rule_a_s2 the default". Joint spot x calling grid only if the 942 fast-search card passed; it did not (experiment_designs/20261114_942_fast_search_DRAFT.md), so the joint grid stays an opt-in.
+Owner: paper session (stage 2 lane).
+Source: proposals/bmc_paper_items/ITEM_ops_default_funk_decode.md.
+Related: 873 (rule (a) + S2), 939 (per-well auto thresholds), 942 (shared tuner, joint grid), 931 (settings schema version), 932 (decode speed), READINESS.md stage 2.
+
+BEHAVIOUR
+- A run whose settings come from the panel defaults (GUI, spacr-run, a
+  settings file stamped 940 or later) decodes with rule (a) + S2 and per-well
+  thresholds chosen from decoys (single-read quality x pixel quality grid of
+  S2-it1, FDR upper 95 % bound <= ops_decode_fdr_max 0.1 per 100 on a random
+  half of each well's fields; results/ops_decode/decode_thresholds_<plate>.csv).
+- 'auto' is the default, so a decode auto mode cannot tune (ops_decode_preset
+  'none', ops_cell_rule other than 'mapped', no guide library, or no decoys)
+  now keeps the thresholds as entered and logs why, instead of stopping with
+  a ValueError (spacr.ops_engine._decode). Its output equals 'manual'.
+- A mapping passed straight to spacr.ops_engine.run_ops without these keys
+  still means preset 'none' and 'manual' (the engine fallbacks are unchanged);
+  the panel defaults are spacr.ops_settings.OPS_DEFAULTS.
+- ops_decode_auto_spot_grid unset now means no joint read-threshold axis
+  (spacr.ops_decode.threshold_settings); spacr.ops_decode.AUTO_SPOT_GRID stays
+  as the opt-in grid.
+
+PROOF
+See the item-946 report in BMCspacr/reanalysis/proof_stage1_stage2/item946/.
+
+TESTS
+tests/test_ops_default_funk_decode_946.py (defaults, schema row, older files,
+resolution to rule_a_s2 + auto); tests/test_ops_decode_rule_a_s2_873.py and
+tests/test_ops_decode_threshold_auto_939.py (settings left alpha; auto falls
+back to the entered thresholds without the rule (a) decode; pre-940 files stay
+'manual' and 'none'); tests/test_ops_autotune_942.py (empty spot grid by
+default, 939-stamped files keep the joint grid); tests/test_alpha_deck_registry.py (143).

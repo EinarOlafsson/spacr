@@ -700,7 +700,7 @@ def threshold_settings(settings: Mapping[str, Any],
             raise ValueError(f"ops_decode_auto_grid {key} needs values of 0 "
                              f"or more; got {values!r}")
         axes[key] = values
-    spots = _spot_grid(settings.get("ops_decode_auto_spot_grid", AUTO_SPOT_GRID),
+    spots = _spot_grid(settings.get("ops_decode_auto_spot_grid"),
                       "ops_decode_auto_spot_grid")
     return {"mode": mode, "floors": axes["ops_single_read_quality"],
             "pixel_qualities": axes["ops_pixel_quality"], "fdr_max": fdr_max,
@@ -708,10 +708,12 @@ def threshold_settings(settings: Mapping[str, Any],
             "spot_thresholds": spots}
 
 
-#: The read thresholds (``ops_read_threshold``, the spot strength a read
-#: needs) auto mode tries jointly with the call thresholds (item 942) when
-#: ``ops_decode_auto_spot_grid`` is not set. The field cache keeps spots
-#: from strength 100.
+#: The joint read-threshold grid of item 942 (``ops_read_threshold``, the
+#: spot strength a read needs), which auto mode tries with the call
+#: thresholds when ``ops_decode_auto_spot_grid`` names it. Since item 946
+#: the setting defaults to empty (calling thresholds only): the 942
+#: fast-search card did not pass. The field cache keeps spots from
+#: strength 100.
 AUTO_SPOT_GRID: Tuple[float, ...] = (150.0, 200.0, 250.0, 315.0, 400.0)
 
 

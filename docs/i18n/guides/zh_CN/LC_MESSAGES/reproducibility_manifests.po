@@ -127,6 +127,10 @@ msgstr "936: ``ops_blas_threads`` 原为 ``1``，``ops_consensus_space`` 原为 
 msgid "937 (item 941): ``profile_optional_families`` and ``ops_ph_profile_optional_families`` were ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, the slow families the ``'profiling'`` preset measured; they are now ``None``, so ``'profiling'`` leaves Gabor, granularity and colocalisation out."
 msgstr "937（条目 941）：``profile_optional_families`` 和 ``ops_ph_profile_optional_families`` 原为 ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``，即 ``'profiling'`` 预设测量的慢速特征族；现在为 ``None``，因此 ``'profiling'`` 不再包含 Gabor、颗粒度和共定位。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "940 (item 946): ``ops_decode_preset`` was ``'none'``, ``ops_decode_threshold_mode`` ``'manual'`` and ``ops_decode_auto_spot_grid`` ``[150.0, 200.0, 250.0, 315.0, 400.0]``; they are now ``'rule_a_s2'``, ``'auto'`` and ``[]``, so a run decodes with rule (a) + S2 and per-well thresholds chosen from decoys."
+msgstr "940（条目 946）：``ops_decode_preset`` 原为 ``'none'``，``ops_decode_threshold_mode`` 原为 ``'manual'``，``ops_decode_auto_spot_grid`` 原为 ``[150.0, 200.0, 250.0, 315.0, 400.0]``；现在分别为 ``'rule_a_s2'``、``'auto'`` 和 ``[]``，因此运行时使用规则 (a) + S2 以及根据诱饵为每个孔选择的阈值进行解码。"
+
 msgid "Public API"
 msgstr "公共 API"
 
