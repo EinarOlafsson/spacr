@@ -287,12 +287,18 @@ def assign_missing_fields(
     :param plate: plate id used in the canonical name.
     :param have_well: True if the caller already knows well ids from
         elsewhere (folder structure); False to auto-assign A01, A02, …
+        With True, every file must have a folder name that reads as a well.
     :param have_field: True if the caller knows field ids.
     :param have_channel: True when channels can be extracted from the
         filename or the folder — otherwise every file is treated as
         channel 1.
     :returns: list of :class:`NameMapping`, in the same order as
         ``filenames`` after sort.
+    :raises ValueError: when ``have_well`` is True and a file has no folder
+        name that reads as a well. The message names the file and how each
+        of its folder names was read. A ``C`` name such as ``C01`` reads as a
+        channel, not a well. No well is guessed, because a file given the
+        wrong well mixes its cells into another well's results.
     """
     files = sorted(filenames)
     mappings: List[NameMapping] = []
@@ -305,7 +311,9 @@ def assign_missing_fields(
             axis = _classify(token)
             if axis is not None and axis not in identifiers:
                 identifiers[axis] = token
-        well = (identifiers.get("well", "A01").upper() if have_well
+        if have_well and "well" not in identifiers:
+            raise ValueError(_no_well_message(path))
+        well = (identifiers["well"].upper() if have_well
                 else _well_from_index(well_idx))
         fld = (int(_FIELD_RX.fullmatch(identifiers["field"]).group(1))
                if have_field and "field" in identifiers
@@ -328,6 +336,27 @@ def assign_missing_fields(
         elif not have_well:
             well_idx += 1
     return mappings
+
+
+def _no_well_message(path: Path) -> str:
+    """The refusal for a file whose folder names hold no well.
+
+    :param path: the image file that has no well folder.
+    :returns: one sentence naming the file and how each folder name on its
+        path was read.
+    """
+    seen = []
+    for token in path.parts[:-1]:
+        axis = _classify(token)
+        if axis is not None:
+            seen.append(f"{token!r} ({axis})")
+    tokens = ", ".join(seen) if seen else "none"
+    return (f"No well found for {path}: the folder layout says each file "
+            f"sits in a well folder, but this file does not. Folder names "
+            f"read: {tokens}. A name such as C01 reads as a channel, not a "
+            f"well. spaCR does not guess a well, because a wrong one mixes "
+            f"this file's cells into another well's results. Move the file "
+            f"into its well folder, or remove it from the dataset.")
 
 
 def save_filename_map(dst: Path,

@@ -793,9 +793,9 @@ def write_database(frame: pd.DataFrame, db: Any, table: str, *,
     """Write one frame into a database table, with canonical column names.
 
     SQLite by default; a ``.duckdb`` path, a ``.parquetdb`` path or a
-    ``postgresql://`` string writes to that store instead, where ``append``
-    also adds columns the table lacks and ``migrate`` and ``kwargs`` are
-    ignored.
+    ``postgresql://`` string writes to that store instead, where ``migrate``
+    and ``kwargs`` are ignored. On every store, ``append`` first adds the
+    columns the table lacks.
 
     :param frame: the frame.
     :param db: path to the database, or a PostgreSQL connection string;

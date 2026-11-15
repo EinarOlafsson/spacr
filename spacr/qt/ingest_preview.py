@@ -116,6 +116,9 @@ def plan_folder_extraction(root: Any, plate: str = "plate1",
         "detection ran and found nothing". Omit to detect here — which walks
         the tree again, so a caller that already has one should pass it.
     :returns: one row dict per source image, or ``[]`` if nothing matched.
+    :raises ValueError: when the layout has a well level and a file has no
+        folder name that reads as a well (see
+        :func:`spacr.qt.folder_metadata.assign_missing_fields`).
     """
     from . import folder_metadata as fm
 
