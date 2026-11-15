@@ -48,8 +48,8 @@ GROUPS = (
         ("GPU use: batches across GPUs, workers sharing a GPU, memory budget",
          (493, 801, 803)),
         ("Use Make Masks settings in Mask Generation", (508,)),
-        ("Large cropped FOVs: Gallery reader, tiled masks, RAM and VRAM caps",
-         (919, 921, 945)),
+        ("Large cropped FOVs: Gallery reader, tiled masks, RAM and VRAM caps, "
+         "split and merge counts", (919, 921, 945, 956)),
     )),
     ("Image preprocessing", (
         ("Spectral unmixing, photobleaching correction, intensity calibration",

@@ -1,0 +1,59 @@
+OPS LARGE SITES: SPLIT AND MERGE COUNTS, IDENTITY AND DISPLACED CONTROLS IN THE MASK AGREEMENT
+==============================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-15, alpha (ALPHA_FEATURES[956]; the module itself under ALPHA_FEATURES[921]). Under development per proposals/READINESS.md: not marked Ready. spacr/ops_large_sites.py, spacr/settings.py, spacr/validate.py, tests/test_ops_mask_agreement_956.py, tests/test_ops_large_site_mask_vram_945.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py, the 918-923 arrival contract re-pinned for run_large_site_segmentation's docstring; nine-language reviews of its 3 changed docstring blocks pinned. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item956_proof/REPORT.md.
+Requested: maintainer rule 2026-11-15 (all analysis code ends up in spaCR); gap D2 of BMCspacr/reanalysis/SCRIPT_TO_SPACR_REGISTER.md.
+Owner: master lane claude-956-1115.
+Source: proposals/bmc_paper_items/ITEM_ops_mask_agreement_split_merge.md.
+Replaces: BMCspacr/reanalysis/periscope_benchmark/s3_phenotype/scripts/score_s3_nuclei.py (its spaCR-vs-PERISCOPE rows and both controls).
+Related: 921 (the module), 922 (mask-overlap matching in compare_calls), READINESS row 922.
+
+PROBLEM
+spacr.ops_large_sites.mask_agreement gave matched objects, precision,
+recall, F1, median IoU and the count ratio (IoU >= 0.5, border objects
+dropped). Split and merge counts, F1 at other IoU thresholds, the
+identity and displaced controls, the 04Align frame and the pooled CIs
+lived in a script.
+
+BUILD
+Settings of the ops_large_sites app (alpha, read on their own:
+MASK_AGREEMENT_DEFAULTS, not merged into LARGE_SITE_DEFAULTS, so a run that
+leaves them unset writes the settings.json it wrote before; tooltips in
+LARGE_SITE_TOOLTIPS under 'Mask agreement report'; known to the validator):
+- ops_mask_agreement_split_merge (False): each object goes to the object of
+  the other image holding more than half of its pixels, border objects
+  dropped; a reference object receiving >= 2 objects is a split, an object
+  receiving >= 2 reference objects a merge; rates per reference object;
+  F1 and matched at IoU 0.3 and 0.7 next to mask_agreement's IoU 0.5.
+- ops_mask_agreement_identity_control (False): the reference scored against
+  the same file read again (F1, count ratio, splits, merges).
+- ops_mask_agreement_displace_px (30; 0 off): the labels moved that many px
+  further down and right, F1 and matched again (negative control).
+- ops_mask_agreement_labels (None): score saved <site>_nuclei.npy /
+  <site>_cells.npy (or a seg_dst holding labels/) without segmenting; only
+  mask_agreement.csv and settings.json are written. Added beyond the spec:
+  the proof must rescore the 945 run's labels, not resegment them.
+- ops_mask_agreement_frame ('same' | 'periscope_align'): with
+  'periscope_align' the labels are moved by minus PERISCOPE's
+  Align_Yshift/Xshift_DAPI_Painting from the Image.csv of the reference
+  mask's site folder and both images are cut to their overlap, as the
+  script's shift()/overlap(). Added beyond the spec: the spec's frame rule
+  needs a setting.
+Output: <seg_dst>/mask_agreement.csv, one row per site and kind (nuclei,
+cells) with dy, dx, mask_agreement's columns and the columns above, plus a
+'pooled' row per kind: summed counts, pooled F1 / count ratio / precision /
+recall / split and merge rates / displaced F1 from the summed counts, each
+with a site-bootstrap 95 % CI (2,000 resamples, seed 0), the identity
+control's lowest F1 and count ratio and summed splits and merges. After a
+segmentation run the report scores the labels it saved.
+mask_agreement() itself is unchanged. Private helpers only.
+No default changes, so no DEFAULT_CHANGES row and no schema bump.
+
+ACCEPTANCE
+tests/test_ops_mask_agreement_956.py (8 cases): a known split, a known
+merge, the identity pair, border objects dropped before the assignment,
+shift and overlap, the score-only run in the 04Align frame (F1 1 with the
+shift, below 1 without; displaced F1 collapses), the pooled row against a
+hand bootstrap, setting checks and alpha registration, and a segmentation
+run whose sites.csv and agreement_well.csv are unchanged by the report.

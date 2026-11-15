@@ -86,7 +86,9 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-14, fifth landing train: the joint decode auto-tuner (942) and
     # phenotype folders with two acquisitions (947) make 145.
     # 2026-11-15: OPS runs on chosen sequencing sites (951) make 146.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 146
+    # 2026-11-15: split and merge counts in the large-site mask agreement
+    # (956) make 147.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 147
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

@@ -1043,6 +1043,11 @@ _APP_EXTRA_KEYS: Dict[str, frozenset] = {
         "inputs", "dst", "recursive", "layout", "z_handling",
         "plate_naming", "overwrite", "preview_only",
     }),
+    "ops_large_sites": frozenset({
+        "ops_mask_agreement_split_merge", "ops_mask_agreement_identity_control",
+        "ops_mask_agreement_displace_px", "ops_mask_agreement_labels",
+        "ops_mask_agreement_frame",
+    }),
 }
 
 
