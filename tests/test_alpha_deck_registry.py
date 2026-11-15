@@ -206,7 +206,7 @@ def test_refresh_replaces_the_alpha_slide_and_is_idempotent(tmp_path):
     assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 200]
     assert after.metadata.title == "Keep this title"
     text = " ".join(after.pages[1].extract_text().split())
-    assert deck.PUBLISHED_TITLE in text and "146 alpha features" in text
+    assert deck.PUBLISHED_TITLE in text and "147 alpha features" in text
     assert after.pages[0].get_contents() is None
     assert after.pages[2].get_contents() is None
     manifest = json.loads((tmp_path / "slides.json").read_text(encoding="utf-8"))
