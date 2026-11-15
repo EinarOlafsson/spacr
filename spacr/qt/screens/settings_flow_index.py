@@ -1510,6 +1510,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_scoring_string_thresholds',
     'ops_scoring_workers',
     'ops_single_read_quality',
+    'ops_sites',
     'ops_spot_detector',
     'ops_spot_min_peak',
     'ops_spot_overrule_share',
