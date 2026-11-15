@@ -1,4 +1,4 @@
-# ITEM DRAFT (no number yet): common assignment rules and external per-spot reads in the prefix decode
+# Item 943: common assignment rules and external per-spot reads in the prefix decode
 
 - **Number:** 943 (reserved 2026-11-14).
 
