@@ -129,7 +129,7 @@ msgstr "937 (항목 941): ``profile_optional_families``\\ 와 ``ops_ph_profile_o
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "940 (item 946): ``ops_decode_preset`` was ``'none'``, ``ops_decode_threshold_mode`` ``'manual'`` and ``ops_decode_auto_spot_grid`` ``[150.0, 200.0, 250.0, 315.0, 400.0]``; they are now ``'rule_a_s2'``, ``'auto'`` and ``[]``, so a run decodes with rule (a) + S2 and per-well thresholds chosen from decoys."
-msgstr "940 (항목 946): ``ops_decode_preset``은 ``'none'``, ``ops_decode_threshold_mode``는 ``'manual'``, ``ops_decode_auto_spot_grid``는 ``[150.0, 200.0, 250.0, 315.0, 400.0]``이었으며, 이제 ``'rule_a_s2'``, ``'auto'``, ``[]``입니다. 따라서 실행은 규칙 (a) + S2와 디코이로 웰마다 고른 임계값으로 디코딩합니다."
+msgstr "940 (항목 946): ``ops_decode_preset`` 값은 ``'none'``, ``ops_decode_threshold_mode`` 값은 ``'manual'``, ``ops_decode_auto_spot_grid`` 값은 ``[150.0, 200.0, 250.0, 315.0, 400.0]`` 이었으며, 이제 각각 ``'rule_a_s2'``, ``'auto'``, ``[]`` 입니다. 따라서 실행은 규칙 (a) + S2와 디코이로 웰마다 고른 임계값으로 디코딩합니다."
 
 msgid "Public API"
 msgstr "공개 API"
