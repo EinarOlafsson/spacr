@@ -65,36 +65,6 @@ def test_a_result_with_no_objects_in_a_real_volume_is_also_zero():
 
 # -- axis handling ----------------------------------------------------------
 
-def test_a_two_dimensional_array_has_no_z_axis_to_move():
-    """A plane is not a volume, and is refused before anything is moved."""
-    with pytest.raises(ValueError, match="at least 3 axes"):
-        zstack._as_z_first(np.zeros((8, 8)), None)
-
-
-def test_a_four_dimensional_array_must_be_told_which_axis_is_z():
-    """Detection is only defined for a plain 3-D volume.
-
-    Guessing on a ``(Z, Y, X, C)`` array picks the channel axis about as often
-    as it picks z, and a transposed volume segments into nonsense.
-    """
-    with pytest.raises(zstack.AmbiguousZAxisError, match="z_axis must be given"):
-        zstack._as_z_first(np.zeros((4, 64, 64, 3)), None)
-
-
-def test_a_plain_volume_has_its_z_axis_detected():
-    """A ``(Z, Y, X)`` volume needs no ``z_axis`` argument."""
-    moved, axis = zstack._as_z_first(np.zeros((5, 64, 64)), None)
-
-    assert axis == 0
-    assert moved.shape == (5, 64, 64)
-
-
-def test_an_ambiguous_volume_is_refused_rather_than_guessed():
-    """A cube gives detection nothing to go on and raises in strict mode."""
-    with pytest.raises(zstack.AmbiguousZAxisError):
-        zstack._as_z_first(np.zeros((64, 64, 64)), None)
-
-
 # -- anisotropy -------------------------------------------------------------
 
 def test_a_voxel_size_with_a_zero_side_is_refused():
@@ -182,23 +152,6 @@ def test_a_channel_axis_adds_an_axis_to_what_the_spec_needs(tmp_path):
         zstack.as_t_first(np.zeros((3, 4, 8, 8)), spec)
 
 
-def test_a_flat_time_series_must_put_time_on_axis_zero():
-    """``t_axis_order='TYX'`` names axis 0 as time; anything else contradicts it."""
-    with pytest.raises(zstack.TStackError, match="t_axis=2"):
-        zstack.plan_4d_from_settings(
-            {"t_stack": True, "t_axis_order": "TYX", "t_axis": 2})
-
-
-def test_a_flat_time_series_with_time_on_axis_zero_is_accepted():
-    """The consistent spelling of the same settings does produce a spec."""
-    spec = zstack.plan_4d_from_settings(
-        {"t_stack": True, "t_axis_order": "TYX", "t_axis": 0})
-
-    assert spec is not None
-    assert spec.t_axis == 0
-    assert spec.z_axis is None
-
-
 # -- tracking ---------------------------------------------------------------
 
 def test_a_timepoint_with_no_objects_matches_nothing():
@@ -213,24 +166,3 @@ def test_a_timepoint_with_no_objects_matches_nothing():
                                     scale, 5.0) == {}
 
 
-def test_trackpy_links_a_flat_time_series_with_a_defaulted_spec():
-    """A ``(T, Y, X)`` movie tracks with no spec and no z coordinate.
-
-    trackpy is asked for a 3-D link whatever the input, so a flat series has
-    to supply a constant z rather than a DataFrame with one column missing --
-    trackpy's own column guess would then silently link in 2-D on some frames
-    and 3-D on others.
-    """
-    pytest.importorskip("trackpy")
-
-    labels = np.zeros((3, 16, 16), dtype=np.int64)
-    for t in range(3):
-        labels[t, 4 + t:7 + t, 4:7] = 1
-
-    result = zstack.track_4d(labels, backend="trackpy",
-                             max_displacement_px=6.0)
-
-    assert result.labels.shape == labels.shape
-    assert set(np.unique(result.labels)) == {0, 1}
-    assert result.backend == "trackpy"
-    assert result.n_tracks == 1

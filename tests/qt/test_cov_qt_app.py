@@ -1183,38 +1183,33 @@ def _run_update_check(win, qtbot, modals):
     qtbot.waitUntil(_done, timeout=5000)
 
 
-def test_an_unreachable_update_server_is_reported(win, qtbot, modals,
-                                                  monkeypatch):
+def test_an_update_check_without_an_upgrade_reports_on_the_gui_thread(
+        win, qtbot, modals, monkeypatch, subtests):
+    """An unreachable server warns and an up-to-date install informs, each on the GUI thread.
+
+    The worker runs the network call off-thread, but the dialog it ends in
+    must be raised on the GUI thread -- building a QWidget from a QThread is
+    how this app used to abort on quit.
+    """
     import spacr.updater as updater
-    monkeypatch.setattr(updater, "check_for_updates",
-                        lambda: _update_info(latest=None, error="timed out"))
-    _run_update_check(win, qtbot, modals)
-    assert modals.warning[0][0] == "Updates"
-    assert "timed out" in modals.warning[0][1]
-    assert not modals.information
-
-
-def test_the_result_is_delivered_on_the_gui_thread(win, qtbot, modals,
-                                                   monkeypatch):
-    """The worker runs the network call off-thread, but the dialog it
-    ends in must be raised on the GUI thread — building a QWidget from a
-    QThread is how this app used to abort on quit."""
-    import spacr.updater as updater
-    monkeypatch.setattr(updater, "check_for_updates",
-                        lambda: _update_info(installed="9.9.9",
-                                             latest="9.9.9"))
-    _run_update_check(win, qtbot, modals)
-    assert modals.threads == [threading.main_thread()]
-
-
-def test_being_up_to_date_says_so(win, qtbot, modals, monkeypatch):
-    import spacr.updater as updater
-    monkeypatch.setattr(updater, "check_for_updates",
-                        lambda: _update_info(installed="9.9.9",
-                                             latest="9.9.9"))
-    _run_update_check(win, qtbot, modals)
-    assert modals.information[0][1] == "You're on 9.9.9. No updates."
-    assert not modals.warning
+    cases = [
+        # id, UpdateInfo, expected warnings, expected information
+        ("unreachable-server", _update_info(latest=None, error="timed out"),
+         [("Updates", "Couldn't reach update server:\ntimed out")], []),
+        ("up-to-date", _update_info(installed="9.9.9", latest="9.9.9"),
+         [], [("Updates", "You're on 9.9.9. No updates.")]),
+    ]
+    for case_id, info, warnings, informations in cases:
+        with subtests.test(msg=case_id):
+            modals.warning.clear()
+            modals.information.clear()
+            modals.threads.clear()
+            monkeypatch.setattr(updater, "check_for_updates",
+                                lambda info=info: info)
+            _run_update_check(win, qtbot, modals)
+            assert modals.warning == warnings
+            assert modals.information == informations
+            assert modals.threads == [threading.main_thread()]
 
 
 def test_accepting_an_upgrade_waits_for_authenticated_shutdown_handoff(

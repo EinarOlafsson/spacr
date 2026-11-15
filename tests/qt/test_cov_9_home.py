@@ -1241,32 +1241,6 @@ def test_unreadable_count_directory_does_not_promote_spatial_mapping(tmp_path, m
     assert all(path.read_bytes() == raw for path, raw in before.items())
 
 
-def test_spatial_schema_without_source_column_cannot_bind_an_acquisition(tmp_path):
-    import sqlite3
-    import numpy as np
-    import pandas as pd
-    from spacr.tabular import write_table
-
-    acquisition = tmp_path / 'acquisition'
-    slide = _input_header_tiff(acquisition / 'morphology_focus.ome.tif')
-    transcripts = acquisition / 'transcripts.parquet'
-    write_table(pd.DataFrame({'x_location': [1.0], 'y_location': [2.0]}), transcripts)
-    project = tmp_path / 'project'
-    merged = project / 'merged' / 'field.npy'
-    merged.parent.mkdir(parents=True)
-    np.save(merged, np.zeros((2, 3, 2), dtype=np.uint16))
-    database = project / 'measurements' / 'measurements.db'
-    database.parent.mkdir()
-    with sqlite3.connect(database) as connection:
-        connection.execute('CREATE TABLE spatial_fields (field_id INTEGER)')
-    before = {path: path.read_bytes() for path in (slide, transcripts, merged, database)}
-    schemas = [dict(path=str(database), tables=['spatial_fields'])]
-    hints = home_mod._easy_specialized_inputs(acquisition, [slide], [], schemas)
-    assert set(hints) == {'spatial_masks'}
-    assert hints['spatial_masks']['source'] == str(acquisition)
-    assert all(path.read_bytes() == raw for path, raw in before.items())
-
-
 def test_ops_library_requires_local_readable_headers_without_changing_tiles(tmp_path):
     root = tmp_path / 'selected'
     tile = _input_header_tiff(root / 'genotype' / '10X_c2_A1_A594_Site-0.tif')
@@ -1538,53 +1512,74 @@ def test_table_removed_after_classification_does_not_gain_numeric_analysis_route
     assert archived.read_bytes() == original and image.read_bytes() == image_bytes
 
 
-def test_xenium_counts_without_readable_morphology_do_not_offer_spatial_steps(tmp_path):
-    import pandas as pd
-    from spacr.tabular import write_table
+def test_xenium_inputs_offer_spatial_masks_only_with_readable_morphology_and_full_mapping_evidence(
+        tmp_path, subtests):
+    """A Xenium acquisition offers spatial masks, never a spatial map without both its table and images.
 
-    marker = tmp_path / 'experiment.xenium'
-    marker.write_text('{}')
-    transcripts = tmp_path / 'transcripts.parquet'
-    write_table(pd.DataFrame({'x_location': [1.], 'y_location': [2.]}), transcripts)
-    slide = tmp_path / 'morphology_focus.ome.tif'
-    slide.write_bytes(b'II*\x00\x08\x00\x00\x00')
-    before = {path: path.read_bytes() for path in (marker, transcripts, slide)}
-    assert home_mod._easy_specialized_inputs(tmp_path, [slide, transcripts], [], []) == {}
-    assert all(path.read_bytes() == raw for path, raw in before.items())
-
-
-@pytest.mark.parametrize('missing_evidence', ['spatial_table', 'merged_images'])
-def test_spatial_mapping_requires_both_its_measurement_table_and_generated_images(tmp_path, missing_evidence):
+    An unreadable morphology image offers nothing; a measurement database
+    whose spatial table has no source column, has no spatial table, or has
+    no generated images beside it cannot bind the acquisition to a map.
+    Nothing selected is modified.
+    """
     import sqlite3
     import numpy as np
     import pandas as pd
     from spacr.tabular import write_table
 
-    acquisition = tmp_path / 'acquisition'
-    slide = _input_header_tiff(acquisition / 'morphology_focus.ome.tif')
-    transcripts = acquisition / 'transcripts.parquet'
-    write_table(pd.DataFrame({'x_location': [1.], 'y_location': [2.]}), transcripts)
-    project = tmp_path / 'measured'
-    database = project / 'measurements' / 'measurements.db'
-    database.parent.mkdir(parents=True)
-    with sqlite3.connect(database) as connection:
-        if missing_evidence == 'spatial_table':
-            connection.execute('CREATE TABLE image_annotations (condition TEXT)')
+    def acquisition_with_slide(root, readable=True):
+        acquisition = root / 'acquisition'
+        if readable:
+            slide = _input_header_tiff(acquisition / 'morphology_focus.ome.tif')
         else:
-            connection.execute('CREATE TABLE spatial_fields (source TEXT)')
-            connection.execute('INSERT INTO spatial_fields VALUES (?)', (str(acquisition),))
-    if missing_evidence == 'spatial_table':
-        merged = project / 'merged' / 'field.npy'
-        merged.parent.mkdir()
-        np.save(merged, np.zeros((2, 3, 2), np.uint16))
-    schema = dict(path=str(database), **home_mod._easy_database_evidence(database))
-    before = {path: path.read_bytes() for path in tmp_path.rglob('*') if path.is_file()}
-    hints = home_mod._easy_specialized_inputs(acquisition, [slide, transcripts], [], [schema])
-    assert set(hints) == {'spatial_masks'}
-    assert hints['spatial_masks']['source'] == str(acquisition)
-    assert hints['spatial_masks']['image'] == str(slide)
-    assert 'spatial_map' not in hints
-    assert all(path.read_bytes() == raw for path, raw in before.items())
+            acquisition.mkdir(parents=True)
+            (acquisition / 'experiment.xenium').write_text('{}')
+            slide = acquisition / 'morphology_focus.ome.tif'
+            slide.write_bytes(b'II*\x00\x08\x00\x00\x00')
+        transcripts = acquisition / 'transcripts.parquet'
+        write_table(pd.DataFrame({'x_location': [1.], 'y_location': [2.]}), transcripts)
+        return acquisition, slide, transcripts
+
+    def masks_hint(acquisition, slide):
+        return {'spatial_masks': {
+            'settings': {'spatial_source': str(acquisition), 'spatial_platform': 'xenium'},
+            'source': str(acquisition), 'image': str(slide),
+            'evidence': 'Spatial acquisition metadata and a morphology image were found.'}}
+
+    cases = [
+        # id, readable slide, sql, merged images, evidence from the reader, pass transcripts
+        ('unreadable-morphology', False, None, False, False, True),
+        ('spatial-table-without-source', True,
+         ['CREATE TABLE spatial_fields (field_id INTEGER)'], True, False, False),
+        ('no-spatial-table', True,
+         ['CREATE TABLE image_annotations (condition TEXT)'], True, True, True),
+        ('no-generated-images', True,
+         ['CREATE TABLE spatial_fields (source TEXT)',
+          'INSERT INTO spatial_fields VALUES (?)'], False, True, True),
+    ]
+    for case_id, readable, sql, merged, read_evidence, with_transcripts in cases:
+        with subtests.test(msg=case_id):
+            root = tmp_path / case_id
+            acquisition, slide, transcripts = acquisition_with_slide(root, readable)
+            schemas = []
+            if sql is not None:
+                database = root / 'measured' / 'measurements' / 'measurements.db'
+                database.parent.mkdir(parents=True)
+                with sqlite3.connect(database) as connection:
+                    for statement in sql:
+                        connection.execute(statement, (str(acquisition),) if '?' in statement else ())
+                if merged:
+                    image = root / 'measured' / 'merged' / 'field.npy'
+                    image.parent.mkdir()
+                    np.save(image, np.zeros((2, 3, 2), np.uint16))
+                if read_evidence:
+                    schemas = [dict(path=str(database), **home_mod._easy_database_evidence(database))]
+                else:
+                    schemas = [dict(path=str(database), tables=['spatial_fields'])]
+            inputs = [slide, transcripts] if with_transcripts else [slide]
+            before = {path: path.read_bytes() for path in root.rglob('*') if path.is_file()}
+            hints = home_mod._easy_specialized_inputs(acquisition, inputs, [], schemas)
+            assert hints == ({} if not readable else masks_hint(acquisition, slide))
+            assert {path: path.read_bytes() for path in root.rglob('*') if path.is_file()} == before
 
 
 def test_hd_root_calibration_does_not_validate_a_malformed_selected_bin_calibration(tmp_path):

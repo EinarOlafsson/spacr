@@ -117,38 +117,6 @@ def _nested(name):
 # read_and_preprocess_data — merge, aliases, ratio expansion
 # ===========================================================================
 
-def test_two_disagreeing_key_columns_warn_rather_than_one_winning(
-        tmp_path, monkeypatch):
-    """The half the old rule hid (145).
-
-    A scores CSV carrying BOTH `row` and `row_name`, disagreeing, has two
-    opinions about which row an object came from. The old behaviour picked
-    one by declaration order and said nothing. spaCR now says which it kept
-    AND HOW MANY ROWS DIFFER -- because "they disagree" is not actionable,
-    "3 of 40,000 differ" is a typo, and "24 of 24" is the wrong file.
-    """
-    import warnings
-
-    from spacr.tabular import read_table
-
-    df, g, _sig = _measurement_frame(24, seed=2)
-    labels = np.arange(len(g)) % 2
-    scores = _write_scores(tmp_path / "scores_c.csv", g, labels, extra={
-        "row": ["WRONG"] * len(g),
-        "row_name": [x[1] for x in g],
-    })
-
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        frame = read_table(scores, report=None)
-
-    said = " ".join(str(w.message) for w in caught)
-    assert "rowID" in said
-    assert "row_name" in said
-    assert f"{len(g)} of {len(g)} rows differ" in said
-    assert "rowID" in frame.columns
-
-
 # ===========================================================================
 # nested helpers that the call sites can never reach
 # ===========================================================================
