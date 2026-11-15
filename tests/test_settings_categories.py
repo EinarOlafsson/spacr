@@ -772,6 +772,19 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_decode_auto_ci",
     "ops_decode_auto_tune_fraction",
     "ops_decode_auto_seed",
+    # Item 942 (2026-11-14): joint tuning of spot detection and calling,
+    # and the spacer-prefix decode's decoys and per-well tuning.
+    "ops_decode_auto_spot_grid",
+    "ops_decode_auto_objective",
+    "ops_decode_auto_f_beta",
+    "ops_decode_auto_unreachable",
+    "ops_prefix_decoy_k",
+    "ops_prefix_decoy_seed",
+    "ops_prefix_fdr_scale",
+    "ops_prefix_min_read_quality",
+    "ops_prefix_threshold_tuning",
+    "ops_prefix_fdr_target_pct",
+    "ops_prefix_tuning_grid",
     # Items 936 and 940 (2026-11-13): stitch reader threads and edge
     # workers, and the placement seed file.
     "ops_stitch_read_threads",
@@ -782,6 +795,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_placement_seed_check_pixels",
     "ops_placement_seed_tolerance",
     "ops_ph_placement_seed",
+    # Item 947 (2026-11-14): the one phenotype acquisition to read from a
+    # folder that holds two sharing a channel.
+    "ops_ph_use_acquisition",
     # Item 934 (2026-11-13): the OPS measurement switches in Measure --
     # Funk et al.'s object features, the explicit Zernike switch and
     # channel-named columns under Measurements, and the CPU/GPU self-check

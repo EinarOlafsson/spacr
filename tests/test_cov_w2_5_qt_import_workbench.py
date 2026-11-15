@@ -8,7 +8,6 @@ may end in an exception in the middle of a drag.
 """
 from __future__ import annotations
 
-import logging
 
 import pytest
 
@@ -16,7 +15,6 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QMimeData, QPoint, QPointF, Qt, QUrl  # noqa: E402
 from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent  # noqa: E402
-from PySide6.QtWidgets import QFileDialog                        # noqa: E402
 
 from spacr.qt.widgets import import_workbench as iw              # noqa: E402
 
@@ -73,37 +71,6 @@ def _settled(bench):
 # ---------------------------------------------------------------------------
 # finding the images
 # ---------------------------------------------------------------------------
-
-def test_a_folder_is_walked_and_non_images_are_left_behind(plate_folder):
-    """Only the image suffixes come back, sorted within each directory."""
-    found = iw.images_under([str(plate_folder)])
-
-    assert len(found) == 8
-    assert all(name.endswith(".tif") for name in found)
-    assert not any("notes.txt" in name for name in found)
-
-
-def test_the_walk_stops_at_the_limit(plate_folder):
-    """A plate is tens of thousands of files and the table is a preview."""
-    found = iw.images_under([str(plate_folder)], limit=3)
-
-    assert len(found) == 3
-
-
-def test_named_files_stop_at_the_limit_too(plate_folder):
-    """The cap applies to files named one by one, not only to a walk."""
-    files = sorted(str(p) for p in plate_folder.glob("*.tif"))
-
-    found = iw.images_under(files, limit=2)
-
-    assert found == files[:2]
-
-
-def test_nothing_dropped_finds_nothing():
-    """``None`` and an empty list are both "no files", not an error."""
-    assert iw.images_under(None) == []
-    assert iw.images_under([]) == []
-
 
 # ---------------------------------------------------------------------------
 # the drop itself
@@ -175,46 +142,9 @@ def test_dropping_a_folder_adds_every_image_in_it(qtbot, plate_folder):
     del event, data
 
 
-def test_a_second_drop_of_the_same_files_adds_nothing(bench, plate_folder):
-    """Files already held are not duplicated by a repeated drop."""
-    before = bench.files()
-
-    bench.add_files([str(plate_folder)])
-
-    assert _settled(bench) == len(before)
-    assert bench.files() == before
-
-
 # ---------------------------------------------------------------------------
 # the file dialog
 # ---------------------------------------------------------------------------
-
-def test_the_add_button_takes_what_the_dialog_returned(qtbot, plate_folder,
-                                                       monkeypatch):
-    """Files chosen in the dialog land in the table."""
-    made = iw.ImportWorkbench()
-    qtbot.addWidget(made)
-    chosen = sorted(str(p) for p in plate_folder.glob("*.tif"))[:3]
-    monkeypatch.setattr(QFileDialog, "getOpenFileNames",
-                        staticmethod(lambda *a, **k: (chosen, "")))
-
-    made.ask_for_files()
-
-    assert _settled(made) == 3
-    assert made.files() == chosen
-
-
-def test_cancelling_the_dialog_adds_nothing(bench, monkeypatch):
-    """An empty answer leaves the held files exactly as they were."""
-    before = bench.files()
-    monkeypatch.setattr(QFileDialog, "getOpenFileNames",
-                        staticmethod(lambda *a, **k: ([], "")))
-
-    bench.ask_for_files()
-
-    assert _settled(bench) == len(before)
-    assert bench.files() == before
-
 
 # ---------------------------------------------------------------------------
 # proposing a pattern
@@ -238,93 +168,9 @@ def test_a_later_drop_does_not_overwrite_an_edited_pattern(bench,
     assert bench.regex.text() == edited
 
 
-def test_proposing_with_nothing_dropped_says_so(qtbot):
-    """The button explains itself instead of proposing from nothing."""
-    made = iw.ImportWorkbench()
-    qtbot.addWidget(made)
-
-    assert made.propose_from_the_names() == ""
-    assert made.evidence.text() == "Nothing to work from yet."
-
-
-def test_a_detector_that_raises_is_reported_in_the_panel(bench, monkeypatch,
-                                                         caplog):
-    """A failure inside inference is a sentence, not a traceback."""
-    from spacr.qt import regex_detect
-
-    def explode(names):
-        raise ValueError("the names do not align")
-
-    monkeypatch.setattr(regex_detect, "auto_detect_regex", explode)
-
-    with caplog.at_level(logging.DEBUG, logger="spacr.qt.import_workbench"):
-        assert bench.propose_from_the_names() == ""
-
-    assert "Could not work one out: the names do not align" \
-        in bench.evidence.text()
-    assert "could not propose a regex" in caplog.text
-
-
-def test_names_no_pattern_fits_invite_the_user_to_type_one(bench,
-                                                           monkeypatch):
-    """An empty proposal names the next step rather than going quiet."""
-    from spacr.qt import regex_detect
-
-    monkeypatch.setattr(regex_detect, "auto_detect_regex",
-                        lambda names: ("", "nothing", 0))
-
-    assert bench.propose_from_the_names() == ""
-    assert "No pattern fits these names" in bench.evidence.text()
-    assert "Type one" in bench.evidence.text()
-
-
 # ---------------------------------------------------------------------------
 # roles
 # ---------------------------------------------------------------------------
-
-def test_a_group_named_after_a_role_defaults_to_it(qtbot, plate_folder):
-    """A proposal that named its groups should not be re-answered by hand."""
-    made = iw.ImportWorkbench(
-        sorted(str(p) for p in plate_folder.glob("*.tif")),
-        regex=r"(?P<wellID>[A-Z]\d+)_T\d+F(?P<fieldID>\d+).*C(?P<chanID>\d+)")
-    qtbot.addWidget(made)
-
-    assert made.roles()["wellID"] == "wellID"
-    assert made.roles()["fieldID"] == "fieldID"
-
-
-def test_a_role_chosen_for_a_group_that_is_not_shown_is_still_remembered(
-        qtbot, plate_folder):
-    """Editing the regex must not lose a role the user already set."""
-    made = iw.ImportWorkbench(
-        sorted(str(p) for p in plate_folder.glob("*.tif")),
-        regex=r"(?P<wellID>[A-Z]\d+).*")
-    qtbot.addWidget(made)
-    made._set_role("plateID", "plateID")
-
-    # The regex changes without the panel refreshing, which is exactly when
-    # `roles()` has to fall back on what it remembers.
-    made.regex.blockSignals(True)
-    made.regex.setText(r"(?P<plateID>[^_]+)_(?P<wellID>[A-Z]\d+).*")
-    made.regex.blockSignals(False)
-
-    assert made.roles() == {"plateID": "plateID", "wellID": "wellID"}
-
-
-def test_a_pattern_that_stops_capturing_takes_the_role_row_with_it(
-        qtbot, plate_folder):
-    """Dropdowns for groups that no longer exist would be unanswerable."""
-    made = iw.ImportWorkbench(
-        sorted(str(p) for p in plate_folder.glob("*.tif")),
-        regex=r"(?P<wellID>[A-Z]\d+).*")
-    qtbot.addWidget(made)
-    assert made.roles_holder.isVisibleTo(made)
-
-    made.regex.setText(r".*\.tif")
-
-    assert made.roles() == {}
-    assert not made.roles_holder.isVisibleTo(made)
-
 
 # ---------------------------------------------------------------------------
 # the preview

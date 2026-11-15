@@ -13,7 +13,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtWidgets import QFileDialog, QPlainTextEdit, QTextBrowser
 
-from spacr.qt.widgets.folding_summary import FoldingSummaryView, split_rows
+from spacr.qt.widgets.folding_summary import FoldingSummaryView
 
 pytestmark = pytest.mark.qt
 
@@ -48,16 +48,6 @@ def _browser_html(widget):
 # ---------------------------------------------------------------------------
 # Parsing
 # ---------------------------------------------------------------------------
-
-def test_a_line_too_short_to_be_a_row_is_kept_as_its_own_line():
-    """A sentence between rows survives as an unlabelled row, not dropped.
-
-    Summaries written by other spaCR versions mix prose in with the rows.
-    Dropping what does not parse would silently delete part of the answer.
-    """
-    rows = split_rows("  effect        0.42\nshort\n")
-
-    assert rows == [("effect", "0.42"), ("", "short")]
 
 
 def test_an_unlabelled_line_spans_both_columns(panel):

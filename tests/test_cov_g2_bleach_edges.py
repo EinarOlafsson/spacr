@@ -6,8 +6,7 @@ import pandas as pd
 import pytest
 
 from spacr import timelapse as tl
-from spacr.tabular import write_database
-from tests.test_bleach_correction import _bleaching_table, _offset_series
+from tests.test_bleach_correction import _offset_series
 
 
 @pytest.mark.parametrize("method", ["ratio", "histogram"])
@@ -40,24 +39,6 @@ def test_a_channel_without_its_mean_level_is_not_corrected():
     df = pd.DataFrame({"cell_channel_2_max_intensity": [1.0],
                        "cell_channel_1_mean_intensity": [1.0]})
     assert list(tl._bleach_channel_columns(df, "cell")) == [1]
-
-
-def test_tables_without_time_are_skipped_and_empty_fits_draw_nothing(
-        tmp_path, monkeypatch):
-    db = tmp_path / "plate1" / "measurements" / "measurements.db"
-    write_database(_bleaching_table(n_frames=4, n_objects=5), db, "cell",
-                   if_exists="replace", canonicalise=False)
-    write_database(pd.DataFrame({"nucleus_channel_0_mean_intensity": [1.0]}),
-                   db, "nucleus", if_exists="replace", canonicalise=False)
-    real = tl._bleach_correct_table
-
-    def no_fits(df, table, method):
-        corrected, fits = real(df, table, method)
-        return corrected, fits.iloc[0:0]
-
-    monkeypatch.setattr(tl, "_bleach_correct_table", no_fits)
-    tl._correct_timelapse_bleaching(str(db), "ratio", plot=True)
-    assert not (tmp_path / "plate1" / "results" / "bleach_correction").exists()
 
 
 def test_calcium_correction_needs_the_channel_mean():

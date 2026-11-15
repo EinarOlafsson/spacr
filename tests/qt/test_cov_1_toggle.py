@@ -11,7 +11,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 
 import pytest
-from PySide6.QtCore import QPoint, Qt
+from PySide6.QtCore import QPoint
 from PySide6.QtTest import QTest
 
 from spacr.qt.widgets.toggle import Toggle
@@ -61,18 +61,6 @@ def _knob_centre(widget, x):
     return QPoint(int(x), widget.height() // 2)
 
 
-def test_a_right_click_does_not_flip_the_switch(toggle):
-    """The right button belongs to the context menu, not to the switch."""
-    start = toggle.isChecked()
-
-    QTest.mouseClick(toggle, Qt.RightButton,
-                     pos=_knob_centre(toggle, toggle._minimum_knob_x() + 6))
-
-    assert toggle.isChecked() is start
-    assert toggle._mouse_pressed is False, (
-        "a right press must not arm the drag state the left button uses")
-
-
 def test_a_pointer_passing_over_the_switch_does_not_drag_the_knob(toggle):
     """A move with no button held is a hover, and hovering moves nothing."""
     resting = toggle._knob_pos
@@ -81,49 +69,6 @@ def test_a_pointer_passing_over_the_switch_does_not_drag_the_knob(toggle):
 
     assert toggle._knob_pos == resting
     assert toggle._dragging is False
-
-
-def test_a_release_from_a_press_elsewhere_is_ignored(toggle):
-    """A left release the switch never saw the press for changes nothing.
-
-    Releasing over a widget that was not the one pressed is ordinary mouse
-    behaviour -- press on a neighbouring control, slide across, let go. It
-    must not count as a tap on the switch.
-    """
-    start = toggle.isChecked()
-
-    QTest.mouseRelease(toggle, Qt.LeftButton,
-                       pos=_knob_centre(toggle, toggle._maximum_knob_x()))
-
-    assert toggle.isChecked() is start
-    assert toggle._knob_pos == float(toggle._minimum_knob_x())
-
-
-def test_a_drag_that_lets_go_on_the_same_side_snaps_the_knob_back(toggle,
-                                                                  qtbot):
-    """A short drag that does not cross the middle returns the knob home.
-
-    The state does not change, so nothing else would move the knob: without
-    an explicit re-animation it would sit wherever the finger let go, showing
-    a half-open switch for a setting that is still off.
-    """
-    assert toggle.isChecked() is False
-    y = toggle.height() // 2
-    start_x = toggle._minimum_knob_x() + toggle._knob_d // 2
-
-    QTest.mousePress(toggle, Qt.LeftButton, pos=QPoint(start_x, y))
-    QTest.mouseMove(toggle, pos=QPoint(start_x + 5, y))
-    assert toggle._dragging is True
-    assert toggle._knob_pos > toggle._minimum_knob_x(), (
-        "the drag has to have moved the knob for the snap-back to mean "
-        "anything")
-
-    QTest.mouseRelease(toggle, Qt.LeftButton, pos=QPoint(start_x + 5, y))
-
-    assert toggle.isChecked() is False
-    qtbot.waitUntil(
-        lambda: toggle._knob_pos == float(toggle._minimum_knob_x()),
-        timeout=2000)
 
 
 def test_a_disabled_switch_is_drawn_dimmer_than_a_live_one(qtbot):

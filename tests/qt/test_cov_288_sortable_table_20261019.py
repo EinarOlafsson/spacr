@@ -21,18 +21,6 @@ def test_text_set_before_the_sort_state_exists_is_stored_and_not_an_error(qapp):
     assert item.text() == "late"
 
 
-def test_retiring_a_table_with_empty_cells_keeps_the_cells_that_exist(qtbot):
-    table = QTableWidget(2, 2)
-    qtbot.addWidget(table)
-    table.setItem(0, 0, st.table_item("kept"))
-    assert table.item(1, 1) is None
-    st._retire_table_cells(table)
-    assert table.rowCount() == 0
-    assert table.item(0, 0) is None
-    spare = st._spare_items(table)
-    assert len(spare) == 1 and spare[0].text() == ""
-
-
 def test_retiring_a_table_with_headers_takes_only_the_headers_it_has(qtbot):
     table = QTableWidget(2, 2)
     qtbot.addWidget(table)

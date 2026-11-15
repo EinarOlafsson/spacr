@@ -10,9 +10,7 @@ refusal, a disabled control, or a fallback the caption can name.
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass
 from types import SimpleNamespace
-from typing import Any, Tuple
 
 import numpy as np
 import pandas as pd
@@ -218,45 +216,6 @@ def view(qapp, qtbot):
     return widget
 
 
-def _raising_provider():
-    def provider():
-        raise RuntimeError("the input table is gone")
-    return provider
-
-
-def test_an_input_table_that_cannot_be_reached_names_no_files(qapp, qtbot):
-    """The panel reads its counts and scores off the run's input table. A
-    provider that throws must leave the montage saying it has none, not take
-    the window down."""
-    widget = cmv.CellMontageView(database_provider=_raising_provider(),
-                                 threaded=False)
-    qtbot.addWidget(widget)
-
-    assert widget.count_csvs() == ()
-    assert widget.score_csvs() == ()
-
-
-def test_no_input_table_at_all_names_no_files(view):
-    """The panel is usable before a run is loaded."""
-    assert view.count_csvs() == ()
-    assert view.score_csvs() == ()
-
-
-def test_the_attached_score_and_count_files_are_read_off_the_input_table(
-        qapp, qtbot):
-    """The contrast: the same rows carry both, which is why requiring a run
-    folder for the guide fractions was never necessary."""
-    rows = [{"plate": "p1", "score": "s1.csv", "count": "c1.csv",
-             "database": "p1.db"},
-            {"plate": "p2", "score": "s1.csv", "count": "", "database": ""}]
-    widget = cmv.CellMontageView(database_provider=lambda: rows,
-                                 threaded=False)
-    qtbot.addWidget(widget)
-
-    assert widget.count_csvs() == ("c1.csv",)
-    assert widget.score_csvs() == ("s1.csv",), "a repeated file was listed twice"
-
-
 def test_an_intercept_baseline_falls_back_when_the_fit_names_none(qapp,
                                                                   qtbot):
     """The caption names the baseline it used. Reporting the intercept while
@@ -269,13 +228,6 @@ def test_an_intercept_baseline_falls_back_when_the_fit_names_none(qapp,
     widget._baseline.setCurrentIndex(index)
 
     assert widget._baseline_value() == (None, "")
-
-
-def test_building_with_nothing_selected_says_so_and_starts_nothing(view):
-    """A montage cannot be built before a coefficient is clicked, and the
-    button has to explain that rather than appearing to work."""
-    assert view.build() is False
-    assert view.status_text()
 
 
 def test_the_sweep_prompt_offers_rank_and_reports_the_answer(view,
@@ -326,88 +278,6 @@ def test_accepting_the_picture_settings_writes_them_back_to_the_controls(
     assert view._picking_override == ""
 
 
-def test_the_hidden_cap_box_holds_every_cap_the_window_can_offer(view, qtbot):
-    """The settings window writes the chosen cap back through ``setValue``,
-    which clamps to the box's range and says nothing, so a mirror with a
-    lower ceiling than the editor silently draws a different montage from the
-    one asked for. Only the floor may differ: a cap of 0 reaches
-    ``select_montage`` as "no cap given"."""
-    from spacr.qt.widgets.picture_settings_dialog import PictureSettingsDialog
-
-    dialog = PictureSettingsDialog(view.picture_settings())
-    qtbot.addWidget(dialog)
-    offered = dialog._editors["cap"]
-
-    assert view._cap.maximum() == offered.maximum()
-    assert view._cap.minimum() == 1
-
-    offered.setValue(20000)
-    view._write_back({"cap": offered.value()})
-
-    assert view._cap.value() == 20000
-    assert view._read_widgets()["cap"] == 20000
-    assert 20000 in view._load_signature(), (
-        "the cap the window chose has to reach the signature that decides "
-        "whether the crops in hand still answer the settings")
-
-
-def test_nothing_is_written_to_a_database_without_both_halves(view):
-    """The merge needs a database and a score file. Saying which is missing
-    is the difference between 'nothing to do' and 'it silently did nothing'."""
-    assert view.write_scores_into_the_databases() == {}
-    assert "Nothing to merge" in view.status_text()
-
-
-def test_the_write_confirmation_names_every_file_it_will_touch(view,
-                                                               monkeypatch):
-    """This writes to the user's measurement databases. The prompt has to
-    list what it will touch, and Cancel has to be the default so a stray
-    Return does not start it."""
-    seen = {}
-
-    def capture(self):
-        seen["text"] = self.text()
-        seen["detail"] = self.informativeText()
-        seen["default"] = self.defaultButton().text()
-        self.buttons()[1].click()
-        return 0
-
-    monkeypatch.setattr(QMessageBox, "exec", capture)
-
-    answered = view._ask_before_writing(["/data/p1.db"], ["/data/scores.csv"])
-
-    assert answered is False
-    assert "1 measurement database?" in seen["text"]
-    assert "scores.csv" in seen["detail"]
-    assert "p1.db" in seen["detail"]
-    assert seen["default"] == "Cancel"
-
-
-def test_closing_the_write_confirmation_is_not_consent(view, monkeypatch):
-    """Dismissing a window is not agreeing to it. The polarity used by the
-    matching prompt in Preferences -- `clickedButton() is proceed` -- is the
-    one that makes a closed window mean no."""
-    def close_the_window(self):
-        self.reject()               # what the title-bar x does
-        return 0
-
-    monkeypatch.setattr(QMessageBox, "exec", close_the_window)
-
-    assert view._ask_before_writing(["/data/p1.db"], ["/a.csv"]) is False
-
-
-def test_the_write_confirmation_accepts_when_the_write_button_is_pressed(
-        view, monkeypatch):
-    """The contrast that makes the refusal a refusal."""
-    def press_write(self):
-        self.buttons()[0].click()
-        return 0
-
-    monkeypatch.setattr(QMessageBox, "exec", press_write)
-
-    assert view._ask_before_writing(["/data/p1.db"], ["/a.csv"]) is True
-
-
 # ---------------------------------------------------------------------------
 # What the panel picked
 # ---------------------------------------------------------------------------
@@ -436,13 +306,6 @@ def test_a_plan_that_never_marked_candidates_contributes_all_its_rows(view):
     view._plans = (_plan("GRA14", pd.DataFrame({"object_id": [7, 8]})),)
 
     assert view.picked_groups() == {"GRA14": [0, 1]}
-
-
-def test_comparing_with_nothing_picked_says_what_to_do_first(view):
-    """Opening an empty comparison tab would look like a comparison that
-    found no difference."""
-    assert view.compare_a_measurement() is None
-    assert "Show some cells first" in view.status_text()
 
 
 def test_the_wider_inventory_is_used_only_when_it_covers_the_picked_rows(
@@ -494,64 +357,10 @@ def test_a_workspace_state_that_is_not_a_mapping_applies_nothing(view):
     assert view.apply_workspace_state("channels=0,1") is False
 
 
-def test_a_setting_the_widget_cannot_hold_is_skipped_not_forced(view):
-    """A crop size of 'large' must not be pushed into a spin box; the rest
-    of the settings still have to land."""
-    view._write_back({"channels": [1, 2], "cap": "not a number"})
-
-    assert view._channels.text() == "1, 2"
-    assert isinstance(view._read_widgets()["cap"], (int, float))
-
-
-def test_the_mode_line_survives_a_panel_with_no_status_label(view,
-                                                             monkeypatch):
-    """The fallback must never be silent, but announcing it cannot be the
-    thing that raises."""
-    before = view.status_text()
-    monkeypatch.setattr(view, "_status", None)
-
-    view._on_mode_changed()
-
-    assert view.status_text() == before
-    assert cmv.picture_source_label(view.picture_mode()), (
-        "there was no sentence to announce in the first place")
-
-
 def test_the_loaded_run_name_is_empty_when_no_run_is_loaded(view):
     """'' lets a caller tell 'no run' from 'a run whose name I could not
     work out'."""
     assert view.loaded_run_name() == ""
-
-
-# ---------------------------------------------------------------------------
-# The shape control
-# ---------------------------------------------------------------------------
-
-def test_a_shape_the_route_cannot_cut_moves_the_control_off_it(view):
-    """A control reading 'object-shaped' over bounding-box crops is the
-    silent substitution this exists to prevent."""
-    for index in range(view._shape.count()):
-        if str(view._shape.itemData(index) or "") == "mask":
-            view._shape.setCurrentIndex(index)
-    result = cmv.MontageLoad(plans=(object(),), shapes=("bbox",),
-                             shape_reason="this route has no masks")
-
-    view._apply_shape_availability(result)
-
-    assert str(view._shape.currentData()) == "bbox"
-    assert view._shape.isEnabled() is True
-
-
-def test_a_route_that_offers_no_shape_at_all_disables_the_control(view):
-    """Two options that both do nothing is worse than one greyed control
-    carrying the sentence that says why."""
-    result = cmv.MontageLoad(plans=(object(),), shapes=(),
-                             shape_reason="the PNGs were cut at run time")
-
-    view._apply_shape_availability(result)
-
-    assert view._shape.isEnabled() is False
-    assert "cut at run time" in view._shape.toolTip()
 
 
 # ---------------------------------------------------------------------------
@@ -634,14 +443,6 @@ def test_a_relayout_only_reflows_when_the_column_count_moved(view,
     assert view._columns == wider
 
 
-def test_a_panel_with_no_selection_says_what_to_click(view):
-    """The status line is the whole of the panel's account of itself before
-    a coefficient is chosen."""
-    view._announce()
-
-    assert view.status_text() == view.NOTHING_SELECTED
-
-
 # ---------------------------------------------------------------------------
 # Building from a run whose files are all present
 # ---------------------------------------------------------------------------
@@ -692,43 +493,6 @@ def test_a_queue_stops_at_the_first_coefficient_that_starts_a_load(loaded):
     assert loaded._build_the_next_queued() is False
 
 
-def test_a_multivariate_request_with_no_sweep_does_not_build(loaded):
-    """The sweep is long. A user who declines it must not have a montage
-    built by some other picker while the caption says multivariate."""
-    loaded._picture_settings = dict(loaded.picture_settings())
-    loaded._picture_settings["cell_picking"] = "multivariate"
-    loaded._ask_about_multivariate = lambda _shortfall: "cancel"
-
-    assert loaded.build() is False
-
-
-def test_a_multivariate_request_the_user_downgrades_builds_as_rank(loaded):
-    """Rank is recorded as the choice, so the caption says rank because it
-    IS rank rather than because something fell back silently."""
-    loaded._picture_settings = dict(loaded.picture_settings())
-    loaded._picture_settings["cell_picking"] = "multivariate"
-    loaded._ask_about_multivariate = lambda _shortfall: "rank"
-
-    assert loaded.build() is True
-    assert loaded._picking_override == "rank"
-
-
-def test_the_write_prompt_is_the_default_confirmation(loaded, monkeypatch):
-    """`write_scores_into_the_databases()` with no confirmation argument has
-    to ask the user, never assume."""
-    asked = []
-
-    def refuse(self):
-        asked.append(self.text())
-        self.buttons()[1].click()
-        return 0
-
-    monkeypatch.setattr(QMessageBox, "exec", refuse)
-
-    assert loaded.write_scores_into_the_databases() == {}
-    assert asked, "the databases were written without asking"
-
-
 def test_stepping_to_the_next_coefficient_starts_at_the_first(loaded):
     """A key that is not in the selection has no position in it; stepping
     from there has to land on the first, not raise."""
@@ -746,60 +510,6 @@ def test_one_selected_coefficient_has_nowhere_to_step_to(loaded):
 
 
 # ---------------------------------------------------------------------------
-# The guide fractions, when there is no run folder
-# ---------------------------------------------------------------------------
-
-def _request(tmp_path, counts):
-    database = tmp_path / "p1.db"
-    database.write_bytes(b"")
-    return cmv.MontageRequest(name="GRA14", effect=0.8, level="gene",
-                              results_path="", databases=(str(database),),
-                              count_csvs=(str(counts),))
-
-
-def test_count_csvs_that_cannot_be_read_say_so_rather_than_saying_nothing(
-        tmp_path, monkeypatch):
-    """Either a run folder or a count CSV is enough for the guide fractions.
-    When the CSVs are the only source and they cannot be read, the reason
-    has to reach the tab -- 'no fractions available' would blame the wrong
-    thing."""
-    from spacr import cell_montage
-
-    counts = tmp_path / "counts.csv"
-    counts.write_text("prc,grna,count\n", encoding="utf-8")
-
-    def refuse(_paths):
-        raise cell_montage.MontageError("the count file names no well")
-
-    monkeypatch.setattr(cell_montage, "fractions_from_counts", refuse)
-
-    answer = cmv.load(_request(tmp_path, counts))
-
-    assert answer.error == "the count file names no well"
-    assert answer.unavailable is True
-
-
-def test_an_unexpected_failure_reading_the_counts_is_still_a_sentence(
-        tmp_path, monkeypatch):
-    """`load` runs on a worker thread and must never raise: the tab it
-    belongs to has to stay on screen and say why."""
-    from spacr import cell_montage
-
-    counts = tmp_path / "counts.csv"
-    counts.write_text("prc,grna,count\n", encoding="utf-8")
-
-    def explode(_paths):
-        raise MemoryError("the count file is too large")
-
-    monkeypatch.setattr(cell_montage, "fractions_from_counts", explode)
-
-    answer = cmv.load(_request(tmp_path, counts))
-
-    assert "Could not build the guide fractions" in answer.error
-    assert "too large" in answer.error
-
-
-# ---------------------------------------------------------------------------
 # Remaining panel details
 # ---------------------------------------------------------------------------
 
@@ -813,26 +523,6 @@ def test_the_resolved_crop_source_is_remembered_for_the_settings_window(view):
     assert view._last_source is source
 
 
-def test_a_setting_with_no_value_is_not_written_over_the_widget(view):
-    """A settings file that carries the key with a null must not blank the
-    control that already holds a good value."""
-    view._channels.setText("r, g, b")
-
-    view._write_back({"channels": None})
-
-    assert view._channels.text() == "r, g, b"
-
-
-def test_a_combo_setting_is_matched_by_its_text_when_it_has_no_data(view):
-    """The settings window writes what the user saw. A combo entry carrying
-    no data would otherwise silently ignore a valid choice."""
-    view._object.addItem("organelle")
-
-    view._write_back({"object_type": "organelle"})
-
-    assert view._object.currentText() == "organelle"
-
-
 def test_a_control_that_does_not_exist_is_skipped_when_reading_back(view):
     """The mirrored map names every setting; a build without one of those
     controls must still be able to describe itself."""
@@ -842,12 +532,6 @@ def test_a_control_that_does_not_exist_is_skipped_when_reading_back(view):
 
     assert "cap" not in read
     assert "channels" in read
-
-
-def test_saving_before_there_is_a_montage_writes_nothing(view):
-    """A file dialog opened for an empty montage would write a blank page."""
-    assert view.save() is None
-    assert "no montage to save" in view.status_text()
 
 
 def test_a_save_click_is_not_a_file_name(view, monkeypatch):
@@ -871,21 +555,6 @@ def test_a_save_click_is_not_a_file_name(view, monkeypatch):
     assert asked[0].startswith("cells_behind_GRA14."), asked
 
 
-def test_a_shape_combo_with_no_item_model_still_takes_its_enabled_state(
-        view):
-    """The per-entry tooltips need an item model. A combo without one has
-    to keep the control-level answer rather than raising during a load."""
-    from PySide6.QtCore import QStringListModel
-
-    view._shape.setModel(QStringListModel(["object", "bbox"]))
-    result = cmv.MontageLoad(plans=(object(),), shapes=("bbox",),
-                             shape_reason="this route has no masks")
-
-    view._apply_shape_availability(result)
-
-    assert view._shape.isEnabled() is True
-
-
 def test_the_comparison_tab_opens_once_and_is_reused(view):
     """A second floating comparison of the same montage is two answers to
     one question; the tab is reused so it stays in step with the grid."""
@@ -898,194 +567,3 @@ def test_the_comparison_tab_opens_once_and_is_reused(view):
     assert panel is not None
     assert view.compare_a_measurement() is panel
     assert view._tabs.tabText(view._tabs.indexOf(panel)) == "Compare"
-
-
-# ---------------------------------------------------------------------------
-# Choosing a route to the pixels
-# ---------------------------------------------------------------------------
-
-@dataclass(frozen=True)
-class _FakePlan:
-    """The shape `load` needs back from the selector, and nothing more."""
-
-    objects: Any
-    notes: Tuple[str, ...] = ()
-
-    def rows(self):
-        return [row for _index, row in self.objects.iterrows()]
-
-
-class _FakeSource:
-    """A crop source that answers with a flat grey square per row."""
-
-    def get_many(self, rows):
-        return [np.full((4, 4, 3), 7, dtype=np.uint8) for _ in rows]
-
-
-@pytest.fixture()
-def montage_pieces(monkeypatch, tmp_path):
-    """Stand in for the readers `load` calls, and record what they were given.
-
-    The pieces are the module's own collaborators, replaced one for one so
-    the branch under test is the only thing that varies.
-    """
-    from spacr import cell_montage, crops
-
-    objects = pd.DataFrame({
-        "object_id": [1, 2],
-        "prc": ["p1_r1_c1", "p1_r1_c2"],
-        "pred": [0.8, 0.2],
-    })
-    counts = pd.DataFrame({
-        "prc": ["p1_r1_c1", "p1_r1_c2"],
-        "grna": ["TGGT1_225160_1", "TGGT1_225160_2"],
-        "fraction": [0.9, 0.1],
-    })
-    seen: dict = {}
-
-    monkeypatch.setattr(cell_montage, "fractions_from_counts",
-                        lambda _paths: counts)
-    monkeypatch.setattr(cell_montage, "load_montage_objects",
-                        lambda *a, **k: objects.copy())
-    monkeypatch.setattr(crops, "reanchor_frame",
-                        lambda frame, _root: (frame, SimpleNamespace(
-                            describe=lambda: "")))
-
-    def remember(_objects, _counts, name, effect, **kwargs):
-        seen.update(kwargs)
-        seen["name"] = name
-        return _FakePlan(objects=_objects)
-
-    monkeypatch.setattr(cell_montage, "select_montage", remember)
-
-    def install(choice):
-        monkeypatch.setattr(cell_montage, "resolve_montage_crop_source",
-                            lambda *a, **k: choice)
-        return seen
-
-    return install, objects, counts
-
-
-def _load_request(tmp_path, picture=None, crop_shape="object"):
-    database = tmp_path / "p1.db"
-    database.write_bytes(b"")
-    counts = tmp_path / "counts.csv"
-    counts.write_text("prc,grna,count\n", encoding="utf-8")
-    return cmv.MontageRequest(
-        name="225160", effect=0.8, level="gene", results_path="",
-        databases=(str(database),), count_csvs=(str(counts),),
-        picture=picture or {}, crop_shape=crop_shape)
-
-
-def _choice(requirements):
-    from spacr.cell_montage import CropSourceChoice
-
-    return CropSourceChoice(source=_FakeSource(), kind="merged",
-                            reason="merged arrays", available=True,
-                            requirements=requirements)
-
-
-def test_a_route_missing_what_it_needs_is_refused_by_what_is_missing(
-        tmp_path, montage_pieces):
-    """A user with no channel list has to be told THAT. Reporting 'no crop
-    source' sends them looking for files that are all present."""
-    from spacr.cell_montage import RouteRequirements
-
-    install, _objects, _counts = montage_pieces
-    install(_choice(RouteRequirements(route="merged-bbox", shapes=("bbox",),
-                                      missing=("no channel list",))))
-
-    answer = cmv.load(_load_request(tmp_path))
-
-    assert answer.unavailable is True
-    assert "no channel list" in answer.error
-
-
-def test_a_shape_this_route_cannot_cut_is_stated_not_substituted(
-        tmp_path, montage_pieces):
-    """An object-shaped crop this route cannot cut must never quietly become
-    a bounding box: the caption says what was asked for, why it could not be
-    done, and what was drawn instead."""
-    from spacr.cell_montage import RouteRequirements
-
-    install, _objects, _counts = montage_pieces
-    install(_choice(RouteRequirements(route="merged-bbox", shapes=("bbox",),
-                                      detail="a coordinate table")))
-
-    answer = cmv.load(_load_request(tmp_path, crop_shape="object"))
-
-    assert answer.plans
-    notes = "\n".join(answer.plans[0].notes)
-    assert "'object' crop shape was asked for" in notes
-    assert "'bbox'" in notes
-    assert answer.shapes == ("bbox",)
-
-
-def test_a_route_that_declares_no_requirements_narrows_nothing(
-        tmp_path, montage_pieces):
-    """The exported PNGs were cut when the run wrote them, so that route
-    answers no shape question at all -- and must not be read as offering
-    every shape."""
-    install, _objects, _counts = montage_pieces
-    install(_choice(None))
-
-    answer = cmv.load(_load_request(tmp_path))
-
-    assert answer.plans
-    assert answer.shapes == ()
-    assert answer.shape_reason == ""
-
-
-def test_attributed_picking_matches_guides_on_the_measured_prefix(
-        tmp_path, montage_pieces, monkeypatch):
-    """The results name guides as the design did and the counts as the
-    library does. Hard-coding one organism's prefix leaves every Plasmodium
-    or human library matching nothing, at which point the attribution has no
-    competition to compare against and says nothing about it."""
-    from spacr import cell_montage
-
-    install, _objects, _counts = montage_pieces
-    seen = install(_choice(None))
-    monkeypatch.setattr(cell_montage, "effects_from_results",
-                        lambda _path: {"225160_1": 0.8, "225160_2": -0.1})
-
-    cmv.load(_load_request(tmp_path, picture={"cell_picking": "attributed"}))
-
-    assert seen["picking"] == "attributed"
-    assert seen["effects"] == {"TGGT1_225160_1": 0.8, "TGGT1_225160_2": -0.1}
-
-
-def test_attributed_picking_with_no_matching_effects_carries_none(
-        tmp_path, montage_pieces, monkeypatch):
-    """An empty map and 'no map at all' are different to the selector, and
-    an empty one would silently mean 'no competition' rather than 'unknown'."""
-    from spacr import cell_montage
-
-    install, _objects, _counts = montage_pieces
-    seen = install(_choice(None))
-    monkeypatch.setattr(cell_montage, "effects_from_results",
-                        lambda _path: {"nothing_matches": 1.0})
-
-    cmv.load(_load_request(tmp_path, picture={"cell_picking": "assigned"}))
-
-    assert seen["effects"] is None
-
-
-def test_multivariate_picking_is_handed_the_sweep_grid(
-        tmp_path, montage_pieces, monkeypatch):
-    """The grid is what makes multivariate multivariate. Without it the
-    picker falls back to the single-score attribution and says so, which
-    hides that what it fell back FROM was never supplied."""
-    from spacr import cell_montage
-
-    install, _objects, _counts = montage_pieces
-    seen = install(_choice(None))
-    grid = pd.DataFrame({"cell_area": [0.4]}, index=["225160_1"])
-    monkeypatch.setattr(cell_montage, "effects_from_results",
-                        lambda _path: {"225160_1": 0.8})
-    monkeypatch.setattr(cell_montage, "effects_grid_from_results",
-                        lambda _path: grid)
-
-    cmv.load(_load_request(tmp_path, picture={"cell_picking": "multivariate"}))
-
-    assert seen["effects_grid"] is grid

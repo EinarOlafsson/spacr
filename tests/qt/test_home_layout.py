@@ -40,6 +40,8 @@ from spacr.qt.app import (
 )
 from spacr.qt.widgets.home import AppTile, HomePage
 
+from tests import locale_cases
+
 #: What the dock actually draws, which is Home's tiles plus the Help modules
 #: and NOT every key in ``APPS``. The folded second level was removed on
 #: 2026-09-03, so a module that only ever had an indented child row has no
@@ -1389,14 +1391,8 @@ def test_every_app_resolves_to_a_screen(qtbot, qt_theme_applied):
 # label, so an app with no tile has no question to answer -- parametrising
 # over `APPS` asked it of nine folded modules and failed nine times for a
 # tile that is deliberately absent.
-@pytest.mark.parametrize("key,name,desc,section", tiled_apps(),
-                         ids=[a[0] for a in tiled_apps()])
-def test_home_tile_shows_the_whole_name(home, key, name, desc, section):
-    """The name fits the label drawing it — or elides WITH a tooltip.
-
-    Silently truncated text is the bug; an ellipsis plus a tooltip is an
-    acceptable fallback for a name no sane tile width could hold.
-    """
+def _home_tile_shows_the_whole_name_case(home, key, name, desc, section):
+    """One case of :func:`test_home_tile_shows_the_whole_name`."""
     _theme, page, _bar = home
     tile = _tiles_by_name(page).get(name)
     assert tile is not None, f"{name} has no tile on Home"
@@ -1414,19 +1410,22 @@ def test_home_tile_shows_the_whole_name(home, key, name, desc, section):
         f"{name!r} is elided but its tooltip does not carry the full name")
 
 
-@pytest.mark.parametrize("key,name,desc,section", _DOCK_ROWS,
-                         ids=[a[0] for a in _DOCK_ROWS])
-def test_sidebar_item_shows_the_whole_name(home, key, name, desc, section):
-    """Same contract for the left navigation column.
+def test_home_tile_shows_the_whole_name(subtests, request, home):
+    """The name fits the label drawing it — or elides WITH a tooltip.
 
-    OVER THE DOCK'S OWN ROWS, NOT ``APPS``. The folded second level was
-    removed on 2026-09-03 ("Scrap the sub categories"), so the nine modules
-    that reached the dock only as indented children -- ``convert``,
-    ``lineage``, ``layer_viewer``, ``tabulate``, ``plate_view``,
-    ``profiler``, ``investigate_hit``, ``external_masks`` and
-    ``train_compare`` -- have no row to measure. They are still reachable
-    from their host screen's fold strip.
+    Silently truncated text is the bug; an ellipsis plus a tooltip is an
+    acceptable fallback for a name no sane tile width could hold.
     """
+    for label, case in locale_cases.cases(
+            ("key,name,desc,section", tiled_apps(), [a[0] for a in tiled_apps()]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _home_tile_shows_the_whole_name_case(home=home, **fixtures, **case)
+
+
+def _sidebar_item_shows_the_whole_name_case(home, key, name, desc, section):
+    """One case of :func:`test_sidebar_item_shows_the_whole_name`."""
     _theme, _page, bar = home
     btn = _nav_buttons_by_name(bar).get(name)
     assert btn is not None, f"{name} has no sidebar entry"
@@ -1447,6 +1446,25 @@ def test_sidebar_item_shows_the_whole_name(home, key, name, desc, section):
     assert btn.accessibleName().strip() == name, (
         f"the row for {name!r} announces itself as "
         f"{btn.accessibleName().strip()!r}")
+
+
+def test_sidebar_item_shows_the_whole_name(subtests, request, home):
+    """Same contract for the left navigation column.
+
+    OVER THE DOCK'S OWN ROWS, NOT ``APPS``. The folded second level was
+    removed on 2026-09-03 ("Scrap the sub categories"), so the nine modules
+    that reached the dock only as indented children -- ``convert``,
+    ``lineage``, ``layer_viewer``, ``tabulate``, ``plate_view``,
+    ``profiler``, ``investigate_hit``, ``external_masks`` and
+    ``train_compare`` -- have no row to measure. They are still reachable
+    from their host screen's fold strip.
+    """
+    for label, case in locale_cases.cases(
+            ("key,name,desc,section", _DOCK_ROWS, [a[0] for a in _DOCK_ROWS]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _sidebar_item_shows_the_whole_name_case(home=home, **fixtures, **case)
 
 
 def test_no_sidebar_item_needs_eliding_at_the_default_font(home):

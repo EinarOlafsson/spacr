@@ -36,8 +36,13 @@ def test_the_setting_is_registered_under_its_item():
     from spacr.settings import ALPHA_FEATURES, _is_alpha, categories
 
     assert ALPHA_FEATURES[566] == {"settings": (KEY,)}
-    assert tuple(categories["GPU Measurement α"]) == (KEY,)
+    # Item 934's CPU-vs-GPU check sits under the same heading; its two
+    # settings are alpha under item 934 and only read with measure_gpu on.
+    checks = ("measure_gpu_check", "measure_gpu_check_rtol")
+    assert tuple(categories["GPU Measurement α"]) == (KEY, *checks)
+    assert set(checks) <= set(ALPHA_FEATURES[934]["settings"])
     assert _is_alpha("settings", KEY)
+    assert all(_is_alpha("settings", key) for key in checks)
 
 
 def test_the_gate_hides_it_until_alpha_features_are_on(prefs):

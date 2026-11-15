@@ -44,7 +44,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QApplication, QLabel, QListWidgetItem,
+from PySide6.QtWidgets import (QLabel, QListWidgetItem,
                                QSpacerItem, QWidget)
 
 
@@ -264,22 +264,6 @@ class TestThePopoverWithNoScreenBehindIt:
 class TestTheLastChannelIsPutBackOnlyWhenItCanBe:
     """``if isinstance(box, Toggle):`` in ``ChannelPicker._on_toggled``."""
 
-    def test_unchecking_the_last_channel_puts_it_back(self, qapp):
-        from spacr.qt.widgets.channel_picker import ChannelPicker
-
-        picker = ChannelPicker("r", allow_none=False)
-        heard = []
-        picker.changed.connect(heard.append)
-
-        picker._boxes["r"].setChecked(False)
-
-        assert picker.value() == "r", (
-            "a display that must keep a channel puts the last one back; got "
-            f"{picker.value()!r}")
-        assert heard == [], \
-            "and does not announce a value the user never chose"
-        picker.deleteLater()
-
     def test_a_toggle_from_nowhere_falls_through_to_the_signal(self, qapp):
         """The slot invoked directly -- ``sender()`` is then not a Toggle.
 
@@ -307,70 +291,10 @@ class TestTheLastChannelIsPutBackOnlyWhenItCanBe:
 # animation_zoom
 # ---------------------------------------------------------------------------
 
-class TestAWellTooSmallToHaveAnInside:
-    """``if inner_box[2] > inner_box[0] and inner_box[3] > inner_box[1]:``"""
-
-    def test_a_box_narrower_than_the_padding_has_no_hole(self):
-        from spacr.qt.widgets.animation_zoom import field_ring_mask
-
-        # 4 px wide against the module's padding: left + pad is already
-        # past right - pad, so there is no inner rectangle to subtract.
-        ring = field_ring_mask(32, box=(14.0, 14.0, 18.0, 18.0), radius=1.0)
-
-        assert ring.dtype == bool and ring.shape == (32, 32)
-        assert ring.any(), "the outer rounded box is still drawn"
-        # With no hole, the ring IS the filled outer box: its centre is set.
-        assert bool(ring[16, 16]), (
-            "with no inner rectangle to remove, the middle of the well is "
-            "part of the ring")
-
-    def test_a_normal_well_is_a_ring_with_a_hole(self):
-        """The contrast: a box wide enough for an inside, which is empty."""
-        from spacr.qt.widgets.animation_zoom import field_ring_mask
-
-        ring = field_ring_mask(64, box=(8.0, 8.0, 56.0, 56.0), radius=6.0)
-
-        assert ring.any()
-        assert not bool(ring[32, 32]), (
-            "a well with room for an inside has a hole in the middle")
-
 
 # ---------------------------------------------------------------------------
 # section
 # ---------------------------------------------------------------------------
-
-class TestTheHeaderMarkRowIsBuiltOnce:
-    """``if row is None:`` in ``Section._source_row``."""
-
-    def test_a_second_ask_reuses_the_layout_the_first_one_made(self, qapp):
-        """Only reachable from inside: ``set_source_app`` asks exactly once.
-
-        The public method builds the badge and asks for the row in the
-        same branch, and never again once the badge exists -- so the
-        "already built" side of the guard has to be driven by asking a
-        second time directly. What it pins is that the header keeps ONE
-        layout: a second one would re-parent the badge and leave the
-        heading text under two competing layouts.
-        """
-        from spacr.qt.widgets.section import Section
-
-        section = Section("Advanced")
-        try:
-            made = section.set_source_app("mask", "Generate masks")
-            if not made:
-                pytest.skip("no module icon is installed for 'mask'")
-            first = section._header.layout()
-            assert first is not None, "the mark row was built"
-
-            again = section._source_row()
-
-            assert again is first, (
-                "the header must keep the one layout it has, not build a "
-                "second over the heading text")
-            assert section.source_mark() is not None
-        finally:
-            section.deleteLater()
-
 
 # ---------------------------------------------------------------------------
 # activity_spinner

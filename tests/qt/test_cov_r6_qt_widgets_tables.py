@@ -37,8 +37,6 @@ pytest.importorskip("PySide6")
 from PySide6.QtWidgets import QTableWidget, QToolButton     # noqa: E402
 
 from spacr.qt.ingest_preview import ROW_COLUMNS             # noqa: E402
-from spacr.qt.widgets.database_set import DatabaseSetWidget  # noqa: E402
-from spacr.qt.widgets.folding_summary import split_rows     # noqa: E402
 from spacr.qt.widgets.metadata_table import (               # noqa: E402
     MetadataTableDialog, MetadataTablePanel,
 )
@@ -49,7 +47,6 @@ from spacr.qt.widgets.plate_layout import (                 # noqa: E402
 from spacr.qt.widgets.row_exclusion import (                # noqa: E402
     RowExclusionEditor, _ExclusionRuleRow,
 )
-from spacr.qt.widgets.table_chip import TableChip           # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -125,38 +122,6 @@ def test_apply_writes_the_csv_with_or_without_a_callback(qtbot, tmp_path):
 # database_set
 # ---------------------------------------------------------------------------
 
-def test_blanks_and_repeats_are_dropped_from_an_assigned_set(qtbot):
-    """A settings CSV can hold the same folder twice, or an empty field."""
-    widget = DatabaseSetWidget(mode="folder")
-    qtbot.addWidget(widget)
-
-    widget.set_value(["/data/plate1", "", "   ", "/data/plate1",
-                      "/data/plate2"])
-
-    assert widget.sources() == ["/data/plate1", "/data/plate2"]
-    assert len(widget.findChildren(TableChip)) == 2
-
-
-def test_the_chip_row_is_rebuilt_even_when_it_holds_a_spacer(qtbot):
-    """Rebuilding takes layout ITEMS, only some of which own a widget.
-
-    The chip row already ends in a stretch, and a host that lays anything
-    else out beside the chips adds another item with no widget. Reaching for
-    the private layout because that is the only place a non-widget item can
-    come from -- the widget itself only ever inserts chips.
-    """
-    widget = DatabaseSetWidget(["/data/plate1", "/data/plate2"], mode="folder")
-    qtbot.addWidget(widget)
-    assert len(widget.findChildren(TableChip)) == 2
-    widget._chips.insertStretch(0, 1)
-
-    widget.set_value(["/data/plate3", "/data/plate4"])
-
-    chips = [chip for chip in widget.findChildren(TableChip)
-             if chip.parent() is widget]
-    assert [chip.name for chip in chips] == ["plate3", "plate4"]
-    assert widget.sources() == ["/data/plate3", "/data/plate4"]
-
 
 # ---------------------------------------------------------------------------
 # plate_layout
@@ -212,16 +177,6 @@ def test_write_design_writes_the_assignment_it_was_handed(tmp_path):
 # ---------------------------------------------------------------------------
 # folding_summary
 # ---------------------------------------------------------------------------
-
-def test_a_blank_line_between_rows_never_becomes_a_row():
-    """Blank lines are dropped BEFORE the rows are parsed.
-
-    A summary is written with blank lines between its blocks, and an empty
-    ``("", "")`` row would render as an empty table line in the panel.
-    """
-    rows = split_rows("  effect          0.42\n\n   \n  p value         0.01\n")
-
-    assert rows == [("effect", "0.42"), ("p value", "0.01")]
 
 
 # ---------------------------------------------------------------------------

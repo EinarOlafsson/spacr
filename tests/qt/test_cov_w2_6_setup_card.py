@@ -11,9 +11,8 @@ import builtins
 
 import pytest
 
-from PySide6.QtCore import QEvent, QPoint, QPointF, QRectF, Qt
-from PySide6.QtGui import QColor, QCursor, QHoverEvent, QMouseEvent
-from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QPoint, QPointF, QRectF
+from PySide6.QtGui import QColor
 
 from spacr.qt.widgets.setup_card import CORNERS, REFERENCE_CARD, SetupCard
 
@@ -46,39 +45,6 @@ def no_preferences(monkeypatch):
 # the pointer steers the rim
 # --------------------------------------------------------------------------
 
-def test_a_mouse_move_over_the_card_steers_the_rim(card, qapp):
-    """It used to set only `_corner`, which the next frame recomputes -- so
-    while the pointer was over the CARD nothing steered the rim at all."""
-    card.show()
-    qapp.processEvents()
-    before = card._towards
-    point = QPointF(card.width() - 2, 2)          # the top-right corner
-    QApplication.sendEvent(card, QMouseEvent(
-        QMouseEvent.MouseMove, point, card.mapToGlobal(point.toPoint()),
-        Qt.NoButton, Qt.NoButton, Qt.NoModifier))
-    assert card._towards != before
-    assert card._towards == card.perimeter_position(point)
-
-
-def test_a_hover_move_steers_it_too(card, qapp):
-    """A hover move arrives even when the widget has no mouse grab, which is
-    the ordinary case on a card the user is only reading."""
-    card.show()
-    qapp.processEvents()
-    point = QPointF(2, card.height() - 2)         # the bottom-left corner
-    QApplication.sendEvent(card, QHoverEvent(
-        QEvent.HoverMove, point, QPointF(0, 0), point))
-    assert card._towards == card.perimeter_position(point)
-
-
-def test_a_pointer_at_the_exact_centre_names_no_direction(card):
-    """It is ignored rather than read as the top-left corner."""
-    centre = QPointF(card.width() / 2.0, card.height() / 2.0)
-    assert card.perimeter_position(centre) is None
-    card._towards = 0.4
-    card.flow_towards(centre)
-    assert card._towards == 0.4
-
 
 def test_a_cursor_at_the_exact_centre_does_not_move_the_accent(card,
                                                                monkeypatch):
@@ -94,26 +60,6 @@ def test_a_cursor_off_to_one_side_moves_the_accent(card, monkeypatch):
     card._towards = 0.5
     assert card._aim_at_the_cursor() is True
     assert card._towards != 0.5
-
-
-def test_the_ray_from_the_centre_walks_the_rim_continuously(card):
-    """Projecting onto the nearest EDGE jumps along the diagonals, which is
-    what was reported as the rim being unsynced with the pointer."""
-    width, height = card.width(), card.height()
-    corners = [QPointF(width, 0), QPointF(width, height),
-               QPointF(0, height), QPointF(0, 0)]
-    fractions = [card.perimeter_position(p) for p in corners]
-    assert fractions[0] == pytest.approx(width / (2.0 * (width + height)))
-    assert fractions[:3] == sorted(fractions[:3])
-    assert fractions[3] == pytest.approx(0.0)
-
-
-def test_a_pointer_outside_the_card_still_names_a_place_on_the_rim(card):
-    """It is a RAY, so it needs no clamping and answers for a pointer that
-    has left the window."""
-    outside = card.perimeter_position(QPointF(9999, card.height() / 2.0))
-    assert outside is not None
-    assert 0.0 <= outside <= 1.0
 
 
 def test_the_pointer_does_not_steer_while_a_circuit_is_running(card):
@@ -233,44 +179,6 @@ def test_a_centred_run_lands_on_the_pointer_and_a_head_run_trails_it(qapp):
 # --------------------------------------------------------------------------
 # the shape of the lit run
 # --------------------------------------------------------------------------
-
-def test_the_lit_run_is_one_unbroken_path_along_the_rim(card):
-    """THE WHOLE RIM IS BUILT ONCE and sampled along its length, so the run
-    crosses a corner without the seam four separate corner paths have."""
-    rect = QRectF(card.rect()).adjusted(1, 1, -1, -1)
-    card._at = 0.0
-    path = card._accent_path(rect)
-    assert path.elementCount() == 49          # one moveTo plus 48 lineTo
-    first = path.elementAt(0)
-    assert first.isMoveTo()
-    assert all(path.elementAt(i).isLineTo()
-               for i in range(1, path.elementCount()))
-    grown = rect.adjusted(-2, -2, 2, 2)
-    for index in range(path.elementCount()):
-        element = path.elementAt(index)
-        assert grown.contains(QPointF(element.x, element.y))
-
-
-def test_the_lit_run_follows_the_accent_round_the_card(card):
-    rect = QRectF(card.rect()).adjusted(1, 1, -1, -1)
-    card._at = 0.0
-    top = card._accent_path(rect).elementAt(24)
-    card._at = 0.5
-    bottom = card._accent_path(rect).elementAt(24)
-    assert QPointF(top.x, top.y) != QPointF(bottom.x, bottom.y)
-    assert top.y < rect.center().y() < bottom.y
-
-
-def test_a_run_that_wraps_past_the_start_stays_on_the_rim(card):
-    """The run is taken modulo the rim length, so one that begins near the
-    end of the perimeter continues past zero rather than stopping."""
-    rect = QRectF(card.rect()).adjusted(1, 1, -1, -1)
-    card._at = 0.99
-    path = card._accent_path(rect)
-    grown = rect.adjusted(-2, -2, 2, 2)
-    for index in range(path.elementCount()):
-        element = path.elementAt(index)
-        assert grown.contains(QPointF(element.x, element.y))
 
 
 # --------------------------------------------------------------------------

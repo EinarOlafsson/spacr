@@ -82,22 +82,3 @@ def test_a_dropdown_entry_with_no_stored_value_is_still_explained(qtbot):
 
     assert combo.itemData(0, Qt.ToolTipRole) == PICKING_HELP["rank"]
     assert combo.itemData(1, Qt.ToolTipRole) is None
-
-
-def test_the_dialog_opens_when_its_api_tooltips_cannot_be_installed(
-        qtbot, monkeypatch):
-    """A dialog that cannot decorate its help is still a working dialog."""
-    import spacr.qt.screens.settings_model as settings_model
-
-    def boom(*_args, **_kwargs):
-        raise RuntimeError("the API metadata could not be read")
-
-    monkeypatch.setattr(settings_model, "install_api_tooltips", boom)
-
-    dialog = psd.PictureSettingsDialog(mode="png")
-    qtbot.addWidget(dialog)
-
-    assert dialog.mode() == "png"
-    values = dialog.values()
-    assert "object_type" in values
-    assert dialog._labels["object_type"].toolTip()

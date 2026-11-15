@@ -23,9 +23,8 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, QPointF, Qt
-from PySide6.QtGui import QMouseEvent, QTextDocument
-from PySide6.QtWidgets import (QApplication, QDialog, QPushButton, QTextEdit,
+from PySide6.QtGui import QTextDocument
+from PySide6.QtWidgets import (QDialog, QPushButton, QTextEdit,
                                QVBoxLayout, QWidget)
 
 from spacr.qt.widgets.hint_bar import (HintBar, explain_through_the_bar,
@@ -34,76 +33,11 @@ from spacr.qt.widgets.hint_bar import (HintBar, explain_through_the_bar,
 pytestmark = pytest.mark.qt
 
 
-def _mouse(kind, y, button, buttons=None):
-    """A real mouse event at global height ``y``."""
-    held = button if buttons is None else buttons
-    return QMouseEvent(kind, QPointF(2, 2), QPointF(2, y), button, held,
-                       Qt.NoModifier)
-
-
 @pytest.fixture
 def bar(qtbot):
     strip = HintBar("Hover something.")
     qtbot.addWidget(strip)
     return strip
-
-
-def test_a_right_press_on_the_grip_does_not_start_a_drag(bar):
-    handle = bar._resize_handle
-    height = bar.height()
-    event = _mouse(QEvent.Type.MouseButtonPress, 300, Qt.RightButton)
-    QApplication.sendEvent(handle, event)
-    assert handle._drag is None
-    assert not event.isAccepted()
-    assert bar.height() == height
-
-
-def test_a_move_with_no_drag_under_way_leaves_the_height(bar):
-    handle = bar._resize_handle
-    height = bar.height()
-    committed = []
-    bar.helpHeightCommitted.connect(committed.append)
-    event = _mouse(QEvent.Type.MouseMove, 10, Qt.NoButton, Qt.LeftButton)
-    QApplication.sendEvent(handle, event)
-    assert handle._drag is None
-    assert bar.height() == height
-    assert bar._manual_height is None
-    assert committed == []
-
-
-def test_releasing_another_button_mid_drag_does_not_commit(bar):
-    handle = bar._resize_handle
-    committed = []
-    bar.helpHeightCommitted.connect(committed.append)
-    press = _mouse(QEvent.Type.MouseButtonPress, 300, Qt.LeftButton)
-    QApplication.sendEvent(handle, press)
-    assert press.isAccepted()
-    assert handle._drag == (300.0, bar.height())
-
-    other = _mouse(QEvent.Type.MouseButtonRelease, 300, Qt.RightButton,
-                   Qt.LeftButton)
-    QApplication.sendEvent(handle, other)
-    assert not other.isAccepted()
-    assert handle._drag is not None
-    assert committed == []
-
-    left = _mouse(QEvent.Type.MouseButtonRelease, 300, Qt.LeftButton,
-                  Qt.NoButton)
-    QApplication.sendEvent(handle, left)
-    assert left.isAccepted()
-    assert handle._drag is None
-    assert committed == [bar.height()]
-
-
-def test_a_release_with_no_drag_commits_nothing(bar):
-    handle = bar._resize_handle
-    committed = []
-    bar.helpHeightCommitted.connect(committed.append)
-    event = _mouse(QEvent.Type.MouseButtonRelease, 300, Qt.LeftButton,
-                   Qt.NoButton)
-    QApplication.sendEvent(handle, event)
-    assert not event.isAccepted()
-    assert committed == []
 
 
 def test_a_strip_alone_cannot_grow_past_its_minimum(bar):

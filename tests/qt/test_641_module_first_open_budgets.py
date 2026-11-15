@@ -15,6 +15,8 @@ from __future__ import annotations
 
 import pytest
 
+from tests import locale_cases
+
 pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
@@ -40,14 +42,24 @@ def window(qapp):
     qapp.processEvents()
 
 
-@pytest.mark.timeout(120)
-@pytest.mark.parametrize("key", _keys())
-def test_a_fresh_module_open_selects_its_new_screen(window, qapp, key):
+def _a_fresh_module_open_selects_its_new_screen_case(window, qapp, key):
+    """One case of :func:`test_a_fresh_module_open_selects_its_new_screen`."""
     assert key not in window._screens
     window._on_nav_selected(key)
     for _ in range(3):
         qapp.processEvents()
     assert window._stack.currentWidget() is window._screens.get(key)
+
+
+# One item now opens all 48 modules; each used to be its own item under 120 s.
+@pytest.mark.timeout(240)
+def test_a_fresh_module_open_selects_its_new_screen(subtests, request):
+    for label, case in locale_cases.cases(
+            ("key", _keys()),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('window', 'qapp')) as fixtures:
+                _a_fresh_module_open_selects_its_new_screen_case(**fixtures, **case)
 
 
 def test_a_benchmark_window_does_not_resume_another_modules_saved_session(qapp, qtbot, monkeypatch):

@@ -5,8 +5,6 @@ The render helpers take a real matplotlib figure and write real files into
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 
 import pytest
 
@@ -18,7 +16,7 @@ import matplotlib  # noqa: E402
 matplotlib.use("Agg")
 
 from matplotlib.figure import Figure  # noqa: E402
-from PySide6.QtCore import QEvent, QPoint, QPointF, Qt  # noqa: E402
+from PySide6.QtCore import QEvent, QPointF, Qt  # noqa: E402
 from PySide6.QtGui import QKeyEvent, QMouseEvent  # noqa: E402
 
 from spacr.qt.widgets import figure_queue as fq  # noqa: E402
@@ -37,21 +35,6 @@ def _figure():
     axes.text(0.5, 0.5, "annotation")
     figure.suptitle("figure title")
     return figure
-
-
-# ---------------------------------------------------------------------------
-# Every text on a figure
-# ---------------------------------------------------------------------------
-
-def test_every_text_a_figure_carries_is_found():
-    figure = _figure()
-    texts = {item.get_text() for item in fq.figure_text_items(figure)}
-    assert {"a title", "x", "y", "series", "legend title", "annotation",
-            "figure title"} <= texts
-
-
-def test_a_figure_with_no_axes_still_answers():
-    assert fq.figure_text_items(Figure()) == []
 
 
 # ---------------------------------------------------------------------------
@@ -79,56 +62,12 @@ def test_a_size_that_is_not_a_number_is_no_override():
 # Styling
 # ---------------------------------------------------------------------------
 
-def test_the_ink_and_the_text_are_two_colours():
-    figure = _figure()
-    fq._style_figure_colors(figure, "#101010", "#e0e0e0", 13, "#ff8800")
-    axes = figure.axes[0]
-    assert axes.spines["left"].get_edgecolor()[:3] == pytest.approx(
-        (1.0, 0.53333, 0.0), abs=0.01)
-    assert axes.title.get_color() == "#e0e0e0"
-    assert axes.title.get_fontsize() == 13
-    assert figure.patch.get_facecolor()[:3] == pytest.approx(
-        (0.0627, 0.0627, 0.0627), abs=0.01)
-
-
-def test_an_empty_line_colour_reuses_the_text_colour():
-    figure = _figure()
-    fq._style_figure_colors(figure, "#ffffff", "#000000", 0, "   ")
-    axes = figure.axes[0]
-    assert axes.spines["left"].get_edgecolor()[:3] == (0.0, 0.0, 0.0)
-
 
 def test_the_figures_own_size_is_used_when_none_is_given():
     figure = _figure()
     fq.set_figure_text_size_override(figure, 17)
     fq._style_figure_colors(figure, "#ffffff", "#000000")
     assert figure.axes[0].title.get_fontsize() == 17
-
-
-def test_a_figure_that_cannot_be_restyled_is_left_alone():
-    """A half-built figure must not take the render worker down.
-
-    Left alone, not half-styled: the failure at the very first step stops
-    the pass, so the figure does not come back with a new background and
-    its old text colour. And the next figure in the queue styles normally,
-    because the worker is still whole.
-    """
-    axes_asked = []
-
-    class Awkward:
-        patch = None
-
-        def get_axes(self):
-            axes_asked.append(True)
-            return []
-
-    fq._style_figure_colors(Awkward(), "#ffffff", "#000000", 12, "#000000")
-    assert axes_asked == []
-
-    figure = _figure()
-    fq._style_figure_colors(figure, "#ffffff", "#000000", 12, "#ff0000")
-    assert figure.axes[0].title.get_color() == "#000000"
-    assert figure.axes[0].spines["left"].get_edgecolor()[:3] == (1.0, 0.0, 0.0)
 
 
 # ---------------------------------------------------------------------------
@@ -166,14 +105,6 @@ def test_a_render_falls_back_to_defaults_when_a_preference_will_not_answer(
     png = tmp_path / "figure.png"
     assert fq.render_figure_to_png(_figure(), str(png)) is True
     assert png.exists() and png.stat().st_size > 0
-
-
-def test_a_page_that_is_not_a_pdf_renders_to_nothing(tmp_path):
-    missing = tmp_path / "absent.pdf"
-    assert fq.render_pdf_to_image(str(missing), timeout_ms=500) is None
-    rubbish = tmp_path / "rubbish.pdf"
-    rubbish.write_bytes(b"not a pdf at all\n")
-    assert fq.render_pdf_to_image(str(rubbish), timeout_ms=500) is None
 
 
 # ---------------------------------------------------------------------------

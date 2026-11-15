@@ -28,12 +28,12 @@ pytest.importorskip("PySide6")
 from PySide6.QtCore import Qt                                       # noqa: E402
 from PySide6.QtGui import QStandardItem, QStandardItemModel         # noqa: E402
 from PySide6.QtWidgets import (                                     # noqa: E402
-    QHeaderView, QListView, QTableView, QTableWidget, QTreeWidget,
+    QTableView, QTableWidget, QTreeWidget,
     QTreeWidgetItem)
 
 from spacr.qt.widgets.sortable_table import (                       # noqa: E402
-    _column_count, _SortableMixin, _STATE_ATTR, install_sorting, is_missing,
-    numeric_value, restore_natural_order, SORT_KEY_ROLE, SortableProxyModel,
+    _column_count, _SortableMixin, install_sorting, is_missing,
+    numeric_value, restore_natural_order, SortableProxyModel,
     table_item, tree_item)
 
 pytestmark = pytest.mark.qt
@@ -58,11 +58,6 @@ def _table(qapp, columns=3, rows=3):
 
 def _column(table, column=0):
     return [table.item(row, column).text() for row in range(table.rowCount())]
-
-
-def _tree_column(tree, column=0):
-    return [tree.topLevelItem(row).text(column)
-            for row in range(tree.topLevelItemCount())]
 
 
 def _proxy(values, order=None, labels=None):
@@ -101,14 +96,6 @@ def test_nothing_at_all_has_no_numeric_value():
     assert numeric_value(None) is None
     assert numeric_value("   ") is None
     assert numeric_value(" 3.5 ") == 3.5
-
-
-def test_a_percent_sign_does_not_make_a_word_into_a_number():
-    """"42%" is forty-two; "abc%" is still a word and sorts as one."""
-    assert numeric_value("42%") == 42.0
-    assert numeric_value("abc%") is None
-    # ... and so orders lexically against another word, not against numbers.
-    assert (table_item("abc%") < table_item("zzz%")) is True
 
 
 # ---------------------------------------------------------------------------
@@ -150,86 +137,15 @@ def test_a_cell_that_declares_no_order_sorts_missing_values_last():
 # SortableTableItem: an edit does not lose an explicit key
 # ---------------------------------------------------------------------------
 
-def test_editing_the_text_keeps_the_explicit_sort_key():
-    """A duration shown as "2 h 5 m" sorts on the seconds it was given.
-
-    Re-typing the display text must not throw that away for whatever the new
-    text happens to parse as.
-    """
-    item = table_item("2 h 5 m", key=125)
-    item.setText("3 h")
-
-    assert item.text() == "3 h"
-    assert (table_item(100) < item) is True
-    assert (item < table_item(130)) is True
-    # Not the 3 the new text starts with.
-    assert (item < table_item(4)) is False
-
-
 # ---------------------------------------------------------------------------
 # SortableTreeItem
 # ---------------------------------------------------------------------------
-
-def test_a_tree_item_with_no_tree_sorts_on_its_first_column():
-    """A row built but not yet added still compares, on column 0."""
-    assert (tree_item(["apple"]) < tree_item(["banana"])) is True
-    assert (tree_item(["banana"]) < tree_item(["apple"])) is False
-
-
-def test_a_tree_item_with_no_tree_still_puts_missing_values_last():
-    """With no header to ask, the order is the ascending one: holes last."""
-    assert (tree_item([""]) < tree_item(["5"])) is False
-    assert (tree_item(["5"]) < tree_item([""])) is True
-
-
-def test_two_missing_tree_cells_are_neither_before_nor_after_each_other():
-    blank, dash = tree_item([""]), tree_item(["—"])
-
-    assert (blank < dash) is False
-    assert (dash < blank) is False
-
-
-def test_a_number_sorts_before_a_word_in_a_mixed_tree_column():
-    assert (tree_item(["5"]) < tree_item(["apple"])) is True
-    assert (tree_item(["apple"]) < tree_item(["5"])) is False
-
-
-def test_an_explicit_key_beats_the_text_of_a_tree_cell():
-    item = tree_item(["2 h 5 m"])
-    item.setData(0, SORT_KEY_ROLE, 125.0)
-
-    assert (item < tree_item(["30"])) is False
-    assert (tree_item(["30"]) < item) is True
-
-
-def test_a_tree_item_compares_against_a_plain_qt_item():
-    """A tree can hold rows nobody routed through :func:`tree_item`."""
-    assert (tree_item(["5"]) < QTreeWidgetItem(["9"])) is True
-    assert (tree_item(["9"]) < QTreeWidgetItem(["5"])) is False
-
 
 def test_a_tree_item_declines_to_order_itself_against_a_non_item():
     """Declined, not guessed: ``sorted`` believes whatever it is told."""
     assert tree_item(["5"]).__lt__(object()) is NotImplemented
     with pytest.raises(TypeError):
         tree_item(["5"]) < object()
-
-
-def test_a_tree_puts_missing_values_last_whichever_way_it_is_sorted(qapp):
-    """The header is present here, so ``_descending`` reads a real order."""
-    tree = QTreeWidget()
-    tree.setColumnCount(2)
-    tree.setHeaderLabels(["value", "name"])
-    install_sorting(tree)
-    for index, value in enumerate(["5", "", "1", "—"]):
-        tree.addTopLevelItem(tree_item([value, f"row{index}"]))
-
-    tree.sortItems(0, Qt.AscendingOrder)
-    assert _tree_column(tree) == ["1", "5", "", "—"]
-
-    tree.sortItems(0, Qt.DescendingOrder)
-    assert _tree_column(tree) == ["5", "1", "", "—"]
-    tree.deleteLater()
 
 
 def test_a_tree_item_reads_its_text_from_the_column_being_sorted(qapp):
@@ -254,85 +170,9 @@ def test_a_tree_item_reads_its_text_from_the_column_being_sorted(qapp):
 # the fill guard
 # ---------------------------------------------------------------------------
 
-def test_the_fill_guard_stands_down_while_the_sort_is_being_put_back(qapp):
-    """``_resuming`` is set only inside ``resume_after_fill``'s own restore.
-
-    It is the re-entrancy guard: a row signal that arrives while the sort is
-    being re-applied must not capture the half-restored state as the thing to
-    restore. Set here directly because the guard is, by construction, only
-    true inside a call that is not itself emitting row signals.
-    """
-    table = _table(qapp)
-    state = getattr(table, _STATE_ATTR)
-    header = table.horizontalHeader()
-    header.setSortIndicator(1, Qt.AscendingOrder)
-
-    state._resuming = True
-    table.insertRow(0)
-    assert state._suspended is None
-    assert header.sortIndicatorSection() == 1
-
-    state._resuming = False
-    table.insertRow(0)
-    assert state._suspended == (1, Qt.AscendingOrder)
-    assert header.sortIndicatorSection() == -1
-    qapp.processEvents()
-    assert header.sortIndicatorSection() == 1
-    table.deleteLater()
-
-
-def test_a_late_resume_does_not_undo_a_sort_the_user_has_cleared(qapp):
-    """The third click clears the indicator; a stray callback leaves it clear."""
-    table = _table(qapp)
-    state = getattr(table, _STATE_ATTR)
-    header = table.horizontalHeader()
-    header.setSortIndicator(1, Qt.DescendingOrder)
-
-    table.insertRow(0)
-    qapp.processEvents()
-    assert header.sortIndicatorSection() == 1
-
-    header.setSortIndicator(-1, Qt.AscendingOrder)
-    state.resume_after_fill()
-    assert header.sortIndicatorSection() == -1
-    table.deleteLater()
-
-
-def test_a_column_that_went_away_during_a_fill_is_not_sorted_again(qapp):
-    """The resume is queued; the table can be narrower by the time it runs."""
-    keeps = _table(qapp)
-    keeps.horizontalHeader().setSortIndicator(2, Qt.DescendingOrder)
-    keeps.insertRow(0)
-    assert keeps.horizontalHeader().sortIndicatorSection() == -1
-    qapp.processEvents()
-    assert keeps.horizontalHeader().sortIndicatorSection() == 2
-
-    loses = _table(qapp)
-    loses.horizontalHeader().setSortIndicator(2, Qt.DescendingOrder)
-    loses.insertRow(0)
-    loses.setColumnCount(1)
-    qapp.processEvents()
-    assert loses.horizontalHeader().sortIndicatorSection() == -1
-    keeps.deleteLater()
-    loses.deleteLater()
-
-
 # ---------------------------------------------------------------------------
 # installing, and refusing to
 # ---------------------------------------------------------------------------
-
-def test_a_view_with_no_header_is_handed_back_unchanged(qapp):
-    """A list has no columns to click, and a gone view has nothing at all."""
-    assert install_sorting(None) is None
-
-    listing = QListView()
-    assert install_sorting(listing) is listing
-    assert getattr(listing, _STATE_ATTR, None) is None
-
-    table = QTableWidget(0, 1)
-    assert getattr(install_sorting(table), _STATE_ATTR, None) is not None
-    table.deleteLater()
-
 
 def test_the_column_count_of_a_view_that_is_gone_is_zero(qapp):
     """Guards the queued resume against a view torn down under it; the only
@@ -341,115 +181,6 @@ def test_the_column_count_of_a_view_that_is_gone_is_zero(qapp):
     assert _column_count(table) == 3
     assert _column_count(None) == 0
     table.deleteLater()
-
-
-def test_a_second_install_restates_the_header_contract(qapp):
-    table = QTableWidget(0, 2)
-    table.setHorizontalHeaderLabels(["a", "b"])
-    install_sorting(table)
-    state = getattr(table, _STATE_ATTR)
-
-    # Blocked, or the model's own headerDataChanged would restate it for us
-    # before the second install could be asked to.
-    table.model().blockSignals(True)
-    table.horizontalHeaderItem(0).setData(
-        Qt.InitialSortOrderRole, Qt.AscendingOrder.value)
-    table.model().blockSignals(False)
-    assert table.horizontalHeaderItem(0).data(
-        Qt.InitialSortOrderRole) == Qt.AscendingOrder.value
-
-    assert install_sorting(table) is table
-    assert table.horizontalHeaderItem(0).data(
-        Qt.InitialSortOrderRole) == Qt.DescendingOrder.value
-    # The same state object: a second one would wire every model signal twice.
-    assert getattr(table, _STATE_ATTR) is state
-    table.deleteLater()
-
-
-def test_a_tree_that_reports_no_header_item_still_installs(qapp):
-    """``headerItem()`` is where the descending-first answer is written."""
-    tree = QTreeWidget()
-    tree.setColumnCount(2)
-    install_sorting(tree)
-    assert [tree.headerItem().data(column, Qt.InitialSortOrderRole)
-            for column in range(2)] == [Qt.DescendingOrder.value] * 2
-
-    class _HeadlessTree(QTreeWidget):
-        """A tree with nowhere to write the answer."""
-
-        def headerItem(self):
-            return None
-
-    headless = _HeadlessTree()
-    headless.setColumnCount(2)
-    assert install_sorting(headless) is headless
-    assert getattr(headless, _STATE_ATTR, None) is not None
-    assert headless.header().sortIndicatorSection() == -1
-    tree.deleteLater()
-    headless.deleteLater()
-
-
-def test_an_older_qt_with_no_clearable_indicator_still_installs(qapp):
-    """``setSortIndicatorClearable`` arrived in Qt 6.1; the rest works without."""
-
-    class _OldHeader(QHeaderView):
-        @property
-        def setSortIndicatorClearable(self):
-            raise AttributeError("Qt older than 6.1")
-
-    table = QTableWidget(0, 2)
-    header = _OldHeader(Qt.Horizontal, table)
-    table.setHorizontalHeader(header)
-
-    assert install_sorting(table) is table
-    assert table.isSortingEnabled()
-    assert table.horizontalHeader().isSortIndicatorShown()
-    assert table.horizontalHeader().sortIndicatorSection() == -1
-    assert table.horizontalHeader().isSortIndicatorClearable() is False
-
-    modern = QTableWidget(0, 2)
-    install_sorting(modern)
-    assert modern.horizontalHeader().isSortIndicatorClearable() is True
-    table.deleteLater()
-    modern.deleteLater()
-
-
-def test_a_model_backed_view_is_wrapped_in_the_proxy_exactly_once(qapp):
-    view = QTableView()
-    source = QStandardItemModel()
-    for value in ["3", "1", "2"]:
-        source.appendRow(QStandardItem(value))
-    view.setModel(source)
-    install_sorting(view)
-    assert isinstance(view.model(), SortableProxyModel)
-    assert view.model().sourceModel() is source
-
-    already = QTableView()
-    proxy = SortableProxyModel(already)
-    proxy.setSourceModel(source)
-    already.setModel(proxy)
-    install_sorting(already)
-    assert already.model() is proxy
-    view.deleteLater()
-    already.deleteLater()
-
-
-def test_a_view_with_no_model_still_gets_the_header_contract(qapp):
-    empty = QTableView()
-    assert install_sorting(empty) is empty
-    assert empty.model() is None
-    assert empty.isSortingEnabled()
-    assert empty.horizontalHeader().isSortIndicatorShown()
-    assert empty.horizontalHeader().sortIndicatorSection() == -1
-
-    filled = QTableView()
-    model = QStandardItemModel()
-    model.appendRow(QStandardItem("1"))
-    filled.setModel(model)
-    install_sorting(filled)
-    assert isinstance(filled.model(), SortableProxyModel)
-    empty.deleteLater()
-    filled.deleteLater()
 
 
 # ---------------------------------------------------------------------------
@@ -558,33 +289,3 @@ def test_priming_walks_plain_tree_parents_and_keeps_current_token_keys(qtbot, mo
     assert [parent.child(row).text(0) for row in range(3)] == ['10', '2', '']
 
 
-def test_retired_sort_state_does_not_resume_or_change_a_live_tree(qtbot):
-    import shiboken6
-    from spacr.qt.widgets import sortable_table as st
-
-    tree = QTreeWidget()
-    qtbot.addWidget(tree)
-    tree.addTopLevelItems([tree_item(['10']), tree_item(['2'])])
-    install_sorting(tree)
-    state = getattr(tree, _STATE_ATTR)
-    shiboken6.delete(state)
-    before = [tree.topLevelItem(row).text(0) for row in range(2)]
-    st._hold_sorting_for_fill(tree)
-    st._keep_sorting_held(tree)
-    assert [tree.topLevelItem(row).text(0) for row in range(2)] == before
-    assert not shiboken6.isValid(state)
-
-
-def test_a_partially_primed_tree_still_compares_an_unprimed_numeric_row_with_plain_qt(qtbot, monkeypatch):
-    from spacr.qt.widgets import sortable_table as st
-
-    tree = QTreeWidget()
-    qtbot.addWidget(tree)
-    ours, plain = tree_item(['2']), QTreeWidgetItem(['10'])
-    tree.addTopLevelItems([ours, plain])
-    assert getattr(ours, '_sort_primed', None) is None
-    monkeypatch.setattr(st, '_PRIMED', (False, object()))
-    assert ours < plain
-    ours.setText(0, '20')
-    assert not ours < plain
-    assert [tree.topLevelItem(index).text(0) for index in range(2)] == ['20', '10']

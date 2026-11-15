@@ -27,6 +27,8 @@ pytest.importorskip("PySide6")
 
 from spacr.qt import theme  # noqa: E402
 
+from tests import locale_cases
+
 
 @pytest.fixture()
 def spare_block_name():
@@ -62,9 +64,8 @@ def test_lightness_stays_linear_in_the_near_black_where_the_cube_root_fails():
     assert theme.lightness("#020202") == pytest.approx(2 * near_black, rel=0.02)
 
 
-@pytest.mark.parametrize("name", theme.THEMES)
-def test_every_resting_panel_separates_from_its_page(name):
-    """One row per panel role per opacity, and all of them pass."""
+def _every_resting_panel_separates_from_its_page_case(name):
+    """One case of :func:`test_every_resting_panel_separates_from_its_page`."""
     report = theme.page_separation_report(name)
 
     assert len(report) == len(theme.PAGE_PANEL_ROLES) * 2
@@ -77,6 +78,16 @@ def test_every_resting_panel_separates_from_its_page(name):
         assert row["delta_lstar"] >= row["min_delta_lstar"], row
         assert row["passes"] is True
     assert theme.page_separation_failures(name) == []
+
+
+def test_every_resting_panel_separates_from_its_page(subtests, request):
+    """One row per panel role per opacity, and all of them pass."""
+    for label, case in locale_cases.cases(
+            ("name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _every_resting_panel_separates_from_its_page_case(**fixtures, **case)
 
 
 def test_a_faded_panel_is_composited_over_the_page_it_sits_on():

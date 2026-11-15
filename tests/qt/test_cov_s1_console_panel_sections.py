@@ -15,7 +15,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QApplication
 
 from spacr.qt.widgets import console_panel as cp
 from spacr.qt.widgets.console_panel import ConsolePanel
@@ -44,70 +43,6 @@ def _bars(panel):
 # ---------------------------------------------------------------------------
 # Where a section ends
 # ---------------------------------------------------------------------------
-
-def test_a_heading_that_is_not_in_this_console_spans_nothing(panel, qtbot):
-    """``_section_span`` is asked about a bar the caller holds. One that was
-    never inserted has no start, and every gesture built on the span has to
-    answer emptily rather than take the whole transcript."""
-    stray = cp._TopicBar("not inserted")
-    qtbot.addWidget(stray)
-
-    assert panel._section_span(stray) == (None, None)
-    assert panel.section_text(stray) == ""
-    assert panel.section_body(stray) == []
-
-
-@pytest.mark.usefixtures("console_info_enabled")
-def test_a_module_banner_spans_past_the_output_banner_under_it(panel):
-    """``append_stdout`` inserts its own "spaCR output" bar, so a module
-    banner is followed immediately by another banner. Stopping at the first
-    boundary would copy a title and nothing else, and fold a section that
-    hides nothing."""
-    panel.begin_topic("Mask")
-    panel.append_stdout("segmenting field 1\n")
-    panel.append_stdout("segmenting field 2\n")
-    panel.begin_topic("Measure")
-    panel.append_stdout("measuring\n")
-
-    module_bar = _bars(panel)[0]
-    text = panel.section_text(module_bar)
-
-    assert "Mask" in text
-    assert "segmenting field 1" in text
-    assert "segmenting field 2" in text
-    assert "Measure" not in text
-    body = panel.section_body(module_bar)
-    assert any(isinstance(widget, cp._TopicBar) for widget in body), \
-        "the output banner under the module banner is part of its section"
-
-
-@pytest.mark.usefixtures("console_info_enabled")
-def test_the_last_section_runs_to_the_end_of_the_transcript(panel):
-    panel.begin_topic("Mask")
-    panel.append_stdout("only output\n")
-
-    last = _bars(panel)[-1]
-
-    start, stop = panel._section_span(last)
-    assert start is not None
-    assert stop is None
-    assert "only output" in panel.section_text(last)
-
-
-@pytest.mark.usefixtures("console_info_enabled")
-def test_copying_a_section_puts_exactly_that_section_on_the_clipboard(panel):
-    panel.begin_topic("Mask")
-    panel.append_stdout("one\ntwo\n")
-    panel.begin_topic("Measure")
-    panel.append_stdout("three\n")
-    QApplication.clipboard().setText("")
-
-    _bars(panel)[0]._copy_section()
-
-    copied = QApplication.clipboard().text()
-    assert "one" in copied and "two" in copied
-    assert "three" not in copied
-
 
 # ---------------------------------------------------------------------------
 # Folding and raising

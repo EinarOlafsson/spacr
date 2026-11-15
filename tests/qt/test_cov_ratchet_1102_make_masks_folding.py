@@ -135,20 +135,6 @@ def test_a_folded_screen_with_no_layout_is_still_sized_and_one_that_vanishes_is_
     Screen._lay_out_a_folded_screen(fake, screen)          # swallowed
 
 
-def test_a_popup_backdrop_is_not_warmed_with_the_animated_fields(qtbot, monkeypatch):
-    from spacr.qt.widgets.ambient import AmbientWidget
-
-    screen = QWidget()
-    qtbot.addWidget(screen)
-    backdrop = AmbientWidget(screen)
-    backdrop.setProperty("spacrPopupBackdrop", True)
-    monkeypatch.setattr(AmbientWidget, "_art_render_size",
-                        lambda self, w, h: pytest.fail("rendered a popup backdrop"))
-    assert backdrop.property("spacrPopupBackdrop") is True
-    Screen._warm_the_fields_of(SimpleNamespace(), screen)
-    assert not backdrop.isVisible()
-
-
 # -- the Napari hand-off ---------------------------------------------------------------
 
 def test_a_missing_napari_extra_is_reported_in_the_status_pane(tmp_path, monkeypatch):

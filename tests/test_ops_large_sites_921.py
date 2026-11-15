@@ -159,7 +159,9 @@ def test_the_planner_halves_the_tile_and_refuses_an_impossible_cap():
         ols.plan_site_memory((5500, 5500), 5, {"seg_max_ram_gb": 1}, available_bytes=big)
     with pytest.raises(ols.MemoryPlanError, match="available"):
         ols.plan_site_memory((5500, 5500), 5, {"seg_max_ram_gb": 24}, available_bytes=2 ** 30)
-    assert ols.plan_site_memory((100, 100), 1, {"seg_max_ram_gb": 24})["workers"] >= 0
+    # Without available_bytes the planner reads this machine's free memory, so the
+    # cap stays small enough for a loaded shared machine (24 GB failed at 20.7 free).
+    assert ols.plan_site_memory((100, 100), 1, {"seg_max_ram_gb": 2})["workers"] >= 1
 
 
 def test_edge_policies_count_and_drop_border_objects():

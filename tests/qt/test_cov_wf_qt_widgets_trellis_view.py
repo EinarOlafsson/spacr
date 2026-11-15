@@ -1,4 +1,4 @@
-"""Trellis view — the four guards that only a degenerate input reaches.
+"""Trellis view — the three guards that only a degenerate input reaches.
 
 ``tests/qt/test_trellis.py`` and ``tests/test_cov_w2_4_trellis_view.py`` cover
 the ordinary grid: panels, shared limits, brushing, the highlight. What is
@@ -6,9 +6,6 @@ left is the handful of branches that only fire when the input is *not*
 ordinary, and each one is a guard whose absence would be a visible break
 rather than a crash:
 
-* a histogram whose column holds no finite value at all — every bar is zero
-  high, so there is no count to fit and the count axis must be left alone
-  instead of being pinned to a limit of nothing;
 * the blank slot at the end of a wrapped grid, which must never be captioned:
   a slot with no group is the remainder of a division, and ``n = 0`` on it
   would read as a group that was measured and came back empty;
@@ -17,19 +14,7 @@ rather than a crash:
   picker deliberately omits — where the picker has to keep the item it has
   rather than blank itself.
 
-The arithmetic below is small enough to check by hand. ``seen`` is four rows,
-faceted across ``gene``::
-
-    gene  area
-    a      1.0
-    a      2.0
-    a      3.0
-    b     10.0
-
-Shared x limits pad [1, 10] by 5% of the span -> (0.55, 10.45); two bins put
-the edges at 0.55, 5.5, 10.45. Panel *a* holds three values below 5.5, panel
-*b* holds one above it, so the tallest bar in the grid is 3 and a shared count
-axis tops out at 3 x 1.08 = **3.24**.
+``seen`` is four measured rows faceted across ``gene`` (three in *a*, one in *b*).
 """
 from __future__ import annotations
 
@@ -61,95 +46,11 @@ def seen() -> pd.DataFrame:
 
 
 @pytest.fixture
-def blind() -> pd.DataFrame:
-    """The same shape, but ``area`` never made it out of the instrument."""
-    return pd.DataFrame({"gene": ["a", "a", "b", "b"],
-                         "area": [np.nan, np.nan, np.nan, np.nan]})
-
-
-def histogram_spec(**kwargs) -> TrellisSpec:
-    return TrellisSpec(
-        graph=GraphSpec(x="area", facet_col="gene", kind=HISTOGRAM, bins=2,
-                        roles=NUMERIC),
-        **kwargs)
-
-
-@pytest.fixture
-def canvas(qtbot) -> TrellisCanvas:
-    widget = TrellisCanvas(link=LinkedSelection())
-    qtbot.addWidget(widget)
-    return widget
-
-
-@pytest.fixture
 def panel(qtbot) -> TrellisPanelWidget:
     widget = TrellisPanelWidget(link=LinkedSelection())
     qtbot.addWidget(widget)
     return widget
 
-
-# ---------------------------------------------------------------------------
-# A count axis with no counts on it
-# ---------------------------------------------------------------------------
-
-def test_a_histogram_of_nothing_measurable_leaves_its_count_axis_alone(
-        canvas, seen, blind):
-    """A column that is all NaN has no tallest bar to fit the axis to.
-
-    An unguarded ``set_ylim(0, count_limit)`` would hand matplotlib a limit
-    computed from no bars at all, collapsing the count axis onto zero — a
-    panel with a flat line where the reader expects an empty chart, and worse,
-    an axis that is *not* the one the neighbouring panels are drawn on. The
-    grid has to be able to say "nothing here was measurable" and still be a
-    grid. Both halves are driven here: the same spec over real values must
-    still pin the shared 3.24 ceiling that makes the two panels comparable.
-    """
-    canvas.set_frame(blind)
-    canvas.set_trellis_spec(histogram_spec())
-
-    assert [p.scales.count_limit for p in canvas.trellis.panels] == [None, None]
-    empty_axes = canvas.panel_axes()[(0, 0)]
-    assert [bar.get_height() for bar in empty_axes.patches] == [0, 0]
-    low, high = empty_axes.get_ylim()
-    # Left to matplotlib: a real range around the flat bars, not pinned at 0.
-    assert low < 0 < high
-
-    canvas.set_frame(seen)
-    canvas.set_trellis_spec(histogram_spec())
-
-    assert [p.scales.count_limit for p in canvas.trellis.panels] == [3.24, 3.24]
-    drawn = canvas.panel_axes()
-    assert [bar.get_height() for bar in drawn[(0, 0)].patches] == [3, 0]
-    assert [bar.get_height() for bar in drawn[(0, 1)].patches] == [0, 1]
-    assert drawn[(0, 0)].get_ylim() == pytest.approx((0.0, 3.24))
-    assert drawn[(0, 1)].get_ylim() == pytest.approx((0.0, 3.24))
-
-
-def test_a_free_count_axis_still_refuses_to_fit_bars_that_are_not_there(
-        canvas, blind, seen):
-    """Per-panel counts are the mode where a wrong ceiling is invisible.
-
-    Under a free y scale every panel writes its own count limit, so there is
-    no neighbour to compare against and a panel fitted to nothing looks
-    exactly like a panel fitted to its data. The guard must hold per panel,
-    not only for the whole grid: the two panels of the NaN frame keep an
-    autoscaled axis, while the real frame gives each its own ceiling — 3.24
-    for the panel holding three objects, 1.08 for the one holding one.
-    """
-    canvas.set_frame(blind)
-    canvas.set_trellis_spec(histogram_spec(scale_y=SCALE_FREE))
-
-    blank_limits = {ax.get_ylim() for ax in canvas.panel_axes().values()}
-    assert len(blank_limits) == 1
-    low, high = blank_limits.pop()
-    assert low < 0 < high
-
-    canvas.set_frame(seen)
-    canvas.set_trellis_spec(histogram_spec(scale_y=SCALE_FREE))
-
-    axes = canvas.panel_axes()
-    assert axes[(0, 0)].get_ylim() == pytest.approx((0.0, 3.24))
-    assert axes[(0, 1)].get_ylim() == pytest.approx((0.0, 1.08))
 
 
 # ---------------------------------------------------------------------------

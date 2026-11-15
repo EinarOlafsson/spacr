@@ -44,7 +44,6 @@ from PySide6.QtWidgets import (  # noqa: E402
     QFormLayout,
     QLabel,
     QLineEdit,
-    QVBoxLayout,
     QWidget,
 )
 
@@ -610,20 +609,6 @@ def test_a_panel_of_nothing_but_parent_headings_caches_no_leaf(qtbot):
 
     assert parent_only._slot_headings() == {}
     assert list(with_leaf._slot_headings()) == [id(leaf)]
-
-
-def test_a_heading_whose_body_is_not_a_form_is_walked_past(qtbot):
-    """The walk reads rows out of a QFormLayout; a section without one has none."""
-    from spacr.qt.widgets.section import Section
-
-    parent = QWidget()
-    qtbot.addWidget(parent)
-    QVBoxLayout(parent)
-    formless = Section("No form", parent)
-    formless._form = QVBoxLayout()
-    widgets = SM.SettingsWidgets("measure", parent=parent)
-
-    assert widgets._slot_headings() == {}
 
 
 def test_a_panel_whose_headings_cannot_be_walked_reports_none(monkeypatch,

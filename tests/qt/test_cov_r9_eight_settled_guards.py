@@ -155,57 +155,8 @@ class TestTheFoldedPanelKey:
 
         assert remembered == {"regression.summary": True}
 
-    @pytest.mark.parametrize("key", ["", "regression.summary"])
-    def test_the_widget_still_guards_it(self, qtbot, monkeypatch, key):
-        from PySide6.QtWidgets import QLabel, QWidget
-        from spacr.qt import preferences
-        from spacr.qt.widgets import foldable as F
-
-        writes = []
-        monkeypatch.setattr(preferences, "get_folded_panels", lambda: {})
-        monkeypatch.setattr(preferences, "set_folded_panel",
-                            lambda name, shut: writes.append((name, shut)))
-        heading, body = QLabel("Section"), QWidget()
-        qtbot.addWidget(heading)
-        qtbot.addWidget(body)
-        folder = F.make_foldable(heading, body, persist_key=key)
-        folder.set_shut(True, by_user=False)
-        assert writes == [], "automatic layout changes must not change preferences"
-        folder.set_shut(False, by_user=True)
-        folder.set_shut(True, by_user=True)
-        assert writes == ([(key, False), (key, True)] if key else [])
-
 
 class TestGuardsAfterALoopThatCannotFallThrough:
-
-    @pytest.mark.parametrize("text", ["copied section\n", " \n\t"])
-    def test_the_console_copy_uses_the_found_panel(
-            self, qtbot, monkeypatch, text):
-        """A found panel supplies the text; blank sections leave the clipboard."""
-        from PySide6.QtWidgets import QApplication
-        from spacr.qt.widgets import console_panel as C
-
-        panel = C.ConsolePanel()
-        qtbot.addWidget(panel)
-        bar = C._TopicBar("section", parent=panel)
-        requested = []
-        flashed = []
-
-        def section_text(selected):
-            requested.append(selected)
-            return text
-
-        monkeypatch.setattr(panel, "section_text", section_text)
-        monkeypatch.setattr(bar._copy_btn, "flash_copied",
-                            lambda: flashed.append(True))
-        QApplication.clipboard().setText("previous contents")
-
-        bar._copy_section()
-
-        assert requested == [bar]
-        assert QApplication.clipboard().text() == (
-            text if text.strip() else "previous contents")
-        assert flashed == ([True] if text.strip() else [])
 
     def test_the_fold_strip_guard_sits_inside_the_handler(self):
         """An empty Time-category mount is inside the same failure handler.

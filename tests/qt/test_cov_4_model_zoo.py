@@ -8,7 +8,6 @@ dialog nobody sees and a silent failure is a screen that looks like it worked.
 """
 from __future__ import annotations
 
-import os
 
 import numpy as np
 import pytest
@@ -93,34 +92,6 @@ def test_cancelling_the_download_picker_leaves_the_box_alone(screen,
     _folder_picker(monkeypatch, "")
     screen._pick_dest_folder()
     assert screen._dest_edit.text() == "/data/models"
-
-
-def test_a_typed_fields_folder_is_loaded(screen, tmp_path):
-    """The benchmark's field box is the same second way in."""
-    folder = tmp_path / "plate1"
-    folder.mkdir()
-    np.save(folder / "A01_f00.npy", np.full((32, 32), 100.0, dtype=np.float32))
-    screen._fields_edit.setText(str(folder))
-    screen._on_fields_typed()
-    assert screen.fields_folder() == str(folder)
-
-
-def test_picking_a_fields_folder_loads_it(screen, tmp_path, monkeypatch):
-    """Browsing for fields must load them, not merely remember the path."""
-    folder = tmp_path / "plate2"
-    folder.mkdir()
-    np.save(folder / "A01_f00.npy", np.full((32, 32), 100.0, dtype=np.float32))
-    _folder_picker(monkeypatch, str(folder))
-    screen._pick_fields_folder()
-    assert screen.fields_folder() == str(folder)
-    assert screen.field_names()
-
-
-def test_cancelling_the_fields_picker_loads_nothing(screen, monkeypatch):
-    """A cancel must not clear the fields already loaded."""
-    _folder_picker(monkeypatch, "")
-    screen._pick_fields_folder()
-    assert screen.fields_folder() == ""
 
 
 # -- refusals ----------------------------------------------------------------

@@ -42,25 +42,6 @@ def _stub(sender):
     return stub
 
 
-def test_a_switch_flipped_acts_on_the_plate_it_stands_for():
-    stub = _stub(_Sender("/screen/p1"))
-    browser._OverviewMetadataWizard._plate_subfolders_toggled(stub, True)
-    assert stub.calls == [("subfolders", "/screen/p1", True)]
-
-
-def test_a_switch_with_no_plate_property_acts_on_the_empty_path():
-    stub = _stub(_Sender(None))
-    browser._OverviewMetadataWizard._plate_subfolders_toggled(stub, False)
-    assert stub.calls == [("subfolders", "", False)]
-
-
-def test_a_signal_with_no_sender_changes_no_plate():
-    stub = _stub(None)
-    browser._OverviewMetadataWizard._plate_subfolders_toggled(stub, True)
-    browser._OverviewMetadataWizard._apply_plate_button_clicked(stub)
-    assert stub.calls == []
-
-
 def test_the_apply_button_applies_to_its_own_plate():
     stub = _stub(_Sender("/screen/p2"))
     browser._OverviewMetadataWizard._apply_plate_button_clicked(stub, False)

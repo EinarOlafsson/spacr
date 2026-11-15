@@ -228,7 +228,6 @@ def test_cellpose_eval_returns_three_values():
 PARTIAL_SIGNATURE_RATCHET = {
     ("test_cellpose4_model_story.py", "_M"): 3,
     ("test_coverage_fill_cellpose_gpu_funcs.py", "_FakeModel"): 1,
-    ("test_coverage_fill_cellpose_gpu_funcs.py", "_BadEvalModel"): 1,
     ("test_coverage_fill_pipeline_v2.py", "_FakeModel"): 1,
     ("test_zstack.py", "_M"): 1,
     # THE ONE DOUBLE THAT MUST KEEP **kwargs, because the defect it pins is
@@ -258,7 +257,7 @@ PARTIAL_SIGNATURE_RATCHET = {
 }
 
 #: Total partial ``eval`` methods above, not keys.
-PARTIAL_SIGNATURE_CEILING = 11
+PARTIAL_SIGNATURE_CEILING = 10
 
 
 def _eval_doubles():

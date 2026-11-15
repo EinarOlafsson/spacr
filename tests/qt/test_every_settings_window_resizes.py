@@ -24,6 +24,8 @@ from __future__ import annotations
 
 import pytest
 
+from tests import locale_cases
+
 pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
@@ -944,8 +946,6 @@ def _every_settings_window():
 SETTINGS_WINDOWS = _every_settings_window()
 
 
-@pytest.mark.parametrize("name,build", SETTINGS_WINDOWS,
-                         ids=[n for n, _ in SETTINGS_WINDOWS])
 class TestEverySettingsWindow:
     """Thirty-five real dialogs, resized and read back one at a time.
 
@@ -955,8 +955,8 @@ class TestEverySettingsWindow:
     of their own, a form already inside a scroll area.
     """
 
-    def test_it_can_be_made_smaller_in_both_directions(self, resizer, qtbot,
-                                                       name, build):
+    def _it_can_be_made_smaller_in_both_directions_case(self, resizer, qtbot, name, build):
+        """One case of :func:`test_it_can_be_made_smaller_in_both_directions`."""
         dialog = _open(qtbot, build())
         natural = _size(dialog)
 
@@ -965,6 +965,14 @@ class TestEverySettingsWindow:
 
         assert smaller.width() < natural.width(), name
         assert smaller.height() < natural.height(), name
+
+    def test_it_can_be_made_smaller_in_both_directions(self, subtests, request):
+        for label, case in locale_cases.cases(
+                ("name,build", SETTINGS_WINDOWS, [n for n, _ in SETTINGS_WINDOWS]),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('resizer', 'qtbot')) as fixtures:
+                    self._it_can_be_made_smaller_in_both_directions_case(**fixtures, **case)
 
     @staticmethod
     def _took_the_room(dialog, wider_by, taller_by, name):
@@ -1011,12 +1019,23 @@ class TestEverySettingsWindow:
             assert grew or shows_more or reaches_the_form, \
                 f"{name}: the extra height went nowhere"
 
-    def test_the_extra_width_goes_to_the_form(self, resizer, qtbot, name,
-                                              build):
+    def _the_extra_width_goes_to_the_form_case(self, resizer, qtbot, name, build):
+        """One case of :func:`test_the_extra_width_goes_to_the_form`."""
         self._took_the_room(_open(qtbot, build()), 200, 0, name)
 
-    def test_the_extra_height_goes_to_the_form(self, resizer, qtbot, name,
-                                               build):
+    def test_the_extra_width_goes_to_the_form(self, subtests, request):
+        for label, case in locale_cases.cases(
+                ("name,build", SETTINGS_WINDOWS, [n for n, _ in SETTINGS_WINDOWS]),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('resizer', 'qtbot')) as fixtures:
+                    self._the_extra_width_goes_to_the_form_case(**fixtures, **case)
+
+    def _the_extra_height_goes_to_the_form_case(self, resizer, qtbot, name, build):
+        """One case of :func:`test_the_extra_height_goes_to_the_form`."""
+        self._took_the_room(_open(qtbot, build()), 0, 150, name)
+
+    def test_the_extra_height_goes_to_the_form(self, subtests, request):
         """The height, which a column of fields answers differently.
 
         A form with nothing stretchy in it -- nine of these are exactly
@@ -1029,23 +1048,15 @@ class TestEverySettingsWindow:
         distributes it the same way. `test_growing_it_shows_more_of_the_form`
         is where the height does visible work.
         """
-        self._took_the_room(_open(qtbot, build()), 0, 150, name)
+        for label, case in locale_cases.cases(
+                ("name,build", SETTINGS_WINDOWS, [n for n, _ in SETTINGS_WINDOWS]),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('resizer', 'qtbot')) as fixtures:
+                    self._the_extra_height_goes_to_the_form_case(**fixtures, **case)
 
-    def test_growing_it_shows_more_of_the_form(self, resizer, qtbot, name,
-                                               build):
-        """Room given back to a window that was made small.
-
-        A column of fields has nothing that should stretch downwards --
-        pulling a row of spin boxes to fill 150 extra pixels would be
-        worse than leaving them alone -- so for those dialogs the room
-        goes to the form by showing more of it. Measured from a window
-        shrunk to half: growing it back puts the hidden rows on screen
-        rather than adding a blank band under the same visible ones.
-
-        A dialog holding a list, a table or a preview answers the same
-        question the other way: that widget takes the height directly, so
-        that is what is measured for those.
-        """
+    def _growing_it_shows_more_of_the_form_case(self, resizer, qtbot, name, build):
+        """One case of :func:`test_growing_it_shows_more_of_the_form`."""
         from PySide6.QtWidgets import QWidget
 
         dialog = _open(qtbot, build())
@@ -1080,36 +1091,43 @@ class TestEverySettingsWindow:
             assert scroll.widget().height() == scroll.viewport().height(), \
                 name
 
-    def test_it_has_a_size_grip(self, resizer, qtbot, name, build):
+    def test_growing_it_shows_more_of_the_form(self, subtests, request):
+        """Room given back to a window that was made small.
+
+        A column of fields has nothing that should stretch downwards --
+        pulling a row of spin boxes to fill 150 extra pixels would be
+        worse than leaving them alone -- so for those dialogs the room
+        goes to the form by showing more of it. Measured from a window
+        shrunk to half: growing it back puts the hidden rows on screen
+        rather than adding a blank band under the same visible ones.
+
+        A dialog holding a list, a table or a preview answers the same
+        question the other way: that widget takes the height directly, so
+        that is what is measured for those.
+        """
+        for label, case in locale_cases.cases(
+                ("name,build", SETTINGS_WINDOWS, [n for n, _ in SETTINGS_WINDOWS]),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('resizer', 'qtbot')) as fixtures:
+                    self._growing_it_shows_more_of_the_form_case(**fixtures, **case)
+
+    def _it_has_a_size_grip_case(self, resizer, qtbot, name, build):
+        """One case of :func:`test_it_has_a_size_grip`."""
         dialog = _open(qtbot, build())
 
         assert len(_grips(dialog)) == 1, name
 
-    def test_it_opens_at_a_content_fitting_screen_bounded_size(
-            self, resizer, qtbot, name, build):
-        """The filtered dialog fits at least its old opening or the screen.
+    def test_it_has_a_size_grip(self, subtests, request):
+        for label, case in locale_cases.cases(
+                ("name,build", SETTINGS_WINDOWS, [n for n, _ in SETTINGS_WINDOWS]),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('resizer', 'qtbot')) as fixtures:
+                    self._it_has_a_size_grip_case(**fixtures, **case)
 
-        EACH SIDE IS MEASURED UNTIL IT SETTLES, and that is not
-        ceremony. The two measurements are of two different instances,
-        so anything that differs between one construction and the next
-        lands on the filter's account -- and Qt warms font metrics and
-        style sheets per widget class as it goes, so successive builds
-        of the same dialog shrink slightly until the caches are full.
-
-        One throwaway was not enough. Batched, `annotate._SettingsDialog`
-        came out 1,183 px against 1,191 and `ExecutionProfileDialog` 615
-        against 616, both on the THIRD build -- the warmup had moved the
-        number without finishing the job, and the difference was still
-        being read as the filter's doing. Building until two consecutive
-        sizes agree measures the size the dialog actually opens at,
-        which is what the claim is about.
-
-        Each warm-up owns its window until it closes and deletes it.
-        qtbot tracks weak references; handing a temporary dialog straight
-        to _size let a still-visible window reach cycle collection during
-        the next constructor. Under Qt 6.11.2 this crashed in the offscreen
-        platform's cursor lookup while QDialog's destructor hid the window.
-        """
+    def _it_opens_at_a_content_fitting_screen_bounded_size_case(self, resizer, qtbot, name, build):
+        """One case of :func:`test_it_opens_at_a_content_fitting_screen_bounded_size`."""
         from PySide6.QtCore import QEvent
         from PySide6.QtWidgets import QApplication
 
@@ -1154,8 +1172,39 @@ class TestEverySettingsWindow:
         assert with_filter.width() <= ceiling_w, name
         assert with_filter.height() <= ceiling_h, name
 
-    def test_shown_again_it_is_where_it_was_left(self, resizer, qtbot,
-                                                 name, build):
+    def test_it_opens_at_a_content_fitting_screen_bounded_size(self, subtests, request):
+        """The filtered dialog fits at least its old opening or the screen.
+
+        EACH SIDE IS MEASURED UNTIL IT SETTLES, and that is not
+        ceremony. The two measurements are of two different instances,
+        so anything that differs between one construction and the next
+        lands on the filter's account -- and Qt warms font metrics and
+        style sheets per widget class as it goes, so successive builds
+        of the same dialog shrink slightly until the caches are full.
+
+        One throwaway was not enough. Batched, `annotate._SettingsDialog`
+        came out 1,183 px against 1,191 and `ExecutionProfileDialog` 615
+        against 616, both on the THIRD build -- the warmup had moved the
+        number without finishing the job, and the difference was still
+        being read as the filter's doing. Building until two consecutive
+        sizes agree measures the size the dialog actually opens at,
+        which is what the claim is about.
+
+        Each warm-up owns its window until it closes and deletes it.
+        qtbot tracks weak references; handing a temporary dialog straight
+        to _size let a still-visible window reach cycle collection during
+        the next constructor. Under Qt 6.11.2 this crashed in the offscreen
+        platform's cursor lookup while QDialog's destructor hid the window.
+        """
+        for label, case in locale_cases.cases(
+                ("name,build", SETTINGS_WINDOWS, [n for n, _ in SETTINGS_WINDOWS]),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('resizer', 'qtbot')) as fixtures:
+                    self._it_opens_at_a_content_fitting_screen_bounded_size_case(**fixtures, **case)
+
+    def _shown_again_it_is_where_it_was_left_case(self, resizer, qtbot, name, build):
+        """One case of :func:`test_shown_again_it_is_where_it_was_left`."""
         dialog = _open(qtbot, build())
         dialog.move(150, 120)
         qtbot.wait(5)
@@ -1166,6 +1215,14 @@ class TestEverySettingsWindow:
         qtbot.waitExposed(dialog)
 
         assert dialog.pos() == where, name
+
+    def test_shown_again_it_is_where_it_was_left(self, subtests, request):
+        for label, case in locale_cases.cases(
+                ("name,build", SETTINGS_WINDOWS, [n for n, _ in SETTINGS_WINDOWS]),
+        ):
+            with subtests.test(**label):
+                with locale_cases.fresh_case(request, label, ('resizer', 'qtbot')) as fixtures:
+                    self._shown_again_it_is_where_it_was_left_case(**fixtures, **case)
 
 
 class TestWhatWasLeftAlone:

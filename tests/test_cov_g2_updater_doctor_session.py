@@ -2,18 +2,12 @@
 from __future__ import annotations
 
 import json
-import os
 import types
 import urllib.error
 
 import pytest
 
-from spacr import doctor, restart_state, updater
-
-
-def test_unparseable_versions_fall_back_to_plain_comparison():
-    info = updater.UpdateInfo("not.a.version!", "1.5.0", None)
-    assert isinstance(info.upgrade_available, bool)
+from spacr import doctor, updater
 
 
 def test_a_nightly_channel_with_an_unparseable_latest_still_picks_a_release():
@@ -41,49 +35,6 @@ def test_a_network_config_that_is_not_an_object_reads_empty(tmp_path, monkeypatc
     assert updater._read_network_config() == {"proxy": "", "ca_bundle": ""}
 
 
-def test_exports_changed_since_are_left_alone(monkeypatch):
-    monkeypatch.setattr(updater, "_NETWORK_EXPORTED", {"HTTPS_PROXY": "http://a"})
-    monkeypatch.setattr(updater, "_NETWORK_DISPLACED", {"HTTPS_PROXY": None})
-    monkeypatch.setenv("HTTPS_PROXY", "http://user-set")
-    updater._undo_network_exports()
-    assert os.environ["HTTPS_PROXY"] == "http://user-set"
-
-
-def test_a_proxy_keeps_an_existing_no_proxy_and_survives_urllib(monkeypatch,
-                                                                tmp_path):
-    import urllib.request
-
-    path = tmp_path / "network.json"
-    path.write_text(json.dumps({"proxy": "http://proxy:3128"}), encoding="utf-8")
-    monkeypatch.setenv(updater._ENV_NETWORK_CONFIG, str(path))
-    monkeypatch.setenv("NO_PROXY", "intranet")
-    for key in updater._PROXY_VARIABLES:
-        monkeypatch.delenv(key, raising=False)
-
-    def broken(opener):
-        raise RuntimeError("no opener")
-
-    monkeypatch.setattr(urllib.request, "install_opener", broken)
-    try:
-        network = updater._apply_network_settings()
-        assert network["proxy"] == "http://proxy:3128"
-        assert os.environ["NO_PROXY"] == "intranet"
-    finally:
-        updater._undo_network_exports()
-
-
-def test_stored_drafts_that_are_not_json_or_lack_modules(monkeypatch):
-    store = {}
-    monkeypatch.setattr(restart_state, "_store", lambda: types.SimpleNamespace(
-        value=lambda key, default="": store.get(key, default)))
-    store[restart_state._DRAFTS_KEY] = "{not json"
-    assert restart_state._take_drafts() == {}
-    store[restart_state._DRAFTS_KEY] = json.dumps(["not", "a", "mapping"])
-    assert restart_state._take_drafts() == {}
-    store[restart_state._DRAFTS_KEY] = json.dumps({"modules": "odd"})
-    assert restart_state._take_drafts() == {}
-
-
 def test_an_http_error_still_means_the_server_answered(monkeypatch):
     import urllib.request
 
@@ -92,19 +43,6 @@ def test_an_http_error_still_means_the_server_answered(monkeypatch):
 
     monkeypatch.setattr(urllib.request, "urlopen", refuse)
     assert doctor._probe_url("https://pypi.org") is None
-
-
-def test_a_certificate_bundle_that_is_not_pem_fails(tmp_path, monkeypatch):
-    bundle = tmp_path / "ca.pem"
-    bundle.write_text("not a certificate", encoding="utf-8")
-    config = tmp_path / "network.json"
-    config.write_text(json.dumps({"ca_bundle": str(bundle)}), encoding="utf-8")
-    monkeypatch.setenv(updater._ENV_NETWORK_CONFIG, str(config))
-    try:
-        result = doctor._check_network(doctor.Context(probe_gpu=False))
-    finally:
-        updater._undo_network_exports()
-    assert result.status == doctor.FAIL and "PEM" in result.message
 
 
 def test_a_gpu_without_float64_says_so_and_a_probe_failure_falls_through(

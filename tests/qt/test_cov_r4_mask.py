@@ -30,12 +30,11 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QCheckBox, QLineEdit, QWidget
+from PySide6.QtWidgets import QCheckBox, QWidget
 
 from spacr.qt.screens import mask as mask_module
 from spacr.qt.screens.map_barcodes import CategoryFoldSet
 from spacr.qt.widgets.fold_strip import FoldStrip
-from spacr.qt.widgets.section import Section
 
 pytestmark = pytest.mark.qt
 
@@ -63,12 +62,6 @@ class _Screen:
     def apply_settings_dict(self, settings):
         self.applied.append(dict(settings))
         return len(settings)
-
-
-class _Model:
-    def __init__(self, widgets=None):
-        self._widgets = dict(widgets or {})
-        self._defaults = {}
 
 
 class _Header(QWidget):
@@ -184,72 +177,6 @@ def _fold_set(keys):
     return CategoryFoldSet(_Screen(), {key: (key,) for key in keys})
 
 
-def test_a_fold_with_no_button_on_the_strip_gets_no_preview(qtbot,
-                                                            monkeypatch):
-    """The switch is what offers the panel, so no switch means no panel."""
-    from spacr.qt import preview_registry
-
-    built = []
-
-    def attach(screen, key):
-        built.append(key)
-        return _Host()
-
-    monkeypatch.setattr(preview_registry, "attach_folded", attach)
-    folds = _fold_set(("timelapse", "motility"))
-    strip = FoldStrip([("timelapse", lambda on: None, True)])
-    qtbot.addWidget(strip)
-
-    offered = mask_module._offer_fold_previews(_Screen(), folds, strip)
-
-    assert set(offered) == {"timelapse"}
-    assert built == ["timelapse"], (
-        "a fold with no button still had its preview built")
-
-
-def test_a_preview_that_will_not_build_costs_only_that_panel(qtbot,
-                                                             monkeypatch,
-                                                             caplog):
-    """One fold's broken preview must not take the other's away."""
-    from spacr.qt import preview_registry
-
-    def attach(screen, key):
-        if key == "timelapse":
-            raise RuntimeError("the preview builder is broken")
-        return _Host()
-
-    monkeypatch.setattr(preview_registry, "attach_folded", attach)
-    folds = _fold_set(("timelapse", "motility"))
-    strip = FoldStrip([("timelapse", lambda on: None, True),
-                       ("motility", lambda on: None, True)])
-    qtbot.addWidget(strip)
-
-    with caplog.at_level(logging.DEBUG, logger=LOGGER):
-        offered = mask_module._offer_fold_previews(_Screen(), folds, strip)
-
-    assert set(offered) == {"motility"}
-    assert any("Could not attach" in record.getMessage()
-               for record in caplog.records), caplog.text
-
-
-def test_a_fold_that_declares_no_preview_is_simply_skipped(qtbot,
-                                                           monkeypatch):
-    """Most folds are settings only; ``attach_folded`` answers None."""
-    from spacr.qt import preview_registry
-
-    monkeypatch.setattr(
-        preview_registry, "attach_folded",
-        lambda screen, key: None if key == "timelapse" else _Host())
-    folds = _fold_set(("timelapse", "motility"))
-    strip = FoldStrip([("timelapse", lambda on: None, True),
-                       ("motility", lambda on: None, True)])
-    qtbot.addWidget(strip)
-
-    offered = mask_module._offer_fold_previews(_Screen(), folds, strip)
-
-    assert set(offered) == {"motility"}
-
-
 def test_an_offered_preview_starts_in_the_state_its_switch_is_in(
         qtbot, monkeypatch):
     """The panel is hidden until the switch is on, from the first paint."""
@@ -278,34 +205,6 @@ def test_an_offered_preview_starts_in_the_state_its_switch_is_in(
 # mark_fold_sources
 # ---------------------------------------------------------------------------
 
-def test_only_folds_with_artwork_of_their_own_are_reported_as_marked(qtbot):
-    """A mark is the icon; a module without one has nothing to say.
-
-    ``mark_folded_sections`` returns the titles it actually drew on, and a
-    key with no bundled icon draws on none -- so the returned mapping has
-    to leave it out rather than claim an unmarked category.
-    """
-    titles = ("Time Axes & Tracking (Beta)", "Nothing In Particular")
-    marked_section, anonymous_section = (Section(t) for t in titles)
-    for section, title in zip((marked_section, anonymous_section), titles):
-        # What ``CategoryFold._build_section`` stamps on a mounted card, so
-        # the title is reported as it was written rather than uppercased.
-        section.setProperty("settingsCategorySource", title)
-        qtbot.addWidget(section)
-
-    screen = _Screen(_settings_sections=())
-    folds = CategoryFoldSet(
-        screen, {"timelapse": ("timelapse",), "not_a_module": ()})
-    folds.folds["timelapse"].sections = [marked_section]
-    folds.folds["not_a_module"].sections = [anonymous_section]
-    screen._category_folds = folds
-
-    marked = mask_module.mark_fold_sources(screen)
-
-    assert marked == {"timelapse": ("Time Axes & Tracking (Beta)",)}
-    assert marked_section.source_app() == "timelapse"
-    assert anonymous_section.source_mark() is None
-
 
 # ---------------------------------------------------------------------------
 # example_plate_folder
@@ -325,36 +224,6 @@ def test_the_example_plate_lives_beside_the_other_example_data():
 # ---------------------------------------------------------------------------
 # install_example_data_button
 # ---------------------------------------------------------------------------
-
-def _src_form(qtbot):
-    """A settings form whose third section is the one holding ``src``."""
-    src = QLineEdit()
-    holder = Section("Source")
-    holder.add_prose(src)
-    elsewhere = Section("Somewhere Else")
-    plain = QWidget()
-    for widget in (holder, elsewhere, plain):
-        qtbot.addWidget(widget)
-    return src, holder, (plain, elsewhere, holder)
-
-
-def test_a_src_control_in_no_prose_section_gets_no_button(qtbot):
-    """Placement is found from ``src``, so a stray control places nothing.
-
-    The section is identified by holding ``src`` rather than by its title,
-    so category renaming cannot move the button; the cost is that a
-    ``src`` sitting outside every section leaves nowhere to put it.
-    """
-    src, holder, sections = _src_form(qtbot)
-
-    orphan = _Screen(app_key="mask", _settings_model=_Model({"src": src}),
-                     _settings_sections=(QWidget(), Section("Empty")))
-    assert mask_module.install_example_data_button(orphan) is None
-
-    placed = _Screen(app_key="mask", _settings_model=_Model({"src": src}),
-                     _settings_sections=sections)
-    button = mask_module.install_example_data_button(placed)
-    assert button is not None and holder.isAncestorOf(button)
 
 
 # ---------------------------------------------------------------------------

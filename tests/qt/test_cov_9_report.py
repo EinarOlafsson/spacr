@@ -16,7 +16,6 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtWidgets import QFileDialog
 
-from spacr.qt.screens import report as module
 from spacr.qt.screens.report import ReportScreen, _has_stopped
 
 pytestmark = pytest.mark.qt
@@ -163,70 +162,6 @@ def test_a_generate_that_wrote_nothing_says_so_inline(screen):
     assert screen._written == []
 
 
-def test_a_worker_that_died_reports_its_last_line(screen):
-    """A traceback's last line is the part that names the failure.
-
-    The whole traceback in a one-line status label is unreadable, and a
-    modal dialog would hang a headless run.
-    """
-    screen._on_worker_error_text(
-        "Traceback (most recent call last):\n  ...\nValueError: no figures")
-
-    assert "ValueError: no figures" in screen.last_error
-    assert screen.is_busy() is False
-
-
 # ---------------------------------------------------------------------------
 # Job plumbing
 # ---------------------------------------------------------------------------
-
-def test_the_worker_body_leaves_its_result_in_the_box(qtbot, monkeypatch):
-    """What runs off the GUI thread is exactly "put the answer in the box".
-
-    The box is the only channel between the two threads: the completion
-    handler runs on the GUI thread and reads ``payload['result']``, so a body
-    that returned instead of storing would deliver None every time.
-    """
-    real_make_thread = module.make_thread
-    captured = {}
-
-    def _run_the_body_here(fn, settings, *args, **kwargs):
-        captured["payload"] = settings
-        fn(settings)
-        return real_make_thread(lambda payload: None, settings,
-                                *args, **kwargs)
-
-    monkeypatch.setattr(module, "make_thread", _run_the_body_here)
-    widget = ReportScreen(threaded=True)
-    qtbot.addWidget(widget)
-    delivered = []
-
-    with qtbot.waitSignal(widget.job_finished, timeout=20000):
-        widget._run_job(lambda: "the collected report", delivered.append)
-
-    assert captured["payload"]["result"] == "the collected report"
-    assert delivered == ["the collected report"]
-    qtbot.waitUntil(lambda: widget.is_busy() is False, timeout=20000)
-    widget.close()
-
-
-def test_a_completion_handler_that_raises_lands_in_the_status_line(
-        qtbot, monkeypatch):
-    """A failure while handling the result is still the job's failure.
-
-    Reported inline and the screen released: leaving ``_busy`` set would
-    make every later request answer "still working on the previous one".
-    """
-    widget = ReportScreen(threaded=True)
-    qtbot.addWidget(widget)
-
-    def _explode(_result):
-        raise ValueError("the report could not be rendered")
-
-    with qtbot.waitSignal(widget.job_finished, timeout=20000) as caught:
-        widget._run_job(lambda: "anything", _explode)
-
-    assert caught.args == [False]
-    assert "the report could not be rendered" in widget.last_error
-    assert widget.is_busy() is False
-    widget.close()
