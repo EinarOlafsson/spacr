@@ -94,6 +94,8 @@ RELEASED_BEFORE_THE_ALPHA_RULE = {
     792: "bug fix only (GLCM homogeneity finite for objects narrower than the offset): no setting, nothing in the app to hide",
     793: "bug fix only (Measure divides by the flat field in float32, no clipping): no setting, nothing in the app to hide",
     799: "bug fix only (no +inf distance columns without a pathogen mask): no setting, nothing in the app to hide",
+    873: "promoted out of alpha by item 946 (maintainer, 2026-11-14: make rule_a_s2 the default): the rule (a) + S2 decode is the OPS decode default",
+    939: "promoted out of alpha by item 946: per-well automatic decode thresholds are the OPS decode default",
 }
 
 BUILT = re.compile(r"\b(built|implemented|done)\b", re.IGNORECASE)
