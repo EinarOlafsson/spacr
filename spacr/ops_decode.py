@@ -1289,31 +1289,38 @@ def write_tuning_curve(choice: Mapping[str, Any], folder: str, name: str,
     import matplotlib
 
     matplotlib.use("Agg", force=False)
-    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    from .figures.bundle import _register_figure_data
+    from .figures.style import ROLES, figure_style, resolve_ink
+    from .plot import save_figure
 
     frame = pd.DataFrame(rows)
     front = frame[frame["pareto"]].sort_values("fdr_bound")
-    figure, axis = plt.subplots(figsize=(5.0, 3.8), dpi=150)
-    axis.scatter(frame["fdr_bound"], frame["genotyped_pct"], s=12, color="#7f9cb8",
-                 alpha=0.6, label="grid settings")
-    axis.plot(front["fdr_bound"], front["genotyped_pct"], color="#1f4e79", lw=1.4,
-              label="front")
-    picked = frame[frame["chosen"]]
-    axis.scatter(picked["fdr_bound"], picked["genotyped_pct"], s=60, color="#0e8a8a",
-                 edgecolor="black", zorder=3, label="chosen")
-    if choice.get("objective") == "recall_at_fdr":
-        axis.axvline(float(choice["fdr_max"]), color="grey", ls="--", lw=0.8,
-                     label="FDR target")
-    axis.set_xscale("symlog", linthresh=0.01)
-    axis.set_xlim(left=0)
-    axis.set_xlabel("decoy FDR per 100 calls (tuning fields)")
-    axis.set_ylabel("cells genotyped (%)")
-    axis.set_title(title or name, fontsize=9)
-    axis.legend(fontsize=7, frameon=False)
-    figure.tight_layout()
-    paths["png"] = os.path.join(folder, f"{name}.png")
-    figure.savefig(paths["png"])
-    plt.close(figure)
+    with figure_style("print"):
+        figure = Figure(figsize=(5.0, 3.8), dpi=150)
+        axis = figure.subplots()
+        axis.scatter(frame["fdr_bound"], frame["genotyped_pct"], s=12, color="#7f9cb8",
+                     alpha=0.6, label="grid settings")
+        axis.plot(front["fdr_bound"], front["genotyped_pct"], color="#1f4e79", lw=1.4,
+                  label="front")
+        picked = frame[frame["chosen"]]
+        axis.scatter(picked["fdr_bound"], picked["genotyped_pct"], s=60, color="#0e8a8a",
+                     edgecolor=resolve_ink("print"), zorder=3, label="chosen")
+        if choice.get("objective") == "recall_at_fdr":
+            axis.axvline(float(choice["fdr_max"]), color=ROLES["reference"], ls="--", lw=0.8,
+                         label="FDR target")
+        axis.set_xscale("symlog", linthresh=0.01)
+        axis.set_xlim(left=0)
+        axis.set_xlabel("decoy FDR per 100 calls (tuning fields)")
+        axis.set_ylabel("cells genotyped (%)")
+        axis.set_title(title or name, fontsize=9)
+        axis.legend(fontsize=7, frameon=False)
+        _register_figure_data(figure, frame, x="fdr_bound", y="genotyped_pct",
+                              hue="chosen", kind="scatter")
+        figure.tight_layout()
+        paths["png"] = save_figure(figure, os.path.join(folder, f"{name}.png"),
+                                   fmt="png", dpi=150, close=True)
     return paths
 
 
