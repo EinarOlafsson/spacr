@@ -665,6 +665,19 @@ def _largest_component(edges: Mapping[Tuple[int, int], object],
     ``(0, 0)`` -- and composing it would paste it into the well's corner.
     Only the component the well was solved as is kept.
     """
+    groups = _components(edges, sites)
+    return sorted(max(groups, key=len)) if groups else []
+
+
+def _components(edges: Mapping[Tuple[int, int], object],
+                sites: Sequence[int]) -> List[List[int]]:
+    """The groups of sites joined by accepted edges.
+
+    :param edges: ``(a, b) -> registration`` from the stitch.
+    :param sites: every site that was offered.
+    :returns: each component's sites in the order ``sites`` gives them,
+        the components in the order their first site appears there.
+    """
     parent = {site: site for site in sites}
 
     def find(site: int) -> int:
@@ -684,7 +697,7 @@ def _largest_component(edges: Mapping[Tuple[int, int], object],
     groups: Dict[int, List[int]] = {}
     for site in sites:
         groups.setdefault(find(site), []).append(site)
-    return sorted(max(groups.values(), key=len)) if groups else []
+    return list(groups.values())
 
 
 def _replace_well_rows(db: str, table: str, frame, plate: str, well: str) -> int:
@@ -774,8 +787,9 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
     :param reference: the cycle carrying the nuclear stain.
     :param settings: read for ``ops_raster_overlap``,
         ``ops_registration_precision``, ``ops_stitch_read_threads``,
-        ``ops_stitch_edge_workers``, ``ops_placement_seed`` and
-        ``ops_placement_seed_export``.
+        ``ops_stitch_edge_workers``, ``ops_placement_seed``,
+        ``ops_placement_seed_export`` and ``ops_sites`` (item 951, see
+        :func:`_stitch_sites`).
     :param gpu: let the registration use the card.
     :returns: the stitch report.
     """
@@ -795,10 +809,17 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
                               "ops_raster_overlap", _RASTER_OVERLAP)
     precision = _registration_choice(settings.get("ops_registration_precision"),
                                      "ops_registration_precision")
+    wanted = _ops_sites(settings)
+    if wanted is not None:
+        sites = [site for site in sites if site in wanted]
     if settings.get("ops_placement_seed"):
         return _stitch_seeded(db, plate, well, cycle_files, reference,
                               settings, gpu, sources, sites, overlap,
                               precision, started)
+    if wanted is not None:
+        return _stitch_sites(db, plate, well, cycle_files, reference,
+                             settings, gpu, sources, sites, overlap,
+                             precision, started)
     probe = functools.partial(_nuclear_plane, sources, [])
     if next((site for site in sites if probe(site) is not None), None) is None:
         raise ValueError(f"no nuclear tile of well {well} could be read")
@@ -856,6 +877,173 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
             (origin_y, origin_x), sources, layout.site_count, overlap)
     _say(f"{well} stitch: {result.summary()}; {len(placed)} of {len(sites)} "
          f"in the solved component, {report['seconds']} s")
+    return report
+
+
+def _ops_sites(settings: Mapping[str, Any]) -> Optional[set]:
+    """The sequencing sites ``ops_sites`` names, or None for every site.
+
+    :param settings: read for ``ops_sites``: None, an empty string, a list
+        of site numbers, or ``"46,148,160-167"``.
+    :returns: the set of sites.
+    :raises ValueError: when a part is not a site number.
+    """
+    value = settings.get("ops_sites")
+    try:
+        sites = _ph_sites(value)
+    except (TypeError, ValueError):
+        raise ValueError(
+            f"ops_sites must list site numbers, as '46,148,160-167'; got "
+            f"{value!r}") from None
+    if sites is not None and (not sites or min(sites) < 0):
+        raise ValueError(
+            f"ops_sites must list site numbers of 0 or more; got {value!r}")
+    return sites
+
+
+def _missing_sites(settings: Mapping[str, Any], cycle_files, reference: int,
+                   well: str) -> None:
+    """Refuse ``ops_sites`` that the well's reference cycle does not hold.
+
+    :param settings: read for ``ops_sites``.
+    :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
+    :param reference: the cycle carrying the nuclear stain.
+    :param well: the well name.
+    :raises ValueError: naming the listed sites without a nuclear tile.
+    """
+    wanted = _ops_sites(settings)
+    if wanted is None:
+        return
+    held = {site for site, files in cycle_files[reference].items()
+            if _plane_sources(files).get(_NUCLEAR)}
+    missing = sorted(wanted - held)
+    if missing:
+        raise ValueError(
+            f"ops_sites lists sites {missing} that well {well} has no "
+            f"{_NUCLEAR} tile for in cycle {reference}; it holds sites "
+            f"{min(held)} to {max(held)} ({len(held)} tiles)" if held else
+            f"ops_sites lists sites {missing}, but well {well} has no "
+            f"{_NUCLEAR} tile in cycle {reference}")
+
+
+def _grid_origin(layout, shape: Tuple[int, int], overlap: float,
+                 site: int) -> Tuple[float, float]:
+    """Where the layout's raster puts one tile, in well pixels.
+
+    :param layout: the well layout.
+    :param shape: the tile ``(height, width)``.
+    :param overlap: the raster overlap in pixels.
+    :param site: the site.
+    :returns: ``(y, x)`` from the top-left of the layout's grid, one pitch
+        (tile minus overlap) per row and column.
+    """
+    places = layout.positions()
+    top = min(row for _column, row in places)
+    left = min(column for column, _row in places)
+    column, row = layout.position(site)
+    return (float((row - top) * (shape[0] - overlap)),
+            float((column - left) * (shape[1] - overlap)))
+
+
+def _stitch_sites(db: str, plate: str, well: str, cycle_files, reference: int,
+                  settings: Mapping[str, Any], gpu: bool, sources, sites,
+                  overlap: int, precision: str,
+                  started: float) -> Dict[str, Any]:
+    """Place only the ``ops_sites`` tiles of a well (item 951).
+
+    The layout is fitted to the whole acquisition, from the highest site
+    the folder names, so it needs every site's file name but reads only
+    the listed tiles. Listed tiles that are neighbours are registered to
+    each other and solved as in a full stitch; nothing is registered to a
+    tile that is not listed. Each group of joined tiles is then shifted so
+    its lowest site sits where the layout's raster puts it, one pitch (tile
+    minus ``ops_raster_overlap``) per row and column, and a lone tile is
+    placed there directly. The positions are close to, not equal to, a
+    whole-well stitch's; ``ops_placement_seed`` gives the whole well's
+    own. No placement file is written.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param cycle_files: ``cycle -> site -> channel -> path``.
+    :param reference: the reference cycle.
+    :param settings: read for ``ops_sites``, ``ops_stitch_edge_workers``.
+    :param gpu: let the registration use the card.
+    :param sources: ``site -> (path, plane)`` of the nuclear planes.
+    :param sites: the listed sites with a nuclear plane.
+    :param overlap: the raster overlap.
+    :param precision: the registration precision.
+    :param started: when the phase started.
+    :returns: the stitch report, marked ``placement: ops_sites``, with each
+        site's ``placement_sources`` entry ``registered`` or
+        ``layout_grid``.
+    :raises ValueError: when no circle holds the acquisition's sites, or no
+        listed tile can be read.
+    """
+    import functools
+
+    import pandas as pd
+
+    from .ops_layout import round_well_layout
+    from .ops_stitch import stitch_well
+
+    count = max(cycle_files[reference]) + 1
+    try:
+        layout = round_well_layout(count)
+    except ValueError as error:
+        raise ValueError(
+            f"{error}. ops_sites places its tiles on the layout of the whole "
+            f"acquisition, fitted from its highest site ({count - 1}); point "
+            "genotype_source at a folder that names every site of the well "
+            "(only the listed tiles are read), or set ops_placement_seed to "
+            "a placement file from a run on the whole well") from None
+    unreadable: list = []
+    read = functools.lru_cache(maxsize=64)(
+        functools.partial(_nuclear_plane, sources, unreadable))
+    placed = [site for site in sites if read(site) is not None]
+    if not placed:
+        raise ValueError(f"no nuclear tile of well {well} could be read")
+    workers = max(1, int(_setting_number(settings.get("ops_stitch_edge_workers"),
+                                         "ops_stitch_edge_workers", 1)))
+    result = stitch_well(read, layout, overlap=overlap,
+                         tolerance=_STITCH_TOLERANCE, gpu=gpu, sites=placed,
+                         edge_workers=workers, precision=precision)
+    shape = result.tile_shape
+    rows: Dict[int, Tuple[float, float]] = {}
+    origin_of: Dict[str, str] = {}
+    groups = _components(result.edges, placed)
+    for group in groups:
+        anchor = min(group)
+        grid_y, grid_x = _grid_origin(layout, shape, overlap, anchor)
+        shift_y = grid_y - result.placements[anchor][0]
+        shift_x = grid_x - result.placements[anchor][1]
+        for site in group:
+            rows[site] = (float(result.placements[site][0] + shift_y),
+                          float(result.placements[site][1] + shift_x))
+            origin_of[str(site)] = "registered" if len(group) > 1 else "layout_grid"
+    frame = pd.DataFrame([{
+        "plate": plate, "well": well, "cycle": reference, "site": site,
+        "y": rows[site][0], "x": rows[site][1],
+        "origin_y": 0.0, "origin_x": 0.0,
+        "tile_height": shape[0], "tile_width": shape[1],
+    } for site in sorted(rows)])
+    _replace_well_rows(db, "ops_geometry", frame, plate, well)
+    residuals = result.residuals
+    report = {
+        "placement": "ops_sites", "ops_sites": sorted(_ops_sites(settings)),
+        "sites": len(sites), "placed": len(rows),
+        "layout_sites": layout.site_count, "groups": len(groups),
+        "placement_sources": origin_of,
+        "edges_proposed": result.proposed, "edges_accepted": result.accepted,
+        "residual_median_px": float(np.median(residuals)) if residuals.size else None,
+        "residual_max_px": float(residuals.max()) if residuals.size else None,
+        "canvas": list(_compose_canvas(rows, shape)), "raster_overlap": overlap,
+        "unreadable": unreadable, "seconds": round(time.perf_counter() - started, 1),
+        "registration_precision": precision, "edge_workers": workers,
+    }
+    _say(f"{well} stitch: {len(rows)} of the {len(sites)} listed tiles placed "
+         f"on the {layout.site_count}-site layout, {len(groups)} group(s), "
+         f"{result.accepted} of {result.proposed} edges, {report['seconds']} s")
     return report
 
 
@@ -1965,8 +2153,9 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     :param well: the well name.
     :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
     :param reference: the cycle carrying the nuclear stain.
-    :param settings: read for the Cellpose model and diameter, and for
-        ``ops_compose_blend``.
+    :param settings: read for the Cellpose model and diameter, for
+        ``ops_compose_blend``, and for ``ops_sites``, which limits the
+        composed tiles to the listed sites (item 951).
     :param gpu: segment on the card.
     :returns: the objects report.
     """
@@ -1979,6 +2168,10 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
 
     started = time.perf_counter()
     placements, shape = _placements(db, plate, well)
+    wanted = _ops_sites(settings)
+    if wanted is not None:
+        placements = {site: place for site, place in placements.items()
+                      if site in wanted}
     sources = {site: _plane_sources(cycle_files[reference].get(site, {})).get(
         _NUCLEAR) for site in placements}
     unreadable: list = []
@@ -2699,7 +2892,8 @@ def _load_library(library) -> List[str]:
     :param library: a sequence of barcodes, or a CSV with a ``prefix``,
         ``barcode`` or ``sequence`` column.
     :returns: the barcodes, empty when ``library`` is None.
-    :raises ValueError: when a CSV has none of those columns.
+    :raises ValueError: when a CSV has none of those columns or no rows,
+        naming the columns it has.
     """
     if library is None:
         return []
@@ -2707,14 +2901,19 @@ def _load_library(library) -> List[str]:
         import csv
 
         with open(library, newline="", encoding="utf-8") as handle:
-            rows = list(csv.DictReader(handle))
+            reader = csv.DictReader(handle)
+            rows = list(reader)
         columns = rows[0].keys() if rows else ()
         for column in ("prefix", "barcode", "sequence"):
             if column in columns:
                 return [row[column] for row in rows if row.get(column)]
+        found = ", ".join(repr(str(c)) for c in reader.fieldnames or ())
         raise ValueError(
-            f"{library} has no prefix, barcode or sequence column; name the "
-            "column holding the guide barcodes one of those")
+            f"{library} has no prefix, barcode or sequence column; its "
+            f"columns are {found or 'none'}"
+            f"{'' if rows else ', and it has no rows'}. Rename the column "
+            "holding the guide barcodes to prefix, barcode or sequence, in "
+            "lower case")
     return [str(v) for v in library]
 
 
@@ -3050,9 +3249,11 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     :param reference: the cycle the objects' frame was stitched on.
     :param settings: read for ``n_workers``, ``ops_base_channels``,
         ``ops_read_threshold``, ``ops_footprint``, ``ops_store_reads``,
-        ``ops_spot_detector``, the cell rule's four keys -- see
-        :func:`_cell_rule` -- and the threshold mode
-        (:func:`spacr.ops_decode.threshold_settings`).
+        ``ops_spot_detector``, the cell rule's four keys (see
+        :func:`_cell_rule`), the threshold mode
+        (:func:`spacr.ops_decode.threshold_settings`) and ``ops_sites``:
+        only the listed fields decode, and each nucleus still belongs to
+        the nearest tile centre of every placed site (item 951).
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
     :returns: the decode report; in auto threshold mode with the chosen
@@ -3084,6 +3285,9 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         raise ValueError(gate.reason)
     placements, shape = _placements(db, plate, well)
     skipped_sites = unplaced_sites(cycle_files, placements)
+    wanted = _ops_sites(settings)
+    if wanted is not None:
+        skipped_sites = [site for site in skipped_sites if site in wanted]
     rule_a = decode_rule(settings)
     if skipped_sites:
         if not _rule_a_flag(settings, "ops_decode_skip_unplaced_sites"):
@@ -3188,6 +3392,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         cache_folder = None
     tasks = []
     for site in order:
+        if wanted is not None and site not in wanted:
+            continue
         top, left = placements[site]
         near = np.flatnonzero((oy > top - 30) & (oy < top + shape[0] + 30)
                               & (ox > left - 30) & (ox < left + shape[1] + 30))
@@ -3382,6 +3588,27 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     _say(f"{well} decode: {len(assigned)} objects assigned from {spots} spots "
          f"in {len(decoded)} fields, {report['total_seconds']} s")
     return report
+
+
+def _name_sites_in_fdr(decode: Dict[str, Any], sites: Sequence[int]) -> None:
+    """Record the ``ops_sites`` of a decode in its reports (item 951).
+
+    :param decode: the decode report; gains ``ops_sites``, and so does its
+        FDR report and the ``decode_fdr_<well>.json`` that holds it.
+    :param sites: the listed sites, ascending.
+    """
+    decode["ops_sites"] = list(sites)
+    fdr = decode.get("fdr")
+    if not isinstance(fdr, dict):
+        return
+    fdr["ops_sites"] = list(sites)
+    path = (fdr.get("paths") or {}).get("fdr")
+    if path and os.path.isfile(path):
+        with open(path, encoding="utf-8") as handle:
+            written = json.load(handle)
+        written["ops_sites"] = list(sites)
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(written, handle, indent=1)
 
 
 def _ph_transform_columns(frame, scale: float, degrees: float,
@@ -9150,6 +9377,7 @@ def run_ops(settings: Mapping[str, Any], *,
 
     index: Dict[str, Any] = {}
     if sequencing:
+        _ops_sites(settings)
         index = _index_tiles(root, "cycled")
         if not index:
             raise ValueError(
@@ -9259,6 +9487,9 @@ def run_ops(settings: Mapping[str, Any], *,
             reference = nuclear[0]
             report.update({"reference_cycle": reference,
                            "cycles": sorted(cycle_files)})
+            _missing_sites(settings, cycle_files, reference, well)
+            if _ops_sites(settings) is not None:
+                report["ops_sites"] = sorted(_ops_sites(settings))
         if "stitch" in phases:
             report["stitch"] = _stitch(db, plate, well, cycle_files,
                                        reference, settings, gpu)
@@ -9283,6 +9514,8 @@ def run_ops(settings: Mapping[str, Any], *,
         if "decode" in phases:
             report["decode"] = _decode(db, plate, well, cycle_files, reference,
                                        settings, gpu, barcodes)
+            if "ops_sites" in report:
+                _name_sites_in_fdr(report["decode"], report["ops_sites"])
         segment, measure = "ph_segment" in phases, "ph_measure" in phases
         secondary = _ph_secondary(settings)
         if (secondary and secondary["registration"] != "none"

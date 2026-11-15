@@ -101,7 +101,8 @@ GROUPS = (
         ("Stitching: Align & Stitch core, seeded placement, overlap match rates",
          (936, 940, 915)),
         ("Phenotype store and crops, two acquisitions, yield funnel", (871, 947, 875)),
-        ("Runs resume, skip missing fields, add controls, count cells once", (872, 874)),
+        ("Runs resume, run chosen sites, skip missing fields, add controls, count cells once",
+         (872, 874, 951)),
         ("DNA flat-field map from nuclei, held-out check", (912,)),
     )),
     ("OPS genotyping", (

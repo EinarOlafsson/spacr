@@ -46,6 +46,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_placement_seed_check_pixels": False,
     "ops_placement_seed_tolerance": 2.0,
     "ops_ph_placement_seed": None,
+    "ops_sites": None,
     "ops_footprint": 10.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
@@ -464,6 +465,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_placement_seed_check_pixels": bool,
     "ops_placement_seed_tolerance": (float, int),
     "ops_ph_placement_seed": (str, type(None)),
+    "ops_sites": (str, list, type(None)),
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
     "ops_spot_detector": str,
@@ -859,6 +861,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_placement_seed", "ops_placement_seed_mode",
         "ops_placement_seed_export", "ops_placement_seed_check_pixels",
         "ops_placement_seed_tolerance", "ops_ph_placement_seed",
+        "ops_sites",
     ],
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
@@ -1329,6 +1332,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "file lists, so a run on a few fields at the well's rim can be "
         "placed. Its report says 'placement: seeded'. Empty aligns anchors "
         "as usual. Default None. Alpha.",
+    "ops_sites":
+        "(str, list or None) - Run the stitch, objects and decode phases on "
+        "these sequencing sites only, as '46,148,160-167'. The well's "
+        "layout still comes from every file name in genotype_source, but "
+        "only the listed tiles are read; listed neighbours are registered "
+        "to each other and the rest are placed on the layout's grid, or by "
+        "ops_placement_seed. Each nucleus belongs to the nearest placed "
+        "tile. Empty runs every site. Default None. Alpha.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "
