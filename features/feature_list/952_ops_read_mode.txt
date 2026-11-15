@@ -1,0 +1,59 @@
+OPS BARCODE READ MODE: LOG, RAW OR CHOSEN PER WELL FROM DECOYS
+==============================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-15, alpha (ALPHA_FEATURES[952]). Under development per proposals/READINESS.md: not marked Ready. spacr/ops_sbs.py, spacr/ops_prefix.py, spacr/ops_decode.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, spacr/settings_spec.py, tests/test_ops_read_mode_952.py, tests/test_settings_categories.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item952_proof/REPORT.md.
+Requested: paper session (PERISCOPE edge ablation, rounds 1-3), maintainer decision 2026-11-14 "Held-out check, then build"; held-out check passed 2026-11-15.
+Owner: master lane claude-952-1115.
+Source: proposals/bmc_paper_items/ITEM_ops_read_mode.md.
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/periscope_benchmark/edge_ablation/REPORT_round3.md.
+Related: 920 (spacer-prefix decode), 942 (shared tuner), 939/946 (OPS decode auto thresholds).
+
+PROBLEM
+spaCR reads every spot from the -LoG-filtered stack (3 x 3 maximum) and calls
+bases after a per-channel median normalisation. On PERISCOPE's
+background-corrected, foci-masked CP186A crops that read lost 4.7 points of
+genotyped cells to PERISCOPE's own read (the unfiltered maximum within 3 px,
+brightest channel as read); on raw Funk pixels the same raw read loses 50-67
+points. Neither read is right everywhere.
+
+BUILD
+- ops_read_mode (str, default 'log', alpha), category OPS decoding:
+  - 'log': today's read and calls, byte-identical outputs.
+  - 'raw': the maximum of the unfiltered pixels over a radius-3 disk at each
+    spaCR peak (detection unchanged; the border mirrored as
+    scipy.ndimage.maximum_filter mirrors it), called by the brightest
+    channel with no median normalisation, unmixing or library calibration.
+  - 'auto': chosen per well from decoy calls only, as the leading axis
+    ("read_mode", [1, 0]) of spacr.ops_decode.tune_thresholds; log is last, so
+    an exact tie keeps log. Needs ops_decode_threshold_mode 'auto' (OPS
+    decode) or ops_prefix_threshold_tuning 'per_well_decoy' (prefix decode);
+    otherwise refused with that message.
+- One implementation in spacr/ops_sbs.py: _read_values(stack, filtered,
+  peaks, mode), _raw_called_bases, _read_mode_setting (private, so no API
+  catalogue records; the spec's public name read_values became private).
+  Used by the spacer-prefix decode (_decode_site, _site_tuning_reads,
+  _prefix_calls), the rule (a) OPS decode (_rule_a_calls via ops_decode._call)
+  and the plain OPS decode (_decode_field, _crosstalk_arguments).
+- auto: per field the candidate reads are taken once and called in both
+  modes; the raw pass reuses the log pass's pixel-fallback votes (pixels read
+  no spot). The tuner's other settings (target, ci, split, seed, objective,
+  unreachable rule) are the run's shared tuner settings.
+- Records (none under 'log'): OPS decode: decode_rules.read_mode, the
+  thresholds report and decode_thresholds_<well>.json 'read_mode', a
+  read_mode column in decode_thresholds_<plate>.csv and per-mode grid rows in
+  decode_tuning_curve_<well>.csv; plain decode report 'read_mode'; the field
+  cache gains values_raw. Prefix decode: quality_classes.json settings
+  ops_read_mode, threshold_tuning_<plate>_<well>.csv rows per mode and
+  'read_mode' in its .json and the run's tuning summary.
+- No schema bump, no DEFAULT_CHANGES row (default stays 'log').
+
+ACCEPTANCE
+tests/test_ops_read_mode_952.py (14 cases): raw read equals
+maximum_filter(footprint=disk(3)) incl. border peaks; log read equals
+extract_bases; raw calls have no normalisation; the tuner picks raw where raw
+wins on decoys, log where it loses, log on an exact tie and when nothing
+passes; the tuner reads only real and decoy counts (signature enforced);
+prefix decode: 'log' writes what it wrote (with and without decoys), raw and
+auto run, record and rerun identically; OPS decode: raw (rule (a) and plain)
+and auto record the mode; auto without auto thresholds is refused.
