@@ -105,11 +105,11 @@ GROUPS = (
         ("DNA flat-field map from nuclei, held-out check", (912,)),
     )),
     ("OPS genotyping", (
-        ("Decode rule (a) + S2 with decoy FDR, spacer-prefix quality classes",
+        ("OPS spacer-prefix decode with quality classes",
          (920,)),
         ("False calls, calibrated confidence, matching to other pipelines",
          (876, 877, 878, 922)),
-        ("Automatic thresholds, detection and calling tuned together", (942,)),
+        ("Spot detection and calling tuned together, prefix decoy FDR", (942,)),
     )),
     ("OPS gene profiles", (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),
