@@ -298,6 +298,42 @@ def test_xenium_reads_are_counted_into_the_cells_and_join_measure(xenium_run):
     assert "infection" not in again
 
 
+def test_a_measure_rerun_after_the_map_keeps_the_mask_stage_tables(tmp_path):
+    """Masks, Measure, Map, then Measure again: the order that broke when a
+    test worker ran the map test before the measure test. The rerun archives
+    its own population and leaves ``spatial_fields`` and ``spatial_objects``,
+    which Mask Generation wrote, where Measure and Map read them."""
+    source = xenium_slide(tmp_path / "bundle")
+    dst = tmp_path / "fields"
+    report = oe.run_spatial_masks(_mask_settings(source, dst))
+    _measure(report)
+    oe.run_spatial_map({"spatial_source": source, "spatial_masks_dir": str(dst),
+                        "spatial_anndata": False})
+    db = _measure(report)
+    tables = set(database_tables(db))
+    assert {"spatial_fields", "spatial_objects", "cell_1"} <= tables
+    assert not {"spatial_fields_1", "spatial_objects_1"} & tables
+    objects = read_table(db, table="spatial_objects", canonicalise=False,
+                         report=None)
+    assert set(oe._st_measured(db, "cell").index) == set(objects["prcfo"])
+    again = oe.run_spatial_map({"spatial_source": source,
+                                "spatial_masks_dir": str(dst),
+                                "spatial_anndata": False})
+    assert again["joined_measure_rows"] == len(_centres())
+
+
+def test_the_measure_archive_leaves_the_mask_stage_tables_in_place():
+    import sqlite3
+
+    from spacr.measure import _measurement_archive_tables
+
+    connection = sqlite3.connect(":memory:")
+    for name in ("cell", "spatial_fields", "spatial_objects"):
+        connection.execute(f'CREATE TABLE "{name}" (prcfo TEXT)')
+        connection.execute(f'INSERT INTO "{name}" VALUES (\'p_A01_1_1\')')
+    assert _measurement_archive_tables(connection, {}) == {"cell": "cell_1"}
+
+
 
 @pytest.mark.needs_symlink
 def test_zero_qv_map_retires_verified_analyses_and_keeps_other_outputs(tmp_path, monkeypatch):

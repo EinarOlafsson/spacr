@@ -7,6 +7,7 @@ not reach, while remaining deterministic and CPU-only.
 from __future__ import annotations
 
 import builtins
+import inspect
 import os
 import tarfile
 from types import SimpleNamespace
@@ -736,10 +737,21 @@ def test_train_test_model_enables_default_cv_reports_balance_and_snapshot_failur
     monkeypatch.setattr(utils, "save_settings", lambda *_a, **_k: None)
     monkeypatch.setattr(ds, "resolve_class_balance_loss",
                         lambda loss, mode, n: (loss, "weighted classes enabled"))
-    monkeypatch.setattr(ds, "_cross_validate_model", lambda settings, _n: "folds.csv")
+    cv_calls = []
+
+    def _fake_cross_validate(settings, num_classes, shuffle_seed=None, collect=None):
+        cv_calls.append({"num_classes": num_classes, "shuffle_seed": shuffle_seed,
+                         "collect": collect})
+        return "folds.csv"
+
+    assert (list(inspect.signature(_fake_cross_validate).parameters)
+            == list(inspect.signature(ds._cross_validate_model).parameters))
+    monkeypatch.setattr(ds, "_cross_validate_model", _fake_cross_validate)
     monkeypatch.setattr(pd.DataFrame, "to_csv",
                         lambda *_a, **_k: (_ for _ in ()).throw(OSError("read only")))
     assert ds.train_test_model(supplied) == "folds.csv"
+    assert len(cv_calls) == 1
+    assert cv_calls[0]["shuffle_seed"] is None
     assert supplied["cross_validation_folds"] == 5
     output = capsys.readouterr().out
     assert "weighted classes enabled" in output

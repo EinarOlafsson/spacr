@@ -12408,6 +12408,7 @@ def _measurement_archive_tables(connection, settings):
         'conversion_map', 'align_coordinates', 'object_counts', 'pivoted_counts',
         'settings_history', 'spacr_watch_fields', 'fov', _IMAGE_TABLE, 'image_annotations', 'image_annotations_history',
         'image_annotations_meta', 'image_comparison_groups',
+        'spatial_fields', 'spatial_objects',
     }
     if '_spacr_condition_annotations' in objects:
         protected.update(row[0] for row in connection.execute(

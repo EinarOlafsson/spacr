@@ -164,13 +164,56 @@ def test_the_overlay_tints_exactly_the_covered_area():
     assert (grey[:, 0] == grey[:, 1]).all()
 
 
+def _pv_field_pairs(folder):
+    """(image, drawn mask) pairs the dataset's ``manifest.csv`` lists.
+
+    The Make Masks editor works in this folder and writes recropped children
+    (``<field>__r00.tif``) beside the fields, so a ``*.tif`` glob is not the
+    dataset; the manifest is.
+    """
+    import csv
+
+    manifest = folder / "manifest.csv"
+    if not manifest.is_file():
+        return []
+    with manifest.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    pairs = [(folder / row["image"].strip(), folder / row["ground_truth_mask"].strip())
+             for row in rows
+             if (row.get("image") or "").strip()
+             and (row.get("ground_truth_mask") or "").strip()]
+    return sorted((image, truth) for image, truth in pairs
+                  if image.is_file() and truth.is_file())
+
+
 def _pv_fields(limit=4):
     folder = Path(os.environ.get("SPACR_TOXO_PV_DIR") or
                   Path.home() / ".cache/spacr/example_data/make_masks_toxo_pv")
-    images = sorted(glob.glob(str(folder / "*.tif")))[:limit]
-    if not images:
+    pairs = _pv_field_pairs(folder)[:limit]
+    if not pairs:
         pytest.skip("Toxo PV example data not downloaded")
-    return folder, images
+    return pairs
+
+
+def test_toxo_pv_fields_come_from_the_manifest_not_editor_recrops(tmp_path):
+    import tifffile
+
+    (tmp_path / "ground_truth_masks").mkdir()
+    for name in ("plate1_A02_12", "plate2_E08_13"):
+        tifffile.imwrite(tmp_path / f"{name}.tif", np.zeros((4, 4), np.uint16))
+        tifffile.imwrite(tmp_path / "ground_truth_masks" / f"{name}.tif",
+                         np.zeros((4, 4), np.uint16))
+    tifffile.imwrite(tmp_path / "plate1_A02_12__r00.tif", np.zeros((2, 2), np.uint16))
+    (tmp_path / "manifest.csv").write_text(
+        "name,image,ground_truth_mask\n"
+        "plate1_A02_12,plate1_A02_12.tif,ground_truth_masks/plate1_A02_12.tif\n"
+        "plate2_E08_13,plate2_E08_13.tif,ground_truth_masks/plate2_E08_13.tif\n",
+        encoding="utf-8")
+    pairs = _pv_field_pairs(tmp_path)
+    assert [image.name for image, _truth in pairs] == ["plate1_A02_12.tif",
+                                                       "plate2_E08_13.tif"]
+    assert all(truth.parent.name == "ground_truth_masks" for _image, truth in pairs)
+    assert _pv_field_pairs(tmp_path / "absent") == []
 
 
 def test_real_toxo_pv_fields_match_their_hand_drawn_ground_truth():
@@ -181,11 +224,9 @@ def test_real_toxo_pv_fields_match_their_hand_drawn_ground_truth():
     """
     import tifffile
 
-    folder, images = _pv_fields()
-    for path in images:
+    for path, truth in _pv_fields():
         image = tifffile.imread(path)
-        drawn = tifffile.imread(
-            str(folder / "ground_truth_masks" / os.path.basename(path))) > 0
+        drawn = tifffile.imread(truth) > 0
         by_intensity = _intensity_coverage(image).confluency
         by_texture = _texture_coverage(image).confluency
         assert abs(by_intensity - drawn.mean()) <= TOLERANCE, path
