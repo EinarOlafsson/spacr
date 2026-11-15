@@ -1,7 +1,7 @@
 THE CALIBRATED CLUSTER BENCHMARK'S COMPLEXES NULL USES 1,000 PERMUTATIONS
 =========================================================================
 
-Lifecycle: future
+Lifecycle: new
 Status: IMPLEMENTED 2026-11-15. A default change of the existing setting ops_bench_null_permutations (item 929, Ready per proposals/READINESS.md; the setting stays under ALPHA_FEATURES[929]): default 1000, was 200. Schema 942: DEFAULT_CHANGES[942] = {'ops_bench_null_permutations': 200}, so files stamped before rerun with 200. spacr/ops_clusters.py (_bench_options default), spacr/ops_settings.py, spacr/settings.py, tests/test_ops_published_background_953_954.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item953_954_proof/REPORT.md.
 Requested: maintainer decision 2026-11-15 ("Raise to 1,000"), from card C+.
 Owner: master lane claude-953-954-1115.
