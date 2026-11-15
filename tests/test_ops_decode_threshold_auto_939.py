@@ -33,8 +33,16 @@ def _rule():
         {"ops_decode_preset": "rule_a_s2"}))
 
 
-def test_manual_is_the_default_and_the_fdr_max_defaults_to_0_1():
-    assert ops_settings.OPS_DEFAULTS["ops_decode_threshold_mode"] == "manual"
+#: The settings item 939 added; they left alpha with item 946.
+SETTINGS_939 = ('ops_decode_threshold_mode', 'ops_decode_fdr_max',
+                'ops_decode_auto_grid', 'ops_decode_auto_ci',
+                'ops_decode_auto_tune_fraction', 'ops_decode_auto_seed')
+
+
+def test_auto_is_the_default_and_the_fdr_max_defaults_to_0_1():
+    # Item 946 made 'auto' the panel default; a mapping without the key
+    # (the engine's own fallback) still means 'manual'.
+    assert ops_settings.OPS_DEFAULTS["ops_decode_threshold_mode"] == "auto"
     assert ops_settings.OPS_DEFAULTS["ops_decode_fdr_max"] == 0.1
     rule = _rule()
     assert ops_decode.threshold_settings({}, rule) == {"mode": "manual"}
@@ -43,14 +51,17 @@ def test_manual_is_the_default_and_the_fdr_max_defaults_to_0_1():
     assert auto["tune_fraction"] == 0.5 and auto["seed"] == 0
     assert auto["floors"] == list(ops_decode.AUTO_GRID["ops_single_read_quality"])
     assert auto["pixel_qualities"] == list(ops_decode.AUTO_GRID["ops_pixel_quality"])
-    defaults = {k: ops_settings.OPS_DEFAULTS[k] for k in ALPHA_FEATURES[939]["settings"]}
+    defaults = {k: ops_settings.OPS_DEFAULTS[k] for k in SETTINGS_939}
     assert ops_decode.threshold_settings({**defaults, **AUTO}, rule) == auto
 
 
-def test_the_settings_are_alpha_and_validated():
-    for key in ALPHA_FEATURES[939]["settings"]:
+def test_the_settings_left_alpha_and_are_validated():
+    assert 939 not in ALPHA_FEATURES
+    for entry in ALPHA_FEATURES.values():
+        assert not set(SETTINGS_939) & set(entry.get("settings", ())), entry
+    for key in SETTINGS_939:
         assert key in ops_settings.OPS_DEFAULTS and key in ops_settings.OPS_TYPES
-        assert ops_settings.OPS_TOOLTIPS[key].endswith("Alpha.")
+        assert not ops_settings.OPS_TOOLTIPS[key].endswith("Alpha."), key
         assert any(key in keys for keys in ops_settings.OPS_CATEGORIES.values())
     rule = _rule()
     for bad in ({"ops_decode_threshold_mode": "best"},
@@ -275,16 +286,19 @@ def test_ties_go_to_the_stricter_setting():
 
 
 def test_a_settings_file_from_before_939_reruns_on_manual_thresholds(tmp_path):
-    """No DEFAULT_CHANGES row: 'manual' is today's default and the decode
-    before item 939, so old files (unstamped or stamped) stay manual."""
+    """Item 946 made 'auto' the default; its DEFAULT_CHANGES row keeps old
+    files (unstamped or stamped before it) on 'manual' and preset 'none'."""
     import csv
 
     from spacr.cli import resolve_module, resolve_settings
-    from spacr.settings import DEFAULT_CHANGES, SETTINGS_VERSION_KEY
+    from spacr.settings import (DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION,
+                                SETTINGS_VERSION_KEY)
 
-    assert not any("ops_decode_threshold_mode" in row for row in DEFAULT_CHANGES.values())
+    assert any(row.get("ops_decode_threshold_mode") == "manual"
+               for row in DEFAULT_CHANGES.values())
     ops = resolve_module("ops")
-    for rows in ([("plate", "P1")], [(SETTINGS_VERSION_KEY, "933"), ("plate", "P1")]):
+    for rows in ([("plate", "P1")], [(SETTINGS_VERSION_KEY, "933"), ("plate", "P1")],
+                 [(SETTINGS_VERSION_KEY, "939"), ("plate", "P1")]):
         path = tmp_path / "old.csv"
         with open(path, "w", newline="", encoding="utf-8") as handle:
             writer = csv.writer(handle)
@@ -292,8 +306,17 @@ def test_a_settings_file_from_before_939_reruns_on_manual_thresholds(tmp_path):
             writer.writerows(rows)
         loaded = resolve_settings(ops, str(path))
         assert loaded["ops_decode_threshold_mode"] == "manual"
+        assert loaded["ops_decode_preset"] == "none"
         rule = ops_decode.decode_rule(ops_decode.resolve_settings(loaded))
         assert ops_decode.threshold_settings(loaded, rule) == {"mode": "manual"}
+    path = tmp_path / "new.csv"
+    with open(path, "w", newline="", encoding="utf-8") as handle:
+        csv.writer(handle).writerows([["Key", "Value"],
+                                      [SETTINGS_VERSION_KEY, str(SETTINGS_SCHEMA_VERSION)],
+                                      ["plate", "P1"]])
+    loaded = resolve_settings(ops, str(path))
+    assert loaded["ops_decode_threshold_mode"] == "auto"
+    assert loaded["ops_decode_preset"] == "rule_a_s2"
 
 
 @pytest.fixture(scope="module")
@@ -353,13 +376,16 @@ def test_the_engine_writes_the_chosen_thresholds_per_well(auto_run):
     assert math.isfinite(chosen["fdr"]["pct"])
 
 
-def test_auto_needs_decoys_and_the_rule_a_decode(auto_run):
+def test_auto_without_decoys_or_the_rule_a_decode_keeps_the_thresholds(auto_run):
+    # Item 946: 'auto' is the default, so a decode it cannot tune (preset
+    # 'none', so no decoys, or a rule other than 'mapped') runs with the
+    # thresholds as entered, exactly as 'manual' does, instead of stopping.
     _manual, _auto, _loose, settings, library = auto_run
-    with pytest.raises(ValueError, match="ops_decoy_library_k"):
-        ops_engine.run_ops({**settings, "ops_decode_threshold_mode": "auto",
-                            "ops_decode_preset": "none"}, phases=("decode",),
-                           library=library)
-    with pytest.raises(ValueError, match="rule_a_s2"):
-        ops_engine.run_ops({**settings, "ops_decode_threshold_mode": "auto",
-                            "ops_cell_rule": "agree"}, phases=("decode",),
-                           library=library)
+    for change in ({"ops_decode_preset": "none"}, {"ops_cell_rule": "agree"}):
+        runs = [ops_engine.run_ops({**settings, **change,
+                                    "ops_decode_threshold_mode": mode},
+                                   phases=("decode",), library=library)
+                for mode in ("manual", "auto")]
+        manual, auto = (run["wells"]["A1"]["decode"] for run in runs)
+        assert "thresholds" not in auto, change
+        assert auto["objects_assigned"] == manual["objects_assigned"], change
