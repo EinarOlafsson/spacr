@@ -289,18 +289,22 @@ def _call(values: np.ndarray, rule: Mapping[str, Any], library: Sequence[str],
     """Base calls for reads or pixels under the rule.
 
     :param values: ``(N, cycles, 4)`` intensities.
-    :param rule: from :func:`decode_rule`.
+    :param rule: from :func:`decode_rule`; ``read_mode`` 'raw' (item 952)
+        calls the brightest channel as read, with no library calibration,
+        unmixing or normalisation.
     :param library: the guide barcodes.
     :param crosstalk: the unmixing method, ``none`` for none.
     :returns: ``(data, barcodes, margin, quality)``.
     """
-    from .ops_sbs import called_bases, library_calibrated_bases
+    from .ops_sbs import _raw_called_bases, called_bases, library_calibrated_bases
 
     if len(values) == 0:
         cycles = values.shape[1] if values.ndim == 3 else 0
         return (np.zeros((0, cycles, 4), np.float32), [],
                 np.zeros((0, cycles), np.float32), np.zeros(0, np.float32))
-    if rule.get("calibration") and library:
+    if rule.get("read_mode") == "raw":
+        data, codes, margin = _raw_called_bases(values)
+    elif rule.get("calibration") and library:
         data, codes, margin = library_calibrated_bases(
             values, library, passes=int(rule["calibration_passes"]),
             min_labels=int(rule["calibration_min_labels"]),
@@ -843,7 +847,7 @@ def _joint_field_candidates(evidence: Mapping[str, np.ndarray], rule: Mapping[st
                             spot_thresholds: Sequence[float], floors: Sequence[float],
                             pixel_qualities: Sequence[float], footprint: float,
                             max_distance: int, min_fraction: float,
-                            crosstalk: str) -> Dict[str, Any]:
+                            crosstalk: str, pixel_votes=None) -> Dict[str, Any]:
     """One field's calls at every read threshold and call-threshold setting (item 942).
 
     Spot detection and calling are tuned together: for each read threshold
@@ -865,13 +869,15 @@ def _joint_field_candidates(evidence: Mapping[str, np.ndarray], rule: Mapping[st
     :param max_distance: the mismatches a read may carry.
     :param min_fraction: the share of the votes the guide must hold.
     :param crosstalk: the unmixing method.
+    :param pixel_votes: the pixel votes of another pass over the same field
+        (item 952: the log pass, reused by the raw pass); None votes them here.
     :returns: ``counts`` -- ``(read thresholds, floors, pixel qualities, 2)``
         real and decoy calls -- ``nuclei``, and ``by_spot``, one
         :func:`_field_candidates` result per read threshold with its read
         counts.
     """
     by_spot: List[Dict[str, Any]] = []
-    pixel = None
+    pixel = pixel_votes
     for threshold in spot_thresholds:
         votes = _field_votes(
             evidence, rule if pixel is None else {**rule, "pixels": False}, library,
@@ -1351,6 +1357,8 @@ def _write_threshold_report(db: str, plate: str, well: str,
     if "read_threshold" in choice:
         row.update({"read_threshold": choice["read_threshold"],
                     "objective": choice["objective"]})
+    if "read_mode" in choice:
+        row["read_mode"] = choice["read_mode"]
     for part in ("tune", "report", "all_fields"):
         numbers = choice[part]
         interval = numbers["fdr_ci95"] or [None, None]

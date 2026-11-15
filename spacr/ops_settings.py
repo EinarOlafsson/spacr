@@ -35,6 +35,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_library": None,
     "ops_base_channels": "CY3,A594,CY5,CY7",
     "ops_read_threshold": 315.0,
+    "ops_read_mode": "log",
     "ops_raster_overlap": 213,
     "ops_window_overlap": 96,
     "ops_compose_blend": "feather",
@@ -454,6 +455,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_library": (str, type(None)),
     "ops_base_channels": str,
     "ops_read_threshold": (float, int),
+    "ops_read_mode": str,
     "ops_raster_overlap": int,
     "ops_window_overlap": int,
     "ops_compose_blend": str,
@@ -864,7 +866,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_sites",
     ],
     "OPS decoding": [
-        "ops_base_channels", "ops_read_threshold", "ops_footprint",
+        "ops_base_channels", "ops_read_threshold", "ops_read_mode", "ops_footprint",
         "ops_store_reads", "ops_spot_detector", "ops_channel_registration",
         "ops_registration_precision", "ops_registration_backend",
         "ops_field_diagnostics",
@@ -1332,6 +1334,16 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "file lists, so a run on a few fields at the well's rim can be "
         "placed. Its report says 'placement: seeded'. Empty aligns anchors "
         "as usual. Default None. Alpha.",
+    "ops_read_mode":
+        "(str) - How each spot's barcode is read, in the OPS and spacer-prefix "
+        "decodes. 'log' reads the -LoG-filtered pixels (3 x 3 maximum) and "
+        "calls bases after the per-cycle median normalisation. 'raw' reads the "
+        "unfiltered pixels (maximum within 3 px) and calls the brightest "
+        "channel as read, with no normalisation, unmixing or library "
+        "calibration (PERISCOPE's read). 'auto' picks 'log' or 'raw' per well "
+        "from decoy calls, tuned with ops_decode_threshold_mode 'auto' or "
+        "ops_prefix_threshold_tuning 'per_well_decoy'. Spots are found the "
+        "same way in every mode. Default 'log'. Alpha.",
     "ops_sites":
         "(str, list or None) - Run the stitch, objects and decode phases on "
         "these sequencing sites only, as '46,148,160-167'. The well's "

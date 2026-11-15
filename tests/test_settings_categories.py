@@ -801,6 +801,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 951 (2026-11-15): stitch, objects and decode on chosen
     # sequencing sites only.
     "ops_sites",
+    # Item 952 (2026-11-15): the read mode of the barcode reads (log, raw,
+    # or chosen per well from decoys).
+    "ops_read_mode",
     # Item 934 (2026-11-13): the OPS measurement switches in Measure --
     # Funk et al.'s object features, the explicit Zernike switch and
     # channel-named columns under Measurements, and the CPU/GPU self-check
