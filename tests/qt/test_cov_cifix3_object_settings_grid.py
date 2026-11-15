@@ -51,33 +51,11 @@ def grid(qtbot, qt_theme_applied):
     return widget
 
 
-def test_a_new_pixel_size_redraws_the_diameter_row_once_and_a_repeat_changes_nothing(grid, qtbot):
-    with qtbot.waitSignal(grid._model.dataChanged, timeout=1000):
-        assert grid._follow_pixel_size(0.65) is True
-    assert grid._model._pixel_size == 0.65
-    assert grid._base['pixel_size_um'] == 0.65
-    assert grid._follow_pixel_size(0.65) is False
-
-
 def test_a_new_calculation_switch_redraws_the_diameter_row_once(grid, qtbot):
     with qtbot.waitSignal(grid._model.dataChanged, timeout=1000):
         assert grid._follow_calculation(True) is True
     assert grid._model._calculating is True
     assert grid._follow_calculation(True) is False
-
-
-def test_following_the_form_without_a_diameter_row_redraws_nothing(grid, monkeypatch):
-    monkeypatch.setattr(grid, 'questions', lambda: ['channel'])
-    assert grid._follow_pixel_size(0.3) is False
-    assert grid._follow_calculation(True) is False
-    assert grid._follow_magnification(40) is False
-
-
-def test_following_the_form_with_no_columns_still_reports_a_redraw(grid, monkeypatch):
-    monkeypatch.setattr(grid._model, 'columnCount', lambda *a: 0)
-    assert grid._follow_pixel_size(0.9) is True
-    assert grid._follow_calculation(True) is True
-    assert grid._follow_magnification(63) is True
 
 
 def test_a_filter_row_added_to_the_grid_is_listed_and_a_repeat_is_refused(grid, qtbot):

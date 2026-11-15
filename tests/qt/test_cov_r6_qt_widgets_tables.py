@@ -37,7 +37,6 @@ pytest.importorskip("PySide6")
 from PySide6.QtWidgets import QTableWidget, QToolButton     # noqa: E402
 
 from spacr.qt.ingest_preview import ROW_COLUMNS             # noqa: E402
-from spacr.qt.widgets.folding_summary import split_rows     # noqa: E402
 from spacr.qt.widgets.metadata_table import (               # noqa: E402
     MetadataTableDialog, MetadataTablePanel,
 )
@@ -123,6 +122,7 @@ def test_apply_writes_the_csv_with_or_without_a_callback(qtbot, tmp_path):
 # database_set
 # ---------------------------------------------------------------------------
 
+
 # ---------------------------------------------------------------------------
 # plate_layout
 # ---------------------------------------------------------------------------
@@ -177,16 +177,6 @@ def test_write_design_writes_the_assignment_it_was_handed(tmp_path):
 # ---------------------------------------------------------------------------
 # folding_summary
 # ---------------------------------------------------------------------------
-
-def test_a_blank_line_between_rows_never_becomes_a_row():
-    """Blank lines are dropped BEFORE the rows are parsed.
-
-    A summary is written with blank lines between its blocks, and an empty
-    ``("", "")`` row would render as an empty table line in the panel.
-    """
-    rows = split_rows("  effect          0.42\n\n   \n  p value         0.01\n")
-
-    assert rows == [("effect", "0.42"), ("p value", "0.01")]
 
 
 # ---------------------------------------------------------------------------

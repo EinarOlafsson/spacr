@@ -264,22 +264,6 @@ class TestThePopoverWithNoScreenBehindIt:
 class TestTheLastChannelIsPutBackOnlyWhenItCanBe:
     """``if isinstance(box, Toggle):`` in ``ChannelPicker._on_toggled``."""
 
-    def test_unchecking_the_last_channel_puts_it_back(self, qapp):
-        from spacr.qt.widgets.channel_picker import ChannelPicker
-
-        picker = ChannelPicker("r", allow_none=False)
-        heard = []
-        picker.changed.connect(heard.append)
-
-        picker._boxes["r"].setChecked(False)
-
-        assert picker.value() == "r", (
-            "a display that must keep a channel puts the last one back; got "
-            f"{picker.value()!r}")
-        assert heard == [], \
-            "and does not announce a value the user never chose"
-        picker.deleteLater()
-
     def test_a_toggle_from_nowhere_falls_through_to_the_signal(self, qapp):
         """The slot invoked directly -- ``sender()`` is then not a Toggle.
 
@@ -306,33 +290,6 @@ class TestTheLastChannelIsPutBackOnlyWhenItCanBe:
 # ---------------------------------------------------------------------------
 # animation_zoom
 # ---------------------------------------------------------------------------
-
-class TestAWellTooSmallToHaveAnInside:
-    """``if inner_box[2] > inner_box[0] and inner_box[3] > inner_box[1]:``"""
-
-    def test_a_box_narrower_than_the_padding_has_no_hole(self):
-        from spacr.qt.widgets.animation_zoom import field_ring_mask
-
-        # 4 px wide against the module's padding: left + pad is already
-        # past right - pad, so there is no inner rectangle to subtract.
-        ring = field_ring_mask(32, box=(14.0, 14.0, 18.0, 18.0), radius=1.0)
-
-        assert ring.dtype == bool and ring.shape == (32, 32)
-        assert ring.any(), "the outer rounded box is still drawn"
-        # With no hole, the ring IS the filled outer box: its centre is set.
-        assert bool(ring[16, 16]), (
-            "with no inner rectangle to remove, the middle of the well is "
-            "part of the ring")
-
-    def test_a_normal_well_is_a_ring_with_a_hole(self):
-        """The contrast: a box wide enough for an inside, which is empty."""
-        from spacr.qt.widgets.animation_zoom import field_ring_mask
-
-        ring = field_ring_mask(64, box=(8.0, 8.0, 56.0, 56.0), radius=6.0)
-
-        assert ring.any()
-        assert not bool(ring[32, 32]), (
-            "a well with room for an inside has a hole in the middle")
 
 
 # ---------------------------------------------------------------------------

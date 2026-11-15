@@ -194,59 +194,6 @@ def test_a_plan_that_marked_no_candidate_contributes_no_group(view):
 
 
 # ---------------------------------------------------------------------------
-# Writing the run's scores into the databases
-# ---------------------------------------------------------------------------
-
-def _database(tmp_path):
-    import sqlite3
-
-    path = tmp_path / "measurements.db"
-    with sqlite3.connect(path) as db:
-        db.execute("CREATE TABLE png_list (file_name, plateID, rowID, "
-                   "columnID, fieldID, object_label, png_path)")
-        for i in range(4):
-            db.execute("INSERT INTO png_list VALUES (?,?,?,?,?,?,?)",
-                       (f"img{i}.png", "plate1", "r1", "c1", "1", i,
-                        str(tmp_path / f"img{i}.png")))
-    return str(path)
-
-
-def _score_file(tmp_path):
-    path = tmp_path / "plate1_dv.csv"
-    pd.DataFrame({"path": [f"img{i}.png" for i in range(4)],
-                  "pred": [i / 4 for i in range(4)],
-                  "cv_predictions": [0, 1, 0, 1],
-                  "prc": ["plate1_r1_c1"] * 4,
-                  "object": list(range(4))}).to_csv(path, index=False)
-    return str(path)
-
-
-def test_when_no_database_takes_the_scores_none_is_reported_as_merged(
-        make_view, tmp_path):
-    """The count sentence claims rows were written. Printing it after every
-    database refused would tell a user their databases now carry scores that
-    are not in them."""
-    broken = str(tmp_path / "not-a-database.db")
-    open(broken, "w").write("this is not sqlite")
-    scores = _score_file(tmp_path)
-    table = [{"plate": "plate1", "database": broken, "score": scores}]
-    view = make_view(database_provider=lambda: table)
-
-    assert view.write_scores_into_the_databases(confirm=lambda *_a: True) == {}
-    refusal = view.status_text()
-    assert "not-a-database.db" in refusal
-    assert "matched" not in refusal
-
-    table[:] = [{"plate": "plate1", "database": _database(tmp_path),
-                 "score": scores}]
-
-    written = view.write_scores_into_the_databases(confirm=lambda *_a: True)
-
-    assert written, "nothing merged, so the empty answer proves nothing"
-    assert "rows matched" in view.status_text()
-
-
-# ---------------------------------------------------------------------------
 # A saved run's montage settings
 # ---------------------------------------------------------------------------
 

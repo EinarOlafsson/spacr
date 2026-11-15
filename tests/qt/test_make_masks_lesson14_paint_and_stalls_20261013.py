@@ -35,6 +35,8 @@ from spacr.qt import mask_engine as engine  # noqa: E402
 from spacr.qt import wand_rescue as wr  # noqa: E402
 from spacr.qt.screens import make_masks as mm  # noqa: E402
 
+from tests import locale_cases
+
 pytestmark = pytest.mark.qt
 
 
@@ -122,9 +124,8 @@ def test_a_float_field_or_negative_labels_take_the_general_path():
                                       labels, alpha=0.5)))
 
 
-@pytest.mark.parametrize("alpha", [0.5, 0.3, np.float32(0.7), 1.0])
-@pytest.mark.parametrize("label_dtype", [np.uint8, np.uint16, np.int16, np.int32, np.uint32])
-def test_overlay_mask_is_the_float_blend_to_the_byte(alpha, label_dtype):
+def _overlay_mask_is_the_float_blend_to_the_byte_case(alpha, label_dtype):
+    """One case of :func:`test_overlay_mask_is_the_float_blend_to_the_byte`."""
     image, labels = _field(240, seed=11)
     labels = labels.astype(label_dtype)
     np.testing.assert_array_equal(engine.overlay_mask(image, labels, alpha),
@@ -135,6 +136,16 @@ def test_overlay_mask_is_the_float_blend_to_the_byte(alpha, label_dtype):
     empty = np.zeros_like(labels)
     np.testing.assert_array_equal(engine.overlay_mask(image, empty, alpha),
                                   _old_overlay(image, empty, alpha))
+
+
+def test_overlay_mask_is_the_float_blend_to_the_byte(subtests, request):
+    for label, case in locale_cases.cases(
+            ("alpha", [0.5, 0.3, np.float32(0.7), 1.0]),
+            ("label_dtype", [np.uint8, np.uint16, np.int16, np.int32, np.uint32]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _overlay_mask_is_the_float_blend_to_the_byte_case(**fixtures, **case)
 
 
 def test_the_stretch_table_is_the_float_stretch_to_the_byte():

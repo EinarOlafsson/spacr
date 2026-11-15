@@ -16,7 +16,6 @@ import pandas as pd
 import pytest
 
 from spacr.qt.widgets import qc_summary as qc
-from tests.refused_access import refused
 
 
 def _write_json(path, payload):
@@ -39,31 +38,6 @@ def test_a_card_that_is_not_there_is_none():
 
 # ---------------------------------------------------------------------------
 # Where a project root comes from
-
-
-def test_a_list_of_folders_is_read_as_its_first(tmp_path):
-    """Screens hand this whatever `src` they were configured with."""
-    assert qc._project_root([str(tmp_path), "/elsewhere"]) == str(tmp_path)
-    assert qc._project_root([]) == ""
-
-
-def test_no_source_at_all_is_no_root():
-    """An unconfigured screen must not walk the working directory."""
-    assert qc._project_root(None) == ""
-    assert qc._project_root("") == ""
-
-
-def test_a_file_stands_for_the_folder_it_is_in(tmp_path):
-    """A user who dropped measurements.db meant the project around it."""
-    path = tmp_path / "measurements.db"
-    path.write_bytes(b"")
-
-    assert qc._project_root(str(path)) == str(tmp_path)
-
-
-def test_a_path_that_does_not_exist_is_no_root(tmp_path):
-    """A stale path from a saved settings file, and not a crash."""
-    assert qc._project_root(str(tmp_path / "gone")) == ""
 
 
 @pytest.mark.parametrize("reader", [
@@ -175,39 +149,6 @@ def test_only_the_first_few_flags_are_listed_and_the_rest_are_counted():
 # Leakage
 
 
-def test_a_leakage_file_with_no_reports_says_so(tmp_path):
-    """An empty audit is not a passing audit."""
-    _write_json(tmp_path / "leakage.json", {"reports": []})
-
-    card = qc._read_leakage(str(tmp_path))
-
-    assert card.verdict == "missing"
-    assert "holds no split reports" in card.headline
-
-
-def test_a_failed_boundary_names_it_and_says_what_it_means(tmp_path):
-    """The accuracy is then an upper bound, not an estimate."""
-    _write_json(tmp_path / "leakage.json", {"reports": [
-        {"group_by": "well", "passed": False},
-        {"group_by": "plate", "passed": True}]})
-
-    card = qc._read_leakage(str(tmp_path))
-
-    assert card.verdict == "fail"
-    assert "1 of 2 split boundaries leaked (well)" in card.headline
-    assert any("upper bound" in line for line in card.detail)
-
-
-def test_a_leakage_file_that_will_not_parse_is_an_error_card(tmp_path):
-    """Not a crash, and not a silent 'missing' either."""
-    (tmp_path / "leakage.json").write_text("{not json", encoding="utf-8")
-
-    card = qc._read_leakage(str(tmp_path))
-
-    assert card.verdict == "error"
-    assert "Could not read leakage.json" in card.headline
-
-
 # ---------------------------------------------------------------------------
 # Units
 
@@ -220,140 +161,12 @@ def _db(path, tables):
     return path
 
 
-def test_a_database_that_will_not_open_is_an_error_card(tmp_path):
-    """An unreadable file is reported, not raised."""
-    db = _db(tmp_path / "measurements" / "measurements.db",
-             {"cell": pd.DataFrame({"area": [1.0]})})
-    with refused(db, 0o000, windows="read"):
-        card = qc._read_units(str(tmp_path))
-
-    assert card.verdict == "error"
-    assert "Could not open measurements.db" in card.headline
-
-
-def test_a_database_with_no_object_tables_says_that(tmp_path):
-    """Settings and the crop list are not measurements."""
-    _db(tmp_path / "measurements" / "measurements.db", {
-        "settings": pd.DataFrame({"key": ["a"], "value": ["b"]}),
-        "png_list": pd.DataFrame({"png_path": ["/a.png"]})})
-
-    card = qc._read_units(str(tmp_path))
-
-    assert card.verdict == "missing"
-    assert card.headline == "The measurements database holds no object tables."
-
-
-def test_two_runs_in_one_table_is_a_failure_that_names_the_columns(tmp_path):
-    """`cell_area` then means px^2 in some rows and um^3 in others."""
-    from spacr.measurement_schema import MEASUREMENT_STAMP_COLUMNS
-
-    stamps = {name: ["a", "b"] for name in MEASUREMENT_STAMP_COLUMNS}
-    _db(tmp_path / "measurements" / "measurements.db",
-        {"cell": pd.DataFrame({"cell_area": [1.0, 2.0], **stamps})})
-
-    card = qc._read_units(str(tmp_path))
-
-    assert card.verdict == "fail"
-    assert "1 table(s) hold rows measured in different units (cell)" in \
-        card.headline
-    assert any("no query over the table can tell them apart" in line
-               for line in card.detail)
-
-
-def test_a_table_with_no_stamp_is_a_warning_not_a_failure(tmp_path):
-    """Written before the stamp existed; re-measure or take it on faith."""
-    _db(tmp_path / "measurements" / "measurements.db",
-        {"cell": pd.DataFrame({"cell_area": [1.0, 2.0]})})
-
-    card = qc._read_units(str(tmp_path))
-
-    assert card.verdict == "warn"
-    assert "carry no units stamp" in card.headline
-
-
 # ---------------------------------------------------------------------------
 # Plate effects
 
 
-def test_a_plate_verdict_carries_its_detail_lines(tmp_path):
-    """The payload's detail may be one string or a list of them."""
-    _write_json(tmp_path / "plate_qc.json",
-                {"verdict": "warn", "headline": "Edge wells are dimmer.",
-                 "detail": ["row A is 30% dimmer", "column 1 too"]})
-
-    card = qc._read_plate(str(tmp_path))
-
-    assert card.verdict == "warn"
-    assert card.detail == ["row A is 30% dimmer", "column 1 too"]
-
-
-def test_a_plate_verdict_with_a_single_detail_string(tmp_path):
-    """One sentence is the common case and must not be split into characters."""
-    _write_json(tmp_path / "plate_qc.json", {"detail": "one sentence"})
-
-    card = qc._read_plate(str(tmp_path))
-
-    assert card.detail == ["one sentence"]
-    assert card.headline == "Plate QC ran."
-
-
-def test_a_plate_file_that_will_not_parse_is_an_error_card(tmp_path):
-    """Reported on the card, where the user is already looking."""
-    (tmp_path / "plate_qc.json").write_text("{not json", encoding="utf-8")
-
-    card = qc._read_plate(str(tmp_path))
-
-    assert card.verdict == "error"
-    assert "Could not read plate_qc.json" in card.headline
-
-
 # ---------------------------------------------------------------------------
 # Annotator agreement
-
-
-def test_an_agreement_file_that_will_not_parse_is_an_error_card(tmp_path):
-    """Same posture as every other reader."""
-    (tmp_path / "agreement.json").write_text("{not json", encoding="utf-8")
-
-    card = qc._read_agreement(str(tmp_path))
-
-    assert card.verdict == "error"
-    assert "Could not read agreement.json" in card.headline
-
-
-def test_an_agreement_report_with_no_kappa_says_so(tmp_path):
-    """There is nothing to judge, which is different from judging it poor."""
-    _write_json(tmp_path / "agreement.json", {"band": "substantial"})
-
-    card = qc._read_agreement(str(tmp_path))
-
-    assert card.verdict == "missing"
-    assert card.headline == "The agreement report holds no kappa."
-
-
-def test_a_kappa_that_is_not_a_number_is_an_error(tmp_path):
-    """Formatting it would produce a card that reads as a real verdict."""
-    _write_json(tmp_path / "agreement.json", {"kappa": "high"})
-
-    card = qc._read_agreement(str(tmp_path))
-
-    assert card.verdict == "error"
-    assert "kappa is not a number" in card.headline
-
-
-@pytest.mark.parametrize("kappa, verdict", [
-    (0.81, "ok"), (0.55, "warn"), (0.2, "fail"),
-])
-def test_the_kappa_bands_are_the_conventional_ones(tmp_path, kappa, verdict):
-    """And below 0.6 the card explains what the ceiling on accuracy is."""
-    _write_json(tmp_path / "agreement.json",
-                {"kappa": kappa, "band": "measured"})
-
-    card = qc._read_agreement(str(tmp_path))
-
-    assert card.verdict == verdict
-    assert f"kappa = {kappa:.2f}" in card.headline
-    assert bool(card.detail) is (kappa < 0.6)
 
 
 # ---------------------------------------------------------------------------

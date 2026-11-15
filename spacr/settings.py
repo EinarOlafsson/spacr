@@ -2534,7 +2534,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 937
+SETTINGS_SCHEMA_VERSION = 939
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2547,6 +2547,9 @@ DEFAULT_CHANGES = {
               'texture_gabor', 'colocalisation', 'colocalisation_extra'],
           'ops_ph_profile_optional_families': [
               'texture_gabor', 'colocalisation', 'colocalisation_extra']},
+    938: {'seg_mask_vram_gb': 0},
+    939: {'ops_decode_auto_spot_grid': [],
+          'ops_decode_auto_unreachable': 'strictest'},
 }
 
 
@@ -2619,6 +2622,9 @@ def _fold_older_defaults(settings, version, known=None):
     ``profile_optional_families`` and ``ops_ph_profile_optional_families``
     with the three families ``'profiling'`` measured then, so their columns
     are unchanged.
+    938 is item 945's ``seg_mask_vram_gb``: the
+    large-site mask step is sized to 6 GB of card memory, and files stamped
+    before keep 0, no cap of its own.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -5760,8 +5766,8 @@ tooltips = {
     "grouping": "(str) - How per-object values collapse to one number per well in the plate heatmap: 'mean' averages heatmap_feature over the objects in a well, 'sum' totals them, 'count' ignores the feature and colors wells by object count. Use 'count' to spot uneven seeding or dropout, 'mean' for phenotype strength. Default 'mean'; any other value raises ValueError.",
     "heatmap_feature": "(str) - Numeric column that is aggregated per well and color-mapped in the plate heatmap after ML scoring, e.g. 'predictions' for the classifier score or 'recruitment' for the pathogen/cytoplasm intensity ratio. Must be a numeric column of the scored dataframe or the run raises ValueError listing the valid names. Default 'predictions'.",
     "homogeneity": "(bool) - Compute grey-level co-occurrence-matrix homogeneity for every object in every channel, adding one homogeneity_distance_<d> column per entry in homogeneity_distances. Homogeneity is high for smooth, evenly filled objects and low for punctate or grainy ones, so keep it on for texture phenotypes; disabling it noticeably speeds up measurement. Default True.",
-    "profile_features": "(str, list or None) - Add image-based profiling measurement families to every 2-D object. 'profiling' adds the families that cost under about 5,000 CPU seconds per 100,000 cells: edge intensity, intensity moments (mass displacement and intensity-weighted Hu moments), CellProfiler-style radial distribution (4 rings), extra shape descriptors (form factor, compactness, Hu moments, radii), Haralick texture (13 statistics), threshold adjacency statistics (PFTAS), rotation-invariant LBP histograms, boundary (periphery) and surrounding-ring (outside) intensity with an enclosed flag, and neighbours (the spatial block). profile_optional_families adds the slow Gabor, colocalisation and granularity families to 'profiling'; 'all' adds every family. A list or comma-separated names picks families one by one. Empty adds nothing, so a settings file without it measures exactly as before. Default None.",
-    "profile_optional_families": "(bool, str, list or None) - The slow families that 'profiling' in profile_features also measures. Off by default; on reproduces Brieflow's full set. True or 'all' adds all five; names pick them one by one. Cost in CPU seconds per 100,000 cells: texture_gabor (Gabor filter-bank energy) 11,000 to 17,400; colocalisation (Pearson and Manders) 6,300 to 9,050; colocalisation_extra (Spearman, ICQ, K1/K2, rank-weighted colocalisation, mutual information and spot-based colocalisation) 7,000; colocalisation_costes (Costes-threshold Manders) 8,050; granularity (the granularity spectrum at profile_granularity_subsample 1.0) 58,900. All the other profiling families together cost about 11,600. On the 639,673 cells of Funk et al. 2022 well A1 none of the five added anything beyond random measurements of the same number. Family names and 'all' in profile_features are not changed by it. A settings file saved before this setting existed keeps texture_gabor, colocalisation and colocalisation_extra, which 'profiling' measured then. Default None.",
+    "profile_features": "(str, list or None) - Add image-based profiling measurement families to every 2-D object. 'profiling' adds the fast families: edge intensity, intensity moments, radial distribution, extra shape, Haralick, PFTAS and LBP texture, periphery and outside-ring intensity, and neighbours. profile_optional_families adds the slow Gabor, colocalisation and granularity families to 'profiling'; 'all' adds every family. A list or comma-separated names picks families one by one. Empty adds nothing, so a settings file without it measures exactly as before. Default None.",
+    "profile_optional_families": "(bool, str, list or None) - The slow families that 'profiling' in profile_features also measures: texture_gabor, colocalisation, colocalisation_extra, colocalisation_costes and granularity. Together they cost several times the rest of 'profiling' (granularity alone about 58,900 CPU seconds per 100,000 cells). True or 'all' adds all five, which reproduces Brieflow's full set; names pick them one by one. Family names and 'all' in profile_features are not changed by it. Settings files saved before this setting keep texture_gabor, colocalisation and colocalisation_extra. Default None.",
     "profile_granularity_subsample": "(float) - Sieve each field scaled by this factor for the granularity profiling family, as CellProfiler's image sample size. 0.25, CellProfiler's default, is about 16 times faster than 1.0, which sieves every pixel. Only read when granularity is among profile_features. Default 1.0.",
     "funk_object_features": "(bool) - Add the object features of Funk et al. 2022 (optical pooled screens) to every 2-D object: the mass displacement of every channel (the distance from the object's centroid to its intensity-weighted centroid), Pearson's r of every channel pair over the object's pixels (correlation_<a>_<b>), and the form factor (4 pi area / perimeter squared). The OPS setting ops_ph_funk_features gives the same values from the same functions. Mass displacement and form factor are not repeated when profile_features already writes them. Default False.",
     "zernike": "(bool or None) - Zernike moments of each object's shape (zernike_0 to zernike_24), which need the mahotas package (spacr[zernike]). None computes them when mahotas is installed and skips them otherwise, so the same settings file can give different columns on two computers. True always computes them and stops the run when mahotas is missing; False never computes them. The OPS setting ops_ph_zernike is the same switch. Default None.",
@@ -9452,6 +9458,9 @@ ALPHA_FEATURES = {
         'settings': ('profile_optional_families',
                      'ops_ph_profile_optional_families'),
     },
+    947: {
+        'settings': ('ops_ph_use_acquisition',),
+    },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },
@@ -9480,6 +9489,11 @@ ALPHA_FEATURES = {
             'seg_nucleus_diameter_range', 'seg_gpu', 'seg_tiling_control_px',
             'seg_diameter_sites', 'seg_diameter_min_objects',
             'seg_cells_from_nucleus_seeds')},
+        'apps': ('ops_large_sites',),
+    },
+    945: {
+        'module_settings': {'ops_large_sites': (
+            'seg_mask_vram_gb', 'seg_mask_device')},
     },
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval', 'ops_power_gene_list', 'ops_power_reference_rows',),
@@ -9661,6 +9675,14 @@ ALPHA_FEATURES = {
         'settings': ('ops_decode_threshold_mode', 'ops_decode_fdr_max',
                      'ops_decode_auto_grid', 'ops_decode_auto_ci',
                      'ops_decode_auto_tune_fraction', 'ops_decode_auto_seed'),
+    },
+    942: {
+        'settings': ('ops_decode_auto_spot_grid', 'ops_decode_auto_objective',
+                     'ops_decode_auto_f_beta', 'ops_decode_auto_unreachable',
+                     'ops_prefix_decoy_k', 'ops_prefix_decoy_seed',
+                     'ops_prefix_fdr_scale', 'ops_prefix_min_read_quality',
+                     'ops_prefix_threshold_tuning', 'ops_prefix_fdr_target_pct',
+                     'ops_prefix_tuning_grid'),
     },
 }
 

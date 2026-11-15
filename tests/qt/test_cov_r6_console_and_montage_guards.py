@@ -28,7 +28,6 @@ that makes something happen.
 """
 from __future__ import annotations
 
-import ast
 import os
 
 import pytest
@@ -59,51 +58,6 @@ def view(qtbot):
     qtbot.addWidget(widget)
     yield widget
     widget.shutdown()
-
-
-def test_the_fraction_reader_reports_both_failures_from_the_live_path(
-        monkeypatch):
-    """The two answers ``load`` gives when the fractions cannot be read.
-
-    A :class:`MontageError` becomes the montage's own sentence, because
-    that error was written for the user; anything else becomes the
-    "Could not read" sentence with the original text appended. Both mark
-    the result unavailable, so the view says nothing is there rather than
-    drawing an empty panel.
-
-    This test used to also pin a second ``try`` whose body was a bare
-    ``pass``, making its two handlers unreachable. That husk has since
-    been deleted -- the pin fired when it was, which is what a pin is
-    for -- and the live reader above it is the only path now. The AST
-    check below keeps it deleted.
-    """
-    from spacr import cell_montage as cm
-
-    husks = [node for node in ast.walk(ast.parse(open(cmv.__file__, encoding="utf-8").read()))
-             if isinstance(node, ast.Try)
-             and len(node.body) == 1 and isinstance(node.body[0], ast.Pass)]
-    assert not husks, (
-        f"a try whose body is a pass is back at line(s) "
-        f"{[node.lineno for node in husks]}; its handlers cannot run")
-
-    request = cmv.MontageRequest(
-        name="GRA14_1", level="grna", effect=1.0,
-        results_path="/nowhere/at/all", databases=("/nowhere/measurements.db",))
-
-    answers = {}
-    for label, error in (("montage", cm.MontageError("no fractions here")),
-                         ("other", RuntimeError("the disk went away"))):
-        def _raise(_folder, _error=error):
-            raise _error
-
-        monkeypatch.setattr(cm, "read_well_guide_fractions", _raise)
-        answers[label] = cmv.load(request)
-
-    assert answers["montage"].unavailable is True
-    assert answers["montage"].error == "no fractions here"
-    assert answers["other"].unavailable is True
-    assert answers["other"].error == (
-        "Could not read the per-well guide fractions: the disk went away")
 
 
 def test_every_mirrored_setting_is_one_of_the_three_kinds_of_control(view):

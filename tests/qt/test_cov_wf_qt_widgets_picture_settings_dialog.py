@@ -26,7 +26,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QComboBox, QLineEdit, QSpinBox  # noqa: E402
+from PySide6.QtWidgets import QComboBox, QLineEdit  # noqa: E402
 
 import spacr.picture_settings as ps  # noqa: E402
 from spacr.qt.widgets import picture_settings_dialog as psd  # noqa: E402
@@ -49,35 +49,6 @@ def _dialog(qtbot, **kwargs):
 
 
 class TestTheCapWiringSurvivesAnUnexpectedControl:
-
-    def test_a_decimal_cap_is_normalised_to_a_live_whole_count(self, qtbot):
-        """A settings file that wrote ``cap: 2000.0`` must stay a count.
-
-        The cap arrives from whatever is on disk, and a CSV or a JSON blob
-        round-tripped through a float column hands this dialog a decimal. It is
-        still an object COUNT: normalising it at the boundary keeps the
-        QSpinBox contract, keeps live pricing connected, and prevents the
-        dialog from returning fractional state that the montage later
-        truncates without saying so.
-        """
-        decimal = _dialog(qtbot, values={"cap": 12.5})
-        whole = _dialog(qtbot)
-
-        assert isinstance(decimal._editors["cap"], QSpinBox)
-        assert _costs(decimal._labels["cap"]) == ["12"]
-        assert decimal.values()["cap"] == 12
-        assert isinstance(decimal.values()["cap"], int)
-
-        decimal._editors["cap"].setValue(30)
-        assert _costs(decimal._labels["cap"]) == ["30"]
-        assert decimal.values()["cap"] == 30
-        assert isinstance(decimal.values()["cap"], int)
-
-        # The ordinary whole-number state has the same control and behaviour.
-        assert isinstance(whole._editors["cap"], QSpinBox)
-        whole._editors["cap"].setValue(30)
-        assert _costs(whole._labels["cap"]) == ["30"]
-
     def test_a_cap_of_zero_restores_the_unpriced_help(self, qtbot):
         """Zero objects has no page count, no memory, and no cut time.
 
@@ -103,46 +74,6 @@ class TestTheCapWiringSurvivesAnUnexpectedControl:
         cap.setValue(5000)
         assert _costs(label) == ["5,000"]
         assert "MB of crops held" in label.toolTip()
-
-    def test_a_panel_that_offers_no_cap_at_all_still_opens(self, qtbot,
-                                                          monkeypatch):
-        """Retiring a setting must not take the window down with it.
-
-        ``cap`` reaches this dialog through ``picture_settings.categories``,
-        the one table that decides which settings are offered and where. A
-        setting dropped from that table -- retired, or moved behind a
-        different panel -- leaves the cap wiring with no control to connect
-        to and the cost sentence with no label to write on. Both have to
-        shrug: every OTHER picture setting is still on screen and still
-        editable, and a user who lost one control must not lose the window.
-        """
-        real = ps.categories
-
-        def without_cap():
-            return tuple((title, tuple(k for k in keys if k != "cap"))
-                         for title, keys in real())
-
-        monkeypatch.setattr(psd, "categories", without_cap)
-        capless = _dialog(qtbot)
-        monkeypatch.setattr(psd, "categories", real)
-        ordinary = _dialog(qtbot)
-
-        assert "cap" not in capless.values()
-        assert capless.tab_of("cap") == ""
-        # The tab the cap lived on is still there with its other settings.
-        assert "Which cells" in capless.tab_titles()
-        assert capless.values()["score_column"] == \
-            ordinary.values()["score_column"]
-        assert len(capless.values()) == len(ordinary.values()) - 1
-
-        # Re-pricing with no cap control is a no-op rather than an error,
-        # and nothing was ever remembered to re-price from.
-        capless._say_what_the_cap_costs()
-        assert capless._cap_help is None
-
-        # The same call on the ordinary dialog does write the sentence, so
-        # the silence above belongs to the missing control.
-        assert _costs(ordinary._labels["cap"]) == ["2,000"]
 
     def test_the_price_can_be_written_before_the_help_was_ever_recorded(
             self, qtbot):

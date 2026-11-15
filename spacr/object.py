@@ -1454,7 +1454,8 @@ def _add_stage(stages, stage, since):
 
 
 def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
-                                on_batch_done=None, run_qc=True):
+                                on_batch_done=None, run_qc=True,
+                                progress_share=None):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
 
     Loads the ``cpsam`` pretrained model — or, when
@@ -1492,10 +1493,15 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         ordinary whole-directory run. An empty assignment loads no model.
     :param on_batch_done: optional callable receiving the archive path after
         its selected fields have completed. Failed archives are not reported.
+    :param progress_share: optional ``(roles_done, roles_in_all)``. When given,
+        one ``Progress: n/total`` line is printed after every segmented batch
+        of fields, counting the fields of all the roles of the run, so the run
+        bar moves during the segmentation and not only when a role ends.
     :param run_qc: False lets a parallel coordinator run shared QC once after
         every worker finishes, instead of writing reports from each worker.
     :returns: None.
     """
+    from .utils import print_progress
     from .utils import (_masks_to_masks_stack, all_elements_match,
                         prepare_batch_for_segmentation, _get_cellpose_channels,
                         _resolve_cellpose_pretrained)
@@ -1628,6 +1634,14 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
 
     average_sizes = []
     average_count = []
+    fields_done, fields_in_all = 0, 0
+    if progress_share is not None:
+        for archive in paths:
+            try:
+                with np.load(archive, allow_pickle=True) as opened:
+                    fields_in_all += len(opened['filenames'])
+            except (OSError, KeyError, ValueError):
+                fields_in_all += 1
     for file_index, path in enumerate(paths):
         cancellation_checkpoint()
         stages = _new_archive_stages()
@@ -2017,6 +2031,13 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                         mask_stack = []
                         batch_filenames = []
                     clock = _add_stage(stages, 'write', clock)
+                    if progress_share is not None:
+                        fields_done += len(batch_list)
+                        roles_done, roles_in_all = progress_share
+                        print_progress(roles_done * fields_in_all + fields_done,
+                                       roles_in_all * fields_in_all, n_jobs=1,
+                                       time_ls=None, batch_size=None,
+                                       operation_type=f'{object_type}_mask_gen')
 
                     del batch, cp_batch, batch_list, masks, flows, filter_images, mask_stack
                     beta_intensity = t_result = z_results = result = mask = planes = None

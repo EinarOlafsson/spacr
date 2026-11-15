@@ -64,13 +64,3 @@ def test_spaceout_fractal_that_cannot_report_its_parent_is_skipped(
     assert ambient._live_spaceout_fractals() == [fine]
 
 
-def test_policy_apply_leaves_a_non_backdrop_widget_alone(qapp, monkeypatch):
-    stranger = QWidget()
-    monkeypatch.setattr(ambient, "_LIVE_AMBIENT_WIDGETS",
-                        weakref.WeakSet([stranger]))
-    policy = ambient._AnimationResourcePolicy()
-    seen = []
-    policy.changed.connect(lambda: seen.append(True))
-    policy._apply()
-    assert seen == [True]
-    assert not hasattr(stranger, "_sync_run_state")

@@ -31,6 +31,8 @@ from spacr.qt import app as app_module  # noqa: E402
 from spacr.qt.widgets.section import Section  # noqa: E402
 from spacr.settings import ALPHA_FEATURES, _alpha_names  # noqa: E402
 
+from tests import locale_cases
+
 pytestmark = pytest.mark.qt
 
 ALPHA_MARK = "α"
@@ -116,10 +118,8 @@ def _visible_sections(key):
                     if section.isVisibleTo(screen)]
 
 
-@pytest.mark.parametrize("key", _module_keys())
-def test_no_registered_alpha_category_shows_with_the_gate_shut(
-        qtbot, gate_shut, key):
-    """No heading on screen is an α category or holds only alpha settings."""
+def _no_registered_alpha_category_shows_with_the_gate_shut_case(qtbot, gate_shut, key):
+    """One case of :func:`test_no_registered_alpha_category_shows_with_the_gate_shut`."""
     screen, sections = _visible_sections(key)
     qtbot.addWidget(screen)
     alpha = set(_alpha_names("settings", key))
@@ -137,10 +137,18 @@ def test_no_registered_alpha_category_shows_with_the_gate_shut(
     assert not leaks, f"{key} shows alpha headings with the gate shut: {leaks}"
 
 
-@pytest.mark.parametrize("key", _module_keys())
-def test_no_heading_carries_the_mark_with_both_alpha_gates_shut(
-        qtbot, monkeypatch, gate_shut, key):
-    """With Show alpha off too, no visible heading contains α at all."""
+def test_no_registered_alpha_category_shows_with_the_gate_shut(subtests, request):
+    """No heading on screen is an α category or holds only alpha settings."""
+    for label, case in locale_cases.cases(
+            ("key", _module_keys()),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'gate_shut')) as fixtures:
+                _no_registered_alpha_category_shows_with_the_gate_shut_case(**fixtures, **case)
+
+
+def _no_heading_carries_the_mark_with_both_alpha_gates_shut_case(qtbot, monkeypatch, gate_shut, key):
+    """One case of :func:`test_no_heading_carries_the_mark_with_both_alpha_gates_shut`."""
     from spacr.qt import preferences
 
     monkeypatch.setattr(preferences, "get_show_alpha", lambda: False)
@@ -149,6 +157,16 @@ def test_no_heading_carries_the_mark_with_both_alpha_gates_shut(
     leaks = [section.header().text() for section in sections
              if ALPHA_MARK in section.header().text()]
     assert not leaks, f"{key} shows α headings with both gates shut: {leaks}"
+
+
+def test_no_heading_carries_the_mark_with_both_alpha_gates_shut(subtests, request):
+    """With Show alpha off too, no visible heading contains α at all."""
+    for label, case in locale_cases.cases(
+            ("key", _module_keys()),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'monkeypatch', 'gate_shut')) as fixtures:
+                _no_heading_carries_the_mark_with_both_alpha_gates_shut_case(**fixtures, **case)
 
 
 def test_the_timelapse_fold_holds_back_its_alpha_categories(qtbot, gate_shut):

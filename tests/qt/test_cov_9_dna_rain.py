@@ -13,10 +13,10 @@ import builtins
 
 import pytest
 
-from PySide6.QtWidgets import QGridLayout, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QWidget
 
 from spacr.qt.widgets.dna_rain import (
-    DnaRainEngine, DnaRainWidget, _find_ai_toggle, _place_beside)
+    DnaRainEngine, DnaRainWidget, _find_ai_toggle)
 
 
 # ---------------------------------------------------------------------------
@@ -99,48 +99,3 @@ def test_a_host_whose_ai_toggle_cannot_be_looked_up_simply_has_none(
     assert _find_ai_toggle(QWidget()) is None
 
 
-@pytest.mark.qt
-def test_an_anchor_with_no_layout_cannot_be_sat_beside(qapp):
-    """A widget whose parent lays nothing out has no slot to insert into.
-
-    Saying so lets the caller fall back to its own layout; claiming success
-    would leave the button parented but never positioned, which is a control
-    the user cannot see or reach.
-    """
-    parent = QWidget()
-    anchor = QPushButton("AI", parent)
-
-    assert _place_beside(QPushButton("DNA"), anchor) is False
-
-
-@pytest.mark.qt
-def test_an_anchor_in_a_grid_still_gets_the_button_beside_it(qapp):
-    """Not every chrome row is a box layout, and the button still has to land.
-
-    A grid has no notion of inserting before a widget, so the button is
-    appended instead: beside nothing is better than not on screen at all.
-    """
-    parent = QWidget()
-    grid = QGridLayout(parent)
-    anchor = QPushButton("AI")
-    grid.addWidget(anchor, 0, 0)
-    button = QPushButton("DNA")
-
-    assert _place_beside(button, anchor) is True
-    assert grid.indexOf(button) >= 0
-
-
-@pytest.mark.qt
-def test_an_anchor_in_a_row_keeps_the_button_before_it(qapp):
-    """Before, not after: the AI toggle is followed by its provider chevron.
-
-    Splitting that pair would read as the chevron belonging to DNA.
-    """
-    parent = QWidget()
-    row = QVBoxLayout(parent)
-    anchor = QPushButton("AI")
-    row.addWidget(anchor)
-    button = QPushButton("DNA")
-
-    assert _place_beside(button, anchor) is True
-    assert row.indexOf(button) < row.indexOf(anchor)

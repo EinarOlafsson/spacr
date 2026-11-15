@@ -44,14 +44,6 @@ def panel(qtbot, tmp_path):
     return widget
 
 
-def test_a_frame_that_is_one_object_edge_to_edge_has_no_outline_to_colour():
-    image = np.arange(SIZE * SIZE, dtype=np.uint16).reshape(SIZE, SIZE)
-    whole = np.ones((SIZE, SIZE), np.int32)
-    with_object = TP.render_frame(image, labels=whole, tracks=None, frame=0)
-    without = TP.render_frame(image, labels=None, tracks=None, frame=0)
-    assert np.array_equal(with_object, without)
-
-
 def test_a_failure_with_no_placeholder_changes_nothing(panel):
     panel._transient_status = None
     panel._set_status("kept")

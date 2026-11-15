@@ -1413,6 +1413,18 @@ def test_convert_folder_runs_the_whole_thing_in_one_call(run1, tmp_path, capsys)
     assert count == 20
 
 
+def test_convert_folder_prints_progress_that_ends_at_the_total(run1, tmp_path, capsys):
+    import re
+    cv.convert_folder({"src": run1, "dst": str(tmp_path / "out")})
+    lines = re.findall(r"Progress: (\d+)/(\d+), operation_type: Converting images",
+                       capsys.readouterr().out)
+    done = [int(a) for a, _b in lines]
+    assert done == sorted(done) and len(done) > 1
+    assert done[0] == 0
+    assert done[-1] == int(lines[-1][1])
+    assert {b for _a, b in lines} == {lines[0][1]}
+
+
 def test_convert_folder_defaults_the_destination_beside_the_source(run1):
     result = cv.convert_folder({"src": run1, "preview_only": True})
     assert result.dst == os.path.abspath(run1) + "_yokogawa"

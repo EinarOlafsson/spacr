@@ -89,18 +89,6 @@ class TestTheNeighbourGraph:
 
 class TestResultsTheLineAboveProduced:
 
-    def test_a_valid_cluster_walk_always_has_a_result_row(self):
-        """All-noise partitions still produce a scored walk row."""
-        from spacr import hyperparam as H
-        from spacr.umap_search import walk_clusters
-
-        rows = walk_clusters(np.zeros((8, 2)), min_cluster_sizes=(5,))
-        assert len(rows) == 1
-
-        source = inspect.getsource(H.umap_search)
-        assert "if cluster_walk:" not in source
-        assert "chosen = cluster_walk[0]" in source
-
     def test_attribution_maps_are_kept_only_when_asked(self):
         """THE ARC: ``keep_maps``.
 

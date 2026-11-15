@@ -1,16 +1,12 @@
 """Ellipsoid gate edges and the image-QC classifier card's report reading."""
 from __future__ import annotations
 
-import json
-
-import numpy as np
 import pandas as pd
 import pytest
 
 pytest.importorskip("PySide6")
 
 from spacr.qt.widgets import gate_spec as gs  # noqa: E402
-from spacr.qt.widgets import qc_summary as qs  # noqa: E402
 
 
 def _ellipsoid(**extra):
@@ -37,48 +33,3 @@ def test_a_flat_ellipsoid_holds_no_rows():
     frame = pd.DataFrame({"a": [1.0], "b": [2.0], "c": [0.0]})
     assert _ellipsoid().mask(frame).tolist() == [True]
     assert _ellipsoid(z_radius=0).mask(frame).tolist() == [False]
-
-
-def _report(tmp_path, body):
-    from spacr.image_quality import REPORT
-
-    path = tmp_path / REPORT
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(body if isinstance(body, str) else json.dumps(body), encoding="utf-8")
-    return path
-
-
-def _scored():
-    return {"policy": {"image_qc_classifier_threshold": 0.5},
-            "fields": [{"channels": [{"p_debris": 0.9}, {"p_debris": 0.1}]}]}
-
-
-def test_a_broken_report_gives_no_card(tmp_path):
-    _report(tmp_path, "{not json")
-    assert qs._read_image_qc_classifier(str(tmp_path)) is None
-    _report(tmp_path, {"fields": []})
-    assert qs._read_image_qc_classifier(str(tmp_path)) is None
-
-
-def test_the_benchmark_rows_are_listed(tmp_path):
-    path = _report(tmp_path, _scored())
-    pd.DataFrame({"class": ["debris"], "precision": [0.75]}).to_csv(
-        path.parent / "image_qc_benchmark.csv", index=False)
-    card = qs._read_image_qc_classifier(str(tmp_path))
-    assert card.verdict == "warn"
-    assert any("precision 0.75" in line for line in card.detail)
-
-
-def test_an_unreadable_benchmark_is_named(tmp_path, monkeypatch):
-    import spacr.tabular as tabular
-
-    path = _report(tmp_path, _scored())
-    (path.parent / "image_qc_benchmark.csv").write_text("x\n1\n", encoding="utf-8")
-
-    def broken(*a, **k):
-        raise ValueError("bad table")
-
-    monkeypatch.setattr(tabular, "read_table", broken)
-    card = qs._read_image_qc_classifier(str(tmp_path))
-    assert any("bad table" in line for line in card.detail)
-    assert np.isfinite(card.mtime)

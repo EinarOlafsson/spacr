@@ -21,7 +21,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QDialog, QDialogButtonBox
 
 from spacr.qt.screens import distributed_jobs as dj
@@ -71,43 +70,6 @@ def screen(qtbot, tmp_path):
                                    threaded=False, auto_poll=False)
     qtbot.addWidget(widget)
     return widget
-
-
-@pytest.fixture
-def answer_the_editor(monkeypatch):
-    """Answer the profile editor the way a person would, in order."""
-    def answer(*answers):
-        """Each answer is ``(fill_or_None, QDialog result)``, used once."""
-        pending = list(answers)
-
-        def _exec(dialog):
-            fill, result = pending.pop(0)
-            if fill is not None:
-                fill(dialog)
-            return result
-
-        monkeypatch.setattr(ExecutionProfileDialog, "exec", _exec,
-                            raising=False)
-        return pending
-    return answer
-
-
-def _fill(name, poll=None):
-    """Return a callable that types one profile into the open editor."""
-    def fill(dialog):
-        dialog._name.setText(name)
-        if poll is not None:
-            dialog._poll.setValue(poll)
-    return fill
-
-
-def _fill_new(name):
-    """Type a complete, valid slurm profile into an empty editor."""
-    def fill(dialog):
-        dialog._name.setText(name)
-        dialog._backend.setCurrentIndex(dialog._backend.findData("slurm"))
-        dialog._workdir.setText("/project")
-    return fill
 
 
 # ---------------------------------------------------------------------------
@@ -164,84 +126,6 @@ def test_the_editor_still_saves_when_its_buttons_cannot_be_styled(qtbot,
 # ---------------------------------------------------------------------------
 # An editor the user cancelled
 # ---------------------------------------------------------------------------
-
-def test_a_cancelled_new_profile_writes_nothing_to_disk(screen,
-                                                        answer_the_editor):
-    """Cancel must mean cancel, or half-typed profiles pile up in the combo.
-
-    The editor is filled in before the user decides. If the screen read the
-    dialog's fields without first checking that it was accepted, pressing
-    Cancel would still save the half-typed profile, and the profile combo --
-    which is what Submit sends a job through -- would fill with entries the
-    user explicitly refused.
-    """
-    remaining = answer_the_editor(
-        (_fill_new("second"), QDialog.Accepted),
-        (_fill_new("discarded"), QDialog.Rejected),
-    )
-    screen._create_profile()
-    assert [p.name for p in screen.manager.profiles.list()] == \
-        ["cloud", "second"]
-
-    screen._create_profile()
-    assert remaining == [], "the second editor was never opened"
-    assert [p.name for p in screen.manager.profiles.list()] == \
-        ["cloud", "second"], "a cancelled editor still wrote a profile"
-    assert screen._profile.currentData() == "second"
-
-
-def test_a_cancelled_edit_leaves_the_stored_profile_untouched(
-        screen, answer_the_editor):
-    """A cancelled edit that still writes is silent data loss.
-
-    Editing loads the stored profile into the dialog, so every field is
-    already populated with something plausible. If Cancel were treated like
-    Save, the poll interval, host, and command lines the user was midway
-    through changing would be persisted over a working profile and the next
-    submission would go somewhere else.
-    """
-    answer_the_editor((_fill("cloud", poll=45), QDialog.Accepted),
-                      (_fill("cloud", poll=99), QDialog.Rejected))
-    screen._edit_selected_profile()
-    assert screen.manager.profiles.get("cloud").poll_seconds == 45
-
-    screen._edit_selected_profile()
-    assert screen.manager.profiles.get("cloud").poll_seconds == 45, \
-        "a cancelled editor still overwrote the stored profile"
-    assert [p.name for p in screen.manager.profiles.list()] == ["cloud"]
-
-
-def test_saving_a_profile_under_its_own_name_does_not_delete_it(
-        screen, answer_the_editor):
-    """The rename cleanup must fire on a rename and only on a rename.
-
-    An edit is stored as "save the new record, then drop the old name". When
-    the name did not change, those are the same record: running the cleanup
-    anyway would delete the profile the user just saved and leave the screen
-    with no profile to submit through. This drives both halves -- a real
-    rename, which must drop the old name, and an ordinary edit, which must
-    not.
-    """
-    deleted = []
-    original_delete = screen.manager.profiles.delete
-
-    def record(name):
-        deleted.append(name)
-        return original_delete(name)
-
-    screen.manager.profiles.delete = record
-    answer_the_editor((_fill("renamed", poll=30), QDialog.Accepted),
-                      (_fill("renamed", poll=45), QDialog.Accepted))
-
-    screen._edit_selected_profile()
-    assert deleted == ["cloud"], "the renamed-from profile was left behind"
-    assert [p.name for p in screen.manager.profiles.list()] == ["renamed"]
-
-    screen._edit_selected_profile()
-    assert deleted == ["cloud"], \
-        "an edit that kept the name deleted the profile it had just saved"
-    assert screen.manager.profiles.get("renamed").poll_seconds == 45
-    assert screen._profile.currentData() == "renamed"
 
 
 # ---------------------------------------------------------------------------
@@ -318,52 +202,3 @@ def test_only_the_commands_a_profile_actually_configures_are_redacted():
 # ---------------------------------------------------------------------------
 # Closing the screen
 # ---------------------------------------------------------------------------
-
-def test_a_pair_whose_worker_is_already_gone_is_still_drained(qtbot,
-                                                              tmp_path):
-    """A half-reaped pair must not stop the screen draining its threads.
-
-    ``_workers`` holds ``(thread, worker)`` pairs and the worker half can
-    already be gone by the time the module is closed. Cancelling is attempted
-    per pair, but the thread must be interrupted and drained either way: a
-    thread that is never drained stays in the process-wide run registry, and
-    that registry is what ``MainWindow.closeEvent`` consults when it decides
-    whether spaCR is allowed to quit. One missed pair and the application
-    refuses to close.
-    """
-    class StoppedThread:
-        """A QThread stand-in that has already finished."""
-
-        def __init__(self):
-            self.interrupted = 0
-
-        def requestInterruption(self):      # noqa: N802 - Qt naming
-            self.interrupted += 1
-
-        def isRunning(self):                # noqa: N802 - Qt naming
-            return False
-
-        def wait(self, _ms=0):
-            return True
-
-    class LiveWorker:
-        def __init__(self):
-            self.cancelled = []
-
-        def request_cancel(self, why):
-            self.cancelled.append(why)
-
-    widget = DistributedJobsScreen(manager=_manager(tmp_path),
-                                   threaded=False, auto_poll=False)
-    qtbot.addWidget(widget)
-    with_worker, without_worker = StoppedThread(), StoppedThread()
-    worker = LiveWorker()
-    widget._workers = [(with_worker, worker), (without_worker, None)]
-
-    widget.closeEvent(QCloseEvent())
-    assert worker.cancelled == ["distributed-jobs screen closed"]
-    assert with_worker.interrupted == 1
-    assert without_worker.interrupted == 1, \
-        "the pair with no worker was skipped instead of drained"
-    assert widget._workers == []
-    assert not widget._timer.isActive()

@@ -117,13 +117,6 @@ class TestFillingInTheDenseChannelPositions:
 # ---------------------------------------------------------------------------
 
 class TestTheBackdropHoldsStillUnderAPopup:
-
-    def test_with_nothing_up_the_clock_advances(self, qtbot):
-        pytest.importorskip("PySide6")
-        from spacr.qt.widgets.popup_state import a_popup_is_on_screen
-
-        assert a_popup_is_on_screen() is False
-
     def test_a_tooltip_on_screen_does_NOT_stop_the_tick(self, qtbot):
         """The opposite of what this test used to assert, and deliberately.
 

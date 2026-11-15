@@ -316,9 +316,11 @@ def auto_run(tmp_path_factory):
                 "ops_decode_preset": "rule_a_s2"}
     library = sorted(set(codes)) + ["TTTT", "GGGG"]
     manual = ops_engine.run_ops(settings, library=library)
-    auto = ops_engine.run_ops({**settings, "ops_decode_threshold_mode": "auto"},
+    # The item-939 auto mode, as a settings file saved before item 942 reruns it.
+    legacy = {"ops_decode_auto_spot_grid": [], "ops_decode_auto_unreachable": "strictest"}
+    auto = ops_engine.run_ops({**settings, **legacy, "ops_decode_threshold_mode": "auto"},
                               phases=("decode",), library=library)
-    loose = ops_engine.run_ops({**settings, "ops_decode_threshold_mode": "auto",
+    loose = ops_engine.run_ops({**settings, **legacy, "ops_decode_threshold_mode": "auto",
                                 "ops_decode_fdr_max": 1000.0,
                                 "ops_decode_auto_tune_fraction": 0.5},
                                phases=("decode",), library=library)

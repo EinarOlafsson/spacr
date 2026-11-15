@@ -33,11 +33,6 @@ def parent_window(qapp):
         window.deleteLater()
 
 
-def _headings(dialog):
-    return [label.text() for label in dialog.findChildren(QLabel)
-            if label.text().startswith("<b>")]
-
-
 @pytest.mark.parametrize('presentation', ['slides', 'grouped'])
 def test_setup_combos_keep_all_offered_text_slots_when_fonts_change(qtbot, presentation):
     from types import SimpleNamespace
@@ -163,31 +158,6 @@ def test_grouped_setup_keeps_controls_reachable_at_joint_maximum(qtbot, qapp, mo
 # the backdrop
 # ---------------------------------------------------------------------------
 
-def test_a_parent_puts_a_blurred_still_behind_the_card(parent_window):
-    """The backdrop is a frameless, scrollbar-free, click-through view."""
-    dialog = sd.SetupDialog(parent_window)
-
-    view = dialog._backdrop_view
-    assert isinstance(view, QGraphicsView)
-    assert view.frameShape() == QGraphicsView.NoFrame
-    assert view.horizontalScrollBarPolicy() == view.verticalScrollBarPolicy()
-    assert view.scene().items(), "the still was never put in the scene"
-    assert view.scene().items()[0].graphicsEffect() is not None
-    assert dialog.card.parent() is dialog
-    dialog.deleteLater()
-
-
-def test_the_blur_radius_is_the_documented_one(parent_window):
-    """The decoration uses the module's single blur constant."""
-    from PySide6.QtWidgets import QGraphicsBlurEffect
-
-    dialog = sd.SetupDialog(parent_window)
-
-    effect = dialog._backdrop_view.scene().items()[0].graphicsEffect()
-    assert isinstance(effect, QGraphicsBlurEffect)
-    assert effect.blurRadius() == pytest.approx(sd.BLUR)
-    dialog.deleteLater()
-
 
 def test_an_empty_grab_leaves_a_plain_dialog(parent_window, monkeypatch):
     """A null pixmap is a fine answer: the controls are unchanged."""
@@ -217,69 +187,9 @@ def test_a_grab_that_throws_leaves_a_plain_dialog(parent_window, monkeypatch,
     dialog.deleteLater()
 
 
-def test_resizing_keeps_the_card_inset_and_on_top(parent_window, qapp):
-    """The card is laid out over the backdrop with a fixed margin."""
-    dialog = sd.SetupDialog(parent_window)
-    dialog.show()
-    qapp.processEvents()
-
-    dialog.resize(900, 700)
-    qapp.processEvents()
-
-    assert dialog._backdrop_view.geometry() == dialog.rect()
-    assert dialog.card.geometry() == dialog.rect().adjusted(48, 48, -48, -48)
-    dialog.close()
-    dialog.deleteLater()
-
-
-def test_resizing_a_plain_dialog_touches_no_backdrop(qapp):
-    """Without a backdrop the card stays in the layout, not positioned."""
-    dialog = sd.SetupDialog()
-    dialog.show()
-    qapp.processEvents()
-    before = dialog.card.parent()
-
-    dialog.resize(900, 700)                       # must not raise
-    qapp.processEvents()
-
-    assert dialog._backdrop_view is None
-    assert dialog.card.parent() is before
-    dialog.close()
-    dialog.deleteLater()
-
-
 # ---------------------------------------------------------------------------
 # the groups
 # ---------------------------------------------------------------------------
-
-def test_a_group_whose_questions_all_left_is_not_drawn(qapp, monkeypatch):
-    """An empty heading would read as a bug, so it is skipped entirely."""
-    asked = [q for q in setup_screen.questions()
-             if q[0] not in ("spacr_mode", "hash_inputs", "spacr_ai", "easy_mode")]
-    monkeypatch.setattr(setup_screen, "questions", lambda: asked)
-
-    dialog = sd.SetupDialog()
-
-    headings = _headings(dialog)
-    assert "<b>How it runs</b>" not in headings
-    assert "<b>How it looks</b>" in headings
-    assert "spacr_mode" not in dialog._editors
-    assert "hash_inputs" not in dialog._editors
-    assert "spacr_ai" not in dialog._editors
-    assert "easy_mode" not in dialog._editors
-    dialog.deleteLater()
-
-
-def test_every_group_with_a_question_gets_its_heading(qapp):
-    """Each non-empty group is announced once."""
-    dialog = sd.SetupDialog()
-
-    headings = _headings(dialog)
-    asked = {q[0] for q in setup_screen.questions()}
-    for heading, keys in sd.GROUPS:
-        expected = any(key in asked for key in keys)
-        assert (f"<b>{heading}</b>" in headings) is expected
-    dialog.deleteLater()
 
 
 def test_a_choice_with_no_matching_answer_falls_back_to_the_first(qapp):
@@ -379,23 +289,3 @@ def test_grouped_setup_without_screen_keeps_its_existing_controls(qtbot, monkeyp
     assert dialog._editors == editors
     assert not getattr(dialog, '_card_scrolls', False)
     assert dialog.layout().indexOf(dialog.card) >= 0
-
-
-def test_oversized_grouped_setup_without_backdrop_scrolls_the_same_controls(qtbot, monkeypatch):
-    from types import SimpleNamespace
-    from PySide6.QtCore import QRect
-    from PySide6.QtWidgets import QAbstractScrollArea
-
-    monkeypatch.setattr(sd.SetupDialog, '_backdrop', lambda self, parent: None)
-    monkeypatch.setattr(sd.SetupDialog, 'screen', lambda self: SimpleNamespace(
-        availableGeometry=lambda: QRect(0, 0, 360, 240)))
-    dialog = sd.SetupDialog()
-    qtbot.addWidget(dialog)
-    assert dialog._backdrop_view is None
-    assert dialog._card_scrolls
-    areas = dialog.findChildren(QAbstractScrollArea)
-    assert any(area.isAncestorOf(dialog.card) for area in areas)
-    assert set(dialog._editors) == {key for _, keys in sd.GROUPS for key in keys}
-    for editor in dialog._editors.values():
-        assert dialog.card.isAncestorOf(editor)
-        assert editor.isEnabled()

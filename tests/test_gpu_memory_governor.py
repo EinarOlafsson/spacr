@@ -554,6 +554,8 @@ def _calls_in(path, function):
     ("spacr/ops_engine.py", "_objects", "_governed_eval"),
     ("spacr/ops_engine.py", "run_spatial_masks", "_governed_eval"),
     ("spacr/ops_accel.py", "_try", "_guarded"),
+    ("spacr/ops_large_sites.py", "_governed_mask_step", "_guarded"),
+    ("spacr/ops_large_sites.py", "_banded_flow_check", "_guarded"),
     ("spacr/measure.py", "_intensity_measurements", "_guarded"),
     ("spacr/measure.py", "_cucim_morphology_table", "_guarded"),
     ("spacr/measure.py", "_calculate_zernike", "_guarded"),

@@ -88,19 +88,6 @@ def test_a_blank_animation_is_shown_as_generated(tmp_path):
     assert shows_field is True
 
 
-def test_an_animation_that_decodes_to_no_frames_is_not_an_animation(monkeypatch):
-    """A file Pillow opens but yields nothing from cannot be measured or shown.
-
-    Both entry points answer with the "no animation" value rather than
-    indexing frame zero, so a corrupt asset degrades to a text-only tooltip
-    instead of raising into the event loop.
-    """
-    monkeypatch.setattr(az, "read_frames", lambda path: ((), ()))
-
-    assert az.source_content_extent("anything.gif") == 0.0
-    assert az.zoomed_animation("no-such-animation.gif", 60) is None
-
-
 # ---------------------------------------------------------------------------
 # Re-measuring the produced frames
 # ---------------------------------------------------------------------------

@@ -13,6 +13,8 @@ import pytest
 
 from spacr.qt import maturity
 
+from tests import locale_cases
+
 
 def test_the_assessment_covers_every_module_it_claims_to():
     """A promotion for a module that does not exist is a stale opinion.
@@ -377,10 +379,8 @@ def test_the_module_is_in_the_launch_registration_list():
     assert SELF_REGISTERING_MODULES[-1] == "spacr.qt.maturity"
 
 
-@pytest.mark.parametrize("app_key", sorted(maturity.PROMOTIONS))
-def test_every_promoted_module_still_builds_its_screen(app_key, qtbot):
-    """A promotion is a promise the module works. The cheapest check that it
-    is not a promise about a screen that raises on construction."""
+def _every_promoted_module_still_builds_its_screen_case(app_key, qtbot):
+    """One case of :func:`test_every_promoted_module_still_builds_its_screen`."""
     from spacr.qt.app import MainWindow
     # qtbot owns a widget for one test and schedules its C++ half for deletion
     # afterwards. Caching that wrapper across parametrized cases tests a corpse
@@ -389,3 +389,14 @@ def test_every_promoted_module_still_builds_its_screen(app_key, qtbot):
     qtbot.addWidget(window)
     window._on_nav_selected(app_key)
     assert window._screens.get(app_key) is not None
+
+
+def test_every_promoted_module_still_builds_its_screen(subtests, request):
+    """A promotion is a promise the module works. The cheapest check that it
+    is not a promise about a screen that raises on construction."""
+    for label, case in locale_cases.cases(
+            ("app_key", sorted(maturity.PROMOTIONS)),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot',)) as fixtures:
+                _every_promoted_module_still_builds_its_screen_case(**fixtures, **case)

@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (QTableView, QTableWidget, QTreeView,  # noqa: E40
 
 from spacr.qt.app import APPS, MainWindow  # noqa: E402
 
+from tests import locale_cases
+
 pytestmark = pytest.mark.qt
 
 #: Views that must not take Qt's model sort, with the reason.
@@ -72,10 +74,8 @@ def _describe(view) -> str:
 MUST_HAVE_TABLES = {"regression": 2, "data_manager": 1}
 
 
-@pytest.mark.parametrize("app_key", [key for key, *_rest in APPS])
-def test_every_view_a_module_builds_sorts_descending_first(
-        qtbot, qt_theme_applied, app_key):
-    """Measured on the widget: sorting on, and a fresh column starts down."""
+def _every_view_a_module_builds_sorts_descending_first_case(qtbot, qt_theme_applied, app_key):
+    """One case of :func:`test_every_view_a_module_builds_sorts_descending_first`."""
     host = _FactoryHost()
     screen = MainWindow._build_screen(host, app_key)
     qtbot.addWidget(screen)
@@ -115,3 +115,13 @@ def test_every_view_a_module_builds_sorts_descending_first(
         assert seen >= expected, (
             f"{app_key} built {seen} views; the sweep expected at least "
             f"{expected} and is no longer looking in the right place")
+
+
+def test_every_view_a_module_builds_sorts_descending_first(subtests, request):
+    """Measured on the widget: sorting on, and a fresh column starts down."""
+    for label, case in locale_cases.cases(
+            ("app_key", [key for key, *_rest in APPS]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'qt_theme_applied')) as fixtures:
+                _every_view_a_module_builds_sorts_descending_first_case(**fixtures, **case)

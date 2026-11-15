@@ -1415,6 +1415,21 @@
       ],
       "guidance": "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV."
     },
+    "ops_large_sites": {
+      "name": "OPS large-site segmentation",
+      "home": null,
+      "parent": null,
+      "api_module": "spacr.ops_large_sites",
+      "api_entry": "spacr.ops_large_sites.run_large_site_segmentation",
+      "lesson": null,
+      "inputs": [
+        "raw_images"
+      ],
+      "outputs": [
+        "masks"
+      ],
+      "guidance": "Alpha. Segment large cropped OPS sites through the Python API or spacr-run: each site is cut into overlapping tiles under a per-worker RAM cap, segmented with the Phalloidin + DNA preset and stitched back together. It writes label arrays, per-site cell tables and sites.csv to seg_dst, not a measurements.db."
+    },
     "classifier_evaluation": {
       "name": "Classifier Evaluation",
       "home": "classify_merged",

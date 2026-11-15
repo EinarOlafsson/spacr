@@ -70,6 +70,8 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QStackedWidget,
 
 from spacr.qt import preferences as prefs
 
+from tests import locale_cases
+
 #: A page opacity well below 100 %, so there is something to see through.
 OPACITY = 0.30
 
@@ -664,9 +666,23 @@ def test_the_probe_reports_zero_for_an_opaque_canvas(
         "opacity")
 
 
-@pytest.mark.parametrize("name,build", SCREENS, ids=[n for n, _ in SCREENS])
-def test_no_named_region_is_a_bare_dark_area(name, build, qtbot,
-                                             app_theme_restored):
+def _no_named_region_is_a_bare_dark_area_case(name, build, qtbot, app_theme_restored):
+    """One case of :func:`test_no_named_region_is_a_bare_dark_area`."""
+    _window, screen, regions = build(qtbot)
+    alpha = _transmission(screen)
+    measured = {label: _clearest(alpha, _region_rect(screen, widget))
+                for label, widget in regions.items()}
+
+    opaque = {k: v for k, v in measured.items() if v < OPAQUE}
+    assert not opaque, (
+        f"{name}: " + ", ".join(f"{k} passes only {v:.3f} of the backdrop"
+                                for k, v in opaque.items()) +
+        f" at {OPACITY:.0%} page opacity — a panel passes about "
+        f"{EXPECTED:.2f}. Measured: "
+        + ", ".join(f"{k}={v:.3f}" for k, v in measured.items()))
+
+
+def test_no_named_region_is_a_bare_dark_area(subtests, request):
     """Every Z9 region passes the backdrop like a panel, not like a slab.
 
     Measured at 30 % page opacity, clearest quarter of the rows::
@@ -734,18 +750,12 @@ def test_no_named_region_is_a_bare_dark_area(name, build, qtbot,
     block it registers at import was never in the sheet that was live.
     See :func:`spacr.qt.theme.ensure_widget_qss_applied`.
     """
-    _window, screen, regions = build(qtbot)
-    alpha = _transmission(screen)
-    measured = {label: _clearest(alpha, _region_rect(screen, widget))
-                for label, widget in regions.items()}
-
-    opaque = {k: v for k, v in measured.items() if v < OPAQUE}
-    assert not opaque, (
-        f"{name}: " + ", ".join(f"{k} passes only {v:.3f} of the backdrop"
-                                for k, v in opaque.items()) +
-        f" at {OPACITY:.0%} page opacity — a panel passes about "
-        f"{EXPECTED:.2f}. Measured: "
-        + ", ".join(f"{k}={v:.3f}" for k, v in measured.items()))
+    for label, case in locale_cases.cases(
+            ("name,build", SCREENS, [n for n, _ in SCREENS]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'app_theme_restored')) as fixtures:
+                _no_named_region_is_a_bare_dark_area_case(**fixtures, **case)
 
 
 def test_gate_editor_graph_is_solid_above_the_animated_page(
@@ -816,15 +826,8 @@ def test_the_image_itself_stays_opaque(qtbot, app_theme_restored):
         "page-opacity preference has reached the image, and it must not")
 
 
-@pytest.mark.parametrize("name,build", SCREENS, ids=[n for n, _ in SCREENS])
-def test_each_region_is_one_panel_thick(name, build, qtbot,
-                                        app_theme_restored):
-    """And it is ONE panel, not two stacked.
-
-    "Not opaque" is also satisfied by a region that got its panel twice —
-    a fill in QSS *and* a fill in ``paintEvent`` — which reads 0.49 at a
-    requested 30 % and is a shade no position of the slider can reach.
-    """
+def _each_region_is_one_panel_thick_case(name, build, qtbot, app_theme_restored):
+    """One case of :func:`test_each_region_is_one_panel_thick`."""
     _window, screen, regions = build(qtbot)
     alpha = _transmission(screen)
     for label, widget in regions.items():
@@ -833,6 +836,21 @@ def test_each_region_is_one_panel_thick(name, build, qtbot,
             f"{name}: {label} passes {measured:.3f} of the backdrop where "
             f"one panel at {OPACITY:.0%} passes {EXPECTED:.2f} — "
             f"{'two surfaces stacked' if measured < EXPECTED else 'no surface at all'}")
+
+
+def test_each_region_is_one_panel_thick(subtests, request):
+    """And it is ONE panel, not two stacked.
+
+    "Not opaque" is also satisfied by a region that got its panel twice —
+    a fill in QSS *and* a fill in ``paintEvent`` — which reads 0.49 at a
+    requested 30 % and is a shade no position of the slider can reach.
+    """
+    for label, case in locale_cases.cases(
+            ("name,build", SCREENS, [n for n, _ in SCREENS]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'app_theme_restored')) as fixtures:
+                _each_region_is_one_panel_thick_case(**fixtures, **case)
 
 
 # ---------------------------------------------------------------------------

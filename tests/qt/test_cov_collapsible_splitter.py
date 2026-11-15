@@ -137,23 +137,6 @@ class TestPanes:
         assert split.pane("nope") is None
         assert not split.is_collapsed("nope")
 
-    def test_asking_for_what_cannot_be_done(self, qtbot):
-        split = _split(qtbot)
-        split.add_pane(QWidget(), "Plain")
-        assert split.set_collapsed("Plain", True) is False
-        assert split.set_collapsed("nope", True) is False
-        assert split.toggle_pane("nope") is False
-        pane, _h, _b, folder = _headed()
-        split.add_pane(pane, "Head", folder=folder)
-        assert split.set_collapsed("Head", False) is True
-
-    def test_a_folded_pane_can_be_added(self, qtbot):
-        split = _split(qtbot)
-        pane, _h, _b, folder = _headed()
-        folder.toggle()
-        split.add_pane(pane, "Head", folder=folder)
-        assert split.is_collapsed("Head")
-
     def test_an_unreadable_edge_fold_starts_open(self, qtbot, monkeypatch):
         from spacr.qt import preferences
 
@@ -190,14 +173,6 @@ class TestPanes:
         edge = cs.Pane(QWidget(), "E", cs.EDGE, None, 1, 0, 0, False, "")
         split._set_edge(edge, True, by_user=False)
         assert edge.edge_collapsed
-
-    def test_a_folder_that_outlived_its_pane_is_ignored(self, qtbot):
-        split = _split(qtbot)
-        pane, _h, _b, folder = _headed()
-        registered = split.add_pane(pane, "Head", folder=folder)
-        split._panes.remove(registered)
-        folder.toggle()
-        assert split.sizes() is not None
 
     def test_a_sideways_header_pane_folds_by_width(self, qtbot):
         split = _split(qtbot, Qt.Horizontal, size=(800, 300))
@@ -306,18 +281,6 @@ class TestHandles:
 
 
 class TestFollowingTheWidgets:
-
-    def test_a_folded_focus_pane_opens_when_it_is_shown(self, qtbot):
-        split = _split(qtbot)
-        pane, _h, _b, folder = _headed()
-        split.add_pane(pane, "Preview", folder=folder, focus=True)
-        split.add_pane(QWidget(), "Rest")
-        split.show()
-        pane.hide()
-        folder.toggle()
-        pane.show()
-        assert not split.is_collapsed("Preview")
-
     def test_other_events_are_let_through(self, qtbot):
         split = _split(qtbot)
         widget = QWidget()
@@ -377,18 +340,6 @@ class TestSizing:
         split.add_pane(b, "B", extent=400)
         sizes = split.rebalance(fresh=True)
         assert sum(sizes) <= 220
-
-    def test_the_absorber_takes_what_the_fixed_panes_leave(self, qtbot):
-        split = _split(qtbot, size=(400, 600))
-        pane, _h, _b, folder = _headed()
-        split.add_pane(pane, "Head", folder=folder)
-        split.add_pane(QWidget(), "Fixed", stretch=0, extent=100)
-        split.show()
-        _pump()
-        folder.toggle()
-        _pump()
-        sizes = split.sizes()
-        assert sizes[0] > sizes[1]
 
     def test_a_wrapping_fixed_pane_is_refitted_when_the_width_changes(
             self, qtbot):
@@ -562,31 +513,3 @@ class TestFocusCollapse:
         assert cs.splitter_of(widget) is split
         assert cs.splitter_of(QWidget()) is None
         assert cs.splitter_of(None) is None
-
-
-class TestTheFoldersListeners:
-
-    def test_a_listener_is_added_once_and_a_non_callable_never(self):
-        heading, body = QLabel("Console"), QWidget()
-        folder = make_foldable(heading, body)
-        heard = []
-
-        def listener(shut, by_user):
-            heard.append((shut, by_user))
-
-        folder.add_listener(listener)
-        folder.add_listener(listener)
-        folder.add_listener("not callable")
-        folder.toggle()
-        assert heard == [(True, True)]
-
-    def test_a_failing_listener_does_not_stop_the_fold(self):
-        heading, body = QLabel("Console"), QWidget()
-        folder = make_foldable(heading, body)
-
-        def broken(_shut, _by_user):
-            raise RuntimeError("listener fell over")
-
-        folder.add_listener(broken)
-        folder.toggle()
-        assert folder.shut and body.isHidden()

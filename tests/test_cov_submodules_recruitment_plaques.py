@@ -221,3 +221,27 @@ def test_segmenting_a_plaque_folder_without_images_builds_no_model(tmp_path, mon
     monkeypatch.setattr(SUB, "_plaque_cellpose_model", no_model)
     assert SUB._segment_plaque_folder({"src": str(src), "dst": str(dst)}, "model") == 0
     assert dst.is_dir() and list(dst.iterdir()) == []
+
+
+def test_segmenting_plaques_prints_a_progress_line_per_image(tmp_path, monkeypatch, capsys):
+    """Item 938: the run bar counts plaque images through print_progress."""
+    import re
+    import numpy as np
+    import spacr.plaque
+    import spacr.submodules as SUB
+
+    src = tmp_path / "plate"
+    src.mkdir()
+    for index in range(3):
+        (src / f"w{index}.tif").write_bytes(b"x")
+    dst = src / "masks"
+    monkeypatch.setattr(SUB, "_plaque_cellpose_model", lambda _path: object())
+    monkeypatch.setattr(spacr.plaque, "_well_resize_plan", lambda *a, **k: None)
+    monkeypatch.setattr(SUB, "_plaque_imread", lambda _path: np.zeros((4, 4), np.uint8))
+    monkeypatch.setattr(spacr.plaque, "segment_plaque_image",
+                        lambda *a, **k: (np.ones((4, 4), np.uint16), {}))
+
+    assert SUB._segment_plaque_folder({"src": str(src), "dst": str(dst)}, "model") == 3
+    lines = re.findall(r"Progress: (\d+)/(\d+), operation_type: Segmenting plaques",
+                       capsys.readouterr().out)
+    assert [(int(a), int(b)) for a, b in lines] == [(1, 3), (2, 3), (3, 3)]

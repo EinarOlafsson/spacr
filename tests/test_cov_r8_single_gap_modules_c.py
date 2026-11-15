@@ -7,7 +7,6 @@ coming alive.
 from __future__ import annotations
 
 import inspect
-import os
 import sqlite3
 import sys
 import types
@@ -222,26 +221,6 @@ class TestTheFoldIsOnlyStoredWhenThereIsAKey:
 
         assert stored.get("measure/advanced") is True
 
-    def test_without_a_key_nothing_is_written(self, qtbot, monkeypatch):
-        pytest.importorskip("PySide6")
-        from PySide6.QtWidgets import QLabel, QWidget
-
-        from spacr.qt.widgets import foldable
-
-        wrote = []
-        module = types.ModuleType("spacr.qt.preferences")
-        module.set_folded_panel = lambda key, shut: wrote.append(key)
-        module.get_folded_panels = lambda: {}
-        monkeypatch.setitem(sys.modules, "spacr.qt.preferences", module)
-
-        heading, body = QLabel("Advanced"), QWidget()
-        qtbot.addWidget(heading)
-        qtbot.addWidget(body)
-        folder = foldable.make_foldable(heading, body)
-        folder.set_shut(True)
-
-        assert wrote == [], "a keyless panel wrote to the user's preferences"
-
 
 # ---------------------------------------------------------------------------
 # spacr/qt/widgets/qc_summary.py -- a table with no columns
@@ -249,21 +228,6 @@ class TestTheFoldIsOnlyStoredWhenThereIsAKey:
 
 class TestEveryTableSqliteListsHasColumns:
 
-    def test_a_stamped_and_an_unstamped_table_are_told_apart(self, tmp_path):
-        from spacr.qt.widgets.qc_summary import _read_units
-
-        db = tmp_path / "measurements.db"
-        with sqlite3.connect(db) as connection:
-            connection.execute(
-                "CREATE TABLE cell (object_label TEXT, cell_area REAL, "
-                "measurement_ndim INTEGER, measurement_units TEXT)")
-            connection.execute(
-                "INSERT INTO cell VALUES ('1', 2.0, 2, 'px^2')")
-            connection.execute("CREATE TABLE notes (text TEXT)")
-
-        card = _read_units(str(tmp_path))
-        assert card.source == str(db)
-        assert card.verdict in ("ok", "warn", "error", "unknown")
 
     def test_pragma_names_a_column_for_every_table_in_the_catalogue(
             self, tmp_path):

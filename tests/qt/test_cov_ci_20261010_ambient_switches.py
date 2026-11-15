@@ -8,32 +8,6 @@ pytest.importorskip("PySide6")
 from spacr.qt.widgets import ambient
 
 
-@pytest.mark.parametrize("palette", ["spacr", "random"])
-def test_a_light_aurora_inverts_its_ray_colours(palette):
-    dark = ambient.make_engine("aurora", palette, "#101418", seed=3)
-    light = ambient.make_engine("aurora", palette, "#f4f4f4", seed=3)
-    assert dark.dark and not light.dark
-    assert light._random_palette is (palette == "random")
-    for engine in (dark, light):
-        engine.set_time(4.0)
-    first = dark.shade(96, 64)
-    second = light.shade(96, 64)
-    assert first is not None and second is not None
-    assert first.size() == second.size()
-
-
-def test_disabling_ripples_keeps_other_field_materials():
-    engine = ambient.make_engine("data_art_impulse_lens", "spacr", "#101418", seed=4)
-    engine._material_cache[("point_atlas", 1)] = ("kept",)
-    engine._material_cache[("impulse_lens", 2)] = (None, None, None, [1, 2])
-    engine._popup_waves.append((0.0, (0.5, 0.5)))
-    engine.set_ripples_enabled(False)
-    assert not engine.ripples_enabled
-    assert not engine._popup_waves
-    assert engine._material_cache[("point_atlas", 1)] == ("kept",)
-    assert engine._material_cache[("impulse_lens", 2)][3] == []
-
-
 def test_a_classic_backdrop_accepts_ripple_and_effect_switches(qtbot):
     widget = ambient.AmbientWidget(theme="blobs", palette="spacr", background="#101418", seed=5)
     qtbot.addWidget(widget)

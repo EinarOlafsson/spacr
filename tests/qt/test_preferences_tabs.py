@@ -22,6 +22,8 @@ from PySide6.QtWidgets import (QComboBox, QDialogButtonBox, QLabel,
                                QPushButton, QScrollArea, QSlider, QTabWidget,
                                QWidget)
 
+from tests import locale_cases
+
 
 #: object name -> the tab it belongs on. Everything the dialog builds with
 #: a name, because a name is what the rest of the suite finds it by.
@@ -211,10 +213,18 @@ def test_general_is_first_because_language_is_in_it(dialog):
     assert _tab_of(dialog, "LanguagePreference") == "General"
 
 
-@pytest.mark.parametrize("object_name,tab", sorted(CONTROLS.items()))
-def test_every_control_is_still_there_and_on_the_right_tab(
-        dialog, object_name, tab):
+def _every_control_is_still_there_and_on_the_right_tab_case(dialog, object_name, tab):
+    """One case of :func:`test_every_control_is_still_there_and_on_the_right_tab`."""
     assert _tab_of(dialog, object_name) == tab
+
+
+def test_every_control_is_still_there_and_on_the_right_tab(subtests, request):
+    for label, case in locale_cases.cases(
+            ("object_name,tab", sorted(CONTROLS.items())),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('dialog',)) as fixtures:
+                _every_control_is_still_there_and_on_the_right_tab_case(**fixtures, **case)
 
 
 def test_no_control_is_on_two_tabs(dialog):

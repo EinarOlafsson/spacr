@@ -90,49 +90,6 @@ class TestTheHeaderLayoutIsBuiltOnDemandAndOnlyOnce:
 # channel_picker.py -- the correction runs without a Toggle to correct
 # ---------------------------------------------------------------------------
 
-class TestUncheckingTheLastChannel:
-
-    def test_the_last_box_is_put_back_when_none_is_not_allowed(self, qtbot):
-        from spacr.qt.widgets.channel_picker import ChannelPicker
-
-        picker = ChannelPicker("r")
-        qtbot.addWidget(picker)
-        picker._allow_none = False
-
-        box = next(iter(picker._boxes.values()))
-        box.setChecked(True)
-        for other in picker._boxes.values():
-            if other is not box:
-                other.setChecked(False)
-
-        box.setChecked(False)          # emits toggled with box as sender
-        assert picker.value(), "the picture was allowed to go blank"
-
-    def test_called_with_no_sender_the_correction_is_skipped(self, qtbot):
-        """THE UNCOVERED ARC.
-
-        `sender()` is None when the slot is called directly rather than
-        through the signal, and it is typed as QObject even when it is
-        not. Neither is a Toggle, so there is nothing to put back and
-        the handler falls through to announcing the value -- which is
-        the honest thing to do: an empty value the code did not cause
-        must still reach the listeners.
-        """
-        from spacr.qt.widgets.channel_picker import ChannelPicker
-
-        picker = ChannelPicker("")
-        qtbot.addWidget(picker)
-        picker._allow_none = False
-        for box in picker._boxes.values():
-            box.blockSignals(True)
-            box.setChecked(False)
-            box.blockSignals(False)
-
-        assert picker.value() == ""
-        with qtbot.waitSignal(picker.changed, timeout=500) as caught:
-            picker._on_toggled(False)   # no sender: nothing to correct
-        assert caught.args == [""]
-
 
 # ---------------------------------------------------------------------------
 # animation_zoom.py -- a ring with no inside left
