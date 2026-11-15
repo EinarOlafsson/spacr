@@ -6,7 +6,6 @@ unanswerable question is answered "no popup".
 """
 from __future__ import annotations
 
-import pytest
 
 from PySide6.QtCore import QPoint
 from PySide6.QtWidgets import QApplication, QMenu, QToolTip, QWidget

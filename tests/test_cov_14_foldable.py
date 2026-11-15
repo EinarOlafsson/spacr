@@ -36,7 +36,7 @@ def test_a_failing_toggle_does_not_escape_the_event_filter(qapp):
     An exception leaving ``eventFilter`` reaches Qt's event loop as an
     unhandled error on the GUI thread.
     """
-    from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
+    from PySide6.QtCore import QEvent, QPointF, Qt
     from PySide6.QtGui import QMouseEvent
     from PySide6.QtWidgets import QLabel
 

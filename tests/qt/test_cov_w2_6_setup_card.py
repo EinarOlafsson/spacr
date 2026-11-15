@@ -12,7 +12,7 @@ import builtins
 import pytest
 
 from PySide6.QtCore import QPoint, QPointF, QRectF
-from PySide6.QtGui import QColor, QCursor
+from PySide6.QtGui import QColor
 
 from spacr.qt.widgets.setup_card import CORNERS, REFERENCE_CARD, SetupCard
 

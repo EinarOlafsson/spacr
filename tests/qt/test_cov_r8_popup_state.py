@@ -13,7 +13,6 @@ helper being allowed to raise into an animation tick.
 """
 from __future__ import annotations
 
-from spacr.qt.widgets import popup_state
 
 
 class TestTheAnimationTicksActuallyAskIt:

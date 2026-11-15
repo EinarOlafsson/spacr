@@ -8,7 +8,6 @@ failed read is cached until `clear_cache`.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from spacr.qt.widgets import animation_zoom as az
 
