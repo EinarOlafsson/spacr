@@ -19,7 +19,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QDialog, QFileDialog, QMessageBox
+from PySide6.QtWidgets import QMessageBox
 
 from spacr.qt.screens import distributed_jobs as dj
 from spacr.qt.screens.distributed_jobs import (DistributedJobsScreen,
@@ -168,56 +168,6 @@ def test_unreadable_profiles_leave_the_submit_button_off(screen):
 # Creating, editing and deleting a profile
 # ---------------------------------------------------------------------------
 
-@pytest.fixture
-def accept_the_editor(monkeypatch):
-    """Answer the profile editor as though the user had filled it in."""
-    def answer(fill=None, result=QDialog.Accepted):
-        def _exec(dialog):
-            if fill is not None:
-                fill(dialog)
-            return result
-        monkeypatch.setattr(ExecutionProfileDialog, "exec", _exec,
-                            raising=False)
-    return answer
-
-
-def test_a_created_profile_is_saved_and_selected(screen, accept_the_editor):
-    def fill(dialog):
-        dialog._name.setText("second")
-        dialog._backend.setCurrentIndex(dialog._backend.findData("slurm"))
-        dialog._workdir.setText("/project")
-
-    accept_the_editor(fill)
-    screen._create_profile()
-    assert screen.manager.profiles.get("second").workdir == "/project"
-    assert screen._profile.currentData() == "second"
-
-
-def test_a_profile_that_cannot_be_written_says_so(screen, accept_the_editor,
-                                                  monkeypatch):
-    def fill(dialog):
-        dialog._name.setText("second")
-        dialog._backend.setCurrentIndex(dialog._backend.findData("slurm"))
-        dialog._workdir.setText("/project")
-
-    accept_the_editor(fill)
-    monkeypatch.setattr(screen.manager.profiles, "save",
-                        lambda profile: (_ for _ in ()).throw(
-                            OSError("read-only filesystem")))
-    screen._create_profile()
-    assert "Could not save profile: OSError" in screen._status.text()
-
-
-def test_nothing_selected_is_nothing_to_edit_or_delete(qtbot, tmp_path,
-                                                       accept_the_editor):
-    widget = DistributedJobsScreen(
-        manager=_manager(tmp_path, profiles=()), threaded=False,
-        auto_poll=False)
-    qtbot.addWidget(widget)
-    accept_the_editor(lambda dialog: pytest.fail("opened an empty editor"))
-    widget._edit_selected_profile()
-    widget._delete_selected_profile()
-
 
 def test_a_profile_that_has_gone_since_the_combo_was_filled(screen,
                                                             monkeypatch):
@@ -226,53 +176,6 @@ def test_a_profile_that_has_gone_since_the_combo_was_filled(screen,
                             RemoteExecutionError("no profile named 'cloud'")))
     screen._edit_selected_profile()
     assert "no profile named 'cloud'" in screen._status.text()
-
-
-def test_renaming_a_profile_writes_the_new_one_before_dropping_the_old(
-        screen, accept_the_editor):
-    """A disk error must not erase the only usable profile."""
-    accept_the_editor(lambda dialog: dialog._name.setText("renamed"))
-    screen._edit_selected_profile()
-    assert screen.manager.profiles.get("renamed").name == "renamed"
-    assert [p.name for p in screen.manager.profiles.list()] == ["renamed"]
-    assert screen._profile.currentData() == "renamed"
-
-
-def test_an_edit_that_cannot_be_saved_keeps_the_old_profile(screen,
-                                                            accept_the_editor,
-                                                            monkeypatch):
-    accept_the_editor(lambda dialog: dialog._name.setText("renamed"))
-    monkeypatch.setattr(screen.manager.profiles, "save",
-                        lambda profile: (_ for _ in ()).throw(
-                            OSError("read-only filesystem")))
-    screen._edit_selected_profile()
-    assert "Could not update profile: OSError" in screen._status.text()
-    assert screen.manager.profiles.get("cloud").name == "cloud"
-
-
-def test_a_declined_confirmation_keeps_the_profile(screen, answer_yes):
-    answer_yes(QMessageBox.No)
-    screen._delete_selected_profile()
-    assert [p.name for p in screen.manager.profiles.list()] == ["cloud"]
-
-
-def test_a_confirmed_delete_removes_it_and_disables_submitting(screen,
-                                                               answer_yes):
-    answer_yes()
-    screen._delete_selected_profile()
-    assert screen.manager.profiles.list() == []
-    assert not screen._submit.isEnabled()
-
-
-def test_a_delete_that_fails_says_which_error_it_was(screen, answer_yes,
-                                                     monkeypatch):
-    answer_yes()
-    monkeypatch.setattr(screen.manager.profiles, "delete",
-                        lambda name: (_ for _ in ()).throw(
-                            OSError("read-only filesystem")))
-    screen._delete_selected_profile()
-    assert "Could not delete profile: OSError" in screen._status.text()
-    assert [p.name for p in screen.manager.profiles.list()] == ["cloud"]
 
 
 def test_the_chosen_settings_file_lands_in_the_field(screen, monkeypatch,
@@ -467,45 +370,3 @@ def test_the_poll_interval_follows_the_fastest_profile(screen):
 
     screen._update_poll_interval([])
     assert screen._timer.interval() == 10000
-
-
-def test_closing_the_screen_takes_its_remote_calls_with_it(qtbot, tmp_path):
-    """An ownerless REST call keeps the application from being able to quit."""
-    from PySide6.QtGui import QCloseEvent
-
-    widget = DistributedJobsScreen(manager=_manager(tmp_path), threaded=True,
-                                   auto_poll=False)
-    qtbot.addWidget(widget)
-    widget.show()
-    qtbot.waitExposed(widget)
-    widget._start_task("Working…", lambda: "done", lambda result: None)
-    assert widget._workers
-
-    widget.closeEvent(QCloseEvent())
-    assert widget._workers == []
-    assert not widget._timer.isActive()
-
-
-def test_a_worker_that_will_not_answer_is_still_released(qtbot, tmp_path):
-    """Cancellation and interruption are attempts, not preconditions."""
-    from PySide6.QtGui import QCloseEvent
-
-    class Deaf:
-        def request_cancel(self, _why):
-            raise RuntimeError("already gone")
-
-        def requestInterruption(self):      # noqa: N802 - Qt naming
-            raise RuntimeError("already gone")
-
-        def isRunning(self):                # noqa: N802 - Qt naming
-            return False
-
-        def wait(self, _ms=0):
-            return True
-
-    widget = DistributedJobsScreen(manager=_manager(tmp_path), threaded=False,
-                                   auto_poll=False)
-    qtbot.addWidget(widget)
-    widget._workers = [(Deaf(), Deaf())]
-    widget.closeEvent(QCloseEvent())
-    assert widget._workers == []

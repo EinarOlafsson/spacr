@@ -683,7 +683,9 @@ def preprocess_generate_masks(settings):
                                 start = time.time()
                                 from ._mask_workers import _sampled_ordinary_masks
                                 with _sampled_ordinary_masks(mask_src, 'cell'):
-                                    generate_cellpose_masks_sam(mask_src, settings, 'cell')
+                                    generate_cellpose_masks_sam(
+                                        mask_src, settings, 'cell',
+                                        progress_share=(files_processed, files_to_process))
                                 stop = time.time()
                                 duration = (stop - start)
                                 time_ls.append(duration)
@@ -699,7 +701,9 @@ def preprocess_generate_masks(settings):
                                 start = time.time()
                                 from ._mask_workers import _sampled_ordinary_masks
                                 with _sampled_ordinary_masks(mask_src, 'nucleus'):
-                                    generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
+                                    generate_cellpose_masks_sam(
+                                        mask_src, settings, 'nucleus',
+                                        progress_share=(files_processed, files_to_process))
                                 stop = time.time()
                                 duration = (stop - start)
                                 time_ls.append(duration)
@@ -715,7 +719,9 @@ def preprocess_generate_masks(settings):
                                 start = time.time()
                                 from ._mask_workers import _sampled_ordinary_masks
                                 with _sampled_ordinary_masks(mask_src, 'pathogen'):
-                                    generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
+                                    generate_cellpose_masks_sam(
+                                        mask_src, settings, 'pathogen',
+                                        progress_share=(files_processed, files_to_process))
                                 stop = time.time()
                                 duration = (stop - start)
                                 time_ls.append(duration)

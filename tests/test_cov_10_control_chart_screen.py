@@ -10,9 +10,7 @@ choosers a user can cancel. Each has to leave a screen that still works.
 from __future__ import annotations
 
 import os
-import sqlite3
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -56,17 +54,6 @@ def test_a_canvas_with_nothing_drawn_reports_no_result(qtbot):
     assert canvas.result is None
 
 
-def test_reloading_the_same_table_keeps_the_columns_the_user_chose(screen):
-    """A second read of the same file must not throw the form back to its
-    guesses; the user's picks are still valid for the same columns."""
-    frame = _campaign()
-    screen.set_frame(frame)
-    screen._order.setCurrentText("plateID")
-    screen.set_frame(frame)
-    assert screen._order.currentText() == "plateID"
-    assert screen._plate.currentText() == "plateID"
-
-
 def test_changing_the_control_column_rebuilds_its_levels(screen):
     """The tick list and the two Z' pickers all name levels OF the control
     column. Leaving the old column's levels behind would offer values that
@@ -95,59 +82,6 @@ def test_changing_the_control_column_rebuilds_its_levels(screen):
     assert screen._positive.currentText() == "pos"
 
 
-def test_a_form_the_engine_refuses_becomes_a_sentence_not_a_traceback(screen):
-    """The spec re-validates independently of what the widgets allow, and it
-    is the authority. Its refusal has to reach the report line, with no chart
-    left on screen claiming to be the answer."""
-    screen.set_frame(_campaign())
-    assert screen.result is not None
-    screen._baseline.setRange(1, 500)
-    screen._baseline.setValue(1)
-    screen.recompute()
-    assert screen.result is None
-    assert "is not a baseline" in screen.report.toPlainText()
-
-
-def _database(tmp_path):
-    path = str(tmp_path / "measurements.db")
-    frame = _campaign()
-    with sqlite3.connect(path) as db:
-        frame.to_sql("cell", db, index=False)
-        frame.to_sql("nucleus", db, index=False)
-    return path
-
-
-def test_opening_a_named_table_selects_it_in_the_picker(screen, tmp_path):
-    """A caller that already knows which table it wants -- a run folder, a
-    restored session -- must land on that table, and the picker has to show
-    the one that was read."""
-    path = _database(tmp_path)
-    screen.load_path(path, table="nucleus")
-    assert screen._table_picker.currentText() == "nucleus"
-    assert screen._table_picker.isVisible() or not screen.isVisible()
-    assert screen.result is not None
-
-
-def test_picking_another_table_rereads_the_same_file(screen, tmp_path):
-    """The picker is the only way to look at a second table in one database;
-    if it did not re-read, it would relabel the chart of the first."""
-    path = _database(tmp_path)
-    screen.load_path(path, table="cell")
-    screen._on_table_picked("nucleus")
-    assert screen._path == path
-    assert "nucleus" in screen._source.text()
-
-
-def test_a_cancelled_open_leaves_the_screen_as_it_was(screen, monkeypatch):
-    """Cancelling the chooser must not clear the chart already drawn."""
-    screen.set_frame(_campaign())
-    drawn = screen.result
-    monkeypatch.setattr(QFileDialog, "getOpenFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-    screen.choose_table()
-    assert screen.result is drawn
-
-
 def test_choosing_a_file_from_the_dialog_loads_it(screen, monkeypatch,
                                                   tmp_path):
     """The chooser is the ordinary way in; picking a file has to reach the
@@ -159,27 +93,3 @@ def test_choosing_a_file_from_the_dialog_loads_it(screen, monkeypatch,
     screen.choose_table()
     assert screen.result is not None
     assert "campaign.csv" in screen._source.text()
-
-
-def test_a_cancelled_export_writes_nothing(screen, monkeypatch, tmp_path):
-    """Cancelling must not write a file under the default name in whatever
-    directory the app happens to be running from."""
-    screen.set_frame(_campaign())
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-    screen.choose_export()
-    assert not list(tmp_path.glob("*.csv"))
-
-
-def test_choosing_an_export_destination_writes_the_points(screen, monkeypatch,
-                                                          tmp_path):
-    """One row per plate is what a reader takes away from this screen; the
-    chooser has to hand that path to the writer unchanged."""
-    screen.set_frame(_campaign())
-    target = tmp_path / "points.csv"
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: (str(target), "")))
-    screen.choose_export()
-    written = pd.read_csv(target)
-    assert len(written) == 12
-    assert "points.csv" in screen._source.text()

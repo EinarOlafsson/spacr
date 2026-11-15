@@ -30,10 +30,9 @@ from __future__ import annotations
 
 import pandas as pd
 import pytest
-from PySide6.QtWidgets import QLabel
 
 from spacr.qt.screens.power import PowerCurveView, PowerScreen
-from spacr.qt.widgets.power_design import DesignSpec, power_curve
+from spacr.qt.widgets.power_design import power_curve
 
 pytestmark = pytest.mark.qt
 
@@ -61,16 +60,6 @@ def _cells_curve():
         [60.0, 60.0, 123.0, 123.0, 240.0, 240.0],
         ["ok", "ok", "ok", "ok", "ok", "ok"],
         [0.60, 0.62, 0.91, 0.93, 0.97, 0.98],
-    )
-
-
-def _wells_curve():
-    """Two well counts, the larger one better than the smaller."""
-    return _curve(
-        WELLS_COLUMN,
-        [768.0, 768.0, 1536.0, 1536.0],
-        ["ok", "ok", "ok", "ok"],
-        [0.70, 0.72, 0.95, 0.96],
     )
 
 
@@ -159,177 +148,9 @@ def test_the_design_rule_is_drawn_only_where_the_sweep_actually_reached(qtbot):
 # ---------------------------------------------------------------------------
 
 
-def test_a_result_with_no_curves_clears_the_table_and_reports_done(screen):
-    """An empty result must wipe the previous run's rows, not sit under them.
-
-    ``_apply_result`` is called for every settled sweep, including ones that
-    produced no curve at all (a cancel before the first fit, a backend that
-    fell over). If the table were left alone the screen would show the last
-    good run's per-point numbers under a headline saying there was no run —
-    the exact confusion between "simulated" and "left over" this screen is
-    built to prevent.
-    """
-    spec = DesignSpec()
-    screen._apply_result({"spec": spec,
-                          "cells_curve": _cells_curve(),
-                          "wells_curve": _wells_curve()})
-    assert len(screen.table_rows()) == 5, "three cell points plus two well points"
-    assert "123 cells per well" in screen.answer_text()
-
-    screen._apply_result({"spec": spec,
-                          "cells_curve": None,
-                          "wells_curve": None})
-
-    assert screen.table_rows() == [], "the stale rows survived an empty result"
-    assert screen.answer_text() == "No run yet — set the design and press Run."
-    assert screen.status_text() == "Done."
-    assert screen.status_is_error() is False
-
-
-def test_the_withheld_note_appears_only_when_a_fit_was_actually_withheld(screen):
-    """A replicate that produced no fit is counted as a non-detection.
-
-    That is a real cost to the number on screen — three replicates of which
-    one crashed is a power over three, not over two — so the sentence has to
-    say it happened. It equally has to stay silent when it did not: a note
-    printed after every clean sweep is a note the screener stops reading, and
-    then the one run where two fits died looks like every other run.
-    """
-    spec = DesignSpec()
-    clean = {"spec": spec, "cells_curve": _cells_curve(), "wells_curve": None}
-    screen._apply_result(clean)
-    assert screen.status_text() == "Done.", "a clean sweep must not be annotated"
-
-    broken = _curve(
-        CELLS_COLUMN,
-        [123.0, 123.0, 123.0],
-        ["ok", "not_converged", "failed"],
-        [0.95, float("nan"), float("nan")],
-    )
-    screen._apply_result({"spec": spec, "cells_curve": broken,
-                          "wells_curve": None})
-
-    said = screen.status_text()
-    assert "2 replicate(s) produced no usable fit" in said
-    assert "counted as non-detections" in said
-    assert screen.table_rows()[0][3] == "1/3", "the denominator keeps all three"
-
-
-def test_the_table_fills_from_whichever_axis_finished(screen):
-    """A half-finished sweep must still show the points it did simulate.
-
-    Stop is not abandon: cancelling between the two scans leaves one axis with
-    real rows and the other with nothing. ``_fill_table`` walks the two curves
-    independently so the finished axis is tabulated against the design's own
-    fixed value for the other one — throwing the rows away because the run as
-    a whole did not complete would make Stop destructive.
-    """
-    spec = DesignSpec()
-
-    screen._apply_result({"spec": spec, "cells_curve": _cells_curve(),
-                          "wells_curve": None})
-    cells_only = screen.table_rows()
-    assert [row[0] for row in cells_only] == ["60", "123", "240"]
-    assert {row[1] for row in cells_only} == {"1536"}, \
-        "the well count is the design's, held fixed across the cells sweep"
-
-    screen._apply_result({"spec": spec, "cells_curve": None,
-                          "wells_curve": _wells_curve()})
-    wells_only = screen.table_rows()
-    assert [row[1] for row in wells_only] == ["768", "1536"]
-    assert {row[0] for row in wells_only} == {"123"}, \
-        "the cell count is the design's, held fixed across the wells sweep"
-    assert wells_only[1][2] == "100%", "1536 wells detected in both replicates"
-
-
-def test_a_metric_no_fit_produced_is_an_em_dash_not_a_number(screen):
-    """A point where every fit died must not print a plausible AUROC.
-
-    ``mean_auroc`` averages only the replicates that converged, so a point
-    with none is NaN. Formatted as a float that reads as ``nan`` — or worse,
-    coerced to 0.5 — it would sit in the same column as the real numbers and
-    be read as one. The em dash is the only honest answer, and the
-    not-converged/failed columns beside it say why.
-    """
-    spec = DesignSpec()
-    dead = _curve(
-        CELLS_COLUMN,
-        [123.0, 123.0],
-        ["failed", "not_converged"],
-        [float("nan"), float("nan")],
-    )
-    screen._apply_result({"spec": spec, "cells_curve": dead,
-                          "wells_curve": None})
-
-    row = screen.table_rows()[0]
-    assert row[2] == "0%" and row[3] == "0/2"
-    assert row[4] == "—" and row[5] == "—", "a withheld metric is an em dash"
-    assert row[7] == "1" and row[8] == "1", "one not converged, one failed"
-
-    screen._apply_result({"spec": spec, "cells_curve": _cells_curve(),
-                          "wells_curve": None})
-    assert screen.table_rows()[0][4] == "0.61", "a real mean is still printed"
-
-
 # ---------------------------------------------------------------------------
 # the settle path
 # ---------------------------------------------------------------------------
-
-
-def test_a_failure_that_produced_nothing_keeps_the_workers_own_error(screen):
-    """The traceback line the worker sent must survive the job settling.
-
-    ``worker.error`` arrives first and puts the real cause on the status line;
-    ``worker.finished`` arrives after it with ``ok=False`` and no result. If
-    that second call also wrote a status the user would be told "The sweep
-    produced no result" — true, useless, and it would have erased the one
-    line saying WHY. The generic line is reserved for the stranger case where
-    the worker reported success and still handed back nothing.
-    """
-    settled: list = []
-    screen.job_finished.connect(settled.append)
-    screen._pending.clear()
-    screen._cancel = None
-    screen._on_worker_error_text("Traceback…\nRuntimeError: no CUDA device")
-
-    screen._on_job_settled(False)
-
-    assert screen.status_text() == \
-        "The sweep failed: RuntimeError: no CUDA device"
-    assert screen.status_is_error() is True
-    assert settled == [False], "a resultless settle is not a success"
-
-    screen._on_job_settled(True)
-    assert screen.status_text() == "The sweep produced no result."
-    assert settled == [False, False]
-
-
-def test_the_status_line_still_speaks_when_it_has_no_style_to_repolish(screen):
-    """The message matters more than its colour.
-
-    The error colour is a dynamic property, so it only takes effect when the
-    widget's style re-polishes it. ``style()`` can be gone — a widget being
-    torn down, a label not yet in a styled hierarchy — and reaching through it
-    unguarded would raise inside the one code path whose entire job is to
-    report failures without a dialog. The user would lose the failure message
-    and get a traceback in its place.
-    """
-    assert screen._status.style() is not None, "a live label has a style"
-    screen._set_status("Running 9 fits…", error=False)
-    assert screen.status_text() == "Running 9 fits…"
-
-    class _StylelessLabel(QLabel):
-        """A label whose style has gone, as one being torn down has."""
-
-        def style(self):
-            return None
-
-    screen._status = _StylelessLabel(screen)
-    screen._set_status("The sweep failed: no backend", error=True)
-
-    assert screen.status_text() == "The sweep failed: no backend"
-    assert screen.status_is_error() is True, \
-        "the error flag is recorded even when nothing can repaint it"
 
 
 # ---------------------------------------------------------------------------

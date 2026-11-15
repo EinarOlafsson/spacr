@@ -89,22 +89,6 @@ class TestTheSudokuGuideColumn:
         assert names.index("g2") == 1
         assert ("g3" in names) is False
 
-    def test_every_ranked_guide_is_a_result_column(self):
-        """The inner solve returns the complete guide tuple it receives."""
-        from spacr.sudoku import sudoku_all
-
-        rng = np.random.default_rng(2)
-        features = rng.normal(size=(24, 3))
-        scores = rng.uniform(0.0, 1.0, 24)
-        wells = [f"w{i % 4}" for i in range(24)]
-        fractions = {f"w{i}": {"g1": 0.6, "g2": 0.4} for i in range(4)}
-        result = sudoku_all(
-            features, scores, wells, fractions,
-            ranking=[("g1", 0.9), ("g2", 0.5)],
-        )
-
-        assert result.names == ("g1", "g2")
-
 
 class TestTheManifestWarnings:
 

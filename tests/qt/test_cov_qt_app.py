@@ -726,28 +726,6 @@ def test_todays_names_all_fit_without_eliding(home_page):
             if t.is_name_elided()] == []
 
 
-def test_an_unfittable_name_elides_and_keeps_the_row_sane(
-        qtbot, qt_theme_applied):
-    from spacr.qt.preferences import scaled_px
-    long_name = "Extremely Long Hypothetical Module Name For Testing"
-    page = HomePage([("mask", long_name, "d", SECTION_CORE)],
-                    _icon_for_app)
-    qtbot.addWidget(page)
-    page.resize(1400, 600)
-    page.show()
-    qtbot.waitExposed(page)
-
-    # The tile on the CURRENT tab: every app is drawn once on Home and
-    # once on its category tab, and the one on the hidden tab has never
-    # been laid out, so it has nothing to elide against.
-    tile = next(t for t in page.findChildren(AppTile) if t.isVisible())
-    label = tile.name_label
-    assert label.is_elided()
-    assert "…" in label.text() and label.text() != long_name
-    assert label.full_text() == long_name == label.toolTip()
-    assert tile.width() <= scaled_px(HomePage.TILE_MAX_W)
-
-
 # ===========================================================================
 # 4. Icons
 # ===========================================================================

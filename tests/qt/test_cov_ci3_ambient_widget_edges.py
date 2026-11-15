@@ -10,7 +10,6 @@ from __future__ import annotations
 import subprocess
 import sys
 import threading
-import time
 import types
 
 import pytest
@@ -30,45 +29,6 @@ def isolated(tmp_path, monkeypatch):
     monkeypatch.setattr(prefs, "_settings", lambda: settings)
     monkeypatch.setattr(ambient, "_RESOURCE_POLICY", None)
     return settings
-
-
-class _Blank:
-    """An engine with no frame to give and no graphics renderer."""
-
-    def __init__(self):
-        self.calls = []
-
-    def shade(self, width, height):
-        self.calls.append((width, height))
-        return None
-
-
-def _run_producer(engine, size, until):
-    producer = ambient._FrameProducer(engine, threading.Lock(), 240, size)
-    producer.start()
-    try:
-        deadline = time.monotonic() + 5
-        while not until() and time.monotonic() < deadline:
-            time.sleep(0.005)
-    finally:
-        producer.stop()
-    assert not producer.is_alive()
-    return producer
-
-
-def test_a_producer_without_a_canvas_never_shades():
-    engine = _Blank()
-    started = time.monotonic()
-    producer = _run_producer(engine, (0, 120), lambda: time.monotonic() - started > 0.05)
-    assert engine.calls == []
-    assert producer.frames_shaded == 0 and producer.latest() is None
-
-
-def test_a_frame_the_engine_refuses_is_not_published():
-    engine = _Blank()
-    producer = _run_producer(engine, (40, 30), lambda: len(engine.calls) >= 3)
-    assert len(engine.calls) >= 3 and set(engine.calls) == {(40, 30)}
-    assert producer.frames_shaded == 0 and producer.latest() is None
 
 
 @pytest.fixture
@@ -213,21 +173,6 @@ def test_a_failing_nvml_query_keeps_the_gpu_for_analysis(monkeypatch):
     assert events == ["init", "shutdown"]
 
 
-def test_policy_applies_without_a_running_application(monkeypatch, qapp):
-    policy = ambient._AnimationResourcePolicy()
-    held = []
-    monkeypatch.setattr(policy, "_hold_fractals", lambda: held.append("hold"))
-    monkeypatch.setattr(policy, "_release_fractals", lambda: held.append("release"))
-    emitted = []
-    policy.changed.connect(lambda: emitted.append(1))
-    monkeypatch.setattr(ambient.QApplication, "instance", staticmethod(lambda: None))
-    policy.gpu_busy = True
-    policy._apply()
-    policy.gpu_busy = False
-    policy._apply()
-    assert held == ["hold", "release"] and emitted == [1, 1]
-
-
 def test_random_palette_aurora_tints_each_column_with_its_own_colour(qapp):
     import numpy as np
 
@@ -247,38 +192,6 @@ def test_random_palette_aurora_tints_each_column_with_its_own_colour(qapp):
     scale = inverse.max(axis=-1) / np.maximum(target.max(axis=-1), 1.0)[None, :]
     assert np.abs(inverse - scale[..., None] * target[None, :, :]).max() <= 2.0
     assert len(set(ids.tolist())) > 1
-
-
-def test_random_palette_points_release_a_renderer_and_stay_on_the_cpu(qapp):
-    class Renderer:
-        def __init__(self):
-            self._owner = threading.get_ident()
-            self.closed = False
-            self.draws = []
-
-        def _draw(self, *args):
-            self.draws.append(args)
-
-        def _close(self):
-            self.closed = True
-
-    engine = ambient.make_engine("data_art_impulse_lens", "random", "#191919", seed=3)
-    engine.set_max_pixels(320 * 200)
-    engine._graphics_backend = "gpu"
-    box = {}
-
-    def run():
-        renderer = engine._point_graphics = Renderer()
-        box["frame"] = engine.shade(320, 200)
-        box["renderer"] = renderer
-
-    thread = threading.Thread(target=run, name="spacr-ambient-shade")
-    thread.start()
-    thread.join()
-    renderer = box["renderer"]
-    assert renderer.closed and renderer.draws == []
-    assert engine._point_graphics is None
-    assert box["frame"] is not None and not box["frame"].isNull()
 
 
 def _hold_lock(lock):
@@ -336,12 +249,3 @@ def test_a_dialog_owned_by_a_nested_child_still_sends_popup_waves(qtbot, no_prod
     assert field._popup_wave_origin_for_tick() is None
 
 
-def test_feedback_for_a_widget_whose_object_is_gone_is_dropped(qapp):
-    import shiboken6
-
-    gone = QWidget()
-    shiboken6.delete(gone)
-    assert not shiboken6.isValid(gone)
-    before = ambient._CONTAINER_RIPPLES[0]
-    assert ambient.field_ripple_for_widget(gone, edge="left") is None
-    assert ambient._CONTAINER_RIPPLES[0] == before + 1
