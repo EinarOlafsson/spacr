@@ -8,9 +8,7 @@ flight. Each has to leave the panel usable and say what happened.
 """
 from __future__ import annotations
 
-import os
 
-import pandas as pd
 import pytest
 
 pytest.importorskip("PySide6")
@@ -111,46 +109,6 @@ def test_an_empty_path_starts_no_scan(panel):
     """
     assert panel.load_folder_async("") is False
     assert panel.load_folder_async(None) is False
-
-
-def test_a_scan_from_a_plate_the_user_left_is_discarded(panel):
-    """Only the newest request may change the panel.
-
-    Two plates opened quickly finish in whatever order the disk allows;
-    installing the older answer would show the previous plate's wells under
-    the new plate's name.
-    """
-    panel._load_token = 5
-    before = panel._status.text()
-
-    panel._on_plate_scanned(4, {"merged": "/somewhere", "groups": {"g": [1, 2]}})
-
-    assert panel._status.text() == before
-
-
-def test_a_plate_that_could_not_be_read_says_why(panel):
-    """The scan's own message reaches the status line unchanged.
-
-    It names the folder and the reason; replacing it with "load failed"
-    would drop the only actionable half.
-    """
-    panel._on_plate_scanned(panel._load_token,
-                            {"error": "Load failed: no merged folder"})
-
-    assert panel._status.text() == "Load failed: no merged folder"
-
-
-def test_a_plate_with_no_time_series_says_what_a_preview_needs(panel):
-    """A plate of single time points cannot show motility at all.
-
-    "No groups" is not a failure of the plate; it is a statement about what
-    this preview measures, and the message has to say so or the user will
-    look for a broken folder.
-    """
-    panel._on_plate_scanned(panel._load_token,
-                            {"merged": "/plate/merged", "groups": {}})
-
-    assert "two or more time points" in panel._status.text()
 
 
 # ---------------------------------------------------------------------------

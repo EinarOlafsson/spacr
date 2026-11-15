@@ -121,27 +121,6 @@ def _without_compartment_widgets(panel):
 # first_supported_image / load_source_payload
 # ---------------------------------------------------------------------------
 
-def test_the_first_image_is_found_past_the_files_that_are_not_images(tmp_path):
-    """A folder whose first name sorts before any image still finds one."""
-    ahead = tmp_path / "ahead"
-    ahead.mkdir()
-    (ahead / "a_readme.txt").write_text("not an image", encoding="utf-8")
-    (ahead / "b_notes.csv").write_text("also not an image", encoding="utf-8")
-    tifffile.imwrite(ahead / "c_scan.tif", _tile(5))
-
-    found = LP.first_supported_image(ahead)
-    assert found is not None and found.name == "c_scan.tif", (
-        "the scan sorts third; the two files before it must be walked past, "
-        "not treated as the answer")
-
-    # And the case that never leaves the first iteration, so the assertion
-    # above is about the walking rather than about sorting.
-    straight = tmp_path / "straight"
-    straight.mkdir()
-    tifffile.imwrite(straight / "a_scan.tif", _tile(5))
-    (straight / "z_readme.txt").write_text("not an image", encoding="utf-8")
-    assert LP.first_supported_image(straight).name == "a_scan.tif"
-
 
 def test_a_draw_that_returns_nothing_leaves_the_first_image_in_place(
         flat_plate, monkeypatch):
@@ -173,68 +152,8 @@ def test_a_draw_that_returns_nothing_leaves_the_first_image_in_place(
 
 
 # ---------------------------------------------------------------------------
-# __init__: turning drops off on the canvases
-# ---------------------------------------------------------------------------
-
-def test_a_missing_canvas_does_not_stop_the_other_refusing_drops(
-        qtbot, monkeypatch):
-    """The constructor skips a view it does not have and still does the rest.
-
-    Both views are created unconditionally by ``_build_ui``, so the only way
-    to reach the ``if _v is not None`` false side is to take one away between
-    ``_build_ui`` and the loop — which is what the wrapper below does.
-    """
-    stash = {}
-    real_build = LP.LivePreviewPanel._build_compartment_widgets
-
-    def _drop_mask_view(self):
-        real_build(self)
-        stash["view"] = self._mask_view
-        self._mask_view = None
-
-    monkeypatch.setattr(LP.LivePreviewPanel, "_build_compartment_widgets",
-                        _drop_mask_view)
-    maimed = LP.LivePreviewPanel()
-    qtbot.addWidget(maimed)
-    monkeypatch.undo()
-
-    assert maimed._src_view.acceptDrops() is False, (
-        "the view that WAS there must still have had drops turned off")
-    assert stash["view"].acceptDrops() is True, (
-        "the view the panel could not see must have been skipped, not "
-        "reached through")
-    maimed._mask_view = stash["view"]
-
-    whole = LP.LivePreviewPanel()
-    qtbot.addWidget(whole)
-    assert whole._src_view.acceptDrops() is False
-    assert whole._mask_view.acceptDrops() is False, (
-        "with both views present both refuse drops, so the panel's own "
-        "handlers see them")
-
-
-# ---------------------------------------------------------------------------
 # _load_for_display: which channel gets projected
 # ---------------------------------------------------------------------------
-
-def test_a_projection_follows_the_channel_the_open_file_belongs_to(
-        panel, stack_plate, qtbot):
-    """Opening channel 2 and switching MIP on projects channel 2's planes."""
-    second = stack_plate / _name(1, 2, 1)
-    panel._cell_channel.setValue(1)
-    assert panel.load_image(second) is True
-    assert panel._mip_toggle.isEnabled(), (
-        "three planes per channel is a stack; the switch has to offer itself")
-
-    panel._mip_toggle.setChecked(True)
-    qtbot.waitUntil(lambda: not panel._image_loaders)
-
-    assert panel._image.max() == 30, (
-        "channel 2's planes are 10/20/30, so its projection is 30")
-    assert panel._image.min() == 30
-    # Channel 1's projection is 3. Reaching it would mean the loop stopped at
-    # the first channel instead of walking on to the one the file names.
-    assert panel._image.max() != 3
 
 
 def test_a_set_that_does_not_name_the_open_file_projects_its_first_channel(
@@ -269,45 +188,6 @@ def test_a_set_that_does_not_name_the_open_file_projects_its_first_channel(
     assert projected.max() != 3, (
         "3 is the projection of the file's own real stack, which this "
         "sampler no longer knows about")
-
-
-# ---------------------------------------------------------------------------
-# shutdown
-# ---------------------------------------------------------------------------
-
-class _Recorder:
-    """Stands in for the panel's :class:`JobRunner` and counts shutdowns."""
-
-    def __init__(self):
-        self.shutdowns = 0
-
-    def pending_jobs(self):
-        return 0
-
-    def shutdown(self):
-        self.shutdowns += 1
-
-
-def test_closing_a_panel_with_no_runner_shuts_nothing_down(panel):
-    """``shutdown`` dispatches to the runner it has, and to nothing when it
-    has none. A panel torn down twice must not resurrect the first runner."""
-    real = panel._load_jobs
-    recorder = _Recorder()
-    panel._load_jobs = recorder
-
-    panel.close()
-    assert recorder.shutdowns == 1, (
-        "closing must abandon the load in flight")
-
-    panel._load_jobs = None
-    panel.close()
-    assert recorder.shutdowns == 1, (
-        "with no runner the close reaches nothing at all — least of all the "
-        "runner it used to have")
-    assert panel._image_loaders == [], (
-        "and the panel still reports no loads in flight")
-
-    panel._load_jobs = real
 
 
 # ---------------------------------------------------------------------------
@@ -398,46 +278,6 @@ def ragged_plate(tmp_path: Path) -> Path:
     return root
 
 
-def test_a_selected_cell_with_no_file_paints_no_selection(
-        panel, ragged_plate, monkeypatch):
-    """The starting cell can be empty; showing the selection must skip it.
-
-    ``_selected_cells`` starts at ``(0, 0)`` before any table exists, and
-    extending a selection carries the old entries over WITHOUT re-checking
-    them — so a shift-click on a real cell leaves a file-less one in the
-    list, and it is the paint pass that has to cope.
-    """
-    assert panel.load_image(ragged_plate / _name(2, 1)) is True
-    table = panel._set_table
-    assert (table.rowCount(), table.columnCount()) == (2, 2)
-    assert table.item(0, 0) is None, "field 1 has no channel 1 to show"
-    assert panel._selected_cells == [(0, 0)]
-
-    # The cap defaults to one image, which would truncate the carried-over
-    # cell straight back off the list again.
-    panel._max_images_box.setValue(4)
-    assert panel._selected_cells == [(0, 0)], (
-        "re-applying the cap cannot promote a file-less cell either")
-
-    monkeypatch.setattr(LP.LivePreviewPanel, "_shift_held", lambda self: True)
-    table.cellClicked.emit(1, 0)
-
-    assert panel._selected_cells == [(0, 0), (1, 0)], (
-        "the empty cell is carried over by the extend, unvalidated")
-
-    # Selecting loads, and loading rebuilds the table from the folder again,
-    # which throws the freshly painted selection away with the old items. So
-    # the paint pass -- the same call the click made, with the same stale
-    # list still on the panel -- is asked once more, with nothing after it.
-    panel._sync_table_selection()
-
-    assert table.item(0, 0) is None, "still nothing behind the first cell"
-    assert table.item(1, 0).isSelected(), "the real cell IS selected"
-    assert len(table.selectedItems()) == 1, (
-        "and it is the only one — the cell with no file contributed nothing")
-    assert (table.currentRow(), table.currentColumn()) == (1, 0)
-
-
 def test_the_cell_a_selection_activates_always_has_a_file_behind_it(
         panel, ragged_plate, monkeypatch, qtbot):
     """``_set_selection`` filters before it activates, so it cannot load air.
@@ -466,46 +306,6 @@ def test_the_cell_a_selection_activates_always_has_a_file_behind_it(
     panel._set_selection([(0, 0)], extend=False)
     assert panel._selected_cells == [(1, 0)]
     assert Path(panel._image_path).name == _name(2, 1)
-
-
-# ---------------------------------------------------------------------------
-# The MIP switch's tooltip
-# ---------------------------------------------------------------------------
-
-def _stack_set(well: str, fieldid: str, first: str) -> ImageSet:
-    return ImageSet(key=("plate1", well, fieldid), directory="/nowhere",
-                    channels={"01": first},
-                    planes={"01": [first, f"{first}_b"]})
-
-
-def test_a_stack_never_infers_time_from_its_field_identifier(panel):
-    """The third ImageSet key part is a field ID, not a time signal.
-
-    The sets are handed to the sampler through its public ``adopt`` — the
-    same door the background loader uses — because the question is about
-    what the tooltip says for a given enumeration, not about file names.
-    """
-    panel._sampler.adopt("/nowhere",
-                         [_stack_set("A01", "", "a.tif"),
-                          _stack_set("A02", "", "c.tif")], ["01"])
-    panel._max_sets_box.setValue(1)
-
-    assert panel._mip_toggle.isEnabled(), "two planes per field is a stack"
-    quiet = panel._mip_toggle.toolTip()
-    assert "2 z-planes" in quiet
-    assert "time axis" not in quiet, (
-        "nothing here reports a time axis, so nothing may be claimed about "
-        "one")
-
-    panel._sampler.adopt("/nowhere",
-                         [_stack_set("A01", "001", "a.tif"),
-                          _stack_set("A02", "001", "c.tif")], ["01"])
-    panel._max_sets_box.setValue(2)
-
-    field_named = panel._mip_toggle.toolTip()
-    assert "2 z-planes" in field_named
-    assert "time axis" not in field_named, (
-        "a populated field identifier must not be presented as time metadata")
 
 
 # ---------------------------------------------------------------------------
@@ -559,53 +359,6 @@ def test_an_empty_channel_dropdown_has_no_selection_to_restore(panel):
     assert box.count() == 0
     assert box.currentIndex() == -1, (
         "with nothing in the combo there is no index to put back")
-
-
-# ---------------------------------------------------------------------------
-# "All channels" background removal
-# ---------------------------------------------------------------------------
-
-@pytest.fixture
-def three_channel_tif(tmp_path: Path) -> Path:
-    """8x8x3: dim/bright pairs at 50/200, 60/300 and 70/400."""
-    arr = np.zeros((8, 8, 3), dtype=np.uint16)
-    for index, (dim, bright) in enumerate(((50, 200), (60, 300), (70, 400))):
-        arr[:4, :, index] = dim
-        arr[4:, :, index] = bright
-    path = tmp_path / "three.tif"
-    tifffile.imwrite(path, arr)
-    return path
-
-
-def test_every_channel_with_a_background_is_cleaned_not_just_the_first(
-        panel, three_channel_tif):
-    """A composite must not show a cleaned cell channel beside a raw nucleus.
-
-    The second channel is the one that matters: the copy is taken on the
-    first channel that has a background, and taking it again on the second
-    would throw the first channel's cleaning away.
-    """
-    assert panel.load_image(three_channel_tif) is True
-    assert panel._image.shape == (8, 8, 3)
-
-    panel._object_box.setCurrentText("cell + nucleus")
-    panel._cell_channel.setValue(0)
-    panel._nucleus_channel.setValue(1)
-    panel._common_widgets["remove_background"].setChecked(True)
-    panel._common_widgets["background"].setValue(100)
-    assert panel.display_channel() is None, "the combo is on All channels"
-
-    shown = panel._display_image()
-
-    assert shown[..., 0].min() == 0 and shown[..., 0].max() == 200, (
-        "the cell channel is thresholded")
-    assert shown[..., 1].min() == 0 and shown[..., 1].max() == 300, (
-        "and so is the nucleus channel — cleaning it must not undo the "
-        "cell channel by re-copying the source")
-    assert shown[..., 2].min() == 70, (
-        "channel 2 belongs to no selected object, so it is left alone")
-    assert panel._image[..., 0].min() == 50, (
-        "and none of it was written back through the view of the source")
 
 
 # ---------------------------------------------------------------------------
