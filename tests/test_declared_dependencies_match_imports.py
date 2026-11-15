@@ -14,7 +14,8 @@ test so it cannot rot back. It runs it in both directions:
   * **declared but not imported.** 26 distributions had zero imports. Eight of
     those are legitimately indirect and are documented as such in setup.py
     (bottleneck, numexpr, openpyxl, fastremap, tqdm, protobuf, lxml, tables);
-    the other 18 were removed.
+    the other 18 were removed. fastremap left that list on 2026-11-14:
+    item 945 imports it in spacr/ops_large_sites.py for the banded flow check.
 
 The method matters as much as the result, so it is written out rather than
 hand-waved:
@@ -560,7 +561,7 @@ def test_umap_is_reached_through_a_string_literal_and_must_not_be_removed():
 
 
 # ---------------------------------------------------------------------------
-# 4. The kept-but-unimported eight, with their reasons
+# 4. The kept-but-unimported seven, with their reasons
 # ---------------------------------------------------------------------------
 
 #: Declared, never imported, and correct to keep. The value is the reason,
@@ -569,7 +570,6 @@ INDIRECT_BUT_REQUIRED = {
     "bottleneck": "pandas' nan-aware reduction accelerator; picked up by presence",
     "numexpr": "pandas' pd.eval / DataFrame.query backend; picked up by presence",
     "openpyxl": "the engine pandas needs for pd.read_excel (plot.py, foreign.py)",
-    "fastremap": "imported by cellpose itself, and by fill_voids underneath it",
     "tqdm": "spacr/cli.py sets TQDM_DISABLE for its dependencies' progress bars",
     "protobuf": "transitive via shap and onnxruntime; declared to lift a cap",
     "lxml": "the parser pandas prefers for the pd.read_html at sim.py:655",
@@ -578,7 +578,7 @@ INDIRECT_BUT_REQUIRED = {
 
 
 def test_the_indirect_dependencies_are_still_declared_and_still_unimported():
-    """These eight are the exception to "declared implies imported".
+    """These seven are the exception to "declared implies imported".
 
     They are kept deliberately, and the test asserts both halves so the
     exception cannot quietly become something else: they must still be

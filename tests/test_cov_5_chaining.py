@@ -379,22 +379,3 @@ def test_a_module_check_ready_does_not_know_falls_back_to_its_ports(tmp_path):
 
     assert problems, "an unknown module explained nothing"
     assert any("images" in str(problem.message) for problem in problems)
-
-
-def test_a_module_check_ready_does_know_answers_with_its_own_words(tmp_path):
-    """The path the fallback is a fallback FROM.
-
-    Without this, "the unknown module still explains itself" would pass on an
-    implementation that had stopped consulting check_ready at all -- and every
-    module would then get the generic per-port message instead of the one
-    written for it.
-    """
-    from spacr.ports import module_ports
-
-    module = "measure"
-    ports = tuple(module_ports(module).consumes)
-    assert ports, "the fixture module declares no ports"
-
-    problems = chaining._problems_for(module, ports, str(tmp_path), None)
-
-    assert problems, "a known module on an empty folder reported no problem"

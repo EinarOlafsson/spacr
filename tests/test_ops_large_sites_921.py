@@ -73,11 +73,11 @@ def _stand_in_masks(monkeypatch):
     """Masks from a stand-in's flows: its cell probability above zero."""
     real = ols._cellpose_masks
 
-    def masks(model, flows, cellprob):
+    def masks(model, flows, cellprob, **kwargs):
         """Label the stand-in's cell probability; real Cellpose models keep Cellpose's step."""
         if isinstance(model, _FakeModel):
             return ndimage.label(cellprob > 0)[0].astype(np.int32)
-        return real(model, flows, cellprob)
+        return real(model, flows, cellprob, **kwargs)
 
     monkeypatch.setattr(ols, "_cellpose_masks", masks)
 

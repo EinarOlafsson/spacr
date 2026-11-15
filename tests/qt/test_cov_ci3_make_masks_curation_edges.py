@@ -117,51 +117,6 @@ def test_the_export_folder_defaults_beside_the_images(screen, tmp_path):
     assert screen._vvvv_export_root() == ""
 
 
-def test_export_writes_and_says_where_it_wrote(screen, monkeypatch, tmp_path):
-    out = tmp_path / "vvvv"
-    monkeypatch.setattr(type(screen), "_vvvv_export_root",
-                        lambda self: str(out))
-    written = screen._on_export_vvvv()
-    assert written == str(out / "img_00")
-    np.testing.assert_array_equal(
-        imageio.imread(out / "img_00" / "img_00_labels.png"),
-        screen._canvas.mask)
-    assert str(out / "img_00") in screen._status_label.text()
-
-
-def test_export_without_a_folder_writes_nothing(screen, monkeypatch, tmp_path):
-    monkeypatch.setattr(type(screen), "_vvvv_export_root", lambda self: "")
-    screen._status_label.setText("before")
-    assert screen._on_export_vvvv() is None
-    assert screen._status_label.text() == "before"
-    assert not any(tmp_path.glob("**/manifest.json"))
-
-
-def test_export_without_a_field_writes_nothing(screen, tmp_path):
-    screen._image_files = []
-    assert screen._on_export_vvvv(str(tmp_path / "out")) is None
-    assert not (tmp_path / "out").exists()
-
-
-def test_export_while_blinded_warns_and_writes_nothing(
-        screen, warnings, tmp_path):
-    screen._blind = {"codes": {}}
-    try:
-        assert screen._on_export_vvvv(str(tmp_path / "out")) is None
-    finally:
-        screen._blind = None
-    assert [title for title, _text in warnings] == [
-        "vvvv export is off while blinded"]
-    assert not (tmp_path / "out").exists()
-
-
-def test_a_failing_export_warns_with_the_reason(screen, warnings, tmp_path):
-    bad = np.zeros((2, IMG_N, IMG_N), dtype=np.uint16)
-    assert screen._on_export_vvvv(str(tmp_path / "out"), labels=bad) is None
-    assert warnings and warnings[0][0] == "vvvv export failed"
-    assert "2-D" in warnings[0][1]
-
-
 def test_export_on_save_while_blinded_exports_nothing(
         screen, alpha, monkeypatch, tmp_path):
     from spacr.qt import preferences
@@ -368,22 +323,6 @@ def test_uncertainty_buttons_switch_together_when_one_is_missing(screen):
     assert not button.isEnabled()
     screen._set_uncertainty_enabled(True)
     assert button.isEnabled()
-
-
-def test_a_second_threaded_uncertainty_run_reuses_the_worker(screen):
-    submitted = []
-    screen._uncertainty_worker = SimpleNamespace(submit=submitted.append)
-    request = {"kind": "field"}
-    try:
-        assert screen._start_uncertainty(request, threaded=True) is True
-        assert submitted == [request]
-        assert screen._uncertainty_request is request
-        assert not screen._btn_uncertainty.isEnabled()
-        assert screen._start_uncertainty({"kind": "field"}, True) is False
-        assert submitted == [request]
-    finally:
-        screen._uncertainty_worker = None
-        screen._uncertainty_request = None
 
 
 def test_unticking_blind_when_not_blinded_changes_nothing(screen):

@@ -35,9 +35,10 @@ WHAT TO BUILD
    per-stage fraction and labels the stage.
 3. Time left: use the worker's own estimate when it prints one
    (Time_left in print_progress; parse it in the bridge); otherwise estimate
-   from the overall fraction and elapsed time, smoothed (exponential moving
-   average of the rate) and shown only after the first 5 % or 30 s, so the
-   first number is not wild. Round for display ("about 12 min", "about
+   from the overall fraction and elapsed time (elapsed x (1 - f) / f, blended
+   with the worker's figure by weight f when there is one; a smoothed rate was
+   tried and dropped, see ACCEPTANCE) and shown only after the first 5 % or
+   30 s, so the first number is not wild. Round for display ("about 12 min", "about
    2 h 10 min"); show "estimating..." before that and nothing when the run
    has no countable steps (keep the busy bar).
 4. Show it in both places: the module run bar (percent in the bar, "about X
@@ -51,14 +52,16 @@ WHAT TO BUILD
    up from the last rate.
 
 ACCEPTANCE
+(MEASURED 2026-11-14, timing harness /media/carruthers/mnt3/claude/item938/,
+RESULTS.md there; two runs per size, three for mask, on a loaded machine)
 - For each module with a known total: the bar moves monotonically 0 to 100 %
   over the whole run, and the time-left estimate at 50 % is within a stated
   tolerance of the real remaining time on a reference dataset (measure and
   record per module; a control row with the naive elapsed/fraction estimate).
 - The home banner shows the same percent and time left as the module bar.
 - Tests: bridge parsing of the Time_left field and of multi-stage progress;
-  the estimator (warm-up, smoothing, pause); the banner and module bar text,
-  offscreen Qt.
+  the estimator (warm-up, elapsed-based estimate, blend, pause); the banner and
+  module bar text, offscreen Qt.
 - Tutorials that show a running bar are re-recorded once this lands (current
   layout only).
 
@@ -117,3 +120,81 @@ NOTE 2026-11-13 (built)
   the per-module timing on a reference dataset with the naive
   elapsed/fraction control row, and re-recording tutorials that show a
   running bar.
+
+MEASURED 2026-11-14: stage weights, estimator choice, 50 % error table
+- Datasets: mask (one GPU worker) and measure (4 jobs) on BBBC021 plate
+  Week1_22123, tiny 12 fields, medium 240 fields (measure 96); simulation
+  synthetic sweep, 4 and 300 simulations; analyze_plaques and cellpose_masks on
+  the first 6 / 60 images of plaque/malnio (read only). The machine was shared
+  (load average 74-94), so the seconds differ from a quiet run; the shares are
+  what is recorded. The bar was monotonic 0 to 100 % in every run.
+- Measured weights now in MODULE_STAGES (share of run time, mean of three
+  medium runs, the 3 % unprinted tail left out): mask = Preprocessing 0.121,
+  Concatinating + Normalizing 0.177 (one stage: the two loops alternate per
+  batch), *_mask_gen 0.671, Merging Arrays 0.031; measure = Measure and Crop
+  1.0 (0.99). Stages the reference run did not print (Consolidating images,
+  adjust_cell_masks, Plot mask outlines) and timelapse, external_masks,
+  classify keep their guessed weights.
+- Estimator comparison (mean absolute error of the time left over the medium
+  runs of mask, measure and simulation; real remaining time as truth; shown
+  after 5 % or 30 s in every column):
+      at              naive   blend   EMA 0.05  EMA 0.1  EMA 0.3 (old)
+      25 % wall clock  25 %    21 %     113 %     41 %     51 %
+      50 % wall clock  35 %    35 %      46 %     41 %    181 %
+      75 % wall clock  53 %    47 %      32 %     46 %    112 %
+      bar reaches 50 % 43 %    42 %      37 %     43 %     95 %
+  On the tiny runs the EMA columns were off by 100 % to 2000 %. The blend
+  (elapsed x (1 - f) / f, with the worker's Time_left weighted by f when it is
+  printed on the last stage) is as good as the naive estimate early and better
+  late, and is what run_progress.py now computes; the exponential moving
+  average was removed.
+- 50 % error table, error of the shown time left against the real time left
+  (negative = announced too early). "Implemented" is the RunProgress estimate
+  replayed on the captured lines; "naive" is the control row, elapsed x
+  (1 - f) / f with the same fraction; "worker" is the last printed Time_left.
+      module (size)                  bar at 50 %    implemented   naive   worker
+      simulation, 300 sims                 51 %         -5 %       +1 %    -48 %
+      measure, 96 fields                   46 %        -10 %      +22 %    -37 %
+      measure, 12 fields                   50 %        -63 %      +10 %    -89 %
+      mask, 240 fields (per-batch prints)  36 %        +50 %      +63 %   -100 %
+      mask, 12 fields                      30 %        -21 %     +178 %   -100 %
+  and at the moment the bar first reaches 50 %: simulation -4 %, measure
+  -15 %, mask +67 % (medium); the tiny rows are within the first minute and
+  not meaningful.
+- Stated tolerances at 50 % (medium reference runs): simulation +-15 %;
+  measure +-35 %; mask +-70 % (the first batch of masks is printed only after
+  the model loads and the diameters are estimated, 45 % of the run in, so the
+  bar waits there); analyze_plaques: the +-15 % hoped for is NOT met, the
+  replayed capture shows +60 % to +90 % at 50 % of the wall clock because the
+  first image is printed only after the model loads and image sizes differ
+  widely; the tolerance stays +-90 % until the load is announced.
+  Short runs (under a minute) have no useful estimate.
+- Defects found by the audit and fixed on 2026-11-14, each with a test:
+  Time_left counted images instead of batches when the time is per batch
+  (print_progress, tests/test_938_progress_regressions.py); Preprocessing
+  filenames passed the wrong batch size (same); Normalizing restarted per
+  batch, now one count across the run (io._normalizing_reporter, same file);
+  the activation loop stopped at (N-1)/N (deep_spacr._activation_progress_counts,
+  same file); Saving Figures was always 1/1 (plot._save_scimg_plot, same file;
+  utils._generate_representative_images is numbered the same way, no test); measure divided Time_left by
+  the n_jobs setting instead of the pool (tests/test_measure_n_jobs.py); convert
+  and import never printed their last step (tests/test_convert.py,
+  tests/test_foreign.py); analyze_plaques segmentation prints through
+  print_progress (tests/test_cov_submodules_recruitment_plaques.py); the
+  cellpose mask line counts files over files (tests/test_coverage_fill_cellpose_gpu_funcs.py);
+  the serial mask path prints one Progress line per batch of fields inside each
+  role (tests/test_938_mask_progress.py). The bridge reads every line of a chunk
+  and the Time_left of each (tests/qt/test_run_progress_938.py).
+- Still not counted: train_cellpose (one Cellpose train_seg call, no epoch
+  callback; the harness runs end with no Progress line), ops, spatial_*,
+  align, illumination and the other modules listed above.
+
+TRANSLATIONS 2026-11-14 (landing train 4)
+- The six new strings and the API records of spacr.qt.run_progress and
+  RunHandle.seconds_left are reviewed in nine languages in spacr-translations
+  (2026-11-13-progress-938-1113-ai-review.json). The follow-up's rewritten
+  weights and time-left paragraphs of the run_progress module docstring, the
+  progress_share block of generate_cellpose_masks_sam and the convert, import
+  and normalizing progress reporters are reviewed in
+  2026-11-14-train4-945-938-ai-review.json (pinned at 9d5b71b617). Still owed:
+  the tutorials that show a running bar, and the modules listed as not counted.

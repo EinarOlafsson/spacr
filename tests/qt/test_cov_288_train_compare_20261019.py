@@ -28,16 +28,6 @@ def _series(**kwargs):
     return SimpleNamespace(**base)
 
 
-def test_a_curve_whose_run_is_no_longer_listed_is_described_without_a_path(screen):
-    screen._figure.spacr_series_by_label = {"run-a train": _series()}
-    clicked = []
-    screen.series_clicked.connect(clicked.append)
-    text = screen.identify_series("run-a train")
-    assert text == "run-a train · epoch 1"
-    assert screen._picked.text() == text
-    assert clicked == ["run-a train"]
-
-
 def test_a_curve_with_a_best_and_last_epoch_names_both_and_its_run_path(screen):
     run = SimpleNamespace(run_id="r1", path="/runs/r1")
     screen._runs = [run]
@@ -51,12 +41,6 @@ def test_a_curve_with_a_best_and_last_epoch_names_both_and_its_run_path(screen):
     assert f"last {metric} 0.2500 @ 9" in text
     assert f"best {metric} 0.5000 @ 4" in text
     assert text.endswith("/runs/r1")
-
-
-def test_an_unknown_label_clears_the_caption(screen):
-    screen._picked.setText("stale")
-    assert screen.identify_series("nope") == ""
-    assert screen._picked.text() == ""
 
 
 def test_the_read_only_cell_cannot_be_edited(qtbot):

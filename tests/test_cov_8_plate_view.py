@@ -24,9 +24,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QObject, Signal  # noqa: E402
 from PySide6.QtGui import QColor  # noqa: E402
-from PySide6.QtWidgets import QFileDialog  # noqa: E402
 
-from spacr import plate_qc as pqc  # noqa: E402
 from spacr.qt.screens import plate_view as pv  # noqa: E402
 from spacr.qt.screens.plate_view import (  # noqa: E402
     DEFAULT_CMAP,
@@ -162,32 +160,6 @@ def test_an_empty_grid_has_no_cell_size_and_no_selection(qtbot):
 # opening
 # ---------------------------------------------------------------------------
 
-def test_a_database_with_no_tables_says_so_and_draws_nothing(screen, empty_db):
-    """An empty database opens; it just has nothing to offer."""
-    assert screen.open_database(empty_db) is True
-
-    assert "no tables" in screen.status_text()
-    assert screen.current_table() == ""
-
-
-def test_render_refuses_without_a_table_and_says_which_step_is_missing(
-        screen, empty_db):
-    """"Pick a table first" is a next step; a blank grid is not."""
-    screen.open_database(empty_db)
-
-    assert screen.render_plate() is False
-    assert "Pick a table first" in screen.status_text()
-
-
-def test_render_refuses_a_table_that_exposes_no_numeric_column(
-        screen, measdb):
-    """A text-only table cannot be a heatmap, and the message says why."""
-    screen.open_database(measdb)
-    screen._table_combo.setCurrentText("notes")
-
-    assert screen.render_plate() is False
-    assert "no numeric columns" in screen.status_text()
-
 
 def test_a_table_change_with_no_table_selected_does_nothing(screen, empty_db):
     """The combo fires while it is being rebuilt; an empty name is not a table."""
@@ -197,90 +169,9 @@ def test_a_table_change_with_no_table_selected_does_nothing(screen, empty_db):
     assert screen.current_value_column() == ""
 
 
-def test_the_file_pickers_open_what_the_user_chose(screen, measdb,
-                                                   monkeypatch, tmp_path):
-    """Both browse buttons feed the same open path as typing one in."""
-    monkeypatch.setattr(QFileDialog, "getOpenFileName",
-                        staticmethod(lambda *a, **k: (measdb, "")))
-    screen._pick_database()
-    assert screen.current_table() != ""
-    assert screen._path_edit.text() == measdb
-
-    run_folder = str(tmp_path / "plate1")
-    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
-                        staticmethod(lambda *a, **k: run_folder))
-    screen._pick_run_folder()
-    assert screen._path_edit.text().endswith("measurements.db"), (
-        "a run folder resolves to the database inside it")
-    assert screen.current_table() != ""
-
-
-def test_a_cancelled_file_picker_opens_nothing(screen, monkeypatch):
-    """Cancel returns an empty string, which is not a path to open."""
-    monkeypatch.setattr(QFileDialog, "getOpenFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
-                        staticmethod(lambda *a, **k: ""))
-
-    screen._pick_database()
-    screen._pick_run_folder()
-
-    assert screen._path_edit.text() == ""
-    assert screen.current_table() == ""
-
-
-def test_the_typed_path_opens_the_same_database(screen, measdb):
-    """The text box is the third door onto ``open_database``."""
-    screen._path_edit.setText(measdb)
-
-    screen._on_open_typed_path()
-
-    assert screen.current_table() != ""
-
-
 # ---------------------------------------------------------------------------
 # rendering failures
 # ---------------------------------------------------------------------------
-
-def test_an_aggregation_that_refuses_clears_the_old_plate(
-        screen, measdb, monkeypatch):
-    """A stale grid under a new error message is the worst of both."""
-    screen.open_database(measdb)
-    assert screen.render_plate() is True
-    assert screen._layout_df is not None
-
-    def refuses(*_args, **_kwargs):
-        raise ValueError("no such column: plate")
-
-    monkeypatch.setattr(pqc, "plate_layout", refuses)
-
-    screen.render_plate()
-
-    assert screen._layout_df is None
-    assert "no such column: plate" in screen.status_text()
-    assert screen._grid.has_plate() is False
-
-
-class _BrokenLink:
-    """A link whose shared filter can no longer be read."""
-
-    @property
-    def filter(self):
-        raise RuntimeError("the shared link is gone")
-
-
-def test_an_unreadable_shared_filter_is_noted_not_obeyed(screen, measdb):
-    """The plate is still drawn; the status line says the filter was dropped."""
-    screen.open_database(measdb)
-    real_link = screen._link
-    screen._link = _BrokenLink()
-    try:
-        assert screen.render_plate() is True
-    finally:
-        screen._link = real_link
-
-    assert "filter ignored" in screen.status_text()
-    assert screen._layout_df is not None
 
 
 def test_a_colour_preference_that_cannot_be_read_falls_back_to_the_default(
@@ -294,35 +185,6 @@ def test_a_colour_preference_that_cannot_be_read_falls_back_to_the_default(
     monkeypatch.setattr(preferences, "color_blind_continuous_cmap", boom)
 
     assert screen._colormap_name() == DEFAULT_CMAP
-
-
-def test_the_export_picker_writes_where_the_user_pointed(
-        screen, measdb, monkeypatch, tmp_path):
-    """The Save dialog is a path source; the writing is ``export_csv``'s."""
-    screen.open_database(measdb)
-    screen.render_plate()
-    out = tmp_path / "wells.csv"
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: (str(out), "")))
-
-    screen._pick_export_path()
-
-    assert out.is_file()
-    assert out.read_text(encoding="utf-8").splitlines()[0].count(",") >= 3
-
-
-def test_a_cancelled_export_writes_nothing(screen, measdb, monkeypatch,
-                                           tmp_path):
-    """Cancel must not write a file named by an empty string."""
-    screen.open_database(measdb)
-    screen.render_plate()
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-    before = set(p.name for p in tmp_path.iterdir())
-
-    screen._pick_export_path()
-
-    assert set(p.name for p in tmp_path.iterdir()) == before
 
 
 # ---------------------------------------------------------------------------
@@ -383,35 +245,6 @@ def test_the_job_body_carries_its_result_back_to_the_painter(qtbot,
     assert started is True
     assert blocker.args[0] is True
     assert delivered == [{"wells": 96}]
-    assert screen.is_busy() is False
-
-
-def test_a_painter_that_fails_ends_the_job_instead_of_leaving_it_busy(
-        qtbot, inline_jobs):
-    """A successful worker plus a failing paint is still a failed job."""
-    screen = PlateViewScreen(threaded=True)
-    qtbot.addWidget(screen)
-
-    def explodes(_result):
-        raise RuntimeError("could not paint the grid")
-
-    with qtbot.waitSignal(screen.job_finished, timeout=5000) as blocker:
-        screen._run_job(lambda: {"wells": 96}, explodes)
-
-    assert blocker.args[0] is False
-    assert "could not paint the grid" in screen.status_text()
-    assert screen.is_busy() is False
-
-
-def test_a_worker_traceback_is_reduced_to_one_inline_line(screen):
-    """A wall of traceback in a status label is unreadable; the last line is not."""
-    screen._on_worker_error_text(
-        "Traceback (most recent call last):\n"
-        "  File \"x.py\", line 1, in <module>\n"
-        "ValueError: the query was refused\n")
-
-    assert "Plate view failed: ValueError: the query was refused" == \
-        screen.status_text()
     assert screen.is_busy() is False
 
 

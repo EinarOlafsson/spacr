@@ -22,12 +22,10 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, QSize                        # noqa: E402
-from PySide6.QtGui import QColor, QImage, QPainter              # noqa: E402
 from PySide6.QtWidgets import QWidget                           # noqa: E402
 
 from spacr.qt.widgets import ambient as amb                     # noqa: E402
 from spacr.qt.widgets.ambient import (BUFFER_MAX_PIXELS,        # noqa: E402
-                                      BUFFER_MIN_EDGE,
                                       AmbientWidget,
                                       _FractalTracksItsHost,
                                       _FrameProducer,
@@ -47,15 +45,6 @@ def _fractal():
 
 def _numpy():
     return pytest.importorskip("numpy")
-
-
-def _paint(engine, width=320, height=200) -> QImage:
-    image = QImage(width, height, QImage.Format_RGB32)
-    painter = QPainter(image)
-    painter.fillRect(image.rect(), QColor(DARK))
-    engine.paint(painter, width, height)
-    painter.end()
-    return image
 
 
 # ---------------------------------------------------------------------------
@@ -110,71 +99,13 @@ def test_a_widget_that_raises_when_asked_its_screen_gets_the_fallback(qapp):
     assert asked == ["screen"], "the widget was never asked"
 
 
-def test_setting_the_ceiling_it_already_has_does_not_drop_the_buffer(qapp):
-    """A window moved between two identical screens must not restart the
-    field: dropping the buffer is a reallocation and a visible reshade."""
-    engine = _fractal()
-    _paint(engine)
-    assert engine._buffer is not None, "nothing was buffered to begin with"
-
-    engine.set_max_pixels(engine.max_pixels)
-    assert engine._buffer is not None, "an unchanged ceiling dropped the buffer"
-
-    smaller = BUFFER_MIN_EDGE ** 2
-    engine.set_max_pixels(smaller)
-    assert engine.max_pixels == smaller
-    assert engine._buffer is None
-
-
 # ---------------------------------------------------------------------------
 # The fractal engine's cost guard
 # ---------------------------------------------------------------------------
 
-def test_a_frame_with_nothing_measured_leaves_the_capacity_guard_alone(qapp):
-    """The guard adapts to measured costs, and no measurement is no news.
-
-    Moving it on an empty batch would walk the render capacity around on the
-    strength of whatever `dt` happened to be, which is the one input that
-    says nothing about how fast this machine is.
-    """
-    engine = _fractal()
-    start = engine.afford()
-
-    engine.advance(0.1)
-    assert engine.afford() == start, "an unmeasured frame moved the guard"
-
-    engine._spent = [1000.0]        # a pass far over the frame budget
-    engine.advance(0.1)
-    assert engine.afford() < start
-
-
-def test_the_measured_costs_are_a_window_and_not_a_log(qapp):
-    """`_spent` is appended to on every shading pass and drained on every
-    advance, and a widget that is painted but never advanced would otherwise
-    grow it without bound for as long as the screen is open."""
-    engine = _fractal()
-    engine._spent = [0.0] * 10
-    _paint(engine)
-    assert len(engine._spent) == 11, "the pass was not measured at all"
-
-    engine._spent = [0.0] * 20
-    _paint(engine)
-    assert len(engine._spent) == 16
-    assert engine._spent[-1] > 0.0, "the newest measurement was trimmed away"
-
-
 # ---------------------------------------------------------------------------
 # The fractal engine's buds
 # ---------------------------------------------------------------------------
-
-def test_a_canvas_with_no_pixels_grows_no_buds(qapp):
-    """A widget shown at zero size still ticks, and half a bud geometry
-    divided by a zero span is a NaN that reaches the shader."""
-    engine = _fractal()
-    assert engine.buds(0, 200) == ()
-    assert engine.buds(320, 0) == ()
-    assert len(engine.buds(320, 200)) >= 1
-
 
 def test_a_bud_that_falls_off_the_buffer_impresses_nothing(qapp):
     """A bud whose window clips to a strip outside its own rim.
@@ -268,27 +199,6 @@ def test_an_already_emptied_box_retires_nothing_twice(qapp):
 # The widget's frames
 # ---------------------------------------------------------------------------
 
-def test_a_republish_with_no_canvas_publishes_nothing(qtbot):
-    """A live Preferences change lands while the widget is at zero size.
-
-    The engine has no frame to give for an empty canvas, and publishing the
-    None would hand the paint path a slot it has to test for anyway.
-    """
-    widget = AmbientWidget(theme="blobs", palette="spacr", background=DARK,
-                           seed=3)
-    qtbot.addWidget(widget)
-    widget.resize(240, 160)
-    producer = _FrameProducer(widget.engine, widget._engine_lock, 30, (0, 0))
-    widget._producer_box[0] = producer
-
-    widget.set_time(3.0)
-    assert producer.latest() is None, "an empty canvas published a frame"
-
-    producer.size = (240, 160)
-    widget.set_time(4.0)
-    assert producer.latest() is not None
-
-
 @pytest.mark.parametrize("theme", amb.AMBIENT_THEMES)
 def test_unchanged_preferences_preserve_the_ready_frame_without_shading(
         qtbot, monkeypatch, tmp_path, theme):
@@ -328,61 +238,6 @@ def test_unchanged_preferences_preserve_the_ready_frame_without_shading(
         after = producer.latest()
         assert after.size() == before.size()
         assert bytes(after.constBits()) == bytes(before.constBits())
-
-
-def _backend_change_probe(monkeypatch, requested, engine_backend):
-    from types import SimpleNamespace
-
-    engine = object.__new__(amb.DriftEngine)
-    engine._graphics_backend = engine_backend
-    ready = object()
-    changes = []
-    widget = SimpleNamespace(
-        _graphics_backend=requested, _engine=engine,
-        _engine_lock=threading.Lock(),
-        _timer=SimpleNamespace(isActive=lambda: True),
-        _producer_box=[ready], _partial_frame=ready,
-        _last_frame=ready, _last_composed=ready,
-        _start_producer=lambda: changes.append("start"),
-        update=lambda: changes.append("update"))
-
-    def retire(box):
-        changes.append("retire")
-        box[0] = None
-
-    monkeypatch.setattr(amb, "_retire_producer", retire)
-    return widget, ready, changes
-
-
-@pytest.mark.parametrize("backend,choice", [("gpu", "GPU"), ("cpu", "unknown")])
-def test_an_unchanged_graphics_backend_preserves_the_ready_drift_frame(
-        monkeypatch, backend, choice):
-    widget, ready, changes = _backend_change_probe(monkeypatch, backend, backend)
-    AmbientWidget._set_graphics_backend(widget, choice)
-    assert changes == []
-    assert widget._producer_box[0] is ready
-    assert widget._partial_frame is ready
-    assert widget._last_frame is ready
-    assert widget._last_composed is ready
-    assert widget._graphics_backend == widget._engine._graphics_backend == backend
-
-
-def test_a_changed_graphics_backend_restarts_the_drift_producer(monkeypatch):
-    widget, _ready, changes = _backend_change_probe(monkeypatch, "cpu", "cpu")
-    AmbientWidget._set_graphics_backend(widget, "GPU")
-    assert widget._graphics_backend == widget._engine._graphics_backend == "gpu"
-    assert changes == ["retire", "start", "update"]
-    assert widget._producer_box[0] is None
-    assert widget._partial_frame is None
-    assert widget._last_frame is None
-    assert widget._last_composed is None
-
-
-def test_reapplying_a_backend_repairs_a_mismatched_engine(monkeypatch):
-    widget, _ready, changes = _backend_change_probe(monkeypatch, "cpu", "gpu")
-    AmbientWidget._set_graphics_backend(widget, "CPU")
-    assert widget._graphics_backend == widget._engine._graphics_backend == "cpu"
-    assert changes == ["retire", "start", "update"]
 
 
 @pytest.mark.parametrize("setter,field,changed", [

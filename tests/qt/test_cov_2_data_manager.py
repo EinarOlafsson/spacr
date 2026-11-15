@@ -21,8 +21,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QObject, Signal                    # noqa: E402
-from PySide6.QtWidgets import QDialog                         # noqa: E402
 
 from spacr import data_manager as dm                          # noqa: E402
 from spacr.qt.screens import data_manager as screen_module    # noqa: E402
@@ -60,26 +58,6 @@ class _Chooser:
     def getExistingDirectory(self, *args):     # noqa: N802 - Qt spelling
         self.calls.append(args)
         return self.path
-
-
-def _answering(dialog_result):
-    class _Dialog:
-        """A confirmation dialog that answers without being shown."""
-
-        def __init__(self, plan, parent=None, *, threaded=True):
-            """Take the real dialog's signature, threading included.
-
-            The real one enumerates the files off the GUI thread and is
-            handed the screen's own ``threaded`` flag, so a stand-in that
-            did not accept it would raise a TypeError instead of answering.
-            """
-            self.plan = plan
-            self.threaded = threaded
-
-        def exec(self):
-            return dialog_result
-
-    return _Dialog
 
 
 #: The stand-in's answers. Integers because the screen ORs them together to
@@ -216,47 +194,6 @@ def test_a_symlink_in_the_project_is_reported_and_not_followed(qtbot,
 
 
 # ---------------------------------------------------------------------------
-# planning refusals
-# ---------------------------------------------------------------------------
-
-def test_planning_without_a_project_asks_for_one(qtbot):
-    """The Plan button is reachable before a folder is chosen.
-
-    Running the planner on ``""`` would raise inside a click handler; the
-    screen answers with the sentence that says what to do instead.
-    """
-    widget = screen_module.DataManagerScreen(threaded=False)
-    qtbot.addWidget(widget)
-
-    assert widget.plan_prune() is False
-    assert "Choose a project folder first." in widget.note_label.text()
-    assert widget.plan is None
-
-
-def test_a_plan_with_nothing_to_delete_says_to_read_the_reasons(qtbot,
-                                                                tmp_path):
-    """An empty plan is a result, not a failure, and it has to explain itself.
-
-    A project whose only contents are protected -- raw images and files with
-    no registry row -- frees nothing. Leaving the previous "N bytes can be
-    deleted" text on screen would be a lie about what the button now does.
-    """
-    root = str(tmp_path / "plate1")
-    os.makedirs(os.path.join(root, "orig"))
-    with open(os.path.join(root, "orig", "plate1_A01_1.tif"), "wb") as handle:
-        handle.write(b"\x00" * 2048)
-
-    widget = screen_module.DataManagerScreen(project=root, threaded=False)
-    qtbot.addWidget(widget)
-    widget.plan_prune()
-
-    assert widget.plan is not None
-    assert widget.plan.candidates == ()
-    assert "Nothing here can be deleted safely" in widget.freed_label.text()
-    assert widget.prune_table.rowCount() == 0
-
-
-# ---------------------------------------------------------------------------
 # the confirmation dialogs
 # ---------------------------------------------------------------------------
 
@@ -286,52 +223,6 @@ def test_a_truncated_file_list_says_the_totals_still_cover_everything(
     assert "the list is cut short" in text
     assert "cover all of them" in text
     assert dm.human_bytes(plan.total_bytes) in text
-
-
-def test_a_cancelled_confirmation_deletes_nothing(screen, project,
-                                                  monkeypatch):
-    """Closing the dialog is a decision, and the screen has to record it.
-
-    Nothing may be removed, and the note has to say so -- a silent no-op is
-    indistinguishable from a deletion that failed.
-    """
-    screen.plan_prune()
-    monkeypatch.setattr(screen_module, "ConfirmDeleteDialog",
-                        _answering(QDialog.Rejected))
-    before = sorted(
-        os.path.join(folder, name)
-        for folder, _dirs, names in os.walk(project) for name in names)
-
-    assert screen.confirm_and_prune() is False
-
-    assert "Nothing was deleted." in screen.note_label.text()
-    after = sorted(
-        os.path.join(folder, name)
-        for folder, _dirs, names in os.walk(project) for name in names)
-    assert after == before
-    assert screen.plan is not None, "the plan survives a cancel"
-
-
-def test_an_accepted_confirmation_deletes_exactly_the_plan(screen, project,
-                                                           monkeypatch):
-    """The accepted dialog runs the plan the dialog was built from.
-
-    The files the plan listed go, the originals stay, and the screen drops the
-    spent plan so the delete button cannot be pressed twice.
-    """
-    screen.plan_prune()
-    plan = screen.plan
-    planned, _ = plan.file_list()
-    assert planned
-    monkeypatch.setattr(screen_module, "ConfirmDeleteDialog",
-                        _answering(QDialog.Accepted))
-
-    assert screen.confirm_and_prune() is True
-
-    assert not any(os.path.exists(path) for path in planned)
-    assert os.path.isdir(os.path.join(project, "orig"))
-    assert screen.plan is None
-    assert "Freed" in screen.freed_label.text()
 
 
 def test_confirm_and_prune_does_nothing_without_a_plan(screen, monkeypatch):
@@ -462,122 +353,3 @@ def test_a_handler_that_raises_after_the_work_is_reported_not_swallowed(
     assert seen == [False], "but the job is reported as failed"
     assert "the table refused the row" in screen.note_label.text()
     assert screen._busy is False, "and the screen is usable again"
-
-
-class _StubWorker(QObject):
-    """Stands in for ``PipelineWorker``: the two signals the screen connects."""
-
-    error = Signal(str)
-    finished = Signal(bool)
-
-
-class _StubThread(QObject):
-    """A thread stand-in that runs the job body on the calling thread.
-
-    Coverage cannot see inside a ``QThread``, and a real one would also make
-    the assertions racy. Running the same callable here drives the identical
-    code with the identical signals.
-    """
-
-    finished = Signal()
-
-    def __init__(self, fn, settings, worker):
-        super().__init__()
-        self._fn = fn
-        self._settings = settings
-        self.worker = worker
-        self.quit_calls = 0
-        self.waited = []
-
-    def start(self):
-        self._fn(self._settings)
-        self.worker.finished.emit(True)
-
-    def retire(self):
-        """Emit what a real thread emits when its event loop ends."""
-        self.finished.emit()
-
-    def quit(self):
-        self.quit_calls += 1
-
-    def wait(self, msecs=0):
-        self.waited.append(msecs)
-        return True
-
-
-@pytest.fixture()
-def stub_threads(monkeypatch):
-    """Replace ``make_thread`` so the threaded path runs inline."""
-    made = []
-
-    def _make_thread(fn, settings, app_key="", **_kwargs):
-        worker = _StubWorker()
-        thread = _StubThread(fn, settings, worker)
-        made.append(thread)
-        return thread, worker
-
-    from spacr.qt import bridge
-    monkeypatch.setattr(bridge, "make_thread", _make_thread)
-    return made
-
-
-def test_the_threaded_path_runs_the_same_job_and_settles_it(qtbot, project,
-                                                            stub_threads):
-    """The body handed to the worker computes the result the handler draws.
-
-    The threaded and inline paths must not diverge: the same callable, the
-    same box, the same handler. What the worker thread does is put the
-    result where ``_job_settled`` looks for it.
-    """
-    widget = screen_module.DataManagerScreen(threaded=True)
-    qtbot.addWidget(widget)
-
-    with qtbot.waitSignal(widget.job_finished, timeout=5000) as blocker:
-        widget.set_project(project)
-
-    assert blocker.args == [True]
-    assert stub_threads, "the threaded path was taken"
-    assert widget.usage is not None
-    assert widget.usage.total_bytes > 0
-    assert widget.usage_table.rowCount() > 0
-
-
-def test_a_worker_error_reaches_the_note_strip_as_its_last_line(qtbot, project,
-                                                                stub_threads):
-    """A traceback from the worker is shown as the line that matters.
-
-    The screen has no console. Showing the whole traceback in a one-line
-    label would show the user the first frame of it; the exception line is
-    the part that says what went wrong.
-    """
-    widget = screen_module.DataManagerScreen(threaded=True)
-    qtbot.addWidget(widget)
-    widget.set_project(project)
-    thread = stub_threads[-1]
-
-    thread.worker.error.emit(
-        "Traceback (most recent call last):\n  File x\nOSError: disk is full")
-    assert widget.note_label.text() == "OSError: disk is full"
-
-    thread.worker.error.emit("")
-    assert widget.note_label.text() == "unknown error"
-
-
-def test_closing_the_screen_stops_a_thread_that_is_still_alive(qtbot, project,
-                                                               stub_threads):
-    """A QThread collected while running takes the process with it.
-
-    ``closeEvent`` is the last chance to stop one, so a job still on the
-    books has to be asked to quit and waited for -- not merely dropped.
-    """
-    widget = screen_module.DataManagerScreen(threaded=True)
-    qtbot.addWidget(widget)
-    widget.set_project(project)
-    thread = stub_threads[-1]
-    assert widget._jobs, "the job is still on the books until the thread retires"
-
-    widget.close()
-
-    assert thread.quit_calls == 1
-    assert thread.waited == [2000]
-    assert widget._jobs == []

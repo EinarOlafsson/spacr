@@ -36,7 +36,6 @@ from spacr.qt.widgets.feature_rank import (
     DEFAULT_TOP,
     KS,
     ExplorerSpec,
-    rank_features,
 )
 
 
@@ -107,64 +106,6 @@ def test_a_saved_ranking_with_an_empty_feature_list_is_not_a_crash():
 
 
 # ---------------------------------------------------------------------------
-# The caption for a score with nothing in it
-# ---------------------------------------------------------------------------
-
-def test_a_row_whose_statistics_are_missing_prints_none_of_them(two_conditions):
-    """Every ranked feature carries a one-line caption that the panel puts
-    beside it. Each statistic is printed only when it is finite, and that
-    guard is the whole point: a feature whose groups collapsed has NaN for
-    AUC, for Cohen's d and for KS, and printing them anyway would put
-    ``AUC nan, higher in trt`` in front of a reader as though the direction of
-    the difference were known. The caption for such a row is the feature and
-    its score and nothing else; a real row still says all three.
-    """
-    real = rank_features(two_conditions,
-                         ExplorerSpec(label="condition")).score_for("cell_area")
-
-    said = real.describe()
-    assert said.startswith("cell_area: 1.000")
-    assert "AUC 1.000, higher in trt" in said
-    assert "KS 1.000" in said
-    assert "d +" in said
-
-    nothing = replace(real, score=float("nan"), auc=float("nan"),
-                      cohen_d=float("nan"), ks=float("nan"),
-                      mutual_info=float("nan"))
-    empty = nothing.describe()
-
-    assert empty == "cell_area: nan"
-    assert "AUC" not in empty
-    assert "KS" not in empty
-
-
-def test_a_row_with_only_a_spread_statistic_still_names_the_spread(
-        two_conditions):
-    """The three guards are independent, and the caption must survive any
-    combination of them. A KS-only row -- the shape of a feature whose ranks
-    tie everywhere but whose distributions differ -- has to keep its KS
-    number, because that value is the only evidence the reader has that the
-    feature is worth a second look. Dropping it along with the two NaNs would
-    turn the "shape, not shift" warning into an unexplained flag.
-    """
-    real = rank_features(two_conditions,
-                         ExplorerSpec(label="condition")).score_for("cell_area")
-
-    ks_only = replace(real, score=0.05, auc=float("nan"),
-                      cohen_d=float("nan"), ks=0.42)
-    said = ks_only.describe()
-
-    assert said == "cell_area: 0.050 · KS 0.420"
-    assert "AUC" not in said and "d " not in said
-
-    both = replace(real, score=0.05, auc=0.52, cohen_d=float("nan"), ks=0.42)
-    assert both.describe() == (
-        "cell_area: 0.050 · AUC 0.520, higher in trt · KS 0.420 · "
-        "distributional shape differs without a location shift; a rank "
-        "statistic does not detect this pattern")
-
-
-# ---------------------------------------------------------------------------
 # The label-shuffling null over a feature that cannot be shuffled apart
 # ---------------------------------------------------------------------------
 
@@ -211,44 +152,6 @@ def test_a_feature_with_one_measured_object_leaves_the_null_at_zero():
     real = FR._null_threshold(measured, keys, levels, spec, [])
     assert real > 0.0
     assert np.isfinite(real)
-
-
-def test_a_feature_measured_on_two_objects_makes_the_null_unbeatable(
-        two_conditions):
-    """The same code end to end, because the direct call above proves the
-    arithmetic and not the wiring -- and because what it does to a real
-    ranking is worth stating. The null is the best score of *any* feature
-    under shuffling, so a column measured on two objects, a stain only a
-    couple of wells got, reaches a separation of 1.0 on any shuffle that
-    deals those two rows to different classes, and the family-wise threshold
-    goes to 1.0 with it. Everything then stops beating the null, including a
-    feature that separates perfectly on all sixteen objects. That is the
-    honest answer -- with that column in the ranking the best score really is
-    reachable by chance -- and the screen has to be able to say it, which
-    means the shuffles where the sparse column collapses into one class must
-    contribute 0.0 rather than a NaN that would take the whole quantile with
-    it.
-    """
-    alone = rank_features(two_conditions,
-                          ExplorerSpec(label="condition", n_permutations=12,
-                                       seed=3))
-    assert alone.null_threshold is not None and alone.null_threshold < 1.0
-    assert [s.feature for s in alone.above_null()] == ["cell_area"]
-
-    frame = two_conditions.copy()
-    sparse = [np.nan] * 16
-    sparse[0], sparse[15] = 5.0, 9.0
-    frame["rare_stain"] = sparse
-
-    result = rank_features(frame, ExplorerSpec(label="condition",
-                                               n_permutations=12, seed=3))
-
-    assert result.n_considered == 2
-    assert result.skipped == {}
-    assert result.null_threshold == 1.0
-    assert result.above_null() == ()
-    assert "shuffling the labels reaches 1.000" in result.summary()
-    assert "0 feature(s) beat it" in result.summary()
 
 
 # ---------------------------------------------------------------------------

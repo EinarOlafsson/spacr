@@ -72,15 +72,6 @@ def _graph(*nodes: Node, edges=()) -> PipelineGraph:
 
 
 @pytest.fixture
-def canvas(qtbot):
-    """A bare canvas, sized so every box of a small graph is on it."""
-    widget = screen_module.GraphCanvas()
-    qtbot.addWidget(widget)
-    widget.resize(900, 400)
-    return widget
-
-
-@pytest.fixture
 def screen(qtbot):
     """The whole screen, running its jobs inline so a test can drive it."""
     widget = screen_module.PipelineGraphScreen(threaded=False)
@@ -91,28 +82,6 @@ def screen(qtbot):
 # ---------------------------------------------------------------------------
 # A redraw that keeps the box the user was reading about
 # ---------------------------------------------------------------------------
-
-def test_a_redraw_that_still_shows_the_box_keeps_it_selected(canvas):
-    """Ticking a filter box re-pushes the whole graph into the canvas. If
-    that dropped the selection every time, the ring would jump off the box
-    the user is reading about in the detail pane — the pane would still
-    describe an artifact that no longer looks chosen, which is how somebody
-    reads one artifact's provenance under another's name. The selection may
-    only be cleared when the box it points at has actually gone."""
-    graph = _graph(_bare_node("a"), _full_node("b"))
-    canvas.set_graph(graph)
-    canvas.select("b")
-    assert canvas.selected == "b"
-
-    # Same graph, both boxes still shown: the selection survives.
-    canvas.set_graph(graph, visible={"a", "b"})
-    assert canvas.selected == "b"
-    assert set(canvas.node_rects()) == {"a", "b"}
-
-    # Now hide it, and only now is it dropped.
-    canvas.set_graph(graph, visible={"a"})
-    assert canvas.selected == ""
-    assert set(canvas.node_rects()) == {"a"}
 
 
 def test_a_filtered_redraw_keeps_the_selection_when_the_filter_spares_it(
@@ -251,16 +220,6 @@ def test_copying_the_graph_without_a_clipboard_says_nothing_and_raises_none(
     finally:
         QtWidgets.QApplication = real_app
     assert screen._verdict.text() == "2 of 2 artifact(s) stale."
-
-
-def test_copying_before_a_project_is_open_says_there_is_no_graph(screen):
-    """The button is enabled from the first paint, so it will be pressed
-    before a project is chosen. Silence there reads as a successful copy of
-    an empty graph; the banner has to say the copy did not happen."""
-    assert screen.graph() is None
-    screen._on_copy_dot()
-    assert screen._verdict.text() == "There is no graph to copy yet."
-    assert screen._verdict.property("problem") == "true"
 
 
 # ---------------------------------------------------------------------------

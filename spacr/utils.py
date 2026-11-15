@@ -1743,8 +1743,8 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
         except (TypeError, ValueError):
             effective_jobs = 1
         remaining = max(0, files_to_process - files_processed)
-        time_left = (remaining * average_time / effective_jobs) / 60
         if batch_size is None:
+            time_left = (remaining * average_time / effective_jobs) / 60
             time_info = f'Time/image: {average_time:.3f}sec, Time_left: {time_left:.3f} min.'
         else:
             try:
@@ -1752,6 +1752,7 @@ def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batc
             except (TypeError, ValueError):
                 effective_batch_size = 1
             average_time_img = average_time / effective_batch_size
+            time_left = (remaining * average_time_img / effective_jobs) / 60
             time_info = f'Time/batch: {average_time:.3f}sec, Time/image: {average_time_img:.3f}sec, Time_left: {time_left:.3f} min.'
     else:
         time_info = None
@@ -2228,6 +2229,8 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
         df['new_measurement'] = df['cell_area']
     dfs = {condition: df_group for condition, df_group in df.groupby('condition')}
     conditions = df['condition'].dropna().unique().tolist()
+    figures_per_condition = 1 + len(channel_indices)
+    figures_saved = 0
     for condition in conditions:
         df = dfs[condition]
         df = _filter_closest_to_stat(df, column='new_measurement', n_rows=nr_imgs, use_median=False)
@@ -2235,10 +2238,14 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
         fig = _plot_images_on_grid(png_paths_by_condition, channel_indices, um_per_pixel, scale_bar_length_um, fontsize, show_filename, channel_names, plot)
         src = os.path.dirname(db_path)
         os.makedirs(src, exist_ok=True)
-        _save_figure(fig=fig, src=src, text=condition)
+        figures_saved += 1
+        _save_figure(fig=fig, src=src, text=condition, i=figures_saved,
+                     all_folders=figures_per_condition * len(conditions))
         for channel in channel_indices:
             fig = _plot_images_on_grid(png_paths_by_condition, [channel], um_per_pixel, scale_bar_length_um, fontsize, show_filename, channel_names, plot)
-            _save_figure(fig, src, text=f'channel_{channel}_{condition}')
+            figures_saved += 1
+            _save_figure(fig, src, text=f'channel_{channel}_{condition}', i=figures_saved,
+                         all_folders=figures_per_condition * len(conditions))
             plt.close()
             
 def _map_values(row, values, locs):
