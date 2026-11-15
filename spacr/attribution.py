@@ -395,6 +395,24 @@ def _is_attention_module(module: nn.Module) -> bool:
     return type(module).__name__.endswith("Attention")
 
 
+def _attention_blocks(model: nn.Module) -> List[nn.Module]:
+    """The model's innermost attention blocks, excluding the model itself.
+
+    A module whose class name ends in ``Attention`` can be the whole network or
+    a wrapper around another attention module; counting those would report
+    more blocks than the model has, so only modules with no attention module
+    below them are returned.
+    """
+    found = [m for m in model.modules()
+             if m is not model and _is_attention_module(m)]
+    inner = []
+    for candidate in found:
+        below = [m for m in candidate.modules() if m is not candidate]
+        if not any(other in below for other in found if other is not candidate):
+            inner.append(candidate)
+    return inner
+
+
 def _check_spatial_activation(module: nn.Module, wrapped: ClassScoreModel,
                               x: torch.Tensor, layer_name: str,
                               model_type: Optional[str],
@@ -425,14 +443,17 @@ def _check_spatial_activation(module: nn.Module, wrapped: ClassScoreModel,
         captured.append(out if isinstance(out, torch.Tensor) else out[0])
         order.append("target")
 
+    ran: set = set()
+
     def _attn_hook(_m, _inp, _out):
         """Record that an attention block ran."""
         order.append("attention")
+        ran.add(id(_m))
 
     handles = [module.register_forward_hook(_target_hook)]
     handles += [m.register_forward_hook(_attn_hook)
-                for m in wrapped.model.modules()
-                if m is not module and _is_attention_module(m)]
+                for m in _attention_blocks(wrapped.model)
+                if m is not module]
     try:
         with torch.no_grad():
             wrapped(x)
@@ -463,7 +484,7 @@ def _check_spatial_activation(module: nn.Module, wrapped: ClassScoreModel,
         raise NoSpatialLayerError(
             f"target layer {layer_name!r} of "
             f"model_type={model_type or type(wrapped.model).__name__!r} runs "
-            f"before every one of the model's {order.count('attention')} "
+            f"before every one of the model's {len(ran)} "
             f"attention blocks, so it is the patch embedding: no "
             f"class-discriminative information has reached it and a CAM over it "
             f"is a picture of local image statistics, not of what the model "

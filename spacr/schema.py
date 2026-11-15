@@ -16,6 +16,7 @@ import pandas only when called.
 
 from __future__ import annotations
 
+import math
 import os
 import re
 from dataclasses import dataclass
@@ -2723,6 +2724,8 @@ def comparable_key_value(value: Any) -> str:
         return text
     if number != number:
         return ''
+    if math.isinf(number):
+        return str(number)
     if number == int(number):
         return str(int(number))
     return str(number)

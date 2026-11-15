@@ -220,6 +220,10 @@ def test_rank_trials_orders_by_control_percentile_with_failures_last(subtests):
          pd.DataFrame({"trial_id": [1, 2, 3], "status": ["ok", "ok", "ok"],
                        "negative_control_percentile": [0.5, None, 0.1]}),
          "negative", [3, 1, 2]),
+        ("a table with no status column counts every trial as run",
+         pd.DataFrame({"trial_id": [1, 2],
+                       "positive_control_percentile": [0.5, 0.1]}),
+         "positive", [2, 1]),
     ]
     for case_id, frame, role, expected in ordered_cases:
         with subtests.test(msg=case_id):

@@ -419,6 +419,18 @@ def test_a_scan_that_raises_lands_in_the_status_label(screen, plate,
     assert "collection exploded" in screen.last_error
 
 
+def test_worker_error_text_reports_its_last_line_or_an_unknown_error(screen):
+    """Whitespace-only worker output is an unknown error, not an IndexError."""
+    for text, shown in [("Traceback\n  ...\nValueError: bad\n",
+                         "Report failed: ValueError: bad"),
+                        ("   \n", "Report failed: unknown error"),
+                        ("", "Report failed: unknown error")]:
+        screen._busy = True
+        screen._on_worker_error_text(text)
+        assert screen.last_error == shown
+        assert screen.is_busy() is False
+
+
 def test_an_unwritable_output_lands_in_the_status_label(screen, plate,
                                                         monkeypatch):
     def _boom(*_a, **_k):

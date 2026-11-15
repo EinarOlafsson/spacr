@@ -905,7 +905,8 @@ class ReportScreen(QWidget):
         :param text: the worker's error output; only its last line is shown,
             which for a traceback is the exception itself.
         """
-        line = (text or "").strip().splitlines()[-1] if text else "unknown error"
+        lines = (text or "").strip().splitlines()
+        line = lines[-1] if lines else "unknown error"
         self._busy = False
         self._set_status(f"Report failed: {line}", error=True)
 

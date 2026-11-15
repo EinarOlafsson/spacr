@@ -802,19 +802,37 @@ def test_an_unknown_key_falls_back_to_a_themed_glyph():
 # 6. Menu actions: about / urls / logs / preferences
 # ===========================================================================
 
-def test_resolve_version_reports_the_package_version(win):
+def test_resolve_version_reports_the_package_version():
+    """No window: its workers' shutdown under load is not what this tests."""
     import spacr
-    assert win._resolve_version() == spacr.__version__
+    assert MainWindow._resolve_version(None) == spacr.__version__
 
 
-def test_resolve_version_falls_back_to_dev(win, monkeypatch):
+def test_resolve_version_falls_back_to_dev(monkeypatch):
+    """An empty version and a failing import both read as ``dev``.
+
+    The import fails only for the ``import spacr`` inside
+    ``_resolve_version``; emptying ``sys.modules['spacr']`` instead broke
+    every other thread that imported from spaCR meanwhile.
+    """
+    import builtins
+
     import spacr
     monkeypatch.setattr(spacr, "__version__", "")
-    assert win._resolve_version() == "dev"
-    monkeypatch.setitem(sys.modules, "spacr", None)
-    assert win._resolve_version() == "dev"
-    # Put spacr back before qtbot closes the window: closing imports from it.
-    monkeypatch.setitem(sys.modules, "spacr", spacr)
+    assert MainWindow._resolve_version(None) == "dev"
+    monkeypatch.setattr(spacr, "__version__", "1.2.3")
+    real_import = builtins.__import__
+    own_frame = MainWindow._resolve_version.__code__
+
+    def refuse(name, globals=None, locals=None, fromlist=(), level=0):
+        """Refuse ``import spacr`` from ``_resolve_version`` alone."""
+        if name == "spacr" and not fromlist and \
+                sys._getframe(1).f_code is own_frame:
+            raise ImportError("spacr cannot be imported")
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", refuse)
+    assert MainWindow._resolve_version(None) == "dev"
 
 
 def test_help_menu_urls_open_in_a_browser(win, monkeypatch):

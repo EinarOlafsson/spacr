@@ -820,12 +820,65 @@ def write_database(frame: pd.DataFrame, db: Any, table: str, *,
     if backend != 'sqlite':
         _store_write(frame, db, backend, table, if_exists)
         return db if backend == 'postgres' else resolve_path(db)
+    if if_exists not in ('append', 'replace', 'fail'):
+        raise ValueError(f"if_exists must be 'append', 'replace' or 'fail', "
+                         f"not {if_exists!r}.")
     target = resolve_path(db)
     parent = os.path.dirname(os.path.abspath(target))
     os.makedirs(parent, exist_ok=True)
     with _connect(target, migrate=migrate) as conn:
+        existing = _sqlite_table_columns(conn, table)
+        if existing and if_exists == 'fail':
+            raise ValueError(f'Table {table!r} already exists in {target!r}.')
+        if existing and if_exists == 'append':
+            _sqlite_add_missing_columns(conn, table, frame, existing, index)
         frame.to_sql(table, conn, if_exists=if_exists, index=index, **kwargs)
     return target
+
+
+def _sqlite_table_columns(conn: sqlite3.Connection, table: str) -> List[str]:
+    """The column names of ``table``, or ``[]`` when the table is absent."""
+    rows = conn.execute(
+        f'PRAGMA table_info({_quote_identifier(table)})').fetchall()
+    return [str(row[1]) for row in rows]
+
+
+def _sqlite_column_type(values: Any) -> str:
+    """The SQLite type pandas' ``to_sql`` gives a column of this dtype."""
+    from pandas.api import types
+
+    if types.is_bool_dtype(values) or types.is_integer_dtype(values):
+        return 'INTEGER'
+    if types.is_float_dtype(values):
+        return 'REAL'
+    if types.is_datetime64_any_dtype(values):
+        return 'TIMESTAMP'
+    return 'TEXT'
+
+
+def _sqlite_add_missing_columns(conn: sqlite3.Connection, table: str,
+                                frame: pd.DataFrame, existing: List[str],
+                                index: bool) -> None:
+    """Add to ``table`` every column ``frame`` writes that it does not have.
+
+    SQLite compares column names without regard to case, so ``Area`` is
+    already present when the table has ``area``. A column another writer
+    added in the meantime is taken as present.
+    """
+    written = frame.reset_index() if index else frame
+    have = {name.lower() for name in existing}
+    quoted = _quote_identifier(table)
+    for name in written.columns:
+        if str(name).lower() in have:
+            continue
+        try:
+            conn.execute(f'ALTER TABLE {quoted} ADD COLUMN '
+                         f'{_quote_identifier(str(name))} '
+                         f'{_sqlite_column_type(written[name])}')
+        except sqlite3.OperationalError as error:
+            if 'duplicate column name' not in str(error).lower():
+                raise
+        have.add(str(name).lower())
 
 
 _DUCKDB_SUFFIXES: Tuple[str, ...] = ('.duckdb', '.ddb')

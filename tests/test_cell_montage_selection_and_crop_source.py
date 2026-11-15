@@ -58,9 +58,19 @@ def _counts(fractions, cell_count=PER_WELL):
 
 
 def _round(frac, norm, total, n=6, single=False):
-    """The fraction-arithmetic caption a well records."""
-    text = (f"round({frac} x 6) = {n}, where {frac} is this guide's {frac} "
-            f"normalised by {norm} (the well's fractions sum to {total})")
+    """The fraction-arithmetic caption a well records.
+
+    A well whose kept fractions sum to zero has nothing to normalise against,
+    and its caption says so instead of claiming a division by 1.
+    """
+    if total == 0:
+        text = (f"round({frac} x 6) = {n}, where {frac} is this guide's "
+                f"{frac}, not normalised (the well's fractions sum to 0, so "
+                f"there is nothing to normalise against)")
+    else:
+        text = (f"round({frac} x 6) = {n}, where {frac} is this guide's "
+                f"{frac} normalised by {norm} (the well's fractions sum to "
+                f"{total})")
     if single:
         text += ("; (attributed needs more than one guide in a well; this one "
                  "holds a single guide)")

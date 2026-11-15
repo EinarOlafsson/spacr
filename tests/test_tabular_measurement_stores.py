@@ -174,35 +174,28 @@ def test_write_database_creates_appends_replaces_and_refuses_on_every_store(
             assert tabular.table_columns(store, table="cell",
                                          canonicalise=False) == (
                 "prcfo", "cell_area", "seen")
-            # SQLite appends rows only; the other stores also add a column.
-            widens = kind != "sqlite"
+            # Every store, SQLite included, adds the column an append brings.
             tabular.write_database(
-                _cells(2, extra="cell_mean" if widens else None), store,
+                _cells(2, extra="cell_mean"), store,
                 "cell", if_exists="append", canonicalise=False)
             frame = _read(store, chunksize=2)
             assert frame["cell_area"].tolist() == [10, 11, 12, 10, 11]
-            if widens:
-                assert list(frame.columns) == ["prcfo", "cell_area", "seen",
-                                               "cell_mean"]
-                assert frame["cell_mean"].isna().tolist() == [True] * 3 + \
-                    [False] * 2
-                assert frame["cell_mean"].tolist()[3:] == [0.0, 1.0]
-            else:
-                assert list(frame.columns) == ["prcfo", "cell_area", "seen"]
+            assert list(frame.columns) == ["prcfo", "cell_area", "seen",
+                                           "cell_mean"]
+            assert frame["cell_mean"].isna().tolist() == [True] * 3 + \
+                [False] * 2
+            assert frame["cell_mean"].tolist()[3:] == [0.0, 1.0]
 
             with pytest.raises(ValueError) as refused:
                 tabular.write_database(_cells(1), store, "cell",
                                        if_exists="fail", canonicalise=False)
             assert str(refused.value) == (
-                "Table 'cell' already exists." if kind == "sqlite"
-                else f"Table 'cell' already exists in {store!r}.")
+                f"Table 'cell' already exists in {store!r}.")
             with pytest.raises(ValueError) as refused:
                 tabular.write_database(_cells(1), store, "cell",
                                        if_exists="merge", canonicalise=False)
-            # SQLite hands the refusal to pandas, which words it its own way.
             assert str(refused.value) == (
-                "'merge' is not valid for if_exists" if kind == "sqlite"
-                else "if_exists must be 'append', 'replace' or 'fail', not "
+                "if_exists must be 'append', 'replace' or 'fail', not "
                 "'merge'.")
 
             tabular.write_database(_cells(1), store, "cell",
@@ -327,3 +320,19 @@ def test_read_table_warns_when_two_spellings_of_a_key_column_disagree(
             assert list(frame.columns) == ["plateID", "fieldID", "object",
                                            "score", "rowID"]
             assert frame["rowID"].tolist() == kept
+
+
+def test_sqlite_append_adds_new_columns_with_their_types(tmp_path):
+    """An SQLite append that brings a column widens the table, typed like to_sql.
+
+    ``B`` is the existing ``b``: SQLite column names ignore case.
+    """
+    db = str(tmp_path / "m.db")
+    tabular.write_database(pd.DataFrame({"a": [1], "b": ["x"]}), db, "cell")
+    tabular.write_database(
+        pd.DataFrame({"a": [2], "B": ["y"], "c": [0.5]}),
+        db, "cell", if_exists="append")
+    with sqlite3.connect(db) as conn:
+        info = conn.execute('PRAGMA table_info("cell")').fetchall()
+    assert [(row[1], row[2]) for row in info] == [
+        ("a", "INTEGER"), ("b", "TEXT"), ("c", "REAL")]

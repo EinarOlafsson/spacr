@@ -279,10 +279,16 @@ def test_a_read_with_a_lost_base_still_maps_but_never_to_two_guides():
     assert one_off == ["AAAACCCCGGG", None, "AAAACCCCGGG", None]
 
 
-def test_library_correction_agrees_with_brute_force_and_scales_to_a_screen():
-    """20,445 guides and a field's reads must not be a quadratic Python loop."""
-    import time
+def test_library_correction_agrees_with_brute_force_and_scales_to_a_screen(
+        monkeypatch):
+    """20,445 guides and a field's reads must not be a quadratic Python loop.
 
+    The scaling is asserted by the work done, not the wall clock: a read with
+    no ``N`` at ``max_distance=1`` is answered from the masked-library index,
+    so the per-guide comparison, the only part that grows with the library,
+    must never run. A time limit measured the machine's load as much as the
+    code, and failed at 1.01 s on a busy host.
+    """
     rng = np.random.default_rng(20445)
     letters = np.array(list(BASES))
     library = sorted({"".join(row) for row in
@@ -294,9 +300,17 @@ def test_library_correction_agrees_with_brute_force_and_scales_to_a_screen():
             code[int(rng.integers(0, 11))] = BASES[int(rng.integers(0, 4))]
         reads.append("".join(code))
 
-    started = time.perf_counter()
+    compared = []
+    comparison = ops_sbs._closest_by_comparison
+
+    def counted(read, *args, **kwargs):
+        """The library-wide comparison, recording each read it is asked about."""
+        compared.append(read)
+        return comparison(read, *args, **kwargs)
+
+    monkeypatch.setattr(ops_sbs, "_closest_by_comparison", counted)
     fast = ops_sbs.correct_to_library(reads, library, max_distance=1)
-    elapsed = time.perf_counter() - started
+    assert compared == []
 
     def brute(read):
         """The old loop, on a sample only."""
@@ -311,9 +325,9 @@ def test_library_correction_agrees_with_brute_force_and_scales_to_a_screen():
 
     sample = rng.choice(len(reads), 60, replace=False)
     assert [fast[i] for i in sample] == [brute(reads[i]) for i in sample]
-    # The old loop costs reads x guides x letters in Python: tens of
-    # seconds for these 500 reads, and a whole field holds thousands.
-    assert elapsed < 1.0, f"{elapsed:.2f} s for 500 reads"
+
+    ops_sbs.correct_to_library(["NN" + reads[0][2:]], library, max_distance=2)
+    assert len(compared) == 1, "the counter must see the comparison path"
 
 
 # -- where the reads are -------------------------------------------------------

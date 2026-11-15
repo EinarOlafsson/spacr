@@ -73,11 +73,11 @@ def test_attribute_allows_a_conv_after_attention_and_refuses_a_patch_embedding()
 
     with pytest.raises(NoSpatialLayerError) as caught:
         attribute(_PatchEmbedThenAttention(), image, "eigencam", layer="patch")
-    # The block count is the number of attention calls recorded while the
-    # target and the class score were captured: two for one block here.
+    # One attention block: the model's own class name ends in "Attention"
+    # but the model is not a block of itself.
     assert str(caught.value) == (
         "target layer 'patch' of model_type='_PatchEmbedThenAttention' runs "
-        "before every one of the model's 2 attention blocks, so it is the "
+        "before every one of the model's 1 attention blocks, so it is the "
         "patch embedding: no class-discriminative information has reached it "
         "and a CAM over it is a picture of local image statistics, not of what "
         "the model attends to. Use method='attention_rollout' for this "
@@ -165,3 +165,39 @@ def test_a_discard_ratio_too_small_for_one_element_discards_nothing(subtests):
             assert result.params == {"head_fusion": "mean", "discard_ratio": ratio}
             if same_as_baseline:
                 np.testing.assert_array_equal(result.map, baseline.map)
+
+
+class _Attention(nn.Module):
+    """A wrapper whose class name ends in "Attention" around a torch block."""
+
+    def __init__(self, dim):
+        super().__init__()
+        self.inner = nn.MultiheadAttention(dim, 1, batch_first=True)
+
+    def forward(self, tokens):
+        return self.inner(tokens, tokens, tokens)
+
+
+class _PatchEmbedThenTwoWrappedBlocks(nn.Module):
+    """Patch embedding, then two wrapped attention blocks."""
+
+    def __init__(self, n_out=2, dim=4):
+        super().__init__()
+        torch.manual_seed(5)
+        self.patch = nn.Conv2d(3, dim, 4, stride=4)
+        self.blocks = nn.ModuleList([_Attention(dim), _Attention(dim)])
+        self.head = nn.Linear(dim, n_out)
+
+    def forward(self, x):
+        tokens = self.patch(x).flatten(2).transpose(1, 2)
+        for block in self.blocks:
+            attended, _ = block(tokens)
+            tokens = tokens + attended
+        return self.head(tokens.mean(dim=1))
+
+
+def test_the_refusal_counts_each_wrapped_attention_block_once():
+    """A wrapper named *Attention around a torch block is one block, not two."""
+    with pytest.raises(NoSpatialLayerError, match="model's 2 attention blocks"):
+        attribute(_PatchEmbedThenTwoWrappedBlocks(), _image(), "eigencam",
+                  layer="patch")

@@ -1375,7 +1375,8 @@ def rank_trials(results: pd.DataFrame, *, role: str = "positive"
     key = pd.to_numeric(frame[percentile], errors="coerce")
     if not key.notna().any():
         return results
-    ran = (frame["status"] == "ok") if "status" in frame.columns else True
+    ran = ((frame["status"] == "ok") if "status" in frame.columns
+           else pd.Series(True, index=frame.index))
     frame["_sort_key"] = key.where(ran, other=np.nan)
     ordered = frame.sort_values(
         "_sort_key", ascending=True, na_position="last", kind="stable")

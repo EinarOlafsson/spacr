@@ -227,13 +227,40 @@ def budget_globals():
     rc._BUDGET_SWEEP_PENDING = pending
 
 
-def test_with_no_event_loop_the_queued_sweep_does_not_stay_pending_forever(
-        monkeypatch, budget_globals):
-    """A latched flag with nothing to clear it would disable the sweep."""
-    rc._BUDGET_SWEEP_PENDING = False
-    monkeypatch.setitem(sys.modules, "PySide6.QtCore", None)
+_NO_QT_SWEEP = """
+import sys
+sys.modules["PySide6.QtCore"] = None
+from spacr.qt import resource_cleanup as rc
+states = []
+for _ in range(2):
     rc._request_budget_sweep()
-    assert rc._BUDGET_SWEEP_PENDING is False
+    states.append(rc._BUDGET_SWEEP_PENDING)
+print(states)
+"""
+
+
+def test_with_no_event_loop_the_queued_sweep_does_not_stay_pending_forever():
+    """A latched flag with nothing to clear it would disable the sweep.
+
+    Run in a new interpreter that has no Qt at all. In the test process the
+    run registry's ``changed`` signal, fired as an earlier test's worker
+    finishes, also requests a sweep, and could latch the shared flag between
+    a reset here and the call under test; emptying
+    ``sys.modules['PySide6.QtCore']`` here also broke those other threads.
+    """
+    import os
+    import subprocess
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2]
+    env = dict(os.environ, PYTHONPATH=os.pathsep.join(
+        [str(root)] + [p for p in os.environ.get("PYTHONPATH", "").split(
+            os.pathsep) if p]))
+    result = subprocess.run([sys.executable, "-c", _NO_QT_SWEEP],
+                            cwd=str(root), env=env, capture_output=True,
+                            text=True, timeout=120)
+    assert result.returncode == 0, result.stderr[-4000:]
+    assert result.stdout.strip().splitlines()[-1] == "[False, False]"
 
 
 def test_a_queued_sweep_is_queued_once(monkeypatch, qapp, budget_globals):

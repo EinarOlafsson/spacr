@@ -244,43 +244,87 @@ def _assert_setting_tooltip_inventory(sources, en):
     assert set(sources["setting_tooltips"]) - _AWAITING_CATALOG_REBUILD == catalogued
 
 
-def test_runtime_source_inventory_is_complete_before_optional_module_imports():
-    tools_dir = str(ROOT / "tools")
-    sys.path.insert(0, tools_dir)
-    try:
-        builder = import_module("build_i18n_catalogs")
-    finally:
-        sys.path.remove(tools_dir)
+_FRESH_INVENTORY = """
+import json, sys
+from importlib import import_module
+for name in json.loads(sys.argv[2]):
+    import_module(name)
+sys.path.insert(0, sys.argv[1])
+builder = import_module("build_i18n_catalogs")
+sources = builder.canonical_sources()
+short_surface = builder._short_runtime_caption_sources(sources)
+from spacr.qt.i18n_catalogs import en
+print(json.dumps({
+    "setting_tooltips": sorted(sources["setting_tooltips"]),
+    "labels_are_short": set(sources["setting_labels"].values()) <= short_surface,
+    "short_surface": sorted(short_surface & set(json.loads(sys.argv[3]))),
+    "catalogued": sorted(en.SETTING_TOOLTIPS),
+}))
+"""
 
-    sources = builder.canonical_sources()
-    assert "barcode_qc" in sources["setting_tooltips"]
-    short_surface = builder._short_runtime_caption_sources(sources)
-    assert set(sources["setting_labels"].values()) <= short_surface
-    assert {
+
+def _fresh_inventory(preimports=(), probes=()):
+    """The builder's runtime source inventory, taken in a new interpreter.
+
+    The builder runs as its own process, so that is where its inventory is
+    defined. In the test process it is not: ``get_tooltips`` reads the shared
+    tooltip table, and any module that registers settings defaults at import
+    (``spacr.gene_graph``, ``spacr.architecture_training`` and the other
+    script-only settings modules) adds keys to it that no GUI surface shows
+    and the catalogs deliberately leave out. Whichever earlier test on the
+    same worker imported one decided the result.
+
+    :param preimports: modules the child imports before the builder.
+    :param probes: captions whose presence on the short surface is reported.
+    :returns: the child's report.
+    """
+    import os
+    import subprocess
+    from types import SimpleNamespace
+
+    env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
+               PYTHONPATH=os.pathsep.join(
+                   [str(ROOT)] + [p for p in os.environ.get(
+                       "PYTHONPATH", "").split(os.pathsep) if p]))
+    result = subprocess.run(
+        [sys.executable, "-c", _FRESH_INVENTORY, str(ROOT / "tools"),
+         json.dumps(list(preimports)), json.dumps(list(probes))],
+        cwd=str(ROOT), env=env, capture_output=True, text=True, timeout=600)
+    assert result.returncode == 0, result.stderr[-4000:]
+    report = json.loads(result.stdout.strip().splitlines()[-1])
+    report["en"] = SimpleNamespace(SETTING_TOOLTIPS=dict.fromkeys(
+        report["catalogued"]))
+    return report
+
+
+def test_runtime_source_inventory_is_complete_before_optional_module_imports():
+    """The inventory is the clean builder's, whatever this process imported.
+
+    ``spacr.gene_graph`` and ``spacr.architecture_training`` are imported here
+    because an earlier test on the same worker importing them is what used to
+    add their script-only tooltips to an in-process inventory.
+    """
+    import spacr.architecture_training  # noqa: F401
+    import spacr.gene_graph  # noqa: F401
+
+    probes = {
         "Joining predictions to measured objects and fitting held-out surrogate…",
         "Load table…",
         "Well",
         "Score the masks now",
-    } <= short_surface
-    from spacr.qt.i18n_catalogs import en
-    _assert_setting_tooltip_inventory(sources, en)
+    }
+    report = _fresh_inventory(probes=sorted(probes))
+    assert "barcode_qc" in report["setting_tooltips"]
+    assert report["labels_are_short"]
+    assert set(report["short_surface"]) == probes
+    _assert_setting_tooltip_inventory(report, report["en"])
 
 
 def test_runtime_source_inventory_is_stable_after_runctx_import():
     """Run controls are canonical regardless of prior module import order."""
-    import spacr.runctx  # noqa: F401 - the import is the condition under test
-
-    tools_dir = str(ROOT / "tools")
-    sys.path.insert(0, tools_dir)
-    try:
-        builder = import_module("build_i18n_catalogs")
-    finally:
-        sys.path.remove(tools_dir)
-
-    from spacr.qt.i18n_catalogs import en
-    sources = builder.canonical_sources()
-    _assert_setting_tooltip_inventory(sources, en)
-    assert "on_error" in sources["setting_tooltips"]
+    report = _fresh_inventory(preimports=["spacr.runctx"])
+    _assert_setting_tooltip_inventory(report, report["en"])
+    assert "on_error" in report["setting_tooltips"]
 
 
 def test_encoder_provenance_notes_reach_the_runtime_catalog():

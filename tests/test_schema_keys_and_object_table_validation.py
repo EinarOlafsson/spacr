@@ -92,6 +92,10 @@ def test_comparable_key_value_reduces_spellings_of_one_value(subtests):
         ("fractional text", "2.50", "2.5"),
         ("negative", -3.0, "-3"),
         ("non-numeric text is kept stripped", " abc ", "abc"),
+        ("the text inf", "inf", "inf"),
+        ("the text -inf", "-inf", "-inf"),
+        ("the text Infinity is the same value as inf", "Infinity", "inf"),
+        ("a float infinity", float("-inf"), "-inf"),
     ]
     for case_id, value, expected in cases:
         with subtests.test(msg=case_id):

@@ -1477,6 +1477,8 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
             mismatched.append(f"{label} ({n_reported} reported, {n_objects} present)")
 
         total_here = float(well_totals.get(label, 0.0))
+        nothing_to_normalise = bool(normalise_fraction) and not (
+            math.isfinite(total_here) and total_here > 0.0)
         if normalise_fraction:
             share, factor = normalised_share(
                 [total_here] if total_here else [], fraction)
@@ -1488,11 +1490,16 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         admissible = here[here["_montage_in_window"]]
         n_in_window = int(len(admissible))
         if expected == 0:
+            how = (f"{share:.4g} is this guide's {fraction:.4g}, not "
+                   f"normalised: the well's fractions sum to "
+                   f"{total_here:.4g}, so there is nothing to normalise "
+                   f"against" if nothing_to_normalise else
+                   f"{share:.4g} is this guide's {fraction:.4g} normalised "
+                   f"by {factor:.4g}, the well's fractions summing to "
+                   f"{total_here:.4g}")
             note = (f"round({share:.4g} x {n_classified}) rounds to zero, so "
                     f"the design expects no object from this well "
-                    f"({share:.4g} is this guide's {fraction:.4g} normalised "
-                    f"by {factor:.4g}, the well's fractions summing to "
-                    f"{total_here:.4g}; {n_classified} of the well's "
+                    f"({how}; {n_classified} of the well's "
                     f"{n_objects} objects carry a score)")
             selections.append(WellSelection(
                 well=label, fraction=fraction, n_objects=n_objects,
@@ -1581,6 +1588,12 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
             if chosen_here == 0:
                 arithmetic += (" -- this picker annotated none of this "
                                "well's cells to this guide")
+        elif nothing_to_normalise:
+            arithmetic = (f"round({share:.4g} x {n_classified}) = {expected}, "
+                          f"where {share:.4g} is this guide's {fraction:.4g}, "
+                          f"not normalised (the well's fractions sum to "
+                          f"{total_here:.4g}, so there is nothing to "
+                          f"normalise against)")
         elif normalise_fraction:
             arithmetic = (f"round({share:.4g} x {n_classified}) = {expected}, "
                           f"where {share:.4g} is this guide's {fraction:.4g} "
