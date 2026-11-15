@@ -57,3 +57,16 @@ shift and overlap, the score-only run in the 04Align frame (F1 1 with the
 shift, below 1 without; displaced F1 collapses), the pooled row against a
 hand bootstrap, setting checks and alpha registration, and a segmentation
 run whose sites.csv and agreement_well.csv are unchanged by the report.
+
+PROOF CHECK 2026-11-15 (CPU, PERISCOPE CP186A Well1, sites 3, 15, 27, 36,
+45, 55, 64, 75, 86, 98; spaCR 945 labels, archived first to
+/nas_mnt/data/archive/item956_proof_20261115). See REPORT.md.
+- Settings-file rerun (spacr-run ops_large_sites, score-only) vs
+  score_s3_nuclei.py: 200 of 200 per-site values, 21 of 21 pooled values
+  (point and 95 % CI) and the 4 identity-control values equal exactly.
+  Nuclei F1 0.8540 [0.8366, 0.8641], split rate 0.0067, merge rate 0.0947,
+  identity F1 1 with 0 splits and 0 merges, displaced F1 0.0183.
+- Default run (settings unset) vs nightly 9b38a6e17e on a synthetic well:
+  labels, tables, mask_step.json, nucleus_diameter.json, tiling_control.json
+  and agreement_well.csv byte-identical; settings.json and sites.csv equal
+  up to the run folder and the timing columns; no mask_agreement.csv.
