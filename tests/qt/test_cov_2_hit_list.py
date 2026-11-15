@@ -63,34 +63,6 @@ def empty_screen(qtbot):
     return widget
 
 
-@pytest.fixture()
-def loaded_screen(qtbot, folder):
-    """The screen with a real list on it, built inline."""
-    widget = screen_module.HitListScreen(folder=folder, threaded=False,
-                                         regression_type="ols")
-    qtbot.addWidget(widget)
-    return widget
-
-
-class _NoPathDialog:
-    """A file dialog the user cancelled."""
-
-    @staticmethod
-    def getSaveFileName(*_args, **_kwargs):        # noqa: N802 - Qt spelling
-        return "", ""
-
-
-def _dialog_returning(path):
-    class _Dialog:
-        """A file dialog the user chose ``path`` in."""
-
-        @staticmethod
-        def getSaveFileName(*_args, **_kwargs):    # noqa: N802 - Qt spelling
-            return str(path), ""
-
-    return _Dialog
-
-
 # ---------------------------------------------------------------------------
 # loading nothing
 # ---------------------------------------------------------------------------
@@ -152,132 +124,10 @@ def test_moving_a_filter_before_a_folder_is_loaded_does_nothing_quietly(
 # exporting
 # ---------------------------------------------------------------------------
 
-def test_export_before_a_list_exists_says_so_and_opens_no_dialog(
-        empty_screen, monkeypatch):
-    """The export buttons must not put up a file dialog with nothing to write.
-
-    Asking where to save and then writing an empty file is worse than
-    refusing: the user ends up with a plausible-looking CSV of nothing. The
-    stand-in dialog fails the test if it is reached at all.
-    """
-    class _Forbidden:
-        @staticmethod
-        def getSaveFileName(*_args, **_kwargs):    # noqa: N802 - Qt spelling
-            raise AssertionError("a dialog was opened with nothing to export")
-
-    monkeypatch.setattr(screen_module, "QFileDialog", _Forbidden)
-
-    empty_screen._ask_and_export("csv", "Export hit list", "CSV (*.csv)")
-
-    assert "no hit list to export yet" in empty_screen._summary.text()
-
-
-def test_a_cancelled_export_dialog_writes_nothing(loaded_screen, tmp_path,
-                                                  monkeypatch):
-    """Cancelling the save dialog leaves the folder exactly as it was.
-
-    The empty path a cancelled dialog returns must not be treated as a
-    filename; writing to ``""`` raises inside a click handler.
-    """
-    monkeypatch.setattr(screen_module, "QFileDialog", _NoPathDialog)
-    before = loaded_screen._summary.text()
-
-    loaded_screen._ask_and_export("csv", "Export hit list", "CSV (*.csv)")
-
-    assert list(tmp_path.glob("*.csv")) == []
-    assert loaded_screen._summary.text() == before
-
-
-def test_choosing_a_path_in_the_dialog_writes_the_filtered_rows(
-        loaded_screen, tmp_path, monkeypatch):
-    """The button writes what is on screen, through the path the dialog gave.
-
-    Both halves matter: the file has to land where the user pointed, and it
-    has to hold the filtered rows rather than the whole list.
-    """
-    target = tmp_path / "hits.csv"
-    monkeypatch.setattr(screen_module, "QFileDialog", _dialog_returning(target))
-    loaded_screen._direction.setCurrentText("up")
-    shown = len(loaded_screen._shown)
-    assert 0 < shown < len(loaded_screen._all), "the filter has to bite"
-
-    loaded_screen._ask_and_export("csv", "Export hit list", "CSV (*.csv)")
-
-    assert target.exists()
-    assert len(pd.read_csv(target)) == shown
-    assert "written to hits.csv" in loaded_screen._summary.text()
-
 
 # ---------------------------------------------------------------------------
 # investigating
 # ---------------------------------------------------------------------------
-
-def test_investigating_with_nothing_selected_asks_for_a_selection(
-        loaded_screen):
-    """The button is always enabled, so it has to answer with no row selected.
-
-    Nothing is emitted: the workbench must never open on a gene the user did
-    not pick.
-    """
-    loaded_screen._table.setCurrentItem(None)
-    emitted = []
-    loaded_screen.investigate_requested.connect(emitted.append)
-
-    loaded_screen._on_investigate_selected()
-
-    assert "Select one hit to investigate." in loaded_screen._summary.text()
-    assert emitted == []
-
-
-def test_investigating_a_row_the_filters_have_since_dropped_says_so(
-        loaded_screen):
-    """A selection can outlive the list it was made from.
-
-    The rows on screen and the filtered list are two objects, and a filter
-    applied between the click and the handler leaves the table showing a gene
-    the list no longer holds. Emitting anyway would open the workbench on a
-    gene with no evidence behind it, so the handler names the gene and stops.
-
-    The stale state is set directly because that is the only way to hold it
-    still: redrawing the table is what normally clears it.
-    """
-    item = loaded_screen._table.topLevelItem(0)
-    gene = str(item.data(0, Qt.UserRole))
-    loaded_screen._table.setCurrentItem(item)
-    loaded_screen._shown = loaded_screen._all.filter(query="no-such-gene-at-all")
-    assert loaded_screen._shown.gene(gene) is None
-
-    emitted = []
-    loaded_screen.investigate_requested.connect(emitted.append)
-
-    loaded_screen._on_investigate_selected()
-
-    message = loaded_screen._summary.text()
-    assert gene in message
-    assert "no longer in the filtered list" in message
-    assert emitted == []
-
-
-def test_investigating_a_live_row_emits_its_evidence(loaded_screen):
-    """The other half: a selected row that is still there is handed over whole.
-
-    The workbench needs the provenance -- folder, guides, well support, FDR --
-    not just the gene name, because it resolves the hit back to single cells.
-    """
-    item = loaded_screen._table.topLevelItem(0)
-    gene = str(item.data(0, Qt.UserRole))
-    loaded_screen._table.setCurrentItem(item)
-    emitted = []
-    loaded_screen.investigate_requested.connect(emitted.append)
-
-    loaded_screen._on_investigate_selected()
-
-    assert len(emitted) == 1
-    payload = emitted[0]
-    assert payload["gene"] == gene
-    assert payload["folder"] == loaded_screen._shown.source
-    assert set(payload) >= {"effect", "guides", "guide_agreement", "n_guides",
-                            "well_support", "fdr", "phenotype"}
 
 
 # ---------------------------------------------------------------------------

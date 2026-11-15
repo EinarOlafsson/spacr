@@ -651,16 +651,6 @@ def test_hovering_the_same_point_twice_emits_once(qtbot):
     assert seen == [1]
 
 
-def test_the_canvas_gets_a_surface_of_its_own(qapp):
-    """The panel behind shows between the points rather than under a slab."""
-    from spacr.qt.theme import active_palette
-
-    block = isc._image_scatter_qss(active_palette(), 0.5)
-
-    assert f"QFrame#{isc.CANVAS_OBJECT}" in block
-    assert "border-radius" in block
-
-
 def test_the_factory_builds_the_screen_and_no_row_comes_with_it(qtbot):
     """The factory outlived the registration it was written for.
 

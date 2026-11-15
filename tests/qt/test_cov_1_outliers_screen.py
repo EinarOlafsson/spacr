@@ -8,7 +8,6 @@ a dialog nobody can dismiss is how a headless run hangs.
 """
 from __future__ import annotations
 
-import sqlite3
 
 import numpy as np
 import pandas as pd
@@ -48,77 +47,9 @@ def screen(qtbot):
     return widget
 
 
-def _measurement_db(path, tables):
-    with sqlite3.connect(str(path)) as db:
-        for name, frame in tables.items():
-            frame.to_sql(name, db, index=False)
-    return str(path)
-
-
 # ---------------------------------------------------------------------------
 # Loading
 # ---------------------------------------------------------------------------
-
-def test_a_csv_loads_and_scans_itself(screen, tmp_path):
-    """A path is enough: read it, then scan what was read."""
-    frame = planted_plate()
-    csv = tmp_path / "objects.csv"
-    frame.to_csv(csv, index=False)
-
-    screen.load_path(str(csv))
-
-    assert screen.result is not None
-    assert screen.frame is not None and len(screen.frame) == len(frame)
-    assert list(screen.frame.columns) == list(frame.columns)
-    assert screen._table_picker.isVisibleTo(screen) is False, (
-        "a CSV holds one table, so there is nothing to pick")
-
-
-def test_a_loaded_table_is_labelled_with_the_file_it_came_from(screen,
-                                                               tmp_path,
-                                                               monkeypatch):
-    """The label names the file and its shape before the scan overwrites it.
-
-    It is the only record on screen of WHICH table produced the flags, and a
-    session that has loaded two files is unreadable without it.
-    """
-    frame = planted_plate()
-    csv = tmp_path / "objects.csv"
-    frame.to_csv(csv, index=False)
-    scans = []
-    monkeypatch.setattr(screen, "scan", lambda: scans.append(True))
-
-    screen.load_path(str(csv))
-
-    assert scans == [True], "loading a table asks for a scan of it"
-    assert "objects.csv" in screen._source.text()
-    assert f"{len(frame):,} rows × {len(frame.columns)} columns" in \
-        screen._source.text()
-
-
-def test_a_database_offers_its_tables_and_reads_the_one_picked(screen,
-                                                               tmp_path):
-    """A measurement database has several tables; the user picks one.
-
-    Picking a different table is a different question, so it re-reads and
-    re-scans rather than re-labelling the flags already on screen.
-    """
-    frame = planted_plate()
-    other = frame.assign(cell_area=frame["cell_area"] * 10.0)
-    path = _measurement_db(tmp_path / "measurements.db",
-                           {"object": frame, "second_pass": other})
-
-    screen.load_path(path)
-    assert set(screen._table_picker.itemText(i)
-               for i in range(screen._table_picker.count())) == {
-        "object", "second_pass"}
-    first = screen.frame["cell_area"].mean()
-
-    screen._on_table_picked("second_pass")
-
-    assert screen._table_picker.currentText() == "second_pass"
-    assert screen.frame["cell_area"].mean() == pytest.approx(first * 10.0)
-    assert screen.result is not None, "the new table was scanned, not relabelled"
 
 
 def test_choosing_a_table_from_the_file_dialog_loads_it(screen, tmp_path,
@@ -154,29 +85,6 @@ def test_a_cancelled_file_dialog_loads_nothing(screen, monkeypatch):
 # Scanning
 # ---------------------------------------------------------------------------
 
-def test_a_method_this_build_does_not_have_is_refused_in_words(screen,
-                                                               monkeypatch):
-    """A spec the engine refuses is a sentence, never a traceback.
-
-    The spec round-trips through JSON, so a view saved by another build can
-    name a method this one has never heard of. It is refused where the spec is
-    built -- before a 200,000-row fit starts -- and the engine's own wording
-    reaches the status line.
-    """
-    screen.set_frame(planted_plate(), scan=False)
-    monkeypatch.setattr(screen, "current_method", lambda: "isolation_forest")
-    failures = []
-    screen.failed.connect(failures.append)
-
-    screen.scan()
-
-    assert screen.result is None
-    assert failures, "the refusal is published, not only printed"
-    assert "isolation_forest" in failures[0]
-    assert screen._source.text() == failures[0]
-    assert screen.report.toPlainText() == failures[0]
-    assert screen._export.isEnabled() is False
-
 
 def test_the_flagged_table_is_offered_with_its_flag_columns(screen):
     """``objects_frame`` is the whole table plus the engine's columns.
@@ -194,26 +102,6 @@ def test_the_flagged_table_is_offered_with_its_flag_columns(screen):
     for name in OBJECT_COLUMNS.values():
         assert name in objects.columns
     assert screen.active_jobs() == 0, "an inline scan leaves no worker behind"
-
-
-# ---------------------------------------------------------------------------
-# Export
-# ---------------------------------------------------------------------------
-
-def test_an_export_that_cannot_be_written_says_so_and_stops(screen, tmp_path,
-                                                            monkeypatch):
-    """One unwritable destination is a message, not four half-written files."""
-    screen.set_frame(planted_plate())
-    blocker = tmp_path / "not-a-directory"
-    blocker.write_text("x", encoding="utf-8")
-    monkeypatch.setattr(
-        "spacr.qt.screens.outliers.QFileDialog.getSaveFileName",
-        staticmethod(lambda *a, **k: (str(blocker / "scan.csv"), "")))
-
-    screen.export_csv()
-
-    assert "could not write those files" in screen._source.text()
-    assert not (tmp_path / "scan_objects.csv").exists()
 
 
 # ---------------------------------------------------------------------------

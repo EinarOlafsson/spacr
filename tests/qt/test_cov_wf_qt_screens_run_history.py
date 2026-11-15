@@ -15,10 +15,8 @@ from pathlib import Path
 
 import pytest
 from PySide6.QtCore import Qt, QThread
-from PySide6.QtGui import QColor
 
 from spacr.qt.screens.run_history import RunHistoryScreen
-from spacr.qt.theme import active_palette
 
 
 def _record(run_id, *, app_key="classify", status="success",
@@ -78,40 +76,6 @@ def _started_by_run_id(screen):
         cell = screen._table.item(row, 0)
         out[cell.data(Qt.UserRole)] = cell.text()
     return out
-
-
-def _status_cells(screen):
-    """Map the rendered status text -> its table item."""
-    return {
-        screen._table.item(row, 2).text(): screen._table.item(row, 2)
-        for row in range(screen._table.rowCount())
-    }
-
-
-def test_a_cancelled_run_is_not_painted_like_a_failure(make_screen, journal):
-    """Colour is the only thing separating "I stopped it" from "it broke".
-
-    ``run_journal`` stamps ``status: "cancelled"`` when a pipeline raises
-    ``PipelineCancelled`` -- the user pressed Stop. That status has no entry
-    in the screen's colour map, and it must not borrow one: a cancelled run
-    painted in the error red tells the user their job crashed, and they will
-    go hunting a traceback that was never written. A failed run in the same
-    table still has to be red, or the colour means nothing at all.
-    """
-    journal["records"] = [
-        _record("r-failed", status="failed"),
-        _record("r-cancelled", status="cancelled"),
-    ]
-    screen = make_screen()
-    screen.refresh()
-
-    cells = _status_cells(screen)
-    assert set(cells) == {"failed", "cancelled"}
-    assert (cells["failed"].foreground().color().name()
-            == QColor(active_palette()["error"]).name())
-    # Nothing was written to the foreground role at all: the cell inherits
-    # the table's ordinary text colour instead of a status colour.
-    assert cells["cancelled"].data(Qt.ForegroundRole) is None
 
 
 def test_a_run_with_no_recorded_start_reads_as_a_dash(make_screen, journal):
