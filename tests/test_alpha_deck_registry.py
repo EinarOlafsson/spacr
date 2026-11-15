@@ -91,13 +91,36 @@ def test_the_published_alpha_page_covers_the_current_registry():
     media = importlib.util.module_from_spec(media_spec)
     media_spec.loader.exec_module(media)
     pdf = PdfReader(media.media_path("docs/source/_static/deck/spacr_deck.pdf"))
-    text = " ".join(unicodedata.normalize("NFKC", pdf.pages[3].extract_text()).split())
+    # 2026-11-15: the alpha list fills pages 4 and 5 (one page of 145 rows was
+    # too small to read). Every registry caption is on exactly one of them.
+    pages = [" ".join(unicodedata.normalize("NFKC", pdf.pages[i].extract_text()).split())
+             for i in (3, 4)]
+    for page, title in zip(pages, deck.TITLES):
+        assert title in page
+        for _, name in deck.SPECIES:
+            assert name in page
+        assert "145 alpha features and 7 alpha species" in page
+    misplaced = []
     for _, rows in deck.GROUPS:
         for _, caption in rows:
-            assert unicodedata.normalize("NFKC", caption) in text
-    for _, name in deck.SPECIES:
-        assert name in text
-    assert "145 alpha features and 7 alpha species" in text
+            found = [page.count(unicodedata.normalize("NFKC", caption)) for page in pages]
+            if sum(found) != 1:
+                misplaced.append((caption, found))
+    assert misplaced == [], "each alpha caption appears once, on page 4 or page 5"
+    manifest = json.loads((ROOT / "docs/source/_static/deck/slides.json").read_text(encoding="utf-8"))
+    assert [slide["title"] for slide in manifest["slides"][3:5]] == list(deck.TITLES)
+    assert manifest["count"] == len(pdf.pages) == len(manifest["slides"])
+
+
+def test_the_two_alpha_pages_share_one_geometry():
+    first, second = deck._pages()
+    rows = [sum(len(r) for _, r in page) for page in (first, second)]
+    assert abs(rows[0] - rows[1]) <= 1
+    assert sum(rows) == sum(len(r) for _, r in deck.GROUPS)
+    for page in (first, second):
+        for column in deck._columns(page):
+            for category, _ in column:
+                assert category.count("(continued)") <= 1
 
 
 def test_unknown_registry_entry_refuses_before_touching_assets(tmp_path):
@@ -113,53 +136,78 @@ def test_unknown_registry_entry_refuses_before_touching_assets(tmp_path):
     assert list(target.iterdir()) == [sentinel]
 
 
-def test_refresh_preserves_other_pages_and_renders_searchable_text(tmp_path):
+def _fake_deck(folder, widths, titles):
     from PIL import Image
-    from pypdf import PdfReader, PdfWriter
+    from pypdf import PdfWriter
+
+    writer = PdfWriter()
+    for width in widths:
+        writer.add_blank_page(width=width, height=540)
+    writer.add_metadata({"/Title": "Keep this title"})
+    writer.write(folder / "spacr_deck.pdf")
+    slides = [{"title": title, "image": f"slides/slide_{i:02d}.jpg",
+               "thumb": f"thumbs/slide_{i:02d}.jpg", "animations": []}
+              for i, title in enumerate(titles, 1)]
+    (folder / "slides.json").write_text(json.dumps({"count": len(titles), "slides": slides}),
+                                        encoding="utf-8")
+    for kind in ("slides", "thumbs"):
+        (folder / kind).mkdir()
+    for i, slide in enumerate(slides):
+        for field in ("image", "thumb"):
+            Image.new("RGB", (8, 8), (i * 40, 0, 0)).save(folder / slide[field])
+    return slides
+
+
+def _refresh_cli(folder):
+    subprocess.run([sys.executable, str(ROOT / "tools/refresh_alpha_deck.py"),
+                    "--out", str(folder)], check=True, timeout=60,
+                   env={**os.environ, "QT_QPA_PLATFORM": "offscreen"})
+
+
+def test_refresh_splits_the_alpha_slide_and_moves_later_slides_up(tmp_path):
+    from PIL import Image
+    from pypdf import PdfReader
 
     if not shutil.which("pdftoppm"):
         pytest.skip("poppler is a deck publication dependency")
     pytest.importorskip("PySide6")
-    writer = PdfWriter()
-    for width in (100, 960, 200):
-        writer.add_blank_page(width=width, height=540)
-    writer.add_metadata({"/Title": "Keep this title"})
-    writer.write(tmp_path / "spacr_deck.pdf")
-    slides = [{"title": title, "image": f"{i}.jpg", "thumb": f"{i}-thumb.jpg"}
-              for i, title in enumerate(("before", deck.TITLE, "after"))]
-    (tmp_path / "slides.json").write_text(json.dumps({"count": 3, "slides": slides}), encoding="utf-8")
-    for slide in slides:
-        for field in ("image", "thumb"):
-            Image.new("RGB", (8, 8), "red").save(tmp_path / slide[field])
-    before = {p.name: p.read_bytes() for p in tmp_path.iterdir()}
-    subprocess.run([sys.executable, str(ROOT / "tools/refresh_alpha_deck.py"),
-                    "--out", str(tmp_path)], check=True, timeout=60,
-                   env={**os.environ, "QT_QPA_PLATFORM": "offscreen"})
+    _fake_deck(tmp_path, (100, 960, 200), ("before", deck.TITLE, "after"))
+    (tmp_path / "slides" / "slide_03.jpg").write_bytes(b"later slide")
+    _refresh_cli(tmp_path)
     after = PdfReader(tmp_path / "spacr_deck.pdf")
-    assert len(after.pages) == 3
-    assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 200]
+    assert len(after.pages) == 4
+    assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 960, 200]
     assert after.metadata.title == "Keep this title"
-    assert "145 alpha features" in " ".join(after.pages[1].extract_text().split())
+    first, second = (" ".join(after.pages[i].extract_text().split()) for i in (1, 2))
+    assert deck.TITLES[0] in first and deck.TITLES[1] in second
+    assert "145 alpha features" in first and "145 alpha features" in second
     assert after.pages[0].get_contents() is None
-    assert after.pages[2].get_contents() is None
-    assert Image.open(tmp_path / "1.jpg").size == (3200, 1800)
-    assert Image.open(tmp_path / "1-thumb.jpg").size == (320, 180)
-    for name, content in before.items():
-        if name not in {"spacr_deck.pdf", "1.jpg", "1-thumb.jpg"}:
-            assert (tmp_path / name).read_bytes() == content
+    assert after.pages[3].get_contents() is None
+    manifest = json.loads((tmp_path / "slides.json").read_text(encoding="utf-8"))
+    assert manifest["count"] == 4
+    assert [s["title"] for s in manifest["slides"]] == ["before", *deck.TITLES, "after"]
+    assert [s["image"] for s in manifest["slides"]] == [f"slides/slide_{i:02d}.jpg" for i in range(1, 5)]
+    assert (tmp_path / "slides" / "slide_04.jpg").read_bytes() == b"later slide"
+    for number in (2, 3):
+        assert Image.open(tmp_path / f"slides/slide_{number:02d}.jpg").size == (3200, 1800)
+        assert Image.open(tmp_path / f"thumbs/slide_{number:02d}.jpg").size == (320, 180)
+    # A second refresh replaces the two pages and keeps every other one.
+    kept = (tmp_path / "slides" / "slide_04.jpg").read_bytes()
+    _refresh_cli(tmp_path)
+    again = PdfReader(tmp_path / "spacr_deck.pdf")
+    assert [float(page.mediabox.width) for page in again.pages] == [100, 960, 960, 200]
+    assert json.loads((tmp_path / "slides.json").read_text(encoding="utf-8")) == manifest
+    assert (tmp_path / "slides" / "slide_04.jpg").read_bytes() == kept
 
 
 def test_render_failure_preserves_the_published_deck(tmp_path, monkeypatch):
-    from pypdf import PdfWriter
+    _fake_deck(tmp_path, (960, 200), (deck.TITLE, "after"))
 
-    writer = PdfWriter()
-    writer.add_blank_page(width=960, height=540)
-    writer.write(tmp_path / "spacr_deck.pdf")
-    (tmp_path / "slides.json").write_text(json.dumps({
-        "count": 1, "slides": [{"title": deck.TITLE, "image": "a.jpg", "thumb": "b.jpg"}]}), encoding="utf-8")
-    for name in ("a.jpg", "b.jpg"):
-        (tmp_path / name).write_bytes(b"published image")
-    before = {p.name: p.read_bytes() for p in tmp_path.iterdir()}
+    def snapshot():
+        return {p.relative_to(tmp_path).as_posix(): p.read_bytes()
+                for p in tmp_path.rglob("*") if p.is_file()}
+
+    before = snapshot()
 
     def fail(*args):
         raise RuntimeError("renderer unavailable")
@@ -167,4 +215,4 @@ def test_render_failure_preserves_the_published_deck(tmp_path, monkeypatch):
     monkeypatch.setattr(deck, "_draw_pdf", fail)
     with pytest.raises(RuntimeError, match="renderer unavailable"):
         deck.refresh(tmp_path)
-    assert {p.name: p.read_bytes() for p in tmp_path.iterdir()} == before
+    assert snapshot() == before

@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Refresh the alpha-feature slide from the current registry and reviewed labels.
+"""Refresh the two alpha-feature slides from the current registry and reviewed labels.
 
 Run ``python tools/refresh_alpha_deck.py`` after rebuilding the presentation.
-Only the alpha page, its JPEG and its thumbnail are replaced. The PDF keeps
-vector text; all other pages and the viewer's numbering are preserved.
+The alpha list fills two slides (2026-11-15: one slide of 145 rows was too
+small to read). A fresh build from ``tools/readme_deck`` still has one alpha
+slide, titled ``TITLE``: it becomes the two pages ``TITLES``, and every later
+slide moves up one number (its picture, thumbnail and GitHub page). Once split,
+only the two alpha pages, their JPEGs and thumbnails are replaced. The PDF
+keeps vector text; all other pages are preserved.
 Requires PySide6, Pillow, pypdf and pdftoppm (the normal deck render tool).
 """
 from __future__ import annotations
@@ -19,9 +23,12 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# The single alpha slide of a fresh build (tools/readme_deck/scripts/build.js).
 TITLE = "Alpha features: switch them on in Preferences"
-# Each registry entry appears once. The two columns balance complete categories:
-# the first LEFT_GROUPS groups fill the left column, the rest the right one.
+# The two published alpha slides.
+TITLES = ("Alpha features (1 of 2)", "Alpha features (2 of 2)")
+# Each registry entry appears once, on one of the two slides. The slides split
+# GROUPS at the middle row, and each slide balances two columns.
 GROUPS = (
     ("Segmentation", (
         (551, "StarDist segmentation backend"),
@@ -185,15 +192,23 @@ GROUPS = (
         (803, "GPU memory budget on a shared card"),
     )),
 )
-LEFT_GROUPS = 4  # kept for readers; the columns are now balanced by _columns()
 
 
-def _columns():
-    """Split GROUPS into two columns of equal length, cutting one group if needed."""
-    total = sum(len(rows) for _, rows in GROUPS)
+def _pages():
+    """Split GROUPS between the two slides at the middle row.
+
+    Both slides then hold the same number of rows and look the same. A
+    category cut at the middle carries on the second slide as continued.
+    """
+    return _columns(GROUPS)
+
+
+def _columns(groups=GROUPS):
+    """Split groups into two columns of equal length, cutting one group if needed."""
+    total = sum(len(rows) for _, rows in groups)
     half = (total + 1) // 2
     left, right, seen = [], [], 0
-    for category, rows in GROUPS:
+    for category, rows in groups:
         if seen >= half:
             right.append((category, rows))
         elif seen + len(rows) <= half:
@@ -201,7 +216,8 @@ def _columns():
         else:
             cut = half - seen
             left.append((category, rows[:cut]))
-            right.append((category + "\n(continued)", rows[cut:]))
+            more = category if category.endswith("(continued)") else category + "\n(continued)"
+            right.append((more, rows[cut:]))
         seen += len(rows)
     return left, right
 # Alpha organism pages (ALPHA_SPECIES), drawn as a strip with their Home icons.
@@ -260,6 +276,7 @@ def _check_registry(source):
 
 
 def _draw_pdf(target, count, page_size):
+    """Draw the two alpha pages into one PDF, with identical geometry."""
     # Qt emits vector text with embedded fonts. No application window is opened.
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     from PySide6.QtCore import QMarginsF, QRectF, QSizeF, Qt
@@ -287,7 +304,6 @@ def _draw_pdf(target, count, page_size):
     painter = QPainter(pdf)
     painter.setWindow(0, 0, 3200, 1800)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.fillRect(0, 0, 3200, 1800, QColor("#0e1116"))
 
     def label(text, x, y, w, h, size=27, color="#e3e8ed", bold=False):
         font = QFont("Open Sans")
@@ -301,20 +317,25 @@ def _draw_pdf(target, count, page_size):
         painter.setPen(QColor(color))
         painter.drawText(QRectF(x, y, w, h), Qt.AlignmentFlag.AlignVCenter, text)
 
-    try:
+    # One row height for both slides, so their geometry is identical. Rows
+    # shrink from 36 px so the longest column ends above the species strip.
+    longest = max(sum(len(rows) for _, rows in column)
+                  for page_groups in _pages() for column in _columns(page_groups))
+    row_height = min(36, int((1545 - 375) // longest))
+    # The captions shrink with the rows, so a line never spills into the next.
+    caption_size = min(27, row_height - 4)
+    planned = len(PLANNED - set(_registry_ids(ROOT / "spacr/settings.py")))
+    icons = _species_icons()
+
+    def page(title, page_groups):
+        painter.fillRect(0, 0, 3200, 1800, QColor("#0e1116"))
         label("I N T R O D U C T I O N", 120, 82, 1100, 80, 36, "#29bfb3")
-        label(TITLE, 120, 160, 2650, 130, 94)
+        label(title, 120, 160, 2650, 130, 94)
         painter.setPen(QPen(QColor("#d63fa1"), 3))
         painter.setBrush(QColor("#222932"))
         painter.drawRoundedRect(QRectF(2850, 118, 230, 76), 38, 38)
         label("ALPHA", 2910, 123, 160, 64, 32, "#d63fa1", True)
-        # Rows shrink from 36 px so the longer column ends above the species strip.
-        longest = max(sum(len(rows) for _, rows in column)
-                      for column in _columns())
-        row_height = min(36, int((1545 - 375) // longest))
-        # The captions shrink with the rows, so a line never spills into the next.
-        caption_size = min(27, row_height - 4)
-        for x, groups in zip((120, 1640), _columns()):
+        for x, groups in zip((120, 1640), _columns(page_groups)):
             painter.fillRect(QRectF(x, 310, 1440, 65), QColor("#222932"))
             label("Category", x + 14, 310, 345, 65, 34, bold=True)
             label("Alpha feature", x + 388, 310, 1035, 65, 34, bold=True)
@@ -332,7 +353,7 @@ def _draw_pdf(target, count, page_size):
         painter.fillRect(QRectF(120, top, 371, cell_h), QColor("#222932"))
         label("Alpha species", 134, top, 345, cell_h, 34, bold=True)
         cell_w = (2960 - 374) / len(SPECIES)
-        for i, (path, (_, name)) in enumerate(zip(_species_icons(), SPECIES)):
+        for i, (path, (_, name)) in enumerate(zip(icons, SPECIES)):
             x = 494 + i * cell_w
             painter.fillRect(QRectF(x, top, cell_w - 3, cell_h), QColor("#191f27"))
             renderer = QSvgRenderer(str(path))
@@ -340,15 +361,50 @@ def _draw_pdf(target, count, page_size):
                 raise ValueError(f"Species icon does not load: {path}")
             renderer.render(painter, QRectF(x + 18, top + 23, 64, 64))
             label(name, x + 96, top, cell_w - 108, cell_h, 30)
-        planned = len(PLANNED - set(_registry_ids(ROOT / "spacr/settings.py")))
         label(f"{count} alpha features{f' and {planned} planned' if planned else ''} and "
               f"{len(SPECIES)} alpha species, hidden until Preferences → Modules → Show alpha "
               "features and Show alpha species are on. Early versions: expect changes.",
               120, 1700, 2960, 62, 30, "#acb5be")
+
+    try:
+        for number, (title, page_groups) in enumerate(zip(TITLES, _pages())):
+            if number:
+                pdf.newPage()
+            page(title, page_groups)
     finally:
         painter.end()
     # Keep the application alive until the paint device is finalized.
     assert app is not None
+
+
+def _slide_name(kind, number):
+    return f"{kind}/slide_{number:02d}.jpg"
+
+
+def _alpha_slides(manifest):
+    """Index of the first alpha slide, and whether the deck still has a single one."""
+    titles = [slide["title"] for slide in manifest["slides"]]
+    single = [i for i, title in enumerate(titles) if title == TITLE]
+    split = [[i for i, title in enumerate(titles) if title == name] for name in TITLES]
+    if len(single) == 1 and not any(split):
+        return single[0], True
+    if (not single and all(len(found) == 1 for found in split)
+            and split[1][0] == split[0][0] + 1):
+        return split[0][0], False
+    raise ValueError("The deck must have one alpha-feature slide or the two alpha pages in order")
+
+
+def _viewer_pages(folder, manifest):
+    # The GitHub pages and the viewer carry the slide numbers and titles.
+    spec = importlib.util.spec_from_file_location(
+        "build_readme_deck", ROOT / "tools/build_readme_deck.py")
+    builder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(builder)
+    if (folder / "pages").is_dir():
+        builder.github_pages(folder, [slide["title"] for slide in manifest["slides"]])
+    if (folder / "index.html").is_file():
+        (folder / "index.html").write_text(builder.VIEWER.read_text(encoding="utf-8").replace(
+            "__SLIDES__", json.dumps(manifest, ensure_ascii=False)), encoding="utf-8")
 
 
 def refresh(folder, settings_source=ROOT / "spacr/settings.py"):
@@ -356,19 +412,23 @@ def refresh(folder, settings_source=ROOT / "spacr/settings.py"):
     from pypdf import PdfReader, PdfWriter
 
     count = _check_registry(settings_source)
-    manifest = json.loads((folder / "slides.json").read_text(encoding="utf-8"))
-    matches = [i for i, slide in enumerate(manifest["slides"])
-               if slide["title"] == TITLE]
-    if len(matches) != 1:
-        raise ValueError("The deck must have exactly one alpha-feature slide")
-    index = matches[0]
+    manifest_path = folder / "slides.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    index, single = _alpha_slides(manifest)
     pdf_path = folder / "spacr_deck.pdf"
     reader = PdfReader(io.BytesIO(pdf_path.read_bytes()))
-    if len(reader.pages) != manifest["count"] or len(manifest["slides"]) != manifest["count"]:
+    slides = manifest["slides"]
+    if len(reader.pages) != manifest["count"] or len(slides) != manifest["count"]:
         raise ValueError("PDF and slide manifest page counts disagree")
-    slide = manifest["slides"][index]
-    image_path, thumb_path = (folder / slide[key] for key in ("image", "thumb"))
-    for path in (image_path, thumb_path):
+    if single:
+        # Every slide from the alpha slide on must carry its numbered names,
+        # so the later ones can move up one number.
+        for number, slide in enumerate(slides[index:], index + 1):
+            if (slide["image"], slide["thumb"]) != (_slide_name("slides", number),
+                                                    _slide_name("thumbs", number)):
+                raise ValueError("Splitting the alpha slide needs numbered slide assets")
+    alpha = slides[index:index + (1 if single else 2)]
+    for path in (folder / slide[key] for slide in alpha for key in ("image", "thumb")):
         if not path.is_file() or not path.resolve().is_relative_to(folder.resolve()):
             raise ValueError("Slide assets must exist inside the deck folder")
     size = tuple(float(value) for value in (
@@ -377,25 +437,54 @@ def refresh(folder, settings_source=ROOT / "spacr/settings.py"):
         stage = Path(tmp)
         page_pdf = stage / "alpha.pdf"
         _draw_pdf(page_pdf, count, size)
-        subprocess.run(["pdftoppm", "-singlefile", "-png", "-scale-to-x", "3200",
-                        "-scale-to-y", "1800", str(page_pdf), str(stage / "alpha")],
-                       check=True, capture_output=True, timeout=120)
-        with Image.open(stage / "alpha.png") as picture:
-            picture.convert("RGB").save(stage / "slide.jpg", quality=86,
-                                         optimize=True, subsampling=0, progressive=True)
-            picture.resize((320, 1800 * 320 // 3200), Image.Resampling.LANCZOS).convert(
-                "RGB").save(stage / "thumb.jpg", quality=75, optimize=True)
-        writer = PdfWriter()
         replacement = PdfReader(page_pdf)
+        if len(replacement.pages) != 2:
+            raise ValueError("The alpha list must render as two pages")
+        for page in (1, 2):
+            subprocess.run(["pdftoppm", "-f", str(page), "-l", str(page), "-singlefile",
+                            "-png", "-scale-to-x", "3200", "-scale-to-y", "1800",
+                            str(page_pdf), str(stage / f"alpha{page}")],
+                           check=True, capture_output=True, timeout=120)
+            with Image.open(stage / f"alpha{page}.png") as picture:
+                picture.convert("RGB").save(stage / f"slide{page}.jpg", quality=86,
+                                             optimize=True, subsampling=0, progressive=True)
+                picture.resize((320, 1800 * 320 // 3200), Image.Resampling.LANCZOS).convert(
+                    "RGB").save(stage / f"thumb{page}.jpg", quality=75, optimize=True)
+        writer = PdfWriter()
         for number, page in enumerate(reader.pages):
-            writer.add_page(replacement.pages[0] if number == index else page)
+            if number == index:
+                writer.add_page(replacement.pages[0])
+                writer.add_page(replacement.pages[1])
+            elif single or number != index + 1:
+                writer.add_page(page)
         if reader.metadata:
             writer.add_metadata({str(k): str(v) for k, v in reader.metadata.items()})
         writer.write(stage / "deck.pdf")
         # All validation/rendering finishes before replacing a published artifact.
-        for source, target in (("deck.pdf", pdf_path), ("slide.jpg", image_path),
-                               ("thumb.jpg", thumb_path)):
+        if single:
+            # Later slides move up one number, from the last one down.
+            for number in range(len(slides), index + 1, -1):
+                for kind in ("slides", "thumbs"):
+                    os.replace(folder / _slide_name(kind, number),
+                               folder / _slide_name(kind, number + 1))
+            for number, slide in enumerate(slides[index + 1:], index + 3):
+                slide["image"] = _slide_name("slides", number)
+                slide["thumb"] = _slide_name("thumbs", number)
+            slides.insert(index + 1, {"image": _slide_name("slides", index + 2),
+                                      "thumb": _slide_name("thumbs", index + 2),
+                                      "title": TITLES[1], "animations": []})
+            manifest["count"] = len(slides)
+        for offset, title in enumerate(TITLES):
+            slides[index + offset]["title"] = title
+        for source, target in (("deck.pdf", pdf_path),
+                               ("slide1.jpg", folder / slides[index]["image"]),
+                               ("thumb1.jpg", folder / slides[index]["thumb"]),
+                               ("slide2.jpg", folder / slides[index + 1]["image"]),
+                               ("thumb2.jpg", folder / slides[index + 1]["thumb"])):
             os.replace(stage / source, target)
+    manifest_path.write_text(json.dumps(manifest, indent=1, ensure_ascii=False) + "\n",
+                             encoding="utf-8")
+    _viewer_pages(folder, manifest)
     return count
 
 
@@ -409,7 +498,7 @@ if __name__ == "__main__":
         media = importlib.util.module_from_spec(_spec)
         _spec.loader.exec_module(media)
         media.fetch("deck", ROOT)
-    print(f"Updated alpha slide: {refresh(args.out)} registered features")
+    print(f"Updated alpha slides: {refresh(args.out)} registered features")
     if published:
-        revision = media.publish("deck", ROOT, "deck: alpha feature slide follows the registry")
+        revision = media.publish("deck", ROOT, "deck: alpha feature slides follow the registry")
         print(f"deck media pinned at {revision}" if revision else "deck media unchanged")
