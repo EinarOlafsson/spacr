@@ -12,7 +12,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-import pandas as pd
 
 pytestmark = pytest.mark.qt
 
