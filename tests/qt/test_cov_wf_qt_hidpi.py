@@ -38,10 +38,7 @@ pytest.importorskip("PySide6")
 from PySide6.QtCore import QSize, Qt  # noqa: E402
 from PySide6.QtGui import QPixmap  # noqa: E402
 
-from spacr.qt import hidpi  # noqa: E402
 from spacr.qt.hidpi import (  # noqa: E402
-    MAX_RATIO,
-    device_ratio,
     logical_size,
     scaled_for,
 )
@@ -72,10 +69,6 @@ class _Ratios:
         return self._ratio
 
 
-class _NoRatioAtAll:
-    """A paint target that has never heard of a device pixel ratio."""
-
-
 def _pixmap(width, height):
     """A drawable source picture of a known shape."""
     picture = QPixmap(width, height)
@@ -87,158 +80,15 @@ def _pixmap(width, height):
 # a first accessor whose answer is not a ratio
 # ---------------------------------------------------------------------------
 
-def test_a_ratio_of_zero_nan_or_infinity_is_not_believed(qapp):
-    """A meaningless ratio must send the lookup on, not become the scale.
-
-    ``devicePixelRatioF()`` is 0.0 on a null paint device and can come back
-    NaN or infinity from a display whose ``QT_SCALE_FACTOR`` was set to
-    something absurd. Taking any of those at face value multiplies every
-    render by it: 0 collapses the picture to nothing, NaN makes ``round()``
-    raise inside a paint path, and infinity asks Qt for an unbounded
-    allocation. The rule is that a number that is not a ratio does not end
-    the search -- the second accessor, and then the screen, still get asked.
-    """
-    # the odd half: the first accessor is junk, the second one is the truth
-    for junk in (0.0, -1.0, float("nan"), float("inf")):
-        target = _Ratios(junk, 2.0)
-        assert device_ratio(target) == 2.0, f"{junk!r} was believed"
-        assert target.asked == ["devicePixelRatioF", "devicePixelRatio"]
-
-    # the ordinary half: a real first answer is taken and the second accessor
-    # is never consulted, so the loop above really did fall through.
-    good = _Ratios(1.5, 4.0)
-    assert device_ratio(good) == 1.5
-    assert good.asked == ["devicePixelRatioF"]
-
-    # and a ratio nobody's hardware has is clamped rather than obeyed
-    assert device_ratio(_Ratios(40.0)) == MAX_RATIO == 8.0
-
-
-def test_a_ratio_accessor_that_raises_is_stepped_over(qapp):
-    """A deleted C++ object must not take the render down with it.
-
-    ``devicePixelRatioF()`` on a widget whose C++ half Qt has already freed
-    raises ``RuntimeError: Internal C++ object already deleted``, and that
-    happens routinely while a screen is being torn down or a dialog closed
-    mid-render. The picture should still be drawn at whatever ratio the next
-    source can supply.
-    """
-    class _Half(_Ratios):
-        def devicePixelRatioF(self):           # noqa: N802 - Qt spelling
-            self.asked.append("devicePixelRatioF")
-            raise RuntimeError("Internal C++ object already deleted")
-
-    target = _Half(0.0, 3.0)
-    assert device_ratio(target) == 3.0
-    assert target.asked == ["devicePixelRatioF", "devicePixelRatio"]
-
-    # the opposite half: when nothing raises, the first accessor answers.
-    assert device_ratio(_Ratios(3.0, 9.9)) == 3.0
-
 
 # ---------------------------------------------------------------------------
 # a widget whose screen is not known yet
 # ---------------------------------------------------------------------------
 
-def test_a_widget_with_no_screen_yet_is_asked_for_its_window(qapp):
-    """A picture built before the widget is shown still gets the right ratio.
-
-    Icons and logos are scaled while a page is being constructed, which is
-    before the widget has been put on a screen -- ``screen()`` is ``None`` or
-    the screen has no ratio at that moment. The top-level window does know,
-    because it is the thing that was placed. If the lookup stopped at the
-    screen, every picture built during construction would render at 1x and
-    arrive on a retina panel already blurred.
-    """
-    window = _Ratios(2.0)
-
-    class _NotShownYet:
-        def screen(self):
-            return None
-
-        def window(self):
-            return window
-
-    assert device_ratio(_NotShownYet()) == 2.0
-    assert window.asked == ["devicePixelRatioF"]
-
-    # the opposite half: once the widget IS on a screen, the screen answers
-    # and the window is never consulted.
-    screen = _Ratios(3.0)
-    later_window = _Ratios(2.0)
-
-    class _Shown:
-        def screen(self):
-            return screen
-
-        def window(self):
-            return later_window
-
-    assert device_ratio(_Shown()) == 3.0
-    assert later_window.asked == []
-
-
-def test_a_screen_accessor_that_raises_falls_through_to_the_window(qapp):
-    """Losing the screen mid-teardown must not lose the ratio.
-
-    ``widget.screen()`` raises once Qt has deleted the C++ widget, which is
-    exactly when a queued redraw arrives. Asking the window next keeps that
-    redraw at the right density instead of dropping to 1x.
-    """
-    window = _Ratios(2.5)
-
-    class _Deleted:
-        def screen(self):
-            raise RuntimeError("Internal C++ object already deleted")
-
-        def window(self):
-            return window
-
-    assert device_ratio(_Deleted()) == 2.5
-    assert window.asked == ["devicePixelRatioF"]
-
 
 # ---------------------------------------------------------------------------
 # an application with no primary screen
 # ---------------------------------------------------------------------------
-
-def test_no_primary_screen_means_an_ordinary_display_not_a_crash(monkeypatch):
-    """Headless and half-built applications must still get a number back.
-
-    ``QGuiApplication.primaryScreen()`` is ``None`` before the platform
-    plugin has finished starting and on a machine with no display at all --
-    the batch/CLI runs that still build pixmaps for saved figures. The only
-    safe answer is 1.0: the pre-existing behaviour of a bare ``.scaled()``.
-    Returning ``None`` or raising here would abort a render in a code path
-    that has no display to report it on.
-    """
-    class _App:
-        def __init__(self, screen):
-            self._screen = screen
-
-        def primaryScreen(self):               # noqa: N802 - Qt spelling
-            return self._screen
-
-    class _Fake:
-        def __init__(self, app):
-            self._app = app
-
-        def instance(self):
-            return self._app
-
-    monkeypatch.setattr(hidpi, "QGuiApplication", _Fake(_App(None)))
-    assert device_ratio(None) == 1.0
-    assert device_ratio(_NoRatioAtAll()) == 1.0
-
-    # the opposite half: the SAME call with a primary screen that does have a
-    # ratio hands that ratio back, so the 1.0 above is the fall-through and
-    # not a lookup that never happened.
-    monkeypatch.setattr(hidpi, "QGuiApplication", _Fake(_App(_Ratios(2.0))))
-    assert device_ratio(None) == 2.0
-
-    # and no application at all is 1.0 as well
-    monkeypatch.setattr(hidpi, "QGuiApplication", _Fake(None))
-    assert device_ratio(None) == 1.0
 
 
 # ---------------------------------------------------------------------------

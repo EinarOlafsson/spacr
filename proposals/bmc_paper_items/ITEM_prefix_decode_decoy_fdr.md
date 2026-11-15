@@ -37,3 +37,13 @@ The P1 benchmark therefore had to compute the FDR in a scoring script that re-ma
   (`periscope_benchmark/out/s2_10sites/`) to the cell.
 - Calibration: barcode-sequence shuffle call rate ≤ 1.5 × decoy FDR (S2 c).
 - Off-switch byte identity on 2 sites.
+
+## Maintainer requirement (2026-11-14): auto-tune precision AND recall
+- The auto mode must tune detection and calling together, not FDR alone: spot-detection thresholds (e.g. read/peak thresholds) and read-quality/calling thresholds are searched jointly.
+- Objective options: (a) maximise recall (cells genotyped) subject to decoy FDR ≤ max (default max 0.1 %; if unreachable, report the lowest reachable FDR and use it); (b) maximise an F-score of precision (1 − FDR) and recall. Default (a).
+- Output a precision–recall (genotyped % vs decoy FDR) curve per well and the chosen point; decoy-only tuning, tuning/report split as in 939.
+- Same requirement applies to the Funk decode's auto mode (939, which currently keeps spot thresholds manual): extend it with joint spot-detection tuning.
+
+
+## Scope decision (master, 2026-11-14)
+The joint precision-and-recall tuning (spot detection and calling thresholds together) also replaces 939's auto mode, which tunes only the calling threshold. It is built here, in 942, as one shared tuner used by both the prefix decode and the OPS decode (939's ops_decode_threshold_mode='auto'); no separate item.

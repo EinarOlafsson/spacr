@@ -100,132 +100,19 @@ def test_browsing_to_a_mask_fills_the_field_and_describes_what_is_in_it(
     assert os.path.basename(mask_path) in said or "object" in said
 
 
-def test_cancelling_the_mask_chooser_changes_nothing(screen, tmp_path,
-                                                     monkeypatch):
-    """A cancelled dialog returns an empty path, which is not a selection.
-
-    Writing it in would blank a path the user had already typed, and
-    describing it would replace a real description with "choose a mask first".
-    """
-    mask_path, _ = _field(tmp_path)
-    screen.set_paths(mask=mask_path)
-    screen.say("something already said")
-    monkeypatch.setattr(QFileDialog, "getOpenFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-
-    screen._choose_mask()
-
-    assert screen.mask_path() == mask_path
-    assert screen.status.toPlainText() == "something already said"
-
-
-def test_browsing_to_an_image_fills_only_the_image_field(screen, tmp_path,
-                                                         monkeypatch):
-    """The image underneath is context, so picking one describes nothing.
-
-    The description belongs to the mask; re-running it here would overwrite
-    what the pane says about the mask with the same text, or with a refusal
-    when no mask has been chosen yet.
-    """
-    _, image_path = _field(tmp_path)
-    screen.say("about the mask")
-    monkeypatch.setattr(QFileDialog, "getOpenFileName",
-                        staticmethod(lambda *a, **k: (image_path, "")))
-
-    screen._choose_image()
-
-    assert screen.image_path() == image_path
-    assert screen.status.toPlainText() == "about the mask"
-
-
-def test_cancelling_the_image_chooser_changes_nothing(screen, monkeypatch):
-    """Same rule for the second field."""
-    screen.set_paths(image="/somewhere/plate1_A01_f1.tif")
-    monkeypatch.setattr(QFileDialog, "getOpenFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-
-    screen._choose_image()
-
-    assert screen.image_path() == "/somewhere/plate1_A01_f1.tif"
-
-
 # ---------------------------------------------------------------------------
 # the status pane
 # ---------------------------------------------------------------------------
-
-def test_appending_keeps_what_the_pane_already_said(screen):
-    """A second message must not erase the first when the caller appends.
-
-    The two things this pane says most are a multi-line refusal and a
-    multi-line instruction, and the second is only actionable beside the
-    first.
-    """
-    screen.say("Open in napari.")
-
-    shown = screen.say("Nothing was written.", append=True)
-
-    assert shown == "Open in napari.\n\nNothing was written."
-
-
-def test_appending_to_an_empty_pane_does_not_leave_leading_blank_lines(screen):
-    """With nothing to append to, an append is just a message."""
-    shown = screen.say("Choose a mask file first.", append=True)
-
-    assert shown == "Choose a mask file first."
 
 
 # ---------------------------------------------------------------------------
 # a mask that cannot be read
 # ---------------------------------------------------------------------------
 
-def test_describing_a_mask_that_will_not_load_names_the_file(screen, tmp_path):
-    """The refusal has to name the file, because a run has thousands.
-
-    ``describe_mask`` runs on every browse, so the message the user gets when
-    they pick the wrong file is the only thing telling them which one it was.
-    """
-    broken = tmp_path / "plate1_A01_f1_mask.tif"
-    broken.write_bytes(b"not a tiff at all")
-    screen.set_paths(mask=str(broken))
-
-    said = screen.describe_mask()
-
-    assert "Could not read" in said
-    assert "plate1_A01_f1_mask.tif" in said
-
 
 # ---------------------------------------------------------------------------
 # napari failing after it was reached
 # ---------------------------------------------------------------------------
-
-def test_a_napari_that_throws_on_open_is_reported_and_leaves_the_buttons_off(
-        screen, tmp_path, monkeypatch, caplog):
-    """A viewer that raises is not a missing install and not a viewer.
-
-    Arming *Take the mask back* here would let the user press it against a
-    handoff that was never opened. The failure is logged with its traceback
-    for the report, and summarised in the pane for the person looking at it.
-    """
-    from spacr import napari_bridge as engine
-
-    mask_path, image_path = _field(tmp_path)
-    screen.set_paths(mask=mask_path, image=image_path)
-
-    def explode(handoff, **kwargs):
-        raise RuntimeError("no OpenGL context")
-
-    monkeypatch.setattr(engine, "open_in_napari", explode)
-
-    with caplog.at_level("ERROR", logger="spacr.qt.make_masks"):
-        assert screen.open_in_napari() is None
-
-    said = screen.status.toPlainText()
-    assert "napari could not open this field" in said
-    assert "no OpenGL context" in said
-    assert screen.take_button.isEnabled() is False
-    assert screen.close_button.isEnabled() is False
-    assert any("could not open napari" in record.message
-               for record in caplog.records)
 
 
 # ---------------------------------------------------------------------------

@@ -186,3 +186,35 @@ def test_ipython_display_fallback_on_import(monkeypatch):
     monkeypatch.undo()
     sys.modules.pop("spacr.spacr_cellpose", None)
     importlib.import_module("spacr.spacr_cellpose")
+
+
+def _settings(src, **over):
+    """The identify_masks_finetune settings dict used across this module."""
+    s = {
+        "src": str(src), "model_name": "cyto", "custom_model": None,
+        "diameter": 30, "flow_threshold": 0.4, "CP_prob": 0.0,
+        "grayscale": False, "save": False, "normalize": True,
+        "channels": [0, 1, 2], "percentiles": [2, 98], "invert": False,
+        "verbose": False, "resize": False, "target_height": 16,
+        "target_width": 16, "remove_background": False,
+        "background": 100, "Signal_to_noise": 5, "rescale": False,
+        "resample": False, "fill_in": False, "batch_size": 2,
+        "plot": False,
+    }
+    s.update(over)
+    return s
+
+
+class TestIdentifyMasksProgress938:
+    """Item 938: the Progress line counts images done over images in all."""
+
+    def test_progress_counts_files_done_over_all_files(self, tmp_path,
+                                                       _mock_cellpose, capsys):
+        import re
+        src = _make_img_dir(tmp_path / "five", n=5)
+        SC.identify_masks_finetune(_settings(src, batch_size=2))
+        lines = [m.groups() for m in re.finditer(
+            r"Progress: (\d+)/(\d+), operation_type: generate cellpose masks",
+            capsys.readouterr().out)]
+        assert [int(a) for a, _b in lines] == [1, 2, 3, 4, 5]
+        assert {int(b) for _a, b in lines} == {5}

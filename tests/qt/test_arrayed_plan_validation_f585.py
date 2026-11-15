@@ -11,6 +11,8 @@ from PySide6.QtWidgets import QPushButton
 from spacr.qt.screens import power
 from spacr.sp_stats import _nested_variance_components, _plan_arrayed_design
 
+from tests import locale_cases
+
 
 @pytest.fixture(scope='module')
 def pilot_and_plan():
@@ -72,7 +74,31 @@ def _state(screen):
             'plan': json.loads(json.dumps(screen._arrayed_plan, allow_nan=False))}
 
 
-@pytest.mark.parametrize('path,value', [
+def _actual_load_button_refuses_malformed_fields_without_partial_changes_case(planner, tmp_path, monkeypatch, qtbot, pilot_and_plan, path, value):
+    """One case of :func:`test_actual_load_button_refuses_malformed_fields_without_partial_changes`."""
+    before = _state(planner)
+    bad = copy.deepcopy(pilot_and_plan[1])
+    if not path:
+        bad = value
+    else:
+        parent = bad
+        for key in path[:-1]:
+            parent = parent[key]
+        parent[path[-1]] = value
+    # An early form change would reveal validation performed too late.
+    if isinstance(bad, dict) and isinstance(bad.get('pilot'), dict):
+        bad['pilot']['table'] = 'should never reach the working form'
+    source = tmp_path / 'malformed.json'
+    source.write_text(json.dumps(bad), encoding="utf-8")
+    monkeypatch.setattr(power.QFileDialog, 'getOpenFileName', lambda *_a, **_k: (str(source), ''))
+    qtbot.mouseClick(planner._load_plan, Qt.LeftButton)
+    assert _state(planner) == before
+    assert 'Could not load the plan:' in planner._plan_summary.text()
+
+
+def test_actual_load_button_refuses_malformed_fields_without_partial_changes(subtests, request):
+    for label, case in locale_cases.cases(
+            ('path,value', [
     ((), []), ((), True), (('pilot',), []), (('pilot', 'path'), False),
     (('pilot', 'columns'), []), (('pilot', 'columns', 'value'), []),
     (('design_inputs',), []), (('design_inputs', 'paired'), 'false'),
@@ -96,27 +122,11 @@ def _state(screen):
     (('simulation',), None), (('simulation', 'design_index'), 999),
     (('simulation', 'power'), float('-inf')), (('simulation', 'n_sim'), 0),
     (('simulation', 'seed'), -1), (('simulation', 'cells_per_field'), False),
-])
-def test_actual_load_button_refuses_malformed_fields_without_partial_changes(
-        planner, tmp_path, monkeypatch, qtbot, pilot_and_plan, path, value):
-    before = _state(planner)
-    bad = copy.deepcopy(pilot_and_plan[1])
-    if not path:
-        bad = value
-    else:
-        parent = bad
-        for key in path[:-1]:
-            parent = parent[key]
-        parent[path[-1]] = value
-    # An early form change would reveal validation performed too late.
-    if isinstance(bad, dict) and isinstance(bad.get('pilot'), dict):
-        bad['pilot']['table'] = 'should never reach the working form'
-    source = tmp_path / 'malformed.json'
-    source.write_text(json.dumps(bad), encoding="utf-8")
-    monkeypatch.setattr(power.QFileDialog, 'getOpenFileName', lambda *_a, **_k: (str(source), ''))
-    qtbot.mouseClick(planner._load_plan, Qt.LeftButton)
-    assert _state(planner) == before
-    assert 'Could not load the plan:' in planner._plan_summary.text()
+]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('planner', 'tmp_path', 'monkeypatch', 'qtbot', 'pilot_and_plan')) as fixtures:
+                _actual_load_button_refuses_malformed_fields_without_partial_changes_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize('text', ['{"schema":"spacr-arrayed-plan-v1","schema":"other"}',

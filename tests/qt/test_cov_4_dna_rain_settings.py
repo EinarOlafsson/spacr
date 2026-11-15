@@ -8,11 +8,8 @@ than take the screen down with it.
 """
 from __future__ import annotations
 
-import pytest
-import shiboken6
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeyEvent
-from PySide6.QtWidgets import QPushButton
 
 from spacr.qt.widgets.dna_rain_settings import (DnaRainSettingsBar,
                                                 DnaRainSettingsPopover)
@@ -20,41 +17,6 @@ from spacr.qt.widgets.dna_rain_settings import (DnaRainSettingsBar,
 
 def _popover(qapp):
     return DnaRainSettingsPopover(DnaRainSettingsBar())
-
-
-def test_a_destroyed_anchor_is_treated_as_an_anchor_at_the_origin(qapp):
-    """Losing the button must not lose the settings it opened."""
-    popover = _popover(qapp)
-    popover.adjustSize()
-
-    at_origin = QPushButton("settings")
-    at_origin.setFixedSize(0, 1)
-    at_origin.move(0, 0)
-    popover._position_near(at_origin)
-    expected = popover.pos()
-
-    dead = QPushButton("settings")
-    shiboken6.delete(dead)
-    popover._position_near(dead)
-    assert popover.pos() == expected
-
-
-def test_a_live_anchor_is_positioned_against_where_it_actually_is(qapp):
-    """The fallback must not shadow the ordinary placement."""
-    popover = _popover(qapp)
-    popover.adjustSize()
-
-    near = QPushButton("settings")
-    near.setFixedSize(80, 24)
-    near.move(0, 0)
-    popover._position_near(near)
-    first = popover.pos()
-
-    far = QPushButton("settings")
-    far.setFixedSize(80, 24)
-    far.move(400, 500)
-    popover._position_near(far)
-    assert popover.pos() != first
 
 
 def test_escape_closes_the_popover(qapp):

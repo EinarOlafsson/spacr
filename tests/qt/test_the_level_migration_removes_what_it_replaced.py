@@ -30,6 +30,8 @@ from PySide6.QtCore import QSettings
 
 from spacr.qt import preferences as P
 
+from tests import locale_cases
+
 pytestmark = pytest.mark.qt
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -73,9 +75,8 @@ def ini(tmp_path, monkeypatch):
     return path
 
 
-@pytest.mark.parametrize("mode,laptop", PAIRS)
-def test_every_legacy_pair_migrates_and_the_obsolete_keys_go(ini, mode,
-                                                             laptop):
+def _every_legacy_pair_migrates_and_the_obsolete_keys_go_case(ini, mode, laptop):
+    """One case of :func:`test_every_legacy_pair_migrates_and_the_obsolete_keys_go`."""
     _write_legacy(ini, mode, laptop)
 
     assert P.get_performance_level() == _expected(mode, laptop)
@@ -89,6 +90,15 @@ def test_every_legacy_pair_migrates_and_the_obsolete_keys_go(ini, mode,
 
     # Idempotent in-process.
     assert P.get_performance_level() == _expected(mode, laptop)
+
+
+def test_every_legacy_pair_migrates_and_the_obsolete_keys_go(subtests, request):
+    for label, case in locale_cases.cases(
+            ("mode,laptop", PAIRS),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('ini',)) as fixtures:
+                _every_legacy_pair_migrates_and_the_obsolete_keys_go_case(**fixtures, **case)
 
 
 _STARTUP = r"""

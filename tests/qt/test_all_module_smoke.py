@@ -32,6 +32,8 @@ from spacr.qt.screens.app_screen import AppScreen
 from spacr.qt.theme import DARK_PALETTE
 from spacr.qt.widgets.info_link import InfoLink
 
+from tests import locale_cases
+
 
 class _FactoryHost(QObject):
     """Stand-in ``self`` for the unbound ``MainWindow._build_screen``.
@@ -244,10 +246,8 @@ def test_a_list_valued_setting_can_build_its_editor(qtbot, qt_theme_applied):
     assert editor.get_value() == [0, 1]
 
 
-@pytest.mark.parametrize("app_key", list(_module_params()))
-def test_every_registered_module_constructs_shows_and_renders(
-        qtbot, qt_theme_applied, monkeypatch, app_key):
-    """Exercise the real screen factory and one composed dark-theme frame."""
+def _every_registered_module_constructs_shows_and_renders_case(qtbot, qt_theme_applied, monkeypatch, app_key):
+    """One case of :func:`test_every_registered_module_constructs_shows_and_renders`."""
     if app_key == "run_history":
         # Showing this screen intentionally starts its background refresh.
         # A smoke test must not walk the operator's real ~/.spacr/runs tree:
@@ -286,6 +286,16 @@ def test_every_registered_module_constructs_shows_and_renders(
 
     if isinstance(screen, AppScreen):
         _setting_row_contract(screen, qt_theme_applied)
+
+
+def test_every_registered_module_constructs_shows_and_renders(subtests, request):
+    """Exercise the real screen factory and one composed dark-theme frame."""
+    for label, case in locale_cases.cases(
+            ("app_key", list(_module_params())),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'qt_theme_applied', 'monkeypatch')) as fixtures:
+                _every_registered_module_constructs_shows_and_renders_case(**fixtures, **case)
 
 
 def _slots_build_screen_reaches_for() -> list:
@@ -338,17 +348,8 @@ def test_training_runs_does_not_override_qwidget_metric():
     assert "metric" not in TrainCompareScreen.__dict__
 
 
-@pytest.mark.parametrize("app_key", list(_module_params()))
-def test_every_module_console_can_be_jumped_to_the_end(
-        qtbot, qt_theme_applied, monkeypatch, app_key):
-    """Walked, not named: whatever console a module builds carries the gesture.
-
-    The way to the bottom of a long log belongs where the console is built
-    rather than on each screen, so the assertion has to be made over the
-    registry rather than over a list of the screens somebody remembered.
-    A module with no console asserts nothing; a module with one is asked for
-    the shortcut, the visible control, and the follow-the-tail rule.
-    """
+def _every_module_console_can_be_jumped_to_the_end_case(qtbot, qt_theme_applied, monkeypatch, app_key):
+    """One case of :func:`test_every_module_console_can_be_jumped_to_the_end`."""
     from PySide6.QtGui import QKeySequence
 
     from spacr.qt.widgets.console_panel import ConsolePanel
@@ -379,3 +380,20 @@ def test_every_module_console_can_be_jumped_to_the_end(
             f"{app_key}: appending yanked the viewport away from the reader")
         console.jump_to_the_end()
         assert console.at_the_end(), f"{app_key}: the jump did not reach the end"
+
+
+def test_every_module_console_can_be_jumped_to_the_end(subtests, request):
+    """Walked, not named: whatever console a module builds carries the gesture.
+
+    The way to the bottom of a long log belongs where the console is built
+    rather than on each screen, so the assertion has to be made over the
+    registry rather than over a list of the screens somebody remembered.
+    A module with no console asserts nothing; a module with one is asked for
+    the shortcut, the visible control, and the follow-the-tail rule.
+    """
+    for label, case in locale_cases.cases(
+            ("app_key", list(_module_params())),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'qt_theme_applied', 'monkeypatch')) as fixtures:
+                _every_module_console_can_be_jumped_to_the_end_case(**fixtures, **case)

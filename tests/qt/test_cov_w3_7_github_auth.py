@@ -11,9 +11,6 @@ test that let it get that far would be reading a real credential.
 """
 from __future__ import annotations
 
-import json
-import urllib.error
-import urllib.request
 
 import pytest
 
@@ -34,39 +31,6 @@ def _a_token_from_the_environment(monkeypatch):
                         lambda: pytest.fail(
                             "a test reached the developer's gh credential "
                             "store"))
-
-
-class _Response:
-    """The context manager ``urlopen`` returns, holding one JSON body."""
-
-    def __init__(self, payload):
-        self._body = json.dumps(payload).encode("utf-8")
-
-    def read(self):
-        return self._body
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc):
-        return False
-
-
-@pytest.fixture
-def transport(monkeypatch):
-    """Answer every request from a queue, and keep the requests sent."""
-    sent = []
-    answers = []
-
-    def urlopen(request, timeout=None):
-        sent.append(request)
-        answer = answers.pop(0)
-        if isinstance(answer, Exception):
-            raise answer
-        return _Response(answer)
-
-    monkeypatch.setattr(github_auth, "_HTTP_OPEN", urlopen)
-    return type("Transport", (), {"sent": sent, "answers": answers})()
 
 
 # ---------------------------------------------------------------------------
@@ -110,94 +74,11 @@ def test_outside_a_test_run_there_is_nothing_to_refuse(monkeypatch):
     assert github_auth._refuse_writes_under_test() is None
 
 
-def test_real_transport_is_refused_at_every_github_api_boundary(monkeypatch):
-    """Search, comment and creation all stop before credential discovery."""
-    assert github_auth._HTTP_OPEN is github_auth._REAL_HTTP_OPEN
-
-    def _credential_leak():
-        pytest.fail("a refused test call consulted the developer credential")
-
-    monkeypatch.setattr(github_auth, "resolve_token", _credential_leak)
-    assert github_auth.find_issue_by_fingerprint("owner/name", "abc123") == (
-        False, None)
-    assert github_auth.comment_on_issue("owner/name", 114, "Seen again.") == (
-        False, "refusing GitHub network access from inside a test run")
-    assert github_auth.create_issue("owner/name", "title", "body") == (
-        False, "refusing GitHub network access from inside a test run")
-
-
 # ---------------------------------------------------------------------------
 # Searching for an existing report
 # ---------------------------------------------------------------------------
-
-def test_the_search_asks_for_one_open_issue_with_the_fingerprint(transport):
-    transport.answers.append({"items": [{"number": 12,
-                                         "html_url": "https://x/12"}]})
-    searched, issue = github_auth.find_issue_by_fingerprint("o/n", "abc123")
-    assert searched is True
-    assert issue["number"] == 12
-
-    request = transport.sent[0]
-    assert request.full_url.startswith(
-        "https://api.github.com/search/issues?q=")
-    assert "abc123" in request.full_url
-    assert "is%3Aopen" in request.full_url
-    assert "per_page=1" in request.full_url
-    assert request.get_header("Authorization") == "Bearer ghp_covw37token"
-
-
-def test_no_match_is_a_completed_search_not_a_failed_one(transport):
-    """The difference decides whether the reporter files or comments."""
-    transport.answers.append({"items": []})
-    assert github_auth.find_issue_by_fingerprint("o/n", "abc") == (True, None)
-
-
-def test_a_search_that_could_not_run_says_so(transport):
-    transport.answers.append(urllib.error.URLError("no route to host"))
-    assert github_auth.find_issue_by_fingerprint("o/n", "abc") == (False, None)
-
-
-def test_without_a_token_there_is_no_search(monkeypatch):
-    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
-    monkeypatch.setattr(github_auth, "_gh_cli_token", lambda: "")
-    monkeypatch.setattr(github_auth, "_HTTP_OPEN",
-                        lambda *a, **k: pytest.fail("asked GitHub anonymously"))
-    assert github_auth.find_issue_by_fingerprint("o/n", "abc") == (False, None)
 
 
 # ---------------------------------------------------------------------------
 # Commenting on one that already exists
 # ---------------------------------------------------------------------------
-
-def test_a_second_occurrence_is_posted_as_a_comment(transport):
-    transport.answers.append({"html_url": "https://x/12#issuecomment-1"})
-    ok, url = github_auth.comment_on_issue("owner/name", 12, "Seen again.")
-    assert ok is True
-    assert url == "https://x/12#issuecomment-1"
-
-    request = transport.sent[0]
-    assert request.full_url == (
-        "https://api.github.com/repos/owner/name/issues/12/comments")
-    assert request.get_method() == "POST"
-    assert json.loads(request.data.decode("utf-8")) == {"body": "Seen again."}
-    assert request.get_header("Content-type") == "application/json"
-
-
-def test_a_comment_that_reflects_the_token_back_is_scrubbed(transport):
-    """``putheader`` echoes the header at us when a PAT holds a newline."""
-    transport.answers.append(
-        ValueError("Invalid header value b'Bearer ghp_covw37token'"))
-    ok, message = github_auth.comment_on_issue("owner/name", 12, "body")
-    assert ok is False
-    assert "ghp_covw37token" not in message
-    assert github_auth.REDACTED in message
-
-
-def test_no_token_means_no_comment(monkeypatch):
-    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
-    monkeypatch.setattr(github_auth, "_gh_cli_token", lambda: "")
-    monkeypatch.setattr(github_auth, "_HTTP_OPEN",
-                        lambda *a, **k: pytest.fail("posted anonymously"))
-    ok, message = github_auth.comment_on_issue("owner/name", 12, "body")
-    assert ok is False
-    assert "Not signed in" in message

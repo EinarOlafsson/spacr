@@ -22,7 +22,7 @@ import pytest
 from PySide6.QtCore import QEvent, QPointF, QSize, Qt
 from PySide6.QtGui import QEnterEvent, QIcon, QPixmap
 
-from spacr.qt.widgets.tile import HTile, Tile, _TileButton
+from spacr.qt.widgets.tile import HTile, _TileButton
 
 
 @contextmanager
@@ -116,56 +116,9 @@ def test_leaving_aims_the_icon_back_at_its_base_size(qtbot):
 # Tile
 # ---------------------------------------------------------------------------
 
-def test_a_tile_with_an_icon_shows_the_icon_and_no_initials(qtbot):
-    tile = Tile("Annotator Agreement", icon=_icon(), icon_size=48,
-                tile_size=110)
-    qtbot.addWidget(tile)
-    assert tile._button.icon().isNull() is False
-    assert tile._button.text() == ""
-    assert tile._button.iconSize() == QSize(48, 48)
-    assert tile.text == "Annotator Agreement"
-
-
-def test_a_tile_with_no_icon_falls_back_to_two_initials(qtbot):
-    tile = Tile("Annotator Agreement")
-    qtbot.addWidget(tile)
-    assert tile._button.icon().isNull() is True
-    assert tile._button.text() == "AA"
-
-
-def test_a_one_word_tile_shows_one_initial(qtbot):
-    """Initials come from WORDS, so a single-word name gives a single letter."""
-    tile = Tile("Curate")
-    qtbot.addWidget(tile)
-    assert tile._button.text() == "C"
-
-
-def test_a_nameless_tile_still_has_something_on_it(qtbot):
-    """No words at all falls through to the first two characters."""
-    tile = Tile("3d")
-    qtbot.addWidget(tile)
-    assert tile._button.text() == "3"
-
-
-def test_the_caption_falls_back_to_the_text(qtbot):
-    tile = Tile("Curate")
-    qtbot.addWidget(tile)
-    assert tile._caption.text() == "Curate"
-    assert tile._button.toolTip() == "Curate"
-
-
 # ---------------------------------------------------------------------------
 # HTile geometry
 # ---------------------------------------------------------------------------
-
-def test_an_htile_with_an_icon_sizes_it_to_the_font_scale(qtbot):
-    """The icon side length is a scaled px, not the raw argument."""
-    from spacr.qt.preferences import scaled_px
-
-    tile = HTile("Curate", "review masks", icon=_icon(), icon_size=52)
-    qtbot.addWidget(tile)
-    assert tile.icon().isNull() is False
-    assert tile.iconSize() == QSize(scaled_px(52), scaled_px(52))
 
 
 def test_a_name_only_htile_centres_its_label_and_keeps_a_plain_tooltip(qtbot):

@@ -9,6 +9,8 @@ from skimage import filters
 from spacr.qt import detect_chain
 from spacr.qt.screens import make_masks as mm
 
+from tests import locale_cases
+
 
 METHODS = ('li', 'yen', 'triangle', 'isodata', 'mean', 'minimum',
            'sauvola', 'niblack')
@@ -49,10 +51,8 @@ def select(screen, mode):
     screen._mag_mode.setCurrentIndex(screen._mag_mode.findData(mode))
 
 
-@pytest.mark.parametrize('mode', METHODS)
-@pytest.mark.parametrize('bright', [True, False])
-@pytest.mark.parametrize('scope', ['region', 'image'])
-def test_both_scopes_use_the_selected_algorithm_on_unscaled_values(screen, mode, bright, scope):
+def _both_scopes_use_the_selected_algorithm_on_unscaled_values_case(screen, mode, bright, scope):
+    """One case of :func:`test_both_scopes_use_the_selected_algorithm_on_unscaled_values`."""
     select(screen, mode)
     screen._otsu_bright.setChecked(bright)
     screen._otsu_correction.setValue(1.1)
@@ -75,6 +75,17 @@ def test_both_scopes_use_the_selected_algorithm_on_unscaled_values(screen, mode,
     np.testing.assert_array_equal(labels > 0, expected)
     whole, _ = screen._cpu_detect(request.crop, mode, screen._otsu_settings())
     np.testing.assert_array_equal(labels, whole)
+
+
+def test_both_scopes_use_the_selected_algorithm_on_unscaled_values(subtests, request):
+    for label, case in locale_cases.cases(
+            ('mode', METHODS),
+            ('bright', [True, False]),
+            ('scope', ['region', 'image']),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('screen',)) as fixtures:
+                _both_scopes_use_the_selected_algorithm_on_unscaled_values_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize('mode', METHODS)

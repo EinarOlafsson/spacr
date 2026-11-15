@@ -19,12 +19,13 @@ from spacr.qt.app import APPS  # noqa: E402
 
 from .test_accessibility_pass import _open  # noqa: E402
 
+from tests import locale_cases
+
 pytestmark = pytest.mark.qt
 
 
-@pytest.mark.parametrize("app_key", [key for key, *_ in APPS])
-def test_every_visible_combo_has_its_own_accessible_name(
-        qtbot, qt_theme_applied, monkeypatch, app_key):
+def _every_visible_combo_has_its_own_accessible_name_case(qtbot, qt_theme_applied, monkeypatch, app_key):
+    """One case of :func:`test_every_visible_combo_has_its_own_accessible_name`."""
     screen = _open(qtbot, monkeypatch, app_key)
     nameless = [
         f"{widget.objectName() or '?'} in "
@@ -34,6 +35,15 @@ def test_every_visible_combo_has_its_own_accessible_name(
         if widget.isVisibleTo(screen) and not widget.accessibleName().strip()
     ]
     assert not nameless, f"{app_key}: {nameless}"
+
+
+def test_every_visible_combo_has_its_own_accessible_name(subtests, request):
+    for label, case in locale_cases.cases(
+            ("app_key", [key for key, *_ in APPS]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot', 'qt_theme_applied', 'monkeypatch')) as fixtures:
+                _every_visible_combo_has_its_own_accessible_name_case(**fixtures, **case)
 
 
 def test_the_named_menus_say_what_they_choose(qtbot, qt_theme_applied,

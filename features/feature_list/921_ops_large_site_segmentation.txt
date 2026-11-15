@@ -118,3 +118,14 @@ NOT DONE
 - No GUI preset entry or tooltips (translations and tooltips are the
   master's); no arrival contracts or 9-locale records (per the lane brief).
 - SBS linking at the reader's grid and the cyto3 arm.
+
+MASK STEP UNDER A VRAM CAP (2026-11-14, item 945)
+The whole-site mask step no longer runs outside the GPU governor. On a CUDA
+card it is sized to seg_mask_vram_gb (default 6; DEFAULT_CHANGES row 938,
+older files keep 0 = no cap of its own) and seg_mask_device ('auto' | 'gpu' |
+'cpu'): it runs whole when it fits, else the flow check runs in row bands
+that fit (each band with the masks its masks touch), and a step that does
+not fit or runs out of card memory runs on the CPU. sites.csv records
+mask_step_device / mask_step_reason / mask_step_bands, mask_step.json every
+step. A model on the CPU keeps the call above unchanged. See
+945_ops_large_site_mask_step_vram_cap.txt.

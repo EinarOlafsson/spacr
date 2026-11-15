@@ -5,16 +5,11 @@ import pytest
 from tests.qt.test_733_navigator_ai import ai_page as ai_page
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile as private_ai_profile
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('value', [
-    '42', 'THE ANSWER TO LIFE!', 'meaning of life', 'What is the meaning of 42?',
-    'What does 42 mean?', 'Life, the universe and everything',
-    'meningen med livet', 'Was bedeutet 42?', '¿Qué significa 42?',
-    'o sentido da vida', 'Que signifie 42 ?', '42是什么意思？',
-    '42 का क्या मतलब है?', '42는 무슨 뜻인가요?', 'Hvað þýðir 42?',
-])
-@pytest.mark.parametrize('enabled', [False, True])
-def test_literal_and_localized_life_tasks_answer_locally_on_enter(ai_page, qtbot, value, enabled):
+
+def _literal_and_localized_life_tasks_answer_locally_on_enter_case(ai_page, qtbot, value, enabled):
+    """One case of :func:`test_literal_and_localized_life_tasks_answer_locally_on_enter`."""
     page, calls, _drained = ai_page
     page.path_edit.ai.blockSignals(True)
     page.path_edit.ai.setChecked(enabled)
@@ -28,6 +23,22 @@ def test_literal_and_localized_life_tasks_answer_locally_on_enter(ai_page, qtbot
     assert 'The Hitchhiker’s Guide to the Galaxy' in text
     assert not commands and not calls
     assert not page._runner.is_busy()
+
+
+def test_literal_and_localized_life_tasks_answer_locally_on_enter(subtests, request):
+    for label, case in locale_cases.cases(
+            ('value', [
+    '42', 'THE ANSWER TO LIFE!', 'meaning of life', 'What is the meaning of 42?',
+    'What does 42 mean?', 'Life, the universe and everything',
+    'meningen med livet', 'Was bedeutet 42?', '¿Qué significa 42?',
+    'o sentido da vida', 'Que signifie 42 ?', '42是什么意思？',
+    '42 का क्या मतलब है?', '42는 무슨 뜻인가요?', 'Hvað þýðir 42?',
+]),
+            ('enabled', [False, True]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('ai_page', 'qtbot')) as fixtures:
+                _literal_and_localized_life_tasks_answer_locally_on_enter_case(**fixtures, **case)
 
 
 def test_unmatched_nonpath_task_explains_provider_choice_without_ai(ai_page, qtbot):

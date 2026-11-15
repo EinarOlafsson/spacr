@@ -108,6 +108,13 @@ default after a higher-numbered item takes the next free number:
   ``False``; it is now ``True``.
 - 936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space``
   ``'refit'``; they are now ``2`` and ``'hybrid'``.
+- 937 (item 941): ``profile_optional_families`` and
+  ``ops_ph_profile_optional_families`` were ``['texture_gabor',
+  'colocalisation', 'colocalisation_extra']``, the slow families the
+  ``'profiling'`` preset measured; they are now ``None``, so ``'profiling'``
+  leaves Gabor, granularity and colocalisation out.
+- 938 (item 945): ``seg_mask_vram_gb`` was ``0`` (the
+  large-site mask step had no card-memory cap of its own); it is now ``6``.
 
 Public API
 ----------

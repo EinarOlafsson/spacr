@@ -1,0 +1,3 @@
+{
+  "spacr.measure.profile_optional_families": "The slow families a ``profile_optional_families`` setting adds.\n\n:param value: ``None``, ``False``, ``''`` or an empty list for none\n    (the default); ``True`` or ``'all'`` for every family in\n    :data:`PROFILE_FEATURE_OPTIONAL`, Brieflow's full set; otherwise\n    names from :data:`PROFILE_FEATURE_OPTIONAL`, as a list or a\n    comma-separated string.\n:returns: the families in :data:`PROFILE_FEATURE_FAMILIES` order.\n:raises ValueError: for a name that is not an optional family."
+}

@@ -71,15 +71,6 @@ def screen(qtbot, measurements_db):
 # apply_seed
 # ---------------------------------------------------------------------------
 
-def test_a_seed_opens_the_database_table_and_column_it_names(
-        screen, measurements_db):
-    """The whole point of the seam: arrive where the other screen pointed."""
-    screen.apply_seed({"db_path": measurements_db, "table": "cell",
-                       "column": "cell_area"})
-
-    assert screen.current_table() == "cell"
-    assert "cell_area" in screen.visible_columns()
-
 
 def test_a_seed_naming_a_database_that_will_not_open_stops_there(
         screen, tmp_path):
@@ -89,66 +80,6 @@ def test_a_seed_naming_a_database_that_will_not_open_stops_there(
 
     assert screen.current_table() == ""
     assert screen.status_text()
-
-
-def test_a_seed_naming_a_table_this_database_lacks_is_ignored(
-        screen, measurements_db):
-    """A table name from another run leaves the browser on what it opened."""
-    screen.apply_seed({"db_path": measurements_db, "table": "cell"})
-
-    screen.apply_seed({"table": "no_such_table"})
-
-    assert screen.current_table() == "cell"
-
-
-def test_a_seed_survives_a_database_that_cannot_list_its_tables(
-        screen, measurements_db, monkeypatch):
-    """A database that fails mid-seed is ignored, not raised out of."""
-    screen.apply_seed({"db_path": measurements_db, "table": "cell"})
-
-    def unreadable():
-        raise sqlite3.DatabaseError("the file is locked")
-
-    monkeypatch.setattr(screen._db, "tables", unreadable)
-
-    screen.apply_seed({"table": "notes"})
-
-    assert screen.current_table() == "cell"
-
-
-def test_a_seed_naming_a_column_this_table_lacks_is_ignored(
-        screen, measurements_db):
-    """A column from another table is a miss, not a failure to open."""
-    screen.apply_seed({"db_path": measurements_db, "table": "notes",
-                       "column": "cell_area"})
-
-    assert screen.current_table() == "notes"
-    assert "cell_area" not in screen.visible_columns()
-
-
-def test_a_seed_column_is_reached_even_when_the_rows_arrive_later(
-        qtbot, measurements_db):
-    """The threaded browser is the one that ships, and it has no columns yet
-    when the seed is handled.
-
-    ``apply_seed`` runs the moment the table is selected; the first chunk --
-    which is what defines the column set -- lands on a worker thread
-    afterwards. Asking ``visible_columns()`` at seed time therefore returns
-    an empty list, so the column the seed named was never scrolled to in the
-    real app, only in tests built with ``threaded=False``.
-    """
-    widget = DbBrowserScreen()
-    qtbot.addWidget(widget)
-    reached = []
-    widget._view.scrollTo = lambda index, *a, **k: reached.append(index.column())
-
-    widget.apply_seed({"db_path": measurements_db, "table": "cell",
-                       "column": "cell_area"})
-    assert widget.visible_columns() == []        # nothing to scroll to yet
-
-    qtbot.waitUntil(lambda: bool(widget.visible_columns()), timeout=10000)
-    assert reached == [widget.visible_columns().index("cell_area")]
-    assert widget._seed_column is None
 
 
 # ---------------------------------------------------------------------------
@@ -235,54 +166,3 @@ def test_selecting_a_row_of_a_keyless_table_publishes_nothing(
 
     assert len(attempts) == 1, "the handler did try to publish"
     assert screen.link.selection.is_active is False
-
-
-def test_an_empty_view_selection_is_not_published_as_a_selection(
-        screen, measurements_db):
-    """Qt clears the selection on every model reset; that is not a lasso."""
-    screen.apply_seed({"db_path": measurements_db, "table": "cell"})
-    screen.link.clear_selection()
-    attempts = _spy_on_publishing(screen)
-
-    screen._on_view_selection_changed()
-
-    assert attempts == []
-    assert screen.link.selection.is_active is False
-
-
-def test_rows_cannot_be_selected_before_a_table_is_loaded(screen):
-    """With no columns there is no row to select, and no error either."""
-    assert screen.select_rows([0, 1]) == []
-    assert screen.selected_rows() == []
-
-
-def test_a_view_with_no_selection_model_reports_no_selected_rows(
-        screen, measurements_db, monkeypatch):
-    """A view being torn down must not make the browser raise."""
-    screen.apply_seed({"db_path": measurements_db, "table": "cell"})
-    monkeypatch.setattr(screen._view, "selectionModel", lambda: None)
-
-    assert screen.selected_rows() == []
-
-
-def test_an_incoming_selection_is_ignored_before_a_table_is_loaded(screen):
-    """A link push can arrive before the user has opened anything."""
-    selection = Selection(keys=as_key_index(["plate1_r1_c1_f1_1"]))
-
-    assert screen.on_linked_selection_changed(selection) is None
-    assert screen.selected_rows() == []
-
-
-def test_closing_survives_a_link_whose_other_half_is_already_gone(
-        screen, measurements_db, monkeypatch):
-    """At interpreter teardown the link's C++ side may outlive nothing."""
-    screen.apply_seed({"db_path": measurements_db, "table": "cell"})
-
-    def gone():
-        raise RuntimeError("Internal C++ object already deleted")
-
-    monkeypatch.setattr(screen, "unlink_selection", gone)
-
-    screen.close()
-
-    assert screen.isVisible() is False

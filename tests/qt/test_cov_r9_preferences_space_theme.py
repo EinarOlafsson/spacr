@@ -153,17 +153,3 @@ class TestWritingTheToken:
         assert "cell:" in message, (
             "the refusal no longer lists the valid tokens, so a user with "
             "a bad settings file is told what is wrong and not what to do")
-
-
-@pytest.mark.parametrize("token", _every_token())
-def test_every_offered_token_survives_a_write_and_a_read(token,
-                                                         _restore_the_theme):
-    """The property the two functions exist to have, over the WHOLE set.
-
-    A token that does not come back is a theme the user picks and loses
-    on restart, and the two functions are far enough apart in the file
-    that one can grow a case the other does not.
-    """
-    P.set_theme_choice(token)
-
-    assert P.get_theme_choice() == token

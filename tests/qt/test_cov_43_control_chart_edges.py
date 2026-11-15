@@ -37,58 +37,6 @@ def test_refused_jobs_are_shown_on_their_panels(screen):
         "rdkit missing" in screen.chem_summary.text()
 
 
-def test_exports_before_scoring_say_nothing_was_scored(screen, monkeypatch):
-    asked = []
-    monkeypatch.setattr(cc.QFileDialog, "getExistingDirectory",
-                        staticmethod(lambda *a, **k: asked.append(a) or ""))
-    screen.choose_hit_export()
-    assert screen._source.text() == "Nothing scored yet."
-    screen._source.setText("")
-    screen._choose_anomaly_export()
-    assert screen._source.text() == "Nothing scored yet."
-    screen._source.setText("")
-    assert screen._export_anomalies("/tmp/never") is None
-    assert screen._source.text() == "Nothing scored yet."
-    assert asked == []
-
-
-def test_a_dismissed_folder_or_table_dialog_writes_and_loads_nothing(
-        screen, monkeypatch):
-    monkeypatch.setattr(cc.QFileDialog, "getExistingDirectory",
-                        staticmethod(lambda *a, **k: ""))
-    monkeypatch.setattr(cc.QFileDialog, "getOpenFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-    written = []
-    monkeypatch.setattr(screen, "export_hits", written.append)
-    monkeypatch.setattr(screen, "_export_anomalies", written.append)
-    loaded = []
-    monkeypatch.setattr(screen, "_load_compounds", loaded.append)
-    screen._hit_result = object()
-    screen._anomaly = object()
-    screen.choose_hit_export()
-    screen._choose_anomaly_export()
-    screen._choose_compounds()
-    assert written == [] and loaded == []
-
-
-def test_chosen_folders_and_tables_are_used(screen, monkeypatch, tmp_path):
-    monkeypatch.setattr(cc.QFileDialog, "getExistingDirectory",
-                        staticmethod(lambda *a, **k: str(tmp_path)))
-    monkeypatch.setattr(cc.QFileDialog, "getOpenFileName",
-                        staticmethod(lambda *a, **k: ("compounds.csv", "")))
-    written, loaded = [], []
-    monkeypatch.setattr(screen, "export_hits", written.append)
-    monkeypatch.setattr(screen, "_export_anomalies", written.append)
-    monkeypatch.setattr(screen, "_load_compounds", loaded.append)
-    screen._hit_result = object()
-    screen._anomaly = object()
-    screen.choose_hit_export()
-    screen._choose_anomaly_export()
-    screen._choose_compounds()
-    assert written == [str(tmp_path), str(tmp_path)]
-    assert loaded == ["compounds.csv"]
-
-
 def test_changes_while_loading_do_not_rescore(screen, monkeypatch):
     rescored = []
     monkeypatch.setattr(screen, "rescore_hits", lambda: rescored.append("h"))

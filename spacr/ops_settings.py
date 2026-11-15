@@ -45,6 +45,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_placement_seed_export": True,
     "ops_placement_seed_check_pixels": False,
     "ops_placement_seed_tolerance": 2.0,
+    "ops_ph_placement_seed": None,
     "ops_footprint": 10.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
@@ -115,6 +116,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_funk_features": False,
     "ops_ph_zernike": False,
     "ops_ph_profile_features": None,
+    "ops_ph_profile_optional_families": None,
     "ops_ph_granularity_subsample": 1.0,
     "ops_drop_failed_fields": False,
     "ops_drop_nonfinite_rows": False,
@@ -419,6 +421,7 @@ OPS_TO_MEASURE_KEYS: Dict[str, str] = {
     "ops_ph_measure_gpu_check": "measure_gpu_check",
     "ops_ph_channels": "channel_names",
     "ops_ph_profile_features": "profile_features",
+    "ops_ph_profile_optional_families": "profile_optional_families",
     "ops_ph_granularity_subsample": "profile_granularity_subsample",
 }
 
@@ -448,6 +451,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_placement_seed_export": bool,
     "ops_placement_seed_check_pixels": bool,
     "ops_placement_seed_tolerance": (float, int),
+    "ops_ph_placement_seed": (str, type(None)),
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
     "ops_spot_detector": str,
@@ -518,6 +522,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_funk_features": bool,
     "ops_ph_zernike": bool,
     "ops_ph_profile_features": (str, list, type(None)),
+    "ops_ph_profile_optional_families": (bool, str, list, type(None)),
     "ops_ph_granularity_subsample": (float, int),
     "ops_drop_failed_fields": bool,
     "ops_drop_nonfinite_rows": bool,
@@ -829,7 +834,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_stitch_read_threads", "ops_stitch_edge_workers",
         "ops_placement_seed", "ops_placement_seed_mode",
         "ops_placement_seed_export", "ops_placement_seed_check_pixels",
-        "ops_placement_seed_tolerance",
+        "ops_placement_seed_tolerance", "ops_ph_placement_seed",
     ],
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
@@ -906,7 +911,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
         "ops_ph_sites", "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
-        "ops_ph_profile_features", "ops_ph_granularity_subsample",
+        "ops_ph_profile_features", "ops_ph_profile_optional_families",
+        "ops_ph_granularity_subsample",
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
         "ops_flatfield_field_list", "ops_merge_threshold", "ops_ownership",
         "ops_align_model", "ops_align_tile_min_nuclei",
@@ -1282,6 +1288,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - How many pixels a re-registered seam may differ from the "
         "placement file under ops_placement_seed_check_pixels. Default 2. "
         "Alpha.",
+    "ops_ph_placement_seed":
+        "(str or None) - A phenotype placement seed: a JSON file with the "
+        "well's phenotype raster, scale and rotation from an earlier full "
+        "run (schema spacr.ops_ph_placement_seed). With it the phenotype "
+        "phase aligns no anchor fields: every field is placed from the file, "
+        "moved onto this run's stitch by the sequencing tiles the file "
+        "lists, so a run on a few fields at the well's rim can be placed. "
+        "Its report says 'placement: seeded'. Empty aligns anchors as "
+        "usual. Alpha.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "
@@ -1358,14 +1373,30 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str, list or None) - Also measure spaCR's image-based profiling "
         "families on the nucleus, cell and cytoplasm, as Measure's "
         "profile_features does: 'profiling' adds edge intensity, intensity "
-        "moments, radial distribution, extra shape, Haralick, PFTAS, LBP and "
-        "Gabor texture, periphery and outside-ring intensity (with an "
-        "enclosed flag), colocalisation (Pearson and Manders plus Spearman, "
-        "ICQ, K1/K2 and rank-weighted colocalisation), mutual information "
-        "and spot-based colocalisation, and neighbours, about 2,230 columns "
-        "for four channels; 'all' also adds Costes-threshold Manders and "
-        "the slow granularity spectrum; a list picks families. Turn ops_ph_zernike on with it for the full profiling "
-        "set. Empty measures exactly as before. Default None. Alpha.",
+        "moments, radial distribution, extra shape, Haralick, PFTAS and LBP "
+        "texture, periphery and outside-ring intensity (with an enclosed "
+        "flag) and neighbours; ops_ph_profile_optional_families adds the "
+        "slow Gabor, colocalisation and granularity families to it; 'all' "
+        "adds every family; a list picks families. Turn ops_ph_zernike on "
+        "with it for the full profiling set. Empty measures exactly as "
+        "before. Default None. Alpha.",
+    "ops_ph_profile_optional_families":
+        "(bool, str, list or None) - The slow families that 'profiling' in "
+        "ops_ph_profile_features also measures, as Measure's "
+        "profile_optional_families. Off by default; on reproduces "
+        "Brieflow's full set. True or 'all' adds all five; names pick them "
+        "one by one. Cost in CPU seconds per 100,000 cells: texture_gabor "
+        "11,000 to 17,400; colocalisation (Pearson and Manders) 6,300 to "
+        "9,050; colocalisation_extra (Spearman, ICQ, K1/K2, rank-weighted "
+        "colocalisation, mutual information and spot-based colocalisation) "
+        "7,000; colocalisation_costes 8,050; granularity 58,900 at "
+        "ops_ph_granularity_subsample 1.0. All the other profiling families "
+        "together cost about 11,600. On the 639,673 cells of Funk et al. "
+        "2022 well A1 none of the five added anything beyond random "
+        "measurements of the same number. A settings file saved before "
+        "this setting existed keeps texture_gabor, colocalisation and "
+        "colocalisation_extra, which 'profiling' measured then. Default "
+        "None. Alpha.",
     "ops_ph_granularity_subsample":
         "(float) - Sieve the field scaled by this factor for the "
         "granularity family, as CellProfiler's image sample size. 0.25, "

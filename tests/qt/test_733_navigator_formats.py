@@ -9,6 +9,8 @@ from spacr.qt.widgets.home import _EasyHomePage
 from tests.qt.test_733_easy_commands import commands
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
+from tests import locale_cases
+
 
 _FORMATS = [('sql', {'db_browser', 'graph_builder', 'gate_editor'}),
             ('db', {'db_browser', 'graph_builder', 'gate_editor'}),
@@ -29,10 +31,8 @@ _FORMATS = [('sql', {'db_browser', 'graph_builder', 'gate_editor'}),
             ('pdf', {'analyze_plaques'})]
 
 
-@pytest.mark.parametrize('token,expected', _FORMATS)
-@pytest.mark.parametrize('style', ['plain', 'dotted_upper'])
-def test_format_keywords_on_real_enter_offer_cards_and_never_launch(
-        commands, qtbot, monkeypatch, token, expected, style):
+def _format_keywords_on_real_enter_offer_cards_and_never_launch_case(commands, qtbot, monkeypatch, token, expected, style):
+    """One case of :func:`test_format_keywords_on_real_enter_offer_cards_and_never_launch`."""
     monkeypatch.setattr(app, 'app_is_visible', lambda key: True)
     page = _EasyHomePage(commands)
     commands.setCentralWidget(page)
@@ -51,6 +51,16 @@ def test_format_keywords_on_real_enter_offer_cards_and_never_launch(
     if token == 'npy':
         assert 'mask' not in keys
     assert all(not key.startswith('__easy_command__:') for key in keys)
+
+
+def test_format_keywords_on_real_enter_offer_cards_and_never_launch(subtests, request):
+    for label, case in locale_cases.cases(
+            ('token,expected', _FORMATS),
+            ('style', ['plain', 'dotted_upper']),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('commands', 'qtbot', 'monkeypatch')) as fixtures:
+                _format_keywords_on_real_enter_offer_cards_and_never_launch_case(**fixtures, **case)
 
 
 @pytest.mark.parametrize('extension', ['.nd2', '.czi', '.lif'])

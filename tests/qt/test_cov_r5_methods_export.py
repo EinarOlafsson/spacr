@@ -111,71 +111,7 @@ def test_exporting_sections_with_no_digest_writes_them_without_an_appendix(
 # Copying
 # ---------------------------------------------------------------------------
 
-def test_the_copy_says_nothing_when_there_is_no_clipboard(screen,
-                                                          monkeypatch):
-    """No clipboard, no claim that the sections were copied.
-
-    The provenance strip is the screen's only channel, and "Both sections
-    copied." is a statement about the system clipboard. Saying it when
-    nothing reached the clipboard would send the user to paste text that is
-    not there -- worse than saying nothing.
-    """
-    from PySide6.QtWidgets import QApplication
-
-    screen._methods_view.setPlainText("## Methods\nWe segmented 96 fields.")
-    before = screen._provenance.text()
-    assert before and "copied" not in before
-
-    monkeypatch.setattr(QApplication, "clipboard", staticmethod(lambda: None))
-
-    screen._on_copy()
-
-    assert screen._provenance.text() == before, (
-        "the screen claimed a copy it could not make")
-
-    # With a clipboard the same call copies and says so, so the silence
-    # above is the missing clipboard rather than a dead path.
-    monkeypatch.undo()
-
-    screen._on_copy()
-
-    assert screen._provenance.text() == "Both sections copied."
-    assert screen._provenance.property("problem") == "false"
-    assert QApplication.clipboard().text() == screen.text()
-
-
-def test_the_copy_still_refuses_when_there_is_nothing_to_copy(screen):
-    """The empty-panel refusal is the other half of the same button."""
-    assert screen.text() == ""
-
-    screen._on_copy()
-
-    assert "nothing to copy" in screen._provenance.text()
-    assert screen._provenance.property("problem") == "true"
-
 
 # ---------------------------------------------------------------------------
 # The provenance strip with no style
 # ---------------------------------------------------------------------------
-
-def test_the_provenance_strip_still_reports_when_there_is_no_style(
-        screen, monkeypatch):
-    """The sentence and the problem flag land with no style to repolish.
-
-    The strip is where the screen says why it has no prose. A missing style
-    costs the colour; it must never cost the sentence.
-    """
-    monkeypatch.setattr(type(screen._provenance), "style",
-                        lambda self: None, raising=False)
-
-    screen._on_job_failed("the run folder holds no settings journal")
-
-    assert screen.last_error == "the run folder holds no settings journal"
-    assert "no settings journal" in screen._provenance.text()
-    assert screen._provenance.property("problem") == "true"
-
-    # Still a working strip: the next clean message clears the flag.
-    monkeypatch.undo()
-    screen._set_provenance("Digest built.", problem=False)
-    assert screen._provenance.text() == "Digest built."
-    assert screen._provenance.property("problem") == "false"

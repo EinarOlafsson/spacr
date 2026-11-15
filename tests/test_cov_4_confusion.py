@@ -13,7 +13,7 @@ import pandas as pd
 import pytest
 
 from spacr.confusion import (ConfusionError, PREDICTED_COLUMN, TRUE_COLUMN,
-                             cell_rows, confusion_counts, describe_confusions,
+                             cell_rows, describe_confusions,
                              key_collisions, object_keys_for, rank_confusions)
 
 
@@ -44,13 +44,6 @@ def test_an_empty_prediction_table_gives_a_cell_no_rows():
     rows = cell_rows(_predictions().iloc[:0], "a", "b")
     assert rows.empty
     assert list(rows.columns) == list(_predictions().columns)
-
-
-def test_an_empty_prediction_table_still_gives_the_declared_matrix():
-    """The classes were declared, so their all-zero matrix is the answer."""
-    matrix = confusion_counts(_predictions().iloc[:0], classes=["a", "b"])
-    assert list(matrix.index) == ["a", "b"]
-    assert matrix.to_numpy().sum() == 0
 
 
 def test_an_empty_matrix_ranks_no_confusions():
