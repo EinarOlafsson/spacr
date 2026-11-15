@@ -1,0 +1,58 @@
+OPS PUBLISHED CLUSTER COMPARATORS KEEP THEIR CONTROL ROWS IN THE FISHER BACKGROUND
+==================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-15, alpha (ALPHA_FEATURES[953]), the same lifecycle as item 916. Schema 941: DEFAULT_CHANGES[941] = {'ops_cluster_published_controls': False}, so settings files stamped before rerun the old way. spacr/ops_clusters.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_published_background_953_954.py, tests/test_ops_leiden_sweep_916.py, tests/test_settings_categories.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item953_954_proof/REPORT.md.
+Requested: paper session (card C, check C3), number assigned by master 2026-11-15.
+Owner: master lane claude-953-954-1115.
+Source: proposals/bmc_paper_items/ITEM_ops_published_background.md (draft with proof: BMCspacr/reanalysis/funk_published_rows/ITEM_DRAFT_published_background.md).
+Related: 916 (published comparator rows in the Leiden sweep), 954.
+
+PROBLEM
+published_clusters dropped a comparator's non-targeting rows, so
+cluster_sweep scored Funk et al. 2022's published interphase clusters with a
+Fisher background of 5,072 rows instead of the publication's 5,322: CORUM
+23.9 % of clusters enriched (may2025 variant) instead of the published 24.3 %.
+
+BUILD
+- published_clusters(spec, control_prefix='nontargeting', keep_controls=True):
+  True keeps the control rows with their published cluster ids; False is the
+  old behaviour.
+- score_published(..., control_prefix='nontargeting'): each comparator is
+  scored on the sweep's scored genes it clusters plus its own control rows.
+  The control rows enter the Fisher background of the CORUM and KEGG shares
+  only (score_clusters already leaves them out of cluster counts, enrichment
+  membership and STRING pairs); complex metrics and the shuffled-label control
+  use the scored genes only, with the same generator draws as before.
+- published_record(..., controls=None): with controls, each comparator records
+  control_rows_in_background and the legend states the rule; None writes the
+  old record.
+- cluster_sweep_phase reads ops_cluster_published_controls (bool, default
+  True, alpha) and passes ops_control_prefix through.
+- _sweep_setting_list takes a single value, so ops_cluster_seeds = 42 read
+  back from a settings file is one seed (it raised TypeError before).
+- Not changed: the sweep's own rows (score_partitions) are scored on the
+  targeting genes only, as before.
+
+ACCEPTANCE
+tests/test_ops_published_background_953_954.py: control rows kept or left
+out; the CORUM share with controls equals a hand-written Fisher test with the
+background grown by the control rows (and the old share without); controls
+never change cluster, gene, STRING or complex counts; the shuffled control
+permutes the scored genes only; the phase with False writes byte-identical
+files to the pre-953 code; files stamped before 941 load False.
+
+PROOF CHECK 2026-11-15 (CPU, Funk 2022 repaired table, interphase_cluster,
+5,072 genes + 250 non-targeting rows). See REPORT.md.
+- C3: score_published equals the published row exactly: 222 clusters, 5,072
+  genes, CORUM 27.5 / 24.3 %, KEGG 15.8 / 13.5 % (head / may2025), STRING
+  precision 0.0498, recall 0.1222, F1 0.0708, tp 3,359, fp 64,046, fn 24,137.
+  Without the control rows: CORUM may2025 23.9 %, everything else equal.
+- C2: the reference funk_benchmark.score on the same 5,322 rows: identical,
+  raw differences 0.
+- Controls: 500 shuffled-label permutations (cluster sizes kept, seed
+  20261110): CORUM may2025 mean 0.15 % (95 % range 0-0.9), KEGG may2025 0.20 %
+  (0-0.9), STRING precision 0.0021 (0.0018-0.0025); the single-seed control row
+  is the first permutation and lies inside every 95 % range.
+- keep_controls False: score_published output byte-identical to nightly
+  490861f417.

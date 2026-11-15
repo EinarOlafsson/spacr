@@ -119,6 +119,12 @@ default after a higher-numbered item takes the next free number:
   ``ops_decode_auto_unreachable`` ``'strictest'`` (item 939's auto mode
   tuned the calling thresholds only and fell back to the strictest setting);
   they are now ``[150.0, 200.0, 250.0, 315.0, 400.0]`` and ``'lowest_fdr'``.
+- 941 (item 953): ``ops_cluster_published_controls`` was ``False`` (a
+  published comparator's control rows were left out of its Fisher
+  background); it is now ``True``, so the comparator is scored with its own
+  control rows in the background, as the publication scored it.
+- 942 (item 954): ``ops_bench_null_permutations`` was ``200``; it is now
+  ``1000``. The first 200 permutations are the same.
 
 Public API
 ----------

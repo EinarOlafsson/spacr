@@ -346,6 +346,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cluster_reference_dir": None,
     "ops_cluster_gene_list": None,
     "ops_cluster_published": None,
+    "ops_cluster_published_controls": True,
     "ops_consensus_enabled": False,
     "ops_consensus_bootstraps": 10,
     "ops_consensus_seed": 100,
@@ -371,7 +372,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_bench_gate_record": None,
     "ops_bench_gate_arm": 'consensus',
     "ops_bench_half": 1,
-    "ops_bench_null_permutations": 200,
+    "ops_bench_null_permutations": 1000,
     "ops_etest": False,
     "ops_etest_cells": None,
     "ops_etest_metric": 'both',
@@ -765,6 +766,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cluster_reference_dir": (str, list, type(None)),
     "ops_cluster_gene_list": (str, type(None)),
     "ops_cluster_published": (list, str, type(None)),
+    "ops_cluster_published_controls": bool,
     "ops_consensus_enabled": bool,
     "ops_consensus_bootstraps": int,
     "ops_consensus_seed": int,
@@ -1068,6 +1070,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_cluster_reference_dir",
         "ops_cluster_gene_list",
         "ops_cluster_published",
+        "ops_cluster_published_controls",
         "ops_consensus_enabled",
         "ops_consensus_bootstraps",
         "ops_consensus_seed",
@@ -2061,6 +2064,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "each a name, table and optional sheet, gene and cluster column, or "
         "the path of a JSON list of them. Their data is the authors', so the "
         "rows are marked data_matched False. Default None. Alpha.",
+    "ops_cluster_published_controls":
+        "(bool) - Keep each published comparator's own control rows "
+        "(non-targeting guides) with their published clusters, in the Fisher "
+        "background of its CORUM and KEGG shares only, as the publications "
+        "scored them; they are never cluster members or STRING pairs. With "
+        "them, Funk et al.'s published clusters score CORUM 24.3 % and KEGG "
+        "13.5 %, as published. Settings files saved before item 953 rerun "
+        "with False. Default True. Alpha.",
     "ops_consensus_enabled":
         "(bool) - Also run guide-bootstrap consensus clustering after the "
         "cluster_sweep phase. Each bootstrap redraws every gene's guides, "
@@ -2174,7 +2185,10 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "scores every STRING pair. Default 1. Alpha.",
     "ops_bench_null_permutations":
         "(int) - Label permutations of the size-matched null, cluster sizes "
-        "kept, that every metric is an excess over. Default 200. Alpha.",
+        "kept, that every metric is an excess over. At 200 the null's Monte "
+        "Carlo error left shuffled-label controls about 0.2 points below "
+        "zero on complexes; the first 200 of the 1000 are the same. Settings "
+        "files saved before item 954 rerun with 200. Default 1000. Alpha.",
     "ops_etest":
         "(bool) - Keep the per-cell aligned embedding when the profile phase "
         "runs (cells_E.npy and cells_meta.parquet in its folder), which the "
