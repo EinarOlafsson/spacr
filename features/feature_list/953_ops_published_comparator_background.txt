@@ -56,3 +56,9 @@ PROOF CHECK 2026-11-15 (CPU, Funk 2022 repaired table, interphase_cluster,
   is the first permutation and lies inside every 95 % range.
 - keep_controls False: score_published output byte-identical to nightly
   490861f417.
+- C5: settings file written by spacr.cli.write_settings_file and read back
+  by resolve_settings (the spacr-run path), run_ops cluster_sweep with
+  ops_cluster_published = the Funk spec: the comparator row equals C3 and the
+  published row, control_rows_in_background 250. The same file stamped 940
+  reruns with False and gives the old 23.9 %.
+- Readiness: row 916 moved to Ready (proposals/READINESS.md).

@@ -1,0 +1,46 @@
+THE CALIBRATED CLUSTER BENCHMARK'S COMPLEXES NULL USES 1,000 PERMUTATIONS
+=========================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-15. A default change of the existing setting ops_bench_null_permutations (item 929, Ready per proposals/READINESS.md; the setting stays under ALPHA_FEATURES[929]): default 1000, was 200. Schema 942: DEFAULT_CHANGES[942] = {'ops_bench_null_permutations': 200}, so files stamped before rerun with 200. spacr/ops_clusters.py (_bench_options default), spacr/ops_settings.py, spacr/settings.py, tests/test_ops_published_background_953_954.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item953_954_proof/REPORT.md.
+Requested: maintainer decision 2026-11-15 ("Raise to 1,000"), from card C+.
+Owner: master lane claude-953-954-1115.
+Source: proposals/bmc_paper_items/ITEM_ops_cluster_null_permutations.md.
+Related: 929, 953.
+
+PROBLEM
+The size-matched null of the calibrated test (size_matched_null) is a Monte
+Carlo estimate. At 200 permutations its bias of about 0.2 points left three
+card C+ complexes control rows below zero under the maintainer's control rule
+(mean of 500 permuted-label runs, CI must include 0).
+
+BUILD
+- ops_bench_null_permutations default 1000 (OPS_DEFAULTS and _bench_options).
+- size_matched_null and partition_units are unchanged: their generator is
+  seeded from the size vector, so the first 200 permutations are the old 200
+  (a reproducible prefix). Their API defaults (200) are unchanged.
+- The tooltip says why and that pre-954 files keep 200.
+
+ACCEPTANCE
+tests/test_ops_published_background_953_954.py: the 1,000 null's first 200
+draws give exactly the 200 null; settings files stamped before 942 (and
+unstamped) load 200, current files 1000; _bench_options defaults to 1000.
+
+PROOF CHECK 2026-11-15 (CPU). See REPORT.md.
+- 929 recheck (spacr_stage5_proof calib(), same inputs) at 200 and 1,000:
+  calls unchanged. Design D gate passed, false positives complexes 0.05,
+  pairs 0; Design F consensus gate passed, 0 / 0; Design D ledger 34/34 calls
+  equal (27 no detectable effect, 4 decreases, 3 increases). Differences
+  1,000 vs 200: complexes effects and CI bounds up to 0.24 points, complexes
+  p up to 0.11; pairs and capped pairs identical. At 200 spaCR still equals
+  the reference to <= 4.4e-15.
+- Bias (card C+ inputs, 500 permuted-label runs per row, complexes):
+  NOT FULLY MET. At 200, 3 of 10 rows exclude 0 (plate A/B Funk-pub mitotic
+  -0.21 [-0.32, -0.10], plate B S-cons@Funk-k -0.17 [-0.32, -0.03]). At 1,000,
+  9 of 10 include 0 (Funk-pub mitotic -0.10 [-0.21, 0.01]); plate B
+  S-cons@Funk-k still excludes 0 narrowly, -0.15 [-0.29, -0.004].
+- Back-compatibility: a pre-954 run (200) gives units byte-identical to
+  nightly 490861f417.
+- Time: one null 0.36 s at 200, 1.60 s at 1,000 (+1.2 s per distinct cluster
+  size vector; 20 partitions of 1,847 genes +25 s). The 929 calib recheck
+  took 361 s at 200 and 1,076 s at 1,000.
