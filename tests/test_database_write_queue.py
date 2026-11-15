@@ -522,17 +522,20 @@ def test_simulation_packet_rolls_back_all_prior_tables_when_a_later_append_fails
     import pandas as pd
     from spacr import sim
     path = tmp_path / 'simulations.db'
+    # The second append fails in SQLite itself: a table name SQLite reserves.
+    # (A new column no longer fails: an append adds the columns it brings.)
     packet = {'field': json.dumps([str(path), 2]), 'ticket': 'simulation-2',
-              'operations': [('simulation', (str(tmp_path), frame, 'simulations'), {})
-                             for frame in (pd.DataFrame({'value': [4]}),
-                                           pd.DataFrame({'unknown_column': [5]}))]}
+              'operations': [('simulation', (str(tmp_path), frame, table), {})
+                             for frame, table in (
+                                 (pd.DataFrame({'value': [4]}), 'simulations'),
+                                 (pd.DataFrame({'value': [5]}), 'sqlite_reserved'))]}
     with pytest.raises((sqlite3.OperationalError, pd.errors.DatabaseError)) as raised:
         sim._commit_simulation_packet(packet)
     cause = (raised.value.__cause__
              if isinstance(raised.value, pd.errors.DatabaseError)
              else raised.value)
     assert isinstance(cause, sqlite3.OperationalError)
-    assert 'unknown_column' in str(cause)
+    assert 'reserved for internal use' in str(cause)
     with connect(path, readonly=True) as db:
         assert db.execute("SELECT name FROM sqlite_master WHERE name='simulations'").fetchall() == []
 
