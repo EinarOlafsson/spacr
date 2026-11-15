@@ -42,7 +42,23 @@ of the production field caches, with arm (iii)'s per-well choice on spaCR's spli
   identical 2,481 per-cell calls. FDR 0.057 per 100 (<= 0.1).
 - Plate A A2 (333 fields): thresholds 0.06/0.10, 1,072,848 calls identical
   (object and guide), all per-field counts identical, FDR 0.060 per 100.
-- Remaining wells of A and plates B-D: running (see the proof folder).
+- Proof reduced to 1 well per plate by maintainer decision 2026-11-15; 23-well
+  run not needed because production re-decodes with feather nuclei. Proof wells:
+  plate A A1 and A2, and well A1 of plates B, C and D. Pass criterion: identical
+  thresholds and per-cell calls (exceptions only for documented truncated-file
+  fields) and FDR <= 0.1 % on every proof well.
+- Plate B A1 (333 fields, 1,272,971 nuclei): thresholds 0.06/0.15 in both,
+  tuning grid identical, 932,324 calls identical, FDR 0.087 per 100.
+- Plate C A1 (333 fields, 1,310,531 nuclei): thresholds 0.06/0.10, 937,787 calls
+  identical, FDR 0.081 per 100. The public archive holds six c7 CY7 A1 tiles as
+  empty folders; both decodes read them as missing. The plate C cycle-2 T-channel
+  exception changed nothing here (calls identical).
+- Plate D A1 (333 fields, 1,273,261 nuclei): thresholds 0.06/0.10, 883,176 calls
+  identical, FDR 0.087 per 100.
+- VERDICT: PASS on all five proof wells (thresholds, tuning grids and per-cell
+  calls identical; the only difference is A A1 field 172, the documented
+  truncated-file field; FDR <= 0.1 % everywhere). Run outputs and settings files:
+  /nas_mnt/data/archive/item946_proof_20261115/.
 Back-compatibility: a settings file stamped 939 on A1 sites 113 and 282, nightly
 13163d4638 against this branch: measurements.ops_barcodes.parquet byte-identical
 (md5 4aedd08d...) and the same 5,341 ops_barcodes rows.
