@@ -25,8 +25,30 @@ BEHAVIOUR
   (spacr.ops_decode.threshold_settings); spacr.ops_decode.AUTO_SPOT_GRID stays
   as the opt-in grid.
 
-PROOF
-See the item-946 report in BMCspacr/reanalysis/proof_stage1_stage2/item946/.
+PROOF (2026-11-15, CPU registration, 3 workers, shared machine at load 25-40)
+Outputs and scripts: BMCspacr/reanalysis/proof_stage1_stage2/item946/ (out/, scripts/).
+Run: spacr.ops_engine.run_ops decode phase from the raw SBS tiles (NVMe mirror of
+the NAS), settings file stamped 940 resolved by spacr.cli.resolve_settings (so
+rule_a_s2 + auto from the shipped defaults); stitch and objects are the production
+ones (ops_geometry/ops_objects of the production databases). Control row: the
+production script decode, s2it_rule.calls/stats/fdr_ci on the S2-it1 extract tables
+of the production field caches, with arm (iii)'s per-well choice on spaCR's split.
+- Plate A A1 (333 fields, 1,278,978 nuclei): thresholds 0.06/0.10 in both; the
+  45-point tuning grid's real and decoy counts identical; 332 of 333 fields
+  identical. Field 172 differs (spaCR 2,503 real / 3 decoy, script 2,481 / 9):
+  the production run could not read c8 CY5 Site-172 from its local copy ("failed
+  to read 4380800 bytes, got 2578") and decoded that field without cycle 8. spaCR
+  run_ops on the same field with that tile removed gives 2,481 / 9 and the
+  identical 2,481 per-cell calls. FDR 0.057 per 100 (<= 0.1).
+- Plate A A2 (333 fields): thresholds 0.06/0.10, 1,072,848 calls identical
+  (object and guide), all per-field counts identical, FDR 0.060 per 100.
+- Remaining wells of A and plates B-D: running (see the proof folder).
+Back-compatibility: a settings file stamped 939 on A1 sites 113 and 282, nightly
+13163d4638 against this branch: measurements.ops_barcodes.parquet byte-identical
+(md5 4aedd08d...) and the same 5,341 ops_barcodes rows.
+Speed: the 10 FOVs of the item-932 timing, 1 worker, 2 repeats, order alternated:
+nightly with the 932 configuration (rule_a_s2, manual) 22.2 CPU s per FOV, the new
+defaults 21.1 (paired median ratio 0.92); whole well A1 with auto 17.4 CPU s per FOV.
 
 TESTS
 tests/test_ops_default_funk_decode_946.py (defaults, schema row, older files,
