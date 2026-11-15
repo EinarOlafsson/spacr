@@ -244,3 +244,12 @@ def test_graph_builder_panel_publishes_whole_specs_except_while_syncing(qtbot, s
         panel.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER, bins=44))
         assert seen == []
         assert panel._bins.value() == 44
+    with subtests.test(msg="closing_the_panel_closes_its_canvas"):
+        panel = make()
+        closed = []
+        real_close = panel.canvas.close
+        panel.canvas.close = lambda: (closed.append(True), real_close())[1]
+        panel.show()
+        panel.close()
+        assert closed == [True]
+        assert not panel.canvas._debounce.isActive()
