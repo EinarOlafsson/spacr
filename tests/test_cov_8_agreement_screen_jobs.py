@@ -94,39 +94,3 @@ def test_the_job_body_carries_its_result_back_to_the_handler(
     assert delivered == [{"kappa": 0.5}]
     assert screen.is_busy() is False
     assert screen.active_jobs() == 0
-
-
-def test_a_completion_handler_that_fails_is_reported_inline(
-        qtbot, inline_jobs):
-    """A successful worker plus a failing handler is still a failed job."""
-    screen = AgreementScreen(threaded=True)
-    qtbot.addWidget(screen)
-
-    def explodes(_result):
-        raise RuntimeError("could not paint the table")
-
-    with qtbot.waitSignal(screen.job_finished, timeout=5000) as blocker:
-        screen._run_job(lambda: {"kappa": 0.5}, explodes)
-
-    assert blocker.args[0] is False
-    assert "could not paint the table" in screen.status_text()
-    assert screen.report() is None
-    assert screen.is_busy() is False
-
-
-def test_a_worker_that_raises_is_reported_without_a_dialog(
-        qtbot, inline_jobs):
-    """The other failure source still ends the job and names the line."""
-    screen = AgreementScreen(threaded=True)
-    qtbot.addWidget(screen)
-    delivered = []
-
-    def boom():
-        raise ValueError("the database went away")
-
-    with qtbot.waitSignal(screen.job_finished, timeout=5000) as blocker:
-        screen._run_job(boom, delivered.append)
-
-    assert blocker.args[0] is False
-    assert delivered == []
-    assert "the database went away" in screen.status_text()

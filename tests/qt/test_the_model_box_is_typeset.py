@@ -25,6 +25,8 @@ from PySide6.QtWidgets import QTextBrowser
 
 from spacr.qt.screens.app_screen import AppScreen
 
+from tests import locale_cases
+
 
 def _fit_a_model(screen):
     """Put the panel on a parametric inference, so the box shows a FORMULA.
@@ -227,19 +229,28 @@ def test_the_box_is_legible_under_each_theme(theme):
     assert "color:accent" not in html
 
 
-@pytest.mark.parametrize("model", sorted(REGRESSION_TYPES))
-@pytest.mark.parametrize("level", ["both", "grna", "gene"])
-def test_no_box_spends_more_than_four_emphasis_colours(model, level):
+def _no_box_spends_more_than_four_emphasis_colours_case(model, level):
+    """One case of :func:`test_no_box_spends_more_than_four_emphasis_colours`."""
+    palette = palette_for("dark")
+    html = regression_model_explainer_html(model, level, palette=palette)
+    used = {token for token in EMPHASIS_TOKENS if palette[token] in html}
+    assert len(used) <= 4, f"{model}/{level} paints {sorted(used)}"
+
+
+def test_no_box_spends_more_than_four_emphasis_colours(subtests, request):
     """Four on screen at once is the CEILING, not a target.
 
     "Everything is plain except what the sentence is about". If every
     heading, every noun and every caveat is coloured, the box is a ransom
     note and nothing is emphasised at all.
     """
-    palette = palette_for("dark")
-    html = regression_model_explainer_html(model, level, palette=palette)
-    used = {token for token in EMPHASIS_TOKENS if palette[token] in html}
-    assert len(used) <= 4, f"{model}/{level} paints {sorted(used)}"
+    for label, case in locale_cases.cases(
+            ("model", sorted(REGRESSION_TYPES)),
+            ("level", ["both", "grna", "gene"]),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _no_box_spends_more_than_four_emphasis_colours_case(**fixtures, **case)
 
 
 def test_lasso_at_both_levels_is_the_box_that_reaches_the_ceiling():
@@ -354,11 +365,20 @@ def test_the_box_follows_the_plate_settings_through_both_formulas(
 # D. short descriptions, and a link to the API
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("model", sorted(REGRESSION_TYPES))
-def test_every_model_links_its_api(model):
+def _every_model_links_its_api_case(model):
+    """One case of :func:`test_every_model_links_its_api`."""
     name, url = model_api_link(model)
     assert name and url, f"{model} has no API link"
     assert url.startswith("https://"), url
+
+
+def test_every_model_links_its_api(subtests, request):
+    for label, case in locale_cases.cases(
+            ("model", sorted(REGRESSION_TYPES)),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _every_model_links_its_api_case(**fixtures, **case)
 
 
 def test_the_links_are_real_urls_not_module_paths():

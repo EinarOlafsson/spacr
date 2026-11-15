@@ -315,6 +315,48 @@ def shuffled_library(library: PrefixLibrary, seed: int = 0) -> PrefixLibrary:
                          summary={"keys": len(keys_sorted), "seed": int(seed)})
 
 
+#: The gene a decoy prefix calls (item 942). A cell whose top barcode is a
+#: decoy is counted as a decoy call and never written as a genotype.
+DECOY_GENE = "DECOY"
+
+
+def prefix_decoy_library(library: PrefixLibrary, k: int = 4,
+                         seed: int = 1) -> PrefixLibrary:
+    """The whitelist with decoy prefixes added, for a decoy FDR (item 942).
+
+    The decoys are :func:`spacr.ops_sbs.decoy_library` of every key of the
+    whitelist, collision keys included, so each decoy lies at least two
+    edits from every prefix. They join the whitelist as callable keys of
+    gene :data:`DECOY_GENE` (level ``'decoy'``), so a read is matched against
+    guides and decoys together and a read as close to a decoy as to a guide
+    is ambiguous. Decoys have no one-base extension, so a Levenshtein indel
+    never lands on one.
+
+    :param library: from :func:`spacer_prefix_library`.
+    :param k: decoys per prefix (``ops_prefix_decoy_k``).
+    :param seed: the decoys' seed (``ops_prefix_decoy_seed``).
+    :returns: a :class:`PrefixLibrary` holding the keys and the decoys; its
+        summary adds ``decoys``, ``decoy_k`` and ``decoy_seed``.
+    """
+    from .ops_sbs import decoy_library
+
+    decoys = [key for key in decoy_library(library.keys, k=int(k), seed=int(seed))
+              if key not in library.guides]
+    keys = sorted(set(library.keys) | set(decoys))
+    callable_keys = dict(library.callable_keys)
+    guides = dict(library.guides)
+    genes = dict(library.genes)
+    for key in decoys:
+        callable_keys[key] = (key, DECOY_GENE, "decoy")
+        guides[key] = [key]
+        genes[key] = [DECOY_GENE]
+    return PrefixLibrary(positions=library.positions, keys=keys, guides=guides,
+                         genes=genes, callable_keys=callable_keys,
+                         collisions=library.collisions, extended=library.extended,
+                         summary={**library.summary, "decoys": len(decoys),
+                                  "decoy_k": int(k), "decoy_seed": int(seed)})
+
+
 def _levenshtein_indexes(library: PrefixLibrary):
     """The deletion and insertion lookups for one-indel matches.
 
@@ -333,6 +375,36 @@ def _levenshtein_indexes(library: PrefixLibrary):
     for key in library.keys:
         shorter.setdefault(key[:-1], set()).add(key)
     return dropped, shorter
+
+
+#: The lookups of the last whitelists matched, so a run that matches many
+#: sites against one whitelist builds them once.
+_INDEX_CACHE: List[Tuple[Any, ...]] = []
+
+
+def _match_indexes(library: PrefixLibrary, metric: str, max_distance: int):
+    """The exact, deletion, indel and table lookups of one whitelist, cached.
+
+    :param library: the whitelist.
+    :param metric: ``'hamming'`` or ``'levenshtein'``.
+    :param max_distance: the largest distance corrected.
+    :returns: ``(known, deletion, dropped, shorter, entries, table)``.
+    """
+    for held, held_metric, held_distance, indexes in _INDEX_CACHE:
+        if held is library and held_metric == metric and held_distance == max_distance:
+            return indexes
+    known = set(library.keys)
+    deletion = _deletion_index(library.keys) if max_distance >= 1 else {}
+    dropped, shorter = (_levenshtein_indexes(library) if metric == "levenshtein"
+                        and max_distance >= 1 else ({}, {}))
+    entries = list(library.keys)
+    width = len(library.positions)
+    table = (np.frombuffer("".join(entries).encode("ascii"), dtype=np.uint8)
+             .reshape(len(entries), width) if entries else None)
+    indexes = (known, deletion, dropped, shorter, entries, table)
+    _INDEX_CACHE.insert(0, (library, metric, max_distance, indexes))
+    del _INDEX_CACHE[3:]
+    return indexes
 
 
 def _compare(read: str, table: np.ndarray, entries: Sequence[str]) -> Tuple[int, List[str]]:
@@ -381,13 +453,8 @@ def match_prefix_reads(reads: Sequence[str], library: PrefixLibrary, *,
     if metric == "levenshtein" and max_distance > 1:
         raise ValueError("Levenshtein matching corrects at most one edit")
     index0 = [p - 1 for p in library.positions]
-    known = set(library.keys)
-    deletion = _deletion_index(library.keys) if max_distance >= 1 else {}
-    dropped, shorter = (_levenshtein_indexes(library) if metric == "levenshtein"
-                        and max_distance >= 1 else ({}, {}))
-    entries = list(library.keys)
-    table = (np.frombuffer("".join(entries).encode("ascii"), dtype=np.uint8)
-             .reshape(len(entries), len(index0)) if entries else None)
+    known, deletion, dropped, shorter, entries, table = _match_indexes(
+        library, metric, max_distance)
     rows = []
     for read in reads:
         read = str(read)
@@ -658,6 +725,23 @@ def detect_spots(stack: np.ndarray, *, threshold: float, margin: int = 5,
         first, and ``(N, cycles, bases)`` float32 filtered intensities (the
         3 x 3 maximum at each peak).
     """
+    peaks, _strength, values = _spot_candidates(stack, floor=threshold, margin=margin,
+                                                sigma=sigma)
+    return peaks, values
+
+
+def _spot_candidates(stack: np.ndarray, *, floor: float, margin: int = 5,
+                     sigma: float = 1.0) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """The spots :func:`detect_spots` keeps at a threshold of ``floor``, with their strength.
+
+    :param stack: ``(cycles, Y, X, bases)`` intensities.
+    :param floor: the lowest read threshold; spots at or below it are dropped.
+    :param margin: border, in pixels, where reads are not taken.
+    :param sigma: the LoG width.
+    :returns: ``(peaks, strength, values)``, strongest first; any read
+        threshold at or above ``floor`` keeps the spots whose strength is
+        above it, exactly as :func:`detect_spots` at that threshold.
+    """
     from scipy import ndimage
 
     from .ops_sbs import estimate_read_locations, extract_bases, find_peaks
@@ -673,14 +757,16 @@ def detect_spots(stack: np.ndarray, *, threshold: float, margin: int = 5,
         score += estimate_read_locations(filtered[:, k:k + 1])
     score /= np.float32(n_bases)
     peaks = find_peaks(score, min_distance=2, gpu=False)
+    strength = np.zeros(0, np.float32)
     if peaks.size:
-        strength = score - ndimage.minimum_filter(score, size=5)
-        keep = strength[peaks[:, 0], peaks[:, 1]] > float(threshold)
+        surface = score - ndimage.minimum_filter(score, size=5)
+        strength = surface[peaks[:, 0], peaks[:, 1]]
+        keep = strength > float(floor)
         keep &= (peaks[:, 0] >= margin) & (peaks[:, 0] < height - margin)
         keep &= (peaks[:, 1] >= margin) & (peaks[:, 1] < width - margin)
-        peaks = peaks[keep]
+        peaks, strength = peaks[keep], strength[keep]
     values = extract_bases(filtered, peaks, window=1)
-    return peaks, values
+    return peaks, strength, values
 
 
 def decode_prefix_site(stack: np.ndarray, library: PrefixLibrary, *,
@@ -738,6 +824,197 @@ def decode_prefix_site(stack: np.ndarray, library: PrefixLibrary, *,
     return frame
 
 
+#: The grid ``ops_prefix_threshold_tuning='per_well_decoy'`` tries when
+#: ``ops_prefix_tuning_grid`` is empty (item 942): read thresholds around the
+#: item-920 value 80, read-quality floors spanning the deciles of the
+#: PERISCOPE P1 reads, and 1-mismatch correction or exact matches only. Each
+#: axis runs from the loosest to the strictest value.
+PREFIX_TUNING_GRID: Dict[str, Tuple[float, ...]] = {
+    "ops_read_threshold": (40.0, 60.0, 80.0, 100.0, 130.0, 160.0),
+    "ops_prefix_min_read_quality": (0.0, 0.05, 0.1, 0.15, 0.25),
+    "ops_prefix_max_distance": (1.0, 0.0),
+}
+
+#: The spacer-prefix threshold modes, the first being the default.
+PREFIX_TUNING_MODES = ("none", "per_well_decoy")
+
+
+def _tuning_axes(chosen: Mapping[str, Any]) -> List[Tuple[str, List[float]]]:
+    """The tuning grid's axes, loosest value first.
+
+    :param chosen: from :func:`prefix_settings`.
+    :returns: ``(setting, values)`` for the read threshold, the read-quality
+        floor and the mismatches; a key the grid leaves out keeps its entered
+        value.
+    :raises ValueError: for a grid that is not a mapping of those keys to
+        lists of numbers of 0 or more.
+    """
+    grid = chosen["ops_prefix_tuning_grid"]
+    if isinstance(grid, str) and grid.strip():
+        try:
+            grid = json.loads(grid)
+        except ValueError:
+            raise ValueError("ops_prefix_tuning_grid must be a mapping such as "
+                             '{"ops_read_threshold": [60, 80]}; got '
+                             f"{grid!r}") from None
+    if grid is None or grid == "" or grid == {}:
+        grid = PREFIX_TUNING_GRID
+    if not isinstance(grid, Mapping) or set(grid) - set(PREFIX_TUNING_GRID):
+        raise ValueError(f"ops_prefix_tuning_grid takes the keys "
+                         f"{sorted(PREFIX_TUNING_GRID)}; got {grid!r}")
+    axes = []
+    for key in PREFIX_TUNING_GRID:
+        values = grid.get(key, [chosen[key]])
+        try:
+            values = sorted({float(v) for v in values})
+        except (TypeError, ValueError):
+            raise ValueError(f"ops_prefix_tuning_grid {key} must be a list of "
+                             f"numbers; got {values!r}") from None
+        if not values or values[0] < 0:
+            raise ValueError(f"ops_prefix_tuning_grid {key} needs values of 0 "
+                             f"or more; got {values!r}")
+        if key == "ops_prefix_max_distance":
+            values = values[::-1]
+        axes.append((key, values))
+    return axes
+
+
+def _matched_rows(calls: Sequence[str], library: PrefixLibrary, memo: Dict[str, tuple], *,
+                  metric: str, max_distance: int) -> pd.DataFrame:
+    """:func:`match_prefix_reads` of the calls, each distinct read matched once per run.
+
+    :param calls: the called reads.
+    :param library: the whitelist (with decoys).
+    :param memo: ``read -> row`` of the reads matched so far, filled in.
+    :param metric: the match metric.
+    :param max_distance: the largest distance corrected.
+    :returns: the same rows :func:`match_prefix_reads` returns.
+    """
+    new = sorted({str(c) for c in calls} - set(memo))
+    if new:
+        matched = match_prefix_reads(new, library, metric=metric, max_distance=max_distance)
+        for row in matched.itertuples(index=False):
+            memo[row.read] = tuple(row)
+    columns = ["read", "key", "prefix", "distance", "status", "guide", "gene", "level"]
+    return pd.DataFrame([memo[str(c)] for c in calls], columns=columns)
+
+
+def _site_tuning_reads(candidates, library: PrefixLibrary, memo: Dict[str, tuple], *,
+                       bases: Sequence[str], threshold: float, crosstalk: str, metric: str,
+                       max_distance: int) -> pd.DataFrame:
+    """One site's reads at one read threshold, from its spot candidates.
+
+    The reads above the threshold are compensated, called and matched as
+    :func:`decode_prefix_site` does at that threshold.
+
+    :param candidates: ``(peaks, strength, values, cell)``: a site's
+        :func:`_spot_candidates` and the cell label under each spot.
+    :param library: the whitelist (with decoys).
+    :param memo: the run's match memo (:func:`_matched_rows`).
+    :param bases: the base letter of each plane.
+    :param threshold: the read threshold.
+    :param crosstalk: :func:`compensate_prefix` mode.
+    :param metric: the match metric.
+    :param max_distance: the largest distance matched (the grid's loosest).
+    :returns: :func:`decode_prefix_site`'s rows, without the control.
+    """
+    from .ops_sbs import called_bases
+
+    peaks, strength, values, cell = candidates
+    keep = strength > float(threshold)
+    peaks, cell = peaks[keep], cell[keep]
+    values = compensate_prefix(values[keep], crosstalk)
+    _data, calls, margin = called_bases(values, bases=tuple(bases), compensate=False,
+                                        normalise=True, gpu=False)
+    if len(calls):
+        worst = np.where(np.isnan(margin), np.inf, margin).min(axis=1)
+        quality = np.where(np.isfinite(worst), worst, 0.0).astype(np.float32)
+    else:
+        quality = np.zeros(0, np.float32)
+    frame = pd.DataFrame({"y": peaks[:, 0] if len(peaks) else np.zeros(0, np.int64),
+                          "x": peaks[:, 1] if len(peaks) else np.zeros(0, np.int64),
+                          "cell": cell, "quality": quality})
+    matched = _matched_rows(list(calls), library, memo, metric=metric,
+                            max_distance=max_distance)
+    return pd.concat([frame, matched], axis=1)
+
+
+def _at_setting(reads: pd.DataFrame, min_quality: float, max_distance: int) -> pd.DataFrame:
+    """A site's reads under one read-quality floor and mismatch limit.
+
+    :param reads: rows matched at the grid's loosest mismatch limit.
+    :param min_quality: reads below this quality are dropped (0 keeps all).
+    :param max_distance: a read matched further than this becomes
+        ``out_of_library``, as matching at this limit would leave it.
+    :returns: the rows kept, statuses restated.
+    """
+    if min_quality > 0:
+        reads = reads[reads["quality"] >= min_quality]
+    far = (reads["distance"] > int(max_distance)) | (reads["distance"] < 0)
+    if far.any():
+        reads = reads.copy()
+        reads.loc[far, ["prefix", "guide", "gene", "level"]] = None
+        reads.loc[far, "status"] = "out_of_library"
+        reads.loc[far, "distance"] = -1
+    return reads
+
+
+def _called_counts(reads: pd.DataFrame, method: str) -> Tuple[int, int]:
+    """Real and decoy cells called from one site's reads, as :func:`prefix_cell_calls` calls them.
+
+    :param reads: rows with ``cell``, ``status``, ``prefix`` and ``gene``.
+    :param method: ``'spacr'`` (a unique top barcode) or ``'recipe_simple'``
+        (one barcode only); the perfect and great classes of each.
+    :returns: ``(real, decoy)`` called cells.
+    """
+    matched = reads[(reads["cell"] > 0) & reads["status"].isin(("exact", "corrected"))]
+    if matched.empty:
+        return 0, 0
+    tally = matched.groupby(["cell", "prefix"], sort=False).size().rename("n").reset_index()
+    tally = tally.sort_values(["cell", "n"], ascending=[True, False], kind="stable")
+    tally["rank"] = tally.groupby("cell", sort=False).cumcount()
+    top = tally[tally["rank"] == 0].set_index("cell")
+    runner = (tally[tally["rank"] == 1].set_index("cell")["n"]
+              .reindex(top.index).fillna(0).to_numpy())
+    if method == "recipe_simple":
+        barcodes = tally.groupby("cell", sort=False).size().reindex(top.index)
+        called = barcodes.to_numpy() == 1
+    else:
+        called = top["n"].to_numpy() > runner
+    gene = dict(zip(matched["prefix"], matched["gene"]))
+    decoy = np.array([gene.get(p) == DECOY_GENE for p in top["prefix"]], bool)
+    return int((called & ~decoy).sum()), int((called & decoy).sum())
+
+
+def _flag_decoy_cells(cells: pd.DataFrame) -> pd.DataFrame:
+    """Mark the cells called as a decoy; they keep their prefix but no genotype.
+
+    :param cells: from :func:`prefix_cell_calls`.
+    :returns: the cells with a ``decoy`` column; a decoy call's ``guide``,
+        ``gene`` and ``level`` are emptied.
+    """
+    cells = cells.copy()
+    decoy = (cells["gene"] == DECOY_GENE).to_numpy(bool) if len(cells) else np.zeros(0, bool)
+    cells["decoy"] = decoy
+    if decoy.any():
+        cells.loc[decoy, ["guide", "gene", "level"]] = None
+    return cells
+
+
+def _labelled_cells(labels: Optional[np.ndarray], cells: pd.DataFrame) -> int:
+    """The site's cells, the genotyped share's denominator.
+
+    :param labels: the cell labels, or None.
+    :param cells: the site's cell calls.
+    :returns: the distinct labels above 0, or without labels the cells with
+        a read.
+    """
+    if labels is None:
+        return int(len(cells))
+    values = np.unique(np.asarray(labels))
+    return int((values > 0).sum())
+
+
 def read_fractions(reads: pd.DataFrame) -> Dict[str, Any]:
     """The share of reads in each status, and the control's match rate.
 
@@ -771,9 +1048,14 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         ``ops_prefix_max_distance``, ``ops_prefix_crosstalk``,
         ``ops_quality_min_reads``, ``ops_prefix_quality_method``,
         ``ops_random_barcode_control``, ``ops_control_seed``,
-        ``ops_prefix_masks`` and ``ops_read_threshold``.
+        ``ops_prefix_masks``, ``ops_read_threshold`` and the item-942 decoy
+        and tuning settings (``ops_prefix_decoy_k``,
+        ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``,
+        ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,
+        ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``).
     :returns: the normalised values under the same keys.
-    :raises ValueError: without a library, or for an unknown choice.
+    :raises ValueError: without a library, for an unknown choice, or for
+        tuning without decoys.
     """
     library = settings.get("ops_library")
     if not library:
@@ -799,7 +1081,29 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "ops_control_seed": int(settings.get("ops_control_seed", 0) or 0),
         "ops_prefix_masks": settings.get("ops_prefix_masks") or None,
         "ops_read_threshold": float(settings.get("ops_read_threshold", 315.0)),
+        "ops_prefix_decoy_k": int(settings.get("ops_prefix_decoy_k") or 0),
+        "ops_prefix_decoy_seed": int(settings.get("ops_prefix_decoy_seed", 1) or 0),
+        "ops_prefix_fdr_scale": float(settings.get("ops_prefix_fdr_scale") or 1.0),
+        "ops_prefix_min_read_quality": float(settings.get("ops_prefix_min_read_quality")
+                                             or 0.0),
+        "ops_prefix_threshold_tuning": str(settings.get("ops_prefix_threshold_tuning")
+                                           or PREFIX_TUNING_MODES[0]),
+        "ops_prefix_fdr_target_pct": float(settings.get("ops_prefix_fdr_target_pct", 0.1)
+                                           if settings.get("ops_prefix_fdr_target_pct")
+                                           not in (None, "") else 0.1),
+        "ops_prefix_tuning_grid": settings.get("ops_prefix_tuning_grid") or None,
     }
+    if out["ops_prefix_threshold_tuning"] not in PREFIX_TUNING_MODES:
+        raise ValueError(f"ops_prefix_threshold_tuning must be one of "
+                         f"{list(PREFIX_TUNING_MODES)}")
+    if out["ops_prefix_decoy_k"] < 0:
+        raise ValueError("ops_prefix_decoy_k must be 0 or more")
+    if out["ops_prefix_threshold_tuning"] != "none" and out["ops_prefix_decoy_k"] < 1:
+        raise ValueError("ops_prefix_threshold_tuning 'per_well_decoy' chooses "
+                         "thresholds from decoy calls; set ops_prefix_decoy_k to 1 "
+                         "or more (4 recommended)")
+    if not out["ops_prefix_fdr_target_pct"] > 0:
+        raise ValueError("ops_prefix_fdr_target_pct must be above 0")
     if out["ops_prefix_crosstalk"] not in _CROSSTALK:
         raise ValueError(f"ops_prefix_crosstalk must be one of {list(_CROSSTALK)}")
     if out["ops_prefix_metric"] not in _METRICS:
@@ -864,17 +1168,38 @@ def run_prefix_decode(settings: Mapping[str, Any],
     * ``site_summary.csv`` (per site: :func:`read_fractions`, cells with
       reads, cells with an exact read, cells per class);
     * ``cells_per_guide.csv`` and ``cells_per_gene.csv`` (perfect and great
-      cells).
+      cells);
+    * with decoys (``ops_prefix_decoy_k`` above 0, item 942): a ``decoy``
+      column in the cell tables (a decoy call keeps its prefix but no
+      genotype), ``cells_in_labels``, ``cells_real``, ``cells_decoy`` and
+      ``fdr_pct`` in ``site_summary.csv``, and ``fdr_<plate>_<well_id>.json``
+      (:func:`spacr.ops_decode.fdr_report`);
+    * with ``ops_prefix_threshold_tuning`` 'per_well_decoy': per well
+      ``threshold_tuning_<plate>_<well_id>.csv`` and ``.png`` (every grid
+      setting's tuning numbers and the genotyped-vs-FDR curve,
+      :func:`spacr.ops_decode.write_tuning_curve`) and ``.json`` (the choice,
+      :func:`spacr.ops_decode.tune_thresholds`); each site's spots are found
+      once, down to the lowest read threshold, and the chosen setting's reads
+      and cells are written.
 
     :param settings: the OPS settings: ``dst_root``, the ``cpg_*`` reader
-        settings and the item-920 settings (:func:`prefix_settings`).
+        settings, the item-920 and item-942 settings (:func:`prefix_settings`)
+        and, for tuning, the shared tuner's settings
+        (``ops_decode_auto_objective``, ``ops_decode_auto_f_beta``,
+        ``ops_decode_auto_unreachable``, ``ops_decode_auto_ci``,
+        ``ops_decode_auto_tune_fraction`` and ``ops_decode_auto_seed``).
     :param report: called with progress lines.
-    :returns: the output paths, the library summary and the run's totals.
-    :raises ValueError: without ``dst_root`` or a library, or when the
-        layout has fewer sequencing cycles than the prefix needs.
+    :returns: the output paths, the library summary and the run's totals;
+        with any item-942 setting on also ``seconds_per_well``, ``fdr`` (per
+        well) and ``tuning`` (per well: the choice and its numbers).
+    :raises ValueError: without ``dst_root`` or a library, when the layout
+        has fewer sequencing cycles than the prefix needs, or for tuning
+        without decoys.
     """
     from . import __version__
     from .cpg_cropped import cpg_site_index, load_cpg_site, merged_path
+    from .ops_decode import fdr, fdr_report, tune_thresholds, _tuning_options, \
+        write_tuning_curve
     from .tabular import write_table
 
     say = report or (lambda text: None)
@@ -888,6 +1213,14 @@ def run_prefix_decode(settings: Mapping[str, Any],
         gene_col=chosen["ops_library_gene_col"], prefix_length=chosen["ops_prefix_length"],
         n_cycles=chosen["ops_sbs_cycles"], cycle_mask=chosen["ops_cycle_mask"],
         collision=chosen["ops_prefix_collision"])
+    decoy_k = chosen["ops_prefix_decoy_k"]
+    tuning = chosen["ops_prefix_threshold_tuning"] == "per_well_decoy"
+    min_quality = chosen["ops_prefix_min_read_quality"]
+    legacy = decoy_k == 0 and not tuning and min_quality <= 0
+    matching = (prefix_decoy_library(library, decoy_k, chosen["ops_prefix_decoy_seed"])
+                if decoy_k > 0 else library)
+    axes = _tuning_axes(chosen) if tuning else []
+    options = _tuning_options(settings) if tuning else {}
     control = (shuffled_library(library, chosen["ops_control_seed"])
                if chosen["ops_random_barcode_control"] else None)
     built = cpg_site_index(settings, md5=False)
@@ -901,61 +1234,179 @@ def run_prefix_decode(settings: Mapping[str, Any],
     write_table(library.collisions, os.path.join(folder, "library_prefix_collisions.csv"),
                 canonicalise=False)
     with open(os.path.join(folder, "library_summary.json"), "w", encoding="utf-8") as handle:
-        json.dump(library.summary, handle, indent=1)
+        json.dump(matching.summary, handle, indent=1)
     method = chosen["ops_prefix_quality_method"]
     class_names = RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else QUALITY_CLASSES
+    recorded = ({key: value for key, value in chosen.items() if key not in _ITEM_942_KEYS}
+                if legacy else chosen)
     with open(os.path.join(folder, "quality_classes.json"), "w", encoding="utf-8") as handle:
         json.dump({"method": method, "classes": class_names,
                    "source": RECIPE_SIMPLE_SOURCE if method == "recipe_simple" else None,
-                   "settings": chosen,
+                   "settings": recorded,
                    "bases": pinned["cpg_sbs_bases"], "spacr_version": __version__},
                   handle, indent=1, default=str)
     index = built["index"]
-    site_rows, all_cells = [], []
+    site_rows, all_cells, tuned, well_fdr, well_seconds = [], [], {}, {}, {}
+    memo: Dict[str, tuple] = {}
     for (plate, well, well_id), sites in index.groupby(["plate", "well", "well_id"], sort=True):
-        reads_frames, cell_frames = [], []
-        for site in sorted(sites["site"].unique()):
-            loaded = load_cpg_site(index, plate, well, int(site), sbs_cycles=cycles,
-                                   sbs_bases=pinned["cpg_sbs_bases"], sbs_dapi=None,
-                                   parts=("sbs",))
-            labels = site_labels(chosen["ops_prefix_masks"], plate=plate, well=well,
-                                 well_id=well_id, site=int(site),
-                                 merged=merged_path(str(destination), plate, well_id, int(site)))
-            reads = decode_prefix_site(
-                loaded["sbs"], library, bases=pinned["cpg_sbs_bases"], labels=labels,
-                threshold=chosen["ops_read_threshold"], crosstalk=chosen["ops_prefix_crosstalk"],
-                metric=chosen["ops_prefix_metric"],
-                max_distance=chosen["ops_prefix_max_distance"], control=control)
-            del loaded
+        well_started = time.perf_counter()
+        site_list = [int(site) for site in sorted(sites["site"].unique())]
+        site_reads: Dict[int, pd.DataFrame] = {}
+        site_cells: Dict[int, pd.DataFrame] = {}
+        site_cells_n: Dict[int, int] = {}
+        site_labelled: Dict[int, bool] = {}
+        if tuning:
+            shape = tuple(len(values) for _, values in axes)
+            counts = np.zeros((len(site_list),) + shape + (2,), np.int64)
+            held = {}
+            loosest = int(max(axes[2][1]))
+            for i, site in enumerate(site_list):
+                loaded = load_cpg_site(index, plate, well, site, sbs_cycles=cycles,
+                                       sbs_bases=pinned["cpg_sbs_bases"], sbs_dapi=None,
+                                       parts=("sbs",))
+                labels = site_labels(chosen["ops_prefix_masks"], plate=plate, well=well,
+                                     well_id=well_id, site=site,
+                                     merged=merged_path(str(destination), plate, well_id,
+                                                        site))
+                stack = loaded["sbs"]
+                if labels is not None and np.asarray(labels).shape != stack.shape[1:3]:
+                    raise ValueError(f"the cell labels are {np.asarray(labels).shape}, "
+                                     f"the sequencing stack {stack.shape[1:3]}")
+                peaks, strength, values = _spot_candidates(stack, floor=min(axes[0][1]))
+                del loaded, stack
+                cell = (np.asarray(labels)[peaks[:, 0], peaks[:, 1]].astype(np.int64)
+                        if labels is not None and len(peaks)
+                        else np.zeros(len(peaks), np.int64))
+                held[site] = (peaks, strength, values, cell)
+                site_cells_n[site] = _labelled_cells(labels, pd.DataFrame())
+                site_labelled[site] = labels is not None
+                for a, threshold in enumerate(axes[0][1]):
+                    frame = _site_tuning_reads(
+                        held[site], matching, memo, bases=pinned["cpg_sbs_bases"],
+                        threshold=threshold, crosstalk=chosen["ops_prefix_crosstalk"],
+                        metric=chosen["ops_prefix_metric"], max_distance=loosest)
+                    for b, quality in enumerate(axes[1][1]):
+                        for c, distance in enumerate(axes[2][1]):
+                            counts[(i, a, b, c)] = _called_counts(
+                                _at_setting(frame, quality, int(distance)), method)
+                if labels is None:
+                    site_cells_n[site] = int(counts[i, 0, 0, 0].sum())
+                say(f"prefix_decode {plate} {well_id} site {site}: {len(peaks)} spot "
+                    f"candidates scored over {int(np.prod(shape))} settings")
+            choice = tune_thresholds(
+                counts, [site_cells_n[s] for s in site_list], site_list, axes,
+                k=decoy_k, scale=chosen["ops_prefix_fdr_scale"],
+                fdr_max=chosen["ops_prefix_fdr_target_pct"],
+                tune_fraction=float(settings.get("ops_decode_auto_tune_fraction") or 0.5),
+                seed=int(settings.get("ops_decode_auto_seed") or 0), **options)
+            stem = f"threshold_tuning_{plate}_{well_id}"
+            paths = write_tuning_curve(choice, folder, stem,
+                                       title=f"{plate} {well_id}: prefix decode tuning")
+            with open(os.path.join(folder, f"{stem}.json"), "w", encoding="utf-8") as handle:
+                json.dump({"plate": plate, "well": well_id,
+                           **{key: value for key, value in choice.items() if key != "grid"},
+                           "paths": paths}, handle, indent=1, default=str)
+            tuned[f"{plate}_{well_id}"] = {key: choice[key] for key in (
+                "chosen", "auto_met", "fdr_lowest", "tune", "report", "all_fields")}
+            say(f"prefix_decode {plate} {well_id}: tuned {choice['chosen']}, report sites "
+                f"{choice['report']['genotyped_pct']} % genotyped, FDR "
+                f"{choice['report']['fdr_per_100']} %")
+            best = choice["chosen"]
+            for site in site_list:
+                frame = _site_tuning_reads(
+                    held[site], matching, memo, bases=pinned["cpg_sbs_bases"],
+                    threshold=best["ops_read_threshold"],
+                    crosstalk=chosen["ops_prefix_crosstalk"],
+                    metric=chosen["ops_prefix_metric"], max_distance=loosest)
+                frame = _at_setting(frame, best["ops_prefix_min_read_quality"],
+                                    int(best["ops_prefix_max_distance"])).reset_index(drop=True)
+                if control is not None:
+                    frame["control_status"] = match_prefix_reads(
+                        frame["read"].tolist(), control, metric=chosen["ops_prefix_metric"],
+                        max_distance=int(best["ops_prefix_max_distance"]))["status"].to_numpy()
+                site_reads[site] = frame
+            del held
+        for site in site_list:
+            if tuning:
+                reads = site_reads.pop(site)
+                labelled = site_labelled[site]
+                n_labelled = site_cells_n[site]
+            else:
+                loaded = load_cpg_site(index, plate, well, site, sbs_cycles=cycles,
+                                       sbs_bases=pinned["cpg_sbs_bases"], sbs_dapi=None,
+                                       parts=("sbs",))
+                labels = site_labels(chosen["ops_prefix_masks"], plate=plate, well=well,
+                                     well_id=well_id, site=site,
+                                     merged=merged_path(str(destination), plate, well_id,
+                                                        site))
+                reads = decode_prefix_site(
+                    loaded["sbs"], matching, bases=pinned["cpg_sbs_bases"], labels=labels,
+                    threshold=chosen["ops_read_threshold"],
+                    crosstalk=chosen["ops_prefix_crosstalk"],
+                    metric=chosen["ops_prefix_metric"],
+                    max_distance=chosen["ops_prefix_max_distance"], control=control)
+                del loaded
+                if min_quality > 0:
+                    reads = reads[reads["quality"] >= min_quality].reset_index(drop=True)
+                labelled = labels is not None
+                n_labelled = None if legacy else _labelled_cells(labels, pd.DataFrame())
             reads.insert(0, "site", int(site))
             reads.insert(0, "well", well_id)
             reads.insert(0, "plate", plate)
             cells = prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"],
                                       method=method)
+            if decoy_k > 0:
+                cells = _flag_decoy_cells(cells)
             classes = cells["quality"].value_counts() if len(cells) else {}
-            site_rows.append({"plate": plate, "well": well_id, "site": int(site),
-                              **read_fractions(reads),
-                              "labels": labels is not None,
-                              "cells_with_reads": int(len(cells)),
-                              "cells_with_exact_read": int(cells["has_exact_read"].sum())
-                              if len(cells) else 0,
-                              **{f"cells_{name}": int(classes.get(name, 0)) if len(cells) else 0
-                                 for name in class_names}})
-            reads_frames.append(reads)
-            cell_frames.append(cells)
+            row = {"plate": plate, "well": well_id, "site": int(site),
+                   **read_fractions(reads), "labels": labelled,
+                   "cells_with_reads": int(len(cells)),
+                   "cells_with_exact_read": int(cells["has_exact_read"].sum())
+                   if len(cells) else 0,
+                   **{f"cells_{name}": int(classes.get(name, 0)) if len(cells) else 0
+                      for name in class_names}}
+            if decoy_k > 0:
+                if n_labelled is None or not labelled:
+                    n_labelled = int(len(cells))
+                hit = cells[cells["quality"].isin(("perfect", "great"))] if len(cells) \
+                    else cells
+                real = int((~hit["decoy"].astype(bool)).sum()) if len(hit) else 0
+                decoy = int(hit["decoy"].astype(bool).sum()) if len(hit) else 0
+                row.update({"cells_in_labels": int(n_labelled), "cells_real": real,
+                            "cells_decoy": decoy,
+                            "fdr_pct": fdr(real, decoy, decoy_k,
+                                           chosen["ops_prefix_fdr_scale"])})
+            site_rows.append(row)
             say(f"prefix_decode {plate} {well_id} site {site}: {len(reads)} reads, "
                 f"{len(cells)} cells")
-        reads_all = pd.concat(reads_frames, ignore_index=True)
-        cells_all = pd.concat(cell_frames, ignore_index=True)
+            site_reads[site] = reads
+            site_cells[site] = cells
+        reads_all = pd.concat([site_reads.pop(s) for s in site_list], ignore_index=True)
+        cells_all = pd.concat([site_cells.pop(s) for s in site_list], ignore_index=True)
         write_table(reads_all, os.path.join(folder, f"reads_{plate}_{well_id}.parquet"),
                     canonicalise=False)
         write_table(cells_all, os.path.join(folder, f"cells_{plate}_{well_id}.csv"),
                     canonicalise=False)
+        if decoy_k > 0:
+            stats = pd.DataFrame([{"nuclei": r["cells_in_labels"],
+                                   "assigned_real": r["cells_real"],
+                                   "assigned_decoy": r["cells_decoy"]}
+                                  for r in site_rows if r["plate"] == plate
+                                  and r["well"] == well_id])
+            well_fdr[f"{plate}_{well_id}"] = fdr_report(
+                stats, plate=plate, well=well_id, k=decoy_k,
+                scale=chosen["ops_prefix_fdr_scale"])
+            with open(os.path.join(folder, f"fdr_{plate}_{well_id}.json"), "w",
+                      encoding="utf-8") as handle:
+                json.dump(well_fdr[f"{plate}_{well_id}"], handle, indent=1)
         all_cells.append(cells_all)
+        well_seconds[f"{plate}_{well_id}"] = round(time.perf_counter() - well_started, 1)
     summary = pd.DataFrame(site_rows)
     write_table(summary, os.path.join(folder, "site_summary.csv"), canonicalise=False)
     cells = pd.concat(all_cells, ignore_index=True) if all_cells else pd.DataFrame()
     called = cells[cells["quality"].isin(("perfect", "great"))] if len(cells) else cells
+    if len(called) and "decoy" in called.columns:
+        called = called[~called["decoy"].astype(bool)]
     per_guide = (called.groupby(["guide", "gene"]).size().rename("cells").reset_index()
                  if len(called) else pd.DataFrame(columns=["guide", "gene", "cells"]))
     per_gene = (called.groupby("gene").size().rename("cells").reset_index()
@@ -965,6 +1416,17 @@ def run_prefix_decode(settings: Mapping[str, Any],
     totals = {key: int(summary[key].sum()) for key in
               ("reads", "exact", "corrected", "ambiguous", "collision", "out_of_library")} \
         if len(summary) else {}
-    return {"folder": folder, "library": library.summary, "sites": int(len(summary)),
-            "totals": totals, "cells": int(len(cells)), "called_cells": int(len(called)),
-            "seconds": round(time.perf_counter() - started, 1)}
+    out = {"folder": folder, "library": library.summary, "sites": int(len(summary)),
+           "totals": totals, "cells": int(len(cells)), "called_cells": int(len(called)),
+           "seconds": round(time.perf_counter() - started, 1)}
+    if not legacy:
+        out.update({"seconds_per_well": well_seconds, "fdr": well_fdr, "tuning": tuned})
+    return out
+
+
+#: The item-942 keys of :func:`prefix_settings`, left out of
+#: ``quality_classes.json`` while every one is off, so such a run writes
+#: what it wrote before.
+_ITEM_942_KEYS = ("ops_prefix_decoy_k", "ops_prefix_decoy_seed", "ops_prefix_fdr_scale",
+                  "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
+                  "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid")

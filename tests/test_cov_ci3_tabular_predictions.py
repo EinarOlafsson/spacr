@@ -1,27 +1,12 @@
-"""Two store paths the coverage gate found unexercised (CI run 38059494502).
+"""A store path the coverage gate found unexercised (CI run 38059494502).
 
-* ``tabular.table_columns`` on a Feather file: the reader's last branch,
-  which reads the whole table and keeps only its header.
-* ``predictions.migrate_prediction_columns`` on a PostgreSQL store whose
-  table exists: the table is locked before its columns are read and the
-  Annotate app's 1/2 encoding is rewritten to 0/1 in the same transaction.
+``predictions.migrate_prediction_columns`` on a PostgreSQL store whose
+table exists: the table is locked before its columns are read and the
+Annotate app's 1/2 encoding is rewritten to 0/1 in the same transaction.
+(The Feather header read is tested in
+``tests/test_tabular_measurement_stores.py``.)
 """
 from __future__ import annotations
-
-import pandas as pd
-import pytest
-
-
-def test_table_columns_reads_a_feather_header(tmp_path):
-    pytest.importorskip('pyarrow')
-    from spacr.tabular import table_columns
-
-    path = tmp_path / 'scores.feather'
-    pd.DataFrame({'prcfo': ['p1_r1_c1_f1_o1'], 'score': [0.5],
-                  'gene': ['ABC']}).to_feather(path)
-
-    assert tuple(table_columns(str(path), canonicalise=False)) == (
-        'prcfo', 'score', 'gene')
 
 
 class _LockingPostgres:

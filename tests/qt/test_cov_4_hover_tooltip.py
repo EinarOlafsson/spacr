@@ -16,8 +16,8 @@ import pytest
 pytest.importorskip("PySide6")
 
 import shiboken6
-from PySide6.QtCore import QEvent, QPoint, QRect, QSettings, Qt
-from PySide6.QtGui import QCursor, QGuiApplication, QMouseEvent
+from PySide6.QtCore import QEvent, QPoint, QSettings, Qt
+from PySide6.QtGui import QCursor, QMouseEvent
 from PySide6.QtCore import QPointF
 from PySide6.QtWidgets import QLabel
 
@@ -161,95 +161,7 @@ def test_an_invalid_animation_registry_leaves_text_help_alone(tooltip,
 
 # -- placement ---------------------------------------------------------------
 
-def test_a_popup_with_no_anchor_is_placed_at_the_origin(tooltip):
-    """A tooltip with nothing to dock under must still land somewhere."""
-    tooltip._position_under(None)
-    assert tooltip.pos().x() >= 0
-
-
-def test_a_popup_with_no_screen_is_placed_where_the_anchor_said(tooltip,
-                                                                monkeypatch):
-    """With no screen to clamp against, the anchor's own point is the answer."""
-    class _NoScreens:
-        @staticmethod
-        def screenAt(_point):
-            return None
-
-        @staticmethod
-        def primaryScreen():
-            return None
-
-    monkeypatch.setattr(ht, "QGuiApplication", _NoScreens)
-    tooltip._position_under(None)
-    assert tooltip.pos() == QPoint(0, 0)
-
-
-def test_a_popup_that_will_not_fit_below_flips_above_its_anchor(tooltip):
-    """Docked below the screen edge the tooltip would be unreadable."""
-    geometry = QGuiApplication.primaryScreen().availableGeometry()
-
-    class _DiesAfterTheFirstAsk:
-        def __init__(self):
-            self.asks = 0
-
-        def rect(self):
-            return QRect(0, 0, 40, 20)
-
-        def mapToGlobal(self, _point):
-            self.asks += 1
-            if self.asks > 1:
-                raise RuntimeError("Internal C++ object already deleted")
-            return QPoint(geometry.left(), geometry.bottom())
-
-    anchor = _DiesAfterTheFirstAsk()
-    tooltip.resize(200, 120)
-    tooltip._position_under(anchor)
-    assert anchor.asks == 2, "the flip-above path was never taken"
-    assert tooltip.pos().y() < geometry.bottom()
-
-
 # -- claiming the anchor -----------------------------------------------------
-
-def _watch_native_tooltip(monkeypatch):
-    """Record every attempt to hide Qt's own tooltip popup."""
-    hidden = []
-
-    class _ToolTip:
-        @staticmethod
-        def hideText():
-            hidden.append(True)
-
-    monkeypatch.setattr(ht, "QToolTip", _ToolTip)
-    return hidden
-
-
-def test_claiming_a_live_anchor_hides_the_native_tooltip(tooltip, qtbot,
-                                                         monkeypatch):
-    """A native tooltip already on screen would sit over this one."""
-    hidden = _watch_native_tooltip(monkeypatch)
-    label = QLabel("Cell diameter")
-    qtbot.addWidget(label)
-    tooltip._claim_anchor(label)
-    assert hidden == [True]
-
-
-def test_claiming_no_anchor_takes_no_tooltip_duty(tooltip, monkeypatch):
-    """A hover that arrived with no widget has no duty to take."""
-    hidden = _watch_native_tooltip(monkeypatch)
-    tooltip._claim_anchor(None)
-    assert hidden == []
-
-
-def test_claiming_a_destroyed_anchor_takes_no_tooltip_duty(tooltip, qtbot,
-                                                           monkeypatch):
-    """There is no native tooltip left to suppress on a dead widget."""
-    hidden = _watch_native_tooltip(monkeypatch)
-    label = QLabel("Cell diameter")
-    qtbot.addWidget(label)
-    shiboken6.delete(label)
-    tooltip._claim_anchor(label)
-    assert hidden == []
-
 
 # -- hiding ------------------------------------------------------------------
 

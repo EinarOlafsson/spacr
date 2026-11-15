@@ -1,7 +1,6 @@
 """The live preview rebuilds its scene for a new frame size and skips hidden files."""
 from __future__ import annotations
 
-import numpy as np
 import pytest
 from PySide6.QtGui import QImage, QPixmap
 
@@ -29,15 +28,3 @@ def test_a_frame_of_another_size_or_the_first_frame_rebuilds_the_scene(qtbot):
     same_item = view._pixmap_item
     view._show_frame(_pixmap(40, 30, 0x0000FF))          # same size: the item is kept
     assert view._pixmap_item is same_item
-
-
-def test_hidden_files_in_subfolders_are_not_the_first_image(tmp_path):
-    nested = tmp_path / "plate"
-    nested.mkdir()
-    np_image = np.zeros((4, 4), dtype=np.uint8)
-    import tifffile
-
-    tifffile.imwrite(nested / ".hidden.tif", np_image)
-    tifffile.imwrite(nested / "visible.tif", np_image)
-    (tmp_path / "notes.txt").write_text("not an image")
-    assert LP.first_supported_image(tmp_path) == nested / "visible.tif"

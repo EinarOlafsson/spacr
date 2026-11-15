@@ -21,6 +21,8 @@ from spacr.qt.app_catalog import (DECLARED_APPS, DeclaredApp,
                                   LazyScreenFactory, declared_app,
                                   declared_for, register_declared)
 
+from tests import locale_cases
+
 
 @pytest.fixture(autouse=True)
 def registered():
@@ -69,17 +71,8 @@ _CONSTANTS = (
 )
 
 
-@pytest.mark.parametrize("row", DECLARED_APPS, ids=lambda r: r.key)
-def test_the_module_agrees_with_the_row_declared_for_it(row: DeclaredApp):
-    """Whatever the screen still calls its own name is the catalog's name.
-
-    The strings MOVED into the catalog rather than being copied there, so a
-    screen that defines ``APP_NAME`` now reads it back from its row. This
-    asserts that is really what happened: a module that starts spelling its
-    own name again — a merge that resurrects the literal, a copy-paste from a
-    sibling — is a module with two names, and the tile and the screen header
-    would stop agreeing without anything failing.
-    """
+def _the_module_agrees_with_the_row_declared_for_it_case(row):
+    """One case of :func:`test_the_module_agrees_with_the_row_declared_for_it`."""
     module = __import__(row.module, fromlist=["*"])
     for constant, field in _CONSTANTS:
         if not hasattr(module, constant):
@@ -89,8 +82,35 @@ def test_the_module_agrees_with_the_row_declared_for_it(row: DeclaredApp):
             f"{row.key!r} in spacr.qt.app_catalog")
 
 
-@pytest.mark.parametrize("row", DECLARED_APPS, ids=lambda r: r.key)
-def test_the_named_factory_exists_and_is_callable(row: DeclaredApp):
+def test_the_module_agrees_with_the_row_declared_for_it(subtests, request):
+    """Whatever the screen still calls its own name is the catalog's name.
+
+    The strings MOVED into the catalog rather than being copied there, so a
+    screen that defines ``APP_NAME`` now reads it back from its row. This
+    asserts that is really what happened: a module that starts spelling its
+    own name again — a merge that resurrects the literal, a copy-paste from a
+    sibling — is a module with two names, and the tile and the screen header
+    would stop agreeing without anything failing.
+    """
+    for label, case in locale_cases.cases(
+            ("row", DECLARED_APPS, lambda r: r.key),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _the_module_agrees_with_the_row_declared_for_it_case(**fixtures, **case)
+
+
+def _the_named_factory_exists_and_is_callable_case(row):
+    """One case of :func:`test_the_named_factory_exists_and_is_callable`."""
+    module = __import__(row.module, fromlist=["*"])
+    assert row.factory, f"{row.key} declares no factory"
+    factory = getattr(module, row.factory, None)
+    assert callable(factory), (
+        f"{row.module} has no callable {row.factory!r}; the row in "
+        f"spacr.qt.app_catalog names a factory that is not there")
+
+
+def test_the_named_factory_exists_and_is_callable(subtests, request):
     """The row names a factory; the module must actually have one.
 
     A row holds the factory's NAME, which is what lets it be registered
@@ -98,12 +118,12 @@ def test_the_named_factory_exists_and_is_callable(row: DeclaredApp):
     until a user clicks the tile and gets an empty screen. This is the check
     that makes the rename fail at test time instead.
     """
-    module = __import__(row.module, fromlist=["*"])
-    assert row.factory, f"{row.key} declares no factory"
-    factory = getattr(module, row.factory, None)
-    assert callable(factory), (
-        f"{row.module} has no callable {row.factory!r}; the row in "
-        f"spacr.qt.app_catalog names a factory that is not there")
+    for label, case in locale_cases.cases(
+            ("row", DECLARED_APPS, lambda r: r.key),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _the_named_factory_exists_and_is_callable_case(**fixtures, **case)
 
 
 def test_every_declared_section_and_stage_is_one_the_registry_knows():
@@ -134,16 +154,8 @@ def test_no_two_rows_claim_the_same_key_or_module():
 # the registry the launch builds
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("row", DECLARED_APPS, ids=lambda r: r.key)
-def test_the_registry_row_is_the_declared_row(row: DeclaredApp):
-    """Key, name, description, section, stage — the tile and the sidebar.
-
-    The stage is asserted as a floor rather than an equality, because
-    ``spacr.qt.maturity`` runs last and PROMOTES the apps whose evidence no
-    longer matches what they declared. Promotion is the only direction it
-    moves in, so "at least what the row declares" is the invariant; an
-    equality here would fail the moment a screen earned its beta.
-    """
+def _the_registry_row_is_the_declared_row_case(row):
+    """One case of :func:`test_the_registry_row_is_the_declared_row`."""
     rows = [entry for entry in app_mod.APPS if entry[0] == row.key]
     assert len(rows) == 1, f"{row.key} appears {len(rows)} times in APPS"
     assert rows[0] == (row.key, row.name, row.desc, row.section)
@@ -154,14 +166,25 @@ def test_the_registry_row_is_the_declared_row(row: DeclaredApp):
         f"{row.stage!r} its row declares — nothing demotes an app")
 
 
-@pytest.mark.parametrize("row", DECLARED_APPS, ids=lambda r: r.key)
-def test_the_metadata_fanned_out_is_the_declared_metadata(row: DeclaredApp):
-    """The six tables ``register_app`` distributes into, from one row.
+def test_the_registry_row_is_the_declared_row(subtests, request):
+    """Key, name, description, section, stage — the tile and the sidebar.
 
-    ``title`` and ``intro`` carry ``register_app``'s own fallbacks — a row
-    that gives neither gets the name and the description — so the expected
-    value is the fallback, not the empty string.
+    The stage is asserted as a floor rather than an equality, because
+    ``spacr.qt.maturity`` runs last and PROMOTES the apps whose evidence no
+    longer matches what they declared. Promotion is the only direction it
+    moves in, so "at least what the row declares" is the invariant; an
+    equality here would fail the moment a screen earned its beta.
     """
+    for label, case in locale_cases.cases(
+            ("row", DECLARED_APPS, lambda r: r.key),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _the_registry_row_is_the_declared_row_case(**fixtures, **case)
+
+
+def _the_metadata_fanned_out_is_the_declared_metadata_case(row):
+    """One case of :func:`test_the_metadata_fanned_out_is_the_declared_metadata`."""
     meta = app_mod.APP_META[row.key]
     assert meta["name"] == row.name
     assert meta["title"] == (row.title or row.name)
@@ -171,6 +194,21 @@ def test_the_metadata_fanned_out_is_the_declared_metadata(row: DeclaredApp):
     assert meta["entry"] == row.entry
     assert meta["defaults_module"] == row.defaults_module
     assert meta["translations"] == row.translations
+
+
+def test_the_metadata_fanned_out_is_the_declared_metadata(subtests, request):
+    """The six tables ``register_app`` distributes into, from one row.
+
+    ``title`` and ``intro`` carry ``register_app``'s own fallbacks — a row
+    that gives neither gets the name and the description — so the expected
+    value is the fallback, not the empty string.
+    """
+    for label, case in locale_cases.cases(
+            ("row", DECLARED_APPS, lambda r: r.key),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _the_metadata_fanned_out_is_the_declared_metadata_case(**fixtures, **case)
 
 
 def test_the_gui_only_sentence_reaches_spacr_run():

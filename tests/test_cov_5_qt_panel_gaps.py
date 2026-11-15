@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import os
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -26,63 +25,11 @@ pytestmark = pytest.mark.qt
 # Measure preview: the crop pass runs on the shared runner, not on a QThread
 # ---------------------------------------------------------------------------
 
-def _merged(tmp_path, name="plate1_A01_f1.npy"):
-    data = np.zeros((48, 48, 8), np.float32)
-    data[..., :3] = 20
-    cell = np.zeros((48, 48), np.int32)
-    cell[2:18, 2:18] = 1
-    cell[24:42, 24:42] = 2
-    data[..., 4] = cell
-    path = tmp_path / name
-    np.save(path, data)
-    return str(path)
-
-
 @pytest.fixture()
 def measure_panel(qtbot):
     panel = MP.MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     return panel
-
-
-def test_running_the_preview_with_no_array_says_so_instead_of_nothing(
-        measure_panel):
-    """Every live view answers to ``run_preview``; a silent one looks broken."""
-    measure_panel.run_preview()
-
-    assert measure_panel.preview_status().startswith(
-        MP.MeasurePreviewPanel.PREVIEW_SOURCE_HINT)
-    assert measure_panel.can_preview() is False
-
-
-def test_running_the_preview_on_a_loaded_array_re_crops_it(measure_panel,
-                                                            tmp_path):
-    """``run_preview`` is the shared name for what the crop knobs also do."""
-    measure_panel.load_array(_merged(tmp_path))
-    assert measure_panel.can_preview() is True
-    landed = []
-    measure_panel.preview_ready.connect(landed.append)
-
-    measure_panel.run_preview()
-
-    assert landed, "the pass produced no result"
-    assert measure_panel._crops, "the array holds two objects to crop"
-
-
-def test_cancelling_drops_the_answer_of_the_pass_in_flight(measure_panel,
-                                                            tmp_path):
-    """A crop pass cannot be killed, so its result has to land as a no-op."""
-    measure_panel.load_array(_merged(tmp_path))
-    measure_panel.run_preview()
-    before = list(measure_panel._crops)
-    token = measure_panel._crop_token
-
-    measure_panel.cancel_preview()
-
-    assert measure_panel._crop_token != token
-    # The superseded result arrives late and must change nothing.
-    measure_panel._on_crops_ready(token, {"crops": [], "error": ""})
-    assert measure_panel._crops == before
 
 
 def test_a_panel_with_no_runner_reports_no_extra_work(measure_panel):

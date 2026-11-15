@@ -3401,6 +3401,28 @@ def _validated_threshold_auto_939_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_mask_vram_945_callables(callables):
+    """Check the public callables of item 945 (the large-site mask step under a VRAM cap) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json").read_text(encoding="utf-8"))
+    assert set(entries) == {
+        "spacr.ops_large_sites.flow_check_bands",
+        "spacr.ops_large_sites.mask_step_bytes",
+        "spacr.ops_large_sites.summarise_mask_steps",
+    }
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_hybrid_profile_stage3_callables(callables):
     """Check the public callables of the OPS stage 3 Hybrid profile (cells_to_profiles, hybrid_profile_rows) against their source."""
     import json
@@ -3531,6 +3553,26 @@ def _validated_optional_families_941_callables(callables):
     entries = json.loads((root / "tests/data/release_contracts"
         / "941_measure_optional_families_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
     assert set(entries) == {"spacr.measure.profile_optional_families"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_autotune_942_callables(callables):
+    """Check the public callables of item 942 (joint decode auto-tuning, prefix decoys) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "942_ops_autotune_api_arrivals_2026-11-14.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.ops_decode.tune_thresholds",
+                            "spacr.ops_decode.write_tuning_curve",
+                            "spacr.ops_prefix.prefix_decoy_library"}
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert found.keys() == entries.keys()
     for symbol, item in found.items():
@@ -3755,8 +3797,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_stitch_core_936_940_callables(callables)
     callables = _validated_measure_ops_features_934_callables(callables)
     callables = _validated_hybrid_profile_stage3_callables(callables)
+    callables = _validated_mask_vram_945_callables(callables)
     callables = _validated_run_progress_938_callables(callables)
     callables = _validated_optional_families_941_callables(callables)
+    callables = _validated_autotune_942_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5245,7 +5289,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # aggregation_plan and the `defaults` field of MergePolicy, and item 936's
     # optional `precision` of spacr.ops_register.phase_correlate and
     # `edge_workers` of spacr.ops_stitch.stitch_well (all defaulted).
-    assert sum(len(item.parameters) for item in callables) == 20264
+    # 20,264 -> 20,265 on 2026-11-14: item 938's optional `progress_share` of
+    # spacr.object.generate_cellpose_masks_sam (defaulted), the serial mask
+    # path's per-batch progress lines.
+    assert sum(len(item.parameters) for item in callables) == 20265
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5587,7 +5634,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # and MergePolicy, items 936/940's phase_correlate `precision` and
     # stitch_well `edge_workers` keywords, and the OPS stage-3 Hybrid profile's
     # changed parameters; new callables are checked by their arrival contracts.
-) == '17089b9ef306ff4835e4893dac0def491ecc793a5d8f2726e29ddca8616bf503'
+    # Moved 2026-11-14 for item 938 (was 17089b9e...): the optional
+    # `progress_share` of spacr.object.generate_cellpose_masks_sam.
+) == '6e569df7200c40ec836404fed5c2d8efbec245e64bf77f9c9249cc293be5bccc'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -6505,6 +6554,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("stage3_hybrid_profile_api_arrivals_2026-11-13.json", 2),
         ("938_run_progress_api_arrivals_2026-11-13.json", 20),
         ("941_measure_optional_families_api_arrivals_2026-11-13.json", 1),
+        ("945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json", 3),
+        ("938_progress_reporters_api_arrivals_2026-11-14.json", 3),
+        ("942_ops_autotune_api_arrivals_2026-11-14.json", 3),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7107,7 +7159,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "934_measure_ops_features_api_arrivals_2026-11-13.json",
                      "stage3_hybrid_profile_api_arrivals_2026-11-13.json",
                      "938_run_progress_api_arrivals_2026-11-13.json",
-                     "941_measure_optional_families_api_arrivals_2026-11-13.json"):
+                     "941_measure_optional_families_api_arrivals_2026-11-13.json",
+                     "945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json",
+                     "938_progress_reporters_api_arrivals_2026-11-14.json",
+                     "942_ops_autotune_api_arrivals_2026-11-14.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7250,7 +7305,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "934_measure_ops_features_api_arrivals_2026-11-13.json",
                      "stage3_hybrid_profile_api_arrivals_2026-11-13.json",
                      "938_run_progress_api_arrivals_2026-11-13.json",
-                     "941_measure_optional_families_api_arrivals_2026-11-13.json"):
+                     "941_measure_optional_families_api_arrivals_2026-11-13.json",
+                     "945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json",
+                     "938_progress_reporters_api_arrivals_2026-11-14.json",
+                     "942_ops_autotune_api_arrivals_2026-11-14.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

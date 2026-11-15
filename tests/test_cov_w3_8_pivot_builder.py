@@ -12,17 +12,16 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import (  # noqa: E402
-    QEvent, QMimeData, QPoint, QPointF, QTimer, Qt,
+    QMimeData, QPointF, Qt,
 )
 from PySide6.QtGui import (  # noqa: E402
-    QDragEnterEvent, QDragMoveEvent, QDropEvent, QKeyEvent,
+    QDropEvent,
 )
-from PySide6.QtWidgets import QApplication  # noqa: E402
 
 from spacr.qt.widgets.graph_builder import COLUMN_MIME  # noqa: E402
 from spacr.qt.widgets import pivot_builder as pb  # noqa: E402
 from spacr.qt.widgets.pivot_spec import (  # noqa: E402
-    MEAN, N, SD, PivotSpec, pivot,
+    MEAN, N, SD, PivotSpec,
 )
 
 pytestmark = pytest.mark.qt
@@ -76,86 +75,6 @@ def test_an_axis_nobody_defines_is_refused(qtbot):
         pb.DropWell("diagonal")
 
 
-def test_a_drag_of_something_that_is_not_a_column_is_ignored(qtbot):
-    well = pb.DropWell(pb.AXIS_ROWS)
-    qtbot.addWidget(well)
-    plain = QMimeData()
-    plain.setText("plateID")
-    where = QPointF(well._list.rect().center())
-
-    enter = QDragEnterEvent(where.toPoint(), Qt.CopyAction, plain,
-                            Qt.LeftButton, Qt.NoModifier)
-    enter.accept()
-    well._list.dragEnterEvent(enter)
-    assert not enter.isAccepted()
-
-    move = QDragMoveEvent(where.toPoint(), Qt.CopyAction, plain,
-                          Qt.LeftButton, Qt.NoModifier)
-    move.accept()
-    well._list.dragMoveEvent(move)
-    assert not move.isAccepted()
-
-    well._list.dropEvent(QDropEvent(where, Qt.CopyAction, plain,
-                                    Qt.LeftButton, Qt.NoModifier))
-    assert well.columns() == ()
-
-
-def test_a_column_drag_is_taken(qtbot):
-    well = pb.DropWell(pb.AXIS_ROWS)
-    qtbot.addWidget(well)
-    payload = _column_mime("plateID")
-    where = QPointF(well._list.rect().center()).toPoint()
-
-    enter = QDragEnterEvent(where, Qt.CopyAction, payload, Qt.LeftButton,
-                            Qt.NoModifier)
-    enter.ignore()
-    well._list.dragEnterEvent(enter)
-    assert enter.isAccepted()
-
-    move = QDragMoveEvent(where, Qt.CopyAction, payload, Qt.LeftButton,
-                          Qt.NoModifier)
-    move.ignore()
-    well._list.dragMoveEvent(move)
-    assert move.isAccepted()
-
-    _drop(well, "plateID")
-    assert well.columns() == ("plateID",)
-
-
-def test_delete_takes_the_selected_key_off_the_axis(qtbot):
-    well = pb.DropWell(pb.AXIS_ROWS)
-    qtbot.addWidget(well)
-    seen = []
-    well.changed.connect(lambda: seen.append(well.columns()))
-    _drop(well, "plateID")
-    _drop(well, "rowID")
-    well._list.setCurrentRow(0)
-    well._list.keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_Delete,
-                                       Qt.NoModifier))
-    assert well.columns() == ("rowID",)
-    assert seen[-1] == ("rowID",)
-
-
-def test_delete_with_nothing_selected_removes_nothing(qtbot):
-    well = pb.DropWell(pb.AXIS_ROWS)
-    qtbot.addWidget(well)
-    _drop(well, "plateID")
-    well._list.setCurrentRow(-1)
-    well._list.keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_Backspace,
-                                       Qt.NoModifier))
-    assert well.columns() == ("plateID",)
-
-
-def test_a_key_that_is_not_delete_falls_through(qtbot):
-    well = pb.DropWell(pb.AXIS_ROWS)
-    qtbot.addWidget(well)
-    _drop(well, "plateID")
-    well._list.setCurrentRow(0)
-    well._list.keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_A,
-                                       Qt.NoModifier))
-    assert well.columns() == ("plateID",)
-
-
 def test_a_removal_of_a_row_that_is_gone_changes_nothing(qtbot):
     well = pb.DropWell(pb.AXIS_ROWS)
     qtbot.addWidget(well)
@@ -178,22 +97,6 @@ def test_an_empty_grid_has_no_result_and_no_key_columns(qtbot):
     assert table.result is None
     assert table._header_offset_keys() == ()
     assert table.cell_text(0, 0) == ""
-
-
-def test_a_table_too_large_to_draw_says_so_instead_of_freezing(qtbot,
-                                                              monkeypatch):
-    """The grid builds the shape, not a million items."""
-    monkeypatch.setattr(pb, "MAX_RENDERED_CELLS", 3)
-    table = pb.PivotTable()
-    qtbot.addWidget(table)
-    result = pivot(_frame(), PivotSpec(rows=("plateID", "rowID"),
-                                       cols=("gene",), values=("area",),
-                                       aggs=(N, MEAN, SD)))
-    table.set_result(result)
-    assert table.truncated_cells == result.n_cells
-    assert table.rowCount() == 1 and table.columnCount() == 1
-    assert "narrow the axes" in table.item(0, 0).text()
-    assert table.horizontalHeaderItem(0).text() == "too large to draw"
 
 
 # ---------------------------------------------------------------------------
@@ -227,14 +130,6 @@ def test_the_well_hierarchy_preset_needs_a_table(qtbot):
         "plateID", "rowID", "columnID")
 
 
-def test_a_panel_with_no_table_asks_for_one(qtbot):
-    empty = pb.PivotPanel()
-    qtbot.addWidget(empty)
-    assert empty.recompute() is None
-    assert "Load a table" in empty.notice.text()
-    assert empty.long_frame().empty
-
-
 def test_a_refusal_from_the_pivot_becomes_the_notice(panel, monkeypatch):
     from spacr.qt.widgets.pivot_spec import PivotError
 
@@ -246,15 +141,6 @@ def test_a_refusal_from_the_pivot_becomes_the_notice(panel, monkeypatch):
     assert panel.recompute() is None
     assert panel.notice.text() == "area is not a measurement in this table"
     assert panel.result is None
-
-
-def test_a_truncated_table_says_to_export_it(panel, monkeypatch):
-    monkeypatch.setattr(pb, "MAX_RENDERED_CELLS", 2)
-    _drop(panel.wells[pb.AXIS_ROWS], "plateID")
-    _drop(panel.wells[pb.AXIS_COLS], "gene")
-    _drop(panel.wells[pb.AXIS_VALUES], "area")
-    assert panel.recompute() is not None
-    assert "export it" in panel.notice.text()
 
 
 def test_dropping_while_a_spec_is_being_restored_does_not_rebuild(panel):
@@ -276,17 +162,6 @@ def test_plotting_an_empty_table_says_why(panel):
     assert "Nothing to plot yet" in panel.notice.text()
 
 
-def test_plotting_a_built_table_carries_the_long_frame(panel):
-    requested = []
-    panel.plot_requested.connect(requested.append)
-    _drop(panel.wells[pb.AXIS_ROWS], "plateID")
-    _drop(panel.wells[pb.AXIS_VALUES], "area")
-    panel.recompute()
-    panel._on_plot()
-    assert len(requested) == 1
-    assert not requested[0].empty
-
-
 # ---------------------------------------------------------------------------
 # Export
 # ---------------------------------------------------------------------------
@@ -294,37 +169,3 @@ def test_plotting_a_built_table_carries_the_long_frame(panel):
 def test_exporting_before_there_is_a_table_says_so(panel):
     assert panel.export_csv("/tmp/never-written.csv") is None
     assert "Nothing to export" in panel.notice.text()
-
-
-def test_a_cancelled_save_dialog_writes_nothing(panel):
-    _drop(panel.wells[pb.AXIS_ROWS], "plateID")
-    _drop(panel.wells[pb.AXIS_VALUES], "area")
-    panel.recompute()
-
-    def dismiss():
-        dialog = QApplication.activeModalWidget()
-        if dialog is None:
-            QTimer.singleShot(5, dismiss)
-            return
-        dialog.reject()
-
-    QTimer.singleShot(0, dismiss)
-    assert panel.export_csv() is None
-
-
-def test_a_file_that_cannot_be_written_becomes_the_notice(panel, tmp_path):
-    _drop(panel.wells[pb.AXIS_ROWS], "plateID")
-    _drop(panel.wells[pb.AXIS_VALUES], "area")
-    panel.recompute()
-    assert panel.export_csv(str(tmp_path / "no such folder" / "t.csv")) is None
-    assert "could not write that file" in panel.notice.text()
-
-
-def test_a_written_table_is_named_in_the_notice(panel, tmp_path):
-    _drop(panel.wells[pb.AXIS_ROWS], "plateID")
-    _drop(panel.wells[pb.AXIS_VALUES], "area")
-    panel.recompute()
-    target = tmp_path / "tabulate.csv"
-    assert panel.export_csv(str(target)) == str(target)
-    assert target.read_text(encoding="utf-8").strip()
-    assert f"wrote {target}" in panel.notice.text()

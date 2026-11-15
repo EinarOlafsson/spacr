@@ -17,6 +17,8 @@ gives every case a fresh directory of its own under the test's
 
 from __future__ import annotations
 
+import contextlib
+import inspect
 import itertools
 import re
 from pathlib import Path
@@ -107,3 +109,106 @@ def case_dir(tmp_path: Path, label: dict) -> Path:
 def monkeypatch_scope():
     """A monkeypatch whose changes are undone when its case ends."""
     return pytest.MonkeyPatch.context()
+
+
+# Fixtures a case shares with the test that loops over it.  Every other
+# function-scoped fixture a case asks for is set up afresh for that case.
+_SHARED_FIXTURES = frozenset({
+    "request", "subtests", "qtbot", "capsys", "capfd", "capsysbinary",
+    "capfdbinary", "caplog", "recwarn", "tmp_path_factory", "pytestconfig",
+})
+_CAPTURE_FIXTURES = frozenset({"capsys", "capfd", "capsysbinary", "capfdbinary"})
+
+
+def _fixturedef(request, name):
+    """The definition pytest would use for ``name`` in this test."""
+    defs = request._fixturemanager.getfixturedefs(name, request.node)
+    if not defs:
+        raise LookupError(f"no fixture named {name!r} is visible to {request.node.nodeid}")
+    return defs[-1]
+
+
+@contextlib.contextmanager
+def fresh_case(request, label: dict, names):
+    """Set up the fixtures ``names`` for one case, as a separate item had them.
+
+    A parametrisation gave every case an item of its own, so every case got
+    its own function-scoped fixtures: a new ``monkeypatch`` (undone after the
+    case), its own ``tmp_path``, its own copy of every function-scoped
+    fixture it asked for, and the function-scoped autouse fixtures again.
+    This does the same inside one item.  Widgets a case hands to ``qtbot``
+    are closed when the case ends, before its fixtures are torn down, as
+    pytest-qt does after an item.  Session-, module- and class-scoped and
+    parametrised fixtures, ``qtbot`` and the capture fixtures belong to the
+    test and every case shares them.
+
+    Yields ``{name: value}`` for ``names``.
+    """
+    item = request.node
+    autouse = [name for name in item._fixtureinfo.initialnames
+               if name not in item._fixtureinfo.argnames]
+    widgets_before = len(getattr(item, "qt_widgets", ()))
+    values: dict = {}
+    with contextlib.ExitStack() as stack:
+
+        def value(name):
+            if name in values:
+                return values[name]
+            if name == "monkeypatch":
+                values[name] = stack.enter_context(pytest.MonkeyPatch.context())
+            elif name == "tmp_path":
+                values[name] = case_dir(request.getfixturevalue("tmp_path"), label)
+            elif name in _SHARED_FIXTURES:
+                values[name] = request.getfixturevalue(name)
+                if name in _CAPTURE_FIXTURES:
+                    values[name].readouterr()
+                elif name == "caplog":
+                    values[name].clear()
+            else:
+                fixturedef = _fixturedef(request, name)
+                if fixturedef.scope != "function" or fixturedef.params is not None:
+                    values[name] = request.getfixturevalue(name)
+                else:
+                    func = getattr(fixturedef.func, "__wrapped__", fixturedef.func)
+                    kwargs = {arg: value(arg) for arg in fixturedef.argnames}
+                    if inspect.isgeneratorfunction(func):
+                        produced = func(**kwargs)
+                        values[name] = next(produced)
+                        stack.callback(_finish, produced)
+                    else:
+                        values[name] = func(**kwargs)
+            return values[name]
+
+        for name in autouse:
+            value(name)
+        given = {name: value(name) for name in names}
+        stack.callback(_close_case_widgets, item, widgets_before)
+        yield given
+
+
+def _finish(produced) -> None:
+    """Run the teardown half of a yield fixture."""
+    try:
+        next(produced)
+    except StopIteration:
+        return
+    raise RuntimeError(f"fixture {produced!r} yielded twice")
+
+
+def _close_case_widgets(item, before: int) -> None:
+    """Close the widgets one case handed to ``qtbot``, as pytest-qt does after an item."""
+    widgets = getattr(item, "qt_widgets", None)
+    if not widgets or len(widgets) <= before:
+        return
+    from PySide6.QtWidgets import QApplication
+
+    QApplication.processEvents()
+    for ref, before_close in widgets[before:]:
+        widget = ref()
+        if widget is not None:
+            if before_close is not None:
+                before_close(widget)
+            widget.close()
+            widget.deleteLater()
+    del widgets[before:]
+    QApplication.processEvents()

@@ -13012,7 +13012,7 @@ def measure_crop(settings):
                     process_measure_crop_results([result], settings)
                     files_processed = len(completed_jobs)
                     files_to_process = len(files)
-                    print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
+                    print_progress(files_processed, files_to_process, pool_jobs, time_ls=time_ls, operation_type='Measure and Crop')
 
                 def make_error_callback(job_file):
                     """Bind the filename into the pool's error callback.

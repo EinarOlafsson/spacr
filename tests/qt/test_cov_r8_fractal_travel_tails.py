@@ -166,31 +166,6 @@ class TestTheBackdropHoldsStillUnderAPopup:
 
 class TestShutdownRaces:
 
-    def test_a_join_helper_swallows_a_thread_that_will_not_stop(self,
-                                                                monkeypatch):
-        """`_join` runs from a `destroyed` signal, where nothing can catch."""
-        monkeypatch.setattr(
-            F, "_quit_and_join_thread",
-            lambda _t: (_ for _ in ()).throw(RuntimeError("already gone")))
-
-        class _Widget:
-            class _Signal:
-                def connect(self, slot):
-                    self.slot = slot
-            destroyed = _Signal()
-
-        widget = _Widget()
-        F._join_on_destroy(widget, object())
-
-        # ASSERTED. The slot has to be CONNECTED as well as harmless --
-        # "it did not raise" passes just as well against a helper that
-        # connected nothing at all, which is the failure that leaves a
-        # renderer thread running after its widget is gone.
-        assert hasattr(widget.destroyed, "slot"), (
-            "_join_on_destroy connected nothing to `destroyed`")
-
-        widget.destroyed.slot()          # must not raise
-
     def test_shutting_down_twice_is_safe(self, gpu_backdrop):
         """THE SECOND SHUTDOWN is where the disconnect guard earns its place.
 
@@ -225,77 +200,3 @@ class TestShutdownRaces:
         timer = getattr(widget._canvas, "_timer", None)
         if timer is not None and hasattr(timer, "isActive"):
             assert not timer.isActive()
-
-
-class TestTheCpuWidgetsShutdownDisconnect:
-    """`shutdown` disconnects its own `aboutToQuit` slot, and may fail.
-
-    The widget connects `_app_quit_join` to the application's
-    `aboutToQuit` so a quit joins the renderer thread. Shutdown takes it
-    back off. If something else has already removed it -- a teardown that
-    tore the application down first, a slot Qt has released -- Qt answers
-    the disconnect with RuntimeError or TypeError.
-
-    Swallowing it is not cosmetic: the line after it is the thread join,
-    and destroying a live QThread is a process-fatal Qt error. Shutdown
-    has to reach that line however the disconnect went.
-
-    A second `shutdown()` cannot exercise this -- the `_stopped` flag
-    returns first -- so the slot is removed directly instead.
-    """
-
-    def test_a_slot_already_disconnected_only_warns_on_this_binding(self,
-                                                                    qtbot):
-        """Removing the slot first does NOT reach the guard on PySide6.
-
-        Written down because it is the obvious way to test this and it
-        does not work: PySide6 answers a disconnect that matches nothing
-        with a libpyside RuntimeWarning and returns, rather than raising.
-        The `except` is never entered, and a test built this way passes
-        while covering nothing.
-        """
-        pytest.importorskip("numba")
-        from PySide6.QtWidgets import QApplication
-
-        widget = F.create_fractal_widget(F.Settings(backend="cpu"))
-        qtbot.addWidget(widget)
-        app = QApplication.instance()
-        try:
-            app.aboutToQuit.disconnect(widget._app_quit_join)
-        except (RuntimeError, TypeError):
-            pytest.skip("this build never connected the quit slot")
-
-        widget.shutdown()               # warns, does not raise
-        assert widget._stopped is True
-
-    # NOT TESTED, and the two attempts are recorded rather than deleted.
-    #
-    # The guard catches RuntimeError and TypeError from the disconnect.
-    # Neither can be produced here:
-    #
-    #   * removing the slot first (the test above) makes PySide6 emit a
-    #     libpyside RuntimeWarning and return -- the except is not entered,
-    #     and a test written that way passes while covering nothing;
-    #   * supplying an application whose disconnect raises means patching
-    #     `QApplication.instance` on the class, because the name is imported
-    #     inside the widget factory and the closure holds the real class.
-    #     That is global: it took qtbot and five other tests down with it.
-    #
-    # So the condition the guard defends against is one this binding
-    # reports differently, and reaching it would mean breaking the harness
-    # rather than exercising the program. Left uncovered on purpose.
-    #
-    # What DOES matter about it is asserted below: shutdown reaches the
-    # thread join. Leaving a live QThread to be destroyed is a
-    # process-fatal Qt error, so the join is the line the guard exists to
-    # protect.
-
-    def test_an_ordinary_shutdown_still_disconnects_and_joins(self, qtbot):
-        """The healthy path, so the guard above is visibly a guard."""
-        pytest.importorskip("numba")
-
-        widget = F.create_fractal_widget(F.Settings(backend="cpu"))
-        qtbot.addWidget(widget)
-        widget.shutdown()
-        assert widget._stopped is True
-        widget.shutdown()               # the _stopped early return

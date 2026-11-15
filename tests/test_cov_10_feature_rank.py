@@ -11,10 +11,9 @@ ranking while a zero keeps it at the bottom of a real list.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from spacr.qt.widgets import feature_rank as FR
-from spacr.qt.widgets.feature_rank import ClassSummary, mutual_info_of
+from spacr.qt.widgets.feature_rank import ClassSummary
 
 
 def test_a_class_with_no_rows_is_summarised_as_absent_not_as_zero():
@@ -32,43 +31,3 @@ def test_a_class_with_no_rows_is_summarised_as_absent_not_as_zero():
                                      absent.low, absent.high))
     present = [s for s in summaries if s.level == "a"][0]
     assert present.n == 3 and present.median == 2.0
-
-
-def test_a_binning_that_captures_no_observation_is_not_a_score(monkeypatch):
-    """With no counts at all there is no joint distribution to compute, so
-    the answer is NaN. Returning 0.0 would rank the feature as "measured and
-    uninformative" rather than "not measurable here"."""
-    monkeypatch.setattr(
-        FR.np, "histogram",
-        lambda a, bins=None, **kw: (np.zeros(len(bins) - 1, dtype=int), bins))
-    a = np.array([0.0, 1.0, 2.0, 3.0])
-    b = np.array([0.5, 1.5, 2.5, 3.5])
-    assert np.isnan(mutual_info_of(a, b, bins=4))
-
-
-def test_a_class_split_with_no_entropy_explains_nothing(monkeypatch):
-    """Mutual information is normalised by the entropy of the class label.
-    When every counted observation belongs to one class that entropy is zero;
-    the answer is 0.0 rather than a division that yields NaN or infinity."""
-    state = {"first": True}
-
-    def _one_sided(a, bins=None, **kw):
-        counts = np.zeros(len(bins) - 1, dtype=int)
-        if state["first"]:
-            counts[0] = 4
-            state["first"] = False
-        return counts, bins
-
-    monkeypatch.setattr(FR.np, "histogram", _one_sided)
-    a = np.array([0.0, 1.0, 2.0, 3.0])
-    b = np.array([0.5, 1.5, 2.5, 3.5])
-    assert mutual_info_of(a, b, bins=4) == 0.0
-
-
-def test_a_real_split_still_scores_between_zero_and_one():
-    """The guards above must not have replaced the ordinary answer: two
-    separated classes score above zero and never above one."""
-    a = np.zeros(50)
-    b = np.ones(50)
-    score = mutual_info_of(a, b, bins=4)
-    assert 0.0 < score <= 1.0

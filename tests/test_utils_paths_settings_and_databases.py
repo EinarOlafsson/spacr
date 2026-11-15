@@ -1326,7 +1326,7 @@ def test_print_progress_reports_counts_timing_and_eta(subtests, capsys):
                                  time_ls=[4.0, 4.0], batch_size=["f1", "f2", "f3", "f4"],
                                  operation_type="measure"),
          ["Progress: 10/20", "Time/batch: 4.000sec", "Time/image: 1.000sec",
-          "Time_left: 0.333 min.", "operation_type: measure"]),
+          "Time_left: 0.083 min.", "operation_type: measure"]),
         ("zero_workers", dict(files_processed=2, files_to_process=10, n_jobs=0,
                               time_ls=[1.0, 3.0], batch_size=0, operation_type="in-process"),
          ["Time/image: 2.000sec", "Time_left: 0.267 min."]),

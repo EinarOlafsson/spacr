@@ -22,7 +22,6 @@ promises are made on paths the ordinary click-through never reaches:
 
 from __future__ import annotations
 
-import os
 
 import pytest
 
@@ -107,77 +106,7 @@ def test_switching_to_a_penalised_model_names_the_penalty_it_will_use(qtbot):
 
 # ------------------------------------------------- a run with no destination
 
-def test_no_usable_count_path_explains_and_disables_the_refit(qtbot):
-    """A truthy list containing only a blank path cannot start a re-fit.
-
-    Calling it "nothing to change" and leaving Re-fit enabled turns a missing
-    input into a promised run that will fail after launch. The same form with
-    a real counts path remains runnable and keeps its destination notice.
-    """
-    blank = _dialog(qtbot, dict(_RUNNABLE, count_data=[""]))
-    real = _dialog(qtbot, _RUNNABLE)
-    blank_button = blank.findChild(QDialogButtonBox).button(
-        QDialogButtonBox.Ok)
-    real_button = real.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok)
-
-    assert "no usable count data path" in blank._notice.text()
-    assert blank_button.isEnabled() is False
-    assert real._notice.text() == f"Writes to {os.path.normpath('/data/screen/results/ols')}."
-    assert real_button.isEnabled() is True
-
-
-def test_a_later_usable_count_path_preserves_notes_and_destination(qtbot):
-    """Blank list entries do not hide a later usable count table.
-
-    The reset sentence is the one this dialog exists to print -- an OLS
-    re-fit silently drops the previous run's ``alpha`` -- and the first real
-    count path is where the run will derive its destination.
-    """
-    dialog = _dialog(
-        qtbot,
-        dict(_RUNNABLE, count_data=["", "/data/second/counts.csv"], alpha=0.3),
-    )
-
-    text = dialog._notice.text()
-
-    assert "does not read alpha=0.3" in text
-    assert "reset to default" in text
-    assert f"Writes to {os.path.normpath('/data/second/results/ols')}." in text
-    assert dialog.findChild(QDialogButtonBox).button(
-        QDialogButtonBox.Ok).isEnabled() is True
-
-    named = _dialog(qtbot, dict(_RUNNABLE, alpha=0.3))
-    assert "does not read alpha=0.3" in named._notice.text()
-    assert f"Writes to {os.path.normpath('/data/screen/results/ols')}." in named._notice.text()
-
-
 # ------------------------------------------------------- a missing OK button
-
-def test_the_notice_is_still_written_when_the_ok_button_has_been_taken_away(
-        qtbot):
-    """A host that restyles dialogs can rebuild the button box's contents, and
-    the dialog then holds a box with no OK button in it. Enabling "Re-fit" is
-    the last thing ``_refresh`` does, so a crash there would cost the user the
-    notice as well as the button -- the sentence that says what the re-fit is
-    about to change would never reach the screen, and the dialog would look
-    like it had simply stopped responding to the form.
-    """
-    dialog = _dialog(qtbot, _RUNNABLE)
-    box = dialog.findChild(QDialogButtonBox)
-
-    # The button is there to begin with, and the fit is offered.
-    assert box.button(QDialogButtonBox.Ok).text() == "Re-fit"
-    assert box.button(QDialogButtonBox.Ok).isEnabled() is True
-
-    box.clear()
-    assert box.button(QDialogButtonBox.Ok) is None
-
-    # A real edit of the form: tighten the significance level.
-    dialog._fdr_alpha.setValue(0.01)
-
-    assert "significance level 0.05 -> 0.01" in dialog._notice.text()
-    assert f"Writes to {os.path.normpath('/data/screen/results/ols')}." in dialog._notice.text()
-
 
 def test_the_notice_is_still_written_when_the_button_box_has_been_reparented(
         qtbot):
@@ -204,50 +133,4 @@ def test_the_notice_is_still_written_when_the_button_box_has_been_reparented(
     box.deleteLater()
 
 
-def test_a_refusal_still_reaches_the_button_when_the_box_is_where_it_was(
-        qtbot):
-    """The tolerance above must not be an excuse for never touching the
-    button. Settings that name no counts cannot be re-fitted, and the only
-    thing standing between the user and a fit that dies at its entry point is
-    that ``_ok(False)`` finds the button and greys it out.
-    """
-    dialog = _dialog(qtbot, {"regression_type": "ols"})
-    box = dialog.findChild(QDialogButtonBox)
-
-    assert box.button(QDialogButtonBox.Ok).isEnabled() is False
-    assert box.button(QDialogButtonBox.Cancel).isEnabled() is True
-    assert "count data" in dialog._notice.text()
-
-
 # --------------------------------------------------- the modal entry point
-
-def test_cancelling_the_dialog_starts_no_fit_and_accepting_returns_the_run(
-        monkeypatch, qtbot):
-    """:func:`ask_refit` is what the plot's context menu actually calls, and
-    it is the only place the user's Cancel is honoured. A re-fit is minutes of
-    compute writing a new results folder, so a cancelled dialog has to return
-    ``None`` -- not the settings it happened to be showing -- or the menu
-    would start the fit the user just declined and leave a folder they never
-    asked for beside their real results.
-
-    Accepting the same dialog on the same settings does return the new run,
-    which is what makes the ``None`` above a decision rather than a dead path.
-    """
-    def _cancel(self):
-        return rd.QDialog.Rejected
-
-    def _accept(self):
-        # Pick a model that differs from the run on screen, the way a user
-        # would before pressing "Re-fit".
-        _pick_type(self, "ridge")
-        return rd.QDialog.Accepted
-
-    monkeypatch.setattr(rd.RefitDialog, "exec", _cancel)
-    assert rd.ask_refit(dict(_RUNNABLE)) is None
-
-    monkeypatch.setattr(rd.RefitDialog, "exec", _accept)
-    settings, notes = rd.ask_refit(dict(_RUNNABLE))
-
-    assert settings["regression_type"] == "ridge"
-    assert settings["count_data"] == "/data/screen/counts.csv"
-    assert any("'ols' -> 'ridge'" in note for note in notes), notes

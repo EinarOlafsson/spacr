@@ -1,0 +1,37 @@
+OPS PHENOTYPE FOLDERS THAT HOLD TWO ACQUISITIONS SHARING A CHANNEL
+=================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-14, alpha (ALPHA_FEATURES[947]). spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_ph_use_acquisition_947.py.
+Requested: maintainer (filed 2026-11-14 from the stage-1 Ready check).
+Owner: paper session (stage 1 lane).
+Source: proposals/bmc_paper_items/ITEM_ops_phenotype_multi_acquisition.md.
+Related: 872 (ops_ph_acquisitions, the refusal of a repeated channel token).
+
+PROBLEM
+Funk et al. 2022 plate B's phenotype folder holds two acquisitions,
+DAPI-GFP-A594 and A594-AF750, and both carry A594. Since 872 the index
+refuses the folder; the refusal named two files but not the acquisitions or
+a setting that picks one. The stage-1 proof check pointed phenotype_source at
+the DAPI-GFP-A594 folder instead.
+
+BUILD
+- The refusal names both acquisitions (their folders under phenotype_source
+  when those differ, else the channel sets their file names carry, in sorted
+  order), the shared channel, one well and site with both files, and the two
+  settings that resolve it.
+- ops_ph_use_acquisition (str, default None, alpha): the one acquisition to
+  read, by folder or by channel set, case ignored. Empty keeps the refusal;
+  nothing is chosen silently. A value that matches no tile is refused with
+  the acquisitions that are there. Setting it together with
+  ops_ph_acquisitions is refused. A folder with one acquisition is indexed as
+  before. No default changes, so no DEFAULT_CHANGES row.
+
+ACCEPTANCE
+tests/test_ops_ph_use_acquisition_947.py: the refusal text (two folders, one
+folder with two name groups), selection by folder and by channel set, one
+acquisition unchanged, run_ops refusing before any pixel is read, and a
+skip-if-absent check that plate B's input folder with the setting indexes
+exactly the files of the DAPI-GFP-A594 folder the proof check placed (1,281
+fields); placement reads nothing else from phenotype_source, so it is the
+proof check's placement.

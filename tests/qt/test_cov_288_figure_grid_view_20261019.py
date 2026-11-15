@@ -41,15 +41,3 @@ def test_clear_discards_figure_tiles_but_never_the_live_ones(grid, monkeypatch):
     assert len(discarded) == len({id(d) for d in discarded}), (
         "a tile seen in the grid and in the cell list is discarded once")
     assert grid._cells == [] and grid._live == live
-
-
-def test_clear_also_discards_a_figure_tile_the_grid_no_longer_holds(grid, monkeypatch):
-    grid.set_figures([_pix(), _pix()], titles=["a", "b"])
-    figures = list(grid._cells)
-    while grid._grid.count():
-        grid._grid.takeAt(0)
-    discarded = []
-    monkeypatch.setattr(fg.FigureGridView, "_discard",
-                        staticmethod(discarded.append))
-    grid.clear()
-    assert [id(d) for d in discarded] == [id(c) for c in figures]

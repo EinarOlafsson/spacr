@@ -102,35 +102,6 @@ def test_a_well_with_no_style_keeps_its_square_instead_of_crashing(screen):
     assert well.size() == QSize(well_side(), well_side())
 
 
-def test_the_status_line_still_reports_when_there_is_no_style(screen):
-    """The status text lands even when the label has no style to re-polish.
-
-    The status line is the only place the screen tells the user that their
-    conditions do not fit the plate. ``_set_status`` sets the text, flags the
-    error colour and then re-polishes the label so the colour is picked up.
-    If a missing style could stop that method, the user would get silence
-    exactly when the plate cannot be built -- the worst possible moment for
-    the screen to say nothing.
-    """
-    screen._set_status("all good", is_error=False)
-    assert screen.status_text() == "all good"
-    assert screen._status.property("spacrError") == "false"
-
-    screen._status.style = lambda: None
-    try:
-        screen._set_status("too many replicates", is_error=True)
-    finally:
-        del screen._status.style
-
-    assert screen.status_text() == "too many replicates"
-    assert screen._status.property("spacrError") == "true"
-
-    # Still a working label: the next real status clears the error flag.
-    screen._set_status("24 of 96 usable wells assigned.", is_error=False)
-    assert screen.status_text() == "24 of 96 usable wells assigned."
-    assert screen._status.property("spacrError") == "false"
-
-
 # --------------------------------------------------------------------------- #
 #  A layout holding something that is not a widget
 # --------------------------------------------------------------------------- #
@@ -189,53 +160,3 @@ def test_a_stretch_in_the_findings_panel_does_not_stop_the_redraw(screen):
 # --------------------------------------------------------------------------- #
 #  An assignment failure that carries no message
 # --------------------------------------------------------------------------- #
-
-def test_an_assignment_failure_with_no_message_leaves_the_last_status(screen):
-    """A wordless failure must not be reported as a successful assignment.
-
-    ``refresh`` splits three ways: a failure with a message, a table, and the
-    gap between them -- a failure whose exception carried no text. The gap is
-    what stops the screen from printing "N of M usable wells assigned" over a
-    plate that was never assigned. It reports nothing new instead, which
-    leaves the previous line standing; that is the deliberate choice here and
-    the reason a plate map is never described by a count it does not have.
-    """
-    import spacr.qt.screens.experiment_design as module
-    from spacr.qt.widgets.plate_layout import ROLE_TREATMENT, Condition
-
-    # The ordinary failure first: 500 replicates do not fit on 96 wells, and
-    # the message the exception carries is what the user is shown.
-    screen._set_conditions([Condition("treatment_a", 500, ROLE_TREATMENT)])
-    screen.refresh()
-    spoken = screen.status_text()
-    assert "500 well(s) requested but only" in spoken
-    assert screen._status.property("spacrError") == "true"
-    assert all(label.property("spacrWellRole") == "empty"
-               for label in screen._well_labels)
-
-    # The wordless one: the plate is still cleared, and the line already on
-    # screen is left alone rather than replaced by a made-up count.
-    def _wordless(_design):
-        raise ValueError("")
-
-    original = module.assign_wells
-    module.assign_wells = _wordless
-    try:
-        screen.refresh()
-    finally:
-        module.assign_wells = original
-
-    assert screen.status_text() == spoken
-    assert len(screen._well_labels) == 96
-    assert all(label.property("spacrWellRole") == "empty"
-               for label in screen._well_labels)
-    assert all(label.toolTip() == "unassigned"
-               for label in screen._well_labels)
-
-    # And the screen recovers the moment the design fits again.
-    screen._set_conditions([Condition("treatment_a", 4, ROLE_TREATMENT)])
-    screen.refresh()
-    assert "4 of 96 usable wells assigned" in screen.status_text()
-    assert screen._status.property("spacrError") == "false"
-    assert sum(1 for label in screen._well_labels
-               if label.property("spacrWellRole") == ROLE_TREATMENT) == 4

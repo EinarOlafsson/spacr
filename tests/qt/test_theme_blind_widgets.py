@@ -49,6 +49,8 @@ from PySide6.QtWidgets import QLabel, QPushButton, QWidget
 from spacr.qt import bridge, preferences, theme
 from spacr.qt.app import make_home_page
 
+from tests import locale_cases
+
 #: AA for body text (WCAG 1.4.3) — the same number
 #: :data:`spacr.qt.theme.CONTRAST_RULES` demands of `fg` on a surface.
 AA_BODY = 4.5
@@ -174,20 +176,8 @@ def test_the_light_palette_shares_no_surface_with_the_dark_one():
 # 2. The rendered page
 # ===========================================================================
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_the_featured_surface_is_legible_in_every_theme(themed_home,
-                                                        theme_name):
-    """Drop content into the reserved surface and measure it on screen.
-
-    ``set_reserved_content`` is the documented escape hatch for a news
-    feed / featured panel, and a plain ``QLabel`` is what a caller would
-    hand it — no inline colour, so the app stylesheet inks it. That ink
-    has to be readable on whatever the panel painted itself.
-
-    Measured on the page this one replaced: **1.08:1** on light
-    (``#0d0e10`` on ``#161719``) and 17.94:1 on dark, because the panel
-    fill was inlined from the frozen dark palette.
-    """
+def _the_featured_surface_is_legible_in_every_theme_case(themed_home, theme_name):
+    """One case of :func:`test_the_featured_surface_is_legible_in_every_theme`."""
     page = themed_home(theme_name)
     marker = QLabel("Featured content lands here")
     page.set_reserved_content(marker)
@@ -201,14 +191,28 @@ def test_the_featured_surface_is_legible_in_every_theme(themed_home,
         f"a panel painted {fill}")
 
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_every_home_panel_is_legible_in_every_theme(themed_home, theme_name):
-    """Every captioned box in the right-hand column, ink vs its own fill.
+def test_the_featured_surface_is_legible_in_every_theme(subtests, request):
+    """Drop content into the reserved surface and measure it on screen.
 
-    Panels are where the bug showed: they are the widgets that paint a
-    surface colour themselves instead of letting the app stylesheet do
-    it.
+    ``set_reserved_content`` is the documented escape hatch for a news
+    feed / featured panel, and a plain ``QLabel`` is what a caller would
+    hand it — no inline colour, so the app stylesheet inks it. That ink
+    has to be readable on whatever the panel painted itself.
+
+    Measured on the page this one replaced: **1.08:1** on light
+    (``#0d0e10`` on ``#161719``) and 17.94:1 on dark, because the panel
+    fill was inlined from the frozen dark palette.
     """
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('themed_home',)) as fixtures:
+                _the_featured_surface_is_legible_in_every_theme_case(**fixtures, **case)
+
+
+def _every_home_panel_is_legible_in_every_theme_case(themed_home, theme_name):
+    """One case of :func:`test_every_home_panel_is_legible_in_every_theme`."""
     page = themed_home(theme_name)
     panels = [w for w in page.findChildren(QWidget)
               if w.objectName() == "HomePanelBox"]
@@ -228,23 +232,23 @@ def test_every_home_panel_is_legible_in_every_theme(themed_home, theme_name):
     assert not failures, f"{theme_name}: {failures}"
 
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_home_inlines_no_colour_from_another_theme(themed_home, theme_name):
-    """The cause, not the symptom: no widget hard-codes a dark-only hex.
+def test_every_home_panel_is_legible_in_every_theme(subtests, request):
+    """Every captioned box in the right-hand column, ink vs its own fill.
 
-    Only colours that are in :data:`DARK_PALETTE` and *not* in the theme
-    on screen are flagged. That deliberately excuses
-    :data:`CONSTANT_ROLES` (``button_accent`` and friends are the same
-    hex in every theme, on purpose) and anything from outside the
-    palettes entirely — this test is about importing the wrong palette,
-    not about every literal in the tree.
-
-    Scanned through :func:`_painted`, which drops QSS comments (see its
-    docstring). The page's own sheet is the whole application stylesheet,
-    put there by the fixture; it is swept anyway rather than excused,
-    because a composed sheet that carried a dark-only hex into the light
-    theme would be the same bug one level up.
+    Panels are where the bug showed: they are the widgets that paint a
+    surface colour themselves instead of letting the app stylesheet do
+    it.
     """
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('themed_home',)) as fixtures:
+                _every_home_panel_is_legible_in_every_theme_case(**fixtures, **case)
+
+
+def _home_inlines_no_colour_from_another_theme_case(themed_home, theme_name):
+    """One case of :func:`test_home_inlines_no_colour_from_another_theme`."""
     page = themed_home(theme_name)
     live = {value.lower() for value in theme.palette_for(theme_name).values()}
     dark_only = {value.lower() for value in theme.DARK_PALETTE.values()
@@ -263,6 +267,30 @@ def test_home_inlines_no_colour_from_another_theme(themed_home, theme_name):
                     f"{widget.objectName() or type(widget).__name__} "
                     f"inlines {found} (dark {role_of[found]})")
     assert not offenders, f"{theme_name}: {sorted(set(offenders))}"
+
+
+def test_home_inlines_no_colour_from_another_theme(subtests, request):
+    """The cause, not the symptom: no widget hard-codes a dark-only hex.
+
+    Only colours that are in :data:`DARK_PALETTE` and *not* in the theme
+    on screen are flagged. That deliberately excuses
+    :data:`CONSTANT_ROLES` (``button_accent`` and friends are the same
+    hex in every theme, on purpose) and anything from outside the
+    palettes entirely — this test is about importing the wrong palette,
+    not about every literal in the tree.
+
+    Scanned through :func:`_painted`, which drops QSS comments (see its
+    docstring). The page's own sheet is the whole application stylesheet,
+    put there by the fixture; it is swept anyway rather than excused,
+    because a composed sheet that carried a dark-only hex into the light
+    theme would be the same bug one level up.
+    """
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('themed_home',)) as fixtures:
+                _home_inlines_no_colour_from_another_theme_case(**fixtures, **case)
 
 
 def test_the_comment_strip_only_removes_comments():
@@ -287,23 +315,8 @@ def test_the_comment_strip_only_removes_comments():
 # 2b. Filled danger surfaces
 # ===========================================================================
 
-@pytest.mark.parametrize("theme_name", theme.THEMES)
-def test_the_force_quit_button_is_legible_while_hovered(qtbot, theme_name):
-    """Hovering the force-quit button fills it; the ink has to survive that.
-
-    Found 2026-08-10 by the sweep above, which reported ``DangerButton
-    inlines #ffffff`` on glass. :func:`spacr.qt.shutdown.style_as_danger`
-    resolved the fill from the live palette but hard-coded the hover ink
-    as white, which is only right on light — ``error`` is a *pale* red on
-    cell and glass, so the ink on the one control that force-quits a run
-    measured **2.20:1** and **2.04:1**, below AA-large.
-
-    Pinned against ``bg`` rather than a literal because that is the role
-    the theme already reserves for this: ``CONTRAST_RULES`` carries
-    ``("bg", "error", 4.5)`` under the comment "`bg` is the ink on filled
-    accent/danger surfaces … DangerButton on hover", and the application
-    sheet's own ``#DangerButton:pressed`` rule inks with it.
-    """
+def _the_force_quit_button_is_legible_while_hovered_case(qtbot, theme_name):
+    """One case of :func:`test_the_force_quit_button_is_legible_while_hovered`."""
     from spacr.qt.shutdown import style_as_danger
 
     palette = theme.palette_for(theme_name)
@@ -325,6 +338,30 @@ def test_the_force_quit_button_is_legible_while_hovered(qtbot, theme_name):
     assert ratio >= AA_BODY, (
         f"{theme_name}: force-quit reads {ratio:.2f}:1 while hovered — "
         f"ink {ink} on a fill of {fill}")
+
+
+def test_the_force_quit_button_is_legible_while_hovered(subtests, request):
+    """Hovering the force-quit button fills it; the ink has to survive that.
+
+    Found 2026-08-10 by the sweep above, which reported ``DangerButton
+    inlines #ffffff`` on glass. :func:`spacr.qt.shutdown.style_as_danger`
+    resolved the fill from the live palette but hard-coded the hover ink
+    as white, which is only right on light — ``error`` is a *pale* red on
+    cell and glass, so the ink on the one control that force-quits a run
+    measured **2.20:1** and **2.04:1**, below AA-large.
+
+    Pinned against ``bg`` rather than a literal because that is the role
+    the theme already reserves for this: ``CONTRAST_RULES`` carries
+    ``("bg", "error", 4.5)`` under the comment "`bg` is the ink on filled
+    accent/danger surfaces … DangerButton on hover", and the application
+    sheet's own ``#DangerButton:pressed`` rule inks with it.
+    """
+    for label, case in locale_cases.cases(
+            ("theme_name", theme.THEMES),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot',)) as fixtures:
+                _the_force_quit_button_is_legible_while_hovered_case(**fixtures, **case)
 
 
 # ===========================================================================

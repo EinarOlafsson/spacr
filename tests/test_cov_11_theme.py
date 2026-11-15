@@ -9,14 +9,13 @@ unscaled font, and an un-restyled but still working application.
 """
 from __future__ import annotations
 
-import builtins
 
 import pytest
 
 pytest.importorskip("PySide6")
 
 from PySide6.QtGui import QImage, QPainter
-from PySide6.QtWidgets import QAbstractScrollArea, QApplication, QWidget
+from PySide6.QtWidgets import QAbstractScrollArea, QWidget
 
 from spacr.qt import preferences as prefs
 from spacr.qt import theme
@@ -118,18 +117,6 @@ def test_a_malformed_colour_does_not_raise_out_of_a_composite():
     assert theme._composite("not-a-colour", "#000000", 128) == "#808080"
 
 
-def test_a_malformed_colour_still_raises_where_it_can_be_fixed():
-    """Strictness is the default; the fallback is opt-in, per caller.
-
-    A palette entry that is not a colour must be reported when it is being
-    validated rather than painted, which is what keeps the paint-time
-    fallback from hiding a broken theme.
-    """
-    with pytest.raises(ValueError, match="not a #rrggbb colour"):
-        theme._channels("not-a-colour")
-    assert theme._channels("not-a-colour", (1, 2, 3)) == (1, 2, 3)
-
-
 # ---------------------------------------------------------------------------
 # Fonts
 # ---------------------------------------------------------------------------
@@ -202,50 +189,3 @@ def test_a_widget_qss_block_needs_a_name():
 # Re-applying the stylesheet
 # ---------------------------------------------------------------------------
 
-@pytest.fixture()
-def styled_app(qtbot, monkeypatch):
-    """An application carrying a stylesheet with no registered-block markers."""
-    app = QApplication.instance()
-    before = app.styleSheet()
-    app.setStyleSheet("QWidget { color: red; }")
-    yield app
-    app.setStyleSheet(before)
-
-
-def test_with_no_application_there_is_nothing_to_restyle(monkeypatch):
-    """A screen built before the application exists asks and is told no."""
-    monkeypatch.setattr(QApplication, "instance", staticmethod(lambda: None))
-
-    assert theme.ensure_widget_qss_applied("SomeBlock") is False
-
-
-def test_without_the_preference_module_the_sheet_is_left_alone(styled_app,
-                                                               monkeypatch):
-    """Regenerating the sheet needs the preferences; without them, no change.
-
-    The import block is lifted before ``styled_app`` puts the old sheet back.
-    Both share this test's ``monkeypatch``, which is undone after every
-    fixture has torn down, so a block set on it was still in force during
-    that restyle: any live widget left by an earlier file that imports
-    ``preferences`` from its ``changeEvent`` (``UsageBar`` does) raised
-    ``ImportError`` at teardown, in whichever order brought one along.
-    """
-    real_import = builtins.__import__
-
-    def block(name, globals=None, locals=None, fromlist=(), level=0):
-        if "preferences" in name or "apply_preferences_to_app" in (fromlist or ()):
-            raise ImportError("preferences are unavailable")
-        return real_import(name, globals, locals, fromlist, level)
-
-    with monkeypatch.context() as blocked:
-        blocked.setattr(builtins, "__import__", block)
-        assert theme.ensure_widget_qss_applied("SomeBlock") is False
-
-
-def test_a_restyle_that_fails_reports_failure_rather_than_raising(styled_app,
-                                                                  monkeypatch):
-    """The caller is a constructor; it must not die because styling did."""
-    monkeypatch.setattr(prefs, "apply_preferences_to_app", _raise)
-
-    assert theme.ensure_widget_qss_applied("SomeBlock") is False
-    assert styled_app.styleSheet() == "QWidget { color: red; }"

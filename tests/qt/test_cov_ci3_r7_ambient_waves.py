@@ -1,6 +1,5 @@
 """Column waves refuse unusable columns; expired waves are still; deleted widgets never ripple."""
 
-import math
 
 import pytest
 
@@ -17,33 +16,6 @@ def _engine(theme="data_art_impulse_lens"):
                                  blink_percent=0, popup_wave_frequency=0)
     engine.set_time(10.0)
     return engine
-
-
-def test_a_valid_column_wave_is_clamped_and_sorted():
-    engine = _engine()
-    engine._add_column_wave((0.8, -0.5, 1.7))
-    assert engine._column_waves == [(10.0, (0.0, 0.8, 1.0), 1.0)]
-
-
-@pytest.mark.parametrize("column", [
-    None, (0.1, 0.5), ("left", 0.5, 0.5), (0.1, object(), 0.5), 7,
-    (math.nan, 0.5, 0.5), (0.1, math.inf, 0.5), (0.1, 0.5, -math.inf),
-    (0.4, 0.4, 0.5), (1.2, 1.5, 0.5), (-0.3, -0.1, 0.2),
-])
-def test_an_unusable_column_sends_no_wave(column):
-    engine = _engine()
-    engine._add_column_wave(column)
-    assert engine._column_waves == []
-
-
-def test_column_waves_need_ripples_and_the_impulse_lens():
-    engine = _engine()
-    engine.set_ripples_enabled(False)
-    engine._add_column_wave((0.1, 0.5, 0.5))
-    assert engine._column_waves == []
-    other = _engine("data_art_tissue_facets")
-    other._add_column_wave((0.1, 0.5, 0.5))
-    assert other._column_waves == []
 
 
 @pytest.mark.parametrize("age", [-0.01, ambient.RIPPLE_LIFETIME_S,

@@ -50,6 +50,8 @@ from spacr.qt.app import APPS
 from spacr.qt.screens.settings_model import SettingsWidgets
 from spacr.settings_spec import convert_settings_dict_for_gui
 
+from tests import locale_cases
+
 
 APP_KEYS = tuple(row[0] for row in APPS)
 
@@ -96,9 +98,8 @@ def _overrides(qtbot, app_key):
 # the invariant, over every registered module
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("app_key", APP_KEYS)
-def test_every_panel_combo_shows_the_module_s_own_default(qtbot, app_key):
-    """The whole point of a defaults factory is that it decides."""
+def _every_panel_combo_shows_the_module_s_own_default_case(qtbot, app_key):
+    """One case of :func:`test_every_panel_combo_shows_the_module_s_own_default`."""
     model, _ = _built(qtbot, app_key)
 
     drift = {
@@ -110,6 +111,16 @@ def test_every_panel_combo_shows_the_module_s_own_default(qtbot, app_key):
     assert not drift, (
         f"the {app_key} panel disagrees with its own defaults "
         f"(declared, shown): {drift}")
+
+
+def test_every_panel_combo_shows_the_module_s_own_default(subtests, request):
+    """The whole point of a defaults factory is that it decides."""
+    for label, case in locale_cases.cases(
+            ("app_key", APP_KEYS),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot',)) as fixtures:
+                _every_panel_combo_shows_the_module_s_own_default_case(**fixtures, **case)
 
 
 def test_the_canned_table_really_does_override_something(qtbot):
@@ -161,14 +172,8 @@ def test_the_known_overrides_are_each_named(qtbot, app_key, key):
 # how the default is kept, not merely which one
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("app_key", APP_KEYS)
-def test_a_restored_default_is_offered_rather_than_substituted(qtbot, app_key):
-    """Selecting a value the list does not hold selects nothing.
-
-    A combo whose declared default is absent from its options falls back to
-    index 0 -- a value the module never asked for -- so the default has to be
-    IN the list, not merely aimed at.
-    """
+def _a_restored_default_is_offered_rather_than_substituted_case(qtbot, app_key):
+    """One case of :func:`test_a_restored_default_is_offered_rather_than_substituted`."""
     model, _ = _built(qtbot, app_key)
     missing = []
     for key, widget in model._widgets.items():
@@ -184,14 +189,23 @@ def test_a_restored_default_is_offered_rather_than_substituted(qtbot, app_key):
         f"they offer: {missing}")
 
 
-@pytest.mark.parametrize("app_key", APP_KEYS)
-def test_a_spelling_difference_does_not_add_a_duplicate_option(qtbot, app_key):
-    """Restoring across whitespace would grow the list on every build.
+def test_a_restored_default_is_offered_rather_than_substituted(subtests, request):
+    """Selecting a value the list does not hold selects nothing.
 
-    ``channels`` is declared ``[0, 1, 2, 3]`` and offered as ``'[0,1,2,3]'``.
-    Those are one choice, and a correction that could not see that would
-    insert a second entry differing only in spaces.
+    A combo whose declared default is absent from its options falls back to
+    index 0 -- a value the module never asked for -- so the default has to be
+    IN the list, not merely aimed at.
     """
+    for label, case in locale_cases.cases(
+            ("app_key", APP_KEYS),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot',)) as fixtures:
+                _a_restored_default_is_offered_rather_than_substituted_case(**fixtures, **case)
+
+
+def _a_spelling_difference_does_not_add_a_duplicate_option_case(qtbot, app_key):
+    """One case of :func:`test_a_spelling_difference_does_not_add_a_duplicate_option`."""
     model, _ = _built(qtbot, app_key)
     duplicated = {}
     for key, widget in model._widgets.items():
@@ -209,6 +223,21 @@ def test_a_spelling_difference_does_not_add_a_duplicate_option(qtbot, app_key):
             duplicated[key] = repeats
     assert not duplicated, (
         f"{app_key} combos offering the same value twice: {duplicated}")
+
+
+def test_a_spelling_difference_does_not_add_a_duplicate_option(subtests, request):
+    """Restoring across whitespace would grow the list on every build.
+
+    ``channels`` is declared ``[0, 1, 2, 3]`` and offered as ``'[0,1,2,3]'``.
+    Those are one choice, and a correction that could not see that would
+    insert a second entry differing only in spaces.
+    """
+    for label, case in locale_cases.cases(
+            ("app_key", APP_KEYS),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qtbot',)) as fixtures:
+                _a_spelling_difference_does_not_add_a_duplicate_option_case(**fixtures, **case)
 
 
 def test_a_key_the_module_never_declared_keeps_the_canned_default(qtbot):

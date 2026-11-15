@@ -39,6 +39,8 @@ from spacr.qt.app import (
 )
 from spacr.qt.widgets.home import PAUSE_UNAVAILABLE, AppTile, HomePage
 
+from tests import locale_cases
+
 
 
 def _tiled_apps():
@@ -226,15 +228,8 @@ def home(qtbot, qt_theme_applied, _empty_journal, _normal_home_preferences):
 # 1. The installed icon set
 # ===========================================================================
 
-@pytest.mark.parametrize("name,candidate", sorted(CHOSEN.items()))
-def test_the_chosen_icon_is_the_one_installed(name, candidate):
-    """The installed artwork is still the byte-for-byte chosen candidate.
-
-    Compared against the digest recorded when it was installed rather than
-    against the candidate file, which no longer ships. A regenerated
-    generator that quietly changes a shipped icon fails here, which is what
-    this test was always for.
-    """
+def _the_chosen_icon_is_the_one_installed_case(name, candidate):
+    """One case of :func:`test_the_chosen_icon_is_the_one_installed`."""
     installed = os.path.join(iconset.RESOURCE_DIR, f"{name}.png")
     assert os.path.isfile(installed), f"{name}.png is missing"
     row = _manifest().get(name)
@@ -244,6 +239,22 @@ def test_the_chosen_icon_is_the_one_installed(name, candidate):
         f"this test says {name}/{candidate} — one of them is out of date")
     assert _digest(installed) == row["sha256"], (
         f"{name}.png is no longer {candidate} — the chosen artwork changed")
+
+
+def test_the_chosen_icon_is_the_one_installed(subtests, request):
+    """The installed artwork is still the byte-for-byte chosen candidate.
+
+    Compared against the digest recorded when it was installed rather than
+    against the candidate file, which no longer ships. A regenerated
+    generator that quietly changes a shipped icon fails here, which is what
+    this test was always for.
+    """
+    for label, case in locale_cases.cases(
+            ("name,candidate", sorted(CHOSEN.items())),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ()) as fixtures:
+                _the_chosen_icon_is_the_one_installed_case(**fixtures, **case)
 
 
 def test_every_installed_icon_is_in_the_manifest():
@@ -444,12 +455,8 @@ def test_the_new_artwork_still_clears_the_contrast_bar(theme_name, qapp):
     assert not weak, f"{theme_name} hides icons: {weak}"
 
 
-@pytest.mark.parametrize("theme_name", ("dark", "light", "space"))
-@pytest.mark.parametrize("name", sorted(CHOSEN))
-def test_each_new_icon_is_a_flat_mask_painted_in_the_theme_ink(
-        name, theme_name, qapp):
-    """Every chosen icon is monochrome-on-transparent, so re-inking must
-    paint it flat rather than inventing shading from exporter noise."""
+def _each_new_icon_is_a_flat_mask_painted_in_the_theme_ink_case(name, theme_name, qapp):
+    """One case of :func:`test_each_new_icon_is_a_flat_mask_painted_in_the_theme_ink`."""
     import numpy as np
 
     from spacr.qt import theme as theme_mod
@@ -463,6 +470,18 @@ def test_each_new_icon_is_a_flat_mask_painted_in_the_theme_ink(
     assert len(painted) == 1, f"{name}.png was not painted flat"
     expected = iconset._hex_to_array(theme_mod.palette_for(theme_name)["fg"])
     assert np.array_equal(painted[0], expected.astype(np.uint8))
+
+
+def test_each_new_icon_is_a_flat_mask_painted_in_the_theme_ink(subtests, request):
+    """Every chosen icon is monochrome-on-transparent, so re-inking must
+    paint it flat rather than inventing shading from exporter noise."""
+    for label, case in locale_cases.cases(
+            ("theme_name", ("dark", "light", "space")),
+            ("name", sorted(CHOSEN)),
+    ):
+        with subtests.test(**label):
+            with locale_cases.fresh_case(request, label, ('qapp',)) as fixtures:
+                _each_new_icon_is_a_flat_mask_painted_in_the_theme_ink_case(**fixtures, **case)
 
 
 def _shaded_mask(bright: bool):

@@ -1,0 +1,82 @@
+OPS DECODE AUTO-TUNING OF SPOT DETECTION AND CALLING TOGETHER, AND A DECOY FDR FOR THE SPACER-PREFIX DECODE
+==========================================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-14 (alpha, under ALPHA_FEATURES[942]; ops_decode_threshold_mode stays 'manual' and ops_prefix_threshold_tuning stays 'none' by default, and ops_prefix_decoy_k 0 writes byte-identical prefix_decode outputs). One shared tuner, spacr.ops_decode.tune_thresholds, is used by the OPS decode's auto mode (item 939's ops_decode_threshold_mode 'auto', whose follow-up folds in here) and by the spacer-prefix decode (ops_prefix_threshold_tuning 'per_well_decoy'). It searches spot detection (the read threshold, ops_read_threshold) and calling thresholds jointly over a grid, on a seeded random half of each well's fields or sites, from decoy calls only (no reference call set is read), and reports on the other half. Objectives: 'recall_at_fdr' (default: most cells genotyped with the decoy FDR bound at or below the target; if unreachable, ops_decode_auto_unreachable 'lowest_fdr' uses the setting with the lowest FDR reached and reports it, auto_met False) and 'f_score' (F-beta of precision = 1 - FDR and recall = genotyped share). Each well gets its genotyped-vs-FDR curve (every grid setting, the front and the chosen point) as CSV and PNG (spacr.ops_decode.write_tuning_curve).
+Requested: maintainer, 2026-11-14: "There should be an auto tuning option that tunes FDR and detection, so precision and recall, not just FDR." Master ruling 2026-11-14: 939's follow-up folds into 942, one shared tuner, no new item number.
+Owner: paper session (stage 2 lane).
+Source: proposals/bmc_paper_items/ITEM_prefix_decode_decoy_fdr.md; PERISCOPE P1 benchmark (BMCspacr/reanalysis/periscope_benchmark/REPORT.md, S2 (a), (c) and the matched-FDR addendum).
+Related: 873, 920, 939, 931 (settings schema version).
+
+SETTINGS (all alpha, ALPHA_FEATURES[942])
+Shared tuner: ops_decode_auto_spot_grid (read thresholds tried with the call
+thresholds; default 150, 200, 250, 315, 400; empty keeps ops_read_threshold),
+ops_decode_auto_objective ('recall_at_fdr' | 'f_score'), ops_decode_auto_f_beta
+(1.0), ops_decode_auto_unreachable ('lowest_fdr' | 'strictest'). The prefix
+tuner also reads ops_decode_auto_ci, ops_decode_auto_tune_fraction and
+ops_decode_auto_seed (item 939).
+Prefix decode: ops_prefix_decoy_k (0 = off; 4 recommended), ops_prefix_decoy_seed
+(1), ops_prefix_fdr_scale (1.0), ops_prefix_min_read_quality (0 = keep every
+read), ops_prefix_threshold_tuning ('none' | 'per_well_decoy'),
+ops_prefix_fdr_target_pct (0.1), ops_prefix_tuning_grid (empty = read
+threshold 40, 60, 80, 100, 130, 160 x read quality 0, 0.05, 0.1, 0.15, 0.25 x
+mismatches 1, 0).
+
+SETTINGS SCHEMA VERSION: 939
+DEFAULT_CHANGES[939] = {'ops_decode_auto_spot_grid': [],
+'ops_decode_auto_unreachable': 'strictest'}: a settings file saved before
+schema 939 reruns item 939's auto mode exactly (calling thresholds only,
+strictest setting when the target is unmet). With those two values and the
+default objective the engine still calls choose_well_thresholds, so its
+outputs are unchanged.
+
+PREFIX DECODE (spacr.ops_prefix)
+prefix_decoy_library adds spacr.ops_sbs.decoy_library(keys, k, seed) decoys
+(collision prefixes in the exclusion set) to the matcher as callable keys of
+gene DECOY; a read as close to a decoy as to a guide is ambiguous. A cell whose
+top barcode is a decoy gets decoy True and no guide, gene or level, and is never
+in cells_per_guide/gene. site_summary.csv gains cells_in_labels, cells_real,
+cells_decoy and fdr_pct; fdr_<plate>_<well_id>.json has the fdr_report layout.
+Tuning finds each site's spots once down to the lowest read threshold
+(_spot_candidates; identical to detect_spots at any higher threshold), then
+per read threshold compensates, calls and matches the reads (each distinct read
+matched once per run), and counts real and decoy cells at every read-quality
+floor and mismatch limit exactly as prefix_cell_calls calls them. Outputs per
+well: threshold_tuning_<plate>_<well_id>.csv / .png / .json; reads and cells
+are written at the chosen setting.
+
+OPS DECODE (spacr.ops_decode, spacr.ops_engine)
+With a spot grid each field's evidence is kept down to the lowest read
+threshold and _joint_field_candidates votes the reads again at every read
+threshold (library calibration refits; pixel votes made once); the well's
+setting is chosen by tune_thresholds over (read threshold, single-read
+quality, pixel quality) and the fields' calls are rebuilt at it. Outputs:
+decode_thresholds_<well>.json and the plate table (now with read_threshold
+and objective), decode_tuning_curve_<well>.csv / .png.
+
+PROOF (2026-11-14; outputs in BMCspacr/reanalysis/periscope_benchmark/out/autotune_942/)
+Funk et al. 2022 plate A well A1, 333 fields, production field cache replayed
+through _joint_field_candidates (rule_a_s2, decoys k 4, scale 1.268), same
+report fields (seed 0) for every row:
+  control fixed (read 315, single-read 0.06, pixel 0.10): 76.38 % genotyped,
+    FDR 0.060 per 100 (CI 0.054-0.067); whole well 76.17 %, 0.0577 (= 939's
+    recorded production numbers);
+  939 calling-only auto: same setting, same numbers;
+  942 joint (recall at FDR <= 0.1): read 150 / 0.06 / 0.10, 77.18 %, FDR
+    0.080 (0.072-0.088); whole well 76.99 %, 0.076;
+  942 F1 objective: same choice.
+  Time: 5.2 s per field (1,939 s wall, 2,083 CPU s per well) for the 225-setting
+  joint grid on cached evidence; the choice itself 0.14 s.
+PERISCOPE CP186A Well1, 10 iterate sites, 73,932 PERISCOPE cells, Ready 920
+settings (recipe_simple, threshold 80), decoys k 4, FDR scale 1:
+  control fixed (read 80, 1 mismatch, no quality floor), report sites 3, 15,
+    55, 86, 98: 31.92 % genotyped, decoy FDR 2.22 %; all 10 sites 24.28 %,
+    3.06 %;
+  942 per_well_decoy (chosen read 80, read quality >= 0.15, exact only):
+    report sites 27.04 %, FDR 0.030 % (CI 0.014-0.069); all sites 18.93 %,
+    0.039 %.
+  Time: 3,422 s for the well (10 sites, 60 settings) against 5,218 s for the
+  fixed decode in a parallel run, 1 core each, shared load 30-45.
+Not run: the P1 scorer identity check on the 10 sites (needs the 'spacr'
+quality method run), the barcode-shuffle calibration (S2 c) and an 85-site
+confirmation.

@@ -58,7 +58,7 @@ ACQUISITIONS = {"phenotype": "DAPI,GFP,A594", "phenotype_af750": "AF750",
 
 def test_a_repeated_channel_token_is_refused_not_overwritten(tmp_path):
     _plate(tmp_path)
-    with pytest.raises(ValueError, match="carry channel A594 for well A1"):
+    with pytest.raises(ValueError, match="both carry channel A594: phenotype and phenotype_af750 \\(well A1"):
         ops_engine._index_tiles(str(tmp_path), "uncycled")
     single = ops_engine._index_tiles(str(tmp_path / "phenotype"), "uncycled")
     assert sorted(single["A1"][1][0]) == ["A594", "DAPI", "GFP"]

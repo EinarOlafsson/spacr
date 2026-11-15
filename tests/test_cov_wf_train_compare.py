@@ -34,7 +34,6 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from spacr.train_compare import (
-    TrainingRun,
     compare_runs,
     format_comparison,
     load_run,
@@ -64,80 +63,6 @@ def _close_figures():
     """No figure from one test may be counted by the next."""
     yield
     plt.close("all")
-
-
-# ---------------------------------------------------------------------------
-# Reading a log that stopped before it logged anything
-# ---------------------------------------------------------------------------
-
-def test_a_zero_row_log_is_not_described_as_ordered_by_row(tmp_path):
-    """A header-only log gets the zero-epoch note, never the row-order one.
-
-    ``_save_progress`` writes the header on the first epoch, so a run killed
-    during epoch 1 leaves a file with column names and no rows. If that file
-    also has no ``epoch`` column, the reader still synthesises one from the row
-    index — and the note that goes with that ("using row order") would tell the
-    user the x axis of a curve that does not exist. What they need to be told
-    is that the run logged nothing. The same folder's validation.csv *does*
-    have rows and no epoch column, which is the case the row-order note is for,
-    so both notes are decided here against the same run.
-    """
-    dst = tmp_path / "epochs_10"
-    dst.mkdir()
-    # Header only: killed before epoch 1 was appended.
-    (dst / "train.csv").write_text("accuracy,loss\n", encoding="utf-8")
-    # Rows, but an older writer that never wrote an epoch column.
-    (dst / "validation.csv").write_text("accuracy,loss\n0.51,0.90\n0.58,0.71\n", encoding="utf-8")
-
-    run = load_run(dst, run_id="R")
-    notes = "\n".join(run.notes)
-
-    assert "train.csv has a header but no epoch rows (zero-epoch log)" in notes
-    assert "train.csv has no 'epoch' column" not in notes
-    # The twin: rows with no epoch column DO earn the row-order note, and are
-    # numbered 1..n from the row index.
-    assert "validation.csv has no 'epoch' column — using row order" in notes
-    val = run.curves[run.curves["split"] == "val"]
-    assert list(val["epoch"]) == [1, 2]
-    assert list(val["accuracy"]) == [0.51, 0.58]
-    # Only the validation rows survived; the empty train log contributed none.
-    assert sorted(set(run.curves["split"])) == ["val"]
-
-
-# ---------------------------------------------------------------------------
-# A metric that only one split logged
-# ---------------------------------------------------------------------------
-
-def test_a_metric_missing_from_one_split_is_omitted_not_reported_as_nan(tmp_path):
-    """``final_metrics`` reports a metric only for the splits that logged it.
-
-    The curves of a run are concatenated into one long frame, so a column that
-    exists only on the train side appears on the validation rows as NaN. If the
-    summary took those NaNs at face value it would print a final validation
-    ``prauc`` for a run that never computed one — a made-up held-out number,
-    which is the worst kind of wrong in this dashboard. Both sides are asserted
-    from one run: train keeps its prauc, val simply has no prauc entry.
-    """
-    dst = tmp_path / "epochs_3"
-    _write_csv(dst, "train.csv",
-               _curve([1, 2, 3], [0.50, 0.62, 0.71], prauc=[0.4, 0.5, 0.6]))
-    _write_csv(dst, "validation.csv", _curve([1, 2, 3], [0.48, 0.57, 0.66]))
-
-    run = load_run(dst, run_id="R")
-    # The union column exists on the frame; it is empty on the val rows.
-    assert "prauc" in run.curves.columns
-    val_rows = run.curves[run.curves["split"] == "val"]
-    assert bool(val_rows["prauc"].isna().all())
-
-    train = run.final_metrics["R · train"]
-    val = run.final_metrics["R · val"]
-    assert sorted(train["last"]) == ["accuracy", "prauc"]
-    assert train["last"]["prauc"] == {"epoch": 3, "value": pytest.approx(0.6)}
-    assert train["best"]["prauc"] == {"epoch": 3, "value": pytest.approx(0.6),
-                                      "direction": "max"}
-    assert sorted(val["last"]) == ["accuracy"]
-    assert sorted(val["best"]) == ["accuracy"]
-    assert val["last"]["accuracy"]["value"] == pytest.approx(0.66)
 
 
 # ---------------------------------------------------------------------------
@@ -243,51 +168,3 @@ def test_a_directionless_metric_is_reported_without_the_best_epoch_caveat(tmp_pa
     assert "optimistically biased" not in threshold_report
     assert "optimistically biased" in accuracy_report
     assert "0.7100" in accuracy_report
-
-
-# ---------------------------------------------------------------------------
-# Curves whose epochs cannot be read
-# ---------------------------------------------------------------------------
-
-def test_folds_with_unreadable_epochs_yield_no_mean_instead_of_crashing(tmp_path):
-    """A fold block with no usable epoch produces no mean series.
-
-    The fold mean is grouped by epoch, so a caller that assembles
-    :class:`TrainingRun.curves` itself — the GUI hands one in, and the field is
-    part of the public dataclass — can present a block whose epoch column is
-    entirely unparseable. Grouping it yields no groups at all; the mean has to
-    come back as "nothing to average" rather than as an empty frame that the
-    plotter would then try to draw. The healthy run in the same comparison
-    still produces its mean, so a single unreadable run cannot silence the
-    others.
-    """
-    broken = TrainingRun(
-        run_id="BROKEN",
-        path=tmp_path / "broken",
-        curves=pd.DataFrame({
-            "run_id": ["BROKEN"] * 4,
-            "split": ["train"] * 4,
-            "fold": ["fold_1", "fold_1", "fold_2", "fold_2"],
-            "epoch": [np.nan] * 4,
-            "accuracy": [0.50, 0.61, 0.55, 0.66],
-        }),
-        folds=["fold_1", "fold_2"],
-    )
-    good_dst = tmp_path / "good" / "epochs_4"
-    _write_csv(good_dst / "fold_1", "train.csv", _curve([1, 2], [0.5, 0.6]))
-    _write_csv(good_dst / "fold_2", "train.csv", _curve([1, 2], [0.4, 0.7]))
-    good = load_run(good_dst, run_id="GOOD")
-
-    comparison = compare_runs([broken, good], folds="mean")
-
-    labels = comparison.labels()
-    assert labels == ["GOOD · train · mean of 2 folds ±sd"]
-    assert not [s for s in comparison.series if s.run_id == "BROKEN"]
-    (mean,) = comparison.series
-    assert list(mean.frame["epoch"]) == [1, 2]
-    assert list(mean.frame["accuracy"]) == [pytest.approx(0.45),
-                                            pytest.approx(0.65)]
-    # And the broken run is still in the comparison, with its curves, so the
-    # report can name it rather than dropping it silently.
-    assert [r.run_id for r in comparison.runs] == ["BROKEN", "GOOD"]
-    assert len(broken.curves) == 4

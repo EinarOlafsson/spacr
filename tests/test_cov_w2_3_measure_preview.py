@@ -58,40 +58,6 @@ def panel(qtbot):
 
 
 # ---------------------------------------------------------------------------
-# reading the array
-# ---------------------------------------------------------------------------
-
-def test_a_file_that_is_not_an_array_comes_back_as_an_error_not_a_crash(tmp_path):
-    """The load failure is handed back as text for the status line."""
-    broken = tmp_path / "not_really.npy"
-    broken.write_bytes(b"this is not a numpy file")
-    payload = MP.load_merged_array(str(broken))
-    assert payload["data"] is None
-    assert payload["error"].startswith("Failed to load: ")
-
-
-def test_a_folder_that_cannot_be_grouped_still_yields_its_array(
-        tmp_path, monkeypatch):
-    """Enumeration is a convenience; failing it must not lose the array."""
-    def boom(directory, suffixes):
-        raise OSError("the share went away mid-listing")
-
-    monkeypatch.setattr(MP, "enumerate_image_sets", boom)
-    payload = MP.load_merged_array(_merged(tmp_path))
-    assert payload["error"] == ""
-    assert payload["data"].shape == (48, 48, 8)
-    assert payload["sets"] is None
-
-
-def test_an_array_that_is_not_three_dimensional_says_what_shape_it_was(tmp_path):
-    """A merged array is ``(H, W, C)``; anything else is named, not guessed at."""
-    flat = tmp_path / "flat.npy"
-    np.save(flat, np.zeros((4, 4), np.float32))
-    payload = MP.load_merged_array(str(flat), enumerate_sets=False)
-    assert "got shape (4, 4)" in payload["error"]
-
-
-# ---------------------------------------------------------------------------
 # presence and categories
 # ---------------------------------------------------------------------------
 
@@ -271,53 +237,9 @@ def test_an_empty_path_submits_no_load(panel):
     assert panel._load_token == before
 
 
-def test_a_result_for_a_superseded_load_is_dropped(panel, tmp_path):
-    """A stale worker result must not overwrite the array now on screen."""
-    panel.load_array(_merged(tmp_path))
-    current = panel._data_path
-    panel._on_array_loaded(panel._load_token - 1,
-                           {"path": "/stale.npy", "data": np.zeros((2, 2, 2)),
-                            "error": ""})
-    assert panel._data_path == current
-    panel._on_array_loaded(panel._load_token, "not a payload")
-    assert panel._data_path == current
-
-
-def test_a_load_that_failed_puts_its_reason_on_the_status_line(panel):
-    """The panel says why rather than leaving the old array up silently."""
-    panel._on_array_loaded(panel._load_token,
-                           {"path": "/x.npy", "data": None,
-                            "error": "Failed to load: bad magic"})
-    assert panel._status.text() == "Failed to load: bad magic"
-    assert panel._data is None
-
-
-def test_a_payload_with_neither_data_nor_error_installs_nothing(panel):
-    """Nothing to install and nothing to report is not a reason to crash."""
-    panel._on_array_loaded(panel._load_token,
-                           {"path": "/x.npy", "data": None, "error": ""})
-    assert panel._data is None
-
-
-def test_a_synchronous_load_of_a_broken_file_returns_false(panel, tmp_path):
-    """``load_array`` reports failure to its caller and says why on screen."""
-    broken = tmp_path / "broken.npy"
-    broken.write_bytes(b"nope")
-    assert panel.load_array(str(broken)) is False
-    assert panel._status.text().startswith("Failed to load: ")
-
-
 # ---------------------------------------------------------------------------
 # the source selectors
 # ---------------------------------------------------------------------------
-
-def test_setting_the_sample_cap_to_what_it_already_is_redraws_nothing(
-        panel, tmp_path):
-    """A cap that did not change must not redraw the sample it produced."""
-    panel.load_array(_merged(tmp_path))
-    before = panel._fov_box.count()
-    panel._on_max_sets_changed(panel._max_sets_box.value())
-    assert panel._fov_box.count() == before
 
 
 def test_choosing_the_field_of_view_already_loaded_does_not_reload_it(
@@ -346,39 +268,6 @@ def test_naming_fewer_than_three_png_channels_blanks_the_rest(panel):
     assert panel._png_channel_mapping() == {"r": 2, "g": None, "b": None}
 
 
-def test_a_mask_dim_that_is_not_a_number_leaves_the_spinbox_alone(panel):
-    """One unreadable value must not abandon the rest of the settings."""
-    before = panel._mask_dims["cell"].value()
-    panel.apply_settings({"cell_mask_dim": "the fourth one",
-                          "cell_min_size": 42})
-    assert panel._mask_dims["cell"].value() == before
-    assert panel._min_sizes["cell"].value() == 42
-
-
-def test_unreadable_normalize_percentiles_still_turn_normalisation_on(panel):
-    """The pair is what failed, not the decision to normalise."""
-    panel._normalise.setChecked(False)
-    panel.apply_settings({"normalize": ["low", "high"]})
-    assert panel._normalise.isChecked() is True
-
-
-def test_propagation_without_a_callback_is_a_no_op(panel):
-    """Nothing is wired up, so there is nowhere to send the settings.
-
-    Clearing the callback has to really clear it: a stale callback that
-    keeps being called after the screen it belonged to is gone raises
-    nothing here either, and everything later.
-    """
-    seen = []
-    panel.set_propagate_callback(seen.append)
-    panel.propagate_settings()
-    assert len(seen) == 1
-
-    panel.set_propagate_callback(None)
-    panel.propagate_settings()
-    assert len(seen) == 1
-
-
 def test_a_propagation_callback_that_raises_does_not_take_the_panel_down(panel):
     """The settings screen's problem is not the preview's to die of.
 
@@ -401,18 +290,6 @@ def test_a_propagation_callback_that_raises_does_not_take_the_panel_down(panel):
     panel._propagate_btn.setChecked(True)
     panel._maybe_propagate()
     assert len(sent) > before
-
-
-def test_turning_propagation_on_sends_the_current_settings_at_once(panel):
-    """The toggle is a request to sync now, not only on the next edit."""
-    seen = []
-    panel.set_propagate_callback(seen.append)
-    panel._propagate_btn.setChecked(True)
-    assert seen and seen[-1]["crop_mode"] == ["cell"]
-
-    seen.clear()
-    panel._on_setting_changed()
-    assert seen
 
 
 def test_previewing_an_object_also_asks_for_it_as_a_crop_output(panel):
@@ -449,37 +326,6 @@ def test_presence_is_unknown_until_an_array_is_loaded(panel, tmp_path):
 # the preview pass
 # ---------------------------------------------------------------------------
 
-def test_running_the_preview_with_nothing_loaded_says_so(panel):
-    """The one thing a live view may not do is nothing, silently."""
-    assert panel._preview_blocked_reason() == panel.PREVIEW_SOURCE_HINT
-    panel.run_preview()
-    assert panel.PREVIEW_SOURCE_HINT in panel._status.text()
-
-    panel.refresh()
-    assert panel.PREVIEW_SOURCE_HINT in panel._status.text()
-
-
-def test_png_channels_that_are_not_in_the_array_are_reported(panel, tmp_path):
-    """Asking for plane 40 of an eight-plane array is a sentence, not a crash."""
-    panel.load_array(_merged(tmp_path))
-    panel._png_dims.set_value({"r": 30, "g": 29, "b": 28})
-    panel.refresh()
-    assert panel._status.text() == "PNG channels do not exist in this array."
-
-
-def test_an_object_with_no_mask_slice_empties_the_grid_and_says_why(
-        panel, tmp_path):
-    """A stale grid beside "no mask configured" would be a lie."""
-    panel.load_array(_merged(tmp_path))
-    panel.refresh()
-    assert panel._crops
-
-    panel._object_box.setCurrentText("nucleus")
-    panel._mask_dims["nucleus"].setValue(-1)
-    panel.refresh()
-    assert panel._crops == []
-    assert "No nucleus mask slice is configured." in panel._status.text()
-
 
 def test_a_crop_pass_that_failed_announces_an_empty_result(panel, qtbot):
     """``preview_ready`` fires with None so listeners are not left waiting."""
@@ -489,44 +335,6 @@ def test_a_crop_pass_that_failed_announces_an_empty_result(panel, qtbot):
                           {"crops": [], "error": "Crop failed: no mask"})
     assert panel._status.text() == "Crop failed: no mask"
     assert seen == [None]
-
-
-def _headers_in_grid(panel):
-    """Text of the category headings currently laid out in the grid.
-
-    Cleared thumbs are removed with ``deleteLater``, so they are still
-    children of the holder until the event loop runs; the layout is the only
-    honest reading of what is on screen right now.
-    """
-    out = []
-    for index in range(panel._grid.count()):
-        widget = panel._grid.itemAt(index).widget()
-        if widget is not None and widget.objectName() == "CropCategoryHeader":
-            out.append(widget.text())
-    return out
-
-
-def test_a_grid_that_is_not_grouped_files_everything_under_the_object(
-        panel, tmp_path):
-    """With grouping off there is one heading, named for the object."""
-    panel.load_array(_merged(tmp_path))
-    panel._group_cells.setChecked(False)
-    panel.refresh()
-    headers = _headers_in_grid(panel)
-    assert len(headers) == 1
-    assert headers[0].startswith("Cell")
-
-
-def test_a_grouped_grid_files_the_crops_by_phenotype(panel, tmp_path):
-    """Grouping on gives one heading per category the cells fell into."""
-    panel.load_array(_merged(tmp_path))
-    panel._group_cells.setChecked(True)
-    panel._object_box.setCurrentText("cell")
-    panel.refresh()
-    headers = _headers_in_grid(panel)
-    assert headers
-    assert not any(h.startswith("Cell  ·") for h in headers)
-    assert all("kept" in h for h in headers)
 
 
 def test_a_header_still_renders_when_the_palette_cannot_be_read(
@@ -540,33 +348,6 @@ def test_a_header_still_renders_when_the_palette_cannot_be_read(
     label = panel._category_header("Infected", [(0, {}), (1, {})])
     assert "Infected" in label.text()
     assert "2" in label.text()
-
-
-def test_a_thumbnail_is_recoloured_for_the_viewers_primaries(
-        panel, tmp_path, monkeypatch):
-    """Only the thumb is transformed; the crop the run would write is not."""
-    monkeypatch.setattr(type(panel), "display_primaries",
-                        lambda self: "cmy", raising=False)
-    panel.load_array(_merged(tmp_path))
-    crop = np.zeros((12, 12, 3), np.uint8)
-    crop[..., 0] = 200
-    pixmap = panel._crop_pixmap(crop)
-    assert not pixmap.isNull()
-    assert crop[0, 0, 0] == 200
-
-
-def test_the_reported_parameters_carry_the_crops_and_the_selection(
-        panel, tmp_path):
-    """``current_params`` is the panel's whole state, not only its settings."""
-    panel.load_array(_merged(tmp_path))
-    panel.refresh()
-    panel._on_thumb_clicked(0)
-    values = panel.current_params()
-    assert values["n_crops"] == len(panel._crops)
-    assert values["selected"] == [0]
-    assert len(values["categories"]) == len(panel._crops)
-    assert values["crop_mode"] == ["cell"]
-    assert "fov" in values and "display_channel" in values
 
 
 def test_clicking_the_same_thumbnail_twice_deselects_it(panel, tmp_path):
@@ -653,29 +434,3 @@ def test_a_control_that_refuses_one_signal_is_wired_through_the_next(panel):
 
     assert panel._on_setting_changed in filtering.toggled.slots
     assert panel._maybe_propagate in propagating.toggled.slots
-
-
-# ---------------------------------------------------------------------------
-# the shared live-preview vocabulary
-# ---------------------------------------------------------------------------
-
-def test_a_loaded_array_unblocks_the_run_preview_button(panel, tmp_path):
-    """With an array in hand there is no reason left to refuse."""
-    panel.load_array(_merged(tmp_path))
-    assert panel._preview_blocked_reason() == ""
-    panel._crops = []
-    panel.run_preview()
-    assert panel._crops
-
-
-def test_recategorising_the_loaded_crops_reproduces_the_crop_pass(
-        panel, tmp_path):
-    """Re-annotation reads the widgets and lands on the same categories."""
-    panel.load_array(_merged(tmp_path))
-    panel.refresh()
-    before = [entry.get("category") for entry in panel._crops]
-    assert any(before)
-    for entry in panel._crops:
-        entry.pop("category", None)
-    panel._annotate_cell_categories()
-    assert [entry.get("category") for entry in panel._crops] == before

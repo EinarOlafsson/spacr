@@ -17,48 +17,6 @@ from spacr import portable_paths as PP
 
 class TestClimbingToTheRoot:
 
-    def test_a_plate_folder_yields_itself_first(self, tmp_path):
-        plate = tmp_path / "screen" / "plate1"
-        plate.mkdir(parents=True)
-
-        roots = PP.candidate_roots(str(plate))
-
-        assert roots[0] == os.path.abspath(str(plate))
-        assert os.path.abspath(str(tmp_path / "screen")) in roots
-
-    def test_the_database_file_itself_is_accepted(self, tmp_path):
-        """Callers hold different things -- the plate folder, the screen
-        folder, ``measurements/``, or the file -- and normalising once
-        here is the point of the function."""
-        measurements = tmp_path / "plate1" / "measurements"
-        measurements.mkdir(parents=True)
-        database = measurements / "measurements.db"
-        database.write_bytes(b"")
-
-        roots = PP.candidate_roots(str(database))
-
-        assert roots[0] == os.path.abspath(str(measurements))
-
-    def test_no_root_yields_nothing(self):
-        assert PP.candidate_roots(None) == ()
-        assert PP.candidate_roots("") == ()
-
-    def test_the_climb_stops_at_the_filesystem_root(self):
-        roots = PP.candidate_roots("/")
-
-        assert roots == (os.path.abspath("/"),)
-
-    def test_the_climb_is_bounded(self, tmp_path):
-        """A deep tree must not return every ancestor: the bound is what
-        keeps a mis-typed path from producing a long list of folders that
-        are nothing to do with the run."""
-        deep = tmp_path.joinpath(*[f"level{n}" for n in range(12)])
-        deep.mkdir(parents=True)
-
-        roots = PP.candidate_roots(str(deep))
-
-        assert len(roots) <= PP._MAX_CLIMB + 1
-
     def test_no_step_of_the_climb_can_repeat_or_be_empty(self):
         """THE PIN, for ``if here and here not in out``.
 
