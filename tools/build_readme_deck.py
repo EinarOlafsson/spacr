@@ -69,9 +69,7 @@ retain the accepted deck's unrelated pages and animations::
         --rendered /private/rendered --out /private/checked-deck
 
 The second command also regenerates the viewer and all GitHub navigation
-pages. A fresh render has one alpha slide, which ``refresh_alpha_deck.py``
-splits into the two published alpha pages; run it on the rendered folder
-first so both decks have the same page count. Its output folder must be fresh. Source-native captures can be inserted
+pages. Its output folder must be fresh. Source-native captures can be inserted
 with refresh_deck_captures.py before rendering; that tool verifies capture
 hashes and changes a separate presentation without editing captured pixels.
 

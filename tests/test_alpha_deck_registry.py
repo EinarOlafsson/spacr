@@ -1,4 +1,4 @@
-"""Publishing the alpha page keeps other pages and refuses registry drift."""
+"""Publishing the alpha slide keeps other pages and refuses registry drift."""
 import importlib.util
 import json
 import os
@@ -91,36 +91,61 @@ def test_the_published_alpha_page_covers_the_current_registry():
     media = importlib.util.module_from_spec(media_spec)
     media_spec.loader.exec_module(media)
     pdf = PdfReader(media.media_path("docs/source/_static/deck/spacr_deck.pdf"))
-    # 2026-11-15: the alpha list fills pages 4 and 5 (one page of 145 rows was
-    # too small to read). Every registry caption is on exactly one of them.
-    pages = [" ".join(unicodedata.normalize("NFKC", pdf.pages[i].extract_text()).split())
-             for i in (3, 4)]
-    for page, title in zip(pages, deck.TITLES):
-        assert title in page
-        for _, name in deck.SPECIES:
-            assert name in page
-        assert "145 alpha features and 7 alpha species" in page
-    misplaced = []
-    for _, rows in deck.GROUPS:
-        for _, caption in rows:
-            found = [page.count(unicodedata.normalize("NFKC", caption)) for page in pages]
-            if sum(found) != 1:
-                misplaced.append((caption, found))
-    assert misplaced == [], "each alpha caption appears once, on page 4 or page 5"
     manifest = json.loads((ROOT / "docs/source/_static/deck/slides.json").read_text(encoding="utf-8"))
-    assert [slide["title"] for slide in manifest["slides"][3:5]] == list(deck.TITLES)
     assert manifest["count"] == len(pdf.pages) == len(manifest["slides"])
+    titles = [slide["title"] for slide in manifest["slides"]]
+    # 2026-11-15: the 145 items are grouped into lines on one alpha slide.
+    assert titles.count(deck.PUBLISHED_TITLE) == 1
+    assert not any(title.startswith("Alpha features (") for title in titles)
+    index = titles.index(deck.PUBLISHED_TITLE)
+    page = " ".join(unicodedata.normalize("NFKC", pdf.pages[index].extract_text()).split())
+    assert deck.PUBLISHED_TITLE in page
+    for _, name in deck.SPECIES:
+        assert name in page
+    assert unicodedata.normalize("NFKC", deck._footer(145)).split("→")[0].strip() in page
+    missing = [text for _, lines in deck.GROUPS for text, _ in lines
+               if " ".join(unicodedata.normalize("NFKC", text).split()) not in page]
+    assert missing == [], "every alpha line is on the published slide"
 
 
-def test_the_two_alpha_pages_share_one_geometry():
-    first, second = deck._pages()
-    rows = [sum(len(r) for _, r in page) for page in (first, second)]
-    assert abs(rows[0] - rows[1]) <= 1
-    assert sum(rows) == sum(len(r) for _, r in deck.GROUPS)
-    for page in (first, second):
-        for column in deck._columns(page):
-            for category, _ in column:
-                assert category.count("(continued)") <= 1
+def test_every_registry_item_is_on_exactly_one_line():
+    import ast
+
+    registered = set()
+    for node in ast.parse((ROOT / "spacr/settings.py").read_text(encoding="utf-8")).body:
+        if (isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "ALPHA_FEATURES"):
+            registered = {ast.literal_eval(key) for key in node.value.keys}
+    listed = deck._listed_items()
+    assert sorted(n for n in set(listed) if listed.count(n) > 1) == [], "duplicated items"
+    assert sorted(registered - set(listed)) == [], "registry items missing from the slide"
+    assert sorted(set(listed) - registered) == [], "slide items not in the registry"
+    texts = [text for _, lines in deck.GROUPS for text, _ in lines]
+    assert len(texts) == len(set(texts))
+    assert all(numbers for _, lines in deck.GROUPS for _, numbers in lines)
+
+
+def test_the_columns_hold_whole_categories_and_balance():
+    left, right = deck._columns()
+    assert left + right == deck.GROUPS
+    sizes = [sum(len(lines) for _, lines in column) for column in (left, right)]
+    largest = max(len(lines) for _, lines in deck.GROUPS)
+    assert abs(sizes[0] - sizes[1]) <= largest
+    # One slide stays readable: captions at 27 px need rows of at least 31 px.
+    assert (1545 - 375) // max(sizes) >= 31
+
+
+def test_duplicated_or_unknown_items_refuse(tmp_path, monkeypatch):
+    source = tmp_path / "settings.py"
+    numbers = sorted(set(deck._listed_items()))
+    source.write_text(f"ALPHA_FEATURES = {{{', '.join(f'{n}: {{}}' for n in numbers)}}}",
+                      encoding="utf-8")
+    assert deck._check_registry(source) == len(numbers)
+    first_category, first_lines = deck.GROUPS[0]
+    doubled = ((first_category, first_lines + (("again", (numbers[0],)),)),) + deck.GROUPS[1:]
+    monkeypatch.setattr(deck, "GROUPS", doubled)
+    with pytest.raises(ValueError, match=rf"duplicated \[{numbers[0]}\]"):
+        deck._check_registry(source)
 
 
 def test_unknown_registry_entry_refuses_before_touching_assets(tmp_path):
@@ -164,7 +189,7 @@ def _refresh_cli(folder):
                    env={**os.environ, "QT_QPA_PLATFORM": "offscreen"})
 
 
-def test_refresh_splits_the_alpha_slide_and_moves_later_slides_up(tmp_path):
+def test_refresh_replaces_the_alpha_slide_and_is_idempotent(tmp_path):
     from PIL import Image
     from pypdf import PdfReader
 
@@ -175,29 +200,26 @@ def test_refresh_splits_the_alpha_slide_and_moves_later_slides_up(tmp_path):
     (tmp_path / "slides" / "slide_03.jpg").write_bytes(b"later slide")
     _refresh_cli(tmp_path)
     after = PdfReader(tmp_path / "spacr_deck.pdf")
-    assert len(after.pages) == 4
-    assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 960, 200]
+    assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 200]
     assert after.metadata.title == "Keep this title"
-    first, second = (" ".join(after.pages[i].extract_text().split()) for i in (1, 2))
-    assert deck.TITLES[0] in first and deck.TITLES[1] in second
-    assert "145 alpha features" in first and "145 alpha features" in second
+    text = " ".join(after.pages[1].extract_text().split())
+    assert deck.PUBLISHED_TITLE in text and "145 alpha features" in text
     assert after.pages[0].get_contents() is None
-    assert after.pages[3].get_contents() is None
+    assert after.pages[2].get_contents() is None
     manifest = json.loads((tmp_path / "slides.json").read_text(encoding="utf-8"))
-    assert manifest["count"] == 4
-    assert [s["title"] for s in manifest["slides"]] == ["before", *deck.TITLES, "after"]
-    assert [s["image"] for s in manifest["slides"]] == [f"slides/slide_{i:02d}.jpg" for i in range(1, 5)]
-    assert (tmp_path / "slides" / "slide_04.jpg").read_bytes() == b"later slide"
-    for number in (2, 3):
-        assert Image.open(tmp_path / f"slides/slide_{number:02d}.jpg").size == (3200, 1800)
-        assert Image.open(tmp_path / f"thumbs/slide_{number:02d}.jpg").size == (320, 180)
-    # A second refresh replaces the two pages and keeps every other one.
-    kept = (tmp_path / "slides" / "slide_04.jpg").read_bytes()
+    assert manifest["count"] == 3
+    assert [s["title"] for s in manifest["slides"]] == ["before", deck.PUBLISHED_TITLE, "after"]
+    assert [s["image"] for s in manifest["slides"]] == [f"slides/slide_{i:02d}.jpg" for i in range(1, 4)]
+    assert (tmp_path / "slides" / "slide_03.jpg").read_bytes() == b"later slide"
+    assert Image.open(tmp_path / "slides/slide_02.jpg").size == (3200, 1800)
+    assert Image.open(tmp_path / "thumbs/slide_02.jpg").size == (320, 180)
+    # A second refresh replaces the alpha page in place and keeps every other one.
     _refresh_cli(tmp_path)
     again = PdfReader(tmp_path / "spacr_deck.pdf")
-    assert [float(page.mediabox.width) for page in again.pages] == [100, 960, 960, 200]
+    assert [float(page.mediabox.width) for page in again.pages] == [100, 960, 200]
     assert json.loads((tmp_path / "slides.json").read_text(encoding="utf-8")) == manifest
-    assert (tmp_path / "slides" / "slide_04.jpg").read_bytes() == kept
+    assert (tmp_path / "slides" / "slide_03.jpg").read_bytes() == b"later slide"
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["slides", "slides.json", "spacr_deck.pdf", "thumbs"]
 
 
 def test_render_failure_preserves_the_published_deck(tmp_path, monkeypatch):
