@@ -360,6 +360,11 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_consensus_match_count": True,
     "ops_consensus_guides": None,
     "ops_consensus_space": 'hybrid',
+    "ops_consensus_mode": 'profile',
+    "ops_consensus_pairs_search": 'fast',
+    "ops_consensus_workers": 1,
+    "ops_consensus_cells": None,
+    "ops_consensus_view_columns": 50,
     "ops_bench_replicates": 20,
     "ops_bench_replicate_seed": 7000,
     "ops_bench_cluster_seed": 100,
@@ -779,6 +784,11 @@ OPS_TYPES: Dict[str, object] = {
     "ops_consensus_match_count": bool,
     "ops_consensus_guides": (str, type(None)),
     "ops_consensus_space": str,
+    "ops_consensus_mode": str,
+    "ops_consensus_pairs_search": str,
+    "ops_consensus_workers": int,
+    "ops_consensus_cells": (str, list, type(None)),
+    "ops_consensus_view_columns": int,
     "ops_bench_replicates": int,
     "ops_bench_replicate_seed": int,
     "ops_bench_cluster_seed": int,
@@ -1082,6 +1092,11 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_consensus_match_count",
         "ops_consensus_guides",
         "ops_consensus_space",
+        "ops_consensus_mode",
+        "ops_consensus_pairs_search",
+        "ops_consensus_workers",
+        "ops_consensus_cells",
+        "ops_consensus_view_columns",
         "ops_bench_replicates",
         "ops_bench_replicate_seed",
         "ops_bench_cluster_seed",
@@ -2127,6 +2142,31 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "embedding again on every bootstrap, as spaCR did before. Ready "
         "rows (ops_cluster_rows) are clustered as given either way. Default "
         "'hybrid'. Alpha.",
+    "ops_consensus_mode":
+        "(str) - What each guide bootstrap clusters: 'profile', the gene "
+        "profile with PHATE and Leiden; or 'pairs', the gene profile fused "
+        "with interphase and mitosis profiles of the same guide draw "
+        "(similarity network fusion), then PHATE and Leiden. 'pairs' keeps "
+        "more known interacting gene pairs together and needs "
+        "ops_consensus_cells. Default 'profile'. Alpha.",
+    "ops_consensus_pairs_search":
+        "(str) - The cluster search of the 'pairs' mode: 'fast' searches "
+        "the Leiden resolution once per run with short passes and fuses in "
+        "single precision, about 10 times faster with the same accuracy on "
+        "the test plates; 'exact' searches every bootstrap fully in double "
+        "precision, as the published analysis. Default 'fast'. Alpha.",
+    "ops_consensus_workers":
+        "(int) - Processes for the consensus bootstraps of the 'pairs' "
+        "mode. The result does not depend on it; each process needs about "
+        "2 GB. Default 1. Alpha.",
+    "ops_consensus_cells":
+        "(str, list or None) - The per-cell table (or tables) the 'pairs' "
+        "mode builds its interphase and mitosis profiles from: one row per "
+        "cell with gene, sgRNA, mitotic and the TVN columns PC_0, PC_1 and "
+        "on. Default None. Alpha.",
+    "ops_consensus_view_columns":
+        "(int) - How many TVN columns of ops_consensus_cells (PC_0 on) the "
+        "interphase and mitosis profiles use. Default 50. Alpha.",
     "ops_bench_replicates":
         "(int) - Paired replicates R of the calibrated cluster test: each a "
         "guide bootstrap plus its own clustering seed. 20 is the value whose "

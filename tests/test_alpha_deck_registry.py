@@ -85,8 +85,8 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # cap (945) makes 143.
     # 2026-11-14, fifth landing train: the joint decode auto-tuner (942) and
     # phenotype folders with two acquisitions (947) make 145.
-    # 2026-11-15: OPS runs on chosen sequencing sites (951) make 146.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 146
+    # 2026-11-15: OPS runs on chosen sequencing sites (951) made 146; the gene-pairs consensus mode (948) makes 147.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 147
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
@@ -95,7 +95,7 @@ def test_the_published_alpha_page_covers_the_current_registry():
     manifest = json.loads((ROOT / "docs/source/_static/deck/slides.json").read_text(encoding="utf-8"))
     assert manifest["count"] == len(pdf.pages) == len(manifest["slides"])
     titles = [slide["title"] for slide in manifest["slides"]]
-    # 2026-11-15: the 146 items are grouped into lines on one alpha slide.
+    # 2026-11-15: the 147 items are grouped into lines on one alpha slide.
     assert titles.count(deck.PUBLISHED_TITLE) == 1
     assert not any(title.startswith("Alpha features (") for title in titles)
     index = titles.index(deck.PUBLISHED_TITLE)
@@ -103,7 +103,7 @@ def test_the_published_alpha_page_covers_the_current_registry():
     assert deck.PUBLISHED_TITLE in page
     for _, name in deck.SPECIES:
         assert name in page
-    assert unicodedata.normalize("NFKC", deck._footer(146)).split("→")[0].strip() in page
+    assert unicodedata.normalize("NFKC", deck._footer(147)).split("→")[0].strip() in page
     missing = [text for _, lines in deck.GROUPS for text, _ in lines
                if " ".join(unicodedata.normalize("NFKC", text).split()) not in page]
     assert missing == [], "every alpha line is on the published slide"
@@ -204,7 +204,7 @@ def test_refresh_replaces_the_alpha_slide_and_is_idempotent(tmp_path):
     assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 200]
     assert after.metadata.title == "Keep this title"
     text = " ".join(after.pages[1].extract_text().split())
-    assert deck.PUBLISHED_TITLE in text and "146 alpha features" in text
+    assert deck.PUBLISHED_TITLE in text and "147 alpha features" in text
     assert after.pages[0].get_contents() is None
     assert after.pages[2].get_contents() is None
     manifest = json.loads((tmp_path / "slides.json").read_text(encoding="utf-8"))

@@ -1790,11 +1790,15 @@ def _is_control_row(names: Sequence[str], prefix: str) -> np.ndarray:
 
 
 def match_resolution(graph, k: int, seed: int, mask: Optional[np.ndarray] = None, *,
-                     lo: float = 1e-3, hi: float = 1e3, iters: int = 22) -> Tuple[np.ndarray, float]:
+                     lo: float = 1e-3, hi: float = 1e3, iters: int = 22, passes: int = -1
+                     ) -> Tuple[np.ndarray, float]:
     """The Leiden partition whose cluster count is nearest a target.
 
     A bisection on the resolution, on a log scale: each step runs
     :func:`leiden_partitions` once at the geometric mean of the bounds.
+    With ``passes`` above 0 each step runs only that many Leiden passes
+    (:func:`leiden_short`), and the chosen resolution is then optimised to
+    the end once, with the same seed, for the returned labels (item 948).
 
     :param graph: from :func:`gene_graph`.
     :param k: the target cluster count.
@@ -1803,6 +1807,8 @@ def match_resolution(graph, k: int, seed: int, mask: Optional[np.ndarray] = None
     :param lo: the lowest resolution tried.
     :param hi: the highest resolution tried.
     :param iters: the most steps; the search stops early at exactly ``k``.
+    :param passes: the Leiden passes of each step; 0 or less (every step runs
+        until it stops improving) keeps the search of item 928.
     :returns: ``(labels, resolution)`` of the step nearest ``k`` (the first
         on a tie).
     :raises ImportError: when the ``clustering`` extra is not installed.
@@ -1811,7 +1817,8 @@ def match_resolution(graph, k: int, seed: int, mask: Optional[np.ndarray] = None
     best = None
     for _ in range(int(iters)):
         mid = np.sqrt(lo * hi)
-        labels = leiden_partitions(graph, [mid], [seed])[(int(seed), mid)]
+        labels = (leiden_partitions(graph, [mid], [seed])[(int(seed), mid)] if int(passes) < 1
+                  else leiden_short(graph, mid, seed, passes))
         count = len(np.unique(labels[mask]))
         if best is None or abs(count - k) < abs(best[2] - k):
             best = (labels, mid, count)
@@ -1821,6 +1828,8 @@ def match_resolution(graph, k: int, seed: int, mask: Optional[np.ndarray] = None
             lo = mid
         else:
             hi = mid
+    if int(passes) >= 1:
+        return leiden_partitions(graph, [best[1]], [seed])[(int(seed), best[1])], float(best[1])
     return best[0], float(best[1])
 
 
@@ -2110,6 +2119,334 @@ def guide_bootstrap_consensus(draw, n_boot: int, k: int, mask: Optional[np.ndarr
         labels = pd.factorize(cut)[0]
     return {"labels": np.asarray(labels), "cooc": cooc, "stability": stability, "cut_labels": np.asarray(cut),
             "runs": runs, "adjusted": bool(adjusted), "unassigned": unassigned, "cut": info}
+
+
+_SNF_NEIGHBOURS, _SNF_MU, _SNF_ITERATIONS = 20, 0.5, 20
+_PAIRS_FAST_PASSES = 2
+_PAIRS_SEARCHES = ("fast", "exact")
+
+
+def leiden_short(graph, resolution: float, seed: int, passes: int) -> np.ndarray:
+    """One Leiden partition that stops after a fixed number of passes.
+
+    :param graph: an undirected weighted ``igraph.Graph``.
+    :param resolution: the RB configuration model's resolution.
+    :param seed: the Leiden seed.
+    :param passes: the optimiser passes (``n_iterations``).
+    :returns: the labels, one per vertex.
+    :raises ImportError: when the ``clustering`` extra is not installed.
+    """
+    leidenalg = _optional("leidenalg")
+    return np.asarray(leidenalg.find_partition(
+        graph, leidenalg.RBConfigurationVertexPartition, weights="weight", n_iterations=int(passes),
+        seed=int(seed), resolution_parameter=float(resolution)).membership)
+
+
+def _snf_unit(x: np.ndarray, single: bool) -> np.ndarray:
+    """Rows scaled to unit length, in the precision of :func:`snf_fuse`."""
+    if not single:
+        return _unit_rows(x)
+    norm = np.linalg.norm(x, axis=1, keepdims=True)
+    return x / np.where(norm > 0, norm, 1)
+
+
+def _snf_affinity(view: np.ndarray, neighbours: int, mu: float, single: bool) -> np.ndarray:
+    """One view's row-normalised scaled exponential affinity (:func:`snf_fuse`)."""
+    kind = np.float32 if single else np.float64
+    view = np.asarray(view, kind)
+    x = _snf_unit(view + kind(1e-12) * (np.abs(view).sum(1, keepdims=True) == 0), single)
+    if single:
+        distance = np.sqrt(np.maximum(kind(2) - kind(2) * x @ x.T, 0))
+    else:
+        distance = np.sqrt(np.maximum(2 - 2 * x @ x.T, 0))
+    scale = np.sort(distance, 1)[:, 1:neighbours + 1].mean(1)
+    eps = (scale[:, None] + scale[None, :] + distance) / (kind(3) if single else 3)
+    weight = np.exp(-distance ** 2 / ((kind(mu) if single else mu) * eps))
+    return weight / weight.sum(1, keepdims=True)
+
+
+def _snf_full(weight: np.ndarray, single: bool) -> np.ndarray:
+    """The full transition matrix of an affinity: off-diagonal halves, 0.5 on the diagonal."""
+    kind = np.float32 if single else np.float64
+    out = weight.copy()
+    np.fill_diagonal(out, 0)
+    out = out / ((kind(2) if single else 2) * out.sum(1, keepdims=True))
+    np.fill_diagonal(out, kind(0.5) if single else 0.5)
+    return out
+
+
+def _snf_local(weight: np.ndarray, neighbours: int, single: bool):
+    """The sparse local transition matrix: each row's ``neighbours`` strongest affinities, normalised."""
+    from scipy import sparse
+
+    nearest = np.argsort(-weight, 1)[:, :neighbours]
+    rows = np.repeat(np.arange(len(weight)), neighbours)
+    values = weight[rows, nearest.ravel()]
+    if single:
+        matrix = sparse.csr_matrix((values, (rows, nearest.ravel())), shape=weight.shape, dtype=np.float32)
+        return sparse.diags((1.0 / np.asarray(matrix.sum(1)).ravel()).astype(np.float32)) @ matrix
+    matrix = sparse.csr_matrix((values, (rows, nearest.ravel())), shape=weight.shape)
+    return sparse.diags(1.0 / np.asarray(matrix.sum(1)).ravel()) @ matrix
+
+
+def snf_fuse(views: Sequence[np.ndarray], *, neighbours: int = _SNF_NEIGHBOURS, mu: float = _SNF_MU,
+             iterations: int = _SNF_ITERATIONS, single: bool = False) -> np.ndarray:
+    """Similarity network fusion of several views of the same rows.
+
+    Each view's rows are scaled to unit length (a row of zeros gets a
+    tiny constant first) and turned into a scaled exponential affinity on
+    the Euclidean distance, with ``eps`` the mean of the two rows' mean
+    distance to their ``neighbours`` nearest rows and their own distance.
+    The full and the local (``neighbours`` nearest) transition matrices then
+    cross-diffuse for ``iterations`` rounds, each view taking the mean of
+    the others (Wang et al. 2014, Nat Methods), and the fused network is
+    the symmetric mean of the views.
+
+    :param views: arrays with the same rows, any column count.
+    :param neighbours: the neighbours of the kernel scale and of the local
+        matrices.
+    :param mu: the kernel's width factor.
+    :param iterations: the cross-diffusion rounds.
+    :param single: True computes in single precision (item 948's fast
+        search; differences near 1e-6 of the fused values); False in
+        double precision, as the published analysis.
+    :returns: the fused affinity, a symmetric double-precision matrix.
+    """
+    kind = np.float32 if single else np.float64
+    weights = [_snf_affinity(view, int(neighbours), mu, single) for view in views]
+    status = [_snf_full(w, single) for w in weights]
+    kernels = [_snf_local(w, int(neighbours), single) for w in weights]
+    half = kind(2) if single else 2
+    for _ in range(int(iterations)):
+        fused = []
+        for i in range(len(status)):
+            others = sum(status[j] for j in range(len(status)) if j != i) / (
+                kind(len(status) - 1) if single else (len(status) - 1))
+            step = np.asarray(kernels[i] @ (kernels[i] @ others.T).T)
+            fused.append(_snf_full((step + step.T) / half, single))
+        status = fused
+    mean = sum(status) / (kind(len(status)) if single else len(status))
+    return np.asarray((mean + mean.T) / half, np.float64)
+
+
+def phase_guide_medians(cells: pd.DataFrame, columns: Sequence[str], *, row_column: str = "row",
+                        guide_column: str = "sgRNA", mitotic_column: str = "mitotic"
+                        ) -> Dict[str, Dict[str, Tuple[np.ndarray, int]]]:
+    """Every guide's median cell in each cell-cycle phase.
+
+    :param cells: one row per cell with ``row_column`` (the profile row the
+        cell belongs to), ``guide_column``, ``mitotic_column`` (bool) and
+        ``columns``.
+    :param columns: the per-cell columns summarised (the cells' TVN PCs).
+    :param row_column: the profile row of each cell.
+    :param guide_column: the guide of each cell.
+    :param mitotic_column: True for a mitotic cell.
+    :returns: ``{"I": {...}, "M": {...}}`` for interphase and mitotic
+        cells: ``"<row>|<guide>" -> (median, cell count)``, the median in
+        the cells' own precision.
+    """
+    values = cells[list(columns)].to_numpy()
+    mitotic = cells[mitotic_column].fillna(False).astype(bool).to_numpy()
+    keys = cells[row_column].astype(str).to_numpy() + "|" + cells[guide_column].astype(str).to_numpy()
+    out: Dict[str, Dict[str, Tuple[np.ndarray, int]]] = {}
+    for phase, chosen in (("I", ~mitotic), ("M", mitotic)):
+        idx = np.flatnonzero(chosen)
+        groups = pd.Series(idx).groupby(keys[idx]).indices
+        out[phase] = {key: (np.median(values[idx[members]], 0), len(members))
+                      for key, members in groups.items()}
+    return out
+
+
+def phase_view(names: Sequence[str], mask: np.ndarray, guides: Mapping[str, Sequence[str]],
+               medians: Mapping[str, Tuple[np.ndarray, int]], seed: Optional[int], width: int) -> np.ndarray:
+    """One guide bootstrap of a cell-cycle phase view of the profile rows.
+
+    Each targeting row draws its guides with replacement (``seed``; rows in
+    order, guides in the order given); a control row keeps its guides. The
+    row is the cell-weighted mean of the drawn guides' medians in this
+    phase. Rows are then robust z-scored against the control rows that
+    have cells in the phase (median, 1.4826 x MAD); a row without cells in
+    the phase is 0, like a control.
+
+    :param names: the clustered rows.
+    :param mask: True for the targeting rows.
+    :param guides: each row's guides (those with cells).
+    :param medians: one phase of :func:`phase_guide_medians`.
+    :param seed: the draw seed; None keeps every row's own guides.
+    :param width: the median's length.
+    :returns: the view, one double-precision row per name.
+    """
+    rng = None if seed is None else np.random.default_rng(int(seed))
+    view = np.zeros((len(names), int(width)))
+    has = np.zeros(len(names), bool)
+    for i, name in enumerate(names):
+        own = list(guides.get(str(name), ()))
+        if mask[i] and rng is not None and own:
+            own = [own[p] for p in rng.choice(len(own), len(own), replace=True)]
+        found = [medians[f"{name}|{g}"] for g in own if f"{name}|{g}" in medians]
+        if found:
+            weight = np.array([n for _, n in found], float)
+            view[i] = (weight[:, None] * np.vstack([v for v, _ in found])).sum(0) / weight.sum()
+            has[i] = True
+    controls = (~np.asarray(mask, bool)) & has
+    if not controls.any():
+        return np.where(has[:, None], view, 0)
+    centre = np.median(view[controls], 0)
+    spread = 1.4826 * np.median(np.abs(view[controls] - centre), 0)
+    return np.where(has[:, None], (view - centre) / np.where(spread > 0, spread, 1), 0)
+
+
+def fused_phate_graph(fused: np.ndarray, seed: int, *, knn: int = 10):
+    """PHATE's graph on a fused affinity, as a weighted igraph graph.
+
+    The distance is ``max(S) - S`` with a zero diagonal (PHATE with a
+    precomputed distance, ``knn`` neighbours, one job); the diffusion
+    operator is made symmetric, ``(P + P.T) / 2``.
+
+    :param fused: from :func:`snf_fuse`.
+    :param seed: PHATE's seed.
+    :param knn: PHATE's neighbours.
+    :returns: an undirected weighted ``igraph.Graph``.
+    :raises ImportError: when the ``clustering`` extra is not installed.
+    """
+    from scipy.sparse import coo_matrix
+
+    phate = _optional("phate")
+    igraph = _optional("igraph")
+    distance = fused.max() - fused
+    np.fill_diagonal(distance, 0)
+    model = phate.PHATE(random_state=int(seed), n_jobs=1, knn=int(knn), knn_dist="precomputed_distance",
+                        verbose=False)
+    model.fit(distance)
+    w = model.graph.diff_op
+    w = (w + w.T) / 2
+    w = w.tocoo() if hasattr(w, "tocoo") else coo_matrix(w)
+    upper = w.row < w.col
+    return igraph.Graph(n=distance.shape[0], edges=np.stack([w.row[upper], w.col[upper]], 1).tolist(),
+                        directed=False), w.data[upper]
+
+
+def _pairs_graph(boot: np.ndarray, phases: Sequence[np.ndarray], seed: int, knn: int, fast: bool):
+    """The PHATE graph of one bootstrap of the pairs mode."""
+    graph, weights = fused_phate_graph(snf_fuse([boot, *phases], single=fast), seed, knn=knn)
+    graph.es["weight"] = weights.tolist()
+    return graph
+
+
+_PAIRS_JOB: Dict[str, Any] = {}
+
+
+def _pairs_bootstrap(b: int, resolution: Optional[float] = None) -> Tuple[int, np.ndarray, float, float]:
+    """One bootstrap of :func:`pairs_bootstrap_consensus` (also run in worker processes)."""
+    import time
+
+    job = _PAIRS_JOB
+    started = time.process_time()
+    run_seed = int(job["seed"]) * CONSENSUS_SEED_STRIDE + b
+    graph = _pairs_graph(np.asarray(job["fetch"](b), float), job["views"](b), run_seed, job["knn"], job["fast"])
+    if resolution is None:
+        labels, resolution = match_resolution(graph, job["k"], run_seed, job["mask"],
+                                              passes=_PAIRS_FAST_PASSES if job["fast"] else -1)
+    else:
+        labels = leiden_short(graph, resolution, run_seed, _PAIRS_FAST_PASSES)
+    return b, np.asarray(labels), float(resolution), time.process_time() - started
+
+
+def pairs_bootstrap_consensus(draw, views, n_boot: int, k: int, mask: Optional[np.ndarray] = None, *,
+                              seed: int = 100, knn: int = 10, rows: Optional[np.ndarray] = None,
+                              search: str = "fast", workers: int = 1, match: bool = True,
+                              report=None) -> Dict[str, Any]:
+    """The gene-pairs consensus: SNF of three views, PHATE and Leiden, over guide bootstraps (item 948).
+
+    Bootstrap ``b`` fuses ``draw(b)`` (a guide bootstrap of the profile)
+    with ``views(b)`` (the interphase and mitosis views of the same guide
+    draw, :func:`phase_view`) by :func:`snf_fuse`, builds PHATE's graph on
+    the fused network (:func:`fused_phate_graph`) and clusters it with
+    Leiden at the target count, PHATE and Leiden seeded ``seed * 100 + b``.
+    The co-clustering matrix of the partitions is cut to ``k`` by average
+    linkage and the count matched on ``rows`` with ``seed``, as
+    :func:`guide_bootstrap_consensus` does.
+
+    ``search`` ``'exact'`` runs every bootstrap as the published analysis:
+    double-precision fusion and a full resolution search. ``'fast'`` runs
+    the resolution search on bootstrap 0 only, with 2 Leiden passes per
+    step and one full run at the chosen resolution; the other bootstraps
+    run Leiden once at that resolution with 2 passes, and the fusion is
+    computed in single precision. Its partitions differ from the exact ones but met the
+    published accuracy intervals on held-out plate A (about 10 times
+    faster).
+
+    :param draw: ``draw(b) -> rows``, or a sequence of row arrays.
+    :param views: ``views(b) -> (interphase, mitosis)`` rows, or a sequence
+        of such pairs.
+    :param n_boot: the number of bootstraps.
+    :param k: the target cluster count over the ``mask`` rows.
+    :param mask: the rows counted (the targeting genes); every row when None.
+    :param seed: the clustering seed.
+    :param knn: PHATE's neighbours.
+    :param rows: the rows :func:`match_count` splits and merges on; the
+        first draw when None.
+    :param search: ``'fast'`` or ``'exact'``.
+    :param workers: processes for the bootstraps after the first (fork
+        start only; 1 runs them in this process). The co-clustering matrix
+        is summed in bootstrap order, so the result does not depend on it.
+    :param match: False skips :func:`match_count`.
+    :param report: called with one progress line per bootstrap.
+    :returns: ``{"labels", "cooc", "stability", "cut_labels", "runs",
+        "adjusted", "cut", "resolution"}``; ``runs`` holds each
+        bootstrap's ``bootstrap``, ``seed``, ``resolution``, ``clusters``
+        and ``cpu_seconds``.
+    :raises ValueError: for fewer than one bootstrap or an unknown search.
+    :raises ImportError: when the ``clustering`` extra is not installed.
+    """
+    import multiprocessing
+
+    if int(n_boot) < 1:
+        raise ValueError(f"pairs_bootstrap_consensus needs at least one bootstrap; got {n_boot}")
+    if search not in _PAIRS_SEARCHES:
+        raise ValueError(f"the pairs search must be one of {list(_PAIRS_SEARCHES)}; got {search!r}")
+    fast = search == "fast"
+    fetch = draw if callable(draw) else draw.__getitem__
+    first = np.asarray(fetch(0), float)
+    mask = np.ones(len(first), bool) if mask is None else np.asarray(mask, bool)
+    _PAIRS_JOB.clear()
+    _PAIRS_JOB.update(fetch=fetch, views=views if callable(views) else views.__getitem__, seed=int(seed),
+                      knn=int(knn), k=int(k), mask=mask, fast=fast)
+    results: Dict[int, Tuple[np.ndarray, float, float]] = {}
+    pending = list(range(int(n_boot)))
+    resolution = None
+    if fast:
+        _, labels, resolution, seconds = _pairs_bootstrap(0)
+        results[0] = (labels, resolution, seconds)
+        pending = pending[1:]
+    use_pool = int(workers) > 1 and len(pending) > 1 and "fork" in multiprocessing.get_all_start_methods()
+    try:
+        if use_pool:
+            with multiprocessing.get_context("fork").Pool(min(int(workers), len(pending))) as pool:
+                done = pool.starmap(_pairs_bootstrap, [(b, resolution) for b in pending], chunksize=1)
+        else:
+            done = [_pairs_bootstrap(b, resolution) for b in pending]
+    finally:
+        _PAIRS_JOB.clear()
+    for b, labels, found, seconds in done:
+        results[b] = (labels, found, seconds)
+    runs, partitions = [], []
+    for b in range(int(n_boot)):
+        labels, found, seconds = results[b]
+        partitions.append(labels)
+        runs.append({"bootstrap": b, "seed": int(seed) * CONSENSUS_SEED_STRIDE + b, "resolution": found,
+                     "clusters": int(len(np.unique(labels[mask]))), "cpu_seconds": round(seconds, 3)})
+        if report is not None:
+            report(f"pairs consensus bootstrap {b + 1}/{n_boot}: {runs[-1]['clusters']} clusters")
+    cooc = coclustering_matrix(partitions)
+    cut, info = consensus_partition(cooc, int(k), mask, method="average")
+    if match:
+        labels, adjusted = match_count(first if rows is None else rows, cut, int(k), mask, int(seed))
+    else:
+        labels, adjusted = pd.factorize(cut)[0], False
+    return {"labels": np.asarray(labels), "cooc": cooc, "stability": consensus_stability(cooc, cut),
+            "cut_labels": np.asarray(cut), "runs": runs, "adjusted": bool(adjusted), "cut": info,
+            "resolution": resolution}
 
 
 def single_partition(rows: np.ndarray, k: int, mask: Optional[np.ndarray] = None, *, seed: int = 100,
@@ -2605,7 +2942,74 @@ def _consensus_options(settings: Mapping[str, Any], n_genes: int) -> SimpleNames
             "min_stability": float(0.5 if settings.get("ops_consensus_min_stability") is None
                                    else settings["ops_consensus_min_stability"]),
             "match": bool(True if settings.get("ops_consensus_match_count") is None
-                          else settings["ops_consensus_match_count"])})
+                          else settings["ops_consensus_match_count"]),
+            "mode": _choice(settings, "ops_consensus_mode", "profile", _CONSENSUS_MODES),
+            "pairs_search": _choice(settings, "ops_consensus_pairs_search", "fast", _PAIRS_SEARCHES),
+            "workers": max(1, int(settings.get("ops_consensus_workers") or 1)),
+            "view_columns": int(settings.get("ops_consensus_view_columns") or 50)})
+
+
+_CONSENSUS_MODES = ("profile", "pairs")
+
+
+def _choice(settings: Mapping[str, Any], key: str, default: str, allowed: Sequence[str]) -> str:
+    """A lower-case text setting checked against its allowed values."""
+    value = str(settings.get(key) or default).strip().lower()
+    if value not in allowed:
+        raise ValueError(f"{key} must be one of {list(allowed)}; got {value!r}")
+    return value
+
+
+def _pairs_inputs(settings: Mapping[str, Any], data: Mapping[str, Any], width: int) -> Dict[str, Any]:
+    """The per-cell phase medians and each clustered row's guides, for the pairs mode (item 948).
+
+    Reads ``ops_consensus_cells``: one per-cell table, or a list of them
+    (``gene``, ``sgRNA``, ``mitotic`` and the TVN columns ``PC_0`` ..
+    ``PC_<width - 1>``). A targeting cell belongs to its gene's row, a
+    control cell to the row ``<prefix>_<sgRNA>``.
+
+    :raises ValueError: when the setting is empty or a table lacks a column.
+    """
+    from .tabular import read_table
+
+    source = settings.get("ops_consensus_cells")
+    if not source:
+        raise ValueError("ops_consensus_mode 'pairs' needs ops_consensus_cells: the per-cell table (gene, sgRNA, "
+                         "mitotic and the TVN columns PC_0 ..) that the interphase and mitosis views are built from")
+    paths = [source] if isinstance(source, str) else list(source)
+    columns = [f"PC_{i}" for i in range(int(width))]
+    parts = []
+    for path in paths:
+        table = read_table(str(path), canonicalise=False, report=None)
+        missing = [c for c in ("gene", "sgRNA", "mitotic", *columns) if c not in table.columns]
+        if missing:
+            raise ValueError(f"{path} lacks the per-cell columns {missing[:5]}")
+        parts.append(table[["gene", "sgRNA", "mitotic", *columns]])
+    cells = pd.concat(parts, ignore_index=True)
+    control = _is_control(cells["gene"], data["prefix"])
+    cells["row"] = np.where(control, data["prefix"] + "_" + cells["sgRNA"].astype(str), cells["gene"].astype(str))
+    cells = cells[cells["row"].isin(set(data["order"].tolist()))].reset_index(drop=True)
+    guides = {row: sorted(group) for row, group in cells.groupby("row")["sgRNA"].unique().items()}
+    return {"medians": phase_guide_medians(cells, columns), "guides": guides, "width": int(width)}
+
+
+def _pairs_views(b: int, *, order: np.ndarray, mask: np.ndarray, phases: Mapping[str, Any], draw_seed: int
+                 ) -> Tuple[np.ndarray, np.ndarray]:
+    """The interphase and mitosis views of bootstrap ``b`` (guides drawn with ``draw_seed + b``)."""
+    return tuple(phase_view(order, mask, phases["guides"], phases["medians"][phase], draw_seed + b,
+                            phases["width"]) for phase in ("I", "M"))
+
+
+def _run_pairs(data: Mapping[str, Any], options: SimpleNamespace, phases: Mapping[str, Any], seed: int,
+               draw_seed: int, rows: np.ndarray, report=None) -> Dict[str, Any]:
+    """:func:`pairs_bootstrap_consensus` of one replicate."""
+    order, mask = data["order"], data["mask"]
+    views = partial(_pairs_views, order=order, mask=mask, phases=phases, draw_seed=draw_seed)
+    result = pairs_bootstrap_consensus(lambda b: _draw(data, draw_seed + b), views, options.n_boot, options.k,
+                                       mask, seed=seed, knn=options.knn, rows=rows, search=options.pairs_search,
+                                       workers=options.workers, match=options.match, report=report)
+    result["unassigned"] = np.zeros(len(result["labels"]), bool)
+    return result
 
 
 def _run_consensus(data: Mapping[str, Any], options: SimpleNamespace, seed: int, draw_seed: int,
@@ -2673,7 +3077,13 @@ def cluster_consensus_phase(settings: Mapping[str, Any], genes: Optional[pd.Data
         ``ops_consensus_method``, ``ops_consensus_min_cooc``,
         ``ops_consensus_force_genes``, ``ops_consensus_min_stability``,
         ``ops_consensus_match_count``, ``ops_profile_min_cells`` and
-        ``ops_control_prefix``.
+        ``ops_control_prefix``. ``ops_consensus_mode`` ``'pairs'`` (item
+        948) clusters each bootstrap by :func:`pairs_bootstrap_consensus`
+        instead: the profile, fused with interphase and mitosis views of
+        the same guide draw built from ``ops_consensus_cells`` (its first
+        ``ops_consensus_view_columns`` TVN columns), with the search
+        ``ops_consensus_pairs_search`` and ``ops_consensus_workers``
+        processes; every gene is assigned.
     :param genes: the profile phase's gene table, or None.
     :param guides: the profile phase's guide table, or None.
     :param folder: ``dst_root``; outputs go to its ``results/ops_clusters``.
@@ -2692,7 +3102,11 @@ def cluster_consensus_phase(settings: Mapping[str, Any], genes: Optional[pd.Data
     options = _consensus_options(settings, int(data["mask"].sum()))
     out_dir = os.path.join(folder, "results", "ops_clusters")
     os.makedirs(out_dir, exist_ok=True)
-    result = _run_consensus(data, options, options.seed, options.draw_seed, _draw(data, None), report=say)
+    if options.mode == "pairs":
+        phases = _pairs_inputs(settings, data, options.view_columns)
+        result = _run_pairs(data, options, phases, options.seed, options.draw_seed, _draw(data, None), report=say)
+    else:
+        result = _run_consensus(data, options, options.seed, options.draw_seed, _draw(data, None), report=say)
     labels, mask = result["labels"], data["mask"]
     outputs: Dict[str, str] = {}
     path = os.path.join(out_dir, "consensus_cooc.npz")
@@ -2713,7 +3127,7 @@ def cluster_consensus_phase(settings: Mapping[str, Any], genes: Optional[pd.Data
         json.dump(record, handle, indent=1, default=str)
     outputs["consensus_summary"] = path
     say(f"cluster_consensus: {record['clusters']} clusters (target {options.k}) from "
-        f"{options.n_boot} guide bootstraps")
+        f"{options.n_boot} guide bootstraps ({options.mode} mode)")
     return {"folder": out_dir, "outputs": outputs, "k": options.k, "clusters": record["clusters"],
             "adjusted": result["adjusted"]}
 

@@ -9467,6 +9467,9 @@ ALPHA_FEATURES = {
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },
+    948: {
+        'settings': ('ops_consensus_mode', 'ops_consensus_pairs_search', 'ops_consensus_workers', 'ops_consensus_cells', 'ops_consensus_view_columns',),
+    },
     929: {
         'settings': ('ops_bench_replicates', 'ops_bench_replicate_seed', 'ops_bench_cluster_seed', 'ops_bench_gate_copies', 'ops_bench_gate_noise', 'ops_bench_gate_alpha', 'ops_bench_gate_limit', 'ops_bench_margin_quantile', 'ops_bench_gate_record', 'ops_bench_gate_arm', 'ops_bench_half', 'ops_bench_null_permutations',),
     },

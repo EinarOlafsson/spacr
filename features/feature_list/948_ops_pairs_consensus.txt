@@ -1,0 +1,19 @@
+OPS GENE-PAIRS CONSENSUS MODE: SNF OF THREE VIEWS, THEN PHATE AND LEIDEN, BUILT FAST
+====================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-15 (alpha, under ALPHA_FEATURES[948]; ops_consensus_mode stays 'profile' by default, so item 928's outputs are byte-identical). ops_consensus_mode 'pairs' makes the cluster_consensus phase cluster every guide bootstrap by spacr.ops_clusters.pairs_bootstrap_consensus: the Hybrid profile draw is fused with an interphase and a mitosis view of the same guide draw (phase_view: the cell-weighted mean of the drawn guides' per-phase median TVN cells from phase_guide_medians, robust z against the control rows, 0 without cells) by similarity network fusion (snf_fuse: K 20, mu 0.5, 20 iterations), PHATE is built on the fused network (fused_phate_graph: precomputed distance max(S) - S, knn 10), Leiden runs at the matched count, and the co-association of the bootstraps is cut and count-matched as in item 928. ops_consensus_pairs_search 'fast' (default) = the F4 candidate of the pairs speed cards: one resolution search per run (bootstrap 0) with 2-pass Leiden steps (match_resolution passes=2) and one full run at the chosen resolution, 2-pass Leiden for bootstraps 1..9 at that resolution (leiden_short), single-precision fusion, no discarded final fusion; 'exact' = the published analysis (double-precision fusion, full search on every bootstrap). ops_consensus_workers runs the bootstraps after the first in fork worker processes, summed in bootstrap order (byte-identical). Inputs: ops_consensus_cells (per-cell table(s): gene, sgRNA, mitotic, PC_0 ..; a control cell belongs to row <prefix>_<sgRNA>), ops_consensus_view_columns (50). spacr/ops_clusters.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_pairs_consensus_948.py.
+Requested: maintainer, 2026-11-15 ("Build 948 as F4"; option 1: widen 948 to the whole pairs option as an alpha consensus mode, default off).
+Owner: paper session (pairs speed lane).
+Source: Design F f_cells.cons_snfpl / snf / snf_fuse / phase_view and f_blockc.phate_graph_pre (cons_snfpl~hyb, the pairs winner); pairs_speed cards (design_f_strategies/pairs_speed/REPORT.md, REPORT_followup_20261115.md; experiment_designs/20261115_pairs_fast_search_DRAFT.md).
+Related: 928 (guide-bootstrap consensus, reused: guide_bootstrap_profiles, coclustering_matrix, consensus_partition, match_count), 929 (calibrated test), 916 (match_resolution, leiden_partitions).
+
+SETTINGS (all alpha, ALPHA_FEATURES[948])
+ops_consensus_mode ('profile' | 'pairs'; default 'profile'), ops_consensus_pairs_search ('fast' | 'exact';
+default 'fast'), ops_consensus_workers (1), ops_consensus_cells (None), ops_consensus_view_columns (50).
+No schema bump: the default output is unchanged.
+
+VALIDATION (step 6; scripts + tables in
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/spacr_948_pairs_proof/)
+See that folder's tables and the item spec proposals/bmc_paper_items/ITEM_ops_pairs_consensus_speed.md for the
+pre-set proof checks and results.
