@@ -7442,7 +7442,9 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # (one required field, kind).
     # 67 -> 68 on 2026-11-13, +1 / -0, item 936's
     # spacr.stitch_core.StripRegistration (six required fields).
-    assert len(required_ivars) == 68
+    # 68 -> 69 on 2026-11-15, +1 / -0, item 957's
+    # spacr.point_annotation.Point (two required fields, x and y).
+    assert len(required_ivars) == 69
     # 156 -> 165 on 2026-09-10: nine fields across Alignment and
     # StitchedWell, the two dataclasses the count above admitted.
     # 165 -> 171, +6: the six fields of `BarcodeSearchPlan` named above.
@@ -7465,7 +7467,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 262 -> 263 on 2026-09-29: item 600's DropClassification.kind.
     # 263 -> 269 on 2026-11-13: StripRegistration's dy, dx, peak_ratio, ncc,
     # accepted and backend (item 936).
-    assert sum(map(len, required_ivars.values())) == 269
+    # 269 -> 271 on 2026-11-15: Point's x and y (item 957).
+    assert sum(map(len, required_ivars.values())) == 271
     # 30 -> 32 and 145 -> 154: Alignment and StitchedWell again, with
     # their nine fields between them.
     # 32 -> 33 and 154 -> 160: `BarcodeSearchPlan` and its six fields. The
@@ -7485,14 +7488,16 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 54 -> 60 on 2026-09-28: item 593's six dataclasses with required
     # fields, wholly in the GENERATED half.
     # 60 -> 61 on 2026-09-29: item 600's DropClassification.
-    assert len(generated) == 62
+    # 62 -> 63 on 2026-11-15: item 957's spacr.point_annotation.Point.
+    assert len(generated) == 63
     # 161 -> 181, the 20 fields of the five curation_queue dataclasses.
     # 181 -> 187 on 2026-09-15, +6: the same six AlignedField fields.
     # 187 -> 204 on 2026-09-20, moving with the generated constructors.
     # 224 -> 232, the same eight fields.
     # 232 -> 248, the same sixteen fields.
     # 248 -> 249 with it (its one required field, kind).
-    assert sum(map(len, generated.values())) == 255
+    # 255 -> 257 on 2026-11-15: Point's x and y (item 957).
+    assert sum(map(len, generated.values())) == 257
     # `dataclass_constructor` 31 -> 32: `BarcodeSearchPlan`. The namedtuple
     # bucket is unchanged, which is the part worth asserting -- a namedtuple
     # arriving here would be a different event.
@@ -7507,7 +7512,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # 46 -> 52 on 2026-09-28: item 593's six dataclasses.
         # 52 -> 53 on 2026-09-29: item 600's DropClassification.
         # 53 -> 54 on 2026-11-13: item 936's StripRegistration.
-        "dataclass_constructor": 54,
+        # 54 -> 55 on 2026-11-15: item 957's Point.
+        "dataclass_constructor": 55,
         # 1 -> 4 on 2026-09-20. THE BUCKET THE COMMENT ABOVE SAYS IS THE
         # PART WORTH ASSERTING HAS MOVED: three namedtuples now generate
         # ivar prose where one did. That is a different event from a
@@ -7532,7 +7538,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # 200 -> 216 on 2026-09-28: item 593's sixteen required fields.
         # 216 -> 217 on 2026-09-29: DropClassification.kind (item 600).
         # 217 -> 223 on 2026-11-13: StripRegistration's six (item 936).
-        "dataclass_constructor": 223,
+        # 223 -> 225 on 2026-11-15: Point's x and y (item 957).
+        "dataclass_constructor": 225,
         # 24 -> 32 on 2026-09-25: the eight namedtuple fields above.
         "namedtuple_constructor": 32,
     }
@@ -7570,7 +7577,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # dataclasses document every required field; the zeros still hold.
     # 60 -> 61 with item 600's DropClassification.
     # 61 -> 62 with item 936's StripRegistration.
-    assert sum(not names for names in remaining.values()) == 62
+    # 62 -> 63 with item 957's Point.
+    assert sum(not names for names in remaining.values()) == 63
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(
