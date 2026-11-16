@@ -1,0 +1,52 @@
+ANNOTATE: PICK THE BEST CLASSIFIER, AND A CONFIDENCE THRESHOLD PER CLASS
+=========================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-16, alpha (ALPHA_FEATURES[963]). spacr/active_learning.py, spacr/qt/screens/annotate.py, spacr/settings.py, tools/refresh_alpha_deck.py, tests/test_annotate_classifier_choice_963.py, tests/qt/test_annotate_classifier_choice_963.py. Spec: proposals/ITEM_963_annotate_classifier_choice.md.
+Requested: maintainer, 2026-11-16.
+Owner: lane claude-963-1116.
+Related: 610 (Suggest), 772 and 899 (classifier checks), 94 (splits grouped by well).
+
+REQUEST
+(a) "in the annotation app in spacr there should be an option to have spacr
+pick the best classifier. The user presses a button, e.g. a dropdown from the
+classify button, that says auto classifier, xgboost (default), resnet50."
+(b) "when classification is done I'd like an interactive per class
+thresholding mode where the user is prompted with images from the classes and
+has a slider to define the confidence threshold for each class."
+
+BUILD
+- Annotate > Classify (AnnotateClassify, alpha) with a menu:
+  - Auto classifier: XGBoost, gradient boosting, LightGBM, random forest,
+    extra trees and logistic regression (plus ResNet50 ImageNet features with
+    a linear head when a GPU with 4 GB free is visible; otherwise its row
+    says why it was skipped) are scored on the same 5-fold stratified folds
+    grouped by well (spacr.io.make_cv_folds). Winner: highest macro-F1 of the
+    pooled out-of-fold calls; tie-break balanced accuracy, then candidate
+    order (XGBoost first). Control rows, never chosen: majority class of each
+    training part, and XGBoost on labels permuted inside each training part.
+  - XGBoost (default): fits XGBoost on every label.
+  - ResNet50: hands the source to the Classify (CV) screen with
+    model_type='resnet50'.
+- Output under <db folder>/annotate_classify/: classification_<column>.csv
+  (probabilities, most likely class, its probability, class_thresholded:
+  empty = unassigned), classifier_comparison_<column>.csv (Auto) and
+  classification_settings_<column>.csv/.json. measurements.db is not written.
+- Class thresholds window (AnnotateClassThresholds): class chooser, slider
+  0.00-1.00 for that class, the crops called that class sorted by
+  probability (at most 48, spread over the sorted list), crops under the
+  threshold dimmed and captioned unassigned, live counts; Save writes the
+  thresholds into the settings file and re-calls the table without a refit.
+- Settings-file rerun: spacr.active_learning._rerun_classification(path)
+  gives a byte-identical table.
+- Retrain (logistic regression) and Suggest (gradient boosting) are
+  unchanged.
+
+PROOF
+tests/test_annotate_classifier_choice_963.py: on a diagonal-boundary set Auto
+picks logistic regression, >= 0.05 macro-F1 above every other candidate and
+>= 0.30 above both controls (controls <= 0.60); on an XOR set it does not;
+no well on both sides of any fold; ResNet50 skipped with its reason; the
+table is byte-identical after a rerun from the CSV and the JSON settings.
+tests/qt/test_annotate_classifier_choice_963.py: real mouse and key events on
+the slider, class chooser and Save button (offscreen).
