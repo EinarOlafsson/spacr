@@ -24,6 +24,75 @@ def _no_stray_figures():
     plt.close("all")
 
 
+class _Stubs:
+    """Recorders for the six collaborators ``deep_spacr`` calls.
+
+    The ``ds_stubs`` fixture below is shared: the orchestrator tests in
+    ``tests/test_cov_r7_deep_spacr.py`` and
+    ``tests/test_n702_pinned_classifier_consumers.py`` import it from here.
+    """
+
+    def __init__(self):
+        self.gen_train_ret = (None, None)
+        self.gen_ds_ret = None
+        self.train_ret = None
+        self.apply_ret = None
+        self.save_settings = []
+        self.gen_train = []
+        self.gen_ds = []
+        self.train = []
+        self.apply_tar = []
+        self.top = []
+        self.merge = []
+
+
+@pytest.fixture
+def ds_stubs(monkeypatch):
+    """Stub every collaborator of ``deep_spacr`` and hand back the recorder.
+
+    ``deep_spacr`` imports ``generate_training_dataset`` / ``generate_dataset``
+    / ``save_settings`` *inside* the function body, so patching the attribute
+    on ``spacr.io`` / ``spacr.utils`` is enough; the rest are module globals
+    of ``spacr.deep_spacr``.
+    """
+    s = _Stubs()
+
+    def fake_save_settings(settings, name="settings", show=False):
+        s.save_settings.append((dict(settings), name))
+
+    def fake_generate_training_dataset(settings):
+        s.gen_train.append(dict(settings))
+        return s.gen_train_ret
+
+    def fake_generate_dataset(settings):
+        s.gen_ds.append(dict(settings))
+        return s.gen_ds_ret
+
+    def fake_train_test_model(settings):
+        s.train.append(dict(settings))
+        return s.train_ret
+
+    def fake_apply_model_to_tar(settings):
+        s.apply_tar.append(dict(settings))
+        return s.apply_ret
+
+    def fake_save_top(df, tar_path, dst, n=20, classes=None):
+        s.top.append((df, tar_path, dst, n, classes))
+
+    def fake_merge(df, db_path):
+        s.merge.append((df, db_path))
+
+    monkeypatch.setattr("spacr.utils.save_settings", fake_save_settings)
+    monkeypatch.setattr("spacr.io.generate_training_dataset",
+                        fake_generate_training_dataset)
+    monkeypatch.setattr("spacr.io.generate_dataset", fake_generate_dataset)
+    monkeypatch.setattr("spacr.deep_spacr.train_test_model", fake_train_test_model)
+    monkeypatch.setattr("spacr.deep_spacr.apply_model_to_tar", fake_apply_model_to_tar)
+    monkeypatch.setattr("spacr.deep_spacr.save_top_class_examples", fake_save_top)
+    monkeypatch.setattr("spacr.deep_spacr.merge_predictions_into_db", fake_merge)
+    return s
+
+
 # ---------------------------------------------------------------------------
 # shared tiny-checkpoint helpers
 # ---------------------------------------------------------------------------

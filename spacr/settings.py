@@ -2550,6 +2550,8 @@ DEFAULT_CHANGES = {
     938: {'seg_mask_vram_gb': 0},
     939: {'ops_decode_auto_spot_grid': [],
           'ops_decode_auto_unreachable': 'strictest'},
+    940: {'ops_decode_preset': 'none', 'ops_decode_threshold_mode': 'manual',
+          'ops_decode_auto_spot_grid': [150.0, 200.0, 250.0, 315.0, 400.0]},
     941: {'ops_cluster_published_controls': False},
     942: {'ops_bench_null_permutations': 200},
 }
@@ -2627,6 +2629,11 @@ def _fold_older_defaults(settings, version, known=None):
     938 is item 945's ``seg_mask_vram_gb``: the
     large-site mask step is sized to 6 GB of card memory, and files stamped
     before keep 0, no cap of its own.
+    940 is item 946's switch of the OPS decode to the proven Funk decode:
+    ``ops_decode_preset`` ``'rule_a_s2'`` (was ``'none'``) and
+    ``ops_decode_threshold_mode`` ``'auto'`` (was ``'manual'``), with
+    ``ops_decode_auto_spot_grid`` back to ``[]`` (calling thresholds only;
+    files stamped 939 keep item 942's joint grid).
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -8975,21 +8982,6 @@ ALPHA_FEATURES = {
         'settings': ('ops_eval_heldout_folds', 'ops_eval_decoys',
                      'ops_eval_time_split'),
     },
-    873: {
-        'settings': ('ops_decode_preset', 'ops_registration_refine_px',
-                     'ops_spot_min_peak', 'ops_spot_overrule_share',
-                     'ops_decode_library_calibration', 'ops_calibration_passes',
-                     'ops_calibration_min_labels', 'ops_decode_runner_up',
-                     'ops_runner_up_margin', 'ops_decode_impute_missing_cycles',
-                     'ops_assign_by_cell_territory', 'ops_tie',
-                     'ops_decode_quality_weighted', 'ops_vote_weight_floor',
-                     'ops_decode_pixel_fallback', 'ops_pixel_percentile',
-                     'ops_pixel_radius', 'ops_pixel_min_pixels',
-                     'ops_pixel_min_fraction', 'ops_pixel_quality',
-                     'ops_decoy_library_k', 'ops_fdr_scale',
-                     'ops_decode_skip_unplaced_sites', 'ops_store_field_cache'),
-        'choices': {'ops_channel_registration': ('spots_refine',)},
-    },
     876: {
         'settings': ('ops_decode_qc', 'ops_decode_qc_model',
                      'ops_decode_qc_features', 'ops_decode_qc_split',
@@ -9503,6 +9495,12 @@ ALPHA_FEATURES = {
         'module_settings': {'ops_large_sites': (
             'seg_mask_vram_gb', 'seg_mask_device')},
     },
+    956: {
+        'module_settings': {'ops_large_sites': (
+            'ops_mask_agreement_split_merge', 'ops_mask_agreement_identity_control',
+            'ops_mask_agreement_displace_px', 'ops_mask_agreement_labels',
+            'ops_mask_agreement_frame')},
+    },
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval', 'ops_power_gene_list', 'ops_power_reference_rows',),
     },
@@ -9678,11 +9676,6 @@ ALPHA_FEATURES = {
     803: {
         'settings': ('gpu_memory_fraction', 'gpu_memory_margin_gb',
                      'gpu_adaptive_batch', 'gpu_fallback_policy'),
-    },
-    939: {
-        'settings': ('ops_decode_threshold_mode', 'ops_decode_fdr_max',
-                     'ops_decode_auto_grid', 'ops_decode_auto_ci',
-                     'ops_decode_auto_tune_fraction', 'ops_decode_auto_seed'),
     },
     942: {
         'settings': ('ops_decode_auto_spot_grid', 'ops_decode_auto_objective',

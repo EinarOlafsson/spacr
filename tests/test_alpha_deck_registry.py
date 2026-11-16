@@ -86,8 +86,14 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-14, fifth landing train: the joint decode auto-tuner (942) and
     # phenotype folders with two acquisitions (947) make 145.
     # 2026-11-15: OPS runs on chosen sequencing sites (951) make 146.
-    # 2026-11-15: published comparators keep their control rows (953) make 147.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 147
+    # 2026-11-15: split and merge counts in the large-site mask agreement
+    # (956) make 147.
+    # 2026-11-15, landing train 6 (item 946): the rule (a) + S2 decode (873)
+    # and automatic genotyping thresholds (939) leave alpha as the new OPS
+    # decode defaults, which makes 145 (the published deck shows the old
+    # count until the maintainer publishes it).
+    # 2026-11-15: published comparators keep their control rows (953) make 146.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 146
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
@@ -205,7 +211,7 @@ def test_refresh_replaces_the_alpha_slide_and_is_idempotent(tmp_path):
     assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 200]
     assert after.metadata.title == "Keep this title"
     text = " ".join(after.pages[1].extract_text().split())
-    assert deck.PUBLISHED_TITLE in text and "147 alpha features" in text
+    assert deck.PUBLISHED_TITLE in text and "146 alpha features" in text
     assert after.pages[0].get_contents() is None
     assert after.pages[2].get_contents() is None
     manifest = json.loads((tmp_path / "slides.json").read_text(encoding="utf-8"))

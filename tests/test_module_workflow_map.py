@@ -262,6 +262,30 @@ def test_api_template_includes_the_generated_module_contract():
     assert ".. include:: /_generated/module_workflows/spacr.measure.rst" in rendered
 
 
+def test_every_api_include_points_at_a_page_that_was_written():
+    """An alpha module has no workflow page, so AutoAPI must not include one.
+
+    The nightly docs build of 2026-11-15 failed on
+    ``spacr.ops_large_sites`` (item 921, alpha): the include map named every
+    module in the workflow map, while the pages are written only for the
+    modules the guides show.
+    """
+    from jinja2 import Environment
+    env = Environment()
+    workflow.prepare_jinja(env)
+    includes = env.globals["spacr_workflow_includes"]
+    assert includes
+    for path in includes.values():
+        assert (workflow.ROOT / "docs/source" / path.lstrip("/")).is_file(), path
+    from spacr.settings import _alpha_names
+    hidden = _alpha_names("apps")
+    data = workflow.load()
+    for key in hidden & set(data["modules"]):
+        api = data["modules"][key]["api_module"]
+        if all(k in hidden for k, row in data["modules"].items() if row["api_module"] == api):
+            assert api not in includes, api
+
+
 def test_stale_generated_prose_stops_the_docs_build(tmp_path):
     from jinja2 import Environment
     data = workflow.load()

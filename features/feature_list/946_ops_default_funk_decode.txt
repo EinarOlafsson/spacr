@@ -1,0 +1,75 @@
+THE DEFAULT OPS DECODE IS THE PROVEN FUNK DECODE (RULE (A) + S2 WITH PER-WELL DECOY THRESHOLDS)
+===============================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-15. ops_decode_preset defaults to 'rule_a_s2' (was 'none') and ops_decode_threshold_mode to 'auto' (was 'manual'); ops_decode_auto_spot_grid defaults to [] (was item 942's joint grid 150, 200, 250, 315, 400), so auto mode tunes the calling thresholds only. Items 873 and 939 left alpha (ALPHA_FEATURES and the alpha deck registry, 143 alpha features). Settings schema version 940: DEFAULT_CHANGES[940] = {'ops_decode_preset': 'none', 'ops_decode_threshold_mode': 'manual', 'ops_decode_auto_spot_grid': [150.0, 200.0, 250.0, 315.0, 400.0]}, so a file stamped before 940 (or unstamped) reruns with the decode it was written under. spacr/ops_settings.py, spacr/settings.py, spacr/settings_spec.py, spacr/ops_decode.py, spacr/ops_engine.py, tools/refresh_alpha_deck.py, docs/source/reproducibility_manifests.rst.
+Requested: maintainer, 2026-11-14: "make rule_a_s2 the default". Joint spot x calling grid only if the 942 fast-search card passed; it did not (experiment_designs/20261114_942_fast_search_DRAFT.md), so the joint grid stays an opt-in.
+Owner: paper session (stage 2 lane).
+Source: proposals/bmc_paper_items/ITEM_ops_default_funk_decode.md.
+Related: 873 (rule (a) + S2), 939 (per-well auto thresholds), 942 (shared tuner, joint grid), 931 (settings schema version), 932 (decode speed), READINESS.md stage 2.
+
+BEHAVIOUR
+- A run whose settings come from the panel defaults (GUI, spacr-run, a
+  settings file stamped 940 or later) decodes with rule (a) + S2 and per-well
+  thresholds chosen from decoys (single-read quality x pixel quality grid of
+  S2-it1, FDR upper 95 % bound <= ops_decode_fdr_max 0.1 per 100 on a random
+  half of each well's fields; results/ops_decode/decode_thresholds_<plate>.csv).
+- 'auto' is the default, so a decode auto mode cannot tune (ops_decode_preset
+  'none', ops_cell_rule other than 'mapped', no guide library, or no decoys)
+  now keeps the thresholds as entered and logs why, instead of stopping with
+  a ValueError (spacr.ops_engine._decode). Its output equals 'manual'.
+- A mapping passed straight to spacr.ops_engine.run_ops without these keys
+  still means preset 'none' and 'manual' (the engine fallbacks are unchanged);
+  the panel defaults are spacr.ops_settings.OPS_DEFAULTS.
+- ops_decode_auto_spot_grid unset now means no joint read-threshold axis
+  (spacr.ops_decode.threshold_settings); spacr.ops_decode.AUTO_SPOT_GRID stays
+  as the opt-in grid.
+
+PROOF (2026-11-15, CPU registration, 3 workers, shared machine at load 25-40)
+Outputs and scripts: BMCspacr/reanalysis/proof_stage1_stage2/item946/ (out/, scripts/).
+Run: spacr.ops_engine.run_ops decode phase from the raw SBS tiles (NVMe mirror of
+the NAS), settings file stamped 940 resolved by spacr.cli.resolve_settings (so
+rule_a_s2 + auto from the shipped defaults); stitch and objects are the production
+ones (ops_geometry/ops_objects of the production databases). Control row: the
+production script decode, s2it_rule.calls/stats/fdr_ci on the S2-it1 extract tables
+of the production field caches, with arm (iii)'s per-well choice on spaCR's split.
+- Plate A A1 (333 fields, 1,278,978 nuclei): thresholds 0.06/0.10 in both; the
+  45-point tuning grid's real and decoy counts identical; 332 of 333 fields
+  identical. Field 172 differs (spaCR 2,503 real / 3 decoy, script 2,481 / 9):
+  the production run could not read c8 CY5 Site-172 from its local copy ("failed
+  to read 4380800 bytes, got 2578") and decoded that field without cycle 8. spaCR
+  run_ops on the same field with that tile removed gives 2,481 / 9 and the
+  identical 2,481 per-cell calls. FDR 0.057 per 100 (<= 0.1).
+- Plate A A2 (333 fields): thresholds 0.06/0.10, 1,072,848 calls identical
+  (object and guide), all per-field counts identical, FDR 0.060 per 100.
+- Proof reduced to 1 well per plate by maintainer decision 2026-11-15; 23-well
+  run not needed because production re-decodes with feather nuclei. Proof wells:
+  plate A A1 and A2, and well A1 of plates B, C and D. Pass criterion: identical
+  thresholds and per-cell calls (exceptions only for documented truncated-file
+  fields) and FDR <= 0.1 % on every proof well.
+- Plate B A1 (333 fields, 1,272,971 nuclei): thresholds 0.06/0.15 in both,
+  tuning grid identical, 932,324 calls identical, FDR 0.087 per 100.
+- Plate C A1 (333 fields, 1,310,531 nuclei): thresholds 0.06/0.10, 937,787 calls
+  identical, FDR 0.081 per 100. The public archive holds six c7 CY7 A1 tiles as
+  empty folders; both decodes read them as missing. The plate C cycle-2 T-channel
+  exception changed nothing here (calls identical).
+- Plate D A1 (333 fields, 1,273,261 nuclei): thresholds 0.06/0.10, 883,176 calls
+  identical, FDR 0.087 per 100.
+- VERDICT: PASS on all five proof wells (thresholds, tuning grids and per-cell
+  calls identical; the only difference is A A1 field 172, the documented
+  truncated-file field; FDR <= 0.1 % everywhere). Run outputs and settings files:
+  /nas_mnt/data/archive/item946_proof_20261115/.
+Back-compatibility: a settings file stamped 939 on A1 sites 113 and 282, nightly
+13163d4638 against this branch: measurements.ops_barcodes.parquet byte-identical
+(md5 4aedd08d...) and the same 5,341 ops_barcodes rows.
+Speed: the 10 FOVs of the item-932 timing, 1 worker, 2 repeats, order alternated:
+nightly with the 932 configuration (rule_a_s2, manual) 22.2 CPU s per FOV, the new
+defaults 21.1 (paired median ratio 0.92); whole well A1 with auto 17.4 CPU s per FOV.
+
+TESTS
+tests/test_ops_default_funk_decode_946.py (defaults, schema row, older files,
+resolution to rule_a_s2 + auto); tests/test_ops_decode_rule_a_s2_873.py and
+tests/test_ops_decode_threshold_auto_939.py (settings left alpha; auto falls
+back to the entered thresholds without the rule (a) decode; pre-940 files stay
+'manual' and 'none'); tests/test_ops_autotune_942.py (empty spot grid by
+default, 939-stamped files keep the joint grid); tests/test_alpha_deck_registry.py (143).

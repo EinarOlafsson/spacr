@@ -48,8 +48,8 @@ GROUPS = (
         ("GPU use: batches across GPUs, workers sharing a GPU, memory budget",
          (493, 801, 803)),
         ("Use Make Masks settings in Mask Generation", (508,)),
-        ("Large cropped FOVs: Gallery reader, tiled masks, RAM and VRAM caps",
-         (919, 921, 945)),
+        ("Large cropped FOVs: Gallery reader, tiled masks, RAM/VRAM caps, splits/merges",
+         (919, 921, 945, 956)),
     )),
     ("Image preprocessing", (
         ("Spectral unmixing, photobleaching correction, intensity calibration",
@@ -106,11 +106,11 @@ GROUPS = (
         ("DNA flat-field map from nuclei, held-out check", (912,)),
     )),
     ("OPS genotyping", (
-        ("Decode rule (a) + S2 with decoy FDR, spacer-prefix quality classes",
-         (873, 920)),
+        ("OPS spacer-prefix decode with quality classes",
+         (920,)),
         ("False calls, calibrated confidence, matching to other pipelines",
          (876, 877, 878, 922)),
-        ("Automatic thresholds, detection and calling tuned together", (939, 942)),
+        ("Spot detection and calling tuned together, prefix decoy FDR", (942,)),
     )),
     ("OPS gene profiles", (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),

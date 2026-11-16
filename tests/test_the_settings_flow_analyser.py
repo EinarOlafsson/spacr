@@ -282,15 +282,31 @@ def test_the_page_stays_inside_the_docs_job_timeout(flow, data):
     without a blank line) was fixed on the same branch. 268 of headroom
     is kept.
 
+    RAISED TO 9,700 ON 2026-11-15 on landing train 6, for the settings
+    that the items landed since 2026-11-11 added and their readers
+    (930-947: stitching, registration, aggregation defaults, optional
+    profile families, the decode auto-tuner, progress and VRAM caps),
+    which took the page to 9,417. Measured with a
+    whole-site build of the train branch (-E -b html) at a load average of
+    about 28:
+
+        9,417 xrefs   28:50.45 wall   5,531,704 KB peak
+
+    The settings-flow page raised no warning; the one docutils error of
+    that build (an undefined substitution, ``|s|`` in the
+    spacr.gene_graph.time_metrics docstring) was fixed on the same branch.
+    The hosted docs job built the 9,417 page in about 15 minutes of its
+    60. 283 of headroom is kept.
+
     The builds also came back with ZERO warnings, which is the second
     thing this page can break: the docs job runs `-W`, so an xref the
     inventory cannot resolve fails it as surely as a timeout.
     """
     rst = flow.rst_for(data)
     xrefs = rst.count(":py:func:")
-    assert xrefs <= 9300, (
+    assert xrefs <= 9700, (
         f"{xrefs} cross-references on the settings-flow page, up from the "
-        "9,032 measured against a real sphinx-build on 2026-11-11. This is "
+        "9,417 measured against a real sphinx-build on 2026-11-15. This is "
         "the build-time ratchet; confirm a real sphinx-build before raising "
         "it, and record the wall clock in the docstring above")
 
