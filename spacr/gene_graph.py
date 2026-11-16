@@ -1879,7 +1879,8 @@ def time_metrics(R: Reference, S: np.ndarray, name: str, o: Mapping[str, Any],
     and recall at k, the degree-matched random-pair control, AUPRC within
     fitness tertiles, the hub and fitness fractions of the top 1,000 and the
     non-targeting enrichment above the real top-1,000 and top-10,000
-    thresholds. Ties are broken by a seeded jitter of 1e-12 times max |s|.
+    thresholds. Ties are broken by a seeded jitter of up to 1e-12 times one
+    plus the largest absolute score.
 
     :param R: the labels.
     :param S: N x N scores.

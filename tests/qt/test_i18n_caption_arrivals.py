@@ -14,9 +14,66 @@ sys.path.insert(0,str(ROOT/'tools'))
 import build_i18n_catalogs as builder
 from i18n_caption_arrivals import LANGUAGES, load_arrival_contract, pinned_external_sources
 
+_FRESH_SOURCES = """
+import pickle, sys
+sys.path.insert(0, sys.argv[1])
+import build_i18n_catalogs as builder
+with open(sys.argv[2], 'wb') as handle:
+    pickle.dump(builder.canonical_sources(), handle)
+"""
+
+
+def _fresh_canonical_sources(directory):
+    """The builder's canonical English sources, read in a new interpreter.
+
+    The builder and the arrival refresh run as their own processes, so that
+    is where the source set is defined. In the test process it is not:
+    ``get_tooltips`` reads the shared tooltip table, and a module that
+    registers settings defaults at import (``spacr.gene_graph``,
+    ``spacr.architecture_training`` and the other script-only settings
+    modules, imported in-process by ``tests/qt/test_external_i18n_catalogs.py``)
+    adds tooltips that no GUI surface shows, which the arrival adapter then
+    reports as unreviewed arrivals. Same fix as that file's inventory.
+
+    :param directory: where the child writes its pickled result.
+    :returns: the ``canonical_sources()`` mapping of a clean process.
+    """
+    import os
+    import pickle
+    import subprocess
+
+    out = Path(directory) / 'canonical_sources.pickle'
+    env = dict(os.environ, QT_QPA_PLATFORM='offscreen',
+               PYTHONPATH=os.pathsep.join(
+                   [str(ROOT)] + [p for p in os.environ.get(
+                       'PYTHONPATH', '').split(os.pathsep) if p]))
+    result = subprocess.run(
+        [sys.executable, '-c', _FRESH_SOURCES, str(ROOT / 'tools'), str(out)],
+        cwd=str(ROOT), env=env, capture_output=True, text=True, timeout=600)
+    assert result.returncode == 0, result.stderr[-4000:]
+    with open(out, 'rb') as handle:
+        return pickle.load(handle)
+
+
 @pytest.fixture(scope='module')
-def canonical_snapshot():
-    return builder.canonical_sources()
+def canonical_snapshot(tmp_path_factory):
+    return _fresh_canonical_sources(tmp_path_factory.mktemp('canonical'))
+
+
+@pytest.fixture(scope='module', autouse=True)
+def _clean_canonical_sources(canonical_snapshot):
+    """Every check in this module reads the clean process's source set.
+
+    The arrival adapter calls ``builder.canonical_sources()`` itself, so the
+    module-wide snapshot replaces it; tests that fake their own sources still
+    patch over this one.
+    """
+    patch = pytest.MonkeyPatch()
+    patch.setattr(builder, 'canonical_sources', lambda: canonical_snapshot)
+    try:
+        yield
+    finally:
+        patch.undo()
 
 @pytest.fixture(scope='module')
 def state(canonical_snapshot):
@@ -311,3 +368,25 @@ def test_runtime_target_check_exceptions_still_escape_and_release_the_loading_gu
     with pytest.raises(OSError, match="target validator unavailable"):
         builder.reviewed_runtime_translations("fr")
     assert "fr" not in builder._REVIEWED_RUNTIME_LOADING
+
+
+def test_script_only_settings_modules_imported_first_do_not_change_the_sources(
+        canonical_snapshot, state, tmp_path):
+    """Regression: importing the script-only settings modules first changes nothing.
+
+    In the i18n gate group ``tests/qt/test_external_i18n_catalogs.py`` imports
+    ``spacr.gene_graph`` and ``spacr.architecture_training`` in the same worker
+    before this module runs; four of its tests then saw their tooltips as
+    unreviewed caption arrivals.
+    """
+    import spacr.architecture_training  # noqa: F401
+    import spacr.gene_graph  # noqa: F401
+
+    fresh = _fresh_canonical_sources(tmp_path)
+    assert fresh == canonical_snapshot
+    _, declarations, _ = state
+    external = {table: fresh[name] for table, name in (
+        ('SETTING_LABELS', 'setting_labels'), ('SETTING_TOOLTIPS', 'setting_tooltips'),
+        ('CATEGORY_HELP', 'categories'), ('UI', 'ui'), ('MODULE_SUMMARIES', 'module_summaries'))}
+    pinned = project(external, declarations)
+    assert {table: len(rows) for table, rows in pinned.items()} == declarations['EXTERNAL_SOURCE_COUNTS']

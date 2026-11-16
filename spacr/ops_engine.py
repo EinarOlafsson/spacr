@@ -3341,7 +3341,9 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         ``plate``/``well`` filter on the stored table returns;
         ``ops_reads_rows`` is None when reads were not stored.
     :raises ValueError: when the objects are not ready, or auto threshold
-        mode lacks the decode rules or decoys it needs.
+        mode finds no decoys for the library. Auto mode without the rule (a)
+        decode or ``ops_decoy_library_k`` above 0 keeps the thresholds as
+        entered and says so.
     """
     import multiprocessing
     from .resource_log import _parallel_process_executor as ProcessPoolExecutor
@@ -3426,11 +3428,18 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                           else None)
     decoys: List[str] = []
     rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
-    thresholds = threshold_settings(settings, rule_a)
-    if thresholds["mode"] == "auto" and not (rule_a["active"] and rule == "mapped"):
-        raise ValueError("ops_decode_threshold_mode 'auto' needs the item-873 "
-                         "decode rules (ops_decode_preset rule_a_s2), "
-                         "ops_cell_rule 'mapped' and a guide library")
+    mode = str(settings.get("ops_decode_threshold_mode") or "manual").strip().lower()
+    if mode == "auto" and not (rule_a["active"] and rule == "mapped"
+                               and int(rule_a.get("decoy_k") or 0) > 0):
+        _say(f"{well} decode: ops_decode_threshold_mode 'auto' tunes the "
+             "rule (a) decode only (ops_decode_preset rule_a_s2, "
+             "ops_cell_rule 'mapped', a guide library and ops_decoy_library_k "
+             "above 0); these settings do not run it, so the thresholds stay "
+             "as entered")
+        thresholds = threshold_settings(
+            {**settings, "ops_decode_threshold_mode": "manual"}, rule_a)
+    else:
+        thresholds = threshold_settings(settings, rule_a)
     read_mode = _read_mode_setting(settings)
     if read_mode == "auto" and thresholds["mode"] != "auto":
         raise ValueError("ops_read_mode 'auto' chooses the read per well from decoy "

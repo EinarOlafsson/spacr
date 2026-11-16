@@ -223,9 +223,11 @@ def engine_well(tmp_path_factory):
                 "plate": "synthetic", "ops_gpu": False, "n_workers": 1,
                 "ops_decode_preset": "rule_a_s2"}
     library = sorted(set(codes)) + ["TTTT", "GGGG"]
-    log = ops_engine.run_ops(settings, library=library)
+    log = ops_engine.run_ops({**settings, "ops_decode_threshold_mode": "manual"},
+                             library=library)
     runs = {"log": log}
-    runs["raw"] = ops_engine.run_ops({**settings, "ops_read_mode": "raw"},
+    runs["raw"] = ops_engine.run_ops({**settings, "ops_read_mode": "raw",
+                                      "ops_decode_threshold_mode": "manual"},
                                      phases=("decode",), library=library)
     auto = {"ops_decode_threshold_mode": "auto", "ops_decode_fdr_max": 1000.0,
             "ops_decode_auto_spot_grid": []}
@@ -273,7 +275,8 @@ def test_auto_chooses_the_read_per_well_with_the_thresholds(engine_well):
 def test_auto_needs_the_auto_thresholds(engine_well):
     _runs, settings, library = engine_well
     with pytest.raises(ValueError, match="ops_read_mode 'auto'"):
-        ops_engine.run_ops({**settings, "ops_read_mode": "auto"}, phases=("decode",),
+        ops_engine.run_ops({**settings, "ops_read_mode": "auto",
+                            "ops_decode_threshold_mode": "manual"}, phases=("decode",),
                            library=library)
     with pytest.raises(ValueError, match="ops_read_mode must be one of"):
         ops_engine.run_ops({**settings, "ops_read_mode": "brightest"}, phases=("decode",),

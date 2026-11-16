@@ -127,6 +127,10 @@ msgstr "936: ``ops_blas_threads`` era ``1`` y ``ops_consensus_space`` ``'refit'`
 msgid "937 (item 941): ``profile_optional_families`` and ``ops_ph_profile_optional_families`` were ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, the slow families the ``'profiling'`` preset measured; they are now ``None``, so ``'profiling'`` leaves Gabor, granularity and colocalisation out."
 msgstr "937 (elemento 941): ``profile_optional_families`` y ``ops_ph_profile_optional_families`` eran ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, las familias lentas que medía el preajuste ``'profiling'``; ahora son ``None``, por lo que ``'profiling'`` deja fuera Gabor, la granularidad y la colocalización."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "940 (item 946): ``ops_decode_preset`` was ``'none'``, ``ops_decode_threshold_mode`` ``'manual'`` and ``ops_decode_auto_spot_grid`` ``[150.0, 200.0, 250.0, 315.0, 400.0]``; they are now ``'rule_a_s2'``, ``'auto'`` and ``[]``, so a run decodes with rule (a) + S2 and per-well thresholds chosen from decoys."
+msgstr "940 (ítem 946): ``ops_decode_preset`` era ``'none'``, ``ops_decode_threshold_mode`` ``'manual'`` y ``ops_decode_auto_spot_grid`` ``[150.0, 200.0, 250.0, 315.0, 400.0]``; ahora son ``'rule_a_s2'``, ``'auto'`` y ``[]``, de modo que una ejecución decodifica con la regla (a) + S2 y umbrales por pocillo elegidos a partir de señuelos."
+
 msgid "Public API"
 msgstr "API pública"
 
