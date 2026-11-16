@@ -26,12 +26,14 @@ BUILD
     order (XGBoost first). Control rows, never chosen: majority class of each
     training part, and XGBoost on labels permuted inside each training part.
   - XGBoost (default): fits XGBoost on every label.
-  - ResNet50: hands the source to the Classify (CV) screen with
+  - ResNet50 on the images…: hands the source to the Classify (CV) screen with
     model_type='resnet50'.
 - Output under <db folder>/annotate_classify/: classification_<column>.csv
   (probabilities, most likely class, its probability, class_thresholded:
   empty = unassigned), classifier_comparison_<column>.csv (Auto) and
-  classification_settings_<column>.csv/.json. measurements.db is not written.
+  classification_settings_<column>.csv/.json. Save also writes the calls into
+  png_list as <column>_thresholded (INTEGER, NULL = unassigned); a rerun
+  writes the same values. The annotation column is never touched.
 - Class thresholds window (AnnotateClassThresholds): class chooser, slider
   0.00-1.00 for that class, the crops called that class sorted by
   probability (at most 48, spread over the sorted list), crops under the

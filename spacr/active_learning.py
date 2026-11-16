@@ -4895,6 +4895,51 @@ def _write_table(table: pd.DataFrame, path: str) -> None:
                  lineterminator="\n")
 
 
+def _thresholded_column(annotation_column: str) -> str:
+    """The ``png_list`` column a saved classification writes its calls into.
+
+    :param annotation_column: the label column.
+    :returns: ``<annotation_column>_thresholded``.
+    """
+    return f"{annotation_column}_thresholded"
+
+
+def _write_thresholded_column(db_path: str, table: pd.DataFrame,
+                              column: str, *, png_table: str = PNG_TABLE
+                              ) -> int:
+    """Write each crop's thresholded class into ``png_list``.
+
+    Unassigned crops are written as NULL, so a rerun overwrites every row
+    the classification covers and leaves the same values.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: a classification table.
+    :param column: the ``png_list`` column to write.
+    :param png_table: the crop table.
+    :returns: the rows updated.
+    :raises ValueError: when a class is not a whole number.
+    """
+    from .predictions import merge_prediction_results
+
+    values = []
+    for text in table["class_thresholded"].astype(str):
+        if text == "":
+            values.append(np.nan)
+            continue
+        try:
+            values.append(float(int(float(text))))
+        except ValueError as exc:
+            raise ValueError(
+                f"Class {text!r} is not a whole number, so it cannot be "
+                f"written into the INTEGER column {column!r}.") from exc
+    frame = pd.DataFrame({PNG_KEY: table[PNG_KEY].astype(str).tolist(),
+                          column: values})
+    report = merge_prediction_results(
+        frame, db_path, {column: (column, "INTEGER")}, table=png_table,
+        key=PNG_KEY, verbose=False)
+    return int(getattr(report, "matched_rows", 0) or 0)
+
+
 def _run_classification(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """Classify every crop from a settings dict; the settings-file entry.
 
@@ -4913,8 +4958,10 @@ def _run_classification(settings: Mapping[str, Any]) -> Dict[str, Any]:
     :param settings: ``db_path``, ``annotation_column``, and optionally
         ``png_table``, ``image_type``, ``classifier_choice``, ``seed``,
         ``folds``, ``class_thresholds``, ``feature_tables``,
-        ``feature_channels``, ``feature_families``, ``auto_candidates`` and
-        ``dst``.
+        ``feature_channels``, ``feature_families``, ``auto_candidates``,
+        ``dst`` and ``write_png_list`` (write the thresholded classes into
+        ``png_list`` as ``<annotation_column>_thresholded``; Save turns it
+        on).
     :returns: ``table`` (DataFrame), ``classes``, ``classifier``,
         ``comparison`` (or None), ``paths`` and ``settings`` (as written).
     """
@@ -4984,6 +5031,10 @@ def _run_classification(settings: Mapping[str, Any]) -> Dict[str, Any]:
     _write_table(table, paths["table"])
     if comparison is not None:
         _write_table(_comparison_table(comparison), paths["comparison"])
+    if s.get("write_png_list"):
+        _write_thresholded_column(db_path, table,
+                                  _thresholded_column(column),
+                                  png_table=table_name)
     s.update({"db_path": db_path, "annotation_column": column,
               "png_table": table_name, "classifier_choice": choice,
               "classifier": classifier, "seed": seed, "folds": folds,
@@ -5011,6 +5062,10 @@ def _save_class_thresholds(settings_path: str,
                            thresholds: Mapping[Any, Any]) -> Dict[str, Any]:
     """Store new class thresholds and re-call the table without a refit.
 
+    Also writes the thresholded classes into ``png_list`` as
+    ``<annotation_column>_thresholded`` (unassigned as NULL) and records
+    ``write_png_list`` in the settings, so a rerun writes the same column.
+
     :param settings_path: the classification settings file.
     :param thresholds: ``{class: lowest probability}``.
     :returns: ``table`` (DataFrame) and ``paths``.
@@ -5029,5 +5084,10 @@ def _save_class_thresholds(settings_path: str,
                                   rule)
     _write_table(table, paths["table"])
     s["class_thresholds"] = {str(c): rule.get(str(c), 0.0) for c in classes}
+    s["write_png_list"] = True
+    _write_thresholded_column(
+        str(s.get("db_path", "")), table,
+        _thresholded_column(s.get("annotation_column", "annotate")),
+        png_table=str(s.get("png_table") or PNG_TABLE))
     write_settings_file(s, paths["settings"])
     return {"table": table, "paths": paths, "settings": s}

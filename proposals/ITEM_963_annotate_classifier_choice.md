@@ -45,7 +45,7 @@ A new button, Classify, in the Model group of the toolbar
 |---|---|
 | Auto classifier | Compares the candidate classifiers (below) on the user's labels, picks the best, classifies every crop with it and opens the thresholds window with the comparison table. |
 | XGBoost (default) | Fits XGBoost on every label and classifies every crop. |
-| ResNet50 | Hands the source to the Classify (CV) screen with `model_type='resnet50'`, as Train... > On the images does today. |
+| ResNet50 on the images… | Hands the source to the Classify (CV) screen with `model_type='resnet50'`, as Train... > On the images does today. |
 
 XGBoost is the default of this new button only. Retrain and Suggest keep their
 current models, so no existing run changes its output (see Decisions).
@@ -85,8 +85,11 @@ one probability column per class, the most likely class, its probability, and
 class's threshold and empty (unassigned) otherwise. The settings file
 `classification_settings_<column>.csv` (and its `.json` twin) holds the
 database, table, column, image filter, feature selection, seed, classifier and
-`class_thresholds`. Nothing is written into `measurements.db`: the annotation
-column and the Retrain/Suggest score columns are untouched.
+`class_thresholds`. Classifying writes nothing into `measurements.db`. Save
+(below) writes the thresholded class of every classified crop into `png_list`
+as `<annotation column>_thresholded` (INTEGER, NULL = unassigned) and sets
+`write_png_list` in the settings file, so a rerun writes the same column. The
+annotation column and the Retrain/Suggest score columns are never touched.
 
 ### Per-class thresholding window
 
@@ -127,7 +130,7 @@ the same thresholds.
    file, rerun it from the file: the classification table is byte-identical.
    Changing one threshold changes only the rows of that class.
 5. Qt (offscreen), with real mouse events: the Classify menu offers exactly
-   Auto classifier, XGBoost (default) and ResNet50; dragging the slider with
+   Auto classifier, XGBoost (default) and ResNet50 on the images…; dragging the slider with
    the mouse moves the threshold, the grid marks the crops below it as
    unassigned and the counts update; switching the class shows that class's
    crops and keeps each class's own threshold; Save writes the thresholds to
@@ -136,14 +139,14 @@ the same thresholds.
 
 ## Decisions for the maintainer
 
-- XGBoost as the default: today Suggest fits gradient boosting
+- XGBoost as the default (maintainer, 2026-11-16: Suggest and Retrain keep
+  their models; XGBoost is the default of the new button only). Today Suggest fits gradient boosting
   (HistGradientBoosting) and Retrain fits logistic regression. Switching
   either to XGBoost changes their outputs, so neither was changed. XGBoost is
   the default of the new Classify button only. Should Suggest (and Retrain)
   move to XGBoost too, as a recorded default change?
-- The classification table is a file beside the database; it does not write
-  predictions into `png_list`. Should Save also merge the thresholded class
-  into `png_list` for Regression?
-- ResNet50 in Auto is a fixed-feature candidate (ImageNet features + linear
+- Save also writes the thresholded classes into `png_list` (maintainer,
+  2026-11-16: yes), as `<annotation column>_thresholded`.
+- ResNet50 in Auto (maintainer, 2026-11-16: accepted) is a fixed-feature candidate (ImageNet features + linear
   head), cheap enough to cross-validate; fine-tuned ResNet50 stays in the
   Classify (CV) screen.

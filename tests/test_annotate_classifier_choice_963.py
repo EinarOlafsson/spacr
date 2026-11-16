@@ -246,3 +246,44 @@ def test_existing_defaults_are_unchanged():
     from spacr.qt.screens import annotate
     source = inspect.getsource(annotate.AnnotateScreen._start_suggest)
     assert '"model_type": "gradient_boosting"' in source
+
+
+def _png_column(db, column):
+    con = sqlite3.connect(db)
+    try:
+        names = [r[1] for r in con.execute('PRAGMA table_info("png_list")')]
+        if column not in names:
+            return None
+        return dict(con.execute(
+            f'SELECT png_path, "{column}" FROM png_list').fetchall())
+    finally:
+        con.close()
+
+
+def test_save_writes_the_thresholded_classes_into_png_list(tmp_path):
+    db = build(tmp_path)
+    first = al._run_classification({
+        "db_path": db, "annotation_column": "annotate",
+        "classifier_choice": "xgboost"})
+    assert _png_column(db, "annotate_thresholded") is None
+    saved = al._save_class_thresholds(first["paths"]["settings"],
+                                      {"1": 0.7, "2": 0.85})
+    stored = _png_column(db, "annotate_thresholded")
+    assert stored is not None
+    expected = {path: (None if call == "" else int(call)) for path, call in
+                zip(saved["table"]["png_path"],
+                    saved["table"]["class_thresholded"])}
+    assert {p: stored[p] for p in expected} == expected
+    assert None in expected.values() and 1 in expected.values()
+    labels = dict(sqlite3.connect(db).execute(
+        "SELECT png_path, annotate FROM png_list").fetchall())
+
+    con = sqlite3.connect(db)
+    con.execute('UPDATE png_list SET "annotate_thresholded" = 99')
+    con.commit()
+    con.close()
+    again = al._rerun_classification(first["paths"]["settings"])
+    assert again["settings"]["write_png_list"] is True
+    assert _png_column(db, "annotate_thresholded") == stored
+    assert dict(sqlite3.connect(db).execute(
+        "SELECT png_path, annotate FROM png_list").fetchall()) == labels
