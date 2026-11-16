@@ -2144,6 +2144,194 @@ def _compose_blend(settings: Mapping[str, Any]) -> str:
     return blend
 
 
+def _objects_windows_folder(settings: Mapping[str, Any], db: str,
+                            well: str) -> Optional[str]:
+    """Where the objects phase keeps each finished window of a well (item 958).
+
+    :param settings: read for ``ops_objects_resume``, off with False, and
+        ``ops_objects_windows_dir``, the folder that holds one subfolder per
+        well; empty means ``objects_windows`` beside ``measurements.db``.
+    :param db: the measurements database.
+    :param well: the well name.
+    :returns: the well's folder, or None when windows are not kept.
+    """
+    if settings.get("ops_objects_resume") is False:
+        return None
+    root = (str(settings.get("ops_objects_windows_dir") or "").strip()
+            or os.path.join(os.path.dirname(os.path.abspath(db)),
+                            "objects_windows"))
+    return os.path.join(root, well)
+
+
+def _objects_window_basis(settings: Mapping[str, Any], blend: str,
+                          extra: Mapping[str, Any], canvas, shape) -> Dict[str, Any]:
+    """What every window of a well is segmented with, for its key (item 958).
+
+    The device is left out: a window segmented on the card is reused on the
+    CPU, as the same window on either gives the same well.
+
+    :param settings: read for ``cellpose_model`` and ``model_metadata``.
+    :param blend: the compose blend.
+    :param extra: the keywords passed to the model, here the diameter.
+    :param canvas: ``(height, width)`` of the well frame.
+    :param shape: the tile ``(height, width)``.
+    :returns: a JSON-ready mapping.
+    """
+    from importlib import metadata
+
+    from . import __version__
+
+    name = str(settings.get("cellpose_model") or "").strip() or "cpsam"
+    model: Dict[str, Any] = {"name": name}
+    if os.path.isfile(name):
+        stat = os.stat(name)
+        model.update({"size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)})
+    pinned = settings.get("model_metadata")
+    if isinstance(pinned, Mapping):
+        model["pinned"] = (pinned.get("settings") or {}).get("cellpose_model")
+    try:
+        cellpose = metadata.version("cellpose")
+    except metadata.PackageNotFoundError:
+        cellpose = ""
+    return {"format": 1, "spacr_version": __version__, "cellpose": cellpose,
+            "model": model, "eval": dict(extra), "blend": blend,
+            "canvas": [int(canvas[0]), int(canvas[1])],
+            "tile_shape": [int(shape[0]), int(shape[1])]}
+
+
+def _objects_window_key(basis: Mapping[str, Any], window,
+                        usable: Mapping[int, Tuple[float, float]],
+                        sources: Mapping[int, Any],
+                        shape: Tuple[int, int]) -> Tuple[str, bool]:
+    """The key of one window, and whether any tile covers it (item 958).
+
+    :param basis: :func:`_objects_window_basis`.
+    :param window: an :class:`spacr.ops_compose.Window`.
+    :param usable: ``site -> (y, x)`` of the tiles composed.
+    :param sources: ``site -> (path, plane)`` of their nuclear planes.
+    :param shape: the tile ``(height, width)``.
+    :returns: ``(sha256 hex digest, covered)``. The digest covers the
+        window, the basis, and each covering tile's rounded position, file,
+        plane, size and modification time.
+    """
+    import hashlib
+
+    tiles = []
+    for site, (top, left) in sorted(usable.items()):
+        if not _touches(window, {site: (top, left)}, shape):
+            continue
+        path, plane = sources[site]
+        stat = os.stat(path)
+        tiles.append([int(site), int(round(float(top))), int(round(float(left))),
+                      os.path.abspath(path), plane, int(stat.st_size),
+                      int(stat.st_mtime_ns)])
+    text = json.dumps({"basis": basis, "window": [window.top, window.left,
+                                                   window.height, window.width],
+                       "tiles": tiles}, sort_keys=True, default=str)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest(), bool(tiles)
+
+
+def _objects_window_paths(folder: str, window) -> Tuple[str, str]:
+    """The labels file and done marker of one window (item 958).
+
+    :param folder: the well's window folder.
+    :param window: an :class:`spacr.ops_compose.Window`.
+    :returns: ``(labels .npz, marker .json)``.
+    """
+    stem = os.path.join(folder, f"w{int(window.top)}_{int(window.left)}")
+    return stem + ".npz", stem + ".done.json"
+
+
+def _objects_window_load(folder: str, window, key: str):
+    """A finished window whose marker carries ``key``, or None (item 958).
+
+    :param folder: the well's window folder.
+    :param window: an :class:`spacr.ops_compose.Window`.
+    :param key: :func:`_objects_window_key`'s digest.
+    :returns: ``(labels, gain, covered pixels)``, or None when the marker is
+        missing, names another key, or either file cannot be read.
+    """
+    import zipfile
+
+    labels_path, marker_path = _objects_window_paths(folder, window)
+    try:
+        with open(marker_path, encoding="utf-8") as handle:
+            marker = json.load(handle)
+        if marker.get("key") != key:
+            return None
+        with np.load(labels_path) as saved:
+            labels = np.asarray(saved["labels"], np.int32)
+            gain = float(saved["gain"])
+            area = int(saved["area"])
+    except (OSError, ValueError, KeyError, EOFError, zipfile.BadZipFile):
+        return None
+    if labels.shape != (window.height, window.width):
+        return None
+    return labels, gain, area
+
+
+def _objects_window_save(folder: str, window, key: str, labels: np.ndarray,
+                         gain: float, area: int) -> None:
+    """Write one window's labels, then its done marker, each by rename (item 958).
+
+    :param folder: the well's window folder.
+    :param window: an :class:`spacr.ops_compose.Window`.
+    :param key: :func:`_objects_window_key`'s digest.
+    :param labels: the window's labels, uncovered pixels 0.
+    :param gain: the window's :func:`spacr.ops_compose.overlap_gain`.
+    :param area: how many of its pixels a tile covers.
+    """
+    labels_path, marker_path = _objects_window_paths(folder, window)
+    os.makedirs(folder, exist_ok=True)
+    with open(labels_path + ".part", "wb") as handle:
+        np.savez_compressed(handle, labels=np.asarray(labels, np.int32),
+                            gain=np.float64(gain), area=np.int64(area))
+    os.replace(labels_path + ".part", labels_path)
+    with open(marker_path + ".part", "w", encoding="utf-8") as handle:
+        json.dump({"key": key, "top": int(window.top), "left": int(window.left),
+                   "labels": os.path.basename(labels_path)}, handle)
+    os.replace(marker_path + ".part", marker_path)
+
+
+def _objects_windows_clear(folder: str) -> int:
+    """Delete a well's window files and its folder once empty (item 958).
+
+    :param folder: the well's window folder.
+    :returns: how many files were deleted.
+    """
+    if not os.path.isdir(folder):
+        return 0
+    deleted = 0
+    for name in os.listdir(folder):
+        if re.fullmatch(r"w\d+_\d+\.(npz|done\.json)(\.part)?", name):
+            os.remove(os.path.join(folder, name))
+            deleted += 1
+    parent = os.path.dirname(folder)
+    for path in ((folder, parent) if os.path.basename(parent) == "objects_windows"
+                 else (folder,)):
+        try:
+            os.rmdir(path)
+        except OSError:
+            break
+    return deleted
+
+
+def _objects_windows_journal(well: str, summary: Mapping[str, Any]) -> None:
+    """Note a well's window checkpoints on the open run journal (item 958).
+
+    :param well: the well name.
+    :param summary: the counts of windows reused, computed and empty, and
+        what was kept or deleted.
+    """
+    from .run_journal import current_run
+
+    run = current_run()
+    if run is not None:
+        run._record_stage(f"ops_objects_windows_{well}",
+                          label=f"OPS objects windows, well {well}",
+                          state="done", metrics=dict(summary))
+
+
 def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
              settings: Mapping[str, Any], gpu: bool) -> Dict[str, Any]:
     """Compose, segment, sew and number the well; store ``ops_objects``.
@@ -2154,10 +2342,18 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
     :param reference: the cycle carrying the nuclear stain.
     :param settings: read for the Cellpose model and diameter, for
-        ``ops_compose_blend``, and for ``ops_sites``, which limits the
-        composed tiles to the listed sites (item 951).
+        ``ops_compose_blend``, for ``ops_sites``, which limits the
+        composed tiles to the listed sites (item 951), and for the window
+        checkpoints of item 958: with ``ops_objects_resume`` on, each
+        segmented window's labels are kept in
+        :func:`_objects_windows_folder` under a key of its tiles and
+        segmentation settings, and a rerun reuses every window whose key
+        matches. Objects are still numbered in window order, so a resumed
+        well equals an uninterrupted one. The files go once the well is
+        stored unless ``ops_objects_keep_windows`` is on.
     :param gpu: segment on the card.
-    :returns: the objects report.
+    :returns: the objects report; a run that reused windows adds
+        ``windows_resumed``.
     """
     import functools
 
@@ -2193,27 +2389,45 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
                                 overlap=window_overlap))
     partial = (_partial_windows(windows, usable, seeded[1], shape)
                if seeded else None)
+    folder = _objects_windows_folder(settings, db, well)
+    basis = (_objects_window_basis(settings, blend, extra, canvas, shape)
+             if folder else None)
+    kept = Counter()
     seconds = Counter()
     observations: list = []
     gains = []
     empty = 0
     for count, window in enumerate(windows, start=1):
-        tick = time.perf_counter()
-        image, coverage = compose_window(window, usable, read, tile_shape=shape,
-                                         blend=blend)
-        seconds["compose"] += time.perf_counter() - tick
-        covered = coverage > 0
-        if not covered.any():
-            empty += 1
-            continue
-        gains.append((overlap_gain(coverage), int(covered.sum())))
-        fill = image.copy()
-        fill[~covered] = float(np.median(image[covered]))
-        tick = time.perf_counter()
-        masks = np.asarray(_governed_eval(model, fill, site='ops_stitched',
-                                          settings=settings, batch_size=16, **extra)[0], np.int32)
-        seconds["segment"] += time.perf_counter() - tick
-        masks[~covered] = 0
+        key, saved = None, None
+        if folder:
+            key, touched = _objects_window_key(basis, window, usable, sources,
+                                               shape)
+            saved = (_objects_window_load(folder, window, key)
+                     if touched else None)
+        if saved is not None:
+            masks, gain, area = saved
+            gains.append((gain, area))
+            kept["reused"] += 1
+        else:
+            tick = time.perf_counter()
+            image, coverage = compose_window(window, usable, read,
+                                             tile_shape=shape, blend=blend)
+            seconds["compose"] += time.perf_counter() - tick
+            covered = coverage > 0
+            if not covered.any():
+                empty += 1
+                continue
+            gains.append((overlap_gain(coverage), int(covered.sum())))
+            fill = image.copy()
+            fill[~covered] = float(np.median(image[covered]))
+            tick = time.perf_counter()
+            masks = np.asarray(_governed_eval(model, fill, site='ops_stitched',
+                                              settings=settings, batch_size=16, **extra)[0], np.int32)
+            seconds["segment"] += time.perf_counter() - tick
+            masks[~covered] = 0
+            if folder:
+                _objects_window_save(folder, window, key, masks, *gains[-1])
+                kept["computed"] += 1
         tick = time.perf_counter()
         observations.extend(objects_in_window(window, masks, canvas=canvas))
         seconds["objects_in_window"] += time.perf_counter() - tick
@@ -2242,6 +2456,15 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     tick = time.perf_counter()
     _replace_well_rows(db, "ops_objects", frame, plate, well)
     seconds["store"] = time.perf_counter() - tick
+    if folder:
+        keep = bool(settings.get("ops_objects_keep_windows"))
+        summary = {"folder": folder, "windows": len(windows), "empty": empty,
+                   "reused": kept["reused"], "computed": kept["computed"],
+                   "kept": keep,
+                   "deleted": 0 if keep else _objects_windows_clear(folder)}
+        _objects_windows_journal(well, summary)
+        _say(f"{well} objects: reused {kept['reused']} and segmented "
+             f"{kept['computed']} of {len(windows)} windows")
     gate = objects_ready(db)
     report = {
         "canvas": list(canvas), "windows": len(windows), "empty_windows": empty,
@@ -2263,6 +2486,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     if seeded:
         report.update({"placement": "seeded", "partial_windows": partial,
                        "n_partial_windows": len(partial)})
+    if kept["reused"]:
+        report["windows_resumed"] = summary
     _say(f"{well} objects: {len(objects)} from {len(observations)} observations "
          f"in {report['total_seconds']} s")
     return report

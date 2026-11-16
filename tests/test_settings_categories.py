@@ -801,6 +801,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 951 (2026-11-15): stitch, objects and decode on chosen
     # sequencing sites only.
     "ops_sites",
+    # Item 958 (2026-11-16): the objects phase resumes per window.
+    "ops_objects_resume", "ops_objects_keep_windows",
+    "ops_objects_windows_dir",
     # Item 934 (2026-11-13): the OPS measurement switches in Measure --
     # Funk et al.'s object features, the explicit Zernike switch and
     # channel-named columns under Measurements, and the CPU/GPU self-check
