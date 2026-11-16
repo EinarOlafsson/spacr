@@ -9501,6 +9501,12 @@ ALPHA_FEATURES = {
         'module_settings': {'ops_large_sites': (
             'seg_mask_vram_gb', 'seg_mask_device')},
     },
+    956: {
+        'module_settings': {'ops_large_sites': (
+            'ops_mask_agreement_split_merge', 'ops_mask_agreement_identity_control',
+            'ops_mask_agreement_displace_px', 'ops_mask_agreement_labels',
+            'ops_mask_agreement_frame')},
+    },
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval', 'ops_power_gene_list', 'ops_power_reference_rows',),
     },
