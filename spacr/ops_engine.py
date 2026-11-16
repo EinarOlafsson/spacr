@@ -2808,7 +2808,8 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     """
     from scipy import ndimage
 
-    from .ops_decode import field_evidence, save_field_cache, _CACHE_FLOOR
+    from .ops_decode import (field_evidence, save_field_cache, _CACHE_FLOOR,
+                             _field_shuffle_counts)
     from .ops_sbs import estimate_read_locations, find_peaks
 
     rule = task["rule_a"]
@@ -2855,6 +2856,18 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
                      "nuclei": by_mode[1]["nuclei"], "by_mode": by_mode,
                      **{key: by_mode[1][key] for key in (
                          "reads", "reads_owned", "reads_near", "reads_ambiguous")}}
+    if auto and auto.get("shuffle_seeds"):
+        modes = ([(raw_evidence, {**rule, "read_mode": "raw"}),
+                  (evidence, {**rule, "read_mode": "log"})] if read_mode == "auto"
+                 else [(raw_evidence if read_mode == "raw" else evidence, rule)])
+        shuffled = [_field_shuffle_counts(
+            mode_evidence, mode_rule, sorted(_LIBRARY), seeds=auto["shuffle_seeds"],
+            spot_thresholds=spots or [rule["threshold"]], floors=auto["floors"],
+            pixel_qualities=auto["pixel_qualities"], footprint=rule["footprint"],
+            max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+            crosstalk=str(task.get("crosstalk") or "none"))
+            for mode_evidence, mode_rule in modes]
+        calls["shuffled"] = shuffled[0] if len(shuffled) == 1 else np.stack(shuffled)
     out = {"n_cycles": len(field.kept), "spots": calls["reads"],
            "attributed": calls["reads_near"] - calls["reads_ambiguous"],
            "ambiguous": calls["reads_ambiguous"], "exact": None,
@@ -3219,8 +3232,8 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
         ``pixel_quality`` and, when tuned, ``threshold``, and the choice under
         ``threshold_choice``.
     """
-    from .ops_decode import (_candidate_calls, choose_well_thresholds, tune_thresholds,
-                             write_tuning_curve, _write_threshold_report,
+    from .ops_decode import (_candidate_calls, calibrate_fdr_scale, choose_well_thresholds,
+                             tune_thresholds, write_tuning_curve, _write_threshold_report,
                              results_folder)
 
     auto = rule_a["auto"]
@@ -3229,25 +3242,31 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
     grid_shape = (len(auto["floors"]), len(auto["pixel_qualities"]))
     nuclei = [r["candidates"]["nuclei"] for r in fields]
     sites = [r["site"] for r in fields]
+    calibrating = bool(auto.get("shuffle_seeds"))
     by_mode = rule_a.get("read_mode") == "auto"
     joint = bool(spots) or thresholds["unreachable"] != "strictest" \
-        or thresholds["objective"] != "recall_at_fdr" or by_mode
+        or thresholds["objective"] != "recall_at_fdr" or by_mode or calibrating
     if joint:
         shape = ((2,) if by_mode else ()) + (max(len(spots), 1),) + grid_shape
         counts = (np.stack([r["candidates"]["counts"].reshape(shape + (2,))
                             for r in fields]) if fields
                   else np.zeros((0,) + shape + (2,), np.int64))
-        tuned = tune_thresholds(
-            counts, nuclei, sites,
-            ([("read_mode", [1.0, 0.0])] if by_mode else [])
-            + [("read_threshold", spots or [float(rule_a["threshold"])]),
-               ("single_read_quality", auto["floors"]),
-               ("pixel_quality", auto["pixel_qualities"])],
+        axes = (([("read_mode", [1.0, 0.0])] if by_mode else [])
+                + [("read_threshold", spots or [float(rule_a["threshold"])]),
+                   ("single_read_quality", auto["floors"]),
+                   ("pixel_quality", auto["pixel_qualities"])])
+        tune_args = dict(
             k=int(rule_a["decoy_k"]), scale=float(rule_a["fdr_scale"]),
             objective=thresholds["objective"], fdr_max=thresholds["fdr_max"],
             f_beta=thresholds["f_beta"], unreachable=thresholds["unreachable"],
             ci=thresholds["ci"], tune_fraction=thresholds["tune_fraction"],
             seed=thresholds["seed"])
+        if calibrating:
+            shuffled = (np.stack([np.asarray(r["candidates"]["shuffled"]).reshape(shape)
+                                  for r in fields]) if fields else np.zeros((0,) + shape))
+            tuned = calibrate_fdr_scale(counts, shuffled, nuclei, sites, axes, **tune_args)
+        else:
+            tuned = tune_thresholds(counts, nuclei, sites, axes, **tune_args)
         choice = {"single_read_quality": tuned["chosen"]["single_read_quality"],
                   "pixel_quality": tuned["chosen"]["pixel_quality"],
                   "read_threshold": tuned["chosen"]["read_threshold"],
@@ -3304,6 +3323,12 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
                    "pixel_quality": choice["pixel_quality"],
                    "threshold_choice": {key: value for key, value in choice.items()
                                         if key != "grid"}}
+    if calibrating:
+        chosen_rule["fdr_scale"] = float(choice["fdr_scale"])
+        _say(f"{well} decode: FDR scale calibrated from the barcode-shuffle control: "
+             f"{choice['calibration']['entered_scale']} -> {choice['fdr_scale']:.3f}; "
+             f"shuffle call rate {choice['calibration']['all_fields']['shuffle_call_rate_pct']:.4f} "
+             "per 100 cells")
     if spots:
         chosen_rule["threshold"] = choice["read_threshold"]
     if by_mode:
@@ -3467,6 +3492,10 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             rule_a["auto"] = {"floors": thresholds["floors"],
                               "pixel_qualities": thresholds["pixel_qualities"],
                               "spot_thresholds": thresholds["spot_thresholds"]}
+            if thresholds.get("fdr_calibration") == "shuffle":
+                from .ops_decode import SHUFFLE_SEEDS
+
+                rule_a["auto"]["shuffle_seeds"] = list(range(SHUFFLE_SEEDS))
         if read_mode != "log":
             rule_a["read_mode"] = read_mode
         cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),

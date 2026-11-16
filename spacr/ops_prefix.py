@@ -357,6 +357,90 @@ def prefix_decoy_library(library: PrefixLibrary, k: int = 4,
                                   "decoy_k": int(k), "decoy_seed": int(seed)})
 
 
+#: The gene a near-miss decoy prefix calls (item 949). A cell whose top
+#: barcode is a near-miss decoy is a decoy call, counted apart from the
+#: far decoys of :data:`DECOY_GENE` and never written as a genotype.
+NEARMISS_GENE = "DECOY_NEARMISS"
+
+
+def prefix_nearmiss_decoys(library: PrefixLibrary, k: int = 4,
+                           seed: int = 1) -> PrefixLibrary:
+    """The whitelist with near-miss decoys added, one edit from a prefix (item 949).
+
+    The far decoys of :func:`prefix_decoy_library` lie two or more edits
+    from every prefix, so they never catch a read error that lands one edit
+    from a guide. A near-miss decoy is one such neighbour: for each library
+    prefix (decoys excluded), in key order, one generator
+    (``numpy.random.default_rng(seed)``) draws a cycle and a different base;
+    the result is kept when it is one edit from that prefix and from no other
+    key (prefix, far decoy or near-miss decoy already kept), until ``k`` are
+    kept or ``8 * k`` draws are spent. Near-miss decoys join the whitelist
+    as callable keys of gene :data:`NEARMISS_GENE` (level ``'nearmiss'``),
+    so a read that matches one, exactly or as its single closest key, is a
+    near-miss decoy call. Exact-only matching loses no real read to them;
+    with one mismatch a read one edit from both a prefix and a near-miss
+    decoy is ambiguous. They have no one-base extension.
+
+    :param library: from :func:`spacer_prefix_library` or
+        :func:`prefix_decoy_library`.
+    :param k: near-miss decoys per prefix (``ops_prefix_nearmiss_decoy_k``).
+    :param seed: the generator's seed (``ops_prefix_decoy_seed``).
+    :returns: a :class:`PrefixLibrary` holding the keys and the near-miss
+        decoys; its summary adds ``nearmiss_decoys``, ``nearmiss_k`` and
+        ``nearmiss_seed``.
+    :raises ValueError: for ``k`` below 1.
+    """
+    if int(k) < 1:
+        raise ValueError("ops_prefix_nearmiss_decoy_k must be 1 or more to add near-miss decoys")
+    sources = [key for key in library.keys
+               if library.callable_keys.get(key, ("", "", ""))[2] != "decoy"]
+    letters = sorted({base for key in library.keys for base in key}) or list("ACGT")
+    neighbour: Dict[Tuple[int, str], Optional[str]] = {}
+
+    def occupy(key: str) -> None:
+        """Index a kept key by each of its one-deletion variants."""
+        for position in range(len(key)):
+            slot = (position, key[:position] + key[position + 1:])
+            neighbour[slot] = key if slot not in neighbour else None
+
+    for key in library.keys:
+        occupy(key)
+    taken = set(library.keys)
+    rng = np.random.default_rng(int(seed))
+    nearmiss: List[str] = []
+    for key in sources:
+        kept = 0
+        for _ in range(8 * int(k)):
+            if kept >= int(k):
+                break
+            position = int(rng.integers(len(key)))
+            options = [base for base in letters if base != key[position]]
+            candidate = key[:position] + options[int(rng.integers(len(options)))] + \
+                key[position + 1:]
+            if candidate in taken:
+                continue
+            near = {neighbour.get((p, candidate[:p] + candidate[p + 1:]), "")
+                    for p in range(len(candidate))} - {""}
+            if near != {key}:
+                continue
+            taken.add(candidate)
+            occupy(candidate)
+            nearmiss.append(candidate)
+            kept += 1
+    callable_keys = dict(library.callable_keys)
+    guides = dict(library.guides)
+    genes = dict(library.genes)
+    for key in nearmiss:
+        callable_keys[key] = (key, NEARMISS_GENE, "nearmiss")
+        guides[key] = [key]
+        genes[key] = [NEARMISS_GENE]
+    return PrefixLibrary(positions=library.positions, keys=sorted(taken), guides=guides,
+                         genes=genes, callable_keys=callable_keys,
+                         collisions=library.collisions, extended=library.extended,
+                         summary={**library.summary, "nearmiss_decoys": len(nearmiss),
+                                  "nearmiss_k": int(k), "nearmiss_seed": int(seed)})
+
+
 def _levenshtein_indexes(library: PrefixLibrary):
     """The deletion and insertion lookups for one-indel matches.
 
@@ -381,6 +465,10 @@ def _levenshtein_indexes(library: PrefixLibrary):
 #: sites against one whitelist builds them once.
 _INDEX_CACHE: List[Tuple[Any, ...]] = []
 
+#: How many whitelists' lookups :data:`_INDEX_CACHE` keeps: the library,
+#: the control and item 949's shuffled whitelists fit at once.
+_INDEX_CACHE_SIZE = 6
+
 
 def _match_indexes(library: PrefixLibrary, metric: str, max_distance: int):
     """The exact, deletion, indel and table lookups of one whitelist, cached.
@@ -403,7 +491,7 @@ def _match_indexes(library: PrefixLibrary, metric: str, max_distance: int):
              .reshape(len(entries), width) if entries else None)
     indexes = (known, deletion, dropped, shorter, entries, table)
     _INDEX_CACHE.insert(0, (library, metric, max_distance, indexes))
-    del _INDEX_CACHE[3:]
+    del _INDEX_CACHE[_INDEX_CACHE_SIZE:]
     return indexes
 
 
@@ -1019,17 +1107,19 @@ def _at_setting(reads: pd.DataFrame, min_quality: float, max_distance: int) -> p
     return reads
 
 
-def _called_counts(reads: pd.DataFrame, method: str) -> Tuple[int, int]:
+def _called_counts(reads: pd.DataFrame, method: str, nearmiss: bool = False):
     """Real and decoy cells called from one site's reads, as :func:`prefix_cell_calls` calls them.
 
     :param reads: rows with ``cell``, ``status``, ``prefix`` and ``gene``.
     :param method: ``'spacr'`` (a unique top barcode) or ``'recipe_simple'``
         (one barcode only); the perfect and great classes of each.
-    :returns: ``(real, decoy)`` called cells.
+    :param nearmiss: also return the near-miss decoy calls (item 949).
+    :returns: ``(real, decoy)`` called cells, or ``(real, decoy, nearmiss)``;
+        a near-miss decoy call is never a real call.
     """
     matched = reads[(reads["cell"] > 0) & reads["status"].isin(("exact", "corrected"))]
     if matched.empty:
-        return 0, 0
+        return (0, 0, 0) if nearmiss else (0, 0)
     tally = matched.groupby(["cell", "prefix"], sort=False).size().rename("n").reset_index()
     tally = tally.sort_values(["cell", "n"], ascending=[True, False], kind="stable")
     tally["rank"] = tally.groupby("cell", sort=False).cumcount()
@@ -1043,19 +1133,31 @@ def _called_counts(reads: pd.DataFrame, method: str) -> Tuple[int, int]:
         called = top["n"].to_numpy() > runner
     gene = dict(zip(matched["prefix"], matched["gene"]))
     decoy = np.array([gene.get(p) == DECOY_GENE for p in top["prefix"]], bool)
-    return int((called & ~decoy).sum()), int((called & decoy).sum())
+    near = np.array([gene.get(p) == NEARMISS_GENE for p in top["prefix"]], bool)
+    real = int((called & ~decoy & ~near).sum())
+    if nearmiss:
+        return real, int((called & decoy).sum()), int((called & near).sum())
+    return real, int((called & decoy).sum())
 
 
-def _flag_decoy_cells(cells: pd.DataFrame) -> pd.DataFrame:
+def _flag_decoy_cells(cells: pd.DataFrame, nearmiss: bool = False) -> pd.DataFrame:
     """Mark the cells called as a decoy; they keep their prefix but no genotype.
 
     :param cells: from :func:`prefix_cell_calls`.
+    :param nearmiss: the run has near-miss decoys (item 949): a near-miss
+        call is a decoy too, and a ``decoy_class`` column says ``'far'`` or
+        ``'nearmiss'``.
     :returns: the cells with a ``decoy`` column; a decoy call's ``guide``,
         ``gene`` and ``level`` are emptied.
     """
     cells = cells.copy()
     decoy = (cells["gene"] == DECOY_GENE).to_numpy(bool) if len(cells) else np.zeros(0, bool)
-    cells["decoy"] = decoy
+    near = ((cells["gene"] == NEARMISS_GENE).to_numpy(bool) if nearmiss and len(cells)
+            else np.zeros(len(cells), bool))
+    cells["decoy"] = decoy | near
+    if nearmiss:
+        cells["decoy_class"] = np.where(decoy, "far", np.where(near, "nearmiss", None))
+    decoy = decoy | near
     if decoy.any():
         cells.loc[decoy, ["guide", "gene", "level"]] = None
     return cells
@@ -1112,11 +1214,16 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         and tuning settings (``ops_prefix_decoy_k``,
         ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``,
         ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,
-        ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``).
+        ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the
+        item-949 ``ops_prefix_nearmiss_decoy_k`` and
+        ``ops_prefix_fdr_calibration``.
     :returns: the normalised values under the same keys.
-    :raises ValueError: without a library, for an unknown choice, or for
-        tuning without decoys.
+    :raises ValueError: without a library, for an unknown choice, for
+        tuning or a shuffle calibration without decoys, or for a negative
+        decoy count.
     """
+    from .ops_decode import FDR_CALIBRATIONS
+
     library = settings.get("ops_library")
     if not library:
         raise ValueError("ops_library_mode 'spacer_prefix' needs ops_library, the "
@@ -1152,6 +1259,9 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
                                            if settings.get("ops_prefix_fdr_target_pct")
                                            not in (None, "") else 0.1),
         "ops_prefix_tuning_grid": settings.get("ops_prefix_tuning_grid") or None,
+        "ops_prefix_nearmiss_decoy_k": int(settings.get("ops_prefix_nearmiss_decoy_k") or 0),
+        "ops_prefix_fdr_calibration": str(settings.get("ops_prefix_fdr_calibration")
+                                          or FDR_CALIBRATIONS[0]).strip().lower(),
     }
     if out["ops_prefix_threshold_tuning"] not in PREFIX_TUNING_MODES:
         raise ValueError(f"ops_prefix_threshold_tuning must be one of "
@@ -1162,6 +1272,13 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         raise ValueError("ops_prefix_threshold_tuning 'per_well_decoy' chooses "
                          "thresholds from decoy calls; set ops_prefix_decoy_k to 1 "
                          "or more (4 recommended)")
+    if out["ops_prefix_nearmiss_decoy_k"] < 0:
+        raise ValueError("ops_prefix_nearmiss_decoy_k must be 0 or more")
+    if out["ops_prefix_fdr_calibration"] not in FDR_CALIBRATIONS:
+        raise ValueError(f"ops_prefix_fdr_calibration must be one of {list(FDR_CALIBRATIONS)}")
+    if out["ops_prefix_fdr_calibration"] != "none" and out["ops_prefix_decoy_k"] < 1:
+        raise ValueError("ops_prefix_fdr_calibration 'shuffle' scales the decoy FDR; set "
+                         "ops_prefix_decoy_k to 1 or more (4 recommended)")
     if not out["ops_prefix_fdr_target_pct"] > 0:
         raise ValueError("ops_prefix_fdr_target_pct must be above 0")
     if out["ops_prefix_crosstalk"] not in _CROSSTALK:
@@ -1240,10 +1357,31 @@ def run_prefix_decode(settings: Mapping[str, Any],
       :func:`spacr.ops_decode.write_tuning_curve`) and ``.json`` (the choice,
       :func:`spacr.ops_decode.tune_thresholds`); each site's spots are found
       once, down to the lowest read threshold, and the chosen setting's reads
-      and cells are written.
+      and cells are written;
+    * with near-miss decoys (``ops_prefix_nearmiss_decoy_k`` above 0, item
+      949, :func:`prefix_nearmiss_decoys`): a ``decoy_class`` column
+      (``'far'`` or ``'nearmiss'``) in the cell tables,
+      ``cells_decoy_nearmiss`` and ``fdr_nearmiss_pct`` (near-miss calls per
+      100 real calls over ``ops_prefix_nearmiss_decoy_k``, scale 1) in
+      ``site_summary.csv``, and the near-miss count, FDR and its interval in
+      ``fdr_<plate>_<well_id>.json``; ``cells_decoy`` and ``fdr_pct`` keep
+      counting the far decoys only;
+    * with ``ops_prefix_fdr_calibration`` 'shuffle' (item 949): every read is
+      also matched against :data:`spacr.ops_decode.SHUFFLE_SEEDS` shuffled
+      whitelists (:func:`shuffled_library`, seeds ``ops_control_seed`` and
+      up), and each well's FDR scale is raised from that control
+      (:func:`spacr.ops_decode.calibrate_fdr_scale`; without tuning at the
+      entered setting); ``fdr_pct`` uses the calibrated scale, and
+      ``site_summary.csv`` gains ``shuffle_called`` (mean over the shuffled
+      whitelists), ``shuffle_call_rate_pct`` and ``fdr_scale``; the FDR
+      report gains the entered scale, the calibration, the FDR's interval
+      and the shuffle call rate with its interval
+      (:func:`spacr.ops_decode.shuffle_call_rate`). With both item-949
+      settings off the outputs are those of item 942.
 
     :param settings: the OPS settings: ``dst_root``, the ``cpg_*`` reader
-        settings, the item-920 and item-942 settings (:func:`prefix_settings`)
+        settings, the item-920, item-942 and item-949 settings
+        (:func:`prefix_settings`)
         and, for tuning, the shared tuner's settings
         (``ops_decode_auto_objective``, ``ops_decode_auto_f_beta``,
         ``ops_decode_auto_unreachable``, ``ops_decode_auto_ci``,
@@ -1251,15 +1389,16 @@ def run_prefix_decode(settings: Mapping[str, Any],
     :param report: called with progress lines.
     :returns: the output paths, the library summary and the run's totals;
         with any item-942 setting on also ``seconds_per_well``, ``fdr`` (per
-        well) and ``tuning`` (per well: the choice and its numbers).
+        well) and ``tuning`` (per well: the choice and its numbers); with
+        the shuffle calibration also ``calibration`` (per well).
     :raises ValueError: without ``dst_root`` or a library, when the layout
-        has fewer sequencing cycles than the prefix needs, or for tuning
-        without decoys.
+        has fewer sequencing cycles than the prefix needs, or for tuning,
+        near-miss decoys or a shuffle calibration without decoys.
     """
     from . import __version__
     from .cpg_cropped import cpg_site_index, load_cpg_site, merged_path
     from .ops_decode import fdr, fdr_report, tune_thresholds, _tuning_options, \
-        write_tuning_curve
+        write_tuning_curve, calibrate_fdr_scale, SHUFFLE_SEEDS
     from .tabular import write_table
 
     say = report or (lambda text: None)
@@ -1283,13 +1422,24 @@ def run_prefix_decode(settings: Mapping[str, Any],
     decoy_k = chosen["ops_prefix_decoy_k"]
     tuning = chosen["ops_prefix_threshold_tuning"] == "per_well_decoy"
     min_quality = chosen["ops_prefix_min_read_quality"]
+    nearmiss_k = chosen["ops_prefix_nearmiss_decoy_k"]
+    calibration = chosen["ops_prefix_fdr_calibration"] == "shuffle"
+    if nearmiss_k > 0 and decoy_k < 1:
+        raise ValueError("ops_prefix_nearmiss_decoy_k reports near-miss decoys next to the "
+                         "far decoys; set ops_prefix_decoy_k to 1 or more (4 recommended)")
     legacy = decoy_k == 0 and not tuning and min_quality <= 0
+    item_949 = nearmiss_k > 0 or calibration
     matching = (prefix_decoy_library(library, decoy_k, chosen["ops_prefix_decoy_seed"])
                 if decoy_k > 0 else library)
+    if nearmiss_k > 0:
+        matching = prefix_nearmiss_decoys(matching, nearmiss_k, chosen["ops_prefix_decoy_seed"])
     axes = _tuning_axes(chosen) if tuning else []
-    options = _tuning_options(settings) if tuning else {}
+    options = _tuning_options(settings) if tuning or calibration else {}
     control = (shuffled_library(library, chosen["ops_control_seed"])
                if chosen["ops_random_barcode_control"] else None)
+    shuffles = ([shuffled_library(library, chosen["ops_control_seed"] + s)
+                 for s in range(SHUFFLE_SEEDS)] if calibration else [])
+    shuffle_memo: List[Dict[str, tuple]] = [{} for _ in shuffles]
     built = cpg_site_index(settings, md5=False)
     pinned = built["pinned"]
     cycles = max(library.positions)
@@ -1306,6 +1456,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
     class_names = RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else QUALITY_CLASSES
     recorded = ({key: value for key, value in chosen.items() if key not in _ITEM_942_KEYS}
                 if legacy else chosen)
+    if not item_949:
+        recorded = {key: value for key, value in recorded.items() if key not in _ITEM_949_KEYS}
     if read_mode != "log":
         recorded = {**recorded, "ops_read_mode": read_mode}
     with open(os.path.join(folder, "quality_classes.json"), "w", encoding="utf-8") as handle:
@@ -1316,6 +1468,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                   handle, indent=1, default=str)
     index = built["index"]
     site_rows, all_cells, tuned, well_fdr, well_seconds = [], [], {}, {}, {}
+    calibrated: Dict[str, Any] = {}
     memo: Dict[str, tuple] = {}
     for (plate, well, well_id), sites in index.groupby(["plate", "well", "well_id"], sort=True):
         well_started = time.perf_counter()
@@ -1324,11 +1477,15 @@ def run_prefix_decode(settings: Mapping[str, Any],
         site_cells: Dict[int, pd.DataFrame] = {}
         site_cells_n: Dict[int, int] = {}
         site_labelled: Dict[int, bool] = {}
+        site_shuffled: Dict[int, float] = {}
+        scale = chosen["ops_prefix_fdr_scale"]
+        choice: Dict[str, Any] = {}
         if tuning:
             modes = ["raw", "log"] if read_mode == "auto" else [read_mode]
             well_axes = ([("read_mode", [1.0, 0.0])] if read_mode == "auto" else []) + axes
             shape = tuple(len(values) for _, values in well_axes)
             counts = np.zeros((len(site_list),) + shape + (2,), np.int64)
+            shuffled_grid = np.zeros((len(site_list),) + shape)
             held = {}
             held_raw = {}
             loosest = int(max(axes[2][1]))
@@ -1367,17 +1524,37 @@ def run_prefix_decode(settings: Mapping[str, Any],
                             for c, distance in enumerate(axes[2][1]):
                                 counts[at + (a, b, c)] = _called_counts(
                                     _at_setting(frame, quality, int(distance)), method)
+                        for s, shuffled_lib in enumerate(shuffles):
+                            shuffled_frame = _shuffle_frame(
+                                frame, shuffled_lib, shuffle_memo[s],
+                                metric=chosen["ops_prefix_metric"], max_distance=loosest)
+                            for b, quality in enumerate(axes[1][1]):
+                                for c, distance in enumerate(axes[2][1]):
+                                    shuffled_grid[at + (a, b, c)] += _called_counts(
+                                        _at_setting(shuffled_frame, quality, int(distance)),
+                                        method)[0]
                 if labels is None:
                     first = (i, len(modes) - 1) if read_mode == "auto" else (i,)
                     site_cells_n[site] = int(counts[first + (0, 0, 0)].sum())
                 say(f"prefix_decode {plate} {well_id} site {site}: {len(peaks)} spot "
                     f"candidates scored over {int(np.prod(shape))} settings")
-            choice = tune_thresholds(
-                counts, [site_cells_n[s] for s in site_list], site_list, well_axes,
+            tune_args = dict(
                 k=decoy_k, scale=chosen["ops_prefix_fdr_scale"],
                 fdr_max=chosen["ops_prefix_fdr_target_pct"],
                 tune_fraction=float(settings.get("ops_decode_auto_tune_fraction") or 0.5),
                 seed=int(settings.get("ops_decode_auto_seed") or 0), **options)
+            if calibration:
+                shuffled_grid /= float(len(shuffles))
+                choice = calibrate_fdr_scale(
+                    counts, shuffled_grid, [site_cells_n[s] for s in site_list], site_list,
+                    well_axes, **tune_args)
+                scale = choice["fdr_scale"]
+                for i, site in enumerate(site_list):
+                    site_shuffled[site] = float(shuffled_grid[(i,) + tuple(choice["index"])])
+            else:
+                choice = tune_thresholds(
+                    counts, [site_cells_n[s] for s in site_list], site_list, well_axes,
+                    **tune_args)
             stem = f"threshold_tuning_{plate}_{well_id}"
             paths = write_tuning_curve(choice, folder, stem,
                                        title=f"{plate} {well_id}: prefix decode tuning")
@@ -1392,6 +1569,9 @@ def run_prefix_decode(settings: Mapping[str, Any],
             tuned[f"{plate}_{well_id}"] = {**{key: choice[key] for key in (
                 "chosen", "auto_met", "fdr_lowest", "tune", "report", "all_fields")},
                 **mode_record}
+            if calibration:
+                tuned[f"{plate}_{well_id}"].update(
+                    {"fdr_scale": choice["fdr_scale"], "calibration": choice["calibration"]})
             say(f"prefix_decode {plate} {well_id}: tuned {choice['chosen']}, report sites "
                 f"{choice['report']['genotyped_pct']} % genotyped, FDR "
                 f"{choice['report']['fdr_per_100']} %")
@@ -1436,13 +1616,19 @@ def run_prefix_decode(settings: Mapping[str, Any],
                     reads = reads[reads["quality"] >= min_quality].reset_index(drop=True)
                 labelled = labels is not None
                 n_labelled = None if legacy else _labelled_cells(labels, pd.DataFrame())
+                if shuffles:
+                    site_shuffled[site] = float(np.mean([_called_counts(_shuffle_frame(
+                        reads, shuffled_lib, shuffle_memo[s],
+                        metric=chosen["ops_prefix_metric"],
+                        max_distance=chosen["ops_prefix_max_distance"]), method)[0]
+                        for s, shuffled_lib in enumerate(shuffles)]))
             reads.insert(0, "site", int(site))
             reads.insert(0, "well", well_id)
             reads.insert(0, "plate", plate)
             cells = prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"],
                                       method=method)
             if decoy_k > 0:
-                cells = _flag_decoy_cells(cells)
+                cells = _flag_decoy_cells(cells, nearmiss=nearmiss_k > 0)
             classes = cells["quality"].value_counts() if len(cells) else {}
             row = {"plate": plate, "well": well_id, "site": int(site),
                    **read_fractions(reads), "labels": labelled,
@@ -1457,11 +1643,22 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 hit = cells[cells["quality"].isin(("perfect", "great"))] if len(cells) \
                     else cells
                 real = int((~hit["decoy"].astype(bool)).sum()) if len(hit) else 0
-                decoy = int(hit["decoy"].astype(bool).sum()) if len(hit) else 0
+                far = (hit["decoy_class"].eq("far") if "decoy_class" in hit.columns
+                       else hit["decoy"].astype(bool)) if len(hit) else None
+                decoy = int(far.sum()) if far is not None else 0
                 row.update({"cells_in_labels": int(n_labelled), "cells_real": real,
                             "cells_decoy": decoy,
-                            "fdr_pct": fdr(real, decoy, decoy_k,
-                                           chosen["ops_prefix_fdr_scale"])})
+                            "fdr_pct": fdr(real, decoy, decoy_k, scale)})
+                if nearmiss_k > 0:
+                    near = int(hit["decoy_class"].eq("nearmiss").sum()) if len(hit) else 0
+                    row.update({"cells_decoy_nearmiss": near,
+                                "fdr_nearmiss_pct": fdr(real, near, nearmiss_k, 1.0)})
+                if calibration:
+                    shuffled_here = site_shuffled.get(site, 0.0)
+                    row.update({"shuffle_called": shuffled_here,
+                                "shuffle_call_rate_pct": 100.0 * shuffled_here
+                                / max(int(n_labelled), 1),
+                                "fdr_scale": scale})
             site_rows.append(row)
             say(f"prefix_decode {plate} {well_id} site {site}: {len(reads)} reads, "
                 f"{len(cells)} cells")
@@ -1474,14 +1671,27 @@ def run_prefix_decode(settings: Mapping[str, Any],
         write_table(cells_all, os.path.join(folder, f"cells_{plate}_{well_id}.csv"),
                     canonicalise=False)
         if decoy_k > 0:
+            here = [r for r in site_rows if r["plate"] == plate and r["well"] == well_id]
+            if calibration and not tuning:
+                choice = _calibrate_fixed(here, chosen, decoy_k, settings, options)
+                scale = choice["fdr_scale"]
+                for r in here:
+                    r.update({"fdr_pct": fdr(r["cells_real"], r["cells_decoy"], decoy_k, scale),
+                              "fdr_scale": scale})
             stats = pd.DataFrame([{"nuclei": r["cells_in_labels"],
                                    "assigned_real": r["cells_real"],
                                    "assigned_decoy": r["cells_decoy"]}
-                                  for r in site_rows if r["plate"] == plate
-                                  and r["well"] == well_id])
+                                  for r in here])
             well_fdr[f"{plate}_{well_id}"] = fdr_report(
-                stats, plate=plate, well=well_id, k=decoy_k,
-                scale=chosen["ops_prefix_fdr_scale"])
+                stats, plate=plate, well=well_id, k=decoy_k, scale=scale)
+            if item_949:
+                well_fdr[f"{plate}_{well_id}"].update(_well_report_949(
+                    here, decoy_k=decoy_k, scale=scale, nearmiss_k=nearmiss_k,
+                    entered_scale=chosen["ops_prefix_fdr_scale"],
+                    choice=choice if calibration else None))
+                if calibration:
+                    calibrated[f"{plate}_{well_id}"] = {
+                        "fdr_scale": scale, "calibration": choice["calibration"]}
             with open(os.path.join(folder, f"fdr_{plate}_{well_id}.json"), "w",
                       encoding="utf-8") as handle:
                 json.dump(well_fdr[f"{plate}_{well_id}"], handle, indent=1)
@@ -1507,6 +1717,113 @@ def run_prefix_decode(settings: Mapping[str, Any],
            "seconds": round(time.perf_counter() - started, 1)}
     if not legacy:
         out.update({"seconds_per_well": well_seconds, "fdr": well_fdr, "tuning": tuned})
+    if calibration:
+        out["calibration"] = calibrated
+    return out
+
+
+def _shuffle_frame(reads: pd.DataFrame, shuffled_lib: PrefixLibrary, memo: Dict[str, tuple], *,
+                   metric: str, max_distance: int) -> pd.DataFrame:
+    """A site's reads matched against one shuffled whitelist instead of the library (item 949).
+
+    :param reads: rows with ``y``, ``x``, ``cell``, ``quality`` and ``read``.
+    :param shuffled_lib: from :func:`shuffled_library`.
+    :param memo: the run's match memo for that whitelist.
+    :param metric: the match metric.
+    :param max_distance: the largest distance matched.
+    :returns: the positions and qualities with :func:`match_prefix_reads`'s
+        columns against the shuffled whitelist (every key calls ``'control'``).
+    """
+    matched = _matched_rows(list(reads["read"]), shuffled_lib, memo, metric=metric,
+                            max_distance=int(max_distance))
+    return pd.concat([reads[["y", "x", "cell", "quality"]].reset_index(drop=True), matched],
+                     axis=1)
+
+
+def _calibrate_fixed(rows: Sequence[Mapping[str, Any]], chosen: Mapping[str, Any], decoy_k: int,
+                     settings: Mapping[str, Any], options: Mapping[str, Any]) -> Dict[str, Any]:
+    """The shuffle calibration of a well decoded at the entered thresholds (item 949).
+
+    :param rows: the well's site summary rows (``site``, ``cells_in_labels``,
+        ``cells_real``, ``cells_decoy``, ``shuffle_called``).
+    :param chosen: from :func:`prefix_settings`.
+    :param decoy_k: decoys per prefix.
+    :param settings: read for ``ops_decode_auto_tune_fraction`` and
+        ``ops_decode_auto_seed``.
+    :param options: the shared tuner's options (``ci`` and the objective).
+    :returns: :func:`spacr.ops_decode.calibrate_fdr_scale` on a one-setting
+        grid, so the scale is set on the tuning half of the sites and the
+        other half reports.
+    """
+    from .ops_decode import calibrate_fdr_scale
+
+    counts = np.array([[r["cells_real"], r["cells_decoy"]] for r in rows],
+                      np.int64).reshape(len(rows), 1, 1, 1, 2)
+    shuffled = np.array([r["shuffle_called"] for r in rows], float).reshape(len(rows), 1, 1, 1)
+    axes = [("ops_read_threshold", [chosen["ops_read_threshold"]]),
+            ("ops_prefix_min_read_quality", [chosen["ops_prefix_min_read_quality"]]),
+            ("ops_prefix_max_distance", [float(chosen["ops_prefix_max_distance"])])]
+    return calibrate_fdr_scale(
+        counts, shuffled, [r["cells_in_labels"] for r in rows], [r["site"] for r in rows],
+        axes, k=decoy_k, scale=chosen["ops_prefix_fdr_scale"],
+        fdr_max=chosen["ops_prefix_fdr_target_pct"],
+        tune_fraction=float(settings.get("ops_decode_auto_tune_fraction") or 0.5),
+        seed=int(settings.get("ops_decode_auto_seed") or 0), **options)
+
+
+def _well_report_949(rows: Sequence[Mapping[str, Any]], *, decoy_k: int, scale: float,
+                     nearmiss_k: int, entered_scale: float,
+                     choice: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
+    """The item-949 keys of a well's FDR report: intervals, near-miss decoys, shuffle rate.
+
+    :param rows: the well's site summary rows.
+    :param decoy_k: far decoys per prefix.
+    :param scale: the FDR scale used.
+    :param nearmiss_k: near-miss decoys per prefix (0 for none).
+    :param entered_scale: ``ops_prefix_fdr_scale``.
+    :param choice: the calibration's result, or None without one.
+    :returns: ``fdr_ci95`` (site bootstrap, :data:`spacr.ops_decode._AUTO_REPS`
+        resamples, seed 1); with near-miss decoys ``assigned_decoy_nearmiss``,
+        ``nearmiss_decoy_k``, ``fdr_nearmiss_per_100`` and its interval; with
+        a calibration ``fdr_calibration``, ``fdr_scale_entered``,
+        :func:`spacr.ops_decode.shuffle_call_rate`'s keys,
+        ``shuffle_limit_pct`` (1.5 times the FDR), ``shuffle_le_limit`` and
+        ``calibration``.
+    """
+    from .ops_decode import (SHUFFLE_FDR_RATIO, _AUTO_BOOT_SEED, _AUTO_REPS,
+                             _bootstrap_rows, fdr, shuffle_call_rate)
+
+    real = np.array([r["cells_real"] for r in rows], float)
+    decoy = np.array([r["cells_decoy"] for r in rows], float)
+    draws = _bootstrap_rows(len(rows), _AUTO_REPS, _AUTO_BOOT_SEED) if len(rows) > 1 else None
+    weights = (np.stack([np.bincount(row, minlength=len(rows)) for row in draws])
+               if draws is not None else None)
+
+    def interval(numerator: np.ndarray, k: float, factor: float):
+        """The site-bootstrap 95 % interval of a decoy FDR, or None for one site."""
+        if weights is None:
+            return None
+        boot = 100.0 * max(float(factor), 1.0) / float(k) * (weights @ numerator) \
+            / np.maximum(weights @ real, 1.0)
+        return [round(float(np.percentile(boot, 2.5)), 4),
+                round(float(np.percentile(boot, 97.5)), 4)]
+
+    out: Dict[str, Any] = {"fdr_ci95": interval(decoy, decoy_k, scale)}
+    if nearmiss_k > 0:
+        near = np.array([r["cells_decoy_nearmiss"] for r in rows], float)
+        out.update({"assigned_decoy_nearmiss": int(near.sum()),
+                    "nearmiss_decoy_k": int(nearmiss_k),
+                    "fdr_nearmiss_per_100": round(fdr(int(real.sum()), int(near.sum()),
+                                                      nearmiss_k, 1.0), 4),
+                    "fdr_nearmiss_ci95": interval(near, nearmiss_k, 1.0)})
+    if choice is not None:
+        rate = shuffle_call_rate([r["shuffle_called"] for r in rows],
+                                 [r["cells_in_labels"] for r in rows])
+        limit = SHUFFLE_FDR_RATIO * fdr(int(real.sum()), int(decoy.sum()), decoy_k, scale)
+        out.update({"fdr_calibration": "shuffle", "fdr_scale_entered": float(entered_scale),
+                    **rate, "shuffle_limit_pct": limit,
+                    "shuffle_le_limit": bool(rate["shuffle_call_rate_pct"] <= limit),
+                    "calibration": choice["calibration"]})
     return out
 
 
@@ -1516,3 +1833,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
 _ITEM_942_KEYS = ("ops_prefix_decoy_k", "ops_prefix_decoy_seed", "ops_prefix_fdr_scale",
                   "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
                   "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid")
+
+#: The item-949 keys of :func:`prefix_settings`, left out of
+#: ``quality_classes.json`` while both are off, so such a run writes what it
+#: wrote before.
+_ITEM_949_KEYS = ("ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration")
