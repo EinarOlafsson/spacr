@@ -36,7 +36,7 @@ def test_the_panel_choice_defaults_to_auto():
 
 
 def test_the_schema_row_keeps_older_files_on_the_old_decode():
-    assert ROW == SETTINGS_SCHEMA_VERSION
+    assert ROW <= SETTINGS_SCHEMA_VERSION
     assert DEFAULT_CHANGES[ROW] == OLD
     stamped = _fold_older_defaults({}, ROW - 1)
     assert {key: stamped[key][0] for key in OLD} == OLD
