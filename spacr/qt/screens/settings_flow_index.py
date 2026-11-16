@@ -1474,6 +1474,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_random_barcode_control',
     'ops_raster_overlap',
     'ops_read_mismatches',
+    'ops_read_mode',
     'ops_read_threshold',
     'ops_reference_clusters',
     'ops_reference_counts',
