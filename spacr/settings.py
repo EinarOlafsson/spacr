@@ -9680,6 +9680,10 @@ ALPHA_FEATURES = {
                      'ops_prefix_threshold_tuning', 'ops_prefix_fdr_target_pct',
                      'ops_prefix_tuning_grid'),
     },
+    949: {
+        'settings': ('ops_prefix_nearmiss_decoy_k', 'ops_prefix_fdr_calibration',
+                     'ops_decode_fdr_calibration'),
+    },
 }
 
 

@@ -19,3 +19,8 @@
 - **Funk:** plate A A1 stays within its current S2 (c) pass.
 - **Off-switch:** byte-identical on 2 sites.
 - **The calibrated FDR is reported for spaCR and PERISCOPE** with the same scorer.
+
+## Implementation (2026-11-16, branch claude-949-decoy-calibration)
+- `spacr.ops_prefix.prefix_nearmiss_decoys` (gene `DECOY_NEARMISS`), `spacr.ops_decode.calibrate_fdr_scale`, `spacr.ops_decode.shuffle_call_rate`; settings `ops_prefix_nearmiss_decoy_k`, `ops_prefix_fdr_calibration`, `ops_decode_fdr_calibration` (alpha, off by default, no schema bump).
+- Proof outputs: BMCspacr/reanalysis/periscope_benchmark/out/fdr_calibration_949/ (off switch byte-identical on sites 27 and 98; calibrated arms pass on all CP186A held-out splits).
+- Funk plate A A1 does not pass S2 (c) today under this shuffle (0.90 % vs limit 0.09 %, report half); with the calibration it passes at 70.5 % genotyped instead of 76.4 %. The pre-set "stays within its current S2 (c) pass" therefore could not be met as written.

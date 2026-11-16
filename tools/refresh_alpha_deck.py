@@ -110,7 +110,7 @@ GROUPS = (
          (920,)),
         ("False calls, calibrated confidence, matching to other pipelines",
          (876, 877, 878, 922)),
-        ("Spot detection and calling tuned together, prefix decoy FDR", (942,)),
+        ("Detection and calling tuned together, calibrated decoy FDR", (942, 949)),
     )),
     ("OPS gene profiles", (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),

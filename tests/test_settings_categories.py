@@ -785,6 +785,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_threshold_tuning",
     "ops_prefix_fdr_target_pct",
     "ops_prefix_tuning_grid",
+    # Item 949 (2026-11-16): near-miss decoys and the shuffle calibration of
+    # the FDR scale (spacer-prefix and OPS decode).
+    "ops_prefix_nearmiss_decoy_k",
+    "ops_prefix_fdr_calibration",
+    "ops_decode_fdr_calibration",
     # Items 936 and 940 (2026-11-13): stitch reader threads and edge
     # workers, and the placement seed file.
     "ops_stitch_read_threads",
