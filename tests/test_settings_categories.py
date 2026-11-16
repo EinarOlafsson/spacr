@@ -801,6 +801,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 951 (2026-11-15): stitch, objects and decode on chosen
     # sequencing sites only.
     "ops_sites",
+    # Item 953 (2026-11-15): published comparators keep their own control
+    # rows in the Fisher background.
+    "ops_cluster_published_controls",
+    # Item 952 (2026-11-15): the read mode of the barcode reads (log, raw,
+    # or chosen per well from decoys).
+    "ops_read_mode",
     # Item 958 (2026-11-16): the objects phase resumes per window.
     "ops_objects_resume", "ops_objects_keep_windows",
     "ops_objects_windows_dir",

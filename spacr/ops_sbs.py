@@ -146,6 +146,98 @@ def extract_bases(stack: np.ndarray, peaks: np.ndarray, *,
     return out
 
 
+#: The read modes of ``ops_read_mode`` (item 952), the first being the
+#: default: ``log`` reads the -LoG(1 px) stack's 3 x 3 maximum and calls it
+#: after the per-cycle median normalisation; ``raw`` reads the unfiltered
+#: stack's maximum over a disk of :data:`_RAW_READ_RADIUS` px and calls the
+#: brightest channel as it is; ``auto`` chooses one of the two per well from
+#: decoy calls.
+_READ_MODES = ("log", "raw", "auto")
+
+#: The radius, in pixels, of the disk a raw read takes its maximum over:
+#: PERISCOPE's read (item 952, BMC edge ablation round 3).
+_RAW_READ_RADIUS = 3
+
+
+def _read_mode_setting(settings) -> str:
+    """The ``ops_read_mode`` of a run's settings, checked.
+
+    :param settings: the run's settings.
+    :returns: one of :data:`_READ_MODES`; empty or missing is ``log``.
+    :raises ValueError: for any other value.
+    """
+    value = settings.get("ops_read_mode") if settings is not None else None
+    mode = str(value or _READ_MODES[0]).strip().lower()
+    if mode not in _READ_MODES:
+        raise ValueError(f"ops_read_mode must be one of {list(_READ_MODES)}; "
+                         f"got {value!r}")
+    return mode
+
+
+def _reflected(index: np.ndarray, size: int) -> np.ndarray:
+    """Pixel indices mirrored back into ``[0, size)`` as SciPy's 'reflect' mode does.
+
+    :param index: indices at most one radius outside the axis.
+    :param size: the axis length.
+    :returns: ``-1`` -> ``0``, ``size`` -> ``size - 1``, and so on.
+    """
+    index = np.where(index < 0, -index - 1, index)
+    return np.where(index >= size, 2 * size - 1 - index, index)
+
+
+def _read_values(stack: np.ndarray, filtered: Optional[np.ndarray],
+                 peaks: np.ndarray, mode: str, *,
+                 radius: int = _RAW_READ_RADIUS) -> np.ndarray:
+    """The per-cycle, per-channel intensity a read is called from (item 952).
+
+    :param stack: ``(cycles, channels, Y, X)`` unfiltered intensities; read
+        in ``raw`` mode only.
+    :param filtered: the same stack after the -LoG(1 px) filter, clipped at
+        0; read in ``log`` mode only.
+    :param peaks: ``(N, 2)`` ``(y, x)`` spot positions.
+    :param mode: ``log`` (:func:`extract_bases` on ``filtered``, a 3 x 3
+        maximum) or ``raw`` (the maximum of ``stack`` over the disk of
+        ``radius`` px around each peak, the pixels past the border mirrored
+        as :func:`scipy.ndimage.maximum_filter` mirrors them).
+    :param radius: the raw disk's radius.
+    :returns: ``(N, cycles, channels)`` float32.
+    :raises ValueError: for another mode.
+    """
+    if mode == "log":
+        return extract_bases(filtered, peaks, window=1)
+    if mode != "raw":
+        raise ValueError(f"a read is taken in 'log' or 'raw' mode; got {mode!r}")
+    array = np.asarray(stack)
+    n_cycles, n_channels, height, width = array.shape
+    coords = np.asarray(peaks, dtype=np.int64).reshape(-1, 2)
+    if not len(coords):
+        return np.zeros((0, n_cycles, n_channels), np.float32)
+    reach = int(radius)
+    dy, dx = np.mgrid[-reach:reach + 1, -reach:reach + 1]
+    disk = dy ** 2 + dx ** 2 <= reach * reach
+    out = np.full((n_cycles, n_channels, len(coords)), -np.inf, np.float32)
+    for oy, ox in zip(dy[disk], dx[disk]):
+        ys = _reflected(coords[:, 0] + oy, height)
+        xs = _reflected(coords[:, 1] + ox, width)
+        np.maximum(out, array[:, :, ys, xs], out=out)
+    return np.ascontiguousarray(out.transpose(2, 0, 1))
+
+
+def _raw_called_bases(values: np.ndarray, bases: Sequence[str] = BASES
+                      ) -> Tuple[np.ndarray, List[str], np.ndarray]:
+    """:func:`called_bases` of a raw read: the brightest channel, as it is.
+
+    :param values: ``(N, cycles, channels)`` from :func:`_read_values` in
+        ``raw`` mode.
+    :param bases: the letter for each channel, in channel order.
+    :returns: :func:`called_bases`'s ``(data, barcodes, margin)`` with no
+        per-cycle median normalisation, no unmixing and no library
+        calibration.
+    """
+    return called_bases(values, bases=tuple(bases), compensate=False,
+                        normalise=False, gpu=False)
+
+
 def compensate_crosstalk(values: np.ndarray, *,
                          method: str = "percentile",
                          percentile: float = 95.0,

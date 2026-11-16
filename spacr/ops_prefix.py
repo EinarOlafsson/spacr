@@ -794,17 +794,83 @@ def decode_prefix_site(stack: np.ndarray, library: PrefixLibrary, *,
         columns, and ``control_status`` when a control is given.
     :raises ValueError: when ``labels`` is not the stack's grid.
     """
-    from .ops_sbs import called_bases
+    return _decode_site(stack, library, bases=bases, labels=labels, threshold=threshold,
+                        crosstalk=crosstalk, metric=metric, max_distance=max_distance,
+                        control=control)
 
-    peaks, values = detect_spots(stack, threshold=threshold)
-    values = compensate_prefix(values, crosstalk)
-    _data, calls, margin = called_bases(values, bases=tuple(bases), compensate=False,
-                                        normalise=True, gpu=False)
+
+def _prefix_calls(values: np.ndarray, *, bases: Sequence[str], crosstalk: str,
+                  read_mode: str = "log") -> Tuple[List[str], np.ndarray]:
+    """Call one site's reads as the spacer-prefix decode calls them.
+
+    :param values: ``(N, cycles, bases)`` read intensities.
+    :param bases: the base letter of each plane.
+    :param crosstalk: :func:`compensate_prefix` mode, used in ``log`` mode.
+    :param read_mode: ``log`` (unmixed as asked, then the brightest base
+        after the per-cycle median normalisation) or ``raw`` (item 952: the
+        brightest base as read, no unmixing or normalisation).
+    :returns: ``(calls, quality)``: one string per read and its worst
+        cycle's margin.
+    """
+    from .ops_sbs import _raw_called_bases, called_bases
+
+    if read_mode == "raw":
+        _data, calls, margin = _raw_called_bases(values, bases)
+    else:
+        values = compensate_prefix(values, crosstalk)
+        _data, calls, margin = called_bases(values, bases=tuple(bases), compensate=False,
+                                            normalise=True, gpu=False)
     if len(calls):
         worst = np.where(np.isnan(margin), np.inf, margin).min(axis=1)
         quality = np.where(np.isfinite(worst), worst, 0.0).astype(np.float32)
     else:
         quality = np.zeros(0, np.float32)
+    return calls, quality
+
+
+def _raw_candidates(stack: np.ndarray, candidates):
+    """Spot candidates with their raw reads in place of the -LoG reads (item 952).
+
+    :param stack: ``(cycles, Y, X, bases)`` intensities.
+    :param candidates: ``(peaks, strength, values, ...)``, as
+        :func:`_spot_candidates` returns them, with anything after the
+        values kept.
+    :returns: the same tuple with ``values`` from
+        :func:`spacr.ops_sbs._read_values` in ``raw`` mode at the same peaks.
+    """
+    from .ops_sbs import _read_values
+
+    peaks = candidates[0]
+    raw = _read_values(np.moveaxis(np.asarray(stack), -1, 1), None, peaks, "raw")
+    return (candidates[0], candidates[1], raw) + tuple(candidates[3:])
+
+
+def _decode_site(stack: np.ndarray, library: PrefixLibrary, *, bases: Sequence[str],
+                 labels: Optional[np.ndarray], threshold: float, crosstalk: str,
+                 metric: str, max_distance: int, control: Optional[PrefixLibrary],
+                 read_mode: str = "log") -> pd.DataFrame:
+    """:func:`decode_prefix_site` with the read mode of item 952.
+
+    :param stack: as for :func:`decode_prefix_site`.
+    :param library: the whitelist.
+    :param bases: the base letter of each plane.
+    :param labels: the cell labels, or None.
+    :param threshold: the read score rise.
+    :param crosstalk: :func:`compensate_prefix` mode.
+    :param metric: :func:`match_prefix_reads` metric.
+    :param max_distance: :func:`match_prefix_reads` limit.
+    :param control: a shuffled whitelist, or None.
+    :param read_mode: ``log`` or ``raw`` (:func:`_prefix_calls`).
+    :returns: :func:`decode_prefix_site`'s rows.
+    :raises ValueError: when ``labels`` is not the stack's grid.
+    """
+    if read_mode == "raw":
+        peaks, _strength, values = _raw_candidates(
+            stack, _spot_candidates(stack, floor=threshold))
+    else:
+        peaks, values = detect_spots(stack, threshold=threshold)
+    calls, quality = _prefix_calls(values, bases=bases, crosstalk=crosstalk,
+                                   read_mode=read_mode)
     cell = np.zeros(len(peaks), np.int64)
     if labels is not None:
         labels = np.asarray(labels)
@@ -901,7 +967,7 @@ def _matched_rows(calls: Sequence[str], library: PrefixLibrary, memo: Dict[str, 
 
 def _site_tuning_reads(candidates, library: PrefixLibrary, memo: Dict[str, tuple], *,
                        bases: Sequence[str], threshold: float, crosstalk: str, metric: str,
-                       max_distance: int) -> pd.DataFrame:
+                       max_distance: int, read_mode: str = "log") -> pd.DataFrame:
     """One site's reads at one read threshold, from its spot candidates.
 
     The reads above the threshold are compensated, called and matched as
@@ -916,21 +982,15 @@ def _site_tuning_reads(candidates, library: PrefixLibrary, memo: Dict[str, tuple
     :param crosstalk: :func:`compensate_prefix` mode.
     :param metric: the match metric.
     :param max_distance: the largest distance matched (the grid's loosest).
+    :param read_mode: ``log`` or ``raw`` (:func:`_prefix_calls`); the
+        candidates' values must be that mode's reads.
     :returns: :func:`decode_prefix_site`'s rows, without the control.
     """
-    from .ops_sbs import called_bases
-
     peaks, strength, values, cell = candidates
     keep = strength > float(threshold)
     peaks, cell = peaks[keep], cell[keep]
-    values = compensate_prefix(values[keep], crosstalk)
-    _data, calls, margin = called_bases(values, bases=tuple(bases), compensate=False,
-                                        normalise=True, gpu=False)
-    if len(calls):
-        worst = np.where(np.isnan(margin), np.inf, margin).min(axis=1)
-        quality = np.where(np.isfinite(worst), worst, 0.0).astype(np.float32)
-    else:
-        quality = np.zeros(0, np.float32)
+    calls, quality = _prefix_calls(values[keep], bases=bases, crosstalk=crosstalk,
+                                   read_mode=read_mode)
     frame = pd.DataFrame({"y": peaks[:, 0] if len(peaks) else np.zeros(0, np.int64),
                           "x": peaks[:, 1] if len(peaks) else np.zeros(0, np.int64),
                           "cell": cell, "quality": quality})
@@ -1208,6 +1268,13 @@ def run_prefix_decode(settings: Mapping[str, Any],
         raise ValueError("the prefix_decode phase needs dst_root")
     started = time.perf_counter()
     chosen = prefix_settings(settings)
+    from .ops_sbs import _read_mode_setting
+
+    read_mode = _read_mode_setting(settings)
+    if read_mode == "auto" and chosen["ops_prefix_threshold_tuning"] != "per_well_decoy":
+        raise ValueError("ops_read_mode 'auto' chooses the read per well from decoy "
+                         "calls; set ops_prefix_threshold_tuning 'per_well_decoy' and "
+                         "ops_prefix_decoy_k above 0, or choose 'log' or 'raw'")
     library = spacer_prefix_library(
         chosen["ops_library"], sequence_col=chosen["ops_library_sequence_col"],
         gene_col=chosen["ops_library_gene_col"], prefix_length=chosen["ops_prefix_length"],
@@ -1239,6 +1306,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
     class_names = RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else QUALITY_CLASSES
     recorded = ({key: value for key, value in chosen.items() if key not in _ITEM_942_KEYS}
                 if legacy else chosen)
+    if read_mode != "log":
+        recorded = {**recorded, "ops_read_mode": read_mode}
     with open(os.path.join(folder, "quality_classes.json"), "w", encoding="utf-8") as handle:
         json.dump({"method": method, "classes": class_names,
                    "source": RECIPE_SIMPLE_SOURCE if method == "recipe_simple" else None,
@@ -1256,9 +1325,12 @@ def run_prefix_decode(settings: Mapping[str, Any],
         site_cells_n: Dict[int, int] = {}
         site_labelled: Dict[int, bool] = {}
         if tuning:
-            shape = tuple(len(values) for _, values in axes)
+            modes = ["raw", "log"] if read_mode == "auto" else [read_mode]
+            well_axes = ([("read_mode", [1.0, 0.0])] if read_mode == "auto" else []) + axes
+            shape = tuple(len(values) for _, values in well_axes)
             counts = np.zeros((len(site_list),) + shape + (2,), np.int64)
             held = {}
+            held_raw = {}
             loosest = int(max(axes[2][1]))
             for i, site in enumerate(site_list):
                 loaded = load_cpg_site(index, plate, well, site, sbs_cycles=cycles,
@@ -1273,28 +1345,35 @@ def run_prefix_decode(settings: Mapping[str, Any],
                     raise ValueError(f"the cell labels are {np.asarray(labels).shape}, "
                                      f"the sequencing stack {stack.shape[1:3]}")
                 peaks, strength, values = _spot_candidates(stack, floor=min(axes[0][1]))
-                del loaded, stack
                 cell = (np.asarray(labels)[peaks[:, 0], peaks[:, 1]].astype(np.int64)
                         if labels is not None and len(peaks)
                         else np.zeros(len(peaks), np.int64))
                 held[site] = (peaks, strength, values, cell)
+                if "raw" in modes:
+                    held_raw[site] = _raw_candidates(stack, held[site])
+                del loaded, stack
                 site_cells_n[site] = _labelled_cells(labels, pd.DataFrame())
                 site_labelled[site] = labels is not None
-                for a, threshold in enumerate(axes[0][1]):
-                    frame = _site_tuning_reads(
-                        held[site], matching, memo, bases=pinned["cpg_sbs_bases"],
-                        threshold=threshold, crosstalk=chosen["ops_prefix_crosstalk"],
-                        metric=chosen["ops_prefix_metric"], max_distance=loosest)
-                    for b, quality in enumerate(axes[1][1]):
-                        for c, distance in enumerate(axes[2][1]):
-                            counts[(i, a, b, c)] = _called_counts(
-                                _at_setting(frame, quality, int(distance)), method)
+                for m, mode in enumerate(modes):
+                    source = held_raw if mode == "raw" else held
+                    at = (i, m) if read_mode == "auto" else (i,)
+                    for a, threshold in enumerate(axes[0][1]):
+                        frame = _site_tuning_reads(
+                            source[site], matching, memo, bases=pinned["cpg_sbs_bases"],
+                            threshold=threshold, crosstalk=chosen["ops_prefix_crosstalk"],
+                            metric=chosen["ops_prefix_metric"], max_distance=loosest,
+                            read_mode=mode)
+                        for b, quality in enumerate(axes[1][1]):
+                            for c, distance in enumerate(axes[2][1]):
+                                counts[at + (a, b, c)] = _called_counts(
+                                    _at_setting(frame, quality, int(distance)), method)
                 if labels is None:
-                    site_cells_n[site] = int(counts[i, 0, 0, 0].sum())
+                    first = (i, len(modes) - 1) if read_mode == "auto" else (i,)
+                    site_cells_n[site] = int(counts[first + (0, 0, 0)].sum())
                 say(f"prefix_decode {plate} {well_id} site {site}: {len(peaks)} spot "
                     f"candidates scored over {int(np.prod(shape))} settings")
             choice = tune_thresholds(
-                counts, [site_cells_n[s] for s in site_list], site_list, axes,
+                counts, [site_cells_n[s] for s in site_list], site_list, well_axes,
                 k=decoy_k, scale=chosen["ops_prefix_fdr_scale"],
                 fdr_max=chosen["ops_prefix_fdr_target_pct"],
                 tune_fraction=float(settings.get("ops_decode_auto_tune_fraction") or 0.5),
@@ -1302,22 +1381,28 @@ def run_prefix_decode(settings: Mapping[str, Any],
             stem = f"threshold_tuning_{plate}_{well_id}"
             paths = write_tuning_curve(choice, folder, stem,
                                        title=f"{plate} {well_id}: prefix decode tuning")
+            best = choice["chosen"]
+            well_mode = (("raw" if best["read_mode"] == 1.0 else "log")
+                         if read_mode == "auto" else read_mode)
+            mode_record = {"read_mode": well_mode} if read_mode != "log" else {}
             with open(os.path.join(folder, f"{stem}.json"), "w", encoding="utf-8") as handle:
                 json.dump({"plate": plate, "well": well_id,
                            **{key: value for key, value in choice.items() if key != "grid"},
-                           "paths": paths}, handle, indent=1, default=str)
-            tuned[f"{plate}_{well_id}"] = {key: choice[key] for key in (
-                "chosen", "auto_met", "fdr_lowest", "tune", "report", "all_fields")}
+                           **mode_record, "paths": paths}, handle, indent=1, default=str)
+            tuned[f"{plate}_{well_id}"] = {**{key: choice[key] for key in (
+                "chosen", "auto_met", "fdr_lowest", "tune", "report", "all_fields")},
+                **mode_record}
             say(f"prefix_decode {plate} {well_id}: tuned {choice['chosen']}, report sites "
                 f"{choice['report']['genotyped_pct']} % genotyped, FDR "
                 f"{choice['report']['fdr_per_100']} %")
-            best = choice["chosen"]
             for site in site_list:
                 frame = _site_tuning_reads(
-                    held[site], matching, memo, bases=pinned["cpg_sbs_bases"],
+                    (held_raw if well_mode == "raw" else held)[site], matching, memo,
+                    bases=pinned["cpg_sbs_bases"],
                     threshold=best["ops_read_threshold"],
                     crosstalk=chosen["ops_prefix_crosstalk"],
-                    metric=chosen["ops_prefix_metric"], max_distance=loosest)
+                    metric=chosen["ops_prefix_metric"], max_distance=loosest,
+                    read_mode=well_mode)
                 frame = _at_setting(frame, best["ops_prefix_min_read_quality"],
                                     int(best["ops_prefix_max_distance"])).reset_index(drop=True)
                 if control is not None:
@@ -1325,7 +1410,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                         frame["read"].tolist(), control, metric=chosen["ops_prefix_metric"],
                         max_distance=int(best["ops_prefix_max_distance"]))["status"].to_numpy()
                 site_reads[site] = frame
-            del held
+            del held, held_raw
         for site in site_list:
             if tuning:
                 reads = site_reads.pop(site)
@@ -1339,12 +1424,13 @@ def run_prefix_decode(settings: Mapping[str, Any],
                                      well_id=well_id, site=site,
                                      merged=merged_path(str(destination), plate, well_id,
                                                         site))
-                reads = decode_prefix_site(
+                reads = _decode_site(
                     loaded["sbs"], matching, bases=pinned["cpg_sbs_bases"], labels=labels,
                     threshold=chosen["ops_read_threshold"],
                     crosstalk=chosen["ops_prefix_crosstalk"],
                     metric=chosen["ops_prefix_metric"],
-                    max_distance=chosen["ops_prefix_max_distance"], control=control)
+                    max_distance=chosen["ops_prefix_max_distance"], control=control,
+                    read_mode=read_mode)
                 del loaded
                 if min_quality > 0:
                     reads = reads[reads["quality"] >= min_quality].reset_index(drop=True)
