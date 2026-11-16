@@ -35161,9 +35161,10 @@ seg_dst
 -------
 
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation` **-- reads it**
+|     ``_score_saved_labels`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``run_large_site_segmentation``.
+Read by ``_score_saved_labels``, ``run_large_site_segmentation``.
 
 .. _setting-flow-seg_edge_policy:
 
@@ -35734,9 +35735,11 @@ seg_report_reference
 --------------------
 
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation` **-- reads it**
+|     ``_agreement_settings`` **-- reads it**
+|     ``_score_saved_labels`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``run_large_site_segmentation``.
+Read by ``_agreement_settings``, ``_score_saved_labels``, ``run_large_site_segmentation``.
 
 .. _setting-flow-seg_site_channels:
 
@@ -35754,9 +35757,10 @@ seg_sites
 ---------
 
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation` **-- reads it**
+|     ``_score_saved_labels`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``run_large_site_segmentation``.
+Read by ``_score_saved_labels``, ``run_large_site_segmentation``.
 
 .. _setting-flow-seg_sites_src:
 

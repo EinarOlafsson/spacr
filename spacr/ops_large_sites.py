@@ -156,7 +156,27 @@ CELLPOSE_FLOAT32_PIXELS = 4e7
 
 _LOG = logging.getLogger("spacr.ops_large_sites")
 
-#: Tooltips of the item 945 settings (the other item 921 keys have none yet).
+#: The item 956 agreement-report settings and their defaults. They are read
+#: on their own (:func:`_agreement_settings`), not merged into
+#: ``LARGE_SITE_DEFAULTS``, so a run that leaves them unset writes the same
+#: ``settings.json`` as before.
+MASK_AGREEMENT_DEFAULTS: Dict[str, Any] = {
+    "ops_mask_agreement_split_merge": False,
+    "ops_mask_agreement_identity_control": False,
+    "ops_mask_agreement_displace_px": 30,
+    "ops_mask_agreement_labels": None,
+    "ops_mask_agreement_frame": "same",
+}
+
+#: The frames ``ops_mask_agreement_frame`` may name.
+MASK_AGREEMENT_FRAMES = ("same", "periscope_align")
+
+#: Site-bootstrap resamples and seed of the pooled agreement row.
+MASK_AGREEMENT_BOOTSTRAP = 2000
+MASK_AGREEMENT_SEED = 0
+
+#: Tooltips of the item 945 and 956 settings (the other item 921 keys have
+#: none yet).
 LARGE_SITE_TOOLTIPS: Dict[str, str] = {
     "seg_mask_vram_gb":
         "(float) - The most GPU memory, in GB, the job may hold while "
@@ -171,11 +191,45 @@ LARGE_SITE_TOOLTIPS: Dict[str, str] = {
         "GPU: 'auto' sizes it to seg_mask_vram_gb, 'gpu' runs it whole on the "
         "card as before (falling back to the CPU only on an out-of-memory "
         "error), 'cpu' always on the CPU. Default 'auto'. Alpha.",
+    "ops_mask_agreement_split_merge":
+        "(bool) - Add split and merge counts to the agreement with "
+        "seg_report_reference, written to mask_agreement.csv: each object goes "
+        "to the object of the other image holding more than half of its "
+        "pixels, border objects dropped. A reference object that receives two "
+        "or more objects is a split, an object that receives two or more "
+        "reference objects a merge; rates are per reference object. Also F1 at "
+        "IoU 0.3 and 0.7, and a pooled row with site-bootstrap 95 % CIs. "
+        "Default False. Alpha.",
+    "ops_mask_agreement_identity_control":
+        "(bool) - In mask_agreement.csv, score the reference against the same "
+        "file read again: a working matcher gives F1 1, 0 splits and 0 merges. "
+        "Default False. Alpha.",
+    "ops_mask_agreement_displace_px":
+        "(int) - With the agreement report on, a negative control: the labels "
+        "are moved this many px further down and right and scored again, and "
+        "their F1 must collapse. 0 is off. Default 30. Alpha.",
+    "ops_mask_agreement_labels":
+        "(str) - Score the saved labels in this folder (<site>_nuclei.npy and "
+        "<site>_cells.npy, or a run's seg_dst holding labels/) instead of "
+        "segmenting: only mask_agreement.csv and settings.json are written to "
+        "seg_dst. Needs the split-merge or identity report on. Default None. "
+        "Alpha.",
+    "ops_mask_agreement_frame":
+        "(str) - The frame the labels are scored in. 'same': as they are. "
+        "'periscope_align': moved by minus PERISCOPE's "
+        "Align_Yshift/Xshift_DAPI_Painting from the Image.csv of the reference "
+        "mask's site folder, and both images cut to their overlap. Default "
+        "'same'. Alpha.",
 }
 
 #: Settings-panel headings of the item 945 settings.
 LARGE_SITE_CATEGORIES: Dict[str, List[str]] = {
     "Mask step GPU memory": ["seg_mask_device", "seg_mask_vram_gb"],
+    "Mask agreement report": ["ops_mask_agreement_split_merge",
+                              "ops_mask_agreement_identity_control",
+                              "ops_mask_agreement_displace_px",
+                              "ops_mask_agreement_labels",
+                              "ops_mask_agreement_frame"],
 }
 
 
@@ -1555,6 +1609,206 @@ def mask_agreement(labels: np.ndarray, reference: np.ndarray, *, iou: float = 0.
             "count_ratio": ids_a.size / ids_b.size if ids_b.size else float("nan")}
 
 
+def _agreement_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """The item 956 report settings of a run, defaults filled in and checked."""
+    out = {key: (default if settings.get(key) is None else settings.get(key))
+           for key, default in MASK_AGREEMENT_DEFAULTS.items()}
+    out["ops_mask_agreement_displace_px"] = int(out["ops_mask_agreement_displace_px"] or 0)
+    if out["ops_mask_agreement_frame"] not in MASK_AGREEMENT_FRAMES:
+        raise ValueError(f"ops_mask_agreement_frame must be one of {list(MASK_AGREEMENT_FRAMES)}; "
+                         f"got {out['ops_mask_agreement_frame']!r}")
+    if out["ops_mask_agreement_displace_px"] < 0:
+        raise ValueError("ops_mask_agreement_displace_px must be 0 or more; "
+                         f"got {out['ops_mask_agreement_displace_px']!r}")
+    out["report"] = bool(out["ops_mask_agreement_split_merge"]
+                         or out["ops_mask_agreement_identity_control"])
+    if out["ops_mask_agreement_labels"] and not out["report"]:
+        raise ValueError("ops_mask_agreement_labels scores saved labels for the agreement report; "
+                         "turn on ops_mask_agreement_split_merge or "
+                         "ops_mask_agreement_identity_control")
+    if out["report"] and not settings.get("seg_report_reference"):
+        raise ValueError("the mask agreement report needs seg_report_reference")
+    return out
+
+
+def _shift_labels(labels: np.ndarray, dy: int, dx: int) -> np.ndarray:
+    """``labels`` moved by ``(dy, dx)`` px, the uncovered pixels 0."""
+    out = np.zeros_like(labels)
+    h, w = labels.shape
+    ys, yd = (slice(0, h - dy), slice(dy, h)) if dy >= 0 else (slice(-dy, h), slice(0, h + dy))
+    xs, xd = (slice(0, w - dx), slice(dx, w)) if dx >= 0 else (slice(-dx, w), slice(0, w + dx))
+    out[yd, xd] = labels[ys, xs]
+    return out
+
+
+def _frame_overlap(image: np.ndarray, dy: int, dx: int) -> np.ndarray:
+    """The part of a frame that a frame moved by ``(dy, dx)`` also covers."""
+    h, w = image.shape
+    return image[abs(dy):h - abs(dy), abs(dx):w - abs(dx)]
+
+
+def _split_merge(labels: np.ndarray, reference: np.ndarray) -> Dict[str, int]:
+    """Split and merge counts by majority overlap, border objects dropped.
+
+    Each object is assigned to the object of the other image that holds more
+    than half of its pixels. A reference object receiving two or more
+    objects is a split; an object receiving two or more reference objects is
+    a merge.
+    """
+    labels, _ = apply_edge_policy(labels, "exclude")
+    reference, _ = apply_edge_policy(reference, "exclude")
+    a, b = labels.ravel().astype(np.int64), reference.ravel().astype(np.int64)
+    area_a, area_b = np.bincount(a), np.bincount(b)
+    both = (a > 0) & (b > 0)
+    pairs, counts = np.unique(np.stack([a[both], b[both]]), axis=1, return_counts=True)
+    a_major = counts > 0.5 * area_a[pairs[0]]
+    b_major = counts > 0.5 * area_b[pairs[1]]
+    per_ref = np.bincount(pairs[1][a_major], minlength=area_b.size)
+    per_mine = np.bincount(pairs[0][b_major], minlength=area_a.size)
+    return {"splits": int((per_ref >= 2).sum()), "merges": int((per_mine >= 2).sum())}
+
+
+def _periscope_shift(mask_path: str) -> Tuple[int, int]:
+    """Minus PERISCOPE's 04Align DAPI-to-painting shift ``(dy, dx)``, from
+    the ``Image.csv`` of the site folder holding ``segmentation_masks``."""
+    table = os.path.join(os.path.dirname(os.path.dirname(mask_path)), "Image.csv")
+    if not os.path.isfile(table):
+        raise FileNotFoundError(f"ops_mask_agreement_frame 'periscope_align' needs {table}")
+    from .tabular import read_table
+
+    row = read_table(table, canonicalise=False, report=None,
+                     usecols=["Align_Xshift_DAPI_Painting", "Align_Yshift_DAPI_Painting"])
+    return (-int(row["Align_Yshift_DAPI_Painting"].iloc[0]),
+            -int(row["Align_Xshift_DAPI_Painting"].iloc[0]))
+
+
+def _agreement_rows(labels_dir: str, reference_dir: str, sites: Sequence[str],
+                    agree: Mapping[str, Any]) -> List[Dict[str, Any]]:
+    """One agreement row per site and kind with saved labels and a reference."""
+    import tifffile
+
+    displace = agree["ops_mask_agreement_displace_px"]
+    rows = []
+    for site in sites:
+        for kind in ("Nuclei", "Cells"):
+            path = os.path.join(labels_dir, f"{site}_{kind.lower()}.npy")
+            ref_path = _reference_mask_path(reference_dir, site, kind)
+            if not os.path.isfile(path) or ref_path is None:
+                continue
+            ref = tifffile.imread(ref_path)
+            dy, dx = (_periscope_shift(ref_path)
+                      if agree["ops_mask_agreement_frame"] == "periscope_align" else (0, 0))
+            mine = _shift_labels(np.load(path), dy, dx)
+            a, r = _frame_overlap(mine, dy, dx), _frame_overlap(ref, dy, dx)
+            row: Dict[str, Any] = {"site": str(site), "kind": kind.lower(), "dy": dy, "dx": dx}
+            row.update(mask_agreement(a, r))
+            if agree["ops_mask_agreement_split_merge"]:
+                for iou in (0.3, 0.7):
+                    score = mask_agreement(a, r, iou=iou)
+                    row[f"f1_iou{iou}"], row[f"matched_iou{iou}"] = score["f1"], score["matched"]
+                row.update(_split_merge(a, r))
+                n_ref = row["n_reference"]
+                row["split_rate"] = row["splits"] / n_ref if n_ref else float("nan")
+                row["merge_rate"] = row["merges"] / n_ref if n_ref else float("nan")
+            if agree["ops_mask_agreement_identity_control"]:
+                again = tifffile.imread(ref_path)
+                same = mask_agreement(ref, again)
+                row["identity_f1"], row["identity_count_ratio"] = same["f1"], same["count_ratio"]
+                same_sm = _split_merge(ref, again)
+                row["identity_splits"], row["identity_merges"] = same_sm["splits"], same_sm["merges"]
+            if displace:
+                wrong = _frame_overlap(_shift_labels(mine, displace, displace), dy, dx)
+                moved = mask_agreement(wrong, r)
+                row["displaced_f1"], row["displaced_matched"] = moved["f1"], moved["matched"]
+            rows.append(row)
+            del ref, mine, a, r
+    return rows
+
+
+def _ratio(numerator: float, denominator: float) -> float:
+    """``numerator / denominator``, NaN when the denominator is 0."""
+    return numerator / denominator if denominator else float("nan")
+
+
+def _pooled_stats(frame: pd.DataFrame, agree: Mapping[str, Any]) -> Dict[str, float]:
+    """Agreement pooled over the sites of ``frame`` from summed counts."""
+    ns, nr, m = (int(frame[c].sum()) for c in ("n_spacr", "n_reference", "matched"))
+    out = {"f1": _ratio(2 * m, ns + nr), "count_ratio": _ratio(ns, nr),
+           "precision": _ratio(m, ns), "recall": _ratio(m, nr)}
+    if agree["ops_mask_agreement_split_merge"]:
+        for iou in (0.3, 0.7):
+            out[f"f1_iou{iou}"] = _ratio(2 * int(frame[f"matched_iou{iou}"].sum()), ns + nr)
+        out["split_rate"] = _ratio(int(frame["splits"].sum()), nr)
+        out["merge_rate"] = _ratio(int(frame["merges"].sum()), nr)
+    if agree["ops_mask_agreement_displace_px"]:
+        out["displaced_f1"] = _ratio(2 * int(frame["displaced_matched"].sum()), ns + nr)
+    return out
+
+
+def _pooled_row(frame: pd.DataFrame, agree: Mapping[str, Any]) -> Dict[str, Any]:
+    """The pooled row of one kind: summed counts, pooled rates and their
+    site-bootstrap 95 % CIs; the identity control's lowest F1 and count
+    ratio and summed splits and merges."""
+    rng = np.random.default_rng(MASK_AGREEMENT_SEED)
+    point = _pooled_stats(frame, agree)
+    draws = [_pooled_stats(frame.iloc[rng.integers(0, len(frame), len(frame))], agree)
+             for _ in range(MASK_AGREEMENT_BOOTSTRAP)]
+    row: Dict[str, Any] = {"site": "pooled", "kind": frame["kind"].iloc[0]}
+    sums = ["n_spacr", "n_reference", "matched", "matched_iou0.3", "matched_iou0.7", "splits",
+            "merges", "identity_splits", "identity_merges", "displaced_matched"]
+    row.update({c: int(frame[c].sum()) for c in sums if c in frame})
+    row.update(point)
+    if "identity_f1" in frame:
+        row["identity_f1"] = float(frame["identity_f1"].min())
+        row["identity_count_ratio"] = float(frame["identity_count_ratio"].min())
+    for key in point:
+        values = [d[key] for d in draws]
+        row[f"{key}_ci_low"] = float(np.quantile(values, 0.025))
+        row[f"{key}_ci_high"] = float(np.quantile(values, 0.975))
+    return row
+
+
+def _write_agreement_report(rows: List[Dict[str, Any]], dst: str,
+                            agree: Mapping[str, Any]) -> List[Dict[str, Any]]:
+    """Site rows plus one pooled row per kind, written to ``mask_agreement.csv``."""
+    from .tabular import write_table
+
+    table = pd.DataFrame(rows)
+    out = list(rows)
+    if len(table):
+        for kind in ("nuclei", "cells"):
+            part = table[table["kind"] == kind]
+            if len(part):
+                out.append(_pooled_row(part.reset_index(drop=True), agree))
+    write_table(pd.DataFrame(out), os.path.join(dst, "mask_agreement.csv"), canonicalise=False)
+    return out
+
+
+def _saved_label_sites(labels_dir: str) -> List[str]:
+    """The sites with saved ``<site>_nuclei.npy`` or ``<site>_cells.npy``."""
+    names = {os.path.basename(p).rsplit("_", 1)[0]
+             for kind in ("nuclei", "cells")
+             for p in glob.glob(os.path.join(labels_dir, f"*_{kind}.npy"))}
+    return sorted(names, key=lambda s: (0, int(s), "") if s.isdigit() else (1, 0, s))
+
+
+def _score_saved_labels(settings: Mapping[str, Any], agree: Mapping[str, Any]) -> Dict[str, Any]:
+    """The agreement report on saved labels, with no segmentation."""
+    dst = settings.get("seg_dst")
+    if not dst:
+        raise ValueError("seg_dst is required")
+    labels_dir = agree["ops_mask_agreement_labels"]
+    if os.path.isdir(os.path.join(labels_dir, "labels")):
+        labels_dir = os.path.join(labels_dir, "labels")
+    os.makedirs(dst, exist_ok=True)
+    with open(os.path.join(dst, "settings.json"), "w", encoding="utf-8") as handle:
+        json.dump({k: (list(v) if isinstance(v, tuple) else v) for k, v in settings.items()},
+                  handle, indent=2, sort_keys=True, default=str)
+    sites = [str(s) for s in (settings.get("seg_sites") or _saved_label_sites(labels_dir))]
+    rows = _agreement_rows(labels_dir, settings["seg_report_reference"], sites, agree)
+    return {"dst": dst, "mask_agreement": _write_agreement_report(rows, dst, agree)}
+
+
 def read_cropped_site(well_dir: str, site: Any, channels: Sequence[str]) -> np.ndarray:
     """One cropped site of a PERISCOPE-style well folder as ``(H, W, C)``.
 
@@ -1597,15 +1851,22 @@ def list_sites(well_dir: str, channels: Sequence[str]) -> List[str]:
     return sorted(set(names), key=lambda s: (0, int(s), "") if s.isdigit() else (1, 0, s))
 
 
-def _reference_mask(folder: Optional[str], site: str, kind: str) -> Optional[np.ndarray]:
-    """A reference ``*_Site_<site>_<kind>_Objects.tif(f)`` under ``folder``, or None."""
-    import tifffile
-
+def _reference_mask_path(folder: Optional[str], site: str, kind: str) -> Optional[str]:
+    """The path of a reference ``*_Site_<site>_<kind>_Objects.tif(f)`` under
+    ``folder``, or None."""
     if not folder:
         return None
     found = sorted(glob.glob(os.path.join(folder, "**", f"*_Site_{site}_{kind}_Objects.tif*"),
                              recursive=True))
-    return tifffile.imread(found[0]) if found else None
+    return found[0] if found else None
+
+
+def _reference_mask(folder: Optional[str], site: str, kind: str) -> Optional[np.ndarray]:
+    """A reference ``*_Site_<site>_<kind>_Objects.tif(f)`` under ``folder``, or None."""
+    import tifffile
+
+    path = _reference_mask_path(folder, site, kind)
+    return tifffile.imread(path) if path else None
 
 
 def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional[Tuple[Any, Any]] = None,
@@ -1628,7 +1889,15 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     diameter, when not fixed, and the tiling-control site come from
     ``seg_diameter_sites`` sites spread over the well, of which only those
     with at least ``seg_diameter_min_objects`` nuclei count
-    (:func:`survey_sites`), never from one site that may be empty.
+    (:func:`survey_sites`), never from one site that may be empty. With
+    ``ops_mask_agreement_split_merge`` or
+    ``ops_mask_agreement_identity_control`` (item 956), the saved labels are
+    also scored against ``seg_report_reference`` into ``mask_agreement.csv``:
+    one row per site and kind, with split and merge counts, F1 at IoU 0.3,
+    0.5 and 0.7, the identity and displaced controls, and a pooled row per
+    kind with site-bootstrap 95 % CIs. With ``ops_mask_agreement_labels``
+    nothing is segmented: the labels saved there are scored and only
+    ``mask_agreement.csv`` and ``settings.json`` are written.
 
     :param settings: item 921 settings; ``seg_sites_src`` (the well folder)
         and ``seg_dst`` are required.
@@ -1637,15 +1906,22 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     :param available_bytes: passed to :func:`plan_site_memory`.
     :returns: ``plan``, ``sites`` (the site table as records), ``dst``,
         ``nucleus_diameter`` (what ``nucleus_diameter.json`` holds) and
-        ``mask_steps`` (what ``mask_step.json`` holds).
+        ``mask_steps`` (what ``mask_step.json`` holds), plus
+        ``mask_agreement`` (the rows of ``mask_agreement.csv``) when that
+        report runs; with ``ops_mask_agreement_labels`` only ``dst`` and
+        ``mask_agreement``.
     :raises ValueError: when ``seg_sites_src`` or ``seg_dst`` is missing, or
-        when no sampled site holds enough nuclei to estimate the diameter.
+        when no sampled site holds enough nuclei to estimate the diameter, or
+        when the agreement report has no ``seg_report_reference``.
     :raises MemoryPlanError: when the RAM cap cannot be met.
     """
     from .resource_log import ResourceSampler
     from .tabular import write_table
 
     settings = large_site_settings(settings)
+    agree = _agreement_settings(settings)
+    if agree["ops_mask_agreement_labels"]:
+        return _score_saved_labels(settings, agree)
     src, dst = settings.get("seg_sites_src"), settings.get("seg_dst")
     if not src or not dst:
         raise ValueError("seg_sites_src and seg_dst are required")
@@ -1778,5 +2054,10 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                     frame.loc[(ratio - 1).abs() > 0.10, "site"].astype(str))
         write_table(pd.DataFrame([well]), os.path.join(dst, "agreement_well.csv"),
                     canonicalise=False)
-    return {"plan": plan, "sites": rows, "dst": dst, "nucleus_diameter": survey,
-            "mask_steps": mask_steps}
+    out = {"plan": plan, "sites": rows, "dst": dst, "nucleus_diameter": survey,
+           "mask_steps": mask_steps}
+    if agree["report"]:
+        out["mask_agreement"] = _write_agreement_report(
+            _agreement_rows(os.path.join(dst, "labels"), settings["seg_report_reference"],
+                            sites, agree), dst, agree)
+    return out
