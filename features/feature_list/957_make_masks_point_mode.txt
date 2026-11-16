@@ -1,0 +1,69 @@
+MAKE MASKS POINT MODE: ONE POINT PER OBJECT, SAVED AS X/Y CSV FOR SCORING
+========================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-15, alpha (ALPHA_FEATURES[957], widget MakeMasksPointModeButton). Under development per proposals/READINESS.md: not marked Ready. spacr/point_annotation.py, spacr/qt/point_annotator.py, spacr/cli_make_masks.py, spacr/qt/screens/make_masks.py, spacr/settings.py, tools/refresh_alpha_deck.py, tests/test_957_make_masks_point_mode.py, tests/qt/test_957_point_mode_window.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item957_proof/REPORT.md.
+Requested: maintainer 2026-11-15, "I should be able to use spaCR for this task" (the PERISCOPE S3 nuclei hand-check of 20 crops, planned in Fiji until then).
+Owner: master lane claude-957-1115.
+Source: proposals/bmc_paper_items/ITEM_make_masks_point_mode.md.
+Related: 921/945 (the large-site nuclei the hand-check scores), the S3 scorer score_s3_nuclei.py (paper session).
+
+PROBLEM
+The hand-check of the S3 nuclei needs one click per nucleus on 20 crops, saved
+as X/Y points the scorer reads. Make Masks only painted masks, so the task was
+planned in Fiji's multi-point tool and Analyze -> Measure.
+
+BUILD
+- spacr-make-masks --folder <dir> --points, and Make Masks' alpha button
+  "Point mode..." (asks for a folder). The folder opens as a resumable
+  curation queue (spacr.curation_queue): done flags in <dir>/curate_status.csv.
+  A folder of bare images (no masks/) is accepted as the "images" layout;
+  nested and sibling layouts work too; _seg.npy bundles are refused.
+  Every image is offered in name order; the window opens on the first image
+  not done. --limit, --layers, --require-*, --exclude-verdicts and
+  --compute-uncertainty are refused with --points.
+- Controls (spacr.qt.point_annotator.PointAnnotatorDialog): left click adds a
+  point on the clicked pixel; right click removes the nearest within 8 screen
+  px; U toggles unsure on the point nearest the cursor, else the last point;
+  Ctrl+Z undoes add, remove and unsure; the point count and unsure count are
+  shown; wheel zooms at the cursor, middle button or Shift+left drag pans (as
+  in the editor), F fits, +/- zoom; Enter marks done and opens the next image
+  not done; Left/Right step without marking.
+- Auto-save (spacr.point_annotation.PointSession) after every change to
+  <dir>/../annotations/<stem>_points.csv, stem = file name without extension
+  and without a trailing _clean. Columns X, Y (float; the clicked pixel's
+  column and row, origin top-left, the Fiji Measure convention), unsure (0/1),
+  note. Atomic: temp file + os.replace; saving again overwrites. Marking done
+  writes the file even with zero points. A Fiji Measure CSV (extra columns)
+  is read back.
+- Blind by default: --hide-overlays (on). Overlay folders (--overlays DIR...,
+  default <dir>/../overlays when it exists; the GUI button uses that
+  default) are matched by points stem (<stem>.<ext> or <stem>_*.<ext>) and
+  can be shown only when every image of the folder is marked done (or at
+  once with --no-hide-overlays). O cycles the overlays of an image. While an
+  overlay is on screen the points cannot be changed.
+- No change to brush or mask modes; no setting changes, so no
+  SETTINGS_SCHEMA_VERSION bump and no DEFAULT_CHANGES row.
+
+ACCEPTANCE
+tests/test_957_make_masks_point_mode.py (14 cases: file naming, layouts and
+refusals, X/Y round trip through np.round(P[["Y","X"]]), remove/unsure/undo,
+atomic overwrite, Fiji CSV, resume, overlay matching, CLI dry run, flag
+refusals, handover) and tests/qt/test_957_point_mode_window.py (5 cases with
+real Qt mouse and key events offscreen: add, remove, unsure, undo, pan, the
+overlay gate and lock, resume, alpha visibility, terminal handover).
+
+PROOF CHECK 2026-11-15 (CPU, offscreen). See REPORT.md.
+Scratch copy of handcheck_crops (the real annotations/ folder untouched, still
+empty). 1,518 scripted clicks over all 20 crops through the point window with
+real Qt mouse events (designed from the PERISCOPE labels: one click per hit
+object, two per merge object, none per false-positive object, two background
+clicks per crop), plus a removed extra point, an unsure toggle and an undo per
+crop; closed after 10 crops and reopened. score_s3_nuclei.py's hand-check
+block, run unchanged on the scratch copy: all 40 crop x method rows match the
+expected hits, points, objects, missed, false positives and merges exactly
+(PERISCOPE 742 hits / 1,518 points / 1,477 objects as designed; spaCR945 rows
+equal an independent per-click lookup). Every CSV has columns X, Y, unsure,
+note and the clicked column/row exactly. Resume: 10 done after reopen, the
+window reopened on crop 11, crop 1's 13 points kept, 20 done flags at the end,
+overlays enabled only then.

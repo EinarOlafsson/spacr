@@ -9687,6 +9687,9 @@ ALPHA_FEATURES = {
                      'ops_prefix_threshold_tuning', 'ops_prefix_fdr_target_pct',
                      'ops_prefix_tuning_grid'),
     },
+    957: {
+        'widgets': ('MakeMasksPointModeButton',),
+    },
 }
 
 
