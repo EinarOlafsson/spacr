@@ -790,6 +790,16 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_nearmiss_decoy_k",
     "ops_prefix_fdr_calibration",
     "ops_decode_fdr_calibration",
+    # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
+    "ops_fdr_sweep_targets",
+    "ops_fdr_sweep_max_distance",
+    "ops_fdr_sweep_min_reads",
+    "ops_fdr_sweep_rules",
+    "ops_fdr_sweep_quality_quantiles",
+    "ops_fdr_sweep_bootstrap",
+    "ops_fdr_sweep_seed",
+    "ops_fdr_sweep_shuffle_seeds",
+    "ops_fdr_sweep_inputs",
     # Items 936 and 940 (2026-11-13): stitch reader threads and edge
     # workers, and the placement seed file.
     "ops_stitch_read_threads",

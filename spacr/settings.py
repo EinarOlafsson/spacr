@@ -9684,6 +9684,13 @@ ALPHA_FEATURES = {
         'settings': ('ops_prefix_nearmiss_decoy_k', 'ops_prefix_fdr_calibration',
                      'ops_decode_fdr_calibration'),
     },
+    955: {
+        'settings': ('ops_fdr_sweep_targets', 'ops_fdr_sweep_max_distance',
+                     'ops_fdr_sweep_min_reads', 'ops_fdr_sweep_rules',
+                     'ops_fdr_sweep_quality_quantiles', 'ops_fdr_sweep_bootstrap',
+                     'ops_fdr_sweep_seed', 'ops_fdr_sweep_shuffle_seeds',
+                     'ops_fdr_sweep_inputs'),
+    },
 }
 
 
