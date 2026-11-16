@@ -35,6 +35,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_library": None,
     "ops_base_channels": "CY3,A594,CY5,CY7",
     "ops_read_threshold": 315.0,
+    "ops_read_mode": "log",
     "ops_raster_overlap": 213,
     "ops_window_overlap": 96,
     "ops_compose_blend": "feather",
@@ -346,6 +347,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cluster_reference_dir": None,
     "ops_cluster_gene_list": None,
     "ops_cluster_published": None,
+    "ops_cluster_published_controls": True,
     "ops_consensus_enabled": False,
     "ops_consensus_bootstraps": 10,
     "ops_consensus_seed": 100,
@@ -371,7 +373,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_bench_gate_record": None,
     "ops_bench_gate_arm": 'consensus',
     "ops_bench_half": 1,
-    "ops_bench_null_permutations": 200,
+    "ops_bench_null_permutations": 1000,
     "ops_etest": False,
     "ops_etest_cells": None,
     "ops_etest_metric": 'both',
@@ -454,6 +456,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_library": (str, type(None)),
     "ops_base_channels": str,
     "ops_read_threshold": (float, int),
+    "ops_read_mode": str,
     "ops_raster_overlap": int,
     "ops_window_overlap": int,
     "ops_compose_blend": str,
@@ -765,6 +768,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cluster_reference_dir": (str, list, type(None)),
     "ops_cluster_gene_list": (str, type(None)),
     "ops_cluster_published": (list, str, type(None)),
+    "ops_cluster_published_controls": bool,
     "ops_consensus_enabled": bool,
     "ops_consensus_bootstraps": int,
     "ops_consensus_seed": int,
@@ -864,7 +868,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_sites",
     ],
     "OPS decoding": [
-        "ops_base_channels", "ops_read_threshold", "ops_footprint",
+        "ops_base_channels", "ops_read_threshold", "ops_read_mode", "ops_footprint",
         "ops_store_reads", "ops_spot_detector", "ops_channel_registration",
         "ops_registration_precision", "ops_registration_backend",
         "ops_field_diagnostics",
@@ -1068,6 +1072,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_cluster_reference_dir",
         "ops_cluster_gene_list",
         "ops_cluster_published",
+        "ops_cluster_published_controls",
         "ops_consensus_enabled",
         "ops_consensus_bootstraps",
         "ops_consensus_seed",
@@ -1332,6 +1337,16 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "file lists, so a run on a few fields at the well's rim can be "
         "placed. Its report says 'placement: seeded'. Empty aligns anchors "
         "as usual. Default None. Alpha.",
+    "ops_read_mode":
+        "(str) - How each spot's barcode is read, in the OPS and spacer-prefix "
+        "decodes. 'log' reads the -LoG-filtered pixels (3 x 3 maximum) and "
+        "calls bases after the per-cycle median normalisation. 'raw' reads the "
+        "unfiltered pixels (maximum within 3 px) and calls the brightest "
+        "channel as read, with no normalisation, unmixing or library "
+        "calibration (PERISCOPE's read). 'auto' picks 'log' or 'raw' per well "
+        "from decoy calls, tuned with ops_decode_threshold_mode 'auto' or "
+        "ops_prefix_threshold_tuning 'per_well_decoy'. Spots are found the "
+        "same way in every mode. Default 'log'. Alpha.",
     "ops_sites":
         "(str, list or None) - Run the stitch, objects and decode phases on "
         "these sequencing sites only, as '46,148,160-167'. The well's "
@@ -2061,6 +2076,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "each a name, table and optional sheet, gene and cluster column, or "
         "the path of a JSON list of them. Their data is the authors', so the "
         "rows are marked data_matched False. Default None. Alpha.",
+    "ops_cluster_published_controls":
+        "(bool) - Keep each published comparator's own control rows "
+        "(non-targeting guides) with their published clusters, in the Fisher "
+        "background of its CORUM and KEGG shares only, as the publications "
+        "scored them; they are never cluster members or STRING pairs. With "
+        "them, Funk et al.'s published clusters score CORUM 24.3 % and KEGG "
+        "13.5 %, as published. Settings files saved before item 953 rerun "
+        "with False. Default True. Alpha.",
     "ops_consensus_enabled":
         "(bool) - Also run guide-bootstrap consensus clustering after the "
         "cluster_sweep phase. Each bootstrap redraws every gene's guides, "
@@ -2174,7 +2197,10 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "scores every STRING pair. Default 1. Alpha.",
     "ops_bench_null_permutations":
         "(int) - Label permutations of the size-matched null, cluster sizes "
-        "kept, that every metric is an excess over. Default 200. Alpha.",
+        "kept, that every metric is an excess over. At 200 the null's Monte "
+        "Carlo error left shuffled-label controls about 0.2 points below "
+        "zero on complexes; the first 200 of the 1000 are the same. Settings "
+        "files saved before item 954 rerun with 200. Default 1000. Alpha.",
     "ops_etest":
         "(bool) - Keep the per-cell aligned embedding when the profile phase "
         "runs (cells_E.npy and cells_meta.parquet in its folder), which the "

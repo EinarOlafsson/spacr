@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-751 Lifecycle: new, 177 Lifecycle: future in features/feature_list/.
+752 Lifecycle: new, 178 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -576,6 +576,9 @@ FUTURE FEATURES
 
   945  OPS LARGE SITES: THE WHOLE-SITE CELLPOSE MASK STEP UNDER A VRAM CAP, THROUGH THE GPU GOVERNOR, WITH A CPU FALLBACK
        945_ops_large_site_mask_step_vram_cap.txt
+
+  953  OPS PUBLISHED CLUSTER COMPARATORS KEEP THEIR CONTROL ROWS IN THE FISHER BACKGROUND
+       953_ops_published_comparator_background.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -2079,7 +2082,9 @@ NEW FEATURES
        950_folder_layout_never_guesses_a_missing_well.txt
   951  OPS STITCH, OBJECTS AND DECODE ON CHOSEN SEQUENCING SITES
        951_ops_tile_subset_decode.txt
+  952  OPS BARCODE READ MODE: LOG, RAW OR CHOSEN PER WELL FROM DECOYS
+       952_ops_read_mode.txt
+  954  THE CALIBRATED CLUSTER BENCHMARK'S COMPLEXES NULL USES 1,000 PERMUTATIONS
+       954_ops_cluster_null_permutations.txt
   956  OPS LARGE SITES: SPLIT AND MERGE COUNTS, IDENTITY AND DISPLACED CONTROLS IN THE MASK AGREEMENT
        956_ops_mask_agreement_split_merge.txt
-  957  MAKE MASKS POINT MODE: ONE POINT PER OBJECT, SAVED AS X/Y CSV FOR SCORING
-       957_make_masks_point_mode.txt

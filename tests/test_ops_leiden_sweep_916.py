@@ -325,8 +325,9 @@ def _published_tables(tmp_path, names, block):
 def test_published_clusters_read_a_sheet_or_a_named_column(tmp_path):
     names, _rows, block = _blocks(n_blocks=4, size=10)
     specs = _published_tables(tmp_path, names, block)
-    brieflow = oc.published_clusters(specs[0])
+    brieflow = oc.published_clusters(specs[0], keep_controls=False)
     assert len(brieflow) == len(names) - 3 and "nontargeting_1" not in brieflow
+    assert oc.published_clusters(specs[0]) == {**brieflow, "nontargeting_1": 0}
     assert brieflow[names[0]] == block[0] and isinstance(brieflow[names[0]], (int, np.integer))
     funk = oc.published_clusters(specs[1])
     assert names[0] not in funk and funk[names[1]] == block[1] % 3
@@ -338,7 +339,7 @@ def test_published_rows_are_scored_like_the_sweep_on_the_same_genes(tmp_path):
     names, _rows, block = _blocks(n_blocks=8, size=12)
     refs = oc.sweep_references(str(_references(tmp_path / "ref", names, block)))
     specs = _published_tables(tmp_path, names, block)
-    published = {spec["name"]: oc.published_clusters(spec) for spec in specs}
+    published = {spec["name"]: oc.published_clusters(spec, keep_controls=False) for spec in specs}
     rows = oc.score_published(published, names, refs, shuffles=2)
     assert rows[["profile", "control"]].values.tolist() == [
         ["Brieflow published", "real"], ["Brieflow published", "shuffled gene labels"],
