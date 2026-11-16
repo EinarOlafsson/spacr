@@ -15238,6 +15238,7 @@ SETTING_CONSUMERS = {
     'ops_cluster_graph': (('spacr.ops_clusters', 'cluster_sweep_phase'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_cluster_knn': (('spacr.ops_clusters', 'cluster_sweep_phase'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_cluster_published': (('spacr.ops_clusters', 'cluster_sweep_phase'), ('spacr.ops_settings', 'ops_defaults'),),
+    'ops_cluster_published_controls': (('spacr.ops_clusters', 'cluster_sweep_phase'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_cluster_reference_dir': (('spacr.ops_clusters', 'cluster_bench_test_phase'), ('spacr.ops_clusters', 'cluster_sweep_phase'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_cluster_resolutions': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_cluster_rows': (('spacr.ops_clusters', 'cluster_sweep_phase'), ('spacr.ops_settings', 'ops_defaults'),),

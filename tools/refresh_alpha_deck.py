@@ -110,7 +110,8 @@ GROUPS = (
          (920,)),
         ("False calls, calibrated confidence, matching to other pipelines",
          (876, 877, 878, 922)),
-        ("Detection and calling tuned together, calibrated decoy FDR", (942, 949)),
+        ("Spot detection, read mode and calling tuned together, prefix decoy FDR",
+         (942, 952, 949)),
     )),
     ("OPS gene profiles", (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),
@@ -129,7 +130,7 @@ GROUPS = (
     )),
     ("OPS genes and\nclusters", (
         ("Clusters: Leiden sweep, guide bootstrap, calibrated test, module atlas",
-         (916, 928, 929, 888)),
+         (916, 953, 928, 929, 888)),
         ("Gene map: profile clusters, labels, medoid crops", (918,)),
         ("Gene graph, protein knowledge, fusion hypotheses, gene-class training",
          (884, 885, 886, 889)),
