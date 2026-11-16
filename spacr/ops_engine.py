@@ -2468,8 +2468,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
 
     from .ops_cycles import (FFT_BACKEND, FFT_PRECISION, _fft_backend_used,
                              align_field)
-    from .ops_sbs import (attribute_reads, call_reads, called_bases,
-                          estimate_read_locations, extract_bases, find_peaks)
+    from .ops_sbs import (_read_values, attribute_reads, call_reads, called_bases,
+                          estimate_read_locations, find_peaks)
 
     ticks = Counter()
     tick = time.perf_counter()
@@ -2546,7 +2546,10 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         ticks["spots_calls"] = time.perf_counter() - tick
         return {**base, **result,
                 "seconds": {k: round(v, 2) for k, v in ticks.items()}}
-    del stack
+    read_mode = str(task.get("read_mode") or "log")
+    if read_mode == "log":
+        del stack
+        stack = None
     height, width = filtered.shape[-2:]
     if spotnet is not None:
         peaks = spotnet
@@ -2561,8 +2564,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         keep &= (peaks[:, 0] >= margin) & (peaks[:, 0] < height - margin)
         keep &= (peaks[:, 1] >= margin) & (peaks[:, 1] < width - margin)
         peaks = peaks[keep]
-    measured = extract_bases(filtered, peaks, window=1)
-    del filtered
+    measured = _read_values(stack, filtered, peaks, read_mode)
+    del filtered, stack
     values = np.full((len(peaks), len(cycles), measured.shape[-1]), np.nan,
                      np.float32)
     for index, cycle in enumerate(field.kept):
@@ -2814,10 +2817,8 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     """
     from scipy import ndimage
 
-    from .ops_decode import (field_calls, field_evidence, matcher_for,
-                             save_field_cache, _CACHE_FLOOR, _field_candidates,
-                             _field_shuffle_counts, _field_votes,
-                             _joint_field_candidates)
+    from .ops_decode import (field_evidence, save_field_cache, _CACHE_FLOOR,
+                             _field_shuffle_counts)
     from .ops_sbs import estimate_read_locations, find_peaks
 
     rule = task["rule_a"]
@@ -2839,43 +2840,43 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         floor=floor,
         pixel_percentile=rule["pixel_percentile"] if rule["pixels"] else None,
         features=bool(rule.get("features")))
-    matcher, decoys = matcher_for(_LIBRARY, _DECOYS)
-    if spots:
-        calls = _joint_field_candidates(
-            evidence, rule, sorted(_LIBRARY), matcher, decoys, spot_thresholds=spots,
-            floors=auto["floors"], pixel_qualities=auto["pixel_qualities"],
-            footprint=rule["footprint"], max_distance=rule["max_distance"],
-            min_fraction=rule["min_fraction"],
-            crosstalk=str(task.get("crosstalk") or "none"))
-        nearest = int(np.argmin([abs(t - rule["threshold"]) for t in spots]))
-        calls.update({key: calls["by_spot"][nearest][key] for key in (
-            "reads", "reads_owned", "reads_near", "reads_ambiguous")})
-    elif auto:
-        votes = _field_votes(
-            evidence, rule, sorted(_LIBRARY), matcher,
-            threshold=rule["threshold"], footprint=rule["footprint"],
-            max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
-            single_read_quality=float("-inf"),
-            pixel_qualities=auto["pixel_qualities"],
-            crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
-        calls = _field_candidates(votes, auto["floors"], auto["pixel_qualities"],
-                                  decoys, bool(rule["pixels"]))
-        calls.update({key: votes[key] for key in (
-            "reads", "reads_owned", "reads_near", "reads_ambiguous")})
+    read_mode = rule.get("read_mode", "log")
+    if read_mode == "log":
+        calls = _rule_a_calls(evidence, rule, auto, spots, task)
     else:
-        calls = field_calls(
-            evidence, rule, sorted(_LIBRARY), matcher, decoys,
-            threshold=rule["threshold"], footprint=rule["footprint"],
-            max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
-            single_read_quality=rule["single_read_quality"],
-            crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
+        from .ops_sbs import _read_values
+
+        measured = _read_values(stack, None, evidence["peaks"], "raw")
+        cycles = list(task["cycles"])
+        raw = np.full((len(measured), len(cycles), stack.shape[1]), np.nan, np.float32)
+        for i, cycle in enumerate(field.kept):
+            raw[:, cycles.index(cycle)] = measured[:, i]
+        evidence["values_raw"] = raw
+        raw_evidence = {**evidence, "values": raw}
+        if read_mode == "raw":
+            calls = _rule_a_calls(raw_evidence, rule, auto, spots, task)
+        else:
+            log_calls = _rule_a_calls(evidence, {**rule, "read_mode": "log"}, auto,
+                                      spots, task)
+            by_mode = [_rule_a_calls(raw_evidence, {**rule, "read_mode": "raw"}, auto,
+                                     spots, task, pixel=_pixel_votes(log_calls, spots)),
+                       log_calls]
+            calls = {"counts": np.stack([c["counts"] for c in by_mode]),
+                     "nuclei": by_mode[1]["nuclei"], "by_mode": by_mode,
+                     **{key: by_mode[1][key] for key in (
+                         "reads", "reads_owned", "reads_near", "reads_ambiguous")}}
     if auto and auto.get("shuffle_seeds"):
-        calls["shuffled"] = _field_shuffle_counts(
-            evidence, rule, sorted(_LIBRARY), seeds=auto["shuffle_seeds"],
+        modes = ([(raw_evidence, {**rule, "read_mode": "raw"}),
+                  (evidence, {**rule, "read_mode": "log"})] if read_mode == "auto"
+                 else [(raw_evidence if read_mode == "raw" else evidence, rule)])
+        shuffled = [_field_shuffle_counts(
+            mode_evidence, mode_rule, sorted(_LIBRARY), seeds=auto["shuffle_seeds"],
             spot_thresholds=spots or [rule["threshold"]], floors=auto["floors"],
             pixel_qualities=auto["pixel_qualities"], footprint=rule["footprint"],
             max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
             crosstalk=str(task.get("crosstalk") or "none"))
+            for mode_evidence, mode_rule in modes]
+        calls["shuffled"] = shuffled[0] if len(shuffled) == 1 else np.stack(shuffled)
     out = {"n_cycles": len(field.kept), "spots": calls["reads"],
            "attributed": calls["reads_near"] - calls["reads_ambiguous"],
            "ambiguous": calls["reads_ambiguous"], "exact": None,
@@ -2890,13 +2891,83 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     return out
 
 
+def _pixel_votes(calls: Mapping[str, Any], spots) -> Dict[float, Dict[int, dict]]:
+    """The pixel votes of one field's auto candidates (item 952).
+
+    :param calls: from :func:`_rule_a_calls` with ``auto``.
+    :param spots: the read thresholds tuned jointly, or empty.
+    :returns: pixel quality -> the pixel votes; the pixel fallback reads no
+        spot, so every read mode of the field shares them.
+    """
+    first = calls["by_spot"][0] if spots else calls
+    return first["votes"]["pixel"]
+
+
+def _rule_a_calls(evidence: Mapping[str, Any], rule: Mapping[str, Any], auto, spots,
+                  task: Mapping[str, Any], pixel=None) -> Dict[str, Any]:
+    """One field's rule (a) calls, or its candidates at every auto setting.
+
+    :param evidence: from :func:`spacr.ops_decode.field_evidence`; its
+        ``values`` are the reads called (item 952: the -LoG or the raw read).
+    :param rule: the field's rule, with ``read_mode`` 'raw' to call raw reads.
+    :param auto: the rule's ``auto`` grid, or None.
+    :param spots: the read thresholds tuned jointly, or empty.
+    :param task: the field's task, read for ``crosstalk``.
+    :param pixel: with ``auto``, pixel votes made by another read mode's pass
+        over this field (:func:`_pixel_votes`), reused rather than voted again.
+    :returns: :func:`spacr.ops_decode.field_calls`'s result, or with
+        ``auto`` the candidates :func:`_apply_auto_thresholds` chooses from.
+    """
+    from .ops_decode import (field_calls, matcher_for, _field_candidates, _field_votes,
+                             _joint_field_candidates)
+
+    matcher, decoys = matcher_for(_LIBRARY, _DECOYS)
+    if spots:
+        calls = _joint_field_candidates(
+            evidence, rule, sorted(_LIBRARY), matcher, decoys, spot_thresholds=spots,
+            floors=auto["floors"], pixel_qualities=auto["pixel_qualities"],
+            footprint=rule["footprint"], max_distance=rule["max_distance"],
+            min_fraction=rule["min_fraction"],
+            crosstalk=str(task.get("crosstalk") or "none"), pixel_votes=pixel)
+        nearest = int(np.argmin([abs(t - rule["threshold"]) for t in spots]))
+        calls.update({key: calls["by_spot"][nearest][key] for key in (
+            "reads", "reads_owned", "reads_near", "reads_ambiguous")})
+    elif auto:
+        votes = _field_votes(
+            evidence, rule if pixel is None else {**rule, "pixels": False},
+            sorted(_LIBRARY), matcher,
+            threshold=rule["threshold"], footprint=rule["footprint"],
+            max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+            single_read_quality=float("-inf"),
+            pixel_qualities=auto["pixel_qualities"],
+            crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
+        if pixel is not None:
+            votes["pixel"] = pixel
+        calls = _field_candidates(votes, auto["floors"], auto["pixel_qualities"],
+                                  decoys, bool(rule["pixels"]))
+        calls.update({key: votes[key] for key in (
+            "reads", "reads_owned", "reads_near", "reads_ambiguous")})
+    else:
+        calls = field_calls(
+            evidence, rule, sorted(_LIBRARY), matcher, decoys,
+            threshold=rule["threshold"], footprint=rule["footprint"],
+            max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+            single_read_quality=rule["single_read_quality"],
+            crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
+    return calls
+
+
 def _crosstalk_arguments(task: Mapping[str, Any]) -> Dict[str, Any]:
     """The base caller's unmixing arguments for one field's task.
 
-    :param task: read for ``crosstalk``, one of :data:`_CROSSTALK_METHODS`.
+    :param task: read for ``crosstalk``, one of :data:`_CROSSTALK_METHODS`,
+        and ``read_mode``: 'raw' (item 952) calls the brightest channel as
+        read, with no unmixing or normalisation.
     :returns: ``compensate`` and ``method`` for
         :func:`spacr.ops_sbs.called_bases`; ``none`` turns unmixing off.
     """
+    if task.get("read_mode") == "raw":
+        return {"compensate": False, "normalise": False}
     method = str(task.get("crosstalk") or "none")
     if method == "none":
         return {"compensate": False}
@@ -3181,16 +3252,18 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
     nuclei = [r["candidates"]["nuclei"] for r in fields]
     sites = [r["site"] for r in fields]
     calibrating = bool(auto.get("shuffle_seeds"))
+    by_mode = rule_a.get("read_mode") == "auto"
     joint = bool(spots) or thresholds["unreachable"] != "strictest" \
-        or thresholds["objective"] != "recall_at_fdr" or calibrating
+        or thresholds["objective"] != "recall_at_fdr" or by_mode or calibrating
     if joint:
-        shape = (max(len(spots), 1),) + grid_shape
+        shape = ((2,) if by_mode else ()) + (max(len(spots), 1),) + grid_shape
         counts = (np.stack([r["candidates"]["counts"].reshape(shape + (2,))
                             for r in fields]) if fields
                   else np.zeros((0,) + shape + (2,), np.int64))
-        axes = [("read_threshold", spots or [float(rule_a["threshold"])]),
-                ("single_read_quality", auto["floors"]),
-                ("pixel_quality", auto["pixel_qualities"])]
+        axes = (([("read_mode", [1.0, 0.0])] if by_mode else [])
+                + [("read_threshold", spots or [float(rule_a["threshold"])]),
+                   ("single_read_quality", auto["floors"]),
+                   ("pixel_quality", auto["pixel_qualities"])])
         tune_args = dict(
             k=int(rule_a["decoy_k"]), scale=float(rule_a["fdr_scale"]),
             objective=thresholds["objective"], fdr_max=thresholds["fdr_max"],
@@ -3208,7 +3281,10 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
                   "read_threshold": tuned["chosen"]["read_threshold"],
                   **{key: value for key, value in tuned.items()
                      if key not in ("chosen", "index")}}
-        spot_index = tuned["index"][0]
+        mode_index = tuned["index"][0] if by_mode else None
+        spot_index = tuned["index"][1 if by_mode else 0]
+        if by_mode:
+            choice["read_mode"] = "raw" if mode_index == 0 else "log"
     else:
         counts = (np.stack([r["candidates"]["counts"] for r in fields]) if fields
                   else np.zeros((0,) + grid_shape + (2,), np.int64))
@@ -3221,6 +3297,11 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
     decoy_set = frozenset(decoys)
     for r in fields:
         candidates = r.pop("candidates")
+        if by_mode:
+            candidates = candidates["by_mode"][mode_index]
+            r.update({"spots": candidates["reads"],
+                      "attributed": candidates["reads_near"] - candidates["reads_ambiguous"],
+                      "ambiguous": candidates["reads_ambiguous"]})
         if spots:
             candidates = candidates["by_spot"][spot_index]
             r.update({"spots": candidates["reads"],
@@ -3241,6 +3322,7 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
              f"{thresholds['fdr_max']} per 100 on the tuning fields; "
              f"{fallback} is used (auto_met False)")
     _say(f"{well} decode: auto thresholds "
+         + (f"read mode {choice['read_mode']}, " if by_mode else "")
          + (f"read threshold {choice['read_threshold']}, " if spots else "")
          + f"single-read quality {choice['single_read_quality']}, pixel quality "
          f"{choice['pixel_quality']}; report fields "
@@ -3258,6 +3340,8 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
              "per 100 cells")
     if spots:
         chosen_rule["threshold"] = choice["read_threshold"]
+    if by_mode:
+        chosen_rule["read_mode"] = choice["read_mode"]
     return chosen_rule
 
 
@@ -3306,6 +3390,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
 
     from .ops_decode import (decode_rule, resolve_settings, threshold_settings,
                              unplaced_sites)
+    from .ops_sbs import _read_mode_setting
 
     started = time.perf_counter()
     settings = resolve_settings(settings)
@@ -3389,6 +3474,12 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             {**settings, "ops_decode_threshold_mode": "manual"}, rule_a)
     else:
         thresholds = threshold_settings(settings, rule_a)
+    read_mode = _read_mode_setting(settings)
+    if read_mode == "auto" and thresholds["mode"] != "auto":
+        raise ValueError("ops_read_mode 'auto' chooses the read per well from decoy "
+                         "calls; it needs ops_decode_threshold_mode 'auto' (with "
+                         "ops_decode_preset rule_a_s2 and ops_decoy_library_k above "
+                         "0), or choose 'log' or 'raw'")
     if rule_a["active"] and rule == "mapped":
         from .ops_sbs import decoy_library
 
@@ -3414,6 +3505,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                 from .ops_decode import SHUFFLE_SEEDS
 
                 rule_a["auto"]["shuffle_seeds"] = list(range(SHUFFLE_SEEDS))
+        if read_mode != "log":
+            rule_a["read_mode"] = read_mode
         cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),
                                     well, "decode_cache")
     else:
@@ -3447,6 +3540,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             "store_reads": store_reads, "spot_detector": detector,
             "crosstalk": crosstalk, "channel_mode": channel_mode,
             "registration": registration, "rule_a": rule_a,
+            **({"read_mode": read_mode} if read_mode != "log" else {}),
             "cache_folder": cache_folder,
             "diagnostics_folder": diagnostics_folder,
             "dapi": dapi if diagnostics_folder else None,
@@ -3606,6 +3700,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                                    if "seconds" in r), Counter())),
         "total_seconds": round(time.perf_counter() - started, 1),
     }
+    if any(task.get("read_mode") for task in tasks):
+        report["read_mode"] = tasks[0]["read_mode"]
     if report["containment_below_gate"]:
         _say(f"{well} decode: ONLY {containment:.1%} OF SPOTS LIE WITHIN "
              f"{footprint:g} PX OF A NUCLEUS, below the {_MIN_CONTAINMENT:.0%} "

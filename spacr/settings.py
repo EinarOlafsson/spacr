@@ -2534,7 +2534,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 940
+SETTINGS_SCHEMA_VERSION = 942
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2552,6 +2552,8 @@ DEFAULT_CHANGES = {
           'ops_decode_auto_unreachable': 'strictest'},
     940: {'ops_decode_preset': 'none', 'ops_decode_threshold_mode': 'manual',
           'ops_decode_auto_spot_grid': [150.0, 200.0, 250.0, 315.0, 400.0]},
+    941: {'ops_cluster_published_controls': False},
+    942: {'ops_bench_null_permutations': 200},
 }
 
 
@@ -9455,6 +9457,12 @@ ALPHA_FEATURES = {
     },
     951: {
         'settings': ('ops_sites',),
+    },
+    953: {
+        'settings': ('ops_cluster_published_controls',),
+    },
+    952: {
+        'settings': ('ops_read_mode',),
     },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),

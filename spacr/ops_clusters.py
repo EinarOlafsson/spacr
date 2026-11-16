@@ -1481,7 +1481,8 @@ def sweep_summary(rows: pd.DataFrame, target: int = 227) -> pd.DataFrame:
 PUBLISHED_CONTROL_SEED = 20261110
 
 
-def published_clusters(spec: Mapping[str, Any], control_prefix: str = "nontargeting") -> Dict[str, int]:
+def published_clusters(spec: Mapping[str, Any], control_prefix: str = "nontargeting",
+                       keep_controls: bool = True) -> Dict[str, int]:
     """One published clustering as ``{gene: cluster}``.
 
     :param spec: ``table`` (CSV, TSV, Excel or Parquet), optional ``sheet``
@@ -1489,7 +1490,12 @@ def published_clusters(spec: Mapping[str, Any], control_prefix: str = "nontarget
         ``cluster`` (default ``cluster_id``); Brieflow's supplementary
         workbook is ``sheet`` ``'Interphase Genes'``, and Funk et al.'s
         table has ``cluster`` ``'interphase_cluster'``.
-    :param control_prefix: rows whose gene starts with it are left out.
+    :param control_prefix: rows whose gene starts with it (any case) are
+        the comparator's control rows.
+    :param keep_controls: True keeps the control rows with their published
+        clusters, which :func:`score_published` counts in the Fisher
+        background and never as cluster members, as the publications did;
+        False leaves them out (before item 953).
     :returns: every gene with a cluster; a gene listed twice keeps its last
         cluster.
     :raises ValueError: when a column is missing.
@@ -1497,22 +1503,44 @@ def published_clusters(spec: Mapping[str, Any], control_prefix: str = "nontarget
     table = _external_clusters(spec)
     gene, cluster = spec.get("gene", "gene_symbol"), spec.get("cluster", "cluster_id")
     table = table[[gene, cluster]].dropna()
-    table = table[~table[gene].astype(str).str.lower().str.startswith(control_prefix.lower())]
+    if not keep_controls:
+        table = table[~table[gene].astype(str).str.lower().str.startswith(control_prefix.lower())]
     return dict(zip(table[gene], table[cluster].astype(int)))
+
+
+def _score_published_row(name: str, scored: np.ndarray, labels: np.ndarray, controls: np.ndarray,
+                         control_labels: np.ndarray, refs: Mapping[str, Any], prefix: str) -> Dict[str, Any]:
+    """One comparator row: the control rows join the Fisher background only."""
+    if not len(controls):
+        return score_partition(name, scored, labels, refs)
+    row = score_clusters(name, np.r_[scored, controls], np.r_[labels, control_labels], corum=refs["corum"],
+                         kegg=refs["kegg"], positives=refs["positives"], control_prefix=prefix)
+    p, r = row["STRING_precision"], row["STRING_recall"]
+    row["STRING_f1"] = 2 * p * r / (p + r) if p + r else 0.0
+    row.update(complex_metrics(list(scored), labels, refs["groups"], refs["halves"]))
+    return row
 
 
 def score_published(published: Mapping[str, Mapping[str, int]], genes: Sequence[str],
                     refs: Mapping[str, Any], shuffles: int = 1,
-                    seed: int = PUBLISHED_CONTROL_SEED) -> pd.DataFrame:
+                    seed: int = PUBLISHED_CONTROL_SEED, *,
+                    control_prefix: str = "nontargeting") -> pd.DataFrame:
     """Score published clusterings exactly as the sweep scores its partitions.
 
-    :param published: ``{name: {gene: cluster}}``.
+    :param published: ``{name: {gene: cluster}}``; control rows a
+        comparator holds (:func:`published_clusters` with
+        ``keep_controls``) are scored as its own background.
     :param genes: the sweep's scored genes; each comparator is scored on
-        those it clusters, in this order.
+        those it clusters, in this order, plus its own control rows, which
+        enter the Fisher background of the CORUM and KEGG shares only and
+        are never cluster members, enrichment members or STRING pairs.
+        The complex metrics and the shuffled control use the scored genes
+        only.
     :param refs: from :func:`sweep_references`.
     :param shuffles: shuffled-label controls per comparator, cluster sizes
         kept, as the sweep's.
     :param seed: the controls' seed; one generator draws them in order.
+    :param control_prefix: the control rows' prefix.
     :returns: one ``'real'`` row per comparator and its ``'shuffled gene
         labels'`` rows, with the sweep's columns, ``graph`` ``'published'``
         and no seed or resolution.
@@ -1520,18 +1548,25 @@ def score_published(published: Mapping[str, Mapping[str, int]], genes: Sequence[
     rng = np.random.default_rng(seed)
     rows = []
     for name, clusters in published.items():
-        scored = np.array([g for g in genes if g in clusters])
+        listed = np.array([g for g in genes if g in clusters])
+        scored = listed[~_is_control(listed, control_prefix)] if len(listed) else listed
         labels = np.array([clusters[g] for g in scored])
+        names = np.array(list(clusters), dtype=object)
+        controls = names[_is_control(names, control_prefix)] if len(names) else names
+        control_labels = np.array([clusters[g] for g in controls], dtype=labels.dtype)
         key = {"graph": "published", "seed": np.nan, "resolution": np.nan}
-        rows.append(dict(score_partition(name, scored, labels, refs), **key, control="real"))
+        rows.append(dict(_score_published_row(name, scored, labels, controls, control_labels, refs,
+                                              control_prefix), **key, control="real"))
         for _ in range(int(shuffles)):
-            rows.append(dict(score_partition(name, scored, labels[rng.permutation(len(labels))], refs),
+            rows.append(dict(_score_published_row(name, scored, labels[rng.permutation(len(labels))], controls,
+                                                  control_labels, refs, control_prefix),
                              **key, control="shuffled gene labels"))
     return pd.DataFrame(rows)
 
 
 def published_record(rows: pd.DataFrame, published: Sequence[Mapping[str, Any]], genes: Sequence[str],
-                     summary: pd.DataFrame, target: int, shuffles: int, seed: int) -> Dict[str, Any]:
+                     summary: pd.DataFrame, target: int, shuffles: int, seed: int,
+                     controls: Optional[Mapping[str, int]] = None) -> Dict[str, Any]:
     """What the published comparator rows match and what they do not.
 
     :param rows: from :func:`score_published`.
@@ -1541,6 +1576,10 @@ def published_record(rows: pd.DataFrame, published: Sequence[Mapping[str, Any]],
     :param target: the cluster count the summary flags.
     :param shuffles: shuffled-label controls per comparator.
     :param seed: their seed.
+    :param controls: ``{name: control rows}`` when the comparators' control
+        rows were kept (``ops_cluster_published_controls``); each
+        comparator then records ``control_rows_in_background`` and the
+        legend states the rule. None leaves both out (before item 953).
     :returns: the legend and, per comparator, its source, genes scored and
         missing, clusters, and the sweep resolution nearest its cluster
         count on each graph.
@@ -1553,10 +1592,18 @@ def published_record(rows: pd.DataFrame, published: Sequence[Mapping[str, Any]],
             pick = d.iloc[(d["clusters mean"] - row["clusters"]).abs().argsort()[:1]]
             nearest[str(graph)] = {"resolution": float(pick["resolution"].iloc[0]),
                                    "clusters_mean": float(pick["clusters mean"].iloc[0])}
-        out.append({"name": row["profile"], "table": str(spec.get("table")),
-                    "sheet": spec.get("sheet"), "clusters": int(row["clusters"]),
-                    "genes_scored": int(row["genes"]), "genes_missing": int(len(genes) - row["genes"]),
-                    "nearest_sweep_resolution": nearest})
+        entry = {"name": row["profile"], "table": str(spec.get("table")),
+                 "sheet": spec.get("sheet"), "clusters": int(row["clusters"]),
+                 "genes_scored": int(row["genes"]), "genes_missing": int(len(genes) - row["genes"]),
+                 "nearest_sweep_resolution": nearest}
+        if controls is not None:
+            entry["control_rows_in_background"] = int(controls.get(str(row["profile"]), 0))
+        out.append(entry)
+    rule = "" if controls is None else (
+        " Each comparator's own control rows (non-targeting guides, control_rows_in_background) are kept "
+        "with their published clusters: they count in the Fisher background of the CORUM and KEGG shares, "
+        "as in the publications, and are never cluster members, enrichment members or STRING pairs; the "
+        "complex metrics and the shuffled control use the scored genes only.")
     return {
         "legend": (
             "Published comparator rows (graph 'published', data_matched False) score the authors' own "
@@ -1567,7 +1614,7 @@ def published_record(rows: pd.DataFrame, published: Sequence[Mapping[str, Any]],
             "the data and the clustering: the published partitions come from the authors' own profiles "
             "and pipeline, not from this run's cells, and their cluster counts are the authors' choice. "
             "Compare a comparator with the sweep at a matched cluster count (nearest_sweep_resolution, "
-            f"or the rows flagged nearest_{int(target)})."),
+            f"or the rows flagged nearest_{int(target)}).{rule}"),
         "comparators": out}
 
 
@@ -1632,7 +1679,10 @@ def _sweep_setting_list(value: Any, default: Sequence[Any], cast) -> List[Any]:
     """A list setting given as a list or a comma-separated string."""
     if value is None or (isinstance(value, str) and not value.strip()):
         return list(default)
-    items = value.split(",") if isinstance(value, str) else list(value)
+    if isinstance(value, str):
+        items = value.split(",")
+    else:
+        items = list(value) if isinstance(value, (list, tuple, set, np.ndarray)) else [value]
     return [cast(item) for item in items]
 
 
@@ -1670,10 +1720,12 @@ def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFram
         ``ops_cluster_shuffles``, ``ops_cluster_reference_dir`` (falling
         back to ``ops_reference_dir``), ``ops_cluster_gene_list`` (a table
         with a ``gene`` column; every targeting row when empty),
-        ``ops_profile_min_cells``, ``ops_control_prefix`` and
+        ``ops_profile_min_cells``, ``ops_control_prefix``,
         ``ops_cluster_published`` (published clusterings scored as
         comparators, :func:`published_clusters` specs each with a
-        ``name``, or the path of a JSON list of them).
+        ``name``, or the path of a JSON list of them) and
+        ``ops_cluster_published_controls`` (keep each comparator's own
+        control rows in its Fisher background, default True).
     :param genes: the profile phase's gene table, or None.
     :param folder: ``dst_root``; outputs go to its
         ``results/ops_clusters``.
@@ -1745,14 +1797,18 @@ def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFram
     specs = _published_specs(settings.get("ops_cluster_published"))
     published_rows = None
     if specs:
-        published = {str(spec["name"]): published_clusters(spec, prefix) for spec in specs}
-        published_rows = score_published(published, scored, refs, shuffles)
+        keep = bool(True if settings.get("ops_cluster_published_controls") is None
+                    else settings["ops_cluster_published_controls"])
+        published = {str(spec["name"]): published_clusters(spec, prefix, keep) for spec in specs}
+        published_rows = score_published(published, scored, refs, shuffles, control_prefix=prefix)
         combined = pd.concat([table.assign(data_matched=True), published_rows.assign(data_matched=False)],
                              ignore_index=True)
         outputs["sweep_rows_with_published"] = write_table(
             combined, os.path.join(out_dir, "sweep_rows_with_published.csv"), canonicalise=False)
+        counts = ({name: int(_is_control(np.array(list(clusters), dtype=object), prefix).sum())
+                   for name, clusters in published.items()} if keep else None)
         record = published_record(published_rows, specs, scored, summary, target, shuffles,
-                                  PUBLISHED_CONTROL_SEED)
+                                  PUBLISHED_CONTROL_SEED, counts)
         path = os.path.join(out_dir, "published_comparators.json")
         with open(path, "w", encoding="utf-8") as handle:
             json.dump(record, handle, indent=1)
@@ -2734,7 +2790,7 @@ def _bench_options(settings: Mapping[str, Any]) -> SimpleNamespace:
                "margin_quantile": float(get("ops_bench_margin_quantile", 0.95)),
                "gate_record": settings.get("ops_bench_gate_record") or None,
                "half": None if settings.get("ops_bench_half", 1) is None else int(settings.get("ops_bench_half", 1)),
-               "nperm": int(get("ops_bench_null_permutations", 200)),
+               "nperm": int(get("ops_bench_null_permutations", 1000)),
                "gate_arm": str(get("ops_bench_gate_arm", "consensus")).lower()})
     if options.gate_arm not in ("consensus", "phate_leiden"):
         raise ValueError(f"ops_bench_gate_arm must be 'consensus' or 'phate_leiden'; got {options.gate_arm!r}")

@@ -281,6 +281,7 @@ def convert_settings_dict_for_gui(settings):
         'ops_prefix_threshold_tuning': ('combo', ['none', 'per_well_decoy'], 'none'),
         'ops_prefix_fdr_calibration': ('combo', ['none', 'shuffle'], 'none'),
         'ops_decode_fdr_calibration': ('combo', ['none', 'shuffle'], 'none'),
+        'ops_read_mode': ('combo', ['log', 'raw', 'auto'], 'log'),
         'ops_placement_seed_mode': ('combo', ['subset', 'strict'], 'subset'),
         'figure_condition_aggregate': ('combo', ['mean', 'median'], 'mean'),
         'figure_size_stat': ('combo', ['mean', 'median'], 'mean'),
