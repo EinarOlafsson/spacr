@@ -1,0 +1,75 @@
+A FOLDER LAYOUT WITH A WELL LEVEL REFUSES A FILE THAT HAS NO WELL FOLDER INSTEAD OF CALLING IT A01
+=================================================================================================
+
+Lifecycle: new
+Status: DONE 2026-11-15 (bug fix, not alpha). spacr/qt/folder_metadata.py (assign_missing_fields, _no_well_message), spacr/qt/ingest_preview.py (plan_folder_extraction docstring), spacr/tabular.py (write_database docstring), tests/test_folder_metadata_refuses_a_missing_well_950.py.
+Requested: maintainer, 2026-11-15 (question tool): "folder_metadata.assign_missing_fields with have_well=True and no well token found must refuse — naming the file and the tokens seen — instead of silently assigning well A01. Mixing up wells silently can corrupt per-well results."
+Owner: Home (lane for the spacr master session).
+Related: the folder-structure drop report (spacr.qt.dnd_handlers.scan_folder_structure).
+
+BUG
+spacr.qt.folder_metadata.assign_missing_fields(have_well=True) read each
+file's well from its folder names and fell back to "A01" when none read as
+a well. The folder layout says every file sits in a well folder, so a file
+that does not is a stray (a loose overview image, a notes folder) or a well
+the token rules read as something else: a C-row well folder such as C01 or
+C10 reads as a channel, by design of _classify. Each such file was named
+<plate>_A01_..., and its cells were counted as well A01's, with nothing in
+the preview or the log to say so.
+
+FIX
+- assign_missing_fields raises ValueError when have_well is True and a file
+  has no folder name that reads as a well. The message names the file, lists
+  every folder name on its path that reads as an axis with the axis
+  ("'plate1' (plate), 'C01' (channel), 'field_02' (field)", or "none"), says
+  that a name such as C01 reads as a channel, not a well, and that spaCR does
+  not guess a well because a wrong one mixes the file's cells into another
+  well's results. The private helper _no_well_message builds it.
+- No mapping is returned for any file when one is refused: a partial set
+  with the stray left out would hide the problem the same way.
+- Unchanged: a file whose well is found keeps its name (upper-cased, as
+  before); have_well=False still mints A01, A02, ... in sorted order; the
+  _classify order (field, channel, plate, then well) is not changed, so C01
+  still reads as a channel.
+- tabular.write_database's docstring said only DuckDB, Parquet and
+  PostgreSQL stores add missing columns on append; SQLite does too since
+  nightly 26f2b99ede (_sqlite_add_missing_columns). The sentence now says
+  every store does.
+
+CALLERS
+- spacr.qt.ingest_preview.plan_folder_extraction calls it with have_well
+  from the detected template ("well" in depth_labels); it passes the
+  refusal on (documented under :raises:).
+- spacr.qt.dnd_handlers.scan_folder_structure (the folder drop on the GUI's
+  worker thread) already catches a planner exception into its report's
+  "error"; _render_folder_structure logs it on the module console as
+  "[drop] folder-structure preview unavailable: <message>" and opens no
+  metadata table. Before, the table opened with the stray rows as A01.
+- No caller relied on the A01 fallback: the only path with have_well=True
+  is the template above, and every caller that has no well level passes
+  have_well=False (single-file containers use plan_container_extraction,
+  which does not call assign_missing_fields).
+- The message is plain English, like the module's other drop-report lines:
+  console log lines and exception text are not read by any runtime
+  catalogue. The three changed docstrings are API documentation and carry
+  nine-language API reviews.
+
+TESTS (tests/test_folder_metadata_refuses_a_missing_well_950.py)
+The refusal names the file and each token with its axis (plate, C01 as
+channel, field); "none" when no folder name reads as an axis; one stray
+file refuses the whole set; found wells unchanged; have_well=False still
+numbers A01, A02, A03; plan_folder_extraction raises the same refusal; a
+dropped folder with A01, A02, B01 and C01 well folders reports the
+refusal as its error with no rows. The existing folder_metadata,
+ingest_preview and drop-handler tests pass unchanged.
+
+ACCEPTANCE
+pytest tests/test_folder_metadata_refuses_a_missing_well_950.py and the
+folder_metadata / ingest_preview / dnd_handlers tests pass; a folder drop
+with a C01 well folder shows the refusal in the console and no A01 rows.
+
+DELIBERATELY NOT DONE
+- C-row well folders are still read as channels, so a plate whose wells
+  include row C cannot be read from its folder layout; the refusal says why.
+  Telling a C-row well from a channel would need the layout's depth (the
+  well level's position), which is a separate change to _classify's callers.

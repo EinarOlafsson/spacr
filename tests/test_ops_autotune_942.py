@@ -113,8 +113,14 @@ def test_the_f_score_objective_and_the_curve_files(tmp_path):
 
 def test_threshold_settings_carry_the_joint_grid_and_the_objective():
     rule = D.decode_rule(D.resolve_settings({"ops_decode_preset": "rule_a_s2"}))
+    # Item 946: an unset spot grid tunes the calling only; the 942 joint
+    # grid is an opt-in.
     auto = D.threshold_settings({"ops_decode_threshold_mode": "auto"}, rule)
-    assert auto["spot_thresholds"] == list(D.AUTO_SPOT_GRID)
+    assert auto["spot_thresholds"] == []
+    joint = D.threshold_settings({"ops_decode_threshold_mode": "auto",
+                                  "ops_decode_auto_spot_grid": list(D.AUTO_SPOT_GRID)},
+                                 rule)
+    assert joint["spot_thresholds"] == list(D.AUTO_SPOT_GRID)
     assert auto["objective"] == "recall_at_fdr" and auto["unreachable"] == "lowest_fdr"
     old = D.threshold_settings({"ops_decode_threshold_mode": "auto",
                                 "ops_decode_auto_spot_grid": [],
@@ -138,10 +144,14 @@ def test_settings_saved_before_939_keep_939_auto_mode():
     older = _fold_older_defaults({}, 938)
     assert older["ops_decode_auto_spot_grid"][0] == []
     assert older["ops_decode_auto_unreachable"][0] == "strictest"
+    # Files stamped 939 keep the joint grid item 946 took off by default.
+    assert _fold_older_defaults({}, 939)["ops_decode_auto_spot_grid"][0] == list(
+        D.AUTO_SPOT_GRID)
     assert "ops_decode_auto_spot_grid" not in _fold_older_defaults({}, SETTINGS_SCHEMA_VERSION)
     for key in ALPHA_FEATURES[942]["settings"]:
         assert key in OPS_DEFAULTS and OPS_TOOLTIPS[key].endswith("Alpha.")
-    assert OPS_DEFAULTS["ops_decode_threshold_mode"] == "manual"
+    assert OPS_DEFAULTS["ops_decode_threshold_mode"] == "auto"
+    assert OPS_DEFAULTS["ops_decode_auto_spot_grid"] == []
     assert OPS_DEFAULTS["ops_prefix_decoy_k"] == 0
     assert OPS_DEFAULTS["ops_prefix_threshold_tuning"] == "none"
 

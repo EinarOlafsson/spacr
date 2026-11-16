@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-747 Lifecycle: new, 177 Lifecycle: future in features/feature_list/.
+750 Lifecycle: new, 177 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -2071,7 +2071,13 @@ NEW FEATURES
        936_align_stitch_shared_core.txt
   938  MODULE PROGRESS BARS SHOW PERCENT DONE AND TIME LEFT, ON THE MODULE AND ON HOME
        938_module_progress_bars_show_percent_and_time_left.txt
+  946  THE DEFAULT OPS DECODE IS THE PROVEN FUNK DECODE (RULE (A) + S2 WITH PER-WELL DECOY THRESHOLDS)
+       946_ops_default_funk_decode.txt
   947  OPS PHENOTYPE FOLDERS THAT HOLD TWO ACQUISITIONS SHARING A CHANNEL
        947_ops_phenotype_multi_acquisition.txt
+  950  A FOLDER LAYOUT WITH A WELL LEVEL REFUSES A FILE THAT HAS NO WELL FOLDER INSTEAD OF CALLING IT A01
+       950_folder_layout_never_guesses_a_missing_well.txt
   951  OPS STITCH, OBJECTS AND DECODE ON CHOSEN SEQUENCING SITES
        951_ops_tile_subset_decode.txt
+  956  OPS LARGE SITES: SPLIT AND MERGE COUNTS, IDENTITY AND DISPLACED CONTROLS IN THE MASK AGREEMENT
+       956_ops_mask_agreement_split_merge.txt

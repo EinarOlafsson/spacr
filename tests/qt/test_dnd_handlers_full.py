@@ -1761,13 +1761,20 @@ def big_folder(tmp_path_factory):
 
 @pytest.fixture
 def structured_folder(tmp_path):
-    """Small tree with the same shape: unmatched names + plate/well/field."""
+    """Small tree with the same shape: unmatched names + plate/well/field.
+
+    The dropped folder is named like a well (B03), so the three top-level
+    images have a well too: since item 950 a file with no well folder in a
+    layout with a well level is refused rather than called A01.
+    """
+    root = tmp_path / "B03"
+    root.mkdir()
     for i in range(3):
-        (tmp_path / f"random_image_{i}.png").write_bytes(b"II*\x00")
+        (root / f"random_image_{i}.png").write_bytes(b"II*\x00")
     for well in ("A01", "A02"):
         for field in ("f01", "f02"):
-            _mkimg(tmp_path / "plate1" / well / field / "C01.tif")
-    return tmp_path
+            _mkimg(root / "plate1" / well / field / "C01.tif")
+    return root
 
 
 def _mask_screen(qtbot):
