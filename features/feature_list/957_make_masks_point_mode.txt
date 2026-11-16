@@ -67,3 +67,15 @@ equal an independent per-click lookup). Every CSV has columns X, Y, unsure,
 note and the clicked column/row exactly. Resume: 10 done after reopen, the
 window reopened on crop 11, crop 1's 13 points kept, 20 done flags at the end,
 overlays enabled only then.
+
+FIX 2026-11-16 (maintainer report): `python -m spacr.cli_make_masks --folder
+<dir> --points` opened Make Masks without the point window. Under -m the CLI
+ran as __main__, so the point, layer and queue handovers were stored in a
+second module object and the screen (which imports spacr.cli_make_masks)
+found its slots empty. The __main__ block now delegates to
+spacr.cli_make_masks.main, so every handover lives in one module however the
+CLI is started; the spacr-make-masks console script was not affected.
+tests/test_957_make_masks_handover_under_dash_m.py runs the -m path in a
+subprocess (offscreen Qt, spacr.qt.run replaced by a stand-in that takes the
+handovers as the screen does) for --points and for --layers: both pass with
+the fix and both fail without it.
