@@ -13,7 +13,21 @@ ops_consensus_mode ('profile' | 'pairs'; default 'profile'), ops_consensus_pairs
 default 'fast'), ops_consensus_workers (1), ops_consensus_cells (None), ops_consensus_view_columns (50).
 No schema bump: the default output is unchanged.
 
-VALIDATION (step 6; scripts + tables in
-/nas_mnt/data/sync/papers/BMCspacr/reanalysis/spacr_948_pairs_proof/)
-See that folder's tables and the item spec proposals/bmc_paper_items/ITEM_ops_pairs_consensus_speed.md for the
-pre-set proof checks and results.
+VALIDATION (step 6; scripts, logs and tables in
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/spacr_948_pairs_proof/; venv_bench: phate 2.0.0, leidenalg 0.12.0,
+igraph 1.0.0, numpy 2.5.4, pandas 3.1.1). spaCR drew its own guide bootstraps (guide_bootstrap_profiles) and built its
+own phase views from the per-cell table (phase_guide_medians, phase_view); seeds as Design F.
+- Exact mode = the published analysis: Design F's stored cons_snfpl~hyb targeting labels md5-identical on plate A
+  r = 0, 1, 2 (3 of 3).
+- Fast mode = F4: the card's F4 labels md5-identical on plate A r = 0..19 (20 of 20). Gate (calibrated test, two-level
+  95 % CI, candidate - baseline phate_leiden~hyb): STRING pairs +30.17 [25.19, 34.91] (gate [24.95, 34.78]), complexes
+  +11.43 [8.46, 14.65] (gate [7.97, 14.63]); vs the published option: pairs +0.20 [-0.24, 0.71], complexes +0.22
+  [-1.07, 1.59]. Permuted control (mean of 500 label permutations, 95 % CI): complexes +0.04 [-0.15, 0.24], pairs
+  +0.00 [-0.03, 0.04]. Cluster sizes: 146 clusters, median 5 [3, 8], largest 203, 48.5 % of genes in clusters > 50.
+- Plate B, through spaCR (R = 20, fast): pairs +28.51 [23.43, 33.09] (gate [23.39, 33.13]), complexes +13.36
+  [10.31, 16.93] (gate [8.98, 15.81]); vs the published option: pairs +0.01 [-0.49, 0.54], complexes +1.18 [-0.31,
+  2.82]; permuted control: complexes +0.06 [-0.15, 0.27], pairs -0.02 [-0.05, 0.02].
+- B4: ops_consensus_workers 3 gives md5-identical labels on r = 0, 1; wall 391 / 396 s against 570 s.
+- Time (plate A r = 0..2, one pinned core, fast, workers 1): 567, 576, 625 CPU s per replicate (limit 900).
+- Unit tests: tests/test_ops_pairs_consensus_948.py (fixture from the reference scripts: snf_fuse double and single
+  precision and phase_view exactly equal).

@@ -65,3 +65,15 @@ The three views are fused by similarity network fusion (SNF; K 20, mu 0.5, 20 it
   - workers = 1 vs 3 byte-identical;
   - the phase writes item 928's outputs;
   - settings validation.
+
+## Proof results (2026-11-15; `BMCspacr/reanalysis/spacr_948_pairs_proof/`)
+- **Exact mode:** 3 of 3 replicates md5-identical to Design F's `cons_snfpl~hyb`.
+- **Fast mode:** 20 of 20 md5-identical to the F4 fixture.
+- **Plate A gate:**
+  - pairs +30.17 [25.19, 34.91], complexes +11.43 [8.46, 14.65], both inside;
+  - vs the published option: pairs +0.20 [−0.24, 0.71], complexes +0.22 [−1.07, 1.59].
+- **Plate B through spaCR:**
+  - pairs +28.51 [23.43, 33.09], complexes +13.36 [10.31, 16.93], both inside.
+- **Permuted controls (500 permutations):** the mean CIs include 0 on both plates.
+- **B4 (workers = 3):** md5-identical labels; wall 391 s against 570 s.
+- **Time:** 567–625 CPU s per replicate on one pinned core (limit 900).
