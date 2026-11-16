@@ -119,6 +119,11 @@ default after a higher-numbered item takes the next free number:
   ``ops_decode_auto_unreachable`` ``'strictest'`` (item 939's auto mode
   tuned the calling thresholds only and fell back to the strictest setting);
   they are now ``[150.0, 200.0, 250.0, 315.0, 400.0]`` and ``'lowest_fdr'``.
+- 940 (item 946): ``ops_decode_preset`` was ``'none'``,
+  ``ops_decode_threshold_mode`` ``'manual'`` and ``ops_decode_auto_spot_grid``
+  ``[150.0, 200.0, 250.0, 315.0, 400.0]``; they are now ``'rule_a_s2'``,
+  ``'auto'`` and ``[]``, so a run decodes with rule (a) + S2 and per-well
+  thresholds chosen from decoys.
 
 Public API
 ----------

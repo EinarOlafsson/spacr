@@ -22727,7 +22727,7 @@ Read by ``_ph_archive_verify``, ``ops_defaults``.
 ops_assign_by_cell_territory
 ----------------------------
 
-Give a read that lies almost equally close to two nuclei to the nearer one instead of to neither. More nuclei get reads; a read between two touching nuclei can land on the wrong one. Default False. Alpha.
+Give a read that lies almost equally close to two nuclei to the nearer one instead of to neither. More nuclei get reads; a read between two touching nuclei can land on the wrong one. Default False.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -22942,7 +22942,7 @@ Read by ``_ph_aggregate``, ``ops_defaults``.
 ops_calibration_min_labels
 --------------------------
 
-The fewest labelled reads each base needs in a cycle for the library calibration to fit that cycle; a cycle with fewer keeps the plain unmixing. Default 30. Alpha.
+The fewest labelled reads each base needs in a cycle for the library calibration to fit that cycle; a cycle with fewer keeps the plain unmixing. Default 30.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -22953,7 +22953,7 @@ Read by :py:func:`~spacr.ops_decode.decode_rule`, ``ops_defaults``.
 ops_calibration_passes
 ----------------------
 
-How many times the library calibration re-labels the reads from its own last calls before the final call. More passes settle the axes further and cost time. Default 2. Alpha.
+How many times the library calibration re-labels the reads from its own last calls before the final call. More passes settle the axes further and cost time. Default 2.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -22975,7 +22975,7 @@ Read by ``_cell_rule``, ``_ph_genotype_rule``, ``ops_defaults``.
 ops_channel_registration
 ------------------------
 
-How each base channel is placed onto the reference cycle. 'spots' registers the channel on its reads, with the cell background filtered away, wherever that disagrees with the background registration by more than 2 pixels; 'background' trusts the background alone, the earlier behaviour, which on the Funk et al. 2022 plates left one cycle of weak wells unshifted although it had drifted 10 to 25 pixels. 'spots_refine' (alpha) also takes a believed spot answer within ops_registration_refine_px of the background answer, correcting small residual shifts. Default 'spots'.
+How each base channel is placed onto the reference cycle. 'spots' registers the channel on its reads, with the cell background filtered away, wherever that disagrees with the background registration by more than 2 pixels; 'background' trusts the background alone, the earlier behaviour, which on the Funk et al. 2022 plates left one cycle of weak wells unshifted although it had drifted 10 to 25 pixels. 'spots_refine' also takes a believed spot answer within ops_registration_refine_px of the background answer, correcting small residual shifts. Default 'spots'.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23798,7 +23798,7 @@ Read by :py:func:`~spacr.ops_prefix.prefix_settings`, ``ops_defaults``.
 ops_decode_auto_ci
 ------------------
 
-Judge each auto setting by the upper end of its FDR's 95 % interval (1,000 field resamples) rather than by the estimate, so a setting is accepted only when the FDR is very likely at or below ops_decode_fdr_max. Default True. Alpha.
+Judge each auto setting by the upper end of its FDR's 95 % interval (1,000 field resamples) rather than by the estimate, so a setting is accepted only when the FDR is very likely at or below ops_decode_fdr_max. Default True.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23820,7 +23820,7 @@ Read by ``_tuning_options``, ``ops_defaults``.
 ops_decode_auto_grid
 --------------------
 
-The values auto thresholds try, as {'ops_single_read_quality': [...], 'ops_pixel_quality': [...]}; a threshold left out keeps its entered value. Empty uses the BMC study's grid: single-read quality 0.06, 0.08, 0.10, 0.12, 0.15, 0.20, 0.25, 0.30 and 0.40 by pixel quality 0.10, 0.15, 0.20, 0.30 and 0.40. Default empty. Alpha.
+The values auto thresholds try, as {'ops_single_read_quality': [...], 'ops_pixel_quality': [...]}; a threshold left out keeps its entered value. Empty uses the BMC study's grid: single-read quality 0.06, 0.08, 0.10, 0.12, 0.15, 0.20, 0.25, 0.30 and 0.40 by pixel quality 0.10, 0.15, 0.20, 0.30 and 0.40. Default empty.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23842,7 +23842,7 @@ Read by ``_tuning_options``, ``ops_defaults``.
 ops_decode_auto_seed
 --------------------
 
-The seed of the random split of each well's fields for auto thresholds; the same seed gives the same split and the same choice on a rerun. Default 0. Alpha.
+The seed of the random split of each well's fields for auto thresholds; the same seed gives the same split and the same choice on a rerun. Default 0.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23853,7 +23853,7 @@ Read by :py:func:`~spacr.ops_decode.threshold_settings`, :py:func:`~spacr.ops_pr
 ops_decode_auto_spot_grid
 -------------------------
 
-The read thresholds (ops_read_threshold, the spot strength a read needs) that auto thresholds try together with the call thresholds, so spot detection is tuned with calling. Each field is read once down to the lowest value. Empty keeps ops_read_threshold as entered, as settings saved before item 942 do. Default 150, 200, 250, 315 and 400. Alpha.
+The read thresholds (ops_read_threshold, the spot strength a read needs) that auto thresholds try together with the call thresholds, so spot detection is tuned with calling. Each field is read once down to the lowest value. Empty keeps ops_read_threshold as entered and tunes the calling only; a joint grid to try is 150, 200, 250, 315 and 400. Default empty. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23864,7 +23864,7 @@ Read by :py:func:`~spacr.ops_decode.threshold_settings`, ``ops_defaults``.
 ops_decode_auto_tune_fraction
 -----------------------------
 
-The share of a well's fields, drawn at random, that auto thresholds choose on; the other fields only report the chosen setting's FDR and genotyped share. Default 0.5. Alpha.
+The share of a well's fields, drawn at random, that auto thresholds choose on; the other fields only report the chosen setting's FDR and genotyped share. Default 0.5.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23886,7 +23886,7 @@ Read by ``_tuning_options``, ``ops_defaults``.
 ops_decode_fdr_max
 ------------------
 
-The highest decoy-estimated false calls per 100 real calls that auto thresholds may accept (0.1 means 0.1 %). Used with ops_decode_threshold_mode 'auto' and objective 'recall_at_fdr'. A well where no setting meets it gets the setting chosen by ops_decode_auto_unreachable and auto_met False in its report. Default 0.1. Alpha.
+The highest decoy-estimated false calls per 100 real calls that auto thresholds may accept (0.1 means 0.1 %). Used with ops_decode_threshold_mode 'auto' and objective 'recall_at_fdr'. A well where no setting meets it gets the setting chosen by ops_decode_auto_unreachable and auto_met False in its report. Default 0.1.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23897,7 +23897,7 @@ Read by :py:func:`~spacr.ops_decode.threshold_settings`, ``ops_defaults``.
 ops_decode_impute_missing_cycles
 --------------------------------
 
-Let a base from a cycle that could not be measured, written N, match any base of a guide, under the new decode rules. Off leaves every read with an N unmatched, which costs the reads of fields that lost a cycle. Default True. Alpha.
+Let a base from a cycle that could not be measured, written N, match any base of a guide, under the new decode rules. Off leaves every read with an N unmatched, which costs the reads of fields that lost a cycle. Default True.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23908,7 +23908,7 @@ Read by :py:func:`~spacr.ops_decode.decode_rule`, ``ops_defaults``.
 ops_decode_library_calibration
 ------------------------------
 
-Learn each cycle's four base axes from the reads the guide library names on their other cycles, then unmix every read of that cycle with them. It corrects channel drift a single unmixing cannot. Decoys are never used to learn the axes, so the decoy FDR stays an independent check. Default False. Alpha.
+Learn each cycle's four base axes from the reads the guide library names on their other cycles, then unmix every read of that cycle with them. It corrects channel drift a single unmixing cannot. Decoys are never used to learn the axes, so the decoy FDR stays an independent check. Default False.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23919,7 +23919,7 @@ Read by :py:func:`~spacr.ops_decode.decode_rule`, ``ops_defaults``.
 ops_decode_pixel_fallback
 -------------------------
 
-For a nucleus no read assigned, call the brightest pixels near it like reads and assign the guide at least two of them name exactly. It recovers nuclei whose spots fell below the read threshold. Default False. Alpha.
+For a nucleus no read assigned, call the brightest pixels near it like reads and assign the guide at least two of them name exactly. It recovers nuclei whose spots fell below the read threshold. Default False.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23930,7 +23930,7 @@ Read by :py:func:`~spacr.ops_decode.decode_rule`, ``ops_defaults``.
 ops_decode_preset
 -----------------
 
-A named set of decode settings applied to every decode key this settings file leaves at its default. 'rule_a_s2' is the final rule of the decode-yield study: refined spot registration, library-calibrated base calls, territory attribution, quality-weighted votes, the runner-up one-mismatch rule, the pixel fallback and a decoy FDR report. On plate A of Funk et al. 2022 it assigned 74.4 % of nuclei at 0.065 false calls per 100. 'none' changes nothing. Default 'none'. Alpha.
+A named set of decode settings applied to every decode key this settings file leaves at its default. 'rule_a_s2' is the final rule of the decode-yield study: refined spot registration, library-calibrated base calls, territory attribution, quality-weighted votes, the runner-up one-mismatch rule, the pixel fallback and a decoy FDR report. On plate A of Funk et al. 2022 it assigned 74.4 % of nuclei at 0.065 false calls per 100. 'none' is the plain decode, the default before spaCR 1.5.1.8. Default 'rule_a_s2'.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -24007,7 +24007,7 @@ Read by :py:func:`~spacr.ops_decode.run_decode_qc`, ``ops_defaults``.
 ops_decode_quality_weighted
 ---------------------------
 
-Weight each read's vote by its base-call quality, so a clean read outvotes a doubtful one, instead of counting every read once. Default False. Alpha.
+Weight each read's vote by its base-call quality, so a clean read outvotes a doubtful one, instead of counting every read once. Default False.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -24018,7 +24018,7 @@ Read by :py:func:`~spacr.ops_decode.decode_rule`, ``ops_defaults``.
 ops_decode_runner_up
 --------------------
 
-Let a read one base from a guide count for it when the mismatched cycle was an uncertain call whose second-brightest channel is the guide's base. It recovers reads lost to one weak cycle without accepting arbitrary one-mismatch matches. Default False. Alpha.
+Let a read one base from a guide count for it when the mismatched cycle was an uncertain call whose second-brightest channel is the guide's base. It recovers reads lost to one weak cycle without accepting arbitrary one-mismatch matches. Default False.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -24029,7 +24029,7 @@ Read by :py:func:`~spacr.ops_decode.decode_rule`, ``ops_defaults``.
 ops_decode_skip_unplaced_sites
 ------------------------------
 
-Decode only the sites the stitch placed and list the others in the decode and FDR reports. Off stops the well with an error when a site was not placed. Default True. Alpha.
+Decode only the sites the stitch placed and list the others in the decode and FDR reports. Off stops the well with an error when a site was not placed. Default True.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -24040,18 +24040,18 @@ Read by ``ops_defaults``.
 ops_decode_threshold_mode
 -------------------------
 
-How the thresholds of the rule (a) decode are set. 'manual' uses the values you enter. 'auto' tunes spot detection and calling together, well by well, from decoy calls: half of the well's fields try every combination of ops_decode_auto_spot_grid and ops_decode_auto_grid, the one ops_decode_auto_objective picks is used for the whole well, and the other half reports its FDR. Auto needs ops_decode_preset rule_a_s2 and ops_decoy_library_k above 0; it writes results/ops_decode/decode_thresholds\_<plate>.csv and each well's genotyped-vs-FDR curve. Default 'manual'. Alpha.
+How the rule (a) decode's thresholds are set. 'manual' uses the values you enter. 'auto' tunes them well by well from decoys: half of the well's fields try every setting of ops_decode_auto_grid (and of ops_decode_auto_spot_grid, if set), the one ops_decode_auto_objective picks is used for the whole well, and the other half reports its FDR. Auto acts only on the rule (a) decode (ops_decode_preset rule_a_s2, a library, decoys); otherwise the thresholds stay as entered. It writes results/ops_decode/decode_thresholds\_<plate>.csv. 'manual' was the default before 1.5.1.8. Default 'auto'.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.ops_decode.threshold_settings`, ``ops_defaults``.
+Read by :py:func:`~spacr.ops_decode.threshold_settings`, ``_decode``, ``ops_defaults``.
 
 .. _setting-flow-ops_decoy_library_k:
 
 ops_decoy_library_k
 -------------------
 
-How many base-shuffled decoy barcodes per guide are matched alongside the library. A nucleus assigned a decoy is dropped and counted, which estimates how many real calls are false; each decode then writes decode_fdr\_<well>.json and per-field stats under results/ops_decode. 0 matches no decoys. Default 0. Alpha.
+How many base-shuffled decoy barcodes per guide are matched alongside the library. A nucleus assigned a decoy is dropped and counted, which estimates how many real calls are false; each decode then writes decode_fdr\_<well>.json and per-field stats under results/ops_decode. 0 matches no decoys. Default 0.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -24346,7 +24346,7 @@ Read by ``_scored_references``, ``evaluate_gene_profiles``, ``specificity_metric
 ops_fdr_scale
 -------------
 
-How much likelier a read is to land on a wrong real guide than on a decoy, which turns decoy calls into an FDR. 1.268 was measured for the Funk et al. 2022 library from its guides' neighbour distances; values below 1 count as 1. Default 1.268. Alpha.
+How much likelier a read is to land on a wrong real guide than on a decoy, which turns decoy calls into an FDR. 1.268 was measured for the Funk et al. 2022 library from its guides' neighbour distances; values below 1 count as 1. Default 1.268.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -25654,7 +25654,7 @@ Read by ``_ph_profile_options``, ``ops_defaults``.
 ops_pixel_min_fraction
 ----------------------
 
-The share of a nucleus's matched pixels its guide must hold, with no tie, for the pixel fallback to assign it. Default 0.6. Alpha.
+The share of a nucleus's matched pixels its guide must hold, with no tie, for the pixel fallback to assign it. Default 0.6.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -25665,7 +25665,7 @@ Read by :py:func:`~spacr.ops_decode.decode_rule`, ``ops_defaults``.
 ops_pixel_min_pixels
 --------------------
 
-How many exactly matching pixels must name a guide before the pixel fallback assigns it. Pixels of one spot repeat its call, so this counts pixels, not reads. Default 2. Alpha.
+How many exactly matching pixels must name a guide before the pixel fallback assigns it. Pixels of one spot repeat its call, so this counts pixels, not reads. Default 2.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -25676,7 +25676,7 @@ Read by :py:func:`~spacr.ops_decode.decode_rule`, ``ops_defaults``.
 ops_pixel_percentile
 --------------------
 
-Which pixels the pixel fallback calls: those above this percentile of the field's read score. Lower calls more pixels, slower and noisier. Default 97. Alpha.
+Which pixels the pixel fallback calls: those above this percentile of the field's read score. Lower calls more pixels, slower and noisier. Default 97.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -25687,7 +25687,7 @@ Read by :py:func:`~spacr.ops_decode.decode_rule`, ``ops_defaults``.
 ops_pixel_quality
 -----------------
 
-The weakest pixel call, as its worst cycle's margin from 0 to 1, that votes in the pixel fallback. Higher assigns fewer nuclei at a lower decoy rate. Default 0.1. Alpha.
+The weakest pixel call, as its worst cycle's margin from 0 to 1, that votes in the pixel fallback. Higher assigns fewer nuclei at a lower decoy rate. Default 0.1.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -25698,7 +25698,7 @@ Read by :py:func:`~spacr.ops_decode.decode_rule`, ``ops_defaults``.
 ops_pixel_radius
 ----------------
 
-How far beyond a nucleus boundary, in pixels, a fallback pixel may lie and still vote for that nucleus. Default 10. Alpha.
+How far beyond a nucleus boundary, in pixels, a fallback pixel may lie and still vote for that nucleus. Default 10.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -26366,7 +26366,7 @@ Read by ``_decode``, ``_stitch``, ``ops_defaults``.
 ops_registration_refine_px
 --------------------------
 
-Under ops_channel_registration 'spots_refine', a believed spot registration this many pixels or fewer from the background answer replaces it, so a small residual shift is corrected instead of kept. Larger lets the spots move more channels. Default 3. Alpha.
+Under ops_channel_registration 'spots_refine', a believed spot registration this many pixels or fewer from the background answer replaces it, so a small residual shift is corrected instead of kept. Larger lets the spots move more channels. Default 3.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -26443,7 +26443,7 @@ Read by ``_ph_fields``, ``ops_defaults``.
 ops_runner_up_margin
 --------------------
 
-The largest base-call margin, 0 to 1, a mismatched cycle may carry for the runner-up rule to accept it. Lower accepts fewer corrected reads. Default 0.1. Alpha.
+The largest base-call margin, 0 to 1, a mismatched cycle may carry for the runner-up rule to accept it. Lower accepts fewer corrected reads. Default 0.1.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -26694,7 +26694,7 @@ Read by ``_spot_detector``, ``ops_defaults``.
 ops_spot_min_peak
 -----------------
 
-How far a spot registration's peak must stand above the mean of its correlation surface to be believed, under 'spots' and 'spots_refine'. Higher trusts the spots on fewer channels; a field with no reads peaks at a few. Default 20. Alpha.
+How far a spot registration's peak must stand above the mean of its correlation surface to be believed, under 'spots' and 'spots_refine'. Higher trusts the spots on fewer channels; a field with no reads peaks at a few. Default 20.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -26705,7 +26705,7 @@ Read by ``_decode``, ``ops_defaults``.
 ops_spot_overrule_share
 -----------------------
 
-The spots overrule a background registration only where the spot surface at the background's shift is below this share of the spot peak. Lower overrules less often. Default 0.5. Alpha.
+The spots overrule a background registration only where the spot surface at the background's shift is below this share of the spot peak. Lower overrules less often. Default 0.5.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -26738,7 +26738,7 @@ Read by ``_stitch``, ``ops_defaults``.
 ops_store_field_cache
 ---------------------
 
-Under the new decode rules, write each field's decode evidence -- every spot, its intensities, its two nearest nuclei and the fallback pixels -- to <dst_root>/<well>/decode_cache as one npz per site. The decode QC reads it. A field takes about 13 MB. Default False. Alpha.
+Under the new decode rules, write each field's decode evidence -- every spot, its intensities, its two nearest nuclei and the fallback pixels -- to <dst_root>/<well>/decode_cache as one npz per site. The decode QC reads it. A field takes about 13 MB. Default False.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -26815,7 +26815,7 @@ Read by ``_ph_aggregate``, ``ops_defaults``.
 ops_tie
 -------
 
-How close, in pixels, a read's two nearest nucleus boundaries may lie before the read is called ambiguous, under the new decode rules. Ambiguous reads are dropped unless ops_assign_by_cell_territory is on. Default 1. Alpha.
+How close, in pixels, a read's two nearest nucleus boundaries may lie before the read is called ambiguous, under the new decode rules. Ambiguous reads are dropped unless ops_assign_by_cell_territory is on. Default 1.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -26982,7 +26982,7 @@ Read by ``profile_clusters``.
 ops_vote_weight_floor
 ---------------------
 
-Added to every quality weight, so a read of quality 0 still carries a small vote. Higher moves the weighting toward a plain count. Default 0.05. Alpha.
+Added to every quality weight, so a read of quality 0 still carries a small vote. Higher moves the weighting toward a plain count. Default 0.05.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -35161,9 +35161,10 @@ seg_dst
 -------
 
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation` **-- reads it**
+|     ``_score_saved_labels`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``run_large_site_segmentation``.
+Read by ``_score_saved_labels``, ``run_large_site_segmentation``.
 
 .. _setting-flow-seg_edge_policy:
 
@@ -35734,9 +35735,11 @@ seg_report_reference
 --------------------
 
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation` **-- reads it**
+|     ``_agreement_settings`` **-- reads it**
+|     ``_score_saved_labels`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``run_large_site_segmentation``.
+Read by ``_agreement_settings``, ``_score_saved_labels``, ``run_large_site_segmentation``.
 
 .. _setting-flow-seg_site_channels:
 
@@ -35754,9 +35757,10 @@ seg_sites
 ---------
 
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation` **-- reads it**
+|     ``_score_saved_labels`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``run_large_site_segmentation``.
+Read by ``_score_saved_labels``, ``run_large_site_segmentation``.
 
 .. _setting-flow-seg_sites_src:
 

@@ -730,16 +730,22 @@ def main():
 
 
 def prepare_jinja(env, root=ROOT):
-    """Check generated prose and expose its include paths to AutoAPI."""
+    """Check generated prose and expose the include paths of the pages it wrote to AutoAPI.
+
+    A module hidden from the guides (alpha) has no page, so it gets no include.
+    """
     data = load(root)
     validate(data, root, live=False)
-    for path, content in outputs(data).items():
+    generated = outputs(data)
+    for path, content in generated.items():
         destination = root / path
         if not destination.is_file() or destination.read_text(encoding="utf-8") != content:
             raise ValueError(f"stale workflow artifact: {path}; run build_module_workflows.py")
+    pages = {path.as_posix() for path in generated}
     env.globals["spacr_workflow_includes"] = {
         row["api_module"]: f"/_generated/module_workflows/{row['api_module']}.rst"
         for row in data["modules"].values()
+        if f"docs/source/_generated/module_workflows/{row['api_module']}.rst" in pages
     }
 
 

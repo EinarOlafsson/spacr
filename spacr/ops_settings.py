@@ -166,7 +166,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_reference_seed": 0,
     "ops_retry_missing": False,
     "ops_crop_flat_mean_one": False,
-    "ops_decode_preset": "none",
+    "ops_decode_preset": "rule_a_s2",
     "ops_registration_refine_px": 3,
     "ops_spot_min_peak": 20.0,
     "ops_spot_overrule_share": 0.5,
@@ -188,13 +188,13 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_pixel_quality": 0.1,
     "ops_decoy_library_k": 0,
     "ops_fdr_scale": 1.268,
-    "ops_decode_threshold_mode": "manual",
+    "ops_decode_threshold_mode": "auto",
     "ops_decode_fdr_max": 0.1,
     "ops_decode_auto_grid": None,
     "ops_decode_auto_ci": True,
     "ops_decode_auto_tune_fraction": 0.5,
     "ops_decode_auto_seed": 0,
-    "ops_decode_auto_spot_grid": [150.0, 200.0, 250.0, 315.0, 400.0],
+    "ops_decode_auto_spot_grid": [],
     "ops_decode_auto_objective": "recall_at_fdr",
     "ops_decode_auto_f_beta": 1.0,
     "ops_decode_auto_unreachable": "lowest_fdr",
@@ -1206,7 +1206,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "background registration by more than 2 pixels; 'background' trusts"
         " the background alone, the earlier behaviour, which on the Funk et"
         " al. 2022 plates left one cycle of weak wells unshifted although "
-        "it had drifted 10 to 25 pixels. 'spots_refine' (alpha) also takes "
+        "it had drifted 10 to 25 pixels. 'spots_refine' also takes "
         "a believed spot answer within ops_registration_refine_px of the "
         "background answer, correcting small residual shifts. Default "
         "'spots'.",
@@ -2454,150 +2454,150 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "quality-weighted votes, the runner-up one-mismatch rule, the pixel "
         "fallback and a decoy FDR report. On plate A of Funk et al. 2022 it "
         "assigned 74.4 % of nuclei at 0.065 false calls per 100. 'none' "
-        "changes nothing. Default 'none'. Alpha.",
+        "is the plain decode, the default before spaCR 1.5.1.8. Default "
+        "'rule_a_s2'.",
     "ops_registration_refine_px":
         "(int) - Under ops_channel_registration 'spots_refine', a believed "
         "spot registration this many pixels or fewer from the background "
         "answer replaces it, so a small residual shift is corrected instead "
-        "of kept. Larger lets the spots move more channels. Default 3. "
-        "Alpha.",
+        "of kept. Larger lets the spots move more channels. Default 3.",
     "ops_spot_min_peak":
         "(float) - How far a spot registration's peak must stand above the "
         "mean of its correlation surface to be believed, under 'spots' and "
         "'spots_refine'. Higher trusts the spots on fewer channels; a field "
-        "with no reads peaks at a few. Default 20. Alpha.",
+        "with no reads peaks at a few. Default 20.",
     "ops_spot_overrule_share":
         "(float) - The spots overrule a background registration only where "
         "the spot surface at the background's shift is below this share of "
-        "the spot peak. Lower overrules less often. Default 0.5. Alpha.",
+        "the spot peak. Lower overrules less often. Default 0.5.",
     "ops_decode_library_calibration":
         "(bool) - Learn each cycle's four base axes from the reads the "
         "guide library names on their other cycles, then unmix every read "
         "of that cycle with them. It corrects channel drift a single "
         "unmixing cannot. Decoys are never used to learn the axes, so the "
-        "decoy FDR stays an independent check. Default False. Alpha.",
+        "decoy FDR stays an independent check. Default False.",
     "ops_calibration_passes":
         "(int) - How many times the library calibration re-labels the reads "
         "from its own last calls before the final call. More passes settle "
-        "the axes further and cost time. Default 2. Alpha.",
+        "the axes further and cost time. Default 2.",
     "ops_calibration_min_labels":
         "(int) - The fewest labelled reads each base needs in a cycle for "
         "the library calibration to fit that cycle; a cycle with fewer "
-        "keeps the plain unmixing. Default 30. Alpha.",
+        "keeps the plain unmixing. Default 30.",
     "ops_decode_runner_up":
         "(bool) - Let a read one base from a guide count for it when the "
         "mismatched cycle was an uncertain call whose second-brightest "
         "channel is the guide's base. It recovers reads lost to one weak "
         "cycle without accepting arbitrary one-mismatch matches. Default "
-        "False. Alpha.",
+        "False.",
     "ops_runner_up_margin":
         "(float) - The largest base-call margin, 0 to 1, a mismatched cycle "
         "may carry for the runner-up rule to accept it. Lower accepts fewer "
-        "corrected reads. Default 0.1. Alpha.",
+        "corrected reads. Default 0.1.",
     "ops_decode_impute_missing_cycles":
         "(bool) - Let a base from a cycle that could not be measured, "
         "written N, match any base of a guide, under the new decode rules. "
         "Off leaves every read with an N unmatched, which costs the reads "
-        "of fields that lost a cycle. Default True. Alpha.",
+        "of fields that lost a cycle. Default True.",
     "ops_assign_by_cell_territory":
         "(bool) - Give a read that lies almost equally close to two nuclei "
         "to the nearer one instead of to neither. More nuclei get reads; a "
         "read between two touching nuclei can land on the wrong one. "
-        "Default False. Alpha.",
+        "Default False.",
     "ops_tie":
         "(float) - How close, in pixels, a read's two nearest nucleus "
         "boundaries may lie before the read is called ambiguous, under the "
         "new decode rules. Ambiguous reads are dropped unless "
-        "ops_assign_by_cell_territory is on. Default 1. Alpha.",
+        "ops_assign_by_cell_territory is on. Default 1.",
     "ops_decode_quality_weighted":
         "(bool) - Weight each read's vote by its base-call quality, so a "
         "clean read outvotes a doubtful one, instead of counting every read "
-        "once. Default False. Alpha.",
+        "once. Default False.",
     "ops_vote_weight_floor":
         "(float) - Added to every quality weight, so a read of quality 0 "
         "still carries a small vote. Higher moves the weighting toward a "
-        "plain count. Default 0.05. Alpha.",
+        "plain count. Default 0.05.",
     "ops_decode_pixel_fallback":
         "(bool) - For a nucleus no read assigned, call the brightest pixels "
         "near it like reads and assign the guide at least two of them name "
         "exactly. It recovers nuclei whose spots fell below the read "
-        "threshold. Default False. Alpha.",
+        "threshold. Default False.",
     "ops_pixel_percentile":
         "(float) - Which pixels the pixel fallback calls: those above this "
         "percentile of the field's read score. Lower calls more pixels, "
-        "slower and noisier. Default 97. Alpha.",
+        "slower and noisier. Default 97.",
     "ops_pixel_radius":
         "(float) - How far beyond a nucleus boundary, in pixels, a fallback "
-        "pixel may lie and still vote for that nucleus. Default 10. Alpha.",
+        "pixel may lie and still vote for that nucleus. Default 10.",
     "ops_pixel_min_pixels":
         "(int) - How many exactly matching pixels must name a guide before "
         "the pixel fallback assigns it. Pixels of one spot repeat its call, "
-        "so this counts pixels, not reads. Default 2. Alpha.",
+        "so this counts pixels, not reads. Default 2.",
     "ops_pixel_min_fraction":
         "(float) - The share of a nucleus's matched pixels its guide must "
         "hold, with no tie, for the pixel fallback to assign it. Default "
-        "0.6. Alpha.",
+        "0.6.",
     "ops_pixel_quality":
         "(float) - The weakest pixel call, as its worst cycle's margin from "
         "0 to 1, that votes in the pixel fallback. Higher assigns fewer "
-        "nuclei at a lower decoy rate. Default 0.1. Alpha.",
+        "nuclei at a lower decoy rate. Default 0.1.",
     "ops_decoy_library_k":
         "(int) - How many base-shuffled decoy barcodes per guide are "
         "matched alongside the library. A nucleus assigned a decoy is "
         "dropped and counted, which estimates how many real calls are "
         "false; each decode then writes decode_fdr_<well>.json and "
         "per-field stats under results/ops_decode. 0 matches no decoys. "
-        "Default 0. Alpha.",
+        "Default 0.",
     "ops_fdr_scale":
         "(float) - How much likelier a read is to land on a wrong real "
         "guide than on a decoy, which turns decoy calls into an FDR. 1.268 "
         "was measured for the Funk et al. 2022 library from its guides' "
-        "neighbour distances; values below 1 count as 1. Default 1.268. "
-        "Alpha.",
+        "neighbour distances; values below 1 count as 1. Default 1.268.",
     "ops_decode_threshold_mode":
-        "(str) - How the thresholds of the rule (a) decode are set. 'manual' "
-        "uses the values you enter. 'auto' tunes spot detection and calling "
-        "together, well by well, from decoy calls: half of the well's fields "
-        "try every combination of ops_decode_auto_spot_grid and "
-        "ops_decode_auto_grid, the one ops_decode_auto_objective picks is "
-        "used for the whole well, and the other half reports its FDR. Auto "
-        "needs ops_decode_preset rule_a_s2 and ops_decoy_library_k above 0; "
-        "it writes results/ops_decode/decode_thresholds_<plate>.csv and each "
-        "well's genotyped-vs-FDR curve. Default 'manual'. Alpha.",
+        "(str) - How the rule (a) decode's thresholds are set. 'manual' "
+        "uses the values you enter. 'auto' tunes them well by well from "
+        "decoys: half of the well's fields try every setting of "
+        "ops_decode_auto_grid (and of ops_decode_auto_spot_grid, if set), "
+        "the one ops_decode_auto_objective picks is used for the whole well, "
+        "and the other half reports its FDR. Auto acts only on the rule (a) "
+        "decode (ops_decode_preset rule_a_s2, a library, decoys); otherwise "
+        "the thresholds stay as entered. It writes "
+        "results/ops_decode/decode_thresholds_<plate>.csv. 'manual' was "
+        "the default before 1.5.1.8. Default 'auto'.",
     "ops_decode_fdr_max":
         "(float) - The highest decoy-estimated false calls per 100 real "
         "calls that auto thresholds may accept (0.1 means 0.1 %). Used with "
         "ops_decode_threshold_mode 'auto' and objective 'recall_at_fdr'. A "
         "well where no setting meets it gets the setting chosen by "
         "ops_decode_auto_unreachable and auto_met False in its report. "
-        "Default 0.1. Alpha.",
+        "Default 0.1.",
     "ops_decode_auto_grid":
         "(dict) - The values auto thresholds try, as "
         "{'ops_single_read_quality': [...], 'ops_pixel_quality': [...]}; a "
         "threshold left out keeps its entered value. Empty uses the BMC "
         "study's grid: single-read quality 0.06, 0.08, 0.10, 0.12, 0.15, "
         "0.20, 0.25, 0.30 and 0.40 by pixel quality 0.10, 0.15, 0.20, 0.30 "
-        "and 0.40. Default empty. Alpha.",
+        "and 0.40. Default empty.",
     "ops_decode_auto_ci":
         "(bool) - Judge each auto setting by the upper end of its FDR's 95 % "
         "interval (1,000 field resamples) rather than by the estimate, so a "
         "setting is accepted only when the FDR is very likely at or below "
-        "ops_decode_fdr_max. Default True. Alpha.",
+        "ops_decode_fdr_max. Default True.",
     "ops_decode_auto_tune_fraction":
         "(float) - The share of a well's fields, drawn at random, that "
         "auto thresholds choose on; the other fields only report the "
-        "chosen setting's FDR and genotyped share. Default 0.5. Alpha.",
+        "chosen setting's FDR and genotyped share. Default 0.5.",
     "ops_decode_auto_seed":
         "(int) - The seed of the random split of each well's fields for "
         "auto thresholds; the same seed gives the same split and the same "
-        "choice on a rerun. Default 0. Alpha.",
+        "choice on a rerun. Default 0.",
     "ops_decode_auto_spot_grid":
         "(list) - The read thresholds (ops_read_threshold, the spot strength "
         "a read needs) that auto thresholds try together with the call "
         "thresholds, so spot detection is tuned with calling. Each field is "
         "read once down to the lowest value. Empty keeps ops_read_threshold "
-        "as entered, as settings saved before item 942 do. Default 150, 200, "
-        "250, 315 and 400. Alpha.",
+        "as entered and tunes the calling only; a joint grid to try is 150, "
+        "200, 250, 315 and 400. Default empty. Alpha.",
     "ops_decode_auto_objective":
         "(str) - What auto thresholds maximise, in the OPS decode and in the "
         "spacer-prefix decode. 'recall_at_fdr' genotypes the most cells with "
@@ -2620,13 +2620,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_decode_skip_unplaced_sites":
         "(bool) - Decode only the sites the stitch placed and list the "
         "others in the decode and FDR reports. Off stops the well with an "
-        "error when a site was not placed. Default True. Alpha.",
+        "error when a site was not placed. Default True.",
     "ops_store_field_cache":
         "(bool) - Under the new decode rules, write each field's decode "
         "evidence -- every spot, its intensities, its two nearest nuclei "
         "and the fallback pixels -- to <dst_root>/<well>/decode_cache as "
         "one npz per site. The decode QC reads it. A field takes about 13 "
-        "MB. Default False. Alpha.",
+        "MB. Default False.",
     "ops_decode_qc":
         "(bool) - After the decode, train a model of what makes a genotype "
         "call a decoy: gradient boosting on a permissive decode of the "

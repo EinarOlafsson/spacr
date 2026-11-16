@@ -2,7 +2,7 @@ OPS DECODE RULE (A) + S2 AS ENGINE SETTINGS
 ===========================================
 
 Lifecycle: future
-Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[873]). The build of item
+Status: DEFAULT since 2026-11-15 (item 946: ops_decode_preset defaults to 'rule_a_s2' and the item-873 settings left alpha; settings files stamped before schema version 940 keep 'none' through DEFAULT_CHANGES[940]); DONE 2026-11-09 (alpha, under ALPHA_FEATURES[873]). The build of item
 842 restricted to the arms of the final decode rule "rule (a) + S2".
 Requested: maintainer via paper session (spec ITEM_ops_decode_rule_a_s2.md).
 Owner: paper session.
