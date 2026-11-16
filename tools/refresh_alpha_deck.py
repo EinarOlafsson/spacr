@@ -130,7 +130,7 @@ GROUPS = (
     )),
     ("OPS genes and\nclusters", (
         ("Clusters: Leiden sweep, guide bootstrap, calibrated test, module atlas",
-         (916, 928, 929, 888)),
+         (916, 953, 928, 929, 888)),
         ("Gene map: profile clusters, labels, medoid crops", (918,)),
         ("Gene graph, protein knowledge, fusion hypotheses, gene-class training",
          (884, 885, 886, 889)),

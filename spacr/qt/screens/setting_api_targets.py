@@ -729,6 +729,7 @@ SETTING_API_TARGETS = {
     'ops_cluster_graph': ('spacr.ops_clusters', 'cluster_sweep_phase', True),
     'ops_cluster_knn': ('spacr.ops_clusters', 'cluster_sweep_phase', True),
     'ops_cluster_published': ('spacr.ops_clusters', 'cluster_sweep_phase', True),
+    'ops_cluster_published_controls': ('spacr.ops_clusters', 'cluster_sweep_phase', True),
     'ops_cluster_reference_dir': ('spacr.ops_clusters', 'cluster_sweep_phase', True),
     'ops_cluster_resolutions': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_cluster_rows': ('spacr.ops_clusters', 'cluster_sweep_phase', True),

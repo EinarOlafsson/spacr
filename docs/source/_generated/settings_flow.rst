@@ -22854,7 +22854,7 @@ Read by ``ops_defaults``.
 ops_bench_null_permutations
 ---------------------------
 
-Label permutations of the size-matched null, cluster sizes kept, that every metric is an excess over. Default 200. Alpha.
+Label permutations of the size-matched null, cluster sizes kept, that every metric is an excess over. At 200 the null's Monte Carlo error left shuffled-label controls about 0.2 points below zero on complexes; the first 200 of the 1000 are the same. Settings files saved before item 954 rerun with 200. Default 1000. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -23036,6 +23036,17 @@ ops_cluster_published
 ---------------------
 
 Published gene clusterings, such as Brieflow's or Funk et al.'s, scored in the cluster_sweep phase as comparators on the same genes, files, code and shuffled control: each a name, table and optional sheet, gene and cluster column, or the path of a JSON list of them. Their data is the authors', so the rows are marked data_matched False. Default None. Alpha.
+
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+
+Read by :py:func:`~spacr.ops_clusters.cluster_sweep_phase`, ``ops_defaults``.
+
+.. _setting-flow-ops_cluster_published_controls:
+
+ops_cluster_published_controls
+------------------------------
+
+Keep each published comparator's own control rows (non-targeting guides) with their published clusters, in the Fisher background of its CORUM and KEGG shares only, as the publications scored them; they are never cluster members or STRING pairs. With them, Funk et al.'s published clusters score CORUM 24.3 % and KEGG 13.5 %, as published. Settings files saved before item 953 rerun with False. Default True. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 

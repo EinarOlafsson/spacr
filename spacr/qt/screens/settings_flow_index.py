@@ -1191,6 +1191,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_cluster_graph',
     'ops_cluster_knn',
     'ops_cluster_published',
+    'ops_cluster_published_controls',
     'ops_cluster_reference_dir',
     'ops_cluster_resolutions',
     'ops_cluster_rows',
