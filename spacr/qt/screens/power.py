@@ -1099,8 +1099,18 @@ class PowerScreen(QWidget):
         source.addWidget(browse)
         form.addRow(tr("OPS settings file"), source)
         defaults = ops_defaults()
+        labels = {
+            "dst_root": tr("Output folder"),
+            "ops_etest_cells": tr("Cells folder"),
+            "ops_power_cells": tr("Cells per gene"),
+            "ops_power_seeds": tr("Seeds"),
+            "ops_power_retrieval": tr("Retrieval curve"),
+            "ops_reference_dir": tr("Reference folder"),
+            "ops_power_gene_list": tr("Gene list"),
+            "ops_power_reference_rows": tr("Reference rows"),
+        }
         self._ops_power_fields: Dict[str, QWidget] = {}
-        for key, label in OPS_POWER_FIELDS:
+        for key in OPS_POWER_FIELDS:
             if key == "ops_power_retrieval":
                 field = QCheckBox()
                 field.setChecked(bool(defaults[key]))
@@ -1113,7 +1123,7 @@ class PowerScreen(QWidget):
             field.setProperty("apiTooltipDescriptionSource", text)
             field.setProperty("apiTooltipDescription", text)
             self._ops_power_fields[key] = field
-            form.addRow(tr(label), field)
+            form.addRow(labels[key], field)
         run = QPushButton(tr("Run the OPS power curve"))
         run.clicked.connect(self._run_ops_power)
         form.addRow(run)
@@ -2042,18 +2052,13 @@ class PowerScreen(QWidget):
 
 
 
-#: The OPS power curve section's fields, in form order (item 969): the OPS
-#: settings it reads, each with the label the section shows. Item 968's OPS
-#: power simulation is meant to join this section.
-OPS_POWER_FIELDS: Tuple[Tuple[str, str], ...] = (
-    ("dst_root", "Output folder"),
-    ("ops_etest_cells", "Cells folder"),
-    ("ops_power_cells", "Cells per gene"),
-    ("ops_power_seeds", "Seeds"),
-    ("ops_power_retrieval", "Retrieval curve"),
-    ("ops_reference_dir", "Reference folder"),
-    ("ops_power_gene_list", "Gene list"),
-    ("ops_power_reference_rows", "Reference rows"),
+#: The settings the OPS power curve section shows, in form order (item 969):
+#: OPS settings, read by the OPS ``etest`` phase. Item 968's OPS power
+#: simulation is meant to join this section.
+OPS_POWER_FIELDS: Tuple[str, ...] = (
+    "dst_root", "ops_etest_cells", "ops_power_cells", "ops_power_seeds",
+    "ops_power_retrieval", "ops_reference_dir", "ops_power_gene_list",
+    "ops_power_reference_rows",
 )
 
 

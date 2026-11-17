@@ -131,7 +131,7 @@ def test_the_power_curve_left_the_ops_panel_for_the_power_module(qtbot, monkeypa
     assert not POWER_KEYS & shown
     assert POWER_KEYS <= set(sm.resolve_default_settings("ops"))
     assert "PowerOpsCurve" in ALPHA_FEATURES[917]["widgets"]
-    assert POWER_KEYS <= {key for key, _label in OPS_POWER_FIELDS}
+    assert POWER_KEYS <= set(OPS_POWER_FIELDS)
     monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: True)
     screen = PowerScreen(threaded=False)
     qtbot.addWidget(screen)
@@ -180,7 +180,7 @@ def test_the_power_section_writes_what_the_ops_etest_run_writes(tmp_path):
             path.unlink()
     loaded = ops_settings.ops_defaults(dict(load_settings_file(str(csv))))
     values = {key: (bool(loaded[key]) if key == "ops_power_retrieval"
-                    else _ops_power_text(loaded[key])) for key, _ in OPS_POWER_FIELDS}
+                    else _ops_power_text(loaded[key])) for key in OPS_POWER_FIELDS}
     payload = {"settings": ops_power_settings(values, str(csv))}
     run_ops_power_curve(payload)
     assert _tree(dst) == before

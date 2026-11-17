@@ -1137,7 +1137,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_gene_universe", "ops_profile_space", "ops_fusion_blocks",
         "ops_reference_dir",
     ],
-    "E-test": [
+    "Energy-distance test": [
         "ops_etest", "ops_etest_cells", "ops_etest_metric",
         "ops_etest_reference_cells", "ops_etest_null", "ops_etest_holdout",
         "ops_etest_mode", "ops_etest_permutations",

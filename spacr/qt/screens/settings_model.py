@@ -2371,7 +2371,7 @@ _APP_CATEGORY_PARENTS["ops"] = {
     **{title: "OPS aggregate" for title in (
         "Pooling & normalisation", "Gene tests & hits",
         "Cell cycle & mitosis", "Penetrance, escapers & neighbours",
-        "Profile weighting & shrinkage", "Profile run", "E-test")},
+        "Profile weighting & shrinkage", "Profile run", "Energy-distance test")},
     **{title: "OPS cluster" for title in (
         "Cluster benchmark", "Resolution sweep", "Consensus clustering",
         "Consensus inputs", "Calibrated cluster test",
@@ -3132,7 +3132,7 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The stored-profile path: which per-well cell tables are profiled, "
         "the run name and recipe, the minimum cells, the cell state and "
         "gene universe, and extra embedding or fusion blocks.",
-    "E-TEST":
+    "ENERGY-DISTANCE TEST":
         "The per-gene energy-distance test of the etest phase: the cells it "
         "reads, the distance, the reference and null pseudo-genes, and the "
         "test mode. Its power curve is set in the Power module.",
