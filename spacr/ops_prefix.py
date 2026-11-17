@@ -28,7 +28,9 @@ masked has nine letters.
 """
 from __future__ import annotations
 
+import itertools
 import json
+import math
 import os
 import time
 from dataclasses import dataclass, field
@@ -357,6 +359,90 @@ def prefix_decoy_library(library: PrefixLibrary, k: int = 4,
                                   "decoy_k": int(k), "decoy_seed": int(seed)})
 
 
+#: The gene a near-miss decoy prefix calls (item 949). A cell whose top
+#: barcode is a near-miss decoy is a decoy call, counted apart from the
+#: far decoys of :data:`DECOY_GENE` and never written as a genotype.
+NEARMISS_GENE = "DECOY_NEARMISS"
+
+
+def prefix_nearmiss_decoys(library: PrefixLibrary, k: int = 4,
+                           seed: int = 1) -> PrefixLibrary:
+    """The whitelist with near-miss decoys added, one edit from a prefix (item 949).
+
+    The far decoys of :func:`prefix_decoy_library` lie two or more edits
+    from every prefix, so they never catch a read error that lands one edit
+    from a guide. A near-miss decoy is one such neighbour: for each library
+    prefix (decoys excluded), in key order, one generator
+    (``numpy.random.default_rng(seed)``) draws a cycle and a different base;
+    the result is kept when it is one edit from that prefix and from no other
+    key (prefix, far decoy or near-miss decoy already kept), until ``k`` are
+    kept or ``8 * k`` draws are spent. Near-miss decoys join the whitelist
+    as callable keys of gene :data:`NEARMISS_GENE` (level ``'nearmiss'``),
+    so a read that matches one, exactly or as its single closest key, is a
+    near-miss decoy call. Exact-only matching loses no real read to them;
+    with one mismatch a read one edit from both a prefix and a near-miss
+    decoy is ambiguous. They have no one-base extension.
+
+    :param library: from :func:`spacer_prefix_library` or
+        :func:`prefix_decoy_library`.
+    :param k: near-miss decoys per prefix (``ops_prefix_nearmiss_decoy_k``).
+    :param seed: the generator's seed (``ops_prefix_decoy_seed``).
+    :returns: a :class:`PrefixLibrary` holding the keys and the near-miss
+        decoys; its summary adds ``nearmiss_decoys``, ``nearmiss_k`` and
+        ``nearmiss_seed``.
+    :raises ValueError: for ``k`` below 1.
+    """
+    if int(k) < 1:
+        raise ValueError("ops_prefix_nearmiss_decoy_k must be 1 or more to add near-miss decoys")
+    sources = [key for key in library.keys
+               if library.callable_keys.get(key, ("", "", ""))[2] != "decoy"]
+    letters = sorted({base for key in library.keys for base in key}) or list("ACGT")
+    neighbour: Dict[Tuple[int, str], Optional[str]] = {}
+
+    def occupy(key: str) -> None:
+        """Index a kept key by each of its one-deletion variants."""
+        for position in range(len(key)):
+            slot = (position, key[:position] + key[position + 1:])
+            neighbour[slot] = key if slot not in neighbour else None
+
+    for key in library.keys:
+        occupy(key)
+    taken = set(library.keys)
+    rng = np.random.default_rng(int(seed))
+    nearmiss: List[str] = []
+    for key in sources:
+        kept = 0
+        for _ in range(8 * int(k)):
+            if kept >= int(k):
+                break
+            position = int(rng.integers(len(key)))
+            options = [base for base in letters if base != key[position]]
+            candidate = key[:position] + options[int(rng.integers(len(options)))] + \
+                key[position + 1:]
+            if candidate in taken:
+                continue
+            near = {neighbour.get((p, candidate[:p] + candidate[p + 1:]), "")
+                    for p in range(len(candidate))} - {""}
+            if near != {key}:
+                continue
+            taken.add(candidate)
+            occupy(candidate)
+            nearmiss.append(candidate)
+            kept += 1
+    callable_keys = dict(library.callable_keys)
+    guides = dict(library.guides)
+    genes = dict(library.genes)
+    for key in nearmiss:
+        callable_keys[key] = (key, NEARMISS_GENE, "nearmiss")
+        guides[key] = [key]
+        genes[key] = [NEARMISS_GENE]
+    return PrefixLibrary(positions=library.positions, keys=sorted(taken), guides=guides,
+                         genes=genes, callable_keys=callable_keys,
+                         collisions=library.collisions, extended=library.extended,
+                         summary={**library.summary, "nearmiss_decoys": len(nearmiss),
+                                  "nearmiss_k": int(k), "nearmiss_seed": int(seed)})
+
+
 def _levenshtein_indexes(library: PrefixLibrary):
     """The deletion and insertion lookups for one-indel matches.
 
@@ -381,6 +467,10 @@ def _levenshtein_indexes(library: PrefixLibrary):
 #: sites against one whitelist builds them once.
 _INDEX_CACHE: List[Tuple[Any, ...]] = []
 
+#: How many whitelists' lookups :data:`_INDEX_CACHE` keeps: the library,
+#: the control and item 949's shuffled whitelists fit at once.
+_INDEX_CACHE_SIZE = 6
+
 
 def _match_indexes(library: PrefixLibrary, metric: str, max_distance: int):
     """The exact, deletion, indel and table lookups of one whitelist, cached.
@@ -403,7 +493,7 @@ def _match_indexes(library: PrefixLibrary, metric: str, max_distance: int):
              .reshape(len(entries), width) if entries else None)
     indexes = (known, deletion, dropped, shorter, entries, table)
     _INDEX_CACHE.insert(0, (library, metric, max_distance, indexes))
-    del _INDEX_CACHE[3:]
+    del _INDEX_CACHE[_INDEX_CACHE_SIZE:]
     return indexes
 
 
@@ -794,17 +884,83 @@ def decode_prefix_site(stack: np.ndarray, library: PrefixLibrary, *,
         columns, and ``control_status`` when a control is given.
     :raises ValueError: when ``labels`` is not the stack's grid.
     """
-    from .ops_sbs import called_bases
+    return _decode_site(stack, library, bases=bases, labels=labels, threshold=threshold,
+                        crosstalk=crosstalk, metric=metric, max_distance=max_distance,
+                        control=control)
 
-    peaks, values = detect_spots(stack, threshold=threshold)
-    values = compensate_prefix(values, crosstalk)
-    _data, calls, margin = called_bases(values, bases=tuple(bases), compensate=False,
-                                        normalise=True, gpu=False)
+
+def _prefix_calls(values: np.ndarray, *, bases: Sequence[str], crosstalk: str,
+                  read_mode: str = "log") -> Tuple[List[str], np.ndarray]:
+    """Call one site's reads as the spacer-prefix decode calls them.
+
+    :param values: ``(N, cycles, bases)`` read intensities.
+    :param bases: the base letter of each plane.
+    :param crosstalk: :func:`compensate_prefix` mode, used in ``log`` mode.
+    :param read_mode: ``log`` (unmixed as asked, then the brightest base
+        after the per-cycle median normalisation) or ``raw`` (item 952: the
+        brightest base as read, no unmixing or normalisation).
+    :returns: ``(calls, quality)``: one string per read and its worst
+        cycle's margin.
+    """
+    from .ops_sbs import _raw_called_bases, called_bases
+
+    if read_mode == "raw":
+        _data, calls, margin = _raw_called_bases(values, bases)
+    else:
+        values = compensate_prefix(values, crosstalk)
+        _data, calls, margin = called_bases(values, bases=tuple(bases), compensate=False,
+                                            normalise=True, gpu=False)
     if len(calls):
         worst = np.where(np.isnan(margin), np.inf, margin).min(axis=1)
         quality = np.where(np.isfinite(worst), worst, 0.0).astype(np.float32)
     else:
         quality = np.zeros(0, np.float32)
+    return calls, quality
+
+
+def _raw_candidates(stack: np.ndarray, candidates):
+    """Spot candidates with their raw reads in place of the -LoG reads (item 952).
+
+    :param stack: ``(cycles, Y, X, bases)`` intensities.
+    :param candidates: ``(peaks, strength, values, ...)``, as
+        :func:`_spot_candidates` returns them, with anything after the
+        values kept.
+    :returns: the same tuple with ``values`` from
+        :func:`spacr.ops_sbs._read_values` in ``raw`` mode at the same peaks.
+    """
+    from .ops_sbs import _read_values
+
+    peaks = candidates[0]
+    raw = _read_values(np.moveaxis(np.asarray(stack), -1, 1), None, peaks, "raw")
+    return (candidates[0], candidates[1], raw) + tuple(candidates[3:])
+
+
+def _decode_site(stack: np.ndarray, library: PrefixLibrary, *, bases: Sequence[str],
+                 labels: Optional[np.ndarray], threshold: float, crosstalk: str,
+                 metric: str, max_distance: int, control: Optional[PrefixLibrary],
+                 read_mode: str = "log") -> pd.DataFrame:
+    """:func:`decode_prefix_site` with the read mode of item 952.
+
+    :param stack: as for :func:`decode_prefix_site`.
+    :param library: the whitelist.
+    :param bases: the base letter of each plane.
+    :param labels: the cell labels, or None.
+    :param threshold: the read score rise.
+    :param crosstalk: :func:`compensate_prefix` mode.
+    :param metric: :func:`match_prefix_reads` metric.
+    :param max_distance: :func:`match_prefix_reads` limit.
+    :param control: a shuffled whitelist, or None.
+    :param read_mode: ``log`` or ``raw`` (:func:`_prefix_calls`).
+    :returns: :func:`decode_prefix_site`'s rows.
+    :raises ValueError: when ``labels`` is not the stack's grid.
+    """
+    if read_mode == "raw":
+        peaks, _strength, values = _raw_candidates(
+            stack, _spot_candidates(stack, floor=threshold))
+    else:
+        peaks, values = detect_spots(stack, threshold=threshold)
+    calls, quality = _prefix_calls(values, bases=bases, crosstalk=crosstalk,
+                                   read_mode=read_mode)
     cell = np.zeros(len(peaks), np.int64)
     if labels is not None:
         labels = np.asarray(labels)
@@ -901,7 +1057,7 @@ def _matched_rows(calls: Sequence[str], library: PrefixLibrary, memo: Dict[str, 
 
 def _site_tuning_reads(candidates, library: PrefixLibrary, memo: Dict[str, tuple], *,
                        bases: Sequence[str], threshold: float, crosstalk: str, metric: str,
-                       max_distance: int) -> pd.DataFrame:
+                       max_distance: int, read_mode: str = "log") -> pd.DataFrame:
     """One site's reads at one read threshold, from its spot candidates.
 
     The reads above the threshold are compensated, called and matched as
@@ -916,21 +1072,15 @@ def _site_tuning_reads(candidates, library: PrefixLibrary, memo: Dict[str, tuple
     :param crosstalk: :func:`compensate_prefix` mode.
     :param metric: the match metric.
     :param max_distance: the largest distance matched (the grid's loosest).
+    :param read_mode: ``log`` or ``raw`` (:func:`_prefix_calls`); the
+        candidates' values must be that mode's reads.
     :returns: :func:`decode_prefix_site`'s rows, without the control.
     """
-    from .ops_sbs import called_bases
-
     peaks, strength, values, cell = candidates
     keep = strength > float(threshold)
     peaks, cell = peaks[keep], cell[keep]
-    values = compensate_prefix(values[keep], crosstalk)
-    _data, calls, margin = called_bases(values, bases=tuple(bases), compensate=False,
-                                        normalise=True, gpu=False)
-    if len(calls):
-        worst = np.where(np.isnan(margin), np.inf, margin).min(axis=1)
-        quality = np.where(np.isfinite(worst), worst, 0.0).astype(np.float32)
-    else:
-        quality = np.zeros(0, np.float32)
+    calls, quality = _prefix_calls(values[keep], bases=bases, crosstalk=crosstalk,
+                                   read_mode=read_mode)
     frame = pd.DataFrame({"y": peaks[:, 0] if len(peaks) else np.zeros(0, np.int64),
                           "x": peaks[:, 1] if len(peaks) else np.zeros(0, np.int64),
                           "cell": cell, "quality": quality})
@@ -959,17 +1109,19 @@ def _at_setting(reads: pd.DataFrame, min_quality: float, max_distance: int) -> p
     return reads
 
 
-def _called_counts(reads: pd.DataFrame, method: str) -> Tuple[int, int]:
+def _called_counts(reads: pd.DataFrame, method: str, nearmiss: bool = False):
     """Real and decoy cells called from one site's reads, as :func:`prefix_cell_calls` calls them.
 
     :param reads: rows with ``cell``, ``status``, ``prefix`` and ``gene``.
     :param method: ``'spacr'`` (a unique top barcode) or ``'recipe_simple'``
         (one barcode only); the perfect and great classes of each.
-    :returns: ``(real, decoy)`` called cells.
+    :param nearmiss: also return the near-miss decoy calls (item 949).
+    :returns: ``(real, decoy)`` called cells, or ``(real, decoy, nearmiss)``;
+        a near-miss decoy call is never a real call.
     """
     matched = reads[(reads["cell"] > 0) & reads["status"].isin(("exact", "corrected"))]
     if matched.empty:
-        return 0, 0
+        return (0, 0, 0) if nearmiss else (0, 0)
     tally = matched.groupby(["cell", "prefix"], sort=False).size().rename("n").reset_index()
     tally = tally.sort_values(["cell", "n"], ascending=[True, False], kind="stable")
     tally["rank"] = tally.groupby("cell", sort=False).cumcount()
@@ -983,19 +1135,31 @@ def _called_counts(reads: pd.DataFrame, method: str) -> Tuple[int, int]:
         called = top["n"].to_numpy() > runner
     gene = dict(zip(matched["prefix"], matched["gene"]))
     decoy = np.array([gene.get(p) == DECOY_GENE for p in top["prefix"]], bool)
-    return int((called & ~decoy).sum()), int((called & decoy).sum())
+    near = np.array([gene.get(p) == NEARMISS_GENE for p in top["prefix"]], bool)
+    real = int((called & ~decoy & ~near).sum())
+    if nearmiss:
+        return real, int((called & decoy).sum()), int((called & near).sum())
+    return real, int((called & decoy).sum())
 
 
-def _flag_decoy_cells(cells: pd.DataFrame) -> pd.DataFrame:
+def _flag_decoy_cells(cells: pd.DataFrame, nearmiss: bool = False) -> pd.DataFrame:
     """Mark the cells called as a decoy; they keep their prefix but no genotype.
 
     :param cells: from :func:`prefix_cell_calls`.
+    :param nearmiss: the run has near-miss decoys (item 949): a near-miss
+        call is a decoy too, and a ``decoy_class`` column says ``'far'`` or
+        ``'nearmiss'``.
     :returns: the cells with a ``decoy`` column; a decoy call's ``guide``,
         ``gene`` and ``level`` are emptied.
     """
     cells = cells.copy()
     decoy = (cells["gene"] == DECOY_GENE).to_numpy(bool) if len(cells) else np.zeros(0, bool)
-    cells["decoy"] = decoy
+    near = ((cells["gene"] == NEARMISS_GENE).to_numpy(bool) if nearmiss and len(cells)
+            else np.zeros(len(cells), bool))
+    cells["decoy"] = decoy | near
+    if nearmiss:
+        cells["decoy_class"] = np.where(decoy, "far", np.where(near, "nearmiss", None))
+    decoy = decoy | near
     if decoy.any():
         cells.loc[decoy, ["guide", "gene", "level"]] = None
     return cells
@@ -1052,11 +1216,16 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         and tuning settings (``ops_prefix_decoy_k``,
         ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``,
         ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,
-        ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``).
+        ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the
+        item-949 ``ops_prefix_nearmiss_decoy_k`` and
+        ``ops_prefix_fdr_calibration``.
     :returns: the normalised values under the same keys.
-    :raises ValueError: without a library, for an unknown choice, or for
-        tuning without decoys.
+    :raises ValueError: without a library, for an unknown choice, for
+        tuning or a shuffle calibration without decoys, or for a negative
+        decoy count.
     """
+    from .ops_decode import FDR_CALIBRATIONS
+
     library = settings.get("ops_library")
     if not library:
         raise ValueError("ops_library_mode 'spacer_prefix' needs ops_library, the "
@@ -1092,6 +1261,9 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
                                            if settings.get("ops_prefix_fdr_target_pct")
                                            not in (None, "") else 0.1),
         "ops_prefix_tuning_grid": settings.get("ops_prefix_tuning_grid") or None,
+        "ops_prefix_nearmiss_decoy_k": int(settings.get("ops_prefix_nearmiss_decoy_k") or 0),
+        "ops_prefix_fdr_calibration": str(settings.get("ops_prefix_fdr_calibration")
+                                          or FDR_CALIBRATIONS[0]).strip().lower(),
     }
     if out["ops_prefix_threshold_tuning"] not in PREFIX_TUNING_MODES:
         raise ValueError(f"ops_prefix_threshold_tuning must be one of "
@@ -1102,6 +1274,13 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         raise ValueError("ops_prefix_threshold_tuning 'per_well_decoy' chooses "
                          "thresholds from decoy calls; set ops_prefix_decoy_k to 1 "
                          "or more (4 recommended)")
+    if out["ops_prefix_nearmiss_decoy_k"] < 0:
+        raise ValueError("ops_prefix_nearmiss_decoy_k must be 0 or more")
+    if out["ops_prefix_fdr_calibration"] not in FDR_CALIBRATIONS:
+        raise ValueError(f"ops_prefix_fdr_calibration must be one of {list(FDR_CALIBRATIONS)}")
+    if out["ops_prefix_fdr_calibration"] != "none" and out["ops_prefix_decoy_k"] < 1:
+        raise ValueError("ops_prefix_fdr_calibration 'shuffle' scales the decoy FDR; set "
+                         "ops_prefix_decoy_k to 1 or more (4 recommended)")
     if not out["ops_prefix_fdr_target_pct"] > 0:
         raise ValueError("ops_prefix_fdr_target_pct must be above 0")
     if out["ops_prefix_crosstalk"] not in _CROSSTALK:
@@ -1180,10 +1359,31 @@ def run_prefix_decode(settings: Mapping[str, Any],
       :func:`spacr.ops_decode.write_tuning_curve`) and ``.json`` (the choice,
       :func:`spacr.ops_decode.tune_thresholds`); each site's spots are found
       once, down to the lowest read threshold, and the chosen setting's reads
-      and cells are written.
+      and cells are written;
+    * with near-miss decoys (``ops_prefix_nearmiss_decoy_k`` above 0, item
+      949, :func:`prefix_nearmiss_decoys`): a ``decoy_class`` column
+      (``'far'`` or ``'nearmiss'``) in the cell tables,
+      ``cells_decoy_nearmiss`` and ``fdr_nearmiss_pct`` (near-miss calls per
+      100 real calls over ``ops_prefix_nearmiss_decoy_k``, scale 1) in
+      ``site_summary.csv``, and the near-miss count, FDR and its interval in
+      ``fdr_<plate>_<well_id>.json``; ``cells_decoy`` and ``fdr_pct`` keep
+      counting the far decoys only;
+    * with ``ops_prefix_fdr_calibration`` 'shuffle' (item 949): every read is
+      also matched against :data:`spacr.ops_decode.SHUFFLE_SEEDS` shuffled
+      whitelists (:func:`shuffled_library`, seeds ``ops_control_seed`` and
+      up), and each well's FDR scale is raised from that control
+      (:func:`spacr.ops_decode.calibrate_fdr_scale`; without tuning at the
+      entered setting); ``fdr_pct`` uses the calibrated scale, and
+      ``site_summary.csv`` gains ``shuffle_called`` (mean over the shuffled
+      whitelists), ``shuffle_call_rate_pct`` and ``fdr_scale``; the FDR
+      report gains the entered scale, the calibration, the FDR's interval
+      and the shuffle call rate with its interval
+      (:func:`spacr.ops_decode.shuffle_call_rate`). With both item-949
+      settings off the outputs are those of item 942.
 
     :param settings: the OPS settings: ``dst_root``, the ``cpg_*`` reader
-        settings, the item-920 and item-942 settings (:func:`prefix_settings`)
+        settings, the item-920, item-942 and item-949 settings
+        (:func:`prefix_settings`)
         and, for tuning, the shared tuner's settings
         (``ops_decode_auto_objective``, ``ops_decode_auto_f_beta``,
         ``ops_decode_auto_unreachable``, ``ops_decode_auto_ci``,
@@ -1191,15 +1391,16 @@ def run_prefix_decode(settings: Mapping[str, Any],
     :param report: called with progress lines.
     :returns: the output paths, the library summary and the run's totals;
         with any item-942 setting on also ``seconds_per_well``, ``fdr`` (per
-        well) and ``tuning`` (per well: the choice and its numbers).
+        well) and ``tuning`` (per well: the choice and its numbers); with
+        the shuffle calibration also ``calibration`` (per well).
     :raises ValueError: without ``dst_root`` or a library, when the layout
-        has fewer sequencing cycles than the prefix needs, or for tuning
-        without decoys.
+        has fewer sequencing cycles than the prefix needs, or for tuning,
+        near-miss decoys or a shuffle calibration without decoys.
     """
     from . import __version__
     from .cpg_cropped import cpg_site_index, load_cpg_site, merged_path
     from .ops_decode import fdr, fdr_report, tune_thresholds, _tuning_options, \
-        write_tuning_curve
+        write_tuning_curve, calibrate_fdr_scale, SHUFFLE_SEEDS
     from .tabular import write_table
 
     say = report or (lambda text: None)
@@ -1208,6 +1409,13 @@ def run_prefix_decode(settings: Mapping[str, Any],
         raise ValueError("the prefix_decode phase needs dst_root")
     started = time.perf_counter()
     chosen = prefix_settings(settings)
+    from .ops_sbs import _read_mode_setting
+
+    read_mode = _read_mode_setting(settings)
+    if read_mode == "auto" and chosen["ops_prefix_threshold_tuning"] != "per_well_decoy":
+        raise ValueError("ops_read_mode 'auto' chooses the read per well from decoy "
+                         "calls; set ops_prefix_threshold_tuning 'per_well_decoy' and "
+                         "ops_prefix_decoy_k above 0, or choose 'log' or 'raw'")
     library = spacer_prefix_library(
         chosen["ops_library"], sequence_col=chosen["ops_library_sequence_col"],
         gene_col=chosen["ops_library_gene_col"], prefix_length=chosen["ops_prefix_length"],
@@ -1216,13 +1424,24 @@ def run_prefix_decode(settings: Mapping[str, Any],
     decoy_k = chosen["ops_prefix_decoy_k"]
     tuning = chosen["ops_prefix_threshold_tuning"] == "per_well_decoy"
     min_quality = chosen["ops_prefix_min_read_quality"]
+    nearmiss_k = chosen["ops_prefix_nearmiss_decoy_k"]
+    calibration = chosen["ops_prefix_fdr_calibration"] == "shuffle"
+    if nearmiss_k > 0 and decoy_k < 1:
+        raise ValueError("ops_prefix_nearmiss_decoy_k reports near-miss decoys next to the "
+                         "far decoys; set ops_prefix_decoy_k to 1 or more (4 recommended)")
     legacy = decoy_k == 0 and not tuning and min_quality <= 0
+    item_949 = nearmiss_k > 0 or calibration
     matching = (prefix_decoy_library(library, decoy_k, chosen["ops_prefix_decoy_seed"])
                 if decoy_k > 0 else library)
+    if nearmiss_k > 0:
+        matching = prefix_nearmiss_decoys(matching, nearmiss_k, chosen["ops_prefix_decoy_seed"])
     axes = _tuning_axes(chosen) if tuning else []
-    options = _tuning_options(settings) if tuning else {}
+    options = _tuning_options(settings) if tuning or calibration else {}
     control = (shuffled_library(library, chosen["ops_control_seed"])
                if chosen["ops_random_barcode_control"] else None)
+    shuffles = ([shuffled_library(library, chosen["ops_control_seed"] + s)
+                 for s in range(SHUFFLE_SEEDS)] if calibration else [])
+    shuffle_memo: List[Dict[str, tuple]] = [{} for _ in shuffles]
     built = cpg_site_index(settings, md5=False)
     pinned = built["pinned"]
     cycles = max(library.positions)
@@ -1239,6 +1458,10 @@ def run_prefix_decode(settings: Mapping[str, Any],
     class_names = RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else QUALITY_CLASSES
     recorded = ({key: value for key, value in chosen.items() if key not in _ITEM_942_KEYS}
                 if legacy else chosen)
+    if not item_949:
+        recorded = {key: value for key, value in recorded.items() if key not in _ITEM_949_KEYS}
+    if read_mode != "log":
+        recorded = {**recorded, "ops_read_mode": read_mode}
     with open(os.path.join(folder, "quality_classes.json"), "w", encoding="utf-8") as handle:
         json.dump({"method": method, "classes": class_names,
                    "source": RECIPE_SIMPLE_SOURCE if method == "recipe_simple" else None,
@@ -1247,6 +1470,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                   handle, indent=1, default=str)
     index = built["index"]
     site_rows, all_cells, tuned, well_fdr, well_seconds = [], [], {}, {}, {}
+    calibrated: Dict[str, Any] = {}
     memo: Dict[str, tuple] = {}
     for (plate, well, well_id), sites in index.groupby(["plate", "well", "well_id"], sort=True):
         well_started = time.perf_counter()
@@ -1255,10 +1479,17 @@ def run_prefix_decode(settings: Mapping[str, Any],
         site_cells: Dict[int, pd.DataFrame] = {}
         site_cells_n: Dict[int, int] = {}
         site_labelled: Dict[int, bool] = {}
+        site_shuffled: Dict[int, float] = {}
+        scale = chosen["ops_prefix_fdr_scale"]
+        choice: Dict[str, Any] = {}
         if tuning:
-            shape = tuple(len(values) for _, values in axes)
+            modes = ["raw", "log"] if read_mode == "auto" else [read_mode]
+            well_axes = ([("read_mode", [1.0, 0.0])] if read_mode == "auto" else []) + axes
+            shape = tuple(len(values) for _, values in well_axes)
             counts = np.zeros((len(site_list),) + shape + (2,), np.int64)
+            shuffled_grid = np.zeros((len(site_list),) + shape)
             held = {}
+            held_raw = {}
             loosest = int(max(axes[2][1]))
             for i, site in enumerate(site_list):
                 loaded = load_cpg_site(index, plate, well, site, sbs_cycles=cycles,
@@ -1273,51 +1504,87 @@ def run_prefix_decode(settings: Mapping[str, Any],
                     raise ValueError(f"the cell labels are {np.asarray(labels).shape}, "
                                      f"the sequencing stack {stack.shape[1:3]}")
                 peaks, strength, values = _spot_candidates(stack, floor=min(axes[0][1]))
-                del loaded, stack
                 cell = (np.asarray(labels)[peaks[:, 0], peaks[:, 1]].astype(np.int64)
                         if labels is not None and len(peaks)
                         else np.zeros(len(peaks), np.int64))
                 held[site] = (peaks, strength, values, cell)
+                if "raw" in modes:
+                    held_raw[site] = _raw_candidates(stack, held[site])
+                del loaded, stack
                 site_cells_n[site] = _labelled_cells(labels, pd.DataFrame())
                 site_labelled[site] = labels is not None
-                for a, threshold in enumerate(axes[0][1]):
-                    frame = _site_tuning_reads(
-                        held[site], matching, memo, bases=pinned["cpg_sbs_bases"],
-                        threshold=threshold, crosstalk=chosen["ops_prefix_crosstalk"],
-                        metric=chosen["ops_prefix_metric"], max_distance=loosest)
-                    for b, quality in enumerate(axes[1][1]):
-                        for c, distance in enumerate(axes[2][1]):
-                            counts[(i, a, b, c)] = _called_counts(
-                                _at_setting(frame, quality, int(distance)), method)
+                for m, mode in enumerate(modes):
+                    source = held_raw if mode == "raw" else held
+                    at = (i, m) if read_mode == "auto" else (i,)
+                    for a, threshold in enumerate(axes[0][1]):
+                        frame = _site_tuning_reads(
+                            source[site], matching, memo, bases=pinned["cpg_sbs_bases"],
+                            threshold=threshold, crosstalk=chosen["ops_prefix_crosstalk"],
+                            metric=chosen["ops_prefix_metric"], max_distance=loosest,
+                            read_mode=mode)
+                        for b, quality in enumerate(axes[1][1]):
+                            for c, distance in enumerate(axes[2][1]):
+                                counts[at + (a, b, c)] = _called_counts(
+                                    _at_setting(frame, quality, int(distance)), method)
+                        for s, shuffled_lib in enumerate(shuffles):
+                            shuffled_frame = _shuffle_frame(
+                                frame, shuffled_lib, shuffle_memo[s],
+                                metric=chosen["ops_prefix_metric"], max_distance=loosest)
+                            for b, quality in enumerate(axes[1][1]):
+                                for c, distance in enumerate(axes[2][1]):
+                                    shuffled_grid[at + (a, b, c)] += _called_counts(
+                                        _at_setting(shuffled_frame, quality, int(distance)),
+                                        method)[0]
                 if labels is None:
-                    site_cells_n[site] = int(counts[i, 0, 0, 0].sum())
+                    first = (i, len(modes) - 1) if read_mode == "auto" else (i,)
+                    site_cells_n[site] = int(counts[first + (0, 0, 0)].sum())
                 say(f"prefix_decode {plate} {well_id} site {site}: {len(peaks)} spot "
                     f"candidates scored over {int(np.prod(shape))} settings")
-            choice = tune_thresholds(
-                counts, [site_cells_n[s] for s in site_list], site_list, axes,
+            tune_args = dict(
                 k=decoy_k, scale=chosen["ops_prefix_fdr_scale"],
                 fdr_max=chosen["ops_prefix_fdr_target_pct"],
                 tune_fraction=float(settings.get("ops_decode_auto_tune_fraction") or 0.5),
                 seed=int(settings.get("ops_decode_auto_seed") or 0), **options)
+            if calibration:
+                shuffled_grid /= float(len(shuffles))
+                choice = calibrate_fdr_scale(
+                    counts, shuffled_grid, [site_cells_n[s] for s in site_list], site_list,
+                    well_axes, **tune_args)
+                scale = choice["fdr_scale"]
+                for i, site in enumerate(site_list):
+                    site_shuffled[site] = float(shuffled_grid[(i,) + tuple(choice["index"])])
+            else:
+                choice = tune_thresholds(
+                    counts, [site_cells_n[s] for s in site_list], site_list, well_axes,
+                    **tune_args)
             stem = f"threshold_tuning_{plate}_{well_id}"
             paths = write_tuning_curve(choice, folder, stem,
                                        title=f"{plate} {well_id}: prefix decode tuning")
+            best = choice["chosen"]
+            well_mode = (("raw" if best["read_mode"] == 1.0 else "log")
+                         if read_mode == "auto" else read_mode)
+            mode_record = {"read_mode": well_mode} if read_mode != "log" else {}
             with open(os.path.join(folder, f"{stem}.json"), "w", encoding="utf-8") as handle:
                 json.dump({"plate": plate, "well": well_id,
                            **{key: value for key, value in choice.items() if key != "grid"},
-                           "paths": paths}, handle, indent=1, default=str)
-            tuned[f"{plate}_{well_id}"] = {key: choice[key] for key in (
-                "chosen", "auto_met", "fdr_lowest", "tune", "report", "all_fields")}
+                           **mode_record, "paths": paths}, handle, indent=1, default=str)
+            tuned[f"{plate}_{well_id}"] = {**{key: choice[key] for key in (
+                "chosen", "auto_met", "fdr_lowest", "tune", "report", "all_fields")},
+                **mode_record}
+            if calibration:
+                tuned[f"{plate}_{well_id}"].update(
+                    {"fdr_scale": choice["fdr_scale"], "calibration": choice["calibration"]})
             say(f"prefix_decode {plate} {well_id}: tuned {choice['chosen']}, report sites "
                 f"{choice['report']['genotyped_pct']} % genotyped, FDR "
                 f"{choice['report']['fdr_per_100']} %")
-            best = choice["chosen"]
             for site in site_list:
                 frame = _site_tuning_reads(
-                    held[site], matching, memo, bases=pinned["cpg_sbs_bases"],
+                    (held_raw if well_mode == "raw" else held)[site], matching, memo,
+                    bases=pinned["cpg_sbs_bases"],
                     threshold=best["ops_read_threshold"],
                     crosstalk=chosen["ops_prefix_crosstalk"],
-                    metric=chosen["ops_prefix_metric"], max_distance=loosest)
+                    metric=chosen["ops_prefix_metric"], max_distance=loosest,
+                    read_mode=well_mode)
                 frame = _at_setting(frame, best["ops_prefix_min_read_quality"],
                                     int(best["ops_prefix_max_distance"])).reset_index(drop=True)
                 if control is not None:
@@ -1325,7 +1592,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                         frame["read"].tolist(), control, metric=chosen["ops_prefix_metric"],
                         max_distance=int(best["ops_prefix_max_distance"]))["status"].to_numpy()
                 site_reads[site] = frame
-            del held
+            del held, held_raw
         for site in site_list:
             if tuning:
                 reads = site_reads.pop(site)
@@ -1339,24 +1606,31 @@ def run_prefix_decode(settings: Mapping[str, Any],
                                      well_id=well_id, site=site,
                                      merged=merged_path(str(destination), plate, well_id,
                                                         site))
-                reads = decode_prefix_site(
+                reads = _decode_site(
                     loaded["sbs"], matching, bases=pinned["cpg_sbs_bases"], labels=labels,
                     threshold=chosen["ops_read_threshold"],
                     crosstalk=chosen["ops_prefix_crosstalk"],
                     metric=chosen["ops_prefix_metric"],
-                    max_distance=chosen["ops_prefix_max_distance"], control=control)
+                    max_distance=chosen["ops_prefix_max_distance"], control=control,
+                    read_mode=read_mode)
                 del loaded
                 if min_quality > 0:
                     reads = reads[reads["quality"] >= min_quality].reset_index(drop=True)
                 labelled = labels is not None
                 n_labelled = None if legacy else _labelled_cells(labels, pd.DataFrame())
+                if shuffles:
+                    site_shuffled[site] = float(np.mean([_called_counts(_shuffle_frame(
+                        reads, shuffled_lib, shuffle_memo[s],
+                        metric=chosen["ops_prefix_metric"],
+                        max_distance=chosen["ops_prefix_max_distance"]), method)[0]
+                        for s, shuffled_lib in enumerate(shuffles)]))
             reads.insert(0, "site", int(site))
             reads.insert(0, "well", well_id)
             reads.insert(0, "plate", plate)
             cells = prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"],
                                       method=method)
             if decoy_k > 0:
-                cells = _flag_decoy_cells(cells)
+                cells = _flag_decoy_cells(cells, nearmiss=nearmiss_k > 0)
             classes = cells["quality"].value_counts() if len(cells) else {}
             row = {"plate": plate, "well": well_id, "site": int(site),
                    **read_fractions(reads), "labels": labelled,
@@ -1371,11 +1645,22 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 hit = cells[cells["quality"].isin(("perfect", "great"))] if len(cells) \
                     else cells
                 real = int((~hit["decoy"].astype(bool)).sum()) if len(hit) else 0
-                decoy = int(hit["decoy"].astype(bool).sum()) if len(hit) else 0
+                far = (hit["decoy_class"].eq("far") if "decoy_class" in hit.columns
+                       else hit["decoy"].astype(bool)) if len(hit) else None
+                decoy = int(far.sum()) if far is not None else 0
                 row.update({"cells_in_labels": int(n_labelled), "cells_real": real,
                             "cells_decoy": decoy,
-                            "fdr_pct": fdr(real, decoy, decoy_k,
-                                           chosen["ops_prefix_fdr_scale"])})
+                            "fdr_pct": fdr(real, decoy, decoy_k, scale)})
+                if nearmiss_k > 0:
+                    near = int(hit["decoy_class"].eq("nearmiss").sum()) if len(hit) else 0
+                    row.update({"cells_decoy_nearmiss": near,
+                                "fdr_nearmiss_pct": fdr(real, near, nearmiss_k, 1.0)})
+                if calibration:
+                    shuffled_here = site_shuffled.get(site, 0.0)
+                    row.update({"shuffle_called": shuffled_here,
+                                "shuffle_call_rate_pct": 100.0 * shuffled_here
+                                / max(int(n_labelled), 1),
+                                "fdr_scale": scale})
             site_rows.append(row)
             say(f"prefix_decode {plate} {well_id} site {site}: {len(reads)} reads, "
                 f"{len(cells)} cells")
@@ -1388,14 +1673,27 @@ def run_prefix_decode(settings: Mapping[str, Any],
         write_table(cells_all, os.path.join(folder, f"cells_{plate}_{well_id}.csv"),
                     canonicalise=False)
         if decoy_k > 0:
+            here = [r for r in site_rows if r["plate"] == plate and r["well"] == well_id]
+            if calibration and not tuning:
+                choice = _calibrate_fixed(here, chosen, decoy_k, settings, options)
+                scale = choice["fdr_scale"]
+                for r in here:
+                    r.update({"fdr_pct": fdr(r["cells_real"], r["cells_decoy"], decoy_k, scale),
+                              "fdr_scale": scale})
             stats = pd.DataFrame([{"nuclei": r["cells_in_labels"],
                                    "assigned_real": r["cells_real"],
                                    "assigned_decoy": r["cells_decoy"]}
-                                  for r in site_rows if r["plate"] == plate
-                                  and r["well"] == well_id])
+                                  for r in here])
             well_fdr[f"{plate}_{well_id}"] = fdr_report(
-                stats, plate=plate, well=well_id, k=decoy_k,
-                scale=chosen["ops_prefix_fdr_scale"])
+                stats, plate=plate, well=well_id, k=decoy_k, scale=scale)
+            if item_949:
+                well_fdr[f"{plate}_{well_id}"].update(_well_report_949(
+                    here, decoy_k=decoy_k, scale=scale, nearmiss_k=nearmiss_k,
+                    entered_scale=chosen["ops_prefix_fdr_scale"],
+                    choice=choice if calibration else None))
+                if calibration:
+                    calibrated[f"{plate}_{well_id}"] = {
+                        "fdr_scale": scale, "calibration": choice["calibration"]}
             with open(os.path.join(folder, f"fdr_{plate}_{well_id}.json"), "w",
                       encoding="utf-8") as handle:
                 json.dump(well_fdr[f"{plate}_{well_id}"], handle, indent=1)
@@ -1421,6 +1719,113 @@ def run_prefix_decode(settings: Mapping[str, Any],
            "seconds": round(time.perf_counter() - started, 1)}
     if not legacy:
         out.update({"seconds_per_well": well_seconds, "fdr": well_fdr, "tuning": tuned})
+    if calibration:
+        out["calibration"] = calibrated
+    return out
+
+
+def _shuffle_frame(reads: pd.DataFrame, shuffled_lib: PrefixLibrary, memo: Dict[str, tuple], *,
+                   metric: str, max_distance: int) -> pd.DataFrame:
+    """A site's reads matched against one shuffled whitelist instead of the library (item 949).
+
+    :param reads: rows with ``y``, ``x``, ``cell``, ``quality`` and ``read``.
+    :param shuffled_lib: from :func:`shuffled_library`.
+    :param memo: the run's match memo for that whitelist.
+    :param metric: the match metric.
+    :param max_distance: the largest distance matched.
+    :returns: the positions and qualities with :func:`match_prefix_reads`'s
+        columns against the shuffled whitelist (every key calls ``'control'``).
+    """
+    matched = _matched_rows(list(reads["read"]), shuffled_lib, memo, metric=metric,
+                            max_distance=int(max_distance))
+    return pd.concat([reads[["y", "x", "cell", "quality"]].reset_index(drop=True), matched],
+                     axis=1)
+
+
+def _calibrate_fixed(rows: Sequence[Mapping[str, Any]], chosen: Mapping[str, Any], decoy_k: int,
+                     settings: Mapping[str, Any], options: Mapping[str, Any]) -> Dict[str, Any]:
+    """The shuffle calibration of a well decoded at the entered thresholds (item 949).
+
+    :param rows: the well's site summary rows (``site``, ``cells_in_labels``,
+        ``cells_real``, ``cells_decoy``, ``shuffle_called``).
+    :param chosen: from :func:`prefix_settings`.
+    :param decoy_k: decoys per prefix.
+    :param settings: read for ``ops_decode_auto_tune_fraction`` and
+        ``ops_decode_auto_seed``.
+    :param options: the shared tuner's options (``ci`` and the objective).
+    :returns: :func:`spacr.ops_decode.calibrate_fdr_scale` on a one-setting
+        grid, so the scale is set on the tuning half of the sites and the
+        other half reports.
+    """
+    from .ops_decode import calibrate_fdr_scale
+
+    counts = np.array([[r["cells_real"], r["cells_decoy"]] for r in rows],
+                      np.int64).reshape(len(rows), 1, 1, 1, 2)
+    shuffled = np.array([r["shuffle_called"] for r in rows], float).reshape(len(rows), 1, 1, 1)
+    axes = [("ops_read_threshold", [chosen["ops_read_threshold"]]),
+            ("ops_prefix_min_read_quality", [chosen["ops_prefix_min_read_quality"]]),
+            ("ops_prefix_max_distance", [float(chosen["ops_prefix_max_distance"])])]
+    return calibrate_fdr_scale(
+        counts, shuffled, [r["cells_in_labels"] for r in rows], [r["site"] for r in rows],
+        axes, k=decoy_k, scale=chosen["ops_prefix_fdr_scale"],
+        fdr_max=chosen["ops_prefix_fdr_target_pct"],
+        tune_fraction=float(settings.get("ops_decode_auto_tune_fraction") or 0.5),
+        seed=int(settings.get("ops_decode_auto_seed") or 0), **options)
+
+
+def _well_report_949(rows: Sequence[Mapping[str, Any]], *, decoy_k: int, scale: float,
+                     nearmiss_k: int, entered_scale: float,
+                     choice: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
+    """The item-949 keys of a well's FDR report: intervals, near-miss decoys, shuffle rate.
+
+    :param rows: the well's site summary rows.
+    :param decoy_k: far decoys per prefix.
+    :param scale: the FDR scale used.
+    :param nearmiss_k: near-miss decoys per prefix (0 for none).
+    :param entered_scale: ``ops_prefix_fdr_scale``.
+    :param choice: the calibration's result, or None without one.
+    :returns: ``fdr_ci95`` (site bootstrap, :data:`spacr.ops_decode._AUTO_REPS`
+        resamples, seed 1); with near-miss decoys ``assigned_decoy_nearmiss``,
+        ``nearmiss_decoy_k``, ``fdr_nearmiss_per_100`` and its interval; with
+        a calibration ``fdr_calibration``, ``fdr_scale_entered``,
+        :func:`spacr.ops_decode.shuffle_call_rate`'s keys,
+        ``shuffle_limit_pct`` (1.5 times the FDR), ``shuffle_le_limit`` and
+        ``calibration``.
+    """
+    from .ops_decode import (SHUFFLE_FDR_RATIO, _AUTO_BOOT_SEED, _AUTO_REPS,
+                             _bootstrap_rows, fdr, shuffle_call_rate)
+
+    real = np.array([r["cells_real"] for r in rows], float)
+    decoy = np.array([r["cells_decoy"] for r in rows], float)
+    draws = _bootstrap_rows(len(rows), _AUTO_REPS, _AUTO_BOOT_SEED) if len(rows) > 1 else None
+    weights = (np.stack([np.bincount(row, minlength=len(rows)) for row in draws])
+               if draws is not None else None)
+
+    def interval(numerator: np.ndarray, k: float, factor: float):
+        """The site-bootstrap 95 % interval of a decoy FDR, or None for one site."""
+        if weights is None:
+            return None
+        boot = 100.0 * max(float(factor), 1.0) / float(k) * (weights @ numerator) \
+            / np.maximum(weights @ real, 1.0)
+        return [round(float(np.percentile(boot, 2.5)), 4),
+                round(float(np.percentile(boot, 97.5)), 4)]
+
+    out: Dict[str, Any] = {"fdr_ci95": interval(decoy, decoy_k, scale)}
+    if nearmiss_k > 0:
+        near = np.array([r["cells_decoy_nearmiss"] for r in rows], float)
+        out.update({"assigned_decoy_nearmiss": int(near.sum()),
+                    "nearmiss_decoy_k": int(nearmiss_k),
+                    "fdr_nearmiss_per_100": round(fdr(int(real.sum()), int(near.sum()),
+                                                      nearmiss_k, 1.0), 4),
+                    "fdr_nearmiss_ci95": interval(near, nearmiss_k, 1.0)})
+    if choice is not None:
+        rate = shuffle_call_rate([r["shuffle_called"] for r in rows],
+                                 [r["cells_in_labels"] for r in rows])
+        limit = SHUFFLE_FDR_RATIO * fdr(int(real.sum()), int(decoy.sum()), decoy_k, scale)
+        out.update({"fdr_calibration": "shuffle", "fdr_scale_entered": float(entered_scale),
+                    **rate, "shuffle_limit_pct": limit,
+                    "shuffle_le_limit": bool(rate["shuffle_call_rate_pct"] <= limit),
+                    "calibration": choice["calibration"]})
     return out
 
 
@@ -1430,3 +1835,667 @@ def run_prefix_decode(settings: Mapping[str, Any],
 _ITEM_942_KEYS = ("ops_prefix_decoy_k", "ops_prefix_decoy_seed", "ops_prefix_fdr_scale",
                   "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
                   "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid")
+
+#: The item-949 keys of :func:`prefix_settings`, left out of
+#: ``quality_classes.json`` while both are off, so such a run writes what it
+#: wrote before.
+_ITEM_949_KEYS = ("ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration")
+
+
+#: The cell rules of the matched-FDR sweep (item 955), from least to most
+#: strict: ``'maxcount'`` keeps a cell whose top barcode has more matched
+#: reads than any other, ``'purity50'`` also needs half of the cell's matched
+#: reads on it, and ``'purity100'`` needs every matched read on one barcode.
+FDR_SWEEP_RULES = ("maxcount", "purity50", "purity100")
+
+_SWEEP_DEFAULTS: Dict[str, Any] = {
+    "ops_fdr_sweep_targets": [0.5, 1.0, 2.0, 5.0],
+    "ops_fdr_sweep_max_distance": [0, 1],
+    "ops_fdr_sweep_min_reads": [1, 2, 3],
+    "ops_fdr_sweep_rules": list(FDR_SWEEP_RULES),
+    "ops_fdr_sweep_quality_quantiles": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+    "ops_fdr_sweep_bootstrap": 2000,
+    "ops_fdr_sweep_seed": 0,
+    "ops_fdr_sweep_shuffle_seeds": [0, 1, 2],
+}
+
+_SWEEP_KEY = ["method", "max_d", "min_reads", "rule", "qmin"]
+
+
+def _sweep_list(value: Any, kind: Callable[[Any], Any]) -> List[Any]:
+    """A list setting of the sweep, from a list or a comma-separated string.
+
+    :param value: the setting's value.
+    :param kind: the type of each element.
+    :returns: the elements, in the order given.
+    """
+    if isinstance(value, str):
+        value = [part for part in value.replace(";", ",").split(",") if part.strip()]
+    return [kind(part.strip()) if isinstance(part, str) else kind(part) for part in value]
+
+
+def _sweep_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """The item-955 sweep settings, checked and with defaults filled in.
+
+    :param settings: the OPS settings.
+    :returns: the normalised ``ops_fdr_sweep_*`` values and the decoy and
+        match settings the sweep uses.
+    :raises ValueError: for an empty or invalid grid, an unknown rule, a
+        quantile outside (0, 1), fewer than one bootstrap replicate or no
+        decoys.
+    """
+    value = {key: (settings.get(key) if settings.get(key) not in (None, "", [])
+                   else default) for key, default in _SWEEP_DEFAULTS.items()}
+    out = {
+        "ops_fdr_sweep_targets": _sweep_list(value["ops_fdr_sweep_targets"], float),
+        "ops_fdr_sweep_max_distance": _sweep_list(value["ops_fdr_sweep_max_distance"], int),
+        "ops_fdr_sweep_min_reads": _sweep_list(value["ops_fdr_sweep_min_reads"], int),
+        "ops_fdr_sweep_rules": [str(rule).strip().lower() for rule in
+                                _sweep_list(value["ops_fdr_sweep_rules"], str)],
+        "ops_fdr_sweep_quality_quantiles": _sweep_list(
+            value["ops_fdr_sweep_quality_quantiles"], float),
+        "ops_fdr_sweep_bootstrap": int(value["ops_fdr_sweep_bootstrap"]),
+        "ops_fdr_sweep_seed": int(value["ops_fdr_sweep_seed"]),
+        "ops_fdr_sweep_shuffle_seeds": _sweep_list(value["ops_fdr_sweep_shuffle_seeds"], int),
+        "ops_prefix_decoy_k": int(settings.get("ops_prefix_decoy_k") or 0),
+        "ops_prefix_decoy_seed": int(settings.get("ops_prefix_decoy_seed", 1) or 0),
+        "ops_prefix_metric": str(settings.get("ops_prefix_metric") or "hamming"),
+    }
+    if not all(out[key] for key in ("ops_fdr_sweep_targets", "ops_fdr_sweep_max_distance",
+                                    "ops_fdr_sweep_min_reads", "ops_fdr_sweep_rules")):
+        raise ValueError("the FDR sweep needs at least one target, max distance, "
+                         "minimum read count and rule")
+    if any(not target > 0 for target in out["ops_fdr_sweep_targets"]):
+        raise ValueError("ops_fdr_sweep_targets must be above 0 (in %)")
+    if any(d < 0 for d in out["ops_fdr_sweep_max_distance"]):
+        raise ValueError("ops_fdr_sweep_max_distance must be 0 or more")
+    if any(n < 1 for n in out["ops_fdr_sweep_min_reads"]):
+        raise ValueError("ops_fdr_sweep_min_reads must be 1 or more")
+    unknown = [rule for rule in out["ops_fdr_sweep_rules"] if rule not in FDR_SWEEP_RULES]
+    if unknown:
+        raise ValueError(f"unknown ops_fdr_sweep_rules {unknown}; choose from "
+                         f"{list(FDR_SWEEP_RULES)}")
+    if any(not 0 < q < 1 for q in out["ops_fdr_sweep_quality_quantiles"]):
+        raise ValueError("ops_fdr_sweep_quality_quantiles must lie between 0 and 1")
+    if out["ops_fdr_sweep_bootstrap"] < 1:
+        raise ValueError("ops_fdr_sweep_bootstrap must be 1 or more")
+    if out["ops_prefix_decoy_k"] < 1:
+        raise ValueError("the FDR sweep counts decoy calls; set ops_prefix_decoy_k to 1 or "
+                         "more (4 recommended)")
+    return out
+
+
+def _sweep_matched(frame: pd.DataFrame, library: PrefixLibrary, *, metric: str,
+                   max_distance: int, decoy: bool) -> pd.DataFrame:
+    """One method's reads matched against one whitelist, matched reads only.
+
+    Each distinct read is matched once.
+
+    :param frame: ``site``, ``cell``, ``read`` and ``quality`` per read.
+    :param library: the whitelist (with decoys, or a shuffled one).
+    :param metric: the match metric.
+    :param max_distance: the largest distance matched.
+    :param decoy: mark reads whose key is a decoy (gene :data:`DECOY_GENE`);
+        False marks none.
+    :returns: ``site``, ``cell``, ``prefix``, ``distance``, ``quality`` and
+        ``decoy`` of the exact and corrected reads.
+    """
+    reads = frame["read"].astype(str).to_numpy()
+    unique, inverse = np.unique(reads, return_inverse=True)
+    matched = match_prefix_reads(list(unique), library, metric=metric,
+                                 max_distance=int(max_distance))
+    status = matched["status"].to_numpy()[inverse]
+    keep = (status == "exact") | (status == "corrected")
+    out = pd.DataFrame({
+        "site": frame["site"].to_numpy()[keep],
+        "cell": frame["cell"].to_numpy()[keep],
+        "prefix": matched["prefix"].to_numpy()[inverse][keep],
+        "distance": matched["distance"].to_numpy()[inverse][keep],
+        "quality": frame["quality"].to_numpy(float)[keep],
+        "decoy": (matched["gene"].to_numpy()[inverse][keep] == DECOY_GENE) if decoy
+        else np.zeros(int(keep.sum()), bool)})
+    return out
+
+
+def _sweep_tops(matched: pd.DataFrame, max_d: int, qmin: float) -> pd.DataFrame:
+    """Each cell's top barcode at one read filter.
+
+    :param matched: from :func:`_sweep_matched`.
+    :param max_d: the largest read distance kept.
+    :param qmin: the lowest read quality kept; minus infinity keeps all.
+    :returns: per cell ``site``, ``n`` (reads of the top barcode, ties
+        broken by the alphabetically first barcode), ``second`` (reads of the
+        runner-up, 0 without), ``barcodes``, ``total`` (matched reads) and
+        ``decoy`` (the top barcode is a decoy).
+    """
+    keep = matched["distance"].to_numpy() <= max_d
+    if qmin > -np.inf:
+        keep &= matched["quality"].to_numpy() >= qmin
+    reads = matched[keep]
+    if reads.empty:
+        return pd.DataFrame(columns=["site", "cell", "n", "second", "barcodes", "total", "decoy"])
+    counts = (reads.groupby(["site", "cell", "prefix"], sort=False)
+              .agg(n=("decoy", "size"), decoy=("decoy", "first")).reset_index())
+    counts = counts.sort_values(["site", "cell", "n", "prefix"],
+                                ascending=[True, True, False, True], kind="mergesort")
+    groups = counts.groupby(["site", "cell"], sort=False)
+    counts["barcodes"] = groups["n"].transform("size")
+    counts["total"] = groups["n"].transform("sum")
+    counts["second"] = groups["n"].shift(-1).fillna(0)
+    return groups.head(1)[["site", "cell", "n", "second", "barcodes", "total",
+                           "decoy"]].reset_index(drop=True)
+
+
+def _sweep_called(tops: pd.DataFrame, min_reads: int, rule: str) -> pd.Series:
+    """Which cells one configuration calls.
+
+    :param tops: from :func:`_sweep_tops`.
+    :param min_reads: the top barcode's fewest reads.
+    :param rule: one of :data:`FDR_SWEEP_RULES`.
+    :returns: a boolean per row of ``tops``.
+    """
+    keep = tops["n"] >= min_reads
+    if rule == "purity100":
+        return keep & (tops["barcodes"] == 1)
+    keep &= tops["n"] > tops["second"]
+    if rule == "purity50":
+        keep &= 2 * tops["n"] >= tops["total"]
+    return keep
+
+
+def _sweep_site_counts(tops: pd.DataFrame, called: pd.Series,
+                       sites: Sequence[int]) -> Tuple[np.ndarray, np.ndarray]:
+    """Real and decoy calls per site.
+
+    :param tops: from :func:`_sweep_tops`.
+    :param called: from :func:`_sweep_called`.
+    :param sites: the sites, in output order.
+    :returns: ``(real, decoy)`` arrays over ``sites``.
+    """
+    hit = tops[called.to_numpy(bool)]
+    decoy = hit["decoy"].to_numpy(bool)
+    real = pd.Series(~decoy).groupby(hit["site"].to_numpy()).sum()
+    fake = pd.Series(decoy).groupby(hit["site"].to_numpy()).sum()
+    return (real.reindex(list(sites), fill_value=0).to_numpy(np.int64),
+            fake.reindex(list(sites), fill_value=0).to_numpy(np.int64))
+
+
+def _sweep_strictness(row: Mapping[str, Any]) -> Tuple[float, ...]:
+    """A configuration's sort key among equals: stricter first.
+
+    :param row: a pooled grid row.
+    :returns: fewer mismatches, more reads, a stricter rule, a higher
+        quality cut, in that order, as ascending sort keys.
+    """
+    return (float(row["max_d"]), -float(row["min_reads"]),
+            -float(FDR_SWEEP_RULES.index(row["rule"])), -float(row["qmin"]))
+
+
+def _sweep_frames(reads: Any) -> Dict[str, pd.DataFrame]:
+    """The reads per method, with the columns the sweep reads.
+
+    :param reads: ``{method: frame}`` or one frame with a ``method`` column;
+        each frame has ``site``, ``cell`` and ``read`` and may have
+        ``quality``.
+    :returns: ``{method: frame}`` in the order given, cells above 0 only,
+        ``quality`` in its stored precision (its quantiles are taken in it),
+        filled with infinity where a method has none.
+    :raises ValueError: without reads or when a column is missing.
+    """
+    if isinstance(reads, pd.DataFrame):
+        if "method" in reads.columns:
+            reads = {str(name): group for name, group in reads.groupby("method", sort=False)}
+        else:
+            reads = {"spacr": reads}
+    if not reads:
+        raise ValueError("the FDR sweep needs reads of at least one method")
+    out = {}
+    for name, frame in reads.items():
+        missing = [col for col in ("site", "cell", "read") if col not in frame.columns]
+        if missing:
+            raise ValueError(f"the reads of method {name!r} lack columns {missing}")
+        quality = (pd.to_numeric(frame["quality"], errors="coerce").to_numpy()
+                   if "quality" in frame.columns else np.full(len(frame), np.inf))
+        table = pd.DataFrame({"site": pd.to_numeric(frame["site"]).to_numpy(np.int64),
+                              "cell": pd.to_numeric(frame["cell"]).to_numpy(np.int64),
+                              "read": frame["read"].astype(str).to_numpy(),
+                              "quality": quality})
+        out[str(name)] = table[table["cell"] > 0].reset_index(drop=True)
+    return out
+
+
+def _sweep_cells(cells: Any) -> Dict[int, int]:
+    """Cells per site, the genotyped share's denominator.
+
+    :param cells: ``{site: cells}``, a :class:`pandas.Series` indexed by site,
+        or a frame with ``site`` and ``cells``.
+    :returns: ``{site: cells}``.
+    """
+    if isinstance(cells, pd.DataFrame):
+        cells = dict(zip(cells["site"], cells["cells"]))
+    elif isinstance(cells, pd.Series):
+        cells = cells.to_dict()
+    return {int(site): int(count) for site, count in dict(cells).items()}
+
+
+class _SweepDraws:
+    """The sweep's site-bootstrap resamples, drawn in blocks on first use.
+
+    :param seed: the generator seed (``ops_fdr_sweep_seed``).
+    :param reps: resamples per block (``ops_fdr_sweep_bootstrap``).
+    :param n: report sites.
+    """
+
+    def __init__(self, seed: int, reps: int, n: int) -> None:
+        """Start the generator; no block is drawn yet."""
+        self.rng = np.random.default_rng(int(seed))
+        self.reps = int(reps)
+        self.n = int(n)
+        self.blocks: List[np.ndarray] = []
+
+    def block(self, i: int) -> np.ndarray:
+        """The i-th block, drawing the blocks before it first.
+
+        :param i: the block, from 0.
+        :returns: ``(reps, n)`` site indices.
+        """
+        while len(self.blocks) <= i:
+            self.blocks.append(self.rng.integers(0, self.n, (self.reps, self.n)))
+        return self.blocks[i]
+
+
+def _sweep_interval(values: np.ndarray) -> List[float]:
+    """The 2.5th and 97.5th percentiles of bootstrap values.
+
+    :param values: one value per resample.
+    :returns: ``[low, high]``.
+    """
+    return [float(np.quantile(values, 0.025)), float(np.quantile(values, 0.975))]
+
+
+def fdr_sweep(reads: Any, cells: Any, library: PrefixLibrary,
+              settings: Mapping[str, Any], *,
+              selection_sites: Optional[Sequence[int]] = None) -> Dict[str, Any]:
+    """Genotyped share at matched decoy FDR, method by method (item 955).
+
+    Every method's reads (spaCR's own, or another pipeline's per-spot reads)
+    are matched by one matcher (:func:`match_prefix_reads`, ``hamming``
+    unless ``ops_prefix_metric`` says otherwise, up to the largest
+    ``ops_fdr_sweep_max_distance``) against the whitelist with decoys
+    (:func:`prefix_decoy_library`, ``ops_prefix_decoy_k`` and
+    ``ops_prefix_decoy_seed``) and, for the control, against shuffled
+    whitelists (:func:`shuffled_library`, one per
+    ``ops_fdr_sweep_shuffle_seeds``). A configuration is a largest read
+    distance, a fewest top-barcode reads, a cell rule
+    (:data:`FDR_SWEEP_RULES`) and, for a method whose reads carry a quality,
+    a lowest read quality: no cut or the ``ops_fdr_sweep_quality_quantiles``
+    of that method's reads in cells. Each site's calls are counted at every
+    configuration; pooled over the selection sites, the decoy FDR is
+    ``100 / k * decoys / real calls`` and the genotyped share
+    ``100 * real calls / cells``.
+
+    For each ``ops_fdr_sweep_targets`` value, and for the lowest FDR every
+    method reaches (rounded up to 0.0001 %), each method's configuration is
+    the one with the most real calls at a pooled FDR no higher than the
+    target; among equals the lower FDR, then the stricter configuration
+    (fewer mismatches, more reads, stricter rule, higher quality cut) is
+    kept. Each chosen configuration is then scored on the report sites: its
+    genotyped share and decoy FDR with site-bootstrap 95 % intervals, and its
+    barcode-shuffle call rate (shuffle-called cells per 100 cells, the mean
+    over the shuffled whitelists, :func:`spacr.ops_decode.shuffle_call_rate`).
+    Between methods the paired difference in genotyped share at the same
+    target gets a site-bootstrap 95 % interval. The bootstrap draws site
+    indices from ``numpy.random.default_rng(ops_fdr_sweep_seed)``,
+    ``ops_fdr_sweep_bootstrap`` resamples at a time: the first draw serves
+    every share and FDR interval and the first target's differences, each
+    later target with two or more chosen methods takes the next draw.
+
+    :param reads: ``{method: frame}``, or one frame with a ``method``
+        column; each frame has ``site``, ``cell`` (0 or less is outside
+        every cell and dropped) and ``read`` (the called bases from cycle 1),
+        and may have ``quality`` (a higher value is a better read).
+    :param cells: cells per site, as ``{site: cells}``, a series indexed by
+        site, or a frame with ``site`` and ``cells``; the same cells serve
+        every method.
+    :param library: the whitelist, from :func:`spacer_prefix_library`,
+        without decoys.
+    :param settings: the ``ops_fdr_sweep_*`` settings, ``ops_prefix_decoy_k``
+        (1 or more), ``ops_prefix_decoy_seed`` and ``ops_prefix_metric``.
+    :param selection_sites: the sites the configurations are chosen on; the
+        others are the report sites. None chooses and reports on every site.
+    :returns: ``settings`` (the values used), ``sites``,
+        ``selection_sites``, ``report_sites``, ``decoys``,
+        ``lowest_fdr_pct`` and ``quality_cuts`` per method, ``targets`` (per
+        target ``label``, ``target_fdr_pct``, per method the chosen
+        configuration with its selection and report numbers or None, and
+        ``diffs``, the paired differences ``'<a> - <b>'``), ``table`` (one
+        row per target and method), ``pooled`` (every configuration on the
+        selection sites) and ``grid`` (every configuration per site) as
+        frames.
+    :raises ValueError: for invalid settings, missing columns, a site
+        without a cell count, or selection sites that leave no report site.
+    """
+    from .ops_decode import shuffle_call_rate
+
+    chosen = _sweep_settings(settings)
+    frames = _sweep_frames(reads)
+    counts = _sweep_cells(cells)
+    sites = sorted({int(s) for frame in frames.values() for s in frame["site"].unique()}
+                   | set(counts))
+    lacking = [s for s in sites if s not in counts]
+    if lacking:
+        raise ValueError(f"no cell count for sites {lacking[:10]}")
+    if selection_sites is None:
+        select, report = list(sites), list(sites)
+    else:
+        select = sorted({int(s) for s in selection_sites} & set(sites))
+        report = [s for s in sites if s not in set(select)]
+        if not select or not report:
+            raise ValueError("selection_sites must hold some sites and leave others to report")
+    k = chosen["ops_prefix_decoy_k"]
+    metric = chosen["ops_prefix_metric"]
+    reach = max(chosen["ops_fdr_sweep_max_distance"])
+    joint = prefix_decoy_library(library, k, chosen["ops_prefix_decoy_seed"])
+    cell_array = np.array([counts[s] for s in sites], np.int64)
+    position = {s: i for i, s in enumerate(sites)}
+    sel_idx = np.array([position[s] for s in select], np.int64)
+    rep_idx = np.array([position[s] for s in report], np.int64)
+    matched, cuts, rows = {}, {}, []
+    per_site: Dict[Tuple[Any, ...], Tuple[np.ndarray, np.ndarray]] = {}
+    for name, frame in frames.items():
+        matched[name] = _sweep_matched(frame, joint, metric=metric, max_distance=reach, decoy=True)
+        quality = frame.loc[frame["site"].isin(select), "quality"].to_numpy()
+        finite = quality[np.isfinite(quality)]
+        cuts[name] = sorted({-np.inf} | {float(np.quantile(finite, q)) for q in
+                                         chosen["ops_fdr_sweep_quality_quantiles"]}
+                            ) if finite.size else [-np.inf]
+        for max_d in chosen["ops_fdr_sweep_max_distance"]:
+            for qi, qmin in enumerate(cuts[name]):
+                tops = _sweep_tops(matched[name], max_d, qmin)
+                for min_reads in chosen["ops_fdr_sweep_min_reads"]:
+                    for rule in chosen["ops_fdr_sweep_rules"]:
+                        real, decoy = _sweep_site_counts(
+                            tops, _sweep_called(tops, min_reads, rule), sites)
+                        per_site[(name, max_d, min_reads, rule, qmin)] = (real, decoy)
+                        for i, site in enumerate(sites):
+                            rows.append({"method": name, "max_d": max_d,
+                                         "min_reads": min_reads, "rule": rule,
+                                         "qmin": qmin, "quality_index": qi, "site": site,
+                                         "real": int(real[i]), "decoy": int(decoy[i]),
+                                         "cells": int(cell_array[i])})
+    grid = pd.DataFrame(rows)
+    pooled_rows = []
+    for config, (real, decoy) in per_site.items():
+        r, d, c = int(real[sel_idx].sum()), int(decoy[sel_idx].sum()), int(cell_array[sel_idx].sum())
+        pooled_rows.append({**dict(zip(_SWEEP_KEY, config)),
+                            "quality_index": cuts[config[0]].index(config[4]),
+                            "real": r, "decoy": d, "cells": c,
+                            "share": 100 * r / c if c else 0.0,
+                            "fdr": 100 / k * d / max(r, 1)})
+    pooled = pd.DataFrame(pooled_rows)
+    lowest = {name: float(group.loc[group["real"] > 0, "fdr"].min())
+              for name, group in pooled.groupby("method", sort=False)
+              if (group["real"] > 0).any()}
+    targets = [(f"<= {t:g} %", float(t)) for t in chosen["ops_fdr_sweep_targets"]]
+    if lowest:
+        common = math.ceil(max(lowest.values()) * 1e4 - 1e-9) / 1e4
+        targets.append(("lowest common", common))
+    draws_of = _SweepDraws(chosen["ops_fdr_sweep_seed"], chosen["ops_fdr_sweep_bootstrap"],
+                           len(rep_idx))
+    shuffles: Dict[Tuple[str, int], pd.DataFrame] = {}
+    shuffle_libs = {seed: shuffled_library(library, seed)
+                    for seed in chosen["ops_fdr_sweep_shuffle_seeds"]}
+    rep_cells = cell_array[rep_idx]
+    entries, table, compared = [], [], 0
+    for label, target in targets:
+        entry: Dict[str, Any] = {"label": label, "target_fdr_pct": target, "methods": {},
+                                 "diffs": {}}
+        picks = {}
+        for name in frames:
+            ok = pooled[(pooled["method"] == name) & (pooled["fdr"] <= target)]
+            if ok.empty:
+                entry["methods"][name] = None
+                continue
+            best = min(ok.to_dict("records"),
+                       key=lambda row: (-row["real"] / max(row["cells"], 1), row["fdr"],
+                                        _sweep_strictness(row)))
+            config = tuple(best[key] for key in _SWEEP_KEY)
+            real, decoy = per_site[config]
+            r_rep, d_rep = real[rep_idx], decoy[rep_idx]
+            draws = draws_of.block(0)
+            boot_r, boot_d = r_rep[draws].sum(1), d_rep[draws].sum(1)
+            boot_c = rep_cells[draws].sum(1)
+            shuffled = []
+            for seed, shuffled_lib in shuffle_libs.items():
+                if (name, seed) not in shuffles:
+                    shuffles[(name, seed)] = _sweep_matched(frames[name], shuffled_lib,
+                                                            metric=metric, max_distance=reach,
+                                                            decoy=False)
+                tops = _sweep_tops(shuffles[(name, seed)], int(best["max_d"]), best["qmin"])
+                called, _ = _sweep_site_counts(
+                    tops, _sweep_called(tops, int(best["min_reads"]), best["rule"]), sites)
+                shuffled.append(called[rep_idx].astype(float))
+            rate = (shuffle_call_rate(np.mean(shuffled, axis=0), rep_cells)
+                    if shuffled else None)
+            per_seed = [100.0 * float(s.sum()) / max(float(rep_cells.sum()), 1.0)
+                        for s in shuffled]
+            pick = {
+                "max_d": int(best["max_d"]), "min_reads": int(best["min_reads"]),
+                "rule": best["rule"], "qmin": float(best["qmin"]),
+                "quality_index": int(best["quality_index"]),
+                "selection": {"real": int(best["real"]), "decoy": int(best["decoy"]),
+                              "cells": int(best["cells"]), "share": float(best["share"]),
+                              "fdr": float(best["fdr"])},
+                "real": int(r_rep.sum()), "decoy": int(d_rep.sum()),
+                "cells": int(rep_cells.sum()),
+                "share": 100.0 * float(r_rep.sum()) / max(float(rep_cells.sum()), 1.0),
+                "fdr": 100.0 / k * float(d_rep.sum()) / max(float(r_rep.sum()), 1.0),
+                "share_ci95": _sweep_interval(100.0 * boot_r / np.maximum(boot_c, 1)),
+                "fdr_ci95": _sweep_interval(100.0 / k * boot_d / np.maximum(boot_r, 1)),
+                "shuffle_call_rate_pct": None if rate is None else rate["shuffle_call_rate_pct"],
+                "shuffle_ci95": None if rate is None else rate["shuffle_ci95"],
+                "shuffle_per_seed_pct": dict(zip(shuffle_libs, per_seed)),
+            }
+            entry["methods"][name] = pick
+            picks[name] = (r_rep, pick)
+        if len(picks) > 1:
+            draws = draws_of.block(compared)
+            compared += 1
+            names = list(picks)
+            share = {name: 100 * picks[name][0][draws].sum(1) / rep_cells[draws].sum(1)
+                     for name in names}
+            for a, b in itertools.combinations(names, 2):
+                entry["diffs"][f"{a} - {b}"] = {
+                    "diff_share_pts": picks[a][1]["share"] - picks[b][1]["share"],
+                    "diff_ci95": _sweep_interval(share[a] - share[b])}
+        entries.append(entry)
+        first = next(iter(picks), None)
+        for name, pick in entry["methods"].items():
+            if pick is None:
+                continue
+            diff = entry["diffs"].get(f"{first} - {name}") if name != first else None
+            table.append({
+                "target": label, "target_fdr_pct": target, "method": name,
+                "max_d": pick["max_d"], "min_reads": pick["min_reads"], "rule": pick["rule"],
+                "qmin": pick["qmin"], "quality_index": pick["quality_index"],
+                "genotyped_pct": pick["share"], "genotyped_ci95_lo": pick["share_ci95"][0],
+                "genotyped_ci95_hi": pick["share_ci95"][1], "decoy_fdr_pct": pick["fdr"],
+                "decoy_fdr_ci95_lo": pick["fdr_ci95"][0], "decoy_fdr_ci95_hi": pick["fdr_ci95"][1],
+                "real": pick["real"], "decoy": pick["decoy"], "cells": pick["cells"],
+                "shuffle_call_rate_pct": pick["shuffle_call_rate_pct"],
+                "shuffle_ci95_lo": None if pick["shuffle_ci95"] is None else pick["shuffle_ci95"][0],
+                "shuffle_ci95_hi": None if pick["shuffle_ci95"] is None else pick["shuffle_ci95"][1],
+                **{f"shuffle_seed{seed}_pct": value
+                   for seed, value in pick["shuffle_per_seed_pct"].items()},
+                "selection_genotyped_pct": pick["selection"]["share"],
+                "selection_decoy_fdr_pct": pick["selection"]["fdr"],
+                "paired_diff_vs": None if diff is None else first,
+                "paired_diff_pts": None if diff is None else -diff["diff_share_pts"],
+                "paired_diff_ci95_lo": None if diff is None else -diff["diff_ci95"][1],
+                "paired_diff_ci95_hi": None if diff is None else -diff["diff_ci95"][0]})
+    return {"settings": chosen, "sites": sites, "selection_sites": select,
+            "report_sites": report, "decoys": int(joint.summary.get("decoys", 0)),
+            "lowest_fdr_pct": lowest, "quality_cuts": cuts, "targets": entries,
+            "table": pd.DataFrame(table), "pooled": pooled, "grid": grid}
+
+
+_SWEEP_COLUMNS = {"site": ("site",), "cell": ("cell", "Parent_Cells"),
+                  "read": ("read", "Barcode_BarcodeCalled"), "quality": ("quality",)}
+
+
+def _sweep_inputs(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """``ops_fdr_sweep_inputs`` as a dictionary.
+
+    :param settings: the OPS settings.
+    :returns: the inputs: empty, a dictionary as given, a JSON string read,
+        or a ``.json`` file's contents.
+    :raises ValueError: when the value is none of those.
+    """
+    value = settings.get("ops_fdr_sweep_inputs")
+    if value in (None, "", {}):
+        return {}
+    if isinstance(value, str):
+        text = value.strip()
+        if not text.startswith("{") and os.path.isfile(os.path.expanduser(text)):
+            with open(os.path.expanduser(text), encoding="utf-8") as handle:
+                text = handle.read()
+        try:
+            value = json.loads(text)
+        except ValueError as error:
+            raise ValueError("ops_fdr_sweep_inputs must be a dictionary, JSON text or the "
+                             "path of a .json file") from error
+    if not isinstance(value, Mapping):
+        raise ValueError("ops_fdr_sweep_inputs must be a dictionary")
+    return dict(value)
+
+
+def _sweep_read_files(spec: Any, sites: Optional[Sequence[int]]) -> pd.DataFrame:
+    """One method's reads, from the files its input names.
+
+    :param spec: a path, a glob, or a path with ``{site}``; or a dictionary
+        with ``reads`` (that path) and optional ``site_col``, ``cell_col``,
+        ``read_col`` and ``quality_col``. Without a column name the usual
+        names are tried (``site``; ``cell`` or ``Parent_Cells``; ``read`` or
+        ``Barcode_BarcodeCalled``; ``quality``, optional).
+    :param sites: the sites to keep, and the sites a ``{site}`` path is
+        filled with; None keeps every site.
+    :returns: ``site``, ``cell``, ``read`` and, when present, ``quality``.
+    :raises ValueError: when no file matches, a ``{site}`` path has no
+        sites, or a column is missing.
+    """
+    import glob
+
+    from .tabular import read_table
+
+    spec = {"reads": spec} if not isinstance(spec, Mapping) else dict(spec)
+    pattern = os.path.expanduser(str(spec.get("reads") or ""))
+    if "{site}" in pattern:
+        if not sites:
+            raise ValueError(f"the read path {pattern!r} names {{site}}; give the sites")
+        paths = [(pattern.format(site=s), int(s)) for s in sites]
+        paths = [(p, s) for p, s in paths if os.path.isfile(p)]
+    else:
+        paths = [(p, None) for p in sorted(glob.glob(pattern))]
+    if not paths:
+        raise ValueError(f"no read file matches {pattern!r}")
+    frames = []
+    for path, site in paths:
+        frame = read_table(path, canonicalise=False, report=None)
+        out = {}
+        for name, options in _SWEEP_COLUMNS.items():
+            given = spec.get(f"{name}_col")
+            found = [given] if given else [col for col in options if col in frame.columns]
+            if found and found[0] in frame.columns:
+                out[name] = frame[found[0]].to_numpy()
+            elif name == "site" and site is not None:
+                out[name] = np.full(len(frame), site, np.int64)
+            elif name != "quality":
+                raise ValueError(f"{path} has no {name} column (tried {found or list(options)})")
+        frames.append(pd.DataFrame(out))
+    reads = pd.concat(frames, ignore_index=True)
+    if sites:
+        reads = reads[reads["site"].isin([int(s) for s in sites])]
+    return reads.reset_index(drop=True)
+
+
+def _run_fdr_sweep_phase(settings: Mapping[str, Any],
+                         report: Optional[Callable[[str], None]] = None) -> Dict[str, Any]:
+    """The ``prefix_fdr_sweep`` phase: :func:`fdr_sweep` over a run's reads (item 955).
+
+    ``ops_fdr_sweep_inputs`` names the reads: ``methods`` maps each method
+    to its read files (see :func:`_sweep_read_files`); without it the
+    method ``'spacr'`` reads ``<dst_root>/results/ops_prefix/reads_*.parquet``
+    (the ``prefix_decode`` phase's reads). ``cells`` is a table with
+    ``site`` and a cell count (``cells``, ``Count_Cells`` or ``count_col``);
+    without it a site's cells are the cells with any read of any method.
+    ``sites`` keeps some sites; ``selection_sites`` chooses the
+    configurations on those and reports on the rest. Writes, under
+    ``<dst_root>/results/ops_prefix/``, ``fdr_sweep_result.json`` (the
+    result without its frames), ``fdr_sweep_table.csv`` (one row per target
+    and method), ``fdr_sweep_pooled.csv`` and ``fdr_sweep_grid.csv``.
+
+    :param settings: the OPS settings: ``dst_root``, the item-920 library
+        settings (:func:`prefix_settings`), the ``ops_fdr_sweep_*`` settings
+        and ``ops_prefix_decoy_k`` and ``ops_prefix_decoy_seed``.
+    :param report: called with progress lines.
+    :returns: the output paths, the cells' source and the result summary.
+    :raises ValueError: without ``dst_root``, a library or reads.
+    """
+    from .tabular import read_table, write_table
+
+    say = report or (lambda text: None)
+    destination = settings.get("dst_root")
+    if not destination:
+        raise ValueError("the prefix_fdr_sweep phase needs dst_root")
+    started = time.perf_counter()
+    chosen = prefix_settings(settings)
+    _sweep_settings(settings)
+    library = spacer_prefix_library(
+        chosen["ops_library"], sequence_col=chosen["ops_library_sequence_col"],
+        gene_col=chosen["ops_library_gene_col"], prefix_length=chosen["ops_prefix_length"],
+        n_cycles=chosen["ops_sbs_cycles"], cycle_mask=chosen["ops_cycle_mask"],
+        collision=chosen["ops_prefix_collision"])
+    inputs = _sweep_inputs(settings)
+    folder = os.path.join(str(destination), "results", "ops_prefix")
+    sites = [int(s) for s in inputs.get("sites") or []] or None
+    methods = inputs.get("methods") or {
+        "spacr": os.path.join(folder, "reads_*.parquet")}
+    reads = {}
+    for name, spec in methods.items():
+        reads[str(name)] = _sweep_read_files(spec, sites)
+        say(f"prefix_fdr_sweep: {name} {len(reads[str(name)])} reads")
+    cell_spec = inputs.get("cells")
+    if cell_spec:
+        cell_spec = {"path": cell_spec} if not isinstance(cell_spec, Mapping) else dict(cell_spec)
+        table = read_table(os.path.expanduser(str(cell_spec["path"])), canonicalise=False,
+                           report=None)
+        count_col = cell_spec.get("count_col") or next(
+            col for col in ("cells", "Count_Cells") if col in table.columns)
+        site_col = cell_spec.get("site_col") or "site"
+        cells = {int(s): int(n) for s, n in zip(table[site_col], table[count_col])}
+        source = f"{cell_spec['path']}:{count_col}"
+    else:
+        union = pd.concat([frame.loc[pd.to_numeric(frame["cell"]) > 0, ["site", "cell"]]
+                           for frame in reads.values()]).drop_duplicates()
+        cells = union.groupby("site").size().to_dict()
+        source = "cells with any read"
+    if sites:
+        cells = {s: n for s, n in cells.items() if s in set(sites)}
+    present = {int(s) for frame in reads.values() for s in frame["site"].unique()}
+    cells = {s: n for s, n in cells.items() if s in present or sites}
+    result = fdr_sweep(reads, cells, library, settings,
+                       selection_sites=inputs.get("selection_sites"))
+    os.makedirs(folder, exist_ok=True)
+    paths = {name: os.path.join(folder, f"fdr_sweep_{name}.csv")
+             for name in ("table", "pooled", "grid")}
+    for name, path in paths.items():
+        write_table(result[name], path, canonicalise=False)
+    summary = {key: value for key, value in result.items() if key not in paths}
+    summary.update({"cells_source": source, "methods": list(reads),
+                    "seconds": round(time.perf_counter() - started, 1)})
+    paths["result"] = os.path.join(folder, "fdr_sweep_result.json")
+    with open(paths["result"], "w", encoding="utf-8") as handle:
+        json.dump(summary, handle, indent=1, default=float)
+    say(f"prefix_fdr_sweep: {len(result['targets'])} targets, {len(result['sites'])} sites "
+        f"-> {paths['result']}")
+    return {"paths": paths, **summary}

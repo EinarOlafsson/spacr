@@ -785,6 +785,21 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_threshold_tuning",
     "ops_prefix_fdr_target_pct",
     "ops_prefix_tuning_grid",
+    # Item 949 (2026-11-16): near-miss decoys and the shuffle calibration of
+    # the FDR scale (spacer-prefix and OPS decode).
+    "ops_prefix_nearmiss_decoy_k",
+    "ops_prefix_fdr_calibration",
+    "ops_decode_fdr_calibration",
+    # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
+    "ops_fdr_sweep_targets",
+    "ops_fdr_sweep_max_distance",
+    "ops_fdr_sweep_min_reads",
+    "ops_fdr_sweep_rules",
+    "ops_fdr_sweep_quality_quantiles",
+    "ops_fdr_sweep_bootstrap",
+    "ops_fdr_sweep_seed",
+    "ops_fdr_sweep_shuffle_seeds",
+    "ops_fdr_sweep_inputs",
     # Items 936 and 940 (2026-11-13): stitch reader threads and edge
     # workers, and the placement seed file.
     "ops_stitch_read_threads",
@@ -801,6 +816,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 951 (2026-11-15): stitch, objects and decode on chosen
     # sequencing sites only.
     "ops_sites",
+    # Item 953 (2026-11-15): published comparators keep their own control
+    # rows in the Fisher background.
+    "ops_cluster_published_controls",
+    # Item 952 (2026-11-15): the read mode of the barcode reads (log, raw,
+    # or chosen per well from decoys).
+    "ops_read_mode",
     # Item 934 (2026-11-13): the OPS measurement switches in Measure --
     # Funk et al.'s object features, the explicit Zernike switch and
     # channel-named columns under Measurements, and the CPU/GPU self-check

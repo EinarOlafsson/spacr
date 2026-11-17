@@ -2534,7 +2534,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 940
+SETTINGS_SCHEMA_VERSION = 942
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2552,6 +2552,8 @@ DEFAULT_CHANGES = {
           'ops_decode_auto_unreachable': 'strictest'},
     940: {'ops_decode_preset': 'none', 'ops_decode_threshold_mode': 'manual',
           'ops_decode_auto_spot_grid': [150.0, 200.0, 250.0, 315.0, 400.0]},
+    941: {'ops_cluster_published_controls': False},
+    942: {'ops_bench_null_permutations': 200},
 }
 
 
@@ -9456,6 +9458,12 @@ ALPHA_FEATURES = {
     951: {
         'settings': ('ops_sites',),
     },
+    953: {
+        'settings': ('ops_cluster_published_controls',),
+    },
+    952: {
+        'settings': ('ops_read_mode',),
+    },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },
@@ -9682,6 +9690,17 @@ ALPHA_FEATURES = {
                      'ops_prefix_fdr_scale', 'ops_prefix_min_read_quality',
                      'ops_prefix_threshold_tuning', 'ops_prefix_fdr_target_pct',
                      'ops_prefix_tuning_grid'),
+    },
+    949: {
+        'settings': ('ops_prefix_nearmiss_decoy_k', 'ops_prefix_fdr_calibration',
+                     'ops_decode_fdr_calibration'),
+    },
+    955: {
+        'settings': ('ops_fdr_sweep_targets', 'ops_fdr_sweep_max_distance',
+                     'ops_fdr_sweep_min_reads', 'ops_fdr_sweep_rules',
+                     'ops_fdr_sweep_quality_quantiles', 'ops_fdr_sweep_bootstrap',
+                     'ops_fdr_sweep_seed', 'ops_fdr_sweep_shuffle_seeds',
+                     'ops_fdr_sweep_inputs'),
     },
 }
 

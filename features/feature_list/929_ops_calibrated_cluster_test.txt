@@ -14,7 +14,7 @@ ops_bench_cluster_seed (100), ops_bench_gate_copies (40), ops_bench_gate_noise
 (1.7e-3), ops_bench_gate_alpha (0.05), ops_bench_gate_limit (0.05),
 ops_bench_margin_quantile (0.95), ops_bench_gate_record (None),
 ops_bench_gate_arm ('consensus'), ops_bench_half (1), ops_bench_null_permutations
-(200).
+(1000 since item 954, schema 942; 200 before, and for files stamped before).
 
 NOT DONE (rest of ITEM_ops_cluster_bench.md)
 The gene split, the nine-method registry, select_on_dev / final_test and the
