@@ -105,6 +105,7 @@ GROUPS = (
         ("Runs resume, run chosen sites, skip missing fields, add controls, count cells once",
          (872, 874, 951, 958)),
         ("DNA flat-field map from nuclei, held-out check", (912,)),
+        ("Merge routes: tile pattern, well mosaic, automatic fallback", (962,)),
     )),
     ("OPS genotyping", (
         ("OPS spacer-prefix decode with quality classes",
