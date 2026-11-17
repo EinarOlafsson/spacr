@@ -2489,6 +2489,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in sweep_arrivals} == sweep_arrivals
     assert not sweep_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **sweep_arrivals}
+    point_mode_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "957_make_masks_point_mode_api_arrivals_2026-11-15.json").read_text(encoding="utf-8"))
+    assert len(point_mode_arrivals) == 23
+    assert {key: docs[key] for key in point_mode_arrivals} == point_mode_arrivals
+    assert not point_mode_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **point_mode_arrivals}
     pairs_consensus_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "948_ops_pairs_consensus_api_arrivals_2026-11-15.json").read_text(encoding="utf-8"))
     assert len(pairs_consensus_arrivals) == 6

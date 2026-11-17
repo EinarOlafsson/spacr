@@ -108,7 +108,7 @@ def test_every_button_is_in_its_group_once(screen):
                               "Recrop", "Magnifier"],
         screen._annotation_group: ["Keep", "Skip", "Discard"],
         screen._io_group: ["Open File / Folder…", "Measure…",
-                           "Load test data…", "ROIs…"],
+                           "Load test data…", "ROIs…", "Point mode…"],
         screen._navigation_group: ["Previous", "Next"],
     }
     seen = []

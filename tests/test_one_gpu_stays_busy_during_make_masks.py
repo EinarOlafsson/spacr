@@ -306,7 +306,7 @@ def test_make_masks_samples_each_role_on_the_ordinary_path(tmp_path, monkeypatch
 
     monkeypatch.setattr(mw, '_sampled_ordinary_masks', sampled)
     monkeypatch.setattr(sobj, 'generate_cellpose_masks_sam',
-                        lambda src, settings, role: order.append(('segment', role)))
+                        lambda src, settings, role, **kwargs: order.append(('segment', role)))
     for module, name in ((sio, '_load_and_concatenate_arrays'), (su, 'adjust_cell_masks'),
                          (su, '_pivot_counts_table'), (su, 'cleanup_pipeline_folders')):
         monkeypatch.setattr(module, name, Spy(ret=[]))

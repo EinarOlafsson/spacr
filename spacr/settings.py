@@ -9702,6 +9702,9 @@ ALPHA_FEATURES = {
                      'ops_fdr_sweep_seed', 'ops_fdr_sweep_shuffle_seeds',
                      'ops_fdr_sweep_inputs'),
     },
+    957: {
+        'widgets': ('MakeMasksPointModeButton',),
+    },
 }
 
 
