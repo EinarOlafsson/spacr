@@ -1771,13 +1771,23 @@ def _well_choice_line(plate: str, well_id: str, choice: Mapping[str, Any], well_
     best = choice["chosen"]
     tune, report = choice.get("tune") or {}, choice.get("report") or {}
     how = "chosen by auto" if read_mode == "auto" else "as set"
+    tune_fdr, report_fdr = _fdr_text(tune.get("fdr_per_100")), _fdr_text(report.get("fdr_per_100"))
     return (f"prefix_decode {plate} {well_id} choice: read {well_mode} ({how}), read threshold "
             f"{best.get('ops_read_threshold')}, read quality "
             f"{best.get('ops_prefix_min_read_quality')}, mismatches "
-            f"{best.get('ops_prefix_max_distance')}; decoy FDR {tune.get('fdr_per_100')} % on the "
-            f"{len(choice.get('tune_sites') or [])} tuning sites, "
-            f"{report.get('fdr_per_100')} % on the {len(choice.get('report_sites') or [])} "
-            f"report sites; target met {choice.get('auto_met')}")
+            f"{best.get('ops_prefix_max_distance')}; decoy FDR {tune_fdr} % on the "
+            f"{len(choice.get('tune_sites') or [])} tuning sites, {report_fdr} % on the "
+            f"{len(choice.get('report_sites') or [])} report sites; target met "
+            f"{choice.get('auto_met')}")
+
+
+def _fdr_text(value: Any) -> str:
+    """A decoy FDR in % to three decimals for a run-summary line, or 'n/a' (item 966).
+
+    :param value: the FDR, or None.
+    :returns: the text.
+    """
+    return "n/a" if value is None else f"{float(value):.3f}"
 
 
 def _shuffle_frame(reads: pd.DataFrame, shuffled_lib: PrefixLibrary, memo: Dict[str, tuple], *,
