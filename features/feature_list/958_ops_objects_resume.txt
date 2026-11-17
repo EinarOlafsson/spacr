@@ -1,0 +1,62 @@
+OPS OBJECTS PHASE RESUMES PER WINDOW
+====================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-16, alpha (ALPHA_FEATURES[958]). Under development per proposals/READINESS.md: not marked Ready. spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_objects_resume_958.py, tests/test_settings_categories.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item958_proof/REPORT.md.
+Requested: paper session (PERISCOPE-on-Funk card: a whole-well objects phase on Funk plate A A1, CPU cpsam, 841 windows, stopped at 650 and rerun from window 1, about 18 CPU hours lost), 2026-11-16.
+Owner: master lane claude-958-1116.
+Source: proposals/bmc_paper_items/ITEM_ops_objects_resume.md.
+Related: 872 (ph_masks, measurement and archived wells resume per field or well), 951 (ops_sites).
+
+PROBLEM
+_objects in spacr/ops_engine.py composes, segments and sews a well window
+by window with no checkpoint, so a stopped objects phase recomposed and
+resegmented every window.
+
+BUILD
+- ops_objects_resume (bool, default True, alpha): each segmented window's
+  labels, overlap gain and covered area are written to
+  <ops_objects_windows_dir or dirname(measurements.db)/objects_windows>/<well>/
+  w<top>_<left>.npz, then a done marker w<top>_<left>.done.json, each as a
+  .part file renamed into place.
+- The marker carries a sha256 key of the window (top, left, height, width),
+  the canvas and tile shape, the compose blend, the Cellpose model (name,
+  file size and mtime for a file, its model_metadata pin), the eval keywords
+  (diameter), the cellpose and spaCR versions, and each covering tile's
+  rounded position, file path, plane, size and mtime. The device is not in
+  the key.
+- A rerun reuses a window whose marker key matches and whose labels load
+  with the window's shape; any other window is composed and segmented again
+  and its files are overwritten. Empty windows are never written.
+- Sewing and numbering are unchanged and run in window order, so a resumed
+  well's ops_objects and every downstream table equal an uninterrupted run's.
+- After the well's objects are stored the window files are deleted (and the
+  well folder, and objects_windows when empty) unless
+  ops_objects_keep_windows (bool, default False, alpha) is on.
+- ops_objects_windows_dir (str or None, default None, alpha): where the
+  per-well folders go.
+- The run journal gets a stage ops_objects_windows_<well> with the folder and
+  the counts of windows, empty, reused, computed, kept and deleted; the
+  objects report gets windows_resumed with the same counts only when a window
+  was reused, so an uninterrupted run's report keys are unchanged.
+- No schema bump and no DEFAULT_CHANGES row: an uninterrupted run's outputs
+  are byte-identical to before.
+
+ACCEPTANCE
+tests/test_ops_objects_resume_958.py (7 cases, synthetic five-field well):
+default run equal to a run with checkpoints off and leaving no files; stop
+at a seeded window and resume to md5-equal ops_objects and ops_barcodes; a
+changed diameter reusing no window and equal to a fresh run; keep=True
+leaving every file and a rerun reusing all; a touched tile file sending back
+exactly its windows; a truncated labels file recomputed; checkpoints off
+writing nothing; folder defaults.
+
+PROOF CHECK 2026-11-16 (CPU, Funk 2022 plate A well A1, sites 145, 146, 165,
+166, 512 px windows in every arm, 49 segmented windows). See REPORT.md.
+- Default identity: branch defaults vs nightly 5f1e6e2a5e: ops_objects
+  (13,909), ops_barcodes (9,777), ops_geometry and the 5 decode output files
+  identical; no window files left.
+- SIGKILL before window 12, resume: 11 reused, 38 segmented; every table and
+  file md5-equal to the uninterrupted run; 98 window files deleted.
+- Stale key (diameter 25 on resume): 0 of 49 reused; equal to a fresh
+  diameter-25 run (13,927 nuclei); keep=True left all 49 windows.
