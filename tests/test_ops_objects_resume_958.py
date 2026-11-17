@@ -39,12 +39,23 @@ class _CountingModel(_ThresholdModel):
         self.calls = 0
         self.stop = stop
 
-    def eval(self, image, **kwargs):
-        """Label one window, unless this is the window to stop at."""
+    def eval(self, image, batch_size=8, resample=True, channels=None,
+             channel_axis=None, z_axis=None, normalize=True, rescale=None,
+             diameter=None, flow_threshold=0.4, cellprob_threshold=0.0,
+             do_3D=False, anisotropy=None, flow3D_smooth=0,
+             stitch_threshold=0.0, min_size=15, max_size_fraction=0.4,
+             niter=None, augment=False, tile_overlap=0.1, bsize=None,
+             compute_masks=True, progress=None):
+        """Label one window, unless this is the window to stop at.
+
+        The installed cellpose's eval parameters are written out, as in the
+        threshold model, so an argument cellpose removed fails here too.
+        """
         if self.stop is not None and self.calls >= self.stop:
             raise _Stop(f"stopped after {self.calls} windows")
         self.calls += 1
-        return super().eval(image, **kwargs)
+        return super().eval(image, batch_size=batch_size,
+                            channel_axis=channel_axis, diameter=diameter)
 
 
 @pytest.fixture(scope="module")
