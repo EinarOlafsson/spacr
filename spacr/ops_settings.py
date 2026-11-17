@@ -48,6 +48,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_placement_seed_tolerance": 2.0,
     "ops_ph_placement_seed": None,
     "ops_sites": None,
+    "ops_objects_resume": True,
+    "ops_objects_keep_windows": False,
+    "ops_objects_windows_dir": None,
     "ops_footprint": 10.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
@@ -492,6 +495,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_placement_seed_tolerance": (float, int),
     "ops_ph_placement_seed": (str, type(None)),
     "ops_sites": (str, list, type(None)),
+    "ops_objects_resume": bool,
+    "ops_objects_keep_windows": bool,
+    "ops_objects_windows_dir": (str, type(None)),
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
     "ops_spot_detector": str,
@@ -911,7 +917,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_placement_seed", "ops_placement_seed_mode",
         "ops_placement_seed_export", "ops_placement_seed_check_pixels",
         "ops_placement_seed_tolerance", "ops_ph_placement_seed",
-        "ops_sites",
+        "ops_sites", "ops_objects_resume", "ops_objects_keep_windows",
+        "ops_objects_windows_dir",
     ],
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_read_mode", "ops_footprint",
@@ -1416,6 +1423,24 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "to each other and the rest are placed on the layout's grid, or by "
         "ops_placement_seed. Each nucleus belongs to the nearest placed "
         "tile. Empty runs every site. Default None. Alpha.",
+    "ops_objects_resume":
+        "(bool) - Keep each segmented window of the objects phase on disk "
+        "as it finishes, so a run that stops part way through a well picks "
+        "up where it stopped instead of segmenting every window again. A "
+        "window is reused only when its tiles, their files and every "
+        "setting that changes its segmentation (model, diameter, blend, "
+        "spaCR version) are the same; anything else segments it again. The "
+        "objects are numbered the same way either way, so a resumed well's "
+        "tables equal an uninterrupted run's. Uses up to one well's window "
+        "labels of extra disk during the phase. Default True. Alpha.",
+    "ops_objects_keep_windows":
+        "(bool) - Keep the objects phase's window files after the well's "
+        "objects are stored. Off deletes them once the well is done. "
+        "Default False. Alpha.",
+    "ops_objects_windows_dir":
+        "(str or None) - The folder that holds the objects phase's window "
+        "files, one subfolder per well. Empty puts them in objects_windows "
+        "beside measurements.db. Default None. Alpha.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "

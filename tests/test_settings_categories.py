@@ -822,6 +822,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 952 (2026-11-15): the read mode of the barcode reads (log, raw,
     # or chosen per well from decoys).
     "ops_read_mode",
+    # Item 958 (2026-11-16): the objects phase resumes per window.
+    "ops_objects_resume", "ops_objects_keep_windows",
+    "ops_objects_windows_dir",
     # Item 962 (2026-11-16): the OPS merge route (tile hash, well stitch
     # or automatic fallback) and its thresholds.
     "ops_merge_strategy", "ops_merge_stitch_source",
