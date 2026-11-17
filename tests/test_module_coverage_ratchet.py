@@ -560,6 +560,11 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # (spacr/qt/point_annotator.py).
         'spacr/point_annotation.py',
         'spacr/qt/point_annotator.py',
+        # 704 -> 706 on 2026-11-17, +2/-0, item 973: Voyager3 cluster
+        # annotation (spacr/voyager3.py) and its OPS control
+        # (spacr/qt/voyager3_panel.py).
+        'spacr/voyager3.py',
+        'spacr/qt/voyager3_panel.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -584,7 +589,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 701)
+            - len(retired_since_608) == 703)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -623,6 +628,8 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # 698 -> 699 on 2026-11-13: spacr/stitch_core.py (items 936 and 940).
     # 699 -> 701 on 2026-11-15: spacr/point_annotation.py and
     # spacr/qt/point_annotator.py (item 957).
+    # 701 -> 703 on 2026-11-17: spacr/voyager3.py and
+    # spacr/qt/voyager3_panel.py (item 973).
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -1112,8 +1119,11 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # 702 -> 704 on 2026-11-15: spacr/point_annotation.py and
     # spacr/qt/point_annotator.py (item 957: Make Masks point mode), moved
     # with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 704
-    assert "--expected-file-count 704" in combine_script
+    # 704 -> 706 on 2026-11-17: spacr/voyager3.py and
+    # spacr/qt/voyager3_panel.py (item 973: Voyager3 cluster annotation),
+    # moved with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 706
+    assert "--expected-file-count 706" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
