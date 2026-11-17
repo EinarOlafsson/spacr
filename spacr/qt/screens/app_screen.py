@@ -8299,6 +8299,7 @@ class AppScreen(QWidget):
         self._sweep = self._sweep_card = None
         self._timelapse_preview = self._timelapse_preview_card = None
         self._motility_preview = self._motility_preview_card = None
+        self._ops_live_preview = self._ops_live_preview_card = None
         self._runtime_splitter = None
 
         if self.app_key in ("mask", "analyze_plaques"):
@@ -8356,6 +8357,21 @@ class AppScreen(QWidget):
             self._motility_preview.set_propagate_callback(
                 self._propagate_live_settings)
             splitter.addWidget(self._motility_preview_card)
+            splitter.insertWidget(0, self._figures_card)
+            splitter.addWidget(console_wrap)
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
+            layout.addWidget(splitter, 1)
+            self._remember_runtime_splitter(splitter)
+        elif self.app_key == "ops":
+            from ..widgets.ops_live_preview import _build_ops_live_card
+            splitter = self._new_runtime_splitter()
+            splitter.setChildrenCollapsible(False)
+            self._ops_live_preview, self._ops_live_preview_card = (
+                _build_ops_live_card(self))
+            splitter.addWidget(self._ops_live_preview_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
             splitter.setStretchFactor(0, 3)
@@ -8666,6 +8682,12 @@ class AppScreen(QWidget):
                 "Plaque mode it segments one image; in Figure mode it finds "
                 "the plaque images in one figure, reads their labels and "
                 "segments them."),
+            "ops": (
+                "_ops_live_preview_card",
+                "Show or hide the OPS live preview: one tab per step (align "
+                "and stitch, spots and genotyping, objects and phenotype, "
+                "merge and aggregation, clustering), each run on a small "
+                "sample with these settings. Alpha."),
         }
         _breathe_while_a_window_opens()
         from ..widgets.preview_refresh import install_refresh_button
@@ -8709,6 +8731,11 @@ class AppScreen(QWidget):
                 if self.app_key == "mask":
                     self._lp_switch = self._preview_switch
                 self._on_preview_switch(False)
+                if self.app_key == "ops":
+                    from .map_barcodes import _gate_alpha
+
+                    self._preview_switch.setObjectName("OpsLiveSwitch")
+                    _gate_alpha(self._preview_switch)
 
         self._ops_switch = None
         if self.app_key == "mask":
@@ -10880,13 +10907,18 @@ class AppScreen(QWidget):
             blocked = switch.blockSignals(True)
             switch.setChecked(on)
             switch.blockSignals(blocked)
-            switch.show()
+            if not switch.property("_spacr_alpha_hid"):
+                switch.show()
         if on and not getattr(self, "_preview_primed", False):
             self._preview_primed = True
             self._prime_preview()
             if attr == "_live_preview_card" and autoload:
                 self._autoload_live_preview(self._settings_src_path() or "")
         card.setVisible(on)
+        set_live = getattr(getattr(self, attr[:-len("_card")], None),
+                           "set_live", None)
+        if callable(set_live):
+            set_live(on)
 
     def _prime_preview(self) -> None:
         """Push the current settings into this screen's preview panel.
@@ -11644,6 +11676,12 @@ class AppScreen(QWidget):
         if flowview is not None:
             try:
                 flowview.shutdown()
+            except RuntimeError:
+                pass
+        ops_live = self.__dict__.get("_ops_live_preview")
+        if ops_live is not None:
+            try:
+                ops_live.shutdown()
             except RuntimeError:
                 pass
         self._shutdown_settings_widgets()
@@ -13183,6 +13221,9 @@ class AppScreen(QWidget):
         """
         from ...run_journal import _find_lock, _observe_settings_changes
 
+        live = self.__dict__.get("_ops_live_preview")
+        if live is not None:
+            live.setting_committed(key)
         model = getattr(self, "_settings_model", None)
         if (model is None or getattr(model, "_applying_settings", False)
                 or not getattr(self, "_settings_lock_observation_ready", True)):

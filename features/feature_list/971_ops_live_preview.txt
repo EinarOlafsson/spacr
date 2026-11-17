@@ -1,0 +1,64 @@
+OPS LIVE PREVIEW: ONE TAB PER PIPELINE STEP
+===========================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-17, alpha (ALPHA_FEATURES[971], widget OpsLiveSwitch; the OPS page itself under ALPHA_FEATURES[372]). A GUI preview: it writes only into ~/.cache/spacr/ops_live and never into a run's output, so the default pipeline output is unchanged and there is no settings schema bump. spacr/ops_live.py, spacr/qt/widgets/ops_live_preview.py, spacr/qt/screens/app_screen.py, spacr/settings.py, tools/refresh_alpha_deck.py, tests/qt/test_ops_live_preview_971.py, arrival contract tests/data/release_contracts/971_ops_live_preview_api_arrivals_2026-11-17.json. Proof: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item971_proof/REPORT.md.
+Requested: maintainer, 2026-11-17: "the OPS live preview should allow the user to test out each step in the ops pipeline: aligning/stitching; spot detection and genotyping; object detection and phenotyping; merging/ aggregation; clustering ... several tabs that the user can go between ... test all settings in the module."
+Owner: master lane claude-971-1117.
+Source: proposals/bmc_paper_items/ITEM_ops_live_preview.md.
+Related: 372 (OPS in Mask Generation), 940 (seeded phenotype placement), 962 (merge routes), 969 (OPS settings subcategories), 970 (pathogen and organelle objects: hook spacr.ops_live._OBJECT_LAYERS).
+
+PROBLEM
+The OPS page had no Live switch. A user could only test an OPS setting by
+running the module, which on a real well means hours.
+
+BUILD
+- A Live switch on the OPS page (app_key "ops"), on the existing preview
+  machinery of AppScreen: a preview_controls row, a runtime-panel arm, the
+  switch seeding the panel once from the form, and _observe_settings_commit
+  telling the panel which setting changed.
+- spacr/qt/widgets/ops_live_preview.py: a card with five tabs, one per step,
+  each with the same geometry (one three-panel picture, one table, one
+  sample line); pictures drawn with matplotlib Agg in the worker, in the
+  active theme's palette.
+- spacr/ops_live.py: each tab's step on a small sample, with the real spaCR
+  functions:
+  1 Align & stitch: run_ops(phases=stitch, phenotype) on a 2 x 2 block
+    (ops_sites; none for the 4-tile test data), ops_cycles.align_field on a
+    400 px crop with the decode's registration options.
+  2 Spots & genotyping: Cellpose nuclei (the objects model) on the crop,
+    then ops_engine._decode_field on the crop's planes, with the task built
+    by the engine's own setting readers (_decode_options mirrors _decode's
+    option block); rule (a) calls, read letters from ops_sbs.call_reads.
+  3 Objects & phenotype: _ph_read_field, _ph_segment_field and
+    ops_sample.measure_phenotype_field on a 512 px crop.
+  4 Merge & aggregation: run_ops(phases=ph_masks, merge) and
+    run_ops(phases=aggregate) on the aggregation set (the test data's stored
+    nuclei, calls, cells and masks; or a finished run's tables in dst_root).
+  5 Clustering: ops_clusters.embed_profiles, gene_graph and
+    leiden_partitions at the first graph, resolution and seed set; without
+    the clustering extra the embedding is shown with a message.
+- The tab of a setting is read from its registry category (stems refine
+  the broad categories), so item 969's subcategories flow through. A change
+  refreshes only its tab (debounced 600 ms) and marks the tabs that read
+  from it stale; a stale tab runs when it is shown. Nothing runs while Live
+  is off. Cancel drops the pass; a newer request supersedes the one in
+  flight.
+- Caches: per step, keyed by the digest of the settings the step and its
+  inputs read; the Cellpose models, the SBS nuclei and the phenotype masks
+  are kept until a setting that changes them does.
+- With no genotype_source, the OPS end-to-end test data (full tier when
+  cached, else core); a Get OPS test data button downloads the core tier
+  and its rev2 references.
+
+TESTS
+tests/qt/test_ops_live_preview_971.py: the switch is on the OPS screen and
+follows the alpha gate; every tab draws on a tiny fixture and through the
+panel; a merge setting runs only Merge and marks Clustering stale; an input
+setting keeps the tab on view; cancel drops the pass; a newer request
+supersedes; nothing runs while Live is off; every OPS setting finds a tab;
+969-style subcategories place a setting; signatures change only downstream.
+
+NOTES
+- 2026-11-17: built; see REPORT.md for the timings, screenshots and the
+  byte-identical default run.

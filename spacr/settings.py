@@ -9521,6 +9521,9 @@ ALPHA_FEATURES = {
         'module_settings': {'ops_large_sites': (
             'seg_merge_small_nuclei_frac',)},
     },
+    971: {
+        'widgets': ('OpsLiveSwitch',),
+    },
     956: {
         'module_settings': {'ops_large_sites': (
             'ops_mask_agreement_split_merge', 'ops_mask_agreement_identity_control',
