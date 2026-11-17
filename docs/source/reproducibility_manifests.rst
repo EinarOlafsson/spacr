@@ -130,6 +130,12 @@ default after a higher-numbered item takes the next free number:
   control rows in the background, as the publication scored it.
 - 942 (item 954): ``ops_bench_null_permutations`` was ``200``; it is now
   ``1000``. The first 200 permutations are the same.
+- 945 (item 959): ``ops_cluster_sweep_controls_background`` was ``False``
+  (spaCR's own sweep rows scored their CORUM and KEGG shares against the
+  targeting genes only); it is now ``True``, so the run's control rows join
+  that Fisher background, as the published comparators' do since item 953,
+  and every row of a sweep table uses one background. 943 and 944 are
+  reserved for items 965 and 966.
 
 Public API
 ----------

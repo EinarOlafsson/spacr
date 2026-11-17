@@ -1411,7 +1411,8 @@ def score_partition(name: str, genes: Sequence[str], labels: np.ndarray,
 def score_partitions(names: Sequence[str], partitions: Mapping[Tuple[str, int, float], np.ndarray],
                      refs: Mapping[str, Any], shuffles: int = 1, seed: int = SWEEP_CONTROL_SEED, *,
                      genes: Optional[Sequence[str]] = None, label: str = "spaCR",
-                     report=None) -> pd.DataFrame:
+                     report=None, control_prefix: str = "nontargeting",
+                     controls_background: bool = False) -> pd.DataFrame:
     """Score every partition and its shuffled-label controls.
 
     :param names: the clustered row names, in the partitions' row order.
@@ -1424,6 +1425,16 @@ def score_partitions(names: Sequence[str], partitions: Mapping[Tuple[str, int, f
     :param genes: the genes scored; every non-control row when None.
     :param label: the ``profile`` of every row.
     :param report: called with one progress line per partition.
+    :param control_prefix: rows whose name starts with it (any case) are
+        the run's control rows.
+    :param controls_background: True adds the run's control rows to the
+        Fisher background of the CORUM and KEGG shares, as
+        :func:`score_published` adds a comparator's own (item 959); they
+        are never cluster members, enrichment members or STRING pairs,
+        the complex metrics and the shuffled control use the scored genes
+        with the same draws, and every row records ``background_rows`` and
+        ``control_rows_in_background``. False scores the targeting genes
+        only (before item 959).
     :returns: one row per partition (``control`` ``'real'``) and per
         control (``'shuffled gene labels'``), with ``graph``, ``seed`` and
         ``resolution``.
@@ -1431,18 +1442,24 @@ def score_partitions(names: Sequence[str], partitions: Mapping[Tuple[str, int, f
     """
     names = np.asarray(names).astype(str)
     if genes is None:
-        genes = names[~_is_control(names, "nontargeting")]
+        genes = names[~_is_control(names, control_prefix)]
     genes = np.asarray(genes).astype(str)
     position = pd.Series(np.arange(len(names)), index=names).loc[genes].to_numpy()
+    background = (np.flatnonzero(_is_control(names, control_prefix) & ~np.isin(names, genes))
+                  if controls_background else np.array([], dtype=int))
+    controls = names[background]
     rng = np.random.default_rng(seed)
     rows = []
     for (graph, run_seed, resolution), labels in partitions.items():
         scored = np.asarray(labels)[position]
+        control_labels = np.asarray(labels)[background]
         key = {"graph": graph, "seed": int(run_seed), "resolution": float(resolution)}
-        real = dict(score_partition(label, genes, scored, refs), **key, control="real")
+        real = dict(_score_controls_row(label, genes, scored, controls, control_labels, refs, control_prefix,
+                                        controls_background), **key, control="real")
         rows.append(real)
         for _ in range(int(shuffles)):
-            rows.append(dict(score_partition(label, genes, scored[rng.permutation(len(scored))], refs),
+            rows.append(dict(_score_controls_row(label, genes, scored[rng.permutation(len(scored))], controls,
+                                                 control_labels, refs, control_prefix, controls_background),
                              **key, control="shuffled gene labels"))
         if report is not None:
             report(f"{graph} seed {run_seed} r {resolution}: {real['clusters']} clusters, "
@@ -1508,23 +1525,29 @@ def published_clusters(spec: Mapping[str, Any], control_prefix: str = "nontarget
     return dict(zip(table[gene], table[cluster].astype(int)))
 
 
-def _score_published_row(name: str, scored: np.ndarray, labels: np.ndarray, controls: np.ndarray,
-                         control_labels: np.ndarray, refs: Mapping[str, Any], prefix: str) -> Dict[str, Any]:
-    """One comparator row: the control rows join the Fisher background only."""
+def _score_controls_row(name: str, scored: np.ndarray, labels: np.ndarray, controls: np.ndarray,
+                        control_labels: np.ndarray, refs: Mapping[str, Any], prefix: str,
+                        record: bool = False) -> Dict[str, Any]:
+    """One sweep or comparator row: the control rows join the Fisher background only."""
     if not len(controls):
-        return score_partition(name, scored, labels, refs)
-    row = score_clusters(name, np.r_[scored, controls], np.r_[labels, control_labels], corum=refs["corum"],
-                         kegg=refs["kegg"], positives=refs["positives"], control_prefix=prefix)
-    p, r = row["STRING_precision"], row["STRING_recall"]
-    row["STRING_f1"] = 2 * p * r / (p + r) if p + r else 0.0
-    row.update(complex_metrics(list(scored), labels, refs["groups"], refs["halves"]))
+        row = score_partition(name, scored, labels, refs)
+    else:
+        row = score_clusters(name, np.r_[scored, controls], np.r_[labels, control_labels], corum=refs["corum"],
+                             kegg=refs["kegg"], positives=refs["positives"], control_prefix=prefix)
+        p, r = row["STRING_precision"], row["STRING_recall"]
+        row["STRING_f1"] = 2 * p * r / (p + r) if p + r else 0.0
+        row.update(complex_metrics(list(scored), labels, refs["groups"], refs["halves"]))
+    if record:
+        row["background_rows"] = int(len(set(np.r_[scored, controls].astype(str))))
+        row["control_rows_in_background"] = int(len(controls))
     return row
 
 
 def score_published(published: Mapping[str, Mapping[str, int]], genes: Sequence[str],
                     refs: Mapping[str, Any], shuffles: int = 1,
                     seed: int = PUBLISHED_CONTROL_SEED, *,
-                    control_prefix: str = "nontargeting") -> pd.DataFrame:
+                    control_prefix: str = "nontargeting",
+                    record_background: bool = False) -> pd.DataFrame:
     """Score published clusterings exactly as the sweep scores its partitions.
 
     :param published: ``{name: {gene: cluster}}``; control rows a
@@ -1541,6 +1564,9 @@ def score_published(published: Mapping[str, Mapping[str, int]], genes: Sequence[
         kept, as the sweep's.
     :param seed: the controls' seed; one generator draws them in order.
     :param control_prefix: the control rows' prefix.
+    :param record_background: True adds ``background_rows`` and
+        ``control_rows_in_background`` to every row, as
+        :func:`score_partitions` does with ``controls_background``.
     :returns: one ``'real'`` row per comparator and its ``'shuffled gene
         labels'`` rows, with the sweep's columns, ``graph`` ``'published'``
         and no seed or resolution.
@@ -1555,18 +1581,19 @@ def score_published(published: Mapping[str, Mapping[str, int]], genes: Sequence[
         controls = names[_is_control(names, control_prefix)] if len(names) else names
         control_labels = np.array([clusters[g] for g in controls], dtype=labels.dtype)
         key = {"graph": "published", "seed": np.nan, "resolution": np.nan}
-        rows.append(dict(_score_published_row(name, scored, labels, controls, control_labels, refs,
-                                              control_prefix), **key, control="real"))
+        rows.append(dict(_score_controls_row(name, scored, labels, controls, control_labels, refs,
+                                             control_prefix, record_background), **key, control="real"))
         for _ in range(int(shuffles)):
-            rows.append(dict(_score_published_row(name, scored, labels[rng.permutation(len(labels))], controls,
-                                                  control_labels, refs, control_prefix),
+            rows.append(dict(_score_controls_row(name, scored, labels[rng.permutation(len(labels))], controls,
+                                                 control_labels, refs, control_prefix, record_background),
                              **key, control="shuffled gene labels"))
     return pd.DataFrame(rows)
 
 
 def published_record(rows: pd.DataFrame, published: Sequence[Mapping[str, Any]], genes: Sequence[str],
                      summary: pd.DataFrame, target: int, shuffles: int, seed: int,
-                     controls: Optional[Mapping[str, int]] = None) -> Dict[str, Any]:
+                     controls: Optional[Mapping[str, int]] = None,
+                     sweep_controls: Optional[int] = None) -> Dict[str, Any]:
     """What the published comparator rows match and what they do not.
 
     :param rows: from :func:`score_published`.
@@ -1580,6 +1607,12 @@ def published_record(rows: pd.DataFrame, published: Sequence[Mapping[str, Any]],
         rows were kept (``ops_cluster_published_controls``); each
         comparator then records ``control_rows_in_background`` and the
         legend states the rule. None leaves both out (before item 953).
+    :param sweep_controls: the run's control rows when the sweep rows count
+        them in their Fisher background
+        (``ops_cluster_sweep_controls_background``); the legend then
+        states it, and that every row of the table uses one background
+        rule when the comparators keep theirs. None leaves it out (before
+        item 959).
     :returns: the legend and, per comparator, its source, genes scored and
         missing, clusters, and the sweep resolution nearest its cluster
         count on each graph.
@@ -1604,6 +1637,14 @@ def published_record(rows: pd.DataFrame, published: Sequence[Mapping[str, Any]],
         "with their published clusters: they count in the Fisher background of the CORUM and KEGG shares, "
         "as in the publications, and are never cluster members, enrichment members or STRING pairs; the "
         "complex metrics and the shuffled control use the scored genes only.")
+    if sweep_controls is not None:
+        rule += (
+            f" The sweep rows count this run's own control rows ({int(sweep_controls)}) in the Fisher "
+            "background of their CORUM and KEGG shares, never as cluster members, enrichment members or STRING "
+            "pairs; every row records background_rows and control_rows_in_background.")
+        if controls is not None:
+            rule += (" Every row of the table, spaCR's and the published comparators', therefore uses one "
+                     "background rule: the scored genes plus the control rows.")
     return {
         "legend": (
             "Published comparator rows (graph 'published', data_matched False) score the authors' own "
@@ -1723,9 +1764,13 @@ def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFram
         ``ops_profile_min_cells``, ``ops_control_prefix``,
         ``ops_cluster_published`` (published clusterings scored as
         comparators, :func:`published_clusters` specs each with a
-        ``name``, or the path of a JSON list of them) and
+        ``name``, or the path of a JSON list of them),
         ``ops_cluster_published_controls`` (keep each comparator's own
-        control rows in its Fisher background, default True).
+        control rows in its Fisher background, default True) and
+        ``ops_cluster_sweep_controls_background`` (count the run's own
+        control rows in the Fisher background of the sweep rows' CORUM
+        and KEGG shares, as the comparators count theirs, so every row
+        of the table uses one background; default True).
     :param genes: the profile phase's gene table, or None.
     :param folder: ``dst_root``; outputs go to its
         ``results/ops_clusters``.
@@ -1789,7 +1834,10 @@ def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFram
             outputs[f"assignments_{tag}_s{seed}"] = write_table(
                 assignments, os.path.join(out_dir, f"assignments_{tag}_s{seed}.csv.gz"), canonicalise=False)
             say(f"cluster_sweep: {tag} seed {seed}: {len(grid)} resolutions")
-    table = score_partitions(names, partitions, refs, shuffles, genes=scored, report=say)
+    sweep_background = bool(True if settings.get("ops_cluster_sweep_controls_background") is None
+                            else settings["ops_cluster_sweep_controls_background"])
+    table = score_partitions(names, partitions, refs, shuffles, genes=scored, report=say, control_prefix=prefix,
+                             controls_background=sweep_background)
     summary = sweep_summary(table, target)
     outputs["sweep_rows"] = write_table(table, os.path.join(out_dir, "sweep_rows.csv"), canonicalise=False)
     outputs["sweep_summary"] = write_table(summary, os.path.join(out_dir, "sweep_summary.csv"),
@@ -1800,15 +1848,18 @@ def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFram
         keep = bool(True if settings.get("ops_cluster_published_controls") is None
                     else settings["ops_cluster_published_controls"])
         published = {str(spec["name"]): published_clusters(spec, prefix, keep) for spec in specs}
-        published_rows = score_published(published, scored, refs, shuffles, control_prefix=prefix)
+        published_rows = score_published(published, scored, refs, shuffles, control_prefix=prefix,
+                                         record_background=sweep_background)
         combined = pd.concat([table.assign(data_matched=True), published_rows.assign(data_matched=False)],
                              ignore_index=True)
         outputs["sweep_rows_with_published"] = write_table(
             combined, os.path.join(out_dir, "sweep_rows_with_published.csv"), canonicalise=False)
         counts = ({name: int(_is_control(np.array(list(clusters), dtype=object), prefix).sum())
                    for name, clusters in published.items()} if keep else None)
+        sweep_controls = (int(table["control_rows_in_background"].iloc[0])
+                          if sweep_background and len(table) else None)
         record = published_record(published_rows, specs, scored, summary, target, shuffles,
-                                  PUBLISHED_CONTROL_SEED, counts)
+                                  PUBLISHED_CONTROL_SEED, counts, sweep_controls)
         path = os.path.join(out_dir, "published_comparators.json")
         with open(path, "w", encoding="utf-8") as handle:
             json.dump(record, handle, indent=1)

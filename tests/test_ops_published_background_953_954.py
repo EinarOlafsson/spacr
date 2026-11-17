@@ -121,7 +121,7 @@ def _phase_files(folder):
 
 
 def _legacy_score_published(published, genes, refs, shuffles=1, seed=oc.PUBLISHED_CONTROL_SEED,
-                            control_prefix="nontargeting"):
+                            control_prefix="nontargeting", record_background=False):
     """score_published as it was before item 953."""
     rng = np.random.default_rng(seed)
     out = []
@@ -148,8 +148,9 @@ def test_the_phase_keeps_controls_by_default_and_false_is_the_old_output(monkeyp
     names, rows, block = _blocks(n_blocks=8, size=12)
     spec = _funk_style(tmp_path / "t", names, block % 4, controls=40)
     outputs, records = {}, {}
-    for tag, extra in (("default", {}), ("false", {"ops_cluster_published_controls": False}),
-                       ("true", {"ops_cluster_published_controls": True})):
+    before_959 = {"ops_cluster_sweep_controls_background": False}
+    for tag, extra in (("default", before_959), ("false", {"ops_cluster_published_controls": False, **before_959}),
+                       ("true", {"ops_cluster_published_controls": True, **before_959})):
         (tmp_path / tag).mkdir()
         run_ops(_sweep_settings(tmp_path / tag, names, rows, block, ops_cluster_published=[spec], **extra),
                 phases=["cluster_sweep"])
@@ -167,7 +168,7 @@ def test_the_phase_keeps_controls_by_default_and_false_is_the_old_output(monkeyp
     monkeypatch.setattr(oc, "published_clusters", _legacy_published_clusters)
     monkeypatch.setattr(oc, "published_record", lambda *args: record(*args[:7]))
     (tmp_path / "old").mkdir()
-    run_ops(_sweep_settings(tmp_path / "old", names, rows, block, ops_cluster_published=[spec]),
+    run_ops(_sweep_settings(tmp_path / "old", names, rows, block, ops_cluster_published=[spec], **before_959),
             phases=["cluster_sweep"])
     assert _phase_files(tmp_path / "old" / "run" / "results" / "ops_clusters") == outputs["false"]
 

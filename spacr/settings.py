@@ -2534,7 +2534,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 942
+SETTINGS_SCHEMA_VERSION = 945
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2554,6 +2554,7 @@ DEFAULT_CHANGES = {
           'ops_decode_auto_spot_grid': [150.0, 200.0, 250.0, 315.0, 400.0]},
     941: {'ops_cluster_published_controls': False},
     942: {'ops_bench_null_permutations': 200},
+    945: {'ops_cluster_sweep_controls_background': False},
 }
 
 
@@ -9460,6 +9461,9 @@ ALPHA_FEATURES = {
     },
     953: {
         'settings': ('ops_cluster_published_controls',),
+    },
+    959: {
+        'settings': ('ops_cluster_sweep_controls_background',),
     },
     952: {
         'settings': ('ops_read_mode',),

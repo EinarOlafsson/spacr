@@ -736,6 +736,7 @@ SETTING_API_TARGETS = {
     'ops_cluster_seed': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_cluster_seeds': ('spacr.ops_clusters', 'cluster_sweep_phase', True),
     'ops_cluster_shuffles': ('spacr.ops_clusters', 'cluster_sweep_phase', True),
+    'ops_cluster_sweep_controls_background': ('spacr.ops_clusters', 'cluster_sweep_phase', True),
     'ops_cluster_sweep_resolutions': ('spacr.ops_clusters', 'cluster_sweep_phase', True),
     'ops_cluster_target': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_cluster_target_clusters': ('spacr.ops_clusters', 'cluster_sweep_phase', True),
