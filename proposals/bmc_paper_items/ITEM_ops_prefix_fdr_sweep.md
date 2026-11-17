@@ -28,3 +28,8 @@
 - A settings-file rerun on the 85 PERISCOPE CP186A Well1 sites reproduces `periscope_benchmark/out/s2_fdr_sweep_85sites/fdr_sweep_result.json` exactly: chosen configurations, counts, CIs.
 - From the same code path it also reproduces the `reconcile.py` sets A, B and C (`edge_ablation/reconcile/`) and the `shuffle_by_row.py` rates (`out/s2_fdr_sweep_85sites/shuffle_by_row.csv`).
 - Synthetic tests: a known decoy and shuffle count gives the expected FDR and rate; ties keep the stricter configuration.
+
+## Implementation (2026-11-16, branch claude-955-fdr-sweep, on top of item 949)
+- `spacr.ops_prefix.fdr_sweep` and the phase `prefix_fdr_sweep`; settings `ops_fdr_sweep_*` as specified plus `ops_fdr_sweep_inputs` (the phase's read files, cells table, sites and optional selection sites for a held-out report). Alpha, off unless the phase is asked for, no schema bump.
+- Item 943 is not built: external reads enter as a table with site, cell and read columns (PERISCOPE names recognised) instead of through `prefix_external`.
+- Proof outputs: BMCspacr/reanalysis/periscope_benchmark/out/fdr_sweep_955/. The 85-site sweep, reconcile sets A, B and C and the shuffle_by_row rates are reproduced exactly (327 checks, 0 mismatches).

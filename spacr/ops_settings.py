@@ -205,6 +205,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_decode_auto_objective": "recall_at_fdr",
     "ops_decode_auto_f_beta": 1.0,
     "ops_decode_auto_unreachable": "lowest_fdr",
+    "ops_decode_fdr_calibration": "none",
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
     "ops_decode_qc": False,
@@ -426,6 +427,17 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_threshold_tuning": "none",
     "ops_prefix_fdr_target_pct": 0.1,
     "ops_prefix_tuning_grid": None,
+    "ops_prefix_nearmiss_decoy_k": 0,
+    "ops_prefix_fdr_calibration": "none",
+    "ops_fdr_sweep_targets": [0.5, 1.0, 2.0, 5.0],
+    "ops_fdr_sweep_max_distance": [0, 1],
+    "ops_fdr_sweep_min_reads": [1, 2, 3],
+    "ops_fdr_sweep_rules": ["maxcount", "purity50", "purity100"],
+    "ops_fdr_sweep_quality_quantiles": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+    "ops_fdr_sweep_bootstrap": 2000,
+    "ops_fdr_sweep_seed": 0,
+    "ops_fdr_sweep_shuffle_seeds": [0, 1, 2],
+    "ops_fdr_sweep_inputs": None,
 }
 
 #: The Measure setting each OPS phenotype measurement setting stands for
@@ -632,6 +644,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_decode_auto_objective": str,
     "ops_decode_auto_f_beta": (float, int),
     "ops_decode_auto_unreachable": str,
+    "ops_decode_fdr_calibration": str,
     "ops_decode_skip_unplaced_sites": bool,
     "ops_store_field_cache": bool,
     "ops_decode_qc": bool,
@@ -853,6 +866,17 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_threshold_tuning": str,
     "ops_prefix_fdr_target_pct": (float, int),
     "ops_prefix_tuning_grid": (dict, str, type(None)),
+    "ops_prefix_nearmiss_decoy_k": int,
+    "ops_prefix_fdr_calibration": str,
+    "ops_fdr_sweep_targets": (list, str),
+    "ops_fdr_sweep_max_distance": (list, str),
+    "ops_fdr_sweep_min_reads": (list, str),
+    "ops_fdr_sweep_rules": (list, str),
+    "ops_fdr_sweep_quality_quantiles": (list, str),
+    "ops_fdr_sweep_bootstrap": int,
+    "ops_fdr_sweep_seed": int,
+    "ops_fdr_sweep_shuffle_seeds": (list, str),
+    "ops_fdr_sweep_inputs": (dict, str, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -920,6 +944,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_decode_auto_objective",
         "ops_decode_auto_f_beta",
         "ops_decode_auto_unreachable",
+        "ops_decode_fdr_calibration",
         "ops_decode_skip_unplaced_sites",
         "ops_store_field_cache",
         "ops_decode_qc",
@@ -946,6 +971,12 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_decoy_k", "ops_prefix_decoy_seed", "ops_prefix_fdr_scale",
         "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
         "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid",
+        "ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration",
+        "ops_fdr_sweep_targets", "ops_fdr_sweep_max_distance",
+        "ops_fdr_sweep_min_reads", "ops_fdr_sweep_rules",
+        "ops_fdr_sweep_quality_quantiles", "ops_fdr_sweep_bootstrap",
+        "ops_fdr_sweep_seed", "ops_fdr_sweep_shuffle_seeds",
+        "ops_fdr_sweep_inputs",
         "ops_compare_match", "ops_compare_reference_masks",
         "ops_compare_spacr_masks", "ops_compare_reference_objects",
         "ops_compare_iou", "ops_compare_reference_calls",
@@ -2690,6 +2721,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and reports it; 'strictest' takes the strictest setting, as "
         "settings saved before item 942 do. Either way the report says "
         "auto_met False. Default 'lowest_fdr'. Alpha.",
+    "ops_decode_fdr_calibration":
+        "(str) - How auto thresholds set the FDR scale. 'none' uses "
+        "ops_fdr_scale as entered. 'shuffle' also votes every field against "
+        "three shuffled copies of the library and raises the scale until "
+        "the shuffled libraries' call rate is at most 1.5 times the FDR on "
+        "the tuning fields, then tunes again at that scale. The scale used "
+        "and the shuffle call rate go into the threshold and FDR reports. "
+        "Costs about three more vote passes per field. Default 'none'. "
+        "Alpha.",
     "ops_decode_skip_unplaced_sites":
         "(bool) - Decode only the sites the stitch placed and list the "
         "others in the decode and FDR reports. Off stops the well with an "
@@ -3241,6 +3281,72 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "entered value. Empty uses read thresholds 40, 60, 80, 100, 130 and "
         "160, read qualities 0, 0.05, 0.1, 0.15 and 0.25, and 1 or 0 "
         "mismatches. Default empty. Alpha.",
+    "ops_prefix_nearmiss_decoy_k":
+        "(int) - How many near-miss decoy prefixes per library prefix the "
+        "spacer-prefix decode adds: prefixes one base from a library prefix "
+        "and from no other key. Far decoys miss read errors that land one "
+        "base from a guide; near-miss decoys catch them, and their calls are "
+        "reported apart (cells_decoy_nearmiss and fdr_nearmiss_pct in "
+        "site_summary.csv). Needs ops_prefix_decoy_k above 0. 0 adds none. "
+        "Default 0. Alpha.",
+    "ops_prefix_fdr_calibration":
+        "(str) - How the spacer-prefix decode sets its FDR scale. 'none' "
+        "uses ops_prefix_fdr_scale as entered. 'shuffle' also matches every "
+        "read against three shuffled whitelists and raises the scale until "
+        "the shuffle call rate is at most 1.5 times the FDR on the tuning "
+        "sites, then tunes again at that scale. The scale and the shuffle "
+        "call rate go into site_summary.csv and the FDR report. Needs "
+        "ops_prefix_decoy_k above 0. Default 'none'. Alpha.",
+    "ops_fdr_sweep_targets":
+        "(list) - The decoy FDR targets, in %, of the prefix_fdr_sweep phase. "
+        "For each target, every method gets the configuration with the most "
+        "genotyped cells at a pooled decoy FDR no higher than the target, so "
+        "methods are compared at the same error rate; the lowest FDR every "
+        "method reaches is added as a last target. Needs ops_prefix_decoy_k "
+        "above 0. Default 0.5, 1, 2, 5. Alpha.",
+    "ops_fdr_sweep_max_distance":
+        "(list) - The largest read distances the prefix_fdr_sweep phase "
+        "tries: 0 keeps exact matches only, 1 also keeps reads corrected over "
+        "one mismatch. Default 0, 1. Alpha.",
+    "ops_fdr_sweep_min_reads":
+        "(list) - The fewest reads of a cell's top barcode that the "
+        "prefix_fdr_sweep phase tries. Default 1, 2, 3. Alpha.",
+    "ops_fdr_sweep_rules":
+        "(list) - The cell rules the prefix_fdr_sweep phase tries. "
+        "'maxcount' calls the barcode with the most matched reads when no "
+        "other barcode has as many; 'purity50' also needs at least half of "
+        "the cell's matched reads on it; 'purity100' needs all of them on "
+        "one barcode. Default maxcount, purity50, purity100. Alpha.",
+    "ops_fdr_sweep_quality_quantiles":
+        "(list) - The read-quality cuts the prefix_fdr_sweep phase tries for "
+        "a method whose reads carry a quality, as quantiles of that method's "
+        "reads in cells; no cut is always tried too. Default 0.1 to 0.9 in "
+        "steps of 0.1. Alpha.",
+    "ops_fdr_sweep_bootstrap":
+        "(int) - Site-bootstrap resamples of the prefix_fdr_sweep phase's 95 % "
+        "intervals: the genotyped share, the decoy FDR and the difference "
+        "between methods. Default 2000. Alpha.",
+    "ops_fdr_sweep_seed":
+        "(int) - Seed of the prefix_fdr_sweep phase's site bootstrap. The "
+        "same seed gives the same 95 % intervals on the same reads; another "
+        "seed draws other resampled sites, so the interval ends move "
+        "slightly while the chosen configurations and counts stay the same. "
+        "Default 0. Alpha.",
+    "ops_fdr_sweep_shuffle_seeds":
+        "(list) - Seeds of the shuffled whitelists the prefix_fdr_sweep phase "
+        "matches every read against. Each chosen configuration reports its "
+        "barcode-shuffle call rate (shuffle-called cells per 100 cells), the "
+        "mean over these seeds, next to its decoy FDR. Default 0, 1, 2. "
+        "Alpha.",
+    "ops_fdr_sweep_inputs":
+        "(dict) - The reads the prefix_fdr_sweep phase scores, as "
+        "{'methods': {name: read file, glob or path with {site}}, 'cells': "
+        "table of cells per site, 'sites': [...], 'selection_sites': [...]}. "
+        "A method's reads need site, cell and read columns, and may have a "
+        "quality column. With selection_sites the configurations are chosen "
+        "on those sites and reported on the others. Empty scores this run's "
+        "spaCR reads (results/ops_prefix/reads_*.parquet) over the cells "
+        "that have reads. Default empty. Alpha.",
     "ops_stress_report":
         "(bool) - At the end of the run, time the store as the reference "
         "stress test did (database rows, queries for one field, one gene, "

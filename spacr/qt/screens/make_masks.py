@@ -14116,13 +14116,24 @@ class MakeMasksScreen(QWidget):
         than at module scope so that a screen opened the ordinary way pays
         for nothing.
 
+        A point-mode session (``spacr-make-masks --points``, item 957)
+        opens the point window instead, once the screen is on screen.
+
         :returns: whether a handed-over queue was opened.
         """
         try:
-            from ...cli_make_masks import take_handover
+            from ...cli_make_masks import _take_points, take_handover
         except Exception:                                    # noqa: BLE001
             LOG.debug("no terminal queue handover available", exc_info=True)
             return False
+        points = _take_points()
+        if points is not None:
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(0, lambda: self._open_point_mode(
+                points["queue"], points.get("overlays") or (),
+                points.get("hide_overlays", True)))
+            return True
         queue = take_handover()
         if queue is None:
             return False
@@ -15928,6 +15939,7 @@ class MakeMasksScreen(QWidget):
         io_row.addWidget(self._build_organize_button())
         io_row.addWidget(self._build_test_data_button())
         io_row.addWidget(self._build_roi_button())
+        io_row.addWidget(self._build_point_mode_button())
 
         nav_group, nav_row = self._titled_group(
             tr("NAVIGATION"), "MakeMasksNavigationGroup", keep_one_line=True)
@@ -16763,6 +16775,71 @@ class MakeMasksScreen(QWidget):
         _apply_alpha_widgets(button)
         self._btn_rois = button
         return button
+
+    def _build_point_mode_button(self) -> QPushButton:
+        """The "Point mode" button: one point per object over a folder.
+
+        An alpha feature (item 957), registered as
+        ``MakeMasksPointModeButton`` in :data:`spacr.settings.ALPHA_FEATURES`.
+        It asks for a folder of images and opens it as a point queue in
+        :class:`spacr.qt.point_annotator.PointAnnotatorDialog`, the same
+        session ``spacr-make-masks --points`` opens.
+
+        :returns: the button.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Point mode…"), self)
+        button.setObjectName("MakeMasksPointModeButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Mark one point per object instead of painting masks: choose a "
+            "folder of images, click the centre of every object, and each "
+            "image's points are saved to the annotations folder beside it "
+            "as <image>_points.csv (X, Y in pixels, unsure). Blind: overlays "
+            "stay hidden until every image is marked done."))
+        button.clicked.connect(self._on_point_mode)
+        _apply_alpha_widgets(button)
+        self._btn_point_mode = button
+        return button
+
+    def _on_point_mode(self) -> None:
+        """Ask for a folder of images and open it in point mode."""
+        from ..i18n import tr
+
+        folder = QFileDialog.getExistingDirectory(
+            self, tr("Choose a folder of images to annotate with points"),
+            self._folder or "")
+        if not folder:
+            return
+        from ...curation_queue import CurationQueueError
+        from ...point_annotation import build_point_queue, default_overlays
+
+        try:
+            queue = build_point_queue(folder)
+        except CurationQueueError as exc:
+            QMessageBox.warning(self, tr("Point mode"), str(exc))
+            return
+        self._open_point_mode(queue, default_overlays(folder), True)
+
+    def _open_point_mode(self, queue, overlays=(), hide_overlays=True):
+        """Open the point window on a point queue.
+
+        :param queue: what :func:`spacr.point_annotation.build_point_queue`
+            built.
+        :param overlays: folders of overlay images.
+        :param hide_overlays: keep overlays hidden while any image is not done.
+        :returns: the window.
+        """
+        from ..point_annotator import PointAnnotatorDialog
+
+        dialog = PointAnnotatorDialog(queue, overlays=overlays,
+                                      hide_overlays=hide_overlays, parent=self)
+        dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+        self._point_dialog = dialog
+        dialog.show()
+        return dialog
 
     def _build_sam2_button(self) -> QPushButton:
         """The SAM2 tracking button: seed objects in a movie by clicking and
