@@ -1604,7 +1604,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "annotation_column",
-    "line": 4972,
+    "line": 4993,
     "module": "spacr.active_learning",
     "nested": false,
     "qualname": "_run_classification"
@@ -14945,7 +14945,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "db_path",
-    "line": 4971,
+    "line": 4992,
     "module": "spacr.active_learning",
     "nested": false,
     "qualname": "_run_classification"
@@ -16003,7 +16003,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst",
-    "line": 5029,
+    "line": 5045,
     "module": "spacr.active_learning",
     "nested": false,
     "qualname": "_run_classification"
@@ -24580,7 +24580,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "image_type",
-    "line": 4989,
+    "line": 5005,
     "module": "spacr.active_learning",
     "nested": false,
     "qualname": "_run_classification"
@@ -24589,7 +24589,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "image_type",
-    "line": 4990,
+    "line": 5006,
     "module": "spacr.active_learning",
     "nested": false,
     "qualname": "_run_classification"

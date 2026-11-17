@@ -2456,9 +2456,10 @@ class _ClassThresholdDialog(QDialog):
         picture.setFixedSize(self.TILE, self.TILE)
         image = QImage(path)
         if not image.isNull():
-            picture.setPixmap(QPixmap.fromImage(image.scaled(
-                self.TILE, self.TILE, Qt.KeepAspectRatio,
-                Qt.SmoothTransformation)))
+            from ..hidpi import scaled_for
+
+            picture.setPixmap(QPixmap.fromImage(
+                scaled_for(image, picture, self.TILE)))
         box.addWidget(picture)
         caption = QLabel(f"{confidence:.2f}", tile)
         caption.setAlignment(Qt.AlignCenter)

@@ -64,8 +64,6 @@ API_ENTRIES = (
     ('spacr.active_learning.RoundResult.summary', 'Return a multi-line summary of the round, metrics and verdict.'),
     ('spacr.active_learning.StoppingVerdict', 'Stop/continue recommendation from the learning curve, with evidence.'),
     ('spacr.active_learning.StoppingVerdict.to_dict', "Return the verdict's fields as a plain dict for JSON or logs."),
-    ('spacr.active_learning._classify_inputs._finite', 'Feature rows as floats with no NaN or infinity.'),
-    ('spacr.active_learning._run_classification._listed', 'A list setting, or None when empty.'),
     ('spacr.active_learning._segmentation_uncertainty._paint', ':param values: one value per reference object, in id order.'),
     ('spacr.active_learning.annotation_coverage', 'Summarize annotation coverage by class, well, plate and acquisition.'),
     ('spacr.active_learning.as_probabilities', 'Read stored scores as an ``(N, C)`` probability matrix.'),

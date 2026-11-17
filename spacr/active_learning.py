@@ -4436,6 +4436,28 @@ _CONTROL_MAJORITY = "control: majority class"
 _CONTROL_SHUFFLED = "control: shuffled labels"
 
 
+def _finite_rows(frame: pd.DataFrame) -> np.ndarray:
+    """Feature rows as floats with no NaN or infinity.
+
+    :param frame: numeric feature rows.
+    :returns: the rows as a float array, NaN and infinities as 0.
+    """
+    return np.nan_to_num(frame.to_numpy(dtype=float), nan=0.0, posinf=0.0,
+                         neginf=0.0)
+
+
+def _listed_setting(settings: Mapping[str, Any], name: str
+                    ) -> Optional[List[str]]:
+    """A list setting, or None when it is empty or absent.
+
+    :param settings: the settings.
+    :param name: the setting's name.
+    :returns: the values as a list, or None.
+    """
+    value = settings.get(name)
+    return list(value) if value else None
+
+
 def _classify_inputs(db_path: str, annotation_column: str, *,
                      table: str = PNG_TABLE, key: str = PNG_KEY,
                      image_type: Optional[str] = None,
@@ -4517,11 +4539,6 @@ def _classify_inputs(db_path: str, annotation_column: str, *,
     index = {c: i for i, c in enumerate(classes)}
     y = np.asarray([index[v] for v in raw], dtype=int)
 
-    def _finite(frame: pd.DataFrame) -> np.ndarray:
-        """Feature rows as floats with no NaN or infinity."""
-        return np.nan_to_num(frame.to_numpy(dtype=float), nan=0.0,
-                             posinf=0.0, neginf=0.0)
-
     from .classifier_evaluation import split_group_values
 
     groups: Optional[np.ndarray] = None
@@ -4534,10 +4551,12 @@ def _classify_inputs(db_path: str, annotation_column: str, *,
     except ValueError as exc:
         groups = None
         group_note = f"NOT grouped: {exc}"
-    return {"x": _finite(matrix.loc[labelled]), "y": y, "classes": classes,
+    return {"x": _finite_rows(matrix.loc[labelled]), "y": y,
+            "classes": classes,
             "labelled": list(labelled), "groups": groups,
             "group_note": group_note, "keys": list(matrix.index),
-            "x_all": _finite(matrix), "features": list(matrix.columns)}
+            "x_all": _finite_rows(matrix),
+            "features": list(matrix.columns)}
 
 
 def _classify_folds(y: np.ndarray, groups: Optional[Sequence[Any]], *,
@@ -4891,8 +4910,10 @@ def _classify_paths(db_path: str, annotation_column: str,
 
 def _write_table(table: pd.DataFrame, path: str) -> None:
     """Write a table with fixed float formatting, so reruns match bytes."""
-    table.to_csv(path, index=False, float_format="%.6f",
-                 lineterminator="\n")
+    from .tabular import write_table
+
+    write_table(table, path, canonicalise=False, float_format="%.6f",
+                lineterminator="\n")
 
 
 def _thresholded_column(annotation_column: str) -> str:
@@ -4981,21 +5002,16 @@ def _run_classification(settings: Mapping[str, Any]) -> Dict[str, Any]:
             "ResNet50 is trained in the Classify (CV) screen; choose 'auto' "
             "or a tabular classifier here.")
 
-    def _listed(name: str) -> Optional[List[str]]:
-        """A list setting, or None when empty."""
-        value = s.get(name)
-        return list(value) if value else None
-
     inputs = _classify_inputs(
         db_path, column, table=table_name, image_type=s.get("image_type"),
-        feature_tables=_listed("feature_tables"),
-        feature_channels=_listed("feature_channels"),
-        feature_families=_listed("feature_families"))
+        feature_tables=_listed_setting(s, "feature_tables"),
+        feature_channels=_listed_setting(s, "feature_channels"),
+        feature_families=_listed_setting(s, "feature_families"))
     comparison = None
     classifier = choice
     x_fit, x_all = inputs["x"], inputs["x_all"]
     if choice == "auto":
-        wanted = _listed("auto_candidates")
+        wanted = _listed_setting(s, "auto_candidates")
         tabular = [c for c in (wanted or _CLASSIFY_CANDIDATES)
                    if c != _RESNET_NAME]
         ready, why = _resnet50_gate()
@@ -5076,8 +5092,10 @@ def _save_class_thresholds(settings_path: str,
     paths = _classify_paths(s.get("db_path", ""),
                             s.get("annotation_column", "annotate"),
                             s.get("dst"))
-    stored = pd.read_csv(paths["table"], dtype={PNG_KEY: str},
-                         keep_default_na=False)
+    from .tabular import read_table
+
+    stored = read_table(paths["table"], canonicalise=False, report=None,
+                        dtype={PNG_KEY: str}, keep_default_na=False)
     probs, classes = _table_probabilities(stored)
     rule = {str(k): round(float(v), 2) for k, v in dict(thresholds).items()}
     table = _classification_table(stored[PNG_KEY].tolist(), probs, classes,
