@@ -9464,6 +9464,9 @@ ALPHA_FEATURES = {
     952: {
         'settings': ('ops_read_mode',),
     },
+    963: {
+        'widgets': ('AnnotateClassify',),
+    },
     958: {
         'settings': ('ops_objects_resume', 'ops_objects_keep_windows',
                      'ops_objects_windows_dir'),

@@ -3833,7 +3833,8 @@ def _model_reweights(model_type: str) -> bool:
     name = str(model_type).lower().replace("-", "_")
     return name in ("logistic_regression", "logistic", "lr",
                     "random_forest", "rf", "gradient_boosting",
-                    "hist_gradient_boosting", "gb")
+                    "hist_gradient_boosting", "gb", "extra_trees", "et",
+                    "lightgbm", "lgbm")
 
 
 def _rejections_as_labels(rejections: Mapping[Any, Any],
@@ -3983,6 +3984,16 @@ def _build_round_model(model_type: str, seed: int, n_classes: int,
         from sklearn.ensemble import RandomForestClassifier
         return RandomForestClassifier(n_estimators=300, random_state=seed,
                                       n_jobs=-1, class_weight="balanced")
+    if name in ("extra_trees", "et"):
+        from sklearn.ensemble import ExtraTreesClassifier
+        return ExtraTreesClassifier(n_estimators=300, random_state=seed,
+                                    n_jobs=-1, class_weight="balanced")
+    if name in ("lightgbm", "lgbm"):
+        from lightgbm import LGBMClassifier
+        return LGBMClassifier(
+            random_state=seed, class_weight="balanced", verbose=-1,
+            deterministic=True, force_row_wise=True,
+            min_child_samples=_leaf_size(n_samples))
     if name in ("gradient_boosting", "hist_gradient_boosting", "gb"):
         from sklearn.ensemble import HistGradientBoostingClassifier
         return HistGradientBoostingClassifier(
@@ -4008,7 +4019,8 @@ def _build_round_model(model_type: str, seed: int, n_classes: int,
         )))
     raise ValueError(
         f"Unknown model_type {model_type!r}; use 'logistic_regression', "
-        f"'random_forest', 'gradient_boosting' or 'xgboost'.")
+        f"'random_forest', 'extra_trees', 'gradient_boosting', 'lightgbm' "
+        f"or 'xgboost'.")
 
 
 def _predict_proba(model: Any, x: np.ndarray, n_classes: int) -> np.ndarray:
@@ -4408,3 +4420,692 @@ def _segmentation_uncertainty(label_sets: Sequence[Any],
         "n_objects": int(ref_ids.size),
         "n_passes": len(sets),
     }
+
+
+_CLASSIFY_CANDIDATES: Tuple[str, ...] = (
+    "xgboost", "gradient_boosting", "lightgbm", "random_forest",
+    "extra_trees", "logistic_regression")
+_CLASSIFY_CHOICES: Tuple[str, ...] = ("auto", "xgboost", "resnet50")
+_CLASSIFY_DEFAULT = "xgboost"
+_CLASSIFY_FOLDS = 5
+_CLASSIFY_DIR = "annotate_classify"
+_CLASSIFY_DECIMALS = 6
+_RESNET_NAME = "resnet50"
+_RESNET_FREE_GB = 4.0
+_CONTROL_MAJORITY = "control: majority class"
+_CONTROL_SHUFFLED = "control: shuffled labels"
+
+
+def _finite_rows(frame: pd.DataFrame) -> np.ndarray:
+    """Feature rows as floats with no NaN or infinity.
+
+    :param frame: numeric feature rows.
+    :returns: the rows as a float array, NaN and infinities as 0.
+    """
+    return np.nan_to_num(frame.to_numpy(dtype=float), nan=0.0, posinf=0.0,
+                         neginf=0.0)
+
+
+def _listed_setting(settings: Mapping[str, Any], name: str
+                    ) -> Optional[List[str]]:
+    """A list setting, or None when it is empty or absent.
+
+    :param settings: the settings.
+    :param name: the setting's name.
+    :returns: the values as a list, or None.
+    """
+    value = settings.get(name)
+    return list(value) if value else None
+
+
+def _classify_inputs(db_path: str, annotation_column: str, *,
+                     table: str = PNG_TABLE, key: str = PNG_KEY,
+                     image_type: Optional[str] = None,
+                     features: Optional[pd.DataFrame] = None,
+                     feature_tables: Optional[Sequence[str]] = None,
+                     feature_channels: Optional[Sequence[str]] = None,
+                     feature_families: Optional[Sequence[str]] = None
+                     ) -> Dict[str, Any]:
+    """The labelled and the unlabelled crops of a column, as matrices.
+
+    Read the way :func:`retrain_round` reads them: suggestions are not
+    labels, the image filter is applied to the crop key, and only crops with
+    a feature row are kept. The well of each labelled crop is its group for
+    the grouped folds; without a verifiable well the folds are not grouped,
+    and ``group_note`` says why.
+
+    :param db_path: path to ``measurements.db``.
+    :param annotation_column: the column holding the labels.
+    :param table: crop table.
+    :param key: crop key column.
+    :param image_type: the Annotate image filter.
+    :param features: a feature matrix indexed by the crop key; read with
+        :func:`round_features` when omitted.
+    :param feature_tables: object tables to read features from.
+    :param feature_channels: channels to keep.
+    :param feature_families: feature classes to keep.
+    :returns: ``x``, ``y`` (class indices), ``classes``, ``labelled`` (keys),
+        ``groups`` (or None), ``group_note``, ``keys`` and ``x_all`` (every
+        crop with features).
+    :raises ValueError: with fewer than two classes or two labels per class.
+    """
+    con = _connect(db_path)
+    try:
+        columns = _table_columns(con, table, db_path)
+        if annotation_column not in columns:
+            raise ValueError(
+                f"{table!r} has no {annotation_column!r} column, so there "
+                f"are no labels to classify from.")
+        meta = [c for c in ("plateID", "rowID", "columnID", "fieldID",
+                            "prcfo") if c in columns]
+        select = list(dict.fromkeys([key, annotation_column] + meta))
+        rows = con.execute(
+            f"SELECT {', '.join(_quote_ident(c) for c in select)} "
+            f"FROM {_quote_ident(table)}").fetchall()
+    finally:
+        con.close()
+    crops = pd.DataFrame(rows, columns=select)
+    if image_type:
+        crops = crops[_image_type_mask(crops[key], image_type)]
+    crops = crops.set_index(key)
+    crops = crops.loc[~crops.index.duplicated(keep="first")]
+    if features is None:
+        features = round_features(
+            db_path, table=table, key=key,
+            tables=(DEFAULT_FEATURE_TABLES if feature_tables is None
+                    else list(feature_tables)),
+            channels=feature_channels, families=feature_families)
+    features = features.select_dtypes(include=[np.number])
+    features = features.loc[~features.index.duplicated(keep="first")]
+    shared = crops.index.intersection(features.index)
+    if not len(shared):
+        raise ValueError(
+            f"No crop in {table} has a row in the feature matrix, so nothing "
+            f"can be classified.")
+    crops = crops.loc[shared]
+    matrix = features.loc[shared]
+    labelled_mask = (crops[annotation_column].notna()
+                     & ~crops[annotation_column].map(_is_suggestion))
+    labelled = crops.index[labelled_mask.to_numpy()]
+    raw = [_class_value(v) for v in crops.loc[labelled, annotation_column]]
+    classes = sorted(set(raw), key=lambda v: (str(type(v)), v))
+    counts = {c: raw.count(c) for c in classes}
+    if len(classes) < 2 or min(counts.values()) < 2:
+        raise ValueError(
+            f"Classifying needs at least two classes with two labels each in "
+            f"{annotation_column!r}; it has "
+            + (", ".join(f"class {c}: {n}" for c, n in counts.items())
+               or "no labels") + ".")
+    index = {c: i for i, c in enumerate(classes)}
+    y = np.asarray([index[v] for v in raw], dtype=int)
+
+    from .classifier_evaluation import split_group_values
+
+    groups: Optional[np.ndarray] = None
+    group_note = "grouped by well"
+    frame = crops.loc[labelled].copy()
+    frame.index.name = key
+    try:
+        _level, groups = split_group_values(
+            group_by="well", frame=frame, paths=list(labelled), table=table)
+    except ValueError as exc:
+        groups = None
+        group_note = f"NOT grouped: {exc}"
+    return {"x": _finite_rows(matrix.loc[labelled]), "y": y,
+            "classes": classes,
+            "labelled": list(labelled), "groups": groups,
+            "group_note": group_note, "keys": list(matrix.index),
+            "x_all": _finite_rows(matrix),
+            "features": list(matrix.columns)}
+
+
+def _classify_folds(y: np.ndarray, groups: Optional[Sequence[Any]], *,
+                    seed: int = 0, folds: int = _CLASSIFY_FOLDS
+                    ) -> List[Tuple[np.ndarray, np.ndarray]]:
+    """Stratified folds that keep each group (well) whole.
+
+    :param y: class index per labelled crop.
+    :param groups: well per labelled crop, or None for ungrouped folds.
+    :param seed: the fold seed.
+    :param folds: the most folds; fewer when a class has fewer labels or
+        there are fewer wells.
+    :returns: ``(train, held_out)`` index pairs.
+    :raises ValueError: when fewer than two folds can be made, or a fold
+        would put one well on both sides.
+    """
+    from .io import make_cv_folds
+
+    y = np.asarray(y, dtype=int)
+    k = min(int(folds), int(np.bincount(y).min()))
+    if groups is not None:
+        k = min(k, len(set(groups)))
+    if k < 2:
+        raise ValueError(
+            "Too few labels or wells for a held-out comparison: every class "
+            "needs two labels and the labels need two wells.")
+    pairs = make_cv_folds(y, k, groups=None if groups is None
+                          else np.asarray(groups), seed=int(seed))
+    if groups is not None:
+        values = np.asarray(groups)
+        for train, held in pairs:
+            if set(values[train]) & set(values[held]):
+                raise ValueError("A fold put one well on both sides.")
+    return [(np.asarray(a, dtype=int), np.asarray(b, dtype=int))
+            for a, b in pairs]
+
+
+def _oof_probabilities(model_type: str, x: np.ndarray, y: np.ndarray,
+                       n_classes: int,
+                       folds: Sequence[Tuple[np.ndarray, np.ndarray]], *,
+                       seed: int = 0, shuffle: bool = False) -> np.ndarray:
+    """Out-of-fold probabilities of one estimator.
+
+    :param model_type: the estimator name for :func:`_build_round_model`.
+    :param x: one feature row per labelled crop.
+    :param y: class indices.
+    :param n_classes: the number of classes.
+    :param folds: ``(train, held_out)`` index pairs.
+    :param seed: the fit seed, and the permutation seed when ``shuffle``.
+    :param shuffle: permute the labels inside each training part (the
+        shuffled-label control).
+    :returns: ``(len(y), n_classes)`` probabilities.
+    """
+    oof = np.zeros((len(y), n_classes), dtype=float)
+    rng = np.random.default_rng(int(seed))
+    with _few_threads(len(y)):
+        for train, held in folds:
+            target = y[train]
+            if shuffle:
+                target = rng.permutation(target)
+            model = _build_round_model(model_type, int(seed), n_classes,
+                                       n_samples=len(train))
+            if len(set(target.tolist())) < 2:
+                oof[held, int(target[0])] = 1.0
+                continue
+            if set(target.tolist()) != set(range(n_classes)):
+                seen = sorted(set(target.tolist()))
+                remap = {c: i for i, c in enumerate(seen)}
+                model.fit(x[train], np.asarray([remap[v] for v in target]))
+                part = _predict_proba(model, x[held], len(seen))
+                for column, cls in enumerate(seen):
+                    oof[held, cls] = part[:, column]
+                continue
+            model.fit(x[train], target)
+            oof[held] = _predict_proba(model, x[held], n_classes)
+    return oof
+
+
+def _oof_scores(y: np.ndarray, oof: np.ndarray) -> Dict[str, float]:
+    """Macro-F1, balanced accuracy and accuracy of pooled out-of-fold calls.
+
+    :param y: class indices.
+    :param oof: out-of-fold probabilities.
+    :returns: ``f1_macro``, ``balanced_accuracy`` and ``accuracy``.
+    """
+    from sklearn.metrics import balanced_accuracy_score, f1_score
+
+    predicted = np.asarray(oof).argmax(axis=1)
+    labels = list(range(np.asarray(oof).shape[1]))
+    return {
+        "f1_macro": float(f1_score(y, predicted, labels=labels,
+                                   average="macro", zero_division=0)),
+        "balanced_accuracy": float(balanced_accuracy_score(y, predicted)),
+        "accuracy": float(np.mean(predicted == y)),
+    }
+
+
+def _resnet50_gate() -> Tuple[bool, str]:
+    """Whether a GPU is free for the ResNet50 candidate, and why not.
+
+    :returns: ``(ready, reason)``; ready needs a visible CUDA device with at
+        least :data:`_RESNET_FREE_GB` GB free.
+    """
+    if os.environ.get("CUDA_VISIBLE_DEVICES", None) == "":
+        return False, "no GPU visible (CUDA_VISIBLE_DEVICES is empty)"
+    try:
+        import torch
+    except ImportError:
+        return False, "PyTorch is not installed"
+    try:
+        if not torch.cuda.is_available():
+            return False, "no CUDA GPU"
+        free, _total = torch.cuda.mem_get_info()
+    except Exception as exc:
+        return False, f"the GPU could not be queried ({exc})"
+    gigabytes = free / 1024 ** 3
+    if gigabytes < _RESNET_FREE_GB:
+        return False, (f"the GPU has {gigabytes:.1f} GB free, under the "
+                       f"{_RESNET_FREE_GB:.0f} GB ResNet50 needs")
+    return True, ""
+
+
+def _resnet50_embeddings(paths: Sequence[str], *, batch: int = 32
+                         ) -> np.ndarray:
+    """ImageNet ResNet50 features of crop images, one 2048-vector each.
+
+    The network is a fixed feature extractor on the GPU; nothing is trained.
+
+    :param paths: crop image files.
+    :param batch: images per forward pass.
+    :returns: ``(len(paths), 2048)`` features.
+    """
+    import torch
+    from PIL import Image
+    from torchvision.models import ResNet50_Weights, resnet50
+
+    weights = ResNet50_Weights.IMAGENET1K_V2
+    model = resnet50(weights=weights)
+    model.fc = torch.nn.Identity()
+    model.eval().to("cuda")
+    prepare = weights.transforms()
+    out = []
+    with torch.no_grad():
+        for start in range(0, len(paths), int(batch)):
+            images = torch.stack([
+                prepare(Image.open(str(p)).convert("RGB"))
+                for p in paths[start:start + int(batch)]]).to("cuda")
+            out.append(model(images).float().cpu().numpy())
+    del model
+    torch.cuda.empty_cache()
+    return np.concatenate(out) if out else np.zeros((0, 2048))
+
+
+def _compare_classifiers(x: np.ndarray, y: np.ndarray,
+                         groups: Optional[Sequence[Any]], *,
+                         candidates: Sequence[str] = _CLASSIFY_CANDIDATES,
+                         seed: int = 0, folds: int = _CLASSIFY_FOLDS,
+                         image_x: Optional[np.ndarray] = None,
+                         image_skip: str = "",
+                         group_note: str = "") -> Dict[str, Any]:
+    """Score every candidate on the same grouped folds and pick the best.
+
+    The rule is fixed before any score is seen: the highest macro-F1 of the
+    pooled out-of-fold calls wins, balanced accuracy breaks a tie, and a
+    remaining tie keeps the earlier candidate. Two control rows are scored
+    on the same folds and can never win: the majority class of each
+    training part, and XGBoost fitted on labels permuted inside each
+    training part.
+
+    :param x: one feature row per labelled crop.
+    :param y: class indices.
+    :param groups: well per labelled crop, or None for ungrouped folds.
+    :param candidates: tabular estimator names, in tie-break order.
+    :param seed: the fold, fit and permutation seed.
+    :param folds: the most folds.
+    :param image_x: ResNet50 features of the labelled crops, which adds the
+        ``resnet50`` candidate (a logistic-regression head on them).
+    :param image_skip: why the ResNet50 candidate was not scored, shown in
+        its row; empty leaves the row out.
+    :param group_note: how the folds were grouped.
+    :returns: ``rows`` (``classifier``, ``role``, ``f1_macro``,
+        ``balanced_accuracy``, ``accuracy``, ``note``), ``winner``,
+        ``metric``, ``tie_break``, ``folds``, ``grouped``, ``split`` and
+        ``candidates`` (the ones scored).
+    """
+    y = np.asarray(y, dtype=int)
+    n_classes = int(y.max()) + 1
+    pairs = _classify_folds(y, groups, seed=seed, folds=folds)
+    rows: List[Dict[str, Any]] = []
+    scored: List[str] = []
+    order = list(candidates)
+    if image_x is not None:
+        order.append(_RESNET_NAME)
+    for name in order:
+        row: Dict[str, Any] = {"classifier": name, "role": "candidate",
+                               "note": ""}
+        try:
+            if name == _RESNET_NAME:
+                oof = _oof_probabilities("logistic_regression", image_x, y,
+                                         n_classes, pairs, seed=seed)
+                row["note"] = "ImageNet features, linear head"
+            else:
+                oof = _oof_probabilities(name, x, y, n_classes, pairs,
+                                         seed=seed)
+        except (ImportError, ValueError) as exc:
+            row["note"] = f"skipped: {exc}"
+            rows.append(row)
+            continue
+        row.update(_oof_scores(y, oof))
+        rows.append(row)
+        scored.append(name)
+    if image_x is None and image_skip:
+        rows.append({"classifier": _RESNET_NAME, "role": "candidate",
+                     "note": f"skipped: {image_skip}"})
+    majority = np.zeros((len(y), n_classes), dtype=float)
+    for train, held in pairs:
+        majority[held, int(np.bincount(y[train],
+                                       minlength=n_classes).argmax())] = 1.0
+    rows.append({"classifier": _CONTROL_MAJORITY, "role": "control",
+                 "note": "every held-out crop called the largest class",
+                 **_oof_scores(y, majority)})
+    shuffled = _oof_probabilities(_CLASSIFY_DEFAULT, x, y, n_classes, pairs,
+                                  seed=seed, shuffle=True)
+    rows.append({"classifier": _CONTROL_SHUFFLED, "role": "control",
+                 "note": "XGBoost on labels permuted inside each fold",
+                 **_oof_scores(y, shuffled)})
+    eligible = [r for r in rows if r["role"] == "candidate"
+                and "f1_macro" in r]
+    if not eligible:
+        raise ValueError("No candidate classifier could be scored.")
+    ceiling = max(r["f1_macro"] for r in rows if r["role"] == "control")
+    for row in eligible:
+        if row["f1_macro"] <= ceiling:
+            row["note"] = (row["note"] + "; " if row["note"] else "") + \
+                "does not beat the controls"
+    winner = max(eligible, key=lambda r: (r["f1_macro"],
+                                          r["balanced_accuracy"],
+                                          -order.index(r["classifier"])))
+    grouped = groups is not None
+    return {"rows": rows, "winner": winner["classifier"],
+            "metric": "f1_macro", "tie_break": "balanced_accuracy",
+            "folds": len(pairs), "grouped": grouped,
+            "split": (f"{len(pairs)}-fold, "
+                      + (group_note or ("grouped by well" if grouped
+                                        else "NOT grouped"))),
+            "candidates": scored, "fold_indices": pairs}
+
+
+def _comparison_table(comparison: Mapping[str, Any]) -> pd.DataFrame:
+    """The comparison rows as a table, the winner marked.
+
+    :param comparison: :func:`_compare_classifiers`' result.
+    :returns: one row per candidate and control.
+    """
+    table = pd.DataFrame([
+        {"classifier": r["classifier"], "role": r["role"],
+         "f1_macro": r.get("f1_macro", np.nan),
+         "balanced_accuracy": r.get("balanced_accuracy", np.nan),
+         "accuracy": r.get("accuracy", np.nan),
+         "chosen": r["classifier"] == comparison["winner"],
+         "note": r.get("note", "")} for r in comparison["rows"]])
+    table["split"] = comparison["split"]
+    return table
+
+
+def _apply_class_thresholds(probs: np.ndarray, classes: Sequence[Any],
+                            thresholds: Optional[Mapping[Any, Any]]
+                            ) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+    """The most likely class of each crop, kept only above its threshold.
+
+    :param probs: ``(n, len(classes))`` probabilities.
+    :param classes: the class values, in column order.
+    :param thresholds: ``{class: lowest probability}``; a class not named
+        keeps every crop (threshold 0).
+    :returns: the column of the most likely class, its probability, and the
+        class each crop is assigned as text, empty for unassigned.
+    """
+    probs = np.asarray(probs, dtype=float)
+    best = probs.argmax(axis=1) if len(probs) else np.zeros(0, dtype=int)
+    confidence = (probs[np.arange(len(probs)), best] if len(probs)
+                  else np.zeros(0))
+    rule = {str(k): float(v) for k, v in dict(thresholds or {}).items()}
+    cut = np.asarray([rule.get(str(c), 0.0) for c in classes], dtype=float)
+    assigned = [str(classes[b]) if p >= cut[b] else ""
+                for b, p in zip(best, confidence)]
+    return best, confidence, assigned
+
+
+def _classification_table(keys: Sequence[Any], probs: np.ndarray,
+                          classes: Sequence[Any],
+                          thresholds: Optional[Mapping[Any, Any]], *,
+                          key: str = PNG_KEY) -> pd.DataFrame:
+    """One row per crop: probabilities, the most likely class, the call.
+
+    Probabilities are rounded to :data:`_CLASSIFY_DECIMALS` places before
+    the thresholds are applied, so a table rebuilt from the file and one
+    rebuilt from a refit agree to the byte.
+
+    :param keys: the crop keys.
+    :param probs: ``(n, len(classes))`` probabilities.
+    :param classes: the class values.
+    :param thresholds: ``{class: lowest probability}``.
+    :param key: the crop key column name.
+    :returns: the table.
+    """
+    probs = np.round(np.asarray(probs, dtype=float), _CLASSIFY_DECIMALS)
+    best, confidence, assigned = _apply_class_thresholds(probs, classes,
+                                                         thresholds)
+    table = pd.DataFrame({key: [str(k) for k in keys]})
+    for column, cls in enumerate(classes):
+        table[f"prob_{cls}"] = probs[:, column]
+    table["class_predicted"] = [str(classes[b]) for b in best]
+    table["confidence"] = confidence
+    table["class_thresholded"] = assigned
+    return table
+
+
+def _table_probabilities(table: pd.DataFrame
+                         ) -> Tuple[np.ndarray, List[str]]:
+    """The probability block and class names of a classification table.
+
+    :param table: a table :func:`_classification_table` wrote.
+    :returns: the probabilities and the class values as text.
+    """
+    columns = [c for c in table.columns if str(c).startswith("prob_")]
+    classes = [str(c)[len("prob_"):] for c in columns]
+    return table[columns].to_numpy(dtype=float), classes
+
+
+def _classify_paths(db_path: str, annotation_column: str,
+                    dst: Optional[str] = None) -> Dict[str, str]:
+    """Where a classification of this column writes its files.
+
+    :param db_path: path to ``measurements.db``.
+    :param annotation_column: the label column.
+    :param dst: the output folder; ``annotate_classify`` beside the
+        database when empty.
+    :returns: ``dir``, ``table``, ``comparison`` and ``settings`` paths.
+    """
+    folder = dst or os.path.join(
+        os.path.dirname(os.path.abspath(str(db_path))), _CLASSIFY_DIR)
+    safe = "".join(ch if ch.isalnum() or ch in "-_" else "_"
+                   for ch in str(annotation_column))
+    return {"dir": folder,
+            "table": os.path.join(folder, f"classification_{safe}.csv"),
+            "comparison": os.path.join(folder,
+                                       f"classifier_comparison_{safe}.csv"),
+            "settings": os.path.join(folder,
+                                     f"classification_settings_{safe}.csv")}
+
+
+def _write_table(table: pd.DataFrame, path: str) -> None:
+    """Write a table with fixed float formatting, so reruns match bytes."""
+    from .tabular import write_table
+
+    write_table(table, path, canonicalise=False, float_format="%.6f",
+                lineterminator="\n")
+
+
+def _thresholded_column(annotation_column: str) -> str:
+    """The ``png_list`` column a saved classification writes its calls into.
+
+    :param annotation_column: the label column.
+    :returns: ``<annotation_column>_thresholded``.
+    """
+    return f"{annotation_column}_thresholded"
+
+
+def _write_thresholded_column(db_path: str, table: pd.DataFrame,
+                              column: str, *, png_table: str = PNG_TABLE
+                              ) -> int:
+    """Write each crop's thresholded class into ``png_list``.
+
+    Unassigned crops are written as NULL, so a rerun overwrites every row
+    the classification covers and leaves the same values.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: a classification table.
+    :param column: the ``png_list`` column to write.
+    :param png_table: the crop table.
+    :returns: the rows updated.
+    :raises ValueError: when a class is not a whole number.
+    """
+    from .predictions import merge_prediction_results
+
+    values = []
+    for text in table["class_thresholded"].astype(str):
+        if text == "":
+            values.append(np.nan)
+            continue
+        try:
+            values.append(float(int(float(text))))
+        except ValueError as exc:
+            raise ValueError(
+                f"Class {text!r} is not a whole number, so it cannot be "
+                f"written into the INTEGER column {column!r}.") from exc
+    frame = pd.DataFrame({PNG_KEY: table[PNG_KEY].astype(str).tolist(),
+                          column: values})
+    report = merge_prediction_results(
+        frame, db_path, {column: (column, "INTEGER")}, table=png_table,
+        key=PNG_KEY, verbose=False)
+    return int(getattr(report, "matched_rows", 0) or 0)
+
+
+def _run_classification(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """Classify every crop from a settings dict; the settings-file entry.
+
+    ``classifier_choice`` is ``'xgboost'`` (default) or ``'auto'``; any
+    estimator :func:`_build_round_model` knows is also accepted. Auto
+    scores the candidates with :func:`_compare_classifiers` and classifies
+    with the winner; the candidates scored are written to the settings as
+    ``auto_candidates``, so a rerun on a machine without a free GPU refuses
+    rather than silently comparing fewer. The chosen model is fitted on
+    every label with ``seed``, every crop with features is scored, and
+    ``class_thresholds`` decide which crops are assigned. Writes the
+    classification table, the comparison table (Auto) and the settings file
+    (CSV and JSON) under ``dst``; rerunning that settings file gives the
+    same table.
+
+    :param settings: ``db_path``, ``annotation_column``, and optionally
+        ``png_table``, ``image_type``, ``classifier_choice``, ``seed``,
+        ``folds``, ``class_thresholds``, ``feature_tables``,
+        ``feature_channels``, ``feature_families``, ``auto_candidates``,
+        ``dst`` and ``write_png_list`` (write the thresholded classes into
+        ``png_list`` as ``<annotation_column>_thresholded``; Save turns it
+        on).
+    :returns: ``table`` (DataFrame), ``classes``, ``classifier``,
+        ``comparison`` (or None), ``paths`` and ``settings`` (as written).
+    """
+    from .cli import write_settings_file
+
+    s = dict(settings)
+    db_path = str(s.get("db_path") or "")
+    column = str(s.get("annotation_column") or "annotate")
+    table_name = str(s.get("png_table") or PNG_TABLE)
+    choice = str(s.get("classifier_choice") or _CLASSIFY_DEFAULT).lower()
+    seed = int(s.get("seed") or 0)
+    folds = int(s.get("folds") or _CLASSIFY_FOLDS)
+    thresholds = {str(k): round(float(v), 2) for k, v in
+                  dict(s.get("class_thresholds") or {}).items()}
+    if choice == _RESNET_NAME:
+        raise ValueError(
+            "ResNet50 is trained in the Classify (CV) screen; choose 'auto' "
+            "or a tabular classifier here.")
+
+    inputs = _classify_inputs(
+        db_path, column, table=table_name, image_type=s.get("image_type"),
+        feature_tables=_listed_setting(s, "feature_tables"),
+        feature_channels=_listed_setting(s, "feature_channels"),
+        feature_families=_listed_setting(s, "feature_families"))
+    comparison = None
+    classifier = choice
+    x_fit, x_all = inputs["x"], inputs["x_all"]
+    if choice == "auto":
+        wanted = _listed_setting(s, "auto_candidates")
+        tabular = [c for c in (wanted or _CLASSIFY_CANDIDATES)
+                   if c != _RESNET_NAME]
+        ready, why = _resnet50_gate()
+        if wanted is not None and _RESNET_NAME in wanted and not ready:
+            raise ValueError(
+                f"This settings file compared ResNet50, and no GPU is free "
+                f"for it here: {why}.")
+        use_image = ready if wanted is None else _RESNET_NAME in wanted
+        image_x = None
+        if use_image:
+            image_x = _resnet50_embeddings(inputs["labelled"])
+        comparison = _compare_classifiers(
+            x_fit, inputs["y"], inputs["groups"], candidates=tabular,
+            seed=seed, folds=folds, image_x=image_x,
+            image_skip="" if use_image else why,
+            group_note=inputs["group_note"])
+        classifier = comparison["winner"]
+        s["auto_candidates"] = list(comparison["candidates"])
+        if classifier == _RESNET_NAME:
+            x_fit = image_x
+            x_all = _resnet50_embeddings(inputs["keys"])
+    classes = inputs["classes"]
+    model_name = ("logistic_regression" if classifier == _RESNET_NAME
+                  else classifier)
+    model = _build_round_model(model_name, seed, len(classes),
+                               n_samples=len(inputs["y"]))
+    with _few_threads(len(inputs["y"])):
+        model.fit(x_fit, inputs["y"])
+    probs = _predict_proba(model, x_all, len(classes))
+    table = _classification_table(inputs["keys"], probs, classes, thresholds)
+    paths = _classify_paths(db_path, column, s.get("dst"))
+    os.makedirs(paths["dir"], exist_ok=True)
+    _write_table(table, paths["table"])
+    if comparison is not None:
+        _write_table(_comparison_table(comparison), paths["comparison"])
+    if s.get("write_png_list"):
+        _write_thresholded_column(db_path, table,
+                                  _thresholded_column(column),
+                                  png_table=table_name)
+    s.update({"db_path": db_path, "annotation_column": column,
+              "png_table": table_name, "classifier_choice": choice,
+              "classifier": classifier, "seed": seed, "folds": folds,
+              "class_thresholds": {str(c): thresholds.get(str(c), 0.0)
+                                   for c in classes},
+              "dst": paths["dir"]})
+    write_settings_file(s, paths["settings"])
+    return {"table": table, "classes": classes, "classifier": classifier,
+            "comparison": comparison, "paths": paths, "settings": s}
+
+
+def _rerun_classification(settings_path: str) -> Dict[str, Any]:
+    """Rerun a classification from the settings file it wrote.
+
+    :param settings_path: the ``classification_settings_<column>.csv`` (or
+        its ``.json`` twin).
+    :returns: what :func:`_run_classification` returns.
+    """
+    from .cli import load_settings_file
+
+    return _run_classification(load_settings_file(str(settings_path)))
+
+
+def _save_class_thresholds(settings_path: str,
+                           thresholds: Mapping[Any, Any]) -> Dict[str, Any]:
+    """Store new class thresholds and re-call the table without a refit.
+
+    Also writes the thresholded classes into ``png_list`` as
+    ``<annotation_column>_thresholded`` (unassigned as NULL) and records
+    ``write_png_list`` in the settings, so a rerun writes the same column.
+
+    :param settings_path: the classification settings file.
+    :param thresholds: ``{class: lowest probability}``.
+    :returns: ``table`` (DataFrame) and ``paths``.
+    """
+    from .cli import load_settings_file, write_settings_file
+
+    s = load_settings_file(str(settings_path))
+    paths = _classify_paths(s.get("db_path", ""),
+                            s.get("annotation_column", "annotate"),
+                            s.get("dst"))
+    from .tabular import read_table
+
+    stored = read_table(paths["table"], canonicalise=False, report=None,
+                        dtype={PNG_KEY: str}, keep_default_na=False)
+    probs, classes = _table_probabilities(stored)
+    rule = {str(k): round(float(v), 2) for k, v in dict(thresholds).items()}
+    table = _classification_table(stored[PNG_KEY].tolist(), probs, classes,
+                                  rule)
+    _write_table(table, paths["table"])
+    s["class_thresholds"] = {str(c): rule.get(str(c), 0.0) for c in classes}
+    s["write_png_list"] = True
+    _write_thresholded_column(
+        str(s.get("db_path", "")), table,
+        _thresholded_column(s.get("annotation_column", "annotate")),
+        png_table=str(s.get("png_table") or PNG_TABLE))
+    write_settings_file(s, paths["settings"])
+    return {"table": table, "paths": paths, "settings": s}

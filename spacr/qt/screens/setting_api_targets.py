@@ -433,6 +433,7 @@ SETTING_API_TARGETS = {
     'image_qc_mode': ('spacr.core', 'preprocess_generate_masks', True),
     'image_qc_saturation_level': ('spacr.image_quality', 'assess_image', True),
     'image_size': ('spacr.crop_source', 'crops_from_merged', True),
+    'image_type': ('spacr.active_learning', '', False),
     'img_zoom': ('spacr.core', 'generate_image_umap', True),
     'include_all': ('spacr.submodules', 'interpret_vision_model', True),
     'independent_variable_layout': ('spacr.ml', '', False),

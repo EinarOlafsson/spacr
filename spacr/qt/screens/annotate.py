@@ -111,6 +111,7 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
+    QGraphicsOpacityEffect,
     QGridLayout,
     QHBoxLayout,
     QInputDialog,
@@ -122,6 +123,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QProgressBar,
+    QProxyStyle,
     QPushButton,
     QRadioButton,
     QRubberBand,
@@ -130,6 +132,7 @@ from PySide6.QtWidgets import (
     QSlider,
     QSpinBox,
     QStackedWidget,
+    QStyle,
     QTableWidget,
     QToolButton,
     QVBoxLayout,
@@ -2189,6 +2192,362 @@ class _SuggestModelDialog(QDialog):
     def counts_text(self) -> str:
         """The counts line, as shown."""
         return self._counts.text()
+
+
+class _ClassifyWorker(QThread):
+    """Classify every crop off the GUI thread (item 963).
+
+    Runs :func:`spacr.active_learning._run_classification` on a copy of the
+    settings, which compares the classifiers first when the choice is Auto.
+    Guarded at both ends for the reason ``_RetrainWorker.run`` gives.
+    """
+
+    done = Signal(object)
+    failed = Signal(str)
+
+    def __init__(self, settings: Dict[str, Any], parent=None):
+        """Carry one classification's settings onto a worker thread.
+
+        :param settings: the classification settings, COPIED for the reason
+            ``_RetrainWorker.__init__`` gives.
+        :param parent: parent object.
+        """
+        super().__init__(parent)
+        self._settings = dict(settings)
+
+    def run(self):
+        """Classify, and hand back the result or why it failed."""
+        try:
+            from ... import active_learning as al
+            result = al._run_classification(self._settings)
+        except Exception as exc:
+            try:
+                self.failed.emit(f"{type(exc).__name__}: {exc}")
+            except RuntimeError:
+                pass
+            return
+        try:
+            if self.isInterruptionRequested():
+                return
+            self.done.emit(result)
+        except RuntimeError:
+            pass
+
+
+class _JumpSliderStyle(QProxyStyle):
+    """A slider style where a left click puts the handle under the pointer."""
+
+    def styleHint(self, hint, option=None, widget=None, returnData=None):
+        """Jump to the clicked position instead of stepping a page.
+
+        :param hint: the style hint asked for.
+        :param option: the style option.
+        :param widget: the widget asking.
+        :param returnData: extra data.
+        :returns: the hint's value.
+        """
+        if hint == QStyle.SH_Slider_AbsoluteSetButtons:
+            return int(Qt.LeftButton.value)
+        return super().styleHint(hint, option, widget, returnData)
+
+
+class _ClassThresholdDialog(QDialog):
+    """Set a confidence threshold per class while looking at its crops.
+
+    Opens when a classification finishes. For the chosen class it shows the
+    crops the model calls that class, most confident first (at most
+    :attr:`MAX_TILES`, spread evenly over the sorted list), and a slider for
+    that class's threshold. Crops whose confidence is under the threshold
+    are dimmed and captioned unassigned as the slider moves, without a
+    refit. Save stores the thresholds in the classification settings file
+    and re-calls the classification table
+    (:func:`spacr.active_learning._save_class_thresholds`). With Auto, the
+    comparison table and its control rows are shown above. Item 963, alpha.
+    """
+
+    thresholds_saved = Signal(object)
+    MAX_TILES = 48
+    TILE = 88
+    COLUMNS = 6
+
+    def __init__(self, result: Dict[str, Any], parent=None):
+        """Build the window from a classification result.
+
+        :param result: :func:`spacr.active_learning._run_classification`'s
+            result.
+        :param parent: parent widget.
+        """
+        super().__init__(parent)
+        self.setWindowFlag(Qt.Window, True)
+        self.setObjectName("AnnotateClassThresholds")
+        self.setWindowTitle(tr("Class thresholds"))
+        self.resize(760, 720)
+        self._table = result["table"]
+        self._classes = [str(c) for c in result["classes"]]
+        self._settings_path = str(result["paths"]["settings"])
+        saved = dict(result.get("settings", {}).get("class_thresholds") or {})
+        self._thresholds: Dict[str, float] = {
+            c: float(saved.get(c, 0.0)) for c in self._classes}
+        self._tiles: List[Tuple[QWidget, QLabel, float]] = []
+        layout = QVBoxLayout(self)
+        summary = QLabel(tr(
+            "{n} objects classified with {model}. Each object is called its "
+            "most likely class; it stays unassigned when that probability is "
+            "under the class's threshold.",
+            n=f"{len(self._table):,}", model=str(result["classifier"])), self)
+        summary.setObjectName("AnnotateClassifySummary")
+        summary.setWordWrap(True)
+        layout.addWidget(summary)
+        comparison = result.get("comparison")
+        if comparison:
+            layout.addWidget(self._comparison_view(comparison))
+        row = QHBoxLayout()
+        row.addWidget(QLabel(tr("Class"), self))
+        self._class_box = QComboBox(self)
+        self._class_box.setObjectName("AnnotateClassThresholdClass")
+        for cls in self._classes:
+            self._class_box.addItem(cls, cls)
+        row.addWidget(self._class_box)
+        row.addWidget(QLabel(tr("Threshold"), self))
+        self._slider = QSlider(Qt.Horizontal, self)
+        self._slider.setObjectName("AnnotateClassThresholdSlider")
+        self._slider_style = _JumpSliderStyle()
+        self._slider_style.setParent(self)
+        self._slider.setStyle(self._slider_style)
+        self._slider.setRange(0, 100)
+        self._slider.setSingleStep(1)
+        self._slider.setPageStep(5)
+        self._slider.setToolTip(tr(
+            "The lowest probability at which an object is called this class. "
+            "Objects under it are left unassigned. Default 0.00, which keeps "
+            "every object."))
+        row.addWidget(self._slider, 1)
+        self._value = QLabel(self)
+        self._value.setObjectName("AnnotateClassThresholdValue")
+        self._value.setMinimumWidth(40)
+        row.addWidget(self._value)
+        layout.addLayout(row)
+        self._counts = QLabel(self)
+        self._counts.setObjectName("AnnotateClassThresholdCounts")
+        self._counts.setWordWrap(True)
+        layout.addWidget(self._counts)
+        self._grid_host = QWidget(self)
+        self._grid = QGridLayout(self._grid_host)
+        self._grid.setSpacing(4)
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self._grid_host)
+        layout.addWidget(scroll, 1)
+        self._status = QLabel(self)
+        self._status.setObjectName("AnnotateClassThresholdStatus")
+        self._status.setWordWrap(True)
+        layout.addWidget(self._status)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
+        self._save = buttons.addButton(tr("Save thresholds"),
+                                       QDialogButtonBox.ApplyRole)
+        self._save.setObjectName("AnnotateClassThresholdSave")
+        self._save.setToolTip(tr(
+            "Write these thresholds into the classification settings file "
+            "and re-call the classification table from its stored "
+            "probabilities. Rerunning the settings file gives the same "
+            "table."))
+        self._save.clicked.connect(self.save)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+        self._class_box.currentIndexChanged.connect(self._on_class)
+        self._slider.valueChanged.connect(self._on_slider)
+        self._on_class(0)
+
+    def _comparison_view(self, comparison: Dict[str, Any]) -> QWidget:
+        """The Auto comparison: one row per candidate and control.
+
+        :param comparison: the comparison the run made.
+        :returns: the table and its glossary.
+        """
+        host = QWidget(self)
+        box = QVBoxLayout(host)
+        box.setContentsMargins(0, 0, 0, 0)
+        heading = QLabel(tr(
+            "Auto chose {winner}: highest macro-F1 on held-out folds "
+            "({split}), balanced accuracy breaking ties.",
+            winner=str(comparison["winner"]),
+            split=str(comparison["split"])), host)
+        heading.setWordWrap(True)
+        box.addWidget(heading)
+        rows = comparison["rows"]
+        view = QTableWidget(len(rows), 5, host)
+        view.setObjectName("AnnotateClassifierComparison")
+        view.setHorizontalHeaderLabels([
+            tr("Classifier"), tr("Macro-F1 score"), tr("Balanced accuracy"),
+            tr("Accuracy"), tr("Note")])
+        view.verticalHeader().setVisible(False)
+        view.setEditTriggers(QTableWidget.NoEditTriggers)
+        install_sorting(view)
+        view.setSortingEnabled(False)
+        for i, row in enumerate(rows):
+            cells = [str(row["classifier"])]
+            for name in ("f1_macro", "balanced_accuracy", "accuracy"):
+                value = row.get(name)
+                cells.append("" if value is None else f"{float(value):.3f}")
+            note = str(row.get("note") or "")
+            if row["classifier"] == comparison["winner"]:
+                note = tr("chosen") + (f"; {note}" if note else "")
+            cells.append(note)
+            for j, text in enumerate(cells):
+                item = _spare_table_item(view, text)
+                if row["classifier"] == comparison["winner"]:
+                    font = item.font()
+                    font.setBold(True)
+                    item.setFont(font)
+                view.setItem(i, j, item)
+        view.setSortingEnabled(True)
+        install_sorting(view)
+        view.resizeColumnsToContents()
+        view.setMaximumHeight(36 + 26 * len(rows))
+        box.addWidget(view)
+        glossary = QLabel(tr(
+            "Macro-F1: the F1 score (harmonic mean of precision and recall) "
+            "of each class, averaged over the classes. Balanced accuracy: "
+            "the recall of each class, averaged over the classes. Control "
+            "rows: the largest class called for every object, and XGBoost "
+            "fitted on shuffled labels; they cannot be chosen."), host)
+        glossary.setWordWrap(True)
+        box.addWidget(glossary)
+        return host
+
+    def current_class(self) -> str:
+        """The class whose crops and threshold are shown."""
+        return str(self._class_box.currentData())
+
+    def thresholds(self) -> Dict[str, float]:
+        """Every class's threshold as set now."""
+        return dict(self._thresholds)
+
+    def tile_states(self) -> List[Tuple[float, bool]]:
+        """``(confidence, assigned)`` of each tile shown, in grid order."""
+        cut = self._thresholds.get(self.current_class(), 0.0)
+        return [(conf, conf >= cut) for _t, _c, conf in self._tiles]
+
+    def _clear_tiles(self) -> None:
+        """Remove the tiles of the class shown before."""
+        from ..widgets.flow import _take_every_item
+
+        for widget, _nested in _take_every_item(self._grid):
+            if widget is not None:
+                widget.deleteLater()
+        self._tiles = []
+
+    def _make_tile(self, path: str, confidence: float
+                   ) -> Tuple[QWidget, QLabel]:
+        """One crop with its probability underneath.
+
+        :param path: the crop image.
+        :param confidence: the probability of the class shown.
+        :returns: the tile and its caption.
+        """
+        tile = QWidget(self._grid_host)
+        tile.setObjectName("AnnotateClassThresholdTile")
+        tile.setToolTip(path)
+        box = QVBoxLayout(tile)
+        box.setContentsMargins(2, 2, 2, 2)
+        box.setSpacing(1)
+        picture = QLabel(tile)
+        picture.setAlignment(Qt.AlignCenter)
+        picture.setFixedSize(self.TILE, self.TILE)
+        image = QImage(path)
+        if not image.isNull():
+            from ..hidpi import scaled_for
+
+            picture.setPixmap(QPixmap.fromImage(
+                scaled_for(image, picture, self.TILE)))
+        box.addWidget(picture)
+        caption = QLabel(f"{confidence:.2f}", tile)
+        caption.setAlignment(Qt.AlignCenter)
+        box.addWidget(caption)
+        return tile, caption
+
+    def _on_class(self, _index: int) -> None:
+        """Show the chosen class's crops, most confident first."""
+        import numpy as np
+
+        cls = self.current_class()
+        self._clear_tiles()
+        rows = self._table[self._table["class_predicted"].astype(str) == cls]
+        rows = rows.sort_values("confidence", ascending=False, kind="stable")
+        if len(rows) > self.MAX_TILES:
+            picks = np.unique(np.linspace(0, len(rows) - 1,
+                                          self.MAX_TILES).round().astype(int))
+            rows = rows.iloc[picks]
+        key = str(self._table.columns[0])
+        for n, (path, conf) in enumerate(zip(rows[key].astype(str),
+                                             rows["confidence"])):
+            tile, caption = self._make_tile(path, float(conf))
+            self._grid.addWidget(tile, n // self.COLUMNS, n % self.COLUMNS)
+            self._tiles.append((tile, caption, float(conf)))
+        self._slider.blockSignals(True)
+        self._slider.setValue(int(round(self._thresholds.get(cls, 0.0)
+                                        * 100)))
+        self._slider.blockSignals(False)
+        self._refresh()
+
+    def _on_slider(self, value: int) -> None:
+        """Move the shown class's threshold and update the grid at once."""
+        self._thresholds[self.current_class()] = round(int(value) / 100.0, 2)
+        self._refresh()
+
+    def _refresh(self) -> None:
+        """Mark each tile assigned or unassigned and update the counts."""
+        import numpy as np
+
+        cls = self.current_class()
+        cut = self._thresholds.get(cls, 0.0)
+        self._value.setText(f"{cut:.2f}")
+        for tile, caption, conf in self._tiles:
+            below = conf < cut
+            tile.setProperty("unassigned", below)
+            caption.setText(tr("{p} unassigned", p=f"{conf:.2f}") if below
+                            else f"{conf:.2f}")
+            effect = None
+            if below:
+                effect = QGraphicsOpacityEffect(tile)
+                effect.setOpacity(0.3)
+            tile.setGraphicsEffect(effect)
+        frame = self._table
+        conf = frame["confidence"].to_numpy(dtype=float)
+        called = frame["class_predicted"].astype(str).to_numpy()
+        mine = called == cls
+        kept_mine = int(np.sum(mine & (conf >= cut)))
+        total_kept = sum(
+            int(np.sum((called == name)
+                       & (conf >= self._thresholds.get(name, 0.0))))
+            for name in self._classes)
+        self._counts.setText(tr(
+            "Class {c}: {kept} assigned, {left} unassigned. All classes: "
+            "{all_kept} assigned, {all_left} unassigned.",
+            c=cls, kept=f"{kept_mine:,}",
+            left=f"{int(mine.sum()) - kept_mine:,}",
+            all_kept=f"{total_kept:,}",
+            all_left=f"{len(frame) - total_kept:,}"))
+
+    def save(self) -> Optional[str]:
+        """Write the thresholds and the re-called table.
+
+        :returns: the settings file, or None when it could not be written.
+        """
+        from ... import active_learning as al
+
+        try:
+            saved = al._save_class_thresholds(self._settings_path,
+                                              self._thresholds)
+        except Exception as exc:
+            self._status.setText(tr("Could not save the thresholds: {why}",
+                                    why=str(exc)))
+            return None
+        self._table = saved["table"]
+        self._status.setText(tr("Saved to {path}.",
+                                path=self._settings_path))
+        self.thresholds_saved.emit(dict(self._thresholds))
+        return self._settings_path
 
 
 class _TextReportDialog(QDialog):
@@ -5216,6 +5575,8 @@ class AnnotateScreen(QWidget):
         self._suggest_probs: Dict[str, Dict[int, float]] = {}
         self._suggest_thresholds: Optional[Dict[str, Any]] = None
         self._suggest_model_dialog: Optional["_SuggestModelDialog"] = None
+        self._classify_worker: Optional[_ClassifyWorker] = None
+        self._class_threshold_dialog: Optional["_ClassThresholdDialog"] = None
         self._sort_mode = "original"
         self._last_round = None
         self._stop_verdict = None
@@ -5578,6 +5939,7 @@ class AnnotateScreen(QWidget):
         self._btn_suggest_model.clicked.connect(self._open_suggest_model)
         self._btn_suggest_model.setEnabled(False)
         groups["model"].append(self._btn_suggest_model)
+        groups["model"].append(self._build_classify_button())
         groups["navigate"].append(self._build_sort_control())
 
         self._btn_curve = QPushButton("Rounds")
@@ -8593,6 +8955,187 @@ class AnnotateScreen(QWidget):
         }
         self.train_requested.emit("ml_analyze", seed)
 
+    def _build_classify_button(self) -> QPushButton:
+        """The Classify button and its classifier menu (item 963).
+
+        Auto classifier compares the candidate classifiers on held-out wells
+        and classifies with the best; XGBoost (default) classifies with
+        XGBoost; ResNet50 hands the source to the Classify (CV) screen. A
+        finished classification opens :class:`_ClassThresholdDialog`. An
+        alpha feature, registered as ``AnnotateClassify`` in
+        :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button.
+        """
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Classify"), self)
+        button.setObjectName("AnnotateClassify")
+        button.setIcon(iconset.icon("classify"))
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Classify every object from the labels made so far, then set a "
+            "confidence threshold per class while looking at its objects. "
+            "Auto classifier compares the classifiers on held-out wells and "
+            "uses the best. Results go to annotate_classify beside the "
+            "database; the labels are not changed. Default XGBoost."))
+        menu = QMenu(button)
+        auto = menu.addAction(iconset.icon("chart"), tr("Auto classifier"))
+        auto.setObjectName("AnnotateClassifyAuto")
+        auto.setToolTip(tr(
+            "Score XGBoost, gradient boosting, LightGBM, random forest, extra "
+            "trees and logistic regression (and ResNet50 features when a GPU "
+            "is free) on held-out wells, with a majority-class and a "
+            "shuffled-label control, and classify with the highest "
+            "macro-F1."))
+        auto.triggered.connect(lambda: self._start_classify("auto"))
+        xgb = menu.addAction(iconset.icon("classify"),
+                             tr("XGBoost (default)"))
+        xgb.setObjectName("AnnotateClassifyXGBoost")
+        xgb.setToolTip(tr(
+            "Fit XGBoost on every label and classify every object."))
+        xgb.triggered.connect(lambda: self._start_classify("xgboost"))
+        resnet = menu.addAction(iconset.icon("classify"),
+                                 tr("ResNet50 on the images…"))
+        resnet.setObjectName("AnnotateClassifyResNet50")
+        resnet.setToolTip(tr(
+            "Train ResNet50 on the crop images in the Classify screen, with "
+            "this source and column filled in."))
+        resnet.triggered.connect(self._on_classify_resnet50)
+        button.setMenu(menu)
+        self._classify_menu = menu
+        _apply_alpha_widgets(button)
+        self._btn_classify = button
+        return button
+
+    def _classify_settings(self, choice: str) -> Dict[str, Any]:
+        """The settings a classification of the open column runs with.
+
+        :param choice: ``'auto'`` or ``'xgboost'``.
+        :returns: the settings for ``_run_classification``.
+        """
+        return {
+            "db_path": self._settings.db_path,
+            "annotation_column": self._settings.annotation_column,
+            "png_table": self._settings.png_table,
+            "image_type": self._settings.image_type,
+            "classifier_choice": choice,
+            "seed": 0,
+            "class_thresholds": {},
+            **self._suggest_selection_options(None),
+        }
+
+    def _start_classify(self, choice: str) -> Optional["_ClassifyWorker"]:
+        """Classify every object off the GUI thread.
+
+        :param choice: ``'auto'`` or ``'xgboost'``.
+        :returns: the started worker, or None when nothing was started.
+        """
+        if not self._settings.db_path:
+            QMessageBox.information(
+                self, tr("Open a source first"),
+                tr("Open an experiment source before classifying."))
+            return None
+        if self._classify_worker is not None:
+            self._status_label.setText(tr("A classification is already "
+                                          "running."))
+            return None
+        if self._counting():
+            self._status_label.setText(tr(
+                "Classify is off for a count column."))
+            return None
+        self._drain_saves()
+        self._btn_classify.setEnabled(False)
+        self._status_label.setText(
+            tr("Comparing classifiers on held-out wells, then classifying…")
+            if choice == "auto" else tr("Classifying every object…"))
+        worker = _ClassifyWorker(self._classify_settings(choice), parent=self)
+        worker.done.connect(self._on_classify_done)
+        worker.failed.connect(self._on_classify_failed)
+        worker.finished.connect(self._on_classify_finished)
+        self._classify_worker = worker
+        worker.start()
+        return worker
+
+    @Slot(object)
+    def _on_classify_done(self, result) -> None:
+        """Say what was classified and open the per-class thresholds."""
+        self._status_label.setText(tr(
+            "Classified {n} objects with {model}.",
+            n=f"{len(result['table']):,}", model=str(result["classifier"])))
+        self._console.append_notice(
+            "Classified {n} objects with {model}; table: {path}\n",
+            n=f"{len(result['table']):,}", model=str(result["classifier"]),
+            path=str(result["paths"]["table"]))
+        self._open_class_thresholds(result)
+
+    def _open_class_thresholds(self, result) -> "_ClassThresholdDialog":
+        """Open the per-class threshold window on a classification.
+
+        :param result: the classification.
+        :returns: the window.
+        """
+        old = self._class_threshold_dialog
+        if old is not None:
+            try:
+                old.close()
+            except RuntimeError:
+                pass
+        dialog = _ClassThresholdDialog(result, self)
+        dialog.setAttribute(Qt.WA_DeleteOnClose)
+        dialog.destroyed.connect(self._forget_class_thresholds)
+        self._class_threshold_dialog = dialog
+        dialog.show()
+        return dialog
+
+    def _forget_class_thresholds(self, *_args) -> None:
+        """Drop the closed threshold window."""
+        self._class_threshold_dialog = None
+
+    @Slot(str)
+    def _on_classify_failed(self, message: str) -> None:
+        """A classification could not run: say why."""
+        self._status_label.setText(tr("Classify failed: {msg}", msg=message))
+        self._console.append_notice("Classify failed: {msg}\n", msg=message)
+
+    @Slot()
+    def _on_classify_finished(self) -> None:
+        """Retire the classification thread on the GUI thread."""
+        worker = self._classify_worker
+        self._classify_worker = None
+        try:
+            self._btn_classify.setEnabled(True)
+        except RuntimeError:
+            return
+        if worker is None:
+            return
+        for signal, slot in ((worker.done, self._on_classify_done),
+                             (worker.failed, self._on_classify_failed),
+                             (worker.finished, self._on_classify_finished)):
+            try:
+                signal.disconnect(slot)
+            except (RuntimeError, TypeError):
+                pass
+        _retire(worker)
+
+    def _on_classify_resnet50(self) -> None:
+        """Hand the source to the Classify (CV) screen with ResNet50."""
+        if not self._settings.src:
+            QMessageBox.information(
+                self, tr("Open a source first"),
+                tr("Open an experiment source before training a classifier."))
+            return
+        self._flush_pending()
+        self.train_requested.emit("classify", {
+            "src": self._settings.src,
+            "annotation_column": self._settings.annotation_column,
+            "dataset_mode": "annotation",
+            "generate_training_dataset": True,
+            "train": True,
+            "apply_model_to_dataset": True,
+            "model_type": "resnet50",
+        })
+
     def _on_clear_column(self):
         """Clear every annotation in one column, after confirming."""
         col = self._settings.annotation_column
@@ -10293,6 +10836,23 @@ class AnnotateScreen(QWidget):
                 _retire(suggest)
             else:
                 suggest.setParent(None)
+        classify = self._classify_worker
+        if classify is not None:
+            classify.requestInterruption()
+            stopped = drain_thread(classify, timeout_ms=CLOSE_DRAIN_MS)
+            self._classify_worker = None
+            for signal, slot in ((classify.done, self._on_classify_done),
+                                 (classify.failed, self._on_classify_failed),
+                                 (classify.finished,
+                                  self._on_classify_finished)):
+                try:
+                    signal.disconnect(slot)
+                except (RuntimeError, TypeError):
+                    pass
+            if stopped:
+                _retire(classify)
+            else:
+                classify.setParent(None)
         if self._worker:
             self._worker.stop(wait=True)
             self._worker = None
