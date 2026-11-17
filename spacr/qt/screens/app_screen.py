@@ -4219,6 +4219,8 @@ class AppScreen(QWidget):
         yield
         from .settings_model import has_section_explainer
 
+        if self.app_key == "ops" and any(key == "ops_voyager3_enabled" for key, _label, _widget in declared):
+            self._install_voyager3_controls(section)
         if depth == 0 and has_section_explainer(self.app_key, title):
             self._install_section_explainer(section, title)
         if depth == 0 and title == EXAMPLE_DATA_SECTIONS.get(self.app_key):
@@ -6004,6 +6006,21 @@ class AppScreen(QWidget):
         self._ops_example_button = button
         section.add_prose(button, at_top=True)
 
+    def _install_voyager3_controls(self, section) -> None:
+        """Add the Voyager3 button, bar and status line to OPS's section that holds its settings (item 973).
+
+        :param section: the section holding ``ops_voyager3_enabled``.
+        """
+        try:
+            from ..voyager3_panel import install_voyager3_controls
+
+            controls = install_voyager3_controls(self, section)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not add the Voyager3 control", exc_info=True)
+            return
+        if controls is not None:
+            self._voyager3_controls = controls
+
     def load_the_ops_example(self, *, ask=None, folder=None) -> dict:
         """Fill the OPS settings with the test data, fetching it when needed.
 
@@ -7127,6 +7144,12 @@ class AppScreen(QWidget):
             except Exception:
                 LOG.debug("could not re-apply the settings search",
                           exc_info=True)
+        controls = getattr(self, "_voyager3_controls", None)
+        if controls is not None:
+            try:
+                controls._refresh_visibility()
+            except RuntimeError:
+                self._voyager3_controls = None
         self.refresh_maturity_visibility()
         folds = getattr(self, "_category_folds", None)
         refresh_folds = getattr(folds, "_refresh_alpha", None)

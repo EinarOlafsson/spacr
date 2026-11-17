@@ -67,7 +67,7 @@ Sources:
    - Genes are fetched in sorted batches of at most 100. The organism is `ops_voyager3_organism` (default `human`, resolved by `spacr.uniprot.resolve`). The cache is `results/ops_voyager3/uniprot_cache/`.
    - The release is read from UniProt's `X-UniProt-Release` and `X-UniProt-Release-Date` headers and cached beside each batch with the fetch date.
    - **Gene match:** a reviewed entry whose primary gene name equals the symbol; else any entry whose primary name matches; else a reviewed entry listing the symbol as a synonym. Otherwise the gene is "not found".
-   - **Text cleaning:** evidence tags (`{ECO:…}`) and `PubMed:` citations are removed. Text is cut deterministically: function 600 characters; at most 8 GO terms per aspect; pathway and location 300 characters each.
+   - **Text cleaning:** evidence tags (`{ECO:…}`), `PubMed:` citations and membrane-topology phrases are removed. Text is cut deterministically: function 600 characters; at most 8 GO terms per aspect; pathway and location 300 characters each. A prompt over 60,000 characters is rebuilt with compact facts (function 200 characters, 4 GO process terms, no GO component or function terms) and says so.
 3. **Prompt** (template `voyager3-1`, English).
    - A system text, plus one user message per cluster containing:
      - the cluster id and size;
@@ -93,7 +93,7 @@ Sources:
    - `voyager3_gene_facts.csv`: the facts each prompt used.
    - `voyager3_report.md`: per cluster, the role, confidence, supporting genes, misfits and candidates, a provenance header and a glossary.
    - `voyager3_provenance.json`.
-   - With the shuffle control, the same tables with a `_shuffled` suffix and a summary row.
+   - With the shuffle control, the shuffled clusters are extra rows (`kind` `shuffled`, ids `S<cluster>`) in the same tables, and the report's summary has a row for them.
 7. **Replay.** `voyager3_replay(provenance, out_dir)` parses the saved raw responses and writes the tables again with no provider and no network. The run writes its tables through that same code path, so the replay is byte-identical by construction; the proof checks it anyway.
 
 ## Settings (OPS, alpha, all off or empty by default)
