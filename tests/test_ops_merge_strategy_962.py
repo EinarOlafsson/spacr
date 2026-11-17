@@ -299,6 +299,18 @@ def test_the_fallback_rule():
     assert _choose_route(0, 0, 0.25)[0] == "stitch"
 
 
+def test_the_default_fallback_share_leaves_a_five_percent_margin():
+    """Maintainer decision 2026-11-16: a well falls back only when more than
+    5 % of its tile pairs are weak (the A1 rule alone gave 0)."""
+    from spacr.ops_settings import OPS_DEFAULTS
+
+    assert OPS_DEFAULTS["ops_merge_fallback_share"] == 0.05
+    assert ops_engine._merge_strategy_options({})["fallback_share"] == 0.05
+    assert _choose_route(1, 30, 0.05)[0] == "tile"
+    assert _choose_route(5, 100, 0.05)[0] == "tile"
+    assert _choose_route(6, 100, 0.05)[0] == "stitch"
+
+
 def test_the_route_settings_are_alpha():
     from spacr.settings import ALPHA_FEATURES
     from spacr.settings_spec import convert_settings_dict_for_gui

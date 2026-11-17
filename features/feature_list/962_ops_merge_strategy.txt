@@ -45,8 +45,20 @@ BUILD
   percentiles (10/50/90), the well similarity of the stitch route, matched
   phenotype and SBS %, median residual (px), time. The same row is in the
   well's merge report (ops_report.json, report["merge"]["strategy"]).
-- Thresholds: tuned on A1 only by the pre-set rule, validated on A2/A3
-  (see the proof report).
+- Thresholds: ops_merge_min_votes 4 and ops_merge_min_match_fraction 0.51,
+  tuned on A1 only by the pre-set rule and validated on A2/A3.
+  ops_merge_fallback_share 0.05: the rule gave 0 (no weak field in any dense
+  A1 well); the maintainer set a 5 % margin on 2026-11-16, so a well falls
+  back only when more than 5 % of its tile pairs are weak.
+
+PROOF (Funk plate A, A1-A3; reanalysis/item962_proof/REPORT.md)
+- auto within 0.5 points of current on dense wells: PASS.
+- auto beats tile at <= 10 % density: PARTIAL (maintainer decision
+  2026-11-16, landed as alpha). auto beats tile at 2 % in every well and at
+  5 % in A2, ties elsewhere and is never worse; spaCR's tile route still
+  succeeds at 5-10 %, so there is nothing to beat there.
+- spaCR matches or beats Brieflow's best route at every density: PASS
+  (+2.4 points at 20 % to +25.5 at 2 %).
 - Private helpers only (ops_merge._triangle_votes, _compose, _weak_pair,
   _choose_route, _well_similarity;
   ops_engine._merge_*), so no API catalogue records. Labels and tooltips

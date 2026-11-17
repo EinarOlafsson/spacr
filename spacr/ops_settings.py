@@ -77,7 +77,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_merge_stage_positions": None,
     "ops_merge_min_votes": 4,
     "ops_merge_min_match_fraction": 0.51,
-    "ops_merge_fallback_share": 0.0,
+    "ops_merge_fallback_share": 0.05,
     "ops_design": None,
     "ops_control_prefix": "nontargeting",
     "ops_bootstrap": 0,
@@ -1809,7 +1809,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "weak. Default 0.51. Alpha.",
     "ops_merge_fallback_share":
         "(float) - The 'auto' route switches a well to 'stitch' when more "
-        "than this share of its fields are weak. Default 0. Alpha.",
+        "than this share of its fields are weak. Default 0.05. Alpha.",
     "ops_design":
         "(str or None) - The guide design table, with sgRNA and gene_symbol "
         "columns. The aggregate phase matches each decoded barcode prefix to "

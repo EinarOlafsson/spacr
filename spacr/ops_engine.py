@@ -5228,7 +5228,7 @@ def _merge_strategy_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
         settings.get("ops_merge_min_match_fraction"),
         "ops_merge_min_match_fraction", 0.51))
     share = float(_setting_number(settings.get("ops_merge_fallback_share"),
-                                  "ops_merge_fallback_share", 0.0))
+                                  "ops_merge_fallback_share", 0.05))
     if min_votes < 1 or not 0.0 <= fraction <= 1.0 or not 0.0 <= share <= 1.0:
         raise ValueError(tr(
             "ops_merge_min_votes must be at least 1, and "
