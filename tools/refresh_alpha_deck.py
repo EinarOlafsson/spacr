@@ -83,7 +83,8 @@ GROUPS = (
         ("Embeddings: foundation models, DINO pretraining, similarity search",
          (560, 561, 565)),
         ("Well labels to responding cells, anomalies vs controls", (562, 563)),
-        ("Blind scoring and label checks from cross-channel ground truth", (544, 470)),
+        ("Blind scoring and point counts, label checks from cross-channel ground truth",
+         (544, 957, 470)),
         ("Counterfactuals: morph a control cell toward a hit", (564,)),
         ("Classifiers: auto pick, class thresholds, crop scaling, shuffled labels, held-out wells",
          (772, 899, 963)),
@@ -111,7 +112,7 @@ GROUPS = (
         ("False calls, calibrated confidence, matching to other pipelines",
          (876, 877, 878, 922)),
         ("Spot detection, read mode and calling tuned together, prefix decoy FDR",
-         (942, 952, 949)),
+         (942, 952, 949, 955)),
     )),
     ("OPS gene profiles", (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),

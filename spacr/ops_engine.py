@@ -311,8 +311,10 @@ _SCORING_PHASES = ("score",)
 
 #: The cropped-site layout path (alpha, items 919 and 920): index the Cell
 #: Painting Gallery's per-channel site TIFFs, write their painting stacks to
-#: ``merged/``, and decode the sequencing stacks against spacer prefixes.
-_CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode")
+#: ``merged/``, and decode the sequencing stacks against spacer prefixes;
+#: ``prefix_fdr_sweep`` (alpha, item 955) then scores the decoded reads, and
+#: other pipelines' reads, at matched decoy FDR.
+_CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode", "prefix_fdr_sweep")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
@@ -325,16 +327,19 @@ def _run_cpg(settings: Mapping[str, Any], phases: Sequence[str]) -> Dict[str, An
     :param settings: the OPS settings with ``ops_layout`` ``'cpg_cropped'``.
     :param phases: the phases asked for. The default tile phases mean
         ``cpg_index`` and ``cpg_merged``, plus ``prefix_decode`` when
-        ``ops_library_mode`` is ``'spacer_prefix'``.
+        ``ops_library_mode`` is ``'spacer_prefix'``. ``prefix_fdr_sweep``
+        (item 955) runs last and only when asked for; alone it reads files
+        only, so it needs no layout.
     :returns: ``{phase: report}`` and ``"layout": "cpg_cropped"``.
-    :raises ValueError: when the layout is not ``'cpg_cropped'``, when a tile
-        phase is asked for, or when ``prefix_decode`` is asked for without
+    :raises ValueError: when the layout is not ``'cpg_cropped'`` (unless
+        ``prefix_fdr_sweep`` runs alone), when a tile phase is asked for, or
+        when ``prefix_decode`` is asked for without
         ``ops_library_mode='spacer_prefix'``.
     """
     from .cpg_cropped import run_cpg_phases
 
     layout = str(settings.get("ops_layout") or "tiles")
-    if layout != "cpg_cropped":
+    if layout != "cpg_cropped" and tuple(phases) != ("prefix_fdr_sweep",):
         raise ValueError(f"phases {list(_CPG_PHASES)} read the cropped-site layout; "
                          f"set ops_layout to 'cpg_cropped' (got {layout!r})")
     mode = str(settings.get("ops_library_mode") or "barcode")
@@ -356,6 +361,10 @@ def _run_cpg(settings: Mapping[str, Any], phases: Sequence[str]) -> Dict[str, An
         from .ops_prefix import run_prefix_decode
 
         out["prefix_decode"] = run_prefix_decode(settings, report=_say)
+    if "prefix_fdr_sweep" in phases:
+        from .ops_prefix import _run_fdr_sweep_phase
+
+        out["prefix_fdr_sweep"] = _run_fdr_sweep_phase(settings, report=_say)
     return out
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity
