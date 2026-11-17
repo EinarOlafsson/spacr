@@ -25966,7 +25966,7 @@ Read by ``_ph_object_settings``, ``ops_defaults``.
 ops_ph_pathogen_min_area
 ------------------------
 
-Pathogens smaller than this many pixels are dropped; 0 keeps all. Default 0. Alpha.
+Pathogens smaller than this many pixels are dropped before they are counted and measured, which removes debris and noise specks; 0 keeps all. Default 0. Alpha.
 
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
