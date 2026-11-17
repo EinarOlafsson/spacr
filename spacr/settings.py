@@ -9468,6 +9468,16 @@ ALPHA_FEATURES = {
     952: {
         'settings': ('ops_read_mode',),
     },
+    962: {
+        'settings': ('ops_merge_strategy', 'ops_merge_stitch_source', 'ops_merge_stage_positions', 'ops_merge_min_votes', 'ops_merge_min_match_fraction', 'ops_merge_fallback_share',),
+    },
+    963: {
+        'widgets': ('AnnotateClassify',),
+    },
+    958: {
+        'settings': ('ops_objects_resume', 'ops_objects_keep_windows',
+                     'ops_objects_windows_dir'),
+    },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },

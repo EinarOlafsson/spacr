@@ -353,7 +353,7 @@ def test_retrain_round_refuses_requests_it_cannot_honour(subtests, tmp_path):
          "Measure and the crop export ran over the same objects."),
         ("unknown_model_type", project["db"], "annotate", {"model_type": "xgbost"},
          "Unknown model_type 'xgbost'; use 'logistic_regression', 'random_forest', "
-         "'gradient_boosting' or 'xgboost'."),
+         "'extra_trees', 'gradient_boosting', 'lightgbm' or 'xgboost'."),
         ("unknown_group_by", project["db"], "annotate", {"group_by": "Well"},
          "Unknown group_by/cv_group_by split level 'Well'; use one of cell, field, well, plate. "
          "Names are exact and lower-case. 'none' remains an alias for 'cell'."),

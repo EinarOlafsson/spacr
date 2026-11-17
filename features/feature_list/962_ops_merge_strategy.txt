@@ -1,0 +1,69 @@
+OPS MERGE ROUTES: TILE PATTERN HASH, WELL MOSAIC FROM STAGE POSITIONS, AND AN AUTOMATIC FALLBACK
+================================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-16, alpha (ALPHA_FEATURES[962]). Under development per proposals/READINESS.md: not marked Ready; the default 'current' is unchanged. spacr/ops_merge.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, spacr/settings_spec.py, tests/test_ops_merge_strategy_962.py, tests/test_settings_categories.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item962_proof/REPORT.md.
+Requested: maintainer decision 2026-11-16 ("these two strategies should be integrated into spacr"); proof design signed off 2026-11-16 as written.
+Owner: master lane claude-962-1116.
+Source: proposals/bmc_paper_items/ITEM_ops_merge_strategy.md.
+Reference: Brieflow, Nat Commun 2026 (doi 10.1038/s41467-026-73643-7), merge module (tile-by-tile nine-edge hash; well-level stitch from recorded stage coordinates).
+Related: 930 (tile-affine alignment), 936/940 (stitch core, placement seed), 960 (grid search; can sweep the fallback thresholds).
+
+PROBLEM
+spaCR's merge phase aligns each phenotype field from the placement the
+phenotype phase made (anchors plus a raster fit), re-solved on the field's
+own nuclei. Brieflow offers two routes instead: a cell-pattern hash per
+phenotype/sequencing tile pair, and, for sparse screens whose tiles hold too
+few cells for a pattern, a well-level stitch placed from the microscope's
+stage coordinates. spaCR had no strategy switch, no automatic fallback and
+no placement from stage coordinates alone.
+
+BUILD
+- ops_merge_strategy (str, default 'current', alpha), category OPS phenotype:
+  - 'current': today's path; the merge tables are byte-identical (no code
+    on this path changed; checked on Funk plate A well A1, all 1,281 fields).
+  - 'tile': each phenotype field is hashed against the sequencing nuclei
+    under its stored footprint plus 200 px (spacr.ops_merge._triangle_votes:
+    the existing triangle_descriptors, every descriptor match solved at once,
+    votes = triangle pairs whose three vertices land within 3 px of the
+    consensus), then re-solved (refine_field_transform) and paired
+    (merge_field). A field whose hash finds nothing is left unmerged.
+  - 'stitch': both well mosaics, one similarity between them
+    (_well_similarity: up to 9 regions hashed, the agreeing regions' cell
+    pairs pooled into one least-squares similarity, re-solved once), then
+    each field re-solved and paired. ops_merge_stitch_source: 'metadata'
+    (stage positions from the images' OME tags through the existing
+    spacr.image_stitch.read_stage_positions, or from a table given in
+    ops_merge_stage_positions; a clear error when missing) or 'registered'
+    (the stitch and phenotype phases' placements).
+  - 'auto': 'tile' first; a tile pair is weak when its votes are below
+    ops_merge_min_votes or its matched fraction below
+    ops_merge_min_match_fraction; the well falls back to 'stitch' when the
+    share of weak pairs exceeds ops_merge_fallback_share.
+- merge_strategy_report.csv (run folder), one row per well: requested and
+  used route, reason, tile pairs and weak pairs, vote and matched-fraction
+  percentiles (10/50/90), the well similarity of the stitch route, matched
+  phenotype and SBS %, median residual (px), time. The same row is in the
+  well's merge report (ops_report.json, report["merge"]["strategy"]).
+- Thresholds: ops_merge_min_votes 4 and ops_merge_min_match_fraction 0.51,
+  tuned on A1 only by the pre-set rule and validated on A2/A3.
+  ops_merge_fallback_share 0.05: the rule gave 0 (no weak field in any dense
+  A1 well); the maintainer set a 5 % margin on 2026-11-16, so a well falls
+  back only when more than 5 % of its tile pairs are weak.
+
+PROOF (Funk plate A, A1-A3; reanalysis/item962_proof/REPORT.md)
+- auto within 0.5 points of current on dense wells: PASS.
+- auto beats tile at <= 10 % density: PARTIAL (maintainer decision
+  2026-11-16, landed as alpha). auto beats tile at 2 % in every well and at
+  5 % in A2, ties elsewhere and is never worse; spaCR's tile route still
+  succeeds at 5-10 %, so there is nothing to beat there.
+- spaCR matches or beats Brieflow's best route at every density: PASS
+  (+2.4 points at 20 % to +25.5 at 2 %).
+- Private helpers only (ops_merge._triangle_votes, _compose, _weak_pair,
+  _choose_route, _well_similarity;
+  ops_engine._merge_*), so no API catalogue records. Labels and tooltips
+  reviewed in nine languages (spacr-translations branch claude-962-1116).
+
+NOT DONE
+- spaCR has no OPS HTML report; the strategy row is in the CSV and the well
+  report JSON only.

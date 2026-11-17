@@ -184,7 +184,13 @@ ABSENT_FROM_EXPECTED_TYPES = {
     # (``None`` admitted where the tooltip says "Default None") at the end of
     # ``expected_types`` in spacr/settings.py. The cause stays in the
     # vocabulary so a key that arrives in this class is named as one.
-    "tooltip_without_type": (),
+    # 2026-11-16 (item 963): `image_type`, the Annotate image filter, has a
+    # tooltip and no type. It earned a row when the Annotate classification
+    # settings file (spacr.active_learning._run_classification) began
+    # reading it.
+    "tooltip_without_type": (
+        "image_type",
+    ),
     # NOT SETTINGS AT ALL. ``spacr.settings.descriptions`` holds the per-APP
     # blurbs, and the EN catalog carries them inside ``SETTING_TOOLTIPS``
     # beside the real per-setting text -- byte for byte, which is how these

@@ -2153,6 +2153,194 @@ def _compose_blend(settings: Mapping[str, Any]) -> str:
     return blend
 
 
+def _objects_windows_folder(settings: Mapping[str, Any], db: str,
+                            well: str) -> Optional[str]:
+    """Where the objects phase keeps each finished window of a well (item 958).
+
+    :param settings: read for ``ops_objects_resume``, off with False, and
+        ``ops_objects_windows_dir``, the folder that holds one subfolder per
+        well; empty means ``objects_windows`` beside ``measurements.db``.
+    :param db: the measurements database.
+    :param well: the well name.
+    :returns: the well's folder, or None when windows are not kept.
+    """
+    if settings.get("ops_objects_resume") is False:
+        return None
+    root = (str(settings.get("ops_objects_windows_dir") or "").strip()
+            or os.path.join(os.path.dirname(os.path.abspath(db)),
+                            "objects_windows"))
+    return os.path.join(root, well)
+
+
+def _objects_window_basis(settings: Mapping[str, Any], blend: str,
+                          extra: Mapping[str, Any], canvas, shape) -> Dict[str, Any]:
+    """What every window of a well is segmented with, for its key (item 958).
+
+    The device is left out: a window segmented on the card is reused on the
+    CPU, as the same window on either gives the same well.
+
+    :param settings: read for ``cellpose_model`` and ``model_metadata``.
+    :param blend: the compose blend.
+    :param extra: the keywords passed to the model, here the diameter.
+    :param canvas: ``(height, width)`` of the well frame.
+    :param shape: the tile ``(height, width)``.
+    :returns: a JSON-ready mapping.
+    """
+    from importlib import metadata
+
+    from . import __version__
+
+    name = str(settings.get("cellpose_model") or "").strip() or "cpsam"
+    model: Dict[str, Any] = {"name": name}
+    if os.path.isfile(name):
+        stat = os.stat(name)
+        model.update({"size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)})
+    pinned = settings.get("model_metadata")
+    if isinstance(pinned, Mapping):
+        model["pinned"] = (pinned.get("settings") or {}).get("cellpose_model")
+    try:
+        cellpose = metadata.version("cellpose")
+    except metadata.PackageNotFoundError:
+        cellpose = ""
+    return {"format": 1, "spacr_version": __version__, "cellpose": cellpose,
+            "model": model, "eval": dict(extra), "blend": blend,
+            "canvas": [int(canvas[0]), int(canvas[1])],
+            "tile_shape": [int(shape[0]), int(shape[1])]}
+
+
+def _objects_window_key(basis: Mapping[str, Any], window,
+                        usable: Mapping[int, Tuple[float, float]],
+                        sources: Mapping[int, Any],
+                        shape: Tuple[int, int]) -> Tuple[str, bool]:
+    """The key of one window, and whether any tile covers it (item 958).
+
+    :param basis: :func:`_objects_window_basis`.
+    :param window: an :class:`spacr.ops_compose.Window`.
+    :param usable: ``site -> (y, x)`` of the tiles composed.
+    :param sources: ``site -> (path, plane)`` of their nuclear planes.
+    :param shape: the tile ``(height, width)``.
+    :returns: ``(sha256 hex digest, covered)``. The digest covers the
+        window, the basis, and each covering tile's rounded position, file,
+        plane, size and modification time.
+    """
+    import hashlib
+
+    tiles = []
+    for site, (top, left) in sorted(usable.items()):
+        if not _touches(window, {site: (top, left)}, shape):
+            continue
+        path, plane = sources[site]
+        stat = os.stat(path)
+        tiles.append([int(site), int(round(float(top))), int(round(float(left))),
+                      os.path.abspath(path), plane, int(stat.st_size),
+                      int(stat.st_mtime_ns)])
+    text = json.dumps({"basis": basis, "window": [window.top, window.left,
+                                                   window.height, window.width],
+                       "tiles": tiles}, sort_keys=True, default=str)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest(), bool(tiles)
+
+
+def _objects_window_paths(folder: str, window) -> Tuple[str, str]:
+    """The labels file and done marker of one window (item 958).
+
+    :param folder: the well's window folder.
+    :param window: an :class:`spacr.ops_compose.Window`.
+    :returns: ``(labels .npz, marker .json)``.
+    """
+    stem = os.path.join(folder, f"w{int(window.top)}_{int(window.left)}")
+    return stem + ".npz", stem + ".done.json"
+
+
+def _objects_window_load(folder: str, window, key: str):
+    """A finished window whose marker carries ``key``, or None (item 958).
+
+    :param folder: the well's window folder.
+    :param window: an :class:`spacr.ops_compose.Window`.
+    :param key: :func:`_objects_window_key`'s digest.
+    :returns: ``(labels, gain, covered pixels)``, or None when the marker is
+        missing, names another key, or either file cannot be read.
+    """
+    import zipfile
+
+    labels_path, marker_path = _objects_window_paths(folder, window)
+    try:
+        with open(marker_path, encoding="utf-8") as handle:
+            marker = json.load(handle)
+        if marker.get("key") != key:
+            return None
+        with np.load(labels_path) as saved:
+            labels = np.asarray(saved["labels"], np.int32)
+            gain = float(saved["gain"])
+            area = int(saved["area"])
+    except (OSError, ValueError, KeyError, EOFError, zipfile.BadZipFile):
+        return None
+    if labels.shape != (window.height, window.width):
+        return None
+    return labels, gain, area
+
+
+def _objects_window_save(folder: str, window, key: str, labels: np.ndarray,
+                         gain: float, area: int) -> None:
+    """Write one window's labels, then its done marker, each by rename (item 958).
+
+    :param folder: the well's window folder.
+    :param window: an :class:`spacr.ops_compose.Window`.
+    :param key: :func:`_objects_window_key`'s digest.
+    :param labels: the window's labels, uncovered pixels 0.
+    :param gain: the window's :func:`spacr.ops_compose.overlap_gain`.
+    :param area: how many of its pixels a tile covers.
+    """
+    labels_path, marker_path = _objects_window_paths(folder, window)
+    os.makedirs(folder, exist_ok=True)
+    with open(labels_path + ".part", "wb") as handle:
+        np.savez_compressed(handle, labels=np.asarray(labels, np.int32),
+                            gain=np.float64(gain), area=np.int64(area))
+    os.replace(labels_path + ".part", labels_path)
+    with open(marker_path + ".part", "w", encoding="utf-8") as handle:
+        json.dump({"key": key, "top": int(window.top), "left": int(window.left),
+                   "labels": os.path.basename(labels_path)}, handle)
+    os.replace(marker_path + ".part", marker_path)
+
+
+def _objects_windows_clear(folder: str) -> int:
+    """Delete a well's window files and its folder once empty (item 958).
+
+    :param folder: the well's window folder.
+    :returns: how many files were deleted.
+    """
+    if not os.path.isdir(folder):
+        return 0
+    deleted = 0
+    for name in os.listdir(folder):
+        if re.fullmatch(r"w\d+_\d+\.(npz|done\.json)(\.part)?", name):
+            os.remove(os.path.join(folder, name))
+            deleted += 1
+    parent = os.path.dirname(folder)
+    for path in ((folder, parent) if os.path.basename(parent) == "objects_windows"
+                 else (folder,)):
+        try:
+            os.rmdir(path)
+        except OSError:
+            break
+    return deleted
+
+
+def _objects_windows_journal(well: str, summary: Mapping[str, Any]) -> None:
+    """Note a well's window checkpoints on the open run journal (item 958).
+
+    :param well: the well name.
+    :param summary: the counts of windows reused, computed and empty, and
+        what was kept or deleted.
+    """
+    from .run_journal import current_run
+
+    run = current_run()
+    if run is not None:
+        run._record_stage(f"ops_objects_windows_{well}",
+                          label=f"OPS objects windows, well {well}",
+                          state="done", metrics=dict(summary))
+
+
 def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
              settings: Mapping[str, Any], gpu: bool) -> Dict[str, Any]:
     """Compose, segment, sew and number the well; store ``ops_objects``.
@@ -2163,10 +2351,18 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
     :param reference: the cycle carrying the nuclear stain.
     :param settings: read for the Cellpose model and diameter, for
-        ``ops_compose_blend``, and for ``ops_sites``, which limits the
-        composed tiles to the listed sites (item 951).
+        ``ops_compose_blend``, for ``ops_sites``, which limits the
+        composed tiles to the listed sites (item 951), and for the window
+        checkpoints of item 958: with ``ops_objects_resume`` on, each
+        segmented window's labels are kept in
+        :func:`_objects_windows_folder` under a key of its tiles and
+        segmentation settings, and a rerun reuses every window whose key
+        matches. Objects are still numbered in window order, so a resumed
+        well equals an uninterrupted one. The files go once the well is
+        stored unless ``ops_objects_keep_windows`` is on.
     :param gpu: segment on the card.
-    :returns: the objects report.
+    :returns: the objects report; a run that reused windows adds
+        ``windows_resumed``.
     """
     import functools
 
@@ -2202,27 +2398,45 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
                                 overlap=window_overlap))
     partial = (_partial_windows(windows, usable, seeded[1], shape)
                if seeded else None)
+    folder = _objects_windows_folder(settings, db, well)
+    basis = (_objects_window_basis(settings, blend, extra, canvas, shape)
+             if folder else None)
+    kept = Counter()
     seconds = Counter()
     observations: list = []
     gains = []
     empty = 0
     for count, window in enumerate(windows, start=1):
-        tick = time.perf_counter()
-        image, coverage = compose_window(window, usable, read, tile_shape=shape,
-                                         blend=blend)
-        seconds["compose"] += time.perf_counter() - tick
-        covered = coverage > 0
-        if not covered.any():
-            empty += 1
-            continue
-        gains.append((overlap_gain(coverage), int(covered.sum())))
-        fill = image.copy()
-        fill[~covered] = float(np.median(image[covered]))
-        tick = time.perf_counter()
-        masks = np.asarray(_governed_eval(model, fill, site='ops_stitched',
-                                          settings=settings, batch_size=16, **extra)[0], np.int32)
-        seconds["segment"] += time.perf_counter() - tick
-        masks[~covered] = 0
+        key, saved = None, None
+        if folder:
+            key, touched = _objects_window_key(basis, window, usable, sources,
+                                               shape)
+            saved = (_objects_window_load(folder, window, key)
+                     if touched else None)
+        if saved is not None:
+            masks, gain, area = saved
+            gains.append((gain, area))
+            kept["reused"] += 1
+        else:
+            tick = time.perf_counter()
+            image, coverage = compose_window(window, usable, read,
+                                             tile_shape=shape, blend=blend)
+            seconds["compose"] += time.perf_counter() - tick
+            covered = coverage > 0
+            if not covered.any():
+                empty += 1
+                continue
+            gains.append((overlap_gain(coverage), int(covered.sum())))
+            fill = image.copy()
+            fill[~covered] = float(np.median(image[covered]))
+            tick = time.perf_counter()
+            masks = np.asarray(_governed_eval(model, fill, site='ops_stitched',
+                                              settings=settings, batch_size=16, **extra)[0], np.int32)
+            seconds["segment"] += time.perf_counter() - tick
+            masks[~covered] = 0
+            if folder:
+                _objects_window_save(folder, window, key, masks, *gains[-1])
+                kept["computed"] += 1
         tick = time.perf_counter()
         observations.extend(objects_in_window(window, masks, canvas=canvas))
         seconds["objects_in_window"] += time.perf_counter() - tick
@@ -2251,6 +2465,15 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     tick = time.perf_counter()
     _replace_well_rows(db, "ops_objects", frame, plate, well)
     seconds["store"] = time.perf_counter() - tick
+    if folder:
+        keep = bool(settings.get("ops_objects_keep_windows"))
+        summary = {"folder": folder, "windows": len(windows), "empty": empty,
+                   "reused": kept["reused"], "computed": kept["computed"],
+                   "kept": keep,
+                   "deleted": 0 if keep else _objects_windows_clear(folder)}
+        _objects_windows_journal(well, summary)
+        _say(f"{well} objects: reused {kept['reused']} and segmented "
+             f"{kept['computed']} of {len(windows)} windows")
     gate = objects_ready(db)
     report = {
         "canvas": list(canvas), "windows": len(windows), "empty_windows": empty,
@@ -2272,6 +2495,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     if seeded:
         report.update({"placement": "seeded", "partial_windows": partial,
                        "n_partial_windows": len(partial)})
+    if kept["reused"]:
+        report["windows_resumed"] = summary
     _say(f"{well} objects: {len(objects)} from {len(observations)} observations "
          f"in {report['total_seconds']} s")
     return report
@@ -5220,17 +5445,438 @@ def _ph_tile_centres(db: str, plate: str, well: str):
     return centres, first["site"].to_numpy(np.int64)
 
 
+#: The routes ``ops_merge_strategy`` may name, the first being the default
+#: (item 962).
+_MERGE_STRATEGIES = ("current", "tile", "stitch", "auto")
+
+#: Where the stitch route places the tiles of a well (item 962).
+_MERGE_STITCH_SOURCES = ("metadata", "registered")
+
+#: How far, in sequencing pixels, a tile's stage position or a field's
+#: stored placement may be off before the route stops finding it: the
+#: candidate sequencing cells of a tile pair are taken this far beyond the
+#: field's predicted footprint, and the well mosaics are compared over
+#: regions this much wider on the sequencing side.
+_MERGE_STAGE_MARGIN_PX = 200.0
+
+
+def _merge_strategy_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """The ``ops_merge_*`` route settings of the merge phase, checked.
+
+    :param settings: read for ``ops_merge_strategy``,
+        ``ops_merge_stitch_source``, ``ops_merge_min_votes``,
+        ``ops_merge_min_match_fraction`` and ``ops_merge_fallback_share``.
+    :returns: ``{strategy, stitch_source, min_votes, min_match_fraction,
+        fallback_share}``.
+    :raises ValueError: on an unknown strategy or source, or a threshold
+        out of range.
+    """
+    from .qt.i18n import tr
+
+    strategy = str(settings.get("ops_merge_strategy")
+                   or _MERGE_STRATEGIES[0]).strip().lower()
+    if strategy not in _MERGE_STRATEGIES:
+        raise ValueError(tr(
+            "ops_merge_strategy must be one of {strategies}; got {value}",
+            strategies=list(_MERGE_STRATEGIES), value=strategy))
+    source = str(settings.get("ops_merge_stitch_source")
+                 or _MERGE_STITCH_SOURCES[0]).strip().lower()
+    if source not in _MERGE_STITCH_SOURCES:
+        raise ValueError(tr(
+            "ops_merge_stitch_source must be one of {sources}; got {value}",
+            sources=list(_MERGE_STITCH_SOURCES), value=source))
+    min_votes = int(_setting_number(settings.get("ops_merge_min_votes"),
+                                    "ops_merge_min_votes", 4))
+    fraction = float(_setting_number(
+        settings.get("ops_merge_min_match_fraction"),
+        "ops_merge_min_match_fraction", 0.51))
+    share = float(_setting_number(settings.get("ops_merge_fallback_share"),
+                                  "ops_merge_fallback_share", 0.05))
+    if min_votes < 1 or not 0.0 <= fraction <= 1.0 or not 0.0 <= share <= 1.0:
+        raise ValueError(tr(
+            "ops_merge_min_votes must be at least 1, and "
+            "ops_merge_min_match_fraction and ops_merge_fallback_share "
+            "between 0 and 1; got {values}",
+            values=[min_votes, fraction, share]))
+    return {"strategy": strategy, "stitch_source": source,
+            "min_votes": min_votes, "min_match_fraction": fraction,
+            "fallback_share": share}
+
+
+def _merge_stage_files(sequencing, phenotype) -> Dict[str, Dict[int, str]]:
+    """One image path per site of each acquisition of a well, for its stage tags.
+
+    :param sequencing: the well's ``cycle -> site -> channel -> path``
+        sequencing index, or None.
+    :param phenotype: the well's phenotype index of the same shape, or None.
+    :returns: ``{"sbs": {site: path}, "phenotype": {site: path}}``, the
+        sequencing sites taken from the first cycle.
+    """
+    out: Dict[str, Dict[int, str]] = {"sbs": {}, "phenotype": {}}
+    for name, index in (("sbs", sequencing), ("phenotype", phenotype)):
+        if not index:
+            continue
+        first = sorted(index)[0]
+        for site, channels in sorted(index[first].items()):
+            for _channel, path in sorted(channels.items()):
+                out[name][int(site)] = path
+                break
+    return out
+
+
+def _merge_stage_positions(settings: Mapping[str, Any], well: str,
+                           stage_files) -> Dict[str, Dict[int, np.ndarray]]:
+    """Each tile's stage position, in its own acquisition's pixels.
+
+    :param settings: read for ``ops_merge_stage_positions``.
+    :param well: the well.
+    :param stage_files: :func:`_merge_stage_files` of the well, or None.
+    :returns: ``{"sbs": {site: (y, x)}, "phenotype": {site: (y, x)}}``.
+    :raises ValueError: when a tile has no stage position.
+
+    A table named by ``ops_merge_stage_positions`` (CSV, TSV or parquet
+    with ``well``, ``modality`` -- ``sbs`` or ``phenotype`` -- ``site``,
+    ``y`` and ``x``) is read first; otherwise each tile's OME
+    ``PositionY``/``PositionX`` over its pixel size, through
+    :func:`spacr.image_stitch.read_stage_positions`.
+    """
+    from .image_stitch import read_stage_positions
+    from .qt.i18n import tr
+    from .tabular import read_table
+
+    table = settings.get("ops_merge_stage_positions")
+    out: Dict[str, Dict[int, np.ndarray]] = {"sbs": {}, "phenotype": {}}
+    if table:
+        path = str(table)
+        frame = read_table(path, canonicalise=False)
+        need = {"well", "modality", "site", "y", "x"}
+        if not need <= set(frame.columns):
+            raise ValueError(tr(
+                "ops_merge_stage_positions needs the columns {need}; "
+                "{path} has {have}", need=sorted(need), path=path,
+                have=sorted(frame.columns)))
+        frame = frame[frame["well"].astype(str).str.upper() == str(well).upper()]
+        for row in frame.itertuples():
+            modality = str(row.modality).strip().lower()
+            if modality in out:
+                out[modality][int(row.site)] = np.array(
+                    [float(row.y), float(row.x)])
+        return out
+    for name in ("sbs", "phenotype"):
+        files = (stage_files or {}).get(name) or {}
+        sites = sorted(files)
+        found = read_stage_positions([files[s] for s in sites]) if sites else None
+        if not found:
+            raise ValueError(tr(
+                "ops_merge_stitch_source 'metadata' needs the stage position "
+                "of every {modality} tile of well {well}, and the images "
+                "carry none; give ops_merge_stage_positions a table of them "
+                "or use ops_merge_stitch_source 'registered'",
+                modality=name, well=well))
+        out[name] = {int(s): np.asarray(p, float) for s, p in zip(sites, found)}
+    return out
+
+
+def _merge_sbs_mosaic(db: str, plate: str, well: str, target,
+                      positions) -> np.ndarray:
+    """The sequencing nuclei re-placed by their tiles' stage positions.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param target: ``(M, 2)`` nucleus centroids in the registered well frame.
+    :param positions: ``{site: (y, x)}`` sequencing stage positions, px.
+    :returns: ``(M, 2)``: each nucleus moved with its tile (the tile whose
+        centre is nearest) from the tile's registered origin to its stage
+        position.
+    :raises ValueError: without tile positions, or with a tile that has no
+        stage position.
+    """
+    from scipy.spatial import cKDTree
+
+    from .qt.i18n import tr
+
+    centres, sites = _ph_tile_centres(db, plate, well)
+    geometry = _well_rows(db, "ops_geometry", plate, well)
+    first = geometry[geometry["cycle"] == geometry["cycle"].min()]
+    origins = first[["y", "x"]].to_numpy(float)
+    lost = [int(s) for s in sites if int(s) not in positions]
+    if lost:
+        raise ValueError(tr(
+            "ops_merge_stitch_source 'metadata' has no stage position for "
+            "sequencing tiles {sites} of well {well}", sites=lost[:10],
+            well=well))
+    shift = np.array([positions[int(s)] for s in sites]) - origins
+    points = np.asarray(target, float).reshape(-1, 2)
+    if not len(points):
+        return points.copy()
+    _, own = cKDTree(centres).query(points)
+    return points + shift[own]
+
+
+def _merge_tile_route(cells, by_site, target, options, threshold: float):
+    """Item 962's tile route: one triangle hash per phenotype field.
+
+    :param cells: the well's phenotype cells (``site``, ``centroid_row``,
+        ``centroid_col``).
+    :param by_site: ``site -> ops_phenotype row`` (the stored placement).
+    :param target: ``(M, 2)`` sequencing nuclei, registered well frame.
+    :param options: :func:`_merge_strategy_options`.
+    :param threshold: ``ops_merge_threshold``.
+    :returns: ``({site: found or None}, rows)``: ``found`` is
+        :func:`spacr.ops_merge.refine_field_transform`'s ``(transform,
+        inliers, residual_px, refined)``; a row per field with its votes,
+        matched fraction, residual and whether it is weak.
+
+    The field is paired with the sequencing nuclei under its stored
+    footprint plus :data:`_MERGE_STAGE_MARGIN_PX`, hashed
+    (:func:`spacr.ops_merge._triangle_votes`), re-solved on its own nuclei
+    (:func:`spacr.ops_merge.refine_field_transform`) and paired
+    (:func:`spacr.ops_merge.merge_field`). A field whose hash finds nothing
+    has no transform.
+    """
+    from .ops_merge import (_triangle_votes, _weak_pair, field_to_well,
+                            merge_field, refine_field_transform)
+
+    transforms: Dict[int, Any] = {}
+    rows = []
+    for site, group in cells.groupby("site", sort=True):
+        record = by_site.get(int(site))
+        if record is None:
+            continue
+        points = group[["centroid_row", "centroid_col"]].to_numpy(float)
+        seed = _merge_seed(record)
+        near = _merge_near(target, seed, record, _MERGE_STAGE_MARGIN_PX)
+        fit, votes = _triangle_votes(points, target[near], scale=seed[0],
+                                     radius=min(3.0, threshold))
+        fraction, residual = 0.0, float("nan")
+        transform = None
+        if fit is not None:
+            transform, _inliers, residual, _refined = refine_field_transform(
+                points, target[near], fit, radius=min(3.0, threshold))
+            pairs = merge_field(points, target[near], transform,
+                                threshold=threshold)
+            fraction = len(pairs) / max(1, len(points))
+            if len(pairs) and not np.isfinite(residual):
+                moved = field_to_well(points[pairs[:, 0].astype(int)],
+                                      transform)
+                residual = float(np.median(np.hypot(*(
+                    moved - target[near][pairs[:, 1].astype(int)]).T)))
+        transforms[int(site)] = (None if transform is None else
+                                 (transform, _inliers, residual, _refined))
+        rows.append({"site": int(site), "votes": int(votes),
+                     "match_fraction": float(fraction),
+                     "residual_px": residual,
+                     "weak": bool(_weak_pair(votes, fraction,
+                                             options["min_votes"],
+                                             options["min_match_fraction"]))})
+    return transforms, rows
+
+
+def _merge_seed(record):
+    """The stored placement of one field, as ``(scale, rotation, offset)``."""
+    angle = np.radians(float(record.rotation_deg))
+    return (float(record.scale),
+            np.array([[np.cos(angle), -np.sin(angle)],
+                      [np.sin(angle), np.cos(angle)]]),
+            np.array([float(record.offset_y), float(record.offset_x)]))
+
+
+def _merge_near(target, transform, record, pad: float) -> np.ndarray:
+    """Indices of ``target`` within ``pad`` of a field's footprint."""
+    from .ops_merge import field_to_well
+
+    corners = field_to_well(np.array(
+        [[0, 0], [0, record.field_width], [record.field_height, 0],
+         [record.field_height, record.field_width]], float), transform)
+    low, high = corners.min(axis=0) - pad, corners.max(axis=0) + pad
+    return np.flatnonzero((target[:, 0] >= low[0]) & (target[:, 0] <= high[0])
+                          & (target[:, 1] >= low[1]) & (target[:, 1] <= high[1]))
+
+
+def _merge_stitch_route(cells, by_site, target, positions, options,
+                        threshold: float):
+    """Item 962's stitch route: both well mosaics, one similarity between them.
+
+    :param cells: the well's phenotype cells.
+    :param by_site: ``site -> ops_phenotype row``.
+    :param target: ``(M, 2)`` sequencing nuclei in the mosaic the route
+        matches against (registered, or re-placed by stage position).
+    :param positions: phenotype ``{site: (y, x)}`` stage positions in field
+        pixels, or None to place the fields where the placement phase put
+        them (``ops_merge_stitch_source`` 'registered').
+    :param options: :func:`_merge_strategy_options`.
+    :param threshold: ``ops_merge_threshold``.
+    :returns: ``({site: found}, summary)``, ``found`` as
+        :func:`_merge_tile_route` gives it.
+
+    The phenotype mosaic places each field at its stage position, scaled
+    by the well's placement scale and not rotated (as Brieflow's stitch
+    does), or by its stored placement. One similarity takes that mosaic
+    onto the sequencing one (:func:`spacr.ops_merge._well_similarity`),
+    and each field's transform is the similarity after its placement,
+    re-solved on its own nuclei.
+    """
+    from .ops_merge import (_compose, _well_similarity, field_to_well,
+                            refine_field_transform)
+    from .qt.i18n import tr
+
+    scale = float(np.median([float(r.scale) for r in by_site.values()]))
+    placements: Dict[int, Any] = {}
+    for site, record in by_site.items():
+        if positions is None:
+            placements[int(site)] = _merge_seed(record)
+            continue
+        if int(site) not in positions:
+            raise ValueError(tr(
+                "ops_merge_stitch_source 'metadata' has no stage position "
+                "for phenotype field {site}", site=int(site)))
+        placements[int(site)] = (scale, np.eye(2),
+                                 scale * np.asarray(positions[int(site)],
+                                                    float))
+    mosaic = []
+    for site, group in cells.groupby("site", sort=True):
+        if int(site) in placements:
+            mosaic.append(field_to_well(
+                group[["centroid_row", "centroid_col"]].to_numpy(float),
+                placements[int(site)]))
+    mosaic = np.vstack(mosaic) if mosaic else np.empty((0, 2))
+    well_fit, votes, regions = _well_similarity(
+        mosaic, target, scale=1.0, margin=_MERGE_STAGE_MARGIN_PX,
+        radius=min(3.0, threshold), min_votes=options["min_votes"])
+    transforms: Dict[int, Any] = {}
+    for site, group in cells.groupby("site", sort=True):
+        if int(site) not in placements:
+            continue
+        record = by_site[int(site)]
+        start = _compose(well_fit, placements[int(site)])
+        points = group[["centroid_row", "centroid_col"]].to_numpy(float)
+        near = _merge_near(target, start, record, 4.0 * threshold + 20.0)
+        transforms[int(site)] = refine_field_transform(
+            points, target[near], start, radius=min(3.0, threshold))
+    return transforms, {"well_votes": int(votes), "well_regions": int(regions),
+                        "well_scale": float(well_fit[0]),
+                        "well_rotation_deg": float(np.degrees(np.arctan2(
+                            well_fit[1][1, 0], well_fit[1][0, 0]))),
+                        "well_shift_y": float(well_fit[2][0]),
+                        "well_shift_x": float(well_fit[2][1])}
+
+
+def _merge_route(db: str, plate: str, well: str, settings: Mapping[str, Any],
+                 cells, by_site, target, options, threshold: float,
+                 stage_files=None) -> Dict[str, Any]:
+    """Run ``ops_merge_strategy`` 'tile', 'stitch' or 'auto' for one well.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param settings: read for ``ops_merge_stage_positions`` (through
+        :func:`_merge_stage_positions`).
+    :param cells: the well's phenotype cells.
+    :param by_site: ``site -> ops_phenotype row``.
+    :param target: ``(M, 2)`` sequencing nuclei, registered well frame.
+    :param options: :func:`_merge_strategy_options`.
+    :param threshold: ``ops_merge_threshold``.
+    :param stage_files: :func:`_merge_stage_files` of the well, or None.
+    :returns: ``{transforms, target, row}``: each field's re-solved
+        transform as :func:`_merge_tile_route` gives it (None for a field
+        the route could not place), the sequencing points the
+        cells are paired against, and the well's strategy report row
+        before its match counts.
+    """
+    clock = time.perf_counter()
+    strategy = options["strategy"]
+    rows: List[Dict[str, Any]] = []
+    route, reason = strategy, "requested"
+    transforms: Dict[int, Any] = {}
+    if strategy in ("tile", "auto"):
+        transforms, rows = _merge_tile_route(cells, by_site, target, options,
+                                             threshold)
+        if strategy == "auto":
+            from .ops_merge import _choose_route
+
+            route, reason = _choose_route(sum(r["weak"] for r in rows),
+                                          len(rows),
+                                          options["fallback_share"])
+    summary: Dict[str, Any] = {}
+    points = target
+    if route == "stitch":
+        positions = None
+        if options["stitch_source"] == "metadata":
+            stage = _merge_stage_positions(settings, well, stage_files)
+            points = _merge_sbs_mosaic(db, plate, well, target, stage["sbs"])
+            positions = stage["phenotype"]
+        transforms, summary = _merge_stitch_route(
+            cells, by_site, points, positions, options, threshold)
+    votes = np.array([r["votes"] for r in rows], float)
+    fractions = np.array([r["match_fraction"] for r in rows], float)
+    row = {
+        "plate": plate, "well": well, "strategy_requested": strategy,
+        "strategy_used": route, "reason": reason,
+        "stitch_source": (options["stitch_source"] if route == "stitch"
+                          else ""),
+        "tile_pairs": int(len(rows)),
+        "weak_tile_pairs": int(sum(r["weak"] for r in rows)),
+        "min_votes": options["min_votes"],
+        "min_match_fraction": options["min_match_fraction"],
+        "fallback_share": options["fallback_share"],
+        **{f"votes_p{q}": (float(np.percentile(votes, q)) if len(votes)
+                           else float("nan")) for q in (10, 50, 90)},
+        **{f"match_fraction_p{q}": (float(np.percentile(fractions, q))
+                                    if len(fractions) else float("nan"))
+           for q in (10, 50, 90)},
+        "fields_unplaced": int(sum(t is None for t in transforms.values())),
+        **summary,
+        "route_seconds": round(time.perf_counter() - clock, 3),
+    }
+    return {"transforms": transforms, "target": points, "row": row}
+
+
+def _merge_report_path(destination: str) -> str:
+    """Where the per-well merge strategy report is written (item 962)."""
+    return os.path.join(destination, "merge_strategy_report.csv")
+
+
+def _write_merge_report(destination: str, row: Mapping[str, Any]) -> str:
+    """Replace one well's row of ``merge_strategy_report.csv``.
+
+    :param destination: the run folder.
+    :param row: the well's report row.
+    :returns: the report path.
+    """
+    import pandas as pd
+
+    from .tabular import read_table, write_table
+
+    path = _merge_report_path(destination)
+    frame = pd.DataFrame([dict(row)])
+    if os.path.isfile(path):
+        old = read_table(path, canonicalise=False)
+        keep = ~((old["plate"].astype(str) == str(row["plate"]))
+                 & (old["well"].astype(str) == str(row["well"])))
+        frame = pd.concat([old[keep], frame], ignore_index=True)
+    frame = frame.sort_values(["plate", "well"], kind="stable")
+    os.makedirs(destination, exist_ok=True)
+    write_table(frame, path, canonicalise=False)
+    return path
+
+
 def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
-              destination: str, gpu: bool) -> Dict[str, Any]:
+              destination: str, gpu: bool,
+              stage_files=None) -> Dict[str, Any]:
     """Pair each phenotype cell with its sequencing nucleus; store ``ops_merge``.
 
     :param db: the measurements database.
     :param plate: the plate name.
     :param well: the well name.
-    :param settings: read for ``ops_merge_threshold``, ``ops_ownership``
-        and the ``ops_align_*`` settings.
+    :param settings: read for ``ops_merge_threshold``, ``ops_ownership``,
+        the ``ops_align_*`` settings and the ``ops_merge_*`` route settings
+        (:func:`_merge_strategy_options`).
     :param destination: the run folder.
     :param gpu: let the nearest-neighbour search use the card.
+    :param stage_files: :func:`_merge_stage_files` of the well, read for the
+        tiles' stage positions when ``ops_merge_stitch_source`` is
+        'metadata' and no ``ops_merge_stage_positions`` table is given.
     :returns: the merge report.
 
     Per field: the nucleus centroids are moved into the well frame with the
@@ -5254,6 +5900,18 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
       centroid lies deepest (:func:`spacr.ops_merge.deepest_field_matches`);
     - ``'a1'`` keeps only cells whose phenotype nucleus centroid lies
       deepest in their own field, then the closer match.
+
+    ``ops_merge_strategy`` (item 962) chooses where each field's transform
+    comes from. ``'current'`` (default) is the above. ``'tile'`` hashes each
+    field against the sequencing nuclei under it (:func:`_merge_tile_route`);
+    ``'stitch'`` places both well mosaics -- by stage position
+    (``ops_merge_stitch_source`` 'metadata') or where the stitch and
+    placement phases put them ('registered') -- and solves one similarity
+    between them (:func:`_merge_stitch_route`); ``'auto'`` runs the tile
+    route and falls back to the stitch route when more than
+    ``ops_merge_fallback_share`` of its tile pairs are weak. Each route's
+    field transform is re-solved and paired as above, and the well's row
+    of ``merge_strategy_report.csv`` records the route that ran and why.
 
     With ``'a1'`` or ``'a1b'`` every phenotype cell also gets ownership
     flags in ``ops_ownership_<well>.parquet``: ``in_overlap_margin`` (a
@@ -5295,6 +5953,13 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     object_ids = objects["object_id"].to_numpy(np.int64)
     threshold = float(_setting_number(settings.get("ops_merge_threshold"),
                                       "ops_merge_threshold", 4.0))
+    options = _merge_strategy_options(settings)
+    routed = None
+    if options["strategy"] != "current":
+        routed = _merge_route(db, plate, well, settings, cells,
+                              {int(r.site): r for r in placed.itertuples()},
+                              target, options, threshold, stage_files)
+        target = routed["target"]
     if tiled:
         tile_centres, tile_sites = _ph_tile_centres(db, plate, well)
         identity = (1.0, np.eye(2), np.zeros(2))
@@ -5314,15 +5979,23 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
               np.cos(np.radians(record.rotation_deg))]]),
             np.array([float(record.offset_y), float(record.offset_x)]))
         points = group[["centroid_row", "centroid_col"]].to_numpy(float)
-        corners = field_to_well(np.array(
-            [[0, 0], [0, record.field_width], [record.field_height, 0],
-             [record.field_height, record.field_width]], float), seed)
-        pad = 4.0 * threshold + 20.0
-        low, high = corners.min(axis=0) - pad, corners.max(axis=0) + pad
-        near = np.flatnonzero((target[:, 0] >= low[0]) & (target[:, 0] <= high[0])
-                              & (target[:, 1] >= low[1]) & (target[:, 1] <= high[1]))
-        transform, inliers, residual, refined = refine_field_transform(
-            points, target[near], seed, radius=min(3.0, threshold))
+        if routed is None:
+            corners = field_to_well(np.array(
+                [[0, 0], [0, record.field_width], [record.field_height, 0],
+                 [record.field_height, record.field_width]], float), seed)
+            pad = 4.0 * threshold + 20.0
+            low, high = corners.min(axis=0) - pad, corners.max(axis=0) + pad
+            near = np.flatnonzero((target[:, 0] >= low[0]) & (target[:, 0] <= high[0])
+                                  & (target[:, 1] >= low[1]) & (target[:, 1] <= high[1]))
+            transform, inliers, residual, refined = refine_field_transform(
+                points, target[near], seed, radius=min(3.0, threshold))
+        else:
+            found = routed["transforms"].get(int(site))
+            if found is None:
+                continue
+            transform, inliers, residual, refined = found
+            near = _merge_near(target, transform, record,
+                               4.0 * threshold + 20.0)
         refined_rows.append({
             "site": int(site), "refined": int(refined),
             "refined_inliers": int(inliers),
@@ -5503,6 +6176,17 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
         }} if tiled else {}),
         "seconds": round(time.perf_counter() - started, 1),
     }
+    if routed is not None:
+        row = dict(routed["row"])
+        row.update({
+            "matched_phenotype_pct": round(100.0 * len(frame)
+                                           / max(1, len(cells)), 3),
+            "matched_sbs_pct": round(100.0 * len(frame)
+                                     / max(1, len(object_ids)), 3),
+            "residual_px_median": report["distance_median_px"],
+            "seconds": report["seconds"]})
+        row["table"] = _write_merge_report(destination, row)
+        report["strategy"] = row
     _say(tr("{well} merge: {merged} of {cells} cells matched to a sequencing "
             "nucleus", well=well, merged=report["merged"],
             cells=report["cells"]))
@@ -9672,8 +10356,10 @@ def run_ops(settings: Mapping[str, Any], *,
             report["ph_ownership"] = _ph_cross_field_ownership(
                 db, plate, well, settings, destination)
         if "merge" in phases:
-            report["merge"] = _ph_merge(db, plate, well, settings,
-                                        destination, gpu)
+            report["merge"] = _ph_merge(
+                db, plate, well, settings, destination, gpu,
+                stage_files=_merge_stage_files(index.get(well),
+                                               phenotype_index.get(well)))
         if "ph_merged" in phases:
             report["ph_merged"] = _ph_merged(
                 db, plate, well, phenotype_index.get(well) or {}, settings,
