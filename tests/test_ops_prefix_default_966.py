@@ -101,3 +101,5 @@ def test_tuning_off_keeps_the_log_read_with_an_empty_read_mode(tmp_path):
     out = _prefix(tmp_path, "fixed", ops_read_mode=None, ops_prefix_decoy_k=4)
     log = _prefix(tmp_path, "log", ops_read_mode="log", ops_prefix_decoy_k=4)
     _same_files(out["folder"], log["folder"])
+    saved = json.load(open(os.path.join(out["folder"], "quality_classes.json")))
+    assert "ops_read_mode" not in saved["settings"] and not out["tuning"]
