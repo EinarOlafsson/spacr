@@ -112,6 +112,10 @@ _HANDOVER: Optional[CurationQueue] = None
 #: queue in :data:`_HANDOVER`; taken with it by :func:`_take_layers`.
 _LAYERS_HANDOVER: Optional[dict] = None
 
+#: The point-mode session the terminal asked for (item 957, alpha), waiting
+#: for the Make Masks screen that opens it; taken by :func:`_take_points`.
+_POINTS_HANDOVER: Optional[dict] = None
+
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the ``spacr-make-masks`` argument parser.
@@ -193,6 +197,26 @@ def build_parser() -> argparse.ArgumentParser:
         "--require-mode", choices=("any", "all"), default=None,
         help="with --require-layers: an image is visited when any required "
              "layer has an object (default) or only when all of them do.")
+    parser.add_argument(
+        "--points", action="store_true",
+        help="point mode (alpha): click one point per object instead of "
+             "painting masks. Left click adds, right click removes the "
+             "nearest, U marks unsure, Ctrl+Z undoes. Each image's points "
+             "are saved at once to <folder>/../annotations/<stem>_points.csv "
+             "(columns X, Y in image pixels, unsure, note; a trailing _clean "
+             "is dropped from the stem), and the done flags to "
+             f"<folder>/{STATUS_FILENAME}.")
+    parser.add_argument(
+        "--hide-overlays", action=argparse.BooleanOptionalAction, default=True,
+        help="with --points: keep the --overlays hidden while any image is "
+             "not marked done (default on: annotate blind).")
+    parser.add_argument(
+        "--overlays", nargs="+", default=None, metavar="DIR",
+        help="with --points: folders of overlay images (for example the "
+             "outlines of each method), matched by stem, that can be shown "
+             "once every image is done (default: <folder>/../overlays when "
+             "it exists). The points cannot be changed while one is on "
+             "screen.")
     return parser
 
 
@@ -271,6 +295,89 @@ def _layer_queue(queue: CurationQueue, target: Path,
         waiting = waiting[:limit]
     return replace(queue, items=tuple(waiting), status=status, limit=limit,
                    summary=summarize(queue.layout.items, status))
+
+
+def _hand_over_points(points: Optional[dict]) -> None:
+    """Leave a point-mode session for the next Make Masks screen.
+
+    :param points: ``{"queue": queue, "overlays": [folders],
+        "hide_overlays": bool}``, or None to clear the slot.
+    """
+    global _POINTS_HANDOVER
+    _POINTS_HANDOVER = points
+
+
+def _take_points() -> Optional[dict]:
+    """Take the point-mode session the terminal handed over, once.
+
+    :returns: what :func:`_hand_over_points` left, or None.
+    """
+    global _POINTS_HANDOVER
+    points, _POINTS_HANDOVER = _POINTS_HANDOVER, None
+    return points
+
+
+def _point_mode(args, folder: Path) -> int:
+    """Run ``--points``: build the point queue and open it, or print it.
+
+    :param args: the parsed arguments.
+    :param folder: the queue folder, already known to exist.
+    :returns: a process exit code.
+    """
+    from .point_annotation import (annotations_folder, build_point_queue,
+                                   default_overlays)
+
+    refused = [flag for flag, given in (
+        ("--layers", args.layers), ("--require-layers", args.require_layers),
+        ("--require-mode", args.require_mode), ("--limit", args.limit),
+        ("--exclude-verdicts", args.exclude_verdicts),
+        ("--compute-uncertainty", args.compute_uncertainty)) if given]
+    if refused:
+        print(f"--points offers every image in name order and reads no "
+              f"masks; it does not take {', '.join(refused)}", file=sys.stderr)
+        return EXIT_USAGE
+    overlays: List[Path] = []
+    for name in args.overlays or ():
+        given = Path(name).expanduser()
+        if not given.is_dir():
+            print(f"--overlays: {name} is not a folder", file=sys.stderr)
+            return EXIT_USAGE
+        overlays.append(given.resolve())
+    if args.overlays is None:
+        overlays = default_overlays(folder)
+    try:
+        queue = build_point_queue(folder)
+    except CurationQueueError as exc:
+        print(str(exc), file=sys.stderr)
+        return EXIT_USAGE
+    print(f"point mode: {queue.describe()}")
+    print(f"points are saved to {annotations_folder(queue.folder)}")
+    if overlays:
+        when = ("once every image is marked done" if args.hide_overlays
+                else "at any time")
+        print(f"overlays can be shown {when}: "
+              + ", ".join(str(p) for p in overlays))
+    if args.dry_run:
+        status = queue.status
+        for line, item in zip(_session_lines(queue), queue.items):
+            done = item.stem in status and status[item.stem].state == "done"
+            print(f"{line}{'  done' if done else ''}")
+        return EXIT_OK
+    if not has_display():
+        print(f"{queue.folder} reads as a point queue, but this session has "
+              f"no display to open the editor on: no DISPLAY, no "
+              f"WAYLAND_DISPLAY and no QT_QPA_PLATFORM.", file=sys.stderr)
+        return EXIT_NO_GUI
+    _hand_over_points({"queue": queue, "overlays": [str(p) for p in overlays],
+                       "hide_overlays": bool(args.hide_overlays)})
+    try:
+        from .qt import run
+    except ImportError as exc:
+        _hand_over_points(None)
+        print(f"the Qt interface could not be imported ({exc}); install it "
+              f"with: pip install spacr", file=sys.stderr)
+        return EXIT_NO_GUI
+    return int(run(["make_masks"]))
 
 
 def take_handover() -> Optional[CurationQueue]:
@@ -384,6 +491,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if not folder.is_dir():
         print(f"not a folder: {folder}", file=sys.stderr)
         return EXIT_USAGE
+    if args.points:
+        return _point_mode(args, folder)
+    if args.overlays:
+        print("--overlays needs --points", file=sys.stderr)
+        return EXIT_USAGE
 
     layers = None
     try:
@@ -477,4 +589,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    from spacr import cli_make_masks as _module
+
+    raise SystemExit(_module.main())

@@ -1,0 +1,61 @@
+OPS MATCHED-FDR SWEEP FOR PREFIX DECODES (OWN AND EXTERNAL READS), WITH THE BARCODE-SHUFFLE CALL RATE PER ROW
+=============================================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-16, alpha (ALPHA_FEATURES[955]); the new phase prefix_fdr_sweep runs only when asked for and every new setting is inert without it, so outputs are unchanged (no DEFAULT_CHANGES row, no schema bump). Under development per proposals/READINESS.md: not marked Ready.
+Requested: maintainer rule 2026-11-15 (all analysis code ends up in spaCR); register BMCspacr/reanalysis/SCRIPT_TO_SPACR_REGISTER.md gap D1. Number assigned by master 2026-11-15.
+Owner: paper session (OPS genotyping lane).
+Source: proposals/bmc_paper_items/ITEM_ops_prefix_fdr_sweep.md. Replaces periscope_benchmark/scripts/score_s2_fdr_sweep.py, edge_ablation/scripts/reconcile.py and edge_ablation/scripts/shuffle_by_row.py.
+Related: 942 (decoys), 943 (common rules and external reads; not built yet, see below), 949 (shuffle_call_rate).
+
+WHAT
+spacr.ops_prefix.fdr_sweep(reads, cells, library, settings, selection_sites=None)
+and the ops phase prefix_fdr_sweep (run_ops(settings, phases=['prefix_fdr_sweep'])).
+Each method's reads (site, cell, read, optional quality) are matched by one
+matcher against the whitelist + decoys (prefix_decoy_library) and against the
+shuffled whitelists (shuffled_library, one per shuffle seed). Grid: max read
+distance x min top-barcode reads x cell rule (maxcount, purity50, purity100) x,
+for methods whose reads carry a quality, no cut or the quality quantiles of that
+method's reads in cells. Per FDR target (and the lowest FDR every method
+reaches, rounded up to 1e-4 %) each method's configuration is the one with the
+most genotyped cells at pooled decoy FDR <= target (ties: lower FDR, then the
+stricter configuration). Every chosen row reports genotyped %, decoy FDR, decoy
+counts, site-bootstrap CIs and the barcode-shuffle call rate (mean over seeds,
+spacr.ops_decode.shuffle_call_rate, with its interval and per seed); methods get
+the paired difference in genotyped % at the same target with a bootstrap CI.
+With selection_sites the configurations are chosen on those sites and reported
+on the rest (held-out comparison).
+Bootstrap draw order: one generator (ops_fdr_sweep_seed), blocks of
+ops_fdr_sweep_bootstrap resamples; block 0 serves every share/FDR interval and
+the first compared target's differences, each later compared target takes the
+next block (this reproduces both former scripts).
+
+SETTINGS (all alpha, ALPHA_FEATURES[955])
+ops_fdr_sweep_targets (0.5, 1, 2, 5), ops_fdr_sweep_max_distance (0, 1),
+ops_fdr_sweep_min_reads (1, 2, 3), ops_fdr_sweep_rules (maxcount, purity50,
+purity100), ops_fdr_sweep_quality_quantiles (0.1..0.9), ops_fdr_sweep_bootstrap
+(2000), ops_fdr_sweep_seed (0), ops_fdr_sweep_shuffle_seeds (0, 1, 2),
+ops_fdr_sweep_inputs (the phase's inputs: methods -> read files, cells table,
+sites, selection_sites; empty = this run's spaCR reads over cells with reads).
+Uses ops_prefix_decoy_k (must be >= 1), ops_prefix_decoy_seed, ops_prefix_metric.
+
+OUTPUTS (<dst_root>/results/ops_prefix/)
+fdr_sweep_result.json, fdr_sweep_table.csv (one row per target and method),
+fdr_sweep_pooled.csv (every configuration on the selection sites),
+fdr_sweep_grid.csv (every configuration per site).
+
+KNOWN GAP
+Item 943's prefix_external phase (Foci/BarcodeFoci join, its ops_external_*
+settings) does not exist yet; external reads come in as a table with site, cell
+and read columns (PERISCOPE column names Parent_Cells and Barcode_BarcodeCalled
+are recognised). When 943 lands, its reader should feed this phase.
+
+PROOF (BMCspacr/reanalysis/periscope_benchmark/out/fdr_sweep_955/)
+Settings-file reruns (run_ops, phase prefix_fdr_sweep) reproduce exactly:
+score_s2_fdr_sweep.py's 85-site fdr_sweep_result.json (chosen configurations,
+counts, shares, FDRs, quality cuts, lowest FDRs, paired differences and CIs),
+reconcile.py sets A, B and C (configurations, counts, FDR CIs) and
+shuffle_by_row.py's rates (per seed exact, mean to 1e-12): 327 checks, 0
+mismatches. Held-out runs: PERISCOPE CP186A (chosen on the 10 iterate sites,
+reported on 75) and Funk plate A A1 (spaCR 920 reads vs Brieflow reads on the
+common Brieflow masks, 25 selection / 25 report tiles).

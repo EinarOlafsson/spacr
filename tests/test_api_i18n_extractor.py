@@ -2483,6 +2483,21 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **calibration_arrivals}
+    sweep_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "955_ops_fdr_sweep_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
+    assert len(sweep_arrivals) == 1
+    assert {key: docs[key] for key in sweep_arrivals} == sweep_arrivals
+    assert not sweep_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **sweep_arrivals}
+    point_mode_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "957_make_masks_point_mode_api_arrivals_2026-11-15.json").read_text(encoding="utf-8"))
+    assert len(point_mode_arrivals) == 23
+    assert {key: docs[key] for key in point_mode_arrivals} == point_mode_arrivals
+    assert not point_mode_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **point_mode_arrivals}
     r2_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
     assert len(r2_arrivals) == 1

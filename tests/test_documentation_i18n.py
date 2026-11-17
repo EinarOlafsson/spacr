@@ -3852,6 +3852,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("938_progress_reporters_api_arrivals_2026-11-14.json", 3),
         ("942_ops_autotune_api_arrivals_2026-11-14.json", 3),
         ("949_ops_fdr_calibration_api_arrivals_2026-11-16.json", 3),
+        ("955_ops_fdr_sweep_api_arrivals_2026-11-16.json", 1),
+        ("957_make_masks_point_mode_api_arrivals_2026-11-15.json", 23),
         ("965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
