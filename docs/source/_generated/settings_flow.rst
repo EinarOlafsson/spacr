@@ -29585,7 +29585,7 @@ Read by ``ops_defaults``, ``run_voyager3``.
 ops_voyager3_provider
 ---------------------
 
-The AI that answers: claude, codex or gemini, each the command-line tool signed in with your own account. Empty uses the choice under Preferences > AI. spaCR AI (free) is not used. Default ''. Alpha.
+The AI that answers: spacr_hosted (spaCR AI, free), or claude, codex or gemini, each the command-line tool signed in with your own account. Empty uses the choice under Preferences > AI. The report names the provider and model, and says when the free provider answered with its smaller model. Default ''. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
