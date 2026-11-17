@@ -88,6 +88,8 @@ def _theme_colours() -> Dict[str, str]:
     }
 
 
+_ON_IMAGE = {"blue": "#9fc5ff", "teal": "#5ad1c6", "text": "#ffffff"}
+
 _CLUSTER_COLOURS = ("#4A9EFF", "#1fb6ad", "#2F80D9", "#7fd1e8", "#0a6f6a",
                     "#66B2FF", "#3b5b92", "#5ad1c6", "#9fc5ff", "#14806f")
 
@@ -178,9 +180,9 @@ def _draw_align(result: Mapping[str, Any], colours, size):
     for site, (y, x) in result["tiles"].items():
         mosaic_ax.add_patch(Rectangle(((x - left) / step, (y - top) / step),
                                       width / step, height / step, fill=False,
-                                      lw=0.8, ec=colours["blue_hi"]))
+                                      lw=0.8, ec=_ON_IMAGE["blue"]))
         mosaic_ax.text((x - left) / step + 4, (y - top) / step + 14, str(site),
-                       color=colours["fg"], fontsize=6)
+                       color=_ON_IMAGE["text"], fontsize=6)
     from spacr.ops_live import _ph_to_well
 
     for info in result["fields"]:
@@ -193,14 +195,14 @@ def _draw_align(result: Mapping[str, Any], colours, size):
         chosen = (result.get("sample_field") or {}).get("site") == info["site"]
         mosaic_ax.add_patch(Polygon(xy, closed=True, fill=False,
                                     lw=1.4 if chosen else 0.8,
-                                    ec=colours["teal"]))
+                                    ec=_ON_IMAGE["teal"]))
     site = result["crop_site"]
     cy, cx = result["tiles"][site]
     row, column, crop = result["crop"]
     mosaic_ax.add_patch(Rectangle(((cx + column - left) / step,
                                    (cy + row - top) / step), crop / step,
                                   crop / step, fill=False, lw=1.0, ls="--",
-                                  ec=colours["fg"]))
+                                  ec=_ON_IMAGE["text"]))
     mosaic_ax.set_title(tr("Tiles (blue), phenotype fields (teal)"), fontsize=8)
     _picture_axes(mosaic_ax)
     last = result["last_cycle"]
