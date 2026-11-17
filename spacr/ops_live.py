@@ -944,7 +944,8 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
                          "agreeing": int(call.get("n_agreeing") or 0),
                          "fraction": float(call.get("fraction") or 0.0),
                          "quality": float(call.get("quality") or 0.0),
-                         "decoy": bool(call.get("decoy"))})
+                         "decoy": bool(call.get("decoy")),
+                         "pixels": str(call.get("source")) == "pixel_fallback"})
     else:
         peaks = np.asarray(result.get("peaks", np.zeros((0, 2))), float)
         values = np.asarray(result.get("intensities",
@@ -962,7 +963,8 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
                          "barcode": str(row["barcode"]), "reads": int(row["reads"]),
                          "agreeing": int(row["agreeing"]),
                          "fraction": float(row["fraction"]),
-                         "quality": float(row["quality"] or 0.0), "decoy": False})
+                         "quality": float(row["quality"] or 0.0), "decoy": False,
+                         "pixels": False})
     from .ops_engine import _BASES, _crosstalk_arguments
 
     letters, quality = (call_reads(values, bases=_BASES, gpu=False,

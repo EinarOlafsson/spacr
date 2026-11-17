@@ -104,7 +104,7 @@ def test_each_tab_draws_its_step_on_a_tiny_fixture(qapp, step):
                                                 (540, 150))
     assert picture.shape == (150, 540, 3) and picture.dtype == np.uint8
     assert picture.std() > 0, "the picture is not blank"
-    assert header and all(len(row) <= len(header) or step == "spots" for row in rows)
+    assert header and all(len(row) <= len(header) for row in rows)
     assert isinstance(sample, str) and sample
 
 
@@ -356,3 +356,30 @@ def test_the_ops_screen_has_the_live_switch_behind_the_alpha_gate(qtbot, tmp_pat
     finally:
         screen._ops_live_preview.shutdown()
         screen.close()
+
+
+def test_the_call_table_names_what_each_column_counts(qtbot, make_panel):
+    """Reads (all) counts every read; Vote share is over library-matched reads.
+
+    A nucleus with 8 reads, 2 of them for the guide and the other 6 matching
+    no guide, has a vote share of 1.00; the headers say so and carry a
+    tooltip each.
+    """
+    from spacr.qt.widgets.ops_live_preview import _DRAW
+
+    result = _fake_result("spots")
+    result["cells"] = [{"object_id": 74, "guide": "CGTAGTGGGAC",
+                        "barcode": "CGTAGTGGGAA", "reads": 8, "agreeing": 2,
+                        "fraction": 1.0, "quality": 0.084, "decoy": False,
+                        "pixels": False}]
+    _picture, header, rows, _sample = _DRAW["spots"](result, _colours(), (540, 150))
+    labels = [h[0] for h in header]
+    assert labels[3:6] == ["Reads (all)", "Reads for guide", "Vote share"]
+    assert all(isinstance(h, tuple) and h[1] for h in header)
+    assert rows[0][3:6] == ["8", "2", "1.00"]
+    panel = make_panel(_Recorder())
+    panel.page("spots").show_result({"picture": _picture, "header": header,
+                                     "rows": rows, "sample": "s", "seconds": 0})
+    table = panel.page("spots").table
+    assert table.horizontalHeaderItem(5).text() == "Vote share"
+    assert "library guide" in table.horizontalHeaderItem(5).toolTip()

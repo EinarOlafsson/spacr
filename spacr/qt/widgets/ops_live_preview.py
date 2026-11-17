@@ -268,10 +268,34 @@ def _draw_spots(result: Mapping[str, Any], colours, size):
     calls_ax.set_ylabel(tr("Nuclei"), fontsize=7)
     calls_ax.set_title(tr("Calls per nucleus ({rule})", rule=result["rule"]),
                        fontsize=8)
-    header = [tr("Nucleus"), tr("Guide"), tr("Barcode"), tr("Reads"),
-              tr("Agreeing"), tr("Fraction"), tr("Quality")]
+    header = [
+        (tr("Nucleus"), tr("The nucleus's label in the crop's nucleus mask.")),
+        (tr("Guide"), tr("The library guide the nucleus is called with; * "
+                         "marks a decoy guide.")),
+        (tr("Barcode (commonest read)"), tr(
+            "The commonest raw read among the reads that support the guide. It "
+            "may differ from the guide by up to ops_read_mismatches bases, "
+            "which the match allows.")),
+        (tr("Reads (all)"), tr(
+            "Every read attributed to the nucleus, including reads that match "
+            "no library guide.")),
+        (tr("Reads for guide"), tr(
+            "Reads that match the called guide, exactly or within the allowed "
+            "mismatches. For a pixel-fallback call (marked px), the pixels "
+            "that voted for it.")),
+        (tr("Vote share"), tr(
+            "The called guide's share of the nucleus's guide votes. Only reads "
+            "that match a library guide vote, so reads that match none count "
+            "in Reads (all) but not in this share; with ops_decode_quality_weighted "
+            "each vote is weighted by its read's quality.")),
+        (tr("Best read quality"), tr(
+            "The highest quality among the reads for the guide; a read's "
+            "quality is its worst cycle's margin between the top two bases, "
+            "from 0 to 1.")),
+    ]
     rows = [[str(c["object_id"]), c["guide"] + (" *" if c["decoy"] else ""),
-             c["barcode"], str(c["reads"]), str(c["agreeing"]),
+             c["barcode"], str(c["reads"]),
+             str(c["agreeing"]) + (" px" if c.get("pixels") else ""),
              f"{c['fraction']:.2f}", f"{c['quality']:.3f}"]
             for c in sorted(cells, key=lambda c: -c["reads"])]
     reads = list(result["reads"])[:8]
@@ -595,7 +619,13 @@ class _StepPage(QWidget):
         self.table.clear()
         self.table.setColumnCount(len(header))
         self.table.setRowCount(len(rows))
-        self.table.setHorizontalHeaderLabels([str(h) for h in header])
+        labels = [h[0] if isinstance(h, tuple) else str(h) for h in header]
+        self.table.setHorizontalHeaderLabels(labels)
+        for column, item in enumerate(header):
+            if isinstance(item, tuple):
+                cell = self.table.horizontalHeaderItem(column)
+                if cell is not None:
+                    cell.setToolTip(item[1])
         for r, values in enumerate(rows):
             for c, value in enumerate(values[:len(header)]):
                 self.table.setItem(r, c, table_item(str(value)))
