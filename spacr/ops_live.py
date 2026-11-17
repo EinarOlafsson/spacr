@@ -755,13 +755,13 @@ def _write_crop(folder: Path, planes: Mapping[Tuple[int, str], np.ndarray]
     :returns: ``(cycle, channel) -> (path, None)``, the source form
         :func:`spacr.ops_engine._read_plane` reads.
     """
-    import tifffile
+    from .tiff_io import write_tiff
 
     folder.mkdir(parents=True, exist_ok=True)
     out = {}
     for (cycle, channel), plane in planes.items():
         path = folder / f"c{cycle}_{channel}.tif"
-        tifffile.imwrite(str(path), np.asarray(plane, np.float32))
+        write_tiff(str(path), np.asarray(plane, np.float32))
         out[(cycle, channel)] = (str(path), None)
     return out
 
