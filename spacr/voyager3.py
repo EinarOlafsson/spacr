@@ -168,7 +168,7 @@ def _clean(text: Any, prefix: str = "") -> str:
 
 
 def _go_terms(text: Any) -> str:
-    """The first :data:`GO_TERMS` term names of a UniProt GO cell, ``; ``-joined, without ids.
+    """The first :data:`GO_TERMS` term names of a UniProt GO cell, joined by semicolons, without ids.
 
     :param text: the raw cell (``name [GO:id]; ...``).
     """

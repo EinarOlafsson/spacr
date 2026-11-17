@@ -50,3 +50,23 @@ BUILD
 
 PROOF
 See the proof notes appended below.
+
+PROOF NOTES (2026-11-17, CPU, one process, 2 threads; spaCR claude-973-1117; stub provider only, no LLM)
+Report: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item973_proof/REPORT.md.
+1. Funk plate A tvn_r10 clusters 12, 126, 130, 183, 225, 247 (111 genes) plus
+   their seeded shuffles: 12 prompts, every gene once, schema and template
+   named, no controls, 8,318-47,764 characters.
+2. UniProt: 2 live requests, release 2026_04 (04-November-2026); a rerun makes
+   0 requests with identical facts; 110/111 genes found, 108 with function
+   text; accessions 110/110 and function text 108/108 equal to the archived
+   uniprot_function_2026-11-08.tsv.
+3. Parsing: 11 answer kinds x 12 prompts, 0 exceptions (ok, partial,
+   unparsed, no_answer as expected; unknown genes dropped and counted).
+4. Replay with the network cut: clusters, candidates, gene facts and report
+   byte-identical.
+5. Off-switch: run_ops profile + evaluate on synthetic stored cells, nightly
+   a884551a8b vs this branch: tables identical; runtime.json identical apart
+   from two timing fields; per_gene.csv.gz content identical. The clustering
+   phases (PHATE + Leiden) cannot run on this machine; a unit test covers the
+   off route with the clustering phase faked.
+6. Stub shuffle control: real 3/6 clusters medium or high, shuffled 0/6.

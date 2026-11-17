@@ -57,6 +57,7 @@ class Voyager3Controls(QWidget):
         self.bar = QProgressBar(self)
         self.bar.setRange(0, 100)
         self.bar.setValue(0)
+        self.bar.setTextVisible(False)
         self.bar.setVisible(False)
         self.status = QLabel(tr("Not run yet."), self)
         self.status.setWordWrap(True)
