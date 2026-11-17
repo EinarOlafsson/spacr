@@ -438,6 +438,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_tuning_grid": None,
     "ops_prefix_nearmiss_decoy_k": 0,
     "ops_prefix_fdr_calibration": "none",
+    "ops_prefix_minority_min_reads": 0,
     "ops_fdr_sweep_targets": [0.5, 1.0, 2.0, 5.0],
     "ops_fdr_sweep_max_distance": [0, 1],
     "ops_fdr_sweep_min_reads": [1, 2, 3],
@@ -886,6 +887,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_tuning_grid": (dict, str, type(None)),
     "ops_prefix_nearmiss_decoy_k": int,
     "ops_prefix_fdr_calibration": str,
+    "ops_prefix_minority_min_reads": int,
     "ops_fdr_sweep_targets": (list, str),
     "ops_fdr_sweep_max_distance": (list, str),
     "ops_fdr_sweep_min_reads": (list, str),
@@ -991,6 +993,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
         "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid",
         "ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration",
+        "ops_prefix_minority_min_reads",
         "ops_fdr_sweep_targets", "ops_fdr_sweep_max_distance",
         "ops_fdr_sweep_min_reads", "ops_fdr_sweep_rules",
         "ops_fdr_sweep_quality_quantiles", "ops_fdr_sweep_bootstrap",
@@ -3367,6 +3370,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "sites, then tunes again at that scale. The scale and the shuffle "
         "call rate go into site_summary.csv and the FDR report. Needs "
         "ops_prefix_decoy_k above 0. Default 'none'. Alpha.",
+    "ops_prefix_minority_min_reads":
+        "(int) - Lets a cell be called when a second barcode has only a few "
+        "stray reads. Inside a cell, a barcode with fewer reads than this is "
+        "ignored when another barcode has more reads; a tie still blocks the "
+        "call, and a cell whose top barcode is a decoy is still not "
+        "genotyped. Matters for ops_prefix_quality_method 'recipe_simple', "
+        "where one stray read otherwise makes the cell bad. site_summary.csv "
+        "counts the rescued cells. 3 is the tested value; 0 is off. "
+        "Default 0. Alpha.",
     "ops_fdr_sweep_targets":
         "(list) - The decoy FDR targets, in %, of the prefix_fdr_sweep phase. "
         "For each target, every method gets the configuration with the most "

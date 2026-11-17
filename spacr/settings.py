@@ -9737,6 +9737,9 @@ ALPHA_FEATURES = {
     957: {
         'widgets': ('MakeMasksPointModeButton',),
     },
+    967: {
+        'settings': ('ops_prefix_minority_min_reads',),
+    },
 }
 
 

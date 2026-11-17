@@ -790,6 +790,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_nearmiss_decoy_k",
     "ops_prefix_fdr_calibration",
     "ops_decode_fdr_calibration",
+    # Item 967 (2026-11-17): the spacer-prefix cell call ignores minority
+    # stray barcodes.
+    "ops_prefix_minority_min_reads",
     # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
     "ops_fdr_sweep_targets",
     "ops_fdr_sweep_max_distance",

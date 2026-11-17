@@ -1,7 +1,7 @@
 # Item 967: spacer-prefix cell call ignores minority stray barcodes (rule F1)
 
 - **Number:** 967, reserved by master on 2026-11-17.
-- **Status:** final spec, 2026-11-17. Maintainer decision: "Land 966 now, F1 next". The setting ships OFF by default (alpha). No default change without a later acceptance run. In the paper, any comparison that uses F1 applies it to every method and says so.
+- **Status:** IMPLEMENTED 2026-11-17 on branch claude-967-1117, alpha (`ALPHA_FEATURES[967]`), off by default; proof check in `BMCspacr/reanalysis/item967_proof/REPORT.md`. Final spec, 2026-11-17. Maintainer decision: "Land 966 now, F1 next". The setting ships OFF by default (alpha). No default change without a later acceptance run. In the paper, any comparison that uses F1 applies it to every method and says so.
 - **Acceptance before a default change:** measure the decoy cost on Funk production (rule (a) + S2 + pixel fallback, A1–A3), run the k grid {2, 3, 4} on more wells, and get a readiness-register entry.
 - **Build acceptance (alpha):** with k = 0, output is byte-identical to nightly; with k = 3, the CP186A held-out numbers in the table below are reproduced within 0.01 points.
 - **Evidence:** `periscope_benchmark/out/fdr_sweep_955/e2e_gap_diagnosis/`. Proof check only; knobs chosen on the 10 CP186A selection sites, scored on the 75 held-out sites (490,923 cells).

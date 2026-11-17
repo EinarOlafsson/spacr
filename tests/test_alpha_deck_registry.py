@@ -106,8 +106,9 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # make 154.
     # 2026-11-17: R2 nuclei on the large-site path (965) make 155.
     # 2026-11-17: the sweep rows' control-row background (959) makes 156.
+    # 2026-11-17: the spacer-prefix minority-read rule (967) makes 157.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    assert count == 156
+    assert count == 157
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
