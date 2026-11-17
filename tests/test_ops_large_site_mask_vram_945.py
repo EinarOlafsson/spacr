@@ -304,12 +304,14 @@ def _well(tmp_path):
 
 
 def _run(tmp_path, name, **extra):
-    """The settings run on the stand-in well."""
+    """The settings run on the stand-in well, with the cell model's own cells
+    (seeded cells, item 965's default, run no cell mask step)."""
     (tmp_path / name).mkdir()
     settings = {"seg_preset": "cell_painting_phalloidin", "seg_sites_src": str(_well(tmp_path / name)),
                 "seg_dst": str(tmp_path / name / "out"), "seg_tile_px": 800,
                 "seg_tile_overlap_px": 64, "nucleus_diameter": 20.0,
-                "seg_measure_band_px": 300, **extra}
+                "seg_measure_band_px": 300, "seg_cells_from_nucleus_seeds": False,
+                "seg_merge_small_nuclei_frac": 0.0, **extra}
     return ols.run_large_site_segmentation(settings, models=(_DiscCellpose(0.5), _DiscCellpose(0.5)),
                                            available_bytes=2 ** 40)
 

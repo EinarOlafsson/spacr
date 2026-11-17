@@ -3603,6 +3603,24 @@ def _validated_fdr_calibration_949_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_r2_nuclei_965_callables(callables):
+    """Check the public callable of item 965 (the small-nucleus merge of the large-site path) against its source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.ops_large_sites.merge_small_nuclei"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_measure_ops_features_934_callables(callables):
     """Check the public callables of item 934 (OPS measurement features in Measure) against their source."""
     import json
@@ -3822,6 +3840,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_optional_families_941_callables(callables)
     callables = _validated_autotune_942_callables(callables)
     callables = _validated_fdr_calibration_949_callables(callables)
+    callables = _validated_r2_nuclei_965_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -6579,6 +6598,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("938_progress_reporters_api_arrivals_2026-11-14.json", 3),
         ("942_ops_autotune_api_arrivals_2026-11-14.json", 3),
         ("949_ops_fdr_calibration_api_arrivals_2026-11-16.json", 3),
+        ("965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7185,7 +7205,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json",
                      "938_progress_reporters_api_arrivals_2026-11-14.json",
                      "942_ops_autotune_api_arrivals_2026-11-14.json",
-                     "949_ops_fdr_calibration_api_arrivals_2026-11-16.json"):
+                     "949_ops_fdr_calibration_api_arrivals_2026-11-16.json",
+                     "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7332,7 +7353,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json",
                      "938_progress_reporters_api_arrivals_2026-11-14.json",
                      "942_ops_autotune_api_arrivals_2026-11-14.json",
-                     "949_ops_fdr_calibration_api_arrivals_2026-11-16.json"):
+                     "949_ops_fdr_calibration_api_arrivals_2026-11-16.json",
+                     "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

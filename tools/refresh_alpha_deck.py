@@ -49,7 +49,7 @@ GROUPS = (
          (493, 801, 803)),
         ("Use Make Masks settings in Mask Generation", (508,)),
         ("Large cropped FOVs: Gallery reader, tiled masks, RAM/VRAM caps, splits/merges",
-         (919, 921, 945, 956)),
+         (919, 921, 945, 956, 965)),
     )),
     ("Image preprocessing", (
         ("Spectral unmixing, photobleaching correction, intensity calibration",

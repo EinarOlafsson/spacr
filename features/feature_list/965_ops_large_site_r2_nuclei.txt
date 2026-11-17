@@ -1,0 +1,72 @@
+OPS LARGE SITES: R2 NUCLEI BY DEFAULT (SMALL NUCLEUS PIECES MERGED, ONE CELL SEEDED FROM EVERY NUCLEUS)
+=========================================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-16, alpha (ALPHA_FEATURES[965]; the module itself under ALPHA_FEATURES[921]). Under development per proposals/READINESS.md until the maintainer marks it Ready. spacr/ops_large_sites.py, spacr/settings.py, docs/source/reproducibility_manifests.rst, docs/notes/release_notes_1.5.1.8.md, tests/test_ops_large_site_r2_nuclei_965.py, tests/test_ops_large_sites_921.py, arrival contract tests/data/release_contracts/965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item965_proof/REPORT.md.
+Requested: maintainer decision 2026-11-16 ("R2"), against his own 1,261 point annotations on 20 PERISCOPE CP186A crops (item 957).
+Owner: master lane claude-965-1116.
+Source: proposals/bmc_paper_items/ITEM_ops_large_site_r2_nuclei.md.
+Replaces: BMCspacr/reanalysis/periscope_benchmark/s3_phenotype/split_tuning/out_r23/scripts/r2_merge.py (merge_small_nuclei, ported unchanged; one implementation in spaCR).
+Related: 921 (the module), 945, 956, 957 (point annotations).
+
+PROBLEM
+On the large-site path (spacr.ops_large_sites.segment_cell_painting_site,
+preset cell_painting_phalloidin) nuclei were paired one to one with the cell
+model's cells. A cell outline holding two nuclei kept one of them and a
+nucleus without a cell was dropped: 11-13 % of PERISCOPE's nuclei, 84 % of
+them a second, real nucleus in a cell the cell model merged. Seeding the
+cells from the nuclei (R1) removes the loss but gives small fragments their
+own cells; R2 merges those fragments first.
+
+BUILD
+- New setting seg_merge_small_nuclei_frac (float >= 0; 0 = off), in
+  LARGE_SITE_DEFAULTS at 0.25, with a tooltip in LARGE_SITE_TOOLTIPS.
+- spacr.ops_large_sites.merge_small_nuclei(nuclei, frac=0.25) -> (labels,
+  info): threshold = frac x the site's median nucleus area (before merging);
+  a nucleus below it that shares a 4-connected border with another nucleus
+  is merged into the neighbour with the longest shared border (ties: larger
+  neighbour, then lower label); chains of small pieces are followed to a
+  kept nucleus, a 2-cycle of small pieces ends on the larger one; a small
+  piece touching nothing is kept (never deletes); labels renumbered 1..n in
+  the order of their old labels. info: threshold_px, median_area_px,
+  n_small, n_merged.
+- segment_cell_painting_site runs it after the nucleus mask step and before
+  the seeding (or the pairing with the cell model's cells when seeding is
+  off); its counts gain merged_small_nuclei and median_nucleus_area_px when
+  the merge runs.
+- seg_cells_from_nucleus_seeds default True (was False) in
+  LARGE_SITE_DEFAULTS; only the large-site path reads it.
+- run_large_site_segmentation: sites.csv gains merged_small_nuclei and
+  median_nucleus_area_px (only when the merge runs, so an off run writes the
+  table it wrote before); the run logs and returns merge_line
+  "R2: merged n small nuclear pieces (x % of nuclei)".
+- SETTINGS_SCHEMA_VERSION 943; DEFAULT_CHANGES[943] =
+  {'seg_cells_from_nucleus_seeds': False, 'seg_merge_small_nuclei_frac': 0.0}.
+- Funk's phenotype path (spacr.ops_engine._ph_segment_field) reads neither
+  setting and is unchanged (maintainer decision).
+
+PROOF
+See the proof notes appended below.
+
+PROOF NOTES (2026-11-16, CPU, one process, 2 threads; spaCR claude-965-1116)
+Report: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item965_proof/REPORT.md.
+The Cellpose network outputs are the cached GPU-pass outputs the decided arm
+was built from; everything after the network runs in the landed code.
+1. Identity: the 20 hand-check crops from today's defaults are byte-identical
+   to out_r23/crops/labels/<crop>_R2_nuclei.tif (20/20, files too); a 942
+   stamp gives the A0 crops (20/20). Rerun: 40/40 crop files identical.
+2. Off-switch: sites 3, 45, 64, 86 through run_large_site_segmentation, nightly
+   429a2542e8 vs this branch with a 942-stamped settings file and with both
+   keys off: labels and tables 12/12 byte-identical, nucleus_diameter.json and
+   mask_step.json identical, sites.csv identical apart from seconds and peak
+   memory; settings.json differs only by the new key.
+3. Funk path: plate A well A1 fields 1255 and 1264 through _ph_segment_field
+   (real Cellpose-SAM, CPU): nuclei and cells identical before and after.
+4. Point truth (1,261 points, 20 crops, crop bootstrap 2,000): R2 F1 0.932
+   [0.921, 0.943], precision 0.913, recall 0.952, count ratio 1.042,
+   fragments 5.1 / 100; A0 0.932 [0.916, 0.945]; PERISCOPE deposited masks
+   0.866 [0.814, 0.895]. Equal to point_truth_1116 to the last digit.
+   Shifted negative (50 shifts of 30-60 px): IoU 0.5 F1 vs PERISCOPE 0.019
+   [0.011, 0.025]; point F1 0.133 [0.115, 0.154].
+5. Speed: merge 1.55 s median per site (0.75-2.89 s, 10 sites, CPU 2
+   threads under load 17-24).

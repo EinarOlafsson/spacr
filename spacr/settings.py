@@ -2534,7 +2534,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 942
+SETTINGS_SCHEMA_VERSION = 943
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2554,6 +2554,8 @@ DEFAULT_CHANGES = {
           'ops_decode_auto_spot_grid': [150.0, 200.0, 250.0, 315.0, 400.0]},
     941: {'ops_cluster_published_controls': False},
     942: {'ops_bench_null_permutations': 200},
+    943: {'seg_cells_from_nucleus_seeds': False,
+          'seg_merge_small_nuclei_frac': 0.0},
 }
 
 
@@ -2634,6 +2636,10 @@ def _fold_older_defaults(settings, version, known=None):
     ``ops_decode_threshold_mode`` ``'auto'`` (was ``'manual'``), with
     ``ops_decode_auto_spot_grid`` back to ``[]`` (calling thresholds only;
     files stamped 939 keep item 942's joint grid).
+    943 is item 965's large-site nuclei (R2): ``seg_cells_from_nucleus_seeds``
+    ``True`` (was ``False``) and ``seg_merge_small_nuclei_frac`` ``0.25``
+    (was ``0.0``); files stamped before keep the cell model's own cells
+    and no merge, so their labels are unchanged.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9497,6 +9503,10 @@ ALPHA_FEATURES = {
     945: {
         'module_settings': {'ops_large_sites': (
             'seg_mask_vram_gb', 'seg_mask_device')},
+    },
+    965: {
+        'module_settings': {'ops_large_sites': (
+            'seg_merge_small_nuclei_frac',)},
     },
     956: {
         'module_settings': {'ops_large_sites': (
