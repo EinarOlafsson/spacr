@@ -9476,6 +9476,9 @@ ALPHA_FEATURES = {
     953: {
         'settings': ('ops_cluster_published_controls',),
     },
+    959: {
+        'settings': ('ops_cluster_sweep_controls_background',),
+    },
     952: {
         'settings': ('ops_read_mode',),
     },
