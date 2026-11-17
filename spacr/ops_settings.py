@@ -72,6 +72,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_sites": None,
     "ops_ph_texture": True,
     "ops_merge_threshold": 4.0,
+    "ops_merge_strategy": "current",
+    "ops_merge_stitch_source": "metadata",
+    "ops_merge_stage_positions": None,
+    "ops_merge_min_votes": 4,
+    "ops_merge_min_match_fraction": 0.51,
+    "ops_merge_fallback_share": 0.0,
     "ops_design": None,
     "ops_control_prefix": "nontargeting",
     "ops_bootstrap": 0,
@@ -493,6 +499,12 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_sites": (str, type(None)),
     "ops_ph_texture": bool,
     "ops_merge_threshold": (float, int),
+    "ops_merge_strategy": str,
+    "ops_merge_stitch_source": str,
+    "ops_merge_stage_positions": (str, type(None)),
+    "ops_merge_min_votes": int,
+    "ops_merge_min_match_fraction": (float, int),
+    "ops_merge_fallback_share": (float, int),
     "ops_design": (str, type(None)),
     "ops_control_prefix": str,
     "ops_bootstrap": int,
@@ -952,8 +964,11 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_profile_features", "ops_ph_profile_optional_families",
         "ops_ph_granularity_subsample",
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
-        "ops_flatfield_field_list", "ops_merge_threshold", "ops_ownership",
-        "ops_align_model", "ops_align_tile_min_nuclei",
+        "ops_flatfield_field_list", "ops_merge_threshold",
+        "ops_merge_strategy", "ops_merge_stitch_source",
+        "ops_merge_stage_positions", "ops_merge_min_votes",
+        "ops_merge_min_match_fraction", "ops_merge_fallback_share",
+        "ops_ownership", "ops_align_model", "ops_align_tile_min_nuclei",
         "ops_align_match_radius", "ops_align_trim_passes",
         "ops_flatfield_nuclear_channel", "ops_flatfield_nuclei",
         "ops_flatfield_dark", "ops_flatfield_nuclear_maps",
@@ -1763,6 +1778,38 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "the same cell. Wider merges more cells and more wrong ones, which "
         "give a phenotype the wrong guide. Default 4, under half a 10X "
         "nucleus diameter. Alpha.",
+    "ops_merge_strategy":
+        "(str) - Where the merge phase gets each phenotype field's "
+        "alignment from. 'current' uses the placement of the phenotype "
+        "phase, as before. 'tile' matches each field's cell pattern to the "
+        "sequencing cells under it. 'stitch' builds both well mosaics and "
+        "aligns them once, for sparse wells whose fields have too few "
+        "cells for a pattern. 'auto' runs 'tile' and switches a well to "
+        "'stitch' when too many of its fields are weak. Each well's choice "
+        "and reason go to merge_strategy_report.csv. Default 'current'. "
+        "Alpha.",
+    "ops_merge_stitch_source":
+        "(str) - Where the 'stitch' route places the tiles. 'metadata' uses"
+        " each tile's stage position, from the images or from "
+        "ops_merge_stage_positions. 'registered' uses the stitch and "
+        "phenotype phases' placements. Default 'metadata'. Alpha.",
+    "ops_merge_stage_positions":
+        "(str or None) - A table of stage positions for the 'stitch' route, "
+        "for images that do not record them: CSV, TSV or parquet with "
+        "well, modality ('sbs' or 'phenotype'), site, y and x in that "
+        "acquisition's own pixels. Default None (read from the images). "
+        "Alpha.",
+    "ops_merge_min_votes":
+        "(int) - The fewest agreeing triangles a field's pattern match "
+        "needs; fewer makes the field weak in the 'tile' and 'auto' routes."
+        " Default 4. Alpha.",
+    "ops_merge_min_match_fraction":
+        "(float) - The smallest share of a field's cells that must find a "
+        "sequencing cell after the pattern match; less makes the field "
+        "weak. Default 0.51. Alpha.",
+    "ops_merge_fallback_share":
+        "(float) - The 'auto' route switches a well to 'stitch' when more "
+        "than this share of its fields are weak. Default 0. Alpha.",
     "ops_design":
         "(str or None) - The guide design table, with sgRNA and gene_symbol "
         "columns. The aggregate phase matches each decoded barcode prefix to "

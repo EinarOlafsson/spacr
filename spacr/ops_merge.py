@@ -643,3 +643,236 @@ def tile_affine_to_well(points, field, groups, tile_centres) -> np.ndarray:
             moved[members] = (src[members] @ np.asarray(transform[1], float).T
                               + np.asarray(transform[2], float))
     return moved
+
+
+def _triangle_votes(source, target, *, tolerance: float = 0.02,
+                    scale=None, scale_tolerance: float = 0.05,
+                    radius: float = 3.0, max_pairs: int = 2_000_000):
+    """The triangle-hash consensus between two cell sets, with its votes.
+
+    The same descriptors as :func:`align_by_triangles`
+    (:func:`triangle_descriptors`), solved for every descriptor match at
+    once: each matched triangle pair proposes a similarity, the proposals
+    are pooled where they send the centre of ``source``, and the
+    similarity is re-solved on the vertices of the triangle pairs that
+    agree with the pool. A triangle pair agrees -- one vote -- when all
+    three of its source vertices land within ``radius`` of their target
+    vertices under the consensus, so a pair of unrelated point sets, which
+    still produces descriptor matches, scores few votes rather than many.
+
+    :param source: ``(N, 2)`` points to be moved.
+    :param target: ``(M, 2)`` points to move them to.
+    :param tolerance: descriptor distance still called the same triangle.
+    :param scale: the expected scale, or None; proposals further than
+        ``scale_tolerance`` (relative, in log scale) are not counted.
+    :param scale_tolerance: see ``scale``.
+    :param radius: vertex agreement, in target units.
+    :param max_pairs: the most descriptor matches solved; above it every
+        k-th match is kept, deterministically.
+    :returns: ``(transform, votes)``; ``transform`` is ``(scale, rotation,
+        translation)`` or None when no proposal survived.
+    """
+    from scipy.spatial import cKDTree
+
+    src = np.asarray(source, float).reshape(-1, 2)
+    dst = np.asarray(target, float).reshape(-1, 2)
+    if src.shape[0] < 3 or dst.shape[0] < 3:
+        return None, 0
+    src_desc, src_tri = triangle_descriptors(src)
+    dst_desc, dst_tri = triangle_descriptors(dst)
+    keep_src = src_desc[:, 1] > 0
+    keep_dst = dst_desc[:, 1] > 0
+    src_desc, src_tri = src_desc[keep_src], src_tri[keep_src]
+    dst_desc, dst_tri = dst_desc[keep_dst], dst_tri[keep_dst]
+    if src_desc.shape[0] == 0 or dst_desc.shape[0] == 0:
+        return None, 0
+    hits = cKDTree(dst_desc).query_ball_point(src_desc, float(tolerance))
+    counts = np.fromiter((len(h) for h in hits), np.int64, len(hits))
+    if counts.sum() == 0:
+        return None, 0
+    i = np.repeat(np.arange(len(hits)), counts)
+    j = np.fromiter((k for h in hits for k in h), np.int64, int(counts.sum()))
+    if i.size > int(max_pairs):
+        step = int(np.ceil(i.size / float(max_pairs)))
+        i, j = i[::step], j[::step]
+    s = src[src_tri[i]]
+    d = dst[dst_tri[j]]
+    s_c = s[..., 0] + 1j * s[..., 1]
+    d_c = d[..., 0] + 1j * d[..., 1]
+    s_mean = s_c.mean(axis=1)
+    d_mean = d_c.mean(axis=1)
+    s0 = s_c - s_mean[:, None]
+    d0 = d_c - d_mean[:, None]
+    norm = (np.abs(s0) ** 2).sum(axis=1)
+    usable = norm > 1e-12
+    z = np.zeros(len(norm), complex)
+    z[usable] = (d0[usable] * np.conj(s0[usable])).sum(axis=1) / norm[usable]
+    scales = np.abs(z)
+    usable &= np.isfinite(scales) & (scales > 0)
+    if scale is not None:
+        usable &= np.abs(np.log(np.where(usable, scales, 1.0)
+                                / float(scale))) <= float(scale_tolerance)
+    if not usable.any():
+        return None, 0
+    z, s, d = z[usable], s_c[usable], d_c[usable]
+    reference = complex(src[:, 0].mean(), src[:, 1].mean())
+    lands = (d.mean(axis=1) + z * (reference - s.mean(axis=1)))
+    cell = 8.0 * float(radius)
+    keys = np.column_stack([np.floor(lands.real / cell),
+                            np.floor(lands.imag / cell)]).astype(np.int64)
+    found, sizes = np.unique(keys, axis=0, return_counts=True)
+    best = found[int(np.argmax(sizes))]
+    near = np.all(np.abs(keys - best) <= 1, axis=1)
+    zz = z[near]
+    scale_mid = float(np.exp(np.median(np.log(np.abs(zz)))))
+    angle_mid = float(np.angle(np.exp(1j * np.angle(zz)).sum()))
+    mid = scale_mid * np.exp(1j * angle_mid)
+    land = complex(np.median(lands[near].real), np.median(lands[near].imag))
+    shift = land - mid * reference
+    votes = 0
+    fit = None
+    for _round in range(2):
+        moved = mid * s + shift
+        agree = np.abs(moved - d).max(axis=1) <= float(radius)
+        votes = int(agree.sum())
+        if votes == 0:
+            return None, 0
+        pairs_src = np.column_stack([s[agree].real.ravel(),
+                                     s[agree].imag.ravel()])
+        pairs_dst = np.column_stack([d[agree].real.ravel(),
+                                     d[agree].imag.ravel()])
+        fit = _similarity_from_pairs(pairs_src, pairs_dst)
+        if fit is None:
+            return None, 0
+        rotation = np.asarray(fit[1], float)
+        mid = float(fit[0]) * complex(rotation[0, 0], rotation[1, 0])
+        shift = complex(float(fit[2][0]), float(fit[2][1]))
+    moved = mid * s + shift
+    votes = int((np.abs(moved - d).max(axis=1) <= float(radius)).sum())
+    if votes == 0:
+        return None, 0
+    return (float(fit[0]), np.asarray(fit[1], float),
+            np.asarray(fit[2], float)), votes
+
+
+def _compose(outer, inner):
+    """The similarity ``outer`` after ``inner``, as one ``(s, R, t)``."""
+    scale = float(outer[0]) * float(inner[0])
+    rotation = np.asarray(outer[1], float) @ np.asarray(inner[1], float)
+    translation = (float(outer[0]) * np.asarray(outer[1], float)
+                   @ np.asarray(inner[2], float) + np.asarray(outer[2], float))
+    return scale, rotation, translation
+
+
+def _weak_pair(votes: int, fraction: float, min_votes: int,
+               min_fraction: float) -> bool:
+    """Whether one tile pair fails the fallback rule (item 962)."""
+    return int(votes) < int(min_votes) or not (
+        float(fraction) >= float(min_fraction))
+
+
+def _choose_route(weak, fields: int, share: float) -> Tuple[str, str]:
+    """``('tile' | 'stitch', reason)`` for one well under the fallback rule.
+
+    :param weak: how many tile pairs are weak.
+    :param fields: how many tile pairs were tried.
+    :param share: the share of weak pairs above which the well falls back.
+    """
+    if fields <= 0:
+        return "stitch", "no tile pair could be tried"
+    ratio = float(weak) / float(fields)
+    if ratio > float(share):
+        return "stitch", (f"{int(weak)} of {int(fields)} tile pairs weak "
+                          f"({ratio:.3f} > {float(share):.3f})")
+    return "tile", (f"{int(weak)} of {int(fields)} tile pairs weak "
+                    f"({ratio:.3f} <= {float(share):.3f})")
+
+
+def _well_similarity(source, target, *, scale: float = 1.0,
+                     regions: int = 9, region_radius: float = 600.0,
+                     margin: float = 200.0, radius: float = 3.0,
+                     min_votes: int = 3):
+    """One similarity between two well mosaics, from sampled regions.
+
+    A whole well holds too many cells to triangulate and hash at once, so
+    ``regions`` discs of ``region_radius`` are taken on a grid over the
+    source mosaic, each is hashed against the target cells within
+    ``region_radius + margin`` of the same place (:func:`_triangle_votes`),
+    and the regions whose transforms agree are kept. A region's own fit
+    pins its translation well but its scale and rotation only to a fraction
+    of a percent, which is several pixels across a well; so the cells each
+    agreeing region pairs (:func:`match_cells` within ``radius``) are
+    pooled and one similarity is solved on all of them by least squares,
+    then re-solved once on the pairs that similarity gives.
+
+    :param source: ``(N, 2)`` source mosaic points, target pixels.
+    :param target: ``(M, 2)`` target mosaic points.
+    :param scale: the expected scale between the mosaics (1 once both are
+        in target pixels).
+    :param regions: how many regions to try (a square grid).
+    :param region_radius: the source disc radius, target px.
+    :param margin: how far the stage may be off, target px.
+    :param radius: pairing distance for the votes and the pooled pairs.
+    :param min_votes: the fewest votes for a region to count.
+    :returns: ``(transform, votes, regions_used)``; the identity with 0
+        votes and 0 regions when no region agreed.
+    """
+    from scipy.spatial import cKDTree
+
+    src = np.asarray(source, float).reshape(-1, 2)
+    dst = np.asarray(target, float).reshape(-1, 2)
+    identity = (1.0, np.eye(2), np.zeros(2))
+    if src.shape[0] < 3 or dst.shape[0] < 3:
+        return identity, 0, 0
+    side = max(1, int(np.ceil(np.sqrt(int(regions)))))
+    low, high = src.min(axis=0), src.max(axis=0)
+    edges_y = np.linspace(low[0], high[0], side + 1)
+    edges_x = np.linspace(low[1], high[1], side + 1)
+    src_tree, dst_tree = cKDTree(src), cKDTree(dst)
+    found = []
+    for a in range(side):
+        for b in range(side):
+            centre = np.array([(edges_y[a] + edges_y[a + 1]) / 2.0,
+                               (edges_x[b] + edges_x[b + 1]) / 2.0])
+            mine = np.sort(src_tree.query_ball_point(
+                centre, float(region_radius))).astype(np.int64)
+            if len(mine) < 3:
+                continue
+            theirs = np.sort(dst_tree.query_ball_point(
+                centre, float(region_radius) + float(margin))).astype(np.int64)
+            if len(theirs) < 3:
+                continue
+            fit, votes = _triangle_votes(src[mine], dst[theirs], scale=scale,
+                                         radius=radius)
+            if fit is not None and votes >= int(min_votes):
+                found.append((fit, votes, mine, theirs))
+    if not found:
+        return identity, 0, 0
+    shifts = np.array([f[0][2] for f in found])
+    middle = np.median(shifts, axis=0)
+    agree = [f for f in found
+             if np.hypot(*(np.asarray(f[0][2]) - middle)) <= 4.0 * radius
+             * max(1.0, float(margin) / 50.0)]
+    if not agree:
+        agree = found
+    fit = None
+    for round_ in range(2):
+        pairs_src, pairs_dst = [], []
+        for region_fit, _votes, mine, theirs in agree:
+            use = region_fit if round_ == 0 else fit
+            pairs = match_cells(src[mine], dst[theirs], transform=use,
+                                threshold=float(radius), gpu=False)
+            if len(pairs):
+                pairs_src.append(src[mine][pairs[:, 0]])
+                pairs_dst.append(dst[theirs][pairs[:, 1]])
+        if not pairs_src:
+            break
+        solved = _similarity_from_pairs(np.vstack(pairs_src),
+                                        np.vstack(pairs_dst))
+        if solved is None:
+            break
+        fit = (float(solved[0]), np.asarray(solved[1], float),
+               np.asarray(solved[2], float))
+    if fit is None:
+        return identity, 0, 0
+    return fit, int(sum(f[1] for f in agree)), int(len(agree))
