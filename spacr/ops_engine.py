@@ -5277,19 +5277,15 @@ def _merge_stage_positions(settings: Mapping[str, Any], well: str,
     ``PositionY``/``PositionX`` over its pixel size, through
     :func:`spacr.image_stitch.read_stage_positions`.
     """
-    import pandas as pd
-
     from .image_stitch import read_stage_positions
     from .qt.i18n import tr
+    from .tabular import read_table
 
     table = settings.get("ops_merge_stage_positions")
     out: Dict[str, Dict[int, np.ndarray]] = {"sbs": {}, "phenotype": {}}
     if table:
         path = str(table)
-        if path.lower().endswith(".parquet"):
-            frame = pd.read_parquet(path)
-        else:
-            frame = pd.read_csv(path, sep=None, engine="python")
+        frame = read_table(path, canonicalise=False)
         need = {"well", "modality", "site", "y", "x"}
         if not need <= set(frame.columns):
             raise ValueError(tr(
@@ -5587,16 +5583,18 @@ def _write_merge_report(destination: str, row: Mapping[str, Any]) -> str:
     """
     import pandas as pd
 
+    from .tabular import read_table, write_table
+
     path = _merge_report_path(destination)
     frame = pd.DataFrame([dict(row)])
     if os.path.isfile(path):
-        old = pd.read_csv(path)
+        old = read_table(path, canonicalise=False)
         keep = ~((old["plate"].astype(str) == str(row["plate"]))
                  & (old["well"].astype(str) == str(row["well"])))
         frame = pd.concat([old[keep], frame], ignore_index=True)
     frame = frame.sort_values(["plate", "well"], kind="stable")
     os.makedirs(destination, exist_ok=True)
-    frame.to_csv(path, index=False)
+    write_table(frame, path, canonicalise=False)
     return path
 
 
