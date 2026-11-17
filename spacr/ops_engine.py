@@ -313,8 +313,11 @@ _SCORING_PHASES = ("score",)
 #: Painting Gallery's per-channel site TIFFs, write their painting stacks to
 #: ``merged/``, and decode the sequencing stacks against spacer prefixes;
 #: ``prefix_fdr_sweep`` (alpha, item 955) then scores the decoded reads, and
-#: other pipelines' reads, at matched decoy FDR.
-_CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode", "prefix_fdr_sweep")
+#: other pipelines' reads, at matched decoy FDR; ``prefix_grid_search``
+#: (alpha, item 960) scores a grid of decode settings on a few tiles, and is
+#: the only phase a run with ``ops_grid_search`` on runs.
+_CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode", "prefix_fdr_sweep",
+               "prefix_grid_search")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
@@ -343,9 +346,12 @@ def _run_cpg(settings: Mapping[str, Any], phases: Sequence[str]) -> Dict[str, An
         raise ValueError(f"phases {list(_CPG_PHASES)} read the cropped-site layout; "
                          f"set ops_layout to 'cpg_cropped' (got {layout!r})")
     mode = str(settings.get("ops_library_mode") or "barcode")
+    grid = settings.get("ops_grid_search")
+    if isinstance(grid, str):
+        grid = grid.strip().lower() not in ("", "false", "0", "no", "off", "none")
     if tuple(phases) == _PHASES:
-        phases = ("cpg_index", "cpg_merged") + (
-            ("prefix_decode",) if mode == "spacer_prefix" else ())
+        phases = (("prefix_grid_search",) if grid else ("cpg_index", "cpg_merged") + (
+            ("prefix_decode",) if mode == "spacer_prefix" else ()))
     other = [phase for phase in phases if phase not in _CPG_PHASES]
     if other:
         raise ValueError(f"ops_layout 'cpg_cropped' runs only {list(_CPG_PHASES)}; "
@@ -365,6 +371,12 @@ def _run_cpg(settings: Mapping[str, Any], phases: Sequence[str]) -> Dict[str, An
         from .ops_prefix import _run_fdr_sweep_phase
 
         out["prefix_fdr_sweep"] = _run_fdr_sweep_phase(settings, report=_say)
+    if "prefix_grid_search" in phases:
+        from .ops_grid_search import _run_grid_search
+
+        result = _run_grid_search(settings, report=_say)
+        out["prefix_grid_search"] = {key: value for key, value in result.items()
+                                     if key != "table"}
     return out
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity

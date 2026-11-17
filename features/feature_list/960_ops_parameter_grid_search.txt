@@ -1,0 +1,67 @@
+OPS PARAMETER GRID SEARCH ON REPRESENTATIVE TILES
+=================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-17, alpha (ALPHA_FEATURES[960]). Under development per proposals/READINESS.md: not marked Ready. spacr/ops_grid_search.py, spacr/ops_prefix.py (_site_row, shared by the decode and the grid), spacr/ops_engine.py (prefix_grid_search phase), spacr/ops_settings.py, spacr/settings.py, spacr/qt/widgets/ops_grid_search_panel.py, tests/test_ops_grid_search_960.py, tests/qt/test_ops_grid_search_panel_960.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item960_proof/REPORT.md.
+Requested: maintainer, 2026-11-16 ("our live view needs to fill these functions as well"; Brieflow, Nat Commun 2026, doi 10.1038/s41467-026-73643-7, Methods, SBS module: a grid search over detection parameters on representative tiles).
+Owner: master lane claude-960-1117.
+Source: proposals/bmc_paper_items/ITEM_ops_parameter_grid_search.md.
+Related: 920 (spacer-prefix decode), 942 (decoys, per-well tuning), 949 (shuffle control), 952 (read mode), 966 (genotyping freeze, the default point), 971 (OPS Live preview; the GUI panel joins its Spots & genotyping tab).
+
+PROBLEM
+OPS decode thresholds were tuned inside a run (auto mode) with no
+per-combination table to inspect before a full run, and the live preview
+covered segmentation only.
+
+BUILD
+- Settings (alpha, all off or empty by default, no schema bump):
+  ops_grid_search (bool False), ops_grid_params (grid, None),
+  ops_grid_tiles (selection, None), ops_grid_tile_mode (None = stratified;
+  stratified, edge_centre, user), ops_grid_n_tiles (None = 8),
+  ops_grid_seed (None = 0), ops_grid_run_id (None; written by apply).
+- One grid parser for the settings file, the GUI and the CLI: a dict of
+  lists, a JSON object, or "key=v1,v2; key2=v3". It varies
+  ops_read_threshold, ops_read_mode (log, raw), ops_prefix_min_read_quality,
+  ops_prefix_max_distance, ops_quality_min_reads and ops_prefix_crosstalk.
+  The full-barcode decode's keys (ops_min_fraction, ops_single_read_quality,
+  ops_pixel_quality, ops_read_mismatches) and a peak width are not on this
+  path and are refused with the list of keys it does vary.
+- Tile picker: stratified (wells in turn, a seeded random site each),
+  edge_centre (alternately the site furthest from and nearest the well
+  centre, sites taken as a square raster), user (ops_grid_tiles).
+- Default point: the settings as they stand. With per-well tuning (the 966
+  default) the decode runs once on the chosen tiles per well and its choice
+  is the default; every grid point changes only the keys the grid names.
+  The run records whether the default point's counts equal the decode's own
+  site_summary rows (default_matches_decode).
+- Engine path: each tile's spots are found once down to the lowest grid
+  threshold (_spot_candidates, _raw_candidates), each point is read, called
+  and matched with _site_tuning_reads and _at_setting, and counted with
+  _site_row, which run_prefix_decode now calls too. Shuffle control: the
+  engine's 3 shuffled whitelists (_shuffle_frame, _called_counts).
+- Parallel over tiles: n_workers processes (spawn), each tile once.
+- Outputs beside the settings file (else <dst_root>/settings):
+  ops_grid_<run id>.csv (per tile and pooled rows; same settings write the
+  same bytes), ops_grid_<run id>_timing.csv (spot-finding seconds per tile,
+  scoring seconds per point and tile), ops_grid_<run id>.png (assigned %
+  against shuffle call rate, default and Pareto front), ops_grid_<run id>.json.
+- run_ops on the cropped-site layout with ops_grid_search on runs only the
+  prefix_grid_search phase; the phase can also be named.
+- Apply: a non-default point writes its values, sets
+  ops_prefix_threshold_tuning 'none', and records ops_grid_run_id,
+  ops_grid_tiles and ops_grid_seed; ops_grid_search goes back off.
+- GUI: spacr/qt/widgets/ops_grid_search_panel.py, a Grid search panel
+  (tile pick, n tiles, seed, tiles, grid, Run grid, sortable table, plot,
+  Apply to settings) for the Spots & genotyping tab of item 971's OPS Live
+  preview; _attach_grid_search(live_panel, host) adds it to
+  live_panel.page('spots'). Wiring into the OPS screen waits for 971.
+
+ACCEPTANCE
+tests/test_ops_grid_search_960.py: parser forms and refusals; seeded,
+round-robin and edge/centre tile picks; a grid point's counts and shuffle
+equal run_prefix_decode at that setting on the same sites (log, raw, high
+threshold); the default point equals the decode's tuned choice; the same
+settings write the same CSV; two workers write what one writes; apply;
+run_ops with the switch on runs only the grid; defaults off and alpha.
+tests/qt/test_ops_grid_search_panel_960.py: run, table, apply, refusal,
+failure text, attach to the spots tab.
