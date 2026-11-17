@@ -4451,32 +4451,72 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
 _PH_OBJECT_ROLES: Tuple[str, ...] = ("pathogen", "organelle")
 
 
+def _ph_object_settings(settings: Mapping[str, Any]
+                        ) -> Dict[str, Dict[str, Any]]:
+    """The object classes this run segments and how, as the run uses them (item 970).
+
+    :param settings: read for ``ops_ph_pathogen_channel``,
+        ``ops_ph_pathogen_model``, ``ops_ph_pathogen_diameter``,
+        ``ops_ph_pathogen_min_area``, ``ops_ph_organelle_channel``,
+        ``ops_ph_organelle_morphology``, ``ops_ph_organelle_method``,
+        ``ops_ph_organelle_model``, ``ops_ph_organelle_diameter`` and
+        ``ops_ph_organelle_min_area``.
+    :returns: ``{class: {setting: value}}`` for each class whose channel is
+        set, in :data:`_PH_OBJECT_ROLES` order, an unset setting at its
+        default; empty, the default, segments and measures exactly as
+        before. The model value is the setting each model is loaded from.
+    """
+    out: Dict[str, Dict[str, Any]] = {}
+    channel = str(settings.get("ops_ph_pathogen_channel") or "").strip()
+    if channel:
+        out["pathogen"] = {
+            "channel": channel,
+            "model": str(settings.get("ops_ph_pathogen_model")
+                         or "cpsam").strip() or "cpsam",
+            "diameter": settings.get("ops_ph_pathogen_diameter") or None,
+            "min_area": settings.get("ops_ph_pathogen_min_area") or 0}
+    channel = str(settings.get("ops_ph_organelle_channel") or "").strip()
+    if channel:
+        out["organelle"] = {
+            "channel": channel,
+            "morphology": str(settings.get("ops_ph_organelle_morphology")
+                              or "spots"),
+            "method": str(settings.get("ops_ph_organelle_method") or "otsu"),
+            "model": str(settings.get("ops_ph_organelle_model")
+                         or "cpsam").strip() or "cpsam",
+            "diameter": settings.get("ops_ph_organelle_diameter") or None,
+            "min_area": (10 if settings.get("ops_ph_organelle_min_area")
+                         is None else settings.get("ops_ph_organelle_min_area"))}
+    return out
+
+
 def _ph_object_roles(settings: Mapping[str, Any]) -> List[str]:
     """The object classes this run segments besides nuclei and cells (item 970).
 
-    :param settings: read for ``ops_ph_pathogen_channel`` and
-        ``ops_ph_organelle_channel``.
+    :param settings: as :func:`_ph_object_settings` reads them.
     :returns: ``'pathogen'`` and/or ``'organelle'``, those whose channel is
         set; empty, the default, segments and measures exactly as before.
     """
-    return [role for role in _PH_OBJECT_ROLES
-            if str(settings.get(f"ops_ph_{role}_channel") or "").strip()]
+    return list(_ph_object_settings(settings))
 
 
-def _ph_object_model(settings: Mapping[str, Any], gpu: bool, key: str,
-                     cache: Dict[str, Any]):
-    """The Cellpose model ``key`` names, loaded once per run.
+def _ph_object_model(settings: Mapping[str, Any], gpu: bool, role: str,
+                     name: str, cache: Dict[str, Any]):
+    """The Cellpose model of one object class, loaded once per run.
 
-    :param settings: read for ``key``.
+    :param settings: passed to :func:`_cellpose_model`.
     :param gpu: put it on the card.
-    :param key: ``ops_ph_pathogen_model`` or ``ops_ph_organelle_model``.
+    :param role: ``'pathogen'`` (``ops_ph_pathogen_model``) or
+        ``'organelle'`` (``ops_ph_organelle_model``).
+    :param name: that setting's value.
     :param cache: models already loaded, by name; the phenotype phase
         seeds it with the nucleus model, so a run naming the same model
         everywhere loads it once.
     """
-    name = str(settings.get(key) or "cpsam").strip() or "cpsam"
     if name not in cache:
-        cache[name] = _cellpose_model(settings, gpu, key)
+        cache[name] = _cellpose_model(
+            settings, gpu, "ops_ph_pathogen_model" if role == "pathogen"
+            else "ops_ph_organelle_model")
     return cache[name]
 
 
@@ -4488,8 +4528,8 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
 
     :param stack: the ``(H, W, C)`` field.
     :param channels: the stack's channel names.
-    :param settings: read for the ``ops_ph_pathogen_*`` and
-        ``ops_ph_organelle_*`` settings and ``ops_ph_batch_size``.
+    :param settings: read for the object settings
+        (:func:`_ph_object_settings`) and ``ops_ph_batch_size``.
     :param gpu: run Cellpose on the card.
     :param cache: Cellpose models by name (:func:`_ph_object_model`).
     :param tile: ``tile(plane, segment)`` runs a Cellpose ``segment`` over
@@ -4537,44 +4577,39 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
                 model, image, site='ops_phenotype', settings=settings,
                 batch_size=batch, **extra)[0], np.int32)
         return run(plane) if tile is None else tile(plane, run)
-    for role in _ph_object_roles(settings):
-        channel = str(settings.get(f"ops_ph_{role}_channel")).strip()
-        if channel not in channels:
+    for role, given in _ph_object_settings(settings).items():
+        if given["channel"] not in channels:
             raise ValueError(tr(
                 "ops_ph_{role}_channel {channel} is not one of "
-                "ops_ph_channels {channels}", role=role, channel=channel,
-                channels=list(channels)))
-        plane = np.asarray(stack[..., list(channels).index(channel)],
+                "ops_ph_channels {channels}", role=role,
+                channel=given["channel"], channels=list(channels)))
+        plane = np.asarray(stack[..., list(channels).index(given["channel"])],
                            np.float32)
-        diameter = settings.get(f"ops_ph_{role}_diameter")
-        extra = {"diameter": float(diameter)} if diameter else {}
-        min_area = settings.get(f"ops_ph_{role}_min_area") or 0
+        extra = ({"diameter": float(given["diameter"])}
+                 if given["diameter"] else {})
         if role == "pathogen":
             labels = cellpose(_ph_object_model(
-                settings, gpu, "ops_ph_pathogen_model", cache), plane, extra)
-            view: Dict[str, Any] = {"pathogen_min_area": min_area}
+                settings, gpu, role, given["model"], cache), plane, extra)
+            view: Dict[str, Any] = {"pathogen_min_area": given["min_area"]}
         else:
             from .object import (_extract_classical_settings,
                                  _preprocess_batch, _segment_single_image,
                                  _validate_organelle_settings)
             from .settings import _set_organelle_defaults
 
-            morphology = str(settings.get("ops_ph_organelle_morphology")
-                             or "spots")
-            method = str(settings.get("ops_ph_organelle_method") or "otsu")
-            _validate_organelle_settings(morphology, method)
-            if method == "unet":
+            _validate_organelle_settings(given["morphology"], given["method"])
+            if given["method"] == "unet":
                 raise ValueError(tr(
                     "ops_ph_organelle_method 'unet' needs a trained U-Net "
                     "file; use a classical method or 'cellpose' in OPS"))
             view = _set_organelle_defaults({
-                "organelle_channel": 0, "organelle_morphology": morphology,
-                "organelle_method": method, "organelle_min_area": min_area,
-                "verbose": False})
-            if method == "cellpose":
+                "organelle_channel": 0,
+                "organelle_morphology": given["morphology"],
+                "organelle_method": given["method"],
+                "organelle_min_area": given["min_area"], "verbose": False})
+            if given["method"] == "cellpose":
                 labels = cellpose(_ph_object_model(
-                    settings, gpu, "ops_ph_organelle_model", cache), plane,
-                    extra)
+                    settings, gpu, role, given["model"], cache), plane, extra)
             else:
                 image = _preprocess_batch(plane[None], view)[0]
                 labels = _segment_single_image(
@@ -4589,28 +4624,12 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
 def _ph_object_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """The object settings a field's masks and cells were made with (item 970).
 
-    :param settings: read for the ``ops_ph_pathogen_*`` and
-        ``ops_ph_organelle_*`` settings of the classes
-        :func:`_ph_object_roles` names.
-    :returns: one entry per class, each setting as the run uses it (its
-        default when unset), recorded in the part markers
+    :param settings: as :func:`_ph_object_settings` reads them.
+    :returns: :func:`_ph_object_settings`, recorded in the part markers
         (:func:`_ph_options_marker`), so masks or cells made with other
         object settings, or without objects, are not mixed in.
     """
-    from .ops_settings import OPS_DEFAULTS
-
-    keys = {"pathogen": ("channel", "model", "diameter", "min_area"),
-            "organelle": ("channel", "morphology", "method", "model",
-                          "diameter", "min_area")}
-    out: Dict[str, Any] = {}
-    for role in _ph_object_roles(settings):
-        out[role] = {}
-        for key in keys[role]:
-            name = f"ops_ph_{role}_{key}"
-            value = settings.get(name)
-            out[role][key] = (OPS_DEFAULTS.get(name) if value in (None, "")
-                              else value)
-    return out
+    return _ph_object_settings(settings)
 
 
 def _ph_saved_objects(saved, roles: Sequence[str], path: str

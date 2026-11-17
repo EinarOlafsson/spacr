@@ -53,5 +53,18 @@ BUILD
 - Defaults: both channels None. No schema bump, no DEFAULT_CHANGES row; a
   default run writes exactly what it wrote before.
 
-PROOF
-See REPORT.md (filled from the proof run).
+PROOF (Funk plate A A1 core tier + synthetic; reanalysis/item970_proof/REPORT.md)
+- Default identity vs nightly a884551a8b, CPU: 14/14 outputs identical with
+  real Cellpose segmentation of field 1264 (mask arrays, cell parts and
+  markers, mask pass, cell table, guide and gene profiles); 17/17 from the
+  reference masks on fields 1264 and 1280.
+- Planted objects (synthetic, shipped _ph_fields): per-cell counts, areas,
+  area fractions and intensities exact for 4 cells; 7/7 pathogen and 6/6
+  organelle objects in the masks; the stray pathogen belongs to no cell.
+- Real-channel smoke: A594 (gamma-H2AX) as 'spots'/'otsu' organelles on
+  field 1264: 1,884 objects (min area 10), 19 finite columns for 249 cells, carried into
+  15 gene profiles (357 -> 376 columns); every shared column identical to
+  the feature off.
+- Profiles: the object columns reach the gene profiles (GENE1 pathogen
+  count +1.69 robust z with 4x planted load, GENE2 0.00) and the clustering
+  feature selection; shared profile columns identical with the feature off.
