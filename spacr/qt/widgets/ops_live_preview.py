@@ -820,8 +820,8 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
         self._pending = None
         self._cancel_event = threading.Event()
         self.runs.append(step)
-        self.set_preview_status(tr("{step}: {running}", step=_title(step),
-                                   running=tr(PREVIEW_RUNNING_MESSAGE)))
+        self.set_preview_status(" · ".join((_title(step),
+                                            tr(PREVIEW_RUNNING_MESSAGE))))
         page = self._pages[step]
         width = page.picture.width() if page.picture.width() > 200 else _FIGURE_SIZE[0]
         height = (page.picture.height() if page.picture.height() > 120
