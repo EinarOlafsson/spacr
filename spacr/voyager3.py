@@ -845,7 +845,7 @@ def run_voyager3(settings: Mapping[str, Any], report: Optional[Callable[[str], N
         "voyager3": TEMPLATE_VERSION, "spacr_version": _version(),
         "created": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "provider": str(getattr(chat, "name", type(chat).__name__)),
         "provider_label": str(getattr(chat, "label", "")), "model": model or "",
-        "provider_args": _provider_args(chat), "timeout_s": timeout,
+        "provider_args": [] if model else _provider_args(chat), "timeout_s": timeout,
         "cluster_table": source, "context": context, "system": SYSTEM_PROMPT, "uniprot": uniprot_meta,
         "shuffle_seed": SHUFFLE_SEED if settings.get("ops_voyager3_shuffle_control") else None,
         "settings": _settings_record(settings), "facts": {gene: facts[gene] for gene in genes_all},
