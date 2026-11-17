@@ -23437,6 +23437,19 @@ Guide bootstraps the consensus clusters. More give a steadier co-clustering matr
 
 Read by ``_consensus_options``, ``ops_defaults``.
 
+.. _setting-flow-ops_consensus_cells:
+
+ops_consensus_cells
+-------------------
+
+The per-cell table (or tables) the 'pairs' mode builds its interphase and mitosis profiles from: one row per cell with gene, sgRNA, mitotic and the TVN columns PC_0, PC_1 and on. Default None. Alpha.
+
+| :py:func:`~spacr.ops_clusters.cluster_consensus_phase`
+|     ``_pairs_inputs`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+
+Read by ``_pairs_inputs``, ``ops_defaults``.
+
 .. _setting-flow-ops_consensus_draw_seed:
 
 ops_consensus_draw_seed
@@ -23608,6 +23621,38 @@ The stability below which a gene is left unassigned when ops_consensus_force_gen
 
 Read by ``_consensus_options``, ``ops_defaults``.
 
+.. _setting-flow-ops_consensus_mode:
+
+ops_consensus_mode
+------------------
+
+What each guide bootstrap clusters: 'profile', the gene profile with PHATE and Leiden; or 'pairs', the gene profile fused with interphase and mitosis profiles of the same guide draw (similarity network fusion), then PHATE and Leiden. 'pairs' keeps more known interacting gene pairs together and needs ops_consensus_cells. Default 'profile'. Alpha.
+
+| :py:func:`~spacr.ops_clusters.cluster_bench_test_phase`
+|     ``_consensus_options`` **-- reads it**
+|     ``vars(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_clusters.cluster_consensus_phase`
+|     ``_consensus_options`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+
+Read by ``_consensus_options``, ``ops_defaults``.
+
+.. _setting-flow-ops_consensus_pairs_search:
+
+ops_consensus_pairs_search
+--------------------------
+
+The cluster search of the 'pairs' mode: 'fast' searches the Leiden resolution once per run with short passes and fuses in single precision, about 10 times faster with the same accuracy on the test plates; 'exact' searches every bootstrap fully in double precision, as the published analysis. Default 'fast'. Alpha.
+
+| :py:func:`~spacr.ops_clusters.cluster_bench_test_phase`
+|     ``_consensus_options`` **-- reads it**
+|     ``vars(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_clusters.cluster_consensus_phase`
+|     ``_consensus_options`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+
+Read by ``_consensus_options``, ``ops_defaults``.
+
 .. _setting-flow-ops_consensus_runs:
 
 ops_consensus_runs
@@ -23651,6 +23696,38 @@ The space cluster_consensus and cluster_bench_test cluster the profile phase's o
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
 Read by ``_guide_inputs``, ``ops_defaults``.
+
+.. _setting-flow-ops_consensus_view_columns:
+
+ops_consensus_view_columns
+--------------------------
+
+How many TVN columns of ops_consensus_cells (PC_0 on) the interphase and mitosis profiles use. Default 50. Alpha.
+
+| :py:func:`~spacr.ops_clusters.cluster_bench_test_phase`
+|     ``_consensus_options`` **-- reads it**
+|     ``vars(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_clusters.cluster_consensus_phase`
+|     ``_consensus_options`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+
+Read by ``_consensus_options``, ``ops_defaults``.
+
+.. _setting-flow-ops_consensus_workers:
+
+ops_consensus_workers
+---------------------
+
+Processes for the consensus bootstraps of the 'pairs' mode. The result does not depend on it; each process needs about 2 GB. Default 1. Alpha.
+
+| :py:func:`~spacr.ops_clusters.cluster_bench_test_phase`
+|     ``_consensus_options`` **-- reads it**
+|     ``vars(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_clusters.cluster_consensus_phase`
+|     ``_consensus_options`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+
+Read by ``_consensus_options``, ``ops_defaults``.
 
 .. _setting-flow-ops_control_prefix:
 
