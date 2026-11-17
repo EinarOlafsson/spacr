@@ -3136,6 +3136,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The per-gene energy-distance test of the etest phase: the cells it "
         "reads, the distance, the reference and null pseudo-genes, and the "
         "test mode. Its power curve is set in the Power module.",
+    "OPS POWER CURVE":
+        "How many cells per gene an optical pooled screen needs: the e-test "
+        "of a finished profile run, repeated on cells drawn down to each cap, "
+        "with an optional retrieval curve against reference gene sets. It is "
+        "set and run in the Power module.",
     "CLUSTER BENCHMARK":
         "Cluster the gene profiles as Funk et al. 2022 did and score the "
         "clusters against CORUM, KEGG and STRING, or a published "

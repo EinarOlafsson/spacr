@@ -3456,10 +3456,18 @@ OPS_DESCRIPTION = (
 def ops_defaults(settings=None):
     """The settings the OPS engine reads, with their defaults filled in.
 
+    A settings file written before item 969 names the nuclei model
+    ``cellpose_model``; it is moved to ``ops_sbs_nucleus_model`` first, so the
+    default does not take its place.
+
     :param settings: caller's settings, filled in with the defaults.
     :returns: the completed settings dict.
     """
     settings = settings if settings is not None else {}
+    if "cellpose_model" in settings:
+        from .settings import _fold_renamed_settings
+
+        _fold_renamed_settings(settings)
     for key, value in OPS_DEFAULTS.items():
         settings.setdefault(key, value)
     return settings

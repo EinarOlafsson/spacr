@@ -132,6 +132,10 @@ def test_the_power_curve_left_the_ops_panel_for_the_power_module(qtbot, monkeypa
     assert POWER_KEYS <= set(sm.resolve_default_settings("ops"))
     assert "PowerOpsCurve" in ALPHA_FEATURES[917]["widgets"]
     assert POWER_KEYS <= set(OPS_POWER_FIELDS)
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
+    hidden = PowerScreen(threaded=False)
+    qtbot.addWidget(hidden)
+    assert hidden._ops_power_box.isHidden()
     monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: True)
     screen = PowerScreen(threaded=False)
     qtbot.addWidget(screen)
