@@ -5,9 +5,10 @@ background of its CORUM and KEGG shares. Item 959 gives spaCR's own sweep
 rows (``score_partitions``) the same background through the same helper, so
 every row of a sweep table uses one background. The control rows are never
 cluster members, enrichment members or STRING pairs; the STRING and complex
-metrics and the shuffled-label draws do not change. With
-``ops_cluster_sweep_controls_background`` False (and in files stamped before
-schema 945) the rows are the rows from before the change.
+metrics and the shuffled-label draws do not change. The option is off by
+default (maintainer decision 2026-11-17): with
+``ops_cluster_sweep_controls_background`` False, the default for new runs
+and every settings file, the rows are the rows from before the change.
 """
 from __future__ import annotations
 
@@ -170,7 +171,7 @@ def _funk_style(folder, names, block, controls=12):
     return {"name": "Funk published", "table": str(folder / "funk.csv"), "cluster": "interphase_cluster"}
 
 
-def test_the_phase_counts_the_controls_by_default_and_false_is_the_old_output(monkeypatch, tmp_path):
+def test_the_phase_counts_the_controls_when_on_and_the_default_is_the_old_output(monkeypatch, tmp_path):
     _install(monkeypatch)
     genes, rows, block = _blocks(n_blocks=8, size=12)
     names, table_rows, _labels = _with_controls(genes, rows, block, controls=16)
@@ -186,7 +187,7 @@ def test_the_phase_counts_the_controls_by_default_and_false_is_the_old_output(mo
         outputs[tag] = _phase_files(folder)
         records[tag] = json.loads((folder / "published_comparators.json").read_text())
         tables[tag] = pd.read_csv(folder / "sweep_rows_with_published.csv")
-    assert outputs["default"] == outputs["true"] != outputs["false"]
+    assert outputs["default"] == outputs["false"] != outputs["true"]
     on = tables["true"]
     assert on.control_rows_in_background.eq(16).all()
     assert on.background_rows.nunique() == 1 and on.background_rows.iloc[0] == len(genes) + 16
@@ -209,22 +210,20 @@ def test_the_phase_counts_the_controls_by_default_and_false_is_the_old_output(mo
     assert _phase_files(tmp_path / "old" / "run" / "results" / "ops_clusters") == outputs["false"]
 
 
-def test_settings_files_saved_before_959_rerun_the_old_way(tmp_path):
+def test_the_option_is_off_by_default_for_new_runs_and_every_settings_file(tmp_path):
     from spacr.cli import resolve_module, resolve_settings
     from spacr.ops_settings import OPS_DEFAULTS, OPS_TOOLTIPS, OPS_TYPES
     from spacr.settings import (ALPHA_FEATURES, DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION,
                                 SETTINGS_VERSION_KEY)
 
     key = "ops_cluster_sweep_controls_background"
-    assert SETTINGS_SCHEMA_VERSION >= 945
-    assert DEFAULT_CHANGES[945] == {key: False}
-    assert OPS_DEFAULTS[key] is True and OPS_TYPES[key] is bool
+    assert all(key not in row for row in DEFAULT_CHANGES.values())
+    assert OPS_DEFAULTS[key] is False and OPS_TYPES[key] is bool
     assert ALPHA_FEATURES[959]["settings"] == (key,)
     assert len(OPS_TOOLTIPS[key]) <= 600 and OPS_TOOLTIPS[key].endswith("Alpha.")
-    assert "item 959" in OPS_TOOLTIPS[key]
+    assert "item 959" in OPS_TOOLTIPS[key] and "Default False" in OPS_TOOLTIPS[key]
     ops = resolve_module("ops")
-    for stamp, expected in (("", False), ("942", False), ("944", False), ("945", True),
-                            (str(SETTINGS_SCHEMA_VERSION), True)):
+    for stamp, expected in (("", False), ("940", False), (str(SETTINGS_SCHEMA_VERSION), False)):
         path = tmp_path / f"old{stamp}.csv"
         with open(path, "w", newline="", encoding="utf-8") as handle:
             writer = csv.writer(handle)

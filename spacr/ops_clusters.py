@@ -1770,7 +1770,7 @@ def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFram
         ``ops_cluster_sweep_controls_background`` (count the run's own
         control rows in the Fisher background of the sweep rows' CORUM
         and KEGG shares, as the comparators count theirs, so every row
-        of the table uses one background; default True).
+        of the table uses one background; default False).
     :param genes: the profile phase's gene table, or None.
     :param folder: ``dst_root``; outputs go to its
         ``results/ops_clusters``.
@@ -1834,8 +1834,7 @@ def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFram
             outputs[f"assignments_{tag}_s{seed}"] = write_table(
                 assignments, os.path.join(out_dir, f"assignments_{tag}_s{seed}.csv.gz"), canonicalise=False)
             say(f"cluster_sweep: {tag} seed {seed}: {len(grid)} resolutions")
-    sweep_background = bool(True if settings.get("ops_cluster_sweep_controls_background") is None
-                            else settings["ops_cluster_sweep_controls_background"])
+    sweep_background = bool(settings.get("ops_cluster_sweep_controls_background"))
     table = score_partitions(names, partitions, refs, shuffles, genes=scored, report=say, control_prefix=prefix,
                              controls_background=sweep_background)
     summary = sweep_summary(table, target)

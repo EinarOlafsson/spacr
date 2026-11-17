@@ -358,7 +358,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cluster_gene_list": None,
     "ops_cluster_published": None,
     "ops_cluster_published_controls": True,
-    "ops_cluster_sweep_controls_background": True,
+    "ops_cluster_sweep_controls_background": False,
     "ops_consensus_enabled": False,
     "ops_consensus_bootstraps": 10,
     "ops_consensus_seed": 100,
@@ -2211,7 +2211,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "rows, as the published comparators count theirs, so every row of "
         "the sweep table uses one background. They are never cluster members "
         "or STRING pairs, and the STRING and complex metrics do not change. "
-        "Settings files saved before item 959 rerun with False. Default True. "
+        "Off by default (maintainer decision): the sweep rows keep the "
+        "targeting-only background they had before item 959. Default False. "
         "Alpha.",
     "ops_consensus_enabled":
         "(bool) - Also run guide-bootstrap consensus clustering after the "

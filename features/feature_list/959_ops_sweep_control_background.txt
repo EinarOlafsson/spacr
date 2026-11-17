@@ -2,7 +2,7 @@ OPS CLUSTER-SWEEP ROWS COUNT THE RUN'S CONTROL ROWS IN THE SAME FISHER BACKGROUN
 ================================================================================================================
 
 Lifecycle: future
-Status: IMPLEMENTED 2026-11-16, alpha (ALPHA_FEATURES[959]), the same lifecycle as items 916 and 953. Schema 945 (943 and 944 are reserved for items 965 and 966): DEFAULT_CHANGES[945] = {'ops_cluster_sweep_controls_background': False}, so settings files stamped before rerun the old way. spacr/ops_clusters.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_sweep_control_background_959.py, tests/test_ops_published_background_953_954.py, tests/test_settings_categories.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item959_proof/REPORT.md.
+Status: IMPLEMENTED 2026-11-16, alpha (ALPHA_FEATURES[959]), the same lifecycle as items 916 and 953. Opt-in: ops_cluster_sweep_controls_background defaults to False (maintainer decision 2026-11-17, so the default keeps the targeting-only background, whose Funk score matches the published 23.9 % in Brieflow, Nat Commun 2026, p. 8). No default changes, so no schema bump and no DEFAULT_CHANGES row. spacr/ops_clusters.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_sweep_control_background_959.py, tests/test_ops_published_background_953_954.py, tests/test_settings_categories.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item959_proof/REPORT.md.
 Requested: maintainer decision 2026-11-16 ("Same background, new item"), following item 953.
 Owner: master lane claude-959-1116.
 Source: proposals/bmc_paper_items/ITEM_ops_sweep_control_background.md (spec commit c557e135c4).
@@ -30,8 +30,8 @@ BUILD
   rows count the run's control rows and, when the comparators keep theirs,
   that every row of the table uses one background rule.
 - cluster_sweep_phase reads ops_cluster_sweep_controls_background (bool,
-  default True, alpha). False (and files stamped before 945) writes
-  byte-identical files to nightly 084bac13fa.
+  default False, alpha). False (the default, and every existing settings
+  file) writes byte-identical files to nightly 084bac13fa.
 
 ACCEPTANCE
 tests/test_ops_sweep_control_background_959.py: the CORUM share with controls
@@ -39,9 +39,9 @@ equals a hand-written Fisher test with the background grown by the control
 rows (and the old share without); STRING, complex and count metrics
 unchanged; a sweep row and a comparator row of the same partition are equal
 (one helper, one background); the shuffled controls use the same draws; off
-is the pre-959 scoring byte for byte; the phase default writes the columns
-and the legend, False writes the pre-959 files; files stamped 944 or older
-load False.
+is the pre-959 scoring byte for byte; True writes the columns and the
+legend, the default (False) writes the pre-959 files; settings files of any
+stamp load False.
 
 PROOF CHECK 2026-11-17 (CPU, venv_bench). See REPORT.md.
 - Funk 2022's published interphase partition (5,072 genes + 250 NT rows)
@@ -59,3 +59,9 @@ PROOF CHECK 2026-11-17 (CPU, venv_bench). See REPORT.md.
 - Controls: 500 shuffled-label permutations (seed 20261109) at chance; 15 of
   16 single-seed rows inside the 95 % range, the exception (CORUM partner
   share, plate A r12) is a metric item 959 does not change.
+
+DEFAULT 2026-11-17: off by maintainer decision. The published value for Funk
+et al.'s interphase clusters is CORUM 23.9 % (Brieflow, Nat Commun 2026,
+p. 8), which the targeting-only background reproduces; the non-targeting
+background is an opt-in alpha option. The proof's 'new' rows are the
+option switched on.
