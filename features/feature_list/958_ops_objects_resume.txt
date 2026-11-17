@@ -50,3 +50,13 @@ changed diameter reusing no window and equal to a fresh run; keep=True
 leaving every file and a rerun reusing all; a touched tile file sending back
 exactly its windows; a truncated labels file recomputed; checkpoints off
 writing nothing; folder defaults.
+
+PROOF CHECK 2026-11-16 (CPU, Funk 2022 plate A well A1, sites 145, 146, 165,
+166, 512 px windows in every arm, 49 segmented windows). See REPORT.md.
+- Default identity: branch defaults vs nightly 5f1e6e2a5e: ops_objects
+  (13,909), ops_barcodes (9,777), ops_geometry and the 5 decode output files
+  identical; no window files left.
+- SIGKILL before window 12, resume: 11 reused, 38 segmented; every table and
+  file md5-equal to the uninterrupted run; 98 window files deleted.
+- Stale key (diameter 25 on resume): 0 of 49 reused; equal to a fresh
+  diameter-25 run (13,927 nuclei); keep=True left all 49 windows.

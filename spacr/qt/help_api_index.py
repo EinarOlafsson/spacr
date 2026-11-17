@@ -15519,6 +15519,7 @@ SETTING_CONSUMERS = {
     'ops_random_barcode_control': (('spacr.ops_prefix', 'prefix_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_raster_overlap': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_read_mismatches': (('spacr.ops_settings', 'ops_defaults'),),
+    'ops_read_mode': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_read_threshold': (('spacr.ops_prefix', 'prefix_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_reference_clusters': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_reference_counts': (('spacr.ops_settings', 'ops_defaults'),),
