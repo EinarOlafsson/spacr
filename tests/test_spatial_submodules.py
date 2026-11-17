@@ -636,7 +636,7 @@ def test_cellpose_is_driven_through_the_ops_model(tmp_path, monkeypatch):
         spatial_stain="rgb", spatial_diameter=14,
         spatial_cell_expansion_um=0.0))
     assert report["objects"] == len(_centres())
-    assert calls[0] == ({"cellpose_model": "cpsam"}, False)
+    assert calls[0] == ({"ops_sbs_nucleus_model": "cpsam"}, False)
     assert calls[1] == {"batch_size": 16, "diameter": 14.0,
                         "channel_axis": -1}
 

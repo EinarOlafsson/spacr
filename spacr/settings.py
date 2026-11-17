@@ -2337,6 +2337,10 @@ def _set_classifier_evaluation_defaults(settings):
 #: machine. `spacr.validate.RETIRED_SETTINGS` tells them what happened;
 #: this makes the run work meanwhile.
 #:
+#: `cellpose_model` became `ops_sbs_nucleus_model` on 2026-11-17 (item 969):
+#: OPS was its only reader, and the panel asked for its name to say WHICH
+#: objects it segments.
+#:
 #: ONE ENTRY PER LANDED RENAME, added as each one lands rather than all at
 #: once. 364 approved seven and each touches 16 to 29 files under `spacr/`
 #: -- seven at once is one commit nobody can review and one mistake nobody
@@ -2355,6 +2359,7 @@ RENAMED_SETTINGS = {
     "straightness_filter": "drop_straight_tracks",
     "zscore_thresh": "track_outlier_zscore",
     "complevel": "comp_level",
+    "cellpose_model": "ops_sbs_nucleus_model",
 }
 
 #: What each SEMANTIC fold does with an old value, in the words the doctor
@@ -2727,10 +2732,31 @@ def _fold_renamed_settings(settings):
                     old, name, name, old, value)
                 continue
             settings[name] = value
+            _fold_renamed_model_record(settings, old, name)
             LOG.info(
                 "%s=%r is applied as %s. The setting was renamed and this "
                 "file still uses the old name.", old, value, name)
     return settings
+
+
+def _fold_renamed_model_record(settings, old, new):
+    """Move a pinned model-zoo record from a renamed key to its new name.
+
+    ``model_metadata['settings']`` is keyed by the setting that chose the
+    model, so a file written before a rename pins its model under the OLD
+    name. Without this move the value would arrive under the new name and
+    its pin would be dropped, so the run would load the model by name rather
+    than the verified file the file recorded (item 969).
+
+    :param settings: the settings mapping, edited in place.
+    :param old: the name the file used.
+    :param new: the name the value now lives under.
+    """
+    metadata = settings.get("model_metadata")
+    records = metadata.get("settings") if isinstance(metadata, dict) else None
+    if not isinstance(records, dict) or old not in records or new in records:
+        return
+    records[new] = records.pop(old)
 
 
 def _legacy_switch_is_on(value) -> bool:
@@ -9529,6 +9555,7 @@ ALPHA_FEATURES = {
     },
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval', 'ops_power_gene_list', 'ops_power_reference_rows',),
+        'widgets': ('PowerOpsCurve',),
     },
     919: {
         'settings': ('ops_layout', 'cpg_root', 'cpg_wells', 'cpg_sites',

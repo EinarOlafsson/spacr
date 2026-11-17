@@ -4425,7 +4425,8 @@ def _model_input_kinds(module, settings):
         result = {name: ("classifier",) for name in
                   ("model_path", "custom_model_path", "resume_checkpoint")}
     elif key == "ops":
-        result = {"cellpose_model": ("cellpose",)}
+        result = {name: ("cellpose",) for name in (
+            "ops_sbs_nucleus_model", "ops_ph_nucleus_model", "ops_ph_cell_model")}
     elif key == "spatial_masks":
         result = {"spatial_cellpose_model": ("cellpose",)}
     return {name: kinds for name, kinds in result.items() if name in settings}

@@ -1130,6 +1130,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "zscore_thresh": "track_outlier_zscore",
     "overview_measure_saturation": "",
     "overview_original_on_open": "overview_preview_resolution",
+    "cellpose_model": "ops_sbs_nucleus_model",
     **{f"{obj}_{bound}": "object_filters"
        for obj in ("cell", "nucleus", "pathogen")
        for bound in ("min_area", "max_area", "min_intensity",
