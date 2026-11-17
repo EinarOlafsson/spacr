@@ -2476,6 +2476,10 @@ def pairs_bootstrap_consensus(draw, views, n_boot: int, k: int, mask: Optional[n
         results[0] = (labels, resolution, seconds)
         pending = pending[1:]
     use_pool = int(workers) > 1 and len(pending) > 1 and "fork" in multiprocessing.get_all_start_methods()
+    if use_pool:
+        from .resource_log import _guard_workers
+        workers = max(1, int(_guard_workers("ops_consensus", int(workers), 3 * len(first) * len(first) * 8)))
+        use_pool = workers > 1
     try:
         if use_pool:
             with multiprocessing.get_context("fork").Pool(min(int(workers), len(pending))) as pool:
