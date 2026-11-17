@@ -26332,7 +26332,7 @@ Read by :py:func:`~spacr.ops_prefix.prefix_settings`, ``ops_defaults``.
 ops_prefix_threshold_tuning
 ---------------------------
 
-How the spacer-prefix decode sets its thresholds. 'none' uses the values you enter. 'per_well_decoy' chooses them well by well from decoy calls only, spot detection and calling together: half of the well's sites try every combination of ops_prefix_tuning_grid (read threshold, read quality, mismatches), the combination chosen by ops_decode_auto_objective is used for the whole well, and the other half reports its FDR. Needs ops_prefix_decoy_k above 0. Each well's grid, curve and choice are written to threshold_tuning\_<plate>_<well>.csv, .png and .json, and the run log ends with one line per well: the read mode and thresholds chosen and the decoy FDR of each half. Default 'per_well_decoy'. Alpha.
+How the spacer-prefix decode sets its thresholds. 'none' uses the values you enter. 'per_well_decoy' chooses them per well from decoy calls only: half of the well's sites try every combination of ops_prefix_tuning_grid (read threshold, read quality, mismatches), the combination ops_decode_auto_objective picks is used for the whole well, and the other half reports its FDR. Needs ops_prefix_decoy_k above 0. Writes threshold_tuning\_<plate>_<well>.csv, .png and .json and one log line per well. Default 'per_well_decoy'. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -26623,7 +26623,7 @@ Read by ``_cell_rule``, ``ops_defaults``.
 ops_read_mode
 -------------
 
-How each spot's barcode is read, in the OPS and spacer-prefix decodes. 'log' reads the -LoG-filtered pixels (3 x 3 maximum) and calls bases after the per-cycle median normalisation. 'raw' reads the unfiltered pixels (maximum within 3 px) and calls the brightest channel as read, with no normalisation, unmixing or library calibration (PERISCOPE's read). 'auto' picks 'log' or 'raw' per well from decoy calls, tuned with ops_decode_threshold_mode 'auto' or ops_prefix_threshold_tuning 'per_well_decoy'. Spots are found the same way in every mode. Empty uses each decode's own default: the spacer-prefix decode reads 'auto' when ops_prefix_threshold_tuning is 'per_well_decoy' (the default) and 'log' otherwise; the OPS barcode decode reads 'log'. Default None. Alpha.
+How each spot's barcode is read. 'log' reads the -LoG-filtered pixels (3 x 3 maximum) and calls bases after per-cycle median normalisation. 'raw' reads the unfiltered pixels (maximum within 3 px) and calls the brightest channel as read (PERISCOPE's read). 'auto' picks 'log' or 'raw' per well from decoy calls; it needs ops_decode_threshold_mode 'auto' or ops_prefix_threshold_tuning 'per_well_decoy'. Spots are found the same way in every mode. Empty: the spacer-prefix decode reads 'auto' while it tunes and 'log' otherwise; the OPS barcode decode reads 'log'. Default None. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
