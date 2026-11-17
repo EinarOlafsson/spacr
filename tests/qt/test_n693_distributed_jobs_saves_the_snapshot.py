@@ -70,7 +70,13 @@ def test_saving_writes_the_snapshot_and_keeps_submit_unchanged(
     offered = _save_to(monkeypatch, target)
     screen._save_snapshot_csv()
     assert offered == [os.path.join("/mnt/share/plate 1", "measure_settings.csv")]
-    assert load_settings_file(str(target)) == SNAPSHOT
+    # The file carries the settings schema stamp first (item 931), then the snapshot.
+    from spacr.settings import SETTINGS_SCHEMA_VERSION, SETTINGS_VERSION_KEY
+
+    saved = load_settings_file(str(target))
+    assert list(saved)[0] == SETTINGS_VERSION_KEY
+    assert int(saved.pop(SETTINGS_VERSION_KEY)) == SETTINGS_SCHEMA_VERSION
+    assert saved == SNAPSHOT
     assert screen._settings_snapshot == SNAPSHOT
     assert ("spacr-run measure --settings measure_settings.csv"
             in screen._status.text())
