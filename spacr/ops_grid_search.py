@@ -608,8 +608,8 @@ def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str
     os.makedirs(folder, exist_ok=True)
     work = os.path.join(str(settings["dst_root"]), "results", "ops_grid_search", run_id)
     os.makedirs(work, exist_ok=True)
-    say(f"grid search {run_id}: {len(_grid_points(grid))} points on {len(tiles)} tiles "
-        f"({', '.join(keys)})")
+    say(f"grid search {run_id}: the default and {sum(1 for p in _grid_points(grid) if p)} grid "
+        f"points on {len(tiles)} tiles ({', '.join(keys)})")
     defaults, engine = _default_points(settings, tiles, work, say)
     points_of = {}
     for well_key, base in defaults.items():

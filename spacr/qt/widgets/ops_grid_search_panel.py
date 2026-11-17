@@ -22,6 +22,10 @@ from ..i18n import tr
 
 LOG = logging.getLogger("spacr.qt.widgets.ops_grid_search_panel")
 
+#: Grid workers still running, held here rather than by the panel so a
+#: closed window never destroys a thread that is still scoring.
+_RUNNING: set = set()
+
 #: The pooled columns the table shows, in order.
 _COLUMNS = ("point", "is_default", "pareto", "ops_read_mode", "ops_read_threshold",
             "ops_prefix_min_read_quality", "ops_prefix_max_distance", "spots", "reads",
@@ -193,9 +197,12 @@ class _OpsGridSearchPanel(QWidget):
         self.run_button.setEnabled(False)
         self.apply_button.setEnabled(False)
         self.status.setText(tr("Grid search running..."))
-        self._worker = _GridWorker(settings, self._run, self)
-        self._worker.done.connect(self._on_done)
-        self._worker.start()
+        worker = _GridWorker(settings, self._run)
+        _RUNNING.add(worker)
+        worker.finished.connect(lambda: _RUNNING.discard(worker))
+        worker.done.connect(self._on_done)
+        self._worker = worker
+        worker.start()
         return True
 
     def _on_done(self, result, error: str) -> None:
