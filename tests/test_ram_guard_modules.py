@@ -143,6 +143,7 @@ GUARDED = [
     ('spacr.parameter_sweep', 'run_sweep_parallel', '"sweep"'),
     ('spacr.ops_engine', '_decode', '"ops_decode"'),
     ('spacr.embeddings', '_embed_parallel', "'embeddings'"),
+    ('spacr.ops_clusters', 'pairs_bootstrap_consensus', '"ops_consensus"'),
 ]
 
 

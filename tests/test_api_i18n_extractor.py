@@ -2474,6 +2474,39 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **autotune_arrivals}
+    calibration_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "949_ops_fdr_calibration_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
+    assert len(calibration_arrivals) == 3
+    assert {key: docs[key] for key in calibration_arrivals} == calibration_arrivals
+    assert not calibration_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **calibration_arrivals}
+    sweep_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "955_ops_fdr_sweep_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
+    assert len(sweep_arrivals) == 1
+    assert {key: docs[key] for key in sweep_arrivals} == sweep_arrivals
+    assert not sweep_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **sweep_arrivals}
+    point_mode_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "957_make_masks_point_mode_api_arrivals_2026-11-15.json").read_text(encoding="utf-8"))
+    assert len(point_mode_arrivals) == 23
+    assert {key: docs[key] for key in point_mode_arrivals} == point_mode_arrivals
+    assert not point_mode_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **point_mode_arrivals}
+    pairs_consensus_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "948_ops_pairs_consensus_api_arrivals_2026-11-15.json").read_text(encoding="utf-8"))
+    assert len(pairs_consensus_arrivals) == 6
+    assert {key: docs[key] for key in pairs_consensus_arrivals} == pairs_consensus_arrivals
+    assert not pairs_consensus_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **pairs_consensus_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

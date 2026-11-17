@@ -9471,6 +9471,9 @@ ALPHA_FEATURES = {
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },
+    948: {
+        'settings': ('ops_consensus_mode', 'ops_consensus_pairs_search', 'ops_consensus_workers', 'ops_consensus_cells', 'ops_consensus_view_columns',),
+    },
     929: {
         'settings': ('ops_bench_replicates', 'ops_bench_replicate_seed', 'ops_bench_cluster_seed', 'ops_bench_gate_copies', 'ops_bench_gate_noise', 'ops_bench_gate_alpha', 'ops_bench_gate_limit', 'ops_bench_margin_quantile', 'ops_bench_gate_record', 'ops_bench_gate_arm', 'ops_bench_half', 'ops_bench_null_permutations',),
     },
@@ -9691,6 +9694,20 @@ ALPHA_FEATURES = {
                      'ops_prefix_fdr_scale', 'ops_prefix_min_read_quality',
                      'ops_prefix_threshold_tuning', 'ops_prefix_fdr_target_pct',
                      'ops_prefix_tuning_grid'),
+    },
+    949: {
+        'settings': ('ops_prefix_nearmiss_decoy_k', 'ops_prefix_fdr_calibration',
+                     'ops_decode_fdr_calibration'),
+    },
+    955: {
+        'settings': ('ops_fdr_sweep_targets', 'ops_fdr_sweep_max_distance',
+                     'ops_fdr_sweep_min_reads', 'ops_fdr_sweep_rules',
+                     'ops_fdr_sweep_quality_quantiles', 'ops_fdr_sweep_bootstrap',
+                     'ops_fdr_sweep_seed', 'ops_fdr_sweep_shuffle_seeds',
+                     'ops_fdr_sweep_inputs'),
+    },
+    957: {
+        'widgets': ('MakeMasksPointModeButton',),
     },
 }
 

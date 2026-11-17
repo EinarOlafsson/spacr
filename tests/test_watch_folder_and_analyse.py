@@ -293,7 +293,7 @@ def _channels(shift):
     return [nucleus, cell]
 
 
-def _label_the_painted_squares(src, settings, object_type):
+def _label_the_painted_squares(src, settings, object_type, progress_share=None):
     """Stand-in for the Cellpose pass: label the painted cells or nuclei."""
     from scipy import ndimage
 

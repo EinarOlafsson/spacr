@@ -785,6 +785,21 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_threshold_tuning",
     "ops_prefix_fdr_target_pct",
     "ops_prefix_tuning_grid",
+    # Item 949 (2026-11-16): near-miss decoys and the shuffle calibration of
+    # the FDR scale (spacer-prefix and OPS decode).
+    "ops_prefix_nearmiss_decoy_k",
+    "ops_prefix_fdr_calibration",
+    "ops_decode_fdr_calibration",
+    # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
+    "ops_fdr_sweep_targets",
+    "ops_fdr_sweep_max_distance",
+    "ops_fdr_sweep_min_reads",
+    "ops_fdr_sweep_rules",
+    "ops_fdr_sweep_quality_quantiles",
+    "ops_fdr_sweep_bootstrap",
+    "ops_fdr_sweep_seed",
+    "ops_fdr_sweep_shuffle_seeds",
+    "ops_fdr_sweep_inputs",
     # Items 936 and 940 (2026-11-13): stitch reader threads and edge
     # workers, and the placement seed file.
     "ops_stitch_read_threads",
@@ -840,6 +855,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_consensus_min_stability",
     "ops_consensus_match_count",
     "ops_consensus_space",
+    "ops_consensus_mode",
+    "ops_consensus_pairs_search",
+    "ops_consensus_workers",
+    "ops_consensus_cells",
+    "ops_consensus_view_columns",
     "ops_consensus_guides",
     "ops_bench_replicates",
     "ops_bench_replicate_seed",
