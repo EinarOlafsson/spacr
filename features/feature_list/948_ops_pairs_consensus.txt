@@ -1,0 +1,33 @@
+OPS GENE-PAIRS CONSENSUS MODE: SNF OF THREE VIEWS, THEN PHATE AND LEIDEN, BUILT FAST
+====================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-15 (alpha, under ALPHA_FEATURES[948]; ops_consensus_mode stays 'profile' by default, so item 928's outputs are byte-identical). ops_consensus_mode 'pairs' makes the cluster_consensus phase cluster every guide bootstrap by spacr.ops_clusters.pairs_bootstrap_consensus: the Hybrid profile draw is fused with an interphase and a mitosis view of the same guide draw (phase_view: the cell-weighted mean of the drawn guides' per-phase median TVN cells from phase_guide_medians, robust z against the control rows, 0 without cells) by similarity network fusion (snf_fuse: K 20, mu 0.5, 20 iterations), PHATE is built on the fused network (fused_phate_graph: precomputed distance max(S) - S, knn 10), Leiden runs at the matched count, and the co-association of the bootstraps is cut and count-matched as in item 928. ops_consensus_pairs_search 'fast' (default) = the F4 candidate of the pairs speed cards: one resolution search per run (bootstrap 0) with 2-pass Leiden steps (match_resolution passes=2) and one full run at the chosen resolution, 2-pass Leiden for bootstraps 1..9 at that resolution (leiden_short), single-precision fusion, no discarded final fusion; 'exact' = the published analysis (double-precision fusion, full search on every bootstrap). ops_consensus_workers runs the bootstraps after the first in fork worker processes, summed in bootstrap order (byte-identical). Inputs: ops_consensus_cells (per-cell table(s): gene, sgRNA, mitotic, PC_0 ..; a control cell belongs to row <prefix>_<sgRNA>), ops_consensus_view_columns (50). spacr/ops_clusters.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_pairs_consensus_948.py.
+Requested: maintainer, 2026-11-15 ("Build 948 as F4"; option 1: widen 948 to the whole pairs option as an alpha consensus mode, default off).
+Owner: paper session (pairs speed lane).
+Source: Design F f_cells.cons_snfpl / snf / snf_fuse / phase_view and f_blockc.phate_graph_pre (cons_snfpl~hyb, the pairs winner); pairs_speed cards (design_f_strategies/pairs_speed/REPORT.md, REPORT_followup_20261115.md; experiment_designs/20261115_pairs_fast_search_DRAFT.md).
+Related: 928 (guide-bootstrap consensus, reused: guide_bootstrap_profiles, coclustering_matrix, consensus_partition, match_count), 929 (calibrated test), 916 (match_resolution, leiden_partitions).
+
+SETTINGS (all alpha, ALPHA_FEATURES[948])
+ops_consensus_mode ('profile' | 'pairs'; default 'profile'), ops_consensus_pairs_search ('fast' | 'exact';
+default 'fast'), ops_consensus_workers (1), ops_consensus_cells (None), ops_consensus_view_columns (50).
+No schema bump: the default output is unchanged.
+
+VALIDATION (step 6; scripts, logs and tables in
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/spacr_948_pairs_proof/; venv_bench: phate 2.0.0, leidenalg 0.12.0,
+igraph 1.0.0, numpy 2.5.4, pandas 3.1.1). spaCR drew its own guide bootstraps (guide_bootstrap_profiles) and built its
+own phase views from the per-cell table (phase_guide_medians, phase_view); seeds as Design F.
+- Exact mode = the published analysis: Design F's stored cons_snfpl~hyb targeting labels md5-identical on plate A
+  r = 0, 1, 2 (3 of 3).
+- Fast mode = F4: the card's F4 labels md5-identical on plate A r = 0..19 (20 of 20). Gate (calibrated test, two-level
+  95 % CI, candidate - baseline phate_leiden~hyb): STRING pairs +30.17 [25.19, 34.91] (gate [24.95, 34.78]), complexes
+  +11.43 [8.46, 14.65] (gate [7.97, 14.63]); vs the published option: pairs +0.20 [-0.24, 0.71], complexes +0.22
+  [-1.07, 1.59]. Permuted control (mean of 500 label permutations, 95 % CI): complexes +0.04 [-0.15, 0.24], pairs
+  +0.00 [-0.03, 0.04]. Cluster sizes: 146 clusters, median 5 [3, 8], largest 203, 48.5 % of genes in clusters > 50.
+- Plate B, through spaCR (R = 20, fast): pairs +28.51 [23.43, 33.09] (gate [23.39, 33.13]), complexes +13.36
+  [10.31, 16.93] (gate [8.98, 15.81]); vs the published option: pairs +0.01 [-0.49, 0.54], complexes +1.18 [-0.31,
+  2.82]; permuted control: complexes +0.06 [-0.15, 0.27], pairs -0.02 [-0.05, 0.02].
+- B4: ops_consensus_workers 3 gives md5-identical labels on r = 0, 1; wall 391 / 396 s against 570 s.
+- Time (plate A r = 0..2, one pinned core, fast, workers 1): 567, 576, 625 CPU s per replicate (limit 900).
+- Unit tests: tests/test_ops_pairs_consensus_948.py (fixture from the reference scripts: snf_fuse double and single
+  precision and phase_view exactly equal).
