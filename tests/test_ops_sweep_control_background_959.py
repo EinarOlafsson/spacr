@@ -221,7 +221,7 @@ def test_the_option_is_off_by_default_for_new_runs_and_every_settings_file(tmp_p
     assert OPS_DEFAULTS[key] is False and OPS_TYPES[key] is bool
     assert ALPHA_FEATURES[959]["settings"] == (key,)
     assert len(OPS_TOOLTIPS[key]) <= 600 and OPS_TOOLTIPS[key].endswith("Alpha.")
-    assert "item 959" in OPS_TOOLTIPS[key] and "Default False" in OPS_TOOLTIPS[key]
+    assert "Off by default" in OPS_TOOLTIPS[key] and "item 959" not in OPS_TOOLTIPS[key]
     ops = resolve_module("ops")
     for stamp, expected in (("", False), ("940", False), (str(SETTINGS_SCHEMA_VERSION), False)):
         path = tmp_path / f"old{stamp}.csv"

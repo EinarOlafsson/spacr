@@ -2206,14 +2206,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "13.5 %, as published. Settings files saved before item 953 rerun "
         "with False. Default True. Alpha.",
     "ops_cluster_sweep_controls_background":
-        "(bool) - Count the run's own control rows (non-targeting guides) in "
-        "the Fisher background of the CORUM and KEGG shares of spaCR's sweep "
-        "rows, as the published comparators count theirs, so every row of "
-        "the sweep table uses one background. They are never cluster members "
-        "or STRING pairs, and the STRING and complex metrics do not change. "
-        "Off by default (maintainer decision): the sweep rows keep the "
-        "targeting-only background they had before item 959. Default False. "
-        "Alpha.",
+        "(bool) - Count the non-targeting control rows in the background of "
+        "the CORUM and KEGG shares of the sweep rows, as comparator rows do. "
+        "Off by default: the background is the targeting genes only. Alpha.",
     "ops_consensus_enabled":
         "(bool) - Also run guide-bootstrap consensus clustering after the "
         "cluster_sweep phase. Each bootstrap redraws every gene's guides, "
