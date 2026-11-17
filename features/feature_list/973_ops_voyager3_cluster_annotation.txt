@@ -25,9 +25,12 @@ BUILD
   statuses ok / partial / unparsed / no_answer; non-member genes dropped and
   counted; priority 1-10 checked; support fraction and the 70/50/30 % rule
   recomputed by spaCR), run_voyager3, voyager3_replay.
-- Provider: injected, or ops_voyager3_provider, or Preferences > AI; vendor
-  CLIs only (the user's own sign-in). The hosted relay and "none" are
-  refused. No vendor SDK, no API key, no batch API.
+- Provider: injected, or ops_voyager3_provider, or Preferences > AI: any
+  provider there, spaCR AI (free) included (maintainer decision 2026-11-17);
+  "none" is refused. The report and provenance name the provider, model and
+  CLI arguments, and a quality note says when the free provider answered
+  (and how many answers came from its smaller "light" model). No vendor
+  SDK, no API key, no batch API.
 - Outputs in results/ops_voyager3/: voyager3_clusters.csv,
   voyager3_candidates.csv, voyager3_gene_facts.csv, voyager3_report.md,
   voyager3_provenance.json (system text, every prompt, template version,

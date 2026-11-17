@@ -10,7 +10,7 @@
 1. **No Claude API.** Voyager3 never imports the anthropic SDK, never reads an API key and never uses a Batch API. Nothing in it names a default vendor.
    - The provider is the one the user chose under Preferences → AI (`spacr.qt.preferences.get_preferred_provider`, resolved by `spacr.qt.ai.providers.get_provider` / `configured_providers`). It can also be passed in as an object with `name` and `stream_chat(messages, system, model)`.
    - The vendor CLIs (Claude Code, Codex, Gemini) use the user's own sign-in.
-   - The hosted relay (`spacr_hosted`) is refused with a clear message, as in `spacr.qt.ai.manuscript`. It is an error-diagnosis route: it strips code blocks, sends only the newest question and adds its own preamble.
+   - Maintainer decision 2026-11-17: spaCR AI (free, `spacr_hosted`) is accepted like any other Preferences → AI choice. The report and provenance name the provider and model, and a quality note says when the free provider (or its smaller "light" model) answered. Only "none" is refused.
 2. **Tests and the proof use a stub provider only.** A real-provider demo needs the maintainer's OK.
 3. **Off by default.** With `ops_voyager3_enabled` off and the `voyager3` phase not named, every OPS output, `runtime.json` included, is byte-identical to before.
 4. **The prompt template is English and is not translated.** Labels, tooltips, GUI strings and docstrings get the usual 9-locale records.

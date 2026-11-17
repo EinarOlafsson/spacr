@@ -2349,10 +2349,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "'HeLa cells, interphase, DNA and tubulin stains'. Empty says not "
         "given. Default ''. Alpha.",
     "ops_voyager3_provider":
-        "(str) - The AI that answers: claude, codex or gemini, each the "
-        "command-line tool signed in with your own account. Empty uses the "
-        "choice under Preferences > AI. spaCR AI (free) is not used. "
-        "Default ''. Alpha.",
+        "(str) - The AI that answers: spacr_hosted (spaCR AI, free), or "
+        "claude, codex or gemini, each the command-line tool signed in with "
+        "your own account. Empty uses the choice under Preferences > AI. The "
+        "report names the provider and model, and says when the free "
+        "provider answered with its smaller model. Default ''. Alpha.",
     "ops_voyager3_model":
         "(str) - The model name passed to that AI. Empty uses its default. "
         "The name is saved with the results. Default ''. Alpha.",

@@ -7,9 +7,11 @@ subcellular location and the annotation score) through :mod:`spacr.uniprot`,
 whose cache makes a rerun offline. :func:`build_cluster_prompt` writes one
 English prompt per cluster with those facts, the cluster's statistics and the
 screen context; the template is not translated. The prompt goes to the AI
-provider the user chose under Preferences, a vendor command-line tool signed
-in with the user's own account; nothing here uses a vendor API, an API key or
-a batch service, and nothing names a default vendor. :func:`parse_cluster_answer`
+provider the user chose under Preferences, spaCR AI (free) or a vendor
+command-line tool signed in with the user's own account; nothing here uses a
+vendor API, an API key or a batch service. The report and the provenance name
+the provider and model, and say when the free provider answered with its
+smaller model. :func:`parse_cluster_answer`
 reads the structured answer (role, confidence, supporting genes, genes that do
 not fit, uncharacterised candidates with suggested roles) and never raises on a
 malformed one.
@@ -77,7 +79,7 @@ MIN_GENES = 2
 #: The confidence words, best first.
 CONFIDENCE = ("high", "medium", "low", "none")
 
-#: Name of the hosted relay, which Voyager3 does not use.
+#: Name of spaCR's free hosted provider.
 _HOSTED = "spacr_hosted"
 
 #: The system text sent with every prompt.
@@ -580,7 +582,7 @@ def _collect(provider: Any, messages: List[Dict[str, str]], system: str, model: 
 
 
 def _ask(provider: Any, prompt: str, model: Optional[str], timeout: float) -> Dict[str, Any]:
-    """One attempt: the answer text, the error and the seconds taken.
+    """One attempt: the answer text, the error, the seconds taken and, for spaCR AI (free), the model tier.
 
     :param provider: the chat provider.
     :param prompt: the user message.
@@ -606,20 +608,22 @@ def _ask(provider: Any, prompt: str, model: Optional[str], timeout: float) -> Di
         error = f"timed out after {timeout:g} s"
     elif failed:
         error = f"{type(failed[0]).__name__}: {failed[0]}"[:500]
+    tier = str(getattr(provider, "last_tier", "") or "") if getattr(provider, "name", "") == _HOSTED else ""
     return {"response": "" if error else "".join(chunks), "error": error,
-            "seconds": round(time.monotonic() - started, 3)}
+            "seconds": round(time.monotonic() - started, 3), "tier": tier}
 
 
 def _resolve_provider(name: str) -> Any:
     """The chat provider Voyager3 uses: ``name``, else the one chosen under Preferences.
 
-    Only a vendor command-line provider signed in with the user's own account
-    is used; the hosted relay and ``none`` are refused.
+    Any provider Preferences offers is accepted: spaCR AI (free) or a vendor
+    command-line tool signed in with the user's own account; ``none`` is
+    refused, and so is a provider that is not usable now.
 
     :param name: a provider name, or ``""`` for the Preferences choice.
     :raises ValueError: when no usable provider is chosen or configured.
     """
-    from .qt.ai.providers import configured_providers, get_provider
+    from .qt.ai.providers import configured_providers, get_provider, hosted_provider
 
     chosen = str(name or "").strip()
     if not chosen:
@@ -631,18 +635,15 @@ def _resolve_provider(name: str) -> Any:
             chosen = ""
     if chosen == "none":
         raise ValueError("Voyager3 needs an AI provider, and Preferences → AI says None")
-    if chosen == _HOSTED:
-        raise ValueError("Voyager3 does not use spaCR AI (free), which answers error reports only; choose "
-                         "Claude, GPT (Codex) or Gemini under Preferences → AI, or set ops_voyager3_provider")
     if chosen:
-        provider = get_provider(chosen)
+        provider = hosted_provider() if chosen == _HOSTED else get_provider(chosen)
         if provider is None or not provider.is_configured():
-            raise ValueError(f"the AI provider {chosen!r} is not installed or signed in")
+            raise ValueError(f"the AI provider {chosen!r} is not usable now (not installed, not signed in, "
+                             "or the network is not allowed)")
         return provider
-    ready = [p for p in configured_providers() if p.name != _HOSTED]
+    ready = configured_providers()
     if not ready:
-        raise ValueError("Voyager3 found no signed-in AI command-line tool (Claude, GPT (Codex) or Gemini); "
-                         "set one up under Preferences → AI")
+        raise ValueError("Voyager3 found no usable AI provider; choose one under Preferences → AI")
     return ready[0]
 
 
@@ -745,6 +746,35 @@ def _settings_record(settings: Mapping[str, Any]) -> Dict[str, Any]:
             for key, value in sorted(settings.items()) if key.startswith("ops_voyager3_")}
 
 
+def _provider_args(provider: Any) -> List[str]:
+    """The command-line arguments the provider adds for its model and speed, or ``[]``.
+
+    :param provider: the chat provider.
+    """
+    try:
+        from .qt.ai.providers import _provider_arguments
+
+        return [str(a) for a in _provider_arguments(provider)]
+    except Exception:                                       # noqa: BLE001
+        return []
+
+
+def _quality_note(provenance: Mapping[str, Any]) -> str:
+    """A note on answers that came from spaCR AI (free), or ``""``.
+
+    :param provenance: the run's provenance record.
+    """
+    if provenance.get("provider") != _HOSTED:
+        return ""
+    finals = [(record.get("attempts") or [{}])[-1].get("tier", "") for record in provenance.get("clusters") or []]
+    light = sum(tier == "light" for tier in finals)
+    note = ("Quality note: the answers came from spaCR AI (free), a free model within a daily allowance, which can "
+            "be weaker at this task than a signed-in Claude, GPT (Codex) or Gemini.")
+    if light:
+        note += f" {light} of {len(finals)} answers came from its smaller (light) model."
+    return note
+
+
 def _version() -> str:
     """spaCR's version, or ``""`` when it cannot be read."""
     try:
@@ -771,8 +801,8 @@ def run_voyager3(settings: Mapping[str, Any], report: Optional[Callable[[str], N
         ``ops_voyager3_*`` settings and ``ops_control_prefix``.
     :param report: called with progress lines; ``print`` when None.
     :param provider: a chat provider object (``name``, ``stream_chat``);
-        None uses ``ops_voyager3_provider`` or the Preferences choice. Never
-        the hosted relay.
+        None uses ``ops_voyager3_provider`` or the Preferences choice,
+        spaCR AI (free) included.
     :param out_dir: the output folder; ``<dst_root>/results/ops_voyager3``
         when None.
     :returns: ``{"folder", "outputs", "clusters", "provenance"}``.
@@ -814,7 +844,8 @@ def run_voyager3(settings: Mapping[str, Any], report: Optional[Callable[[str], N
     provenance = {
         "voyager3": TEMPLATE_VERSION, "spacr_version": _version(),
         "created": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "provider": str(getattr(chat, "name", type(chat).__name__)),
-        "provider_label": str(getattr(chat, "label", "")), "model": model or "", "timeout_s": timeout,
+        "provider_label": str(getattr(chat, "label", "")), "model": model or "",
+        "provider_args": _provider_args(chat), "timeout_s": timeout,
         "cluster_table": source, "context": context, "system": SYSTEM_PROMPT, "uniprot": uniprot_meta,
         "shuffle_seed": SHUFFLE_SEED if settings.get("ops_voyager3_shuffle_control") else None,
         "settings": _settings_record(settings), "facts": {gene: facts[gene] for gene in genes_all},
@@ -951,7 +982,8 @@ def _report_text(provenance: Mapping[str, Any], clusters: Any, candidates: Any) 
     meta = provenance.get("uniprot") or {}
     lines = ["# Voyager3 cluster annotation", "",
              f"- Template: {provenance.get('voyager3', '')}; spaCR {provenance.get('spacr_version', '')}",
-             f"- AI provider: {provenance.get('provider', '')}; model: {provenance.get('model') or 'provider default'}",
+             f"- AI provider: {provenance.get('provider', '')}; model: {provenance.get('model') or 'provider default'}"
+             + (f" ({' '.join(provenance.get('provider_args') or [])})" if provenance.get("provider_args") else ""),
              f"- UniProtKB release: {', '.join(meta.get('releases') or []) or 'unknown'} "
              f"({', '.join(meta.get('release_dates') or []) or 'date unknown'}); fetched "
              f"{', '.join(meta.get('fetched') or []) or 'unknown'}; reviewed entries only; organism "
@@ -959,7 +991,8 @@ def _report_text(provenance: Mapping[str, Any], clusters: Any, candidates: Any) 
              f"- Clusters from: {provenance.get('cluster_table', '')}",
              f"- Run started: {provenance.get('created', '')}", "",
              "The roles below are generated by an AI model from the UniProt facts in the prompt. They can be "
-             "wrong; check them before you act on them.", "",
+             "wrong; check them before you act on them.", ""] + ([_quality_note(provenance), ""]
+                                                                  if _quality_note(provenance) else []) + [
              "## Summary", "", "| Clusters | Kind | High | Medium | Low | None | Unparsed or no answer |",
              "|---|---|---|---|---|---|---|"]
     for kind in ("real", "shuffled"):

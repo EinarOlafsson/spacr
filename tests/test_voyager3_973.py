@@ -279,13 +279,43 @@ def test_missing_clusters_are_refused(tmp_path):
         V.run_voyager3({"ops_voyager3_clusters": _clusters(tmp_path)}, provider=StubProvider())
 
 
-@pytest.mark.parametrize("choice, message", [("none", "says None"), ("spacr_hosted", "does not use spaCR AI")])
-def test_the_hosted_relay_and_none_are_refused(monkeypatch, choice, message):
+def test_none_is_refused(monkeypatch):
     import spacr.qt.preferences as prefs
 
-    monkeypatch.setattr(prefs, "get_preferred_provider", lambda: choice)
-    with pytest.raises(ValueError, match=message):
+    monkeypatch.setattr(prefs, "get_preferred_provider", lambda: "none")
+    with pytest.raises(ValueError, match="says None"):
         V._resolve_provider("")
+
+
+def test_the_free_provider_is_accepted(monkeypatch):
+    import spacr.qt.preferences as prefs
+    from spacr.qt.ai import providers
+
+    hosted = providers.hosted_provider()
+    monkeypatch.setattr(prefs, "get_preferred_provider", lambda: "spacr_hosted")
+    monkeypatch.setattr(type(hosted), "is_configured", lambda self: True)
+    assert V._resolve_provider("") is hosted
+    assert V._resolve_provider("spacr_hosted") is hosted
+    monkeypatch.setattr(type(hosted), "is_configured", lambda self: False)
+    with pytest.raises(ValueError, match="not usable now"):
+        V._resolve_provider("spacr_hosted")
+
+
+def test_the_report_names_the_free_provider_and_its_light_model(fake_uniprot, tmp_path):
+    class Free(StubProvider):
+        """Answers like spaCR AI (free) on its light tier."""
+
+        name = "spacr_hosted"
+        last_tier = "light"
+
+    out = V.run_voyager3(_settings(tmp_path), report=lambda t: None, provider=Free())
+    report = Path(out["outputs"]["report"]).read_text()
+    record = json.loads(Path(out["provenance"]).read_text())
+    assert "AI provider: spacr_hosted" in report and "Quality note" in report and "2 of 2 answers" in report
+    assert record["provider"] == "spacr_hosted" and record["clusters"][0]["attempts"][0]["tier"] == "light"
+    (tmp_path / "b").mkdir()
+    plain = V.run_voyager3(_settings(tmp_path / "b"), report=lambda t: None, provider=StubProvider())
+    assert "Quality note" not in Path(plain["outputs"]["report"]).read_text()
 
 
 def test_a_named_provider_must_be_signed_in(monkeypatch):
@@ -301,7 +331,7 @@ def test_a_named_provider_must_be_signed_in(monkeypatch):
             return False
 
     monkeypatch.setattr(providers, "get_provider", lambda name: Offline())
-    with pytest.raises(ValueError, match="not installed or signed in"):
+    with pytest.raises(ValueError, match="not usable now"):
         V._resolve_provider("codex")
 
 
