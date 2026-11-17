@@ -1999,6 +1999,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'seg_mask_vram_gb',
     'seg_max_ram_gb',
     'seg_measure_band_px',
+    'seg_merge_small_nuclei_frac',
     'seg_nucleus_channel',
     'seg_nucleus_diameter_range',
     'seg_preset',

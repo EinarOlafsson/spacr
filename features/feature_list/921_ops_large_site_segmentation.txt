@@ -129,3 +129,11 @@ not fit or runs out of card memory runs on the CPU. sites.csv records
 mask_step_device / mask_step_reason / mask_step_bands, mask_step.json every
 step. A model on the CPU keeps the call above unchanged. See
 945_ops_large_site_mask_step_vram_cap.txt.
+
+R2 NUCLEI BY DEFAULT (2026-11-16, item 965)
+seg_cells_from_nucleus_seeds is now True and the new seg_merge_small_nuclei_frac
+0.25 (DEFAULT_CHANGES row 943; files stamped before keep False and 0.0): after
+the nucleus mask step, nucleus pieces below 0.25 x the site's median nucleus
+area are merged into the touching nucleus with the longest 4-connected border
+(merge_small_nuclei), then one cell is seeded from every nucleus. See
+965_ops_large_site_r2_nuclei.txt.
