@@ -199,6 +199,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_decode_auto_objective": "recall_at_fdr",
     "ops_decode_auto_f_beta": 1.0,
     "ops_decode_auto_unreachable": "lowest_fdr",
+    "ops_decode_fdr_calibration": "none",
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
     "ops_decode_qc": False,
@@ -420,6 +421,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_threshold_tuning": "none",
     "ops_prefix_fdr_target_pct": 0.1,
     "ops_prefix_tuning_grid": None,
+    "ops_prefix_nearmiss_decoy_k": 0,
+    "ops_prefix_fdr_calibration": "none",
 }
 
 #: The Measure setting each OPS phenotype measurement setting stands for
@@ -620,6 +623,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_decode_auto_objective": str,
     "ops_decode_auto_f_beta": (float, int),
     "ops_decode_auto_unreachable": str,
+    "ops_decode_fdr_calibration": str,
     "ops_decode_skip_unplaced_sites": bool,
     "ops_store_field_cache": bool,
     "ops_decode_qc": bool,
@@ -841,6 +845,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_threshold_tuning": str,
     "ops_prefix_fdr_target_pct": (float, int),
     "ops_prefix_tuning_grid": (dict, str, type(None)),
+    "ops_prefix_nearmiss_decoy_k": int,
+    "ops_prefix_fdr_calibration": str,
 }
 
 #: Which panel section each setting appears under.
@@ -908,6 +914,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_decode_auto_objective",
         "ops_decode_auto_f_beta",
         "ops_decode_auto_unreachable",
+        "ops_decode_fdr_calibration",
         "ops_decode_skip_unplaced_sites",
         "ops_store_field_cache",
         "ops_decode_qc",
@@ -934,6 +941,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_decoy_k", "ops_prefix_decoy_seed", "ops_prefix_fdr_scale",
         "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
         "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid",
+        "ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration",
         "ops_compare_match", "ops_compare_reference_masks",
         "ops_compare_spacr_masks", "ops_compare_reference_objects",
         "ops_compare_iou", "ops_compare_reference_calls",
@@ -2643,6 +2651,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and reports it; 'strictest' takes the strictest setting, as "
         "settings saved before item 942 do. Either way the report says "
         "auto_met False. Default 'lowest_fdr'. Alpha.",
+    "ops_decode_fdr_calibration":
+        "(str) - How auto thresholds set the FDR scale. 'none' uses "
+        "ops_fdr_scale as entered. 'shuffle' also votes every field against "
+        "three shuffled copies of the library and raises the scale until "
+        "the shuffled libraries' call rate is at most 1.5 times the FDR on "
+        "the tuning fields, then tunes again at that scale. The scale used "
+        "and the shuffle call rate go into the threshold and FDR reports. "
+        "Costs about three more vote passes per field. Default 'none'. "
+        "Alpha.",
     "ops_decode_skip_unplaced_sites":
         "(bool) - Decode only the sites the stitch placed and list the "
         "others in the decode and FDR reports. Off stops the well with an "
@@ -3194,6 +3211,22 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "entered value. Empty uses read thresholds 40, 60, 80, 100, 130 and "
         "160, read qualities 0, 0.05, 0.1, 0.15 and 0.25, and 1 or 0 "
         "mismatches. Default empty. Alpha.",
+    "ops_prefix_nearmiss_decoy_k":
+        "(int) - How many near-miss decoy prefixes per library prefix the "
+        "spacer-prefix decode adds: prefixes one base from a library prefix "
+        "and from no other key. Far decoys miss read errors that land one "
+        "base from a guide; near-miss decoys catch them, and their calls are "
+        "reported apart (cells_decoy_nearmiss and fdr_nearmiss_pct in "
+        "site_summary.csv). Needs ops_prefix_decoy_k above 0. 0 adds none. "
+        "Default 0. Alpha.",
+    "ops_prefix_fdr_calibration":
+        "(str) - How the spacer-prefix decode sets its FDR scale. 'none' "
+        "uses ops_prefix_fdr_scale as entered. 'shuffle' also matches every "
+        "read against three shuffled whitelists and raises the scale until "
+        "the shuffle call rate is at most 1.5 times the FDR on the tuning "
+        "sites, then tunes again at that scale. The scale and the shuffle "
+        "call rate go into site_summary.csv and the FDR report. Needs "
+        "ops_prefix_decoy_k above 0. Default 'none'. Alpha.",
     "ops_stress_report":
         "(bool) - At the end of the run, time the store as the reference "
         "stress test did (database rows, queries for one field, one gene, "

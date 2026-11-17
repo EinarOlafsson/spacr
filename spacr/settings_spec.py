@@ -279,6 +279,8 @@ def convert_settings_dict_for_gui(settings):
         'ops_decode_auto_objective': ('combo', ['recall_at_fdr', 'f_score'], 'recall_at_fdr'),
         'ops_decode_auto_unreachable': ('combo', ['lowest_fdr', 'strictest'], 'lowest_fdr'),
         'ops_prefix_threshold_tuning': ('combo', ['none', 'per_well_decoy'], 'none'),
+        'ops_prefix_fdr_calibration': ('combo', ['none', 'shuffle'], 'none'),
+        'ops_decode_fdr_calibration': ('combo', ['none', 'shuffle'], 'none'),
         'ops_read_mode': ('combo', ['log', 'raw', 'auto'], 'log'),
         'ops_placement_seed_mode': ('combo', ['subset', 'strict'], 'subset'),
         'figure_condition_aggregate': ('combo', ['mean', 'median'], 'mean'),

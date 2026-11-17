@@ -633,15 +633,17 @@ def threshold_settings(settings: Mapping[str, Any],
         ``ops_decode_auto_grid``, ``ops_decode_auto_spot_grid``,
         ``ops_decode_auto_tune_fraction``, ``ops_decode_auto_seed`` and the
         shared tuner's ``ops_decode_auto_ci``, ``ops_decode_auto_objective``,
-        ``ops_decode_auto_f_beta`` and ``ops_decode_auto_unreachable``.
+        ``ops_decode_auto_f_beta`` and ``ops_decode_auto_unreachable``, and
+        item 949's ``ops_decode_fdr_calibration``.
     :param rule: from :func:`decode_rule`; a grid without the pixel quality,
         or a rule without the pixel fallback, keeps ``pixel_quality``.
     :returns: ``mode``; in auto mode also ``floors`` and ``pixel_qualities``
         (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``objective``,
         ``f_beta``, ``unreachable``, ``tune_fraction``, ``seed`` and
         ``spot_thresholds`` (the read thresholds tried jointly, sorted; empty
-        when the read threshold stays as entered).
-    :raises ValueError: for an unknown mode, an FDR target that is not
+        when the read threshold stays as entered); with
+        ``ops_decode_fdr_calibration`` 'shuffle' also ``fdr_calibration``.
+    :raises ValueError: for an unknown mode or FDR calibration, an FDR target that is not
         above 0, a tuning fraction outside (0, 1), a grid that is not a
         mapping of the two thresholds to lists of numbers 0 or above, or
         auto mode without decoys (``ops_decoy_library_k`` 0).
@@ -706,10 +708,18 @@ def threshold_settings(settings: Mapping[str, Any],
         axes[key] = values
     spots = _spot_grid(settings.get("ops_decode_auto_spot_grid"),
                       "ops_decode_auto_spot_grid")
-    return {"mode": mode, "floors": axes["ops_single_read_quality"],
-            "pixel_qualities": axes["ops_pixel_quality"], "fdr_max": fdr_max,
-            **_tuning_options(settings), "tune_fraction": tune, "seed": seed,
-            "spot_thresholds": spots}
+    out = {"mode": mode, "floors": axes["ops_single_read_quality"],
+           "pixel_qualities": axes["ops_pixel_quality"], "fdr_max": fdr_max,
+           **_tuning_options(settings), "tune_fraction": tune, "seed": seed,
+           "spot_thresholds": spots}
+    calibration = str(settings.get("ops_decode_fdr_calibration")
+                      or FDR_CALIBRATIONS[0]).strip().lower()
+    if calibration not in FDR_CALIBRATIONS:
+        raise ValueError(f"ops_decode_fdr_calibration must be one of "
+                         f"{list(FDR_CALIBRATIONS)}; got {calibration!r}")
+    if calibration != FDR_CALIBRATIONS[0]:
+        out["fdr_calibration"] = calibration
+    return out
 
 
 #: The joint read-threshold grid of item 942 (``ops_read_threshold``, the
@@ -897,6 +907,89 @@ def _joint_field_candidates(evidence: Mapping[str, np.ndarray], rule: Mapping[st
         by_spot.append(calls)
     return {"counts": np.stack([c["counts"] for c in by_spot]),
             "nuclei": by_spot[0]["nuclei"] if by_spot else 0, "by_spot": by_spot}
+
+
+#: Shuffled-barcode matchers built once per process (item 949), keyed by
+#: the library and the seeds.
+_SHUFFLE_MATCHERS: Dict[Tuple[int, Tuple[int, ...]], List[Any]] = {}
+
+
+def _shuffled_barcodes(library: Sequence[str], seed: int) -> List[str]:
+    """The barcode-shuffle control: every barcode's letters shuffled (item 949).
+
+    :param library: the guide barcodes.
+    :param seed: the generator's seed.
+    :returns: one shuffled barcode per guide barcode, in sorted guide order,
+        with the same lengths and base composition.
+    """
+    rng = np.random.default_rng(int(seed))
+    out = []
+    for barcode in sorted(set(library)):
+        letters = np.array(list(barcode))
+        out.append("".join(letters[rng.permutation(len(letters))]))
+    return out
+
+
+def _shuffle_matchers(library: Sequence[str], seeds: Sequence[int]) -> List[Any]:
+    """One matcher per shuffled library, built once per process.
+
+    :param library: the guide barcodes.
+    :param seeds: the shuffle seeds.
+    :returns: a :class:`spacr.ops_sbs.LibraryMatcher` per seed.
+    """
+    from .ops_sbs import LibraryMatcher
+
+    key = (hash(frozenset(library)), tuple(int(s) for s in seeds))
+    if key not in _SHUFFLE_MATCHERS:
+        _SHUFFLE_MATCHERS.clear()
+        _SHUFFLE_MATCHERS[key] = [LibraryMatcher(_shuffled_barcodes(library, s))
+                                  for s in key[1]]
+    return _SHUFFLE_MATCHERS[key]
+
+
+def _field_shuffle_counts(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
+                          library: Sequence[str], *, seeds: Sequence[int],
+                          spot_thresholds: Sequence[float], floors: Sequence[float],
+                          pixel_qualities: Sequence[float], footprint: float,
+                          max_distance: int, min_fraction: float,
+                          crosstalk: str) -> np.ndarray:
+    """One field's shuffle-called cells at every grid setting (item 949).
+
+    The reads are called as for the real library (the library calibration
+    fits the real guides) and voted again against each shuffled library
+    (:func:`_shuffled_barcodes`); a cell called on a shuffled barcode is a
+    shuffle call. The pixel votes are made once per shuffled library.
+
+    :param evidence: from :func:`field_evidence`.
+    :param rule: from :func:`decode_rule`.
+    :param library: the guide barcodes.
+    :param seeds: the shuffle seeds.
+    :param spot_thresholds: the read thresholds of the grid.
+    :param floors: the single-read floors of the grid.
+    :param pixel_qualities: the pixel qualities of the grid.
+    :param footprint: how far beyond a boundary a read may lie, in pixels.
+    :param max_distance: the mismatches a read may carry.
+    :param min_fraction: the share of the votes the guide must hold.
+    :param crosstalk: the unmixing method.
+    :returns: ``(read thresholds, floors, pixel qualities)`` shuffle calls,
+        the mean over the shuffled libraries.
+    """
+    out = np.zeros((len(spot_thresholds), len(floors), len(pixel_qualities)))
+    for matcher in _shuffle_matchers(library, seeds):
+        pixel = None
+        for a, threshold in enumerate(spot_thresholds):
+            votes = _field_votes(
+                evidence, rule if pixel is None else {**rule, "pixels": False}, library,
+                matcher, threshold=float(threshold), footprint=footprint,
+                max_distance=max_distance, min_fraction=min_fraction,
+                single_read_quality=float("-inf"), pixel_qualities=pixel_qualities,
+                crosstalk=crosstalk, evidence_rows=False)
+            if pixel is None:
+                pixel = votes["pixel"]
+            votes["pixel"] = pixel
+            out[a] += _field_candidates(votes, floors, pixel_qualities, frozenset(),
+                                        bool(rule["pixels"]))["counts"][..., 0]
+    return out / max(len(seeds), 1)
 
 
 def _candidate_calls(candidates: Mapping[str, Any], floor: float,
@@ -1267,6 +1360,173 @@ def tune_thresholds(counts, nuclei, sites, axes: Sequence[Tuple[str, Sequence[fl
             **parts, "grid": rows}
 
 
+#: The FDR calibrations ``ops_prefix_fdr_calibration`` and
+#: ``ops_decode_fdr_calibration`` may name (item 949), the first being the
+#: default: 'none' keeps the entered FDR scale, 'shuffle' raises it from the
+#: barcode-shuffle control.
+FDR_CALIBRATIONS = ("none", "shuffle")
+
+#: The S2 (c) check item 949 calibrates to: the barcode-shuffle call rate
+#: (shuffle-called cells per 100 cells) may be at most this many times the
+#: decoy FDR (false calls per 100 real calls).
+SHUFFLE_FDR_RATIO = 1.5
+
+#: How many shuffled whitelists the calibration matches (seeds ``s`` to
+#: ``s + 2`` from the control seed); their mean call count is used.
+SHUFFLE_SEEDS = 3
+
+
+def shuffle_call_rate(shuffled, cells, *, reps: int = _AUTO_REPS,
+                      seed: int = _AUTO_BOOT_SEED) -> Dict[str, Any]:
+    """The barcode-shuffle call rate over some fields, with its interval (item 949).
+
+    The shuffle control matches every read against whitelists whose keys
+    had their letters shuffled; a cell called on one is a call a random
+    library of the same size and base composition would make.
+
+    :param shuffled: shuffle-called cells per field (a mean over shuffled
+        whitelists may be fractional).
+    :param cells: cells per field, the rate's denominator.
+    :param reps: field-bootstrap replicates of the 95 % interval.
+    :param seed: the bootstrap seed.
+    :returns: ``shuffle_called`` (the sum), ``cells``,
+        ``shuffle_call_rate_pct`` (per 100 cells) and ``shuffle_ci95`` (the
+        2.5th and 97.5th percentiles of the field bootstrap; None for fewer
+        than two fields).
+    """
+    shuffled = np.asarray(shuffled, float).reshape(-1)
+    cells = np.asarray(cells, float).reshape(-1)
+    total = float(cells.sum())
+    out = {"shuffle_called": float(shuffled.sum()), "cells": int(total),
+           "shuffle_call_rate_pct": 100.0 * float(shuffled.sum()) / max(total, 1.0),
+           "shuffle_ci95": None}
+    if len(cells) > 1:
+        draws = _bootstrap_rows(len(cells), reps, seed)
+        weights = np.stack([np.bincount(row, minlength=len(cells)) for row in draws])
+        boot = 100.0 * (weights @ shuffled) / np.maximum(weights @ cells, 1.0)
+        out["shuffle_ci95"] = [float(np.percentile(boot, 2.5)),
+                               float(np.percentile(boot, 97.5))]
+    return out
+
+
+def _needed_scale(real: np.ndarray, decoy: np.ndarray, shuffled: np.ndarray,
+                  cells: np.ndarray, k: int, ci: bool) -> float:
+    """The FDR scale that brings the decoy FDR up to the shuffle call rate over 1.5.
+
+    :param real: real calls per field at one setting.
+    :param decoy: decoy calls per field at that setting.
+    :param shuffled: shuffle-called cells per field at that setting.
+    :param cells: cells per field.
+    :param k: decoys per guide.
+    :param ci: take the upper end of the 95 % field-bootstrap interval
+        (:data:`_AUTO_REPS` resamples, seed :data:`_AUTO_BOOT_SEED`) rather
+        than the estimate.
+    :returns: ``rate / (1.5 * FDR at scale 1)``; a sum with no decoy call
+        is taken as :data:`_AUTO_ZERO_DECOYS`, as the tuner judges it.
+    """
+    stack = np.stack([np.asarray(v, float).reshape(-1)
+                      for v in (real, decoy, shuffled, cells)])
+
+    def ratio(sums: np.ndarray) -> np.ndarray:
+        """The needed scale of summed (real, decoy, shuffled, cells) rows."""
+        r, d, s, c = sums
+        d = np.where(d > 0, d, float(_AUTO_ZERO_DECOYS))
+        fdr1 = 100.0 / float(k) * d / np.maximum(r, 1.0)
+        return 100.0 * s / np.maximum(c, 1.0) / (SHUFFLE_FDR_RATIO * fdr1)
+
+    point = float(ratio(stack.sum(axis=1)))
+    if not ci or stack.shape[1] < 2:
+        return point
+    draws = _bootstrap_rows(stack.shape[1], _AUTO_REPS, _AUTO_BOOT_SEED)
+    weights = np.stack([np.bincount(row, minlength=stack.shape[1]) for row in draws])
+    return float(np.percentile(ratio(stack @ weights.T), 97.5))
+
+
+def calibrate_fdr_scale(counts, shuffled, nuclei, sites,
+                        axes: Sequence[Tuple[str, Sequence[float]]], *, k: int,
+                        scale: float, ci: bool = True, max_rounds: int = 20,
+                        **options: Any) -> Dict[str, Any]:
+    """Tune one well's thresholds with the FDR scale set from the shuffle control (item 949).
+
+    A decoy sits two or more edits from every barcode, so it misses the
+    reads that land one edit from a guide, and with short prefixes the decoy
+    FDR then runs below the barcode-shuffle call rate. Here the scale is
+    raised until the shuffle call rate is at most
+    :data:`SHUFFLE_FDR_RATIO` times the calibrated FDR on the tuning
+    fields: :func:`tune_thresholds` chooses at the current scale; at the
+    chosen setting the scale needed is the tuning fields' shuffle call rate
+    over 1.5 times the scale-1 FDR (the upper end of its 95 %
+    field-bootstrap interval with ``ci``); while that exceeds the current
+    scale the scale becomes it and the tuner chooses again. The scale only
+    rises, so the loop ends. Only decoy and shuffle calls are read, never a
+    reference call set, and the report fields are not used.
+
+    :param counts: ``(fields, *axis lengths, 2)`` real and decoy calls.
+    :param shuffled: ``(fields, *axis lengths)`` shuffle-called cells (a
+        mean over the shuffled whitelists).
+    :param nuclei: cells per field.
+    :param sites: the site of each field.
+    :param axes: ``(name, values)`` per axis, as :func:`tune_thresholds`
+        takes them.
+    :param k: decoys per guide.
+    :param scale: the entered FDR scale; the calibrated scale is never
+        below it (nor below 1).
+    :param ci: judge the tuner's FDR and the needed scale by the upper end
+        of their intervals.
+    :param max_rounds: the most tuner passes.
+    :param options: the other :func:`tune_thresholds` keywords.
+    :returns: :func:`tune_thresholds`'s result at the calibrated scale,
+        with ``fdr_scale`` and ``calibration``: ``method`` ('shuffle'),
+        ``ratio``, ``entered_scale``, ``scale``, ``rounds`` (per pass the
+        scale, the setting chosen and the scale it needed), ``converged``,
+        and per part (``tune``, ``report``, ``all_fields``)
+        :func:`shuffle_call_rate` at the chosen setting with the
+        calibrated ``fdr_per_100``, ``shuffle_limit_pct`` (1.5 times it)
+        and ``passes`` (rate at or below the limit, to a relative 1e-9).
+    :raises ValueError: when ``shuffled`` is not the grid of ``counts``.
+    """
+    counts = np.asarray(counts, np.int64)
+    shuffled = np.asarray(shuffled, float)
+    nuclei = np.asarray(nuclei, np.int64)
+    if shuffled.shape != counts.shape[:-1]:
+        raise ValueError("shuffled must be (fields, *axis lengths), the grid of counts")
+    position_of = {int(site): i for i, site in enumerate(np.asarray(sites, np.int64))}
+    entered = max(float(scale), 1.0)
+    current, rounds, converged = entered, [], False
+    choice: Dict[str, Any] = {}
+    for _ in range(int(max_rounds)):
+        choice = tune_thresholds(counts, nuclei, sites, axes, k=k, scale=current,
+                                 ci=ci, **options)
+        fields = [position_of[s] for s in choice["tune_sites"]] or \
+            [position_of[s] for s in choice["report_sites"]]
+        at = (np.asarray(fields, np.int64),) + tuple(choice["index"])
+        needed = (_needed_scale(counts[at][:, 0], counts[at][:, 1], shuffled[at],
+                                nuclei[fields], k, ci) if fields else 1.0)
+        rounds.append({"scale": current, "chosen": choice["chosen"],
+                       "needed_scale": needed})
+        if needed <= current * (1.0 + 1e-9):
+            converged = True
+            break
+        current = float(needed)
+    parts = {}
+    for part, part_sites in (("tune", choice["tune_sites"]),
+                             ("report", choice["report_sites"]),
+                             ("all_fields", sorted(choice["tune_sites"]
+                                                   + choice["report_sites"]))):
+        idx = np.asarray([position_of[s] for s in part_sites], np.int64)
+        at = (idx,) + tuple(choice["index"])
+        rate = shuffle_call_rate(shuffled[at], nuclei[idx])
+        fdr_part = choice[part]["fdr_per_100"]
+        limit = None if fdr_part is None else SHUFFLE_FDR_RATIO * float(fdr_part)
+        parts[part] = {**rate, "fdr_per_100": fdr_part, "shuffle_limit_pct": limit,
+                       "passes": (None if limit is None else bool(
+                           rate["shuffle_call_rate_pct"] <= limit * (1.0 + 1e-9)))}
+    return {**choice, "fdr_scale": current,
+            "calibration": {"method": "shuffle", "ratio": SHUFFLE_FDR_RATIO,
+                            "entered_scale": entered, "scale": current,
+                            "rounds": rounds, "converged": converged, **parts}}
+
+
 def write_tuning_curve(choice: Mapping[str, Any], folder: str, name: str,
                        title: str = "") -> Dict[str, str]:
     """Write one well's genotyped-vs-FDR curve and the chosen point.
@@ -1339,7 +1599,9 @@ def _write_threshold_report(db: str, plate: str, well: str,
     :param db: the measurements database.
     :param plate: the plate.
     :param well: the well.
-    :param choice: from :func:`choose_well_thresholds`.
+    :param choice: from :func:`choose_well_thresholds`, or the shared
+        tuner's choice; with a shuffle calibration (item 949) the table row
+        adds ``fdr_scale`` and the whole well's ``shuffle_call_rate_pct``.
     :returns: the paths of ``decode_thresholds_<well>.json`` and
         ``decode_thresholds_<plate>.csv`` under ``results/ops_decode``; the
         table holds one row per well, this well's replaced.
@@ -1359,6 +1621,10 @@ def _write_threshold_report(db: str, plate: str, well: str,
     if "read_threshold" in choice:
         row.update({"read_threshold": choice["read_threshold"],
                     "objective": choice["objective"]})
+    if "calibration" in choice:
+        row.update({"fdr_scale": choice["fdr_scale"],
+                    "shuffle_call_rate_pct":
+                        choice["calibration"]["all_fields"]["shuffle_call_rate_pct"]})
     if "read_mode" in choice:
         row["read_mode"] = choice["read_mode"]
     for part in ("tune", "report", "all_fields"):
@@ -1566,9 +1832,15 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
     :param well: the well.
     :param decoded: the decoded fields, each with ``site`` and ``rule_a``
         from :func:`field_calls`.
-    :param rule: from :func:`decode_rule`.
+    :param rule: from :func:`decode_rule`; after auto thresholds with a
+        shuffle calibration (item 949) its ``fdr_scale`` is the calibrated
+        scale and its ``threshold_choice`` holds the calibration.
     :param skipped_sites: the unplaced sites.
-    :returns: the well's FDR report, with the paths written under ``paths``.
+    :returns: the well's FDR report, with the paths written under ``paths``;
+        with a shuffle calibration it adds ``fdr_calibration``,
+        ``fdr_scale_entered``, the whole well's ``shuffle_called``,
+        ``shuffle_call_rate_pct``, ``shuffle_ci95``, ``shuffle_limit_pct``
+        (1.5 times the calibrated FDR) and ``shuffle_le_limit``.
     """
     import pandas as pd
 
@@ -1591,6 +1863,15 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
     report = fdr_report(stats, plate=plate, well=well, k=int(rule["decoy_k"]),
                         scale=float(rule["fdr_scale"]),
                         skipped_sites=skipped_sites)
+    calibration = (rule.get("threshold_choice") or {}).get("calibration")
+    if calibration:
+        whole = calibration["all_fields"]
+        report.update({"fdr_calibration": calibration["method"],
+                       "fdr_scale_entered": calibration["entered_scale"],
+                       **{key: whole[key] for key in (
+                           "shuffle_called", "shuffle_call_rate_pct", "shuffle_ci95",
+                           "shuffle_limit_pct")},
+                       "shuffle_le_limit": whole["passes"]})
     report_path = os.path.join(folder, f"decode_fdr_{well}.json")
     with open(report_path, "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=1)

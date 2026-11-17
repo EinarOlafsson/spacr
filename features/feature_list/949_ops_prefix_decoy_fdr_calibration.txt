@@ -1,0 +1,61 @@
+OPS DECOY FDR CALIBRATION FROM THE BARCODE-SHUFFLE CONTROL, AND NEAR-MISS DECOYS FOR SHORT PREFIXES
+====================================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-16, alpha (ALPHA_FEATURES[949]); every new setting is off by default, so outputs are byte-identical unless one is turned on (no DEFAULT_CHANGES row, no schema bump). Under development per proposals/READINESS.md: not marked Ready.
+Requested: maintainer decision 2026-11-15 ("Report both": every PERISCOPE comparison reports the matched decoy FDR and the barcode-shuffle call rate). Number assigned by master 2026-11-15.
+Owner: paper session (OPS genotyping lane).
+Source: proposals/bmc_paper_items/ITEM_prefix_decoy_fdr_calibration.md; item 942 proof on PERISCOPE CP186A Well1, 85 sites (BMCspacr/reanalysis/periscope_benchmark/out/autotune_942/fast_search/prefix_85/).
+Related: 942 (decoys and the shared tuner), 920 (spacer-prefix decode), 939/946 (OPS decode auto mode).
+
+WHY
+With 12-nt prefixes and 80,862 guides the barcode-shuffle call rate stayed 2-4x
+above 1.5 x the decoy FDR after 942 tuning (0.38 % against a limit of 0.134 %).
+The far decoys sit two or more edits from every prefix, so they never catch the
+read errors that land one edit from a guide.
+
+SETTINGS (all alpha, ALPHA_FEATURES[949])
+ops_prefix_nearmiss_decoy_k (0 = off): near-miss decoy prefixes per library
+  prefix, one edit from that prefix and from no other key
+  (spacr.ops_prefix.prefix_nearmiss_decoys). Calls on them are decoy calls,
+  counted apart (cells_decoy_nearmiss, fdr_nearmiss_pct = near-miss calls per
+  100 real calls / k, scale 1) and never genotyped. Needs ops_prefix_decoy_k.
+ops_prefix_fdr_calibration ('none' | 'shuffle'): the spacer-prefix decode also
+  matches every read against 3 shuffled whitelists (seeds ops_control_seed..+2)
+  and raises the FDR scale per well (spacr.ops_decode.calibrate_fdr_scale):
+  tune at the current scale; at the chosen setting the needed scale is the
+  tuning sites' shuffle call rate / (1.5 x the scale-1 FDR), the upper end of
+  its site-bootstrap interval with ops_decode_auto_ci; repeat while the scale
+  rises. Without tuning the entered setting is calibrated on the tuning half.
+  Decoy and shuffle calls only; the report half never sets the scale.
+ops_decode_fdr_calibration ('none' | 'shuffle'): the same calibration in the OPS
+  (barcode) decode's auto mode; each field is voted again against 3 shuffled
+  libraries (spacr.ops_decode._field_shuffle_counts), about three more vote
+  passes per field.
+
+OUTPUTS (only when a setting is on)
+site_summary.csv: cells_decoy_nearmiss, fdr_nearmiss_pct; shuffle_called,
+shuffle_call_rate_pct, fdr_scale (fdr_pct then uses the calibrated scale).
+fdr_<plate>_<well>.json: fdr_ci95; near-miss count, FDR and interval;
+fdr_calibration, fdr_scale_entered, shuffle_call_rate_pct with shuffle_ci95,
+shuffle_limit_pct, shuffle_le_limit, calibration (rounds, per-part rates).
+cells_<plate>_<well>.csv: decoy_class ('far' | 'nearmiss').
+OPS decode: decode_thresholds_<well>.json carries the calibration;
+decode_thresholds_<plate>.csv gains fdr_scale and shuffle_call_rate_pct;
+decode_fdr_<well>.json gains the shuffle keys.
+
+PROOF (BMCspacr/reanalysis/periscope_benchmark/out/fdr_calibration_949/)
+Off switch: nightly vs branch with 949 off, CP186A sites 27 and 98, all 8
+prefix_decode outputs byte-identical.
+Identity: spaCR calibrate_fdr_scale equals the step-1 script on the 942 full
+grids (4 arms); far-decoy counts and shuffles at read threshold 80 equal the
+942 grids on all 85 sites.
+CP186A held-out sites (read threshold 80 grid, read quality x mismatches):
+calibrated arms pass shuffle <= 1.5 x calibrated FDR in every held-out split,
+both cell rules, with and without near-miss decoys; e.g. recipe_simple, 43
+report sites: shuffle 0.137 % vs limit 0.276 % (scale 7.2), genotyped 17.9 %
+(942 control: 26.5 %, shuffle 0.310 % vs 0.159 %, fail).
+Funk plate A A1 (333 cached fields, current default auto grid): the current
+default does NOT pass S2 (c) under this shuffle (0.901 % vs limit 0.091 %,
+report half); calibrated, scale 24.4, it passes (0.552 % vs 0.824 %) at 70.5 %
+genotyped instead of 76.4 %.
