@@ -12591,15 +12591,15 @@ gpu_adaptive_batch
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
+| ``_ph_object_eval``
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_engine.run_spatial_masks`
 |     ``_governed_eval``
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
-|     ``_ph_segment_objects``
-|         ``_governed_eval``
-|             ``_config`` **-- reads it**
-|                 ``isinstance(...)  [UNRESOLVED]``
 |     ``_eval_flows``
 |         ``_governed_eval``
 |             ``_config`` **-- reads it**
@@ -12706,15 +12706,15 @@ gpu_fallback_policy
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
+| ``_ph_object_eval``
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_engine.run_spatial_masks`
 |     ``_governed_eval``
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
-|     ``_ph_segment_objects``
-|         ``_governed_eval``
-|             ``_config`` **-- reads it**
-|                 ``isinstance(...)  [UNRESOLVED]``
 |     ``_eval_flows``
 |         ``_governed_eval``
 |             ``_config`` **-- reads it**
@@ -12827,15 +12827,15 @@ gpu_memory_fraction
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
+| ``_ph_object_eval``
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_engine.run_spatial_masks`
 |     ``_governed_eval``
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
-|     ``_ph_segment_objects``
-|         ``_governed_eval``
-|             ``_config`` **-- reads it**
-|                 ``isinstance(...)  [UNRESOLVED]``
 |     ``_eval_flows``
 |         ``_governed_eval``
 |             ``_config`` **-- reads it**
@@ -12941,15 +12941,15 @@ gpu_memory_margin_gb
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
+| ``_ph_object_eval``
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_engine.run_spatial_masks`
 |     ``_governed_eval``
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
-|     ``_ph_segment_objects``
-|         ``_governed_eval``
-|             ``_config`` **-- reads it**
-|                 ``isinstance(...)  [UNRESOLVED]``
 |     ``_eval_flows``
 |         ``_governed_eval``
 |             ``_config`` **-- reads it**

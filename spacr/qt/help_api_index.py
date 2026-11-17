@@ -4097,8 +4097,6 @@ API_ENTRIES = (
     ('spacr.ops_engine._ph_fields.measure_task', 'The ``ph_measure`` task of one field.'),
     ('spacr.ops_engine._ph_fields.stage_read', "One field's projected stack, for the stager."),
     ('spacr.ops_engine._ph_insert_rows.declared', 'The SQLite type of a column.'),
-    ('spacr.ops_engine._ph_segment_objects.cellpose', "``model``'s labels of ``plane``, tiled when ``tile`` is given."),
-    ('spacr.ops_engine._ph_segment_objects.cellpose.run', 'One Cellpose evaluation.'),
     ('spacr.ops_engine._phenotype.seed_of', "Where a phenotype field's centre is expected, before aligning it."),
     ('spacr.ops_engine._phenotype.usable_under', 'The placed tiles that touch ``window`` and read.'),
     ('spacr.ops_engine._st_level_geometry.size', '``(rows, columns)`` of one level of the series.'),

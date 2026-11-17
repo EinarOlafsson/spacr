@@ -4520,6 +4520,36 @@ def _ph_object_model(settings: Mapping[str, Any], gpu: bool, role: str,
     return cache[name]
 
 
+def _ph_object_eval(image: np.ndarray, model, settings: Mapping[str, Any],
+                    batch: int, extra: Mapping[str, Any]) -> np.ndarray:
+    """One Cellpose evaluation of an object channel, as int32 labels.
+
+    :param image: the plane or tile.
+    :param model: the Cellpose model.
+    :param settings: passed to :func:`spacr._gpu_governor._governed_eval`.
+    :param batch: the Cellpose batch size.
+    :param extra: further Cellpose arguments (the diameter).
+    """
+    return np.asarray(_governed_eval(
+        model, image, site='ops_phenotype', settings=settings,
+        batch_size=batch, **extra)[0], np.int32)
+
+
+def _ph_object_cellpose(model, plane: np.ndarray, settings: Mapping[str, Any],
+                        batch: int, extra: Mapping[str, Any], tile
+                        ) -> np.ndarray:
+    """``model``'s labels of ``plane``, tiled when ``tile`` is given.
+
+    :param tile: ``tile(plane, segment)`` or None (:func:`_ph_segment_objects`).
+    :returns: int32 labels of the plane's shape.
+    """
+    import functools
+
+    run = functools.partial(_ph_object_eval, model=model, settings=settings,
+                            batch=batch, extra=extra)
+    return run(plane) if tile is None else tile(plane, run)
+
+
 def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
                         settings: Mapping[str, Any], gpu: bool,
                         cache: Dict[str, Any], *, tile=None
@@ -4568,15 +4598,6 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
     batch = max(1, int(_setting_number(settings.get("ops_ph_batch_size"),
                                        "ops_ph_batch_size", 8)))
 
-    def cellpose(model, plane: np.ndarray, extra: Mapping[str, Any]
-                 ) -> np.ndarray:
-        """``model``'s labels of ``plane``, tiled when ``tile`` is given."""
-        def run(image: np.ndarray) -> np.ndarray:
-            """One Cellpose evaluation."""
-            return np.asarray(_governed_eval(
-                model, image, site='ops_phenotype', settings=settings,
-                batch_size=batch, **extra)[0], np.int32)
-        return run(plane) if tile is None else tile(plane, run)
     for role, given in _ph_object_settings(settings).items():
         if given["channel"] not in channels:
             raise ValueError(tr(
@@ -4588,8 +4609,9 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
         extra = ({"diameter": float(given["diameter"])}
                  if given["diameter"] else {})
         if role == "pathogen":
-            labels = cellpose(_ph_object_model(
-                settings, gpu, role, given["model"], cache), plane, extra)
+            labels = _ph_object_cellpose(
+                _ph_object_model(settings, gpu, role, given["model"], cache),
+                plane, settings, batch, extra, tile)
             view: Dict[str, Any] = {"pathogen_min_area": given["min_area"]}
         else:
             from .object import (_extract_classical_settings,
@@ -4608,8 +4630,10 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
                 "organelle_method": given["method"],
                 "organelle_min_area": given["min_area"], "verbose": False})
             if given["method"] == "cellpose":
-                labels = cellpose(_ph_object_model(
-                    settings, gpu, role, given["model"], cache), plane, extra)
+                labels = _ph_object_cellpose(
+                    _ph_object_model(settings, gpu, role, given["model"],
+                                     cache),
+                    plane, settings, batch, extra, tile)
             else:
                 image = _preprocess_batch(plane[None], view)[0]
                 labels = _segment_single_image(
