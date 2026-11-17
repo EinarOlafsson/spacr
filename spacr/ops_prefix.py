@@ -28,7 +28,9 @@ masked has nine letters.
 """
 from __future__ import annotations
 
+import itertools
 import json
+import math
 import os
 import time
 from dataclasses import dataclass, field
@@ -1838,3 +1840,662 @@ _ITEM_942_KEYS = ("ops_prefix_decoy_k", "ops_prefix_decoy_seed", "ops_prefix_fdr
 #: ``quality_classes.json`` while both are off, so such a run writes what it
 #: wrote before.
 _ITEM_949_KEYS = ("ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration")
+
+
+#: The cell rules of the matched-FDR sweep (item 955), from least to most
+#: strict: ``'maxcount'`` keeps a cell whose top barcode has more matched
+#: reads than any other, ``'purity50'`` also needs half of the cell's matched
+#: reads on it, and ``'purity100'`` needs every matched read on one barcode.
+FDR_SWEEP_RULES = ("maxcount", "purity50", "purity100")
+
+_SWEEP_DEFAULTS: Dict[str, Any] = {
+    "ops_fdr_sweep_targets": [0.5, 1.0, 2.0, 5.0],
+    "ops_fdr_sweep_max_distance": [0, 1],
+    "ops_fdr_sweep_min_reads": [1, 2, 3],
+    "ops_fdr_sweep_rules": list(FDR_SWEEP_RULES),
+    "ops_fdr_sweep_quality_quantiles": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+    "ops_fdr_sweep_bootstrap": 2000,
+    "ops_fdr_sweep_seed": 0,
+    "ops_fdr_sweep_shuffle_seeds": [0, 1, 2],
+}
+
+_SWEEP_KEY = ["method", "max_d", "min_reads", "rule", "qmin"]
+
+
+def _sweep_list(value: Any, kind: Callable[[Any], Any]) -> List[Any]:
+    """A list setting of the sweep, from a list or a comma-separated string.
+
+    :param value: the setting's value.
+    :param kind: the type of each element.
+    :returns: the elements, in the order given.
+    """
+    if isinstance(value, str):
+        value = [part for part in value.replace(";", ",").split(",") if part.strip()]
+    return [kind(part.strip()) if isinstance(part, str) else kind(part) for part in value]
+
+
+def _sweep_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """The item-955 sweep settings, checked and with defaults filled in.
+
+    :param settings: the OPS settings.
+    :returns: the normalised ``ops_fdr_sweep_*`` values and the decoy and
+        match settings the sweep uses.
+    :raises ValueError: for an empty or invalid grid, an unknown rule, a
+        quantile outside (0, 1), fewer than one bootstrap replicate or no
+        decoys.
+    """
+    value = {key: (settings.get(key) if settings.get(key) not in (None, "", [])
+                   else default) for key, default in _SWEEP_DEFAULTS.items()}
+    out = {
+        "ops_fdr_sweep_targets": _sweep_list(value["ops_fdr_sweep_targets"], float),
+        "ops_fdr_sweep_max_distance": _sweep_list(value["ops_fdr_sweep_max_distance"], int),
+        "ops_fdr_sweep_min_reads": _sweep_list(value["ops_fdr_sweep_min_reads"], int),
+        "ops_fdr_sweep_rules": [str(rule).strip().lower() for rule in
+                                _sweep_list(value["ops_fdr_sweep_rules"], str)],
+        "ops_fdr_sweep_quality_quantiles": _sweep_list(
+            value["ops_fdr_sweep_quality_quantiles"], float),
+        "ops_fdr_sweep_bootstrap": int(value["ops_fdr_sweep_bootstrap"]),
+        "ops_fdr_sweep_seed": int(value["ops_fdr_sweep_seed"]),
+        "ops_fdr_sweep_shuffle_seeds": _sweep_list(value["ops_fdr_sweep_shuffle_seeds"], int),
+        "ops_prefix_decoy_k": int(settings.get("ops_prefix_decoy_k") or 0),
+        "ops_prefix_decoy_seed": int(settings.get("ops_prefix_decoy_seed", 1) or 0),
+        "ops_prefix_metric": str(settings.get("ops_prefix_metric") or "hamming"),
+    }
+    if not all(out[key] for key in ("ops_fdr_sweep_targets", "ops_fdr_sweep_max_distance",
+                                    "ops_fdr_sweep_min_reads", "ops_fdr_sweep_rules")):
+        raise ValueError("the FDR sweep needs at least one target, max distance, "
+                         "minimum read count and rule")
+    if any(not target > 0 for target in out["ops_fdr_sweep_targets"]):
+        raise ValueError("ops_fdr_sweep_targets must be above 0 (in %)")
+    if any(d < 0 for d in out["ops_fdr_sweep_max_distance"]):
+        raise ValueError("ops_fdr_sweep_max_distance must be 0 or more")
+    if any(n < 1 for n in out["ops_fdr_sweep_min_reads"]):
+        raise ValueError("ops_fdr_sweep_min_reads must be 1 or more")
+    unknown = [rule for rule in out["ops_fdr_sweep_rules"] if rule not in FDR_SWEEP_RULES]
+    if unknown:
+        raise ValueError(f"unknown ops_fdr_sweep_rules {unknown}; choose from "
+                         f"{list(FDR_SWEEP_RULES)}")
+    if any(not 0 < q < 1 for q in out["ops_fdr_sweep_quality_quantiles"]):
+        raise ValueError("ops_fdr_sweep_quality_quantiles must lie between 0 and 1")
+    if out["ops_fdr_sweep_bootstrap"] < 1:
+        raise ValueError("ops_fdr_sweep_bootstrap must be 1 or more")
+    if out["ops_prefix_decoy_k"] < 1:
+        raise ValueError("the FDR sweep counts decoy calls; set ops_prefix_decoy_k to 1 or "
+                         "more (4 recommended)")
+    return out
+
+
+def _sweep_matched(frame: pd.DataFrame, library: PrefixLibrary, *, metric: str,
+                   max_distance: int, decoy: bool) -> pd.DataFrame:
+    """One method's reads matched against one whitelist, matched reads only.
+
+    Each distinct read is matched once.
+
+    :param frame: ``site``, ``cell``, ``read`` and ``quality`` per read.
+    :param library: the whitelist (with decoys, or a shuffled one).
+    :param metric: the match metric.
+    :param max_distance: the largest distance matched.
+    :param decoy: mark reads whose key is a decoy (gene :data:`DECOY_GENE`);
+        False marks none.
+    :returns: ``site``, ``cell``, ``prefix``, ``distance``, ``quality`` and
+        ``decoy`` of the exact and corrected reads.
+    """
+    reads = frame["read"].astype(str).to_numpy()
+    unique, inverse = np.unique(reads, return_inverse=True)
+    matched = match_prefix_reads(list(unique), library, metric=metric,
+                                 max_distance=int(max_distance))
+    status = matched["status"].to_numpy()[inverse]
+    keep = (status == "exact") | (status == "corrected")
+    out = pd.DataFrame({
+        "site": frame["site"].to_numpy()[keep],
+        "cell": frame["cell"].to_numpy()[keep],
+        "prefix": matched["prefix"].to_numpy()[inverse][keep],
+        "distance": matched["distance"].to_numpy()[inverse][keep],
+        "quality": frame["quality"].to_numpy(float)[keep],
+        "decoy": (matched["gene"].to_numpy()[inverse][keep] == DECOY_GENE) if decoy
+        else np.zeros(int(keep.sum()), bool)})
+    return out
+
+
+def _sweep_tops(matched: pd.DataFrame, max_d: int, qmin: float) -> pd.DataFrame:
+    """Each cell's top barcode at one read filter.
+
+    :param matched: from :func:`_sweep_matched`.
+    :param max_d: the largest read distance kept.
+    :param qmin: the lowest read quality kept; minus infinity keeps all.
+    :returns: per cell ``site``, ``n`` (reads of the top barcode, ties
+        broken by the alphabetically first barcode), ``second`` (reads of the
+        runner-up, 0 without), ``barcodes``, ``total`` (matched reads) and
+        ``decoy`` (the top barcode is a decoy).
+    """
+    keep = matched["distance"].to_numpy() <= max_d
+    if qmin > -np.inf:
+        keep &= matched["quality"].to_numpy() >= qmin
+    reads = matched[keep]
+    if reads.empty:
+        return pd.DataFrame(columns=["site", "cell", "n", "second", "barcodes", "total", "decoy"])
+    counts = (reads.groupby(["site", "cell", "prefix"], sort=False)
+              .agg(n=("decoy", "size"), decoy=("decoy", "first")).reset_index())
+    counts = counts.sort_values(["site", "cell", "n", "prefix"],
+                                ascending=[True, True, False, True], kind="mergesort")
+    groups = counts.groupby(["site", "cell"], sort=False)
+    counts["barcodes"] = groups["n"].transform("size")
+    counts["total"] = groups["n"].transform("sum")
+    counts["second"] = groups["n"].shift(-1).fillna(0)
+    return groups.head(1)[["site", "cell", "n", "second", "barcodes", "total",
+                           "decoy"]].reset_index(drop=True)
+
+
+def _sweep_called(tops: pd.DataFrame, min_reads: int, rule: str) -> pd.Series:
+    """Which cells one configuration calls.
+
+    :param tops: from :func:`_sweep_tops`.
+    :param min_reads: the top barcode's fewest reads.
+    :param rule: one of :data:`FDR_SWEEP_RULES`.
+    :returns: a boolean per row of ``tops``.
+    """
+    keep = tops["n"] >= min_reads
+    if rule == "purity100":
+        return keep & (tops["barcodes"] == 1)
+    keep &= tops["n"] > tops["second"]
+    if rule == "purity50":
+        keep &= 2 * tops["n"] >= tops["total"]
+    return keep
+
+
+def _sweep_site_counts(tops: pd.DataFrame, called: pd.Series,
+                       sites: Sequence[int]) -> Tuple[np.ndarray, np.ndarray]:
+    """Real and decoy calls per site.
+
+    :param tops: from :func:`_sweep_tops`.
+    :param called: from :func:`_sweep_called`.
+    :param sites: the sites, in output order.
+    :returns: ``(real, decoy)`` arrays over ``sites``.
+    """
+    hit = tops[called.to_numpy(bool)]
+    decoy = hit["decoy"].to_numpy(bool)
+    real = pd.Series(~decoy).groupby(hit["site"].to_numpy()).sum()
+    fake = pd.Series(decoy).groupby(hit["site"].to_numpy()).sum()
+    return (real.reindex(list(sites), fill_value=0).to_numpy(np.int64),
+            fake.reindex(list(sites), fill_value=0).to_numpy(np.int64))
+
+
+def _sweep_strictness(row: Mapping[str, Any]) -> Tuple[float, ...]:
+    """A configuration's sort key among equals: stricter first.
+
+    :param row: a pooled grid row.
+    :returns: fewer mismatches, more reads, a stricter rule, a higher
+        quality cut, in that order, as ascending sort keys.
+    """
+    return (float(row["max_d"]), -float(row["min_reads"]),
+            -float(FDR_SWEEP_RULES.index(row["rule"])), -float(row["qmin"]))
+
+
+def _sweep_frames(reads: Any) -> Dict[str, pd.DataFrame]:
+    """The reads per method, with the columns the sweep reads.
+
+    :param reads: ``{method: frame}`` or one frame with a ``method`` column;
+        each frame has ``site``, ``cell`` and ``read`` and may have
+        ``quality``.
+    :returns: ``{method: frame}`` in the order given, cells above 0 only,
+        ``quality`` in its stored precision (its quantiles are taken in it),
+        filled with infinity where a method has none.
+    :raises ValueError: without reads or when a column is missing.
+    """
+    if isinstance(reads, pd.DataFrame):
+        if "method" in reads.columns:
+            reads = {str(name): group for name, group in reads.groupby("method", sort=False)}
+        else:
+            reads = {"spacr": reads}
+    if not reads:
+        raise ValueError("the FDR sweep needs reads of at least one method")
+    out = {}
+    for name, frame in reads.items():
+        missing = [col for col in ("site", "cell", "read") if col not in frame.columns]
+        if missing:
+            raise ValueError(f"the reads of method {name!r} lack columns {missing}")
+        quality = (pd.to_numeric(frame["quality"], errors="coerce").to_numpy()
+                   if "quality" in frame.columns else np.full(len(frame), np.inf))
+        table = pd.DataFrame({"site": pd.to_numeric(frame["site"]).to_numpy(np.int64),
+                              "cell": pd.to_numeric(frame["cell"]).to_numpy(np.int64),
+                              "read": frame["read"].astype(str).to_numpy(),
+                              "quality": quality})
+        out[str(name)] = table[table["cell"] > 0].reset_index(drop=True)
+    return out
+
+
+def _sweep_cells(cells: Any) -> Dict[int, int]:
+    """Cells per site, the genotyped share's denominator.
+
+    :param cells: ``{site: cells}``, a :class:`pandas.Series` indexed by site,
+        or a frame with ``site`` and ``cells``.
+    :returns: ``{site: cells}``.
+    """
+    if isinstance(cells, pd.DataFrame):
+        cells = dict(zip(cells["site"], cells["cells"]))
+    elif isinstance(cells, pd.Series):
+        cells = cells.to_dict()
+    return {int(site): int(count) for site, count in dict(cells).items()}
+
+
+class _SweepDraws:
+    """The sweep's site-bootstrap resamples, drawn in blocks on first use.
+
+    :param seed: the generator seed (``ops_fdr_sweep_seed``).
+    :param reps: resamples per block (``ops_fdr_sweep_bootstrap``).
+    :param n: report sites.
+    """
+
+    def __init__(self, seed: int, reps: int, n: int) -> None:
+        """Start the generator; no block is drawn yet."""
+        self.rng = np.random.default_rng(int(seed))
+        self.reps = int(reps)
+        self.n = int(n)
+        self.blocks: List[np.ndarray] = []
+
+    def block(self, i: int) -> np.ndarray:
+        """The i-th block, drawing the blocks before it first.
+
+        :param i: the block, from 0.
+        :returns: ``(reps, n)`` site indices.
+        """
+        while len(self.blocks) <= i:
+            self.blocks.append(self.rng.integers(0, self.n, (self.reps, self.n)))
+        return self.blocks[i]
+
+
+def _sweep_interval(values: np.ndarray) -> List[float]:
+    """The 2.5th and 97.5th percentiles of bootstrap values.
+
+    :param values: one value per resample.
+    :returns: ``[low, high]``.
+    """
+    return [float(np.quantile(values, 0.025)), float(np.quantile(values, 0.975))]
+
+
+def fdr_sweep(reads: Any, cells: Any, library: PrefixLibrary,
+              settings: Mapping[str, Any], *,
+              selection_sites: Optional[Sequence[int]] = None) -> Dict[str, Any]:
+    """Genotyped share at matched decoy FDR, method by method (item 955).
+
+    Every method's reads (spaCR's own, or another pipeline's per-spot reads)
+    are matched by one matcher (:func:`match_prefix_reads`, ``hamming``
+    unless ``ops_prefix_metric`` says otherwise, up to the largest
+    ``ops_fdr_sweep_max_distance``) against the whitelist with decoys
+    (:func:`prefix_decoy_library`, ``ops_prefix_decoy_k`` and
+    ``ops_prefix_decoy_seed``) and, for the control, against shuffled
+    whitelists (:func:`shuffled_library`, one per
+    ``ops_fdr_sweep_shuffle_seeds``). A configuration is a largest read
+    distance, a fewest top-barcode reads, a cell rule
+    (:data:`FDR_SWEEP_RULES`) and, for a method whose reads carry a quality,
+    a lowest read quality: no cut or the ``ops_fdr_sweep_quality_quantiles``
+    of that method's reads in cells. Each site's calls are counted at every
+    configuration; pooled over the selection sites, the decoy FDR is
+    ``100 / k * decoys / real calls`` and the genotyped share
+    ``100 * real calls / cells``.
+
+    For each ``ops_fdr_sweep_targets`` value, and for the lowest FDR every
+    method reaches (rounded up to 0.0001 %), each method's configuration is
+    the one with the most real calls at a pooled FDR no higher than the
+    target; among equals the lower FDR, then the stricter configuration
+    (fewer mismatches, more reads, stricter rule, higher quality cut) is
+    kept. Each chosen configuration is then scored on the report sites: its
+    genotyped share and decoy FDR with site-bootstrap 95 % intervals, and its
+    barcode-shuffle call rate (shuffle-called cells per 100 cells, the mean
+    over the shuffled whitelists, :func:`spacr.ops_decode.shuffle_call_rate`).
+    Between methods the paired difference in genotyped share at the same
+    target gets a site-bootstrap 95 % interval. The bootstrap draws site
+    indices from ``numpy.random.default_rng(ops_fdr_sweep_seed)``,
+    ``ops_fdr_sweep_bootstrap`` resamples at a time: the first draw serves
+    every share and FDR interval and the first target's differences, each
+    later target with two or more chosen methods takes the next draw.
+
+    :param reads: ``{method: frame}``, or one frame with a ``method``
+        column; each frame has ``site``, ``cell`` (0 or less is outside
+        every cell and dropped) and ``read`` (the called bases from cycle 1),
+        and may have ``quality`` (a higher value is a better read).
+    :param cells: cells per site, as ``{site: cells}``, a series indexed by
+        site, or a frame with ``site`` and ``cells``; the same cells serve
+        every method.
+    :param library: the whitelist, from :func:`spacer_prefix_library`,
+        without decoys.
+    :param settings: the ``ops_fdr_sweep_*`` settings, ``ops_prefix_decoy_k``
+        (1 or more), ``ops_prefix_decoy_seed`` and ``ops_prefix_metric``.
+    :param selection_sites: the sites the configurations are chosen on; the
+        others are the report sites. None chooses and reports on every site.
+    :returns: ``settings`` (the values used), ``sites``,
+        ``selection_sites``, ``report_sites``, ``decoys``,
+        ``lowest_fdr_pct`` and ``quality_cuts`` per method, ``targets`` (per
+        target ``label``, ``target_fdr_pct``, per method the chosen
+        configuration with its selection and report numbers or None, and
+        ``diffs``, the paired differences ``'<a> - <b>'``), ``table`` (one
+        row per target and method), ``pooled`` (every configuration on the
+        selection sites) and ``grid`` (every configuration per site) as
+        frames.
+    :raises ValueError: for invalid settings, missing columns, a site
+        without a cell count, or selection sites that leave no report site.
+    """
+    from .ops_decode import shuffle_call_rate
+
+    chosen = _sweep_settings(settings)
+    frames = _sweep_frames(reads)
+    counts = _sweep_cells(cells)
+    sites = sorted({int(s) for frame in frames.values() for s in frame["site"].unique()}
+                   | set(counts))
+    lacking = [s for s in sites if s not in counts]
+    if lacking:
+        raise ValueError(f"no cell count for sites {lacking[:10]}")
+    if selection_sites is None:
+        select, report = list(sites), list(sites)
+    else:
+        select = sorted({int(s) for s in selection_sites} & set(sites))
+        report = [s for s in sites if s not in set(select)]
+        if not select or not report:
+            raise ValueError("selection_sites must hold some sites and leave others to report")
+    k = chosen["ops_prefix_decoy_k"]
+    metric = chosen["ops_prefix_metric"]
+    reach = max(chosen["ops_fdr_sweep_max_distance"])
+    joint = prefix_decoy_library(library, k, chosen["ops_prefix_decoy_seed"])
+    cell_array = np.array([counts[s] for s in sites], np.int64)
+    position = {s: i for i, s in enumerate(sites)}
+    sel_idx = np.array([position[s] for s in select], np.int64)
+    rep_idx = np.array([position[s] for s in report], np.int64)
+    matched, cuts, rows = {}, {}, []
+    per_site: Dict[Tuple[Any, ...], Tuple[np.ndarray, np.ndarray]] = {}
+    for name, frame in frames.items():
+        matched[name] = _sweep_matched(frame, joint, metric=metric, max_distance=reach, decoy=True)
+        quality = frame.loc[frame["site"].isin(select), "quality"].to_numpy()
+        finite = quality[np.isfinite(quality)]
+        cuts[name] = sorted({-np.inf} | {float(np.quantile(finite, q)) for q in
+                                         chosen["ops_fdr_sweep_quality_quantiles"]}
+                            ) if finite.size else [-np.inf]
+        for max_d in chosen["ops_fdr_sweep_max_distance"]:
+            for qi, qmin in enumerate(cuts[name]):
+                tops = _sweep_tops(matched[name], max_d, qmin)
+                for min_reads in chosen["ops_fdr_sweep_min_reads"]:
+                    for rule in chosen["ops_fdr_sweep_rules"]:
+                        real, decoy = _sweep_site_counts(
+                            tops, _sweep_called(tops, min_reads, rule), sites)
+                        per_site[(name, max_d, min_reads, rule, qmin)] = (real, decoy)
+                        for i, site in enumerate(sites):
+                            rows.append({"method": name, "max_d": max_d,
+                                         "min_reads": min_reads, "rule": rule,
+                                         "qmin": qmin, "quality_index": qi, "site": site,
+                                         "real": int(real[i]), "decoy": int(decoy[i]),
+                                         "cells": int(cell_array[i])})
+    grid = pd.DataFrame(rows)
+    pooled_rows = []
+    for config, (real, decoy) in per_site.items():
+        r, d, c = int(real[sel_idx].sum()), int(decoy[sel_idx].sum()), int(cell_array[sel_idx].sum())
+        pooled_rows.append({**dict(zip(_SWEEP_KEY, config)),
+                            "quality_index": cuts[config[0]].index(config[4]),
+                            "real": r, "decoy": d, "cells": c,
+                            "share": 100 * r / c if c else 0.0,
+                            "fdr": 100 / k * d / max(r, 1)})
+    pooled = pd.DataFrame(pooled_rows)
+    lowest = {name: float(group.loc[group["real"] > 0, "fdr"].min())
+              for name, group in pooled.groupby("method", sort=False)
+              if (group["real"] > 0).any()}
+    targets = [(f"<= {t:g} %", float(t)) for t in chosen["ops_fdr_sweep_targets"]]
+    if lowest:
+        common = math.ceil(max(lowest.values()) * 1e4 - 1e-9) / 1e4
+        targets.append(("lowest common", common))
+    draws_of = _SweepDraws(chosen["ops_fdr_sweep_seed"], chosen["ops_fdr_sweep_bootstrap"],
+                           len(rep_idx))
+    shuffles: Dict[Tuple[str, int], pd.DataFrame] = {}
+    shuffle_libs = {seed: shuffled_library(library, seed)
+                    for seed in chosen["ops_fdr_sweep_shuffle_seeds"]}
+    rep_cells = cell_array[rep_idx]
+    entries, table, compared = [], [], 0
+    for label, target in targets:
+        entry: Dict[str, Any] = {"label": label, "target_fdr_pct": target, "methods": {},
+                                 "diffs": {}}
+        picks = {}
+        for name in frames:
+            ok = pooled[(pooled["method"] == name) & (pooled["fdr"] <= target)]
+            if ok.empty:
+                entry["methods"][name] = None
+                continue
+            best = min(ok.to_dict("records"),
+                       key=lambda row: (-row["real"] / max(row["cells"], 1), row["fdr"],
+                                        _sweep_strictness(row)))
+            config = tuple(best[key] for key in _SWEEP_KEY)
+            real, decoy = per_site[config]
+            r_rep, d_rep = real[rep_idx], decoy[rep_idx]
+            draws = draws_of.block(0)
+            boot_r, boot_d = r_rep[draws].sum(1), d_rep[draws].sum(1)
+            boot_c = rep_cells[draws].sum(1)
+            shuffled = []
+            for seed, shuffled_lib in shuffle_libs.items():
+                if (name, seed) not in shuffles:
+                    shuffles[(name, seed)] = _sweep_matched(frames[name], shuffled_lib,
+                                                            metric=metric, max_distance=reach,
+                                                            decoy=False)
+                tops = _sweep_tops(shuffles[(name, seed)], int(best["max_d"]), best["qmin"])
+                called, _ = _sweep_site_counts(
+                    tops, _sweep_called(tops, int(best["min_reads"]), best["rule"]), sites)
+                shuffled.append(called[rep_idx].astype(float))
+            rate = (shuffle_call_rate(np.mean(shuffled, axis=0), rep_cells)
+                    if shuffled else None)
+            per_seed = [100.0 * float(s.sum()) / max(float(rep_cells.sum()), 1.0)
+                        for s in shuffled]
+            pick = {
+                "max_d": int(best["max_d"]), "min_reads": int(best["min_reads"]),
+                "rule": best["rule"], "qmin": float(best["qmin"]),
+                "quality_index": int(best["quality_index"]),
+                "selection": {"real": int(best["real"]), "decoy": int(best["decoy"]),
+                              "cells": int(best["cells"]), "share": float(best["share"]),
+                              "fdr": float(best["fdr"])},
+                "real": int(r_rep.sum()), "decoy": int(d_rep.sum()),
+                "cells": int(rep_cells.sum()),
+                "share": 100.0 * float(r_rep.sum()) / max(float(rep_cells.sum()), 1.0),
+                "fdr": 100.0 / k * float(d_rep.sum()) / max(float(r_rep.sum()), 1.0),
+                "share_ci95": _sweep_interval(100.0 * boot_r / np.maximum(boot_c, 1)),
+                "fdr_ci95": _sweep_interval(100.0 / k * boot_d / np.maximum(boot_r, 1)),
+                "shuffle_call_rate_pct": None if rate is None else rate["shuffle_call_rate_pct"],
+                "shuffle_ci95": None if rate is None else rate["shuffle_ci95"],
+                "shuffle_per_seed_pct": dict(zip(shuffle_libs, per_seed)),
+            }
+            entry["methods"][name] = pick
+            picks[name] = (r_rep, pick)
+        if len(picks) > 1:
+            draws = draws_of.block(compared)
+            compared += 1
+            names = list(picks)
+            share = {name: 100 * picks[name][0][draws].sum(1) / rep_cells[draws].sum(1)
+                     for name in names}
+            for a, b in itertools.combinations(names, 2):
+                entry["diffs"][f"{a} - {b}"] = {
+                    "diff_share_pts": picks[a][1]["share"] - picks[b][1]["share"],
+                    "diff_ci95": _sweep_interval(share[a] - share[b])}
+        entries.append(entry)
+        first = next(iter(picks), None)
+        for name, pick in entry["methods"].items():
+            if pick is None:
+                continue
+            diff = entry["diffs"].get(f"{first} - {name}") if name != first else None
+            table.append({
+                "target": label, "target_fdr_pct": target, "method": name,
+                "max_d": pick["max_d"], "min_reads": pick["min_reads"], "rule": pick["rule"],
+                "qmin": pick["qmin"], "quality_index": pick["quality_index"],
+                "genotyped_pct": pick["share"], "genotyped_ci95_lo": pick["share_ci95"][0],
+                "genotyped_ci95_hi": pick["share_ci95"][1], "decoy_fdr_pct": pick["fdr"],
+                "decoy_fdr_ci95_lo": pick["fdr_ci95"][0], "decoy_fdr_ci95_hi": pick["fdr_ci95"][1],
+                "real": pick["real"], "decoy": pick["decoy"], "cells": pick["cells"],
+                "shuffle_call_rate_pct": pick["shuffle_call_rate_pct"],
+                "shuffle_ci95_lo": None if pick["shuffle_ci95"] is None else pick["shuffle_ci95"][0],
+                "shuffle_ci95_hi": None if pick["shuffle_ci95"] is None else pick["shuffle_ci95"][1],
+                **{f"shuffle_seed{seed}_pct": value
+                   for seed, value in pick["shuffle_per_seed_pct"].items()},
+                "selection_genotyped_pct": pick["selection"]["share"],
+                "selection_decoy_fdr_pct": pick["selection"]["fdr"],
+                "paired_diff_vs": None if diff is None else first,
+                "paired_diff_pts": None if diff is None else -diff["diff_share_pts"],
+                "paired_diff_ci95_lo": None if diff is None else -diff["diff_ci95"][1],
+                "paired_diff_ci95_hi": None if diff is None else -diff["diff_ci95"][0]})
+    return {"settings": chosen, "sites": sites, "selection_sites": select,
+            "report_sites": report, "decoys": int(joint.summary.get("decoys", 0)),
+            "lowest_fdr_pct": lowest, "quality_cuts": cuts, "targets": entries,
+            "table": pd.DataFrame(table), "pooled": pooled, "grid": grid}
+
+
+_SWEEP_COLUMNS = {"site": ("site",), "cell": ("cell", "Parent_Cells"),
+                  "read": ("read", "Barcode_BarcodeCalled"), "quality": ("quality",)}
+
+
+def _sweep_inputs(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """``ops_fdr_sweep_inputs`` as a dictionary.
+
+    :param settings: the OPS settings.
+    :returns: the inputs: empty, a dictionary as given, a JSON string read,
+        or a ``.json`` file's contents.
+    :raises ValueError: when the value is none of those.
+    """
+    value = settings.get("ops_fdr_sweep_inputs")
+    if value in (None, "", {}):
+        return {}
+    if isinstance(value, str):
+        text = value.strip()
+        if not text.startswith("{") and os.path.isfile(os.path.expanduser(text)):
+            with open(os.path.expanduser(text), encoding="utf-8") as handle:
+                text = handle.read()
+        try:
+            value = json.loads(text)
+        except ValueError as error:
+            raise ValueError("ops_fdr_sweep_inputs must be a dictionary, JSON text or the "
+                             "path of a .json file") from error
+    if not isinstance(value, Mapping):
+        raise ValueError("ops_fdr_sweep_inputs must be a dictionary")
+    return dict(value)
+
+
+def _sweep_read_files(spec: Any, sites: Optional[Sequence[int]]) -> pd.DataFrame:
+    """One method's reads, from the files its input names.
+
+    :param spec: a path, a glob, or a path with ``{site}``; or a dictionary
+        with ``reads`` (that path) and optional ``site_col``, ``cell_col``,
+        ``read_col`` and ``quality_col``. Without a column name the usual
+        names are tried (``site``; ``cell`` or ``Parent_Cells``; ``read`` or
+        ``Barcode_BarcodeCalled``; ``quality``, optional).
+    :param sites: the sites to keep, and the sites a ``{site}`` path is
+        filled with; None keeps every site.
+    :returns: ``site``, ``cell``, ``read`` and, when present, ``quality``.
+    :raises ValueError: when no file matches, a ``{site}`` path has no
+        sites, or a column is missing.
+    """
+    import glob
+
+    from .tabular import read_table
+
+    spec = {"reads": spec} if not isinstance(spec, Mapping) else dict(spec)
+    pattern = os.path.expanduser(str(spec.get("reads") or ""))
+    if "{site}" in pattern:
+        if not sites:
+            raise ValueError(f"the read path {pattern!r} names {{site}}; give the sites")
+        paths = [(pattern.format(site=s), int(s)) for s in sites]
+        paths = [(p, s) for p, s in paths if os.path.isfile(p)]
+    else:
+        paths = [(p, None) for p in sorted(glob.glob(pattern))]
+    if not paths:
+        raise ValueError(f"no read file matches {pattern!r}")
+    frames = []
+    for path, site in paths:
+        frame = read_table(path, canonicalise=False, report=None)
+        out = {}
+        for name, options in _SWEEP_COLUMNS.items():
+            given = spec.get(f"{name}_col")
+            found = [given] if given else [col for col in options if col in frame.columns]
+            if found and found[0] in frame.columns:
+                out[name] = frame[found[0]].to_numpy()
+            elif name == "site" and site is not None:
+                out[name] = np.full(len(frame), site, np.int64)
+            elif name != "quality":
+                raise ValueError(f"{path} has no {name} column (tried {found or list(options)})")
+        frames.append(pd.DataFrame(out))
+    reads = pd.concat(frames, ignore_index=True)
+    if sites:
+        reads = reads[reads["site"].isin([int(s) for s in sites])]
+    return reads.reset_index(drop=True)
+
+
+def _run_fdr_sweep_phase(settings: Mapping[str, Any],
+                         report: Optional[Callable[[str], None]] = None) -> Dict[str, Any]:
+    """The ``prefix_fdr_sweep`` phase: :func:`fdr_sweep` over a run's reads (item 955).
+
+    ``ops_fdr_sweep_inputs`` names the reads: ``methods`` maps each method
+    to its read files (see :func:`_sweep_read_files`); without it the
+    method ``'spacr'`` reads ``<dst_root>/results/ops_prefix/reads_*.parquet``
+    (the ``prefix_decode`` phase's reads). ``cells`` is a table with
+    ``site`` and a cell count (``cells``, ``Count_Cells`` or ``count_col``);
+    without it a site's cells are the cells with any read of any method.
+    ``sites`` keeps some sites; ``selection_sites`` chooses the
+    configurations on those and reports on the rest. Writes, under
+    ``<dst_root>/results/ops_prefix/``, ``fdr_sweep_result.json`` (the
+    result without its frames), ``fdr_sweep_table.csv`` (one row per target
+    and method), ``fdr_sweep_pooled.csv`` and ``fdr_sweep_grid.csv``.
+
+    :param settings: the OPS settings: ``dst_root``, the item-920 library
+        settings (:func:`prefix_settings`), the ``ops_fdr_sweep_*`` settings
+        and ``ops_prefix_decoy_k`` and ``ops_prefix_decoy_seed``.
+    :param report: called with progress lines.
+    :returns: the output paths, the cells' source and the result summary.
+    :raises ValueError: without ``dst_root``, a library or reads.
+    """
+    from .tabular import read_table, write_table
+
+    say = report or (lambda text: None)
+    destination = settings.get("dst_root")
+    if not destination:
+        raise ValueError("the prefix_fdr_sweep phase needs dst_root")
+    started = time.perf_counter()
+    chosen = prefix_settings(settings)
+    _sweep_settings(settings)
+    library = spacer_prefix_library(
+        chosen["ops_library"], sequence_col=chosen["ops_library_sequence_col"],
+        gene_col=chosen["ops_library_gene_col"], prefix_length=chosen["ops_prefix_length"],
+        n_cycles=chosen["ops_sbs_cycles"], cycle_mask=chosen["ops_cycle_mask"],
+        collision=chosen["ops_prefix_collision"])
+    inputs = _sweep_inputs(settings)
+    folder = os.path.join(str(destination), "results", "ops_prefix")
+    sites = [int(s) for s in inputs.get("sites") or []] or None
+    methods = inputs.get("methods") or {
+        "spacr": os.path.join(folder, "reads_*.parquet")}
+    reads = {}
+    for name, spec in methods.items():
+        reads[str(name)] = _sweep_read_files(spec, sites)
+        say(f"prefix_fdr_sweep: {name} {len(reads[str(name)])} reads")
+    cell_spec = inputs.get("cells")
+    if cell_spec:
+        cell_spec = {"path": cell_spec} if not isinstance(cell_spec, Mapping) else dict(cell_spec)
+        table = read_table(os.path.expanduser(str(cell_spec["path"])), canonicalise=False,
+                           report=None)
+        count_col = cell_spec.get("count_col") or next(
+            col for col in ("cells", "Count_Cells") if col in table.columns)
+        site_col = cell_spec.get("site_col") or "site"
+        cells = {int(s): int(n) for s, n in zip(table[site_col], table[count_col])}
+        source = f"{cell_spec['path']}:{count_col}"
+    else:
+        union = pd.concat([frame.loc[pd.to_numeric(frame["cell"]) > 0, ["site", "cell"]]
+                           for frame in reads.values()]).drop_duplicates()
+        cells = union.groupby("site").size().to_dict()
+        source = "cells with any read"
+    if sites:
+        cells = {s: n for s, n in cells.items() if s in set(sites)}
+    present = {int(s) for frame in reads.values() for s in frame["site"].unique()}
+    cells = {s: n for s, n in cells.items() if s in present or sites}
+    result = fdr_sweep(reads, cells, library, settings,
+                       selection_sites=inputs.get("selection_sites"))
+    os.makedirs(folder, exist_ok=True)
+    paths = {name: os.path.join(folder, f"fdr_sweep_{name}.csv")
+             for name in ("table", "pooled", "grid")}
+    for name, path in paths.items():
+        write_table(result[name], path, canonicalise=False)
+    summary = {key: value for key, value in result.items() if key not in paths}
+    summary.update({"cells_source": source, "methods": list(reads),
+                    "seconds": round(time.perf_counter() - started, 1)})
+    paths["result"] = os.path.join(folder, "fdr_sweep_result.json")
+    with open(paths["result"], "w", encoding="utf-8") as handle:
+        json.dump(summary, handle, indent=1, default=float)
+    say(f"prefix_fdr_sweep: {len(result['targets'])} targets, {len(result['sites'])} sites "
+        f"-> {paths['result']}")
+    return {"paths": paths, **summary}
