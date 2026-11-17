@@ -5987,19 +5987,20 @@ class AppScreen(QWidget):
     def _install_ops_example_button(self, section) -> None:
         """Add OPS's test-data control: two fields of a published screen.
 
-        The sample is a well's last two sequencing fields with all
-        eleven cycles and the guide library, so stitch, objects and decode all
-        have something real to do. See :mod:`spacr.qt.ops_stitch_demo`.
+        The sample is the full tier of the OPS end-to-end test data: four
+        sequencing tiles with all eleven cycles, the phenotype fields over
+        them and the guide library, so every OPS step has something real to
+        do. See :mod:`spacr.qt.ops_stitch_demo`.
         """
         from PySide6.QtWidgets import QPushButton
 
         button = QPushButton(tr("Load test data…"))
         button.setToolTip(tr(
-            "Download about 390 MB from a published optical pooled screen: "
-            "two sequencing fields of one well, all eleven cycles, and the "
-            "guide library. The source, output folder, library and plate are "
-            "filled in, so Run is the next action. There are no phenotype "
-            "images, so the phenotype step is skipped. Cached afterwards."))
+            "Download about 1.3 GB from a published optical pooled screen "
+            "(Funk et al. 2022, plate A, well A1): four sequencing tiles with "
+            "all eleven cycles, the three phenotype fields over them, the "
+            "guide library and the settings they were run with. The settings "
+            "are filled in, so Run is the next action. Cached afterwards."))
         button.clicked.connect(lambda: self.load_the_ops_example())
         self._ops_example_button = button
         section.add_prose(button, at_top=True)
