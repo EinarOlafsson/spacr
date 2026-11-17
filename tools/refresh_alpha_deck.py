@@ -86,8 +86,8 @@ GROUPS = (
         ("Blind scoring and point counts, label checks from cross-channel ground truth",
          (544, 957, 470)),
         ("Counterfactuals: morph a control cell toward a hit", (564,)),
-        ("Classifier checks: fixed crop scaling, shuffled labels, held-out wells",
-         (772, 899)),
+        ("Classifiers: auto pick, class thresholds, crop scaling, shuffled labels, held-out wells",
+         (772, 899, 963)),
         ("Channel-adaptive CNN, ViT and well transformer", (897,)),
     )),
     ("Screens", (
