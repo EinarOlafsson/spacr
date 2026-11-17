@@ -198,6 +198,24 @@ def test_the_phase_runs_the_pairs_mode_and_writes_the_928_outputs(tmp_path, monk
     assert summary["options"]["mode"] == "pairs" and out["clusters"] == 3
 
 
+def test_the_default_profile_summary_has_no_pairs_keys(tmp_path, monkeypatch):
+    """In the default 'profile' mode the summary keeps the 928 options, so its bytes match the 928 output."""
+    _install(monkeypatch)
+    names, rows, g_rows, g_genes, g_cells, _, _ = _blocks()
+    columns = [f"PC_{d}" for d in range(rows.shape[1])]
+    pd.concat([pd.DataFrame({"gene": names, "n_cells": 12}), pd.DataFrame(rows, columns=columns)], axis=1).to_csv(
+        tmp_path / "rows.csv", index=False)
+    pd.concat([pd.DataFrame({"gene": g_genes, "n_cells": g_cells}), pd.DataFrame(g_rows, columns=columns)],
+              axis=1).to_csv(tmp_path / "guides.csv", index=False)
+    settings = ops_defaults({"ops_cluster_rows": str(tmp_path / "rows.csv"),
+                             "ops_consensus_guides": str(tmp_path / "guides.csv"),
+                             "ops_consensus_bootstraps": 3, "ops_consensus_k": 3})
+    out = oc.cluster_consensus_phase(settings, None, None, str(tmp_path))
+    summary = json.loads(Path(out["outputs"]["consensus_summary"]).read_text(encoding="utf-8"))
+    assert not {"mode", "pairs_search", "workers", "view_columns"} & summary["options"].keys()
+    assert {"n_boot", "seed", "draw_seed", "knn", "method", "k", "match"} <= summary["options"].keys()
+
+
 def test_real_pairs_consensus_is_deterministic_and_recovers_modules(tmp_path):
     pytest.importorskip("leidenalg")
     pytest.importorskip("phate")

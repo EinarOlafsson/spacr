@@ -3180,8 +3180,10 @@ def cluster_consensus_phase(settings: Mapping[str, Any], genes: Optional[pd.Data
                                             os.path.join(out_dir, "consensus_runs.csv"), canonicalise=False)
     outputs["consensus_figure"] = _consensus_figure(result["cooc"], labels,
                                                     os.path.join(out_dir, "consensus.png"))
+    recorded = {key: value for key, value in vars(options).items()
+                if options.mode == "pairs" or key not in ("mode", "pairs_search", "workers", "view_columns")}
     record = {"k": options.k, "clusters": int(len(np.unique(labels[mask]))), "adjusted": result["adjusted"],
-              "cut": result["cut"], "options": vars(options), "rows": int(len(labels)), "genes": int(mask.sum())}
+              "cut": result["cut"], "options": recorded, "rows": int(len(labels)), "genes": int(mask.sum())}
     path = os.path.join(out_dir, "consensus_summary.json")
     with open(path, "w", encoding="utf-8") as handle:
         json.dump(record, handle, indent=1, default=str)
@@ -3386,7 +3388,9 @@ def cluster_bench_test_phase(settings: Mapping[str, Any], genes: Optional[pd.Dat
     stats["calibrated"] = [bool(calibrated.get(u, passed is not False)) for u in stats["unit"]]
     outputs["test_stats"] = write_table(stats, os.path.join(out_dir, "test_stats.csv"), canonicalise=False)
     outputs["bench_figure"] = _bench_figure(units, os.path.join(out_dir, "bench_test.png"))
-    record = {"options": vars(options), "consensus": vars(consensus), "k": k, "genes": int(mask.sum()),
+    recorded = {key: value for key, value in vars(consensus).items()
+                if consensus.mode == "pairs" or key not in ("mode", "pairs_search", "workers", "view_columns")}
+    record = {"options": vars(options), "consensus": recorded, "k": k, "genes": int(mask.sum()),
               "gate_passed": passed, "gate_false_positive_share": share,
               "calls": dict(zip(stats["unit"], stats["call"])), "outputs": outputs}
     path = os.path.join(out_dir, "bench_test_summary.json")
