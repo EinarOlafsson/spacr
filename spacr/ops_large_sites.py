@@ -25,9 +25,12 @@ one piece on a worker with a fixed RAM budget. This module adds:
   ``'keep'`` or ``'own'`` (an object cut by a seam between two placed crops
   is kept by the crop holding its larger part);
 * the ``cell_painting_phalloidin`` preset (:func:`segment_cell_painting_site`):
-  nuclei on DNA, cells on ``[Phalloidin, DNA]``, one nucleus per cell, with
-  the plate's nucleus diameter and the tiling-control site taken from
-  populated sites spread over the well (:func:`survey_sites`);
+  nuclei on DNA, small nucleus pieces merged into the nucleus they touch
+  (:func:`merge_small_nuclei`), one cell grown from every nucleus
+  (:func:`cells_from_nucleus_seeds`) inside the cell network's foreground on
+  ``[Phalloidin, DNA]``, with the plate's nucleus diameter and the
+  tiling-control site taken from populated sites spread over the well
+  (:func:`survey_sites`);
 * the agreement report against reference label masks (:func:`mask_agreement`).
 
 :func:`run_large_site_segmentation` is the settings-file entry. The memory
@@ -72,7 +75,8 @@ LARGE_SITE_DEFAULTS: Dict[str, Any] = {
     "seg_nucleus_diameter_range": [10.0, 80.0],
     "seg_diameter_sites": 9,
     "seg_diameter_min_objects": 50,
-    "seg_cells_from_nucleus_seeds": False,
+    "seg_cells_from_nucleus_seeds": True,
+    "seg_merge_small_nuclei_frac": 0.25,
     "seg_mask_vram_gb": 6.0,
     "seg_mask_device": "auto",
 }
@@ -175,8 +179,8 @@ MASK_AGREEMENT_FRAMES = ("same", "periscope_align")
 MASK_AGREEMENT_BOOTSTRAP = 2000
 MASK_AGREEMENT_SEED = 0
 
-#: Tooltips of the item 945 and 956 settings (the other item 921 keys have
-#: none yet).
+#: Tooltips of the item 945, 956 and 965 settings (the other item 921 keys
+#: have none yet).
 LARGE_SITE_TOOLTIPS: Dict[str, str] = {
     "seg_mask_vram_gb":
         "(float) - The most GPU memory, in GB, the job may hold while "
@@ -191,6 +195,13 @@ LARGE_SITE_TOOLTIPS: Dict[str, str] = {
         "GPU: 'auto' sizes it to seg_mask_vram_gb, 'gpu' runs it whole on the "
         "card as before (falling back to the CPU only on an out-of-memory "
         "error), 'cpu' always on the CPU. Default 'auto'. Alpha.",
+    "seg_merge_small_nuclei_frac":
+        "(float) - Before cells are grown from the nuclei, every nucleus "
+        "piece smaller than this fraction of the site's median nucleus area "
+        "is merged into the touching nucleus it shares the longest border "
+        "with. A chain of small pieces ends on a kept nucleus; a small piece "
+        "that touches no nucleus is kept, never deleted. 0 is off. Default "
+        "0.25. Alpha.",
     "ops_mask_agreement_split_merge":
         "(bool) - Add split and merge counts to the agreement with "
         "seg_report_reference, written to mask_agreement.csv: each object goes "
@@ -1435,7 +1446,14 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
     (:func:`normalize_site`) and tiled by :func:`segment_tiled` on Cellpose's
     network grid, with the tiles' flows stitched and Cellpose's mask step run
     once on the whole site (nuclei only without a diameter, since a diameter
-    resizes each tile); then each
+    resizes each tile). With ``seg_merge_small_nuclei_frac`` above 0
+    (default 0.25), nucleus pieces smaller than that fraction of the site's
+    median nucleus area are then merged into the nucleus they touch
+    (:func:`merge_small_nuclei`). With ``seg_cells_from_nucleus_seeds``
+    (default on) one cell is grown from every nucleus inside the cell
+    network's foreground (:func:`cells_from_nucleus_seeds`), so a cell
+    outline that holds two nuclei no longer loses one; with it off, the
+    cells are the cell model's own masks. Then each
     nucleus is paired with one cell by
     :func:`spacr.ops_sample.pair_nuclei_with_cells` (cells without a nucleus
     are dropped, as in the OPS phenotype path).
@@ -1449,7 +1467,9 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
         ``nucleus_diameter`` from the settings, or no diameter.
     :param mask_log: a list each whole-site mask step's note is appended to
         (see :func:`_cellpose_masks`).
-    :returns: ``(nuclei, cells, counts)`` with nucleus ``k`` inside cell ``k``.
+    :returns: ``(nuclei, cells, counts)`` with nucleus ``k`` inside cell ``k``;
+        when small pieces were merged, ``counts`` also holds
+        ``merged_small_nuclei`` and ``median_nucleus_area_px``.
     :raises ValueError: when a preset channel is not in ``channel_names``.
     """
     from .ops_sample import pair_nuclei_with_cells
@@ -1471,6 +1491,10 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                            masks=lambda f, p: _cellpose_masks(nucleus_model, f, p,
                                                               settings=settings, record=mask_log,
                                                               label="nuclei"))
+    frac = float(settings.get("seg_merge_small_nuclei_frac") or 0)
+    merged = None
+    if frac > 0:
+        nuclei, merged = merge_small_nuclei(nuclei, frac)
     body = normalize_site(np.stack([stack[..., names.index(c)] for c in settings["cell_channels"]],
                                    axis=-1))
     if settings.get("seg_cells_from_nucleus_seeds"):
@@ -1478,14 +1502,102 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                                                               channel_axis=-1),
                                   tile_px=tile, overlap_px=overlap)
         del body
-        return pair_nuclei_with_cells(nuclei, cells_from_nucleus_seeds(nuclei, cellprob))
+        out = pair_nuclei_with_cells(nuclei, cells_from_nucleus_seeds(nuclei, cellprob))
+        return out if merged is None else _with_merge_counts(out, merged)
     cells = segment_tiled(body, lambda x: _eval_labels(cell_model, x, settings, None,
                                                        channel_axis=-1),
                           tile_px=tile, overlap_px=overlap, iou=iou, align=True,
                           flows=lambda x: _eval_flows(cell_model, x, settings, channel_axis=-1),
                           masks=lambda f, p: _cellpose_masks(cell_model, f, p, settings=settings,
                                                              record=mask_log, label="cells"))
-    return pair_nuclei_with_cells(nuclei, cells)
+    out = pair_nuclei_with_cells(nuclei, cells)
+    return out if merged is None else _with_merge_counts(out, merged)
+
+
+def _with_merge_counts(paired: Tuple[np.ndarray, np.ndarray, Dict[str, int]],
+                       merged: Mapping[str, Any]
+                       ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    """The paired labels with :func:`merge_small_nuclei`'s merged-piece
+    count and the site's median nucleus area added to their counts."""
+    nuclei, cells, counts = paired
+    counts = dict(counts, merged_small_nuclei=int(merged["n_merged"]),
+                  median_nucleus_area_px=float(merged["median_area_px"]))
+    return nuclei, cells, counts
+
+
+def merge_small_nuclei(nuclei: np.ndarray, frac: float = 0.25
+                       ) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """Merge small nucleus pieces into the nucleus they touch (item 965).
+
+    Seeding one cell from every nucleus (:func:`cells_from_nucleus_seeds`)
+    keeps the second nucleus of a cell that the cell model merged, but it
+    also gives every small fragment of a nucleus its own cell. This step
+    runs on the nucleus labels of a whole site, before the cells are
+    seeded, so that every later step sees the merged nuclei.
+
+    The threshold is ``frac`` times the median area of the site's nuclei,
+    measured before any merge. A nucleus below it that shares a border
+    with another nucleus (pixel pairs in 4-connectivity) is merged into the
+    neighbour with which it shares the longest border; ties go to the
+    larger neighbour, then to the lower label. When that neighbour is
+    itself small and merged, the chain is followed to the kept nucleus it
+    ends on; two small pieces that choose each other end on the larger
+    one. A small piece that touches no nucleus is kept: the step merges
+    and never deletes. The labels are then renumbered 1..n in the order of
+    their old labels, so the result is deterministic.
+
+    :param nuclei: a 2-D nucleus label image of one site.
+    :param frac: the fraction of the median nucleus area below which a
+        nucleus counts as a small piece; 0 or less returns the labels
+        unchanged.
+    :returns: ``(labels, info)``: an int32 label image and a dict with
+        ``threshold_px``, ``median_area_px``, ``n_small`` (pieces below the
+        threshold) and ``n_merged`` (pieces merged into another nucleus).
+    """
+    lab = np.asarray(nuclei)
+    if frac <= 0 or lab.size == 0 or lab.max() == 0:
+        return lab.astype(np.int32), {"threshold_px": 0.0, "median_area_px": 0.0,
+                                      "n_small": 0, "n_merged": 0}
+    area = np.bincount(lab.ravel().astype(np.int64))
+    present = np.nonzero(area[1:])[0] + 1
+    median = float(np.median(area[present]))
+    thr = float(frac * median)
+    small = np.zeros(area.size, bool)
+    small[present[area[present] < thr]] = True
+    pairs = []
+    for a, b in ((lab[:, :-1], lab[:, 1:]), (lab[:-1, :], lab[1:, :])):
+        m = (a != b) & (a > 0) & (b > 0)
+        pairs.append(np.stack([a[m], b[m]], 1))
+    p = np.concatenate(pairs).astype(np.int64)
+    p = np.concatenate([p, p[:, ::-1]])
+    p = p[small[p[:, 0]]]
+    target = np.arange(area.size)
+    if p.size:
+        key, border = np.unique(p, axis=0, return_counts=True)
+        order = np.lexsort((key[:, 1], -area[key[:, 1]], -border, key[:, 0]))
+        key = key[order]
+        first = np.ones(len(key), bool)
+        first[1:] = key[1:, 0] != key[:-1, 0]
+        target[key[first, 0]] = key[first, 1]
+    for _ in range(64):
+        nxt = target[target]
+        if np.array_equal(nxt, target):
+            break
+        cyc = (nxt == np.arange(area.size)) & (target != np.arange(area.size))
+        if cyc.any():
+            i = np.nonzero(cyc)[0]
+            j = target[i]
+            keep = np.where((area[i] > area[j]) | ((area[i] == area[j]) & (i < j)), i, j)
+            target[keep] = keep
+            nxt = target[target]
+        target = nxt
+    n_merged = int((target[present] != present).sum())
+    out = target[lab]
+    ids = np.unique(out)
+    lut = np.zeros(int(ids.max()) + 1, np.int64)
+    lut[ids[ids > 0]] = np.arange(1, int((ids > 0).sum()) + 1)
+    return lut[out].astype(np.int32), {"threshold_px": thr, "median_area_px": median,
+                                       "n_small": int(small.sum()), "n_merged": n_merged}
 
 
 def cells_from_nucleus_seeds(nuclei: np.ndarray, cellprob: np.ndarray, *,
@@ -1877,8 +1989,9 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     ``labels/<site>_cells.npy``, ``tables/<site>_cells.parquet`` (one row per
     cell, measured by :func:`measure_chunked`), ``sites.csv`` (per site: objects,
     edge counts, the agreement with ``seg_report_reference`` when given, peak
-    memory, seconds and where the whole-site mask step ran:
-    :func:`summarise_mask_steps`), ``mask_step.json`` (every mask step's
+    memory, seconds, where the whole-site mask step ran:
+    :func:`summarise_mask_steps`, and, when ``seg_merge_small_nuclei_frac``
+    is above 0, ``merged_small_nuclei`` and ``median_nucleus_area_px``), ``mask_step.json`` (every mask step's
     note, per site and for the survey and the control), ``agreement_well.csv``,
     ``settings.json``,
     ``nucleus_diameter.json`` (the diameter, whether it was fixed or
@@ -1906,7 +2019,9 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     :param available_bytes: passed to :func:`plan_site_memory`.
     :returns: ``plan``, ``sites`` (the site table as records), ``dst``,
         ``nucleus_diameter`` (what ``nucleus_diameter.json`` holds) and
-        ``mask_steps`` (what ``mask_step.json`` holds), plus
+        ``mask_steps`` (what ``mask_step.json`` holds), plus ``merge_line``
+        (the logged line "R2: merged n small nuclear pieces (x % of
+        nuclei)") when ``seg_merge_small_nuclei_frac`` is above 0, plus
         ``mask_agreement`` (the rows of ``mask_agreement.csv``) when that
         report runs; with ``ops_mask_agreement_labels`` only ``dst`` and
         ``mask_agreement``.
@@ -2023,7 +2138,10 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                                "nucleus_diameter_sites": ";".join(survey.get("sites_used", [])
                                                                   if estimate else []),
                                "seconds": round(time.perf_counter() - started, 2)}
+        merge = {k: paired.pop(k) for k in ("merged_small_nuclei", "median_nucleus_area_px")
+                 if k in paired}
         row.update({f"paired_{k}": int(v) for k, v in paired.items()})
+        row.update(merge)
         row.update(summarise_mask_steps(steps))
         peak = sampler.summary().get("peak_total")
         row["peak_memory_gb"] = round(peak / 2 ** 30, 3) if isinstance(peak, int) else float("nan")
@@ -2056,6 +2174,12 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                     canonicalise=False)
     out = {"plan": plan, "sites": rows, "dst": dst, "nucleus_diameter": survey,
            "mask_steps": mask_steps}
+    if "merged_small_nuclei" in frame:
+        pieces = int(frame["merged_small_nuclei"].sum())
+        total = pieces + int(frame["paired_nuclei"].sum()) if "paired_nuclei" in frame else 0
+        out["merge_line"] = (f"R2: merged {pieces} small nuclear pieces "
+                             f"({100.0 * pieces / total if total else 0.0:.1f} % of nuclei)")
+        _LOG.info(out["merge_line"])
     if agree["report"]:
         out["mask_agreement"] = _write_agreement_report(
             _agreement_rows(os.path.join(dst, "labels"), settings["seg_report_reference"],

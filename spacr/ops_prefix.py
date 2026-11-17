@@ -1392,7 +1392,11 @@ def run_prefix_decode(settings: Mapping[str, Any],
     :returns: the output paths, the library summary and the run's totals;
         with any item-942 setting on also ``seconds_per_well``, ``fdr`` (per
         well) and ``tuning`` (per well: the choice and its numbers); with
-        the shuffle calibration also ``calibration`` (per well).
+        the shuffle calibration also ``calibration`` (per well); with tuning
+        also ``well_choices``, one line per well (item 966): the read mode
+        and thresholds chosen and the decoy FDR on the tuning and the report
+        sites, also sent to ``report`` last. An empty ``ops_read_mode`` is
+        ``'auto'`` with tuning and ``'log'`` without.
     :raises ValueError: without ``dst_root`` or a library, when the layout
         has fewer sequencing cycles than the prefix needs, or for tuning,
         near-miss decoys or a shuffle calibration without decoys.
@@ -1409,9 +1413,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
         raise ValueError("the prefix_decode phase needs dst_root")
     started = time.perf_counter()
     chosen = prefix_settings(settings)
-    from .ops_sbs import _read_mode_setting
-
-    read_mode = _read_mode_setting(settings)
+    read_mode = _prefix_read_mode(settings, chosen)
     if read_mode == "auto" and chosen["ops_prefix_threshold_tuning"] != "per_well_decoy":
         raise ValueError("ops_read_mode 'auto' chooses the read per well from decoy "
                          "calls; set ops_prefix_threshold_tuning 'per_well_decoy' and "
@@ -1470,6 +1472,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                   handle, indent=1, default=str)
     index = built["index"]
     site_rows, all_cells, tuned, well_fdr, well_seconds = [], [], {}, {}, {}
+    well_lines: List[str] = []
     calibrated: Dict[str, Any] = {}
     memo: Dict[str, tuple] = {}
     for (plate, well, well_id), sites in index.groupby(["plate", "well", "well_id"], sort=True):
@@ -1577,6 +1580,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
             say(f"prefix_decode {plate} {well_id}: tuned {choice['chosen']}, report sites "
                 f"{choice['report']['genotyped_pct']} % genotyped, FDR "
                 f"{choice['report']['fdr_per_100']} %")
+            well_lines.append(_well_choice_line(plate, well_id, choice, well_mode, read_mode))
             for site in site_list:
                 frame = _site_tuning_reads(
                     (held_raw if well_mode == "raw" else held)[site], matching, memo,
@@ -1721,7 +1725,69 @@ def run_prefix_decode(settings: Mapping[str, Any],
         out.update({"seconds_per_well": well_seconds, "fdr": well_fdr, "tuning": tuned})
     if calibration:
         out["calibration"] = calibrated
+    if well_lines:
+        out["well_choices"] = well_lines
+        for line in well_lines:
+            say(line)
     return out
+
+
+def _prefix_read_mode(settings: Mapping[str, Any], chosen: Mapping[str, Any]) -> str:
+    """The read mode of a spacer-prefix run (item 966).
+
+    An empty ``ops_read_mode`` takes the spacer-prefix decode's own default:
+    ``'auto'`` while ``ops_prefix_threshold_tuning`` is ``'per_well_decoy'``,
+    since auto chooses the read from the tuning's decoy calls, and ``'log'``
+    otherwise. The OPS barcode decode reads an empty value as ``'log'``
+    (:func:`spacr.ops_sbs._read_mode_setting`), so the two decodes share the
+    setting but not its default.
+
+    :param settings: the run's settings.
+    :param chosen: from :func:`prefix_settings`.
+    :returns: ``'log'``, ``'raw'`` or ``'auto'``.
+    :raises ValueError: for an unknown read mode.
+    """
+    from .ops_sbs import _read_mode_setting
+
+    value = settings.get("ops_read_mode")
+    if value is None or str(value).strip().lower() in ("", "none"):
+        return "auto" if chosen["ops_prefix_threshold_tuning"] == "per_well_decoy" else "log"
+    return _read_mode_setting(settings)
+
+
+def _well_choice_line(plate: str, well_id: str, choice: Mapping[str, Any], well_mode: str,
+                      read_mode: str) -> str:
+    """One run-summary line for a tuned well (item 966).
+
+    :param plate: the plate.
+    :param well_id: the well.
+    :param choice: :func:`spacr.ops_decode.tune_thresholds`'s result.
+    :param well_mode: the read the well was decoded with.
+    :param read_mode: the run's read mode (``'auto'`` chose ``well_mode``).
+    :returns: the read mode and thresholds chosen and the decoy FDR of the
+        tuning and the report half of the sites, as written to
+        ``threshold_tuning_<plate>_<well_id>.json``.
+    """
+    best = choice["chosen"]
+    tune, report = choice.get("tune") or {}, choice.get("report") or {}
+    how = "chosen by auto" if read_mode == "auto" else "as set"
+    tune_fdr, report_fdr = _fdr_text(tune.get("fdr_per_100")), _fdr_text(report.get("fdr_per_100"))
+    return (f"prefix_decode {plate} {well_id} choice: read {well_mode} ({how}), read threshold "
+            f"{best.get('ops_read_threshold')}, read quality "
+            f"{best.get('ops_prefix_min_read_quality')}, mismatches "
+            f"{best.get('ops_prefix_max_distance')}; decoy FDR {tune_fdr} % on the "
+            f"{len(choice.get('tune_sites') or [])} tuning sites, {report_fdr} % on the "
+            f"{len(choice.get('report_sites') or [])} report sites; target met "
+            f"{choice.get('auto_met')}")
+
+
+def _fdr_text(value: Any) -> str:
+    """A decoy FDR in % to three decimals for a run-summary line, or 'n/a' (item 966).
+
+    :param value: the FDR, or None.
+    :returns: the text.
+    """
+    return "n/a" if value is None else f"{float(value):.3f}"
 
 
 def _shuffle_frame(reads: pd.DataFrame, shuffled_lib: PrefixLibrary, memo: Dict[str, tuple], *,

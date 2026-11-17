@@ -4167,6 +4167,7 @@ API_ENTRIES = (
     ('spacr.ops_large_sites.mask_agreement', 'Object agreement of a label image with a reference label image.'),
     ('spacr.ops_large_sites.mask_step_bytes', "Estimated card bytes of Cellpose's mask step on one whole image."),
     ('spacr.ops_large_sites.measure_chunked', 'Measure every object once, whole, one row band at a time.'),
+    ('spacr.ops_large_sites.merge_small_nuclei', 'Merge small nucleus pieces into the nucleus they touch (item 965).'),
     ('spacr.ops_large_sites.network_tile_starts', 'Where Cellpose runs its network along one image axis, in image coordinates.'),
     ('spacr.ops_large_sites.normalize_site', "Cellpose's percentile normalisation, computed once on a whole site."),
     ('spacr.ops_large_sites.plan_site_memory', 'Tile size and worker count that keep each worker under the cap.'),

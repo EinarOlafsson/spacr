@@ -35,7 +35,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_library": None,
     "ops_base_channels": "CY3,A594,CY5,CY7",
     "ops_read_threshold": 315.0,
-    "ops_read_mode": "log",
+    "ops_read_mode": None,
     "ops_raster_overlap": 213,
     "ops_window_overlap": 96,
     "ops_compose_blend": "feather",
@@ -429,12 +429,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_quality_method": "spacr",
     "ops_random_barcode_control": True,
     "ops_control_seed": 0,
-    "ops_prefix_decoy_k": 0,
+    "ops_prefix_decoy_k": 4,
     "ops_prefix_decoy_seed": 1,
     "ops_prefix_fdr_scale": 1.0,
     "ops_prefix_min_read_quality": 0.0,
-    "ops_prefix_threshold_tuning": "none",
-    "ops_prefix_fdr_target_pct": 0.1,
+    "ops_prefix_threshold_tuning": "per_well_decoy",
+    "ops_prefix_fdr_target_pct": 1.0,
     "ops_prefix_tuning_grid": None,
     "ops_prefix_nearmiss_decoy_k": 0,
     "ops_prefix_fdr_calibration": "none",
@@ -483,7 +483,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_library": (str, type(None)),
     "ops_base_channels": str,
     "ops_read_threshold": (float, int),
-    "ops_read_mode": str,
+    "ops_read_mode": (str, type(None)),
     "ops_raster_overlap": int,
     "ops_window_overlap": int,
     "ops_compose_blend": str,
@@ -1409,15 +1409,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "placed. Its report says 'placement: seeded'. Empty aligns anchors "
         "as usual. Default None. Alpha.",
     "ops_read_mode":
-        "(str) - How each spot's barcode is read, in the OPS and spacer-prefix "
-        "decodes. 'log' reads the -LoG-filtered pixels (3 x 3 maximum) and "
-        "calls bases after the per-cycle median normalisation. 'raw' reads the "
-        "unfiltered pixels (maximum within 3 px) and calls the brightest "
-        "channel as read, with no normalisation, unmixing or library "
-        "calibration (PERISCOPE's read). 'auto' picks 'log' or 'raw' per well "
-        "from decoy calls, tuned with ops_decode_threshold_mode 'auto' or "
-        "ops_prefix_threshold_tuning 'per_well_decoy'. Spots are found the "
-        "same way in every mode. Default 'log'. Alpha.",
+        "(str) - How each spot's barcode is read. 'log' reads the -LoG-filtered "
+        "pixels (3 x 3 maximum) and calls bases after per-cycle median "
+        "normalisation. 'raw' reads the unfiltered pixels (maximum within 3 px) "
+        "and calls the brightest channel as read (PERISCOPE's read). 'auto' "
+        "picks 'log' or 'raw' per well from decoy calls; it needs "
+        "ops_decode_threshold_mode 'auto' or ops_prefix_threshold_tuning "
+        "'per_well_decoy'. Spots are found the same way in every mode. Empty: "
+        "the spacer-prefix decode reads 'auto' while it tunes and 'log' "
+        "otherwise; the OPS barcode decode reads 'log'. Default None. Alpha.",
     "ops_sites":
         "(str, list or None) - Run the stitch, objects and decode phases on "
         "these sequencing sites only, as '46,148,160-167'. The well's "
@@ -3318,7 +3318,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "a guide matches neither, and a cell whose top barcode is a decoy is "
         "counted, never genotyped, which gives each site, well and plate a "
         "decoy FDR (site_summary.csv, fdr_<plate>_<well>.json). 4 is "
-        "recommended; 0 matches no decoys. Default 0. Alpha.",
+        "recommended; 0 matches no decoys. Default 4. Alpha.",
     "ops_prefix_decoy_seed":
         "(int) - Seed of the decoy prefixes (ops_prefix_decoy_k); the same "
         "seed draws the same decoys. Default 1. Alpha.",
@@ -3333,19 +3333,17 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Weaker reads are dropped before the cell calls. 0 keeps every read. "
         "Default 0. Alpha.",
     "ops_prefix_threshold_tuning":
-        "(str) - How the spacer-prefix decode sets its thresholds. 'none' "
-        "uses the values you enter. 'per_well_decoy' chooses them well by "
-        "well from decoy calls only, spot detection and calling together: "
-        "half of the well's sites try every combination of "
-        "ops_prefix_tuning_grid (read threshold, read quality, mismatches), "
-        "the combination chosen by ops_decode_auto_objective is used for the "
-        "whole well, and the other half reports its FDR. Needs "
-        "ops_prefix_decoy_k above 0. Each well's grid, curve and choice are "
-        "written to threshold_tuning_<plate>_<well>.csv, .png and .json. "
-        "Default 'none'. Alpha.",
+        "(str) - How the spacer-prefix decode sets its thresholds. 'none' uses "
+        "the values you enter. 'per_well_decoy' chooses them per well from "
+        "decoy calls only: half of the well's sites try every combination of "
+        "ops_prefix_tuning_grid (read threshold, read quality, mismatches), the "
+        "combination ops_decode_auto_objective picks is used for the whole "
+        "well, and the other half reports its FDR. Needs ops_prefix_decoy_k "
+        "above 0. Writes threshold_tuning_<plate>_<well>.csv, .png and .json "
+        "and one log line per well. Default 'per_well_decoy'. Alpha.",
     "ops_prefix_fdr_target_pct":
         "(float) - The highest decoy FDR, in %, that 'per_well_decoy' "
-        "tuning may accept (0.1 means 0.1 %). Default 0.1. Alpha.",
+        "tuning may accept (1.0 means 1 %). Default 1.0. Alpha.",
     "ops_prefix_tuning_grid":
         "(dict) - The values 'per_well_decoy' tuning tries, as "
         "{'ops_read_threshold': [...], 'ops_prefix_min_read_quality': [...], "

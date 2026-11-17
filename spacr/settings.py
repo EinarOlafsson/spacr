@@ -2534,7 +2534,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 942
+SETTINGS_SCHEMA_VERSION = 944
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2554,6 +2554,10 @@ DEFAULT_CHANGES = {
           'ops_decode_auto_spot_grid': [150.0, 200.0, 250.0, 315.0, 400.0]},
     941: {'ops_cluster_published_controls': False},
     942: {'ops_bench_null_permutations': 200},
+    943: {'seg_cells_from_nucleus_seeds': False,
+          'seg_merge_small_nuclei_frac': 0.0},
+    944: {'ops_read_mode': 'log', 'ops_prefix_threshold_tuning': 'none',
+          'ops_prefix_decoy_k': 0, 'ops_prefix_fdr_target_pct': 0.1},
 }
 
 
@@ -2634,6 +2638,17 @@ def _fold_older_defaults(settings, version, known=None):
     ``ops_decode_threshold_mode`` ``'auto'`` (was ``'manual'``), with
     ``ops_decode_auto_spot_grid`` back to ``[]`` (calling thresholds only;
     files stamped 939 keep item 942's joint grid).
+    943 is item 965's large-site nuclei (R2): ``seg_cells_from_nucleus_seeds``
+    ``True`` (was ``False``) and ``seg_merge_small_nuclei_frac`` ``0.25``
+    (was ``0.0``); files stamped before keep the cell model's own cells
+    and no merge, so their labels are unchanged.
+    944 is item 966's spacer-prefix decode default: ``ops_read_mode``
+    empty, which that decode reads as ``'auto'`` while it tunes (was
+    ``'log'``), ``ops_prefix_threshold_tuning`` ``'per_well_decoy'`` (was
+    ``'none'``), ``ops_prefix_decoy_k`` 4 (was 0) and
+    ``ops_prefix_fdr_target_pct`` 1.0 (was 0.1); files stamped before keep
+    the fixed thresholds and the log read, and the OPS barcode decode reads
+    an empty ``ops_read_mode`` as ``'log'`` either way.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9513,6 +9528,10 @@ ALPHA_FEATURES = {
     945: {
         'module_settings': {'ops_large_sites': (
             'seg_mask_vram_gb', 'seg_mask_device')},
+    },
+    965: {
+        'module_settings': {'ops_large_sites': (
+            'seg_merge_small_nuclei_frac',)},
     },
     956: {
         'module_settings': {'ops_large_sites': (
