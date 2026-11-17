@@ -1551,8 +1551,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "phenotype pixels; empty lets the model decide. Pathogens are "
         "segmented at full resolution. Default None. Alpha.",
     "ops_ph_pathogen_min_area":
-        "(int) - Pathogens smaller than this many pixels are dropped; 0 "
-        "keeps all. Default 0. Alpha.",
+        "(int) - Pathogens smaller than this many pixels are dropped before "
+        "they are counted and measured, which removes debris and noise "
+        "specks; 0 keeps all. Default 0. Alpha.",
     "ops_ph_organelle_channel":
         "(str or None) - The phenotype channel to find organelles in, by its "
         "name in ops_ph_channels, as organelle_channel is in Mask "
