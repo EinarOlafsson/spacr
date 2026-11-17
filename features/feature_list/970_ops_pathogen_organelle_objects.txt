@@ -1,0 +1,57 @@
+OPS PHENOTYPE: PATHOGEN AND ORGANELLE OBJECTS, SET AS IN MASK GENERATION, PER CELL AND INTO GENE PROFILES
+=========================================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-17, alpha (ALPHA_FEATURES[970]). Under development per proposals/READINESS.md: not marked Ready; off by default. spacr/ops_engine.py, spacr/ops_sample.py, spacr/ops_large_sites.py, spacr/measure.py, spacr/ops_settings.py, spacr/settings.py, spacr/settings_spec.py, tests/test_ops_pathogen_organelle_objects_970.py, tests/test_settings_categories.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item970_proof/REPORT.md.
+Requested: maintainer, 2026-11-17 ("just like in mask generation. OPS should allow the user to define pathogen and organelle objects just like in mask generation"); scope: masks + per-cell features + gene profiles.
+Owner: master lane claude-970-1117.
+Source: proposals/bmc_paper_items/ITEM_ops_pathogen_organelle_objects.md.
+Related: 752 (phenotype path), 921/965 (large-site path), 969 (OPS settings subcategories), 934 (OPS features in Measure).
+
+PROBLEM
+The OPS phenotype path segmented only nuclei and cells. Mask Generation
+segments pathogens and organelles, and Measure summarises organelles per
+cell, but none of that reached an OPS run, its gene profiles or clusters.
+
+BUILD
+- Settings (alpha, OPS phenotype; proposed subcategory for item 969:
+  "Phenotype segmentation: pathogens and organelles"):
+  ops_ph_pathogen_channel (None = off), ops_ph_pathogen_model ('cpsam'),
+  ops_ph_pathogen_diameter (None), ops_ph_pathogen_min_area (0),
+  ops_ph_organelle_channel (None = off), ops_ph_organelle_morphology
+  ('spots'), ops_ph_organelle_method ('otsu'), ops_ph_organelle_model
+  ('cpsam'), ops_ph_organelle_diameter (None), ops_ph_organelle_min_area
+  (10). Channels are names in ops_ph_channels. The two model settings offer
+  the same Cellpose model list as Mask Generation's model settings.
+- Segmentation (ph_segment, spacr.ops_engine._ph_segment_objects), at full
+  field resolution after nuclei and cells, with Mask Generation's own code:
+  pathogens by Cellpose on the pathogen channel (_cellpose_model,
+  _governed_eval); organelles by _set_organelle_defaults,
+  _validate_organelle_settings, _preprocess_batch and
+  _segment_single_image (classical methods) or Cellpose ('cellpose'); both
+  through spacr.object.merge_split_filter_masks for the minimum area. A
+  model named as the nucleus model is loaded once. The labels go into the
+  field's mask file as 'pathogen' / 'organelle' arrays.
+- Per-cell features (ph_measure, spacr.ops_sample._cell_object_features):
+  spacr.measure._summarize_organelles_per_parent against the cell mask
+  (an object belongs to the cell holding most of its pixels), renamed
+  cell_<class>_*: count, total_area, fraction (of the cell's area),
+  mean/std area, mean/std eccentricity and solidity, mean major/minor axis,
+  and <channel>_mean_intensity / <channel>_std_intensity over the cell's
+  objects. A cell without objects gets 0. Cheap, so no extra flag.
+- The intensity loop of _summarize_organelles_per_parent now works inside
+  each object's bounding box (_label_bounding_boxes): same pixels in the
+  same order, so bit-identical values, without the O(objects x field) cost.
+- Gene profiles: the cell_ prefix makes the columns per-cell features
+  (_ph_feature_columns), so aggregate, profiles and clustering carry them.
+- Large-site path (run_large_site_segmentation): the same settings add
+  labels/<site>_<class>.npy, the cell_<class>_* columns in the site tables
+  and <class>_objects in sites.csv; Cellpose is tiled with segment_tiled.
+- Safety: object settings are recorded in the part markers of
+  phenotype_masks and phenotype_cells; masks or cells made without objects
+  (or with other object settings) are refused, not mixed.
+- Defaults: both channels None. No schema bump, no DEFAULT_CHANGES row; a
+  default run writes exactly what it wrote before.
+
+PROOF
+See REPORT.md (filled from the proof run).

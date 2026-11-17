@@ -4446,6 +4446,194 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
                                   _ph_upscale(cells, factor, shape))
 
 
+#: The object classes item 970 adds to the phenotype path, in the order
+#: they are segmented, saved and measured.
+_PH_OBJECT_ROLES: Tuple[str, ...] = ("pathogen", "organelle")
+
+
+def _ph_object_roles(settings: Mapping[str, Any]) -> List[str]:
+    """The object classes this run segments besides nuclei and cells (item 970).
+
+    :param settings: read for ``ops_ph_pathogen_channel`` and
+        ``ops_ph_organelle_channel``.
+    :returns: ``'pathogen'`` and/or ``'organelle'``, those whose channel is
+        set; empty, the default, segments and measures exactly as before.
+    """
+    return [role for role in _PH_OBJECT_ROLES
+            if str(settings.get(f"ops_ph_{role}_channel") or "").strip()]
+
+
+def _ph_object_model(settings: Mapping[str, Any], gpu: bool, key: str,
+                     cache: Dict[str, Any]):
+    """The Cellpose model ``key`` names, loaded once per run.
+
+    :param settings: read for ``key``.
+    :param gpu: put it on the card.
+    :param key: ``ops_ph_pathogen_model`` or ``ops_ph_organelle_model``.
+    :param cache: models already loaded, by name; the phenotype phase
+        seeds it with the nucleus model, so a run naming the same model
+        everywhere loads it once.
+    """
+    name = str(settings.get(key) or "cpsam").strip() or "cpsam"
+    if name not in cache:
+        cache[name] = _cellpose_model(settings, gpu, key)
+    return cache[name]
+
+
+def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
+                        settings: Mapping[str, Any], gpu: bool,
+                        cache: Dict[str, Any], *, tile=None
+                        ) -> Dict[str, np.ndarray]:
+    """Pathogens and organelles of one field, as Mask Generation segments them (item 970).
+
+    :param stack: the ``(H, W, C)`` field.
+    :param channels: the stack's channel names.
+    :param settings: read for the ``ops_ph_pathogen_*`` and
+        ``ops_ph_organelle_*`` settings and ``ops_ph_batch_size``.
+    :param gpu: run Cellpose on the card.
+    :param cache: Cellpose models by name (:func:`_ph_object_model`).
+    :param tile: ``tile(plane, segment)`` runs a Cellpose ``segment`` over
+        ``plane`` piece by piece, as the large-site path does
+        (:func:`spacr.ops_large_sites.segment_tiled`); None, the phenotype
+        path's, runs it on the whole field. Classical organelle methods
+        always see the whole field, since their thresholds are global.
+    :returns: ``{class: labels}`` for the classes :func:`_ph_object_roles`
+        names, each the field's shape; empty when none is set.
+    :raises ValueError: for a channel that is not in ``channels``, or an
+        organelle morphology and method Mask Generation does not pair.
+
+    THE MASK GENERATION ROUTES, AT FULL FIELD RESOLUTION. Pathogens are
+    segmented by Cellpose on the pathogen channel with
+    ``ops_ph_pathogen_model`` and ``ops_ph_pathogen_diameter``, as
+    ``pathogen_model`` and ``pathogen_diameter`` are in Mask Generation.
+    Organelles take Mask Generation's organelle route
+    (:func:`spacr.object.generate_organelle_masks_sam`):
+    ``ops_ph_organelle_morphology`` (spots, network, irregular or ring) and
+    ``ops_ph_organelle_method``, a classical method
+    (:func:`spacr.object._segment_single_image`, with the other
+    ``organelle_*`` settings at Mask Generation's defaults) or ``cellpose``
+    with ``ops_ph_organelle_model``. Both then go through
+    :func:`spacr.object.merge_split_filter_masks` with their minimum area.
+    Nuclei and cells are block-averaged by ``ops_ph_downsample`` first;
+    these are not, since a pathogen or an organelle may be only a few
+    pixels across.
+    """
+    import contextlib
+    import io
+
+    from .object import merge_split_filter_masks
+    from .qt.i18n import tr
+
+    out: Dict[str, np.ndarray] = {}
+    batch = max(1, int(_setting_number(settings.get("ops_ph_batch_size"),
+                                       "ops_ph_batch_size", 8)))
+
+    def cellpose(model, plane: np.ndarray, extra: Mapping[str, Any]
+                 ) -> np.ndarray:
+        """``model``'s labels of ``plane``, tiled when ``tile`` is given."""
+        def run(image: np.ndarray) -> np.ndarray:
+            """One Cellpose evaluation."""
+            return np.asarray(_governed_eval(
+                model, image, site='ops_phenotype', settings=settings,
+                batch_size=batch, **extra)[0], np.int32)
+        return run(plane) if tile is None else tile(plane, run)
+    for role in _ph_object_roles(settings):
+        channel = str(settings.get(f"ops_ph_{role}_channel")).strip()
+        if channel not in channels:
+            raise ValueError(tr(
+                "ops_ph_{role}_channel {channel} is not one of "
+                "ops_ph_channels {channels}", role=role, channel=channel,
+                channels=list(channels)))
+        plane = np.asarray(stack[..., list(channels).index(channel)],
+                           np.float32)
+        diameter = settings.get(f"ops_ph_{role}_diameter")
+        extra = {"diameter": float(diameter)} if diameter else {}
+        min_area = settings.get(f"ops_ph_{role}_min_area") or 0
+        if role == "pathogen":
+            labels = cellpose(_ph_object_model(
+                settings, gpu, "ops_ph_pathogen_model", cache), plane, extra)
+            view: Dict[str, Any] = {"pathogen_min_area": min_area}
+        else:
+            from .object import (_extract_classical_settings,
+                                 _preprocess_batch, _segment_single_image,
+                                 _validate_organelle_settings)
+            from .settings import _set_organelle_defaults
+
+            morphology = str(settings.get("ops_ph_organelle_morphology")
+                             or "spots")
+            method = str(settings.get("ops_ph_organelle_method") or "otsu")
+            _validate_organelle_settings(morphology, method)
+            if method == "unet":
+                raise ValueError(tr(
+                    "ops_ph_organelle_method 'unet' needs a trained U-Net "
+                    "file; use a classical method or 'cellpose' in OPS"))
+            view = _set_organelle_defaults({
+                "organelle_channel": 0, "organelle_morphology": morphology,
+                "organelle_method": method, "organelle_min_area": min_area,
+                "verbose": False})
+            if method == "cellpose":
+                labels = cellpose(_ph_object_model(
+                    settings, gpu, "ops_ph_organelle_model", cache), plane,
+                    extra)
+            else:
+                image = _preprocess_batch(plane[None], view)[0]
+                labels = _segment_single_image(
+                    image, _extract_classical_settings(view))
+        with contextlib.redirect_stdout(io.StringIO()):
+            labels = merge_split_filter_masks(
+                [np.asarray(labels, np.int32)], None, view, role)[0]
+        out[role] = np.asarray(labels, np.int32)
+    return out
+
+
+def _ph_object_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """The object settings a field's masks and cells were made with (item 970).
+
+    :param settings: read for the ``ops_ph_pathogen_*`` and
+        ``ops_ph_organelle_*`` settings of the classes
+        :func:`_ph_object_roles` names.
+    :returns: one entry per class, each setting as the run uses it (its
+        default when unset), recorded in the part markers
+        (:func:`_ph_options_marker`), so masks or cells made with other
+        object settings, or without objects, are not mixed in.
+    """
+    from .ops_settings import OPS_DEFAULTS
+
+    keys = {"pathogen": ("channel", "model", "diameter", "min_area"),
+            "organelle": ("channel", "morphology", "method", "model",
+                          "diameter", "min_area")}
+    out: Dict[str, Any] = {}
+    for role in _ph_object_roles(settings):
+        out[role] = {}
+        for key in keys[role]:
+            name = f"ops_ph_{role}_{key}"
+            value = settings.get(name)
+            out[role][key] = (OPS_DEFAULTS.get(name) if value in (None, "")
+                              else value)
+    return out
+
+
+def _ph_saved_objects(saved, roles: Sequence[str], path: str
+                      ) -> Dict[str, np.ndarray]:
+    """The object labels ``roles`` names from one field's mask file (item 970).
+
+    :param saved: the open ``np.load`` of the field's masks.
+    :param roles: the classes to read.
+    :param path: the mask file, named in the error.
+    :raises ValueError: when the file was made without one of them, so a
+        field is never measured with fewer objects than asked for.
+    """
+    from .qt.i18n import tr
+
+    missing = [role for role in roles if role not in saved.files]
+    if missing:
+        raise ValueError(tr(
+            "{path} has no {missing} masks: it was segmented without them. "
+            "Move phenotype_masks away and rerun ph_segment, or clear the "
+            "ops_ph_*_channel settings", path=path, missing=missing))
+    return {role: saved[role].astype(np.int32) for role in roles}
+
+
 def _ph_cells_path(destination: str, well: str) -> str:
     """Where one well's per-cell phenotype table is written."""
     return os.path.join(destination, f"ops_phenotype_cells_{well}.parquet")
@@ -4832,6 +5020,8 @@ def _ph_measure_table(task: Mapping[str, Any]):
     with np.load(task["mask_path"]) as saved:
         nuclei = saved["nuclei"].astype(np.int32)
         cells = saved["cells"].astype(np.int32)
+        objects = _ph_saved_objects(saved, task.get("objects") or (),
+                                    task["mask_path"])
     if task.get("flat_folder"):
         from .ops_flatfield import correct_field
 
@@ -4849,6 +5039,12 @@ def _ph_measure_table(task: Mapping[str, Any]):
         gpu=bool(task.get("measure_gpu", False)),
         profile_features=task.get("profile_features"),
         granularity_subsample=float(task.get("granularity_subsample") or 1.0))
+    if task.get("objects") and len(table):
+        from .ops_sample import _cell_object_features
+
+        table = table.merge(
+            _cell_object_features(cells, objects, stack, task["channels"]),
+            on="label", how="left")
     table.insert(0, "site", int(task["site"]))
     return table, unreadable, tuple(int(v) for v in stack.shape[:2])
 
@@ -5054,6 +5250,10 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     report: Dict[str, Any] = {"fields": len(sites)}
     field_shape = None
     secondary = _ph_secondary_by_site(db, plate, well, settings)
+    object_roles = _ph_object_roles(settings)
+    object_models: Dict[str, Any] = {}
+    if segment and object_roles:
+        _ph_options_marker(mask_dir, {"objects": _ph_object_options(settings)})
     flat_folder = None
     options: Dict[str, Any] = {}
     if measure:
@@ -5066,6 +5266,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "granularity_subsample": _ph_granularity_subsample(settings),
             "measure_gpu": bool(settings.get("ops_ph_measure_gpu", False)),
             "secondary": _ph_secondary(settings) if secondary else None}
+        if object_roles:
+            options["objects"] = _ph_object_options(settings)
         if _ph_flatfield_mode(settings) == "exact":
             from .ops_flatfield import load_flat_maps, record_flat_md5
 
@@ -5086,7 +5288,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 "profile_features": options["profile_features"],
                 "granularity_subsample": options["granularity_subsample"],
                 "measure_gpu": options["measure_gpu"],
-                "secondary": secondary.get(site)}
+                "secondary": secondary.get(site),
+                "objects": object_roles}
 
     check_gpu = bool(measure and options["measure_gpu"]
                      and settings.get("ops_ph_measure_gpu_check", True))
@@ -5193,14 +5396,25 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                     models = (nucleus_model, nucleus_model if same else
                               _cellpose_model(settings, gpu,
                                               "ops_ph_cell_model"))
+                    object_models[str(settings.get("ops_ph_nucleus_model")
+                                      or "cpsam").strip() or "cpsam"] = (
+                        nucleus_model)
                 tick = time.perf_counter()
                 nuclei, cells, paired = _ph_segment_field(stack, channels,
                                                           models, settings)
                 seconds["segment"] += time.perf_counter() - tick
                 counts.update(paired)
-                np.savez_compressed(mask_path(site) + ".part.npz",
-                                    nuclei=nuclei.astype(np.uint32),
-                                    cells=cells.astype(np.uint32))
+                arrays = {"nuclei": nuclei.astype(np.uint32),
+                          "cells": cells.astype(np.uint32)}
+                if object_roles:
+                    tick = time.perf_counter()
+                    objects = _ph_segment_objects(stack, channels, settings,
+                                                  gpu, object_models)
+                    seconds["objects"] += time.perf_counter() - tick
+                    for role, labels in objects.items():
+                        counts[role] += int(len(np.unique(labels[labels > 0])))
+                        arrays[role] = labels.astype(np.uint32)
+                np.savez_compressed(mask_path(site) + ".part.npz", **arrays)
                 os.replace(mask_path(site) + ".part.npz", mask_path(site))
                 _say(tr("{well} ph_segment: site {site}, {cells} cells, "
                         "{count} of {total}", well=well, site=site,

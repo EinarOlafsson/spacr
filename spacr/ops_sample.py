@@ -542,3 +542,70 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
                     out[perimeter].to_numpy(np.float64))
     keep = [c for c in out.columns if pd.api.types.is_numeric_dtype(out[c])]
     return out.loc[:, keep].reset_index(drop=True)
+
+
+#: The per-cell statistics :func:`spacr.measure._summarize_organelles_per_parent`
+#: writes for one object class, in the order :func:`_cell_object_features`
+#: gives them, before the two intensity columns of each channel.
+_CELL_OBJECT_STATS = (
+    "count", "total_area", "fraction", "mean_area", "std_area",
+    "mean_eccentricity", "std_eccentricity", "mean_solidity", "std_solidity",
+    "mean_major_axis", "mean_minor_axis")
+
+
+def _cell_object_features(cells: np.ndarray, objects, image: np.ndarray,
+                          channel_names: Sequence[str]):
+    """Per-cell summaries of the pathogens and organelles in one field (item 970).
+
+    :param cells: cell labels.
+    :param objects: ``{class: labels}``, such as ``{'pathogen': ...,
+        'organelle': ...}``, each the shape of ``cells``.
+    :param image: ``(H, W, C)`` intensities, as the field is measured.
+    :param channel_names: one short name per channel.
+    :returns: one row per cell label, ``label`` and, for each class,
+        ``cell_<class>_`` + count, total area, area fraction of the cell,
+        mean and SD area, mean and SD eccentricity and solidity, mean major
+        and minor axis length, and ``<channel>_mean_intensity`` and
+        ``<channel>_std_intensity``: the mean and SD over the cell's objects
+        of each object's mean intensity. A cell without objects has 0
+        everywhere.
+
+    Mask Generation's and Measure's own summary,
+    :func:`spacr.measure._summarize_organelles_per_parent`: an object
+    belongs to the cell that holds most of its pixels
+    (:func:`spacr.measure._map_child_to_parent`) and an object outside every
+    cell belongs to none. The ``cell_`` prefix makes the columns per-cell
+    features of the OPS tables, so the aggregate phase carries them into
+    the per-gene profiles as it does the cell's own.
+    """
+    import pandas as pd
+
+    from .measure import _summarize_organelles_per_parent
+
+    cells = np.asarray(cells, np.int32)
+    image = np.asarray(image, np.float32)
+    names = [str(name).lower() for name in channel_names]
+    labels = np.unique(cells[cells > 0]).astype(np.int64)
+    out = pd.DataFrame({"label": labels})
+    for role, mask in objects.items():
+        columns = [f"cell_{role}_{stat}" for stat in _CELL_OBJECT_STATS]
+        for name in names:
+            columns += [f"cell_{role}_{name}_mean_intensity",
+                        f"cell_{role}_{name}_std_intensity"]
+        if not len(labels):
+            out = out.reindex(columns=["label", *columns])
+            continue
+        summary = _summarize_organelles_per_parent(
+            np.asarray(mask, np.int32), cells, image, parent_name="cell")
+        renamed = {f"organelle_{stat}": f"cell_{role}_{stat}"
+                   for stat in _CELL_OBJECT_STATS}
+        for index, name in enumerate(names):
+            for stat in ("mean", "std"):
+                renamed[f"organelle_channel_{index}_{stat}_intensity_per_cell"] = (
+                    f"cell_{role}_{name}_{stat}_intensity")
+        summary = summary.rename(columns=renamed)
+        summary = summary.assign(label=summary["label"].astype(np.int64))
+        summary = summary.reindex(columns=["label", *columns])
+        summary[columns] = summary[columns].astype(np.float64).fillna(0.0)
+        out = out.merge(summary, on="label", how="left")
+    return out

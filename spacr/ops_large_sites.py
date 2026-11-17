@@ -2058,6 +2058,11 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     survey_steps: List[Dict[str, Any]] = []
     control_steps: List[Dict[str, Any]] = []
     site_steps: Dict[str, List[Dict[str, Any]]] = {}
+    from .ops_engine import _ph_object_roles, _ph_segment_objects
+
+    object_roles = _ph_object_roles(settings)
+    object_models: Dict[str, Any] = {
+        str(settings.get("seg_nucleus_model") or "cpsam").strip() or "cpsam": models[0]}
     if estimate or control_px:
         sampled = sample_sites(sites, int(settings.get("seg_diameter_sites") or 1))
         found = {}
@@ -2127,9 +2132,24 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
             nuclei_kept, cells_kept, edge = _edge_step(nuclei, cells, local)
             table = measure_chunked(cells_kept, stack, band_px=int(local["seg_measure_band_px"]),
                                     channel_names=channels)
+            objects: Dict[str, np.ndarray] = {}
+            if object_roles:
+                objects = _ph_segment_objects(
+                    stack, channels, local, bool(settings.get("seg_gpu")), object_models,
+                    tile=lambda plane, run: segment_tiled(
+                        plane, run, tile_px=int(local["seg_tile_px"]),
+                        overlap_px=int(local["seg_tile_overlap_px"]),
+                        iou=float(local["seg_stitch_iou"])))
+                if len(table):
+                    from .ops_sample import _cell_object_features
+
+                    table = table.merge(_cell_object_features(cells_kept, objects, stack, channels),
+                                        on="label", how="left")
             sampler.sample_once()
         np.save(os.path.join(dst, "labels", f"{site}_nuclei.npy"), nuclei_kept.astype(np.int32))
         np.save(os.path.join(dst, "labels", f"{site}_cells.npy"), cells_kept.astype(np.int32))
+        for role, labels in objects.items():
+            np.save(os.path.join(dst, "labels", f"{site}_{role}.npy"), labels.astype(np.int32))
         table.insert(0, "site", site)
         write_table(table, os.path.join(dst, "tables", f"{site}_cells.parquet"), canonicalise=False)
         row: Dict[str, Any] = {"site": site, "cells": int(table.shape[0]),
@@ -2142,6 +2162,8 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                  if k in paired}
         row.update({f"paired_{k}": int(v) for k, v in paired.items()})
         row.update(merge)
+        row.update({f"{role}_objects": int(len(np.unique(labels[labels > 0])))
+                    for role, labels in objects.items()})
         row.update(summarise_mask_steps(steps))
         peak = sampler.summary().get("peak_total")
         row["peak_memory_gb"] = round(peak / 2 ** 30, 3) if isinstance(peak, int) else float("nan")
