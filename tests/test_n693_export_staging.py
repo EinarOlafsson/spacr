@@ -73,7 +73,11 @@ def test_successful_export_preserves_modes_and_symlink_destinations(tmp_path):
     assert write_settings_file(settings, alias) == [str(alias), str(alias.with_suffix('.json'))]
     assert alias.is_symlink() and alias.with_suffix('.json').is_symlink()
     assert (csv.stat().st_mode & 0o777, js.stat().st_mode & 0o777) == modes
-    assert json.loads(js.read_text(encoding="utf-8")) == settings
+    # Every settings file spaCR writes carries the schema stamp (item 931).
+    from spacr.settings import SETTINGS_SCHEMA_VERSION, SETTINGS_VERSION_KEY
+
+    assert json.loads(js.read_text(encoding="utf-8")) == {
+        SETTINGS_VERSION_KEY: SETTINGS_SCHEMA_VERSION, **settings}
 
 
 @pytest.mark.parametrize('readonly', ['csv', 'json'])
