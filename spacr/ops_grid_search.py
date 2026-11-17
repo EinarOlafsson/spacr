@@ -661,7 +661,7 @@ def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str
                               table["shuffle_rate_pct"].tolist())
     frame = pd.concat([table, pd.DataFrame(lines)], ignore_index=True)
     stem = os.path.join(folder, f"ops_grid_{run_id}")
-    frame.to_csv(f"{stem}.csv", index=False, float_format="%.6g")
+    frame.to_csv(f"{stem}.csv", index=False, float_format="%.10g")
     pd.DataFrame(timing).to_csv(f"{stem}_timing.csv", index=False)
     plot = _plot(table, f"{stem}.png", f"OPS grid {run_id}: {len(keys)} tiles")
     matches = None
