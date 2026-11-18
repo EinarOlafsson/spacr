@@ -4478,7 +4478,7 @@ def etest_phase(settings: Mapping[str, Any], cells_folder: str, destination: str
                       n_ref=int(settings.get("ops_etest_reference_cells") or 2000),
                       n_null=int(settings.get("ops_etest_null") or 1000),
                       n_holdout=int(settings.get("ops_etest_holdout") or 500),
-                      mode=str(settings.get("ops_etest_mode") or "empirical_null"),
+                      mode=str(settings.get("ops_etest_mode") or "guide_null"),
                       permutations=int(settings.get("ops_etest_permutations") or 1000))
     folder = os.path.join(destination, "results", "ops_etest")
     os.makedirs(folder, exist_ok=True)

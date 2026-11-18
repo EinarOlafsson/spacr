@@ -2534,7 +2534,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 944
+SETTINGS_SCHEMA_VERSION = 946
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2558,6 +2558,7 @@ DEFAULT_CHANGES = {
           'seg_merge_small_nuclei_frac': 0.0},
     944: {'ops_read_mode': 'log', 'ops_prefix_threshold_tuning': 'none',
           'ops_prefix_decoy_k': 0, 'ops_prefix_fdr_target_pct': 0.1},
+    946: {'ops_etest_mode': 'empirical_null'},
 }
 
 

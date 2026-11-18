@@ -86,7 +86,7 @@ OPS_POWER_DESIGN: Dict[str, Any] = {
     "info_permutations": 100,
     "info_null": "guide",
     "etest_metric": "euclidean",
-    "etest_mode": "empirical_null",
+    "etest_mode": "guide_null",
     "etest_reference_cells": 2000,
     "etest_null": 1000,
     "etest_holdout": 500,
