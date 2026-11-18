@@ -10242,7 +10242,7 @@ def _rows_for_wells(db: str, table: str, plate: str, wells: Sequence[str]):
 
 def run_ops(settings: Mapping[str, Any], *,
             wells: Optional[Sequence[str]] = None,
-            phases: Sequence[str] = _PHASES,
+            phases: Optional[Sequence[str]] = None,
             library=None) -> Dict[str, Any]:
     """Stitch, place, segment and decode the wells of one sequencing acquisition.
 
@@ -10360,6 +10360,7 @@ def run_ops(settings: Mapping[str, Any], *,
         unknown phase or well is asked for, or a phase's input is missing.
     """
     settings = dict(settings or {})
+    phases = _run_phases(settings, phases)
     if settings.get("ops_gpu_admission") and not _OPS_ADMITTED.get():
         return _ops_admitted_run(settings, wells=wells, phases=phases,
                                  library=library)
@@ -10694,6 +10695,37 @@ def run_ops(settings: Mapping[str, Any], *,
                       "w", encoding="utf-8") as handle:
                 json.dump(out[phase], handle, indent=1, default=str)
     return out
+
+
+def _run_phases(settings: Mapping[str, Any],
+                phases: Optional[Sequence[str]]) -> Tuple[str, ...]:
+    """The phases one run runs: the caller's, else ``ops_phases``, else the default four.
+
+    Item 977. ``ops_phases`` lets a settings file name its own phases, so
+    ``spacr-run ops <file>`` reproduces a run that went past decode; an
+    empty value keeps the four default phases, as before.
+
+    :param settings: read for ``ops_phases``: None, an empty string, a list
+        of phase names, or ``"stitch,phenotype,merge"``.
+    :param phases: the caller's phases, which win when given.
+    :returns: the phase names, in the order given.
+    :raises ValueError: naming every phase that is not one of
+        ``_ALL_PHASES``.
+    """
+    if phases is not None:
+        return tuple(phases)
+    value = settings.get("ops_phases")
+    if isinstance(value, str):
+        value = [part.strip() for part in value.replace(";", ",").split(",")]
+    names = tuple(str(part).strip() for part in (value or ()) if str(part).strip())
+    if not names:
+        return _PHASES
+    unknown = [name for name in names if name not in _ALL_PHASES]
+    if unknown:
+        raise ValueError(
+            f"ops_phases names phases spaCR does not know: {unknown}; "
+            f"choose from {list(_ALL_PHASES)}")
+    return names
 
 
 def _wants_decode_qc(settings: Mapping[str, Any], phases: Sequence[str]) -> bool:

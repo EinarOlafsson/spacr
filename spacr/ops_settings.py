@@ -48,6 +48,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_placement_seed_tolerance": 2.0,
     "ops_ph_placement_seed": None,
     "ops_sites": None,
+    "ops_phases": None,
     "ops_objects_resume": True,
     "ops_objects_keep_windows": False,
     "ops_objects_windows_dir": None,
@@ -519,6 +520,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_placement_seed_tolerance": (float, int),
     "ops_ph_placement_seed": (str, type(None)),
     "ops_sites": (str, list, type(None)),
+    "ops_phases": (str, list, type(None)),
     "ops_objects_resume": bool,
     "ops_objects_keep_windows": bool,
     "ops_objects_windows_dir": (str, type(None)),
@@ -954,7 +956,7 @@ OPS_TYPES: Dict[str, object] = {
 OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS input": [
         "dst_root", "genotype_source", "phenotype_source", "ops_library",
-        "ops_layout", "cpg_root", "cpg_wells", "cpg_sites",
+        "ops_phases", "ops_layout", "cpg_root", "cpg_wells", "cpg_sites",
         "cpg_phenotype_channels", "cpg_sbs_cycles", "cpg_sbs_bases",
         "cpg_sbs_dapi", "cpg_sbs_resample", "cpg_missing", "cpg_md5",
     ],
@@ -1490,6 +1492,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "to each other and the rest are placed on the layout's grid, or by "
         "ops_placement_seed. Each nucleus belongs to the nearest placed "
         "tile. Empty runs every site. Default None. Alpha.",
+    "ops_phases":
+        "(str, list or None) - Which phases a run without its own phase "
+        "list runs, in the order spaCR runs them, as 'stitch,phenotype,"
+        "objects,decode,ph_segment,ph_measure,ph_masks,merge,aggregate'. "
+        "With it, spacr-run ops runs the phenotype, merge and aggregate "
+        "phases from the settings file alone, so the file reproduces the "
+        "run. A phase spaCR does not know is refused before anything runs. "
+        "Empty runs stitch, phenotype, objects and decode, as before. "
+        "Default None. Alpha.",
     "ops_objects_resume":
         "(bool) - Keep each segmented window of the objects phase on disk "
         "as it finishes, so a run that stops part way through a well picks "

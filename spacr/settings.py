@@ -9545,6 +9545,9 @@ ALPHA_FEATURES = {
     971: {
         'widgets': ('OpsLiveSwitch',),
     },
+    977: {
+        'settings': ('ops_phases',),
+    },
     956: {
         'module_settings': {'ops_large_sites': (
             'ops_mask_agreement_split_merge', 'ops_mask_agreement_identity_control',
