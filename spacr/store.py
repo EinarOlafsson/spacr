@@ -837,10 +837,10 @@ class Store:
                 where.append(hit)
             mine = np.concatenate(where)
             piece = pa.concat_tables(taken)
-            for name in columns:
-                if name not in piece.column_names:
-                    piece = piece.append_column(name, pa.nulls(piece.num_rows))
-            pieces.append(piece.select(columns))
+            index = {name: i for i, name in enumerate(piece.column_names)}
+            arrays = [piece.column(index[name]) if name in index
+                      else pa.nulls(piece.num_rows) for name in columns]
+            pieces.append(pa.Table.from_arrays(arrays, names=list(columns)))
             positions.append(mine)
         try:
             whole = pa.concat_tables(pieces, promote_options="default")
