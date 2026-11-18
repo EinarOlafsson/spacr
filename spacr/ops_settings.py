@@ -345,6 +345,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_tables_integer_keys": False,
     "ops_tables_layout": 'compartments',
     "ops_storage": "current",
+    "ops_store_row_copy": False,
     "ops_stress_report": False,
     "ops_modules_runs": 100,
     "ops_modules_precomputed_embedding": False,
@@ -817,6 +818,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_tables_integer_keys": bool,
     "ops_tables_layout": str,
     "ops_storage": str,
+    "ops_store_row_copy": bool,
     "ops_stress_report": bool,
     "ops_modules_runs": int,
     "ops_modules_precomputed_embedding": bool,
@@ -1172,7 +1174,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_archive_delete_local", "ops_gpu_admission", "ops_gpu_idle_checks",
         "ops_gpu_min_process_mib", "ops_gpu_vram_cap_gb",
         "ops_gpu_ignore_process_patterns", "ops_tables_integer_keys",
-        "ops_tables_layout", "ops_storage", "ops_stress_report",
+        "ops_tables_layout", "ops_storage", "ops_store_row_copy",
+        "ops_stress_report",
         "ops_modules_runs", "ops_modules_precomputed_embedding",
         "ops_modules_profiles", "ops_modules_driver_profiles",
         "ops_eval_mitocarta", "ops_eval_external_modules", "ops_eval_arms",
@@ -3370,6 +3373,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "object class per well (cells with all features, reads, barcodes), "
         "each cell's raw crop in a Zarr store per well, and the catalog "
         "spacr.duckdb, which spacr.store.open reads. Default 'current'. "
+        "Alpha.",
+    "ops_store_row_copy":
+        "(bool) - With ops_storage 'spacr_store', also keep each well's "
+        "measurements a second time, one cell after another, so that "
+        "looking up single cells with all their columns is fast. Costs "
+        "about as much disk again as the cell tables. Default False. "
         "Alpha.",
     "ops_layout":
         "(str) - How the input folders are laid out. 'tiles' is the "

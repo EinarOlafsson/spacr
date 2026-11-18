@@ -8772,6 +8772,9 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
                      genotype_path: Optional[str] = None) -> Dict[str, Any]:
     """Write the run's tables and crops to the spaCR store (item 974).
 
+    ``ops_store_row_copy`` also writes each well's float features as a
+    row-major copy that all-column point lookups read.
+
     For each well: ``cells``, one row per owned, whole cell with the keys
     and the cell, nucleus and cytoplasm features of ``ph_tables``, plus
     ``cell_id`` and, when ``ph_crops`` cut the cell, its crop pointer, the
@@ -8834,7 +8837,8 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
             store.write_part(
                 destination, "cells", frame, plate=plate, well=well,
                 sort_by=("gene", "cell_id"), key_columns=_PH_TABLE_KEYS,
-                crops=crops, crop_rows=crop_rows, masks=masks, run_id=run_id)
+                crops=crops, crop_rows=crop_rows, masks=masks, run_id=run_id,
+                row_copy=bool(settings.get("ops_store_row_copy", False)))
             counts["cells"] = int(len(frame))
             counts["crops"] = 0 if crop_rows is None else int(len(crop_rows))
             del frame

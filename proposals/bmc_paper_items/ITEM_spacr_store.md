@@ -53,6 +53,12 @@ Every query shape must be fast:
   - Everything else, including a filter on a float feature, runs on the wide view as before.
 - Crops are read straight from the Zarr v2 chunk files with numcodecs Zstd, in threads, with zarr as the fallback.
 
+**Optional row-major copy** (maintainer, 2026-11-18; setting `ops_store_row_copy`, default False, alpha)
+- With it on, `write_part(..., row_copy=True)` also writes `rows/<class>/plate=P/well=W/part-N.zarr`: the array `features` (rows, float columns) in the part's row order, in the widest float type of those columns, in chunks of 16 rows × all columns, Zstd 3, plus `columns.json`. It is registered as `<class>__rows`.
+- Chunk size from a micro-benchmark (20,000 × 10,000 float32, 1,000 random rows, 4 threads): 4 rows 0.37 s, 8 rows 0.42 s, 16 rows 0.61 s, 32 rows 0.70 s, 64 rows 1.08 s. 16 keeps 6,250 files per 100,000-cell well.
+- `query` routes located all-column selections to the copy when every part involved has one. Key columns come from the key table, and the float columns are cast back to their Parquet types (nulls round-trip as NaN → null). Every other read is unchanged.
+- Off writes exactly the same files as before (tested byte for byte). It costs about 23.5 KB per cell at 10,000 features, which is as much disk again as the Parquet part.
+
 **Crops**
 - One Zarr store per plate and well, holding one array `crops` of shape (n, C, H, W) in the source dtype. Chunks are (256, C, H, W), compressed with zstd level 3.
 - Zarr format 2 is written through either zarr 2 or zarr 3 (`setup.py` already allows `zarr>=2.16,<4` and numcodecs on Python 3.10+). Both libraries read it.
@@ -157,6 +163,11 @@ Report: `BMCspacr/reanalysis/item974_proof/REPORT.md`.
   - **Converter.** `spacr-db-audit convert <project>` converts `measurements.db`, the parquet sidecars, the `measurements/<compartment>/*.parquet` features, the tar-shard crops and PNG crop folders into the store. It is verified row by row and pixel by pixel, and the originals are kept until the maintainer deletes them.
   - **Readers.** Every spaCR reader of `measurements.db` (`spacr.tabular.read_table` / `_read_query` callers: plots, the classifier, the ML, the OPS profile, TVN and aggregate) gains a store path.
   - **Old projects.** They stay readable through the SQLite attachment.
+- **976 also takes item 984 (maintainer, 2026-11-18, OME-Zarr 0.5 in phases).**
+  - The crop store gains OME-style axis and channel metadata (axes c/y/x per crop, channel names), so napari opens it.
+  - The annotation app and the other GUI apps read crops from the store.
+  - Compatibility: each crop store is already a Zarr group with one array `crops` (n, C, H, W) and optional `masks`. 984 adds metadata beside the array (or moves the group to Zarr v3 for OME-Zarr 0.5) without renumbering rows, so `crop_store`/`crop_index` stay valid. Item 983 (merged, stitched and mask images as OME-Zarr) runs in another lane in parallel with 975.
+- **Order after 974:** 975, then 976 (with 984).
 - **After 975 and 976.** The maintainer decides whether `spacr_store` becomes the default for OPS and Measure. Only then can the OPS path stop writing the SQLite copies of the phenotype tables.
 
 ## Effort

@@ -160,6 +160,45 @@ def test_key_table_routes_answer_as_the_wide_table_does(tmp_path):
                           np.asarray(reference)[index])
 
 
+def _bytes(project):
+    """``{relative path: bytes}`` of a store's table files."""
+    return {str(p.relative_to(project)): p.read_bytes()
+            for p in sorted((project / "tables").rglob("*.parquet"))}
+
+
+def test_the_row_copy_is_off_by_default_and_exact_when_on(tmp_path):
+    frame = _frame("A1", n=500)
+    frame["f_wide"] = np.linspace(0, 1, 500)
+    for name, extra in (("default", {}), ("off", {"row_copy": False}),
+                        ("on", {"row_copy": True})):
+        store.write_part(tmp_path / name, "cells", frame, plate="P",
+                         well="A1", key_columns=("prcfo", "gene"), **extra)
+        store.register(tmp_path / name)
+    assert _bytes(tmp_path / "default") == _bytes(tmp_path / "off")
+    assert _bytes(tmp_path / "on") == _bytes(tmp_path / "off")
+    assert not (tmp_path / "off" / "rows").exists()
+    assert (tmp_path / "on" / "rows").is_dir()
+    ids = frame["cell_id"].to_numpy()[[3, 77, 140, 499, 250]].tolist()
+    with store.open(tmp_path / "on", verify="full") as on, \
+            store.open(tmp_path / "off") as off:
+        sql, params = on._select({"cell_id": ids}, "cells", None)
+        wide = store._arrow_of(on._conn, sql, params)
+        calls = []
+        real = on._read_row_copies
+        on._read_row_copies = lambda *a: calls.append(1) or real(*a)
+        copied = on._routed({"cell_id": ids}, "cells", None)
+        assert calls == [1]
+        parquet = off._routed({"cell_id": ids}, "cells", None)
+        assert on._columns("cells") == copied.column_names
+        order = lambda t: t.sort_by("cell_id")
+        assert order(copied).equals(order(parquet))
+        assert order(copied).select(wide.column_names).cast(
+            order(wide).schema).equals(order(wide))
+        assert copied.schema.field("f3").type == wide.schema.field("f3").type
+        assert copied.schema.field("f_wide").type == wide.schema.field(
+            "f_wide").type
+
+
 def test_a_rewritten_well_replaces_its_files(tmp_path):
     _write(tmp_path)
     old = sorted((tmp_path / "tables" / "cells").rglob("*.parquet"))

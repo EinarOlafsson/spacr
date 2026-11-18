@@ -9496,7 +9496,7 @@ ALPHA_FEATURES = {
                      'ops_objects_windows_dir'),
     },
     974: {
-        'settings': ('ops_storage',),
+        'settings': ('ops_storage', 'ops_store_row_copy'),
     },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),

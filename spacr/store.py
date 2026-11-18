@@ -50,6 +50,14 @@ _POINTER = ("crop_store", "crop_index")
 _PARTITION = ("plate", "well")
 _PENDING = "_pending"
 _KEYS = "__keys"
+_ROWS = "__rows"
+
+#: Rows per chunk of a row-major copy. Item 974's micro-benchmark (20,000
+#: rows x 10,000 float32, 1,000 random rows read, 4 threads): 4 rows 0.37 s,
+#: 8 rows 0.42 s, 16 rows 0.61 s, 32 rows 0.70 s, 64 rows 1.08 s; 16 keeps
+#: 6,250 chunk files per 100,000-cell well at a read time within 2x of the
+#: smallest chunks.
+_ROW_CHUNK = 16
 _LOCATORS = ("_part", "_row_group", "_group_row")
 
 #: The most rows a selection may hold to be read row group by row group.
@@ -207,11 +215,12 @@ def _sorted_order(table, sort_by: Sequence[str]) -> np.ndarray:
         null_placement="at_end"))
 
 
-def _create_crop_array(path: str, shape, dtype, name: str = "crops"):
+def _create_crop_array(path: str, shape, dtype, name: str = "crops",
+                       chunk_rows: int = _CROP_CHUNK):
     """A Zarr format 2 array under ``path``/``name``, through zarr 2 or 3."""
     zarr = _require("zarr")
     numcodecs = _require("numcodecs")
-    chunks = (min(_CROP_CHUNK, max(1, shape[0])),) + tuple(shape[1:])
+    chunks = (min(chunk_rows, max(1, shape[0])),) + tuple(shape[1:])
     codec = numcodecs.Zstd(level=3)
     target = os.path.join(path, name)
     if int(str(zarr.__version__).split(".")[0]) >= 3:
@@ -244,7 +253,8 @@ def write_part(project, table: str, frame, *, plate, well,
                sort_by: Sequence[str] = ("gene", "cell_id"),
                key_columns: Sequence[str] = (), crops=None,
                crop_rows=None, masks=None, run_id: Optional[str] = None,
-               row_group_rows: Optional[int] = None) -> Dict[str, Any]:
+               row_group_rows: Optional[int] = None,
+               row_copy: bool = False) -> Dict[str, Any]:
     """Write one well's rows of ``table`` (and its crops) and leave a manifest.
 
     The rows are sorted by ``sort_by`` and written under a temporary name,
@@ -266,6 +276,8 @@ def write_part(project, table: str, frame, *, plate, well,
     :param masks: an array ``(k, H, W)`` beside the crops, or None.
     :param run_id: the run this write belongs to.
     :param row_group_rows: rows per row group, under the byte cap.
+    :param row_copy: also write the float columns as a row-major Zarr copy,
+        which point lookups of every column read instead of the Parquet part.
     :returns: the manifest.
     :raises StoreError: when the frame's plate or well disagree with the
         partition, or the crops do not match ``crop_rows``.
@@ -341,6 +353,9 @@ def write_part(project, table: str, frame, *, plate, well,
                      "rows": int(data.num_rows), **_fingerprint(final)})
     files.insert(1, _write_keys(project, table, data, rel, group_rows,
                                 key_columns, plate, well, uid))
+    if row_copy:
+        files.append(_write_row_copy(project, table, data, rel, key_columns,
+                                     uid))
     manifest = {"uuid": uid, "table": table, "plate": str(plate),
                 "well": str(well), "sort_by": list(sort_by),
                 "key_columns": list(key_columns), "files": files,
@@ -396,6 +411,56 @@ def _write_keys(project: str, table: str, data, part: str, group_rows: int,
     return {"path": os.path.relpath(final, project).replace(os.sep, "/"),
             "kind": "parquet", "table": _keys_name(table),
             "rows": int(keys.num_rows), **_fingerprint(final)}
+
+
+def _rows_name(table: str) -> str:
+    """The registry name of ``table``'s row-major copies."""
+    return f"{table}{_ROWS}"
+
+
+def _row_copy_path(part: str) -> str:
+    """Where the row-major copy of a Parquet part goes, relative."""
+    head, _, rest = part.partition("/")
+    return "rows/" + rest[:-len(".parquet")] + ".zarr"
+
+
+def _write_row_copy(project: str, table: str, data, part: str,
+                    key_columns: Sequence[str], uid: str):
+    """Write the float columns of one part as a row-major Zarr array.
+
+    The array ``features`` is ``(rows, float columns)`` in the part's row
+    order, in the widest float type of those columns, chunked
+    :data:`_ROW_CHUNK` rows by every column; its column names are in
+    ``columns.json``. Nulls are stored as NaN.
+    """
+    pa = _require("pyarrow")
+    keep = set(key_columns) | set(_POINTER) | set(_PARTITION)
+    names = [f.name for f in data.schema if f.name not in keep
+             and pa.types.is_floating(f.type)]
+    wide = any(data.schema.field(n).type == pa.float64() for n in names)
+    dtype = np.dtype(np.float64 if wide else np.float32)
+    final = os.path.join(project, _row_copy_path(part))
+    temporary = f"{final}.tmp-{uid}"
+    os.makedirs(temporary, exist_ok=True)
+    array = _create_crop_array(temporary, (data.num_rows, len(names)), dtype,
+                               "features", chunk_rows=_ROW_CHUNK)
+    for start in range(0, data.num_rows, _ROW_CHUNK * 64):
+        block = data.slice(start, _ROW_CHUNK * 64)
+        matrix = np.empty((block.num_rows, len(names)), dtype=dtype)
+        for position, name in enumerate(names):
+            matrix[:, position] = block.column(name).to_numpy(
+                zero_copy_only=False)
+        array[start:start + block.num_rows] = matrix
+    with builtins.open(os.path.join(temporary, "columns.json"), "w",
+                       encoding="utf-8") as handle:
+        json.dump(names, handle)
+    with builtins.open(os.path.join(temporary, ".zgroup"), "w",
+                       encoding="utf-8") as handle:
+        json.dump({"zarr_format": 2}, handle)
+    os.replace(temporary, final)
+    return {"path": os.path.relpath(final, project).replace(os.sep, "/"),
+            "kind": "zarr", "table": _rows_name(table),
+            "rows": int(data.num_rows), **_fingerprint(final)}
 
 
 _REGISTRY_DDL = (
@@ -510,7 +575,8 @@ def register(project, *, run: Optional[Mapping[str, Any]] = None,
                 [manifest["table"], json.dumps(manifest["sort_by"]),
                  json.dumps(manifest["key_columns"]), _now()])
             new = {entry["path"] for entry in manifest["files"]}
-            names = sorted({manifest["table"], _keys_name(manifest["table"])})
+            names = sorted({manifest["table"], _keys_name(manifest["table"]),
+                            _rows_name(manifest["table"])})
             for name in names:
                 for (old,) in conn.execute(
                         "SELECT path FROM spacr_files WHERE table_name = ? "
@@ -804,10 +870,63 @@ class Store:
             return None
         columns = (self._columns(table) if features is None
                    else self._wanted(table, table, features))
+        copies = {f["path"] for f in self._files
+                  if f["table_name"] == _rows_name(table)}
+        if (features is None and located.num_rows and all(
+                _row_copy_path(p) in copies
+                for p in set(located.column("_part").to_pylist()))):
+            sql, params = self._select(where, table, None, source=keys)
+            keyed = _arrow_of(self._conn, sql, params)
+            return self._read_row_copies(keyed, columns)
         if not located.num_rows:
             return _arrow_of(self._conn, "SELECT " + ", ".join(
                 _ident(c) for c in columns) + f" FROM {_ident(table)} LIMIT 0")
         return self._read_located(located, columns)
+
+    def _read_row_copies(self, keyed, columns: List[str]):
+        """Every column of the located rows: keys from the key table and the
+        float columns from the row-major copies, cast back to their types."""
+        pa = _require("pyarrow")
+        parts = np.asarray(keyed.column("_part").to_pylist(), dtype=object)
+        groups = keyed.column("_row_group").to_numpy().astype(np.int64)
+        rows = keyed.column("_group_row").to_numpy().astype(np.int64)
+        float_columns: Dict[str, Any] = {}
+        types: Dict[str, Any] = {}
+        for rel in sorted(set(parts)):
+            mine = np.flatnonzero(parts == rel)
+            handle = self._part(rel)
+            starts = np.concatenate([[0], np.cumsum([
+                handle.metadata.row_group(g).num_rows
+                for g in range(handle.metadata.num_row_groups)])])
+            copy = os.path.join(self.project, _row_copy_path(rel))
+            if copy not in self._arrays:
+                with builtins.open(os.path.join(copy, "columns.json"),
+                                   encoding="utf-8") as handle_names:
+                    names = json.load(handle_names)
+                array = (_ChunkReader.open(os.path.join(copy, "features"),
+                                           self.threads)
+                         or _require("zarr").open_array(
+                             os.path.join(copy, "features"), mode="r"))
+                self._arrays[copy] = (names, array)
+            names, array = self._arrays[copy]
+            matrix = _read_rows(array, starts[groups[mine]] + rows[mine])
+            schema = handle.schema_arrow
+            for position, name in enumerate(names):
+                types.setdefault(name, schema.field(name).type)
+                column = float_columns.setdefault(
+                    name, np.full(len(parts), np.nan, dtype=matrix.dtype))
+                column[mine] = matrix[:, position]
+        present = {name: i for i, name in enumerate(keyed.column_names)}
+        arrays = []
+        for name in columns:
+            if name in float_columns:
+                arrays.append(pa.array(float_columns[name], from_pandas=True
+                                       ).cast(types[name]))
+            elif name in present:
+                arrays.append(keyed.column(present[name]))
+            else:
+                arrays.append(pa.nulls(keyed.num_rows))
+        return pa.Table.from_arrays(arrays, names=list(columns))
 
     def _part(self, rel: str):
         """A Parquet file of the store, opened once."""

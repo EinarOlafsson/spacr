@@ -614,6 +614,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_tables_integer_keys",
     "ops_tables_layout",
     "ops_storage",
+    "ops_store_row_copy",
     "ops_stress_report",
     # TVN profiles for the OPS aggregate phase (item 854, 2026-11-07).
     "ops_profile_normalisation", "ops_tvn_mode", "ops_tvn_pca_sample",
