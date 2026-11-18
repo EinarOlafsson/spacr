@@ -556,7 +556,9 @@ def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str
         ``ops_grid_params`` (the grid, :func:`_parse_grid`; empty scores the
         default point alone), ``ops_grid_tiles`` (a saved or user selection),
         ``ops_grid_tile_mode``, ``ops_grid_n_tiles`` and ``ops_grid_seed``
-        (:func:`_pick_tiles`); ``n_workers`` tiles are scored at once.
+        (:func:`_pick_tiles`); ``n_workers`` tiles are scored at once, fewer
+        when free RAM holds fewer (the shared worker guard,
+        :func:`spacr.resource_log._guard_workers`).
     :param settings_path: the settings file; the outputs go beside it, else
         to ``<dst_root>/settings``.
     :param report: called with progress lines.
@@ -626,6 +628,15 @@ def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str
               "plate": p, "well": w, "well_id": wid, "site": s,
               "points": points_of[(p, wid)], "loosest": loosest} for p, w, wid, s in tiles]
     workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks)))
+    if workers > 1:
+        from .resource_log import _array_file_nbytes, _guard_workers
+
+        first = tasks[0]["index"]
+        paths = list(first["path"]) if "path" in first.columns else []
+        workers = max(1, int(_guard_workers(
+            "ops_decode", workers,
+            len(paths) * _array_file_nbytes(paths[0]) if paths else 0,
+            settings=settings)))
     if workers == 1:
         _init_worker(libraries)
         scored = [_score_tile(task) for task in tasks]
