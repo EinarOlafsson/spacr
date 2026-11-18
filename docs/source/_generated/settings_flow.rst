@@ -5972,6 +5972,36 @@ cpg_md5
 
 Add each file's md5 to cpg_index.csv, which proves later that a run read the same bytes. Reading every file takes time on a network drive. Default False. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -5982,6 +6012,12 @@ Add each file's md5 to cpg_index.csv, which proves later that a run read the sam
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
 |                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_cpg_inputs``
+|             :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                 :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
 Read by ``cpg_settings``, ``ops_defaults``.
 
@@ -5992,6 +6028,36 @@ cpg_missing
 
 What to do when a site lacks a pinned channel or cycle. 'error' stops and names every missing file; 'skip_site' leaves those sites out and lists them in cpg_missing.csv. Default 'error'. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -6002,6 +6068,12 @@ What to do when a site lacks a pinned channel or cycle. 'error' stops and names 
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
 |                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_cpg_inputs``
+|             :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                 :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
 Read by ``cpg_settings``, ``ops_defaults``.
 
@@ -6012,6 +6084,36 @@ cpg_phenotype_channels
 
 The painting channel folders, in the order they are stacked into each site's phenotype array. The order is never taken from the folder listing. Default CorrDNA, CorrPhalloidin, CorrMito, CorrER, CorrWGA. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -6022,6 +6124,12 @@ The painting channel folders, in the order they are stacked into each site's phe
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
 |                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_cpg_inputs``
+|             :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                 :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
 Read by ``cpg_settings``, ``ops_defaults``.
 
@@ -6032,6 +6140,36 @@ cpg_root
 
 The images_corrected_cropped folder, or one <plate>_Well<N> folder inside it. The plate and well are taken from that folder name. Default None. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan` **-- reads it**
+|                 ``_describe_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_cpg_inputs`` **-- reads it**
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan` **-- reads it**
+|             ``_describe_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_cpg_inputs`` **-- reads it**
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -6042,8 +6180,14 @@ The images_corrected_cropped folder, or one <plate>_Well<N> folder inside it. Th
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
 |                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan` **-- reads it**
+|         ``_describe_cpg_inputs``
+|             :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                 :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``cpg_settings``, ``ops_defaults``.
+Read by ``cpg_settings``, ``ops_defaults``, ``_check_cpg_inputs``, ``describe_plan``.
 
 .. _setting-flow-cpg_sbs_bases:
 
@@ -6052,6 +6196,36 @@ cpg_sbs_bases
 
 The base of each sequencing plane per cycle, in the order they are stacked; the decode calls the brightest plane by this order. Default G, T, A, C, the order of ops_base_channels. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -6062,6 +6236,12 @@ The base of each sequencing plane per cycle, in the order they are stacked; the 
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
 |                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_cpg_inputs``
+|             :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                 :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
 Read by ``cpg_settings``, ``ops_defaults``.
 
@@ -6072,6 +6252,36 @@ cpg_sbs_cycles
 
 How many sequencing cycles each site holds; every site must have Cycle01 to this cycle for every base. Default 12. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -6082,6 +6292,12 @@ How many sequencing cycles each site holds; every site must have Cycle01 to this
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
 |                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_cpg_inputs``
+|             :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                 :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
 Read by ``cpg_settings``, ``ops_defaults``.
 
@@ -6092,6 +6308,36 @@ cpg_sbs_dapi
 
 The sequencing nuclear channel, read on cycle 1 only. Empty skips it. Default 'Cycle01_DAPI'. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -6102,6 +6348,12 @@ The sequencing nuclear channel, read on cycle 1 only. Empty skips it. Default 'C
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
 |                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_cpg_inputs``
+|             :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                 :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
 Read by ``cpg_settings``, ``ops_defaults``.
 
@@ -6112,6 +6364,36 @@ cpg_sbs_resample
 
 What to do when a site's sequencing grid differs from its painting grid. 'none' refuses, which keeps the pixels exactly as published; 'nearest' or 'linear' resizes the sequencing planes and records the factor. Default 'none'. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -6122,6 +6404,12 @@ What to do when a site's sequencing grid differs from its painting grid. 'none' 
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
 |                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_cpg_inputs``
+|             :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                 :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
 Read by ``cpg_settings``, ``ops_defaults``.
 
@@ -6132,6 +6420,36 @@ cpg_sites
 
 Which sites to read, as a list or a string such as '1-10,45'. Empty reads every site. Default None. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -6142,6 +6460,12 @@ Which sites to read, as a list or a string such as '1-10,45'. Empty reads every 
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
 |                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_cpg_inputs``
+|             :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                 :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
 Read by ``cpg_settings``, ``ops_defaults``.
 
@@ -6152,6 +6476,36 @@ cpg_wells
 
 Which wells of cpg_root to read, as Well1, W1 or CP186A_Well1. Empty reads every well folder. Default None. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_cpg_inputs``
+|                     :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                         :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_cpg_inputs``
+|                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -6162,6 +6516,12 @@ Which wells of cpg_root to read, as Well1, W1 or CP186A_Well1. Empty reads every
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.cpg_cropped.cpg_site_index`
 |                     :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_cpg_inputs``
+|             :py:func:`~spacr.cpg_cropped.cpg_site_index`
+|                 :py:func:`~spacr.cpg_cropped.cpg_settings` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
 Read by ``cpg_settings``, ``ops_defaults``.
 
@@ -24291,6 +24651,9 @@ ops_control_seed
 
 Seed of the shuffled-whitelist control. Another seed draws another shuffled whitelist, so the control's chance match rate moves a little while the real calls stay the same. Default 0. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -24533,6 +24896,9 @@ ops_cycle_mask
 
 Cycles, counted from 1, that are not read (for example a failed cycle). They are removed from both the reads and the library prefixes, so the key is that much shorter. Default []. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -26290,13 +26656,46 @@ ops_layout
 
 How the input folders are laid out. 'tiles' is the microscope's tile names, stitched and registered by the engine. 'cpg_cropped' reads the Cell Painting Gallery's images_corrected_cropped layout (one TIFF per channel and site, already corrected and aligned) from cpg_root: no stitching and no registration; run phases cpg_index, cpg_merged and prefix_decode. Default 'tiles'. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode`` **-- reads it**
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_is_cpg_layout`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_is_cpg_layout`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_is_cpg_layout`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_is_cpg_layout`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 |         ``_ops_admitted_run``
 |         ``_run_cpg`` **-- reads it**
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_is_cpg_layout`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_run_cpg``, ``run_ops``, ``ops_defaults``.
+Read by ``_effective_read_mode``, ``_run_cpg``, ``run_ops``, ``ops_defaults``, ``_is_cpg_layout``.
 
 .. _setting-flow-ops_library:
 
@@ -26305,6 +26704,9 @@ ops_library
 
 A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly, which measures decoding success. Empty still calls barcodes but cannot score them against a library. Default None.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
@@ -26326,6 +26728,9 @@ ops_library_gene_col
 
 The library column holding each guide's gene for the spacer-prefix decode. It names the gene of every call, and a prefix shared by guides of different genes in this column is never called. Default 'gene_symbol'. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -26358,6 +26763,9 @@ ops_library_sequence_col
 
 The library column holding each guide's spacer sequence for the spacer-prefix decode. Default 'sgRNA'. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27774,6 +28182,9 @@ ops_prefix_collision
 
 What to do with a prefix shared by several guides. Guides of different genes are never called. 'exclude' calls no shared prefix; 'gene_level' calls a prefix shared only by guides of one gene as that gene. Default 'exclude'. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27792,6 +28203,9 @@ ops_prefix_crosstalk
 
 Dye crosstalk compensation before the spacer-prefix calls. 'none' calls the median-normalised channels as they are (the published crops are already compensated); 'per_cycle' fits one unmixing per cycle, 'global' one over all cycles. Default 'none'. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27810,6 +28224,9 @@ ops_prefix_decoy_k
 
 How many decoy prefixes per library prefix the spacer-prefix decode matches together with the library: base-shuffled 12-mers at least two edits from every prefix. A read as close to a decoy as to a guide matches neither, and a cell whose top barcode is a decoy is counted, never genotyped, which gives each site, well and plate a decoy FDR (site_summary.csv, fdr\_<plate>_<well>.json). 4 is recommended; 0 matches no decoys. Default 4. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27831,6 +28248,9 @@ ops_prefix_decoy_seed
 
 Seed of the decoy prefixes (ops_prefix_decoy_k); the same seed draws the same decoys. Default 1. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27852,6 +28272,9 @@ ops_prefix_fdr_calibration
 
 How the spacer-prefix decode sets its FDR scale. 'none' uses ops_prefix_fdr_scale as entered. 'shuffle' also matches every read against three shuffled whitelists and raises the scale until the shuffle call rate is at most 1.5 times the FDR on the tuning sites, then tunes again at that scale. The scale and the shuffle call rate go into site_summary.csv and the FDR report. Needs ops_prefix_decoy_k above 0. Default 'none'. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27870,6 +28293,9 @@ ops_prefix_fdr_scale
 
 How much likelier a read is to land on a wrong guide than on a decoy prefix, which turns decoy calls into an FDR; values below 1 count as 1. No calibration exists for spacer-prefix libraries yet. Default 1. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27888,6 +28314,9 @@ ops_prefix_fdr_target_pct
 
 The highest decoy FDR, in %, that 'per_well_decoy' tuning may accept (1.0 means 1 %). Default 1.0. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27906,6 +28335,9 @@ ops_prefix_length
 
 How many cycles of the spacer are matched, from cycle 1. Shorter prefixes collide more often between guides; PERISCOPE used 10 for A549 and 12 for HeLa. Default 10. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27924,6 +28356,9 @@ ops_prefix_masks
 
 The cell labels each read is assigned by: a path with {plate}, {well}, {well_id}, {well_number} and {site} fields to a TIFF, .npy or .npz label image per site. Empty uses each site's merged/ labels when they exist. Default None. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode`` **-- reads it**
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27933,7 +28368,7 @@ The cell labels each read is assigned by: a path with {plate}, {well}, {well_id}
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 
-Read by ``prefix_settings``, ``ops_defaults``.
+Read by ``_effective_read_mode``, ``prefix_settings``, ``ops_defaults``.
 
 .. _setting-flow-ops_prefix_max_distance:
 
@@ -27942,6 +28377,9 @@ ops_prefix_max_distance
 
 The largest distance a read is corrected over; a read equally close to two prefixes is never assigned. 0 keeps exact matches only. Default 1. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27960,6 +28398,9 @@ ops_prefix_metric
 
 How a read that is not an exact prefix is corrected. 'hamming' counts differing cycles; 'levenshtein' also corrects one skipped or extra base, as CellProfiler's CallBarcodes does. Default 'hamming'. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27981,6 +28422,9 @@ ops_prefix_min_read_quality
 
 The weakest read the spacer-prefix decode calls cells from, as its worst cycle's margin between the two brightest bases. Weaker reads are dropped before the cell calls. 0 keeps every read. Default 0. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27999,6 +28443,9 @@ ops_prefix_nearmiss_decoy_k
 
 How many near-miss decoy prefixes per library prefix the spacer-prefix decode adds: prefixes one base from a library prefix and from no other key. Far decoys miss read errors that land one base from a guide; near-miss decoys catch them, and their calls are reported apart (cells_decoy_nearmiss and fdr_nearmiss_pct in site_summary.csv). Needs ops_prefix_decoy_k above 0. 0 adds none. Default 0. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -28017,6 +28464,9 @@ ops_prefix_quality_method
 
 How each cell's quality class is set from its matched reads. 'spacr' counts reads: perfect needs ops_quality_min_reads exact reads of one barcode, and a tie between barcodes is ambiguous. 'recipe_simple' uses the 'simple' rules of the Broad pooled Cell Painting recipe that PERISCOPE used: one barcode with only exact reads is perfect, one barcode with a corrected read is great, and several barcodes are imperfect or bad; ops_quality_min_reads is then not used. Default 'spacr'. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -28035,6 +28485,9 @@ ops_prefix_threshold_tuning
 
 How the spacer-prefix decode sets its thresholds. 'none' uses the values you enter. 'per_well_decoy' chooses them per well from decoy calls only: half of the well's sites try every combination of ops_prefix_tuning_grid (read threshold, read quality, mismatches), the combination ops_decode_auto_objective picks is used for the whole well, and the other half reports its FDR. Needs ops_prefix_decoy_k above 0. Writes threshold_tuning\_<plate>_<well>.csv, .png and .json and one log line per well. Default 'per_well_decoy'. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode`` **-- reads it**
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -28044,7 +28497,7 @@ How the spacer-prefix decode sets its thresholds. 'none' uses the values you ent
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 
-Read by ``prefix_settings``, ``ops_defaults``.
+Read by ``_effective_read_mode``, ``prefix_settings``, ``ops_defaults``.
 
 .. _setting-flow-ops_prefix_tuning_grid:
 
@@ -28053,6 +28506,9 @@ ops_prefix_tuning_grid
 
 The values 'per_well_decoy' tuning tries, as {'ops_read_threshold': [...], 'ops_prefix_min_read_quality': [...], 'ops_prefix_max_distance': [...]}; a threshold left out keeps its entered value. Empty uses read thresholds 40, 60, 80, 100, 130 and 160, read qualities 0, 0.05, 0.1, 0.15 and 0.25, and 1 or 0 mismatches. Default empty. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -28448,6 +28904,9 @@ ops_quality_min_reads
 
 Exact reads of one barcode a cell needs, with no read of another barcode, to be called perfect; fewer, or a minority competitor, makes it great. Default 2. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -28466,6 +28925,9 @@ ops_random_barcode_control
 
 Also match every read against a shuffled whitelist of the same size and base composition, the rate a random library would reach. Default True. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -28513,6 +28975,11 @@ ops_read_mode
 
 How each spot's barcode is read. 'log' reads the -LoG-filtered pixels (3 x 3 maximum) and calls bases after per-cycle median normalisation. 'raw' reads the unfiltered pixels (maximum within 3 px) and calls the brightest channel as read (PERISCOPE's read). 'auto' picks 'log' or 'raw' per well from decoy calls; it needs ops_decode_threshold_mode 'auto' or ops_prefix_threshold_tuning 'per_well_decoy'. Spots are found the same way in every mode. Empty: the spacer-prefix decode reads 'auto' while it tunes and 'log' otherwise; the OPS barcode decode reads 'log'. Default None. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         ``_prefix_read_mode`` **-- reads it**
+|             ``_read_mode_setting`` **-- reads it**
+|         ``_read_mode_setting`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -28532,6 +28999,9 @@ ops_read_threshold
 
 How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -28802,6 +29272,9 @@ ops_sbs_cycles
 
 How many sequencing cycles were imaged; the prefix may not be longer. Default 12. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
