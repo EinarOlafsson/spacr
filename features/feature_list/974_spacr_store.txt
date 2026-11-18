@@ -48,6 +48,11 @@ BUILD
     numpy ((metadata, float32 matrix)). Store.sql, Store.batches (Arrow
     record batches streamed; shuffle = random file order + row shuffle in a
     buffer, seeded), Store.verify, refresh, tables, close.
+- Narrow key table per part (tables/<class>__keys/...): every non-float
+  column, the crop pointer and the row locators (_part, _row_group,
+  _group_row); key-only and crop queries run on it alone, other selections
+  of <= 20,000 rows (or 2 %) read only their row groups and columns of the
+  wide part with pyarrow; crops are decoded chunk by chunk with numcodecs.
 - OPS (spacr/ops_engine.py): ops_storage (str, 'current' default,
   'spacr_store', alpha). With 'spacr_store', after ph_tables / ph_crops (or
   decode) run_ops writes per well: cells (the ph_tables keys and the cell,

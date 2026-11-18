@@ -45,6 +45,14 @@ Every query shape must be fast:
   - `crop_store`, the crop store's path relative to the project, null when the cell has no crop;
   - `crop_index`, the position in that store, null when the cell has no crop.
 
+**Narrow key table** (added 2026-11-18, after the first timing run showed point lookups and one-gene crop batches slower than SQLite + PNG)
+- Every part gets a sibling `tables/<class>__keys/plate=<P>/well=<W>/part-<N>.parquet` holding every non-float column (keys, gene, guide, metadata), the crop pointer, and the locators `_part`, `_row_group` and `_group_row` of each row in the wide part. It is registered in the same manifest and is hidden from `tables()`.
+- Routing in `query`:
+  - When `features` is a list of key columns (or empty), the query runs on the key table alone, so it never parses the 10,000-column footers. This covers `query(..., features=[], crops=True)`.
+  - Any other selection of at most 20,000 rows (or 2 % of the table) is located in the key table first. Then only its row groups of the wide parts are read with pyarrow, and only the projected columns.
+  - Everything else, including a filter on a float feature, runs on the wide view as before.
+- Crops are read straight from the Zarr v2 chunk files with numcodecs Zstd, in threads, with zarr as the fallback.
+
 **Crops**
 - One Zarr store per plate and well, holding one array `crops` of shape (n, C, H, W) in the source dtype. Chunks are (256, C, H, W), compressed with zstd level 3.
 - Zarr format 2 is written through either zarr 2 or zarr 3 (`setup.py` already allows `zarr>=2.16,<4` and numcodecs on Python 3.10+). Both libraries read it.

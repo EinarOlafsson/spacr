@@ -49,6 +49,11 @@ _CROP_CHUNK = 256
 _POINTER = ("crop_store", "crop_index")
 _PARTITION = ("plate", "well")
 _PENDING = "_pending"
+_KEYS = "__keys"
+_LOCATORS = ("_part", "_row_group", "_group_row")
+
+#: The most rows a selection may hold to be read row group by row group.
+_LOOKUP_ROWS = 20_000
 _LEGACY_NAMES = ("measurements.db", os.path.join("measurements",
                                                  "measurements.db"))
 
@@ -324,15 +329,18 @@ def write_part(project, table: str, frame, *, plate, well,
     temporary = f"{final}.tmp-{uid}"
     floats = [f.name for f in data.schema if pa.types.is_floating(f.type)]
     others = [n for n in data.column_names if n not in set(floats)]
+    group_rows = _row_group_rows(data.schema, row_group_rows)
     pq.write_table(data, temporary, compression="zstd",
-                   row_group_size=_row_group_rows(data.schema, row_group_rows),
+                   row_group_size=group_rows,
                    write_statistics=True, use_dictionary=others or False,
                    use_byte_stream_split=floats or False)
     _fsync(temporary)
     os.replace(temporary, final)
-    files.insert(0, {"path": os.path.relpath(final, project).replace(
-        os.sep, "/"), "kind": "parquet", "rows": int(data.num_rows),
-        **_fingerprint(final)})
+    rel = os.path.relpath(final, project).replace(os.sep, "/")
+    files.insert(0, {"path": rel, "kind": "parquet",
+                     "rows": int(data.num_rows), **_fingerprint(final)})
+    files.insert(1, _write_keys(project, table, data, rel, group_rows,
+                                key_columns, plate, well, uid))
     manifest = {"uuid": uid, "table": table, "plate": str(plate),
                 "well": str(well), "sort_by": list(sort_by),
                 "key_columns": list(key_columns), "files": files,
@@ -347,6 +355,47 @@ def write_part(project, table: str, frame, *, plate, well,
         os.fsync(handle.fileno())
     os.replace(f"{path}.tmp", path)
     return manifest
+
+
+def _keys_name(table: str) -> str:
+    """The name of ``table``'s narrow key table."""
+    return f"{table}{_KEYS}"
+
+
+def _write_keys(project: str, table: str, data, part: str, group_rows: int,
+                key_columns: Sequence[str], plate, well, uid: str):
+    """Write the narrow key table of one part; returns its manifest entry.
+
+    It holds every column that is not a float feature (and every key
+    column), the crop pointer and, per row, where the row sits in the full
+    part: ``_part``, ``_row_group`` and ``_group_row``. Key-only queries,
+    crop batches and point lookups read it instead of the wide part.
+    """
+    pa = _require("pyarrow")
+    pq = _require("pyarrow.parquet")
+    keep = set(key_columns) | set(_POINTER) | set(_PARTITION)
+    names = [f.name for f in data.schema if f.name in keep
+             or not pa.types.is_floating(f.type)]
+    rows = np.arange(data.num_rows, dtype=np.int64)
+    keys = data.select(names)
+    keys = keys.append_column("_part", pa.array([part] * data.num_rows,
+                                                pa.string()))
+    keys = keys.append_column("_row_group", pa.array(rows // group_rows,
+                                                     pa.int32()))
+    keys = keys.append_column("_group_row", pa.array(rows % group_rows,
+                                                     pa.int32()))
+    folder = os.path.join(project, "tables", _keys_name(table),
+                          f"plate={_encoded(plate)}", f"well={_encoded(well)}")
+    os.makedirs(folder, exist_ok=True)
+    final = os.path.join(folder, os.path.basename(part))
+    temporary = f"{final}.tmp-{uid}"
+    pq.write_table(keys, temporary, compression="zstd",
+                   row_group_size=_ROW_GROUP_ROWS, write_statistics=True)
+    _fsync(temporary)
+    os.replace(temporary, final)
+    return {"path": os.path.relpath(final, project).replace(os.sep, "/"),
+            "kind": "parquet", "table": _keys_name(table),
+            "rows": int(keys.num_rows), **_fingerprint(final)}
 
 
 _REGISTRY_DDL = (
@@ -437,7 +486,8 @@ def register(project, *, run: Optional[Mapping[str, Any]] = None,
                                                        entry["path"])))
         manifests.append((path, manifest))
     superseded: List[str] = []
-    tables = sorted({m["table"] for _p, m in manifests})
+    tables = sorted({e.get("table", m["table"]) for _p, m in manifests
+                     for e in m["files"]} | {m["table"] for _p, m in manifests})
     conn = _connect(os.path.join(project, CATALOG))
     try:
         conn.execute("BEGIN TRANSACTION")
@@ -460,22 +510,24 @@ def register(project, *, run: Optional[Mapping[str, Any]] = None,
                 [manifest["table"], json.dumps(manifest["sort_by"]),
                  json.dumps(manifest["key_columns"]), _now()])
             new = {entry["path"] for entry in manifest["files"]}
-            for (old,) in conn.execute(
-                    "SELECT path FROM spacr_files WHERE table_name = ? AND "
-                    "plate = ? AND well = ?",
-                    [manifest["table"], manifest["plate"],
-                     manifest["well"]]).fetchall():
-                if old not in new:
-                    superseded.append(old)
-            conn.execute("DELETE FROM spacr_files WHERE table_name = ? AND "
-                         "plate = ? AND well = ?",
-                         [manifest["table"], manifest["plate"],
-                          manifest["well"]])
+            names = sorted({manifest["table"], _keys_name(manifest["table"])})
+            for name in names:
+                for (old,) in conn.execute(
+                        "SELECT path FROM spacr_files WHERE table_name = ? "
+                        "AND plate = ? AND well = ?",
+                        [name, manifest["plate"],
+                         manifest["well"]]).fetchall():
+                    if old not in new:
+                        superseded.append(old)
+                conn.execute("DELETE FROM spacr_files WHERE table_name = ? "
+                             "AND plate = ? AND well = ?",
+                             [name, manifest["plate"], manifest["well"]])
             for entry in manifest["files"]:
                 conn.execute(
                     "INSERT OR REPLACE INTO spacr_files VALUES "
                     "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    [entry["path"], manifest["table"], entry["kind"],
+                    [entry["path"], entry.get("table", manifest["table"]),
+                     entry["kind"],
                      manifest["plate"], manifest["well"], entry["rows"],
                      manifest["schema_version"], entry["sha256"],
                      entry["bytes"], entry["mtime_ns"],
@@ -584,6 +636,9 @@ class Store:
         self._files: List[Dict[str, Any]] = []
         self._tables: Dict[str, Dict[str, Any]] = {}
         self._arrays: Dict[str, Any] = {}
+        self._views: List[str] = []
+        self._described: Dict[str, List[str]] = {}
+        self._parts: Dict[str, Any] = {}
         self.legacy: Optional[str] = None
         self.refresh(verify=verify)
 
@@ -617,7 +672,11 @@ class Store:
             source.close()
         if verify != "none":
             self.verify(full=verify == "full")
-        for name in self._tables:
+        self._views = sorted({f["table_name"] for f in self._files
+                              if f["kind"] == "parquet"})
+        self._described = {}
+        self._parts = {}
+        for name in self._views:
             paths = [os.path.join(self.project, f["path"]) for f in self._files
                      if f["table_name"] == name and f["kind"] == "parquet"]
             if paths:
@@ -691,12 +750,108 @@ class Store:
         return len(self._files)
 
     def _columns(self, table: str) -> List[str]:
-        """The columns of ``table``."""
-        return [row[0] for row in self._conn.execute(
-            f"DESCRIBE SELECT * FROM {_ident(table)}").fetchall()]
+        """The columns of ``table``, read once."""
+        if table not in self._described:
+            self._described[table] = [row[0] for row in self._conn.execute(
+                f"DESCRIBE SELECT * FROM {_ident(table)}").fetchall()]
+        return self._described[table]
 
-    def _select(self, where, table: str, features) -> tuple:
-        """The SQL and parameters of one :meth:`query`."""
+    def _wanted(self, table: str, source: str, features) -> List[str]:
+        """The key columns, the crop pointer and ``features``, as present."""
+        present = self._columns(source)
+        keys = list(self._tables[table].get("key_columns") or [])
+        wanted = [c for c in keys + ["plate", "well", "cell_id", *_POINTER]
+                  if c in present]
+        missing = [f for f in features if f not in present]
+        if missing:
+            raise StoreError(f"{table} has no column {missing[:5]}")
+        return wanted + [f for f in features if f not in wanted]
+
+    def _routed(self, where, table: str, features):
+        """A query answered from the narrow key table, or None.
+
+        Key-only selections (``features`` a list of key columns, or empty)
+        are read from the key table alone. Other selections of at most
+        :data:`_LOOKUP_ROWS` rows (or 2 % of the table) are located there
+        and only their row groups of the wide parts are read. Anything else,
+        or a filter on a column the key table lacks, returns None and runs
+        on the wide view.
+        """
+        keys = _keys_name(table)
+        if (self.legacy or keys not in self._views or table not in self._tables
+                or (isinstance(where, str) and where.lstrip().lower(
+                ).startswith(("select", "with")))):
+            return None
+        duckdb = _require("duckdb")
+        key_columns = set(self._columns(keys)) - set(_LOCATORS)
+        if features is not None and set(features) <= key_columns:
+            sql, params = self._select(where, table, features, source=keys)
+            try:
+                return _arrow_of(self._conn, sql, params)
+            except duckdb.Error:
+                return None
+        sql, params = self._select(where, table, list(_LOCATORS), source=keys)
+        sql = sql.replace("SELECT ", "SELECT " + ", ".join(
+            _ident(c) for c in _LOCATORS) + " FROM (SELECT ", 1) + ")"
+        total = sum(int(f["rows"]) for f in self._files
+                    if f["table_name"] == keys)
+        limit = max(_LOOKUP_ROWS, int(total * 0.02))
+        try:
+            located = _arrow_of(self._conn, sql + f" LIMIT {limit + 1}", params)
+        except duckdb.Error:
+            return None
+        if located.num_rows > limit:
+            return None
+        columns = (self._columns(table) if features is None
+                   else self._wanted(table, table, features))
+        if not located.num_rows:
+            return _arrow_of(self._conn, "SELECT " + ", ".join(
+                _ident(c) for c in columns) + f" FROM {_ident(table)} LIMIT 0")
+        return self._read_located(located, columns)
+
+    def _part(self, rel: str):
+        """A Parquet file of the store, opened once."""
+        if rel not in self._parts:
+            pq = _require("pyarrow.parquet")
+            self._parts[rel] = pq.ParquetFile(os.path.join(self.project, rel))
+        return self._parts[rel]
+
+    def _read_located(self, located, columns: List[str]):
+        """The located rows, reading only their row groups and ``columns``."""
+        pa = _require("pyarrow")
+        parts = located.column("_part").to_pylist()
+        groups = located.column("_row_group").to_numpy()
+        rows = located.column("_group_row").to_numpy()
+        pieces, positions = [], []
+        for rel in sorted(set(parts)):
+            mine = np.flatnonzero(np.asarray(parts, dtype=object) == rel)
+            handle = self._part(rel)
+            names = set(handle.schema_arrow.names)
+            chosen = [c for c in columns if c in names]
+            taken, where = [], []
+            for group in sorted(set(int(g) for g in groups[mine])):
+                hit = mine[groups[mine] == group]
+                read = handle.read_row_group(group, columns=chosen,
+                                             use_threads=True)
+                taken.append(read.take(pa.array(rows[hit].astype(np.int64))))
+                where.append(hit)
+            mine = np.concatenate(where)
+            piece = pa.concat_tables(taken)
+            for name in columns:
+                if name not in piece.column_names:
+                    piece = piece.append_column(name, pa.nulls(piece.num_rows))
+            pieces.append(piece.select(columns))
+            positions.append(mine)
+        try:
+            whole = pa.concat_tables(pieces, promote_options="default")
+        except TypeError:
+            whole = pa.concat_tables(pieces, promote=True)
+        order = np.argsort(np.concatenate(positions), kind="stable")
+        return whole.take(pa.array(order))
+
+    def _select(self, where, table: str, features,
+                source: Optional[str] = None) -> tuple:
+        """The SQL and parameters of one :meth:`query`, run on ``source``."""
         if isinstance(where, str) and where.lstrip().lower().startswith(
                 ("select", "with")):
             if features is not None:
@@ -706,18 +861,12 @@ class Store:
         if table not in self._tables:
             raise StoreError(f"no table {table!r}; this store holds "
                              f"{self.tables()}")
+        source = source or table
         columns = "*"
         if features is not None:
-            present = self._columns(table)
-            keys = list(self._tables[table].get("key_columns") or [])
-            wanted = [c for c in keys + ["plate", "well", "cell_id",
-                                         *_POINTER] if c in present]
-            missing = [f for f in features if f not in present]
-            if missing:
-                raise StoreError(f"{table} has no column {missing[:5]}")
-            wanted += [f for f in features if f not in wanted]
-            columns = ", ".join(_ident(c) for c in wanted)
-        sql = f"SELECT {columns} FROM {_ident(table)}"
+            columns = ", ".join(_ident(c) for c in self._wanted(
+                table, source, features))
+        sql = f"SELECT {columns} FROM {_ident(source)}"
         params: List[Any] = []
         if isinstance(where, Mapping):
             clauses = []
@@ -753,8 +902,10 @@ class Store:
             giving ``(metadata DataFrame, float32 feature matrix)``.
         :returns: the result, or ``(result, crops)`` when ``crops``.
         """
-        sql, params = self._select(where, table, features)
-        result = _arrow_of(self._conn, sql, params)
+        result = self._routed(where, table, features)
+        if result is None:
+            sql, params = self._select(where, table, features)
+            result = _arrow_of(self._conn, sql, params)
         return self._shaped(result, table, features, crops, as_)
 
     def sql(self, statement: str, params=None, *, as_: str = "pandas"):
@@ -872,9 +1023,9 @@ class Store:
     def _array(self, rel: str):
         """The Zarr crop array of one registered store, opened once."""
         if rel not in self._arrays:
-            zarr = _require("zarr")
-            self._arrays[rel] = zarr.open_array(
-                os.path.join(self.project, rel, "crops"), mode="r")
+            path = os.path.join(self.project, rel, "crops")
+            self._arrays[rel] = (_ChunkReader.open(path, self.threads)
+                                 or _require("zarr").open_array(path, mode="r"))
         return self._arrays[rel]
 
     def _crops_for(self, result) -> np.ndarray:
@@ -924,6 +1075,69 @@ def _table_of(batches):
     """One Arrow table from record batches."""
     pa = _require("pyarrow")
     return pa.Table.from_batches(batches)
+
+
+class _ChunkReader:
+    """A Zarr format 2 array read chunk by chunk with numcodecs, in threads.
+
+    Used for the stores :func:`write_part` writes (zstd, no filters, C
+    order); zarr's own reader is used for anything else.
+    """
+
+    def __init__(self, path, meta, threads):
+        """Hold the array's metadata."""
+        self.path = path
+        self.shape = tuple(meta["shape"])
+        self.chunks = tuple(meta["chunks"])
+        self.dtype = np.dtype(meta["dtype"])
+        self.fill = meta.get("fill_value") or 0
+        self.separator = meta.get("dimension_separator") or "."
+        self.threads = max(1, int(threads or 4))
+        self.codec = _require("numcodecs").Zstd()
+
+    @classmethod
+    def open(cls, path, threads):
+        """The reader of ``path``, or None when the array is not plain zstd."""
+        try:
+            with builtins.open(os.path.join(path, ".zarray"),
+                               encoding="utf-8") as handle:
+                meta = json.load(handle)
+        except (OSError, ValueError):
+            return None
+        compressor = meta.get("compressor") or {}
+        if (meta.get("zarr_format") != 2 or meta.get("filters")
+                or meta.get("order", "C") != "C"
+                or compressor.get("id") != "zstd"
+                or any(c != s for c, s in zip(meta["chunks"][1:],
+                                              meta["shape"][1:]))):
+            return None
+        return cls(path, meta, threads)
+
+    def _chunk(self, number: int) -> np.ndarray:
+        """One decoded chunk."""
+        name = self.separator.join([str(number)] + ["0"] * (len(self.shape) - 1))
+        try:
+            with builtins.open(os.path.join(self.path, name), "rb") as handle:
+                raw = handle.read()
+        except FileNotFoundError:
+            return np.full(self.chunks, self.fill, dtype=self.dtype)
+        return np.frombuffer(self.codec.decode(raw),
+                             dtype=self.dtype).reshape(self.chunks)
+
+    def __getitem__(self, span: slice) -> np.ndarray:
+        """Rows ``span.start`` to ``span.stop``."""
+        from concurrent.futures import ThreadPoolExecutor
+
+        size = self.chunks[0]
+        first, last = span.start // size, (span.stop - 1) // size
+        numbers = list(range(first, last + 1))
+        if len(numbers) > 1:
+            with ThreadPoolExecutor(min(self.threads, len(numbers))) as pool:
+                blocks = list(pool.map(self._chunk, numbers))
+        else:
+            blocks = [self._chunk(numbers[0])]
+        whole = np.concatenate(blocks) if len(blocks) > 1 else blocks[0]
+        return whole[span.start - first * size:span.stop - first * size]
 
 
 def _read_rows(array, indices: np.ndarray) -> np.ndarray:

@@ -122,6 +122,44 @@ def test_batches_cover_every_row_once_and_shuffle_reproducibly(tmp_path):
         assert sum(first, []) != ids.tolist()
 
 
+def test_key_table_routes_answer_as_the_wide_table_does(tmp_path):
+    _write(tmp_path)
+    with store.open(tmp_path, threads=2) as opened:
+        wide = opened._select({"gene": "g2"}, "cells", [])
+        direct = store._arrow_of(opened._conn, *wide).to_pandas()
+        routed = opened._routed({"gene": "g2"}, "cells", [])
+        assert routed is not None and "_part" not in routed.column_names
+        pd.testing.assert_frame_equal(
+            routed.to_pandas().sort_values("cell_id").reset_index(drop=True),
+            direct.sort_values("cell_id").reset_index(drop=True))
+        ids = [10_005, 10_250, 20_017, 20_299, 10_003]
+        sql, params = opened._select({"cell_id": ids}, "cells", None)
+        expected = store._arrow_of(opened._conn, sql, params).to_pandas()
+        located = opened._routed({"cell_id": ids}, "cells", None)
+        assert located is not None and located.num_rows == 5
+        pd.testing.assert_frame_equal(
+            located.to_pandas().sort_values("cell_id").reset_index(drop=True),
+            expected.sort_values("cell_id").reset_index(drop=True),
+            check_dtype=False)
+        projected = opened.query({"cell_id": ids}, features=["f1", "f7"])
+        projected = projected.set_index("cell_id").loc[expected["cell_id"]]
+        assert np.array_equal(projected["f7"].to_numpy(),
+                              expected["f7"].to_numpy(), equal_nan=True)
+        assert opened._routed("f3 > 0", "cells", []) is None
+        assert len(opened.query({"cell_id": [1]})) == 0
+        assert opened.tables() == ["cells"]
+        frame, stack = opened.query({"well": "B2"}, features=[], crops=True)
+        reader = opened._array(frame["crop_store"].dropna().iloc[0])
+        assert isinstance(reader, store._ChunkReader)
+    import zarr
+
+    rel = frame["crop_store"].dropna().iloc[0]
+    reference = zarr.open_array(str(tmp_path / rel / "crops"), mode="r")
+    index = frame["crop_index"].dropna().astype(int).to_numpy()
+    assert np.array_equal(stack[frame["crop_index"].notna().to_numpy()],
+                          np.asarray(reference)[index])
+
+
 def test_a_rewritten_well_replaces_its_files(tmp_path):
     _write(tmp_path)
     old = sorted((tmp_path / "tables" / "cells").rglob("*.parquet"))
@@ -129,7 +167,7 @@ def test_a_rewritten_well_replaces_its_files(tmp_path):
     store.write_part(tmp_path, "cells", frame, plate="pl/1", well="A1",
                      crops=_crops(10), key_columns=("prcfo",))
     report = store.register(tmp_path)
-    assert report["superseded"] == 2
+    assert report["superseded"] == 3
     with store.open(tmp_path) as opened:
         assert len(opened.query({"well": "A1"})) == 10
     now = sorted((tmp_path / "tables" / "cells").rglob("*.parquet"))
