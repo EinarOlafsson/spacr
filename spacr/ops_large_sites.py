@@ -1204,7 +1204,10 @@ def _band_flow_errors(masks: np.ndarray, flows: np.ndarray,
     error equals the whole-image flow check's up to PyTorch's summation
     order (measured: at most one unit in the last place, 1.2e-16 relative),
     which changes a label only for a mask whose error lies that close to the
-    0.4 threshold.
+    0.4 threshold. Cellpose before 4.1 returns the flows alone from
+    ``masks_to_flows_gpu`` and averages each flow plane over a mask with
+    :func:`scipy.ndimage.mean`; the band follows whichever the installed
+    Cellpose does, so it still equals that version's whole-image check.
     """
     from cellpose.dynamics import masks_to_flows_gpu
 
@@ -1215,7 +1218,14 @@ def _band_flow_errors(masks: np.ndarray, flows: np.ndarray,
     lut[held] = np.arange(1, len(held) + 1, dtype=np.int32)
     part = np.zeros((max(y1 - y0, int(rows)), masks.shape[1]), np.int32)
     part[:y1 - y0] = lut[masks[y0:y1]]
-    flow, slices = masks_to_flows_gpu(part, device=device, niter=int(niter))
+    found = masks_to_flows_gpu(part, device=device, niter=int(niter))
+    if not isinstance(found, tuple):
+        from scipy import ndimage
+
+        inside = part[:y1 - y0]
+        return sum(ndimage.mean((found[i, :y1 - y0] - flows[i, y0:y1] / 5.) ** 2, inside,
+                                index=lut[labels]) for i in range(found.shape[0]))
+    flow, slices = found
     error = ((flow[:, :y1 - y0] - flows[:, y0:y1] / 5.) ** 2).sum(axis=0)
     return np.array([error[slices[j - 1][0], slices[j - 1][1]][
         part[slices[j - 1][0], slices[j - 1][1]] == j].mean() for j in lut[labels]])
