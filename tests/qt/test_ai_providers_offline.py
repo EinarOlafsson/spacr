@@ -349,7 +349,7 @@ def test_claude_argv_uses_speed_model_and_appends_system(monkeypatch, speed):
     assert "why did masks fail" in argv[2]
     assert "System:\nbe terse" in argv[2]
     assert argv[3:5] == ["--append-system-prompt", "be terse"]
-    assert argv[5:] == ["--model", "opus", "--output-format", "json"]
+    assert argv[5:] == ["--model", "opus", "--tools", "", "--strict-mcp-config", "--output-format", "json"]
 
 
 def test_claude_argv_explicit_model_beats_speed_setting(monkeypatch, speed):
@@ -363,7 +363,7 @@ def test_claude_argv_explicit_model_beats_speed_setting(monkeypatch, speed):
     assert list(p.stream_chat([{"role": "user", "content": "q"}],
                                model="sonnet")) == []
     assert rec["argv"] == ["claude", "-p", "User:\nq", "--model", "sonnet",
-                           "--output-format", "json"]
+                           "--tools", "", "--strict-mcp-config", "--output-format", "json"]
     assert "haiku" not in rec["argv"]
     assert "--append-system-prompt" not in rec["argv"]   # no system given
 
@@ -379,13 +379,13 @@ def test_claude_empty_rules_resume_does_not_allow_tools(monkeypatch):
     assert list(provider.stream_chat(messages, model="sonnet")) == []
     assert rec["argv"] == [
         "claude", "-p", "continue", "--resume", "session-1",
-        "--model", "sonnet", "--output-format", "json",
+        "--model", "sonnet", "--tools", "", "--strict-mcp-config", "--output-format", "json",
     ]
 
     assert list(provider.stream_chat(messages, model="sonnet")) == []
     assert rec["argv"] == [
         "claude", "-p", "User:\ncontinue", "--model", "sonnet",
-        "--output-format", "json",
+        "--tools", "", "--strict-mcp-config", "--output-format", "json",
     ]
 
 
@@ -573,7 +573,7 @@ def test_claude_shim_folds_the_system_prompt_into_stdin(monkeypatch):
     list(provider.stream_chat([{"role": "user", "content": "q"}],
                               system="be terse", model="sonnet"))
     assert rec["argv"] == ["C:\\npm\\claude.cmd", "-p", "--model", "sonnet",
-                           "--output-format", "json"]
+                           "--tools", "", "--strict-mcp-config", "--output-format", "json"]
     assert stdin.written == ["System:\nbe terse\n\nUser:\nq"]
 
     provider.allow_once([{"tool_name": "Read"}], "session-1")
@@ -582,7 +582,7 @@ def test_claude_shim_folds_the_system_prompt_into_stdin(monkeypatch):
                               system="be terse", model="sonnet"))
     assert rec["argv"] == ["C:\\npm\\claude.cmd", "-p", "--resume",
                            "session-1", "--allowedTools", "Read", "--model",
-                           "sonnet", "--output-format", "json"]
+                           "sonnet", "--tools", "", "--strict-mcp-config", "--output-format", "json"]
     assert stdin.written == ["System:\nbe terse\n\nUser:\ngo on"]
 
 
@@ -969,3 +969,20 @@ def test_background_path_warming_skips_non_cli_providers(monkeypatch):
     monkeypatch.setattr(providers, '_found_on_path', calls.append)
     providers._warm_path_lookups()
     assert calls == ['vendor']
+
+
+def test_every_claude_call_runs_without_tools(monkeypatch):
+    """2026-11-18 maintainer decision: spaCR AI calls are text only (no tools, no MCP servers)."""
+    from spacr.qt.ai.providers import NO_TOOLS_ARGS, ClaudeCliProvider
+
+    assert NO_TOOLS_ARGS == ("--tools", "", "--strict-mcp-config")
+    proc = _FakeProc([])
+    rec = _install_fake_popen(monkeypatch, proc)
+    provider = ClaudeCliProvider()
+    list(provider.stream_chat([{"role": "user", "content": "q"}], system="s", model="sonnet"))
+    argv = rec["argv"]
+    assert argv[argv.index("--tools") + 1] == "" and "--strict-mcp-config" in argv
+    provider.allow_once([{"tool_name": "Read"}], "session-1")
+    list(provider.stream_chat([{"role": "user", "content": "go on"}], model="sonnet"))
+    argv = rec["argv"]
+    assert "--resume" in argv and argv[argv.index("--tools") + 1] == "" and "--strict-mcp-config" in argv

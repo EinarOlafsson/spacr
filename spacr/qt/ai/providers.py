@@ -746,6 +746,12 @@ def _provider_arguments(provider):
     return settings.provider_args(provider.name)
 
 
+#: The ``claude -p`` arguments that leave the model no tools: ``--tools ""``
+#: disables every built-in tool and ``--strict-mcp-config`` (with no
+#: ``--mcp-config``) loads no MCP server, so every spaCR AI call is text only.
+NO_TOOLS_ARGS: Tuple[str, ...] = ("--tools", "", "--strict-mcp-config")
+
+
 class ClaudeCliProvider(ChatProvider):
     """Anthropic Claude via the ``claude`` (Claude Code) CLI."""
 
@@ -760,6 +766,10 @@ class ClaudeCliProvider(ChatProvider):
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
         """Stream a chat completion from the ``claude`` CLI.
+
+        Every call runs with :data:`NO_TOOLS_ARGS`: the model gets no tools
+        (no shell, file, web or MCP tools), so the reply is text only and a
+        resumed session's approved tools stay unavailable.
 
         :param messages: conversation history as ``{role, content}`` dicts.
         :param system: optional system prompt appended via
@@ -792,7 +802,7 @@ class ClaudeCliProvider(ChatProvider):
             argv += ["--model", model]
         else:
             argv += _provider_arguments(self)
-        argv += ["--output-format", "json"]
+        argv += [*NO_TOOLS_ARGS, "--output-format", "json"]
         yield from self._read_result(
             _stream_process(argv, stdin_text=stdin_text, provider=self))
 
