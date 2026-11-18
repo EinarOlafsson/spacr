@@ -1160,6 +1160,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'object_qc_measures',
     'object_size',
     'object_type',
+    'objects',
     'occlusion_stride',
     'occlusion_window',
     'offset_start',
