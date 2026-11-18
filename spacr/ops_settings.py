@@ -956,7 +956,7 @@ OPS_TYPES: Dict[str, object] = {
 OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS input": [
         "dst_root", "genotype_source", "phenotype_source", "ops_library",
-        "ops_phases", "ops_layout", "cpg_root", "cpg_wells", "cpg_sites",
+        "ops_layout", "ops_phases", "cpg_root", "cpg_wells", "cpg_sites",
         "cpg_phenotype_channels", "cpg_sbs_cycles", "cpg_sbs_bases",
         "cpg_sbs_dapi", "cpg_sbs_resample", "cpg_missing", "cpg_md5",
     ],
