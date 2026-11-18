@@ -3474,17 +3474,6 @@ Expected nucleus diameter in pixels for the segmentation of each stitched well. 
 
 Read by ``_objects``, ``ops_defaults``.
 
-.. _setting-flow-cellpose_model:
-
-cellpose_model
---------------
-
-Which Cellpose model segments the nuclei of each stitched well. 'cpsam' runs the default model of the installed Cellpose; any other name is loaded as that model. Changing it changes which objects are found, and so which nuclei the reads are attributed to. Default 'cpsam'.
-
-| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
-
-Read by ``_objects_window_basis``, ``ops_defaults``.
-
 .. _setting-flow-cellpose_nucleus_channel:
 
 cellpose_nucleus_channel
@@ -8717,8 +8706,9 @@ dst_root
 Where measurements.db and each well's ops_report.json are written. Empty writes them into the source folder, which mixes outputs with inputs. Default None.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_build_ops_power`` **-- reads it**
 
-Read by :py:func:`~spacr.cpg_cropped.run_cpg_phases`, :py:func:`~spacr.ops_clusters.run_mitocarta_benchmark`, :py:func:`~spacr.ops_decode.run_compare_masks`, ``_ops_admitted_run``, :py:func:`~spacr.ops_engine.run_ops`, ``_nuclear_folder``, :py:func:`~spacr.ops_flatfield.nucleus_table`, :py:func:`~spacr.ops_flatfield.run_flat_phases`, ``_profile_folder``, ``_run_fdr_sweep_phase``, :py:func:`~spacr.ops_prefix.run_prefix_decode`, :py:func:`~spacr.ops_scoring.score_ops_profiles`, ``ops_defaults``, ``_profile_state``, :py:func:`~spacr.ops_tvn.run_profile_phases`.
+Read by :py:func:`~spacr.cpg_cropped.run_cpg_phases`, :py:func:`~spacr.ops_clusters.run_mitocarta_benchmark`, :py:func:`~spacr.ops_decode.run_compare_masks`, ``_ops_admitted_run``, :py:func:`~spacr.ops_engine.run_ops`, ``_nuclear_folder``, :py:func:`~spacr.ops_flatfield.nucleus_table`, :py:func:`~spacr.ops_flatfield.run_flat_phases`, ``_profile_folder``, ``_run_fdr_sweep_phase``, :py:func:`~spacr.ops_prefix.run_prefix_decode`, :py:func:`~spacr.ops_scoring.score_ops_profiles`, ``ops_defaults``, ``_profile_state``, :py:func:`~spacr.ops_tvn.run_profile_phases`, ``_build_ops_power``.
 
 .. _setting-flow-early_exaggeration:
 
@@ -19661,11 +19651,22 @@ Read by ``_perform_regression``.
 model_metadata
 --------------
 
+| ``_finalize_role``
+|     ``_settings_after_role``
+|         :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
+|             ``_fold_renamed_settings``
+|                 ``_fold_renamed_model_record`` **-- reads it**
+|                 ``list(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
 | ``_in_its_own_era``
 |     ``_under_todays_names`` **-- reads it**
 |         ``_validate_model_metadata``
 |             ``_validate_model_metadata_structure`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
 |         ``set(...)  [UNRESOLVED]``
 | :py:func:`~spacr.cli.apply_overrides`
 |     ``_validate_model_metadata``
@@ -19673,13 +19674,33 @@ model_metadata
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.cli.cmd_run` **-- reads it**
+| :py:func:`~spacr.core.generate_image_umap`
+|     :py:func:`~spacr.settings.set_default_umap_image_settings`
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.io.preprocess_img_data`
+|             ``_preprocess_mapped_volume_series``
+|                 :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
+|                     ``_fold_renamed_settings``
+|                         ``_fold_renamed_model_record`` **-- reads it**
+|                         ``list(...)  [UNRESOLVED]``
+|                         ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|                 ``_watch_map_manifest(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
 |             ``_pinned_object_model``
 |                 ``_resolve_pinned_model_file``
 |                     ``_validate_model_metadata``
 |                         ``_validate_model_metadata_structure`` **-- reads it**
+|             :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
+|                 ``_fold_renamed_settings``
+|                     ``_fold_renamed_model_record`` **-- reads it**
+|                     ``list(...)  [UNRESOLVED]``
+|                     ``isinstance(...)  [UNRESOLVED]``
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_pinned_object_model``
@@ -19691,6 +19712,11 @@ model_metadata
 |                 ``_validate_model_metadata``
 |                     ``_validate_model_metadata_structure`` **-- reads it**
 |                         ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
+|             ``_fold_renamed_settings``
+|                 ``_fold_renamed_model_record`` **-- reads it**
+|                 ``list(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.utils.save_settings`
 |             ``_validate_model_metadata``
 |                 ``_validate_model_metadata_structure`` **-- reads it**
@@ -19706,6 +19732,18 @@ model_metadata
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
+|     :py:func:`~spacr.settings.get_timelapse_settings`
+|         :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
+|             ``_fold_renamed_settings``
+|                 ``_fold_renamed_model_record`` **-- reads it**
+|                 ``list(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
+| :py:func:`~spacr.core.reducer_hyperparameter_search`
+|     :py:func:`~spacr.settings.set_default_umap_image_settings`
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.deep_spacr.deep_spacr` **-- reads it**
 |     ``_classifier_model_input``
 |         ``_resolve_pinned_model_file``
@@ -19792,6 +19830,11 @@ model_metadata
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.settings.get_measure_crop_settings`
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
 |     :py:func:`~spacr.utils.save_settings`
 |         ``_validate_model_metadata``
 |             ``_validate_model_metadata_structure`` **-- reads it**
@@ -19810,6 +19853,11 @@ model_metadata
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ml.generate_ml_scores`
+|     :py:func:`~spacr.settings.set_default_analyze_screen`
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
 |     :py:func:`~spacr.utils.save_settings`
 |         ``_validate_model_metadata``
 |             ``_validate_model_metadata_structure`` **-- reads it**
@@ -19831,12 +19879,22 @@ model_metadata
 |             ``_validate_model_metadata``
 |                 ``_validate_model_metadata_structure`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|     :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_engine.run_spatial_masks`
 |     ``_resolve_pinned_model_file``
 |         ``_validate_model_metadata``
 |             ``_validate_model_metadata_structure`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_settings.ops_defaults`
+|     ``_fold_renamed_settings``
+|         ``_fold_renamed_model_record`` **-- reads it**
+|         ``list(...)  [UNRESOLVED]``
+|         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.plot.graph_importance`
 |     :py:func:`~spacr.utils.save_settings`
 |         ``_validate_model_metadata``
@@ -19876,6 +19934,13 @@ model_metadata
 |             ``_validate_model_metadata_structure`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |         ``deepcopy(...)  [UNRESOLVED]``
+| ``_plan_gains``
+|     :py:func:`~spacr.settings.get_measure_crop_settings`
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|     ``deepcopy(...)  [UNRESOLVED]``
 | ``_seed_the_model``
 |     ``_model_the_run_would_use``
 |         ``_plaque_model_the_run_would_use``
@@ -19886,17 +19951,51 @@ model_metadata
 | ``_perform_regression``
 |     :py:func:`~spacr.ml.perform_regression`
 |         ``_perform_regression``
+|             :py:func:`~spacr.settings.get_perform_regression_default_settings`
+|                 ``_fold_renamed_settings``
+|                     ``_fold_renamed_model_record`` **-- reads it**
+|                     ``list(...)  [UNRESOLVED]``
+|                     ``isinstance(...)  [UNRESOLVED]``
 |             :py:func:`~spacr.utils.save_settings`
 |                 ``_validate_model_metadata``
 |                     ``_validate_model_metadata_structure`` **-- reads it**
 |                         ``isinstance(...)  [UNRESOLVED]``
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.screen_staging.run_screen`
+|     :py:func:`~spacr.settings.get_measure_crop_settings`
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``run(...)  [UNRESOLVED]``
 | :py:func:`~spacr.sequencing.generate_barecode_mapping`
+|     :py:func:`~spacr.settings.set_default_generate_barecode_mapping`
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
 |     :py:func:`~spacr.utils.save_settings`
 |         ``_validate_model_metadata``
 |             ``_validate_model_metadata_structure`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
+| :py:func:`~spacr.settings.set_analyze_invasion_defaults`
+|     ``_fold_renamed_settings``
+|         ``_fold_renamed_model_record`` **-- reads it**
+|         ``list(...)  [UNRESOLVED]``
+|         ``isinstance(...)  [UNRESOLVED]``
+| :py:func:`~spacr.settings.set_annotate_default_settings`
+|     ``_fold_renamed_settings``
+|         ``_fold_renamed_model_record`` **-- reads it**
+|         ``list(...)  [UNRESOLVED]``
+|         ``isinstance(...)  [UNRESOLVED]``
+| :py:func:`~spacr.settings.set_default_classify`
+|     :py:func:`~spacr.settings.set_default_analyze_screen`
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`
 |     ``_resolve_pinned_model_file``
 |         ``_validate_model_metadata``
@@ -19997,8 +20096,14 @@ model_metadata
 |             ``_validate_model_metadata_structure`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.timelapse.automated_motility_assay`
+|     :py:func:`~spacr.settings.get_automated_motility_assay_default_settings`
+|         ``_fold_renamed_settings``
+|             ``_fold_renamed_model_record`` **-- reads it**
+|             ``list(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_under_todays_names``, ``cmd_run``, ``deep_spacr``, ``_attach_model_reference``, ``_capture_model_metadata``, ``_invalidate_model_metadata``, ``_validate_model_metadata_structure``, ``_objects_window_basis``, ``apply_settings_dict``.
+Read by ``_under_todays_names``, ``cmd_run``, ``deep_spacr``, ``_attach_model_reference``, ``_capture_model_metadata``, ``_invalidate_model_metadata``, ``_validate_model_metadata_structure``, ``_objects_window_basis``, ``apply_settings_dict``, ``_fold_renamed_model_record``.
 
 .. _setting-flow-model_name:
 
@@ -24292,8 +24397,9 @@ ops_etest_cells
 A folder holding cells_E.npy and cells_meta.parquet (gene_symbol_0, cell_barcode_0) for the etest phase; empty reads the profile run's own. Default None. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_build_ops_power`` **-- reads it**
 
-Read by :py:func:`~spacr.gene_measurement_compare.etest_phase`, ``ops_defaults``.
+Read by :py:func:`~spacr.gene_measurement_compare.etest_phase`, ``ops_defaults``, ``_build_ops_power``.
 
 .. _setting-flow-ops_etest_holdout:
 
@@ -26126,8 +26232,9 @@ ops_power_cells
 The cells-per-gene caps of the power curve; None keeps every cell (scored once, its null drawn at the median cells per gene). Default [10, 25, 50, 100, 200, 500, None]. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_build_ops_power`` **-- reads it**
 
-Read by :py:func:`~spacr.gene_measurement_compare.etest_phase`, ``ops_defaults``.
+Read by :py:func:`~spacr.gene_measurement_compare.etest_phase`, ``ops_defaults``, ``_build_ops_power``.
 
 .. _setting-flow-ops_power_gene_list:
 
@@ -26137,8 +26244,9 @@ ops_power_gene_list
 A table with a gene column: the retrieval power curve scores only these genes, and only those every draw keeps. Empty scores every targeting gene all draws keep. Default None. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_build_ops_power`` **-- reads it**
 
-Read by ``_power_retrieval``, ``ops_defaults``.
+Read by ``_power_retrieval``, ``ops_defaults``, ``_build_ops_power``.
 
 .. _setting-flow-ops_power_reference_rows:
 
@@ -26148,8 +26256,9 @@ ops_power_reference_rows
 Ready gene rows (an .npz with names and pcs, or a table of gene and numbers), such as a shipped profile, scored first in the retrieval power curve; every draw is then tested against it instead of against all cells. Default None. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_build_ops_power`` **-- reads it**
 
-Read by ``_power_retrieval``, ``ops_defaults``.
+Read by ``_power_retrieval``, ``ops_defaults``, ``_build_ops_power``.
 
 .. _setting-flow-ops_power_retrieval:
 
@@ -26159,8 +26268,9 @@ ops_power_retrieval
 Also draw the retrieval power curve: at most n cells per gene and every control cell, guide and gene medians, the profile weighting set for the profile phase on top, then retrieval mAP and the top-10 partner rate on the REPORT halves of CORUM, STRING >= 0.7 and BioGRID over one gene list, with a shuffled-label control and paired tests against all cells. Default False. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_build_ops_power`` **-- reads it**
 
-Read by :py:func:`~spacr.gene_measurement_compare.etest_phase`, ``ops_defaults``.
+Read by :py:func:`~spacr.gene_measurement_compare.etest_phase`, ``ops_defaults``, ``_build_ops_power``.
 
 .. _setting-flow-ops_power_seeds:
 
@@ -26170,8 +26280,9 @@ ops_power_seeds
 The subsampling seeds of the power curve; each capped draw is repeated once per seed. Default [0, 1, 2]. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_build_ops_power`` **-- reads it**
 
-Read by :py:func:`~spacr.gene_measurement_compare.etest_phase`, ``ops_defaults``.
+Read by :py:func:`~spacr.gene_measurement_compare.etest_phase`, ``ops_defaults``, ``_build_ops_power``.
 
 .. _setting-flow-ops_prefix_collision:
 
@@ -26684,8 +26795,9 @@ The folder, or folders, holding the reference files the metrics score against: B
 | :py:func:`~spacr.ops_clusters.cluster_bench_test_phase` **-- reads it**
 |     ``vars(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_build_ops_power`` **-- reads it**
 
-Read by ``_power_retrieval``, ``cluster_bench_test_phase``, :py:func:`~spacr.ops_clusters.cluster_sweep_phase`, :py:func:`~spacr.ops_modules.run_module_phase`, :py:func:`~spacr.ops_scoring.score_ops_profiles`, ``ops_defaults``, ``_profile_state``.
+Read by ``_power_retrieval``, ``cluster_bench_test_phase``, :py:func:`~spacr.ops_clusters.cluster_sweep_phase`, :py:func:`~spacr.ops_modules.run_module_phase`, :py:func:`~spacr.ops_scoring.score_ops_profiles`, ``ops_defaults``, ``_profile_state``, ``_build_ops_power``.
 
 .. _setting-flow-ops_reference_seed:
 
@@ -26829,6 +26941,17 @@ How many sequencing cycles were imaged; the prefix may not be longer. Default 12
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
 Read by :py:func:`~spacr.ops_prefix.prefix_settings`, ``ops_defaults``.
+
+.. _setting-flow-ops_sbs_nucleus_model:
+
+ops_sbs_nucleus_model
+---------------------
+
+Which Cellpose model segments the nuclei of each stitched sequencing well. 'cpsam' runs the default model of the installed Cellpose; any other name or path, such as one chosen with Model zoo, is loaded as that model. Changing it changes which objects are found, and so which nuclei the reads are attributed to. Settings files that name cellpose_model still load into it. Default 'cpsam'.
+
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+
+Read by ``_objects_window_basis``, ``ops_defaults``.
 
 .. _setting-flow-ops_scoring_benchmark_genes:
 
