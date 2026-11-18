@@ -10942,10 +10942,15 @@ class AppScreen(QWidget):
             if attr == "_live_preview_card" and autoload:
                 self._autoload_live_preview(self._settings_src_path() or "")
         card.setVisible(on)
-        set_live = getattr(getattr(self, attr[:-len("_card")], None),
-                           "set_live", None)
-        if callable(set_live):
-            set_live(on)
+        panel_name = attr[:-len("_card")]
+        lazy = type(self).__dict__.get(panel_name)
+        unbuilt = (isinstance(lazy, _BuiltOnFirstUse)
+                   and self._part_is_owed(lazy.part))
+        if on or not unbuilt:
+            set_live = getattr(getattr(self, panel_name, None),
+                               "set_live", None)
+            if callable(set_live):
+                set_live(on)
 
     def _prime_preview(self) -> None:
         """Push the current settings into this screen's preview panel.
