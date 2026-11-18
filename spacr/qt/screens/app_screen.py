@@ -9672,9 +9672,12 @@ class AppScreen(QWidget):
             return
 
         if self.app_key == "regression":
-            from ...validate import _check_regression_inputs
+            from ...validate import (_check_regression_inputs,
+                                     _check_regression_score_columns)
 
             problems = _check_regression_inputs(settings)
+            if not problems:
+                problems = _check_regression_score_columns(settings, local_only=True)
             if problems:
                 QMessageBox.warning(
                     self, tr("Regression inputs"),

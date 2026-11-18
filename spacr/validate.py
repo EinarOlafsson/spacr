@@ -2026,6 +2026,81 @@ def _check_regression_inputs(settings: Dict[str, Any]) -> List[Problem]:
     return []
 
 
+def _check_regression_score_columns(settings: Dict[str, Any], *,
+                                    local_only: bool = False) -> List[Problem]:
+    """Check each score schema for the requested response with the shared reader.
+
+    In-memory handoffs take precedence over files. GUI callers defer remote
+    sources and Feather files to the worker with ``local_only=True`` because
+    their reader may need a network request or more than a header read.
+    """
+    from . import frame_handoff, tabular
+    from .columns import pred_guidance
+    from .qt.i18n import tr
+
+    if settings.get('screen_type') == 'drug_screen':
+        return []
+    responses = settings.get('dependent_variable', 'pred')
+    responses = responses if isinstance(responses, (list, tuple)) else [responses]
+    responses = [name for name in responses if name
+                 and name != 'pathogen_nucleus_shortest_distance']
+    if not responses:
+        return []
+    pairs = settings.get('paired_data') or []
+    if pairs:
+        sources = [(row.get('score') or row.get('score_data'), row.get('score_table'))
+                   for row in pairs]
+    else:
+        paths = settings.get('score_data') or []
+        paths = paths if isinstance(paths, (list, tuple)) else [paths]
+        sources = [(path, None) for path in paths]
+    problems = []
+    seen = set()
+    for source, table in sources:
+        if not source or (os.fspath(source), table) in seen:
+            continue
+        seen.add((os.fspath(source), table))
+        postgres = tabular._backend_of(source) == 'postgres'
+        remote = postgres or '://' in os.fspath(source)
+        if local_only and (remote or os.fspath(source).lower().endswith('.feather')):
+            continue
+        name = ('PostgreSQL' if postgres else os.path.basename(os.fspath(source)))
+        if table is not None:
+            name = f"{name} ({table})"
+        offered = frame_handoff.held(source) if table is None else None
+        try:
+            if offered is not None:
+                columns = list(offered.columns)
+            else:
+                if not remote and not os.path.exists(tabular.resolve_path(source)):
+                    raise FileNotFoundError(source)
+                columns = list(tabular.table_columns(source, table=table))
+        except Exception as error:
+            problems.append(Problem(
+                ERROR, 'score_data',
+                tr("Cannot read the score table {source}: {error}",
+                   source=name, error=str(error)),
+                tr("In Regression > Input Tables > Paired data, select an existing, "
+                   "readable Score source. For a database, also select its Score table.")))
+            continue
+        for response in responses:
+            if response in columns:
+                continue
+            fix = tr(
+                "In Regression > Input Tables > Paired data, choose a Score source "
+                "containing the intended response, or explicitly choose the measured "
+                "response in dependent_variable. Check that Score source and Count "
+                "source are not swapped. No response column is chosen automatically.")
+            if response == 'pred':
+                fix = f"{fix} {pred_guidance()}"
+            problems.append(Problem(
+                ERROR, 'dependent_variable',
+                tr("dependent_variable={response!r} is not a column of the score "
+                   "table {source}. Available columns: {columns}.",
+                   response=response, source=name, columns=columns[:15]), fix))
+    return problems
+
+
 def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     """Check a settings dict against the data it points at.
 
@@ -2085,7 +2160,10 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))
     if app == "regression":
-        problems.extend(_check_regression_inputs(settings))
+        inputs = _check_regression_inputs(settings)
+        problems.extend(inputs)
+        if not inputs:
+            problems.extend(_check_regression_score_columns(settings))
     try:
         from .plugins import get_app, load_object
         plugin_app = get_app(app)

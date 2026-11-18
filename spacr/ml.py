@@ -7859,6 +7859,12 @@ def _perform_regression(settings):
             """Load paired inputs, validate the analysis, and return both frames."""
             _stage(settings, "reading the input tables")
             pairs, _migrated = normalize_regression_input_pairs(settings)
+            from .validate import _check_regression_score_columns
+
+            problems = _check_regression_score_columns(settings)
+            if problems:
+                raise ValueError("\n\n".join(
+                    f"{problem.message} {problem.fix}" for problem in problems))
             count_data_df, score_data_df, audit = \
                 load_regression_input_pairs(pairs)
             settings['paired_data'] = pairs
