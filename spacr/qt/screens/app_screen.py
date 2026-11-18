@@ -9282,13 +9282,16 @@ class AppScreen(QWidget):
         if width > 0:
             from PySide6.QtGui import QTextDocument
 
+            from .settings_model import language_resolved_once
+
             document = QTextDocument()
             document.setDefaultFont(strip.font())
             document.setDocumentMargin(0)
             document.setTextWidth(width)
-            texts = [escape(self._default_category_hint())]
-            texts += [self._category_hint_html(title) for title in
-                      (getattr(self, "_category_blurbs", None) or {})]
+            with language_resolved_once():
+                texts = [escape(self._default_category_hint())]
+                texts += [self._category_hint_html(title) for title in
+                          (getattr(self, "_category_blurbs", None) or {})]
             for text in texts:
                 document.setHtml(text)
                 height = max(height, int(document.size().height() + 0.999)
