@@ -98,7 +98,7 @@ GROUPS = (
         ("LIMS / plate-barcode linkage", (583,)),
     )),
     ("OPS runs", (
-        ("OPS in Mask Generation, phenotype path to per-gene profiles", (372, 752)),
+        ("OPS in Mask Generation, phenotype path to per-gene profiles", (372, 752, 971)),
         ("Stitching: Align & Stitch core, seeded placement, overlap match rates",
          (936, 940, 915)),
         ("Phenotype store and crops, two acquisitions, yield funnel", (871, 947, 875)),
@@ -113,8 +113,8 @@ GROUPS = (
          (920,)),
         ("False calls, calibrated confidence, matching to other pipelines",
          (876, 877, 878, 922)),
-        ("Spot detection, read mode and calling tuned together, prefix decoy FDR",
-         (942, 952, 949, 955)),
+        ("Detection, read mode and cell calls tuned together, prefix decoy FDR",
+         (942, 952, 949, 955, 967)),
     )),
     ("OPS gene profiles", (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),
@@ -133,10 +133,11 @@ GROUPS = (
     )),
     ("OPS genes and\nclusters", (
         ("Clusters: Leiden sweep, bootstrap and gene-pairs consensus, test, atlas",
-         (916, 953, 928, 948, 929, 888)),
+         (916, 953, 959, 928, 948, 929, 888)),
         ("Gene map: profile clusters, labels, medoid crops", (918,)),
         ("Gene graph, protein knowledge, fusion hypotheses, gene-class training",
          (884, 885, 886, 889)),
+        ("Voyager3: cluster roles from UniProt facts through your own AI", (973,)),
     )),
     ("Automation and data", (
         ("Watch a folder as images arrive, send hits back for re-imaging", (548, 549)),

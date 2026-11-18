@@ -163,11 +163,15 @@ def _read_mode_setting(settings) -> str:
     """The ``ops_read_mode`` of a run's settings, checked.
 
     :param settings: the run's settings.
-    :returns: one of :data:`_READ_MODES`; empty or missing is ``log``.
+    :returns: one of :data:`_READ_MODES`; empty, missing or ``'None'`` is
+        ``log``, the OPS barcode decode's default (the spacer-prefix decode
+        has its own, :func:`spacr.ops_prefix._prefix_read_mode`).
     :raises ValueError: for any other value.
     """
     value = settings.get("ops_read_mode") if settings is not None else None
     mode = str(value or _READ_MODES[0]).strip().lower()
+    if mode == "none":
+        mode = _READ_MODES[0]
     if mode not in _READ_MODES:
         raise ValueError(f"ops_read_mode must be one of {list(_READ_MODES)}; "
                          f"got {value!r}")

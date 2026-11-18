@@ -1,0 +1,52 @@
+OPS SPACER-PREFIX CELL CALL: MINORITY STRAY BARCODES IGNORED (RULE F1)
+=======================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-17 on branch claude-967-1117, alpha (ALPHA_FEATURES[967]). The new setting is off by default (0), so outputs are byte-identical unless it is turned on (no DEFAULT_CHANGES row, no schema bump). Under development per proposals/READINESS.md: not marked Ready. spacr/ops_prefix.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_prefix_minority_967.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item967_proof/REPORT.md.
+Requested: maintainer decision 2026-11-17 "Land 966 now, F1 next". Number reserved by master 2026-11-17.
+Owner: master lane claude-967-1117.
+Source: proposals/bmc_paper_items/ITEM_ops_prefix_minority_read_rule.md.
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/periscope_benchmark/out/fdr_sweep_955/e2e_gap_diagnosis/ (fixes/, f1_fairness/, followup_funk_rescued/).
+Related: 920 (spacer-prefix decode, recipe_simple classes), 942 (decoys, per-well tuning), 955 (matched-FDR sweep), 966 (auto read default).
+
+PROBLEM
+Under ops_prefix_quality_method 'recipe_simple' (the "simple" classes of the
+pooled Cell Painting recipe that PERISCOPE used) a cell with more than one
+exact barcode is bad. One stray exact read of a second barcode removes the
+call: on CP186A Well1 (75 held-out sites) 4,897 cells that PERISCOPE calls are
+lost this way, and in 2,585 of the 2,643 cells where the main barcode leads the
+competitor is a single read.
+
+BUILD
+- Setting ops_prefix_minority_min_reads (int, default 0 = off; 1 also changes
+  nothing). From 2 up, inside a cell a barcode with fewer reads than this is
+  left out of the call when another barcode of the cell has strictly more
+  reads (spacr.ops_prefix._minority_ignored). Ties still block the call; a
+  decoy-top cell is still flagged and never genotyped.
+- spacr.ops_prefix.prefix_cell_calls(minority_min_reads=...): both quality
+  methods. Under 'spacr' no call changes ('great' can become 'perfect').
+  With the rule on, the cell table gains minority_ignored (reads left out)
+  and minority_rescued (called only because of the rule).
+- The per-well decoy tuning, the shuffle calibration and the cell calls all
+  count calls with the same rule (_called_counts).
+- Reporting: site_summary.csv gains cells_minority_rescued (genotyped cells
+  rescued), the run result gains minority_rescued per well, one log line per
+  well, and quality_classes.json records the setting. With 0 none of these
+  appear, so the run writes what it wrote before.
+- The matched-FDR sweep (item 955) is unchanged; its maxcount rule already
+  ignores minority barcodes.
+
+ACCEPTANCE (alpha build)
+- k = 0 byte-identical to nightly 0e1ac1a466.
+- k = 3 reproduces the CP186A held-out numbers of the spec within 0.01 points
+  (spaCR + F1 at spaCR's default shuffle level: 42.99 % genotyped).
+
+STILL TO DO BEFORE A DEFAULT CHANGE
+- Decoy cost on Funk production (rule (a) + S2 + pixel fallback, A1-A3).
+- The k grid {2, 3, 4} on more wells; whether k should scale with the cell's
+  read count.
+- A readiness-register entry marked Ready.
+
+NOTES
+- In the paper, any comparison that uses F1 applies it to every method and
+  says so.

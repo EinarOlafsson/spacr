@@ -790,6 +790,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_nearmiss_decoy_k",
     "ops_prefix_fdr_calibration",
     "ops_decode_fdr_calibration",
+    # Item 967 (2026-11-17): the spacer-prefix cell call ignores minority
+    # stray barcodes.
+    "ops_prefix_minority_min_reads",
     # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
     "ops_fdr_sweep_targets",
     "ops_fdr_sweep_max_distance",
@@ -819,6 +822,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 953 (2026-11-15): published comparators keep their own control
     # rows in the Fisher background.
     "ops_cluster_published_controls",
+    # Item 959 (2026-11-16): spaCR's own sweep rows count the run's control
+    # rows in the same Fisher background.
+    "ops_cluster_sweep_controls_background",
     # Item 952 (2026-11-15): the read mode of the barcode reads (log, raw,
     # or chosen per well from decoys).
     "ops_read_mode",
@@ -837,6 +843,14 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_merge_strategy", "ops_merge_stitch_source",
     "ops_merge_stage_positions", "ops_merge_min_votes",
     "ops_merge_min_match_fraction", "ops_merge_fallback_share",
+    # Item 973 (2026-11-17): Voyager3, the clusters' biological roles from
+    # UniProt facts through the user's AI provider.
+    "ops_voyager3_enabled", "ops_voyager3_clusters",
+    "ops_voyager3_cluster_column", "ops_voyager3_cluster_ids",
+    "ops_voyager3_organism", "ops_voyager3_context", "ops_voyager3_provider",
+    "ops_voyager3_model", "ops_voyager3_timeout",
+    "ops_voyager3_shuffle_control", "ops_voyager3_resume",
+    "ops_voyager3_answers_dir",
     # Item 934 (2026-11-13): the OPS measurement switches in Measure --
     # Funk et al.'s object features, the explicit Zernike switch and
     # channel-named columns under Measurements, and the CPU/GPU self-check

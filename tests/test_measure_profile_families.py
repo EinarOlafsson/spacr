@@ -8,13 +8,15 @@ rings, edge intensity on a planted rim. The OPS phenotype table must keep its
 columns when the setting is off and gain exactly the declared ones when on,
 and reruns must be identical.
 """
-import os
-
-os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
-
 import numpy as np
 import pandas as pd
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def _cpu_only_for_this_module(monkeypatch):
+    """Hide the GPU from this module's tests only; other modules see the env untouched."""
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
 from scipy import stats
 
 from spacr import measure as M

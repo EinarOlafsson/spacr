@@ -121,7 +121,7 @@ def _phase_files(folder):
 
 
 def _legacy_score_published(published, genes, refs, shuffles=1, seed=oc.PUBLISHED_CONTROL_SEED,
-                            control_prefix="nontargeting"):
+                            control_prefix="nontargeting", record_background=False):
     """score_published as it was before item 953."""
     rng = np.random.default_rng(seed)
     out = []
