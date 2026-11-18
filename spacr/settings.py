@@ -9752,6 +9752,9 @@ ALPHA_FEATURES = {
     967: {
         'settings': ('ops_prefix_minority_min_reads',),
     },
+    982: {
+        'settings': ('ops_prefix_tuning_min_sites',),
+    },
 }
 
 

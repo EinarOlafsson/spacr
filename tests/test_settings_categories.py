@@ -793,6 +793,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 967 (2026-11-17): the spacer-prefix cell call ignores minority
     # stray barcodes.
     "ops_prefix_minority_min_reads",
+    # Item 982 small-well guard (2026-11-18): a small well keeps the
+    # read-quality floor instead of tuning it.
+    "ops_prefix_tuning_min_sites",
     # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
     "ops_fdr_sweep_targets",
     "ops_fdr_sweep_max_distance",

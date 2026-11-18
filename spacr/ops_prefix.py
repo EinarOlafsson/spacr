@@ -1057,6 +1057,13 @@ PREFIX_TUNING_GRID: Dict[str, Tuple[float, ...]] = {
     "ops_prefix_max_distance": (1.0, 0.0),
 }
 
+#: The read-quality floor a small well's tuning keeps (item 982 small-well
+#: guard): with fewer sites than ``ops_prefix_tuning_min_sites`` the per-well
+#: tuning does not choose the floor, because on one or two tuning sites it
+#: picked the strictest floor (0.25) where 0.1 genotyped 64.3 % instead of
+#: 39.7 % of Funk plate A cells at the same decoy FDR (item 960 proof).
+SMALL_WELL_FLOOR = 0.1
+
 #: The spacer-prefix threshold modes, the first being the default.
 PREFIX_TUNING_MODES = ("none", "per_well_decoy")
 
@@ -1289,12 +1296,13 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,
         ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the
         item-949 ``ops_prefix_nearmiss_decoy_k`` and
-        ``ops_prefix_fdr_calibration``, and the item-967
-        ``ops_prefix_minority_min_reads``.
+        ``ops_prefix_fdr_calibration``, the item-967
+        ``ops_prefix_minority_min_reads`` and the item-982 small-well guard
+        ``ops_prefix_tuning_min_sites``.
     :returns: the normalised values under the same keys.
     :raises ValueError: without a library, for an unknown choice, for
         tuning or a shuffle calibration without decoys, or for a negative
-        decoy count or minority-read floor.
+        decoy count, minority-read floor or small-well site count.
     """
     from .ops_decode import FDR_CALIBRATIONS
 
@@ -1338,6 +1346,7 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
                                           or FDR_CALIBRATIONS[0]).strip().lower(),
         "ops_prefix_minority_min_reads": int(settings.get("ops_prefix_minority_min_reads")
                                              or 0),
+        "ops_prefix_tuning_min_sites": int(settings.get("ops_prefix_tuning_min_sites") or 0),
     }
     if out["ops_prefix_threshold_tuning"] not in PREFIX_TUNING_MODES:
         raise ValueError(f"ops_prefix_threshold_tuning must be one of "
@@ -1350,6 +1359,8 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
                          "or more (4 recommended)")
     if out["ops_prefix_nearmiss_decoy_k"] < 0:
         raise ValueError("ops_prefix_nearmiss_decoy_k must be 0 or more")
+    if out["ops_prefix_tuning_min_sites"] < 0:
+        raise ValueError("ops_prefix_tuning_min_sites must be 0 or more (0 = off)")
     if out["ops_prefix_minority_min_reads"] < 0:
         raise ValueError("ops_prefix_minority_min_reads must be 0 or more (0 = off)")
     if out["ops_prefix_fdr_calibration"] not in FDR_CALIBRATIONS:
@@ -1462,7 +1473,13 @@ def run_prefix_decode(settings: Mapping[str, Any],
       ``minority_ignored`` and ``minority_rescued``, ``site_summary.csv``
       gains ``cells_minority_rescued`` (genotyped cells called only because
       of the rule), and one line per well reports the rescued cells. 0, the
-      default, writes what the run wrote before.
+      default, writes what the run wrote before;
+    * with ``ops_prefix_tuning_min_sites`` above 0 (item 982 small-well
+      guard, alpha): a tuned well with fewer sites keeps the read-quality
+      floor at :data:`SMALL_WELL_FLOOR` and tunes only the other settings;
+      the log says so, and the well's tuning json and ``tuning`` entry gain
+      ``small_well_floor`` and ``small_well_sites``. 0, the default, writes
+      what the run wrote before.
 
     :param settings: the OPS settings: ``dst_root``, the ``cpg_*`` reader
         settings, the item-920, item-942 and item-949 settings
@@ -1551,6 +1568,9 @@ def run_prefix_decode(settings: Mapping[str, Any],
         recorded = {key: value for key, value in recorded.items() if key not in _ITEM_949_KEYS}
     if not minority:
         recorded = {key: value for key, value in recorded.items() if key not in _ITEM_967_KEYS}
+    if not chosen["ops_prefix_tuning_min_sites"]:
+        recorded = {key: value for key, value in recorded.items()
+                    if key not in _SMALL_WELL_KEYS}
     if read_mode != "log":
         recorded = {**recorded, "ops_read_mode": read_mode}
     with open(os.path.join(folder, "quality_classes.json"), "w", encoding="utf-8") as handle:
@@ -1577,7 +1597,13 @@ def run_prefix_decode(settings: Mapping[str, Any],
         choice: Dict[str, Any] = {}
         if tuning:
             modes = ["raw", "log"] if read_mode == "auto" else [read_mode]
-            well_axes = ([("read_mode", [1.0, 0.0])] if read_mode == "auto" else []) + axes
+            grid_axes, small_well = _small_well_axes(axes, len(site_list),
+                                                     chosen["ops_prefix_tuning_min_sites"])
+            if small_well:
+                say(f"prefix_decode {plate} {well_id}: {len(site_list)} sites, fewer than "
+                    f"ops_prefix_tuning_min_sites {chosen['ops_prefix_tuning_min_sites']}; "
+                    f"the read-quality floor stays at {SMALL_WELL_FLOOR} and is not tuned")
+            well_axes = ([("read_mode", [1.0, 0.0])] if read_mode == "auto" else []) + grid_axes
             shape = tuple(len(values) for _, values in well_axes)
             counts = np.zeros((len(site_list),) + shape + (2,), np.int64)
             shuffled_grid = np.zeros((len(site_list),) + shape)
@@ -1615,7 +1641,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                             threshold=threshold, crosstalk=chosen["ops_prefix_crosstalk"],
                             metric=chosen["ops_prefix_metric"], max_distance=loosest,
                             read_mode=mode)
-                        for b, quality in enumerate(axes[1][1]):
+                        for b, quality in enumerate(grid_axes[1][1]):
                             for c, distance in enumerate(axes[2][1]):
                                 counts[at + (a, b, c)] = _called_counts(
                                     _at_setting(frame, quality, int(distance)), method,
@@ -1624,7 +1650,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                             shuffled_frame = _shuffle_frame(
                                 frame, shuffled_lib, shuffle_memo[s],
                                 metric=chosen["ops_prefix_metric"], max_distance=loosest)
-                            for b, quality in enumerate(axes[1][1]):
+                            for b, quality in enumerate(grid_axes[1][1]):
                                 for c, distance in enumerate(axes[2][1]):
                                     shuffled_grid[at + (a, b, c)] += _called_counts(
                                         _at_setting(shuffled_frame, quality, int(distance)),
@@ -1658,6 +1684,9 @@ def run_prefix_decode(settings: Mapping[str, Any],
             well_mode = (("raw" if best["read_mode"] == 1.0 else "log")
                          if read_mode == "auto" else read_mode)
             mode_record = {"read_mode": well_mode} if read_mode != "log" else {}
+            if small_well:
+                mode_record = {**mode_record, "small_well_floor": SMALL_WELL_FLOOR,
+                               "small_well_sites": len(site_list)}
             with open(os.path.join(folder, f"{stem}.json"), "w", encoding="utf-8") as handle:
                 json.dump({"plate": plate, "well": well_id,
                            **{key: value for key, value in choice.items() if key != "grid"},
@@ -1672,6 +1701,9 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 f"{choice['report']['genotyped_pct']} % genotyped, FDR "
                 f"{choice['report']['fdr_per_100']} %")
             well_lines.append(_well_choice_line(plate, well_id, choice, well_mode, read_mode))
+            if small_well:
+                well_lines[-1] += (f"; small well ({len(site_list)} sites): read-quality floor "
+                                   f"kept at {SMALL_WELL_FLOOR}")
             for site in site_list:
                 frame = _site_tuning_reads(
                     (held_raw if well_mode == "raw" else held)[site], matching, memo,
@@ -2017,6 +2049,28 @@ _ITEM_949_KEYS = ("ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration")
 #: ``quality_classes.json`` while the minority-read rule is off, so such a
 #: run writes what it wrote before.
 _ITEM_967_KEYS = ("ops_prefix_minority_min_reads",)
+
+#: The small-well guard's key (item 982), left out of
+#: ``quality_classes.json`` while it is 0 (off).
+_SMALL_WELL_KEYS = ("ops_prefix_tuning_min_sites",)
+
+
+def _small_well_axes(axes: Sequence[Tuple[str, Sequence[float]]], n_sites: int,
+                     min_sites: int) -> Tuple[List[Tuple[str, List[float]]], bool]:
+    """The tuning axes of one well under the small-well guard (item 982).
+
+    :param axes: from :func:`_tuning_axes` (read threshold, read-quality
+        floor, mismatches).
+    :param n_sites: the well's sites.
+    :param min_sites: ``ops_prefix_tuning_min_sites``; 0 is off.
+    :returns: ``(axes, guarded)``: with fewer than ``min_sites`` sites the
+        read-quality floor axis holds :data:`SMALL_WELL_FLOOR` only and
+        ``guarded`` is True; otherwise ``axes`` unchanged and False.
+    """
+    if min_sites <= 0 or n_sites >= min_sites:
+        return [(name, list(values)) for name, values in axes], False
+    return [(name, [SMALL_WELL_FLOOR] if name == "ops_prefix_min_read_quality"
+             else list(values)) for name, values in axes], True
 
 
 #: The cell rules of the matched-FDR sweep (item 955), from least to most

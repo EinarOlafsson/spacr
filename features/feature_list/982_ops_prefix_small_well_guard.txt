@@ -1,0 +1,25 @@
+OPS SPACER-PREFIX TUNING: SMALL WELLS KEEP THE READ-QUALITY FLOOR AT 0.1
+=========================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-18 on branch claude-966g-1118 (held for landing), alpha (ALPHA_FEATURES[982]), off by default. spacr/ops_prefix.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_prefix_small_well_guard_982.py, tests/test_settings_categories.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item966_guard_proof/REPORT.md.
+Requested: maintainer approval 2026-11-18 about 07:10, after the item 960 proof finding.
+Owner: master lane claude-966g-1118.
+Related: 966 (spacer-prefix tuning default), 942 (shared tuner), 960 (grid search).
+
+Problem (item 960 proof): on wells of 2-3 tiles the per-well tuning picked
+the strict read-quality floor 0.25 (39.7 % genotyped) where 0.1 gives 64.3 %
+at the same decoy FDR. Cause: tune_thresholds needs 2 tuning sites; at
+tune_fraction 0.5 a well of fewer than 4 sites has at most 1, so it does not
+tune and takes the strictest value of every axis.
+Build: ops_prefix_tuning_min_sites (int, default 0 = off, ALPHA_FEATURES[982]).
+A tuned well with fewer sites keeps the floor at SMALL_WELL_FLOOR = 0.1 (the
+floor axis holds 0.1 only; the other axes are tuned as before); one log line
+per such well; the tuning json and tuning entry gain small_well_floor and
+small_well_sites; quality_classes.json records the setting only when on.
+Tested value 4, chosen from data: Funk A1, 50 tiles, 200 random n-tile wells
+per n, tuned with spaCR's tuner and scored on the held-out tiles. n = 2-3: the
+free tuning always picks 0.25 and the guard gains +22.4 points; n >= 4: the
+free tuning never picks 0.25 and beats the guard by 1.3 points, so the guard
+must not apply there. Proof: item966_guard_proof/REPORT.md.
+Acceptance: tests/test_ops_prefix_small_well_guard_982.py.
