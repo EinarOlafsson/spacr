@@ -117,6 +117,30 @@ SECTION_SETTINGS = {key: "PowerOpsCurve" for key in (
     "ops_power_gene_list", "ops_power_reference_rows")}
 
 
+@pytest.fixture(autouse=True)
+def _no_screen_outlives_its_test(qtbot):
+    """Close every screen this file's tests built, and flush their idle work and deletes.
+
+    A screen builds lazily and schedules idle-time work and deferred deletes.
+    Left to run, they land in whichever test runs next in the same process and
+    show up as extra work in a test that counts it (item 979).
+    """
+    yield
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtWidgets import QApplication
+    from shiboken6 import isValid
+
+    from spacr.qt.screens.app_screen import AppScreen
+
+    for widget in QApplication.allWidgets():
+        if isinstance(widget, AppScreen) and isValid(widget):
+            widget.close()
+            widget.deleteLater()
+    for _ in range(5):
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        QCoreApplication.processEvents()
+
+
 @pytest.fixture
 def prefs(tmp_path, monkeypatch):
     """Preferences read and written through a throwaway INI file."""

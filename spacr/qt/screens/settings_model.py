@@ -2375,7 +2375,7 @@ _APP_CATEGORY_PARENTS["ops"] = {
     **{title: "OPS cluster" for title in (
         "Cluster benchmark", "Resolution sweep", "Consensus clustering",
         "Consensus inputs", "Calibrated cluster test",
-        "Module atlas & MitoCarta")},
+        "Module atlas & MitoCarta", "Voyager3 cluster annotation")},
     **{title: "OPS evaluation" for title in (
         "Profile scoring", "Scoring references", "Reference evaluation")},
 }
@@ -3165,6 +3165,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The modules phase, which clusters gene profiles into a module "
         "atlas, and the mitocarta phase, which scores clusterings against "
         "MitoCarta and published module tables.",
+    "VOYAGER3 CLUSTER ANNOTATION":
+        "Voyager3 names the role each gene cluster shares from the genes' "
+        "reviewed UniProt facts and the AI chosen under Preferences: which "
+        "cluster table and clusters, the organism and context, the provider, "
+        "model and timeout, a shuffled-gene control, and where the answers "
+        "are kept so a run resumes.",
     "PROFILE SCORING":
         "The score phase: which analyses and genes are scored, the copairs "
         "and EFAAR metrics, the null size, complex size, cluster jitter, "

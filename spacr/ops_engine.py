@@ -298,7 +298,7 @@ _PH_PLATE_PHASES = ("ph_flatfield", "aggregate", "ph_tables", "ph_crops",
 #: and no database.
 _PROFILE_PHASES = ("profile", "evaluate", "modules", "mitocarta",
                    "cluster_sweep", "etest", "cluster_consensus",
-                   "cluster_bench_test")
+                   "cluster_bench_test", "voyager3")
 
 #: The nuclear-median flat-field path (alpha, item 912): per-plate maps from
 #: the per-nucleus tables, then their held-out check. Needs no image step
@@ -10126,7 +10126,7 @@ def run_ops(settings: Mapping[str, Any], *,
 
         profile = [phase for phase in phases
                    if phase in ("profile", "evaluate", "cluster_sweep", "etest",
-                                "cluster_consensus", "cluster_bench_test")]
+                                "cluster_consensus", "cluster_bench_test", "voyager3")]
         result = run_profile_phases(settings, profile, report=_say) if profile else {}
         atlas = [phase for phase in phases if phase in ("modules", "mitocarta")]
         if atlas:

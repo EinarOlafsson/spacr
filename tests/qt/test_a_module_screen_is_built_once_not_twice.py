@@ -313,8 +313,12 @@ class TestTheLanguageIsAskedOncePerBuild:
     def test_building_a_panel_asks_far_less_than_once_per_setting(
             self, qtbot, monkeypatch):
         """The measurement the whole change exists for."""
+        from PySide6.QtCore import QCoreApplication, QEvent
         from spacr.qt import preferences
 
+        for _ in range(5):
+            QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+            QCoreApplication.processEvents()
         reads = []
         real = preferences.get_language
         monkeypatch.setattr(

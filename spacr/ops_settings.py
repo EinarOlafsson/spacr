@@ -390,6 +390,18 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_bench_gate_arm": 'consensus',
     "ops_bench_half": 1,
     "ops_bench_null_permutations": 1000,
+    "ops_voyager3_enabled": False,
+    "ops_voyager3_clusters": None,
+    "ops_voyager3_cluster_column": "cluster",
+    "ops_voyager3_cluster_ids": None,
+    "ops_voyager3_organism": "human",
+    "ops_voyager3_context": "",
+    "ops_voyager3_provider": "",
+    "ops_voyager3_model": "",
+    "ops_voyager3_timeout": 300,
+    "ops_voyager3_shuffle_control": False,
+    "ops_voyager3_resume": True,
+    "ops_voyager3_answers_dir": None,
     "ops_etest": False,
     "ops_etest_cells": None,
     "ops_etest_metric": 'both',
@@ -438,6 +450,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_tuning_grid": None,
     "ops_prefix_nearmiss_decoy_k": 0,
     "ops_prefix_fdr_calibration": "none",
+    "ops_prefix_minority_min_reads": 0,
     "ops_fdr_sweep_targets": [0.5, 1.0, 2.0, 5.0],
     "ops_fdr_sweep_max_distance": [0, 1],
     "ops_fdr_sweep_min_reads": [1, 2, 3],
@@ -838,6 +851,18 @@ OPS_TYPES: Dict[str, object] = {
     "ops_bench_gate_arm": str,
     "ops_bench_half": (int, type(None)),
     "ops_bench_null_permutations": int,
+    "ops_voyager3_enabled": bool,
+    "ops_voyager3_clusters": (str, type(None)),
+    "ops_voyager3_cluster_column": str,
+    "ops_voyager3_cluster_ids": (str, list, type(None)),
+    "ops_voyager3_organism": (str, int),
+    "ops_voyager3_context": str,
+    "ops_voyager3_provider": str,
+    "ops_voyager3_model": str,
+    "ops_voyager3_timeout": (int, float),
+    "ops_voyager3_shuffle_control": bool,
+    "ops_voyager3_resume": bool,
+    "ops_voyager3_answers_dir": (str, type(None)),
     "ops_etest": bool,
     "ops_etest_cells": (str, type(None)),
     "ops_etest_metric": str,
@@ -886,6 +911,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_tuning_grid": (dict, str, type(None)),
     "ops_prefix_nearmiss_decoy_k": int,
     "ops_prefix_fdr_calibration": str,
+    "ops_prefix_minority_min_reads": int,
     "ops_fdr_sweep_targets": (list, str),
     "ops_fdr_sweep_max_distance": (list, str),
     "ops_fdr_sweep_min_reads": (list, str),
@@ -1006,7 +1032,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_length", "ops_sbs_cycles", "ops_cycle_mask",
         "ops_prefix_collision", "ops_prefix_metric", "ops_prefix_max_distance",
         "ops_prefix_crosstalk", "ops_prefix_masks", "ops_quality_min_reads",
-        "ops_prefix_quality_method",
+        "ops_prefix_minority_min_reads", "ops_prefix_quality_method",
     ],
     "Spacer-prefix FDR & tuning": [
         "ops_random_barcode_control", "ops_control_seed",
@@ -1185,6 +1211,14 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_modules_runs", "ops_modules_precomputed_embedding",
         "ops_modules_profiles", "ops_modules_driver_profiles",
         "ops_eval_mitocarta", "ops_eval_external_modules", "ops_eval_arms",
+    ],
+    "Voyager3 cluster annotation": [
+        "ops_voyager3_enabled", "ops_voyager3_clusters",
+        "ops_voyager3_cluster_column", "ops_voyager3_cluster_ids",
+        "ops_voyager3_organism", "ops_voyager3_context",
+        "ops_voyager3_provider", "ops_voyager3_model", "ops_voyager3_timeout",
+        "ops_voyager3_shuffle_control", "ops_voyager3_resume",
+        "ops_voyager3_answers_dir",
     ],
     "Profile scoring": [
         "ops_scoring_inputs", "ops_scoring_genes", "ops_scoring_metrics",
@@ -2318,6 +2352,62 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "mode builds its interphase and mitosis profiles from: one row per "
         "cell with gene, sgRNA, mitotic and the TVN columns PC_0, PC_1 and "
         "on. Default None. Alpha.",
+    "ops_voyager3_enabled":
+        "(bool) - Run Voyager3 after the clustering phases: every cluster's "
+        "genes get their reviewed UniProt facts (function, GO, pathway, "
+        "location, annotation score), and the AI chosen under Preferences "
+        "names the role the cluster shares, how confident it is, the genes "
+        "that support it, those that do not fit and the poorly "
+        "characterised genes worth following up. The phase voyager3 runs it "
+        "on its own. Writes results/ops_voyager3. Default False. Alpha.",
+    "ops_voyager3_clusters":
+        "(str or None) - The cluster table Voyager3 annotates: a gene column "
+        "and the column ops_voyager3_cluster_column names. Empty reads "
+        "results/ops_clusters/consensus_partition.csv of this run. Default "
+        "None. Alpha.",
+    "ops_voyager3_cluster_column":
+        "(str) - The column of the cluster table that holds each gene's "
+        "cluster, such as cluster or leiden_r10. Default 'cluster'. Alpha.",
+    "ops_voyager3_cluster_ids":
+        "(str, list or None) - Annotate only these clusters, such as 3,17,40. "
+        "Empty annotates every cluster with at least two genes. Default "
+        "None. Alpha.",
+    "ops_voyager3_organism":
+        "(str or int) - The organism whose UniProt entries Voyager3 reads, "
+        "as a name (human, mouse) or a taxon id. Default 'human'. Alpha.",
+    "ops_voyager3_context":
+        "(str) - A sentence on the screen that every prompt includes: cell "
+        "type, stains or markers, and the cell population, such as "
+        "'HeLa cells, interphase, DNA and tubulin stains'. Empty says not "
+        "given. Default ''. Alpha.",
+    "ops_voyager3_provider":
+        "(str) - The AI that answers: spacr_hosted (spaCR AI, free), or "
+        "claude, codex or gemini, each the command-line tool signed in with "
+        "your own account. Empty uses the choice under Preferences > AI. The "
+        "report names the provider and model, and says when the free "
+        "provider answered with its smaller model. Default ''. Alpha.",
+    "ops_voyager3_model":
+        "(str) - The model name passed to that AI. Empty uses its default. "
+        "The name is saved with the results. Default ''. Alpha.",
+    "ops_voyager3_timeout":
+        "(int or float) - Seconds one cluster's answer may take before it "
+        "is stopped and asked once more. Default 300. Alpha.",
+    "ops_voyager3_shuffle_control":
+        "(bool) - Also annotate a control: the same cluster sizes with the "
+        "genes shuffled across clusters (fixed seed), so a coherent role in "
+        "a real cluster can be compared with how often one turns up by "
+        "chance. Doubles the number of questions. Default False. Alpha.",
+    "ops_voyager3_resume":
+        "(bool) - Save each answer as it arrives and, on a rerun, reuse the "
+        "saved answer of every question asked before, so an interrupted run "
+        "goes on where it stopped and gives the same tables. Only questions "
+        "with the same prompt, model and template version are reused; failed "
+        "or timed-out calls are asked again. Off asks every cluster again. "
+        "Default True. Alpha.",
+    "ops_voyager3_answers_dir":
+        "(str or None) - The folder that holds the saved answers, one file "
+        "per question. Empty uses answers in results/ops_voyager3. Default "
+        "None. Alpha.",
     "ops_consensus_view_columns":
         "(int) - How many TVN columns of ops_consensus_cells (PC_0 on) the "
         "interphase and mitosis profiles use. Default 50. Alpha.",
@@ -3312,9 +3402,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "a TIFF, .npy or .npz label image per site. Empty uses each site's "
         "merged/ labels when they exist. Default None. Alpha.",
     "ops_quality_min_reads":
-        "(int) - Exact reads of one barcode a cell needs, with no read of "
-        "another barcode, to be called perfect; fewer, or a minority "
-        "competitor, makes it great. Default 2. Alpha.",
+        "(int) - Spacer-prefix decode under ops_prefix_quality_method "
+        "'spacr' only: the number of exact reads a single-barcode cell needs "
+        "to be labelled perfect rather than great. It never changes which "
+        "cells are genotyped, and 'recipe_simple' (PERISCOPE's rule, no read "
+        "minimum) does not use it. Default 2. Alpha.",
     "ops_prefix_quality_method":
         "(str) - How each cell's quality class is set from its matched reads. "
         "'spacr' counts reads: perfect needs ops_quality_min_reads exact reads "
@@ -3388,6 +3480,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "sites, then tunes again at that scale. The scale and the shuffle "
         "call rate go into site_summary.csv and the FDR report. Needs "
         "ops_prefix_decoy_k above 0. Default 'none'. Alpha.",
+    "ops_prefix_minority_min_reads":
+        "(int) - Lets a cell be called when a second barcode has only a few "
+        "stray reads. Inside a cell, a barcode with fewer reads than this is "
+        "ignored when another barcode has more reads; a tie still blocks the "
+        "call, and a cell whose top barcode is a decoy is still not "
+        "genotyped. Matters for ops_prefix_quality_method 'recipe_simple', "
+        "where one stray read otherwise makes the cell bad. site_summary.csv "
+        "counts the rescued cells. 3 is the tested value; 0 is off. "
+        "Default 0. Alpha.",
     "ops_fdr_sweep_targets":
         "(list) - The decoy FDR targets, in %, of the prefix_fdr_sweep phase. "
         "For each target, every method gets the configuration with the most "

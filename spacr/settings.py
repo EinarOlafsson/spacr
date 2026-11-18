@@ -9559,6 +9559,15 @@ ALPHA_FEATURES = {
         'module_settings': {'ops_large_sites': (
             'seg_merge_small_nuclei_frac',)},
     },
+    973: {
+        'settings': ('ops_voyager3_enabled', 'ops_voyager3_clusters', 'ops_voyager3_cluster_column',
+                     'ops_voyager3_cluster_ids', 'ops_voyager3_organism', 'ops_voyager3_context',
+                     'ops_voyager3_provider', 'ops_voyager3_model', 'ops_voyager3_timeout',
+                     'ops_voyager3_shuffle_control', 'ops_voyager3_resume', 'ops_voyager3_answers_dir'),
+    },
+    971: {
+        'widgets': ('OpsLiveSwitch',),
+    },
     956: {
         'module_settings': {'ops_large_sites': (
             'ops_mask_agreement_split_merge', 'ops_mask_agreement_identity_control',
@@ -9763,6 +9772,9 @@ ALPHA_FEATURES = {
     },
     957: {
         'widgets': ('MakeMasksPointModeButton',),
+    },
+    967: {
+        'settings': ('ops_prefix_minority_min_reads',),
     },
 }
 
