@@ -6667,6 +6667,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("957_make_masks_point_mode_api_arrivals_2026-11-15.json", 23),
         ("948_ops_pairs_consensus_api_arrivals_2026-11-15.json", 6),
         ("965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json", 1),
+        ("960_ops_grid_search_api_arrivals_2026-11-17.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
