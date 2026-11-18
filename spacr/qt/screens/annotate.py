@@ -76,6 +76,7 @@ from .. import _after
 import logging
 import os
 import re
+import sqlite3
 import threading
 import time
 import weakref
@@ -153,7 +154,10 @@ from ..annotate_engine import (
     AnnotateSettings,
     OutlineCancelled,
     SaveWorker,
+    _annotation_database_access_message,
+    _is_readonly_database_error,
     _missing_annotation_database_message,
+    _require_writable_annotation_database,
     class_counts,
     clear_column,
     count_rows,
@@ -6949,6 +6953,7 @@ class AnnotateScreen(QWidget):
                 _missing_annotation_database_message(db_path))
             return
         try:
+            _require_writable_annotation_database(db_path)
             ensure_annotation_column(db_path, self._settings.annotation_column,
                                      table=self._settings.png_table)
         except DatabaseBusy:
@@ -6959,6 +6964,14 @@ class AnnotateScreen(QWidget):
                 tr("Database: {path}", path=db_path) + "\n" + tr(
                     "in use or not permitted; close anything using it and "
                     "try again"))
+            return
+        except (PermissionError, sqlite3.OperationalError) as exc:
+            if (not isinstance(exc, PermissionError)
+                    and not _is_readonly_database_error(exc)):
+                raise
+            self._blind_warning(
+                tr("Annotation database is not writable"),
+                _annotation_database_access_message(db_path))
             return
         self._flush_pending()
         self._leave_blind_unopened("another source was opened")
