@@ -132,7 +132,7 @@ GROUPS = (
     )),
     ("OPS genes and\nclusters", (
         ("Clusters: Leiden sweep, bootstrap and gene-pairs consensus, test, atlas",
-         (916, 953, 928, 948, 929, 888)),
+         (916, 953, 959, 928, 948, 929, 888)),
         ("Gene map: profile clusters, labels, medoid crops", (918,)),
         ("Gene graph, protein knowledge, fusion hypotheses, gene-class training",
          (884, 885, 886, 889)),

@@ -193,7 +193,7 @@ def test_raw_and_auto_in_the_prefix_decode(tmp_path):
     assert len(table) == 2 * 2 * 2 * 1 and table["chosen"].sum() == 1
     assert set(table["read_mode"]) == {0.0, 1.0}
     assert json.load(open(stem + ".json"))["read_mode"] == choice["read_mode"]
-    log = _prefix(tmp_path, "auto_log", **tuning)
+    log = _prefix(tmp_path, "auto_log", ops_read_mode="log", **tuning)
     assert "read_mode" not in log["tuning"]["CP9_W1"]
     assert auto["called_cells"] == log["called_cells"] == 12
     again = _prefix(tmp_path, "auto_again", ops_read_mode="auto", **tuning)
@@ -288,7 +288,8 @@ def test_alpha_registration():
     from spacr.settings import ALPHA_FEATURES
 
     assert ALPHA_FEATURES[952]["settings"] == ("ops_read_mode",)
-    assert OPS_DEFAULTS["ops_read_mode"] == "log" and OPS_TYPES["ops_read_mode"] is str
+    assert OPS_DEFAULTS["ops_read_mode"] is None
+    assert OPS_TYPES["ops_read_mode"] == (str, type(None))
     assert "ops_read_mode" in OPS_CATEGORIES["OPS decoding"]
     tip = OPS_TOOLTIPS["ops_read_mode"]
-    assert tip.startswith("(str) - ") and "Default 'log'. Alpha." in tip
+    assert tip.startswith("(str) - ") and "Default None. Alpha." in tip

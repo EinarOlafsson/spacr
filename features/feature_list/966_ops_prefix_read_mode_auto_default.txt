@@ -1,0 +1,54 @@
+OPS SPACER-PREFIX DECODE: AUTO READ WITH PER-WELL DECOY TUNING AT 1 % FDR BY DEFAULT
+====================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-17 on branch claude-966-1116 (held unpushed for the maintainer's OK: borderline end to end). Settings stay alpha (ALPHA_FEATURES[942] and [952]); no new alpha entry. spacr/ops_prefix.py, spacr/ops_sbs.py, spacr/ops_settings.py, spacr/settings.py, spacr/settings_spec.py, tests/test_ops_prefix_default_966.py, tests/test_ops_read_mode_952.py, tests/test_ops_autotune_942.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item966_proof/REPORT.md.
+Requested: maintainer decision 2026-11-16 "Leak-free rerun, then freeze", then "Yes, land tonight" (nightly only, if the pre-set criterion holds).
+Owner: master lane claude-966-1116.
+Source: proposals/bmc_paper_items/ITEM_ops_prefix_read_mode_auto_default.md.
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/periscope_benchmark/out/fdr_sweep_955/compare_952.md (leak-free rows).
+Related: 920 (spacer-prefix decode), 942 (decoys and per-well tuning), 952 (read mode), 955 (matched-FDR sweep).
+
+PROBLEM
+The spacer-prefix decode read the LoG-filtered pixels with fixed thresholds by
+default. On PERISCOPE CP186A Well1 (75 held-out sites) that is 3.9-6.8 points
+behind PERISCOPE's reads at matched decoy FDR (<= 1 % / <= 0.1 %). With item
+952's auto read and per-well decoy tuning spaCR ties or leads.
+
+BUILD
+- Defaults (OPS_DEFAULTS and settings_spec), schema 944:
+  ops_prefix_threshold_tuning 'none' -> 'per_well_decoy';
+  ops_prefix_decoy_k 0 -> 4; ops_prefix_fdr_target_pct 0.1 -> 1.0;
+  ops_prefix_tuning_grid unchanged (None = built-in grid).
+- ops_read_mode is shared by both decodes, so its default is per path: the
+  registered default is empty (None). spacr.ops_prefix._prefix_read_mode reads
+  empty as 'auto' while the prefix decode tunes and 'log' without tuning;
+  spacr.ops_sbs._read_mode_setting (the OPS barcode decode) reads empty, or
+  'None', as 'log'. An explicit 'log', 'raw' or 'auto' is used as set on both
+  paths. The combo offers log, raw, auto and None.
+- DEFAULT_CHANGES[944] = {'ops_read_mode': 'log', 'ops_prefix_threshold_tuning':
+  'none', 'ops_prefix_decoy_k': 0, 'ops_prefix_fdr_target_pct': 0.1}: settings
+  files stamped before 944 rerun with the old values.
+- Direct API calls keep the engine's own fallbacks (no tuning, no decoys), as
+  item 946 did; a direct call that turns tuning on without a read mode now
+  reads 'auto'.
+- Run summary: with tuning, run_prefix_decode returns well_choices and sends
+  one line per well last: read mode (and whether auto chose it), read
+  threshold, read quality, mismatches, decoy FDR on the tuning sites and on
+  the report sites, target met.
+- Tooltips of the four settings name the new defaults and which decode reads
+  which read-mode default; release note; reproducibility manifest row;
+  readiness row; 918-923 arrival contract re-pinned for run_prefix_decode.
+
+ACCEPTANCE
+tests/test_ops_prefix_default_966.py: new defaults, schema row and combo;
+empty read mode per path; pre-944 values byte-identical to the engine's
+fallback run; a 942-stamped file folds to the old values; the default tunes,
+reads auto (identical to an explicit 'auto') and reports one line per well;
+tuning off with an empty read mode equals 'log'.
+
+PROOF CHECK (pre-set in the spec)
+See item966_proof/REPORT.md: off-switch on CP186A sites 3, 45, 64, 86 and 2 Funk
+A1 tiles; the Funk full-barcode decode unchanged; the landed default on the
+selection sites reproduces the leak-free choice and outputs; identity rerun;
+speed per site.

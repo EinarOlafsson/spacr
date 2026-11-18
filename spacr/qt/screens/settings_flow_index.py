@@ -1207,6 +1207,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_cluster_seed',
     'ops_cluster_seeds',
     'ops_cluster_shuffles',
+    'ops_cluster_sweep_controls_background',
     'ops_cluster_sweep_resolutions',
     'ops_cluster_target',
     'ops_cluster_target_clusters',
