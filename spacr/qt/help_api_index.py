@@ -15563,7 +15563,6 @@ SETTING_CONSUMERS = {
     'ops_prefix_max_distance': (('spacr.ops_prefix', 'prefix_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_prefix_metric': (('spacr.ops_prefix', 'prefix_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_prefix_min_read_quality': (('spacr.ops_prefix', 'prefix_settings'), ('spacr.ops_settings', 'ops_defaults'),),
-    'ops_prefix_minority_min_reads': (('spacr.ops_prefix', 'prefix_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_prefix_nearmiss_decoy_k': (('spacr.ops_prefix', 'prefix_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_prefix_quality_method': (('spacr.ops_prefix', 'prefix_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_prefix_threshold_tuning': (('spacr.ops_prefix', 'prefix_settings'), ('spacr.ops_settings', 'ops_defaults'),),
