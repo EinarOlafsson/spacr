@@ -136,6 +136,14 @@ default after a higher-numbered item takes the next free number:
   from every nucleus after merging nucleus pieces smaller than a quarter of
   the site's median nucleus area into the nucleus they touch. Funk's
   phenotype path does not read either key.
+- 944 (item 966): ``ops_read_mode`` was ``'log'``,
+  ``ops_prefix_threshold_tuning`` ``'none'``, ``ops_prefix_decoy_k`` ``0``
+  and ``ops_prefix_fdr_target_pct`` ``0.1``; they are now empty,
+  ``'per_well_decoy'``, ``4`` and ``1.0``. The spacer-prefix decode reads an
+  empty ``ops_read_mode`` as ``'auto'`` while it tunes, so each well chooses
+  the log or raw read and its thresholds from decoy calls at a 1 % decoy FDR.
+  The OPS barcode decode reads an empty ``ops_read_mode`` as ``'log'``, so
+  Funk-style runs are unchanged.
 
 Public API
 ----------

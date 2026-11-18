@@ -5260,6 +5260,14 @@
       "data": "images",
       "goal": "quantification",
       "stage": "start",
+      "details": "cycle_images",
+      "protocol": "optical_screen",
+      "start_module": "ops"
+    },
+    {
+      "data": "images",
+      "goal": "quantification",
+      "stage": "start",
       "details": "raw_images",
       "protocol": "high_content",
       "start_module": "mask"
@@ -6324,6 +6332,13 @@
                 "start_module": "mask"
               },
               {
+                "id": "images_quantify_optical_screen",
+                "title": "Optical pooled screen (OPS)",
+                "description": "Phenotype images plus in situ sequencing cycles: genotype every cell from its sequencing reads, then build per-gene profiles. Opens the OPS module; check cycle and site alignment before decoding.",
+                "protocol": "optical_screen",
+                "start_module": "ops"
+              },
+              {
                 "id": "images_quantify_simple_imaging",
                 "title": "Simple imaging analysis",
                 "description": "Segment images or import matching masks, measure the objects and compare selected measurements in figures.",
@@ -7357,6 +7372,14 @@
               "foreign",
               "make_masks",
               "convert"
+            ]
+          },
+          "ops_cycles": {
+            "label": "Optical pooled screen (OPS)",
+            "explanation": "Phenotype images plus in situ sequencing cycles: genotype every cell from its sequencing reads, then build per-gene profiles. Opens the OPS module; check cycle and site alignment before decoding.",
+            "assumption": "Images are phenotype images with matching in situ sequencing cycles from an optical pooled screen.",
+            "starts": [
+              "ops"
             ]
           },
           "pdf": {

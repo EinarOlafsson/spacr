@@ -320,6 +320,10 @@ def _write_cache(cache_dir, key: str, payload) -> None:
         LOG.debug("could not cache the UniProt answer", exc_info=True)
 
 
+#: The UniProt release named by the headers of the last answer :func:`_get`
+#: read (``release``, ``release_date``); empty before one arrives.
+_RELEASE: Dict[str, str] = {}
+
 _BUSY_STATUSES = frozenset({429, 502, 503, 504})
 _ATTEMPTS = 4
 _BACKOFF = 2.0
@@ -368,6 +372,10 @@ def _get(url: str) -> Tuple[str, str]:
             with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
                 body = response.read().decode("utf-8", "replace")
                 link = response.headers.get("Link", "") or ""
+                _RELEASE.update(
+                    release=response.headers.get("X-UniProt-Release", "") or "",
+                    release_date=response.headers.get(
+                        "X-UniProt-Release-Date", "") or "")
             return body, _next_page(link)
         except urllib.error.HTTPError as error:
             if error.code not in _BUSY_STATUSES:
@@ -401,12 +409,15 @@ def _next_page(link_header: str) -> str:
     return found.group(1) if found else ""
 
 
-def _search_url(query: str, size: int) -> str:
-    """Build a UniProtKB TSV search URL for ``query`` and page ``size``."""
+def _search_url(query: str, size: int, fields=FIELDS) -> str:
+    """Build a UniProtKB TSV search URL for ``query`` and page ``size``.
+
+    :param fields: the UniProt return fields, :data:`FIELDS` by default.
+    """
     return (f"{REST}/uniprotkb/search?"
             + urllib.parse.urlencode({
                 "query": query,
-                "fields": ",".join(FIELDS),
+                "fields": ",".join(fields),
                 "format": "tsv",
                 "size": int(size),
             }))
@@ -530,32 +541,73 @@ def fetch_genes(resolution: Resolution, genes, *, cache_dir=None):
 
 def _fetch_genes(resolution: Resolution, genes, *, cache_dir=None):
     """:func:`fetch_genes`, as ``(frame, busy)``."""
+    frame, busy, _meta = _fetch_gene_rows(resolution, genes,
+                                          cache_dir=cache_dir)
+    return frame, busy
+
+
+def _fetch_gene_rows(resolution: Resolution, genes, *, cache_dir=None,
+                     fields=FIELDS, reviewed: bool = False):
+    """The rows of a targeted gene query, as ``(frame, busy, meta)``.
+
+    With the default ``fields`` and ``reviewed`` off this is exactly the query
+    and the cache key :func:`fetch_genes` has always used. Other fields, or
+    Swiss-Prot only, add a suffix to the cache key, and the release headers of
+    a fresh answer are cached beside the rows as ``<key>_meta``.
+
+    :param resolution: an ``organism`` resolution; others give no query.
+    :param genes: gene names or accessions, at most :data:`TARGETED_MAX`.
+    :param cache_dir: where the rows (and their meta) are cached.
+    :param fields: the UniProt return fields.
+    :param reviewed: ask for reviewed (Swiss-Prot) entries only.
+    :returns: the frame or None, whether UniProt stayed busy, and
+        ``{"release", "release_date", "fetched", "query", "fields",
+        "cached"}`` for a non-default query (``{}`` otherwise, or when
+        nothing came back); ``cached`` says the rows came from the cache.
+    """
+    import datetime
+    import hashlib
+
     import pandas as pd
 
     names = [str(g).strip() for g in (genes or []) if str(g).strip()]
     names = sorted({n for n in names})
     if not names or resolution.kind != "organism":
-        return None, False
+        return None, False, {}
     if len(names) > TARGETED_MAX:
-        return None, False
-
-    import hashlib
-
+        return None, False, {}
+    fields = tuple(fields)
+    custom = fields != FIELDS or bool(reviewed)
     digest = hashlib.sha1("|".join(names).encode()).hexdigest()[:16]
     key = f"tax_{resolution.taxon}_genes_{digest}"
+    if custom:
+        variant = ",".join(fields) + ("|reviewed" if reviewed else "")
+        key += "_" + hashlib.sha1(variant.encode()).hexdigest()[:8]
     cached = _read_cache(cache_dir, key)
     if cached is not None:
-        return pd.DataFrame(cached), False
+        meta = (_read_cache(cache_dir, key + "_meta") or {}) if custom else {}
+        return pd.DataFrame(cached), False, (dict(meta, cached=True) if custom else meta)
 
     clauses = " OR ".join(
         f"gene:{n}" if not ACCESSION.match(n) else f"accession:{n}"
         for n in names)
     query = f"({clauses}) AND organism_id:{resolution.taxon}"
-    frame, busy = _walk(_search_url(query, PAGE), 20000, resolution.text,
-                        LOG.debug)
+    if reviewed:
+        query += " AND reviewed:true"
+    _RELEASE.clear()
+    frame, busy = _walk(_search_url(query, PAGE, fields), 20000,
+                        resolution.text, LOG.debug)
+    meta = {}
     if frame is not None:
         _write_cache(cache_dir, key, frame.to_dict("records"))
-    return frame, busy
+        if custom:
+            meta = {"release": _RELEASE.get("release", ""),
+                    "release_date": _RELEASE.get("release_date", ""),
+                    "fetched": datetime.date.today().isoformat(),
+                    "query": query, "fields": list(fields)}
+            _write_cache(cache_dir, key + "_meta", meta)
+            meta = dict(meta, cached=False)
+    return frame, busy, meta
 
 
 def annotation_for(text, *, cache_dir=None, genes=None):

@@ -132,10 +132,11 @@ GROUPS = (
     )),
     ("OPS genes and\nclusters", (
         ("Clusters: Leiden sweep, bootstrap and gene-pairs consensus, test, atlas",
-         (916, 953, 928, 948, 929, 888)),
+         (916, 953, 959, 928, 948, 929, 888)),
         ("Gene map: profile clusters, labels, medoid crops", (918,)),
         ("Gene graph, protein knowledge, fusion hypotheses, gene-class training",
          (884, 885, 886, 889)),
+        ("Voyager3: cluster roles from UniProt facts through your own AI", (973,)),
     )),
     ("Automation and data", (
         ("Watch a folder as images arrive, send hits back for re-imaging", (548, 549)),
