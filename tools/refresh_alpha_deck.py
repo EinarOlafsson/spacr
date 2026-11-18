@@ -98,7 +98,7 @@ GROUPS = (
         ("LIMS / plate-barcode linkage", (583,)),
     )),
     ("OPS runs", (
-        ("OPS in Mask Generation, phenotype path to per-gene profiles", (372, 752)),
+        ("OPS in Mask Generation, phenotype path to per-gene profiles", (372, 752, 971)),
         ("Stitching: Align & Stitch core, seeded placement, overlap match rates",
          (936, 940, 915)),
         ("Phenotype store and crops, two acquisitions, yield funnel", (871, 947, 875)),

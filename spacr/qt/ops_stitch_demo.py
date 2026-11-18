@@ -10,16 +10,12 @@ al. 2022 (BioImage Archive S-BIAD394), unmodified:
 * :data:`~spacr.example_archives.STITCH_EXAMPLE_REPO` -- nine cycle-1 tiles,
   a 3 x 3 block from the middle of the well, acquired in snake-column order
   with 213 px of overlap. Align & Stitch plans and writes it as it comes.
-* :data:`~spacr.example_archives.OPS_EXAMPLE_REPO` -- sites 331 and 332, every
-  one of the eleven sequencing cycles, and the guide library's 11-base
-  prefixes. The OPS engine stitches, segments and decodes them.
-
-The OPS sample is the well's last two sites because the engine takes a well's
-field count as its highest site number plus one and fits the round well to that
-count, so a sample has to include the last site to keep the measured 333-field
-layout; see :func:`spacr.ops_engine.run_ops`. And it carries no phenotype
-images, because the phenotype phase aligns anchors spread over the whole well,
-which a two-field sample cannot supply.
+* :data:`~spacr.example_archives.OPS_E2E_EXAMPLE_REPO` -- the full tier of
+  the OPS end-to-end test data: sequencing tiles 321, 322, 331 and 332 with
+  all eleven cycles, the phenotype fields 1255, 1264 and 1280 over them, the
+  guide library, the shipped settings, the phenotype placement seed and
+  spaCR's reference outputs. Every OPS step, the phenotype ones included,
+  has something real to do.
 
 As for every other example set, there is one uncompressed ``.tar`` per
 repository, streamed behind the shared progress dialog and unpacked through the
@@ -27,8 +23,9 @@ tar data filter by :class:`spacr.qt.hf_download._TarExampleWorker`, into a
 folder of its own beside the shared example plate (:func:`example_folder`). A
 cached copy is used without a request.
 
-Loading the data fills these settings: the OPS panel gets its source, output
-folder, library and plate name; Align & Stitch gets its tile folder, the
+Loading the data fills these settings: the OPS panel gets the test data's
+shipped settings with their paths made absolute and an output folder of its
+own; Align & Stitch gets its tile folder, the
 block's 3 x 3 grid, its order, its overlap and a place to write. Run -- or Plan
 -- is then the next action.
 """
@@ -42,10 +39,12 @@ from typing import Callable, Dict, List, Optional
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton
 
-from ..example_archives import (EXAMPLE_ARCHIVES, OPS_EXAMPLE_REPO,
+from ..example_archives import (EXAMPLE_ARCHIVES, OPS_E2E_EXAMPLE_REPO,
+                                OPS_E2E_FULL_ARCHIVE, OPS_E2E_FULL_FOLDER,
+                                OPS_E2E_REFERENCE_ARCHIVES,
                                 STITCH_EXAMPLE_REPO, example_set_folder)
-from .hf_download import (_TarExampleWorker, download_toxo_mito_demo,
-                          explain_download_failure)
+from .hf_download import (_ChosenArchivesWorker, _TarExampleWorker,
+                          download_toxo_mito_demo, explain_download_failure)
 from .i18n import tr
 
 LOG = logging.getLogger("spacr.qt.ops_stitch_demo")
@@ -88,12 +87,21 @@ STITCH_OVERLAP = 0.144
 CANCELLED = "Cancelled by user."
 
 
+_OPS_TEST_FOLDER = "ops_testdata_funk2022_A1"
+
+_OPS_TEST_ARCHIVES = (OPS_E2E_FULL_ARCHIVE, OPS_E2E_REFERENCE_ARCHIVES["full"])
+
+
 def example_folder(which: str) -> Path:
     """Where the ``"ops"`` or ``"stitch"`` sample is unpacked and cached.
 
     :param which: ``"ops"`` or ``"stitch"``.
-    :returns: the folder, beside the shared example plate. Not created here.
+    :returns: the folder, beside the shared example plate; for ``"ops"``
+        the full tier's folder beside the OPS end-to-end core tier. Not
+        created here.
     """
+    if which == "ops":
+        return example_set_folder("ops_e2e").parent / OPS_E2E_FULL_FOLDER
     return example_set_folder(which)
 
 
@@ -120,35 +128,60 @@ def listed_files(folder) -> List[str]:
     return files
 
 
+def _ops_test_files(folder: Path) -> List[str]:
+    """Every file the OPS test data's ``SHA256SUMS`` lists, under ``folder``.
+
+    :param folder: where the OPS test data was unpacked.
+    :returns: paths relative to ``folder``; empty when the checksum list or
+        the revision-2 reference addendum is missing.
+    """
+    root = folder / _OPS_TEST_FOLDER
+    sums = root / "SHA256SUMS"
+    if not (sums.is_file() and (root / "reference"
+                                / "PROVENANCE_rev2_addendum.json").is_file()):
+        return []
+    try:
+        lines = sums.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    names = [line.split(None, 1)[1].strip().lstrip("*") for line in lines
+             if len(line.split(None, 1)) == 2]
+    return [f"{_OPS_TEST_FOLDER}/{name}" for name in names]
+
+
 def is_present(folder) -> bool:
     """Whether a complete copy of a sample is unpacked in ``folder``.
 
     :param folder: where the sample is expected.
-    :returns: True only when the manifest exists and every file it lists is
-        there. A partly unpacked sample counts as absent, so it is downloaded
-        again.
+    :returns: True only when the manifest (for the OPS test data, its
+        ``SHA256SUMS`` and revision-2 references) exists and every file it
+        lists is there. A partly unpacked sample counts as absent, so it is
+        downloaded again.
     """
     folder = Path(folder)
-    files = listed_files(folder)
+    files = (_ops_test_files(folder) if (folder / _OPS_TEST_FOLDER).is_dir()
+             else listed_files(folder))
     return bool(files) and all((folder / name).is_file() for name in files)
 
 
 def ops_settings_for(folder) -> Dict[str, object]:
     """The OPS settings that run the unpacked sample.
 
-    :param folder: where the OPS sample was unpacked.
-    :returns: the source, the output folder, the library and the plate. The
-        output goes to ``ops_output`` inside the sample rather than into the
+    :param folder: where the OPS test data was unpacked.
+    :returns: the test data's shipped OPS settings, with its paths made
+        absolute, the phenotype placement seed and the guide design added,
+        and the output in ``ops_output`` inside the sample rather than in the
         source, which would mix the tables with the tiles.
     """
+    from ..ops_live import _test_settings
+    from ..ops_settings import OPS_DEFAULTS
+
     folder = Path(folder)
-    return {
-        "genotype_source": str(folder / "sequencing"),
-        "phenotype_source": None,
-        "dst_root": str(folder / "ops_output"),
-        "ops_library": str(folder / "library" / "pool10_prefixes.csv"),
-        "plate": OPS_PLATE,
-    }
+    shipped = _test_settings(folder / _OPS_TEST_FOLDER)
+    values = {key: value for key, value in shipped.items() if key in OPS_DEFAULTS}
+    values["dst_root"] = str(folder / "ops_output")
+    values["plate"] = OPS_PLATE
+    return values
 
 
 def stitch_settings_for(folder) -> Dict[str, object]:
@@ -168,11 +201,18 @@ def stitch_settings_for(folder) -> Dict[str, object]:
     }
 
 
-class _OpsTarWorker(_TarExampleWorker):
-    """Fetches the OPS sample."""
+class _OpsTarWorker(_ChosenArchivesWorker):
+    """Fetches the OPS test data: the full tier and its revision-2 references."""
 
-    repo = OPS_EXAMPLE_REPO
-    archive = EXAMPLE_ARCHIVES[OPS_EXAMPLE_REPO]
+    repo = OPS_E2E_EXAMPLE_REPO
+
+    def __init__(self, dest_dir):
+        """Fetch the two OPS test data archives into ``dest_dir``.
+
+        :param dest_dir: where both archives unpack.
+        """
+        super().__init__(dest_dir, archives=_OPS_TEST_ARCHIVES,
+                         repo=OPS_E2E_EXAMPLE_REPO)
 
 
 class _StitchTarWorker(_TarExampleWorker):

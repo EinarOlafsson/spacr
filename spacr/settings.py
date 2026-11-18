@@ -9539,6 +9539,9 @@ ALPHA_FEATURES = {
                      'ops_voyager3_provider', 'ops_voyager3_model', 'ops_voyager3_timeout',
                      'ops_voyager3_shuffle_control', 'ops_voyager3_resume', 'ops_voyager3_answers_dir'),
     },
+    971: {
+        'widgets': ('OpsLiveSwitch',),
+    },
     956: {
         'module_settings': {'ops_large_sites': (
             'ops_mask_agreement_split_merge', 'ops_mask_agreement_identity_control',
