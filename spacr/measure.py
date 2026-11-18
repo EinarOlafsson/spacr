@@ -1701,13 +1701,17 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
             rows.append(row)
         return pd.DataFrame(rows)
 
+    boxes = _label_bounding_boxes(organelle_mask)
     for ch in range(channel_arrays.shape[-1]):
         channel = channel_arrays[..., ch]
         intensities = []
         for org_label in organelle_df['label']:
-            region = organelle_mask == org_label
+            box = _box_for(boxes, org_label)
+            if box is None:
+                box = tuple(slice(None) for _ in np.shape(organelle_mask))
+            region = organelle_mask[box] == org_label
             if np.any(region):
-                intensities.append(channel[region].mean())
+                intensities.append(channel[box][region].mean())
             else:
                 intensities.append(0.0)
         organelle_df[f'organelle_channel_{ch}_mean_intensity'] = intensities

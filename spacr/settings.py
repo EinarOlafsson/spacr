@@ -9482,6 +9482,9 @@ ALPHA_FEATURES = {
     952: {
         'settings': ('ops_read_mode',),
     },
+    970: {
+        'settings': ('ops_ph_pathogen_channel', 'ops_ph_pathogen_model', 'ops_ph_pathogen_diameter', 'ops_ph_pathogen_min_area', 'ops_ph_organelle_channel', 'ops_ph_organelle_morphology', 'ops_ph_organelle_method', 'ops_ph_organelle_model', 'ops_ph_organelle_diameter', 'ops_ph_organelle_min_area',),
+    },
     962: {
         'settings': ('ops_merge_strategy', 'ops_merge_stitch_source', 'ops_merge_stage_positions', 'ops_merge_min_votes', 'ops_merge_min_match_fraction', 'ops_merge_fallback_share',),
     },
@@ -9745,6 +9748,9 @@ ALPHA_FEATURES = {
     },
     957: {
         'widgets': ('MakeMasksPointModeButton',),
+    },
+    967: {
+        'settings': ('ops_prefix_minority_min_reads',),
     },
 }
 

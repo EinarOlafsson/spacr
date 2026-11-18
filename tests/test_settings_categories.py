@@ -790,6 +790,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_nearmiss_decoy_k",
     "ops_prefix_fdr_calibration",
     "ops_decode_fdr_calibration",
+    # Item 967 (2026-11-17): the spacer-prefix cell call ignores minority
+    # stray barcodes.
+    "ops_prefix_minority_min_reads",
     # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
     "ops_fdr_sweep_targets",
     "ops_fdr_sweep_max_distance",
@@ -828,6 +831,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 958 (2026-11-16): the objects phase resumes per window.
     "ops_objects_resume", "ops_objects_keep_windows",
     "ops_objects_windows_dir",
+    # Item 970 (2026-11-17): pathogen and organelle objects in the OPS
+    # phenotype path, set as in Mask Generation.
+    "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
+    "ops_ph_pathogen_diameter", "ops_ph_pathogen_min_area",
+    "ops_ph_organelle_channel", "ops_ph_organelle_morphology",
+    "ops_ph_organelle_method", "ops_ph_organelle_model",
+    "ops_ph_organelle_diameter", "ops_ph_organelle_min_area",
     # Item 962 (2026-11-16): the OPS merge route (tile hash, well stitch
     # or automatic fallback) and its thresholds.
     "ops_merge_strategy", "ops_merge_stitch_source",
