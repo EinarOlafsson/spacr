@@ -42,6 +42,8 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from .tabular import read_table, write_table
+
 #: The settings a grid may vary, with the type each value is read as.
 _GRID_KEYS: Dict[str, Callable[[Any], Any]] = {
     "ops_read_threshold": float,
@@ -345,7 +347,8 @@ def _default_points(settings: Mapping[str, Any], tiles: Sequence[Tuple[str, str,
             "ops_prefix_min_read_quality": float(best["ops_prefix_min_read_quality"]),
             "ops_prefix_max_distance": int(best["ops_prefix_max_distance"]),
             "ops_read_mode": str(tuned.get("read_mode", "log" if mode == "auto" else mode))})
-        summary = pd.read_csv(os.path.join(out["folder"], "site_summary.csv"))
+        summary = read_table(os.path.join(out["folder"], "site_summary.csv"),
+                             canonicalise=False, report=None)
         engine["rows"].extend(summary[(summary["plate"].astype(str) == plate)
                                       & (summary["well"].astype(str) == well_id)]
                               .to_dict("records"))
@@ -522,29 +525,39 @@ def _pareto(yield_pct: Sequence[float], false_pct: Sequence[float]) -> List[bool
 
 
 def _plot(table: pd.DataFrame, path: str, title: str) -> str:
-    """Draw the pooled points: yield against the shuffle call rate, with the default and the Pareto front."""
-    import matplotlib
+    """Draw the pooled points: yield against the shuffle call rate, with the default and the Pareto front.
 
-    matplotlib.use("Agg", force=False)
+    :param table: the pooled rows.
+    :param path: the PNG to write.
+    :param title: the figure title.
+    :returns: the path written (:func:`spacr.plot.save_figure`).
+    """
     from matplotlib.figure import Figure
 
-    figure = Figure(figsize=(5.2, 4.0), dpi=120)
-    ax = figure.add_subplot(1, 1, 1)
-    ax.scatter(table["shuffle_rate_pct"], table["assignment_pct"], s=22, color="#2a6f97",
-               alpha=0.6, label="grid point")
-    front = table[table["pareto"]].sort_values("shuffle_rate_pct")
-    ax.plot(front["shuffle_rate_pct"], front["assignment_pct"], color="#16324f", lw=1.2,
-            marker="o", ms=4, label="Pareto front")
-    default = table[table["is_default"]]
-    ax.scatter(default["shuffle_rate_pct"], default["assignment_pct"], s=70, marker="*",
-               color="#2ec4b6", edgecolor="#16324f", zorder=5, label="current default")
-    ax.set_xlabel("Barcode-shuffle call rate (% of cells)")
-    ax.set_ylabel("Cells assigned to a guide (%)")
-    ax.set_title(title, fontsize=9)
-    ax.legend(fontsize=7, frameon=False)
-    figure.tight_layout()
-    figure.savefig(path, metadata={"Software": None})
-    return path
+    from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style, resolve_ink
+    from .plot import save_figure
+
+    with figure_style("print"):
+        figure = Figure(figsize=(5.2, 4.0), dpi=120)
+        ax = figure.add_subplot(1, 1, 1)
+        ax.scatter(table["shuffle_rate_pct"], table["assignment_pct"], s=22, color="#2a6f97",
+                   alpha=0.6, label="grid point")
+        front = table[table["pareto"]].sort_values("shuffle_rate_pct")
+        ax.plot(front["shuffle_rate_pct"], front["assignment_pct"], color="#16324f", lw=1.2,
+                marker="o", ms=4, label="Pareto front")
+        default = table[table["is_default"]]
+        ax.scatter(default["shuffle_rate_pct"], default["assignment_pct"], s=70, marker="*",
+                   color="#2ec4b6", edgecolor=resolve_ink("print"), zorder=5,
+                   label="current default")
+        ax.set_xlabel("Barcode-shuffle call rate (% of cells)")
+        ax.set_ylabel("Cells assigned to a guide (%)")
+        ax.set_title(title, fontsize=9)
+        ax.legend(fontsize=7, frameon=False)
+        _register_figure_data(figure, table, x="shuffle_rate_pct", y="assignment_pct",
+                              hue="pareto", kind="scatter")
+        figure.tight_layout()
+        return save_figure(figure, path, fmt="png", dpi=120, close=True)
 
 
 def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str] = None,
@@ -675,8 +688,8 @@ def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str
                               table["shuffle_rate_pct"].tolist())
     frame = pd.concat([table, pd.DataFrame(lines)], ignore_index=True)
     stem = os.path.join(folder, f"ops_grid_{run_id}")
-    frame.to_csv(f"{stem}.csv", index=False, float_format="%.10g")
-    pd.DataFrame(timing).to_csv(f"{stem}_timing.csv", index=False)
+    write_table(frame, f"{stem}.csv", canonicalise=False, float_format="%.10g")
+    write_table(pd.DataFrame(timing), f"{stem}_timing.csv", canonicalise=False)
     plot = _plot(table, f"{stem}.png", f"OPS grid {run_id}: {len(keys)} tiles")
     matches = None
     if engine["ran"]:
@@ -723,9 +736,9 @@ def _apply_grid_choice(settings: Mapping[str, Any], result: Any, point: int) -> 
     :raises ValueError: for a point the grid run does not have.
     """
     if isinstance(result, (str, os.PathLike)):
-        table = pd.read_csv(result)
-        table = table[table["tile"] == "pooled"]
-        tiles = [t for t in pd.read_csv(result)["tile"].unique() if t != "pooled"]
+        written = read_table(result, canonicalise=False, report=None)
+        table = written[written["tile"] == "pooled"]
+        tiles = [t for t in written["tile"].unique() if t != "pooled"]
         record = {"run_id": str(table["run_id"].iloc[0]), "tiles": tiles, "seed": None}
         sibling = os.path.splitext(str(result))[0] + ".json"
         if os.path.isfile(sibling):
