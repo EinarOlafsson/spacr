@@ -539,9 +539,9 @@ def screen(old, new, cells=None, *, label: str = "gene", guide: str = "sgRNA",
     step_given = list(given)
     while pool and len(greedy) < 100:
         gains = _evaluate(total, within, xp, [items[i] for i in pool],
-                          step_given, lam)
+                          step_given, lam) - null_mean[pool]
         best = pool[int(np.argmax(gains))]
-        gain = float(np.max(gains))
+        gain = float(np.max(gains)) + float(null_mean[best])
         if gain - null_mean[best] <= max(float(greedy_threshold),
                                          null_hi[best] - null_mean[best]):
             break
