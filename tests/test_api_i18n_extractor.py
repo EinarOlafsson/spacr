@@ -2507,6 +2507,24 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **pairs_consensus_arrivals}
+    r2_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
+    assert len(r2_arrivals) == 1
+    assert {key: docs[key] for key in r2_arrivals} == r2_arrivals
+    assert not r2_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **r2_arrivals}
+    voyager3_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "973_ops_voyager3_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert len(voyager3_arrivals) == 9
+    assert {key: docs[key] for key in voyager3_arrivals} == voyager3_arrivals
+    assert not voyager3_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **voyager3_arrivals}
+    ops_live_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "971_ops_live_preview_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert len(ops_live_arrivals) == 2
+    assert {key: docs[key] for key in ops_live_arrivals} == ops_live_arrivals
+    assert not ops_live_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **ops_live_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

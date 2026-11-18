@@ -722,8 +722,8 @@ def test_with_seeded_cells_a_nucleus_is_dropped_only_when_it_touches_the_border(
     kept_n, kept_c, edge = ols._edge_step(nuclei, cells, on)
     assert set(np.unique(kept_c)) == {0, 2} and edge["excluded"] == 2
     assert set(np.unique(kept_n)) == {0, 1, 2}
-    off = ols.large_site_settings({})
-    assert off["seg_cells_from_nucleus_seeds"] is False
+    off = ols.large_site_settings({"seg_cells_from_nucleus_seeds": False})
+    assert ols.large_site_settings({})["seg_cells_from_nucleus_seeds"] is True
     kept_n, kept_c, _ = ols._edge_step(nuclei, cells, off)
     assert set(np.unique(kept_c)) == {0, 2} and set(np.unique(kept_n)) == {0, 2}
     kept_n, kept_c, _ = ols._edge_step(nuclei, cells, dict(on, seg_edge_policy="keep"))
@@ -757,21 +757,27 @@ def test_seeded_cells_in_the_preset_give_every_nucleus_a_cell_tiled_as_untiled()
     nucleus_model, cell_model = _models()
     plain = ols.segment_cell_painting_site(
         stack, channels, ols.large_site_settings({"seg_preset": "cell_painting_phalloidin",
-                                                  "seg_tile_px": 0}),
+                                                  "seg_tile_px": 0,
+                                                  "seg_cells_from_nucleus_seeds": False,
+                                                  "seg_merge_small_nuclei_frac": 0.0}),
         (nucleus_model, cell_model), nucleus_diameter=20.0)
     assert plain[2]["extra_nuclei_in_cell"] == 1 and plain[1].max() == len(centres) + 1
 
 
 def test_with_seeded_cells_off_the_preset_and_the_run_give_the_labels_they_gave_before(tmp_path):
     """The labels below are pinned from the code before seeded cells were
-    added (nightly baf91a3f0f), on the synthetic site of this file."""
+    added (nightly baf91a3f0f), on the synthetic site of this file. Since
+    item 965 seeded cells and the small-piece merge are on by default, so
+    the old labels need both off, as a settings file stamped before 943
+    gets them."""
     stack, _ = _site()
     channels = ols.LARGE_SITE_DEFAULTS["seg_site_channels"]
+    old = {"seg_cells_from_nucleus_seeds": False, "seg_merge_small_nuclei_frac": 0.0}
     for tile in (256, 0):
         nuclei, cells, _ = ols.segment_cell_painting_site(
             stack, channels, ols.large_site_settings({"seg_preset": "cell_painting_phalloidin",
                                                       "seg_tile_px": tile,
-                                                      "seg_tile_overlap_px": 64}),
+                                                      "seg_tile_overlap_px": 64, **old}),
             _models(), nucleus_diameter=20.0)
         assert _sha256(nuclei, cells) == \
             "22f0cf0b0b3d748b90c5978502a156b332b2b75e215a117fcaddd182b330c7a0"
@@ -779,7 +785,7 @@ def test_with_seeded_cells_off_the_preset_and_the_run_give_the_labels_they_gave_
     base = {"seg_preset": "cell_painting_phalloidin", "seg_sites_src": str(well),
             "seg_tile_px": 256, "seg_tile_overlap_px": 64, "seg_report_reference": str(ref),
             "seg_measure_band_px": 200, "seg_diameter_min_objects": 3}
-    for dst, extra in (("absent", {}), ("off", {"seg_cells_from_nucleus_seeds": False})):
+    for dst, extra in (("absent", old), ("off", dict(old, seg_merge_small_nuclei_frac=0))):
         ols.run_large_site_segmentation(dict(base, seg_dst=str(tmp_path / dst), **extra),
                                         models=_models(), available_bytes=2 ** 40)
     labels = [np.load(tmp_path / "absent" / "labels" / f"1_{kind}.npy")

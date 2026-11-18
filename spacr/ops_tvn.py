@@ -1482,7 +1482,10 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
         after ``"cluster_sweep"`` when ``ops_consensus_enabled`` is on) and
         ``"cluster_bench_test"`` (item 929,
         :func:`spacr.ops_clusters.cluster_bench_test_phase`), which run after
-        them under the same BLAS pin.
+        them under the same BLAS pin, and ``"voyager3"`` (item 973,
+        :func:`spacr.voyager3.run_voyager3`, the clusters' biological roles
+        from UniProt facts through the user's AI provider; also after a
+        clustering phase when ``ops_voyager3_enabled`` is on), last.
     :param report: called with progress lines.
     :returns: ``{"folder", "outputs", "info"}``.
     :raises ValueError: for a missing ``dst_root``, an unknown similarity,
@@ -1564,6 +1567,12 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
                 if wanted:
                     info[phase] = run_phase(settings, gene_rows, guide_rows, str(settings["dst_root"]), report=say)
                     outputs.update(info[phase]["outputs"])
+        if "voyager3" in phases or (bool(settings.get("ops_voyager3_enabled", False)) and any(
+                phase in phases for phase in ("cluster_sweep", "cluster_consensus", "cluster_bench_test"))):
+            from .voyager3 import run_voyager3
+
+            info["voyager3"] = run_voyager3(settings, report=say)
+            outputs.update({f"voyager3_{key}": path for key, path in info["voyager3"]["outputs"].items()})
     info["blas_threads"] = pinned
     info["blas_thread_count"] = _blas_threads(settings) if pinned else None
     extra = (("ops_mitotic_", "ops_guide_efficacy") if states != ["interphase_rule"]
@@ -1574,7 +1583,8 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
                                      ("cluster_consensus", "ops_consensus_"),
                                      ("cluster_bench_test", "ops_cluster_"),
                                      ("cluster_bench_test", "ops_consensus_"),
-                                     ("cluster_bench_test", "ops_bench_")) if phase in phases)
+                                     ("cluster_bench_test", "ops_bench_")) if phase in phases) + (
+        ("ops_voyager3_",) if "voyager3" in info else ())
     keys = sorted(k for k in settings if k.startswith(recorded)
                   or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas",
                            "ops_blas_threads"))

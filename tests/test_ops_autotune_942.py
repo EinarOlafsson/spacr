@@ -152,8 +152,10 @@ def test_settings_saved_before_939_keep_939_auto_mode():
         assert key in OPS_DEFAULTS and OPS_TOOLTIPS[key].endswith("Alpha.")
     assert OPS_DEFAULTS["ops_decode_threshold_mode"] == "auto"
     assert OPS_DEFAULTS["ops_decode_auto_spot_grid"] == []
-    assert OPS_DEFAULTS["ops_prefix_decoy_k"] == 0
-    assert OPS_DEFAULTS["ops_prefix_threshold_tuning"] == "none"
+    # Item 966 (schema 944) made decoys and per-well tuning the prefix defaults.
+    assert OPS_DEFAULTS["ops_prefix_decoy_k"] == 4
+    assert OPS_DEFAULTS["ops_prefix_threshold_tuning"] == "per_well_decoy"
+    assert _fold_older_defaults({}, 942)["ops_prefix_threshold_tuning"] == ("none", 944)
 
 
 def test_decoys_join_the_matcher_and_decoy_cells_are_never_genotyped():
@@ -244,7 +246,7 @@ def test_decoy_fdr_and_per_well_tuning_outputs(tmp_path):
     grid = {"ops_read_threshold": [10, 5000], "ops_prefix_min_read_quality": [0, 0.5]}
     tuned = _run(tmp_path, "tuned", ops_prefix_decoy_k=4,
                  ops_prefix_threshold_tuning="per_well_decoy", ops_prefix_tuning_grid=grid,
-                 ops_prefix_fdr_target_pct=50.0)
+                 ops_prefix_fdr_target_pct=50.0, ops_read_mode="log")
     choice = tuned["tuning"]["CP9_W1"]
     assert choice["chosen"]["ops_read_threshold"] == 10.0
     assert choice["chosen"]["ops_prefix_max_distance"] == 1.0
