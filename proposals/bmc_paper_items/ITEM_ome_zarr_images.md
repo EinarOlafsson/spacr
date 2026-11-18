@@ -35,7 +35,10 @@
 ## Maintainer decisions (2026-11-18, about 11:30)
 These bind 983 and 984.
 1. **One writer per file.** Per-field (FOV) workers never share a shard.
-   - **Local runs:** a few writer processes each own a set of wells. FOV workers send them compressed crop or label chunks through shared memory. There are no shared files and no merge step.
+   - **Local runs (corrected by the master on 2026-11-18; no shared memory):**
+     - FOV workers return their results through the process pool's normal result pipe: per-object table rows with the relationship columns, plus a raw uint16 crop array `(n, C, H, W)`.
+     - The parent is the only writer. It buffers crops per open well and per object type, and writes whole shards only, because a partial shard write means read-modify-write.
+     - There are no shared files and no merge step.
    - **Cloud or multi-machine runs:** each worker writes its own parts, registers them in the run's DuckDB catalog, and they are readable at once. A compaction step rewrites them into per-well shards afterwards.
    - The same rule holds for masks and labels written into the plate OME-Zarr.
 2. **Object relationships** become per-cell columns in the crop index, next to each crop's locator: has a nucleus, infected or uninfected, pathogen count, class. Zarr attributes name those columns. Readers filter by query, not by folder. PNG (Legacy) mode still writes today's folders.
@@ -70,13 +73,34 @@ These bind 983 and 984.
      - A shard is one field (merged stacks and labels), or one spaCR window/tile of the stitched mosaic (the `ops_window_*` / tile grid).
      - Chunks inside a shard are 512 × 512 × all channels.
      - Codec: zstd, level 3. Lossless only; no lossy codecs.
-   - **Local runs:**
-     - K writer processes each own a disjoint set of wells. K is small (2–4 by default) and set by disk bandwidth.
-     - FOV workers compress their chunks and pass them to the owning writer through shared memory: a bounded pool of `multiprocessing.shared_memory` blocks plus a pipe of (well, field, level, chunk) descriptors.
-     - Each writer assembles whole shards and writes them atomically (temporary name + rename).
-     - No two processes ever open one shard for writing, and nothing is merged afterwards.
-   - **Cloud or multi-machine runs:**
-     - Each worker writes complete per-worker part stores.
+   - **Local runs: the parent is the only writer. No shared memory.**
+     - **Why not shared memory:** `multiprocessing.shared_memory` behaves differently on each platform.
+       - Linux `/dev/shm` is 64 MB in Docker.
+       - macOS limits segment names to 31 characters.
+       - Windows has no unlink, and a segment vanishes on its last close.
+       - Before Python 3.13 the resource tracker can unlink other processes' segments.
+     - **Transport:** FOV workers return their results through the pool's normal result pipe:
+       - label arrays, or the per-object table rows with relationship columns;
+       - a raw uint16 crop array `(n, C, H, W)`.
+     - **Buffering:** the parent buffers per open well and per object type, and writes whole shards only. A partial shard write would mean read-modify-write.
+     - **Locators:** the parent assigns `(plate, well, array, row)` as it writes, then writes the table rows and the key table to the store.
+     - **Commit:** a FOV is marked committed in the catalog only after all of its writes are done.
+     - **Bounded RAM:** FOVs are queued well by well, so RAM is at most open wells × shard size.
+     - **Chosen sizes:**
+       - Field images and labels: one shard per field. A 2,960 px Funk field with 4 uint16 channels is about 70 MB, in 512 × 512 × C chunks.
+       - Crop arrays: shards of 1,024 crops (about 75 MB at 4 × 96 × 96 uint16), in chunks of 64 crops.
+       - The parent keeps at most 2 open wells per object type, so the crop buffer is about 150 MB per object type.
+       - The proof reports the measured peak buffer.
+     - **Writes:** each shard is written to a temporary name, the file is closed, then renamed (Windows needs the close first).
+     - **Writer idle time:** the proof measures the parent writer's idle time against worker time, to show the single writer is not the bottleneck.
+   - **Cross-platform rules:**
+     - Worker functions are top-level and spawn-safe.
+     - Tests force the `'spawn'` start method on Linux, and a second test uses `'forkserver'`.
+     - Store keys are short, for the 260-character Windows path limit.
+     - Names are unique regardless of case, for macOS and Windows filesystems.
+   - **Resume:** a rerun processes only FOVs not marked committed. Shards of uncommitted FOVs are ignored and overwritten.
+   - **Cloud or multi-machine runs (the fallback when one parent cannot reach all workers):**
+     - Each worker writes complete per-worker part arrays.
      - Every part is registered in the run's DuckDB catalog (path, well, fields, levels, checksum) and is readable immediately.
      - A `compact` step rewrites a well's parts into its per-well shards and swaps the catalog rows atomically.
    - **Crashes:** a writer crash leaves only whole shards or whole parts. Resume rewrites the missing ones.
@@ -101,7 +125,7 @@ These bind 983 and 984.
   - `image_format` for Measure crops is one of `'ome-zarr'`, `'png'` (PNG (Legacy), today's default), `'tiff'` and `'npy'`.
   - In OME-Zarr mode, each well gets one sharded crop array. Crops are a fixed size, channels last as spaCR crops are today.
   - The crop arrays are written by the decision-1 writers:
-    - local runs send chunks through shared memory to the writers that own each well;
+    - local runs return each FOV's table rows and raw uint16 crop array `(n, C, H, W)` through the pool's result pipe to the parent, the only writer, which buffers per well and object type, writes whole 1,024-crop shards, assigns locators, writes the table rows and key table, then marks the FOV committed;
     - cloud runs write per-worker parts registered in the DuckDB catalog and compact them afterwards.
   - PNG (Legacy) writes today's folders unchanged.
 - **Crop index (decision 2):**
@@ -138,5 +162,9 @@ These bind 983 and 984.
   | OME-Zarr | | | | |
 
   Published comparator: n/a in paper (Funk et al. 2022 and Brieflow publish no file-count, disk or timing figures for their image stores).
+- **Writer and platforms:**
+  - Writer idle time against worker time, and the peak parent buffer against open wells × shard size.
+  - The spawn and forkserver tests pass.
+  - Resume after a forced stop reruns only uncommitted FOVs and gives byte-identical arrays.
 - **Viewers:** napari and Fiji open the plate, with channel names and pixel size shown.
 - **Report:** `BMCspacr/reanalysis/item983_proof/REPORT.md`, with tables, controls and a glossary.
