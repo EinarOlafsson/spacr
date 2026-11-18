@@ -65,3 +65,29 @@ settings write the same CSV; two workers write what one writes; apply;
 run_ops with the switch on runs only the grid; defaults off and alpha.
 tests/qt/test_ops_grid_search_panel_960.py: run, table, apply, refusal,
 failure text, attach to the spots tab.
+
+PROOF CHECK 2026-11-17 (CPU, one process at a time; REPORT.md in
+BMCspacr/reanalysis/item960_proof/). Grid: read threshold 40/80/160 x
+read-quality floor 0/0.1/0.25 x mismatches 0/1, plus the default point.
+- Identity: the default point equals the frozen 966 decode's own
+  site_summary on Funk plate A (8 tiles over A1-A3), CP186A (8 held-out
+  sites) and 8 CP186A crops (all counts, max difference 0); a fixed point
+  (80, 0.1, 1) equals run_prefix_decode with tuning off on Funk and CP186A
+  (counts exact, shuffle-called to 3e-8); a 2-worker rerun writes the same
+  CSV bytes.
+- Control: shuffle call rate at every point (3 seeds); at the default point
+  seeds 0-2 lie inside the 500-permutation 95 % range (Funk 0.261 %
+  [0.163, 0.379]; CP186A 0.476 % [0.336, 0.686]).
+- Brieflow automated_parameter_search rerun on the same tiles, 18 points,
+  scored the same way: Funk fronts within a point (Brieflow 65.26 % at
+  0.560 % shuffle, spaCR 64.34 % at 0.535 %); CP186A crops spaCR 26.80 %
+  vs Brieflow 22.85 % (CP-scaled thresholds). Published Brieflow values
+  exist only for its default setting on other tiles (Fig. 2c, p. 3).
+- Finding: on 2-3 tiles per well the per-well tuning picks the strict
+  floor 0.25 on Funk (39.70 % assigned); the grid shows floor 0.1 reaches
+  64.34 % at the same decoy FDR (0.019 %).
+- Speed (Funk, 1 process): 3.64 s per point per tile vs Brieflow 27.5 s
+  (7.6x); CP186A full sites 10.1 s (spot finding 64 s per site, read from
+  the NAS).
+- GUI: panel and tests done; wiring into item 971's Spots & genotyping tab
+  waits for 971 on nightly (WIRING_AFTER_971.md).
