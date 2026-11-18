@@ -159,32 +159,22 @@ def default_system_prompt() -> str:
 
 
 def tool_approval_note(provider_name: str) -> str:
-    """Return instructions about tool approval for spaCR's console (GitHub #147).
+    """Return the console's note that the assistant has no tools (GitHub #147).
 
-    The vendor CLIs run non-interactively. For Claude Code, the console can offer an
-    approval dialog after a successful reply when the provider recorded denied tool
-    calls and a resumable session. Approval supplies tool rules for the next resumed
-    reply; a rule may cover more than one exact call. Other provider names receive
-    instructions to give the user a terminal command instead. This function only returns
-    the instructions; the caller handles any approval and resume.
+    Every vendor CLI runs without tools inside spaCR (2026-11-18), so the note is the
+    same for every provider: answer in text, and when something has to be run, give
+    the user the exact command for their own terminal. This function only returns the
+    note; the caller appends it to the system prompt.
 
-    :param provider_name: the provider's short id, such as ``"claude"``.
+    :param provider_name: the provider's short id, such as ``"claude"``; every
+        provider gets the same note.
     :returns: the paragraph to append to the system prompt.
     """
-    if provider_name == "claude":
-        return (
-            "Tool approval: you run non-interactively inside spaCR. When a "
-            "tool call is blocked pending approval, spaCR shows the user an "
-            "approval dialog after your reply and, if they allow it, resumes "
-            "this conversation with that exact call allowed. So name the "
-            "command you need and why in one sentence and end your reply; do "
-            "not ask the user to approve a prompt in the chat.")
     return (
-        "Tool approval: you run non-interactively inside spaCR and no "
-        "approval prompt can be shown. If a command is blocked or needs "
-        "permission, do not ask the user to approve a prompt; give them the "
-        "exact command to run in their own terminal and ask them to paste "
-        "the output back.")
+        "Tools: you run non-interactively inside spaCR with no tools, so you "
+        "cannot run commands, read files or search the web. Answer in text. "
+        "If something must be run, give the user the exact command to run in "
+        "their own terminal and ask them to paste the output back.")
 
 
 def error_explainer_prompt() -> str:
