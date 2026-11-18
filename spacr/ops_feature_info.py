@@ -305,7 +305,7 @@ def screen(old, new, cells=None, *, label: str = "gene", guide: str = "sgRNA",
            control: str = "nontargeting", well: str = "well",
            field: str = "site", id_columns: Optional[Sequence[str]] = None,
            families: Optional[Mapping[str, Sequence[str]]] = None,
-           permutations: int = 500, perm_unit: str = "field", seed: int = 0,
+           permutations: int = 500, perm_unit: str = "guide", seed: int = 0,
            ridge: float = 1e-6, greedy_threshold: float = 0.0,
            mlp: bool = False, device: str = "auto",
            chunk: int = 200_000) -> Dict[str, Any]:
@@ -328,8 +328,11 @@ def screen(old, new, cells=None, *, label: str = "gene", guide: str = "sgRNA",
     :param families: ``{family: [new columns]}``, screened as blocks; the
         family ``all_new`` is always added.
     :param permutations: gene-label permutations of the null.
-    :param perm_unit: ``'field'`` permutes the genes of gene-by-field units
-        within each well, ``'cell'`` the genes of single cells.
+    :param perm_unit: ``'guide'`` shuffles the genes of whole guides within
+        each well, so a guide's cells stay together; ``'field'`` the genes of
+        gene-by-field units, ``'cell'`` the genes of single cells. A null
+        over single cells finds information in pure noise, because a
+        guide's cells share more than their gene.
     :param seed: the seed of the permutations and the guide null.
     :param ridge: added to every conditioning block, times the mean variance.
     :param greedy_threshold: the smallest added bits greedy selection accepts.
@@ -400,8 +403,18 @@ def screen(old, new, cells=None, *, label: str = "gene", guide: str = "sgRNA",
     p = len(old_cols)
     n_genes = len(gene_levels)
 
-    unit_key = (np.arange(n) if perm_unit == "cell"
-                else gene.astype(np.int64) * (int(fields.max()) + 1) + fields)
+    if perm_unit == "cell":
+        unit_key = np.arange(n)
+    elif perm_unit == "guide":
+        if guide not in table.columns:
+            raise ValueError(f"perm_unit 'guide' needs the {guide!r} column")
+        unit_key = (_codes(table[guide])[0] * (int(wells.max()) + 1)
+                    + wells)
+    elif perm_unit == "field":
+        unit_key = gene.astype(np.int64) * (int(fields.max()) + 1) + fields
+    else:
+        raise ValueError("perm_unit must be 'guide', 'field' or 'cell'; "
+                         f"got {perm_unit!r}")
     _levels, unit_first, unit = np.unique(unit_key, return_index=True,
                                           return_inverse=True)
     unit = unit.astype(np.int64)
@@ -698,7 +711,7 @@ def _run_feature_screen(settings: Mapping[str, Any], report=None) -> Dict[str, A
         id_columns=ids,
         families=_families(settings.get("ops_feature_screen_families")),
         permutations=int(settings.get("ops_feature_screen_permutations") or 0),
-        perm_unit=str(settings.get("ops_feature_screen_perm_unit") or "field"),
+        perm_unit=str(settings.get("ops_feature_screen_perm_unit") or "guide"),
         seed=int(settings.get("ops_feature_screen_seed") or 0),
         ridge=float(settings.get("ops_feature_screen_ridge") or 0.0),
         greedy_threshold=float(settings.get("ops_feature_screen_greedy_threshold") or 0.0),

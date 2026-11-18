@@ -82,7 +82,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_feature_screen_guide": 'sgRNA',
     "ops_feature_screen_families": None,
     "ops_feature_screen_permutations": 500,
-    "ops_feature_screen_perm_unit": 'field',
+    "ops_feature_screen_perm_unit": 'guide',
     "ops_feature_screen_seed": 0,
     "ops_feature_screen_ridge": 1e-06,
     "ops_feature_screen_greedy_threshold": 0.0,
@@ -1569,7 +1569,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_feature_screen_permutations":
         '(int) - How many times the gene labels are shuffled within each well for the null. The corrected estimate is the observed value minus the null mean. More permutations give a steadier null and take longer. Default 500. Alpha.',
     "ops_feature_screen_perm_unit":
-        "(str) - What the null shuffles: 'field' moves whole gene-by-field groups of cells between genes within a well, which keeps cells of one field together; 'cell' shuffles single cells. Default 'field'. Alpha.",
+        "(str) - What the null shuffles: 'guide' moves whole guides between genes within a well, so a guide's cells stay together; 'field' moves gene-by-field groups of cells; 'cell' shuffles single cells, which finds information in pure noise because a guide's cells share more than their gene. Default 'guide'. Alpha.",
     "ops_feature_screen_seed":
         '(int) - The seed of the permutations and of the guide null, so a rerun gives the same table. Default 0. Alpha.',
     "ops_feature_screen_ridge":

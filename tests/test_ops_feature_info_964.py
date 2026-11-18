@@ -143,3 +143,27 @@ def test_families_come_from_a_csv_too(tmp_path):
         tmp_path / "fam.csv", index=False)
     assert ofi._families(str(tmp_path / "fam.csv")) == {"f": ["n0", "n1"]}
     assert ofi._families(None) is None
+
+
+def test_a_guide_effect_is_not_gene_information_under_the_guide_null():
+    rng = np.random.default_rng(7)
+    genes, guides, per = 150, 2, 40
+    gene = np.repeat(np.arange(genes), guides * per)
+    guide = np.repeat(np.arange(genes * guides), per)
+    offset = rng.normal(scale=0.5, size=(genes * guides, 3))
+    x = rng.normal(size=(len(gene), 5))
+    old = pd.DataFrame(x[:, :2], columns=["o0", "o1"]).assign(
+        cell=np.arange(len(gene)), gene=[f"G{g}" for g in gene],
+        sgRNA=[f"s{k}" for k in guide], well=guide % 2,
+        site=(guide % 2) * 100 + rng.integers(0, 5, len(gene)))
+    new = pd.DataFrame(x[:, 2:] + offset[guide], columns=["n0", "n1", "n2"]
+                       ).assign(cell=np.arange(len(gene)))
+    kwargs = dict(id_columns=["cell"], families={"block": ["n0", "n1", "n2"]},
+                  permutations=60, device="cpu")
+    by_cell = ofi.screen(old, new, perm_unit="cell", **kwargs)["table"].set_index("name")
+    by_guide = ofi.screen(old, new, **kwargs)["table"].set_index("name")
+    assert by_cell.loc["block", "added_bits"] > by_cell.loc["block", "null_high"]
+    row = by_guide.loc["block"]
+    assert row["null_low"] <= row["added_bits"] <= row["null_high"]
+    with pytest.raises(ValueError, match="perm_unit must be"):
+        ofi.screen(old, new, perm_unit="plate", **kwargs)
