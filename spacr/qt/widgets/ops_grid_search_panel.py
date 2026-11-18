@@ -32,6 +32,13 @@ _COLUMNS = ("point", "is_default", "pareto", "ops_read_mode", "ops_read_threshol
             "mapping_pct", "assignment_pct", "decoy_fdr_pct", "shuffle_rate_pct")
 
 
+def _headers():
+    """The table's column names in the interface language, one per :data:`_COLUMNS`."""
+    return [tr("Grid point"), tr("Default"), tr("Pareto front"), tr("Read mode"),
+            tr("Read threshold"), tr("Read-quality floor"), tr("Mismatches"), tr("Spots"),
+            tr("Reads"), tr("Mapping %"), tr("Assigned %"), tr("Decoy FDR %"), tr("Shuffle %")]
+
+
 class _GridWorker(QThread):
     """Run one grid search off the GUI thread; any exception comes back as text."""
 
@@ -100,7 +107,9 @@ class _OpsGridSearchPanel(QWidget):
         form = QFormLayout()
         self.mode = QComboBox(self)
         self.mode.setObjectName("OpsGridTileMode")
-        self.mode.addItems(["stratified", "edge_centre", "user"])
+        from spacr.ops_grid_search import _GRID_EXAMPLE, _TILE_MODES
+
+        self.mode.addItems(list(_TILE_MODES))
         form.addRow(tr("Tile pick"), self.mode)
         self.n_tiles = QSpinBox(self)
         self.n_tiles.setObjectName("OpsGridTiles")
@@ -113,11 +122,10 @@ class _OpsGridSearchPanel(QWidget):
         form.addRow(tr("Seed"), self.seed)
         self.tiles = QLineEdit(self)
         self.tiles.setObjectName("OpsGridTileList")
-        self.tiles.setPlaceholderText("W1:29, W2:100")
         form.addRow(tr("Tiles (plate:well:site)"), self.tiles)
         self.grid = QLineEdit(self)
         self.grid.setObjectName("OpsGridParams")
-        self.grid.setPlaceholderText("ops_read_threshold=40,80,160; ops_read_mode=log,raw")
+        self.grid.setPlaceholderText(_GRID_EXAMPLE)
         form.addRow(tr("Settings grid"), self.grid)
         layout.addLayout(form)
         row = QHBoxLayout()
@@ -142,7 +150,7 @@ class _OpsGridSearchPanel(QWidget):
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.verticalHeader().setVisible(False)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.table.setHorizontalHeaderLabels(list(_COLUMNS))
+        self.table.setHorizontalHeaderLabels(_headers())
         from .sortable_table import install_sorting
 
         install_sorting(self.table)

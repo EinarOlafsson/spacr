@@ -55,6 +55,9 @@ _GRID_KEYS: Dict[str, Callable[[Any], Any]] = {
 #: How the tiles are chosen, the first being the default.
 _TILE_MODES: Tuple[str, ...] = ("stratified", "edge_centre", "user")
 
+#: An example grid, as ``ops_grid_params`` writes one.
+_GRID_EXAMPLE = "ops_read_threshold=40,80,160; ops_read_mode=log,raw"
+
 #: How many tiles are chosen when ``ops_grid_n_tiles`` is empty.
 _DEFAULT_TILES = 8
 
