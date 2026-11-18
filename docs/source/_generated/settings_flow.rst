@@ -32328,6 +32328,9 @@ ops_prefix_minority_min_reads
 
 Lets a cell be called when a second barcode has only a few stray reads. Inside a cell, a barcode with fewer reads than this is ignored when another barcode has more reads; a tie still blocks the call, and a cell whose top barcode is a decoy is still not genotyped. Matters for ops_prefix_quality_method 'recipe_simple', where one stray read otherwise makes the cell bad. site_summary.csv counts the rescued cells. 3 is the tested value; 0 is off. Default 0. Alpha.
 
+| :py:func:`~spacr.cli.render_settings`
+|     ``_effective_read_mode``
+|         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_run_cpg``
