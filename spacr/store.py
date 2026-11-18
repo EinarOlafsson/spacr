@@ -148,8 +148,8 @@ def _stat(path: str) -> Optional[Dict[str, int]]:
 
 
 def _fsync(path: str) -> None:
-    """Flush one file to disk."""
-    with builtins.open(path, "rb") as handle:
+    """Flush one file to disk; opened writable, as Windows requires."""
+    with builtins.open(path, "r+b") as handle:
         os.fsync(handle.fileno())
 
 
