@@ -591,6 +591,11 @@ def _ask(provider: Any, prompt: str, model: Optional[str], timeout: float) -> Di
     """
     chunks: List[str] = []
     failed: List[BaseException] = []
+    if hasattr(provider, "last_result"):
+        try:
+            provider.last_result = {}
+        except Exception:                                   # noqa: BLE001
+            pass
     started = time.monotonic()
     worker = threading.Thread(target=_collect, name="spacr-voyager3", daemon=True,
                               args=(provider, [{"role": "user", "content": prompt}], SYSTEM_PROMPT, model,
@@ -609,8 +614,13 @@ def _ask(provider: Any, prompt: str, model: Optional[str], timeout: float) -> Di
     elif failed:
         error = f"{type(failed[0]).__name__}: {failed[0]}"[:500]
     tier = str(getattr(provider, "last_tier", "") or "") if getattr(provider, "name", "") == _HOSTED else ""
+    result = getattr(provider, "last_result", None)
+    result = result if isinstance(result, Mapping) else {}
+    usage = result.get("modelUsage")
     return {"response": "" if error else "".join(chunks), "error": error,
-            "seconds": round(time.monotonic() - started, 3), "tier": tier}
+            "seconds": round(time.monotonic() - started, 3), "tier": tier,
+            "models": sorted(usage) if isinstance(usage, Mapping) else [],
+            "cost_usd": result.get("total_cost_usd")}
 
 
 def _resolve_provider(name: str) -> Any:
@@ -746,6 +756,56 @@ def _settings_record(settings: Mapping[str, Any]) -> Dict[str, Any]:
             for key, value in sorted(settings.items()) if key.startswith("ops_voyager3_")}
 
 
+def _answer_key(prompt: str, model: Optional[str]) -> str:
+    """The SHA-256 naming a saved answer: template version, model, system text and prompt.
+
+    :param prompt: the user message.
+    :param model: the model name, or None.
+    """
+    import hashlib
+
+    text = "\n".join((TEMPLATE_VERSION, model or "", SYSTEM_PROMPT, prompt))
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _saved_answer(folder: str, key: str) -> Optional[Dict[str, Any]]:
+    """The saved answer named ``key``, or None when there is none or it is unreadable or empty.
+
+    :param folder: the answers folder.
+    :param key: from :func:`_answer_key`.
+    """
+    path = os.path.join(folder, f"{key}.json")
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            record = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(record, Mapping) or not str(record.get("response") or "").strip():
+        return None
+    return dict(record)
+
+
+def _save_answer(folder: str, key: str, attempt: Mapping[str, Any], model: Optional[str]) -> str:
+    """Save one answer atomically (temporary file, then rename) and return its path.
+
+    :param folder: the answers folder, created when missing.
+    :param key: from :func:`_answer_key`.
+    :param attempt: the successful attempt from :func:`_ask`.
+    :param model: the model name asked for, or None.
+    """
+    os.makedirs(folder, exist_ok=True)
+    path = os.path.join(folder, f"{key}.json")
+    record = {"response": attempt["response"], "seconds": attempt.get("seconds"), "tier": attempt.get("tier", ""),
+              "models": list(attempt.get("models") or []), "cost_usd": attempt.get("cost_usd"),
+              "model_asked": model or "", "template": TEMPLATE_VERSION,
+              "saved": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
+    temporary = f"{path}.{os.getpid()}.tmp"
+    with open(temporary, "w", encoding="utf-8") as handle:
+        json.dump(record, handle, indent=1, sort_keys=True)
+    os.replace(temporary, path)
+    return path
+
+
 def _provider_args(provider: Any) -> List[str]:
     """The command-line arguments the provider adds for its model and speed, or ``[]``.
 
@@ -795,7 +855,19 @@ def run_voyager3(settings: Mapping[str, Any], report: Optional[Callable[[str], N
     an empty answer) and writes the outputs through :func:`voyager3_replay`'s
     code. With ``ops_voyager3_shuffle_control`` the same is done for a seeded
     shuffle of the genes across the clusters, sizes kept. Prints a
-    ``Progress: n/total, operation_type: Voyager3`` line per cluster.
+    ``Progress: n/total, operation_type: Voyager3`` line per cluster, with the
+    counts of answers replayed and asked.
+
+    Each answer is saved as it arrives, in ``ops_voyager3_answers_dir``
+    (``answers`` beside the outputs when empty), as one JSON file named by the
+    SHA-256 of the template version, model, system text and prompt, holding
+    the raw text, the model ids and cost the provider reported, and the
+    seconds taken; the file is written to a temporary name and renamed. With
+    ``ops_voyager3_resume`` on (the default) a rerun replays the saved answer
+    of every prompt it finds and asks only the others, so an interrupted run
+    picks up where it stopped and writes the same tables; a changed model,
+    template or prompt asks again. Failed and timed-out calls are not saved.
+    The provenance records which answers were replayed and which were asked.
 
     :param settings: the OPS settings; read for ``dst_root``, the
         ``ops_voyager3_*`` settings and ``ops_control_prefix``.
@@ -830,17 +902,36 @@ def run_voyager3(settings: Mapping[str, Any], report: Optional[Callable[[str], N
     say(f"Voyager3: {len(clusters)} clusters, {len(genes_all)} genes; fetching UniProt facts")
     facts, uniprot_meta = fetch_gene_facts(genes_all, str(settings.get("ops_voyager3_organism") or "human"),
                                            cache_dir=os.path.join(out_dir, "uniprot_cache"), report=say)
+    resume = bool(settings.get("ops_voyager3_resume", True))
+    answers_dir = str(settings.get("ops_voyager3_answers_dir") or os.path.join(out_dir, "answers"))
     records = []
+    counts = {"replayed": 0, "asked": 0}
     for done, (cluster, kind, genes) in enumerate(jobs, start=1):
         prompt = build_cluster_prompt(cluster, genes, facts, stats.get(cluster) if kind == "real" else {},
                                       context, uniprot_meta)
-        attempts = [_ask(chat, prompt, model, timeout)]
-        if attempts[0]["error"] or not attempts[0]["response"].strip():
-            attempts.append(_ask(chat, prompt, model, timeout))
+        key = _answer_key(prompt, model)
+        saved = _saved_answer(answers_dir, key) if resume else None
+        if saved is not None:
+            attempts = [{"response": saved["response"], "error": "", "seconds": saved.get("seconds", 0.0),
+                         "tier": saved.get("tier", ""), "models": saved.get("models", []),
+                         "cost_usd": saved.get("cost_usd")}]
+            counts["replayed"] += 1
+            source_kind = "replayed"
+        else:
+            attempts = [_ask(chat, prompt, model, timeout)]
+            if attempts[0]["error"] or not attempts[0]["response"].strip():
+                attempts.append(_ask(chat, prompt, model, timeout))
+            final = attempts[-1]
+            if not final["error"] and final["response"].strip():
+                _save_answer(answers_dir, key, final, model)
+            counts["asked"] += 1
+            source_kind = "asked"
         records.append({"cluster": cluster, "kind": kind, "genes": list(genes),
                         "stats": dict(stats.get(cluster) or {}) if kind == "real" else {},
-                        "prompt": prompt, "attempts": attempts, "response": attempts[-1]["response"]})
-        say(f"Progress: {done}/{len(jobs)}, operation_type: Voyager3, cluster {cluster} ({kind})")
+                        "prompt": prompt, "attempts": attempts, "response": attempts[-1]["response"],
+                        "answer_key": key, "answer_source": source_kind})
+        say(f"Progress: {done}/{len(jobs)}, operation_type: Voyager3, cluster {cluster} ({kind}), "
+            f"{counts['replayed']} replayed, {counts['asked']} asked")
     provenance = {
         "voyager3": TEMPLATE_VERSION, "spacr_version": _version(),
         "created": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "provider": str(getattr(chat, "name", type(chat).__name__)),
@@ -849,7 +940,7 @@ def run_voyager3(settings: Mapping[str, Any], report: Optional[Callable[[str], N
         "cluster_table": source, "context": context, "system": SYSTEM_PROMPT, "uniprot": uniprot_meta,
         "shuffle_seed": SHUFFLE_SEED if settings.get("ops_voyager3_shuffle_control") else None,
         "settings": _settings_record(settings), "facts": {gene: facts[gene] for gene in genes_all},
-        "clusters": records}
+        "answers": {"dir": answers_dir, "resume": resume, **counts}, "clusters": records}
     path = os.path.join(out_dir, "voyager3_provenance.json")
     with open(path, "w", encoding="utf-8") as handle:
         json.dump(provenance, handle, indent=1, sort_keys=True)

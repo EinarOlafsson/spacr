@@ -94,7 +94,8 @@ Sources:
    - `voyager3_report.md`: per cluster, the role, confidence, supporting genes, misfits and candidates, a provenance header and a glossary.
    - `voyager3_provenance.json`.
    - With the shuffle control, the shuffled clusters are extra rows (`kind` `shuffled`, ids `S<cluster>`) in the same tables, and the report's summary has a row for them.
-7. **Replay.** `voyager3_replay(provenance, out_dir)` parses the saved raw responses and writes the tables again with no provider and no network. The run writes its tables through that same code path, so the replay is byte-identical by construction; the proof checks it anyway.
+7. **Resume** (maintainer decision 2026-11-17). Each answer is saved as it arrives (`results/ops_voyager3/answers/<sha256 of template version + model + system text + prompt>.json`: raw text, model ids, reported cost, seconds; atomic write). `ops_voyager3_resume` (default True) replays saved answers and asks only the missing ones; `ops_voyager3_answers_dir` moves the folder. Failed or timed-out calls are not saved. The provenance records which answers were replayed and which were asked.
+8. **Replay.** `voyager3_replay(provenance, out_dir)` parses the saved raw responses and writes the tables again with no provider and no network. The run writes its tables through that same code path, so the replay is byte-identical by construction; the proof checks it anyway.
 
 ## Settings (OPS, alpha, all off or empty by default)
 `ops_voyager3_enabled` (False), `ops_voyager3_clusters` (None), `ops_voyager3_cluster_column` ('cluster'), `ops_voyager3_cluster_ids` (None), `ops_voyager3_organism` ('human'), `ops_voyager3_context` (''), `ops_voyager3_provider` ('' = the Preferences choice), `ops_voyager3_model` ('' = the provider's default), `ops_voyager3_timeout` (300), `ops_voyager3_shuffle_control` (False).

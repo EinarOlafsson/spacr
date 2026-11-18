@@ -270,6 +270,7 @@ def test_progress_lines_are_ones_the_module_bar_reads(fake_uniprot, tmp_path):
     V.run_voyager3(_settings(tmp_path), report=lines.append, provider=StubProvider())
     samples = [s for line in lines for s in parse_progress(line)]
     assert [(s.done, s.total, s.label) for s in samples] == [(1, 2, "Voyager3"), (2, 2, "Voyager3")]
+    assert any("0 replayed, 2 asked" in line for line in lines)
 
 
 def test_missing_clusters_are_refused(tmp_path):
@@ -350,7 +351,8 @@ def test_the_settings_are_off_by_default_and_alpha():
     defaults = ops_defaults()
     keys = [k for k in defaults if k.startswith("ops_voyager3_")]
     assert defaults["ops_voyager3_enabled"] is False and defaults["ops_voyager3_shuffle_control"] is False
-    assert set(ALPHA_FEATURES[973]["settings"]) == set(keys) and len(keys) == 10
+    assert set(ALPHA_FEATURES[973]["settings"]) == set(keys) and len(keys) == 12
+    assert defaults["ops_voyager3_resume"] is True and defaults["ops_voyager3_answers_dir"] is None
     assert all(k in OPS_CATEGORIES["OPS phenotype"] for k in keys)
 
 
@@ -394,3 +396,75 @@ def test_a_long_prompt_is_written_with_shorter_facts(monkeypatch):
     short = V.build_cluster_prompt(1, genes, facts)
     assert len(short) < len(full) and "shortened to fit" in short and "GO component" not in short
     assert "GO process: t0; t1; t2; t3\n" in short and re.findall(r"^### (\S+)", short, flags=re.M) == sorted(genes)
+
+
+class Counting(StubProvider):
+    """The GO-rule stub, counting its calls and reporting a model and a cost like the Claude CLI."""
+
+    calls = 0
+
+    def stream_chat(self, messages, system="", model=None):
+        """Count, then answer like :class:`StubProvider`."""
+        Counting.calls += 1
+        self.last_result = {"modelUsage": {"stub-model-1": {}}, "total_cost_usd": 0.25}
+        yield from StubProvider.stream_chat(self, messages, system, model)
+
+
+TABLES = ("voyager3_clusters.csv", "voyager3_candidates.csv", "voyager3_gene_facts.csv")
+
+
+def test_an_interrupted_run_resumes_to_the_same_tables(fake_uniprot, tmp_path):
+    (tmp_path / "whole").mkdir()
+    whole = V.run_voyager3(_settings(tmp_path / "whole"), report=lambda t: None, provider=Counting())
+    Counting.calls = 0
+    (tmp_path / "cut").mkdir()
+    first = _settings(tmp_path / "cut", ops_voyager3_cluster_ids="1")
+    V.run_voyager3(first, report=lambda t: None, provider=Counting())
+    assert Counting.calls == 1
+    answers = sorted((tmp_path / "cut" / "run" / "results" / "ops_voyager3" / "answers").glob("*.json"))
+    saved = json.loads(answers[0].read_text())
+    assert len(answers) == 1 and saved["models"] == ["stub-model-1"] and saved["cost_usd"] == 0.25
+    assert saved["response"] and saved["seconds"] is not None and not list(answers[0].parent.glob("*.tmp"))
+    Counting.calls = 0
+    lines = []
+    again = V.run_voyager3(dict(first, ops_voyager3_cluster_ids=None), report=lines.append, provider=Counting())
+    assert Counting.calls == 1 and any("1 replayed, 1 asked" in line for line in lines)
+    for name in TABLES:
+        assert (Path(again["folder"]) / name).read_bytes() == (Path(whole["folder"]) / name).read_bytes(), name
+    record = json.loads(Path(again["provenance"]).read_text())
+    assert [c["answer_source"] for c in record["clusters"]] == ["replayed", "asked"]
+    assert record["answers"]["replayed"] == 1 and record["answers"]["asked"] == 1
+
+
+def test_a_changed_model_or_resume_off_asks_again(fake_uniprot, tmp_path):
+    settings = _settings(tmp_path, ops_voyager3_answers_dir=str(tmp_path / "saved"))
+    Counting.calls = 0
+    V.run_voyager3(settings, report=lambda t: None, provider=Counting())
+    V.run_voyager3(settings, report=lambda t: None, provider=Counting())
+    assert Counting.calls == 2 and len(list((tmp_path / "saved").glob("*.json"))) == 2
+    V.run_voyager3(dict(settings, ops_voyager3_model="other"), report=lambda t: None, provider=Counting())
+    assert Counting.calls == 4
+    V.run_voyager3(dict(settings, ops_voyager3_resume=False), report=lambda t: None, provider=Counting())
+    assert Counting.calls == 6
+
+
+def test_a_changed_template_asks_again(fake_uniprot, tmp_path, monkeypatch):
+    settings = _settings(tmp_path)
+    Counting.calls = 0
+    V.run_voyager3(settings, report=lambda t: None, provider=Counting())
+    monkeypatch.setattr(V, "TEMPLATE_VERSION", "voyager3-test")
+    V.run_voyager3(settings, report=lambda t: None, provider=Counting())
+    assert Counting.calls == 4
+
+
+def test_a_failed_answer_is_not_saved(fake_uniprot, tmp_path):
+    class Broken(StubProvider):
+        """Always fails."""
+
+        def stream_chat(self, messages, system="", model=None):
+            """Raise like a CLI that exited."""
+            raise RuntimeError("exit 1")
+            yield ""
+
+    V.run_voyager3(_settings(tmp_path), report=lambda t: None, provider=Broken())
+    assert not list((tmp_path / "run" / "results" / "ops_voyager3" / "answers").glob("*"))

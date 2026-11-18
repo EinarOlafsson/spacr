@@ -362,6 +362,7 @@ class ChatProvider(CommandLineTool, ABC):
         self._approved_tools: List[str] = []
         self.last_permission_denials: List[Dict] = []
         self.last_session_id = ""
+        self.last_result: Dict = {}
 
     def is_logged_in(self) -> bool:
         """Best-effort — override per provider if a cheap check exists.
@@ -819,6 +820,7 @@ class ClaudeCliProvider(ChatProvider):
                     yield line
                     continue
                 result = parsed
+                self.last_result = dict(parsed)
                 self.last_session_id = str(parsed.get("session_id") or "")
                 self.last_permission_denials = [
                     d for d in parsed.get("permission_denials") or []

@@ -399,6 +399,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_voyager3_model": "",
     "ops_voyager3_timeout": 300,
     "ops_voyager3_shuffle_control": False,
+    "ops_voyager3_resume": True,
+    "ops_voyager3_answers_dir": None,
     "ops_etest": False,
     "ops_etest_cells": None,
     "ops_etest_metric": 'both',
@@ -856,6 +858,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_voyager3_model": str,
     "ops_voyager3_timeout": (int, float),
     "ops_voyager3_shuffle_control": bool,
+    "ops_voyager3_resume": bool,
+    "ops_voyager3_answers_dir": (str, type(None)),
     "ops_etest": bool,
     "ops_etest_cells": (str, type(None)),
     "ops_etest_metric": str,
@@ -1197,6 +1201,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_voyager3_model",
         "ops_voyager3_timeout",
         "ops_voyager3_shuffle_control",
+        "ops_voyager3_resume",
+        "ops_voyager3_answers_dir",
         "ops_etest",
         "ops_etest_cells",
         "ops_etest_metric",
@@ -2365,6 +2371,17 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "genes shuffled across clusters (fixed seed), so a coherent role in "
         "a real cluster can be compared with how often one turns up by "
         "chance. Doubles the number of questions. Default False. Alpha.",
+    "ops_voyager3_resume":
+        "(bool) - Save each answer as it arrives and, on a rerun, reuse the "
+        "saved answer of every question asked before, so an interrupted run "
+        "goes on where it stopped and gives the same tables. Only questions "
+        "with the same prompt, model and template version are reused; failed "
+        "or timed-out calls are asked again. Off asks every cluster again. "
+        "Default True. Alpha.",
+    "ops_voyager3_answers_dir":
+        "(str or None) - The folder that holds the saved answers, one file "
+        "per question. Empty uses answers in results/ops_voyager3. Default "
+        "None. Alpha.",
     "ops_consensus_view_columns":
         "(int) - How many TVN columns of ops_consensus_cells (PC_0 on) the "
         "interphase and mitosis profiles use. Default 50. Alpha.",

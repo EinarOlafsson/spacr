@@ -10,6 +10,7 @@ The AI that answers is the one chosen under Preferences > AI, or
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any, Dict, Optional
 
 from PySide6.QtCore import QObject
@@ -133,8 +134,11 @@ class Voyager3Controls(QWidget):
         if samples and samples[-1].total:
             last = samples[-1]
             self.bar.setValue(int(round(100 * last.done / last.total)))
-            self.status.setText(tr("Voyager3: {done} of {total} clusters annotated",
-                                   done=last.done, total=last.total))
+            found = re.search(r"(\d+) replayed, (\d+) asked", str(line))
+            replayed, asked = (found.group(1), found.group(2)) if found else ("0", str(last.done))
+            self.status.setText(tr("Voyager3: {done} of {total} clusters annotated ({replayed} replayed, "
+                                   "{asked} asked)", done=last.done, total=last.total,
+                                   replayed=replayed, asked=asked))
 
     def _on_error(self, message: str) -> None:
         """Show a failed run's message.

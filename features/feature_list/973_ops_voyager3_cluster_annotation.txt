@@ -37,6 +37,16 @@ BUILD
   provider and model, UniProt release and fetch date, facts, every attempt
   and raw answer). The tables are written from the provenance by the same
   code the replay uses.
+- Resume (maintainer decision 2026-11-17): each answer is saved as it arrives
+  to <ops_voyager3_answers_dir or results/ops_voyager3/answers>/<sha256 of
+  template version, model, system text and prompt>.json (raw text, model ids,
+  reported cost, seconds; temporary file then rename). ops_voyager3_resume
+  (default True) replays saved answers and asks only the missing ones; a
+  changed model, template or prompt asks again; failed or timed-out calls are
+  not saved. The provenance records each cluster's answer_source (replayed /
+  asked) and the counts; progress lines and the GUI status say
+  "n replayed, m asked". The Claude CLI provider keeps its last result
+  object (last_result) so model ids and cost can be saved.
 - ops_voyager3_shuffle_control: the same cluster sizes with the genes
   permuted (seed 20261117), kind "shuffled" in the tables.
 - Phase "voyager3", last of the profile phases; also after cluster_sweep,
@@ -44,7 +54,7 @@ BUILD
   runtime.json records the ops_voyager3_* keys only when it ran.
 - Settings (OPS phenotype category, last OPS step): ops_voyager3_enabled,
   _clusters, _cluster_column, _cluster_ids, _organism, _context, _provider,
-  _model, _timeout, _shuffle_control. For item 969: a subcategory
+  _model, _timeout, _shuffle_control, _resume, _answers_dir. For item 969: a subcategory
   "Cluster annotation (Voyager3)" after the clustering subcategory.
 - GUI: "Annotate clusters (Voyager3)" button, progress bar and status line in
   the section holding ops_voyager3_enabled, behind Show alpha features; runs
