@@ -515,7 +515,8 @@ def _progressive_slot_of_setting(key):
     role = object_of_setting(key)
     if role in ALL_ORGANELLE_ROLES:
         return role
-    if key != NUMBER_OF_ORGANELLES and 'organelle' in str(key).lower():
+    if (key != NUMBER_OF_ORGANELLES and 'organelle' in str(key).lower()
+            and not str(key).startswith('ops_')):
         return ALL_ORGANELLE_ROLES[0]
     return None
 
@@ -2362,7 +2363,8 @@ _APP_CATEGORY_PARENTS["ops"] = {
         "Spacer-prefix FDR & tuning", "Prefix FDR sweep",
         "Comparison with other pipelines")},
     **{title: "OPS phenotype" for title in (
-        "Phenotype segmentation", "Phenotype acquisitions",
+        "Phenotype segmentation", "Pathogen & organelle segmentation",
+        "Phenotype acquisitions",
         "Feature families", "Flat-field correction", "Flat-field map fit",
         "Flat-field validation", "Merged images & tables",
         "Single-cell crops")},
@@ -3068,6 +3070,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Which phenotype channels are measured and which channel and "
         "Cellpose models segment the cells and nuclei, at what diameter, "
         "downsampling and batch size, on which sites.",
+    "PATHOGEN & ORGANELLE SEGMENTATION":
+        "Optional pathogen and organelle objects in the phenotype fields: "
+        "the channel each is found on, the Cellpose model, diameter and "
+        "smallest area, and for organelles the morphology and the method "
+        "that finds them, as in Mask Generation.",
     "PHENOTYPE ACQUISITIONS":
         "For a plate whose phenotype channels were imaged in more than one "
         "acquisition: which acquisition holds which channels, and how a "
@@ -12033,7 +12040,8 @@ class SettingsWidgets:
                          None)
             if owner is not None and owner in drop:
                 beyond.add(name)
-            elif count == 0 and "organelle" in name.lower():
+            elif (count == 0 and "organelle" in name.lower()
+                  and not name.startswith("ops_")):
                 beyond.add(name)
         return beyond
 

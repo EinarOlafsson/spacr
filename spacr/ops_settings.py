@@ -74,6 +74,16 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_batch_size": 8,
     "ops_ph_sites": None,
     "ops_ph_texture": True,
+    "ops_ph_pathogen_channel": None,
+    "ops_ph_pathogen_model": "cpsam",
+    "ops_ph_pathogen_diameter": None,
+    "ops_ph_pathogen_min_area": 0,
+    "ops_ph_organelle_channel": None,
+    "ops_ph_organelle_morphology": "spots",
+    "ops_ph_organelle_method": "otsu",
+    "ops_ph_organelle_model": "cpsam",
+    "ops_ph_organelle_diameter": None,
+    "ops_ph_organelle_min_area": 10,
     "ops_merge_threshold": 4.0,
     "ops_merge_strategy": "current",
     "ops_merge_stitch_source": "metadata",
@@ -535,6 +545,16 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_batch_size": int,
     "ops_ph_sites": (str, type(None)),
     "ops_ph_texture": bool,
+    "ops_ph_pathogen_channel": (str, type(None)),
+    "ops_ph_pathogen_model": str,
+    "ops_ph_pathogen_diameter": (float, int, type(None)),
+    "ops_ph_pathogen_min_area": int,
+    "ops_ph_organelle_channel": (str, type(None)),
+    "ops_ph_organelle_morphology": str,
+    "ops_ph_organelle_method": str,
+    "ops_ph_organelle_model": str,
+    "ops_ph_organelle_diameter": (float, int, type(None)),
+    "ops_ph_organelle_min_area": int,
     "ops_merge_threshold": (float, int),
     "ops_merge_strategy": str,
     "ops_merge_stitch_source": str,
@@ -1063,6 +1083,13 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
         "ops_ph_sites", "ops_retry_missing",
     ],
+    "Pathogen & organelle segmentation": [
+        "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
+        "ops_ph_pathogen_diameter", "ops_ph_pathogen_min_area",
+        "ops_ph_organelle_channel", "ops_ph_organelle_morphology",
+        "ops_ph_organelle_method", "ops_ph_organelle_model",
+        "ops_ph_organelle_diameter", "ops_ph_organelle_min_area",
+    ],
     "Phenotype acquisitions": [
         "ops_ph_acquisitions", "ops_ph_use_acquisition",
         "ops_ph_secondary_channels", "ops_ph_secondary_registration",
@@ -1566,6 +1593,56 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(bool) - Add the GLCM homogeneity texture block to every channel of "
         "every compartment. It adds about ten percent to measurement time. "
         "Default True. Alpha.",
+    "ops_ph_pathogen_channel":
+        "(str or None) - The phenotype channel to find pathogens in, by its "
+        "name in ops_ph_channels, as pathogen_channel is in Mask Generation. "
+        "Set, each field's pathogens are segmented with Cellpose and every "
+        "cell gains cell_pathogen_ columns: how many pathogens it holds, "
+        "their area and share of the cell, their shape, and their mean "
+        "intensity in each channel. They reach the gene profiles and "
+        "clusters like the cell's own features. Empty finds none. Default "
+        "None. Alpha.",
+    "ops_ph_pathogen_model":
+        "(str) - The Cellpose model that segments the pathogens: 'cpsam', a "
+        "model from the model zoo or a model file, as pathogen_model is in "
+        "Mask Generation. Default 'cpsam'. Alpha.",
+    "ops_ph_pathogen_diameter":
+        "(float or None) - Expected pathogen diameter in full-resolution "
+        "phenotype pixels; empty lets the model decide. Pathogens are "
+        "segmented at full resolution. Default None. Alpha.",
+    "ops_ph_pathogen_min_area":
+        "(int) - Pathogens smaller than this many pixels are dropped before "
+        "they are counted and measured, which removes debris and noise "
+        "specks; 0 keeps all. Default 0. Alpha.",
+    "ops_ph_organelle_channel":
+        "(str or None) - The phenotype channel to find organelles in, by its "
+        "name in ops_ph_channels, as organelle_channel is in Mask "
+        "Generation. Set, each field's organelles are segmented and every "
+        "cell gains cell_organelle_ columns: how many it holds, their area "
+        "and share of the cell, their shape, and their mean intensity in "
+        "each channel. They reach the gene profiles and clusters. Empty "
+        "finds none. Default None. Alpha.",
+    "ops_ph_organelle_morphology":
+        "(str) - What the organelles look like, as in Mask Generation: "
+        "'spots' (vesicles, droplets), 'network' (mitochondria, ER), "
+        "'irregular' (Golgi, lysosomes) or 'ring' (endosomes). Default "
+        "'spots'. Alpha.",
+    "ops_ph_organelle_method":
+        "(str) - How the organelles are found, as in Mask Generation: "
+        "'otsu' or 'adaptive' thresholds for every morphology, 'log' and "
+        "'dog' for spots and rings, 'ridge' and 'hysteresis' for networks, "
+        "or 'cellpose' with ops_ph_organelle_model. Default 'otsu'. Alpha.",
+    "ops_ph_organelle_model":
+        "(str) - The Cellpose model for the 'cellpose' organelle method: "
+        "'cpsam', a model from the model zoo or a model file. Default "
+        "'cpsam'. Alpha.",
+    "ops_ph_organelle_diameter":
+        "(float or None) - Expected organelle diameter in full-resolution "
+        "phenotype pixels for the 'cellpose' method; empty lets the model "
+        "decide. Default None. Alpha.",
+    "ops_ph_organelle_min_area":
+        "(int) - Organelles smaller than this many pixels are dropped. "
+        "Default 10, as in Mask Generation. Alpha.",
     "ops_ph_zernike":
         "(bool) - Also measure the Zernike moments of degree 8 of the cell "
         "and the nucleus (zernike_0 to zernike_24, 50 columns), as spaCR's "
