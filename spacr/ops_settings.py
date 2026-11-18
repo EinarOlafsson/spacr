@@ -358,6 +358,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cluster_gene_list": None,
     "ops_cluster_published": None,
     "ops_cluster_published_controls": True,
+    "ops_cluster_sweep_controls_background": False,
     "ops_consensus_enabled": False,
     "ops_consensus_bootstraps": 10,
     "ops_consensus_seed": 100,
@@ -389,6 +390,18 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_bench_gate_arm": 'consensus',
     "ops_bench_half": 1,
     "ops_bench_null_permutations": 1000,
+    "ops_voyager3_enabled": False,
+    "ops_voyager3_clusters": None,
+    "ops_voyager3_cluster_column": "cluster",
+    "ops_voyager3_cluster_ids": None,
+    "ops_voyager3_organism": "human",
+    "ops_voyager3_context": "",
+    "ops_voyager3_provider": "",
+    "ops_voyager3_model": "",
+    "ops_voyager3_timeout": 300,
+    "ops_voyager3_shuffle_control": False,
+    "ops_voyager3_resume": True,
+    "ops_voyager3_answers_dir": None,
     "ops_etest": False,
     "ops_etest_cells": None,
     "ops_etest_metric": 'both',
@@ -812,6 +825,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cluster_gene_list": (str, type(None)),
     "ops_cluster_published": (list, str, type(None)),
     "ops_cluster_published_controls": bool,
+    "ops_cluster_sweep_controls_background": bool,
     "ops_consensus_enabled": bool,
     "ops_consensus_bootstraps": int,
     "ops_consensus_seed": int,
@@ -843,6 +857,18 @@ OPS_TYPES: Dict[str, object] = {
     "ops_bench_gate_arm": str,
     "ops_bench_half": (int, type(None)),
     "ops_bench_null_permutations": int,
+    "ops_voyager3_enabled": bool,
+    "ops_voyager3_clusters": (str, type(None)),
+    "ops_voyager3_cluster_column": str,
+    "ops_voyager3_cluster_ids": (str, list, type(None)),
+    "ops_voyager3_organism": (str, int),
+    "ops_voyager3_context": str,
+    "ops_voyager3_provider": str,
+    "ops_voyager3_model": str,
+    "ops_voyager3_timeout": (int, float),
+    "ops_voyager3_shuffle_control": bool,
+    "ops_voyager3_resume": bool,
+    "ops_voyager3_answers_dir": (str, type(None)),
     "ops_etest": bool,
     "ops_etest_cells": (str, type(None)),
     "ops_etest_metric": str,
@@ -1153,6 +1179,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_cluster_gene_list",
         "ops_cluster_published",
         "ops_cluster_published_controls",
+        "ops_cluster_sweep_controls_background",
         "ops_consensus_enabled",
         "ops_consensus_bootstraps",
         "ops_consensus_seed",
@@ -1184,6 +1211,18 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_bench_gate_arm",
         "ops_bench_half",
         "ops_bench_null_permutations",
+        "ops_voyager3_enabled",
+        "ops_voyager3_clusters",
+        "ops_voyager3_cluster_column",
+        "ops_voyager3_cluster_ids",
+        "ops_voyager3_organism",
+        "ops_voyager3_context",
+        "ops_voyager3_provider",
+        "ops_voyager3_model",
+        "ops_voyager3_timeout",
+        "ops_voyager3_shuffle_control",
+        "ops_voyager3_resume",
+        "ops_voyager3_answers_dir",
         "ops_etest",
         "ops_etest_cells",
         "ops_etest_metric",
@@ -2219,6 +2258,10 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "them, Funk et al.'s published clusters score CORUM 24.3 % and KEGG "
         "13.5 %, as published. Settings files saved before item 953 rerun "
         "with False. Default True. Alpha.",
+    "ops_cluster_sweep_controls_background":
+        "(bool) - Count the non-targeting control rows in the background of "
+        "the CORUM and KEGG shares of the sweep rows, as comparator rows do. "
+        "Off by default: the background is the targeting genes only. Alpha.",
     "ops_consensus_enabled":
         "(bool) - Also run guide-bootstrap consensus clustering after the "
         "cluster_sweep phase. Each bootstrap redraws every gene's guides, "
@@ -2307,6 +2350,62 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "mode builds its interphase and mitosis profiles from: one row per "
         "cell with gene, sgRNA, mitotic and the TVN columns PC_0, PC_1 and "
         "on. Default None. Alpha.",
+    "ops_voyager3_enabled":
+        "(bool) - Run Voyager3 after the clustering phases: every cluster's "
+        "genes get their reviewed UniProt facts (function, GO, pathway, "
+        "location, annotation score), and the AI chosen under Preferences "
+        "names the role the cluster shares, how confident it is, the genes "
+        "that support it, those that do not fit and the poorly "
+        "characterised genes worth following up. The phase voyager3 runs it "
+        "on its own. Writes results/ops_voyager3. Default False. Alpha.",
+    "ops_voyager3_clusters":
+        "(str or None) - The cluster table Voyager3 annotates: a gene column "
+        "and the column ops_voyager3_cluster_column names. Empty reads "
+        "results/ops_clusters/consensus_partition.csv of this run. Default "
+        "None. Alpha.",
+    "ops_voyager3_cluster_column":
+        "(str) - The column of the cluster table that holds each gene's "
+        "cluster, such as cluster or leiden_r10. Default 'cluster'. Alpha.",
+    "ops_voyager3_cluster_ids":
+        "(str, list or None) - Annotate only these clusters, such as 3,17,40. "
+        "Empty annotates every cluster with at least two genes. Default "
+        "None. Alpha.",
+    "ops_voyager3_organism":
+        "(str or int) - The organism whose UniProt entries Voyager3 reads, "
+        "as a name (human, mouse) or a taxon id. Default 'human'. Alpha.",
+    "ops_voyager3_context":
+        "(str) - A sentence on the screen that every prompt includes: cell "
+        "type, stains or markers, and the cell population, such as "
+        "'HeLa cells, interphase, DNA and tubulin stains'. Empty says not "
+        "given. Default ''. Alpha.",
+    "ops_voyager3_provider":
+        "(str) - The AI that answers: spacr_hosted (spaCR AI, free), or "
+        "claude, codex or gemini, each the command-line tool signed in with "
+        "your own account. Empty uses the choice under Preferences > AI. The "
+        "report names the provider and model, and says when the free "
+        "provider answered with its smaller model. Default ''. Alpha.",
+    "ops_voyager3_model":
+        "(str) - The model name passed to that AI. Empty uses its default. "
+        "The name is saved with the results. Default ''. Alpha.",
+    "ops_voyager3_timeout":
+        "(int or float) - Seconds one cluster's answer may take before it "
+        "is stopped and asked once more. Default 300. Alpha.",
+    "ops_voyager3_shuffle_control":
+        "(bool) - Also annotate a control: the same cluster sizes with the "
+        "genes shuffled across clusters (fixed seed), so a coherent role in "
+        "a real cluster can be compared with how often one turns up by "
+        "chance. Doubles the number of questions. Default False. Alpha.",
+    "ops_voyager3_resume":
+        "(bool) - Save each answer as it arrives and, on a rerun, reuse the "
+        "saved answer of every question asked before, so an interrupted run "
+        "goes on where it stopped and gives the same tables. Only questions "
+        "with the same prompt, model and template version are reused; failed "
+        "or timed-out calls are asked again. Off asks every cluster again. "
+        "Default True. Alpha.",
+    "ops_voyager3_answers_dir":
+        "(str or None) - The folder that holds the saved answers, one file "
+        "per question. Empty uses answers in results/ops_voyager3. Default "
+        "None. Alpha.",
     "ops_consensus_view_columns":
         "(int) - How many TVN columns of ops_consensus_cells (PC_0 on) the "
         "interphase and mitosis profiles use. Default 50. Alpha.",

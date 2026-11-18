@@ -26,6 +26,7 @@ import pytest
 import tifffile
 
 from spacr.example_archives import (EXAMPLE_ARCHIVES, EXAMPLE_SETS,
+                                    OPS_E2E_FULL_ARCHIVE, OPS_E2E_FULL_FOLDER,
                                     OPS_EXAMPLE_REPO, STITCH_EXAMPLE_REPO,
                                     example_plate_folder, example_set,
                                     example_set_folder)
@@ -42,8 +43,58 @@ def _stitch_tile_name(site: int) -> str:
     return f"tiles/10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-{site}.tif"
 
 
+_OPS_ROOT = "ops_testdata_funk2022_A1"
+_OPS_PLATE_DIR = f"{_OPS_ROOT}/20200202_6W-LaC024A"
+
+
+def _write_ops_sample(folder: Path) -> None:
+    """Lay a tiny OPS end-to-end test data copy out, ``SHA256SUMS`` last.
+
+    Sequencing tiles 331 and 332 with eleven cycles, one phenotype field,
+    the library, the settings file and the revision-2 reference addendum,
+    as the full tier and its references unpack.
+    """
+    import json
+
+    rng = np.random.default_rng(461)
+    names = []
+    seq = f"{_OPS_PLATE_DIR}/sequencing/images/input"
+    for site in (331, 332):
+        names.append(f"{seq}/c1/10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-{site}.tif")
+        for cycle in range(2, 12):
+            for channel in ("CY3", "A594", "CY5", "CY7"):
+                names.append(f"{seq}/c{cycle}/10X_c{cycle}_A1_{channel}_Site-{site}.tif")
+    names.append(f"{_OPS_PLATE_DIR}/phenotype/images/input/DAPI-GFP-A594-AF750/"
+                 "20X_DAPI-GFP-A594-AF750_A1_A594_Site-1264.tif")
+    for name in names:
+        path = folder / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tifffile.imwrite(path, rng.integers(0, 4000, (8, 8), dtype=np.uint16))
+    extra = {
+        "library/pool10_prefixes.csv": "prefix\nACGTACGTACG\n",
+        "library/pool10_design.csv": "sgRNA,gene_symbol\nACGTACGTACGTACGTACGT,G1\n",
+        "settings/ops_testdata_settings.json": json.dumps({
+            "genotype_source": "20200202_6W-LaC024A/sequencing",
+            "phenotype_source": "20200202_6W-LaC024A/phenotype",
+            "ops_library": "library/pool10_prefixes.csv",
+            "dst_root": "spacr_run", "plate": "20200202_6W-LaC024A",
+            "ops_ph_sites": "1255,1264,1280", "n_workers": 2}),
+        "reference/PROVENANCE_rev2_addendum.json": "{}",
+    }
+    for name, text in extra.items():
+        path = folder / _OPS_ROOT / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    listed = [n[len(_OPS_ROOT) + 1:] for n in names] + list(extra)
+    (folder / _OPS_ROOT / "SHA256SUMS").write_text(
+        "".join(f"{'0' * 64}  {name}\n" for name in listed), encoding="utf-8")
+
+
 def _write_sample(folder: Path, which: str) -> None:
     """Lay a tiny sample out as its archive unpacks, manifest last."""
+    if which == "ops":
+        _write_ops_sample(folder)
+        return
     rng = np.random.default_rng(461)
     names = []
     if which == "stitch":
@@ -78,13 +129,15 @@ def _synthetic_archive(tmp_path: Path, which: str) -> Path:
     source = tmp_path / f"source_{which}"
     source.mkdir()
     _write_sample(source, which)
-    archive = tmp_path / EXAMPLE_ARCHIVES[
-        OPS_EXAMPLE_REPO if which == "ops" else STITCH_EXAMPLE_REPO]
+    archive = tmp_path / (OPS_E2E_FULL_ARCHIVE if which == "ops"
+                          else EXAMPLE_ARCHIVES[STITCH_EXAMPLE_REPO])
+    last = (source / _OPS_ROOT / "SHA256SUMS" if which == "ops"
+            else source / demo.MANIFEST_NAME)
     with tarfile.open(archive, "w") as tar:
         for path in sorted(source.rglob("*")):
-            if path.is_file() and path.name != demo.MANIFEST_NAME:
+            if path.is_file() and path != last:
                 tar.add(path, arcname=path.relative_to(source).as_posix())
-        tar.add(source / demo.MANIFEST_NAME, arcname=demo.MANIFEST_NAME)
+        tar.add(last, arcname=last.relative_to(source).as_posix())
     return archive
 
 
@@ -129,8 +182,16 @@ class _Hub:
 
 def _unpack_with_the_real_worker(monkeypatch, archive: Path, dest: Path,
                                  which: str):
-    """Run the set's own tar worker against ``archive``; return the hub."""
+    """Run the set's own tar worker against ``archive``; return the hub.
+
+    The OPS worker fetches two archives and checks each against its pinned
+    SHA-256; a synthetic archive has no pin, so the check is waived here.
+    """
     hub = _Hub(monkeypatch, archive)
+    if which == "ops" and archive.parent != UPLOAD:
+        from spacr.qt import hf_download
+        monkeypatch.setattr(hf_download, "check_archive_sha256",
+                            lambda *_args: None)
     worker = demo._WORKERS[which](dest)
     finished = []
     worker.finished.connect(lambda *args: finished.append(args))
@@ -185,9 +246,18 @@ def test_the_worker_fetches_its_own_archive_and_unpacks_it(
     archive = _synthetic_archive(tmp_path, which)
     dest = tmp_path / "dest"
     hub = _unpack_with_the_real_worker(monkeypatch, archive, dest, which)
-    assert hub.requested == [
-        f"https://huggingface.co/datasets/{repo}/resolve/main/"
-        f"{EXAMPLE_ARCHIVES[repo]}?download=true"]
+    if which == "ops":
+        from spacr.example_archives import (OPS_E2E_EXAMPLE_REPO,
+                                            OPS_E2E_REFERENCE_ARCHIVES,
+                                            OPS_E2E_REVISION)
+        assert hub.requested == [
+            f"https://huggingface.co/datasets/{OPS_E2E_EXAMPLE_REPO}/resolve/"
+            f"{OPS_E2E_REVISION}/{name}?download=true"
+            for name in (OPS_E2E_FULL_ARCHIVE, OPS_E2E_REFERENCE_ARCHIVES["full"])]
+    else:
+        assert hub.requested == [
+            f"https://huggingface.co/datasets/{repo}/resolve/main/"
+            f"{EXAMPLE_ARCHIVES[repo]}?download=true"]
     assert demo.is_present(dest)
     assert not (dest / archive.name).exists(), "the archive was kept"
 
@@ -203,13 +273,18 @@ def test_a_half_unpacked_sample_is_not_a_cache_hit(tmp_path):
 
 
 def test_the_ops_settings_name_the_sample_and_keep_outputs_apart(tmp_path):
+    _write_ops_sample(tmp_path)
     values = demo.ops_settings_for(tmp_path)
-    assert values["genotype_source"] == str(tmp_path / "sequencing")
-    assert values["ops_library"] == str(
-        tmp_path / "library" / "pool10_prefixes.csv")
+    root = tmp_path / _OPS_ROOT
+    assert values["genotype_source"] == str(root / "20200202_6W-LaC024A/sequencing")
+    assert values["phenotype_source"] == str(root / "20200202_6W-LaC024A/phenotype")
+    assert values["ops_library"] == str(root / "library" / "pool10_prefixes.csv")
+    assert values["ops_ph_placement_seed"] == str(
+        root / "reference/inputs/ops_ph_placement_seed.json")
+    assert values["ops_design"] == str(root / "library/pool10_design.csv")
     assert values["dst_root"] == str(tmp_path / "ops_output")
     assert values["plate"] == demo.OPS_PLATE
-    assert values["phenotype_source"] is None
+    assert values["ops_ph_sites"] == "1255,1264,1280"
 
 
 @pytest.fixture
@@ -323,7 +398,7 @@ def test_pending_download_preserves_settings_and_failure_allows_retry(align_scre
 @pytest.mark.parametrize("which", ["ops", "stitch"])
 def test_default_downloader_uses_the_matching_worker_and_shared_progress_dialog(monkeypatch, tmp_path, which):
     pending, reports, used = [], [], []
-    folder = tmp_path / which
+    folder = tmp_path / (OPS_E2E_FULL_FOLDER if which == "ops" else which)
     parent = object()
     monkeypatch.setattr(demo, "example_set_folder", lambda key: tmp_path / key)
 
@@ -362,6 +437,7 @@ def test_the_ops_panel_has_the_button(ops_screen):
     button = ops_screen._ops_example_button
     assert button.text() == "Load test data…"
     assert "eleven cycles" in button.toolTip()
+    assert "phenotype fields" in button.toolTip()
 
 
 def test_the_ops_download_fills_the_settings_run_reads(ops_screen, tmp_path):
@@ -371,11 +447,13 @@ def test_the_ops_download_fills_the_settings_run_reads(ops_screen, tmp_path):
     applied = ops_screen.load_the_ops_example(ask=fake, folder=folder)
 
     assert fake.calls == 1
-    assert applied["genotype_source"] == str(folder / "sequencing")
+    sequencing = folder / _OPS_ROOT / "20200202_6W-LaC024A" / "sequencing"
+    assert applied["genotype_source"] == str(sequencing)
     collected = ops_screen._settings_model.collect()
-    assert collected["genotype_source"] == str(folder / "sequencing")
+    assert collected["genotype_source"] == str(sequencing)
+    assert collected["phenotype_source"] == str(sequencing.parent / "phenotype")
     assert collected["ops_library"] == str(
-        folder / "library" / "pool10_prefixes.csv")
+        folder / _OPS_ROOT / "library" / "pool10_prefixes.csv")
     assert collected["dst_root"] == str(folder / "ops_output")
     assert collected["plate"] == demo.OPS_PLATE
     assert ops_screen._ops_example_button.isEnabled()
@@ -383,7 +461,8 @@ def test_the_ops_download_fills_the_settings_run_reads(ops_screen, tmp_path):
 
 def test_the_ops_engine_indexes_the_unpacked_sample(tmp_path, monkeypatch):
     """What Run is handed is a folder the engine recognises: one well, two
-    sites, eleven cycles, the nuclear plane in cycle 1."""
+    sites, eleven cycles, the nuclear plane in cycle 1 -- and a phenotype
+    folder."""
     from spacr.ops_engine import _NUCLEAR, _index_tiles, _plane_sources
 
     dest = tmp_path / "ops"
@@ -417,22 +496,17 @@ def test_the_real_stitch_archive_plans_every_tile(align_screen, tmp_path,
     assert not plan.unplaced
 
 
-def test_the_real_ops_archive_unpacks_to_what_the_engine_reads(tmp_path,
-                                                               monkeypatch):
-    from spacr.ops_engine import _index_tiles
+def test_the_ops_test_data_is_two_pinned_archives_of_the_e2e_repo():
+    """Load test data fetches the full tier and its revision-2 references."""
+    from spacr.example_archives import (EXAMPLE_ARCHIVE_SHA256,
+                                        OPS_E2E_EXAMPLE_REPO,
+                                        OPS_E2E_REFERENCE_ARCHIVES)
 
-    archive = _real_archive("ops")
-    dest = tmp_path / "ops"
-    _unpack_with_the_real_worker(monkeypatch, archive, dest, "ops")
-    assert demo.is_present(dest)
-    settings = demo.ops_settings_for(dest)
-    index = _index_tiles(settings["genotype_source"], "cycled")
-    assert sorted(index["A1"]) == list(range(1, 12))
-    assert sorted(index["A1"][1]) == [331, 332]
-    with open(settings["ops_library"], newline="") as handle:
-        prefixes = [row["prefix"] for row in csv.DictReader(handle)]
-    assert len(prefixes) == 20445
-    assert {len(p) for p in prefixes} == {11}
+    worker = demo._WORKERS["ops"](Path("/nonexistent"))
+    assert worker.repo == OPS_E2E_EXAMPLE_REPO
+    assert worker._archives == [OPS_E2E_FULL_ARCHIVE,
+                                OPS_E2E_REFERENCE_ARCHIVES["full"]]
+    assert all(name in EXAMPLE_ARCHIVE_SHA256 for name in worker._archives)
 
 
 def _live_download(which: str, dest: Path) -> None:
@@ -470,4 +544,4 @@ def test_the_published_ops_set_is_what_the_engine_reads(tmp_path):
     index = _index_tiles(demo.ops_settings_for(dest)["genotype_source"],
                          "cycled")
     assert sorted(index["A1"]) == list(range(1, 12))
-    assert sorted(index["A1"][1]) == [331, 332]
+    assert sorted(index["A1"][1]) == [321, 322, 331, 332]

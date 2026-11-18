@@ -114,3 +114,27 @@ def test_attach_puts_the_panel_on_the_spots_tab(qtbot):
     panel = W._attach_grid_search(live, host)
     assert panel.parent() is live.spots and panel.n_tiles.value() == 4
     assert live.spots.layout().indexOf(panel) >= 0
+
+
+def test_the_ops_screen_puts_the_panel_on_the_spots_tab(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtCore import QSettings
+
+    from spacr.qt import preferences
+    from spacr.qt.screens.app_screen import AppScreen
+
+    path = tmp_path / "alpha.ini"
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(str(path), QSettings.IniFormat))
+    preferences.set_show_alpha(True)
+    preferences._set_show_alpha_features(True)
+    screen = AppScreen(app_key="ops")
+    qtbot.addWidget(screen)
+    try:
+        panel = screen._ops_grid_search
+        assert isinstance(panel, W._OpsGridSearchPanel)
+        spots = screen._ops_live_preview.page("spots")
+        assert panel.parent() is spots and spots.layout().indexOf(panel) >= 0
+        assert isinstance(dict(panel._collect()), dict)
+    finally:
+        screen._ops_live_preview.shutdown()
+        screen.close()

@@ -9476,6 +9476,9 @@ ALPHA_FEATURES = {
     953: {
         'settings': ('ops_cluster_published_controls',),
     },
+    959: {
+        'settings': ('ops_cluster_sweep_controls_background',),
+    },
     952: {
         'settings': ('ops_read_mode',),
     },
@@ -9529,6 +9532,15 @@ ALPHA_FEATURES = {
     965: {
         'module_settings': {'ops_large_sites': (
             'seg_merge_small_nuclei_frac',)},
+    },
+    973: {
+        'settings': ('ops_voyager3_enabled', 'ops_voyager3_clusters', 'ops_voyager3_cluster_column',
+                     'ops_voyager3_cluster_ids', 'ops_voyager3_organism', 'ops_voyager3_context',
+                     'ops_voyager3_provider', 'ops_voyager3_model', 'ops_voyager3_timeout',
+                     'ops_voyager3_shuffle_control', 'ops_voyager3_resume', 'ops_voyager3_answers_dir'),
+    },
+    971: {
+        'widgets': ('OpsLiveSwitch',),
     },
     956: {
         'module_settings': {'ops_large_sites': (
