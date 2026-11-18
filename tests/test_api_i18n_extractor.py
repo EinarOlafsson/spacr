@@ -347,7 +347,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 226 -> 227 on 2026-11-13: run_progress.ProgressSample.__repr__ (item
     # 938), the readable form of one parsed progress line.
     assert "spacr.qt.run_progress.ProgressSample.__repr__" in dunders
-    assert len(dunders) == 227
+    # 227 -> 229 on 2026-11-17: spacr.store.Store.__enter__ and __exit__
+    # (item 974), so a store opens in a ``with`` block and closes after it.
+    assert {"spacr.store.Store.__enter__",
+            "spacr.store.Store.__exit__"} <= dunders
+    assert len(dunders) == 229
     # The historical digest below is checked on the surface without it.
     dunders = dunders - {"spacr.qt.run_progress.ProgressSample.__repr__"}
     # It is counted here and left out of the historical fingerprints below,

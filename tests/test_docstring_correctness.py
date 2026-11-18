@@ -3692,7 +3692,9 @@ def _validated_spacr_store_974_callables(callables):
         / "974_spacr_store_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
     assert len(entries) == 16 and "spacr.store.Store.query" in entries
     found = {item.symbol: item for item in callables if item.symbol in entries}
-    assert found.keys() == entries.keys() - {"spacr.store"}
+    assert found.keys() == entries.keys() - {
+        "spacr.store", "spacr.store.Store.__enter__",
+        "spacr.store.Store.__exit__"}
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
         assert item.parameters == item.accepted_documented_parameters
