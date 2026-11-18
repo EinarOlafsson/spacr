@@ -1553,18 +1553,26 @@ def _frame(file: Any, function: Any, line: Any,
     return out
 
 
+_NUMPY_ABI_MESSAGE = "A module that was compiled using NumPy 1.x cannot be run in"
+
+
 def _parse_traceback_text(text: str) -> Tuple[str, str, List[Dict[str, Any]]]:
     """Read the last exception of a formatted traceback.
 
-    :returns: ``(exception type, raw message, frames)``. Only the frames of
-        the last ``Traceback`` block are kept, which belong to the exception
-        that was finally raised.
+    :returns: ``(exception type, raw message, frames)``. The last traceback
+        supplies the exception. A NumPy ABI diagnostic also keeps its
+        preceding import stack, which can identify the incompatible library.
     """
-    lines = str(text or "").splitlines()
+    text = re.sub(r'(Traceback \(most recent call last\):)[ \t]+(?=File ")',
+                  r"\1\n  ", str(text or ""))
+    numpy_diagnostic = text.lstrip().startswith(_NUMPY_ABI_MESSAGE)
+    lines = text.splitlines()
     start = 0
     for index, line in enumerate(lines):
         if line.strip().startswith("Traceback (most recent call last)"):
             start = index
+            if numpy_diagnostic:
+                break
     raw: List[List[Any]] = []
     tail: List[str] = []
     for line in lines[start:]:
@@ -1582,7 +1590,10 @@ def _parse_traceback_text(text: str) -> Tuple[str, str, List[Dict[str, Any]]]:
             continue
         if line.strip().startswith("Traceback"):
             continue
-        tail = [line.strip()]
+        if tail and _EXCEPTION_LINE_RE.match(tail[0]):
+            tail.append(line.strip())
+        else:
+            tail = [line.strip()]
     frames = [_frame(*entry) for entry in raw]
     if not tail:
         stripped = [line.strip() for line in lines if line.strip()]
@@ -1595,6 +1606,8 @@ def _parse_traceback_text(text: str) -> Tuple[str, str, List[Dict[str, Any]]]:
         return "", " ".join(tail), frames
     kind = match.group("type").rsplit(".", 1)[-1]
     message = " ".join([match.group("message") or ""] + tail[1:]).strip()
+    if numpy_diagnostic and kind == "ImportError" and not message:
+        message = " ".join(text.split("Traceback", 1)[0].split())
     return kind, message, frames
 
 
@@ -3847,22 +3860,28 @@ def _capture_error_record(record):
 
 
 def _capture_error_line(text, *, origin="terminal"):
-    """Recognize an explicitly tagged terminal ERROR, never incidental prose."""
+    """Capture tagged errors and NumPy ABI diagnostics with their import stack."""
     if getattr(_ERROR_DISPATCH_LOCAL, "active", False):
         return
+    numpy_emission = False
     if not getattr(_ERROR_DISPATCH_LOCAL, "terminal_buffer_flush", False):
         frame = sys._getframe(1)
         while frame is not None:
-            if frame.f_globals.get("__name__") == "logging":
+            owner = frame.f_globals.get("__name__")
+            if owner == "logging":
                 return
+            if owner in ("numpy.core._multiarray_umath", "numpy._core._multiarray_umath"):
+                numpy_emission = True
             frame = frame.f_back
     stamp = r"(?:(?:\d{4}-\d\d-\d\d[ T])?\d\d:\d\d:\d\d(?:[.,]\d+)?(?:Z|[+-]\d\d:\d\d)?\s+)?"
     for line in str(text).splitlines(keepends=True):
         buffers = getattr(_ERROR_DISPATCH_LOCAL, "traceback_buffers", {})
         pending = buffers.get(origin, "")
-        if line.startswith("Traceback (most recent call last)"):
+        numpy_start = numpy_emission and line.startswith(_NUMPY_ABI_MESSAGE)
+        if numpy_start or (line.startswith("Traceback (most recent call last)")
+                           and not pending.startswith(_NUMPY_ABI_MESSAGE)):
             pending = ""
-        if pending or line.startswith("Traceback (most recent call last)"):
+        if pending or numpy_start or line.startswith("Traceback (most recent call last)"):
             pending = (pending + line)[-65536:]
             buffers[origin] = pending
             _ERROR_DISPATCH_LOCAL.traceback_buffers = buffers
