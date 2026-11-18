@@ -36796,7 +36796,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_diameter",
-    "line": 1485,
+    "line": 1495,
     "module": "spacr.ops_large_sites",
     "nested": false,
     "qualname": "segment_cell_painting_site"
@@ -36805,7 +36805,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_diameter",
-    "line": 2054,
+    "line": 2064,
     "module": "spacr.ops_large_sites",
     "nested": false,
     "qualname": "run_large_site_segmentation"
