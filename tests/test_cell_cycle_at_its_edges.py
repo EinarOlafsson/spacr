@@ -253,20 +253,34 @@ def test_the_torch_route_refuses_one_phase_or_a_run_without_a_model(
                            channel=0, work=str(tmp_path / "b"))
 
 
+@pytest.mark.parametrize("order", ["as_listed", "reversed_listing"])
 def test_crops_skip_what_cannot_be_cut_and_name_the_time_point(
-        plate, tmp_path, monkeypatch):
+        plate, tmp_path, monkeypatch, order):
+    """The skipped rows must sit on the stack the test cuts from, in any listing order.
+
+    The measured table follows the file system's directory order, which is
+    not sorted on every file system (ext4 listed B02 before A01), so the rows
+    that name a missing or empty object are pointed at the chosen stack rather
+    than at whichever row happens to come first. ``reversed_listing`` runs the
+    same test with the directory listing and the table reversed.
+    """
     root, merged, nuclei = plate
+    if order == "reversed_listing":
+        real_listdir = os.listdir
+        monkeypatch.setattr(os, "listdir",
+                            lambda *a, **k: list(reversed(real_listdir(*a, **k))))
+        nuclei = nuclei.iloc[::-1].reset_index(drop=True)
+    stack_name = sorted(os.listdir(merged))[0]
+    same = nuclei.loc[nuclei["path_name"].map(os.path.basename) == stack_name,
+                      "path_name"].iloc[0]
     measured, _ = m._phases_by_measurements(nuclei, column=0)
     extra = nuclei.iloc[:3].copy()
-    extra["path_name"] = [str(tmp_path / "gone.npy"),
-                          nuclei["path_name"].iloc[0],
-                          nuclei["path_name"].iloc[0]]
+    extra["path_name"] = [str(tmp_path / "gone.npy"), same, same]
     extra["object_label"] = [1, 0, 999]
     frame = pd.concat([nuclei, extra], ignore_index=True)
     frame["timeID"] = 3
     frame_measured = pd.concat([measured, measured.iloc[:3]],
                                ignore_index=True)
-    stack_name = sorted(os.listdir(merged))[0]
     root2 = tmp_path / "root2"
     (root2 / "merged").mkdir(parents=True)
     image, labels = np.moveaxis(np.load(merged / stack_name), -1, 0)

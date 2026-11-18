@@ -193,7 +193,8 @@ def test_detector_boxes_on_a_gpu_are_copied_to_the_host(monkeypatch):
     assert wells[0].confidence == pytest.approx(0.9)
 
 
-def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, monkeypatch):
+@pytest.mark.parametrize('gpu', [False, True])
+def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, monkeypatch, gpu):
     """Two paper crops share model setup while retaining their own pixels and masks."""
     from copy import deepcopy
     import inspect
@@ -204,6 +205,11 @@ def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, 
     from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
     from tests.cellpose_api_contract import CELLPOSE_EVAL_PARAMETERS, eval_arguments
 
+    from spacr import accelerator
+
+    # The segmenter takes its device from the accelerator, so pin both answers
+    # rather than depend on whether this host has a GPU.
+    monkeypatch.setattr(accelerator, 'cellpose_kwargs', lambda: {'gpu': gpu, 'device': None})
     checkpoint = tmp_path / 'chosen.CP_model'
     checkpoint.write_bytes(b'model-construction boundary')
     constructed, received, factories, installed_calls = [], [], [], []
@@ -262,7 +268,7 @@ def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, 
         min_size=1.0000001, well_resize=None, settings=settings))
     assert factories[0][1]['settings'] is settings
     assert constructed[0][1]['pretrained_model'] == str(checkpoint)
-    assert constructed[0][1]['gpu'] is False
+    assert constructed[0][1]['gpu'] is gpu
     assert cache['segmenter'] is initialized_segmenter
     model = constructed[0][0]
     assert len(model.calls) == len(received) == 2
