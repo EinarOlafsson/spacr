@@ -819,6 +819,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 953 (2026-11-15): published comparators keep their own control
     # rows in the Fisher background.
     "ops_cluster_published_controls",
+    # Item 959 (2026-11-16): spaCR's own sweep rows count the run's control
+    # rows in the same Fisher background.
+    "ops_cluster_sweep_controls_background",
     # Item 952 (2026-11-15): the read mode of the barcode reads (log, raw,
     # or chosen per well from decoys).
     "ops_read_mode",

@@ -358,6 +358,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cluster_gene_list": None,
     "ops_cluster_published": None,
     "ops_cluster_published_controls": True,
+    "ops_cluster_sweep_controls_background": False,
     "ops_consensus_enabled": False,
     "ops_consensus_bootstraps": 10,
     "ops_consensus_seed": 100,
@@ -805,6 +806,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cluster_gene_list": (str, type(None)),
     "ops_cluster_published": (list, str, type(None)),
     "ops_cluster_published_controls": bool,
+    "ops_cluster_sweep_controls_background": bool,
     "ops_consensus_enabled": bool,
     "ops_consensus_bootstraps": int,
     "ops_consensus_seed": int,
@@ -1158,6 +1160,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_cluster_target_clusters", "ops_cluster_shuffles",
         "ops_cluster_reference_dir", "ops_cluster_gene_list",
         "ops_cluster_published", "ops_cluster_published_controls",
+        "ops_cluster_sweep_controls_background",
     ],
     "Consensus clustering": [
         "ops_consensus_enabled", "ops_consensus_bootstraps",
@@ -2223,6 +2226,10 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "them, Funk et al.'s published clusters score CORUM 24.3 % and KEGG "
         "13.5 %, as published. Settings files saved before item 953 rerun "
         "with False. Default True. Alpha.",
+    "ops_cluster_sweep_controls_background":
+        "(bool) - Count the non-targeting control rows in the background of "
+        "the CORUM and KEGG shares of the sweep rows, as comparator rows do. "
+        "Off by default: the background is the targeting genes only. Alpha.",
     "ops_consensus_enabled":
         "(bool) - Also run guide-bootstrap consensus clustering after the "
         "cluster_sweep phase. Each bootstrap redraws every gene's guides, "
