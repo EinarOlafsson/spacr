@@ -3294,9 +3294,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "a TIFF, .npy or .npz label image per site. Empty uses each site's "
         "merged/ labels when they exist. Default None. Alpha.",
     "ops_quality_min_reads":
-        "(int) - Exact reads of one barcode a cell needs, with no read of "
-        "another barcode, to be called perfect; fewer, or a minority "
-        "competitor, makes it great. Default 2. Alpha.",
+        "(int) - Spacer-prefix decode under ops_prefix_quality_method "
+        "'spacr' only: the number of exact reads a single-barcode cell needs "
+        "to be labelled perfect rather than great. It never changes which "
+        "cells are genotyped, and 'recipe_simple' (PERISCOPE's rule, no read "
+        "minimum) does not use it. Default 2. Alpha.",
     "ops_prefix_quality_method":
         "(str) - How each cell's quality class is set from its matched reads. "
         "'spacr' counts reads: perfect needs ops_quality_min_reads exact reads "
