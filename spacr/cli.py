@@ -1876,16 +1876,56 @@ def _format_value(value: Any) -> str:
     return text if len(text) <= 70 else text[:67] + "..."
 
 
-def render_settings(settings: Mapping[str, Any]) -> str:
+def _effective_read_mode(settings: Mapping[str, Any]) -> str:
+    """The read mode an OPS run decodes with, from the decode's own resolvers.
+
+    A spacer-prefix run (the cropped-site layout, or ``ops_prefix_masks`` set)
+    uses :func:`spacr.ops_prefix._prefix_read_mode`; the barcode decode uses
+    :func:`spacr.ops_sbs._read_mode_setting`.
+
+    :param settings: the resolved settings.
+    :returns: ``'log'``, ``'raw'`` or ``'auto'``, or an empty string when the
+        settings cannot name one (an unknown value, or a prefix setting the
+        run itself would refuse).
+    """
+    from .ops_prefix import PREFIX_TUNING_MODES, _prefix_read_mode, prefix_settings
+    from .ops_sbs import _read_mode_setting
+
+    try:
+        if (str(settings.get("ops_layout") or "tiles") == "cpg_cropped"
+                or settings.get("ops_prefix_masks")):
+            try:
+                chosen = prefix_settings(settings)
+            except ValueError:
+                chosen = {"ops_prefix_threshold_tuning": str(
+                    settings.get("ops_prefix_threshold_tuning") or PREFIX_TUNING_MODES[0])}
+            return _prefix_read_mode(settings, chosen)
+        return _read_mode_setting(settings)
+    except (ValueError, KeyError, TypeError):
+        return ""
+
+
+def render_settings(settings: Mapping[str, Any], module_key: str = "") -> str:
     """Render a resolved settings dict as an aligned, sorted table.
 
     :param settings: the resolved settings.
+    :param module_key: the module being run; for ``ops`` the
+        ``ops_read_mode`` row also shows the value the decode uses, as
+        ``None (effective: auto)``.
     :returns: the table as one string, no trailing newline.
     """
     if not settings:
         return "  (no settings)"
     width = min(38, max(len(str(k)) for k in settings))
-    return "\n".join(f"  {str(k).ljust(width)}  {_format_value(v)}"
+    effective = _effective_read_mode(settings) if module_key == "ops" else ""
+
+    def shown(key, value):
+        text = _format_value(value)
+        if key == "ops_read_mode" and effective:
+            return f"{text} (effective: {effective})"
+        return text
+
+    return "\n".join(f"  {str(k).ljust(width)}  {shown(k, v)}"
                      for k, v in sorted(settings.items(), key=lambda kv: str(kv[0])))
 
 
@@ -2119,7 +2159,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     if args.dry_run:
         print("")
         print("Resolved settings:")
-        print(render_settings(settings))
+        print(render_settings(settings, module.key))
         print("")
         problems = _preflight(settings, module.validate_key, moved=moved)
         errors = _error_count(problems)
