@@ -9542,6 +9542,10 @@ ALPHA_FEATURES = {
                      'ops_voyager3_provider', 'ops_voyager3_model', 'ops_voyager3_timeout',
                      'ops_voyager3_shuffle_control', 'ops_voyager3_resume', 'ops_voyager3_answers_dir'),
     },
+    980: {
+        'settings': ('ops_voyager3_method', 'ops_voyager3_reactome', 'ops_voyager3_corum',
+                     'ops_voyager3_enrichment_fdr'),
+    },
     971: {
         'widgets': ('OpsLiveSwitch',),
     },

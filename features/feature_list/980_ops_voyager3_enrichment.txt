@@ -1,0 +1,32 @@
+OPS VOYAGER3 ENRICHMENT METHOD: A MODEL-FREE CLUSTER ANNOTATION (HYPERGEOMETRIC + BH OVER UNIPROT GO/KEYWORDS, CORUM, REACTOME)
+==============================================================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-18, alpha (ALPHA_FEATURES[980]). Under development per proposals/READINESS.md. spacr/voyager3.py, spacr/ops_settings.py, spacr/settings.py, tests/test_voyager3_enrichment_980.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item980_proof/REPORT.md.
+Requested: maintainer, 2026-11-18 (~07:30), after the Voyager3 AI full run.
+Owner: master lane claude-980-1118.
+Source: proposals/bmc_paper_items/ITEM_ops_voyager3_enrichment.md (design card and pre-set criterion).
+Related: 973 (Voyager3; same clusters, tables, report, provenance, button).
+
+BUILD
+- ops_voyager3_method 'ai' (default) | 'enrichment'; ops_voyager3_reactome (GMT),
+  ops_voyager3_corum (.txt/.zip, human complexes only), ops_voyager3_enrichment_fdr
+  (0.05).
+- Terms: complete UniProt GO (process, component, function) and keywords of
+  reviewed entries (own field set and cache key, so AI-mode fetches and outputs
+  are unchanged), CORUM complexes, Reactome R-HSA pathways; references copied to
+  results/ops_voyager3/reference_cache/ under their SHA-256 with file date and
+  PROVENANCE note; a missing source falls back on the last copy (offline).
+- Per cluster: one-sided hypergeometric test of every term with >= 2 cluster
+  genes, background = all the screen's genes (controls and unassigned rows
+  dropped); BH FDR across the cluster's terms; significant = FDR <= limit,
+  >= 3 genes, fold >= 2; best = lowest FDR, then higher fold, smaller K, id.
+  Confidence = Voyager3's coverage rule on the best term's share (>70 % high,
+  50-70 medium, 30-50 low, else none). Candidates = genes without the best
+  term in high and medium clusters.
+- Outputs: the AI mode's tables, report and provenance (method, references,
+  background size, thresholds, runtime) plus voyager3_enrichment_terms.csv;
+  voyager3_replay rebuilds them byte for byte. No AI call is made.
+
+PROOF
+See the proof notes appended below.

@@ -104,6 +104,9 @@ _SCHEMA = """Answer with one JSON object in a ```json block, with exactly these 
 _ANSWER_KEYS = frozenset({"biological_role", "dominant_process", "role", "confidence", "pathway_confidence",
                           "supporting_genes", "misfit_genes", "uncharacterized_candidates"})
 
+#: The screen's genes (after control and unassigned rows are dropped) of each cluster table read, by path.
+_SCREEN_GENES: Dict[str, List[str]] = {}
+
 _FACT_COLUMNS = ("gene", "found", "accession", "reviewed", "annotation_score", "protein_name",
                  "function", "go_process", "go_component", "go_function", "pathway", "location")
 
@@ -706,6 +709,7 @@ def _read_clusters(settings: Mapping[str, Any]) -> Tuple[Dict[str, List[str]], D
     if "unassigned" in table.columns:
         keep &= ~table["unassigned"].astype(bool)
     table = table[keep & table[column].notna()]
+    _SCREEN_GENES[str(path)] = sorted({str(g) for g in table["gene"]})
     wanted = settings.get("ops_voyager3_cluster_ids")
     if isinstance(wanted, str):
         wanted = [part for part in re.split(r"[,\s]+", wanted) if part]
@@ -845,6 +849,278 @@ def _version() -> str:
         return ""
 
 
+#: UniProt return fields of the enrichment mode: complete GO terms and keywords.
+ENRICHMENT_FIELDS: Tuple[str, ...] = ("accession", "gene_primary", "gene_names", "reviewed", "go_p", "go_c",
+                                      "go_f", "keyword")
+
+#: The least number of cluster genes, and fold enrichment, a significant term needs.
+ENRICHMENT_MIN_HITS = 3
+ENRICHMENT_MIN_FOLD = 2.0
+
+_TERM_COLUMNS = ("cluster", "kind", "source", "term_id", "term_name", "k", "n", "K", "N", "fold", "p", "fdr",
+                 "genes")
+
+
+def _reference_copy(path: Any, kind: str, cache_dir: str) -> Tuple[Optional[str], Dict[str, Any]]:
+    """A local copy of an annotation file, with its name, SHA-256, date and provenance note.
+
+    A source that is present is copied (a ``.zip`` is unpacked) into
+    ``cache_dir`` under its SHA-256 and recorded as the latest copy of
+    ``kind``; a source that is missing falls back on that latest copy, so a
+    rerun works offline.
+
+    :param path: the source file, or empty for none.
+    :param kind: ``reactome`` or ``corum``.
+    :param cache_dir: the reference cache folder.
+    :returns: ``(local path or None, meta)``.
+    """
+    import datetime
+    import hashlib
+    import shutil
+    import zipfile
+
+    if not path:
+        return None, {}
+    os.makedirs(cache_dir, exist_ok=True)
+    index = os.path.join(cache_dir, f"{kind}.json")
+    source = str(path)
+    if not os.path.isfile(source):
+        try:
+            with open(index, "r", encoding="utf-8") as handle:
+                meta = json.load(handle)
+        except (OSError, ValueError):
+            raise ValueError(f"the {kind} file {source} does not exist and has no cached copy") from None
+        return meta["local"], dict(meta, offline=True)
+    with open(source, "rb") as handle:
+        digest = hashlib.sha256(handle.read()).hexdigest()
+    local = os.path.join(cache_dir, f"{kind}_{digest[:12]}.txt")
+    if not os.path.isfile(local):
+        if source.lower().endswith(".zip"):
+            with zipfile.ZipFile(source) as archive:
+                member = sorted(n for n in archive.namelist() if not n.endswith("/"))[0]
+                with archive.open(member) as inner, open(local + ".tmp", "wb") as out:
+                    shutil.copyfileobj(inner, out)
+        else:
+            shutil.copyfile(source, local + ".tmp")
+        os.replace(local + ".tmp", local)
+    note_path = os.path.join(os.path.dirname(source), "PROVENANCE.txt")
+    note = ""
+    if os.path.isfile(note_path):
+        with open(note_path, "r", encoding="utf-8", errors="replace") as handle:
+            note = " ".join(handle.read().split())[:400]
+    meta = {"kind": kind, "source": source, "sha256": digest, "local": local,
+            "file_date": datetime.date.fromtimestamp(os.path.getmtime(source)).isoformat(),
+            "provenance_note": note, "offline": False}
+    with open(index + ".tmp", "w", encoding="utf-8") as handle:
+        json.dump(meta, handle, indent=1, sort_keys=True)
+    os.replace(index + ".tmp", index)
+    return local, meta
+
+
+def _reactome_terms(path: str) -> Dict[str, Tuple[str, set]]:
+    """Human Reactome pathways from a GMT file: id to ``(name, gene symbols)``.
+
+    :param path: the local GMT copy (name, id, genes, tab-separated).
+    """
+    terms: Dict[str, Tuple[str, set]] = {}
+    with open(path, "r", encoding="utf-8", errors="replace") as handle:
+        for line in handle:
+            parts = line.rstrip("\n").split("\t")
+            if len(parts) < 3 or not parts[1].startswith("R-HSA-"):
+                continue
+            terms[parts[1]] = (parts[0], {g for g in parts[2:] if g})
+    return terms
+
+
+def _corum_terms(path: str) -> Dict[str, Tuple[str, set]]:
+    """Human CORUM complexes: ``CORUM:<id>`` to ``(name, gene symbols)``.
+
+    :param path: the local CORUM table (``ComplexID``, ``ComplexName``,
+        ``Organism``, ``subunits(Gene name)``).
+    """
+    from .tabular import read_table
+
+    table = read_table(path, canonicalise=False, report=None, sep="\t")
+    if "Organism" in table.columns:
+        table = table[table["Organism"].astype(str).str.lower() == "human"]
+    terms: Dict[str, Tuple[str, set]] = {}
+    for cid, name, members in zip(table["ComplexID"], table["ComplexName"], table["subunits(Gene name)"]):
+        genes = {g.strip() for g in str(members).split(";") if g.strip() and g.strip().lower() != "none"}
+        if genes:
+            terms[f"CORUM:{cid}"] = (str(name), genes)
+    return terms
+
+
+def _uniprot_terms(genes: Sequence[str], organism: str, cache_dir: Optional[str]
+                   ) -> Tuple[Dict[str, set], Dict[str, Tuple[str, str]], Dict[str, Any]]:
+    """Every GO term and keyword of each gene's reviewed UniProt entry.
+
+    :param genes: gene symbols.
+    :param organism: anything :func:`spacr.uniprot.resolve` reads as an organism.
+    :param cache_dir: the UniProt cache folder.
+    :returns: gene to term ids, term id to ``(source, name)`` and the fetch meta.
+    """
+    from . import uniprot
+
+    resolution = uniprot.resolve(organism)
+    if resolution.kind != "organism":
+        raise ValueError(f"ops_voyager3_organism must name an organism or a taxon id; got {organism!r}")
+    names = sorted({str(g).strip() for g in genes if str(g).strip()})
+    gene_terms: Dict[str, set] = {}
+    term_names: Dict[str, Tuple[str, str]] = {}
+    releases, fetched = set(), set()
+    for start in range(0, len(names), BATCH):
+        batch = names[start:start + BATCH]
+        frame, _busy, meta = uniprot._fetch_gene_rows(resolution, batch, cache_dir=cache_dir,
+                                                      fields=ENRICHMENT_FIELDS, reviewed=True)
+        if meta:
+            releases.add(meta.get("release", ""))
+            fetched.add(meta.get("fetched", ""))
+            if not meta.get("cached", False):
+                time.sleep(REQUEST_GAP_S)
+        rows = frame.to_dict("records") if frame is not None else []
+        for gene in batch:
+            row = _match(gene, rows)
+            if row is None:
+                continue
+            found = set()
+            for key, label in (("go_process", "GO process"), ("go_component", "GO component"),
+                               ("go_function", "GO function")):
+                for part in _cell(row, key).split(";"):
+                    hit = re.search(r"^(.*?)\s*\[(GO:\d+)\]\s*$", part.strip())
+                    if hit:
+                        found.add(hit.group(2))
+                        term_names[hit.group(2)] = (label, hit.group(1))
+            for word in _text(row.get("Keywords")).split(";"):
+                word = word.strip()
+                if word:
+                    found.add(f"KW:{word}")
+                    term_names[f"KW:{word}"] = ("UniProt keyword", word)
+            gene_terms[gene] = found
+    return gene_terms, term_names, {"releases": sorted(r for r in releases if r),
+                                    "fetched": sorted(d for d in fetched if d), "fields": list(ENRICHMENT_FIELDS)}
+
+
+def _bh(pvalues: Sequence[float]) -> List[float]:
+    """Benjamini-Hochberg adjusted p values, in input order.
+
+    :param pvalues: the raw p values.
+    """
+    n = len(pvalues)
+    order = sorted(range(n), key=lambda i: pvalues[i])
+    adjusted = [1.0] * n
+    running = 1.0
+    for rank in range(n, 0, -1):
+        i = order[rank - 1]
+        running = min(running, pvalues[i] * n / rank)
+        adjusted[i] = running
+    return adjusted
+
+
+def _enrich_cluster(genes: Sequence[str], gene_terms: Mapping[str, set], term_size: Mapping[str, int],
+                    term_names: Mapping[str, Tuple[str, str]], background: int,
+                    fdr_limit: float) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    """Test one cluster's terms and turn the best one into Voyager3's answer fields.
+
+    :param genes: the cluster's genes.
+    :param gene_terms: gene to term ids.
+    :param term_size: term id to its number of genes in the background.
+    :param term_names: term id to ``(source, name)``.
+    :param background: the number of genes in the screen.
+    :param fdr_limit: the FDR at or below which a term can be significant.
+    :returns: the parsed-answer fields of :func:`parse_cluster_answer` and
+        the tested terms.
+    """
+    from scipy.stats import hypergeom
+
+    members = sorted(set(genes))
+    n = len(members)
+    hits: Dict[str, List[str]] = {}
+    for gene in members:
+        for term in gene_terms.get(gene, ()):
+            hits.setdefault(term, []).append(gene)
+    tested = sorted(t for t, g in hits.items() if len(g) >= 2)
+    pvalues = [float(hypergeom.sf(len(hits[t]) - 1, background, term_size[t], n)) for t in tested]
+    fdrs = _bh(pvalues) if tested else []
+    terms = []
+    for term, p, q in zip(tested, pvalues, fdrs):
+        k, big_k = len(hits[term]), term_size[term]
+        terms.append({"source": term_names[term][0], "term_id": term, "term_name": term_names[term][1], "k": k,
+                      "n": n, "K": big_k, "N": background, "fold": (k / n) / (big_k / background), "p": p,
+                      "fdr": q, "genes": sorted(hits[term])})
+    significant = [t for t in terms if t["fdr"] <= fdr_limit and t["k"] >= ENRICHMENT_MIN_HITS
+                   and t["fold"] >= ENRICHMENT_MIN_FOLD]
+    significant.sort(key=lambda t: (t["fdr"], -t["fold"], t["K"], t["term_id"]))
+    parsed: Dict[str, Any] = {"status": "ok", "reasons": [], "biological_role": "no enriched term",
+                              "confidence_model": "", "confidence_rule": "none", "confidence_agrees": None,
+                              "support_fraction": 0.0, "supporting": [], "misfit": [], "candidates": [],
+                              "unknown_genes": [], "summary": "No term passes the enrichment rule."}
+    if significant:
+        best = significant[0]
+        fraction = best["k"] / n
+        rule = _confidence_from_fraction(fraction)
+        label = f"{best['source']}: {best['term_name']}"
+        candidates = []
+        if rule in ("high", "medium"):
+            candidates = [{"gene": g, "suggested_role": best["term_name"], "priority": None,
+                           "rationale": f"in a cluster enriched for {best['term_name']} (FDR {best['fdr']:.2g}, "
+                                        f"fold {best['fold']:.1f}) without that annotation"}
+                          for g in members if g not in best["genes"]]
+        parsed.update(biological_role=best["term_name"], confidence_rule=rule, support_fraction=round(fraction, 4),
+                      supporting=[{"gene": g, "evidence": label} for g in best["genes"]], candidates=candidates,
+                      summary="Top terms: " + "; ".join(f"{t['term_name']} ({t['source']}, FDR {t['fdr']:.2g}, "
+                                                        f"fold {t['fold']:.1f}, {t['k']}/{n})"
+                                                        for t in significant[:3]) + ".")
+    return parsed, terms
+
+
+def _enrichment_records(settings: Mapping[str, Any], jobs: Sequence[Tuple[str, str, List[str]]],
+                        background_genes: Sequence[str], out_dir: str,
+                        say: Callable[[str], None]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """The enrichment-mode records of every cluster and the provenance of the annotation sources.
+
+    :param settings: read for ``ops_voyager3_organism``, ``ops_voyager3_reactome``,
+        ``ops_voyager3_corum`` and ``ops_voyager3_enrichment_fdr``.
+    :param jobs: ``(cluster, kind, genes)`` to annotate.
+    :param background_genes: every gene of the screen.
+    :param out_dir: the output folder; caches go beside the outputs.
+    :param say: called with progress lines.
+    """
+    started = time.monotonic()
+    background = sorted(set(background_genes))
+    gene_terms, term_names, uniprot_meta = _uniprot_terms(
+        background, str(settings.get("ops_voyager3_organism") or "human"), os.path.join(out_dir, "uniprot_cache"))
+    references = {"uniprot": uniprot_meta}
+    cache = os.path.join(out_dir, "reference_cache")
+    for kind, key, reader in (("reactome", "ops_voyager3_reactome", _reactome_terms),
+                              ("corum", "ops_voyager3_corum", _corum_terms)):
+        local, meta = _reference_copy(settings.get(key), kind, cache)
+        if not local:
+            continue
+        references[kind] = meta
+        label = "Reactome" if kind == "reactome" else "CORUM"
+        inside = set(background)
+        for term, (name, members) in reader(local).items():
+            term_names[term] = (label, name)
+            for gene in members & inside:
+                gene_terms.setdefault(gene, set()).add(term)
+    term_size: Dict[str, int] = {}
+    for gene in background:
+        for term in gene_terms.get(gene, ()):
+            term_size[term] = term_size.get(term, 0) + 1
+    fdr_limit = float(settings.get("ops_voyager3_enrichment_fdr") or 0.05)
+    records = []
+    for done, (cluster, kind, genes) in enumerate(jobs, start=1):
+        parsed, terms = _enrich_cluster(genes, gene_terms, term_size, term_names, len(background), fdr_limit)
+        records.append({"cluster": cluster, "kind": kind, "genes": list(genes), "parsed": parsed, "terms": terms})
+        say(f"Progress: {done}/{len(jobs)}, operation_type: Voyager3, cluster {cluster} ({kind}), enrichment")
+    meta = {"references": references, "background_size": len(background), "fdr_limit": fdr_limit,
+            "min_hits": ENRICHMENT_MIN_HITS, "min_fold": ENRICHMENT_MIN_FOLD,
+            "annotated_genes": sum(1 for g in background if gene_terms.get(g)), "terms": len(term_size),
+            "seconds": round(time.monotonic() - started, 2)}
+    return records, meta
+
+
 def run_voyager3(settings: Mapping[str, Any], report: Optional[Callable[[str], None]] = None,
                  provider: Any = None, out_dir: Optional[str] = None) -> Dict[str, Any]:
     """Annotate every cluster with Voyager3 and write its tables, report and provenance.
@@ -869,6 +1145,19 @@ def run_voyager3(settings: Mapping[str, Any], report: Optional[Callable[[str], N
     template or prompt asks again. Failed and timed-out calls are not saved.
     The provenance records which answers were replayed and which were asked.
 
+    With ``ops_voyager3_method`` ``'enrichment'`` (item 980) no AI is asked:
+    every UniProt GO term and keyword of the screen's genes, and every CORUM
+    complex (``ops_voyager3_corum``) and Reactome pathway
+    (``ops_voyager3_reactome``), is tested in each cluster by a one-sided
+    hypergeometric test against all the screen's genes, with Benjamini-Hochberg
+    FDR across the cluster's terms. The best term at FDR at most
+    ``ops_voyager3_enrichment_fdr``, with at least 3 cluster genes and twice
+    the screen's share, names the role; the share of cluster genes carrying it
+    gives the same confidence words, and in high and medium clusters the genes
+    without it are the candidates. The same tables are written, plus
+    ``voyager3_enrichment_terms.csv``; the reference files are copied with
+    their checksum and date so a rerun works offline.
+
     :param settings: the OPS settings; read for ``dst_root``, the
         ``ops_voyager3_*`` settings and ``ops_control_prefix``.
     :param report: called with progress lines; ``print`` when None.
@@ -891,6 +1180,11 @@ def run_voyager3(settings: Mapping[str, Any], report: Optional[Callable[[str], N
     if out_dir is None:
         out_dir = os.path.join(str(settings.get("dst_root") or os.path.dirname(source)), "results", "ops_voyager3")
     os.makedirs(out_dir, exist_ok=True)
+    method = str(settings.get("ops_voyager3_method") or "ai").strip().lower()
+    if method not in ("ai", "enrichment"):
+        raise ValueError(f"ops_voyager3_method must be 'ai' or 'enrichment'; got {method!r}")
+    if method == "enrichment":
+        return _run_enrichment(settings, clusters, source, out_dir, say)
     chat = provider if provider is not None else _resolve_provider(str(settings.get("ops_voyager3_provider") or ""))
     model = str(settings.get("ops_voyager3_model") or "").strip() or None
     timeout = float(settings.get("ops_voyager3_timeout") or 300)
@@ -949,6 +1243,40 @@ def run_voyager3(settings: Mapping[str, Any], report: Optional[Callable[[str], N
     return {"folder": out_dir, "outputs": outputs, "clusters": len(clusters), "provenance": path}
 
 
+def _run_enrichment(settings: Mapping[str, Any], clusters: Mapping[str, List[str]], source: str, out_dir: str,
+                    say: Callable[[str], None]) -> Dict[str, Any]:
+    """The enrichment mode of :func:`run_voyager3`: write its tables, report and provenance.
+
+    :param settings: the OPS settings.
+    :param clusters: cluster id to genes.
+    :param source: the cluster table's path.
+    :param out_dir: the output folder.
+    :param say: called with progress lines.
+    """
+    jobs = [(cluster, "real", genes) for cluster, genes in clusters.items()]
+    if settings.get("ops_voyager3_shuffle_control"):
+        jobs += [(cluster, "shuffled", genes) for cluster, genes in _shuffled(clusters).items()]
+    genes_all = sorted({gene for _c, _k, genes in jobs for gene in genes})
+    background = _SCREEN_GENES.get(str(source)) or genes_all
+    say(f"Voyager3 enrichment: {len(clusters)} clusters, background {len(background)} genes")
+    facts, uniprot_meta = fetch_gene_facts(genes_all, str(settings.get("ops_voyager3_organism") or "human"),
+                                           cache_dir=os.path.join(out_dir, "uniprot_cache"), report=say)
+    records, meta = _enrichment_records(settings, jobs, background, out_dir, say)
+    provenance = {
+        "voyager3": TEMPLATE_VERSION, "method": "enrichment", "spacr_version": _version(),
+        "created": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "provider": "", "model": "",
+        "cluster_table": source, "uniprot": uniprot_meta, "enrichment": meta,
+        "shuffle_seed": SHUFFLE_SEED if settings.get("ops_voyager3_shuffle_control") else None,
+        "settings": _settings_record(settings), "facts": {gene: facts[gene] for gene in genes_all},
+        "clusters": records}
+    path = os.path.join(out_dir, "voyager3_provenance.json")
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(provenance, handle, indent=1, sort_keys=True)
+    outputs = dict(_write_outputs(provenance, out_dir), provenance=path)
+    say(f"Voyager3 enrichment: wrote {outputs['clusters']}")
+    return {"folder": out_dir, "outputs": outputs, "clusters": len(clusters), "provenance": path}
+
+
 def voyager3_replay(provenance: Any, out_dir: Optional[str] = None) -> Dict[str, str]:
     """Write a Voyager3 run's tables and report again from its provenance file alone.
 
@@ -994,7 +1322,7 @@ def _tables(provenance: Mapping[str, Any]) -> Tuple[Any, Any, Any, List[Dict[str
     rows, candidates, parsed_all = [], [], []
     for record in provenance.get("clusters") or []:
         genes = list(record.get("genes") or [])
-        parsed = parse_cluster_answer(record.get("response"), genes)
+        parsed = record.get("parsed") or parse_cluster_answer(record.get("response"), genes)
         parsed_all.append(parsed)
         errors = [a.get("error") for a in record.get("attempts") or [] if a.get("error")]
         reasons = list(parsed["reasons"]) + [f"provider: {e}" for e in errors]
@@ -1040,6 +1368,8 @@ def _write_outputs(provenance: Mapping[str, Any], out_dir: str) -> Dict[str, str
     :param provenance: the run's provenance record.
     :param out_dir: the output folder.
     """
+    import pandas as pd
+
     from .tabular import write_table
 
     clusters, candidates, facts, _parsed = _tables(provenance)
@@ -1048,6 +1378,15 @@ def _write_outputs(provenance: Mapping[str, Any], out_dir: str) -> Dict[str, str
         target = os.path.join(out_dir, f"voyager3_{'gene_facts' if name == 'facts' else name}.csv")
         write_table(frame.astype(str), target, canonicalise=False, lineterminator="\n")
         outputs[name] = target
+    if provenance.get("method") == "enrichment":
+        rows = [{"cluster": record["cluster"], "kind": record.get("kind", "real"), **term,
+                 "fold": f"{term['fold']:.4f}", "p": f"{term['p']:.6g}", "fdr": f"{term['fdr']:.6g}",
+                 "genes": _joined(term["genes"])}
+                for record in provenance.get("clusters") or [] for term in record.get("terms") or []]
+        target = os.path.join(out_dir, "voyager3_enrichment_terms.csv")
+        write_table(pd.DataFrame(rows, columns=list(_TERM_COLUMNS)).astype(str), target, canonicalise=False,
+                    lineterminator="\n")
+        outputs["terms"] = target
     target = os.path.join(out_dir, "voyager3_report.md")
     with open(target, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(_report_text(provenance, clusters, candidates))
@@ -1071,6 +1410,8 @@ def _report_text(provenance: Mapping[str, Any], clusters: Any, candidates: Any) 
     :param candidates: the candidate table.
     """
     meta = provenance.get("uniprot") or {}
+    if provenance.get("method") == "enrichment":
+        return _enrichment_report_text(provenance, clusters, candidates)
     lines = ["# Voyager3 cluster annotation", "",
              f"- Template: {provenance.get('voyager3', '')}; spaCR {provenance.get('spacr_version', '')}",
              f"- AI provider: {provenance.get('provider', '')}; model: {provenance.get('model') or 'provider default'}"
@@ -1130,4 +1471,50 @@ def _report_text(provenance: Mapping[str, Any], clusters: Any, candidates: Any) 
         "- **Swiss-Prot:** the reviewed section of UniProtKB.",
         "- **Uncharacterised candidate:** a member with annotation score 1-2, no function text or no reviewed "
         "entry, given a suggested role by the model.", ""])
+    return "\n".join(lines)
+
+
+def _enrichment_report_text(provenance: Mapping[str, Any], clusters: Any, candidates: Any) -> str:
+    """The readable report of an enrichment-mode run: sources, summary counts, clusters, glossary.
+
+    :param provenance: the run's provenance record.
+    :param clusters: the cluster table.
+    :param candidates: the candidate table.
+    """
+    meta = provenance.get("enrichment") or {}
+    refs = meta.get("references") or {}
+    lines = ["# Voyager3 cluster annotation (enrichment)", "",
+             f"- spaCR {provenance.get('spacr_version', '')}; no AI model is used",
+             f"- Test: hypergeometric against the {meta.get('background_size', '')} genes of the screen, "
+             f"Benjamini-Hochberg FDR across each cluster's terms; a term counts at FDR <= "
+             f"{meta.get('fdr_limit', '')}, at least {meta.get('min_hits', '')} cluster genes and fold >= "
+             f"{meta.get('min_fold', '')}",
+             f"- UniProtKB (GO and keywords): release {', '.join((refs.get('uniprot') or {}).get('releases') or []) or 'unknown'}, "
+             f"fetched {', '.join((refs.get('uniprot') or {}).get('fetched') or []) or 'unknown'}"]
+    for kind in ("reactome", "corum"):
+        ref = refs.get(kind)
+        if ref:
+            lines.append(f"- {kind.capitalize()}: {os.path.basename(str(ref.get('source', '')))} (sha256 "
+                         f"{str(ref.get('sha256', ''))[:12]}, file date {ref.get('file_date', '')})")
+    lines.extend([f"- Clusters from: {provenance.get('cluster_table', '')}", "",
+                  "## Summary", "", "| Clusters | Kind | High | Medium | Low | None |", "|---|---|---|---|---|---|"])
+    for kind in ("real", "shuffled"):
+        part = clusters[clusters["kind"] == kind]
+        if len(part):
+            counts = [int((part["confidence_rule"] == word).sum()) for word in CONFIDENCE]
+            lines.append(f"| {len(part)} | {kind if kind == 'real' else 'shuffled (control)'} | "
+                         + " | ".join(map(str, counts)) + " |")
+    lines.append("")
+    for _index, row in clusters.iterrows():
+        lines.extend([f"## Cluster {row['cluster']} ({row['kind']}, {row['n_genes']} genes)", "",
+                      f"- Role: {row['biological_role']}",
+                      f"- Confidence: {row['confidence_rule']} (share of genes with the term {row['support_fraction']})",
+                      f"- Genes with the term: {row['supporting_genes'] or 'none'}",
+                      f"- Candidates (genes without the term): {row['candidates'] or 'none'}", "", row["summary"], ""])
+    lines.extend(["## Glossary", "",
+                  "- **BH FDR:** Benjamini-Hochberg false discovery rate over the terms tested in one cluster.",
+                  "- **Confidence:** high above 70 % of the cluster's genes carrying the best term, medium 50-70 %, "
+                  "low 30-50 %, none below 30 % or no significant term.",
+                  "- **Fold:** the share of cluster genes with the term over the share of screen genes with it.",
+                  "- **Shuffled (control):** the same cluster sizes with the genes permuted across clusters (seeded).", ""])
     return "\n".join(lines)
