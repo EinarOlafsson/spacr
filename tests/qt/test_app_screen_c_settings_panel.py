@@ -288,8 +288,8 @@ def test_the_guards_no_caller_can_trip_still_hold(make_screen, subtests):
     """Each defensive arm below is pinned by the guarantee that makes it dead.
 
     Invariant: every screen's figure queue exists and declares
-    ``figure_clicked``; the five modules offered a preview toggle are exactly
-    the five whose runtime branch fills that card, and each card builder
+    ``figure_clicked``; the six modules offered a preview toggle are exactly
+    the six whose runtime branch fills that card, and each card builder
     returns a card; every slot role has an organelle number, and
     ``object_of_setting`` answers only ``None``, a channelled object or a
     numbered slot role.
@@ -320,14 +320,16 @@ def test_the_guards_no_caller_can_trip_still_hold(make_screen, subtests):
                            ("analyze_plaques", "_live_preview_card"),
                            ("timelapse", "_timelapse_preview_card"),
                            ("motility", "_motility_preview_card"),
-                           ("measure", "_measure_preview_card")}
+                           ("measure", "_measure_preview_card"),
+                           ("ops", "_ops_live_preview_card")}
         for key, attr in offered:
             condition = ('self.app_key in ("mask", "analyze_plaques"):'
                          if key in {"mask", "analyze_plaques"}
                          else f'self.app_key == "{key}":')
             branch = source.split(condition)[1].split("elif self.app_key")[0]
             assert (f"self.{attr} = (" in branch
-                    or f"_, self.{attr} = " in branch), (
+                    or f"_, self.{attr} = " in branch
+                    or f", self.{attr} = (" in branch), (
                 f"{key} never fills {attr}")
         for builder in (aps._build_live_preview_card,
                         aps._build_measure_preview_card,

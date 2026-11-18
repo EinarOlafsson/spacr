@@ -607,10 +607,14 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
     # radius. Its tooltip names its unit (the missing list below stays empty),
     # so only the census moved.
     ops_alignment_unit_settings = 1
+    # +2 on 2026-11-17 (item 970): ops_ph_pathogen_diameter and
+    # ops_ph_organelle_diameter, the OPS phenotype object sizes. Both
+    # tooltips say pixels, so only the census moved.
+    ops_object_unit_settings = 2
     assert len(diameter_or_radius) == (
         base_unit_settings + enhancement_unit_settings + spatial_unit_settings
         + ops_phenotype_unit_settings + ops_decode_unit_settings
-        + ops_alignment_unit_settings
+        + ops_alignment_unit_settings + ops_object_unit_settings
         + per_organelle_unit_settings * MAX_ORGANELLES
     )
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"

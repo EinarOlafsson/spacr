@@ -9482,6 +9482,9 @@ ALPHA_FEATURES = {
     952: {
         'settings': ('ops_read_mode',),
     },
+    970: {
+        'settings': ('ops_ph_pathogen_channel', 'ops_ph_pathogen_model', 'ops_ph_pathogen_diameter', 'ops_ph_pathogen_min_area', 'ops_ph_organelle_channel', 'ops_ph_organelle_morphology', 'ops_ph_organelle_method', 'ops_ph_organelle_model', 'ops_ph_organelle_diameter', 'ops_ph_organelle_min_area',),
+    },
     964: {
         'settings': ('ops_feature_screen_old', 'ops_feature_screen_new', 'ops_feature_screen_cells', 'ops_feature_screen_id_columns', 'ops_feature_screen_label', 'ops_feature_screen_guide', 'ops_feature_screen_families', 'ops_feature_screen_permutations', 'ops_feature_screen_perm_unit', 'ops_feature_screen_seed', 'ops_feature_screen_ridge', 'ops_feature_screen_greedy_threshold', 'ops_feature_screen_mlp', 'ops_feature_screen_device', 'ops_feature_screen_dst',),
     },
@@ -9535,6 +9538,15 @@ ALPHA_FEATURES = {
     965: {
         'module_settings': {'ops_large_sites': (
             'seg_merge_small_nuclei_frac',)},
+    },
+    973: {
+        'settings': ('ops_voyager3_enabled', 'ops_voyager3_clusters', 'ops_voyager3_cluster_column',
+                     'ops_voyager3_cluster_ids', 'ops_voyager3_organism', 'ops_voyager3_context',
+                     'ops_voyager3_provider', 'ops_voyager3_model', 'ops_voyager3_timeout',
+                     'ops_voyager3_shuffle_control', 'ops_voyager3_resume', 'ops_voyager3_answers_dir'),
+    },
+    971: {
+        'widgets': ('OpsLiveSwitch',),
     },
     956: {
         'module_settings': {'ops_large_sites': (
@@ -9739,6 +9751,9 @@ ALPHA_FEATURES = {
     },
     957: {
         'widgets': ('MakeMasksPointModeButton',),
+    },
+    967: {
+        'settings': ('ops_prefix_minority_min_reads',),
     },
 }
 

@@ -1,0 +1,85 @@
+OPS VOYAGER3: A BIOLOGICAL ROLE FOR EVERY GENE CLUSTER, FROM FETCHED UNIPROT FACTS, THROUGH THE USER'S OWN AI PROVIDER
+=====================================================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-17, alpha (ALPHA_FEATURES[973]). Under development per proposals/READINESS.md until the maintainer marks it Ready. spacr/voyager3.py, spacr/uniprot.py (private: optional fields, Swiss-Prot only, release headers cached), spacr/ops_settings.py, spacr/settings.py, spacr/ops_engine.py, spacr/ops_tvn.py, spacr/qt/voyager3_panel.py, spacr/qt/screens/app_screen.py, tests/test_voyager3_973.py, tests/qt/test_voyager3_panel_973.py, arrival contract tests/data/release_contracts/973_ops_voyager3_api_arrivals_2026-11-17.json. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item973_proof/REPORT.md.
+Requested: maintainer, 2026-11-17 ("as Brieflow has MozzareLLM ... call it voyager3 ... use the spacr AI path but with a custom prompt that gets the software to pull data from uniprot and assign biological roles to clusters").
+Owner: master lane claude-973-1117.
+Source: proposals/bmc_paper_items/ITEM_ops_voyager3.md (MozzareLLM summary with sources there).
+Replaces: BMCspacr/reanalysis/cluster_annotation/ (session agents with a MozzareLLM-style rubric, 2026-11-08).
+Related: 916 (Leiden sweep), 928 (consensus partition, the default input), ITEM_ops_cluster_annotator.md (its evaluation mode stays a later item).
+
+PROBLEM
+Brieflow ends its OPS analysis with MozzareLLM: one LLM prompt per cluster
+(genes plus UniProt FUNCTION text) that names the cluster's pathway, a
+confidence from the share of genes that fit, and the uncharacterised genes
+worth following up. spaCR had no such step; the plate A annotation was done by
+session agents outside spaCR.
+
+BUILD
+- spacr.voyager3: fetch_gene_facts (reviewed UniProt entries through
+  spacr.uniprot and its cache: protein names, function, GO process /
+  component / function, pathway, location, annotation score; batches of
+  100, 0.5 s apart, release headers recorded), build_cluster_prompt (English
+  template voyager3-1, not translated), parse_cluster_answer (never raises;
+  statuses ok / partial / unparsed / no_answer; non-member genes dropped and
+  counted; priority 1-10 checked; support fraction and the 70/50/30 % rule
+  recomputed by spaCR), run_voyager3, voyager3_replay.
+- Provider: injected, or ops_voyager3_provider, or Preferences > AI: any
+  provider there, spaCR AI (free) included (maintainer decision 2026-11-17);
+  "none" is refused. The report and provenance name the provider, model and
+  CLI arguments, and a quality note says when the free provider answered
+  (and how many answers came from its smaller "light" model). No vendor
+  SDK, no API key, no batch API.
+- Outputs in results/ops_voyager3/: voyager3_clusters.csv,
+  voyager3_candidates.csv, voyager3_gene_facts.csv, voyager3_report.md,
+  voyager3_provenance.json (system text, every prompt, template version,
+  provider and model, UniProt release and fetch date, facts, every attempt
+  and raw answer). The tables are written from the provenance by the same
+  code the replay uses.
+- Resume (maintainer decision 2026-11-17): each answer is saved as it arrives
+  to <ops_voyager3_answers_dir or results/ops_voyager3/answers>/<sha256 of
+  template version, model, system text and prompt>.json (raw text, model ids,
+  reported cost, seconds; temporary file then rename). ops_voyager3_resume
+  (default True) replays saved answers and asks only the missing ones; a
+  changed model, template or prompt asks again; failed or timed-out calls are
+  not saved. The provenance records each cluster's answer_source (replayed /
+  asked) and the counts; progress lines and the GUI status say
+  "n replayed, m asked". The Claude CLI provider keeps its last result
+  object (last_result) so model ids and cost can be saved.
+- ops_voyager3_shuffle_control: the same cluster sizes with the genes
+  permuted (seed 20261117), kind "shuffled" in the tables.
+- Phase "voyager3", last of the profile phases; also after cluster_sweep,
+  cluster_consensus or cluster_bench_test when ops_voyager3_enabled is on.
+  runtime.json records the ops_voyager3_* keys only when it ran.
+- Settings (OPS phenotype category, last OPS step): ops_voyager3_enabled,
+  _clusters, _cluster_column, _cluster_ids, _organism, _context, _provider,
+  _model, _timeout, _shuffle_control, _resume, _answers_dir. For item 969: a subcategory
+  "Cluster annotation (Voyager3)" after the clustering subcategory.
+- GUI: "Annotate clusters (Voyager3)" button, progress bar and status line in
+  the section holding ops_voyager3_enabled, behind Show alpha features; runs
+  only the voyager3 phase through make_thread; the bar reads the standard
+  Progress lines.
+
+PROOF
+See the proof notes appended below.
+
+PROOF NOTES (2026-11-17, CPU, one process, 2 threads; spaCR claude-973-1117; stub provider only, no LLM)
+Report: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item973_proof/REPORT.md.
+1. Funk plate A tvn_r10 clusters 12, 126, 130, 183, 225, 247 (111 genes) plus
+   their seeded shuffles: 12 prompts, every gene once, schema and template
+   named, no controls, 8,318-47,764 characters.
+2. UniProt: 2 live requests, release 2026_04 (04-November-2026); a rerun makes
+   0 requests with identical facts; 110/111 genes found, 108 with function
+   text; accessions 110/110 and function text 108/108 equal to the archived
+   uniprot_function_2026-11-08.tsv.
+3. Parsing: 11 answer kinds x 12 prompts, 0 exceptions (ok, partial,
+   unparsed, no_answer as expected; unknown genes dropped and counted).
+4. Replay with the network cut: clusters, candidates, gene facts and report
+   byte-identical.
+5. Off-switch: run_ops profile + evaluate on synthetic stored cells, nightly
+   a884551a8b vs this branch: tables identical; runtime.json identical apart
+   from two timing fields; per_gene.csv.gz content identical. The clustering
+   phases (PHATE + Leiden) cannot run on this machine; a unit test covers the
+   off route with the clustering phase faked.
+6. Stub shuffle control: real 3/6 clusters medium or high, shuffled 0/6.

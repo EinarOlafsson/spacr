@@ -40,13 +40,19 @@ def _cells(shape=(400, 400), n=40, seed=3):
     return labels
 
 
+def _flows_of(found):
+    """The flows of ``masks_to_flows_gpu``: Cellpose 4.1 and later return
+    ``(flows, slices)``, earlier releases the flows alone."""
+    return found[0] if isinstance(found, tuple) else found
+
+
 def _network_outputs(labels, seed=5, noise=0.6):
     """Flows and cell probability as a network would give them: Cellpose's own
     flows of ``labels`` scaled by 5, with noise so that the flow check drops
     some masks."""
     from cellpose.dynamics import masks_to_flows_gpu
 
-    flows = masks_to_flows_gpu(labels, device=CPU)[0].astype(np.float32) * 5
+    flows = _flows_of(masks_to_flows_gpu(labels, device=CPU)).astype(np.float32) * 5
     rng = np.random.default_rng(seed)
     flows += rng.normal(0, noise, flows.shape).astype(np.float32)
     prob = np.where(labels > 0, 3.0, -3.0).astype(np.float32)
@@ -112,6 +118,29 @@ def test_the_banded_flow_check_equals_cellposes_whole_step_and_drops_masks():
         assert np.array_equal(labels, whole), budget
         assert info["bands"] >= 1
     assert len(ols.flow_check_bands(ols._mask_dynamics(flows, prob, CPU), 2e5)) > 3
+
+
+def test_the_bands_follow_a_cellpose_that_returns_the_flows_alone(monkeypatch):
+    """Cellpose before 4.1 (4.0.9 on the work machine) returns the flows alone
+    from masks_to_flows_gpu and scores each mask with scipy.ndimage.mean; the
+    bands then give that version's whole-image flow errors."""
+    from cellpose import dynamics
+    from scipy import ndimage
+
+    flows, prob = _network_outputs(_cells())
+    masks = ols._mask_dynamics(flows, prob, CPU)
+    real = dynamics.masks_to_flows_gpu
+    whole = _flows_of(real(masks, device=CPU))
+    expected = sum(ndimage.mean((whole[i] - flows[i] / 5.) ** 2, masks,
+                                index=np.arange(1, masks.max() + 1)) for i in range(2))
+    monkeypatch.setattr(dynamics, "masks_to_flows_gpu",
+                        lambda *a, **k: _flows_of(real(*a, **k)))
+    niter = 2 * max((s[0].stop - s[0].start) + (s[1].stop - s[1].start) + 2
+                    for s in ndimage.find_objects(masks))
+    found = np.zeros(int(masks.max()) + 1)
+    for band in ols.flow_check_bands(masks, 2e5):
+        found[band[2]] = ols._band_flow_errors(masks, flows, band, niter, 0, CPU)
+    np.testing.assert_allclose(found[1:], expected, rtol=1e-12, atol=0)
 
 
 def test_bands_hold_every_mask_once_and_wholly():
@@ -282,7 +311,7 @@ class _DiscCellpose:
         labels = ndimage.label(x > self.threshold)[0].astype(np.int32)
         if compute_masks:
             return labels, None, None
-        flows = masks_to_flows_gpu(labels, device=CPU)[0].astype(np.float32) * 5
+        flows = _flows_of(masks_to_flows_gpu(labels, device=CPU)).astype(np.float32) * 5
         prob = np.where(labels > 0, 4.0, -4.0).astype(np.float32)
         return np.zeros(0), [None, flows, prob], None
 
