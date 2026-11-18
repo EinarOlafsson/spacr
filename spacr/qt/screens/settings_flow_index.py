@@ -1477,6 +1477,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_prefix_max_distance',
     'ops_prefix_metric',
     'ops_prefix_min_read_quality',
+    'ops_prefix_minority_min_reads',
     'ops_prefix_nearmiss_decoy_k',
     'ops_prefix_quality_method',
     'ops_prefix_threshold_tuning',
