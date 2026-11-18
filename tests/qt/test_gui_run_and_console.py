@@ -127,6 +127,7 @@ def _make_plate(dst: Path, size: int = 96) -> Path:
 
 @pytest.mark.slow
 @pytest.mark.gpu
+@pytest.mark.usefixtures("console_info_enabled")
 def test_real_mask_run_through_button_finishes(qtbot, tmp_path):
     """The full path: set src on the Mask app, press Run, wait for the
     real Cellpose pipeline to finish, and confirm the console shows
