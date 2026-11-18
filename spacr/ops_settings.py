@@ -200,6 +200,11 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_tie": 1.0,
     "ops_decode_quality_weighted": False,
     "ops_vote_weight_floor": 0.05,
+    "ops_read_distance_weight": "off",
+    "ops_read_distance_decay_px": 4.0,
+    "ops_read_distance_interior_px": 0.0,
+    "ops_read_distance_min_weight": 0.05,
+    "ops_read_neighbour_discount": 1.0,
     "ops_decode_pixel_fallback": False,
     "ops_pixel_percentile": 97.0,
     "ops_pixel_radius": 10.0,
@@ -461,6 +466,15 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_nearmiss_decoy_k": 0,
     "ops_prefix_fdr_calibration": "none",
     "ops_prefix_minority_min_reads": 0,
+    "ops_prefix_distance_weight": "off",
+    "ops_prefix_distance_decay_px": 8.0,
+    "ops_prefix_distance_interior_px": 0.0,
+    "ops_prefix_distance_min_weight": 0.05,
+    "ops_prefix_weighted_quality": True,
+    "ops_prefix_weighted_min_share": 0.6,
+    "ops_prefix_nuclei_masks": None,
+    "ops_keep_multi_guide_cells": False,
+    "ops_multi_guide_min_reads": 2,
     "ops_fdr_sweep_targets": [0.5, 1.0, 2.0, 5.0],
     "ops_fdr_sweep_max_distance": [0, 1],
     "ops_fdr_sweep_min_reads": [1, 2, 3],
@@ -671,6 +685,11 @@ OPS_TYPES: Dict[str, object] = {
     "ops_tie": (float, int),
     "ops_decode_quality_weighted": bool,
     "ops_vote_weight_floor": (float, int),
+    "ops_read_distance_weight": str,
+    "ops_read_distance_decay_px": (float, int),
+    "ops_read_distance_interior_px": (float, int),
+    "ops_read_distance_min_weight": (float, int),
+    "ops_read_neighbour_discount": (float, int),
     "ops_decode_pixel_fallback": bool,
     "ops_pixel_percentile": (float, int),
     "ops_pixel_radius": (float, int),
@@ -932,6 +951,15 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_nearmiss_decoy_k": int,
     "ops_prefix_fdr_calibration": str,
     "ops_prefix_minority_min_reads": int,
+    "ops_prefix_distance_weight": str,
+    "ops_prefix_distance_decay_px": (float, int),
+    "ops_prefix_distance_interior_px": (float, int),
+    "ops_prefix_distance_min_weight": (float, int),
+    "ops_prefix_weighted_quality": bool,
+    "ops_prefix_weighted_min_share": (float, int),
+    "ops_prefix_nuclei_masks": (str, type(None)),
+    "ops_keep_multi_guide_cells": bool,
+    "ops_multi_guide_min_reads": int,
     "ops_fdr_sweep_targets": (list, str),
     "ops_fdr_sweep_max_distance": (list, str),
     "ops_fdr_sweep_min_reads": (list, str),
@@ -991,6 +1019,11 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_tie",
         "ops_decode_quality_weighted",
         "ops_vote_weight_floor",
+        "ops_read_distance_weight",
+        "ops_read_distance_decay_px",
+        "ops_read_distance_interior_px",
+        "ops_read_distance_min_weight",
+        "ops_read_neighbour_discount",
         "ops_decode_pixel_fallback",
         "ops_pixel_percentile",
         "ops_pixel_radius",
@@ -1038,6 +1071,11 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid",
         "ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration",
         "ops_prefix_minority_min_reads",
+        "ops_prefix_distance_weight", "ops_prefix_distance_decay_px",
+        "ops_prefix_distance_interior_px", "ops_prefix_distance_min_weight",
+        "ops_prefix_weighted_quality", "ops_prefix_weighted_min_share",
+        "ops_prefix_nuclei_masks", "ops_keep_multi_guide_cells",
+        "ops_multi_guide_min_reads",
         "ops_fdr_sweep_targets", "ops_fdr_sweep_max_distance",
         "ops_fdr_sweep_min_reads", "ops_fdr_sweep_rules",
         "ops_fdr_sweep_quality_quantiles", "ops_fdr_sweep_bootstrap",
@@ -2863,6 +2901,35 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - Added to every quality weight, so a read of quality 0 "
         "still carries a small vote. Higher moves the weighting toward a "
         "plain count. Default 0.05.",
+    "ops_read_distance_weight":
+        "(str) - Weights each read's vote in the guide call by its distance "
+        "to its nucleus. The distance is measured from the edge of the "
+        "nucleus disc, and a read inside the disc has distance 0. 'off' "
+        "keeps today's vote. 'decay' multiplies the read's weight by "
+        "exp(-distance / ops_read_distance_decay_px), and 'distance_only' "
+        "uses that term without the quality weight. A guide supported by "
+        "one read then needs its quality times this term to reach "
+        "ops_single_read_quality. It acts in the decode rules only, for "
+        "example with ops_decode_preset 'rule_a_s2'. Default 'off'. Alpha.",
+    "ops_read_distance_decay_px":
+        "(float) - The decay length, in pixels, of ops_read_distance_weight. "
+        "A read this far beyond the nucleus edge keeps about a third of its "
+        "weight. Default 4. Alpha.",
+    "ops_read_distance_interior_px":
+        "(float) - Reads up to this distance, in pixels, from the nucleus edge "
+        "keep their full weight under ops_read_distance_weight. Higher lets "
+        "reads farther out count fully. Default 0. Alpha.",
+    "ops_read_distance_min_weight":
+        "(float) - The smallest distance term of ops_read_distance_weight, so "
+        "a far read never counts as zero. Default 0.05. Alpha.",
+    "ops_read_neighbour_discount":
+        "(float) - Weighs down reads that probably bled in from a touching "
+        "cell. Inside a cell, a guide with fewer reads than the top guide is "
+        "multiplied by this value when it is the top guide of a neighbouring "
+        "cell. Neighbours are nuclei whose discs come within ops_footprint, "
+        "or touching cells in the spacer-prefix decode. 1 is off, and 0 "
+        "ignores such reads. The spacer-prefix decode applies it under "
+        "ops_prefix_quality_method 'weighted_majority'. Default 1. Alpha.",
     "ops_decode_pixel_fallback":
         "(bool) - For a nucleus no read assigned, call the brightest pixels "
         "near it like reads and assign the guide at least two of them name "
@@ -3474,7 +3541,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Painting recipe that PERISCOPE used: one barcode with only exact reads "
         "is perfect, one barcode with a corrected read is great, and several "
         "barcodes are imperfect or bad; ops_quality_min_reads is then not used. "
-        "Default 'spacr'. Alpha.",
+        "'weighted_majority' calls the barcode holding most of the read "
+        "weight (ops_prefix_weighted_min_share). Default 'spacr'. Alpha.",
     "ops_random_barcode_control":
         "(bool) - Also match every read against a shuffled whitelist of the "
         "same size and base composition, the rate a random library would "
@@ -3548,6 +3616,60 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "where one stray read otherwise makes the cell bad. site_summary.csv "
         "counts the rescued cells. 3 is the tested value; 0 is off. "
         "Default 0. Alpha.",
+    "ops_prefix_distance_weight":
+        "(str) - Under ops_prefix_quality_method 'weighted_majority', weights "
+        "each read by its distance to the nucleus of its cell. The distance "
+        "is 0 inside the nucleus. When the nearest nucleus belongs to another "
+        "cell, the distance to the cell centre minus the median nucleus "
+        "radius is used, and the read table flags it in nuc_gap_fallback. "
+        "'off' uses no distance. 'decay' multiplies the read's weight by "
+        "exp(-distance / ops_prefix_distance_decay_px). 'distance_only' uses "
+        "that term without the quality weight. The distance needs "
+        "ops_prefix_nuclei_masks. Default 'off'. Alpha.",
+    "ops_prefix_distance_decay_px":
+        "(float) - The decay length, in pixels of the sequencing frame, of "
+        "ops_prefix_distance_weight. The per-well tuning can try several "
+        "lengths with the key ops_prefix_distance_decay_px in "
+        "ops_prefix_tuning_grid, where 0 means no distance weight. "
+        "Default 8. Alpha.",
+    "ops_prefix_distance_interior_px":
+        "(float) - Reads up to this distance, in pixels, from the nucleus keep "
+        "their full weight under ops_prefix_distance_weight. Higher lets reads "
+        "farther out count fully. Default 0. Alpha.",
+    "ops_prefix_distance_min_weight":
+        "(float) - The smallest distance term of ops_prefix_distance_weight, "
+        "so a far read never counts as zero. Default 0.05. Alpha.",
+    "ops_prefix_weighted_quality":
+        "(bool) - Under ops_prefix_quality_method 'weighted_majority', weights "
+        "each read by its quality: min(1, quality) + 0.05, as in the OPS "
+        "decode's quality vote. False counts every read as 1. Default True. "
+        "Alpha.",
+    "ops_prefix_weighted_min_share":
+        "(float) - Under ops_prefix_quality_method 'weighted_majority', the "
+        "share of a cell's read weight that its top barcode needs. The top "
+        "barcode must also hold more weight than any other barcode. "
+        "Default 0.6. Alpha.",
+    "ops_prefix_nuclei_masks":
+        "(str or None) - The nucleus labels that ops_prefix_distance_weight "
+        "measures distances to. The value is a path with {plate}, {well}, "
+        "{well_id}, {well_number} and {site} fields to a TIFF, .npy or .npz "
+        "label image per site, in the frame of ops_prefix_masks. A nucleus "
+        "must carry the label of its cell. Empty uses the nuclei of each "
+        "site's merged/ file when it has them. Default None. Alpha.",
+    "ops_keep_multi_guide_cells":
+        "(bool) - Writes two extra tables per well in the spacer-prefix decode. "
+        "guide_multiplicity_<plate>_<well>.csv gives the share of cells with "
+        "0, 1, 2, 3 or 4 and more guides, and the share of two-guide cells "
+        "whose second guide is a touching cell's top guide. "
+        "multi_guide_cells_<plate>_<well>.csv lists the cells with two or "
+        "more guides of ops_multi_guide_min_reads reads each, none of them "
+        "from a neighbour. These cells never enter the single-guide "
+        "profiles. Default False. Alpha.",
+    "ops_multi_guide_min_reads":
+        "(int) - The reads each guide needs before a cell counts as a "
+        "multi-guide cell in the table of ops_keep_multi_guide_cells. Higher "
+        "lists fewer cells, and a single stray read no longer makes a cell "
+        "multi-guide. Default 2. Alpha.",
     "ops_fdr_sweep_targets":
         "(list) - The decoy FDR targets, in %, of the prefix_fdr_sweep phase. "
         "For each target, every method gets the configuration with the most "

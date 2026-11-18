@@ -9752,6 +9752,15 @@ ALPHA_FEATURES = {
     967: {
         'settings': ('ops_prefix_minority_min_reads',),
     },
+    988: {
+        'settings': ('ops_read_distance_weight', 'ops_read_distance_decay_px',
+                     'ops_read_distance_interior_px', 'ops_read_distance_min_weight',
+                     'ops_read_neighbour_discount', 'ops_prefix_distance_weight',
+                     'ops_prefix_distance_decay_px', 'ops_prefix_distance_interior_px',
+                     'ops_prefix_distance_min_weight', 'ops_prefix_weighted_quality',
+                     'ops_prefix_weighted_min_share', 'ops_prefix_nuclei_masks',
+                     'ops_keep_multi_guide_cells', 'ops_multi_guide_min_reads'),
+    },
 }
 
 

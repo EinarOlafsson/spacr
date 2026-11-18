@@ -24,7 +24,8 @@ def _reads():
     def add(cell, prefix, n, gene=None):
         rows.extend({"plate": "P", "well": "W", "site": 1, "cell": cell, "status": "exact",
                      "key": "ACGT", "distance": 0, "prefix": prefix, "guide": prefix,
-                     "gene": gene or f"G{prefix}", "level": "guide"} for _ in range(n))
+                     "gene": gene or f"G{prefix}", "level": "guide", "quality": 1.0}
+                    for _ in range(n))
 
     add(1, "A", 3)
     add(1, "B", 1)

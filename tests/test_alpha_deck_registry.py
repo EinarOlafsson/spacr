@@ -111,8 +111,10 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-17: the spacer-prefix minority-read rule (967) makes 159.
     # 2026-11-18: pathogen and organelle objects in the OPS phenotype path
     # (970) make 160.
+    # 2026-11-18: distance-aware read weights and the neighbour-bleed
+    # discount in the guide call (988) make 161.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    assert count == 160
+    assert count == 161
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

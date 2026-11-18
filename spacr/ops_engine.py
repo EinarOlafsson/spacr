@@ -3047,6 +3047,12 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     from .ops_sbs import estimate_read_locations, find_peaks
 
     rule = task["rule_a"]
+    weighting = rule.get("read_weight")
+    if weighting and weighting["neighbour_discount"] != 1.0:
+        from .ops_sbs import _disc_neighbours
+
+        rule = {**rule, "neighbours": _disc_neighbours(
+            task["ids"], task["centroids"], task["areas"], float(rule["footprint"]))}
     score = estimate_read_locations(filtered)
     if spotnet is not None:
         peaks = np.asarray(spotnet).reshape(-1, 2)
