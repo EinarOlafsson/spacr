@@ -1548,6 +1548,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_spot_overrule_share',
     'ops_stitch_edge_workers',
     'ops_stitch_read_threads',
+    'ops_storage',
     'ops_store_field_cache',
     'ops_store_reads',
     'ops_stress_report',
