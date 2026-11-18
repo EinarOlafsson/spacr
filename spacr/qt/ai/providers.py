@@ -934,8 +934,105 @@ GEMINI_READ_ONLY_ARGS: Tuple[str, ...] = (
     "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp")
 
 
+_CODEX_LOGGED: set = set()
+
+
+def _codex_platform_folders(platform: str, machine: str) -> Tuple[str, ...]:
+    """The ``bin/<folder>`` names the VS Code ChatGPT extension uses on this system, best first.
+
+    :param platform: ``sys.platform``.
+    :param machine: ``platform.machine()``.
+    """
+    arm = machine.lower() in ("aarch64", "arm64")
+    if platform.startswith("linux"):
+        return ("linux-aarch64", "linux-arm64") if arm else ("linux-x86_64",)
+    if platform == "darwin":
+        return ("darwin-arm64", "darwin-aarch64", "darwin-x86_64") if arm else ("darwin-x86_64",)
+    if platform.startswith("win"):
+        return ("windows-aarch64", "windows-arm64", "windows-x86_64") if arm else ("windows-x86_64",)
+    return ()
+
+
+def _extension_version(folder: str) -> Tuple[int, ...]:
+    """The version numbers in an extension folder name such as ``openai.chatgpt-26.1111.21308-linux-x64``.
+
+    :param folder: the folder's name.
+    """
+    import re
+
+    found = re.match(r"openai\.chatgpt-(\d+(?:\.\d+)*)", folder)
+    return tuple(int(part) for part in found.group(1).split(".")) if found else ()
+
+
+def _codex_home() -> str:
+    """The home folder searched for VS Code extensions."""
+    return os.path.expanduser("~")
+
+
+def _codex_executable(home: Optional[str] = None, platform: Optional[str] = None,
+                      machine: Optional[str] = None) -> Tuple[str, str]:
+    """The ``codex`` binary spaCR runs, and where it was found.
+
+    ``PATH`` comes first. Otherwise the binary bundled with the newest VS Code
+    ChatGPT extension (``openai.chatgpt-<version>``) in ``~/.vscode/extensions``
+    or, for remote setups, ``~/.vscode-server/extensions`` is used, from the
+    ``bin`` folder for this platform, when it is an executable file.
+
+    :param home: the home folder; the user's when None.
+    :param platform: ``sys.platform`` when None.
+    :param machine: ``platform.machine()`` when None.
+    :returns: ``(path, source)``, source ``"PATH"`` or the extension folder;
+        ``("", "")`` when there is none.
+    """
+    import platform as _platform
+
+    found = shutil.which("codex")
+    if found:
+        return found, "PATH"
+    home = home or _codex_home()
+    platform = platform or _sys.platform
+    machine = machine or _platform.machine()
+    exe = "codex.exe" if platform.startswith("win") else "codex"
+    candidates = []
+    for root in (os.path.join(home, ".vscode", "extensions"), os.path.join(home, ".vscode-server", "extensions")):
+        try:
+            names = os.listdir(root)
+        except OSError:
+            continue
+        for name in names:
+            version = _extension_version(name)
+            if not version:
+                continue
+            for folder in _codex_platform_folders(platform, machine):
+                path = os.path.join(root, name, "bin", folder, exe)
+                usable = os.path.isfile(path) and (platform.startswith("win") or os.access(path, os.X_OK))
+                if usable:
+                    candidates.append((version, path, os.path.join(root, name)))
+                    break
+    if not candidates:
+        return "", ""
+    _version, path, source = max(candidates)
+    return path, source
+
+
+def _codex_command() -> str:
+    """The ``codex`` command to run: the resolved binary, logged once per path, or ``"codex"``."""
+    path, source = _codex_executable()
+    if path and path not in _CODEX_LOGGED:
+        _CODEX_LOGGED.add(path)
+        import logging
+
+        logging.getLogger(__name__).info("Codex CLI: using %s (found via %s)", path, source)
+    return path or "codex"
+
+
 class CodexCliProvider(ChatProvider):
-    """OpenAI ChatGPT via the ``codex`` CLI."""
+    """OpenAI ChatGPT via the ``codex`` CLI.
+
+    The binary is the one on ``PATH``, or else the one bundled with the newest
+    VS Code ChatGPT extension (``~/.vscode/extensions`` or
+    ``~/.vscode-server/extensions``); the path used is logged.
+    """
 
     name = "codex"
     label = "ChatGPT (via Codex CLI)"
@@ -944,6 +1041,22 @@ class CodexCliProvider(ChatProvider):
     install_hint = install_hint_for("codex", _sys.platform)
     login_command = "codex login"
     status_command = ("codex", "login", "status")
+
+    def is_installed(self) -> bool:
+        """Return True when a ``codex`` binary is on ``PATH`` or in a VS Code ChatGPT extension."""
+        return bool(_codex_executable()[0])
+
+    def check_signed_in(self) -> Optional[bool]:
+        """Run ``codex login status`` with the resolved binary.
+
+        :returns: ``True`` when it exits 0; ``False`` otherwise or when no
+            binary is found.
+        """
+        command = _codex_command()
+        try:
+            return _run_quietly([command, "login", "status"], self.STATUS_TIMEOUT_S) == 0
+        except (OSError, subprocess.SubprocessError):
+            return False
 
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
@@ -960,7 +1073,7 @@ class CodexCliProvider(ChatProvider):
         """
         prompt = _format_conversation(messages, system=system)
         shim = _batch_shim("codex")
-        argv = [shim, "exec", "-"] if shim else ["codex", "exec", prompt]
+        argv = [shim, "exec", "-"] if shim else [_codex_command(), "exec", prompt]
         if model:
             argv += ["--model", model]
         else:

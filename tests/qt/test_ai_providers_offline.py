@@ -1004,3 +1004,61 @@ def test_codex_and_gemini_calls_run_without_tools(monkeypatch):
     argv = rec["argv"]
     assert argv[argv.index("--approval-mode") + 1] == "plan" and "--yolo" not in argv
     assert tuple(argv[-len(GEMINI_READ_ONLY_ARGS):]) == GEMINI_READ_ONLY_ARGS
+
+
+def _fake_extension(root, version, folder="linux-x86_64", executable=True):
+    """A fake ``openai.chatgpt-<version>`` extension holding a codex binary."""
+    path = root / f"openai.chatgpt-{version}-linux-x64" / "bin" / folder / "codex"
+    path.parent.mkdir(parents=True)
+    path.write_text("#!/bin/sh\n")
+    path.chmod(0o755 if executable else 0o644)
+    return str(path)
+
+
+def test_codex_lookup_finds_nothing_without_path_or_extension(monkeypatch, tmp_path):
+    from spacr.qt.ai import providers
+
+    monkeypatch.setattr(providers.shutil, "which", lambda name: None)
+    assert providers._codex_executable(home=str(tmp_path), platform="linux", machine="x86_64") == ("", "")
+    (tmp_path / ".vscode" / "extensions" / "other.thing-1.0").mkdir(parents=True)
+    _fake_extension(tmp_path / ".vscode" / "extensions", "27.1", executable=False)
+    assert providers._codex_executable(home=str(tmp_path), platform="linux", machine="x86_64") == ("", "")
+
+
+def test_codex_lookup_takes_the_newest_extension_in_either_vscode_folder(monkeypatch, tmp_path):
+    from spacr.qt.ai import providers
+
+    monkeypatch.setattr(providers.shutil, "which", lambda name: None)
+    local = tmp_path / ".vscode" / "extensions"
+    remote = tmp_path / ".vscode-server" / "extensions"
+    _fake_extension(local, "26.1111.21308")
+    _fake_extension(local, "26.900.1")
+    newest = _fake_extension(remote, "26.1200.5")
+    _fake_extension(local, "27.1", folder="darwin-arm64")
+    path, source = providers._codex_executable(home=str(tmp_path), platform="linux", machine="x86_64")
+    assert path == newest and source.endswith("openai.chatgpt-26.1200.5-linux-x64")
+    arm = _fake_extension(local, "26.5", folder="linux-aarch64")
+    assert providers._codex_executable(home=str(tmp_path), platform="linux", machine="aarch64")[0] == arm
+    mac = providers._codex_executable(home=str(tmp_path), platform="darwin", machine="arm64")[0]
+    assert mac.endswith("openai.chatgpt-27.1-linux-x64/bin/darwin-arm64/codex")
+
+
+def test_codex_on_path_wins_and_the_used_path_is_logged(monkeypatch, tmp_path, caplog):
+    import logging
+
+    from spacr.qt.ai import providers
+
+    _fake_extension(tmp_path / ".vscode" / "extensions", "26.1111.21308")
+    monkeypatch.setattr(providers.shutil, "which", lambda name: "/usr/bin/codex" if name == "codex" else None)
+    assert providers._codex_executable(home=str(tmp_path)) == ("/usr/bin/codex", "PATH")
+    monkeypatch.setattr(providers.shutil, "which", lambda name: None)
+    monkeypatch.setattr(providers, "_codex_home", lambda: str(tmp_path))
+    monkeypatch.setattr(providers, "_CODEX_LOGGED", set())
+    with caplog.at_level(logging.INFO, logger=providers.__name__):
+        command = providers._codex_command()
+    assert command.endswith("/bin/linux-x86_64/codex") or command == "codex"
+    if command != "codex":
+        assert "Codex CLI: using" in caplog.text and providers.CodexCliProvider().is_installed()
+        rec = _install_fake_popen(monkeypatch, _FakeProc([]))
+        list(providers.CodexCliProvider().stream_chat([{"role": "user", "content": "q"}], model="o3"))
+        assert rec["argv"][0] == command
