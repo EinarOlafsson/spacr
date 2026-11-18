@@ -409,6 +409,8 @@ def test_the_merged_classifier_rebuild_finds_every_group_it_names():
                 SM._family_heading("Machine Learning", "Model & Features"),
                 SM._family_heading("Machine Learning",
                                    "Plate & Batch Correction"),
+                SM._family_heading("Machine Learning",
+                                   "Held-out Evaluation \u03b1"),
                 "Evaluation", "Results & figures", "Runtime & Reliability"]
     assert names[:len(expected)] == expected, (
         "a group the rebuild names was not in the table it reads")

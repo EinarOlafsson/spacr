@@ -463,7 +463,7 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
             store = shuffle_memo.setdefault((s, distance), {})
             called.append(_called_counts(_shuffle_frame(
                 reads, shuffled_lib, store, metric=metric, max_distance=distance),
-                method)[0])
+                method, minority_min_reads=chosen["ops_prefix_minority_min_reads"])[0])
         shuffled = float(np.mean(called)) if called else 0.0
         reads.insert(0, "site", int(site))
         reads.insert(0, "well", well_id)

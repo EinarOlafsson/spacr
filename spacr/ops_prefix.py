@@ -678,9 +678,44 @@ def recipe_simple_quality(spots: pd.DataFrame, *, cell_cols: Sequence[str] = ("c
     return out.sort_values(cell_cols, kind="stable").reset_index(drop=True)[columns]
 
 
+def _minority_ignored(matched: pd.DataFrame, cell_cols: Sequence[str],
+                      min_reads: int) -> np.ndarray:
+    """Which matched reads the minority-read rule (item 967) leaves out of the cell call.
+
+    :param matched: the exact and corrected reads, with ``cell_cols`` and
+        ``prefix``.
+    :param cell_cols: the columns naming a cell.
+    :param min_reads: ``ops_prefix_minority_min_reads``; 0 and 1 leave out
+        nothing.
+    :returns: one flag per row of ``matched``: True for a read of a barcode
+        with fewer than ``min_reads`` reads in its cell while another barcode
+        of that cell has strictly more reads. Barcodes tied for the most
+        reads are always kept, so a tie still blocks the call.
+    """
+    if int(min_reads) <= 1 or matched.empty:
+        return np.zeros(len(matched), bool)
+    cell_cols = list(cell_cols)
+    per_barcode = matched.groupby(cell_cols + ["prefix"], sort=False)["prefix"].transform("size")
+    most = per_barcode.groupby([matched[c] for c in cell_cols], sort=False).transform("max")
+    return ((per_barcode < int(min_reads)) & (per_barcode < most)).to_numpy(bool)
+
+
+def _class_counts(matched: pd.DataFrame) -> Dict[str, List[int]]:
+    """``barcode -> [exact reads, corrected reads]`` of one cell's matched reads.
+
+    :param matched: the cell's exact and corrected reads.
+    :returns: the counts, in first-read order.
+    """
+    counts: Dict[str, List[int]] = {}
+    for prefix, kind in zip(matched["prefix"], matched["status"]):
+        slot = counts.setdefault(prefix, [0, 0])
+        slot[0 if kind == "exact" else 1] += 1
+    return counts
+
+
 def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
                       keys: Sequence[str] = ("plate", "well", "site", "cell"),
-                      method: str = "spacr") -> pd.DataFrame:
+                      method: str = "spacr", minority_min_reads: int = 0) -> pd.DataFrame:
     """Each cell's barcode, its read counts and its quality class.
 
     :param reads: one row per read with ``keys``, ``status``, ``key``,
@@ -695,53 +730,84 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
         ``'recipe_simple'`` (:func:`recipe_simple_quality` on the exact and
         corrected reads, each scored one minus its distance over the key
         length; classes :data:`RECIPE_SIMPLE_CLASSES`).
+    :param minority_min_reads: ``ops_prefix_minority_min_reads`` (item 967,
+        alpha). From 2 up, a barcode with fewer reads than this is left out
+        of the cell's call when another barcode in the cell has strictly
+        more reads; tied barcodes still block the call. This rescues cells
+        that a single stray read of a second barcode makes ``bad`` under
+        ``'recipe_simple'``; under ``'spacr'`` it changes no call and can
+        only turn ``great`` into ``perfect``. 0 (the default) and 1 change
+        nothing.
     :returns: one row per cell with any read: ``keys``, ``reads``,
         ``matched`` (exact or corrected), ``exact``, ``corrected``,
         ``ambiguous``, ``collision``, ``out_of_library``, ``barcodes``
         (distinct callable barcodes), ``prefix``, ``guide``, ``gene`` and
         ``level`` of the top barcode (empty unless ``perfect`` or ``great``),
         ``top_reads``, ``top_exact``, ``top_share`` (of matched reads),
-        ``second_reads``, ``has_exact_read`` and ``quality``.
+        ``second_reads``, ``has_exact_read`` and ``quality``. With
+        ``minority_min_reads`` 2 or more, ``barcodes``, ``second_reads`` and
+        the class count only the reads the rule keeps, and two columns are
+        added: ``minority_ignored`` (reads left out) and
+        ``minority_rescued`` (True when the cell is called only because of
+        the rule).
     :raises ValueError: for an unknown method.
     """
     if method not in QUALITY_METHODS:
         raise ValueError(f"ops_prefix_quality_method must be one of {list(QUALITY_METHODS)}; "
                          f"got {method!r}")
+    minority = int(minority_min_reads or 0) > 1
     columns = list(keys) + ["reads", "matched", "exact", "corrected", "ambiguous",
                             "collision", "out_of_library", "barcodes", "prefix", "guide",
                             "gene", "level", "top_reads", "top_exact", "top_share",
                             "second_reads", "has_exact_read", "quality"]
+    if minority:
+        columns += ["minority_ignored", "minority_rescued"]
     frame = reads[reads["cell"] > 0] if "cell" in reads.columns else reads.iloc[0:0]
     if frame.empty:
         return pd.DataFrame(columns=columns)
-    recipe = {}
+    ignored = pd.Series(False, index=frame.index)
+    if minority:
+        is_matched = frame["status"].isin(("exact", "corrected"))
+        ignored[is_matched] = _minority_ignored(frame[is_matched], keys, minority_min_reads)
+    recipe: Dict[tuple, str] = {}
+    recipe_all: Dict[tuple, str] = {}
     if method == "recipe_simple":
         scored = frame[frame["status"].isin(("exact", "corrected"))]
         scored = scored.assign(score=1.0 - scored["distance"].astype(float)
                                / scored["key"].str.len().astype(float))
-        classes = recipe_simple_quality(scored, cell_cols=list(keys), barcode_col="prefix",
-                                        gene_col="gene", score_col="score")
-        recipe = dict(zip(map(tuple, classes[list(keys)].to_numpy().tolist()),
-                          classes["quality"]))
+        sets = [(recipe, scored[~ignored[scored.index].to_numpy()] if minority else scored)]
+        if minority:
+            sets.append((recipe_all, scored))
+        for target, rows in sets:
+            classes = recipe_simple_quality(rows, cell_cols=list(keys), barcode_col="prefix",
+                                            gene_col="gene", score_col="score")
+            target.update(zip(map(tuple, classes[list(keys)].to_numpy().tolist()),
+                              classes["quality"]))
     out = []
     for cell_key, group in frame.groupby(list(keys), sort=True):
         status = group["status"].value_counts()
-        matched = group[group["status"].isin(("exact", "corrected"))]
-        counts: Dict[str, List[int]] = {}
-        for prefix, kind in zip(matched["prefix"], matched["status"]):
-            slot = counts.setdefault(prefix, [0, 0])
-            slot[0 if kind == "exact" else 1] += 1
+        all_matched = group[group["status"].isin(("exact", "corrected"))]
+        matched = (all_matched[~ignored[all_matched.index].to_numpy()] if minority
+                   else all_matched)
+        counts = _class_counts(matched)
+        named = tuple(cell_key) if isinstance(cell_key, tuple) else (cell_key,)
         if method == "recipe_simple":
-            named = cell_key if isinstance(cell_key, tuple) else (cell_key,)
-            quality = recipe.get(tuple(named), "none")
+            quality = recipe.get(named, "none")
+            before = recipe_all.get(named, "none") if minority else quality
         else:
             quality = classify_cell({k: tuple(v) for k, v in counts.items()}, min_reads)
+            before = (classify_cell({k: tuple(v) for k, v in _class_counts(all_matched).items()},
+                                    min_reads) if minority else quality)
         ranked = sorted(counts.items(), key=lambda kv: (-(kv[1][0] + kv[1][1]), kv[0]))
         top = ranked[0] if ranked else None
         call = (matched[matched["prefix"] == top[0]].iloc[0]
                 if top is not None and quality in ("perfect", "great") else None)
-        n_matched = int(len(matched))
+        n_matched = int(len(all_matched))
         top_reads = int(sum(top[1])) if top else 0
+        extra = ({"minority_ignored": int(len(all_matched) - len(matched)),
+                  "minority_rescued": bool(quality in ("perfect", "great")
+                                           and before not in ("perfect", "great"))}
+                 if minority else {})
         out.append({
             **dict(zip(keys, cell_key if isinstance(cell_key, tuple) else (cell_key,))),
             "reads": int(len(group)), "matched": n_matched,
@@ -755,7 +821,7 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
             "top_share": float(top_reads / n_matched) if n_matched else 0.0,
             "second_reads": int(sum(ranked[1][1])) if len(ranked) > 1 else 0,
             "has_exact_read": bool(status.get("exact", 0) > 0),
-            "quality": quality})
+            "quality": quality, **extra})
     return pd.DataFrame(out, columns=columns)
 
 
@@ -1109,17 +1175,22 @@ def _at_setting(reads: pd.DataFrame, min_quality: float, max_distance: int) -> p
     return reads
 
 
-def _called_counts(reads: pd.DataFrame, method: str, nearmiss: bool = False):
+def _called_counts(reads: pd.DataFrame, method: str, nearmiss: bool = False,
+                   minority_min_reads: int = 0):
     """Real and decoy cells called from one site's reads, as :func:`prefix_cell_calls` calls them.
 
     :param reads: rows with ``cell``, ``status``, ``prefix`` and ``gene``.
     :param method: ``'spacr'`` (a unique top barcode) or ``'recipe_simple'``
         (one barcode only); the perfect and great classes of each.
     :param nearmiss: also return the near-miss decoy calls (item 949).
+    :param minority_min_reads: ``ops_prefix_minority_min_reads`` (item 967):
+        the reads :func:`_minority_ignored` flags are left out first.
     :returns: ``(real, decoy)`` called cells, or ``(real, decoy, nearmiss)``;
         a near-miss decoy call is never a real call.
     """
     matched = reads[(reads["cell"] > 0) & reads["status"].isin(("exact", "corrected"))]
+    if int(minority_min_reads or 0) > 1 and len(matched):
+        matched = matched[~_minority_ignored(matched, ["cell"], minority_min_reads)]
     if matched.empty:
         return (0, 0, 0) if nearmiss else (0, 0)
     tally = matched.groupby(["cell", "prefix"], sort=False).size().rename("n").reset_index()
@@ -1218,11 +1289,12 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,
         ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the
         item-949 ``ops_prefix_nearmiss_decoy_k`` and
-        ``ops_prefix_fdr_calibration``.
+        ``ops_prefix_fdr_calibration``, and the item-967
+        ``ops_prefix_minority_min_reads``.
     :returns: the normalised values under the same keys.
     :raises ValueError: without a library, for an unknown choice, for
         tuning or a shuffle calibration without decoys, or for a negative
-        decoy count.
+        decoy count or minority-read floor.
     """
     from .ops_decode import FDR_CALIBRATIONS
 
@@ -1264,6 +1336,8 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "ops_prefix_nearmiss_decoy_k": int(settings.get("ops_prefix_nearmiss_decoy_k") or 0),
         "ops_prefix_fdr_calibration": str(settings.get("ops_prefix_fdr_calibration")
                                           or FDR_CALIBRATIONS[0]).strip().lower(),
+        "ops_prefix_minority_min_reads": int(settings.get("ops_prefix_minority_min_reads")
+                                             or 0),
     }
     if out["ops_prefix_threshold_tuning"] not in PREFIX_TUNING_MODES:
         raise ValueError(f"ops_prefix_threshold_tuning must be one of "
@@ -1276,6 +1350,8 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
                          "or more (4 recommended)")
     if out["ops_prefix_nearmiss_decoy_k"] < 0:
         raise ValueError("ops_prefix_nearmiss_decoy_k must be 0 or more")
+    if out["ops_prefix_minority_min_reads"] < 0:
+        raise ValueError("ops_prefix_minority_min_reads must be 0 or more (0 = off)")
     if out["ops_prefix_fdr_calibration"] not in FDR_CALIBRATIONS:
         raise ValueError(f"ops_prefix_fdr_calibration must be one of {list(FDR_CALIBRATIONS)}")
     if out["ops_prefix_fdr_calibration"] != "none" and out["ops_prefix_decoy_k"] < 1:
@@ -1379,7 +1455,14 @@ def run_prefix_decode(settings: Mapping[str, Any],
       report gains the entered scale, the calibration, the FDR's interval
       and the shuffle call rate with its interval
       (:func:`spacr.ops_decode.shuffle_call_rate`). With both item-949
-      settings off the outputs are those of item 942.
+      settings off the outputs are those of item 942;
+    * with ``ops_prefix_minority_min_reads`` 2 or more (item 967, alpha): the
+      cell calls and the tuning leave out minority stray reads
+      (:func:`prefix_cell_calls`), the cell table gains
+      ``minority_ignored`` and ``minority_rescued``, ``site_summary.csv``
+      gains ``cells_minority_rescued`` (genotyped cells called only because
+      of the rule), and one line per well reports the rescued cells. 0, the
+      default, writes what the run wrote before.
 
     :param settings: the OPS settings: ``dst_root``, the ``cpg_*`` reader
         settings, the item-920, item-942 and item-949 settings
@@ -1392,10 +1475,12 @@ def run_prefix_decode(settings: Mapping[str, Any],
     :returns: the output paths, the library summary and the run's totals;
         with any item-942 setting on also ``seconds_per_well``, ``fdr`` (per
         well) and ``tuning`` (per well: the choice and its numbers); with
-        the shuffle calibration also ``calibration`` (per well); with tuning
-        also ``well_choices``, one line per well (item 966): the read mode
-        and thresholds chosen and the decoy FDR on the tuning and the report
-        sites, also sent to ``report`` last. An empty ``ops_read_mode`` is
+        the shuffle calibration also ``calibration`` (per well); with the
+        minority-read rule (item 967) also ``minority_rescued`` (genotyped
+        cells rescued, per well); with tuning also ``well_choices``, one
+        line per well (item 966): the read mode and thresholds chosen and
+        the decoy FDR on the tuning and the report sites, also sent to
+        ``report`` last. An empty ``ops_read_mode`` is
         ``'auto'`` with tuning and ``'log'`` without.
     :raises ValueError: without ``dst_root`` or a library, when the layout
         has fewer sequencing cycles than the prefix needs, or for tuning,
@@ -1428,6 +1513,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
     min_quality = chosen["ops_prefix_min_read_quality"]
     nearmiss_k = chosen["ops_prefix_nearmiss_decoy_k"]
     calibration = chosen["ops_prefix_fdr_calibration"] == "shuffle"
+    minority_k = chosen["ops_prefix_minority_min_reads"]
+    minority = minority_k > 1
     if nearmiss_k > 0 and decoy_k < 1:
         raise ValueError("ops_prefix_nearmiss_decoy_k reports near-miss decoys next to the "
                          "far decoys; set ops_prefix_decoy_k to 1 or more (4 recommended)")
@@ -1462,6 +1549,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 if legacy else chosen)
     if not item_949:
         recorded = {key: value for key, value in recorded.items() if key not in _ITEM_949_KEYS}
+    if not minority:
+        recorded = {key: value for key, value in recorded.items() if key not in _ITEM_967_KEYS}
     if read_mode != "log":
         recorded = {**recorded, "ops_read_mode": read_mode}
     with open(os.path.join(folder, "quality_classes.json"), "w", encoding="utf-8") as handle:
@@ -1474,6 +1563,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
     site_rows, all_cells, tuned, well_fdr, well_seconds = [], [], {}, {}, {}
     well_lines: List[str] = []
     calibrated: Dict[str, Any] = {}
+    rescued_wells: Dict[str, int] = {}
     memo: Dict[str, tuple] = {}
     for (plate, well, well_id), sites in index.groupby(["plate", "well", "well_id"], sort=True):
         well_started = time.perf_counter()
@@ -1528,7 +1618,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
                         for b, quality in enumerate(axes[1][1]):
                             for c, distance in enumerate(axes[2][1]):
                                 counts[at + (a, b, c)] = _called_counts(
-                                    _at_setting(frame, quality, int(distance)), method)
+                                    _at_setting(frame, quality, int(distance)), method,
+                                    minority_min_reads=minority_k)
                         for s, shuffled_lib in enumerate(shuffles):
                             shuffled_frame = _shuffle_frame(
                                 frame, shuffled_lib, shuffle_memo[s],
@@ -1537,7 +1628,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                                 for c, distance in enumerate(axes[2][1]):
                                     shuffled_grid[at + (a, b, c)] += _called_counts(
                                         _at_setting(shuffled_frame, quality, int(distance)),
-                                        method)[0]
+                                        method, minority_min_reads=minority_k)[0]
                 if labels is None:
                     first = (i, len(modes) - 1) if read_mode == "auto" else (i,)
                     site_cells_n[site] = int(counts[first + (0, 0, 0)].sum())
@@ -1626,7 +1717,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
                     site_shuffled[site] = float(np.mean([_called_counts(_shuffle_frame(
                         reads, shuffled_lib, shuffle_memo[s],
                         metric=chosen["ops_prefix_metric"],
-                        max_distance=chosen["ops_prefix_max_distance"]), method)[0]
+                        max_distance=chosen["ops_prefix_max_distance"]), method,
+                        minority_min_reads=minority_k)[0]
                         for s, shuffled_lib in enumerate(shuffles)]))
             reads.insert(0, "site", int(site))
             reads.insert(0, "well", well_id)
@@ -1673,6 +1765,13 @@ def run_prefix_decode(settings: Mapping[str, Any],
                       encoding="utf-8") as handle:
                 json.dump(well_fdr[f"{plate}_{well_id}"], handle, indent=1)
         all_cells.append(cells_all)
+        if minority:
+            here_rescued = sum(r["cells_minority_rescued"] for r in site_rows
+                               if r["plate"] == plate and r["well"] == well_id)
+            rescued_wells[f"{plate}_{well_id}"] = int(here_rescued)
+            say(f"prefix_decode {plate} {well_id}: the minority-read rule "
+                f"(ops_prefix_minority_min_reads {minority_k}) rescued {here_rescued} "
+                f"genotyped cells")
         well_seconds[f"{plate}_{well_id}"] = round(time.perf_counter() - well_started, 1)
     summary = pd.DataFrame(site_rows)
     write_table(summary, os.path.join(folder, "site_summary.csv"), canonicalise=False)
@@ -1696,6 +1795,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
         out.update({"seconds_per_well": well_seconds, "fdr": well_fdr, "tuning": tuned})
     if calibration:
         out["calibration"] = calibrated
+    if minority:
+        out["minority_rescued"] = rescued_wells
     if well_lines:
         out["well_choices"] = well_lines
         for line in well_lines:
@@ -1718,7 +1819,8 @@ def _site_row(reads: pd.DataFrame, *, plate: str, well_id: str, site: int,
     :param well_id: the normalised well id.
     :param site: the site.
     :param chosen: from :func:`prefix_settings`; read for
-        ``ops_quality_min_reads``.
+        ``ops_quality_min_reads`` and ``ops_prefix_minority_min_reads``
+        (item 967).
     :param method: the quality method.
     :param class_names: the method's quality classes.
     :param labelled: whether the site has cell labels.
@@ -1732,8 +1834,9 @@ def _site_row(reads: pd.DataFrame, *, plate: str, well_id: str, site: int,
     """
     from .ops_decode import fdr
 
+    minority_k = int(chosen.get("ops_prefix_minority_min_reads") or 0)
     cells = prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"],
-                              method=method)
+                              method=method, minority_min_reads=minority_k)
     if decoy_k > 0:
         cells = _flag_decoy_cells(cells, nearmiss=nearmiss_k > 0)
     classes = cells["quality"].value_counts() if len(cells) else {}
@@ -1744,6 +1847,11 @@ def _site_row(reads: pd.DataFrame, *, plate: str, well_id: str, site: int,
            if len(cells) else 0,
            **{f"cells_{name}": int(classes.get(name, 0)) if len(cells) else 0
               for name in class_names}}
+    if minority_k > 1:
+        rescued = cells["minority_rescued"].astype(bool) if len(cells) else None
+        if rescued is not None and "decoy" in cells.columns:
+            rescued = rescued & ~cells["decoy"].astype(bool)
+        row["cells_minority_rescued"] = int(rescued.sum()) if rescued is not None else 0
     if decoy_k > 0:
         if n_labelled is None or not labelled:
             n_labelled = int(len(cells))
@@ -1942,6 +2050,11 @@ _ITEM_942_KEYS = ("ops_prefix_decoy_k", "ops_prefix_decoy_seed", "ops_prefix_fdr
 #: ``quality_classes.json`` while both are off, so such a run writes what it
 #: wrote before.
 _ITEM_949_KEYS = ("ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration")
+
+#: The item-967 key of :func:`prefix_settings`, left out of
+#: ``quality_classes.json`` while the minority-read rule is off, so such a
+#: run writes what it wrote before.
+_ITEM_967_KEYS = ("ops_prefix_minority_min_reads",)
 
 
 #: The cell rules of the matched-FDR sweep (item 955), from least to most
