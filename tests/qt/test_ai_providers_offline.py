@@ -473,7 +473,7 @@ def test_codex_argv_uses_exec_subcommand(monkeypatch, speed):
     assert argv[0:2] == ["codex", "exec"]
     # codex has no --append-system-prompt: the system prompt is folded in
     assert argv[2].startswith("System:\npersona")
-    assert argv[3:] == ["--model", "gpt-5"]
+    assert argv[3:] == ["--model", "gpt-5", "--sandbox", "read-only", "--ignore-user-config", "--disable", "shell_tool", "--disable", "apps", "--disable", "plugins", "--disable", "browser_use", "--disable", "in_app_browser"]
 
 
 def test_codex_argv_explicit_model(monkeypatch, speed):
@@ -483,7 +483,7 @@ def test_codex_argv_explicit_model(monkeypatch, speed):
     rec = _install_fake_popen(monkeypatch, _FakeProc([]))
     p = CodexCliProvider()
     list(p.stream_chat([{"role": "user", "content": "q"}], model="o3"))
-    assert rec["argv"] == ["codex", "exec", "User:\nq", "--model", "o3"]
+    assert rec["argv"] == ["codex", "exec", "User:\nq", "--model", "o3", "--sandbox", "read-only", "--ignore-user-config", "--disable", "shell_tool", "--disable", "apps", "--disable", "plugins", "--disable", "browser_use", "--disable", "in_app_browser"]
 
 
 def test_gemini_argv_translates_model_flag_to_dash_m(monkeypatch, speed):
@@ -495,7 +495,7 @@ def test_gemini_argv_translates_model_flag_to_dash_m(monkeypatch, speed):
     p = GeminiCliProvider()
     assert list(p.stream_chat([{"role": "user", "content": "q"}])) == ["g\n"]
     assert rec["argv"] == ["gemini", "-p", "User:\nq",
-                           "-m", "gemini-2.5-flash"]
+                           "-m", "gemini-2.5-flash", "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp"]
     assert "--model" not in rec["argv"]
 
 
@@ -509,7 +509,7 @@ def test_gemini_argv_passes_non_model_speed_args_through(monkeypatch, speed):
     rec = _install_fake_popen(monkeypatch, _FakeProc([]))
     list(pmod.GeminiCliProvider().stream_chat(
         [{"role": "user", "content": "q"}]))
-    assert rec["argv"] == ["gemini", "-p", "User:\nq", "--thinking", "high"]
+    assert rec["argv"] == ["gemini", "-p", "User:\nq", "--thinking", "high", "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp"]
 
 
 def test_gemini_argv_with_empty_speed_args(monkeypatch, speed):
@@ -520,7 +520,7 @@ def test_gemini_argv_with_empty_speed_args(monkeypatch, speed):
     rec = _install_fake_popen(monkeypatch, _FakeProc([]))
     list(pmod.GeminiCliProvider().stream_chat(
         [{"role": "user", "content": "q"}], model=None))
-    assert rec["argv"] == ["gemini", "-p", "User:\nq"]
+    assert rec["argv"] == ["gemini", "-p", "User:\nq", "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp"]
 
 
 def test_gemini_argv_explicit_model(monkeypatch, speed):
@@ -529,7 +529,7 @@ def test_gemini_argv_explicit_model(monkeypatch, speed):
     rec = _install_fake_popen(monkeypatch, _FakeProc([]))
     list(pmod.GeminiCliProvider().stream_chat(
         [{"role": "user", "content": "q"}], model="gemini-3"))
-    assert rec["argv"] == ["gemini", "-p", "User:\nq", "-m", "gemini-3"]
+    assert rec["argv"] == ["gemini", "-p", "User:\nq", "-m", "gemini-3", "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp"]
 
 
 # ---------------------------------------------------------------------------
@@ -550,7 +550,7 @@ def test_codex_shim_reads_the_multi_line_prompt_from_stdin(monkeypatch):
     stdin, rec = _shimmed(monkeypatch, "codex")
     list(CodexCliProvider().stream_chat(
         [{"role": "user", "content": "a\nb"}], system="persona", model="o3"))
-    assert rec["argv"] == ["C:\\npm\\codex.cmd", "exec", "-", "--model", "o3"]
+    assert rec["argv"] == ["C:\\npm\\codex.cmd", "exec", "-", "--model", "o3", "--sandbox", "read-only", "--ignore-user-config", "--disable", "shell_tool", "--disable", "apps", "--disable", "plugins", "--disable", "browser_use", "--disable", "in_app_browser"]
     assert stdin.written == ["System:\npersona\n\nUser:\na\nb"]
     assert not any("\n" in part for part in rec["argv"])
 
@@ -561,7 +561,7 @@ def test_gemini_shim_reads_the_prompt_from_stdin(monkeypatch):
     stdin, rec = _shimmed(monkeypatch, "gemini")
     list(GeminiCliProvider().stream_chat(
         [{"role": "user", "content": "q"}], model="gemini-3"))
-    assert rec["argv"] == ["C:\\npm\\gemini.cmd", "-m", "gemini-3"]
+    assert rec["argv"] == ["C:\\npm\\gemini.cmd", "-m", "gemini-3", "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp"]
     assert stdin.written == ["User:\nq"]
 
 
@@ -986,3 +986,21 @@ def test_every_claude_call_runs_without_tools(monkeypatch):
     list(provider.stream_chat([{"role": "user", "content": "go on"}], model="sonnet"))
     argv = rec["argv"]
     assert "--resume" in argv and argv[argv.index("--tools") + 1] == "" and "--strict-mcp-config" in argv
+
+
+def test_codex_and_gemini_calls_run_without_tools(monkeypatch):
+    """2026-11-18: codex gets no shell/apps/plugins/browser tools; gemini runs read-only with no MCP servers."""
+    from spacr.qt.ai.providers import (CODEX_NO_TOOLS_ARGS, GEMINI_READ_ONLY_ARGS, CodexCliProvider,
+                                       GeminiCliProvider)
+
+    rec = _install_fake_popen(monkeypatch, _FakeProc([]))
+    list(CodexCliProvider().stream_chat([{"role": "user", "content": "q"}], model="o3"))
+    argv = rec["argv"]
+    assert argv[argv.index("--sandbox") + 1] == "read-only" and "--ignore-user-config" in argv
+    assert {argv[i + 1] for i, a in enumerate(argv) if a == "--disable"} == {
+        "shell_tool", "apps", "plugins", "browser_use", "in_app_browser"}
+    assert tuple(argv[-len(CODEX_NO_TOOLS_ARGS):]) == CODEX_NO_TOOLS_ARGS
+    list(GeminiCliProvider().stream_chat([{"role": "user", "content": "q"}], model="gemini-3"))
+    argv = rec["argv"]
+    assert argv[argv.index("--approval-mode") + 1] == "plan" and "--yolo" not in argv
+    assert tuple(argv[-len(GEMINI_READ_ONLY_ARGS):]) == GEMINI_READ_ONLY_ARGS

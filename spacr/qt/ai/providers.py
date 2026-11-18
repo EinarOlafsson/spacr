@@ -918,6 +918,22 @@ def describe_tool_call(denial: Dict) -> str:
     return name
 
 
+#: The ``codex exec`` arguments that leave the model no tools it can act with
+#: (codex 0.169 has no single switch): the shell, apps, plugins and browser
+#: tools are disabled, any command would still run read-only, and the user's
+#: ``config.toml`` (where MCP servers are set up) is not loaded.
+CODEX_NO_TOOLS_ARGS: Tuple[str, ...] = (
+    "--sandbox", "read-only", "--ignore-user-config", "--disable", "shell_tool",
+    "--disable", "apps", "--disable", "plugins", "--disable", "browser_use",
+    "--disable", "in_app_browser")
+
+#: The ``gemini -p`` arguments for a read-only answer (gemini-cli 0.68 has no
+#: switch that removes every tool): plan approval mode, the CLI's read-only
+#: mode, and an allow list of MCP servers that names none of the user's.
+GEMINI_READ_ONLY_ARGS: Tuple[str, ...] = (
+    "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp")
+
+
 class CodexCliProvider(ChatProvider):
     """OpenAI ChatGPT via the ``codex`` CLI."""
 
@@ -933,6 +949,9 @@ class CodexCliProvider(ChatProvider):
                      model: Optional[str] = None) -> Iterator[str]:
         """Stream a chat completion from the ``codex`` CLI.
 
+        Every call runs with :data:`CODEX_NO_TOOLS_ARGS`, so the model can only
+        answer in text.
+
         :param messages: conversation history as ``{role, content}`` dicts.
         :param system: optional system prompt folded into the prompt body.
         :param model: optional model override passed via ``--model``.
@@ -946,6 +965,7 @@ class CodexCliProvider(ChatProvider):
             argv += ["--model", model]
         else:
             argv += _provider_arguments(self)
+        argv += CODEX_NO_TOOLS_ARGS
         yield from _stream_process(argv, stdin_text=prompt if shim else None,
                                    provider=self)
 
@@ -965,6 +985,9 @@ class GeminiCliProvider(ChatProvider):
                      model: Optional[str] = None) -> Iterator[str]:
         """Stream a chat completion from the ``gemini`` CLI.
 
+        Every call runs with :data:`GEMINI_READ_ONLY_ARGS`, the CLI's read-only
+        mode with no MCP servers.
+
         :param messages: conversation history as ``{role, content}`` dicts.
         :param system: optional system prompt folded into the prompt body.
         :param model: optional model override passed via ``-m``.
@@ -982,6 +1005,7 @@ class GeminiCliProvider(ChatProvider):
                 argv += ["-m", args[1]]
             elif args:
                 argv += args
+        argv += GEMINI_READ_ONLY_ARGS
         yield from _stream_process(argv, stdin_text=prompt if shim else None,
                                    provider=self)
 
