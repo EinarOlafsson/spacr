@@ -283,6 +283,7 @@ def convert_settings_dict_for_gui(settings):
         'ops_decode_fdr_calibration': ('combo', ['none', 'shuffle'], 'none'),
         'ops_read_mode': ('combo', ['log', 'raw', 'auto', None], None),
         'ops_merge_strategy': ('combo', ['current', 'tile', 'stitch', 'auto'], 'current'),
+        'ops_storage': ('combo', ['current', 'spacr_store'], 'current'),
         'ops_merge_stitch_source': ('combo', ['metadata', 'registered'], 'metadata'),
         'ops_placement_seed_mode': ('combo', ['subset', 'strict'], 'subset'),
         'figure_condition_aggregate': ('combo', ['mean', 'median'], 'mean'),
