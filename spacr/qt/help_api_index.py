@@ -14748,7 +14748,7 @@ SETTING_CONSUMERS = {
     'cpg_md5': (('spacr.cpg_cropped', 'cpg_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'cpg_missing': (('spacr.cpg_cropped', 'cpg_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'cpg_phenotype_channels': (('spacr.cpg_cropped', 'cpg_settings'), ('spacr.ops_settings', 'ops_defaults'),),
-    'cpg_root': (('spacr.cpg_cropped', 'cpg_settings'), ('spacr.ops_settings', 'ops_defaults'),),
+    'cpg_root': (('spacr.cpg_cropped', 'cpg_settings'), ('spacr.ops_settings', 'ops_defaults'), ('spacr.validate', 'describe_plan'),),
     'cpg_sbs_bases': (('spacr.cpg_cropped', 'cpg_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'cpg_sbs_cycles': (('spacr.cpg_cropped', 'cpg_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'cpg_sbs_dapi': (('spacr.cpg_cropped', 'cpg_settings'), ('spacr.ops_settings', 'ops_defaults'),),
