@@ -831,7 +831,7 @@ class Store:
         missing = [f for f in features if f not in present]
         if missing:
             raise StoreError(f"{table} has no column {missing[:5]}")
-        return wanted + [f for f in features if f not in wanted]
+        return list(dict.fromkeys(wanted + list(features)))
 
     def _routed(self, where, table: str, features):
         """A query answered from the narrow key table, or None.

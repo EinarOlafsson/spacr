@@ -146,6 +146,8 @@ def test_key_table_routes_answer_as_the_wide_table_does(tmp_path):
         assert np.array_equal(projected["f7"].to_numpy(),
                               expected["f7"].to_numpy(), equal_nan=True)
         assert opened._routed("f3 > 0", "cells", []) is None
+        assert opened._wanted("cells", "cells", ["cell_id", "f1"]).count(
+            "cell_id") == 1
         assert len(opened.query({"cell_id": [1]})) == 0
         assert opened.tables() == ["cells"]
         frame, stack = opened.query({"well": "B2"}, features=[], crops=True)
