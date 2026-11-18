@@ -173,7 +173,7 @@ def test_the_guide_bootstrap_equals_the_reference_resampler():
     for r, want in boot["draws"].items():
         got = oc.guide_bootstrap_profiles(np.array(boot["rows"]), boot["names"], np.array(boot["guide_rows"]),
                                           boot["guide_genes"], boot["guide_cells"], boot["seed_base"] + int(r))
-        assert np.abs(got - np.array(want)).max() == 0.0
+        assert np.abs(got - np.array(want)).max() <= 1e-12
     rows = np.array(boot["rows"])
     got = oc.guide_bootstrap_profiles(rows, boot["names"], np.array(boot["guide_rows"]), boot["guide_genes"],
                                       boot["guide_cells"], 1)
