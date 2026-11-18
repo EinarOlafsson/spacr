@@ -144,6 +144,7 @@ GUARDED = [
     ('spacr.ops_engine', '_decode', '"ops_decode"'),
     ('spacr.embeddings', '_embed_parallel', "'embeddings'"),
     ('spacr.ops_clusters', 'pairs_bootstrap_consensus', '"ops_consensus"'),
+    ('spacr.power_ops', 'scan_ops_designs', '"ops_power_sim"'),
 ]
 
 

@@ -128,7 +128,7 @@ GROUPS = (
          (880, 904, 881)),
         ("Specificity vs decoys, CORUM, STRING, MitoCarta, zero-TPM hit calls",
          (882, 923, 908)),
-        ("copairs and EFAAR scores, per-gene E-test and power", (913, 917)),
+        ("copairs and EFAAR scores, per-gene E-test and power", (913, 917, 968)),
     )),
     ("OPS genes and\nclusters", (
         ("Clusters: Leiden sweep, bootstrap and gene-pairs consensus, test, atlas",

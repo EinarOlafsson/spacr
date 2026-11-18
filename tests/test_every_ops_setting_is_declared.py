@@ -176,7 +176,7 @@ def test_the_engine_reads_every_setting_the_panel_offers(declared):
     from spacr import (cpg_cropped, gene_measurement_compare, gpu_admission,
                        ops_clusters, ops_decode, ops_engine, ops_flatfield,
                        ops_modules, ops_prefix, ops_reference, ops_scoring,
-                       ops_tvn, voyager3)
+                       ops_tvn, power_ops, voyager3)
 
     # 879: run_ops hands the profile phases to ops_tvn.run_profile_phases,
     # which reads the ops_profile_* settings and passes the ops_eval_* ones
@@ -192,11 +192,12 @@ def test_the_engine_reads_every_setting_the_panel_offers(declared):
     # 919 and 920: the cropped-site phases read the cpg_* settings in
     # cpg_cropped and the prefix decode its settings in ops_prefix.
     # 973: the voyager3 phase reads the ops_voyager3_* settings in voyager3.
+    # 968: the power_sim phase reads the ops_power_sim settings in power_ops.
     source = "".join(inspect.getsource(m)
                      for m in (ops_engine, ops_decode, ops_tvn, ops_reference,
                                ops_modules, ops_clusters, gpu_admission,
                                ops_flatfield, ops_scoring,
                                gene_measurement_compare, cpg_cropped,
-                               ops_prefix, voyager3))
+                               ops_prefix, voyager3, power_ops))
     unread = sorted(key for key in keys if f'"{key}"' not in source)
     assert not unread, f"in the OPS panel and never read by the engine: {unread}"
