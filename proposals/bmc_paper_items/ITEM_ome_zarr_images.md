@@ -84,12 +84,13 @@ These bind 983 and 984.
        - a raw uint16 crop array `(n, C, H, W)`.
      - **Buffering:** the parent buffers per open well and per object type, and writes whole shards only. A partial shard write would mean read-modify-write.
      - **Locators:** the parent assigns `(plate, well, array, row)` as it writes, then writes the table rows and the key table to the store.
-     - **Commit:** a FOV is marked committed in the catalog only after all of its writes are done.
+     - **Commit:** a FOV is marked committed in the catalog only after all of its writes are done. FOVs are committed in plan order, with a small reorder buffer, so reruns are byte-identical.
+     - **Workers** process whole FOVs, all object types together. Writers split by object type only if one writer becomes the bottleneck.
      - **Bounded RAM:** FOVs are queued well by well, so RAM is at most open wells × shard size.
      - **Chosen sizes:**
        - Field images and labels: one shard per field. A 2,960 px Funk field with 4 uint16 channels is about 70 MB, in 512 × 512 × C chunks.
-       - Crop arrays: shards of 1,024 crops (about 75 MB at 4 × 96 × 96 uint16), in chunks of 64 crops.
-       - The parent keeps at most 2 open wells per object type, so the crop buffer is about 150 MB per object type.
+       - Crops (984): ragged pools, `crops_per_shard` 4096 by default (16 chunks of 256 crops), lowered automatically on low RAM with a log line.
+       - The parent keeps at most 2 open wells per object type, under the run's RAM budget.
        - The proof reports the measured peak buffer.
      - **Writes:** each shard is written to a temporary name, the file is closed, then renamed (Windows needs the close first).
      - **Writer idle time:** the proof measures the parent writer's idle time against worker time, to show the single writer is not the bottleneck.
@@ -119,31 +120,58 @@ These bind 983 and 984.
    - The proof shows napari (napari-ome-zarr) and Fiji (OME-Zarr reader / BigDataViewer) opening it, with screenshots in both themes.
 8. **Docs and translations:** labels, tooltips and docstrings in 9 languages; arrival contracts and catalogue records in the same commit.
 
-## Item 984 (for the 974 lane): the crop store and GUI readers on OME-Zarr
-- **Scope:** Measure crops and every crop reader, built on the 983 store and writer model. The same alpha rules apply, and no default changes before 986.
-- **Writing crops:**
-  - `image_format` for Measure crops is one of `'ome-zarr'`, `'png'` (PNG (Legacy), today's default), `'tiff'` and `'npy'`.
-  - In OME-Zarr mode, each well gets one sharded crop array. Crops are a fixed size, channels last as spaCR crops are today.
-  - The crop arrays are written by the decision-1 writers:
-    - local runs return each FOV's table rows and raw uint16 crop array `(n, C, H, W)` through the pool's result pipe to the parent, the only writer, which buffers per well and object type, writes whole 1,024-crop shards, assigns locators, writes the table rows and key table, then marks the FOV committed;
-    - cloud runs write per-worker parts registered in the DuckDB catalog and compact them afterwards.
-  - PNG (Legacy) writes today's folders unchanged.
-- **Crop index (decision 2):**
-  - One row per crop. The locator is plate, well, field and the crop's index in the well array.
-  - Next to it go the per-cell relationship columns: has a nucleus, infected or uninfected, pathogen count, class, and the object IDs (cell, nucleus, pathogen, organelle).
-  - The crop array's Zarr attributes name the index table and these columns, so a reader knows what it can filter on.
-  - Readers select crops by query on the index (for example, infected cells of class 2 in well B03), not by folder. PNG (Legacy) keeps today's folder-per-class layout.
-- **GUI and app readers (decision 3):**
-  - The annotation app (Load and Stream), Image-UMAP, Classify and every other crop reader offer OME-Zarr (Default) and PNG (Legacy).
-  - Until 986 lands, OME-Zarr stays alpha and PNG stays the shipped default.
-  - On an old project, OME-Zarr falls back to PNG with one log note.
-  - Both the old and the new folder layouts are readable.
+## Item 984 (for the 974 lane): the crop store, the crop table and the readers
+- **Scope:**
+  - Measure crops and every crop reader, built on the 983 store and writer model.
+  - The same alpha rules apply, and no default changes before 986.
+  - Decided by the maintainer on 2026-11-18, around 11:30 and around 12:00.
+- **Crop shape: ragged, spaCR's own crop format.**
+  - **Box:** each crop is its object's bounding box plus a margin (setting `crop_margin_px`), stored ragged, not resized.
+  - **Pixel pool:** each well gets one flat pixel pool per object type, chunked and sharded, and the crop table gives each crop's `offset`, `height` and `width` into it.
+  - **Mask crop:** the object's own mask crop is stored beside it in a mask pool (`mask_offset`).
+  - **Object only or with context:** a view and loader option. Zeroing outside the object at write time is a separate setting (`crop_zero_outside`).
+  - **Resizing:** CV loaders and Annotate resize deterministically at load.
+  - **Not standard OME-Zarr:** viewers cannot open the pools directly. `spacr.crop_store.export_crops(...)` writes plain OME-Zarr images, TIFF or PNG for outside tools.
+- **Where crops go:**
+  - `crops/<plate>.zarr`. The `merged/` folder keeps its name.
+  - Cell, nucleus and pathogen pools are separate arrays/files.
+  - Old `data/` PNG layouts stay readable.
+- **Shards:**
+  - `crops_per_shard` defaults to 4096, in 16 chunks of 256 crops.
+  - It is lowered automatically when RAM is low, with one log line.
+  - This replaces the 1,024 used in the first draft of this spec.
+- **Writer:** the 983 model.
+  - Workers process whole FOVs, all object types together.
+  - The parent writes whole shards and commits FOVs in plan order, with a small reorder buffer, so reruns are byte-identical.
+  - Writers split by object type only if one writer becomes the bottleneck.
+- **Crop table:** `ssCell_Crops`, replacing `png_list`. Readers still accept old `png_list` tables.
+  - **Identity:** object_id, object_type, plate, row, column, well, field, timepoint, object_label.
+  - **Locator:** crop_store (path relative to the project), crop_array, crop_index, offset, height, width, mask_offset.
+  - **Source box:** bbox_y0, bbox_x0, bbox_y1, bbox_x1, margin_px, clipped_at_edge.
+  - **Relationships:** parent_cell_id, nucleus_id, has_nucleus, n_nuclei, n_pathogens, infected, one n_organelles column per organelle class, annotation, class, class_score.
+  - **Legacy:** png_path, filled only in PNG mode.
+  - **Per-array attributes or the catalog** hold the channels, pixel size, dtype, compression, spaCR version, settings hash and the list of relationship columns.
+  - Readers select crops by query on these columns (for example, infected cells of class 2 in well B03), not by folder. PNG (Legacy) keeps today's folder-per-class layout.
+- **Readers:** the annotation app (Load and Stream), Image-UMAP, Classify and every other crop reader.
+  - **Sources:** OME-Zarr (Default once 986 lands; alpha until then) and PNG (Legacy).
+  - **Fallback:** on an old project, OME-Zarr falls back to PNG with one log note. Old and new layouts are both readable.
+  - **Annotate takes any number of channels.** Each channel has a role:
+    - Image: colour, display range, gamma, additive blend, more than 3 channels allowed.
+    - Outline: colour and width, drawn from a mask channel or a threshold.
+  - Presets are saved per project. PNG (Legacy) keeps R, G, B.
+- **Server, workstation and laptop:**
+  - The number of workers is set automatically from cores and RAM, and a RAM budget caps the writer buffers.
+  - On NFS and SMB shares: temporary name, close, then rename, with the catalog written last.
+  - A small nightly cross-OS CI job runs on `windows-latest` and `macos-latest` for the crop-store, pool and Annotate-reader tests.
 - **Proof (984):**
-  - The PNG (Legacy) path, with the feature off, is byte-identical to nightly.
-  - OME-Zarr crops read back pixel-identical to the PNG crops.
-  - The crop index reproduces today's folder membership exactly, in counts per class and per infection state. Control: a query on a shuffled index must not match.
-  - Annotation, Image-UMAP and Classify give identical results from either source.
-  - File count, disk and read/write time are measured against PNG, with a control row; the published comparator is "n/a in paper".
+  - **Off identity:** with the feature off, the PNG (Legacy) path is byte-identical to nightly.
+  - **Pixels:** ragged crops read back pixel-identical to the bounding box plus margin cut from the source images. Resized views equal the PNG crops after the same deterministic resize.
+  - **Index membership:** `ssCell_Crops` reproduces today's folder membership exactly, in counts per class and per infection state. Control: a query on a shuffled index must not match.
+  - **Reruns:** byte-identical, because of the plan-order commit.
+  - **Readers:** Annotate, Image-UMAP and Classify give identical results from either source.
+  - **Annotate:** works with more than 3 channels and with outline roles.
+  - **Cost:** writer idle time against worker time, the peak buffer against the RAM budget, and file count, disk and read/write time against PNG, with a control row. The published comparator is "n/a in paper".
+  - **Platforms:** the spawn and forkserver tests pass, and the nightly Windows and macOS job is green.
 - **Related:** 985 converts old projects; 986 switches the defaults (maintainer); 987 and 987b (the Cellpose batch .npz removal, with the batch plan served from Zarr chunks).
 
 ## Proof check (pre-set)
