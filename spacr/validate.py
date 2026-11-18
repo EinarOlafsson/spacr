@@ -677,6 +677,45 @@ def _check_regression_output_src(raw: Any) -> List[Problem]:
     )]
 
 
+def _is_cpg_layout(settings: Dict[str, Any], app: str) -> bool:
+    """True for an OPS run on the cropped-site layout, which reads ``cpg_root``, not ``src``."""
+    return (app in ("", "ops") and isinstance(settings, dict)
+            and str(settings.get("ops_layout") or "tiles") == "cpg_cropped")
+
+
+def _check_cpg_inputs(settings: Dict[str, Any]) -> List[Problem]:
+    """``cpg_root`` exists and holds the sites ``run_cpg_phases`` will index.
+
+    Reads the same index as the run (:func:`spacr.cpg_cropped.cpg_site_index`
+    without MD5 hashing), so a missing folder, a tree without site files, a
+    ``cpg_sites`` that names no site, or channels the run needs and the
+    folders lack are reported before the run starts.
+    """
+    root = settings.get("cpg_root")
+    fix = ("Set cpg_root to an images_corrected_cropped folder or one "
+           "<plate>_Well<N> folder.")
+    if "cpg_root" not in settings or not root or not isinstance(root, str):
+        return [Problem(ERROR, "cpg_root", "cpg_root is missing from the settings.", fix)]
+    if not os.path.isdir(root):
+        return [Problem(ERROR, "cpg_root", f"cpg_root does not exist or is not a folder: {root}",
+                        "Check the path for typos, and that the drive or share is mounted.")]
+    from .cpg_cropped import cpg_site_index
+
+    try:
+        found = cpg_site_index(settings, md5=False)
+    except (ValueError, OSError) as exc:
+        return [Problem(ERROR, "cpg_root", f"no usable cropped sites in {root}: {exc}", fix)]
+    return [Problem(WARNING, "cpg_root", f"cpg_root: {line}", fix)
+            for line in _cpg_missing_lines(found)]
+
+
+def _cpg_missing_lines(found: Dict[str, Any]) -> List[str]:
+    """One line for the wells and sites the index drops as incomplete, if any."""
+    skipped = found.get("skipped") or []
+    count = len(skipped) if hasattr(skipped, "__len__") else 0
+    return [f"{count} incomplete site(s) will be skipped."] if count else []
+
+
 def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Inventory]) -> List[Problem]:
     """``src`` exists, is the right kind of thing, and holds what the app needs."""
     problems: List[Problem] = []
@@ -1992,10 +2031,12 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
             f"Use one of: {', '.join(sorted(APP_FUNCTIONS))}."))
 
     ops_map = app == "umap" and settings.get("umap_source") == "ops_profiles"
-    inventories = ([] if ops_map else
+    cpg = _is_cpg_layout(settings, app)
+    inventories = ([] if ops_map or cpg else
                    [_inventory(src, settings, app) for src in _src_values(settings, app)])
 
     problems.extend(_check_ops_umap_inputs(settings) if ops_map
+                    else _check_cpg_inputs(settings) if cpg
                     else _check_src(settings, app, inventories))
     problems.extend(_check_channels(settings, app, inventories))
     problems.extend(_check_types(settings, app))
@@ -2127,8 +2168,9 @@ def describe_plan(settings: Dict[str, Any], app_key: str = "") -> str:
     app = _normalize_app(app_key)
     if app == "regression":
         return _describe_regression_plan(settings)
-    srcs = _src_values(settings, app)
-    inventories = [_inventory(src, settings, app) for src in srcs]
+    cpg = _is_cpg_layout(settings, app)
+    srcs = [settings.get("cpg_root")] if cpg else _src_values(settings, app)
+    inventories = [] if cpg else [_inventory(src, settings, app) for src in srcs]
 
     rows: List[Tuple[str, str]] = []
     rows.append(("app", f"{app or 'unknown'}"
@@ -2140,7 +2182,8 @@ def describe_plan(settings: Dict[str, Any], app_key: str = "") -> str:
     if app in MERGED_APPS and inv.merged_dir and inv.merged_dir != inv.src:
         rows.append(("reads", inv.merged_dir))
 
-    rows.append(("inputs found", _describe_inputs(inventories)))
+    rows.append(("inputs found", _describe_cpg_inputs(settings) if cpg
+                 else _describe_inputs(inventories)))
 
     if inv.raw_channels is not None:
         detail = f"{inv.raw_channels}"
@@ -2225,6 +2268,19 @@ def _describe_regression_plan(settings: Dict[str, Any]) -> str:
     return '\n'.join([
         'Plan — what this run would do. Nothing has been written and no model has been loaded:',
         '', *(f'  {label.ljust(width)}  {value}' for label, value in rows)])
+
+
+def _describe_cpg_inputs(settings: Dict[str, Any]) -> str:
+    """Wells, sites and image files of a cropped-site run, from the index the run reads."""
+    from .cpg_cropped import cpg_site_index
+
+    try:
+        index = cpg_site_index(settings, md5=False)["index"]
+    except (ValueError, OSError):
+        return "no cropped site files found"
+    wells = index[["plate", "well"]].drop_duplicates().shape[0]
+    sites = index[["plate", "well", "site"]].drop_duplicates().shape[0]
+    return f"{len(index)} image files in {sites} site(s) of {wells} well(s)"
 
 
 def _describe_inputs(inventories: Sequence[_Inventory]) -> str:

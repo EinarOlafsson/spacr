@@ -168,7 +168,7 @@ def test_apply_cellpose_model_writes_results(tmp_path):
 
     settings = {
         "src": str(img_dir),
-        "model_path": "cyto",   # stock model
+        "model_path": "cpsam",   # stock Cellpose-SAM model; cyto is a cellpose3 model and is refused here
         "batch_size": 2,
         "FT": 0.4,
         "CP_probability": 0.0,
