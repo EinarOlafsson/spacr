@@ -9,13 +9,15 @@ written before the change get the three families ``'profiling'`` measured
 then, so their columns are unchanged. Aggregation and profile building work
 on the smaller tables.
 """
-import os
-
-os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
-
 import numpy as np
 import pandas as pd
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def _cpu_only_for_this_module(monkeypatch):
+    """Hide the GPU from this module's tests only; other modules see the env untouched."""
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
 
 from spacr import measure as M
 
