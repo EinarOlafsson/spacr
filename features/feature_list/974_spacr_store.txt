@@ -71,3 +71,22 @@ check and a size change on open; an older SQLite project opens through the
 same API; ops_storage checked; the OPS run on the synthetic well writes the
 same rows as cell_wide and the same crops as the shards; the default run
 writes no store.
+
+PROOF CHECK 2026-11-17 (CPU, Funk 2022 plate A well A1 full tier; synthetic
+scale on /mnt/wd4tb). See REPORT.md.
+- cells through store.query equal cell_wide: 4,273 rows, 415 columns, floats
+  bit for bit (mitotic bool in the store, text 0/1 in SQLite); barcodes
+  15,125 x 10 identical; ops_reads is not stored by the default decode, so
+  reads are checked in the unit test.
+- crops: 3,925/3,925 pixel-identical to the ph_crops shard TIFFs.
+- off-switch: default outputs vs nightly 51eb488a60: 26 files byte-identical,
+  5 JSON reports equal without timing/provenance keys, nothing else differs.
+- 12 SIGKILLs over a 26.6 s write: none left a registered partial file.
+- byte flip with size and mtime kept: caught by the full check; truncation
+  caught on open.
+- scale at 1 M cells x 10,000 float32 + 1 M crops (2 M cut to 1 M by the
+  80 GB disk cap), DuckDB threads 4, vs SQLite (6 tables of <= 1,995
+  features) + one PNG per crop on 200k cells: tall 1.49 vs 2.31 s, wide 5 %
+  4.35 vs 120.6 s, ML batches 2,475 vs 77 cells/s; point lookups 31.8 vs
+  11.3 s and one-gene crop batch 1.53 vs 0.23 s are slower (cell index and
+  a narrow keys table are follow-ons for 975/976).
