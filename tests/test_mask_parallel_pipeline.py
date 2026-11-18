@@ -335,8 +335,10 @@ def test_with_the_feature_off_core_calls_are_unchanged(core_stubs, monkeypatch, 
     monkeypatch.setattr(mw, '_compatible_mask_gpus', lambda: pytest.fail('queried GPUs'))
     preprocess_generate_masks(_core_settings(src, **extra))
     mask_src = os.path.join(str(src), 'masks')
-    assert [(call[0][0], call[0][2], call[1]) for call in spies['cellpose'].calls] == [
+    assert [(call[0][0], call[0][2], {k: v for k, v in call[1].items() if k != 'progress_share'})
+            for call in spies['cellpose'].calls] == [
         (mask_src, 'cell', {}), (mask_src, 'nucleus', {}), (mask_src, 'pathogen', {})]
+    assert [call[1]['progress_share'] for call in spies['cellpose'].calls] == [(0, 3), (1, 3), (2, 3)]
     assert [len(args) for args, _ in spies['cellpose'].calls] == [3, 3, 3]
     assert spies['adjust'].calls[0][0][:3] == tuple(
         os.path.join(mask_src, f'{role}_mask_stack') for role in ('pathogen', 'cell', 'nucleus'))
