@@ -38,6 +38,8 @@ from spacr.database_concurrency import (
     transaction,
 )
 
+from .i18n import tr
+
 LOG = logging.getLogger("spacr.qt.annotate_engine")
 
 #: The crop table the annotation screen reads.
@@ -867,6 +869,15 @@ class AnnotateSettings:
 
 
 
+def _missing_annotation_database_message(db_path: str) -> str:
+    """Explain how to select or create the missing annotation database."""
+    return tr(
+        "Annotation database not found at:\n{path}\n\n"
+        "Select the experiment folder containing measurements/measurements.db. "
+        "If it has not been created, run Measure or use Generate annotation "
+        "database first.", path=db_path)
+
+
 def ensure_annotation_column(db_path: str, column: str, *,
                              table: str = DEFAULT_PNG_TABLE) -> None:
     """Add `column` INTEGER to ``table`` if missing and index png_path.
@@ -1527,6 +1538,11 @@ class SaveWorker:
             wrong one would put a user's labels on somebody else's rows.
         """
         self.db_path = db_path
+        try:
+            if db_path:
+                self.db_path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
+        except (OSError, ValueError, TypeError):
+            pass
         self.annotation_column = annotation_column
         self.table = table
         self._q: "queue.Queue[Any]" = queue.Queue()
@@ -1685,6 +1701,12 @@ class SaveWorker:
         conn = None
         cur = None
         try:
+            try:
+                if self.db_path:
+                    os.stat(self.db_path)
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    _missing_annotation_database_message(self.db_path)) from None
             conn = connect_database(self.db_path, timeout=30)
             cur = conn.cursor()
             col = (self.annotation_column or "").replace('"', '""')

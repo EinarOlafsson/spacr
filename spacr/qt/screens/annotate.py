@@ -153,6 +153,7 @@ from ..annotate_engine import (
     AnnotateSettings,
     OutlineCancelled,
     SaveWorker,
+    _missing_annotation_database_message,
     class_counts,
     clear_column,
     count_rows,
@@ -6940,14 +6941,13 @@ class AnnotateScreen(QWidget):
         :param preserve_similarity: retain cross-plate results during navigation.
         """
         self._suggest_status_text = None
+        src = os.path.abspath(os.path.expanduser(os.fspath(src)))
         db_path = os.path.join(src, "measurements", "measurements.db")
         if not os.path.isfile(db_path):
-            answer = QMessageBox.question(
-                self, "Database not found",
-                f"No file at:\n{db_path}\n\nUse it anyway?",
-            )
-            if answer != QMessageBox.Yes:
-                return
+            self._blind_warning(
+                tr("Database not found"),
+                _missing_annotation_database_message(db_path))
+            return
         try:
             ensure_annotation_column(db_path, self._settings.annotation_column,
                                      table=self._settings.png_table)
