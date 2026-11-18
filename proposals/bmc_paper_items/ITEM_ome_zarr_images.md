@@ -30,7 +30,7 @@
   - (c) A rerun reading OME-Zarr gives identical measurement tables, masks and profiles.
   - (d) napari (napari-ome-zarr) and Fiji (OME-Zarr reader) open a written plate with channel names and pixel size.
   - File count and disk are reported, not gated.
-- **Compute:** CPU only, about 1 h on the test tier. Heavy steps run under the master flock.
+- **Compute:** CPU only, about 1 h on the test tier. Heavy steps run through `heavy_slot.sh` (load policy of 2026-11-18, 14:40: up to 4 master slots, load1 < 30, RAM available >= 25 GB, pytest -n 4).
 
 ## Maintainer decisions (2026-11-18, about 11:30)
 These bind 983 and 984.
