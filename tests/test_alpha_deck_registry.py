@@ -107,9 +107,13 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-17: R2 nuclei on the large-site path (965) make 155.
     # 2026-11-17: the sweep rows' control-row background (959) makes 156.
     # 2026-11-17: Voyager3 cluster annotation (973) makes 157.
-    # 2026-11-17: in situ sequencing modes of the prefix decode (961) make 158.
+    # 2026-11-17: the OPS Live preview, one tab per step (971), makes 158.
+    # 2026-11-17: the spacer-prefix minority-read rule (967) makes 159.
+    # 2026-11-18: pathogen and organelle objects in the OPS phenotype path
+    # (970) make 160.
+    # 2026-11-18: in situ sequencing modes of the prefix decode (961) make 161.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    assert count == 158
+    assert count == 161
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

@@ -74,6 +74,16 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_batch_size": 8,
     "ops_ph_sites": None,
     "ops_ph_texture": True,
+    "ops_ph_pathogen_channel": None,
+    "ops_ph_pathogen_model": "cpsam",
+    "ops_ph_pathogen_diameter": None,
+    "ops_ph_pathogen_min_area": 0,
+    "ops_ph_organelle_channel": None,
+    "ops_ph_organelle_morphology": "spots",
+    "ops_ph_organelle_method": "otsu",
+    "ops_ph_organelle_model": "cpsam",
+    "ops_ph_organelle_diameter": None,
+    "ops_ph_organelle_min_area": 10,
     "ops_merge_threshold": 4.0,
     "ops_merge_strategy": "current",
     "ops_merge_stitch_source": "metadata",
@@ -450,6 +460,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_tuning_grid": None,
     "ops_prefix_nearmiss_decoy_k": 0,
     "ops_prefix_fdr_calibration": "none",
+    "ops_prefix_minority_min_reads": 0,
     "ops_fdr_sweep_targets": [0.5, 1.0, 2.0, 5.0],
     "ops_fdr_sweep_max_distance": [0, 1],
     "ops_fdr_sweep_min_reads": [1, 2, 3],
@@ -541,6 +552,16 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_batch_size": int,
     "ops_ph_sites": (str, type(None)),
     "ops_ph_texture": bool,
+    "ops_ph_pathogen_channel": (str, type(None)),
+    "ops_ph_pathogen_model": str,
+    "ops_ph_pathogen_diameter": (float, int, type(None)),
+    "ops_ph_pathogen_min_area": int,
+    "ops_ph_organelle_channel": (str, type(None)),
+    "ops_ph_organelle_morphology": str,
+    "ops_ph_organelle_method": str,
+    "ops_ph_organelle_model": str,
+    "ops_ph_organelle_diameter": (float, int, type(None)),
+    "ops_ph_organelle_min_area": int,
     "ops_merge_threshold": (float, int),
     "ops_merge_strategy": str,
     "ops_merge_stitch_source": str,
@@ -917,6 +938,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_tuning_grid": (dict, str, type(None)),
     "ops_prefix_nearmiss_decoy_k": int,
     "ops_prefix_fdr_calibration": str,
+    "ops_prefix_minority_min_reads": int,
     "ops_fdr_sweep_targets": (list, str),
     "ops_fdr_sweep_max_distance": (list, str),
     "ops_fdr_sweep_min_reads": (list, str),
@@ -1029,6 +1051,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
         "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid",
         "ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration",
+        "ops_prefix_minority_min_reads",
         "ops_fdr_sweep_targets", "ops_fdr_sweep_max_distance",
         "ops_fdr_sweep_min_reads", "ops_fdr_sweep_rules",
         "ops_fdr_sweep_quality_quantiles", "ops_fdr_sweep_bootstrap",
@@ -1052,6 +1075,11 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
         "ops_ph_sites", "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
+        "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
+        "ops_ph_pathogen_diameter", "ops_ph_pathogen_min_area",
+        "ops_ph_organelle_channel", "ops_ph_organelle_morphology",
+        "ops_ph_organelle_method", "ops_ph_organelle_model",
+        "ops_ph_organelle_diameter", "ops_ph_organelle_min_area",
         "ops_ph_profile_features", "ops_ph_profile_optional_families",
         "ops_ph_granularity_subsample",
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
@@ -1564,6 +1592,56 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(bool) - Add the GLCM homogeneity texture block to every channel of "
         "every compartment. It adds about ten percent to measurement time. "
         "Default True. Alpha.",
+    "ops_ph_pathogen_channel":
+        "(str or None) - The phenotype channel to find pathogens in, by its "
+        "name in ops_ph_channels, as pathogen_channel is in Mask Generation. "
+        "Set, each field's pathogens are segmented with Cellpose and every "
+        "cell gains cell_pathogen_ columns: how many pathogens it holds, "
+        "their area and share of the cell, their shape, and their mean "
+        "intensity in each channel. They reach the gene profiles and "
+        "clusters like the cell's own features. Empty finds none. Default "
+        "None. Alpha.",
+    "ops_ph_pathogen_model":
+        "(str) - The Cellpose model that segments the pathogens: 'cpsam', a "
+        "model from the model zoo or a model file, as pathogen_model is in "
+        "Mask Generation. Default 'cpsam'. Alpha.",
+    "ops_ph_pathogen_diameter":
+        "(float or None) - Expected pathogen diameter in full-resolution "
+        "phenotype pixels; empty lets the model decide. Pathogens are "
+        "segmented at full resolution. Default None. Alpha.",
+    "ops_ph_pathogen_min_area":
+        "(int) - Pathogens smaller than this many pixels are dropped before "
+        "they are counted and measured, which removes debris and noise "
+        "specks; 0 keeps all. Default 0. Alpha.",
+    "ops_ph_organelle_channel":
+        "(str or None) - The phenotype channel to find organelles in, by its "
+        "name in ops_ph_channels, as organelle_channel is in Mask "
+        "Generation. Set, each field's organelles are segmented and every "
+        "cell gains cell_organelle_ columns: how many it holds, their area "
+        "and share of the cell, their shape, and their mean intensity in "
+        "each channel. They reach the gene profiles and clusters. Empty "
+        "finds none. Default None. Alpha.",
+    "ops_ph_organelle_morphology":
+        "(str) - What the organelles look like, as in Mask Generation: "
+        "'spots' (vesicles, droplets), 'network' (mitochondria, ER), "
+        "'irregular' (Golgi, lysosomes) or 'ring' (endosomes). Default "
+        "'spots'. Alpha.",
+    "ops_ph_organelle_method":
+        "(str) - How the organelles are found, as in Mask Generation: "
+        "'otsu' or 'adaptive' thresholds for every morphology, 'log' and "
+        "'dog' for spots and rings, 'ridge' and 'hysteresis' for networks, "
+        "or 'cellpose' with ops_ph_organelle_model. Default 'otsu'. Alpha.",
+    "ops_ph_organelle_model":
+        "(str) - The Cellpose model for the 'cellpose' organelle method: "
+        "'cpsam', a model from the model zoo or a model file. Default "
+        "'cpsam'. Alpha.",
+    "ops_ph_organelle_diameter":
+        "(float or None) - Expected organelle diameter in full-resolution "
+        "phenotype pixels for the 'cellpose' method; empty lets the model "
+        "decide. Default None. Alpha.",
+    "ops_ph_organelle_min_area":
+        "(int) - Organelles smaller than this many pixels are dropped. "
+        "Default 10, as in Mask Generation. Alpha.",
     "ops_ph_zernike":
         "(bool) - Also measure the Zernike moments of degree 8 of the cell "
         "and the nucleus (zernike_0 to zernike_24, 50 columns), as spaCR's "
@@ -3400,9 +3478,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "a TIFF, .npy or .npz label image per site. Empty uses each site's "
         "merged/ labels when they exist. Default None. Alpha.",
     "ops_quality_min_reads":
-        "(int) - Exact reads of one barcode a cell needs, with no read of "
-        "another barcode, to be called perfect; fewer, or a minority "
-        "competitor, makes it great. Default 2. Alpha.",
+        "(int) - Spacer-prefix decode under ops_prefix_quality_method "
+        "'spacr' only: the number of exact reads a single-barcode cell needs "
+        "to be labelled perfect rather than great. It never changes which "
+        "cells are genotyped, and 'recipe_simple' (PERISCOPE's rule, no read "
+        "minimum) does not use it. Default 2. Alpha.",
     "ops_prefix_quality_method":
         "(str) - How each cell's quality class is set from its matched reads. "
         "'spacr' counts reads: perfect needs ops_quality_min_reads exact reads "
@@ -3476,6 +3556,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "sites, then tunes again at that scale. The scale and the shuffle "
         "call rate go into site_summary.csv and the FDR report. Needs "
         "ops_prefix_decoy_k above 0. Default 'none'. Alpha.",
+    "ops_prefix_minority_min_reads":
+        "(int) - Lets a cell be called when a second barcode has only a few "
+        "stray reads. Inside a cell, a barcode with fewer reads than this is "
+        "ignored when another barcode has more reads; a tie still blocks the "
+        "call, and a cell whose top barcode is a decoy is still not "
+        "genotyped. Matters for ops_prefix_quality_method 'recipe_simple', "
+        "where one stray read otherwise makes the cell bad. site_summary.csv "
+        "counts the rescued cells. 3 is the tested value; 0 is off. "
+        "Default 0. Alpha.",
     "ops_fdr_sweep_targets":
         "(list) - The decoy FDR targets, in %, of the prefix_fdr_sweep phase. "
         "For each target, every method gets the configuration with the most "

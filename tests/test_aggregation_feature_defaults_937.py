@@ -8,15 +8,17 @@ legacy paths are unchanged, that every feature spaCR's measure and the OPS
 phenotype path write has a rule, that old settings files rerun as before,
 and that missing columns are tolerated.
 """
-import os
-
-os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
-
 import sqlite3
 
 import numpy as np
 import pandas as pd
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def _cpu_only_for_this_module(monkeypatch):
+    """Hide the GPU from this module's tests only; other modules see the env untouched."""
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
 
 from spacr import merge_tables as mt
 from spacr.gene_measurement_compare import aggregate_genes, aggregate_guides

@@ -28,7 +28,6 @@ import pytest
 from spacr.qt.widgets import fractal_travel as F
 from tests.qt.test_cov_r5_fractal_travel import (  # noqa: F401
     _FixedPointer,
-    _no_mouse_button_is_held,
     _StandInOrbit,
     gpu_backdrop,
     mandel,
@@ -36,6 +35,15 @@ from tests.qt.test_cov_r5_fractal_travel import (  # noqa: F401
 )
 
 pytestmark = pytest.mark.qt
+
+
+@pytest.fixture(autouse=True)
+def _no_mouse_button_is_held(monkeypatch):
+    """A held button left over from another test suppresses the pull; pin it released."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QApplication
+    monkeypatch.setattr(QApplication, "mouseButtons",
+                        staticmethod(lambda: Qt.MouseButton.NoButton))
 
 
 # ---------------------------------------------------------------------------

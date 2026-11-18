@@ -2519,6 +2519,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in voyager3_arrivals} == voyager3_arrivals
     assert not voyager3_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **voyager3_arrivals}
+    ops_live_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "971_ops_live_preview_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert len(ops_live_arrivals) == 2
+    assert {key: docs[key] for key in ops_live_arrivals} == ops_live_arrivals
+    assert not ops_live_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **ops_live_arrivals}
     insitu_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "961_ops_insitu_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
     assert len(insitu_arrivals) == 1
