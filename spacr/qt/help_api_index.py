@@ -4104,6 +4104,8 @@ API_ENTRIES = (
     ('spacr.ops_engine.run_ops', 'Stitch, place, segment and decode the wells of one sequencing acquisition.'),
     ('spacr.ops_engine.run_spatial_map', 'Count every transcript or bin into the cells of the spatial fields.'),
     ('spacr.ops_engine.run_spatial_masks', 'Segment a whole Xenium or Visium HD slide into Measure-ready fields.'),
+    ('spacr.ops_feature_info', 'How much gene information new per-cell features add beyond existing ones (item 964, alpha).'),
+    ('spacr.ops_feature_info.screen', 'Screen new feature columns for gene information the old ones lack (item 964).'),
     ('spacr.ops_flatfield', 'Flat-field maps for optical pooled screen phenotype fields, and two ways to apply them.'),
     ('spacr.ops_flatfield.build_flat_maps', "Per-channel flat-field maps from many fields' block means."),
     ('spacr.ops_flatfield.build_nuclear_flat', "One plate's nuclear-median flat-field map from its per-nucleus table."),
