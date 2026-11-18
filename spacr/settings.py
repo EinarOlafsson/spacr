@@ -9482,6 +9482,9 @@ ALPHA_FEATURES = {
     952: {
         'settings': ('ops_read_mode',),
     },
+    964: {
+        'settings': ('ops_feature_screen_old', 'ops_feature_screen_new', 'ops_feature_screen_cells', 'ops_feature_screen_id_columns', 'ops_feature_screen_label', 'ops_feature_screen_guide', 'ops_feature_screen_families', 'ops_feature_screen_permutations', 'ops_feature_screen_perm_unit', 'ops_feature_screen_seed', 'ops_feature_screen_ridge', 'ops_feature_screen_greedy_threshold', 'ops_feature_screen_mlp', 'ops_feature_screen_device', 'ops_feature_screen_dst',),
+    },
     962: {
         'settings': ('ops_merge_strategy', 'ops_merge_stitch_source', 'ops_merge_stage_positions', 'ops_merge_min_votes', 'ops_merge_min_match_fraction', 'ops_merge_fallback_share',),
     },

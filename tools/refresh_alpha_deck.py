@@ -122,6 +122,7 @@ GROUPS = (
         ("Cell-cycle-resolved and cell-state profiles, mitotic index test", (890, 914)),
         ("Penetrance, escapers, responder fraction, distribution distances", (891, 905)),
         ("Fitness and generic-axis removal, embedding and fusion profiles", (903, 906)),
+        ("Feature information screen: what new columns add about genes", (964,)),
     )),
     ("OPS benchmarks", (
         ("Gene-pair mAP vs null, guide-level P values, versioned references",

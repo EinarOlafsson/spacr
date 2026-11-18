@@ -828,6 +828,22 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 958 (2026-11-16): the objects phase resumes per window.
     "ops_objects_resume", "ops_objects_keep_windows",
     "ops_objects_windows_dir",
+    # Item 964 (2026-11-17): the feature-information screen phase.
+    "ops_feature_screen_old",
+    "ops_feature_screen_new",
+    "ops_feature_screen_cells",
+    "ops_feature_screen_id_columns",
+    "ops_feature_screen_label",
+    "ops_feature_screen_guide",
+    "ops_feature_screen_families",
+    "ops_feature_screen_permutations",
+    "ops_feature_screen_perm_unit",
+    "ops_feature_screen_seed",
+    "ops_feature_screen_ridge",
+    "ops_feature_screen_greedy_threshold",
+    "ops_feature_screen_mlp",
+    "ops_feature_screen_device",
+    "ops_feature_screen_dst",
     # Item 962 (2026-11-16): the OPS merge route (tile hash, well stitch
     # or automatic fallback) and its thresholds.
     "ops_merge_strategy", "ops_merge_stitch_source",

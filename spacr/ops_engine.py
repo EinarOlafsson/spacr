@@ -309,6 +309,11 @@ _FLAT_PHASES = ("flat_nuclear", "flat_validate")
 #: copairs activity and consistency and EFAAR recall, with controls.
 _SCORING_PHASES = ("score",)
 
+#: The feature-information screen (alpha, item 964): what new per-cell
+#: feature columns add about gene identity beyond the existing ones
+#: (:mod:`spacr.ops_feature_info`). Needs only the two feature tables.
+_FEATURE_SCREEN_PHASES = ("ops_feature_screen",)
+
 #: The cropped-site layout path (alpha, items 919 and 920): index the Cell
 #: Painting Gallery's per-channel site TIFFs, write their painting stacks to
 #: ``merged/``, and decode the sequencing stacks against spacer prefixes;
@@ -318,7 +323,8 @@ _CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode", "prefix_fdr_sweep")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
-               + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES + _CPG_PHASES)
+               + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES + _CPG_PHASES
+               + _FEATURE_SCREEN_PHASES)
 
 
 def _run_cpg(settings: Mapping[str, Any], phases: Sequence[str]) -> Dict[str, Any]:
@@ -10148,6 +10154,12 @@ def run_ops(settings: Mapping[str, Any], *,
         with _pinned_blas(pin, _blas_threads(settings)) as pinned:
             result = run_flat_phases(settings, phases, report=_say)
         return {**result, "blas_threads": pinned}
+    if "ops_feature_screen" in phases:
+        if list(phases) != ["ops_feature_screen"]:
+            raise ValueError("the ops_feature_screen phase runs on its own")
+        from .ops_feature_info import _run_feature_screen
+
+        return {"ops_feature_screen": _run_feature_screen(settings, report=_say)}
     if "score" in phases:
         if list(phases) != ["score"]:
             raise ValueError("the score phase runs on its own")

@@ -74,6 +74,21 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_batch_size": 8,
     "ops_ph_sites": None,
     "ops_ph_texture": True,
+    "ops_feature_screen_old": None,
+    "ops_feature_screen_new": None,
+    "ops_feature_screen_cells": None,
+    "ops_feature_screen_id_columns": None,
+    "ops_feature_screen_label": 'gene',
+    "ops_feature_screen_guide": 'sgRNA',
+    "ops_feature_screen_families": None,
+    "ops_feature_screen_permutations": 500,
+    "ops_feature_screen_perm_unit": 'field',
+    "ops_feature_screen_seed": 0,
+    "ops_feature_screen_ridge": 1e-06,
+    "ops_feature_screen_greedy_threshold": 0.0,
+    "ops_feature_screen_mlp": False,
+    "ops_feature_screen_device": 'auto',
+    "ops_feature_screen_dst": None,
     "ops_merge_threshold": 4.0,
     "ops_merge_strategy": "current",
     "ops_merge_stitch_source": "metadata",
@@ -522,6 +537,21 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_batch_size": int,
     "ops_ph_sites": (str, type(None)),
     "ops_ph_texture": bool,
+    "ops_feature_screen_old": (str, type(None)),
+    "ops_feature_screen_new": (str, type(None)),
+    "ops_feature_screen_cells": (str, type(None)),
+    "ops_feature_screen_id_columns": (str, type(None)),
+    "ops_feature_screen_label": str,
+    "ops_feature_screen_guide": str,
+    "ops_feature_screen_families": (str, dict, type(None)),
+    "ops_feature_screen_permutations": int,
+    "ops_feature_screen_perm_unit": str,
+    "ops_feature_screen_seed": int,
+    "ops_feature_screen_ridge": (float, int),
+    "ops_feature_screen_greedy_threshold": (float, int),
+    "ops_feature_screen_mlp": bool,
+    "ops_feature_screen_device": str,
+    "ops_feature_screen_dst": (str, type(None)),
     "ops_merge_threshold": (float, int),
     "ops_merge_strategy": str,
     "ops_merge_stitch_source": str,
@@ -1011,6 +1041,21 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
         "ops_ph_sites", "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
+        "ops_feature_screen_old",
+        "ops_feature_screen_new",
+        "ops_feature_screen_cells",
+        "ops_feature_screen_id_columns",
+        "ops_feature_screen_label",
+        "ops_feature_screen_guide",
+        "ops_feature_screen_families",
+        "ops_feature_screen_permutations",
+        "ops_feature_screen_perm_unit",
+        "ops_feature_screen_seed",
+        "ops_feature_screen_ridge",
+        "ops_feature_screen_greedy_threshold",
+        "ops_feature_screen_mlp",
+        "ops_feature_screen_device",
+        "ops_feature_screen_dst",
         "ops_ph_profile_features", "ops_ph_profile_optional_families",
         "ops_ph_granularity_subsample",
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
@@ -1507,6 +1552,36 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - Restrict the phenotype phases to these sites, as "
         "'520-525,555'. Used for a pilot on part of a well; empty runs every "
         "placed field. Default None. Alpha.",
+    "ops_feature_screen_old":
+        '(str or None) - The per-cell table of the existing features for the ops_feature_screen phase, parquet or CSV, already normalised against the control cells (robust z or TVN). The screen measures what the new table adds beyond these columns. Default None. Alpha.',
+    "ops_feature_screen_new":
+        '(str or None) - The per-cell table of the candidate features, normalised the same way as the old table and joined to it on the cell ID columns. Every numeric column is screened on its own and in its families. Default None. Alpha.',
+    "ops_feature_screen_cells":
+        '(str or None) - A per-cell table with the gene, guide, well and site of each cell, when the feature tables do not carry them. Empty reads them from the old table. Default None. Alpha.',
+    "ops_feature_screen_id_columns":
+        "(str or None) - The columns that identify a cell in every table, comma separated, such as 'plate,well,site,label'. Empty uses those of plate, well, site and label that all the tables have. Default None. Alpha.",
+    "ops_feature_screen_label":
+        "(str) - The column naming each cell's gene. Every gene that starts with ops_control_prefix counts as one control gene. Default 'gene'. Alpha.",
+    "ops_feature_screen_guide":
+        "(str) - The column naming each cell's guide, used for the guide-replicated estimate: a cell is predicted by the other guides of its gene. Default 'sgRNA'. Alpha.",
+    "ops_feature_screen_families":
+        '(str, dict or None) - Families of new columns screened together as blocks: a dict, a JSON file of family to columns, or a CSV with column and family. The family all_new is always added. Empty screens single columns and all_new. Default None. Alpha.',
+    "ops_feature_screen_permutations":
+        '(int) - How many times the gene labels are shuffled within each well for the null. The corrected estimate is the observed value minus the null mean. More permutations give a steadier null and take longer. Default 500. Alpha.',
+    "ops_feature_screen_perm_unit":
+        "(str) - What the null shuffles: 'field' moves whole gene-by-field groups of cells between genes within a well, which keeps cells of one field together; 'cell' shuffles single cells. Default 'field'. Alpha.",
+    "ops_feature_screen_seed":
+        '(int) - The seed of the permutations and of the guide null, so a rerun gives the same table. Default 0. Alpha.',
+    "ops_feature_screen_ridge":
+        '(float) - A small value added to the diagonal of every conditioning block, times the mean feature variance, so duplicate or constant columns do not break the screen. Larger values smooth more. Default 1e-6. Alpha.',
+    "ops_feature_screen_greedy_threshold":
+        '(float) - Greedy selection adds families, or columns, while the next one adds more than this many bits beyond the null mean and more than its own null spread. 0 stops at the null level. Default 0. Alpha.',
+    "ops_feature_screen_mlp":
+        '(bool) - Also train a small network to predict the gene from the old features and from old plus new, and report the held-out cross-entropy gain in nats, a lower bound on the added information that also sees nonlinear signal. Slower. Default False. Alpha.',
+    "ops_feature_screen_device":
+        "(str) - Where the screen runs: 'auto' uses the graphics card when there is one, 'cpu' the processor with the same maths, or a torch device such as 'cuda:0'. Results agree to rounding. Default 'auto'. Alpha.",
+    "ops_feature_screen_dst":
+        '(str or None) - The folder for feature_information.csv, its chart and its summary. Empty writes them to ops_feature_screen under dst_root. Default None. Alpha.',
     "ops_ph_texture":
         "(bool) - Add the GLCM homogeneity texture block to every channel of "
         "every compartment. It adds about ten percent to measurement time. "
