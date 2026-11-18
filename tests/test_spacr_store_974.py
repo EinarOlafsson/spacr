@@ -201,13 +201,20 @@ def test_ops_storage_is_checked():
 
 
 def test_the_ops_run_writes_the_same_rows_and_crops_to_the_store(measured):
+    from spacr.ops_store import write_table
+
+    reads = pd.DataFrame({"plate": PLATE, "well": "A1",
+                          "object_id": np.repeat(np.arange(1, 9), 3),
+                          "read": ["ACGT", "ACGA", "TTTT"] * 8,
+                          "quality": np.linspace(0, 1, 24)})
+    write_table(str(measured / "run" / "measurements.db"), "ops_reads", reads)
     out = _run(measured, FULL, ops_merged_root=str(measured / "nas"),
                ops_crop_control_fraction=0.0, ops_crop_masks=True,
                ops_ph_measure_gpu=False, ops_tables_layout="wide",
                ops_storage="spacr_store")
     run = measured / "run"
     assert out["store"]["wells"]["A1"] == {"cells": 8, "crops": 8,
-                                           "barcodes": 8}
+                                           "reads": 24, "barcodes": 8}
     with sqlite3.connect(out["ph_tables"]["db"], timeout=30) as conn:
         wide = pd.DataFrame(conn.execute("SELECT * FROM cell_wide").fetchall(),
                             columns=[d[1] for d in conn.execute(
@@ -215,7 +222,11 @@ def test_the_ops_run_writes_the_same_rows_and_crops_to_the_store(measured):
     with store.open(run, verify="full") as opened:
         found, stack = opened.query(crops=True)
         barcodes = opened.query(table="barcodes")
+        stored = opened.query(table="reads")
     assert len(barcodes) == 8
+    stored = stored.sort_values(["object_id", "read"]).reset_index(drop=True)
+    expected = reads.sort_values(["object_id", "read"]).reset_index(drop=True)
+    pd.testing.assert_frame_equal(stored[expected.columns], expected)
     found = found.set_index("prcfo").loc[wide["prcfo"]].reset_index()
     for column in wide.columns:
         left = found[column].to_numpy()
