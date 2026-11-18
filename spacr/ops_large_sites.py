@@ -1204,7 +1204,10 @@ def _band_flow_errors(masks: np.ndarray, flows: np.ndarray,
     error equals the whole-image flow check's up to PyTorch's summation
     order (measured: at most one unit in the last place, 1.2e-16 relative),
     which changes a label only for a mask whose error lies that close to the
-    0.4 threshold.
+    0.4 threshold. Cellpose before 4.1 returns the flows alone from
+    ``masks_to_flows_gpu`` and averages each flow plane over a mask with
+    :func:`scipy.ndimage.mean`; the band follows whichever the installed
+    Cellpose does, so it still equals that version's whole-image check.
     """
     from cellpose.dynamics import masks_to_flows_gpu
 
@@ -1215,7 +1218,14 @@ def _band_flow_errors(masks: np.ndarray, flows: np.ndarray,
     lut[held] = np.arange(1, len(held) + 1, dtype=np.int32)
     part = np.zeros((max(y1 - y0, int(rows)), masks.shape[1]), np.int32)
     part[:y1 - y0] = lut[masks[y0:y1]]
-    flow, slices = masks_to_flows_gpu(part, device=device, niter=int(niter))
+    found = masks_to_flows_gpu(part, device=device, niter=int(niter))
+    if not isinstance(found, tuple):
+        from scipy import ndimage
+
+        inside = part[:y1 - y0]
+        return sum(ndimage.mean((found[i, :y1 - y0] - flows[i, y0:y1] / 5.) ** 2, inside,
+                                index=lut[labels]) for i in range(found.shape[0]))
+    flow, slices = found
     error = ((flow[:, :y1 - y0] - flows[:, y0:y1] / 5.) ** 2).sum(axis=0)
     return np.array([error[slices[j - 1][0], slices[j - 1][1]][
         part[slices[j - 1][0], slices[j - 1][1]] == j].mean() for j in lut[labels]])
@@ -2058,6 +2068,11 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     survey_steps: List[Dict[str, Any]] = []
     control_steps: List[Dict[str, Any]] = []
     site_steps: Dict[str, List[Dict[str, Any]]] = {}
+    from .ops_engine import _ph_object_roles, _ph_segment_objects
+
+    object_roles = _ph_object_roles(settings)
+    object_models: Dict[str, Any] = {
+        str(settings.get("seg_nucleus_model") or "cpsam").strip() or "cpsam": models[0]}
     if estimate or control_px:
         sampled = sample_sites(sites, int(settings.get("seg_diameter_sites") or 1))
         found = {}
@@ -2127,9 +2142,24 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
             nuclei_kept, cells_kept, edge = _edge_step(nuclei, cells, local)
             table = measure_chunked(cells_kept, stack, band_px=int(local["seg_measure_band_px"]),
                                     channel_names=channels)
+            objects: Dict[str, np.ndarray] = {}
+            if object_roles:
+                objects = _ph_segment_objects(
+                    stack, channels, local, bool(settings.get("seg_gpu")), object_models,
+                    tile=lambda plane, run: segment_tiled(
+                        plane, run, tile_px=int(local["seg_tile_px"]),
+                        overlap_px=int(local["seg_tile_overlap_px"]),
+                        iou=float(local["seg_stitch_iou"])))
+                if len(table):
+                    from .ops_sample import _cell_object_features
+
+                    table = table.merge(_cell_object_features(cells_kept, objects, stack, channels),
+                                        on="label", how="left")
             sampler.sample_once()
         np.save(os.path.join(dst, "labels", f"{site}_nuclei.npy"), nuclei_kept.astype(np.int32))
         np.save(os.path.join(dst, "labels", f"{site}_cells.npy"), cells_kept.astype(np.int32))
+        for role, labels in objects.items():
+            np.save(os.path.join(dst, "labels", f"{site}_{role}.npy"), labels.astype(np.int32))
         table.insert(0, "site", site)
         write_table(table, os.path.join(dst, "tables", f"{site}_cells.parquet"), canonicalise=False)
         row: Dict[str, Any] = {"site": site, "cells": int(table.shape[0]),
@@ -2142,6 +2172,8 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                  if k in paired}
         row.update({f"paired_{k}": int(v) for k, v in paired.items()})
         row.update(merge)
+        row.update({f"{role}_objects": int(len(np.unique(labels[labels > 0])))
+                    for role, labels in objects.items()})
         row.update(summarise_mask_steps(steps))
         peak = sampler.summary().get("peak_total")
         row["peak_memory_gb"] = round(peak / 2 ** 30, 3) if isinstance(peak, int) else float("nan")

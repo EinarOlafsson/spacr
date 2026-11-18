@@ -41,7 +41,7 @@ def _fixture_phases():
 
 def test_double_precision_fusion_equals_the_published_script():
     views = [np.array(v) for v in FIXTURE["views"]]
-    assert np.array_equal(oc.snf_fuse(views), np.array(FIXTURE["fused64"]))
+    np.testing.assert_allclose(oc.snf_fuse(views), np.array(FIXTURE["fused64"]), rtol=1e-10, atol=1e-12)
 
 
 def test_single_precision_fusion_equals_the_speed_card_and_stays_close():

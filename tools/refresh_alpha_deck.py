@@ -98,7 +98,7 @@ GROUPS = (
         ("LIMS / plate-barcode linkage", (583,)),
     )),
     ("OPS runs", (
-        ("OPS in Mask Generation, phenotype path to per-gene profiles", (372, 752)),
+        ("OPS in Mask Generation, phenotype path to per-gene profiles", (372, 752, 971)),
         ("Stitching: Align & Stitch core, seeded placement, overlap match rates",
          (936, 940, 915)),
         ("Phenotype store and crops, two acquisitions, yield funnel", (871, 947, 875)),
@@ -106,6 +106,7 @@ GROUPS = (
          (872, 874, 951, 958)),
         ("DNA flat-field map from nuclei, held-out check", (912,)),
         ("Merge routes: tile pattern, well mosaic, automatic fallback", (962,)),
+        ("Pathogen and organelle objects per cell, carried into gene profiles", (970,)),
         ("spaCR store: Parquet tables, Zarr crops, one DuckDB catalog", (974,)),
     )),
     ("OPS genotyping", (
@@ -113,8 +114,8 @@ GROUPS = (
          (920,)),
         ("False calls, calibrated confidence, matching to other pipelines",
          (876, 877, 878, 922)),
-        ("Spot detection, read mode and calling tuned together, prefix decoy FDR",
-         (942, 952, 949, 955)),
+        ("Detection, read mode and cell calls tuned together, prefix decoy FDR",
+         (942, 952, 949, 955, 967)),
     )),
     ("OPS gene profiles", (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),
@@ -137,6 +138,7 @@ GROUPS = (
         ("Gene map: profile clusters, labels, medoid crops", (918,)),
         ("Gene graph, protein knowledge, fusion hypotheses, gene-class training",
          (884, 885, 886, 889)),
+        ("Voyager3: cluster roles from UniProt facts through your own AI", (973,)),
     )),
     ("Automation and data", (
         ("Watch a folder as images arrive, send hits back for re-imaging", (548, 549)),
