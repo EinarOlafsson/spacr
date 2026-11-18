@@ -1565,7 +1565,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_feature_screen_guide":
         "(str) - The column naming each cell's guide, used for the guide-replicated estimate: a cell is predicted by the other guides of its gene. Default 'sgRNA'. Alpha.",
     "ops_feature_screen_families":
-        '(str, dict or None) - Families of new columns screened together as blocks: a dict, a JSON file of family to columns, or a CSV with column and family. The family all_new is always added. Empty screens single columns and all_new. Default None. Alpha.',
+        '(str, dict or None) - Families of new columns screened together as blocks: a dict, a JSON file of family to columns, or a CSV with column and family. The family all_new is always added. Empty tests single columns and all_new only. Default None. Alpha.',
     "ops_feature_screen_permutations":
         '(int) - How many times the gene labels are shuffled within each well for the null. The corrected estimate is the observed value minus the null mean. More permutations give a steadier null and take longer. Default 500. Alpha.',
     "ops_feature_screen_perm_unit":
