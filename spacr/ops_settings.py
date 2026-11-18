@@ -1083,7 +1083,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
         "ops_ph_sites", "ops_retry_missing",
     ],
-    "Pathogen & organelle segmentation": [
+    "Additional phenotype objects": [
         "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
         "ops_ph_pathogen_diameter", "ops_ph_pathogen_min_area",
         "ops_ph_organelle_channel", "ops_ph_organelle_morphology",

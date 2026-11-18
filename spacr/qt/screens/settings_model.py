@@ -2363,7 +2363,7 @@ _APP_CATEGORY_PARENTS["ops"] = {
         "Spacer-prefix FDR & tuning", "Prefix FDR sweep",
         "Comparison with other pipelines")},
     **{title: "OPS phenotype" for title in (
-        "Phenotype segmentation", "Pathogen & organelle segmentation",
+        "Phenotype segmentation", "Additional phenotype objects",
         "Phenotype acquisitions",
         "Feature families", "Flat-field correction", "Flat-field map fit",
         "Flat-field validation", "Merged images & tables",
@@ -3070,7 +3070,7 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Which phenotype channels are measured and which channel and "
         "Cellpose models segment the cells and nuclei, at what diameter, "
         "downsampling and batch size, on which sites.",
-    "PATHOGEN & ORGANELLE SEGMENTATION":
+    "ADDITIONAL PHENOTYPE OBJECTS":
         "Optional pathogen and organelle objects in the phenotype fields: "
         "the channel each is found on, the Cellpose model, diameter and "
         "smallest area, and for organelles the morphology and the method "
