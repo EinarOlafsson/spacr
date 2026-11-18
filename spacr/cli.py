@@ -1919,14 +1919,13 @@ def render_settings(settings: Mapping[str, Any], module_key: str = "") -> str:
     width = min(38, max(len(str(k)) for k in settings))
     effective = _effective_read_mode(settings) if module_key == "ops" else ""
 
-    def shown(key, value):
+    rows = []
+    for key, value in sorted(settings.items(), key=lambda kv: str(kv[0])):
         text = _format_value(value)
         if key == "ops_read_mode" and effective:
-            return f"{text} (effective: {effective})"
-        return text
-
-    return "\n".join(f"  {str(k).ljust(width)}  {shown(k, v)}"
-                     for k, v in sorted(settings.items(), key=lambda kv: str(kv[0])))
+            text += f" (effective: {effective})"
+        rows.append(f"  {str(key).ljust(width)}  {text}")
+    return "\n".join(rows)
 
 
 def render_module_list() -> str:
