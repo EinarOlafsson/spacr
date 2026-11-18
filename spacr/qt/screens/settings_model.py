@@ -507,7 +507,8 @@ def _progressive_slot_of_setting(key):
     role = object_of_setting(key)
     if role in ALL_ORGANELLE_ROLES:
         return role
-    if key != NUMBER_OF_ORGANELLES and 'organelle' in str(key).lower():
+    if (key != NUMBER_OF_ORGANELLES and 'organelle' in str(key).lower()
+            and not str(key).startswith('ops_')):
         return ALL_ORGANELLE_ROLES[0]
     return None
 
@@ -11749,7 +11750,8 @@ class SettingsWidgets:
                          None)
             if owner is not None and owner in drop:
                 beyond.add(name)
-            elif count == 0 and "organelle" in name.lower():
+            elif (count == 0 and "organelle" in name.lower()
+                  and not name.startswith("ops_")):
                 beyond.add(name)
         return beyond
 
