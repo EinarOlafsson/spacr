@@ -1987,6 +1987,45 @@ def _check_ops_umap_inputs(settings: Dict[str, Any]) -> List[Problem]:
     return problems
 
 
+def _check_regression_inputs(settings: Dict[str, Any]) -> List[Problem]:
+    """Check score/count selections without reading tables or changing settings.
+
+    Unequal legacy lists and rows with only one input remain valid when the
+    whole selection contains both a score source and a count source.
+    """
+    from .qt.i18n import tr
+
+    if settings.get('screen_type') == 'drug_screen':
+        return []
+    fix = tr(
+        "In Regression > Input Tables > Paired data, use Add score tables… "
+        "and Add count tables… to fill Score source and Count source for "
+        "the same plates. Select CSV or Parquet files, or a database with "
+        "its Score table and Count table names. A Measurements DB link "
+        "alone does not supply scores or counts.")
+    rows = settings.get('paired_data') or []
+    if rows and (not isinstance(rows, (list, tuple))
+                 or any(not isinstance(row, dict) for row in rows)):
+        return [Problem(ERROR, 'paired_data',
+                        tr("Regression Paired data must contain score/count rows."), fix)]
+
+    def present(value):
+        """Return whether a source selection contains a nonblank path."""
+        values = value if isinstance(value, (list, tuple)) else [value]
+        return any(isinstance(path, (str, os.PathLike))
+                   and os.fspath(path).strip() for path in values)
+
+    scores = ([row.get('score') or row.get('score_data') for row in rows]
+              if rows else settings.get('score_data'))
+    counts = ([row.get('count') or row.get('count_data') for row in rows]
+              if rows else settings.get('count_data'))
+    if not present(scores) or not present(counts):
+        return [Problem(
+            ERROR, 'paired_data',
+            tr("Regression needs at least one score table and one count table."), fix)]
+    return []
+
+
 def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     """Check a settings dict against the data it points at.
 
@@ -2045,6 +2084,8 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_object_diameters(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))
+    if app == "regression":
+        problems.extend(_check_regression_inputs(settings))
     try:
         from .plugins import get_app, load_object
         plugin_app = get_app(app)

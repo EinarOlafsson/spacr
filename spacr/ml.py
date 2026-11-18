@@ -5961,11 +5961,11 @@ def normalize_regression_input_pairs(settings):
                   "Review and save the new paired_data table to make that "
                   "relationship explicit.")
 
-    if not pairs or not any(row['score'] for row in pairs) or not any(
-            row['count'] for row in pairs):
-        raise ValueError(
-            "Regression needs at least one score CSV and one count CSV in "
-            "paired_data.")
+    from .validate import _check_regression_inputs
+
+    problems = _check_regression_inputs({'paired_data': pairs})
+    if problems:
+        raise ValueError(f"{problems[0].message} {problems[0].fix}")
     settings['paired_data'] = pairs
 
     def unique(key):
