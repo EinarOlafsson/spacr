@@ -192,11 +192,14 @@ def test_the_engine_reads_every_setting_the_panel_offers(declared):
     # 919 and 920: the cropped-site phases read the cpg_* settings in
     # cpg_cropped and the prefix decode its settings in ops_prefix.
     # 973: the voyager3 phase reads the ops_voyager3_* settings in voyager3.
+    # 961: the prefix decode reads its in situ settings in ops_insitu.
+    from spacr import ops_insitu
+
     source = "".join(inspect.getsource(m)
                      for m in (ops_engine, ops_decode, ops_tvn, ops_reference,
                                ops_modules, ops_clusters, gpu_admission,
                                ops_flatfield, ops_scoring,
                                gene_measurement_compare, cpg_cropped,
-                               ops_prefix, voyager3))
+                               ops_prefix, voyager3, ops_insitu))
     unread = sorted(key for key in keys if f'"{key}"' not in source)
     assert not unread, f"in the OPS panel and never read by the engine: {unread}"

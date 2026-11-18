@@ -1,0 +1,40 @@
+OPS IN SITU SEQUENCING MODES: COMBINATORIAL BARCODES, PEAK-PRIORITISED CALLING, READ COMPARTMENTS
+==================================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-17, alpha (ALPHA_FEATURES[961]). Under development per proposals/READINESS.md: not marked Ready. spacr/ops_insitu.py, spacr/ops_prefix.py (hooks, _prefix_cell_calls with ops_call_sort, peak and margin options of the private read helpers), spacr/ops_settings.py, spacr/settings.py, tests/test_ops_insitu_961.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item961_proof/REPORT.md.
+Requested: maintainer, 2026-11-16 ("spacr should support all of this"), after Brieflow (Nat Commun 2026, doi 10.1038/s41467-026-73643-7): PerturbView and Zombie combinatorial barcodes, peak-prioritised calling and compartment-specific read assignment, validated on a T7 set.
+Owner: master lane claude-961-1117.
+Source: proposals/bmc_paper_items/ITEM_ops_insitu_seq_modes.md.
+Related: 920 (spacer-prefix decode), 942 (decoys), 949 (shuffle control), 952 (read mode), 966 (default tuning), 960 (grid search; it should list ops_call_sort and ops_read_compartment once both are on nightly).
+
+BUILD
+- Settings (alpha, all None by default, no schema bump): ops_insitu_preset
+  (t7), ops_barcode_layout (single | combinatorial), ops_barcode_layout_file,
+  ops_call_sort (count | quality | peak), ops_read_compartment (cell |
+  nucleus | cytoplasm), ops_prefix_nuclei_masks, ops_recomb_min_quality.
+- Combinatorial layout: a CSV/JSON of segments (segment, start, end, role
+  map/recomb/umi, library column, max_distance, metric). Each segment is a
+  spacer-prefix whitelist at its cycles (the decode's own matcher); map
+  segments carry the decoys. A read's construct is the one construct its map
+  and recomb segments agree on; a recomb segment of another construct flags
+  the read recombined and drops it from the call; a recomb segment below
+  ops_recomb_min_quality is not checked; UMI bases are recorded. Cells are
+  called from their reads (count, quality or peak ranking; a tie is
+  ambiguous). Needs ops_prefix_threshold_tuning none. Writes
+  results/ops_insitu/: reads, cells, site_summary.csv and insitu_report.json
+  (per segment mapping rate and map read decoy FDR; per well unique
+  combination rate, cell decoy FDR, recombination rate, shuffle call rate
+  over 3 shuffled constructs tables).
+- Single layout: ops_read_compartment masks the cell labels by the nucleus
+  labels (tuned or fixed decodes); ops_call_sort ranks barcodes by count,
+  mean quality or peak strength (reads gain a peak column); the t7 preset
+  sets nucleus, peak and ops_quality_min_reads 1 on keys left empty.
+- With every new key empty the decode runs the same code and writes the same
+  files.
+
+ACCEPTANCE
+tests/test_ops_insitu_961.py (7): combinatorial identities and recombination
+flags on a synthetic site; nucleus vs cytoplasm assignment; peak, count and
+quality sorting; empty settings byte-identical; t7 preset; refusals; defaults
+empty and alpha.

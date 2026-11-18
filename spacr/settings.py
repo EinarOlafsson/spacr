@@ -9743,6 +9743,11 @@ ALPHA_FEATURES = {
     957: {
         'widgets': ('MakeMasksPointModeButton',),
     },
+    961: {
+        'settings': ('ops_insitu_preset', 'ops_barcode_layout', 'ops_barcode_layout_file',
+                     'ops_call_sort', 'ops_read_compartment', 'ops_prefix_nuclei_masks',
+                     'ops_recomb_min_quality'),
+    },
 }
 
 

@@ -2519,6 +2519,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in voyager3_arrivals} == voyager3_arrivals
     assert not voyager3_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **voyager3_arrivals}
+    insitu_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "961_ops_insitu_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert len(insitu_arrivals) == 1
+    assert {key: docs[key] for key in insitu_arrivals} == insitu_arrivals
+    assert not insitu_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **insitu_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

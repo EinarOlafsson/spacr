@@ -459,6 +459,13 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_fdr_sweep_seed": 0,
     "ops_fdr_sweep_shuffle_seeds": [0, 1, 2],
     "ops_fdr_sweep_inputs": None,
+    "ops_barcode_layout": None,
+    "ops_barcode_layout_file": None,
+    "ops_call_sort": None,
+    "ops_read_compartment": None,
+    "ops_prefix_nuclei_masks": None,
+    "ops_recomb_min_quality": None,
+    "ops_insitu_preset": None,
 }
 
 #: The Measure setting each OPS phenotype measurement setting stands for
@@ -919,6 +926,13 @@ OPS_TYPES: Dict[str, object] = {
     "ops_fdr_sweep_seed": int,
     "ops_fdr_sweep_shuffle_seeds": (list, str),
     "ops_fdr_sweep_inputs": (dict, str, type(None)),
+    "ops_barcode_layout": (str, type(None)),
+    "ops_barcode_layout_file": (str, type(None)),
+    "ops_call_sort": (str, type(None)),
+    "ops_read_compartment": (str, type(None)),
+    "ops_prefix_nuclei_masks": (str, type(None)),
+    "ops_recomb_min_quality": (float, int, type(None)),
+    "ops_insitu_preset": (str, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -1020,6 +1034,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_fdr_sweep_quality_quantiles", "ops_fdr_sweep_bootstrap",
         "ops_fdr_sweep_seed", "ops_fdr_sweep_shuffle_seeds",
         "ops_fdr_sweep_inputs",
+        "ops_insitu_preset", "ops_barcode_layout", "ops_barcode_layout_file",
+        "ops_call_sort", "ops_read_compartment", "ops_prefix_nuclei_masks",
+        "ops_recomb_min_quality",
         "ops_compare_match", "ops_compare_reference_masks",
         "ops_compare_spacr_masks", "ops_compare_reference_objects",
         "ops_compare_iou", "ops_compare_reference_calls",
@@ -3509,6 +3526,48 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "on those sites and reported on the others. Empty scores this run's "
         "spaCR reads (results/ops_prefix/reads_*.parquet) over the cells "
         "that have reads. Default empty. Alpha.",
+    "ops_insitu_preset":
+        "(str or None) - A named in situ sequencing setup for the spacer-prefix "
+        "decode. t7 assigns reads to the nucleus, calls each cell by its "
+        "brightest amplicon and accepts one read per cell, as validated for "
+        "T7 chemistry; it fills only the keys left empty. Empty uses no "
+        "preset. Default None. Alpha.",
+    "ops_barcode_layout":
+        "(str or None) - single reads one barcode per spot (the guide prefix). "
+        "combinatorial reads several barcode segments in different cycles, as "
+        "in PerturbView and Zombie screens, and calls each cell's construct "
+        "from the combination (ops_barcode_layout_file); reads whose segments "
+        "belong to different constructs are flagged as recombined and not "
+        "used. Needs ops_prefix_threshold_tuning none. Empty is single. "
+        "Default None. Alpha.",
+    "ops_barcode_layout_file":
+        "(str or None) - The combinatorial layout: a CSV or JSON with one row "
+        "per segment: segment, start and end cycle, role (map, recomb or umi), "
+        "the library column with its bases, and optionally max_distance and "
+        "metric (hamming or levenshtein). The library needs those columns and "
+        "the gene column. Default None. Alpha.",
+    "ops_call_sort":
+        "(str or None) - How a cell's barcodes are ranked: count (reads), "
+        "quality (mean read quality) or peak (the brightest read's spot "
+        "strength, for chemistries with one bright amplicon per cell). A tie "
+        "leaves the cell ambiguous. Needs ops_prefix_quality_method spacr. "
+        "Empty keeps the decode's own rule. Default None. Alpha.",
+    "ops_read_compartment":
+        "(str or None) - Which part of a cell a read must lie in to count: "
+        "cell (anywhere), nucleus (only over the nucleus, for amplicons that "
+        "stay there) or cytoplasm (outside it). Nucleus and cytoplasm need "
+        "nucleus labels (ops_prefix_nuclei_masks). Empty is cell. Default "
+        "None. Alpha.",
+    "ops_prefix_nuclei_masks":
+        "(str or None) - The nucleus labels of each site for "
+        "ops_read_compartment, as a path with {plate}, {well}, {well_id} and "
+        "{site} to a TIFF, .npy or .npz file. Empty reads a nuclei array from "
+        "the merged site file. Default None. Alpha.",
+    "ops_recomb_min_quality":
+        "(float or None) - The lowest call quality (the worst cycle's margin) "
+        "a recomb segment needs to be checked against its construct, as "
+        "Brieflow's recomb_q_thresh; a lower-quality segment is neither "
+        "trusted nor flagged as recombined. Empty is 0. Default None. Alpha.",
     "ops_stress_report":
         "(bool) - At the end of the run, time the store as the reference "
         "stress test did (database rows, queries for one field, one gene, "

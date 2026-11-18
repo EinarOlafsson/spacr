@@ -800,6 +800,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_fdr_sweep_seed",
     "ops_fdr_sweep_shuffle_seeds",
     "ops_fdr_sweep_inputs",
+    # Item 961 (2026-11-17): in situ sequencing modes of the prefix decode.
+    "ops_insitu_preset", "ops_barcode_layout", "ops_barcode_layout_file",
+    "ops_call_sort", "ops_read_compartment", "ops_prefix_nuclei_masks",
+    "ops_recomb_min_quality",
     # Items 936 and 940 (2026-11-13): stitch reader threads and edge
     # workers, and the placement seed file.
     "ops_stitch_read_threads",

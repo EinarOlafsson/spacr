@@ -565,6 +565,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # (spacr/qt/voyager3_panel.py).
         'spacr/voyager3.py',
         'spacr/qt/voyager3_panel.py',
+        # 706 -> 707 on 2026-11-17, +1/-0, item 961: in situ sequencing
+        # modes of the spacer-prefix decode (spacr/ops_insitu.py).
+        'spacr/ops_insitu.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -589,7 +592,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 703)
+            - len(retired_since_608) == 704)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -1122,8 +1125,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # 704 -> 706 on 2026-11-17: spacr/voyager3.py and
     # spacr/qt/voyager3_panel.py (item 973: Voyager3 cluster annotation),
     # moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 706
-    assert "--expected-file-count 706" in combine_script
+    # 706 -> 707 on 2026-11-17: spacr/ops_insitu.py (item 961: in situ
+    # sequencing modes), moved with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 707
+    assert "--expected-file-count 707" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

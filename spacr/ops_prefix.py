@@ -591,6 +591,39 @@ def match_prefix_reads(reads: Sequence[str], library: PrefixLibrary, *,
                                        "guide", "gene", "level"])
 
 
+#: The barcode rankings ``ops_call_sort`` names (item 961, alpha).
+_CALL_SORTS = ("count", "quality", "peak")
+
+
+def _sorted_call(matched: pd.DataFrame, counts: Mapping[str, List[int]], sort: str,
+                 min_reads: int) -> Tuple[List[Tuple[str, List[int]]], str]:
+    """One cell's barcodes ranked by ``ops_call_sort``, and its quality class.
+
+    :param matched: the cell's exact and corrected reads (``prefix``,
+        ``quality`` and, for ``'peak'``, ``peak``).
+    :param counts: ``barcode -> [exact, corrected]``.
+    :param sort: a key of :data:`_CALL_SORTS`.
+    :param min_reads: exact reads a ``perfect`` cell needs.
+    :returns: ``(ranked, quality)``: ``(barcode, counts)`` best first, and a
+        key of :data:`QUALITY_CLASSES`.
+    """
+    if not counts:
+        return [], "none"
+    if sort == "count":
+        score = {b: float(sum(v)) for b, v in counts.items()}
+    else:
+        column = "quality" if sort == "quality" else "peak"
+        grouped = matched.groupby("prefix", sort=False)[column]
+        values = grouped.mean() if sort == "quality" else grouped.max()
+        score = {b: float(values.get(b, 0.0)) for b in counts}
+    ranked = sorted(counts.items(), key=lambda kv: (-score[kv[0]], -sum(kv[1]), kv[0]))
+    if len(ranked) > 1 and score[ranked[0][0]] == score[ranked[1][0]]:
+        return ranked, "ambiguous"
+    if len(ranked) == 1 and ranked[0][1][0] >= int(min_reads):
+        return ranked, "perfect"
+    return ranked, "great"
+
+
 def classify_cell(counts: Mapping[str, Tuple[int, int]], min_reads: int = 2) -> str:
     """One cell's quality class from its matched reads.
 
@@ -704,9 +737,40 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
         ``second_reads``, ``has_exact_read`` and ``quality``.
     :raises ValueError: for an unknown method.
     """
+    return _prefix_cell_calls(reads, min_reads=min_reads, keys=keys, method=method)
+
+
+def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
+                       keys: Sequence[str] = ("plate", "well", "site", "cell"),
+                       method: str = "spacr", sort: Optional[str] = None) -> pd.DataFrame:
+    """:func:`prefix_cell_calls` with item 961's ``ops_call_sort``.
+
+    :param reads: as for :func:`prefix_cell_calls`.
+    :param min_reads: as for :func:`prefix_cell_calls`.
+    :param keys: as for :func:`prefix_cell_calls`.
+    :param method: as for :func:`prefix_cell_calls`.
+    :param sort: None keeps :func:`prefix_cell_calls`' rule. ``'count'``,
+        ``'quality'`` or ``'peak'`` rank a cell's barcodes by reads, by mean
+        read quality or by the brightest read's spot strength (the reads need
+        a ``peak`` column), with ``'spacr'`` only: one barcode with
+        ``min_reads`` exact reads is ``perfect``, a tie on the key is
+        ``ambiguous``, any other unique top is ``great``.
+    :returns: :func:`prefix_cell_calls`' table.
+    :raises ValueError: for an unknown method or sort, a sort with
+        ``'recipe_simple'``, or ``'peak'`` without a ``peak`` column.
+    """
     if method not in QUALITY_METHODS:
         raise ValueError(f"ops_prefix_quality_method must be one of {list(QUALITY_METHODS)}; "
                          f"got {method!r}")
+    if sort is not None:
+        if sort not in _CALL_SORTS:
+            raise ValueError(f"ops_call_sort must be one of {list(_CALL_SORTS)}; got {sort!r}")
+        if method != "spacr":
+            raise ValueError("ops_call_sort ranks barcodes under ops_prefix_quality_method "
+                             "'spacr'; 'recipe_simple' keeps the recipe's own ranking")
+        if sort == "peak" and "peak" not in reads.columns:
+            raise ValueError("ops_call_sort 'peak' needs each read's spot strength (a "
+                             "'peak' column)")
     columns = list(keys) + ["reads", "matched", "exact", "corrected", "ambiguous",
                             "collision", "out_of_library", "barcodes", "prefix", "guide",
                             "gene", "level", "top_reads", "top_exact", "top_share",
@@ -731,12 +795,15 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
         for prefix, kind in zip(matched["prefix"], matched["status"]):
             slot = counts.setdefault(prefix, [0, 0])
             slot[0 if kind == "exact" else 1] += 1
-        if method == "recipe_simple":
+        if sort is not None:
+            ranked, quality = _sorted_call(matched, counts, sort, min_reads)
+        elif method == "recipe_simple":
             named = cell_key if isinstance(cell_key, tuple) else (cell_key,)
             quality = recipe.get(tuple(named), "none")
         else:
             quality = classify_cell({k: tuple(v) for k, v in counts.items()}, min_reads)
-        ranked = sorted(counts.items(), key=lambda kv: (-(kv[1][0] + kv[1][1]), kv[0]))
+        if sort is None:
+            ranked = sorted(counts.items(), key=lambda kv: (-(kv[1][0] + kv[1][1]), kv[0]))
         top = ranked[0] if ranked else None
         call = (matched[matched["prefix"] == top[0]].iloc[0]
                 if top is not None and quality in ("perfect", "great") else None)
@@ -890,7 +957,7 @@ def decode_prefix_site(stack: np.ndarray, library: PrefixLibrary, *,
 
 
 def _prefix_calls(values: np.ndarray, *, bases: Sequence[str], crosstalk: str,
-                  read_mode: str = "log") -> Tuple[List[str], np.ndarray]:
+                  read_mode: str = "log", margins: bool = False):
     """Call one site's reads as the spacer-prefix decode calls them.
 
     :param values: ``(N, cycles, bases)`` read intensities.
@@ -899,8 +966,10 @@ def _prefix_calls(values: np.ndarray, *, bases: Sequence[str], crosstalk: str,
     :param read_mode: ``log`` (unmixed as asked, then the brightest base
         after the per-cycle median normalisation) or ``raw`` (item 952: the
         brightest base as read, no unmixing or normalisation).
+    :param margins: also return the per-cycle margins (item 961's
+        per-segment quality).
     :returns: ``(calls, quality)``: one string per read and its worst
-        cycle's margin.
+        cycle's margin; with ``margins`` also the ``(N, cycles)`` margins.
     """
     from .ops_sbs import _raw_called_bases, called_bases
 
@@ -915,6 +984,8 @@ def _prefix_calls(values: np.ndarray, *, bases: Sequence[str], crosstalk: str,
         quality = np.where(np.isfinite(worst), worst, 0.0).astype(np.float32)
     else:
         quality = np.zeros(0, np.float32)
+    if margins:
+        return calls, quality, np.asarray(margin, np.float32).reshape(len(calls), -1)
     return calls, quality
 
 
@@ -938,7 +1009,7 @@ def _raw_candidates(stack: np.ndarray, candidates):
 def _decode_site(stack: np.ndarray, library: PrefixLibrary, *, bases: Sequence[str],
                  labels: Optional[np.ndarray], threshold: float, crosstalk: str,
                  metric: str, max_distance: int, control: Optional[PrefixLibrary],
-                 read_mode: str = "log") -> pd.DataFrame:
+                 read_mode: str = "log", peak: bool = False) -> pd.DataFrame:
     """:func:`decode_prefix_site` with the read mode of item 952.
 
     :param stack: as for :func:`decode_prefix_site`.
@@ -951,12 +1022,17 @@ def _decode_site(stack: np.ndarray, library: PrefixLibrary, *, bases: Sequence[s
     :param max_distance: :func:`match_prefix_reads` limit.
     :param control: a shuffled whitelist, or None.
     :param read_mode: ``log`` or ``raw`` (:func:`_prefix_calls`).
+    :param peak: add a ``peak`` column, each read's spot strength (item
+        961's peak-prioritised calling).
     :returns: :func:`decode_prefix_site`'s rows.
     :raises ValueError: when ``labels`` is not the stack's grid.
     """
+    strength = None
     if read_mode == "raw":
-        peaks, _strength, values = _raw_candidates(
+        peaks, strength, values = _raw_candidates(
             stack, _spot_candidates(stack, floor=threshold))
+    elif peak:
+        peaks, strength, values = _spot_candidates(stack, floor=threshold)
     else:
         peaks, values = detect_spots(stack, threshold=threshold)
     calls, quality = _prefix_calls(values, bases=bases, crosstalk=crosstalk,
@@ -973,6 +1049,8 @@ def _decode_site(stack: np.ndarray, library: PrefixLibrary, *, bases: Sequence[s
     frame = pd.DataFrame({"y": peaks[:, 0] if len(peaks) else np.zeros(0, np.int64),
                           "x": peaks[:, 1] if len(peaks) else np.zeros(0, np.int64),
                           "cell": cell, "quality": quality})
+    if peak:
+        frame["peak"] = np.asarray(strength, np.float32)
     frame = pd.concat([frame, matched], axis=1)
     if control is not None:
         frame["control_status"] = match_prefix_reads(
@@ -1057,7 +1135,8 @@ def _matched_rows(calls: Sequence[str], library: PrefixLibrary, memo: Dict[str, 
 
 def _site_tuning_reads(candidates, library: PrefixLibrary, memo: Dict[str, tuple], *,
                        bases: Sequence[str], threshold: float, crosstalk: str, metric: str,
-                       max_distance: int, read_mode: str = "log") -> pd.DataFrame:
+                       max_distance: int, read_mode: str = "log",
+                       peak: bool = False) -> pd.DataFrame:
     """One site's reads at one read threshold, from its spot candidates.
 
     The reads above the threshold are compensated, called and matched as
@@ -1074,16 +1153,20 @@ def _site_tuning_reads(candidates, library: PrefixLibrary, memo: Dict[str, tuple
     :param max_distance: the largest distance matched (the grid's loosest).
     :param read_mode: ``log`` or ``raw`` (:func:`_prefix_calls`); the
         candidates' values must be that mode's reads.
+    :param peak: add a ``peak`` column, each read's spot strength (item 961).
     :returns: :func:`decode_prefix_site`'s rows, without the control.
     """
     peaks, strength, values, cell = candidates
     keep = strength > float(threshold)
     peaks, cell = peaks[keep], cell[keep]
+    kept_strength = np.asarray(strength)[keep]
     calls, quality = _prefix_calls(values[keep], bases=bases, crosstalk=crosstalk,
                                    read_mode=read_mode)
     frame = pd.DataFrame({"y": peaks[:, 0] if len(peaks) else np.zeros(0, np.int64),
                           "x": peaks[:, 1] if len(peaks) else np.zeros(0, np.int64),
                           "cell": cell, "quality": quality})
+    if peak:
+        frame["peak"] = kept_strength.astype(np.float32)
     matched = _matched_rows(list(calls), library, memo, metric=metric,
                             max_distance=max_distance)
     return pd.concat([frame, matched], axis=1)
@@ -1412,7 +1495,14 @@ def run_prefix_decode(settings: Mapping[str, Any],
     if not destination:
         raise ValueError("the prefix_decode phase needs dst_root")
     started = time.perf_counter()
+    from .ops_insitu import _compartment_labels, _insitu_options, _run_combinatorial_decode
+
     chosen = prefix_settings(settings)
+    insitu = _insitu_options(settings, chosen)
+    if insitu["layout"] == "combinatorial":
+        return _run_combinatorial_decode(settings, report=report)
+    if insitu["min_reads"] is not None:
+        chosen = {**chosen, "ops_quality_min_reads": insitu["min_reads"]}
     read_mode = _prefix_read_mode(settings, chosen)
     if read_mode == "auto" and chosen["ops_prefix_threshold_tuning"] != "per_well_decoy":
         raise ValueError("ops_read_mode 'auto' chooses the read per well from decoy "
@@ -1464,6 +1554,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
         recorded = {key: value for key, value in recorded.items() if key not in _ITEM_949_KEYS}
     if read_mode != "log":
         recorded = {**recorded, "ops_read_mode": read_mode}
+    if insitu["recorded"]:
+        recorded = {**recorded, **insitu["recorded"]}
     with open(os.path.join(folder, "quality_classes.json"), "w", encoding="utf-8") as handle:
         json.dump({"method": method, "classes": class_names,
                    "source": RECIPE_SIMPLE_SOURCE if method == "recipe_simple" else None,
@@ -1502,6 +1594,10 @@ def run_prefix_decode(settings: Mapping[str, Any],
                                      well_id=well_id, site=site,
                                      merged=merged_path(str(destination), plate, well_id,
                                                         site))
+                if insitu["compartment"] != "cell":
+                    labels = _compartment_labels(labels, insitu, plate=plate, well=well,
+                                                 well_id=well_id, site=site,
+                                                 destination=str(destination))
                 stack = loaded["sbs"]
                 if labels is not None and np.asarray(labels).shape != stack.shape[1:3]:
                     raise ValueError(f"the cell labels are {np.asarray(labels).shape}, "
@@ -1588,7 +1684,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                     threshold=best["ops_read_threshold"],
                     crosstalk=chosen["ops_prefix_crosstalk"],
                     metric=chosen["ops_prefix_metric"], max_distance=loosest,
-                    read_mode=well_mode)
+                    read_mode=well_mode, peak=insitu["call_sort"] == "peak")
                 frame = _at_setting(frame, best["ops_prefix_min_read_quality"],
                                     int(best["ops_prefix_max_distance"])).reset_index(drop=True)
                 if control is not None:
@@ -1610,13 +1706,17 @@ def run_prefix_decode(settings: Mapping[str, Any],
                                      well_id=well_id, site=site,
                                      merged=merged_path(str(destination), plate, well_id,
                                                         site))
+                if insitu["compartment"] != "cell":
+                    labels = _compartment_labels(labels, insitu, plate=plate, well=well,
+                                                 well_id=well_id, site=site,
+                                                 destination=str(destination))
                 reads = _decode_site(
                     loaded["sbs"], matching, bases=pinned["cpg_sbs_bases"], labels=labels,
                     threshold=chosen["ops_read_threshold"],
                     crosstalk=chosen["ops_prefix_crosstalk"],
                     metric=chosen["ops_prefix_metric"],
                     max_distance=chosen["ops_prefix_max_distance"], control=control,
-                    read_mode=read_mode)
+                    read_mode=read_mode, peak=insitu["call_sort"] == "peak")
                 del loaded
                 if min_quality > 0:
                     reads = reads[reads["quality"] >= min_quality].reset_index(drop=True)
@@ -1631,8 +1731,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
             reads.insert(0, "site", int(site))
             reads.insert(0, "well", well_id)
             reads.insert(0, "plate", plate)
-            cells = prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"],
-                                      method=method)
+            cells = _prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"],
+                                       method=method, sort=insitu["call_sort"])
             if decoy_k > 0:
                 cells = _flag_decoy_cells(cells, nearmiss=nearmiss_k > 0)
             classes = cells["quality"].value_counts() if len(cells) else {}
