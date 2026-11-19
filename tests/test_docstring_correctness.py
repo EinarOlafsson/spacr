@@ -5479,7 +5479,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 20,264 -> 20,265 on 2026-11-14: item 938's optional `progress_share` of
     # spacr.object.generate_cellpose_masks_sam (defaulted), the serial mask
     # path's per-batch progress lines.
-    assert sum(len(item.parameters) for item in callables) == 20265
+    # 20,265 -> 20,267 on 2026-11-19: items 983/984's optional `ngff_version`
+    # and `shards` of spacr.ome_zarr.write_ome_zarr (OME-NGFF 0.5, sharded
+    # zarr v3; both defaulted, so the required total does not move).
+    assert sum(len(item.parameters) for item in callables) == 20267
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5823,7 +5826,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # changed parameters; new callables are checked by their arrival contracts.
     # Moved 2026-11-14 for item 938 (was 17089b9e...): the optional
     # `progress_share` of spacr.object.generate_cellpose_masks_sam.
-) == '6e569df7200c40ec836404fed5c2d8efbec245e64bf77f9c9249cc293be5bccc'
+    # Moved 2026-11-19 for items 983/984 (was 6e569df7...): the optional
+    # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr.
+) == 'e810eaa27c7a412725fceb32263c0fb3e7b813e8ff119af3e5965678cc94d02f'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
