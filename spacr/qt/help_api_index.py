@@ -14422,7 +14422,6 @@ API_ENTRIES = (
     ('spacr.validate', 'Pre-flight validation of a spaCR settings dict.'),
     ('spacr.validate.Problem', 'One thing wrong with a settings dict.'),
     ('spacr.validate.Problem.is_error', 'True when this problem would break or corrupt the run.'),
-    ('spacr.validate._check_regression_inputs.present', 'Return whether a source selection contains a nonblank path.'),
     ('spacr.validate._check_required_paths._require_file', 'Refuse a missing or unset path, saying what it was needed for.'),
     ('spacr.validate._describe_regression_plan.paths', 'Normalize an optional scalar or sequence source into a list without inventing entries.'),
     ('spacr.validate.coerce_expected_types', 'Return ``settings`` with text-written numbers as their declared type.'),
