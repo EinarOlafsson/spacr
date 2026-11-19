@@ -74,6 +74,7 @@ class _TorchMath:
     """The GPU arithmetic of the screen: torch, float64, on one device."""
 
     def __init__(self, device: str):
+        """Bind torch and the device the screen runs on."""
         import torch
 
         self.torch = torch
@@ -635,12 +636,15 @@ def _mlp_check(values: np.ndarray, p: int, gene: np.ndarray,
 
 
 def _read_table(path: str, columns=None):
-    """A parquet or CSV table."""
-    import pandas as pd
+    """A parquet or CSV table, through spaCR's one table reader.
 
-    if str(path).lower().endswith(".parquet"):
-        return pd.read_parquet(path, columns=columns)
-    return pd.read_csv(path, usecols=columns)
+    Column names are kept as written (``canonicalise=False``), since the
+    screen matches feature columns by name across tables.
+    """
+    from .tabular import read_table
+
+    kwargs = {"columns": list(columns)} if columns is not None else {}
+    return read_table(path, canonicalise=False, report=None, **kwargs)
 
 
 def _families(value) -> Optional[Dict[str, List[str]]]:
@@ -660,29 +664,42 @@ def _families(value) -> Optional[Dict[str, List[str]]]:
 
 def _plot(table, null, items, path: str) -> None:
     """Ranked bars of corrected bits with the permutation values as points."""
-    import matplotlib
-
-    matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    import pandas as pd
+
+    from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style, resolve_label_ground
+    from .plot import _checked_savefig
 
     families = [i for i, (kind, _n) in enumerate(items) if kind == "family"]
     shown = families if families else list(range(len(items)))
     order = sorted(shown, key=lambda i: -table.loc[i, "added_bits_corrected"])[:30]
-    fig, ax = plt.subplots(figsize=(max(4.0, 0.45 * len(order) + 1.5), 3.6))
     rng = np.random.default_rng(0)
-    for x, i in enumerate(order):
-        ax.bar(x, table.loc[i, "added_bits_corrected"], color="#1f4e79", alpha=0.6)
-        values = null[:, i] - table.loc[i, "null_mean"]
-        ax.scatter(x + rng.uniform(-0.25, 0.25, len(values)), values, s=4,
-                   color="#2a9d8f", alpha=0.6, linewidths=0)
-    ax.axhline(0, color="#555555", lw=0.8)
-    ax.set_xticks(range(len(order)))
-    ax.set_xticklabels([table.loc[i, "name"] for i in order], rotation=60,
-                       ha="right", fontsize=7)
-    ax.set_ylabel("added gene information (bits, null-corrected)")
-    fig.tight_layout()
-    fig.savefig(path, dpi=200)
-    plt.close(fig)
+    with figure_style("print"):
+        fig, ax = plt.subplots(figsize=(max(4.0, 0.45 * len(order) + 1.5), 3.6))
+        rows = []
+        for x, i in enumerate(order):
+            name = table.loc[i, "name"]
+            ax.bar(x, table.loc[i, "added_bits_corrected"], color="#1f4e79",
+                   alpha=0.6)
+            values = null[:, i] - table.loc[i, "null_mean"]
+            ax.scatter(x + rng.uniform(-0.25, 0.25, len(values)), values, s=4,
+                       color="#2a9d8f", alpha=0.6, linewidths=0)
+            rows.append({"item": name, "kind": "observed",
+                         "bits": float(table.loc[i, "added_bits_corrected"])})
+            rows.extend({"item": name, "kind": "permutation", "bits": float(v)}
+                        for v in values)
+        ax.axhline(0, color="#555555", lw=0.8)
+        ax.set_xticks(range(len(order)))
+        ax.set_xticklabels([table.loc[i, "name"] for i in order], rotation=60,
+                           ha="right", fontsize=7)
+        ax.set_ylabel("added gene information (bits, null-corrected)")
+        _register_figure_data(fig, pd.DataFrame(rows), x="item", y="bits",
+                              hue="kind", kind="bar")
+        fig.tight_layout()
+        _checked_savefig(fig, path, dpi=200, bbox_inches="tight",
+                         facecolor=resolve_label_ground("print"))
+        plt.close(fig)
 
 
 def _run_feature_screen(settings: Mapping[str, Any], report=None) -> Dict[str, Any]:
@@ -720,8 +737,10 @@ def _run_feature_screen(settings: Mapping[str, Any], report=None) -> Dict[str, A
     destination = str(settings.get("ops_feature_screen_dst") or os.path.join(
         str(settings.get("dst_root") or "."), "ops_feature_screen"))
     os.makedirs(destination, exist_ok=True)
+    from .tabular import write_table
+
     csv_path = os.path.join(destination, "feature_information.csv")
-    result["table"].to_csv(csv_path, index=False)
+    write_table(result["table"], csv_path, canonicalise=False)
     chart = os.path.join(destination, "feature_information.png")
     _plot(result["table"], result["null"], result["items"], chart)
     summary = {**result["summary"], "greedy": result["greedy"],
