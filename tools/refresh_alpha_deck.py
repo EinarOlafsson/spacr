@@ -107,6 +107,7 @@ GROUPS = (
         ("DNA flat-field map from nuclei, held-out check", (912,)),
         ("Merge routes: tile pattern, well mosaic, automatic fallback", (962,)),
         ("Pathogen and organelle objects per cell, carried into gene profiles", (970,)),
+        ("spaCR store: Parquet tables, Zarr crops, one DuckDB catalog", (974,)),
     )),
     ("OPS genotyping", (
         ("OPS spacer-prefix decode with quality classes",

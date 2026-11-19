@@ -8715,6 +8715,177 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     return report
 
 
+#: The values ``ops_storage`` may take, the first the default (item 974).
+_OPS_STORAGES = ("current", "spacr_store")
+
+
+def _ops_storage(settings: Mapping[str, Any]) -> str:
+    """``ops_storage``, checked: ``current`` or ``spacr_store``."""
+    from .qt.i18n import tr
+
+    value = str(settings.get("ops_storage") or "current").strip().lower()
+    if value not in _OPS_STORAGES:
+        raise ValueError(tr("ops_storage must be one of {values}; got {value}",
+                            values=list(_OPS_STORAGES), value=value))
+    return value
+
+
+class _ShardCrops:
+    """A well's tar-shard crops as an array the store reads row by row.
+
+    :param members: ``(shard path, offset, size)`` per crop.
+    :param shape: ``(C, H, W)`` of one crop.
+    :param dtype: the crops' dtype.
+    :param masks: read the masks (page 1) instead of the images.
+    """
+
+    def __init__(self, members, shape, dtype, masks: bool = False):
+        """Hold the members; each crop is read only when its row is asked for."""
+        self.members = list(members)
+        self.shape = (len(self.members),) + tuple(shape)
+        self.dtype = np.dtype(dtype)
+        self.masks = masks
+
+    def __getitem__(self, rows) -> np.ndarray:
+        """The crops (or masks) of ``rows``, stacked."""
+        out = np.empty((len(rows),) + self.shape[1:], dtype=self.dtype)
+        for position, row in enumerate(rows):
+            image, mask = _ph_read_crop(*self.members[int(row)])
+            out[position] = mask if self.masks else image
+        return out
+
+
+def _ops_store_crops(root: str, plate: str, well: str, prcfo):
+    """The well's ph_crops shards matched to ``prcfo``: ``(crops, rows, masks)``.
+
+    :returns: lazy crop and mask arrays and each crop's row in ``prcfo``;
+        ``(None, None, None)`` when the well has no shard.
+    """
+    import glob as globbing
+
+    from .tabular import read_table
+
+    base = os.path.join(root, "data", "cell", str(plate), str(well))
+    indexes = sorted(globbing.glob(os.path.join(globbing.escape(base), "**",
+                                                "shard-*.index.parquet"),
+                                   recursive=True))
+    if not indexes:
+        return None, None, None
+    row_of = {str(p): i for i, p in enumerate(prcfo)}
+    members, rows = [], []
+    for path in indexes:
+        shard = path[:-len(".index.parquet")] + ".tar"
+        index = read_table(path, canonicalise=False, report=None)
+        for name, offset, size in zip(index["prcfo"], index["offset_data"],
+                                      index["size"]):
+            if str(name) in row_of:
+                members.append((shard, int(offset), int(size)))
+                rows.append(row_of[str(name)])
+    if not members:
+        return None, None, None
+    image, mask = _ph_read_crop(*members[0])
+    crops = _ShardCrops(members, image.shape, image.dtype)
+    masks = (_ShardCrops(members, mask.shape, mask.dtype, masks=True)
+             if mask is not None else None)
+    return crops, np.asarray(rows, dtype=np.int64), masks
+
+
+def _ops_store_write(db: str, plate: str, wells: Sequence[str],
+                     settings: Mapping[str, Any], destination: str,
+                     genotype_path: Optional[str] = None) -> Dict[str, Any]:
+    """Write the run's tables and crops to the spaCR store (item 974).
+
+    ``ops_store_row_copy`` also writes each well's float features as a
+    row-major copy that all-column point lookups read.
+
+    For each well: ``cells``, one row per owned, whole cell with the keys
+    and the cell, nucleus and cytoplasm features of ``ph_tables``, plus
+    ``cell_id`` and, when ``ph_crops`` cut the cell, its crop pointer, the
+    crop copied pixel for pixel from the shard into the well's Zarr store;
+    ``reads`` and ``barcodes``, the well's rows of ``ops_reads`` and
+    ``ops_barcodes``. The parts are registered in one catalog transaction
+    with the run's settings.
+
+    :param db: the run's measurements database.
+    :param plate: the plate name.
+    :param wells: the wells run.
+    :param settings: the OPS settings.
+    :param destination: the run folder, which is the store's project.
+    :param genotype_path: the aggregate phase's cell table, if it wrote one.
+    :returns: the report.
+    """
+    import uuid
+
+    import pandas as pd
+
+    from . import schema, store
+    from .ops_run_infra import integer_cell_key
+    from .qt.i18n import tr
+    from .tabular import read_table
+
+    started = time.perf_counter()
+    run_id = uuid.uuid4().hex
+    path = genotype_path or _ph_cells_table_path(destination, plate)
+    genotype = (read_table(path, canonicalise=False, report=None)
+                if os.path.isfile(path) else None)
+    links = _rows_for_wells(db, "ops_merge", plate, wells)
+    rule = _ph_genotype_rule(settings)
+    integer_keys = bool(settings.get("ops_tables_integer_keys", False))
+    root = _ph_merged_root(settings, destination)
+    report: Dict[str, Any] = {"project": destination, "run_id": run_id,
+                              "wells": {}}
+    for well in wells:
+        counts: Dict[str, int] = {}
+        cell_path = _ph_cells_path(destination, well)
+        if os.path.isfile(cell_path):
+            cells = read_table(cell_path, canonicalise=False, report=None)
+            owned = _ph_owned_cells(destination, well, cells, settings)
+            well_links = (links[links["well"].astype(str) == str(well)]
+                          if links is not None else None)
+            well_genotype = (genotype[genotype["well"].astype(str) == str(well)]
+                             if genotype is not None else None)
+            keys, features = _ph_table_frames(plate, well, cells, well_links,
+                                              well_genotype, owned, rule,
+                                              integer_keys=integer_keys)
+            del cells
+            frame = pd.concat([keys, *(features[c] for c in
+                                       _PH_TABLE_COMPARTMENTS)], axis=1)
+            row, column = schema.parse_well(well)
+            frame.insert(0, "cell_id", integer_cell_key(
+                int(row[1:]), int(column[1:]),
+                [int(str(f)[1:]) for f in keys["fieldID"]],
+                keys["object_label"].to_numpy()))
+            crops, crop_rows, masks = _ops_store_crops(root, plate, well,
+                                                       keys["prcfo"])
+            store.write_part(
+                destination, "cells", frame, plate=plate, well=well,
+                sort_by=("gene", "cell_id"), key_columns=_PH_TABLE_KEYS,
+                crops=crops, crop_rows=crop_rows, masks=masks, run_id=run_id,
+                row_copy=bool(settings.get("ops_store_row_copy", False)))
+            counts["cells"] = int(len(frame))
+            counts["crops"] = 0 if crop_rows is None else int(len(crop_rows))
+            del frame
+        for table, name, order in (("ops_reads", "reads", ("object_id",)),
+                                   ("ops_barcodes", "barcodes",
+                                    ("mapped_guide", "object_id"))):
+            rows = _well_rows(db, table, plate, well)
+            if rows is None or rows.empty:
+                continue
+            store.write_part(destination, name, rows, plate=plate, well=well,
+                             sort_by=order, key_columns=("object_id",),
+                             run_id=run_id)
+            counts[name] = int(len(rows))
+        report["wells"][well] = counts
+    report["registered"] = store.register(destination, run={
+        "run_id": run_id, "settings": dict(settings)})
+    report["seconds"] = round(time.perf_counter() - started, 1)
+    _say(tr("{plate} spaCR store: {count} cells registered in {project}",
+            plate=plate, count=sum(w.get("cells", 0)
+                                   for w in report["wells"].values()),
+            project=destination))
+    return report
+
+
 
 #: The scores ``ops_cross_field_metric`` may name, the first the default.
 _PH_CROSS_FIELD_METRICS = ("overlap_fraction", "iou")
@@ -10709,6 +10880,13 @@ def run_ops(settings: Mapping[str, Any], *,
     if "ph_crops" in phases:
         out["ph_crops"] = _ph_crops(db, plate, chosen, phenotype_index,
                                     settings, destination)
+    if (_ops_storage(settings) == "spacr_store" and not only_qc
+            and "stopped_before" not in out
+            and any(p in phases for p in ("decode", "ph_tables", "ph_crops"))):
+        out["store"] = _ops_store_write(
+            db, plate, chosen, settings, destination,
+            ((out.get("aggregate") or {}).get("outputs") or {}).get(
+                "cells_parquet"))
     if "report" in phases:
         out["report"] = _ph_report(db, plate, chosen, settings, destination,
                                    out.get("aggregate"))
@@ -10721,7 +10899,7 @@ def run_ops(settings: Mapping[str, Any], *,
                                               or "nontargeting"))
         out["stress"] = {"csv": write_stress_report(destination, rows),
                          "rows": len(rows)}
-    for phase in ("ph_tables", "ph_crops", "report", "stress"):
+    for phase in ("ph_tables", "ph_crops", "store", "report", "stress"):
         if phase in out:
             with open(os.path.join(destination, f"ops_{phase}_{plate}.json"),
                       "w", encoding="utf-8") as handle:

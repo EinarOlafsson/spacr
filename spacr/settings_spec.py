@@ -283,6 +283,7 @@ def convert_settings_dict_for_gui(settings):
         'ops_decode_fdr_calibration': ('combo', ['none', 'shuffle'], 'none'),
         'ops_read_mode': ('combo', ['log', 'raw', 'auto', None], None),
         'ops_merge_strategy': ('combo', ['current', 'tile', 'stitch', 'auto'], 'current'),
+        'ops_storage': ('combo', ['current', 'spacr_store'], 'current'),
         'ops_merge_stitch_source': ('combo', ['metadata', 'registered'], 'metadata'),
         'ops_ph_organelle_morphology': ('combo', ['spots', 'network', 'irregular', 'ring'], 'spots'),
         'ops_ph_organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose'], 'otsu'),
