@@ -219,3 +219,26 @@ def test_crops_of_mask_generation_names_with_a_timepoint_get_the_right_well(tmp_
     assert set(table["well"]) == {"E01"} and set(table["field"]) == {10}
     assert set(table["crop_store"]) == {"crops/plate=plate1/well=E01.zarr"}
     assert set(table["object_id"]) == {"plate1_E01_10_cell_1", "plate1_E01_10_cell_2"}
+
+
+def test_the_crop_store_does_not_depend_on_the_folder_listing_order(tmp_path, monkeypatch):
+    from spacr import io as spacr_io
+    from spacr.measure import measure_crop
+
+    listdir = spacr_io._listdir_visible
+    stores = {}
+    for order in ("forward", "reverse"):
+        root = tmp_path / order
+        merged, _image, _cells = _plate(root)
+        stack = np.load(merged / "plate1_A01_1.npy")
+        for name in ("plate1_A01_2", "plate1_A01_3", "plate1_A01_10"):
+            np.save(merged / f"{name}.npy", stack[::-1].copy())
+
+        def listing(folder, _reverse=(order == "reverse")):
+            names = sorted(listdir(folder))
+            return names[::-1] if _reverse else names
+
+        monkeypatch.setattr(spacr_io, "_listdir_visible", listing)
+        measure_crop(_settings(merged, crop_image_format="ome-zarr", n_jobs=2))
+        stores[order] = _store_bytes(root)
+    assert stores["forward"] and stores["forward"] == stores["reverse"]

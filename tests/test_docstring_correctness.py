@@ -3731,7 +3731,7 @@ def _validated_ome_zarr_983_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
-    assert len(entries) == 47 and "spacr.crop_store.OmeZarrCropSource.get" in entries
+    assert len(entries) == 49 and "spacr.crop_store.OmeZarrCropSource.get" in entries
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert found.keys() == entries.keys() - {"spacr.crop_store", "spacr.image_store"}
     for symbol, item in found.items():
@@ -6778,7 +6778,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("960_ops_grid_search_api_arrivals_2026-11-17.json", 2),
         ("968_ops_power_sim_api_arrivals_2026-11-17.json", 11),
         ("974_spacr_store_api_arrivals_2026-11-17.json", 16),
-        ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 47),
+        ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent

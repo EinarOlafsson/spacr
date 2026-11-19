@@ -15,6 +15,7 @@ or npy for other tools.
 """
 from __future__ import annotations
 
+import collections
 import json
 import os
 import shutil
@@ -31,7 +32,7 @@ __all__ = ["CROP_COLUMNS", "CropPoolWriter", "CropSink", "cut_crops",
            "composite_crop", "load_channel_presets", "save_channel_preset",
            "parse_channel_roles", "format_channel_roles", "legacy_png_view",
            "read_commit", "discard_uncommitted", "pool_attributes", "committed_rows",
-           "class_dir"]
+           "class_dir", "read_crops"]
 
 #: The ssCell_Crops columns, in order (item 984).
 CROP_COLUMNS: Tuple[str, ...] = (
@@ -452,15 +453,64 @@ def read_crop(project: Any, row: Mapping[str, Any], *, context: bool = True,
     moff = int(row["mask_offset"])
     mask = np.asarray(zarr.open_array(str(store / mask_array), mode="r")[
         moff:moff + n]).reshape(height, width)
+    return _finish_crop(pixels, mask, context, size)
+
+
+def _finish_crop(pixels: np.ndarray, mask: np.ndarray, context: bool,
+                 size: Optional[Tuple[int, int]]) -> Tuple[np.ndarray, np.ndarray]:
+    """Apply :func:`read_crop`'s ``context`` and ``size`` to one stored crop."""
     if not context:
         pixels = pixels.copy()
         pixels[:, ~mask] = 0
     if size is not None:
+        height, width = mask.shape
         ys = (np.arange(int(size[0])) * height // int(size[0])).astype(np.int64)
         xs = (np.arange(int(size[1])) * width // int(size[1])).astype(np.int64)
         pixels = pixels[:, ys][:, :, xs]
         mask = mask[ys][:, xs]
     return pixels, mask
+
+
+def read_crops(project: Any, rows: Iterable[Mapping[str, Any]], *, context: bool = True,
+               size: Optional[Tuple[int, int]] = None
+               ) -> List[Tuple[np.ndarray, np.ndarray]]:
+    """Many crops at once, each pool opened once and read in one slice.
+
+    The same crops as :func:`read_crop` row by row, in the order given.
+    Reading crop by crop opens the pool and decodes its chunk again for every
+    crop; here the rows of one pool are read together, as one slice from the
+    first to the last of them.
+
+    :param project: the project folder.
+    :param rows: ``ssCell_Crops`` rows.
+    :param context: keep the pixels around each object; False zeroes them.
+    :param size: ``(h, w)`` to resize every crop to (nearest-neighbour).
+    :returns: one ``(pixels (C, h, w), mask (h, w) bool)`` per row.
+    """
+    from .ome_zarr import require_zarr
+
+    zarr = require_zarr()
+    rows = list(rows)
+    groups: Dict[Tuple[str, str], List[int]] = collections.defaultdict(list)
+    for index, row in enumerate(rows):
+        groups[(str(row["crop_store"]), str(row["crop_array"]))].append(index)
+    out: List[Any] = [None] * len(rows)
+    for (store, array), indices in groups.items():
+        base = Path(project) / store
+        sizes = [int(rows[i]["height"]) * int(rows[i]["width"]) for i in indices]
+        starts = [int(rows[i]["offset"]) for i in indices]
+        mstarts = [int(rows[i]["mask_offset"]) for i in indices]
+        lo, hi = min(starts), max(a + n for a, n in zip(starts, sizes))
+        mlo, mhi = min(mstarts), max(a + n for a, n in zip(mstarts, sizes))
+        pool = np.asarray(zarr.open_array(str(base / array), mode="r")[:, lo:hi])
+        masks = np.asarray(zarr.open_array(
+            str(base / array.replace("/pool/", "/mask/")), mode="r")[mlo:mhi])
+        for i, start, mstart, n in zip(indices, starts, mstarts, sizes):
+            height, width = int(rows[i]["height"]), int(rows[i]["width"])
+            pixels = pool[:, start - lo:start - lo + n].reshape(pool.shape[0], height, width)
+            mask = masks[mstart - mlo:mstart - mlo + n].reshape(height, width).astype(bool)
+            out[i] = _finish_crop(pixels, mask, context, size)
+    return out
 
 
 def export_crops(project: Any, rows: Iterable[Mapping[str, Any]], out_dir: Any,
@@ -555,6 +605,11 @@ def crop_relationships(crop: Mapping[str, Any], masks: Mapping[str, np.ndarray]
     return out
 
 
+def _plan_key(name: Any) -> str:
+    """A field's key in a sink's plan: its file stem, with or without ``.npy`` or a folder."""
+    return os.path.splitext(os.path.basename(str(name)))[0]
+
+
 class CropSink:
     """The parent's crop writer for one Measure run (item 984).
 
@@ -570,7 +625,7 @@ class CropSink:
                  crops_per_shard: int = DEFAULT_CROPS_PER_SHARD):
         """Index the plan and start with no open writers."""
         self.project = Path(project)
-        self.index = {os.path.basename(str(f)): i for i, f in enumerate(plan)}
+        self.index = {_plan_key(f): i for i, f in enumerate(plan)}
         self.plan_fields = {_field_parts(name) for name in self.index}
         self.crops_per_shard = int(crops_per_shard)
         self.next = 0
@@ -587,7 +642,7 @@ class CropSink:
         :param file: the field's file name, as in the plan.
         :param payloads: one entry per object class, as :func:`record_measure_field_crops` builds them.
         """
-        position = self.index.get(os.path.basename(str(file)))
+        position = self.index.get(_plan_key(file))
         if position is None:
             position = len(self.index) + len(self.pending)
         if position < self.next:
@@ -899,12 +954,25 @@ class OmeZarrCropSource(_lazy_crop_source_base()):
         return read_crop(self.root, self._crop_row(row), context=self.context,
                          size=self.size)
 
+    def get_many(self, rows: Iterable[Any]) -> List[np.ndarray]:
+        """The RGB views of many rows, read pool by pool (see :func:`read_crops`).
+
+        :param rows: rows as for :meth:`get`; one array per row, in order.
+        """
+        crops = read_crops(self.root, [self._crop_row(r) for r in rows],
+                           context=self.context, size=self.size)
+        return [self._rgb(pixels) for pixels, _mask in crops]
+
     def get(self, row: Any) -> np.ndarray:
         """The crop for ``row`` as a ``(H, W, 3)`` uint8 RGB array (display stretch).
 
         :param row: an ``ssCell_Crops`` row, or a row naming the object (see the class).
         """
         pixels, _mask = self.get_raw(row)
+        return self._rgb(pixels)
+
+    def _rgb(self, pixels: np.ndarray) -> np.ndarray:
+        """``channels`` as red, green, blue, each stretched to its 0.1-99.9 percentile."""
         picked = self.channels if self.channels is not None else list(
             range(min(3, pixels.shape[0])))
         rgb = np.zeros(pixels.shape[1:] + (3,), np.uint8)

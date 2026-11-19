@@ -164,3 +164,18 @@ def test_a_stale_measured_mask_record_is_reported(tmp_path):
     stack[10:15, 10:15, 1] = 2
     np.save(path, stack)
     assert measured_masks_state(path) == "stale"
+
+
+def test_batched_reads_equal_one_by_one_reads_in_any_row_order(tmp_path):
+    from spacr.crop_store import OmeZarrCropSource, read_crops
+
+    _image, _labels, rows = _write(tmp_path, per_shard=3)
+    order = [rows[i] for i in (3, 0, 2, 1)]
+    for kwargs in ({}, {"context": False}, {"size": (16, 20)}):
+        batch = read_crops(tmp_path, order, **kwargs)
+        for row, (pixels, mask) in zip(order, batch):
+            want_pixels, want_mask = read_crop(tmp_path, row, **kwargs)
+            assert pixels.dtype == want_pixels.dtype and np.array_equal(pixels, want_pixels)
+            assert mask.dtype == want_mask.dtype and np.array_equal(mask, want_mask)
+    source = OmeZarrCropSource(str(tmp_path))
+    assert all(np.array_equal(a, source.get(r)) for a, r in zip(source.get_many(order), order))

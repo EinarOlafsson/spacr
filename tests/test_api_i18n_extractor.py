@@ -2556,7 +2556,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **store_arrivals}
     ome_zarr_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
-    assert len(ome_zarr_arrivals) == 47
+    assert len(ome_zarr_arrivals) == 49
     assert {key: docs[key] for key in ome_zarr_arrivals} == ome_zarr_arrivals
     assert not ome_zarr_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **ome_zarr_arrivals}

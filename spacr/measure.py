@@ -13042,6 +13042,7 @@ def measure_crop(settings):
                 crop_format = _crop_image_format(settings)
                 if crop_format != 'png':
                     from .crop_store import open_measure_sink
+                    files = sorted(files)
                     open_measure_sink(
                         os.path.dirname(settings['src']), files,
                         crops_per_shard=_crops_per_shard(settings))
