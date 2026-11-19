@@ -3,8 +3,8 @@
 ``convert_project`` keeps source files by default. The JSON ledger owns the
 destination, fingerprints the complete source snapshot and records decoded
 array digests independently of the image-store commit ledger. One coordinator
-writes fields and publishes crops; memory is bounded to one field and one
-crop shard. No settings, GUI or default format is changed.
+writes fields and publishes crops using field-sized buffers and one crop
+shard. No settings, GUI or default format is changed.
 """
 from __future__ import annotations
 
@@ -136,7 +136,7 @@ def _load_field(src, entry):
 
     :returns: CYX image or None, label mapping, original merged HWC or None.
     """
-    from .crops import MergedField, _measured_masks_path
+    from .crops import MergedField, measured_masks_state
 
     raw, image, labels = None, None, {}
     if entry["merged"]:
@@ -147,8 +147,8 @@ def _load_field(src, entry):
         if raw.ndim != 3 or raw.shape[-1] != count + len(layout["mask_dims"]) or not count:
             raise ValueError(tr("Merged shape does not match the saved plane layout: {path}").format(path=path))
         field = MergedField(str(path), array=raw, mask_dims=layout["mask_dims"])
-        if Path(_measured_masks_path(str(path))).exists() and not field._measured_planes():
-            raise ValueError(tr("Measured-mask provenance is stale or empty; resolve it before conversion: {path}").format(path=path))
+        if measured_masks_state(str(path)) == "stale":
+            raise ValueError(tr("Measured-mask provenance is stale; resolve it before conversion: {path}").format(path=path))
         image = np.moveaxis(raw[..., :count], -1, 0)
         for role in layout["mask_dims"]:
             labels[role] = field.mask_plane(role)
@@ -230,11 +230,11 @@ def _field_channel_names(entry, metadata):
 
 def _versions():
     """Bind resume to the converter, store source and dependency versions."""
-    from . import crop_store, ome_zarr
+    from . import crop_store, crops, ome_zarr
 
     return {"schema": _SCHEMA, "modules": {
         **{Path(module.__file__).name: _file_digest(Path(module.__file__))["sha256"]
-           for module in (image_store, crop_store, ome_zarr)},
+           for module in (image_store, crop_store, crops, ome_zarr)},
         "ome_zarr_convert.py": _file_digest(Path(__file__))["sha256"]},
         "dependencies": {name: importlib.metadata.version(name)
                          for name in ("numpy", "zarr", "numcodecs")}}
@@ -242,7 +242,7 @@ def _versions():
 
 def _plan(src, dst, what):
     """Build a deterministic immutable plan, collecting blockers before any writes."""
-    from .crops import read_merged_plane_layout
+    from .crops import CropError, read_merged_plane_layout
     from .ome_zarr import require_zarr
 
     files = _inventory(src)
@@ -293,7 +293,7 @@ def _plan(src, dst, what):
                 if role in existing["mask_files"]:
                     raise ValueError(tr("Multiple mask files have the same field and role: {path}").format(path=relative))
                 existing["mask_files"][role] = relative
-        except (ValueError, OSError) as exc:
+        except (ValueError, OSError, CropError) as exc:
             plan["problems"].append(str(exc))
     keys = set()
     for entry in sorted(fields.values(), key=lambda item: item["id"]):
@@ -313,7 +313,7 @@ def _plan(src, dst, what):
                                     for role, relative in entry["mask_files"].items()}
             if image is not None or labels:
                 plan["fields"].append(entry)
-        except (ValueError, OSError, KeyError, TypeError) as exc:
+        except (ValueError, OSError, KeyError, TypeError, EOFError, CropError) as exc:
             plan["problems"].append(str(exc))
     if "crops" in what and not plan["problems"]:
         _plan_crops(src, plan, fields)
@@ -321,7 +321,7 @@ def _plan(src, dst, what):
         plan["problems"].append(tr("No selected legacy assets were found in this project."))
     if _inventory(src) != files:
         plan["problems"].append(tr("Source changed during planning; close the project and retry."))
-    return plan
+    return json.loads(json.dumps(plan, allow_nan=False))
 
 
 def _atomic_json(path, data):
@@ -853,12 +853,26 @@ def _crop_cut(image, labels, label, margin=0, zero_outside=False):
     return crop
 
 
+def _crop_role_mask(src, entry, labels, raw, role):
+    """Read a crop mask, including shared effective cytoplasm derivation when needed."""
+    if role in labels:
+        return labels[role]
+    if role == "cytoplasm" and raw is not None and entry["merged"]:
+        from .crops import MergedField
+
+        field = MergedField(str(src / entry["merged"]), array=raw,
+                            mask_dims=entry["layout"]["mask_dims"])
+        return _storage_array(field.mask_plane(role))
+    raise ValueError(tr("A crop needs its native merged intensities and effective object mask; retain this PNG as legacy-only."))
+
+
 def _plan_crops(src, plan, fields):
     """Validate every legacy crop identity and retain source rows before any writes."""
     import pandas as pd
     import sqlite3
     from . import schema
     from .crop_store import CROP_COLUMNS
+    from .crops import CropError, _read_crop_array
     from .png_list import PNG_LIST_ID_COLUMNS, _object_id_int, crop_rows_from_png_list
 
     db_relative = "measurements/measurements.db"
@@ -979,7 +993,8 @@ def _plan_crops(src, plan, fields):
                             "object_label": label, "timepoint": None,
                             "legacy_png_path": png, "metadata": extra,
                             "source_metadata": metadata, "margin_px": margin,
-                            "zero_outside": zero_outside})
+                            "zero_outside": zero_outside,
+                            "legacy_png_contract": _legacy_png_contract(src, metadata, role, entry)})
             identities.add(identity)
             paths.add(png)
             object_ids.add(object_id)
@@ -997,9 +1012,9 @@ def _plan_crops(src, plan, fields):
                 active_field = entry["id"]
             image, labels, _raw = loaded
             role = record["object_type"]
-            if image is None or role not in labels:
+            if image is None:
                 raise ValueError(tr("A crop needs its native merged intensities and effective object mask; retain this PNG as legacy-only."))
-            mask = labels[role]
+            mask = _crop_role_mask(src, entry, labels, _raw, role)
             if (mask.dtype.kind not in "buif" or not np.isfinite(mask).all()
                     or np.any(mask < 0) or np.any(mask != np.floor(mask))):
                 raise ValueError(tr("Crop masks must contain finite nonnegative integer labels; recover the original labelled mask."))
@@ -1009,7 +1024,8 @@ def _plan_crops(src, plan, fields):
             record["mask"] = _array_digest(crop["mask"])
             record["geometry"] = {name: crop[name] for name in (
                 "bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1", "margin_px", "clipped_at_edge")}
-            record["png"] = _array_digest(image_store.read_image(src / record["legacy_png_path"]))
+            record["png_container_view"] = _array_digest(image_store.read_image(src / record["legacy_png_path"]))
+            record["png"] = _array_digest(_read_crop_array(src / record["legacy_png_path"]))
             group = (entry["plate"], entry["well"], role)
             layout = (image.dtype.str, tuple(entry["layout"]["intensity_channels"]))
             if group in layouts and layouts[group] != layout:
@@ -1018,7 +1034,7 @@ def _plan_crops(src, plan, fields):
             for name, value in record["metadata"].items():
                 if value is not None:
                     metadata_types.setdefault(name, set()).add(type(value).__name__)
-        except (ValueError, OSError, KeyError, TypeError) as exc:
+        except (ValueError, OSError, KeyError, TypeError, CropError) as exc:
             plan["problems"].append(tr("Crop row {row}: {problem}").format(row=record["source_row"], problem=exc))
     if any(len(types) > 1 for types in metadata_types.values()):
         plan["problems"].append(tr("Crop metadata mixes scalar types within a column; preserve the source database and resolve that column before conversion."))
@@ -1072,6 +1088,7 @@ def _crop_table_rows(rows):
 def _verify_crop_outputs(project, records, rows, *, round_trip):
     """Verify raw pixels, masks, index metadata and optional legacy-format exports."""
     from .crop_store import OmeZarrCropSource, export_crops
+    from .crops import _read_crop_array
 
     stored = _crop_table(project / "measurements" / "measurements.db", "ssCell_Crops")
     if _crop_table_rows(stored.to_dict(orient="records")) != _crop_table_rows(rows):
@@ -1110,9 +1127,12 @@ def _verify_crop_outputs(project, records, rows, *, round_trip):
                 raise ValueError(tr("Exported crop mask differs from the source object; retain originals."))
             if pixels.dtype == np.uint8:
                 png = export_crops(project, [row], folder / "png", fmt="png", context=True)[0]
-                exact_png = _array_digest(image_store.read_image(png)) == record["png"]
+                exact_png = (_array_digest(_read_crop_array(png)) == record["png"]
+                             and _array_digest(image_store.read_image(png)) == record["png_container_view"])
             else:
                 exact_png = False
+            if not exact_png and record.get("legacy_png_contract") is not None:
+                exact_png = _verify_legacy_png(project, row, record, folder / "legacy_png")
             png_verified = exact_png and png_verified
             checks.append({"object_id": record["object_id"], "pixels": record["pixels"],
                            "mask": record["mask"], "png_verified": exact_png})
@@ -1125,11 +1145,73 @@ def _verify_crop_outputs(project, records, rows, *, round_trip):
     return proof
 
 
+def _crop_group_attributes(plan, entry, records, pool_layout):
+    """Describe one pool class through the shared writer metadata contract."""
+    policies = sorted({(record["margin_px"], record["zero_outside"]) for record in records})
+    settings = {"image_metadata": plan["image_metadata"],
+                "channel_map": entry["layout"]["intensity_channels"],
+                "policies": policies, "pool_layout": pool_layout}
+    return json.loads(json.dumps({
+        "schema": 1, "axes": ["c", "y", "x"], "pool_axes": ["c", "pixel"],
+        "mask_axes": ["pixel"], "channel_map": settings["channel_map"],
+        "channel_names": entry.get("channel_names"),
+        "pixel_size_um": entry.get("pixel_size_um"),
+        "physical_scale_unit": "micrometer" if entry.get("pixel_size_um") is not None else None,
+        "store_versions": plan["versions"], "pool_layout": pool_layout,
+        "settings_hash": hashlib.sha256(json.dumps(settings, sort_keys=True).encode()).hexdigest(),
+        "policies": policies,
+        "metadata_columns": sorted({name for record in records for name in record["metadata"]}),
+        "relationship_columns": sorted({name for record in records for name in record["metadata"]
+                                        if name.startswith("n_") or name in {
+                                            "parent_cell_id", "nucleus_id", "has_nucleus", "infected"}}),
+        "source": {"database": plan["files"]["measurements/measurements.db"],
+                   "fields": sorted({record["field_id"] for record in records})}}))
+
+
+def _verify_crop_group(project, fields, records, commit, attributes):
+    """Recheck a shared well/class commit before reusing its rows or publishing them."""
+    from .crop_store import OmeZarrCropSource, _class_dir, pool_attributes
+
+    first = fields[records[0]["field_id"]]
+    plate, well, role = first["plate"], first["well"], records[0]["object_type"]
+    actual = pool_attributes(project, plate, well, role)
+    required = {**attributes, "dtype": records[0]["pixels"]["dtype"],
+                "channels": records[0]["pixels"]["shape"][0], "compression": "zstd-3",
+                "crops_per_shard": attributes["pool_layout"]["crops_per_shard"]}
+    if (commit["plate"] != plate or commit["well"] != well or commit["object_type"] != role
+            or actual != commit["attributes"]
+            or any(actual.get(key) != value for key, value in required.items())):
+        raise ValueError(tr("Committed crop attributes differ from the conversion plan; retain originals."))
+    row_map = {row["object_id"]: row for row in commit["rows"]}
+    if len(row_map) != len(commit["rows"]) or set(row_map) != {record["object_id"] for record in records}:
+        raise ValueError(tr("Committed crop membership differs from the conversion plan; retain originals."))
+    reader = OmeZarrCropSource(str(project), context=True, size=None)
+    store = _class_dir(project, plate, well, role).parent.relative_to(project).as_posix()
+    row_letter, column = image_store._split_well(well)
+    for record in records:
+        row = row_map[record["object_id"]]
+        entry = fields[record["field_id"]]
+        expected = {"plate": plate, "well": well, "row": row_letter, "column": int(column),
+                    "field": entry["field"], "timepoint": record["timepoint"],
+                    "object_id": record["object_id"], "object_type": role,
+                    "object_label": record["object_label"], "png_path": None,
+                    **record["geometry"], **record["metadata"]}
+        if json.dumps({key: row.get(key) for key in expected}, sort_keys=True) != json.dumps(expected, sort_keys=True):
+            raise ValueError(tr("Committed crop rows differ from the conversion plan; retain originals."))
+        locator = str(row["crop_array"])
+        if (row["crop_store"] != store or locator not in {f"{role}/pool/{pool}" for pool in commit["pools"]}
+                or row["offset"] < 0 or row["mask_offset"] != row["offset"]
+                or [row["height"], row["width"]] != record["mask"]["shape"]):
+            raise ValueError(tr("Committed crop locators differ from the conversion plan; retain originals."))
+        pixels, mask = reader.get_raw(row)
+        _assert_array(pixels, record["pixels"], record["object_id"])
+        _assert_array(mask, record["mask"], record["object_id"] + " mask")
+
+
 def _convert_crops(src, dst, ledger, verify):
     """Stage a complete crop phase and publish its tree and copied database together."""
     import pandas as pd
-    from .crop_store import CropPoolWriter
-    from .ome_zarr import _spacr_version
+    from .crop_store import CropPoolWriter, discard_uncommitted, read_commit
     from .tabular import write_database
 
     plan = ledger["plan"]
@@ -1156,7 +1238,8 @@ def _convert_crops(src, dst, ledger, verify):
     if stage.exists():
         if phase not in {"building", "publishing"}:
             raise ValueError(tr("Crop staging has no converter ownership record; choose a clean destination."))
-        shutil.rmtree(stage)
+        if phase == "publishing":
+            shutil.rmtree(stage)
     if phase == "publishing":
         if (dst / "crops").exists():
             shutil.rmtree(dst / "crops")
@@ -1166,7 +1249,7 @@ def _convert_crops(src, dst, ledger, verify):
         raise ValueError(tr("Uncommitted crop output already exists outside staging; choose a clean destination."))
     ledger["crop_phase"] = "building"
     _atomic_json(dst / _LEDGER, ledger)
-    stage.mkdir()
+    stage.mkdir(exist_ok=True)
     fields = {entry["id"]: entry for entry in plan["crop_fields"]}
     groups = {}
     for record in records:
@@ -1174,6 +1257,16 @@ def _convert_crops(src, dst, ledger, verify):
         groups.setdefault((entry["plate"], entry["well"], record["object_type"]), []).append(record)
     rows = []
     for (plate, well, role), group in sorted(groups.items()):
+        entry = fields[group[0]["field_id"]]
+        pool_layout = plan["crop_pool_layouts"][json.dumps([plate, well, role])]
+        attributes = _crop_group_attributes(plan, entry, group, pool_layout)
+        previous = read_commit(stage, plate, well, role)
+        if previous is not None:
+            _verify_crop_group(stage, fields, group, previous, attributes)
+            discard_uncommitted(stage, plate, well, role)
+            rows.extend(previous["rows"])
+            continue
+        discard_uncommitted(stage, plate, well, role)
         writer, loaded, active_field = None, None, None
         for record in group:
             entry = fields[record["field_id"]]
@@ -1181,15 +1274,16 @@ def _convert_crops(src, dst, ledger, verify):
                 loaded = _load_field(src, entry)
                 active_field = entry["id"]
             image, labels, _raw = loaded
-            crop = _crop_cut(image, labels[role], record["object_label"],
+            mask = _crop_role_mask(src, entry, labels, _raw, role)
+            crop = _crop_cut(image, mask, record["object_label"],
                              record["margin_px"], record["zero_outside"])
             _assert_array(crop["pixels"], record["pixels"], record["object_id"])
             _assert_array(crop["mask"], record["mask"], record["object_id"] + " mask")
             if writer is None:
-                pool_layout = plan["crop_pool_layouts"][json.dumps([plate, well, role])]
                 writer = CropPoolWriter(stage, plate, well, role, image.shape[0],
                                         dtype=image.dtype,
-                                        crops_per_shard=pool_layout["crops_per_shard"])
+                                        crops_per_shard=pool_layout["crops_per_shard"],
+                                        attributes=attributes)
             if image.dtype != writer.dtype or image.shape[0] != writer.channels:
                 raise ValueError(tr("Crop pool dtype or channel count changed after planning; retain originals."))
             crop["object_id"] = record["object_id"]
@@ -1198,33 +1292,14 @@ def _convert_crops(src, dst, ledger, verify):
         metadata = {record["object_id"]: record["metadata"] for record in group}
         for row in group_rows:
             row.update(metadata[row["object_id"]])
-        rows.extend(group_rows)
-        writer.zarr.open_group(str(writer.path / role), mode="a").attrs.update({
-            "spacr_conversion": {
-                "schema": 1, "axes": ["c", "y", "x"], "dtype": writer.dtype.str,
-                "channel_map": entry["layout"]["intensity_channels"],
-                "channel_names": entry.get("channel_names"),
-                "physical_scale": entry.get("pixel_size_um"),
-                "physical_scale_unit": "micrometer" if entry.get("pixel_size_um") is not None else None,
-                "pool_axes": ["c", "pixel"], "mask_axes": ["pixel"],
-                "spacr_version": _spacr_version(), "store_versions": plan["versions"],
-                "settings_hash": hashlib.sha256(json.dumps({
-                    "image_metadata": plan["image_metadata"],
-                    "channel_map": entry["layout"]["intensity_channels"],
-                    "policies": sorted({(record["margin_px"], record["zero_outside"]) for record in group}),
-                    "pool_layout": pool_layout}, sort_keys=True).encode()).hexdigest(),
-                "compression": {"name": "zstd", "level": 3},
-                "policies": sorted({(record["margin_px"], record["zero_outside"]) for record in group}),
-                "pool_layout": pool_layout,
-                "metadata_columns": sorted({name for record in group for name in record["metadata"]}),
-                "relationship_columns": sorted({name for record in group for name in record["metadata"]
-                                                if name.startswith("n_") or name in {
-                                                    "parent_cell_id", "nucleus_id", "has_nucleus", "infected"}}),
-                "source_database": plan["files"]["measurements/measurements.db"]}})
+        committed_group = writer.commit()
+        _sync_tree(writer.path)
+        _verify_crop_group(stage, fields, group, committed_group, attributes)
+        rows.extend(committed_group["rows"])
     all_columns = sorted({name for row in rows for name in row})
     rows = [{name: row.get(name) for name in all_columns} for row in rows]
     copied_db = stage / "measurements" / "measurements.db"
-    copied_db.parent.mkdir()
+    copied_db.parent.mkdir(exist_ok=True)
     shutil.copy2(src / "measurements" / "measurements.db", copied_db)
     write_database(pd.DataFrame(rows, dtype=object), copied_db, "ssCell_Crops",
                    if_exists="replace", canonicalise=False, migrate=False)
@@ -1255,3 +1330,173 @@ def _convert_crops(src, dst, ledger, verify):
     _atomic_json(dst / _LEDGER, ledger)
     shutil.rmtree(stage)
     _sync_directory(dst)
+
+
+def _legacy_png_settings(src):
+    """Read consistent recorded PNG settings without guessing across run histories."""
+    import ast
+    from .resume import read_recorded_settings
+
+    paths = [src / "measurements" / "measurements.db"]
+    paths.extend(src / "settings" / name for name in (
+        "measure_crop_settings.csv", "measure_settings.csv"))
+    names = {"png_size", "png_dims", "png_channel_mapping", "crop_intensity",
+             "crop_mode", "use_bounding_box", "dialate_pngs",
+             "illumination_correction", "flat_field_sha256"}
+    result, conflicting = {}, False
+    for path in paths:
+        for name, value in read_recorded_settings(str(path)).items():
+            if name not in names:
+                continue
+            if isinstance(value, str):
+                try:
+                    value = ast.literal_eval(value)
+                except (ValueError, SyntaxError):
+                    pass
+            if name in result and (type(result[name]) is not type(value) or result[name] != value):
+                conflicting = True
+            result[name] = value
+    if conflicting:
+        return None
+    try:
+        return json.loads(json.dumps(result, allow_nan=False))
+    except (TypeError, ValueError):
+        return None
+
+
+def _legacy_png_role_value(settings, name, role):
+    """Resolve explicitly recorded per-role values without a first-role fallback."""
+    value = settings.get(name)
+    per_role = (isinstance(value, (list, tuple)) and
+                (name != "png_size" or value and isinstance(value[0], (list, tuple))))
+    if not per_role:
+        return value
+    modes = settings.get("crop_mode")
+    if isinstance(modes, str):
+        modes = [modes]
+    if (not isinstance(modes, (list, tuple)) or len(modes) != len(value)
+            or len(set(modes)) != len(modes) or role not in modes):
+        return None
+    return value[list(modes).index(role)]
+
+
+def _legacy_png_contract(src, source_metadata, role, field_entry):
+    """Prove a raw masked-centroid PNG recipe from explicit saved provenance."""
+    from .crops import (CROP_FORMAT_SIDECAR, CropError, normalise_separators,
+                        read_crop_folder_marker, resolve_png_channel_mapping)
+
+    try:
+        if "legacy_png_settings" not in field_entry:
+            field_entry["legacy_png_settings"] = _legacy_png_settings(src)
+        settings = field_entry["legacy_png_settings"]
+        if settings is None:
+            return None
+        settings = dict(settings)
+        for name in ("png_size", "png_dims", "png_channel_mapping", "crop_intensity",
+                     "crop_mode", "use_bounding_box", "dialate_pngs",
+                     "illumination_correction", "flat_field_sha256"):
+            if name in source_metadata:
+                value = source_metadata[name]
+                if name in settings and settings[name] != value:
+                    return None
+                settings[name] = value
+        if settings.get("crop_intensity") != "raw":
+            return None
+        if settings.get("illumination_correction") not in (None, False, 0):
+            return None
+        if settings.get("flat_field_sha256"):
+            return None
+        raw_path = source_metadata.get("png_path")
+        if not isinstance(raw_path, str):
+            return None
+        path = Path(normalise_separators(raw_path))
+        path = path if path.is_absolute() else src / path
+        marker = read_crop_folder_marker(str(path.parent), use_cache=False)
+        if (path.parent / CROP_FORMAT_SIDECAR).exists() and marker is None:
+            return None
+        if marker and (marker.get("flat_field_sha256") or marker.get("migration")
+                       or marker.get("unconverted") or marker.get("migrated_from")):
+            return None
+        formats = {value for value in (source_metadata.get("crop_format"),
+                   (marker or {}).get("spacr_crop_format")) if value is not None}
+        if formats != {4}:
+            return None
+        mask_mode = (marker or {}).get("mask_mode")
+        boxed = settings.get("use_bounding_box")
+        if boxed not in (None, False, 0) or mask_mode not in (None, "masked"):
+            return None
+        if boxed is None and mask_mode != "masked":
+            return None
+        dilated = False if role == "cytoplasm" else _legacy_png_role_value(settings, "dialate_pngs", role)
+        if dilated is None or dilated not in (False, 0):
+            return None
+        size = _legacy_png_role_value(settings, "png_size", role)
+        if isinstance(size, int) and not isinstance(size, bool):
+            size = [size, size]
+        if (not isinstance(size, (tuple, list)) or len(size) != 2
+                or any(isinstance(n, bool) or not isinstance(n, int) or n <= 0 for n in size)):
+            return None
+        raw_mapping = settings.get("png_channel_mapping")
+        dims = settings.get("png_dims")
+        if raw_mapping is not None:
+            if not isinstance(raw_mapping, dict):
+                return None
+            values = list(raw_mapping.values())
+        elif isinstance(dims, (list, tuple)) and 1 <= len(dims) <= 3:
+            values = list(dims)
+        else:
+            return None
+        if any(value is not None and (isinstance(value, bool) or not isinstance(value, int)) for value in values):
+            return None
+        channel_map = field_entry.get("layout", {}).get("intensity_channels")
+        if (not isinstance(channel_map, list) or not channel_map
+                or any(isinstance(n, bool) or not isinstance(n, int) or n < 0 for n in channel_map)
+                or len(set(channel_map)) != len(channel_map)):
+            return None
+        mapping = resolve_png_channel_mapping(settings)
+        if any(index is not None and not 0 <= index < len(channel_map) for index in mapping.values()):
+            return None
+        original = field_entry.get("image") or field_entry.get("original")
+        if original is None:
+            return None
+        dtype = np.dtype(original["dtype"]).newbyteorder("=")
+        if dtype not in (np.dtype(np.uint8), np.dtype(np.uint16)):
+            return None
+        grey = len(set(mapping.values())) == 1 and mapping["r"] is not None
+        return {"method": "masked_centroid_raw", "png_size": list(size),
+                "planes": list(range(len(channel_map))), "channel_map": channel_map,
+                "mapping": mapping, "dtype": dtype.str,
+                "shape": [size[1], size[0], 1 if grey else 3], "crop_format": 4,
+                "mask_mode": "masked", "dilated": False,
+                "centroid": "round_center_of_mass", "padding": "zero"}
+    except (ValueError, TypeError, KeyError, OSError, CropError):
+        return None
+
+
+def _verify_legacy_png(project, row, record, folder):
+    """Regenerate a proven native PNG through shared crop and PNG APIs and compare all pixels."""
+    from .crop_store import legacy_png_view
+    from .crops import CropError, _read_crop_array, build_png_channels
+
+    contract = record.get("legacy_png_contract")
+    expected = record["png"]
+    if (not contract or contract.get("method") != "masked_centroid_raw"
+            or contract["shape"] != expected["shape"]
+            or contract["dtype"] != expected["dtype"]):
+        return False
+    try:
+        native = legacy_png_view(project, row, contract["png_size"], contract["planes"])
+        pixels = build_png_channels(native, contract["mapping"])
+        if _array_digest(pixels) != expected:
+            return False
+        from .measure import save_and_add_image_to_grid
+
+        folder = Path(folder)
+        folder.mkdir(parents=True, exist_ok=True)
+        target = folder / "legacy.png"
+        save_and_add_image_to_grid(pixels, str(target), [], plot=False,
+                                   crop_format=4, marker={"mask_mode": "masked"})
+        return (target.is_file() and _array_digest(_read_crop_array(target)) == expected
+                and _array_digest(image_store.read_image(target)) == record["png_container_view"])
+    except (ValueError, TypeError, KeyError, IndexError, OSError, CropError):
+        return False

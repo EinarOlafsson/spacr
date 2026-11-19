@@ -418,10 +418,10 @@ def test_raw_crop_conversion_preserves_native_pixels_nulls_and_source_database(t
     ledger = json.loads((destination / "conversion.json").read_text())
     assert ledger["crops"]["raw_verified"] is True
     assert ledger["crops"]["png_verified"] is False
-    import zarr
+    from spacr.crop_store import pool_attributes, read_commit
 
     first = table.iloc[0]
-    attributes = zarr.open_group(str(destination / first["crop_store"] / "cell"), mode="r").attrs["spacr_conversion"]
+    attributes = pool_attributes(destination, first["plate"], first["well"], "cell")
     assert attributes["pool_axes"] == ["c", "pixel"]
     assert attributes["physical_scale_unit"] is None
     assert attributes["channel_map"] == [0, 1]
@@ -429,6 +429,9 @@ def test_raw_crop_conversion_preserves_native_pixels_nulls_and_source_database(t
     assert len(attributes["settings_hash"]) == 64
     assert "infected" in attributes["relationship_columns"]
     assert "n_organelle_1" in attributes["relationship_columns"]
+    commit = read_commit(destination, first["plate"], first["well"], "cell")
+    assert commit["attributes"] == attributes
+    assert commit["n_rows"] == len(table)
     assert (destination / "crop_verification.json").is_file()
     assert _tree_contents(source) == before
 
@@ -671,3 +674,273 @@ def test_sparse_uint32_crop_labels_reach_the_shared_cutter_as_binary_masks(tmp_p
     assert mask.shape == (3, 4)
     assert mask.all()
     assert row["object_label"] == large_label
+
+
+def _native_legacy_png_project(root, channel_kind="rgb"):
+    """Write genuine masked-centroid 16-bit PNGs with the shared legacy Measure path."""
+    import pandas as pd
+    from spacr.crops import _read_crop_array, build_png_channels, resolve_png_channel_mapping
+    from spacr.measure import save_and_add_image_to_grid
+    from spacr.tabular import write_database
+    from spacr.utils import _crop_center
+
+    db, records, _expected = _crop_project(root)
+    for path in (root / "merged").glob("*.npy"):
+        previous = image_store.read_image(path)
+        third = (1000 + previous[..., 0] * 17).astype(np.uint16)
+        stack = np.stack((previous[..., 0], previous[..., 1], third,
+                          previous[..., 2], previous[..., 3]), axis=-1)
+        np.save(path, stack)
+    (root / "merged" / MERGED_LAYOUT_SIDECAR).write_text(json.dumps({
+        "version": 1, "intensity_channels": [2, 5, 9],
+        "mask_plane_order": ["cell", "nucleus"],
+        "mask_dims": {"cell": 3, "nucleus": 4}}), encoding="utf-8")
+    settings = {
+        "crop_mode": ["cell"], "crop_intensity": "raw", "png_size": [8, 7],
+        "use_bounding_box": False, "dialate_pngs": False,
+        "illumination_correction": False, "normalize": False,
+        "crop_margin_px": 2, "crop_zero_outside": False,
+    }
+    if channel_kind == "legacy_dims":
+        settings["png_dims"] = [0, 1, 2]
+    else:
+        settings["png_channel_mapping"] = {
+            "rgb": {"r": 2, "g": 0, "b": 1},
+            "grey": {"r": 1, "g": 1, "b": 1},
+            "blank": {"r": None, "g": 0, "b": 2},
+        }[channel_kind]
+    expected = {}
+    for row in records:
+        field = int(row["fieldID"][1:])
+        label = int(row["cell_id"][1:])
+        stack = image_store.read_image(root / "merged" / f"plate1_A01_{field}.npy")
+        channels = build_png_channels(stack, resolve_png_channel_mapping(settings))
+        pixels = _crop_center(channels, stack[..., 3] == label, new_width=8, new_height=7)
+        save_and_add_image_to_grid(pixels, row["png_path"], [], plot=False,
+                                   crop_format=4, marker={"mask_mode": "masked"})
+        assert np.array_equal(_read_crop_array(row["png_path"]), pixels)
+        assert pixels.dtype == np.uint16
+        row["crop_format"] = 4
+        expected[(field, label)] = pixels
+    write_database(pd.DataFrame(records, dtype=object), db, "png_list",
+                   if_exists="replace", canonicalise=False, migrate=False)
+    write_database(pd.DataFrame({"setting_key": list(settings),
+                                 "setting_value": [repr(value) for value in settings.values()]}),
+                   db, "settings", if_exists="replace", canonicalise=False, migrate=False)
+    return db, records, settings, expected
+
+
+@pytest.mark.parametrize("channel_kind", ["rgb", "grey", "blank", "legacy_dims"])
+def test_recorded_native_legacy_pngs_verify_every_channel_and_centroid_pixel(tmp_path, monkeypatch, channel_kind):
+    """Saved positional channels rebuild raw 16-bit PNGs despite a nonidentity acquisition map."""
+    from spacr import crop_store
+
+    source, destination = tmp_path / "project", tmp_path / "converted"
+    _db, records, _settings, expected = _native_legacy_png_project(source, channel_kind)
+    before = _tree_contents(source)
+    original = crop_store.legacy_png_view
+    calls = []
+
+    def record_raw_view(project, row, png_size, planes):
+        """Observe the shared raw reconstruction contract while retaining its implementation."""
+        calls.append((tuple(png_size), tuple(planes)))
+        return original(project, row, png_size, planes)
+
+    monkeypatch.setattr(crop_store, "legacy_png_view", record_raw_view)
+    report = ome_zarr_convert.convert_project(source, destination)
+
+    assert report["status"] == "verified"
+    assert len(calls) == len(records)
+    assert all(size == (8, 7) and planes == (0, 1, 2) for size, planes in calls)
+    assert report["crop_verification"] == {"raw_verified": True, "png_verified": True}
+    ledger = json.loads((destination / "conversion.json").read_text())
+    for record in ledger["plan"]["crops"]:
+        original_png = expected[(int(record["source_metadata"]["fieldID"][1:]), record["object_label"])]
+        assert record["png"]["dtype"] == np.dtype(np.uint16).str
+        assert record["png"]["shape"] == list(original_png.shape)
+        assert record["legacy_png_contract"]["channel_map"] == [2, 5, 9]
+    assert _tree_contents(source) == before
+
+
+@pytest.mark.parametrize("unsupported", ["unknown", "stretch", "wrong_plane", "dilated", "unmasked", "corrected"])
+def test_unproven_legacy_png_transforms_are_retained_without_raw_regeneration(tmp_path, monkeypatch, unsupported):
+    """Unknown or unsupported rendering never invokes the raw PNG reconstruction API."""
+    import pandas as pd
+    from spacr import crop_store
+    from spacr.tabular import write_database
+
+    source, destination = tmp_path / "project", tmp_path / "converted"
+    db, _records, settings, _expected = _native_legacy_png_project(source)
+    if unsupported == "unknown":
+        settings.pop("crop_intensity")
+    elif unsupported == "stretch":
+        settings["crop_intensity"] = "stretch"
+    elif unsupported == "wrong_plane":
+        settings["png_channel_mapping"] = {"r": 9, "g": 0, "b": 1}
+    elif unsupported == "dilated":
+        settings["dialate_pngs"] = True
+    elif unsupported == "unmasked":
+        settings["use_bounding_box"] = True
+    else:
+        settings["illumination_correction"] = True
+    write_database(pd.DataFrame({"setting_key": list(settings),
+                                 "setting_value": [repr(value) for value in settings.values()]}),
+                   db, "settings", if_exists="replace", canonicalise=False, migrate=False)
+    before = _tree_contents(source)
+
+    def refuse_raw_view(*args, **kwargs):
+        """Fail if unsupported provenance reaches raw reconstruction."""
+        raise AssertionError("unproven PNG transform reached the raw reconstruction API")
+
+    monkeypatch.setattr(crop_store, "legacy_png_view", refuse_raw_view)
+    report = ome_zarr_convert.convert_project(source, destination)
+
+    assert report["status"] == "raw_verified"
+    assert report["crop_verification"]["png_verified"] is False
+    assert _tree_contents(source) == before
+    with pytest.raises(ValueError, match="(?i)PNG|transform|legacy crop"):
+        ome_zarr_convert.convert_project(source, destination, delete_old=True)
+    assert _tree_contents(source) == before
+
+
+def test_png_alpha_is_retained_even_when_shared_rgb_decode_matches_an_export(tmp_path):
+    """An exact RGB match cannot authorize dropping a legacy PNG alpha channel."""
+    from PIL import Image
+
+    source, destination = tmp_path / "project", tmp_path / "converted"
+    _db, records, _expected = _crop_project(source, exact_png=True)
+    for path in (source / "merged").glob("*.npy"):
+        previous = image_store.read_image(path)
+        third = (previous[..., 0] * 3 + 19).astype(np.uint8)
+        np.save(path, np.stack((previous[..., 0], previous[..., 1], third,
+                                previous[..., 2], previous[..., 3]), axis=-1))
+    (source / "merged" / MERGED_LAYOUT_SIDECAR).write_text(json.dumps({
+        "version": 1, "intensity_channels": [0, 1, 2],
+        "mask_plane_order": ["cell", "nucleus"],
+        "mask_dims": {"cell": 3, "nucleus": 4}}), encoding="utf-8")
+    for index, record in enumerate(records):
+        field, label = int(record["fieldID"][1:]), int(record["cell_id"][1:])
+        stack = image_store.read_image(source / "merged" / f"plate1_A01_{field}.npy")
+        ys, xs = np.where(stack[..., 3] == label)
+        rgb = stack[ys.min():ys.max() + 1, xs.min():xs.max() + 1, :3]
+        if index == 0:
+            alpha = np.arange(rgb.shape[0] * rgb.shape[1], dtype=np.uint8).reshape(rgb.shape[:2])
+            png = np.concatenate((rgb, alpha[..., None]), axis=-1)
+        else:
+            png = rgb
+        Image.fromarray(png).save(record["png_path"])
+    before = _tree_contents(source)
+
+    report = ome_zarr_convert.convert_project(source, destination)
+
+    assert report["status"] == "raw_verified"
+    assert report["crop_verification"]["png_verified"] is False
+    with pytest.raises(ValueError, match="(?i)PNG|transform|legacy crop"):
+        ome_zarr_convert.convert_project(source, destination, delete_old=True)
+    assert _tree_contents(source) == before
+
+
+def test_public_crop_commit_is_reused_after_an_interrupted_group_return(tmp_path, monkeypatch):
+    """A completed public well/class commit survives interruption without adding crops again."""
+    from spacr import crop_store
+
+    source, destination = tmp_path / "project", tmp_path / "converted"
+    _crop_project(source)
+    before = _tree_contents(source)
+    commit = crop_store.CropPoolWriter.commit
+    stopped = []
+
+    def stop_after_commit(writer, *args, **kwargs):
+        """Let the real public commit finish before interrupting its first return."""
+        result = commit(writer, *args, **kwargs)
+        if not stopped:
+            stopped.append(result)
+            raise RuntimeError("synthetic stop after public crop commit")
+        return result
+
+    monkeypatch.setattr(crop_store.CropPoolWriter, "commit", stop_after_commit)
+    with pytest.raises(RuntimeError, match="synthetic stop after public crop commit"):
+        ome_zarr_convert.convert_project(source, destination)
+    assert len(stopped) == 1
+    assert stopped[0]["n_rows"] == 3
+    monkeypatch.setattr(crop_store.CropPoolWriter, "commit", commit)
+
+    def refuse_add(*args, **kwargs):
+        """Reject a replay of rows already included in the completed public commit."""
+        raise AssertionError("resume added a crop to an already committed well/class")
+
+    monkeypatch.setattr(crop_store.CropPoolWriter, "add", refuse_add)
+    report = ome_zarr_convert.convert_project(source, destination)
+
+    assert report["status"] == "raw_verified"
+    table = _read_crop_table(destination / "measurements" / "measurements.db")
+    assert len(table) == 3
+    assert table["object_id"].is_unique
+    assert _tree_contents(source) == before
+
+
+@pytest.mark.parametrize("measured_override", [pytest.param(False, id="derived"), pytest.param(True, id="measured")])
+def test_cytoplasm_crops_use_the_shared_effective_mask_without_new_field_labels(tmp_path, measured_override):
+    """Derived and recorded cytoplasm reproduce legacy PNGs while field label sets stay fixed."""
+    import pandas as pd
+    from spacr.crop_store import OmeZarrCropSource
+    from spacr.crops import _write_measured_masks, build_png_channels, resolve_png_channel_mapping
+    from spacr.measure import save_and_add_image_to_grid
+    from spacr.tabular import write_database
+    from spacr.utils import _crop_center
+
+    source, destination = tmp_path / "project", tmp_path / "converted"
+    db, records, settings, _expected = _native_legacy_png_project(source)
+    settings["crop_mode"] = ["cytoplasm"]
+    settings["dialate_pngs"] = True
+    folder = source / "data" / "cytoplasm_png"
+    (source / "data" / "cell_png").rename(folder)
+    effective = {}
+    for field in (1, 2):
+        path = source / "merged" / f"plate1_A01_{field}.npy"
+        stack = image_store.read_image(path)
+        cytoplasm = np.where(stack[..., 4] != 0, 0, stack[..., 3])
+        if measured_override:
+            cytoplasm[0, 0] = 0
+            cytoplasm[5, 7] = 0
+            _write_measured_masks(str(path), {3: stack[..., 3], 4: stack[..., 4]},
+                                   cytoplasm=cytoplasm)
+        effective[field] = (stack, cytoplasm)
+    for record in records:
+        field, label = int(record["fieldID"][1:]), int(record["cell_id"][1:])
+        record["cytoplasm_id"] = record.pop("cell_id")
+        record["object_type"] = "cytoplasm"
+        record["png_path"] = str(folder / Path(record["png_path"]).name)
+        stack, cytoplasm = effective[field]
+        channels = build_png_channels(stack, resolve_png_channel_mapping(settings))
+        pixels = _crop_center(channels, cytoplasm == label, new_width=8, new_height=7)
+        save_and_add_image_to_grid(pixels, record["png_path"], [], plot=False,
+                                   crop_format=4, marker={"mask_mode": "masked"})
+    write_database(pd.DataFrame(records, dtype=object), db, "png_list",
+                   if_exists="replace", canonicalise=False, migrate=False)
+    write_database(_read_crop_table(db, "cell"), db, "cytoplasm",
+                   if_exists="replace", canonicalise=False, migrate=False)
+    write_database(pd.DataFrame({"setting_key": list(settings),
+                                 "setting_value": [repr(value) for value in settings.values()]}),
+                   db, "settings", if_exists="replace", canonicalise=False, migrate=False)
+    before = _tree_contents(source)
+
+    report = ome_zarr_convert.convert_project(source, destination)
+
+    assert report["status"] == "verified"
+    assert report["crop_verification"] == {"raw_verified": True, "png_verified": True}
+    assert all("cytoplasm" not in entry["labels"] for entry in report["fields"])
+    table = _read_crop_table(destination / "measurements" / "measurements.db")
+    assert set(table["object_type"]) == {"cytoplasm"}
+    reader = OmeZarrCropSource(str(destination), context=True, size=None)
+    for row in table.to_dict(orient="records"):
+        stack, labels = effective[int(row["field"])]
+        ys, xs = np.where(labels == int(row["object_label"]))
+        y0, x0 = max(0, int(ys.min()) - 2), max(0, int(xs.min()) - 2)
+        y1, x1 = min(stack.shape[0], int(ys.max()) + 3), min(stack.shape[1], int(xs.max()) + 3)
+        assert (row["bbox_y0"], row["bbox_x0"], row["bbox_y1"], row["bbox_x1"]) == (y0, x0, y1, x1)
+        pixels, mask = reader.get_raw({"object_id": row["object_id"]})
+        assert pixels.dtype == np.uint16
+        assert np.array_equal(pixels, np.moveaxis(stack[y0:y1, x0:x1, :3], -1, 0))
+        assert np.array_equal(mask, labels[y0:y1, x0:x1] == int(row["object_label"]))
+    assert _tree_contents(source) == before
