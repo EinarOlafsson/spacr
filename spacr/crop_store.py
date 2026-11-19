@@ -30,7 +30,8 @@ __all__ = ["CROP_COLUMNS", "CropPoolWriter", "CropSink", "cut_crops",
            "OmeZarrCropSource", "ome_zarr_crops_exist", "ROLE_COLOURS",
            "composite_crop", "load_channel_presets", "save_channel_preset",
            "parse_channel_roles", "format_channel_roles", "legacy_png_view",
-           "read_commit", "discard_uncommitted", "pool_attributes", "committed_rows"]
+           "read_commit", "discard_uncommitted", "pool_attributes", "committed_rows",
+           "class_dir"]
 
 #: The ssCell_Crops columns, in order (item 984).
 CROP_COLUMNS: Tuple[str, ...] = (
@@ -303,12 +304,22 @@ def _atomic_write(path: Path, text: str) -> None:
     os.replace(tmp, path)
 
 
-def _class_dir(project: Any, plate: str, well: str, object_type: str) -> Path:
-    """``<project>/crops/plate=<P>/well=<W>.zarr/<class>``."""
+def class_dir(project: Any, plate: str, well: str, object_type: str) -> Path:
+    """The folder of one well's crops of one class: ``<project>/crops/plate=<P>/well=<W>.zarr/<class>``.
+
+    :param project: the project folder.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param object_type: the object class.
+    """
     from .store import _encoded
 
     return (Path(project) / "crops" / f"plate={_encoded(plate)}"
             / f"well={_encoded(well)}.zarr" / str(object_type))
+
+
+#: The former private name, kept for existing callers.
+_class_dir = class_dir
 
 
 def read_commit(project: Any, plate: str, well: str,

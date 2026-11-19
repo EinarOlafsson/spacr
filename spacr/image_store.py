@@ -30,7 +30,8 @@ from typing import (Any, Callable, Dict, Iterable, Iterator, List, Mapping,
 import numpy as np
 
 __all__ = ["IMAGE_FORMATS", "PlateWriter", "export_merged", "read_image",
-           "read_labels", "run_fields"]
+           "read_labels", "run_fields", "split_well", "field_key",
+           "split_field_name"]
 
 _LOG = logging.getLogger(__name__)
 
@@ -43,18 +44,36 @@ _LEDGER = "spacr_commits.jsonl"
 _WELL = re.compile(r"^([A-Za-z]+)0*(\d+)$")
 
 
-def _split_well(well: str) -> Tuple[str, str]:
-    """``'B03'`` -> ``('B', '3')``: the HCS row and column names."""
+def split_well(well: str) -> Tuple[str, str]:
+    """``'B03'`` -> ``('B', '3')``: the HCS row and column names.
+
+    :param well: the well name, a row letter and a column number.
+    :returns: ``(row, column)`` as the plate store names them.
+    :raises ValueError: the name does not start with a row letter.
+    """
     match = _WELL.match(str(well))
     if not match:
         raise ValueError(f"well {well!r} is not a row letter and a column number")
     return match.group(1).upper(), str(int(match.group(2)))
 
 
-def _field_key(well: str, field: Any) -> str:
-    """The short store path of one field: ``B/3/0``."""
+#: The former private name, kept for existing callers.
+_split_well = split_well
+
+
+def field_key(well: str, field: Any) -> str:
+    """The short store path of one field: ``B/3/0``.
+
+    :param well: the well name, e.g. ``'B03'``.
+    :param field: the field number.
+    :returns: ``<row>/<column>/<field>`` inside the plate store.
+    """
     row, column = _split_well(well)
     return f"{row}/{column}/{int(field)}"
+
+
+#: The former private name, kept for existing callers.
+_field_key = field_key
 
 
 class PlateWriter:
@@ -336,11 +355,19 @@ def read_labels(path: Any, name: str, *, key: Optional[str] = None
     return read_image(target)
 
 
-def _split_field_name(name: str) -> Tuple[str, str, int]:
-    """``'plate1_B03_2.npy'`` -> ``('plate1', 'B03', 2)``, spaCR's field name."""
+def split_field_name(name: str) -> Tuple[str, str, int]:
+    """``'plate1_B03_2.npy'`` -> ``('plate1', 'B03', 2)``, spaCR's field name.
+
+    :param name: a field file name or path, ``<plate>_<well>_<field>``.
+    :returns: ``(plate, well, field)``.
+    """
     stem = os.path.splitext(os.path.basename(name))[0]
     plate, well, field = stem.rsplit("_", 2)
     return plate, well, int(field)
+
+
+#: The former private name, kept for existing callers.
+_split_field_name = split_field_name
 
 
 def _merged_field(task: Tuple[str, Sequence[int], Mapping[str, int]]
