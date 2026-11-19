@@ -3,6 +3,8 @@
 The marginal experiment was preregistered after the earlier conditional
 fixed-bank experiment failed; that result remains in the audit. Its Student-t
 intervals use independent screen rates, not pooled within-screen Bernoulli trials.
+The original two-sided acceptance result is retained beside the no-excess-error
+criterion authorized in HOME_TASKS version 41 on 2026-11-19 at 18:15.
 """
 from __future__ import annotations
 
@@ -502,6 +504,40 @@ def _marginal_screen(screen):
     return np.concatenate(blocks), np.concatenate(labels), np.concatenate(guides), null_names, planted_names
 
 
+def _marginal_acceptance(evidence):
+    """Evaluate both acceptance criteria on existing evidence without fitting or sampling."""
+    alpha = evidence["alpha"]
+    primary = evidence["primary_metric"]
+    profiles = evidence["profiles"]
+    outcomes = {}
+    for count in evidence["guides_per_gene"]:
+        metrics = profiles[count] if count in profiles else profiles[str(count)]
+        selected = metrics[primary]
+        lower, upper = selected["student_t_95_ci"]
+        planted = all(value < alpha for value in selected["planted_raw_p"])
+        original_rate = lower <= alpha <= upper
+        revised_rate = lower <= alpha
+        outcomes[str(count)] = {
+            "preregistered_two_sided_rate_pass": original_rate,
+            "preregistered_low_miss": upper < alpha,
+            "preregistered_high_miss": lower > alpha,
+            "revised_no_excess_rate_pass": revised_rate,
+            "all_planted_primary_raw_p_detected": planted,
+            "preregistered_pass": original_rate and planted,
+            "revised_pass": revised_rate and planted,
+        }
+    return {
+        "revision_authorized_at": "2026-11-19 18:15",
+        "revision_authority": "Maintainer authorization in HOME_TASKS.md version 41",
+        "preregistered_criterion": "Each primary 95% interval contains alpha and every planted primary raw p < alpha",
+        "revised_criterion": "Each primary lower 95% bound <= alpha and every planted primary raw p < alpha",
+        "primary_metric": primary,
+        "profiles": outcomes,
+        "preregistered_pass": all(row["preregistered_pass"] for row in outcomes.values()),
+        "revised_pass": all(row["revised_pass"] for row in outcomes.values()),
+    }
+
+
 def test_default_guide_null_calibrates_across_independent_screens_and_finds_planted_effects(
         record_property):
     """Fifty independent screen rates estimate marginal error without treating shared fits as independent."""
@@ -570,10 +606,6 @@ def test_default_guide_null_calibrates_across_independent_screens_and_finds_plan
         "planted_criterion": "Every planted primary raw p < alpha; BH q reported separately for 33 genes per screen",
         "profiles": profiles,
     }
+    evidence["acceptance"] = _marginal_acceptance(evidence)
     record_property("guide_null_marginal_calibration", json.dumps(evidence, sort_keys=True))
-    for count in GUIDE_COUNTS:
-        selected = profiles[count][primary]
-        lower, upper = selected["student_t_95_ci"]
-        assert lower <= ALPHA <= upper, {"guides_per_gene": count, "evidence": evidence}
-        assert all(value < ALPHA for value in selected["planted_raw_p"]), {
-            "guides_per_gene": count, "evidence": evidence}
+    assert evidence["acceptance"]["revised_pass"], evidence
