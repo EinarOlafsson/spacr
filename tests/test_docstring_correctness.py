@@ -5786,7 +5786,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # changed parameters; new callables are checked by their arrival contracts.
     # Moved 2026-11-14 for item 938 (was 17089b9e...): the optional
     # `progress_share` of spacr.object.generate_cellpose_masks_sam.
-) == '6e569df7200c40ec836404fed5c2d8efbec245e64bf77f9c9249cc293be5bccc'
+    # Moved 2026-11-18 for item 987 (was 6e569df7...): run_v2 and
+    # stream_masks_from_stack lost `keep_npz` and `npz_dir`.
+) == 'a1e211425beb740dde4db5c5ef8bc1123370546e1a08163ebda6fc16e221c625'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
