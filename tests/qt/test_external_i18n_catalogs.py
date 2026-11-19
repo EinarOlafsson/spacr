@@ -233,17 +233,9 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
 # keys now, so the list is empty.
 # 316, 2026-10-04: the catalog rebuild carries the 470 and 564 keys, so the
 # list is empty again.
-# 988 (2026-11-18): the new read-weight tooltips wait for the runtime catalog
-# rebuild that pins their nine-language reviews; master empties this then.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    "ops_read_distance_weight", "ops_read_distance_decay_px",
-    "ops_read_distance_interior_px", "ops_read_distance_min_weight",
-    "ops_read_neighbour_discount", "ops_prefix_distance_weight",
-    "ops_prefix_distance_decay_px", "ops_prefix_distance_interior_px",
-    "ops_prefix_distance_min_weight", "ops_prefix_weighted_quality",
-    "ops_prefix_weighted_min_share", "ops_prefix_nuclei_masks",
-    "ops_keep_multi_guide_cells", "ops_multi_guide_min_reads",
-})
+# 988 (2026-11-18): the catalog rebuild that pins the nine-language reviews
+# of the new read-weight tooltips carries them, so the list is empty again.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
 
 
 def _assert_setting_tooltip_inventory(sources, en):
