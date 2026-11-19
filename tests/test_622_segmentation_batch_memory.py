@@ -100,6 +100,7 @@ def test_completed_arrays_are_released_before_next_batch_and_archive(
 
     monkeypatch.setattr(np, "load", load)
     monkeypatch.setattr(objects, "cp_models", types.SimpleNamespace(CellposeModel=Model))
+    monkeypatch.setattr(objects.accelerator, "cellpose_kwargs", lambda: {"gpu": False})
     monkeypatch.setattr(objects, "merge_split_filter_masks", filter_masks)
     settings = _settings(src, batch_size=1, cell_channel=0,
                          nucleus_channel=None if channels == 1 else 1,

@@ -114,7 +114,7 @@ GROUPS = (
         ("False calls, calibrated confidence, matching to other pipelines",
          (876, 877, 878, 922)),
         ("Detection, read mode and cell calls tuned together, prefix decoy FDR",
-         (942, 952, 949, 955, 967)),
+         (942, 952, 949, 955, 967, 960)),
     )),
     ("OPS gene profiles", (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),

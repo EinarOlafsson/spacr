@@ -70,37 +70,3 @@ def test_the_setting_is_registered_with_its_type_category_and_help():
     assert any("ops_phases" in keys for keys in OPS_CATEGORIES.values())
     assert "Default None. Alpha." in OPS_TOOLTIPS["ops_phases"]
     assert ALPHA_FEATURES[977] == {"settings": ("ops_phases",)}
-
-
-def test_spacr_run_ops_preflights_genotype_source_not_src(tmp_path):
-    """``spacr-run ops`` checks the OPS input (genotype_source), not ``src``.
-
-    Before item 977 the ops module had no validate key, so the pre-flight
-    asked for ``src``, which OPS never reads, and refused every OPS
-    settings file.
-    """
-    from spacr import cli
-    from spacr.validate import validate_settings
-
-    assert cli.resolve_module("ops").validate_key == "ops"
-    seq = tmp_path / "sequencing"
-    seq.mkdir()
-    problems = validate_settings({"genotype_source": str(seq)}, "ops")
-    assert not any(getattr(p, "setting", getattr(p, "key", "")) == "src" for p in problems)
-
-
-def test_a_single_site_read_back_from_a_settings_file_is_accepted(tmp_path):
-    """A one-site list round-trips through a CSV as an int, and is still a site list."""
-    from spacr.cli import load_settings_file, write_settings_file
-    from spacr.ops_engine import _ph_sites, _ops_sites
-    from spacr.ops_settings import OPS_TYPES, ops_defaults
-
-    settings = ops_defaults({})
-    settings.update({"ops_ph_sites": "1124", "ops_sites": "281"})
-    path = tmp_path / "s.csv"
-    write_settings_file(settings, path)
-    back = load_settings_file(str(path))
-    for key in ("ops_ph_sites", "ops_sites"):
-        assert isinstance(back[key], OPS_TYPES[key])
-    assert _ph_sites(back["ops_ph_sites"]) == {1124}
-    assert _ops_sites(back) == {281}

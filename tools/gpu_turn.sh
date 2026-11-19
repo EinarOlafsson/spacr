@@ -30,6 +30,19 @@
 #
 # Tunables (seconds): GPU_IDLE_S (360), GPU_GAP_S (600), GPU_POLL_S (15).
 #
+# Concurrent jobs (maintainer, 2026-11-18): a job that declares its need,
+#   tools/gpu_turn.sh --vram-gb N <label> <command...>
+# skips the exclusive queue, the idle wait and the gap, and starts as soon as
+#   * free VRAM (nvidia-smi) minus the needs other declared jobs announced in
+#     the last GPU_RESERVE_S seconds (120) is at least N + GPU_VRAM_MARGIN_GB
+#     (2) GB,
+#   * the GPU is below GPU_MAX_TEMP_C (80) C, and
+#   * there is no ram_guard ALERT ($HOME/.claude/ram_guard/ALERT).
+# It refuses to start (exit 3) unless power.limit is GPU_POWER_LIMIT_W (280) W,
+# the cap set after the 2026-11-16 crashes. Every start is logged with the free
+# VRAM, the temperature and the jobs already on the card. Nothing running is
+# ever stopped, and a job without --vram-gb keeps the exclusive turn above.
+#
 # Priority (maintainer, 2026-10-25): jobs whose label starts with a prefix in
 # GPU_PRIORITY_PREFIXES (default "plaque-") go first. A job without priority
 # that holds the queue while still waiting hands the lock back as soon as a
@@ -66,8 +79,17 @@ DIR="$HOME/.spacr/gpu"
 mkdir -p "$DIR"
 LOG="$DIR/log"
 
+VRAM_GB=""
+if [[ "${1:-}" == "--vram-gb" ]]; then
+    VRAM_GB="${2:-}"
+    shift 2 || true
+    if ! [[ "$VRAM_GB" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+        echo "usage: $0 [--vram-gb N] <label> <command...> (N in GB)" >&2
+        exit 2
+    fi
+fi
 if [[ $# -lt 2 ]]; then
-    echo "usage: $0 <label> <command...>" >&2
+    echo "usage: $0 [--vram-gb N] <label> <command...>" >&2
     exit 2
 fi
 LABEL="$1"; shift
@@ -164,6 +186,80 @@ compute_pids() {
         echo "$pid"
     done
 }
+
+gpu_reading() {
+    nvidia-smi --query-gpu="$1" --format=csv,noheader,nounits 2>/dev/null | head -n 1 | tr -d ' '
+}
+
+reserved_gb() {
+    local file now total=0 pid when need
+    now=$(date +%s)
+    for file in "$DIR"/reserve/*; do
+        [[ -f "$file" ]] || continue
+        read -r pid when need < "$file" || continue
+        if ! kill -0 "$pid" 2>/dev/null; then
+            rm -f "$file"
+            continue
+        fi
+        (( now - when < ${GPU_RESERVE_S:-120} )) || continue
+        total=$(awk -v a="$total" -v b="$need" 'BEGIN{print a + b}')
+    done
+    echo "$total"
+}
+
+co_running() {
+    local apps holder
+    apps=$(nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits 2>/dev/null \
+           | tr -d ' ' | awk -F, 'NF==2 && $1 != "" {printf "%s%s:%sMiB", sep, $1, $2; sep=" "}')
+    holder=$(cat "$DIR/holder" 2>/dev/null || true)
+    echo "compute=[${apps:-none}] turn_holder=[${holder:-none}]"
+}
+
+run_concurrent() {
+    local limit free temp spare margin max_temp power alert why last_why=""
+    limit=${GPU_POWER_LIMIT_W:-280}
+    margin=${GPU_VRAM_MARGIN_GB:-2}
+    max_temp=${GPU_MAX_TEMP_C:-80}
+    alert=${GPU_RAM_ALERT:-$HOME/.claude/ram_guard/ALERT}
+    power=$(gpu_reading power.limit)
+    if ! awk -v p="$power" -v l="$limit" 'BEGIN{exit !(p != "" && p + 0 == l + 0)}'; then
+        say "REFUSED: --vram-gb needs the GPU power limit at ${limit} W; nvidia-smi reports '${power:-nothing}' W. Set it (sudo nvidia-smi -pl ${limit}) and try again."
+        exit 3
+    fi
+    mkdir -p "$DIR/reserve"
+    exec 8>"$DIR/vram.lock"
+    say "queued concurrently (pid $$, $(pwd)); needs ${VRAM_GB} GB + ${margin} GB margin"
+    while true; do
+        flock 8
+        free=$(gpu_reading memory.free)
+        temp=$(gpu_reading temperature.gpu)
+        spare=$(awk -v f="${free:-0}" -v r="$(reserved_gb)" 'BEGIN{printf "%.1f", f / 1024 - r}')
+        if [[ ! -e "$alert" ]] && [[ -n "$temp" ]] \
+           && awk -v s="$spare" -v n="$VRAM_GB" -v m="$margin" -v t="$temp" -v x="$max_temp" \
+                  'BEGIN{exit !(s >= n + m && t < x)}'; then
+            echo "$$ $(date +%s) $VRAM_GB" > "$DIR/reserve/$$"
+            say "START concurrent: needs ${VRAM_GB} GB, free ${spare} GB (after reservations), ${temp} C, power ${power} W; $(co_running): $*"
+            flock -u 8
+            break
+        fi
+        why="free ${spare} GB, ${temp:-?} C$([[ -e "$alert" ]] && echo ', ram_guard ALERT')"
+        if [[ "$why" != "${last_why:-}" ]]; then
+            say "waits: needs ${VRAM_GB} + ${margin} GB below ${max_temp} C; now ${why}"
+            last_why=$why
+        fi
+        flock -u 8
+        sleep "$POLL_S"
+    done
+    "$@"
+    rc=$?
+    rm -f "$DIR/reserve/$$"
+    say "FINISH concurrent rc=$rc"
+    exit $rc
+}
+
+if [[ -n "$VRAM_GB" ]]; then
+    run_concurrent "$@"
+fi
 
 exec 9>"$DIR/lock"
 say "queued (pid $$, $(pwd))"
