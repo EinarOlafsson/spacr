@@ -150,6 +150,12 @@ def test_the_empty_settings_write_what_the_decode_wrote(tmp_path):
                     ops_call_sort="", ops_read_compartment="cell", ops_insitu_preset="none",
                     ops_recomb_min_quality=None)
     _same_files(base["folder"], empty["folder"])
+    calls = sorted(f for f in os.listdir(base["folder"]) if f.startswith("cells_"))
+    assert calls and calls == sorted(
+        f for f in os.listdir(empty["folder"]) if f.startswith("cells_"))
+    for name in calls:
+        assert pd.read_csv(os.path.join(base["folder"], name)).equals(
+            pd.read_csv(os.path.join(empty["folder"], name)))
 
 
 def test_the_t7_preset_and_single_layout_peak_and_nucleus(tmp_path):
