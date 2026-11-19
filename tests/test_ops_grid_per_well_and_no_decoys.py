@@ -16,7 +16,7 @@ def test_applying_a_partial_grid_preserves_the_per_well_tuned_values(current_tun
                 "ops_read_threshold": 80, "ops_prefix_min_read_quality": 0,
                 "ops_prefix_max_distance": 1, "ops_read_mode": "log",
                 "ops_prefix_crosstalk": "none", "ops_quality_min_reads": 2}
-    point = {key: settings[key] for key in grid._GRID_KEYS}
+    point = {key: settings[key] for key in grid._GRID_KEYS if key in settings}
     point.update(ops_read_threshold="per well", ops_quality_min_reads=3, point=1)
     result = {"table": pd.DataFrame([point]), "run_id": "two-wells",
               "tiles": ["P:W1:1", "P:W2:1"],
@@ -57,7 +57,7 @@ def test_applying_a_partial_grid_keeps_the_values_it_fixes_out_of_the_tuner(meth
                 "ops_read_threshold": 80, "ops_prefix_min_read_quality": 0,
                 "ops_prefix_max_distance": 1, "ops_read_mode": "log",
                 "ops_prefix_crosstalk": "none", "ops_quality_min_reads": 2}
-    point = {key: settings[key] for key in grid._GRID_KEYS}
+    point = {key: settings[key] for key in grid._GRID_KEYS if key in settings}
     point.update(ops_read_threshold=40, ops_prefix_min_read_quality="per well", point=2)
     result = {"table": pd.DataFrame([point]), "run_id": "threshold-grid",
               "tiles": ["P:W1:1", "P:W2:1"]}
@@ -82,7 +82,7 @@ def test_applying_a_partial_grid_pins_axes_of_an_entered_tuning_grid():
                 "ops_read_threshold": 80, "ops_prefix_min_read_quality": 0,
                 "ops_prefix_max_distance": 1, "ops_read_mode": "log",
                 "ops_prefix_crosstalk": "none", "ops_quality_min_reads": 2}
-    point = {key: settings[key] for key in grid._GRID_KEYS}
+    point = {key: settings[key] for key in grid._GRID_KEYS if key in settings}
     point.update(ops_read_threshold="per well", ops_prefix_min_read_quality=0.2, point=1)
     result = {"table": pd.DataFrame([point]), "run_id": "entered", "tiles": ["P:W1:1"]}
     applied = grid._apply_grid_choice(settings, result, 1)
