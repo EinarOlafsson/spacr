@@ -113,11 +113,11 @@ def _storage_array(array):
 
 def _identity(name):
     """Parse the existing field naming contract and retain a canonical well key."""
-    plate, well, field = image_store._split_field_name(name)
+    plate, well, field = image_store.split_field_name(name)
     _portable_name(plate)
     if field < 0:
         raise ValueError(tr("Field numbers must be nonnegative: {name}").format(name=name))
-    key = image_store._field_key(well, field)
+    key = image_store.field_key(well, field)
     return {"id": f"{plate}/{key}", "plate": plate, "well": well,
             "field": field, "key": key, "merged": None, "mask_files": {}}
 
@@ -434,7 +434,7 @@ def _validate_resume_paths(plan):
     entries = {entry["id"]: entry for entry in (*plan["fields"], *plan.get("crop_fields", []))}
     for entry in entries.values():
         _portable_name(entry["plate"])
-        if (entry["key"] != image_store._field_key(entry["well"], entry["field"])
+        if (entry["key"] != image_store.field_key(entry["well"], entry["field"])
                 or entry["id"] != f"{entry['plate']}/{entry['key']}"):
             raise ValueError(tr("The conversion ledger has conflicting field locators; preserve it and use a new destination."))
         sources = list(entry["mask_files"].values())
@@ -448,13 +448,13 @@ def _validate_resume_paths(plan):
 
 def _check_field_sources(src, entry, plan):
     """Check just one field during writes, avoiding a full-project scan per field."""
-    from .crops import MERGED_LAYOUT_SIDECAR, _measured_masks_path
+    from .crops import MERGED_LAYOUT_SIDECAR, measured_masks_path
 
     paths = set(entry["mask_files"].values())
     if entry["merged"]:
         paths.add(entry["merged"])
         paths.add(f"merged/{MERGED_LAYOUT_SIDECAR}")
-        measured = Path(_measured_masks_path(str(src / entry["merged"])))
+        measured = Path(measured_masks_path(str(src / entry["merged"])))
         relative = measured.relative_to(src).as_posix()
         if relative in plan["files"]:
             paths.add(relative)
@@ -914,7 +914,7 @@ def _plan_crops(src, plan, fields):
     from decimal import Decimal, InvalidOperation
     from . import schema
     from .crop_store import CROP_COLUMNS
-    from .crops import CropError, _read_crop_array
+    from .crops import CropError, read_crop_array
     from .png_list import PNG_LIST_ID_COLUMNS, _object_id_int, crop_rows_from_png_list
 
     db_relative = "measurements/measurements.db"
@@ -1096,7 +1096,7 @@ def _plan_crops(src, plan, fields):
             record["geometry"] = {name: crop[name] for name in (
                 "bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1", "margin_px", "clipped_at_edge")}
             record["png_container_view"] = _array_digest(image_store.read_image(src / record["legacy_png_path"]))
-            record["png"] = _array_digest(_read_crop_array(src / record["legacy_png_path"]))
+            record["png"] = _array_digest(read_crop_array(src / record["legacy_png_path"]))
             group = (entry["plate"], entry["well"], role)
             layout = (image.dtype.str, tuple(entry["layout"]["intensity_channels"]))
             if group in layouts and layouts[group] != layout:
@@ -1194,7 +1194,7 @@ def _crop_table_rows(rows):
 def _verify_crop_outputs(project, records, rows, *, round_trip):
     """Verify raw pixels, masks, index metadata and optional legacy-format exports."""
     from .crop_store import OmeZarrCropSource, export_crops
-    from .crops import _read_crop_array
+    from .crops import read_crop_array
 
     stored = _crop_table(project / "measurements" / "measurements.db", "ssCell_Crops")
     if (list(stored.columns) != list(_crop_index_frame(rows).columns)
@@ -1234,7 +1234,7 @@ def _verify_crop_outputs(project, records, rows, *, round_trip):
                 raise ValueError(tr("Exported crop mask differs from the source object; retain originals."))
             if pixels.dtype == np.uint8:
                 png = export_crops(project, [row], folder / "png", fmt="png", context=True)[0]
-                exact_png = (_array_digest(_read_crop_array(png)) == record["png"]
+                exact_png = (_array_digest(read_crop_array(png)) == record["png"]
                              and _array_digest(image_store.read_image(png)) == record["png_container_view"])
             else:
                 exact_png = False
@@ -1277,7 +1277,7 @@ def _crop_group_attributes(plan, entry, records, pool_layout):
 
 def _verify_crop_group(project, fields, records, commit, attributes):
     """Recheck a shared well/class commit before reusing its rows or publishing them."""
-    from .crop_store import OmeZarrCropSource, _class_dir, pool_attributes
+    from .crop_store import OmeZarrCropSource, class_dir, pool_attributes
 
     first = fields[records[0]["field_id"]]
     plate, well, role = first["plate"], first["well"], records[0]["object_type"]
@@ -1293,8 +1293,8 @@ def _verify_crop_group(project, fields, records, commit, attributes):
     if len(row_map) != len(commit["rows"]) or set(row_map) != {record["object_id"] for record in records}:
         raise ValueError(tr("Committed crop membership differs from the conversion plan; retain originals."))
     reader = OmeZarrCropSource(str(project), context=True, size=None)
-    store = _class_dir(project, plate, well, role).parent.relative_to(project).as_posix()
-    row_letter, column = image_store._split_well(well)
+    store = class_dir(project, plate, well, role).parent.relative_to(project).as_posix()
+    row_letter, column = image_store.split_well(well)
     for record in records:
         row = row_map[record["object_id"]]
         entry = fields[record["field_id"]]
@@ -1587,7 +1587,7 @@ def _legacy_png_contract(src, source_metadata, role, field_entry):
 def _verify_legacy_png(project, row, record, folder):
     """Regenerate a proven native PNG through shared crop and PNG APIs and compare all pixels."""
     from .crop_store import legacy_png_view
-    from .crops import CropError, _read_crop_array, build_png_channels
+    from .crops import CropError, read_crop_array, build_png_channels
 
     contract = record.get("legacy_png_contract")
     expected = record["png"]
@@ -1607,7 +1607,7 @@ def _verify_legacy_png(project, row, record, folder):
         target = folder / "legacy.png"
         save_and_add_image_to_grid(pixels, str(target), [], plot=False,
                                    crop_format=4, marker={"mask_mode": "masked"})
-        return (target.is_file() and _array_digest(_read_crop_array(target)) == expected
+        return (target.is_file() and _array_digest(read_crop_array(target)) == expected
                 and _array_digest(image_store.read_image(target)) == record["png_container_view"])
     except (ValueError, TypeError, KeyError, IndexError, OSError, CropError):
         return False
