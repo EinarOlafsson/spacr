@@ -6717,6 +6717,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
+        ("960_ops_grid_search_api_arrivals_2026-11-17.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))

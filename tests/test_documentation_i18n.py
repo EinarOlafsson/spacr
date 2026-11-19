@@ -3859,6 +3859,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
+        ("960_ops_grid_search_api_arrivals_2026-11-17.json", 2),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

@@ -8325,6 +8325,7 @@ class AppScreen(QWidget):
         self._timelapse_preview = self._timelapse_preview_card = None
         self._motility_preview = self._motility_preview_card = None
         self._ops_live_preview = self._ops_live_preview_card = None
+        self._ops_grid_search = None
         self._runtime_splitter = None
 
         if self.app_key in ("mask", "analyze_plaques"):
@@ -8396,6 +8397,8 @@ class AppScreen(QWidget):
             splitter.setChildrenCollapsible(False)
             self._ops_live_preview, self._ops_live_preview_card = (
                 _build_ops_live_card(self))
+            from ..widgets.ops_grid_search_panel import _attach_grid_search
+            self._ops_grid_search = _attach_grid_search(self._ops_live_preview, self)
             splitter.addWidget(self._ops_live_preview_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)

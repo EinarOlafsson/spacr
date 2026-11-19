@@ -2360,7 +2360,7 @@ _APP_CATEGORY_PARENTS["ops"] = {
         "Spot detection & registration", "Base calling", "Read assignment",
         "Pixel fallback", "Decoys & auto thresholds",
         "Call quality & confidence", "Spacer-prefix library",
-        "Spacer-prefix FDR & tuning", "Prefix FDR sweep",
+        "Spacer-prefix FDR & tuning", "Prefix FDR sweep", "Grid search",
         "Comparison with other pipelines")},
     **{title: "OPS phenotype" for title in (
         "Phenotype segmentation", "Additional phenotype objects",
@@ -3062,6 +3062,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "counts, rules and quality cuts it tries, with site-bootstrap "
         "intervals and shuffled-whitelist controls, on the read tables "
         "named.",
+    "GRID SEARCH":
+        "Before a full spacer-prefix run, score a grid of spot and decode "
+        "settings on a few tiles: the grid, the tiles and how they are "
+        "picked, the seed, and the grid run whose point was applied.",
     "COMPARISON WITH OTHER PIPELINES":
         "Match spaCR's cells and calls with another pipeline's on the same "
         "fields, by centroid distance or mask overlap, and report agreement "
