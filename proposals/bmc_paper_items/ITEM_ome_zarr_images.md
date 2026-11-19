@@ -53,10 +53,10 @@ These bind 983 and 984.
 6. **Limits:** keep to OME-Zarr 0.5 with sharding. Defaults switch only at item 986, after asking the maintainer.
 
 ## Spec
-1. **Setting:** `image_format`.
-   - Shared by Mask Generation, Measure and OPS (`ops_image_format` aliases it in the OPS file).
-   - Mask Generation values: `'npy'` (default; today's files exactly), `'tiff'` and `'ome-zarr'`.
-   - Measure crop values (984): `'png'` (PNG (Legacy), today's default), `'tiff'`, `'npy'` and `'ome-zarr'`.
+1. **Settings:** two, because Mask Generation and Measure write different things (decided while building, 2026-11-19).
+   - `mask_image_format` (Mask Generation): `'npy'` (default; today's files exactly), `'tiff'` and `'ome-zarr'`. OPS reads it as `ops_image_format`.
+   - `crop_image_format` (Measure crops, 984): `'png'` (PNG (Legacy), today's default) and `'ome-zarr'`. TIFF and NPY copies of OME-Zarr crops come from `spacr.crop_store.export_crops`, so Measure writes one store, not four layouts.
+   - With `crop_image_format='ome-zarr'`: `crops_per_shard` (4096; halved, with a log line, when RAM is short), `crop_margin_px` (0) and `crop_zero_outside` (off).
    - New values are alpha, in ALPHA_FEATURES[983].
    - No schema bump; defaults stay unchanged until 986.
 2. **Layout: OME-Zarr 0.5 HCS (high-content screening).**
@@ -175,10 +175,10 @@ These bind 983 and 984.
 - **Related:** 985 converts old projects; 986 switches the defaults (maintainer); 987 and 987b (the Cellpose batch .npz removal, with the batch plan served from Zarr chunks).
 
 ## Proof check (pre-set)
-- **Off identity:** `image_format='npy'`.
+- **Off identity:** `mask_image_format='npy'` and `crop_image_format='png'`.
   - Funk A1 OPS phenotype path and one Mask Generation/Measure example: every output identical to nightly.
   - Arrays are compared by md5 of their bytes; tables by md5.
-- **On equality:** `image_format='ome-zarr'`, same runs.
+- **On equality:** `mask_image_format='ome-zarr'` and `crop_image_format='ome-zarr'`, same runs.
   - Every merged stack, mask and stitched mosaic read back equals the npy one exactly (values, dtype, shape).
 - **Settings-file rerun:** rerun measurement and profiling from the saved settings file on the OME-Zarr output.
   - Measurement tables, masks and gene profiles identical to the npy run.
