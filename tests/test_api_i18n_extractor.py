@@ -2560,6 +2560,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in ome_zarr_arrivals} == ome_zarr_arrivals
     assert not ome_zarr_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **ome_zarr_arrivals}
+    converter_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "985_ome_zarr_convert_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
+    assert len(converter_arrivals) == 2
+    assert {key: docs[key] for key in converter_arrivals} == converter_arrivals
+    assert not converter_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **converter_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }
