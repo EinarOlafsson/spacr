@@ -557,6 +557,7 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
 
     from .ops_sbs import vote_mapped_reads, vote_pixels
 
+    rule = _rule_with_neighbours(rule, evidence, footprint)
     strength = np.asarray(evidence["strength"])
     selected = strength > threshold
     values = np.asarray(evidence["values"])[selected]
@@ -613,7 +614,8 @@ def _vote_weighting(rule: Mapping[str, Any], gaps: np.ndarray) -> Dict[str, Any]
     :param gaps: the owned reads' gaps to their nucleus disc.
     :returns: no arguments while the weighting is off.
     :raises ValueError: for a neighbour discount without the field's
-        neighbours, as in a field cache decoded again.
+        neighbours; :func:`_field_votes` first reads them from a field cache
+        that holds the nucleus positions (:func:`cached_neighbours`).
     """
     weighting = rule.get("read_weight")
     if not weighting:
@@ -959,6 +961,7 @@ def _joint_field_candidates(evidence: Mapping[str, np.ndarray], rule: Mapping[st
     """
     by_spot: List[Dict[str, Any]] = []
     pixel = pixel_votes
+    rule = _rule_with_neighbours(rule, evidence, footprint)
     for threshold in spot_thresholds:
         votes = _field_votes(
             evidence, rule if pixel is None else {**rule, "pixels": False}, library,
@@ -1044,6 +1047,7 @@ def _field_shuffle_counts(evidence: Mapping[str, np.ndarray], rule: Mapping[str,
         the mean over the shuffled libraries.
     """
     out = np.zeros((len(spot_thresholds), len(floors), len(pixel_qualities)))
+    rule = _rule_with_neighbours(rule, evidence, footprint)
     for matcher in _shuffle_matchers(library, seeds):
         pixel = None
         for a, threshold in enumerate(spot_thresholds):
@@ -1980,18 +1984,78 @@ def barcode_rows(plate: str, well: str, decoded: Sequence[Mapping[str, Any]]
     return sorted(rows, key=lambda row: row["object_id"])
 
 
-def save_field_cache(folder: str, site: int, evidence: Mapping[str, np.ndarray]) -> str:
+#: The field-cache arrays that hold the field's nucleus positions:
+#: every object the field's task held, as the engine's neighbour-bleed
+#: discount reads them (:func:`spacr.ops_sbs._disc_neighbours`).
+CACHE_NUCLEUS_KEYS = ("nuc_ids", "nuc_centroids", "nuc_areas")
+
+
+def save_field_cache(folder: str, site: int, evidence: Mapping[str, np.ndarray],
+                     objects: Optional[Mapping[str, Any]] = None) -> str:
     """Write one field's evidence as ``site<NNNN>.npz``.
 
     :param folder: the well's cache folder, created.
     :param site: the site.
     :param evidence: from :func:`field_evidence`.
+    :param objects: the field task's ``ids``, ``centroids`` and ``areas``,
+        stored unrounded as :data:`CACHE_NUCLEUS_KEYS` so a replay of the
+        cache can apply ``ops_read_neighbour_discount``; None
+        stores the evidence alone, as caches did before.
     :returns: the path written.
     """
     os.makedirs(folder, exist_ok=True)
     path = os.path.join(folder, f"site{int(site):04d}.npz")
-    np.savez_compressed(path, **evidence)
+    stored = dict(evidence)
+    if objects is not None:
+        stored.update({
+            "nuc_ids": np.asarray(objects["ids"], np.int64).reshape(-1),
+            "nuc_centroids": np.asarray(objects["centroids"], np.float64).reshape(-1, 2),
+            "nuc_areas": np.asarray(objects["areas"], np.float64).reshape(-1)})
+    np.savez_compressed(path, **stored)
     return path
+
+
+def cached_neighbours(evidence: Mapping[str, Any], reach: float) -> Dict[int, set]:
+    """A field's touching nuclei, rebuilt from its field cache.
+
+    :param evidence: a field cache opened with :func:`numpy.load` (or a dict
+        of it) written with the nucleus positions (:func:`save_field_cache`).
+    :param reach: the largest gap between two disc edges, ``ops_footprint``.
+    :returns: object id -> its neighbours, as the engine builds them before
+        the decode (:func:`spacr.ops_sbs._disc_neighbours`).
+    :raises ValueError: for a cache written before the nucleus positions
+        were stored.
+    """
+    from .ops_sbs import _disc_neighbours
+
+    missing = [key for key in CACHE_NUCLEUS_KEYS if key not in evidence]
+    if missing:
+        raise ValueError("ops_read_neighbour_discount needs the field's nucleus positions; "
+                         "this field cache was written before they were stored "
+                         f"(no {', '.join(missing)}); decode the field again to replay it "
+                         "with the discount")
+    return _disc_neighbours(evidence["nuc_ids"], evidence["nuc_centroids"],
+                            evidence["nuc_areas"], float(reach))
+
+
+def _rule_with_neighbours(rule: Mapping[str, Any], evidence: Mapping[str, Any],
+                          footprint: float) -> Mapping[str, Any]:
+    """The rule with the field's neighbours, read from a field cache when missing.
+
+    :param rule: from :func:`decode_rule`; the engine adds ``neighbours``.
+    :param evidence: the field's evidence or its field cache.
+    :param footprint: the vote's footprint, the reach used when the rule
+        carries no ``footprint`` of its own (the engine builds the
+        neighbours at the rule's).
+    :returns: ``rule`` itself unless its neighbour discount is on and it has
+        no ``neighbours``; then a copy with :func:`cached_neighbours`.
+    """
+    weighting = rule.get("read_weight")
+    if (not weighting or weighting["neighbour_discount"] == 1.0
+            or rule.get("neighbours") is not None):
+        return rule
+    reach = float(rule.get("footprint", footprint))
+    return {**rule, "neighbours": cached_neighbours(evidence, reach)}
 
 
 def unplaced_sites(cycle_files: Mapping[int, Mapping[int, Any]],

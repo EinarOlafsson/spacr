@@ -3135,7 +3135,7 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
                                          for pair in per for v in pair] + [0]))}
     if rule["store_cache"] and task.get("cache_folder"):
         out["cache"] = save_field_cache(task["cache_folder"], task["site"],
-                                        evidence)
+                                        evidence, objects=task)
     return out
 
 
