@@ -263,15 +263,18 @@ class TestTheAgreementIsRecorded:
 
 class TestRewrittenTermsAreANewAgreement:
 
-    def test_a_different_version_needs_agreeing_again(self, terms_module):
+    @pytest.mark.parametrize("version, expected", [
+        pytest.param(
+            "2.0", True, id="test_a_different_version_needs_agreeing_again"),
+        pytest.param(
+            "1.0", False, id="test_the_same_version_is_not_asked_twice"),
+    ])
+    def test_the_recorded_version_controls_new_agreement(
+            self, terms_module, version, expected):
+        """Require agreement only when the queried terms version changes."""
         terms_module.record_agreement("1.0")
 
-        assert terms_module.needs_agreement("2.0") is True
-
-    def test_the_same_version_is_not_asked_twice(self, terms_module):
-        terms_module.record_agreement("1.0")
-
-        assert terms_module.needs_agreement("1.0") is False
+        assert terms_module.needs_agreement(version) is expected
 
     def test_the_screen_reopens_while_the_terms_are_unaccepted(self,
                                                               monkeypatch):
