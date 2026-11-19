@@ -5459,7 +5459,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 20,264 -> 20,265 on 2026-11-14: item 938's optional `progress_share` of
     # spacr.object.generate_cellpose_masks_sam (defaulted), the serial mask
     # path's per-batch progress lines.
-    assert sum(len(item.parameters) for item in callables) == 20265
+    # 20,265 -> 20,262 on 2026-11-19 (rule 41): CustomCellClassifier drops its
+    # accepted-but-ignored pathogen_channel, use_attention and dropout_rate
+    # (all defaulted, so the required total below does not move).
+    assert sum(len(item.parameters) for item in callables) == 20262
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
