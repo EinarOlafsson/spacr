@@ -3957,7 +3957,7 @@ def resolve_crop_source(
     Selection order:
 
     1. an explicit ``prefer`` argument, then ``settings['crop_source']``
-       (``'store'`` | ``'png'`` | ``'merged'`` | ``'auto'``);
+       (``'store'`` | ``'ome-zarr'`` | ``'png'`` | ``'merged'`` | ``'auto'``);
     2. ``'auto'`` and ``'store'`` take the run's spaCR store first when
        ``measurements/spacr.duckdb`` holds crops for the object class;
     3. ``'auto'`` and ``'ome-zarr'`` then take OME-Zarr crops
