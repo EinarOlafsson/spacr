@@ -355,6 +355,8 @@ from spacr.gene_graph import _DEFAULTS as GENE_GRAPH_DEFAULTS  # noqa: E402
 from spacr.gene_knowledge import _DEFAULTS as GENE_KNOWLEDGE_DEFAULTS  # noqa: E402
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # 977, alpha: ops_phases, a settings file names its own OPS phases (OPS input).
+    "ops_phases",
     # 879-882, alpha: the OPS profile path from stored cell tables and its
     # retrieval metrics, filed under OPS phenotype with the rest of 752.
     "ops_profile_cells", "ops_profile_wells", "ops_profile_run",
