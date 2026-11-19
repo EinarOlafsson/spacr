@@ -1989,6 +1989,27 @@ def _check_ops_umap_inputs(settings: Dict[str, Any]) -> List[Problem]:
     return problems
 
 
+def _check_ops_power_inputs(settings: Dict[str, Any]) -> List[Problem]:
+    """Check the calibration path and output root of a standalone OPS power simulation."""
+    problems: List[Problem] = []
+    if not settings.get("dst_root"):
+        problems.append(Problem(
+            ERROR, "dst_root", "dst_root is missing from the settings.",
+            "Set dst_root to the folder for the OPS power simulation results."))
+    source = settings.get("ops_power_calibration_run")
+    if not source:
+        problems.append(Problem(
+            ERROR, "ops_power_calibration_run",
+            "ops_power_calibration_run is missing from the settings.",
+            "Set ops_power_calibration_run to an existing calibration JSON or OPS run folder."))
+    elif isinstance(source, str) and not os.path.exists(source):
+        problems.append(Problem(
+            ERROR, "ops_power_calibration_run",
+            f"ops_power_calibration_run does not exist: {source}",
+            "Check the path for typos, and that the drive or share is mounted."))
+    return problems
+
+
 def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     """Check a settings dict against the data it points at.
 
@@ -2032,11 +2053,13 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
             f"Use one of: {', '.join(sorted(APP_FUNCTIONS))}."))
 
     ops_map = app == "umap" and settings.get("umap_source") == "ops_profiles"
+    ops_power = app == "ops" and bool(settings.get("ops_power_sim"))
     cpg = _is_cpg_layout(settings, app)
-    inventories = ([] if ops_map or cpg else
+    inventories = ([] if ops_map or cpg or ops_power else
                    [_inventory(src, settings, app) for src in _src_values(settings, app)])
 
-    problems.extend(_check_ops_umap_inputs(settings) if ops_map
+    problems.extend(_check_ops_power_inputs(settings) if ops_power
+                    else _check_ops_umap_inputs(settings) if ops_map
                     else _check_cpg_inputs(settings) if cpg
                     else _check_src(settings, app, inventories))
     problems.extend(_check_channels(settings, app, inventories))
@@ -2169,6 +2192,8 @@ def describe_plan(settings: Dict[str, Any], app_key: str = "") -> str:
     app = _normalize_app(app_key)
     if app == "regression":
         return _describe_regression_plan(settings)
+    if app == "ops" and settings.get("ops_power_sim"):
+        return _describe_ops_power_plan(settings)
     cpg = _is_cpg_layout(settings, app)
     srcs = [settings.get("cpg_root")] if cpg else _src_values(settings, app)
     inventories = [] if cpg else [_inventory(src, settings, app) for src in srcs]
@@ -2223,6 +2248,24 @@ def describe_plan(settings: Dict[str, Any], app_key: str = "") -> str:
     for label, value in rows:
         lines.append(f"  {label.ljust(width)}  {value}" if label else f"  {' ' * width}  {value}")
     return "\n".join(lines)
+
+
+def _describe_ops_power_plan(settings: Dict[str, Any]) -> str:
+    """Describe the standalone OPS power simulation without reading image inputs."""
+    root = settings.get("dst_root")
+    output = os.path.join(str(root), "results", "ops_power_sim") if root else "not set"
+    rows = [
+        ("app", "ops (spacr.ops_engine.run_ops)"),
+        ("phase", "power_sim"),
+        ("calibration", _fmt(settings.get("ops_power_calibration_run"))),
+        ("mode", _fmt(settings.get("ops_power_mode") or "empirical")),
+        ("seeds", _fmt(settings.get("ops_power_sim_seeds", [0, 1, 2]))),
+        ("would write", output),
+    ]
+    width = max(len(label) for label, _ in rows)
+    return "\n".join([
+        "Plan — what this run would do. Nothing has been written and no model has been loaded:",
+        "", *(f"  {label.ljust(width)}  {value}" for label, value in rows)])
 
 
 def _describe_regression_plan(settings: Dict[str, Any]) -> str:
