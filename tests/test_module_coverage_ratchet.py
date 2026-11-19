@@ -581,6 +581,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 711 -> 712 on 2026-11-19, +1/-0, item 974: the spaCR store, Parquet
         # tables, Zarr crops and one DuckDB catalog (spacr/store.py).
         'spacr/store.py',
+        # 712 -> 715 on 2026-11-19, +3/-0, items 983-985: OME-Zarr images,
+        # ragged crop stores and the project converter (spacr/image_store.py,
+        # spacr/crop_store.py, spacr/ome_zarr_convert.py).
+        'spacr/image_store.py', 'spacr/crop_store.py', 'spacr/ome_zarr_convert.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -605,7 +609,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 709)
+            - len(retired_since_608) == 712)
     # 708 -> 709 on 2026-11-19: spacr/store.py (item 974, the spaCR store).
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
@@ -1152,8 +1156,11 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # simulation), moved with the workflow in one commit.
     # 711 -> 712 on 2026-11-19: spacr/store.py (item 974: the spaCR store),
     # moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 712
-    assert "--expected-file-count 712" in combine_script
+    # 712 -> 715 on 2026-11-19: spacr/image_store.py, spacr/crop_store.py and
+    # spacr/ome_zarr_convert.py (items 983-985), moved with the workflow in
+    # one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 715
+    assert "--expected-file-count 715" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

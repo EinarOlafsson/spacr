@@ -271,7 +271,9 @@ def run_fields(plan: Sequence[Tuple[str, Any, Any]],
     :param work: a top-level, spawn-safe function of ``task`` returning
         ``(image or None, {object class: labels})``.
     :param writer: the plate's single writer.
-    :param workers: worker processes; 1 runs in this process.
+    :param workers: worker processes; 1 runs in this process. With more,
+        the first field is computed here and its size sets how many workers
+        the free RAM can hold (the RAM guard, ``'image_store'``).
     :param ahead: how many fields may be in flight beyond the next one to
         commit (the reorder buffer); default ``2 * workers``. Memory stays at
         most ``ahead`` fields of results.
@@ -288,6 +290,18 @@ def run_fields(plan: Sequence[Tuple[str, Any, Any]],
                               "keys": []}
     if not todo:
         return report
+    if int(workers) > 1:
+        from .resource_log import _guard_workers
+
+        well, field, task = todo.pop(0)
+        image, labels = work(task)
+        unit = int(getattr(image, "nbytes", 0)) + sum(
+            int(getattr(m, "nbytes", 0)) for m in (labels or {}).values())
+        report["keys"].append(writer.write_field(well, field, image, labels))
+        report["written"] += 1
+        workers = max(1, int(_guard_workers("image_store", int(workers), unit)))
+        if not todo:
+            return report
     if int(workers) <= 1:
         for well, field, task in todo:
             image, labels = work(task)
