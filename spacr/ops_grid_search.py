@@ -480,6 +480,8 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
                     "shuffle_called": shuffled})
         if chosen["ops_prefix_decoy_k"] < 1:
             row.setdefault("cells_in_labels", int(n_labelled or row["cells_with_reads"]))
+            row["cells_real"] = int((_cells["quality"].isin(("perfect", "great"))
+                                     & ~_cells["gene"].isin((DECOY_GENE, NEARMISS_GENE))).sum())
         rows.append(row)
         eval_s.append(time.perf_counter() - began)
     return {"rows": rows, "detect_s": detect_s, "eval_s": eval_s}
@@ -720,17 +722,17 @@ def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str
 
 
 def _apply_grid_choice(settings: Mapping[str, Any], result: Any, point: int) -> Dict[str, Any]:
-    """Write one grid point's values into the run settings.
+    """Write the values of one grid point into the run settings.
 
     :param settings: the run settings.
-    :param result: :func:`_run_grid_search`'s result, or the path of its CSV.
+    :param result: the result of :func:`_run_grid_search`, or the path of its CSV.
     :param point: the point to apply (``point`` in the table; 0 is the
         default).
-    :returns: a copy of the settings with the point's values. A point other
-        than the default fixes its values, so the per-well tuning is
-        switched off (``ops_prefix_threshold_tuning='none'``) and the read
-        mode is entered; a column the point leaves to each well keeps the
-        setting. ``ops_grid_run_id``, ``ops_grid_tiles`` and
+    :returns: a copy of the settings with the selected values. A point other
+        than the default switches off per-well tuning only when all its
+        values are uniform. A column left to each well keeps the entered
+        setting and enables ``ops_prefix_threshold_tuning='per_well_decoy'``.
+        ``ops_grid_run_id``, ``ops_grid_tiles`` and
         ``ops_grid_seed`` record the grid run, and ``ops_grid_search`` is
         switched off so the next run decodes.
     :raises ValueError: for a point the grid run does not have.
@@ -752,12 +754,14 @@ def _apply_grid_choice(settings: Mapping[str, Any], result: Any, point: int) -> 
     row = hit.iloc[0]
     out = dict(settings)
     if int(point) != 0:
+        per_well = False
         for key in _GRID_KEYS:
             value = row[key]
             if isinstance(value, str) and value == "per well":
+                per_well = True
                 continue
             out[key] = _cast(key, value)
-        out["ops_prefix_threshold_tuning"] = "none"
+        out["ops_prefix_threshold_tuning"] = "per_well_decoy" if per_well else "none"
     out.update({"ops_grid_run_id": record["run_id"], "ops_grid_tiles": ",".join(record["tiles"]),
                 "ops_grid_search": False})
     if record.get("seed") is not None:
