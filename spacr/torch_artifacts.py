@@ -224,11 +224,15 @@ def _legacy_configuration(payload: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-OLD_CUSTOM_HEAD_MESSAGE = (
-    "This model was trained with the old spaCR custom classifier, which "
-    "clipped negative class scores to 0 and always used 3 image channels. "
-    "That classifier was fixed in spaCR 1.5.1.8 and old models cannot be "
-    "reused. Retrain the model with this version of spaCR.")
+def _old_custom_head_message() -> str:
+    """The translated refusal for a model of the old custom-classifier head."""
+    from .qt.i18n import tr
+
+    return tr(
+        "This model was trained with the old spaCR custom classifier, which "
+        "clipped negative class scores to 0 and always used 3 image channels. "
+        "That classifier was fixed in spaCR 1.5.1.8 and old models cannot be "
+        "reused. Retrain the model with this version of spaCR.")
 
 
 def _refuse_old_custom_head(config: Mapping[str, Any], state_dict=None) -> None:
@@ -247,7 +251,7 @@ def _refuse_old_custom_head(config: Mapping[str, Any], state_dict=None) -> None:
 
     name = config.get("model_name")
     if name == "CustomCellClassifier":
-        raise ValueError(tr(OLD_CUSTOM_HEAD_MESSAGE))
+        raise ValueError(_old_custom_head_message())
     if name != "custom" or not isinstance(state_dict, Mapping):
         return
     weight = state_dict.get("early_fusion.conv1.weight")
@@ -336,8 +340,7 @@ def load_model_artifact(
     if isinstance(raw, nn.Module):
         if raw.__class__.__name__ == "CustomCellClassifier" \
                 and "in_channels" not in vars(raw):
-            from .qt.i18n import tr
-            raise ValueError(tr(OLD_CUSTOM_HEAD_MESSAGE))
+            raise ValueError(_old_custom_head_message())
         return raw, {
             "legacy": True,
             "artifact_role": "legacy_full_module",

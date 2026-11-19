@@ -4756,6 +4756,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "power_model.py")
     paths.add(ROOT / "spacr" / "uniprot.py")
     paths.add(ROOT / "spacr" / "validate.py")
+    paths.add(ROOT / "spacr" / "torch_artifacts.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4811,9 +4812,16 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                          and node.name == "_restrict_to_owner"]
         if path == source_root / "utils.py":
             tree.body = [node for node in tree.body
+                         if (isinstance(node, ast.FunctionDef)
+                             and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
+                                               "_cellpose_stock_preflight", "filter_dataframe_features"})
+                         or (isinstance(node, ast.ClassDef)
+                             and node.name == "CustomCellClassifier")]
+        if path == source_root / "torch_artifacts.py":
+            # The refusals of old custom-classifier models are its only captions.
+            tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
-                                           "_cellpose_stock_preflight", "filter_dataframe_features"}]
+                         and node.name in {"_old_custom_head_message", "_refuse_old_custom_head"}]
         if path == source_root / "attribution.py":
             diagnostic_owners = {
                 "_cf_preserved_channels", "_cf_preserve_reference_channels",
