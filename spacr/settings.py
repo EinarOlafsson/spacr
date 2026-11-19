@@ -1211,7 +1211,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
         settings.setdefault(key, value.copy() if isinstance(value, (dict, list)) else value)
     settings.setdefault('segmentation_backend', 'cellpose')
     settings.setdefault('batch_fields', 8)
-    settings.setdefault('keep_npz', False)
 
     settings.setdefault('src', 'path')
     settings.setdefault('delete_intermediate', False)
@@ -4659,7 +4658,6 @@ expected_types = {
     "batch_size": int,
     "pipeline_style": str,
     "batch_fields": int,
-    "keep_npz": bool,
     "n_epochs": int,
     "from_scratch": bool,
     "width_height": list,
@@ -5518,7 +5516,6 @@ tooltips = {
     "batch_size": "(int) - How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. Defaults: 50 for mask generation, 64 for training.",
     "pipeline_style": "(str) - Which mask pipeline runs. 'v1' is the disk-based chain (rename, per-channel folders, npy, npz, mask npy, merged/) that measure, annotate and every downstream tool expect, and is the fully tested path. 'v2' streams from the originals and writes one npy per field with masks appended in place, using roughly 60-80% less disk but producing no .npz. Default 'v1'.",
     "batch_fields": "(int) - Streaming pipeline only (pipeline_style='v2'): how many whole field stacks are loaded into RAM before one Cellpose batch is segmented. Larger values keep the GPU busier and cut the number of read passes over the plate, at a memory cost of roughly one full field stack each. Ignored entirely by the v1 pipeline. Default 8.",
-    "keep_npz": "(bool) - Streaming pipeline only (pipeline_style='v2'): write each in-memory NPZ batch under merged/_scratch/ instead of discarding it, so intermediate data from a failed run can be inspected. This increases disk usage; enable it only for diagnosis. Default False.",
     "CP_probability": "(int) - Cellpose cellprob_threshold used by the standalone apply/test-model submodules, where it carries this name instead of the per-object <object>_cellprob_threshold used by the Mask module. Only pixels whose predicted cell probability exceeds it join a mask, so raising it shrinks outlines and drops faint objects while lowering it grows them and recovers dim ones. Default 0.",
     "FT": "(float) - Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
     "circularize": "(bool) - Replace each detected mask with an equal-area circle centred on its centroid before measurement. This can reduce boundary variation for approximately circular objects with noisy segmentation outlines. Do not enable it when shape is an outcome, because circularization removes elongation and other morphological differences. Default False.",
@@ -6789,7 +6786,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "mask_workers_per_gpu", "illumination_for_later_masks", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "mask_workers_per_gpu", "illumination_for_later_masks", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",

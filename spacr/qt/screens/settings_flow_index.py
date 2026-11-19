@@ -854,7 +854,6 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'isomap_path_method',
     'keep_groups',
     'keep_intermediate',
-    'keep_npz',
     'keep_original_images',
     'l1_ratio',
     'label',

@@ -637,7 +637,7 @@ def test_every_setting_the_new_modules_expose_has_a_tooltip(key):
     from spacr.qt.screens.settings_model import resolve_default_settings
     missing = sorted(k for k in resolve_default_settings(key)
                      if k not in S.tooltips)
-    # `pipeline_style`, `batch_fields`, `keep_npz` etc. are shared with mask
+    # `pipeline_style`, `batch_fields` etc. are shared with mask
     # and already exempt there; anything else is a real gap.
     already_exempt = {k for k in missing if k not in S.expected_types}
     assert not (set(missing) - already_exempt), (

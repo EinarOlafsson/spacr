@@ -5460,7 +5460,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 20,264 -> 20,265 on 2026-11-14: item 938's optional `progress_share` of
     # spacr.object.generate_cellpose_masks_sam (defaulted), the serial mask
     # path's per-batch progress lines.
-    assert sum(len(item.parameters) for item in callables) == 20265
+    # 20,265 -> 20,262 on 2026-11-18: item 987 removed the `keep_npz` keyword of
+    # spacr.pipeline_v2.run_v2 and the `keep_npz` and `npz_dir` keywords of
+    # spacr.pipeline_v2.stream_masks_from_stack (the scratch NPZ is gone).
+    assert sum(len(item.parameters) for item in callables) == 20262
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5804,7 +5807,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # changed parameters; new callables are checked by their arrival contracts.
     # Moved 2026-11-14 for item 938 (was 17089b9e...): the optional
     # `progress_share` of spacr.object.generate_cellpose_masks_sam.
-) == '6e569df7200c40ec836404fed5c2d8efbec245e64bf77f9c9249cc293be5bccc'
+    # Moved 2026-11-18 for item 987 (was 6e569df7...): run_v2 and
+    # stream_masks_from_stack lost `keep_npz` and `npz_dir`.
+) == 'a1e211425beb740dde4db5c5ef8bc1123370546e1a08163ebda6fc16e221c625'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

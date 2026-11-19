@@ -96,7 +96,7 @@ def test_saved_labels_use_raw_own_channel_on_heterogeneous_canvases(
 
     PV.stream_masks_from_stack(
         stacks, channels_for_cellpose=(2, 0, 2), batch_fields=3,
-        postprocess_settings=_settings(minimum, maximum), keep_npz=True,
+        postprocess_settings=_settings(minimum, maximum),
     )
 
     # All model inputs still share the normalization canvas and are scaled.
@@ -106,9 +106,7 @@ def test_saved_labels_use_raw_own_channel_on_heterogeneous_canvases(
     label = 1 if minimum > 0 or maximum > 0 else 7
     for stack, raw, retained in zip(stacks, raws, kept):
         _assert_saved(stack, raw, kept=retained, label=label)
-    with np.load(stacks[0].path.parent / "_scratch" / "batch_0000.npz") as batch:
-        for stack, raw in zip(stacks, raws):
-            np.testing.assert_array_equal(batch[stack.field_id], raw)
+    assert not (stacks[0].path.parent / "_scratch").exists()
 
 
 @pytest.mark.parametrize("minimum,maximum,kept", [
@@ -127,7 +125,6 @@ def test_illumination_corrects_model_inputs_but_not_filter_means(
     PV.stream_masks_from_stack(
         [stack], channels_for_cellpose=(2, 0, 2), batch_fields=1,
         postprocess_settings=settings, illumination_session=session,
-        keep_npz=True,
     )
 
     selected = raw[..., [2, 0]]

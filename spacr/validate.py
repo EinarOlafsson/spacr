@@ -1123,6 +1123,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "controls": "nontargeting_control_grnas",
     "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
     "denoise": "",
+    "keep_npz": "",
     "load_path_regex": "",
     "mask_array": "",
     "normalization": "",
