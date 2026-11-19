@@ -5572,6 +5572,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-13 for item 932 (was 530b264e...): spacr.ops_cycles.align_field's
     # three new optional parameters (item 932); the parameter total above
     # moves by the same three and the required total does not.
+    # Moved 2026-11-19 (was 6e569df7...): CustomCellClassifier drops its three
+    # ignored optional parameters under rule 41, the parameter total above
+    # moves by the same three and the required total does not.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -5806,7 +5809,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # changed parameters; new callables are checked by their arrival contracts.
     # Moved 2026-11-14 for item 938 (was 17089b9e...): the optional
     # `progress_share` of spacr.object.generate_cellpose_masks_sam.
-) == '6e569df7200c40ec836404fed5c2d8efbec245e64bf77f9c9249cc293be5bccc'
+) == '49d4c40240be4a5fbfa3714f2a1d835dbcdce015c97958fcb08c58075f600874'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
