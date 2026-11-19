@@ -575,6 +575,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # (spacr/qt/widgets/ops_grid_search_panel.py).
         'spacr/ops_grid_search.py',
         'spacr/qt/widgets/ops_grid_search_panel.py',
+        # 710 -> 711 on 2026-11-19, +1/-0, item 968: the OPS power
+        # simulation (spacr/power_ops.py).
+        'spacr/power_ops.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -599,7 +602,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 707)
+            - len(retired_since_608) == 708)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -642,6 +645,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # spacr/qt/voyager3_panel.py (item 973).
     # 703 -> 705 on 2026-11-17: spacr/ops_live.py and
     # spacr/qt/widgets/ops_live_preview.py (item 971).
+    # 705 -> 706 on 2026-11-18: spacr/power_ops.py (item 968).
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -1140,8 +1144,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # 708 -> 710 on 2026-11-17: spacr/ops_grid_search.py and
     # spacr/qt/widgets/ops_grid_search_panel.py (item 960: the OPS parameter
     # grid search), moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 710
-    assert "--expected-file-count 710" in combine_script
+    # 710 -> 711 on 2026-11-19: spacr/power_ops.py (item 968: the OPS power
+    # simulation), moved with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 711
+    assert "--expected-file-count 711" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
