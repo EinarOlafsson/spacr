@@ -207,3 +207,15 @@ def test_a_rerun_of_some_fields_keeps_the_others_and_matches_a_clean_run(tmp_pat
     assert _store_bytes(tmp_path / "resumed") == _store_bytes(tmp_path / "clean")
     assert committed_rows(tmp_path / "resumed") == committed_rows(tmp_path / "clean")
     assert [r["field"] for r in committed_rows(tmp_path / "clean")] == [1, 1, 2, 2, 3, 3]
+
+
+def test_crops_of_mask_generation_names_with_a_timepoint_get_the_right_well(tmp_path):
+    from spacr.measure import measure_crop
+
+    merged, _image, _cells = _plate(tmp_path)
+    (merged / "plate1_A01_1.npy").rename(merged / "plate1_E01_10_1.npy")
+    measure_crop(_settings(merged, crop_image_format="ome-zarr"))
+    table = _crop_table(tmp_path)
+    assert set(table["well"]) == {"E01"} and set(table["field"]) == {10}
+    assert set(table["crop_store"]) == {"crops/plate=plate1/well=E01.zarr"}
+    assert set(table["object_id"]) == {"plate1_E01_10_cell_1", "plate1_E01_10_cell_2"}

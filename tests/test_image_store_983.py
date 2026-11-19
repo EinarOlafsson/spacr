@@ -190,3 +190,25 @@ def test_mask_generation_exports_tiff_pixel_exact_and_npy_writes_nothing(tmp_pat
         assert cell.dtype == stack.dtype and np.array_equal(cell, stack[..., 3])
     with pytest.raises(ValueError, match="mask_image_format must be one of"):
         export_merged(tmp_path, "png")
+
+
+def test_field_names_follow_the_schema_with_the_appended_timepoint():
+    from spacr.image_store import split_field_name
+
+    assert split_field_name("plate1_E01_10_1.npy") == ("plate1", "E01", 10)
+    assert split_field_name("plate1_B03_2.npy") == ("plate1", "B03", 2)
+    assert split_field_name("plate1_B03_2_None.npy") == ("plate1", "B03", 2)
+    with pytest.raises(ValueError, match="cannot identify a field"):
+        split_field_name("plate1_B03.npy")
+
+
+def test_two_timepoints_of_one_field_are_refused_not_overwritten(tmp_path):
+    from spacr.image_store import export_merged
+
+    stacks = _merged_run(tmp_path)
+    merged = tmp_path / "merged"
+    np.save(merged / "plate1_A01_1_2.npy", stacks["plate1_A01_1"])
+    (merged / "plate1_A01_1.npy").rename(merged / "plate1_A01_1_1.npy")
+    with pytest.raises(ValueError, match="no time axis"):
+        export_merged(tmp_path, "ome-zarr", channel_names=CHANNELS)
+    assert not (tmp_path / "images").exists()

@@ -358,12 +358,26 @@ def read_labels(path: Any, name: str, *, key: Optional[str] = None
 def split_field_name(name: str) -> Tuple[str, str, int]:
     """``'plate1_B03_2.npy'`` -> ``('plate1', 'B03', 2)``, spaCR's field name.
 
-    :param name: a field file name or path, ``<plate>_<well>_<field>``.
+    The name is read as :func:`spacr.schema.parse_field_stem` reads it: the
+    plate (with its underscores escaped), the well and the field, then the
+    timepoint Mask Generation appends to every stack
+    (``plate1_E01_10_1.npy`` is plate1, E01, field 10), which a single
+    field's identity leaves out.
+
+    :param name: a field file name or path, ``<plate>_<well>_<field>[_<time>]``.
     :returns: ``(plate, well, field)``.
+    :raises ValueError: the name has another shape.
     """
-    stem = os.path.splitext(os.path.basename(name))[0]
-    plate, well, field = stem.rsplit("_", 2)
-    return plate, well, int(field)
+    from .schema import KEY_SEPARATOR, parse_int_token, unescape_filename_component
+
+    stem = os.path.splitext(os.path.basename(str(name)))[0]
+    parts = stem.split(KEY_SEPARATOR)
+    if len(parts) == 4 and (parse_int_token(parts[3]) is not None or parts[3] == "None"):
+        parts = parts[:3]
+    if len(parts) != 3 or parse_int_token(parts[2]) is None:
+        raise ValueError(f"cannot identify a field from {stem!r}: expected "
+                         f"<plate>_<well>_<field>[_<time>]")
+    return unescape_filename_component(parts[0]), parts[1], int(parts[2])
 
 
 #: The former private name, kept for existing callers.
@@ -446,8 +460,15 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
                 written.append(str(target))
         return {"tiff": written}
     by_plate: Dict[str, List[Tuple[str, int, Any]]] = collections.defaultdict(list)
+    seen: Dict[Tuple[str, str, int], str] = {}
     for name in names:
-        plate, well, field = _split_field_name(name)
+        plate, well, field = split_field_name(name)
+        if (plate, well, field) in seen:
+            raise ValueError(
+                f"{seen[(plate, well, field)]} and {name} are the same field "
+                f"({plate} {well} {field}) at two timepoints; the plate store "
+                f"has no time axis yet, so time-lapse fields are not exported")
+        seen[(plate, well, field)] = name
         by_plate[plate].append((well, field, (str(merged / name), intensity, mask_dims)))
     report: Dict[str, Any] = {}
     for plate, plan in sorted(by_plate.items()):

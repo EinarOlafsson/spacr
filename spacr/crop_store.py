@@ -762,15 +762,17 @@ def record_measure_field_crops(settings: Mapping[str, Any], file_name: str,
 
 
 def _field_parts(file_name: str) -> Tuple[str, str, Optional[int]]:
-    """``'plate1_B03_2.npy'`` -> ``('plate1', 'B03', 2)``."""
-    stem = os.path.splitext(os.path.basename(str(file_name)))[0]
-    parts = stem.split("_")
-    if len(parts) >= 3:
-        try:
-            return "_".join(parts[:-2]), parts[-2], int(parts[-1])
-        except ValueError:
-            pass
-    return stem, "A01", None
+    """``'plate1_B03_2.npy'`` -> ``('plate1', 'B03', 2)``, as :func:`spacr.image_store.split_field_name`.
+
+    A name of another shape keeps its stem as the plate, well ``A01`` and no
+    field, so its crops are still stored.
+    """
+    from .image_store import split_field_name
+
+    try:
+        return split_field_name(file_name)
+    except ValueError:
+        return os.path.splitext(os.path.basename(str(file_name)))[0], "A01", None
 
 
 def ome_zarr_crops_exist(root: Any) -> bool:

@@ -852,7 +852,11 @@ def test_the_spatial_settings_register_once():
     filed = {k for name in ("Spatial input", "Spatial region & tiling",
                             "Spatial segmentation", "Spatial mapping",
                             "Spatial infection") for k in categories[name]}
-    assert keys == filed == set(ops_settings.SPATIAL_TYPES)
+    # Item 983: mask_image_format is shared with Mask Generation, so it is
+    # filed once, under Object Crops, with Mask Generation's tooltip.
+    shared = {"mask_image_format"}
+    assert keys - shared == filed == set(ops_settings.SPATIAL_TYPES) - shared
+    assert shared <= keys and "mask_image_format" in categories["Object Crops"]
 
 
 def test_a_gene_name_shared_by_two_features_gets_its_own_column(tmp_path):
