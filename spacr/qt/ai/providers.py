@@ -281,7 +281,15 @@ class CommandLineTool:
 
     def is_installed(self) -> bool:
         """Return True when the tool's executable is on ``PATH``."""
+        return self._installed()
+
+    def _installed(self) -> bool:
+        """Whether the executable is found; a subclass may look beyond ``PATH``."""
         return _found_on_path(self.cli_name)
+
+    def _resolve(self, name: str) -> str:
+        """The path to run for ``name``, the first word of ``status_command``."""
+        return shutil.which(name) or name
 
     def check_signed_in(self) -> Optional[bool]:
         """Ask the tool itself whether it is signed in.
@@ -297,7 +305,7 @@ class CommandLineTool:
         if not self.status_command:
             return None
         argv = list(self.status_command)
-        argv[0] = shutil.which(argv[0]) or argv[0]
+        argv[0] = self._resolve(argv[0])
         try:
             return _run_quietly(argv, self.STATUS_TIMEOUT_S) == 0
         except (OSError, subprocess.SubprocessError):
@@ -1042,21 +1050,13 @@ class CodexCliProvider(ChatProvider):
     login_command = "codex login"
     status_command = ("codex", "login", "status")
 
-    def is_installed(self) -> bool:
-        """Return True when a ``codex`` binary is on ``PATH`` or in a VS Code ChatGPT extension."""
+    def _installed(self) -> bool:
+        """Whether a ``codex`` binary is on ``PATH`` or in a VS Code ChatGPT extension."""
         return bool(_codex_executable()[0])
 
-    def check_signed_in(self) -> Optional[bool]:
-        """Run ``codex login status`` with the resolved binary.
-
-        :returns: ``True`` when it exits 0; ``False`` otherwise or when no
-            binary is found.
-        """
-        command = _codex_command()
-        try:
-            return _run_quietly([command, "login", "status"], self.STATUS_TIMEOUT_S) == 0
-        except (OSError, subprocess.SubprocessError):
-            return False
+    def _resolve(self, name: str) -> str:
+        """Run ``codex login status`` with the binary :func:`_codex_command` resolves."""
+        return _codex_command() if name == "codex" else super()._resolve(name)
 
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
