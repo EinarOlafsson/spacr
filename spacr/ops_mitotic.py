@@ -217,7 +217,9 @@ def _normalization_groups(cells, group):
     :raises ValueError: when the group column is absent.
     """
     if group not in cells:
-        raise ValueError(f"normalise_by column {group!r} is not in the reference cell table")
+        from .qt.i18n import tr
+
+        raise ValueError(tr("normalise_by column {group!r} is not in the reference cell table").format(group=group))
     result = {}
     codes, values = pd.factorize(cells[group])
     for code in np.unique(codes):
@@ -238,10 +240,14 @@ def _fit_population_normalization(cells, features, group):
     :raises ValueError: for an empty population or missing features.
     """
     if not len(cells):
-        raise ValueError("reference_cells must contain the full reference wells")
+        from .qt.i18n import tr
+
+        raise ValueError(tr("reference_cells must contain the full reference wells"))
     missing = [name for name in features if name not in cells]
     if missing:
-        raise ValueError(f"reference_cells lacks feature columns: {missing}")
+        from .qt.i18n import tr
+
+        raise ValueError(tr("reference_cells lacks feature columns: {missing}").format(missing=missing))
     fitted = {}
     for key, rows in _normalization_groups(cells, group).items():
         median = np.full(len(features), np.nan)
@@ -271,7 +277,9 @@ def _apply_population_normalization(cells, reference):
     out = np.empty((len(cells), len(features)), dtype=np.float32)
     for key, rows in _normalization_groups(cells, reference["group"]).items():
         if key not in reference["groups"]:
-            raise ValueError(f"reference_cells has no full population for group {key!r}")
+            from .qt.i18n import tr
+
+            raise ValueError(tr("reference_cells has no full population for group {key!r}").format(key=key))
         stats = reference["groups"][key]
         for j, feature in enumerate(features):
             values = cells[feature].iloc[rows].to_numpy(np.float64, na_value=np.nan)
@@ -298,17 +306,26 @@ def _label_enrichment(labels, reference_labels, reference_cells, weight):
         truth = pd.Series(reference_labels)
         if (len(truth) != len(reference_cells) or truth.isna().any()
                 or not truth.isin([False, True]).all()):
-            raise ValueError("reference_labels must contain one boolean for every reference cell")
+            from .qt.i18n import tr
+
+            raise ValueError(tr("reference_labels must contain one boolean for every reference cell"))
         population, evidence = float(truth.astype(bool).mean()), "reference_labels"
     elif weight is not None and np.isfinite(weight).all() and weight.sum() > 0:
         population, evidence = float(np.average(labels, weights=weight)), "sample_weight"
     if (population is not None and abs(fraction - population) >= 0.10
             and max(fraction, population) >= 2 * min(fraction, population)):
-        relation = "enriched" if fraction > population else "depleted"
+        from .qt.i18n import tr
+
+        message = (tr(
+            "The training label set is enriched for mitosis: {fraction:.1%} labelled "
+            "versus {population:.1%} in the reference ({evidence}); use sampling_weights "
+            "for population-level calibration") if fraction > population else tr(
+                "The training label set is depleted for mitosis: {fraction:.1%} labelled "
+                "versus {population:.1%} in the reference ({evidence}); use sampling_weights "
+                "for population-level calibration"))
         warnings.warn(
-            f"The training label set is {relation} for mitosis: {fraction:.1%} labelled "
-            f"versus {population:.1%} in the reference ({evidence}); use sampling_weights "
-            "for population-level calibration", UserWarning, stacklevel=2)
+            message.format(fraction=fraction, population=population, evidence=evidence),
+            UserWarning, stacklevel=2)
     return {"label_mitotic_fraction": fraction, "reference_mitotic_fraction": population,
             "reference_fraction_source": evidence}
 
@@ -505,11 +522,12 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
     else:
         if reference_cells is None:
             import warnings
+            from .qt.i18n import tr
 
-            warnings.warn(
+            warnings.warn(tr(
                 "reference_cells was not supplied; training rows are used as the full "
                 "normalization population. For enriched label sets, pass all cells "
-                "of the reference wells in reference_cells", UserWarning, stacklevel=2)
+                "of the reference wells in reference_cells"), UserWarning, stacklevel=2)
         reference = _fit_population_normalization(population, features, normalise_by)
         x = _apply_population_normalization(cells, reference)
     usable = np.isfinite(x).any(axis=0)
@@ -633,11 +651,12 @@ def load_mitotic_classifier(path: str) -> Dict[str, Any]:
         raise ValueError(f"{path} is not a spaCR mitotic classifier")
     if bundle.get("normalise_by") is not None and not bundle.get("normalization_reference"):
         import warnings
+        from .qt.i18n import tr
 
-        warnings.warn(
+        warnings.warn(tr(
             "This mitotic classifier has no recorded population normalization reference. "
             "Predictions use the current full wells; retrain with reference_cells "
-            "if the training labels were enriched", UserWarning, stacklevel=2)
+            "if the training labels were enriched"), UserWarning, stacklevel=2)
     return bundle
 
 
