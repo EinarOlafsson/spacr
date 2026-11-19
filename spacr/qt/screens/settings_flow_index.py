@@ -195,7 +195,6 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'cellpose3_size_model',
     'cellpose_cell_channel',
     'cellpose_diameter',
-    'cellpose_model',
     'cellpose_nucleus_channel',
     'cellpose_organelle_channel',
     'cellpose_pathogen_channel',
