@@ -130,3 +130,63 @@ def test_bad_wells_and_files_are_refused(tmp_path):
     (tmp_path / "x.bmp").write_bytes(b"")
     with pytest.raises(ValueError, match="not an image"):
         read_image(tmp_path / "x.bmp")
+
+
+def _merged_run(tmp_path):
+    """A Mask Generation run folder: merged stacks (Y, X, 3 channels + 2 masks) and the plane layout."""
+    from spacr.crops import MERGED_LAYOUT_SIDECAR
+
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    (merged / MERGED_LAYOUT_SIDECAR).write_text(json.dumps({
+        "version": 1, "intensity_channels": [0, 1, 2],
+        "mask_plane_order": ["cell", "nucleus"],
+        "mask_dims": {"cell": 3, "nucleus": 4}}))
+    stacks = {}
+    for i, name in enumerate(["plate1_A01_1", "plate1_A01_2", "plate1_B03_1", "plate2_C04_1"]):
+        rng = np.random.default_rng(i)
+        stack = np.zeros((64, 80, 5), np.uint16)
+        stack[..., :3] = rng.integers(0, 60000, (64, 80, 3))
+        stack[5:20, 5:30, 3] = 1
+        stack[30:60, 40:70, 3] = 2
+        stack[8:15, 8:20, 4] = 1
+        np.save(merged / f"{name}.npy", stack)
+        stacks[name] = stack
+    return stacks
+
+
+def test_mask_generation_exports_merged_fields_to_ome_zarr_pixel_exact(tmp_path):
+    from spacr.image_store import export_merged
+
+    stacks = _merged_run(tmp_path)
+    report = export_merged(tmp_path, "ome-zarr", channel_names=CHANNELS)
+    assert sorted(report) == ["plate1", "plate2"]
+    assert report["plate1"]["written"] == 3
+    for name, stack in stacks.items():
+        plate, well, field = name.split("_")
+        store = tmp_path / "images" / f"{plate}.ome.zarr"
+        image = read_image(store, key=(well, int(field)))
+        assert np.array_equal(image, np.moveaxis(stack[..., :3], -1, 0))
+        assert np.array_equal(read_labels(store, "cell", key=(well, int(field))), stack[..., 3])
+        assert np.array_equal(read_labels(store, "nucleus", key=(well, int(field))), stack[..., 4])
+    again = export_merged(tmp_path, "ome-zarr", channel_names=CHANNELS)
+    assert again["plate1"] == {"written": 0, "skipped": 3, "keys": []}
+
+
+def test_mask_generation_exports_tiff_pixel_exact_and_npy_writes_nothing(tmp_path):
+    import tifffile
+
+    from spacr.image_store import export_merged
+
+    stacks = _merged_run(tmp_path)
+    assert export_merged(tmp_path, "npy") == {}
+    assert not (tmp_path / "images").exists() and not (tmp_path / "merged_tiff").exists()
+    files = export_merged(tmp_path, "tiff")["tiff"]
+    assert len(files) == 4 * 3
+    for name, stack in stacks.items():
+        image = tifffile.imread(str(tmp_path / "merged_tiff" / f"{name}.tif"))
+        assert np.array_equal(image, np.moveaxis(stack[..., :3], -1, 0))
+        cell = tifffile.imread(str(tmp_path / "merged_tiff" / f"{name}_cell_mask.tif"))
+        assert cell.dtype == stack.dtype and np.array_equal(cell, stack[..., 3])
+    with pytest.raises(ValueError, match="mask_image_format must be one of"):
+        export_merged(tmp_path, "png")

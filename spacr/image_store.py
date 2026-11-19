@@ -29,8 +29,8 @@ from typing import (Any, Callable, Dict, Iterable, Iterator, List, Mapping,
 
 import numpy as np
 
-__all__ = ["IMAGE_FORMATS", "PlateWriter", "read_image", "read_labels",
-           "run_fields"]
+__all__ = ["IMAGE_FORMATS", "PlateWriter", "export_merged", "read_image",
+           "read_labels", "run_fields"]
 
 _LOG = logging.getLogger(__name__)
 
@@ -312,3 +312,99 @@ def read_labels(path: Any, name: str, *, key: Optional[str] = None
     if _is_zarr_group(target / "labels" / str(name)):
         return read_image(target / "labels" / str(name))
     return read_image(target)
+
+
+def _split_field_name(name: str) -> Tuple[str, str, int]:
+    """``'plate1_B03_2.npy'`` -> ``('plate1', 'B03', 2)``, spaCR's field name."""
+    stem = os.path.splitext(os.path.basename(name))[0]
+    plate, well, field = stem.rsplit("_", 2)
+    return plate, well, int(field)
+
+
+def _merged_field(task: Tuple[str, Sequence[int], Mapping[str, int]]
+                  ) -> Tuple[np.ndarray, Dict[str, np.ndarray]]:
+    """One merged stack split into its image ``(C, Y, X)`` and labels (spawn-safe).
+
+    :param task: ``(path, intensity planes, {object class: mask plane})``.
+    """
+    path, intensity, mask_dims = task
+    array = np.load(path, mmap_mode="r")
+    image = np.moveaxis(np.array(array[..., list(intensity)]), -1, 0)
+    labels = {role: np.array(array[..., dim]) for role, dim in mask_dims.items()
+              if dim < array.shape[-1]}
+    return image, labels
+
+
+def _merged_layout(src: Any) -> Tuple[Path, List[int], Dict[str, int], List[str]]:
+    """``merged/``, its intensity planes, mask planes and field files."""
+    from .crops import MERGED_LAYOUT_SIDECAR
+
+    merged = Path(src) / "merged"
+    layout_path = merged / MERGED_LAYOUT_SIDECAR
+    if not layout_path.is_file():
+        raise ValueError(f"{merged} has no plane layout ({MERGED_LAYOUT_SIDECAR}); "
+                         f"run Mask Generation to the merge step first")
+    layout = json.loads(layout_path.read_text(encoding="utf-8"))
+    intensity = list(range(len(layout.get("intensity_channels") or ())))
+    mask_dims = {str(r): int(d) for r, d in (layout.get("mask_dims") or {}).items()}
+    names = sorted(p.name for p in merged.glob("*.npy")
+                   if not p.name.startswith("."))
+    return merged, intensity, mask_dims, names
+
+
+def export_merged(src: Any, fmt: str, *, workers: int = 1,
+                  channel_names: Optional[Sequence[str]] = None,
+                  start_method: Optional[str] = None) -> Dict[str, Any]:
+    """Write every ``<src>/merged`` field in ``fmt`` (Mask Generation, item 983).
+
+    :param src: the run root holding ``merged/`` and its plane layout.
+    :param fmt: ``'ome-zarr'``: one plate store per plate under
+        ``<src>/images/``, with the masks as labels. ``'tiff'``:
+        ``<src>/merged_tiff/<field>.tif`` (the image, planes first) and
+        ``<field>_<object>_mask.tif`` beside it, each in its own dtype.
+        ``'npy'`` writes nothing.
+    :param workers: processes reading the merged stacks; the parent writes.
+    :param channel_names: names for the intensity channels.
+    :returns: per plate, what :func:`run_fields` reports; or ``tiff``, the
+        files written.
+
+    The merged ``.npy`` stacks stay in place: Measure and the crop readers
+    read them until their readers move to :func:`read_image` (item 984).
+    """
+    fmt = str(fmt or "npy").strip().lower()
+    if fmt not in IMAGE_FORMATS:
+        raise ValueError(f"mask_image_format must be one of {list(IMAGE_FORMATS)}; "
+                         f"got {fmt!r}")
+    if fmt == "npy":
+        return {}
+    merged, intensity, mask_dims, names = _merged_layout(src)
+    if fmt == "tiff":
+        import tifffile
+
+        out_dir = Path(src) / "merged_tiff"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        written: List[str] = []
+        for name in names:
+            image, labels = _merged_field((str(merged / name), intensity, mask_dims))
+            stem = Path(name).stem
+            arrays = [(stem, image, "CYX")] + [
+                (f"{stem}_{role}_mask", mask, "YX") for role, mask in labels.items()]
+            for file_stem, array, axes in arrays:
+                target = out_dir / f"{file_stem}.tif"
+                tmp = out_dir / f".{file_stem}.tif.tmp"
+                tifffile.imwrite(str(tmp), array, metadata={"axes": axes})
+                os.replace(tmp, target)
+                written.append(str(target))
+        return {"tiff": written}
+    by_plate: Dict[str, List[Tuple[str, int, Any]]] = collections.defaultdict(list)
+    for name in names:
+        plate, well, field = _split_field_name(name)
+        by_plate[plate].append((well, field, (str(merged / name), intensity, mask_dims)))
+    report: Dict[str, Any] = {}
+    for plate, plan in sorted(by_plate.items()):
+        plan.sort(key=lambda item: (item[0], item[1]))
+        writer = PlateWriter(Path(src) / "images", plate,
+                             channel_names=channel_names)
+        report[plate] = run_fields(plan, _merged_field, writer,
+                                   workers=workers, start_method=start_method)
+    return report

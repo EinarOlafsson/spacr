@@ -816,6 +816,11 @@ def preprocess_generate_masks(settings):
                             cancellation_checkpoint()
                             from .io import _export_vvvv_merged
                             _export_vvvv_merged(src)
+                        if str(settings.get('mask_image_format') or 'npy').lower() != 'npy':
+                            cancellation_checkpoint()
+                            from .image_store import export_merged
+                            export_merged(src, settings['mask_image_format'],
+                                          workers=max(1, int(settings.get('n_jobs') or 1)))
 
                         if settings['timelapse'] and settings.get('motility_analysis', False):
                             cancellation_checkpoint()
