@@ -199,12 +199,118 @@ def _well_robust_z(cells: pd.DataFrame, features: Sequence[str],
     out = np.empty((len(cells), len(features)), np.float32)
     for j, feature in enumerate(features):
         column = cells[feature].to_numpy(np.float64)
+        column = np.where(np.isfinite(column), column, np.nan)
         for rows in rows_of:
             block = column[rows]
             median = np.nanmedian(block) if len(block) else np.nan
             mad = 1.4826 * np.nanmedian(np.abs(block - median)) if len(block) else np.nan
             out[rows, j] = (block - median) / mad if mad > 0 else np.nan
     return out
+
+
+def _normalization_groups(cells, group):
+    """Return positional rows for each value of the chosen normalization column.
+
+    :param cells: reference or query cells.
+    :param group: the group column, normally the well.
+    :returns: group values mapped to row indices, with None for missing keys.
+    :raises ValueError: when the group column is absent.
+    """
+    if group not in cells:
+        raise ValueError(f"normalise_by column {group!r} is not in the reference cell table")
+    result = {}
+    codes, values = pd.factorize(cells[group])
+    for code in np.unique(codes):
+        key = None if code == -1 else values[code]
+        if isinstance(key, np.generic):
+            key = key.item()
+        result[key] = np.flatnonzero(codes == code)
+    return result
+
+
+def _fit_population_normalization(cells, features, group):
+    """Fit per-group medians and scaled MADs on a complete reference population.
+
+    :param cells: every cell of the reference wells, including unlabelled cells.
+    :param features: ordered feature columns.
+    :param group: the normalization column.
+    :returns: reference statistics and their feature/group metadata.
+    :raises ValueError: for an empty population or missing features.
+    """
+    if not len(cells):
+        raise ValueError("reference_cells must contain the full reference wells")
+    missing = [name for name in features if name not in cells]
+    if missing:
+        raise ValueError(f"reference_cells lacks feature columns: {missing}")
+    fitted = {}
+    for key, rows in _normalization_groups(cells, group).items():
+        median = np.full(len(features), np.nan)
+        scale = np.full(len(features), np.nan)
+        for j, feature in enumerate(features):
+            values = cells[feature].iloc[rows].to_numpy(np.float64, na_value=np.nan)
+            values = values[np.isfinite(values)]
+            if len(values):
+                median[j] = np.median(values)
+                mad = 1.4826 * np.median(np.abs(values - median[j]))
+                if mad > 0:
+                    scale[j] = mad
+        fitted[key] = {"median": median, "scale": scale, "cells": int(len(rows))}
+    return {"schema": 1, "group": group, "features": list(features),
+            "reference_cells": int(len(cells)), "groups": fitted}
+
+
+def _apply_population_normalization(cells, reference):
+    """Normalize labelled or query rows against their explicit complete reference.
+
+    :param cells: the rows to transform, possibly a subset of the reference.
+    :param reference: statistics fitted on full wells from this population.
+    :returns: float32 features in the reference column order.
+    :raises ValueError: when an explicit reference omits a requested group.
+    """
+    features = reference["features"]
+    out = np.empty((len(cells), len(features)), dtype=np.float32)
+    for key, rows in _normalization_groups(cells, reference["group"]).items():
+        if key not in reference["groups"]:
+            raise ValueError(f"reference_cells has no full population for group {key!r}")
+        stats = reference["groups"][key]
+        for j, feature in enumerate(features):
+            values = cells[feature].iloc[rows].to_numpy(np.float64, na_value=np.nan)
+            values = np.where(np.isfinite(values), values, np.nan)
+            out[rows, j] = (values - stats["median"][j]) / stats["scale"][j]
+    return out
+
+
+def _label_enrichment(labels, reference_labels, reference_cells, weight):
+    """Report enrichment only against supplied population truth or sampling weights.
+
+    :param labels: boolean labels of the training rows.
+    :param reference_labels: optional boolean truth for every reference row.
+    :param reference_cells: the complete population aligned with that truth.
+    :param weight: optional post-stratification weights of the labelled rows.
+    :returns: label and reference fractions, with the source of the comparison.
+    :raises ValueError: for incomplete or nonboolean reference truth.
+    """
+    import warnings
+
+    fraction = float(np.mean(labels))
+    population, evidence = None, "unknown"
+    if reference_labels is not None:
+        truth = pd.Series(reference_labels)
+        if (len(truth) != len(reference_cells) or truth.isna().any()
+                or not truth.isin([False, True]).all()):
+            raise ValueError("reference_labels must contain one boolean for every reference cell")
+        population, evidence = float(truth.astype(bool).mean()), "reference_labels"
+    elif weight is not None and np.isfinite(weight).all() and weight.sum() > 0:
+        population, evidence = float(np.average(labels, weights=weight)), "sample_weight"
+    if (population is not None and abs(fraction - population) >= 0.10
+            and max(fraction, population) >= 2 * min(fraction, population)):
+        relation = "enriched" if fraction > population else "depleted"
+        warnings.warn(
+            f"The training label set is {relation} for mitosis: {fraction:.1%} labelled "
+            f"versus {population:.1%} in the reference ({evidence}); use sampling_weights "
+            "for population-level calibration", UserWarning, stacklevel=2)
+    return {"label_mitotic_fraction": fraction, "reference_mitotic_fraction": population,
+            "reference_fraction_source": evidence}
 
 
 def _model(kind: str, seed: int, balanced: bool = True):
@@ -318,7 +424,9 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
                              seed: int = 0, threshold: float = 0.5,
                              shuffled_control: bool = True,
                              sample_weight: Optional[Sequence[float]] = None,
-                             balanced: Optional[bool] = None) -> Dict[str, Any]:
+                             balanced: Optional[bool] = None,
+                             reference_cells: Optional[pd.DataFrame] = None,
+                             reference_labels: Optional[Sequence[bool]] = None) -> Dict[str, Any]:
     """Train a mitotic classifier and validate it with grouped cross-validation.
 
     :param cells: one row per labelled cell, with the feature columns and the
@@ -330,9 +438,10 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
         the field (well and site). Cells of one group are always in the same
         fold. Required: a random split puts neighbours from the same image
         on both sides and overstates the accuracy.
-    :param normalise_by: every feature is first made a robust z against all
-        cells of this column's groups (the well), so the model travels
-        between wells and plates; None uses the raw values.
+    :param normalise_by: make each feature a robust z against the full
+        reference population of this column (normally the well). None
+        uses raw values. Use distinct group identifiers when combining
+        wells from several plates in one table.
     :param model: ``'hist_gradient_boosting'`` (the default) or
         ``'logistic'``, a simpler baseline.
     :param n_splits: the number of folds; at most the number of groups.
@@ -349,10 +458,22 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
     :param balanced: weigh the two classes equally in training. None (the
         default) does so without ``sample_weight`` and not with it, since
         the weights already carry the screen's class balance.
+    :param reference_cells: full wells containing the labelled cells,
+        including unlabelled rows. Required for correct normalization of
+        enriched label samples. When omitted, ``cells`` is treated as the
+        complete population and a warning explains this assumption.
+        Saved training statistics are for inspection only; prediction
+        normalizes its own population.
+    :param reference_labels: optional boolean truth for every reference
+        row. Warn when the labelled fraction differs by at least ten
+        percentage points and twofold. Sampling weights provide the
+        comparison when this truth is absent; otherwise the population
+        fraction is unknown, never inferred from model predictions.
     :returns: the trained bundle: ``model`` (fitted on every labelled cell),
         ``features`` (without those that are empty in every labelled cell,
         such as a feature whose well spread is zero; they are listed in
-        ``summary["features_dropped"]``), ``normalise_by``, ``threshold``, ``folds`` (one row
+        ``summary["features_dropped"]``), ``normalise_by``, inspection-only
+        ``normalization_reference``, ``threshold``, ``folds`` (one row
         per fold), ``summary`` (mean and spread of every metric, the control
         and the label counts) and ``out_of_fold`` (each cell's held-out
         probability). Save it with :func:`save_mitotic_classifier`.
@@ -377,23 +498,42 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
         raise ValueError("no features to learn from; pass features explicitly")
     if normalise_by is not None and normalise_by not in cells:
         raise ValueError(f"normalise_by column {normalise_by!r} is not in the cell table")
-    x = _well_robust_z(cells, features, normalise_by)
+    population = cells if reference_cells is None else reference_cells
+    reference = None
+    if normalise_by is None:
+        x = _well_robust_z(cells, features, None)
+    else:
+        if reference_cells is None:
+            import warnings
+
+            warnings.warn(
+                "reference_cells was not supplied; training rows are used as the full "
+                "normalization population. For enriched label sets, pass all cells "
+                "of the reference wells in reference_cells", UserWarning, stacklevel=2)
+        reference = _fit_population_normalization(population, features, normalise_by)
+        x = _apply_population_normalization(cells, reference)
     usable = np.isfinite(x).any(axis=0)
     dropped = [f for f, ok in zip(features, usable) if not ok]
     if not usable.any():
         raise ValueError("every feature is empty after normalisation")
     features = [f for f, ok in zip(features, usable) if ok]
     x = x[:, usable]
+    if reference is not None:
+        reference["features"] = list(features)
+        for stats in reference["groups"].values():
+            stats["median"] = stats["median"][usable]
+            stats["scale"] = stats["scale"][usable]
     weight = None if sample_weight is None else np.asarray(sample_weight, float)
     if weight is not None and len(weight) != len(y):
         raise ValueError(f"sample_weight has {len(weight)} entries for {len(y)} cells")
+    enrichment = _label_enrichment(y, reference_labels, population, weight)
     balanced = (weight is None) if balanced is None else bool(balanced)
     folds, probability = _cross_validate(x, y, groups, model, n_splits, seed, threshold,
                                          weight, balanced)
     summary: Dict[str, Any] = {"cells": int(len(y)), "mitotic": int(y.sum()),
                                "groups": int(len(np.unique(groups))), "folds": int(n_splits),
                                "model": model, "features": len(features),
-                               "features_dropped": dropped}
+                               "features_dropped": dropped, **enrichment}
     for metric in FOLD_METRICS:
         summary[metric] = float(folds[metric].mean())
         summary[f"{metric}_sd"] = float(folds[metric].std(ddof=1)) if len(folds) > 1 else 0.0
@@ -412,21 +552,30 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
     summary["balanced_classes"] = balanced
     fitted = _fit(_model(model, seed, balanced), x, y, weight)
     return {"format": MODEL_FORMAT, "model": fitted, "features": features,
+            "normalization_reference": reference,
             "normalise_by": normalise_by, "threshold": float(threshold), "folds": folds,
             "summary": summary, "out_of_fold": probability}
 
 
 def predict_mitotic(bundle: Mapping[str, Any], cells: pd.DataFrame, *,
-                    probability: bool = False) -> pd.Series:
+                    probability: bool = False,
+                    reference_cells: Optional[pd.DataFrame] = None) -> pd.Series:
     """Call cells mitotic with a trained classifier.
 
     :param bundle: :func:`train_mitotic_classifier` or
         :func:`load_mitotic_classifier` output.
-    :param cells: one row per cell with the model's features and its
-        ``normalise_by`` column.
+    :param cells: all cells of each prediction well, with the required
+        features and ``normalise_by`` column. For subsets, supply the full
+        population through ``reference_cells``. New plates are normalized
+        using their own wells even when well names match the training set.
     :param probability: return the probability instead of the call.
+    :param reference_cells: explicit full prediction wells. This reference
+        always takes precedence, including groups with names seen during
+        training. When omitted, normalize the complete wells in ``cells``.
+        Saved training statistics are never used to transform predictions.
     :returns: a Series over ``cells``: booleans, or probabilities.
-    :raises ValueError: when the table lacks a feature the model needs.
+    :raises ValueError: when required features or explicit reference groups
+        are missing.
     """
     missing = [c for c in bundle["features"] if c not in cells]
     group = bundle.get("normalise_by")
@@ -434,7 +583,11 @@ def predict_mitotic(bundle: Mapping[str, Any], cells: pd.DataFrame, *,
         missing.append(group)
     if missing:
         raise ValueError(f"the cell table lacks columns the mitotic model needs: {missing}")
-    x = _well_robust_z(cells, bundle["features"], group)
+    if reference_cells is None or group is None:
+        x = _well_robust_z(cells, bundle["features"], group)
+    else:
+        reference = _fit_population_normalization(reference_cells, bundle["features"], group)
+        x = _apply_population_normalization(cells, reference)
     p = bundle["model"].predict_proba(x)[:, 1] if len(x) else np.zeros(0)
     if probability:
         return pd.Series(p, index=cells.index, name="mitotic_probability")
@@ -452,6 +605,8 @@ def save_mitotic_classifier(bundle: Mapping[str, Any], path: str) -> str:
 
     keep = {k: bundle[k] for k in ("format", "model", "features", "normalise_by",
                                    "threshold", "summary")}
+    if "normalization_reference" in bundle:
+        keep["normalization_reference"] = bundle["normalization_reference"]
     keep["folds"] = bundle["folds"].to_dict("records")
     joblib.dump(keep, path)
     return path
@@ -464,6 +619,10 @@ def load_mitotic_classifier(path: str) -> Dict[str, Any]:
     :returns: the bundle :func:`predict_mitotic` takes.
     :raises ValueError: when the file is not a spaCR mitotic classifier.
 
+    Older bundles without recorded reference statistics remain usable and
+    emit a warning. Prediction still normalizes the current full wells;
+    retraining with a full reference is advised for enriched training labels.
+
     A joblib file can run code when it is loaded, like any pickle; load only
     classifiers you trained or trust.
     """
@@ -472,6 +631,13 @@ def load_mitotic_classifier(path: str) -> Dict[str, Any]:
     bundle = joblib.load(path)
     if not isinstance(bundle, dict) or bundle.get("format") != MODEL_FORMAT:
         raise ValueError(f"{path} is not a spaCR mitotic classifier")
+    if bundle.get("normalise_by") is not None and not bundle.get("normalization_reference"):
+        import warnings
+
+        warnings.warn(
+            "This mitotic classifier has no recorded population normalization reference. "
+            "Predictions use the current full wells; retrain with reference_cells "
+            "if the training labels were enriched", UserWarning, stacklevel=2)
     return bundle
 
 
