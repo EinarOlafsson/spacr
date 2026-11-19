@@ -5,6 +5,8 @@ import zipfile
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.usefixtures('mask_archives_on_disk')
+
 import spacr.io as images
 from spacr.settings import set_default_settings_preprocess_generate_masks
 

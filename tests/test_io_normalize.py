@@ -275,7 +275,7 @@ def test_get_lists_for_normalization_follows_nucleus_cell_pathogen_order(
 # ---------------------------------------------------------------------------
 
 def test_concatenate_and_normalize_writes_normalized_batches(
-        subtests, tmp_path, monkeypatch, capsys):
+        subtests, tmp_path, monkeypatch, capsys, mask_archives_on_disk):
     """Readable stacks become ``masks/stack_<i>_norm.npz`` (or per-field timelapse)."""
     import spacr.plot
 

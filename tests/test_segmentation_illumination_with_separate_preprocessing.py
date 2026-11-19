@@ -12,6 +12,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.usefixtures('mask_archives_on_disk')
+
 from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 FIELD = 'plate1_A01_F001.npy'

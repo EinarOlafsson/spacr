@@ -7,6 +7,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
+pytestmark = pytest.mark.usefixtures('mask_archives_on_disk')
 import tifffile
 
 from spacr import convert, core

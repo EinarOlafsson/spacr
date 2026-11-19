@@ -8,6 +8,9 @@ from pathlib import Path
 import numpy as np
 
 from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+import pytest
+
+pytestmark = pytest.mark.usefixtures('mask_archives_on_disk')
 
 
 class _Session:

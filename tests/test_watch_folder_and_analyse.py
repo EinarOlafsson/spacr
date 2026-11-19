@@ -27,6 +27,8 @@ import time
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.usefixtures('mask_archives_on_disk')
+
 tifffile = pytest.importorskip("tifffile")
 
 from spacr import core                                            # noqa: E402
