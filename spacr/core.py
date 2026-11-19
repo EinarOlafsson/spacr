@@ -206,6 +206,61 @@ def _cells_from_nuclei(mask_src, settings):
     return {'nucleus': seed_folder}
 
 
+
+def _run_masks_batch_first(mask_src, src, settings, files_processed, files_to_process):
+    """Run the cell, nucleus and pathogen masks batch by batch when the batches come from a plan.
+
+    Each normalised batch is built once, kept in GPU memory, and segmented for
+    every role before the next batch is built (item 987b). Runs whose
+    ``masks`` folder holds archives, and runs whose roles feed each other
+    through the QC flags, keep the role-by-role loop.
+
+    :param mask_src: the run's ``masks`` folder.
+    :param src: the plate folder.
+    :param settings: the run settings.
+    :param files_processed: roles finished so far, for progress.
+    :param files_to_process: roles in the run, for progress.
+    :returns: the roles it segmented (empty when it did nothing).
+    """
+    from ._mask_batches import _batch_paths, _batch_first, _read_plan
+    from ._mask_workers import _roles_may_overlap, _sampled_ordinary_masks, _settings_after_role
+    from .io import _listdir_visible, check_mask_folder
+    from .object import _note_the_diameter, _run_seg_qc, generate_cellpose_masks_sam
+    from .cancellation import checkpoint as cancellation_checkpoint
+
+    if _read_plan(mask_src) is None or not _roles_may_overlap(settings):
+        return []
+    if any(name.endswith('.npz') for name in _listdir_visible(mask_src)):
+        return []
+    roles = []
+    for role in ('cell', 'nucleus', 'pathogen'):
+        if settings.get(f'{role}_channel') is None:
+            continue
+        cancellation_checkpoint()
+        if check_mask_folder(src, f'{role}_mask_stack', resume=settings.get('resume', False)):
+            roles.append(role)
+    if not roles:
+        return []
+    for role in roles:
+        _note_the_diameter(settings, role)
+    paths = _batch_paths(mask_src, _listdir_visible)
+
+    def run_role(role, path):
+        """Segment one role on one resident batch; its QC runs after every batch."""
+        cancellation_checkpoint()
+        generate_cellpose_masks_sam(mask_src, dict(settings), role, batch_paths=[path],
+                                    run_qc=False)
+
+    print(f'Batch-first masks: {len(paths)} batch(es), roles {", ".join(roles)}; '
+          'each batch is built once and kept in GPU memory for every role.')
+    with _sampled_ordinary_masks(mask_src, '+'.join(roles)):
+        _batch_first(mask_src, paths, roles, run_role)
+    _settings_after_role(settings, mask_src)
+    for role in roles:
+        _run_seg_qc(mask_src, settings, role)
+    return roles
+
+
 def preprocess_generate_masks(settings):
     """Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.
 
@@ -673,7 +728,17 @@ def preprocess_generate_masks(settings):
                                                batch_size=None,
                                                operation_type=f'{parallel_role}_mask_gen')
 
-                        if gpu_plan is None and settings['cell_channel'] != None:
+                        batch_first_roles = set()
+                        if gpu_plan is None:
+                            batch_first_roles = _run_masks_batch_first(
+                                mask_src, src, settings, files_processed, files_to_process)
+                            for done_role in batch_first_roles:
+                                files_processed += 1
+                                print_progress(files_processed, files_to_process, n_jobs=1,
+                                               time_ls=[0.0], batch_size=None,
+                                               operation_type=f'{done_role}_mask_gen')
+
+                        if gpu_plan is None and settings['cell_channel'] != None and 'cell' not in batch_first_roles:
                             cancellation_checkpoint()
                             time_ls=[]
                             if check_mask_folder(
@@ -691,7 +756,7 @@ def preprocess_generate_masks(settings):
                                 files_processed += 1
                                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
 
-                        if gpu_plan is None and settings['nucleus_channel'] != None:
+                        if gpu_plan is None and settings['nucleus_channel'] != None and 'nucleus' not in batch_first_roles:
                             cancellation_checkpoint()
                             time_ls=[]
                             if check_mask_folder(
@@ -709,7 +774,7 @@ def preprocess_generate_masks(settings):
                                 files_processed += 1
                                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
 
-                        if gpu_plan is None and settings['pathogen_channel'] != None:
+                        if gpu_plan is None and settings['pathogen_channel'] != None and 'pathogen' not in batch_first_roles:
                             cancellation_checkpoint()
                             time_ls=[]
                             if check_mask_folder(
