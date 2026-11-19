@@ -44,7 +44,7 @@ def test_the_branch_applies_the_defaults_before_reading_the_dict(tmp_path, monke
 
     processing_keys = {
         "cell_model_name", "cell_diameter", "batch_fields", "metadata_type",
-        "custom_regex", "keep_npz", "cell_cellprob_threshold", "cell_flow_threshold",
+        "custom_regex", "cell_cellprob_threshold", "cell_flow_threshold",
     }
     real_defaults = S.set_default_settings_preprocess_generate_masks
     real_organelle_defaults = S._set_organelle_defaults

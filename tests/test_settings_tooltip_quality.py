@@ -1513,7 +1513,8 @@ if app_key == "mask":
     for app, key in optional_arrivals:
         assert resolve_default_settings(app)[key] is None
     recognized_arrivals |= optional_arrivals
-    assert comparisons - len(recognized_arrivals) == 1005
+    # Item 987 removed keep_npz (one claim in Mask), so one fewer comparison: 1005 -> 1004.
+    assert comparisons - len(recognized_arrivals) == 1004
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716

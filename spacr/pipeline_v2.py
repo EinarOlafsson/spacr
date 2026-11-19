@@ -23,8 +23,8 @@ what the downstream measure module reads:
     Pass 2 — segment
         stream the plate in batches of N fields, hand each batch to
         Cellpose, append the mask channels to the SAME stack file.
-        Each batch is written to a scratch NPZ on the way through and
-        deleted again unless ``keep_npz=True``.
+        Each batch stays in memory; nothing is written to disk but the
+        combined stack and, at the end, the mask channel appended to it.
 
 Output — ``merged/`` folder holds one file per field, each shape
 ``(H, W, C_image + C_mask)`` in uint16, plus:
@@ -59,7 +59,6 @@ import json
 import os
 import logging
 import re
-import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -609,8 +608,6 @@ def stream_masks_from_stack(
     diameter: Optional[float] = None,
     batch_fields: int = 8,
     mask_channel_name: str = "mask",
-    keep_npz: bool = False,
-    npz_dir: Optional[Path] = None,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
     min_size: int = 15,
@@ -639,15 +636,10 @@ def stream_masks_from_stack(
         ``64 * 1024**2`` packed input or padded model-input values.
     :param mask_channel_name: human name to record for the appended
         mask channel (default ``"mask"``).
-    :param keep_npz: the intermediate batch is compressed to an NPZ under
-        ``npz_dir`` on every batch regardless; this flag only decides
-        whether that file and the scratch folder survive the run.
-    :param npz_dir: where to write the (optional) intermediate NPZ
-        files. Defaults to a scratch subfolder under the stack folder.
     :param illumination_session: optional
         :class:`spacr.illumination.SegmentationIlluminationSession`. Its
         corrector sees private selected-channel copies immediately before
-        normalisation/Cellpose; persisted intensity planes and scratch NPZs
+        normalisation/Cellpose; persisted intensity planes
         remain raw, and completion is recorded only after the combined stack
         has been atomically replaced.
     :param psf_session: optional captured PSF session. Unmixes each whole
@@ -712,9 +704,6 @@ def stream_masks_from_stack(
     filter_by_raw_intensity = (minimum > 0 or maximum > 0 or filters_need_intensity(
         settings_filters(intensity_settings, object_type)))
 
-    scratch = Path(npz_dir) if npz_dir else stacks[0].path.parent / "_scratch"
-    scratch.mkdir(parents=True, exist_ok=True)
-
     if partitioned:
         checkpoint()
     try:
@@ -763,12 +752,6 @@ def stream_masks_from_stack(
         ):
             loaded = [(np.array(np.load(s.path, mmap_mode="r", allow_pickle=False), copy=True)
                        if calibrated else _as_hwc(np.load(s.path))) for s in batch]
-
-        npz_path = scratch / f"batch_{batch_start:04d}.npz"
-        np.savez_compressed(
-            npz_path,
-            **{s.field_id: arr for s, arr in zip(batch, loaded)},
-        )
 
         selected_images: List[np.ndarray] = []
         calibrated_results = []
@@ -954,17 +937,6 @@ def stream_masks_from_stack(
                 else:
                     psf_session.mark_completed(sf.field_id)
 
-        if not keep_npz:
-            try:
-                npz_path.unlink()
-            except Exception:
-                pass
-
-    if not keep_npz:
-        try:
-            shutil.rmtree(scratch, ignore_errors=True)
-        except Exception:
-            pass
 
     sidecar = stacks[0].path.parent / "channel_order.json"
     try:
@@ -1374,7 +1346,7 @@ def _run_partitioned_v2(src, settings, options):
             stream_masks_from_stack(stacks, model_name=options['model_name'],
                 channels_for_cellpose=options['channels_for_cellpose'],
                 diameter=options['diameter'], batch_fields=options['batch_fields'],
-                keep_npz=options['keep_npz'], cellprob_threshold=options['cellprob_threshold'],
+                cellprob_threshold=options['cellprob_threshold'],
                 flow_threshold=options['flow_threshold'], min_size=options['min_size'],
                 resample=options['resample'], postprocess_settings=child_settings,
                 object_type='cell', psf_session=session)
@@ -1427,7 +1399,6 @@ def run_v2(
     batch_fields: int = 8,
     metadata_type: str = "auto",
     custom_regex: Optional[str] = None,
-    keep_npz: bool = False,
     cellprob_threshold: float = 0.0,
     flow_threshold: float = 0.4,
     min_size: int = 15,
@@ -1443,7 +1414,7 @@ def run_v2(
         mapper = FilenameMapper.discover(src, metadata_type, custom_regex)
         stacks = stream_originals_to_stack(src, mapper, channels, channel_names)
         stream_masks_from_stack(stacks, model_name, channels_for_cellpose,
-                                diameter, batch_fields, keep_npz=keep_npz)
+                                diameter, batch_fields)
 
     :param src: plate folder holding the originals, scanned non-recursively.
         Normally the mapping CSV lands here and output goes to ``<src>/merged``.
@@ -1489,9 +1460,6 @@ def run_v2(
         group it omits silently defaults, so a regex without ``chanID``
         makes every image channel 1 and therefore its own single-plane
         field.
-    :param keep_npz: the per-batch NPZ is compressed into
-        ``merged/_scratch`` either way — this only decides whether it and
-        the scratch folder survive, so ``False`` does not save the write.
     :param cellprob_threshold: forwarded to ``model.eval`` through
         ``float()``.
     :param flow_threshold: forwarded to ``model.eval`` through ``float()``.
@@ -1622,7 +1590,6 @@ def run_v2(
             batch_fields=batch_fields,
             metadata_type=metadata_type,
             custom_regex=custom_regex,
-            keep_npz=keep_npz,
             cellprob_threshold=cellprob_threshold,
             flow_threshold=flow_threshold,
             min_size=min_size,
@@ -1754,7 +1721,6 @@ def run_v2(
         stacks, model_name=model_name,
         channels_for_cellpose=channels_for_cellpose,
         diameter=diameter, batch_fields=batch_fields,
-        keep_npz=keep_npz,
         cellprob_threshold=cellprob_threshold,
         flow_threshold=flow_threshold,
         min_size=min_size,

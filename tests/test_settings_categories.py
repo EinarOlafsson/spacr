@@ -1153,7 +1153,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
     "parasite_count_column", "max_parasites_per_vacuole",
     "require_host_cell", "non_power_of_two_warn",
-    "batch_fields", "fill_na", "keep_npz", "pipeline_style", "plateID",
+    "batch_fields", "fill_na", "pipeline_style", "plateID",
     "save_original_images",
     # Landed alongside the regroup: the fail-loud policy (spacr.errors) and
     # the on-demand crop source (spacr.crops).
