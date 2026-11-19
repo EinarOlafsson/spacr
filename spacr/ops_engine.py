@@ -10264,18 +10264,14 @@ def _rows_for_wells(db: str, table: str, plate: str, wells: Sequence[str]):
 
 
 def _in_pipeline_figures(function):
-    """Run ``function`` inside :func:`spacr.figures.style.pipeline_figures`."""
-    import functools
+    """Run ``function`` inside :func:`spacr.figures.style.pipeline_figures`.
 
-    @functools.wraps(function)
-    def wrapped(*args, **kwargs):
-        """``function`` with the plain house style for every figure it saves."""
-        from .figures.style import pipeline_figures
+    The context manager is its own decorator, so each call enters a fresh
+    context and no wrapper is defined here.
+    """
+    from .figures.style import pipeline_figures
 
-        with pipeline_figures():
-            return function(*args, **kwargs)
-
-    return wrapped
+    return pipeline_figures()(function)
 
 
 @_in_pipeline_figures

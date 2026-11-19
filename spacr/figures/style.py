@@ -874,7 +874,7 @@ __all__ = [
     "INK_PRINT", "INK_SCREEN", "LINE_KEYS", "TEXT_KEYS", "TRANSPARENT",
     "Palette", "ROLES", "TYPE_SCALE", "WEIGHTS", "annotate", "chosen_ink",
     "chosen_line_ink", "descriptor", "figure_style", "hide_unused",
-    "panel_letter", "rc", "reference_line", "resolve_ink",
+    "panel_letter", "pipeline_figures", "rc", "reference_line", "resolve_ink",
     "resolve_line_ink", "rotate_ticks", "text_legend", "theme_target",
     "user_overrides",
 ]
