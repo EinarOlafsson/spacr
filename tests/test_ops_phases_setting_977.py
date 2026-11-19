@@ -70,3 +70,43 @@ def test_the_setting_is_registered_with_its_type_category_and_help():
     assert any("ops_phases" in keys for keys in OPS_CATEGORIES.values())
     assert "Default None. Alpha." in OPS_TOOLTIPS["ops_phases"]
     assert ALPHA_FEATURES[977] == {"settings": ("ops_phases",)}
+
+
+def _write_profiles(root):
+    """A tiny profiles archive: two wells, two genes, non-targeting controls."""
+    import numpy as np
+    import pandas as pd
+
+    rng = np.random.default_rng(977)
+    rows = []
+    for well in ("A1", "A2"):
+        for gene, guides in (("G1", ("g1a", "g1b")), ("G2", ("g2a",)),
+                             ("nontargeting", ("nt1", "nt2", "nt3"))):
+            for guide in guides:
+                for _ in range(6):
+                    rows.append({"plate": "p", "well": well, "site": 1, "label": len(rows) + 1,
+                                 "gene": gene, "sgRNA": guide, "mapped_guide": guide,
+                                 "cell_area": float(rng.normal(100 + (gene == "G1") * 30, 5)),
+                                 "nucleus_dapi_mean_intensity": float(rng.normal(50, 3))})
+    root.mkdir(parents=True)
+    pd.DataFrame(rows).to_parquet(root / "profiles_cells.parquet", index=False)
+    (root / "references").mkdir()
+    (root / "references" / "string_pair_benchmark.tsv").write_text(
+        "gene_name\tpair\nG1\t0\nG2\t0\n", encoding="utf-8")
+
+
+def test_the_profiles_archive_reduces_to_genes_with_the_aggregate_reducers(tmp_path, monkeypatch):
+    from spacr import ops_live
+
+    root = tmp_path / "ops_testdata_funk2022_A1_profiles"
+    _write_profiles(root)
+    genes = ops_live._profile_genes({}, root)
+    assert set(genes["gene"]) == {"G1", "G2", "nontargeting"}
+    assert int(genes.set_index("gene").loc["G1", "n_cells"]) == 24
+    g1 = float(genes.set_index("gene").loc["G1", "cell_area"])
+    g2 = float(genes.set_index("gene").loc["G2", "cell_area"])
+    assert g1 > 3 and abs(g2) < 3, "G1's larger cells stand out against the controls"
+    monkeypatch.setattr(ops_live, "_profiles_root", lambda: root)
+    score = ops_live._string_score(["G1", "G2"], [0, 0], "nontargeting")
+    assert score["precision"] == 1.0
+    assert ops_live._string_score(["G1", "G2"], None, "nontargeting") is None
