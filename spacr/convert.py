@@ -2814,16 +2814,22 @@ def read_map(path: str) -> pd.DataFrame:
         spaCR conversion map — a wrong path here would otherwise
         populate a database with somebody else's columns.
     """
+    from .qt.i18n import tr
+
     target = Path(path)
     if not target.is_file():
-        raise ConfigurationError(f'Map file does not exist: {path}')
+        raise ConfigurationError(tr(
+            'Map file does not exist: {path}. Select an existing conversion '
+            'map CSV from the conversion output folder, then retry.', path=path))
     try:
         from .tabular import read_table
 
         frame = read_table(target, canonicalise=False, report=None)
     except Exception as exc:
-        raise ConfigurationError(
-            f'{path} could not be read as a conversion map: {exc}') from exc
+        raise ConfigurationError(tr(
+            '{path} could not be read as a conversion map: {exc}. Check that '
+            'the file is readable and select the conversion map CSV written '
+            'by spaCR, then retry.', path=path, exc=exc)) from exc
     missing = [c for c in _REQUIRED_MAP_COLUMNS if c not in frame.columns]
     if missing:
         raise ConfigurationError(
@@ -2885,13 +2891,21 @@ def populate_db_from_map(db_path: str, map_path: str,
 
 def _barcode_input_bytes(path):
     """Read a bounded local linkage input without interpreting identifier text."""
+    from .qt.i18n import tr
+
     path = Path(path).resolve()
     if not path.is_file():
-        raise ConfigurationError(f'Plate barcode input is not a local file: {path}')
+        raise ConfigurationError(tr(
+            'Plate barcode input is not a local file: {path}. Provide the '
+            'intended barcode input as an existing local file at this path, '
+            'then preview again.', path=path))
     with path.open('rb') as handle:
         data = handle.read(16 * 1024 * 1024 + 1)
     if len(data) > 16 * 1024 * 1024:
-        raise ConfigurationError(f'Plate barcode input exceeds 16 MiB: {path}')
+        raise ConfigurationError(tr(
+            'Plate barcode input exceeds 16 MiB: {path}. Create a smaller '
+            'input file containing the records needed for this conversion, '
+            'at most 16 MiB, then preview again.', path=path))
     return data
 
 
@@ -2913,11 +2927,15 @@ def _conversion_barcode_sidecar_bytes(path):
     :raises ConfigurationError: for linked, nonregular or oversized sidecars.
     """
     import stat
+    from .qt.i18n import tr
 
     if not os.path.lexists(path):
         return None
     if Path(path).is_symlink():
-        raise ConfigurationError(f'Barcode sidecars must not be symbolic links: {path}')
+        raise ConfigurationError(tr(
+            'Barcode sidecars must not be symbolic links: {path}. Copy the '
+            'intended barcode text into a regular barcode.txt file at this '
+            'path, then preview again.', path=path))
     flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
     try:
         descriptor = os.open(path, flags)
@@ -2926,15 +2944,27 @@ def _conversion_barcode_sidecar_bytes(path):
             current = os.stat(path, follow_symlinks=False)
             if (not stat.S_ISREG(before.st_mode) or not stat.S_ISREG(current.st_mode)
                     or (before.st_dev, before.st_ino) != (current.st_dev, current.st_ino)):
-                raise ConfigurationError(f'Barcode sidecar must be a stable regular file: {path}')
+                raise ConfigurationError(tr(
+                    'Barcode sidecar must be a stable regular file: {path}. '
+                    'Use a regular barcode.txt file at this path and keep it '
+                    'unchanged during preview and conversion.', path=path))
             data = handle.read(64 * 1024 + 1)
             after = os.fstat(handle.fileno())
     except OSError as exc:
-        raise ConfigurationError(f'Cannot safely read barcode sidecar {path}: {exc}') from exc
+        raise ConfigurationError(tr(
+            'Cannot safely read barcode sidecar {path}: {exc}. Check that '
+            'barcode.txt is readable and is a regular file, then preview '
+            'again.', path=path, exc=exc)) from exc
     if len(data) > 64 * 1024:
-        raise ConfigurationError(f'Barcode sidecar exceeds 64 KiB: {path}')
+        raise ConfigurationError(tr(
+            'Barcode sidecar exceeds 64 KiB: {path}. Keep only barcode '
+            'assignments for these source plates in barcode.txt, with a total '
+            'size of at most 64 KiB, then preview again.', path=path))
     if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
-        raise ConfigurationError(f'Barcode sidecar changed while being read: {path}')
+        raise ConfigurationError(tr(
+            'Barcode sidecar changed while being read: {path}. Finish saving '
+            'barcode.txt, preview again, and keep the file unchanged during '
+            'preview and conversion.', path=path))
     return data
 
 
@@ -2947,25 +2977,43 @@ def _conversion_sidecar_assignments(data, source_plates, path):
     :returns: source-plate-to-barcode assignments; plain text needs one plate.
     :raises ConfigurationError: for malformed, ambiguous or conflicting text.
     """
+    from .qt.i18n import tr
+
     try:
         text = data.decode('utf-8-sig').strip()
     except UnicodeError as exc:
-        raise ConfigurationError(f'Barcode sidecar must contain UTF-8 text: {path}') from exc
+        raise ConfigurationError(tr(
+            'Barcode sidecar must contain UTF-8 text: {path}. Save barcode.txt '
+            'as UTF-8 plain text, then preview the input again.', path=path)) from exc
     if not text or any(ord(char) < 32 and char not in '\n\r\t' for char in text):
-        raise ConfigurationError(f'Barcode sidecar is empty or contains control characters: {path}')
+        raise ConfigurationError(tr(
+            'Barcode sidecar is empty or contains control characters: {path}. '
+            'Enter a barcode or source_plate=barcode assignments in '
+            'barcode.txt and remove non-text control characters, then '
+            'preview again.', path=path))
     if '=' not in text:
         if len(source_plates) != 1 or any(mark in text for mark in '\n\r;,'):
-            raise ConfigurationError(f'Barcode sidecar needs source_plate=barcode entries: {path}')
+            raise ConfigurationError(tr(
+                'Barcode sidecar needs source_plate=barcode entries: {path}. '
+                'Write one source_plate=barcode assignment per line, using '
+                'the source plate names shown in the preview.', path=path))
         return {next(iter(source_plates)): text}
     assignments = {}
     for part in re.split(r'[;,\n]', text):
         if not part.strip():
             continue
         if part.count('=') != 1:
-            raise ConfigurationError(f'Barcode sidecar needs source_plate=barcode entries: {path}')
+            raise ConfigurationError(tr(
+                'Barcode sidecar needs source_plate=barcode entries: {path}. '
+                'Write one source_plate=barcode assignment per line, using '
+                'the source plate names shown in the preview.', path=path))
         plate, barcode = (value.strip() for value in part.split('=', 1))
         if plate not in source_plates or not barcode or plate in assignments:
-            raise ConfigurationError(f'Barcode sidecar has unknown, empty or duplicate assignments: {path}')
+            raise ConfigurationError(tr(
+                'Barcode sidecar has unknown, empty or duplicate assignments: '
+                '{path}. Use known source plate names, provide a barcode '
+                "after each '=', and remove repeated assignments, then "
+                'preview again.', path=path))
         assignments[plate] = barcode
     return assignments
 
@@ -2980,6 +3028,7 @@ def _discover_conversion_barcodes(conversion_plan, src, explicit):
     :raises ConfigurationError: for ambiguous folder ownership or disagreements.
     """
     import hashlib
+    from .qt.i18n import tr
 
     root = Path(src).resolve()
     source_map, layouts = {}, {}
@@ -2992,12 +3041,19 @@ def _discover_conversion_barcodes(conversion_plan, src, explicit):
         folders[root].add(source_plate)
         image = Path(mapping.source).resolve()
         if not image.is_relative_to(root):
-            raise ConfigurationError('Barcode discovery requires source images inside the source tree.')
+            raise ConfigurationError(tr(
+                'Barcode discovery requires source images inside the source '
+                'tree. Select a source folder containing every source image, '
+                'or copy linked images into that folder, then preview again.'))
         choices = layouts.get(str(image), set())
         if choices == {'plate_well'}:
             relative = image.relative_to(root)
             if len(relative.parts) < 3:
-                raise ConfigurationError('Barcode discovery cannot identify this source plate folder.')
+                raise ConfigurationError(tr(
+                    'Barcode discovery cannot identify this source plate '
+                    'folder. For the plate/well layout, place images under '
+                    'source/plate/well, or select a layout matching the '
+                    'source folders, then preview again.'))
             folders.setdefault(root / relative.parts[0], set()).add(source_plate)
         elif choices not in ({'well'}, {'flat'}):
             raise ConfigurationError('Barcode discovery requires unambiguous scanned source layout metadata.')
@@ -3016,7 +3072,11 @@ def _discover_conversion_barcodes(conversion_plan, src, explicit):
         for source_plate, barcode in assignments.items():
             output = next(iter(source_map[source_plate]))
             if output in result and result[output] != barcode:
-                raise ConfigurationError(f'Conflicting barcode assignments for output plate {output}: {path}')
+                raise ConfigurationError(tr(
+                    'Conflicting barcode assignments for output plate '
+                    '{output}: {path}. Make the explicit output plate barcode '
+                    'and all barcode.txt assignments for this plate agree, '
+                    'then preview again.', output=output, path=path))
             result[output] = barcode
             origins.setdefault(output, []).append({'kind': 'barcode.txt', 'path': str(path),
                                                   'source_plate': source_plate})
@@ -3031,12 +3091,16 @@ def _check_conversion_barcode_sidecars(snapshots):
     :raises ConfigurationError: when discovery evidence has changed.
     """
     import hashlib
+    from .qt.i18n import tr
 
     for path, expected in snapshots.items():
         data = _conversion_barcode_sidecar_bytes(path)
         actual = hashlib.sha256(data).hexdigest() if data is not None else None
         if actual != expected:
-            raise ConfigurationError(f'Barcode sidecar changed during conversion: {path}')
+            raise ConfigurationError(tr(
+                'Barcode sidecar changed during conversion: {path}. Finish '
+                'editing barcode.txt, preview the input again, and keep the '
+                'file unchanged until conversion finishes.', path=path))
 
 
 def _prepare_conversion_barcodes(resolved, conversion_plan, src, dst):
@@ -3044,19 +3108,29 @@ def _prepare_conversion_barcodes(resolved, conversion_plan, src, dst):
     import hashlib
     import io
     from .plate_qc import _parse_barcode_assignments, _link_barcode_wells
+    from .qt.i18n import tr
 
     source = str(resolved.get('plate_barcode_source') or '').strip()
     if not source:
         return None
     if '://' in source or Path(source).suffix.lower() != '.csv':
-        raise ConfigurationError('Convert plate_barcode_source must be a local CSV file.')
+        raise ConfigurationError(tr(
+            'Convert plate_barcode_source must be a local CSV file. Save or '
+            'export the barcode records as a CSV on this computer and select '
+            'that file, then preview again.'))
     source_root, destination = Path(src).resolve(), Path(dst).resolve()
     if (destination.is_relative_to(source_root)
             or source_root.is_relative_to(destination)):
-        raise ConfigurationError('Barcode linkage needs a destination separate from the source tree.')
+        raise ConfigurationError(tr(
+            'Barcode linkage needs a destination separate from the source '
+            'tree. Choose a destination outside the source folder that also '
+            'does not contain the source folder, then preview again.'))
     bundle = destination / 'plate_barcode_linkage'
     if os.path.lexists(bundle):
-        raise ConfigurationError(f'Plate barcode bundle already exists: {bundle}')
+        raise ConfigurationError(tr(
+            'Plate barcode bundle already exists: {bundle}. Choose a new '
+            'destination folder, then preview again to preserve the existing '
+            'barcode bundle.', bundle=bundle))
     map_name = str(resolved.get('map_name') or MAP_FILENAME)
     if Path(map_name).name != map_name:
         raise ConfigurationError('Barcode linkage requires map_name to be a filename in the destination.')
@@ -3088,15 +3162,21 @@ def _prepare_conversion_barcodes(resolved, conversion_plan, src, dst):
         raise ConfigurationError(f'Cannot read plate barcode CSV: {exc}') from exc
     imaged = _conversion_barcode_wells([m.to_row() for m in conversion_plan.mappings])
     if imaged.empty:
-        raise ConfigurationError('No planned image wells to link by barcode.')
+        raise ConfigurationError(tr(
+            'No planned image wells to link by barcode. Select a source '
+            'folder containing readable supported images, resolve any scan '
+            'errors, and preview again before linking barcodes.'))
     explicit = _parse_barcode_assignments(resolved.get('plate_barcodes'))
     barcodes, origins, sidecars = _discover_conversion_barcodes(
         conversion_plan, source_root, explicit)
     inputs.update({path: digest for path, digest in sidecars.items() if digest is not None})
     plates = set(imaged['plateID'])
     if set(barcodes) != plates:
-        raise ConfigurationError('plate_barcodes or unambiguous barcode.txt inputs must name '
-                                 f'every output plate, and no others: {sorted(plates)}')
+        raise ConfigurationError(tr(
+            'plate_barcodes or unambiguous barcode.txt inputs must name every '
+            'output plate, and no others: {plates}. Enter an output barcode '
+            'for each listed plate, remove assignments for other output '
+            'plates, and preview again.', plates=sorted(plates)))
     column = str(resolved.get('plate_barcode_column') or '').strip() or None
     _link_barcode_wells(imaged, barcodes, records, barcode_column=column,
                         existing_maps=existing)
@@ -3120,14 +3200,22 @@ def _finish_conversion_barcodes(prepared, result):
     import hashlib
     from .cancellation import checkpoint
     from .plate_qc import _link_barcode_wells
+    from .qt.i18n import tr
 
     if prepared is None:
         return
     if not result.is_complete:
-        raise ConfigurationError('Conversion is incomplete; no plate barcode bundle was written.')
+        raise ConfigurationError(tr(
+            'Conversion is incomplete; no plate barcode bundle was written. '
+            'Review the skipped or failed images in the conversion report, '
+            'resolve those failures, and preview and run the conversion '
+            'again before linking barcodes.'))
     for path, digest in prepared['inputs'].items():
         if hashlib.sha256(_barcode_input_bytes(path)).hexdigest() != digest:
-            raise ConfigurationError(f'Plate barcode input changed during conversion: {path}')
+            raise ConfigurationError(tr(
+                'Plate barcode input changed during conversion: {path}. '
+                'Finish editing this input, preview again, and keep all '
+                'barcode inputs unchanged until conversion finishes.', path=path))
     _check_conversion_barcode_sidecars(prepared.get('barcode_sidecars', {}))
     rows = [row for row in result.rows() if row['status'] in ('converted', 'existing')]
     imaged = _conversion_barcode_wells(rows)
