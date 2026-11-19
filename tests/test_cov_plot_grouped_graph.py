@@ -734,9 +734,10 @@ def _case_create_plot_single_data_column_graph_types(graph_type):
     res = g.get_results()
     # the violin renderer relabels the y-axis 'Value' after setting the column;
     # the x label is cleared for non-line graphs;
-    # _standerdize_figure_format enforces a square >=10 inch canvas
+    # the plot area is n condition slots wide (spacr-graphs rules,
+    # 2026-11-19), so a three-group figure is one fixed size
     return (drew, ax.get_ylabel(), ax.get_xlabel(),
-            tuple(fig.get_size_inches()),
+            tuple(round(float(v), 4) for v in fig.get_size_inches()),
             set(res["Test Name"]) >= {"Shapiro-Wilk", "One-way ANOVA"},
             len(res))
 
@@ -1288,7 +1289,7 @@ _ALL_SINGLE = ("bar", "jitter", "box", "violin", "jitter_box", "jitter_bar")
 _CREATE_PLOT_ROWS = [
     pytest.param(
         _bind(_case_create_plot_single_data_column_graph_types, kind),
-        (True, "Value" if kind == "violin" else "v1", "", (10.0, 10.0), True,
+        (True, "Value" if kind == "violin" else "v1", "", (1.66, 2.9), True,
          7),
         id=f"{kind}-single-column-draws-with-stats")
     for kind in _ALL_SINGLE

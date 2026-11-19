@@ -50,6 +50,20 @@ class Palette:
     #: genuinely signed quantities only.
     SEQUENTIAL = "Blues"
 
+    #: The reference-paper palette (spacr-graphs skill, 2026-11-18), measured
+    #: from the figures of the Lourido-lab reference papers: a mid grey for
+    #: the control or reference condition, a light grey for background
+    #: points, one saturated blue accent and four further series. Never
+    #: brown.
+    CONTROL = "#8C8C8C"
+    BACKGROUND = "#C8C8C8"
+    ACCENT = "#0A77B8"
+    TEAL = "#0A9878"
+    NAVY_DARK = "#283868"
+    ACCENT_LIGHT = "#78AED2"
+    MAGENTA = "#C878A8"
+    AMBER = "#F0A830"
+
 
 #: What each role means in a spaCR regression figure, fixed once so a colour
 #: cannot drift between panels. This is the whole of the colour vocabulary.
@@ -67,15 +81,15 @@ ROLES = {
 #: Absolute type sizes that reproduce the published hierarchy at 300 dpi.
 #: Centralising them prevents individual panels from drifting apart.
 TYPE_SCALE = {
-    "tick": 6.2,
-    "label": 7.0,
-    "annotation": 6.0,
-    "panel_letter": 13.0,
-    "legend": 5.6,
+    "tick": 8.0,
+    "label": 8.0,
+    "annotation": 8.0,
+    "panel_letter": 10.0,
+    "legend": 8.0,
 }
 
 #: Line weights, likewise measured rather than chosen.
-WEIGHTS = {"spine": 0.65, "data": 1.2, "reference": 0.6}
+WEIGHTS = {"spine": 0.6, "data": 1.0, "reference": 0.6, "median": 0.9}
 
 #: The rcParams that are TEXT: everything a reader reads. Tick LABELS are in
 #: here and tick MARKS are not.
@@ -619,7 +633,7 @@ def _group_colours(count: int, palette: Sequence = (),
     return [colours[index % len(colours)] for index in range(count)]
 
 
-def rc(target: str = "screen", *, frame: str = "L",
+def rc(target: str = "screen", *, frame: str = "box",
        ink: Optional[str] = None,
        line: Optional[str] = None,
        ground: Optional[str] = None,
@@ -630,8 +644,9 @@ def rc(target: str = "screen", *, frame: str = "L",
     :func:`figure_style` or to ``plt.rc_context`` directly. Nothing in this
     module ever mutates the global rcParams.
 
-    :param frame: ``'L'`` draws the left and bottom spines only (the Cell
-        figures); ``'box'`` draws all four (Nature Microbiology). Pick one
+    :param frame: ``'box'`` (the default, spacr-graphs) draws all four
+        spines (Nature Microbiology); ``'L'`` draws the left and bottom
+        spines only (the Cell figures). Pick one
         per figure and hold it — box reads better when panels are small and
         dense, L when they are sparse.
     :param ink: the TEXT colour — titles, labels, tick labels, annotations.
@@ -673,7 +688,10 @@ def rc(target: str = "screen", *, frame: str = "L",
         "xtick.color": line_colour, "ytick.color": line_colour,
         "xtick.labelcolor": colour, "ytick.labelcolor": colour,
         "text.color": colour,
-        "xtick.major.size": 2.6, "ytick.major.size": 2.6,
+        "xtick.major.size": 2.5, "ytick.major.size": 2.5,
+        "xtick.direction": "out", "ytick.direction": "out",
+        "axes.labelpad": 2.0, "axes.titlepad": 2.0,
+        "errorbar.capsize": 0,
         "xtick.major.width": WEIGHTS["spine"],
         "ytick.major.width": WEIGHTS["spine"],
         "xtick.labelsize": TYPE_SCALE["tick"],
@@ -870,7 +888,291 @@ def hide_unused(axes: Iterable) -> None:
         ax.set_axis_off()
 
 
+#: One condition slot on a condition axis, in inches: every graph with the
+#: same number of conditions is the same width (spacr-graphs skill).
+SLOT_IN = 0.22
+#: Bar, box and violin width as a fraction of a slot; the gap is the rest.
+BAR_FRAC = 0.6
+#: Above this many points in a group a box (or violin) replaces the bar.
+AUTO_N = 20
+#: Opacity of every data element: bars, boxes, violins, points, data lines
+#: and fills. Text, axes and ticks stay opaque.
+DATA_ALPHA = 0.6
+#: The series colours after the control grey, in order.
+SERIES = (Palette.ACCENT, Palette.TEAL, Palette.NAVY_DARK, Palette.MAGENTA,
+          Palette.ACCENT_LIGHT, Palette.AMBER)
+
+
+def condition_colours(count: int, control=None, colours=None) -> list:
+    """One colour per condition, the control (or controls) grey.
+
+    :param count: how many conditions.
+    :param control: the index, or indexes, of the control or reference.
+    :param colours: colours to use instead of the house series, cycled.
+    :returns: ``count`` colour specs.
+    """
+    pool = list(colours) if colours else list(SERIES)
+    out = [pool[index % len(pool)] for index in range(max(0, int(count)))]
+    for index in ([control] if isinstance(control, int) else (control or [])):
+        if 0 <= int(index) < len(out):
+            out[int(index)] = Palette.CONTROL
+    return out
+
+
+def condition_kind(values, many: str = "box") -> str:
+    """``'bar'`` for at most :data:`AUTO_N` values, else ``many``.
+
+    :param values: one condition's values.
+    :param many: ``'box'`` or ``'violin'``.
+    :returns: ``'bar'`` or ``many``.
+    """
+    import numpy as np
+
+    count = int(np.isfinite(np.asarray(values, float)).sum())
+    return many if count > AUTO_N else "bar"
+
+
+def condition_plot(ax, data, colours=None, control=None, kind: str = "auto",
+                   many: str = "box", points: bool = True, seed: int = 0,
+                   positions=None) -> list:
+    """Draw one element per condition slot in the house style.
+
+    A condition with at most :data:`AUTO_N` values is a bar at its mean with
+    every value as a jittered point; one with more is a box (median,
+    quartiles, 5-95 % whiskers) or a violin with small points. Every element
+    is :data:`BAR_FRAC` of a slot wide and drawn at :data:`DATA_ALPHA`;
+    medians, whiskers and error lines are the figure's ink (black in print);
+    the control is grey.
+
+    :param ax: the axes.
+    :param data: one sequence of values per condition.
+    :param colours: colours instead of the house series.
+    :param control: the control's index, or indexes.
+    :param kind: ``'auto'``, ``'bar'``, ``'box'`` or ``'violin'``.
+    :param many: what ``'auto'`` draws above :data:`AUTO_N` values.
+    :param points: overlay the values as jittered points.
+    :param seed: the jitter's random seed.
+    :param positions: x position of each condition; ``0 .. n-1`` by default.
+    :returns: the kind drawn for each condition.
+    """
+    import numpy as np
+
+    import matplotlib
+
+    ink = matplotlib.rcParams["text.color"]
+    rng = np.random.default_rng(seed)
+    cols = condition_colours(len(data), control, colours)
+    places = list(range(len(data))) if positions is None else list(positions)
+    width = BAR_FRAC
+    used = []
+    for slot, values, colour in zip(places, data, cols):
+        arr = np.asarray(values, float)
+        arr = arr[np.isfinite(arr)]
+        chosen = condition_kind(arr, many) if kind == "auto" else kind
+        if chosen == "bar":
+            ax.bar(slot, arr.mean() if len(arr) else np.nan, width,
+                   color=colour, alpha=DATA_ALPHA, linewidth=0, zorder=1)
+        elif chosen == "box" and len(arr):
+            ax.boxplot([arr], positions=[slot], widths=width,
+                       patch_artist=True, showfliers=False, whis=(5, 95),
+                       medianprops=dict(color=ink,
+                                        linewidth=WEIGHTS["median"]),
+                       boxprops=dict(facecolor=colour, edgecolor=colour,
+                                     linewidth=WEIGHTS["spine"],
+                                     alpha=DATA_ALPHA),
+                       whiskerprops=dict(color=ink, linewidth=0.8),
+                       capprops=dict(color=ink, linewidth=0.8),
+                       manage_ticks=False, zorder=2)
+        elif chosen == "violin" and len(arr) > 1:
+            drawn = ax.violinplot([arr], positions=[slot], widths=width,
+                                  showextrema=False)
+            for body in drawn["bodies"]:
+                body.set_facecolor(colour)
+                body.set_edgecolor("none")
+                body.set_alpha(DATA_ALPHA)
+            ax.plot([slot - width / 2, slot + width / 2], [np.median(arr)] * 2,
+                    color=ink, linewidth=WEIGHTS["median"], zorder=4)
+        if points and len(arr) > (1 if chosen == "bar" else 0):
+            spread = width * 0.8
+            ax.scatter(slot + rng.uniform(-spread / 2, spread / 2, len(arr)),
+                       arr, s=4.0 if len(arr) <= AUTO_N else 1.2,
+                       color=colour, alpha=DATA_ALPHA, linewidths=0, zorder=3)
+        used.append(chosen)
+    if places:
+        ax.set_xlim(min(places) - 0.5, max(places) + 0.5)
+    return used
+
+
+def size_condition_axes(ax, count: int, *, height: float = 1.6,
+                        left: float = 0.75, right: float = 0.25,
+                        bottom: float = 0.95, top: float = 0.35) -> None:
+    """Size ``ax`` so its plot area is ``count`` slots wide, in inches.
+
+    The figure is resized to hold the axes and the margins, so every graph
+    with the same number of conditions has the same width.
+
+    :param ax: the axes, the only one on its figure.
+    :param count: how many condition slots.
+    :param height: the plot area's height in inches.
+    :param left: the left margin in inches.
+    :param right: the right margin in inches.
+    :param bottom: the bottom margin in inches, which holds the tick labels.
+    :param top: the top margin in inches, which holds the descriptor. A
+        descriptor wider than the figure is wrapped onto more lines, at
+        about 0.55 em per character.
+    """
+    width = max(1, int(count)) * SLOT_IN
+    figure = ax.figure
+    total_w, total_h = left + width + right, bottom + height + top
+    figure.set_size_inches(total_w, total_h)
+    ax.set_position([left / total_w, bottom / total_h, width / total_w,
+                     height / total_h])
+    ax.set_xlim(-0.5, max(1, int(count)) - 0.5)
+    title = ax.get_title()
+    if title:
+        import textwrap
+
+        chars = int(total_w * 72 / (0.55 * ax.title.get_fontsize()))
+        ax.set_title(textwrap.fill(title, max(8, chars)),
+                     fontsize=ax.title.get_fontsize(), pad=3.0)
+
+
+def square_axes(ax):
+    """Make a continuous-axis plot (histogram, scatter, line) square.
+
+    :param ax: the axes.
+    :returns: ``ax``.
+    """
+    ax.set_box_aspect(1)
+    return ax
+
+
+def diverging_cmap(low: str = Palette.MAGENTA, high: str = Palette.ACCENT):
+    """Pale ``low`` to white to ``high``, for deviation from an expected value.
+
+    Use with :func:`centred_norm` so the expected value is white.
+
+    :param low: the colour below the expected value.
+    :param high: the colour above it.
+    :returns: a matplotlib colormap.
+    """
+    from matplotlib.colors import LinearSegmentedColormap
+
+    return LinearSegmentedColormap.from_list("spacr_diverging",
+                                             [low, (1.0, 1.0, 1.0), high])
+
+
+def centred_norm(vmin: float, vcenter: float, vmax: float):
+    """A colour normalisation with ``vcenter`` at the middle of the map.
+
+    :param vmin: the lowest value.
+    :param vcenter: the expected value, drawn white.
+    :param vmax: the highest value.
+    :returns: a matplotlib ``TwoSlopeNorm``.
+    """
+    from matplotlib.colors import TwoSlopeNorm
+
+    return TwoSlopeNorm(vmin=vmin, vcenter=vcenter, vmax=vmax)
+
+
+def bracket(ax, x1: float, x2: float, y: float, text: str) -> None:
+    """A significance bracket from ``x1`` to ``x2`` with ``text`` above it.
+
+    :param ax: the axes.
+    :param x1: the left condition's x position.
+    :param x2: the right condition's x position.
+    :param y: the bracket's height in data units.
+    :param text: the exact p value, for example ``'p = 0.011'``.
+    """
+    import matplotlib
+
+    low, high = ax.get_ylim()
+    drop = 0.02 * (high - low)
+    ax.plot([x1, x1, x2, x2], [y - drop, y, y, y - drop],
+            color=matplotlib.rcParams["text.color"],
+            linewidth=WEIGHTS["reference"])
+    ax.text((x1 + x2) / 2, y + drop * 0.3, text, ha="center", va="bottom",
+            fontsize=TYPE_SCALE["annotation"])
+
+
+def figure_problems(figure) -> list:
+    """What breaks the house rules in ``figure``, one sentence each.
+
+    Text under 8 pt, text cut off at the canvas edge, overlapping text,
+    error bars that are not black (or the screen theme's neutral ink, which
+    is the same rule on a dark page), and square-marked axes that are not
+    square. Tick labels outside the view limits are not drawn and are not
+    checked. An empty list means none were found.
+
+    :param figure: the matplotlib figure; it is drawn to measure the text.
+    :returns: one sentence per problem found.
+    """
+    import matplotlib
+    import numpy as np
+    from matplotlib.colors import to_rgb
+
+    if not hasattr(figure.canvas, "get_renderer"):
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+        FigureCanvasAgg(figure)
+    figure.canvas.draw()
+    renderer = figure.canvas.get_renderer()
+    width, height = figure.canvas.get_width_height()
+    problems = []
+    undrawn = set()
+    for ax in figure.axes:
+        for axis in (ax.xaxis, ax.yaxis):
+            low, high = sorted(axis.get_view_interval())
+            span = (high - low) * 1e-6
+            for tick in axis.get_major_ticks() + axis.get_minor_ticks():
+                if not low - span <= tick.get_loc() <= high + span:
+                    undrawn.update((id(tick.label1), id(tick.label2)))
+    boxes = []
+    for text in figure.findobj(matplotlib.text.Text):
+        if (not text.get_visible() or not text.get_text().strip()
+                or id(text) in undrawn):
+            continue
+        if text.get_fontsize() < 8.0 - 1e-6:
+            problems.append(f"text {text.get_text()[:30]!r} is "
+                            f"{text.get_fontsize():.1f} pt, under 8 pt")
+        try:
+            box = text.get_window_extent(renderer)
+        except Exception:                                      # noqa: BLE001
+            continue
+        if box.width == 0:
+            continue
+        if box.x0 < -1 or box.y0 < -1 or box.x1 > width + 1 or box.y1 > height + 1:
+            problems.append(f"text {text.get_text()[:30]!r} is cut off")
+        boxes.append((text, box))
+    for index, (first, a) in enumerate(boxes):
+        for second, b in boxes[index + 1:]:
+            if (min(a.x1, b.x1) - max(a.x0, b.x0) > 1
+                    and min(a.y1, b.y1) - max(a.y0, b.y0) > 1
+                    and not (first.get_rotation() % 90
+                             and second.get_rotation() % 90)):
+                problems.append(f"texts overlap: {first.get_text()[:20]!r} "
+                                f"and {second.get_text()[:20]!r}")
+    for ax in figure.axes:
+        for container in ax.containers:
+            if isinstance(container, matplotlib.container.ErrorbarContainer):
+                for line in container.lines[2]:
+                    for colour in line.get_colors():
+                        rgb = np.array(to_rgb(colour))
+                        if rgb.max() - rgb.min() > 0.03:
+                            problems.append("an error bar is not black")
+        aspect = ax.get_box_aspect()
+        if aspect is not None and abs(float(aspect) - 1.0) < 1e-9:
+            box = ax.get_window_extent(renderer)
+            if box.height and abs(box.width / box.height - 1) > 0.02:
+                problems.append("a square axes is not square")
+    return problems
+
+
 __all__ = [
+    "AUTO_N", "BAR_FRAC", "DATA_ALPHA", "SERIES", "SLOT_IN", "bracket",
+    "centred_norm", "condition_colours", "condition_kind", "condition_plot",
+    "diverging_cmap", "figure_problems", "size_condition_axes",
+    "square_axes",
     "INK_PRINT", "INK_SCREEN", "LINE_KEYS", "TEXT_KEYS", "TRANSPARENT",
     "Palette", "ROLES", "TYPE_SCALE", "WEIGHTS", "annotate", "chosen_ink",
     "chosen_line_ink", "descriptor", "figure_style", "hide_unused",

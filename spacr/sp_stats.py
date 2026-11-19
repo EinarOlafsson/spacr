@@ -7797,17 +7797,17 @@ def _image_comparison_figure(frame: pd.DataFrame, measurement: str,
             names = list(entry['groups'])
             data = [_image_unit_values(frame, entry['groups'][name], measurement, unit) for name in names]
             positions = np.arange(1, len(names) + 1)
-            filled = [values if values.size else np.array([np.nan]) for values in data]
-            if kind == 'box':
-                axis.boxplot(filled, positions=positions, widths=0.55, showfliers=False)
-            elif kind == 'violin':
-                drawable = [i for i, values in enumerate(data) if values.size > 1]
-                if drawable:
-                    axis.violinplot([data[i] for i in drawable], positions=positions[drawable],
-                                    showmedians=True, widths=0.7)
-            for position, values in zip(positions, data):
-                axis.scatter(position + rng.uniform(-0.12, 0.12, values.size), values, s=12,
-                             alpha=0.75, zorder=3)
+            from .figures.style import (BAR_FRAC, DATA_ALPHA, condition_colours,
+                                        condition_plot)
+            if kind in ('box', 'violin'):
+                condition_plot(axis, data, kind=kind, positions=positions)
+            else:
+                for position, values, colour in zip(positions, data,
+                                                    condition_colours(len(data))):
+                    spread = BAR_FRAC * 0.8
+                    axis.scatter(position + rng.uniform(-spread / 2, spread / 2, values.size),
+                                 values, s=4.0, color=colour, alpha=DATA_ALPHA,
+                                 linewidths=0, zorder=3)
             axis.set_xticks(positions)
             axis.set_xticklabels(names, rotation=30 if len(names) > 3 else 0,
                                  ha='right' if len(names) > 3 else 'center')

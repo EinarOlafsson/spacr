@@ -107,16 +107,17 @@ def _pred_frame():
     })
 
 
-def test_the_distribution_panels_wear_the_L_frame(rcparams_guard):
-    """Left and bottom spines only -- the Cell figures' framing."""
+def test_the_distribution_panels_wear_the_box_frame(rcparams_guard):
+    """All four spines: the reference papers' full box frame (spacr-graphs
+    rules, maintainer 2026-11-19; it replaced the Cell figures' L frame)."""
     P._plot_histograms_and_stats(_pred_frame())
 
     for figure in _figures():
         ax = figure.axes[0]
         assert ax.spines["left"].get_visible()
         assert ax.spines["bottom"].get_visible()
-        assert not ax.spines["top"].get_visible()
-        assert not ax.spines["right"].get_visible()
+        assert ax.spines["top"].get_visible()
+        assert ax.spines["right"].get_visible()
         assert ax.spines["left"].get_linewidth() == pytest.approx(
             WEIGHTS["spine"])
 
@@ -468,7 +469,7 @@ def test_an_importance_ranking_is_all_grey(rcparams_guard, builder, column):
     assert {_hex(p.get_facecolor()) for p in ax.patches} == {
         _hex(ROLES["data"])}
     assert all(p.get_alpha() in (None, 1.0) for p in ax.patches)
-    assert not ax.spines["top"].get_visible()
+    assert ax.spines["top"].get_visible()
 
 
 @pytest.mark.parametrize("builder,column", [
@@ -996,8 +997,10 @@ def test_a_grouped_plot_has_no_grid_and_no_rainbow(rcparams_guard, capsys):
     ax = figure.axes[0]
     assert not any(line.get_visible()
                    for line in ax.get_xgridlines() + ax.get_ygridlines())
+    from spacr.figures.style import Palette
+
     assert {_hex(p.get_facecolor()) for p in ax.patches} == {
-        _hex(ROLES["data"])}
+        _hex(Palette.ACCENT)}
     assert not results.empty
 
 
@@ -1022,9 +1025,10 @@ def test_the_grouped_plot_on_screen_is_the_one_on_disk(rcparams_guard,
     assert shown_rotation == pytest.approx(45.0)
 
 
-def test_a_single_measurement_graph_is_all_grey(rcparams_guard):
+def test_a_single_measurement_graph_is_one_accent(rcparams_guard):
     """One data column means the hue IS the grouping column, and the grouping
-    column is already the x axis."""
+    column is already the x axis: one accent for every group, the control
+    grey when there is one (spacr-graphs rules, 2026-11-19)."""
     from spacr.plot import spacrGraph
 
     graph = spacrGraph(_grouped_frame(), "grp", "v1", graph_type="bar",
@@ -1032,8 +1036,10 @@ def test_a_single_measurement_graph_is_all_grey(rcparams_guard):
     graph.create_plot()
     ax = graph.get_figure().axes[0]
 
+    from spacr.figures.style import Palette
+
     assert {_hex(p.get_facecolor()) for p in ax.patches} == {
-        _hex(ROLES["data"])}
+        _hex(Palette.ACCENT)}
 
 
 def test_several_measurements_keep_a_categorical_palette(rcparams_guard):
@@ -1060,11 +1066,10 @@ def test_the_colors_parameter_is_no_longer_dead(rcparams_guard):
     graph.create_plot()
     ax = graph.get_figure().axes[0]
 
-    # seaborn draws bars at saturation 0.75, so the expectation goes through
-    # its own desaturate rather than being typed as the raw hexes.
-    import seaborn as sns
+    # Bars are drawn at saturation 1 (spacr-graphs: exact palette colours),
+    # so the caller's hexes come back unchanged.
     assert {_hex(p.get_facecolor()) for p in ax.patches} == {
-        _hex(sns.desaturate(colour, 0.75)) for colour in ("#ff0000", "#00ff00")}
+        "#ff0000", "#00ff00"}
 
 
 def test_the_grouped_graph_statistics_did_not_move(rcparams_guard):

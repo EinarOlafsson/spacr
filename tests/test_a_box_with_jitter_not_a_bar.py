@@ -72,22 +72,25 @@ def test_every_observation_is_drawn(same_mean_different_spread):
     assert drawn == len(same_mean_different_spread)
 
 
-def test_the_box_is_unfilled_so_the_points_carry_the_ink(
-        same_mean_different_spread):
-    """A filled box per group is a rainbow behind a dot strip, and the eye
-    goes to the fill rather than to the observations."""
+def test_the_box_is_filled_at_sixty_percent(same_mean_different_spread):
+    """The spacr-graphs rules (maintainer, 2026-11-19) replaced the unfilled
+    box: every data element, the box included, is drawn at 60 % opacity in
+    its group's colour, so the points over it still read."""
     ax = _axis(same_mean_different_spread, graph_type="jitter_box")
     assert ax.patches, "no box was drawn"
     for box in ax.patches:
-        assert box.get_facecolor()[3] == 0.0, "the box is filled"
+        assert box.get_alpha() == pytest.approx(0.6)
 
 
-def test_the_points_are_the_house_grey(same_mean_different_spread):
+def test_the_points_wear_their_box_colour(same_mean_different_spread):
     from matplotlib.colors import to_rgb
 
+    from spacr.figures.style import Palette
+
     ax = _axis(same_mean_different_spread, graph_type="jitter_box")
-    expected = to_rgb(ROLES["data"])
+    expected = to_rgb(Palette.ACCENT)
     for collection in ax.collections:
+        assert collection.get_alpha() == pytest.approx(0.6)
         for rgba in collection.get_facecolors():
             assert tuple(round(v, 3) for v in rgba[:3]) == tuple(
                 round(v, 3) for v in expected)
@@ -144,7 +147,7 @@ def test_a_direct_call_gets_the_box_too(same_mean_different_spread):
 
     ax = _axis(same_mean_different_spread)          # no graph_type at all
     assert len(ax.patches) == 2, "a direct call did not draw one box per group"
-    assert all(box.get_facecolor()[3] == 0.0 for box in ax.patches)
+    assert all(box.get_alpha() == pytest.approx(0.6) for box in ax.patches)
     assert ax.collections, "a direct call drew no points"
 
 

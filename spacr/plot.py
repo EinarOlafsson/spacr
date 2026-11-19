@@ -35,8 +35,10 @@ from .image_colors import read_image_rgb, write_image_rgb
 from .tiff_io import TIFF_READ_ERRORS, write_tiff
 from .multiple_testing import _posthoc_dunn
 
-from .figures.style import (ROLES, TYPE_SCALE, WEIGHTS, Palette, descriptor,
+from .figures.style import (DATA_ALPHA, ROLES, TYPE_SCALE, WEIGHTS, Palette,
+                            condition_colours, condition_plot, descriptor,
                             figure_style, _group_colours, hide_unused,
+                            size_condition_axes,
                             _preference_deltas,
                             panel_letter,
                             reference_line, resolve_ink, rotate_ticks,
@@ -6985,9 +6987,21 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
             color_palette = colors
         else:
             color_palette = (_group_colours(len(unique_groups))
-                             or [ROLES['data']] * len(unique_groups))
-    
-        if graph_type == 'bar':
+                             or condition_colours(len(unique_groups), None,
+                                                  [Palette.ACCENT]))
+
+        if graph_type in ('jitter_box', 'jitter_bar'):
+            plotted = [str(group) for group in (order or unique_groups)]
+            axis = plt.gca()
+            condition_plot(axis, [df.loc[df[grouping_column].astype(str)
+                                         == group, data_column]
+                                  .to_numpy(float) for group in plotted],
+                           colours=color_palette)
+            axis.set_xticks(range(len(plotted)))
+            axis.set_xticklabels(plotted)
+            axis.set_xlabel(str(grouping_column))
+            axis.set_ylabel(str(data_column))
+        elif graph_type == 'bar':
             summary_df = df.groupby(
                 grouping_column, observed=False)[data_column].agg(
                     [summary_func, 'std', 'sem'])
@@ -6999,15 +7013,15 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
             else:
                 raise ValueError(f"Invalid error_bar_type: {error_bar_type}. Choose either 'std' or 'sem'.")
 
-            sns.barplot(
+            sns.barplot(saturation=1,
                 x=grouping_column, y=summary_func, hue=grouping_column,
                 data=summary_df.reset_index(), errorbar=None, order=order,
                 palette=color_palette, legend=False)
 
-            plt.errorbar(x=np.arange(len(summary_df)), y=summary_df[summary_func], yerr=error_bars, fmt='none', c=resolve_ink(theme_target()), capsize=5, lw=WEIGHTS['reference'])
+            plt.errorbar(x=np.arange(len(summary_df)), y=summary_df[summary_func], yerr=error_bars, fmt='none', c=resolve_ink(theme_target()), capsize=0, lw=WEIGHTS['reference'])
     
         elif graph_type == 'violin':
-            sns.violinplot(
+            sns.violinplot(saturation=1,
                 x=grouping_column, y=data_column, hue=grouping_column,
                 data=df, order=order, palette=color_palette, legend=False)
         elif graph_type == 'jitter':
@@ -7016,41 +7030,9 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
                 data=df, jitter=True, order=order, palette=color_palette,
                 legend=False)
         elif graph_type == 'box':
-            sns.boxplot(
+            sns.boxplot(saturation=1,
                 x=grouping_column, y=data_column, hue=grouping_column,
                 data=df, order=order, palette=color_palette, legend=False)
-        elif graph_type == 'jitter_box':
-            _ink = resolve_ink(theme_target())
-            sns.boxplot(
-                x=grouping_column, y=data_column, hue=grouping_column,
-                data=df, order=order, palette=color_palette, legend=False,
-                showfliers=False,
-                boxprops={'facecolor': 'none', 'edgecolor': _ink,
-                          'linewidth': WEIGHTS['spine']},
-                whiskerprops={'color': _ink, 'linewidth': WEIGHTS['spine']},
-                capprops={'color': _ink, 'linewidth': WEIGHTS['spine']},
-                medianprops={'color': _ink, 'linewidth': WEIGHTS['data']})
-            sns.stripplot(x=grouping_column, y=data_column, data=df,
-                          jitter=True, color=ROLES['data'], size=3.0,
-                          linewidth=0, order=order)
-        elif graph_type == 'jitter_bar':
-            _ink = resolve_ink(theme_target())
-            summary_df = df.groupby(
-                grouping_column, observed=False)[data_column].agg(
-                    [summary_func, 'std', 'sem'])
-            spread = summary_df['sem' if error_bar_type == 'sem' else 'std']
-            sns.barplot(
-                x=grouping_column, y=summary_func, hue=grouping_column,
-                data=summary_df.reset_index(), errorbar=None, order=order,
-                palette=color_palette, legend=False, fill=False,
-                edgecolor=_ink, linewidth=WEIGHTS['spine'])
-            plt.errorbar(x=np.arange(len(summary_df)),
-                         y=summary_df[summary_func], yerr=spread,
-                         fmt='none', c=_ink, capsize=5,
-                         lw=WEIGHTS['reference'])
-            sns.stripplot(x=grouping_column, y=data_column, data=df,
-                          jitter=True, color=ROLES['data'], size=3.0,
-                          linewidth=0, order=order)
         elif graph_type in ('line', 'line_std'):
             _ink = resolve_ink(theme_target())
             summary_df = df.groupby(
@@ -7079,9 +7061,15 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
             plt.ylim(y_lim)
 
         axis = plt.gca()
-        descriptor(axis, f'{test_name} results for {graph_type} plot')
+        descriptor(axis, test_name)
         rotate_ticks(axis)
-        plt.tight_layout()
+        if graph_type in ('line', 'line_std'):
+            plt.tight_layout()
+        else:
+            if graph_type in ('bar', 'box', 'violin', 'jitter'):
+                for artist in list(axis.patches) + list(axis.collections):
+                    artist.set_alpha(DATA_ALPHA)
+            size_condition_axes(axis, len(unique_groups))
 
         if save:
             plot_path = os.path.join(output_dir, 'grouped_plot')
@@ -7313,8 +7301,46 @@ class spacrGraph:
         if ruled is not None:
             return ruled
         if len(self.data_column) == 1:
-            return [ROLES['data']] * count
-        return list(self.sns_palette[:count])
+            return condition_colours(count, spacrGraph._control_index(self),
+                                     [Palette.ACCENT])
+        return condition_colours(count)
+
+    def _control_index(self):
+        """The position of ``compare_group`` in the plotted order, or None."""
+        compare_group = getattr(self, "compare_group", None)
+        if compare_group is None or len(getattr(self, "data_column", [])) != 1:
+            return None
+        order = [str(group) for group in (getattr(self, "order", None) or [])]
+        name = str(compare_group)
+        return order.index(name) if name in order else None
+
+    def _create_condition_plot(self, ax):
+        """The house condition plot of one data column (spacr-graphs rules).
+
+        Each group is one slot: a bar at its mean with every value as a
+        point when it has at most :data:`spacr.figures.style.AUTO_N` values,
+        else a box with small points. Every element is the same width and
+        drawn at 60 % opacity; ``compare_group`` is grey.
+        """
+        column = self.data_column[0]
+        values = [self.df_melted.loc[self.df_melted[self.grouping_column]
+                                     == group, 'Value'].to_numpy(float)
+                  for group in self.order]
+        self.summary_df = self.df_melted.groupby(
+            [self.grouping_column], observed=False
+        ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
+              sem=('Value', 'sem'), count=('Value', 'count')).reset_index()
+        condition_plot(ax, values, colours=self._plot_palette(len(values)),
+                       control=self._control_index(),
+                       points=self._points_overlaid())
+        ax.set_xticks(range(len(self.order)))
+        ax.set_xticklabels([str(group) for group in self.order])
+        ax.set_ylabel(column)
+        ax.set_xlabel(self.grouping_column)
+        if self.log_y:
+            ax.set_yscale('log')
+        if self.log_x:
+            ax.set_xscale('log')
   
     def preprocess_data(self):
         """Return a new DataFrame aggregated to the configured representation.
@@ -7798,6 +7824,7 @@ class spacrGraph:
         if  self.graph_type in ['line','line_std']:
             self.fig_height, self.fig_width = 10, 10 
 
+        created_here = ax is None
         with figure_style(theme_target()):
             if ax is None:
                 self.fig, ax = plt.subplots(figsize=(self.fig_height, self.fig_width))
@@ -7824,6 +7851,9 @@ class spacrGraph:
                 self._create_box_plot(ax)
             elif self.graph_type == 'violin':
                 self._create_violin_plot(ax)
+            elif (self.graph_type in ('jitter_box', 'jitter_bar')
+                  and len(self.data_column) == 1):
+                self._create_condition_plot(ax)
             elif self.graph_type == 'jitter_box':
                 self._create_jitter_box_plot(ax)
             elif self.graph_type == 'jitter_bar':
@@ -7835,9 +7865,25 @@ class spacrGraph:
             else:
                 raise ValueError(f"Unknown graph type: {self.graph_type}") 
         
-            if len(self.data_column) == 1:
-                num_groups = len(self.df[self.grouping_column].unique())
-                self._standerdize_figure_format(ax=ax, num_groups=num_groups, graph_type=self.graph_type)
+            categorical = self.graph_type not in ('line', 'line_std')
+            if len(self.data_column) == 1 and categorical:
+                num_groups = len(self.order)
+                if self.graph_type in ('bar', 'box', 'violin', 'jitter'):
+                    for artist in list(ax.patches) + list(ax.collections):
+                        artist.set_alpha(DATA_ALPHA)
+                if self.graph_type == 'bar':
+                    from .figures.style import BAR_FRAC
+                    for bar in ax.patches:
+                        middle = bar.get_x() + bar.get_width() / 2
+                        bar.set_width(BAR_FRAC)
+                        bar.set_x(middle - BAR_FRAC / 2)
+                if created_here:
+                    size_condition_axes(ax, num_groups)
+                else:
+                    ax.set_xlim(-0.5, num_groups - 0.5)
+                rotate_ticks(ax)
+            elif len(self.data_column) == 1:
+                self._standerdize_figure_format(ax=ax, num_groups=len(self.order), graph_type=self.graph_type)
 
             if isinstance(self.y_lim, list):
                 if len(self.y_lim) == 2:
@@ -7845,7 +7891,8 @@ class spacrGraph:
                 elif len(self.y_lim) == 1:
                     ax.set_ylim(self.y_lim[0], None)
 
-            sns.despine(ax=ax, top=True, right=True)
+            if not categorical:
+                sns.despine(ax=ax, top=True, right=True)
             handles, labels = ax.get_legend_handles_labels()
             if handles:
                 ax.legend(
@@ -8088,7 +8135,7 @@ class spacrGraph:
         ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
               sem=('Value', 'sem'), count=('Value', 'count')).reset_index()
         self.summary_df = summary_df.copy()
-        sns.barplot(
+        sns.barplot(saturation=1,
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend, ax=ax,
             dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
@@ -8106,7 +8153,7 @@ class spacrGraph:
             err = self._error_half_width(row)
             if err is None:
                 continue
-            capsize = float(self._user_style().get("error_capsize", 5))
+            capsize = float(self._user_style().get("error_capsize", 0))
             ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c=resolve_ink(theme_target()), capsize=capsize, lw=WEIGHTS['data'])
     
         ax.set_xlabel(self.grouping_column)
@@ -8276,7 +8323,7 @@ class spacrGraph:
         plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
         self.summary_df = self.df_melted.copy()
-        sns.boxplot(
+        sns.boxplot(saturation=1,
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend,
             ax=ax, order=plot_order)
@@ -8311,7 +8358,7 @@ class spacrGraph:
         plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
         self.summary_df = self.df_melted.copy()
-        sns.violinplot(
+        sns.violinplot(saturation=1,
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend,
             ax=ax, order=plot_order)
@@ -8351,7 +8398,7 @@ class spacrGraph:
         ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
               sem=('Value', 'sem')).reset_index()
         self.summary_df = summary_df
-        sns.barplot(
+        sns.barplot(saturation=1,
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend, ax=ax,
             dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
@@ -8397,7 +8444,7 @@ class spacrGraph:
         plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
         self.summary_df = self.df_melted.copy()
-        sns.boxplot(
+        sns.boxplot(saturation=1,
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend,
             ax=ax, order=plot_order)

@@ -277,8 +277,8 @@ def test_the_results_figure_axes_are_built_inside_the_style():
     for axis in (ax_pca, ax_xgb, ax_hist):
         assert to_hex(axis.spines["left"].get_edgecolor()) == ink
         assert to_hex(axis.xaxis.label.get_color()) == ink
-        assert not axis.spines["top"].get_visible()
-        assert not axis.spines["right"].get_visible()
+        assert axis.spines["top"].get_visible()
+        assert axis.spines["right"].get_visible()
         assert not axis.xaxis.get_gridlines()[0].get_visible()
         assert axis.xaxis.label.get_fontsize() == pytest.approx(
             TYPE_SCALE["label"])

@@ -473,8 +473,8 @@ def test_png_records_the_requested_dpi_when_the_cap_does_not_bite(
     assert _png_dpi(png) == 300
 
     width, height = _png_size(png)
-    assert tuple(spacr_figure.get_size_inches()) == (10.0, 10.0)
-    assert (width, height) != (3000, 3000), (
+    inches = spacr_figure.get_size_inches()
+    assert (width, height) != (round(inches[0] * 300), round(inches[1] * 300)), (
         "the tight bounding box was not applied")
 
     spacr_figure.canvas.draw()
