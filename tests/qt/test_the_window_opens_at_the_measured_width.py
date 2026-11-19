@@ -46,28 +46,27 @@ def _policy(monkeypatch, width, screen, window, scale=1.0):
     monkeypatch.setattr("spacr.qt.preferences.get_font_scale", lambda: scale)
 
 
+@pytest.mark.parametrize(
+    "width, display_width, display_height, changed, expected_width", [
+        pytest.param(2100, 2560, 1440, True, 2100,
+                     id="test_a_wider_requirement_widens_the_window"),
+        pytest.param(800, 2560, 1440, False, 1200,
+                     id="test_a_narrower_requirement_is_ignored"),
+        pytest.param(1200, 2560, 1440, False, 1200,
+                     id="test_the_same_width_is_not_a_resize"),
+        pytest.param(2100, 1600, 900, True, 1600,
+                     id="test_it_is_clamped_to_the_display"),
+    ],
+)
+def test_measured_width_boundaries(window, monkeypatch, width, display_width,
+                                   display_height, changed, expected_width):
+    """Preserve the wider, narrower, unchanged, and display-clamped cases."""
+    _policy(monkeypatch, width, _Screen(display_width, display_height), window)
+    assert qt_app._open_at_the_measured_width(window) is changed
+    assert window.width() == expected_width
+
+
 class TestItGrowsAndNeverShrinks:
-
-    def test_a_wider_requirement_widens_the_window(self, window, monkeypatch):
-        _policy(monkeypatch, 2100, _Screen(2560, 1440), window)
-        assert qt_app._open_at_the_measured_width(window) is True
-        assert window.width() == 2100
-
-    def test_a_narrower_requirement_is_ignored(self, window, monkeypatch):
-        """Shrinking on a bad number is not bounded by anything.
-
-        The window does not maximise precisely because a remote session's
-        "available geometry" is often a stub, and a policy allowed to
-        shrink would take that claim seriously.
-        """
-        _policy(monkeypatch, 800, _Screen(2560, 1440), window)
-        assert qt_app._open_at_the_measured_width(window) is False
-        assert window.width() == 1200
-
-    def test_the_same_width_is_not_a_resize(self, window, monkeypatch):
-        _policy(monkeypatch, 1200, _Screen(2560, 1440), window)
-        assert qt_app._open_at_the_measured_width(window) is False
-        assert window.width() == 1200
 
     def test_the_height_is_left_alone(self, window, monkeypatch):
         """This item is about the RIGHT side being cut off."""
@@ -77,11 +76,6 @@ class TestItGrowsAndNeverShrinks:
 
 
 class TestItNeverOpensPastTheEdge:
-
-    def test_it_is_clamped_to_the_display(self, window, monkeypatch):
-        _policy(monkeypatch, 2100, _Screen(1600, 900), window)
-        assert qt_app._open_at_the_measured_width(window) is True
-        assert window.width() == 1600
 
     def test_a_display_narrower_than_the_window_changes_nothing(
             self, window, monkeypatch):
