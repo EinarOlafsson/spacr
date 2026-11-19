@@ -17,7 +17,7 @@ def test_cell_dino_spec_fields_are_only_three_optional_additions():
         "backbone", "channel_policy", "channels", "batch_size", "device",
         "normalize", "channel_scale", "cell_dino_factory",
         "checkpoint_path", "checkpoint_sha256", "input_transform",
-        "input_mean", "input_std", "input_size",
+        "input_mean", "input_std", "input_size", "pixel_size_um",
     ]
     assert all(field.default is None for field in fields(emb.EmbeddingSpec)[7:10])
 
