@@ -95,3 +95,15 @@ scale on /mnt/wd4tb). See REPORT.md.
   4.35 vs 120.6 s, ML batches 2,475 vs 77 cells/s; point lookups 31.8 vs
   11.3 s and one-gene crop batch 1.53 vs 0.23 s are slower (cell index and
   a narrow keys table are follow-ons for 975/976).
+
+SPEED FIXES 2026-11-18 (maintainer: the store must not land slower than the
+old path on any query shape; REPORT.md section 3b)
+- narrow key table, cost routing (row copy / row groups / DuckDB) and direct
+  Zarr chunk decoding; ops_store_row_copy (bool, default False, alpha) writes
+  the float features as a 16-row-chunked row-major Zarr copy that all-column
+  point lookups read; off writes the same table files as before.
+- 1 M cells x 10,000 features, DuckDB threads 4, load at start recorded:
+  point 1,000 x all columns, copy on 2.27 s (200k) / 4.83 s (1 M) vs SQLite
+  11.3-14.8 s (200k); copy off still slower (54.6 s / 227.6 s at load 29-41);
+  5 columns 0.23 s / 1.41 s; one-gene crop batch 0.29 s (200k) vs PNG
+  0.23-0.46 s, 2.07 s at 1 M; wide 5 % at 1 M 26.3 s on the row-group path.
