@@ -1254,7 +1254,10 @@ def load_graph_style(path: str) -> tuple:
         data = json.load(handle)
     if not isinstance(data, dict) or \
             data.get("spacr_style_kind") != GRAPH_STYLE_FILE_KIND:
-        raise ValueError(f"{path} is not a spaCR graph style")
+        raise ValueError(tr(
+            "{path} is not a spaCR graph style. Choose a JSON file created "
+            "with Save graph style, then load it again.",
+            path=path))
     general = data.get("general")
     per_graph = data.get("per_graph")
     return (dict(general) if isinstance(general, dict) else {},

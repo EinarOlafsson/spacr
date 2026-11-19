@@ -217,10 +217,18 @@ def resolve_db_path(path: str) -> str:
         ):
             if os.path.isfile(candidate):
                 return candidate
-        raise FileNotFoundError(
-            f"No {DB_FILENAME} under {p} — expected "
-            f"{os.path.join(p, _MEASUREMENTS_SUBDIR, DB_FILENAME)}")
-    raise FileNotFoundError(f"No such file or folder: {p}")
+        raise FileNotFoundError(tr(
+            "No {filename} under {folder}; expected {expected}. Choose a "
+            "measurements.db file from a completed run, or select the run "
+            "folder containing measurements/measurements.db.",
+            filename=DB_FILENAME,
+            folder=p,
+            expected=os.path.join(p, _MEASUREMENTS_SUBDIR, DB_FILENAME)))
+    raise FileNotFoundError(tr(
+        "No such file or folder: {path}. Check that the drive is "
+        "connected, then choose an existing measurements.db file or its "
+        "run folder.",
+        path=p))
 
 
 def _read_only_uri(path: str) -> str:
@@ -301,11 +309,16 @@ def build_where(column: str, op: str, value: Any,
     :raises ValueError: for an unknown column or operator.
     """
     if column not in set(columns):
-        raise ValueError(
-            f"Unknown column {column!r} — not in this table's schema.")
+        raise ValueError(tr(
+            "Unknown column {column!r} in this table. Reload the table and "
+            "choose a column from the filter list.",
+            column=column))
     spec = OPERATORS.get(op)
     if spec is None:
-        raise ValueError(f"Unknown operator {op!r}.")
+        raise ValueError(tr(
+            "Unknown operator {op!r}. Choose an operator from the filter "
+            "list, such as = or contains.",
+            op=op))
     template, nargs, transform = spec
     sql = template.format(col=quote_ident(column))
     if nargs == 0:
@@ -415,9 +428,12 @@ def coerce_for_column(text: Any, decl_type: Optional[str],
     label = decl or "untyped"
     s = "" if text is None else str(text)
     if "BLOB" in decl.upper():
-        raise ValueError(
-            f"{column!r} is declared {label} — binary values cannot be "
-            f"edited as text.")
+        raise ValueError(tr(
+            "{column!r} is declared {label}; binary values cannot be edited "
+            "as text. Leave this value unchanged, or use a database editor "
+            "that supports binary fields.",
+            column=column,
+            label=label))
     if not s.strip():
         return None
     stripped = s.strip()
@@ -425,14 +441,23 @@ def coerce_for_column(text: Any, decl_type: Optional[str],
     if affinity == "INTEGER":
         if _INT_RE.match(stripped):
             return int(stripped)
-        raise ValueError(
-            f"{s!r} is not a whole number, and {column!r} is declared "
-            f"{label}.")
+        raise ValueError(tr(
+            "{value!r} is not a whole number, and {column!r} is declared "
+            "{label}. Enter a whole number without a decimal point, such as "
+            "1.",
+            value=s,
+            column=column,
+            label=label))
     if affinity == "REAL":
         if _FLOAT_RE.match(stripped):
             return float(stripped)
-        raise ValueError(
-            f"{s!r} is not a number, and {column!r} is declared {label}.")
+        raise ValueError(tr(
+            "{value!r} is not a number, and {column!r} is declared {label}. "
+            "Enter a number such as 1.5, using a dot as the decimal "
+            "separator.",
+            value=s,
+            column=column,
+            label=label))
     if affinity == "TEXT":
         return s
     if _INT_RE.match(stripped):

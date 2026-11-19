@@ -217,16 +217,23 @@ class Recipe:
             ``package.json`` is not applied as settings.
         """
         if not isinstance(data, dict) or "spacr_recipe" not in data:
-            raise ValueError(tr("not a spaCR settings template"))
+            raise ValueError(tr(
+                "not a spaCR settings template. Choose a JSON file created with "
+                "Share template in spaCR."))
         version = data.get("spacr_recipe")
         if not isinstance(version, int) or version > FORMAT_VERSION:
-            raise ValueError(
-                tr("Template format {version} is newer than this spaCR "
-                   "version reads (it reads formats up to {supported}).",
-                   version=repr(version), supported=FORMAT_VERSION))
+            raise ValueError(tr(
+                "Template format {version} is newer than this spaCR version reads"
+                " (it reads formats up to {supported}). Choose a template created"
+                " by this spaCR version, or open it with the spaCR version that "
+                "saved it.",
+                version=repr(version),
+                supported=FORMAT_VERSION))
         settings = data.get("settings")
         if not isinstance(settings, dict):
-            raise ValueError(tr("template has no settings"))
+            raise ValueError(tr(
+                "template has no settings. Save and share the template again from"
+                " its original module, then import the new JSON file."))
         return cls(
             name=str(data.get("name") or "Untitled"),
             app_key=str(data.get("app_key") or ""),
@@ -269,7 +276,12 @@ def load_recipe(path: str) -> Recipe:
         with open(path, "r", encoding="utf-8") as handle:
             data = json.load(handle)
     except json.JSONDecodeError as exc:
-        raise ValueError(f"{os.path.basename(path)} is not valid JSON: {exc}")
+        raise ValueError(tr(
+            "{name} is not valid JSON: {error}\n\nChoose an intact JSON file "
+            "created with Share template in spaCR, or export the template "
+            "again from its original module.",
+            name=os.path.basename(path),
+            error=str(exc)))
     return Recipe.from_json(data, path=path)
 
 
@@ -434,9 +446,11 @@ def apply_recipe(recipe: Recipe, screen) -> int:
     """
     app_key = str(getattr(screen, "app_key", "") or "")
     if recipe.app_key and app_key and recipe.app_key != app_key:
-        raise ValueError(
-            tr("This template is for the {source} module, not {target}.",
-               source=repr(recipe.app_key), target=repr(app_key)))
+        raise ValueError(tr(
+            "This template is for the {source} module, not {target}. Open "
+            "{source} to apply it, or choose a template saved for {target}.",
+            source=repr(recipe.app_key),
+            target=repr(app_key)))
     apply_dict = getattr(screen, "apply_settings_dict", None)
     if not callable(apply_dict):
         raise ValueError("this screen cannot take settings")
@@ -458,7 +472,9 @@ def capture_recipe(screen, name: str, notes: str = "") -> Recipe:
     """
     model = getattr(screen, "_settings_model", None)
     if model is None:
-        raise ValueError("this screen has no settings to capture")
+        raise ValueError(tr(
+            "this screen has no settings to capture. Open a module with a "
+            "settings panel, set its values, then use Save template."))
     return Recipe(
         name=str(name or "Untitled"),
         app_key=str(getattr(screen, "app_key", "") or ""),

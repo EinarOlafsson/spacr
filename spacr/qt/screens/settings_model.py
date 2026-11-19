@@ -7966,8 +7966,12 @@ def _export_cellprofiler_example(edit: QLineEdit) -> bool:
         _write_cellprofiler_example(path)
     except Exception as error:
         QMessageBox.warning(
-            edit, tr("Could not export pipeline"),
-            tr("The example pipeline could not be saved: {error}").format(error=error))
+            edit, tr('Could not export pipeline'),
+            tr(
+                "The example pipeline could not be saved: {error}\n\nChoose an "
+                "existing folder you can write to and check free disk space, then"
+                " export the pipeline again.",
+                error=str(error)))
         return False
     edit.setText(path)
     edit.editingFinished.emit()
