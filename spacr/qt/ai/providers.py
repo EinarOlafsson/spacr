@@ -986,7 +986,7 @@ def _codex_executable(home: Optional[str] = None, platform: Optional[str] = None
     """
     import platform as _platform
 
-    found = shutil.which("codex")
+    found = _which_on_path("codex")
     if found:
         return found, "PATH"
     home = home or _codex_home()
@@ -1423,14 +1423,14 @@ def hosted_refusal_message(reason: str, scope: str = "",
     return tr("spaCR hosted AI could not answer this time. Try again later.")
 
 
-_PATH_LOOKUPS: Dict[tuple, Tuple[float, bool]] = {}
+_PATH_LOOKUPS: Dict[tuple, Tuple[float, str]] = {}
 
 #: How long one ``PATH`` search answers for the same tool and ``PATH``.
 _PATH_LOOKUP_TTL_S = 300.0
 
 
-def _found_on_path(name: str) -> bool:
-    """Whether ``name`` is on ``PATH``, searching at most once per few minutes.
+def _which_on_path(name: str) -> str:
+    """Where ``name`` is on ``PATH``, searching at most once per few minutes.
 
     Every screen's AI switch asks which providers are configured while the
     screen is built, and each answer was a ``PATH`` search; on Windows those
@@ -1439,7 +1439,7 @@ def _found_on_path(name: str) -> bool:
     or a test's stand-in resolver is seen at once.
 
     :param name: the executable's name.
-    :returns: True when the executable is found.
+    :returns: the executable's path, or ``""`` when it is not found.
     """
     import time
 
@@ -1448,9 +1448,18 @@ def _found_on_path(name: str) -> bool:
     cached = _PATH_LOOKUPS.get(key)
     if cached is not None and now - cached[0] < _PATH_LOOKUP_TTL_S:
         return cached[1]
-    found = shutil.which(name) is not None
+    found = shutil.which(name) or ""
     _PATH_LOOKUPS[key] = (now, found)
     return found
+
+
+def _found_on_path(name: str) -> bool:
+    """Whether ``name`` is on ``PATH``; the search is cached as in :func:`_which_on_path`.
+
+    :param name: the executable's name.
+    :returns: True when the executable is found.
+    """
+    return bool(_which_on_path(name))
 
 
 def _warm_path_lookups() -> None:
