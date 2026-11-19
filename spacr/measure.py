@@ -10936,6 +10936,69 @@ def _with_vacuole_counts(cell_frame, cell_mask, pathogen_mask, settings):
     return out
 
 
+#: The crop formats Measure writes (items 983 and 984): ``'png'`` is PNG
+#: (Legacy), today's folders exactly. TIFF or NPY copies come from
+#: :func:`spacr.crop_store.export_crops`.
+CROP_IMAGE_FORMATS = ("png", "ome-zarr")
+
+
+def _crop_image_format(settings):
+    """``crop_image_format``, checked: ``'png'`` unless another format is asked for."""
+    value = str(settings.get('crop_image_format') or 'png').strip().lower()
+    if value not in CROP_IMAGE_FORMATS:
+        raise ValueError(f"crop_image_format must be one of {list(CROP_IMAGE_FORMATS)}; "
+                         f"got {value!r}")
+    return value
+
+
+def _crops_per_shard(settings):
+    """``crops_per_shard``, lowered when the RAM budget cannot hold one shard per class.
+
+    The parent buffers one shard per open well and object class. A shard of
+    4096 crops of a 4-channel uint16 96 x 96 box is about 300 MB; with less
+    available RAM than eight such shards, the size is halved, down to 256,
+    with one log line.
+    """
+    wanted = int(settings.get('crops_per_shard') or 4096)
+    try:
+        import psutil
+        available = psutil.virtual_memory().available
+    except Exception:
+        return wanted
+    per_crop = 4 * 96 * 96 * 2 * 2
+    size = wanted
+    while size > 256 and 8 * size * per_crop > available:
+        size //= 2
+    if size != wanted:
+        print(f"crops_per_shard lowered from {wanted} to {size}: "
+              f"{available / 2 ** 30:.1f} GB RAM available")
+    return size
+
+
+def _record_ragged_crops(settings, file_name, crop_modes, crop_source, masks,
+                         data_type):
+    """Cut one field's crops of every class in ``crop_modes``; send them in one packet.
+
+    Each crop is the object's bounding box plus ``crop_margin_px``, with its
+    own mask beside it and the per-cell relationship columns; outside pixels
+    are zeroed only with ``crop_zero_outside``. Raw intensities: crops are
+    never stretched when written (the network transform normalises).
+    """
+    from .crop_store import crop_relationships, cut_crops, record_measure_field_crops
+
+    image = np.moveaxis(np.asarray(crop_source)[..., list(settings['channels'])], -1, 0)
+    image = image.astype(data_type, copy=False)
+    classes = []
+    for crop_mode in crop_modes:
+        crops = cut_crops(image, np.asarray(masks[crop_mode]),
+                          margin=int(settings.get('crop_margin_px') or 0),
+                          zero_outside=bool(settings.get('crop_zero_outside', False)))
+        for crop in crops:
+            crop.update(crop_relationships(crop, masks))
+        classes.append((crop_mode, crops, image.shape[0], image.dtype))
+    record_measure_field_crops(settings, file_name, classes)
+
+
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
 
     """Measure one field using selected standard or PSF-processed intensities.
@@ -11480,7 +11543,17 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     'dialate_png_ratios')
                 if any(dialate_pngs) else [None] * len(crop_ls))
 
+            crop_format = _crop_image_format(settings)
+            if crop_format != 'png' and settings['save_png']:
+                _record_ragged_crops(
+                    settings, file_name, [m for m in crop_ls if m in CROP_MODES],
+                    crop_source,
+                    {'cell': cell_mask, 'nucleus': nucleus_mask,
+                     'pathogen': pathogen_mask, **organelle_masks,
+                     'cytoplasm': cytoplasm_mask}, data_type)
             for crop_idx, crop_mode in enumerate(crop_ls):
+                if crop_format != 'png' and settings['save_png'] and crop_mode in CROP_MODES:
+                    continue
                 if crop_mode not in CROP_MODES:
                     print(f"Setting: crop_mode entry {crop_mode!r} is not "
                           f"one of {', '.join(CROP_MODES)}; skipping it. "
@@ -11709,9 +11782,12 @@ def _commit_measure_packet(db_path, packet):
     from .database_concurrency import _commit_write_packet
     from .utils import _append_to_measurements_db, _merge_and_save_to_database
 
+    from .crop_store import receive_measure_crops
+
     handlers = {
         'append': _append_to_measurements_db,
         'merge': _merge_and_save_to_database,
+        'crops': receive_measure_crops,
         'rescale': _write_intensity_rescale_record,
         'confluency': _write_confluency_record,
         'image': _write_image_record,
@@ -12963,6 +13039,12 @@ def measure_crop(settings):
                                   calibration['plates'].items()))
                 if resume_plan is not None:
                     files = resume_plan.filter_files(files)
+                crop_format = _crop_image_format(settings)
+                if crop_format != 'png':
+                    from .crop_store import open_measure_sink
+                    open_measure_sink(
+                        os.path.dirname(settings['src']), files,
+                        crops_per_shard=_crops_per_shard(settings))
                 n_jobs = settings['n_jobs']
                 print(f'using {n_jobs} cpu cores')
                 print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
@@ -13182,6 +13264,12 @@ def measure_crop(settings):
                         artifact=db_path if os.path.isfile(db_path) else None)
 
                 _add_original_filename_columns(db_path, settings['src'])
+                if crop_format != 'png':
+                    from .crop_store import close_measure_sink
+                    written = close_measure_sink(os.path.dirname(settings['src']),
+                                                 db_path)
+                    print(f"crops: {written} {crop_format} crops in "
+                          f"crops/ and measurements.db:ssCell_Crops")
 
                 if str(settings.get('plate_barcode_source') or '').strip():
                     _run_plate_barcode_step(settings)

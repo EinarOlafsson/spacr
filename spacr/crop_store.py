@@ -15,6 +15,7 @@ or npy for other tools.
 """
 from __future__ import annotations
 
+import json
 import os
 import shutil
 from pathlib import Path
@@ -22,8 +23,13 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
-__all__ = ["CROP_COLUMNS", "CropPoolWriter", "cut_crops", "read_crop",
-           "export_crops"]
+__all__ = ["CROP_COLUMNS", "CropPoolWriter", "CropSink", "cut_crops",
+           "read_crop", "export_crops", "crop_relationships",
+           "open_measure_sink", "receive_measure_crops", "close_measure_sink",
+           "record_measure_crops", "record_measure_field_crops",
+           "OmeZarrCropSource", "ome_zarr_crops_exist", "ROLE_COLOURS",
+           "composite_crop", "load_channel_presets", "save_channel_preset",
+           "parse_channel_roles", "format_channel_roles"]
 
 #: The ssCell_Crops columns, in order (item 984).
 CROP_COLUMNS: Tuple[str, ...] = (
@@ -194,7 +200,9 @@ class CropPoolWriter:
                 "well": self.well, "field": crop.get("field"),
                 "timepoint": crop.get("timepoint"),
                 "object_label": crop["object_label"],
-                "object_id": crop.get("object_id"),
+                "object_id": crop.get("object_id") or (
+                    f"{self.plate}_{self.well}_{crop.get('field')}_"
+                    f"{self.object_type}_{crop['object_label']}"),
                 "crop_store": self.relative.as_posix(),
                 "crop_array": f"{self.object_type}/pool/{name}",
                 "crop_index": index, "offset": off, "height": int(height),
@@ -285,3 +293,516 @@ def export_crops(project: Any, rows: Iterable[Mapping[str, Any]], out_dir: Any,
             Image.fromarray(rgb if rgb.shape[-1] == 3 else rgb[..., 0]).save(target)
         written.append(str(target))
     return written
+
+
+#: The open Measure crop sinks, by project folder, in the writing process.
+_SINKS: Dict[str, "CropSink"] = {}
+
+
+def _labels_under(masks: Mapping[str, Any], name: str,
+                  box: Tuple[int, int, int, int], inside: np.ndarray) -> np.ndarray:
+    """The nonzero labels of mask ``name`` under the object's own pixels."""
+    mask = masks.get(name)
+    if mask is None:
+        return np.zeros(0, np.int64)
+    y0, x0, y1, x1 = box
+    values = np.asarray(mask)[y0:y1, x0:x1][inside]
+    return values[values > 0]
+
+
+def _most_common(values: np.ndarray) -> Optional[int]:
+    """The most frequent label in ``values``; None when there is none."""
+    return int(np.bincount(values.astype(np.int64)).argmax()) if values.size else None
+
+
+def crop_relationships(crop: Mapping[str, Any], masks: Mapping[str, np.ndarray]
+                       ) -> Dict[str, Any]:
+    """The per-cell relationship columns of one crop (item 984).
+
+    :param crop: a record from :func:`cut_crops`.
+    :param masks: the field's label images by class (``cell``, ``nucleus``,
+        ``pathogen`` and organelle classes).
+    :returns: ``parent_cell_id``, ``nucleus_id``, ``has_nucleus``,
+        ``n_nuclei``, ``n_pathogens``, ``infected`` and one
+        ``n_<organelle class>`` per organelle class, counted over the object's
+        own pixels; ``annotation``, ``class`` and ``class_score`` empty.
+    """
+    y0, x0, y1, x1 = (crop[k] for k in ("bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1"))
+    inside = np.asarray(crop["mask"])
+
+    box = (y0, x0, y1, x1)
+    cells, nuclei, pathogens = (_labels_under(masks, n, box, inside)
+                                for n in ("cell", "nucleus", "pathogen"))
+    out = {"parent_cell_id": _most_common(cells), "nucleus_id": _most_common(nuclei),
+           "has_nucleus": bool(nuclei.size), "n_nuclei": int(np.unique(nuclei).size),
+           "n_pathogens": int(np.unique(pathogens).size),
+           "infected": bool(pathogens.size)}
+    for name in masks:
+        if name not in ("cell", "nucleus", "pathogen", "cytoplasm"):
+            out[f"n_{name}"] = int(np.unique(_labels_under(masks, name, box, inside)).size)
+    out.update({"annotation": None, "class": None, "class_score": None})
+    return out
+
+
+class CropSink:
+    """The parent's crop writer for one Measure run (item 984).
+
+    :param project: the project folder (the measurements folder's parent).
+    :param plan: the run's field files, in the order crops are committed.
+    :param crops_per_shard: crops per pool shard.
+
+    Fields can finish in any order; their crops wait in a reorder buffer and
+    are written in plan order, so a rerun writes the same shards.
+    """
+
+    def __init__(self, project: Any, plan: Sequence[str], *,
+                 crops_per_shard: int = DEFAULT_CROPS_PER_SHARD):
+        """Index the plan and start with no open writers."""
+        self.project = Path(project)
+        self.index = {os.path.basename(str(f)): i for i, f in enumerate(plan)}
+        self.crops_per_shard = int(crops_per_shard)
+        self.next = 0
+        self.pending: Dict[int, List[Mapping[str, Any]]] = {}
+        self.writers: Dict[Tuple[str, str, str], CropPoolWriter] = {}
+
+    def receive(self, file: str, payloads: Sequence[Mapping[str, Any]]) -> None:
+        """Take one field's crops; write every field now due in plan order.
+
+        Measure sends a field's classes in one call. A later call for a field
+        already written (a further class) is written at once: Measure commits
+        one field's packet as a unit, so no other field came between.
+        """
+        position = self.index.get(os.path.basename(str(file)))
+        if position is None:
+            position = len(self.index) + len(self.pending)
+        if position < self.next:
+            self._write(payloads)
+            return
+        self.pending.setdefault(position, []).extend(payloads)
+        while self.next in self.pending:
+            self._write(self.pending.pop(self.next))
+            self.next += 1
+
+    def _write(self, payloads: Sequence[Mapping[str, Any]]) -> None:
+        """Hand one field's crops to their well's writers."""
+        for payload in payloads:
+            key = (str(payload["plate"]), str(payload["well"]), str(payload["object_type"]))
+            writer = self.writers.get(key)
+            if writer is None:
+                writer = self.writers[key] = CropPoolWriter(
+                    self.project, *key, int(payload["channels"]),
+                    payload["dtype"], crops_per_shard=self.crops_per_shard)
+            writer.add(payload["crops"], **payload["identity"])
+
+    def close(self) -> List[Dict[str, Any]]:
+        """Write the fields still waiting, in plan order, then every last shard."""
+        for position in sorted(self.pending):
+            self._write(self.pending.pop(position))
+        rows: List[Dict[str, Any]] = []
+        for key in sorted(self.writers):
+            rows.extend(self.writers[key].close())
+        return rows
+
+
+def open_measure_sink(project: Any, plan: Sequence[str], *,
+                      crops_per_shard: int = DEFAULT_CROPS_PER_SHARD) -> CropSink:
+    """Start the crop sink of one Measure run in this (the writing) process."""
+    sink = CropSink(project, plan, crops_per_shard=crops_per_shard)
+    _SINKS[os.path.abspath(os.fspath(project))] = sink
+    return sink
+
+
+def receive_measure_crops(project: Any, file: str,
+                          payloads: Sequence[Mapping[str, Any]]) -> None:
+    """Pass one field's crops to the run's sink (the parent's write handler)."""
+    sink = _SINKS.get(os.path.abspath(os.fspath(project)))
+    if sink is None:
+        raise RuntimeError(f"no crop sink is open for {project}")
+    sink.receive(file, payloads)
+
+
+def close_measure_sink(project: Any, db_path: Any) -> int:
+    """Close the run's sink and write its rows as the ``ssCell_Crops`` table.
+
+    :returns: the number of crops written.
+    """
+    import pandas as pd
+
+    from .tabular import write_database
+
+    sink = _SINKS.pop(os.path.abspath(os.fspath(project)), None)
+    if sink is None:
+        return 0
+    rows = sink.close()
+    if rows:
+        frame = pd.DataFrame(rows)
+        ordered = [c for c in CROP_COLUMNS if c in frame.columns]
+        frame = frame[ordered + [c for c in frame.columns if c not in ordered]]
+        write_database(frame, os.fspath(db_path), "ssCell_Crops",
+                       if_exists="replace", canonicalise=False)
+    return len(rows)
+
+
+def record_measure_crops(settings: Mapping[str, Any], file_name: str,
+                         object_type: str, crops: Sequence[Mapping[str, Any]],
+                         channels: int, dtype: Any) -> None:
+    """Send one field's crops of one class to the run's writer (item 984).
+
+    A field with several classes goes through
+    :func:`record_measure_field_crops` in one call instead, so the sink
+    takes the whole field at once.
+    """
+    record_measure_field_crops(settings, file_name,
+                               [(object_type, crops, channels, dtype)])
+
+
+def record_measure_field_crops(settings: Mapping[str, Any], file_name: str,
+                               classes: Sequence[Tuple[str, Sequence[Mapping[str, Any]],
+                                                       int, Any]]) -> None:
+    """Send every class of one field's crops to the run's writer (item 984).
+
+    :param classes: ``(object_type, crops, channels, dtype)`` per class.
+
+    Inside a Measure worker the crops join the field's write packet and reach
+    the parent's sink through the write queue; in a single-process run they go
+    to the sink directly. Either way only the parent writes the store, and it
+    takes the field whole, so fields commit in plan order.
+    """
+    from .database_concurrency import _capture_write_operation
+
+    plate, well, field = _field_parts(file_name)
+    identity = {"field": field, "timepoint": None}
+    project = os.path.dirname(os.fspath(settings["src"]))
+    payload = []
+    for object_type, crops, channels, dtype in classes:
+        packed = [{**c, "object_id":
+                   f"{plate}_{well}_{field}_{object_type}_{c['object_label']}"}
+                  for c in crops]
+        payload.append({"plate": plate, "well": well, "object_type": object_type,
+                        "channels": int(channels), "dtype": np.dtype(dtype).str,
+                        "identity": identity, "crops": packed})
+    if not _capture_write_operation("crops", (project, file_name, payload)):
+        receive_measure_crops(project, file_name, payload)
+
+
+def _field_parts(file_name: str) -> Tuple[str, str, Optional[int]]:
+    """``'plate1_B03_2.npy'`` -> ``('plate1', 'B03', 2)``."""
+    stem = os.path.splitext(os.path.basename(str(file_name)))[0]
+    parts = stem.split("_")
+    if len(parts) >= 3:
+        try:
+            return "_".join(parts[:-2]), parts[-2], int(parts[-1])
+        except ValueError:
+            pass
+    return stem, "A01", None
+
+
+def ome_zarr_crops_exist(root: Any) -> bool:
+    """Whether ``root`` holds OME-Zarr crops: a per-well store and its table.
+
+    :param root: the project folder (the one holding ``crops/`` and
+        ``measurements/measurements.db``).
+    """
+    import sqlite3
+
+    root = Path(root)
+    db = root / "measurements" / "measurements.db"
+    if not db.is_file() or not any((root / "crops").glob("plate=*/well=*.zarr")):
+        return False
+    with sqlite3.connect(str(db)) as conn:
+        return conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
+                            "AND name='ssCell_Crops'").fetchone() is not None
+
+
+def _row_field(row: Any, name: str) -> Any:
+    """Field ``name`` of a mapping, a pandas Series or an object; None when absent."""
+    if isinstance(row, Mapping):
+        return row.get(name)
+    try:
+        return row[name]
+    except (KeyError, IndexError, TypeError):
+        return getattr(row, name, None)
+
+
+def _lazy_crop_source_base():
+    from .crops import CropSource
+    return CropSource
+
+
+class OmeZarrCropSource(_lazy_crop_source_base()):
+    """Crop source that reads Measure's OME-Zarr crops (items 983 and 984).
+
+    Same interface as :class:`spacr.crops.PngCropSource`: :meth:`get` returns
+    a ``(H, W, 3)`` uint8 RGB array, :meth:`get_image` a PIL image,
+    :meth:`get_many` one array per row in order, :meth:`resolve` a string
+    locator. :meth:`get_raw` adds the stored pixels and mask, in their own
+    dtype and every channel, for training.
+
+    A row is an ``ssCell_Crops`` row (``crop_store``, ``crop_array``,
+    ``offset``, ...) or any row carrying ``object_id``, or ``plate``,
+    ``well``, ``field``, ``object_type`` and ``object_label``; the crop
+    columns are then looked up in ``ssCell_Crops``. The RGB view maps
+    ``channels`` to red, green, blue and stretches each to its 0.1-99.9
+    percentile inside the crop, for display only: :meth:`get_raw` and the
+    stored pixels are never stretched.
+    """
+
+    kind = "ome-zarr"
+
+    def __init__(self, root: Optional[str] = None, reason: str = "",
+                 db_path: Optional[str] = None, *,
+                 channels: Optional[Sequence[int]] = None,
+                 size: Optional[Tuple[int, int]] = None,
+                 context: bool = True):
+        """Open the crop table of ``root`` (``measurements/measurements.db``).
+
+        :param root: the project folder.
+        :param reason: why this source was picked, for :meth:`describe`.
+        :param db_path: the database holding ``ssCell_Crops``.
+        :param channels: stored channels shown as red, green, blue (up to
+            three); the first three when None.
+        :param size: ``(h, w)`` every crop is resized to (nearest-neighbour);
+            the stored size when None.
+        :param context: keep the pixels around the object; False zeroes them.
+        """
+        self.root = root
+        self.reason = reason
+        if db_path is None and root:
+            db_path = os.path.join(root, "measurements", "measurements.db")
+        self.db_path = db_path
+        self.channels = None if channels is None else [int(c) for c in channels]
+        self.size = None if size is None else (int(size[0]), int(size[1]))
+        self.context = bool(context)
+        self._table = None
+
+    def _rows_table(self):
+        if self._table is None:
+            from .tabular import read_database
+
+            table = read_database(self.db_path, "ssCell_Crops", canonicalise=False,
+                                  report=None, migrate=False, read_only=True)[0]
+            self._table = table.set_index("object_id", drop=False)
+        return self._table
+
+    def _crop_row(self, row: Any) -> Mapping[str, Any]:
+        """``row``'s ``ssCell_Crops`` columns, looked up when it lacks them."""
+        if all(_row_field(row, k) is not None for k in ("crop_store", "crop_array", "offset")):
+            return {k: _row_field(row, k) for k in ("crop_store", "crop_array", "offset",
+                                          "height", "width", "mask_offset",
+                                          "object_id")}
+        object_id = _row_field(row, "object_id")
+        if object_id is None:
+            parts = [_row_field(row, k) for k in ("plate", "well", "field", "object_type",
+                                        "object_label")]
+            if any(p is None for p in parts):
+                raise ValueError("an OME-Zarr crop row needs the ssCell_Crops "
+                                 "columns, object_id, or plate, well, field, "
+                                 "object_type and object_label")
+            object_id = "_".join(str(int(p)) if isinstance(p, (int, np.integer))
+                                 else str(p) for p in parts)
+        table = self._rows_table()
+        if object_id not in table.index:
+            raise KeyError(f"no OME-Zarr crop {object_id!r} in {self.db_path}")
+        return table.loc[object_id].to_dict()
+
+    def resolve(self, row: Any) -> str:
+        """``crops/plate=P/well=W.zarr::<class>/pool/<k>@<offset>`` for ``row``."""
+        crop = self._crop_row(row)
+        return f"{crop['crop_store']}::{crop['crop_array']}@{int(crop['offset'])}"
+
+    def get_raw(self, row: Any) -> Tuple[np.ndarray, np.ndarray]:
+        """The stored crop: ``(pixels (C, h, w) in its dtype, mask (h, w) bool)``."""
+        return read_crop(self.root, self._crop_row(row), context=self.context,
+                         size=self.size)
+
+    def get(self, row: Any) -> np.ndarray:
+        """The crop for ``row`` as a ``(H, W, 3)`` uint8 RGB array (display stretch)."""
+        pixels, _mask = self.get_raw(row)
+        picked = self.channels if self.channels is not None else list(
+            range(min(3, pixels.shape[0])))
+        rgb = np.zeros(pixels.shape[1:] + (3,), np.uint8)
+        for slot, channel in enumerate(picked[:3]):
+            plane = pixels[channel].astype(np.float64)
+            lo, hi = np.percentile(plane, (0.1, 99.9))
+            if hi > lo:
+                rgb[..., slot] = np.round(
+                    np.clip((plane - lo) / (hi - lo), 0, 1) * 255).astype(np.uint8)
+        return rgb
+
+
+#: Named colours a channel role may use, as RGB in 0-1.
+ROLE_COLOURS: Dict[str, Tuple[float, float, float]] = {
+    "red": (1.0, 0.0, 0.0), "green": (0.0, 1.0, 0.0), "blue": (0.0, 0.0, 1.0),
+    "cyan": (0.0, 1.0, 1.0), "magenta": (1.0, 0.0, 1.0),
+    "yellow": (1.0, 1.0, 0.0), "grey": (1.0, 1.0, 1.0), "gray": (1.0, 1.0, 1.0),
+    "orange": (1.0, 0.5, 0.0), "white": (1.0, 1.0, 1.0)}
+
+
+def _role_colour(value: Any) -> np.ndarray:
+    if isinstance(value, str):
+        text = value.strip().lower()
+        if text in ROLE_COLOURS:
+            return np.asarray(ROLE_COLOURS[text])
+        if text.startswith("#") and len(text) == 7:
+            return np.asarray([int(text[i:i + 2], 16) / 255 for i in (1, 3, 5)])
+        raise ValueError(f"unknown colour {value!r}; use a name from ROLE_COLOURS "
+                         f"or '#rrggbb'")
+    colour = np.asarray(value, dtype=np.float64).reshape(3)
+    return colour / 255 if colour.max() > 1 else colour
+
+
+def _outline(mask: np.ndarray, width: int) -> np.ndarray:
+    from scipy import ndimage
+
+    mask = np.asarray(mask, bool)
+    if not mask.any():
+        return mask
+    inner = ndimage.binary_erosion(mask, iterations=max(1, int(width)),
+                                   border_value=0)
+    return mask & ~inner
+
+
+def composite_crop(pixels: np.ndarray, roles: Sequence[Mapping[str, Any]], *,
+                   mask: Optional[np.ndarray] = None) -> np.ndarray:
+    """Render a crop of any number of channels to ``(H, W, 3)`` uint8 RGB.
+
+    :param pixels: ``(C, H, W)``, in the stored dtype.
+    :param roles: one entry per channel shown, in drawing order:
+
+        - ``{"channel": c, "role": "image", "colour": "green",
+          "range": (lo, hi), "gamma": 1.0}``: additive blend of the channel,
+          scaled to ``range`` (stored units; the 0.1-99.9 percentile of the
+          crop when omitted) and raised to ``1 / gamma``.
+        - ``{"channel": c, "role": "outline", "colour": "yellow",
+          "width": 1, "threshold": t}``: the object's outline drawn over the
+          image, from ``mask`` (``channel`` ``"mask"``), from a label channel
+          (pixels > 0) or from a threshold on the channel.
+
+    :param mask: the crop's object mask, used by ``channel: "mask"`` outlines.
+    """
+    pixels = np.asarray(pixels)
+    if pixels.ndim != 3:
+        raise ValueError(f"pixels must be (C, H, W); got shape {pixels.shape}")
+    rgb = np.zeros(pixels.shape[1:] + (3,), np.float64)
+    outlines = []
+    for role in roles:
+        kind = str(role.get("role", "image")).lower()
+        colour = _role_colour(role.get("colour", role.get("color", "grey")))
+        channel = role.get("channel", 0)
+        if kind == "outline":
+            if channel == "mask":
+                if mask is None:
+                    raise ValueError("an outline on 'mask' needs the crop's mask")
+                region = np.asarray(mask, bool)
+            elif role.get("threshold") is not None:
+                region = pixels[int(channel)] > float(role["threshold"])
+            else:
+                region = pixels[int(channel)] > 0
+            outlines.append((_outline(region, int(role.get("width", 1))), colour))
+            continue
+        if kind != "image":
+            raise ValueError(f"channel role must be 'image' or 'outline'; got {kind!r}")
+        plane = pixels[int(channel)].astype(np.float64)
+        lo_hi = role.get("range")
+        lo, hi = (np.percentile(plane, (0.1, 99.9)) if lo_hi is None
+                  else (float(lo_hi[0]), float(lo_hi[1])))
+        scaled = np.clip((plane - lo) / (hi - lo), 0, 1) if hi > lo else np.zeros_like(plane)
+        gamma = float(role.get("gamma", 1.0) or 1.0)
+        if gamma != 1.0:
+            scaled = scaled ** (1.0 / gamma)
+        rgb += scaled[..., None] * colour
+    out = np.clip(rgb, 0, 1)
+    for line, colour in outlines:
+        out[line] = colour
+    return np.round(out * 255).astype(np.uint8)
+
+
+#: Where Annotate keeps a project's channel-role presets.
+PRESETS_FILE = Path("settings") / "annotate_channel_presets.json"
+
+
+def load_channel_presets(project: Any) -> Dict[str, List[Dict[str, Any]]]:
+    """The project's saved channel-role presets, ``{name: roles}``; empty when none."""
+    path = Path(project) / PRESETS_FILE
+    if not path.is_file():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {str(k): list(v) for k, v in (data.get("presets") or {}).items()}
+
+
+def save_channel_preset(project: Any, name: str,
+                        roles: Sequence[Mapping[str, Any]]) -> Path:
+    """Save ``roles`` as preset ``name`` for this project (checked by a test render)."""
+    roles = [dict(r) for r in roles]
+    channels = [r.get("channel", 0) for r in roles if r.get("channel") != "mask"]
+    probe = np.zeros((max([int(c) for c in channels] + [0]) + 1, 4, 4), np.uint16)
+    composite_crop(probe, roles, mask=np.zeros((4, 4), bool))
+    presets = load_channel_presets(project)
+    presets[str(name)] = roles
+    path = Path(project) / PRESETS_FILE
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps({"version": 1, "presets": presets}, indent=1,
+                              default=list), encoding="utf-8")
+    os.replace(tmp, path)
+    return path
+
+
+def parse_channel_roles(text: str) -> List[Dict[str, Any]]:
+    """Channel roles from Annotate's one-line form; empty text gives ``[]``.
+
+    Roles are separated by ``;``, fields by ``:``: ``channel:role:colour``
+    then ``key=value`` options. For example
+    ``0:image:blue; 1:image:green:gamma=1.5:range=100-4000;
+    mask:outline:yellow:width=2; 3:outline:magenta:threshold=900``.
+    """
+    roles: List[Dict[str, Any]] = []
+    for part in str(text or "").split(";"):
+        fields = [f.strip() for f in part.split(":") if f.strip()]
+        if not fields:
+            continue
+        channel: Any = fields[0]
+        if channel != "mask":
+            try:
+                channel = int(channel)
+            except ValueError:
+                raise ValueError(f"channel {channel!r} must be a number or 'mask'") from None
+        role: Dict[str, Any] = {"channel": channel,
+                                "role": fields[1] if len(fields) > 1 else "image",
+                                "colour": fields[2] if len(fields) > 2 else "grey"}
+        for option in fields[3:]:
+            key, _eq, value = option.partition("=")
+            key = key.strip().lower()
+            if key == "range":
+                lo, _dash, hi = value.partition("-")
+                role["range"] = (float(lo), float(hi))
+            elif key in ("gamma", "threshold"):
+                role[key] = float(value)
+            elif key == "width":
+                role[key] = int(value)
+            else:
+                raise ValueError(f"unknown channel-role option {key!r}; use range, "
+                                 f"gamma, width or threshold")
+        roles.append(role)
+    composite_crop(np.zeros((max([r["channel"] for r in roles
+                                  if r["channel"] != "mask"] + [0]) + 1, 2, 2)),
+                   roles, mask=np.zeros((2, 2), bool))
+    return roles
+
+
+def format_channel_roles(roles: Sequence[Mapping[str, Any]]) -> str:
+    """The one-line form of ``roles``; :func:`parse_channel_roles` reads it back."""
+    parts = []
+    for role in roles:
+        fields = [str(role.get("channel", 0)), str(role.get("role", "image")),
+                  str(role.get("colour", role.get("color", "grey")))]
+        if role.get("range") is not None:
+            lo, hi = role["range"]
+            fields.append(f"range={lo:g}-{hi:g}")
+        for key in ("gamma", "threshold"):
+            if role.get(key) is not None:
+                fields.append(f"{key}={float(role[key]):g}")
+        if role.get("width") is not None:
+            fields.append(f"width={int(role['width'])}")
+        parts.append(":".join(fields))
+    return "; ".join(parts)

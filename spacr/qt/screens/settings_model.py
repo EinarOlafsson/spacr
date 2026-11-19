@@ -1377,6 +1377,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "@Segmentation QC",
             "save", "delete_intermediate", "keep_intermediate",
             "keep_original_images", "save_original_images", "keep_npz",
+            "mask_image_format",
             "filter", "merge_pathogens",
             "strict_errors", "max_failure_rate", "on_error",
             "on_error_attempts", "on_error_backoff", "random_seed", "verbose", "n_jobs", "ram_guard",
@@ -1483,6 +1484,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "png_channel_mapping",
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
             "normalize", "normalize_by", "crop_intensity",
+            "crop_image_format", "crops_per_shard", "crop_margin_px",
+            "crop_zero_outside",
         )),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
@@ -1620,6 +1623,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Storage", (
             "save", "delete_intermediate", "keep_intermediate",
             "keep_original_images", "save_original_images", "keep_npz",
+            "mask_image_format",
             "filter", "merge_pathogens",
         )),
         ("Runtime & Reliability", (
