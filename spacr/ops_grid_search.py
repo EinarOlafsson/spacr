@@ -737,6 +737,42 @@ def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str
             "plot": plot, "json": f"{stem}.json"}
 
 
+def _pinned_tuning_grid(settings: Mapping[str, Any], applied: Mapping[str, Any],
+                        row: Mapping[str, Any]) -> Dict[str, List[float]]:
+    """The tuning grid that keeps a grid point's uniform values and tunes the rest per well.
+
+    :param settings: the run settings, read for ``ops_prefix_tuning_grid``
+        and ``ops_prefix_quality_method``.
+    :param applied: the settings with the point's uniform values written in.
+    :param row: the grid point's row; ``"per well"`` marks a column each
+        well chooses.
+    :returns: ``ops_prefix_tuning_grid`` with every tuning axis the point
+        fixes pinned to its value, so the per-well tuner does not choose it
+        again, and every other axis left to the tuner.
+    :raises ValueError: for a ``ops_prefix_tuning_grid`` string that is not JSON.
+    """
+    from .ops_prefix import PREFIX_TUNING_GRID, PREFIX_TUNING_GRID_WEIGHTED
+
+    grid = settings.get("ops_prefix_tuning_grid")
+    if isinstance(grid, str) and grid.strip():
+        try:
+            grid = json.loads(grid)
+        except ValueError:
+            raise ValueError("ops_prefix_tuning_grid must be a mapping such as "
+                             '{"ops_read_threshold": [60, 80]}; got '
+                             f"{grid!r}") from None
+    if not grid:
+        grid = (PREFIX_TUNING_GRID_WEIGHTED
+                if settings.get("ops_prefix_quality_method") == "weighted_majority"
+                else PREFIX_TUNING_GRID)
+    pinned = {key: [float(value) for value in values] for key, values in dict(grid).items()}
+    for key in PREFIX_TUNING_GRID:
+        value = row[key] if key in row else None
+        if key in _GRID_KEYS and not (isinstance(value, str) and value == "per well"):
+            pinned[key] = [float(applied[key])]
+    return pinned
+
+
 def _apply_grid_choice(settings: Mapping[str, Any], result: Any, point: int) -> Dict[str, Any]:
     """Write the values of one grid point into the run settings.
 
@@ -747,7 +783,10 @@ def _apply_grid_choice(settings: Mapping[str, Any], result: Any, point: int) -> 
     :returns: a copy of the settings with the selected values. A point other
         than the default switches off per-well tuning only when all its
         values are uniform. A column left to each well keeps the entered
-        setting and enables ``ops_prefix_threshold_tuning='per_well_decoy'``.
+        setting and enables ``ops_prefix_threshold_tuning='per_well_decoy'``,
+        with ``ops_prefix_tuning_grid`` pinning the tuning axes the point
+        fixes (:func:`_pinned_tuning_grid`), so the tuner chooses only the
+        columns left to each well.
         ``ops_grid_run_id``, ``ops_grid_tiles`` and
         ``ops_grid_seed`` record the grid run, and ``ops_grid_search`` is
         switched off so the next run decodes.
@@ -778,6 +817,8 @@ def _apply_grid_choice(settings: Mapping[str, Any], result: Any, point: int) -> 
                 continue
             out[key] = _cast(key, value)
         out["ops_prefix_threshold_tuning"] = "per_well_decoy" if per_well else "none"
+        if per_well:
+            out["ops_prefix_tuning_grid"] = _pinned_tuning_grid(settings, out, row)
     out.update({"ops_grid_run_id": record["run_id"], "ops_grid_tiles": ",".join(record["tiles"]),
                 "ops_grid_search": False})
     if record.get("seed") is not None:
