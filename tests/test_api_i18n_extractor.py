@@ -437,6 +437,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         "spacr.gene_class_images.OpsCropDataset.__len__"}
     assert crop_reader_dunders <= dunders
     dunders = dunders - crop_reader_dunders
+    # And the spaCR store's context-manager dunders (2026-11-18, item 974).
+    store_dunders = {"spacr.store.Store.__enter__",
+                     "spacr.store.Store.__exit__"}
+    assert store_dunders <= dunders
+    dunders = dunders - store_dunders
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
