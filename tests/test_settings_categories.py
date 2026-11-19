@@ -845,6 +845,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_ph_organelle_channel", "ops_ph_organelle_morphology",
     "ops_ph_organelle_method", "ops_ph_organelle_model",
     "ops_ph_organelle_diameter", "ops_ph_organelle_min_area",
+    # Item 968 (2026-11-17): the OPS power simulation.
+    "ops_power_sim", "ops_power_calibration_run", "ops_power_mode",
+    "ops_power_grid", "ops_power_sim_seeds", "ops_power_effect_types",
+    "ops_power_scorers", "ops_power_sim_workers",
     # Item 962 (2026-11-16): the OPS merge route (tile hash, well stitch
     # or automatic fallback) and its thresholds.
     "ops_merge_strategy", "ops_merge_stitch_source",
