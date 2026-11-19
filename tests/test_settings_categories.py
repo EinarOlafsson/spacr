@@ -809,6 +809,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_nuclei_masks",
     "ops_keep_multi_guide_cells",
     "ops_multi_guide_min_reads",
+    # Item 919 frame fix (2026-11-19): painting-frame labels onto the sequencing frame.
+    "ops_prefix_masks_frame", "cpg_align_source", "cpg_align_table",
     # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
     "ops_fdr_sweep_targets",
     "ops_fdr_sweep_max_distance",

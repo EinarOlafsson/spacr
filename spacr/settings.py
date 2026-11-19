@@ -9562,7 +9562,8 @@ ALPHA_FEATURES = {
     919: {
         'settings': ('ops_layout', 'cpg_root', 'cpg_wells', 'cpg_sites',
                      'cpg_phenotype_channels', 'cpg_sbs_cycles', 'cpg_sbs_bases',
-                     'cpg_sbs_dapi', 'cpg_sbs_resample', 'cpg_missing', 'cpg_md5'),
+                     'cpg_sbs_dapi', 'cpg_sbs_resample', 'cpg_missing', 'cpg_md5',
+                     'cpg_align_source', 'cpg_align_table', 'ops_prefix_masks_frame'),
     },
     920: {
         'settings': ('ops_library_mode', 'ops_library_sequence_col',

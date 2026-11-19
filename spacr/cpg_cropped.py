@@ -9,8 +9,13 @@ Painting channels are named after the stain (``CorrDNA``, ``CorrER``,
 ``CorrMito``, ``CorrPhalloidin``, ``CorrWGA``); sequencing channels are
 ``Cycle<CC>_<base>`` for each cycle and base, plus ``Cycle01_DAPI``. The
 painting and sequencing crops of a site share one pixel grid and are already
-illumination-corrected and aligned, so this reader stacks them as they are:
-no stitching, no cycle registration, no rescaling.
+illumination-corrected, and the sequencing cycles are aligned to each other,
+so this reader stacks them as they are: no stitching, no cycle registration,
+no rescaling. The painting crops are NOT in the sequencing frame: PERISCOPE's
+04Align moves them onto Cycle01_DAPI at analysis time (3-77 px on CP186A
+Well1). :func:`painting_to_sbs_shift` gives that shift per site, and the
+prefix decode applies it to painting-frame labels
+(``ops_prefix_masks_frame 'painting'``).
 
 The channel and base order is never taken from the folder listing. It is
 pinned in the settings (``cpg_phenotype_channels``, ``cpg_sbs_bases``,
@@ -495,6 +500,158 @@ def load_cpg_site(index: pd.DataFrame, plate: str, well: str, site: int, *,
     return out
 
 
+#: Where :func:`painting_to_sbs_shift` takes a site's painting-to-sequencing
+#: shift from: PERISCOPE's own 04Align record, or spaCR's phase correlation of
+#: the painting nuclear plane against the sequencing nuclear plane.
+ALIGN_SOURCES = ("periscope_logged", "register")
+
+#: The largest painting-to-sequencing shift ``'register'`` accepts, in pixels
+#: per axis. PERISCOPE logs 3 to 77 px on CP186A Well1.
+REGISTER_TOLERANCE_PX = 200
+
+_IMAGES_TREE = re.compile(r"^(?P<top>.*)/images/(?P<batch>[^/]+)/images_corrected_cropped/?$")
+
+
+def shift_image(image: np.ndarray, dy: int, dx: int) -> np.ndarray:
+    """Move a 2-D image by whole pixels, filling the uncovered band with zeros.
+
+    ``out[y, x] = image[y - dy, x - dx]``; nothing wraps around.
+
+    :param image: a 2-D array (pixels or labels).
+    :param dy: rows to move down (negative moves up).
+    :param dx: columns to move right (negative moves left).
+    :returns: a new array of the same shape and dtype.
+    """
+    image = np.asarray(image)
+    out = np.zeros_like(image)
+    height, width = image.shape[:2]
+    dy, dx = int(dy), int(dx)
+    if abs(dy) >= height or abs(dx) >= width:
+        return out
+    ys, yd = ((slice(0, height - dy), slice(dy, height)) if dy >= 0
+              else (slice(-dy, height), slice(0, height + dy)))
+    xs, xd = ((slice(0, width - dx), slice(dx, width)) if dx >= 0
+              else (slice(-dx, width), slice(0, width + dx)))
+    out[yd, xd] = image[ys, xs]
+    return out
+
+
+def periscope_image_csv(cpg_root: str, plate: str, well: str, site: int,
+                        template: Optional[str] = None) -> str:
+    """The PERISCOPE ``Image.csv`` that holds one site's 04Align record.
+
+    In cpg0021 the crops sit at
+    ``<top>/images/<batch>/images_corrected_cropped/<plate>_Well<N>/`` and the
+    analysis of each site at
+    ``<top>/workspace/analysis/<batch>/<plate>-Well<N>-<site>/Image.csv``.
+
+    :param cpg_root: the reader's ``cpg_root`` (the crops tree or one well).
+    :param plate: the plate, for example ``CP186A``.
+    :param well: ``Well1`` or ``W1``.
+    :param site: the site.
+    :param template: ``cpg_align_table``: a path with ``{plate}``, ``{well}``
+        (``Well1``), ``{well_number}`` and ``{site}`` fields. None derives the
+        path from ``cpg_root`` as above.
+    :returns: the path (not checked for existence).
+    :raises ValueError: when no template is given and ``cpg_root`` is not
+        laid out as cpg0021.
+    """
+    number = int(re.sub(r"[^0-9]", "", str(well)) or 0)
+    well_name = f"Well{number}"
+    if template:
+        return str(template).format(plate=plate, well=well_name, well_number=number,
+                                    site=int(site))
+    root = os.path.normpath(str(cpg_root)).replace(os.sep, "/")
+    if _WELL_FOLDER.match(os.path.basename(root)):
+        root = os.path.dirname(root)
+    found = _IMAGES_TREE.match(root)
+    if not found:
+        raise ValueError(
+            f"cannot find PERISCOPE's analysis tables from cpg_root {cpg_root!r}: it is "
+            "not <top>/images/<batch>/images_corrected_cropped[/<plate>_Well<N>]. "
+            "Set cpg_align_table to the Image.csv path template")
+    return os.path.join(found.group("top"), "workspace", "analysis", found.group("batch"),
+                        f"{plate}-{well_name}-{int(site)}", "Image.csv")
+
+
+def _logged_shift(path: str) -> Dict[str, Any]:
+    """PERISCOPE's ``Align_Yshift/Xshift_DAPI_Painting`` from one Image.csv."""
+    from .tabular import read_table
+
+    if not os.path.isfile(path):
+        raise ValueError(f"no 04Align record for this site: {path} does not exist; "
+                         "the painting labels cannot be moved into the sequencing frame")
+    columns = ["Align_Yshift_DAPI_Painting", "Align_Xshift_DAPI_Painting"]
+    try:
+        row = read_table(path, canonicalise=False, report=None, usecols=columns)
+    except ValueError as exc:
+        raise ValueError(f"{path} has no Align_Yshift/Xshift_DAPI_Painting columns (the "
+                         "site was not aligned by PERISCOPE); refusing the site") from exc
+    values = pd.to_numeric(row[columns].iloc[0] if len(row) else pd.Series([None, None]),
+                           errors="coerce")
+    if len(row) == 0 or values.isna().any():
+        raise ValueError(f"{path} has no Align_Yshift/Xshift_DAPI_Painting values (the site "
+                         "was not aligned by PERISCOPE); refusing the site")
+    return {"logged_dy": int(round(float(values.iloc[0]))),
+            "logged_dx": int(round(float(values.iloc[1])))}
+
+
+def painting_to_sbs_shift(index: pd.DataFrame, plate: str, well: str, site: int, *,
+                          cpg_root: str, source: str = "periscope_logged",
+                          template: Optional[str] = None,
+                          painting_channel: str = "CorrDNA",
+                          sbs_channel: str = "Cycle01_DAPI") -> Dict[str, Any]:
+    """The whole-pixel shift that moves one site's painting frame onto its sequencing frame.
+
+    PERISCOPE's published painting crops are not in the sequencing frame: its
+    9_Analysis module 04Align moves the painting channels onto
+    ``Cycle01_DAPI`` at run time and logs the shift. Labels segmented on the
+    painting crops must be moved by ``(dy, dx)`` (:func:`shift_image`) before
+    sequencing reads are assigned to them.
+
+    :param index: from :func:`cpg_cropped_index` (used by ``'register'``).
+    :param plate: the plate.
+    :param well: ``Well1`` or ``W1``.
+    :param site: the site.
+    :param cpg_root: the reader's root, to find PERISCOPE's tables.
+    :param source: ``'periscope_logged'`` reads PERISCOPE's record
+        (``(dy, dx) = -(Align_Yshift, Align_Xshift)_DAPI_Painting``);
+        ``'register'`` phase-correlates ``painting_channel`` against
+        ``sbs_channel`` (:func:`spacr.ops_register.phase_correlate`, CPU,
+        float32).
+    :param template: ``cpg_align_table`` (:func:`periscope_image_csv`).
+    :param painting_channel: the painting nuclear channel for ``'register'``.
+    :param sbs_channel: the sequencing nuclear channel for ``'register'``.
+    :returns: ``dy``, ``dx``, ``source``, and ``logged_dy``/``logged_dx`` and
+        ``record`` (the Image.csv path) or ``peak_ratio``.
+    :raises ValueError: for an unknown source, or a site without a record
+        (``'periscope_logged'``) or without an accepted registration
+        (``'register'``). A site is never given a silent zero shift.
+    """
+    if source not in ALIGN_SOURCES:
+        raise ValueError(f"cpg_align_source must be one of {list(ALIGN_SOURCES)}; "
+                         f"got {source!r}")
+    if source == "periscope_logged":
+        path = periscope_image_csv(cpg_root, plate, well, site, template)
+        logged = _logged_shift(path)
+        return {"dy": -logged["logged_dy"], "dx": -logged["logged_dx"],
+                "source": source, "record": path, **logged}
+    from .ops_register import phase_correlate
+
+    painting = load_cpg_site(index, plate, well, site, phenotype_channels=[painting_channel],
+                             parts=("phenotype",))["phenotype"][..., 0]
+    sbs = load_cpg_site(index, plate, well, site, sbs_cycles=0, sbs_dapi=sbs_channel,
+                        parts=("sbs",))["dapi"]
+    found = phase_correlate(sbs, painting, gpu=False, precision="float32",
+                            tolerance=(REGISTER_TOLERANCE_PX, REGISTER_TOLERANCE_PX))
+    if not found.accepted:
+        raise ValueError(f"{plate} {well} site {site}: the painting-to-sequencing "
+                         f"registration was not accepted (peak ratio "
+                         f"{found.peak_ratio:.3g}); refusing the site")
+    return {"dy": int(found.dy), "dx": int(found.dx), "source": source,
+            "peak_ratio": float(found.peak_ratio)}
+
+
 def array_md5(array: np.ndarray) -> str:
     """The md5 of an array's bytes in C order.
 
@@ -656,7 +813,8 @@ def run_cpg_phases(settings: Mapping[str, Any], phases: Sequence[str] = CPG_PHAS
             "sbs_cycles": pinned["cpg_sbs_cycles"], "sbs_bases": pinned["cpg_sbs_bases"],
             "sbs_dapi": pinned["cpg_sbs_dapi"], "sbs_resample": pinned["cpg_sbs_resample"],
             "missing": pinned["cpg_missing"], "md5": pinned["cpg_md5"],
-            "registration": "none: the crops are already aligned",
+            "registration": ("none: planes are stacked as stored; the painting planes "
+                             "stay in their own frame (painting_to_sbs_shift)"),
             "stacking_order": built["channels"], "settings": pinned,
             "skipped_wells": built["skipped_wells"],
             "spacr_version": __version__})
