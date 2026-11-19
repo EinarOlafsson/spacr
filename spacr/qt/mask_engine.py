@@ -936,7 +936,8 @@ def _source_identity(path):
 
     revision = os.stat(path)
     if not stat.S_ISREG(revision.st_mode):
-        raise ValueError(tr('The image source is not a regular file.'))
+        raise ValueError(tr("The image source is not a regular file.\n\n"
+            "Select an existing image file instead of a folder or device."))
     return (revision.st_dev, revision.st_ino, revision.st_size,
             revision.st_mtime_ns, revision.st_ctime_ns)
 
@@ -1238,7 +1239,8 @@ def _set_container_image_view(header, series=0, time=0, z=0, channel=0, axes=Non
             raise ValueError(tr('Choose a valid time, Z plane and image channel.'))
     width, height = (entry['shape'][stored.index('X')], entry['shape'][stored.index('Y')]) if 'X' in stored and 'Y' in stored else entry['shape'][-1::-1][:2]
     if int(width) * int(height) * 8 > 256 * 1024 * 1024:
-        raise ValueError(tr('The selected image plane exceeds the 256 MiB editor limit.'))
+        raise ValueError(tr("The selected image plane exceeds the 256 MiB editor limit.\n\n"
+            "Use Import to prepare a smaller image before opening it in the editor."))
     path = header['path']
     revision = hashlib.sha256(repr(header['identity']).encode('ascii')).hexdigest()[:16]
     suffix = f'_S{series}_T{time}_Z{z}_C{channel}_{stored}_{revision}'
@@ -1330,7 +1332,8 @@ def _read_container_image_view(path, masks_dir=None, channel=None):
                 image = image.T
     if (image.shape != view['shape'] or image.dtype.kind not in 'buif'
             or image.nbytes > 256 * 1024 * 1024 or _source_identity(path) != header['identity']):
-        raise ValueError(tr('The reader returned an invalid or changed image plane.'))
+        raise ValueError(tr("The reader returned an invalid or changed image plane.\n\n"
+            "Reopen the source and select a valid image plane."))
     return np.array(image, copy=True)
 
 
@@ -1943,11 +1946,15 @@ def _center_puncta_candidates(image, parent_labels, params):
     im = np.asarray(image, dtype=np.float32)
     parents = np.asarray(parent_labels)
     if im.ndim != 2 or parents.shape != im.shape:
-        raise ValueError(tr('Puncta detection requires a 2-D image and matching parent mask.'))
+        raise ValueError(tr("Puncta detection requires a 2-D image and matching parent mask.\n\n"
+            "Load a two-dimensional image and a parent mask with the same height and width."))
     if not np.isfinite(im).all() or not np.isfinite(parents).all():
-        raise ValueError(tr('Image and parent mask must contain finite values.'))
+        raise ValueError(tr("Image and parent mask must contain finite values.\n\n"
+            "Load an image and parent mask without NaN or infinite values."))
     if np.any(parents < 0) or not np.equal(parents, np.floor(parents)).all():
-        raise ValueError(tr('Parent masks must contain nonnegative integer labels.'))
+        raise ValueError(tr("Parent masks must contain nonnegative integer labels.\n\n"
+            "Load a labelled mask with zero for background and positive whole numbers for "
+            "objects."))
     sigmas = tuple(float(s) for s in params.puncta_sigmas)
     scalars = (params.puncta_k, params.puncta_min_corrected, params.puncta_edge_margin,
                params.puncta_min_distance, params.puncta_center_pixels)
@@ -1958,7 +1965,9 @@ def _center_puncta_candidates(image, parent_labels, params):
             or int(params.puncta_center_pixels) != params.puncta_center_pixels
             or params.puncta_min_distance < 1
             or int(params.puncta_min_distance) != params.puncta_min_distance):
-        raise ValueError(tr('Invalid puncta scale, threshold, centre-pixel or spacing settings.'))
+        raise ValueError(tr("Invalid puncta scale, threshold, centre-pixel or spacing settings.\n\n"
+            "Enter finite values: positive scales and k, a nonnegative edge margin, 1 to 81"
+            " centre pixels, and integer spacing of at least 1 pixel."))
     columns = ['candidate_id', 'object_label', 'parent_id', 'cyst_id', 'y', 'x',
                'z', 'sigma', 'peak', 'center3', 'disc13', 'center10', 'center20', 'center40', 'center_mean',
                'center_pixels', 'center_corrected', 'corr10', 'corrected20', 'corr40', 'cy', 'cx', 'local_bg', 'cyst_bg',
@@ -7200,24 +7209,36 @@ class VolumeMaskSession:
                 or image.size == 0 or image.size > self.MAX_VOXELS
                 or image.nbytes > 256 * 1024 * 1024
                 or image.dtype.kind not in 'uif' or not np.isfinite(image).all()):
-            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+            raise ValueError(tr("3D masks require a finite numeric spatial TIFF within the volume memory budget.\n\n"
+                "Open a finite numeric 3D volume with at most 16,777,216 voxels and 256 MiB of "
+                "decoded data."))
         try:
             distances = tuple(float(value) for value in spacing)
         except (TypeError, ValueError) as exc:
-            raise ValueError(tr('Voxel spacing must contain three positive finite distances.')) from exc
+            raise ValueError(tr("Voxel spacing must contain three positive finite distances.\n\n"
+                "Enter one positive spacing value for each spatial axis, in the stored axis "
+                "order.")) from exc
         if (len(distances) != 3 or not all(np.isfinite(value) and value > 0 for value in distances)
                 or any(isinstance(value, (bool, np.bool_)) for value in spacing)):
-            raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
+            raise ValueError(tr("Voxel spacing must contain three positive finite distances.\n\n"
+                "Enter one positive spacing value for each spatial axis, in the stored axis "
+                "order."))
         if not all(np.isfinite(float(length) * distance) for length, distance in zip(image.shape, distances)):
-            raise ValueError(tr('The physical image bounds must be finite.'))
+            raise ValueError(tr("The physical image bounds must be finite.\n\n"
+                "Check the image dimensions and voxel spacing, then reopen the volume with "
+                "valid physical dimensions."))
         if (labels.shape != image.shape or labels.dtype.kind not in 'ui'
                 or labels.min() < 0 or labels.max() > 65535):
-            raise ValueError(tr('The volume mask must contain matching nonnegative integer object labels up to 65535.'))
+            raise ValueError(tr("The volume mask must contain matching nonnegative integer object labels up to 65535.\n\n"
+                "Load a mask with the same shape as the volume and integer labels from 0 to "
+                "65535."))
         stack = (image,) if channels is None else tuple(np.asarray(plane) for plane in channels)
         if (not stack or any(plane.shape != image.shape or plane.dtype.kind not in 'uif'
                              or not np.isfinite(plane).all() for plane in stack)
                 or sum(plane.nbytes for plane in stack) > 256 * 1024 * 1024):
-            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+            raise ValueError(tr("3D masks require a finite numeric spatial TIFF within the volume memory budget.\n\n"
+                "Open a finite numeric 3D volume with at most 16,777,216 voxels and 256 MiB of "
+                "decoded data."))
         self.image = image
         self.channels = stack
         self.mask = np.array(labels, copy=True, order="C")
@@ -7346,7 +7367,9 @@ class VolumeMaskSession:
             selected = tuple(coordinates[:, inside])
             existing = output[selected]
             if np.any((existing != 0) & (existing != label)):
-                raise ValueError(tr('The edited volume overlaps another object; no labels were changed.'))
+                raise ValueError(tr("The edited volume overlaps another object; no labels were changed.\n\n"
+                    "Move or resize the edited boundary so it does not overlap another object, then"
+                    " apply it again."))
             output[selected] = label
 
     def apply_geometry(self, label, gate):
@@ -7393,7 +7416,8 @@ class VolumeMaskSession:
         new = output.ravel()[changed].copy()
         cost = changed.nbytes + old.nbytes + new.nbytes
         if cost > self.MAX_HISTORY_BYTES:
-            raise ValueError(tr('This edit exceeds the volume undo memory budget; no labels were changed.'))
+            raise ValueError(tr("This edit exceeds the volume undo memory budget; no labels were changed.\n\n"
+                "Apply the change in smaller steps or work on a smaller volume."))
         before = dict(self.geometries)
         if after is None:
             touched = set(map(int, np.unique(np.concatenate((old, new)))))
@@ -7443,7 +7467,8 @@ class VolumeMaskSession:
         position = self.axes.index(axis)
         if (not isinstance(index, Integral) or isinstance(index, (bool, np.bool_))
                 or not 0 <= index < array.shape[position]):
-            raise ValueError(tr('The section index lies outside the volume.'))
+            raise ValueError(tr("The section index lies outside the volume.\n\n"
+                "Select a section within the displayed range for the chosen axis."))
         key = [slice(None)] * 3
         key[position] = int(index)
         section = array[tuple(key)]
@@ -7502,7 +7527,8 @@ class VolumeMaskSession:
         view = self._section(output, axis, index)
         for pixels in (erase, paint):
             if pixels is not None and np.shape(pixels) != view.shape:
-                raise ValueError(tr('The drawn section does not match the volume section.'))
+                raise ValueError(tr("The drawn section does not match the volume section.\n\n"
+                    "Redraw the section on the current volume plane with matching dimensions."))
         if erase is not None:
             view[np.asarray(erase, dtype=bool)] = 0
         if paint is not None:
@@ -7532,7 +7558,8 @@ class VolumeMaskSession:
         view = self._section(output, axis, index)
         edited = np.asarray(labels)
         if edited.shape != view.shape or edited.dtype.kind not in 'uib':
-            raise ValueError(tr('The drawn section does not match the volume section.'))
+            raise ValueError(tr("The drawn section does not match the volume section.\n\n"
+                "Redraw the section on the current volume plane with matching dimensions."))
         edited = edited.astype(np.int64)
         if edited.min(initial=0) < 0 or edited.max(initial=0) > min(65535, np.iinfo(self.mask.dtype).max):
             raise ValueError(tr('Choose a positive object ID that the mask can store.'))
@@ -7570,7 +7597,9 @@ class VolumeMaskSession:
         incoming = np.asarray(labels)
         if (incoming.shape != self.mask.shape or incoming.dtype.kind not in 'uib'
                 or (incoming.size and int(incoming.min()) < 0)):
-            raise ValueError(tr('The detected labels do not match the volume.'))
+            raise ValueError(tr("The detected labels do not match the volume.\n\n"
+                "Run detection again on the current volume and use labels with the same "
+                "dimensions."))
         top = int(incoming.max()) if incoming.size else 0
         if top > min(65535, np.iinfo(self.mask.dtype).max):
             raise ValueError(tr("No unused object identifier fits this mask dtype.\n\n"
@@ -7757,7 +7786,9 @@ def _read_tiff_volume(source):
             for axis in 'XY':
                 value = handle.pages[0].tags[axis + 'Resolution'].value
                 if value[0] <= 0 or value[1] <= 0:
-                    raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
+                    raise ValueError(tr("Voxel spacing must contain three positive finite distances.\n\n"
+                        "Enter one positive spacing value for each spatial axis, in the stored axis "
+                        "order."))
                 distances[axis] = value[1] / value[0]
             spacing = tuple(distances[axis] for axis in axes)
         if len(series.shape) != 3 + (channel >= 0) or sorted(axes) != ['X', 'Y', 'Z']:
@@ -7788,7 +7819,9 @@ def _read_mrc_volume(source):
         if data.size > VolumeMaskSession.MAX_VOXELS or data.nbytes > 256 * 1024 * 1024:
             raise ValueError(tr('This volume exceeds the native volume memory budget.'))
         if data.dtype.kind not in 'uif':
-            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+            raise ValueError(tr("3D masks require a finite numeric spatial TIFF within the volume memory budget.\n\n"
+                "Open a finite numeric 3D volume with at most 16,777,216 voxels and 256 MiB of "
+                "decoded data."))
         image = np.array(data, dtype=data.dtype.newbyteorder('='))
         size = handle.voxel_size
         angstrom = (float(size.z), float(size.y), float(size.x))
@@ -7844,7 +7877,8 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
         with tifffile.TiffFile(mask_path) as handle:
             mask_series = handle.series[0]
             if _spatial_page_axes(mask_series.axes) != axes:
-                raise ValueError(tr('The saved mask axes do not match the spatial source.'))
+                raise ValueError(tr("The saved mask axes do not match the spatial source.\n\n"
+                    "Choose the mask saved for this volume with the same spatial axis order."))
             if (mask_series.shape != image.shape or mask_series.dtype.kind not in 'ui'
                     or math.prod(mask_series.shape) * mask_series.dtype.itemsize > 256 * 1024 * 1024):
                 raise ValueError(tr('The saved spatial mask shape, integer dtype or decoded size does not match this volume.'))
@@ -7854,7 +7888,8 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
     session = VolumeMaskSession(image, labels, axes=axes, spacing=spacing, unit=unit, channels=channels)
     session.source_path, session.source_sha256, session.mask_path = str(source), digest, str(mask_path)
     if _yolo_source_hash(source) != digest:
-        raise ValueError(tr('The source volume changed while opening it.'))
+        raise ValueError(tr("The source volume changed while opening it.\n\n"
+            "Wait until the source file is stable, then reopen the volume."))
     sidecar = mask_path.with_suffix(mask_path.suffix + '.volume.json')
     session._saved_mask_sha256 = _yolo_source_hash(mask_path) if mask_path.exists() else None
     session._saved_geometry_sha256 = _yolo_source_hash(sidecar) if sidecar.exists() else None
@@ -7863,7 +7898,9 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
         expected = {'source_sha256': digest, 'shape': list(image.shape), 'axes': axes,
                     'spacing': list(session.spacing), 'mask_sha256': hashlib.sha256(session.mask.tobytes(order='C')).hexdigest()}
         if any(record.get(key) != value for key, value in expected.items()) or record.get('version') != 1:
-            raise ValueError(tr('The saved volume geometry does not match these source and mask pixels.'))
+            raise ValueError(tr("The saved volume geometry does not match these source and mask pixels.\n\n"
+                "Open the matching source, mask and geometry sidecar from the same saved "
+                "volume."))
         geometries = GateSet.from_dict(record.get('geometry', {}))
         for gate in geometries.gates:
             if (not isinstance(gate, EditableVolumeGate) or not gate.name.isdecimal()
@@ -7877,7 +7914,8 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
         if (not isinstance(controls, dict) or set(controls) != {'anchor_density', 'show_anchors'}
                 or type(controls['anchor_density']) is not int or not 1 <= controls['anchor_density'] <= 8
                 or type(controls['show_anchors']) is not bool):
-            raise ValueError(tr('The saved volume anchor controls are invalid.'))
+            raise ValueError(tr("The saved volume anchor controls are invalid.\n\n"
+                "Open a saved volume with valid anchor controls, or restore a matching backup."))
         session._editor_controls = dict(controls)
         session._validate_boundaries()
     return session
@@ -7911,13 +7949,15 @@ def save_volume_mask(session):
 
     if (not isinstance(session, VolumeMaskSession) or not session.source_path
             or _yolo_source_hash(Path(session.source_path)) != session.source_sha256):
-        raise ValueError(tr('The source volume changed; no mask was saved.'))
+        raise ValueError(tr("The source volume changed; no mask was saved.\n\n"
+            "Reload the current source volume before editing and saving its mask."))
     session._validate_boundaries()
     target = Path(session.mask_path)
     target.parent.mkdir(parents=True, exist_ok=True)
     sidecar = target.with_suffix(target.suffix + '.volume.json')
     if target.resolve() == Path(session.source_path).resolve():
-        raise ValueError(tr('The mask output must not overwrite the source volume.'))
+        raise ValueError(tr("The mask output must not overwrite the source volume.\n\n"
+            "Choose a different output file for the mask."))
     record = {'version': 1, 'source_sha256': session.source_sha256,
               'mask_sha256': hashlib.sha256(session.mask.tobytes(order='C')).hexdigest(),
               'shape': list(session.mask.shape), 'axes': session.axes,
@@ -7928,11 +7968,13 @@ def save_volume_mask(session):
     try:
         descriptor = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     except FileExistsError as exc:
-        raise ValueError(tr('This volume is already being saved.')) from exc
+        raise ValueError(tr("This volume is already being saved.\n\n"
+            "Wait for the current save to finish before saving again.")) from exc
     try:
         if ((_yolo_source_hash(target) if target.exists() else None) != session._saved_mask_sha256
                 or (_yolo_source_hash(sidecar) if sidecar.exists() else None) != session._saved_geometry_sha256):
-            raise ValueError(tr('The saved volume changed outside this session; no mask was overwritten.'))
+            raise ValueError(tr("The saved volume changed outside this session; no mask was overwritten.\n\n"
+                "Reopen the latest saved volume before making further edits."))
         stamps = {path: _volume_file_stamp(path) for path in (Path(session.source_path), target, sidecar)}
         with tempfile.TemporaryDirectory(dir=target.parent, prefix='.spacr-volume-') as folder:
             folder = Path(folder)
@@ -7951,7 +7993,8 @@ def save_volume_mask(session):
                     or _yolo_source_hash(Path(session.source_path)) != session.source_sha256
                     or (_yolo_source_hash(target) if target.exists() else None) != session._saved_mask_sha256
                     or (_yolo_source_hash(sidecar) if sidecar.exists() else None) != session._saved_geometry_sha256):
-                raise ValueError(tr('The volume files changed during saving; no output was replaced.'))
+                raise ValueError(tr("The volume files changed during saving; no output was replaced.\n\n"
+                    "Stop other writes to these files, reopen the current volume, and save again."))
             os.replace(staged_mask, target)
             try:
                 os.replace(staged_json, sidecar)
