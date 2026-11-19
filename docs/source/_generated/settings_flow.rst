@@ -9508,6 +9508,28 @@ dst_root
 
 Where measurements.db and each well's ops_report.json are written. Empty writes them into the source folder, which mixes outputs with inputs. Default None.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_ops_power_plan`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_ops_power_inputs`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_ops_power_plan`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_ops_power_inputs`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | ``_score_tile`` **-- reads it**
 | ``_aggregation_inputs`` **-- reads it**
 | ``_preview_settings`` **-- reads it**
@@ -9609,8 +9631,12 @@ Where measurements.db and each well's ops_report.json are written. Empty writes 
 |             ``run_phase(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.power_ops.run_ops_power_sim` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_ops_power_plan`` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``run_cpg_phases``, ``run_mitocarta_benchmark``, ``run_compare_masks``, ``_ops_admitted_run``, ``run_ops``, ``_nuclear_folder``, ``nucleus_table``, ``run_flat_phases``, ``_default_points``, ``_run_grid_search``, ``_score_tile``, ``_aggregation_inputs``, ``_preview_settings``, ``_profile_folder``, ``_run_fdr_sweep_phase``, ``run_prefix_decode``, ``score_ops_profiles``, ``ops_defaults``, ``_profile_state``, ``run_profile_phases``, ``run_ops_power_sim``, ``_read_clusters``, ``run_voyager3``.
+Read by ``run_cpg_phases``, ``run_mitocarta_benchmark``, ``run_compare_masks``, ``_ops_admitted_run``, ``run_ops``, ``_nuclear_folder``, ``nucleus_table``, ``run_flat_phases``, ``_default_points``, ``_run_grid_search``, ``_score_tile``, ``_aggregation_inputs``, ``_preview_settings``, ``_profile_folder``, ``_run_fdr_sweep_phase``, ``run_prefix_decode``, ``score_ops_profiles``, ``ops_defaults``, ``_profile_state``, ``run_profile_phases``, ``run_ops_power_sim``, ``_check_ops_power_inputs``, ``_describe_ops_power_plan``, ``_read_clusters``, ``run_voyager3``.
 
 .. _setting-flow-early_exaggeration:
 
@@ -32303,6 +32329,28 @@ ops_power_calibration_run
 
 The calibration JSON written by spacr.power_ops.calibrate_from_run, or a run folder with cells_meta.parquet and cells_E.npy to calibrate from on the fly. Every simulated cell count, call rate, error rate and phenotype spread comes from it. Default None. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_ops_power_plan`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_ops_power_inputs`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_ops_power_plan`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_ops_power_inputs`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.power_ops.run_ops_power_sim` **-- reads it**
@@ -32316,8 +32364,12 @@ The calibration JSON written by spacr.power_ops.calibrate_from_run, or a run fol
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.power_ops.run_ops_power_sim` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_ops_power_plan`` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``ops_defaults``, ``run_ops_power_sim``.
+Read by ``ops_defaults``, ``run_ops_power_sim``, ``_check_ops_power_inputs``, ``_describe_ops_power_plan``.
 
 .. _setting-flow-ops_power_cells:
 
@@ -32433,6 +32485,20 @@ ops_power_mode
 
 How simulated cells get their unperturbed phenotype: 'empirical' resamples the run's non-targeting cells (their real shape), 'parametric' draws them from a fitted multivariate t with well and field offsets. Default 'empirical'. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_ops_power_plan`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_ops_power_plan`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.power_ops.run_ops_power_sim` **-- reads it**
@@ -32446,8 +32512,12 @@ How simulated cells get their unperturbed phenotype: 'empirical' resamples the r
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.power_ops.run_ops_power_sim` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_ops_power_plan`` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``ops_defaults``, ``run_ops_power_sim``.
+Read by ``ops_defaults``, ``run_ops_power_sim``, ``_describe_ops_power_plan``.
 
 .. _setting-flow-ops_power_reference_rows:
 
@@ -32569,6 +32639,24 @@ ops_power_sim
 
 Run the OPS power simulation instead of the image phases: screens are simulated with planted effects, calibrated on a real run, and scored with the same E-test, clustering and information steps a real screen gets, so each design reports the share of real effects found, the false-positive rate and the smallest effect found at 80 % power. Results go to results/ops_power_sim in dst_root. Default False. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 |         ``_ops_admitted_run``
@@ -32579,8 +32667,11 @@ Run the OPS power simulation instead of the image phases: screens are simulated 
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 |         ``_ops_admitted_run``
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``run_ops``, ``ops_defaults``.
+Read by ``run_ops``, ``ops_defaults``, ``describe_plan``, ``validate_settings``.
 
 .. _setting-flow-ops_power_sim_seeds:
 
@@ -32589,6 +32680,20 @@ ops_power_sim_seeds
 
 The replicate seeds: every design is simulated once per seed, and the seeds fix every draw, so a rerun gives the same tables. Default [0, 1, 2]. Alpha.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.describe_plan`
+|                 ``_describe_ops_power_plan`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.describe_plan`
+|             ``_describe_ops_power_plan`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.power_ops.run_ops_power_sim` **-- reads it**
@@ -32602,8 +32707,12 @@ The replicate seeds: every design is simulated once per seed, and the seeds fix 
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.power_ops.run_ops_power_sim` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
+| ``_describe_plan_safe``
+|     :py:func:`~spacr.validate.describe_plan`
+|         ``_describe_ops_power_plan`` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``ops_defaults``, ``run_ops_power_sim``.
+Read by ``ops_defaults``, ``run_ops_power_sim``, ``_describe_ops_power_plan``.
 
 .. _setting-flow-ops_power_sim_workers:
 
@@ -33735,6 +33844,9 @@ How each cell's quality class is set from its matched reads. 'spacr' counts read
 | :py:func:`~spacr.cli.render_settings`
 |     ``_effective_read_mode``
 |         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
+| ``_apply_grid_choice``
+|     ``_pinned_tuning_grid`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_run_cpg``
@@ -33779,7 +33891,7 @@ How each cell's quality class is set from its matched reads. 'spacr' counts read
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 
-Read by ``prefix_settings``, ``ops_defaults``.
+Read by ``_pinned_tuning_grid``, ``prefix_settings``, ``ops_defaults``.
 
 .. _setting-flow-ops_prefix_threshold_tuning:
 
@@ -33849,6 +33961,9 @@ The values 'per_well_decoy' tuning tries, as {'ops_read_threshold': [...], 'ops_
 | :py:func:`~spacr.cli.render_settings`
 |     ``_effective_read_mode``
 |         :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
+| ``_apply_grid_choice`` **-- reads it**
+|     ``_pinned_tuning_grid`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_run_cpg``
@@ -33893,7 +34008,7 @@ The values 'per_well_decoy' tuning tries, as {'ops_read_threshold': [...], 'ops_
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 :py:func:`~spacr.ops_prefix.prefix_settings` **-- reads it**
 
-Read by ``prefix_settings``, ``ops_defaults``.
+Read by ``_apply_grid_choice``, ``_pinned_tuning_grid``, ``prefix_settings``, ``ops_defaults``.
 
 .. _setting-flow-ops_prefix_weighted_min_share:
 
