@@ -8907,8 +8907,13 @@ class MainWindow(QMainWindow):
             from spacr.updater import check_for_updates
         except Exception as e:
             LOG.exception("Could not import the spaCR updater")
-            QMessageBox.warning(self, "Updates",
-                                f"Update check unavailable: {e}")
+            QMessageBox.warning(
+                self, 'Updates',
+                tr(
+                    "Update check unavailable: {error}\n\nRestart spaCR and check for "
+                    "updates again. If this persists, report this error with the "
+                    "spaCR version and installation method.",
+                    error=str(e)))
             return
 
         from .preferences import _get_update_channel
@@ -9116,8 +9121,12 @@ class MainWindow(QMainWindow):
             return
         if info.error and not info.latest_release:
             QMessageBox.warning(
-                self, "Updates",
-                f"Couldn't reach update server:\n{info.error}")
+                self, 'Updates',
+                tr(
+                    "Could not reach update server:\n{error}\n\nCheck the internet "
+                    "connection and proxy settings, then check for updates again. If "
+                    "the server remains unavailable, try again later.",
+                    error=info.error))
             return
         if not info.upgrade_available:
             QMessageBox.information(
@@ -9204,8 +9213,14 @@ class MainWindow(QMainWindow):
                 "uv, which does not install one. Run this once, in a "
                 "terminal, to upgrade:\n\n" + escape)
         QMessageBox.warning(
-            self, "Updates",
-            f"pip returned exit code {return_code}.\n\n{detail}")
+            self, 'Updates',
+            tr(
+                "pip returned exit code {code}.\n\n{detail}\n\nFollow any "
+                "instructions in the output above and resolve the reported "
+                "network, permission, or dependency error before retrying the "
+                "update.",
+                code=return_code,
+                detail=detail))
 
     def _restart_after_package_upgrade(self) -> None:
         """Save the visible module and request a normal, cooperative restart."""
@@ -9307,8 +9322,11 @@ class MainWindow(QMainWindow):
             self._poll_frozen_update()
             return
         QMessageBox.warning(
-            self, tr("Updates"),
-            tr("This installation cannot stage a verified update. Nothing was changed."))
+            self, tr('Updates'),
+            tr(
+                "This installation cannot stage a verified update. Nothing was "
+                "changed. Save your work, then update spaCR using the installer "
+                "or package manager used for this installation."))
         return
 
     def _hide_update_progress(self):
@@ -9331,8 +9349,12 @@ class MainWindow(QMainWindow):
             saved = None
         if saved is None:
             QMessageBox.warning(
-                self, tr("Updates"),
-                tr("The current settings could not be saved. The update was cancelled and this window will stay open."))
+                self, tr('Updates'),
+                tr(
+                    "The current settings could not be saved. The update was "
+                    "cancelled and this window will stay open. Export your current "
+                    "module settings to a writable folder, then check the log for the"
+                    " save error before trying the update again."))
             return False
         self._frozen_update_restart_saved = True
         return True
@@ -9485,10 +9507,13 @@ class MainWindow(QMainWindow):
             failed = [f"{item}: {self._removal_reason_text(why)}"
                       for report in reports for item, why in report.failed]
             QMessageBox.warning(
-                self, "Updates",
-                tr("The update stopped before installing, because an older "
-                   "copy of spaCR could not be removed:")
-                + "\n\n" + "\n".join(failed[:8]))
+                self, 'Updates',
+                tr(
+                    "The update stopped before installing, because an older copy of "
+                    "spaCR could not be removed:\n\n{details}\n\nFollow the removal "
+                    "instructions above, or use the original uninstaller for the old "
+                    "copy, then check for updates again.",
+                    details='\n'.join(failed[:8])))
             return
         self._on_upgrade_done(result)
 
@@ -9568,7 +9593,15 @@ class MainWindow(QMainWindow):
             (line for line in reversed(details.splitlines()) if line.strip()),
             "unknown error")
         label = "Update check" if operation == "check" else "Upgrade"
-        QMessageBox.warning(self, "Updates", f"{label} failed:\n{last}")
+        QMessageBox.warning(
+            self, 'Updates',
+            tr(
+                "{label} failed:\n{error}\n\nCheck the network connection and proxy "
+                "settings, then check for updates again. If the failure repeats, "
+                "report this error with the spaCR version and installation "
+                "method.",
+                label=label,
+                error=last))
 
     def closeEvent(self, event):
         """Cooperatively drain analysis and UI workers before destruction.

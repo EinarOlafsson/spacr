@@ -12645,8 +12645,13 @@ class PreferencesDialog:
                 applied_network = _network_bytes()
                 _in_one_store(_restore)
                 LOG.exception("could not apply the preferences")
-                QMessageBox.warning(dlg, tr("Preferences"), tr(
-                    "Could not apply settings. Previous settings restored."))
+                QMessageBox.warning(
+                    dlg, tr('Preferences'),
+                    tr(
+                        "Could not apply settings. Previous settings restored. Check the "
+                        "log for the failed setting, correct it in Preferences, then "
+                        "apply again. If the log reports a write error, check write "
+                        "access to the configuration folder."))
                 return
             applied = _snapshot()
             applied_network = _network_bytes()

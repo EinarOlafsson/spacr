@@ -5528,7 +5528,12 @@ class GateEditorPanel(QWidget):
 
         kind = outcome[0]
         if kind == "error":
-            QMessageBox.warning(self, "Could not cluster", str(outcome[1]))
+            QMessageBox.warning(
+                self, 'Could not cluster',
+                tr(
+                    "{error}\n\nReview the selected measurement columns and clustering "
+                    "parameters named above, then run clustering again.",
+                    error=str(outcome[1])))
             return
         if kind == "nothing":
             tried = ", ".join(f"{c.eps:.3g}" for c in outcome[1])

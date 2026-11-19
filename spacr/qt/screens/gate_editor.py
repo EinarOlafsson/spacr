@@ -2449,7 +2449,13 @@ class GateEditorScreen(DerivedTableSource, _PngListAnnotationSaves, QWidget):
             labels = annotate_from_gates(frame, self.gates.gates, names,
                                          mode=mode)
         except FilterError as exc:
-            QMessageBox.warning(self, "Could not annotate", str(exc))
+            QMessageBox.warning(
+                self, 'Could not annotate',
+                tr(
+                    "{error}\n\nReview the selected gates and their measurement "
+                    "columns, correct the problem named above, then use Annotate from"
+                    " gates again.",
+                    error=str(exc)))
             return
 
         counts = labels.value_counts()

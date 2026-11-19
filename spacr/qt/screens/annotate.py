@@ -5217,8 +5217,12 @@ class _AutoAnnotateDialog(QDialog):
             try:
                 threshold = float(parts[2])
             except ValueError:
-                raise ValueError(
-                    f"{parts[2]!r} in rule {line!r} is not a number")
+                raise ValueError(tr(
+                    "{value!r} in rule {rule!r} is not a number. Replace the "
+                    "threshold with a number using a dot as the decimal separator, "
+                    "for example cell_area > 100.",
+                    value=parts[2],
+                    rule=line))
             rules.append({
                 "column": parts[0],
                 "threshold": threshold,

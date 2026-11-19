@@ -335,15 +335,19 @@ def _rename_recipe(recipe: Recipe, new_name: str) -> str:
     """
     name = str(new_name or "").strip()
     if not name:
-        raise ValueError(tr("A template needs a name."))
+        raise ValueError(tr(
+            "A template needs a name. Enter a nonempty name in Rename "
+            "template, then confirm again."))
     root = os.path.dirname(recipe.path) if recipe.path \
         else recipes_dir(recipe.app_key)
     target = os.path.join(root, f"{_slug(name) or 'recipe'}.json")
     old = recipe.path
     same_file = bool(old) and os.path.abspath(old) == os.path.abspath(target)
     if os.path.exists(target) and not same_file:
-        raise ValueError(
-            tr("A template called {name} already exists.", name=repr(name)))
+        raise ValueError(tr(
+            "A template called {name} already exists. Enter a different name,"
+            " or cancel and select the existing template.",
+            name=repr(name)))
     old_name = recipe.name
     recipe.name = name
     try:
@@ -376,7 +380,9 @@ def _recipe_from_settings_csv(path: str, app_key: str, screen=None) -> Recipe:
         from spacr.utils import load_settings
         settings = load_settings(path, setting_key="Key", setting_value="Value")
     if not settings:
-        raise ValueError(tr("That file holds no settings."))
+        raise ValueError(tr(
+            "That file holds no settings. Export a settings CSV from the "
+            "source module in spaCR, then import that file as a template."))
     stem = os.path.splitext(os.path.basename(path))[0]
     return Recipe(name=stem or "Untitled", app_key=str(app_key or ""),
                   settings=dict(settings))
@@ -453,7 +459,9 @@ def apply_recipe(recipe: Recipe, screen) -> int:
             target=repr(app_key)))
     apply_dict = getattr(screen, "apply_settings_dict", None)
     if not callable(apply_dict):
-        raise ValueError("this screen cannot take settings")
+        raise ValueError(tr(
+            "this screen cannot take settings. Open a module with a settings "
+            "panel, then select a template for that module."))
     return int(apply_dict(dict(recipe.settings)) or 0)
 
 
@@ -748,8 +756,10 @@ class RecipeDialog(QDialog):
                 recipe = load_recipe(path)
             if recipe.app_key and self._app_key and \
                     recipe.app_key != self._app_key:
-                raise ValueError(
-                    tr("That template is for the {module} module.", module=repr(recipe.app_key)))
+                raise ValueError(tr(
+                    "That template is for the {module} module. Open {module} to "
+                    "import it, or choose a template for the current module.",
+                    module=repr(recipe.app_key)))
             recipe.app_key = recipe.app_key or self._app_key
             save_recipe(recipe)
         except Exception as exc:
