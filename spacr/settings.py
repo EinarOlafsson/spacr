@@ -9771,6 +9771,9 @@ ALPHA_FEATURES = {
                      'ops_prefix_weighted_min_share', 'ops_prefix_nuclei_masks',
                      'ops_keep_multi_guide_cells', 'ops_multi_guide_min_reads'),
     },
+    982: {
+        'settings': ('ops_prefix_tuning_min_sites',),
+    },
 }
 
 

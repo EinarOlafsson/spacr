@@ -809,6 +809,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_nuclei_masks",
     "ops_keep_multi_guide_cells",
     "ops_multi_guide_min_reads",
+    # Item 982 small-well guard (2026-11-18): a small well keeps the
+    # read-quality floor instead of tuning it.
+    "ops_prefix_tuning_min_sites",
     # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
     "ops_fdr_sweep_targets",
     "ops_fdr_sweep_max_distance",

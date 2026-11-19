@@ -483,6 +483,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_nuclei_masks": None,
     "ops_keep_multi_guide_cells": False,
     "ops_multi_guide_min_reads": 2,
+    "ops_prefix_tuning_min_sites": 0,
     "ops_fdr_sweep_targets": [0.5, 1.0, 2.0, 5.0],
     "ops_fdr_sweep_max_distance": [0, 1],
     "ops_fdr_sweep_min_reads": [1, 2, 3],
@@ -983,6 +984,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_nuclei_masks": (str, type(None)),
     "ops_keep_multi_guide_cells": bool,
     "ops_multi_guide_min_reads": int,
+    "ops_prefix_tuning_min_sites": int,
     "ops_fdr_sweep_targets": (list, str),
     "ops_fdr_sweep_max_distance": (list, str),
     "ops_fdr_sweep_min_reads": (list, str),
@@ -1100,7 +1102,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
         "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid",
         "ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration",
-        "ops_prefix_minority_min_reads",
+        "ops_prefix_minority_min_reads", "ops_prefix_tuning_min_sites",
         "ops_prefix_distance_weight", "ops_prefix_distance_decay_px",
         "ops_prefix_distance_interior_px", "ops_prefix_distance_min_weight",
         "ops_prefix_weighted_quality", "ops_prefix_weighted_min_share",
@@ -3758,6 +3760,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "multi-guide cell in the table of ops_keep_multi_guide_cells. Higher "
         "lists fewer cells, and a single stray read no longer makes a cell "
         "multi-guide. Default 2. Alpha.",
+    "ops_prefix_tuning_min_sites":
+        "(int) - Protects small wells from a too-strict read-quality floor. "
+        "A well tuned by 'per_well_decoy' with fewer sites than this keeps "
+        "the floor at 0.1; the run log names each such well. Below 4 sites "
+        "the tuner has fewer than 2 tuning sites, does not tune and takes the "
+        "strictest value of every setting, which lost a third of the cells "
+        "on Funk A1. 4 is the tested value; 0 is off. Default 0. Alpha.",
     "ops_fdr_sweep_targets":
         "(list) - The decoy FDR targets, in %, of the prefix_fdr_sweep phase. "
         "For each target, every method gets the configuration with the most "
