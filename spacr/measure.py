@@ -13458,11 +13458,15 @@ def _write_measure_store(db_path, settings):
                         stack = _MeasureCrops([p for _i, p in present], formats,
                                               first.shape, first.dtype)
                         rows_with = np.asarray([i for i, _p in present])
+                        part['crop_format'] = pd.array(
+                            [None] * len(part), dtype='Int64')
+                        part.loc[rows_with, 'crop_format'] = [
+                            int(f) if f is not None else None for f in formats]
                 store.write_part(project, table, part, plate=plate, well=well,
                                  sort_by=('condition', 'object_key'),
                                  key_columns=tuple(c for c in (
                                      'prcfo', 'rowID', 'columnID', 'fieldID',
-                                     'condition', 'object_key')
+                                     'condition', 'object_key', 'crop_format')
                                      if c in part.columns),
                                  crops=stack, crop_rows=rows_with,
                                  run_id=run_id)

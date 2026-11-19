@@ -151,3 +151,25 @@ def test_the_store_backend_keeps_measurements_db_the_live_writer():
                                   {"measurement_backend": "spacr_store"}) is None
     assert _measurement_store_for("x/measurements.db",
                                   {"measurement_backend": "sqlite"}) is None
+
+
+@pytest.mark.parametrize("fmt", [None, 2, 3, 4])
+def test_the_crop_loader_reads_the_store_as_it_reads_the_pngs(tmp_path, fmt):
+    from spacr.crop_loader import CropQuery, _store_source, _StoreCropSource
+    from spacr.crops import PngCropSource
+
+    db, cell, _nucleus, _pixels = _db(tmp_path, n=5, fmt=fmt)
+    _write_measure_store(str(db), {"measurement_backend": "spacr_store"})
+    with sqlite3.connect(str(db), timeout=30) as conn:
+        rows = [dict(zip(("png_path", "prcfo"), r)) for r in conn.execute(
+            "SELECT png_path, prcfo FROM png_list")]
+    source = _store_source(CropQuery(path=str(db), object_type="cell"),
+                           str(db))
+    assert isinstance(source, _StoreCropSource)
+    stored = source.get_many(rows)
+    pngs = PngCropSource(db_path=str(db)).get_many(rows)
+    for got, want in zip(stored, pngs):
+        assert got.dtype == want.dtype and got.shape == want.shape
+        assert np.array_equal(got, want)
+    assert _store_source(CropQuery(path=str(db), object_type="cell",
+                                   prefer="png"), str(db)) is None
