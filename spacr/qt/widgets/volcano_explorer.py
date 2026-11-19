@@ -1364,12 +1364,20 @@ class VolcanoExplorer(QWidget):
             render_volcano(self._results, self._style, figure=figure)
             written = save_figure_as(self, figure, path)
         except Exception as error:  # noqa: BLE001
-            QMessageBox.warning(self, "Export failed", str(error))
+            QMessageBox.warning(
+                self, 'Export failed',
+                (
+                    "{error}\n\nCheck the plot settings named above and choose a "
+                    "writable output folder, then export again.").format(
+                    error=str(error)))
             return None
         if not written:
             QMessageBox.warning(
-                self, "Export failed",
-                f"Nothing could be written to {path}.")
+                self, 'Export failed',
+                (
+                    "Nothing could be written to {path}. Choose an existing folder "
+                    "you can write to and check free disk space, then export again.").format(
+                    path=path))
             return None
         return written
 
@@ -1400,7 +1408,13 @@ class VolcanoExplorer(QWidget):
         try:
             added = self.merge_annotation_file(path)
         except Exception as error:  # noqa: BLE001
-            QMessageBox.warning(self, "Could not merge annotations", str(error))
+            QMessageBox.warning(
+                self, 'Could not merge annotations',
+                (
+                    "{error}\n\nChoose a readable annotation table with a shared "
+                    "identifier column, such as gene or guide, matching the result "
+                    "table.").format(
+                    error=str(error)))
             return
         QMessageBox.information(
             self, "Annotations merged",

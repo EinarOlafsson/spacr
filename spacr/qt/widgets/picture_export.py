@@ -317,8 +317,12 @@ def save_as(view, picture, stem: str, want: str) -> str:
         path = os.path.splitext(path)[0] + want
     if save_picture(picture, path):
         return path
-    QMessageBox.warning(view, "Not saved",
-                        f"{os.path.basename(path)} could not be written.")
+    QMessageBox.warning(
+        view, 'Not saved',
+        tr(
+            "{name} could not be written. Choose an existing folder you can "
+            "write to and check free disk space, then save the picture again.",
+            name=os.path.basename(path)))
     return ""
 
 

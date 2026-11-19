@@ -639,7 +639,12 @@ class RecipeDialog(QDialog):
             recipe = capture_recipe(self._screen, str(name).strip())
             saved_path = os.path.abspath(save_recipe(recipe))
         except Exception as exc:
-            QMessageBox.warning(self, tr("Could not save template"), str(exc))
+            QMessageBox.warning(
+                self, tr('Could not save template'),
+                tr(
+                    "{error}\n\nReview the current settings and check that the template"
+                    " folder is writable, then save again.",
+                    error=str(exc)))
             return
         self.reload()
         for row, saved in enumerate(self._recipes):
@@ -673,7 +678,12 @@ class RecipeDialog(QDialog):
         try:
             applied = apply_recipe(recipe, self._screen)
         except Exception as exc:
-            QMessageBox.warning(self, tr("Could not apply template"), str(exc))
+            QMessageBox.warning(
+                self, tr('Could not apply template'),
+                tr(
+                    "{error}\n\nChoose a template saved for this module, or correct the"
+                    " settings named above before applying it again.",
+                    error=str(exc)))
             return
         self._detail.setText(
             f"Applied “{recipe.name}” — {applied} settings written.")
@@ -693,7 +703,12 @@ class RecipeDialog(QDialog):
             Path(path).parent.stat()
             _atomic_write_text(Path(path), text)
         except Exception as exc:
-            QMessageBox.warning(self, "Could not write the file", str(exc))
+            QMessageBox.warning(
+                self, 'Could not write the file',
+                tr(
+                    "{error}\n\nChoose an existing folder you can write to and check "
+                    "free disk space, then share the template again.",
+                    error=str(exc)))
 
     def _on_import(self) -> None:
         """Load a recipe from a JSON file or a settings CSV into this module.
@@ -722,7 +737,13 @@ class RecipeDialog(QDialog):
             recipe.app_key = recipe.app_key or self._app_key
             save_recipe(recipe)
         except Exception as exc:
-            QMessageBox.warning(self, tr("Could not import template"), str(exc))
+            QMessageBox.warning(
+                self, tr('Could not import template'),
+                tr(
+                    "{error}\n\nChoose a spaCR template JSON or settings CSV for this "
+                    "module. Check that the file is readable and the template folder "
+                    "is writable, then import again.",
+                    error=str(exc)))
             return
         self.reload()
 
@@ -739,7 +760,12 @@ class RecipeDialog(QDialog):
         try:
             _rename_recipe(recipe, str(name))
         except Exception as exc:
-            QMessageBox.warning(self, tr("Could not rename template"), str(exc))
+            QMessageBox.warning(
+                self, tr('Could not rename template'),
+                tr(
+                    "{error}\n\nChoose a name not already used by another template and "
+                    "check that the template folder is writable, then rename again.",
+                    error=str(exc)))
             return
         self.reload()
 
@@ -751,7 +777,12 @@ class RecipeDialog(QDialog):
         try:
             delete_recipe(recipe)
         except Exception as exc:
-            QMessageBox.warning(self, tr("Could not delete template"), str(exc))
+            QMessageBox.warning(
+                self, tr('Could not delete template'),
+                tr(
+                    "{error}\n\nCheck write permission for the template folder, then "
+                    "select the template and delete it again.",
+                    error=str(exc)))
             return
         self.reload()
 

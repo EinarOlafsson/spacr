@@ -1317,7 +1317,12 @@ def add_graph_style_file_entries(menu, parent=None, *, on_change=None) -> None:
         try:
             general, per_graph = load_graph_style(path)
         except (OSError, ValueError, JSONDecodeError) as error:
-            QMessageBox.warning(owner, "Load graph style", str(error))
+            QMessageBox.warning(
+                owner, 'Load graph style',
+                tr(
+                    "{error}\n\nChoose a readable JSON file created with Save graph "
+                    "style, then load it again.",
+                    error=str(error)))
             return
         apply_graph_style(general, per_graph)
         if callable(on_change):
@@ -2907,7 +2912,12 @@ class FigureStylePreferences(QWidget):
         try:
             general, per_graph = load_graph_style(path)
         except (OSError, ValueError, JSONDecodeError) as error:
-            QMessageBox.warning(self, "Load graph style", str(error))
+            QMessageBox.warning(
+                self, 'Load graph style',
+                tr(
+                    "{error}\n\nChoose a readable JSON file created with Save graph "
+                    "style, then load it again.",
+                    error=str(error)))
             return
         self.apply_values(general, per_graph)
 
