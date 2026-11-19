@@ -1987,6 +1987,13 @@ def _check_ops_umap_inputs(settings: Dict[str, Any]) -> List[Problem]:
     return problems
 
 
+def _source_present(value: Any) -> bool:
+    """Return whether a source selection contains a nonblank path."""
+    values = value if isinstance(value, (list, tuple)) else [value]
+    return any(isinstance(path, (str, os.PathLike))
+               and os.fspath(path).strip() for path in values)
+
+
 def _check_regression_inputs(settings: Dict[str, Any]) -> List[Problem]:
     """Check score/count selections without reading tables or changing settings.
 
@@ -2009,17 +2016,11 @@ def _check_regression_inputs(settings: Dict[str, Any]) -> List[Problem]:
         return [Problem(ERROR, 'paired_data',
                         tr("Regression Paired data must contain score/count rows."), fix)]
 
-    def present(value):
-        """Return whether a source selection contains a nonblank path."""
-        values = value if isinstance(value, (list, tuple)) else [value]
-        return any(isinstance(path, (str, os.PathLike))
-                   and os.fspath(path).strip() for path in values)
-
     scores = ([row.get('score') or row.get('score_data') for row in rows]
               if rows else settings.get('score_data'))
     counts = ([row.get('count') or row.get('count_data') for row in rows]
               if rows else settings.get('count_data'))
-    if not present(scores) or not present(counts):
+    if not _source_present(scores) or not _source_present(counts):
         return [Problem(
             ERROR, 'paired_data',
             tr("Regression needs at least one score table and one count table."), fix)]
