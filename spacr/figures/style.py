@@ -580,15 +580,15 @@ def rc(target: str = "screen", *, frame: str = "L",
     colour = resolve_ink(target, picked_ink)
     from ..figure_font import FAMILY as _FIGURE_FAMILY
     from ..figure_font import use_open_sans_for_figures
-    use_open_sans_for_figures()
+    open_sans = use_open_sans_for_figures()
     line_colour = resolve_line_ink(target, ink=picked_ink, line=picked_line)
     ground = TRANSPARENT if ground is None else ground
     params = {
         "figure.dpi": 120,
         "savefig.dpi": 300,
         "font.family": "sans-serif",
-        "font.sans-serif": [_FIGURE_FAMILY, "Helvetica", "Arial",
-                            "DejaVu Sans"],
+        "font.sans-serif": ([_FIGURE_FAMILY] if open_sans else [])
+                           + ["Helvetica", "Arial", "DejaVu Sans"],
         "font.size": TYPE_SCALE["tick"],
         "axes.labelsize": TYPE_SCALE["label"],
         "axes.titlesize": TYPE_SCALE["label"],
