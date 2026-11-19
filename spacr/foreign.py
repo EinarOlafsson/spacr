@@ -924,7 +924,9 @@ def load_column_map(path: str) -> List[ColumnMap]:
                  if not line.lstrip().startswith('#')]
     if not lines:
         raise ConfigurationError(
-            f'{path} has no rows — a column map needs at least a header.')
+            f'{path} has no rows — a column map needs at least a header. '
+            'Load a saved column-map CSV, or add a header with source and '
+            'target columns before loading this file again.')
     reader = csv.DictReader(lines)
     header = [h.strip() for h in (reader.fieldnames or [])]
     missing = [c for c in ('source', 'target') if c not in header]
@@ -1017,7 +1019,9 @@ def read_measurements(source: Union[str, 'pd.DataFrame'],
         raise
     except Exception as exc:
         raise ConfigurationError(
-            f'{path} could not be read as a measurement table: {exc}') from exc
+            f'{path} could not be read as a measurement table: {exc}. '
+            'Check that the selected measurement file is readable and '
+            'complete, or export it again in the selected format, then retry.') from exc
 
 
 
