@@ -1560,7 +1560,8 @@ if app_key == "mask":
     # + 46: the object quality filters, QC, report, crop, axis and bracket
     # settings of the recruitment and replication panels (items 816, 815), one
     # claim each per app that declares them (report in both apps).
-    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 + 8 + 18 + 1 + 1 + 46
+    # - 1: item 987 removed keep_npz, one Mask claim of the census.
+    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 - 1 + 2 + 8 + 18 + 1 + 1 + 46
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
             + len(item_571) + len(item_538) + len(item_540)
