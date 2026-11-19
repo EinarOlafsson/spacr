@@ -76,6 +76,22 @@ def field_key(well: str, field: Any) -> str:
 _field_key = field_key
 
 
+#: The codec of every field and label array (item 983). Blosc LZ4 with byte
+#: shuffle read a whole 1994 x 1994 four-channel field with three masks about
+#: twice as fast as zstd level 3 in 256 x 256 tiles, at the same size (about a
+#: third of npy), in the 2026-11-19 layout test on the Measure example.
+FIELD_CODEC = "lz4"
+
+#: Blosc's compression level for :data:`FIELD_CODEC`.
+FIELD_CODEC_LEVEL = 5
+
+
+def _field_chunks(shape: Sequence[int]) -> Tuple[int, ...]:
+    """One chunk per channel, the whole field: spaCR reads fields whole."""
+    return (1,) + tuple(int(v) for v in shape[1:]) if len(shape) == 3 else tuple(
+        int(v) for v in shape)
+
+
 class PlateWriter:
     """The only writer of one plate's OME-Zarr store (item 983).
 
@@ -164,7 +180,8 @@ class PlateWriter:
             self._atomic(target, lambda tmp: write_ome_zarr(
                 tmp, data, axes=axes, spacing=self.spacing,
                 channel_names=self.channel_names if data.ndim == 3 else None,
-                ngff_version="0.5", name=key))
+                ngff_version="0.5", name=key, chunks=_field_chunks(data.shape),
+                compressor=FIELD_CODEC, compression_level=FIELD_CODEC_LEVEL))
         else:
             self.zarr.open_group(str(target), mode="w", zarr_format=3)
         names = []
@@ -174,7 +191,9 @@ class PlateWriter:
             label_dir.parent.mkdir(parents=True, exist_ok=True)
             self._atomic(label_dir, lambda tmp, m=mask: write_ome_zarr(
                 tmp, m, axes=["y", "x"], spacing=self.spacing,
-                downsample="stride", ngff_version="0.5", name=str(name)))
+                downsample="stride", ngff_version="0.5", name=str(name),
+                chunks=_field_chunks(m.shape), compressor=FIELD_CODEC,
+                compression_level=FIELD_CODEC_LEVEL))
             self._set_attrs(label_dir, {"image-label": {"version": "0.5"}})
             names.append(str(name))
         if names:

@@ -212,3 +212,20 @@ def test_two_timepoints_of_one_field_are_refused_not_overwritten(tmp_path):
     with pytest.raises(ValueError, match="no time axis"):
         export_merged(tmp_path, "ome-zarr", channel_names=CHANNELS)
     assert not (tmp_path / "images").exists()
+
+
+def test_fields_are_whole_field_chunks_per_channel_in_blosc_lz4(tmp_path):
+    writer = PlateWriter(tmp_path, "P1", channel_names=CHANNELS)
+    run_fields(_plan(1), _make_field, writer)
+    image = json.loads((tmp_path / "P1.ome.zarr" / "A" / "1" / "0" / "0" / "zarr.json").read_text())
+    label = json.loads((tmp_path / "P1.ome.zarr" / "A" / "1" / "0" / "labels" / "nucleus" / "0"
+                        / "zarr.json").read_text())
+    for meta, chunk in ((image, [1, 96, 128]), (label, [96, 128])):
+        shard = meta["codecs"][0]
+        assert shard["name"] == "sharding_indexed"
+        assert shard["configuration"]["chunk_shape"] == chunk
+        inner = [c["name"] for c in shard["configuration"]["codecs"]]
+        assert "blosc" in inner
+        blosc = next(c for c in shard["configuration"]["codecs"] if c["name"] == "blosc")
+        assert blosc["configuration"]["cname"] == "lz4"
+        assert blosc["configuration"]["shuffle"] == "shuffle"

@@ -2239,7 +2239,8 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
         this module alone) or ``"0.5"`` (zarr-format 3 with sharding,
         written through :mod:`zarr`, so it needs ``spacr[zarr]``; item 983).
         With 0.5 the default ``compressor`` is zstd at ``compression_level``
-        3 unless another one is named.
+        3 unless another one is named; ``"lz4"`` (Blosc LZ4 with byte
+        shuffle) is also offered there.
     :param shards: 0.5 only: the shard shape, one per axis, each a
         multiple of the chunk shape. Defaults to one shard holding the
         whole level, so one field is one file and one writer owns it.
@@ -2399,13 +2400,16 @@ def _write_zarr_v3_array(group, name: str, array: np.ndarray,
         rounded up to whole chunks.
     :param compressor: ``"zstd"`` (also chosen for ``None`` and the 0.4
         default ``"zlib"``, so a 0.5 store is zstd unless asked otherwise),
-        ``"gzip"``/``"zlib"`` by name, or ``"none"`` for stored.
+        ``"lz4"`` (Blosc LZ4 with byte shuffle at ``level``, the fastest to
+        read), ``"gzip"``/``"zlib"`` by name, or ``"none"`` for stored.
     """
-    from zarr.codecs import GzipCodec, ZstdCodec
+    from zarr.codecs import BloscCodec, GzipCodec, ZstdCodec
 
     name_ = str(compressor or "zstd").lower()
     if name_ in ("zstd", "zlib"):
         codecs = [ZstdCodec(level=level if name_ == "zstd" else 3)]
+    elif name_ == "lz4":
+        codecs = [BloscCodec(cname="lz4", clevel=int(level), shuffle="shuffle")]
     elif name_ == "gzip":
         codecs = [GzipCodec(level=level)]
     elif name_ == "none":
@@ -2413,7 +2417,7 @@ def _write_zarr_v3_array(group, name: str, array: np.ndarray,
     else:
         raise OmeZarrError(
             f"compressor={compressor!r} for OME-NGFF 0.5; use 'zstd', "
-            f"'gzip' or 'none'")
+            f"'lz4', 'gzip' or 'none'")
     if shards is None:
         shard_shape = tuple(-(-int(s) // int(c)) * int(c) if s else int(c)
                             for s, c in zip(array.shape, chunks))
