@@ -3051,9 +3051,9 @@ def _discover_conversion_barcodes(conversion_plan, src, explicit):
             if len(relative.parts) < 3:
                 raise ConfigurationError(tr(
                     'Barcode discovery cannot identify this source plate '
-                    'folder. For the plate/well layout, place images under '
-                    'source/plate/well, or select a layout matching the '
-                    'source folders, then preview again.'))
+                    'folder. For the plate/well layout, put each well folder '
+                    'inside a plate folder in the source folder, or select a '
+                    'layout matching the source folders, then preview again.'))
             folders.setdefault(root / relative.parts[0], set()).add(source_plate)
         elif choices not in ({'well'}, {'flat'}):
             raise ConfigurationError('Barcode discovery requires unambiguous scanned source layout metadata.')
