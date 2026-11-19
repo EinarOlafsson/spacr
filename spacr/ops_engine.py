@@ -309,6 +309,10 @@ _FLAT_PHASES = ("flat_nuclear", "flat_validate")
 #: copairs activity and consistency and EFAAR recall, with controls.
 _SCORING_PHASES = ("score",)
 
+#: The OPS power simulation (alpha, item 968): simulated screens with planted
+#: effects, calibrated on a real run and scored by the OPS analysis steps.
+_POWER_PHASES = ("power_sim",)
+
 #: The cropped-site layout path (alpha, items 919 and 920): index the Cell
 #: Painting Gallery's per-channel site TIFFs, write their painting stacks to
 #: ``merged/``, and decode the sequencing stacks against spacer prefixes;
@@ -321,7 +325,8 @@ _CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode", "prefix_fdr_sweep",
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
-               + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES + _CPG_PHASES)
+               + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES + _CPG_PHASES
+               + _POWER_PHASES)
 
 
 def _run_cpg(settings: Mapping[str, Any], phases: Sequence[str]) -> Dict[str, Any]:
@@ -10550,6 +10555,16 @@ def run_ops(settings: Mapping[str, Any], *,
     if unknown:
         raise ValueError(
             f"unknown phases {unknown}; choose from {list(_ALL_PHASES)}")
+    if "power_sim" in phases or (settings.get("ops_power_sim") and tuple(phases) == _PHASES):
+        if any(phase != "power_sim" for phase in phases) and tuple(phases) != _PHASES:
+            raise ValueError("the power_sim phase runs on its own")
+        from .power_ops import run_ops_power_sim
+        from .ops_tvn import _blas_threads, _pinned_blas
+
+        pin = bool(settings.get("ops_deterministic_blas", True))
+        with _pinned_blas(pin, _blas_threads(settings)) as pinned:
+            result = run_ops_power_sim(settings, report=_say)
+        return {"power_sim": result, "blas_threads": pinned}
     if (str(settings.get("ops_layout") or "tiles") == "cpg_cropped"
             or any(phase in _CPG_PHASES for phase in phases)):
         return _run_cpg(settings, phases)
