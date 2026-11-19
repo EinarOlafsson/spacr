@@ -6,6 +6,12 @@ param()
 # (120) is at least N + GPU_VRAM_MARGIN_GB (2) GB, the GPU is below GPU_MAX_TEMP_C
 # (80) C and there is no ram_guard ALERT; it refuses (exit 3) unless power.limit is
 # GPU_POWER_LIMIT_W (280) W. Without --vram-gb the exclusive turn is unchanged.
+#
+# "Idle" (maintainer policy, 2026-11-06): no non-display process using more than
+# GPU_BUSY_MIB (4096 MiB, i.e. 4 GB) of VRAM. Browsers and display processes never
+# count, and neither does a small CUDA context (a CPU-bound job holding a few
+# hundred MiB once blocked the exclusive queue for over 2 hours). A process whose
+# VRAM cannot be read stays busy.
 $VramGb = $null
 $rest = @($args)
 if ($rest.Count -ge 2 -and ([string]$rest[0] -eq '--vram-gb' -or [string]$rest[0] -eq '-VramGb')) {
@@ -51,7 +57,7 @@ public static class SpacrGpuCommandLine {
 }
 
 function Select-SpacrGpuActivity {
-    param([object[]]$Samples, [object[]]$Processes)
+    param([object[]]$Samples, [object[]]$Processes, [hashtable]$MemoryMiB = @{}, [double]$BusyMiB = 4096)
     if (-not $Samples -or -not $Processes) { throw 'GPU activity/process enumeration returned no records' }
     $processesById = @{}
     $excluded = [Collections.Generic.HashSet[int]]::new()
@@ -94,7 +100,11 @@ function Select-SpacrGpuActivity {
         }
         if ([string]$sample.InstanceName -notmatch '^pid_(\d+)_') { throw 'GPU engine counter has no process identity' }
         $identity = [int]$Matches[1]
-        if ($value -gt 0 -and -not $excluded.Contains($identity)) { [void]$busy.Add($identity) }
+        if ($value -gt 0 -and -not $excluded.Contains($identity)) {
+            # A process using no more than BusyMiB of VRAM is not busy; unknown stays busy.
+            if ($MemoryMiB.ContainsKey($identity) -and $MemoryMiB[$identity] -le $BusyMiB) { continue }
+            [void]$busy.Add($identity)
+        }
     }
     [pscustomobject]@{ BusyPids = @($busy | Sort-Object); ExcludedPids = @($excluded | Sort-Object) }
 }
@@ -103,7 +113,28 @@ function Get-SpacrGpuActivity {
     $readings = @(Get-Counter -Counter '\GPU Engine(*)\Utilization Percentage' -SampleInterval 1 -MaxSamples 2 -ErrorAction Stop)
     $samples = @($readings | ForEach-Object { $_.CounterSamples })
     $processes = @(Get-CimInstance Win32_Process -ErrorAction Stop)
-    Select-SpacrGpuActivity -Samples $samples -Processes $processes
+    $busyMiB = if ($env:GPU_BUSY_MIB) { [double]$env:GPU_BUSY_MIB } else { 4096 }
+    $memory = @{}
+    try {
+        foreach ($line in @(& nvidia-smi '--query-compute-apps=pid,used_memory' '--format=csv,noheader,nounits' 2>$null)) {
+            $parts = ([string]$line).Split(',')
+            $number = 0.0
+            if ($parts.Count -eq 2 -and [double]::TryParse($parts[1].Trim(), [Globalization.NumberStyles]::Float,
+                    [Globalization.CultureInfo]::InvariantCulture, [ref]$number)) {
+                $memory[[int]$parts[0].Trim()] = $number
+            }
+        }
+        # WDDM often reports [N/A] there; the per-process memory counter then supplies the figure.
+        $counters = @(Get-Counter -Counter '\GPU Process Memory(*)\Dedicated Usage' -ErrorAction Stop).CounterSamples
+        foreach ($sample in $counters) {
+            if ([string]$sample.InstanceName -match '^pid_(\d+)_') {
+                $mib = [double]$sample.CookedValue / 1MB
+                $key = [int]$Matches[1]
+                $memory[$key] = if ($memory.ContainsKey($key)) { [Math]::Max($memory[$key], $mib) } else { $mib }
+            }
+        }
+    } catch { }
+    Select-SpacrGpuActivity -Samples $samples -Processes $processes -MemoryMiB $memory -BusyMiB $busyMiB
 }
 
 # A GPU engine instance can vanish between the two samples when its process
