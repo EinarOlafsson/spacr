@@ -1787,7 +1787,8 @@ def translocation_gene_scores(cells: pd.DataFrame, score: str, *,
     comes from relabelling the cells of all its guides jointly with the
     non-targeting cells, and is two-sided with resolution
     ``1 / (permutations + 1)``. Mann-Whitney P values of all
-    the gene's cells against the non-targeting cells are reported beside it.
+    the cells of the gene against the non-targeting cells are reported
+    beside it.
     Both P values are corrected across the genes of each group.
 
     :param cells: one row per cell with a confident guide call.
@@ -1799,7 +1800,7 @@ def translocation_gene_scores(cells: pd.DataFrame, score: str, *,
     :param control_prefix: genes starting with this, in any case, are the
         non-targeting controls.
     :param min_cells: guides with fewer scored cells are left out.
-    :param permutations: relabellings per guide.
+    :param permutations: relabellings per gene.
     :param seed: the random seed, so a rerun gives the same tables.
     :param fdr_method: the correction, any name accepted by
         :func:`spacr.multiple_testing.adjust_p_values`.
