@@ -1022,6 +1022,7 @@ def gene_function_figures(settings: Mapping[str, Any]) -> List[str]:
     from matplotlib.figure import Figure
 
     from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style
     from .plot import _checked_savefig
 
     o = options(settings)
@@ -1034,7 +1035,7 @@ def gene_function_figures(settings: Mapping[str, Any]) -> List[str]:
     for fig_id, (m1, m2, b1, b2, name) in {
             'fig1': ('link_AUPRC_2022', 'link_AUPRC_2022_noparalog', 'link_base_2022', 'link_base_2022_noparalog', 'link'),
             'fig2': ('cat_micro_AUPRC', 'cat_micro_AUPRC_noparalog', 'cat_base', 'cat_base_noparalog', 'category')}.items():
-        with plt.rc_context(rc):
+        with figure_style('print'), plt.rc_context(rc):
             fig = Figure(figsize=(9, 5.2))
             axs = fig.subplots(1, 2, sharey=True)
             pts = []
@@ -1054,7 +1055,7 @@ def gene_function_figures(settings: Mapping[str, Any]) -> List[str]:
            ('cosine', 'k_ep', 'vs noScreen'), ('cosine', 'k_ep', 'vs shuffled'), ('cosine', 'k_g', 'vs noOPS'),
            ('cosine', 'k_h', 'vs noOPS')]
     out = []
-    with plt.rc_context(rc):
+    with figure_style('print'), plt.rc_context(rc):
         fig = Figure(figsize=(9, 3.6))
         axs = fig.subplots(1, 2, sharey=True)
         for ax, met in zip(axs, ['link_AUPRC_2022_noparalog', 'cat_micro_AUPRC_noparalog']):

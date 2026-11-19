@@ -20,7 +20,9 @@ For each producer the audit records four things (item 658):
   ``_checked_savefig``, or a writer named in the one-writer guard);
 * ``menu``       -- where the right-click menu (Edit, Change graph type,
   Statistics, Save zip) reaches it: the figure queue for pyplot figures,
-  the shared menu canvas for embedded ones.
+  the shared menu canvas for embedded ones, or "file only" for a figure a
+  pipeline writes straight to its results through ``save_figure`` or
+  ``_checked_savefig``.
 
 The routes are followed through the scope chain (a method's class
 included) and, when the figure is returned, up to three levels of callers
@@ -67,6 +69,9 @@ EXEMPT = {
         "a scratch figure each panel is test-drawn on and closed, never shown",
     ("qt/widgets/motility_preview.py", "render_motility_figure"):
         "rasterised to an RGB array for a preview label, never a figure",
+    ("qt/widgets/ops_live_preview.py", "_figure"):
+        "the OPS Live tabs' three panels, rasterised to an RGB array for a "
+        "preview label, never a figure (item 971)",
     ("qt/widgets/regression_results.py", "judge_homogeneity"):
         "a scratch figure the scale-location statistics are read from",
     ("report.py", "write_pdf"):
@@ -349,7 +354,7 @@ def _row(module, stack, call, family, reach, shared_canvas_styles) -> dict:
         pass
     elif pyplot or "publish" in names:
         menu.append("figure queue")
-    elif "save_figure" in names:
+    elif "save_figure" in names or "_checked_savefig" in names:
         menu.append("file only")
     elif stack and not inner.startswith("_") and stack[-1].returns:
         menu.append("returned to the API caller")
