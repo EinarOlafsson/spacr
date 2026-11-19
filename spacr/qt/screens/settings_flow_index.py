@@ -1576,6 +1576,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_storage',
     'ops_store_field_cache',
     'ops_store_reads',
+    'ops_store_row_copy',
     'ops_stress_report',
     'ops_tables_integer_keys',
     'ops_tables_layout',
