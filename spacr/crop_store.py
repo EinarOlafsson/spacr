@@ -273,7 +273,7 @@ def export_crops(project: Any, rows: Iterable[Mapping[str, Any]], out_dir: Any,
             import tifffile
 
             target = out / f"{stem}.tif"
-            tifffile.imwrite(str(target), pixels, metadata={"axes": "CYX"})
+            tifffile.imwrite(str(target), pixels, photometric="minisblack", metadata={"axes": "CYX"})
             tifffile.imwrite(str(out / f"{stem}_mask.tif"), mask.astype(np.uint8))
         else:
             from PIL import Image

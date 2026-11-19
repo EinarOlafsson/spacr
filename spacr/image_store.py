@@ -392,7 +392,7 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
             for file_stem, array, axes in arrays:
                 target = out_dir / f"{file_stem}.tif"
                 tmp = out_dir / f".{file_stem}.tif.tmp"
-                tifffile.imwrite(str(tmp), array, metadata={"axes": axes})
+                tifffile.imwrite(str(tmp), array, photometric="minisblack", metadata={"axes": axes})
                 os.replace(tmp, target)
                 written.append(str(target))
         return {"tiff": written}
