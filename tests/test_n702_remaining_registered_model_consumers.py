@@ -35,7 +35,7 @@ def pinned(tmp_path, monkeypatch):
 def test_actual_ops_constructor_uses_pinned_checkpoint(pinned, monkeypatch):
     from cellpose import models
     make_settings, payload = pinned
-    settings = make_settings('cellpose_model')
+    settings = make_settings('ops_sbs_nucleus_model')
     original = deepcopy(settings)
     calls = []
     monkeypatch.setattr(models, 'CellposeModel', lambda **kwargs: calls.append(kwargs))
@@ -75,7 +75,7 @@ def test_actual_spatial_window_preserves_pin_until_constructor_boundary(pinned, 
     class Stop(Exception):
         pass
     def construct(derived, gpu):
-        assert Path(derived['cellpose_model']).read_bytes() == payload
+        assert Path(derived['ops_sbs_nucleus_model']).read_bytes() == payload
         assert gpu is False
         raise Stop
     monkeypatch.setattr(ops_engine, '_cellpose_model', construct)

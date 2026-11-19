@@ -76,7 +76,7 @@ def test_the_default_model_name_builds_the_librarys_own_default(built, monkeypat
     """
     monkeypatch.setattr(spacr.accelerator, "cellpose_kwargs", _the_card_must_not_be_asked)
 
-    ops_engine._cellpose_model({"cellpose_model": name}, gpu=False)
+    ops_engine._cellpose_model({"ops_sbs_nucleus_model": name}, gpu=False)
 
     assert built == [{"gpu": False, "use_bfloat16": False}]
 
@@ -85,7 +85,7 @@ def test_another_model_name_is_loaded_by_that_name(built, monkeypatch):
     """A custom model, named by path in the settings, is what Cellpose is asked to load."""
     monkeypatch.setattr(spacr.accelerator, "cellpose_kwargs", _the_card_must_not_be_asked)
 
-    ops_engine._cellpose_model({"cellpose_model": " /models/ops_nuclei "}, gpu=False)
+    ops_engine._cellpose_model({"ops_sbs_nucleus_model": " /models/ops_nuclei "}, gpu=False)
 
     assert built == [{"gpu": False, "use_bfloat16": False, "pretrained_model": "/models/ops_nuclei"}]
 
@@ -102,7 +102,7 @@ def test_on_the_card_the_model_takes_the_machines_accelerator_arguments(built, m
                         lambda: {"gpu": True, "device": device, "use_bfloat16": False})
 
     ops_engine._cellpose_model({}, gpu=True)
-    ops_engine._cellpose_model({"cellpose_model": "cyto3"}, gpu=True)
+    ops_engine._cellpose_model({"ops_sbs_nucleus_model": "cyto3"}, gpu=True)
 
     card = {"gpu": True, "device": device, "use_bfloat16": False}
     assert built == [card, {**card, "pretrained_model": "cyto3"}]

@@ -3856,6 +3856,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("957_make_masks_point_mode_api_arrivals_2026-11-15.json", 23),
         ("948_ops_pairs_consensus_api_arrivals_2026-11-15.json", 6),
         ("965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json", 1),
+        ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
         ("960_ops_grid_search_api_arrivals_2026-11-17.json", 2),

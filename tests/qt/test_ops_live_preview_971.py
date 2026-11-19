@@ -264,7 +264,7 @@ def test_every_ops_setting_finds_its_tab_in_the_registry():
     assert set(steps) == set(OPS_DEFAULTS)
     assert all(set(found) <= set(STEPS) and found for found in steps.values())
     expected = {"ops_raster_overlap": ("align",), "ops_read_threshold": ("spots",),
-                "cellpose_model": ("spots",), "ops_ph_downsample": ("objects",),
+                "ops_sbs_nucleus_model": ("spots",), "ops_ph_downsample": ("objects",),
                 "ops_merge_threshold": ("merge",), "ops_cluster_knn": ("cluster",),
                 "genotype_source": STEPS, "ops_gpu": STEPS}
     for key, found in expected.items():

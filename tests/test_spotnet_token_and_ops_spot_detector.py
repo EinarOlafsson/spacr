@@ -216,7 +216,7 @@ def test_the_setting_is_registered_with_native_default_and_its_licence():
 
     assert ops_settings.OPS_DEFAULTS["ops_spot_detector"] == "native"
     assert ops_settings.OPS_TYPES["ops_spot_detector"] is str
-    assert "ops_spot_detector" in ops_settings.OPS_CATEGORIES["OPS decoding"]
+    assert "ops_spot_detector" in ops_settings.OPS_CATEGORIES["Spot detection & registration"]
     tip = ops_settings.OPS_TOOLTIPS["ops_spot_detector"]
     assert "NON-COMMERCIAL ACADEMIC USE ONLY" in tip
     assert "deepcell_token" in tip

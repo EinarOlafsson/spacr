@@ -5112,7 +5112,9 @@ def canonical_sources() -> dict[str, object]:
         DEFAULT_INSTRUCTION,
     )
     from spacr.qt.screens.settings_model import (
+        _APP_CATEGORY_PARENTS,
         _APP_CATEGORY_SPECS,
+        _APP_LABEL_PREFIXES,
         _APP_TOOLTIP_OVERRIDES,
         _FOLDED_DEFAULTS_MODULES,
         _REGRESSION_MENU_UI_SOURCES,
@@ -5153,6 +5155,12 @@ def canonical_sources() -> dict[str, object]:
         folded_key for folded_key in sorted(_FOLDED_DEFAULTS_MODULES)
         if folded_key not in set(app_keys)
     ]
+    # Item 969: a module whose panel rewrites its labels (OPS drops the
+    # leading "Ops") shows labels no other module does, so it is inventoried
+    # even when it opens as a page on a host (OPS on Mask generation) and has
+    # neither a registry row nor a folded-defaults entry.
+    inventoried_keys += [key for key in sorted(_APP_LABEL_PREFIXES)
+                         if key not in set(inventoried_keys)]
     resolved_settings: dict[str, dict[str, object]] = {}
     for app_key in inventoried_keys:
         try:
@@ -5256,6 +5264,11 @@ def canonical_sources() -> dict[str, object]:
     ui_sources = set(extract_static_ui_sources())
     ui_sources.update(str(title) for sections in _APP_CATEGORY_SPECS.values()
                       for title, _keys in sections)
+    # Item 969: a heading a module nests its categories under is drawn even
+    # when it is no category of its own (OPS decoding holds only its
+    # subcategories), so its title is a caption like any other.
+    ui_sources.update(str(parent) for parents in _APP_CATEGORY_PARENTS.values()
+                      for parent in parents.values())
     # Item 678 (2026-10-17): the shared category titles in spacr.settings are
     # settings-panel captions too. Without an exact entry they fell back to a
     # word-by-word composite ("Modell Evaluation"), so catalogue them here.

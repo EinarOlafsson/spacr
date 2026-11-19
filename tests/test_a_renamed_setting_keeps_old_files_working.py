@@ -85,7 +85,22 @@ FACTORIES = {
     # misspelling of the live `comp_level`, so it is a rename rather than a
     # removal. The barcode-mapping factory folds before it fills comp_level.
     "comp_level": "set_default_generate_barecode_mapping",
+    # 2026-11-17, item 969: `cellpose_model` became `ops_sbs_nucleus_model`.
+    # OPS registers its own factory in `spacr.ops_settings`.
+    "ops_sbs_nucleus_model": "spacr.ops_settings.ops_defaults",
 }
+
+
+def _factory(name):
+    """The factory ``name`` names: a ``spacr.settings`` function, or a dotted path."""
+    import importlib
+
+    import spacr.settings as module
+
+    if "." not in name:
+        return getattr(module, name)
+    owner, _, attr = name.rpartition(".")
+    return getattr(importlib.import_module(owner), attr)
 
 
 def test_every_rename_names_the_factory_that_declares_it():
@@ -186,15 +201,13 @@ def test_the_fold_runs_before_the_defaults_are_filled_in():
     ordering is a property of the factory and the helper cannot enforce
     it.
     """
-    import spacr.settings as module
-
     for new, factory_name in FACTORIES.items():
         # A SPLIT REACHES ITS TARGETS FROM ONE OLD KEY, so the lookup is
         # "which old name leads here" rather than "which maps exactly to
         # this string" -- `control_wells` maps to a TUPLE, and asking for
         # an exact match raised StopIteration on both of its halves.
         old = _an_old_name_leading_to(new)
-        factory = getattr(module, factory_name)
+        factory = _factory(factory_name)
         default = factory({}).get(new)
         # A PROBE THE DEFAULT CANNOT BE. Comparing "not the default" was
         # not enough: a setting whose default is None -- and

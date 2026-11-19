@@ -517,7 +517,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # with the rest of spaCR and it keeps its existing home; listing a
     # setting under two headings is not a display preference, because Tk
     # renders each copy and Qt drops all but the first.
-    "cellpose_diameter", "cellpose_model", "dst_root", "genotype_source",
+    "cellpose_diameter", "ops_sbs_nucleus_model", "dst_root", "genotype_source",
     "n_workers",
     # `ops_gpu` arrived after the other 57, on 2026-09-09: OPS shipped with
     # no hardware control at all, and both its GPU-capable steps -- the tile

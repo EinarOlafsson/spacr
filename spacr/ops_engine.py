@@ -2121,7 +2121,7 @@ def _phenotype_seeded(db: str, plate: str, well: str, sources, sites,
 
 
 def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
-                    key: str = "cellpose_model"):
+                    key: str = "ops_sbs_nucleus_model"):
     """The Cellpose model the objects are segmented with.
 
     :param settings: read for ``key``. Empty or ``cpsam`` builds
@@ -2196,7 +2196,7 @@ def _objects_window_basis(settings: Mapping[str, Any], blend: str,
     The device is left out: a window segmented on the card is reused on the
     CPU, as the same window on either gives the same well.
 
-    :param settings: read for ``cellpose_model`` and ``model_metadata``.
+    :param settings: read for ``ops_sbs_nucleus_model`` and ``model_metadata``.
     :param blend: the compose blend.
     :param extra: the keywords passed to the model, here the diameter.
     :param canvas: ``(height, width)`` of the well frame.
@@ -2207,14 +2207,14 @@ def _objects_window_basis(settings: Mapping[str, Any], blend: str,
 
     from . import __version__
 
-    name = str(settings.get("cellpose_model") or "").strip() or "cpsam"
+    name = str(settings.get("ops_sbs_nucleus_model") or "").strip() or "cpsam"
     model: Dict[str, Any] = {"name": name}
     if os.path.isfile(name):
         stat = os.stat(name)
         model.update({"size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)})
     pinned = settings.get("model_metadata")
     if isinstance(pinned, Mapping):
-        model["pinned"] = (pinned.get("settings") or {}).get("cellpose_model")
+        model["pinned"] = (pinned.get("settings") or {}).get("ops_sbs_nucleus_model")
     try:
         cellpose = metadata.version("cellpose")
     except metadata.PackageNotFoundError:
@@ -10554,6 +10554,11 @@ def run_ops(settings: Mapping[str, Any], *,
         unknown phase or well is asked for, or a phase's input is missing.
     """
     settings = dict(settings or {})
+    if "cellpose_model" in settings:
+        from . import ops_settings  # noqa: F401
+        from .settings import _fold_renamed_settings
+
+        _fold_renamed_settings(settings)
     if settings.get("ops_gpu_admission") and not _OPS_ADMITTED.get():
         return _ops_admitted_run(settings, wells=wells, phases=phases,
                                  library=library)
@@ -13035,7 +13040,7 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
                 pinned = _resolve_pinned_model_file(
                     settings, "spatial_cellpose_model", kinds=("cellpose",))
                 model = _cellpose_model(
-                    {"cellpose_model": str(pinned) if pinned is not None
+                    {"ops_sbs_nucleus_model": str(pinned) if pinned is not None
                      else settings.get("spatial_cellpose_model")},
                     bool(settings.get("spatial_gpu", False)))
             extra: Dict[str, Any] = {}

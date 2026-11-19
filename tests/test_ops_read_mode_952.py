@@ -290,6 +290,6 @@ def test_alpha_registration():
     assert ALPHA_FEATURES[952]["settings"] == ("ops_read_mode",)
     assert OPS_DEFAULTS["ops_read_mode"] is None
     assert OPS_TYPES["ops_read_mode"] == (str, type(None))
-    assert "ops_read_mode" in OPS_CATEGORIES["OPS decoding"]
+    assert "ops_read_mode" in OPS_CATEGORIES["Base calling"]
     tip = OPS_TOOLTIPS["ops_read_mode"]
     assert tip.startswith("(str) - ") and "Default None. Alpha." in tip
