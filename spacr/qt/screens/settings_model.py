@@ -2373,7 +2373,8 @@ _APP_CATEGORY_PARENTS["ops"] = {
     **{title: "OPS aggregate" for title in (
         "Pooling & normalisation", "Gene tests & hits",
         "Cell cycle & mitosis", "Penetrance, escapers & neighbours",
-        "Profile weighting & shrinkage", "Profile run", "Energy-distance test")},
+        "Profile weighting & shrinkage", "Profile run", "Energy-distance test",
+        "Power simulation")},
     **{title: "OPS cluster" for title in (
         "Cluster benchmark", "Resolution sweep", "Consensus clustering",
         "Consensus inputs", "Calibrated cluster test",
@@ -3066,6 +3067,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Before a full spacer-prefix run, score a grid of spot and decode "
         "settings on a few tiles: the grid, the tiles and how they are "
         "picked, the seed, and the grid run whose point was applied.",
+    "POWER SIMULATION":
+        "The power_sim phase: simulated screens with planted effects of known "
+        "size, calibrated on a real run, scored by the OPS analysis steps, "
+        "with the designs, seeds, effect types and scorers it sweeps.",
     "COMPARISON WITH OTHER PIPELINES":
         "Match spaCR's cells and calls with another pipeline's on the same "
         "fields, by centroid distance or mask overlap, and report agreement "
