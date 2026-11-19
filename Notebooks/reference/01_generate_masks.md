@@ -324,7 +324,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Quality Control (32 settings)</summary>
+<summary>Quality Control (31 settings)</summary>
 
 #### Quality Control
 

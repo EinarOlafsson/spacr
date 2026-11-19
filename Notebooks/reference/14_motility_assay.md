@@ -340,7 +340,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Output &amp; Storage (8 settings)</summary>
+<summary>Output &amp; Storage (7 settings)</summary>
 
 #### Output & Storage
 
