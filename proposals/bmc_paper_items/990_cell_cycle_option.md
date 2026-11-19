@@ -42,7 +42,7 @@ automatic self-checks. An optional labelling job (about 100 cells) on the Home s
 | `ops_cell_cycle_transformer` | `'subcell'` | `'subcell'` | The SubCell ViT (Lundberg lab, Human Protein Atlas immunofluorescence), frozen embedding + head, or fine-tuned (next row). Channel variant, weights, licence and size: **pending verification** (separate agent). |
 | `ops_cell_cycle_finetune_backbone` | bool | `False` | Transformer and CNN only: fine-tune the backbone too, not just the head. |
 | `ops_cell_cycle_base_model` | path \| `''` | `''` (= the shipped base model for the chosen input) | The base checkpoint to start from. |
-| `ops_cell_cycle_finetune` | `'screen'` \| `'plate'` \| `'none'` | `'screen'` | Fine-tune once per screen (pooled plates) or per plate. Per well is not offered: a well has too few mitotic cells (plate A: about 25–70 labelled mitotic cells per well). |
+| `ops_cell_cycle_finetune` | `'screen'` \| `'plate'` \| `'none'` | `'screen'` | Fine-tune once per screen (pooled plates) or per plate. Per well is not offered: a well has too few mitotic cells (plate A: about 25–70 labelled mitotic cells per well). `'screen'` is the default by maintainer decision (2026-11-19). The per-screen vs per-plate test was skipped, and the maintainer will test it later; `'plate'` stays available but unvalidated. |
 | `ops_cell_cycle_dna_channel` | channel name | `nucleus_channel` | The DNA stain. |
 | `ops_cell_cycle_mt_channel` | channel name \| `None` | `None` | The microtubule (tubulin) stain. Required for `'DNA+MT'`. |
 | `ops_cell_cycle_arrest_genes` | list \| `'default'` \| `None` | `'default'` | Knockouts with a known mitotic arrest, used in self-check S5 when they are in the library (default list in §5). |
@@ -50,7 +50,7 @@ automatic self-checks. An optional labelling job (about 100 cells) on the Home s
 | `ops_cell_cycle_label_queue` | int | `0` (off) | Size of the labelling job to create (100 recommended). |
 | `ops_cell_cycle_seed` | int | `0` | Every random stream: folds, shuffles, model seed, queue draw. |
 
-- **Name note:** Measure already has a `cell_cycle` setting (bool, `get_measure_crop_settings`). The OPS option
+- **Name (approved by the maintainer 2026-11-19): `ops_cell_cycle`.** Measure already has a `cell_cycle` setting (bool, `get_measure_crop_settings`). The OPS option
   therefore takes the `ops_` prefix, like every OPS setting, so that one key never has two meanings.
 - **Relation to existing settings:** `ops_mitotic_source` (item 890) gains a value `'cell_cycle'`, which takes M
   from this option. `ops_mitotic_model` (item 856) stays as the binary path.
@@ -226,8 +226,9 @@ numbers are recomputed from the base model card at build time.
   the reference script calls (`cellcycle_validation_1119` 4-class model on the same features, same seed).
 - **A2:** the self-checks reproduce the transfer card's reference rows on plate A (identical numbers, same seeds).
 - **A3:** CP186A with `'DNA'`: the self-check table matches the transfer test (card 20261119_cellcycle_transfer_cp186a).
-- **A4:** the model-grid card (20261119_cellcycle_model_grid) picks the default family, after the maintainer signs
-  it off. Until then the default is tabular HGB.
+- **A4:** the model-grid card (20261119_cellcycle_model_grid, SIGNED 2026-11-19) picks the default family.
+  - Its terms: fixed settings for every model, no tuning; the 4-class scheme now and the 7-class scheme after the enriched labels; the granularity test skipped.
+  - Until the grid reports, the default is tabular HGB.
 
 ## 11. Effort
 
