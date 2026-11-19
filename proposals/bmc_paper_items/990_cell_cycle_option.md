@@ -69,6 +69,9 @@ automatic self-checks. An optional labelling job (about 100 cells) on the Home s
     (the `h_phase.field_modes` step, ported).
   - CNN: `spacr.deep_spacr.train_test_model` / `apply_model`, the path `spacr.measure._phases_by_torch` already uses,
     on `ph_crops` shards (`ops_engine._ph_crops`) or crops streamed by `spacr.crop_loader`.
+    - **Gap to close:** `train_test_model` reads 8-bit RGB PNG folders with per-image percentile normalisation.
+      This item adds a raw multi-channel uint16 crop dataset with one fixed scale per plate × channel (the grid's
+      `ccg_cnn.py` is the reference), so DNA-only (1 plane) and DNA+MT (2+ planes) run without an 8-bit step.
   - Transformer: `spacr.embeddings` (`subcell` / `subcell_rybg` backbones are registered there; the channel
     mapping for DNA / DNA+MT is pending verification) + a logistic or multilayer-perceptron head.
     Fine-tuning reuses `deep_spacr` training with the SubCell backbone.
