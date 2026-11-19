@@ -406,7 +406,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Moved 2026-11-10 (was f44e3eae...) by the seven crop-reader and
     # batch-transform dunders of items 889 and 896 counted above; the
     # assignment count stays 39, so no assignment changed.
-    ) == "7aff0ed494c9f16cf0741634abfad7906121cf276f9614704542d712e6a564bf"
+    # Moved 2026-11-18 (was 7aff0ed4...) by spacr.store.Store.__enter__ and
+    # __exit__ (item 974) counted above; no assignment changed.
+    ) == "adf5b751183cb1e3a99feb96d64d40d66dfb15c4378b485cd3fbc8ad81cd8851"
     # The item 770 constants (2026-11-05) are named and taken out here, so
     # every older fingerprint below still describes the surface before them.
     tvn_constants = {
