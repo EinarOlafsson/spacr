@@ -1611,24 +1611,31 @@ def _convention_key(metadata_type: Optional[str],
         hold, and for ``'custom'`` with no pattern.
     """
     from . import regex_infer
+    from .qt.i18n import tr
 
     key = str(metadata_type or '').strip()
     if key in ('', 'auto'):
         return None
     if regex_infer._metadata_convention(key) is None:
-        raise ConfigurationError(
-            f'Unknown metadata_type {key!r}; expected one of '
-            f'{", ".join(regex_infer._metadata_convention_keys())}')
+        raise ConfigurationError(tr(
+            'Unknown metadata_type {key!r}; expected one of {choices}. '
+            'Select a supported filename convention from the listed choices, '
+            'then preview the input again.',
+            key=key, choices=', '.join(regex_infer._metadata_convention_keys())))
     if key == 'custom':
         if not str(custom_regex or '').strip():
-            raise ConfigurationError(
+            raise ConfigurationError(tr(
                 "metadata_type='custom' needs custom_regex: a pattern with "
-                "named groups wellID, fieldID and chanID.")
+                'named groups wellID, fieldID and chanID. Enter custom_regex '
+                'with these named groups, or select a built-in filename '
+                'convention, then preview the input again.'))
         try:
             re.compile(str(custom_regex))
         except re.error as exc:
-            raise ConfigurationError(
-                f'custom_regex does not compile: {exc}') from exc
+            raise ConfigurationError(tr(
+                'custom_regex does not compile: {error}. Correct the reported '
+                'syntax error in custom_regex, then preview the input again.',
+                error=exc)) from exc
     return key
 
 
@@ -1647,7 +1654,10 @@ def _indexed_well_map(path, required):
     if any(index is None for _, index in required):
         raise ValueError(tr("Every indexed ScanR image must match its filename convention."))
     if not path:
-        raise ValueError(tr("Indexed ScanR requires a CSV map with plate, index and well columns."))
+        raise ValueError(tr(
+            'Indexed ScanR requires a CSV map with plate, index and well '
+            'columns. Create or select a local well map CSV that assigns every '
+            'acquired plate/W index to its physical well, then preview again.'))
     if isinstance(path, Mapping):
         if any(not isinstance(key, tuple) or len(key) != 2 for key in path):
             raise ValueError(tr("Indexed ScanR well assignments must include both plate and W index."))
@@ -1658,7 +1668,10 @@ def _indexed_well_map(path, required):
         table = read_table(path, canonicalise=False, report=None, dtype=str,
                            keep_default_na=False)
         if list(table.columns) != ['plate', 'index', 'well']:
-            raise ValueError(tr("The well map must have exactly plate,index,well columns."))
+            raise ValueError(tr(
+                'The well map must have exactly plate,index,well columns. '
+                'Choose or create a CSV with only these three columns in '
+                'this order, then preview again.'))
         rows = table.itertuples(index=False, name=None)
     result = {}
     destinations = set()
@@ -1667,17 +1680,27 @@ def _indexed_well_map(path, required):
         match = re.fullmatch(r'W(\d{5})', index)
         address = re.fullmatch(r'([A-Z]+)([1-9]\d*|0[1-9])', well)
         if not plate or match is None or int(match.group(1)) < 1 or address is None:
-            raise ValueError(tr("The well map contains an invalid plate, W index or physical well."))
+            raise ValueError(tr(
+                'The well map contains an invalid plate, W index or physical '
+                'well. Enter a nonempty plate name, a W index such as W00001, '
+                'and a physical well such as A01 for each row, then preview '
+                'again.'))
         well = address.group(1) + str(int(address.group(2))).zfill(2)
         key, destination = (plate, index), (plate, well)
         if key in result or destination in destinations:
-            raise ValueError(tr("The well map repeats a plate/index or physical well."))
+            raise ValueError(tr(
+                'The well map repeats a plate/index or physical well. Give each '
+                'plate/index one row and each physical well one index per '
+                'plate, then preview again.'))
         result[key] = well
         destinations.add(destination)
     missing = required.difference(result)
     if missing:
         names = ', '.join(f'{plate}/{index}' for plate, index in sorted(missing))
-        raise ValueError(tr("The well map has no assignment for: {indices}", indices=names))
+        raise ValueError(tr(
+            'The well map has no assignment for: {indices}. Add the missing '
+            'plate/index rows with their physical well assignments, then '
+            'preview again.', indices=names))
     return result
 
 
@@ -1857,8 +1880,12 @@ def scan(src: str, layout: str = 'auto',
                 'folder, then preview the import again.',
                 src=src))
     if layout not in LAYOUTS:
-        raise ConfigurationError(
-            f'Unknown layout {layout!r}; expected one of {", ".join(LAYOUTS)}')
+        from .qt.i18n import tr
+
+        raise ConfigurationError(tr(
+            'Unknown layout {layout!r}; expected one of {choices}. Select one '
+            'of the listed layouts to match the source folders, then preview '
+            'again.', layout=layout, choices=', '.join(LAYOUTS)))
     convention = _convention_key(metadata_type, custom_regex)
 
     exts = tuple(extensions) if extensions else _image_extensions()
@@ -2044,13 +2071,18 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
     :raises ConfigurationError: for an unknown ``z_handling`` or
         ``plate_naming``.
     """
+    from .qt.i18n import tr
+
     if z_handling not in Z_HANDLING:
-        raise ConfigurationError(
-            f'Unknown z_handling {z_handling!r}; expected one of '
-            f'{", ".join(Z_HANDLING)}')
+        raise ConfigurationError(tr(
+            'Unknown z_handling {z_handling!r}; expected one of {choices}. '
+            'Select one of the listed Z handling options, then preview again.',
+            z_handling=z_handling, choices=', '.join(Z_HANDLING)))
     if plate_naming not in ('index', 'name'):
-        raise ConfigurationError(
-            f'Unknown plate_naming {plate_naming!r}; expected "index" or "name"')
+        raise ConfigurationError(tr(
+            'Unknown plate_naming {plate_naming!r}; expected "index" or "name". '
+            'Set plate_naming to index or name, then preview again.',
+            plate_naming=plate_naming))
 
     result = ConversionPlan(z_handling=z_handling)
     readable = [s for s in sources if s.readable]
@@ -2347,7 +2379,10 @@ def _read_plain(source: SourceImage) -> np.ndarray:
     expected_shape = source.meta.get('shape')
     if ((expected_shape is not None and tuple(described['shape']) != tuple(expected_shape))
             or described['n_c'] != source.n_channels):
-        raise ConfigurationError(tr("Raster image dimensions or channels changed after the import preview: {path}", path=source.path))
+        raise ConfigurationError(tr(
+            'Raster image dimensions or channels changed after the import '
+            'preview: {path}. Keep the source file unchanged and preview the '
+            'import again before converting.', path=source.path))
     with Image.open(_long_path(source.path)) as image:
         if image.mode in ('P', 'PA', 'CMYK', 'YCbCr', 'LAB', 'HSV'):
             image = image.convert(described['dtype'])
@@ -2366,7 +2401,10 @@ def _read_npy(source: SourceImage) -> np.ndarray:
     current = _describe_npy(source.path)
     if (tuple(current['shape']) != tuple(source.meta.get('shape', ()))
             or current['dtype'] != source.meta.get('dtype')):
-        raise ConfigurationError(tr("NPY source shape or dtype changed after the import preview: {path}", path=source.path))
+        raise ConfigurationError(tr(
+            'NPY source shape or dtype changed after the import preview: '
+            '{path}. Keep the source file unchanged and preview the import '
+            'again before converting.', path=source.path))
     array = np.load(_long_path(source.path), mmap_mode='r', allow_pickle=False)
     return array[None, None, None, ...]
 
