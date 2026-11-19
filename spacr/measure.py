@@ -7247,8 +7247,8 @@ def _fucci_states(nuclei, settings, channels):
 
         raise ValueError(tr(
             "Setting: cell_cycle_fucci_channels needs two channels, the G1 "
-            "reporter then the S/G2/M reporter; got {channels!r}. Set "
-            "cell_cycle_fucci_channels to [G1 channel, S/G2/M channel] using "
+            "reporter then the S–G2–M reporter; got {channels!r}. Set "
+            "cell_cycle_fucci_channels to [G1 channel, S–G2–M channel] using "
             "two measured channel indices, then rerun cell-cycle analysis.",
             channels=channels))
     positive = []

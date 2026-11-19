@@ -66,7 +66,7 @@ def test_fucci_channel_count_refusal_preserves_the_requested_reporter():
     with pytest.raises(ValueError) as caught:
         measure._fucci_states(pd.DataFrame(), {}, channels)
     assert "got [3]" in str(caught.value)
-    assert "G1 reporter then the S/G2/M reporter" in str(caught.value)
+    assert "G1 reporter then the S–G2–M reporter" in str(caught.value)
     assert "Set cell_cycle_fucci_channels to [G1 channel, S/G2/M channel]" in str(caught.value)
     assert channels == [3]
 
