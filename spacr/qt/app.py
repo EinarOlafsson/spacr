@@ -9349,12 +9349,8 @@ class MainWindow(QMainWindow):
             saved = None
         if saved is None:
             QMessageBox.warning(
-                self, tr('Updates'),
-                tr(
-                    "The current settings could not be saved. The update was "
-                    "cancelled and this window will stay open. Export your current "
-                    "module settings to a writable folder, then check the log for the"
-                    " save error before trying the update again."))
+                self, tr("Updates"),
+                tr("The current settings could not be saved. The update was cancelled and this window will stay open."))
             return False
         self._frozen_update_restart_saved = True
         return True
@@ -9507,13 +9503,10 @@ class MainWindow(QMainWindow):
             failed = [f"{item}: {self._removal_reason_text(why)}"
                       for report in reports for item, why in report.failed]
             QMessageBox.warning(
-                self, 'Updates',
-                tr(
-                    "The update stopped before installing, because an older copy of "
-                    "spaCR could not be removed:\n\n{details}\n\nFollow the removal "
-                    "instructions above, or use the original uninstaller for the old "
-                    "copy, then check for updates again.",
-                    details='\n'.join(failed[:8])))
+                self, "Updates",
+                tr("The update stopped before installing, because an older "
+                   "copy of spaCR could not be removed:")
+                + "\n\n" + "\n".join(failed[:8]))
             return
         self._on_upgrade_done(result)
 

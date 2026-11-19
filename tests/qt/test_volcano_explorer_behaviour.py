@@ -411,8 +411,10 @@ def test_an_export_re_renders_or_says_why_it_wrote_nothing(
             monkeypatch.setattr(*patch)
             path = str(tmp_path / f"missing.{fmt}")
             assert explorer.export(fmt, path) is None
-            assert warned == [("Export failed",
-                               f"Nothing could be written to {path}.")]
+            [(title, text)] = warned
+            assert title == "Export failed"
+            assert text.startswith(f"Nothing could be written to {path}.")
+            assert text.endswith("then export again.")
 
     with subtests.test(msg="an SVG writer that names its file"):
         warned.clear()
