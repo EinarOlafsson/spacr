@@ -176,6 +176,11 @@ class TestTheRegressionPanelIsUnchangedByTheWidening:
         it depends on the machine, so this test now pins the machine to two
         GPUs with parallel masks on -- the state in which that pass greys
         nothing -- and the property is back to exactly one greyed control.
+
+        Mask now also carries the illumination-correction settings, each ruled
+        by the correction switch that is off by default. The property is
+        unchanged: the greyed controls are exactly the ruled ones, and the
+        only ruled keys are ``custom_regex`` and the ``illumination_*`` ones.
         """
         from spacr import _mask_workers
 
@@ -184,8 +189,10 @@ class TestTheRegressionPanelIsUnchangedByTheWidening:
         panel = _panel(qtbot, "mask")
         assert panel.set_value_for_key("mask_parallel", True)
 
-        assert set(panel._rules_for_this_panel()) == {
-            "custom_regex", "illumination_vendor_channel_map"}
+        ruled = set(panel._rules_for_this_panel())
+        assert {"custom_regex", "illumination_vendor_channel_map"} <= ruled
+        assert all(key == "custom_regex" or key.startswith("illumination_")
+                   for key in ruled), ruled
 
         panel._refresh_setting_dependencies()
         greyed = {key for key, widget in panel._widgets.items()
@@ -194,7 +201,7 @@ class TestTheRegressionPanelIsUnchangedByTheWidening:
         # The default convention does not read the regex, and no vendor
         # profile is selected, so its channel map is also inapplicable.
         assert panel.collect().get("metadata_type") == "cellvoyager"
-        assert greyed == {"custom_regex", "illumination_vendor_channel_map"}
+        assert greyed == ruled, greyed ^ ruled
 
     def test_masks_rule_lets_the_regex_back_on_both_conventions_that_read_it(
             self, qtbot, qt_theme_applied):
