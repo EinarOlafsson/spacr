@@ -269,6 +269,7 @@ def _versions():
 
 def _plan(src, dst, what):
     """Build a deterministic immutable plan, collecting blockers before any writes."""
+    from . import schema
     from .crops import CropError, read_merged_plane_layout
     from .ome_zarr import require_zarr
 
@@ -293,7 +294,7 @@ def _plan(src, dst, what):
         plan["versions"] = _versions()
     except (ImportError, ValueError, importlib.metadata.PackageNotFoundError) as exc:
         plan["problems"].append(str(exc))
-    fields = {}
+    fields, field_times = {}, {}
     needs_merged = "merged" in what or "crops" in what
     for relative in files:
         path = Path(relative)
@@ -305,6 +306,18 @@ def _plan(src, dst, what):
             continue
         try:
             item = _identity(path.name)
+            try:
+                frame = schema.parse_field_stem(path.name, timelapse=True)
+            except schema.KeyParseError:
+                frame = schema.parse_field_stem(path.name)
+            time = schema.parse_int_token(frame.timeID)
+            if time is not None:
+                previous = field_times.setdefault(item["id"], (time, relative))
+                if previous[0] != time:
+                    raise ValueError(tr(
+                        "One field contains different timepoints: {first} and {second}; "
+                        "retain originals until time-aware conversion is supported.").format(
+                            first=previous[1], second=relative))
             existing = fields.setdefault(item["id"], item)
             if existing["well"] != item["well"]:
                 raise ValueError(tr("Field names collide after well normalization: {path}").format(path=relative))

@@ -26,6 +26,125 @@ def _source(root, *, dtype=np.uint16):
     return root
 
 
+def _source_contents(root):
+    """Capture source files and directories so planning cannot hide new side effects."""
+    return {str(path.relative_to(root)): None if path.is_dir() else path.read_bytes()
+            for path in root.rglob("*")}
+
+
+@pytest.mark.parametrize("merged_time,mask_time", [
+    pytest.param("1", "1", id="numeric-time"),
+    pytest.param("None", "None", id="legacy-none-time"),
+    pytest.param("1", "T0001", id="equivalent-prefixed-time"),
+])
+def test_singleton_time_suffix_keeps_the_correct_field_and_exact_arrays(
+        tmp_path, merged_time, mask_time):
+    """A single stack time suffix preserves spatial identity and matching native label pixels."""
+    from spacr.tiff_io import write_tiff
+
+    src = _source(tmp_path / "source")
+    merged = src / "merged"
+    raw = image_store.read_image(merged / "p_A01_1.npy")
+    (merged / "p_A01_2.npy").unlink()
+    (merged / "p_A01_1.npy").rename(merged / f"plate1_E01_10_{merged_time}.npy")
+    mask_folder = src / "pathogen_mask"
+    mask_folder.mkdir()
+    labels = np.where(raw[..., 1] == 23, 70001, 0).astype(np.uint32)
+    write_tiff(mask_folder / f"plate1_E01_10_{mask_time}.tif", labels)
+    before = _source_contents(src)
+    dst = tmp_path / "dest"
+
+    plan = ome_zarr_convert.convert_project(src, dst, what=("merged", "masks"), dry_run=True)
+
+    assert plan["status"] == "planned"
+    assert plan["problems"] == []
+    assert [(field["plate"], field["well"], field["field"], field["id"])
+            for field in plan["fields"]] == [("plate1", "E01", 10, "plate1/E/1/10")]
+    assert _source_contents(src) == before
+    assert not dst.exists()
+
+    report = ome_zarr_convert.convert_project(src, dst, what=("merged", "masks"))
+
+    assert report["status"] == "verified"
+    store = dst / "merged" / "plate1.ome.zarr"
+    pairs = [
+        (image_store.read_image(store, key=("E01", 10)), np.moveaxis(raw[..., :1], -1, 0)),
+        (image_store.read_labels(store, "cell", key=("E01", 10)), raw[..., 1]),
+        (image_store.read_labels(store, "pathogen", key=("E01", 10)), labels),
+    ]
+    for actual, expected in pairs:
+        assert actual.dtype == expected.dtype
+        assert actual.shape == expected.shape
+        assert actual.tobytes() == expected.tobytes()
+    assert _source_contents(src) == before
+
+
+@pytest.mark.parametrize("name", ["plate1_E01.npy", "plate1_E01_10_bad.npy"])
+def test_malformed_field_name_reports_one_blocker_without_writes(tmp_path, name):
+    """A shared filename parse failure becomes one planning blocker and leaves sources intact."""
+    src = _source(tmp_path / "source")
+    merged = src / "merged"
+    (merged / "p_A01_2.npy").unlink()
+    (merged / "p_A01_1.npy").rename(merged / name)
+    before = _source_contents(src)
+    dst = tmp_path / "dest"
+
+    plan = ome_zarr_convert.convert_project(src, dst, what=("merged", "masks"), dry_run=True)
+
+    assert plan["status"] == "blocked"
+    assert len(plan["problems"]) == 1
+    assert "cannot identify a field" in plan["problems"][0]
+    assert Path(name).stem in plan["problems"][0]
+    assert plan["fields"] == []
+    with pytest.raises(ValueError, match="cannot identify a field"):
+        ome_zarr_convert.convert_project(src, dst, what=("merged", "masks"))
+    assert _source_contents(src) == before
+    assert not dst.exists()
+
+
+@pytest.mark.parametrize("assets", ["merged_and_mask", "two_mask_roles", "two_merged_times"])
+def test_distinct_asset_timepoints_cannot_share_a_spatial_field(tmp_path, assets):
+    """Different frames cannot be paired across roles or overwrite one spatial field."""
+    from spacr.tiff_io import write_tiff
+
+    src = _source(tmp_path / "source")
+    first = src / "merged" / "p_A01_1.npy"
+    second = src / "merged" / "p_A01_2.npy"
+    raw = image_store.read_image(first)
+    what = ("merged", "masks")
+    if assets == "two_merged_times":
+        left, right = "merged/p_A01_1_1.npy", "merged/p_A01_1_2.npy"
+        first.rename(src / left)
+        second.rename(src / right)
+    elif assets == "merged_and_mask":
+        left, right = "merged/p_A01_1_1.npy", "pathogen_mask/p_A01_1_2.tif"
+        first.rename(src / left)
+        second.unlink()
+        (src / right).parent.mkdir()
+        write_tiff(src / right, raw[..., 1])
+    else:
+        left, right = "cell_mask/p_A01_1_1.tif", "nucleus_mask/p_A01_1_2.tif"
+        first.unlink()
+        second.unlink()
+        for relative in (left, right):
+            (src / relative).parent.mkdir()
+            write_tiff(src / relative, raw[..., 1])
+        what = ("masks",)
+    before = _source_contents(src)
+    dst = tmp_path / "dest"
+
+    plan = ome_zarr_convert.convert_project(src, dst, what=what, dry_run=True)
+
+    assert plan["status"] == "blocked"
+    assert len(plan["problems"]) == 1
+    assert "timepoint" in plan["problems"][0].lower()
+    assert left in plan["problems"][0] and right in plan["problems"][0]
+    with pytest.raises(ValueError, match="(?i)timepoint"):
+        ome_zarr_convert.convert_project(src, dst, what=what)
+    assert _source_contents(src) == before
+    assert not dst.exists()
+
+
 def test_effective_edits_and_original_embedded_masks_both_round_trip(tmp_path):
     """Measured labels stay authoritative while legacy embedded planes remain reversible."""
     src = _source(tmp_path / "source")
