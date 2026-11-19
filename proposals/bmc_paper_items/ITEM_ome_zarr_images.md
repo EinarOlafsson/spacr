@@ -133,7 +133,7 @@ These bind 983 and 984.
   - **Resizing:** CV loaders and Annotate resize deterministically at load.
   - **Not standard OME-Zarr:** viewers cannot open the pools directly. `spacr.crop_store.export_crops(...)` writes plain OME-Zarr images, TIFF or PNG for outside tools.
 - **Where crops go:**
-  - `crops/<plate>.zarr`. The `merged/` folder keeps its name.
+  - One store per well, `crops/plate=<P>/well=<W>.zarr`, as item 974's store already writes (master, 2026-11-19, replacing the earlier `crops/<plate>.zarr`). Writers own wells, so no two processes ever write the same container. The `merged/` folder keeps its name.
   - Cell, nucleus and pathogen pools are separate arrays/files.
   - Old `data/` PNG layouts stay readable.
 - **Shards:**
