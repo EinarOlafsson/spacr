@@ -1,0 +1,104 @@
+OPS POWER SIMULATION: SIMULATED OPTICAL POOLED SCREENS WITH PLANTED EFFECTS
+==========================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-17, alpha (ALPHA_FEATURES[968]). Under development per proposals/READINESS.md: not marked Ready. spacr/power_ops.py (new), spacr/ops_engine.py (power_sim phase), spacr/ops_settings.py, spacr/settings.py, tests/test_ops_power_sim_968.py, tests/data/release_contracts/968_ops_power_sim_api_arrivals_2026-11-17.json, tests/test_docstring_correctness.py, tests/test_documentation_i18n.py, tests/test_api_i18n_extractor.py, tests/test_settings_categories.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item968_proof/REPORT.md.
+Requested: maintainer, 2026-11-17 ("add an OPS power submodule to the spaCR power module and use it to perform OPS screen simulations to learn what we can and cannot know from OPS screens at the current scale (start with Funk scale)").
+Owner: master lane claude-968-1117.
+Source: proposals/bmc_paper_items/ITEM_ops_power_simulation.md.
+Related: 917 (E-test and its subsampling power curve), 969 (the Power module's OPS submodule; this item's GUI section joins it when 969 lands), 964 (feature-information screen; the interim scorer here is replaced by its spacr.ops_feature_info.screen when it lands).
+
+PROBLEM
+spacr/power_simulate.py and spacr/power_model.py plan arrayed and well-level
+pooled screens. Nothing simulated an optical pooled screen (per-cell
+genotype calls with call rate and misassignment, a many-feature per-cell
+phenotype, guides nested in genes, wells and fields), so nothing said what a
+screen of a given design can detect.
+
+BUILD
+- spacr/power_ops.py (new): calibrate_from_run, load_calibration,
+  resolve_design, simulate_ops_screen, score_ops_screen, scan_ops_designs,
+  power_summary, minimum_detectable_effect, conditional_information,
+  run_ops_power_sim; samplers reused from power_simulate (resolve_rng,
+  rdirichlet_stable, rbeta_mean_variance).
+- Library: genes, guides per gene, NT guides, Dirichlet guide abundance,
+  inactive guides and per-guide knockout penetrance (Beta).
+- Cells: cells per gene at the calibrated call rate, scaled by the design's
+  call rate; wells and fields; a decoy-FDR share of calls carries a wrong
+  guide (phenotype from the true guide).
+- Phenotype: 'empirical' (NT within-guide residuals resampled from the whole
+  calibrated pool with a variance-preserving smoothed bootstrap, bandwidth
+  0.25) or 'parametric' (multivariate t with well/field offsets); both add a
+  per-guide offset with the calibrated between-guide variance (trace-level
+  estimate corrected for each guide's sampling noise).
+- Planted biology: hit fraction, effect size in NT SD per touched direction
+  (or 'calibrated': drawn from the real run's guide-null hits), effect type
+  mean / variance / subpopulation, effect dims, penetrance, effect block
+  ('new' = the last info_new_dims directions), complexes with CORUM sizes
+  sharing a direction plus noise.
+- Scorers: E-test (spacr.gene_measurement_compare.EnergyTest, BH, design key
+  etest_mode, default empirical_null as in the OPS etest phase) with guide
+  agreement; clustering (10 % trimmed gene means, hybrid_profile_rows,
+  phate_leiden, group_enrichment on planted complexes with a shuffled-member
+  control, pair F1); information (Gaussian conditional MI, guide-level
+  permutation null by default, info_null 'cell' as the control).
+- scan_ops_designs: dict grid (Cartesian) or list of dicts (union), seeds,
+  progress TSV keyed by point+seed+scorers (resume), workers (spawn pool,
+  threadpoolctl-limited), rows returned as stored so resumed and fresh runs
+  give identical tables.
+- OPS phase 'power_sim' (run_ops(settings, phases=['power_sim']), or
+  ops_power_sim True with the default phases, so spacr-run ops --settings
+  runs it), under the profile path's BLAS pin; outputs in
+  <dst_root>/results/ops_power_sim: designs.tsv, power_rows.csv,
+  power_summary.csv, power_mde.csv, power_curve.png, runtime.json.
+- Settings (alpha, OPS settings, no schema bump): ops_power_sim (False),
+  ops_power_calibration_run (None), ops_power_mode ('empirical'),
+  ops_power_grid (None = cells per gene 10-1,000 x effect 0.1-1 SD),
+  ops_power_sim_seeds ([0, 1, 2]; renamed from the spec's ops_power_seeds,
+  which item 917 uses), ops_power_effect_types, ops_power_scorers,
+  ops_power_sim_workers (1). Checked against ops_power_cells, ops_power_seeds,
+  ops_power_retrieval, ops_power_gene_list, ops_power_reference_rows: no clash.
+- GUI: pending item 969. A section 'OPS power simulation'
+  (PowerOpsSimulation) for 969's Power/OPS layout is kept as a patch against
+  969 b1c0a72583 and joins when 969 lands.
+
+ACCEPTANCE
+tests/test_ops_power_sim_968.py (15 cases): calibration JSON and pool sha;
+changed pool refused; same design + seed = same screen; strong effect found
+and no null genes flagged (empirical and parametric); call rate scales cells;
+conditional information 0 for a redundant column and positive for gene
+signal; unknown keys/scorers refused; power summary and MDE; the phase reruns
+identically, resumes, and gives the same tables with 2 workers; switch off
+leaves run_ops on its image path; clustering recovers planted complexes
+(skips without the clustering extra); guide variance fools the pooled E-test
+null but not the guide null; the information null permutes whole guides.
+
+PROOF CHECK 2026-11-17 (CPU; calibrated on Funk et al. 2022 plate A from
+tables built by scripts using spaCR functions, not a settings-file run;
+phenotype from well A1, 104 aligned PCs). See REPORT.md.
+- Recovery: 1 SD on 5 PCs, 200 cells/gene: power 100 % (Wilson 98.7-100),
+  empirical and parametric. No effects: null-gene FPR 0.0 % with the guide
+  null; 93 % with the E-test's default empirical null.
+- Default E-test null: with no effects it flags 0.7 / 82.8 / 100 % of genes
+  at 40 / 160 / 1,000 cells/gene (guide-to-guide spread, about 1 % of NT
+  variance); the guide null flags 0 %. Real A1: 92.6 % (default) vs 36.0 %
+  (guide null) of genes at q < 0.05.
+- MDE (guide null, mean shift on 5 PCs): 0.38 SD at A1 depth (160 cells/gene),
+  0.29 at 500, 0.28 at plate A depth (1,000); > 0.5 at 40. Penetrance 0.5 at
+  0.3 SD: 0 %. Variance-only effects: 0 % up to 1 SD at 160 cells/gene.
+- Genotyping, 10 seeds: spaCR rule (77.2 % call, 0.096 % FDR) vs Brieflow's
+  rule on the same fields (67.2 %, 0.130 %, our computed decode): +5.8 to
+  +7.6 points of power; 0.4 SD 98.3 vs 92.5 % (Welch p 0.0072, Holm 0.022).
+- Complexes (Leiden on the Hybrid profile): 75 % recovered at 0.3 SD at A1
+  depth, 92 % at plate A depth; shuffled members 0-5 %.
+- Information screen: smallest added information found in 3/3 seeds 0.0014
+  bits at plate A depth, about 0.009 bits at A1 depth; guide-level null 0/9
+  calls without effects; a cell-level permutation null calls 9/9.
+- Calibration check: cells per gene median -3 %, IQR within 6 %, 5 %
+  quantile +20 %; NT pseudo-gene p < 0.05 4.8 vs 4.8 % (default null), 6.3 vs
+  7.8 % (guide null); NT guide rows 98.0 vs 95.9 % (default), 91.1 vs 69.4 %
+  (guide null, not within 10 %).
+- Settings-file rerun: three spacr-run ops runs (1, 1, 2 workers) gave
+  md5-identical power_rows, power_summary and power_mde.
+- Speed: one Funk-scale replicate 31.6 s (A1 depth) and 305.7 s (plate A
+  depth, 5.16 M cells) on one BLAS thread.

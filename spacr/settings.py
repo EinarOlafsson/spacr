@@ -9554,6 +9554,11 @@ ALPHA_FEATURES = {
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval', 'ops_power_gene_list', 'ops_power_reference_rows',),
     },
+    968: {
+        'settings': ('ops_power_sim', 'ops_power_calibration_run', 'ops_power_mode',
+                     'ops_power_grid', 'ops_power_sim_seeds', 'ops_power_effect_types',
+                     'ops_power_scorers', 'ops_power_sim_workers'),
+    },
     919: {
         'settings': ('ops_layout', 'cpg_root', 'cpg_wells', 'cpg_sites',
                      'cpg_phenotype_channels', 'cpg_sbs_cycles', 'cpg_sbs_bases',
