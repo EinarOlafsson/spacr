@@ -1050,6 +1050,7 @@ SETTING_API_TARGETS = {
     'ops_prefix_quality_method': ('spacr.ops_prefix', 'prefix_settings', True),
     'ops_prefix_threshold_tuning': ('spacr.ops_prefix', 'prefix_settings', True),
     'ops_prefix_tuning_grid': ('spacr.ops_prefix', 'prefix_settings', True),
+    'ops_prefix_tuning_min_sites': ('spacr.ops_prefix', 'prefix_settings', True),
     'ops_prefix_weighted_min_share': ('spacr.ops_prefix', 'prefix_settings', True),
     'ops_prefix_weighted_quality': ('spacr.ops_prefix', 'prefix_settings', True),
     'ops_profile_active_filter': ('spacr.ops_tvn', 'profile_cell_tables', True),

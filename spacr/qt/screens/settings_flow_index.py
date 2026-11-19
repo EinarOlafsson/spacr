@@ -1531,6 +1531,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_prefix_quality_method',
     'ops_prefix_threshold_tuning',
     'ops_prefix_tuning_grid',
+    'ops_prefix_tuning_min_sites',
     'ops_prefix_weighted_min_share',
     'ops_prefix_weighted_quality',
     'ops_profile_active_filter',
