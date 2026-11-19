@@ -9752,6 +9752,11 @@ ALPHA_FEATURES = {
     967: {
         'settings': ('ops_prefix_minority_min_reads',),
     },
+    960: {
+        'settings': ('ops_grid_search', 'ops_grid_params', 'ops_grid_tiles',
+                     'ops_grid_tile_mode', 'ops_grid_n_tiles', 'ops_grid_seed',
+                     'ops_grid_run_id'),
+    },
     982: {
         'settings': ('ops_prefix_tuning_min_sites',),
     },
