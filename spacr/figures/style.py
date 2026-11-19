@@ -15,6 +15,9 @@ published look unchanged.
 from __future__ import annotations
 
 import contextlib
+import contextvars
+import os
+import sys
 from typing import Iterable, Optional, Sequence
 
 #: Print ink: the near-black the published figures use for text and axes.
@@ -84,6 +87,68 @@ TEXT_KEYS = ("text.color", "axes.labelcolor",
 LINE_KEYS = ("axes.edgecolor", "xtick.color", "ytick.color")
 
 
+
+#: True inside :func:`pipeline_figures`: the figures a pipeline writes ignore
+#: the user's figure preferences.
+_PIPELINE_FIGURES = contextvars.ContextVar("spacr_pipeline_figures",
+                                           default=False)
+
+#: Set by :func:`pipeline_figures` for child processes of a pipeline run.
+_PIPELINE_FIGURES_ENV = "SPACR_PIPELINE_FIGURES"
+
+
+def _gui_process() -> bool:
+    """Whether this process is the spaCR GUI (a Qt application is running)."""
+    widgets = sys.modules.get("PySide6.QtWidgets")
+    try:
+        return widgets is not None and widgets.QApplication.instance() is not None
+    except Exception:                                          # noqa: BLE001
+        return False
+
+
+def _pipeline_figures_active() -> bool:
+    """Whether figures saved now ignore the user's figure preferences.
+
+    True inside :func:`pipeline_figures`, and in a process started from one
+    (the environment marker), unless this process is the GUI: figures the
+    GUI saves, including those of pipelines it runs, keep the preferences.
+    """
+    if _gui_process():
+        return False
+    return bool(_PIPELINE_FIGURES.get()) or (
+        os.environ.get(_PIPELINE_FIGURES_ENV) == "1")
+
+
+def _refuse_preferences_in_pipeline() -> None:
+    """Raise inside a pipeline run, so a preference reader falls back to the
+    house style exactly as it does when there is no preference store."""
+    if _pipeline_figures_active():
+        raise LookupError("pipeline figures ignore the figure preferences")
+
+
+@contextlib.contextmanager
+def pipeline_figures():
+    """Save figures in the plain house style, ignoring the figure preferences.
+
+    Runs outside the GUI (``spacr-run``, and :func:`spacr.ops_engine.run_ops`
+    called from a script) save their figures inside this, so a settings-file
+    rerun gives byte-identical files whatever the user chose in Preferences.
+    In the GUI process it changes nothing: figures the GUI saves, including
+    those of the pipelines it runs, keep the preferences.
+    """
+    token = _PIPELINE_FIGURES.set(True)
+    previous = os.environ.get(_PIPELINE_FIGURES_ENV)
+    if not _gui_process():
+        os.environ[_PIPELINE_FIGURES_ENV] = "1"
+    try:
+        yield
+    finally:
+        _PIPELINE_FIGURES.reset(token)
+        if previous is None:
+            os.environ.pop(_PIPELINE_FIGURES_ENV, None)
+        else:
+            os.environ[_PIPELINE_FIGURES_ENV] = previous
+
 def chosen_ink() -> Optional[str]:
     """The TEXT colour the user picked, or ``None`` while it follows the theme.
 
@@ -98,6 +163,7 @@ def chosen_ink() -> Optional[str]:
     bare unit run, where the house style is the only answer there is.
     """
     try:
+        _refuse_preferences_in_pipeline()
         from ..qt.preferences import (figure_color_is_auto,
                                       get_figure_color_tokens)
 
@@ -118,6 +184,7 @@ def chosen_line_ink() -> Optional[str]:
     :func:`chosen_ink` says which.
     """
     try:
+        _refuse_preferences_in_pipeline()
         from ..qt.preferences import (figure_color_is_auto,
                                       get_figure_line_token)
 
@@ -211,6 +278,7 @@ def user_overrides(kind: Optional[str] = None) -> dict:
         when no preference differs or preferences cannot be read safely.
     """
     try:
+        _refuse_preferences_in_pipeline()
         from ..qt.preferences import (get_figure_style,
                                       get_figure_style_per_graph)
 
@@ -240,6 +308,7 @@ def _preference_deltas(kind: Optional[str] = None) -> dict:
         preference store cannot be read, so a headless run draws as before.
     """
     try:
+        _refuse_preferences_in_pipeline()
         from ..qt.preferences import (get_figure_style,
                                       get_figure_style_per_graph)
 
@@ -528,6 +597,7 @@ def _group_colours(count: int, palette: Sequence = (),
                                 _marks_coloured_by, palette_colours, resolve)
 
     try:
+        _refuse_preferences_in_pipeline()
         from ..qt.preferences import (get_figure_style,
                                       get_figure_style_per_graph)
 
@@ -680,6 +750,7 @@ def theme_target() -> str:
     is slightly wrong is better than ink that is invisible.
     """
     try:
+        _refuse_preferences_in_pipeline()
         from ..qt.preferences import get_figure_colors
 
         background, _foreground = get_figure_colors()

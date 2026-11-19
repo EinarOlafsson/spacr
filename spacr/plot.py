@@ -94,6 +94,8 @@ def figure_output_preferences():
     PySide6 to decide a file extension would be absurd.
     """
     try:
+        from .figures.style import _refuse_preferences_in_pipeline
+        _refuse_preferences_in_pipeline()
         from .qt.preferences import get_figure_format, get_figure_png_dpi
         fmt = str(get_figure_format()).strip().lower()
         dpi = int(get_figure_png_dpi())
@@ -421,7 +423,7 @@ def print_ready(fig, mode=None, announce=True):
 
 def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
                 save_mode=None, announce_colours=True, integrity=None,
-                **kwargs):
+                preferences=None, **kwargs):
     """Write ``fig`` to ``path``, honouring the figure preferences.
 
     The single place a spaCR figure the user keeps gets written. Before this
@@ -491,10 +493,22 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
         None follows ``SPACR_FIGURE_INTEGRITY`` and then the Preferences
         toggle, which is off by default. A figure without image panels is
         written unchanged either way.
+    :param preferences: False writes the plain house style whatever the user
+        chose in Preferences, as runs outside the GUI do
+        (:func:`spacr.figures.style.pipeline_figures`); None applies the
+        preferences, except in a run outside the GUI.
     :param kwargs: passed through to ``savefig`` (``bbox_inches`` etc.). An
         explicit ``facecolor`` still wins over the print ground.
     :returns: the path actually written, as a ``str``.
     """
+    if preferences is False:
+        from .figures.style import pipeline_figures
+
+        with pipeline_figures():
+            return save_figure(fig, path, fmt=fmt, dpi=dpi, close=close,
+                               save_mode=save_mode,
+                               announce_colours=announce_colours,
+                               integrity=integrity, preferences=None, **kwargs)
     preferred_fmt, preferred_dpi = figure_output_preferences()
     chosen_fmt = str(fmt or preferred_fmt).strip().lower().lstrip(".")
     if chosen_fmt not in FIGURE_FORMATS:
@@ -690,6 +704,8 @@ def _figure_integrity_enabled(explicit=None):
     if env in ("0", "false", "no", "off"):
         return False
     try:
+        from .figures.style import _refuse_preferences_in_pipeline
+        _refuse_preferences_in_pipeline()
         from .qt.preferences import _get_figure_integrity
         return bool(_get_figure_integrity())
     except Exception:

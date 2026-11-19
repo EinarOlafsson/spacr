@@ -2227,7 +2227,10 @@ def cmd_run(args: argparse.Namespace) -> int:
                 if lock:
                     (log.info if lock.get("status") == "verified"
                      else log.warning)("%s", lock.get("summary"))
-                _call_entry(module, func, settings)
+                from .figures.style import pipeline_figures
+
+                with pipeline_figures():
+                    _call_entry(module, func, settings)
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE

@@ -833,6 +833,8 @@ def figure_save_mode() -> str:
     if requested in SAVE_MODES:
         return requested
     try:
+        from .figures.style import _refuse_preferences_in_pipeline
+        _refuse_preferences_in_pipeline()
         from .qt import preferences
 
         stored = str(preferences.get_figure_save_mode()).strip().lower()
@@ -866,6 +868,8 @@ def theme_ink() -> Tuple[str, str]:
     when the Qt preference store is unavailable.
     """
     try:
+        from .figures.style import _refuse_preferences_in_pipeline
+        _refuse_preferences_in_pipeline()
         from .qt.preferences import resolve_effective_theme
     except Exception:                                            # noqa: BLE001
         return PRINT_INK, PRINT_GRID

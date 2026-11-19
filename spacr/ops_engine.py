@@ -10263,6 +10263,22 @@ def _rows_for_wells(db: str, table: str, plate: str, wells: Sequence[str]):
     return frame[keep].reset_index(drop=True)
 
 
+def _in_pipeline_figures(function):
+    """Run ``function`` inside :func:`spacr.figures.style.pipeline_figures`."""
+    import functools
+
+    @functools.wraps(function)
+    def wrapped(*args, **kwargs):
+        """``function`` with the plain house style for every figure it saves."""
+        from .figures.style import pipeline_figures
+
+        with pipeline_figures():
+            return function(*args, **kwargs)
+
+    return wrapped
+
+
+@_in_pipeline_figures
 def run_ops(settings: Mapping[str, Any], *,
             wells: Optional[Sequence[str]] = None,
             phases: Sequence[str] = _PHASES,
