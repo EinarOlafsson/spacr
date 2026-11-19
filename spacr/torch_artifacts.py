@@ -224,6 +224,43 @@ def _legacy_configuration(payload: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+OLD_CUSTOM_HEAD_MESSAGE = (
+    "This model was trained with the old spaCR custom classifier, which "
+    "clipped negative class scores to 0 and always used 3 image channels. "
+    "That classifier was fixed in spaCR 1.5.1.8 and old models cannot be "
+    "reused. Retrain the model with this version of spaCR.")
+
+
+def _refuse_old_custom_head(config: Mapping[str, Any], state_dict=None) -> None:
+    """Stop a custom-classifier checkpoint the fixed head cannot honour.
+
+    Before the fix the classifier recorded its class name rather than
+    ``'custom'``, so ``model_name == 'CustomCellClassifier'`` marks the old
+    head. A ``'custom'`` checkpoint whose recorded channel count disagrees with
+    the input channels of its saved fusion convolution is refused too.
+
+    :param config: the recorded model configuration.
+    :param state_dict: the saved weights, when there are any.
+    :raises ValueError: for an old-head checkpoint or a channel mismatch.
+    """
+    from .qt.i18n import tr
+
+    name = config.get("model_name")
+    if name == "CustomCellClassifier":
+        raise ValueError(tr(OLD_CUSTOM_HEAD_MESSAGE))
+    if name != "custom" or not isinstance(state_dict, Mapping):
+        return
+    weight = state_dict.get("early_fusion.conv1.weight")
+    recorded = int(config.get("in_channels", 3))
+    if isinstance(weight, torch.Tensor) and weight.dim() == 4 \
+            and int(weight.shape[1]) != recorded:
+        raise ValueError(tr(
+            "This custom classifier checkpoint records {recorded} image "
+            "channels, but its saved weights take {saved}. The file is "
+            "inconsistent. Retrain the model with this version of spaCR.",
+            recorded=recorded, saved=int(weight.shape[1])))
+
+
 def build_model_from_configuration(config: Mapping[str, Any]) -> nn.Module:
     """Reconstruct a recorded classifier without pretrained downloads.
 
@@ -297,6 +334,10 @@ def load_model_artifact(
     raw = torch.load(path if restricted_stream else os.fspath(path),
                      map_location=map_location, weights_only=weights_only)
     if isinstance(raw, nn.Module):
+        if raw.__class__.__name__ == "CustomCellClassifier" \
+                and "in_channels" not in vars(raw):
+            from .qt.i18n import tr
+            raise ValueError(tr(OLD_CUSTOM_HEAD_MESSAGE))
         return raw, {
             "legacy": True,
             "artifact_role": "legacy_full_module",
@@ -342,6 +383,7 @@ def load_model_artifact(
 
     if not isinstance(state_dict, Mapping):
         raise ValueError(f"Model state in '{path}' is not a state dictionary.")
+    _refuse_old_custom_head(config, state_dict)
     if model is None:
         if not config.get("model_name"):
             raise ValueError(

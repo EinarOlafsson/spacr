@@ -69,21 +69,16 @@ def test_multiscale_block_custom_forward():
 # CustomCellClassifier
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("use_attention", [True, False])
-def test_custom_cell_classifier_forward(use_attention):
+def test_custom_cell_classifier_forward():
     from spacr.utils import CustomCellClassifier
-    m = CustomCellClassifier(num_classes=2, pathogen_channel=1,
-                             use_attention=use_attention,
-                             use_checkpoint=False, dropout_rate=0.0)
+    m = CustomCellClassifier(num_classes=2, use_checkpoint=False)
     out = m(torch.rand(2, 3, 32, 32))
     assert out.shape == (2, 2)
 
 
 def test_custom_cell_classifier_checkpointing():
     from spacr.utils import CustomCellClassifier
-    m = CustomCellClassifier(num_classes=3, pathogen_channel=1,
-                             use_attention=True, use_checkpoint=True,
-                             dropout_rate=0.1)
+    m = CustomCellClassifier(num_classes=3, use_checkpoint=True)
     x = torch.rand(2, 3, 32, 32, requires_grad=True)
     out = m(x)
     assert out.shape == (2, 3)
