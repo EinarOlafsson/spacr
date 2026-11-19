@@ -867,6 +867,22 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_power_sim", "ops_power_calibration_run", "ops_power_mode",
     "ops_power_grid", "ops_power_sim_seeds", "ops_power_effect_types",
     "ops_power_scorers", "ops_power_sim_workers",
+    # Item 964 (2026-11-17): the feature-information screen phase.
+    "ops_feature_screen_old",
+    "ops_feature_screen_new",
+    "ops_feature_screen_cells",
+    "ops_feature_screen_id_columns",
+    "ops_feature_screen_label",
+    "ops_feature_screen_guide",
+    "ops_feature_screen_families",
+    "ops_feature_screen_permutations",
+    "ops_feature_screen_perm_unit",
+    "ops_feature_screen_seed",
+    "ops_feature_screen_ridge",
+    "ops_feature_screen_greedy_threshold",
+    "ops_feature_screen_mlp",
+    "ops_feature_screen_device",
+    "ops_feature_screen_dst",
     # Item 962 (2026-11-16): the OPS merge route (tile hash, well stitch
     # or automatic fallback) and its thresholds.
     "ops_merge_strategy", "ops_merge_stitch_source",

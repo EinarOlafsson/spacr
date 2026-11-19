@@ -1,0 +1,31 @@
+OPS FEATURE-INFORMATION SCREEN: WHAT NEW FEATURE COLUMNS ADD ABOUT GENES BEYOND THE EXISTING ONES (GPU OR CPU)
+==============================================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-17, alpha (ALPHA_FEATURES[964]). Under development per proposals/READINESS.md; off by default. spacr/ops_feature_info.py, spacr/ops_engine.py (phase ops_feature_screen), spacr/ops_settings.py, spacr/settings.py, spacr/settings_spec.py, tests/test_ops_feature_info_964.py, arrival contract tests/data/release_contracts/964_ops_feature_screen_api_arrivals_2026-11-17.json. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item964_proof/REPORT.md.
+Requested: maintainer decisions 2026-11-16 (STANDARD_new_feature_acceptance.md step 2.0, "Yes, add to standard").
+Owner: master lane claude-964-1117.
+Source: proposals/bmc_paper_items/ITEM_ops_feature_information_screen.md.
+Related: the paper session's prototype screen (foundation_model_features/screen_a1/scripts/screen_gpu.py, EB clone-unit form); 970 (new per-cell object features to screen).
+
+BUILD
+- spacr.ops_feature_info.screen(old, new, cells, ...): Gaussian conditional
+  mutual information I(gene; new | old) per new column and per declared
+  family, in bits, from one streamed covariance of [old, new] (float64) and
+  gene group sums (scatter-add); conditional covariances by Schur
+  complements; ridge (relative, recorded); unique fraction = 1 - R2.
+- Null: gene labels permuted within well (default gene-by-field units, or
+  single cells), only the group sums recomputed; observed minus null mean,
+  null 2.5-97.5 % range, interval +- 1.96 null SD.
+- Held-out estimate: gene means from the other wells (fields in a one-well
+  table). Guide-replicated estimate: each cell predicted by the other guides
+  of its gene, against the same predictors given to guides of other genes
+  with as many cells behind them (size-matched bins of 20).
+- Greedy forward selection over families (or columns), stopping at a user
+  threshold or the null level; optional MLP cross-entropy check (nats).
+  KSG kNN estimator not built.
+- Phase ops_feature_screen (run_ops, on its own): feature_information.csv,
+  feature_information.png (bars + jittered permutation points),
+  feature_information.json. Same maths on numpy (CPU) and torch (GPU).
+- 15 alpha settings ops_feature_screen_* in OPS phenotype (proposed 969
+  subcategory "Feature information screen"); no schema bump.

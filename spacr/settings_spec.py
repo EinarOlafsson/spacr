@@ -289,6 +289,8 @@ def convert_settings_dict_for_gui(settings):
         'ops_ph_organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose'], 'otsu'),
         'ops_ph_pathogen_model': ('combo', cellpose_models, 'cpsam'),
         'ops_ph_organelle_model': ('combo', cellpose_models, 'cpsam'),
+        'ops_feature_screen_perm_unit': ('combo', ['guide', 'field', 'cell'], 'guide'),
+        'ops_feature_screen_device': ('combo', ['auto', 'cpu', 'cuda'], 'auto'),
         'ops_placement_seed_mode': ('combo', ['subset', 'strict'], 'subset'),
         'figure_condition_aggregate': ('combo', ['mean', 'median'], 'mean'),
         'figure_size_stat': ('combo', ['mean', 'median'], 'mean'),
