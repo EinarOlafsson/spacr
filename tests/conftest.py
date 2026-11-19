@@ -1239,6 +1239,23 @@ def _no_provider_stream_outlives_a_test():
 
 
 @pytest.fixture(autouse=True)
+def _no_test_finds_the_machines_vs_code_codex(monkeypatch, tmp_path_factory):
+    """Hide the developer's VS Code ChatGPT extension from the Codex lookup.
+
+    The Codex provider also runs the ``codex`` binary bundled with that
+    extension (2026-11-18). Without this a test of "codex is not installed"
+    passes or fails depending on what the machine running it has installed.
+    A test of the lookup itself passes its own ``home``.
+    """
+    try:
+        from spacr.qt.ai import providers
+    except Exception:                                            # noqa: BLE001
+        return
+    empty = str(tmp_path_factory.getbasetemp() / "no-vscode-home")
+    monkeypatch.setattr(providers, "_codex_home", lambda: empty)
+
+
+@pytest.fixture(autouse=True)
 def _no_test_runs_a_real_installer(monkeypatch):
     """Refuse to start a vendor installer from any test.
 

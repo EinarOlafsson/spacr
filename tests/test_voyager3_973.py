@@ -351,7 +351,7 @@ def test_the_settings_are_off_by_default_and_alpha():
     defaults = ops_defaults()
     keys = [k for k in defaults if k.startswith("ops_voyager3_")]
     assert defaults["ops_voyager3_enabled"] is False and defaults["ops_voyager3_shuffle_control"] is False
-    assert set(ALPHA_FEATURES[973]["settings"]) == set(keys) and len(keys) == 12
+    assert set(ALPHA_FEATURES[973]["settings"]) | set(ALPHA_FEATURES[980]["settings"]) == set(keys) and len(keys) == 16
     assert defaults["ops_voyager3_resume"] is True and defaults["ops_voyager3_answers_dir"] is None
     assert all(k in OPS_CATEGORIES["Voyager3 cluster annotation"] for k in keys)
 

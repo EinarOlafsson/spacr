@@ -139,7 +139,7 @@ GROUPS = (
         ("Gene map: profile clusters, labels, medoid crops", (918,)),
         ("Gene graph, protein knowledge, fusion hypotheses, gene-class training",
          (884, 885, 886, 889)),
-        ("Voyager3: cluster roles from UniProt facts through your own AI", (973,)),
+        ("Voyager3: cluster roles from UniProt facts through your own AI, or by enrichment", (973, 980)),
     )),
     ("Automation and data", (
         ("Watch a folder as images arrive, send hits back for re-imaging", (548, 549)),

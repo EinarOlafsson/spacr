@@ -434,6 +434,10 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_voyager3_shuffle_control": False,
     "ops_voyager3_resume": True,
     "ops_voyager3_answers_dir": None,
+    "ops_voyager3_method": "ai",
+    "ops_voyager3_reactome": None,
+    "ops_voyager3_corum": None,
+    "ops_voyager3_enrichment_fdr": 0.05,
     "ops_etest": False,
     "ops_etest_cells": None,
     "ops_etest_metric": 'both',
@@ -952,6 +956,10 @@ OPS_TYPES: Dict[str, object] = {
     "ops_voyager3_shuffle_control": bool,
     "ops_voyager3_resume": bool,
     "ops_voyager3_answers_dir": (str, type(None)),
+    "ops_voyager3_method": str,
+    "ops_voyager3_reactome": (str, type(None)),
+    "ops_voyager3_corum": (str, type(None)),
+    "ops_voyager3_enrichment_fdr": (float, int),
     "ops_etest": bool,
     "ops_etest_cells": (str, type(None)),
     "ops_etest_metric": str,
@@ -1367,6 +1375,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_voyager3_provider", "ops_voyager3_model", "ops_voyager3_timeout",
         "ops_voyager3_shuffle_control", "ops_voyager3_resume",
         "ops_voyager3_answers_dir",
+        "ops_voyager3_method", "ops_voyager3_reactome", "ops_voyager3_corum",
+        "ops_voyager3_enrichment_fdr",
     ],
     "Profile scoring": [
         "ops_scoring_inputs", "ops_scoring_genes", "ops_scoring_metrics",
@@ -2636,6 +2646,28 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - The folder that holds the saved answers, one file "
         "per question. Empty uses answers in results/ops_voyager3. Default "
         "None. Alpha.",
+    "ops_voyager3_method":
+        "(str) - How Voyager3 names a cluster's role. 'ai' asks the AI "
+        "chosen under Preferences. 'enrichment' asks no AI: it tests every "
+        "UniProt GO term and keyword, CORUM complex and Reactome pathway "
+        "against the screen's genes (hypergeometric test, Benjamini-Hochberg "
+        "FDR) and names the best term, with the same confidence words and "
+        "tables, plus a table of every term tested. Default 'ai'. Alpha.",
+    "ops_voyager3_reactome":
+        "(str or None) - A Reactome pathway file (GMT, such as "
+        "ReactomePathways.gmt) for the enrichment method. A copy is kept "
+        "with its checksum and date, so later runs work offline. Empty uses "
+        "no Reactome. Default None. Alpha.",
+    "ops_voyager3_corum":
+        "(str or None) - A CORUM complex table (.txt or .zip) for the "
+        "enrichment method; only human complexes are used. A copy is kept "
+        "with its checksum and date. Empty uses no CORUM. Default None. "
+        "Alpha.",
+    "ops_voyager3_enrichment_fdr":
+        "(float) - The false discovery rate at or below which a term can "
+        "name a cluster in the enrichment method; it also needs at least 3 "
+        "of the cluster's genes and twice the screen's share. Default 0.05. "
+        "Alpha.",
     "ops_consensus_view_columns":
         "(int) - How many TVN columns of ops_consensus_cells (PC_0 on) the "
         "interphase and mitosis profiles use. Default 50. Alpha.",
