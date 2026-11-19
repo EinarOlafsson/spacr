@@ -109,19 +109,24 @@ def test_the_permutation_mode_gives_valid_p_values():
     assert out["table"].set_index("gene").loc["NULL0", "p_e_euclidean"] > 0.05
 
 
-def test_the_guide_null_draws_four_guide_pseudo_genes_from_each_half():
-    test = _test(mode="guide_null", n_holdout=100)
+def test_the_guide_null_draws_exact_profiles_from_disjoint_guide_banks():
+    """Guide-null samples match the requested profile and exclude reference guides."""
+    values, labels, guides = _planted()
+    test = G.EnergyTest(values, labels, guides, mode="guide_null", n_ref=500,
+                        n_null=399, n_holdout=100)
     first, second = test._halves
-    assert len(first) == 15 and len(second) == 15 and not set(first) & set(second)
+    assert len(first) == 10 and len(second) == 10 and not set(first) & set(second)
+    assert set(guides[test._reference_indices]).isdisjoint(set(first) | set(second))
     out = test.score(50, 0)
-    row = out["summary"][1]
-    assert 0.0 <= row["nt_pseudo_p05_pct"] <= 15.0
-    assert out["table"].set_index("gene").loc["NULL0", "p_e_euclidean"] > 0.01
+    assert {row["nt_guides"] for row in out["summary"]} == {len(second)}
     draw = np.random.default_rng(0)
-    cells = test._pseudo_gene(draw, first, 10000)
-    assert 0 < len(cells) <= 4 * 60 and len(np.unique(cells)) == len(cells)
+    cells = test._pseudo_gene(draw, first, (18, 6))
+    assert len(cells) == len(np.unique(cells)) == 24
+    assert sorted(np.unique(guides[cells], return_counts=True)[1].tolist()) == [6, 18]
     assert np.isin(cells, test.rest).all()
-    assert len(test._pseudo_gene(np.random.default_rng(0), first, 5)) == 5
+    assert len(test._pseudo_gene(np.random.default_rng(0), first, (5,))) == 5
+    with pytest.raises(ValueError, match="(?i)(guide|profile|cells)"):
+        test._pseudo_gene(np.random.default_rng(0), first, (10000,))
 
 
 def test_bad_options_are_refused():
@@ -182,7 +187,8 @@ def test_the_etest_phase_writes_tables_power_and_figure(tmp_path):
     folder = _cells_folder(tmp_path)
     settings = {"dst_root": str(tmp_path / "run"), "ops_etest_cells": str(folder),
                 "ops_etest_reference_cells": 500, "ops_etest_null": 99, "ops_etest_holdout": 50,
-                "ops_power_cells": "10,all", "ops_power_seeds": [0, 1], "ops_etest_metric": "euclidean"}
+                "ops_power_cells": "10,all", "ops_power_seeds": [0, 1], "ops_etest_metric": "euclidean",
+                "ops_etest_mode": "empirical_null"}
     out = run_ops(settings, phases=["etest"])
     results = tmp_path / "run" / "results" / "ops_etest"
     table = pd.read_csv(results / "edist_per_gene_nall_s0.csv.gz")
@@ -374,7 +380,8 @@ def test_the_retrieval_curve_scores_every_draw_on_one_gene_list(tmp_path):
     settings = {"dst_root": str(tmp_path / "run"), "ops_etest_cells": str(folder),
                 "ops_etest_reference_cells": 500, "ops_etest_null": 19, "ops_etest_holdout": 10,
                 "ops_power_cells": [10, 50, None], "ops_power_seeds": [0, 1], "ops_power_retrieval": True,
-                "ops_reference_dir": str(refs), "ops_power_gene_list": str(tmp_path / "genes.csv")}
+                "ops_reference_dir": str(refs), "ops_power_gene_list": str(tmp_path / "genes.csv"),
+                "ops_etest_mode": "empirical_null"}
     run_ops(settings, phases=["etest"])
     results = tmp_path / "run" / "results" / "ops_etest"
     genes = pd.read_csv(results / "power_retrieval_genes.csv")

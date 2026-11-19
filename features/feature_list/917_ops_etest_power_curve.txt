@@ -71,3 +71,9 @@ Writes power_retrieval_genes.csv, _summary.csv, _pergene.csv.gz and
 _tests.csv (retrieval.py's columns). Tested against a port of
 retrieval.py on synthetic complexes. Not yet rerun on plate A (design card
 needed).
+
+2026-11-19 TASK S / 978 follow-up (P2), owner Codex Home: use whole-guide permutation over query and NT guides, retaining an independent reference and exact post-cap per-guide cell counts.
+2026-11-19 Requirement: at least 1000 Monte Carlo permutations with add-one correction; report finite randomization resolution and warn when the control pool cannot attain p < 0.05. No hierarchical model or compatibility flag.
+2026-11-19 Acceptance approved in inbox v32: 50 independent screens with at least 160 fitting NT guides, each with 10 fresh null genes per K=2/4/8; prespecified approximate 95% t intervals over screen-level rates and planted-effect detection. No seed tuning.
+2026-11-19 Base: 2f6c677051 supplies the guide_null application defaults, schema 946 and the owner-corrected tooltip; this correction adds no setting or compatibility flag.
+2026-11-19 Status: 29 focused checks pass; first marginal K2 result is 16/500 (3.2%), t CI [1.6339%, 4.7661%], so the required inclusion of 0.05 fails on the low side. Scientific acceptance is pending; no retuning. The earlier conditional K8 failure (62/500) remains in HOME_STATUS.md.

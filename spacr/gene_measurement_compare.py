@@ -4044,6 +4044,7 @@ class EnergyReference:
         """Precompute the reference's own mean distances."""
         self.reference = np.asarray(reference, np.float64)
         distances = _squared_distances(self.reference, self.reference)
+        np.fill_diagonal(distances, 0.0)
         m = len(self.reference)
         self.within_sq = distances.sum() / (m * (m - 1))
         self.within_eu = np.sqrt(distances).sum() / (m * (m - 1))
@@ -4058,6 +4059,7 @@ class EnergyReference:
         n = len(cells)
         cross = _squared_distances(cells, self.reference)
         within = _squared_distances(cells, cells)
+        np.fill_diagonal(within, 0.0)
         return (2 * cross.mean() - within.sum() / (n * (n - 1)) - self.within_sq,
                 2 * np.sqrt(cross).mean() - np.sqrt(within).sum() / (n * (n - 1)) - self.within_eu)
 
@@ -4086,20 +4088,22 @@ class EnergyTest:
         ``min_guide_cells`` cells are scored as their own rows.
     :param control: the control prefix (case-sensitive).
     :param n_ref: control cells in the fixed reference, drawn with
-        ``default_rng(seed)``.
-    :param n_null: control pseudo-genes of the empirical null, drawn from
-        the control cells outside the reference with
-        ``default_rng(seed + 1 + n)``, ``n`` the null's cell count.
-    :param n_holdout: held-out control pseudo-genes, ``default_rng(seed + 2 + n)``,
-        scored against the null: the false-positive rate.
+        ``default_rng(seed)``. Guide-null mode reserves whole guide
+        identities for this reference before drawing its cells.
+    :param n_null: empirical-null pseudo-genes drawn outside the reference
+        with ``default_rng(seed + 1 + n)``, ``n`` the null cell count.
+        Guide-null scoring uses ``max(1000, n_null)`` whole-guide permutations,
+        or all assignments for a smaller exact space. Its diagnostic
+        :meth:`null` retains this requested number of pseudo-genes.
+    :param n_holdout: held-out control pseudo-genes scored against the null.
+        Empirical-null draws use ``default_rng(seed + 2 + n)``; guide-null
+        scoring draws use ``default_rng(seed + 200 + subsample_seed)`` and
+        match the profile frequencies of the scored genes.
     :param seed: the base seed.
     :param mode: ``'empirical_null'`` (the null above), ``'guide_null'``
-        (pseudo-genes of four control guides, the shape of a gene: the
-        control guides outside the reference are split in halves with
-        ``default_rng(seed + 7)``; the null draws four guides of the first
-        half and ``n`` cells of their union, ``default_rng(seed + 11 + n)``,
-        and the held-out control does the same from the second half,
-        ``default_rng(seed + 12 + n)``) or ``'permutation'`` (scPerturb's
+        (whole-guide membership permutations between each query and matched
+        NT blocks, preserving exact per-guide counts after subsampling;
+        reference, NT null and held-out control guides are disjoint), or ``'permutation'`` (scPerturb's
         label permutation of the gene's cells and the reference,
         ``permutations`` times, ``default_rng(seed + 3)``).
     :param permutations: label permutations per gene in permutation mode.
@@ -4108,8 +4112,14 @@ class EnergyTest:
 
     ``score(n, subsample_seed)`` caps every gene and control guide at ``n``
     cells (``default_rng(seed + 100 + subsample_seed)``, genes in sorted
-    order, then the control guides); ``n`` None keeps every cell and draws
-    the null at the median cells per gene.
+    order, then the control guides); ``n`` None keeps every cell. Only
+    empirical-null mode uses one median-sized null. Guide-null mode fixes
+    each NT guide in one capacity-compatible count stratum independently of
+    feature values; exchangeability is conditional on this allocation and
+    the counts. Query guide blocks participate in their permutation null.
+    Assignments use ``default_rng(seed + 300 + subsample_seed)``; Monte Carlo
+    sampling includes the observed assignment and uses add-one p-values.
+    Sparse guide-pair distance sums are reused across matched profiles.
     """
 
     def __init__(self, cells: np.ndarray, labels: Sequence, guides: Sequence, *,
@@ -4123,6 +4133,7 @@ class EnergyTest:
         self.cells = cells
         labels = np.asarray(labels).astype(str)
         guides = np.asarray(guides)
+        self._guides = guides
         nt = np.char.startswith(labels.astype("U"), control)
         nt_index = np.flatnonzero(nt)
         if len(nt_index) <= n_ref:
@@ -4130,23 +4141,393 @@ class EnergyTest:
         self.seed, self.n_null, self.n_holdout = int(seed), int(n_null), int(n_holdout)
         self.mode, self.permutations = mode, int(permutations)
         self.min_cells = int(min_cells)
-        reference = np.random.default_rng(self.seed).choice(nt_index, n_ref, replace=False)
-        self.rest = np.setdiff1d(nt_index, reference)
-        self.reference = EnergyReference(self._rows(reference))
         self.genes = pd.Series(np.arange(len(labels))[~nt]).groupby(labels[~nt]).apply(np.asarray)
         control_guides = pd.Series(nt_index).groupby(guides[nt_index]).apply(np.asarray)
         self.control_guides = control_guides[control_guides.map(len) >= int(min_guide_cells)]
         self._nulls: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
         if mode == "guide_null":
-            pools = pd.Series(self.rest).groupby(guides[self.rest]).apply(np.asarray)
-            names = np.array(sorted(pools.index))
-            order = np.random.default_rng(self.seed + 7).permutation(len(names))
-            self._pools = pools
-            self._halves = (names[order[: len(names) // 2]], names[order[len(names) // 2:]])
+            self._initialize_guide_null(nt_index, control_guides, n_ref)
+        else:
+            self._reference_indices = np.random.default_rng(self.seed).choice(nt_index, n_ref, replace=False)
+            self.rest = np.setdiff1d(nt_index, self._reference_indices)
+        self.reference = EnergyReference(self._rows(self._reference_indices))
+        if mode == "guide_null":
+            count = np.array([len(self._reference_indices)], dtype=np.int64)
+            within = self._prefix_distance_sums(self._reference_indices, self._reference_indices, count, count)[0]
+            self.reference.within_sq, self.reference.within_eu = within / (count[0] * (count[0] - 1))
+
+    def _initialize_guide_null(self, nt_index, pools, n_ref):
+        """Reserve a fixed whole-guide reference bank and split the remaining guides once."""
+        from .qt.i18n import tr
+
+        if (pd.isna(self._guides).any() or len(pools) < 3 or n_ref < 2
+                or self.n_null < 1 or self.n_holdout < 0):
+            raise ValueError(tr("guide_null needs known guide identities, at least three NT guides, "
+                                "two reference cells and positive null draws; provide sufficient controls."))
+        names = pools.index.to_numpy()
+        order = np.random.default_rng(self.seed + 7).permutation(len(names))
+        reserved = max(1, len(names) // 3)
+        capacity = pools.map(len).to_numpy()[order].cumsum()
+        while reserved < len(names) - 1 and capacity[reserved - 1] < n_ref:
+            reserved += 1
+        if reserved > len(names) - 2 or capacity[reserved - 1] < n_ref:
+            raise ValueError(tr("NT guides cannot supply the reference and disjoint null/held-out banks; "
+                                "provide more control guides or request fewer reference cells."))
+        reference_bank = np.concatenate([pools[g] for g in names[order[:reserved]]])
+        self._reference_indices = np.random.default_rng(self.seed).choice(reference_bank, n_ref, replace=False)
+        remaining = names[order[reserved:]]
+        self._pools = pools.loc[remaining]
+        self.rest = np.sort(np.concatenate(self._pools.tolist()))
+        assert not np.intersect1d(reference_bank, self.rest).size
+        assert np.isin(self._reference_indices, nt_index).all()
+        self._halves = (remaining[: len(remaining) // 2], remaining[len(remaining) // 2:])
+        self._pool_rows = self._pools.tolist()
+        self._pool_sizes = np.array([len(rows) for rows in self._pool_rows])
+        positions = {name: position for position, name in enumerate(remaining)}
+        self._half_positions = tuple(np.array([positions[name] for name in half]) for half in self._halves)
+        self._eligibility_sets = {}
+        self._control_cross = None
+        self._permutation_banks = {}
+        self._permutation_bank_bytes = 0
 
     def _rows(self, index: np.ndarray) -> np.ndarray:
         """The embedding rows of ``index``, double precision."""
         return np.asarray(self.cells[index], np.float64)
+
+    def _profile(self, index):
+        """Return the exact positive per-guide cell counts in descending order."""
+        return tuple(sorted(pd.Series(self._guides[index]).value_counts().tolist(), reverse=True))
+
+    def _guide_eligibility(self, profile, half):
+        """Find exact capacity-compatible guide sets for each ordered profile position."""
+        from .qt.i18n import tr
+
+        profile = tuple(int(count) for count in profile)
+        if not profile or min(profile) < 1 or sum(profile) < 2 or profile != tuple(sorted(profile, reverse=True)):
+            raise ValueError(tr("A guide-null profile needs descending positive cell counts totaling at least two."))
+        half_number = 0 if np.array_equal(half, self._halves[0]) else 1
+        if not np.array_equal(half, self._halves[half_number]):
+            raise ValueError(tr("Use the reserved null or held-out NT guide bank for matched sampling."))
+        positions = self._half_positions[half_number]
+        sizes = self._pool_sizes[positions]
+        levels = np.unique(sizes)
+        eligibility = []
+        for number, count in enumerate(profile):
+            key = (half_number, int(np.searchsorted(levels, count)))
+            if key not in self._eligibility_sets:
+                self._eligibility_sets[key] = tuple(int(i) for i in positions[sizes >= count])
+            candidates = self._eligibility_sets[key]
+            if len(candidates) <= number:
+                raise ValueError(tr("The NT guide bank cannot match cell profile {profile} without reuse or "
+                                    "truncation; provide enough distinct control guides with those cell counts.")
+                                 .format(profile=profile))
+            eligibility.append(candidates)
+        return tuple(eligibility)
+
+    def _sample_groups(self, draw, eligibility, counts):
+        """Draw distinct eligible guides and independent cell permutations for exact prefixes."""
+        chosen, groups = set(), []
+        for candidates, count in zip(eligibility, counts):
+            guide = int(draw.choice([value for value in candidates if value not in chosen]))
+            chosen.add(guide)
+            groups.append(draw.permutation(self._pool_rows[guide])[:int(count)])
+        return groups
+
+    def _cross_reference_rows(self, index):
+        """Compute stable per-cell reference means with bounded direct-distance blocks."""
+        from scipy.spatial.distance import cdist
+        from .qt.i18n import tr
+
+        result = np.empty((len(index), 2), dtype=np.float64)
+        width = max(1, min(256, 1048576 // len(self.reference.reference)))
+        for start in range(0, len(index), width):
+            stop = min(start + width, len(index))
+            distances = cdist(self._rows(index[start:stop]), self.reference.reference, metric="sqeuclidean")
+            if not np.isfinite(distances).all():
+                raise ValueError(tr("Guide-null distances must be finite; repair nonfinite or overflowing embedding values."))
+            result[start:stop, 0] = distances.mean(axis=1)
+            np.sqrt(distances, out=distances)
+            result[start:stop, 1] = distances.mean(axis=1)
+        return result
+
+    def _reference_cross_means(self, index):
+        """Compute and cache reference means only for requested control cells."""
+        positions = np.searchsorted(self.rest, index)
+        if np.any(positions >= len(self.rest)) or not np.array_equal(self.rest[positions], index):
+            return self._cross_reference_rows(index)
+        if self._control_cross is None:
+            self._control_cross = np.full((len(self.rest), 2), np.nan)
+        missing = np.unique(positions[np.isnan(self._control_cross[positions, 0])])
+        if len(missing):
+            self._control_cross[missing] = self._cross_reference_rows(self.rest[missing])
+        return self._control_cross[positions]
+
+    def _prefix_distance_sums(self, left, right, left_counts, right_counts):
+        """Sum exact requested distance rectangles while bounding temporary matrix memory."""
+        from scipy.spatial.distance import cdist
+        from .qt.i18n import tr
+
+        a, b = self._rows(left), self._rows(right)
+        result = np.empty((len(left_counts), 2), dtype=np.float64)
+        carry = np.zeros((len(b), 2), dtype=np.float64)
+        width = max(1, min(256, 1048576 // len(b)))
+        for start in range(0, len(a), width):
+            stop = min(start + width, len(a))
+            squared = cdist(a[start:stop], b, metric="sqeuclidean")
+            if not np.isfinite(squared).all():
+                raise ValueError(tr("Guide-null distances must be finite; repair nonfinite or overflowing embedding values."))
+            selected = (left_counts > start) & (left_counts <= stop)
+            for metric in range(2):
+                if metric:
+                    np.sqrt(squared, out=squared)
+                prefix = squared.cumsum(axis=0).cumsum(axis=1)
+                prefix += carry[:, metric]
+                result[selected, metric] = prefix[left_counts[selected] - start - 1,
+                                                  right_counts[selected] - 1]
+                carry[:, metric] = prefix[-1]
+        return result
+
+    def _prefix_energies(self, groups, profiles):
+        """Evaluate exact profiles and retain raw component magnitudes for roundoff bounds."""
+        profiles = np.asarray(profiles, dtype=np.int64)
+        cross = np.zeros((len(profiles), 2), dtype=np.float64)
+        within = np.zeros_like(cross)
+        for number, rows in enumerate(groups):
+            counts = profiles[:, number]
+            prefix = self._reference_cross_means(rows).cumsum(axis=0)
+            cross += prefix[counts - 1]
+            within += self._prefix_distance_sums(rows, rows, counts, counts)
+            for previous in range(number):
+                within += 2 * self._prefix_distance_sums(
+                    groups[previous], rows, profiles[:, previous], counts)
+        total = profiles.sum(axis=1)[:, None]
+        fixed = np.array([self.reference.within_sq, self.reference.within_eu])
+        cross = 2 * cross / total
+        within = within / (total * (total - 1))
+        self._last_prefix_scale = np.abs(cross) + np.abs(within) + np.abs(fixed)
+        return cross - within - fixed
+
+    def _guide_permutation_bank(self, profile):
+        """Fix disjoint, capacity-compatible NT blocks independently of feature values.
+
+        Each distinct cell count defines a stratum. Eligible NT guides are
+        assigned once among compatible strata, weighted by query counts.
+        Strata without NT guides keep their query blocks fixed.
+        Exchangeability is conditional on these counts and this allocation;
+        cells never move between guide blocks. Cached rows and sparse pair
+        sums have eight-entry and conservative 64 MiB accounting limits.
+        """
+        profile = tuple(int(count) for count in profile)
+        if profile in self._permutation_banks:
+            bank = self._permutation_banks.pop(profile)
+            self._permutation_banks[profile] = bank
+            return bank
+        available = self._half_positions[0]
+        available = available[self._pool_sizes[available] >= min(profile)]
+        if not len(available):
+            return {"profile": profile, "supported": False, "rows": (), "strata": (),
+                    "cross": np.empty((0, 2)), "pairs": {}, "cached": False, "bytes": 0}
+        counts, multiplicities = np.unique(profile, return_counts=True)
+        counts, multiplicities = counts[::-1], multiplicities[::-1]
+        draw = np.random.default_rng(np.random.SeedSequence([self.seed, 97, len(profile), *profile]))
+        available = draw.permutation(available)
+        chosen = [[] for _ in counts]
+        first = np.searchsorted(-counts, -self._pool_sizes[available])
+        for start in np.unique(first):
+            candidates = available[first == start]
+            weights = multiplicities[start:].cumsum()
+            allocation = start + np.searchsorted(weights, draw.random(len(candidates)) * weights[-1])
+            for slot in np.unique(allocation):
+                chosen[slot].extend(candidates[allocation == slot].tolist())
+        rows, strata = [], []
+        for count, number, positions in zip(counts, multiplicities, chosen):
+            first = len(rows)
+            rows.extend(draw.permutation(self._pool_rows[position])[:count].copy() for position in positions)
+            strata.append({"cells": int(count), "query_count": int(number),
+                           "nt_indices": tuple(range(first, len(rows)))})
+        rows = tuple(rows)
+        cross = np.full((len(rows), 2), np.nan)
+        size = sum(row.nbytes + 320 for row in rows) + cross.nbytes + 1024 + 1024 * len(strata)
+        bank = {"profile": profile, "supported": True, "rows": rows, "strata": tuple(strata),
+                "cross": cross, "pairs": {}, "cached": False, "bytes": size}
+        limit = 64 * 1024 ** 2
+        while self._permutation_banks and (len(self._permutation_banks) >= 8
+                                         or self._permutation_bank_bytes + size > limit):
+            removed = self._permutation_banks.pop(next(iter(self._permutation_banks)))
+            self._permutation_bank_bytes -= removed["bytes"]
+            removed["cached"] = False
+        if size <= limit:
+            self._permutation_banks[profile] = bank
+            self._permutation_bank_bytes += size
+            bank["cached"] = True
+        return bank
+
+    def _guide_permutation_assignments(self, strata, rng):
+        """Enumerate small spaces or sample the full stratified assignment space.
+
+        Each stratum lists query block indices first, followed by NT block
+        indices, and the number to select. Monte Carlo draws are independent
+        uniform subsets with replacement across draws, including the observed
+        assignment. Exact enumeration omits the observed assignment so the
+        add-one calculation includes it exactly once. Extremely large spaces
+        are reported as power-of-two bounds instead of huge decimal strings.
+        """
+        from itertools import combinations, product
+        from math import comb, prod
+
+        space = prod(comb(len(pool), number) for pool, number in strata)
+        budget = max(1000, self.n_null)
+        observed = np.concatenate([pool[:number] for pool, number in strata])
+        exact = space <= budget + 1
+        if exact:
+            choices = [tuple(combinations(pool, number)) for pool, number in strata]
+            assignments = [np.concatenate(parts) for parts in product(*choices)]
+            assignments = np.asarray([row for row in assignments if not np.array_equal(row, observed)],
+                                     dtype=np.int64).reshape(space - 1, len(observed))
+        else:
+            assignments = np.empty((budget, len(observed)), dtype=np.int64)
+            offset = 0
+            for pool, number in strata:
+                width = max(1, 1048576 // len(pool))
+                for start in range(0, budget, width):
+                    stop = min(start + width, budget)
+                    keys = rng.random((stop - start, len(pool)))
+                    selected = np.argpartition(keys, number - 1, axis=1)[:, :number]
+                    assignments[start:stop, offset:offset + number] = pool[selected]
+                offset += number
+        bits = space.bit_length()
+        description = str(space) if bits <= 4096 else f"[2^{bits - 1},2^{bits})"
+        metadata = {"permutation_space": description, "permutation_draws": len(assignments),
+                    "permutation_resolution": 1 / (space if exact else budget + 1),
+                    "permutation_exact": exact, "permutation_supported": True}
+        return assignments, metadata
+
+    def _guide_pair_sums(self, groups, pairs, bank, query_count, local):
+        """Compute only requested guide-pair sums using bounded direct subtraction.
+
+        Pairs with identical block sizes share vectorized distance work.
+        Large individual rectangles use the bounded cdist prefix reducer.
+        NT-only sums can be reused across genes; conservative per-entry
+        accounting includes dictionary, key, scalar and array overhead.
+        """
+        from .qt.i18n import tr
+
+        total = len(groups)
+        result = np.empty((len(pairs), 2), dtype=np.float64)
+        missing = {}
+        for number, encoded in enumerate(pairs):
+            left, right = divmod(int(encoded), total)
+            nt_key = (left - query_count, right - query_count)
+            value = bank["pairs"].get(nt_key) if left >= query_count else local.get(int(encoded))
+            if value is None:
+                missing.setdefault((len(groups[left]), len(groups[right])), []).append((number, left, right))
+            else:
+                result[number] = value
+        dimension = self.reference.reference.shape[1]
+        for (left_count, right_count), requests in missing.items():
+            width = max(1, 1048576 // max(1, left_count * right_count * dimension))
+            for start in range(0, len(requests), width):
+                selected = requests[start:start + width]
+                if left_count * right_count * dimension > 1048576:
+                    values = np.array([self._prefix_distance_sums(
+                        groups[left], groups[right], np.array([left_count]), np.array([right_count]))[0]
+                        for _, left, right in selected])
+                else:
+                    left_rows = np.stack([groups[left] for _, left, _ in selected])
+                    right_rows = np.stack([groups[right] for _, _, right in selected])
+                    left = self._rows(left_rows)
+                    right = self._rows(right_rows)
+                    differences = left[:, :, None, :] - right[:, None, :, :]
+                    squared = np.einsum("bijd,bijd->bij", differences, differences)
+                    if not np.isfinite(squared).all():
+                        raise ValueError(tr("Guide-null distances must be finite; repair nonfinite or overflowing embedding values."))
+                    values = np.empty((len(selected), 2))
+                    values[:, 0] = squared.sum(axis=(1, 2))
+                    np.sqrt(squared, out=squared)
+                    values[:, 1] = squared.sum(axis=(1, 2))
+                for (number, left, right), value in zip(selected, values):
+                    result[number] = value
+                    retained = (float(value[0]), float(value[1]))
+                    if left >= query_count:
+                        if (bank["cached"] and len(bank["pairs"]) < 100000
+                                and self._permutation_bank_bytes + 320 <= 64 * 1024 ** 2):
+                            bank["pairs"][(left - query_count, right - query_count)] = retained
+                            bank["bytes"] += 320
+                            self._permutation_bank_bytes += 320
+                    elif len(local) < 100000:
+                        local[left * total + right] = retained
+        return result
+
+    def _guide_assignment_energies(self, groups, assignments, bank):
+        """Evaluate whole-guide selections without dense guide or cell distance matrices."""
+        query_count = len(groups) - len(bank["rows"])
+        query_rows = np.concatenate(groups[:query_count])
+        starts = np.r_[0, np.cumsum([len(row) for row in groups[:query_count]])[:-1]]
+        query_cross = np.add.reduceat(self._reference_cross_means(query_rows), starts, axis=0)
+        selected_nt = np.unique(assignments[assignments >= query_count] - query_count)
+        missing = selected_nt[np.isnan(bank["cross"][selected_nt, 0])]
+        if len(missing):
+            nt_rows = [bank["rows"][number] for number in missing]
+            nt_starts = np.r_[0, np.cumsum([len(row) for row in nt_rows])[:-1]]
+            bank["cross"][missing] = np.add.reduceat(
+                self._reference_cross_means(np.concatenate(nt_rows)), nt_starts, axis=0)
+        cross = np.vstack([query_cross, bank["cross"]])
+        counts = np.array([len(rows) for rows in groups], dtype=np.int64)
+        selected_count = assignments.shape[1]
+        left, right = np.triu_indices(selected_count)
+        weights = np.where(left == right, 1, 2)
+        values = np.empty((len(assignments), 2), dtype=np.float64)
+        scales = np.empty_like(values)
+        fixed = np.array([self.reference.within_sq, self.reference.within_eu])
+        width = max(1, 1048576 // max(1, len(left)))
+        local = {}
+        for start in range(0, len(assignments), width):
+            stop = min(start + width, len(assignments))
+            selected = assignments[start:stop]
+            a, b = selected[:, left], selected[:, right]
+            encoded = np.minimum(a, b) * len(groups) + np.maximum(a, b)
+            needed, inverse = np.unique(encoded, return_inverse=True)
+            sums = self._guide_pair_sums(groups, needed, bank, query_count, local)
+            within = (sums[inverse].reshape(len(selected), len(left), 2) * weights[None, :, None]).sum(axis=1)
+            cells = counts[selected].sum(axis=1)[:, None]
+            between = 2 * cross[selected].sum(axis=1) / cells
+            within /= cells * (cells - 1)
+            values[start:stop] = between - within - fixed
+            scales[start:stop] = np.abs(between) + np.abs(within) + np.abs(fixed)
+        return values, scales
+
+    def _guide_permutation_test(self, index, rng):
+        """Test one exact post-cap profile by query-inclusive whole-guide permutations."""
+        from .qt.i18n import tr
+
+        codes, names = pd.factorize(self._guides[index], sort=True)
+        query = [np.asarray(index)[codes == number] for number in range(len(names))]
+        query.sort(key=len, reverse=True)
+        profile = tuple(len(rows) for rows in query)
+        bank = self._guide_permutation_bank(profile)
+        if not bank["supported"]:
+            observed = self._prefix_energies([index], [[len(index)]])[0]
+            return observed, np.ones(2), {"permutation_space": "1", "permutation_draws": 0,
+                "permutation_resolution": 1.0, "permutation_exact": True,
+                "permutation_supported": False, "matched_controls": 0, "stratum_counts": ()}
+        strata = tuple((np.r_[np.flatnonzero(np.asarray(profile) == item["cells"]),
+                              np.asarray(item["nt_indices"], dtype=np.int64) + len(query)], item["query_count"])
+                       for item in bank["strata"])
+        assignments, metadata = self._guide_permutation_assignments(strata, rng)
+        selections = np.vstack([np.arange(len(query)), assignments])
+        values, scales = self._guide_assignment_energies(tuple(query) + bank["rows"], selections, bank)
+        if not np.isfinite(values).all():
+            raise ValueError(tr("Guide-null statistics must be finite; repair the embedding before scoring."))
+        operations = 4 * (len(self.reference.reference) + len(index) + len(query) ** 2
+                          + self.reference.reference.shape[1]) + 8
+        error = operations * np.finfo(np.float64).eps
+        gamma = error / (1 - error)
+        tolerance = gamma * (scales[1:] + scales[0])
+        pvalues = (1 + (values[1:] >= values[0] - tolerance).sum(axis=0)) / (1 + len(assignments))
+        metadata["matched_controls"] = len(bank["rows"])
+        metadata["stratum_counts"] = tuple((item["cells"], item["query_count"], len(item["nt_indices"]))
+                                            for item in bank["strata"])
+        return values[0], pvalues, metadata
 
     def null(self, n: int) -> Tuple[np.ndarray, np.ndarray]:
         """The null and held-out E-statistics of ``n``-cell control pseudo-genes.
@@ -4154,14 +4535,36 @@ class EnergyTest:
         :param n: the pseudo-genes' cell count.
         :returns: ``(null, holdout)``, each ``draws x 2`` (squared Euclidean,
             Euclidean).
+
+        In guide-null mode this diagnostic mixes the exact guide-count
+        profiles obtained by capping eligible real genes to ``n`` cells.
+        It uses NT-only pseudo-genes for effect-size diagnostics, with
+        ``default_rng(seed + 11 + n)`` and ``default_rng(seed + 12 + n)``.
+        Gene p-values instead use query-inclusive whole-guide permutations
+        at their exact observed profiles and do not use these arrays.
         """
         if n not in self._nulls and self.mode == "guide_null":
+            from .qt.i18n import tr
+
+            if not isinstance(n, (int, np.integer)) or n < 2:
+                raise ValueError(tr("A diagnostic guide-null draw needs an integer cell count of at least two."))
+            eligible = [index for index in self.genes.values if len(index) >= n]
+            if not eligible:
+                raise ValueError(tr("No real gene has {cells} cells for the diagnostic null; choose a supported cell count.")
+                                 .format(cells=n))
             sets = []
             for offset, half in ((11, self._halves[0]), (12, self._halves[1])):
                 draw = np.random.default_rng(self.seed + offset + n)
                 count = self.n_null if offset == 11 else self.n_holdout
-                sets.append(np.array([self.reference.energy(self._rows(self._pseudo_gene(draw, half, n)))
-                                      for _ in range(count)]))
+                values = np.empty((count, 2), dtype=np.float64)
+                for number in range(count):
+                    gene = eligible[int(draw.integers(len(eligible)))]
+                    selected = gene if len(gene) == n else draw.choice(gene, n, replace=False)
+                    index = self._pseudo_gene(draw, half, self._profile(selected))
+                    values[number] = self._prefix_energies([index], [[n]])[0]
+                sets.append(values)
+            if len(self._nulls) >= 16:
+                self._nulls.pop(next(iter(self._nulls)))
             self._nulls[n] = (sets[0], sets[1])
         if n not in self._nulls:
             draw = np.random.default_rng(self.seed + 1 + n)
@@ -4173,17 +4576,124 @@ class EnergyTest:
             self._nulls[n] = (null, hold)
         return self._nulls[n]
 
-    def _pseudo_gene(self, draw: np.random.Generator, half: np.ndarray, n: int) -> np.ndarray:
-        """``n`` cells of the union of four control guides drawn from ``half``."""
-        chosen = draw.choice(half, 4, replace=False)
-        cells = np.concatenate([self._pools[g] for g in chosen])
-        return draw.choice(cells, min(n, len(cells)), replace=False)
+    def _pseudo_gene(self, draw: np.random.Generator, half: np.ndarray, profile: Tuple[int, ...]) -> np.ndarray:
+        """Sample every exact profile count from a distinct eligible control guide."""
+        eligibility = self._guide_eligibility(profile, half)
+        return np.concatenate(self._sample_groups(draw, eligibility, profile))
+
+    def _score_guides(self, n, subsample_seed):
+        """Score whole-guide permutations and retain finite-denominator control diagnostics."""
+        import warnings
+        from .qt.i18n import tr
+
+        if n is not None and (not isinstance(n, (int, np.integer)) or n < 2):
+            raise ValueError(tr("Guide-null scoring needs an integer cell cap of at least two, or None for all cells."))
+        draw = np.random.default_rng(self.seed + 100 + int(subsample_seed))
+        heldout_names = set(self._halves[1])
+        items = [(name, index, True) for name, index in self.genes.items()]
+        items.extend((f"NTguide_{name}", index, False) for name, index in self.control_guides.items()
+                     if name in heldout_names)
+        permute = np.random.default_rng(self.seed + 300 + int(subsample_seed))
+        rows, row_pvalues, metadata, gene_profiles, gene_flags = [], [], [], [], []
+        for name, index, is_gene in items:
+            if n is not None and len(index) > n:
+                index = draw.choice(index, n, replace=False)
+            if len(index) < 2 or is_gene and len(index) < self.min_cells:
+                continue
+            if is_gene:
+                gene_profiles.append(self._profile(index))
+            values, pvalues, details = self._guide_permutation_test(index, permute)
+            if not is_gene and not details["permutation_supported"]:
+                pvalues = np.full(2, np.nan)
+            rows.append((name, len(index), values[0], values[1]))
+            row_pvalues.append(pvalues)
+            metadata.append(details)
+            gene_flags.append(is_gene)
+        if not gene_profiles:
+            raise ValueError(tr("No gene has enough cells for guide-null scoring; provide genes meeting min_cells."))
+        is_gene = np.asarray(gene_flags, dtype=bool)
+        supported = np.array([item["permutation_supported"] for item in metadata], dtype=bool)
+        resolutions = np.array([item["permutation_resolution"] for item in metadata])
+        unsupported_genes = int((is_gene & ~supported).sum())
+        unscored = int((~is_gene & ~supported).sum())
+        low_resolution = supported & (resolutions >= 0.05)
+        if unsupported_genes:
+            warnings.warn(tr(
+                "P-values default to one for {count} genes whose exact guide profiles lack matched NT controls; "
+                "provide more eligible control guides.").format(count=unsupported_genes),
+                UserWarning, stacklevel=2)
+        if low_resolution.any():
+            warnings.warn(tr(
+                "Whole-guide permutation resolution cannot attain p < 0.05 for {count} scored rows "
+                "(minimum attainable p {minimum:.6g} to {maximum:.6g}); see permutation_resolution "
+                "and provide more independent matched NT guides.")
+                .format(count=int(low_resolution.sum()), minimum=float(resolutions[low_resolution].min()),
+                        maximum=float(resolutions[low_resolution].max())),
+                UserWarning, stacklevel=2)
+        if unscored:
+            warnings.warn(tr(
+                "P-values are unavailable for {count} held-out NT guides with unsupported cell counts; "
+                "their statistics remain visible. Provide matched control guides for those diagnostics.")
+                .format(count=unscored), UserWarning, stacklevel=2)
+        draw = np.random.default_rng(self.seed + 200 + int(subsample_seed))
+        held_pvalues = np.full((self.n_holdout, 2), np.nan)
+        held_low_resolution = 0
+        for number in range(self.n_holdout):
+            profile = gene_profiles[int(draw.integers(len(gene_profiles)))]
+            try:
+                self._guide_eligibility(profile, self._halves[1])
+            except ValueError:
+                continue
+            index = self._pseudo_gene(draw, self._halves[1], profile)
+            _, pvalues, details = self._guide_permutation_test(index, permute)
+            if details["permutation_supported"]:
+                held_pvalues[number] = pvalues
+                held_low_resolution += details["permutation_resolution"] >= 0.05
+        held_supported = np.isfinite(held_pvalues[:, 0])
+        held_unscored = int((~held_supported).sum())
+        if held_unscored:
+            warnings.warn(tr(
+                "P-values are unavailable for {count} held-out pseudo-genes with unsupported guide profiles; "
+                "provide matched held-out controls.").format(count=held_unscored),
+                UserWarning, stacklevel=2)
+        row_pvalues = np.asarray(row_pvalues)
+        table = pd.DataFrame(rows, columns=["gene", "cells", "e_sqeuclidean", "e_euclidean"])
+        for key in ("permutation_space", "permutation_draws", "permutation_resolution",
+                    "permutation_exact", "permutation_supported"):
+            table[key] = [item[key] for item in metadata]
+        null_cells = int(np.median(table.loc[is_gene, "cells"]))
+        summary = []
+        for number, metric in enumerate(ETEST_METRICS):
+            column = f"e_{metric}"
+            table[f"p_{column}"] = row_pvalues[:, number]
+            table.loc[is_gene, f"q_{column}"] = _bh(table.loc[is_gene, f"p_{column}"])
+            q = table.loc[is_gene, f"q_{column}"]
+            held = (100 * float((held_pvalues[held_supported, number] < 0.05).mean())
+                    if held_supported.any() else float("nan"))
+            nt_p = row_pvalues[~is_gene, number]
+            nt_p = nt_p[np.isfinite(nt_p)]
+            summary.append({
+                "n": "all" if n is None else str(n), "seed": int(subsample_seed), "distance": metric,
+                "genes": int(is_gene.sum()), "hits_q05": int((q < 0.05).sum()),
+                "hit_pct": 100 * float((q < 0.05).mean()), "nt_pseudo_p05_pct": held,
+                "nt_guide_p05_pct": 100 * float((nt_p < 0.05).mean()) if len(nt_p) else float("nan"),
+                "nt_guides": int((~is_gene).sum()),
+                "nt_guides_scored": len(nt_p), "nt_guides_unscored": unscored,
+                "genes_unsupported": unsupported_genes,
+                "genes_low_resolution": int((is_gene & low_resolution).sum()),
+                "nt_guides_low_resolution": int((~is_gene & low_resolution).sum()),
+                "nt_pseudo_scored": int(held_supported.sum()), "nt_pseudo_unscored": held_unscored,
+                "nt_pseudo_low_resolution": int(held_low_resolution),
+                "genes_p05_pct": 100 * float((table.loc[is_gene, f"p_{column}"] < 0.05).mean()),
+                "null_cells": null_cells})
+        return {"table": table, "summary": summary}
 
     def _permutation_p(self, x: np.ndarray, observed: Tuple[float, float],
                        rng: np.random.Generator) -> Tuple[float, float]:
         """scPerturb's E-test p of one gene by permuting the pooled labels."""
         pooled = np.vstack([x, self.reference.reference])
         squared = _squared_distances(pooled, pooled)
+        np.fill_diagonal(squared, 0.0)
         roots = np.sqrt(squared)
         n, total = len(x), len(pooled)
         exceed = np.zeros(2)
@@ -4210,7 +4720,21 @@ class EnergyTest:
             named ``NTguide_<guide>``. ``summary`` has one row per metric:
             genes, hits at q < 0.05, the held-out pseudo-genes' and control
             guides' shares at p < 0.05.
+
+        Guide-null p-values permute intact query and NT guide blocks within
+        exact cell-count strata; only held-out NT guides appear as diagnostic
+        rows. Its held-out pseudo-genes follow the frequency of profiles
+        among scored genes. The table adds ``permutation_space`` (decimal
+        string, or power-of-two bounds for huge spaces), ``permutation_draws``,
+        ``permutation_resolution``, ``permutation_exact`` and
+        ``permutation_supported``. Exact enumeration excludes the observed
+        assignment from the draw count and adds it once to the denominator.
+        Unsupported genes retain p=1; unsupported optional diagnostics retain
+        NaN. Summary counts identify unsupported and coarse-resolution rows,
+        and false-positive diagnostic percentages use only finite p-values.
         """
+        if self.mode == "guide_null":
+            return self._score_guides(n, subsample_seed)
         null_cells = int(np.median(self.genes.map(len))) if n is None else int(n)
         null, hold = self.null(null_cells) if self.mode != "permutation" else (None, None)
         draw = np.random.default_rng(self.seed + 100 + int(subsample_seed))
