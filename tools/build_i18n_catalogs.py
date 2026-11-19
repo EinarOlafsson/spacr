@@ -4755,6 +4755,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "ml.py")
     paths.add(ROOT / "spacr" / "power_model.py")
     paths.add(ROOT / "spacr" / "uniprot.py")
+    paths.add(ROOT / "spacr" / "validate.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4789,6 +4790,13 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
+        if path == source_root / "validate.py":
+            # Only the regression preflight findings shown before a run are
+            # catalogued; the other settings checks stay English for now.
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in {"_check_regression_inputs",
+                                           "_check_regression_score_columns"}]
         if path == source_root / "uniprot.py":
             # The busy-UniProt notice the gene annotation shows is the
             # module's only caption; cache and request prose stays internal.
