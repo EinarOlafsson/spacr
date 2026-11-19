@@ -146,12 +146,13 @@ def test_editing_refuses_unknown_cells_bad_pixels_and_labels(tmp_path):
 
 
 def test_snapshots_that_disagree_about_a_frame_are_not_merged(tmp_path):
+    """Conflicting frame identities remain rejected with the revised error wording."""
     state, *_rest, first, _second = _divided(tmp_path)
     other = copy.deepcopy(state)
     other["frame_ids"][first] = str(uuid4())
     other["cells"] = {}
     other["frames"] = {}
-    with pytest.raises(ValueError, match="disagree about a frame's identity"):
+    with pytest.raises(ValueError, match="disagree about frame identity"):
         engine.merge_lineage_states(state, other)
 
 
