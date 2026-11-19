@@ -108,6 +108,7 @@ GROUPS = (
         ("Merge routes: tile pattern, well mosaic, automatic fallback", (962,)),
         ("Pathogen and organelle objects per cell, carried into gene profiles", (970,)),
         ("spaCR store: Parquet tables, Zarr crops, one DuckDB catalog", (974,)),
+        ("OME-Zarr images and ragged crops, any-channel Annotate roles", (983,)),
     )),
     ("OPS genotyping", (
         ("OPS spacer-prefix decode with quality classes",

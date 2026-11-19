@@ -135,6 +135,7 @@ __all__ = [
     "PngCropSource",
     "MergedCropSource",
     "resolve_crop_source",
+    "measured_masks_state",
     "CROP_FORMAT_LEGACY_BGR",
     "CROP_FORMAT_RGB",
     "CROP_FORMAT_CURRENT",
@@ -288,6 +289,50 @@ def _measured_masks_stamp(merged_path: str) -> Optional[Tuple[int, int]]:
     return (int(st.st_mtime_ns), int(st.st_size))
 
 
+#: Stale measured-mask records already reported in this process.
+_STALE_MEASURED_NOTED: set = set()
+
+
+def _note_stale_measured_masks(path: str) -> None:
+    """Say once per record that a stale measured-mask record is being ignored."""
+    if path in _STALE_MEASURED_NOTED:
+        return
+    _STALE_MEASURED_NOTED.add(path)
+    print(f"crops: {path} was made from older label planes than the field now "
+          f"holds (segmented again since Measure ran); its crops are cut from the "
+          f"field's current labels, which the measurements may not describe")
+
+
+def measured_masks_state(merged_path: str) -> str:
+    """Whether a field's measured-mask record applies to the field as it is now.
+
+    :class:`MergedField` uses a current record and ignores a stale one (the
+    field was segmented again after Measure ran), cutting crops from the
+    field's own labels. A converter or an exporter that must reproduce what
+    Measure measured asks here first and refuses ``'stale'``.
+
+    :param merged_path: the ``merged/<field>.npy``.
+    :returns: ``'none'`` (no record), ``'current'`` or ``'stale'``.
+    :raises CorruptMergedFile: the record exists but cannot be read.
+    """
+    path = _measured_masks_path(merged_path)
+    if not os.path.isfile(path):
+        return "none"
+    array = np.load(merged_path, mmap_mode="r", allow_pickle=False)
+    if array.ndim == 4 and array.shape[0] == 1:
+        array = array[0]
+    try:
+        with np.load(path, allow_pickle=False) as record:
+            dims = [int(dim) for dim in record["source_dims"]]
+            if any(not 0 <= dim < int(array.shape[-1]) for dim in dims):
+                return "stale"
+            digest = str(record["source_digest"])
+    except (OSError, KeyError, ValueError) as exc:
+        raise CorruptMergedFile(
+            f"cannot read measured-mask record {path}: {exc}") from exc
+    return "current" if digest == _label_planes_digest(array, dims) else "stale"
+
+
 def _read_measured_masks(merged_path: str, array) -> Dict[Any, np.ndarray]:
     """The measured planes recorded for a field, keyed by plane index.
 
@@ -309,6 +354,7 @@ def _read_measured_masks(merged_path: str, array) -> Dict[Any, np.ndarray]:
             if any(not 0 <= dim < int(array.shape[-1]) for dim in dims):
                 return {}
             if str(record["source_digest"]) != _label_planes_digest(array, dims):
+                _note_stale_measured_masks(path)
                 return {}
             out: Dict[Any, np.ndarray] = {
                 int(key[len("plane_"):]): record[key]

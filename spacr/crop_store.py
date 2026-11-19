@@ -29,7 +29,8 @@ __all__ = ["CROP_COLUMNS", "CropPoolWriter", "CropSink", "cut_crops",
            "record_measure_crops", "record_measure_field_crops",
            "OmeZarrCropSource", "ome_zarr_crops_exist", "ROLE_COLOURS",
            "composite_crop", "load_channel_presets", "save_channel_preset",
-           "parse_channel_roles", "format_channel_roles", "legacy_png_view"]
+           "parse_channel_roles", "format_channel_roles", "legacy_png_view",
+           "read_commit", "discard_uncommitted", "pool_attributes", "committed_rows"]
 
 #: The ssCell_Crops columns, in order (item 984).
 CROP_COLUMNS: Tuple[str, ...] = (
@@ -106,11 +107,25 @@ class CropPoolWriter:
     :param crops_per_shard: crops per pool shard (default 4096). Each shard
         is buffered until full (or :meth:`close`) and written whole, so no
         shard is ever rewritten.
+    :param attributes: metadata of this class's pools, stored on the class
+        group under ``spacr`` (for example ``channel_names``,
+        ``pixel_size_um``, ``settings_hash``, ``relationship_columns``,
+        ``source``). ``dtype``, ``channels``, ``compression``,
+        ``crops_per_shard`` and ``spacr_version`` are added. A key that is
+        already stored with another value is refused, so pools of one class
+        never mix channel orders or settings.
+
+    Pools are written whole as they fill. :meth:`commit` then records them,
+    with their table rows, as the class's committed set; a stopped run
+    leaves pools that no commit lists, and :meth:`discard_uncommitted`
+    removes them before a rerun. :meth:`read_commit` gives back what was
+    committed, so a converter or a resumed run can skip the wells it has.
     """
 
     def __init__(self, project: Any, plate: str, well: str, object_type: str,
                  channels: int, dtype: Any = np.uint16, *,
-                 crops_per_shard: int = DEFAULT_CROPS_PER_SHARD):
+                 crops_per_shard: int = DEFAULT_CROPS_PER_SHARD,
+                 attributes: Optional[Mapping[str, Any]] = None):
         """Open the well's crop store and start an empty shard buffer."""
         from .ome_zarr import require_zarr
         from .store import _encoded
@@ -133,12 +148,67 @@ class CropPoolWriter:
             self._shard += 1
         self._buffer: List[Dict[str, Any]] = []
         self.rows: List[Dict[str, Any]] = []
+        self.pools: List[str] = []
+        self._set_attributes(dict(attributes or {}))
+
+    def _set_attributes(self, attributes: Dict[str, Any]) -> None:
+        """Store the class's pool attributes; refuse a conflicting value."""
+        from ._version import __version__
+
+        group_path = self.path / self.object_type
+        group_path.mkdir(parents=True, exist_ok=True)
+        group = self.zarr.open_group(str(group_path), mode="a", zarr_format=3)
+        stored = dict(group.attrs.get("spacr") or {})
+        wanted = {"dtype": self.dtype.str, "channels": self.channels,
+                  "compression": "zstd-3", "crops_per_shard": self.crops_per_shard,
+                  **json.loads(json.dumps(attributes, default=str))}
+        fixed = ("dtype", "channels", "compression", "channel_names",
+                 "pixel_size_um", "settings_hash", "relationship_columns")
+        for key, value in wanted.items():
+            if key in fixed and key in stored and stored[key] != value:
+                raise ValueError(
+                    f"{group_path}: {key} is {stored[key]!r} in the stored pools, "
+                    f"not {value!r}; write this class to a new store")
+        stored.update(wanted)
+        stored.setdefault("spacr_version", str(__version__))
+        group.attrs["spacr"] = stored
+        self.attributes = stored
+
+    def commit(self) -> Dict[str, Any]:
+        """Close the writer and record its pools and rows as committed.
+
+        The rows go to ``<class>/rows.jsonl`` and the record to
+        ``<class>/spacr_commit.json``, each under a temporary name and then
+        renamed, record last. Earlier commits of the class are kept: the
+        record lists every committed pool and row.
+
+        :returns: the commit record, with its ``rows``.
+        """
+        rows = self.close()
+        previous = read_commit(self.project, self.plate, self.well, self.object_type)
+        pools = list(previous["pools"]) if previous else []
+        all_rows = list(previous["rows"]) if previous else []
+        pools += [p for p in self.pools if p not in pools]
+        all_rows += rows
+        base = self.path / self.object_type
+        _atomic_write(base / "rows.jsonl", "".join(
+            json.dumps(r, default=_json_default, sort_keys=True) + "\n" for r in all_rows))
+        record = {"version": 1, "plate": self.plate, "well": self.well,
+                  "object_type": self.object_type, "pools": pools,
+                  "n_rows": len(all_rows), "attributes": self.attributes}
+        _atomic_write(base / "spacr_commit.json",
+                      json.dumps(record, indent=1, default=_json_default) + "\n")
+        self.rows = []
+        self.pools = []
+        return {**record, "rows": all_rows}
 
     def add(self, crops: Iterable[Mapping[str, Any]], **identity: Any) -> None:
         """Queue crops from :func:`cut_crops`, with their identity columns.
 
         :param identity: ``field``, ``timepoint`` and any other columns every
             crop of this call shares.
+
+        :param crops: crops from :func:`cut_crops`, in the order they are stored.
         """
         for crop in crops:
             pixels = np.asarray(crop["pixels"])
@@ -172,6 +242,7 @@ class CropPoolWriter:
             offset += size
         name = str(self._shard)
         self._shard += 1
+        self.pools.append(name)
         chunk = max(1, -(-total // 16)) if total else 1
         for kind, array, chunks, shards in (
                 ("pool", pool, (self.channels, chunk), (self.channels, chunk * 16)),
@@ -214,6 +285,134 @@ class CropPoolWriter:
                     "pixels", "mask", "field", "timepoint", "object_label",
                     "object_id", "bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1",
                     "margin_px", "clipped_at_edge")}})
+
+
+def _json_default(value: Any) -> Any:
+    """JSON for numpy scalars and paths in crop rows and records."""
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, Path):
+        return value.as_posix()
+    raise TypeError(f"cannot store {type(value).__name__} in a crop record")
+
+
+def _atomic_write(path: Path, text: str) -> None:
+    """Write ``text`` under a temporary name, then rename it into place."""
+    tmp = path.with_name(f".{path.name}.tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def _class_dir(project: Any, plate: str, well: str, object_type: str) -> Path:
+    """``<project>/crops/plate=<P>/well=<W>.zarr/<class>``."""
+    from .store import _encoded
+
+    return (Path(project) / "crops" / f"plate={_encoded(plate)}"
+            / f"well={_encoded(well)}.zarr" / str(object_type))
+
+
+def read_commit(project: Any, plate: str, well: str,
+                object_type: str) -> Optional[Dict[str, Any]]:
+    """What :meth:`CropPoolWriter.commit` recorded for one well and class.
+
+    :param project: the project folder.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param object_type: the object class.
+    :returns: the record with its ``rows``, or None when nothing is committed.
+    """
+    base = _class_dir(project, plate, well, object_type)
+    record_path = base / "spacr_commit.json"
+    if not record_path.is_file():
+        return None
+    record = json.loads(record_path.read_text(encoding="utf-8"))
+    lines = (base / "rows.jsonl").read_text(encoding="utf-8").splitlines()
+    rows = [json.loads(line) for line in lines if line.strip()]
+    if len(rows) != int(record["n_rows"]):
+        raise ValueError(f"{base}: the commit lists {record['n_rows']} rows, "
+                         f"rows.jsonl holds {len(rows)}")
+    return {**record, "rows": rows}
+
+
+#: Row columns that say where a crop is stored, rebuilt by every write.
+_LAYOUT_COLUMNS = ("object_type", "plate", "row", "column", "well", "crop_store",
+                   "crop_array", "crop_index", "offset", "height", "width",
+                   "mask_offset", "png_path", "field", "timepoint")
+
+
+def _crop_from_row(project: Any, row: Mapping[str, Any]
+                   ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """A committed crop read back as ``(crop, identity)`` for a new writer."""
+    pixels, mask = read_crop(project, row)
+    crop = {k: v for k, v in row.items() if k not in _LAYOUT_COLUMNS}
+    crop.update(pixels=pixels, mask=mask)
+    return crop, {"field": row.get("field"), "timepoint": row.get("timepoint")}
+
+
+def committed_rows(project: Any) -> List[Dict[str, Any]]:
+    """Every committed crop row of the project, by plate, well and class.
+
+    :param project: the project folder holding ``crops/``.
+    :returns: the rows :meth:`CropPoolWriter.commit` recorded, in path order.
+    """
+    rows: List[Dict[str, Any]] = []
+    for record in sorted((Path(project) / "crops").glob(
+            "plate=*/well=*.zarr/*/spacr_commit.json")):
+        meta = json.loads(record.read_text(encoding="utf-8"))
+        found = read_commit(project, meta["plate"], meta["well"], meta["object_type"])
+        rows.extend(found["rows"] if found else [])
+    return rows
+
+
+def discard_uncommitted(project: Any, plate: str, well: str,
+                        object_type: str) -> List[str]:
+    """Remove the pools of one well and class that no commit lists.
+
+    A stopped run leaves whole pools it never committed, and temporary
+    folders; a rerun calls this first, so the class holds only committed
+    pools and new ones are numbered after them.
+
+    :param project: the project folder.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param object_type: the object class.
+    :returns: the pool names removed.
+    """
+    base = _class_dir(project, plate, well, object_type)
+    record = read_commit(project, plate, well, object_type)
+    keep = set(record["pools"]) if record else set()
+    removed = []
+    for kind in ("pool", "mask"):
+        folder = base / kind
+        if not folder.is_dir():
+            continue
+        for entry in sorted(folder.iterdir()):
+            if entry.name == "zarr.json":
+                continue
+            if entry.name.startswith(".") or entry.name not in keep:
+                shutil.rmtree(entry) if entry.is_dir() else entry.unlink()
+                if kind == "pool" and not entry.name.startswith("."):
+                    removed.append(entry.name)
+    return removed
+
+
+def pool_attributes(project: Any, plate: str, well: str,
+                    object_type: str) -> Dict[str, Any]:
+    """The attributes stored on one well's class group (see :class:`CropPoolWriter`).
+
+    :param project: the project folder.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param object_type: the object class.
+    :returns: the ``spacr`` attributes; empty when the class has none.
+    """
+    from .ome_zarr import require_zarr
+
+    base = _class_dir(project, plate, well, object_type)
+    if not (base / "zarr.json").is_file():
+        return {}
+    group = require_zarr().open_group(str(base), mode="r")
+    return dict(group.attrs.get("spacr") or {})
 
 
 def read_crop(project: Any, row: Mapping[str, Any], *, context: bool = True,
@@ -263,6 +462,7 @@ def export_crops(project: Any, rows: Iterable[Mapping[str, Any]], out_dir: Any,
         ``'npy'`` (``(C, h, w)``) or ``'png'`` (first three channels, 8-bit
         only, as PNG (Legacy) crops are).
     :returns: the files written.
+    :param project: the project folder holding ``crops/``.
     """
     fmt = str(fmt).lower()
     if fmt not in ("tiff", "npy", "png"):
@@ -360,6 +560,7 @@ class CropSink:
         """Index the plan and start with no open writers."""
         self.project = Path(project)
         self.index = {os.path.basename(str(f)): i for i, f in enumerate(plan)}
+        self.plan_fields = {_field_parts(name) for name in self.index}
         self.crops_per_shard = int(crops_per_shard)
         self.next = 0
         self.pending: Dict[int, List[Mapping[str, Any]]] = {}
@@ -371,6 +572,9 @@ class CropSink:
         Measure sends a field's classes in one call. A later call for a field
         already written (a further class) is written at once: Measure commits
         one field's packet as a unit, so no other field came between.
+
+        :param file: the field's file name, as in the plan.
+        :param payloads: one entry per object class, as :func:`record_measure_field_crops` builds them.
         """
         position = self.index.get(os.path.basename(str(file)))
         if position is None:
@@ -389,24 +593,64 @@ class CropSink:
             key = (str(payload["plate"]), str(payload["well"]), str(payload["object_type"]))
             writer = self.writers.get(key)
             if writer is None:
-                writer = self.writers[key] = CropPoolWriter(
-                    self.project, *key, int(payload["channels"]),
-                    payload["dtype"], crops_per_shard=self.crops_per_shard)
+                writer = self.writers[key] = self._fresh_writer(
+                    key, int(payload["channels"]), payload["dtype"])
             writer.add(payload["crops"], **payload["identity"])
 
+    def _fresh_writer(self, key: Tuple[str, str, str], channels: int,
+                      dtype: Any) -> "CropPoolWriter":
+        """A writer that replaces this run's fields of one well and class.
+
+        A rerun must not append: the class's committed crops of fields this
+        run measures again are dropped, crops of the well's other fields (a
+        resumed run measures only some) are carried over first, in their
+        committed order, and the class is written afresh, so a rerun gives
+        the pools and rows of a clean run.
+        """
+        plate, well, object_type = key
+        redo = {fld for (p, w, fld) in self.plan_fields if (p, w) == (plate, well)}
+        discard_uncommitted(self.project, plate, well, object_type)
+        prior = read_commit(self.project, plate, well, object_type)
+        kept = [_crop_from_row(self.project, row) for row in (prior or {}).get("rows", [])
+                if row.get("field") not in redo]
+        class_dir = _class_dir(self.project, plate, well, object_type)
+        if class_dir.exists():
+            shutil.rmtree(class_dir)
+        writer = CropPoolWriter(self.project, plate, well, object_type, channels,
+                                dtype, crops_per_shard=self.crops_per_shard)
+        for crop, identity in kept:
+            writer.add([crop], **identity)
+        return writer
+
     def close(self) -> List[Dict[str, Any]]:
-        """Write the fields still waiting, in plan order, then every last shard."""
+        """Write the fields still waiting, in plan order, then commit every writer.
+
+        A class of a planned well that this run found no objects of is
+        rewritten too, so its crops of the measured fields go.
+        """
         for position in sorted(self.pending):
             self._write(self.pending.pop(position))
+        for plate, well in sorted({(p, w) for (p, w, _f) in self.plan_fields}):
+            store = _class_dir(self.project, plate, well, "x").parent
+            for class_dir in sorted(store.glob("*/spacr_commit.json")):
+                key = (plate, well, class_dir.parent.name)
+                if key not in self.writers:
+                    attrs = pool_attributes(self.project, *key)
+                    self.writers[key] = self._fresh_writer(
+                        key, int(attrs["channels"]), np.dtype(attrs["dtype"]))
         rows: List[Dict[str, Any]] = []
         for key in sorted(self.writers):
-            rows.extend(self.writers[key].close())
+            rows.extend(self.writers[key].commit()["rows"])
         return rows
 
 
 def open_measure_sink(project: Any, plan: Sequence[str], *,
                       crops_per_shard: int = DEFAULT_CROPS_PER_SHARD) -> CropSink:
-    """Start the crop sink of one Measure run in this (the writing) process."""
+    """Start the crop sink of one Measure run in this (the writing) process.
+
+    :param project: the project folder (the measurements folder's parent).
+    :param plan: the run's field files, in the order they are committed.
+    """
     sink = CropSink(project, plan, crops_per_shard=crops_per_shard)
     _SINKS[os.path.abspath(os.fspath(project))] = sink
     return sink
@@ -414,7 +658,12 @@ def open_measure_sink(project: Any, plan: Sequence[str], *,
 
 def receive_measure_crops(project: Any, file: str,
                           payloads: Sequence[Mapping[str, Any]]) -> None:
-    """Pass one field's crops to the run's sink (the parent's write handler)."""
+    """Pass one field's crops to the run's sink (the parent's write handler).
+
+    :param project: the project folder the sink was opened for.
+    :param file: the field's file name.
+    :param payloads: the field's crops, one entry per object class.
+    """
     sink = _SINKS.get(os.path.abspath(os.fspath(project)))
     if sink is None:
         raise RuntimeError(f"no crop sink is open for {project}")
@@ -424,7 +673,12 @@ def receive_measure_crops(project: Any, file: str,
 def close_measure_sink(project: Any, db_path: Any) -> int:
     """Close the run's sink and write its rows as the ``ssCell_Crops`` table.
 
-    :returns: the number of crops written.
+    The table lists every committed crop of the project, so the wells a
+    resumed run did not touch stay in it.
+
+    :returns: the number of crops this run's wells and classes now hold.
+    :param project: the project folder the sink was opened for.
+    :param db_path: the ``measurements.db`` that receives ``ssCell_Crops``.
     """
     import pandas as pd
 
@@ -433,14 +687,15 @@ def close_measure_sink(project: Any, db_path: Any) -> int:
     sink = _SINKS.pop(os.path.abspath(os.fspath(project)), None)
     if sink is None:
         return 0
-    rows = sink.close()
+    written = len(sink.close())
+    rows = committed_rows(project)
     if rows:
         frame = pd.DataFrame(rows)
         ordered = [c for c in CROP_COLUMNS if c in frame.columns]
         frame = frame[ordered + [c for c in frame.columns if c not in ordered]]
         write_database(frame, os.fspath(db_path), "ssCell_Crops",
                        if_exists="replace", canonicalise=False)
-    return len(rows)
+    return written
 
 
 def record_measure_crops(settings: Mapping[str, Any], file_name: str,
@@ -451,6 +706,13 @@ def record_measure_crops(settings: Mapping[str, Any], file_name: str,
     A field with several classes goes through
     :func:`record_measure_field_crops` in one call instead, so the sink
     takes the whole field at once.
+
+    :param settings: the Measure settings (``src`` names the merged folder).
+    :param file_name: the field's file name, ``<plate>_<well>_<field>``.
+    :param object_type: the object class, e.g. ``'cell'``.
+    :param crops: crops from :func:`cut_crops`.
+    :param channels: the number of stored channels.
+    :param dtype: the stored dtype.
     """
     record_measure_field_crops(settings, file_name,
                                [(object_type, crops, channels, dtype)])
@@ -467,6 +729,9 @@ def record_measure_field_crops(settings: Mapping[str, Any], file_name: str,
     the parent's sink through the write queue; in a single-process run they go
     to the sink directly. Either way only the parent writes the store, and it
     takes the field whole, so fields commit in plan order.
+
+    :param settings: the Measure settings (``src`` names the merged folder).
+    :param file_name: the field's file name, ``<plate>_<well>_<field>``.
     """
     from .database_concurrency import _capture_write_operation
 
@@ -606,17 +871,26 @@ class OmeZarrCropSource(_lazy_crop_source_base()):
         return table.loc[object_id].to_dict()
 
     def resolve(self, row: Any) -> str:
-        """``crops/plate=P/well=W.zarr::<class>/pool/<k>@<offset>`` for ``row``."""
+        """``crops/plate=P/well=W.zarr::<class>/pool/<k>@<offset>`` for ``row``.
+
+        :param row: as for :meth:`get`.
+        """
         crop = self._crop_row(row)
         return f"{crop['crop_store']}::{crop['crop_array']}@{int(crop['offset'])}"
 
     def get_raw(self, row: Any) -> Tuple[np.ndarray, np.ndarray]:
-        """The stored crop: ``(pixels (C, h, w) in its dtype, mask (h, w) bool)``."""
+        """The stored crop: ``(pixels (C, h, w) in its dtype, mask (h, w) bool)``.
+
+        :param row: as for :meth:`get`.
+        """
         return read_crop(self.root, self._crop_row(row), context=self.context,
                          size=self.size)
 
     def get(self, row: Any) -> np.ndarray:
-        """The crop for ``row`` as a ``(H, W, 3)`` uint8 RGB array (display stretch)."""
+        """The crop for ``row`` as a ``(H, W, 3)`` uint8 RGB array (display stretch).
+
+        :param row: an ``ssCell_Crops`` row, or a row naming the object (see the class).
+        """
         pixels, _mask = self.get_raw(row)
         picked = self.channels if self.channels is not None else list(
             range(min(3, pixels.shape[0])))
@@ -722,7 +996,10 @@ PRESETS_FILE = Path("settings") / "annotate_channel_presets.json"
 
 
 def load_channel_presets(project: Any) -> Dict[str, List[Dict[str, Any]]]:
-    """The project's saved channel-role presets, ``{name: roles}``; empty when none."""
+    """The project's saved channel-role presets, ``{name: roles}``; empty when none.
+
+    :param project: the project folder.
+    """
     path = Path(project) / PRESETS_FILE
     if not path.is_file():
         return {}
@@ -732,7 +1009,12 @@ def load_channel_presets(project: Any) -> Dict[str, List[Dict[str, Any]]]:
 
 def save_channel_preset(project: Any, name: str,
                         roles: Sequence[Mapping[str, Any]]) -> Path:
-    """Save ``roles`` as preset ``name`` for this project (checked by a test render)."""
+    """Save ``roles`` as preset ``name`` for this project (checked by a test render).
+
+    :param project: the project folder.
+    :param name: the preset's name; an existing preset of that name is replaced.
+    :param roles: channel roles, as :func:`composite_crop` takes them.
+    """
     roles = [dict(r) for r in roles]
     channels = [r.get("channel", 0) for r in roles if r.get("channel") != "mask"]
     probe = np.zeros((max([int(c) for c in channels] + [0]) + 1, 4, 4), np.uint16)
@@ -755,6 +1037,8 @@ def parse_channel_roles(text: str) -> List[Dict[str, Any]]:
     then ``key=value`` options. For example
     ``0:image:blue; 1:image:green:gamma=1.5:range=100-4000;
     mask:outline:yellow:width=2; 3:outline:magenta:threshold=900``.
+
+    :param text: the roles in the one-line form.
     """
     roles: List[Dict[str, Any]] = []
     for part in str(text or "").split(";"):
@@ -791,7 +1075,10 @@ def parse_channel_roles(text: str) -> List[Dict[str, Any]]:
 
 
 def format_channel_roles(roles: Sequence[Mapping[str, Any]]) -> str:
-    """The one-line form of ``roles``; :func:`parse_channel_roles` reads it back."""
+    """The one-line form of ``roles``; :func:`parse_channel_roles` reads it back.
+
+    :param roles: channel roles, as :func:`composite_crop` takes them.
+    """
     parts = []
     for role in roles:
         fields = [str(role.get("channel", 0)), str(role.get("role", "image")),
@@ -822,6 +1109,8 @@ def legacy_png_view(project: Any, row: Mapping[str, Any], png_size: Sequence[int
     :param planes: the stored channels in PNG file order (red, green, blue),
         positions in the crop's own channel list.
     :returns: ``(height, width, len(planes))``, in the stored dtype.
+    :param project: the project folder holding ``crops/``.
+    :param row: the crop's ``ssCell_Crops`` row.
     """
     from scipy import ndimage
 

@@ -153,3 +153,57 @@ def test_two_measure_workers_write_the_same_crops_as_one(tmp_path):
     assert one[cols].equals(two[cols])
     for a, b in zip(one.to_dict("records"), two.to_dict("records")):
         assert np.array_equal(read_crop(root1, a)[0], read_crop(root2, b)[0])
+
+
+def _store_bytes(root):
+    store = root / "crops"
+    return {str(p.relative_to(store)): p.read_bytes()
+            for p in sorted(store.rglob("*")) if p.is_file()}
+
+
+def test_a_measure_rerun_replaces_the_wells_crops_as_a_clean_run_writes_them(tmp_path):
+    from spacr.measure import measure_crop
+
+    clean_root = tmp_path / "clean"
+    merged, _image, _cells = _plate(clean_root)
+    measure_crop(_settings(merged, crop_image_format="ome-zarr",
+                           crop_mode=["cell", "nucleus"]))
+    rerun_root = tmp_path / "rerun"
+    merged2, _image, _cells = _plate(rerun_root)
+    for _ in range(2):
+        measure_crop(_settings(merged2, crop_image_format="ome-zarr",
+                               crop_mode=["cell", "nucleus"]))
+    assert _store_bytes(rerun_root) == _store_bytes(clean_root)
+    clean, rerun = _crop_table(clean_root), _crop_table(rerun_root)
+    assert len(rerun) == 4 and rerun.equals(clean)
+
+
+def test_a_rerun_of_some_fields_keeps_the_others_and_matches_a_clean_run(tmp_path):
+    from spacr.crop_store import CropSink, committed_rows, cut_crops
+
+    rng = np.random.default_rng(4)
+    labels = np.zeros((30, 30), np.int32)
+    labels[2:10, 2:12] = 1
+    labels[15:28, 14:29] = 2
+    fields = {i: rng.integers(0, 999, (2, 30, 30)).astype(np.uint16) for i in (1, 2, 3)}
+
+    def payload(i):
+        return [{"plate": "plate1", "well": "A01", "object_type": "cell",
+                 "channels": 2, "dtype": "<u2",
+                 "identity": {"field": i, "timepoint": None},
+                 "crops": [{**c, "object_id": f"plate1_A01_{i}_cell_{c['object_label']}"}
+                           for c in cut_crops(fields[i], labels)]}]
+
+    def run(root, which):
+        sink = CropSink(root, [f"plate1_A01_{i}.npy" for i in which], crops_per_shard=3)
+        for i in which:
+            sink.receive(f"plate1_A01_{i}.npy", payload(i))
+        sink.close()
+
+    run(tmp_path / "clean", [1, 2, 3])
+    run(tmp_path / "resumed", [1, 2, 3])
+    run(tmp_path / "resumed", [3])
+    run(tmp_path / "resumed", [2, 3])
+    assert _store_bytes(tmp_path / "resumed") == _store_bytes(tmp_path / "clean")
+    assert committed_rows(tmp_path / "resumed") == committed_rows(tmp_path / "clean")
+    assert [r["field"] for r in committed_rows(tmp_path / "clean")] == [1, 1, 2, 2, 3, 3]

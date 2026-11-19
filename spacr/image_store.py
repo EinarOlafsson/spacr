@@ -94,7 +94,11 @@ class PlateWriter:
                     self._committed[entry["key"]] = entry
 
     def committed(self, well: str, field: Any) -> bool:
-        """Whether the field is written and recorded."""
+        """Whether the field is written and recorded.
+
+        :param well: the well name, e.g. ``'B03'``.
+        :param field: the field number.
+        """
         return _field_key(well, field) in self._committed
 
     def write_field(self, well: str, field: Any, image: Optional[np.ndarray],
@@ -109,9 +113,27 @@ class PlateWriter:
         Each array is written to a temporary group, closed and renamed into
         place, and the field enters the ledger last, so a crash leaves an
         uncommitted field that the next run rewrites.
+
+        Only ``(C, Y, X)`` and ``(Y, X)`` are written. A field with time or
+        depth axes is refused before anything is written, never flattened
+        into channels: the HCS layout here has no ``t`` or ``z`` axis yet.
+
+        :param well: the well name, e.g. ``'B03'``.
+        :param field: the field number.
+        :raises ValueError: the image is not 2-D or 3-D, or a label image is
+            not 2-D.
         """
         from .ome_zarr import write_ome_zarr
 
+        if image is not None and np.ndim(image) not in (2, 3):
+            raise ValueError(
+                f"field {well}/{field}: the image has {np.ndim(image)} axes; only "
+                f"(C, Y, X) or (Y, X) are written (time and depth are not "
+                f"flattened into channels)")
+        for name, mask in (labels or {}).items():
+            if np.ndim(mask) != 2:
+                raise ValueError(f"field {well}/{field}: label image {name!r} has "
+                                 f"{np.ndim(mask)} axes; only (Y, X) is written")
         key = _field_key(well, field)
         target = self.path / key
         if target.exists():
