@@ -111,9 +111,10 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-17: the spacer-prefix minority-read rule (967) makes 159.
     # 2026-11-18: pathogen and organelle objects in the OPS phenotype path
     # (970) make 160.
+    # 2026-11-18: the OPS parameter grid search on tiles (960) makes 161.
+    # 2026-11-18: the GPU feature-information screen (964) makes 162.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    # 2026-11-18: the GPU feature-information screen (964) makes 161.
-    assert count == 161
+    assert count == 162
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
