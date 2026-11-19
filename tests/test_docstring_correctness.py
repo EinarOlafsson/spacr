@@ -3704,6 +3704,24 @@ def _validated_figprefs_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_figstyle_callables(callables):
+    """Check the figure-layer callables of the spacr-graphs rules (spacr.figures.style) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "figstyle_spacr_graphs_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
+    assert len(entries) == 9
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_r2_nuclei_965_callables(callables):
     """Check the public callable of item 965 (the small-nucleus merge of the large-site path) against its source."""
     import json
@@ -3965,6 +3983,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_pairs_consensus_948_callables(callables)
     callables = _validated_r2_nuclei_965_callables(callables)
     callables = _validated_figprefs_callables(callables)
+    callables = _validated_figstyle_callables(callables)
     callables = _validated_voyager3_973_callables(callables)
     callables = _validated_ops_power_sim_968_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
@@ -6733,6 +6752,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("948_ops_pairs_consensus_api_arrivals_2026-11-15.json", 6),
         ("965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json", 1),
         ("figprefs_pipeline_figures_api_arrivals_2026-11-19.json", 1),
+        ("figstyle_spacr_graphs_api_arrivals_2026-11-19.json", 9),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
         ("960_ops_grid_search_api_arrivals_2026-11-17.json", 2),
@@ -7349,6 +7369,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "948_ops_pairs_consensus_api_arrivals_2026-11-15.json",
                      "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json",
                      "figprefs_pipeline_figures_api_arrivals_2026-11-19.json",
+                     "figstyle_spacr_graphs_api_arrivals_2026-11-19.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
@@ -7503,6 +7524,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "948_ops_pairs_consensus_api_arrivals_2026-11-15.json",
                      "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json",
                      "figprefs_pipeline_figures_api_arrivals_2026-11-19.json",
+                     "figstyle_spacr_graphs_api_arrivals_2026-11-19.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent

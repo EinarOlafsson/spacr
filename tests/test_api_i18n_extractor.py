@@ -2519,6 +2519,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in figprefs_arrivals} == figprefs_arrivals
     assert not figprefs_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **figprefs_arrivals}
+    figstyle_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "figstyle_spacr_graphs_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
+    assert len(figstyle_arrivals) == 9
+    assert {key: docs[key] for key in figstyle_arrivals} == figstyle_arrivals
+    assert not figstyle_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **figstyle_arrivals}
     voyager3_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "973_ops_voyager3_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
     assert len(voyager3_arrivals) == 9
