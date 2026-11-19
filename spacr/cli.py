@@ -210,7 +210,7 @@ _MODULE_LIST: Tuple[Module, ...] = (
         entry="spacr.ops_engine:run_ops",
         defaults=None,
         defaults_entry="spacr.ops_settings:ops_defaults",
-        validate_key="",
+        validate_key="ops",
         requires=("genotype_source \u2014 the sequencing acquisition: "
                   "10X_c<cycle>_<well>_<channels>_Site-<n>.tif tiles, cycle 1 "
                   "carrying DAPI",),
