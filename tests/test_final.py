@@ -83,14 +83,15 @@ def test_unparsable_field_name_fails_once_and_names_the_file(tmp_path):
     assert not (root / 'measurements' / 'measurements.db').exists() or True
 
 
-def test_measure_crop_fills_its_own_defaults(tmp_path):
-    root = _plate(tmp_path, 'plate01_A01_1.npy')
-    _run(_docstring_settings(root))
-    assert (root / 'measurements' / 'measurements.db').is_file()
-
-
-def test_old_none_named_stack_still_measures(tmp_path):
-    root = _plate(tmp_path, 'plate01_A01_1_None.npy')
+@pytest.mark.parametrize('name', [
+    pytest.param('plate01_A01_1.npy',
+                 id='test_measure_crop_fills_its_own_defaults'),
+    pytest.param('plate01_A01_1_None.npy',
+                 id='test_old_none_named_stack_still_measures'),
+])
+def test_measure_crop_accepts_both_field_names(tmp_path, name):
+    """Run the complete measurement workflow for each original field name."""
+    root = _plate(tmp_path, name)
     _run(_docstring_settings(root))
     assert (root / 'measurements' / 'measurements.db').is_file()
 

@@ -191,20 +191,29 @@ def _broken(tmp_path, change):
     return reply
 
 
-def test_an_image_without_its_mask_is_refused_and_named(tmp_path):
-    reply = _broken(tmp_path, lambda f: (f / "masks" / "cell1.tif").unlink())
-    assert "no masks/ file for: cell1" in reply
+@pytest.mark.parametrize("folder_name, filename, expected", [
+    pytest.param(
+        "masks", "cell1.tif", "no masks/ file for: cell1",
+        id="test_an_image_without_its_mask_is_refused_and_named"),
+    pytest.param(
+        "meta", "cell0.json", "no meta/ file for: cell0",
+        id="test_a_missing_meta_file_is_refused"),
+])
+def test_a_missing_companion_is_refused_and_named(
+        tmp_path, folder_name, filename, expected):
+    """Refuse each missing companion before making any upload call."""
+    def remove_companion(folder):
+        """Remove the companion named by this independently collected case."""
+        (folder / folder_name / filename).unlink()
+
+    reply = _broken(tmp_path, remove_companion)
+    assert expected in reply
 
 
 def test_a_mask_without_its_image_is_refused_and_named(tmp_path):
     reply = _broken(tmp_path, lambda f: shutil.copy(
         f / "masks" / "cell0.tif", f / "masks" / "stray.tif"))
     assert "no image for masks/: stray" in reply
-
-
-def test_a_missing_meta_file_is_refused(tmp_path):
-    reply = _broken(tmp_path, lambda f: (f / "meta" / "cell0.json").unlink())
-    assert "no meta/ file for: cell0" in reply
 
 
 @pytest.mark.parametrize("extra", ["images/run.exe", "masks/cell0.png",

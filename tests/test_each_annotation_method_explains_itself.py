@@ -69,11 +69,15 @@ class TestTheAnswersAreTheRightOnes:
         assert "EVERY cell" in said
         assert "Not annotated: none" in said
 
-    def test_rank_computes_no_probability(self):
-        assert "No probability" in PICKING_HELP["rank"]
-
-    def test_attributed_names_its_threshold(self):
-        assert "0.55" in PICKING_HELP["attributed"]
+    @pytest.mark.parametrize("method, expected", [
+        pytest.param("rank", "No probability",
+                     id="test_rank_computes_no_probability"),
+        pytest.param("attributed", "0.55",
+                     id="test_attributed_names_its_threshold"),
+    ])
+    def test_the_method_describes_its_probability_rule(self, method, expected):
+        """Keep the distinct probability and threshold claims for each method."""
+        assert expected in PICKING_HELP[method]
 
     def test_multivariate_says_it_falls_back_loudly(self):
         said = PICKING_HELP["multivariate"]

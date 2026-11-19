@@ -87,16 +87,15 @@ def test_a_half_that_is_already_auto_is_not_disturbed(store, monkeypatch):
     assert store.figure_color_is_auto(bg)
 
 
-def test_the_dark_theme_gets_light_ink(store, monkeypatch):
-    monkeypatch.setattr(store, "resolve_effective_theme", lambda: "dark")
+@pytest.mark.parametrize("theme, expected", [
+    pytest.param("dark", "#ffffff", id="test_the_dark_theme_gets_light_ink"),
+    pytest.param("light", "#000000", id="test_the_light_theme_gets_dark_ink"),
+])
+def test_the_theme_gets_contrasting_ink(store, monkeypatch, theme, expected):
+    """Each theme receives its original foreground color in a fresh store."""
+    monkeypatch.setattr(store, "resolve_effective_theme", lambda: theme)
     _bg, fg = store.auto_figure_colors()
-    assert fg == "#ffffff"
-
-
-def test_the_light_theme_gets_dark_ink(store, monkeypatch):
-    monkeypatch.setattr(store, "resolve_effective_theme", lambda: "light")
-    _bg, fg = store.auto_figure_colors()
-    assert fg == "#000000"
+    assert fg == expected
 
 
 def test_the_background_is_transparent_on_both(store, monkeypatch):
