@@ -1463,6 +1463,42 @@ def _track_well_ids(row_ids, column_ids, name, logger):
 
 
 @debug(enabled=True)
+def _btrack_unavailable_error():
+    """Build the readable error shown when btrack cannot be used.
+
+    :returns: an ImportError telling the user to install the optional btrack
+        dependency or to pick another tracker.
+    """
+    return ImportError(
+        "btrack tracking requires the optional btrack dependency. "
+        "Install it with `pip install 'spacr[btrack]'`, or select "
+        "trackpy, Trackastra, or IoU tracking instead."
+    )
+
+
+def _new_btrack_tracker(btrack):
+    """Construct a btrack BayesianTracker, reporting a broken native library clearly.
+
+    btrack loads its compiled tracker library when a BayesianTracker is
+    constructed, not when the package is imported. When that load fails (for
+    example a system libstdc++ without the required GLIBCXX version), btrack's
+    own debug wrapper re-raises the OSError as a bare ``Exception`` whose
+    ``__cause__`` is the OSError. Both forms are turned into the same readable
+    ImportError the import guard gives; any other failure is re-raised as is.
+
+    :param btrack: the imported btrack module.
+    :returns: an unentered BayesianTracker, ready for use as a context manager.
+    :raises ImportError: the native tracker library could not be loaded.
+    """
+    try:
+        return btrack.BayesianTracker()
+    except Exception as exc:
+        cause = exc if isinstance(exc, OSError) else exc.__cause__
+        if isinstance(cause, OSError):
+            raise _btrack_unavailable_error() from cause
+        raise
+
+
 def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, masks_3D, mode, timelapse_remove_transient, radius=100, n_jobs=10, batch_list=None, optimizer_time_limit_s=120, optimizer_mip_gap=0.01, run_optimization=True, max_objects_for_optimization=20000):
     """
     Track cells using the btrack library.
@@ -1505,11 +1541,7 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
         from btrack import datasets as btrack_datasets
         from btrack.constants import BayesianUpdates
     except (ImportError, OSError) as exc:
-        raise ImportError(
-            "btrack tracking requires the optional btrack dependency. "
-            "Install it with `pip install 'spacr[btrack]'`, or select "
-            "trackpy, Trackastra, or IoU tracking instead."
-        ) from exc
+        raise _btrack_unavailable_error() from exc
 
     from .plot import _visualize_and_save_timelapse_stack_with_tracks
     from .utils import _masks_to_masks_stack, _map_wells
@@ -1622,7 +1654,7 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
 
     CONFIG_FILE = btrack_datasets.cell_config()
 
-    with btrack.BayesianTracker() as tracker:
+    with _new_btrack_tracker(btrack) as tracker:
         tracker.configure(CONFIG_FILE)
 
         tracker.update_method = BayesianUpdates.APPROXIMATE
