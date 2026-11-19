@@ -1783,7 +1783,9 @@ def translocation_gene_scores(cells: pd.DataFrame, score: str, *,
     at least ``min_cells`` cells, the score is the integrated difference
     between the cumulative distribution of the non-targeting cells and that
     of the guide cells, negative when the guide lowers the readout (a
-    translocation defect). A gene scores the mean of its guides. Its P value
+    translocation defect). The sign is fixed: a NEGATIVE score always means a
+    translocation defect and a positive one a gain, whatever way the
+    integral is written elsewhere. A gene scores the mean of its guides. Its P value
     comes from relabelling the cells of all its guides jointly with the
     non-targeting cells, and is two-sided with resolution
     ``1 / (permutations + 1)``. Mann-Whitney P values of all
