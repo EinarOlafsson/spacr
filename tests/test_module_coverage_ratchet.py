@@ -570,7 +570,12 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # (spacr/qt/widgets/ops_live_preview.py).
         'spacr/ops_live.py',
         'spacr/qt/widgets/ops_live_preview.py',
-        # 708 -> 709 on 2026-11-18, +1/-0, item 968: the OPS power
+        # 708 -> 710 on 2026-11-17, +2/-0, item 960: the OPS parameter grid
+        # search (spacr/ops_grid_search.py) and its Grid search panel
+        # (spacr/qt/widgets/ops_grid_search_panel.py).
+        'spacr/ops_grid_search.py',
+        'spacr/qt/widgets/ops_grid_search_panel.py',
+        # 710 -> 711 on 2026-11-19, +1/-0, item 968: the OPS power
         # simulation (spacr/power_ops.py).
         'spacr/power_ops.py',
     }
@@ -597,7 +602,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 706)
+            - len(retired_since_608) == 708)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -1136,10 +1141,13 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # 706 -> 708 on 2026-11-17: spacr/ops_live.py and
     # spacr/qt/widgets/ops_live_preview.py (item 971: the OPS Live
     # preview), moved with the workflow in one commit.
-    # 708 -> 709 on 2026-11-18: spacr/power_ops.py (item 968: the OPS power
+    # 708 -> 710 on 2026-11-17: spacr/ops_grid_search.py and
+    # spacr/qt/widgets/ops_grid_search_panel.py (item 960: the OPS parameter
+    # grid search), moved with the workflow in one commit.
+    # 710 -> 711 on 2026-11-19: spacr/power_ops.py (item 968: the OPS power
     # simulation), moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 709
-    assert "--expected-file-count 709" in combine_script
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 711
+    assert "--expected-file-count 711" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

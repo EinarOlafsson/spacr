@@ -478,6 +478,13 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_fdr_sweep_seed": 0,
     "ops_fdr_sweep_shuffle_seeds": [0, 1, 2],
     "ops_fdr_sweep_inputs": None,
+    "ops_grid_search": False,
+    "ops_grid_params": None,
+    "ops_grid_tiles": None,
+    "ops_grid_tile_mode": None,
+    "ops_grid_n_tiles": None,
+    "ops_grid_seed": None,
+    "ops_grid_run_id": None,
 }
 
 #: The Measure setting each OPS phenotype measurement setting stands for
@@ -957,6 +964,13 @@ OPS_TYPES: Dict[str, object] = {
     "ops_fdr_sweep_seed": int,
     "ops_fdr_sweep_shuffle_seeds": (list, str),
     "ops_fdr_sweep_inputs": (dict, str, type(None)),
+    "ops_grid_search": bool,
+    "ops_grid_params": (dict, str, type(None)),
+    "ops_grid_tiles": (list, str, type(None)),
+    "ops_grid_tile_mode": (str, type(None)),
+    "ops_grid_n_tiles": (int, type(None)),
+    "ops_grid_seed": (int, type(None)),
+    "ops_grid_run_id": (str, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -1059,6 +1073,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_fdr_sweep_quality_quantiles", "ops_fdr_sweep_bootstrap",
         "ops_fdr_sweep_seed", "ops_fdr_sweep_shuffle_seeds",
         "ops_fdr_sweep_inputs",
+        "ops_grid_search", "ops_grid_params", "ops_grid_tiles",
+        "ops_grid_tile_mode", "ops_grid_n_tiles", "ops_grid_seed",
+        "ops_grid_run_id",
         "ops_compare_match", "ops_compare_reference_masks",
         "ops_compare_spacr_masks", "ops_compare_reference_objects",
         "ops_compare_iou", "ops_compare_reference_calls",
@@ -3669,6 +3686,46 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "on those sites and reported on the others. Empty scores this run's "
         "spaCR reads (results/ops_prefix/reads_*.parquet) over the cells "
         "that have reads. Default empty. Alpha.",
+    "ops_grid_search":
+        "(bool) - Before a full spacer-prefix run, score a grid of spot and "
+        "decode settings on a few representative tiles instead of decoding "
+        "the plate. Each grid point reports, per tile and pooled, the spots, "
+        "the read mapping rate, the cells assigned to a guide, the decoy FDR "
+        "and the barcode-shuffle call rate, with its time. The table, a plot "
+        "of yield against the shuffle rate and the Pareto front go to "
+        "ops_grid_<run id>.csv beside the settings. Default False. Alpha.",
+    "ops_grid_params":
+        "(str or dict) - The grid: each setting with the values to try, as "
+        "ops_read_threshold=40,80,160; ops_read_mode=log,raw. It can vary "
+        "ops_read_threshold, ops_read_mode, ops_prefix_min_read_quality, "
+        "ops_prefix_max_distance, ops_quality_min_reads and "
+        "ops_prefix_crosstalk; every other setting stays at the default "
+        "point, which with per-well tuning is each well's own choice. Empty "
+        "scores the default point alone. Default None. Alpha.",
+    "ops_grid_tiles":
+        "(str or list) - The grid search's tiles, as plate:well:site, "
+        "comma-separated (W1:29 or 29 when the layout has one plate or "
+        "well). Applying a grid point saves the tiles it used here, so the "
+        "grid can be run again on the same tiles. Empty picks them with "
+        "ops_grid_tile_mode. Default None. Alpha.",
+    "ops_grid_tile_mode":
+        "(str or None) - How the grid search picks its tiles: stratified "
+        "(the wells in turn, a seeded random site of each), edge_centre "
+        "(in each well, alternately the site furthest from and nearest to "
+        "the well's centre) or user (the tiles in ops_grid_tiles). Empty "
+        "is stratified. Default None. Alpha.",
+    "ops_grid_n_tiles":
+        "(int or None) - How many tiles the grid search picks. More tiles "
+        "give steadier pooled rates and take longer, since each tile's spots "
+        "are found once and every grid point is scored on every tile. Empty "
+        "picks 8. Default None. Alpha.",
+    "ops_grid_seed":
+        "(int or None) - The random seed of the grid search's tile pick. "
+        "Empty is 0. Default None. Alpha.",
+    "ops_grid_run_id":
+        "(str or None) - The grid search run whose point was applied to "
+        "these settings; written by Apply to settings, with the tiles and "
+        "seed. Default None. Alpha.",
     "ops_stress_report":
         "(bool) - At the end of the run, time the store as the reference "
         "stress test did (database rows, queries for one field, one gene, "
