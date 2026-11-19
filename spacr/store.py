@@ -60,8 +60,20 @@ _ROWS = "__rows"
 _ROW_CHUNK = 16
 _LOCATORS = ("_part", "_row_group", "_group_row")
 
-#: The most rows a selection may hold to be read row group by row group.
+#: The most rows (or 2 % of the table) a selection may hold to be read from
+#: the row-major copy, or row group by row group when it asks for at most
+#: :data:`_NARROW_COLUMNS` columns.
 _LOOKUP_ROWS = 20_000
+
+#: The most columns a scattered selection may ask for on the row-group path.
+_NARROW_COLUMNS = 64
+
+#: The largest share of the table's row groups a wide selection may touch
+#: and still be read row group by row group; above it DuckDB scans the view.
+_TOUCHED_GROUPS = 0.25
+
+#: The most rows the key table is asked to locate before DuckDB takes over.
+_LOCATE_MAX = 2_000_000
 _LEGACY_NAMES = ("measurements.db", os.path.join("measurements",
                                                  "measurements.db"))
 
@@ -863,16 +875,18 @@ class Store:
                     if f["table_name"] == keys)
         limit = max(_LOOKUP_ROWS, int(total * 0.02))
         try:
-            located = _arrow_of(self._conn, sql + f" LIMIT {limit + 1}", params)
+            located = _arrow_of(self._conn,
+                                sql + f" LIMIT {_LOCATE_MAX + 1}", params)
         except duckdb.Error:
             return None
-        if located.num_rows > limit:
+        if located.num_rows > _LOCATE_MAX:
             return None
         columns = (self._columns(table) if features is None
                    else self._wanted(table, table, features))
         copies = {f["path"] for f in self._files
                   if f["table_name"] == _rows_name(table)}
-        if (features is None and located.num_rows and all(
+        small = located.num_rows <= limit
+        if (features is None and small and located.num_rows and all(
                 _row_copy_path(p) in copies
                 for p in set(located.column("_part").to_pylist()))):
             sql, params = self._select(where, table, None, source=keys)
@@ -881,6 +895,13 @@ class Store:
         if not located.num_rows:
             return _arrow_of(self._conn, "SELECT " + ", ".join(
                 _ident(c) for c in columns) + f" FROM {_ident(table)} LIMIT 0")
+        if small and len(columns) <= _NARROW_COLUMNS:
+            return self._read_located(located, columns)
+        parts = located.column("_part").to_pylist()
+        touched = len(set(zip(parts, located.column("_row_group").to_pylist())))
+        per_group = max(1, self._part(parts[0]).metadata.row_group(0).num_rows)
+        if touched > _TOUCHED_GROUPS * max(1.0, total / per_group):
+            return None
         return self._read_located(located, columns)
 
     def _read_row_copies(self, keyed, columns: List[str]):
