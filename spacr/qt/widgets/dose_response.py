@@ -1922,7 +1922,9 @@ def _clean(doses: Sequence[float], responses: Sequence[float]
     if dose.size != response.size:
         raise DoseResponseError(
             f"there are {dose.size} concentration(s) and {response.size} "
-            f"response(s); they have to pair up one to one")
+            f"response(s); they have to pair up one to one"
+            "\n\nProvide one measured response for each concentration in the same "
+            "row order, then fit the paired values again.")
     finite = np.isfinite(dose) & np.isfinite(response)
     n_excluded = int((~finite).sum())
     dose, response = dose[finite], response[finite]
@@ -1970,14 +1972,18 @@ def _guard(dose: np.ndarray, response: np.ndarray, n_vehicle: int,
             f"this series has {distinct.size} distinct positive "
             f"concentration(s){vehicle}. "
             f"At least {least} are needed to fit one at all, and it takes "
-            f"6–10 spanning the midpoint to fit one worth quoting.")
+            f"6–10 spanning the midpoint to fit one worth quoting."
+            "\n\nUse a measured series with at least the required number of "
+            "distinct positive concentrations spanning the response transition.")
     if dose.size < fewest:
         raise DoseResponseError(
             f"{dose.size} observations against {n_parameters} parameters "
             f"leaves {dose.size - n_parameters} residual degrees of freedom, "
             f"so the curve passes through the points and there is nothing "
             f"left to estimate the uncertainty from. At least {fewest} are "
-            f"needed.")
+            f"needed."
+            "\n\nAdd measured replicates or concentrations to meet the observation "
+            "count above before fitting this model.")
     spread = float(np.max(response) - np.min(response))
     scale = max(abs(float(np.mean(response))), 1.0)
     if spread <= scale * CONSTANT_TOLERANCE:
@@ -1985,7 +1991,10 @@ def _guard(dose: np.ndarray, response: np.ndarray, n_vehicle: int,
             f"every response is {float(response[0]):.6g}. There is no curve "
             f"in a flat line: the plateaus, the midpoint and the slope are "
             f"all unidentified, and any EC50 reported from it would be an "
-            f"artefact of the starting guess.")
+            f"artefact of the starting guess."
+            "\n\nCheck the response column and measurement processing. If the "
+            "response remains flat, report that this series has no estimable "
+            "midpoint.")
 
 
 def _direction_sign(dose: np.ndarray, response: np.ndarray,
@@ -2795,16 +2804,22 @@ def fit_frame(frame: pd.DataFrame,
         if not column:
             raise DoseResponseError(
                 "both a concentration column and a response column have to be "
-                "chosen before anything can be fitted.")
+                "chosen before anything can be fitted."
+                "\n\nChoose the concentration and response columns from the loaded "
+                "table, then fit again.")
         if column not in frame.columns:
             raise DoseResponseError(
                 f"{column!r} is not a column of this table. It has "
                 f"{len(frame.columns)} columns; the first few are "
-                f"{', '.join(map(str, list(frame.columns)[:6]))}.")
+                f"{', '.join(map(str, list(frame.columns)[:6]))}."
+                "\n\nSelect a concentration and response column that exist in this "
+                "table, using the column names shown above.")
     if spec.group and spec.group not in frame.columns:
         raise DoseResponseError(
             f"the grouping column {spec.group!r} is not a column of this "
-            f"table.")
+            f"table."
+            "\n\nChoose an existing grouping column, or clear the grouping "
+            "selection to fit the table as one series.")
 
     if spec.group:
         levels = [(str(level), part) for level, part
@@ -2813,7 +2828,9 @@ def fit_frame(frame: pd.DataFrame,
         if not levels:
             raise DoseResponseError(
                 f"the grouping column {spec.group!r} has no values, so there "
-                f"is nothing to fit one curve per level of.")
+                f"is nothing to fit one curve per level of."
+                "\n\nLoad rows with the intended group labels, or review the filters "
+                "that left this table empty.")
     else:
         levels = [("", frame)]
 
@@ -3261,7 +3278,9 @@ def checkerboard_from_frame(frame: pd.DataFrame, *, dose_a: str, dose_b: str,
             raise DoseResponseError(
                 f"column {column!r} is not in the table; it has "
                 f"{', '.join(map(str, frame.columns[:12]))}"
-                f"{' ...' if len(frame.columns) > 12 else ''}")
+                f"{' ...' if len(frame.columns) > 12 else ''}"
+                "\n\nChoose existing columns for both agent concentrations and the "
+                "response, then load the checkerboard again.")
 
     a = pd.to_numeric(frame[dose_a], errors="coerce").to_numpy(float)
     b = pd.to_numeric(frame[dose_b], errors="coerce").to_numpy(float)
@@ -3279,12 +3298,16 @@ def checkerboard_from_frame(frame: pd.DataFrame, *, dose_a: str, dose_b: str,
                 f"no well has {name} alone (with {other} at zero), so there "
                 f"is no single-agent curve for it. Both surfaces predict the "
                 f"combination FROM the single agents; without that row the "
-                f"surface would be comparing the data to itself.")
+                f"surface would be comparing the data to itself."
+                "\n\nUse a checkerboard dataset that includes single-agent wells for "
+                "each agent while the other concentration is zero.")
     if not both.any():
         raise DoseResponseError(
             f"no well has both {dose_a} and {dose_b} above zero, so this is "
             f"two dose series rather than a checkerboard and there is no "
-            f"interaction to measure")
+            f"interaction to measure"
+            "\n\nLoad a checkerboard dataset that includes combination wells with "
+            "both agent concentrations above zero.")
 
     return Checkerboard(dose_a=a, dose_b=b, response=y,
                         a_alone=(a[alone_a], y[alone_a]),
@@ -3476,11 +3499,15 @@ class PlateSpec:
                 "plate normalisation needs the column that identifies the "
                 "plate; without it every well on every plate would be scaled "
                 "by one pooled pair of controls, which is the error "
-                "normalising per plate exists to prevent")
+                "normalising per plate exists to prevent"
+                "\n\nChoose the column containing the plate identifier before "
+                "normalising the responses.")
         if not self.control:
             raise DoseResponseError(
                 "plate normalisation needs control_column set, so the "
-                "positive and negative levels have a column to be levels of")
+                "positive and negative levels have a column to be levels of"
+                "\n\nChoose the column containing the control labels, then select the "
+                "positive and negative control levels.")
         if not self.positive or not self.negative:
             raise DoseResponseError(
                 "percent inhibition is a two-point scale and needs BOTH "
@@ -3657,10 +3684,12 @@ def normalise_to_controls(frame: pd.DataFrame, spec: PlateSpec, *,
     percent, reports = _scan_plates(frame, spec, response)
     if not any(report.usable for report in reports):
         raise DoseResponseError(
-            "no plate in this table has a usable pair of controls, so there "
+            ("no plate in this table has a usable pair of controls, so there "
             "is nothing to normalise against. " +
             (reports[0].note if reports else
-             f"no plate was found in column {spec.plate!r}."))
+             f"no plate was found in column {spec.plate!r}.")) + (
+            "\n\nReview the plate-control report above, confirm the control labels "
+            "match the table, and check control quality before normalising again."))
     normalised = frame.copy()
     normalised[out] = percent
     return normalised, reports
@@ -4047,7 +4076,9 @@ def pool_frame(frame: pd.DataFrame, spec: DoseResponseSpec, *,
     if plate not in frame.columns:
         raise DoseResponseError(
             f"column {plate!r} is not in the table, so there are no "
-            f"replicates to pool across")
+            f"replicates to pool across"
+            "\n\nChoose the column that identifies the replicate plate, or load a "
+            "table that includes plate identifiers.")
 
     fits: Dict[str, DoseResponseResult] = {}
     failures: List[str] = []
@@ -4061,9 +4092,11 @@ def pool_frame(frame: pd.DataFrame, spec: DoseResponseSpec, *,
 
     if not fits:
         raise DoseResponseError(
-            "no plate in this table produced a fit, so there is nothing to "
+            ("no plate in this table produced a fit, so there is nothing to "
             "pool. " + (" | ".join(failures) if failures else
-                        f"column {plate!r} held no groups."))
+                        f"column {plate!r} held no groups.")) + (
+            "\n\nResolve the per-plate fit errors above, or load the missing plate "
+            "measurements, then pool again."))
 
     pooled = pool_across_plates(fits, confidence=spec.confidence,
                                 max_heterogeneity=max_heterogeneity)

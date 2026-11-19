@@ -586,12 +586,15 @@ class OutlierSpec:
             raise OutlierError(
                 f"unknown transform {self.transform!r}; it is "
                 f"{TRANSFORM_NONE!r} (the default, values as measured) or "
-                f"{TRANSFORM_LOG10!r}")
+                f"{TRANSFORM_LOG10!r}"
+                "\n\nSet transform to one of the supported values listed above, then "
+                "run outlier detection again.")
         k = float(self.k)
         if not k > 0:
             raise OutlierError(
                 f"k is how many robust SDs from the median count as an "
-                f"outlier and must be positive, not {self.k}")
+                f"outlier and must be positive, not {self.k}"
+                "\n\nEnter a positive value for k, then run outlier detection again.")
         object.__setattr__(self, "k", k)
         c = float(self.c)
         if not c > 0:
@@ -604,14 +607,18 @@ class OutlierSpec:
             raise OutlierError(
                 f"alpha is the per-object false-positive rate and must be in "
                 f"(0, 1), not {self.alpha}. {DEFAULT_ALPHA} means one clean "
-                f"object in a thousand is expected to be flagged.")
+                f"object in a thousand is expected to be flagged."
+                "\n\nEnter alpha as a probability strictly between 0 and 1, using a "
+                "fraction rather than a percentage.")
         object.__setattr__(self, "alpha", alpha)
         minimum = int(self.min_well_objects)
         if minimum < 1:
             raise OutlierError(
                 f"min_well_objects must be at least 1, not "
                 f"{self.min_well_objects}; a well with no objects has no "
-                f"median")
+                f"median"
+                "\n\nSet min_well_objects to a whole number of 1 or more before running"
+                " the well analysis.")
         object.__setattr__(self, "min_well_objects", minimum)
         object.__setattr__(self, "per_well", bool(self.per_well))
         if self.support_fraction is not None:
@@ -926,7 +933,9 @@ class OutlierResult:
             raise OutlierError(
                 f"these flags were computed on {self.n_rows_in:,} objects and "
                 f"this frame has {len(source):,}; positional flags cannot be "
-                f"applied to a different frame.")
+                f"applied to a different frame."
+                "\n\nRun outlier detection again on the current table before applying "
+                "flags to it.")
         return source.iloc[np.flatnonzero(~self.flags)]
 
     def method_label(self) -> str:
@@ -1098,13 +1107,17 @@ def _select_features(frame: pd.DataFrame, spec: OutlierSpec) -> List[str]:
         raise OutlierError(
             "this table has no continuous columns to test. Outlier detection "
             "needs measured quantities; plate/row/well identifiers and small "
-            "integer codes are deliberately not offered.")
+            "integer codes are deliberately not offered."
+            "\n\nLoad a measurement table with numeric measured features, then "
+            "select the columns to test.")
     missing = [name for name in wanted if name not in frame.columns]
     kept = [name for name in wanted if name in frame.columns]
     if not kept:
         raise OutlierError(
             f"none of the requested features is a column of this table: "
-            f"{', '.join(missing)}. It has {len(frame.columns)} columns.")
+            f"{', '.join(missing)}. It has {len(frame.columns)} columns."
+            "\n\nSelect feature columns that exist in the current table, then run "
+            "outlier detection again.")
     if spec.method == METHOD_MAHALANOBIS and len(kept) < 2:
         raise OutlierError(
             f"{METHOD_MAHALANOBIS!r} is the multivariate test and needs at "
@@ -1498,7 +1511,9 @@ def detect_outliers(frame: pd.DataFrame,
     n_rows_in = int(len(frame))
     if n_rows_in < 1:
         raise OutlierError(
-            "this table has no objects, so there is nothing to test.")
+            "this table has no objects, so there is nothing to test."
+            "\n\nLoad a nonempty measurement table, or review the filters that "
+            "removed all rows, then run outlier detection again.")
     features = _select_features(frame, spec)
     matrix, n_non_finite = _matrix(frame, features, spec, notes)
 
@@ -1554,7 +1569,9 @@ def detect_outliers(frame: pd.DataFrame,
             raise OutlierError(
                 f"well_keys names {', '.join(missing)}, which this table does "
                 f"not have. Its columns include: "
-                f"{', '.join(str(c) for c in list(frame.columns)[:12])}.")
+                f"{', '.join(str(c) for c in list(frame.columns)[:12])}."
+                "\n\nSet well_keys to the actual well-identifier columns in this table,"
+                " then run outlier detection again.")
         well_keys = tuple(keys)
         wells = _well_summary(frame, matrix, features, flags, scored, keys)
         wells = _score_wells(wells, features, spec, notes)
