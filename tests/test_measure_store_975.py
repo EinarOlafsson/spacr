@@ -155,7 +155,8 @@ def test_the_store_backend_keeps_measurements_db_the_live_writer():
 
 @pytest.mark.parametrize("fmt", [None, 2, 3, 4])
 def test_the_crop_loader_reads_the_store_as_it_reads_the_pngs(tmp_path, fmt):
-    from spacr.crop_loader import CropQuery, _store_source, _StoreCropSource
+    from spacr.crop_loader import CropQuery, _store_source
+    from spacr.crops import _StoreCropSource
     from spacr.crops import PngCropSource
 
     db, cell, _nucleus, _pixels = _db(tmp_path, n=5, fmt=fmt)

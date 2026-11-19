@@ -180,9 +180,9 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     from ..crops import (
         CROP_FORMAT_CURRENT,
         CROP_FORMAT_RGB,
+        _read_crop_preferring_store,
         apply_display_order,
         apply_display_primaries,
-        read_crop_png,
     )
 
     order = str(stored_channel_order or "auto").strip().lower()
@@ -195,7 +195,8 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     else:
         raise ValueError(
             "stored_channel_order must be 'rgb', 'auto', or 'legacy_bgr'")
-    corrected = read_crop_png(path, fmt=stored_format, db_path=db_path)
+    corrected = _read_crop_preferring_store(path, db_path=db_path,
+                                            fmt=stored_format)
     shown = apply_display_order(corrected, display_order)
     return Image.fromarray(apply_display_primaries(shown, display_primaries))
 
