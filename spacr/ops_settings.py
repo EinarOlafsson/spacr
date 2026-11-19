@@ -1083,6 +1083,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_stage_threads", "ops_gpu_admission", "ops_gpu_idle_checks",
         "ops_gpu_min_process_mib", "ops_gpu_vram_cap_gb",
         "ops_gpu_ignore_process_patterns", "ops_stress_report",
+        "ops_feature_screen_device",
     ],
     "Archive": [
         "ops_archive_root", "ops_archive_verify", "ops_archive_delete_local",
@@ -1150,11 +1151,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_collision", "ops_prefix_metric", "ops_prefix_max_distance",
         "ops_prefix_crosstalk", "ops_prefix_masks", "ops_quality_min_reads",
         "ops_prefix_minority_min_reads", "ops_prefix_quality_method",
-        "ops_prefix_distance_weight", "ops_prefix_distance_decay_px",
-        "ops_prefix_distance_interior_px", "ops_prefix_distance_min_weight",
         "ops_prefix_weighted_quality", "ops_prefix_weighted_min_share",
-        "ops_prefix_nuclei_masks", "ops_keep_multi_guide_cells",
-        "ops_multi_guide_min_reads",
+        "ops_keep_multi_guide_cells", "ops_multi_guide_min_reads",
     ],
     "Spacer-prefix FDR & tuning": [
         "ops_random_barcode_control", "ops_control_seed",
@@ -1162,7 +1160,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
         "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid",
         "ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration",
-        "ops_prefix_tuning_min_sites",
+        "ops_prefix_tuning_min_sites", "ops_prefix_distance_weight",
+        "ops_prefix_distance_decay_px", "ops_prefix_distance_interior_px",
+        "ops_prefix_distance_min_weight", "ops_prefix_nuclei_masks",
     ],
     "Prefix FDR sweep": [
         "ops_fdr_sweep_targets", "ops_fdr_sweep_max_distance",
@@ -1213,7 +1213,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_feature_screen_permutations", "ops_feature_screen_perm_unit",
         "ops_feature_screen_seed", "ops_feature_screen_ridge",
         "ops_feature_screen_greedy_threshold", "ops_feature_screen_mlp",
-        "ops_feature_screen_device", "ops_feature_screen_dst",
+        "ops_feature_screen_dst",
     ],
     "Flat-field correction": [
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
