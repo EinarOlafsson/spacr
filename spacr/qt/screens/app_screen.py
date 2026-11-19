@@ -9672,6 +9672,20 @@ class AppScreen(QWidget):
             QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
 
+        if self.app_key == "regression":
+            from ...validate import (_check_regression_inputs,
+                                     _check_regression_score_columns)
+
+            problems = _check_regression_inputs(settings)
+            if not problems:
+                problems = _check_regression_score_columns(settings, local_only=True)
+            if problems:
+                QMessageBox.warning(
+                    self, tr("Regression inputs"),
+                    "\n\n".join(f"{problem.message}\n{problem.fix}"
+                                for problem in problems))
+                return
+
         if not self._annotation_labels_named(settings):
             return
 

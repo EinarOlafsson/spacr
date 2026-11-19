@@ -23,7 +23,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "_lineage_trees.py",
         "utils.py", "channel_sorting.py", "image_import.py", "run_journal.py", "ml.py",
         "regression_layout.py", "regression_failure.py", "regression_backends.py", "power_model.py", "io.py",
-        "uniprot.py",
+        "uniprot.py", "validate.py", "torch_artifacts.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -767,3 +767,25 @@ def test_busy_uniprot_notice_enters_only_its_annotation_owner(extract_backend_so
     assert extract_backend_sources('uniprot.py', source) == {caption}
     real = Path(__file__).resolve().parents[1] / "spacr" / "uniprot.py"
     assert caption in extract_backend_sources('uniprot.py', real.read_text(encoding="utf-8"))
+
+
+def test_regression_preflight_findings_enter_only_their_validate_owners(extract_backend_sources):
+    """The two regression preflight checks own their captions; other checks do not."""
+    caption = "Regression needs at least one score table and one count table."
+    source = (f"def _check_regression_inputs(settings):\n    return tr({caption!r})\n"
+              "def _check_other(settings):\n    return tr('Not a regression finding')\n")
+    assert extract_backend_sources('validate.py', source) == {caption}
+    real = Path(__file__).resolve().parents[1] / "spacr" / "validate.py"
+    assert caption in extract_backend_sources('validate.py', real.read_text(encoding="utf-8"))
+
+
+def test_old_custom_classifier_refusals_enter_their_owners(extract_backend_sources):
+    """The old-head refusals of torch_artifacts and the channel refusal of the classifier are catalogued."""
+    root = Path(__file__).resolve().parents[1] / "spacr"
+    artifacts = extract_backend_sources(
+        'torch_artifacts.py', (root / "torch_artifacts.py").read_text(encoding="utf-8"))
+    assert any(text.startswith("This model was trained with the old spaCR custom classifier")
+               for text in artifacts)
+    assert any(text.startswith("This custom classifier checkpoint records") for text in artifacts)
+    utils = extract_backend_sources('utils.py', (root / "utils.py").read_text(encoding="utf-8"))
+    assert any(text.startswith("This classifier was trained on {expected}-channel") for text in utils)

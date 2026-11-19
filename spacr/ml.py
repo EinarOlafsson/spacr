@@ -5961,11 +5961,11 @@ def normalize_regression_input_pairs(settings):
                   "Review and save the new paired_data table to make that "
                   "relationship explicit.")
 
-    if not pairs or not any(row['score'] for row in pairs) or not any(
-            row['count'] for row in pairs):
-        raise ValueError(
-            "Regression needs at least one score CSV and one count CSV in "
-            "paired_data.")
+    from .validate import _check_regression_inputs
+
+    problems = _check_regression_inputs({'paired_data': pairs})
+    if problems:
+        raise ValueError(f"{problems[0].message} {problems[0].fix}")
     settings['paired_data'] = pairs
 
     def unique(key):
@@ -7859,6 +7859,12 @@ def _perform_regression(settings):
             """Load paired inputs, validate the analysis, and return both frames."""
             _stage(settings, "reading the input tables")
             pairs, _migrated = normalize_regression_input_pairs(settings)
+            from .validate import _check_regression_score_columns
+
+            problems = _check_regression_score_columns(settings)
+            if problems:
+                raise ValueError("\n\n".join(
+                    f"{problem.message} {problem.fix}" for problem in problems))
             count_data_df, score_data_df, audit = \
                 load_regression_input_pairs(pairs)
             settings['paired_data'] = pairs
@@ -9248,10 +9254,19 @@ def process_scores(df, dependent_variable, plate, min_cells_per_well=25, agg_typ
         ``True``/``1`` = ``1 - x``; ``-1`` = ``1 / x``.
     :returns: ``(dependent_df, dependent_variable)`` — the per-well
         DataFrame and the (possibly transformed) response column name.
-    :raises ValueError: on missing identifiers, unsupported ``agg_type``
-        or unrecognised ``invert_dependent_variable``.
+    :raises ValueError: on missing identifiers, unsupported ``agg_type``,
+        unrecognised ``invert_dependent_variable``, or no usable score rows
+        or wells remaining before transformation.
     """
     from .utils import correct_metadata
+    from .qt.i18n import tr
+
+    input_rows = len(df)
+    if input_rows == 0:
+        raise ValueError(tr(
+            "Regression received 0 input score rows before aggregation. "
+            "Check that the selected score source contains the intended plates "
+            "and wells, and review the sample and control filters."))
     df = df.reset_index(drop=True)
     if 'prcfo' in df.columns:
         df = df.loc[:, ~df.columns.duplicated()].copy()
@@ -9287,6 +9302,13 @@ def process_scores(df, dependent_variable, plate, min_cells_per_well=25, agg_typ
     df = df[['prc', dependent_variable]]
     
     df = df[['prc', dependent_variable]].copy()
+    finite_rows = np.isfinite(pd.to_numeric(df[dependent_variable], errors='coerce'))
+    if not finite_rows.any():
+        raise ValueError(tr(
+            "Regression found 0 finite values for {variable!r} among {rows} input "
+            "score rows before aggregation. Choose a numeric dependent_variable "
+            "with usable measurements, or correct the missing or nonfinite values "
+            "in the selected score source.", variable=dependent_variable, rows=input_rows))
 
     if invert_dependent_variable in (True, 1):
         df[dependent_variable] = 1.0 - df[dependent_variable]
@@ -9301,6 +9323,14 @@ def process_scores(df, dependent_variable, plate, min_cells_per_well=25, agg_typ
         df[dependent_variable] = 1.0 / raw.where(raw != 0)
         df = df.dropna(subset=[dependent_variable])
         print(f"Inverted '{dependent_variable}' as 1/x on raw values.")
+        if df.empty:
+            raise ValueError(tr(
+                "Regression retained 0 of {rows} input score rows after "
+                "invert_dependent_variable=-1 (1/x) for {variable!r}. Reciprocal "
+                "inversion is undefined for zero or missing values. Choose a "
+                "response with nonzero measurements, or disable reciprocal inversion "
+                "if it is not intended for this analysis.",
+                rows=input_rows, variable=dependent_variable))
     elif invert_dependent_variable in (False, 0):
         pass
     else:
@@ -9365,6 +9395,26 @@ def process_scores(df, dependent_variable, plate, min_cells_per_well=25, agg_typ
     display(dependent_df)
 
     dependent_df = dependent_df[dependent_df['cell_count'] >= min_cells_per_well]
+    if dependent_df.empty:
+        largest_well = int(cell_count['cell_count'].max()) if len(cell_count) else 0
+        raise ValueError(tr(
+            "Regression retained 0 of {wells} wells from {rows} input score rows "
+            "after min_cells_per_well={minimum}. The largest well has {largest} "
+            "input cells at this stage. Lower min_cells_per_well if appropriate "
+            "for the analysis, or select score data with enough cells per well; "
+            "also review earlier sample, control and inversion filters.",
+            wells=len(cell_count), rows=input_rows, minimum=min_cells_per_well,
+            largest=largest_well))
+    finite_wells = np.isfinite(pd.to_numeric(
+        dependent_df[dependent_variable], errors='coerce'))
+    if not finite_wells.any():
+        raise ValueError(tr(
+            "Regression found 0 finite values for {variable!r} after aggregation "
+            "and min_cells_per_well={minimum} ({wells} wells remain). Correct "
+            "missing or nonfinite values in the score source, or choose the "
+            "intended numeric dependent_variable before applying a transform.",
+            variable=dependent_variable, minimum=min_cells_per_well,
+            wells=dependent_df['prc'].nunique()))
 
     print("2 test")
     display(dependent_df)

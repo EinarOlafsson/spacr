@@ -4755,6 +4755,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "ml.py")
     paths.add(ROOT / "spacr" / "power_model.py")
     paths.add(ROOT / "spacr" / "uniprot.py")
+    paths.add(ROOT / "spacr" / "validate.py")
+    paths.add(ROOT / "spacr" / "torch_artifacts.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4789,6 +4791,13 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
+        if path == source_root / "validate.py":
+            # Only the regression preflight findings shown before a run are
+            # catalogued; the other settings checks stay English for now.
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in {"_check_regression_inputs",
+                                           "_check_regression_score_columns"}]
         if path == source_root / "uniprot.py":
             # The busy-UniProt notice the gene annotation shows is the
             # module's only caption; cache and request prose stays internal.
@@ -4803,9 +4812,16 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                          and node.name == "_restrict_to_owner"]
         if path == source_root / "utils.py":
             tree.body = [node for node in tree.body
+                         if (isinstance(node, ast.FunctionDef)
+                             and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
+                                               "_cellpose_stock_preflight", "filter_dataframe_features"})
+                         or (isinstance(node, ast.ClassDef)
+                             and node.name == "CustomCellClassifier")]
+        if path == source_root / "torch_artifacts.py":
+            # The refusals of old custom-classifier models are its only captions.
+            tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
-                                           "_cellpose_stock_preflight", "filter_dataframe_features"}]
+                         and node.name in {"_old_custom_head_message", "_refuse_old_custom_head"}]
         if path == source_root / "attribution.py":
             diagnostic_owners = {
                 "_cf_preserved_channels", "_cf_preserve_reference_channels",

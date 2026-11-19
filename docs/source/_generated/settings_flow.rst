@@ -5728,12 +5728,20 @@ count_data
 |             :py:func:`~spacr.validate.describe_plan`
 |                 ``_describe_regression_plan`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_regression_inputs`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.validate.run_preflight`
 |         :py:func:`~spacr.validate.describe_plan`
 |             ``_describe_regression_plan`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_regression_inputs`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_perform_regression_read_data`` **-- reads it**
@@ -5770,7 +5778,7 @@ count_data
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_read_data``, ``_perform_regression_set_paths``, ``_screen_figure_folders``, ``minimum_cell_simulation``, ``normalize_regression_input_pairs``, ``_preparation_key``, ``_first_count_file``, ``_count_files_of``, ``_first_usable_count_path``, ``graph_sequencing_stats``, ``barcode_qc``, ``barcode_qc_defaults``, ``_describe_regression_plan``.
+Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_read_data``, ``_perform_regression_set_paths``, ``_screen_figure_folders``, ``minimum_cell_simulation``, ``normalize_regression_input_pairs``, ``_preparation_key``, ``_first_count_file``, ``_count_files_of``, ``_first_usable_count_path``, ``graph_sequencing_stats``, ``barcode_qc``, ``barcode_qc_defaults``, ``_check_regression_inputs``, ``_describe_regression_plan``.
 
 .. _setting-flow-count_grna_column:
 
@@ -8868,15 +8876,24 @@ dependent_variable
 |             :py:func:`~spacr.validate.describe_plan`
 |                 ``_describe_regression_plan`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_regression_score_columns`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.validate.run_preflight`
 |         :py:func:`~spacr.validate.describe_plan`
 |             ``_describe_regression_plan`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_regression_score_columns`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_perform_regression_read_data`` **-- reads it**
+|     ``_check_regression_score_columns`` **-- reads it**
 | ``_preparation_key`` **-- reads it**
 | ``_make_screen`` **-- reads it**
 | :py:func:`~spacr.qt.screens.parameter_sweep.apply_settings` **-- reads it**
@@ -8891,6 +8908,7 @@ dependent_variable
 |                 ``_drug_screen_wells`` **-- reads it**
 |             ``_show_response_distribution`` **-- reads it**
 |             :py:func:`~spacr.ml.minimum_cell_simulation` **-- reads it**
+|             ``_check_regression_score_columns`` **-- reads it**
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_write_regression_panel_packages`` **-- reads it**
@@ -8904,7 +8922,7 @@ dependent_variable
 |         ``_describe_regression_plan`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_calibration_inputs``, ``_drug_screen_wells``, ``_perform_drug_screen_regression``, ``_perform_regression``, ``_perform_regression_read_data``, ``_show_response_distribution``, ``_write_regression_panel_packages``, ``minimum_cell_simulation``, ``_preparation_key``, ``_make_screen``, ``apply_settings``, ``column_run_settings``, ``_run_settings_row``, ``record_run``, ``_fitted_section``, ``_formula``, ``_describe_regression_plan``.
+Read by ``_calibration_inputs``, ``_drug_screen_wells``, ``_perform_drug_screen_regression``, ``_perform_regression``, ``_perform_regression_read_data``, ``_show_response_distribution``, ``_write_regression_panel_packages``, ``minimum_cell_simulation``, ``_preparation_key``, ``_make_screen``, ``apply_settings``, ``column_run_settings``, ``_run_settings_row``, ``record_run``, ``_fitted_section``, ``_formula``, ``_check_regression_score_columns``, ``_describe_regression_plan``.
 
 .. _setting-flow-depth:
 
@@ -16368,10 +16386,11 @@ Read by ``import_plate``.
 in_channels
 -----------
 
+| ``_refuse_old_custom_head`` **-- reads it**
 | :py:func:`~spacr.torch_artifacts.build_model_from_configuration` **-- reads it**
 | :py:func:`~spacr.torch_artifacts.model_configuration` **-- reads it**
 
-Read by ``build_model_from_configuration``, ``model_configuration``.
+Read by ``_refuse_old_custom_head``, ``build_model_from_configuration``, ``model_configuration``.
 
 .. _setting-flow-in_chans:
 
@@ -21430,10 +21449,11 @@ model_name
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
+| ``_refuse_old_custom_head`` **-- reads it**
 | :py:func:`~spacr.torch_artifacts.build_model_from_configuration` **-- reads it**
 | :py:func:`~spacr.torch_artifacts.load_model_artifact` **-- reads it**
 
-Read by ``_run_partitioned_v2``, ``get_analyze_plaque_settings``, ``train_cellpose``, ``build_model_from_configuration``, ``load_model_artifact``.
+Read by ``_run_partitioned_v2``, ``get_analyze_plaque_settings``, ``train_cellpose``, ``_refuse_old_custom_head``, ``build_model_from_configuration``, ``load_model_artifact``.
 
 .. _setting-flow-model_path:
 
@@ -39279,16 +39299,27 @@ paired_data
 |             :py:func:`~spacr.validate.describe_plan`
 |                 ``_describe_regression_plan`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_regression_inputs`` **-- reads it**
+|                 ``_check_regression_score_columns`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.validate.run_preflight`
 |         :py:func:`~spacr.validate.describe_plan`
 |             ``_describe_regression_plan`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_regression_inputs`` **-- reads it**
+|             ``_check_regression_score_columns`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_perform_regression_read_data`` **-- reads it**
 |     :py:func:`~spacr.ml.normalize_regression_input_pairs` **-- reads it**
+|     ``_check_regression_score_columns`` **-- reads it**
 | ``_announce_the_fit``
 |     :py:func:`~spacr.qt.screens.settings_model.regression_design_scan` **-- reads it**
 |         ``_count_files_of`` **-- reads it**
@@ -39299,6 +39330,7 @@ paired_data
 |     :py:func:`~spacr.ml.perform_regression`
 |         ``_perform_regression`` **-- reads it**
 |             :py:func:`~spacr.ml.normalize_regression_input_pairs` **-- reads it**
+|             ``_check_regression_score_columns`` **-- reads it**
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.measurement_scan_panel.column_run_settings` **-- reads it**
@@ -39307,7 +39339,7 @@ paired_data
 |         ``_describe_regression_plan`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_perform_regression``, ``_perform_regression_read_data``, ``normalize_regression_input_pairs``, ``_first_count_file``, ``_count_files_of``, ``regression_design_scan``, ``column_run_settings``, ``_describe_regression_plan``.
+Read by ``_perform_regression``, ``_perform_regression_read_data``, ``normalize_regression_input_pairs``, ``_first_count_file``, ``_count_files_of``, ``regression_design_scan``, ``column_run_settings``, ``_check_regression_inputs``, ``_check_regression_score_columns``, ``_describe_regression_plan``.
 
 .. _setting-flow-panels:
 
@@ -45359,16 +45391,27 @@ score_data
 |             :py:func:`~spacr.validate.describe_plan`
 |                 ``_describe_regression_plan`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_regression_inputs`` **-- reads it**
+|                 ``_check_regression_score_columns`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.validate.run_preflight`
 |         :py:func:`~spacr.validate.describe_plan`
 |             ``_describe_regression_plan`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_regression_inputs`` **-- reads it**
+|             ``_check_regression_score_columns`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_perform_regression_read_data`` **-- reads it**
 |     :py:func:`~spacr.ml.normalize_regression_input_pairs` **-- reads it**
+|     ``_check_regression_score_columns`` **-- reads it**
 | ``_preparation_key`` **-- reads it**
 | ``_perform_regression``
 |     :py:func:`~spacr.ml.perform_regression`
@@ -45377,6 +45420,7 @@ score_data
 |                 ``_calibration_inputs`` **-- reads it**
 |             :py:func:`~spacr.ml.minimum_cell_simulation` **-- reads it**
 |             :py:func:`~spacr.ml.normalize_regression_input_pairs` **-- reads it**
+|             ``_check_regression_score_columns`` **-- reads it**
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.measurement_scan_panel.column_run_settings` **-- reads it**
@@ -45385,7 +45429,7 @@ score_data
 |         ``_describe_regression_plan`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_read_data``, ``minimum_cell_simulation``, ``normalize_regression_input_pairs``, ``_preparation_key``, ``column_run_settings``, ``_describe_regression_plan``.
+Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_read_data``, ``minimum_cell_simulation``, ``normalize_regression_input_pairs``, ``_preparation_key``, ``column_run_settings``, ``_check_regression_inputs``, ``_check_regression_score_columns``, ``_describe_regression_plan``.
 
 .. _setting-flow-score_threshold:
 
@@ -45433,16 +45477,37 @@ screen_type
 
 (str) - What the Regression module analyses. 'pooled' (default) regresses phenotype scores on the mapped guide or barcode counts of a pooled screen. 'drug_screen' reads no guides or barcodes: it compares each drug and concentration with the vehicle wells named by vehicle_control, using the response in drug_data and each well's drug and concentration. Each drug-at-concentration is its own level in one linear model, with a plate fixed effect when the wells span several plates; doses are never pooled, and dose curves belong to Dose-Response. Default 'pooled'.
 
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_regression_inputs`` **-- reads it**
+|                 ``_check_regression_score_columns`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_regression_inputs`` **-- reads it**
+|             ``_check_regression_score_columns`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
+| ``_perform_regression_read_data``
+|     ``_check_regression_score_columns`` **-- reads it**
 | ``_perform_regression``
 |     :py:func:`~spacr.ml.perform_regression`
 |         ``_perform_regression`` **-- reads it**
 |             :py:func:`~spacr.settings.get_perform_regression_default_settings`
 |                 ``_resolve_regression_analysis_choices`` **-- reads it**
+|             ``_check_regression_score_columns`` **-- reads it**
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_perform_regression``, ``_resolve_regression_analysis_choices``, ``get_setting_dependencies``.
+Read by ``_perform_regression``, ``_resolve_regression_analysis_choices``, ``get_setting_dependencies``, ``_check_regression_inputs``, ``_check_regression_score_columns``.
 
 .. _setting-flow-sd_cells_per_well:
 
