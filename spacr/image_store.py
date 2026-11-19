@@ -475,7 +475,7 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
         return {}
     merged, intensity, mask_dims, names = _merged_layout(src)
     if fmt == "tiff":
-        import tifffile
+        from .tiff_io import write_tiff
 
         out_dir = Path(src) / "merged_tiff"
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -488,7 +488,7 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
             for file_stem, array, axes in arrays:
                 target = out_dir / f"{file_stem}.tif"
                 tmp = out_dir / f".{file_stem}.tif.tmp"
-                tifffile.imwrite(str(tmp), array, photometric="minisblack", metadata={"axes": axes})
+                write_tiff(str(tmp), array, metadata={"axes": axes})
                 os.replace(tmp, target)
                 written.append(str(target))
         return {"tiff": written}

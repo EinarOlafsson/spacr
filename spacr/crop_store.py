@@ -539,11 +539,11 @@ def export_crops(project: Any, rows: Iterable[Mapping[str, Any]], out_dir: Any,
             target = out / f"{stem}.npy"
             np.save(target, pixels)
         elif fmt == "tiff":
-            import tifffile
+            from .tiff_io import write_tiff
 
             target = out / f"{stem}.tif"
-            tifffile.imwrite(str(target), pixels, photometric="minisblack", metadata={"axes": "CYX"})
-            tifffile.imwrite(str(out / f"{stem}_mask.tif"), mask.astype(np.uint8))
+            write_tiff(str(target), pixels, metadata={"axes": "CYX"})
+            write_tiff(str(out / f"{stem}_mask.tif"), mask.astype(np.uint8))
         else:
             from PIL import Image
 
@@ -842,7 +842,7 @@ def ome_zarr_crops_exist(root: Any) -> bool:
     db = root / "measurements" / "measurements.db"
     if not db.is_file() or not any((root / "crops").glob("plate=*/well=*.zarr")):
         return False
-    with sqlite3.connect(str(db)) as conn:
+    with sqlite3.connect(str(db), timeout=30) as conn:
         return conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
                             "AND name='ssCell_Crops'").fetchone() is not None
 
@@ -858,6 +858,7 @@ def _row_field(row: Any, name: str) -> Any:
 
 
 def _lazy_crop_source_base():
+    """:class:`spacr.crops.CropSource`, imported here so this module loads without it first."""
     from .crops import CropSource
     return CropSource
 
@@ -909,6 +910,7 @@ class OmeZarrCropSource(_lazy_crop_source_base()):
         self._table = None
 
     def _rows_table(self):
+        """The ``ssCell_Crops`` table, read once and indexed by ``object_id``."""
         if self._table is None:
             from .tabular import read_database
 
@@ -994,6 +996,7 @@ ROLE_COLOURS: Dict[str, Tuple[float, float, float]] = {
 
 
 def _role_colour(value: Any) -> np.ndarray:
+    """A role's colour as RGB in 0-1: a name from :data:`ROLE_COLOURS`, ``'#rrggbb'`` or a triple."""
     if isinstance(value, str):
         text = value.strip().lower()
         if text in ROLE_COLOURS:
@@ -1007,6 +1010,7 @@ def _role_colour(value: Any) -> np.ndarray:
 
 
 def _outline(mask: np.ndarray, width: int) -> np.ndarray:
+    """The ``width``-pixel inner rim of ``mask``; the crop's edge counts as outside."""
     from scipy import ndimage
 
     mask = np.asarray(mask, bool)

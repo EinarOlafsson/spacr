@@ -393,7 +393,7 @@ def _sync_tree(path):
     """Flush completed store files before publishing converter commit records."""
     for child in sorted(path.rglob("*")):
         if child.is_file():
-            with child.open("rb") as handle:
+            with child.open("r+b") as handle:
                 os.fsync(handle.fileno())
     for folder in sorted((p for p in path.rglob("*") if p.is_dir()), reverse=True):
         _sync_directory(folder)
@@ -497,7 +497,7 @@ def _copy_support_files(src, dst, ledger):
             target.parent.mkdir(parents=True, exist_ok=True)
             tmp = target.with_name(f".{target.name}.conversion-tmp")
             shutil.copyfile(src / relative, tmp)
-            with tmp.open("rb") as handle:
+            with tmp.open("r+b") as handle:
                 os.fsync(handle.fileno())
             os.replace(tmp, target)
         if _file_digest(target) != expected:
@@ -764,7 +764,7 @@ def _crop_table(db, table):
     if wal.is_file() and wal.stat().st_size:
         raise ValueError(tr("Close database writers and checkpoint the project before conversion: {path}").format(path=wal))
     uri = db.resolve().as_uri() + "?mode=ro&immutable=1"
-    with closing(sqlite3.connect(uri, uri=True)) as connection:
+    with closing(sqlite3.connect(uri, uri=True, timeout=30)) as connection:
         present = _read_query(
             connection, "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
             params=(table,), canonicalise=False, report=None, repair_plate_ids=False)
