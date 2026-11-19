@@ -112,9 +112,10 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-18: pathogen and organelle objects in the OPS phenotype path
     # (970) make 160.
     # 2026-11-18: the OPS parameter grid search on tiles (960) makes 161.
-    # 2026-11-18: Voyager3's enrichment method (980) makes 162.
+    # 2026-11-19: the OPS power simulation (968) makes 162.
+    # 2026-11-18: Voyager3's enrichment method (980) makes 163.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    assert count == 162
+    assert count == 163
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

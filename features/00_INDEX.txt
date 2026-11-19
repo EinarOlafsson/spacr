@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-762 Lifecycle: new, 183 Lifecycle: future in features/feature_list/.
+763 Lifecycle: new, 183 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -2117,6 +2117,8 @@ NEW FEATURES
        965_ops_large_site_r2_nuclei.txt
   966  OPS SPACER-PREFIX DECODE: AUTO READ WITH PER-WELL DECOY TUNING AT 1 % FDR BY DEFAULT
        966_ops_prefix_read_mode_auto_default.txt
+  968  OPS POWER SIMULATION: SIMULATED OPTICAL POOLED SCREENS WITH PLANTED EFFECTS
+       968_ops_power_simulation.txt
   970  OPS PHENOTYPE: PATHOGEN AND ORGANELLE OBJECTS, SET AS IN MASK GENERATION, PER CELL AND INTO GENE PROFILES
        970_ops_pathogen_organelle_objects.txt
   971  OPS LIVE PREVIEW: ONE TAB PER PIPELINE STEP

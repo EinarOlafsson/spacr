@@ -429,6 +429,14 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_power_retrieval": False,
     "ops_power_gene_list": None,
     "ops_power_reference_rows": None,
+    "ops_power_sim": False,
+    "ops_power_calibration_run": None,
+    "ops_power_mode": "empirical",
+    "ops_power_grid": None,
+    "ops_power_sim_seeds": [0, 1, 2],
+    "ops_power_effect_types": ["mean", "variance", "subpopulation"],
+    "ops_power_scorers": ["etest", "clustering", "information"],
+    "ops_power_sim_workers": 1,
     "ops_layout": "tiles",
     "cpg_root": None,
     "cpg_wells": None,
@@ -529,7 +537,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_placement_seed_check_pixels": bool,
     "ops_placement_seed_tolerance": (float, int),
     "ops_ph_placement_seed": (str, type(None)),
-    "ops_sites": (str, list, type(None)),
+    "ops_sites": (str, list, int, type(None)),
     "ops_objects_resume": bool,
     "ops_objects_keep_windows": bool,
     "ops_objects_windows_dir": (str, type(None)),
@@ -554,7 +562,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_cell_diameter": (float, int, type(None)),
     "ops_ph_downsample": int,
     "ops_ph_batch_size": int,
-    "ops_ph_sites": (str, type(None)),
+    "ops_ph_sites": (str, list, int, type(None)),
     "ops_ph_texture": bool,
     "ops_ph_pathogen_channel": (str, type(None)),
     "ops_ph_pathogen_model": str,
@@ -911,6 +919,14 @@ OPS_TYPES: Dict[str, object] = {
     "ops_power_retrieval": bool,
     "ops_power_gene_list": (str, type(None)),
     "ops_power_reference_rows": (str, type(None)),
+    "ops_power_sim": bool,
+    "ops_power_calibration_run": (str, type(None)),
+    "ops_power_mode": str,
+    "ops_power_grid": (dict, list, str, type(None)),
+    "ops_power_sim_seeds": (list, str),
+    "ops_power_effect_types": (list, str),
+    "ops_power_scorers": (list, str),
+    "ops_power_sim_workers": int,
     "ops_layout": str,
     "cpg_root": (str, type(None)),
     "cpg_wells": (list, str, type(None)),
@@ -1276,6 +1292,14 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_power_retrieval",
         "ops_power_gene_list",
         "ops_power_reference_rows",
+        "ops_power_sim",
+        "ops_power_calibration_run",
+        "ops_power_mode",
+        "ops_power_grid",
+        "ops_power_sim_seeds",
+        "ops_power_effect_types",
+        "ops_power_scorers",
+        "ops_power_sim_workers",
     ],
 }
 
@@ -2633,6 +2657,53 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "table of gene and numbers), such as a shipped profile, scored first "
         "in the retrieval power curve; every draw is then tested against it "
         "instead of against all cells. Default None. Alpha.",
+    "ops_power_sim":
+        "(bool) - Run the OPS power simulation instead of the image phases: "
+        "screens are simulated with planted effects, calibrated on a real "
+        "run, and scored with the same E-test, clustering and information "
+        "steps a real screen gets, so each design reports the share of real "
+        "effects found, the false-positive rate and the smallest effect found "
+        "at 80 % power. Results go to results/ops_power_sim in dst_root. "
+        "Default False. Alpha.",
+    "ops_power_calibration_run":
+        "(str or None) - The calibration JSON written by "
+        "spacr.power_ops.calibrate_from_run, or a run folder with "
+        "cells_meta.parquet and cells_E.npy to calibrate from on the fly. "
+        "Every simulated cell count, call rate, error rate and phenotype "
+        "spread comes from it. Default None. Alpha.",
+    "ops_power_mode":
+        "(str) - How simulated cells get their unperturbed phenotype: "
+        "'empirical' resamples the run's non-targeting cells (their real "
+        "shape), 'parametric' draws them from a fitted multivariate t with "
+        "well and field offsets. Default 'empirical'. Alpha.",
+    "ops_power_grid":
+        "(dict, list or None) - The designs to simulate: design keys mapped "
+        "to lists of values, such as {\"cells_per_gene\": [50, 200], "
+        "\"effect_size\": [0.2, 0.5]}; a dict runs every combination and a "
+        "list of dicts runs each sweep. A JSON file path also works. Empty "
+        "sweeps cells per gene 10 to 1,000 against effect sizes 0.1 to 1 SD. "
+        "Default None. Alpha.",
+    "ops_power_sim_seeds":
+        "(list) - The replicate seeds: every design is simulated once per "
+        "seed, and the seeds fix every draw, so a rerun gives the same "
+        "tables. Default [0, 1, 2]. Alpha.",
+    "ops_power_effect_types":
+        "(list) - The planted effect types swept when ops_power_grid names "
+        "none: 'mean' (responding cells shift), 'variance' (they spread "
+        "more) and 'subpopulation' (they move to a tighter new state). "
+        "Default ['mean', 'variance', 'subpopulation']. Alpha.",
+    "ops_power_scorers":
+        "(list) - The analysis steps run on every simulated screen: 'etest' "
+        "(per-gene E-tests against non-targeting cells), 'clustering' "
+        "(profiles, PHATE and Leiden, and the planted complexes recovered; "
+        "needs the clustering extra) and 'information' (the information a "
+        "block of new features adds about genes). Default ['etest', "
+        "'clustering', 'information']. Alpha.",
+    "ops_power_sim_workers":
+        "(int) - Simulated screens run at once, each in its own process "
+        "with ops_blas_threads threads. More finish a sweep sooner but use "
+        "more memory and cores; the tables are the same either way. "
+        "Default 1. Alpha.",
     "ops_deterministic_blas":
         "(bool) - Run the profile, atlas, flat-field and score phases with "
         "the BLAS and OpenMP libraries held at ops_blas_threads threads, so "
