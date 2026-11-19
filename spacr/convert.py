@@ -1880,8 +1880,6 @@ def scan(src: str, layout: str = 'auto',
                 'folder, then preview the import again.',
                 src=src))
     if layout not in LAYOUTS:
-        from .qt.i18n import tr
-
         raise ConfigurationError(tr(
             'Unknown layout {layout!r}; expected one of {choices}. Select one '
             'of the listed layouts to match the source folders, then preview '
