@@ -1230,6 +1230,49 @@ def _assigned_mask_archives(src, batch_paths):
     return selected
 
 
+def _eval_tile_batch(settings, field_count):
+    """The tile batch Cellpose's network runs at, from ``mask_eval_batch_size``.
+
+    ``0`` (the default) keeps the rule the masks were always made with: one
+    tile per field in the batch. A positive number is the tiles passed
+    through the network at once, which a GPU with room runs faster.
+
+    :param settings: run settings.
+    :param field_count: fields in the batch.
+    :returns: the ``batch_size`` handed to Cellpose's ``eval``.
+    :raises ValueError: when the setting is negative or not a whole number.
+    """
+    value = (settings or {}).get('mask_eval_batch_size', 0)
+    if value in (None, ''):
+        return field_count
+    try:
+        tiles = int(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"mask_eval_batch_size must be a whole number of tiles, got {value!r}")
+    if tiles < 0:
+        raise ValueError(f"mask_eval_batch_size must be 0 or more, got {tiles}")
+    return tiles or field_count
+
+
+def _with_inference_precision(model_kwargs, settings):
+    """Apply ``mask_inference_precision`` to the Cellpose model keyword arguments.
+
+    ``auto`` leaves them as the accelerator chose (bfloat16 weights on a CUDA
+    GPU, float32 elsewhere); ``bf16`` and ``fp32`` force the weights' format.
+
+    :param model_kwargs: from ``accelerator.cellpose_kwargs()``.
+    :param settings: run settings.
+    :returns: a new dict.
+    :raises ValueError: for any other value.
+    """
+    value = str((settings or {}).get('mask_inference_precision') or 'auto').strip().lower()
+    if value == 'auto':
+        return dict(model_kwargs)
+    if value not in ('bf16', 'fp32'):
+        raise ValueError(f"mask_inference_precision must be auto, bf16 or fp32, got {value!r}")
+    return {**model_kwargs, 'use_bfloat16': value == 'bf16'}
+
+
 def _mask_eval(model, x, *, site, settings=None, **kwargs):
     """Call ``model.eval(x, **kwargs)`` under the GPU memory governor.
 
@@ -1630,7 +1673,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         pretrained = _resolve_cellpose_pretrained(
             model_name, object_type=object_type, setting=model_key)
         from ._mask_workers import _cached_model
-        model_kwargs = accelerator.cellpose_kwargs()
+        model_kwargs = _with_inference_precision(accelerator.cellpose_kwargs(), settings)
         model = _cached_model(
             ('cellpose', pretrained, model_kwargs),
             lambda: cp_models.CellposeModel(pretrained_model=pretrained, **model_kwargs))
@@ -1787,7 +1830,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             model, batch_list,
                             site=('mask_shared_gpu' if _shares_a_gpu(settings)
                                   else 'mask_sam'),
-                            settings=settings, batch_size=len(batch_list),
+                            settings=settings,
+                            batch_size=_eval_tile_batch(settings, len(batch_list)),
                             **eval_kwargs)
 
                         masks, flows = parse_cellpose4_output(output)[:2]
@@ -2874,7 +2918,7 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
 
     output = _mask_eval(
         model, batch_list, site='mask_organelle', settings=settings,
-        batch_size=len(batch_list),
+        batch_size=_eval_tile_batch(settings, len(batch_list)),
         normalize=False,
         channel_axis=-1,
         diameter=None,

@@ -1514,7 +1514,10 @@ if app_key == "mask":
         assert resolve_default_settings(app)[key] is None
     recognized_arrivals |= optional_arrivals
     # Item 987 removed keep_npz (one claim in Mask), so one fewer comparison: 1005 -> 1004.
-    assert comparisons - len(recognized_arrivals) == 1004
+    # Item 987b added mask_inference_precision ("Default auto.") and
+    # mask_eval_batch_size ("Default 0."), resolved by Mask; one of them is a
+    # compared claim: 1004 -> 1005.
+    assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716
@@ -1561,6 +1564,7 @@ if app_key == "mask":
     # settings of the recruitment and replication panels (items 816, 815), one
     # claim each per app that declares them (report in both apps).
     # - 1: item 987 removed keep_npz, one Mask claim of the census.
+    # + 1: item 987b's mask_inference_precision / mask_eval_batch_size, one Mask claim.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 - 1 + 2 + 8 + 18 + 1 + 1 + 46
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
@@ -1575,7 +1579,7 @@ if app_key == "mask":
             + len(item_470)
             + len(item_537_min_division)
             + len(item_548_pool)
-            + len(item_685) + len(item_537_rules)
+            + len(item_685) + len(item_537_rules) + 1
             == comparisons - len(recognized_arrivals))
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs

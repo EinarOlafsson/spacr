@@ -115,7 +115,7 @@ def test_gpu_store_is_none_without_cuda(monkeypatch):
     """No CUDA device means no GPU copy."""
     import torch
     monkeypatch.setattr(torch.cuda, 'is_available', lambda: False)
-    assert MB._store_on_gpu(np.zeros((1, 2, 2, 1), dtype=np.float32), memory=lambda: (10**12, 10**12)) is None
+    assert MB._store_on_gpu(np.zeros((1, 2, 2, 1), dtype=np.float32)) is None
 
 
 def test_roles_run_on_every_batch_before_the_next_batch_is_loaded(monkeypatch):
@@ -154,3 +154,127 @@ def test_a_role_that_fails_frees_the_batch_and_stops_the_feeder(monkeypatch):
     assert MB._RESIDENT == {}
     feeder._thread.join(timeout=5)
     assert not feeder._thread.is_alive()
+
+
+class _Card:
+    """A fake card: tracks bytes held, host-to-device copies and cache releases."""
+
+    def __init__(self, total_gib):
+        self.total = total_gib * 2**30
+        self.held = 0
+        self.copies = 0
+        self.cache_released = 0
+
+    def memory(self):
+        return self.total - self.held, self.total
+
+    def copy(self, array):
+        self.copies += 1
+        card = self
+        card.held += array.nbytes
+
+        class Tensor:
+            shape = array.shape
+            dtype = 'torch.float32'
+
+            def __getitem__(self, key):
+                class Slice:
+                    def cpu(self_inner):
+                        return self_inner
+
+                    def numpy(self_inner):
+                        return array[key]
+                return Slice()
+
+            def __del__(self):
+                card.held -= array.nbytes
+
+        return Tensor()
+
+
+def _store_with(card, logs=None, tile_batch=5):
+    return lambda array: MB._store_on_gpu(
+        array, memory=card.memory, copy=card.copy, model_loaded=False,
+        tile_batch=tile_batch, log=(logs.append if logs is not None else print))
+
+
+def test_a_batch_that_does_not_fit_stays_in_ram_and_says_so():
+    """Batch + network + eval working set + margin must fit in free VRAM before any byte moves."""
+    array = np.zeros((10, 512, 512, 3), dtype=np.float32)          # 30 MiB
+    logs = []
+    tight = _Card(total_gib=1.5 + 1.3 + 5 * 0.2 + array.nbytes / 2**30 - 0.05)
+    assert _store_with(tight, logs)(array) is None
+    assert tight.copies == 0 and tight.held == 0, 'a copy started on a card without room'
+    assert logs and 'stays in RAM' in logs[0] and 'margin' in logs[0]
+    roomy = _Card(total_gib=24)
+    assert _store_with(roomy)(array) is not None and roomy.copies == 1
+
+
+def test_the_working_set_of_a_larger_tile_batch_is_part_of_the_fit():
+    """The same batch fits at 5 tiles per pass and not at 128."""
+    array = np.zeros((10, 512, 512, 3), dtype=np.float32)
+    card = _Card(total_gib=6)
+    assert _store_with(card, tile_batch=5)(array) is not None
+    other = _Card(total_gib=6)
+    assert _store_with(other, [], tile_batch=128)(array) is None
+
+
+def test_device_memory_returns_to_baseline_after_the_last_role(monkeypatch):
+    """The batch is deleted on the device and the cache released when the last role is done."""
+    released = []
+    monkeypatch.setattr(MB, '_empty_cache', lambda: released.append(1))
+    monkeypatch.setattr(MB, '_read_plan', lambda masks_dir: _plan())
+    monkeypatch.setattr(MB, '_batch_index_of', lambda path: int(path[-1]))
+    monkeypatch.setattr(MB, '_batch_ram_estimate', lambda plan, index: 0)
+    card = _Card(total_gib=24)
+    feeder = _feeder(3, _store_with(card), [])
+    held_during = []
+
+    def run_role(role, path):
+        held_during.append(card.held)
+
+    MB._batch_first('/x', ['0', '1', '2'], ['cell', 'nucleus', 'pathogen'], run_role, feeder=feeder)
+    assert all(h > 0 for h in held_during)
+    assert card.held == 0, 'a batch stayed on the card after its last role'
+    assert len(released) == 3, 'the allocator cache was not released after each batch'
+    assert card.copies == 3, 'a batch went to the card more than once'
+
+
+def test_a_batch_is_freed_when_a_role_raises(monkeypatch):
+    """try/finally: a failed batch never stays resident."""
+    released = []
+    monkeypatch.setattr(MB, '_empty_cache', lambda: released.append(1))
+    monkeypatch.setattr(MB, '_read_plan', lambda masks_dir: _plan())
+    monkeypatch.setattr(MB, '_batch_index_of', lambda path: int(path[-1]))
+    monkeypatch.setattr(MB, '_batch_ram_estimate', lambda plan, index: 0)
+    card = _Card(total_gib=24)
+    feeder = _feeder(3, _store_with(card), [])
+
+    def run_role(role, path):
+        if role == 'nucleus':
+            raise RuntimeError('boom')
+
+    try:
+        MB._batch_first('/x', ['0', '1', '2'], ['cell', 'nucleus'], run_role, feeder=feeder)
+    except RuntimeError:
+        pass
+    assert card.held == 0 and released, 'the failed batch stayed on the card'
+    assert MB._RESIDENT == {}
+
+
+def test_roles_read_slices_without_a_second_full_copy(monkeypatch):
+    """Eval calls take slices of the resident batch; the full batch crosses to the device once."""
+    monkeypatch.setattr(MB, '_empty_cache', lambda: None)
+    monkeypatch.setattr(MB, '_read_plan', lambda masks_dir: _plan())
+    monkeypatch.setattr(MB, '_batch_index_of', lambda path: int(path[-1]))
+    monkeypatch.setattr(MB, '_batch_ram_estimate', lambda plan, index: 0)
+    card = _Card(total_gib=24)
+    feeder = _feeder(2, _store_with(card), [])
+    seen = []
+
+    def run_role(role, path):
+        batch = MB._open_batch(path)
+        seen.append(np.asarray(batch['data'][0:1]).shape)
+
+    MB._batch_first('/x', ['0', '1'], ['cell', 'nucleus', 'pathogen'], run_role, feeder=feeder)
+    assert card.copies == 2 and len(seen) == 6

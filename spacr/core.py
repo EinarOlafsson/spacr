@@ -254,7 +254,7 @@ def _run_masks_batch_first(mask_src, src, settings, files_processed, files_to_pr
     print(f'Batch-first masks: {len(paths)} batch(es), roles {", ".join(roles)}; '
           'each batch is built once and kept in GPU memory for every role.')
     with _sampled_ordinary_masks(mask_src, '+'.join(roles)):
-        _batch_first(mask_src, paths, roles, run_role)
+        _batch_first(mask_src, paths, roles, run_role, settings=settings)
     _settings_after_role(settings, mask_src)
     for role in roles:
         _run_seg_qc(mask_src, settings, role)

@@ -418,29 +418,77 @@ class _GpuBatch:
         return self._tensor[key].cpu().numpy()
 
     def free(self):
-        """Drop the device copy."""
-        self._tensor = None
+        """Delete the device copy and give its memory back to the card at once.
+
+        Idempotent. The cache is emptied so the next batch's copy, and other
+        processes on the card, see the memory as free.
+        """
+        tensor, self._tensor = self._tensor, None
+        if tensor is not None:
+            del tensor
+            _empty_cache()
 
 
-def _store_on_gpu(array, *, margin_gb=1.5, memory=None):
-    """Copy a normalised batch to the GPU when it fits with the governor's margin.
+def _empty_cache():
+    """Release the CUDA allocator's cached blocks (a no-op without CUDA)."""
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:                                       # noqa: BLE001
+        pass
+
+
+#: What a batch's copy must leave room for beyond the batch itself: the
+#: network's weights when this process has not loaded them yet, and the eval
+#: working set, a rough ``_TILE_GIB`` per tile of the tile batch.
+_MODEL_GIB = 1.3
+_TILE_GIB = 0.2
+
+
+def _store_on_gpu(array, *, margin_gb=1.5, memory=None, tile_batch=5, model_loaded=None,
+                  copy=None, log=print):
+    """Copy a normalised batch to the GPU only when all of it fits, with room to segment.
+
+    The check happens before any byte moves: the batch, the network's weights
+    (unless this process already holds them), the eval working set for
+    ``tile_batch`` tiles and the governor's margin must all fit in the memory
+    free right now. A batch that does not fit stays in RAM and the log says so,
+    so a copy never starts that could fail halfway.
 
     :param array: the normalised batch.
-    :param margin_gb: free VRAM to leave beyond the batch, in GiB.
+    :param margin_gb: free VRAM to leave beyond everything else, in GiB
+        (``gpu_memory_margin_gb``).
     :param memory: callable returning ``(free, total)`` bytes (CUDA's by default).
+    :param tile_batch: tiles per network pass of the eval that will follow.
+    :param model_loaded: whether the weights are already on the card (read from
+        the allocator when None).
+    :param copy: callable ``array -> device tensor`` (a CUDA copy by default).
+    :param log: callable taking the one-line reason a batch stays in RAM.
     :returns: a :class:`_GpuBatch`, or None when there is no usable GPU or the
         batch does not fit, so the caller keeps it in RAM.
     """
     try:
         import torch
 
-        if not torch.cuda.is_available():
+        if memory is None and not torch.cuda.is_available():
             return None
         free, _total = (memory or torch.cuda.mem_get_info)()
-        if free < array.nbytes + margin_gb * 2**30:
+        if model_loaded is None:
+            model_loaded = copy is None and torch.cuda.memory_allocated() > 0.5 * _MODEL_GIB * 2**30
+        need = (array.nbytes + (0 if model_loaded else _MODEL_GIB * 2**30)
+                + max(1, int(tile_batch)) * _TILE_GIB * 2**30 + margin_gb * 2**30)
+        if free < need:
+            log(f'Mask batch of {array.nbytes / 2**30:.2f} GiB stays in RAM: it needs '
+                f'{need / 2**30:.1f} GiB free on the GPU with the network, a '
+                f'{int(tile_batch)}-tile working set and the {margin_gb:g} GiB margin, '
+                f'and {free / 2**30:.1f} GiB is free.')
             return None
-        return _GpuBatch(torch.from_numpy(np.ascontiguousarray(array)).to('cuda'))
-    except Exception:                                       # noqa: BLE001
+        tensor = (copy or (lambda a: torch.from_numpy(np.ascontiguousarray(a)).to('cuda')))(array)
+        return _GpuBatch(tensor)
+    except Exception as error:                              # noqa: BLE001
+        log(f'Mask batch stays in RAM: the GPU copy could not start ({error}).')
         return None
 
 
@@ -573,7 +621,7 @@ class _BatchFeeder:
             pass
 
 
-def _batch_first(mask_src, paths, roles, run_role, *, feeder=None):
+def _batch_first(mask_src, paths, roles, run_role, *, feeder=None, settings=None):
     """Run every role on one batch before the next batch is loaded.
 
     :param mask_src: the ``masks`` folder holding the plan.
@@ -581,11 +629,19 @@ def _batch_first(mask_src, paths, roles, run_role, *, feeder=None):
     :param roles: the object roles to run on each batch, in order.
     :param run_role: callable ``(role, path)`` that segments one role on one batch.
     :param feeder: a :class:`_BatchFeeder` (built from the plan by default).
+    :param settings: run settings: ``gpu_memory_margin_gb`` and the eval tile batch
+        size the GPU copy's fit check.
     :returns: the feeder, for its counters.
     """
     plan = _read_plan(mask_src)
     indices = [_batch_index_of(path) for path in paths]
-    feeder = feeder or _BatchFeeder(plan, indices)
+    if feeder is None:
+        from .object import _eval_tile_batch
+
+        margin = float((settings or {}).get('gpu_memory_margin_gb') or 1.5)
+        tiles = _eval_tile_batch(settings, max(len(_batch_fields(plan, i)) for i in indices))
+        feeder = _BatchFeeder(plan, indices, store=lambda array: _store_on_gpu(
+            array, margin_gb=margin, tile_batch=tiles))
     try:
         for path in paths:
             _index, resident = feeder.next()
