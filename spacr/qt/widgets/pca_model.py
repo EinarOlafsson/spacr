@@ -315,13 +315,16 @@ class PCASpec:
         count = int(self.n_components)
         if count < 1:
             raise PCAError(
-                f"n_components must be at least 1, not {self.n_components}")
+                f"n_components must be at least 1, not {self.n_components}"
+                "\n\nSet n_components to a positive whole number, then run PCA again.")
         object.__setattr__(self, "n_components", min(count, MAX_COMPONENTS))
         fraction = float(self.structural_missing)
         if not 0.0 <= fraction <= 1.0:
             raise PCAError(
                 f"structural_missing is a fraction of rows and must be in "
-                f"[0, 1], not {self.structural_missing}")
+                f"[0, 1], not {self.structural_missing}"
+                "\n\nEnter a fraction from 0 to 1 inclusive; for example, use 0.5 for "
+                "50 percent missing rows.")
         object.__setattr__(self, "structural_missing", fraction)
 
     def with_features(self, features: Sequence[str]) -> "PCASpec":
@@ -785,7 +788,9 @@ def _select_features(frame: pd.DataFrame, spec: PCASpec
         raise PCAError(
             "this table has no continuous columns to decompose. PCA needs "
             "measured quantities; plate/row/well identifiers and small "
-            "integer codes are deliberately not offered.")
+            "integer codes are deliberately not offered."
+            "\n\nLoad a measurement table containing numeric measured features, "
+            "then select at least two for PCA.")
     dropped: Dict[str, str] = {}
     kept: List[str] = []
     for name in wanted:
@@ -796,7 +801,9 @@ def _select_features(frame: pd.DataFrame, spec: PCASpec
     if len(kept) < 2:
         raise PCAError(
             f"PCA needs at least two features and got {len(kept)}. A single "
-            f"column has one component, which is the column.")
+            f"column has one component, which is the column."
+            "\n\nSelect at least two measurement columns that exist in this table, "
+            "then run PCA again.")
     return kept, dropped
 
 
@@ -875,7 +882,9 @@ def _apply_nan_policy(matrix: np.ndarray, features: List[str], spec: PCASpec,
                 f"the structurally-missing features instead of the objects.")
         raise PCAError(
             f"only {positions.size} object has a value for every feature; "
-            f"PCA needs at least two. Worst offenders: {blame}.")
+            f"PCA needs at least two. Worst offenders: {blame}."
+            "\n\nSelect features measured in at least two objects, or load a table "
+            "with more complete measurements.")
     return matrix[rows_kept], kept, positions
 
 
@@ -896,12 +905,16 @@ def _drop_constant(matrix: np.ndarray, features: List[str],
     if constant.all():
         raise PCAError(
             "every selected feature is constant over the analysed objects, "
-            "so there is no variance to decompose.")
+            "so there is no variance to decompose."
+            "\n\nSelect measurement columns that vary across objects, or review the"
+            " filters that restricted the population.")
     kept = [name for i, name in enumerate(features) if not constant[i]]
     if len(kept) < 2:
         raise PCAError(
             f"only {len(kept)} feature varies over the analysed objects "
-            f"({', '.join(kept)}); PCA needs at least two.")
+            f"({', '.join(kept)}); PCA needs at least two."
+            "\n\nSelect at least two features that vary across the analysed "
+            "objects, then run PCA again.")
     keep = ~constant
     return matrix[:, keep], kept, mean[keep], sd[keep]
 
@@ -982,7 +995,9 @@ def pca(frame: pd.DataFrame, spec: Optional[PCASpec] = None) -> PCAResult:
     n_features_in = len(features)
     if n_rows_in < 2:
         raise PCAError(
-            f"PCA needs at least two objects and this table has {n_rows_in}.")
+            f"PCA needs at least two objects and this table has {n_rows_in}."
+            "\n\nLoad a table with at least two measured objects, or review the "
+            "filters that removed the other rows.")
 
     numeric = frame[features].apply(pd.to_numeric, errors="coerce")
     matrix = numeric.to_numpy(dtype=float, copy=True)
