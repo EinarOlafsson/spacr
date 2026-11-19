@@ -1,0 +1,34 @@
+MEASURE WRITES THE SPACR STORE, AND THE CROP LOADER READS IT
+============================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-19, alpha (measurement_backend value 'spacr_store'; the setting is ALPHA_FEATURES[576]). Under development per proposals/READINESS.md. spacr/measure.py, spacr/crop_loader.py, spacr/utils.py, spacr/settings.py, spacr/settings_spec.py, tests/test_measure_store_975.py.
+Requested: maintainer decision 2026-11-17 (one store for all of spaCR; 974 OPS first, then 975 Mask Generation/Measure, then 976 converter and readers).
+Owner: master lane claude-975-1119.
+Source: proposals/bmc_paper_items/ITEM_spacr_store.md (975).
+Related: 974 (spacr.store), 976 (converter, readers, 984 OME metadata).
+
+BUILD
+- measurement_backend 'spacr_store': at the step where the other backends copy a
+  complete run, _write_measure_store writes every per-object table of
+  measurements.db (cell, nucleus, pathogen, cytoplasm, organelle roles and
+  summaries) as one store part per plate and well in the measurements folder,
+  sorted by condition then object_key (integer_cell_key of prcfo; unparsable
+  keys get 2**62 + row), and copies the crops png_list lists for that object
+  class at their stored bit depth, in declared channel order, into the well's
+  Zarr store, with crop_store, crop_index and crop_format on each row. A missing
+  PNG is counted and gets no pointer. measurements.db stays the live writer
+  and the working copy (the streaming store and the fresh-run refusal treat
+  spacr_store like sqlite); a failed write is reported and the run succeeds.
+- crop_loader: with measurements/spacr.duckdb present and prefer '' or 'store',
+  crops come from the store by prcfo, returned exactly as PngCropSource returns
+  them (uint8 high byte in declared order; raw-format crops stretched as
+  read_crop_png stretches them), so the Embeddings screen reads the store.
+
+ACCEPTANCE
+tests/test_measure_store_975.py (10 cases): every row and column of the cell
+and nucleus tables and every crop back through spacr.store; a reversed (format
+2) folder stored in declared order; a missing PNG counted without a pointer; a
+rerun replaces the well's files; object keys; spacr_store keeps measurements.db
+the live writer; the crop loader's store source equals PngCropSource on crop
+formats legacy, 2, 3 and 4.

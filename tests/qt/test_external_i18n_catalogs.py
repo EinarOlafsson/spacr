@@ -233,6 +233,8 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
 # keys now, so the list is empty.
 # 316, 2026-10-04: the catalog rebuild carries the 470 and 564 keys, so the
 # list is empty again.
+# 988 (2026-11-18): the catalog rebuild that pins the nine-language reviews
+# of the new read-weight tooltips carries them, so the list is empty again.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
 
 

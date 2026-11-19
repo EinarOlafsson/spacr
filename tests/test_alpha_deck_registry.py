@@ -112,9 +112,15 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-18: pathogen and organelle objects in the OPS phenotype path
     # (970) make 160.
     # 2026-11-18: the OPS parameter grid search on tiles (960) makes 161.
-    # 2026-11-18: ops_phases, a settings file names its own OPS phases (977), makes 162.
+    # 2026-11-19: the OPS power simulation (968) makes 162.
+    # 2026-11-19: distance-aware read weights and the neighbour-bleed
+    # discount in the guide call (988) make 163.
+    # 2026-11-19: the small-well guard of the prefix decode's tuning (982)
+    # makes 164.
+    # 2026-11-19: the spaCR store as an OPS output (974) makes 165.
+    # 2026-11-19: ops_phases, a settings file names its own OPS phases (977), makes 166.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    assert count == 162
+    assert count == 166
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

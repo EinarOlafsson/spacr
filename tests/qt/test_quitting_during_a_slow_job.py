@@ -57,9 +57,8 @@ def _assert_clean(out) -> None:
     assert "CASE-END" in out.stdout, out.stdout[-2000:]
 
 
-def test_a_script_that_ends_during_a_job_runner_job_exits_cleanly(tmp_path):
-    """No event loop ever quits, so only the exit hook can stop the job."""
-    out, _ = _run('''
+@pytest.mark.parametrize("script", [
+    pytest.param('''
         from spacr.qt.job_runner import JobRunner
         owner = QWidget()
         runner = JobRunner(owner, app_key="slow read")
@@ -68,13 +67,9 @@ def test_a_script_that_ends_during_a_job_runner_job_exits_cleanly(tmp_path):
             app.processEvents()
         assert runner.active_jobs() == 1
         print("CASE-END", flush=True)
-    ''', tmp_path)
-    _assert_clean(out)
-
-
-def test_quitting_the_event_loop_during_a_slow_job_exits_cleanly(tmp_path):
-    """The real quit path: `aboutToQuit` runs the bounded drain."""
-    out, _ = _run('''
+    ''',
+                 id="test_a_script_that_ends_during_a_job_runner_job_exits_cleanly"),
+    pytest.param('''
         from spacr.qt.bridge import retire_live_work
         from spacr.qt.job_runner import JobRunner
         window = QWidget()
@@ -88,7 +83,25 @@ def test_quitting_the_event_loop_during_a_slow_job_exits_cleanly(tmp_path):
         assert delivered == [], "a cancelled job's result reached its handler"
         del window
         print("CASE-END", flush=True)
-    ''', tmp_path)
+    ''',
+                 id="test_quitting_the_event_loop_during_a_slow_job_exits_cleanly"),
+    pytest.param('''
+        import spacr.qt.bridge
+        class _Fetch(QThread):
+            def run(self):
+                time.sleep(0.8)
+
+        window = QWidget()
+        fetch = _Fetch(window)
+        fetch.start()
+        app.processEvents()
+        print("CASE-END", flush=True)
+    ''',
+                 id="test_a_qthread_owned_by_a_widget_does_not_abort_the_exit"),
+])
+def test_quitting_during_background_work_exits_cleanly(tmp_path, script):
+    """Run each original exit path and its assertions in an isolated interpreter."""
+    out, _ = _run(script, tmp_path)
     _assert_clean(out)
 
 
@@ -104,23 +117,6 @@ def test_a_job_longer_than_the_budget_is_parked_not_destroyed(tmp_path):
     ''', tmp_path)
     _assert_clean(out)
     assert elapsed < 60, f"exit took {elapsed:.1f} s"
-
-
-def test_a_qthread_owned_by_a_widget_does_not_abort_the_exit(tmp_path):
-    """A screen's own QThread subclass is neither a runner nor a run."""
-    out, _ = _run('''
-        import spacr.qt.bridge
-        class _Fetch(QThread):
-            def run(self):
-                time.sleep(0.8)
-
-        window = QWidget()
-        fetch = _Fetch(window)
-        fetch.start()
-        app.processEvents()
-        print("CASE-END", flush=True)
-    ''', tmp_path)
-    _assert_clean(out)
 
 
 @pytest.mark.slow
