@@ -201,7 +201,10 @@ def test_the_new_settings_are_empty_by_default_and_alpha():
     from spacr.settings import ALPHA_FEATURES
 
     keys = ALPHA_FEATURES[961]["settings"]
-    assert len(keys) == 7 and all(OPS_DEFAULTS[key] is None for key in keys)
+    assert len(keys) == 6 and all(OPS_DEFAULTS[key] is None for key in keys)
+    # The nucleus labels are item 988's setting, which 961 reuses.
+    assert "ops_prefix_nuclei_masks" in ALPHA_FEATURES[988]["settings"]
+    assert OPS_DEFAULTS["ops_prefix_nuclei_masks"] is None
 
 
 def test_the_grid_varies_compartment_and_call_sort_as_the_decode_runs_them(tmp_path):
