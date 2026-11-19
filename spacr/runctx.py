@@ -1245,10 +1245,15 @@ class ErrorPolicy:
         if self.mode == ON_ERROR_RETRY:
             self._retried.append((unit, tried))
             self.log.error(
-                "on_error=retry: %s failed all %d attempts; stopping the run",
+                (
+                'on_error=retry: %s failed all %d attempts; stopping the run. '
+                'Read the error for this unit in the run log and resolve its '
+                'cause before retrying.'),
                 unit, tried)
         else:
-            self.log.error("on_error=stop: %s failed; stopping the run", unit)
+            self.log.error((
+                'on_error=stop: %s failed; stopping the run. Read the error for '
+                'this unit in the run log and resolve its cause before resuming.'), unit)
         raise exc
 
     def run(self, unit: Any, fn: Callable[..., Any], *args: Any,

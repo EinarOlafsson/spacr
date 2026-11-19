@@ -1089,7 +1089,10 @@ def _describe_plain(path: str) -> Dict[str, Any]:
     with Image.open(_long_path(path)) as image:
         if (getattr(image, 'n_frames', 1) != 1
                 or len(image.info.get('sizes', ())) > 1):
-            raise ConfigurationError(tr("Multi-frame raster images need explicit frame or axis selection; no frames were imported."))
+            raise ConfigurationError(tr(
+                    'Multi-frame raster images need explicit frame or axis selection;'
+                    ' no frames were imported. Export the required frame as a '
+                    'single-frame TIFF or PNG, then import that file.'))
         width, height = image.size
         mode = image.mode
         if mode in ('P', 'PA'):
@@ -1116,24 +1119,45 @@ def _describe_npy(path: str) -> Dict[str, Any]:
     from .qt.i18n import tr
 
     if os.path.basename(path).lower().endswith('_seg.npy'):
-        raise ConfigurationError(tr("Cellpose *_seg.npy bundles use their separate editor route."))
+        raise ConfigurationError(tr(
+                'Cellpose *_seg.npy bundles use their separate editor route. Open'
+                ' this bundle in Make Masks, or choose an image file for '
+                'conversion.'))
     with open(_long_path(path), 'rb') as handle:
         prefix = handle.read(12)
     if (len(prefix) < 10 or prefix[:6] != b'\x93NUMPY'
             or prefix[6:8] not in (b'\x01\x00', b'\x02\x00', b'\x03\x00')):
-        raise ConfigurationError(tr("NPY header is missing, invalid, or too large: {path}", path=path))
+        raise ConfigurationError(tr(
+                'NPY header is missing, invalid, or too large: {path}. Choose a '
+                'valid NPY image, or export it again from the original data, then'
+                ' preview the import again.',
+                path=path))
     header_size = int.from_bytes(prefix[8:10] if prefix[6] == 1 else prefix[8:12], 'little')
     if header_size > 65536:
-        raise ConfigurationError(tr("NPY header is missing, invalid, or too large: {path}", path=path))
+        raise ConfigurationError(tr(
+                'NPY header is missing, invalid, or too large: {path}. Choose a '
+                'valid NPY image, or export it again from the original data, then'
+                ' preview the import again.',
+                path=path))
     header = read_npy_header(_long_path(path))
     dtype = np.dtype(header['descr'])
     if dtype.hasobject or dtype.fields is not None or dtype.kind not in 'buif':
-        raise ConfigurationError(tr("NPY import requires a real numeric array without objects or structured fields."))
+        raise ConfigurationError(tr(
+                'NPY import requires a real numeric array without objects or '
+                'structured fields. Export the image as a numeric NPY array or '
+                'TIFF, then preview the import again.'))
     shape = tuple(header['shape'])
     if len(shape) != 2 or any(size <= 0 for size in shape):
-        raise ConfigurationError(tr("NPY import requires a two-dimensional YX image; arrays with other dimensions need explicit axis selection."))
+        raise ConfigurationError(tr(
+                'NPY import requires a two-dimensional YX image; arrays with '
+                'other dimensions need explicit axis selection. Select an image '
+                'plane and export it as a two-dimensional NPY or TIFF, then '
+                'preview the import again.'))
     if header['expected_bytes'] is None or header['actual_bytes'] < header['expected_bytes']:
-        raise ConfigurationError(tr("NPY data is truncated: {path}", path=path))
+        raise ConfigurationError(tr(
+                'NPY data is truncated: {path}. Restore or export the complete '
+                'file from the original data, then preview the import again.',
+                path=path))
     return {'shape': shape, 'axes': 'YX', 'dtype': str(dtype), 'n_t': 1,
             'n_z': 1, 'n_c': 1, 'n_series': 1, 'axes_assumed': '',
             'reader': 'numpy', 'fortran_order': header['fortran_order']}
@@ -1825,8 +1849,13 @@ def scan(src: str, layout: str = 'auto',
         ``layout`` is not recognised, or ``metadata_type`` names no
         convention.
     """
+    from .qt.i18n import tr
+
     if not src or not os.path.isdir(src):
-        raise ConfigurationError(f'Source folder does not exist: {src!r}')
+        raise ConfigurationError(tr(
+                'Source folder does not exist: {src!r}. Choose an existing image '
+                'folder, then preview the import again.',
+                src=src))
     if layout not in LAYOUTS:
         raise ConfigurationError(
             f'Unknown layout {layout!r}; expected one of {", ".join(LAYOUTS)}')

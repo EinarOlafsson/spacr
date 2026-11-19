@@ -1626,8 +1626,11 @@ def run_queue(queue: Queue,
         try:
             save_queue(queue, path)
         except Exception as exc:
-            LOG.error('batch: could not persist queue state to %s: %s — the run '
-                      'continues but could not be resumed from here', path, exc)
+            LOG.error((
+                'batch: could not persist queue state to %s: %s — the run '
+                'continues but could not be resumed from here. Check write '
+                'permission and free space at the queue-state path, then save the'
+                ' queue before relying on resume.'), path, exc)
 
     total = len(queue.jobs)
     runner = runner or subprocess_runner
@@ -1656,7 +1659,9 @@ def run_queue(queue: Queue,
                          f'which is {blocker.status}. Running it anyway would '
                          f'produce a result computed from a missing or partial input.')
             job.finished = _now_iso()
-            LOG.error('batch: SKIPPED %s — %s', job.id, job.error)
+            LOG.error((
+                'batch: SKIPPED %s — %s. Resolve the dependency problem shown '
+                'above, then run that dependency successfully before this job.'), job.id, job.error)
             persist()
             _safe(on_progress, Progress('job_skipped', job.id, i, total,
                                         job.status, job.error))
@@ -1734,7 +1739,10 @@ def run_queue(queue: Queue,
                 job.error = (f'exited 0 but its run_status says {status.get("n_failed")} '
                              f'of {status.get("n_attempted")} items failed — the '
                              f'artifacts cover a subset')
-                LOG.error('batch: %s is PARTIAL — %s', job.id, job.error)
+                LOG.error((
+                    'batch: %s is PARTIAL — %s. Read the failed-item list in the run '
+                    'report. Resolve those failures and rerun the affected items '
+                    'before using the artifacts as a complete result.'), job.id, job.error)
             LOG.info('batch: %s finished in %s', job.id, fmt_duration(job.duration_s))
         else:
             kind, message = classify_failure(code, log_path)
@@ -1775,13 +1783,18 @@ def run_queue(queue: Queue,
 
     if stopped:
         _safe(on_progress, Progress('queue_stopped', '', total, total, '', stopped))
-        LOG.error('batch: queue stopped — %s', stopped)
+        LOG.error((
+            'batch: queue stopped — %s. Read the stop reason above. If a job '
+            'failed, resolve that failure before resuming the remaining jobs.'), stopped)
     text = result.summary()
     if path:
         try:
             ledger.stamp(path)
         except Exception as exc:
-            LOG.error('batch: could not stamp the queue file: %s', exc)
+            LOG.error((
+                'batch: could not stamp the queue file: %s. Check write '
+                'permission and free space in the queue folder. Keep the run log '
+                'because the saved queue has no updated run-status report.'), exc)
     if echo:
         print(text)
     LOG.info('batch: queue %r finished — %s ok, %s failed, %s skipped, %s not run',

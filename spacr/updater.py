@@ -746,6 +746,8 @@ def run_install_command(args, timeout: float = 1800.0):
     :param timeout: seconds before the install is given up on.
     :returns: ``(exit_code, output)`` with stdout and stderr combined.
     """
+    from .qt.i18n import tr
+
     args = [str(part) for part in args]
     _apply_network_settings()
     LOG.info("running: %s", " ".join(args))
@@ -756,13 +758,18 @@ def run_install_command(args, timeout: float = 1800.0):
         LOG.exception("Packaging tool is missing")
         return 1, f"Could not run {args[0]}: {exc}"
     except subprocess.TimeoutExpired:
-        LOG.error("Command timed out after %s seconds", timeout)
+        LOG.error(tr(
+            'Command timed out after %s seconds. Read the command log to find'
+            ' the stalled step, check its connection or dependency state, '
+            'then retry the update.'), timeout)
         return 1, (f"The command timed out after "
                    f"{int(timeout // 60)} minutes.")
     output = "".join(part for part in
                      (completed.stdout or "", completed.stderr or "") if part)
     if completed.returncode != 0:
-        LOG.error("Command failed (%s):\n%s", completed.returncode, output)
+        LOG.error(tr(
+            'Command failed (%s):\n%s. Read the command output above, resolve '
+            'the reported cause, then retry the update.'), completed.returncode, output)
     return completed.returncode, output
 
 
