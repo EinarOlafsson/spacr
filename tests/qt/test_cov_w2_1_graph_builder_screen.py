@@ -80,16 +80,6 @@ def test_a_tsv_is_read_with_tabs(tmp_path, measurements):
     assert len(frame) == 4
 
 
-def test_a_failed_read_is_reported_on_the_source_line(screen, tmp_path):
-    """The failure arrives from the worker and still lands on the label."""
-    screen._path = str(tmp_path / "cells.csv")
-
-    screen._on_load_failed("No columns to parse from file")
-
-    assert screen._source.text() == (
-        "could not read cells.csv: No columns to parse from file")
-
-
 def test_choosing_a_table_from_the_dialog_loads_it(screen, monkeypatch,
                                                    database):
     """The button is a file dialog and then the ordinary load path."""
@@ -111,12 +101,5 @@ def test_cancelling_the_dialog_loads_nothing(screen, monkeypatch):
         staticmethod(lambda *a, **k: ("", "")))
 
     screen.choose_table()
-
-    assert screen._frame is None
-
-
-def test_picking_a_table_with_no_file_loaded_does_nothing(screen):
-    """The combo is populated programmatically; its signal must be harmless."""
-    screen._on_table_picked("cell")
 
     assert screen._frame is None

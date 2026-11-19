@@ -113,22 +113,27 @@ class TestTheTermsSayWhatTheMaintainerAsked:
         assert "grant the licensor" in said
         assert "develop the software further" in said
 
-    def test_uploaded_images_and_models_may_become_community_resources(
-            self, terms_module):
+    @pytest.mark.parametrize("first_clause, second_clause, third_clause", [
+        pytest.param(
+            "shared resource", "community resources", "object detection",
+            id="test_uploaded_images_and_models_may_become_community_resources"),
+        pytest.param(
+            "diagnostic data", "improving the software",
+            "any other purpose connected with its development",
+            id="test_logs_and_metadata_may_be_used_to_make_it_better"),
+    ])
+    def test_the_required_resource_and_diagnostic_clauses_are_present(
+            self, terms_module, first_clause, second_clause, third_clause):
+        """Retain every resource clause and the open-ended diagnostic grant.
+
+        The diagnostic grant must cover development beyond fixing the
+        reported bug.
+        """
         said = terms_module.terms_text().lower()
 
-        assert "shared resource" in said
-        assert "community resources" in said
-        assert "object detection" in said
-
-    def test_logs_and_metadata_may_be_used_to_make_it_better(
-            self, terms_module):
-        said = terms_module.terms_text().lower()
-
-        assert "diagnostic data" in said
-        assert "improving the software" in said
-        # The grant has to be open-ended, not confined to fixing that bug.
-        assert "any other purpose connected with its development" in said
+        assert first_clause in said
+        assert second_clause in said
+        assert third_clause in said
 
     def test_the_permission_names_the_report_control_it_covers(
             self, terms_module):

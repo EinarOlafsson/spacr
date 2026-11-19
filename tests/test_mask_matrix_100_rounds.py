@@ -19,10 +19,15 @@ Two entry points are exercised:
   * spacr.pipeline_v2.run_v2 (v2 streaming)     — the configs whose
     pipeline_style == 'v2'
 
-Marked @slow + @gpu. Full 100-round run is ~6-12 min on a GPU box
-(1 well × 1 field × 96 px keeps each Cellpose call short). Skips
-cleanly when CUDA or Cellpose is unavailable; otherwise it runs
-automatically.
+Marked @slow + @gpu, so CI runs it only in the gpu suite ("gpu and not
+gui") and never in the slow suite ("(slow or heavy) and not gpu"). The
+full 100-round run was quoted as ~6-12 min on an idle GPU box (1 well ×
+1 field × 96 px keeps each Cellpose call short); on 2026-11-18 it took
+about 42-43 min in one process on an RTX 3090 Ti host whose CPUs were
+saturated by other jobs (load 29-31, 16 allowed cores, nice 10), which
+made it about 60 % of that whole gpu-suite run. GPU use stayed at 13-28 %
+during it, so most of the time is CPU-side work. Skips cleanly when CUDA or
+Cellpose is unavailable; otherwise it runs automatically.
 
 Because 100 separate pytest params would flood the report, the matrix
 runs as ONE test that collects per-round failures and asserts none —

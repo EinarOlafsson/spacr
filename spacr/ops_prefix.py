@@ -53,8 +53,38 @@ QUALITY_CLASSES = {
     "none": "no read matched a callable barcode",
 }
 
-#: The per-cell quality methods (``ops_prefix_quality_method``).
-QUALITY_METHODS = ("spacr", "recipe_simple")
+#: The per-cell quality methods (``ops_prefix_quality_method``). The third,
+#: ``'weighted_majority'`` (item 988, alpha), calls a cell's top barcode by
+#: its share of the summed read weights (:data:`WEIGHTED_CLASSES`).
+QUALITY_METHODS = ("spacr", "recipe_simple", "weighted_majority")
+
+#: The classes of the ``'weighted_majority'`` method (item 988). A read's
+#: weight is its quality term times its distance term
+#: (``ops_prefix_distance_weight``); a minority barcode that is the top
+#: barcode of a touching cell has its weight multiplied by
+#: ``ops_read_neighbour_discount``.
+WEIGHTED_CLASSES = {
+    "perfect": "one barcode in the cell, holding the whole read weight",
+    "great": "several barcodes; the top barcode holds at least "
+             "ops_prefix_weighted_min_share of the read weight and more than "
+             "any other barcode",
+    "ambiguous": "matched reads, but no barcode holds the share, or two "
+                 "barcodes tie for the most weight",
+    "none": "no read matched a callable barcode",
+}
+
+#: The read-weight modes of ``ops_prefix_distance_weight`` and
+#: ``ops_read_distance_weight`` (item 988), the first being the default:
+#: ``'off'`` keeps the quality term only, ``'decay'`` multiplies it by the
+#: distance term, and ``'distance_only'`` uses the distance term alone.
+READ_WEIGHT_MODES = ("off", "decay", "distance_only")
+
+#: The tuning-grid keys of the weighted majority (item 988), in grid order
+#: after the read threshold, read-quality floor and mismatch axes. A decay
+#: length of 0 turns the distance term off, a discount of 1 turns the
+#: neighbour discount off, and a quality term of 0 weights every read 1.
+WEIGHT_GRID_KEYS = ("ops_prefix_distance_decay_px", "ops_read_neighbour_discount",
+                    "ops_prefix_weighted_quality")
 
 #: The classes of the ``'recipe_simple'`` method, the "simple" cell quality
 #: of the Broad pooled Cell Painting profiling recipe that PERISCOPE used.
@@ -746,9 +776,433 @@ def _class_counts(matched: pd.DataFrame) -> Dict[str, List[int]]:
     return counts
 
 
+def _touching_cells(labels: np.ndarray) -> np.ndarray:
+    """The pairs of cells whose labels touch, in both orders (item 988).
+
+    Two cells touch when a pixel of one is the 4-connected neighbour of a
+    pixel of the other.
+
+    :param labels: a ``(Y, X)`` cell label image, 0 for background.
+    :returns: ``(P, 2)`` int64 ``(cell, neighbour)`` rows, each pair in both
+        orders, sorted and without repeats.
+    """
+    lab = np.asarray(labels)
+    a = np.concatenate([lab[1:, :].ravel(), lab[:, 1:].ravel()])
+    b = np.concatenate([lab[:-1, :].ravel(), lab[:, :-1].ravel()])
+    keep = (a != b) & (a > 0) & (b > 0)
+    if not keep.any():
+        return np.zeros((0, 2), np.int64)
+    pairs = np.unique(np.stack([a[keep], b[keep]], 1).astype(np.int64), axis=0)
+    return np.unique(np.concatenate([pairs, pairs[:, ::-1]]), axis=0)
+
+
+def _read_nucleus_gaps(y: np.ndarray, x: np.ndarray, cell: np.ndarray,
+                       cells: np.ndarray, nuclei: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Each read's distance to the nucleus of its own cell, in pixels (item 988).
+
+    The distance is 0 inside the nucleus and the distance to the nearest
+    nucleus pixel outside it. When the nearest nucleus belongs to another
+    cell, or the cell has none, the read gets a fallback distance instead:
+    its distance to the cell's centroid minus the site's median nucleus
+    radius (the radius of a disc of the median nucleus area), at least 0.
+
+    :param y: the reads' rows.
+    :param x: the reads' columns.
+    :param cell: each read's cell label, 0 outside every cell.
+    :param cells: the site's cell labels.
+    :param nuclei: the site's nucleus labels; a nucleus carries the label of
+        its cell.
+    :returns: ``(gap, fallback)``: float distances, NaN for reads outside
+        every cell, and True where the fallback was used.
+    :raises ValueError: when the two label images differ in shape.
+    """
+    from scipy import ndimage
+
+    cells = np.asarray(cells)
+    nuclei = np.asarray(nuclei)
+    if cells.shape != nuclei.shape:
+        raise ValueError(f"the nucleus labels are {nuclei.shape}, the cell labels "
+                         f"{cells.shape}")
+    y = np.asarray(y, np.int64)
+    x = np.asarray(x, np.int64)
+    cell = np.asarray(cell, np.int64)
+    gap = np.full(len(cell), np.nan)
+    fallback = np.zeros(len(cell), bool)
+    inside = cell > 0
+    if not inside.any():
+        return gap, fallback
+    n = int(cells.max())
+    area = np.bincount(cells.ravel(), minlength=n + 1).astype(float)
+    rows, cols = np.indices(cells.shape)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        cy = ndimage.sum_labels(rows, cells, np.arange(n + 1)) / area
+        cx = ndimage.sum_labels(cols, cells, np.arange(n + 1)) / area
+    del rows, cols
+    nuclear_area = np.bincount(nuclei.ravel())[1:]
+    radius = (float(np.median(np.sqrt(nuclear_area[nuclear_area > 0] / np.pi)))
+              if (nuclear_area > 0).any() else 0.0)
+    distance, (iy, ix) = ndimage.distance_transform_edt(nuclei == 0, return_indices=True)
+    yy, xx, cc = y[inside], x[inside], cell[inside]
+    own = nuclei[iy[yy, xx], ix[yy, xx]] == cc
+    centre = np.maximum(np.hypot(yy - cy[cc], xx - cx[cc]) - radius, 0)
+    gap[inside] = np.where(own, distance[yy, xx], centre)
+    fallback[inside] = ~own
+    return gap, fallback
+
+
+def _weight_terms(mode: str, quality: bool, decay_px: float) -> Tuple[bool, float]:
+    """The quality term and the decay length one weight setting uses (item 988).
+
+    :param mode: ``ops_prefix_distance_weight``, a name in
+        :data:`READ_WEIGHT_MODES`.
+    :param quality: ``ops_prefix_weighted_quality``.
+    :param decay_px: the decay length; 0 turns the distance term off, so a
+        caller passes 0 while ``mode`` is ``'off'`` and the grid does not
+        try a length.
+    :returns: ``(quality term on, decay length)``; ``'distance_only'``
+        turns the quality term off.
+    """
+    return bool(quality) and mode != "distance_only", float(decay_px) if decay_px > 0 else 0.0
+
+
+def _read_weights(quality: np.ndarray, gap: Optional[np.ndarray], *, quality_term: bool,
+                  decay_px: float, interior_px: float = 0.0,
+                  min_weight: float = 0.05) -> np.ndarray:
+    """Each read's weight in the weighted majority (item 988).
+
+    The weight is a quality term times a distance term. The quality term is
+    ``min(1, quality) + 0.05``, the weight of the OPS barcode decode's
+    quality vote, or 1. The distance term is 1 up to ``interior_px`` from
+    the nucleus and then ``exp(-(g - interior_px) / decay_px)``, at least
+    ``min_weight``, or 1 without a decay length.
+
+    :param quality: the reads' qualities.
+    :param gap: the reads' nucleus distances (:func:`_read_nucleus_gaps`);
+        only read with a decay length.
+    :param quality_term: use the quality term.
+    :param decay_px: the decay length in pixels; 0 is no distance term.
+    :param interior_px: the distance with full weight.
+    :param min_weight: the smallest distance term.
+    :returns: one float weight per read.
+    """
+    quality = np.asarray(quality, float)
+    q = (np.minimum(1.0, np.maximum(quality, 0.0)) + 0.05 if quality_term
+         else np.ones(len(quality)))
+    if decay_px > 0 and gap is not None:
+        g = np.maximum(np.asarray(gap, float) - float(interior_px), 0.0)
+        return q * np.maximum(np.exp(-g / float(decay_px)), float(min_weight))
+    return q
+
+
+def _barcode_groups(cell: np.ndarray, barcode: np.ndarray,
+                    neighbours: Optional[np.ndarray] = None) -> Dict[str, np.ndarray]:
+    """The (cell, barcode) groups of matched reads, and the neighbour-bleed flags (item 988).
+
+    :param cell: one integer cell code per read.
+    :param barcode: one barcode per read.
+    :param neighbours: ``(P, 2)`` ``(cell, neighbour)`` codes of touching
+        cells, or None for no neighbour flags.
+    :returns: ``group`` (each read's group), ``cell`` and ``barcode`` (codes)
+        and ``n`` (reads) per group, sorted by cell, ``starts`` and ``sizes``
+        of each cell's groups, ``barcodes`` (the barcode of each code), and
+        ``bleed``: True for a group whose barcode has strictly fewer reads
+        than the cell's top barcode and is a top barcode, by reads with
+        ties kept, of a touching cell.
+    """
+    names, code = np.unique(np.asarray(barcode).astype(str), return_inverse=True)
+    width = max(len(names), 1)
+    pair = np.asarray(cell, np.int64) * width + code.astype(np.int64)
+    keys, group = np.unique(pair, return_inverse=True)
+    g_cell, g_barcode = keys // width, keys % width
+    n = np.bincount(group, minlength=len(keys))
+    starts = np.flatnonzero(np.r_[True, g_cell[1:] != g_cell[:-1]]) if len(keys) \
+        else np.zeros(0, np.int64)
+    sizes = np.diff(np.r_[starts, len(keys)])
+    most = np.repeat(np.maximum.reduceat(n, starts), sizes) if len(keys) else n
+    bleed = np.zeros(len(keys), bool)
+    if neighbours is not None and len(neighbours) and len(keys):
+        top = keys[n == most]
+        tops = pd.DataFrame({"neighbour": top // width, "barcode": top % width})
+        pairs = pd.DataFrame({"cell": np.asarray(neighbours)[:, 0].astype(np.int64),
+                              "neighbour": np.asarray(neighbours)[:, 1].astype(np.int64)})
+        hit = pairs.merge(tops, on="neighbour")
+        flagged = hit["cell"].to_numpy(np.int64) * width + hit["barcode"].to_numpy(np.int64)
+        bleed = np.isin(keys, flagged) & (n < most)
+    return {"group": group, "cell": g_cell, "barcode": g_barcode, "n": n,
+            "starts": starts, "sizes": sizes, "barcodes": names, "bleed": bleed}
+
+
+def _weighted_decision(weights: np.ndarray, groups: Mapping[str, np.ndarray],
+                       share: float) -> Tuple[np.ndarray, np.ndarray]:
+    """Which cells the weighted majority calls, and each cell's top group (item 988).
+
+    :param weights: the summed weight of each group of :func:`_barcode_groups`.
+    :param groups: from :func:`_barcode_groups`.
+    :param share: ``ops_prefix_weighted_min_share``.
+    :returns: ``(called, top)`` per cell, in the groups' cell order: a cell
+        is called when one group holds the most weight alone, the weight is
+        above 0, and the group holds at least ``share`` of it; ``top`` is
+        the index of the first group with the most weight.
+    """
+    starts, sizes = groups["starts"], groups["sizes"]
+    if not len(starts):
+        return np.zeros(0, bool), np.zeros(0, np.int64)
+    top = np.maximum.reduceat(weights, starts)
+    total = np.add.reduceat(weights, starts)
+    is_top = weights == np.repeat(top, sizes)
+    ties = np.add.reduceat(is_top.astype(np.int64), starts)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        called = (ties == 1) & (total > 0) & (top / total >= float(share))
+    position = np.where(is_top, np.arange(len(weights)), len(weights))
+    return called, np.minimum.reduceat(position, starts)
+
+
+def _discounted(weights: np.ndarray, groups: Mapping[str, np.ndarray],
+                discount: float) -> np.ndarray:
+    """The group weights after the neighbour-bleed discount (item 988).
+
+    :param weights: the summed weight of each group.
+    :param groups: from :func:`_barcode_groups`.
+    :param discount: ``ops_read_neighbour_discount``; 1 changes nothing.
+    :returns: the weights, a flagged group's multiplied by ``discount``.
+    """
+    if float(discount) == 1.0:
+        return weights
+    return np.where(groups["bleed"], weights * float(discount), weights)
+
+
+def _weighted_counts(reads: pd.DataFrame, *, neighbours: Optional[np.ndarray],
+                     mode: str, decay: Sequence[float], discount: Sequence[float],
+                     quality: Sequence[float], share: float, interior_px: float,
+                     min_weight: float) -> np.ndarray:
+    """Real and decoy cells the weighted majority calls at every weight setting (item 988).
+
+    :param reads: one site's rows with ``cell``, ``status``, ``prefix``,
+        ``gene``, ``quality`` and, for a decay length above 0, ``nuc_gap_px``.
+    :param neighbours: the site's touching cells (:func:`_touching_cells`).
+    :param mode: ``ops_prefix_distance_weight``.
+    :param decay: the decay lengths; 0 is no distance term.
+    :param discount: the neighbour discounts.
+    :param quality: the quality-term switches, 1 on and 0 off.
+    :param share: ``ops_prefix_weighted_min_share``.
+    :param interior_px: ``ops_prefix_distance_interior_px``.
+    :param min_weight: ``ops_prefix_distance_min_weight``.
+    :returns: ``(decay, discount, quality, 2)`` int64 real and decoy calls.
+    """
+    out = np.zeros((len(decay), len(discount), len(quality), 2), np.int64)
+    matched = reads[(reads["cell"] > 0) & reads["status"].isin(("exact", "corrected"))]
+    if matched.empty:
+        return out
+    use_bleed = any(float(b) != 1.0 for b in discount)
+    groups = _barcode_groups(matched["cell"].to_numpy(np.int64), matched["prefix"].to_numpy(),
+                             neighbours if use_bleed else None)
+    gene = dict(zip(matched["prefix"].astype(str), matched["gene"]))
+    labels = np.array([gene.get(name) for name in groups["barcodes"]], dtype=object)
+    decoy = labels == DECOY_GENE
+    near = labels == NEARMISS_GENE
+    gap = matched["nuc_gap_px"].to_numpy(float) if "nuc_gap_px" in matched.columns else None
+    q_values = matched["quality"].to_numpy(float)
+    for a, length in enumerate(decay):
+        for c, q_on in enumerate(quality):
+            term, used = _weight_terms(mode, bool(q_on), float(length))
+            per_read = _read_weights(q_values, gap, quality_term=term, decay_px=used,
+                                     interior_px=interior_px, min_weight=min_weight)
+            summed = np.bincount(groups["group"], weights=per_read,
+                                 minlength=len(groups["n"]))
+            for b, value in enumerate(discount):
+                called, top = _weighted_decision(_discounted(summed, groups, value),
+                                                 groups, share)
+                top_bc = groups["barcode"][top]
+                is_decoy = decoy[top_bc] & called
+                real = called & ~decoy[top_bc] & ~near[top_bc]
+                out[a, b, c] = (int(real.sum()), int(is_decoy.sum()))
+    return out
+
+
+def _guide_multiplicity(reads: pd.DataFrame, neighbours: Optional[np.ndarray],
+                        min_reads: int, keys: Sequence[str]) -> Tuple[Dict[str, int], pd.DataFrame]:
+    """One site's guide multiplicity counts and its multi-guide cells (item 988).
+
+    Only library guides count as guides; decoy barcodes are counted apart.
+    The counts follow two rules: every matched read, and only guides with at
+    least ``min_reads`` reads. A cell with two or more guides and one clear
+    top guide by reads is a bleed candidate. Its runner-up guide is
+    neighbour bleed when it is a top guide of a touching cell.
+
+    :param reads: the site's rows with ``keys``, ``status``, ``prefix``,
+        ``guide``, ``gene``, ``level`` and ``quality``.
+    :param neighbours: the site's touching cells (:func:`_touching_cells`),
+        or None.
+    :param min_reads: ``ops_multi_guide_min_reads``.
+    :param keys: the columns naming a cell, ``cell`` last.
+    :returns: ``(counts, multi)``. ``counts`` holds ``all_<k>`` and
+        ``min_<k>`` cells with k guides (k = 1, 2, 3 and ``ge4``),
+        ``all_decoy`` and ``min_decoy`` cells with a decoy barcode,
+        ``bleed_tested`` and ``bleed_neighbour``. ``multi`` has one row per
+        cell with two or more guides of ``min_reads`` reads, none of them
+        neighbour bleed: ``keys``, ``n_guides``, ``guides``, ``genes``,
+        ``reads`` and ``median_quality``, the last four joined by ``|`` in
+        read order.
+    """
+    keys = list(keys)
+    counts: Dict[str, int] = {f"{rule}_{k}": 0 for rule in ("all", "min")
+                              for k in ("1", "2", "3", "ge4", "decoy")}
+    counts.update({"bleed_tested": 0, "bleed_neighbour": 0})
+    columns = keys + ["n_guides", "guides", "genes", "reads", "median_quality"]
+    matched = reads[(reads["cell"] > 0) & reads["status"].isin(("exact", "corrected"))]
+    if matched.empty:
+        return counts, pd.DataFrame(columns=columns)
+    is_decoy = matched["gene"].isin((DECOY_GENE, NEARMISS_GENE)).to_numpy(bool)
+    for rule, floor in (("all", 1), ("min", int(min_reads))):
+        per = matched.groupby(["cell", "prefix"], sort=True).size()
+        per = per[per >= floor]
+        dec = set(matched.loc[is_decoy, "prefix"])
+        flags = np.array([p in dec for p in per.index.get_level_values(1)], bool)
+        guides = pd.Series(~flags, index=per.index).groupby(level=0).sum()
+        decoys = pd.Series(flags, index=per.index).groupby(level=0).any()
+        for k, name in ((1, "1"), (2, "2"), (3, "3")):
+            counts[f"{rule}_{name}"] = int((guides == k).sum())
+        counts[f"{rule}_ge4"] = int((guides >= 4).sum())
+        counts[f"{rule}_decoy"] = int(decoys.sum())
+    library = matched[~is_decoy]
+    if library.empty:
+        return counts, pd.DataFrame(columns=columns)
+    groups = _barcode_groups(library["cell"].to_numpy(np.int64), library["prefix"].to_numpy(),
+                             neighbours)
+    n, starts, sizes = groups["n"], groups["starts"], groups["sizes"]
+    order = np.lexsort((-n, groups["cell"]))
+    ranked_n = n[order]
+    ranks = np.arange(len(n)) - np.repeat(starts, sizes)
+    second_rows = np.flatnonzero(ranks == 1)
+    if len(second_rows):
+        lead = ranked_n[second_rows - 1]
+        clear = lead > ranked_n[second_rows]
+        runner = order[second_rows[clear]]
+        counts["bleed_tested"] = int(clear.sum())
+        counts["bleed_neighbour"] = int(groups["bleed"][runner].sum())
+    strong = n >= int(min_reads)
+    per_cell = np.add.reduceat(strong.astype(np.int64), starts)
+    any_bleed = np.logical_or.reduceat(groups["bleed"] & strong, starts)
+    multi_cells = groups["cell"][starts][(per_cell >= 2) & ~any_bleed]
+    if not len(multi_cells):
+        return counts, pd.DataFrame(columns=columns)
+    rows = []
+    chosen = library[library["cell"].isin(multi_cells)]
+    for cell_key, group in chosen.groupby(keys, sort=True):
+        tally = group.groupby("prefix", sort=False).agg(
+            guide=("guide", "first"), gene=("gene", "first"), n=("prefix", "size"),
+            q=("quality", "median"))
+        tally = tally[tally["n"] >= int(min_reads)]
+        named = cell_key if isinstance(cell_key, tuple) else (cell_key,)
+        rows.append({**dict(zip(keys, named)), "n_guides": int(len(tally)),
+                     "guides": "|".join(map(str, tally["guide"])),
+                     "genes": "|".join(map(str, tally["gene"])),
+                     "reads": "|".join(str(int(v)) for v in tally["n"]),
+                     "median_quality": "|".join(f"{float(v):.4f}" for v in tally["q"])})
+    return counts, pd.DataFrame(rows, columns=columns)
+
+
+#: The cell-table columns the weighted majority adds (item 988).
+_WEIGHTED_COLUMNS = ("weight_top", "weight_total", "d_weight_top", "g_median_top",
+                     "bleed_discounted")
+
+
+def _neighbour_codes(cells: pd.DataFrame, keys: Sequence[str],
+                     neighbours: Optional[pd.DataFrame]) -> Optional[np.ndarray]:
+    """The touching cells as pairs of cell codes (item 988).
+
+    :param cells: one row per cell code, with ``keys`` and ``code``.
+    :param keys: the columns naming a cell, ``cell`` among them.
+    :param neighbours: rows with ``keys`` and ``neighbour``, or None.
+    :returns: ``(P, 2)`` code pairs; a cell without a code has no matched
+        read and is left out. None without ``neighbours``.
+    """
+    if neighbours is None:
+        return None
+    keys = list(keys)
+    left = neighbours.merge(cells, on=keys, how="inner")
+    other = cells.rename(columns={"cell": "neighbour", "code": "neighbour_code"})
+    both = left.merge(other, on=[k if k != "cell" else "neighbour" for k in keys],
+                      how="inner")
+    return np.stack([both["code"].to_numpy(np.int64),
+                     both["neighbour_code"].to_numpy(np.int64)], 1)
+
+
+def _weighted_cells(matched: pd.DataFrame, keys: Sequence[str], *, distance_weight: str,
+                    decay_px: float, interior_px: float, min_weight: float,
+                    weighted_quality: bool, neighbour_discount: float, share: float,
+                    neighbours: Optional[pd.DataFrame]) -> Dict[tuple, Dict[str, Any]]:
+    """Each cell's weighted-majority call from its matched reads (item 988).
+
+    :param matched: the exact and corrected reads in cells.
+    :param keys: the columns naming a cell.
+    :param distance_weight: ``ops_prefix_distance_weight``.
+    :param decay_px: the decay length, read unless ``distance_weight`` is
+        ``'off'``.
+    :param interior_px: the distance with full weight.
+    :param min_weight: the smallest distance term.
+    :param weighted_quality: use the quality term.
+    :param neighbour_discount: the neighbour-bleed discount; 1 is off.
+    :param share: the share of the weight the top barcode needs.
+    :param neighbours: the touching cells (:func:`prefix_cell_calls`).
+    :returns: cell key -> ``called``, ``prefix`` (the top barcode) and the
+        columns of :data:`_WEIGHTED_COLUMNS`.
+    :raises ValueError: for a distance term without ``nuc_gap_px``, or a
+        discount below 1 without ``neighbours``.
+    """
+    keys = list(keys)
+    if matched.empty:
+        return {}
+    length = float(decay_px) if distance_weight != "off" else 0.0
+    if length > 0 and "nuc_gap_px" not in matched.columns:
+        raise ValueError("ops_prefix_distance_weight needs each read's nucleus distance "
+                         "(nuc_gap_px); set ops_prefix_nuclei_masks")
+    discount = float(neighbour_discount)
+    if discount != 1.0 and neighbours is None:
+        raise ValueError("ops_read_neighbour_discount below 1 needs the touching cells")
+    code = matched.groupby(keys, sort=True).ngroup().to_numpy(np.int64)
+    table = matched[keys].assign(code=code).drop_duplicates("code").sort_values("code")
+    pairs = _neighbour_codes(table, keys, neighbours) if discount != 1.0 else None
+    groups = _barcode_groups(code, matched["prefix"].to_numpy(), pairs)
+    term, used = _weight_terms(distance_weight, weighted_quality, length)
+    gap = matched["nuc_gap_px"].to_numpy(float) if "nuc_gap_px" in matched.columns else None
+    per_read = _read_weights(matched["quality"].to_numpy(float), gap, quality_term=term,
+                             decay_px=used, interior_px=interior_px, min_weight=min_weight)
+    distance = (_read_weights(np.zeros(len(matched)), gap, quality_term=False, decay_px=used,
+                              interior_px=interior_px, min_weight=min_weight))
+    size = len(groups["n"])
+    summed = _discounted(np.bincount(groups["group"], weights=per_read, minlength=size),
+                         groups, discount)
+    d_summed = np.bincount(groups["group"], weights=distance, minlength=size)
+    called, top = _weighted_decision(summed, groups, share)
+    total = np.add.reduceat(summed, groups["starts"])
+    bleed = (np.add.reduceat(groups["bleed"].astype(np.int64), groups["starts"])
+             if discount != 1.0 else np.zeros(len(groups["starts"]), np.int64))
+    if gap is not None:
+        medians = (pd.Series(gap).groupby(groups["group"]).median()
+                   .reindex(range(size)).to_numpy(float))
+    else:
+        medians = np.full(size, np.nan)
+    out: Dict[tuple, Dict[str, Any]] = {}
+    for i, row in enumerate(table[keys].itertuples(index=False, name=None)):
+        g = int(top[i])
+        out[tuple(row)] = {"called": bool(called[i]),
+                           "prefix": str(groups["barcodes"][groups["barcode"][g]]),
+                           "weight_top": float(summed[g]), "weight_total": float(total[i]),
+                           "d_weight_top": float(d_summed[g]),
+                           "g_median_top": float(medians[g]),
+                           "bleed_discounted": int(bleed[i])}
+    return out
+
+
 def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
                       keys: Sequence[str] = ("plate", "well", "site", "cell"),
-                      method: str = "spacr", minority_min_reads: int = 0) -> pd.DataFrame:
+                      method: str = "spacr", minority_min_reads: int = 0,
+                      distance_weight: str = "off", decay_px: float = 8.0,
+                      interior_px: float = 0.0, min_weight: float = 0.05,
+                      weighted_quality: bool = True, neighbour_discount: float = 1.0,
+                      weighted_min_share: float = 0.6,
+                      neighbours: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """Each cell's barcode, its read counts and its quality class.
 
     :param reads: one row per read with ``keys``, ``status``, ``key``,
@@ -771,6 +1225,28 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
         ``'recipe_simple'``; under ``'spacr'`` it changes no call and can
         only turn ``great`` into ``perfect``. 0 (the default) and 1 change
         nothing.
+    :param distance_weight: ``ops_prefix_distance_weight`` (item 988,
+        alpha), read only by ``'weighted_majority'``: ``'off'``,
+        ``'decay'`` or ``'distance_only'`` (:data:`READ_WEIGHT_MODES`).
+        The distance term needs a ``nuc_gap_px`` column, each read's
+        distance in pixels to the nucleus of its cell.
+    :param decay_px: the decay length in pixels
+        (``ops_prefix_distance_decay_px``).
+    :param interior_px: the distance with full weight
+        (``ops_prefix_distance_interior_px``).
+    :param min_weight: the smallest distance term
+        (``ops_prefix_distance_min_weight``).
+    :param weighted_quality: ``ops_prefix_weighted_quality``. True weights
+        each read by ``min(1, quality) + 0.05``, and False weights it 1.
+    :param neighbour_discount: ``ops_read_neighbour_discount``. A barcode
+        with strictly fewer reads than the cell's top barcode has its weight
+        multiplied by this when it is a top barcode of a touching cell. 1
+        is off.
+    :param weighted_min_share: ``ops_prefix_weighted_min_share``. The share
+        of the cell's read weight the top barcode needs.
+    :param neighbours: the touching cells, needed for a discount below 1.
+        The table has the ``keys`` columns, naming a cell, and
+        ``neighbour``, the label of a cell it touches in the same site.
     :returns: one row per cell with any read: ``keys``, ``reads``,
         ``matched`` (exact or corrected), ``exact``, ``corrected``,
         ``ambiguous``, ``collision``, ``out_of_library``, ``barcodes``
@@ -782,17 +1258,35 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
         the class count only the reads the rule keeps, and two columns are
         added: ``minority_ignored`` (reads left out) and
         ``minority_rescued`` (True when the cell is called only because of
-        the rule).
-    :raises ValueError: for an unknown method.
+        the rule). Under ``'weighted_majority'`` (:data:`WEIGHTED_CLASSES`)
+        the top barcode is the one with the most weight, and five columns
+        are added. ``weight_top`` and ``weight_total`` are the summed read
+        weights of the top barcode and of the cell. ``d_weight_top`` is the
+        summed distance term of the top barcode's reads, and
+        ``g_median_top`` their median nucleus distance (NaN without one).
+        ``bleed_discounted`` counts the barcodes the neighbour discount
+        weighed down.
+    :raises ValueError: for an unknown method or read-weight mode, for the
+        minority-read rule combined with ``'weighted_majority'``, or for a
+        discount below 1 without ``neighbours``.
     """
     return _prefix_cell_calls(reads, min_reads=min_reads, keys=keys, method=method,
-                              minority_min_reads=minority_min_reads)
+                              minority_min_reads=minority_min_reads,
+                              distance_weight=distance_weight, decay_px=decay_px,
+                              interior_px=interior_px, min_weight=min_weight,
+                              weighted_quality=weighted_quality,
+                              neighbour_discount=neighbour_discount,
+                              weighted_min_share=weighted_min_share, neighbours=neighbours)
 
 
 def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
                        keys: Sequence[str] = ("plate", "well", "site", "cell"),
                        method: str = "spacr", sort: Optional[str] = None,
-                       minority_min_reads: int = 0) -> pd.DataFrame:
+                       minority_min_reads: int = 0, distance_weight: str = "off",
+                       decay_px: float = 8.0, interior_px: float = 0.0,
+                       min_weight: float = 0.05, weighted_quality: bool = True,
+                       neighbour_discount: float = 1.0, weighted_min_share: float = 0.6,
+                       neighbours: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """:func:`prefix_cell_calls` with item 961's ``ops_call_sort``.
 
     :param reads: as for :func:`prefix_cell_calls`.
@@ -807,9 +1301,18 @@ def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
         ``ambiguous``, any other unique top is ``great``.
     :param minority_min_reads: as for :func:`prefix_cell_calls` (item 967);
         a sort ranks the reads the rule keeps.
+    :param distance_weight: as for :func:`prefix_cell_calls` (item 988).
+    :param decay_px: as for :func:`prefix_cell_calls` (item 988).
+    :param interior_px: as for :func:`prefix_cell_calls` (item 988).
+    :param min_weight: as for :func:`prefix_cell_calls` (item 988).
+    :param weighted_quality: as for :func:`prefix_cell_calls` (item 988).
+    :param neighbour_discount: as for :func:`prefix_cell_calls` (item 988).
+    :param weighted_min_share: as for :func:`prefix_cell_calls` (item 988).
+    :param neighbours: as for :func:`prefix_cell_calls` (item 988).
     :returns: :func:`prefix_cell_calls`' table.
     :raises ValueError: for an unknown method or sort, a sort with
-        ``'recipe_simple'``, or ``'peak'`` without a ``peak`` column.
+        ``'recipe_simple'`` or ``'weighted_majority'``, ``'peak'`` without a
+        ``peak`` column, or as :func:`prefix_cell_calls` raises.
     """
     if method not in QUALITY_METHODS:
         raise ValueError(f"ops_prefix_quality_method must be one of {list(QUALITY_METHODS)}; "
@@ -824,15 +1327,32 @@ def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
             raise ValueError("ops_call_sort 'peak' needs each read's spot strength (a "
                              "'peak' column)")
     minority = int(minority_min_reads or 0) > 1
+    weighted = method == "weighted_majority"
+    if weighted and minority:
+        raise ValueError("ops_prefix_minority_min_reads and ops_prefix_quality_method "
+                         "'weighted_majority' are alternatives; set one of them")
+    if distance_weight not in READ_WEIGHT_MODES:
+        raise ValueError(f"ops_prefix_distance_weight must be one of {list(READ_WEIGHT_MODES)}; "
+                         f"got {distance_weight!r}")
     columns = list(keys) + ["reads", "matched", "exact", "corrected", "ambiguous",
                             "collision", "out_of_library", "barcodes", "prefix", "guide",
                             "gene", "level", "top_reads", "top_exact", "top_share",
                             "second_reads", "has_exact_read", "quality"]
     if minority:
         columns += ["minority_ignored", "minority_rescued"]
+    if weighted:
+        columns += list(_WEIGHTED_COLUMNS)
     frame = reads[reads["cell"] > 0] if "cell" in reads.columns else reads.iloc[0:0]
     if frame.empty:
         return pd.DataFrame(columns=columns)
+    decided: Dict[tuple, Dict[str, Any]] = {}
+    if weighted:
+        decided = _weighted_cells(
+            frame[frame["status"].isin(("exact", "corrected"))], keys,
+            distance_weight=distance_weight, decay_px=decay_px, interior_px=interior_px,
+            min_weight=min_weight, weighted_quality=weighted_quality,
+            neighbour_discount=neighbour_discount, share=weighted_min_share,
+            neighbours=neighbours)
     ignored = pd.Series(False, index=frame.index)
     if minority:
         is_matched = frame["status"].isin(("exact", "corrected"))
@@ -859,9 +1379,15 @@ def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
                    else all_matched)
         counts = _class_counts(matched)
         named = tuple(cell_key) if isinstance(cell_key, tuple) else (cell_key,)
+        decision = decided.get(named)
         if method == "recipe_simple":
             quality = recipe.get(named, "none")
             before = recipe_all.get(named, "none") if minority else quality
+        elif weighted:
+            quality = ("none" if decision is None else
+                       ("perfect" if len(counts) == 1 else "great") if decision["called"]
+                       else "ambiguous")
+            before = quality
         else:
             quality = classify_cell({k: tuple(v) for k, v in counts.items()}, min_reads)
             before = (classify_cell({k: tuple(v) for k, v in _class_counts(all_matched).items()},
@@ -869,6 +1395,9 @@ def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
         ranked = sorted(counts.items(), key=lambda kv: (-(kv[1][0] + kv[1][1]), kv[0]))
         if sort is not None:
             ranked, quality = _sorted_call(matched, counts, sort, min_reads)
+        elif decision is not None:
+            ranked = ([(decision["prefix"], counts[decision["prefix"]])]
+                      + [kv for kv in ranked if kv[0] != decision["prefix"]])
         top = ranked[0] if ranked else None
         call = (matched[matched["prefix"] == top[0]].iloc[0]
                 if top is not None and quality in ("perfect", "great") else None)
@@ -878,6 +1407,10 @@ def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
                   "minority_rescued": bool(quality in ("perfect", "great")
                                            and before not in ("perfect", "great"))}
                  if minority else {})
+        if weighted:
+            extra = {name: (decision[name] if decision is not None else
+                            (0 if name == "bleed_discounted" else float("nan")))
+                     for name in _WEIGHTED_COLUMNS}
         out.append({
             **dict(zip(keys, cell_key if isinstance(cell_key, tuple) else (cell_key,))),
             "reads": int(len(group)), "matched": n_matched,
@@ -1138,6 +1671,22 @@ PREFIX_TUNING_GRID: Dict[str, Tuple[float, ...]] = {
     "ops_prefix_max_distance": (1.0, 0.0),
 }
 
+#: The grid ``'per_well_decoy'`` tries under ``ops_prefix_quality_method``
+#: ``'weighted_majority'`` when ``ops_prefix_tuning_grid`` is empty (item
+#: 988, alpha). It adds read thresholds 20 and 30 below the item-942 grid
+#: and tunes the decay length, the neighbour discount and the quality term
+#: (:data:`WEIGHT_GRID_KEYS`) with the other axes. Each weight axis ends on
+#: its off value (decay length 0, discount 1, quality term on), so a tie
+#: keeps the weight off.
+PREFIX_TUNING_GRID_WEIGHTED: Dict[str, Tuple[float, ...]] = {
+    "ops_read_threshold": (20.0, 30.0) + PREFIX_TUNING_GRID["ops_read_threshold"],
+    "ops_prefix_min_read_quality": PREFIX_TUNING_GRID["ops_prefix_min_read_quality"],
+    "ops_prefix_max_distance": PREFIX_TUNING_GRID["ops_prefix_max_distance"],
+    "ops_prefix_distance_decay_px": (4.0, 8.0, 16.0, 32.0, 0.0),
+    "ops_read_neighbour_discount": (0.0, 0.25, 0.5, 1.0),
+    "ops_prefix_weighted_quality": (0.0, 1.0),
+}
+
 #: The spacer-prefix threshold modes, the first being the default.
 PREFIX_TUNING_MODES = ("none", "per_well_decoy")
 
@@ -1147,8 +1696,9 @@ def _tuning_axes(chosen: Mapping[str, Any]) -> List[Tuple[str, List[float]]]:
 
     :param chosen: from :func:`prefix_settings`.
     :returns: ``(setting, values)`` for the read threshold, the read-quality
-        floor and the mismatches; a key the grid leaves out keeps its entered
-        value.
+        floor and the mismatches, and under ``'weighted_majority'`` then the
+        weight axes (:func:`_weight_axes`); a key the grid leaves out keeps
+        its entered value.
     :raises ValueError: for a grid that is not a mapping of those keys to
         lists of numbers of 0 or more.
     """
@@ -1160,11 +1710,13 @@ def _tuning_axes(chosen: Mapping[str, Any]) -> List[Tuple[str, List[float]]]:
             raise ValueError("ops_prefix_tuning_grid must be a mapping such as "
                              '{"ops_read_threshold": [60, 80]}; got '
                              f"{grid!r}") from None
+    weighted = chosen.get("ops_prefix_quality_method") == "weighted_majority"
+    allowed = PREFIX_TUNING_GRID_WEIGHTED if weighted else PREFIX_TUNING_GRID
     if grid is None or grid == "" or grid == {}:
-        grid = PREFIX_TUNING_GRID
-    if not isinstance(grid, Mapping) or set(grid) - set(PREFIX_TUNING_GRID):
+        grid = allowed
+    if not isinstance(grid, Mapping) or set(grid) - set(allowed):
         raise ValueError(f"ops_prefix_tuning_grid takes the keys "
-                         f"{sorted(PREFIX_TUNING_GRID)}; got {grid!r}")
+                         f"{sorted(allowed)}; got {grid!r}")
     axes = []
     for key in PREFIX_TUNING_GRID:
         values = grid.get(key, [chosen[key]])
@@ -1179,6 +1731,48 @@ def _tuning_axes(chosen: Mapping[str, Any]) -> List[Tuple[str, List[float]]]:
         if key == "ops_prefix_max_distance":
             values = values[::-1]
         axes.append((key, values))
+    if weighted:
+        axes += _weight_axes(chosen, grid)
+    return axes
+
+
+def _weight_axes(chosen: Mapping[str, Any], grid: Mapping[str, Any]
+                 ) -> List[Tuple[str, List[float]]]:
+    """The weighted majority's tuning axes (item 988), each ending on its off value.
+
+    :param chosen: from :func:`prefix_settings`.
+    :param grid: the tuning grid in use.
+    :returns: ``(key, values)`` for the keys of :data:`WEIGHT_GRID_KEYS`. A
+        key the grid leaves out keeps its entered value: the decay length
+        when ``ops_prefix_distance_weight`` is on, else 0. A tuned decay
+        length or discount always holds its off value too, so the tuner
+        can keep the weight off.
+    :raises ValueError: for a value out of range.
+    """
+    entered = {"ops_prefix_distance_decay_px": (chosen["ops_prefix_distance_decay_px"]
+                                                if chosen["ops_prefix_distance_weight"] != "off"
+                                                else 0.0),
+               "ops_read_neighbour_discount": chosen["ops_read_neighbour_discount"],
+               "ops_prefix_weighted_quality": float(bool(chosen["ops_prefix_weighted_quality"]))}
+    off = {"ops_prefix_distance_decay_px": 0.0, "ops_read_neighbour_discount": 1.0,
+           "ops_prefix_weighted_quality": 1.0}
+    axes = []
+    for key in WEIGHT_GRID_KEYS:
+        if key in grid:
+            try:
+                values = {float(v) for v in grid[key]}
+            except (TypeError, ValueError):
+                raise ValueError(f"ops_prefix_tuning_grid {key} must be a list of "
+                                 f"numbers; got {grid[key]!r}") from None
+            if key != "ops_prefix_weighted_quality":
+                values.add(off[key])
+        else:
+            values = {float(entered[key])}
+        if min(values) < 0 or (key != "ops_prefix_distance_decay_px" and max(values) > 1):
+            raise ValueError(f"ops_prefix_tuning_grid {key} is out of range; got "
+                             f"{sorted(values)}")
+        ordered = sorted(values - {off[key]}) + ([off[key]] if off[key] in values else [])
+        axes.append((key, ordered))
     return axes
 
 
@@ -1205,6 +1799,7 @@ def _matched_rows(calls: Sequence[str], library: PrefixLibrary, memo: Dict[str, 
 def _site_tuning_reads(candidates, library: PrefixLibrary, memo: Dict[str, tuple], *,
                        bases: Sequence[str], threshold: float, crosstalk: str, metric: str,
                        max_distance: int, read_mode: str = "log",
+                       extra: Optional[Mapping[str, np.ndarray]] = None,
                        peak: bool = False) -> pd.DataFrame:
     """One site's reads at one read threshold, from its spot candidates.
 
@@ -1222,6 +1817,9 @@ def _site_tuning_reads(candidates, library: PrefixLibrary, memo: Dict[str, tuple
     :param max_distance: the largest distance matched (the grid's loosest).
     :param read_mode: ``log`` or ``raw`` (:func:`_prefix_calls`); the
         candidates' values must be that mode's reads.
+    :param extra: columns with one value per candidate (item 988: the
+        nucleus distance), kept for the reads above the threshold; None adds
+        none.
     :param peak: add a ``peak`` column, each read's spot strength (item 961).
     :returns: :func:`decode_prefix_site`'s rows, without the control.
     """
@@ -1234,6 +1832,8 @@ def _site_tuning_reads(candidates, library: PrefixLibrary, memo: Dict[str, tuple
     frame = pd.DataFrame({"y": peaks[:, 0] if len(peaks) else np.zeros(0, np.int64),
                           "x": peaks[:, 1] if len(peaks) else np.zeros(0, np.int64),
                           "cell": cell, "quality": quality})
+    for name, column in (extra or {}).items():
+        frame[name] = np.asarray(column)[keep]
     if peak:
         frame["peak"] = kept_strength.astype(np.float32)
     matched = _matched_rows(list(calls), library, memo, metric=metric,
@@ -1376,11 +1976,18 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the
         item-949 ``ops_prefix_nearmiss_decoy_k`` and
         ``ops_prefix_fdr_calibration``, and the item-967
-        ``ops_prefix_minority_min_reads``.
+        ``ops_prefix_minority_min_reads``, and the item-988 weighted-majority
+        settings: ``ops_prefix_distance_weight``,
+        ``ops_prefix_distance_decay_px``, ``ops_prefix_distance_interior_px``,
+        ``ops_prefix_distance_min_weight``, ``ops_prefix_weighted_quality``,
+        ``ops_prefix_weighted_min_share``, ``ops_read_neighbour_discount``,
+        ``ops_prefix_nuclei_masks``, ``ops_keep_multi_guide_cells`` and
+        ``ops_multi_guide_min_reads``.
     :returns: the normalised values under the same keys.
     :raises ValueError: without a library, for an unknown choice, for
-        tuning or a shuffle calibration without decoys, or for a negative
-        decoy count or minority-read floor.
+        tuning or a shuffle calibration without decoys, for a negative
+        decoy count or minority-read floor, or for a weight setting that is
+        out of range or set without ``'weighted_majority'``.
     """
     from .ops_decode import FDR_CALIBRATIONS
 
@@ -1424,6 +2031,24 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
                                           or FDR_CALIBRATIONS[0]).strip().lower(),
         "ops_prefix_minority_min_reads": int(settings.get("ops_prefix_minority_min_reads")
                                              or 0),
+        "ops_prefix_distance_weight": str(settings.get("ops_prefix_distance_weight")
+                                          or READ_WEIGHT_MODES[0]).strip().lower(),
+        "ops_prefix_distance_decay_px": _setting_float(settings, "ops_prefix_distance_decay_px",
+                                                       8.0),
+        "ops_prefix_distance_interior_px": _setting_float(
+            settings, "ops_prefix_distance_interior_px", 0.0),
+        "ops_prefix_distance_min_weight": _setting_float(
+            settings, "ops_prefix_distance_min_weight", 0.05),
+        "ops_prefix_weighted_quality": _setting_flag(settings, "ops_prefix_weighted_quality",
+                                                     True),
+        "ops_prefix_weighted_min_share": _setting_float(
+            settings, "ops_prefix_weighted_min_share", 0.6),
+        "ops_read_neighbour_discount": _setting_float(settings, "ops_read_neighbour_discount",
+                                                      1.0),
+        "ops_prefix_nuclei_masks": settings.get("ops_prefix_nuclei_masks") or None,
+        "ops_keep_multi_guide_cells": _setting_flag(settings, "ops_keep_multi_guide_cells",
+                                                    False),
+        "ops_multi_guide_min_reads": int(settings.get("ops_multi_guide_min_reads") or 2),
     }
     if out["ops_prefix_threshold_tuning"] not in PREFIX_TUNING_MODES:
         raise ValueError(f"ops_prefix_threshold_tuning must be one of "
@@ -1451,7 +2076,70 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         raise ValueError(f"ops_prefix_metric must be one of {list(_METRICS)}")
     if out["ops_prefix_quality_method"] not in QUALITY_METHODS:
         raise ValueError(f"ops_prefix_quality_method must be one of {list(QUALITY_METHODS)}")
+    _check_weight_settings(out)
     return out
+
+
+def _setting_float(settings: Mapping[str, Any], key: str, default: float) -> float:
+    """One float setting, its default when empty (item 988).
+
+    :param settings: the settings.
+    :param key: the key.
+    :param default: the value of an empty or missing key.
+    :returns: the value.
+    """
+    value = settings.get(key)
+    return float(default) if value is None or value == "" else float(value)
+
+
+def _setting_flag(settings: Mapping[str, Any], key: str, default: bool) -> bool:
+    """One boolean setting, its default when empty (item 988).
+
+    :param settings: the settings.
+    :param key: the key.
+    :param default: the value of an empty or missing key.
+    :returns: the value; the strings ``false``, ``0``, ``no`` and ``off`` are
+        False.
+    """
+    value = settings.get(key)
+    if value is None or value == "":
+        return bool(default)
+    if isinstance(value, str):
+        return value.strip().lower() not in ("false", "0", "no", "off")
+    return bool(value)
+
+
+def _check_weight_settings(out: Mapping[str, Any]) -> None:
+    """Check the item-988 settings of :func:`prefix_settings`.
+
+    :param out: the normalised settings.
+    :raises ValueError: for an unknown read-weight mode, a value out of
+        range, a weight setting without ``'weighted_majority'``, or the
+        weighted majority combined with the minority-read rule.
+    """
+    weighted = out["ops_prefix_quality_method"] == "weighted_majority"
+    if out["ops_prefix_distance_weight"] not in READ_WEIGHT_MODES:
+        raise ValueError(f"ops_prefix_distance_weight must be one of {list(READ_WEIGHT_MODES)}")
+    if not out["ops_prefix_distance_decay_px"] > 0:
+        raise ValueError("ops_prefix_distance_decay_px must be above 0")
+    if out["ops_prefix_distance_interior_px"] < 0:
+        raise ValueError("ops_prefix_distance_interior_px must be 0 or more")
+    if not 0 <= out["ops_prefix_distance_min_weight"] <= 1:
+        raise ValueError("ops_prefix_distance_min_weight must lie in [0, 1]")
+    if not 0 < out["ops_prefix_weighted_min_share"] <= 1:
+        raise ValueError("ops_prefix_weighted_min_share must lie in (0, 1]")
+    if not 0 <= out["ops_read_neighbour_discount"] <= 1:
+        raise ValueError("ops_read_neighbour_discount must lie in [0, 1] (1 = off)")
+    if out["ops_multi_guide_min_reads"] < 1:
+        raise ValueError("ops_multi_guide_min_reads must be 1 or more")
+    if not weighted and (out["ops_prefix_distance_weight"] != "off"
+                         or out["ops_read_neighbour_discount"] != 1.0):
+        raise ValueError("ops_prefix_distance_weight and ops_read_neighbour_discount act in "
+                         "the weighted majority; set ops_prefix_quality_method "
+                         "'weighted_majority'")
+    if weighted and out["ops_prefix_minority_min_reads"] > 1:
+        raise ValueError("ops_prefix_minority_min_reads and ops_prefix_quality_method "
+                         "'weighted_majority' are alternatives; set one of them")
 
 
 def site_labels(template: Optional[str], *, plate: str, well: str, well_id: str,
@@ -1489,6 +2177,236 @@ def site_labels(template: Optional[str], *, plate: str, well: str, well_id: str,
             if "cells" in saved.files:
                 return saved["cells"]
     return None
+
+
+def _site_nuclei(template: Optional[str], *, plate: str, well: str, well_id: str, site: int,
+                 merged: Optional[str] = None) -> Optional[np.ndarray]:
+    """The nucleus label image of one site, or None (item 988).
+
+    :param template: ``ops_prefix_nuclei_masks``, a path template with the
+        fields of ``ops_prefix_masks`` (:func:`site_labels`), to a TIFF,
+        ``.npy`` or ``.npz`` (``nuclei``) label image. None falls back to
+        ``merged``.
+    :param plate: the plate.
+    :param well: the well folder name.
+    :param well_id: the normalised well id.
+    :param site: the site.
+    :param merged: a ``merged/`` site file; its ``nuclei`` array is used
+        when it has one.
+    :returns: the labels, or None when neither source has them.
+    :raises ValueError: when the template names a file that does not exist.
+    """
+    if template:
+        path = str(template).format(plate=plate, well=well, well_id=well_id,
+                                    well_number=well_id[1:], site=int(site))
+        if not os.path.isfile(path):
+            raise ValueError(f"no nucleus labels at {path} (ops_prefix_nuclei_masks)")
+        if path.endswith(".npz"):
+            with np.load(path) as saved:
+                return saved["nuclei"]
+        if path.endswith(".npy"):
+            return np.load(path)
+        import tifffile
+
+        return tifffile.imread(path)
+    if merged and os.path.isfile(merged):
+        with np.load(merged) as saved:
+            if "nuclei" in saved.files:
+                return saved["nuclei"]
+    return None
+
+
+def _weight_plan(chosen: Mapping[str, Any], axes: Sequence[Tuple[str, Sequence[float]]]
+                 ) -> Dict[str, Any]:
+    """What a run's weighted majority and multi-guide table need per site (item 988).
+
+    :param chosen: from :func:`prefix_settings`.
+    :param axes: the tuning axes, or empty without tuning.
+    :returns: ``weighted``, ``axes`` (the weight axes, one value each
+        without tuning), ``gaps`` (the nucleus distance is needed),
+        ``neighbours`` (the touching cells are needed) and ``multi`` (the
+        multi-guide table is written).
+    """
+    weighted = chosen["ops_prefix_quality_method"] == "weighted_majority"
+    named = {key: list(values) for key, values in axes if key in WEIGHT_GRID_KEYS}
+    if weighted and not named:
+        named = dict(_weight_axes(chosen, {}))
+    multi = bool(chosen["ops_keep_multi_guide_cells"])
+    return {"weighted": weighted, "axes": named, "multi": multi,
+            "gaps": weighted and any(v > 0 for v in named.get(WEIGHT_GRID_KEYS[0], [])),
+            "neighbours": multi or (weighted and any(
+                v != 1.0 for v in named.get(WEIGHT_GRID_KEYS[1], [])))}
+
+
+def _setting_counts(frame: pd.DataFrame, method: str, minority_k: int,
+                    plan: Mapping[str, Any], chosen: Mapping[str, Any],
+                    neighbours: Optional[np.ndarray]):
+    """Real and decoy calls of one site at one read setting, every weight setting included.
+
+    :param frame: the site's reads at one read threshold, quality floor and
+        mismatch limit.
+    :param method: ``ops_prefix_quality_method``.
+    :param minority_k: ``ops_prefix_minority_min_reads``.
+    :param plan: from :func:`_weight_plan`.
+    :param chosen: from :func:`prefix_settings`.
+    :param neighbours: the site's touching cells, or None.
+    :returns: :func:`_called_counts`'s ``(real, decoy)``, or under the
+        weighted majority (item 988) :func:`_weighted_counts`'s array over
+        the weight axes.
+    """
+    if not plan["weighted"]:
+        return _called_counts(frame, method, minority_min_reads=minority_k)
+    named = plan["axes"]
+    return _weighted_counts(
+        frame, neighbours=neighbours, mode=chosen["ops_prefix_distance_weight"],
+        decay=named[WEIGHT_GRID_KEYS[0]], discount=named[WEIGHT_GRID_KEYS[1]],
+        quality=named[WEIGHT_GRID_KEYS[2]], share=chosen["ops_prefix_weighted_min_share"],
+        interior_px=chosen["ops_prefix_distance_interior_px"],
+        min_weight=chosen["ops_prefix_distance_min_weight"])
+
+
+def _weight_arguments(chosen: Mapping[str, Any], best: Optional[Mapping[str, Any]]
+                      ) -> Dict[str, Any]:
+    """The weighted-majority arguments of :func:`prefix_cell_calls` (item 988).
+
+    :param chosen: from :func:`prefix_settings`.
+    :param best: the tuner's chosen setting, or None to use the entered one.
+    :returns: the keyword arguments; the tuner's decay length of 0 turns the
+        distance term off.
+    """
+    mode = chosen["ops_prefix_distance_weight"]
+    decay = chosen["ops_prefix_distance_decay_px"]
+    quality = chosen["ops_prefix_weighted_quality"]
+    discount = chosen["ops_read_neighbour_discount"]
+    if best is not None and WEIGHT_GRID_KEYS[0] in best:
+        length = float(best[WEIGHT_GRID_KEYS[0]])
+        quality, _ = _weight_terms(mode, bool(best[WEIGHT_GRID_KEYS[2]]), length)
+        mode = "decay" if length > 0 else "off"
+        decay = length if length > 0 else decay
+        discount = float(best[WEIGHT_GRID_KEYS[1]])
+    return {"distance_weight": mode, "decay_px": decay,
+            "interior_px": chosen["ops_prefix_distance_interior_px"],
+            "min_weight": chosen["ops_prefix_distance_min_weight"],
+            "weighted_quality": quality, "neighbour_discount": discount,
+            "weighted_min_share": chosen["ops_prefix_weighted_min_share"]}
+
+
+def _neighbour_table(pairs: Optional[np.ndarray], plate: str, well_id: str,
+                     site: int) -> Optional[pd.DataFrame]:
+    """A site's touching cells in the layout :func:`prefix_cell_calls` takes (item 988).
+
+    :param pairs: from :func:`_touching_cells`, or None.
+    :param plate: the plate.
+    :param well_id: the well.
+    :param site: the site.
+    :returns: rows with ``plate``, ``well``, ``site``, ``cell`` and
+        ``neighbour``, or None.
+    """
+    if pairs is None:
+        return None
+    return pd.DataFrame({"plate": plate, "well": well_id, "site": int(site),
+                         "cell": pairs[:, 0], "neighbour": pairs[:, 1]})
+
+
+def _multiplicity_table(counts: Mapping[str, int], cells: int, min_reads: int) -> pd.DataFrame:
+    """A well's guide multiplicity QC table (item 988).
+
+    :param counts: the summed :func:`_guide_multiplicity` counts of its
+        sites.
+    :param cells: the cells in the sites' labels.
+    :param min_reads: ``ops_multi_guide_min_reads``.
+    :returns: two rows, one per counting rule: ``counting``, ``cells`` and
+        the % of cells with 0, 1, 2, 3 and 4 or more guides and with a
+        decoy barcode; then ``bleed_tested`` (cells with two or more
+        guides and one clear top guide), ``bleed_neighbour`` (of those, the
+        cells whose runner-up guide is a touching cell's top guide) and
+        ``bleed_pct``.
+    """
+    rows = []
+    tested, hit = int(counts.get("bleed_tested", 0)), int(counts.get("bleed_neighbour", 0))
+    for rule, label in (("all", "all matched reads"),
+                        ("min", f"guides with at least {int(min_reads)} reads")):
+        with_guide = sum(int(counts.get(f"{rule}_{k}", 0)) for k in ("1", "2", "3", "ge4"))
+        pct = {f"pct_{k}": 100.0 * int(counts.get(f"{rule}_{k}", 0)) / max(cells, 1)
+               for k in ("1", "2", "3", "ge4")}
+        rows.append({"counting": label, "cells": int(cells),
+                     "pct_0": 100.0 * (int(cells) - with_guide) / max(cells, 1), **pct,
+                     "pct_with_decoy": 100.0 * int(counts.get(f"{rule}_decoy", 0)) / max(cells, 1),
+                     "bleed_tested": tested, "bleed_neighbour": hit,
+                     "bleed_pct": 100.0 * hit / tested if tested else float("nan")})
+    return pd.DataFrame(rows)
+
+
+def _site_geometry(plan: Mapping[str, Any], chosen: Mapping[str, Any],
+                   labels: Optional[np.ndarray], y: np.ndarray, x: np.ndarray,
+                   cell: np.ndarray, *, plate: str, well: str, well_id: str, site: int,
+                   destination: str) -> Tuple[Optional[np.ndarray],
+                                              Optional[Dict[str, np.ndarray]]]:
+    """A site's touching cells and its reads' nucleus distances, when the run needs them (item 988).
+
+    :param plan: from :func:`_weight_plan`.
+    :param chosen: from :func:`prefix_settings`.
+    :param labels: the site's cell labels, or None.
+    :param y: the reads' rows.
+    :param x: the reads' columns.
+    :param cell: the reads' cells.
+    :param plate: the plate.
+    :param well: the well folder name.
+    :param well_id: the well.
+    :param site: the site.
+    :param destination: ``dst_root``, for the ``merged/`` fallback.
+    :returns: ``(pairs, extra)``: :func:`_touching_cells` or None, and
+        ``nuc_gap_px`` and ``nuc_gap_fallback`` per read or None.
+    :raises ValueError: when the distance or the touching cells are needed
+        and the site has no cell or nucleus labels.
+    """
+    from .cpg_cropped import merged_path
+
+    pairs = extra = None
+    if not (plan["neighbours"] or plan["gaps"]):
+        return pairs, extra
+    if labels is None:
+        raise ValueError("the weighted majority's distance term and neighbour discount and "
+                         "the multi-guide table need cell labels (ops_prefix_masks)")
+    if plan["neighbours"]:
+        pairs = _touching_cells(labels)
+    if plan["gaps"]:
+        nuclei = _site_nuclei(chosen["ops_prefix_nuclei_masks"], plate=plate, well=well,
+                              well_id=well_id, site=site,
+                              merged=merged_path(destination, plate, well_id, site))
+        if nuclei is None:
+            raise ValueError("ops_prefix_distance_weight needs nucleus labels; set "
+                             "ops_prefix_nuclei_masks")
+        gap, fallback = _read_nucleus_gaps(y, x, cell, labels, nuclei)
+        extra = {"nuc_gap_px": gap, "nuc_gap_fallback": fallback}
+    return pairs, extra
+
+
+def _write_multiplicity(folder: str, plate: str, well_id: str, counts: Mapping[str, int],
+                        cells: int, tables: Sequence[pd.DataFrame],
+                        min_reads: int) -> Dict[str, Any]:
+    """Write a well's guide multiplicity table and its multi-guide cells (item 988).
+
+    :param folder: the run's ``ops_prefix`` folder.
+    :param plate: the plate.
+    :param well_id: the well.
+    :param counts: the summed :func:`_guide_multiplicity` counts.
+    :param cells: the cells in the well's labels.
+    :param tables: the sites' multi-guide cell tables.
+    :param min_reads: ``ops_multi_guide_min_reads``.
+    :returns: the two paths and ``multi_guide_cells``, the number of
+        multi-guide cells.
+    """
+    from .tabular import write_table
+
+    qc = os.path.join(folder, f"guide_multiplicity_{plate}_{well_id}.csv")
+    listed = os.path.join(folder, f"multi_guide_cells_{plate}_{well_id}.csv")
+    write_table(_multiplicity_table(counts, cells, min_reads), qc, canonicalise=False)
+    kept = [table for table in tables if len(table)]
+    multi = pd.concat(kept, ignore_index=True) if kept else (
+        tables[0] if tables else pd.DataFrame())
+    write_table(multi, listed, canonicalise=False)
+    return {"multiplicity": qc, "cells": listed, "multi_guide_cells": int(len(multi))}
 
 
 def run_prefix_decode(settings: Mapping[str, Any],
@@ -1548,10 +2466,26 @@ def run_prefix_decode(settings: Mapping[str, Any],
       ``minority_ignored`` and ``minority_rescued``, ``site_summary.csv``
       gains ``cells_minority_rescued`` (genotyped cells called only because
       of the rule), and one line per well reports the rescued cells. 0, the
-      default, writes what the run wrote before.
+      default, writes what the run wrote before;
+    * with ``ops_prefix_quality_method`` 'weighted_majority' (item 988,
+      alpha): cells are called by their barcodes' summed read weights
+      (:func:`prefix_cell_calls`, classes :data:`WEIGHTED_CLASSES`), the
+      tuning also tries the weight axes (:data:`WEIGHT_GRID_KEYS`;
+      :data:`PREFIX_TUNING_GRID_WEIGHTED` when the grid is empty), and the
+      cell table gains the weight columns. With a distance term the read
+      table gains ``nuc_gap_px`` and ``nuc_gap_fallback``, measured to the
+      nuclei of ``ops_prefix_nuclei_masks``;
+    * with ``ops_keep_multi_guide_cells`` (item 988, alpha): per well
+      ``guide_multiplicity_<plate>_<well_id>.csv`` (the share of cells by
+      number of guides, and the share of two-guide cells whose runner-up is
+      a touching cell's top guide) and ``multi_guide_cells_<plate>_<well_id>.csv``
+      (the cells with two or more guides of ``ops_multi_guide_min_reads``
+      reads, none of them from a neighbour). With both item-988 settings
+      off the run writes what it wrote before.
 
     :param settings: the OPS settings: ``dst_root``, the ``cpg_*`` reader
-        settings, the item-920, item-942 and item-949 settings
+        settings, the item-920, item-942, item-949, item-967 and item-988
+        settings
         (:func:`prefix_settings`)
         and, for tuning, the shared tuner's settings
         (``ops_decode_auto_objective``, ``ops_decode_auto_f_beta``,
@@ -1563,14 +2497,17 @@ def run_prefix_decode(settings: Mapping[str, Any],
         well) and ``tuning`` (per well: the choice and its numbers); with
         the shuffle calibration also ``calibration`` (per well); with the
         minority-read rule (item 967) also ``minority_rescued`` (genotyped
-        cells rescued, per well); with tuning also ``well_choices``, one
+        cells rescued, per well); with ``ops_keep_multi_guide_cells`` (item
+        988) also ``multi_guide`` (per well: the two table paths and the
+        number of multi-guide cells); with tuning also ``well_choices``, one
         line per well (item 966): the read mode and thresholds chosen and
         the decoy FDR on the tuning and the report sites, also sent to
         ``report`` last. An empty ``ops_read_mode`` is
         ``'auto'`` with tuning and ``'log'`` without.
     :raises ValueError: without ``dst_root`` or a library, when the layout
-        has fewer sequencing cycles than the prefix needs, or for tuning,
-        near-miss decoys or a shuffle calibration without decoys.
+        has fewer sequencing cycles than the prefix needs, for tuning,
+        near-miss decoys or a shuffle calibration without decoys, or for a
+        distance term or the touching cells without the labels they need.
     """
     from . import __version__
     from .cpg_cropped import cpg_site_index, load_cpg_site, merged_path
@@ -1618,6 +2555,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
     if nearmiss_k > 0:
         matching = prefix_nearmiss_decoys(matching, nearmiss_k, chosen["ops_prefix_decoy_seed"])
     axes = _tuning_axes(chosen) if tuning else []
+    plan = _weight_plan(chosen, axes)
     options = _tuning_options(settings) if tuning or calibration else {}
     control = (shuffled_library(library, chosen["ops_control_seed"])
                if chosen["ops_random_barcode_control"] else None)
@@ -1637,13 +2575,16 @@ def run_prefix_decode(settings: Mapping[str, Any],
     with open(os.path.join(folder, "library_summary.json"), "w", encoding="utf-8") as handle:
         json.dump(matching.summary, handle, indent=1)
     method = chosen["ops_prefix_quality_method"]
-    class_names = RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else QUALITY_CLASSES
+    class_names = (RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else
+                   WEIGHTED_CLASSES if method == "weighted_majority" else QUALITY_CLASSES)
     recorded = ({key: value for key, value in chosen.items() if key not in _ITEM_942_KEYS}
                 if legacy else chosen)
     if not item_949:
         recorded = {key: value for key, value in recorded.items() if key not in _ITEM_949_KEYS}
     if not minority:
         recorded = {key: value for key, value in recorded.items() if key not in _ITEM_967_KEYS}
+    if not (plan["weighted"] or plan["multi"]):
+        recorded = {key: value for key, value in recorded.items() if key not in _ITEM_988_KEYS}
     if read_mode != "log":
         recorded = {**recorded, "ops_read_mode": read_mode}
     if insitu["recorded"]:
@@ -1659,6 +2600,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
     well_lines: List[str] = []
     calibrated: Dict[str, Any] = {}
     rescued_wells: Dict[str, int] = {}
+    multi_paths: Dict[str, Dict[str, Any]] = {}
     memo: Dict[str, tuple] = {}
     for (plate, well, well_id), sites in index.groupby(["plate", "well", "well_id"], sort=True):
         well_started = time.perf_counter()
@@ -1668,6 +2610,11 @@ def run_prefix_decode(settings: Mapping[str, Any],
         site_cells_n: Dict[int, int] = {}
         site_labelled: Dict[int, bool] = {}
         site_shuffled: Dict[int, float] = {}
+        site_pairs: Dict[int, Optional[np.ndarray]] = {}
+        site_extra: Dict[int, Optional[Dict[str, np.ndarray]]] = {}
+        well_multi: Dict[str, int] = {}
+        multi_rows: List[pd.DataFrame] = []
+        multi_cells = 0
         scale = chosen["ops_prefix_fdr_scale"]
         choice: Dict[str, Any] = {}
         if tuning:
@@ -1700,6 +2647,9 @@ def run_prefix_decode(settings: Mapping[str, Any],
                         if labels is not None and len(peaks)
                         else np.zeros(len(peaks), np.int64))
                 held[site] = (peaks, strength, values, cell)
+                site_pairs[site], site_extra[site] = _site_geometry(
+                    plan, chosen, labels, peaks[:, 0], peaks[:, 1], cell, plate=plate,
+                    well=well, well_id=well_id, site=site, destination=str(destination))
                 if "raw" in modes:
                     held_raw[site] = _raw_candidates(stack, held[site])
                 del loaded, stack
@@ -1713,24 +2663,25 @@ def run_prefix_decode(settings: Mapping[str, Any],
                             source[site], matching, memo, bases=pinned["cpg_sbs_bases"],
                             threshold=threshold, crosstalk=chosen["ops_prefix_crosstalk"],
                             metric=chosen["ops_prefix_metric"], max_distance=loosest,
-                            read_mode=mode)
+                            read_mode=mode, extra=site_extra[site])
                         for b, quality in enumerate(axes[1][1]):
                             for c, distance in enumerate(axes[2][1]):
-                                counts[at + (a, b, c)] = _called_counts(
+                                counts[at + (a, b, c)] = _setting_counts(
                                     _at_setting(frame, quality, int(distance)), method,
-                                    minority_min_reads=minority_k)
+                                    minority_k, plan, chosen, site_pairs[site])
                         for s, shuffled_lib in enumerate(shuffles):
                             shuffled_frame = _shuffle_frame(
                                 frame, shuffled_lib, shuffle_memo[s],
                                 metric=chosen["ops_prefix_metric"], max_distance=loosest)
                             for b, quality in enumerate(axes[1][1]):
                                 for c, distance in enumerate(axes[2][1]):
-                                    shuffled_grid[at + (a, b, c)] += _called_counts(
+                                    shuffled_grid[at + (a, b, c)] += np.asarray(_setting_counts(
                                         _at_setting(shuffled_frame, quality, int(distance)),
-                                        method, minority_min_reads=minority_k)[0]
+                                        method, minority_k, plan, chosen,
+                                        site_pairs[site]))[..., 0]
                 if labels is None:
                     first = (i, len(modes) - 1) if read_mode == "auto" else (i,)
-                    site_cells_n[site] = int(counts[first + (0, 0, 0)].sum())
+                    site_cells_n[site] = int(counts[first + (0,) * len(axes)].sum())
                 say(f"prefix_decode {plate} {well_id} site {site}: {len(peaks)} spot "
                     f"candidates scored over {int(np.prod(shape))} settings")
             tune_args = dict(
@@ -1778,7 +2729,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
                     threshold=best["ops_read_threshold"],
                     crosstalk=chosen["ops_prefix_crosstalk"],
                     metric=chosen["ops_prefix_metric"], max_distance=loosest,
-                    read_mode=well_mode, peak=insitu["call_sort"] == "peak")
+                    read_mode=well_mode, extra=site_extra[site],
+                    peak=insitu["call_sort"] == "peak")
                 frame = _at_setting(frame, best["ops_prefix_min_read_quality"],
                                     int(best["ops_prefix_max_distance"])).reset_index(drop=True)
                 if control is not None:
@@ -1816,22 +2768,42 @@ def run_prefix_decode(settings: Mapping[str, Any],
                     reads = reads[reads["quality"] >= min_quality].reset_index(drop=True)
                 labelled = labels is not None
                 n_labelled = None if legacy else _labelled_cells(labels, pd.DataFrame())
+                site_pairs[site], extra = _site_geometry(
+                    plan, chosen, labels, reads["y"].to_numpy(), reads["x"].to_numpy(),
+                    reads["cell"].to_numpy(), plate=plate, well=well, well_id=well_id,
+                    site=site, destination=str(destination))
+                for name, column in (extra or {}).items():
+                    reads[name] = column
+                if plan["multi"]:
+                    site_cells_n[site] = _labelled_cells(labels, pd.DataFrame())
                 if shuffles:
-                    site_shuffled[site] = float(np.mean([_called_counts(_shuffle_frame(
-                        reads, shuffled_lib, shuffle_memo[s],
-                        metric=chosen["ops_prefix_metric"],
-                        max_distance=chosen["ops_prefix_max_distance"]), method,
-                        minority_min_reads=minority_k)[0]
+                    site_shuffled[site] = float(np.mean([np.asarray(_setting_counts(
+                        _shuffle_frame(reads, shuffled_lib, shuffle_memo[s],
+                                       metric=chosen["ops_prefix_metric"],
+                                       max_distance=chosen["ops_prefix_max_distance"]),
+                        method, minority_k, plan, chosen, site_pairs[site])).reshape(-1, 2)[0, 0]
                         for s, shuffled_lib in enumerate(shuffles)]))
             reads.insert(0, "site", int(site))
             reads.insert(0, "well", well_id)
             reads.insert(0, "plate", plate)
+            weighting = ({**_weight_arguments(chosen, choice.get("chosen") if tuning else None),
+                          "neighbours": _neighbour_table(site_pairs.get(site), plate, well_id,
+                                                         site)}
+                         if plan["weighted"] else {})
             row, cells = _site_row(
                 reads, plate=plate, well_id=well_id, site=site, chosen=chosen,
                 method=method, class_names=class_names, labelled=labelled,
                 n_labelled=n_labelled, decoy_k=decoy_k, nearmiss_k=nearmiss_k,
                 scale=scale, shuffled=site_shuffled.get(site, 0.0) if calibration else None,
-                sort=insitu["call_sort"])
+                weighting=weighting, sort=insitu["call_sort"])
+            if plan["multi"]:
+                site_counts, site_table = _guide_multiplicity(
+                    reads, site_pairs.get(site), chosen["ops_multi_guide_min_reads"],
+                    ["plate", "well", "site", "cell"])
+                for key, value in site_counts.items():
+                    well_multi[key] = well_multi.get(key, 0) + int(value)
+                multi_cells += int(site_cells_n.get(site, 0) or len(cells))
+                multi_rows.append(site_table)
             site_rows.append(row)
             say(f"prefix_decode {plate} {well_id} site {site}: {len(reads)} reads, "
                 f"{len(cells)} cells")
@@ -1843,6 +2815,13 @@ def run_prefix_decode(settings: Mapping[str, Any],
                     canonicalise=False)
         write_table(cells_all, os.path.join(folder, f"cells_{plate}_{well_id}.csv"),
                     canonicalise=False)
+        if plan["multi"]:
+            multi_paths[f"{plate}_{well_id}"] = _write_multiplicity(
+                folder, plate, well_id, well_multi, multi_cells, multi_rows,
+                chosen["ops_multi_guide_min_reads"])
+            say(f"prefix_decode {plate} {well_id}: "
+                f"{multi_paths[f'{plate}_{well_id}']['multi_guide_cells']} multi-guide cells "
+                f"(ops_keep_multi_guide_cells)")
         if decoy_k > 0:
             here = [r for r in site_rows if r["plate"] == plate and r["well"] == well_id]
             if calibration and not tuning:
@@ -1901,6 +2880,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
         out["calibration"] = calibrated
     if minority:
         out["minority_rescued"] = rescued_wells
+    if plan["multi"]:
+        out["multi_guide"] = multi_paths
     if well_lines:
         out["well_choices"] = well_lines
         for line in well_lines:
@@ -1912,6 +2893,7 @@ def _site_row(reads: pd.DataFrame, *, plate: str, well_id: str, site: int,
               chosen: Mapping[str, Any], method: str, class_names: Sequence[str],
               labelled: bool, n_labelled: Optional[int], decoy_k: int, nearmiss_k: int,
               scale: float, shuffled: Optional[float],
+              weighting: Optional[Mapping[str, Any]] = None,
               sort: Optional[str] = None) -> Tuple[Dict[str, Any], pd.DataFrame]:
     """One site's cell calls and its ``site_summary.csv`` row.
 
@@ -1935,6 +2917,9 @@ def _site_row(reads: pd.DataFrame, *, plate: str, well_id: str, site: int,
     :param scale: the decoy FDR scale.
     :param shuffled: the shuffle-called cells with the shuffle calibration,
         else None.
+    :param weighting: the item-988 read-weight arguments of
+        :func:`prefix_cell_calls` under ``'weighted_majority'``; None or
+        empty for none.
     :param sort: ``ops_call_sort`` (item 961); None keeps the decode's own rule.
     :returns: ``(row, cells)``.
     """
@@ -1942,7 +2927,8 @@ def _site_row(reads: pd.DataFrame, *, plate: str, well_id: str, site: int,
 
     minority_k = int(chosen.get("ops_prefix_minority_min_reads") or 0)
     cells = _prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"],
-                               method=method, sort=sort, minority_min_reads=minority_k)
+                               method=method, sort=sort, minority_min_reads=minority_k,
+                               **(weighting or {}))
     if decoy_k > 0:
         cells = _flag_decoy_cells(cells, nearmiss=nearmiss_k > 0)
     classes = cells["quality"].value_counts() if len(cells) else {}
@@ -2028,7 +3014,21 @@ def _well_choice_line(plate: str, well_id: str, choice: Mapping[str, Any], well_
             f"{best.get('ops_prefix_max_distance')}; decoy FDR {tune_fdr} % on the "
             f"{len(choice.get('tune_sites') or [])} tuning sites, {report_fdr} % on the "
             f"{len(choice.get('report_sites') or [])} report sites; target met "
-            f"{choice.get('auto_met')}")
+            f"{choice.get('auto_met')}" + _weight_choice_text(best))
+
+
+def _weight_choice_text(best: Mapping[str, Any]) -> str:
+    """The weight settings a tuned weighted-majority well chose, for its summary line (item 988).
+
+    :param best: the tuner's chosen setting.
+    :returns: an empty string unless the setting has the weight axes.
+    """
+    if WEIGHT_GRID_KEYS[0] not in best:
+        return ""
+    length = float(best[WEIGHT_GRID_KEYS[0]])
+    return (f"; weighted majority: decay length {length if length > 0 else 'off'}, "
+            f"neighbour discount {best[WEIGHT_GRID_KEYS[1]]}, quality term "
+            f"{'on' if best[WEIGHT_GRID_KEYS[2]] else 'off'}")
 
 
 def _fdr_text(value: Any) -> str:
@@ -2049,13 +3049,15 @@ def _shuffle_frame(reads: pd.DataFrame, shuffled_lib: PrefixLibrary, memo: Dict[
     :param memo: the run's match memo for that whitelist.
     :param metric: the match metric.
     :param max_distance: the largest distance matched.
-    :returns: the positions and qualities with :func:`match_prefix_reads`'s
+    :returns: the positions and qualities, and the nucleus distance when
+        the reads carry one (item 988), with :func:`match_prefix_reads`'s
         columns against the shuffled whitelist (every key calls ``'control'``).
     """
     matched = _matched_rows(list(reads["read"]), shuffled_lib, memo, metric=metric,
                             max_distance=int(max_distance))
-    return pd.concat([reads[["y", "x", "cell", "quality"]].reset_index(drop=True), matched],
-                     axis=1)
+    kept = ["y", "x", "cell", "quality"] + (["nuc_gap_px"] if "nuc_gap_px" in reads.columns
+                                            else [])
+    return pd.concat([reads[kept].reset_index(drop=True), matched], axis=1)
 
 
 def _calibrate_fixed(rows: Sequence[Mapping[str, Any]], chosen: Mapping[str, Any], decoy_k: int,
@@ -2161,6 +3163,15 @@ _ITEM_949_KEYS = ("ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration")
 #: ``quality_classes.json`` while the minority-read rule is off, so such a
 #: run writes what it wrote before.
 _ITEM_967_KEYS = ("ops_prefix_minority_min_reads",)
+
+#: The item-988 keys of :func:`prefix_settings`, left out of
+#: ``quality_classes.json`` unless the weighted majority or the multi-guide
+#: table is on, so such a run writes what it wrote before.
+_ITEM_988_KEYS = ("ops_prefix_distance_weight", "ops_prefix_distance_decay_px",
+                  "ops_prefix_distance_interior_px", "ops_prefix_distance_min_weight",
+                  "ops_prefix_weighted_quality", "ops_prefix_weighted_min_share",
+                  "ops_read_neighbour_discount", "ops_prefix_nuclei_masks",
+                  "ops_keep_multi_guide_cells", "ops_multi_guide_min_reads")
 
 
 #: The cell rules of the matched-FDR sweep (item 955), from least to most

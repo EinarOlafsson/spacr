@@ -9762,10 +9762,18 @@ ALPHA_FEATURES = {
                      'ops_grid_tile_mode', 'ops_grid_n_tiles', 'ops_grid_seed',
                      'ops_grid_run_id'),
     },
+    988: {
+        'settings': ('ops_read_distance_weight', 'ops_read_distance_decay_px',
+                     'ops_read_distance_interior_px', 'ops_read_distance_min_weight',
+                     'ops_read_neighbour_discount', 'ops_prefix_distance_weight',
+                     'ops_prefix_distance_decay_px', 'ops_prefix_distance_interior_px',
+                     'ops_prefix_distance_min_weight', 'ops_prefix_weighted_quality',
+                     'ops_prefix_weighted_min_share', 'ops_prefix_nuclei_masks',
+                     'ops_keep_multi_guide_cells', 'ops_multi_guide_min_reads'),
+    },
     961: {
         'settings': ('ops_insitu_preset', 'ops_barcode_layout', 'ops_barcode_layout_file',
-                     'ops_call_sort', 'ops_read_compartment', 'ops_prefix_nuclei_masks',
-                     'ops_recomb_min_quality'),
+                     'ops_call_sort', 'ops_read_compartment', 'ops_recomb_min_quality'),
     },
 }
 

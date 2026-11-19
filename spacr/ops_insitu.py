@@ -125,18 +125,10 @@ def _nuclei_labels(options: Mapping[str, Any], *, plate: str, well: str, well_id
     :raises ValueError: when neither holds nucleus labels.
     """
     from .cpg_cropped import merged_path
-    from .ops_prefix import site_labels
+    from .ops_prefix import _site_nuclei
 
-    path = merged_path(destination, plate, well_id, site)
-    if options["nuclei_masks"]:
-        found = site_labels(options["nuclei_masks"], plate=plate, well=well,
-                            well_id=well_id, site=site)
-    else:
-        found = None
-        if os.path.isfile(path):
-            with np.load(path) as saved:
-                if "nuclei" in saved.files:
-                    found = saved["nuclei"]
+    found = _site_nuclei(options["nuclei_masks"], plate=plate, well=well, well_id=well_id,
+                         site=site, merged=merged_path(destination, plate, well_id, site))
     if found is None:
         raise ValueError(f"ops_read_compartment needs nucleus labels for {plate} {well_id} "
                          f"site {site}: set ops_prefix_nuclei_masks (a path with {{site}}) "

@@ -347,11 +347,19 @@ def _real_browser_files(page: bytes):
     return files
 
 
-def _dump_dom(url: str, *, budget=1800, wall_timeout=60) -> str:
-    if not CHROME:
-        pytest.skip("Chrome/Chromium is required for the focused browser test")
-    with tempfile.TemporaryDirectory(prefix="spacr-api-i18n-chrome-") as profile:
-        completed = subprocess.run(
+def _run_chrome_once(url: str, *, budget, wall_timeout):
+    """Run one headless Chrome ``--dump-dom`` in a fresh, always-removed profile.
+
+    :param url: page to load.
+    :param budget: Chrome virtual-time budget in milliseconds.
+    :param wall_timeout: real seconds Chrome may take before it is killed.
+    :returns: the completed process.
+    :raises subprocess.TimeoutExpired: when Chrome exceeds ``wall_timeout``;
+        the profile directory is removed before the exception propagates.
+    """
+    profile = tempfile.mkdtemp(prefix="spacr-api-i18n-chrome-")
+    try:
+        return subprocess.run(
             [
                 CHROME,
                 "--headless=new",
@@ -373,13 +381,39 @@ def _dump_dom(url: str, *, budget=1800, wall_timeout=60) -> str:
             check=False,
             capture_output=True,
             text=True,
-            # Six fast-suite Python cells can launch Chrome concurrently on
-            # hosted runners.  Startup alone exceeded 20 seconds once under
-            # that contention even though the page's virtual-time budget is
-            # only 1.8 seconds.  Keep every DOM assertion and allow the
-            # external process enough wall time to start deterministically.
             timeout=wall_timeout,
         )
+    finally:
+        # A killed Chrome can leave helper processes writing into the
+        # profile for a moment, so removal must not raise.
+        shutil.rmtree(profile, ignore_errors=True)
+
+
+def _dump_dom(url: str, *, budget=1800, wall_timeout=120, attempts=2) -> str:
+    """Return the DOM Chrome renders for ``url``, tolerating a slow start.
+
+    Six fast-suite Python cells can launch Chrome concurrently on hosted
+    runners, and a loaded workstation has taken over 60 seconds just to start
+    Chrome even though the page's virtual-time budget is about 2 seconds.
+    Every DOM assertion is kept; only wall time and one fresh retry after a
+    startup timeout are allowed.
+
+    :param url: page to load.
+    :param budget: Chrome virtual-time budget in milliseconds.
+    :param wall_timeout: real seconds per attempt.
+    :param attempts: Chrome launches allowed when earlier ones time out.
+    :returns: the dumped DOM text.
+    """
+    if not CHROME:
+        pytest.skip("Chrome/Chromium is required for the focused browser test")
+    for attempt in range(1, attempts + 1):
+        try:
+            completed = _run_chrome_once(url, budget=budget,
+                                         wall_timeout=wall_timeout)
+            break
+        except subprocess.TimeoutExpired:
+            if attempt == attempts:
+                raise
     assert completed.returncode == 0, completed.stderr[-2000:]
     return completed.stdout
 

@@ -153,8 +153,23 @@ class TestSplittingASummaryIntoRows:
 
         return split_rows(body)
 
-    def test_a_label_and_a_value_become_one_row(self):
-        rows = self._split("  plate      A01\n  field      3")
+    @pytest.mark.parametrize("body", [
+        pytest.param(
+            "  plate      A01\n  field      3",
+            id="test_a_label_and_a_value_become_one_row"),
+        pytest.param(
+            "  plate      A01\n\n   \n  field      3",
+            id="test_a_blank_line_between_rows_adds_nothing"),
+    ])
+    def test_labelled_rows_ignore_blank_separators(self, body):
+        """Keep label/value rows with or without blank separator lines.
+
+        Blank lines are filtered before either loop starts, so the false
+        arm of ``elif line.strip()`` is unreachable. These cases check the
+        panel behavior; the source assertion below pins the filter that
+        actually provides it.
+        """
+        rows = self._split(body)
 
         assert rows == [("plate", "A01"), ("field", "3")]
 
@@ -181,22 +196,6 @@ class TestSplittingASummaryIntoRows:
         assert ("plate", "A01") in rows
         assert ("", "done") in rows, (
             f"a short trailing line was dropped from {rows}")
-
-    def test_a_blank_line_between_rows_adds_nothing(self):
-        """MEASURED, and it corrected the claim.
-
-        Written for the ``elif line.strip()`` falling through, and it
-        does not: line 83 drops every blank line before either loop
-        starts, so no line reaching that check can be empty and its
-        false arm is unreachable. The BEHAVIOUR is still what the panel
-        needs -- a summary is written with blank lines between its
-        groups, and a blank that became a row would put an empty pair
-        into every panel -- so it is driven here and the filter that
-        actually delivers it is pinned below.
-        """
-        rows = self._split("  plate      A01\n\n   \n  field      3")
-
-        assert rows == [("plate", "A01"), ("field", "3")]
 
     def test_a_body_with_no_labelled_row_at_all_has_no_rows(self):
         """The earlier exit: without a label column there is nothing to

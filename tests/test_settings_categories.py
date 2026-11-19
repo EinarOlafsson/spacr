@@ -793,6 +793,22 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 967 (2026-11-17): the spacer-prefix cell call ignores minority
     # stray barcodes.
     "ops_prefix_minority_min_reads",
+    # Item 988 (2026-11-18): distance-aware read weights, the neighbour-bleed
+    # discount and the multi-guide table in the guide call.
+    "ops_read_distance_weight",
+    "ops_read_distance_decay_px",
+    "ops_read_distance_interior_px",
+    "ops_read_distance_min_weight",
+    "ops_read_neighbour_discount",
+    "ops_prefix_distance_weight",
+    "ops_prefix_distance_decay_px",
+    "ops_prefix_distance_interior_px",
+    "ops_prefix_distance_min_weight",
+    "ops_prefix_weighted_quality",
+    "ops_prefix_weighted_min_share",
+    "ops_prefix_nuclei_masks",
+    "ops_keep_multi_guide_cells",
+    "ops_multi_guide_min_reads",
     # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
     "ops_fdr_sweep_targets",
     "ops_fdr_sweep_max_distance",
@@ -809,8 +825,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_grid_run_id",
     # Item 961 (2026-11-17): in situ sequencing modes of the prefix decode.
     "ops_insitu_preset", "ops_barcode_layout", "ops_barcode_layout_file",
-    "ops_call_sort", "ops_read_compartment", "ops_prefix_nuclei_masks",
-    "ops_recomb_min_quality",
+    "ops_call_sort", "ops_read_compartment", "ops_recomb_min_quality",
     # Items 936 and 940 (2026-11-13): stitch reader threads and edge
     # workers, and the placement seed file.
     "ops_stitch_read_threads",

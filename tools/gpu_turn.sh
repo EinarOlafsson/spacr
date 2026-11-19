@@ -9,12 +9,14 @@
 # Native Windows uses gpu_turn.ps1, GPU Engine counters, and a shared
 # ProgramData queue with a global mutex; the same idle/gap defaults apply.
 #
-# "Idle" means no CUDA compute process on any GPU. The desktop (Xorg,
-# gnome-shell, browsers) always holds graphics contexts and keeps the
+# "Idle" means no non-display process using more than GPU_BUSY_MIB (4096 MiB,
+# i.e. 4 GB, maintainer policy 2026-11-06) of VRAM on any GPU. The desktop
+# (Xorg, gnome-shell, browsers) always holds graphics contexts and keeps the
 # utilisation counter at 20-50 %, so utilisation is useless as a signal;
-# compute processes are what another session's work looks like.
-# Chrome and the Mullvad VPN window never block the queue, even when
-# nvidia-smi lists them as compute.
+# big compute processes are what another session's work looks like. A CPU-bound
+# job that merely holds a small CUDA context (a few hundred MiB) is not busy:
+# it once blocked the exclusive queue for over 2 hours. Chrome and the Mullvad
+# VPN window never block the queue, even when nvidia-smi lists them as compute.
 #
 #   tools/gpu_turn.sh <label> <command...>
 #   tools/gpu_turn.sh 507-cellpose3-timing python tools/some_probe.py
@@ -29,6 +31,7 @@
 #   log           one line per wait, start and finish
 #
 # Tunables (seconds): GPU_IDLE_S (360), GPU_GAP_S (600), GPU_POLL_S (15).
+# GPU_BUSY_MIB (4096): VRAM above which a non-display process counts as busy.
 #
 # Concurrent jobs (maintainer, 2026-11-18): a job that declares its need,
 #   tools/gpu_turn.sh --vram-gb N <label> <command...>
@@ -172,9 +175,13 @@ priority_queued() {
 }
 
 compute_pids() {
-    local pid executable
-    for pid in $(nvidia-smi --query-compute-apps=pid --format=csv,noheader 2>/dev/null \
-                 | tr -d ' ' | grep -v '^$'); do
+    local pid mem executable threshold=${GPU_BUSY_MIB:-4096}
+    while IFS=, read -r pid mem; do
+        [[ -n "$pid" ]] || continue
+        # A memory reading that is not a number (e.g. [N/A]) stays busy.
+        if [[ "$mem" =~ ^[0-9]+$ ]] && (( mem <= threshold )); then
+            continue
+        fi
         executable=$(readlink "/proc/$pid/exe" 2>/dev/null || true)
         executable=${executable% (deleted)}
         case "${executable##*/}" in
@@ -184,7 +191,8 @@ compute_pids() {
         tr '\0' '\n' < "/proc/$pid/cmdline" 2>/dev/null | grep -Fxq -- '--type=gpu-process' \
             && continue
         echo "$pid"
-    done
+    done < <(nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits 2>/dev/null \
+             | tr -d ' ' | grep -v '^$')
 }
 
 gpu_reading() {
