@@ -29,7 +29,7 @@ __all__ = ["CROP_COLUMNS", "CropPoolWriter", "CropSink", "cut_crops",
            "record_measure_crops", "record_measure_field_crops",
            "OmeZarrCropSource", "ome_zarr_crops_exist", "ROLE_COLOURS",
            "composite_crop", "load_channel_presets", "save_channel_preset",
-           "parse_channel_roles", "format_channel_roles"]
+           "parse_channel_roles", "format_channel_roles", "legacy_png_view"]
 
 #: The ssCell_Crops columns, in order (item 984).
 CROP_COLUMNS: Tuple[str, ...] = (
@@ -806,3 +806,36 @@ def format_channel_roles(roles: Sequence[Mapping[str, Any]]) -> str:
             fields.append(f"width={int(role['width'])}")
         parts.append(":".join(fields))
     return "; ".join(parts)
+
+
+def legacy_png_view(project: Any, row: Mapping[str, Any], png_size: Sequence[int],
+                    planes: Sequence[int]) -> np.ndarray:
+    """The crop Measure's PNG (Legacy) path writes for this object, from its stored crop.
+
+    PNG (Legacy) keeps the object's own pixels, zeroes the rest and cuts a
+    ``png_size`` window centred on the object's centroid (no resize), with
+    ``crop_intensity='raw'`` at the source bit depth. The OME-Zarr crop holds
+    the box around the object and its mask, so the same window is rebuilt
+    exactly; this is what the 986 round trip compares.
+
+    :param png_size: ``(width, height)``, as the ``png_size`` setting.
+    :param planes: the stored channels in PNG file order (red, green, blue),
+        positions in the crop's own channel list.
+    :returns: ``(height, width, len(planes))``, in the stored dtype.
+    """
+    from scipy import ndimage
+
+    pixels, mask = read_crop(project, row, context=False)
+    width, height = int(png_size[0]), int(png_size[1])
+    y0, x0 = int(row["bbox_y0"]), int(row["bbox_x0"])
+    cy, cx = ndimage.center_of_mass(mask.astype(np.uint8))
+    start_y = int(np.round(cy + y0)) - height // 2
+    start_x = int(np.round(cx + x0)) - width // 2
+    out = np.zeros((height, width, len(planes)), pixels.dtype)
+    stack = np.moveaxis(pixels[list(planes)], 0, -1)
+    ys = slice(max(0, y0 - start_y), min(height, y0 - start_y + mask.shape[0]))
+    xs = slice(max(0, x0 - start_x), min(width, x0 - start_x + mask.shape[1]))
+    src_y = slice(ys.start - (y0 - start_y), ys.stop - (y0 - start_y))
+    src_x = slice(xs.start - (x0 - start_x), xs.stop - (x0 - start_x))
+    out[ys, xs] = stack[src_y, src_x]
+    return out
