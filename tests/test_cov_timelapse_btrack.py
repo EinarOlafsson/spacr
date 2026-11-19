@@ -41,8 +41,11 @@ def _require_btrack_registry():
     try:
         with btrack.BayesianTracker():
             pass
-    except OSError as exc:
-        pytest.skip(f"btrack's native tracker library cannot load here: {exc}")
+    except Exception as exc:
+        cause = exc if isinstance(exc, OSError) else exc.__cause__
+        if isinstance(cause, OSError):
+            pytest.skip(f"btrack's native tracker library cannot load here: {cause}")
+        raise
     from tests.resource_capabilities import endpoint_available
 
     registry = (
