@@ -8,7 +8,7 @@ shard. No settings, GUI or default format is changed.
 """
 from __future__ import annotations
 
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 import ast
 import hashlib
 import importlib.metadata
@@ -80,7 +80,11 @@ def _inventory(root, *, fingerprints=True):
             raise ValueError(tr("Resolve symlinks or case-insensitive path collisions before conversion: {path}").format(path=path))
         names.add(relative.casefold())
         if path.is_file():
-            if path.name.endswith(("-wal", "-shm", "-journal")):
+            disposable = not fingerprints and relative in {
+                ".conversion-crops/measurements/measurements.db" + suffix
+                for suffix in ("-wal", "-shm", "-journal")}
+            if not disposable and (path.name.endswith("-journal")
+                    or (path.name.endswith("-wal") and path.stat().st_size)):
                 raise ValueError(tr("Close database writers and checkpoint the project before conversion: {path}").format(path=path))
             files[relative] = _file_digest(path) if fingerprints else None
         elif not path.is_dir():
@@ -183,18 +187,39 @@ def _stored_arrays(src, entry, what):
     return image, labels, raw
 
 
+def _recorded_settings(path):
+    """Read settings through shared readers without creating SQLite sidecars."""
+    from .resume import read_recorded_settings
+
+    path = Path(path)
+    if path.suffix.lower() not in {".db", ".sqlite", ".sqlite3"}:
+        return read_recorded_settings(str(path))
+    if not path.is_file():
+        return {}
+    try:
+        rows = _crop_table(path, "settings")
+    except ValueError as exc:
+        if "Table not found in database: settings" not in str(exc):
+            raise
+        return {}
+    return {str(row["setting_key"]): _crop_scalar(row["setting_value"])
+            for row in rows.to_dict(orient="records")}
+
+
 def _saved_image_metadata(src):
     """Read consistent saved calibration and channel names through the shared settings reader."""
-    from .resume import read_recorded_settings
+    from .resume import _is_inert
 
     paths = [src / "measurements" / "measurements.db"]
     paths.extend(src / "settings" / name for name in (
         "gen_mask_settings.csv", "measure_crop_settings.csv", "measure_settings.csv"))
     collected = {"pixel_size_um": [], "channel_names": []}
     for path in paths:
-        settings = read_recorded_settings(str(path))
+        settings = _recorded_settings(path)
         for key, values in collected.items():
             value = settings.get(key)
+            if _is_inert(value):
+                continue
             if isinstance(value, str):
                 try:
                     value = ast.literal_eval(value)
@@ -220,9 +245,11 @@ def _saved_image_metadata(src):
 def _field_channel_names(entry, metadata):
     """Map original channel labels through the recorded merged channel selection."""
     names = metadata["channel_names"]
-    channels = entry.get("layout", {}).get("intensity_channels", [])
-    if names is None or not channels:
+    channels = (entry.get("layout") or {}).get("intensity_channels", [])
+    if not channels:
         return None
+    if names is None:
+        return [f"channel_{index}" for index in range(len(channels))]
     if any(isinstance(c, bool) or not isinstance(c, int) or c < 0 or c >= len(names) for c in channels):
         raise ValueError(tr("Saved channel names do not cover the merged channel selection: {field}").format(field=entry["id"]))
     return [names[index] for index in channels]
@@ -294,9 +321,12 @@ def _plan(src, dst, what):
                     raise ValueError(tr("Multiple mask files have the same field and role: {path}").format(path=relative))
                 existing["mask_files"][role] = relative
         except (ValueError, OSError, CropError) as exc:
-            plan["problems"].append(str(exc))
+            if str(exc) not in plan["problems"]:
+                plan["problems"].append(str(exc))
     keys = set()
     for entry in sorted(fields.values(), key=lambda item: item["id"]):
+        if entry.get("merged") and entry.get("layout") is None:
+            continue
         try:
             if entry["id"].casefold() in keys:
                 raise ValueError(tr("Plate or field names collide without case: {field}").format(field=entry["id"]))
@@ -713,11 +743,23 @@ def _crop_scalar(value):
 
 def _crop_table(db, table):
     """Read a source table without migrations, plate repairs or nullable-int coercion."""
-    from .tabular import read_database
+    import sqlite3
+    from .tabular import _quote_identifier, _read_query
 
-    return read_database(db, table, canonicalise=False, report=None,
-                         repair_plate_ids=False, migrate=False, read_only=True,
-                         dtype_backend="numpy_nullable", coerce_float=False)[0]
+    db = Path(db)
+    wal = db.with_name(db.name + "-wal")
+    if wal.is_file() and wal.stat().st_size:
+        raise ValueError(tr("Close database writers and checkpoint the project before conversion: {path}").format(path=wal))
+    uri = db.resolve().as_uri() + "?mode=ro&immutable=1"
+    with closing(sqlite3.connect(uri, uri=True)) as connection:
+        present = _read_query(
+            connection, "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+            params=(table,), canonicalise=False, report=None, repair_plate_ids=False)
+        if present.empty:
+            raise ValueError(tr("Table not found in database: {table}").format(table=table))
+        return _read_query(connection, f"SELECT * FROM {_quote_identifier(table)}",
+                           canonicalise=False, report=None, repair_plate_ids=False,
+                           dtype_backend="numpy_nullable", coerce_float=False)
 
 
 def _crop_metadata(row):
@@ -795,14 +837,13 @@ def _crop_relative_png(src, value, files):
 def _crop_saved_policy(src):
     """Resolve saved crop policies without guessing between conflicting run histories."""
     import ast
-    from .resume import read_recorded_settings
 
     values = {"crop_margin_px": [], "crop_zero_outside": []}
     paths = [src / "measurements" / "measurements.db"]
     paths.extend(src / "settings" / name for name in (
         "measure_crop_settings.csv", "measure_settings.csv"))
     for path in paths:
-        settings = read_recorded_settings(str(path))
+        settings = _recorded_settings(path)
         for key, known in values.items():
             if key not in settings:
                 continue
@@ -870,6 +911,7 @@ def _plan_crops(src, plan, fields):
     """Validate every legacy crop identity and retain source rows before any writes."""
     import pandas as pd
     import sqlite3
+    from decimal import Decimal, InvalidOperation
     from . import schema
     from .crop_store import CROP_COLUMNS
     from .crops import CropError, _read_crop_array
@@ -983,11 +1025,40 @@ def _plan_crops(src, plan, fields):
                 raise ValueError(tr("Legacy crop metadata already uses reserved crop-store columns; resolve those conflicting fields before conversion."))
             if combined.get("timepoint") is not None:
                 raise ValueError(tr("Timed crop identities require a time-aware field store; retain this project until that shared API is available."))
-            extra = {name: value for name, value in combined.items() if name not in CROP_COLUMNS}
             margin, zero_outside = _crop_policy(combined, saved_policy)
-            for name in ("parent_cell_id", "nucleus_id", "has_nucleus", "n_nuclei",
-                         "n_pathogens", "infected", "annotation", "class", "class_score"):
-                extra.setdefault(name, None)
+            relationships = ["parent_cell_id", "nucleus_id", "has_nucleus", "n_nuclei",
+                             "n_pathogens", "infected"]
+            relationships.extend(f"n_{name}" for name in schema.ORGANELLE_ROLES
+                                 if name == "organelle" or f"n_{name}" in combined
+                                 or name in entry["layout"]["mask_dims"]
+                                 or name in entry["mask_files"])
+            relationships.extend(["annotation", "class", "class_score"])
+            extra = {name: combined.get(name) for name in relationships}
+            for name, value in extra.items():
+                if name in {"parent_cell_id", "nucleus_id"} and value is not None:
+                    number = _object_id_int(value)
+                    if number is not None:
+                        extra[name] = number
+                        continue
+                if (not isinstance(value, str) or name in {"annotation", "class"}):
+                    continue
+                try:
+                    number = Decimal(value.strip())
+                    if not number.is_finite():
+                        raise ValueError
+                    if name == "class_score":
+                        converted = float(number)
+                        if not np.isfinite(converted) or Decimal(str(converted)) != number:
+                            raise ValueError
+                    else:
+                        if number != number.to_integral_value():
+                            raise ValueError
+                        converted = int(number)
+                except (InvalidOperation, ValueError, OverflowError):
+                    raise ValueError(tr("Crop index column {column} does not match its native scalar type; restore that column before conversion.").format(column=name)) from None
+                extra[name] = converted
+            normalized = _crop_index_frame([{"object_id": object_id, **extra}])
+            extra = {name: _crop_scalar(normalized.iloc[0][name]) for name in extra}
             records.append({"source_row": position, "field_id": entry["id"],
                             "object_id": object_id, "object_type": role,
                             "object_label": label, "timepoint": None,
@@ -1036,7 +1107,8 @@ def _plan_crops(src, plan, fields):
                     metadata_types.setdefault(name, set()).add(type(value).__name__)
         except (ValueError, OSError, KeyError, TypeError, CropError) as exc:
             plan["problems"].append(tr("Crop row {row}: {problem}").format(row=record["source_row"], problem=exc))
-    if any(len(types) > 1 for types in metadata_types.values()):
+    if any(len(types) > 1 and not types <= {"int", "float"}
+           for types in metadata_types.values()):
         plan["problems"].append(tr("Crop metadata mixes scalar types within a column; preserve the source database and resolve that column before conversion."))
     plan["crops"] = sorted(records, key=lambda item: (
         item["field_id"], item["object_type"], item["object_label"]))
@@ -1071,13 +1143,47 @@ def _plan_crops(src, plan, fields):
             tr("Legacy PNG rendering is verified separately; a raw_verified result retains PNGs that cannot be exported exactly.")])
 
 
+def _crop_index_frame(rows):
+    """Build native Measure index columns with explicit nullable scalar dtypes."""
+    import pandas as pd
+    from .crop_store import CROP_COLUMNS
+    from .schema import ORGANELLE_ROLES
+
+    relationships = ["parent_cell_id", "nucleus_id", "has_nucleus", "n_nuclei",
+                     "n_pathogens", "infected", *(f"n_{name}" for name in ORGANELLE_ROLES),
+                     "annotation", "class", "class_score"]
+    present = {name for row in rows for name in row}
+    if present - set(CROP_COLUMNS) - set(relationships):
+        raise ValueError(tr("Crop index columns differ from the native Measure schema; retain originals."))
+    columns = [*CROP_COLUMNS, *(name for name in relationships if name in present)]
+    frame = pd.DataFrame(rows, dtype=object).reindex(columns=columns)
+    integers = {"column", "field", "timepoint", "object_label", "crop_index", "offset",
+                "height", "width", "mask_offset", "bbox_y0", "bbox_x0", "bbox_y1",
+                "bbox_x1", "margin_px", "parent_cell_id", "nucleus_id", "n_nuclei",
+                "n_pathogens", *(f"n_{name}" for name in ORGANELLE_ROLES)}
+    booleans = {"clipped_at_edge", "has_nucleus", "infected"}
+    for name in columns:
+        values = [_crop_scalar(value) for value in frame[name]]
+        if name in integers or name in booleans or name == "class_score":
+            for value in values:
+                if value is None:
+                    continue
+                if (not isinstance(value, (bool, int, float))
+                        or name in integers and int(value) != value
+                        or name in booleans and value not in (False, True)):
+                    raise ValueError(tr("Crop index column {column} does not match its native scalar type; restore that column before conversion.").format(column=name))
+            dtype = "boolean" if name in booleans else "Float64" if name == "class_score" else "Int64"
+            frame[name] = pd.array(values, dtype=dtype)
+        else:
+            frame[name] = pd.Series(values, dtype=object).convert_dtypes()
+    return frame
+
+
 def _crop_table_rows(rows):
     """Normalize index rows for exact null, scalar-type and column comparisons."""
     result = {}
-    for raw in rows:
+    for raw in _crop_index_frame(rows).to_dict(orient="records"):
         row = _crop_metadata(raw)
-        if row.get("clipped_at_edge") is not None:
-            row["clipped_at_edge"] = bool(row["clipped_at_edge"])
         object_id = row["object_id"]
         if object_id in result:
             raise ValueError(tr("The converted crop index contains duplicate object_id values; retain originals."))
@@ -1091,7 +1197,8 @@ def _verify_crop_outputs(project, records, rows, *, round_trip):
     from .crops import _read_crop_array
 
     stored = _crop_table(project / "measurements" / "measurements.db", "ssCell_Crops")
-    if _crop_table_rows(stored.to_dict(orient="records")) != _crop_table_rows(rows):
+    if (list(stored.columns) != list(_crop_index_frame(rows).columns)
+            or _crop_table_rows(stored.to_dict(orient="records")) != _crop_table_rows(rows)):
         raise ValueError(tr("Converted crop metadata differs from the committed source rows; retain originals."))
     source = OmeZarrCropSource(str(project), context=True, size=None)
     by_id = {row["object_id"]: row for row in rows}
@@ -1210,8 +1317,9 @@ def _verify_crop_group(project, fields, records, commit, attributes):
 
 def _convert_crops(src, dst, ledger, verify):
     """Stage a complete crop phase and publish its tree and copied database together."""
-    import pandas as pd
+    import contextlib
     from .crop_store import CropPoolWriter, discard_uncommitted, read_commit
+    from .database_concurrency import connect
     from .tabular import write_database
 
     plan = ledger["plan"]
@@ -1296,12 +1404,16 @@ def _convert_crops(src, dst, ledger, verify):
         _sync_tree(writer.path)
         _verify_crop_group(stage, fields, group, committed_group, attributes)
         rows.extend(committed_group["rows"])
-    all_columns = sorted({name for row in rows for name in row})
-    rows = [{name: row.get(name) for name in all_columns} for row in rows]
+    frame = _crop_index_frame(rows)
+    rows = [_crop_metadata(row) for row in frame.to_dict(orient="records")]
     copied_db = stage / "measurements" / "measurements.db"
     copied_db.parent.mkdir(exist_ok=True)
+    for suffix in ("", "-wal", "-shm", "-journal"):
+        Path(str(copied_db) + suffix).unlink(missing_ok=True)
     shutil.copy2(src / "measurements" / "measurements.db", copied_db)
-    write_database(pd.DataFrame(rows, dtype=object), copied_db, "ssCell_Crops",
+    with contextlib.closing(connect(copied_db, journal_mode="DELETE")):
+        pass
+    write_database(frame, copied_db, "ssCell_Crops",
                    if_exists="replace", canonicalise=False, migrate=False)
     copied_png_rows = [_crop_metadata(row) for row in
                        _crop_table(copied_db, "png_list").to_dict(orient="records")]
@@ -1335,7 +1447,6 @@ def _convert_crops(src, dst, ledger, verify):
 def _legacy_png_settings(src):
     """Read consistent recorded PNG settings without guessing across run histories."""
     import ast
-    from .resume import read_recorded_settings
 
     paths = [src / "measurements" / "measurements.db"]
     paths.extend(src / "settings" / name for name in (
@@ -1345,7 +1456,7 @@ def _legacy_png_settings(src):
              "illumination_correction", "flat_field_sha256"}
     result, conflicting = {}, False
     for path in paths:
-        for name, value in read_recorded_settings(str(path)).items():
+        for name, value in _recorded_settings(path).items():
             if name not in names:
                 continue
             if isinstance(value, str):

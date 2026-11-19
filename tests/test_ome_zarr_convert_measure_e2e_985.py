@@ -7,11 +7,7 @@ with every original kept; a shuffled class index must not match (control).
 
 The project is what Measure leaves with its defaults (no pixel size, no
 channel names, measurements.db in WAL mode), plus the plane layout Mask
-Generation writes. Until 985 converts it, the setup ends in an expected
-failure (2026-11-19 review): a leftover measurements.db-shm, pixel_size_um
-None, channel_names None, and every measurement column copied into
-ssCell_Crops as text so the converter's own check fails. The strict marker
-turns this test red once the conversion works, so the marker comes off then.
+Generation writes. The converter must handle these defaults without changing the source project.
 """
 from __future__ import annotations
 
@@ -51,10 +47,6 @@ def _table(root: Path) -> pd.DataFrame:
         return pd.read_sql("SELECT * FROM ssCell_Crops", conn)
 
 
-pytestmark = pytest.mark.xfail(strict=True, reason="985 review 2026-11-19: real Measure "
-                                "projects are not converted yet (see module docstring)")
-
-
 @pytest.fixture(scope="module")
 def converted(tmp_path_factory):
     from spacr import ome_zarr_convert
@@ -71,10 +63,7 @@ def converted(tmp_path_factory):
         "mask_plane_order": ["cell", "nucleus"],
         "mask_dims": {"cell": 2, "nucleus": 3}}))
     before = sorted(str(p.relative_to(png)) for p in png.rglob("*") if p.is_file())
-    try:
-        report = ome_zarr_convert.convert_project(png, base / "converted")
-    except ValueError as exc:
-        pytest.xfail(f"985 does not yet convert a real Measure project: {exc}")
+    report = ome_zarr_convert.convert_project(png, base / "converted")
     return {"png": png, "native": native, "dst": base / "converted",
             "report": report, "before": before}
 

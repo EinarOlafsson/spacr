@@ -354,11 +354,15 @@ def _crop_project(root, *, exact_png=False):
             "fieldID": f"f{field}", "object_label": label,
             "path_name": str(field_path), "file_name": field_path.name,
             "n_organelle_1": [None, 0, 3][index],
+            "n_organelle": [None, 0, 3][index],
+            "mean_intensity": [17.125, 0.0, None][index],
         })
         expected[(field, label)] = (pixels, mask)
-    write_database(pd.DataFrame(records, dtype=object), db, "png_list",
+    crop_records = pd.DataFrame(records).convert_dtypes()
+    crop_records["class_score"] = pd.array(crop_records["class_score"], dtype="Float64")
+    write_database(crop_records, db, "png_list",
                    if_exists="replace", canonicalise=False, migrate=False)
-    write_database(pd.DataFrame(objects, dtype=object), db, "cell",
+    write_database(pd.DataFrame(objects).convert_dtypes(), db, "cell",
                    if_exists="replace", canonicalise=False, migrate=False)
     write_database(pd.DataFrame({"note": ["keep", None]}, dtype=object), db, "notes",
                    if_exists="replace", canonicalise=False, migrate=False)
@@ -377,7 +381,9 @@ def _read_crop_table(db, table="ssCell_Crops"):
 def test_raw_crop_conversion_preserves_native_pixels_nulls_and_source_database(tmp_path):
     """Transformed PNGs stay intact while raw ragged crops and nullable metadata verify."""
     import pandas as pd
-    from spacr.crop_store import OmeZarrCropSource
+    import sqlite3
+    from contextlib import closing
+    from spacr.crop_store import CROP_COLUMNS, OmeZarrCropSource
 
     source, destination = tmp_path / "project", tmp_path / "converted"
     source_db, records, expected = _crop_project(source)
@@ -408,9 +414,31 @@ def test_raw_crop_conversion_preserves_native_pixels_nulls_and_source_database(t
     assert by_object.loc[(1, 31), "n_pathogens"] == 0
     assert by_object.loc[(2, 7), "annotation"] == ""
     assert pd.isna(by_object.loc[(1, 31), "annotation"])
-    assert by_object.loc[(1, 7), "custom_annotation"] == 17
-    assert pd.isna(by_object.loc[(1, 31), "custom_annotation"])
-    assert by_object.loc[(2, 7), "n_organelle_1"] == 3
+    assert by_object.loc[(1, 7), "class_score"] == 0.75
+    assert pd.isna(by_object.loc[(1, 31), "class_score"])
+    assert by_object.loc[(2, 7), "class_score"] == 0.0
+    assert by_object.loc[(2, 7), "n_organelle"] == 3
+    assert list(table.columns) == [
+        *CROP_COLUMNS, "parent_cell_id", "nucleus_id", "has_nucleus", "n_nuclei",
+        "n_pathogens", "infected", "n_organelle", "annotation", "class", "class_score"]
+    assert {"custom_annotation", "n_organelle_1", "mean_intensity"}.isdisjoint(table.columns)
+    copied_db = destination / "measurements" / "measurements.db"
+    copied_pngs = _read_crop_table(copied_db, "png_list")
+    assert copied_pngs.loc[0, "custom_annotation"] == 17
+    assert pd.isna(copied_pngs.loc[1, "custom_annotation"])
+    uri = copied_db.resolve().as_uri() + "?mode=ro&immutable=1"
+    with closing(sqlite3.connect(uri, uri=True)) as connection:
+        declared = {row[1]: row[2] for row in connection.execute("PRAGMA table_info(ssCell_Crops)")}
+        types = connection.execute(
+            "SELECT typeof(class_score), typeof(n_pathogens), typeof(infected), "
+            "typeof(n_organelle) FROM ssCell_Crops ORDER BY field, object_label").fetchall()
+        assert connection.execute("PRAGMA journal_mode").fetchone()[0] == "delete"
+    assert declared["class_score"] == "REAL"
+    assert all(declared[name] == "INTEGER" for name in (
+        "field", "object_label", "n_pathogens", "infected", "n_organelle", "nucleus_id"))
+    assert types == [("real", "null", "null", "null"),
+                     ("null", "integer", "integer", "integer"),
+                     ("real", "integer", "integer", "integer")]
     for name in ("png_list", "cell", "notes"):
         pd.testing.assert_frame_equal(
             _read_crop_table(source_db, name),
@@ -428,11 +456,125 @@ def test_raw_crop_conversion_preserves_native_pixels_nulls_and_source_database(t
     assert attributes["store_versions"] == ledger["plan"]["versions"]
     assert len(attributes["settings_hash"]) == 64
     assert "infected" in attributes["relationship_columns"]
-    assert "n_organelle_1" in attributes["relationship_columns"]
+    assert "n_organelle" in attributes["relationship_columns"]
+    assert "n_organelle_1" not in attributes["relationship_columns"]
     commit = read_commit(destination, first["plate"], first["well"], "cell")
     assert commit["attributes"] == attributes
     assert commit["n_rows"] == len(table)
     assert (destination / "crop_verification.json").is_file()
+    assert _tree_contents(source) == before
+
+
+@pytest.mark.parametrize("problem", ["numeric-text", "extra-measurement"])
+def test_crop_index_verification_rejects_text_numbers_and_joined_measurements(tmp_path, problem):
+    """A structurally altered SQLite index cannot pass numeric or native-column verification."""
+    from spacr.tabular import write_database
+
+    source, destination = tmp_path / "project", tmp_path / "converted"
+    _crop_project(source)
+    before = _tree_contents(source)
+    ome_zarr_convert.convert_project(source, destination)
+    ledger = json.loads((destination / "conversion.json").read_text())
+    db = destination / "measurements" / "measurements.db"
+    changed = _read_crop_table(db)
+    if problem == "numeric-text":
+        changed["class_score"] = changed["class_score"].astype("string")
+        message = "native scalar type"
+    else:
+        changed["mean_intensity"] = 17.125
+        message = "metadata differs"
+    write_database(changed, db, "ssCell_Crops", if_exists="replace",
+                   canonicalise=False, migrate=False)
+
+    with pytest.raises(ValueError, match=message):
+        ome_zarr_convert._verify_crop_outputs(
+            destination, ledger["plan"]["crops"], ledger["crops"]["rows"], round_trip=False)
+
+    assert _tree_contents(source) == before
+
+
+def test_legacy_numeric_text_and_prefixed_relationship_ids_are_normalised_only_in_the_index(tmp_path):
+    """Legacy numeric encodings become typed index values while their original table survives."""
+    import pandas as pd
+    from spacr.tabular import write_database
+
+    source, destination = tmp_path / "project", tmp_path / "converted"
+    db, records, _ = _crop_project(source)
+    records[0].update({"class_score": "0.75", "nucleus_id": "o9", "parent_cell_id": "o7",
+                       "n_pathogens": "2.0", "infected": "1"})
+    write_database(pd.DataFrame(records, dtype=object), db, "png_list",
+                   if_exists="replace", canonicalise=False, migrate=False)
+    before = _tree_contents(source)
+
+    report = ome_zarr_convert.convert_project(source, destination)
+
+    assert report["status"] == "raw_verified"
+    copied_db = destination / "measurements" / "measurements.db"
+    row = _read_crop_table(copied_db).set_index(["field", "object_label"]).loc[(1, 7)]
+    assert row["class_score"] == 0.75
+    assert row["nucleus_id"] == 9
+    assert row["parent_cell_id"] == 7
+    assert row["n_pathogens"] == 2
+    assert row["infected"] == 1
+    pd.testing.assert_frame_equal(_read_crop_table(db, "png_list"),
+                                  _read_crop_table(copied_db, "png_list"))
+    assert _tree_contents(source) == before
+
+
+@pytest.mark.parametrize("score", ["NaN", "0.12345678901234567890123456789"])
+def test_legacy_numeric_text_must_be_finite_and_round_trip_without_precision_loss(tmp_path, score):
+    """Unsupported numeric text blocks planning instead of becoming NULL or a rounded score."""
+    import pandas as pd
+    from spacr.tabular import write_database
+
+    source, destination = tmp_path / "project", tmp_path / "converted"
+    db, records, _ = _crop_project(source)
+    records[0]["class_score"] = score
+    write_database(pd.DataFrame(records, dtype=object), db, "png_list",
+                   if_exists="replace", canonicalise=False, migrate=False)
+    before = _tree_contents(source)
+
+    report = ome_zarr_convert.convert_project(source, destination, dry_run=True)
+
+    assert report["status"] == "blocked"
+    assert any("class_score" in problem and "native scalar type" in problem
+               for problem in report["problems"])
+    assert not destination.exists()
+    assert _tree_contents(source) == before
+
+
+def test_crop_resume_replaces_only_the_staged_database_and_its_sidecars(tmp_path, monkeypatch):
+    """A resumed crop phase reuses its pools and replaces an interrupted index copy."""
+    from spacr.crop_store import CropPoolWriter
+
+    source, destination = tmp_path / "project", tmp_path / "converted"
+    _crop_project(source)
+    before = _tree_contents(source)
+    original = ome_zarr_convert._verify_crop_outputs
+
+    def interrupt_verification(*args, **kwargs):
+        """Interrupt after the complete shared crop commit and staged database write."""
+        raise RuntimeError("interrupt staged crop index verification")
+
+    monkeypatch.setattr(ome_zarr_convert, "_verify_crop_outputs", interrupt_verification)
+    with pytest.raises(RuntimeError, match="interrupt staged crop index"):
+        ome_zarr_convert.convert_project(source, destination)
+    copied_db = destination / ".conversion-crops" / "measurements" / "measurements.db"
+    assert copied_db.is_file()
+    for suffix in ("-wal", "-shm", "-journal"):
+        Path(str(copied_db) + suffix).write_bytes(b"interrupted converter-owned sidecar")
+
+    def refuse_add(*args, **kwargs):
+        """Committed crop pools must survive replacement of only their staged index copy."""
+        pytest.fail("resume rewrote committed crop pixels")
+
+    monkeypatch.setattr(ome_zarr_convert, "_verify_crop_outputs", original)
+    monkeypatch.setattr(CropPoolWriter, "add", refuse_add)
+    report = ome_zarr_convert.convert_project(source, destination)
+
+    assert report["status"] == "raw_verified"
+    assert len(_read_crop_table(destination / "measurements" / "measurements.db")) == 3
+    assert not (destination / ".conversion-crops").exists()
     assert _tree_contents(source) == before
 
 
@@ -582,7 +724,10 @@ def test_saved_and_per_row_crop_policies_control_margin_and_outside_pixels(tmp_p
         x0, x1 = int(row["bbox_x0"]), int(row["bbox_x1"])
         expected = np.moveaxis(stack[y0:y1, x0:x1, :2], -1, 0).copy()
         expected_mask = stack[y0:y1, x0:x1, 2] == row["object_label"]
-        if not per_row or row["zero_outside"]:
+        policy = next(record for record in records
+                      if int(record["fieldID"][1:]) == row["field"]
+                      and int(record["cell_id"][1:]) == row["object_label"])
+        if not per_row or policy["zero_outside"]:
             expected[:, ~expected_mask] = 0
         pixels, mask = reader.get_raw({"object_id": row["object_id"]})
         assert np.array_equal(pixels, expected)

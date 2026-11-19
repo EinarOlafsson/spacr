@@ -203,6 +203,84 @@ def test_conflicting_saved_calibration_is_a_planning_blocker(tmp_path):
     assert not dst.exists()
 
 
+@pytest.mark.parametrize("empty_wal", [False, True])
+def test_immutable_source_reads_keep_empty_wal_and_leftover_shm_unchanged(tmp_path, empty_wal):
+    """Quiescent WAL databases need no source-side cleanup to read their settings."""
+    import pandas as pd
+    from contextlib import closing
+    from spacr.database_concurrency import connect
+    from spacr.tabular import write_database
+
+    src = _source(tmp_path / "source")
+    db = src / "measurements" / "measurements.db"
+    write_database(pd.DataFrame({"setting_key": ["pixel_size_um", "channel_names"],
+                                 "setting_value": ["None", "None"]}), db, "settings",
+                   canonicalise=False)
+    with closing(connect(db, journal_mode="WAL")) as connection:
+        connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    shm = db.with_name(db.name + "-shm")
+    shm.write_bytes(b"leftover shared-memory sidecar")
+    if empty_wal:
+        db.with_name(db.name + "-wal").write_bytes(b"")
+    before = {str(p.relative_to(src)): p.read_bytes() for p in src.rglob("*") if p.is_file()}
+
+    report = ome_zarr_convert.convert_project(src, what=("merged", "masks"))
+
+    assert report["status"] == "verified"
+    assert {str(p.relative_to(src)): p.read_bytes()
+            for p in src.rglob("*") if p.is_file()} == before
+
+
+def test_nonempty_wal_is_still_refused_before_immutable_reads(tmp_path):
+    """Ignoring uncheckpointed source transactions must never become a conversion path."""
+    src = _source(tmp_path / "source")
+    folder = src / "measurements"
+    folder.mkdir()
+    (folder / "measurements.db-wal").write_bytes(b"uncheckpointed transaction")
+    dst = tmp_path / "dest"
+    with pytest.raises(ValueError, match="checkpoint"):
+        ome_zarr_convert.convert_project(src, dst, dry_run=True)
+    assert not dst.exists()
+
+
+def test_unset_csv_metadata_uses_named_channels_and_no_physical_scale(tmp_path):
+    """Blank or null saved settings mean unknown calibration, not malformed metadata."""
+    import pandas as pd
+    from spacr.ome_zarr import read_ome_zarr
+    from spacr.tabular import write_table
+
+    src = _source(tmp_path / "source")
+    settings = src / "settings"
+    settings.mkdir()
+    write_table(pd.DataFrame({"Key": ["pixel_size_um", "channel_names"],
+                              "Value": ["", "null"]}),
+                settings / "measure_crop_settings.csv")
+
+    report = ome_zarr_convert.convert_project(src, what=("merged", "masks"))
+
+    assert report["status"] == "verified"
+    assert report["notes"] == ["Physical pixel size is unknown; unitless coordinates are used."]
+    metadata = read_ome_zarr(Path(report["destination"]) / "merged" / "p.ome.zarr" / "A" / "1" / "1")
+    assert metadata.channel_names == ("channel_0",)
+    assert metadata.spacing.units == "px"
+    assert not metadata.units_declared
+    assert all(field["pixel_size_um"] is None for field in report["fields"])
+
+
+def test_missing_plane_layout_reports_one_actionable_blocker_for_all_fields(tmp_path):
+    """An absent common sidecar must not cascade into per-field None errors."""
+    src = _source(tmp_path / "source")
+    (src / "merged" / MERGED_LAYOUT_SIDECAR).unlink()
+    dst = tmp_path / "dest"
+
+    report = ome_zarr_convert.convert_project(src, dst, dry_run=True)
+
+    assert report["status"] == "blocked"
+    assert report["problems"] == [
+        "Merged conversion needs .spacr_plane_layout.json; recover the saved channel layout first."]
+    assert not dst.exists()
+
+
 def test_non_native_byte_order_is_reconstructed_in_legacy_export(tmp_path):
     """Zarr native scalar storage retains the original NPY byte-order contract."""
     src = _source(tmp_path / "source", dtype=np.dtype('>u2'))
