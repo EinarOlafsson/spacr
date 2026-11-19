@@ -1826,46 +1826,12 @@ def run_prefix_decode(settings: Mapping[str, Any],
             reads.insert(0, "site", int(site))
             reads.insert(0, "well", well_id)
             reads.insert(0, "plate", plate)
-            cells = _prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"],
-                                       method=method, sort=insitu["call_sort"],
-                                       minority_min_reads=minority_k)
-            if decoy_k > 0:
-                cells = _flag_decoy_cells(cells, nearmiss=nearmiss_k > 0)
-            classes = cells["quality"].value_counts() if len(cells) else {}
-            row = {"plate": plate, "well": well_id, "site": int(site),
-                   **read_fractions(reads), "labels": labelled,
-                   "cells_with_reads": int(len(cells)),
-                   "cells_with_exact_read": int(cells["has_exact_read"].sum())
-                   if len(cells) else 0,
-                   **{f"cells_{name}": int(classes.get(name, 0)) if len(cells) else 0
-                      for name in class_names}}
-            if minority:
-                rescued = cells["minority_rescued"].astype(bool) if len(cells) else None
-                if rescued is not None and "decoy" in cells.columns:
-                    rescued = rescued & ~cells["decoy"].astype(bool)
-                row["cells_minority_rescued"] = int(rescued.sum()) if rescued is not None else 0
-            if decoy_k > 0:
-                if n_labelled is None or not labelled:
-                    n_labelled = int(len(cells))
-                hit = cells[cells["quality"].isin(("perfect", "great"))] if len(cells) \
-                    else cells
-                real = int((~hit["decoy"].astype(bool)).sum()) if len(hit) else 0
-                far = (hit["decoy_class"].eq("far") if "decoy_class" in hit.columns
-                       else hit["decoy"].astype(bool)) if len(hit) else None
-                decoy = int(far.sum()) if far is not None else 0
-                row.update({"cells_in_labels": int(n_labelled), "cells_real": real,
-                            "cells_decoy": decoy,
-                            "fdr_pct": fdr(real, decoy, decoy_k, scale)})
-                if nearmiss_k > 0:
-                    near = int(hit["decoy_class"].eq("nearmiss").sum()) if len(hit) else 0
-                    row.update({"cells_decoy_nearmiss": near,
-                                "fdr_nearmiss_pct": fdr(real, near, nearmiss_k, 1.0)})
-                if calibration:
-                    shuffled_here = site_shuffled.get(site, 0.0)
-                    row.update({"shuffle_called": shuffled_here,
-                                "shuffle_call_rate_pct": 100.0 * shuffled_here
-                                / max(int(n_labelled), 1),
-                                "fdr_scale": scale})
+            row, cells = _site_row(
+                reads, plate=plate, well_id=well_id, site=site, chosen=chosen,
+                method=method, class_names=class_names, labelled=labelled,
+                n_labelled=n_labelled, decoy_k=decoy_k, nearmiss_k=nearmiss_k,
+                scale=scale, shuffled=site_shuffled.get(site, 0.0) if calibration else None,
+                sort=insitu["call_sort"])
             site_rows.append(row)
             say(f"prefix_decode {plate} {well_id} site {site}: {len(reads)} reads, "
                 f"{len(cells)} cells")
@@ -1940,6 +1906,80 @@ def run_prefix_decode(settings: Mapping[str, Any],
         for line in well_lines:
             say(line)
     return out
+
+
+def _site_row(reads: pd.DataFrame, *, plate: str, well_id: str, site: int,
+              chosen: Mapping[str, Any], method: str, class_names: Sequence[str],
+              labelled: bool, n_labelled: Optional[int], decoy_k: int, nearmiss_k: int,
+              scale: float, shuffled: Optional[float],
+              sort: Optional[str] = None) -> Tuple[Dict[str, Any], pd.DataFrame]:
+    """One site's cell calls and its ``site_summary.csv`` row.
+
+    :func:`run_prefix_decode` and the parameter grid (item 960,
+    :mod:`spacr.ops_grid_search`) both call this, so a grid point counts its
+    cells exactly as a run at that setting does.
+
+    :param reads: the site's reads with ``plate``, ``well`` and ``site``.
+    :param plate: the plate.
+    :param well_id: the normalised well id.
+    :param site: the site.
+    :param chosen: from :func:`prefix_settings`; read for
+        ``ops_quality_min_reads`` and ``ops_prefix_minority_min_reads``
+        (item 967).
+    :param method: the quality method.
+    :param class_names: the method's quality classes.
+    :param labelled: whether the site has cell labels.
+    :param n_labelled: the labelled cells, or None.
+    :param decoy_k: decoys per prefix.
+    :param nearmiss_k: near-miss decoys per prefix.
+    :param scale: the decoy FDR scale.
+    :param shuffled: the shuffle-called cells with the shuffle calibration,
+        else None.
+    :param sort: ``ops_call_sort`` (item 961); None keeps the decode's own rule.
+    :returns: ``(row, cells)``.
+    """
+    from .ops_decode import fdr
+
+    minority_k = int(chosen.get("ops_prefix_minority_min_reads") or 0)
+    cells = _prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"],
+                               method=method, sort=sort, minority_min_reads=minority_k)
+    if decoy_k > 0:
+        cells = _flag_decoy_cells(cells, nearmiss=nearmiss_k > 0)
+    classes = cells["quality"].value_counts() if len(cells) else {}
+    row = {"plate": plate, "well": well_id, "site": int(site),
+           **read_fractions(reads), "labels": labelled,
+           "cells_with_reads": int(len(cells)),
+           "cells_with_exact_read": int(cells["has_exact_read"].sum())
+           if len(cells) else 0,
+           **{f"cells_{name}": int(classes.get(name, 0)) if len(cells) else 0
+              for name in class_names}}
+    if minority_k > 1:
+        rescued = cells["minority_rescued"].astype(bool) if len(cells) else None
+        if rescued is not None and "decoy" in cells.columns:
+            rescued = rescued & ~cells["decoy"].astype(bool)
+        row["cells_minority_rescued"] = int(rescued.sum()) if rescued is not None else 0
+    if decoy_k > 0:
+        if n_labelled is None or not labelled:
+            n_labelled = int(len(cells))
+        hit = cells[cells["quality"].isin(("perfect", "great"))] if len(cells) \
+            else cells
+        real = int((~hit["decoy"].astype(bool)).sum()) if len(hit) else 0
+        far = (hit["decoy_class"].eq("far") if "decoy_class" in hit.columns
+               else hit["decoy"].astype(bool)) if len(hit) else None
+        decoy = int(far.sum()) if far is not None else 0
+        row.update({"cells_in_labels": int(n_labelled), "cells_real": real,
+                    "cells_decoy": decoy,
+                    "fdr_pct": fdr(real, decoy, decoy_k, scale)})
+        if nearmiss_k > 0:
+            near = int(hit["decoy_class"].eq("nearmiss").sum()) if len(hit) else 0
+            row.update({"cells_decoy_nearmiss": near,
+                        "fdr_nearmiss_pct": fdr(real, near, nearmiss_k, 1.0)})
+        if shuffled is not None:
+            row.update({"shuffle_called": shuffled,
+                        "shuffle_call_rate_pct": 100.0 * shuffled
+                        / max(int(n_labelled), 1),
+                        "fdr_scale": scale})
+    return row, cells
 
 
 def _prefix_read_mode(settings: Mapping[str, Any], chosen: Mapping[str, Any]) -> str:

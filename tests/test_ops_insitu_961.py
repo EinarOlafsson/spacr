@@ -196,3 +196,31 @@ def test_the_new_settings_are_empty_by_default_and_alpha():
 
     keys = ALPHA_FEATURES[961]["settings"]
     assert len(keys) == 7 and all(OPS_DEFAULTS[key] is None for key in keys)
+
+
+def test_the_grid_varies_compartment_and_call_sort_as_the_decode_runs_them(tmp_path):
+    from spacr import ops_grid_search as G
+
+    pd.DataFrame({"sgRNA": [m + "AAAA" for m, _r, _g in CONSTRUCTS.values()],
+                  "gene_symbol": [g for _m, _r, g in CONSTRUCTS.values()]}).to_csv(
+        tmp_path / "single.csv", index=False)
+    settings = _settings(tmp_path, "grid", ops_prefix_length=4,
+                         ops_library=str(tmp_path / "single.csv"),
+                         ops_grid_params="ops_read_compartment=cell,nucleus; ops_call_sort=none,peak",
+                         ops_grid_tiles="1")
+    settings["ops_library"] = str(tmp_path / "single.csv")
+    result = G._run_grid_search(settings)
+    lines = pd.read_csv(result["csv"])
+    pooled = lines[lines["tile"] == "pooled"].set_index("point")
+    assert len(pooled) == 5 and bool(pooled.loc[0, "is_default"])
+    nuclear = pooled[(pooled["ops_read_compartment"] == "nucleus")
+                     & (pooled["ops_call_sort"] == "peak")].index[0]
+    decoded = P.run_prefix_decode({**settings, "ops_read_compartment": "nucleus",
+                                   "ops_call_sort": "peak",
+                                   "dst_root": str(tmp_path / "decode_np")})
+    summary = pd.read_csv(os.path.join(decoded["folder"], "site_summary.csv")).iloc[0]
+    ours = lines[(lines["point"] == nuclear) & (lines["tile"] != "pooled")].iloc[0]
+    for column in ("reads", "cells_in_labels", "cells_real", "cells_decoy"):
+        assert int(ours[column]) == int(summary[column]), column
+    with pytest.raises(ValueError, match="ops_read_compartment takes"):
+        G._parse_grid("ops_read_compartment=membrane")
