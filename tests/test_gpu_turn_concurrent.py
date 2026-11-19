@@ -110,7 +110,7 @@ def test_without_the_option_the_exclusive_turn_is_unchanged(tmp_path):
     assert rc == 0 and ran and "holds the queue" in log and "concurrent" not in log
     assert (tmp_path / "home" / ".spacr" / "gpu" / "last_release").exists()
     with pytest.raises(subprocess.TimeoutExpired):
-        _run(tmp_path, ["busy-job"], timeout=4, GPU_IDLE_S=0, GPU_GAP_S=0, FAKE_APPS="777, 5000\n")
+        _run(tmp_path, ["busy-job"], timeout=4, GPU_IDLE_S=30, GPU_GAP_S=0, FAKE_APPS="777, 5000\n")
 
 
 def test_the_windows_twin_offers_the_same_option():
