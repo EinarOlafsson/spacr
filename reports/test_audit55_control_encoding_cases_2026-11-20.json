@@ -1,0 +1,185 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_cov_10_batch_correction.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_10_batch_correction.py::test_a_control_value_that_is_not_comparable_does_not_abort_the_match": "tests/test_cov_10_batch_correction.py::test_original_control_encodings_keep_their_matched_masks[test_a_control_value_that_is_not_comparable_does_not_abort_the_match]",
+    "tests/test_cov_10_batch_correction.py::test_a_numerically_encoded_control_matches_a_numeric_column": "tests/test_cov_10_batch_correction.py::test_original_control_encodings_keep_their_matched_masks[test_a_numerically_encoded_control_matches_a_numeric_column]"
+  },
+  "series_records_control_encoding_and_native_mask_contracts": {
+    "test_a_control_value_that_is_not_comparable_does_not_abort_the_match": [
+      [
+        "neg",
+        "trt",
+        "neg"
+      ],
+      [
+        [
+          "neg",
+          "trt"
+        ],
+        "neg"
+      ]
+    ],
+    "test_a_numerically_encoded_control_matches_a_numeric_column": [
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_control_value_that_is_not_comparable_does_not_abort_the_match": "(['neg', 'trt', 'neg'], [['neg', 'trt'], 'neg'])",
+    "test_a_numerically_encoded_control_matches_a_numeric_column": "([0, 1, 0], [0])"
+  },
+  "contract_scope": "Exact fresh pd.Series(original ordered string or integer records), series assignment, bc._match_values(series,original controls), mask assignment and native list(mask) == [True,False,True] retained. Original nested-list-plus-string controls and integer-zero controls retain exact types and order. All original imports, unmeasurable-spread case and constant-dispersion prior assertions retain AST and relative order. One exact top-level import pytest is added solely for the parameter decorator and separately proved.",
+  "collected_before": [
+    "tests/test_cov_10_batch_correction.py::test_a_numerically_encoded_control_matches_a_numeric_column",
+    "tests/test_cov_10_batch_correction.py::test_prior_shape_and_scale_are_infinite_when_there_is_no_variance",
+    "tests/test_cov_10_batch_correction.py::test_a_spread_that_cannot_be_measured_is_reported_as_unknown",
+    "tests/test_cov_10_batch_correction.py::test_a_control_value_that_is_not_comparable_does_not_abort_the_match"
+  ],
+  "collected_after": [
+    "tests/test_cov_10_batch_correction.py::test_original_control_encodings_keep_their_matched_masks[test_a_control_value_that_is_not_comparable_does_not_abort_the_match]",
+    "tests/test_cov_10_batch_correction.py::test_original_control_encodings_keep_their_matched_masks[test_a_numerically_encoded_control_matches_a_numeric_column]",
+    "tests/test_cov_10_batch_correction.py::test_a_spread_that_cannot_be_measured_is_reported_as_unknown",
+    "tests/test_cov_10_batch_correction.py::test_prior_shape_and_scale_are_infinite_when_there_is_no_variance"
+  ],
+  "tests_before": {
+    "passed": 4,
+    "seconds": 2.85
+  },
+  "tests_after": {
+    "passed": 4,
+    "seconds": 3.43
+  },
+  "coverage_scope": "spacr.batch_correction under the complete selected control-encoding/unmeasurable-centroid/constant-dispersion-prior module; not full-suite coverage. Pure tiny Series/DataFrame/NumPy fixtures and direct prior arithmetic only; no batch-correction fit, new reader, GUI/chart rendering, model training, network or GPU work.",
+  "coverage_before": {
+    "covered_lines": 93,
+    "num_statements": 533,
+    "percent_covered": 13.065976714100906,
+    "percent_covered_display": "13",
+    "missing_lines": 440,
+    "excluded_lines": 0,
+    "percent_statements_covered": 17.4484052532833,
+    "percent_statements_covered_display": "17",
+    "num_branches": 240,
+    "num_partial_branches": 4,
+    "covered_branches": 8,
+    "missing_branches": 232,
+    "percent_branches_covered": 3.3333333333333335,
+    "percent_branches_covered_display": "3"
+  },
+  "coverage_after": {
+    "covered_lines": 93,
+    "num_statements": 533,
+    "percent_covered": 13.065976714100906,
+    "percent_covered_display": "13",
+    "missing_lines": 440,
+    "excluded_lines": 0,
+    "percent_statements_covered": 17.4484052532833,
+    "percent_statements_covered_display": "17",
+    "num_branches": 240,
+    "num_partial_branches": 4,
+    "covered_branches": 8,
+    "missing_branches": 232,
+    "percent_branches_covered": 3.3333333333333335,
+    "percent_branches_covered_display": "3"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "cd267ea35f9378ab27abce5acbabb8415b74ca10346c6f4c65e81094112b8610",
+  "production_source_sha256": "c9c54490ff75b2a95a9953c26a91ea059e8388ed8faa6693da18b5667defa369",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "one_top_level_pytest_import_added_for_parameter_decorator": true,
+  "all_original_imports_unmeasurable_spread_and_constant_dispersion_prior_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "uncomparable-control-stops-matching",
+      "source_variant": {
+        "path": "spacr/batch_correction.py",
+        "line": 161,
+        "old": "except Exception:\n            pass\n        mask |= text == str(value).strip()",
+        "new": "except Exception:\n            break\n        mask |= text == str(value).strip()"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_10_batch_correction.py::test_a_control_value_that_is_not_comparable_does_not_abort_the_match"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_10_batch_correction.py::test_a_control_value_that_is_not_comparable_does_not_abort_the_match"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_10_batch_correction.py::test_original_control_encodings_keep_their_matched_masks[test_a_control_value_that_is_not_comparable_does_not_abort_the_match]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_10_batch_correction.py::test_original_control_encodings_keep_their_matched_masks[test_a_control_value_that_is_not_comparable_does_not_abort_the_match]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "zero-control-skipped",
+      "source_variant": {
+        "path": "spacr/batch_correction.py",
+        "line": 158,
+        "old": "for value in values:\n        try:\n            mask |= series == value",
+        "new": "for value in values:\n        if not value:\n            continue\n        try:\n            mask |= series == value"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_10_batch_correction.py::test_a_numerically_encoded_control_matches_a_numeric_column"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_10_batch_correction.py::test_a_numerically_encoded_control_matches_a_numeric_column"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_10_batch_correction.py::test_original_control_encodings_keep_their_matched_masks[test_a_numerically_encoded_control_matches_a_numeric_column]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_10_batch_correction.py::test_original_control_encodings_keep_their_matched_masks[test_a_numerically_encoded_control_matches_a_numeric_column]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in _match_values before and after: break instead of continuing after an incomparable control; skip false-like control values, losing numeric zero. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native ordered boolean-list equality. Fresh Series and original string/int/nested-list control types retained. Repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_10_batch_correction.py",
+      "line": 32,
+      "symbol": "test_original_control_encodings_keep_their_matched_masks",
+      "new": "Preserve each original series and control encoding in the matched mask.",
+      "old": {
+        "test_a_control_value_that_is_not_comparable_does_not_abort_the_match": "A nested list among the control values cannot be compared elementwise\nagainst the column. The other encodings still have to be tried, so a\nusable value sitting beside the unusable one still matches.",
+        "test_a_numerically_encoded_control_matches_a_numeric_column": "Control columns are often 0/1. Matching only on text would miss the\nrow whose value is the integer 0 rather than the string \"0\"."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

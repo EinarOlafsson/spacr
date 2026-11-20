@@ -13,24 +13,25 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from spacr import batch_correction as bc
 
 
-def test_a_control_value_that_is_not_comparable_does_not_abort_the_match():
-    """A nested list among the control values cannot be compared elementwise
-    against the column. The other encodings still have to be tried, so a
-    usable value sitting beside the unusable one still matches."""
-    series = pd.Series(["neg", "trt", "neg"])
-    mask = bc._match_values(series, [["neg", "trt"], "neg"])
-    assert list(mask) == [True, False, True]
-
-
-def test_a_numerically_encoded_control_matches_a_numeric_column():
-    """Control columns are often 0/1. Matching only on text would miss the
-    row whose value is the integer 0 rather than the string "0"."""
-    series = pd.Series([0, 1, 0])
-    mask = bc._match_values(series, [0])
+@pytest.mark.parametrize('records, controls', [
+    pytest.param(
+        ['neg', 'trt', 'neg'], [['neg', 'trt'], 'neg'],
+        id='test_a_control_value_that_is_not_comparable_does_not_abort_the_match',
+    ),
+    pytest.param(
+        [0, 1, 0], [0],
+        id='test_a_numerically_encoded_control_matches_a_numeric_column',
+    ),
+])
+def test_original_control_encodings_keep_their_matched_masks(records, controls):
+    """Preserve each original series and control encoding in the matched mask."""
+    series = pd.Series(records)
+    mask = bc._match_values(series, controls)
     assert list(mask) == [True, False, True]
 
 
