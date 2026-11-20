@@ -593,6 +593,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 715 -> 716 on 2026-11-20, +1/-0, TASK X: OPS Cellpose through the
         # shared mask batches (spacr/_mask_array_batches.py).
         'spacr/_mask_array_batches.py',
+        # 716 -> 719 on 2026-11-20, +3/-0, merging items 983-985: OME-Zarr images,
+        # ragged crop stores and the project converter (spacr/image_store.py,
+        # spacr/crop_store.py, spacr/ome_zarr_convert.py).
+        'spacr/image_store.py', 'spacr/crop_store.py', 'spacr/ome_zarr_convert.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -617,9 +621,11 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 713)
+            - len(retired_since_608) == 716)
     # 711 -> 712 on 2026-11-19: spacr/_mask_batches.py (item 987b).
     # 712 -> 713 on 2026-11-20: spacr/_mask_array_batches.py (TASK X).
+    # 713 -> 716 on 2026-11-20: merging spacr/image_store.py,
+    # spacr/crop_store.py and spacr/ome_zarr_convert.py (items 983-985).
     # 708 -> 709 on 2026-11-19: spacr/store.py (item 974, the spaCR store).
     # 709 -> 710 on 2026-11-19: spacr/ops_feature_info.py (item 964, the
     # feature-information screen).
@@ -1179,8 +1185,11 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # with the workflow in one commit.
     # 715 -> 716 on 2026-11-20: spacr/_mask_array_batches.py (TASK X), moved
     # with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 716
-    assert "--expected-file-count 716" in combine_script
+    # 716 -> 719 on 2026-11-20: merging spacr/image_store.py,
+    # spacr/crop_store.py and spacr/ome_zarr_convert.py (items 983-985).
+    # The workflow's expected inventory must include these three modules too.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 719
+    assert "--expected-file-count 719" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

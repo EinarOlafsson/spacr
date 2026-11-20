@@ -285,6 +285,8 @@ def convert_settings_dict_for_gui(settings):
         'ops_merge_strategy': ('combo', ['current', 'tile', 'stitch', 'auto'], 'current'),
         'ops_storage': ('combo', ['current', 'spacr_store'], 'current'),
         'ops_merge_stitch_source': ('combo', ['metadata', 'registered'], 'metadata'),
+        'mask_image_format': ('combo', ['npy', 'tiff', 'ome-zarr'], 'npy'),
+        'crop_image_format': ('combo', ['png', 'ome-zarr'], 'png'),
         'ops_ph_organelle_morphology': ('combo', ['spots', 'network', 'irregular', 'ring'], 'spots'),
         'ops_ph_organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose'], 'otsu'),
         'ops_ph_pathogen_model': ('combo', cellpose_models, 'cpsam'),

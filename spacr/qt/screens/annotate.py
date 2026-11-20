@@ -3786,6 +3786,16 @@ def _usable_example_database(destination) -> bool:
     return database.is_file()
 
 
+#: The channel-roles example the Annotate settings show (items 983/984). It is
+#: syntax, not prose, so it is written by the parser's own formatter and stays
+#: the same in every language.
+_CHANNEL_ROLES_EXAMPLE = (
+    {"channel": 0, "role": "image", "colour": "blue"},
+    {"channel": 1, "role": "image", "colour": "green", "gamma": 1.5},
+    {"channel": "mask", "role": "outline", "colour": "yellow", "width": 2},
+)
+
+
 def _load_thumb_image_worker(row, src, settings, should_stop=None):
     """Load one thumbnail from an immutable page-request snapshot.
 
@@ -3793,6 +3803,12 @@ def _load_thumb_image_worker(row, src, settings, should_stop=None):
     bound QWidget method from a worker kept the screen wrapper alive after its
     C++ object had been destroyed and let background threads read settings
     while the GUI thread replaced them.
+
+    An OME-Zarr crop with ``settings.channel_roles`` (items 983/984) is drawn
+    by :func:`spacr.crop_store.composite_crop` from the stored pixels, any
+    number of channels at full bit depth; the roles already set each
+    channel's range, colour and outline, so the RGB stretch, channel filter
+    and outline steps are skipped for it.
 
     :param should_stop: passed through to :func:`outline_image`, which asks it
         before every Cellpose call. A Cellpose outline is native work that
@@ -3809,9 +3825,17 @@ def _load_thumb_image_worker(row, src, settings, should_stop=None):
         row = {"png_path": path}
 
     s = settings
-    if src is not None and getattr(src, "kind", "png") == "merged":
+    composited = False
+    if src is not None and getattr(src, "kind", "png") in ("merged", "ome-zarr"):
         try:
-            img = Image.fromarray(src.get(row)).convert("RGB")
+            roles = getattr(s, "channel_roles", None)
+            if roles and getattr(src, "kind", "") == "ome-zarr":
+                from spacr.crop_store import composite_crop
+                pixels, mask = src.get_raw(row)
+                img = Image.fromarray(composite_crop(pixels, roles, mask=mask))
+                composited = True
+            else:
+                img = Image.fromarray(src.get(row)).convert("RGB")
         except Exception:
             return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
     else:
@@ -3830,10 +3854,12 @@ def _load_thumb_image_worker(row, src, settings, should_stop=None):
         except Exception:
             return Image.new("RGB", s.image_size, (30, 30, 30)), annotation
 
-    img = normalize_pil(img, s.percentiles, s.normalize_channels)
+    if not composited:
+        img = normalize_pil(img, s.percentiles, s.normalize_channels)
     full_img = img
-    img = filter_channels_pil(img, s.channels)
-    if s.outline:
+    if not composited:
+        img = filter_channels_pil(img, s.channels)
+    if s.outline and not composited:
         try:
             img = outline_image(
                 base_img=img,
@@ -4341,6 +4367,7 @@ class _SettingsDialog(QDialog):
             "Legacy BGR repairs crops written by older cv2-based releases. "
             "After decoding, Annotate always uses RGB arrays.")
         form.addRow("Stored PNG order", self._stored_channel_order)
+        form.addRow(self._build_channel_roles_row(settings))
 
         from ...crops import DISPLAY_ORDERS
 
@@ -4868,6 +4895,85 @@ class _SettingsDialog(QDialog):
             return
         super().accept()
 
+    def _build_channel_roles_row(self, settings: AnnotateSettings) -> QWidget:
+        """The OME-Zarr channel-roles editor with the project's presets (alpha, 983).
+
+        Registered as ``AnnotateChannelRoles`` in
+        :data:`spacr.settings.ALPHA_FEATURES`, so the whole row hides with the
+        alpha preference.
+        """
+        from ...crop_store import format_channel_roles, load_channel_presets
+        from ..preferences import _apply_alpha_widgets
+
+        row = QWidget(self)
+        row.setObjectName("AnnotateChannelRoles")
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(QLabel("Channel roles (OME-Zarr)", row))
+        self._role_preset = QComboBox(row)
+        self._role_preset.addItem("(none: RGB view)", "")
+        try:
+            self._role_presets = load_channel_presets(settings.src) if settings.src else {}
+        except (OSError, ValueError):
+            self._role_presets = {}
+        for name in sorted(self._role_presets):
+            self._role_preset.addItem(name, name)
+        layout.addWidget(self._role_preset)
+        self._channel_roles = QLineEdit(
+            format_channel_roles(settings.channel_roles or []), row)
+        self._channel_roles.setPlaceholderText(format_channel_roles(_CHANNEL_ROLES_EXAMPLE))
+        self._channel_roles.setToolTip(
+            "How OME-Zarr crops are drawn: any number of channels, separated by "
+            "';'. Each is channel:role:colour, then options. An image role "
+            "blends the channel in its colour (range=lo-hi in stored units, "
+            "gamma=g). An outline role draws the object's outline from the "
+            "mask, a label channel or threshold=t, width=w pixels. Presets "
+            "are saved per project. Blank draws the stored first three "
+            "channels as RGB. PNG crops keep R, G, B.")
+        layout.addWidget(self._channel_roles, 1)
+        save = QPushButton("Save preset", row)
+        save.clicked.connect(self._save_role_preset)
+        layout.addWidget(save)
+        self._role_preset.currentIndexChanged.connect(self._on_role_preset)
+        _apply_alpha_widgets(row)
+        return row
+
+    def _on_role_preset(self, _index: int) -> None:
+        """Fill the roles field from the chosen preset."""
+        from ...crop_store import format_channel_roles
+
+        name = self._role_preset.currentData()
+        if name:
+            self._channel_roles.setText(
+                format_channel_roles(self._role_presets.get(name, [])))
+
+    def _save_role_preset(self) -> None:
+        """Save the roles field as a named preset of this project."""
+        from ...crop_store import parse_channel_roles, save_channel_preset
+
+        project = _plate_of_source(self._src_edit.text())
+        try:
+            roles = parse_channel_roles(self._channel_roles.text())
+        except ValueError as exc:
+            QMessageBox.warning(self, "Channel roles", str(exc))
+            return
+        name, ok = QInputDialog.getText(self, "Save preset", "Preset name:")
+        if not ok or not name.strip():
+            return
+        save_channel_preset(project, name.strip(), roles)
+        self._role_presets[name.strip()] = roles
+        if self._role_preset.findData(name.strip()) < 0:
+            self._role_preset.addItem(name.strip(), name.strip())
+
+    def _collect_channel_roles(self) -> Optional[List[Dict[str, Any]]]:
+        """The roles field, parsed; None when blank or unreadable."""
+        from ...crop_store import parse_channel_roles
+
+        try:
+            return parse_channel_roles(self._channel_roles.text()) or None
+        except ValueError:
+            return None
+
     def collect(self) -> AnnotateSettings:
         """Read every editor and return the updated settings object."""
         s = self._settings
@@ -4881,6 +4987,7 @@ class _SettingsDialog(QDialog):
         s.channels = _csv_to_list(self._channels.text())
         s.stored_channel_order = str(
             self._stored_channel_order.currentData() or "rgb")
+        s.channel_roles = self._collect_channel_roles()
         s.display_order = str(self._display_order.currentData() or "rgb")
         s.display_primaries = str(
             self._display_primaries.currentData() or "rgb")

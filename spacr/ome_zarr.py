@@ -145,6 +145,7 @@ from __future__ import annotations
 
 import base64
 import bz2
+import collections
 import gzip
 import itertools
 import json
@@ -153,11 +154,12 @@ import math
 import os
 import re
 import shutil
+import threading
 import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
-from typing import (Any, Callable, Dict, Iterable, List, Mapping, Optional,
+from typing import (Any, Callable, Dict, Iterable, List, Literal, Mapping, Optional,
                     Sequence, Tuple, Union)
 
 import numpy as np
@@ -1328,7 +1330,7 @@ def _v3_codec_chain(codecs: Sequence[Mapping[str, Any]], path: Path,
         if name == "crc32c":
             specs.append((name, cfg))
             continue
-        if name == "sharding_indexed":
+        if name == "sharding_indexed" and not _zarr_is_installed():
             raise OmeZarrError(
                 f"{path}/zarr.json uses sharding, which spaCR's pure-Python "
                 f"reader does not implement. Install the extra "
@@ -1343,6 +1345,10 @@ def _resolve_decoder(name: str, config: Mapping[str, Any]
     """One codec spec to one ``bytes -> bytes`` callable."""
     if name == "crc32c":
         return _strip_crc32c
+    if name == "sharding_indexed":
+        raise OmeZarrError(
+            "this array is sharded; its chunks are read through zarr "
+            "(prefer_zarr=True), not spaCR's pure-Python reader")
     return require_codec(name, config)
 
 
@@ -1734,6 +1740,84 @@ def _zarr_is_installed() -> bool:
     return True
 
 
+_OPEN_ARRAY_LIMIT = 128
+_OPEN_ARRAY_PID = os.getpid()
+_OPEN_ARRAY_CACHE = collections.OrderedDict()
+_OPEN_ARRAY_LOCK = threading.RLock()
+
+
+def _reset_open_array_cache() -> None:
+    """Discard process-local handles and locks without acquiring an inherited lock."""
+    global _OPEN_ARRAY_PID, _OPEN_ARRAY_CACHE, _OPEN_ARRAY_LOCK
+    _OPEN_ARRAY_PID = os.getpid()
+    _OPEN_ARRAY_CACHE = collections.OrderedDict()
+    _OPEN_ARRAY_LOCK = threading.RLock()
+
+
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(after_in_child=_reset_open_array_cache)
+
+
+def _local_array_signature(store: Path) -> tuple:
+    """Identify a directory generation and every possible local array metadata file."""
+    result = []
+    for path in (store, *(store / name for name in
+                         ("zarr.json", ".zarray", ".zattrs", ".zgroup"))):
+        try:
+            info = path.stat()
+        except FileNotFoundError:
+            result.append(None)
+        else:
+            result.append((info.st_dev, info.st_ino, info.st_size,
+                           info.st_mtime_ns, info.st_ctime_ns))
+    return tuple(result)
+
+
+def _opened_local_array(store: Path):
+    """Reuse a bounded read-only Zarr handle while metadata and public config agree.
+
+    Only local handles are retained; pixel arrays are never cached. Unsupported
+    configuration snapshots use the original open path. Opening happens outside
+    the cache lock, and each published handle has its own read lock.
+    """
+    if _OPEN_ARRAY_PID != os.getpid():
+        _reset_open_array_cache()
+    zarr = require_zarr()
+    opener = zarr.open
+    try:
+        location = store.resolve()
+        configuration = json.dumps(zarr.config.to_dict(), sort_keys=True,
+                                   separators=(",", ":"), allow_nan=False)
+        signature = _local_array_signature(location)
+    except Exception:
+        return opener(str(store), mode="r"), None
+    key = (str(location), id(opener), configuration)
+    with _OPEN_ARRAY_LOCK:
+        entry = _OPEN_ARRAY_CACHE.get(key)
+        if entry is not None and entry[0] == signature:
+            _OPEN_ARRAY_CACHE.move_to_end(key)
+            return entry[1], entry[2]
+        _OPEN_ARRAY_CACHE.pop(key, None)
+    array = opener(str(location), mode="r")
+    try:
+        unchanged = (signature == _local_array_signature(location)
+                     and configuration == json.dumps(zarr.config.to_dict(), sort_keys=True,
+                                                     separators=(",", ":"), allow_nan=False))
+    except Exception:
+        unchanged = False
+    if not unchanged:
+        return array, None
+    with _OPEN_ARRAY_LOCK:
+        entry = _OPEN_ARRAY_CACHE.get(key)
+        if entry is None or entry[0] != signature:
+            entry = (signature, array, threading.RLock(), opener)
+            _OPEN_ARRAY_CACHE[key] = entry
+        _OPEN_ARRAY_CACHE.move_to_end(key)
+        while len(_OPEN_ARRAY_CACHE) > _OPEN_ARRAY_LIMIT:
+            _OPEN_ARRAY_CACHE.popitem(last=False)
+        return entry[1], entry[2]
+
+
 def _read_with_zarr(store: Path, box: Sequence[Tuple[int, int]]) -> np.ndarray:
     """Read a box through :mod:`zarr` — the preferred path when it is there.
 
@@ -1741,9 +1825,12 @@ def _read_with_zarr(store: Path, box: Sequence[Tuple[int, int]]) -> np.ndarray:
     :param box: ``((start, stop), ...)`` per axis.
     :returns: the region as a numpy array.
     """
-    zarr = require_zarr()
-    array = zarr.open(str(store), mode="r")
-    return np.asarray(array[tuple(slice(a, b) for a, b in box)])
+    array, lock = _opened_local_array(store)
+    region = tuple(slice(a, b) for a, b in box)
+    if lock is None:
+        return np.asarray(array[region])
+    with lock:
+        return np.asarray(array[region])
 
 
 
@@ -2161,8 +2248,9 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
                    channel_names: Optional[Sequence[str]] = None,
                    channel_colors: Optional[Sequence[str]] = None,
                    overwrite: bool = False,
-                   ngff_version: str = "0.4") -> OmeZarrImage:
-    """Write an array as an OME-NGFF 0.4 multiscale image.
+                   ngff_version: str = "0.4",
+                   shards: Optional[Union[Sequence[int], Literal[False]]] = None) -> OmeZarrImage:
+    """Write an array as an OME-NGFF 0.4 or 0.5 multiscale image.
 
     The defaults are chosen for compatibility with other NGFF readers:
     zarr-format 2, ``zlib`` chunks (which need no extra), ``/`` separators,
@@ -2230,7 +2318,18 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
         is refused rather than merged — a pyramid written over another
         pyramid's levels leaves the leftover deeper levels of the old one in
         place, and they read back as part of the new image.
-    :param ngff_version: the version to declare. 0.4 is what this writes.
+    :param ngff_version: ``"0.4"`` (the default; zarr-format 2, written by
+        this module alone) or ``"0.5"`` (zarr-format 3, sharded by default,
+        written through :mod:`zarr`, so it needs ``spacr[zarr]``; item 983).
+        With 0.5 the default ``compressor`` is zstd at ``compression_level``
+        3 unless another one is named; ``"lz4"`` (Blosc LZ4 with byte
+        shuffle) is also offered there.
+    :param shards: 0.5 only: the shard shape, one per axis, each a
+        multiple of the chunk shape. Defaults to one shard holding the
+        whole level, so one field is one file and one writer owns it.
+        Pass ``False`` to store each chunk separately without sharding;
+        ``None`` retains the whole-level shard default. The chunk shape
+        and compression settings are unchanged by this choice.
     :returns: the group, reopened with :func:`read_ome_zarr` — so the return
         value is a *read* of what was actually written, not a description of
         what was intended.
@@ -2246,11 +2345,14 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
         raise OmeZarrError(
             f"cannot write dtype {data.dtype!r} as an OME-Zarr; NGFF images "
             f"hold numeric or boolean data.")
-    if str(ngff_version) != "0.4":
+    version = str(ngff_version)
+    if version not in ("0.4", "0.5"):
         raise OmeZarrError(
-            f"spaCR writes OME-NGFF 0.4 (zarr-format 2), not "
-            f"{ngff_version!r}. 0.4 is what essentially every reader "
-            f"supports; spaCR *reads* {SUPPORTED_NGFF_VERSIONS}.")
+            f"spaCR writes OME-NGFF 0.4 (zarr-format 2) or 0.5 (zarr-format "
+            f"3, sharded), not {ngff_version!r}; it *reads* "
+            f"{SUPPORTED_NGFF_VERSIONS}.")
+    if version == "0.4" and shards is not None:
+        raise OmeZarrError("shards= needs ngff_version='0.5' (zarr-format 3)")
     method = str(downsample).lower()
     if method not in ("mean", "stride"):
         raise OmeZarrError(
@@ -2305,14 +2407,23 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
             f"chunks {chunk_shape} has {len(chunk_shape)} entries for a "
             f"{data.ndim}-dimensional array")
 
+    group = None
+    if version == "0.5":
+        group = _zarr_v3_group(target)
     datasets: List[Dict[str, Any]] = []
     for k, level_array in enumerate(pyramid):
         level_chunks = tuple(min(c, s) if s else 1
                              for c, s in zip(chunk_shape, level_array.shape))
-        _write_zarr_v2_array(
-            target / str(k), level_array, level_chunks, compressor,
-            int(compression_level), str(order).upper(),
-            str(dimension_separator), fill_value, bool(write_empty_chunks))
+        if group is not None:
+            _write_zarr_v3_array(
+                group, str(k), level_array, level_chunks, shards,
+                compressor, int(compression_level), fill_value,
+                bool(write_empty_chunks))
+        else:
+            _write_zarr_v2_array(
+                target / str(k), level_array, level_chunks, compressor,
+                int(compression_level), str(order).upper(),
+                str(dimension_separator), fill_value, bool(write_empty_chunks))
         factor = [2.0 ** k if i in halved else 1.0 for i in range(data.ndim)]
         scale = [a.scale * f for a, f in zip(axis_list, factor)]
         shift = 0.0 if method == "stride" else 1.0
@@ -2349,9 +2460,68 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
     if omero:
         attrs["omero"] = omero
 
+    if group is not None:
+        multiscale.pop("version")
+        group.attrs.update({"ome": {"version": "0.5", **attrs}})
+        return read_ome_zarr(target)
     _write_json(target / ".zgroup", {"zarr_format": 2})
     _write_json(target / ".zattrs", attrs)
     return read_ome_zarr(target)
+
+
+def _zarr_v3_group(target: Path):
+    """An empty zarr-format 3 group at ``target``, through :mod:`zarr` (item 983)."""
+    zarr = require_zarr()
+    return zarr.open_group(str(target), mode="w", zarr_format=3)
+
+
+def _write_zarr_v3_array(group, name: str, array: np.ndarray,
+                         chunks: Sequence[int],
+                         shards: Optional[Union[Sequence[int], Literal[False]]],
+                         compressor: Optional[str], level: int,
+                         fill_value: Any, write_empty_chunks: bool) -> None:
+    """Write one level as a zarr-format 3 array, sharded by default (item 983).
+
+    :param shards: the shard shape, or None for one shard over the level,
+        rounded up to whole chunks. False stores chunks without sharding.
+    :param compressor: ``"zstd"`` (also chosen for ``None`` and the 0.4
+        default ``"zlib"``, so a 0.5 store is zstd unless asked otherwise),
+        ``"lz4"`` (Blosc LZ4 with byte shuffle at ``level``, the fastest to
+        read), ``"gzip"``/``"zlib"`` by name, or ``"none"`` for stored.
+    """
+    from zarr.codecs import BloscCodec, GzipCodec, ZstdCodec
+
+    name_ = str(compressor or "zstd").lower()
+    if name_ in ("zstd", "zlib"):
+        codecs = [ZstdCodec(level=level if name_ == "zstd" else 3)]
+    elif name_ == "lz4":
+        codecs = [BloscCodec(cname="lz4", clevel=int(level), shuffle="shuffle")]
+    elif name_ == "gzip":
+        codecs = [GzipCodec(level=level)]
+    elif name_ == "none":
+        codecs = []
+    else:
+        raise OmeZarrError(
+            f"compressor={compressor!r} for OME-NGFF 0.5; use 'zstd', "
+            f"'lz4', 'gzip' or 'none'")
+    if shards is False:
+        shard_shape = None
+    elif shards is None:
+        shard_shape = tuple(-(-int(s) // int(c)) * int(c) if s else int(c)
+                            for s, c in zip(array.shape, chunks))
+    else:
+        shard_shape = tuple(int(v) for v in shards)
+        if len(shard_shape) != array.ndim or any(
+                v % int(c) for v, c in zip(shard_shape, chunks)):
+            raise OmeZarrError(
+                f"shards {shard_shape} must have one entry per axis and be "
+                f"a multiple of the chunks {tuple(chunks)}")
+    out = group.create_array(
+        name, shape=array.shape, dtype=array.dtype, chunks=tuple(chunks),
+        shards=shard_shape, compressors=codecs,
+        fill_value=_json_fill(fill_value, array.dtype),
+        config={"write_empty_chunks": write_empty_chunks})
+    out[...] = array
 
 
 def _spacr_version() -> str:

@@ -805,6 +805,11 @@ class AnnotateSettings:
     normalize_channels: List[str] = field(
         default_factory=lambda: ["r", "g", "b"])
     stored_channel_order: str = "rgb"
+    #: Items 983/984, alpha: how OME-Zarr crops are drawn, any number of
+    #: channels, each an image or an outline role (see
+    #: :func:`spacr.crop_store.composite_crop`). None draws the crop source's
+    #: own RGB view. PNG (Legacy) crops keep R, G, B and ignore it.
+    channel_roles: Optional[List[Dict[str, Any]]] = None
     #: A DISPLAY preference, not a claim about the file. One of
     #: `spacr.crops.DISPLAY_ORDERS`; the default is the identity.
     display_order: str = "rgb"

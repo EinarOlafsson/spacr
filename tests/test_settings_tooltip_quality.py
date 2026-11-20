@@ -620,6 +620,13 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"
 
 
+#: Items 983 and 984: the format defaults the tooltips claim, per app.
+FORMAT_ARRIVALS_983 = {
+    ("mask", "mask_image_format"),
+    ("measure", "crops_per_shard"), ("measure", "crop_margin_px"),
+    ("external_masks", "crops_per_shard"), ("external_masks", "crop_margin_px")}
+
+
 def test_real_default_claims_have_no_unrecorded_drift():
     """Compare parseable tooltip claims with every registered app default.
 
@@ -1517,6 +1524,18 @@ if app_key == "mask":
     # Item 987b added mask_inference_precision ("Default auto.") and
     # mask_eval_batch_size ("Default 0."), resolved by Mask; one of them is a
     # compared claim: 1004 -> 1005.
+    # Items 983 and 984 (2026-11-19): the image and crop formats, all alpha.
+    # Each claim is the resolved default, so none is a variant.
+    format_defaults = {"mask_image_format": "npy", "crop_image_format": "png",
+                       "crops_per_shard": 4096, "crop_margin_px": 0,
+                       "crop_zero_outside": False}
+    format_arrivals = {pair for pair in compared_pairs
+                       if pair[1] in format_defaults} - set(variants.keys())
+    assert format_arrivals == FORMAT_ARRIVALS_983, sorted(format_arrivals)
+    assert not format_arrivals & recognized_arrivals
+    for app, key in format_arrivals:
+        assert resolve_default_settings(app)[key] == format_defaults[key]
+    recognized_arrivals |= format_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
