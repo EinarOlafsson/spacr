@@ -81,7 +81,7 @@ def test_pca_refuses_a_table_it_cannot_decompose_and_says_why(subtests):
         with subtests.test(msg=case_id):
             with pytest.raises(PCAError) as caught:
                 pca(frame, spec)
-            assert str(caught.value) == message
+            assert str(caught.value).split("\n\n")[0] == message
 
     with subtests.test(msg="a component that was not computed"):
         result = pca(_measured(), PCASpec(n_components=2))

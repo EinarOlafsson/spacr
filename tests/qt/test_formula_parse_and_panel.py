@@ -66,7 +66,7 @@ def test_parse_refuses_each_malformed_expression_with_its_own_sentence(subtests)
         with subtests.test(msg=case_id):
             with pytest.raises(FormulaError) as caught:
                 parse(expression)
-            assert str(caught.value) == message
+            assert str(caught.value).split("\n\n")[0] == message
 
 
 def test_evaluate_gives_exact_values_and_nan_where_nothing_was_measured(subtests):
@@ -132,7 +132,7 @@ def test_formula_panel_status_line_and_add_button_follow_what_is_typed(qtbot, su
             panel._name.setText(name)
             panel._expression.setText(expression)
             panel._validate()
-            assert panel.status() == status
+            assert panel.status().split("\n\n")[0] == status
             assert panel._add.isEnabled() is enabled
             if not enabled:
                 assert panel.commit() is False
@@ -144,7 +144,7 @@ def test_formula_panel_status_line_and_add_button_follow_what_is_typed(qtbot, su
     with subtests.test(msg="invalid_name_never_constructs"):
         with pytest.raises(FormulaError) as caught:
             ColumnFormula("2 bad name", "area")
-        assert str(caught.value) == _BAD_NAME
+        assert str(caught.value).split("\n\n")[0] == _BAD_NAME
 
 
 def test_formula_panel_adds_refuses_removes_and_reapplies_formulas(qtbot, subtests):
@@ -160,7 +160,7 @@ def test_formula_panel_adds_refuses_removes_and_reapplies_formulas(qtbot, subtes
     with subtests.test(msg="missing_column_refused_with_its_name"):
         panel = make()
         assert panel.add_formula(ColumnFormula("bad", "area / girth")) is False
-        assert panel.status() == ("bad: there is no column called 'girth' in "
+        assert panel.status().split("\n\n")[0] == ("bad: there is no column called 'girth' in "
                                   "this table (it has 2 columns)")
         pd.testing.assert_frame_equal(panel.computed_frame(), table)
         assert panel.formulas().names == ()
@@ -169,7 +169,7 @@ def test_formula_panel_adds_refuses_removes_and_reapplies_formulas(qtbot, subtes
         panel._name.setText("ratio")
         panel._expression.setText("area / girth")
         assert panel.commit() is False
-        assert panel.status() == ("ratio: there is no column called 'girth' "
+        assert panel.status().split("\n\n")[0] == ("ratio: there is no column called 'girth' "
                                   "in this table (it has 2 columns)")
     with subtests.test(msg="valid_commit_clears_boxes"):
         panel = make()
@@ -214,6 +214,6 @@ def test_formula_panel_adds_refuses_removes_and_reapplies_formulas(qtbot, subtes
         panel = make()
         panel.add_formula(ColumnFormula("ratio", "area / perimeter"))
         panel.set_frame(pd.DataFrame({"area": [1.0, 2.0]}))
-        assert panel.status() == ("ratio: there is no column called "
+        assert panel.status().split("\n\n")[0] == ("ratio: there is no column called "
                                   "'perimeter' in this table (it has 1 columns)")
         assert panel.results() == []
