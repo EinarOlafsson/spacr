@@ -1,0 +1,375 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_cov_w2_4_crop_source.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 4,
+  "case_mapping": {
+    "tests/test_cov_w2_4_crop_source.py::test_loading_images_refuses_a_file_type_it_cannot_read": "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_loading_images_refuses_a_file_type_it_cannot_read]",
+    "tests/test_cov_w2_4_crop_source.py::test_streaming_without_a_mask_plane_is_refused_before_the_run": "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_streaming_without_a_mask_plane_is_refused_before_the_run]",
+    "tests/test_cov_w2_4_crop_source.py::test_streaming_refuses_a_crop_shape_that_is_not_one": "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_streaming_refuses_a_crop_shape_that_is_not_one]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_run_without_a_size_has_no_box_to_cut": "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_a_coordinate_run_without_a_size_has_no_box_to_cut]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_run_cannot_ask_for_object_shaped_crops": "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_a_coordinate_run_cannot_ask_for_object_shaped_crops]"
+  },
+  "invalid_settings_and_message_contracts": {
+    "test_loading_images_refuses_a_file_type_it_cannot_read": [
+      {
+        "crop_source": "png",
+        "file_type": "czi"
+      },
+      "czi"
+    ],
+    "test_streaming_without_a_mask_plane_is_refused_before_the_run": [
+      {
+        "crop_source": "merged",
+        "channel_arrays": [
+          0
+        ]
+      },
+      "cell_mask_dim"
+    ],
+    "test_streaming_refuses_a_crop_shape_that_is_not_one": [
+      {
+        "crop_source": "merged",
+        "channel_arrays": [
+          0
+        ],
+        "crop_shape": "outline"
+      },
+      "crop_shape"
+    ],
+    "test_a_coordinate_run_without_a_size_has_no_box_to_cut": [
+      {
+        "crop_source": "merged",
+        "channel_arrays": [
+          0
+        ],
+        "coordinate_columns": [
+          "centroid_y",
+          "centroid_x"
+        ]
+      },
+      "image_size"
+    ],
+    "test_a_coordinate_run_cannot_ask_for_object_shaped_crops": [
+      {
+        "crop_source": "merged",
+        "channel_arrays": [
+          0
+        ],
+        "coordinate_columns": [
+          "cell_id"
+        ],
+        "image_size": 64,
+        "crop_shape": "object"
+      },
+      "no outline"
+    ]
+  },
+  "case_contract_representations": {
+    "test_loading_images_refuses_a_file_type_it_cannot_read": "({'crop_source': 'png', 'file_type': 'czi'}, 'czi')",
+    "test_streaming_without_a_mask_plane_is_refused_before_the_run": "({'crop_source': 'merged', 'channel_arrays': [0]}, 'cell_mask_dim')",
+    "test_streaming_refuses_a_crop_shape_that_is_not_one": "({'crop_source': 'merged', 'channel_arrays': [0], 'crop_shape': 'outline'}, 'crop_shape')",
+    "test_a_coordinate_run_without_a_size_has_no_box_to_cut": "({'crop_source': 'merged', 'channel_arrays': [0], 'coordinate_columns': ['centroid_y', 'centroid_x']}, 'image_size')",
+    "test_a_coordinate_run_cannot_ask_for_object_shaped_crops": "({'crop_source': 'merged', 'channel_arrays': [0], 'coordinate_columns': ['cell_id'], 'image_size': 64, 'crop_shape': 'object'}, 'no outline')"
+  },
+  "contract_scope": "Exact ordered invalid crop settings, CropSourceError and original regex messages; dictionary key order and literal types retained.",
+  "collected_before": [
+    "tests/test_cov_w2_4_crop_source.py::test_loading_images_needs_nothing_but_a_readable_file_type",
+    "tests/test_cov_w2_4_crop_source.py::test_a_two_dimensional_array_is_not_a_merged_stack",
+    "tests/test_cov_w2_4_crop_source.py::test_asking_for_specific_labels_skips_the_ones_that_are_absent",
+    "tests/test_cov_w2_4_crop_source.py::test_a_plane_the_array_does_not_have_is_refused_before_cutting",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size[wide]",
+    "tests/test_cov_w2_4_crop_source.py::test_select_crops_still_reads_the_old_png_type_spelling",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[generate-generate]",
+    "tests/test_cov_w2_4_crop_source.py::test_streaming_without_a_mask_plane_is_refused_before_the_run",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_with_no_planes_named_is_refused",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[nucleus_tif-tif]",
+    "tests/test_cov_w2_4_crop_source.py::test_the_older_spelling_is_still_read",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[load_images-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_the_object_filter_and_the_format_filter_are_independent",
+    "tests/test_cov_w2_4_crop_source.py::test_every_label_in_the_mask_gets_a_crop",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_crop_has_the_requested_square_and_channels[an_odd_size_is_accepted]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size[0]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size[-4]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[.TIF-tif]",
+    "tests/test_cov_w2_4_crop_source.py::test_greying_refuses_a_source_that_is_not_one",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[tiff-tiff]",
+    "tests/test_cov_w2_4_crop_source.py::test_the_current_spelling_wins_over_the_older_one",
+    "tests/test_cov_w2_4_crop_source.py::test_an_extension_spacr_cannot_read_names_the_ones_it_can",
+    "tests/test_cov_w2_4_crop_source.py::test_an_unknown_source_is_refused_with_the_spellings_it_knows",
+    "tests/test_cov_w2_4_crop_source.py::test_a_crop_shape_that_is_not_one_is_refused",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[None-]",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[png-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_is_centred_and_rounded_half_to_even",
+    "tests/test_cov_w2_4_crop_source.py::test_loading_images_refuses_a_file_type_it_cannot_read",
+    "tests/test_cov_w2_4_crop_source.py::test_neither_spelling_set_names_the_one_to_set",
+    "tests/test_cov_w2_4_crop_source.py::test_an_unset_source_means_load_images",
+    "tests/test_cov_w2_4_crop_source.py::test_both_array_edges_are_zero_padded_without_rescaling",
+    "tests/test_cov_w2_4_crop_source.py::test_coordinate_crops_from_centre_and_edges_can_be_stacked",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[on_demand-merged]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[cell_png-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_greying_accepts_the_stored_spelling_not_only_the_resolved_one",
+    "tests/test_cov_w2_4_crop_source.py::test_padding_grows_the_box_and_stops_at_the_array_edge",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[PNG-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_shaped_crop_zeroes_everything_outside_the_object",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_crop_has_the_requested_square_and_channels[a_size_resizes_to_a_square]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size[None]",
+    "tests/test_cov_w2_4_crop_source.py::test_unset_planes_name_the_setting_that_is_unset",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[merged-merged]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[tif-tif]",
+    "tests/test_cov_w2_4_crop_source.py::test_the_requested_side_is_exact_for_even_and_odd_sizes[4]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_box_entirely_off_the_array_is_none",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[stream-merged]",
+    "tests/test_cov_w2_4_crop_source.py::test_streaming_refuses_a_crop_shape_that_is_not_one",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_run_needs_an_image_size_and_no_mask_plane",
+    "tests/test_cov_w2_4_crop_source.py::test_planes_that_are_not_numbers_are_refused",
+    "tests/test_cov_w2_4_crop_source.py::test_the_requested_side_is_exact_for_even_and_odd_sizes[5]",
+    "tests/test_cov_w2_4_crop_source.py::test_the_stored_value_is_read_case_and_space_insensitively",
+    "tests/test_cov_w2_4_crop_source.py::test_a_mask_plane_beyond_the_array_is_refused_with_both_numbers",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_crop_refuses_a_nonpositive_requested_size[0]",
+    "tests/test_cov_w2_4_crop_source.py::test_greying_lists_the_other_sources_settings_and_not_its_own",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_preserves_channel_order_and_float32",
+    "tests/test_cov_w2_4_crop_source.py::test_a_box_larger_than_the_array_is_padded_to_the_requested_side",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[-]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_partly_outside_coordinate_keeps_its_overlap_and_fixed_shape",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_crop_has_the_requested_square_and_channels[no_size_keeps_the_natural_box]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_run_without_a_size_has_no_box_to_cut",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[auto-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_planes_may_be_one_number_a_list_or_a_numpy_integer",
+    "tests/test_cov_w2_4_crop_source.py::test_a_crop_already_the_right_size_is_returned_untouched",
+    "tests/test_cov_w2_4_crop_source.py::test_tif_and_tiff_are_the_same_format",
+    "tests/test_cov_w2_4_crop_source.py::test_the_requested_side_is_exact_for_even_and_odd_sizes[1]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_bounding_box_crop_keeps_the_rectangle_and_its_channel_order",
+    "tests/test_cov_w2_4_crop_source.py::test_streaming_needs_planes_a_shape_and_a_mask_plane",
+    "tests/test_cov_w2_4_crop_source.py::test_the_mask_plane_comes_from_the_setting_the_mask_step_wrote",
+    "tests/test_cov_w2_4_crop_source.py::test_bounds_are_half_open_so_they_slice_directly",
+    "tests/test_cov_w2_4_crop_source.py::test_a_setting_two_other_sources_share_is_listed_once",
+    "tests/test_cov_w2_4_crop_source.py::test_generating_is_validated_like_streaming",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[pre_generated-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_crop_refuses_a_nonpositive_requested_size[-4]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size[inf]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_mask_plane_that_is_not_a_number_names_the_setting",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_run_cannot_ask_for_object_shaped_crops",
+    "tests/test_cov_w2_4_crop_source.py::test_select_crops_keeps_the_order_it_was_given",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_with_no_mask_plane_names_the_setting_to_add",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[stream_images-merged]",
+    "tests/test_cov_w2_4_crop_source.py::test_an_absent_object_is_none_rather_than_an_empty_crop"
+  ],
+  "collected_after": [
+    "tests/test_cov_w2_4_crop_source.py::test_a_partly_outside_coordinate_keeps_its_overlap_and_fixed_shape",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[nucleus_tif-tif]",
+    "tests/test_cov_w2_4_crop_source.py::test_an_extension_spacr_cannot_read_names_the_ones_it_can",
+    "tests/test_cov_w2_4_crop_source.py::test_select_crops_keeps_the_order_it_was_given",
+    "tests/test_cov_w2_4_crop_source.py::test_the_stored_value_is_read_case_and_space_insensitively",
+    "tests/test_cov_w2_4_crop_source.py::test_a_bounding_box_crop_keeps_the_rectangle_and_its_channel_order",
+    "tests/test_cov_w2_4_crop_source.py::test_the_requested_side_is_exact_for_even_and_odd_sizes[5]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_crop_already_the_right_size_is_returned_untouched",
+    "tests/test_cov_w2_4_crop_source.py::test_the_requested_side_is_exact_for_even_and_odd_sizes[4]",
+    "tests/test_cov_w2_4_crop_source.py::test_the_mask_plane_comes_from_the_setting_the_mask_step_wrote",
+    "tests/test_cov_w2_4_crop_source.py::test_the_object_filter_and_the_format_filter_are_independent",
+    "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_streaming_refuses_a_crop_shape_that_is_not_one]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_box_larger_than_the_array_is_padded_to_the_requested_side",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_crop_has_the_requested_square_and_channels[no_size_keeps_the_natural_box]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_mask_plane_that_is_not_a_number_names_the_setting",
+    "tests/test_cov_w2_4_crop_source.py::test_padding_grows_the_box_and_stops_at_the_array_edge",
+    "tests/test_cov_w2_4_crop_source.py::test_an_unknown_source_is_refused_with_the_spellings_it_knows",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[.TIF-tif]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_with_no_planes_named_is_refused",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size[None]",
+    "tests/test_cov_w2_4_crop_source.py::test_planes_may_be_one_number_a_list_or_a_numpy_integer",
+    "tests/test_cov_w2_4_crop_source.py::test_generating_is_validated_like_streaming",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_with_no_mask_plane_names_the_setting_to_add",
+    "tests/test_cov_w2_4_crop_source.py::test_a_two_dimensional_array_is_not_a_merged_stack",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[stream-merged]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_crop_shape_that_is_not_one_is_refused",
+    "tests/test_cov_w2_4_crop_source.py::test_the_older_spelling_is_still_read",
+    "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_streaming_without_a_mask_plane_is_refused_before_the_run]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size[0]",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[on_demand-merged]",
+    "tests/test_cov_w2_4_crop_source.py::test_the_current_spelling_wins_over_the_older_one",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[merged-merged]",
+    "tests/test_cov_w2_4_crop_source.py::test_the_requested_side_is_exact_for_even_and_odd_sizes[1]",
+    "tests/test_cov_w2_4_crop_source.py::test_an_absent_object_is_none_rather_than_an_empty_crop",
+    "tests/test_cov_w2_4_crop_source.py::test_streaming_needs_planes_a_shape_and_a_mask_plane",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[cell_png-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_a_coordinate_run_cannot_ask_for_object_shaped_crops]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_preserves_channel_order_and_float32",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[pre_generated-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[generate-generate]",
+    "tests/test_cov_w2_4_crop_source.py::test_select_crops_still_reads_the_old_png_type_spelling",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[-]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_box_entirely_off_the_array_is_none",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_crop_has_the_requested_square_and_channels[an_odd_size_is_accepted]",
+    "tests/test_cov_w2_4_crop_source.py::test_tif_and_tiff_are_the_same_format",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[tif-tif]",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[load_images-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_unset_planes_name_the_setting_that_is_unset",
+    "tests/test_cov_w2_4_crop_source.py::test_neither_spelling_set_names_the_one_to_set",
+    "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_a_coordinate_run_without_a_size_has_no_box_to_cut]",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_crop_has_the_requested_square_and_channels[a_size_resizes_to_a_square]",
+    "tests/test_cov_w2_4_crop_source.py::test_greying_accepts_the_stored_spelling_not_only_the_resolved_one",
+    "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_loading_images_refuses_a_file_type_it_cannot_read]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[PNG-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_planes_that_are_not_numbers_are_refused",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[tiff-tiff]",
+    "tests/test_cov_w2_4_crop_source.py::test_loading_images_needs_nothing_but_a_readable_file_type",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[png-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_greying_lists_the_other_sources_settings_and_not_its_own",
+    "tests/test_cov_w2_4_crop_source.py::test_a_setting_two_other_sources_share_is_listed_once",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size[wide]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_run_needs_an_image_size_and_no_mask_plane",
+    "tests/test_cov_w2_4_crop_source.py::test_greying_refuses_a_source_that_is_not_one",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_crop_refuses_a_nonpositive_requested_size[-4]",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_crop_refuses_a_nonpositive_requested_size[0]",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size[-4]",
+    "tests/test_cov_w2_4_crop_source.py::test_an_object_shaped_crop_zeroes_everything_outside_the_object",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[auto-png]",
+    "tests/test_cov_w2_4_crop_source.py::test_coordinate_crops_from_centre_and_edges_can_be_stacked",
+    "tests/test_cov_w2_4_crop_source.py::test_an_unset_source_means_load_images",
+    "tests/test_cov_w2_4_crop_source.py::test_bounds_are_half_open_so_they_slice_directly",
+    "tests/test_cov_w2_4_crop_source.py::test_a_plane_the_array_does_not_have_is_refused_before_cutting",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_is_centred_and_rounded_half_to_even",
+    "tests/test_cov_w2_4_crop_source.py::test_a_mask_plane_beyond_the_array_is_refused_with_both_numbers",
+    "tests/test_cov_w2_4_crop_source.py::test_a_file_type_becomes_a_bare_lowercase_extension[None-]",
+    "tests/test_cov_w2_4_crop_source.py::test_asking_for_specific_labels_skips_the_ones_that_are_absent",
+    "tests/test_cov_w2_4_crop_source.py::test_both_array_edges_are_zero_padded_without_rescaling",
+    "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size[inf]",
+    "tests/test_cov_w2_4_crop_source.py::test_every_spelling_any_panel_ever_wrote_still_resolves[stream_images-merged]",
+    "tests/test_cov_w2_4_crop_source.py::test_every_label_in_the_mask_gets_a_crop"
+  ],
+  "tests_before": {
+    "passed": 80,
+    "seconds": 3.92
+  },
+  "tests_after": {
+    "passed": 80,
+    "seconds": 5.63
+  },
+  "coverage_scope": "spacr.crop_source under the complete selected crop-source validation/pixel test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 166,
+    "num_statements": 166,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 70,
+    "num_partial_branches": 0,
+    "covered_branches": 70,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_after": {
+    "covered_lines": 166,
+    "num_statements": 166,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 70,
+    "num_partial_branches": 0,
+    "covered_branches": 70,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "4a76984cda2fd639287f61d34a2ca1b9c28ed908bceecc969d83d1f7d46931be",
+  "production_source_sha256": "5f652cd9bab803f1c6198bd78e26b71c1a0b566bc82d2c9309dedcbaf4110055",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "other_alias_format_channel_index_pixel_crop_and_valid_configuration_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "unsupported-format-preflight-skipped",
+      "source_variant": {
+        "path": "spacr/crop_source.py",
+        "line": 492,
+        "old": "if settings.get(\"file_type\"):\n            normalise_extension(settings.get(\"file_type\"))",
+        "new": "if settings.get(\"file_type\"):\n            normalise_extension(\"\")"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_4_crop_source.py::test_loading_images_refuses_a_file_type_it_cannot_read"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_4_crop_source.py::test_loading_images_refuses_a_file_type_it_cannot_read"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_loading_images_refuses_a_file_type_it_cannot_read]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_loading_images_refuses_a_file_type_it_cannot_read]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "coordinate-outline-preflight-skipped",
+      "source_variant": {
+        "path": "spacr/crop_source.py",
+        "line": 503,
+        "old": "if coordinates:\n        if shape != \"bounding_box\":",
+        "new": "if coordinates:\n        if False and shape != \"bounding_box\":"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_run_cannot_ask_for_object_shaped_crops"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_4_crop_source.py::test_a_coordinate_run_cannot_ask_for_object_shaped_crops"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_a_coordinate_run_cannot_ask_for_object_shaped_crops]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_4_crop_source.py::test_invalid_crop_settings_keep_their_original_refusals[test_a_coordinate_run_cannot_ask_for_object_shaped_crops]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the five affected crop-setting refusal cases before and after; repository production files unchanged.",
+  "table_placement_note": "Five literal refusal cases are grouped at the original unsupported-image-format case. Every other definition retains its relative order and unchanged AST; grouped cases share no fixture state.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_w2_4_crop_source.py",
+      "line": 404,
+      "symbol": "test_invalid_crop_settings_keep_their_original_refusals",
+      "new": "Keep each invalid crop setup paired with its original refusal.",
+      "old": {
+        "test_loading_images_refuses_a_file_type_it_cannot_read": null,
+        "test_streaming_without_a_mask_plane_is_refused_before_the_run": null,
+        "test_streaming_refuses_a_crop_shape_that_is_not_one": null,
+        "test_a_coordinate_run_without_a_size_has_no_box_to_cut": null,
+        "test_a_coordinate_run_cannot_ask_for_object_shaped_crops": null
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

@@ -384,9 +384,26 @@ def test_loading_images_needs_nothing_but_a_readable_file_type():
     assert cs.validate({"crop_source": "png", "file_type": "cell_tif"}) == "png"
 
 
-def test_loading_images_refuses_a_file_type_it_cannot_read():
-    with pytest.raises(CropSourceError, match="czi"):
-        cs.validate({"crop_source": "png", "file_type": "czi"})
+@pytest.mark.parametrize("settings, message", [
+    pytest.param({"crop_source": "png", "file_type": "czi"}, "czi",
+                 id="test_loading_images_refuses_a_file_type_it_cannot_read"),
+    pytest.param({"crop_source": "merged", "channel_arrays": [0]}, "cell_mask_dim",
+                 id="test_streaming_without_a_mask_plane_is_refused_before_the_run"),
+    pytest.param({"crop_source": "merged", "channel_arrays": [0],
+                  "crop_shape": "outline"}, "crop_shape",
+                 id="test_streaming_refuses_a_crop_shape_that_is_not_one"),
+    pytest.param({"crop_source": "merged", "channel_arrays": [0],
+                  "coordinate_columns": ["centroid_y", "centroid_x"]}, "image_size",
+                 id="test_a_coordinate_run_without_a_size_has_no_box_to_cut"),
+    pytest.param({"crop_source": "merged", "channel_arrays": [0],
+                  "coordinate_columns": ["cell_id"], "image_size": 64,
+                  "crop_shape": "object"}, "no outline",
+                 id="test_a_coordinate_run_cannot_ask_for_object_shaped_crops"),
+])
+def test_invalid_crop_settings_keep_their_original_refusals(settings, message):
+    """Keep each invalid crop setup paired with its original refusal."""
+    with pytest.raises(CropSourceError, match=message):
+        cs.validate(settings)
 
 
 def test_streaming_needs_planes_a_shape_and_a_mask_plane():
@@ -395,35 +412,11 @@ def test_streaming_needs_planes_a_shape_and_a_mask_plane():
     assert cs.validate(settings) == "merged"
 
 
-def test_streaming_without_a_mask_plane_is_refused_before_the_run():
-    with pytest.raises(CropSourceError, match="cell_mask_dim"):
-        cs.validate({"crop_source": "merged", "channel_arrays": [0]})
-
-
-def test_streaming_refuses_a_crop_shape_that_is_not_one():
-    with pytest.raises(CropSourceError, match="crop_shape"):
-        cs.validate({"crop_source": "merged", "channel_arrays": [0],
-                     "crop_shape": "outline"})
-
-
 def test_a_coordinate_run_needs_an_image_size_and_no_mask_plane():
     """A coordinate has no mask, so demanding one would refuse a valid run."""
     settings = {"crop_source": "merged", "channel_arrays": [0, 1],
                 "coordinate_columns": ["cell_id"], "image_size": 64}
     assert cs.validate(settings) == "merged"
-
-
-def test_a_coordinate_run_without_a_size_has_no_box_to_cut():
-    with pytest.raises(CropSourceError, match="image_size"):
-        cs.validate({"crop_source": "merged", "channel_arrays": [0],
-                     "coordinate_columns": ["centroid_y", "centroid_x"]})
-
-
-def test_a_coordinate_run_cannot_ask_for_object_shaped_crops():
-    with pytest.raises(CropSourceError, match="no outline"):
-        cs.validate({"crop_source": "merged", "channel_arrays": [0],
-                     "coordinate_columns": ["cell_id"], "image_size": 64,
-                     "crop_shape": "object"})
 
 
 def test_generating_is_validated_like_streaming():
