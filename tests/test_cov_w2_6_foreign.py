@@ -392,10 +392,21 @@ def test_a_table_that_is_not_there_says_which_one(tmp_path):
         foreign.read_measurements(tmp_path / "absent.csv")
 
 
-def test_a_format_with_no_reader_lists_the_ones_there_are(tmp_path):
-    path = tmp_path / "results.mat"
-    path.write_bytes(b"")
-    with pytest.raises(ConfigurationError, match="no reader for"):
+@pytest.mark.parametrize('filename, content, match', [
+    pytest.param(
+        'results.mat', b'', 'no reader for',
+        id='test_a_format_with_no_reader_lists_the_ones_there_are',
+    ),
+    pytest.param(
+        'results.parquet', b'this is not parquet', 'could not be read as a measurement table',
+        id='test_a_table_that_will_not_parse_says_so_with_its_path',
+    ),
+])
+def test_original_unreadable_measurements_keep_their_typed_refusals(tmp_path, filename, content, match):
+    """Preserve each original unreadable measurement fixture and its typed refusal."""
+    path = tmp_path / filename
+    path.write_bytes(content)
+    with pytest.raises(ConfigurationError, match=match):
         foreign.read_measurements(path)
 
 
@@ -451,14 +462,6 @@ def test_a_sqlite_table_that_is_not_there_lists_the_ones_that_are(tmp_path,
         connection.close()
     with pytest.raises(ConfigurationError, match="has no table"):
         foreign.read_measurements(path, table="nuclei")
-
-
-def test_a_table_that_will_not_parse_says_so_with_its_path(tmp_path):
-    path = tmp_path / "results.parquet"
-    path.write_bytes(b"this is not parquet")
-    with pytest.raises(ConfigurationError,
-                       match="could not be read as a measurement table"):
-        foreign.read_measurements(path)
 
 
 def test_every_user_table_in_a_database_is_listed_in_schema_order(tmp_path,
