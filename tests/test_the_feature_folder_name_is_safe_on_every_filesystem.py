@@ -14,32 +14,17 @@ import re
 import pytest
 
 
-def test_no_selection_is_named_all_features():
-    """The documented default."""
+@pytest.mark.parametrize("selection, expected", [
+    pytest.param(None, "all_features", id="test_no_selection_is_named_all_features"),
+    pytest.param(1, "channel_1", id="test_one_channel_is_named_for_that_channel"),
+    pytest.param([1, 2], "channels_1_2", id="test_several_channels_share_one_prefix"),
+    pytest.param("morphology", "morphology", id="test_a_named_selection_keeps_its_name"),
+])
+def test_simple_feature_selections_keep_their_folder_names(selection, expected):
+    """Keep the documented folder name for each original simple selection."""
     from spacr.utils import feature_folder_name
 
-    assert feature_folder_name(None) == "all_features"
-
-
-def test_one_channel_is_named_for_that_channel():
-    """A single int, which is the commonest selection."""
-    from spacr.utils import feature_folder_name
-
-    assert feature_folder_name(1) == "channel_1"
-
-
-def test_several_channels_share_one_prefix():
-    """Line 9754: the all-int list, named ``channels_`` rather than repeating."""
-    from spacr.utils import feature_folder_name
-
-    assert feature_folder_name([1, 2]) == "channels_1_2"
-
-
-def test_a_named_selection_keeps_its_name():
-    """A non-list, non-int selection goes through the slugifier alone."""
-    from spacr.utils import feature_folder_name
-
-    assert feature_folder_name("morphology") == "morphology"
+    assert feature_folder_name(selection) == expected
 
 
 def test_a_mixture_of_channels_and_names_joins_both_rules():
