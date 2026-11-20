@@ -340,6 +340,10 @@ def test_the_graphs_are_qt_graphs(qtbot, panel, step):
                          if g.spec["kind"] != "message")
     kinds = {type(item).__name__ for g in shown for item in g.items()}
     assert kinds & {"BarGraphItem", "ScatterPlotItem"}
+    for graph in shown:
+        if graph.spec["kind"] in ("bars", "grouped"):
+            low, high = graph.plot.getViewBox().viewRange()[1]
+            assert low == pytest.approx(0.0) and high > 0, "bar axes start at 0"
 
 
 def test_new_settings_redraw_the_graphs_with_the_image(qtbot, panel):

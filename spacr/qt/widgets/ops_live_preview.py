@@ -802,6 +802,21 @@ class _QtGraph(QWidget):
         elif kind == "scatter":
             self._scatter(spec, colours, pg)
         view.autoRange()
+        if kind in ("bars", "grouped"):
+            self._floor_at_zero(spec, view)
+
+    def _floor_at_zero(self, spec: Mapping[str, Any], view) -> None:
+        """Start a bar graph's y axis at 0, with no room below it.
+
+        :param spec: the bars or grouped bars drawn.
+        :param view: the plot's view box.
+        """
+        if spec.get("kind") == "grouped":
+            values = [float(v) for _name, series, _c in spec["series"] for v in series]
+        else:
+            values = [float(v) for v in np.asarray(spec["heights"], float)]
+        top = max([v for v in values if np.isfinite(v)] + [0.0])
+        view.setYRange(0.0, top * 1.08 if top > 0 else 1.0, padding=0)
 
     def _ticks(self, spec: Mapping[str, Any], pg) -> None:
         """Name the bottom axis's ticks after the spec's categories."""
