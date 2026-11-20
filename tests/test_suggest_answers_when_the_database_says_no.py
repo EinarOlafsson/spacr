@@ -152,19 +152,20 @@ def test_a_verdict_that_is_not_a_number_is_skipped(tmp_path):
         {"/a.png": 1}
 
 
-def test_judgement_counts_without_an_annotation_column(tmp_path):
-    """Verdicts alone still count; nothing is left without suggestions."""
-    db_path = _table(tmp_path, ["png_path TEXT", "test_verdict INTEGER"],
-                     [("/a.png", 1), ("/b.png", -1), ("/c.png", -2)])
-    assert suggest.judgement_counts(db_path, "test") == \
-        {"left": 0, "confirmed": 1, "rejected": 2}
-
-
-def test_judgement_counts_without_a_verdict_column(tmp_path):
-    db_path = _table(tmp_path, ["png_path TEXT", "test INTEGER"],
-                     [("/a.png", 11), ("/b.png", 12), ("/c.png", 1)])
-    assert suggest.judgement_counts(db_path, "test") == \
-        {"left": 2, "confirmed": 0, "rejected": 0}
+@pytest.mark.parametrize('columns, rows, expected', [
+    pytest.param(
+        ['png_path TEXT', 'test_verdict INTEGER'], [('/a.png', 1), ('/b.png', -1), ('/c.png', -2)], {'left': 0, 'confirmed': 1, 'rejected': 2},
+        id='test_judgement_counts_without_an_annotation_column',
+    ),
+    pytest.param(
+        ['png_path TEXT', 'test INTEGER'], [('/a.png', 11), ('/b.png', 12), ('/c.png', 1)], {'left': 2, 'confirmed': 0, 'rejected': 0},
+        id='test_judgement_counts_without_a_verdict_column',
+    ),
+])
+def test_missing_columns_keep_their_original_judgement_counts(tmp_path, columns, rows, expected):
+    """Keep each original database layout paired with the same judgement counts."""
+    db_path = _table(tmp_path, columns, rows)
+    assert suggest.judgement_counts(db_path, "test") == expected
 
 
 @pytest.mark.parametrize("unreadable, expected", [
