@@ -1,0 +1,356 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_classify_classes.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 7,
+  "case_mapping": {
+    "tests/test_classify_classes.py::test_a_settings_file_written_before_the_split_still_trains": "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_a_settings_file_written_before_the_split_still_trains]",
+    "tests/test_classify_classes.py::test_folder_names_does_not_raise_on_a_malformed_definition": "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_folder_names_does_not_raise_on_a_malformed_definition]",
+    "tests/test_classify_classes.py::test_a_legacy_list_beats_the_injected_folder_default": "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_a_legacy_list_beats_the_injected_folder_default]",
+    "tests/test_classify_classes.py::test_an_explicitly_empty_legacy_list_still_means_no_classes": "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_explicitly_empty_legacy_list_still_means_no_classes]",
+    "tests/test_classify_classes.py::test_an_empty_dict_is_not_an_empty_list": "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_empty_dict_is_not_an_empty_list]",
+    "tests/test_classify_classes.py::test_an_explicitly_empty_folder_list_loses_to_a_defined_class": "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_explicitly_empty_folder_list_loses_to_a_defined_class]",
+    "tests/test_classify_classes.py::test_an_empty_folder_list_still_means_no_folders_with_no_classes": "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_empty_folder_list_still_means_no_folders_with_no_classes]",
+    "tests/test_classify_classes.py::test_absent_new_folder_list_falls_back_to_definition_names": "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_absent_new_folder_list_falls_back_to_definition_names]"
+  },
+  "settings_and_folder_name_contracts": {
+    "test_a_settings_file_written_before_the_split_still_trains": [
+      {
+        "classes": [
+          "alive",
+          "dead"
+        ]
+      },
+      [
+        "alive",
+        "dead"
+      ]
+    ],
+    "test_folder_names_does_not_raise_on_a_malformed_definition": [
+      {
+        "classes": {
+          "a": "not-a-mapping"
+        }
+      },
+      []
+    ],
+    "test_a_legacy_list_beats_the_injected_folder_default": [
+      {
+        "classes": [
+          "only"
+        ],
+        "class_folder_names": [
+          "nc",
+          "pc"
+        ]
+      },
+      [
+        "only"
+      ]
+    ],
+    "test_an_explicitly_empty_legacy_list_still_means_no_classes": [
+      {
+        "classes": [],
+        "class_folder_names": [
+          "nc",
+          "pc"
+        ]
+      },
+      []
+    ],
+    "test_an_empty_dict_is_not_an_empty_list": [
+      {
+        "classes": {},
+        "class_folder_names": [
+          "nc",
+          "pc"
+        ]
+      },
+      [
+        "nc",
+        "pc"
+      ]
+    ],
+    "test_an_explicitly_empty_folder_list_loses_to_a_defined_class": [
+      {
+        "classes": {
+          "defined": {
+            "column": "condition",
+            "value": 1
+          }
+        },
+        "class_folder_names": []
+      },
+      [
+        "defined"
+      ]
+    ],
+    "test_an_empty_folder_list_still_means_no_folders_with_no_classes": [
+      {
+        "classes": {},
+        "class_folder_names": []
+      },
+      []
+    ],
+    "test_absent_new_folder_list_falls_back_to_definition_names": [
+      {
+        "classes": {
+          "defined": {
+            "column": "condition",
+            "value": 1
+          }
+        }
+      },
+      [
+        "defined"
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_settings_file_written_before_the_split_still_trains": "({'classes': ['alive', 'dead']}, ['alive', 'dead'])",
+    "test_folder_names_does_not_raise_on_a_malformed_definition": "({'classes': {'a': 'not-a-mapping'}}, [])",
+    "test_a_legacy_list_beats_the_injected_folder_default": "({'classes': ['only'], 'class_folder_names': ['nc', 'pc']}, ['only'])",
+    "test_an_explicitly_empty_legacy_list_still_means_no_classes": "({'classes': [], 'class_folder_names': ['nc', 'pc']}, [])",
+    "test_an_empty_dict_is_not_an_empty_list": "({'classes': {}, 'class_folder_names': ['nc', 'pc']}, ['nc', 'pc'])",
+    "test_an_explicitly_empty_folder_list_loses_to_a_defined_class": "({'classes': {'defined': {'column': 'condition', 'value': 1}}, 'class_folder_names': []}, ['defined'])",
+    "test_an_empty_folder_list_still_means_no_folders_with_no_classes": "({'classes': {}, 'class_folder_names': []}, [])",
+    "test_absent_new_folder_list_falls_back_to_definition_names": "({'classes': {'defined': {'column': 'condition', 'value': 1}}}, ['defined'])"
+  },
+  "contract_scope": "Exact list/dict settings shapes, ordered definitions and folder lists, local import and original equality assertions retained for all eight examples.",
+  "collected_before": [
+    "tests/test_classify_classes.py::test_a_settings_file_written_before_the_split_still_trains",
+    "tests/test_classify_classes.py::test_a_complement_with_nothing_left_says_so",
+    "tests/test_classify_classes.py::test_the_complement_is_reproducible",
+    "tests/test_classify_classes.py::test_a_free_form_column_is_refused_with_advice",
+    "tests/test_classify_classes.py::test_an_old_write_random_annotation_column_becomes_a_complement",
+    "tests/test_classify_classes.py::test_the_annotation_basis_offers_the_tables_own_columns",
+    "tests/test_classify_classes.py::test_classes_can_come_from_more_than_one_column",
+    "tests/test_classify_classes.py::test_a_metadata_column_the_table_lacks_is_not_offered",
+    "tests/test_classify_classes.py::test_the_complement_never_takes_an_annotated_object",
+    "tests/test_classify_classes.py::test_an_empty_dict_is_not_an_empty_list",
+    "tests/test_classify_classes.py::test_a_class_names_its_value_and_the_column_it_came_from",
+    "tests/test_classify_classes.py::test_generated_folders_retire_the_legacy_list_before_training",
+    "tests/test_classify_classes.py::test_defined_classes_name_their_own_folders",
+    "tests/test_classify_classes.py::test_two_random_complements_are_refused",
+    "tests/test_classify_classes.py::test_unbound_names_are_refused_without_blaming_the_caller",
+    "tests/test_classify_classes.py::test_deep_spacr_reads_the_folder_names",
+    "tests/test_classify_classes.py::test_absent_new_folder_list_falls_back_to_definition_names",
+    "tests/test_classify_classes.py::test_an_empty_definition_still_derives_from_the_older_keys",
+    "tests/test_classify_classes.py::test_a_control_naming_several_wells_becomes_several_rules",
+    "tests/test_classify_classes.py::test_the_values_of_a_column_are_what_the_keys_come_from",
+    "tests/test_classify_classes.py::test_an_old_annotation_settings_dict_selects_the_same_objects",
+    "tests/test_classify_classes.py::test_one_annotated_class_gets_a_random_comparison_group",
+    "tests/test_classify_classes.py::test_a_legacy_list_beats_the_injected_folder_default",
+    "tests/test_classify_classes.py::test_an_explicitly_empty_folder_list_loses_to_a_defined_class",
+    "tests/test_classify_classes.py::test_generate_training_dataset_writes_folders_not_definitions",
+    "tests/test_classify_classes.py::test_the_metadata_basis_offers_the_plate_coordinates",
+    "tests/test_classify_classes.py::test_deep_spacr_resolves_a_legacy_settings_dict",
+    "tests/test_classify_classes.py::test_folder_names_does_not_raise_on_a_malformed_definition",
+    "tests/test_classify_classes.py::test_a_class_with_no_column_is_refused",
+    "tests/test_classify_classes.py::test_the_refusal_still_mentions_normalization_for_a_raw_settings_dict",
+    "tests/test_classify_classes.py::test_normalization_carries_legacy_names_past_injected_defaults",
+    "tests/test_classify_classes.py::test_an_explicitly_empty_legacy_list_still_means_no_classes",
+    "tests/test_classify_classes.py::test_a_rule_on_a_column_the_table_lacks_names_it",
+    "tests/test_classify_classes.py::test_a_class_cannot_be_both_a_rule_and_the_complement",
+    "tests/test_classify_classes.py::test_a_dict_that_is_already_new_is_left_alone",
+    "tests/test_classify_classes.py::test_the_old_list_shape_says_to_normalize_first",
+    "tests/test_classify_classes.py::test_names_with_nothing_selecting_them_are_not_invented",
+    "tests/test_classify_classes.py::test_an_empty_folder_list_still_means_no_folders_with_no_classes",
+    "tests/test_classify_classes.py::test_the_shipped_defaults_separate_the_two_meanings",
+    "tests/test_classify_classes.py::test_unannotated_rows_are_not_offered_as_a_class",
+    "tests/test_classify_classes.py::test_the_order_of_the_classes_is_kept",
+    "tests/test_classify_classes.py::test_a_defined_class_outranks_a_recorded_folder_list",
+    "tests/test_classify_classes.py::test_old_metadata_controls_become_rules",
+    "tests/test_classify_classes.py::test_normalize_never_modifies_what_it_was_given",
+    "tests/test_classify_classes.py::test_downstream_still_gets_a_list_of_names"
+  ],
+  "collected_after": [
+    "tests/test_classify_classes.py::test_defined_classes_name_their_own_folders",
+    "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_empty_folder_list_still_means_no_folders_with_no_classes]",
+    "tests/test_classify_classes.py::test_the_metadata_basis_offers_the_plate_coordinates",
+    "tests/test_classify_classes.py::test_classes_can_come_from_more_than_one_column",
+    "tests/test_classify_classes.py::test_a_rule_on_a_column_the_table_lacks_names_it",
+    "tests/test_classify_classes.py::test_a_metadata_column_the_table_lacks_is_not_offered",
+    "tests/test_classify_classes.py::test_a_control_naming_several_wells_becomes_several_rules",
+    "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_folder_names_does_not_raise_on_a_malformed_definition]",
+    "tests/test_classify_classes.py::test_unbound_names_are_refused_without_blaming_the_caller",
+    "tests/test_classify_classes.py::test_the_complement_never_takes_an_annotated_object",
+    "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_empty_dict_is_not_an_empty_list]",
+    "tests/test_classify_classes.py::test_downstream_still_gets_a_list_of_names",
+    "tests/test_classify_classes.py::test_the_refusal_still_mentions_normalization_for_a_raw_settings_dict",
+    "tests/test_classify_classes.py::test_old_metadata_controls_become_rules",
+    "tests/test_classify_classes.py::test_a_free_form_column_is_refused_with_advice",
+    "tests/test_classify_classes.py::test_an_old_write_random_annotation_column_becomes_a_complement",
+    "tests/test_classify_classes.py::test_a_complement_with_nothing_left_says_so",
+    "tests/test_classify_classes.py::test_names_with_nothing_selecting_them_are_not_invented",
+    "tests/test_classify_classes.py::test_the_complement_is_reproducible",
+    "tests/test_classify_classes.py::test_deep_spacr_reads_the_folder_names",
+    "tests/test_classify_classes.py::test_a_class_names_its_value_and_the_column_it_came_from",
+    "tests/test_classify_classes.py::test_unannotated_rows_are_not_offered_as_a_class",
+    "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_a_legacy_list_beats_the_injected_folder_default]",
+    "tests/test_classify_classes.py::test_the_old_list_shape_says_to_normalize_first",
+    "tests/test_classify_classes.py::test_the_values_of_a_column_are_what_the_keys_come_from",
+    "tests/test_classify_classes.py::test_normalization_carries_legacy_names_past_injected_defaults",
+    "tests/test_classify_classes.py::test_one_annotated_class_gets_a_random_comparison_group",
+    "tests/test_classify_classes.py::test_the_order_of_the_classes_is_kept",
+    "tests/test_classify_classes.py::test_a_class_cannot_be_both_a_rule_and_the_complement",
+    "tests/test_classify_classes.py::test_a_dict_that_is_already_new_is_left_alone",
+    "tests/test_classify_classes.py::test_deep_spacr_resolves_a_legacy_settings_dict",
+    "tests/test_classify_classes.py::test_a_class_with_no_column_is_refused",
+    "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_a_settings_file_written_before_the_split_still_trains]",
+    "tests/test_classify_classes.py::test_a_defined_class_outranks_a_recorded_folder_list",
+    "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_explicitly_empty_folder_list_loses_to_a_defined_class]",
+    "tests/test_classify_classes.py::test_the_shipped_defaults_separate_the_two_meanings",
+    "tests/test_classify_classes.py::test_the_annotation_basis_offers_the_tables_own_columns",
+    "tests/test_classify_classes.py::test_an_old_annotation_settings_dict_selects_the_same_objects",
+    "tests/test_classify_classes.py::test_two_random_complements_are_refused",
+    "tests/test_classify_classes.py::test_normalize_never_modifies_what_it_was_given",
+    "tests/test_classify_classes.py::test_generate_training_dataset_writes_folders_not_definitions",
+    "tests/test_classify_classes.py::test_an_empty_definition_still_derives_from_the_older_keys",
+    "tests/test_classify_classes.py::test_generated_folders_retire_the_legacy_list_before_training",
+    "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_explicitly_empty_legacy_list_still_means_no_classes]",
+    "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_absent_new_folder_list_falls_back_to_definition_names]"
+  ],
+  "tests_before": {
+    "passed": 45,
+    "seconds": 12.91
+  },
+  "tests_after": {
+    "passed": 45,
+    "seconds": 11.24
+  },
+  "coverage_scope": "spacr.classify_classes under the complete selected classification settings test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 173,
+    "num_statements": 205,
+    "percent_covered": 79.6116504854369,
+    "percent_covered_display": "80",
+    "missing_lines": 32,
+    "excluded_lines": 0,
+    "percent_statements_covered": 84.39024390243902,
+    "percent_statements_covered_display": "84",
+    "num_branches": 104,
+    "num_partial_branches": 11,
+    "covered_branches": 73,
+    "missing_branches": 31,
+    "percent_branches_covered": 70.1923076923077,
+    "percent_branches_covered_display": "70"
+  },
+  "coverage_after": {
+    "covered_lines": 173,
+    "num_statements": 205,
+    "percent_covered": 79.6116504854369,
+    "percent_covered_display": "80",
+    "missing_lines": 32,
+    "excluded_lines": 0,
+    "percent_statements_covered": 84.39024390243902,
+    "percent_statements_covered_display": "84",
+    "num_branches": 104,
+    "num_partial_branches": 11,
+    "covered_branches": 73,
+    "missing_branches": 31,
+    "percent_branches_covered": 70.1923076923077,
+    "percent_branches_covered_display": "70"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "907bb6ea1a968d0c30af2e8d7b14b707f7273bdee5c7196ad43c521da53e6895",
+  "production_source_sha256": "ed345f6821c688eabb97e6e5e2b790723befeaf63d627400bd88857d16a6d6cd",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "other_assignment_complement_normalization_defaults_and_source_pin_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "legacy-list-precedence-lost",
+      "source_variant": {
+        "path": "spacr/classify_classes.py",
+        "line": 247,
+        "old": "legacy = settings.get(CLASSES)\n    if isinstance(legacy, (list, tuple)):\n        return [str(n) for n in legacy]",
+        "new": "legacy = settings.get(CLASSES)\n    if False and isinstance(legacy, (list, tuple)):\n        return [str(n) for n in legacy]"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_classes.py::test_an_explicitly_empty_legacy_list_still_means_no_classes",
+          "tests/test_classify_classes.py::test_a_legacy_list_beats_the_injected_folder_default"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_classes.py::test_an_explicitly_empty_legacy_list_still_means_no_classes",
+          "tests/test_classify_classes.py::test_a_legacy_list_beats_the_injected_folder_default"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_explicitly_empty_legacy_list_still_means_no_classes]",
+          "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_a_legacy_list_beats_the_injected_folder_default]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_explicitly_empty_legacy_list_still_means_no_classes]",
+          "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_a_legacy_list_beats_the_injected_folder_default]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "defined-classes-precedence-lost",
+      "source_variant": {
+        "path": "spacr/classify_classes.py",
+        "line": 251,
+        "old": "if isinstance(settings.get(CLASSES), Mapping) and settings.get(CLASSES):",
+        "new": "if False and isinstance(settings.get(CLASSES), Mapping) and settings.get(CLASSES):"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_classes.py::test_an_explicitly_empty_folder_list_loses_to_a_defined_class"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_classes.py::test_an_explicitly_empty_folder_list_loses_to_a_defined_class"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_explicitly_empty_folder_list_loses_to_a_defined_class]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_classes.py::test_folder_settings_keep_their_original_names_and_precedence[test_an_explicitly_empty_folder_list_loses_to_a_defined_class]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the eight affected folder-name cases before and after; repository production files unchanged.",
+  "table_placement_note": "Eight literal folder-name examples are grouped at the original pre-split settings case. Every other definition retains its relative order and unchanged AST; grouped cases share no fixture state.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_classify_classes.py",
+      "line": 329,
+      "symbol": "test_folder_settings_keep_their_original_names_and_precedence",
+      "new": "Keep each original settings shape mapped to its original folder list.",
+      "old": {
+        "test_a_settings_file_written_before_the_split_still_trains": "`classes` as a list is what every settings CSV in the wild holds.\n\nIt has to keep naming the training folders, or the split silently\nretrains every existing project against no classes at all.",
+        "test_folder_names_does_not_raise_on_a_malformed_definition": "Naming the folders is not the place to refuse a bad rule.\n\n`class_rules` raises on its own terms for whoever needs the rules; a\nlisting helper that raised too would turn one bad row into a crash in\nunrelated code.",
+        "test_a_legacy_list_beats_the_injected_folder_default": "The defaults factories inject `class_folder_names` into everything.\n\nSo if the new key won, every settings file ever written would silently\ntrain on ['nc','pc'] instead of its own classes -- the exact opposite of\nwhat the split is for. The SHAPE of `classes` says which file this is:\na list is the pre-split spelling and decides.",
+        "test_an_explicitly_empty_legacy_list_still_means_no_classes": "`classes=[]` aborts a run before any loader is built, and must keep\ndoing so rather than picking up the injected default.",
+        "test_an_empty_dict_is_not_an_empty_list": "`{}` says \"no class is DEFINED yet\", which is not \"no classes\".",
+        "test_an_explicitly_empty_folder_list_loses_to_a_defined_class": "Also reversed by instruction 229, and for the same reason.\n\nAn empty `class_folder_names` records a generation that wrote nothing.\nA defined class says what the user wants trained. The statement wins.",
+        "test_an_empty_folder_list_still_means_no_folders_with_no_classes": "The record is still the answer when nothing is defined -- which is\nevery settings file written before the Classes editor existed.",
+        "test_absent_new_folder_list_falls_back_to_definition_names": null
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

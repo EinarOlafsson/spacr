@@ -306,15 +306,30 @@ def test_the_shipped_defaults_separate_the_two_meanings():
     assert s["class_folder_names"] == ["nc", "pc"]
 
 
-def test_a_settings_file_written_before_the_split_still_trains():
-    """`classes` as a list is what every settings CSV in the wild holds.
-
-    It has to keep naming the training folders, or the split silently
-    retrains every existing project against no classes at all.
-    """
+@pytest.mark.parametrize("settings, expected", [
+    pytest.param({"classes": ["alive", "dead"]}, ["alive", "dead"],
+                 id="test_a_settings_file_written_before_the_split_still_trains"),
+    pytest.param({"classes": {"a": "not-a-mapping"}}, [],
+                 id="test_folder_names_does_not_raise_on_a_malformed_definition"),
+    pytest.param({"classes": ["only"], "class_folder_names": ["nc", "pc"]}, ["only"],
+                 id="test_a_legacy_list_beats_the_injected_folder_default"),
+    pytest.param({"classes": [], "class_folder_names": ["nc", "pc"]}, [],
+                 id="test_an_explicitly_empty_legacy_list_still_means_no_classes"),
+    pytest.param({"classes": {}, "class_folder_names": ["nc", "pc"]}, ["nc", "pc"],
+                 id="test_an_empty_dict_is_not_an_empty_list"),
+    pytest.param({"classes": {"defined": {"column": "condition", "value": 1}},
+                  "class_folder_names": []}, ["defined"],
+                 id="test_an_explicitly_empty_folder_list_loses_to_a_defined_class"),
+    pytest.param({"classes": {}, "class_folder_names": []}, [],
+                 id="test_an_empty_folder_list_still_means_no_folders_with_no_classes"),
+    pytest.param({"classes": {"defined": {"column": "condition", "value": 1}}}, ["defined"],
+                 id="test_absent_new_folder_list_falls_back_to_definition_names"),
+])
+def test_folder_settings_keep_their_original_names_and_precedence(settings, expected):
+    """Keep each original settings shape mapped to its original folder list."""
     from spacr.classify_classes import folder_names
 
-    assert folder_names({"classes": ["alive", "dead"]}) == ["alive", "dead"]
+    assert folder_names(settings) == expected
 
 
 def test_a_defined_class_outranks_a_recorded_folder_list():
@@ -345,18 +360,6 @@ def test_defined_classes_name_their_own_folders():
         "pc": {"column": "columnID", "value": "c3"},
         "nc": {"column": "columnID", "value": "c1"}}})
     assert names == ["pc", "nc"]
-
-
-def test_folder_names_does_not_raise_on_a_malformed_definition():
-    """Naming the folders is not the place to refuse a bad rule.
-
-    `class_rules` raises on its own terms for whoever needs the rules; a
-    listing helper that raised too would turn one bad row into a crash in
-    unrelated code.
-    """
-    from spacr.classify_classes import folder_names
-
-    assert folder_names({"classes": {"a": "not-a-mapping"}}) == []
 
 
 def test_an_empty_definition_still_derives_from_the_older_keys():
@@ -445,64 +448,3 @@ def test_deep_spacr_resolves_a_legacy_settings_dict():
 
     assert _class_folder_names({"classes": ["alive", "dead"]}) == [
         "alive", "dead"]
-
-
-def test_a_legacy_list_beats_the_injected_folder_default():
-    """The defaults factories inject `class_folder_names` into everything.
-
-    So if the new key won, every settings file ever written would silently
-    train on ['nc','pc'] instead of its own classes -- the exact opposite of
-    what the split is for. The SHAPE of `classes` says which file this is:
-    a list is the pre-split spelling and decides.
-    """
-    from spacr.classify_classes import folder_names
-
-    assert folder_names({"classes": ["only"],
-                         "class_folder_names": ["nc", "pc"]}) == ["only"]
-
-
-def test_an_explicitly_empty_legacy_list_still_means_no_classes():
-    """`classes=[]` aborts a run before any loader is built, and must keep
-    doing so rather than picking up the injected default."""
-    from spacr.classify_classes import folder_names
-
-    assert folder_names({"classes": [],
-                         "class_folder_names": ["nc", "pc"]}) == []
-
-
-def test_an_empty_dict_is_not_an_empty_list():
-    """`{}` says "no class is DEFINED yet", which is not "no classes"."""
-    from spacr.classify_classes import folder_names
-
-    assert folder_names({"classes": {},
-                         "class_folder_names": ["nc", "pc"]}) == ["nc", "pc"]
-
-
-def test_an_explicitly_empty_folder_list_loses_to_a_defined_class():
-    """Also reversed by instruction 229, and for the same reason.
-
-    An empty `class_folder_names` records a generation that wrote nothing.
-    A defined class says what the user wants trained. The statement wins.
-    """
-    from spacr.classify_classes import folder_names
-
-    assert folder_names({
-        "classes": {"defined": {"column": "condition", "value": 1}},
-        "class_folder_names": [],
-    }) == ["defined"]
-
-
-def test_an_empty_folder_list_still_means_no_folders_with_no_classes():
-    """The record is still the answer when nothing is defined -- which is
-    every settings file written before the Classes editor existed."""
-    from spacr.classify_classes import folder_names
-
-    assert folder_names({"classes": {}, "class_folder_names": []}) == []
-
-
-def test_absent_new_folder_list_falls_back_to_definition_names():
-    from spacr.classify_classes import folder_names
-
-    assert folder_names({
-        "classes": {"defined": {"column": "condition", "value": 1}},
-    }) == ["defined"]
