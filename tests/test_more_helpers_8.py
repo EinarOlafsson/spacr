@@ -84,14 +84,20 @@ def test_ml_apply_transformation_returns_transformer(name):
     assert isinstance(t, FunctionTransformer)
 
 
-def test_ml_apply_transformation_returns_none_for_unknown():
+@pytest.mark.parametrize('transform', [
+    pytest.param(
+        'not_a_transform',
+        id='test_ml_apply_transformation_returns_none_for_unknown',
+    ),
+    pytest.param(
+        None,
+        id='test_ml_apply_transformation_none_input',
+    ),
+])
+def test_unsupported_transforms_keep_their_original_none_result(transform):
+    """Preserve the original None result for each unsupported transform."""
     from spacr.ml import apply_transformation
-    assert apply_transformation(None, "not_a_transform") is None
-
-
-def test_ml_apply_transformation_none_input():
-    from spacr.ml import apply_transformation
-    assert apply_transformation(None, None) is None
+    assert apply_transformation(None, transform) is None
 
 
 # ===========================================================================
