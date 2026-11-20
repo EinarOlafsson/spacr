@@ -1,0 +1,161 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_test_directory": "tests (root-level module only)",
+  "changed_file": "tests/test_filesystem_type_off_linux.py",
+  "change": "Generalize two partition-filtering cases while retaining their exact data, assertions and old names as parameter IDs.",
+  "case_mapping": {
+    "tests/test_filesystem_type_off_linux.py::test_a_partition_with_no_fstype_is_skipped": "tests/test_filesystem_type_off_linux.py::test_partition_filtering_keeps_the_best_known_mount[test_a_partition_with_no_fstype_is_skipped]",
+    "tests/test_filesystem_type_off_linux.py::test_a_shorter_partition_found_later_does_not_replace_the_best_match": "tests/test_filesystem_type_off_linux.py::test_partition_filtering_keeps_the_best_known_mount[test_a_shorter_partition_found_later_does_not_replace_the_best_match]"
+  },
+  "case_contracts": {
+    "test_a_partition_with_no_fstype_is_skipped": {
+      "partitions": [
+        [
+          "/",
+          "apfs"
+        ],
+        [
+          "/Volumes/empty",
+          ""
+        ]
+      ],
+      "target": "/Volumes/empty/x",
+      "expected": "apfs"
+    },
+    "test_a_shorter_partition_found_later_does_not_replace_the_best_match": {
+      "partitions": [
+        [
+          "/Volumes/lab-share",
+          "smbfs"
+        ],
+        [
+          "/",
+          "apfs"
+        ]
+      ],
+      "target": "/Volumes/lab-share/data",
+      "expected": "smbfs"
+    }
+  },
+  "collected_before": [
+    "tests/test_filesystem_type_off_linux.py::test_a_partition_with_no_fstype_is_skipped",
+    "tests/test_filesystem_type_off_linux.py::test_a_platform_without_psutil_stays_unknown",
+    "tests/test_filesystem_type_off_linux.py::test_an_smb_share_is_not_wal_safe",
+    "tests/test_filesystem_type_off_linux.py::test_a_shorter_partition_found_later_does_not_replace_the_best_match",
+    "tests/test_filesystem_type_off_linux.py::test_an_unenumerable_platform_stays_unknown_rather_than_guessing",
+    "tests/test_filesystem_type_off_linux.py::test_linux_still_uses_proc_mounts",
+    "tests/test_filesystem_type_off_linux.py::test_a_local_mac_disk_is_now_recognised",
+    "tests/test_filesystem_type_off_linux.py::test_the_longest_mount_wins_so_a_share_is_not_read_as_the_root_disk"
+  ],
+  "collected_after": [
+    "tests/test_filesystem_type_off_linux.py::test_partition_filtering_keeps_the_best_known_mount[test_a_shorter_partition_found_later_does_not_replace_the_best_match]",
+    "tests/test_filesystem_type_off_linux.py::test_an_smb_share_is_not_wal_safe",
+    "tests/test_filesystem_type_off_linux.py::test_a_platform_without_psutil_stays_unknown",
+    "tests/test_filesystem_type_off_linux.py::test_linux_still_uses_proc_mounts",
+    "tests/test_filesystem_type_off_linux.py::test_a_local_mac_disk_is_now_recognised",
+    "tests/test_filesystem_type_off_linux.py::test_an_unenumerable_platform_stays_unknown_rather_than_guessing",
+    "tests/test_filesystem_type_off_linux.py::test_the_longest_mount_wins_so_a_share_is_not_read_as_the_root_disk",
+    "tests/test_filesystem_type_off_linux.py::test_partition_filtering_keeps_the_best_known_mount[test_a_partition_with_no_fstype_is_skipped]"
+  ],
+  "tests_before": {
+    "passed": 8,
+    "seconds": 3.97
+  },
+  "tests_after": {
+    "passed": 8,
+    "seconds": 3.02
+  },
+  "coverage_scope": "spacr.database_concurrency; selected filesystem test module only, not a full-suite measurement",
+  "coverage_before": {
+    "covered_lines": 153,
+    "num_statements": 672,
+    "percent_covered": 19.41860465116279,
+    "percent_covered_display": "19",
+    "missing_lines": 519,
+    "excluded_lines": 0,
+    "percent_statements_covered": 22.767857142857142,
+    "percent_statements_covered_display": "23",
+    "num_branches": 188,
+    "num_partial_branches": 6,
+    "covered_branches": 14,
+    "missing_branches": 174,
+    "percent_branches_covered": 7.446808510638298,
+    "percent_branches_covered_display": "7"
+  },
+  "coverage_after": {
+    "covered_lines": 153,
+    "num_statements": 672,
+    "percent_covered": 19.41860465116279,
+    "percent_covered_display": "19",
+    "missing_lines": 519,
+    "excluded_lines": 0,
+    "percent_statements_covered": 22.767857142857142,
+    "percent_statements_covered_display": "23",
+    "num_branches": 188,
+    "num_partial_branches": 6,
+    "covered_branches": 14,
+    "missing_branches": 174,
+    "percent_branches_covered": 7.446808510638298,
+    "percent_branches_covered_display": "7"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "production_source_sha256": "4ea7f96bcc550b4a246c0efc4c1277f0e0c67ad6edda16a8cf942559595e42e9",
+  "production_source_unchanged": true,
+  "other_tests_helpers_imports_fixtures_unchanged": true,
+  "mutation_sample": [
+    {
+      "mutant": "empty-filesystem-accepted",
+      "before": {
+        "killed": true,
+        "assertion_failure_ids": [
+          "tests/test_filesystem_type_off_linux.py::test_a_partition_with_no_fstype_is_skipped"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "assertion_failure_ids": [
+          "tests/test_filesystem_type_off_linux.py::test_partition_filtering_keeps_the_best_known_mount[test_a_partition_with_no_fstype_is_skipped]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "shortest-mount-wins",
+      "before": {
+        "killed": true,
+        "assertion_failure_ids": [
+          "tests/test_filesystem_type_off_linux.py::test_an_smb_share_is_not_wal_safe",
+          "tests/test_filesystem_type_off_linux.py::test_a_shorter_partition_found_later_does_not_replace_the_best_match"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "assertion_failure_ids": [
+          "tests/test_filesystem_type_off_linux.py::test_the_longest_mount_wins_so_a_share_is_not_read_as_the_root_disk",
+          "tests/test_filesystem_type_off_linux.py::test_an_smb_share_is_not_wal_safe"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader source variants; no repository production files modified.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "definition_reduction": 1,
+  "new_test_docstring": {
+    "path": "tests/test_filesystem_type_off_linux.py",
+    "line": 106,
+    "text": "Ignore empty types from unmounted drives and retain the longest known mount.\n\nA shorter partition found later must not replace the selected share."
+  },
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2; no heavy filler starts during W exclusive timing"
+}

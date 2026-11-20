@@ -93,25 +93,23 @@ def test_a_platform_without_psutil_stays_unknown(monkeypatch):
     assert dc._filesystem_type_via_psutil(Path("/anywhere")) is None
 
 
-def test_a_partition_with_no_fstype_is_skipped(monkeypatch):
-    """Windows reports empty fstype for an unmounted drive letter, and an
-    empty string would otherwise win the longest-mount comparison."""
-    _fake_psutil(monkeypatch, [
-        _Part(mountpoint="/", fstype="apfs"),
-        _Part(mountpoint="/Volumes/empty", fstype=""),
-    ])
-    assert dc._filesystem_type_via_psutil(Path("/Volumes/empty/x")) == "apfs"
+@pytest.mark.parametrize("partitions, target, expected", [
+    pytest.param(
+        [("/", "apfs"), ("/Volumes/empty", "")], "/Volumes/empty/x", "apfs",
+        id="test_a_partition_with_no_fstype_is_skipped"),
+    pytest.param(
+        [("/Volumes/lab-share", "smbfs"), ("/", "apfs")], "/Volumes/lab-share/data", "smbfs",
+        id="test_a_shorter_partition_found_later_does_not_replace_the_best_match"),
+])
+def test_partition_filtering_keeps_the_best_known_mount(
+        monkeypatch, partitions, target, expected):
+    """Ignore empty types from unmounted drives and retain the longest known mount.
 
-
-def test_a_shorter_partition_found_later_does_not_replace_the_best_match(
-        monkeypatch):
-    _fake_psutil(monkeypatch, [
-        _Part(mountpoint="/Volumes/lab-share", fstype="smbfs"),
-        _Part(mountpoint="/", fstype="apfs"),
-    ])
-
-    assert dc._filesystem_type_via_psutil(
-        Path("/Volumes/lab-share/data")) == "smbfs"
+    A shorter partition found later must not replace the selected share.
+    """
+    _fake_psutil(monkeypatch, [_Part(mountpoint=mount, fstype=fstype)
+                             for mount, fstype in partitions])
+    assert dc._filesystem_type_via_psutil(Path(target)) == expected
 
 
 def test_linux_still_uses_proc_mounts(monkeypatch):
