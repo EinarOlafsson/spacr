@@ -1,7 +1,7 @@
 # Item 992: max-projection clustering over feature views (OPS clustering, alpha)
 
 - **Number:** 992. Checked free on 2026-11-19 against `features/feature_list` (highest 988 on origin/nightly), `proposals/` (no numbered spec at 992) and `/mnt/firecuda2/codex/scratch-docs/status/*CLAIMS*` (no 99x claims). 990 and 991 are taken (branches `claude-990-cellcycle-1119`, `codex-tr-991`). The master confirms the reservation.
-- **Status:** SPEC ONLY, AWAITING SIGN-OFF. Design card: `BMCspacr/reanalysis/experiment_designs/20261119_maxprojection_clustering.md`. Nothing is implemented and nothing has run.
+- **Status:** SPEC ONLY; design card SIGNED OFF 2026-11-19 (maintainer, options 1a–8a). Design card: `BMCspacr/reanalysis/experiment_designs/20261119_maxprojection_clustering.md`. Nothing is implemented and nothing has run.
 - **Requested by the maintainer (2026-11-19):** some phenotypes are broad and need many features, others are thin and show only on the few columns that carry signal. Do a broad pass, narrow down in different directions by removing different columns, save the structure at each level, then project the strongest pairs and clusters across levels, "like a maximum intensity projection".
 - **Readiness:** Under development. Feature workflow: script proof on planted data (card §4, §8) → this item → spaCR reproduces the script proof identically → production run at the step-4 freeze. No paper number before that run.
 - **Alpha:** every setting below ships behind "Show alpha features" and is off by default. With `ops_maxproj_enabled` False, every existing output is byte-identical to nightly.
@@ -12,7 +12,7 @@ Abbreviations: OPS optical pooled screen; NT non-targeting; TVN typical variatio
 
 A new alpha phase `cluster_maxproj` of the OPS profile path (next to `cluster_consensus` and `cluster_bench_test` in `spacr/ops_engine.py`'s phase list):
 
-1. **Views.** Read a views file (`ops_maxproj_views`, JSON: name, block, column list; written by the user or by the script that builds views from a selection half). Inside each view: standardise the view's columns, whiten by the NT gene covariance of the view (gene-level TVN), embed (standardise + PCA to `ops_maxproj_pca_variance`), cosine similarity of every gene pair.
+1. **Views.** Read a views file (`ops_maxproj_views`, JSON: name, block, column list; written by the user or by the script that builds views from a selection half). Inside each view: standardise the view's columns, embed (standardise + PCA to `ops_maxproj_pca_variance`), then whiten in the PCA space by the NT gene covariance (gene-level TVN; a half has only about 124 NT rows for about 2,700 columns, so whitening must follow the PCA), then the cosine similarity of every gene pair.
 2. **Per-view calibration.** Guide-level label permutation (guides shuffled between targeting genes, guide count per gene kept, NT guides fixed), gene rows rebuilt by the cell-weighted guide mean. The empirical null of each view's pair similarities, pooled per bin of the two genes' cell counts (`ops_maxproj_bins`), turns every similarity into a normal score c_v(i, j). Seeds `ops_maxproj_seed + p`.
 3. **Max projection.** M(i, j) = max over views of c_v(i, j); the argmax view is saved per pair.
 4. **Max-statistic null.** `ops_maxproj_null_permutations` fresh joint permutations (one shuffle for all views), the same calibration tables, running max kept; pair p-value from the pooled max null within the bin; BH q over pairs. Seeds `ops_maxproj_seed + 100000 + p`.
