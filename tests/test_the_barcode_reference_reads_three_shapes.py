@@ -22,18 +22,24 @@ def test_a_mapping_is_taken_as_written_but_upper_cased():
         "g1": "ACGT", "g2": "TTTT"}
 
 
-def test_a_fasta_is_read_record_by_record(tmp_path):
-    """The flush at the top of each header AND the final flush after the loop.
-
-    Both matter: without the first, every record but the last is lost; without
-    the second, only the last is.
-    """
+@pytest.mark.parametrize('filename, content, expected', [
+    pytest.param(
+        'library.fasta', '>g1 some description\nacgt\nAACC\n>g2\ntttt\n', {'g1': 'ACGTAACC', 'g2': 'TTTT'},
+        id='test_a_fasta_is_read_record_by_record',
+    ),
+    pytest.param(
+        'truncated.fasta', '>g1\n', {'g1': ''},
+        id='test_a_fasta_with_a_header_and_no_sequence_still_records_the_name',
+    ),
+])
+def test_fasta_files_keep_their_original_barcode_references(tmp_path, filename, content, expected):
+    """Keep each original FASTA file paired with the same barcode reference."""
     from spacr.sequencing_qc import _read_reference
 
-    fasta = tmp_path / "library.fasta"
-    fasta.write_text(">g1 some description\nacgt\nAACC\n>g2\ntttt\n", encoding="utf-8")
+    fasta = tmp_path / filename
+    fasta.write_text(content, encoding="utf-8")
 
-    assert _read_reference(str(fasta)) == {"g1": "ACGTAACC", "g2": "TTTT"}
+    assert _read_reference(str(fasta)) == expected
 
 
 def test_a_fasta_name_is_its_first_word():
@@ -62,18 +68,3 @@ def test_a_fasta_with_no_records_reads_as_empty(tmp_path, content):
     fasta.write_text(content, encoding="utf-8")
 
     assert _read_reference(str(fasta)) == {}
-
-
-def test_a_fasta_with_a_header_and_no_sequence_still_records_the_name(tmp_path):
-    """The final flush taken with empty chunks, which is a truncated record.
-
-    An empty sequence is recorded rather than dropped, so the caller can see
-    the name is present and the sequence is not -- which is the difference
-    between a truncated file and a missing guide.
-    """
-    from spacr.sequencing_qc import _read_reference
-
-    fasta = tmp_path / "truncated.fasta"
-    fasta.write_text(">g1\n", encoding="utf-8")
-
-    assert _read_reference(str(fasta)) == {"g1": ""}
