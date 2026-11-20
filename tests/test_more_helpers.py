@@ -22,14 +22,20 @@ import pytest
 # spacr.sim: parameter helpers
 # ===========================================================================
 
-def test_sim_generate_integers_inclusive_range():
+@pytest.mark.parametrize('start, stop, step, expected', [
+    pytest.param(
+        1, 5, 1, [1, 2, 3, 4, 5],
+        id='test_sim_generate_integers_inclusive_range',
+    ),
+    pytest.param(
+        0, 10, 3, [0, 3, 6, 9],
+        id='test_sim_generate_integers_stepped',
+    ),
+])
+def test_integer_sequences_keep_their_original_bounds_and_spacing(start, stop, step, expected):
+    """Preserve the original integer sequence bounds, spacing and ordered values."""
     from spacr.sim import generate_integers
-    assert generate_integers(1, 5, 1) == [1, 2, 3, 4, 5]
-
-
-def test_sim_generate_integers_stepped():
-    from spacr.sim import generate_integers
-    assert generate_integers(0, 10, 3) == [0, 3, 6, 9]
+    assert generate_integers(start, stop, step) == expected
 
 
 def test_sim_generate_floats_returns_list():

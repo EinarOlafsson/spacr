@@ -1,0 +1,251 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_more_helpers.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_more_helpers.py::test_sim_generate_integers_inclusive_range": "tests/test_more_helpers.py::test_integer_sequences_keep_their_original_bounds_and_spacing[test_sim_generate_integers_inclusive_range]",
+    "tests/test_more_helpers.py::test_sim_generate_integers_stepped": "tests/test_more_helpers.py::test_integer_sequences_keep_their_original_bounds_and_spacing[test_sim_generate_integers_stepped]"
+  },
+  "integer_arguments_ordered_results_and_native_equality_contracts": {
+    "test_sim_generate_integers_inclusive_range": [
+      1,
+      5,
+      1,
+      [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    ],
+    "test_sim_generate_integers_stepped": [
+      0,
+      10,
+      3,
+      [
+        0,
+        3,
+        6,
+        9
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_sim_generate_integers_inclusive_range": "(1, 5, 1, [1, 2, 3, 4, 5])",
+    "test_sim_generate_integers_stepped": "(0, 10, 3, [0, 3, 6, 9])"
+  },
+  "contract_scope": "Exact local generate_integers import, original integer start/stop/step positional arguments and original ordered integer result lists retained with native equality. Every other original import/helper/float-generation/constant-column/CSV/regionprops/blur/colour/path/distance/index/mask case retains AST and relative order. No original assertion strengthened or weakened.",
+  "collected_before": [
+    "tests/test_more_helpers.py::test_measure_estimate_blur_float64_input",
+    "tests/test_more_helpers.py::test_plot_generate_mask_random_cmap_scaled_to_object_count",
+    "tests/test_more_helpers.py::test_utils_get_files_from_dir_globs",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_all_valid_orderings[gbr]",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_all_valid_orderings[rgb]",
+    "tests/test_more_helpers.py::test_plot_random_cmap_first_slot_is_transparent_black",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_all_valid_orderings[bgr]",
+    "tests/test_more_helpers.py::test_sim_generate_floats_returns_list",
+    "tests/test_more_helpers.py::test_sequencing_save_qc_df_to_csv_fresh",
+    "tests/test_more_helpers.py::test_sim_remove_columns_with_single_value",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_all_valid_orderings[rbg]",
+    "tests/test_more_helpers.py::test_io_get_avg_object_size_multiple_objects",
+    "tests/test_more_helpers.py::test_measure_extended_regionprops_table_returns_dataframe",
+    "tests/test_more_helpers.py::test_sim_generate_integers_inclusive_range",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_gives_one_triple_per_outline_channel[snap-bgr]",
+    "tests/test_more_helpers.py::test_io_delete_empty_subdirectories_preserves_deep_structure",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_gives_one_triple_per_outline_channel[snap-rgb]",
+    "tests/test_more_helpers.py::test_measure_create_dataframe_flattens_radial_distributions",
+    "tests/test_more_helpers.py::test_sequencing_save_unique_combinations_to_csv_append",
+    "tests/test_more_helpers.py::test_sim_remove_constant_columns",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_gives_one_triple_per_outline_channel[snap-gbr]",
+    "tests/test_more_helpers.py::test_sequencing_reverse_complement_symmetric",
+    "tests/test_more_helpers.py::test_utils_check_index_short_prefix_ok",
+    "tests/test_more_helpers.py::test_utils_calculate_shortest_distance_zero_for_same_point",
+    "tests/test_more_helpers.py::test_sequencing_save_unique_combinations_to_csv_fresh",
+    "tests/test_more_helpers.py::test_sim_generate_integers_stepped",
+    "tests/test_more_helpers.py::test_sequencing_get_consensus_base_quality_tie_uses_first",
+    "tests/test_more_helpers.py::test_measure_estimate_blur_uint16_input"
+  ],
+  "collected_after": [
+    "tests/test_more_helpers.py::test_measure_estimate_blur_uint16_input",
+    "tests/test_more_helpers.py::test_utils_check_index_short_prefix_ok",
+    "tests/test_more_helpers.py::test_sequencing_get_consensus_base_quality_tie_uses_first",
+    "tests/test_more_helpers.py::test_utils_get_files_from_dir_globs",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_gives_one_triple_per_outline_channel[snap-rgb]",
+    "tests/test_more_helpers.py::test_utils_calculate_shortest_distance_zero_for_same_point",
+    "tests/test_more_helpers.py::test_measure_create_dataframe_flattens_radial_distributions",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_gives_one_triple_per_outline_channel[snap-bgr]",
+    "tests/test_more_helpers.py::test_sim_generate_floats_returns_list",
+    "tests/test_more_helpers.py::test_sequencing_save_unique_combinations_to_csv_fresh",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_gives_one_triple_per_outline_channel[snap-gbr]",
+    "tests/test_more_helpers.py::test_io_get_avg_object_size_multiple_objects",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_all_valid_orderings[gbr]",
+    "tests/test_more_helpers.py::test_measure_estimate_blur_float64_input",
+    "tests/test_more_helpers.py::test_integer_sequences_keep_their_original_bounds_and_spacing[test_sim_generate_integers_stepped]",
+    "tests/test_more_helpers.py::test_plot_generate_mask_random_cmap_scaled_to_object_count",
+    "tests/test_more_helpers.py::test_plot_random_cmap_first_slot_is_transparent_black",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_all_valid_orderings[rgb]",
+    "tests/test_more_helpers.py::test_sequencing_reverse_complement_symmetric",
+    "tests/test_more_helpers.py::test_io_delete_empty_subdirectories_preserves_deep_structure",
+    "tests/test_more_helpers.py::test_sim_remove_columns_with_single_value",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_all_valid_orderings[bgr]",
+    "tests/test_more_helpers.py::test_sequencing_save_qc_df_to_csv_fresh",
+    "tests/test_more_helpers.py::test_sequencing_save_unique_combinations_to_csv_append",
+    "tests/test_more_helpers.py::test_sim_remove_constant_columns",
+    "tests/test_more_helpers.py::test_plot_get_colours_merged_all_valid_orderings[rbg]",
+    "tests/test_more_helpers.py::test_measure_extended_regionprops_table_returns_dataframe",
+    "tests/test_more_helpers.py::test_integer_sequences_keep_their_original_bounds_and_spacing[test_sim_generate_integers_inclusive_range]"
+  ],
+  "tests_before": {
+    "passed": 28,
+    "seconds": 14.48
+  },
+  "tests_after": {
+    "passed": 28,
+    "seconds": 10.03
+  },
+  "coverage_scope": "spacr.sim under the complete selected multi-module helper module; not full-suite coverage. Simulation helpers only generate short integer/float lists and filter tiny DataFrames. Remaining original cases use tiny local CSV/arrays/masks/image statistics and colour-map values; no simulation run, chart creation/rendering, model fitting, new production reader, network or GPU work. Production settings unchanged. After normal validation, one worker emitted module-not-imported and no-data-collected coverage warnings; its arc table is empty while the other worker recorded the target. Combined coverage files/totals/executed sets match before exactly. Both original workers recorded target arcs. Raw per-worker arc counts and warning lines are retained in the report; no passing tests rerun.",
+  "coverage_before": {
+    "covered_lines": 90,
+    "num_statements": 873,
+    "percent_covered": 8.641975308641975,
+    "percent_covered_display": "9",
+    "missing_lines": 783,
+    "excluded_lines": 0,
+    "percent_statements_covered": 10.309278350515465,
+    "percent_statements_covered_display": "10",
+    "num_branches": 180,
+    "num_partial_branches": 1,
+    "covered_branches": 1,
+    "missing_branches": 179,
+    "percent_branches_covered": 0.5555555555555556,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_after": {
+    "covered_lines": 90,
+    "num_statements": 873,
+    "percent_covered": 8.641975308641975,
+    "percent_covered_display": "9",
+    "missing_lines": 783,
+    "excluded_lines": 0,
+    "percent_statements_covered": 10.309278350515465,
+    "percent_statements_covered_display": "10",
+    "num_branches": 180,
+    "num_partial_branches": 1,
+    "covered_branches": 1,
+    "missing_branches": 179,
+    "percent_branches_covered": 0.5555555555555556,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "443c8c956ea6ec0381867fd86f77d4236967ecf39cb53c2f6cb13eb3abd0e9ad",
+  "production_source_sha256": "9212572a9967e256139421d504c3cce002a8f11ae35150ff0cef75a36affce20",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_helpers_float_columns_csv_regionprops_blur_colour_path_distance_index_mask_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "unit-step-endpoint-lost",
+      "source_variant": {
+        "path": "spacr/sim.py",
+        "line": 1235,
+        "old": "return list(range(start, stop + 1, step))",
+        "new": "return list(range(start, stop if step == 1 else stop + 1, step))"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_more_helpers.py::test_sim_generate_integers_inclusive_range"
+        ],
+        "failure_summary_lines": [
+          "tests/test_more_helpers.py::test_sim_generate_integers_inclusive_range"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_more_helpers.py::test_integer_sequences_keep_their_original_bounds_and_spacing[test_sim_generate_integers_inclusive_range]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_more_helpers.py::test_integer_sequences_keep_their_original_bounds_and_spacing[test_sim_generate_integers_inclusive_range]"
+        ],
+        "application_markers": 1
+      }
+    },
+    {
+      "mutant": "nonunit-spacing-ignored",
+      "source_variant": {
+        "path": "spacr/sim.py",
+        "line": 1235,
+        "old": "return list(range(start, stop + 1, step))",
+        "new": "return list(range(start, stop + 1, 1 if step != 1 else step))"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_more_helpers.py::test_sim_generate_integers_stepped"
+        ],
+        "failure_summary_lines": [
+          "tests/test_more_helpers.py::test_sim_generate_integers_stepped - asser..."
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_more_helpers.py::test_integer_sequences_keep_their_original_bounds_and_spacing[test_sim_generate_integers_stepped]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_more_helpers.py::test_integer_sequences_keep_their_original_bounds_and_spacing[test_sim_generate_integers_stepped]"
+        ],
+        "application_markers": 1
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in generate_integers before and after: omit the inclusive endpoint for the unit-step row; ignore nonunit spacing for the stepped row. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native ordered-list equality. Exact local import and integer arguments/types retained. Repository production/settings files unchanged.",
+  "normal_coverage_warning_evidence": {
+    "before": {
+      "coverage_warning_lines": [],
+      "worker_arc_rows": {
+        "gw0": 87,
+        "gw1": 96
+      }
+    },
+    "after": {
+      "coverage_warning_lines": [
+        "............................                                             [100%]/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/inorout.py:558: CoverageWarning: Module spacr.sim was never imported. (module-not-imported); see https://coverage.readthedocs.io/en/7.16.0/messages.html#warning-module-not-imported",
+        "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/control.py:967: CoverageWarning: No data was collected. (no-data-collected); see https://coverage.readthedocs.io/en/7.16.0/messages.html#warning-no-data-collected"
+      ],
+      "worker_arc_rows": {
+        "gw0": 0,
+        "gw1": 98
+      }
+    },
+    "scope": "One after worker did not import the selected target; combined executed coverage sets and totals are independently verified unchanged. No tests or measurements rerun."
+  },
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_more_helpers.py",
+      "line": 36,
+      "symbol": "test_integer_sequences_keep_their_original_bounds_and_spacing",
+      "new": "Preserve the original integer sequence bounds, spacing and ordered values.",
+      "old": {
+        "test_sim_generate_integers_inclusive_range": null,
+        "test_sim_generate_integers_stepped": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
