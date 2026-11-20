@@ -5879,7 +5879,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `progress_share` of spacr.object.generate_cellpose_masks_sam.
     # Moved 2026-11-18 for item 987 (was 6e569df7...): run_v2 and
     # stream_masks_from_stack lost `keep_npz` and `npz_dir`.
-) == 'a1e211425beb740dde4db5c5ef8bc1123370546e1a08163ebda6fc16e221c625'
+    # Moved 2026-11-19 by landing train 3 (was a1e21142...): CustomCellClassifier
+    # dropped pathogen_channel, use_attention and dropout_rate (rule 41, the
+    # Codex issues branch), merged with item 987's change above.
+) == '88be4536742e797def198f48411c2ee5a4035445979dc686f1a89c13488239a2'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
