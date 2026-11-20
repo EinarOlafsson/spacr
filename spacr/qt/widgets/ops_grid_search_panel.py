@@ -104,30 +104,33 @@ class _OpsGridSearchPanel(QWidget):
                           "the full run."), self)
         blurb.setWordWrap(True)
         layout.addWidget(blurb)
-        form = QFormLayout()
-        self.mode = QComboBox(self)
+        self.inputs = QWidget(self)
+        self.inputs.setObjectName("OpsGridInputs")
+        form = QFormLayout(self.inputs)
+        form.setContentsMargins(0, 0, 0, 0)
+        self.mode = QComboBox(self.inputs)
         self.mode.setObjectName("OpsGridTileMode")
         from spacr.ops_grid_search import _GRID_EXAMPLE, _TILE_MODES
 
         self.mode.addItems(list(_TILE_MODES))
         form.addRow(tr("Tile pick"), self.mode)
-        self.n_tiles = QSpinBox(self)
+        self.n_tiles = QSpinBox(self.inputs)
         self.n_tiles.setObjectName("OpsGridTiles")
         self.n_tiles.setRange(1, 96)
         self.n_tiles.setValue(8)
         form.addRow(tr("How many tiles"), self.n_tiles)
-        self.seed = QSpinBox(self)
+        self.seed = QSpinBox(self.inputs)
         self.seed.setObjectName("OpsGridSeed")
         self.seed.setRange(0, 1_000_000)
         form.addRow(tr("Seed"), self.seed)
-        self.tiles = QLineEdit(self)
+        self.tiles = QLineEdit(self.inputs)
         self.tiles.setObjectName("OpsGridTileList")
         form.addRow(tr("Tiles (plate:well:site)"), self.tiles)
-        self.grid = QLineEdit(self)
+        self.grid = QLineEdit(self.inputs)
         self.grid.setObjectName("OpsGridParams")
         self.grid.setPlaceholderText(_GRID_EXAMPLE)
         form.addRow(tr("Settings grid"), self.grid)
-        layout.addLayout(form)
+        layout.addWidget(self.inputs)
         row = QHBoxLayout()
         self.status = QLabel("", self)
         self.status.setObjectName("OpsGridStatus")
@@ -283,7 +286,9 @@ def _attach_grid_search(live_panel, host) -> _OpsGridSearchPanel:
     """Add the Grid search panel under the Spots & genotyping tab of the OPS Live preview.
 
     :param live_panel: the OPS Live preview panel (item 971); its
-        ``page('spots')`` is the tab the panel joins.
+        ``page('spots')`` is the tab the panel joins, and its
+        ``add_step_settings`` takes the grid inputs into the tab's Settings
+        panel (item 1000).
     :param host: the OPS screen: ``_settings_model.collect()`` gives the
         form's settings and ``apply_settings_dict`` writes them back.
     :returns: the panel.
@@ -296,4 +301,8 @@ def _attach_grid_search(live_panel, host) -> _OpsGridSearchPanel:
     page = live_panel.page("spots")
     panel = _OpsGridSearchPanel(collect, host.apply_settings_dict, page)
     page.layout().addWidget(panel)
+    lend = getattr(live_panel, "add_step_settings", None)
+    if callable(lend):
+        panel.inputs.hide()
+        lend("spots", tr("Grid search"), panel.inputs)
     return panel
