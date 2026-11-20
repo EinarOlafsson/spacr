@@ -1,0 +1,267 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_plate_measurements.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_plate_measurements.py::test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity": "tests/test_plate_measurements.py::test_unambiguous_child_tables_keep_an_empty_identifier_report[test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity]",
+    "tests/test_plate_measurements.py::test_a_numeric_label_that_differs_across_children_is_not_examined": "tests/test_plate_measurements.py::test_unambiguous_child_tables_keep_an_empty_identifier_report[test_a_numeric_label_that_differs_across_children_is_not_examined]"
+  },
+  "child_frame_contracts": {
+    "test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity": [
+      {
+        "cell_id": [
+          1,
+          1,
+          2
+        ],
+        "path_name": [
+          "a",
+          "a",
+          "b"
+        ],
+        "area": [
+          1.0,
+          2.0,
+          3.0
+        ]
+      }
+    ],
+    "test_a_numeric_label_that_differs_across_children_is_not_examined": [
+      {
+        "cell_id": [
+          1,
+          1
+        ],
+        "object_label": [
+          1,
+          2
+        ]
+      }
+    ]
+  },
+  "case_contract_representations": {
+    "test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity": "({'cell_id': [1, 1, 2], 'path_name': ['a', 'a', 'b'], 'area': [1.0, 2.0, 3.0]},)",
+    "test_a_numeric_label_that_differs_across_children_is_not_examined": "({'cell_id': [1, 1], 'object_label': [1, 2]},)"
+  },
+  "contract_scope": "Exact local pandas and ambiguous_identifiers imports, ordered float/int/string child records, pd.DataFrame construction, child assignment, positional API call with literal cell_id grouping-key list and native equality to an empty dict retained.",
+  "collected_before": [
+    "tests/test_plate_measurements.py::test_the_dropped_measurement_can_be_kept_instead",
+    "tests/test_plate_measurements.py::test_the_headless_merge_refuses_the_same_ambiguity_the_panel_does",
+    "tests/test_plate_measurements.py::test_two_screens_sharing_a_plate_id_are_not_pooled_into_one_cell",
+    "tests/test_plate_measurements.py::test_a_column_that_matched_no_rule_is_named_as_defaulted",
+    "tests/test_plate_measurements.py::test_no_column_could_pass_by_picking_the_wrong_rule",
+    "tests/test_plate_measurements.py::test_the_merged_frame_says_which_database_every_row_came_from",
+    "tests/test_plate_measurements.py::test_the_panel_is_told_which_aggregation_every_column_got",
+    "tests/test_plate_measurements.py::test_nothing_attached_says_what_to_do_about_it",
+    "tests/test_plate_measurements.py::test_the_frame_carries_what_the_panel_must_disclose",
+    "tests/test_plate_measurements.py::test_the_anchor_must_be_a_table_with_one_row_per_cell",
+    "tests/test_plate_measurements.py::test_two_databases_holding_the_same_plate_are_refused",
+    "tests/test_plate_measurements.py::test_a_numeric_label_that_differs_across_children_is_not_examined",
+    "tests/test_plate_measurements.py::test_an_uninfected_cell_keeps_its_row_and_counts_zero_pathogens",
+    "tests/test_plate_measurements.py::test_a_one_row_per_cell_table_is_joined_rather_than_aggregated",
+    "tests/test_plate_measurements.py::test_the_old_silent_pick_is_still_reachable_from_the_headless_merge",
+    "tests/test_plate_measurements.py::test_one_database_attached_to_two_plates_is_refused",
+    "tests/test_plate_measurements.py::test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity",
+    "tests/test_plate_measurements.py::test_the_anchor_is_always_merged_even_when_it_was_not_ticked",
+    "tests/test_plate_measurements.py::test_the_defaulted_columns_are_recomputed_from_the_rules_not_stored",
+    "tests/test_plate_measurements.py::test_a_database_that_has_moved_is_named_before_the_run",
+    "tests/test_plate_measurements.py::test_the_disclosure_names_the_anchor_the_rows_and_the_default",
+    "tests/test_plate_measurements.py::test_a_merge_with_nothing_in_it_answers_every_question_emptily",
+    "tests/test_plate_measurements.py::test_the_screen_is_not_hidden_inside_the_plate_id",
+    "tests/test_plate_measurements.py::test_restricting_to_infected_cells_is_the_setting_that_does_it",
+    "tests/test_plate_measurements.py::test_an_empty_child_or_a_missing_key_is_answered_rather_than_raised",
+    "tests/test_plate_measurements.py::test_every_measurement_gets_the_aggregation_the_rules_table_names",
+    "tests/test_plate_measurements.py::test_an_identifier_the_caller_chose_for_themselves_is_not_second_guessed",
+    "tests/test_plate_measurements.py::test_a_plate_with_no_database_is_listed_and_does_not_stop_the_merge",
+    "tests/test_plate_measurements.py::test_the_table_list_comes_from_the_object_registry_not_four_names",
+    "tests/test_plate_measurements.py::test_the_anchor_overrides_the_policy_it_was_given",
+    "tests/test_plate_measurements.py::test_the_attachments_can_arrive_in_any_shape_the_input_table_has",
+    "tests/test_plate_measurements.py::test_the_average_everything_merge_would_have_given_a_different_area",
+    "tests/test_plate_measurements.py::test_a_table_measured_without_a_parent_mask_is_named_and_skipped",
+    "tests/test_plate_measurements.py::test_crops_are_not_offered_as_a_measurement_table",
+    "tests/test_plate_measurements.py::test_default_columns_are_split_by_kind_after_decisions_are_removed",
+    "tests/test_plate_measurements.py::test_a_rule_added_to_merge_tables_removes_a_column_from_the_report",
+    "tests/test_plate_measurements.py::test_an_identifier_that_differs_within_the_group_is_named_with_an_example",
+    "tests/test_plate_measurements.py::test_a_measurement_only_some_databases_have_is_reported_as_dropped",
+    "tests/test_plate_measurements.py::test_a_column_the_user_overrode_is_not_reported_as_a_default",
+    "tests/test_plate_measurements.py::test_an_unnamed_row_is_still_identified",
+    "tests/test_plate_measurements.py::test_the_tables_offered_are_the_ones_every_database_has",
+    "tests/test_plate_measurements.py::test_the_default_bucket_splits_into_the_two_answers_it_always_was"
+  ],
+  "collected_after": [
+    "tests/test_plate_measurements.py::test_an_unnamed_row_is_still_identified",
+    "tests/test_plate_measurements.py::test_the_anchor_is_always_merged_even_when_it_was_not_ticked",
+    "tests/test_plate_measurements.py::test_a_one_row_per_cell_table_is_joined_rather_than_aggregated",
+    "tests/test_plate_measurements.py::test_the_defaulted_columns_are_recomputed_from_the_rules_not_stored",
+    "tests/test_plate_measurements.py::test_every_measurement_gets_the_aggregation_the_rules_table_names",
+    "tests/test_plate_measurements.py::test_a_column_that_matched_no_rule_is_named_as_defaulted",
+    "tests/test_plate_measurements.py::test_the_merged_frame_says_which_database_every_row_came_from",
+    "tests/test_plate_measurements.py::test_one_database_attached_to_two_plates_is_refused",
+    "tests/test_plate_measurements.py::test_the_old_silent_pick_is_still_reachable_from_the_headless_merge",
+    "tests/test_plate_measurements.py::test_the_panel_is_told_which_aggregation_every_column_got",
+    "tests/test_plate_measurements.py::test_two_screens_sharing_a_plate_id_are_not_pooled_into_one_cell",
+    "tests/test_plate_measurements.py::test_the_default_bucket_splits_into_the_two_answers_it_always_was",
+    "tests/test_plate_measurements.py::test_an_identifier_the_caller_chose_for_themselves_is_not_second_guessed",
+    "tests/test_plate_measurements.py::test_the_frame_carries_what_the_panel_must_disclose",
+    "tests/test_plate_measurements.py::test_the_anchor_must_be_a_table_with_one_row_per_cell",
+    "tests/test_plate_measurements.py::test_two_databases_holding_the_same_plate_are_refused",
+    "tests/test_plate_measurements.py::test_the_dropped_measurement_can_be_kept_instead",
+    "tests/test_plate_measurements.py::test_no_column_could_pass_by_picking_the_wrong_rule",
+    "tests/test_plate_measurements.py::test_the_table_list_comes_from_the_object_registry_not_four_names",
+    "tests/test_plate_measurements.py::test_unambiguous_child_tables_keep_an_empty_identifier_report[test_a_numeric_label_that_differs_across_children_is_not_examined]",
+    "tests/test_plate_measurements.py::test_an_identifier_that_differs_within_the_group_is_named_with_an_example",
+    "tests/test_plate_measurements.py::test_the_tables_offered_are_the_ones_every_database_has",
+    "tests/test_plate_measurements.py::test_a_column_the_user_overrode_is_not_reported_as_a_default",
+    "tests/test_plate_measurements.py::test_a_database_that_has_moved_is_named_before_the_run",
+    "tests/test_plate_measurements.py::test_unambiguous_child_tables_keep_an_empty_identifier_report[test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity]",
+    "tests/test_plate_measurements.py::test_the_average_everything_merge_would_have_given_a_different_area",
+    "tests/test_plate_measurements.py::test_the_headless_merge_refuses_the_same_ambiguity_the_panel_does",
+    "tests/test_plate_measurements.py::test_the_disclosure_names_the_anchor_the_rows_and_the_default",
+    "tests/test_plate_measurements.py::test_the_screen_is_not_hidden_inside_the_plate_id",
+    "tests/test_plate_measurements.py::test_nothing_attached_says_what_to_do_about_it",
+    "tests/test_plate_measurements.py::test_a_plate_with_no_database_is_listed_and_does_not_stop_the_merge",
+    "tests/test_plate_measurements.py::test_a_merge_with_nothing_in_it_answers_every_question_emptily",
+    "tests/test_plate_measurements.py::test_restricting_to_infected_cells_is_the_setting_that_does_it",
+    "tests/test_plate_measurements.py::test_an_uninfected_cell_keeps_its_row_and_counts_zero_pathogens",
+    "tests/test_plate_measurements.py::test_a_table_measured_without_a_parent_mask_is_named_and_skipped",
+    "tests/test_plate_measurements.py::test_default_columns_are_split_by_kind_after_decisions_are_removed",
+    "tests/test_plate_measurements.py::test_the_anchor_overrides_the_policy_it_was_given",
+    "tests/test_plate_measurements.py::test_a_rule_added_to_merge_tables_removes_a_column_from_the_report",
+    "tests/test_plate_measurements.py::test_a_measurement_only_some_databases_have_is_reported_as_dropped",
+    "tests/test_plate_measurements.py::test_crops_are_not_offered_as_a_measurement_table",
+    "tests/test_plate_measurements.py::test_the_attachments_can_arrive_in_any_shape_the_input_table_has",
+    "tests/test_plate_measurements.py::test_an_empty_child_or_a_missing_key_is_answered_rather_than_raised"
+  ],
+  "tests_before": {
+    "passed": 42,
+    "seconds": 6.13
+  },
+  "tests_after": {
+    "passed": 42,
+    "seconds": 6.94
+  },
+  "coverage_scope": "spacr.plate_measurements under the complete selected 42-case temporary-SQLite plate-merge/aggregation/identity/refusal module; not full-suite coverage. No chart rendering, model fits or GPU work.",
+  "coverage_before": {
+    "covered_lines": 304,
+    "num_statements": 306,
+    "percent_covered": 97.70642201834862,
+    "percent_covered_display": "98",
+    "missing_lines": 2,
+    "excluded_lines": 0,
+    "percent_statements_covered": 99.34640522875817,
+    "percent_statements_covered_display": "99",
+    "num_branches": 130,
+    "num_partial_branches": 8,
+    "covered_branches": 122,
+    "missing_branches": 8,
+    "percent_branches_covered": 93.84615384615384,
+    "percent_branches_covered_display": "94"
+  },
+  "coverage_after": {
+    "covered_lines": 304,
+    "num_statements": 306,
+    "percent_covered": 97.70642201834862,
+    "percent_covered_display": "98",
+    "missing_lines": 2,
+    "excluded_lines": 0,
+    "percent_statements_covered": 99.34640522875817,
+    "percent_statements_covered_display": "99",
+    "num_branches": 130,
+    "num_partial_branches": 8,
+    "covered_branches": 122,
+    "missing_branches": 8,
+    "percent_branches_covered": 93.84615384615384,
+    "percent_branches_covered_display": "94"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "5ae7d9b659eedb1f0ae689242a94cd6d29f54d75566e018ac49e906cdc7a600a",
+  "production_source_sha256": "91ea1ff17c5ee5d7c473d0d30bb7f704eab75914bc3655cd90a537bc32899e35",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_helpers_fixtures_SQLite_aggregation_identity_screen_override_refusal_headless_merge_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "constant-text-count-marked-ambiguous",
+      "source_variant": {
+        "path": "spacr/plate_measurements.py",
+        "line": 554,
+        "old": "offending = counts[counts > 1]",
+        "new": "offending = counts[counts >= 1]"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_plate_measurements.py::test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity"
+        ],
+        "failure_summary_lines": [
+          "tests/test_plate_measurements.py::test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_plate_measurements.py::test_unambiguous_child_tables_keep_an_empty_identifier_report[test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_plate_measurements.py::test_unambiguous_child_tables_keep_an_empty_identifier_report[test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "numeric-label-exemption-removed",
+      "source_variant": {
+        "path": "spacr/plate_measurements.py",
+        "line": 547,
+        "old": "and not pd.api.types.is_numeric_dtype(child[column])",
+        "new": "and True"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_plate_measurements.py::test_a_numeric_label_that_differs_across_children_is_not_examined"
+        ],
+        "failure_summary_lines": [
+          "tests/test_plate_measurements.py::test_a_numeric_label_that_differs_across_children_is_not_examined"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_plate_measurements.py::test_unambiguous_child_tables_keep_an_empty_identifier_report[test_a_numeric_label_that_differs_across_children_is_not_examined]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_plate_measurements.py::test_unambiguous_child_tables_keep_an_empty_identifier_report[test_a_numeric_label_that_differs_across_children_is_not_examined]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in ambiguous_identifiers before and after: one unique text value incorrectly marked ambiguous; numeric-label exemption removed. Each fault selects the same one original/mapped case before/after (constant-text case for the threshold, numeric-label case for the exemption). Repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_plate_measurements.py",
+      "line": 672,
+      "symbol": "test_unambiguous_child_tables_keep_an_empty_identifier_report",
+      "new": "Keep both original child tables free of identifier ambiguity.",
+      "old": {
+        "test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity": "Two pathogens of one cell off the SAME image have one ``path_name``\nbetween them. Carrying it invents nothing, and reporting it as an\nambiguity would make the honest case look like the broken one.",
+        "test_a_numeric_label_that_differs_across_children_is_not_examined": "``object_label`` also takes ``first``, by the identity rule, and it is\nSUPPOSED to differ -- three pathogens in a cell are labelled 1, 2 and 3.\n:data:`spacr.merge_tables.AGGREGATION_RULES` says as much: the label is\ncarried verbatim only so a row can be traced back."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

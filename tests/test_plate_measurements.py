@@ -657,17 +657,24 @@ def test_the_anchor_is_always_merged_even_when_it_was_not_ticked(two_plates):
 #  Instruction 154 C: a text identifier is carried or refused, never averaged
 # --------------------------------------------------------------------------- #
 
-def test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity():
-    """Two pathogens of one cell off the SAME image have one ``path_name``
-    between them. Carrying it invents nothing, and reporting it as an
-    ambiguity would make the honest case look like the broken one."""
+@pytest.mark.parametrize("records", [
+    pytest.param(
+        {"cell_id": [1, 1, 2], "path_name": ["a", "a", "b"],
+         "area": [1.0, 2.0, 3.0]},
+        id="test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity",
+    ),
+    pytest.param(
+        {"cell_id": [1, 1], "object_label": [1, 2]},
+        id="test_a_numeric_label_that_differs_across_children_is_not_examined",
+    ),
+])
+def test_unambiguous_child_tables_keep_an_empty_identifier_report(records):
+    """Keep both original child tables free of identifier ambiguity."""
     import pandas as pd
 
     from spacr.plate_measurements import ambiguous_identifiers
 
-    child = pd.DataFrame({"cell_id": [1, 1, 2], "path_name": ["a", "a", "b"],
-                          "area": [1.0, 2.0, 3.0]})
-
+    child = pd.DataFrame(records)
     assert ambiguous_identifiers(child, ["cell_id"]) == {}
 
 
@@ -698,20 +705,6 @@ def test_an_identifier_that_differs_within_the_group_is_named_with_an_example():
     assert "differs WITHIN 1 group(s)" in said
     assert "invents provenance" in said
     assert "a.tif" in said and "b.tif" in said
-
-
-def test_a_numeric_label_that_differs_across_children_is_not_examined():
-    """``object_label`` also takes ``first``, by the identity rule, and it is
-    SUPPOSED to differ -- three pathogens in a cell are labelled 1, 2 and 3.
-    :data:`spacr.merge_tables.AGGREGATION_RULES` says as much: the label is
-    carried verbatim only so a row can be traced back."""
-    import pandas as pd
-
-    from spacr.plate_measurements import ambiguous_identifiers
-
-    child = pd.DataFrame({"cell_id": [1, 1], "object_label": [1, 2]})
-
-    assert ambiguous_identifiers(child, ["cell_id"]) == {}
 
 
 def test_an_identifier_the_caller_chose_for_themselves_is_not_second_guessed():
