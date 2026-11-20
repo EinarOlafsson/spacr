@@ -315,10 +315,10 @@ def _label_the_painted_squares(src, settings, object_type, progress_share=None):
     out = os.path.join(src, f"{object_type}_mask_stack")
     os.makedirs(out, exist_ok=True)
     position = settings[f"cellpose_{object_type}_channel"]
-    for name in sorted(_listdir_visible(src)):
-        if not name.endswith(".npz"):
-            continue
-        with np.load(os.path.join(src, name), allow_pickle=True) as archive:
+    from spacr._mask_batches import _batch_paths, _open_batch
+
+    for path in sorted(_batch_paths(src, _listdir_visible)):
+        with _open_batch(path, allow_pickle=True) as archive:
             data, files = archive["data"], archive["filenames"]
         for index, filename in enumerate(files):
             labels, _count = ndimage.label(data[index, :, :, position] > 0.5)

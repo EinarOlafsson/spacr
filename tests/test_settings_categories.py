@@ -1404,6 +1404,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # preprocess-only switch that prepares segmentation illumination for a
     # later masks-only run, under Mask's "Illumination Correction α".
     "mask_workers_per_gpu", "illumination_for_later_masks",
+    # NEW SETTINGS, not a regrouping (item 987b, 2026-11-19): the Cellpose
+    # network number format and tile batch, beside mask_workers_per_gpu.
+    "mask_inference_precision", "mask_eval_batch_size",
     # NEW SETTINGS, not a regrouping (item 541, 2026-09-26): Measure's
     # confluency switch, its source, channel, texture window and monolayer
     # QC cut, under their own "Confluency α" heading.

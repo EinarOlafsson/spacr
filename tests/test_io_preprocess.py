@@ -421,9 +421,12 @@ def test_preprocess_img_data_end_to_end_on_cellvoyager_tiffs(
     stacks = sorted((src / "stack").glob("*.npy"))
     assert [np.load(p).shape for p in stacks] == [(128, 128, 2)] * 4
     assert len(list((src / "orig").glob("*.tif"))) == 8
-    npzs = sorted((src / "masks").glob("*_norm.npz"))
-    assert len(npzs) == 4
-    with np.load(npzs[0]) as z:
+    from spacr import _mask_batches as MB
+
+    assert not list((src / "masks").glob("*_norm.npz"))
+    paths = MB._batch_paths(src / "masks", os.listdir)
+    assert len(paths) == 4
+    with MB._open_batch(paths[0]) as z:
         data, names = z["data"], z["filenames"]
     assert (data.shape, data.dtype) == ((1, 128, 128, 2), np.float32)
     assert 0.0 == float(data.min()) < float(data.max()) <= 1.0

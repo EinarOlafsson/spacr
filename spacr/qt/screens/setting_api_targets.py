@@ -521,6 +521,8 @@ SETTING_API_TARGETS = {
     'manders_thresholds': ('spacr.deep_spacr', 'generate_activation_map', True),
     'mask_parallel': ('spacr.core', 'preprocess_generate_masks', True),
     'mask_src': ('spacr.submodules', 'train_cellpose', True),
+    'mask_eval_batch_size': ('spacr.object', '', False),
+    'mask_inference_precision': ('spacr.object', '', False),
     'mask_workers_per_gpu': ('spacr.object', '', False),
     'masks': ('spacr.core', 'preprocess_generate_masks', True),
     'max_area': ('spacr.submodules', 'analyze_endodyogeny', True),

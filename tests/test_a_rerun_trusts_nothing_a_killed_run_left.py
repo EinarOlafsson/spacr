@@ -31,6 +31,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.usefixtures('mask_archives_on_disk')
+
 matplotlib = pytest.importorskip("matplotlib")
 matplotlib.use("Agg", force=True)
 
@@ -669,6 +671,7 @@ _STALLING_WRITER = textwrap.dedent("""
 
     np.savez_compressed = stall
     import spacr.io as IO
+    IO._mask_batches_stay_in_memory = lambda *a, **k: False
     stack = sys.argv[1]
     settings = {'timelapse': False, 'randomize': False, 'batch_size': 4,
                 'lower_percentile': 2, 'nucleus_channel': 0, 'cell_channel': 1,

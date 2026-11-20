@@ -1,0 +1,40 @@
+CELLPOSE MASK BATCHES STAY IN MEMORY AND keep_npz IS REMOVED
+============================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-19 (987a: V2 scratch NPZ and keep_npz removed; 987b: V1 batches in memory, single device and parallel GPU workers). Timelapse, volumetric and session paths are follow-ups (987c).
+Requested: maintainer, 2026-11-17 ("Cellpose batches never touch the disk, and keep_npz is removed completely").
+Owner: master lane claude-npz987-1118 / claude-npz987b-1118.
+Related: 983 (OME-Zarr stack, will serve batches from chunks).
+
+PROBLEM
+V1 wrote every normalised batch to masks/stack_<n>_norm.npz and each object role read
+it back; V2 wrote a scratch batch_*.npz nothing read. Cost on the 99-field test plate
+(2000 x 2000, 3 kept channels, float32): 4.43 GiB written, about 13 GiB read back.
+
+BUILD
+- V2: spacr.pipeline_v2 no longer writes the scratch NPZ; keep_npz and npz_dir are removed
+  from run_v2 and stream_masks_from_stack, and keep_npz from settings, defaults, tooltips,
+  the GUI lists and the notebook reference. An old settings file that names it loads; the
+  pre-flight report lists it once (spacr.validate.RETIRED_SETTINGS).
+- V1: spacr/_mask_batches.py holds a batch plan (masks/batch_plan.json): per batch the field
+  files of stack/, the kept channels, the dtype and the JSON-safe normalisation settings.
+  concatenate_and_normalize writes the plan instead of archives for plain (Y, X, C) fields.
+  The three mask generators, the robustness resampler, the resume and quality checks and the
+  parallel-worker manifest read a batch through the plan (_open_batch, _batch_paths,
+  _plan_records); a batch is built by the same code the archive writer used (load, pad,
+  _normalize_img_batch, keep channels), so every statistic and mask is unchanged.
+- Old projects: a masks/ folder with archives keeps them (archives are listed and read first)
+  and a rerun over them writes archives; a new plan sets earlier archives aside as
+  <name>.npz.superseded.
+- The plan object is private and has two operations a chunked reader can replace
+  (_batch_fields, _load_batch), so item 983 serves batches from Zarr without touching the
+  roles, the normaliser or the resume logic.
+
+PROOF
+Test plate wells A01-A04 (99 fields), one GPU, nucleus/cell/pathogen with cpsam, randomize
+off: all 99 merged files byte-identical, 1548.8 s vs 1524.0 s, peak RAM 3.97 vs 3.98 GB, no
+npz written. Two parallel workers (mask_workers_per_gpu=2): see the 987b report.
+
+STILL ARCHIVE-BASED (987c): timelapse, volumetric and native Z/T fields, plot=True, and runs
+with an illumination or PSF session.

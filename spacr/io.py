@@ -1895,21 +1895,29 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
                     if workspace_dir is not None:
                         normalized_stack[..., output_column] = 0
                     continue
-                global_lower = np.percentile(
-                    non_zero_single_channel, settings['lower_percentile'],
-                    overwrite_input=True)
+                borrowed = (settings.get('_normalization_fixed') or {}).get(
+                    channel, (settings.get('_normalization_fixed') or {}).get(str(channel)))
+                if borrowed is not None:
+                    global_lower, global_upper = float(borrowed[0]), float(borrowed[1])
+                else:
+                    global_lower = np.percentile(
+                        non_zero_single_channel, settings['lower_percentile'],
+                        overwrite_input=True)
 
-                global_upper = None
-                for upper_p in np.linspace(98, 99.5, num=16):
-                    upper_value = np.percentile(
-                        non_zero_single_channel, upper_p, overwrite_input=True)
-                    if upper_value >= signal_threshold:
-                        global_upper = upper_value
-                        break
+                    global_upper = None
+                    for upper_p in np.linspace(98, 99.5, num=16):
+                        upper_value = np.percentile(
+                            non_zero_single_channel, upper_p, overwrite_input=True)
+                        if upper_value >= signal_threshold:
+                            global_upper = upper_value
+                            break
 
-                if global_upper is None:
-                    global_upper = np.percentile(
-                        non_zero_single_channel, 99.5, overwrite_input=True)
+                    if global_upper is None:
+                        global_upper = np.percentile(
+                            non_zero_single_channel, 99.5, overwrite_input=True)
+                if isinstance(settings.get('_normalization_record'), dict):
+                    settings['_normalization_record'][int(channel)] = [
+                        float(global_lower), float(global_upper)]
             finally:
                 try:
                     if workspace_dir is not None and quantile_path is not None:
@@ -2233,6 +2241,11 @@ def _normalized_npz_field_ids(src):
         os.path.join(src, name) for name in _listdir_visible(src)
         if name.endswith('.npz'))
     if not archives:
+        from . import _mask_batches as mask_batches
+
+        plan = mask_batches._read_plan(src)
+        if plan is not None:
+            return tuple(sorted(mask_batches._plan_field_stems(plan)))
         raise FileNotFoundError(
             'preprocess=False with segmentation illumination requires the '
             f'normalised V1 .npz inputs in {src}; none were found.')
@@ -2415,6 +2428,27 @@ def _correct_v1_segmentation_batch(
     return working, tuple(field_ids)
 
 
+def _mask_batches_stay_in_memory(settings, paths):
+    """Whether this run builds its normalised batches in memory instead of archiving them.
+
+    The batches stay in memory (item 987b) for runs on plain ``(Y, X, C)``
+    fields, single-device or on parallel GPU workers. Plotting the first
+    archive, timelapse and volumetric or native Z/T fields (more than three
+    axes) read real archives, so they keep writing them.
+
+    :param settings: the preprocessing settings.
+    :param paths: the field ``.npy`` paths that will be batched.
+    :returns: True when a batch plan replaces the archives.
+    """
+    if settings.get('plot') or settings.get('timelapse') or settings.get('t_stack'):
+        return False
+    try:
+        first = np.load(paths[0], mmap_mode='r')
+    except (OSError, ValueError):
+        return False
+    return first.ndim == 3
+
+
 def _concatenate_and_normalize_impl(
         src, channels, save_dtype=np.float32, settings=None,
         illumination_session=None, archive_output_fldr=None,
@@ -2570,6 +2604,30 @@ def _concatenate_and_normalize_impl(
             os.path.splitext(os.path.basename(path))[0] for path in paths
         ]
         nr_files = len(paths)
+        if (paths and archive_output_fldr == output_fldr and only_fields is None
+                and first_batch_index == 0 and illumination_session is None
+                and psf_session is None and not preserve_previous_segmentation
+                and _mask_batches_stay_in_memory(settings, paths)):
+            from . import _mask_batches as mask_batches
+
+            request = (settings['_batch_size_request'] if '_batch_size_request' in settings
+                       else mask_batches._batch_size_request(settings.get('batch_size')))
+            names = [os.path.basename(path) for path in paths]
+            size = int(request) if request else len(names)
+            batches = [names[i:i + size] for i in range(0, len(names), size)]
+            moved = mask_batches._supersede_archives(output_fldr, _listdir_visible)
+            if moved:
+                print(f'Set {len(moved)} earlier normalised archive(s) aside as '
+                      f'<name>.superseded: the batches are now built in memory.')
+            mask_batches._write_plan(output_fldr, src, batches, channels, settings,
+                                    save_dtype, request=request, resolved=False)
+            print(f'Planned {len(names)} field(s) for in-memory normalised batches '
+                  f'({"automatic" if not request else "requested " + str(request)} batch size, '
+                  f'fixed when the masks start from the free GPU and RAM); no archive is '
+                  f'written to {output_fldr}.')
+            print(f'All files concatenated and normalized. Saved to: {output_fldr}')
+            ledger.finalize()
+            return output_fldr
         batch_index = first_batch_index
         stack_ls = []
         filenames_batch = []
@@ -2688,7 +2746,7 @@ def concatenate_and_normalize(
     :param psf_session: optional PSF session from ``spacr.psf_pipeline``.
         Uses the same complete-set publication; cancellation leaves its
         provenance incomplete and prevents reuse of partially processed data.
-    :returns: the ``masks/`` directory containing normalised NPZ archives.
+    :returns: the ``masks/`` folder. An ordinary run leaves a small ``batch_plan.json`` there and builds each normalised batch in memory when an object is segmented; a plotting, timelapse, volumetric, illumination or PSF run writes ``stack_<n>_norm.npz`` archives.
     """
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
     replacing_archives = (os.path.isdir(output_fldr) and
@@ -3151,6 +3209,11 @@ def _mask_batch_manifest(src, *, field_axis=0):
     paths = sorted(root / name for name in _listdir_visible(root)
                    if name.endswith('.npz'))
     if not paths:
+        from . import _mask_batches as mask_batches
+
+        plan = mask_batches._read_plan(root)
+        if plan is not None:
+            return mask_batches._plan_records(plan)
         raise FileNotFoundError(f'No prepared NPZ mask batches in {root}')
     owners = {}
     records = []
@@ -3282,6 +3345,14 @@ def _check_normalized_archives(masks_path):
     earlier = _set_aside_names(masks_path, '.npz')
     archives = sorted(name for name in _listdir_visible(masks_path)
                       if name.endswith('.npz'))
+    if not archives:
+        from . import _mask_batches as mask_batches
+
+        plan = mask_batches._read_plan(masks_path)
+        if plan is not None:
+            return {'archives': [], 'damaged': [], 'earlier': earlier,
+                    'unlisted': [], 'covered': mask_batches._plan_field_stems(plan),
+                    'planes': {len(plan['channels'])}}
     damaged, unlisted, covered, plane_counts = [], [], set(), set()
     for name in archives:
         ok, reason, fields, planes = _inspect_normalized_archive(
@@ -3313,6 +3384,14 @@ def _validate_normalized_source_channels(path, expected, *, required=True):
     import zipfile
     from numpy.lib import format as npy_format
     from .qt.i18n import tr
+    from . import _mask_batches as mask_batches
+
+    if not os.path.isfile(path) and mask_batches._batch_index_of(path) is not None:
+        plan = mask_batches._read_plan(os.path.dirname(os.fspath(path)))
+        if plan is not None:
+            if plan['channels'] != [int(value) for value in expected]:
+                raise ValueError(tr('Normalized image channels do not match the requested settings, or their channel order is unknown. Turn preprocessing on to rebuild them from the original image stacks.'))
+            return plan['channels']
 
     try:
         with zipfile.ZipFile(path) as archive:
@@ -4336,6 +4415,8 @@ def preprocess_img_data(settings):
         :func:`spacr.core.preprocess_generate_masks` — full pipeline
         wrapper that calls this then generates masks.
     """
+    from ._mask_batches import _legacy_batch_size
+    _legacy_batch_size(settings)
     from .psf_pipeline import (_validate_unmix_plate_scope,
                                _validate_unmix_matrix_scope)
 

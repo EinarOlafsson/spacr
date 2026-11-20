@@ -8,6 +8,8 @@ import zipfile
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.usefixtures('mask_archives_on_disk')
+
 from spacr import io as storage
 
 

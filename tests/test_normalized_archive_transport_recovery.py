@@ -6,6 +6,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.usefixtures('mask_archives_on_disk')
+
 import spacr.io as images
 from tests.test_normalized_archive_channel_provenance import _settings, _stack
 

@@ -3660,3 +3660,16 @@ def api_catalogs():
     with FileLock(str(builder.STATIC_API_DIR.parent / ".api-assemble.lock")):
         builder.assemble_api_catalogs(if_stale=True)
     return builder.STATIC_API_DIR
+
+
+@pytest.fixture
+def mask_archives_on_disk(monkeypatch):
+    """Make the V1 normaliser write ``masks/*.npz`` archives, as plotting, timelapse and volumetric runs do.
+
+    Item 987b builds ordinary runs' normalised batches in memory. A test about
+    the archive file itself (its integrity checks, recovery, provenance or
+    format) asks for the archive path with this fixture.
+    """
+    import spacr.io as _io
+
+    monkeypatch.setattr(_io, "_mask_batches_stay_in_memory", lambda *a, **k: False)

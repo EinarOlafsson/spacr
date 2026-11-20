@@ -789,3 +789,39 @@ def test_measure_stamps_the_field_compute_path_when_measuring_on_the_gpu():
     assert "with _path_scope() as compute:" in text
     assert "'compute_path': compute.path" in text
     assert "stamp=field_stamp" in text
+
+
+def test_a_mask_site_waits_for_memory_for_its_full_tile_batch_before_shrinking(card):
+    """Item 987: a smaller tile batch can change a mask, so a mask site waits first."""
+    card.free = GIB * 3
+    controller = G._controller("mask_shared_gpu")
+    controller.per_unit = float(GIB)
+
+    def free_up(seconds):
+        card.sleeps.append(seconds)
+        card.free = 20 * GIB
+
+    G._sleep = free_up
+    assert controller._fit(5, 0, G._config()) == 5
+    assert controller.cap is None and G._counters()["shrinks"] == 0
+    assert card.sleeps == [G._POLL_SECONDS]
+
+
+def test_a_mask_site_still_shrinks_when_the_card_stays_full_and_says_the_masks_may_differ(
+        card, monkeypatch, capsys):
+    monkeypatch.setattr(G, "_WAIT_SECONDS", 2 * G._POLL_SECONDS)
+    card.free = GIB * 3
+    controller = G._controller("mask_shared_gpu")
+    controller.per_unit = float(GIB)
+    fitted = controller._fit(5, 0, G._config())
+    assert 1 <= fitted < 5 and controller.cap == fitted
+    assert len(card.sleeps) == 2 and G._counters()["shrinks"] == 1
+    assert "can differ from a full-size one by a few pixels" in capsys.readouterr().out
+
+
+def test_other_sites_still_shrink_at_once(card):
+    card.free = GIB * 3
+    controller = G._controller("seg")
+    controller.per_unit = float(GIB)
+    assert controller._fit(5, 0, G._config()) < 5
+    assert card.sleeps == []

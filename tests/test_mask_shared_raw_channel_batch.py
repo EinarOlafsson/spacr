@@ -6,6 +6,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.usefixtures('mask_archives_on_disk')
+
 from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS
 from tests.conftest import check_cellpose_eval_call
 

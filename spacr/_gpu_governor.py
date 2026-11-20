@@ -1028,6 +1028,34 @@ class _BatchController:
             budget = min(budget, fraction * total - _reserved(index)[0])
         return float(budget)
 
+    def _wait_for_full_batch(self, size: int, index: int,
+                             config: Mapping[str, Any], budget: float) -> float:
+        """Wait for memory for the whole batch before a mask site shrinks it.
+
+        The tiles of a mask site run through the network ``size`` at a time,
+        and the output of a pass can differ in the last bits with the number
+        of tiles in it, which changes a mask by a few pixels. A shrink to fit
+        a busy card therefore made a run's masks depend on what else was on
+        the card. The site waits (up to ``_WAIT_SECONDS``) for the memory its
+        full batch needs, and shrinks only when the card stays full.
+
+        :param size: the batch size about to run.
+        :param index: the CUDA device index.
+        :param config: the governor values.
+        :param budget: the bytes free now.
+        :returns: the bytes free when the wait ended.
+        """
+        waited = 0.0
+        while budget < self.per_unit * size and waited < _WAIT_SECONDS:
+            _release()
+            _sleep(_POLL_SECONDS)
+            waited += _POLL_SECONDS
+            fresh = self._budget(index, config)
+            if fresh is None:
+                break
+            budget = fresh
+        return budget
+
     def _fit(self, size: int, index: int, config: Mapping[str, Any]) -> int:
         """Shrink ``size`` to the free memory, or wait for memory to free.
 
@@ -1043,10 +1071,16 @@ class _BatchController:
             return size
         if self.per_unit > 0 and budget >= self.per_unit:
             fitted = max(1, int(budget // self.per_unit))
+            if fitted < size and self.site.startswith('mask_'):
+                budget = self._wait_for_full_batch(size, index, config, budget)
+                fitted = max(1, min(size, int(budget // self.per_unit)))
             if fitted < size:
                 _count('shrinks')
+                note = ("; masks from a smaller tile batch can differ from "
+                        "a full-size one by a few pixels"
+                        if self.site.startswith('mask_') else "")
                 print(f"[gpu] {self.site}: {budget / _GIB:.1f} GiB free after "
-                      f"the margin; batch size {size} -> {fitted}")
+                      f"the margin; batch size {size} -> {fitted}{note}")
                 self.cap = fitted
                 self.clean = 0
                 return fitted

@@ -5,6 +5,8 @@ import pickle
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.usefixtures('mask_archives_on_disk')
+
 from spacr.psf_pipeline import (
     prepare_psf, validate_psf_resume, _prepare_segmentation_psf,
 )

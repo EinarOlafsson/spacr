@@ -8,6 +8,8 @@ from .measure import _fill_holes_smaller_than, _remove_objects_smaller_than
 
 from . import accelerator
 import numpy as np
+
+from ._mask_batches import _open_batch as open_mask_batch
 import pandas as pd
 from multiprocessing import cpu_count
 from .resource_log import _parallel_pool as Pool
@@ -641,13 +643,15 @@ def _robustness_sample(src, settings, object_type):
     channels = cellpose_channels.get(object_type, [])
     if not channels:
         return []
-    paths = sorted(os.path.join(src, f) for f in os.listdir(src) if f.endswith('.npz'))
+    from ._mask_batches import _batch_paths as _planned_batch_paths
+
+    paths = sorted(_planned_batch_paths(src, os.listdir))
     rng = np.random.default_rng(int(settings.get('random_seed') or 0))
     wanted = max(1, int(settings.get('robustness_fields') or 4))
     crop = int(settings.get('robustness_crop') or 0)
     chosen = []
     for path in rng.permutation(paths) if paths else []:
-        with np.load(path) as data:
+        with open_mask_batch(path) as data:
             stack, names = data['data'], data['filenames']
             for index in rng.permutation(len(stack)):
                 if len(chosen) >= wanted:
@@ -753,7 +757,7 @@ def _run_robustness_report(src, settings, object_type, *, segment=None):
     grid point), ``..._fields.csv`` (one row per field and grid point) and a
     heatmap, and prints the summary. Two-dimensional fields only.
 
-    :param src: the mask source folder holding the ``.npz`` batches.
+    :param src: the ``masks`` folder holding the ``.npz`` batches or the ``batch_plan.json`` they are built from.
     :param settings: the mask-generation settings.
     :param object_type: the object whose segmentation is tested.
     :param segment: ``segment(image, point)`` -> labels, instead of the run's
@@ -1210,14 +1214,63 @@ def _assigned_mask_archives(src, batch_paths):
         if not os.path.isabs(path):
             path = os.path.join(root, path)
         path = os.path.abspath(path)
+        from ._mask_batches import _batch_index_of as batch_index_of, _read_plan as read_plan
+
+        planned = False
+        if not os.path.isfile(path) and batch_index_of(path) is not None:
+            plan = read_plan(root)
+            planned = plan is not None and 0 <= batch_index_of(path) < len(plan['batches'])
         if (os.path.realpath(os.path.dirname(path)) != root
                 or os.path.basename(path).startswith('.')
-                or not path.endswith('.npz') or not os.path.isfile(path)):
+                or not path.endswith('.npz') or not (os.path.isfile(path) or planned)):
             raise ValueError(f'Mask batch is not a prepared NPZ under {root}: {path}')
         if path in selected:
             raise ValueError(f'Mask batch assigned more than once: {path}')
         selected.append(path)
     return selected
+
+
+def _eval_tile_batch(settings, field_count):
+    """The tile batch Cellpose's network runs at, from ``mask_eval_batch_size``.
+
+    ``0`` (the default) keeps the rule the masks were always made with: one
+    tile per field in the batch. A positive number is the tiles passed
+    through the network at once, which a GPU with room runs faster.
+
+    :param settings: run settings.
+    :param field_count: fields in the batch.
+    :returns: the ``batch_size`` handed to Cellpose's ``eval``.
+    :raises ValueError: when the setting is negative or not a whole number.
+    """
+    value = (settings or {}).get('mask_eval_batch_size', 0)
+    if value in (None, ''):
+        return field_count
+    try:
+        tiles = int(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"mask_eval_batch_size must be a whole number of tiles, got {value!r}")
+    if tiles < 0:
+        raise ValueError(f"mask_eval_batch_size must be 0 or more, got {tiles}")
+    return tiles or field_count
+
+
+def _with_inference_precision(model_kwargs, settings):
+    """Apply ``mask_inference_precision`` to the Cellpose model keyword arguments.
+
+    ``auto`` leaves them as the accelerator chose (bfloat16 weights on a CUDA
+    GPU, float32 elsewhere); ``bf16`` and ``fp32`` force the weights' format.
+
+    :param model_kwargs: from ``accelerator.cellpose_kwargs()``.
+    :param settings: run settings.
+    :returns: a new dict.
+    :raises ValueError: for any other value.
+    """
+    value = str((settings or {}).get('mask_inference_precision') or 'auto').strip().lower()
+    if value == 'auto':
+        return dict(model_kwargs)
+    if value not in ('bf16', 'fp32'):
+        raise ValueError(f"mask_inference_precision must be auto, bf16 or fp32, got {value!r}")
+    return {**model_kwargs, 'use_bfloat16': value == 'bf16'}
 
 
 def _mask_eval(model, x, *, site, settings=None, **kwargs):
@@ -1350,7 +1403,9 @@ def _mask_archive_arrays(path, *, native=False, workspace=None):
     :returns: a context yielding the source array, filenames and optional owner.
     """
     if not native:
-        with np.load(path) as archive:
+        from ._mask_batches import _open_batch as open_batch
+
+        with open_batch(path) as archive:
             stack, filenames = archive['data'], archive['filenames']
         yield stack, filenames, None
         return
@@ -1483,7 +1538,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     Omnipose prefix (``stardist:<model>`` and the rest),
     each in its own backend's worker.
 
-    :param src: Directory containing the pre-batched ``.npz`` image stacks.
+    :param src: The ``masks`` folder: its ``.npz`` image-stack batches, or the ``batch_plan.json`` the batches are built from in memory.
     :param settings: Pipeline settings dict; canonicalized via
         :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.
     :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'`` or
@@ -1521,9 +1576,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
 
     if on_batch_done is not None and not callable(on_batch_done):
         raise ValueError('on_batch_done must be callable or None')
+    from ._mask_batches import _batch_paths as _planned_batch_paths
+
     paths = (_assigned_mask_archives(src, batch_paths) if batch_paths is not None
-             else [os.path.join(src, file) for file in _listdir_visible(src)
-                   if file.endswith('.npz')])
+             else _planned_batch_paths(src, _listdir_visible))
     if batch_paths is not None and not paths:
         return
 
@@ -1617,7 +1673,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         pretrained = _resolve_cellpose_pretrained(
             model_name, object_type=object_type, setting=model_key)
         from ._mask_workers import _cached_model
-        model_kwargs = accelerator.cellpose_kwargs()
+        model_kwargs = _with_inference_precision(accelerator.cellpose_kwargs(), settings)
         model = _cached_model(
             ('cellpose', pretrained, model_kwargs),
             lambda: cp_models.CellposeModel(pretrained_model=pretrained, **model_kwargs))
@@ -1638,7 +1694,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     if progress_share is not None:
         for archive in paths:
             try:
-                with np.load(archive, allow_pickle=True) as opened:
+                with open_mask_batch(archive, allow_pickle=True) as opened:
                     fields_in_all += len(opened['filenames'])
             except (OSError, KeyError, ValueError):
                 fields_in_all += 1
@@ -1774,7 +1830,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             model, batch_list,
                             site=('mask_shared_gpu' if _shares_a_gpu(settings)
                                   else 'mask_sam'),
-                            settings=settings, batch_size=len(batch_list),
+                            settings=settings,
+                            batch_size=_eval_tile_batch(settings, len(batch_list)),
                             **eval_kwargs)
 
                         masks, flows = parse_cellpose4_output(output)[:2]
@@ -2074,7 +2131,7 @@ def generate_cellpose_masks(src, settings, object_type):
     :func:`spacr.core.preprocess_generate_masks` after frame merging, rather
     than within this per-object generator.
 
-    :param src: Directory containing the pre-batched ``.npz`` image stacks.
+    :param src: The ``masks`` folder: its ``.npz`` image-stack batches, or the ``batch_plan.json`` the batches are built from in memory.
     :param settings: Pipeline settings dict; canonicalized via
         :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.
     :param object_type: ``'cell'``, ``'nucleus'``, or ``'pathogen'``; drives
@@ -2128,7 +2185,9 @@ def generate_cellpose_masks(src, settings, object_type):
     
     model_name = object_settings['model_name']
     
-    paths = [os.path.join(src, file) for file in _listdir_visible(src) if file.endswith('.npz')]
+    from ._mask_batches import _batch_paths as _planned_batch_paths
+
+    paths = _planned_batch_paths(src, _listdir_visible)
     _fill_cellpose_channel_positions(settings)
     from .io import _validate_normalized_source_channels
     from .utils import dense_mask_channel_positions
@@ -2170,7 +2229,7 @@ def generate_cellpose_masks(src, settings, object_type):
         os.makedirs(output_folder, exist_ok=True)
         overall_average_size = 0
         
-        with np.load(path) as data:
+        with open_mask_batch(path) as data:
             stack = data['data']
             filenames = data['filenames']
             
@@ -2393,7 +2452,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
     - ``ring``: hollow/ring-shaped structures (endosomes, autophagosomes) via
       ``otsu``, ``adaptive``, ``dog``, ``log``, ``cellpose``.
 
-    :param src: Path to the mask source directory containing ``.npz`` stacks.
+    :param src: The ``masks`` folder: its ``.npz`` stacks, or the ``batch_plan.json`` the batches are built from in memory.
     :param settings: Configuration dict. Organelle-specific keys are prefixed
         with ``organelle_`` and are documented in ``_set_organelle_defaults``.
     :param object_type: Object label (typically ``'organelle'``); drives the
@@ -2459,7 +2518,9 @@ def generate_organelle_masks_sam(src, settings, object_type):
         df['setting_value'] = df['setting_value'].apply(str)
         display(df)
 
-    paths = [os.path.join(src, f) for f in _listdir_visible(src) if f.endswith('.npz')]
+    from ._mask_batches import _batch_paths as _planned_batch_paths
+
+    paths = _planned_batch_paths(src, _listdir_visible)
     if not paths:
         print(f'No .npz files found in {src}')
         return
@@ -2507,7 +2568,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
         output_folder = os.path.join(os.path.dirname(path), f'{object_type}_mask_stack')
         os.makedirs(output_folder, exist_ok=True)
 
-        with np.load(path) as data:
+        with open_mask_batch(path) as data:
             stack = data['data']
             filenames = data['filenames']
 
@@ -2857,7 +2918,7 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
 
     output = _mask_eval(
         model, batch_list, site='mask_organelle', settings=settings,
-        batch_size=len(batch_list),
+        batch_size=_eval_tile_batch(settings, len(batch_list)),
         normalize=False,
         channel_axis=-1,
         diameter=None,
