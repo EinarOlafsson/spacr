@@ -418,7 +418,6 @@ def preprocess_generate_masks(settings):
                 batch_fields=int(settings.get('batch_fields', 8)),
                 metadata_type=settings.get('metadata_type', 'auto'),
                 custom_regex=settings.get('custom_regex'),
-                keep_npz=bool(settings.get('keep_npz', False)),
                 cellprob_threshold=float(settings.get('cell_cellprob_threshold', 0.0)),
                 flow_threshold=float(settings.get('cell_flow_threshold', 0.4)),
                 min_size=object_filter_area_floor(settings, 'cell'),

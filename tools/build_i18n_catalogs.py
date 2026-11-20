@@ -4757,6 +4757,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "ml.py")
     paths.add(ROOT / "spacr" / "power_model.py")
     paths.add(ROOT / "spacr" / "uniprot.py")
+    paths.add(ROOT / "spacr" / "validate.py")
+    paths.add(ROOT / "spacr" / "torch_artifacts.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4791,6 +4793,13 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
+        if path == source_root / "validate.py":
+            # Only the regression preflight findings shown before a run are
+            # catalogued; the other settings checks stay English for now.
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in {"_check_regression_inputs",
+                                           "_check_regression_score_columns"}]
         if path == source_root / "uniprot.py":
             # The busy-UniProt notice the gene annotation shows is the
             # module's only caption; cache and request prose stays internal.
@@ -4805,9 +4814,16 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                          and node.name == "_restrict_to_owner"]
         if path == source_root / "utils.py":
             tree.body = [node for node in tree.body
+                         if (isinstance(node, ast.FunctionDef)
+                             and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
+                                               "_cellpose_stock_preflight", "filter_dataframe_features"})
+                         or (isinstance(node, ast.ClassDef)
+                             and node.name == "CustomCellClassifier")]
+        if path == source_root / "torch_artifacts.py":
+            # The refusals of old custom-classifier models are its only captions.
+            tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
-                                           "_cellpose_stock_preflight", "filter_dataframe_features"}]
+                         and node.name in {"_old_custom_head_message", "_refuse_old_custom_head"}]
         if path == source_root / "attribution.py":
             diagnostic_owners = {
                 "_cf_preserved_channels", "_cf_preserve_reference_channels",
@@ -5114,7 +5130,9 @@ def canonical_sources() -> dict[str, object]:
         DEFAULT_INSTRUCTION,
     )
     from spacr.qt.screens.settings_model import (
+        _APP_CATEGORY_PARENTS,
         _APP_CATEGORY_SPECS,
+        _APP_LABEL_PREFIXES,
         _APP_TOOLTIP_OVERRIDES,
         _FOLDED_DEFAULTS_MODULES,
         _REGRESSION_MENU_UI_SOURCES,
@@ -5155,6 +5173,12 @@ def canonical_sources() -> dict[str, object]:
         folded_key for folded_key in sorted(_FOLDED_DEFAULTS_MODULES)
         if folded_key not in set(app_keys)
     ]
+    # Item 969: a module whose panel rewrites its labels (OPS drops the
+    # leading "Ops") shows labels no other module does, so it is inventoried
+    # even when it opens as a page on a host (OPS on Mask generation) and has
+    # neither a registry row nor a folded-defaults entry.
+    inventoried_keys += [key for key in sorted(_APP_LABEL_PREFIXES)
+                         if key not in set(inventoried_keys)]
     resolved_settings: dict[str, dict[str, object]] = {}
     for app_key in inventoried_keys:
         try:
@@ -5258,6 +5282,11 @@ def canonical_sources() -> dict[str, object]:
     ui_sources = set(extract_static_ui_sources())
     ui_sources.update(str(title) for sections in _APP_CATEGORY_SPECS.values()
                       for title, _keys in sections)
+    # Item 969: a heading a module nests its categories under is drawn even
+    # when it is no category of its own (OPS decoding holds only its
+    # subcategories), so its title is a caption like any other.
+    ui_sources.update(str(parent) for parents in _APP_CATEGORY_PARENTS.values()
+                      for parent in parents.values())
     # Item 678 (2026-10-17): the shared category titles in spacr.settings are
     # settings-panel captions too. Without an exact entry they fell back to a
     # word-by-word composite ("Modell Evaluation"), so catalogue them here.

@@ -1123,6 +1123,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "controls": "nontargeting_control_grnas",
     "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
     "denoise": "",
+    "keep_npz": "",
     "load_path_regex": "",
     "mask_array": "",
     "normalization": "",
@@ -1169,6 +1170,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "zscore_thresh": "track_outlier_zscore",
     "overview_measure_saturation": "",
     "overview_original_on_open": "overview_preview_resolution",
+    "cellpose_model": "ops_sbs_nucleus_model",
     **{f"{obj}_{bound}": "object_filters"
        for obj in ("cell", "nucleus", "pathogen")
        for bound in ("min_area", "max_area", "min_intensity",
@@ -1987,6 +1989,142 @@ def _check_ops_umap_inputs(settings: Dict[str, Any]) -> List[Problem]:
     return problems
 
 
+def _check_ops_power_inputs(settings: Dict[str, Any]) -> List[Problem]:
+    """Check the calibration path and output root of a standalone OPS power simulation."""
+    problems: List[Problem] = []
+    if not settings.get("dst_root"):
+        problems.append(Problem(
+            ERROR, "dst_root", "dst_root is missing from the settings.",
+            "Set dst_root to the folder for the OPS power simulation results."))
+    source = settings.get("ops_power_calibration_run")
+    if not source:
+        problems.append(Problem(
+            ERROR, "ops_power_calibration_run",
+            "ops_power_calibration_run is missing from the settings.",
+            "Set ops_power_calibration_run to an existing calibration JSON or OPS run folder."))
+    elif isinstance(source, str) and not os.path.exists(source):
+        problems.append(Problem(
+            ERROR, "ops_power_calibration_run",
+            f"ops_power_calibration_run does not exist: {source}",
+            "Check the path for typos, and that the drive or share is mounted."))
+    return problems
+
+
+def _source_present(value: Any) -> bool:
+    """Return whether a source selection contains a nonblank path."""
+    values = value if isinstance(value, (list, tuple)) else [value]
+    return any(isinstance(path, (str, os.PathLike))
+               and os.fspath(path).strip() for path in values)
+
+
+def _check_regression_inputs(settings: Dict[str, Any]) -> List[Problem]:
+    """Check score/count selections without reading tables or changing settings.
+
+    Unequal legacy lists and rows with only one input remain valid when the
+    whole selection contains both a score source and a count source.
+    """
+    from .qt.i18n import tr
+
+    if settings.get('screen_type') == 'drug_screen':
+        return []
+    fix = tr(
+        "In Regression > Input Tables > Paired data, use Add score tables… "
+        "and Add count tables… to fill Score source and Count source for "
+        "the same plates. Select CSV or Parquet files, or a database with "
+        "its Score table and Count table names. A Measurements DB link "
+        "alone does not supply scores or counts.")
+    rows = settings.get('paired_data') or []
+    if rows and (not isinstance(rows, (list, tuple))
+                 or any(not isinstance(row, dict) for row in rows)):
+        return [Problem(ERROR, 'paired_data',
+                        tr("Regression Paired data must contain score/count rows."), fix)]
+
+    scores = ([row.get('score') or row.get('score_data') for row in rows]
+              if rows else settings.get('score_data'))
+    counts = ([row.get('count') or row.get('count_data') for row in rows]
+              if rows else settings.get('count_data'))
+    if not _source_present(scores) or not _source_present(counts):
+        return [Problem(
+            ERROR, 'paired_data',
+            tr("Regression needs at least one score table and one count table."), fix)]
+    return []
+
+
+def _check_regression_score_columns(settings: Dict[str, Any], *,
+                                    local_only: bool = False) -> List[Problem]:
+    """Check each score schema for the requested response with the shared reader.
+
+    In-memory handoffs take precedence over files. GUI callers defer remote
+    sources and Feather files to the worker with ``local_only=True`` because
+    their reader may need a network request or more than a header read.
+    """
+    from . import frame_handoff, tabular
+    from .columns import pred_guidance
+    from .qt.i18n import tr
+
+    if settings.get('screen_type') == 'drug_screen':
+        return []
+    responses = settings.get('dependent_variable', 'pred')
+    responses = responses if isinstance(responses, (list, tuple)) else [responses]
+    responses = [name for name in responses if name
+                 and name != 'pathogen_nucleus_shortest_distance']
+    if not responses:
+        return []
+    pairs = settings.get('paired_data') or []
+    if pairs:
+        sources = [(row.get('score') or row.get('score_data'), row.get('score_table'))
+                   for row in pairs]
+    else:
+        paths = settings.get('score_data') or []
+        paths = paths if isinstance(paths, (list, tuple)) else [paths]
+        sources = [(path, None) for path in paths]
+    problems = []
+    seen = set()
+    for source, table in sources:
+        if not source or (os.fspath(source), table) in seen:
+            continue
+        seen.add((os.fspath(source), table))
+        postgres = tabular._backend_of(source) == 'postgres'
+        remote = postgres or '://' in os.fspath(source)
+        if local_only and (remote or os.fspath(source).lower().endswith('.feather')):
+            continue
+        name = ('PostgreSQL' if postgres else os.path.basename(os.fspath(source)))
+        if table is not None:
+            name = f"{name} ({table})"
+        offered = frame_handoff.held(source) if table is None else None
+        try:
+            if offered is not None:
+                columns = list(offered.columns)
+            else:
+                if not remote and not os.path.exists(tabular.resolve_path(source)):
+                    raise FileNotFoundError(source)
+                columns = list(tabular.table_columns(source, table=table))
+        except Exception as error:
+            problems.append(Problem(
+                ERROR, 'score_data',
+                tr("Cannot read the score table {source}: {error}",
+                   source=name, error=str(error)),
+                tr("In Regression > Input Tables > Paired data, select an existing, "
+                   "readable Score source. For a database, also select its Score table.")))
+            continue
+        for response in responses:
+            if response in columns:
+                continue
+            fix = tr(
+                "In Regression > Input Tables > Paired data, choose a Score source "
+                "containing the intended response, or explicitly choose the measured "
+                "response in dependent_variable. Check that Score source and Count "
+                "source are not swapped. No response column is chosen automatically.")
+            if response == 'pred':
+                fix = f"{fix} {pred_guidance()}"
+            problems.append(Problem(
+                ERROR, 'dependent_variable',
+                tr("dependent_variable={response!r} is not a column of the score "
+                   "table {source}. Available columns: {columns}.",
+                   response=response, source=name, columns=columns[:15]), fix))
+    return problems
+
+
 def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     """Check a settings dict against the data it points at.
 
@@ -2030,11 +2168,13 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
             f"Use one of: {', '.join(sorted(APP_FUNCTIONS))}."))
 
     ops_map = app == "umap" and settings.get("umap_source") == "ops_profiles"
+    ops_power = app == "ops" and bool(settings.get("ops_power_sim"))
     cpg = _is_cpg_layout(settings, app)
-    inventories = ([] if ops_map or cpg else
+    inventories = ([] if ops_map or cpg or ops_power else
                    [_inventory(src, settings, app) for src in _src_values(settings, app)])
 
-    problems.extend(_check_ops_umap_inputs(settings) if ops_map
+    problems.extend(_check_ops_power_inputs(settings) if ops_power
+                    else _check_ops_umap_inputs(settings) if ops_map
                     else _check_cpg_inputs(settings) if cpg
                     else _check_src(settings, app, inventories))
     problems.extend(_check_channels(settings, app, inventories))
@@ -2045,6 +2185,11 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_object_diameters(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))
+    if app == "regression":
+        inputs = _check_regression_inputs(settings)
+        problems.extend(inputs)
+        if not inputs:
+            problems.extend(_check_regression_score_columns(settings))
     try:
         from .plugins import get_app, load_object
         plugin_app = get_app(app)
@@ -2167,6 +2312,8 @@ def describe_plan(settings: Dict[str, Any], app_key: str = "") -> str:
     app = _normalize_app(app_key)
     if app == "regression":
         return _describe_regression_plan(settings)
+    if app == "ops" and settings.get("ops_power_sim"):
+        return _describe_ops_power_plan(settings)
     cpg = _is_cpg_layout(settings, app)
     srcs = [settings.get("cpg_root")] if cpg else _src_values(settings, app)
     inventories = [] if cpg else [_inventory(src, settings, app) for src in srcs]
@@ -2221,6 +2368,24 @@ def describe_plan(settings: Dict[str, Any], app_key: str = "") -> str:
     for label, value in rows:
         lines.append(f"  {label.ljust(width)}  {value}" if label else f"  {' ' * width}  {value}")
     return "\n".join(lines)
+
+
+def _describe_ops_power_plan(settings: Dict[str, Any]) -> str:
+    """Describe the standalone OPS power simulation without reading image inputs."""
+    root = settings.get("dst_root")
+    output = os.path.join(str(root), "results", "ops_power_sim") if root else "not set"
+    rows = [
+        ("app", "ops (spacr.ops_engine.run_ops)"),
+        ("phase", "power_sim"),
+        ("calibration", _fmt(settings.get("ops_power_calibration_run"))),
+        ("mode", _fmt(settings.get("ops_power_mode") or "empirical")),
+        ("seeds", _fmt(settings.get("ops_power_sim_seeds", [0, 1, 2]))),
+        ("would write", output),
+    ]
+    width = max(len(label) for label, _ in rows)
+    return "\n".join([
+        "Plan — what this run would do. Nothing has been written and no model has been loaded:",
+        "", *(f"  {label.ljust(width)}  {value}" for label, value in rows)])
 
 
 def _describe_regression_plan(settings: Dict[str, Any]) -> str:

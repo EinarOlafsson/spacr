@@ -230,7 +230,7 @@ def test_quality_control_holds_output_runtime_and_robustness():
     for gone in ("Output & Storage", "Runtime & Reliability"):
         assert gone not in sections
     qc = sections["Quality Control"]
-    for key in ("seg_qc", "save", "keep_npz", "n_jobs", "strict_errors",
+    for key in ("seg_qc", "save", "n_jobs", "strict_errors",
                 "mask_parallel"):
         assert key in qc, key
     assert _category_parents("mask")["Segmentation Robustness α"] \

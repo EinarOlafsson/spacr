@@ -40,8 +40,16 @@ def test_a_meminfo_it_cannot_read_is_zero_not_a_crash():
     assert watchdog.memory_used_gb("nonsense\n") == 0.0
 
 
-def test_the_largest_uncapped_process_is_chosen():
-    processes = [P(10, "python", 40.0, False), P(11, "python", 90.0, False)]
+@pytest.mark.parametrize("processes", [
+    pytest.param(
+        [P(10, "python", 40.0, False), P(11, "python", 90.0, False)],
+        id="test_the_largest_uncapped_process_is_chosen"),
+    pytest.param(
+        [P(10, "python", 90.0, True), P(11, "python", 20.0, False)],
+        id="test_a_process_already_under_a_cap_is_left_alone"),
+])
+def test_the_largest_eligible_process_is_chosen(processes):
+    """Choose the largest uncapped process and leave capped processes alone."""
     assert watchdog.choose(processes, 16.0, me=999).pid == 11
 
 
@@ -54,22 +62,17 @@ def test_the_editor_and_the_desktop_are_never_chosen():
     assert watchdog.choose(processes, 16.0, me=999).pid == 13
 
 
-def test_a_process_already_under_a_cap_is_left_alone():
-    """It will die in its own scope without the machine noticing, which is
-    what run_capped.sh is for. Freezing it would only confuse whoever is
-    waiting on it."""
-    processes = [P(10, "python", 90.0, True), P(11, "python", 20.0, False)]
-    assert watchdog.choose(processes, 16.0, me=999).pid == 11
-
-
-def test_nothing_below_the_floor_is_touched():
-    processes = [P(10, "python", 4.0, False), P(11, "python", 15.9, False)]
-    assert watchdog.choose(processes, 16.0, me=999) is None
-
-
-def test_it_never_chooses_itself_or_pid_one():
-    processes = [P(7, "python", 90.0, False), P(1, "systemd", 80.0, False)]
-    assert watchdog.choose(processes, 16.0, me=7) is None
+@pytest.mark.parametrize("processes, me", [
+    pytest.param(
+        [P(10, "python", 4.0, False), P(11, "python", 15.9, False)], 999,
+        id="test_nothing_below_the_floor_is_touched"),
+    pytest.param(
+        [P(7, "python", 90.0, False), P(1, "systemd", 80.0, False)], 7,
+        id="test_it_never_chooses_itself_or_pid_one"),
+])
+def test_ineligible_processes_are_left_alone(processes, me):
+    """Refuse processes below the floor, the watchdog itself and PID one."""
+    assert watchdog.choose(processes, 16.0, me=me) is None
 
 
 def test_below_the_threshold_it_does_nothing_at_all(monkeypatch):

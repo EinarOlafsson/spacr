@@ -3139,11 +3139,12 @@ def _measurement_store_for(db_path, settings):
 
     :param db_path: the run's measurements.db.
     :param settings: the run settings.
-    :returns: ``None`` for sqlite, else the DuckDB, Parquet or PostgreSQL
-        locator.
+    :returns: ``None`` for sqlite and spacr_store (which is written from
+        measurements.db once the run is complete), else the DuckDB, Parquet
+        or PostgreSQL locator.
     """
     backend = str((settings or {}).get('measurement_backend') or 'sqlite')
-    if backend.lower() == 'sqlite':
+    if backend.lower() in ('sqlite', 'spacr_store'):
         return None
     from .measure import _measurement_backend_target
     return _measurement_backend_target(db_path, settings)
@@ -3934,18 +3935,19 @@ class CustomCellClassifier(nn.Module):
     statistics to match. It returns raw logits. The loss applies the softmax
     or sigmoid, so a negative logit is a valid output.
 
+    Models saved before spaCR 1.5.1.8 fixed this head (2026-11-07) clipped
+    negative logits to 0 and always fused 3 channels. They cannot be reused
+    and must be retrained; :func:`spacr.torch_artifacts.load_model_artifact`
+    says so when one is loaded.
+
     :param num_classes: output class count.
-    :param pathogen_channel: accepted for backward compatibility and ignored.
-    :param use_attention: accepted for backward compatibility and ignored.
     :param use_checkpoint: run the forward pass through ``torch.utils.checkpoint``.
-    :param dropout_rate: accepted for backward compatibility and ignored.
     :param in_channels: number of input channels. Any positive count works,
         because the 1x1 fusion convolution takes the real channel count.
     :param image_size: square input size recorded with the model, so a saved
         checkpoint can be rebuilt with the same contract.
     """
-    def __init__(self, num_classes=2, pathogen_channel=None, use_attention=None,
-                 use_checkpoint=False, dropout_rate=None, *, in_channels=3,
+    def __init__(self, num_classes=2, *, use_checkpoint=False, in_channels=3,
                  image_size=224):
         """Build the fusion, multi-scale, and linear classifier submodules."""
         super(CustomCellClassifier, self).__init__()
@@ -3970,7 +3972,17 @@ class CustomCellClassifier(nn.Module):
         """Return the class logits for a batch ``x`` of shape ``(B, C, H, W)``.
 
         :param x: image batch with ``in_channels`` channels.
+        :raises ValueError: ``x`` has a different channel count from the one
+            the model was built and trained for.
         """
+        if x.dim() == 4 and x.shape[1] != self.in_channels:
+            from .qt.i18n import tr
+            raise ValueError(tr(
+                "This classifier was trained on {expected}-channel images, "
+                "but the images given have {given} channels. Use the same "
+                "channels as in training, or retrain the model on these "
+                "channels with this version of spaCR.",
+                expected=self.in_channels, given=int(x.shape[1])))
         x = self.early_fusion(x)
         x = self.multi_scale_block_1(x)
         x = F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1)

@@ -1532,7 +1532,8 @@ if app_key == "mask":
     for app, key in format_arrivals:
         assert resolve_default_settings(app)[key] == format_defaults[key]
     recognized_arrivals |= format_arrivals
-    assert comparisons - len(recognized_arrivals) == 1005
+    # Item 987 removed keep_npz (one claim in Mask), so one fewer comparison: 1005 -> 1004.
+    assert comparisons - len(recognized_arrivals) == 1004
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716
@@ -1578,7 +1579,8 @@ if app_key == "mask":
     # + 46: the object quality filters, QC, report, crop, axis and bracket
     # settings of the recruitment and replication panels (items 816, 815), one
     # claim each per app that declares them (report in both apps).
-    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 + 8 + 18 + 1 + 1 + 46
+    # - 1: item 987 removed keep_npz, one Mask claim of the census.
+    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 - 1 + 2 + 8 + 18 + 1 + 1 + 46
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
             + len(item_571) + len(item_538) + len(item_540)

@@ -64,6 +64,7 @@ _HELPER_MODULES = (
     # The pre-fit resource estimate receives the complete settings mapping so
     # it can describe the selected family and design size.
     "spacr.fit_resources",
+    "spacr.validate",
 )
 
 # Local import aliases whose public module name is intentionally different.
@@ -481,7 +482,7 @@ def test_the_qt_panel_resolves_the_same_defaults():
 
 
 def test_the_resolved_dict_passes_its_own_pre_flight():
-    """Stock defaults must not be reported as a problem by the CLI's own check.
+    """Stock defaults pass type checks but still require real input tables.
 
     Two of the six new keys are typed for the first time, and one of them --
     ``analysis_excluded_wells`` -- is shared with the invasion assay, where it is
@@ -494,7 +495,7 @@ def test_the_resolved_dict_passes_its_own_pre_flight():
     settings = module_defaults(MODULES[APP_KEY])
     typed = {p.setting for p in validate_settings(settings, APP_KEY)
              if p.is_error and p.setting in settings}
-    assert typed <= {"score_data", "count_data"}, (
+    assert typed <= {"score_data", "count_data", "paired_data"}, (
         f"stock regression defaults fail their own pre-flight on {sorted(typed)}"
     )
 

@@ -1211,7 +1211,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
         settings.setdefault(key, value.copy() if isinstance(value, (dict, list)) else value)
     settings.setdefault('segmentation_backend', 'cellpose')
     settings.setdefault('batch_fields', 8)
-    settings.setdefault('keep_npz', False)
 
     settings.setdefault('src', 'path')
     settings.setdefault('delete_intermediate', False)
@@ -2342,6 +2341,10 @@ def _set_classifier_evaluation_defaults(settings):
 #: machine. `spacr.validate.RETIRED_SETTINGS` tells them what happened;
 #: this makes the run work meanwhile.
 #:
+#: `cellpose_model` became `ops_sbs_nucleus_model` on 2026-11-17 (item 969):
+#: OPS was its only reader, and the panel asked for its name to say WHICH
+#: objects it segments.
+#:
 #: ONE ENTRY PER LANDED RENAME, added as each one lands rather than all at
 #: once. 364 approved seven and each touches 16 to 29 files under `spacr/`
 #: -- seven at once is one commit nobody can review and one mistake nobody
@@ -2360,6 +2363,7 @@ RENAMED_SETTINGS = {
     "straightness_filter": "drop_straight_tracks",
     "zscore_thresh": "track_outlier_zscore",
     "complevel": "comp_level",
+    "cellpose_model": "ops_sbs_nucleus_model",
 }
 
 #: What each SEMANTIC fold does with an old value, in the words the doctor
@@ -2741,10 +2745,31 @@ def _fold_renamed_settings(settings):
                     old, name, name, old, value)
                 continue
             settings[name] = value
+            _fold_renamed_model_record(settings, old, name)
             LOG.info(
                 "%s=%r is applied as %s. The setting was renamed and this "
                 "file still uses the old name.", old, value, name)
     return settings
+
+
+def _fold_renamed_model_record(settings, old, new):
+    """Move a pinned model-zoo record from a renamed key to its new name.
+
+    ``model_metadata['settings']`` is keyed by the setting that chose the
+    model, so a file written before a rename pins its model under the OLD
+    name. Without this move the value would arrive under the new name and
+    its pin would be dropped, so the run would load the model by name rather
+    than the verified file the file recorded (item 969).
+
+    :param settings: the settings mapping, edited in place.
+    :param old: the name the file used.
+    :param new: the name the value now lives under.
+    """
+    metadata = settings.get("model_metadata")
+    records = metadata.get("settings") if isinstance(metadata, dict) else None
+    if not isinstance(records, dict) or old not in records or new in records:
+        return
+    records[new] = records.pop(old)
 
 
 def _legacy_switch_is_on(value) -> bool:
@@ -4669,7 +4694,6 @@ expected_types = {
     "batch_size": int,
     "pipeline_style": str,
     "batch_fields": int,
-    "keep_npz": bool,
     "n_epochs": int,
     "from_scratch": bool,
     "width_height": list,
@@ -5528,7 +5552,6 @@ tooltips = {
     "batch_size": "(int) - How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. Defaults: 50 for mask generation, 64 for training.",
     "pipeline_style": "(str) - Which mask pipeline runs. 'v1' is the disk-based chain (rename, per-channel folders, npy, npz, mask npy, merged/) that measure, annotate and every downstream tool expect, and is the fully tested path. 'v2' streams from the originals and writes one npy per field with masks appended in place, using roughly 60-80% less disk but producing no .npz. Default 'v1'.",
     "batch_fields": "(int) - Streaming pipeline only (pipeline_style='v2'): how many whole field stacks are loaded into RAM before one Cellpose batch is segmented. Larger values keep the GPU busier and cut the number of read passes over the plate, at a memory cost of roughly one full field stack each. Ignored entirely by the v1 pipeline. Default 8.",
-    "keep_npz": "(bool) - Streaming pipeline only (pipeline_style='v2'): write each in-memory NPZ batch under merged/_scratch/ instead of discarding it, so intermediate data from a failed run can be inspected. This increases disk usage; enable it only for diagnosis. Default False.",
     "CP_probability": "(int) - Cellpose cellprob_threshold used by the standalone apply/test-model submodules, where it carries this name instead of the per-object <object>_cellprob_threshold used by the Mask module. Only pixels whose predicted cell probability exceeds it join a mask, so raising it shrinks outlines and drops faint objects while lowering it grows them and recovers dim ones. Default 0.",
     "FT": "(float) - Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
     "circularize": "(bool) - Replace each detected mask with an equal-area circle centred on its centroid before measurement. This can reduce boundary variation for approximately circular objects with noisy segmentation outlines. Do not enable it when shape is an outcome, because circularization removes elongation and other morphological differences. Default False.",
@@ -5913,7 +5936,7 @@ tooltips = {
     "measure_gpu_check": "(bool) - Before a measure_gpu run, measure the first field on the CPU and on the GPU and compare every column; when a column differs by more than measure_gpu_check_rtol, the run stops before any field is measured and lists the columns. Only read with measure_gpu on and a CUDA device visible. The OPS setting ops_ph_measure_gpu_check runs the same check. Default True.",
     "measure_gpu_check_rtol": "(float) - The relative tolerance of measure_gpu_check: a column passes when every value is within this fraction of its CPU value, or both are missing. Default 0.0001.",
     "measure_gpu": "(bool) - Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. With cuCIM installed (the 'gpu' extra), the per-object morphology table is computed on the GPU too; without it, morphology stays on the CPU. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
-    "measurement_backend": "(str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
+    "measurement_backend": "(str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. spacr_store writes each object table and its crops as the spaCR store in the measurements folder, one Parquet part and one Zarr crop store per well, which spacr.store.open reads. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
     "measurement_backend_target": "(str) - The DuckDB file, Parquet folder or PostgreSQL connection string the measurements are copied to. Blank puts measurements.duckdb or measurements.parquetdb beside measurements.db, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for sqlite. Default blank.",
     "wound_closure": "(bool) - Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
     "wound_source": "(str) - How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
@@ -6804,7 +6827,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "mask_workers_per_gpu", "illumination_for_later_masks", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "mask_workers_per_gpu", "illumination_for_later_masks", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -9505,6 +9528,9 @@ ALPHA_FEATURES = {
     970: {
         'settings': ('ops_ph_pathogen_channel', 'ops_ph_pathogen_model', 'ops_ph_pathogen_diameter', 'ops_ph_pathogen_min_area', 'ops_ph_organelle_channel', 'ops_ph_organelle_morphology', 'ops_ph_organelle_method', 'ops_ph_organelle_model', 'ops_ph_organelle_diameter', 'ops_ph_organelle_min_area',),
     },
+    964: {
+        'settings': ('ops_feature_screen_old', 'ops_feature_screen_new', 'ops_feature_screen_cells', 'ops_feature_screen_id_columns', 'ops_feature_screen_label', 'ops_feature_screen_guide', 'ops_feature_screen_families', 'ops_feature_screen_permutations', 'ops_feature_screen_perm_unit', 'ops_feature_screen_seed', 'ops_feature_screen_ridge', 'ops_feature_screen_greedy_threshold', 'ops_feature_screen_mlp', 'ops_feature_screen_device', 'ops_feature_screen_dst',),
+    },
     962: {
         'settings': ('ops_merge_strategy', 'ops_merge_stitch_source', 'ops_merge_stage_positions', 'ops_merge_min_votes', 'ops_merge_min_match_fraction', 'ops_merge_fallback_share',),
     },
@@ -9565,6 +9591,10 @@ ALPHA_FEATURES = {
                      'ops_voyager3_provider', 'ops_voyager3_model', 'ops_voyager3_timeout',
                      'ops_voyager3_shuffle_control', 'ops_voyager3_resume', 'ops_voyager3_answers_dir'),
     },
+    980: {
+        'settings': ('ops_voyager3_method', 'ops_voyager3_reactome', 'ops_voyager3_corum',
+                     'ops_voyager3_enrichment_fdr'),
+    },
     971: {
         'widgets': ('OpsLiveSwitch',),
     },
@@ -9576,6 +9606,7 @@ ALPHA_FEATURES = {
     },
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval', 'ops_power_gene_list', 'ops_power_reference_rows',),
+        'widgets': ('PowerOpsCurve',),
     },
     968: {
         'settings': ('ops_power_sim', 'ops_power_calibration_run', 'ops_power_mode',
@@ -9784,6 +9815,22 @@ ALPHA_FEATURES = {
         'settings': ('ops_grid_search', 'ops_grid_params', 'ops_grid_tiles',
                      'ops_grid_tile_mode', 'ops_grid_n_tiles', 'ops_grid_seed',
                      'ops_grid_run_id'),
+    },
+    988: {
+        'settings': ('ops_read_distance_weight', 'ops_read_distance_decay_px',
+                     'ops_read_distance_interior_px', 'ops_read_distance_min_weight',
+                     'ops_read_neighbour_discount', 'ops_prefix_distance_weight',
+                     'ops_prefix_distance_decay_px', 'ops_prefix_distance_interior_px',
+                     'ops_prefix_distance_min_weight', 'ops_prefix_weighted_quality',
+                     'ops_prefix_weighted_min_share', 'ops_prefix_nuclei_masks',
+                     'ops_keep_multi_guide_cells', 'ops_multi_guide_min_reads'),
+    },
+    982: {
+        'settings': ('ops_prefix_tuning_min_sites',),
+    },
+    961: {
+        'settings': ('ops_insitu_preset', 'ops_barcode_layout', 'ops_barcode_layout_file',
+                     'ops_call_sort', 'ops_read_compartment', 'ops_recomb_min_quality'),
     },
 }
 

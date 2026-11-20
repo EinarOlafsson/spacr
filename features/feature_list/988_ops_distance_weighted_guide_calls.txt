@@ -1,0 +1,76 @@
+OPS GUIDE CALL: NEIGHBOUR-BLEED DISCOUNT AND DISTANCE-AWARE READ WEIGHTS (N1 + QUALITY x DISTANCE)
+=================================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-18 on branch claude-988-1118, alpha (ALPHA_FEATURES[988]). Every new setting is off by default, so outputs are byte-identical unless one is turned on (no DEFAULT_CHANGES row, no schema bump). Under development per proposals/READINESS.md: not marked Ready. spacr/ops_prefix.py, spacr/ops_sbs.py, spacr/ops_decode.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_read_weights_988.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item988_proof/REPORT.md.
+Requested: maintainer, 2026-11-18: "use a read's distance to the nucleus as a quality metric when calling a cell's guide". Signed off the same day with N1 (neighbour-bleed discount) as the main arm.
+Owner: master lane claude-988-1118.
+Source: proposals/bmc_paper_items/ITEM_ops_distance_weighted_guide_calls.md; design card BMCspacr/reanalysis/experiment_designs/20261118_distance_weighted_guide_calls.md; step-0 prototype /mnt/wd4tb/scratch_specs_1118/step0/.
+Related: 920 (spacer-prefix decode), 942 (decoy tuner), 949 (shuffle calibration), 966 (auto read), 967 (minority-read rule, the alternative rule family), 989 (distance-matched decoys).
+
+PROBLEM
+In PERISCOPE CP186A Well1, 35.6 % of cells with an exact read hold two or
+more barcodes, and in 60 % of the clear-majority two-guide cells the
+runner-up is the top guide of a touching cell (null 0.32 %). In Funk A1 the
+same holds for 48.8 % (null 0.07 %). Such cells are blocked or weakened
+although the second guide is bleed from the neighbour.
+
+BUILD
+- Spacer-prefix decode: ops_prefix_quality_method 'weighted_majority'.
+  A read weighs q x d: q = min(1, quality) + 0.05 (ops_prefix_weighted_quality,
+  else 1), d = max(exp(-(g - g0) / L), d_min) (ops_prefix_distance_weight
+  'decay' / 'distance_only', ops_prefix_distance_decay_px = L,
+  _interior_px = g0, _min_weight = d_min). g = distance to the nucleus of the
+  read's own cell (0 inside); when the nearest nucleus is another cell's, the
+  distance to the cell centroid minus the site's median nucleus radius,
+  flagged in nuc_gap_fallback (spacr.ops_prefix._read_nucleus_gaps; nuclei from
+  ops_prefix_nuclei_masks or the merged/ file). N1: a barcode with strictly
+  fewer reads than the cell's top barcode that is a top barcode (by reads, ties
+  kept) of a 4-connected touching cell has its weight multiplied by
+  ops_read_neighbour_discount (b). The top barcode is called when it holds
+  >= ops_prefix_weighted_min_share (0.6) of the weight alone. Decoy-top cells
+  stay decoy calls. Not combinable with 967 (alternative rule family).
+- Tuner: under 'weighted_majority' the per-well decoy tuner gains the axes
+  ops_prefix_distance_decay_px (0 = off), ops_read_neighbour_discount
+  (1 = off) and ops_prefix_weighted_quality; off is always in the grid and
+  ends each axis, so ties keep the weight off. The empty-grid default
+  (PREFIX_TUNING_GRID_WEIGHTED) adds read thresholds 20 and 30 and
+  L in {4, 8, 16, 32, off}, b in {0, 0.25, 0.5, 1}, quality {off, on}.
+  The default grid of the other methods is unchanged.
+- Outputs (only when on): read table nuc_gap_px and nuc_gap_fallback; cell
+  table weight_top, weight_total, d_weight_top, g_median_top,
+  bleed_discounted; ops_keep_multi_guide_cells writes
+  guide_multiplicity_<plate>_<well>.csv (0/1/2/3/>=4 guides under two
+  counting rules, cells with a decoy barcode, the share of two-guide cells
+  explained by neighbour bleed) and multi_guide_cells_<plate>_<well>.csv
+  (>= 2 guides of ops_multi_guide_min_reads reads each, none flagged as
+  bleed).
+- OPS barcode decode (Funk): spacr.ops_sbs.vote_mapped_reads takes gaps,
+  distance_weight, decay_px, interior_px, min_weight, neighbours and
+  neighbour_discount; decode_rule carries read_weight only when
+  ops_read_distance_weight is on or ops_read_neighbour_discount < 1 (needs the
+  decode rules, e.g. ops_decode_preset 'rule_a_s2'). g = max(0, disc gap);
+  neighbours = nuclei whose equal-area discs come within ops_footprint
+  (spacr.ops_sbs._disc_neighbours, from the field's objects). With the
+  distance term the single-read floor is applied to quality x d.
+
+ACCEPTANCE (alpha build, proof check)
+- Settings off: byte-identical to nightly 7a0efd0194 (synthetic decode, and
+  CP186A sites 3 and 45 end to end through the production runner).
+- spaCR re-scoring of CP186A Well1 from the stored 967 k0 reads and the
+  production masks reproduces the step-0 prototype exactly for every arm
+  (C0, 967 k2-k4, A1-A4, N1 with and without quality and distance).
+
+NOT BUILT (follow-ups, see the proof report)
+- Funk tuner axes for L and b (the Funk vote takes fixed values only).
+- Funk M1/M2 real-mask ownership (ops_read_owner_geometry); needs the A1
+  objects rerun with ops_objects_keep_windows.
+- Funk multiplicity table (PERISCOPE only for now).
+- N1 on a re-decode from a stored Funk field cache (the cache holds no
+  object positions; the decode refuses with a clear error).
+
+STILL TO DO BEFORE A DEFAULT CHANGE
+- The signed acceptance run after the 967 default decision (b x L x quality x
+  read threshold incl. 20 and 30 inside the decoy tuner), knees and matched
+  FDR, 500-permutation controls, edge/position checks (design card 4.5-4.6).
+- A readiness-register entry marked Ready.

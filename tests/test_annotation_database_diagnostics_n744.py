@@ -74,7 +74,7 @@ def test_consented_report_carries_real_startup_facts_and_original_stack(configur
     assert ready.wait(5)
     [call] = relay.calls_to('/report')
     body = call['body']
-    assert body['exception_type'] == 'OperationalError'
+    assert body['exception_type'] == 'FileNotFoundError'
     assert any(frame['function'] == '_run' for frame in body['frames'])
     assert '"target":"missing"' in body['message'] and '"queued":2' in body['message']
     assert 'private_person' not in json.dumps(relay.calls)

@@ -120,3 +120,33 @@ def test_the_windows_twin_offers_the_same_option():
     for rule in ("GPU_POWER_LIMIT_W", "GPU_VRAM_MARGIN_GB", "GPU_MAX_TEMP_C", "GPU_RESERVE_S", "ram_guard",
                  "return 3", "START concurrent", "Invoke-SpacrGpuTurn -TurnLabel"):
         assert rule in text, rule
+
+
+def _exclusive_waits(tmp_path, apps, timeout=4, **values):
+    """True when the exclusive turn is still waiting after ``timeout`` seconds."""
+    try:
+        _run(tmp_path, ["excl-job"], timeout=timeout, GPU_IDLE_S=3, GPU_GAP_S=0, FAKE_APPS=apps, **values)
+    except subprocess.TimeoutExpired:
+        return True
+    return False
+
+
+def test_a_small_compute_context_does_not_block_the_exclusive_turn(tmp_path):
+    rc, ran, log = _run(tmp_path, ["small-job"], GPU_IDLE_S=0, GPU_GAP_S=0, FAKE_APPS="777, 256\n")
+    assert rc == 0 and ran and "START" in log
+
+
+def test_a_big_compute_process_blocks_the_exclusive_turn(tmp_path):
+    assert _exclusive_waits(tmp_path, "777, 6000\n")
+
+
+def test_gpu_busy_mib_overrides_the_threshold(tmp_path):
+    assert _exclusive_waits(tmp_path, "777, 256\n", GPU_BUSY_MIB=100)
+    (tmp_path / "b").mkdir()
+    rc, ran, _ = _run(tmp_path / "b", ["big-ok"], GPU_IDLE_S=0, GPU_GAP_S=0, FAKE_APPS="777, 6000\n", GPU_BUSY_MIB=8000)
+    assert rc == 0 and ran
+
+
+def test_the_windows_twin_applies_the_same_busy_threshold():
+    text = (ROOT / "tools" / "gpu_turn.ps1").read_text(encoding="utf-8")
+    assert "GPU_BUSY_MIB" in text and "4096" in text and "used_memory" in text

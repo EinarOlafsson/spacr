@@ -113,10 +113,17 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # (970) make 160.
     # 2026-11-18: the OPS parameter grid search on tiles (960) makes 161.
     # 2026-11-19: the OPS power simulation (968) makes 162.
-    # 2026-11-19: the spaCR store as an OPS output (974) makes 163.
+    # 2026-11-19: distance-aware read weights and the neighbour-bleed
+    # discount in the guide call (988) make 163.
+    # 2026-11-19: the small-well guard of the prefix decode's tuning (982)
+    # makes 164.
+    # 2026-11-19: the spaCR store as an OPS output (974) makes 165.
+    # 2026-11-19: the GPU feature-information screen (964) makes 166.
+    # 2026-11-19: Voyager3's enrichment method (980) makes 167.
+    # 2026-11-19: in situ sequencing modes of the prefix decode (961) make 168.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    # 2026-11-19: OME-Zarr images and crops (983) make 164.
-    assert count == 164
+    # 2026-11-19: OME-Zarr images and crops (983) make 169 after the nightly items.
+    assert count == 169
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

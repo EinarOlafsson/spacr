@@ -188,6 +188,7 @@ def test_tracking_outside_an_object_does_not_create_a_frame_mapping(graph, point
 
 
 def test_incompatible_frame_identities_cannot_be_merged_or_collapsed(graph):
+    """Merging or collapsing incompatible frames preserves the original lineage graph."""
     state, names = graph
     other = copy.deepcopy(state)
     other["frame_ids"][names["frame"]] = str(UUID(int=999))
@@ -196,7 +197,7 @@ def test_incompatible_frame_identities_cannot_be_merged_or_collapsed(graph):
             cell["born_frame_id"] = other["frame_ids"][names["frame"]]
     before = copy.deepcopy(state)
 
-    with pytest.raises(ValueError, match="frame's identity"):
+    with pytest.raises(ValueError, match="frame identity"):
         engine.merge_lineage_states(state, other)
     with pytest.raises(ValueError, match="incompatible frame identity"):
         engine._remap_lineage_frames(state, {names["later"]: names["frame"]})

@@ -9759,9 +9759,10 @@ def _write_class_item(item, dst_dir, *, canonicalize=False, db_path=None):
         return out
     out = os.path.join(dst_dir, os.path.basename(str(item)))
     if canonicalize:
-        from .crops import read_crop_png
+        from .crops import _read_crop_preferring_store
 
-        Image.fromarray(read_crop_png(str(item), db_path=db_path)).save(out)
+        Image.fromarray(_read_crop_preferring_store(str(item),
+                                                    db_path=db_path)).save(out)
     else:
         shutil.copy(str(item), out)
     return out

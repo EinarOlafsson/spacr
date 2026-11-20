@@ -32,8 +32,17 @@ def test_hashes_inside_strings_and_fstrings_survive():
     assert _strip(src) == textwrap.dedent(src)
 
 
-def test_trailing_comment_is_cut_with_its_whitespace():
-    assert _strip("x = 1   # why\ny = '#'  # also\n") == "x = 1\ny = '#'\n"
+@pytest.mark.parametrize("source, expected", [
+    pytest.param(
+        "x = 1   # why\ny = '#'  # also\n", "x = 1\ny = '#'\n",
+        id="test_trailing_comment_is_cut_with_its_whitespace"),
+    pytest.param(
+        "x = 1  # c\r\n# only\r\ny = 2\r\n", "x = 1\r\ny = 2\r\n",
+        id="test_crlf_endings_preserved"),
+])
+def test_comments_leave_strings_and_line_endings_intact(source, expected):
+    """Keep exact LF and CRLF output while the helper checks AST equality."""
+    assert _strip(source) == expected
 
 
 def test_comment_only_lines_go_and_blank_lines_stay():
@@ -87,10 +96,6 @@ def test_shebang_encoding_and_licence_header_kept():
            "# Copyright mention after code is ordinary\n")
     assert _strip(src) == ("#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\n"
                            "# Copyright 2026 spaCR authors\nx = 1\n")
-
-
-def test_crlf_endings_preserved():
-    assert _strip("x = 1  # c\r\n# only\r\ny = 2\r\n") == "x = 1\r\ny = 2\r\n"
 
 
 def test_check_and_apply(tmp_path, capsys):

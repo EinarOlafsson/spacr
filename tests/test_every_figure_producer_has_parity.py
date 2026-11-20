@@ -155,6 +155,19 @@ def test_the_audit_credits_each_route(tmp_path):
                 _register_figure_data(fig, df, x="x", y="y")
                 save_to(fig, path)
         """,
+        "paper.py": """
+            from matplotlib.figure import Figure
+            from .plot import _checked_savefig
+            from .figures.bundle import _register_figure_data
+            from .figures.style import figure_style
+
+            def _paper_figure(df, path):
+                with figure_style("print"):
+                    fig = Figure()
+                    _register_figure_data(fig, df, x="x", y="y")
+                    _checked_savefig(fig, path)
+                return path
+        """,
         "qt/widgets/graph_builder.py": """
             def _canvas_class():
                 from ...figures.style import _style_new_content
@@ -201,6 +214,10 @@ def test_the_audit_credits_each_route(tmp_path):
     assert rows["_draw"]["parity"] == "ok"
     assert rows["_draw"]["saved_by"] == "save_figure"
     assert rows["_draw"]["menu"] == "file only"
+    assert rows["_paper_figure"]["parity"] == "ok"
+    assert rows["_paper_figure"]["saved_by"] == "_checked_savefig"
+    assert rows["_paper_figure"]["menu"] == "file only"
+    assert rows["_paper_figure"]["styled_by"] == "figure_style rcParams"
     assert rows["Screen.__init__"]["parity"] == "ok"
     assert rows["Screen.__init__"]["styled_by"] == "menu canvas draw"
     assert rows["thumbnail"]["parity"] == "ok"

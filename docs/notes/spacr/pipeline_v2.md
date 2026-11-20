@@ -235,14 +235,6 @@ _record_cellpose_hash(model, model_name)
 
 Record the exact model checkpoint hash into the active run journal, if one is open. Downstream reviewers can then trace any mask back to the specific weights that produced it.
 
-### lines 621-622  _(unsure)_
-
-```python
-npz_path = scratch / f"batch_{batch_start:04d}.npz"
-```
-
-Optionally persist the batch as NPZ for debugging. Deleted after run unless keep_npz=True.
-
 ### lines 629-631
 
 ```python

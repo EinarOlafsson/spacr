@@ -1,12 +1,11 @@
-"""GitHub #147: a tool call that needs approval gets an approval prompt.
+"""GitHub #147: a blocked tool call must not leave the user waiting for a prompt.
 
 ``claude -p`` cannot show its own permission prompt, so a command such as
 ``gh auth status`` was refused silently and the assistant kept asking the
-user to approve a prompt that never appeared. The provider now reads the
-JSON result's ``permission_denials``; the console asks in a dialog and, when
-the user allows it, resumes the same session with exactly that call allowed.
-Every other CLI is told there is no prompt, so it hands the command over.
-"""
+user to approve a prompt that never appeared. Since 2026-11-18 every spaCR
+AI call runs without tools, so the console's approval dialog is gone: every
+CLI is told it has no tools and hands the user the command to run instead.
+The provider still reads the JSON result's ``permission_denials``."""
 from __future__ import annotations
 
 import json
@@ -129,99 +128,10 @@ def test_each_denied_call_becomes_one_rule_and_one_line(denial, rule, line):
     assert describe_tool_call(denial) == line
 
 
-def test_every_cli_is_told_how_approval_works():
+def test_every_cli_is_told_it_has_no_tools():
     from spacr.qt.ai.prompts import tool_approval_note
 
-    assert "approval dialog" in tool_approval_note("claude")
-    for name in ("codex", "gemini"):
-        note = tool_approval_note(name)
-        assert "no approval prompt" in note and "own terminal" in note
-
-
-def _panel(qtbot, monkeypatch, provider):
-    from spacr.qt import ai as ai_module
-    from spacr.qt.ai import providers as pmod
-    from spacr.qt.widgets.console_panel import ConsolePanel
-
-    monkeypatch.setattr(ai_module, "get_provider", lambda name: provider)
-    monkeypatch.setattr(pmod, "get_provider", lambda name: provider)
-    panel = ConsolePanel()
-    qtbot.addWidget(panel)
-    panel.set_ai_provider("claude")
-    panel.set_ai_active(True)
-    return panel
-
-
-def _wait_idle(panel, qtbot):
-    qtbot.waitUntil(lambda: panel._ai_thread is None, timeout=15000)
-
-
-def _answer_dialog(monkeypatch, button_text, shown):
-    from PySide6.QtWidgets import QMessageBox
-
-    def exec_(box):
-        if sys.platform == "darwin":
-            # dialogs._set_question: a Mac alert has no title, so the
-            # question is the text and the command follows it.
-            shown.append((box.objectName(), box.text(), box.informativeText()))
-        else:
-            shown.append((box.objectName(), box.windowTitle(), box.text()))
-        for button in box.buttons():
-            if button.text() == button_text:
-                button.click()
-        return 0
-
-    monkeypatch.setattr(QMessageBox, "exec", exec_)
-
-
-def test_the_console_asks_and_an_allowed_call_runs(
-        qtbot, qt_theme_applied, monkeypatch, fake_claude, isolated_ai_settings):
-    from spacr.qt.ai.providers import ClaudeCliProvider
-
-    shown = []
-    _answer_dialog(monkeypatch, "Allow once", shown)
-    panel = _panel(qtbot, monkeypatch, ClaudeCliProvider())
-    try:
-        panel._input.setPlainText("Is gh signed in?")
-        panel._on_submit()
-        _wait_idle(panel, qtbot)
-        qtbot.waitUntil(lambda: len(fake_claude()) == 2, timeout=15000)
-        _wait_idle(panel, qtbot)
-    finally:
-        panel.shutdown()
-
-    assert len(shown) == 1
-    name, title, text = shown[0]
-    assert name == "aiToolApprovalBox"
-    assert title == "Allow the assistant to run this?"
-    assert "gh auth status" in text
-    first, second = fake_claude()
-    system = first[first.index("--append-system-prompt") + 1]
-    assert "approval dialog" in system
-    assert second[second.index("--resume") + 1] == "sess-1"
-    assert "Bash(gh auth status)" in second
-    assert panel._ai_messages[-1] == {"role": "assistant",
-                                      "content": "Logged in to github.com\n"}
-
-
-def test_a_refused_call_is_not_run_and_the_user_is_told(
-        qtbot, qt_theme_applied, monkeypatch, fake_claude, isolated_ai_settings):
-    from spacr.qt.ai.providers import ClaudeCliProvider
-
-    shown, notices = [], []
-    _answer_dialog(monkeypatch, "Don't allow", shown)
-    provider = ClaudeCliProvider()
-    panel = _panel(qtbot, monkeypatch, provider)
-    monkeypatch.setattr(panel, "append_notice",
-                        lambda source, **values: notices.append(source.format(**values)))
-    try:
-        panel._input.setPlainText("Is gh signed in?")
-        panel._on_submit()
-        _wait_idle(panel, qtbot)
-    finally:
-        panel.shutdown()
-
-    assert len(shown) == 1
-    assert len(fake_claude()) == 1
-    assert provider._approved_tools == [] and provider._approved_resume == ""
-    assert any(n.startswith("[AI] Not run: gh auth status.") for n in notices)
+    notes = {name: tool_approval_note(name) for name in ("claude", "codex", "gemini")}
+    assert len(set(notes.values())) == 1
+    note = notes["claude"]
+    assert "no tools" in note and "own terminal" in note and "approval dialog" not in note

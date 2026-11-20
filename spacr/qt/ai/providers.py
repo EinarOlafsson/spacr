@@ -281,7 +281,15 @@ class CommandLineTool:
 
     def is_installed(self) -> bool:
         """Return True when the tool's executable is on ``PATH``."""
+        return self._installed()
+
+    def _installed(self) -> bool:
+        """Whether the executable is found; a subclass may look beyond ``PATH``."""
         return _found_on_path(self.cli_name)
+
+    def _resolve(self, name: str) -> str:
+        """The path to run for ``name``, the first word of ``status_command``."""
+        return shutil.which(name) or name
 
     def check_signed_in(self) -> Optional[bool]:
         """Ask the tool itself whether it is signed in.
@@ -297,7 +305,7 @@ class CommandLineTool:
         if not self.status_command:
             return None
         argv = list(self.status_command)
-        argv[0] = shutil.which(argv[0]) or argv[0]
+        argv[0] = self._resolve(argv[0])
         try:
             return _run_quietly(argv, self.STATUS_TIMEOUT_S) == 0
         except (OSError, subprocess.SubprocessError):
@@ -746,6 +754,12 @@ def _provider_arguments(provider):
     return settings.provider_args(provider.name)
 
 
+#: The ``claude -p`` arguments that leave the model no tools: ``--tools ""``
+#: disables every built-in tool and ``--strict-mcp-config`` (with no
+#: ``--mcp-config``) loads no MCP server, so every spaCR AI call is text only.
+NO_TOOLS_ARGS: Tuple[str, ...] = ("--tools", "", "--strict-mcp-config")
+
+
 class ClaudeCliProvider(ChatProvider):
     """Anthropic Claude via the ``claude`` (Claude Code) CLI."""
 
@@ -760,6 +774,10 @@ class ClaudeCliProvider(ChatProvider):
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
         """Stream a chat completion from the ``claude`` CLI.
+
+        Every call runs with :data:`NO_TOOLS_ARGS`: the model gets no tools
+        (no shell, file, web or MCP tools), so the reply is text only and a
+        resumed session's approved tools stay unavailable.
 
         :param messages: conversation history as ``{role, content}`` dicts.
         :param system: optional system prompt appended via
@@ -792,7 +810,7 @@ class ClaudeCliProvider(ChatProvider):
             argv += ["--model", model]
         else:
             argv += _provider_arguments(self)
-        argv += ["--output-format", "json"]
+        argv += [*NO_TOOLS_ARGS, "--output-format", "json"]
         yield from self._read_result(
             _stream_process(argv, stdin_text=stdin_text, provider=self))
 
@@ -908,8 +926,121 @@ def describe_tool_call(denial: Dict) -> str:
     return name
 
 
+#: The ``codex exec`` arguments that leave the model no tools it can act with
+#: (codex 0.169 has no single switch): the shell, apps, plugins and browser
+#: tools are disabled, any command would still run read-only, and the user's
+#: ``config.toml`` (where MCP servers are set up) is not loaded.
+CODEX_NO_TOOLS_ARGS: Tuple[str, ...] = (
+    "--sandbox", "read-only", "--ignore-user-config", "--disable", "shell_tool",
+    "--disable", "apps", "--disable", "plugins", "--disable", "browser_use",
+    "--disable", "in_app_browser")
+
+#: The ``gemini -p`` arguments for a read-only answer (gemini-cli 0.68 has no
+#: switch that removes every tool): plan approval mode, the CLI's read-only
+#: mode, and an allow list of MCP servers that names none of the user's.
+GEMINI_READ_ONLY_ARGS: Tuple[str, ...] = (
+    "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp")
+
+
+_CODEX_LOGGED: set = set()
+
+
+def _codex_platform_folders(platform: str, machine: str) -> Tuple[str, ...]:
+    """The ``bin/<folder>`` names the VS Code ChatGPT extension uses on this system, best first.
+
+    :param platform: ``sys.platform``.
+    :param machine: ``platform.machine()``.
+    """
+    arm = machine.lower() in ("aarch64", "arm64")
+    if platform.startswith("linux"):
+        return ("linux-aarch64", "linux-arm64") if arm else ("linux-x86_64",)
+    if platform == "darwin":
+        return ("darwin-arm64", "darwin-aarch64", "darwin-x86_64") if arm else ("darwin-x86_64",)
+    if platform.startswith("win"):
+        return ("windows-aarch64", "windows-arm64", "windows-x86_64") if arm else ("windows-x86_64",)
+    return ()
+
+
+def _extension_version(folder: str) -> Tuple[int, ...]:
+    """The version numbers in an extension folder name such as ``openai.chatgpt-26.1111.21308-linux-x64``.
+
+    :param folder: the folder's name.
+    """
+    import re
+
+    found = re.match(r"openai\.chatgpt-(\d+(?:\.\d+)*)", folder)
+    return tuple(int(part) for part in found.group(1).split(".")) if found else ()
+
+
+def _codex_home() -> str:
+    """The home folder searched for VS Code extensions."""
+    return os.path.expanduser("~")
+
+
+def _codex_executable(home: Optional[str] = None, platform: Optional[str] = None,
+                      machine: Optional[str] = None) -> Tuple[str, str]:
+    """The ``codex`` binary spaCR runs, and where it was found.
+
+    ``PATH`` comes first. Otherwise the binary bundled with the newest VS Code
+    ChatGPT extension (``openai.chatgpt-<version>``) in ``~/.vscode/extensions``
+    or, for remote setups, ``~/.vscode-server/extensions`` is used, from the
+    ``bin`` folder for this platform, when it is an executable file.
+
+    :param home: the home folder; the user's when None.
+    :param platform: ``sys.platform`` when None.
+    :param machine: ``platform.machine()`` when None.
+    :returns: ``(path, source)``, source ``"PATH"`` or the extension folder;
+        ``("", "")`` when there is none.
+    """
+    import platform as _platform
+
+    found = _which_on_path("codex")
+    if found:
+        return found, "PATH"
+    home = home or _codex_home()
+    platform = platform or _sys.platform
+    machine = machine or _platform.machine()
+    exe = "codex.exe" if platform.startswith("win") else "codex"
+    candidates = []
+    for root in (os.path.join(home, ".vscode", "extensions"), os.path.join(home, ".vscode-server", "extensions")):
+        try:
+            names = os.listdir(root)
+        except OSError:
+            continue
+        for name in names:
+            version = _extension_version(name)
+            if not version:
+                continue
+            for folder in _codex_platform_folders(platform, machine):
+                path = os.path.join(root, name, "bin", folder, exe)
+                usable = os.path.isfile(path) and (platform.startswith("win") or os.access(path, os.X_OK))
+                if usable:
+                    candidates.append((version, path, os.path.join(root, name)))
+                    break
+    if not candidates:
+        return "", ""
+    _version, path, source = max(candidates)
+    return path, source
+
+
+def _codex_command() -> str:
+    """The ``codex`` command to run: the resolved binary, logged once per path, or ``"codex"``."""
+    path, source = _codex_executable()
+    if path and path not in _CODEX_LOGGED:
+        _CODEX_LOGGED.add(path)
+        import logging
+
+        logging.getLogger(__name__).info("Codex CLI: using %s (found via %s)", path, source)
+    return path or "codex"
+
+
 class CodexCliProvider(ChatProvider):
-    """OpenAI ChatGPT via the ``codex`` CLI."""
+    """OpenAI ChatGPT via the ``codex`` CLI.
+
+    The binary is the one on ``PATH``, or else the one bundled with the newest
+    VS Code ChatGPT extension (``~/.vscode/extensions`` or
+    ``~/.vscode-server/extensions``); the path used is logged.
+    """
 
     name = "codex"
     label = "ChatGPT (via Codex CLI)"
@@ -919,9 +1050,20 @@ class CodexCliProvider(ChatProvider):
     login_command = "codex login"
     status_command = ("codex", "login", "status")
 
+    def _installed(self) -> bool:
+        """Whether a ``codex`` binary is on ``PATH`` or in a VS Code ChatGPT extension."""
+        return bool(_codex_executable()[0])
+
+    def _resolve(self, name: str) -> str:
+        """Run ``codex login status`` with the binary :func:`_codex_command` resolves."""
+        return _codex_command() if name == "codex" else super()._resolve(name)
+
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
         """Stream a chat completion from the ``codex`` CLI.
+
+        Every call runs with :data:`CODEX_NO_TOOLS_ARGS`, so the model can only
+        answer in text.
 
         :param messages: conversation history as ``{role, content}`` dicts.
         :param system: optional system prompt folded into the prompt body.
@@ -931,11 +1073,12 @@ class CodexCliProvider(ChatProvider):
         """
         prompt = _format_conversation(messages, system=system)
         shim = _batch_shim("codex")
-        argv = [shim, "exec", "-"] if shim else ["codex", "exec", prompt]
+        argv = [shim, "exec", "-"] if shim else [_codex_command(), "exec", prompt]
         if model:
             argv += ["--model", model]
         else:
             argv += _provider_arguments(self)
+        argv += CODEX_NO_TOOLS_ARGS
         yield from _stream_process(argv, stdin_text=prompt if shim else None,
                                    provider=self)
 
@@ -955,6 +1098,9 @@ class GeminiCliProvider(ChatProvider):
                      model: Optional[str] = None) -> Iterator[str]:
         """Stream a chat completion from the ``gemini`` CLI.
 
+        Every call runs with :data:`GEMINI_READ_ONLY_ARGS`, the CLI's read-only
+        mode with no MCP servers.
+
         :param messages: conversation history as ``{role, content}`` dicts.
         :param system: optional system prompt folded into the prompt body.
         :param model: optional model override passed via ``-m``.
@@ -972,6 +1118,7 @@ class GeminiCliProvider(ChatProvider):
                 argv += ["-m", args[1]]
             elif args:
                 argv += args
+        argv += GEMINI_READ_ONLY_ARGS
         yield from _stream_process(argv, stdin_text=prompt if shim else None,
                                    provider=self)
 
@@ -1276,14 +1423,14 @@ def hosted_refusal_message(reason: str, scope: str = "",
     return tr("spaCR hosted AI could not answer this time. Try again later.")
 
 
-_PATH_LOOKUPS: Dict[tuple, Tuple[float, bool]] = {}
+_PATH_LOOKUPS: Dict[tuple, Tuple[float, str]] = {}
 
 #: How long one ``PATH`` search answers for the same tool and ``PATH``.
 _PATH_LOOKUP_TTL_S = 300.0
 
 
-def _found_on_path(name: str) -> bool:
-    """Whether ``name`` is on ``PATH``, searching at most once per few minutes.
+def _which_on_path(name: str) -> str:
+    """Where ``name`` is on ``PATH``, searching at most once per few minutes.
 
     Every screen's AI switch asks which providers are configured while the
     screen is built, and each answer was a ``PATH`` search; on Windows those
@@ -1292,7 +1439,7 @@ def _found_on_path(name: str) -> bool:
     or a test's stand-in resolver is seen at once.
 
     :param name: the executable's name.
-    :returns: True when the executable is found.
+    :returns: the executable's path, or ``""`` when it is not found.
     """
     import time
 
@@ -1301,9 +1448,18 @@ def _found_on_path(name: str) -> bool:
     cached = _PATH_LOOKUPS.get(key)
     if cached is not None and now - cached[0] < _PATH_LOOKUP_TTL_S:
         return cached[1]
-    found = shutil.which(name) is not None
+    found = shutil.which(name) or ""
     _PATH_LOOKUPS[key] = (now, found)
     return found
+
+
+def _found_on_path(name: str) -> bool:
+    """Whether ``name`` is on ``PATH``; the search is cached as in :func:`_which_on_path`.
+
+    :param name: the executable's name.
+    :returns: True when the executable is found.
+    """
+    return bool(_which_on_path(name))
 
 
 def _warm_path_lookups() -> None:

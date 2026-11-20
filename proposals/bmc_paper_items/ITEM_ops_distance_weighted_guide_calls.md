@@ -1,7 +1,7 @@
 # Item 988: neighbour-bleed discount, read distance and real-mask ownership in the guide call (Funk full-barcode and PERISCOPE spacer-prefix)
 
 - **Number:** 988, confirmed free and reserved by master on 2026-11-18.
-- **Status:** SIGNED OFF by the maintainer on 2026-11-18 (decisions below). Step 0 (post-hoc proof check) approved to run now; results in section 3c. Not implemented in spaCR yet.
+- **Status:** SIGNED OFF by the maintainer on 2026-11-18 (decisions below). Step 0 (post-hoc proof check) approved to run now; results in section 3c. IMPLEMENTED 2026-11-18 on branch claude-988-1118 (alpha, off by default; PERISCOPE weighted majority with N1, distance term, tuner axes and multi-guide table; Funk vote with fixed distance weight and N1). Proof: `BMCspacr/reanalysis/item988_proof/REPORT.md`. Funk tuner axes and M1/M2 are not built yet.
 - **Maintainer decisions, 2026-11-18:**
   1. **N1 (neighbour-bleed discount) is the MAIN arm.** Distance (A3-A5) is secondary; real masks in Funk (M1/M2) are the third arm.
   2. Step 0 runs now. The full acceptance run waits for the 967 default decision.

@@ -665,6 +665,14 @@ def _plain_row(row: Mapping[str, Any]) -> Dict[str, Any]:
     return out
 
 
+def _store_source(query: CropQuery, db_path: str):
+    """The spaCR store's crop source for ``query``, or None without one."""
+    from .crops import _store_crop_source
+
+    return _store_crop_source(os.path.dirname(os.path.abspath(db_path)),
+                              str(query.object_type), query.prefer)
+
+
 def _pixel_source(query: CropQuery, db_path: str):
     """The :class:`spacr.crops.CropSource` that reads this query's pixels.
 
@@ -677,6 +685,9 @@ def _pixel_source(query: CropQuery, db_path: str):
     """
     from .crops import CropError, PngCropSource, resolve_crop_source
 
+    stored = _store_source(query, db_path)
+    if stored is not None:
+        return stored
     root = _plate_root(db_path)
     prefer = str(query.prefer or "").strip().lower() or None
     try:

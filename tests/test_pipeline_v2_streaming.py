@@ -377,12 +377,9 @@ def test_stream_masks_from_stack_appends_exactly_one_mask_plane_per_field(
     """Whatever shape the stack or the model's return takes (a list, a bare
     2-D array, one channel, a stack saved as a bare plane), every field ends
     as its own planes plus one uint16 mask plane, the ``StackFile`` and the
-    sidecar say so, scratch NPZs go unless ``keep_npz``, and failing cleanup
-    or a missing sidecar costs only a warning."""
-    import shutil
-
-    def run(name, model, channels=(0, 1, 2), keep_npz=False, drop=False,
-            batch_fields=1):
+    sidecar say so, no scratch NPZ is ever written, and a missing sidecar
+    costs only a warning."""
+    def run(name, model, channels=(0, 1, 2), drop=False, batch_fields=1):
         monkeypatch.setattr("cellpose.models.CellposeModel", model)
         _plate, stacks = _stacks_for(tmp_path, name=name, channels=channels)
         originals = [np.load(s.path) for s in stacks]
@@ -390,8 +387,7 @@ def test_stream_masks_from_stack_appends_exactly_one_mask_plane_per_field(
         if drop:
             sidecar.unlink()
         returned = PV.stream_masks_from_stack(
-            stacks, model_name="cyto", batch_fields=batch_fields,
-            keep_npz=keep_npz)
+            stacks, model_name="cyto", batch_fields=batch_fields)
         assert returned is stacks
         return stacks, originals, sidecar
 
@@ -421,13 +417,11 @@ def test_stream_masks_from_stack_appends_exactly_one_mask_plane_per_field(
             assert meta["mask_channels"] == ["mask"]
             assert not (sidecar.parent / "_scratch").exists()
 
-    with subtests.test(msg="keep_npz keeps the scratch batches"):
-        stacks, _originals, sidecar = run("keep", _model("ones"),
-                                          keep_npz=True, batch_fields=2)
-        scratch = sidecar.parent / "_scratch"
-        assert sorted(p.name for p in scratch.iterdir()) == ["batch_0000.npz"]
-        with np.load(scratch / "batch_0000.npz") as saved:
-            assert sorted(saved.files) == sorted(s.field_id for s in stacks)
+    with subtests.test(msg="no batch is written to disk"):
+        stacks, _originals, sidecar = run("batches", _model("ones"),
+                                          batch_fields=2)
+        assert not (sidecar.parent / "_scratch").exists()
+        assert not list(sidecar.parent.rglob("*.npz"))
 
     with subtests.test(msg="a stack saved as a bare plane"):
         monkeypatch.setattr("cellpose.models.CellposeModel", _model("ones"))
@@ -451,17 +445,6 @@ def test_stream_masks_from_stack_appends_exactly_one_mask_plane_per_field(
         assert not sidecar.exists()
         assert any("channel_order.json" in r.getMessage()
                    for r in caplog.records)
-
-    with subtests.test(msg="failing cleanup keeps the masks"):
-        with monkeypatch.context() as patch:
-            patch.setattr(Path, "unlink", lambda self, *a, **k:
-                          (_ for _ in ()).throw(OSError()))
-            patch.setattr(shutil, "rmtree", lambda *a, **k:
-                          (_ for _ in ()).throw(OSError()))
-            stacks, originals, sidecar = run("cleanup", _model("square"),
-                                             channels=(0, 1))
-        assert_appended(stacks, originals, 1)
-        assert (sidecar.parent / "_scratch").is_dir()
 
 
 def test_stream_masks_from_stack_normalises_like_v1_with_postprocess_settings(

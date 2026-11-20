@@ -349,7 +349,7 @@ def test_claude_argv_uses_speed_model_and_appends_system(monkeypatch, speed):
     assert "why did masks fail" in argv[2]
     assert "System:\nbe terse" in argv[2]
     assert argv[3:5] == ["--append-system-prompt", "be terse"]
-    assert argv[5:] == ["--model", "opus", "--output-format", "json"]
+    assert argv[5:] == ["--model", "opus", "--tools", "", "--strict-mcp-config", "--output-format", "json"]
 
 
 def test_claude_argv_explicit_model_beats_speed_setting(monkeypatch, speed):
@@ -363,7 +363,7 @@ def test_claude_argv_explicit_model_beats_speed_setting(monkeypatch, speed):
     assert list(p.stream_chat([{"role": "user", "content": "q"}],
                                model="sonnet")) == []
     assert rec["argv"] == ["claude", "-p", "User:\nq", "--model", "sonnet",
-                           "--output-format", "json"]
+                           "--tools", "", "--strict-mcp-config", "--output-format", "json"]
     assert "haiku" not in rec["argv"]
     assert "--append-system-prompt" not in rec["argv"]   # no system given
 
@@ -379,13 +379,13 @@ def test_claude_empty_rules_resume_does_not_allow_tools(monkeypatch):
     assert list(provider.stream_chat(messages, model="sonnet")) == []
     assert rec["argv"] == [
         "claude", "-p", "continue", "--resume", "session-1",
-        "--model", "sonnet", "--output-format", "json",
+        "--model", "sonnet", "--tools", "", "--strict-mcp-config", "--output-format", "json",
     ]
 
     assert list(provider.stream_chat(messages, model="sonnet")) == []
     assert rec["argv"] == [
         "claude", "-p", "User:\ncontinue", "--model", "sonnet",
-        "--output-format", "json",
+        "--tools", "", "--strict-mcp-config", "--output-format", "json",
     ]
 
 
@@ -473,7 +473,7 @@ def test_codex_argv_uses_exec_subcommand(monkeypatch, speed):
     assert argv[0:2] == ["codex", "exec"]
     # codex has no --append-system-prompt: the system prompt is folded in
     assert argv[2].startswith("System:\npersona")
-    assert argv[3:] == ["--model", "gpt-5"]
+    assert argv[3:] == ["--model", "gpt-5", "--sandbox", "read-only", "--ignore-user-config", "--disable", "shell_tool", "--disable", "apps", "--disable", "plugins", "--disable", "browser_use", "--disable", "in_app_browser"]
 
 
 def test_codex_argv_explicit_model(monkeypatch, speed):
@@ -483,7 +483,7 @@ def test_codex_argv_explicit_model(monkeypatch, speed):
     rec = _install_fake_popen(monkeypatch, _FakeProc([]))
     p = CodexCliProvider()
     list(p.stream_chat([{"role": "user", "content": "q"}], model="o3"))
-    assert rec["argv"] == ["codex", "exec", "User:\nq", "--model", "o3"]
+    assert rec["argv"] == ["codex", "exec", "User:\nq", "--model", "o3", "--sandbox", "read-only", "--ignore-user-config", "--disable", "shell_tool", "--disable", "apps", "--disable", "plugins", "--disable", "browser_use", "--disable", "in_app_browser"]
 
 
 def test_gemini_argv_translates_model_flag_to_dash_m(monkeypatch, speed):
@@ -495,7 +495,7 @@ def test_gemini_argv_translates_model_flag_to_dash_m(monkeypatch, speed):
     p = GeminiCliProvider()
     assert list(p.stream_chat([{"role": "user", "content": "q"}])) == ["g\n"]
     assert rec["argv"] == ["gemini", "-p", "User:\nq",
-                           "-m", "gemini-2.5-flash"]
+                           "-m", "gemini-2.5-flash", "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp"]
     assert "--model" not in rec["argv"]
 
 
@@ -509,7 +509,7 @@ def test_gemini_argv_passes_non_model_speed_args_through(monkeypatch, speed):
     rec = _install_fake_popen(monkeypatch, _FakeProc([]))
     list(pmod.GeminiCliProvider().stream_chat(
         [{"role": "user", "content": "q"}]))
-    assert rec["argv"] == ["gemini", "-p", "User:\nq", "--thinking", "high"]
+    assert rec["argv"] == ["gemini", "-p", "User:\nq", "--thinking", "high", "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp"]
 
 
 def test_gemini_argv_with_empty_speed_args(monkeypatch, speed):
@@ -520,7 +520,7 @@ def test_gemini_argv_with_empty_speed_args(monkeypatch, speed):
     rec = _install_fake_popen(monkeypatch, _FakeProc([]))
     list(pmod.GeminiCliProvider().stream_chat(
         [{"role": "user", "content": "q"}], model=None))
-    assert rec["argv"] == ["gemini", "-p", "User:\nq"]
+    assert rec["argv"] == ["gemini", "-p", "User:\nq", "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp"]
 
 
 def test_gemini_argv_explicit_model(monkeypatch, speed):
@@ -529,7 +529,7 @@ def test_gemini_argv_explicit_model(monkeypatch, speed):
     rec = _install_fake_popen(monkeypatch, _FakeProc([]))
     list(pmod.GeminiCliProvider().stream_chat(
         [{"role": "user", "content": "q"}], model="gemini-3"))
-    assert rec["argv"] == ["gemini", "-p", "User:\nq", "-m", "gemini-3"]
+    assert rec["argv"] == ["gemini", "-p", "User:\nq", "-m", "gemini-3", "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp"]
 
 
 # ---------------------------------------------------------------------------
@@ -550,7 +550,7 @@ def test_codex_shim_reads_the_multi_line_prompt_from_stdin(monkeypatch):
     stdin, rec = _shimmed(monkeypatch, "codex")
     list(CodexCliProvider().stream_chat(
         [{"role": "user", "content": "a\nb"}], system="persona", model="o3"))
-    assert rec["argv"] == ["C:\\npm\\codex.cmd", "exec", "-", "--model", "o3"]
+    assert rec["argv"] == ["C:\\npm\\codex.cmd", "exec", "-", "--model", "o3", "--sandbox", "read-only", "--ignore-user-config", "--disable", "shell_tool", "--disable", "apps", "--disable", "plugins", "--disable", "browser_use", "--disable", "in_app_browser"]
     assert stdin.written == ["System:\npersona\n\nUser:\na\nb"]
     assert not any("\n" in part for part in rec["argv"])
 
@@ -561,7 +561,7 @@ def test_gemini_shim_reads_the_prompt_from_stdin(monkeypatch):
     stdin, rec = _shimmed(monkeypatch, "gemini")
     list(GeminiCliProvider().stream_chat(
         [{"role": "user", "content": "q"}], model="gemini-3"))
-    assert rec["argv"] == ["C:\\npm\\gemini.cmd", "-m", "gemini-3"]
+    assert rec["argv"] == ["C:\\npm\\gemini.cmd", "-m", "gemini-3", "--approval-mode", "plan", "--allowed-mcp-server-names", "spacr-no-mcp"]
     assert stdin.written == ["User:\nq"]
 
 
@@ -573,7 +573,7 @@ def test_claude_shim_folds_the_system_prompt_into_stdin(monkeypatch):
     list(provider.stream_chat([{"role": "user", "content": "q"}],
                               system="be terse", model="sonnet"))
     assert rec["argv"] == ["C:\\npm\\claude.cmd", "-p", "--model", "sonnet",
-                           "--output-format", "json"]
+                           "--tools", "", "--strict-mcp-config", "--output-format", "json"]
     assert stdin.written == ["System:\nbe terse\n\nUser:\nq"]
 
     provider.allow_once([{"tool_name": "Read"}], "session-1")
@@ -582,7 +582,7 @@ def test_claude_shim_folds_the_system_prompt_into_stdin(monkeypatch):
                               system="be terse", model="sonnet"))
     assert rec["argv"] == ["C:\\npm\\claude.cmd", "-p", "--resume",
                            "session-1", "--allowedTools", "Read", "--model",
-                           "sonnet", "--output-format", "json"]
+                           "sonnet", "--tools", "", "--strict-mcp-config", "--output-format", "json"]
     assert stdin.written == ["System:\nbe terse\n\nUser:\ngo on"]
 
 
@@ -969,3 +969,96 @@ def test_background_path_warming_skips_non_cli_providers(monkeypatch):
     monkeypatch.setattr(providers, '_found_on_path', calls.append)
     providers._warm_path_lookups()
     assert calls == ['vendor']
+
+
+def test_every_claude_call_runs_without_tools(monkeypatch):
+    """2026-11-18 maintainer decision: spaCR AI calls are text only (no tools, no MCP servers)."""
+    from spacr.qt.ai.providers import NO_TOOLS_ARGS, ClaudeCliProvider
+
+    assert NO_TOOLS_ARGS == ("--tools", "", "--strict-mcp-config")
+    proc = _FakeProc([])
+    rec = _install_fake_popen(monkeypatch, proc)
+    provider = ClaudeCliProvider()
+    list(provider.stream_chat([{"role": "user", "content": "q"}], system="s", model="sonnet"))
+    argv = rec["argv"]
+    assert argv[argv.index("--tools") + 1] == "" and "--strict-mcp-config" in argv
+    provider.allow_once([{"tool_name": "Read"}], "session-1")
+    list(provider.stream_chat([{"role": "user", "content": "go on"}], model="sonnet"))
+    argv = rec["argv"]
+    assert "--resume" in argv and argv[argv.index("--tools") + 1] == "" and "--strict-mcp-config" in argv
+
+
+def test_codex_and_gemini_calls_run_without_tools(monkeypatch):
+    """2026-11-18: codex gets no shell/apps/plugins/browser tools; gemini runs read-only with no MCP servers."""
+    from spacr.qt.ai.providers import (CODEX_NO_TOOLS_ARGS, GEMINI_READ_ONLY_ARGS, CodexCliProvider,
+                                       GeminiCliProvider)
+
+    rec = _install_fake_popen(monkeypatch, _FakeProc([]))
+    list(CodexCliProvider().stream_chat([{"role": "user", "content": "q"}], model="o3"))
+    argv = rec["argv"]
+    assert argv[argv.index("--sandbox") + 1] == "read-only" and "--ignore-user-config" in argv
+    assert {argv[i + 1] for i, a in enumerate(argv) if a == "--disable"} == {
+        "shell_tool", "apps", "plugins", "browser_use", "in_app_browser"}
+    assert tuple(argv[-len(CODEX_NO_TOOLS_ARGS):]) == CODEX_NO_TOOLS_ARGS
+    list(GeminiCliProvider().stream_chat([{"role": "user", "content": "q"}], model="gemini-3"))
+    argv = rec["argv"]
+    assert argv[argv.index("--approval-mode") + 1] == "plan" and "--yolo" not in argv
+    assert tuple(argv[-len(GEMINI_READ_ONLY_ARGS):]) == GEMINI_READ_ONLY_ARGS
+
+
+def _fake_extension(root, version, folder="linux-x86_64", executable=True):
+    """A fake ``openai.chatgpt-<version>`` extension holding a codex binary."""
+    path = root / f"openai.chatgpt-{version}-linux-x64" / "bin" / folder / "codex"
+    path.parent.mkdir(parents=True)
+    path.write_text("#!/bin/sh\n")
+    path.chmod(0o755 if executable else 0o644)
+    return str(path)
+
+
+def test_codex_lookup_finds_nothing_without_path_or_extension(monkeypatch, tmp_path):
+    from spacr.qt.ai import providers
+
+    monkeypatch.setattr(providers.shutil, "which", lambda name: None)
+    assert providers._codex_executable(home=str(tmp_path), platform="linux", machine="x86_64") == ("", "")
+    (tmp_path / ".vscode" / "extensions" / "other.thing-1.0").mkdir(parents=True)
+    _fake_extension(tmp_path / ".vscode" / "extensions", "27.1", executable=False)
+    assert providers._codex_executable(home=str(tmp_path), platform="linux", machine="x86_64") == ("", "")
+
+
+def test_codex_lookup_takes_the_newest_extension_in_either_vscode_folder(monkeypatch, tmp_path):
+    from spacr.qt.ai import providers
+
+    monkeypatch.setattr(providers.shutil, "which", lambda name: None)
+    local = tmp_path / ".vscode" / "extensions"
+    remote = tmp_path / ".vscode-server" / "extensions"
+    _fake_extension(local, "26.1111.21308")
+    _fake_extension(local, "26.900.1")
+    newest = _fake_extension(remote, "26.1200.5")
+    _fake_extension(local, "27.1", folder="darwin-arm64")
+    path, source = providers._codex_executable(home=str(tmp_path), platform="linux", machine="x86_64")
+    assert path == newest and source.endswith("openai.chatgpt-26.1200.5-linux-x64")
+    arm = _fake_extension(local, "26.5", folder="linux-aarch64")
+    assert providers._codex_executable(home=str(tmp_path), platform="linux", machine="aarch64")[0] == arm
+    mac = providers._codex_executable(home=str(tmp_path), platform="darwin", machine="arm64")[0]
+    assert mac.endswith("openai.chatgpt-27.1-linux-x64/bin/darwin-arm64/codex")
+
+
+def test_codex_on_path_wins_and_the_used_path_is_logged(monkeypatch, tmp_path, caplog):
+    import logging
+
+    from spacr.qt.ai import providers
+
+    _fake_extension(tmp_path / ".vscode" / "extensions", "26.1111.21308")
+    monkeypatch.setattr(providers.shutil, "which", lambda name: "/usr/bin/codex" if name == "codex" else None)
+    assert providers._codex_executable(home=str(tmp_path)) == ("/usr/bin/codex", "PATH")
+    monkeypatch.setattr(providers.shutil, "which", lambda name: None)
+    monkeypatch.setattr(providers, "_codex_home", lambda: str(tmp_path))
+    monkeypatch.setattr(providers, "_CODEX_LOGGED", set())
+    with caplog.at_level(logging.INFO, logger=providers.__name__):
+        command = providers._codex_command()
+    assert command.endswith("/bin/linux-x86_64/codex") or command == "codex"
+    if command != "codex":
+        assert "Codex CLI: using" in caplog.text and providers.CodexCliProvider().is_installed()
+        rec = _install_fake_popen(monkeypatch, _FakeProc([]))
+        list(providers.CodexCliProvider().stream_chat([{"role": "user", "content": "q"}], model="o3"))
+        assert rec["argv"][0] == command

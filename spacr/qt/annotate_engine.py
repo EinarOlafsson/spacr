@@ -38,6 +38,8 @@ from spacr.database_concurrency import (
     transaction,
 )
 
+from .i18n import tr
+
 LOG = logging.getLogger("spacr.qt.annotate_engine")
 
 #: The crop table the annotation screen reads.
@@ -180,9 +182,9 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     from ..crops import (
         CROP_FORMAT_CURRENT,
         CROP_FORMAT_RGB,
+        _read_crop_preferring_store,
         apply_display_order,
         apply_display_primaries,
-        read_crop_png,
     )
 
     order = str(stored_channel_order or "auto").strip().lower()
@@ -195,7 +197,8 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     else:
         raise ValueError(
             "stored_channel_order must be 'rgb', 'auto', or 'legacy_bgr'")
-    corrected = read_crop_png(path, fmt=stored_format, db_path=db_path)
+    corrected = _read_crop_preferring_store(path, db_path=db_path,
+                                            fmt=stored_format)
     shown = apply_display_order(corrected, display_order)
     return Image.fromarray(apply_display_primaries(shown, display_primaries))
 
@@ -872,6 +875,42 @@ class AnnotateSettings:
 
 
 
+def _missing_annotation_database_message(db_path: str) -> str:
+    """Explain how to select or create the missing annotation database."""
+    return tr(
+        "Annotation database not found at:\n{path}\n\n"
+        "Select the experiment folder containing measurements/measurements.db. "
+        "If it has not been created, run Measure or use Generate annotation "
+        "database first.", path=db_path)
+
+
+def _annotation_database_access_message(db_path: str) -> str:
+    """Explain how to reopen an annotation project with database write access."""
+    return tr(
+        "Cannot use the annotation database at:\n{path}\n\n"
+        "Annotate needs a readable, writable database and a writable folder. "
+        "Check their permissions, or close applications using this project, "
+        "copy the entire experiment folder to a writable local folder, and "
+        "open that copy. Keep any SQLite journal, WAL and SHM files with "
+        "the database.", path=db_path)
+
+
+def _require_writable_annotation_database(db_path: str) -> None:
+    """Refuse annotation startup when the database or its folder lacks access."""
+    target = os.path.realpath(os.path.expanduser(os.fspath(db_path)))
+    if (not os.access(target, os.R_OK | os.W_OK)
+            or not os.access(os.path.dirname(target), os.W_OK | os.X_OK)):
+        raise PermissionError(_annotation_database_access_message(db_path))
+
+
+def _is_readonly_database_error(error: BaseException) -> bool:
+    """Recognize SQLite read-only errors, including extended result codes."""
+    code = getattr(error, "sqlite_errorcode", None)
+    if isinstance(code, int):
+        return code & 0xff == sqlite3.SQLITE_READONLY
+    return str(error).strip().lower() == "attempt to write a readonly database"
+
+
 def ensure_annotation_column(db_path: str, column: str, *,
                              table: str = DEFAULT_PNG_TABLE) -> None:
     """Add `column` INTEGER to ``table`` if missing and index png_path.
@@ -1085,14 +1124,20 @@ def count_rows(db_path: str, image_type: Optional[str] = None, *,
     """
     if not os.path.isfile(db_path):
         return 0
-    with contextlib.closing(
-        connect_database(db_path, readonly=True, timeout=30)
-    ) as conn:
-        cur = conn.cursor()
-        where, params = parse_image_type(image_type)
-        clause = f" WHERE {where}" if where else ""
-        cur.execute(f'SELECT COUNT(*) FROM "{table}"{clause}', params)
-        return int(cur.fetchone()[0])
+    try:
+        with contextlib.closing(
+            connect_database(db_path, readonly=True, timeout=30)
+        ) as conn:
+            cur = conn.cursor()
+            where, params = parse_image_type(image_type)
+            clause = f" WHERE {where}" if where else ""
+            cur.execute(f'SELECT COUNT(*) FROM "{table}"{clause}', params)
+            return int(cur.fetchone()[0])
+    except sqlite3.OperationalError as exc:
+        if _is_readonly_database_error(exc):
+            raise PermissionError(
+                _annotation_database_access_message(db_path)) from exc
+        raise
 
 
 def fetch_page(
@@ -1532,6 +1577,11 @@ class SaveWorker:
             wrong one would put a user's labels on somebody else's rows.
         """
         self.db_path = db_path
+        try:
+            if db_path:
+                self.db_path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
+        except (OSError, ValueError, TypeError):
+            pass
         self.annotation_column = annotation_column
         self.table = table
         self._q: "queue.Queue[Any]" = queue.Queue()
@@ -1690,6 +1740,13 @@ class SaveWorker:
         conn = None
         cur = None
         try:
+            try:
+                if self.db_path:
+                    os.stat(self.db_path)
+                    _require_writable_annotation_database(self.db_path)
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    _missing_annotation_database_message(self.db_path)) from None
             conn = connect_database(self.db_path, timeout=30)
             cur = conn.cursor()
             col = (self.annotation_column or "").replace('"', '""')

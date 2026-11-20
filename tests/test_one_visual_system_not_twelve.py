@@ -61,7 +61,10 @@ GLOBAL_RC = re.compile(r"(?:plt|mpl|matplotlib)\.rcParams\s*(?:\.update\(|\[)")
 # 146 -> 147 for ``ml._show_response_distribution``. The diagnostic panel
 # creates its axes inside
 # ``figure_style(theme_target())``; the unstyled ceiling remains zero.
-CEILING = 147
+# 147 -> 148 for ``ops_feature_info._plot`` (item 964). The ranked bar chart
+# creates its axes inside ``figure_style("print")``; the unstyled ceiling
+# remains zero.
+CEILING = 148
 
 #: The ceiling on figure creations that are NOT inside the house style.
 #:

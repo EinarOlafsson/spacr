@@ -30,7 +30,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "plate": "",
     "ops_gpu": True,
     "n_workers": 26,
-    "cellpose_model": "cpsam",
+    "ops_sbs_nucleus_model": "cpsam",
     "cellpose_diameter": None,
     "ops_library": None,
     "ops_base_channels": "CY3,A594,CY5,CY7",
@@ -84,6 +84,21 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_organelle_model": "cpsam",
     "ops_ph_organelle_diameter": None,
     "ops_ph_organelle_min_area": 10,
+    "ops_feature_screen_old": None,
+    "ops_feature_screen_new": None,
+    "ops_feature_screen_cells": None,
+    "ops_feature_screen_id_columns": None,
+    "ops_feature_screen_label": 'gene',
+    "ops_feature_screen_guide": 'sgRNA',
+    "ops_feature_screen_families": None,
+    "ops_feature_screen_permutations": 500,
+    "ops_feature_screen_perm_unit": 'guide',
+    "ops_feature_screen_seed": 0,
+    "ops_feature_screen_ridge": 1e-06,
+    "ops_feature_screen_greedy_threshold": 0.0,
+    "ops_feature_screen_mlp": False,
+    "ops_feature_screen_device": 'auto',
+    "ops_feature_screen_dst": None,
     "ops_merge_threshold": 4.0,
     "ops_merge_strategy": "current",
     "ops_merge_stitch_source": "metadata",
@@ -200,6 +215,11 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_tie": 1.0,
     "ops_decode_quality_weighted": False,
     "ops_vote_weight_floor": 0.05,
+    "ops_read_distance_weight": "off",
+    "ops_read_distance_decay_px": 4.0,
+    "ops_read_distance_interior_px": 0.0,
+    "ops_read_distance_min_weight": 0.05,
+    "ops_read_neighbour_discount": 1.0,
     "ops_decode_pixel_fallback": False,
     "ops_pixel_percentile": 97.0,
     "ops_pixel_radius": 10.0,
@@ -414,6 +434,10 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_voyager3_shuffle_control": False,
     "ops_voyager3_resume": True,
     "ops_voyager3_answers_dir": None,
+    "ops_voyager3_method": "ai",
+    "ops_voyager3_reactome": None,
+    "ops_voyager3_corum": None,
+    "ops_voyager3_enrichment_fdr": 0.05,
     "ops_etest": False,
     "ops_etest_cells": None,
     "ops_etest_metric": 'both',
@@ -471,6 +495,16 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_nearmiss_decoy_k": 0,
     "ops_prefix_fdr_calibration": "none",
     "ops_prefix_minority_min_reads": 0,
+    "ops_prefix_distance_weight": "off",
+    "ops_prefix_distance_decay_px": 8.0,
+    "ops_prefix_distance_interior_px": 0.0,
+    "ops_prefix_distance_min_weight": 0.05,
+    "ops_prefix_weighted_quality": True,
+    "ops_prefix_weighted_min_share": 0.6,
+    "ops_prefix_nuclei_masks": None,
+    "ops_keep_multi_guide_cells": False,
+    "ops_multi_guide_min_reads": 2,
+    "ops_prefix_tuning_min_sites": 0,
     "ops_fdr_sweep_targets": [0.5, 1.0, 2.0, 5.0],
     "ops_fdr_sweep_max_distance": [0, 1],
     "ops_fdr_sweep_min_reads": [1, 2, 3],
@@ -487,6 +521,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_grid_n_tiles": None,
     "ops_grid_seed": None,
     "ops_grid_run_id": None,
+    "ops_barcode_layout": None,
+    "ops_barcode_layout_file": None,
+    "ops_call_sort": None,
+    "ops_read_compartment": None,
+    "ops_recomb_min_quality": None,
+    "ops_insitu_preset": None,
 }
 
 #: The Measure setting each OPS phenotype measurement setting stands for
@@ -516,7 +556,7 @@ OPS_TYPES: Dict[str, object] = {
     "genotype_source": (str, type(None)),
     "phenotype_source": (str, type(None)),
     "plate": str,
-    "cellpose_model": str,
+    "ops_sbs_nucleus_model": str,
     "cellpose_diameter": (float, int, type(None)),
     "n_workers": int,
     "ops_gpu": bool,
@@ -572,6 +612,21 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_organelle_model": str,
     "ops_ph_organelle_diameter": (float, int, type(None)),
     "ops_ph_organelle_min_area": int,
+    "ops_feature_screen_old": (str, type(None)),
+    "ops_feature_screen_new": (str, type(None)),
+    "ops_feature_screen_cells": (str, type(None)),
+    "ops_feature_screen_id_columns": (str, type(None)),
+    "ops_feature_screen_label": str,
+    "ops_feature_screen_guide": str,
+    "ops_feature_screen_families": (str, dict, type(None)),
+    "ops_feature_screen_permutations": int,
+    "ops_feature_screen_perm_unit": str,
+    "ops_feature_screen_seed": int,
+    "ops_feature_screen_ridge": (float, int),
+    "ops_feature_screen_greedy_threshold": (float, int),
+    "ops_feature_screen_mlp": bool,
+    "ops_feature_screen_device": str,
+    "ops_feature_screen_dst": (str, type(None)),
     "ops_merge_threshold": (float, int),
     "ops_merge_strategy": str,
     "ops_merge_stitch_source": str,
@@ -688,6 +743,11 @@ OPS_TYPES: Dict[str, object] = {
     "ops_tie": (float, int),
     "ops_decode_quality_weighted": bool,
     "ops_vote_weight_floor": (float, int),
+    "ops_read_distance_weight": str,
+    "ops_read_distance_decay_px": (float, int),
+    "ops_read_distance_interior_px": (float, int),
+    "ops_read_distance_min_weight": (float, int),
+    "ops_read_neighbour_discount": (float, int),
     "ops_decode_pixel_fallback": bool,
     "ops_pixel_percentile": (float, int),
     "ops_pixel_radius": (float, int),
@@ -902,6 +962,10 @@ OPS_TYPES: Dict[str, object] = {
     "ops_voyager3_shuffle_control": bool,
     "ops_voyager3_resume": bool,
     "ops_voyager3_answers_dir": (str, type(None)),
+    "ops_voyager3_method": str,
+    "ops_voyager3_reactome": (str, type(None)),
+    "ops_voyager3_corum": (str, type(None)),
+    "ops_voyager3_enrichment_fdr": (float, int),
     "ops_etest": bool,
     "ops_etest_cells": (str, type(None)),
     "ops_etest_metric": str,
@@ -959,6 +1023,16 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_nearmiss_decoy_k": int,
     "ops_prefix_fdr_calibration": str,
     "ops_prefix_minority_min_reads": int,
+    "ops_prefix_distance_weight": str,
+    "ops_prefix_distance_decay_px": (float, int),
+    "ops_prefix_distance_interior_px": (float, int),
+    "ops_prefix_distance_min_weight": (float, int),
+    "ops_prefix_weighted_quality": bool,
+    "ops_prefix_weighted_min_share": (float, int),
+    "ops_prefix_nuclei_masks": (str, type(None)),
+    "ops_keep_multi_guide_cells": bool,
+    "ops_multi_guide_min_reads": int,
+    "ops_prefix_tuning_min_sites": int,
     "ops_fdr_sweep_targets": (list, str),
     "ops_fdr_sweep_max_distance": (list, str),
     "ops_fdr_sweep_min_reads": (list, str),
@@ -975,111 +1049,157 @@ OPS_TYPES: Dict[str, object] = {
     "ops_grid_n_tiles": (int, type(None)),
     "ops_grid_seed": (int, type(None)),
     "ops_grid_run_id": (str, type(None)),
+    "ops_barcode_layout": (str, type(None)),
+    "ops_barcode_layout_file": (str, type(None)),
+    "ops_call_sort": (str, type(None)),
+    "ops_read_compartment": (str, type(None)),
+    "ops_recomb_min_quality": (float, int, type(None)),
+    "ops_insitu_preset": (str, type(None)),
 }
 
 #: Which panel section each setting appears under.
 #:
-#: A SETTING BELONGS TO EXACTLY ONE CATEGORY. `plate` is shared with the rest
-#: of spaCR and is already filed under Plate Layout & Controls, so it is NOT
-#: repeated here. Listing one twice is not a display preference: Tk renders
-#: each copy separately and Qt drops all but the first, so the second copy is
-#: either a duplicate control or an invisible one depending on which toolkit
-#: is drawing.
+#: A SETTING BELONGS TO EXACTLY ONE CATEGORY. Listing one twice is not a
+#: display preference: Tk renders each copy separately and Qt drops all but
+#: the first, so the second copy is either a duplicate control or an
+#: invisible one depending on which toolkit is drawing.
+#:
+#: ITEM 969 (2026-11-17) SPLIT THE FOUR LARGE GROUPS. OPS decoding held 110
+#: settings and OPS phenotype 277, so a reader scrolled past a hundred rows
+#: to find one. Every category below holds at most twenty; the OPS headings
+#: they sit under (``_APP_CATEGORY_PARENTS['ops']`` in
+#: :mod:`spacr.qt.screens.settings_model`) follow Brieflow's stages --
+#: preprocess and sbs (input, alignment, decoding), phenotype, merge,
+#: aggregate and cluster -- with the scoring of profiles and clusters against
+#: references as OPS evaluation.
+#:
+#: `plate` is shared with the rest of spaCR and is filed under the shared
+#: Plate Layout & Controls, so it is NOT repeated here; that category nests
+#: under OPS input on this panel and gains the guide design, the control
+#: prefix and the genotype table, the OPS settings that say which guides and
+#: genes are controls.
+#:
+#: The `ops_power_*` settings of the e-test power curve are OPS settings and
+#: the etest phase still reads them, but the panel shows them in the Power
+#: module's OPS power curve section; ``_APP_HIDDEN_KEYS['ops']`` in
+#: :mod:`spacr.qt.screens.settings_model` hides them here.
 OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS input": [
         "dst_root", "genotype_source", "phenotype_source", "ops_library",
-        "ops_layout", "cpg_root", "cpg_wells", "cpg_sites",
-        "cpg_phenotype_channels", "cpg_sbs_cycles", "cpg_sbs_bases",
-        "cpg_sbs_dapi", "cpg_sbs_resample", "cpg_missing", "cpg_md5",
+        "ops_layout",
     ],
-    "OPS alignment": [
-        "cellpose_model", "cellpose_diameter", "ops_raster_overlap",
-        "ops_window_overlap", "ops_compose_blend",
-        "ops_stitch_read_threads", "ops_stitch_edge_workers",
+    "Plate Layout & Controls": [
+        "ops_design", "ops_control_prefix", "ops_genotype_table",
+    ],
+    "Cell Painting Gallery input": [
+        "cpg_root", "cpg_wells", "cpg_sites", "cpg_phenotype_channels",
+        "cpg_sbs_cycles", "cpg_sbs_bases", "cpg_sbs_dapi", "cpg_sbs_resample",
+        "cpg_missing", "cpg_md5",
+    ],
+    "OPS performance": [
+        "ops_gpu", "n_workers", "ops_deterministic_blas", "ops_blas_threads",
+        "ops_ph_pipeline", "ops_ph_measure_workers", "ops_ph_measure_gpu",
+        "ops_ph_measure_gpu_check", "ops_ph_stage_dir", "ops_ph_stage_ahead",
+        "ops_ph_stage_threads", "ops_gpu_admission", "ops_gpu_idle_checks",
+        "ops_gpu_min_process_mib", "ops_gpu_vram_cap_gb",
+        "ops_gpu_ignore_process_patterns", "ops_stress_report",
+        "ops_feature_screen_device",
+    ],
+    "Archive": [
+        "ops_archive_root", "ops_archive_verify", "ops_archive_delete_local",
+    ],
+    "Stitching": [
+        "ops_raster_overlap", "ops_compose_blend", "ops_stitch_read_threads",
+        "ops_stitch_edge_workers", "ops_sites",
+    ],
+    "Placement seeds": [
         "ops_placement_seed", "ops_placement_seed_mode",
         "ops_placement_seed_export", "ops_placement_seed_check_pixels",
         "ops_placement_seed_tolerance", "ops_ph_placement_seed",
-        "ops_sites", "ops_objects_resume", "ops_objects_keep_windows",
+    ],
+    "Nuclei segmentation": [
+        "ops_sbs_nucleus_model", "cellpose_diameter", "ops_window_overlap",
+        "ops_objects_resume", "ops_objects_keep_windows",
         "ops_objects_windows_dir",
     ],
-    "OPS decoding": [
-        "ops_base_channels", "ops_read_threshold", "ops_read_mode", "ops_footprint",
-        "ops_store_reads", "ops_spot_detector", "ops_channel_registration",
-        "ops_registration_precision", "ops_registration_backend",
-        "ops_field_diagnostics",
-        "ops_crosstalk",
-        "ops_cell_rule",
-        "ops_read_mismatches", "ops_min_reads", "ops_min_fraction",
-        "ops_single_read_quality",
-        "ops_decode_preset",
-        "ops_registration_refine_px",
-        "ops_spot_min_peak",
-        "ops_spot_overrule_share",
-        "ops_decode_library_calibration",
-        "ops_calibration_passes",
-        "ops_calibration_min_labels",
-        "ops_decode_runner_up",
-        "ops_runner_up_margin",
-        "ops_decode_impute_missing_cycles",
-        "ops_assign_by_cell_territory",
-        "ops_tie",
-        "ops_decode_quality_weighted",
-        "ops_vote_weight_floor",
-        "ops_decode_pixel_fallback",
-        "ops_pixel_percentile",
-        "ops_pixel_radius",
-        "ops_pixel_min_pixels",
-        "ops_pixel_min_fraction",
-        "ops_pixel_quality",
-        "ops_decoy_library_k",
-        "ops_fdr_scale",
-        "ops_decode_threshold_mode",
-        "ops_decode_fdr_max",
-        "ops_decode_auto_grid",
-        "ops_decode_auto_ci",
-        "ops_decode_auto_tune_fraction",
-        "ops_decode_auto_seed",
-        "ops_decode_auto_spot_grid",
-        "ops_decode_auto_objective",
-        "ops_decode_auto_f_beta",
-        "ops_decode_auto_unreachable",
-        "ops_decode_fdr_calibration",
-        "ops_decode_skip_unplaced_sites",
+    "Spot detection & registration": [
+        "ops_base_channels", "ops_read_threshold", "ops_spot_detector",
+        "ops_spot_min_peak", "ops_spot_overrule_share",
+        "ops_channel_registration", "ops_registration_precision",
+        "ops_registration_backend", "ops_registration_refine_px",
+        "ops_field_diagnostics", "ops_decode_skip_unplaced_sites",
         "ops_store_field_cache",
-        "ops_decode_qc",
-        "ops_decode_qc_model",
-        "ops_decode_qc_features",
-        "ops_decode_qc_split",
-        "ops_decode_qc_seed",
-        "ops_decode_qc_max_calls",
-        "ops_genotype_confidence",
-        "ops_confidence_model",
-        "ops_confidence_calibration",
-        "ops_confidence_bins",
-        "ops_confidence_seed",
-        "ops_confidence_min",
-        "ops_compare_tables",
-        "ops_compare_match_px",
-        "ops_compare_fields",
+    ],
+    "Base calling": [
+        "ops_decode_preset", "ops_read_mode", "ops_crosstalk",
+        "ops_decode_library_calibration", "ops_calibration_passes",
+        "ops_calibration_min_labels", "ops_store_reads",
+        "ops_insitu_preset", "ops_barcode_layout", "ops_barcode_layout_file",
+        "ops_call_sort", "ops_read_compartment", "ops_recomb_min_quality",
+    ],
+    "Read assignment": [
+        "ops_footprint", "ops_cell_rule", "ops_read_mismatches",
+        "ops_min_reads", "ops_min_fraction", "ops_single_read_quality",
+        "ops_decode_runner_up", "ops_runner_up_margin",
+        "ops_decode_impute_missing_cycles", "ops_assign_by_cell_territory",
+        "ops_tie", "ops_decode_quality_weighted", "ops_vote_weight_floor",
+        "ops_read_distance_weight", "ops_read_distance_decay_px",
+        "ops_read_distance_interior_px", "ops_read_distance_min_weight",
+        "ops_read_neighbour_discount",
+    ],
+    "Pixel fallback": [
+        "ops_decode_pixel_fallback", "ops_pixel_percentile",
+        "ops_pixel_radius", "ops_pixel_min_pixels", "ops_pixel_min_fraction",
+        "ops_pixel_quality",
+    ],
+    "Decoys & auto thresholds": [
+        "ops_decoy_library_k", "ops_fdr_scale", "ops_decode_threshold_mode",
+        "ops_decode_fdr_max", "ops_decode_auto_grid", "ops_decode_auto_ci",
+        "ops_decode_auto_tune_fraction", "ops_decode_auto_seed",
+        "ops_decode_auto_spot_grid", "ops_decode_auto_objective",
+        "ops_decode_auto_f_beta", "ops_decode_auto_unreachable",
+        "ops_decode_fdr_calibration",
+    ],
+    "Call quality & confidence": [
+        "ops_decode_qc", "ops_decode_qc_model", "ops_decode_qc_features",
+        "ops_decode_qc_split", "ops_decode_qc_seed", "ops_decode_qc_max_calls",
+        "ops_genotype_confidence", "ops_confidence_model",
+        "ops_confidence_calibration", "ops_confidence_bins",
+        "ops_confidence_seed", "ops_confidence_min",
+    ],
+    "Spacer-prefix library": [
         "ops_library_mode", "ops_library_sequence_col", "ops_library_gene_col",
         "ops_prefix_length", "ops_sbs_cycles", "ops_cycle_mask",
         "ops_prefix_collision", "ops_prefix_metric", "ops_prefix_max_distance",
         "ops_prefix_crosstalk", "ops_prefix_masks", "ops_quality_min_reads",
-        "ops_prefix_quality_method",
+        "ops_prefix_minority_min_reads", "ops_prefix_quality_method",
+        "ops_prefix_weighted_quality", "ops_prefix_weighted_min_share",
+        "ops_keep_multi_guide_cells", "ops_multi_guide_min_reads",
+    ],
+    "Spacer-prefix FDR & tuning": [
         "ops_random_barcode_control", "ops_control_seed",
         "ops_prefix_decoy_k", "ops_prefix_decoy_seed", "ops_prefix_fdr_scale",
         "ops_prefix_min_read_quality", "ops_prefix_threshold_tuning",
         "ops_prefix_fdr_target_pct", "ops_prefix_tuning_grid",
         "ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration",
-        "ops_prefix_minority_min_reads",
+        "ops_prefix_tuning_min_sites", "ops_prefix_distance_weight",
+        "ops_prefix_distance_decay_px", "ops_prefix_distance_interior_px",
+        "ops_prefix_distance_min_weight", "ops_prefix_nuclei_masks",
+    ],
+    "Prefix FDR sweep": [
         "ops_fdr_sweep_targets", "ops_fdr_sweep_max_distance",
         "ops_fdr_sweep_min_reads", "ops_fdr_sweep_rules",
         "ops_fdr_sweep_quality_quantiles", "ops_fdr_sweep_bootstrap",
         "ops_fdr_sweep_seed", "ops_fdr_sweep_shuffle_seeds",
         "ops_fdr_sweep_inputs",
+    ],
+    "Grid search": [
         "ops_grid_search", "ops_grid_params", "ops_grid_tiles",
         "ops_grid_tile_mode", "ops_grid_n_tiles", "ops_grid_seed",
         "ops_grid_run_id",
+    ],
+    "Comparison with other pipelines": [
+        "ops_compare_tables", "ops_compare_match_px", "ops_compare_fields",
         "ops_compare_match", "ops_compare_reference_masks",
         "ops_compare_spacr_masks", "ops_compare_reference_objects",
         "ops_compare_iou", "ops_compare_reference_calls",
@@ -1087,212 +1207,208 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_compare_edge_policy", "ops_compare_mask_scale",
         "ops_compare_control_seed",
     ],
-    "OPS performance": [
-        "ops_gpu", "n_workers",
-    ],
-    "OPS phenotype": [
+    "Phenotype segmentation": [
         "ops_ph_channels", "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
-        "ops_ph_sites", "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
+        "ops_ph_sites", "ops_retry_missing",
+    ],
+    "Additional phenotype objects": [
         "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
         "ops_ph_pathogen_diameter", "ops_ph_pathogen_min_area",
         "ops_ph_organelle_channel", "ops_ph_organelle_morphology",
         "ops_ph_organelle_method", "ops_ph_organelle_model",
         "ops_ph_organelle_diameter", "ops_ph_organelle_min_area",
+    ],
+    "Phenotype acquisitions": [
+        "ops_ph_acquisitions", "ops_ph_use_acquisition",
+        "ops_ph_secondary_channels", "ops_ph_secondary_registration",
+        "ops_ph_secondary_window", "ops_ph_secondary_fallback",
+    ],
+    "Feature families": [
+        "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
         "ops_ph_profile_features", "ops_ph_profile_optional_families",
-        "ops_ph_granularity_subsample",
+        "ops_ph_granularity_subsample", "ops_feature_screen_old",
+        "ops_feature_screen_new", "ops_feature_screen_cells",
+        "ops_feature_screen_id_columns", "ops_feature_screen_label",
+        "ops_feature_screen_guide", "ops_feature_screen_families",
+        "ops_feature_screen_permutations", "ops_feature_screen_perm_unit",
+        "ops_feature_screen_seed", "ops_feature_screen_ridge",
+        "ops_feature_screen_greedy_threshold", "ops_feature_screen_mlp",
+        "ops_feature_screen_dst",
+    ],
+    "Flat-field correction": [
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
-        "ops_flatfield_field_list", "ops_merge_threshold",
-        "ops_merge_strategy", "ops_merge_stitch_source",
-        "ops_merge_stage_positions", "ops_merge_min_votes",
-        "ops_merge_min_match_fraction", "ops_merge_fallback_share",
-        "ops_ownership", "ops_align_model", "ops_align_tile_min_nuclei",
-        "ops_align_match_radius", "ops_align_trim_passes",
-        "ops_flatfield_nuclear_channel", "ops_flatfield_nuclei",
-        "ops_flatfield_dark", "ops_flatfield_nuclear_maps",
+        "ops_flatfield_field_list", "ops_flatfield_nuclear_channel",
+        "ops_flatfield_nuclei", "ops_flatfield_dark",
+        "ops_flatfield_nuclear_maps",
+    ],
+    "Flat-field map fit": [
         "ops_flatfield_block_px", "ops_flatfield_fit", "ops_flatfield_sigma_px",
-        "ops_flatfield_ridge", "ops_flatfield_floor", "ops_flatfield_centre_cells",
-        "ops_flatfield_lookup", "ops_flatfield_map_grid",
-        "ops_flatfield_centre_offset", "ops_flatfield_field_px",
+        "ops_flatfield_ridge", "ops_flatfield_floor",
+        "ops_flatfield_centre_cells", "ops_flatfield_lookup",
+        "ops_flatfield_map_grid", "ops_flatfield_centre_offset",
+        "ops_flatfield_field_px",
+    ],
+    "Flat-field validation": [
         "ops_flatfield_holdout_fields", "ops_flatfield_holdout_n",
         "ops_flatfield_seed", "ops_flatfield_holdout_images",
         "ops_flatfield_holdout_masks", "ops_flatfield_compare_maps",
         "ops_flatfield_radial_edges", "ops_flatfield_bootstrap",
         "ops_flatfield_bootstrap_seed", "ops_flatfield_min_bin_cells",
-        "ops_drop_failed_fields", "ops_drop_nonfinite_rows",
-        "ops_design", "ops_control_prefix", "ops_bootstrap",
-        "ops_pvalue_null", "ops_test_features", "ops_mitotic_dna_z",
-        "ops_genotype_table", "ops_pool_wells", "ops_pool_interphase",
-        "ops_feature_qc", "ops_profile_normalisation", "ops_tvn_mode",
-        "ops_tvn_pca_sample", "ops_tvn_seed", "ops_tvn_components",
-        "ops_tvn_whiten_epsilon", "ops_cluster_benchmark",
-        "ops_benchmark_corum", "ops_benchmark_kegg", "ops_benchmark_string",
-        "ops_reference_clusters", "ops_cluster_target",
-        "ops_cluster_resolutions", "ops_cluster_seed", "ops_consensus_runs",
-        "ops_mitotic_model",
+    ],
+    "Merged images & tables": [
         "ops_merged_root", "ops_merged_flatfield", "ops_merged_dtype",
         "ops_merged_save_sbs", "ops_tables_parquet_threshold",
+        "ops_tables_integer_keys", "ops_tables_layout", "ops_storage",
+        "ops_store_row_copy",
+    ],
+    "Single-cell crops": [
         "ops_crop_per_guide", "ops_crop_size", "ops_crop_channels",
-        "ops_crop_flatfield", "ops_crop_seed", "ops_crop_all_nt",
-        "ops_crop_control_fraction", "ops_crop_masks",
-        "ops_max_files_per_folder", "ops_ph_secondary_channels",
-        "ops_ph_secondary_registration", "ops_ph_secondary_window",
-        "ops_ph_secondary_fallback", "ops_ph_measure_gpu",
-        "ops_cross_field_ownership", "ops_cross_field_metric",
+        "ops_crop_flatfield", "ops_crop_flat_mean_one", "ops_crop_seed",
+        "ops_crop_all_nt", "ops_crop_control_fraction", "ops_crop_masks",
+        "ops_max_files_per_folder",
+    ],
+    "Field alignment": [
+        "ops_merge_threshold", "ops_merge_strategy", "ops_merge_stitch_source",
+        "ops_merge_stage_positions", "ops_merge_min_votes",
+        "ops_merge_min_match_fraction", "ops_merge_fallback_share",
+        "ops_align_model", "ops_align_tile_min_nuclei",
+        "ops_align_match_radius", "ops_align_trim_passes",
+    ],
+    "Cell ownership": [
+        "ops_ownership", "ops_cross_field_ownership", "ops_cross_field_metric",
         "ops_cross_field_min_overlap", "ops_cross_field_policy",
+        "ops_drop_failed_fields",
+    ],
+    "Yield report": [
         "ops_reference_counts", "ops_reference_counts_level",
-        "ops_reference_shuffles", "ops_reference_seed", "ops_retry_missing",
-        "ops_crop_flat_mean_one",
-        "ops_aggregate_level",
-        "ops_nt_rows",
-        "ops_profile_weighting",
-        "ops_guide_efficacy",
-        "ops_guide_efficacy_iters",
-        "ops_guide_efficacy_emax",
-        "ops_profile_cell_cycle",
-        "ops_profile_g1_sg2_split_log2",
-        "ops_mitotic_source",
-        "ops_tvn_fit_cells",
-        "ops_penetrance",
-        "ops_penetrance_folds",
-        "ops_penetrance_nt_pool",
-        "ops_penetrance_lambda",
-        "ops_escapers",
-        "ops_escaper_dbic",
-        "ops_escaper_min_sep",
-        "ops_phase_tests",
-        "ops_phase_null",
-        "ops_neighbour_effects",
-        "ops_neighbour_receivers",
-        "ops_neighbour_null_reps",
-        "ops_neighbour_radius_px",
-        "ops_neighbour_grid_px",
-        "ops_neighbour_active",
-        "ops_profile_shrinkage",
-        "ops_profile_shrinkage_prior_df",
-        "ops_profile_generic_axes",
-        "ops_profile_essential_axis_min_rho",
-        "ops_profile_similarity",
-        "ops_guide_null_size",
-        "ops_profile_responder_alpha",
-        "ops_profile_space",
-        "ops_fusion_blocks",
-        "ops_profile_cells", "ops_profile_wells",
-        "ops_profile_run", "ops_profile_recipe",
-        "ops_profile_min_cells", "ops_profile_active_filter",
-        "ops_profile_cell_state", "ops_profile_gene_universe",
-        "ops_mitotic_index_test", "ops_mitotic_index_min_cells",
-        "ops_mitotic_index_reference",
-        "ops_reference_dir",
-        "ops_scoring_inputs", "ops_scoring_genes", "ops_scoring_null_size",
-        "ops_scoring_min_complex", "ops_scoring_references",
-        "ops_scoring_cluster_jitter", "ops_scoring_cluster_seeds",
-        "ops_scoring_workers", "ops_scoring_figures",
-        "ops_scoring_metrics", "ops_scoring_corum_file",
-        "ops_scoring_string_file", "ops_scoring_string_thresholds",
-        "ops_scoring_corum_coverage", "ops_scoring_pca_variance",
-        "ops_scoring_benchmark_genes", "ops_scoring_benchmark_seed",
+        "ops_reference_shuffles", "ops_reference_seed",
+        "ops_report_read_stage", "ops_report_overlap_zones",
+        "ops_report_edge_bin_px", "ops_report_external_cells",
+        "ops_report_external_max_px",
+    ],
+    "Pooling & normalisation": [
+        "ops_pool_wells", "ops_pool_interphase", "ops_drop_nonfinite_rows",
+        "ops_feature_qc", "ops_profile_normalisation", "ops_aggregate_level",
+        "ops_nt_rows", "ops_tvn_mode", "ops_tvn_fit_cells",
+        "ops_tvn_pca_sample", "ops_tvn_seed", "ops_tvn_components",
+        "ops_tvn_whiten_epsilon",
+    ],
+    "Gene tests & hits": [
+        "ops_bootstrap", "ops_pvalue_null", "ops_test_features",
         "ops_hits_feature_p", "ops_hits_fdr", "ops_hits_expression_table",
         "ops_hits_cell_line", "ops_hits_compartments", "ops_hits_min_cells",
         "ops_hits_reference_list",
-        "ops_eval_references", "ops_eval_split", "ops_eval_null_size",
-        "ops_eval_heldout_folds", "ops_eval_decoys",
-        "ops_eval_time_split", "ops_eval_covariates",
-        "ops_deterministic_blas", "ops_blas_threads",
-        "ops_ph_acquisitions", "ops_ph_use_acquisition", "ops_ph_pipeline",
-        "ops_ph_measure_workers",
-        "ops_ph_stage_dir", "ops_ph_stage_ahead", "ops_ph_stage_threads",
-        "ops_ph_measure_gpu_check", "ops_archive_root", "ops_archive_verify",
-        "ops_archive_delete_local", "ops_gpu_admission", "ops_gpu_idle_checks",
-        "ops_gpu_min_process_mib", "ops_gpu_vram_cap_gb",
-        "ops_gpu_ignore_process_patterns", "ops_tables_integer_keys",
-        "ops_tables_layout", "ops_storage", "ops_store_row_copy",
-        "ops_stress_report",
+    ],
+    "Cell cycle & mitosis": [
+        "ops_mitotic_dna_z", "ops_mitotic_model", "ops_mitotic_source",
+        "ops_profile_cell_cycle", "ops_profile_g1_sg2_split_log2",
+        "ops_phase_tests", "ops_phase_null", "ops_mitotic_index_test",
+        "ops_mitotic_index_min_cells", "ops_mitotic_index_reference",
+    ],
+    "Penetrance, escapers & neighbours": [
+        "ops_penetrance", "ops_penetrance_folds", "ops_penetrance_nt_pool",
+        "ops_penetrance_lambda", "ops_escapers", "ops_escaper_dbic",
+        "ops_escaper_min_sep", "ops_neighbour_effects",
+        "ops_neighbour_receivers", "ops_neighbour_null_reps",
+        "ops_neighbour_radius_px", "ops_neighbour_grid_px",
+        "ops_neighbour_active",
+    ],
+    "Profile weighting & shrinkage": [
+        "ops_profile_weighting", "ops_guide_efficacy",
+        "ops_guide_efficacy_iters", "ops_guide_efficacy_emax",
+        "ops_profile_shrinkage", "ops_profile_shrinkage_prior_df",
+        "ops_profile_generic_axes", "ops_profile_essential_axis_min_rho",
+        "ops_profile_similarity", "ops_guide_null_size",
+        "ops_profile_responder_alpha",
+    ],
+    "Profile run": [
+        "ops_profile_cells", "ops_profile_wells", "ops_profile_run",
+        "ops_profile_recipe", "ops_profile_min_cells",
+        "ops_profile_active_filter", "ops_profile_cell_state",
+        "ops_profile_gene_universe", "ops_profile_space", "ops_fusion_blocks",
+        "ops_reference_dir",
+    ],
+    "Energy-distance test": [
+        "ops_etest", "ops_etest_cells", "ops_etest_metric",
+        "ops_etest_reference_cells", "ops_etest_null", "ops_etest_holdout",
+        "ops_etest_mode", "ops_etest_permutations",
+    ],
+    "OPS power curve": [
+        "ops_power_cells", "ops_power_seeds", "ops_power_retrieval",
+        "ops_power_gene_list", "ops_power_reference_rows",
+    ],
+    "Power simulation": [
+        "ops_power_sim", "ops_power_calibration_run", "ops_power_mode",
+        "ops_power_grid", "ops_power_sim_seeds", "ops_power_effect_types",
+        "ops_power_scorers", "ops_power_sim_workers",
+    ],
+    "Cluster benchmark": [
+        "ops_cluster_benchmark", "ops_benchmark_corum", "ops_benchmark_kegg",
+        "ops_benchmark_string", "ops_reference_clusters",
+        "ops_cluster_target", "ops_cluster_resolutions", "ops_cluster_seed",
+        "ops_consensus_runs",
+    ],
+    "Resolution sweep": [
+        "ops_cluster_rows", "ops_cluster_graph", "ops_cluster_knn",
+        "ops_cluster_sweep_resolutions", "ops_cluster_seeds",
+        "ops_cluster_target_clusters", "ops_cluster_shuffles",
+        "ops_cluster_reference_dir", "ops_cluster_gene_list",
+        "ops_cluster_published", "ops_cluster_published_controls",
+        "ops_cluster_sweep_controls_background",
+    ],
+    "Consensus clustering": [
+        "ops_consensus_enabled", "ops_consensus_bootstraps",
+        "ops_consensus_seed", "ops_consensus_draw_seed", "ops_consensus_knn",
+        "ops_consensus_k", "ops_consensus_k_ratio", "ops_consensus_method",
+        "ops_consensus_min_cooc", "ops_consensus_force_genes",
+        "ops_consensus_min_stability", "ops_consensus_match_count",
+    ],
+    "Consensus inputs": [
+        "ops_consensus_guides", "ops_consensus_space", "ops_consensus_mode",
+        "ops_consensus_pairs_search", "ops_consensus_workers",
+        "ops_consensus_cells", "ops_consensus_view_columns",
+    ],
+    "Calibrated cluster test": [
+        "ops_bench_replicates", "ops_bench_replicate_seed",
+        "ops_bench_cluster_seed", "ops_bench_gate_copies",
+        "ops_bench_gate_noise", "ops_bench_gate_alpha", "ops_bench_gate_limit",
+        "ops_bench_margin_quantile", "ops_bench_gate_record",
+        "ops_bench_gate_arm", "ops_bench_half", "ops_bench_null_permutations",
+    ],
+    "Module atlas & MitoCarta": [
         "ops_modules_runs", "ops_modules_precomputed_embedding",
         "ops_modules_profiles", "ops_modules_driver_profiles",
         "ops_eval_mitocarta", "ops_eval_external_modules", "ops_eval_arms",
-        "ops_report_read_stage",
-        "ops_report_overlap_zones",
-        "ops_report_edge_bin_px",
-        "ops_report_external_cells",
-        "ops_report_external_max_px",
-        "ops_cluster_rows",
-        "ops_cluster_graph",
-        "ops_cluster_knn",
-        "ops_cluster_sweep_resolutions",
-        "ops_cluster_seeds",
-        "ops_cluster_target_clusters",
-        "ops_cluster_shuffles",
-        "ops_cluster_reference_dir",
-        "ops_cluster_gene_list",
-        "ops_cluster_published",
-        "ops_cluster_published_controls",
-        "ops_cluster_sweep_controls_background",
-        "ops_consensus_enabled",
-        "ops_consensus_bootstraps",
-        "ops_consensus_seed",
-        "ops_consensus_draw_seed",
-        "ops_consensus_knn",
-        "ops_consensus_k",
-        "ops_consensus_k_ratio",
-        "ops_consensus_method",
-        "ops_consensus_min_cooc",
-        "ops_consensus_force_genes",
-        "ops_consensus_min_stability",
-        "ops_consensus_match_count",
-        "ops_consensus_guides",
-        "ops_consensus_space",
-        "ops_consensus_mode",
-        "ops_consensus_pairs_search",
-        "ops_consensus_workers",
-        "ops_consensus_cells",
-        "ops_consensus_view_columns",
-        "ops_bench_replicates",
-        "ops_bench_replicate_seed",
-        "ops_bench_cluster_seed",
-        "ops_bench_gate_copies",
-        "ops_bench_gate_noise",
-        "ops_bench_gate_alpha",
-        "ops_bench_gate_limit",
-        "ops_bench_margin_quantile",
-        "ops_bench_gate_record",
-        "ops_bench_gate_arm",
-        "ops_bench_half",
-        "ops_bench_null_permutations",
-        "ops_voyager3_enabled",
-        "ops_voyager3_clusters",
-        "ops_voyager3_cluster_column",
-        "ops_voyager3_cluster_ids",
-        "ops_voyager3_organism",
-        "ops_voyager3_context",
-        "ops_voyager3_provider",
-        "ops_voyager3_model",
-        "ops_voyager3_timeout",
-        "ops_voyager3_shuffle_control",
-        "ops_voyager3_resume",
+    ],
+    "Voyager3 cluster annotation": [
+        "ops_voyager3_enabled", "ops_voyager3_clusters",
+        "ops_voyager3_cluster_column", "ops_voyager3_cluster_ids",
+        "ops_voyager3_organism", "ops_voyager3_context",
+        "ops_voyager3_provider", "ops_voyager3_model", "ops_voyager3_timeout",
+        "ops_voyager3_shuffle_control", "ops_voyager3_resume",
         "ops_voyager3_answers_dir",
-        "ops_etest",
-        "ops_etest_cells",
-        "ops_etest_metric",
-        "ops_etest_reference_cells",
-        "ops_etest_null",
-        "ops_etest_holdout",
-        "ops_etest_mode",
-        "ops_etest_permutations",
-        "ops_power_cells",
-        "ops_power_seeds",
-        "ops_power_retrieval",
-        "ops_power_gene_list",
-        "ops_power_reference_rows",
-        "ops_power_sim",
-        "ops_power_calibration_run",
-        "ops_power_mode",
-        "ops_power_grid",
-        "ops_power_sim_seeds",
-        "ops_power_effect_types",
-        "ops_power_scorers",
-        "ops_power_sim_workers",
+        "ops_voyager3_method", "ops_voyager3_reactome", "ops_voyager3_corum",
+        "ops_voyager3_enrichment_fdr",
+    ],
+    "Profile scoring": [
+        "ops_scoring_inputs", "ops_scoring_genes", "ops_scoring_metrics",
+        "ops_scoring_null_size", "ops_scoring_min_complex",
+        "ops_scoring_references", "ops_scoring_cluster_jitter",
+        "ops_scoring_cluster_seeds", "ops_scoring_workers",
+        "ops_scoring_figures",
+    ],
+    "Scoring references": [
+        "ops_scoring_corum_file", "ops_scoring_string_file",
+        "ops_scoring_string_thresholds", "ops_scoring_corum_coverage",
+        "ops_scoring_pca_variance", "ops_scoring_benchmark_genes",
+        "ops_scoring_benchmark_seed",
+    ],
+    "Reference evaluation": [
+        "ops_eval_references", "ops_eval_split", "ops_eval_null_size",
+        "ops_eval_heldout_folds", "ops_eval_decoys", "ops_eval_time_split",
+        "ops_eval_covariates",
     ],
 }
 
@@ -1309,12 +1425,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "rescaled so that this diameter becomes the 30 pixels the model "
         "expects; empty segments the windows at their own scale. "
         "Default None.",
-    "cellpose_model":
+    "ops_sbs_nucleus_model":
         "(str) - Which Cellpose model segments the nuclei of each stitched "
-        "well. 'cpsam' runs the default model of the installed Cellpose; any "
-        "other name is loaded as that model. Changing it changes which "
-        "objects are found, and so which nuclei the reads are attributed "
-        "to. Default 'cpsam'.",
+        "sequencing well. 'cpsam' runs the default model of the installed "
+        "Cellpose; any other name or path, such as one chosen with Model "
+        "zoo, is loaded as that model. Changing it changes which objects are "
+        "found, and so which nuclei the reads are attributed to. Settings "
+        "files that name cellpose_model still load into it. Default 'cpsam'.",
     "dst_root":
         "(str or None) - Where measurements.db and each well's "
         "ops_report.json are written. Empty writes them into the source "
@@ -1617,6 +1734,36 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - Restrict the phenotype phases to these sites, as "
         "'520-525,555'. Used for a pilot on part of a well; empty runs every "
         "placed field. Default None. Alpha.",
+    "ops_feature_screen_old":
+        '(str or None) - The per-cell table of the existing features for the ops_feature_screen phase, parquet or CSV, already normalised against the control cells (robust z or TVN). The screen measures what the new table adds beyond these columns. Default None. Alpha.',
+    "ops_feature_screen_new":
+        '(str or None) - The per-cell table of the candidate features, normalised the same way as the old table and joined to it on the cell ID columns. Every numeric column is screened on its own and in its families. Default None. Alpha.',
+    "ops_feature_screen_cells":
+        '(str or None) - A per-cell table with the gene, guide, well and site of each cell, when the feature tables do not carry them. Empty reads them from the old table. Default None. Alpha.',
+    "ops_feature_screen_id_columns":
+        "(str or None) - The columns that identify a cell in every table, comma separated, such as 'plate,well,site,label'. Empty uses those of plate, well, site and label that all the tables have. Default None. Alpha.",
+    "ops_feature_screen_label":
+        "(str) - The column naming each cell's gene. Every gene that starts with ops_control_prefix counts as one control gene. Default 'gene'. Alpha.",
+    "ops_feature_screen_guide":
+        "(str) - The column naming each cell's guide, used for the guide-replicated estimate: a cell is predicted by the other guides of its gene. Default 'sgRNA'. Alpha.",
+    "ops_feature_screen_families":
+        '(str, dict or None) - Families of new columns screened together as blocks: a dict, a JSON file of family to columns, or a CSV with column and family. The family all_new is always added. Empty tests single columns and all_new only. Default None. Alpha.',
+    "ops_feature_screen_permutations":
+        '(int) - How many times the gene labels are shuffled within each well for the null. The corrected estimate is the observed value minus the null mean. More permutations give a steadier null and take longer. Default 500. Alpha.',
+    "ops_feature_screen_perm_unit":
+        "(str) - What the null shuffles: 'guide' moves whole guides between genes within a well, so a guide's cells stay together; 'field' moves gene-by-field groups of cells; 'cell' shuffles single cells, which finds information in pure noise because a guide's cells share more than their gene. Default 'guide'. Alpha.",
+    "ops_feature_screen_seed":
+        '(int) - The seed of the permutations and of the guide null, so a rerun gives the same table. Default 0. Alpha.',
+    "ops_feature_screen_ridge":
+        '(float) - A small value added to the diagonal of every conditioning block, times the mean feature variance, so duplicate or constant columns do not break the screen. Larger values smooth more. Default 1e-6. Alpha.',
+    "ops_feature_screen_greedy_threshold":
+        '(float) - Greedy selection adds families, or columns, while the next one adds more than this many bits beyond the null mean and more than its own null spread. 0 stops at the null level. Default 0. Alpha.',
+    "ops_feature_screen_mlp":
+        '(bool) - Also train a small network to predict the gene from the old features and from old plus new, and report the held-out cross-entropy gain in nats, a lower bound on the added information that also sees nonlinear signal. Slower. Default False. Alpha.',
+    "ops_feature_screen_device":
+        "(str) - Where the screen runs: 'auto' uses the graphics card when there is one, 'cpu' the processor with the same maths, or a torch device such as 'cuda:0'. Results agree to rounding. Default 'auto'. Alpha.",
+    "ops_feature_screen_dst":
+        '(str or None) - The folder for feature_information.csv, its chart and its summary. Empty writes them to ops_feature_screen under dst_root. Default None. Alpha.',
     "ops_ph_texture":
         "(bool) - Add the GLCM homogeneity texture block to every channel of "
         "every compartment. It adds about ten percent to measurement time. "
@@ -2513,6 +2660,28 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - The folder that holds the saved answers, one file "
         "per question. Empty uses answers in results/ops_voyager3. Default "
         "None. Alpha.",
+    "ops_voyager3_method":
+        "(str) - How Voyager3 names a cluster's role. 'ai' asks the AI "
+        "chosen under Preferences. 'enrichment' asks no AI: it tests every "
+        "UniProt GO term and keyword, CORUM complex and Reactome pathway "
+        "against the screen's genes (hypergeometric test, Benjamini-Hochberg "
+        "FDR) and names the best term, with the same confidence words and "
+        "tables, plus a table of every term tested. Default 'ai'. Alpha.",
+    "ops_voyager3_reactome":
+        "(str or None) - A Reactome pathway file (GMT, such as "
+        "ReactomePathways.gmt) for the enrichment method. A copy is kept "
+        "with its checksum and date, so later runs work offline. Empty uses "
+        "no Reactome. Default None. Alpha.",
+    "ops_voyager3_corum":
+        "(str or None) - A CORUM complex table (.txt or .zip) for the "
+        "enrichment method; only human complexes are used. A copy is kept "
+        "with its checksum and date. Empty uses no CORUM. Default None. "
+        "Alpha.",
+    "ops_voyager3_enrichment_fdr":
+        "(float) - The false discovery rate at or below which a term can "
+        "name a cluster in the enrichment method; it also needs at least 3 "
+        "of the cluster's genes and twice the screen's share. Default 0.05. "
+        "Alpha.",
     "ops_consensus_view_columns":
         "(int) - How many TVN columns of ops_consensus_cells (PC_0 on) the "
         "interphase and mitosis profiles use. Default 50. Alpha.",
@@ -2956,6 +3125,35 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - Added to every quality weight, so a read of quality 0 "
         "still carries a small vote. Higher moves the weighting toward a "
         "plain count. Default 0.05.",
+    "ops_read_distance_weight":
+        "(str) - Weights each read's vote in the guide call by its distance "
+        "to its nucleus. The distance is measured from the edge of the "
+        "nucleus disc, and a read inside the disc has distance 0. 'off' "
+        "keeps today's vote. 'decay' multiplies the read's weight by "
+        "exp(-distance / ops_read_distance_decay_px), and 'distance_only' "
+        "uses that term without the quality weight. A guide supported by "
+        "one read then needs its quality times this term to reach "
+        "ops_single_read_quality. It acts in the decode rules only, for "
+        "example with ops_decode_preset 'rule_a_s2'. Default 'off'. Alpha.",
+    "ops_read_distance_decay_px":
+        "(float) - The decay length, in pixels, of ops_read_distance_weight. "
+        "A read this far beyond the nucleus edge keeps about a third of its "
+        "weight. Default 4. Alpha.",
+    "ops_read_distance_interior_px":
+        "(float) - Reads up to this distance, in pixels, from the nucleus edge "
+        "keep their full weight under ops_read_distance_weight. Higher lets "
+        "reads farther out count fully. Default 0. Alpha.",
+    "ops_read_distance_min_weight":
+        "(float) - The smallest distance term of ops_read_distance_weight, so "
+        "a far read never counts as zero. Default 0.05. Alpha.",
+    "ops_read_neighbour_discount":
+        "(float) - Weighs down reads that probably bled in from a touching "
+        "cell. Inside a cell, a guide with fewer reads than the top guide is "
+        "multiplied by this value when it is the top guide of a neighbouring "
+        "cell. Neighbours are nuclei whose discs come within ops_footprint, "
+        "or touching cells in the spacer-prefix decode. 1 is off, and 0 "
+        "ignores such reads. The spacer-prefix decode applies it under "
+        "ops_prefix_quality_method 'weighted_majority'. Default 1. Alpha.",
     "ops_decode_pixel_fallback":
         "(bool) - For a nucleus no read assigned, call the brightest pixels "
         "near it like reads and assign the guide at least two of them name "
@@ -3580,7 +3778,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Painting recipe that PERISCOPE used: one barcode with only exact reads "
         "is perfect, one barcode with a corrected read is great, and several "
         "barcodes are imperfect or bad; ops_quality_min_reads is then not used. "
-        "Default 'spacr'. Alpha.",
+        "'weighted_majority' calls the barcode holding most of the read "
+        "weight (ops_prefix_weighted_min_share). Default 'spacr'. Alpha.",
     "ops_random_barcode_control":
         "(bool) - Also match every read against a shuffled whitelist of the "
         "same size and base composition, the rate a random library would "
@@ -3654,6 +3853,67 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "where one stray read otherwise makes the cell bad. site_summary.csv "
         "counts the rescued cells. 3 is the tested value; 0 is off. "
         "Default 0. Alpha.",
+    "ops_prefix_distance_weight":
+        "(str) - Under ops_prefix_quality_method 'weighted_majority', weights "
+        "each read by its distance to the nucleus of its cell. The distance "
+        "is 0 inside the nucleus. When the nearest nucleus belongs to another "
+        "cell, the distance to the cell centre minus the median nucleus "
+        "radius is used, and the read table flags it in nuc_gap_fallback. "
+        "'off' uses no distance. 'decay' multiplies the read's weight by "
+        "exp(-distance / ops_prefix_distance_decay_px). 'distance_only' uses "
+        "that term without the quality weight. The distance needs "
+        "ops_prefix_nuclei_masks. Default 'off'. Alpha.",
+    "ops_prefix_distance_decay_px":
+        "(float) - The decay length, in pixels of the sequencing frame, of "
+        "ops_prefix_distance_weight. The per-well tuning can try several "
+        "lengths with the key ops_prefix_distance_decay_px in "
+        "ops_prefix_tuning_grid, where 0 means no distance weight. "
+        "Default 8. Alpha.",
+    "ops_prefix_distance_interior_px":
+        "(float) - Reads up to this distance, in pixels, from the nucleus keep "
+        "their full weight under ops_prefix_distance_weight. Higher lets reads "
+        "farther out count fully. Default 0. Alpha.",
+    "ops_prefix_distance_min_weight":
+        "(float) - The smallest distance term of ops_prefix_distance_weight, "
+        "so a far read never counts as zero. Default 0.05. Alpha.",
+    "ops_prefix_weighted_quality":
+        "(bool) - Under ops_prefix_quality_method 'weighted_majority', weights "
+        "each read by its quality: min(1, quality) + 0.05, as in the OPS "
+        "decode's quality vote. False counts every read as 1. Default True. "
+        "Alpha.",
+    "ops_prefix_weighted_min_share":
+        "(float) - Under ops_prefix_quality_method 'weighted_majority', the "
+        "share of a cell's read weight that its top barcode needs. The top "
+        "barcode must also hold more weight than any other barcode. "
+        "Default 0.6. Alpha.",
+    "ops_prefix_nuclei_masks":
+        "(str or None) - The nucleus labels that ops_prefix_distance_weight "
+        "measures distances to. The value is a path with {plate}, {well}, "
+        "{well_id}, {well_number} and {site} fields to a TIFF, .npy or .npz "
+        "label image per site, in the frame of ops_prefix_masks. A nucleus "
+        "must carry the label of its cell. Empty uses the nuclei of each "
+        "site's merged/ file when it has them. Default None. Alpha.",
+    "ops_keep_multi_guide_cells":
+        "(bool) - Writes two extra tables per well in the spacer-prefix decode. "
+        "guide_multiplicity_<plate>_<well>.csv gives the share of cells with "
+        "0, 1, 2, 3 or 4 and more guides, and the share of two-guide cells "
+        "whose second guide is a touching cell's top guide. "
+        "multi_guide_cells_<plate>_<well>.csv lists the cells with two or "
+        "more guides of ops_multi_guide_min_reads reads each, none of them "
+        "from a neighbour. These cells never enter the single-guide "
+        "profiles. Default False. Alpha.",
+    "ops_multi_guide_min_reads":
+        "(int) - The reads each guide needs before a cell counts as a "
+        "multi-guide cell in the table of ops_keep_multi_guide_cells. Higher "
+        "lists fewer cells, and a single stray read no longer makes a cell "
+        "multi-guide. Default 2. Alpha.",
+    "ops_prefix_tuning_min_sites":
+        "(int) - Protects small wells from a too-strict read-quality floor. "
+        "A well tuned by 'per_well_decoy' with fewer sites than this keeps "
+        "the floor at 0.1; the run log names each such well. Below 4 sites "
+        "the tuner has fewer than 2 tuning sites, does not tune and takes the "
+        "strictest value of every setting, which lost a third of the cells "
+        "on Funk A1. 4 is the tested value; 0 is off. Default 0. Alpha.",
     "ops_fdr_sweep_targets":
         "(list) - The decoy FDR targets, in %, of the prefix_fdr_sweep phase. "
         "For each target, every method gets the configuration with the most "
@@ -3716,8 +3976,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or dict) - The grid: each setting with the values to try, as "
         "ops_read_threshold=40,80,160; ops_read_mode=log,raw. It can vary "
         "ops_read_threshold, ops_read_mode, ops_prefix_min_read_quality, "
-        "ops_prefix_max_distance, ops_quality_min_reads and "
-        "ops_prefix_crosstalk; every other setting stays at the default "
+        "ops_prefix_max_distance, ops_quality_min_reads, ops_prefix_crosstalk, "
+        "ops_call_sort (none is the decode's own rule) and "
+        "ops_read_compartment; every other setting stays at the default "
         "point, which with per-well tuning is each well's own choice. Empty "
         "scores the default point alone. Default None. Alpha.",
     "ops_grid_tiles":
@@ -3744,6 +4005,43 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - The grid search run whose point was applied to "
         "these settings; written by Apply to settings, with the tiles and "
         "seed. Default None. Alpha.",
+    "ops_insitu_preset":
+        "(str or None) - A named in situ sequencing setup for the spacer-prefix "
+        "decode. t7 assigns reads to the nucleus, calls each cell by its "
+        "brightest amplicon and accepts one read per cell, as validated for "
+        "T7 chemistry; it fills only the keys left empty. Empty uses no "
+        "preset. Default None. Alpha.",
+    "ops_barcode_layout":
+        "(str or None) - single reads one barcode per spot (the guide prefix). "
+        "combinatorial reads several barcode segments in different cycles, as "
+        "in PerturbView and Zombie screens, and calls each cell's construct "
+        "from the combination (ops_barcode_layout_file); reads whose segments "
+        "belong to different constructs are flagged as recombined and not "
+        "used. Needs ops_prefix_threshold_tuning none. Empty is single. "
+        "Default None. Alpha.",
+    "ops_barcode_layout_file":
+        "(str or None) - The combinatorial layout: a CSV or JSON with one row "
+        "per segment: segment, start and end cycle, role (map, recomb or umi), "
+        "the library column with its bases, and optionally max_distance and "
+        "metric (hamming or levenshtein). The library needs those columns and "
+        "the gene column. Default None. Alpha.",
+    "ops_call_sort":
+        "(str or None) - How a cell's barcodes are ranked: count (reads), "
+        "quality (mean read quality) or peak (the brightest read's spot "
+        "strength, for chemistries with one bright amplicon per cell). A tie "
+        "leaves the cell ambiguous. Needs ops_prefix_quality_method spacr. "
+        "Empty keeps the decode's own rule. Default None. Alpha.",
+    "ops_read_compartment":
+        "(str or None) - Which part of a cell a read must lie in to count: "
+        "cell (anywhere), nucleus (only over the nucleus, for amplicons that "
+        "stay there) or cytoplasm (outside it). Nucleus and cytoplasm need "
+        "nucleus labels (ops_prefix_nuclei_masks). Empty is cell. Default "
+        "None. Alpha.",
+    "ops_recomb_min_quality":
+        "(float or None) - The lowest call quality (the worst cycle's margin) "
+        "a recomb segment needs to be checked against its construct, as "
+        "Brieflow's recomb_q_thresh; a lower-quality segment is neither "
+        "trusted nor flagged as recombined. Empty is 0. Default None. Alpha.",
     "ops_stress_report":
         "(bool) - At the end of the run, time the store as the reference "
         "stress test did (database rows, queries for one field, one gene, "
@@ -3767,10 +4065,18 @@ OPS_DESCRIPTION = (
 def ops_defaults(settings=None):
     """The settings the OPS engine reads, with their defaults filled in.
 
+    A settings file written before item 969 names the nuclei model
+    ``cellpose_model``; it is moved to ``ops_sbs_nucleus_model`` first, so the
+    default does not take its place.
+
     :param settings: caller's settings, filled in with the defaults.
     :returns: the completed settings dict.
     """
     settings = settings if settings is not None else {}
+    if "cellpose_model" in settings:
+        from .settings import _fold_renamed_settings
+
+        _fold_renamed_settings(settings)
     for key, value in OPS_DEFAULTS.items():
         settings.setdefault(key, value)
     return settings

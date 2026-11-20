@@ -109,6 +109,13 @@ EXTRA_SETTINGS_HOSTS = ("timelapse", "anndata_export", "ops", "activation")
 # N707 moved this switch out of module forms and into Preferences -> Plugins.
 PREFERENCE_SETTINGS = {"export_vvvv": "PreferencesExportVvvv"}
 
+# Item 969 moved the OPS e-test power curve out of the OPS form and into the
+# Power module's alpha section ``PowerOpsCurve``, which hides as one widget;
+# tests/qt/test_ops_settings_layout_969.py checks that gate.
+SECTION_SETTINGS = {key: "PowerOpsCurve" for key in (
+    "ops_power_cells", "ops_power_seeds", "ops_power_retrieval",
+    "ops_power_gene_list", "ops_power_reference_rows")}
+
 
 @pytest.fixture(autouse=True)
 def _no_screen_outlives_its_test(qtbot):
@@ -274,7 +281,8 @@ def test_every_registered_setting_and_choice_follows_the_switch_live(
 
     wanted = set(_alpha_names("settings")) | set(_alpha_names("choices"))
     seen_choices = set()
-    for app_key, keys in _hosts_for(wanted - PREFERENCE_SETTINGS.keys()).items():
+    for app_key, keys in _hosts_for(wanted - PREFERENCE_SETTINGS.keys()
+                                    - SECTION_SETTINGS.keys()).items():
         screen = AppScreen(app_key)
         try:
             for dimension in ("z", "t"):

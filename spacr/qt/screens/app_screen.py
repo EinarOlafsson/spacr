@@ -5263,6 +5263,7 @@ class AppScreen(QWidget):
         "pathogen_model", "pathogen_model_name",
         "cell_model_name", "nucleus_model_name", "organelle_model_name",
         "custom_model", "plaque_model", "base_model",
+        "ops_sbs_nucleus_model", "ops_ph_nucleus_model", "ops_ph_cell_model",
     )
 
     @classmethod
@@ -9670,6 +9671,20 @@ class AppScreen(QWidget):
                 {"result": "bad_settings", "error": str(e)})
             QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
+
+        if self.app_key == "regression":
+            from ...validate import (_check_regression_inputs,
+                                     _check_regression_score_columns)
+
+            problems = _check_regression_inputs(settings)
+            if not problems:
+                problems = _check_regression_score_columns(settings, local_only=True)
+            if problems:
+                QMessageBox.warning(
+                    self, tr("Regression inputs"),
+                    "\n\n".join(f"{problem.message}\n{problem.fix}"
+                                for problem in problems))
+                return
 
         if not self._annotation_labels_named(settings):
             return
