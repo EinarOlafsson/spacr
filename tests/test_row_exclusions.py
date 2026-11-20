@@ -44,13 +44,20 @@ def test_exclusion_values_match_numeric_sqlite_text():
     assert filtered["dose"].tolist() == [1.0, 3.0]
 
 
-def test_unknown_exclusion_column_is_actionable():
-    frame = pd.DataFrame({"columnID": ["c1"], "feature": [1.0]})
-    with pytest.raises(ValueError, match="unknown column.*missing"):
-        exclude_matching_rows(frame, {"missing": ["x"]})
-
-
-def test_excluding_every_row_is_rejected():
-    frame = pd.DataFrame({"columnID": ["c1", "c1"], "feature": [1.0, 2.0]})
-    with pytest.raises(ValueError, match="removed every UMAP object"):
-        exclude_matching_rows(frame, {"columnID": ["c1"]})
+@pytest.mark.parametrize("records, rules, message", [
+    pytest.param(
+        {"columnID": ["c1"], "feature": [1.0]},
+        {"missing": ["x"]}, "unknown column.*missing",
+        id="test_unknown_exclusion_column_is_actionable",
+    ),
+    pytest.param(
+        {"columnID": ["c1", "c1"], "feature": [1.0, 2.0]},
+        {"columnID": ["c1"]}, "removed every UMAP object",
+        id="test_excluding_every_row_is_rejected",
+    ),
+])
+def test_invalid_row_exclusions_keep_their_original_refusals(records, rules, message):
+    """Keep each invalid exclusion paired with its original ValueError and reason."""
+    frame = pd.DataFrame(records)
+    with pytest.raises(ValueError, match=message):
+        exclude_matching_rows(frame, rules)
