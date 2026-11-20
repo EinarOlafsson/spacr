@@ -78,23 +78,27 @@ def _labels(mask):
     return sorted(int(v) for v in np.unique(mask) if v)
 
 
-def test_a_minimum_alone_keeps_the_blow_up():
-    """Which is the reason the maximum exists."""
+@pytest.mark.parametrize('minimum, expected', [
+    pytest.param(
+        10, [2, 3],
+        id='test_a_minimum_alone_keeps_the_blow_up',
+    ),
+    pytest.param(
+        0, [1, 2, 3],
+        id='test_no_bounds_removes_nothing',
+    ),
+])
+def test_lower_size_bounds_keep_the_original_mask_labels(minimum, expected):
+    """Keep each original lower size bound paired with the same ordered mask labels."""
     from spacr.utils import _filter_object
 
-    assert _labels(_filter_object(_three_objects(), 10)) == [2, 3]
+    assert _labels(_filter_object(_three_objects(), minimum)) == expected
 
 
 def test_a_maximum_removes_it():
     from spacr.utils import _filter_object
 
     assert _labels(_filter_object(_three_objects(), 10, max_value=50)) == [2]
-
-
-def test_no_bounds_removes_nothing():
-    from spacr.utils import _filter_object
-
-    assert _labels(_filter_object(_three_objects(), 0)) == [1, 2, 3]
 
 
 def test_the_background_is_never_an_object():
