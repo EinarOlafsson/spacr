@@ -5984,7 +5984,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Codex issues branch), merged with item 987's change above.
     # Moved 2026-11-20 for items 983/984 (was 88be4536...): the optional
     # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr.
-) == '515b2062d9bc7f40db5d17273b11e13036407c2045ef4fc279c6657dd1eab7f7'
+    # Moved 2026-11-20 by landing train 5 (was 515b2062...): figprefs' optional
+    # `preferences` of spacr.plot.save_figure and items 983/984's optional
+    # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr.
+) == '361a1012cf6896b58afbea2989ee3464c5c656104ee9e41c4db09d61590401a3'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
