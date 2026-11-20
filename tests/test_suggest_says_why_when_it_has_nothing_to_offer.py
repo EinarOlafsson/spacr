@@ -135,39 +135,25 @@ def test_no_classes_at_all_is_reported_rather_than_guessed(tmp_path):
     assert "annotated" in result.note
 
 
-def test_a_fully_annotated_screen_says_so_rather_than_saying_unscored(tmp_path):
-    """The note that means "you are done", which is not an error."""
-    path = _scored(
-        tmp_path / "measurements.db",
-        [("/crops/a.png", 1, 0.1, 0.9), ("/crops/b.png", 2, 0.8, 0.2)],
-    )
+@pytest.mark.parametrize('rows, note, classes', [
+    pytest.param(
+        [('/crops/a.png', 1, 0.1, 0.9), ('/crops/b.png', 2, 0.8, 0.2)], 'every crop already carries a value', [1, 2],
+        id='test_a_fully_annotated_screen_says_so_rather_than_saying_unscored',
+    ),
+    pytest.param(
+        [('/crops/labelled.png', 1, 0.5, 0.5), ('/crops/after_the_retrain.png', None, None, None)], 'usable score', [1],
+        id='test_unannotated_crops_whose_scores_are_unusable_are_named_as_such',
+    ),
+])
+def test_empty_suggestion_inputs_keep_their_original_notes_and_classes(tmp_path, rows, note, classes):
+    """Keep each original empty suggestion result paired with its note and classes."""
+    path = _scored(tmp_path / "measurements.db", rows)
 
     result = suggest.suggest_from_scores(path, "test")
 
     assert result.frame.empty
-    assert "every crop already carries a value" in result.note
-    assert result.classes == [1, 2]
-
-
-def test_unannotated_crops_whose_scores_are_unusable_are_named_as_such(
-    tmp_path,
-):
-    """A crop added after the retrain has NULL scores, not bad ones.
-
-    It cannot be suggested and it is not an empty database; the note has to
-    separate the two or the user re-runs Measure for nothing.
-    """
-    path = _scored(
-        tmp_path / "measurements.db",
-        [("/crops/labelled.png", 1, 0.5, 0.5),
-         ("/crops/after_the_retrain.png", None, None, None)],
-    )
-
-    result = suggest.suggest_from_scores(path, "test")
-
-    assert result.frame.empty
-    assert "usable score" in result.note
-    assert result.classes == [1]
+    assert note in result.note
+    assert result.classes == classes
 
 
 def test_a_score_column_with_no_class_number_sorts_last(tmp_path):
