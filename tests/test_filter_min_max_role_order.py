@@ -47,32 +47,24 @@ def labels_on(stack, dim):
     return sorted(int(v) for v in np.unique(stack[:, :, dim]) if v)
 
 
-def test_the_pathogen_keeps_its_own_range_when_the_nucleus_is_disabled():
-    """The regression, with a range that tells the two apart.
-
-    Pathogen range keeps anything over 10, so both survive. The NUCLEUS
-    range keeps only what is over 300, which would drop both -- so if the
-    pathogen plane comes back empty, it was filtered by the nucleus's limits.
-    """
+@pytest.mark.parametrize('ranges, plane, expected, message', [
+    pytest.param(
+        [[10, 100000], [300, 100000], [10, 100000]], 6, [1, 2], "the pathogen plane was filtered by the nucleus's range",
+        id='test_the_pathogen_keeps_its_own_range_when_the_nucleus_is_disabled',
+    ),
+    pytest.param(
+        [[100, 100000], [0, 100000], [0, 100000]], 4, [2], 'the area-25 cell should fail >100',
+        id='test_the_cell_still_gets_the_first_entry',
+    ),
+])
+def test_role_ranges_keep_their_original_filtered_mask_labels(ranges, plane, expected, message):
+    """Keep each original role range paired with the same filtered mask labels."""
     out = _filter_objects_in_plot(
         stack_with(), cell_mask_dim=4, nucleus_mask_dim=None,
-        pathogen_mask_dim=6, mask_dims=[4, 6],
-        filter_min_max=[[10, 100000], [300, 100000], [10, 100000]],
+        pathogen_mask_dim=6, mask_dims=[4, 6], filter_min_max=ranges,
         nuclei_limit=True, pathogen_limit=True)
 
-    assert labels_on(out, 6) == [1, 2], (
-        "the pathogen plane was filtered by the nucleus's range")
-
-
-def test_the_cell_still_gets_the_first_entry():
-    """The role that was already correct must stay correct."""
-    out = _filter_objects_in_plot(
-        stack_with(), cell_mask_dim=4, nucleus_mask_dim=None,
-        pathogen_mask_dim=6, mask_dims=[4, 6],
-        filter_min_max=[[100, 100000], [0, 100000], [0, 100000]],
-        nuclei_limit=True, pathogen_limit=True)
-
-    assert labels_on(out, 4) == [2], "the area-25 cell should fail >100"
+    assert labels_on(out, plane) == expected, message
 
 
 def test_every_role_enabled_is_unchanged():
