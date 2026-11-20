@@ -1,0 +1,260 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_test_directory": "tests (root-level module only)",
+  "changed_file": "tests/test_a_button_picks_the_settings_for_your_data.py",
+  "definition_reduction": 2,
+  "change": "Generalize two unbounded-response/model cases and two measured-reason cases while preserving exact data, expected results and original names.",
+  "case_mapping": {
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_an_unbounded_skewed_response_gets_a_robust_fit": "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_unbounded_response_readings_keep_their_model_family[test_an_unbounded_skewed_response_gets_a_robust_fit]",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_an_unbounded_normal_response_gets_ols": "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_unbounded_response_readings_keep_their_model_family[test_an_unbounded_normal_response_gets_ols]",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_the_level_reason_names_the_guides_per_gene": "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_setting_reasons_keep_the_measured_design_counts[test_the_level_reason_names_the_guides_per_gene]",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_the_batch_reason_names_the_plate_count": "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_setting_reasons_keep_the_measured_design_counts[test_the_batch_reason_names_the_plate_count]"
+  },
+  "model_case_contracts": {
+    "test_an_unbounded_skewed_response_gets_a_robust_fit": [
+      {
+        "low": -4.0,
+        "high": 90.0,
+        "normal_p": 1e-09,
+        "skew": 3.1
+      },
+      "rlm"
+    ],
+    "test_an_unbounded_normal_response_gets_ols": [
+      {
+        "low": -4.0,
+        "high": 4.0,
+        "normal_p": 0.4,
+        "skew": 0.05
+      },
+      "ols"
+    ]
+  },
+  "reason_case_contracts": {
+    "test_the_level_reason_names_the_guides_per_gene": [
+      "level",
+      "3 guides"
+    ],
+    "test_the_batch_reason_names_the_plate_count": [
+      "batch_correction",
+      "4 plates"
+    ]
+  },
+  "collected_before": [
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_nothing_is_set_without_a_reason",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_a_setting_it_cannot_decide_is_named_as_undecided",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_an_undecided_setting_says_why",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_the_level_reason_names_the_guides_per_gene",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_the_batch_reason_names_the_plate_count",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_the_reason_names_a_number_from_the_data",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_with_no_response_the_model_is_undecided_not_guessed",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_an_unbounded_normal_response_gets_ols",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_a_proportion_strictly_inside_the_unit_gets_beta",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_a_single_row_screen_gets_no_position_term",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_counts_get_a_glm",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_an_unbounded_skewed_response_gets_a_robust_fit",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_one_guide_per_gene_is_not_a_gene_level",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_one_plate_cannot_be_batch_corrected",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_binary_gets_logit",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_a_proportion_touching_a_boundary_does_not",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEverythingItProposesIsARealSetting::test_the_settings_round_trip_through_spacrs_own_validator",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEverythingItProposesIsARealSetting::test_every_regression_type_it_can_propose_is_supported",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheQuestionsAreOnlyTheOnesTheDataCannotAnswer::test_every_question_says_what_it_buys",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheQuestionsAreOnlyTheOnesTheDataCannotAnswer::test_a_question_the_data_answers_is_not_asked",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheQuestionsAreOnlyTheOnesTheDataCannotAnswer::test_four_is_a_dialog",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheQuestionsAreOnlyTheOnesTheDataCannotAnswer::test_the_maintainers_own_question_is_the_first",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheQuestionsAreOnlyTheOnesTheDataCannotAnswer::test_it_is_asked_when_the_data_does_not_answer_it",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestThePriorMovesTheCorrection::test_the_default_posture_is_benjamini_hochberg",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestThePriorMovesTheCorrection::test_an_expensive_false_negative_loosens_it",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestThePriorMovesTheCorrection::test_an_expensive_false_positive_tightens_it",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestThePriorMovesTheCorrection::test_the_reason_quotes_the_prior_back",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestThePriorMovesTheCorrection::test_precision_takes_the_conservative_correction",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheFamilyAndTheTransformAreOneDecision::test_a_link_carrying_family_takes_no_transform",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheFamilyAndTheTransformAreOneDecision::test_every_advised_key_is_a_setting_the_run_reads",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheFamilyAndTheTransformAreOneDecision::test_and_it_says_which_of_the_two_is_transforming",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheFamilyAndTheTransformAreOneDecision::test_a_linkless_family_on_skewed_positive_data_takes_the_log",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_the_response_is_aggregated_to_WELLS",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_an_uncapped_read_claims_nothing",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_a_missing_dependent_variable_is_named",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_the_range_is_measured",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_the_sample_cap_is_declared",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_every_file_is_read_by_its_OWN_header",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheDesignExactly::test_the_wells_guides_and_genes_are_counted",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheDesignExactly::test_the_gene_is_read_without_assuming_an_organism",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheDesignExactly::test_no_count_table_is_a_sentence",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheDesignExactly::test_the_two_ratios_the_level_turns_on",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheDesignExactly::test_the_plates_are_counted"
+  ],
+  "collected_after": [
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_nothing_is_set_without_a_reason",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_setting_reasons_keep_the_measured_design_counts[test_the_batch_reason_names_the_plate_count]",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_a_setting_it_cannot_decide_is_named_as_undecided",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_the_reason_names_a_number_from_the_data",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_with_no_response_the_model_is_undecided_not_guessed",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_setting_reasons_keep_the_measured_design_counts[test_the_level_reason_names_the_guides_per_gene]",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_an_undecided_setting_says_why",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheQuestionsAreOnlyTheOnesTheDataCannotAnswer::test_every_question_says_what_it_buys",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheQuestionsAreOnlyTheOnesTheDataCannotAnswer::test_a_question_the_data_answers_is_not_asked",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheQuestionsAreOnlyTheOnesTheDataCannotAnswer::test_it_is_asked_when_the_data_does_not_answer_it",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheQuestionsAreOnlyTheOnesTheDataCannotAnswer::test_the_maintainers_own_question_is_the_first",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheQuestionsAreOnlyTheOnesTheDataCannotAnswer::test_four_is_a_dialog",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEverythingItProposesIsARealSetting::test_every_regression_type_it_can_propose_is_supported",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestEverythingItProposesIsARealSetting::test_the_settings_round_trip_through_spacrs_own_validator",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestThePriorMovesTheCorrection::test_the_reason_quotes_the_prior_back",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestThePriorMovesTheCorrection::test_precision_takes_the_conservative_correction",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestThePriorMovesTheCorrection::test_an_expensive_false_positive_tightens_it",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestThePriorMovesTheCorrection::test_the_default_posture_is_benjamini_hochberg",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestThePriorMovesTheCorrection::test_an_expensive_false_negative_loosens_it",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheDesignExactly::test_the_gene_is_read_without_assuming_an_organism",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheDesignExactly::test_the_wells_guides_and_genes_are_counted",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheDesignExactly::test_no_count_table_is_a_sentence",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheDesignExactly::test_the_two_ratios_the_level_turns_on",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheDesignExactly::test_the_plates_are_counted",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_the_sample_cap_is_declared",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_every_file_is_read_by_its_OWN_header",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_an_uncapped_read_claims_nothing",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_the_range_is_measured",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_the_response_is_aggregated_to_WELLS",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestItReadsTheResponseAtTheUnitTheFitUses::test_a_missing_dependent_variable_is_named",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheFamilyAndTheTransformAreOneDecision::test_every_advised_key_is_a_setting_the_run_reads",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheFamilyAndTheTransformAreOneDecision::test_and_it_says_which_of_the_two_is_transforming",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheFamilyAndTheTransformAreOneDecision::test_a_link_carrying_family_takes_no_transform",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheFamilyAndTheTransformAreOneDecision::test_a_linkless_family_on_skewed_positive_data_takes_the_log",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_a_single_row_screen_gets_no_position_term",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_a_proportion_strictly_inside_the_unit_gets_beta",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_one_guide_per_gene_is_not_a_gene_level",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_binary_gets_logit",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_one_plate_cannot_be_batch_corrected",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_unbounded_response_readings_keep_their_model_family[test_an_unbounded_normal_response_gets_ols]",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_a_proportion_touching_a_boundary_does_not",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_counts_get_a_glm",
+    "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_unbounded_response_readings_keep_their_model_family[test_an_unbounded_skewed_response_gets_a_robust_fit]"
+  ],
+  "tests_before": {
+    "passed": 43,
+    "seconds": 15.45
+  },
+  "tests_after": {
+    "passed": 43,
+    "seconds": 12.51
+  },
+  "coverage_scope": "spacr.settings_advisor; complete selected advisor test module, not full-suite coverage",
+  "coverage_before": {
+    "covered_lines": 340,
+    "num_statements": 498,
+    "percent_covered": 63.994169096209916,
+    "percent_covered_display": "64",
+    "missing_lines": 158,
+    "excluded_lines": 0,
+    "percent_statements_covered": 68.27309236947791,
+    "percent_statements_covered_display": "68",
+    "num_branches": 188,
+    "num_partial_branches": 23,
+    "covered_branches": 99,
+    "missing_branches": 89,
+    "percent_branches_covered": 52.659574468085104,
+    "percent_branches_covered_display": "53"
+  },
+  "coverage_after": {
+    "covered_lines": 340,
+    "num_statements": 498,
+    "percent_covered": 63.994169096209916,
+    "percent_covered_display": "64",
+    "missing_lines": 158,
+    "excluded_lines": 0,
+    "percent_statements_covered": 68.27309236947791,
+    "percent_statements_covered_display": "68",
+    "num_branches": 188,
+    "num_partial_branches": 23,
+    "covered_branches": 99,
+    "missing_branches": 89,
+    "percent_branches_covered": 52.659574468085104,
+    "percent_branches_covered_display": "53"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "production_source_sha256": "1bf8480aa023c21048ba179c2c57435d6b314244777704bbd684895a008a2a52",
+  "production_source_unchanged": true,
+  "other_tests_helpers_fixtures_imports_unchanged": true,
+  "mutation_sample": [
+    {
+      "mutant": "normality-choice-reversed",
+      "source_variant": {
+        "path": "spacr/settings_advisor.py",
+        "line": 574,
+        "old": "elif reading.normal_p is not None and reading.normal_p < 0.05:",
+        "new": "elif reading.normal_p is not None and reading.normal_p > 0.05:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_an_unbounded_normal_response_gets_ols"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_button_picks_the_settings_for_your_data.py::TestTheChoicesAreOnesAStatisticianWouldDefend::test_unbounded_response_readings_keep_their_model_family[test_an_unbounded_normal_response_gets_ols]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "guide-count-missing-from-reason",
+      "source_variant": {
+        "path": "spacr/settings_advisor.py",
+        "line": 631,
+        "old": "f\"a gene carries {per_gene:.0f} guides (median) across \"",
+        "new": "f\"a gene carries guides (median) across \""
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_the_level_reason_names_the_guides_per_gene"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_button_picks_the_settings_for_your_data.py::TestEveryFieldCarriesTheReasonItWasSetFor::test_setting_reasons_keep_the_measured_design_counts[test_the_level_reason_names_the_guides_per_gene]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader source faults tested against the four affected cases before and after; no repository production files modified.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_a_button_picks_the_settings_for_your_data.py",
+      "line": 298,
+      "symbol": "test_unbounded_response_readings_keep_their_model_family",
+      "new": "Preserve the original model choice for each unbounded response reading.",
+      "old": {
+        "test_an_unbounded_skewed_response_gets_a_robust_fit": null,
+        "test_an_unbounded_normal_response_gets_ols": null
+      }
+    },
+    {
+      "path": "tests/test_a_button_picks_the_settings_for_your_data.py",
+      "line": 238,
+      "symbol": "test_setting_reasons_keep_the_measured_design_counts",
+      "new": "Keep measured guide and plate counts in their setting explanations.",
+      "old": {
+        "test_the_level_reason_names_the_guides_per_gene": null,
+        "test_the_batch_reason_names_the_plate_count": null
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

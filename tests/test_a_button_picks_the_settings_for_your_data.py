@@ -227,11 +227,16 @@ class TestEveryFieldCarriesTheReasonItWasSetFor:
 
         assert "0, 1" in why or "(0, 1)" in why
 
-    def test_the_level_reason_names_the_guides_per_gene(self, advice):
-        assert "3 guides" in advice.why("level")
-
-    def test_the_batch_reason_names_the_plate_count(self, advice):
-        assert "4 plates" in advice.why("batch_correction")
+    @pytest.mark.parametrize("key, expected", [
+        pytest.param("level", "3 guides",
+                     id="test_the_level_reason_names_the_guides_per_gene"),
+        pytest.param("batch_correction", "4 plates",
+                     id="test_the_batch_reason_names_the_plate_count"),
+    ])
+    def test_setting_reasons_keep_the_measured_design_counts(
+            self, advice, key, expected):
+        """Keep measured guide and plate counts in their setting explanations."""
+        assert expected in advice.why(key)
 
     def test_a_setting_it_cannot_decide_is_named_as_undecided(self, screen):
         """Not filled with a default wearing the same authority as the rest."""
@@ -280,15 +285,20 @@ class TestTheChoicesAreOnesAStatisticianWouldDefend:
 
         assert advice.as_settings()["regression_type"] == "glm"
 
-    def test_an_unbounded_skewed_response_gets_a_robust_fit(self):
-        advice = self._advise(low=-4.0, high=90.0, normal_p=1e-9, skew=3.1)
+    @pytest.mark.parametrize("reading, expected", [
+        pytest.param(
+            dict(low=-4.0, high=90.0, normal_p=1e-9, skew=3.1), "rlm",
+            id="test_an_unbounded_skewed_response_gets_a_robust_fit"),
+        pytest.param(
+            dict(low=-4.0, high=4.0, normal_p=0.4, skew=0.05), "ols",
+            id="test_an_unbounded_normal_response_gets_ols"),
+    ])
+    def test_unbounded_response_readings_keep_their_model_family(
+            self, reading, expected):
+        """Preserve the original model choice for each unbounded response reading."""
+        advice = self._advise(**reading)
 
-        assert advice.as_settings()["regression_type"] == "rlm"
-
-    def test_an_unbounded_normal_response_gets_ols(self):
-        advice = self._advise(low=-4.0, high=4.0, normal_p=0.4, skew=0.05)
-
-        assert advice.as_settings()["regression_type"] == "ols"
+        assert advice.as_settings()["regression_type"] == expected
 
     def test_one_plate_cannot_be_batch_corrected(self):
         """135 greys it for the same reason: two batches or nothing."""
