@@ -584,6 +584,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 712 -> 713 on 2026-11-19, +1/-0, item 964: the feature-information
         # screen (spacr/ops_feature_info.py).
         'spacr/ops_feature_info.py',
+        # 713 -> 714 on 2026-11-19, +1/-0, item 961: in situ sequencing
+        # modes of the spacer-prefix decode (spacr/ops_insitu.py).
+        'spacr/ops_insitu.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -608,10 +611,12 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 710)
+            - len(retired_since_608) == 711)
     # 708 -> 709 on 2026-11-19: spacr/store.py (item 974, the spaCR store).
     # 709 -> 710 on 2026-11-19: spacr/ops_feature_info.py (item 964, the
     # feature-information screen).
+    # 710 -> 711 on 2026-11-19: spacr/ops_insitu.py (item 961, in situ
+    # sequencing modes of the spacer-prefix decode).
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -1160,8 +1165,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # moved with the workflow in one commit.
     # 712 -> 713 on 2026-11-19: spacr/ops_feature_info.py (item 964, the
     # feature-information screen), moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 713
-    assert "--expected-file-count 713" in combine_script
+    # 713 -> 714 on 2026-11-19: spacr/ops_insitu.py (item 961: in situ
+    # sequencing modes), moved with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 714
+    assert "--expected-file-count 714" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

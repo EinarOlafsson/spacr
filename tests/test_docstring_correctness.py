@@ -6816,6 +6816,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("974_spacr_store_api_arrivals_2026-11-17.json", 16),
         ("964_ops_feature_screen_api_arrivals_2026-11-17.json", 2),
         ("codex_issues_1119_api_arrivals_2026-11-19.json", 2),
+        ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))

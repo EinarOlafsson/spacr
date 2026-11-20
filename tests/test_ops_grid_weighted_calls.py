@@ -51,7 +51,11 @@ def test_grid_weighted_calls_match_the_decode_settings(monkeypatch, extra, best)
                 "ops_prefix_threshold_tuning": "none", "ops_prefix_decoy_k": 1,
                 "ops_prefix_fdr_calibration": "shuffle", **extra}
     chosen = prefix.prefix_settings(settings)
-    point = {key: "log" if key == "ops_read_mode" else chosen[key] for key in grid._GRID_KEYS}
+    # Item 961's in situ axes are not prefix settings; the grid's first
+    # choice of each (call sort 'none', compartment 'cell') is the decode's own rule.
+    point = {key: "log" if key == "ops_read_mode" else
+             chosen[key] if key in chosen else grid._GRID_CHOICES[key][0]
+             for key in grid._GRID_KEYS}
     point.update(best or {})
     weights = {**prefix._weight_arguments(chosen, best), "neighbours": neighbours}
     expected = prefix._flag_decoy_cells(prefix.prefix_cell_calls(

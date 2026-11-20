@@ -9808,6 +9808,10 @@ ALPHA_FEATURES = {
     982: {
         'settings': ('ops_prefix_tuning_min_sites',),
     },
+    961: {
+        'settings': ('ops_insitu_preset', 'ops_barcode_layout', 'ops_barcode_layout_file',
+                     'ops_call_sort', 'ops_read_compartment', 'ops_recomb_min_quality'),
+    },
 }
 
 

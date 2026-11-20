@@ -521,6 +521,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_grid_n_tiles": None,
     "ops_grid_seed": None,
     "ops_grid_run_id": None,
+    "ops_barcode_layout": None,
+    "ops_barcode_layout_file": None,
+    "ops_call_sort": None,
+    "ops_read_compartment": None,
+    "ops_recomb_min_quality": None,
+    "ops_insitu_preset": None,
 }
 
 #: The Measure setting each OPS phenotype measurement setting stands for
@@ -1043,6 +1049,12 @@ OPS_TYPES: Dict[str, object] = {
     "ops_grid_n_tiles": (int, type(None)),
     "ops_grid_seed": (int, type(None)),
     "ops_grid_run_id": (str, type(None)),
+    "ops_barcode_layout": (str, type(None)),
+    "ops_barcode_layout_file": (str, type(None)),
+    "ops_call_sort": (str, type(None)),
+    "ops_read_compartment": (str, type(None)),
+    "ops_recomb_min_quality": (float, int, type(None)),
+    "ops_insitu_preset": (str, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -1122,6 +1134,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_decode_preset", "ops_read_mode", "ops_crosstalk",
         "ops_decode_library_calibration", "ops_calibration_passes",
         "ops_calibration_min_labels", "ops_store_reads",
+        "ops_insitu_preset", "ops_barcode_layout", "ops_barcode_layout_file",
+        "ops_call_sort", "ops_read_compartment", "ops_recomb_min_quality",
     ],
     "Read assignment": [
         "ops_footprint", "ops_cell_rule", "ops_read_mismatches",
@@ -3962,8 +3976,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or dict) - The grid: each setting with the values to try, as "
         "ops_read_threshold=40,80,160; ops_read_mode=log,raw. It can vary "
         "ops_read_threshold, ops_read_mode, ops_prefix_min_read_quality, "
-        "ops_prefix_max_distance, ops_quality_min_reads and "
-        "ops_prefix_crosstalk; every other setting stays at the default "
+        "ops_prefix_max_distance, ops_quality_min_reads, ops_prefix_crosstalk, "
+        "ops_call_sort (none is the decode's own rule) and "
+        "ops_read_compartment; every other setting stays at the default "
         "point, which with per-well tuning is each well's own choice. Empty "
         "scores the default point alone. Default None. Alpha.",
     "ops_grid_tiles":
@@ -3990,6 +4005,43 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - The grid search run whose point was applied to "
         "these settings; written by Apply to settings, with the tiles and "
         "seed. Default None. Alpha.",
+    "ops_insitu_preset":
+        "(str or None) - A named in situ sequencing setup for the spacer-prefix "
+        "decode. t7 assigns reads to the nucleus, calls each cell by its "
+        "brightest amplicon and accepts one read per cell, as validated for "
+        "T7 chemistry; it fills only the keys left empty. Empty uses no "
+        "preset. Default None. Alpha.",
+    "ops_barcode_layout":
+        "(str or None) - single reads one barcode per spot (the guide prefix). "
+        "combinatorial reads several barcode segments in different cycles, as "
+        "in PerturbView and Zombie screens, and calls each cell's construct "
+        "from the combination (ops_barcode_layout_file); reads whose segments "
+        "belong to different constructs are flagged as recombined and not "
+        "used. Needs ops_prefix_threshold_tuning none. Empty is single. "
+        "Default None. Alpha.",
+    "ops_barcode_layout_file":
+        "(str or None) - The combinatorial layout: a CSV or JSON with one row "
+        "per segment: segment, start and end cycle, role (map, recomb or umi), "
+        "the library column with its bases, and optionally max_distance and "
+        "metric (hamming or levenshtein). The library needs those columns and "
+        "the gene column. Default None. Alpha.",
+    "ops_call_sort":
+        "(str or None) - How a cell's barcodes are ranked: count (reads), "
+        "quality (mean read quality) or peak (the brightest read's spot "
+        "strength, for chemistries with one bright amplicon per cell). A tie "
+        "leaves the cell ambiguous. Needs ops_prefix_quality_method spacr. "
+        "Empty keeps the decode's own rule. Default None. Alpha.",
+    "ops_read_compartment":
+        "(str or None) - Which part of a cell a read must lie in to count: "
+        "cell (anywhere), nucleus (only over the nucleus, for amplicons that "
+        "stay there) or cytoplasm (outside it). Nucleus and cytoplasm need "
+        "nucleus labels (ops_prefix_nuclei_masks). Empty is cell. Default "
+        "None. Alpha.",
+    "ops_recomb_min_quality":
+        "(float or None) - The lowest call quality (the worst cycle's margin) "
+        "a recomb segment needs to be checked against its construct, as "
+        "Brieflow's recomb_q_thresh; a lower-quality segment is neither "
+        "trusted nor flagged as recombined. Empty is 0. Default None. Alpha.",
     "ops_stress_report":
         "(bool) - At the end of the run, time the store as the reference "
         "stress test did (database rows, queries for one field, one gene, "

@@ -828,6 +828,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_grid_search", "ops_grid_params", "ops_grid_tiles",
     "ops_grid_tile_mode", "ops_grid_n_tiles", "ops_grid_seed",
     "ops_grid_run_id",
+    # Item 961 (2026-11-17): in situ sequencing modes of the prefix decode.
+    "ops_insitu_preset", "ops_barcode_layout", "ops_barcode_layout_file",
+    "ops_call_sort", "ops_read_compartment", "ops_recomb_min_quality",
     # Items 936 and 940 (2026-11-13): stitch reader threads and edge
     # workers, and the placement seed file.
     "ops_stitch_read_threads",

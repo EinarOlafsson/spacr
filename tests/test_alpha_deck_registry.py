@@ -120,8 +120,9 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-19: the spaCR store as an OPS output (974) makes 165.
     # 2026-11-19: the GPU feature-information screen (964) makes 166.
     # 2026-11-19: Voyager3's enrichment method (980) makes 167.
+    # 2026-11-19: in situ sequencing modes of the prefix decode (961) make 168.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    assert count == 167
+    assert count == 168
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
