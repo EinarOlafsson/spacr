@@ -214,18 +214,46 @@ def test_two_timepoints_of_one_field_are_refused_not_overwritten(tmp_path):
     assert not (tmp_path / "images").exists()
 
 
-def test_fields_are_whole_field_chunks_per_channel_in_blosc_lz4(tmp_path):
+@pytest.mark.parametrize("image_mode", ["channels", "plane", "labels-only"])
+def test_fields_are_whole_field_chunks_per_channel_in_blosc_lz4(tmp_path, image_mode):
+    """Plate fields and every mask keep exact pixels in unsharded LZ4 chunks."""
+    image, labels = _make_field(0)
+    if image_mode == "plane":
+        image = image[0]
+    elif image_mode == "labels-only":
+        image = None
     writer = PlateWriter(tmp_path, "P1", channel_names=CHANNELS)
-    run_fields(_plan(1), _make_field, writer)
-    image = json.loads((tmp_path / "P1.ome.zarr" / "A" / "1" / "0" / "0" / "zarr.json").read_text())
-    label = json.loads((tmp_path / "P1.ome.zarr" / "A" / "1" / "0" / "labels" / "nucleus" / "0"
-                        / "zarr.json").read_text())
-    for meta, chunk in ((image, [1, 96, 128]), (label, [96, 128])):
-        shard = meta["codecs"][0]
-        assert shard["name"] == "sharding_indexed"
-        assert shard["configuration"]["chunk_shape"] == chunk
-        inner = [c["name"] for c in shard["configuration"]["codecs"]]
-        assert "blosc" in inner
-        blosc = next(c for c in shard["configuration"]["codecs"] if c["name"] == "blosc")
+    assert writer.write_field("A01", 0, image, labels) == "A/1/0"
+    field = writer.path / "A" / "1" / "0"
+    arrays = [(field / "labels" / name / "0", mask, [96, 128])
+              for name, mask in labels.items()]
+    if image is not None:
+        arrays.append((field / "0", image,
+                       [1, 96, 128] if image_mode == "channels" else [96, 128]))
+        back = read_image(writer.path, key=("A01", 0))
+        assert back.dtype == image.dtype
+        np.testing.assert_array_equal(back, image)
+    else:
+        assert not (field / "0").exists()
+    for path, data, chunk in arrays:
+        meta = json.loads((path / "zarr.json").read_text())
+        assert meta["zarr_format"] == 3 and meta["shape"] == list(data.shape)
+        assert meta["chunk_grid"]["configuration"]["chunk_shape"] == chunk
+        assert [codec["name"] for codec in meta["codecs"]] == ["bytes", "blosc"]
+        blosc = meta["codecs"][1]
         assert blosc["configuration"]["cname"] == "lz4"
+        assert blosc["configuration"]["clevel"] == 5
         assert blosc["configuration"]["shuffle"] == "shuffle"
+    for name, mask in labels.items():
+        back = read_labels(writer.path, name, key=("A01", 0))
+        assert back.dtype == mask.dtype
+        np.testing.assert_array_equal(back, mask)
+    ledger = [json.loads(line) for line in
+              (writer.path / "spacr_commits.jsonl").read_text().splitlines()]
+    assert ledger == [{"key": "A/1/0", "well": "A01", "field": 0,
+                       "labels": ["nucleus", "cell"], "image": image is not None}]
+    assert PlateWriter(tmp_path, "P1").committed("A01", 0)
+    plate = json.loads((writer.path / "zarr.json").read_text())["attributes"]["ome"]["plate"]
+    assert plate["wells"] == [{"path": "A/1", "rowIndex": 0, "columnIndex": 0}]
+    well = json.loads((field.parent / "zarr.json").read_text())["attributes"]["ome"]["well"]
+    assert well["images"] == [{"path": "0"}]
