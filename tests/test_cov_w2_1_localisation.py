@@ -43,14 +43,21 @@ def test_a_table_without_a_location_or_gene_column_colours_nothing(
     assert localisation.table() == {}
 
 
-def test_a_blank_gene_row_is_skipped(monkeypatch, tmp_path):
-    """Rows whose gene is empty or literally 'nan' name no gene."""
-    _bundle(monkeypatch, tmp_path, pd.DataFrame({
-        "gene_nr": ["", "nan", "233460"],
-        "location": ["cytosol", "nucleus", "rhoptry"],
-    }))
+@pytest.mark.parametrize('records, expected', [
+    pytest.param(
+        {'gene_nr': ['', 'nan', '233460'], 'location': ['cytosol', 'nucleus', 'rhoptry']}, {'233460': 'rhoptry'},
+        id='test_a_blank_gene_row_is_skipped',
+    ),
+    pytest.param(
+        {'gene_nr': ['233460', '244480'], 'location': ['12.5', 'cytosol']}, {'244480': 'cytosol'},
+        id='test_a_numeric_compartment_is_not_a_compartment',
+    ),
+])
+def test_original_localisation_tables_keep_their_filtered_gene_mappings(monkeypatch, tmp_path, records, expected):
+    """Retain each original localisation table and its filtered gene mapping."""
+    _bundle(monkeypatch, tmp_path, pd.DataFrame(records))
 
-    assert localisation.table() == {"233460": "rhoptry"}
+    assert localisation.table() == expected
 
 
 def test_a_float_formatted_gene_number_joins_to_the_screen(monkeypatch,
@@ -65,16 +72,6 @@ def test_a_float_formatted_gene_number_joins_to_the_screen(monkeypatch,
 
     assert places == {"244480": "dense granule", "233460": "cytosol"}
     assert "244480.0" not in places
-
-
-def test_a_numeric_compartment_is_not_a_compartment(monkeypatch, tmp_path):
-    """A location column holding numbers describes no biology."""
-    _bundle(monkeypatch, tmp_path, pd.DataFrame({
-        "gene_nr": ["233460", "244480"],
-        "location": ["12.5", "cytosol"],
-    }))
-
-    assert localisation.table() == {"244480": "cytosol"}
 
 
 def test_a_frame_without_the_key_column_has_no_compartments():

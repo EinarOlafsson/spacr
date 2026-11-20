@@ -1,0 +1,212 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_cov_w2_1_localisation.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_w2_1_localisation.py::test_a_blank_gene_row_is_skipped": "tests/test_cov_w2_1_localisation.py::test_original_localisation_tables_keep_their_filtered_gene_mappings[test_a_blank_gene_row_is_skipped]",
+    "tests/test_cov_w2_1_localisation.py::test_a_numeric_compartment_is_not_a_compartment": "tests/test_cov_w2_1_localisation.py::test_original_localisation_tables_keep_their_filtered_gene_mappings[test_a_numeric_compartment_is_not_a_compartment]"
+  },
+  "csv_records_and_native_gene_mapping_contracts": {
+    "test_a_blank_gene_row_is_skipped": [
+      {
+        "gene_nr": [
+          "",
+          "nan",
+          "233460"
+        ],
+        "location": [
+          "cytosol",
+          "nucleus",
+          "rhoptry"
+        ]
+      },
+      {
+        "233460": "rhoptry"
+      }
+    ],
+    "test_a_numeric_compartment_is_not_a_compartment": [
+      {
+        "gene_nr": [
+          "233460",
+          "244480"
+        ],
+        "location": [
+          "12.5",
+          "cytosol"
+        ]
+      },
+      {
+        "244480": "cytosol"
+      }
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_blank_gene_row_is_skipped": "({'gene_nr': ['', 'nan', '233460'], 'location': ['cytosol', 'nucleus', 'rhoptry']}, {'233460': 'rhoptry'})",
+    "test_a_numeric_compartment_is_not_a_compartment": "({'gene_nr': ['233460', '244480'], 'location': ['12.5', 'cytosol']}, {'244480': 'cytosol'})"
+  },
+  "contract_scope": "Exact ordered string column dictionaries, original blank/nan/numeric-compartment strings, fresh pd.DataFrame(records), _bundle(monkeypatch,tmp_path,frame), localisation.table() and native gene-to-compartment dictionary equality retained. Every original import/helper/autouse cache reset/other lookup/mask/menu/missing-file case retains AST and relative order.",
+  "collected_before": [
+    "tests/test_cov_w2_1_localisation.py::test_a_frame_without_the_key_column_highlights_nothing",
+    "tests/test_cov_w2_1_localisation.py::test_a_float_formatted_gene_number_joins_to_the_screen",
+    "tests/test_cov_w2_1_localisation.py::test_choosing_nothing_highlights_nothing",
+    "tests/test_cov_w2_1_localisation.py::test_a_table_without_a_location_or_gene_column_colours_nothing[no-gene-column]",
+    "tests/test_cov_w2_1_localisation.py::test_a_table_without_a_location_or_gene_column_colours_nothing[no-location-column]",
+    "tests/test_cov_w2_1_localisation.py::test_choosing_a_compartment_highlights_exactly_its_genes",
+    "tests/test_cov_w2_1_localisation.py::test_a_missing_bundled_file_is_not_an_error",
+    "tests/test_cov_w2_1_localisation.py::test_a_frame_without_the_key_column_has_no_compartments",
+    "tests/test_cov_w2_1_localisation.py::test_a_frame_without_the_key_column_offers_no_menu",
+    "tests/test_cov_w2_1_localisation.py::test_a_guide_term_resolves_to_its_genes_compartment",
+    "tests/test_cov_w2_1_localisation.py::test_a_blank_gene_row_is_skipped",
+    "tests/test_cov_w2_1_localisation.py::test_the_menu_drops_a_compartment_too_small_to_read",
+    "tests/test_cov_w2_1_localisation.py::test_a_numeric_compartment_is_not_a_compartment",
+    "tests/test_cov_w2_1_localisation.py::test_no_frame_at_all_has_no_compartments"
+  ],
+  "collected_after": [
+    "tests/test_cov_w2_1_localisation.py::test_a_guide_term_resolves_to_its_genes_compartment",
+    "tests/test_cov_w2_1_localisation.py::test_a_table_without_a_location_or_gene_column_colours_nothing[no-gene-column]",
+    "tests/test_cov_w2_1_localisation.py::test_a_frame_without_the_key_column_offers_no_menu",
+    "tests/test_cov_w2_1_localisation.py::test_a_missing_bundled_file_is_not_an_error",
+    "tests/test_cov_w2_1_localisation.py::test_choosing_nothing_highlights_nothing",
+    "tests/test_cov_w2_1_localisation.py::test_original_localisation_tables_keep_their_filtered_gene_mappings[test_a_numeric_compartment_is_not_a_compartment]",
+    "tests/test_cov_w2_1_localisation.py::test_choosing_a_compartment_highlights_exactly_its_genes",
+    "tests/test_cov_w2_1_localisation.py::test_a_frame_without_the_key_column_has_no_compartments",
+    "tests/test_cov_w2_1_localisation.py::test_no_frame_at_all_has_no_compartments",
+    "tests/test_cov_w2_1_localisation.py::test_a_table_without_a_location_or_gene_column_colours_nothing[no-location-column]",
+    "tests/test_cov_w2_1_localisation.py::test_original_localisation_tables_keep_their_filtered_gene_mappings[test_a_blank_gene_row_is_skipped]",
+    "tests/test_cov_w2_1_localisation.py::test_a_frame_without_the_key_column_highlights_nothing",
+    "tests/test_cov_w2_1_localisation.py::test_a_float_formatted_gene_number_joins_to_the_screen",
+    "tests/test_cov_w2_1_localisation.py::test_the_menu_drops_a_compartment_too_small_to_read"
+  ],
+  "tests_before": {
+    "passed": 14,
+    "seconds": 3.82
+  },
+  "tests_after": {
+    "passed": 14,
+    "seconds": 4.3
+  },
+  "coverage_scope": "spacr.localisation under the complete selected CSV-compartment/key/lookup/mask/menu/missing-file module; not full-suite coverage. Existing tiny local CSV/DataFrame fixtures and lookup helpers only; no GUI/chart creation or rendering, new production reader, model training, network or GPU work. Production settings unchanged.",
+  "coverage_before": {
+    "covered_lines": 59,
+    "num_statements": 59,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 18,
+    "num_partial_branches": 0,
+    "covered_branches": 18,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_after": {
+    "covered_lines": 59,
+    "num_statements": 59,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 18,
+    "num_partial_branches": 0,
+    "covered_branches": 18,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "645a511cecf6d769485c728b26073c97f1ddb692b486d124e130b67ab5edb2fc",
+  "production_source_sha256": "57cbcb3637636c8f7fa9cfa60003717b24828014e396ec408d6913446460ac66",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_helpers_cache_reset_lookup_mask_menu_missing_file_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "blank-gene-row-retained",
+      "source_variant": {
+        "path": "spacr/localisation.py",
+        "line": 73,
+        "old": "if not gene_text or gene_text.lower() == \"nan\":",
+        "new": "if False:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_1_localisation.py::test_a_blank_gene_row_is_skipped"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_1_localisation.py::test_a_blank_gene_row_is_skipped"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_1_localisation.py::test_original_localisation_tables_keep_their_filtered_gene_mappings[test_a_blank_gene_row_is_skipped]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_1_localisation.py::test_original_localisation_tables_keep_their_filtered_gene_mappings[test_a_blank_gene_row_is_skipped]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "numeric-compartment-retained",
+      "source_variant": {
+        "path": "spacr/localisation.py",
+        "line": 75,
+        "old": "if place_text.lower() in NOT_A_COMPARTMENT or _looks_numeric(place_text):",
+        "new": "if place_text.lower() in NOT_A_COMPARTMENT:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_1_localisation.py::test_a_numeric_compartment_is_not_a_compartment"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_1_localisation.py::test_a_numeric_compartment_is_not_a_compartment"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_1_localisation.py::test_original_localisation_tables_keep_their_filtered_gene_mappings[test_a_numeric_compartment_is_not_a_compartment]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_1_localisation.py::test_original_localisation_tables_keep_their_filtered_gene_mappings[test_a_numeric_compartment_is_not_a_compartment]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in table before and after: keep blank/nan gene rows by bypassing the gene guard; keep numeric compartments by removing numeric rejection. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native gene-mapping equality. Original ordered string records, CSV fixture/helper calls and autouse cache reset retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_w2_1_localisation.py",
+      "line": 57,
+      "symbol": "test_original_localisation_tables_keep_their_filtered_gene_mappings",
+      "new": "Retain each original localisation table and its filtered gene mapping.",
+      "old": {
+        "test_a_blank_gene_row_is_skipped": "Rows whose gene is empty or literally 'nan' name no gene.",
+        "test_a_numeric_compartment_is_not_a_compartment": "A location column holding numbers describes no biology."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
