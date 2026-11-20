@@ -215,31 +215,24 @@ def test_stop_called_by_feeder_thread_requests_shutdown_without_self_join():
 
 
 @pytest.mark.parametrize(
-    ("kwargs", "message"),
+    ("parameter", "value"),
     [
-        ({"poll_interval": 0}, "poll_interval"),
-        ({"max_event_bytes": 0}, "max_event_bytes"),
+        pytest.param("poll_interval", 0, id="poll-zero"),
+        pytest.param("max_event_bytes", 0, id="bytes-zero"),
+        pytest.param("poll_interval", float("nan"), id="poll-nan"),
+        pytest.param("poll_interval", float("inf"), id="poll-pos-inf"),
+        pytest.param("poll_interval", float("-inf"), id="poll-neg-inf"),
+        pytest.param("poll_interval", True, id="poll-bool"),
+        pytest.param("max_event_bytes", float("nan"), id="bytes-nan"),
+        pytest.param("max_event_bytes", float("inf"), id="bytes-pos-inf"),
+        pytest.param("max_event_bytes", 1.5, id="bytes-fractional"),
+        pytest.param("max_event_bytes", True, id="bytes-bool"),
     ],
 )
-def test_constructor_rejects_invalid_limits(kwargs, message):
-    with pytest.raises(ValueError, match=message):
-        MultiprocessingFeeder(queue.Queue(), _collector(), **kwargs)
-
-
-@pytest.mark.parametrize("poll_interval", [float("nan"), float("inf"),
-                                            float("-inf"), True])
-def test_constructor_rejects_nonfinite_poll_intervals(poll_interval):
-    with pytest.raises(ValueError, match="poll_interval"):
-        MultiprocessingFeeder(
-            queue.Queue(), _collector(), poll_interval=poll_interval)
-
-
-@pytest.mark.parametrize("max_event_bytes", [float("nan"), float("inf"),
-                                              1.5, True])
-def test_constructor_rejects_noninteger_byte_limits(max_event_bytes):
-    with pytest.raises(ValueError, match="max_event_bytes"):
-        MultiprocessingFeeder(
-            queue.Queue(), _collector(), max_event_bytes=max_event_bytes)
+def test_constructor_rejects_invalid_limits(parameter, value):
+    """Reject each invalid constructor value with the responsible parameter named."""
+    with pytest.raises(ValueError, match=parameter):
+        MultiprocessingFeeder(queue.Queue(), _collector(), **{parameter: value})
 
 
 def test_stop_rejects_negative_timeout():
