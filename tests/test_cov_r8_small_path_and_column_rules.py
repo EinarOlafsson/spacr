@@ -70,12 +70,19 @@ class TestPrefixingAMergedColumn:
         return TableMerge(table="cell", plan=None, rows=0,
                           keys=("plateID", "rowID"))
 
-    def test_a_measurement_gains_its_tables_prefix(self, merge):
-        assert merge.merged_column("area") == "cell_area"
+    @pytest.mark.parametrize("column, expected", [
+        pytest.param("area", "cell_area",
+                     id="test_a_measurement_gains_its_tables_prefix"),
+        pytest.param("cell_area", "cell_area",
+                     id="test_a_column_already_prefixed_is_left_alone"),
+    ])
+    def test_measurement_columns_are_prefixed_once(self, merge, column, expected):
+        """Prefix measurements once and retain an existing table prefix.
 
-    def test_a_column_already_prefixed_is_left_alone(self, merge):
-        """Otherwise a second pass would produce `cell_cell_area`."""
-        assert merge.merged_column("cell_area") == "cell_area"
+        Repeated processing keeps ``cell_area`` instead of producing
+        ``cell_cell_area``.
+        """
+        assert merge.merged_column(column) == expected
 
     def test_a_join_key_is_never_prefixed(self, merge):
         """Prefixing a key would break the join this class exists to make."""
@@ -102,28 +109,18 @@ class TestPrefixingAMergedColumn:
         assert merge.merged_column(OBJECT_COLUMN) == f"cell_{OBJECT_COLUMN}"
 
 
-def test_a_byte_path_that_decodes_to_whitespace_is_skipped():
-    """The loop's other way round: emptiness found only after decoding.
+@pytest.mark.parametrize("count_data, expected", [
+    pytest.param([b"  ", "/tmp/real.csv"], "/tmp/real.csv",
+                 id="test_a_byte_path_that_decodes_to_whitespace_is_skipped"),
+    pytest.param([b"/tmp/counts.csv"], "/tmp/counts.csv",
+                 id="test_a_byte_path_with_content_is_decoded_and_used"),
+])
+def test_byte_count_paths_are_decoded_before_selection(count_data, expected):
+    """Decode byte count paths and skip any that become blank.
 
-    `is_empty_path` recognises a blank STRING, so `"   "` never reaches
-    the second check -- it is dropped at the top of the loop. A bytes
-    path is not recognised there, survives `os.fspath`, and is only seen
-    to be blank once `os.fsdecode` and `.strip()` have run.
-
-    That is the arc: a candidate rejected at the BOTTOM of the loop
-    rather than the top, so the loop goes round to try the next one. A
-    settings file holding a byte path is unusual; a helper that returned
-    a blank path because of one would be worse.
+    Whitespace bytes are rejected after decoding so selection can continue
+    with the next path. A usable byte path is returned as a string.
     """
     from spacr.refit import _first_usable_count_path
 
-    assert _first_usable_count_path(
-        {"count_data": [b"  ", "/tmp/real.csv"]}) == "/tmp/real.csv"
-
-
-def test_a_byte_path_with_content_is_decoded_and_used():
-    """And the same input shape, when it does name something."""
-    from spacr.refit import _first_usable_count_path
-
-    assert _first_usable_count_path(
-        {"count_data": [b"/tmp/counts.csv"]}) == "/tmp/counts.csv"
+    assert _first_usable_count_path({"count_data": count_data}) == expected

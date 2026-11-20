@@ -1,0 +1,230 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_test_directory": "tests (root-level module only)",
+  "changed_file": "tests/test_cov_r8_small_path_and_column_rules.py",
+  "definition_reduction": 2,
+  "change": "Generalize two column-prefix cases and two byte-path cases without changing inputs, expected values or assertions.",
+  "case_mapping": {
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_a_measurement_gains_its_tables_prefix": "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_measurement_columns_are_prefixed_once[test_a_measurement_gains_its_tables_prefix]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_a_column_already_prefixed_is_left_alone": "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_measurement_columns_are_prefixed_once[test_a_column_already_prefixed_is_left_alone]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::test_a_byte_path_that_decodes_to_whitespace_is_skipped": "tests/test_cov_r8_small_path_and_column_rules.py::test_byte_count_paths_are_decoded_before_selection[test_a_byte_path_that_decodes_to_whitespace_is_skipped]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::test_a_byte_path_with_content_is_decoded_and_used": "tests/test_cov_r8_small_path_and_column_rules.py::test_byte_count_paths_are_decoded_before_selection[test_a_byte_path_with_content_is_decoded_and_used]"
+  },
+  "column_case_contracts": {
+    "test_a_measurement_gains_its_tables_prefix": [
+      "area",
+      "cell_area"
+    ],
+    "test_a_column_already_prefixed_is_left_alone": [
+      "cell_area",
+      "cell_area"
+    ]
+  },
+  "byte_case_contracts_repr": {
+    "test_a_byte_path_that_decodes_to_whitespace_is_skipped": "([b'  ', '/tmp/real.csv'], '/tmp/real.csv')",
+    "test_a_byte_path_with_content_is_decoded_and_used": "([b'/tmp/counts.csv'], '/tmp/counts.csv')"
+  },
+  "collected_before": [
+    "tests/test_cov_r8_small_path_and_column_rules.py::test_a_byte_path_with_content_is_decoded_and_used",
+    "tests/test_cov_r8_small_path_and_column_rules.py::test_a_byte_path_that_decodes_to_whitespace_is_skipped",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_nothing_usable_answers_none",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_the_first_usable_count_path_is_taken[empty-entries-are-skipped-to-reach-a-real-one]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_the_first_usable_count_path_is_taken[a-single-path-is-taken]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_a_path_like_object_is_accepted",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_only_bad_entries_answer_none_rather_than_raising",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_the_first_usable_count_path_is_taken[the-first-usable-of-several-is-taken]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_the_first_usable_count_path_is_taken[an-entry-that-is-not-path-like-is-skipped]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_the_first_usable_count_path_is_taken[a-path-is-stripped-before-it-is-judged]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[plateID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[screenID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_a_measurement_gains_its_tables_prefix",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_a_column_already_prefixed_is_left_alone",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[source_database]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[rowID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[time_id]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[columnID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[timeID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[fieldID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_object_column_IS_prefixed",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_a_join_key_is_never_prefixed"
+  ],
+  "collected_after": [
+    "tests/test_cov_r8_small_path_and_column_rules.py::test_byte_count_paths_are_decoded_before_selection[test_a_byte_path_with_content_is_decoded_and_used]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::test_byte_count_paths_are_decoded_before_selection[test_a_byte_path_that_decodes_to_whitespace_is_skipped]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[time_id]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[columnID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_a_join_key_is_never_prefixed",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[rowID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_measurement_columns_are_prefixed_once[test_a_measurement_gains_its_tables_prefix]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[fieldID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[timeID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_measurement_columns_are_prefixed_once[test_a_column_already_prefixed_is_left_alone]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[source_database]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[screenID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_shared_identity_columns_are_never_prefixed[plateID]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_the_object_column_IS_prefixed",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_nothing_usable_answers_none",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_the_first_usable_count_path_is_taken[the-first-usable-of-several-is-taken]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_the_first_usable_count_path_is_taken[empty-entries-are-skipped-to-reach-a-real-one]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_only_bad_entries_answer_none_rather_than_raising",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_a_path_like_object_is_accepted",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_the_first_usable_count_path_is_taken[an-entry-that-is-not-path-like-is-skipped]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_the_first_usable_count_path_is_taken[a-path-is-stripped-before-it-is-judged]",
+    "tests/test_cov_r8_small_path_and_column_rules.py::TestChoosingACountPath::test_the_first_usable_count_path_is_taken[a-single-path-is-taken]"
+  ],
+  "tests_before": {
+    "passed": 22,
+    "seconds": 3.81
+  },
+  "tests_after": {
+    "passed": 22,
+    "seconds": 4.2
+  },
+  "coverage_scope": "spacr.plate_measurements and spacr.refit; selected path/column test module only, not full-suite coverage",
+  "coverage_before": {
+    "covered_lines": 106,
+    "num_statements": 440,
+    "percent_covered": 18.553459119496857,
+    "percent_covered_display": "19",
+    "missing_lines": 334,
+    "excluded_lines": 0,
+    "percent_statements_covered": 24.09090909090909,
+    "percent_statements_covered_display": "24",
+    "num_branches": 196,
+    "num_partial_branches": 0,
+    "covered_branches": 12,
+    "missing_branches": 184,
+    "percent_branches_covered": 6.122448979591836,
+    "percent_branches_covered_display": "6"
+  },
+  "coverage_after": {
+    "covered_lines": 106,
+    "num_statements": 440,
+    "percent_covered": 18.553459119496857,
+    "percent_covered_display": "19",
+    "missing_lines": 334,
+    "excluded_lines": 0,
+    "percent_statements_covered": 24.09090909090909,
+    "percent_statements_covered_display": "24",
+    "num_branches": 196,
+    "num_partial_branches": 0,
+    "covered_branches": 12,
+    "missing_branches": 184,
+    "percent_branches_covered": 6.122448979591836,
+    "percent_branches_covered_display": "6"
+  },
+  "coverage_by_module": {
+    "spacr/plate_measurements.py": {
+      "covered_lines": 76,
+      "num_statements": 306,
+      "percent_covered": 18.807339449541285,
+      "percent_covered_display": "19",
+      "missing_lines": 230,
+      "excluded_lines": 0,
+      "percent_statements_covered": 24.836601307189543,
+      "percent_statements_covered_display": "25",
+      "num_branches": 130,
+      "num_partial_branches": 0,
+      "covered_branches": 6,
+      "missing_branches": 124,
+      "percent_branches_covered": 4.615384615384615,
+      "percent_branches_covered_display": "5"
+    },
+    "spacr/refit.py": {
+      "covered_lines": 30,
+      "num_statements": 134,
+      "percent_covered": 18.0,
+      "percent_covered_display": "18",
+      "missing_lines": 104,
+      "excluded_lines": 0,
+      "percent_statements_covered": 22.388059701492537,
+      "percent_statements_covered_display": "22",
+      "num_branches": 66,
+      "num_partial_branches": 0,
+      "covered_branches": 6,
+      "missing_branches": 60,
+      "percent_branches_covered": 9.090909090909092,
+      "percent_branches_covered_display": "9"
+    }
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "production_source_sha256": {
+    "spacr/plate_measurements.py": "91ea1ff17c5ee5d7c473d0d30bb7f704eab75914bc3655cd90a537bc32899e35",
+    "spacr/refit.py": "71666d915f35ba7dd280753a60f99ade18b9841816ed08a3102b87432f6a566d"
+  },
+  "production_source_unchanged": true,
+  "other_tests_fixtures_imports_unchanged": true,
+  "mutation_sample": [
+    {
+      "mutant": "already-prefixed-column-prefixed-again",
+      "module": "spacr.plate_measurements",
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_a_column_already_prefixed_is_left_alone"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_small_path_and_column_rules.py::TestPrefixingAMergedColumn::test_measurement_columns_are_prefixed_once[test_a_column_already_prefixed_is_left_alone]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "byte-path-converted-with-str",
+      "module": "spacr.refit",
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_small_path_and_column_rules.py::test_a_byte_path_that_decodes_to_whitespace_is_skipped"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_small_path_and_column_rules.py::test_byte_count_paths_are_decoded_before_selection[test_a_byte_path_with_content_is_decoded_and_used]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader source variants; no repository production files modified.",
+  "mutation_validation_note": "The first before-controller postcheck expected an expanded E AssertionError line. Pytest used its compact source-line AssertionError form for the byte-path fault. Both original exit-2 failures and application markers were retained and verified with the corrected format check; no test was rerun for that parser correction.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_r8_small_path_and_column_rules.py",
+      "line": 80,
+      "symbol": "test_measurement_columns_are_prefixed_once",
+      "new": "Prefix measurements once and retain an existing table prefix.\n\nRepeated processing keeps ``cell_area`` instead of producing\n``cell_cell_area``.",
+      "old": {
+        "test_a_measurement_gains_its_tables_prefix": null,
+        "test_a_column_already_prefixed_is_left_alone": "Otherwise a second pass would produce `cell_cell_area`."
+      }
+    },
+    {
+      "path": "tests/test_cov_r8_small_path_and_column_rules.py",
+      "line": 119,
+      "symbol": "test_byte_count_paths_are_decoded_before_selection",
+      "new": "Decode byte count paths and skip any that become blank.\n\nWhitespace bytes are rejected after decoding so selection can continue\nwith the next path. A usable byte path is returned as a string.",
+      "old": {
+        "test_a_byte_path_that_decodes_to_whitespace_is_skipped": "The loop's other way round: emptiness found only after decoding.\n\n`is_empty_path` recognises a blank STRING, so `\"   \"` never reaches\nthe second check -- it is dropped at the top of the loop. A bytes\npath is not recognised there, survives `os.fspath`, and is only seen\nto be blank once `os.fsdecode` and `.strip()` have run.\n\nThat is the arc: a candidate rejected at the BOTTOM of the loop\nrather than the top, so the loop goes round to try the next one. A\nsettings file holding a byte path is unusual; a helper that returned\na blank path because of one would be worse.",
+        "test_a_byte_path_with_content_is_decoded_and_used": "And the same input shape, when it does name something."
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}
