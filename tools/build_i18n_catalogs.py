@@ -3337,8 +3337,6 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # reviewed records, so it would override the zh_CN, hi, ko and is records
     # already written for this label.
     "Concentration": {"fr": "Concentration"},
-    # 2026-11-20 (item 977): the ops.ops_phases setting label; French spells it as English does.
-    "Phases": {"fr": "Phases"},
     # F370: reviewed scientific notation/names and a format-only scorecard
     # template remain identical. Swedish also spells the metric Precision
     # identically. These are review decisions, not inventory exclusions.
@@ -3773,6 +3771,13 @@ MANUAL_UI['Load the example images…'] = {
     'is': 'Hlaða sýnismyndum...',
     'ko': '예제 이미지 불러오기...',
 }
+
+
+# 2026-11-20 (item 977): French spells the ops.ops_phases setting label "Phases"
+# as English does, so the exact-English gate would refuse the right answer.
+# Written here, not in MANUAL_UI: a MANUAL_UI row is also a static UI caption,
+# and "Phases" is only a setting label.
+MANUAL_TRANSLATIONS["Phases"] = {"fr": "Phases"}
 
 
 MANUAL_TRANSLATIONS["Power hit rate"] = {
