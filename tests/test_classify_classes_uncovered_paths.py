@@ -19,31 +19,29 @@ from spacr import classify_classes as cc
 # annotation_column_of: the first usable column wins, and nothing else does
 # ---------------------------------------------------------------------------
 
-def test_a_class_defined_as_something_other_than_a_rule_is_skipped_over():
-    """A hand-edited settings CSV can leave a bare string under a class name.
-    It is not a rule, so it must not stop the search at the first key."""
-    settings = {"classes": {"junk": "pc", "infected": {"column": "annot_1",
-                                                       "value": 1}}}
-
-    assert cc.annotation_column_of(settings) == "annot_1"
-
-
-def test_a_rule_with_a_blank_column_is_skipped_over():
-    """A class half-filled in the editor -- a value chosen, the column not
-    yet -- must not become an empty annotation column downstream."""
-    settings = {"classes": {"pending": {"column": "  ", "value": 1},
-                            "infected": {"column": "annot_2", "value": 1}}}
-
-    assert cc.annotation_column_of(settings) == "annot_2"
-
-
-def test_no_rule_names_a_column_so_the_legacy_setting_still_decides():
-    """The dict exists but says nothing about a column. The value the file
-    was already running with is the right answer, not ''."""
-    settings = {"classes": {"a": "junk", "b": {"column": "", "value": 1}},
-                "annotation_column": "test"}
-
-    assert cc.annotation_column_of(settings) == "test"
+@pytest.mark.parametrize("settings, expected", [
+    pytest.param(
+        {"classes": {"junk": "pc",
+                     "infected": {"column": "annot_1", "value": 1}}},
+        'annot_1',
+        id='test_a_class_defined_as_something_other_than_a_rule_is_skipped_over',
+    ),
+    pytest.param(
+        {"classes": {"pending": {"column": "  ", "value": 1},
+                     "infected": {"column": "annot_2", "value": 1}}},
+        'annot_2',
+        id='test_a_rule_with_a_blank_column_is_skipped_over',
+    ),
+    pytest.param(
+        {"classes": {"a": "junk", "b": {"column": "", "value": 1}},
+         "annotation_column": "test"},
+        'test',
+        id='test_no_rule_names_a_column_so_the_legacy_setting_still_decides',
+    ),
+])
+def test_annotation_column_uses_the_first_usable_rule_or_legacy_setting(settings, expected):
+    """Keep unusable rules and the legacy fallback paired with their original column."""
+    assert cc.annotation_column_of(settings) == expected
 
 
 def test_with_neither_a_rule_nor_a_legacy_column_the_answer_is_empty():
