@@ -115,7 +115,7 @@ def test_same_basename_local_file_is_not_claimed_verified_on_export(tmp_path):
 @pytest.mark.parametrize('module,key,kind', [('analyze_plaques', 'well_detection', 'detector'),
     ('cellpose_masks', 'custom_model', 'cellpose'), ('train_cellpose', 'base_model', 'cellpose'),
     ('train_only', 'custom_model_path', 'classifier'), ('activation', 'model_path', 'classifier'),
-    ('ops', 'cellpose_model', 'cellpose'), ('spatial_masks', 'spatial_cellpose_model', 'cellpose')])
+    ('ops', 'ops_sbs_nucleus_model', 'cellpose'), ('ops', 'ops_ph_cell_model', 'cellpose'), ('spatial_masks', 'spatial_cellpose_model', 'cellpose')])
 def test_consumer_registry_distinguishes_actual_module_inputs(module, key, kind):
     assert zoo._model_input_kinds(module, {key: 'requested'}) == {key: (kind,)}
 

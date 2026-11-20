@@ -3768,6 +3768,181 @@ def picture_source_label(value: str) -> str:
     return text or LOAD_IMAGES_LABEL
 
 
+class _StoreCropSource(CropSource):
+    """Crops read from a run's spaCR store (items 975 and 976).
+
+    Returns what :class:`PngCropSource` returns for the same object:
+    ``(H, W, 3)`` uint8 in declared channel order, a raw-format crop stretched
+    as :func:`read_crop_png` stretches it. A row is found by its ``prcfo``, or
+    by its ``png_path`` through ``png_list``.
+
+    :param project: the measurements folder holding ``spacr.duckdb``.
+    :param table: the object class.
+    """
+
+    kind = "store"
+
+    def __init__(self, project: str, table: str):
+        """Open the store; crops are read per batch of rows."""
+        from . import store
+
+        self.project = project
+        self.table = table
+        self.reason = f"the spaCR store in {project}"
+        self._store = store.open(project, verify="none")
+        self._by_path: Optional[Dict[str, str]] = None
+
+    def _key(self, row: Any) -> str:
+        """The ``prcfo`` of a row, a mapping or a ``png_path`` string."""
+        key = row.get("prcfo") if isinstance(row, Mapping) else None
+        if key:
+            return str(key)
+        path = row if isinstance(row, str) else _row_get(row, "png_path", "path")
+        if path:
+            if self._by_path is None:
+                self._by_path = _png_paths_to_prcfo(
+                    os.path.join(self.project, "measurements.db"))
+            key = self._by_path.get(os.path.normpath(str(path)))
+        if not key:
+            raise CropError(f"no prcfo for {row!r} in {self.reason}")
+        return str(key)
+
+    def get(self, row: Any) -> np.ndarray:
+        """The crop of one row."""
+        return self.get_many([row])[0]
+
+    def get_many(self, rows: Iterable[Any]) -> List[np.ndarray]:
+        """The crops of ``rows``, in order.
+
+        :raises CropError: a row has no key or no crop in the store.
+        """
+        keys = [self._key(row) for row in rows]
+        result, stack = self._store.query({"prcfo": sorted(set(keys))},
+                                          table=self.table, features=[],
+                                          crops=True, as_="arrow")
+        found = {str(k): i for i, k in
+                 enumerate(result.column("prcfo").to_pylist())}
+        stored = result.column("crop_store").to_pylist()
+        formats = (result.column("crop_format").to_pylist()
+                   if "crop_format" in result.column_names
+                   else [None] * result.num_rows)
+        out = []
+        for key in keys:
+            position = found.get(key)
+            if position is None or not stored[position]:
+                raise CropError(f"{key} has no crop in {self.reason}")
+            arr = np.moveaxis(stack[position], 0, -1)
+            if formats[position] == _CROP_FORMAT_DECLARED_RAW:
+                arr = _stretched_view(arr)
+            else:
+                arr = narrow_to_uint8(arr)
+                if arr.shape[2] == 1:
+                    arr = np.repeat(arr, 3, axis=2)
+            out.append(np.ascontiguousarray(arr))
+        return out
+
+
+def _png_paths_to_prcfo(db_path: str) -> Dict[str, str]:
+    """``{normalised png_path: prcfo}`` from a run's ``png_list``."""
+    if not os.path.isfile(db_path):
+        return {}
+    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True,
+                         timeout=30) as conn:
+        try:
+            rows = conn.execute(
+                "SELECT png_path, prcfo FROM png_list").fetchall()
+        except sqlite3.Error:
+            return {}
+    return {os.path.normpath(str(p)): str(k) for p, k in rows if p and k}
+
+
+def _store_crop_source(project: str, object_type: str,
+                       prefer: Optional[str] = None):
+    """The run's spaCR store as a crop source, or None.
+
+    :param project: the measurements folder.
+    :param object_type: the object class.
+    :param prefer: ``''``, ``'auto'`` or ``'store'`` allow the store; any
+        other value asks for another source.
+    :returns: a :class:`_StoreCropSource` when ``project`` holds a store whose
+        table for ``object_type`` has crops, else None.
+    """
+    from .store import CATALOG
+
+    choice = str(prefer or "").strip().lower()
+    if choice not in ("", "auto", "store") or not os.path.isfile(
+            os.path.join(project, CATALOG)):
+        return None
+    try:
+        source = _StoreCropSource(project, str(object_type or "cell"))
+        if source.table not in source._store.tables():
+            return None
+        has = source._store.sql(
+            f'SELECT COUNT(*) AS n FROM "{source.table}__keys" '
+            f"WHERE crop_store IS NOT NULL")
+        return source if int(has["n"].iloc[0]) else None
+    except Exception:
+        return None
+
+
+def _ome_zarr_crop_source(root: str, db_path: str):
+    """Item 983's OME-Zarr crop source for ``root``, or None without one."""
+    try:
+        from .crop_store import OmeZarrCropSource, ome_zarr_crops_exist
+    except ImportError:
+        return None
+    try:
+        if not ome_zarr_crops_exist(root):
+            return None
+        return OmeZarrCropSource(root=root, db_path=db_path,
+                                 reason=f"OME-Zarr crops under {root}")
+    except Exception:
+        return None
+
+
+def _read_crop_preferring_store(path: str, db_path: Optional[str] = None,
+                                fmt: Optional[int] = None,
+                                object_type: Optional[str] = None
+                                ) -> np.ndarray:
+    """:func:`read_crop_png` of ``path``, from the run's spaCR store when it
+    holds this crop, else from the PNG.
+
+    :param path: the crop PNG as ``png_list`` records it.
+    :param db_path: the run's ``measurements.db``; None reads the PNG.
+    :param fmt: as for :func:`read_crop_png`; a stated format reads the PNG,
+        because it overrides what the file records.
+    :param object_type: the crop's object class; None tries ``cell`` and
+        the class named by the crop folder.
+    :returns: ``(H, W, 3)`` uint8 RGB.
+    """
+    if db_path and fmt is None:
+        project = os.path.dirname(os.path.abspath(db_path))
+        classes = [object_type] if object_type else [
+            _object_type_of_crop_folder(path), "cell"]
+        for name in dict.fromkeys(c for c in classes if c):
+            source = _STORE_SOURCES.get((project, name))
+            if source is None:
+                source = _store_crop_source(project, name)
+                if source is None:
+                    continue
+                _STORE_SOURCES[(project, name)] = source
+            try:
+                return source.get(path)
+            except CropError:
+                continue
+    return read_crop_png(path, fmt=fmt, db_path=db_path)
+
+
+#: Store crop sources opened by :func:`_read_crop_preferring_store`.
+_STORE_SOURCES: Dict[Tuple[str, str], Any] = {}
+
+
+def _object_type_of_crop_folder(path: str) -> Optional[str]:
+    """``cell`` for a crop under ``.../cell_png/...``, else None."""
+    folder = os.path.basename(os.path.dirname(os.path.abspath(str(path))))
+    return folder[:-len("_png")] if folder.endswith("_png") else None
+
+
 def resolve_crop_source(
         settings_or_src: Union[str, Sequence[str], Mapping[str, Any]],
                         *, object_type: Optional[str] = None,
@@ -3775,15 +3950,19 @@ def resolve_crop_source(
                         ask: Optional[Any] = None) -> CropSource:
     """Pick the crop source for a run, and record which one it picked.
 
-    The returned object's :attr:`CropSource.kind` is ``'png'`` or ``'merged'``
-    and :attr:`CropSource.reason` says why, so a caller can print
+    The returned object's :attr:`CropSource.kind` is ``'store'``,
+    ``'ome-zarr'``, ``'png'`` or ``'merged'`` and :attr:`CropSource.reason` says why, so a caller can print
     ``source.describe()`` instead of guessing.
 
     Selection order:
 
     1. an explicit ``prefer`` argument, then ``settings['crop_source']``
-       (``'png'`` | ``'merged'`` | ``'auto'``);
-    2. otherwise ``'auto'``: the PNG folder if one exists (nothing changes for
+       (``'store'`` | ``'ome-zarr'`` | ``'png'`` | ``'merged'`` | ``'auto'``);
+    2. ``'auto'`` and ``'store'`` take the run's spaCR store first when
+       ``measurements/spacr.duckdb`` holds crops for the object class;
+    3. ``'auto'`` and ``'ome-zarr'`` then take OME-Zarr crops
+       (:mod:`spacr.crop_store`) when the run has them;
+    4. otherwise ``'auto'``: the PNG folder if one exists (nothing changes for
        existing datasets), else the merged folder.
 
     When the merged source is chosen and ``measurements.db`` holds the
@@ -3795,7 +3974,8 @@ def resolve_crop_source(
         ``crop_source``), a source path, or a list/tuple whose first entry is
         the source path -- the experiment root or its ``merged`` folder.
     :param object_type: default object type for the merged source.
-    :param prefer: force ``'png'`` or ``'merged'``.
+    :param prefer: force ``'png'`` or ``'merged'``, or ask for ``'store'`` or
+        ``'ome-zarr'``.
     :raises CropError: the requested source is not available.
     """
     if isinstance(settings_or_src, Mapping):
@@ -3815,9 +3995,20 @@ def resolve_crop_source(
 
     choice = prefer or settings.get("crop_source") or "auto"
     choice = str(choice).lower()
-    if choice not in ("auto", "png", "merged"):
+    if choice not in ("auto", "png", "merged", "store", "ome-zarr"):
         raise CropError(
-            f"crop_source must be 'auto', 'png' or 'merged', got {choice!r}")
+            f"crop_source must be 'auto', 'png', 'merged', 'store' or "
+            f"'ome-zarr', got {choice!r}")
+    stored = _store_crop_source(os.path.dirname(db_path),
+                                object_type or "cell", choice)
+    if stored is not None:
+        return stored
+    if choice in ("auto", "ome-zarr"):
+        zarr_crops = _ome_zarr_crop_source(root, db_path)
+        if zarr_crops is not None:
+            return zarr_crops
+    if choice in ("store", "ome-zarr"):
+        choice = "auto"
 
     has_png = _has_png_folder(root)
     has_merged = os.path.isdir(merged_dir)

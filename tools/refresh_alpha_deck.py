@@ -107,6 +107,7 @@ GROUPS = (
         ("DNA flat-field map from nuclei, held-out check", (912,)),
         ("Merge routes: tile pattern, well mosaic, automatic fallback", (962,)),
         ("Pathogen and organelle objects per cell, carried into gene profiles", (970,)),
+        ("spaCR store: Parquet tables, Zarr crops, one DuckDB catalog", (974,)),
     )),
     ("OPS genotyping", (
         ("OPS spacer-prefix decode with quality classes",
@@ -114,7 +115,7 @@ GROUPS = (
         ("False calls, calibrated confidence, matching to other pipelines",
          (876, 877, 878, 922)),
         ("Detection, read mode and cell calls tuned together, prefix decoy FDR",
-         (942, 952, 949, 955, 967, 960)),
+         (942, 952, 949, 955, 967, 960, 988, 982)),
     )),
     ("OPS gene profiles", (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),
@@ -123,6 +124,7 @@ GROUPS = (
         ("Cell-cycle-resolved and cell-state profiles, mitotic index test", (890, 914)),
         ("Penetrance, escapers, responder fraction, distribution distances", (891, 905)),
         ("Fitness and generic-axis removal, embedding and fusion profiles", (903, 906)),
+        ("Feature information screen: what new columns add about genes", (964,)),
     )),
     ("OPS benchmarks", (
         ("Gene-pair mAP vs null, guide-level P values, versioned references",

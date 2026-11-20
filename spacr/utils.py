@@ -3139,11 +3139,12 @@ def _measurement_store_for(db_path, settings):
 
     :param db_path: the run's measurements.db.
     :param settings: the run settings.
-    :returns: ``None`` for sqlite, else the DuckDB, Parquet or PostgreSQL
-        locator.
+    :returns: ``None`` for sqlite and spacr_store (which is written from
+        measurements.db once the run is complete), else the DuckDB, Parquet
+        or PostgreSQL locator.
     """
     backend = str((settings or {}).get('measurement_backend') or 'sqlite')
-    if backend.lower() == 'sqlite':
+    if backend.lower() in ('sqlite', 'spacr_store'):
         return None
     from .measure import _measurement_backend_target
     return _measurement_backend_target(db_path, settings)

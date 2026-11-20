@@ -347,7 +347,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 226 -> 227 on 2026-11-13: run_progress.ProgressSample.__repr__ (item
     # 938), the readable form of one parsed progress line.
     assert "spacr.qt.run_progress.ProgressSample.__repr__" in dunders
-    assert len(dunders) == 227
+    # 227 -> 229 on 2026-11-17: spacr.store.Store.__enter__ and __exit__
+    # (item 974), so a store opens in a ``with`` block and closes after it.
+    assert {"spacr.store.Store.__enter__",
+            "spacr.store.Store.__exit__"} <= dunders
+    assert len(dunders) == 229
     # The historical digest below is checked on the surface without it.
     dunders = dunders - {"spacr.qt.run_progress.ProgressSample.__repr__"}
     # It is counted here and left out of the historical fingerprints below,
@@ -402,7 +406,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Moved 2026-11-10 (was f44e3eae...) by the seven crop-reader and
     # batch-transform dunders of items 889 and 896 counted above; the
     # assignment count stays 39, so no assignment changed.
-    ) == "7aff0ed494c9f16cf0741634abfad7906121cf276f9614704542d712e6a564bf"
+    # Moved 2026-11-18 (was 7aff0ed4...) by spacr.store.Store.__enter__ and
+    # __exit__ (item 974) counted above; no assignment changed.
+    ) == "adf5b751183cb1e3a99feb96d64d40d66dfb15c4378b485cd3fbc8ad81cd8851"
     # The item 770 constants (2026-11-05) are named and taken out here, so
     # every older fingerprint below still describes the surface before them.
     tvn_constants = {
@@ -431,6 +437,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         "spacr.gene_class_images.OpsCropDataset.__len__"}
     assert crop_reader_dunders <= dunders
     dunders = dunders - crop_reader_dunders
+    # And the spaCR store's context-manager dunders (2026-11-18, item 974).
+    store_dunders = {"spacr.store.Store.__enter__",
+                     "spacr.store.Store.__exit__"}
+    assert store_dunders <= dunders
+    dunders = dunders - store_dunders
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
@@ -2513,6 +2524,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in r2_arrivals} == r2_arrivals
     assert not r2_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **r2_arrivals}
+    layout_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "969_ops_settings_layout_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert len(layout_arrivals) == 3
+    assert {key: docs[key] for key in layout_arrivals} == layout_arrivals
+    assert not layout_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **layout_arrivals}
     voyager3_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "973_ops_voyager3_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
     assert len(voyager3_arrivals) == 9
@@ -2537,6 +2554,18 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in power_sim_arrivals} == power_sim_arrivals
     assert not power_sim_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **power_sim_arrivals}
+    store_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "974_spacr_store_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert len(store_arrivals) == 16
+    assert {key: docs[key] for key in store_arrivals} == store_arrivals
+    assert not store_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **store_arrivals}
+    screen_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "964_ops_feature_screen_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert len(screen_arrivals) == 2
+    assert {key: docs[key] for key in screen_arrivals} == screen_arrivals
+    assert not screen_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **screen_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

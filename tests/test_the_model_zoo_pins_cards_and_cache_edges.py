@@ -30,7 +30,7 @@ def _raw(key=_BOUND):
     return next(row for row in mz.BUNDLED_REMOTE_MODELS if row.get("key") == key)
 
 
-def _pinned(raw, setting="cellpose_model"):
+def _pinned(raw, setting="ops_sbs_nucleus_model"):
     """Settings that pin ``setting`` to the catalogue row ``raw`` by its key."""
     return {setting: raw["key"], "model_metadata": {"schema_version": 1, "settings": {
         setting: mz._model_reference_from_record(raw["key"], raw)}}}
@@ -95,14 +95,14 @@ def test_a_key_naming_two_catalogue_identities_is_refused(monkeypatch):
     twin = dict(raw, sha256="b" * 64)
     monkeypatch.setattr(mz, "BUNDLED_REMOTE_MODELS", [raw, dict(raw), twin])
     with pytest.raises(mz.ModelZooError, match="one exact catalogue identity"):
-        mz._capture_model_metadata("ops", {"cellpose_model": raw["key"]})
+        mz._capture_model_metadata("ops", {"ops_sbs_nucleus_model": raw["key"]})
 
 
 def test_a_key_listed_twice_with_one_identity_is_pinned_once(monkeypatch):
     raw = _raw()
     monkeypatch.setattr(mz, "BUNDLED_REMOTE_MODELS", [raw, dict(raw)])
-    captured = mz._capture_model_metadata("ops", {"cellpose_model": raw["key"]})
-    assert captured["model_metadata"]["settings"]["cellpose_model"] == \
+    captured = mz._capture_model_metadata("ops", {"ops_sbs_nucleus_model": raw["key"]})
+    assert captured["model_metadata"]["settings"]["ops_sbs_nucleus_model"] == \
         mz._model_reference_from_record(raw["key"], raw)
 
 
@@ -149,7 +149,7 @@ def test_a_pinned_model_the_cache_cannot_supply_is_refused(monkeypatch):
     raw = _raw()
     monkeypatch.setattr(mz, "_ensure_catalogue_model_file", lambda *a, **k: None)
     with pytest.raises(mz.ModelZooError, match=raw["sha256"]):
-        mz._resolve_pinned_model_file(_pinned(raw), "cellpose_model", download=False)
+        mz._resolve_pinned_model_file(_pinned(raw), "ops_sbs_nucleus_model", download=False)
 
 
 def test_a_pinned_download_that_left_no_file_is_refused(monkeypatch, tmp_path):
@@ -157,8 +157,8 @@ def test_a_pinned_download_that_left_no_file_is_refused(monkeypatch, tmp_path):
     missing = tmp_path / raw["name"]
     monkeypatch.setattr(mz, "_ensure_catalogue_model_file", lambda *a, **k: str(missing))
     with pytest.raises(mz.ModelZooError, match=re.escape(str(missing))):
-        mz._resolve_pinned_model_file(_pinned(raw), "cellpose_model", download=True)
-    assert mz._resolve_pinned_model_file(_pinned(raw), "cellpose_model", download=False) == missing
+        mz._resolve_pinned_model_file(_pinned(raw), "ops_sbs_nucleus_model", download=True)
+    assert mz._resolve_pinned_model_file(_pinned(raw), "ops_sbs_nucleus_model", download=False) == missing
 
 
 def test_the_offline_catalogue_lists_each_identity_once_and_no_retired_name(monkeypatch):

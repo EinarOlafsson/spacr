@@ -151,21 +151,19 @@ class TestTheControlIsAbsentRatherThanInert:
         panel.kind.setCurrentIndex(panel.kind.findData("jitter"))
         assert panel.spread.isHidden()
 
-    def test_the_panel_hands_the_choice_to_the_plot(self, panel):
-        """The whole point: the box the user moves reaches the drawing."""
-        panel.kind.setCurrentIndex(panel.kind.findData("bar"))
+    @pytest.mark.parametrize("kind, expected_spread", [
+        pytest.param(
+            "bar", "sd", id="test_the_panel_hands_the_choice_to_the_plot"),
+        pytest.param(
+            "box", "none", id="test_a_type_with_no_whisker_is_drawn_without_one"),
+    ])
+    def test_the_panel_draws_the_spread_for_each_plot_kind(
+            self, panel, kind, expected_spread):
+        """Pass the chosen spread to bars and omit it from plots without whiskers."""
+        panel.kind.setCurrentIndex(panel.kind.findData(kind))
         panel.spread.setCurrentIndex(panel.spread.findData("sd"))
         panel.refresh()
         canvas = panel._canvas
         if canvas is None or not hasattr(canvas, "spec"):
             pytest.skip("this build drew the fallback canvas")
-        assert canvas.spec.spread == "sd"
-
-    def test_a_type_with_no_whisker_is_drawn_without_one(self, panel):
-        panel.kind.setCurrentIndex(panel.kind.findData("box"))
-        panel.spread.setCurrentIndex(panel.spread.findData("sd"))
-        panel.refresh()
-        canvas = panel._canvas
-        if canvas is None or not hasattr(canvas, "spec"):
-            pytest.skip("this build drew the fallback canvas")
-        assert canvas.spec.spread == "none"
+        assert canvas.spec.spread == expected_spread

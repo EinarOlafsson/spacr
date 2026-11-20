@@ -517,7 +517,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # with the rest of spaCR and it keeps its existing home; listing a
     # setting under two headings is not a display preference, because Tk
     # renders each copy and Qt drops all but the first.
-    "cellpose_diameter", "cellpose_model", "dst_root", "genotype_source",
+    "cellpose_diameter", "ops_sbs_nucleus_model", "dst_root", "genotype_source",
     "n_workers",
     # `ops_gpu` arrived after the other 57, on 2026-09-09: OPS shipped with
     # no hardware control at all, and both its GPU-capable steps -- the tile
@@ -613,6 +613,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_gpu_ignore_process_patterns",
     "ops_tables_integer_keys",
     "ops_tables_layout",
+    "ops_storage",
+    "ops_store_row_copy",
     "ops_stress_report",
     # TVN profiles for the OPS aggregate phase (item 854, 2026-11-07).
     "ops_profile_normalisation", "ops_tvn_mode", "ops_tvn_pca_sample",
@@ -793,6 +795,25 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 967 (2026-11-17): the spacer-prefix cell call ignores minority
     # stray barcodes.
     "ops_prefix_minority_min_reads",
+    # Item 988 (2026-11-18): distance-aware read weights, the neighbour-bleed
+    # discount and the multi-guide table in the guide call.
+    "ops_read_distance_weight",
+    "ops_read_distance_decay_px",
+    "ops_read_distance_interior_px",
+    "ops_read_distance_min_weight",
+    "ops_read_neighbour_discount",
+    "ops_prefix_distance_weight",
+    "ops_prefix_distance_decay_px",
+    "ops_prefix_distance_interior_px",
+    "ops_prefix_distance_min_weight",
+    "ops_prefix_weighted_quality",
+    "ops_prefix_weighted_min_share",
+    "ops_prefix_nuclei_masks",
+    "ops_keep_multi_guide_cells",
+    "ops_multi_guide_min_reads",
+    # Item 982 small-well guard (2026-11-18): a small well keeps the
+    # read-quality floor instead of tuning it.
+    "ops_prefix_tuning_min_sites",
     # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
     "ops_fdr_sweep_targets",
     "ops_fdr_sweep_max_distance",
@@ -846,6 +867,22 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_power_sim", "ops_power_calibration_run", "ops_power_mode",
     "ops_power_grid", "ops_power_sim_seeds", "ops_power_effect_types",
     "ops_power_scorers", "ops_power_sim_workers",
+    # Item 964 (2026-11-17): the feature-information screen phase.
+    "ops_feature_screen_old",
+    "ops_feature_screen_new",
+    "ops_feature_screen_cells",
+    "ops_feature_screen_id_columns",
+    "ops_feature_screen_label",
+    "ops_feature_screen_guide",
+    "ops_feature_screen_families",
+    "ops_feature_screen_permutations",
+    "ops_feature_screen_perm_unit",
+    "ops_feature_screen_seed",
+    "ops_feature_screen_ridge",
+    "ops_feature_screen_greedy_threshold",
+    "ops_feature_screen_mlp",
+    "ops_feature_screen_device",
+    "ops_feature_screen_dst",
     # Item 962 (2026-11-16): the OPS merge route (tile hash, well stitch
     # or automatic fallback) and its thresholds.
     "ops_merge_strategy", "ops_merge_stitch_source",
@@ -1161,7 +1198,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
     "parasite_count_column", "max_parasites_per_vacuole",
     "require_host_cell", "non_power_of_two_warn",
-    "batch_fields", "fill_na", "keep_npz", "pipeline_style", "plateID",
+    "batch_fields", "fill_na", "pipeline_style", "plateID",
     "save_original_images",
     # Landed alongside the regroup: the fail-loud policy (spacr.errors) and
     # the on-demand crop source (spacr.crops).

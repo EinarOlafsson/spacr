@@ -1,0 +1,109 @@
+THE SPACR STORE: PARQUET TABLES, ZARR CROPS, ONE DUCKDB CATALOG
+================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-17, alpha (ALPHA_FEATURES[974]). Under development per proposals/READINESS.md: not marked Ready. spacr/store.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, spacr/settings_spec.py, tests/test_spacr_store_974.py, tests/test_settings_categories.py, tests/test_alpha_deck_registry.py, tools/refresh_alpha_deck.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item974_proof/REPORT.md.
+Requested: maintainer decision, 2026-11-17 (store and query OPS data at more than 100 M cells x more than 10,000 features plus one crop per cell, fast for every query shape).
+Owner: master lane claude-974-1117.
+Source: proposals/bmc_paper_items/ITEM_spacr_store.md.
+Related: 975 (Mask Generation and Measure write to the store), 976 (converter and readers), 871/872 (ph_tables, ph_crops, parquet threshold), 372 (ops_store contract).
+
+PROBLEM
+OPS keeps every table in SQLite (measurements.db), whose stock build holds at
+most 2,000 columns per table and scans rows rather than columns, and keeps
+crops as one TIFF member per cell in tar shards. Neither scales to 100 M cells
+x 10,000 features with fast tall, wide, filtered, crop and ML reads.
+
+BUILD
+- spacr/store.py (new module):
+  - write_part(project, table, frame, plate=, well=, sort_by=, key_columns=,
+    crops=, crop_rows=, masks=, run_id=, row_group_rows=): one well's rows
+    sorted by sort_by (stable, nulls last) to
+    tables/<table>/plate=<P>/well=<W>/part-<N>.parquet (zstd, floats
+    byte-stream-split, statistics, row groups of 128k rows capped at
+    256 MiB uncompressed); crops in the same row order to
+    crops/plate=<P>/well=<W>.zarr (array crops (n, C, H, W), source dtype,
+    chunks 256 x C x H x W, Zstd level 3, Zarr format 2 through zarr 2 or 3;
+    optional masks array); crop_store and crop_index on every row. Plate and
+    well values percent-encoded in folder names. Each file under a
+    temporary name, fsynced, renamed; the manifest _pending/<uuid>.json last.
+  - register(project, run=, accept_changes=): every waiting manifest in one
+    DuckDB transaction into spacr.duckdb (spacr_schema, spacr_tables,
+    spacr_files with path, rows, schema version, sha256, bytes, mtime_ns,
+    written_at, run_id; spacr_runs with the settings), the well's earlier
+    files replaced and deleted after the commit, one view per table over the
+    registered files only.
+  - cleanup(project, older_than=): temporary files a killed writer left.
+  - open(project, threads=, verify=) -> Store: reads the registry
+    read-only, closes the catalog and serves queries from an in-memory
+    DuckDB (parquet_metadata_cache on). verify 'quick' (size and mtime, on
+    open), 'full' (sha256), 'none'. A folder or file with only
+    measurements.db opens through DuckDB's sqlite reader (ATTACH, one view
+    per table), falling back to sqlite3 -> Arrow offline.
+  - Store.query(where, table=, features=, crops=, as_=) with a WHERE clause,
+    a full SELECT or a {column: value or list} mapping; features=None for
+    every column, else keys + crop pointer + the named features; crops=True
+    returns (result, crops (n, C, H, W) in row order, zeros where a row has
+    no crop), each needed Zarr chunk span read once; as_ pandas, arrow or
+    numpy ((metadata, float32 matrix)). Store.sql, Store.batches (Arrow
+    record batches streamed; shuffle = random file order + row shuffle in a
+    buffer, seeded), Store.verify, refresh, tables, close.
+- Narrow key table per part (tables/<class>__keys/...): every non-float
+  column, the crop pointer and the row locators (_part, _row_group,
+  _group_row); key-only and crop queries run on it alone, other selections
+  of <= 20,000 rows (or 2 %) read only their row groups and columns of the
+  wide part with pyarrow; crops are decoded chunk by chunk with numcodecs.
+- OPS (spacr/ops_engine.py): ops_storage (str, 'current' default,
+  'spacr_store', alpha). With 'spacr_store', after ph_tables / ph_crops (or
+  decode) run_ops writes per well: cells (the ph_tables keys and the cell,
+  nucleus and cytoplasm features, as cell_wide, plus cell_id =
+  integer_cell_key and the crop pointer, sorted by gene then cell_id), the
+  ph_crops shard crops (and masks) copied pixel for pixel into the well's
+  Zarr store (read lazily from the shards), reads and barcodes (the well's
+  ops_reads and ops_barcodes rows); then one register with the settings.
+  out['store'] and ops_store_<plate>.json report it. The current outputs are
+  still written; 'current' writes exactly what it wrote before.
+- No new dependency: duckdb, pyarrow, zarr and numcodecs are core on Python
+  3.10+; the module refuses with an install hint where they are missing.
+
+ACCEPTANCE
+tests/test_spacr_store_974.py (9 cases): values and crops identical in row
+order across two wells with percent-encoded plate names; batches cover every
+row once and shuffle reproducibly; a rewritten well replaces its files; a
+write stopped before its manifest is never read and cleanup removes its
+temporary file; a byte flip with size and mtime kept caught by the full
+check and a size change on open; an older SQLite project opens through the
+same API; ops_storage checked; the OPS run on the synthetic well writes the
+same rows as cell_wide and the same crops as the shards; the default run
+writes no store.
+
+PROOF CHECK 2026-11-17 (CPU, Funk 2022 plate A well A1 full tier; synthetic
+scale on /mnt/wd4tb). See REPORT.md.
+- cells through store.query equal cell_wide: 4,273 rows, 415 columns, floats
+  bit for bit (mitotic bool in the store, text 0/1 in SQLite); barcodes
+  15,125 x 10 identical; ops_reads is not stored by the default decode, so
+  reads are checked in the unit test.
+- crops: 3,925/3,925 pixel-identical to the ph_crops shard TIFFs.
+- off-switch: default outputs vs nightly 51eb488a60: 26 files byte-identical,
+  5 JSON reports equal without timing/provenance keys, nothing else differs.
+- 12 SIGKILLs over a 26.6 s write: none left a registered partial file.
+- byte flip with size and mtime kept: caught by the full check; truncation
+  caught on open.
+- scale at 1 M cells x 10,000 float32 + 1 M crops (2 M cut to 1 M by the
+  80 GB disk cap), DuckDB threads 4, vs SQLite (6 tables of <= 1,995
+  features) + one PNG per crop on 200k cells: tall 1.49 vs 2.31 s, wide 5 %
+  4.35 vs 120.6 s, ML batches 2,475 vs 77 cells/s; point lookups 31.8 vs
+  11.3 s and one-gene crop batch 1.53 vs 0.23 s are slower (cell index and
+  a narrow keys table are follow-ons for 975/976).
+
+SPEED FIXES 2026-11-18 (maintainer: the store must not land slower than the
+old path on any query shape; REPORT.md section 3b)
+- narrow key table, cost routing (row copy / row groups / DuckDB) and direct
+  Zarr chunk decoding; ops_store_row_copy (bool, default False, alpha) writes
+  the float features as a 16-row-chunked row-major Zarr copy that all-column
+  point lookups read; off writes the same table files as before.
+- 1 M cells x 10,000 features, DuckDB threads 4, load at start recorded:
+  point 1,000 x all columns, copy on 2.27 s (200k) / 4.83 s (1 M) vs SQLite
+  11.3-14.8 s (200k); copy off still slower (54.6 s / 227.6 s at load 29-41);
+  5 columns 0.23 s / 1.41 s; one-gene crop batch 0.29 s (200k) vs PNG
+  0.23-0.46 s, 2.07 s at 1 M; wide 5 % at 1 M 26.3 s on the row-group path.

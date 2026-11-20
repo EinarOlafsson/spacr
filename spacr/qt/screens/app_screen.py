@@ -5263,6 +5263,7 @@ class AppScreen(QWidget):
         "pathogen_model", "pathogen_model_name",
         "cell_model_name", "nucleus_model_name", "organelle_model_name",
         "custom_model", "plaque_model", "base_model",
+        "ops_sbs_nucleus_model", "ops_ph_nucleus_model", "ops_ph_cell_model",
     )
 
     @classmethod

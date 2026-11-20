@@ -299,18 +299,19 @@ def _grid_points(grid: Mapping[str, List[Any]]) -> List[Dict[str, Any]]:
 
 def _default_points(settings: Mapping[str, Any], tiles: Sequence[Tuple[str, str, str, int]],
                     folder: str, say: Callable[[str], None]) -> Tuple[Dict[Tuple[str, str], Dict[str, Any]], Dict[str, Any]]:
-    """Each well's default point: the entered settings, or the decode's own per-well choice.
+    """The default point for each well: entered settings or the per-well decode choice.
 
-    :param settings: the run's settings.
+    :param settings: the run settings.
     :param tiles: the chosen tiles.
-    :param folder: the grid run's folder; with tuning the decode runs on the
+    :param folder: the grid output folder; with tuning the decode runs on the
         chosen tiles under ``<folder>/default_run/<plate>_<well>``.
     :param say: progress lines.
     :returns: ``({(plate, well_id): point}, engine)``: each point holds every
-        :data:`_GRID_KEYS` setting; ``engine`` holds the decode's
-        ``site_summary.csv`` rows and seconds when it ran.
+        :data:`_GRID_KEYS` setting and any tuned weight settings; ``engine``
+        holds the decode ``site_summary.csv`` rows and seconds when it ran.
     """
-    from .ops_prefix import _prefix_read_mode, prefix_settings, run_prefix_decode
+    from .ops_prefix import (WEIGHT_GRID_KEYS, _prefix_read_mode, prefix_settings,
+                             run_prefix_decode)
 
     chosen = prefix_settings(settings)
     mode = _prefix_read_mode(settings, chosen)
@@ -347,6 +348,7 @@ def _default_points(settings: Mapping[str, Any], tiles: Sequence[Tuple[str, str,
             "ops_prefix_min_read_quality": float(best["ops_prefix_min_read_quality"]),
             "ops_prefix_max_distance": int(best["ops_prefix_max_distance"]),
             "ops_read_mode": str(tuned.get("read_mode", "log" if mode == "auto" else mode))})
+        points[(plate, well_id)].update({key: best[key] for key in WEIGHT_GRID_KEYS if key in best})
         summary = read_table(os.path.join(out["folder"], "site_summary.csv"),
                              canonicalise=False, report=None)
         engine["rows"].extend(summary[(summary["plate"].astype(str) == plate)
@@ -388,22 +390,24 @@ def _init_worker(libraries: Mapping[str, Any]) -> None:
 
 
 def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
-    """Find one tile's spots once and score every grid point on them.
+    """Find spots once per tile and score every grid point with the decode weights.
 
-    :param task: ``settings``, ``index`` (the tile's files), ``plate``,
+    :param task: ``settings``, ``index`` (the tile files), ``plate``,
         ``well``, ``well_id``, ``site``, ``points`` (the full settings of
-        each grid point for this tile's well, default first) and ``loosest``
+        each grid point for the well, default first) and ``loosest``
         (the largest mismatch limit of any point).
     :returns: ``rows`` (one per point, the :func:`spacr.ops_prefix._site_row`
-        counts plus spots, mapped reads and the shuffle-called cells),
+        counts plus spots, mapped reads and shuffled cells counted with the
+        same weights),
         ``detect_s`` and ``eval_s`` (one per point).
     """
     from .cpg_cropped import load_cpg_site, merged_path
     from .ops_prefix import (DECOY_GENE, NEARMISS_GENE, QUALITY_CLASSES,
-                             RECIPE_SIMPLE_CLASSES, _at_setting, _called_counts,
-                             _labelled_cells, _raw_candidates, _shuffle_frame, _site_row,
+                             RECIPE_SIMPLE_CLASSES, WEIGHTED_CLASSES, WEIGHT_GRID_KEYS,
+                             _at_setting, _labelled_cells, _neighbour_table, _raw_candidates,
+                             _setting_counts, _shuffle_frame, _site_geometry, _site_row,
                              _site_tuning_reads, _spot_candidates, match_prefix_reads,
-                             prefix_settings, site_labels)
+                             _weight_arguments, _weight_plan, prefix_settings, site_labels)
 
     settings = task["settings"]
     chosen = prefix_settings(settings)
@@ -412,7 +416,11 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
     matching, control = _LIBRARIES["matching"], _LIBRARIES["control"]
     shuffles = _LIBRARIES["shuffles"]
     method = chosen["ops_prefix_quality_method"]
-    class_names = RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else QUALITY_CLASSES
+    class_names = (RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else
+                   WEIGHTED_CLASSES if method == "weighted_majority" else QUALITY_CLASSES)
+    plans = [_weight_plan(chosen, [(key, [point[key]]) for key in WEIGHT_GRID_KEYS if key in point])
+             for point in points]
+    geometry = {key: any(plan[key] for plan in plans) for key in ("gaps", "neighbours")}
     pinned = task["pinned"]
     started = time.perf_counter()
     loaded = load_cpg_site(task["index"], plate, well, site, sbs_cycles=task["cycles"],
@@ -429,6 +437,10 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
     cell = (np.asarray(labels)[peaks[:, 0], peaks[:, 1]].astype(np.int64)
             if labels is not None and len(peaks) else np.zeros(len(peaks), np.int64))
     held = {"log": (peaks, strength, values, cell)}
+    pairs, extra = _site_geometry(
+        geometry, chosen, labels, peaks[:, 0], peaks[:, 1], cell, plate=plate,
+        well=well, well_id=well_id, site=site, destination=str(settings.get("dst_root") or ""))
+    neighbours = _neighbour_table(pairs, plate, well_id, site)
     if any(p["ops_read_mode"] == "raw" for p in points):
         held["raw"] = _raw_candidates(stack, held["log"])
     del loaded, stack
@@ -440,7 +452,7 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
     frames: Dict[Tuple[str, float, str], pd.DataFrame] = {}
     rows, eval_s = [], []
     metric = chosen["ops_prefix_metric"]
-    for point in points:
+    for point, plan in zip(points, plans):
         began = time.perf_counter()
         here = {**chosen, **{k: point[k] for k in ("ops_quality_min_reads",)}}
         key = (point["ops_read_mode"], float(point["ops_read_threshold"]),
@@ -449,7 +461,7 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
             frames[key] = _site_tuning_reads(
                 held[key[0]], matching, memo, bases=pinned["cpg_sbs_bases"],
                 threshold=key[1], crosstalk=key[2], metric=metric,
-                max_distance=task["loosest"], read_mode=key[0])
+                max_distance=task["loosest"], read_mode=key[0], extra=extra)
         frame = frames[key]
         distance = int(point["ops_prefix_max_distance"])
         reads = _at_setting(frame, float(point["ops_prefix_min_read_quality"]),
@@ -461,25 +473,31 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
         called = []
         for s, shuffled_lib in enumerate(shuffles):
             store = shuffle_memo.setdefault((s, distance), {})
-            called.append(_called_counts(_shuffle_frame(
+            called.append(np.asarray(_setting_counts(_shuffle_frame(
                 reads, shuffled_lib, store, metric=metric, max_distance=distance),
-                method, minority_min_reads=chosen["ops_prefix_minority_min_reads"])[0])
+                method, chosen["ops_prefix_minority_min_reads"], plan, chosen,
+                pairs)).reshape(-1, 2)[0, 0])
         shuffled = float(np.mean(called)) if called else 0.0
         reads.insert(0, "site", int(site))
         reads.insert(0, "well", well_id)
         reads.insert(0, "plate", plate)
+        weighting = ({**_weight_arguments(chosen, point), "neighbours": neighbours}
+                     if plan["weighted"] else {})
         row, _cells = _site_row(
             reads, plate=plate, well_id=well_id, site=site, chosen=here, method=method,
             class_names=class_names, labelled=labelled, n_labelled=n_labelled,
             decoy_k=chosen["ops_prefix_decoy_k"], nearmiss_k=chosen["ops_prefix_nearmiss_decoy_k"],
             scale=chosen["ops_prefix_fdr_scale"],
-            shuffled=shuffled if chosen["ops_prefix_fdr_calibration"] == "shuffle" else None)
+            shuffled=shuffled if chosen["ops_prefix_fdr_calibration"] == "shuffle" else None,
+            weighting=weighting)
         hit = reads["status"].isin(("exact", "corrected")) & ~reads["gene"].isin(
             (DECOY_GENE, NEARMISS_GENE))
         row.update({"spots": int(len(frame)), "mapped_reads": int(hit.sum()),
                     "shuffle_called": shuffled})
         if chosen["ops_prefix_decoy_k"] < 1:
             row.setdefault("cells_in_labels", int(n_labelled or row["cells_with_reads"]))
+            row["cells_real"] = int((_cells["quality"].isin(("perfect", "great"))
+                                     & ~_cells["gene"].isin((DECOY_GENE, NEARMISS_GENE))).sum())
         rows.append(row)
         eval_s.append(time.perf_counter() - began)
     return {"rows": rows, "detect_s": detect_s, "eval_s": eval_s}
@@ -719,18 +737,57 @@ def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str
             "plot": plot, "json": f"{stem}.json"}
 
 
+def _pinned_tuning_grid(settings: Mapping[str, Any], applied: Mapping[str, Any],
+                        row: Mapping[str, Any]) -> Dict[str, List[float]]:
+    """The tuning grid that keeps a grid point's uniform values and tunes the rest per well.
+
+    :param settings: the run settings, read for ``ops_prefix_tuning_grid``
+        and ``ops_prefix_quality_method``.
+    :param applied: the settings with the point's uniform values written in.
+    :param row: the grid point's row; ``"per well"`` marks a column each
+        well chooses.
+    :returns: ``ops_prefix_tuning_grid`` with every tuning axis the point
+        fixes pinned to its value, so the per-well tuner does not choose it
+        again, and every other axis left to the tuner.
+    :raises ValueError: for a ``ops_prefix_tuning_grid`` string that is not JSON.
+    """
+    from .ops_prefix import PREFIX_TUNING_GRID, PREFIX_TUNING_GRID_WEIGHTED
+
+    grid = settings.get("ops_prefix_tuning_grid")
+    if isinstance(grid, str) and grid.strip():
+        try:
+            grid = json.loads(grid)
+        except ValueError:
+            raise ValueError("ops_prefix_tuning_grid must be a mapping such as "
+                             '{"ops_read_threshold": [60, 80]}; got '
+                             f"{grid!r}") from None
+    if not grid:
+        grid = (PREFIX_TUNING_GRID_WEIGHTED
+                if settings.get("ops_prefix_quality_method") == "weighted_majority"
+                else PREFIX_TUNING_GRID)
+    pinned = {key: [float(value) for value in values] for key, values in dict(grid).items()}
+    for key in PREFIX_TUNING_GRID:
+        value = row[key] if key in row else None
+        if key in _GRID_KEYS and not (isinstance(value, str) and value == "per well"):
+            pinned[key] = [float(applied[key])]
+    return pinned
+
+
 def _apply_grid_choice(settings: Mapping[str, Any], result: Any, point: int) -> Dict[str, Any]:
-    """Write one grid point's values into the run settings.
+    """Write the values of one grid point into the run settings.
 
     :param settings: the run settings.
-    :param result: :func:`_run_grid_search`'s result, or the path of its CSV.
+    :param result: the result of :func:`_run_grid_search`, or the path of its CSV.
     :param point: the point to apply (``point`` in the table; 0 is the
         default).
-    :returns: a copy of the settings with the point's values. A point other
-        than the default fixes its values, so the per-well tuning is
-        switched off (``ops_prefix_threshold_tuning='none'``) and the read
-        mode is entered; a column the point leaves to each well keeps the
-        setting. ``ops_grid_run_id``, ``ops_grid_tiles`` and
+    :returns: a copy of the settings with the selected values. A point other
+        than the default switches off per-well tuning only when all its
+        values are uniform. A column left to each well keeps the entered
+        setting and enables ``ops_prefix_threshold_tuning='per_well_decoy'``,
+        with ``ops_prefix_tuning_grid`` pinning the tuning axes the point
+        fixes (:func:`_pinned_tuning_grid`), so the tuner chooses only the
+        columns left to each well.
+        ``ops_grid_run_id``, ``ops_grid_tiles`` and
         ``ops_grid_seed`` record the grid run, and ``ops_grid_search`` is
         switched off so the next run decodes.
     :raises ValueError: for a point the grid run does not have.
@@ -752,12 +809,16 @@ def _apply_grid_choice(settings: Mapping[str, Any], result: Any, point: int) -> 
     row = hit.iloc[0]
     out = dict(settings)
     if int(point) != 0:
+        per_well = False
         for key in _GRID_KEYS:
             value = row[key]
             if isinstance(value, str) and value == "per well":
+                per_well = True
                 continue
             out[key] = _cast(key, value)
-        out["ops_prefix_threshold_tuning"] = "none"
+        out["ops_prefix_threshold_tuning"] = "per_well_decoy" if per_well else "none"
+        if per_well:
+            out["ops_prefix_tuning_grid"] = _pinned_tuning_grid(settings, out, row)
     out.update({"ops_grid_run_id": record["run_id"], "ops_grid_tiles": ",".join(record["tiles"]),
                 "ops_grid_search": False})
     if record.get("seed") is not None:

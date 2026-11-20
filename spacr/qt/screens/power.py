@@ -61,6 +61,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 import re
 import threading
 import warnings
@@ -848,6 +849,7 @@ class PowerScreen(QWidget):
         buttons.addWidget(self._btn_stop)
         layout.addLayout(buttons)
         layout.addWidget(self._build_arrayed_planner(inner))
+        layout.addWidget(self._build_ops_power(inner))
         layout.addStretch(1)
 
         for widget in (self._genes, self._grnas, self._plates, self._reads,
@@ -1069,6 +1071,147 @@ class PowerScreen(QWidget):
         _apply_alpha_widgets(box)
         self._arrayed_planner = box
         return box
+
+    def _build_ops_power(self, parent: QWidget) -> QGroupBox:
+        """Build the OPS power curve section (item 969, alpha).
+
+        How many cells per gene an optical pooled screen needs: the e-test of
+        a finished OPS profile run, repeated on cells drawn down to each cap.
+        It runs the OPS ``etest`` phase, so its settings are OPS settings and
+        an OPS settings file fills the section.
+
+        :param parent: the form the section sits in.
+        :returns: the section.
+        """
+        from ...ops_settings import OPS_TOOLTIPS, ops_defaults
+
+        box = QGroupBox(tr("OPS power curve"), parent)
+        box.setObjectName("PowerOpsCurve")
+        form = QFormLayout(box)
+        source = QHBoxLayout()
+        self._ops_power_source = QLineEdit()
+        self._ops_power_source.setToolTip(tr(
+            "An OPS settings file, such as the one the OPS module saved for "
+            "the profile run. Empty uses the OPS defaults. Default empty."))
+        browse = QPushButton(tr("Browse…"))
+        browse.clicked.connect(self._load_ops_power_file)
+        source.addWidget(self._ops_power_source, 1)
+        source.addWidget(browse)
+        form.addRow(tr("OPS settings file"), source)
+        defaults = ops_defaults()
+        labels = {
+            "dst_root": tr("Output folder"),
+            "ops_etest_cells": tr("Cells folder"),
+            "ops_power_cells": tr("Cells per gene"),
+            "ops_power_seeds": tr("Seeds"),
+            "ops_power_retrieval": tr("Retrieval curve"),
+            "ops_reference_dir": tr("Reference folder"),
+            "ops_power_gene_list": tr("Gene list"),
+            "ops_power_reference_rows": tr("Reference rows"),
+        }
+        self._ops_power_fields: Dict[str, QWidget] = {}
+        for key in OPS_POWER_FIELDS:
+            if key == "ops_power_retrieval":
+                field = QCheckBox()
+                field.setChecked(bool(defaults[key]))
+            else:
+                field = QLineEdit(_ops_power_text(defaults[key]))
+            text = OPS_TOOLTIPS.get(key, "")
+            field.setToolTip(text)
+            field.setProperty("settingsAppKey", "ops")
+            field.setProperty("settingKey", key)
+            field.setProperty("apiTooltipDescriptionSource", text)
+            field.setProperty("apiTooltipDescription", text)
+            self._ops_power_fields[key] = field
+            form.addRow(labels[key], field)
+        run = QPushButton(tr("Run the OPS power curve"))
+        run.clicked.connect(self._run_ops_power)
+        form.addRow(run)
+        self._ops_power_summary = QLabel("")
+        self._ops_power_summary.setWordWrap(True)
+        self._ops_power_summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        form.addRow(self._ops_power_summary)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(box)
+        self._ops_power_box = box
+        return box
+
+    def _load_ops_power_file(self, path: str = "") -> None:
+        """Fill the OPS power curve section from an OPS settings file.
+
+        :param path: the file; empty asks for one.
+        """
+        from ...cli import load_settings_file
+        from ...ops_settings import ops_defaults
+
+        if not path:
+            path, _ = QFileDialog.getOpenFileName(self, tr("OPS settings file"))
+        if not path:
+            return
+        try:
+            loaded = ops_defaults(dict(load_settings_file(path)))
+        except Exception as exc:  # noqa: BLE001 - reported inline
+            self._ops_power_summary.setText(str(exc))
+            return
+        self._ops_power_source.setText(path)
+        for key, field in self._ops_power_fields.items():
+            if isinstance(field, QCheckBox):
+                field.setChecked(bool(loaded.get(key)))
+            else:
+                field.setText(_ops_power_text(loaded.get(key)))
+
+    def _run_ops_power(self) -> bool:
+        """Run the OPS power curve from the section's settings.
+
+        :returns: whether the run started (or, unthreaded, finished).
+        """
+        values = {key: (field.isChecked() if isinstance(field, QCheckBox)
+                        else field.text())
+                  for key, field in self._ops_power_fields.items()}
+        try:
+            payload = {"settings": ops_power_settings(
+                values, self._ops_power_source.text())}
+        except Exception as exc:  # noqa: BLE001 - reported inline
+            self._ops_power_summary.setText(str(exc))
+            return False
+        self._ops_power_summary.setText(tr("Running the OPS power curve…"))
+        if not self._threaded:
+            try:
+                run_ops_power_curve(payload)
+            except Exception as exc:  # noqa: BLE001 - reported inline
+                self._ops_power_summary.setText(str(exc))
+                return False
+            self._ops_power_payload = payload
+            self._ops_power_settled(True)
+            return True
+        from ..bridge import make_thread
+
+        self._ops_power_payload = payload
+        thread, worker = make_thread(run_ops_power_curve, payload,
+                                     app_key=APP_KEY, journal=False)
+        self._jobs.append((thread, worker))
+        worker.error.connect(self._ops_power_summary.setText)
+        worker.finished.connect(self._ops_power_settled)
+        thread.finished.connect(self._retire_finished_jobs)
+        thread.start()
+        return True
+
+    def _ops_power_settled(self, ok: bool = True) -> None:
+        """Say where the finished OPS power curve wrote its files.
+
+        A bound method rather than a closure, for the reason
+        :meth:`_retire_finished_jobs` gives.
+
+        :param ok: whether the worker reported success; a failure has
+            already put its message in the section.
+        """
+        payload = getattr(self, "_ops_power_payload", None) or {}
+        outputs = ((payload.get("result") or {}).get("outputs") or {})
+        folder = os.path.dirname(str(outputs.get("power_hits") or ""))
+        if folder:
+            self._ops_power_summary.setText(tr(
+                "The OPS power curve is in {folder}.", folder=folder))
 
     def _browse_pilot(self) -> None:
         """Ask for the pilot table and list its columns."""
@@ -1907,6 +2050,76 @@ class PowerScreen(QWidget):
                 pass
         super().closeEvent(event)
 
+
+
+#: The settings the OPS power curve section shows, in form order (item 969):
+#: OPS settings, read by the OPS ``etest`` phase. Item 968's OPS power
+#: simulation is meant to join this section.
+OPS_POWER_FIELDS: Tuple[str, ...] = (
+    "dst_root", "ops_etest_cells", "ops_power_cells", "ops_power_seeds",
+    "ops_power_retrieval", "ops_reference_dir", "ops_power_gene_list",
+    "ops_power_reference_rows",
+)
+
+
+def _ops_power_text(value: Any) -> str:
+    """Show one OPS setting value in a text field.
+
+    :param value: the setting's value.
+    :returns: a list as comma-separated items, ``None`` as empty.
+    """
+    if value is None:
+        return ""
+    if isinstance(value, (list, tuple)):
+        return ", ".join("None" if item is None else str(item) for item in value)
+    return str(value)
+
+
+def ops_power_settings(values: Dict[str, Any], source: str = "") -> Dict[str, Any]:
+    """The OPS settings an OPS power curve run reads.
+
+    The OPS defaults, then the OPS settings file, then the section's fields.
+    A field still showing what the file or the defaults hold keeps that
+    value as it was, so a run from this section and the OPS module's
+    ``etest`` run of the same file read the same settings and write the
+    same files.
+
+    :param values: field text (a bool for ``ops_power_retrieval``) by key.
+    :param source: an OPS settings file; empty uses the OPS defaults.
+    :returns: the settings for :func:`run_ops_power_curve`.
+    :raises ValueError: when a cells or seeds entry is not a whole number.
+    """
+    from ...cli import load_settings_file
+    from ...ops_settings import ops_defaults
+
+    base = ops_defaults(dict(load_settings_file(source)) if str(source or "").strip() else {})
+    for key, value in values.items():
+        if isinstance(value, bool) or _ops_power_text(base.get(key)) == str(value).strip():
+            base[key] = value if isinstance(value, bool) else base.get(key)
+        elif key in ("ops_power_cells", "ops_power_seeds"):
+            items = [item.strip() for item in str(value).split(",") if item.strip()]
+            base[key] = [None if item.lower() in ("none", "all") else int(item)
+                         for item in items]
+        else:
+            base[key] = str(value).strip() or None
+    return base
+
+
+def run_ops_power_curve(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Run the OPS e-test power curve: the OPS ``etest`` phase.
+
+    The same call as ``run_ops(settings, phases=["etest"])`` from the OPS
+    module, so its tables, figure and ``runtime.json`` are the ones that
+    run writes.
+
+    :param payload: ``{"settings": ...}`` from :func:`ops_power_settings`;
+        ``"result"`` is set to what :func:`spacr.ops_engine.run_ops` returns.
+    :returns: that result.
+    """
+    from ...ops_engine import run_ops
+
+    payload["result"] = run_ops(payload["settings"], phases=["etest"])
+    return payload["result"]
 
 
 def make_power_screen(app_key: Optional[str] = None) -> QWidget:

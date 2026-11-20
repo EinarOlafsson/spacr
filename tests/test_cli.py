@@ -166,34 +166,23 @@ def test_import_pulls_no_gui_or_torch():
     assert not offenders, f"spacr.cli imported heavy modules: {offenders}"
 
 
-def test_help_pulls_no_gui_or_torch():
-    """`spacr-run --help` answers from the standard library alone."""
+@pytest.mark.parametrize("command, expected", [
+    pytest.param("--help", "spacr-run", id="test_help_pulls_no_gui_or_torch"),
+    pytest.param("--list", "measure", id="test_list_pulls_no_gui_or_torch"),
+])
+def test_lightweight_commands_pull_no_gui_or_torch(command, expected):
+    """Each lightweight command runs its original probe in a fresh interpreter."""
     body = (
         "import io, contextlib, spacr.cli\n"
         "buf = io.StringIO()\n"
         "with contextlib.redirect_stdout(buf):\n"
-        "    rc = spacr.cli.main(['--help'])\n"
+        f"    rc = spacr.cli.main([{command!r}])\n"
         "assert rc == 0, rc\n"
-        "assert 'spacr-run' in buf.getvalue()\n"
+        f"assert {expected!r} in buf.getvalue()\n"
     )
     loaded = _subprocess_modules(_PROBE.format(body=body))
     offenders = [m for m, present in loaded.items() if present]
-    assert not offenders, f"--help imported heavy modules: {offenders}"
-
-
-def test_list_pulls_no_gui_or_torch():
-    """`--list` is a login-node command; it must not warm up a GPU stack."""
-    body = (
-        "import io, contextlib, spacr.cli\n"
-        "buf = io.StringIO()\n"
-        "with contextlib.redirect_stdout(buf):\n"
-        "    rc = spacr.cli.main(['--list'])\n"
-        "assert rc == 0, rc\n"
-        "assert 'measure' in buf.getvalue()\n"
-    )
-    loaded = _subprocess_modules(_PROBE.format(body=body))
-    offenders = [m for m, present in loaded.items() if present]
-    assert not offenders, f"--list imported heavy modules: {offenders}"
+    assert not offenders, f"{command} imported heavy modules: {offenders}"
 
 
 # ---------------------------------------------------------------------------
@@ -1269,7 +1258,6 @@ def test_setup_logging_replaces_its_handler(capsys):
         cli.LOG.propagate = before_propagate
         cli.LOG.setLevel(before_level)
         sys.stdout, sys.stderr = before_streams
-
 
 
 def test_run_with_an_unknown_module_exits_2(capsys, fake_settings):

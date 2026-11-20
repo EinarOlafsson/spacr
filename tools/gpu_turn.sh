@@ -9,12 +9,14 @@
 # Native Windows uses gpu_turn.ps1, GPU Engine counters, and a shared
 # ProgramData queue with a global mutex; the same idle/gap defaults apply.
 #
-# "Idle" means no CUDA compute process on any GPU. The desktop (Xorg,
-# gnome-shell, browsers) always holds graphics contexts and keeps the
+# "Idle" means no non-display process using more than GPU_BUSY_MIB (4096 MiB,
+# i.e. 4 GB, maintainer policy 2026-11-06) of VRAM on any GPU. The desktop
+# (Xorg, gnome-shell, browsers) always holds graphics contexts and keeps the
 # utilisation counter at 20-50 %, so utilisation is useless as a signal;
-# compute processes are what another session's work looks like.
-# Chrome and the Mullvad VPN window never block the queue, even when
-# nvidia-smi lists them as compute.
+# big compute processes are what another session's work looks like. A CPU-bound
+# job that merely holds a small CUDA context (a few hundred MiB) is not busy:
+# it once blocked the exclusive queue for over 2 hours. Chrome and the Mullvad
+# VPN window never block the queue, even when nvidia-smi lists them as compute.
 #
 #   tools/gpu_turn.sh <label> <command...>
 #   tools/gpu_turn.sh 507-cellpose3-timing python tools/some_probe.py
@@ -29,6 +31,7 @@
 #   log           one line per wait, start and finish
 #
 # Tunables (seconds): GPU_IDLE_S (360), GPU_GAP_S (600), GPU_POLL_S (15).
+# GPU_BUSY_MIB (4096): VRAM above which a non-display process counts as busy.
 #
 # Concurrent jobs (maintainer, 2026-11-18): a job that declares its need,
 #   tools/gpu_turn.sh --vram-gb N <label> <command...>
@@ -172,9 +175,13 @@ priority_queued() {
 }
 
 compute_pids() {
-    local pid executable
-    for pid in $(nvidia-smi --query-compute-apps=pid --format=csv,noheader 2>/dev/null \
-                 | tr -d ' ' | grep -v '^$'); do
+    local pid mem executable threshold=${GPU_BUSY_MIB:-4096}
+    while IFS=, read -r pid mem; do
+        [[ -n "$pid" ]] || continue
+        # A memory reading that is not a number (e.g. [N/A]) stays busy.
+        if [[ "$mem" =~ ^[0-9]+$ ]] && (( mem <= threshold )); then
+            continue
+        fi
         executable=$(readlink "/proc/$pid/exe" 2>/dev/null || true)
         executable=${executable% (deleted)}
         case "${executable##*/}" in
@@ -184,7 +191,8 @@ compute_pids() {
         tr '\0' '\n' < "/proc/$pid/cmdline" 2>/dev/null | grep -Fxq -- '--type=gpu-process' \
             && continue
         echo "$pid"
-    done
+    done < <(nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits 2>/dev/null \
+             | tr -d ' ' | grep -v '^$')
 }
 
 gpu_reading() {
@@ -215,22 +223,23 @@ co_running() {
     echo "compute=[${apps:-none}] turn_holder=[${holder:-none}]"
 }
 
+# Run a declared job after checking the current power cap and available capacity.
 run_concurrent() {
     local limit free temp spare margin max_temp power alert why last_why=""
     limit=${GPU_POWER_LIMIT_W:-280}
     margin=${GPU_VRAM_MARGIN_GB:-2}
     max_temp=${GPU_MAX_TEMP_C:-80}
     alert=${GPU_RAM_ALERT:-$HOME/.claude/ram_guard/ALERT}
-    power=$(gpu_reading power.limit)
-    if ! awk -v p="$power" -v l="$limit" 'BEGIN{exit !(p != "" && p + 0 == l + 0)}'; then
-        say "REFUSED: --vram-gb needs the GPU power limit at ${limit} W; nvidia-smi reports '${power:-nothing}' W. Set it (sudo nvidia-smi -pl ${limit}) and try again."
-        exit 3
-    fi
     mkdir -p "$DIR/reserve"
     exec 8>"$DIR/vram.lock"
     say "queued concurrently (pid $$, $(pwd)); needs ${VRAM_GB} GB + ${margin} GB margin"
     while true; do
         flock 8
+        power=$(gpu_reading power.limit)
+        if ! awk -v p="$power" -v l="$limit" 'BEGIN{exit !(p != "" && p + 0 == l + 0)}'; then
+            say "REFUSED: --vram-gb needs the GPU power limit at ${limit} W; nvidia-smi reports '${power:-nothing}' W. Set it (sudo nvidia-smi -pl ${limit}) and try again."
+            exit 3
+        fi
         free=$(gpu_reading memory.free)
         temp=$(gpu_reading temperature.gpu)
         spare=$(awk -v f="${free:-0}" -v r="$(reserved_gb)" 'BEGIN{printf "%.1f", f / 1024 - r}')

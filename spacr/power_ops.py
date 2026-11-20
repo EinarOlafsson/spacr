@@ -959,6 +959,28 @@ def _run_point(task: tuple) -> Dict[str, Any]:
     return row
 
 
+def _calibration_key(calibration: Mapping[str, Any]) -> str:
+    """Hash the calibration values and every control-pool value for resume identity.
+
+    Pools calibrated from a run can hold guide names in object arrays.
+    Encode the names as strings so process-specific object addresses do not
+    change the identity of an unchanged pool.
+
+    :param calibration: from :func:`load_calibration` or :func:`calibrate_from_run`.
+    :returns: the SHA256 content digest.
+    """
+    values = {key: value for key, value in calibration.items() if key != "_pool"}
+    digest = hashlib.sha256(json.dumps(values, sort_keys=True, default=str).encode("utf-8"))
+    for array in calibration.get("_pool", ()):
+        array = np.asarray(array)
+        if array.dtype.hasobject:
+            array = array.astype(str)
+        array = np.ascontiguousarray(array)
+        digest.update(json.dumps([array.dtype.str, array.shape]).encode("utf-8"))
+        digest.update(array.data)
+    return digest.hexdigest()
+
+
 def scan_ops_designs(calibration: Mapping[str, Any], grid: Any = None, seeds: Sequence[int] = (0, 1, 2), *,
                      effect_types: Sequence[str] = ("mean",), scorers: Sequence[str] = ("etest",),
                      progress_file: Optional[str] = None, workers: int = 1, threads: int = 2,
@@ -974,8 +996,9 @@ def scan_ops_designs(calibration: Mapping[str, Any], grid: Any = None, seeds: Se
         ``effect_type``.
     :param scorers: see :func:`score_ops_screen`.
     :param progress_file: a TSV each finished row is appended to; a rerun
-        skips the rows already there (keyed by the point's values, the seed
-        and the scorers), so a stopped sweep resumes.
+        skips rows keyed by the calibration contents, explicit and resolved
+        design values, seed and scorers, so a stopped sweep resumes.
+        Invalid designs are still recorded as failed rows.
     :param workers: processes run at once.
     :param threads: BLAS threads per process.
     :param report: called with one line per finished row.
@@ -986,10 +1009,16 @@ def scan_ops_designs(calibration: Mapping[str, Any], grid: Any = None, seeds: Se
     say = report or (lambda text: None)
     points = _design_points(DEFAULT_OPS_POWER_GRID if grid is None else grid, effect_types)
     tag = ",".join(sorted(scorers))
+    calibration_key = _calibration_key(calibration)
     tasks, keys = [], []
     for point in points:
+        try:
+            resolved = resolve_design(calibration, point)
+        except (TypeError, ValueError, OverflowError):
+            resolved = point
         for seed in seeds:
-            keys.append(hashlib.sha1(json.dumps([point, int(seed), tag], sort_keys=True, default=str)
+            keys.append(hashlib.sha1(json.dumps([calibration_key, point, resolved, int(seed), tag],
+                                               sort_keys=True, default=str)
                                      .encode("utf-8")).hexdigest()[:16])
             tasks.append((point, int(seed), tuple(scorers), int(threads)))
     done: Dict[str, Dict[str, Any]] = {}
