@@ -1,0 +1,326 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_the_annotation_dataset_generator.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 4,
+  "case_mapping": {
+    "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[it-keeps-counting]": "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[it-keeps-counting]",
+    "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[unrelated-tables-do-not-take-a-name]": "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[unrelated-tables-do-not-take-a-name]",
+    "tests/test_the_annotation_dataset_generator.py::test_the_second_set_does_not_overwrite_the_first": "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[test_the_second_set_does_not_overwrite_the_first]",
+    "tests/test_the_annotation_dataset_generator.py::test_a_gap_is_filled_rather_than_skipped": "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[test_a_gap_is_filled_rather_than_skipped]",
+    "tests/test_the_annotation_dataset_generator.py::test_a_size_limit_drops_the_objects_outside_it[minimum-size]": "tests/test_the_annotation_dataset_generator.py::test_selection_settings_keep_the_original_object_ids[minimum-size]",
+    "tests/test_the_annotation_dataset_generator.py::test_a_size_limit_drops_the_objects_outside_it[maximum-size]": "tests/test_the_annotation_dataset_generator.py::test_selection_settings_keep_the_original_object_ids[maximum-size]",
+    "tests/test_the_annotation_dataset_generator.py::test_wells_can_be_kept": "tests/test_the_annotation_dataset_generator.py::test_selection_settings_keep_the_original_object_ids[test_wells_can_be_kept]",
+    "tests/test_the_annotation_dataset_generator.py::test_wells_can_be_excluded": "tests/test_the_annotation_dataset_generator.py::test_selection_settings_keep_the_original_object_ids[test_wells_can_be_excluded]"
+  },
+  "parameter_table_contracts": {
+    "test_the_next_png_table_name_counts_only_its_own_tables": {
+      "it-keeps-counting": [
+        [
+          "png_list",
+          "png_list_2",
+          "png_list_3"
+        ],
+        "png_list_4"
+      ],
+      "unrelated-tables-do-not-take-a-name": [
+        [
+          "cell",
+          "png_lists",
+          "my_png_list"
+        ],
+        "png_list"
+      ],
+      "test_the_second_set_does_not_overwrite_the_first": [
+        [
+          "png_list"
+        ],
+        "png_list_2"
+      ],
+      "test_a_gap_is_filled_rather_than_skipped": [
+        [
+          "png_list",
+          "png_list_3"
+        ],
+        "png_list_2"
+      ]
+    },
+    "test_selection_settings_keep_the_original_object_ids": {
+      "minimum-size": [
+        {
+          "cell_min_size": 500
+        },
+        [
+          2,
+          3,
+          4
+        ]
+      ],
+      "maximum-size": [
+        {
+          "cell_max_size": 5000
+        },
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "test_wells_can_be_kept": [
+        {
+          "wells": [
+            "r1c1",
+            "r2c2"
+          ]
+        },
+        [
+          1,
+          4
+        ]
+      ],
+      "test_wells_can_be_excluded": [
+        {
+          "exclude_wells": [
+            "r1c1"
+          ]
+        },
+        [
+          2,
+          3,
+          4
+        ]
+      ]
+    }
+  },
+  "case_contract_representations": {
+    "test_the_next_png_table_name_counts_only_its_own_tables": {
+      "it-keeps-counting": "(['png_list', 'png_list_2', 'png_list_3'], 'png_list_4')",
+      "unrelated-tables-do-not-take-a-name": "(['cell', 'png_lists', 'my_png_list'], 'png_list')",
+      "test_the_second_set_does_not_overwrite_the_first": "(['png_list'], 'png_list_2')",
+      "test_a_gap_is_filled_rather_than_skipped": "(['png_list', 'png_list_3'], 'png_list_2')"
+    },
+    "test_selection_settings_keep_the_original_object_ids": {
+      "minimum-size": "({'cell_min_size': 500}, [2, 3, 4])",
+      "maximum-size": "({'cell_max_size': 5000}, [1, 2, 3])",
+      "test_wells_can_be_kept": "({'wells': ['r1c1', 'r2c2']}, [1, 4])",
+      "test_wells_can_be_excluded": "({'exclude_wells': ['r1c1']}, [2, 3, 4])"
+    }
+  },
+  "original_parameter_rows_preserved": 4,
+  "unchanged_original_parameter_ids": [
+    "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[it-keeps-counting]",
+    "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[unrelated-tables-do-not-take-a-name]"
+  ],
+  "changed_collected_id_count": 6,
+  "contract_scope": "Four exact original parameter rows plus four exact standalone examples; ordered literal table lists/settings/object IDs, SQLite connection and _db/selection helper calls, argument order, equality and row IDs retained. The size-filter table is renamed to describe both size and well filters.",
+  "collected_before": [
+    "tests/test_the_annotation_dataset_generator.py::test_a_second_write_lands_beside_the_first",
+    "tests/test_the_annotation_dataset_generator.py::test_a_failed_write_leaves_no_half_table",
+    "tests/test_the_annotation_dataset_generator.py::test_a_reserved_table_starts_empty_with_the_right_columns",
+    "tests/test_the_annotation_dataset_generator.py::test_reserving_claims_the_name",
+    "tests/test_the_annotation_dataset_generator.py::test_a_view_takes_the_name_too",
+    "tests/test_the_annotation_dataset_generator.py::test_wells_can_be_excluded",
+    "tests/test_the_annotation_dataset_generator.py::test_a_path_per_object_is_required",
+    "tests/test_the_annotation_dataset_generator.py::test_the_folder_carries_the_tables_suffix",
+    "tests/test_the_annotation_dataset_generator.py::test_the_input_is_not_modified",
+    "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[it-keeps-counting]",
+    "tests/test_the_annotation_dataset_generator.py::test_two_reservations_never_collide",
+    "tests/test_the_annotation_dataset_generator.py::test_nothing_set_filters_nothing",
+    "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[unrelated-tables-do-not-take-a-name]",
+    "tests/test_the_annotation_dataset_generator.py::test_the_generator_pairs_the_folder_with_the_table",
+    "tests/test_the_annotation_dataset_generator.py::test_a_new_set_starts_unannotated",
+    "tests/test_the_annotation_dataset_generator.py::test_the_first_set_is_png_list",
+    "tests/test_the_annotation_dataset_generator.py::test_wells_can_be_kept",
+    "tests/test_the_annotation_dataset_generator.py::test_the_join_key_is_built",
+    "tests/test_the_annotation_dataset_generator.py::test_the_rows_match_measure_crops_own_schema",
+    "tests/test_the_annotation_dataset_generator.py::test_the_second_set_does_not_overwrite_the_first",
+    "tests/test_the_annotation_dataset_generator.py::test_a_cap_is_deterministic",
+    "tests/test_the_annotation_dataset_generator.py::test_a_size_limit_drops_the_objects_outside_it[maximum-size]",
+    "tests/test_the_annotation_dataset_generator.py::test_filling_a_reserved_table_does_not_recreate_it",
+    "tests/test_the_annotation_dataset_generator.py::test_zero_is_not_a_minimum",
+    "tests/test_the_annotation_dataset_generator.py::test_a_gap_is_filled_rather_than_skipped",
+    "tests/test_the_annotation_dataset_generator.py::test_filtering_everything_out_is_allowed",
+    "tests/test_the_annotation_dataset_generator.py::test_the_object_id_is_written_the_way_measure_writes_it",
+    "tests/test_the_annotation_dataset_generator.py::test_a_size_limit_drops_the_objects_outside_it[minimum-size]",
+    "tests/test_the_annotation_dataset_generator.py::test_writing_creates_the_table_and_returns_its_name"
+  ],
+  "collected_after": [
+    "tests/test_the_annotation_dataset_generator.py::test_selection_settings_keep_the_original_object_ids[maximum-size]",
+    "tests/test_the_annotation_dataset_generator.py::test_a_reserved_table_starts_empty_with_the_right_columns",
+    "tests/test_the_annotation_dataset_generator.py::test_selection_settings_keep_the_original_object_ids[test_wells_can_be_kept]",
+    "tests/test_the_annotation_dataset_generator.py::test_nothing_set_filters_nothing",
+    "tests/test_the_annotation_dataset_generator.py::test_reserving_claims_the_name",
+    "tests/test_the_annotation_dataset_generator.py::test_a_view_takes_the_name_too",
+    "tests/test_the_annotation_dataset_generator.py::test_a_cap_is_deterministic",
+    "tests/test_the_annotation_dataset_generator.py::test_the_generator_pairs_the_folder_with_the_table",
+    "tests/test_the_annotation_dataset_generator.py::test_the_input_is_not_modified",
+    "tests/test_the_annotation_dataset_generator.py::test_selection_settings_keep_the_original_object_ids[minimum-size]",
+    "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[it-keeps-counting]",
+    "tests/test_the_annotation_dataset_generator.py::test_two_reservations_never_collide",
+    "tests/test_the_annotation_dataset_generator.py::test_a_failed_write_leaves_no_half_table",
+    "tests/test_the_annotation_dataset_generator.py::test_the_object_id_is_written_the_way_measure_writes_it",
+    "tests/test_the_annotation_dataset_generator.py::test_the_first_set_is_png_list",
+    "tests/test_the_annotation_dataset_generator.py::test_zero_is_not_a_minimum",
+    "tests/test_the_annotation_dataset_generator.py::test_writing_creates_the_table_and_returns_its_name",
+    "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[test_the_second_set_does_not_overwrite_the_first]",
+    "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[test_a_gap_is_filled_rather_than_skipped]",
+    "tests/test_the_annotation_dataset_generator.py::test_filtering_everything_out_is_allowed",
+    "tests/test_the_annotation_dataset_generator.py::test_the_rows_match_measure_crops_own_schema",
+    "tests/test_the_annotation_dataset_generator.py::test_the_join_key_is_built",
+    "tests/test_the_annotation_dataset_generator.py::test_a_second_write_lands_beside_the_first",
+    "tests/test_the_annotation_dataset_generator.py::test_a_new_set_starts_unannotated",
+    "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[unrelated-tables-do-not-take-a-name]",
+    "tests/test_the_annotation_dataset_generator.py::test_filling_a_reserved_table_does_not_recreate_it",
+    "tests/test_the_annotation_dataset_generator.py::test_a_path_per_object_is_required",
+    "tests/test_the_annotation_dataset_generator.py::test_the_folder_carries_the_tables_suffix",
+    "tests/test_the_annotation_dataset_generator.py::test_selection_settings_keep_the_original_object_ids[test_wells_can_be_excluded]"
+  ],
+  "tests_before": {
+    "passed": 29,
+    "seconds": 11.47
+  },
+  "tests_after": {
+    "passed": 29,
+    "seconds": 13.47
+  },
+  "coverage_scope": "spacr.annotation_dataset under the complete selected naming, selection, SQLite-writing/reservation and tiny array-crop generator test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 131,
+    "num_statements": 160,
+    "percent_covered": 79.8076923076923,
+    "percent_covered_display": "80",
+    "missing_lines": 29,
+    "excluded_lines": 0,
+    "percent_statements_covered": 81.875,
+    "percent_statements_covered_display": "82",
+    "num_branches": 48,
+    "num_partial_branches": 7,
+    "covered_branches": 35,
+    "missing_branches": 13,
+    "percent_branches_covered": 72.91666666666667,
+    "percent_branches_covered_display": "73"
+  },
+  "coverage_after": {
+    "covered_lines": 131,
+    "num_statements": 160,
+    "percent_covered": 79.8076923076923,
+    "percent_covered_display": "80",
+    "missing_lines": 29,
+    "excluded_lines": 0,
+    "percent_statements_covered": 81.875,
+    "percent_statements_covered_display": "82",
+    "num_branches": 48,
+    "num_partial_branches": 7,
+    "covered_branches": 35,
+    "missing_branches": 13,
+    "percent_branches_covered": 72.91666666666667,
+    "percent_branches_covered_display": "73"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "1ac9c44d76159f1e6e5fabf8320da7d9d8a05d5c7f5ccddb6596499a95f5803b",
+  "production_source_sha256": "eb358bfb851ef3d6ba38284c99d09028fcb70056683ffe15ac670cf23b23318a",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "other_schema_rollback_reservation_cap_immutability_no_op_and_array_crop_generator_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "suffix-counter-skips-free-name",
+      "source_variant": {
+        "path": "spacr/annotation_dataset.py",
+        "line": 93,
+        "old": "while number in taken:\n        number += 1",
+        "new": "while number in taken:\n        number += 2"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_annotation_dataset_generator.py::test_a_gap_is_filled_rather_than_skipped",
+          "tests/test_the_annotation_dataset_generator.py::test_the_second_set_does_not_overwrite_the_first"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_annotation_dataset_generator.py::test_a_gap_is_filled_rather_than_skipped",
+          "tests/test_the_annotation_dataset_generator.py::test_the_second_set_does_not_overwrite_the_first"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[it-keeps-counting]",
+          "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[test_a_gap_is_filled_rather_than_skipped]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[it-keeps-counting]",
+          "tests/test_the_annotation_dataset_generator.py::test_the_next_png_table_name_counts_only_its_own_tables[test_a_gap_is_filled_rather_than_skipped]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "well-exclusion-skipped",
+      "source_variant": {
+        "path": "spacr/annotation_dataset.py",
+        "line": 149,
+        "old": "if drop:\n            frame = frame[~names.isin({str(w) for w in drop})]",
+        "new": "if False and drop:\n            frame = frame[~names.isin({str(w) for w in drop})]"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_annotation_dataset_generator.py::test_wells_can_be_excluded"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_annotation_dataset_generator.py::test_wells_can_be_excluded"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_annotation_dataset_generator.py::test_selection_settings_keep_the_original_object_ids[test_wells_can_be_excluded]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_annotation_dataset_generator.py::test_selection_settings_keep_the_original_object_ids[test_wells_can_be_excluded]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the eight affected original/current table cases before and after; repository production files unchanged.",
+  "table_placement_note": "Extend the two existing parameter tables at their original positions; retain existing row values/labels and every other definition in relative order. The two old size-filter case prefixes change with the broader table name, and all six changed IDs plus the two retained naming IDs are mapped explicitly. Each SQLite row retains its own function-scoped tmp_path fixture.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_the_annotation_dataset_generator.py",
+      "line": 54,
+      "symbol": "test_the_next_png_table_name_counts_only_its_own_tables",
+      "new": "Keep each original set of existing tables paired with the same free name.",
+      "old": {
+        "test_the_next_png_table_name_counts_only_its_own_tables": null,
+        "test_the_second_set_does_not_overwrite_the_first": "An existing set may already carry annotations, and those are hand-made\nand unrecoverable.",
+        "test_a_gap_is_filled_rather_than_skipped": "png_list_2 deleted and png_list_3 kept: the free name is 2."
+      }
+    },
+    {
+      "path": "tests/test_the_annotation_dataset_generator.py",
+      "line": 176,
+      "symbol": "test_selection_settings_keep_the_original_object_ids",
+      "new": "Retain the exact object IDs selected by each original size or well filter.",
+      "old": {
+        "test_a_size_limit_drops_the_objects_outside_it": null,
+        "test_wells_can_be_kept": null,
+        "test_wells_can_be_excluded": null
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

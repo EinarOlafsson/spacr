@@ -39,27 +39,21 @@ def test_the_first_set_is_png_list(tmp_path):
     assert next_png_table(connection) == "png_list"
 
 
-def test_the_second_set_does_not_overwrite_the_first(tmp_path):
-    """An existing set may already carry annotations, and those are hand-made
-    and unrecoverable."""
-    connection = sqlite3.connect(_db(tmp_path, ["png_list"]))
-    assert next_png_table(connection) == "png_list_2"
-
-
-@pytest.mark.parametrize("tables, expected", [
-    (["png_list", "png_list_2", "png_list_3"], "png_list_4"),
+@pytest.mark.parametrize('tables, expected', [
+    pytest.param(['png_list', 'png_list_2', 'png_list_3'], 'png_list_4',
+                 id='it-keeps-counting'),
     # Unrelated tables do not take a name.
-    (["cell", "png_lists", "my_png_list"], "png_list"),
-], ids=["it-keeps-counting", "unrelated-tables-do-not-take-a-name"])
+    pytest.param(['cell', 'png_lists', 'my_png_list'], 'png_list',
+                 id='unrelated-tables-do-not-take-a-name'),
+    pytest.param(['png_list'], 'png_list_2',
+                 id='test_the_second_set_does_not_overwrite_the_first'),
+    pytest.param(['png_list', 'png_list_3'], 'png_list_2',
+                 id='test_a_gap_is_filled_rather_than_skipped'),
+])
 def test_the_next_png_table_name_counts_only_its_own_tables(tmp_path, tables, expected):
+    """Keep each original set of existing tables paired with the same free name."""
     connection = sqlite3.connect(_db(tmp_path, tables))
     assert next_png_table(connection) == expected
-
-
-def test_a_gap_is_filled_rather_than_skipped(tmp_path):
-    """png_list_2 deleted and png_list_3 kept: the free name is 2."""
-    connection = sqlite3.connect(_db(tmp_path, ["png_list", "png_list_3"]))
-    assert next_png_table(connection) == "png_list_2"
 
 
 def test_a_view_takes_the_name_too(tmp_path):
@@ -168,11 +162,18 @@ def test_nothing_set_filters_nothing():
     assert len(filter_selection(_selection(), {})) == 4
 
 
-@pytest.mark.parametrize("settings, kept_ids", [
-    ({"cell_min_size": 500}, [2, 3, 4]),     # drops the small ones
-    ({"cell_max_size": 5000}, [1, 2, 3]),    # drops the large ones
-], ids=["minimum-size", "maximum-size"])
-def test_a_size_limit_drops_the_objects_outside_it(settings, kept_ids):
+@pytest.mark.parametrize('settings, kept_ids', [
+    pytest.param({'cell_min_size': 500}, [2, 3, 4],
+                 id='minimum-size'),
+    pytest.param({'cell_max_size': 5000}, [1, 2, 3],
+                 id='maximum-size'),
+    pytest.param({'wells': ['r1c1', 'r2c2']}, [1, 4],
+                 id='test_wells_can_be_kept'),
+    pytest.param({'exclude_wells': ['r1c1']}, [2, 3, 4],
+                 id='test_wells_can_be_excluded'),
+])
+def test_selection_settings_keep_the_original_object_ids(settings, kept_ids):
+    """Retain the exact object IDs selected by each original size or well filter."""
     kept = filter_selection(_selection(), settings)
     assert list(kept["objectID"]) == kept_ids
 
@@ -182,16 +183,6 @@ def test_zero_is_not_a_minimum():
     minimum would filter nothing while looking filtered."""
     assert len(filter_selection(_selection(),
                                 {"cell_min_size": 0, "cell_max_size": 0})) == 4
-
-
-def test_wells_can_be_kept():
-    kept = filter_selection(_selection(), {"wells": ["r1c1", "r2c2"]})
-    assert list(kept["objectID"]) == [1, 4]
-
-
-def test_wells_can_be_excluded():
-    kept = filter_selection(_selection(), {"exclude_wells": ["r1c1"]})
-    assert list(kept["objectID"]) == [2, 3, 4]
 
 
 def test_a_cap_is_deterministic():
