@@ -240,3 +240,11 @@ L:
 - tabular + checks + outputs: M;
 - CNN/transformer arms: M;
 - Home job: S–M.
+
+## Amendment 2026-11-20 (maintainer decision): mitotic stages from Funk plates, G1/S/G2 from 995
+
+- **Shared base model, mitotic stages:** the shared base model trains its MITOTIC stages on Funk plates only: plate A plus a second Funk plate. No other screen contributes mitotic labels to the base model.
+- **G1/S/G2:** comes from item 995's field-centred DNA fit on every screen (Funk and others), not from the base model's interphase stages.
+- **Low-mitosis screens:** on screens such as PERISCOPE CP186A (0.10 % mitotic among NT cells, 10X painting) the self-checks (section 5) mark the mitotic stages "unresolved" instead of failing the run; G1/S/G2 is still reported.
+- **Evidence:** `reanalysis/cellcycle_transfer_1119/`, sections 12-13: the transfer on aligned images passes for G1/S/G2; the mitotic checks fail for lack of condensed mitoses. The alignment itself is item 998 (PERISCOPE images must be moved by the recorded Align shift before measuring).
+- **Acceptance impact:** A3 (CP186A with `'DNA'`) expects the G1/S/G2 checks to pass and the mitotic checks to report "unresolved"; A1 and A2 stay on plate A.
