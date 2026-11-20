@@ -1,0 +1,242 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_hyperparam_walk.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_odd_resolution_puts_the_centre_back": "tests/test_hyperparam_walk.py::TestWalkAxis::test_original_odd_resolutions_keep_their_ordered_neighbours[test_odd_resolution_puts_the_centre_back]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_higher_resolution_reaches_further_out": "tests/test_hyperparam_walk.py::TestWalkAxis::test_original_odd_resolutions_keep_their_ordered_neighbours[test_higher_resolution_reaches_further_out]"
+  },
+  "class_scope_integer_resolutions_and_native_float_list_contracts": {
+    "test_odd_resolution_puts_the_centre_back": [
+      3,
+      [
+        9.0,
+        10.0,
+        11.0
+      ]
+    ],
+    "test_higher_resolution_reaches_further_out": [
+      5,
+      [
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_odd_resolution_puts_the_centre_back": "(3, [9.0, 10.0, 11.0])",
+    "test_higher_resolution_reaches_further_out": "(5, [8.0, 9.0, 10.0, 11.0, 12.0])"
+  },
+  "contract_scope": "Exact original TestWalkAxis class/self scope, integer resolutions3/5, WalkAxis x name, float step1.0, float centre10.0, axis assignment and native ordered float-list equality retained. Every other original method, class, import, helper and arithmetic-score callback retains AST and relative order. Private tooling resolves only the named class and maps its exact method case IDs.",
+  "collected_before": [
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_an_unusable_walk_request_is_refused[parameter-umap-does-not-have]",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_an_unusable_walk_request_is_refused[missing-starting-value]",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_the_default_space_is_the_two_it_has_always_been",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_every_named_parameter_can_be_an_axis",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_n_neighbors_max_reaches_the_axis",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_the_metric_axis_offers_the_installed_metrics",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_umaps_own_ranges_are_carried_by_the_axis",
+    "tests/test_hyperparam_walk.py::TestBackwardsCompatibility::test_it_still_scores_four_corners_per_round",
+    "tests/test_hyperparam_walk.py::TestBackwardsCompatibility::test_it_still_clamps_n_neighbors_to_two",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_value_outside_the_alphabet_comes_back_inside",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_odd_resolution_puts_the_centre_back",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_useless_axis_is_refused_at_construction[kwargs3-at least two]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_useless_axis_is_refused_at_construction[kwargs2-not being searched]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_resolution_two_is_the_classic_plus_minus_pair",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_categorical_axis_rotates_from_the_current_value",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_clamping_collapses_duplicates_at_a_boundary",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_useless_axis_is_refused_at_construction[kwargs1-never leaves the centre]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_useless_axis_is_refused_at_construction[kwargs4-above maximum]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_integer_axes_never_emit_a_float",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_higher_resolution_reaches_further_out",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_useless_axis_is_refused_at_construction[kwargs0-either a step]",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_past_the_cap_a_round_varies_one_axis_at_a_time",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_two_axes_at_resolution_two_are_the_original_four_corners",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_the_cap_is_where_the_switch_happens",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_the_centre_is_never_a_candidate",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_no_axes_is_an_empty_neighbourhood_not_a_crash",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_the_product_grows_with_the_axis_count",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_the_axes_are_described_in_the_notes",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_frozen_parameters_reach_the_fit_untouched",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_an_unsearchable_space_is_refused[axes0-start0-at least one axis]",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_the_starting_point_is_a_centre_and_is_never_fitted",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_the_fallback_is_recorded_in_the_notes",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_an_unsearchable_space_is_refused[axes1-start1-missing]",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_an_unsearchable_space_is_refused[axes2-start2-listed twice]",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_the_walk_climbs_in_three_dimensions",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_it_stops_when_a_round_stops_improving"
+  ],
+  "collected_after": [
+    "tests/test_hyperparam_walk.py::TestBackwardsCompatibility::test_it_still_clamps_n_neighbors_to_two",
+    "tests/test_hyperparam_walk.py::TestBackwardsCompatibility::test_it_still_scores_four_corners_per_round",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_an_unusable_walk_request_is_refused[parameter-umap-does-not-have]",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_an_unusable_walk_request_is_refused[missing-starting-value]",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_umaps_own_ranges_are_carried_by_the_axis",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_every_named_parameter_can_be_an_axis",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_the_default_space_is_the_two_it_has_always_been",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_the_metric_axis_offers_the_installed_metrics",
+    "tests/test_hyperparam_walk.py::TestUmapWalkAxes::test_n_neighbors_max_reaches_the_axis",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_the_axes_are_described_in_the_notes",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_an_unsearchable_space_is_refused[axes1-start1-missing]",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_an_unsearchable_space_is_refused[axes2-start2-listed twice]",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_the_fallback_is_recorded_in_the_notes",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_it_stops_when_a_round_stops_improving",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_an_unsearchable_space_is_refused[axes0-start0-at least one axis]",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_the_starting_point_is_a_centre_and_is_never_fitted",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_frozen_parameters_reach_the_fit_untouched",
+    "tests/test_hyperparam_walk.py::TestWalkSearch::test_the_walk_climbs_in_three_dimensions",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_original_odd_resolutions_keep_their_ordered_neighbours[test_higher_resolution_reaches_further_out]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_value_outside_the_alphabet_comes_back_inside",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_resolution_two_is_the_classic_plus_minus_pair",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_original_odd_resolutions_keep_their_ordered_neighbours[test_odd_resolution_puts_the_centre_back]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_useless_axis_is_refused_at_construction[kwargs2-not being searched]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_useless_axis_is_refused_at_construction[kwargs3-at least two]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_clamping_collapses_duplicates_at_a_boundary",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_integer_axes_never_emit_a_float",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_useless_axis_is_refused_at_construction[kwargs4-above maximum]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_categorical_axis_rotates_from_the_current_value",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_useless_axis_is_refused_at_construction[kwargs0-either a step]",
+    "tests/test_hyperparam_walk.py::TestWalkAxis::test_a_useless_axis_is_refused_at_construction[kwargs1-never leaves the centre]",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_no_axes_is_an_empty_neighbourhood_not_a_crash",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_the_product_grows_with_the_axis_count",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_two_axes_at_resolution_two_are_the_original_four_corners",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_the_cap_is_where_the_switch_happens",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_past_the_cap_a_round_varies_one_axis_at_a_time",
+    "tests/test_hyperparam_walk.py::TestNeighbourhood::test_the_centre_is_never_a_candidate"
+  ],
+  "tests_before": {
+    "passed": 36,
+    "seconds": 28.66
+  },
+  "tests_after": {
+    "passed": 36,
+    "seconds": 22.92
+  },
+  "coverage_scope": "spacr.hyperparam under the complete selected walk-axis/neighbourhood/search/backwards-compatibility/UMAP-axis-description module; not full-suite coverage. Only small lists/dictionaries and arithmetic score callbacks, including callbacks named fit in the original tests. No actual statistical/UMAP/neural-model fitting, chart rendering, new reader, network or GPU work. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 442,
+    "num_statements": 1529,
+    "percent_covered": 27.006960556844547,
+    "percent_covered_display": "27",
+    "missing_lines": 1087,
+    "excluded_lines": 0,
+    "percent_statements_covered": 28.907782864617396,
+    "percent_statements_covered_display": "29",
+    "num_branches": 626,
+    "num_partial_branches": 44,
+    "covered_branches": 140,
+    "missing_branches": 486,
+    "percent_branches_covered": 22.364217252396166,
+    "percent_branches_covered_display": "22"
+  },
+  "coverage_after": {
+    "covered_lines": 442,
+    "num_statements": 1529,
+    "percent_covered": 27.006960556844547,
+    "percent_covered_display": "27",
+    "missing_lines": 1087,
+    "excluded_lines": 0,
+    "percent_statements_covered": 28.907782864617396,
+    "percent_statements_covered_display": "29",
+    "num_branches": 626,
+    "num_partial_branches": 44,
+    "covered_branches": 140,
+    "missing_branches": 486,
+    "percent_branches_covered": 22.364217252396166,
+    "percent_branches_covered_display": "22"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "0313e6f15636614b60ac4cea5a663c706bbe5421aaedf8a39516671d97a80bf5",
+  "production_source_sha256": "0cecaa5e4133afdd386c4440fca4e11489ae883f1f7d075a83a2e069d60f1fb1",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_methods_classes_imports_helpers_arithmetic_score_callbacks_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "three-point-centre-omitted",
+      "source_variant": {
+        "path": "spacr/hyperparam.py",
+        "line": 1241,
+        "old": "if self.resolution % 2 == 0:",
+        "new": "if self.resolution % 2 == 0 or self.resolution == 3:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_hyperparam_walk.py::TestWalkAxis::test_odd_resolution_puts_the_centre_back"
+        ],
+        "failure_summary_lines": [
+          "tests/test_hyperparam_walk.py::TestWalkAxis::test_odd_resolution_puts_the_centre_back"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_hyperparam_walk.py::TestWalkAxis::test_original_odd_resolutions_keep_their_ordered_neighbours[test_odd_resolution_puts_the_centre_back]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_hyperparam_walk.py::TestWalkAxis::test_original_odd_resolutions_keep_their_ordered_neighbours[test_odd_resolution_puts_the_centre_back]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "five-point-radius-truncated",
+      "source_variant": {
+        "path": "spacr/hyperparam.py",
+        "line": 1239,
+        "old": "half = self.resolution // 2",
+        "new": "half = 1 if self.resolution > 3 else self.resolution // 2"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_hyperparam_walk.py::TestWalkAxis::test_higher_resolution_reaches_further_out"
+        ],
+        "failure_summary_lines": [
+          "tests/test_hyperparam_walk.py::TestWalkAxis::test_higher_resolution_reaches_further_out"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_hyperparam_walk.py::TestWalkAxis::test_original_odd_resolutions_keep_their_ordered_neighbours[test_higher_resolution_reaches_further_out]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_hyperparam_walk.py::TestWalkAxis::test_original_odd_resolutions_keep_their_ordered_neighbours[test_higher_resolution_reaches_further_out]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in WalkAxis.values_around before and after: omit the centre at resolution3; cap resolution5 radius at one step. Each fault selects the same one original/mapped class method case before/after and must fail with AssertionError from unchanged native ordered float-list equality. Exact class/self scope, integer resolution, fixed name/float step/centre and result types/order retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_hyperparam_walk.py",
+      "line": 41,
+      "symbol": "test_original_odd_resolutions_keep_their_ordered_neighbours",
+      "new": "Preserve the original centre and ordered neighbours for each odd resolution.",
+      "old": {
+        "test_odd_resolution_puts_the_centre_back": null,
+        "test_higher_resolution_reaches_further_out": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
