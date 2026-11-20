@@ -76,29 +76,21 @@ def test_an_existing_column_that_disagrees_is_refused_by_row():
     assert "well" in message
 
 
-def test_a_well_column_that_is_not_there_derives_nothing():
-    """The first guard, so the tests above are reached deliberately."""
+@pytest.mark.parametrize("records", [
+    pytest.param(
+        {"area": [1.0]},
+        id="test_a_well_column_that_is_not_there_derives_nothing",
+    ),
+    pytest.param(
+        {"well": ["A01", "not a well"]},
+        id="test_a_well_that_cannot_be_parsed_derives_nothing",
+    ),
+])
+def test_unusable_well_columns_keep_the_original_frame(records):
+    """Decline each original unusable well column without changing the frame."""
     from spacr.metadata_resolution import _derive_well_columns
 
-    frame = pd.DataFrame({"area": [1.0]})
-
+    frame = pd.DataFrame(records)
     out, derived = _derive_well_columns(frame, "well", _needed())
-
-    assert derived is False
-    assert out is frame
-
-
-def test_a_well_that_cannot_be_parsed_derives_nothing():
-    """The second guard: one unparseable well and the whole column is declined.
-
-    All or nothing is deliberate -- deriving row and column for some rows and
-    not others would leave a frame that looks complete and joins wrongly.
-    """
-    from spacr.metadata_resolution import _derive_well_columns
-
-    frame = pd.DataFrame({"well": ["A01", "not a well"]})
-
-    out, derived = _derive_well_columns(frame, "well", _needed())
-
     assert derived is False
     assert out is frame
