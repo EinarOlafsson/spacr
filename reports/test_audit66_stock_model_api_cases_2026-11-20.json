@@ -1,0 +1,198 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_cellpose_model_list_from_api.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cellpose_model_list_from_api.py::test_the_stock_models_come_from_the_api": "tests/test_cellpose_model_list_from_api.py::test_original_stock_model_lists_keep_their_api_choices[test_the_stock_models_come_from_the_api]",
+    "tests/test_cellpose_model_list_from_api.py::test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release": "tests/test_cellpose_model_list_from_api.py::test_original_stock_model_lists_keep_their_api_choices[test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release]"
+  },
+  "stock_api_string_lists_ordered_tuples_and_native_equality_contracts": {
+    "test_the_stock_models_come_from_the_api": [
+      [
+        "cpsam"
+      ],
+      [
+        "cpsam"
+      ]
+    ],
+    "test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release": [
+      [
+        "cpsam",
+        "cpsam_v5"
+      ],
+      [
+        "cpsam",
+        "cpsam_v5"
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_the_stock_models_come_from_the_api": "(['cpsam'], ('cpsam',))",
+    "test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release": "(['cpsam', 'cpsam_v5'], ('cpsam', 'cpsam_v5'))"
+  },
+  "contract_scope": "Exact monkeypatch fixture, _fake_cellpose helper invocation with original ordered stock-name string lists and native S.cellpose_model_choices ordered-tuple equality retained. Every original import/helper/autouse cache reset/user-model/default-order/fallback/refresh/menu/clean-interpreter case retains AST and relative order. Production settings names/defaults/schema/categories unchanged.",
+  "collected_before": [
+    "tests/test_cellpose_model_list_from_api.py::test_the_fallback_is_never_cached",
+    "tests/test_cellpose_model_list_from_api.py::test_the_menu_keeps_the_legacy_spellings",
+    "tests/test_cellpose_model_list_from_api.py::test_duplicates_between_the_stock_and_user_lists_collapse",
+    "tests/test_cellpose_model_list_from_api.py::test_the_default_model_is_always_first",
+    "tests/test_cellpose_model_list_from_api.py::test_the_stock_models_come_from_the_api",
+    "tests/test_cellpose_model_list_from_api.py::test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release",
+    "tests/test_cellpose_model_list_from_api.py::test_building_a_settings_page_does_not_import_cellpose",
+    "tests/test_cellpose_model_list_from_api.py::test_a_broken_user_registry_still_yields_the_stock_models",
+    "tests/test_cellpose_model_list_from_api.py::test_the_shipped_constant_is_still_the_cellpose_4_answer",
+    "tests/test_cellpose_model_list_from_api.py::test_the_menu_never_repeats_a_name_the_api_already_reported",
+    "tests/test_cellpose_model_list_from_api.py::test_no_cellpose_at_all_falls_back_to_the_shipped_list",
+    "tests/test_cellpose_model_list_from_api.py::test_refresh_asks_again",
+    "tests/test_cellpose_model_list_from_api.py::test_a_user_registered_checkpoint_is_offered",
+    "tests/test_cellpose_model_list_from_api.py::test_an_api_that_reports_nothing_falls_back"
+  ],
+  "collected_after": [
+    "tests/test_cellpose_model_list_from_api.py::test_duplicates_between_the_stock_and_user_lists_collapse",
+    "tests/test_cellpose_model_list_from_api.py::test_building_a_settings_page_does_not_import_cellpose",
+    "tests/test_cellpose_model_list_from_api.py::test_a_broken_user_registry_still_yields_the_stock_models",
+    "tests/test_cellpose_model_list_from_api.py::test_a_user_registered_checkpoint_is_offered",
+    "tests/test_cellpose_model_list_from_api.py::test_the_menu_never_repeats_a_name_the_api_already_reported",
+    "tests/test_cellpose_model_list_from_api.py::test_the_fallback_is_never_cached",
+    "tests/test_cellpose_model_list_from_api.py::test_the_default_model_is_always_first",
+    "tests/test_cellpose_model_list_from_api.py::test_original_stock_model_lists_keep_their_api_choices[test_the_stock_models_come_from_the_api]",
+    "tests/test_cellpose_model_list_from_api.py::test_refresh_asks_again",
+    "tests/test_cellpose_model_list_from_api.py::test_the_menu_keeps_the_legacy_spellings",
+    "tests/test_cellpose_model_list_from_api.py::test_no_cellpose_at_all_falls_back_to_the_shipped_list",
+    "tests/test_cellpose_model_list_from_api.py::test_the_shipped_constant_is_still_the_cellpose_4_answer",
+    "tests/test_cellpose_model_list_from_api.py::test_original_stock_model_lists_keep_their_api_choices[test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release]",
+    "tests/test_cellpose_model_list_from_api.py::test_an_api_that_reports_nothing_falls_back"
+  ],
+  "tests_before": {
+    "passed": 14,
+    "seconds": 3.02
+  },
+  "tests_after": {
+    "passed": 14,
+    "seconds": 4.02
+  },
+  "coverage_scope": "spacr.settings under the complete selected fake Cellpose API/cache/menu/fallback/clean-interpreter module; not full-suite coverage. Fake ModuleType APIs and pure settings helpers only, plus the original clean Python subprocess proving that the settings spec does not import Cellpose or Torch. Coverage records pytest worker processes; the unchanged child process retains its original import assertions and is not separately instrumented. The existing SPACR_MODEL_DOWNLOAD=0 environment option is fixed in the private scheduler wrapper for every normal/fault/ratchet phase, before baseline, to prevent unchanged menu cases from launching background community-catalogue requests. No actual Cellpose models/weights, chart rendering, fitting, new reader, network or GPU work. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 416,
+    "num_statements": 2958,
+    "percent_covered": 13.870431893687707,
+    "percent_covered_display": "14",
+    "missing_lines": 2542,
+    "excluded_lines": 0,
+    "percent_statements_covered": 14.063556457065586,
+    "percent_statements_covered_display": "14",
+    "num_branches": 654,
+    "num_partial_branches": 11,
+    "covered_branches": 85,
+    "missing_branches": 569,
+    "percent_branches_covered": 12.996941896024465,
+    "percent_branches_covered_display": "13"
+  },
+  "coverage_after": {
+    "covered_lines": 416,
+    "num_statements": 2958,
+    "percent_covered": 13.870431893687707,
+    "percent_covered_display": "14",
+    "missing_lines": 2542,
+    "excluded_lines": 0,
+    "percent_statements_covered": 14.063556457065586,
+    "percent_statements_covered_display": "14",
+    "num_branches": 654,
+    "num_partial_branches": 11,
+    "covered_branches": 85,
+    "missing_branches": 569,
+    "percent_branches_covered": 12.996941896024465,
+    "percent_branches_covered_display": "13"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "6fd7894f9e66785c0e6107932145a0d4d408ce27fbd2441a2b90f1a57b2ed15b",
+  "production_source_sha256": "81051f799ef86d95d7a3bb3f1df227389991ad2f334f90f4d7115471e137fcbe",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_helpers_cache_user_models_default_order_fallback_refresh_menu_clean_interpreter_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "single-stock-list-discarded",
+      "source_variant": {
+        "path": "spacr/settings.py",
+        "line": 1626,
+        "old": "_CELLPOSE_MODELS_CACHE = _cpsam_first(names)",
+        "new": "_CELLPOSE_MODELS_CACHE = () if len(names) == 1 else _cpsam_first(names)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cellpose_model_list_from_api.py::test_the_stock_models_come_from_the_api"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cellpose_model_list_from_api.py::test_the_stock_models_come_from_the_api"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cellpose_model_list_from_api.py::test_original_stock_model_lists_keep_their_api_choices[test_the_stock_models_come_from_the_api]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cellpose_model_list_from_api.py::test_original_stock_model_lists_keep_their_api_choices[test_the_stock_models_come_from_the_api]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "later-stock-model-truncated",
+      "source_variant": {
+        "path": "spacr/settings.py",
+        "line": 1626,
+        "old": "_CELLPOSE_MODELS_CACHE = _cpsam_first(names)",
+        "new": "_CELLPOSE_MODELS_CACHE = _cpsam_first(names[:1]) if len(names) > 1 else _cpsam_first(names)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cellpose_model_list_from_api.py::test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cellpose_model_list_from_api.py::test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cellpose_model_list_from_api.py::test_original_stock_model_lists_keep_their_api_choices[test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cellpose_model_list_from_api.py::test_original_stock_model_lists_keep_their_api_choices[test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in cellpose_model_choices before and after: discard a single stock-name list; truncate a longer stock-name list to its first model. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native ordered-tuple equality. Exact fake API helper, original list/tuple types and string order retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cellpose_model_list_from_api.py",
+      "line": 71,
+      "symbol": "test_original_stock_model_lists_keep_their_api_choices",
+      "new": "Preserve each original stock API list as its ordered model choices.",
+      "old": {
+        "test_the_stock_models_come_from_the_api": null,
+        "test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release": "The whole point: the list is Cellpose's, not spaCR's."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

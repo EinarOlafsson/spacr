@@ -57,16 +57,20 @@ def _fake_cellpose(monkeypatch, *, names, user=(), user_raises=False):
 # It reads the API
 # ---------------------------------------------------------------------------
 
-def test_the_stock_models_come_from_the_api(monkeypatch):
-    _fake_cellpose(monkeypatch, names=["cpsam"])
-    assert S.cellpose_model_choices() == ("cpsam",)
-
-
-def test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release(
-        monkeypatch):
-    """The whole point: the list is Cellpose's, not spaCR's."""
-    _fake_cellpose(monkeypatch, names=["cpsam", "cpsam_v5"])
-    assert S.cellpose_model_choices() == ("cpsam", "cpsam_v5")
+@pytest.mark.parametrize('names, expected', [
+    pytest.param(
+        ['cpsam'], ('cpsam',),
+        id='test_the_stock_models_come_from_the_api',
+    ),
+    pytest.param(
+        ['cpsam', 'cpsam_v5'], ('cpsam', 'cpsam_v5'),
+        id='test_a_model_cellpose_adds_later_shows_up_without_a_spacr_release',
+    ),
+])
+def test_original_stock_model_lists_keep_their_api_choices(monkeypatch, names, expected):
+    """Preserve each original stock API list as its ordered model choices."""
+    _fake_cellpose(monkeypatch, names=names)
+    assert S.cellpose_model_choices() == expected
 
 
 def test_a_user_registered_checkpoint_is_offered(monkeypatch):
