@@ -12286,6 +12286,16 @@ class MainWindow(QMainWindow):
             sync = getattr(getattr(self, '_startup', None), '_sync_easy_backdrop', None)
             if callable(sync):
                 sync()
+            #: An install deferred behind the heavy-import lock lands after
+            #: refresh_theme has asked every screen about a backdrop that was
+            #: not there yet, so each screen went on painting its own page:
+            #: the flat slab behind the settings. Ask them again now it exists.
+            for screen in list(getattr(self, "_screens", {}).values()):
+                try:
+                    self._drop_a_redundant_screen_backdrop(screen)
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not hand a screen back to the window "
+                              "backdrop", exc_info=True)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not put a backdrop behind the dock",
                       exc_info=True)

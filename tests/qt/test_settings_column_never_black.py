@@ -36,7 +36,7 @@ import pytest
 
 from PySide6.QtCore import QPoint
 from PySide6.QtGui import QColor, QImage
-from PySide6.QtWidgets import QScrollArea, QWidget
+from PySide6.QtWidgets import QApplication, QScrollArea, QWidget
 
 #: Magenta: not in any palette, so it can only be the untouched page.
 UNPAINTED = QColor(255, 0, 255)
@@ -369,6 +369,11 @@ def test_the_settings_column_comes_back_when_the_animation_does(
         f"itself, so the probe cannot see the slab this guards against")
 
     _set_the_animation(window, True)
+    # The window may defer its backdrop by 400 ms while a background thread
+    # holds the heavy-import lock (busy machines), so wait for the install
+    # the application itself waits for before reading the column.
+    qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=10000)
+    QApplication.processEvents()
     restored = _clear_share(_transmission(window),
                             _column_rect(window, screen))
     assert restored > CLEAR_ENOUGH, (
@@ -403,3 +408,31 @@ def test_a_screen_that_gave_its_backdrop_up_defers_to_the_window_again(
         "the screen went on painting a flat page after the animation came "
         "back -- a slab over a running backdrop, on every module that was "
         "already open")
+
+
+def test_a_backdrop_installed_late_hands_the_open_screens_back(
+        qtbot, qt_theme_applied, preferences_restored, monkeypatch):
+    """The animation coming back while the heavy-import lock is held.
+
+    The window then installs its backdrop 400 ms later from a timer, after
+    refresh_theme has already asked every open screen about a backdrop that
+    did not exist yet. The screens must be handed back to it when it lands,
+    or each one paints its own flat page over the animation.
+    """
+    from spacr.qt.widgets import ambient
+
+    window, screen = _window_with_a_module_open(qtbot)
+    _set_the_animation(window, False)
+    assert screen.page_fill() is not None
+
+    monkeypatch.setattr(ambient, "_the_heavy_import_lock_is_free", lambda: False)
+    _set_the_animation(window, True)
+    assert window.window_backdrop() is None, (
+        "the lock was held, so the backdrop should have been deferred")
+    assert screen.page_fill() is not None
+
+    monkeypatch.setattr(ambient, "_the_heavy_import_lock_is_free", lambda: True)
+    qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=10000)
+    assert screen.page_fill() is None, (
+        "the backdrop came back from its deferred install but the open "
+        "screen went on painting a flat page over it")
