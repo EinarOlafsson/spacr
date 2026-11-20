@@ -1,0 +1,266 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_utils_extended.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_utils_extended.py::test_is_list_of_lists_true": "tests/test_utils_extended.py::test_nested_and_flat_lists_keep_their_original_boolean_identity[test_is_list_of_lists_true]",
+    "tests/test_utils_extended.py::test_is_list_of_lists_false_for_flat_list": "tests/test_utils_extended.py::test_nested_and_flat_lists_keep_their_original_boolean_identity[test_is_list_of_lists_false_for_flat_list]"
+  },
+  "integer_list_nesting_and_native_boolean_identity_contracts": {
+    "test_is_list_of_lists_true": [
+      [
+        [
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      true
+    ],
+    "test_is_list_of_lists_false_for_flat_list": [
+      [
+        1,
+        2,
+        3
+      ],
+      false
+    ]
+  },
+  "case_contract_representations": {
+    "test_is_list_of_lists_true": "([[1], [2, 3]], True)",
+    "test_is_list_of_lists_false_for_flat_list": "([1, 2, 3], False)"
+  },
+  "contract_scope": "Exact original nested [[1],[2,3]] and flat [1,2,3] integer lists, U.is_list_of_lists call and native is True/is False identity retained through literal parameters. Every other original import/helper/fixture/mask/math/normality/VIF/path/position/color case retains AST and relative order. A private collection-plugin fixture gives only the unrelated original random-jitter case Python random seed 0 in both normal coverage runs, then restores its prior state; no repository test fixture or production code is changed.",
+  "collected_before": [
+    "tests/test_utils_extended.py::test_pad_to_same_shape_pads_smaller",
+    "tests/test_utils_extended.py::test_jaccard_index_identical_masks_is_one",
+    "tests/test_utils_extended.py::test_masks_to_masks_stack_returns_sequence",
+    "tests/test_utils_extended.py::test_is_list_of_lists_false_for_flat_list",
+    "tests/test_utils_extended.py::test_check_normality_normal_data_returns_true",
+    "tests/test_utils_extended.py::test_map_condition_known_values[c2-c1-c2-c3-pos]",
+    "tests/test_utils_extended.py::test_generate_colors_returns_at_least_n",
+    "tests/test_utils_extended.py::test_calculate_iou_partial_overlap",
+    "tests/test_utils_extended.py::test_assign_colors_returns_colors_and_label_index",
+    "tests/test_utils_extended.py::test_get_diam_scales_with_magnification",
+    "tests/test_utils_extended.py::test_dice_coefficient_disjoint_masks_is_zero",
+    "tests/test_utils_extended.py::test_all_elements_match[false]",
+    "tests/test_utils_extended.py::test_create_circular_mask_default_center",
+    "tests/test_utils_extended.py::test_create_circular_mask_custom_center_radius",
+    "tests/test_utils_extended.py::test_find_non_overlapping_position_returns_far_point",
+    "tests/test_utils_extended.py::test_jaccard_index_disjoint_masks_is_zero",
+    "tests/test_utils_extended.py::test_normalize_src_path_str",
+    "tests/test_utils_extended.py::test_all_elements_match[true]",
+    "tests/test_utils_extended.py::test_map_condition_unknown_returns_scalar",
+    "tests/test_utils_extended.py::test_dice_coefficient_identical_masks_is_one",
+    "tests/test_utils_extended.py::test_union_find_root_and_merge",
+    "tests/test_utils_extended.py::test_check_overlap_is_true_only_when_close[false-when-far]",
+    "tests/test_utils_extended.py::test_check_multicollinearity_low_vif",
+    "tests/test_utils_extended.py::test_normalize_src_path_list_of_strs",
+    "tests/test_utils_extended.py::test_map_condition_known_values[c1-c1-c2-c3-neg]",
+    "tests/test_utils_extended.py::test_extract_boundaries_produces_binary_mask",
+    "tests/test_utils_extended.py::test_filter_object_removes_smaller_than_threshold",
+    "tests/test_utils_extended.py::test_check_overlap_is_true_only_when_close[true-when-close]",
+    "tests/test_utils_extended.py::test_invert_image_uint8",
+    "tests/test_utils_extended.py::test_remove_highly_correlated_columns_drops_duplicates",
+    "tests/test_utils_extended.py::test_format_path_for_system_normalizes_separators",
+    "tests/test_utils_extended.py::test_remove_low_variance_columns_drops_constants",
+    "tests/test_utils_extended.py::test_apply_mask_zeros_where_mask_false",
+    "tests/test_utils_extended.py::test_crop_center_produces_requested_size",
+    "tests/test_utils_extended.py::test_map_wells_parses_plate_row_column_field",
+    "tests/test_utils_extended.py::test_is_list_of_lists_true",
+    "tests/test_utils_extended.py::test_get_percentiles_returns_per_channel_pairs",
+    "tests/test_utils_extended.py::test_map_condition_known_values[c3-c1-c2-c3-mix]",
+    "tests/test_utils_extended.py::test_normalize_to_dtype_integer_input",
+    "tests/test_utils_extended.py::test_map_wells_png_variant"
+  ],
+  "collected_after": [
+    "tests/test_utils_extended.py::test_map_wells_parses_plate_row_column_field",
+    "tests/test_utils_extended.py::test_remove_highly_correlated_columns_drops_duplicates",
+    "tests/test_utils_extended.py::test_crop_center_produces_requested_size",
+    "tests/test_utils_extended.py::test_all_elements_match[true]",
+    "tests/test_utils_extended.py::test_invert_image_uint8",
+    "tests/test_utils_extended.py::test_map_condition_known_values[c2-c1-c2-c3-pos]",
+    "tests/test_utils_extended.py::test_masks_to_masks_stack_returns_sequence",
+    "tests/test_utils_extended.py::test_check_overlap_is_true_only_when_close[false-when-far]",
+    "tests/test_utils_extended.py::test_assign_colors_returns_colors_and_label_index",
+    "tests/test_utils_extended.py::test_pad_to_same_shape_pads_smaller",
+    "tests/test_utils_extended.py::test_create_circular_mask_custom_center_radius",
+    "tests/test_utils_extended.py::test_extract_boundaries_produces_binary_mask",
+    "tests/test_utils_extended.py::test_get_diam_scales_with_magnification",
+    "tests/test_utils_extended.py::test_map_condition_unknown_returns_scalar",
+    "tests/test_utils_extended.py::test_normalize_src_path_list_of_strs",
+    "tests/test_utils_extended.py::test_nested_and_flat_lists_keep_their_original_boolean_identity[test_is_list_of_lists_true]",
+    "tests/test_utils_extended.py::test_check_normality_normal_data_returns_true",
+    "tests/test_utils_extended.py::test_normalize_src_path_str",
+    "tests/test_utils_extended.py::test_check_multicollinearity_low_vif",
+    "tests/test_utils_extended.py::test_apply_mask_zeros_where_mask_false",
+    "tests/test_utils_extended.py::test_union_find_root_and_merge",
+    "tests/test_utils_extended.py::test_jaccard_index_disjoint_masks_is_zero",
+    "tests/test_utils_extended.py::test_dice_coefficient_identical_masks_is_one",
+    "tests/test_utils_extended.py::test_find_non_overlapping_position_returns_far_point",
+    "tests/test_utils_extended.py::test_map_wells_png_variant",
+    "tests/test_utils_extended.py::test_get_percentiles_returns_per_channel_pairs",
+    "tests/test_utils_extended.py::test_generate_colors_returns_at_least_n",
+    "tests/test_utils_extended.py::test_normalize_to_dtype_integer_input",
+    "tests/test_utils_extended.py::test_map_condition_known_values[c3-c1-c2-c3-mix]",
+    "tests/test_utils_extended.py::test_map_condition_known_values[c1-c1-c2-c3-neg]",
+    "tests/test_utils_extended.py::test_check_overlap_is_true_only_when_close[true-when-close]",
+    "tests/test_utils_extended.py::test_format_path_for_system_normalizes_separators",
+    "tests/test_utils_extended.py::test_filter_object_removes_smaller_than_threshold",
+    "tests/test_utils_extended.py::test_jaccard_index_identical_masks_is_one",
+    "tests/test_utils_extended.py::test_dice_coefficient_disjoint_masks_is_zero",
+    "tests/test_utils_extended.py::test_create_circular_mask_default_center",
+    "tests/test_utils_extended.py::test_calculate_iou_partial_overlap",
+    "tests/test_utils_extended.py::test_remove_low_variance_columns_drops_constants",
+    "tests/test_utils_extended.py::test_all_elements_match[false]",
+    "tests/test_utils_extended.py::test_nested_and_flat_lists_keep_their_original_boolean_identity[test_is_list_of_lists_false_for_flat_list]"
+  ],
+  "tests_before": {
+    "passed": 40,
+    "seconds": 11.45
+  },
+  "tests_after": {
+    "passed": 40,
+    "seconds": 10.24
+  },
+  "private_jitter_rng_control": {
+    "before": {
+      "nodeid": "tests/test_utils_extended.py::test_find_non_overlapping_position_returns_far_point",
+      "seed": 0,
+      "seeded_state_sha256": "46f264538534643a886ab78f16bc37e702ec6d58f1c40cc2c2c5607abc7b3900",
+      "restored": true
+    },
+    "after": {
+      "nodeid": "tests/test_utils_extended.py::test_find_non_overlapping_position_returns_far_point",
+      "seed": 0,
+      "seeded_state_sha256": "46f264538534643a886ab78f16bc37e702ec6d58f1c40cc2c2c5607abc7b3900",
+      "restored": true
+    }
+  },
+  "coverage_scope": "spacr.utils under the complete selected list/predicate/math/mask/DataFrame/path/position/color helper module; not full-suite coverage. Existing tiny arrays/DataFrames/masks and CPU diagnostics only; no chart creation/rendering, new production reader, neural training, network or GPU work. Both normal measurements privately seed only the original random-jitter test to Python random seed 0 and restore its prior state, with matching state markers. Repository fixtures and production settings unchanged.",
+  "coverage_before": {
+    "covered_lines": 649,
+    "num_statements": 5180,
+    "percent_covered": 9.707927677329625,
+    "percent_covered_display": "10",
+    "missing_lines": 4531,
+    "excluded_lines": 0,
+    "percent_statements_covered": 12.528957528957529,
+    "percent_statements_covered_display": "13",
+    "num_branches": 2010,
+    "num_partial_branches": 23,
+    "covered_branches": 49,
+    "missing_branches": 1961,
+    "percent_branches_covered": 2.4378109452736316,
+    "percent_branches_covered_display": "2"
+  },
+  "coverage_after": {
+    "covered_lines": 649,
+    "num_statements": 5180,
+    "percent_covered": 9.707927677329625,
+    "percent_covered_display": "10",
+    "missing_lines": 4531,
+    "excluded_lines": 0,
+    "percent_statements_covered": 12.528957528957529,
+    "percent_statements_covered_display": "13",
+    "num_branches": 2010,
+    "num_partial_branches": 23,
+    "covered_branches": 49,
+    "missing_branches": 1961,
+    "percent_branches_covered": 2.4378109452736316,
+    "percent_branches_covered_display": "2"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "f249ac3d4882c76173d619462a31fa32fcae660692c9fcc011170606f3826dd2",
+  "production_source_sha256": "0c70e2ead9dc17c482db30e126ceaf6946603ce974a152856cc6138cf25bdd5b",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_original_other_imports_helpers_fixtures_masks_math_normality_vif_paths_positions_colors_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "nested-list-rejected",
+      "source_variant": {
+        "path": "spacr/utils.py",
+        "line": 2264,
+        "old": "if isinstance(var, list) and all(isinstance(i, list) for i in var):",
+        "new": "if False:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_utils_extended.py::test_is_list_of_lists_true"
+        ],
+        "failure_summary_lines": [
+          "tests/test_utils_extended.py::test_is_list_of_lists_true - assert Fals..."
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_utils_extended.py::test_nested_and_flat_lists_keep_their_original_boolean_identity[test_is_list_of_lists_true]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_utils_extended.py::test_nested_and_flat_lists_keep_their_original_boolean_identity[test_is_list_of_lists_true]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "flat-list-accepted",
+      "source_variant": {
+        "path": "spacr/utils.py",
+        "line": 2264,
+        "old": "if isinstance(var, list) and all(isinstance(i, list) for i in var):",
+        "new": "if isinstance(var, list):"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_utils_extended.py::test_is_list_of_lists_false_for_flat_list"
+        ],
+        "failure_summary_lines": [
+          "tests/test_utils_extended.py::test_is_list_of_lists_false_for_flat_list"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_utils_extended.py::test_nested_and_flat_lists_keep_their_original_boolean_identity[test_is_list_of_lists_false_for_flat_list]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_utils_extended.py::test_nested_and_flat_lists_keep_their_original_boolean_identity[test_is_list_of_lists_false_for_flat_list]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in is_list_of_lists before and after: reject all nested lists; accept a flat list by removing the inner-list predicate. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native boolean identity. Exact original integer-list nesting/order and True/False types retained. Selected faults are deterministic and do not use the private jitter fixture. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_utils_extended.py",
+      "line": 33,
+      "symbol": "test_nested_and_flat_lists_keep_their_original_boolean_identity",
+      "new": "Preserve the original boolean identity for each nested or flat list.",
+      "old": {
+        "test_is_list_of_lists_true": null,
+        "test_is_list_of_lists_false_for_flat_list": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

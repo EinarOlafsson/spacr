@@ -19,12 +19,19 @@ import spacr.utils as U
 # Small predicates + list / str helpers
 # ---------------------------------------------------------------------------
 
-def test_is_list_of_lists_true():
-    assert U.is_list_of_lists([[1], [2, 3]]) is True
-
-
-def test_is_list_of_lists_false_for_flat_list():
-    assert U.is_list_of_lists([1, 2, 3]) is False
+@pytest.mark.parametrize('values, expected', [
+    pytest.param(
+        [[1], [2, 3]], True,
+        id='test_is_list_of_lists_true',
+    ),
+    pytest.param(
+        [1, 2, 3], False,
+        id='test_is_list_of_lists_false_for_flat_list',
+    ),
+])
+def test_nested_and_flat_lists_keep_their_original_boolean_identity(values, expected):
+    """Preserve the original boolean identity for each nested or flat list."""
+    assert U.is_list_of_lists(values) is expected
 
 
 @pytest.mark.parametrize("a, b, expected", [
