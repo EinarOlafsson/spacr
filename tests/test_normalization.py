@@ -122,8 +122,19 @@ def test_every_offered_mode_describes_itself(mode):
     assert describe_normalization(mode)
 
 
-def test_the_description_names_imagenet_so_a_model_card_records_it():
-    assert "ImageNet" in describe_normalization("imagenet")
+@pytest.mark.parametrize("mode, token", [
+    pytest.param(
+        "imagenet", "ImageNet",
+        id="test_the_description_names_imagenet_so_a_model_card_records_it",
+    ),
+    pytest.param(
+        "symmetric", "Inception",
+        id="test_symmetric_is_named_as_the_convention_it_is",
+    ),
+])
+def test_named_normalizations_keep_their_original_description_tokens(mode, token):
+    """Keep each original normalization mode paired with its exact description token."""
+    assert token in describe_normalization(mode)
 
 
 # ---------------------------------------------------------------------------
@@ -171,12 +182,6 @@ def test_clip_is_offered_and_is_not_imagenet():
 
     assert normalization_stats("clip") == (CLIP_MEAN, CLIP_STD)
     assert CLIP_MEAN != IMAGENET_MEAN
-
-
-def test_symmetric_is_named_as_the_convention_it_is():
-    """"Inception / TF-slim preprocessing" is what 0.5/0.5 is called, and a
-    user recognises the name sooner than the numbers."""
-    assert "Inception" in describe_normalization("symmetric")
 
 
 def test_custom_takes_the_numbers_the_user_supplies():
