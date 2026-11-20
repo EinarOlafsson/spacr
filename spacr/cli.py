@@ -2179,10 +2179,14 @@ def cmd_run(args: argparse.Namespace) -> int:
         problems = _preflight(settings, module.validate_key, moved=moved)
         errors = _error_count(problems)
         if errors and not args.force:
-            log.error("pre-flight found %d error%s; refusing to start.",
-                      errors, "" if errors == 1 else "s")
-            log.error("Fix them, or pass --force to run anyway "
-                      "(or --no-preflight to skip the check).")
+            from .crashreport import _record_validation_refusal, _validation_error_context
+
+            with _validation_error_context(module.validate_key, problems, manual_only=True) as context:
+                _record_validation_refusal(context)
+                log.error("pre-flight found %d error%s; refusing to start.",
+                          errors, "" if errors == 1 else "s")
+                log.error("Fix them, or pass --force to run anyway "
+                          "(or --no-preflight to skip the check).")
             return EXIT_USAGE
         if errors:
             log.warning("pre-flight found %d error%s — running anyway (--force).",

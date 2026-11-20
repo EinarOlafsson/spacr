@@ -3585,11 +3585,12 @@ def _error_occurrence(event_id):
 
 
 @_contextmanager
-def _validation_error_context(app_key, problems):
-    """Scope safe validation metadata to the thread running this entry point."""
+def _validation_error_context(app_key, problems, *, manual_only=False):
+    """Scope validation metadata, yielding bounded details for explicit refusal reports."""
     previous = getattr(_ERROR_DISPATCH_LOCAL, "validation_context", None)
     lines = public_problem_lines(problems)
-    screen = str(app_key or "").replace("_", " ").title()
+    screen_key = scrub_public_text(app_key or "", MAX_SCREEN_CHARS) if manual_only else str(app_key or "")
+    screen = screen_key.replace("_", " ").title()
     for entry in getattr(sys.modules.get("spacr.qt.app"), "APPS", ()):
         if entry[0] == app_key:
             screen = str(entry[1])
@@ -3598,14 +3599,81 @@ def _validation_error_context(app_key, problems):
         f"The run did not start: {len(lines)} settings problem"
         f"{'' if len(lines) == 1 else 's'}."
     ] + [f"- {line}" for line in lines]) if lines else ""
-    _ERROR_DISPATCH_LOCAL.validation_context = {
+    context = {
         "module": str(app_key or ""), "screen": screen,
         "message": message, "error_text": message,
     }
+    if manual_only:
+        details = []
+        count = 0
+        for problem in problems or ():
+            problem_lines = public_problem_lines([problem])
+            fix_lines = public_problem_lines([getattr(problem, "fix", "") or ""])
+            if problem_lines or fix_lines:
+                count += 1
+                details.extend(f"- {line}" for line in problem_lines)
+                details.extend(f"  {line}" for line in fix_lines)
+        message = "\n".join([
+            f"The run did not start: {count} settings problem"
+            f"{'' if count == 1 else 's'}."
+        ] + details) if details else ""
+        context = {
+            "module": _safe_token(scrub_public_text(app_key or "", 80)),
+            "screen": scrub_public_text(screen, MAX_SCREEN_CHARS),
+            "message": scrub_public_lines(message, MAX_USER_ERROR_MESSAGE_CHARS),
+            "error_text": scrub_public_lines(message, MAX_ERROR_TEXT_CHARS),
+            "manual_only": True,
+        }
+    _ERROR_DISPATCH_LOCAL.validation_context = context
     try:
-        yield
+        yield dict(context)
     finally:
         _ERROR_DISPATCH_LOCAL.validation_context = previous
+
+
+def _record_validation_refusal(context):
+    """Retain scrubbed refusal details in the existing log for an explicit later bundle."""
+    import logging
+    from logging.handlers import RotatingFileHandler
+
+    handler = None
+    written = False
+    try:
+        from . import logging_util
+
+        if not context.get("manual_only"):
+            return False
+        message = scrub_public_lines(context.get("error_text", ""), MAX_ERROR_TEXT_CHARS)
+        if not message:
+            return False
+        module = _safe_token(scrub_public_text(context.get("module", ""), 80))
+        path = logging_util.log_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        handler = RotatingFileHandler(
+            path, maxBytes=logging_util.MAX_BYTES, backupCount=logging_util.BACKUP_COUNT,
+            encoding="utf-8")
+        handler.setFormatter(logging_util._CompactTraceFormat(logging_util.FILE_FORMAT))
+
+        def failed(record):
+            """Keep a diagnostic write failure from replacing the expected CLI refusal."""
+            nonlocal written
+            written = False
+
+        handler.handleError = failed
+        record = logging.LogRecord(
+            "spacr.crashreport" + ("." + module if module else ""), logging.WARNING,
+            __file__, 0, "%s", (message,), None)
+        written = True
+        handler.handle(record)
+    except Exception:
+        written = False
+    finally:
+        if handler is not None:
+            try:
+                handler.close()
+            except Exception:
+                written = False
+    return written
 
 
 def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
@@ -3847,12 +3915,20 @@ def _capture_error_record(record):
     text = record.getMessage()
     exc = record.exc_info[1] if record.exc_info else None
     tb = str(record.exc_text or "") if exc else ""
-    context = None
+    context = None if exc else getattr(_ERROR_DISPATCH_LOCAL, "validation_context", None)
+    if context and context.get("manual_only"):
+        if record.name == "spacr.cli" and isinstance(record.msg, str) and record.msg in (
+                "pre-flight found %d error%s; refusing to start.",
+                "Fix them, or pass --force to run anyway "
+                "(or --no-preflight to skip the check)."):
+            return
+        context = None
     site = getattr(record, "spacr_call_site", None)
+    if not site:
+        context = None
     if not exc and site:
         tb = ("Traceback (most recent call last):\n" + "".join(site)
               + "spacr.errors.ConfigurationError: " + text)
-        context = getattr(_ERROR_DISPATCH_LOCAL, "validation_context", None)
     event_id = getattr(record, "_spacr_error_occurrence", "") or _new_error_occurrence(exc)
     record._spacr_error_occurrence = event_id
     _dispatch_error(text, exception=exc, module=record.name, traceback_text=tb,
