@@ -10,6 +10,8 @@ letter.
 
 from __future__ import annotations
 
+import pytest
+
 from spacr.regex_infer import (
     FieldEvidence,
     _assign_roles,
@@ -21,22 +23,23 @@ from spacr.regex_infer import (
 # Role assignment read off the values
 # ---------------------------------------------------------------------------
 
-def test_a_slot_that_holds_wells_is_named_a_well_without_any_hint():
-    """Values like ``A01`` are a well whatever literal precedes them."""
-    slot = FieldEvidence(index=0, values=("A01", "B02", "H12"), numeric=False)
+@pytest.mark.parametrize('values, role, because', [
+    pytest.param(
+        ('A01', 'B02', 'H12'), 'wellID', 'every value looks like a well',
+        id='test_a_slot_that_holds_wells_is_named_a_well_without_any_hint',
+    ),
+    pytest.param(
+        ('exp', 'exp'), 'plateID', 'the same in every file',
+        id='test_a_slot_with_one_repeated_value_is_named_the_plate',
+    ),
+])
+def test_original_slot_evidence_keeps_its_assigned_role_and_explanation(values, role, because):
+    """Preserve each original slot and its assigned role and explanation."""
+    slot = FieldEvidence(index=0, values=values, numeric=False)
     _assign_roles([slot])
 
-    assert slot.role == "wellID"
-    assert slot.because == "every value looks like a well"
-
-
-def test_a_slot_with_one_repeated_value_is_named_the_plate():
-    """A component identical in every file is the plate, not a field id."""
-    slot = FieldEvidence(index=0, values=("exp", "exp"), numeric=False)
-    _assign_roles([slot])
-
-    assert slot.role == "plateID"
-    assert slot.because == "the same in every file"
+    assert slot.role == role
+    assert slot.because == because
 
 
 # ---------------------------------------------------------------------------

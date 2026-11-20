@@ -1,0 +1,176 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_cov_7_regex_infer.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_7_regex_infer.py::test_a_slot_that_holds_wells_is_named_a_well_without_any_hint": "tests/test_cov_7_regex_infer.py::test_original_slot_evidence_keeps_its_assigned_role_and_explanation[test_a_slot_that_holds_wells_is_named_a_well_without_any_hint]",
+    "tests/test_cov_7_regex_infer.py::test_a_slot_with_one_repeated_value_is_named_the_plate": "tests/test_cov_7_regex_infer.py::test_original_slot_evidence_keeps_its_assigned_role_and_explanation[test_a_slot_with_one_repeated_value_is_named_the_plate]"
+  },
+  "field_value_tuple_role_and_explanation_contracts": {
+    "test_a_slot_that_holds_wells_is_named_a_well_without_any_hint": [
+      [
+        "A01",
+        "B02",
+        "H12"
+      ],
+      "wellID",
+      "every value looks like a well"
+    ],
+    "test_a_slot_with_one_repeated_value_is_named_the_plate": [
+      [
+        "exp",
+        "exp"
+      ],
+      "plateID",
+      "the same in every file"
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_slot_that_holds_wells_is_named_a_well_without_any_hint": "(('A01', 'B02', 'H12'), 'wellID', 'every value looks like a well')",
+    "test_a_slot_with_one_repeated_value_is_named_the_plate": "(('exp', 'exp'), 'plateID', 'the same in every file')"
+  },
+  "contract_scope": "Exact fresh FieldEvidence(index=0,values=tuple,numeric=False), original ordered string values, slot assignment, _assign_roles([slot]) call, native slot.role equality and separate slot.because equality retained with independent original expected strings. All original imports and unrelated filename-family refusal retain AST and relative order. One exact top-level import pytest is added solely for the parameter decorator and separately proved.",
+  "collected_before": [
+    "tests/test_cov_7_regex_infer.py::test_a_slot_that_holds_wells_is_named_a_well_without_any_hint",
+    "tests/test_cov_7_regex_infer.py::test_a_family_varying_in_too_many_words_is_thrown_away",
+    "tests/test_cov_7_regex_infer.py::test_a_slot_with_one_repeated_value_is_named_the_plate"
+  ],
+  "collected_after": [
+    "tests/test_cov_7_regex_infer.py::test_a_family_varying_in_too_many_words_is_thrown_away",
+    "tests/test_cov_7_regex_infer.py::test_original_slot_evidence_keeps_its_assigned_role_and_explanation[test_a_slot_that_holds_wells_is_named_a_well_without_any_hint]",
+    "tests/test_cov_7_regex_infer.py::test_original_slot_evidence_keeps_its_assigned_role_and_explanation[test_a_slot_with_one_repeated_value_is_named_the_plate]"
+  ],
+  "tests_before": {
+    "passed": 3,
+    "seconds": 3.29
+  },
+  "tests_after": {
+    "passed": 3,
+    "seconds": 3.08
+  },
+  "coverage_scope": "spacr.regex_infer under the complete selected field-evidence/role/explanation/unrelated-filename-family module; not full-suite coverage. Pure local dataclass/string/tuple fixtures only; no file reader, GUI/chart rendering, model training, network or GPU work.",
+  "coverage_before": {
+    "covered_lines": 216,
+    "num_statements": 597,
+    "percent_covered": 31.24312431243124,
+    "percent_covered_display": "31",
+    "missing_lines": 381,
+    "excluded_lines": 0,
+    "percent_statements_covered": 36.18090452261306,
+    "percent_statements_covered_display": "36",
+    "num_branches": 312,
+    "num_partial_branches": 24,
+    "covered_branches": 68,
+    "missing_branches": 244,
+    "percent_branches_covered": 21.794871794871796,
+    "percent_branches_covered_display": "22"
+  },
+  "coverage_after": {
+    "covered_lines": 216,
+    "num_statements": 597,
+    "percent_covered": 31.24312431243124,
+    "percent_covered_display": "31",
+    "missing_lines": 381,
+    "excluded_lines": 0,
+    "percent_statements_covered": 36.18090452261306,
+    "percent_statements_covered_display": "36",
+    "num_branches": 312,
+    "num_partial_branches": 24,
+    "covered_branches": 68,
+    "missing_branches": 244,
+    "percent_branches_covered": 21.794871794871796,
+    "percent_branches_covered_display": "22"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "f79e58d0438edcc6cadd1f03a6b68ee8683c2305e0c9926be4a80eef85394c53",
+  "production_source_sha256": "d0036bd414fab37cb4480208464bb8018a66ee4eb845883d9adfab6206777840",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "one_top_level_pytest_import_added_for_parameter_decorator": true,
+  "all_original_imports_and_unrelated_filename_family_case_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "well-slot-role-misassigned",
+      "source_variant": {
+        "path": "spacr/regex_infer.py",
+        "line": 461,
+        "old": "claim(info, \"wellID\", \"every value looks like a well\")",
+        "new": "claim(info, \"fieldID\", \"every value looks like a well\")"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_7_regex_infer.py::test_a_slot_that_holds_wells_is_named_a_well_without_any_hint"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_7_regex_infer.py::test_a_slot_that_holds_wells_is_named_a_well_without_any_hint"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_7_regex_infer.py::test_original_slot_evidence_keeps_its_assigned_role_and_explanation[test_a_slot_that_holds_wells_is_named_a_well_without_any_hint]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_7_regex_infer.py::test_original_slot_evidence_keeps_its_assigned_role_and_explanation[test_a_slot_that_holds_wells_is_named_a_well_without_any_hint]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "constant-slot-role-misassigned",
+      "source_variant": {
+        "path": "spacr/regex_infer.py",
+        "line": 477,
+        "old": "claim(info, \"plateID\", \"the same in every file\")",
+        "new": "claim(info, \"fieldID\", \"the same in every file\")"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_7_regex_infer.py::test_a_slot_with_one_repeated_value_is_named_the_plate"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_7_regex_infer.py::test_a_slot_with_one_repeated_value_is_named_the_plate"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_7_regex_infer.py::test_original_slot_evidence_keeps_its_assigned_role_and_explanation[test_a_slot_with_one_repeated_value_is_named_the_plate]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_7_regex_infer.py::test_original_slot_evidence_keeps_its_assigned_role_and_explanation[test_a_slot_with_one_repeated_value_is_named_the_plate]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in _assign_roles before and after: claim fieldID for well-shaped evidence; claim fieldID for a constant slot. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native slot.role equality. Fresh evidence, exact index/numeric flag, ordered string values and separate explanation assertion retained. Repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_7_regex_infer.py",
+      "line": 37,
+      "symbol": "test_original_slot_evidence_keeps_its_assigned_role_and_explanation",
+      "new": "Preserve each original slot and its assigned role and explanation.",
+      "old": {
+        "test_a_slot_that_holds_wells_is_named_a_well_without_any_hint": "Values like ``A01`` are a well whatever literal precedes them.",
+        "test_a_slot_with_one_repeated_value_is_named_the_plate": "A component identical in every file is the plate, not a field id."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
