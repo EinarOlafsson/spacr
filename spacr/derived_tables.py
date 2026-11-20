@@ -22,8 +22,10 @@ from pathlib import Path
 import pandas as pd
 
 from .merge_tables import (
+    CROP_SUFFIX,
     IDENTITY,
     OBJECT_COLUMN,
+    PNG_TABLE,
     MergeError,
     MergePolicy,
     _align_keys, _keys_in, _duplicate_observation_message, _merge_key_structure,
@@ -32,6 +34,7 @@ from .merge_tables import (
     _refuse_mixed_runs,
     aggregation_for,
     merge_tables,
+    object_keys,
     roll_up,
 )
 from .object_roles import ONE_ROW_PER_CELL, _has_anchor, _table_role, anchor_column, is_one_row_per_cell
@@ -214,6 +217,30 @@ def _align_explicit_keys(left, right, keys):
             right[key] = right[key].astype("string")
 
 
+def _align_png_list_keys(left, right, mapping):
+    """Read ``png_list``'s own spellings of an object and an image as spaCR's.
+
+    ``png_list`` writes the object as text (``'o17'``) and ``file_name`` as
+    the crop's name (``Projection_H20_1_1_17.png``), while every object
+    table has ``17`` and ``Projection_H20_1_1``. Compared as text, as other
+    explicit keys are, no crop ever matched. Changes the frames in place.
+
+    :param left: base key frame.
+    :param right: png_list rows, with keys already renamed to the base's names.
+    :param mapping: png_list key name to the base key name it was mapped onto.
+    """
+    from .utils import PNG_OBJECT_ID_COLUMNS
+
+    object_ids = set(PNG_OBJECT_ID_COLUMNS.values()) | {OBJECT_COLUMN}
+    for png_key, key in mapping.items():
+        if png_key in object_ids:
+            left[key] = object_keys(left[key])
+            right[key] = object_keys(right[key])
+        elif png_key == "file_name":
+            right[key] = right[key].astype("string").str.replace(
+                CROP_SUFFIX, "", regex=True, case=False)
+
+
 def _join_diagnostics(base, child, join, *, standard=False):
     """Validate key cardinality and count matched and unmatched source rows.
 
@@ -241,6 +268,8 @@ def _join_diagnostics(base, child, join, *, standard=False):
     if standard:
         _align_keys(left, renamed, left_keys)
     else:
+        if _table_role(table) == PNG_TABLE:
+            _align_png_list_keys(left, renamed, dict(zip(right_keys, left_keys)))
         _align_explicit_keys(left, renamed, left_keys)
     duplicates = int(renamed.duplicated(left_keys, keep=False).sum())
     if join["relationship"] not in ("one-to-one", "one-to-many"):
@@ -310,6 +339,11 @@ def execute(path, definition):
 def _execute_prepared(path, definition):
     """Apply a prepared merge recipe and return its frame and diagnostics.
 
+    Base columns get the base table's name as a prefix, except a column whose
+    prefixed name the base already has: a base carrying both ``cell_id`` and
+    ``pathogen_cell_id`` keeps the unprefixed one under its own name instead
+    of ending up with two columns called ``pathogen_cell_id``.
+
     :param path: source database read through the active source-frame context.
     :param definition: default, custom or filename-enrichment recipe to copy and apply.
     :returns: output DataFrame and merge diagnostic mapping, including image provenance.
@@ -344,7 +378,8 @@ def _execute_prepared(path, definition):
                          "Use Customize merging for external data without image provenance.")
     keep = set(definition["base_keys"]) | set(IDENTITY) | {OBJECT_COLUMN, "prcf", "prcfo", "timeID", "time_id"}
     keep.update(c for join in definition["joins"] for c in join["left_keys"])
-    rename = {c: (c if c.startswith(base_name + "_") else base_name + "_" + c)
+    rename = {c: (c if c.startswith(base_name + "_") or base_name + "_" + c in base
+                  else base_name + "_" + c)
               for c in base if c not in keep}
     output = base.rename(columns=rename)
     reports = []
@@ -394,6 +429,11 @@ def _execute_prepared(path, definition):
         output = merge_tables(path, [j["table"] for j in definition["joins"]], policy=policy)
     if len(output) > len(base):
         raise MergeError("Merge increased the base observation count; check the composite keys.")
+    repeated = list(dict.fromkeys(output.columns[output.columns.duplicated()]))
+    if repeated:
+        raise MergeError("The merged table would have more than one column called "
+                         + ", ".join(map(str, repeated[:5]))
+                         + "; leave out one of the tables that supplies it.")
     if "time_id" in output and "timeID" not in output:
         output["timeID"] = output["time_id"]
     provenance = (_has_anchor(base_name) and

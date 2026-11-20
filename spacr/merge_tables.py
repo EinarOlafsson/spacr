@@ -142,6 +142,10 @@ NA_POLICIES: Tuple[str, ...] = ("keep", "zero", "drop")
 
 #: Identity columns a merge joins on, and the child's link to its parent.
 IDENTITY = ("plateID", "rowID", "columnID", "fieldID")
+
+#: The ``_<object id>.png`` a crop's ``file_name`` in ``png_list`` adds to
+#: the image name the object tables carry.
+CROP_SUFFIX = r"_\d+\.(png|tif|tiff|jpg|jpeg)$"
 PARENT_LINK = "cell_id"
 PNG_TABLE = "png_list"
 OBJECT_COLUMN = "object_label"
@@ -1283,13 +1287,25 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
 
 def _merge_crops(merged: pd.DataFrame, png: pd.DataFrame,
                  keys: Sequence[str]) -> pd.DataFrame:
-    """Attach crop paths from ``png_list``.
+    """Attach crop paths and per-crop annotations from ``png_list``.
 
     Not aggregated: a crop is not a measurement, and png_list is one row per
     crop rather than per object. Its object id may be under any of the
     crop-mode columns, so the first one present is used -- a database measured
     in more than one crop mode has several, and the others belong to different
     objects entirely.
+
+    The crop's ``file_name`` is the crop's own name
+    (``Projection_H20_1_1_17.png``), not the image name the object tables
+    carry (``Projection_H20_1_1``), so matching on it matched nothing. The
+    image is identified by plate, row, column and field instead; only when
+    those are missing is ``file_name`` used, with the crop suffix removed.
+
+    Besides the path, every column an annotator or the Annotate screen wrote
+    (``annotate``, ``annotate_verdict``, ``condition`` ...) is carried as
+    ``png_list_<column>``. Crop metadata and per-class model probabilities
+    (:func:`_png_annotation_columns`) are not. An object cropped more than
+    once keeps the crop somebody labelled.
     """
     from .utils import PNG_OBJECT_ID_COLUMNS
 
@@ -1302,16 +1318,50 @@ def _merge_crops(merged: pd.DataFrame, png: pd.DataFrame,
 
     path_column = next((c for c in ("png_path", "path", "file_path")
                         if c in png.columns), None)
+    image_known = all(c in png.columns and c in merged.columns for c in IDENTITY)
+    keys = [c for c in keys if not (image_known and c == "file_name")]
     side = png[[c for c in keys if c in png.columns]].copy()
+    if "file_name" in side.columns:
+        side["file_name"] = side["file_name"].astype("string").str.replace(
+            CROP_SUFFIX, "", regex=True, case=False)
     side[OBJECT_COLUMN] = object_keys(png[id_column])
     if path_column:
         side[f"{PNG_TABLE}_path"] = png[path_column]
+    for column in _png_annotation_columns(png.columns, exclude={path_column}):
+        side[f"{PNG_TABLE}_{column}"] = png[column]
     side = side.dropna(subset=[OBJECT_COLUMN])
 
     on = [c for c in list(keys) + [OBJECT_COLUMN] if c in side.columns]
-    side = side.drop_duplicates(subset=on)
+    carried = [c for c in side.columns if c not in on]
+    if carried:
+        labelled = side[carried].notna().sum(axis=1)
+        side = side.loc[labelled.sort_values(ascending=False, kind="stable").index]
+    side = side.drop_duplicates(subset=on).sort_index()
     _align_keys(merged, side, on)
     return merged.merge(side, on=on, how="left")
+
+
+def _png_annotation_columns(columns: Sequence[str],
+                            exclude: Sequence[Optional[str]] = ()) -> List[str]:
+    """``png_list`` columns that describe the crop's object, not the crop.
+
+    :param columns: every column of ``png_list``.
+    :param exclude: further columns already carried another way.
+    :returns: annotation, verdict and condition columns in table order --
+        everything except crop metadata (paths, image and object ids) and
+        per-class model probabilities, which are a classifier's working
+        numbers rather than a label.
+    """
+    from .active_learning import ROUND_PRED_PREFIX
+    from .agreement import _METADATA_COLUMNS, _MODEL_COLUMN_PREFIXES
+    from .utils import PNG_OBJECT_ID_COLUMNS
+
+    skip = set(_METADATA_COLUMNS) | set(PNG_OBJECT_ID_COLUMNS.values()) | {
+        "png_path", "path", "file_path", "prcf", OBJECT_COLUMN} | {
+        c for c in exclude if c}
+    prefixes = (ROUND_PRED_PREFIX, *_MODEL_COLUMN_PREFIXES)
+    return [c for c in columns
+            if c not in skip and not str(c).startswith(prefixes)]
 
 
 def _apply_na_policy(frame: pd.DataFrame, policy: MergePolicy) -> pd.DataFrame:
