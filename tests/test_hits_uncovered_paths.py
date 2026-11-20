@@ -45,17 +45,21 @@ def _one_gene_frames():
 # coefficient_levels: tables written without a `feature` column
 # ---------------------------------------------------------------------------
 
-def test_a_table_with_no_feature_column_takes_levels_from_its_level_column():
-    """A table can name its level without naming its terms.
+@pytest.mark.parametrize('records, expected', [
+    pytest.param(
+        {'level': ['grna', 'gene'], 'coefficient': [1.0, 2.0]}, ['grna', 'gene'],
+        id='test_a_table_with_no_feature_column_takes_levels_from_its_level_column',
+    ),
+    pytest.param(
+        {'level': ['plate', None], 'coefficient': [1.0, 2.0]}, ['', ''],
+        id='test_an_unrecognised_level_value_does_not_override_a_blank_level',
+    ),
+])
+def test_recorded_level_tables_keep_their_original_output_labels(records, expected):
+    """Preserve the ordered level labels for each original coefficient table."""
+    frame = pd.DataFrame(records)
 
-    The results panel asks for levels before it has decided which columns to
-    show, so a projection that kept ``level`` but dropped ``feature`` must
-    still answer 'grna' and 'gene' rather than falling back to blank.
-    """
-    frame = pd.DataFrame({"level": ["grna", "gene"],
-                          "coefficient": [1.0, 2.0]})
-
-    assert coefficient_levels(frame).tolist() == ["grna", "gene"]
+    assert coefficient_levels(frame).tolist() == expected
 
 
 def test_a_table_with_neither_feature_nor_level_leaves_every_level_unknown():
@@ -70,13 +74,6 @@ def test_a_table_with_neither_feature_nor_level_leaves_every_level_unknown():
 
     assert levels.tolist() == ["", "", ""]
     assert levels.index.tolist() == frame.index.tolist()
-
-
-def test_an_unrecognised_level_value_does_not_override_a_blank_level():
-    """Only 'grna' and 'gene' are levels; anything else is not adopted."""
-    frame = pd.DataFrame({"level": ["plate", None], "coefficient": [1.0, 2.0]})
-
-    assert coefficient_levels(frame).tolist() == ["", ""]
 
 
 # ---------------------------------------------------------------------------
