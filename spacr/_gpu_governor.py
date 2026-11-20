@@ -64,6 +64,7 @@ import tempfile
 import threading
 import time
 from collections import Counter
+from functools import partial
 from typing import Any, Callable, Dict, Mapping, Optional
 
 _GIB = float(1 << 30)
@@ -1148,6 +1149,7 @@ def _controller(site: str, device: Any = None) -> _BatchController:
 
 def _governed_eval(model: Any, x: Any, *, site: str, batch_size: Any = 8,
                    settings: Optional[Mapping[str, Any]] = None,
+                   evaluate: Optional[Callable[..., Any]] = None,
                    **kwargs: Any) -> Any:
     """Call ``model.eval(x, batch_size=..., **kwargs)`` under the governor.
 
@@ -1160,19 +1162,24 @@ def _governed_eval(model: Any, x: Any, *, site: str, batch_size: Any = 8,
     :param site: the call site's name.
     :param batch_size: the batch size the caller asked for.
     :param settings: run settings holding the governor keys, if any.
+    :param evaluate: optional spaCR orchestration callable taking the original
+        model, images and eval options; retries and CPU fallback retain the
+        same model and call boundary.
     :param kwargs: passed to ``eval`` unchanged.
     :returns: what ``eval`` returned.
     """
+    call = model.eval if evaluate is None else partial(evaluate, model)
+
     def gpu(size):
         """Run ``eval`` on the model's own device."""
-        return model.eval(x, batch_size=size, **kwargs)
+        return call(x, batch_size=size, **kwargs)
 
     cpu = None
     if _cpu_target(model) is not None:
         def cpu(size):
             """Run ``eval`` with the network moved to the CPU."""
             with _on_cpu(model):
-                return model.eval(x, batch_size=size, **kwargs)
+                return call(x, batch_size=size, **kwargs)
 
     requested = 8 if batch_size is None else batch_size
     device = _model_device(model)

@@ -1289,6 +1289,8 @@ def _mask_eval(model, x, *, site, settings=None, **kwargs):
     :param site: the governor's name for this call site.
     :param settings: run settings holding the governor keys, if any.
     :param kwargs: passed to ``eval``; ``batch_size`` is the size asked for.
+        Supported flat Cellpose 4.0.9 CUDA batches overlap public tracing on
+        an independent stream within the same resident batch.
     :returns: what ``eval`` returned.
     """
     from ._gpu_governor import _governed_eval, _model_device
@@ -1296,6 +1298,12 @@ def _mask_eval(model, x, *, site, settings=None, **kwargs):
     if _model_device(model) is None:
         return model.eval(x, **kwargs)
     batch_size = kwargs.pop('batch_size', 8)
+    from ._mask_tracing import _can_overlap, _overlap_eval
+
+    if _can_overlap(model, x, kwargs):
+        return _governed_eval(model, x, site=site, settings=settings,
+                              batch_size=batch_size, evaluate=_overlap_eval,
+                              **kwargs)
     return _governed_eval(model, x, site=site, settings=settings,
                           batch_size=batch_size, **kwargs)
 
@@ -3427,4 +3435,3 @@ def _watershed_split(binary, intensity):
         markers[r, c] = i
     labeled = watershed(-distance, markers, mask=binary)
     return labeled
-
