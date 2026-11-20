@@ -136,6 +136,24 @@ class EmbeddingSpec:
     :param input_size: side, in pixels, each crop is resized to instead of
         the pretrained input size; ``0`` keeps the crop size. A backbone
         with a fixed patch grid is always resized to that grid.
+    :param pixel_size_um: the crops' pixel size in micrometres, for the
+        three-plane SubCell models (``subcell_rbg``, ``subcell_ybg``): each
+        crop is resized by ``pixel_size_um / 0.0800885``, to whole 16-pixel
+        patches, so the cells reach the model at the Human Protein Atlas
+        pixel size, as the SubCell authors prepare other datasets. ``None``
+        keeps the crop size.
+
+    For ``subcell_rbg`` and ``subcell_ybg``, choose :data:`CHANNEL_PROJECT`
+    and give at least three distinct ``channels``: the two reference planes
+    in the model's order (microtubules then DNA, or ER then DNA), then one
+    or more protein planes. Each protein plane is encoded in its own pass
+    with the two references, and the passes' 1,536 dimensions are joined in
+    channel order. With ``normalize=False`` each pass is min-max scaled as a
+    whole, as the authors' loader does; with ``normalize=True`` the fixed
+    ``channel_scale`` is used instead, so intensity stays comparable between
+    crops. ``checkpoint_path`` may name a local copy of the weights; a file
+    whose SHA-256 differs from the pinned digest, or from
+    ``checkpoint_sha256`` when none is pinned, is refused.
     """
 
     backbone: str = DEFAULT_BACKBONE
@@ -152,6 +170,7 @@ class EmbeddingSpec:
     input_mean: Optional[Tuple[float, ...]] = None
     input_std: Optional[Tuple[float, ...]] = None
     input_size: Optional[int] = None
+    pixel_size_um: Optional[float] = None
 
     def __post_init__(self) -> None:
         """Reject a specification that could not produce a matrix.
@@ -179,6 +198,13 @@ class EmbeddingSpec:
         if self.channel_scale is not None:
             _check_channel_scale(self)
         _check_input_transform(self)
+        if self.pixel_size_um is not None and (
+                isinstance(self.pixel_size_um, bool)
+                or not isinstance(self.pixel_size_um, (int, float))
+                or not np.isfinite(self.pixel_size_um)
+                or self.pixel_size_um <= 0):
+            raise EmbeddingError("pixel_size_um must be a positive number "
+                                 "of micrometres")
 
     def fingerprint(self) -> str:
         """Return a 16-character digest of the fields that affect the values.
@@ -202,6 +228,12 @@ class EmbeddingSpec:
                 "" if self.input_std is None else ",".join(
                     repr(v) for v in self.input_std),
                 "" if self.input_size is None else str(self.input_size))))
+        if self.pixel_size_um is not None:
+            fields.append(f"pixel_um={self.pixel_size_um!r}")
+        if self.backbone in _SUBCELL_VARIANTS:
+            fields.append("weights=" + (_subcell_digest(
+                _SUBCELL_VARIANTS[self.backbone]["url"])
+                or (self.checkpoint_sha256 or "").lower()))
         if self.backbone == "cell_dino":
             fields.extend((self.cell_dino_factory or "",
                            os.path.realpath(os.path.expanduser(
@@ -384,6 +416,8 @@ def _encoded_channels(available: int, spec: EmbeddingSpec) -> Tuple[int, ...]:
                 else tuple(spec.channels))
     if spec.backbone == "subcell_rybg":
         _subcell_rybg_channels(spec)
+    if spec.backbone in _SUBCELL_VARIANTS:
+        _subcell_variant_channels(spec)
     for channel in channels:
         if not 0 <= channel < available:
             raise EmbeddingError(
@@ -391,6 +425,7 @@ def _encoded_channels(available: int, spec: EmbeddingSpec) -> Tuple[int, ...]:
                 f"{available}")
     multichannel = (
         spec.backbone in ("subcell_rybg", "cell_dino")
+        or spec.backbone in _SUBCELL_VARIANTS
         or spec.backbone.startswith(_DINO_PREFIX)
         or (spec.backbone in _FOUNDATION_MODELS
             and _FOUNDATION_MODELS[spec.backbone]["in_channels"] is None))
@@ -419,6 +454,21 @@ def _subcell_rybg_channels(spec: EmbeddingSpec) -> None:
         raise EmbeddingError(
             "subcell_rybg needs the projection policy and four explicit, "
             "distinct channel indices in r, y, b, g order")
+
+
+def _subcell_variant_channels(spec: EmbeddingSpec) -> None:
+    """Require two references and at least one protein plane, all distinct."""
+    channels = spec.channels
+    if (spec.channel_policy != CHANNEL_PROJECT or channels is None
+            or len(channels) < 3
+            or any(isinstance(channel, (bool, np.bool_))
+                   or not isinstance(channel, (int, np.integer))
+                   or channel < 0 for channel in channels)
+            or len(set(channels)) != len(channels)):
+        raise EmbeddingError(
+            f"{spec.backbone} needs the projection policy and at least three "
+            "distinct channel indices: the two reference planes in the "
+            "model's order, then one or more protein planes")
 
 
 def _subcell_rybg_spatial_size(height: int, width: int) -> None:
@@ -1785,7 +1835,8 @@ def _timm_input(spec: EmbeddingSpec, timm: Any, model: Any,
 def _is_timm_backbone(backbone: str) -> bool:
     """Whether ``backbone`` is loaded through timm rather than another loader."""
     return not (backbone.startswith(_DINO_PREFIX)
-                or backbone in _FOUNDATION_MODELS)
+                or backbone in _FOUNDATION_MODELS
+                or backbone in _SUBCELL_VARIANTS)
 
 
 _FOUNDATION_MODELS: Dict[str, Dict[str, Any]] = {
@@ -1829,6 +1880,54 @@ _FOUNDATION_MODELS: Dict[str, Dict[str, Any]] = {
     },
 }
 
+#: Pixel size of the Human Protein Atlas images SubCell was trained on, in
+#: micrometres. The authors rescale every other dataset to it before
+#: encoding (Allen Cell, OpenCell, FUCCI, JUMP; subcell-analysis
+#: ``subcell/io/datasets.py``).
+_SUBCELL_HPA_PIXEL_UM = 0.0800885
+
+_SUBCELL_BUCKET = "https://czi-subcell-public.s3.amazonaws.com/models/"
+
+#: Every published SubCell encoder: file name to ``(bytes, sha256)``. The
+#: sizes are the bucket's (2026-11-19); a digest is pinned once the file has
+#: been downloaded and hashed, and ``None`` means not yet pinned.
+_SUBCELL_WEIGHTS: Dict[str, Tuple[int, Optional[str]]] = {
+    "all_channels_MAE-CellS-ProtS-Pool.pth": (349009018, None),
+    "all_channels_ViT-ProtS-Pool.pth": (349009018, None),
+    "MT-DNA-Protein_MAE-CellS-ProtS-Pool.pth": (
+        348222586,
+        "db26dad791ef343fb2374622e9bbafa4e40870450fd5904216ef783f91224911"),
+    "MT-DNA-Protein_ViT-ProtS-Pool.pth": (
+        348222586,
+        "8d1e299f2cfc6675e22cb6504d1703f8871cd9bb73a8e1e885d8c06cdd868812"),
+    "ER-DNA-Protein_MAE-CellS-ProtS-Pool.pth": (348222586, None),
+    "ER-DNA-Protein_ViT-ProtS-Pool.pth": (348222586, None),
+    "DNA-Protein_MAE-CellS-ProtS-Pool.pth": (347436154, None),
+    "DNA-Protein_ViT-ProtS-Pool.pth": (347436154, None),
+}
+
+#: The three-plane SubCell models for stains without a full R/Y/B/G set.
+#: ``slots`` names the two reference planes, in the model's plane order; the
+#: protein plane is last. Every further channel is one more protein pass.
+_SUBCELL_VARIANTS: Dict[str, Dict[str, Any]] = {
+    "subcell_rbg": {
+        "label": "SubCell MT-DNA-Protein MAE-CellS-ProtS-Pool",
+        "url": _SUBCELL_BUCKET + "MT-DNA-Protein_MAE-CellS-ProtS-Pool.pth",
+        "in_channels": 3,
+        "size": 448,
+        "slots": ("microtubules", "DNA"),
+        "license": "MIT",
+    },
+    "subcell_ybg": {
+        "label": "SubCell ER-DNA-Protein MAE-CellS-ProtS-Pool",
+        "url": _SUBCELL_BUCKET + "ER-DNA-Protein_MAE-CellS-ProtS-Pool.pth",
+        "in_channels": 3,
+        "size": 448,
+        "slots": ("ER", "DNA"),
+        "license": "MIT",
+    },
+}
+
 
 def _foundation_names() -> Tuple[str, ...]:
     """The single-cell foundation models :func:`embed_array` can load by name.
@@ -1847,7 +1946,7 @@ def _backbone_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]
     model or a timm backbone."""
     if spec.backbone.startswith(_DINO_PREFIX):
         return _dino_encoder(spec)
-    if spec.backbone in _FOUNDATION_MODELS:
+    if spec.backbone in _FOUNDATION_MODELS or spec.backbone in _SUBCELL_VARIANTS:
         return _foundation_encoder(spec)
     return _timm_encoder(spec)
 
@@ -1860,6 +1959,9 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
     :func:`embed_array` how many planes ``k`` it wants, ``None`` meaning any.
     Other foundation crops are resized to the model's training size. SubCell
     R/Y/B/G keeps its native crop geometry and interpolates position tokens.
+    The three-plane SubCell models keep it too, resized only to the Human
+    Protein Atlas pixel size when ``pixel_size_um`` is given, and encode one
+    pass per protein plane (:func:`_subcell_passes`).
     Other weights are downloaded once into the Hugging Face or torch hub
     cache. Cell-DINO uses a declared local checkpoint and the pinned official
     DINOv2 source; no gated weights are fetched.
@@ -1910,9 +2012,16 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
 
         run.in_channels = info["in_channels"]
         return run
-    info = _FOUNDATION_MODELS[spec.backbone]
+    variant = spec.backbone in _SUBCELL_VARIANTS
+    if variant:
+        _subcell_variant_channels(spec)
+    info = (_SUBCELL_VARIANTS if variant else _FOUNDATION_MODELS)[spec.backbone]
     device = _embedding_device(spec.device)
-    if spec.backbone in ("subcell", "subcell_rybg"):
+    if variant:
+        model, forward = _subcell_model(
+            info, torch, checkpoint_path=spec.checkpoint_path,
+            checkpoint_sha256=spec.checkpoint_sha256)
+    elif spec.backbone in ("subcell", "subcell_rybg"):
         model, forward = _subcell_model(info, torch)
     else:
         model, forward = _hub_model(spec.backbone, info, torch)
@@ -1932,6 +2041,12 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
                 chunk = torch.from_numpy(np.ascontiguousarray(
                     stack[start:start + spec.batch_size].transpose(0, 3, 1, 2)
                 )).float().to(device)
+                if variant:
+                    out.append(_subcell_passes(
+                        model, chunk, torch=torch, normalize=spec.normalize,
+                        pixel_size_um=spec.pixel_size_um
+                    ).detach().float().cpu().numpy())
+                    continue
                 if spec.backbone == "subcell_rybg":
                     _subcell_rybg_spatial_size(*chunk.shape[-2:])
                 if (spec.backbone != "subcell_rybg"
@@ -1942,7 +2057,7 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
                 out.append(forward(model, chunk).detach().float().cpu().numpy())
         return np.concatenate(out, axis=0)
 
-    run.in_channels = info["in_channels"]
+    run.in_channels = None if variant else info["in_channels"]
     return run
 
 
@@ -2120,14 +2235,77 @@ def _chada_class_token(net: Any, x: Any, torch: Any):
     return net.norm(sequence)[:, 0]
 
 
-def _subcell_model(info: Mapping[str, Any], torch: Any):
+def _subcell_digest(url: str) -> Optional[str]:
+    """The pinned SHA-256 of the SubCell encoder ``url`` names, or ``None``."""
+    entry = _SUBCELL_WEIGHTS.get(url.rsplit("/", 1)[-1])
+    return entry[1] if entry else None
+
+
+def _subcell_state(info: Mapping[str, Any], torch: Any,
+                   checkpoint_path: Optional[str] = None,
+                   checkpoint_sha256: Optional[str] = None) -> Dict[str, Any]:
+    """Read one SubCell checkpoint as plain tensors, after checking its bytes.
+
+    The file is ``checkpoint_path`` when given, else the torch hub cache
+    copy, downloaded once from the public bucket. Its SHA-256 must equal the
+    digest pinned in :data:`_SUBCELL_WEIGHTS`, or ``checkpoint_sha256`` when
+    none is pinned; with neither, the file is read unchecked, as before
+    digests were pinned. Loading uses ``weights_only=True``, so no pickled
+    code runs.
+
+    :raises EmbeddingError: on a missing local file, a digest mismatch, or
+        a checkpoint that is not a mapping of names to tensors.
+    """
+    if checkpoint_path:
+        target = os.path.realpath(os.path.expanduser(checkpoint_path))
+        if not os.path.isfile(target):
+            raise EmbeddingError(
+                f"SubCell checkpoint {checkpoint_path!r} is not a file")
+    else:
+        target = os.path.join(torch.hub.get_dir(), "checkpoints",
+                              os.path.basename(info["url"]))
+        if not os.path.exists(target):
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            torch.hub.download_url_to_file(info["url"], target)
+    expected = _subcell_digest(info["url"]) or (checkpoint_sha256 or None)
+    if expected:
+        digest = hashlib.sha256()
+        with open(target, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        if digest.hexdigest() != expected.lower():
+            raise EmbeddingError(
+                f"SubCell checkpoint {os.path.basename(target)} has SHA-256 "
+                f"{digest.hexdigest()}, not the expected {expected.lower()}")
+    state = torch.load(target, map_location="cpu", weights_only=True)
+    if not isinstance(state, dict) or not all(
+            isinstance(key, str) and isinstance(value, torch.Tensor)
+            for key, value in state.items()):
+        raise EmbeddingError("SubCell checkpoint is not a plain model state")
+    return state
+
+
+def _subcell_model(info: Mapping[str, Any], torch: Any, *,
+                   checkpoint_path: Optional[str] = None,
+                   checkpoint_sha256: Optional[str] = None,
+                   init: str = "pretrained", seed: int = 0):
     """SubCell's fixed-channel ViT encoder with gated attention pooling.
 
-    The published checkpoint holds a Hugging Face ViT under ``encoder.`` and
-    a two-head gated attention pooler under ``pool_model.``; both are loaded
-    strictly, so a changed checkpoint is refused rather than half-loaded.
-    The four-plane R/Y/B/G model scales each whole crop as its own loader
-    does; the existing two-plane model retains its per-channel scaling.
+    The one SubCell loader in spaCR, for every variant. The published
+    checkpoint holds a Hugging Face ViT under ``encoder.`` and a two-head
+    gated attention pooler under ``pool_model.``; both are loaded strictly,
+    so a changed checkpoint is refused rather than half-loaded (see
+    :func:`_subcell_state` for the digest check). ``init="random"`` builds
+    the same network untrained instead, under torch seed ``seed``, as the
+    random-weights control: nothing is downloaded or read.
+
+    The returned ``forward`` serves the two- and four-plane backbones: the
+    four-plane R/Y/B/G model scales each whole crop as its own loader does;
+    the two-plane model retains its per-channel scaling. The three-plane
+    variants are encoded with :func:`_subcell_passes`.
+
+    :raises EmbeddingError: when transformers is missing, ``init`` is
+        unknown, or the checkpoint is refused.
     """
     try:
         from transformers import ViTConfig, ViTModel
@@ -2135,13 +2313,10 @@ def _subcell_model(info: Mapping[str, Any], torch: Any):
         raise EmbeddingError(
             "subcell needs the transformers package; pip install "
             "transformers") from exc
+    if init not in ("pretrained", "random"):
+        raise EmbeddingError(f"unknown SubCell init {init!r}; expected "
+                             "'pretrained' or 'random'")
     nn = torch.nn
-    target = os.path.join(torch.hub.get_dir(), "checkpoints",
-                          os.path.basename(info["url"]))
-    if not os.path.exists(target):
-        os.makedirs(os.path.dirname(target), exist_ok=True)
-        torch.hub.download_url_to_file(info["url"], target)
-    state = torch.load(target, map_location="cpu", weights_only=False)
     config = ViTConfig(hidden_size=768, num_hidden_layers=12,
                        num_attention_heads=12, intermediate_size=3072,
                        hidden_dropout_prob=0.0,
@@ -2160,22 +2335,44 @@ def _subcell_model(info: Mapping[str, Any], torch: Any):
             self.attention_u = nn.Sequential(nn.Linear(768, 512), nn.GELU())
             self.attention = nn.Linear(512, 2)
 
-        def forward(self, x):
+        def forward(self, x, layers=()):
             """``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.
 
             The checkpoint determines whether ``k`` is two or four channels.
+
+            With ``layers`` (1-based block numbers) the call returns
+            ``(pooled, blocks)``: for each layer its class token and mean
+            patch token, through the final LayerNorm, keyed
+            ``L<layer>_cls`` and ``L<layer>_meanpatch``.
             """
-            tokens = self.encoder(
-                x, interpolate_pos_encoding=True).last_hidden_state
+            extra = {"output_hidden_states": True} if layers else {}
+            output = self.encoder(x, interpolate_pos_encoding=True, **extra)
+            tokens = output.last_hidden_state
             gate = self.attention(self.attention_v(tokens)
                                   * self.attention_u(tokens))
             weights = torch.softmax(gate.permute(0, 2, 1), dim=-1)
-            return torch.bmm(weights, tokens).reshape(x.shape[0], -1)
+            pooled = torch.bmm(weights, tokens).reshape(x.shape[0], -1)
+            if not layers:
+                return pooled
+            blocks = {}
+            for layer in layers:
+                hidden = (tokens if layer == config.num_hidden_layers else
+                          self.encoder.layernorm(output.hidden_states[layer]))
+                blocks[f"L{layer}_cls"] = hidden[:, 0]
+                blocks[f"L{layer}_meanpatch"] = hidden[:, 1:].mean(dim=1)
+            return pooled, blocks
 
-    model = Pooled()
-    model.load_state_dict({
-        k.replace("pool_model.", "").replace("_v.1.", "_v.0.")
-        .replace("_u.1.", "_u.0."): v for k, v in state.items()})
+    if init == "random":
+        with torch.random.fork_rng(devices=[]):
+            torch.manual_seed(seed)
+            model = Pooled()
+    else:
+        state = _subcell_state(info, torch, checkpoint_path,
+                               checkpoint_sha256)
+        model = Pooled()
+        model.load_state_dict({
+            k.replace("pool_model.", "").replace("_v.1.", "_v.0.")
+            .replace("_u.1.", "_u.0."): v for k, v in state.items()})
 
     def forward(net, x):
         """Min-max scale the expected model planes, then encode."""
@@ -2188,6 +2385,48 @@ def _subcell_model(info: Mapping[str, Any], torch: Any):
         return net((x - low) / (high - low).clamp_min(1e-6))
 
     return model, forward
+
+
+def _subcell_passes(model: Any, x: Any, *, torch: Any, normalize: bool,
+                    pixel_size_um: Optional[float] = None,
+                    layers: Sequence[int] = ()) -> Any:
+    """Encode ``(n, k, h, w)`` crops with a three-plane SubCell model.
+
+    Planes 0 and 1 are the two references in the model's order; each plane
+    from 2 on is one protein pass ``(ref0, ref1, protein)``. The crops are
+    first resized by ``pixel_size_um / 0.0800885`` (bilinear) when a pixel
+    size is given, each side rounded to a whole number of 16-pixel patches so
+    no edge is cut off by the patch embedding. Without ``normalize`` every pass is min-max scaled as a
+    whole to [0, 1] (the authors' loader); with it the planes are taken as
+    already divided by a fixed scale. A zero background, such as a
+    cell-masked crop, stays zero only under ``normalize``.
+
+    :returns: ``(n, 1536 * passes)``, the passes joined in plane order; with
+        ``layers``, ``(pooled, blocks)`` where ``blocks`` maps
+        ``p<pass>_<block>`` to ``(n, 768)``.
+    """
+    if pixel_size_um:
+        side = [16 * max(1, int(round(s * pixel_size_um
+                                      / _SUBCELL_HPA_PIXEL_UM / 16)))
+                for s in x.shape[-2:]]
+        x = torch.nn.functional.interpolate(x, size=tuple(side),
+                                            mode="bilinear",
+                                            align_corners=False)
+    pooled, blocks = [], {}
+    for index in range(2, x.shape[1]):
+        planes = torch.stack((x[:, 0], x[:, 1], x[:, index]), dim=1)
+        if not normalize:
+            low = planes.amin(dim=(1, 2, 3), keepdim=True)
+            high = planes.amax(dim=(1, 2, 3), keepdim=True)
+            planes = (planes - low) / (high - low + 1e-8)
+        out = model(planes, layers=tuple(layers)) if layers else model(planes)
+        if layers:
+            out, found = out
+            for name, value in found.items():
+                blocks[f"p{index - 2}_{name}"] = value
+        pooled.append(out)
+    joined = torch.cat(pooled, dim=1)
+    return (joined, blocks) if layers else joined
 
 
 def _retrieval_scorecard(features: Any, labels: Mapping[Any, Any],
@@ -3669,6 +3908,7 @@ def _weights_on_disk(backbone: str, *, checkpoint_path: Optional[str] = None,
     uses its configured path. Other backbones use timm's cache metadata.
     No checkpoint is downloaded or loaded, and torch is not imported.
 
+    The three-plane SubCell models use ``checkpoint_path`` when it is given.
     Cell-DINO uses ``checkpoint_path`` only when its stable regular-file
     bytes match ``checkpoint_sha256``. Missing, changed or mismatched files
     return the same empty provenance tuple as an unresolved cache.
@@ -3706,8 +3946,9 @@ def _weights_on_disk(backbone: str, *, checkpoint_path: Optional[str] = None,
                 return path, digest.hexdigest(), size
         if backbone.startswith(_DINO_PREFIX):
             path = backbone[len(_DINO_PREFIX):]
-        elif backbone in _FOUNDATION_MODELS:
-            info = _FOUNDATION_MODELS[backbone]
+        elif backbone in _FOUNDATION_MODELS or backbone in _SUBCELL_VARIANTS:
+            info = (_FOUNDATION_MODELS.get(backbone)
+                    or _SUBCELL_VARIANTS[backbone])
             if "repo" in info:
                 from huggingface_hub import try_to_load_from_cache
 
@@ -3718,6 +3959,8 @@ def _weights_on_disk(backbone: str, *, checkpoint_path: Optional[str] = None,
                     if isinstance(candidate, str) and os.path.isfile(candidate):
                         path = candidate
                         break
+            elif backbone in _SUBCELL_VARIANTS and checkpoint_path:
+                path = os.path.realpath(os.path.expanduser(checkpoint_path))
             elif "url" in info:
                 hub = sys.modules.get("torch.hub")
                 cache_home = os.getenv("XDG_CACHE_HOME", "~/.cache")
@@ -3786,7 +4029,7 @@ def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
     from .qt.i18n import tr
 
     spec = spec if spec is not None else EmbeddingSpec()
-    if spec.backbone == "cell_dino":
+    if spec.backbone == "cell_dino" or spec.backbone in _SUBCELL_VARIANTS:
         path, digest, size = _weights_on_disk(
             spec.backbone, checkpoint_path=spec.checkpoint_path,
             checkpoint_sha256=spec.checkpoint_sha256)
@@ -3806,7 +4049,8 @@ def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
             tr("No scorecard. Measure retrieval against labelled phenotype "
                "controls and attach the results."))
 
-    info = _FOUNDATION_MODELS.get(spec.backbone, {})
+    info = (_FOUNDATION_MODELS.get(spec.backbone)
+            or _SUBCELL_VARIANTS.get(spec.backbone, {}))
     uri = f"timm:{spec.backbone}"
     trained_by = f"timm / {spec.backbone} pretrained weights"
     if "repo" in info:
