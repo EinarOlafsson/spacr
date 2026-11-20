@@ -144,6 +144,12 @@ default after a higher-numbered item takes the next free number:
   the log or raw read and its thresholds from decoy calls at a 1 % decoy FDR.
   The OPS barcode decode reads an empty ``ops_read_mode`` as ``'log'``, so
   Funk-style runs are unchanged.
+- 945 (item 967): ``ops_prefix_minority_min_reads`` was ``0`` (off); it is
+  now ``3``, so in the spacer-prefix decode a barcode with fewer than 3 reads
+  in a cell is left out of the call when another barcode of the cell has more
+  reads. Under ``ops_prefix_quality_method`` ``'spacr'`` no call changes; the
+  cell table gains ``minority_ignored`` and ``minority_rescued``. The OPS
+  barcode decode does not read the key.
 
 Public API
 ----------

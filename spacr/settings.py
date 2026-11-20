@@ -2534,7 +2534,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 944
+SETTINGS_SCHEMA_VERSION = 945
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2558,6 +2558,7 @@ DEFAULT_CHANGES = {
           'seg_merge_small_nuclei_frac': 0.0},
     944: {'ops_read_mode': 'log', 'ops_prefix_threshold_tuning': 'none',
           'ops_prefix_decoy_k': 0, 'ops_prefix_fdr_target_pct': 0.1},
+    945: {'ops_prefix_minority_min_reads': 0},
 }
 
 
@@ -2649,6 +2650,9 @@ def _fold_older_defaults(settings, version, known=None):
     ``ops_prefix_fdr_target_pct`` 1.0 (was 0.1); files stamped before keep
     the fixed thresholds and the log read, and the OPS barcode decode reads
     an empty ``ops_read_mode`` as ``'log'`` either way.
+    945 is item 967's minority-read rule on the spacer-prefix decode:
+    ``ops_prefix_minority_min_reads`` 3 (was 0, off); files stamped before
+    keep 0, so every barcode of a cell counts in its call as before.
 
     :param settings: the file's settings under today's names, edited in
         place.
