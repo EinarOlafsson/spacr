@@ -1,0 +1,341 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_the_three_contrasts_are_three_questions.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 3,
+  "case_mapping": {
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_the_control_wells_come_from_the_count_data": "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_the_control_wells_come_from_the_count_data]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_one_control_written_as_a_bare_string": "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_one_control_written_as_a_bare_string]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_a_control_named_as_a_guide_works_too": "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_a_control_named_as_a_guide_works_too]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_a_control_that_matches_nothing_is_empty": "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_a_control_that_matches_nothing_is_empty]"
+  },
+  "count_table_control_and_well_contracts": {
+    "test_the_control_wells_come_from_the_count_data": [
+      {
+        "plateID": [
+          "1",
+          "1",
+          "1"
+        ],
+        "rowID": [
+          "A",
+          "B",
+          "B"
+        ],
+        "columnID": [
+          "01",
+          "01",
+          "02"
+        ],
+        "grna": [
+          "000001_1",
+          "000000_1",
+          "000000_2"
+        ],
+        "gene": [
+          "000001",
+          "000000",
+          "000000"
+        ]
+      },
+      [
+        "000000"
+      ],
+      [
+        "1_B_01",
+        "1_B_02"
+      ]
+    ],
+    "test_one_control_written_as_a_bare_string": [
+      {
+        "plateID": [
+          "1",
+          "1"
+        ],
+        "rowID": [
+          "A",
+          "B"
+        ],
+        "columnID": [
+          "01",
+          "01"
+        ],
+        "grna": [
+          "000001_1",
+          "000000_1"
+        ],
+        "gene": [
+          "000001",
+          "000000"
+        ]
+      },
+      "000000",
+      [
+        "1_B_01"
+      ]
+    ],
+    "test_a_control_named_as_a_guide_works_too": [
+      {
+        "plateID": [
+          "1",
+          "1"
+        ],
+        "rowID": [
+          "A",
+          "B"
+        ],
+        "columnID": [
+          "01",
+          "02"
+        ],
+        "grna": [
+          "000000_1",
+          "000000_2"
+        ],
+        "gene": [
+          "000000",
+          "000000"
+        ]
+      },
+      [
+        "000000_2"
+      ],
+      [
+        "1_B_02"
+      ]
+    ],
+    "test_a_control_that_matches_nothing_is_empty": [
+      {
+        "plateID": [
+          "1"
+        ],
+        "rowID": [
+          "A"
+        ],
+        "columnID": [
+          "01"
+        ],
+        "grna": [
+          "000001_1"
+        ],
+        "gene": [
+          "000001"
+        ]
+      },
+      [
+        "999999"
+      ],
+      []
+    ]
+  },
+  "case_contract_representations": {
+    "test_the_control_wells_come_from_the_count_data": "({'plateID': ['1', '1', '1'], 'rowID': ['A', 'B', 'B'], 'columnID': ['01', '01', '02'], 'grna': ['000001_1', '000000_1', '000000_2'], 'gene': ['000001', '000000', '000000']}, ['000000'], ('1_B_01', '1_B_02'))",
+    "test_one_control_written_as_a_bare_string": "({'plateID': ['1', '1'], 'rowID': ['A', 'B'], 'columnID': ['01', '01'], 'grna': ['000001_1', '000000_1'], 'gene': ['000001', '000000']}, '000000', ('1_B_01',))",
+    "test_a_control_named_as_a_guide_works_too": "({'plateID': ['1', '1'], 'rowID': ['A', 'B'], 'columnID': ['01', '02'], 'grna': ['000000_1', '000000_2'], 'gene': ['000000', '000000']}, ['000000_2'], ('1_B_02',))",
+    "test_a_control_that_matches_nothing_is_empty": "({'plateID': ['1'], 'rowID': ['A'], 'columnID': ['01'], 'grna': ['000001_1'], 'gene': ['000001']}, ['999999'], ())"
+  },
+  "contract_scope": "Exact ordered DataFrame input dictionaries and row strings, original bare-string/list controls, expected well tuples and equality assertions retained.",
+  "collected_before": [
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_an_unknown_contrast_is_refused",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_every_contrast_has_a_reason[against_other_wells]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_every_contrast_has_a_reason[within_well]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_the_contrast_is_named_before_anything_else",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_the_reason_reaches_the_comparison[against_other_wells-extra1]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_the_reason_reaches_the_comparison[against_controls-extra2]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_the_reason_reaches_the_comparison[within_well-extra0]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_every_contrast_has_a_reason[against_controls]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_an_unknown_contrast_note_is_empty_rather_than_raising",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_a_left_out_well_is_not_promoted_into_the_comparison",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_the_wells_of_a_gene_are_listed",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_a_left_out_well_takes_its_annotated_cells_with_it",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_including_every_well_says_nothing",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_a_left_out_well_is_dropped_under_the_default_contrast",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_leaving_a_well_out_is_said_out_loud",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_one_control_written_as_a_bare_string",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_a_control_that_matches_nothing_is_empty",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_no_control_is_a_reason_not_a_crash",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_the_control_wells_come_from_the_count_data",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_a_control_named_as_a_guide_works_too",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSurvivesTheRestOfTheMachinery::test_it_composes_with_two_measurements",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSurvivesTheRestOfTheMachinery::test_the_well_key_is_not_lost_when_rows_are_dropped",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSurvivesTheRestOfTheMachinery::test_it_still_aggregates_to_wells",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_against_controls_keeps_only_the_control_wells",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_the_annotated_cells_are_the_same_in_all_three",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_against_every_other_well_keeps_no_annotated_well",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_the_default_keeps_everything",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_the_three_do_not_agree",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_within_the_well_keeps_only_that_well",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellKeyIsReadTheWayTheMontageWroteIt::test_a_contrast_without_a_well_column_says_so",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellKeyIsReadTheWayTheMontageWroteIt::test_prc_is_next",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellKeyIsReadTheWayTheMontageWroteIt::test_no_well_column_is_none_not_one_big_well",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellKeyIsReadTheWayTheMontageWroteIt::test_montage_well_wins"
+  ],
+  "collected_after": [
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellKeyIsReadTheWayTheMontageWroteIt::test_prc_is_next",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellKeyIsReadTheWayTheMontageWroteIt::test_montage_well_wins",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellKeyIsReadTheWayTheMontageWroteIt::test_no_well_column_is_none_not_one_big_well",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellKeyIsReadTheWayTheMontageWroteIt::test_a_contrast_without_a_well_column_says_so",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_including_every_well_says_nothing",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_leaving_a_well_out_is_said_out_loud",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_a_left_out_well_is_dropped_under_the_default_contrast",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_the_wells_of_a_gene_are_listed",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_a_left_out_well_is_not_promoted_into_the_comparison",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheWellsAreChosen::test_a_left_out_well_takes_its_annotated_cells_with_it",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_an_unknown_contrast_note_is_empty_rather_than_raising",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_the_reason_reaches_the_comparison[within_well-extra0]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_the_reason_reaches_the_comparison[against_controls-extra2]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_the_reason_reaches_the_comparison[against_other_wells-extra1]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_the_contrast_is_named_before_anything_else",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_every_contrast_has_a_reason[against_controls]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_every_contrast_has_a_reason[against_other_wells]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_every_contrast_has_a_reason[within_well]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSaysWhatItRemoves::test_an_unknown_contrast_is_refused",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_one_control_written_as_a_bare_string]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_no_control_is_a_reason_not_a_crash",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_a_control_that_matches_nothing_is_empty]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_the_control_wells_come_from_the_count_data]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_a_control_named_as_a_guide_works_too]",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_the_annotated_cells_are_the_same_in_all_three",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_against_controls_keeps_only_the_control_wells",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_the_three_do_not_agree",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_the_default_keeps_everything",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_within_the_well_keeps_only_that_well",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestEachContrastHoldsADifferentSetOfCells::test_against_every_other_well_keeps_no_annotated_well",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSurvivesTheRestOfTheMachinery::test_it_composes_with_two_measurements",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSurvivesTheRestOfTheMachinery::test_it_still_aggregates_to_wells",
+    "tests/test_the_three_contrasts_are_three_questions.py::TestTheContrastSurvivesTheRestOfTheMachinery::test_the_well_key_is_not_lost_when_rows_are_dropped"
+  ],
+  "tests_before": {
+    "passed": 33,
+    "seconds": 4.53
+  },
+  "tests_after": {
+    "passed": 33,
+    "seconds": 2.96
+  },
+  "coverage_scope": "spacr.gene_measurement_compare under the complete selected contrast/control test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 290,
+    "num_statements": 2088,
+    "percent_covered": 13.306152705707932,
+    "percent_covered_display": "13",
+    "missing_lines": 1798,
+    "excluded_lines": 0,
+    "percent_statements_covered": 13.88888888888889,
+    "percent_statements_covered_display": "14",
+    "num_branches": 610,
+    "num_partial_branches": 13,
+    "covered_branches": 69,
+    "missing_branches": 541,
+    "percent_branches_covered": 11.311475409836065,
+    "percent_branches_covered_display": "11"
+  },
+  "coverage_after": {
+    "covered_lines": 290,
+    "num_statements": 2088,
+    "percent_covered": 13.306152705707932,
+    "percent_covered_display": "13",
+    "missing_lines": 1798,
+    "excluded_lines": 0,
+    "percent_statements_covered": 13.88888888888889,
+    "percent_statements_covered_display": "14",
+    "num_branches": 610,
+    "num_partial_branches": 13,
+    "covered_branches": 69,
+    "missing_branches": 541,
+    "percent_branches_covered": 11.311475409836065,
+    "percent_branches_covered_display": "11"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "244bc6b4a0d027f76545cd262537dba21b3a88eee0ca55be43352726c60df1a5",
+  "production_source_sha256": "afc1802fc812b72c0b522e0752b69495426bd3cbe6b76cb81c000f2509f2f086",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "no_control_reason_and_other_contrast_selection_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "bare-string-split-into-characters",
+      "source_variant": {
+        "path": "spacr/gene_measurement_compare.py",
+        "line": 221,
+        "old": "wanted = [typed] if isinstance(typed, str) else list(typed or ())",
+        "new": "wanted = list(typed or ())"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_one_control_written_as_a_bare_string"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_one_control_written_as_a_bare_string"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_one_control_written_as_a_bare_string]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_one_control_written_as_a_bare_string]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "well-order-reversed",
+      "source_variant": {
+        "path": "spacr/gene_measurement_compare.py",
+        "line": 228,
+        "old": "return tuple(dict.fromkeys(found))",
+        "new": "return tuple(reversed(dict.fromkeys(found)))"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_the_control_wells_come_from_the_count_data"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_the_control_wells_come_from_the_count_data"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_the_control_wells_come_from_the_count_data]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_three_contrasts_are_three_questions.py::TestControlsHaveToBeNamed::test_control_names_keep_their_original_count_tables_and_wells[test_the_control_wells_come_from_the_count_data]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the four affected control-well cases before and after; repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_the_three_contrasts_are_three_questions.py",
+      "line": 207,
+      "symbol": "TestControlsHaveToBeNamed.test_control_names_keep_their_original_count_tables_and_wells",
+      "new": "Keep each control spelling paired with its count table and ordered wells.",
+      "old": {
+        "test_the_control_wells_come_from_the_count_data": null,
+        "test_one_control_written_as_a_bare_string": "`resolve_controls` iterates its argument, so a bare string used to\narrive as six separate one-character controls.",
+        "test_a_control_named_as_a_guide_works_too": "184's whole point: gene or guide, either spelling.",
+        "test_a_control_that_matches_nothing_is_empty": null
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

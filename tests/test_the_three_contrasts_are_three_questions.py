@@ -174,47 +174,39 @@ class TestControlsHaveToBeNamed:
         assert not len(made.frame)
         assert "needs the controls named" in made.note
 
-    def test_the_control_wells_come_from_the_count_data(self):
-        counts = pd.DataFrame({
+    @pytest.mark.parametrize("data, typed, expected", [
+        pytest.param({
             "plateID": ["1", "1", "1"],
             "rowID": ["A", "B", "B"],
             "columnID": ["01", "01", "02"],
             "grna": ["000001_1", "000000_1", "000000_2"],
             "gene": ["000001", "000000", "000000"],
-        })
-
-        assert control_wells(counts, ["000000"]) == ("1_B_01", "1_B_02")
-
-    def test_one_control_written_as_a_bare_string(self):
-        """`resolve_controls` iterates its argument, so a bare string used to
-        arrive as six separate one-character controls."""
-        counts = pd.DataFrame({
+        }, ["000000"], ("1_B_01", "1_B_02"),
+            id="test_the_control_wells_come_from_the_count_data"),
+        pytest.param({
             "plateID": ["1", "1"], "rowID": ["A", "B"],
             "columnID": ["01", "01"],
             "grna": ["000001_1", "000000_1"],
             "gene": ["000001", "000000"],
-        })
-
-        assert control_wells(counts, "000000") == ("1_B_01",)
-
-    def test_a_control_named_as_a_guide_works_too(self):
-        """184's whole point: gene or guide, either spelling."""
-        counts = pd.DataFrame({
+        }, "000000", ("1_B_01",),
+            id="test_one_control_written_as_a_bare_string"),
+        pytest.param({
             "plateID": ["1", "1"], "rowID": ["A", "B"],
             "columnID": ["01", "02"],
             "grna": ["000000_1", "000000_2"],
             "gene": ["000000", "000000"],
-        })
-
-        assert control_wells(counts, ["000000_2"]) == ("1_B_02",)
-
-    def test_a_control_that_matches_nothing_is_empty(self):
-        counts = pd.DataFrame({
+        }, ["000000_2"], ("1_B_02",),
+            id="test_a_control_named_as_a_guide_works_too"),
+        pytest.param({
             "plateID": ["1"], "rowID": ["A"], "columnID": ["01"],
             "grna": ["000001_1"], "gene": ["000001"],
-        })
-
-        assert control_wells(counts, ["999999"]) == ()
+        }, ["999999"], (), id="test_a_control_that_matches_nothing_is_empty"),
+    ])
+    def test_control_names_keep_their_original_count_tables_and_wells(
+            self, data, typed, expected):
+        """Keep each control spelling paired with its count table and ordered wells."""
+        counts = pd.DataFrame(data)
+        assert control_wells(counts, typed) == expected
 
 
 class TestTheWellsAreChosen:
