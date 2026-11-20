@@ -372,16 +372,18 @@ def test_governed_eval_falls_back_to_the_cpu_and_moves_the_model_back(card, monk
 
 
 def test_the_ops_phenotype_segmentation_calls_the_governor(card, monkeypatch):
-    from spacr import ops_engine
+    """OPS retains governed OOM retry through the shared mask helper."""
+    from spacr import ops_engine, object as objects
 
     calls = []
-    real = ops_engine._governed_eval
+    real = objects._mask_eval
 
     def spy(model, x, **kwargs):
+        """Observe the same shared helper the mask generator uses."""
         calls.append(kwargs["site"])
         return real(model, x, **kwargs)
 
-    monkeypatch.setattr(ops_engine, "_governed_eval", spy)
+    monkeypatch.setattr(objects, "_mask_eval", spy)
 
     class Model(_Variadic):
         def eval(self, x, batch_size=8, resample=True, channels=None,
@@ -402,8 +404,8 @@ def test_the_ops_phenotype_segmentation_calls_the_governor(card, monkeypatch):
     nucleus, cell = Model(limit=1), Model(limit=1)
     ops_engine._ph_segment_field(
         stack, ["DAPI", "AF750"], (nucleus, cell),
-        {"ops_ph_downsample": 1, "ops_ph_batch_size": 4})
-    assert calls == ["ops_phenotype", "ops_phenotype"]
+        {"ops_ph_downsample": 1, "mask_eval_batch_size": 4})
+    assert calls == ["mask_ops_phenotype", "mask_ops_phenotype"]
     assert [size for size, _ in nucleus.sizes] == [4, 2, 1]
 
 
@@ -550,9 +552,11 @@ def _calls_in(path, function):
     ("spacr/object.py", "generate_cellpose_masks", "_governed_eval"),
     ("spacr/spacr_cellpose.py", "identify_masks_finetune", "_governed_eval"),
     ("spacr/spacr_cellpose.py", "generate_masks_from_imgs", "_governed_eval"),
-    ("spacr/ops_engine.py", "_ph_segment_field", "_governed_eval"),
-    ("spacr/ops_engine.py", "_objects", "_governed_eval"),
-    ("spacr/ops_engine.py", "run_spatial_masks", "_governed_eval"),
+    ("spacr/ops_engine.py", "_ph_segment_field", "_ops_mask_eval"),
+    ("spacr/ops_engine.py", "_objects", "_ops_mask_eval"),
+    ("spacr/ops_engine.py", "run_spatial_masks", "_ops_mask_eval"),
+    ("spacr/ops_engine.py", "_ops_mask_eval", "_mask_eval"),
+    ("spacr/object.py", "_mask_eval", "_governed_eval"),
     ("spacr/ops_accel.py", "_try", "_guarded"),
     ("spacr/ops_large_sites.py", "_governed_mask_step", "_guarded"),
     ("spacr/ops_large_sites.py", "_banded_flow_check", "_guarded"),
@@ -566,6 +570,7 @@ def _calls_in(path, function):
     ("spacr/deep_spacr.py", "train_model", "_train_batch"),
 ])
 def test_each_gpu_path_goes_through_the_governor(path, function, helper):
+    """Every route retains its direct helper and the shared helpers reach the governor."""
     names, raw_eval = _calls_in(path, function)
     assert helper in names
     assert not raw_eval

@@ -109,9 +109,12 @@ def _tables(folder):
 
 
 def _window_files(folder):
-    """The window files of well A1 under the default folder."""
+    """Count mask/marker files while checking that their batch grouping is saved."""
     well = folder / "objects_windows" / "A1"
-    return sorted(os.listdir(well)) if well.is_dir() else []
+    if not well.is_dir():
+        return []
+    assert (well / 'mask_batch_plan.json').is_file()
+    return sorted(name for name in os.listdir(well) if name.startswith('w'))
 
 
 @pytest.fixture(scope="module")

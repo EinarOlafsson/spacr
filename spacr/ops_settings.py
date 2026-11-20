@@ -71,7 +71,10 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_nucleus_diameter": None,
     "ops_ph_cell_diameter": None,
     "ops_ph_downsample": 2,
-    "ops_ph_batch_size": 8,
+    "batch_size": 0,
+    "mask_eval_batch_size": 0,
+    "mask_inference_precision": "auto",
+    "gpu_memory_margin_gb": 1.5,
     "ops_ph_sites": None,
     "ops_ph_texture": True,
     "ops_ph_pathogen_channel": None,
@@ -557,7 +560,6 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_nucleus_diameter": (float, int, type(None)),
     "ops_ph_cell_diameter": (float, int, type(None)),
     "ops_ph_downsample": int,
-    "ops_ph_batch_size": int,
     "ops_ph_sites": (str, list, int, type(None)),
     "ops_ph_texture": bool,
     "ops_ph_pathogen_channel": (str, type(None)),
@@ -1089,7 +1091,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS phenotype": [
         "ops_ph_channels", "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
-        "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
+        "ops_ph_cell_diameter", "ops_ph_downsample",
         "ops_ph_sites", "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
         "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
         "ops_ph_pathogen_diameter", "ops_ph_pathogen_min_area",
@@ -1604,10 +1606,6 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "across and costs a quarter of full resolution; 1 is full resolution; "
         "4 is about the sequencing resolution and blockier outlines. "
         "Measurement always uses the full-resolution pixels. Default 2. Alpha.",
-    "ops_ph_batch_size":
-        "(int) - How many image tiles Cellpose evaluates at once. Larger is "
-        "faster on a graphics card until its memory runs out; on the CPU it "
-        "changes little. Default 8. Alpha.",
     "ops_ph_sites":
         "(str or None) - Restrict the phenotype phases to these sites, as "
         "'520-525,555'. Used for a pilot on part of a well; empty runs every "
@@ -3753,6 +3751,9 @@ def ops_defaults(settings=None):
     :returns: the completed settings dict.
     """
     settings = settings if settings is not None else {}
+    from .settings import _fold_renamed_settings
+
+    _fold_renamed_settings(settings)
     for key, value in OPS_DEFAULTS.items():
         settings.setdefault(key, value)
     return settings

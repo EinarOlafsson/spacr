@@ -609,18 +609,24 @@ def test_a_window_and_level_segment_only_that_part(tmp_path):
         1 for r, c in _centres() if r < 150 - RADIUS and c < 200 - RADIUS)
 
 
-def test_cellpose_is_driven_through_the_ops_model(tmp_path, monkeypatch):
+@pytest.mark.parametrize('tile_batch', [0, 16])
+@pytest.mark.parametrize('precision', ['auto', 'fp32'])
+def test_cellpose_is_driven_through_the_ops_model(tmp_path, monkeypatch, tile_batch, precision):
+    """The selected spatial model keeps its input and uses shared tile/precision controls."""
     calls = []
 
     class _Model:
+        """Observe public eval options without changing a Cellpose module."""
+
         def eval(self, x, batch_size=8, resample=True, channels=None,
                  channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
-                 rescale=None, diameter=None, flow_threshold=0.4,
+                 invert=False, rescale=None, diameter=None, flow_threshold=0.4,
                  cellprob_threshold=0.0, do_3D=False, anisotropy=None,
                  flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
                  max_size_fraction=0.4, niter=None, augment=False,
-                 tile_overlap=0.1, bsize=None, compute_masks=True,
+                 tile_overlap=0.1, bsize=256, compute_masks=True,
                  progress=None):
+            """Return the same planted labels and record only supported eval keywords."""
             check_cellpose_eval_call(x, channel_axis)
             calls.append({"batch_size": batch_size, "diameter": diameter,
                           "channel_axis": channel_axis})
@@ -634,10 +640,12 @@ def test_cellpose_is_driven_through_the_ops_model(tmp_path, monkeypatch):
     report = oe.run_spatial_masks(_mask_settings(
         outs, tmp_path / "fields", spatial_segmenter="cellpose",
         spatial_stain="rgb", spatial_diameter=14,
-        spatial_cell_expansion_um=0.0))
+        spatial_cell_expansion_um=0.0, mask_eval_batch_size=tile_batch,
+        mask_inference_precision=precision))
     assert report["objects"] == len(_centres())
-    assert calls[0] == ({"cellpose_model": "cpsam"}, False)
-    assert calls[1] == {"batch_size": 16, "diameter": 14.0,
+    assert calls[0] == ({"cellpose_model": "cpsam",
+                         "mask_inference_precision": precision}, False)
+    assert calls[1] == {"batch_size": tile_batch or 1, "diameter": 14.0,
                         "channel_axis": -1}
 
 

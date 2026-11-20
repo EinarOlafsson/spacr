@@ -2343,6 +2343,7 @@ def _set_classifier_evaluation_defaults(settings):
 #: -- seven at once is one commit nobody can review and one mistake nobody
 #: can bisect.
 RENAMED_SETTINGS = {
+    "ops_ph_batch_size": "mask_eval_batch_size",
     "expected_end": "window_length",
     "min_n": "min_observations_per_hit",
     "min_cell_count": "min_cells_per_well",

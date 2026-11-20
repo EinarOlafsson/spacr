@@ -169,6 +169,7 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: legitimately dropping out of the category map is distinguishable from one
 #: that fell out by accident -- which is the whole point of this file.
 KEYS_RETIRED = frozenset({
+    "ops_ph_batch_size",
     # Feature 418 removes post-segmentation watershed splitting and merging
     # by boundary intensity. Mean-intensity bounds are new controls, not
     # replacement names for any value held by these retired settings.
