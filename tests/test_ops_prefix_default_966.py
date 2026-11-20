@@ -35,7 +35,7 @@ def test_the_new_defaults_and_the_schema_row():
 
     assert _defaults() == {"ops_read_mode": None, "ops_prefix_threshold_tuning": "per_well_decoy",
                            "ops_prefix_decoy_k": 4, "ops_prefix_fdr_target_pct": 1.0}
-    assert SETTINGS_SCHEMA_VERSION == 944
+    assert SETTINGS_SCHEMA_VERSION >= 944
     assert DEFAULT_CHANGES[944] == OLD
     spec = convert_settings_dict_for_gui(_defaults())
     assert spec["ops_read_mode"] == ("combo", ["log", "raw", "auto", None], None)

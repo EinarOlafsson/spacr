@@ -13476,11 +13476,14 @@ class AppScreen(QWidget):
             return
         _SETTINGS_CSV_FOLDER["last"] = os.path.dirname(path)
         try:
-            loaded = self._in_its_own_era(self._load_settings_csv(path))
+            loaded = self._load_settings_csv(path)
+            own = set(loaded)
+            loaded = self._in_its_own_era(loaded)
+            filled = len(set(loaded) - own)
             applied = self.apply_settings_dict(loaded)
             self._console.append_notice(
                 "Loaded {count} settings from {path}\n",
-                count=applied, path=path,
+                count=max(0, applied - filled), path=path,
             )
             self._warn_about_moved_settings(loaded)
         except Exception as e:
