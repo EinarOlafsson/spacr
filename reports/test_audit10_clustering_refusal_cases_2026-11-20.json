@@ -1,0 +1,290 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_gate_clustering.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 3,
+  "case_mapping": {
+    "tests/test_gate_clustering.py::test_too_many_clusters_is_refused_with_the_way_out": "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_too_many_clusters_is_refused_with_the_way_out]",
+    "tests/test_gate_clustering.py::test_a_missing_column_names_itself": "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_a_missing_column_names_itself]",
+    "tests/test_gate_clustering.py::test_one_measurement_against_itself_is_refused": "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_one_measurement_against_itself_is_refused]",
+    "tests/test_gate_clustering.py::test_bad_parameters_are_refused[kwargs2-at least 2]": "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_bad_parameters_are_refused_min_samples_one]",
+    "tests/test_gate_clustering.py::test_bad_parameters_are_refused[kwargs0-eps must be positive]": "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_bad_parameters_are_refused_eps_zero]",
+    "tests/test_gate_clustering.py::test_bad_parameters_are_refused[kwargs1-eps must be positive]": "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_bad_parameters_are_refused_eps_negative]"
+  },
+  "original_case_contracts": {
+    "tests/test_gate_clustering.py::test_too_many_clusters_is_refused_with_the_way_out": [
+      "cell_area",
+      "nucleus_area",
+      {
+        "eps": 0.05,
+        "min_samples": 2,
+        "max_clusters": 1
+      },
+      "Raise eps"
+    ],
+    "tests/test_gate_clustering.py::test_a_missing_column_names_itself": [
+      "cell_are",
+      "nucleus_area",
+      {},
+      "cell_are"
+    ],
+    "tests/test_gate_clustering.py::test_one_measurement_against_itself_is_refused": [
+      "cell_area",
+      "cell_area",
+      {},
+      "two different"
+    ],
+    "tests/test_gate_clustering.py::test_bad_parameters_are_refused[kwargs2-at least 2]": [
+      "cell_area",
+      "nucleus_area",
+      {
+        "min_samples": 1
+      },
+      "at least 2"
+    ],
+    "tests/test_gate_clustering.py::test_bad_parameters_are_refused[kwargs0-eps must be positive]": [
+      "cell_area",
+      "nucleus_area",
+      {
+        "eps": 0
+      },
+      "eps must be positive"
+    ],
+    "tests/test_gate_clustering.py::test_bad_parameters_are_refused[kwargs1-eps must be positive]": [
+      "cell_area",
+      "nucleus_area",
+      {
+        "eps": -1
+      },
+      "eps must be positive"
+    ]
+  },
+  "parameterized_case_contracts": {
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_too_many_clusters_is_refused_with_the_way_out]": [
+      "cell_area",
+      "nucleus_area",
+      {
+        "eps": 0.05,
+        "min_samples": 2,
+        "max_clusters": 1
+      },
+      "Raise eps"
+    ],
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_a_missing_column_names_itself]": [
+      "cell_are",
+      "nucleus_area",
+      {},
+      "cell_are"
+    ],
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_one_measurement_against_itself_is_refused]": [
+      "cell_area",
+      "cell_area",
+      {},
+      "two different"
+    ],
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_bad_parameters_are_refused_eps_zero]": [
+      "cell_area",
+      "nucleus_area",
+      {
+        "eps": 0
+      },
+      "eps must be positive"
+    ],
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_bad_parameters_are_refused_eps_negative]": [
+      "cell_area",
+      "nucleus_area",
+      {
+        "eps": -1
+      },
+      "eps must be positive"
+    ],
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_bad_parameters_are_refused_min_samples_one]": [
+      "cell_area",
+      "nucleus_area",
+      {
+        "min_samples": 1
+      },
+      "at least 2"
+    ]
+  },
+  "contract_scope": "Fresh unchanged _two_blobs(), exact axes, ordered option dictionaries and numeric types, ClusterError type and original regex for all six cases.",
+  "collected_before": [
+    "tests/test_gate_clustering.py::test_a_cluster_gate_round_trips_like_any_other",
+    "tests/test_gate_clustering.py::test_bad_parameters_are_refused[kwargs2-at least 2]",
+    "tests/test_gate_clustering.py::test_bad_parameters_are_refused[kwargs0-eps must be positive]",
+    "tests/test_gate_clustering.py::test_a_missing_column_names_itself",
+    "tests/test_gate_clustering.py::test_the_clusters_grown_off_the_lock_are_dbscans_labels[3-0.2-3]",
+    "tests/test_gate_clustering.py::test_the_clusters_grown_off_the_lock_are_dbscans_labels[0-0.3-10]",
+    "tests/test_gate_clustering.py::test_the_clusters_grown_off_the_lock_are_dbscans_labels[2-1.5-40]",
+    "tests/test_gate_clustering.py::test_two_populations_become_two_gates",
+    "tests/test_gate_clustering.py::test_a_constant_axis_is_refused_and_says_why",
+    "tests/test_gate_clustering.py::test_a_cluster_gate_selects_its_own_population",
+    "tests/test_gate_clustering.py::test_the_clusters_grown_off_the_lock_are_dbscans_labels[4-0.8-25]",
+    "tests/test_gate_clustering.py::test_scaling_is_on_by_default_and_matters",
+    "tests/test_gate_clustering.py::test_the_clusters_grown_off_the_lock_are_dbscans_labels[1-0.5-5]",
+    "tests/test_gate_clustering.py::test_clusters_come_back_largest_first",
+    "tests/test_gate_clustering.py::test_too_few_usable_rows_is_refused",
+    "tests/test_gate_clustering.py::test_bad_parameters_are_refused[kwargs1-eps must be positive]",
+    "tests/test_gate_clustering.py::test_only_noise_returns_nothing_rather_than_raising",
+    "tests/test_gate_clustering.py::test_too_many_clusters_is_refused_with_the_way_out",
+    "tests/test_gate_clustering.py::test_clusters_can_be_nested_under_a_parent_gate",
+    "tests/test_gate_clustering.py::test_a_walk_step_gives_the_lock_back_while_it_grows_clusters",
+    "tests/test_gate_clustering.py::test_one_measurement_against_itself_is_refused"
+  ],
+  "collected_after": [
+    "tests/test_gate_clustering.py::test_only_noise_returns_nothing_rather_than_raising",
+    "tests/test_gate_clustering.py::test_a_cluster_gate_round_trips_like_any_other",
+    "tests/test_gate_clustering.py::test_the_clusters_grown_off_the_lock_are_dbscans_labels[4-0.8-25]",
+    "tests/test_gate_clustering.py::test_clusters_can_be_nested_under_a_parent_gate",
+    "tests/test_gate_clustering.py::test_too_few_usable_rows_is_refused",
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_bad_parameters_are_refused_min_samples_one]",
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_bad_parameters_are_refused_eps_negative]",
+    "tests/test_gate_clustering.py::test_the_clusters_grown_off_the_lock_are_dbscans_labels[0-0.3-10]",
+    "tests/test_gate_clustering.py::test_a_cluster_gate_selects_its_own_population",
+    "tests/test_gate_clustering.py::test_the_clusters_grown_off_the_lock_are_dbscans_labels[2-1.5-40]",
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_too_many_clusters_is_refused_with_the_way_out]",
+    "tests/test_gate_clustering.py::test_a_walk_step_gives_the_lock_back_while_it_grows_clusters",
+    "tests/test_gate_clustering.py::test_the_clusters_grown_off_the_lock_are_dbscans_labels[3-0.2-3]",
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_bad_parameters_are_refused_eps_zero]",
+    "tests/test_gate_clustering.py::test_two_populations_become_two_gates",
+    "tests/test_gate_clustering.py::test_scaling_is_on_by_default_and_matters",
+    "tests/test_gate_clustering.py::test_a_constant_axis_is_refused_and_says_why",
+    "tests/test_gate_clustering.py::test_clusters_come_back_largest_first",
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_a_missing_column_names_itself]",
+    "tests/test_gate_clustering.py::test_the_clusters_grown_off_the_lock_are_dbscans_labels[1-0.5-5]",
+    "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_one_measurement_against_itself_is_refused]"
+  ],
+  "tests_before": {
+    "passed": 21,
+    "seconds": 4.92
+  },
+  "tests_after": {
+    "passed": 21,
+    "seconds": 5.4
+  },
+  "coverage_scope": "spacr.qt.widgets.gate_spec under the full clustering test module; not full-suite coverage",
+  "coverage_before": {
+    "covered_lines": 550,
+    "num_statements": 1789,
+    "percent_covered": 25.114155251141554,
+    "percent_covered_display": "25",
+    "missing_lines": 1239,
+    "excluded_lines": 0,
+    "percent_statements_covered": 30.74343208496367,
+    "percent_statements_covered_display": "31",
+    "num_branches": 620,
+    "num_partial_branches": 17,
+    "covered_branches": 55,
+    "missing_branches": 565,
+    "percent_branches_covered": 8.870967741935484,
+    "percent_branches_covered_display": "9"
+  },
+  "coverage_after": {
+    "covered_lines": 550,
+    "num_statements": 1789,
+    "percent_covered": 25.114155251141554,
+    "percent_covered_display": "25",
+    "missing_lines": 1239,
+    "excluded_lines": 0,
+    "percent_statements_covered": 30.74343208496367,
+    "percent_statements_covered_display": "31",
+    "num_branches": 620,
+    "num_partial_branches": 17,
+    "covered_branches": 55,
+    "missing_branches": 565,
+    "percent_branches_covered": 8.870967741935484,
+    "percent_branches_covered_display": "9"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "da4397d0d93103239ef246c58af9abd7248d63d007d8a9b3fae1d8b18441c0ff",
+  "production_source_sha256": "b5b5991e628178a636749f6f02607d2477e7fcb7c8a4d93d951b69e493306c0a",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "dbscan_identity_and_gil_timing_regressions_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "missing-column-preflight-skipped",
+      "source_variant": {
+        "path": "spacr/qt/widgets/gate_spec.py",
+        "line": 3555,
+        "old": "if column not in frame.columns:\n            raise ClusterError(f\"{column!r} is not a column of this table\")",
+        "new": "if False and column not in frame.columns:\n            raise ClusterError(f\"{column!r} is not a column of this table\")"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_gate_clustering.py::test_a_missing_column_names_itself"
+        ],
+        "application_markers": 2,
+        "failure_summary_lines": [
+          "tests/test_gate_clustering.py::test_a_missing_column_names_itself - Ke..."
+        ]
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_a_missing_column_names_itself]"
+        ],
+        "application_markers": 2,
+        "failure_summary_lines": [
+          "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_a_missing_column_names_itself]"
+        ]
+      }
+    },
+    {
+      "mutant": "same-axis-reason-lost",
+      "source_variant": {
+        "path": "spacr/qt/widgets/gate_spec.py",
+        "line": 3558,
+        "old": "raise ClusterError(\"clustering needs two different measurements\")",
+        "new": "raise ClusterError(\"clustering input is invalid\")"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_gate_clustering.py::test_one_measurement_against_itself_is_refused"
+        ],
+        "application_markers": 2,
+        "failure_summary_lines": [
+          "tests/test_gate_clustering.py::test_one_measurement_against_itself_is_refused"
+        ]
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_one_measurement_against_itself_is_refused]"
+        ],
+        "application_markers": 2,
+        "failure_summary_lines": [
+          "tests/test_gate_clustering.py::test_clustering_refusals_keep_their_original_inputs[test_one_measurement_against_itself_is_refused]"
+        ]
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the six affected refusal cases before and after; repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_gate_clustering.py",
+      "line": 140,
+      "symbol": "test_clustering_refusals_keep_their_original_inputs",
+      "new": "Keep each clustering refusal matched to its original input and message.",
+      "old": {
+        "test_too_many_clusters_is_refused_with_the_way_out": "Two hundred gates is not a result, it is a wrongly-tuned eps, and\ndrawing them all makes the editor unusable while the user works out why.",
+        "test_a_missing_column_names_itself": null,
+        "test_one_measurement_against_itself_is_refused": null,
+        "test_bad_parameters_are_refused": null
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

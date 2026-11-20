@@ -119,36 +119,28 @@ def test_only_noise_returns_nothing_rather_than_raising():
 # Refusals
 # ---------------------------------------------------------------------------
 
-def test_too_many_clusters_is_refused_with_the_way_out():
-    """Two hundred gates is not a result, it is a wrongly-tuned eps, and
-    drawing them all makes the editor unusable while the user works out why."""
-    frame = _two_blobs()
-    with pytest.raises(ClusterError, match="Raise eps"):
-        cluster_gates(frame, "cell_area", "nucleus_area",
-                      eps=0.05, min_samples=2, max_clusters=1)
-
-
-def test_a_missing_column_names_itself():
-    frame = _two_blobs()
-    with pytest.raises(ClusterError, match="cell_are"):
-        cluster_gates(frame, "cell_are", "nucleus_area")
-
-
-def test_one_measurement_against_itself_is_refused():
-    frame = _two_blobs()
-    with pytest.raises(ClusterError, match="two different"):
-        cluster_gates(frame, "cell_area", "cell_area")
-
-
-@pytest.mark.parametrize("kwargs,match", [
-    ({"eps": 0}, "eps must be positive"),
-    ({"eps": -1}, "eps must be positive"),
-    ({"min_samples": 1}, "at least 2"),
+@pytest.mark.parametrize("x_column, y_column, options, message", [
+    pytest.param(
+        "cell_area", "nucleus_area",
+        {"eps": 0.05, "min_samples": 2, "max_clusters": 1}, "Raise eps",
+        id="test_too_many_clusters_is_refused_with_the_way_out"),
+    pytest.param("cell_are", "nucleus_area", {}, "cell_are",
+                 id="test_a_missing_column_names_itself"),
+    pytest.param("cell_area", "cell_area", {}, "two different",
+                 id="test_one_measurement_against_itself_is_refused"),
+    pytest.param("cell_area", "nucleus_area", {"eps": 0}, "eps must be positive",
+                 id="test_bad_parameters_are_refused_eps_zero"),
+    pytest.param("cell_area", "nucleus_area", {"eps": -1}, "eps must be positive",
+                 id="test_bad_parameters_are_refused_eps_negative"),
+    pytest.param("cell_area", "nucleus_area", {"min_samples": 1}, "at least 2",
+                 id="test_bad_parameters_are_refused_min_samples_one"),
 ])
-def test_bad_parameters_are_refused(kwargs, match):
+def test_clustering_refusals_keep_their_original_inputs(
+        x_column, y_column, options, message):
+    """Keep each clustering refusal matched to its original input and message."""
     frame = _two_blobs()
-    with pytest.raises(ClusterError, match=match):
-        cluster_gates(frame, "cell_area", "nucleus_area", **kwargs)
+    with pytest.raises(ClusterError, match=message):
+        cluster_gates(frame, x_column, y_column, **options)
 
 
 def test_too_few_usable_rows_is_refused():
