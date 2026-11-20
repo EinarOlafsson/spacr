@@ -2027,6 +2027,11 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "ops_random_barcode_control": bool(settings.get("ops_random_barcode_control", True)),
         "ops_control_seed": int(settings.get("ops_control_seed", 0) or 0),
         "ops_prefix_masks": settings.get("ops_prefix_masks") or None,
+        "ops_prefix_masks_frame": str(settings.get("ops_prefix_masks_frame")
+                                      or MASK_FRAMES[0]).strip().lower(),
+        "cpg_align_source": str(settings.get("cpg_align_source")
+                                or "periscope_logged").strip().lower(),
+        "cpg_align_table": settings.get("cpg_align_table") or None,
         "ops_read_threshold": float(settings.get("ops_read_threshold", 315.0)),
         "ops_prefix_decoy_k": int(settings.get("ops_prefix_decoy_k") or 0),
         "ops_prefix_decoy_seed": int(settings.get("ops_prefix_decoy_seed", 1) or 0),
@@ -2086,6 +2091,12 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
                          "ops_prefix_decoy_k to 1 or more (4 recommended)")
     if not out["ops_prefix_fdr_target_pct"] > 0:
         raise ValueError("ops_prefix_fdr_target_pct must be above 0")
+    if out["ops_prefix_masks_frame"] not in MASK_FRAMES:
+        raise ValueError(f"ops_prefix_masks_frame must be one of {list(MASK_FRAMES)}")
+    from .cpg_cropped import ALIGN_SOURCES
+
+    if out["cpg_align_source"] not in ALIGN_SOURCES:
+        raise ValueError(f"cpg_align_source must be one of {list(ALIGN_SOURCES)}")
     if out["ops_prefix_crosstalk"] not in _CROSSTALK:
         raise ValueError(f"ops_prefix_crosstalk must be one of {list(_CROSSTALK)}")
     if out["ops_prefix_metric"] not in _METRICS:
@@ -2160,6 +2171,87 @@ def _check_weight_settings(out: Mapping[str, Any]) -> None:
                             "'weighted_majority' are alternatives; set "
                             "ops_prefix_minority_min_reads to 0 (its default is 3) "
                             "or choose another quality method"))
+
+
+#: The frame of the cell labels a prefix decode reads (item 919 frame fix).
+#: ``'sbs'``: the labels are already in the sequencing frame (PERISCOPE's
+#: deposited masks, or labels drawn on the sequencing planes). ``'painting'``:
+#: the labels were segmented on the painting crops (CorrDNA), which PERISCOPE
+#: publishes in their own frame, so each site's labels are moved onto the
+#: sequencing frame by :func:`spacr.cpg_cropped.painting_to_sbs_shift` before
+#: reads are assigned, and the shift is written to
+#: ``label_frame_<plate>_<well_id>.csv``.
+MASK_FRAMES = ("sbs", "painting")
+
+#: The item-919 frame keys of :func:`prefix_settings`, left out of
+#: ``quality_classes.json`` while ``ops_prefix_masks_frame`` is ``'sbs'``, so
+#: such a run writes what it wrote before.
+_ITEM_919_FRAME_KEYS = ("ops_prefix_masks_frame", "cpg_align_source", "cpg_align_table")
+
+
+def check_masks_frame(chosen: Mapping[str, Any]) -> None:
+    """Refuse painting-frame labels that are about to be read as sequencing-frame ones.
+
+    A label folder written by spaCR's large-site segmentation
+    (:mod:`spacr.ops_large_sites`) has a ``settings.json`` with
+    ``seg_sites_src`` next to its ``labels/`` folder: those labels were drawn on
+    the painting crops. Reading them with ``ops_prefix_masks_frame 'sbs'``
+    would assign every read to the cell that sits PERISCOPE's 04Align shift
+    away, so the run stops.
+
+    :param chosen: from :func:`prefix_settings`.
+    :raises ValueError: for spaCR painting-crop labels under ``'sbs'``.
+    """
+    template = chosen.get("ops_prefix_masks")
+    if not template or chosen.get("ops_prefix_masks_frame") != "sbs":
+        return
+    folder = os.path.dirname(os.path.dirname(str(template)))
+    if "{" in folder:
+        return
+    record = os.path.join(folder, "settings.json")
+    if not os.path.isfile(record):
+        return
+    try:
+        with open(record, encoding="utf-8") as handle:
+            written = json.load(handle)
+    except (OSError, ValueError):
+        return
+    if isinstance(written, dict) and written.get("seg_sites_src"):
+        raise ValueError(
+            f"ops_prefix_masks {template!r} are spaCR segmentation labels of the painting "
+            f"crops ({record} has seg_sites_src). PERISCOPE's painting crops are not in "
+            "the sequencing frame; set ops_prefix_masks_frame to 'painting' so each "
+            "site's labels are moved by its 04Align shift before reads are assigned")
+
+
+def frame_labels(labels: Optional[np.ndarray], chosen: Mapping[str, Any], *,
+                 index: pd.DataFrame, plate: str, well: str, site: int, cpg_root: str,
+                 record: Dict[int, Dict[str, Any]]) -> Optional[np.ndarray]:
+    """One site's cell labels in the sequencing frame (item 919 frame fix).
+
+    :param labels: from :func:`site_labels`, or None.
+    :param chosen: from :func:`prefix_settings`.
+    :param index: the cropped-site index (for ``cpg_align_source 'register'``).
+    :param plate: the plate.
+    :param well: the well folder name.
+    :param site: the site.
+    :param cpg_root: the reader's root.
+    :param record: filled with the site's shift; reused when the site comes
+        again (tuning, then calling).
+    :returns: ``labels`` unchanged under ``'sbs'``; else moved by the site's
+        painting-to-sequencing shift (:func:`spacr.cpg_cropped.shift_image`).
+    :raises ValueError: when the site has no shift record (never a silent 0).
+    """
+    if labels is None or chosen["ops_prefix_masks_frame"] == "sbs":
+        return labels
+    from .cpg_cropped import painting_to_sbs_shift, shift_image
+
+    if site not in record:
+        record[site] = painting_to_sbs_shift(
+            index, plate, well, site, cpg_root=cpg_root, source=chosen["cpg_align_source"],
+            template=chosen["cpg_align_table"])
+    found = record[site]
+    return shift_image(labels, found["dy"], found["dx"])
 
 
 def site_labels(template: Optional[str], *, plate: str, well: str, well_id: str,
@@ -2360,7 +2452,8 @@ def _multiplicity_table(counts: Mapping[str, int], cells: int, min_reads: int) -
 def _site_geometry(plan: Mapping[str, Any], chosen: Mapping[str, Any],
                    labels: Optional[np.ndarray], y: np.ndarray, x: np.ndarray,
                    cell: np.ndarray, *, plate: str, well: str, well_id: str, site: int,
-                   destination: str) -> Tuple[Optional[np.ndarray],
+                   destination: str,
+                   frame: Optional[Mapping[str, Any]] = None) -> Tuple[Optional[np.ndarray],
                                               Optional[Dict[str, np.ndarray]]]:
     """A site's touching cells and its reads' nucleus distances, when the run needs them (item 988).
 
@@ -2397,6 +2490,10 @@ def _site_geometry(plan: Mapping[str, Any], chosen: Mapping[str, Any],
         if nuclei is None:
             raise ValueError("ops_prefix_distance_weight needs nucleus labels; set "
                              "ops_prefix_nuclei_masks")
+        if frame is not None:
+            from .cpg_cropped import shift_image
+
+            nuclei = shift_image(nuclei, frame["dy"], frame["dx"])
         gap, fallback = _read_nucleus_gaps(y, x, cell, labels, nuclei)
         extra = {"nuc_gap_px": gap, "nuc_gap_fallback": fallback}
     return pairs, extra
@@ -2588,6 +2685,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
     shuffles = ([shuffled_library(library, chosen["ops_control_seed"] + s)
                  for s in range(SHUFFLE_SEEDS)] if calibration else [])
     shuffle_memo: List[Dict[str, tuple]] = [{} for _ in shuffles]
+    check_masks_frame(chosen)
     built = cpg_site_index(settings, md5=False)
     pinned = built["pinned"]
     cycles = max(library.positions)
@@ -2614,6 +2712,9 @@ def run_prefix_decode(settings: Mapping[str, Any],
     if not chosen["ops_prefix_tuning_min_sites"]:
         recorded = {key: value for key, value in recorded.items()
                     if key not in _SMALL_WELL_KEYS}
+    if chosen["ops_prefix_masks_frame"] == "sbs":
+        recorded = {key: value for key, value in recorded.items()
+                    if key not in _ITEM_919_FRAME_KEYS}
     if read_mode != "log":
         recorded = {**recorded, "ops_read_mode": read_mode}
     if insitu["recorded"]:
@@ -2640,6 +2741,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
         site_labelled: Dict[int, bool] = {}
         site_shuffled: Dict[int, float] = {}
         site_pairs: Dict[int, Optional[np.ndarray]] = {}
+        site_frames: Dict[int, Dict[str, Any]] = {}
         site_extra: Dict[int, Optional[Dict[str, np.ndarray]]] = {}
         well_multi: Dict[str, int] = {}
         multi_rows: List[pd.DataFrame] = []
@@ -2673,6 +2775,9 @@ def run_prefix_decode(settings: Mapping[str, Any],
                     labels = _compartment_labels(labels, insitu, plate=plate, well=well,
                                                  well_id=well_id, site=site,
                                                  destination=str(destination))
+                labels = frame_labels(labels, chosen, index=index, plate=plate, well=well,
+                                      site=site, cpg_root=pinned["cpg_root"],
+                                      record=site_frames)
                 stack = loaded["sbs"]
                 if labels is not None and np.asarray(labels).shape != stack.shape[1:3]:
                     raise ValueError(f"the cell labels are {np.asarray(labels).shape}, "
@@ -2684,7 +2789,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 held[site] = (peaks, strength, values, cell)
                 site_pairs[site], site_extra[site] = _site_geometry(
                     plan, chosen, labels, peaks[:, 0], peaks[:, 1], cell, plate=plate,
-                    well=well, well_id=well_id, site=site, destination=str(destination))
+                    well=well, well_id=well_id, site=site, destination=str(destination),
+                    frame=site_frames.get(site))
                 if "raw" in modes:
                     held_raw[site] = _raw_candidates(stack, held[site])
                 del loaded, stack
@@ -2797,6 +2903,9 @@ def run_prefix_decode(settings: Mapping[str, Any],
                     labels = _compartment_labels(labels, insitu, plate=plate, well=well,
                                                  well_id=well_id, site=site,
                                                  destination=str(destination))
+                labels = frame_labels(labels, chosen, index=index, plate=plate, well=well,
+                                      site=site, cpg_root=pinned["cpg_root"],
+                                      record=site_frames)
                 reads = _decode_site(
                     loaded["sbs"], matching, bases=pinned["cpg_sbs_bases"], labels=labels,
                     threshold=chosen["ops_read_threshold"],
@@ -2812,7 +2921,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 site_pairs[site], extra = _site_geometry(
                     plan, chosen, labels, reads["y"].to_numpy(), reads["x"].to_numpy(),
                     reads["cell"].to_numpy(), plate=plate, well=well, well_id=well_id,
-                    site=site, destination=str(destination))
+                    site=site, destination=str(destination), frame=site_frames.get(site))
                 for name, column in (extra or {}).items():
                     reads[name] = column
                 if plan["multi"]:
@@ -2896,6 +3005,14 @@ def run_prefix_decode(settings: Mapping[str, Any],
             say(f"prefix_decode {plate} {well_id}: the minority-read rule "
                 f"(ops_prefix_minority_min_reads {minority_k}) rescued {here_rescued} "
                 f"genotyped cells")
+        if site_frames:
+            write_table(pd.DataFrame([{"plate": plate, "well": well_id, "site": int(site), **found}
+                                      for site, found in sorted(site_frames.items())]),
+                        os.path.join(folder, f"label_frame_{plate}_{well_id}.csv"),
+                        canonicalise=False)
+            say(f"prefix_decode {plate} {well_id}: painting-frame labels moved onto the "
+                f"sequencing frame on {len(site_frames)} sites "
+                f"(cpg_align_source {chosen['cpg_align_source']})")
         well_seconds[f"{plate}_{well_id}"] = round(time.perf_counter() - well_started, 1)
     summary = pd.DataFrame(site_rows)
     write_table(summary, os.path.join(folder, "site_summary.csv"), canonicalise=False)

@@ -470,6 +470,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "cpg_sbs_resample": "none",
     "cpg_missing": "error",
     "cpg_md5": False,
+    "cpg_align_source": "periscope_logged",
+    "cpg_align_table": None,
     "ops_library_mode": "barcode",
     "ops_library_sequence_col": "sgRNA",
     "ops_library_gene_col": "gene_symbol",
@@ -502,6 +504,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_weighted_quality": True,
     "ops_prefix_weighted_min_share": 0.6,
     "ops_prefix_nuclei_masks": None,
+    "ops_prefix_masks_frame": "sbs",
     "ops_keep_multi_guide_cells": False,
     "ops_multi_guide_min_reads": 2,
     "ops_prefix_tuning_min_sites": 0,
@@ -996,6 +999,8 @@ OPS_TYPES: Dict[str, object] = {
     "cpg_sbs_bases": (list, str),
     "cpg_sbs_dapi": (str, type(None)),
     "cpg_sbs_resample": str,
+    "cpg_align_source": str,
+    "cpg_align_table": (str, type(None)),
     "cpg_missing": str,
     "cpg_md5": bool,
     "ops_library_mode": str,
@@ -1030,6 +1035,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_weighted_quality": bool,
     "ops_prefix_weighted_min_share": (float, int),
     "ops_prefix_nuclei_masks": (str, type(None)),
+    "ops_prefix_masks_frame": str,
     "ops_keep_multi_guide_cells": bool,
     "ops_multi_guide_min_reads": int,
     "ops_prefix_tuning_min_sites": int,
@@ -1094,7 +1100,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Cell Painting Gallery input": [
         "cpg_root", "cpg_wells", "cpg_sites", "cpg_phenotype_channels",
         "cpg_sbs_cycles", "cpg_sbs_bases", "cpg_sbs_dapi", "cpg_sbs_resample",
-        "cpg_missing", "cpg_md5",
+        "cpg_missing", "cpg_md5", "cpg_align_source", "cpg_align_table",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers", "ops_deterministic_blas", "ops_blas_threads",
@@ -1175,6 +1181,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_minority_min_reads", "ops_prefix_quality_method",
         "ops_prefix_weighted_quality", "ops_prefix_weighted_min_share",
         "ops_keep_multi_guide_cells", "ops_multi_guide_min_reads",
+        "ops_prefix_masks_frame",
     ],
     "Spacer-prefix FDR & tuning": [
         "ops_random_barcode_control", "ops_control_seed",
@@ -3716,6 +3723,20 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(bool) - Add each file's md5 to cpg_index.csv, which proves later "
         "that a run read the same bytes. Reading every file takes time on a "
         "network drive. Default False. Alpha.",
+    "cpg_align_source":
+        "(str) - Where a site's painting-to-sequencing shift comes from when "
+        "ops_prefix_masks_frame is 'painting'. PERISCOPE publishes its painting "
+        "crops in their own frame and moves them onto Cycle01_DAPI at analysis "
+        "time. 'periscope_logged' reads that shift from the site's PERISCOPE "
+        "Image.csv (Align_Yshift/Xshift_DAPI_Painting); 'register' measures it by "
+        "phase correlation of CorrDNA against Cycle01_DAPI. A site without a "
+        "record or an accepted registration is refused, never given a zero "
+        "shift. Default 'periscope_logged'. Alpha.",
+    "cpg_align_table":
+        "(str or None) - The PERISCOPE Image.csv of each site, as a path with "
+        "{plate}, {well}, {well_number} and {site} fields. Empty finds it from "
+        "cpg_root in the cpg0021 layout (workspace/analysis/<batch>/"
+        "<plate>-Well<N>-<site>/Image.csv). Default None. Alpha.",
     "ops_library_mode":
         "(str) - What the library holds. 'barcode' is a separate barcode "
         "per guide, matched by the tile decode. 'spacer_prefix' reads the "
@@ -3890,6 +3911,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "share of a cell's read weight that its top barcode needs. The top "
         "barcode must also hold more weight than any other barcode. "
         "Default 0.6. Alpha.",
+    "ops_prefix_masks_frame":
+        "(str) - The frame of the ops_prefix_masks labels. 'sbs': already in "
+        "the sequencing frame, as PERISCOPE's deposited masks are. 'painting': "
+        "segmented on the painting crops (CorrDNA), as spaCR's large-site "
+        "segmentation does; each site's labels (and ops_prefix_nuclei_masks) are "
+        "moved onto the sequencing frame by its cpg_align_source shift before "
+        "reads are assigned, and the shifts are written to "
+        "label_frame_<plate>_<well>.csv. spaCR segmentation labels read as 'sbs' "
+        "are refused. Default 'sbs'. Alpha.",
     "ops_prefix_nuclei_masks":
         "(str or None) - The nucleus labels that ops_prefix_distance_weight "
         "measures distances to. The value is a path with {plate}, {well}, "
