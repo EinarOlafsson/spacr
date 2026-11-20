@@ -106,8 +106,9 @@ def _settings():
 def disclosure_for(app_key: str) -> str:
     """The remembered disclosure level for ``app_key``.
 
-    Defaults to :data:`ESSENTIALS`, so a module shows a few settings at a
-    time until its user switches to All.
+    Defaults to the Preferences choice "Settings forms open on", which is
+    :data:`ESSENTIALS` unless changed, so a module shows a few settings at a
+    time once its user has not switched to All.
 
     :param app_key: the module's app key.
     """
@@ -115,8 +116,20 @@ def disclosure_for(app_key: str) -> str:
     store = _settings()
     raw = _stored_later(store, key)
     if raw is None:
-        raw = store.value(key, ESSENTIALS)
+        raw = store.value(key, None)
+    if raw is None:
+        raw = _default_disclosure()
     return ALL if str(raw) == ALL else ESSENTIALS
+
+
+def _default_disclosure() -> str:
+    """The view a form opens on with no remembered choice, from Preferences."""
+    try:
+        from .preferences import _get_settings_view_default
+
+        return ALL if _get_settings_view_default() == ALL else ESSENTIALS
+    except Exception:                                        # noqa: BLE001
+        return ESSENTIALS
 
 
 def remember_disclosure(app_key: str, level: str) -> None:
