@@ -1,0 +1,256 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_classify_controls_83.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 3,
+  "case_mapping": {
+    "tests/test_classify_controls_83.py::test_well_names_against_an_annotation_column_use_the_columns_classes": "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_well_names_against_an_annotation_column_use_the_columns_classes]",
+    "tests/test_classify_controls_83.py::test_controls_that_do_match_are_never_touched": "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_controls_that_do_match_are_never_touched]",
+    "tests/test_classify_controls_83.py::test_a_deliberate_two_of_five_subset_is_honoured": "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_a_deliberate_two_of_five_subset_is_honoured]",
+    "tests/test_classify_controls_83.py::test_three_classes_are_not_guessed_at": "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_three_classes_are_not_guessed_at]"
+  },
+  "control_resolution_contracts": {
+    "test_well_names_against_an_annotation_column_use_the_columns_classes": [
+      {
+        "cc2d1a_recruitment": [
+          1.0,
+          2.0,
+          1.0,
+          2.0
+        ]
+      },
+      "cc2d1a_recruitment",
+      "c1",
+      "c2",
+      true,
+      [
+        1.0,
+        2.0
+      ]
+    ],
+    "test_controls_that_do_match_are_never_touched": [
+      {
+        "columnID": [
+          "c1",
+          "c2",
+          "c1"
+        ]
+      },
+      "columnID",
+      "c1",
+      "c2",
+      false,
+      [
+        "c1",
+        "c2"
+      ]
+    ],
+    "test_a_deliberate_two_of_five_subset_is_honoured": [
+      {
+        "columnID": [
+          "c1",
+          "c2",
+          "c3",
+          "c4",
+          "c5"
+        ]
+      },
+      "columnID",
+      "c1",
+      "c3",
+      false,
+      [
+        "c1",
+        "c3"
+      ]
+    ],
+    "test_three_classes_are_not_guessed_at": [
+      {
+        "ann": [
+          1.0,
+          2.0,
+          3.0
+        ]
+      },
+      "ann",
+      "c1",
+      "c2",
+      false,
+      [
+        "c1",
+        "c2"
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_well_names_against_an_annotation_column_use_the_columns_classes": "({'cc2d1a_recruitment': [1.0, 2.0, 1.0, 2.0]}, 'cc2d1a_recruitment', 'c1', 'c2', True, (1.0, 2.0))",
+    "test_controls_that_do_match_are_never_touched": "({'columnID': ['c1', 'c2', 'c1']}, 'columnID', 'c1', 'c2', False, ('c1', 'c2'))",
+    "test_a_deliberate_two_of_five_subset_is_honoured": "({'columnID': ['c1', 'c2', 'c3', 'c4', 'c5']}, 'columnID', 'c1', 'c3', False, ('c1', 'c3'))",
+    "test_three_classes_are_not_guessed_at": "({'ann': [1.0, 2.0, 3.0]}, 'ann', 'c1', 'c2', False, ('c1', 'c2'))"
+  },
+  "contract_scope": "Exact ordered DataFrame data with float/string values, label column, input controls, matcher, Boolean identity and negative/positive pair equality retained for all four examples.",
+  "collected_before": [
+    "tests/test_classify_controls_83.py::test_three_classes_are_not_guessed_at",
+    "tests/test_classify_controls_83.py::test_the_annotation_path_no_longer_writes_location_column",
+    "tests/test_classify_controls_83.py::test_controls_that_do_match_are_never_touched",
+    "tests/test_classify_controls_83.py::test_a_location_column_absent_from_the_table_names_the_cause",
+    "tests/test_classify_controls_83.py::test_a_missing_column_is_left_for_the_caller_to_report",
+    "tests/test_classify_controls_83.py::test_a_deliberate_two_of_five_subset_is_honoured",
+    "tests/test_classify_controls_83.py::test_it_says_what_it_derived_and_why",
+    "tests/test_classify_controls_83.py::test_one_class_is_not_guessed_at",
+    "tests/test_classify_controls_83.py::test_the_training_column_is_derived_not_taken_from_the_mutated_setting",
+    "tests/test_classify_controls_83.py::test_a_duplicated_column_is_left_for_the_caller_to_report",
+    "tests/test_classify_controls_83.py::test_it_is_a_value_error_not_a_key_error",
+    "tests/test_classify_controls_83.py::test_well_names_against_an_annotation_column_use_the_columns_classes"
+  ],
+  "collected_after": [
+    "tests/test_classify_controls_83.py::test_one_class_is_not_guessed_at",
+    "tests/test_classify_controls_83.py::test_a_location_column_absent_from_the_table_names_the_cause",
+    "tests/test_classify_controls_83.py::test_the_training_column_is_derived_not_taken_from_the_mutated_setting",
+    "tests/test_classify_controls_83.py::test_the_annotation_path_no_longer_writes_location_column",
+    "tests/test_classify_controls_83.py::test_it_is_a_value_error_not_a_key_error",
+    "tests/test_classify_controls_83.py::test_a_missing_column_is_left_for_the_caller_to_report",
+    "tests/test_classify_controls_83.py::test_it_says_what_it_derived_and_why",
+    "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_controls_that_do_match_are_never_touched]",
+    "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_well_names_against_an_annotation_column_use_the_columns_classes]",
+    "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_three_classes_are_not_guessed_at]",
+    "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_a_deliberate_two_of_five_subset_is_honoured]",
+    "tests/test_classify_controls_83.py::test_a_duplicated_column_is_left_for_the_caller_to_report"
+  ],
+  "tests_before": {
+    "passed": 12,
+    "seconds": 10.71
+  },
+  "tests_after": {
+    "passed": 12,
+    "seconds": 14.1
+  },
+  "coverage_scope": "spacr.ml under the complete selected control-resolution regression module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 347,
+    "num_statements": 4858,
+    "percent_covered": 5.503477472029029,
+    "percent_covered_display": "6",
+    "missing_lines": 4511,
+    "excluded_lines": 0,
+    "percent_statements_covered": 7.142857142857143,
+    "percent_statements_covered_display": "7",
+    "num_branches": 1756,
+    "num_partial_branches": 9,
+    "covered_branches": 17,
+    "missing_branches": 1739,
+    "percent_branches_covered": 0.9681093394077449,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_after": {
+    "covered_lines": 347,
+    "num_statements": 4858,
+    "percent_covered": 5.503477472029029,
+    "percent_covered_display": "6",
+    "missing_lines": 4511,
+    "excluded_lines": 0,
+    "percent_statements_covered": 7.142857142857143,
+    "percent_statements_covered_display": "7",
+    "num_branches": 1756,
+    "num_partial_branches": 9,
+    "covered_branches": 17,
+    "missing_branches": 1739,
+    "percent_branches_covered": 0.9681093394077449,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "3f72ba64a96b755e907dd59fed6af312619bfe46ccb9c8f9e191e7cf576a1e5d",
+  "production_source_sha256": "f83d966ba3d8ce693fdf33cd9411bd09d96b14d560ad9b7a9e432b1af8d5ee52",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "other_settings_source_guards_printed_reason_one_class_missing_duplicate_column_and_early_refusals_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "derived-flag-lost",
+      "source_variant": {
+        "path": "spacr/ml.py",
+        "line": 10366,
+        "old": "return low, high, True",
+        "new": "return low, high, False"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_controls_83.py::test_well_names_against_an_annotation_column_use_the_columns_classes"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_controls_83.py::test_well_names_against_an_annotation_column_use_the_columns_classes"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_well_names_against_an_annotation_column_use_the_columns_classes]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_well_names_against_an_annotation_column_use_the_columns_classes]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "matched-controls-reversed",
+      "source_variant": {
+        "path": "spacr/ml.py",
+        "line": 10354,
+        "old": "if any_found:\n        return negative_control, positive_control, False",
+        "new": "if any_found:\n        return positive_control, negative_control, False"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_controls_83.py::test_a_deliberate_two_of_five_subset_is_honoured",
+          "tests/test_classify_controls_83.py::test_controls_that_do_match_are_never_touched"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_controls_83.py::test_a_deliberate_two_of_five_subset_is_honoured",
+          "tests/test_classify_controls_83.py::test_controls_that_do_match_are_never_touched"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_a_deliberate_two_of_five_subset_is_honoured]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_controls_83.py::test_control_values_keep_their_original_resolution[test_a_deliberate_two_of_five_subset_is_honoured]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the four affected control-resolution cases before and after; repository production files unchanged.",
+  "table_placement_note": "Four literal control-resolution examples are grouped at the original annotation-class case; the printed-reason test and all other definitions retain their relative order. Every historical regression case is retained. Every other definition retains its relative order and unchanged AST; grouped cases share no fixture state.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_classify_controls_83.py",
+      "line": 102,
+      "symbol": "test_control_values_keep_their_original_resolution",
+      "new": "Retain each control pair and the exact flag recording whether it was derived.",
+      "old": {
+        "test_well_names_against_an_annotation_column_use_the_columns_classes": "Issues #91 and #92, exactly.\n\n'c1' and 'c2' are plate columns; the annotation column holds 1.0 and\n2.0. Neither control appears, and the column says unambiguously what its\ntwo classes are.",
+        "test_controls_that_do_match_are_never_touched": "An explicit choice is always honoured.",
+        "test_a_deliberate_two_of_five_subset_is_honoured": "Five plate columns, two named: that is a choice, not a mistake.",
+        "test_three_classes_are_not_guessed_at": "With more than two the user has to say which two, and the refusal\ndownstream lists what is there."
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

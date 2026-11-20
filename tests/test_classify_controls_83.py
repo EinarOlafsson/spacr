@@ -70,19 +70,41 @@ def test_the_training_column_is_derived_not_taken_from_the_mutated_setting():
 # the classes come from the annotation column
 # ---------------------------------------------------------------------------
 
-def test_well_names_against_an_annotation_column_use_the_columns_classes():
-    """Issues #91 and #92, exactly.
-
-    'c1' and 'c2' are plate columns; the annotation column holds 1.0 and
-    2.0. Neither control appears, and the column says unambiguously what its
-    two classes are.
-    """
-    df = pd.DataFrame({"cc2d1a_recruitment": [1.0, 2.0, 1.0, 2.0]})
+@pytest.mark.parametrize(
+    "data, column, negative_control, positive_control, "
+    "expected_derived, expected_controls",
+    [
+        pytest.param(
+            {'cc2d1a_recruitment': [1.0, 2.0, 1.0, 2.0]},
+            'cc2d1a_recruitment', 'c1', 'c2', True, (1.0, 2.0),
+            id='test_well_names_against_an_annotation_column_use_the_columns_classes',
+        ),
+        pytest.param(
+            {'columnID': ['c1', 'c2', 'c1']},
+            'columnID', 'c1', 'c2', False, ('c1', 'c2'),
+            id='test_controls_that_do_match_are_never_touched',
+        ),
+        pytest.param(
+            {'columnID': ['c1', 'c2', 'c3', 'c4', 'c5']},
+            'columnID', 'c1', 'c3', False, ('c1', 'c3'),
+            id='test_a_deliberate_two_of_five_subset_is_honoured',
+        ),
+        pytest.param(
+            {'ann': [1.0, 2.0, 3.0]},
+            'ann', 'c1', 'c2', False, ('c1', 'c2'),
+            id='test_three_classes_are_not_guessed_at',
+        ),
+    ],
+)
+def test_control_values_keep_their_original_resolution(
+        data, column, negative_control, positive_control,
+        expected_derived, expected_controls):
+    """Retain each control pair and the exact flag recording whether it was derived."""
+    frame = pd.DataFrame(data)
     negative, positive, derived = _resolve_controls(
-        df, "cc2d1a_recruitment", "c1", "c2", matcher)
-
-    assert derived is True
-    assert (negative, positive) == (1.0, 2.0)
+        frame, column, negative_control, positive_control, matcher)
+    assert derived is expected_derived
+    assert (negative, positive) == expected_controls
 
 
 def test_it_says_what_it_derived_and_why(capsys):
@@ -94,37 +116,6 @@ def test_it_says_what_it_derived_and_why(capsys):
     assert "two classes" in printed
     assert "1.0" in printed and "2.0" in printed
     assert "c1" in printed and "c2" in printed
-
-
-def test_controls_that_do_match_are_never_touched():
-    """An explicit choice is always honoured."""
-    df = pd.DataFrame({"columnID": ["c1", "c2", "c1"]})
-    negative, positive, derived = _resolve_controls(
-        df, "columnID", "c1", "c2", matcher)
-
-    assert derived is False
-    assert (negative, positive) == ("c1", "c2")
-
-
-def test_a_deliberate_two_of_five_subset_is_honoured():
-    """Five plate columns, two named: that is a choice, not a mistake."""
-    df = pd.DataFrame({"columnID": ["c1", "c2", "c3", "c4", "c5"]})
-    negative, positive, derived = _resolve_controls(
-        df, "columnID", "c1", "c3", matcher)
-
-    assert derived is False
-    assert (negative, positive) == ("c1", "c3")
-
-
-def test_three_classes_are_not_guessed_at():
-    """With more than two the user has to say which two, and the refusal
-    downstream lists what is there."""
-    df = pd.DataFrame({"ann": [1.0, 2.0, 3.0]})
-    negative, positive, derived = _resolve_controls(
-        df, "ann", "c1", "c2", matcher)
-
-    assert derived is False
-    assert (negative, positive) == ("c1", "c2")
 
 
 def test_one_class_is_not_guessed_at():
