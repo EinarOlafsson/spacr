@@ -444,7 +444,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_etest_reference_cells": 2000,
     "ops_etest_null": 1000,
     "ops_etest_holdout": 500,
-    "ops_etest_mode": 'empirical_null',
+    "ops_etest_mode": 'guide_null',
     "ops_etest_permutations": 1000,
     "ops_power_cells": [10, 25, 50, 100, 200, 500, None],
     "ops_power_seeds": [0, 1, 2],
@@ -2760,14 +2760,16 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "their share at p < 0.05 is the false-positive control. Default 500. "
         "Alpha.",
     "ops_etest_mode":
-        "(str) - 'empirical_null' tests each gene against pseudo-genes of "
-        "random non-targeting cells; 'guide_null' against pseudo-genes of "
-        "four non-targeting guides, the shape of a gene, which keeps "
-        "guide-level structure in the null (the guides are split in halves "
-        "for the null and the held-out control); 'permutation' permutes the "
-        "gene's cells with the reference (scPerturb's E-test, "
-        "ops_etest_permutations times; slow). Default 'empirical_null'. "
-        "Alpha.",
+        "(str) - How each gene's E-test null is built. 'guide_null' compares "
+        "each gene with pseudo-genes of distinct non-targeting guides holding "
+        "the same cells per guide as the gene, so the null keeps "
+        "guide-to-guide spread; reference, null and held-out control use "
+        "separate guides. 'empirical_null' uses random non-targeting cells, "
+        "ignores that spread and calls most genes at OPS depth without an "
+        "effect (kept for comparison; older settings files keep it). "
+        "'permutation' permutes each gene's cells with the reference "
+        "(scPerturb's E-test, ops_etest_permutations times; slow). Default "
+        "'guide_null'. Alpha.",
     "ops_etest_permutations":
         "(int) - Label permutations per gene when ops_etest_mode is "
         "'permutation'. More permutations reach smaller p-values (the "

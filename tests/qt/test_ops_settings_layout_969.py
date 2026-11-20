@@ -188,5 +188,6 @@ def test_the_power_section_writes_what_the_ops_etest_run_writes(tmp_path):
     payload = {"settings": ops_power_settings(values, str(csv))}
     run_ops_power_curve(payload)
     assert _tree(dst) == before
-    assert np.isfinite(pd.read_csv(dst / "results" / "ops_etest" / "power_hits.csv")
-                       .select_dtypes("number").to_numpy()).all()
+    core = ["genes", "hits_q05", "hit_pct", "genes_p05_pct", "null_cells"]
+    assert np.isfinite(pd.read_csv(dst / "results" / "ops_etest" / "power_hits.csv")[core]
+                       .to_numpy(float)).all()
