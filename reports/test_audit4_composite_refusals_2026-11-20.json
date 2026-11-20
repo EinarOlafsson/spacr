@@ -1,0 +1,202 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_test_directory": "tests (root-level module only)",
+  "changed_file": "tests/test_composite_gates.py",
+  "definition_reduction": 3,
+  "change": "Generalize four constructor refusals while preserving exact inputs, exception class, message match and original names as parameter IDs.",
+  "case_mapping": {
+    "tests/test_composite_gates.py::test_combining_needs_two_gates": "tests/test_composite_gates.py::test_invalid_composites_keep_their_specific_refusal_reason[test_combining_needs_two_gates]",
+    "tests/test_composite_gates.py::test_a_gate_cannot_combine_itself": "tests/test_composite_gates.py::test_invalid_composites_keep_their_specific_refusal_reason[test_a_gate_cannot_combine_itself]",
+    "tests/test_composite_gates.py::test_the_same_operand_twice_is_refused_with_the_reason": "tests/test_composite_gates.py::test_invalid_composites_keep_their_specific_refusal_reason[test_the_same_operand_twice_is_refused_with_the_reason]",
+    "tests/test_composite_gates.py::test_an_unknown_operation_names_the_ones_that_exist": "tests/test_composite_gates.py::test_invalid_composites_keep_their_specific_refusal_reason[test_an_unknown_operation_names_the_ones_that_exist]"
+  },
+  "case_contracts": {
+    "test_combining_needs_two_gates": {
+      "name": "c",
+      "operation": "union",
+      "operands": [
+        "lo"
+      ],
+      "error_type": "GateError",
+      "match": "at least two"
+    },
+    "test_a_gate_cannot_combine_itself": {
+      "name": "c",
+      "operation": "union",
+      "operands": [
+        "c",
+        "lo"
+      ],
+      "error_type": "GateError",
+      "match": "combines itself"
+    },
+    "test_the_same_operand_twice_is_refused_with_the_reason": {
+      "name": "c",
+      "operation": "union",
+      "operands": [
+        "lo",
+        "lo"
+      ],
+      "error_type": "GateError",
+      "match": "same gate twice"
+    },
+    "test_an_unknown_operation_names_the_ones_that_exist": {
+      "name": "c",
+      "operation": "xor",
+      "operands": [
+        "lo",
+        "hi"
+      ],
+      "error_type": "GateError",
+      "match": "union, intersect, subtract"
+    }
+  },
+  "collected_before": [
+    "tests/test_composite_gates.py::test_a_composite_survives_json[subtract]",
+    "tests/test_composite_gates.py::test_an_operand_carries_its_own_ancestors",
+    "tests/test_composite_gates.py::test_a_composite_survives_json[union]",
+    "tests/test_composite_gates.py::test_more_than_two_operands_combine_in_order",
+    "tests/test_composite_gates.py::test_evaluating_one_alone_says_to_ask_the_set",
+    "tests/test_composite_gates.py::test_a_composite_survives_json[intersect]",
+    "tests/test_composite_gates.py::test_a_parent_is_sequential_gating_and_this_is_set_algebra",
+    "tests/test_composite_gates.py::test_a_gate_cannot_combine_itself",
+    "tests/test_composite_gates.py::test_moving_a_composite_moves_nothing",
+    "tests/test_composite_gates.py::test_each_operation_selects_what_it_says[intersect-expected1]",
+    "tests/test_composite_gates.py::test_the_same_operand_twice_is_refused_with_the_reason",
+    "tests/test_composite_gates.py::test_describe_reads_as_the_sentence_it_is",
+    "tests/test_composite_gates.py::test_an_unknown_operation_names_the_ones_that_exist",
+    "tests/test_composite_gates.py::test_editing_an_operand_changes_the_composite",
+    "tests/test_composite_gates.py::test_a_composite_can_still_have_a_parent",
+    "tests/test_composite_gates.py::test_each_operation_selects_what_it_says[union-expected0]",
+    "tests/test_composite_gates.py::test_a_whole_set_survives_json",
+    "tests/test_composite_gates.py::test_a_deleted_operand_is_an_error_not_a_quiet_answer",
+    "tests/test_composite_gates.py::test_it_reports_no_columns_of_its_own",
+    "tests/test_composite_gates.py::test_a_loop_is_a_sentence_naming_it_not_a_recursion_error",
+    "tests/test_composite_gates.py::test_subtract_keeps_the_order_it_was_given",
+    "tests/test_composite_gates.py::test_combining_needs_two_gates",
+    "tests/test_composite_gates.py::test_each_operation_selects_what_it_says[subtract-expected2]"
+  ],
+  "collected_after": [
+    "tests/test_composite_gates.py::test_describe_reads_as_the_sentence_it_is",
+    "tests/test_composite_gates.py::test_a_composite_can_still_have_a_parent",
+    "tests/test_composite_gates.py::test_subtract_keeps_the_order_it_was_given",
+    "tests/test_composite_gates.py::test_each_operation_selects_what_it_says[intersect-expected1]",
+    "tests/test_composite_gates.py::test_a_deleted_operand_is_an_error_not_a_quiet_answer",
+    "tests/test_composite_gates.py::test_moving_a_composite_moves_nothing",
+    "tests/test_composite_gates.py::test_an_operand_carries_its_own_ancestors",
+    "tests/test_composite_gates.py::test_a_composite_survives_json[union]",
+    "tests/test_composite_gates.py::test_invalid_composites_keep_their_specific_refusal_reason[test_the_same_operand_twice_is_refused_with_the_reason]",
+    "tests/test_composite_gates.py::test_a_composite_survives_json[intersect]",
+    "tests/test_composite_gates.py::test_each_operation_selects_what_it_says[subtract-expected2]",
+    "tests/test_composite_gates.py::test_editing_an_operand_changes_the_composite",
+    "tests/test_composite_gates.py::test_a_composite_survives_json[subtract]",
+    "tests/test_composite_gates.py::test_a_loop_is_a_sentence_naming_it_not_a_recursion_error",
+    "tests/test_composite_gates.py::test_more_than_two_operands_combine_in_order",
+    "tests/test_composite_gates.py::test_a_whole_set_survives_json",
+    "tests/test_composite_gates.py::test_invalid_composites_keep_their_specific_refusal_reason[test_combining_needs_two_gates]",
+    "tests/test_composite_gates.py::test_a_parent_is_sequential_gating_and_this_is_set_algebra",
+    "tests/test_composite_gates.py::test_invalid_composites_keep_their_specific_refusal_reason[test_an_unknown_operation_names_the_ones_that_exist]",
+    "tests/test_composite_gates.py::test_it_reports_no_columns_of_its_own",
+    "tests/test_composite_gates.py::test_each_operation_selects_what_it_says[union-expected0]",
+    "tests/test_composite_gates.py::test_invalid_composites_keep_their_specific_refusal_reason[test_a_gate_cannot_combine_itself]",
+    "tests/test_composite_gates.py::test_evaluating_one_alone_says_to_ask_the_set"
+  ],
+  "tests_before": {
+    "passed": 23,
+    "seconds": 3.71
+  },
+  "tests_after": {
+    "passed": 23,
+    "seconds": 3.91
+  },
+  "coverage_scope": "spacr.qt.widgets.gate_spec; selected composite-gate test module only, not full-suite coverage",
+  "coverage_before": {
+    "covered_lines": 547,
+    "num_statements": 1789,
+    "percent_covered": 25.155666251556664,
+    "percent_covered_display": "25",
+    "missing_lines": 1242,
+    "excluded_lines": 0,
+    "percent_statements_covered": 30.5757406372275,
+    "percent_statements_covered_display": "31",
+    "num_branches": 620,
+    "num_partial_branches": 21,
+    "covered_branches": 59,
+    "missing_branches": 561,
+    "percent_branches_covered": 9.516129032258064,
+    "percent_branches_covered_display": "10"
+  },
+  "coverage_after": {
+    "covered_lines": 547,
+    "num_statements": 1789,
+    "percent_covered": 25.155666251556664,
+    "percent_covered_display": "25",
+    "missing_lines": 1242,
+    "excluded_lines": 0,
+    "percent_statements_covered": 30.5757406372275,
+    "percent_statements_covered_display": "31",
+    "num_branches": 620,
+    "num_partial_branches": 21,
+    "covered_branches": 59,
+    "missing_branches": 561,
+    "percent_branches_covered": 9.516129032258064,
+    "percent_branches_covered_display": "10"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "production_source_sha256": "b5b5991e628178a636749f6f02607d2477e7fcb7c8a4d93d951b69e493306c0a",
+  "production_source_unchanged": true,
+  "other_tests_fixtures_imports_unchanged": true,
+  "mutation_sample": [
+    {
+      "mutant": "single-operand-accepted",
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_composite_gates.py::test_combining_needs_two_gates - Failed..."
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_composite_gates.py::test_invalid_composites_keep_their_specific_refusal_reason[test_combining_needs_two_gates]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "unknown-operation-accepted",
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_composite_gates.py::test_an_unknown_operation_names_the_ones_that_exist"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_composite_gates.py::test_invalid_composites_keep_their_specific_refusal_reason[test_an_unknown_operation_names_the_ones_that_exist]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader source variants; no repository production files modified.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "new_test_docstring": {
+    "path": "tests/test_composite_gates.py",
+    "line": 145,
+    "text": "Reject each invalid composite with its existing exception and reason.\n\nA gate unioned with itself is itself and subtracted from itself is\nempty; neither is likely to be meant."
+  },
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

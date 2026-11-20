@@ -130,26 +130,25 @@ def test_a_loop_is_a_sentence_naming_it_not_a_recursion_error(frame):
 # What it refuses
 # ---------------------------------------------------------------------------
 
-def test_combining_needs_two_gates():
-    with pytest.raises(GateError, match="at least two"):
-        CompositeGate(name="c", operation="union", operands=("lo",))
+@pytest.mark.parametrize("operation, operands, message", [
+    pytest.param("union", ("lo",), "at least two",
+                 id="test_combining_needs_two_gates"),
+    pytest.param("union", ("c", "lo"), "combines itself",
+                 id="test_a_gate_cannot_combine_itself"),
+    pytest.param("union", ("lo", "lo"), "same gate twice",
+                 id="test_the_same_operand_twice_is_refused_with_the_reason"),
+    pytest.param("xor", ("lo", "hi"), "union, intersect, subtract",
+                 id="test_an_unknown_operation_names_the_ones_that_exist"),
+])
+def test_invalid_composites_keep_their_specific_refusal_reason(
+        operation, operands, message):
+    """Reject each invalid composite with its existing exception and reason.
 
-
-def test_a_gate_cannot_combine_itself():
-    with pytest.raises(GateError, match="combines itself"):
-        CompositeGate(name="c", operation="union", operands=("c", "lo"))
-
-
-def test_the_same_operand_twice_is_refused_with_the_reason():
-    """A gate unioned with itself is itself and subtracted from itself is
-    empty; neither is likely to be meant."""
-    with pytest.raises(GateError, match="same gate twice"):
-        CompositeGate(name="c", operation="union", operands=("lo", "lo"))
-
-
-def test_an_unknown_operation_names_the_ones_that_exist():
-    with pytest.raises(GateError, match="union, intersect, subtract"):
-        CompositeGate(name="c", operation="xor", operands=("lo", "hi"))
+    A gate unioned with itself is itself and subtracted from itself is
+    empty; neither is likely to be meant.
+    """
+    with pytest.raises(GateError, match=message):
+        CompositeGate(name="c", operation=operation, operands=operands)
 
 
 def test_evaluating_one_alone_says_to_ask_the_set(frame):
