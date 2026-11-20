@@ -29,34 +29,27 @@ def test_the_six_keys_are_emitted_and_no_more():
     }
 
 
-def test_defaults_fill_a_control_column_and_values_the_user_left_unset():
-    """The taken sides: nothing chosen, so the caller's defaults apply."""
-    from spacr.batch_correction import correction_kwargs
-
-    out = correction_kwargs({}, default_control_column="condition",
-                            default_control_values=["nc"])
-
-    assert out["batch_control_column"] == "condition"
-    assert out["batch_control_values"] == ["nc"]
-
-
-def test_a_chosen_control_column_and_values_survive_the_defaults():
-    """Arc 950 -> 954 and the column guard beside it.
-
-    This is the ordinary case -- a user who set both -- and getting it wrong
-    would silently correct against the wrong controls, which changes every
-    corrected value without any error.
-    """
-    from spacr.batch_correction import correction_kwargs
-
-    out = correction_kwargs(
+@pytest.mark.parametrize("settings, expected_column, expected_values", [
+    pytest.param(
+        {}, "condition", ["nc"],
+        id="test_defaults_fill_a_control_column_and_values_the_user_left_unset",
+    ),
+    pytest.param(
         {"batch_control_column": "well_type",
          "batch_control_values": ["untreated", "dmso"]},
-        default_control_column="condition",
-        default_control_values=["nc"])
+        "well_type", ["untreated", "dmso"],
+        id="test_a_chosen_control_column_and_values_survive_the_defaults",
+    ),
+])
+def test_control_choices_keep_their_original_defaults_and_overrides(
+        settings, expected_column, expected_values):
+    """Keep each original control choice paired with the same column and ordered values."""
+    from spacr.batch_correction import correction_kwargs
 
-    assert out["batch_control_column"] == "well_type"
-    assert out["batch_control_values"] == ["untreated", "dmso"]
+    out = correction_kwargs(settings, default_control_column="condition",
+                            default_control_values=["nc"])
+    assert out["batch_control_column"] == expected_column
+    assert out["batch_control_values"] == expected_values
 
 
 @pytest.mark.parametrize("blank", [None, "", "   "])
