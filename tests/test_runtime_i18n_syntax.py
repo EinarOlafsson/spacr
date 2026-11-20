@@ -937,6 +937,13 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
                                                        "longer canonical after the N678 workflow-map")}
     assert not n678 & reviewed.keys() and not n678 & sources
     retired |= n678
+    # 2026-11-19 (error-message batches 1-5): rows whose English gained a next
+    # step moved to retired_records; they still count toward the cohort.
+    errors = {row["source"] for path in paths if "-second-pass-" not in path.name
+              for row in json.loads(path.read_text(encoding="utf-8")).get("retired_records", [])
+              if str(row.get("retired", "")).startswith("2026-11-19: error-message batches")}
+    assert not errors & sources
+    retired |= errors
     assert len(first) == len(sources)
     assert len(sources) + len(retired) == expected
     later = {record["source"] for record in second}
