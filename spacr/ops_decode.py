@@ -621,8 +621,10 @@ def _vote_weighting(rule: Mapping[str, Any], gaps: np.ndarray) -> Dict[str, Any]
     if not weighting:
         return {}
     if weighting["neighbour_discount"] != 1.0 and rule.get("neighbours") is None:
-        raise ValueError("ops_read_neighbour_discount needs the field's nucleus positions; "
-                         "a stored field cache does not hold them")
+        from .qt.i18n import tr
+
+        raise ValueError(tr("ops_read_neighbour_discount needs the field's nucleus positions; "
+                            "a stored field cache does not hold them"))
     return {"gaps": np.maximum(np.asarray(gaps, float), 0.0),
             "distance_weight": weighting["distance_weight"],
             "decay_px": weighting["decay_px"], "interior_px": weighting["interior_px"],
@@ -2030,10 +2032,12 @@ def cached_neighbours(evidence: Mapping[str, Any], reach: float) -> Dict[int, se
 
     missing = [key for key in CACHE_NUCLEUS_KEYS if key not in evidence]
     if missing:
-        raise ValueError("ops_read_neighbour_discount needs the field's nucleus positions; "
-                         "this field cache was written before they were stored "
-                         f"(no {', '.join(missing)}); decode the field again to replay it "
-                         "with the discount")
+        from .qt.i18n import tr
+
+        raise ValueError(tr("ops_read_neighbour_discount needs the field's nucleus positions; "
+                            "this field cache was written before they were stored "
+                            "(no {missing}); decode the field again to replay it "
+                            "with the discount", missing=", ".join(missing)))
     return _disc_neighbours(evidence["nuc_ids"], evidence["nuc_centroids"],
                             evidence["nuc_areas"], float(reach))
 

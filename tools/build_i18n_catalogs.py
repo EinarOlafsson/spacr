@@ -4755,6 +4755,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "ml.py")
     paths.add(ROOT / "spacr" / "power_model.py")
     paths.add(ROOT / "spacr" / "uniprot.py")
+    paths.add(ROOT / "spacr" / "ops_decode.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4879,6 +4880,10 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                                            "_plate_control_input",
                                            "_prepare_segmentation_psf", "_SegmentationPSFSession",
                                            "_cell_record_error", "_CalibratedCellDataset"}]
+        if path == source_root / "ops_decode.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in {"_vote_weighting", "cached_neighbours"}]
         if path == source_root / "_lineage_trees.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)

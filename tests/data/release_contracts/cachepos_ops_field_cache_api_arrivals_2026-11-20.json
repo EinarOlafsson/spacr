@@ -1,0 +1,3 @@
+{
+  "spacr.ops_decode.cached_neighbours": "A field's touching nuclei, rebuilt from its field cache.\n\n:param evidence: a field cache opened with :func:`numpy.load` (or a dict\n    of it) written with the nucleus positions (:func:`save_field_cache`).\n:param reach: the largest gap between two disc edges, ``ops_footprint``.\n:returns: object id -> its neighbours, as the engine builds them before\n    the decode (:func:`spacr.ops_sbs._disc_neighbours`).\n:raises ValueError: for a cache written before the nucleus positions\n    were stored."
+}
