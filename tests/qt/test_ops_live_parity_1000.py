@@ -3,7 +3,7 @@
 A tab never raises: a missing input is a notice saying what to run first, and
 test data named by genotype_source is the test data. A tab says it runs while
 it runs. Every tab has an image-quality slider, zoomable pictures, a Settings
-panel with Close and Propagate, and in laptop mode a Refresh button that is
+panel with Close and Propagate, and in laptop mode a Refresh view button that is
 the only thing that refreshes. Spots and Objects graphs are pyqtgraph plots.
 Align & stitch shows the seam before and after stitching and the phenotype
 field on the sequencing crop.
@@ -266,8 +266,8 @@ def test_a_form_edit_replaces_the_panel_value(qtbot, panel):
     assert live.settings_now()["ops_cluster_knn"] == 12
 
 
-def test_laptop_mode_refreshes_only_on_refresh(qtbot, panel, monkeypatch):
-    """F1: no live refresh; Refresh applies settings and quality, then runs."""
+def test_laptop_mode_runs_once_on_live_then_waits_for_refresh(qtbot, panel, monkeypatch):
+    """F1: Live on runs the tab on view once; later changes wait for Refresh view."""
     from spacr.qt.widgets import ops_live_preview as W
 
     runner = _Runner()
@@ -275,16 +275,20 @@ def test_laptop_mode_refreshes_only_on_refresh(qtbot, panel, monkeypatch):
     monkeypatch.setattr(W, "_laptop_mode", lambda: True)
     live._sync_laptop()
     page = live.page("spots")
-    assert not page.refresh_btn.isHidden()
+    assert not page.refresh_btn.isHidden() and page.refresh_btn.text() == "Refresh view"
     live.show_step("spots")
     live.set_live(True)
+    qtbot.waitUntil(lambda: runner.calls == ["spots"], timeout=10000)
+    _idle(qtbot, live)
     live.setting_committed("ops_read_threshold")
     live.panel_setting_changed("spots", "ops_read_threshold", 200.0)
+    live.show_step("objects")
+    live.show_step("spots")
     qtbot.wait(40)
-    assert runner.calls == [], "nothing runs by itself in laptop mode"
-    assert "Refresh" in page.state.text()
+    assert runner.calls == ["spots"], "after the first pass nothing runs by itself"
+    assert "Refresh view" in page.state.text()
     page.refresh_btn.click()
-    qtbot.waitUntil(lambda: runner.calls == ["spots"], timeout=10000)
+    qtbot.waitUntil(lambda: runner.calls == ["spots", "spots"], timeout=10000)
     _idle(qtbot, live)
     assert runner.forms[-1]["ops_read_threshold"] == 200.0
     size = page.shown_size(0)
@@ -293,9 +297,31 @@ def test_laptop_mode_refreshes_only_on_refresh(qtbot, panel, monkeypatch):
     assert page.shown_size(0) == size and page.quality_pending()
     page.refresh_btn.click()
     assert page.shown_size(0) == (size[0] // 2, size[1] // 2)
-    assert runner.calls == ["spots"], "Refresh of an up-to-date tab only redraws"
+    assert runner.calls == ["spots", "spots"], "Refresh of an up-to-date tab only redraws"
     dialog = live.open_settings("spots")
     assert not dialog.refresh_btn.isHidden()
+
+
+@pytest.mark.parametrize("theme", ("light", "dark"))
+def test_the_graphs_follow_the_theme(qtbot, panel, monkeypatch, theme):
+    """The plots have no background of their own and use the theme's ink."""
+    from PySide6.QtCore import Qt
+
+    from spacr.qt import preferences
+    from spacr.qt.theme import palette_for
+
+    monkeypatch.setattr(preferences, "resolve_effective_theme", lambda: theme)
+    colours = palette_for(theme)
+    runner = _Runner()
+    live = panel(runner)
+    live.show_step("spots")
+    live.run_preview()
+    qtbot.waitUntil(lambda: runner.calls == ["spots"], timeout=10000)
+    _idle(qtbot, live)
+    graph = live.page("spots").graphs[0]
+    assert graph.ink == {"fg": colours["fg"], "muted": colours["fg_muted"],
+                         "border": colours["border"]}
+    assert graph.plot.backgroundBrush().style() == Qt.NoBrush, "no plot background"
 
 
 @pytest.mark.parametrize("step", ("spots", "objects", "merge", "cluster"))
@@ -367,7 +393,7 @@ def test_every_tab_has_the_same_tools(qapp):
         for step in _STEP_ORDER:
             page = live.page(step)
             assert page.settings_btn.text() == "Settings…"
-            assert page.refresh_btn.text() == "Refresh"
+            assert page.refresh_btn.text() == "Refresh view"
             assert page.quality.accessibleName() == "Image quality"
             assert live.step_settings(step), step
     finally:

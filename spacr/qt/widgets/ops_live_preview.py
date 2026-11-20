@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QDialog,
                                QDialogButtonBox, QDoubleSpinBox, QFormLayout,
                                QGridLayout, QGroupBox, QHBoxLayout, QHeaderView,
                                QLabel, QLineEdit, QPushButton, QScrollArea,
-                               QSizePolicy, QSlider, QSpinBox, QTableWidget,
+                               QSizePolicy, QSpinBox, QTableWidget,
                                QTabWidget, QVBoxLayout, QWidget)
 
 from ..i18n import tr
@@ -67,10 +67,6 @@ _DEBOUNCE_MS = 600
 _ORPHANS: List[QThread] = []
 
 _TABLE_ROWS = 40
-
-_QUALITY_RANGE = (10, 100)
-
-_QUALITY_DEBOUNCE_MS = 150
 
 _STEP_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "align": ("ops_raster_overlap", "ops_sites", "ops_channel_registration",
@@ -123,15 +119,13 @@ _CLUSTER_COLOURS = ("#4A9EFF", "#1fb6ad", "#2F80D9", "#7fd1e8", "#0a6f6a",
 def _laptop_mode() -> bool:
     """Whether spaCR runs at the Laptop performance level.
 
-    In laptop mode nothing in the preview refreshes by itself; the Refresh
-    button applies what changed.
+    In laptop mode nothing in the preview refreshes by itself after switching
+    Live on; the Refresh view button applies what changed. The same answer
+    Mask Generation's Live view reads.
     """
-    try:
-        from ..preferences import get_laptop_mode
+    from .live_preview import _laptop_mode as laptop_mode
 
-        return get_laptop_mode() == "on"
-    except Exception:
-        return False
+    return laptop_mode()
 
 
 def _colour(value: str) -> np.ndarray:
@@ -222,24 +216,6 @@ def _dots(picture: np.ndarray, points: np.ndarray, colour: str) -> None:
         for dx in (-1, 0, 1):
             _ink(picture, np.round(points[:, 0]) + dy,
                  np.round(points[:, 1]) + dx, colour)
-
-
-def _at_quality(picture: np.ndarray, percent: int) -> np.ndarray:
-    """``picture`` resampled to ``percent`` of its size, as the view shows it.
-
-    :param picture: an ``(H, W, 3)`` uint8 picture.
-    :param percent: from 10 to 100; 100 returns the picture unchanged.
-    """
-    percent = int(max(_QUALITY_RANGE[0], min(_QUALITY_RANGE[1], percent)))
-    if percent >= 100:
-        return picture
-    from PIL import Image
-
-    height, width = picture.shape[:2]
-    size = (max(1, round(width * percent / 100.0)),
-            max(1, round(height * percent / 100.0)))
-    return np.asarray(Image.fromarray(np.ascontiguousarray(picture))
-                      .resize(size, Image.BOX))
 
 
 def _histogram(values, title: str, x_label: str, y_label: str,
@@ -713,6 +689,29 @@ class _StepWorker(QThread):
                 pass
 
 
+def _graph_ink(widget: QWidget) -> Dict[str, str]:
+    """The text, muted and rule colours a graph is drawn in, from the theme.
+
+    Read from the theme on screen (:func:`spacr.qt.theme.active_palette`),
+    as every themed widget is, so a graph reads like the page around it in
+    the light and the dark theme; the plot itself has no background.
+
+    :param widget: the graph; its palette is the fallback without a theme.
+    """
+    from PySide6.QtGui import QPalette
+
+    try:
+        from ..theme import active_palette
+
+        palette = active_palette()
+        return {"fg": palette["fg"], "muted": palette["fg_muted"],
+                "border": palette["border"]}
+    except Exception:
+        qt = widget.palette()
+        fg = qt.color(QPalette.WindowText).name()
+        return {"fg": fg, "muted": fg, "border": fg}
+
+
 class _QtGraph(QWidget):
     """One Qt-native graph of a tab, drawn with pyqtgraph.
 
@@ -774,15 +773,24 @@ class _QtGraph(QWidget):
         old.hide()
         old.deleteLater()
         self.plot = plot
-        self._legend = None
-        plot.setBackground(colours["face"])
+        ink = _graph_ink(self)
+        self.ink = ink
+        plot.setBackground(None)
+        try:
+            from ..theme import make_transparent
+
+            make_transparent(plot, plot.viewport())
+        except Exception:
+            LOG.debug("the graph keeps its own background", exc_info=True)
         for name in ("bottom", "left"):
             axis = plot.getAxis(name)
-            axis.setPen(pg.mkPen(colours["border"]))
-            axis.setTextPen(pg.mkPen(colours["muted"]))
+            axis.setPen(pg.mkPen(ink["border"]))
+            axis.setTextPen(pg.mkPen(ink["muted"]))
             axis.setTicks(None)
-        plot.setLabel("bottom", str(spec.get("x_label") or ""), color=colours["fg"])
-        plot.setLabel("left", str(spec.get("y_label") or ""), color=colours["fg"])
+        plot.setLabel("bottom", str(spec.get("x_label") or ""), color=ink["fg"])
+        plot.setLabel("left", str(spec.get("y_label") or ""), color=ink["fg"])
+        colours = dict(colours, fg=ink["fg"], muted=ink["muted"],
+                       border=ink["border"])
         view = plot.getViewBox()
         view.invertY(bool(spec.get("invert_y")))
         view.setAspectLocked(bool(spec.get("equal")))
@@ -905,7 +913,7 @@ class _StepPage(QWidget):
         self.settings_btn.clicked.connect(
             lambda _checked=False: self.settings_requested.emit(self.step))
         tools.addWidget(self.settings_btn)
-        self.refresh_btn = QPushButton(tr("Refresh"), self)
+        self.refresh_btn = QPushButton(tr("Refresh view"), self)
         self.refresh_btn.setObjectName("OpsLiveRefreshButton")
         self.refresh_btn.setToolTip(tr(
             "Laptop mode: apply the changed settings and image quality and "
@@ -924,30 +932,17 @@ class _StepPage(QWidget):
         self.state.setObjectName("OpsLiveState")
         self.state.setWordWrap(True)
         tools.addWidget(self.state, 1)
-        tools.addWidget(QLabel(tr("Image quality"), self))
-        self.quality = QSlider(Qt.Horizontal, self)
+        from .live_preview import _ImageQualityControl
+
+        self.quality_control = _ImageQualityControl(self)
+        self.quality = self.quality_control.slider
         self.quality.setObjectName("OpsLiveImageQuality")
-        self.quality.setRange(*_QUALITY_RANGE)
-        self.quality.setValue(_QUALITY_RANGE[1])
-        self.quality.setSingleStep(5)
-        self.quality.setPageStep(10)
-        self.quality.setMaximumWidth(140)
-        self.quality.setAccessibleName(tr("Image quality"))
-        self.quality.setToolTip(tr(
-            "Image quality: the resolution this tab's pictures are drawn at, "
-            "from 10 % to 100 % of the computed picture. Lower is lighter on "
-            "a small machine."))
-        tools.addWidget(self.quality)
-        self.quality_value = QLabel("100 %", self)
+        self.quality_value = self.quality_control.value_label
         self.quality_value.setObjectName("OpsLiveImageQualityValue")
-        self.quality_value.setProperty("i18nSkipText", True)
-        tools.addWidget(self.quality_value)
+        self.quality_control.changed.connect(
+            lambda percent: self.quality_changed.emit(self.step, int(percent)))
+        tools.addWidget(self.quality_control)
         layout.addLayout(tools)
-        self._quality_timer = QTimer(self)
-        self._quality_timer.setSingleShot(True)
-        self._quality_timer.setInterval(_QUALITY_DEBOUNCE_MS)
-        self._quality_timer.timeout.connect(self._emit_quality)
-        self.quality.valueChanged.connect(self._on_quality_moved)
         self.notice = QLabel("", self)
         self.notice.setObjectName("OpsLiveNotice")
         self.notice.setWordWrap(True)
@@ -991,14 +986,9 @@ class _StepPage(QWidget):
         """The image quality the slider is at, in percent."""
         return int(self.quality.value())
 
-    def _on_quality_moved(self, value: int) -> None:
-        """Show the slider's percentage and announce it once it rests."""
-        self.quality_value.setText(f"{int(value)} %")
-        self._quality_timer.start()
-
     def _emit_quality(self) -> None:
-        """The slider rested: say which quality the tab now asks for."""
-        self.quality_changed.emit(self.step, self.quality_percent())
+        """Announce the slider's quality now, as when it comes to rest."""
+        self.quality_control._announce()
 
     def set_laptop(self, on: bool) -> None:
         """Show the Refresh button in laptop mode only."""
@@ -1030,7 +1020,7 @@ class _StepPage(QWidget):
     def mark_quality_pending(self) -> None:
         """The quality changed in laptop mode; the next Refresh applies it."""
         self._quality_pending = True
-        self.mark_pending(tr("Image quality changed. Press Refresh to redraw."))
+        self.mark_pending(tr("Image quality changed. Press Refresh view to redraw."))
 
     def quality_pending(self) -> bool:
         """Whether a quality change waits for Refresh."""
@@ -1075,8 +1065,8 @@ class _StepPage(QWidget):
         percent = self.quality_percent()
         for index, (title, picture) in enumerate(self._images):
             view = self._view(index)
-            view.set_pixmap(numpy_to_qpixmap(_at_quality(picture, percent),
-                                             normalise=False))
+            view.set_render_percent(percent)
+            view.set_pixmap(numpy_to_qpixmap(picture, normalise=False))
             view.set_picture_name(f"ops_live_{self.step}_{index + 1}")
             self._view_titles[index].setText(title)
         for index, view in enumerate(self.views):
@@ -1087,7 +1077,7 @@ class _StepPage(QWidget):
         """The ``(width, height)`` the picture in a slot is drawn at, or None."""
         if index >= len(self.views):
             return None
-        pixmap = self.views[index].picture()
+        pixmap = self.views[index].shown_pixmap()
         return None if pixmap is None else (pixmap.width(), pixmap.height())
 
     def show_result(self, payload: Mapping[str, Any]) -> None:
@@ -1299,7 +1289,7 @@ class _StepSettingsDialog(QDialog):
         scroll.setWidget(body)
         outer.addWidget(scroll, 1)
         buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
-        self.refresh_btn = QPushButton(tr("Refresh"), self)
+        self.refresh_btn = QPushButton(tr("Refresh view"), self)
         self.refresh_btn.setObjectName("OpsLiveDialogRefreshButton")
         self.refresh_btn.setToolTip(tr(
             "Laptop mode: apply these settings and redraw the tab."))
@@ -1586,8 +1576,8 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
         if step != self.current_step():
             self.show_step(step)
         if _laptop_mode():
-            self._pages[step].mark_pending(tr("Settings changed. Press Refresh to "
-                                              "run this tab."))
+            self._pages[step].mark_pending(tr("Settings changed. Press Refresh "
+                                              "view to run this tab."))
             return
         self._schedule(step, forced=True)
 
@@ -1657,12 +1647,13 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
     def _laptop_waits(self, step: str) -> None:
         """Say on a tab that laptop mode waits for Refresh."""
         self._pages[step].mark_pending(tr(
-            "Laptop mode: press Refresh to run this tab."))
+            "Laptop mode: press Refresh view to run this tab."))
 
     def set_live(self, on: bool) -> None:
         """Follow the Live switch: run the tab on view when on, stop when off.
 
-        In laptop mode nothing runs by itself; the tab says to press Refresh.
+        In laptop mode switching Live on runs the tab on view once; after
+        that, changes wait for Refresh view.
         """
         self._live = bool(on)
         if not self._live:
@@ -1672,11 +1663,9 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
                 self.cancel_preview()
             self._clear_scheduled()
             return
+        self._sync_laptop()
         if self.current_step() in self._stale:
-            if self._sync_laptop():
-                self._laptop_waits(self.current_step())
-            else:
-                self._schedule(self.current_step())
+            self._schedule(self.current_step())
 
     def apply_settings(self, settings: Mapping[str, Any]) -> None:
         """Take a whole new set of settings: every tab is stale.
@@ -1744,7 +1733,7 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
         if self.current_step() in self._stale:
             if _laptop_mode():
                 self._pages[self.current_step()].mark_pending(tr(
-                    "Settings changed. Press Refresh to run this tab."))
+                    "Settings changed. Press Refresh view to run this tab."))
             else:
                 self._schedule(self.current_step())
 

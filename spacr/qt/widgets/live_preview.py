@@ -56,7 +56,7 @@ from .. import _after
 import numpy as np
 
 from PySide6.QtCore import QPointF, QRectF, QSize, Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtGui import QImage, QPainter, QPixmap
+from PySide6.QtGui import QImage, QPainter, QPixmap, QTransform
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsItem, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
@@ -1633,8 +1633,55 @@ class _ZoomView(QGraphicsView):
         """
         if self._pixmap_item is None:
             return None
+        pixmap = getattr(self, "_full_pixmap", None) or self._pixmap_item.pixmap()
+        return None if pixmap.isNull() else pixmap
+
+    def shown_pixmap(self) -> Optional[QPixmap]:
+        """The pixmap drawn on screen, at the image quality chosen.
+
+        :returns: the drawn pixmap, or ``None`` while the view is empty.
+        """
+        if self._pixmap_item is None:
+            return None
         pixmap = self._pixmap_item.pixmap()
         return None if pixmap.isNull() else pixmap
+
+    def render_percent(self) -> int:
+        """The image quality the view draws at, 10 to 100 percent."""
+        return int(getattr(self, "_render_percent", 100))
+
+    def set_render_percent(self, percent: int) -> None:
+        """Draw the picture at ``percent`` of its resolution, keeping zoom.
+
+        The picture is resampled to fewer pixels and stretched back over the
+        same scene rectangle, so zoom, pan, the ruler, the peer view and the
+        hovered pixel stay in the image's own pixels. Saving the picture
+        still saves it whole.
+
+        :param percent: from 10 to 100; 100 draws every pixel.
+        """
+        self._render_percent = int(max(10, min(100, int(percent))))
+        full = getattr(self, "_full_pixmap", None)
+        if self._pixmap_item is not None and full is not None:
+            shown, transform = self._at_render_percent(full)
+            self._pixmap_item.setPixmap(shown)
+            self._pixmap_item.setTransform(transform)
+
+    def _at_render_percent(self, pixmap: QPixmap):
+        """``pixmap`` resampled to the view's image quality, and its stretch.
+
+        :returns: ``(pixmap, transform)``; the transform maps the resampled
+            pixmap back onto the full picture's pixels.
+        """
+        percent = self.render_percent()
+        if percent >= 100 or pixmap.isNull():
+            return pixmap, QTransform()
+        width = max(1, round(pixmap.width() * percent / 100.0))
+        height = max(1, round(pixmap.height() * percent / 100.0))
+        small = pixmap.scaled(width, height, Qt.IgnoreAspectRatio,
+                              Qt.SmoothTransformation)
+        return small, QTransform.fromScale(pixmap.width() / width,
+                                           pixmap.height() / height)
 
     def picture_name(self) -> str:
         """The file name offered when this view's picture is saved."""
@@ -1662,7 +1709,11 @@ class _ZoomView(QGraphicsView):
             starts at the whole canvas rather than inside the last one's crop.
         """
         self._scene.clear()
-        self._pixmap_item = self._scene.addPixmap(pixmap)
+        self._full_pixmap = pixmap
+        shown, transform = self._at_render_percent(pixmap)
+        self._pixmap_item = self._scene.addPixmap(shown)
+        if not transform.isIdentity():
+            self._pixmap_item.setTransform(transform)
         self._pixmap_item.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         self._scene.setSceneRect(QRectF(pixmap.rect()))
         self.setSceneRect(self._scene.sceneRect())
@@ -1684,11 +1735,13 @@ class _ZoomView(QGraphicsView):
         :param pixmap: the frame to show.
         """
         item = self._pixmap_item
-        if item is None or item.pixmap().size() != pixmap.size():
+        full = getattr(self, "_full_pixmap", None)
+        if item is None or full is None or full.size() != pixmap.size():
             self.set_pixmap(pixmap)
             return
-        if item.pixmap().cacheKey() != pixmap.cacheKey():
-            item.setPixmap(pixmap)
+        if full.cacheKey() != pixmap.cacheKey():
+            self._full_pixmap = pixmap
+            item.setPixmap(self._at_render_percent(pixmap)[0])
 
     def show_message(self, text: str) -> None:
         """Say ``text`` where a picture would be, and hold no picture.
@@ -1705,6 +1758,7 @@ class _ZoomView(QGraphicsView):
 
         self._scene.clear()
         self._pixmap_item = None
+        self._full_pixmap = None
         self._message = str(text)
         item = QGraphicsTextItem()
         item.setDefaultTextColor(QColor(255, 255, 255))
@@ -1881,7 +1935,7 @@ class _ZoomView(QGraphicsView):
         if self._pixmap_item is None or self._pixmap_item.pixmap().isNull():
             return None
         scene_point = self.mapToScene(point.toPoint())
-        if not self._pixmap_item.boundingRect().contains(scene_point):
+        if not self._pixmap_item.sceneBoundingRect().contains(scene_point):
             return None
         return scene_point.x(), scene_point.y()
 
@@ -1896,6 +1950,77 @@ class _ZoomView(QGraphicsView):
             self.ruler.paint(painter, lambda x, y: self.mapFromScene(QPointF(x, y)))
             painter.end()
 
+
+
+def _laptop_mode() -> bool:
+    """Whether spaCR runs at the Laptop performance level.
+
+    In laptop mode a live preview does not redraw by itself after a change;
+    its Refresh view button applies what changed.
+    """
+    try:
+        from ..preferences import get_laptop_mode
+
+        return get_laptop_mode() == "on"
+    except Exception:
+        return False
+
+
+class _ImageQualityControl(QWidget):
+    """The image-quality slider every live preview shares, 10 to 100 percent.
+
+    It sets the resolution the preview's pictures are drawn at. The chosen
+    value is announced once the slider rests, not on every step of a drag.
+
+    :param parent: parent widget.
+    """
+
+    changed = Signal(int)
+
+    def __init__(self, parent=None):
+        """Lay out the caption, the slider and its percentage."""
+        super().__init__(parent)
+        from PySide6.QtWidgets import QSlider
+
+        self.setObjectName("LiveImageQuality")
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(4)
+        self.caption = QLabel(tr("Image quality"), self)
+        row.addWidget(self.caption)
+        self.slider = QSlider(Qt.Horizontal, self)
+        self.slider.setRange(10, 100)
+        self.slider.setValue(100)
+        self.slider.setSingleStep(5)
+        self.slider.setPageStep(10)
+        self.slider.setMaximumWidth(140)
+        self.slider.setAccessibleName(tr("Image quality"))
+        self.slider.setToolTip(tr(
+            "Image quality: the resolution the preview's pictures are drawn "
+            "at, from 10 % to 100 % of the computed picture. Lower is lighter "
+            "on a small machine; zoom and the hovered pixel stay the same."))
+        row.addWidget(self.slider)
+        self.value_label = QLabel("100 %", self)
+        self.value_label.setProperty("i18nSkipText", True)
+        row.addWidget(self.value_label)
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.setInterval(150)
+        self._timer.timeout.connect(self._announce)
+        self.slider.valueChanged.connect(self._moved)
+
+    def value(self) -> int:
+        """The percentage the slider is at."""
+        return int(self.slider.value())
+
+    def _moved(self, value: int) -> None:
+        """Show the percentage now and announce it once the slider rests."""
+        self.value_label.setText(f"{int(value)} %")
+        self._timer.start()
+
+    def _announce(self) -> None:
+        """The slider rested: say which quality is asked for."""
+        self.changed.emit(self.value())
 
 
 #: Last resort if `spacr.settings` cannot be reached at all — a stub in
@@ -2763,6 +2888,18 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         act.addWidget(self._compare_masks_btn)
         from .preview_scale import install_preview_scale
         self._scale_control = install_preview_scale(self, "mask", act)
+        self._quality_control = _ImageQualityControl(self)
+        self._quality_control.changed.connect(self._on_image_quality_changed)
+        act.addWidget(self._quality_control)
+        self._laptop_refresh_btn = QPushButton(tr("Refresh view"), self)
+        self._laptop_refresh_btn.setObjectName("LivePreviewLaptopRefresh")
+        self._laptop_refresh_btn.setToolTip(tr(
+            "Laptop mode: apply the changed settings and image quality and "
+            "redraw the preview. Nothing redraws by itself in laptop mode."))
+        self._laptop_refresh_btn.clicked.connect(self._refresh_laptop_view)
+        self._laptop_refresh_btn.setVisible(_laptop_mode())
+        self._laptop_pending = False
+        act.addWidget(self._laptop_refresh_btn)
         root.addWidget(act_host)
         root.addWidget(self._status)
 
@@ -5859,10 +5996,44 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         if not getattr(self, "_raw_masks", None):
             return
+        if _laptop_mode():
+            self._wait_for_laptop_refresh()
+            return
         if debounce and self._filter_debounce_ms > 0:
             self._filter_timer.start(self._filter_debounce_ms)
             return
         self._start_filter_job()
+
+    def _views(self) -> list:
+        """The panel's picture views."""
+        return [view for view in (getattr(self, name, None) for name in
+                                  ("_src_view", "_mask_view", "_compare_view"))
+                if view is not None]
+
+    def _wait_for_laptop_refresh(self) -> None:
+        """Laptop mode: hold a change until Refresh view is pressed."""
+        self._laptop_pending = True
+        self._laptop_refresh_btn.setVisible(True)
+        self._status.setText(tr(
+            "Laptop mode: press Refresh view to apply the changes."))
+
+    def _on_image_quality_changed(self, percent: int) -> None:
+        """Draw every view at the new image quality, or wait in laptop mode."""
+        if _laptop_mode():
+            self._wait_for_laptop_refresh()
+            return
+        for view in self._views():
+            view.set_render_percent(percent)
+
+    def _refresh_laptop_view(self) -> None:
+        """Apply the held changes and image quality, then redraw (Refresh view)."""
+        pending, self._laptop_pending = self._laptop_pending, False
+        for view in self._views():
+            view.set_render_percent(self._quality_control.value())
+        if pending and getattr(self, "_raw_masks", None):
+            self._start_filter_job()
+        else:
+            self._refresh_canvases()
 
     def _overlay_arguments(self) -> Optional[Dict[str, Any]]:
         """What :func:`overlay_masks` needs besides the masks, or ``None``.
@@ -6142,6 +6313,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         super().showEvent(event)
         self.refresh_model_choices()
+        button = getattr(self, "_laptop_refresh_btn", None)
+        if button is not None:
+            button.setVisible(_laptop_mode())
 
 
 

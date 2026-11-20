@@ -21,7 +21,11 @@
 - an **Image quality** slider, 10–100 % (default 100 %): the resolution the pictures are rendered at;
 - pictures in Mask Generation's zoomable view;
 - a **Settings…** button opening that tab's settings panel (the step's main settings) with **Close** and **Propagate settings**. A change in the panel re-runs that tab's step on the preview data and redraws it; Propagate copies the panel's values into the OPS form (while on, every later change too);
-- **laptop mode** (Preferences → performance level Laptop, `preferences.get_laptop_mode() == "on"`): nothing refreshes by itself. A **Refresh** button (in the tab and in the panel) applies the changed settings and quality and redraws.
+- **laptop mode** (Preferences → performance level Laptop, `preferences.get_laptop_mode() == "on"`): switching Live on runs the tab on view once; after that nothing refreshes by itself. A **Refresh view** button (in the tab and in the panel) applies the changed settings and quality and redraws (maintainer 2026-11-20).
+- a Settings-panel change reruns its tab even while Live is off (maintainer 2026-11-20: keep).
+- graphs have no background of their own and take the page's text colour from the theme, so they read like the page in the light and the dark theme; data colours are the theme's cool accents.
+
+**F1b. Mask Generation's Live view gets the same** (maintainer 2026-11-20): the shared 10–100 % image-quality control (`_ImageQualityControl` in `live_preview.py`, also used by OPS Live) and, in laptop mode, a Refresh view button; a settings change that would re-filter the masks waits for it. Quality is drawn by `_ZoomView.set_render_percent`: the picture is resampled and stretched back over the same scene, so zoom, pan, the ruler and the hovered pixel stay in image pixels, and saving keeps the whole picture.
 
 **F2. Align & stitch shows what the step does**, from the real stitch/phenotype/align run on the preview data:
 - the stitched block with every tile, every placed phenotype field and the sampled crop;
@@ -43,4 +47,4 @@
 ## Follow-ups
 
 - Tutorials showing OPS Live must be re-recorded when tutorial work resumes (lane owner spacr-d7).
-- A phenotype "before placement" overlay would need the raster seed's own prediction per field; this item shows the placed field only.
+- **Later follow-up (maintainer 2026-11-20, not in this item):** an Align & stitch "before placement" picture of the phenotype field at the raster seed's own prediction, beside the placed field. This item shows the placed field only.
