@@ -214,22 +214,22 @@ def test_degenerate_expected_quantiles_cost_only_the_inflation_figure(
 # design_summary
 # ---------------------------------------------------------------------------
 
-def test_a_model_frame_without_well_or_guide_columns_reports_its_row_count():
-    """The fitted row count is readable from any frame; the well and guide
-    counts need the columns spaCR names them with, and a frame that lacks
-    them gets no invented count.
-    """
-    out = design_summary({"model_data": pd.DataFrame({"value": [1.0, 2.0, 3.0]})})
-
-    assert out == {"n_rows_prepared": 3, "n_rows_fitted": 3}
-
-
-def test_a_model_frame_with_only_wells_counts_wells_and_not_guides():
-    """One of the two columns present is enough for one of the two counts."""
-    out = design_summary(
-        {"model_data": pd.DataFrame({"prc": ["p1_A_1", "p1_A_2", "p1_A_2"]})})
-
-    assert out == {"n_rows_prepared": 3, "n_rows_fitted": 3, "n_wells": 2}
+@pytest.mark.parametrize("records, expected", [
+    pytest.param(
+        {"value": [1.0, 2.0, 3.0]},
+        {"n_rows_prepared": 3, "n_rows_fitted": 3},
+        id="test_a_model_frame_without_well_or_guide_columns_reports_its_row_count",
+    ),
+    pytest.param(
+        {"prc": ["p1_A_1", "p1_A_2", "p1_A_2"]},
+        {"n_rows_prepared": 3, "n_rows_fitted": 3, "n_wells": 2},
+        id="test_a_model_frame_with_only_wells_counts_wells_and_not_guides",
+    ),
+])
+def test_model_frames_keep_their_original_design_counts(records, expected):
+    """Keep row counts and available well counts for each original model frame."""
+    out = design_summary({"model_data": pd.DataFrame(records)})
+    assert out == expected
 
 
 # ---------------------------------------------------------------------------

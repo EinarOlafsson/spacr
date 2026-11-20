@@ -1,0 +1,229 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_trial_metrics_uncovered_paths.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_model_frame_without_well_or_guide_columns_reports_its_row_count": "tests/test_trial_metrics_uncovered_paths.py::test_model_frames_keep_their_original_design_counts[test_a_model_frame_without_well_or_guide_columns_reports_its_row_count]",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_model_frame_with_only_wells_counts_wells_and_not_guides": "tests/test_trial_metrics_uncovered_paths.py::test_model_frames_keep_their_original_design_counts[test_a_model_frame_with_only_wells_counts_wells_and_not_guides]"
+  },
+  "model_frame_and_expected_count_contracts": {
+    "test_a_model_frame_without_well_or_guide_columns_reports_its_row_count": [
+      {
+        "value": [
+          1.0,
+          2.0,
+          3.0
+        ]
+      },
+      {
+        "n_rows_prepared": 3,
+        "n_rows_fitted": 3
+      }
+    ],
+    "test_a_model_frame_with_only_wells_counts_wells_and_not_guides": [
+      {
+        "prc": [
+          "p1_A_1",
+          "p1_A_2",
+          "p1_A_2"
+        ]
+      },
+      {
+        "n_rows_prepared": 3,
+        "n_rows_fitted": 3,
+        "n_wells": 2
+      }
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_model_frame_without_well_or_guide_columns_reports_its_row_count": "({'value': [1.0, 2.0, 3.0]}, {'n_rows_prepared': 3, 'n_rows_fitted': 3})",
+    "test_a_model_frame_with_only_wells_counts_wells_and_not_guides": "({'prc': ['p1_A_1', 'p1_A_2', 'p1_A_2']}, {'n_rows_prepared': 3, 'n_rows_fitted': 3, 'n_wells': 2})"
+  },
+  "contract_scope": "Exact ordered DataFrame records, float/string lists including repeated wells, inline model_data mapping and pd.DataFrame construction, positional design_summary call, out assignment and native complete dict equality retained.",
+  "collected_before": [
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_model_that_raises_on_every_question_costs_only_the_model_metrics",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_single_varying_predictor_has_no_pair_to_correlate",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_fit_with_no_fitted_values_reports_residual_behaviour_but_no_trend",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_results_object_that_is_not_a_table_yields_no_gene_counts",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_table_with_no_feature_column_recovers_no_controls",
+    "tests/test_trial_metrics_uncovered_paths.py::test_normality_statistics_that_cannot_be_imported_cost_only_themselves",
+    "tests/test_trial_metrics_uncovered_paths.py::test_standard_errors_that_do_not_match_the_design_omit_the_vif",
+    "tests/test_trial_metrics_uncovered_paths.py::test_gene_support_that_cannot_be_imported_leaves_the_rest_of_the_row",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_rank_deficient_design_computed_here_is_reported_as_unidentifiable",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_model_frame_with_only_wells_counts_wells_and_not_guides",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_one_dimensional_design_costs_only_the_heteroscedasticity_tests",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_design_of_nothing_but_a_constant_has_no_vif_and_no_pairs",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_single_non_finite_residual_does_not_cost_the_trend_slope",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_table_with_only_corrected_p_values_still_counts_them",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_model_frame_without_well_or_guide_columns_reports_its_row_count",
+    "tests/test_trial_metrics_uncovered_paths.py::test_degenerate_expected_quantiles_cost_only_the_inflation_figure",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_design_wider_than_thirty_columns_gets_breusch_pagan_but_not_white",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_design_too_wide_for_the_pairwise_scan_reports_no_pair_statistics",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_design_that_does_not_match_the_residuals_is_not_tested_against_them",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_fit_that_never_reported_its_rank_has_it_computed_from_the_design",
+    "tests/test_trial_metrics_uncovered_paths.py::test_predictors_whose_correlation_is_not_a_number_yield_no_pair_counts",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_verdict_that_cannot_be_scored_leaves_every_measurement_standing",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_row_whose_wells_per_parameter_is_not_a_number_keeps_its_other_verdict",
+    "tests/test_trial_metrics_uncovered_paths.py::test_residuals_and_fitted_values_of_different_lengths_do_not_raise",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_design_whose_rank_cannot_be_decomposed_yields_no_design_metrics"
+  ],
+  "collected_after": [
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_single_non_finite_residual_does_not_cost_the_trend_slope",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_fit_that_never_reported_its_rank_has_it_computed_from_the_design",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_rank_deficient_design_computed_here_is_reported_as_unidentifiable",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_design_of_nothing_but_a_constant_has_no_vif_and_no_pairs",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_table_with_only_corrected_p_values_still_counts_them",
+    "tests/test_trial_metrics_uncovered_paths.py::test_normality_statistics_that_cannot_be_imported_cost_only_themselves",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_design_too_wide_for_the_pairwise_scan_reports_no_pair_statistics",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_fit_with_no_fitted_values_reports_residual_behaviour_but_no_trend",
+    "tests/test_trial_metrics_uncovered_paths.py::test_model_frames_keep_their_original_design_counts[test_a_model_frame_without_well_or_guide_columns_reports_its_row_count]",
+    "tests/test_trial_metrics_uncovered_paths.py::test_gene_support_that_cannot_be_imported_leaves_the_rest_of_the_row",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_results_object_that_is_not_a_table_yields_no_gene_counts",
+    "tests/test_trial_metrics_uncovered_paths.py::test_degenerate_expected_quantiles_cost_only_the_inflation_figure",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_row_whose_wells_per_parameter_is_not_a_number_keeps_its_other_verdict",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_table_with_no_feature_column_recovers_no_controls",
+    "tests/test_trial_metrics_uncovered_paths.py::test_standard_errors_that_do_not_match_the_design_omit_the_vif",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_one_dimensional_design_costs_only_the_heteroscedasticity_tests",
+    "tests/test_trial_metrics_uncovered_paths.py::test_residuals_and_fitted_values_of_different_lengths_do_not_raise",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_single_varying_predictor_has_no_pair_to_correlate",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_model_that_raises_on_every_question_costs_only_the_model_metrics",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_design_whose_rank_cannot_be_decomposed_yields_no_design_metrics",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_design_that_does_not_match_the_residuals_is_not_tested_against_them",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_design_wider_than_thirty_columns_gets_breusch_pagan_but_not_white",
+    "tests/test_trial_metrics_uncovered_paths.py::test_predictors_whose_correlation_is_not_a_number_yield_no_pair_counts",
+    "tests/test_trial_metrics_uncovered_paths.py::test_model_frames_keep_their_original_design_counts[test_a_model_frame_with_only_wells_counts_wells_and_not_guides]",
+    "tests/test_trial_metrics_uncovered_paths.py::test_a_verdict_that_cannot_be_scored_leaves_every_measurement_standing"
+  ],
+  "tests_before": {
+    "passed": 25,
+    "seconds": 7.11
+  },
+  "tests_after": {
+    "passed": 25,
+    "seconds": 5.08
+  },
+  "coverage_scope": "spacr.trial_metrics under the complete selected 25-case numeric diagnostic/summary module, including its original 30x3 OLS fit; not full-suite coverage. No chart rendering or GPU work.",
+  "coverage_before": {
+    "covered_lines": 262,
+    "num_statements": 318,
+    "percent_covered": 79.90867579908675,
+    "percent_covered_display": "80",
+    "missing_lines": 56,
+    "excluded_lines": 0,
+    "percent_statements_covered": 82.38993710691824,
+    "percent_statements_covered_display": "82",
+    "num_branches": 120,
+    "num_partial_branches": 22,
+    "covered_branches": 88,
+    "missing_branches": 32,
+    "percent_branches_covered": 73.33333333333333,
+    "percent_branches_covered_display": "73"
+  },
+  "coverage_after": {
+    "covered_lines": 262,
+    "num_statements": 318,
+    "percent_covered": 79.90867579908675,
+    "percent_covered_display": "80",
+    "missing_lines": 56,
+    "excluded_lines": 0,
+    "percent_statements_covered": 82.38993710691824,
+    "percent_statements_covered_display": "82",
+    "num_branches": 120,
+    "num_partial_branches": 22,
+    "covered_branches": 88,
+    "missing_branches": 32,
+    "percent_branches_covered": 73.33333333333333,
+    "percent_branches_covered_display": "73"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "0e96d2df0e779c3fe5beba99028dab8edcbf86b5569f79859ee07f17a2277303",
+  "production_source_sha256": "a254c10070493dc3673ce6ec7be6a96e006cf778c34ff58aaabdd5e51d9ddb59",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_helpers_classes_residual_rank_VIF_calibration_support_hit_count_QC_guards_and_original_OLS_fit_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "fitted-row-count-offset",
+      "source_variant": {
+        "path": "spacr/trial_metrics.py",
+        "line": 281,
+        "old": "out[\"n_rows_fitted\"] = int(len(frame))",
+        "new": "out[\"n_rows_fitted\"] = int(len(frame)) - 1"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_trial_metrics_uncovered_paths.py::test_a_model_frame_without_well_or_guide_columns_reports_its_row_count"
+        ],
+        "failure_summary_lines": [
+          "tests/test_trial_metrics_uncovered_paths.py::test_a_model_frame_without_well_or_guide_columns_reports_its_row_count"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_trial_metrics_uncovered_paths.py::test_model_frames_keep_their_original_design_counts[test_a_model_frame_without_well_or_guide_columns_reports_its_row_count]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_trial_metrics_uncovered_paths.py::test_model_frames_keep_their_original_design_counts[test_a_model_frame_without_well_or_guide_columns_reports_its_row_count]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "well-count-includes-duplicate-rows",
+      "source_variant": {
+        "path": "spacr/trial_metrics.py",
+        "line": 286,
+        "old": "out[key + suffix] = int(frame[column].nunique())",
+        "new": "out[key + suffix] = int(len(frame[column]))"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_trial_metrics_uncovered_paths.py::test_a_model_frame_with_only_wells_counts_wells_and_not_guides"
+        ],
+        "failure_summary_lines": [
+          "tests/test_trial_metrics_uncovered_paths.py::test_a_model_frame_with_only_wells_counts_wells_and_not_guides"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_trial_metrics_uncovered_paths.py::test_model_frames_keep_their_original_design_counts[test_a_model_frame_with_only_wells_counts_wells_and_not_guides]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_trial_metrics_uncovered_paths.py::test_model_frames_keep_their_original_design_counts[test_a_model_frame_with_only_wells_counts_wells_and_not_guides]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader counter faults in design_summary before and after: fitted row count offset by one; distinct identifier count replaced by row count, sampled on repeated wells. Each fault selects the same one original/mapped case before/after (row-only case for fitted rows, repeated-well case for well uniqueness). Repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_trial_metrics_uncovered_paths.py",
+      "line": 230,
+      "symbol": "test_model_frames_keep_their_original_design_counts",
+      "new": "Keep row counts and available well counts for each original model frame.",
+      "old": {
+        "test_a_model_frame_without_well_or_guide_columns_reports_its_row_count": "The fitted row count is readable from any frame; the well and guide\ncounts need the columns spaCR names them with, and a frame that lacks\nthem gets no invented count.",
+        "test_a_model_frame_with_only_wells_counts_wells_and_not_guides": "One of the two columns present is enough for one of the two counts."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
