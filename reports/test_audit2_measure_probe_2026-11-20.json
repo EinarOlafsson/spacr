@@ -1,0 +1,107 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_test_directory": "tests (root-level module only)",
+  "changed_file": "tests/test_cov_r8_measure_probes.py",
+  "change": "Check restoration immediately after the signature mutation is undone; retain the normal-install contract and remove its standalone duplicate.",
+  "removed_ids": [
+    "tests/test_cov_r8_measure_probes.py::TestTheExpandLabelsProbe::test_the_probe_is_restored_afterwards"
+  ],
+  "added_ids": [],
+  "selected_tests": {
+    "before_passed": 48,
+    "after_passed": 47,
+    "before_seconds": 18.08,
+    "after_seconds": 19.73,
+    "warnings_each": 2,
+    "runtime_saving_claimed": false
+  },
+  "coverage_scope": "spacr.measure, selected probe and measurement-hook tests only; not a full-suite measurement",
+  "before_coverage": {
+    "covered_lines": 2063,
+    "num_statements": 9333,
+    "percent_covered": 19.913623871221045,
+    "percent_covered_display": "20",
+    "missing_lines": 7270,
+    "excluded_lines": 0,
+    "percent_statements_covered": 22.104360870031073,
+    "percent_statements_covered_display": "22",
+    "num_branches": 3402,
+    "num_partial_branches": 285,
+    "covered_branches": 473,
+    "missing_branches": 2929,
+    "percent_branches_covered": 13.903586125808348,
+    "percent_branches_covered_display": "14"
+  },
+  "after_coverage": {
+    "covered_lines": 2063,
+    "num_statements": 9333,
+    "percent_covered": 19.913623871221045,
+    "percent_covered_display": "20",
+    "missing_lines": 7270,
+    "excluded_lines": 0,
+    "percent_statements_covered": 22.104360870031073,
+    "percent_statements_covered_display": "22",
+    "num_branches": 3402,
+    "num_partial_branches": 285,
+    "covered_branches": 473,
+    "missing_branches": 2929,
+    "percent_branches_covered": 13.903586125808348,
+    "percent_branches_covered_display": "14"
+  },
+  "branch_coverage_delta_points": 0.0,
+  "executed_lines_identical": true,
+  "executed_branches_identical": true,
+  "production_source_sha256": "0813e700ca3b3ed63ddbece680e6c5a1cc8bc71552807565cfb1a5a4cba8c8e2",
+  "mutation_scope": "Two precise production capability-probe source variants, compiled by a private import loader in fresh test processes; repository source files unchanged.",
+  "mutation_sample": [
+    {
+      "mutant": "normal-answer-negated",
+      "before": {
+        "killed": true,
+        "assertion_failure_ids": [
+          "tests/test_cov_r8_measure_probes.py::TestTheExpandLabelsProbe::test_the_probe_is_restored_afterwards",
+          "tests/test_cov_r8_measure_probes.py::TestTheExpandLabelsProbe::test_the_probe_matches_the_installed_signature"
+        ],
+        "mutation_application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "assertion_failure_ids": [
+          "tests/test_cov_r8_measure_probes.py::TestTheExpandLabelsProbe::test_the_probe_matches_the_installed_signature",
+          "tests/test_cov_r8_measure_probes.py::TestTheExpandLabelsProbe::test_a_signature_that_cannot_be_read_answers_no"
+        ],
+        "mutation_application_markers": 2
+      }
+    },
+    {
+      "mutant": "unreadable-answer-true",
+      "before": {
+        "killed": true,
+        "assertion_failure_ids": [
+          "tests/test_cov_r8_measure_probes.py::TestTheExpandLabelsProbe::test_a_signature_that_cannot_be_read_answers_no"
+        ],
+        "mutation_application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "assertion_failure_ids": [
+          "tests/test_cov_r8_measure_probes.py::TestTheExpandLabelsProbe::test_a_signature_that_cannot_be_read_answers_no"
+        ],
+        "mutation_application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "all_ratchets_and_issue_regressions_retained": true,
+  "resources": "can_start 8 0, MemoryMax 8G, nice 19, CUDA hidden, pytest -n 2",
+  "implementation_notes": [
+    "pytest-cov was unavailable; installed coverage.py 7.16.0 collected per-worker branch data directly, with zero exclusions.",
+    "The initial mutation runner expected exit 1; xdist maxfail returns exit 2. Actual expected assertion failures and source-application markers, not exit code alone, establish a killed mutant."
+  ]
+}

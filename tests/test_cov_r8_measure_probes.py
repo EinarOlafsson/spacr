@@ -139,6 +139,9 @@ class TestTheExpandLabelsProbe:
         raise. Answering "no spacing argument" is the safe direction: the
         caller then does its own scaling instead of passing an argument
         that would be rejected.
+
+        Restoring the real function must restore the capability answer in
+        this same test, immediately after the unreadable signature case.
         """
         import skimage.segmentation as seg
 
@@ -153,13 +156,7 @@ class TestTheExpandLabelsProbe:
             assert measure._EXPAND_LABELS_TAKES_SPACING is False
         finally:
             monkeypatch.undo()
-            _reimport_measure()
+            restored = _reimport_measure()
 
-    def test_the_probe_is_restored_afterwards(self):
-        """The re-import above must not leave a poisoned module behind."""
-        from skimage.segmentation import expand_labels
-
-        import spacr.measure as measure
-
-        expected = "spacing" in inspect.signature(expand_labels).parameters
-        assert measure._EXPAND_LABELS_TAKES_SPACING is expected
+        expected = "spacing" in inspect.signature(seg.expand_labels).parameters
+        assert restored._EXPAND_LABELS_TAKES_SPACING is expected
