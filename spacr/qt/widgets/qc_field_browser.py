@@ -2892,7 +2892,7 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
         if channel not in info["channels"]:
             raise _OverviewValidationError(tr(
                 "Channel {channel} is missing or ambiguous. Available channels: {available}.\n\n"
-                "Select one of the available channels, then refresh the preview.",
+                "Select an available channel or correct the source channel assignments, then refresh the preview.",
                 channel=channel, available=", ".join(map(str, info["channels"])) or "—"))
     if z_mode not in ("plane", "max", "mean"):
         raise _OverviewValidationError(tr("Choose an explicit Z plane or a maximum or mean projection."))
