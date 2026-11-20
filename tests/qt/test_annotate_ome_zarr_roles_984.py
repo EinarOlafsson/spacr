@@ -82,3 +82,14 @@ def test_the_dialog_offers_project_presets_and_returns_parsed_roles(qtbot, proje
     assert chosen.channel_roles == ROLES
     dialog._channel_roles.setText("")
     assert dialog.collect().channel_roles is None
+
+
+def test_the_roles_example_is_valid_syntax_and_not_a_translatable_string(qtbot, project):
+    from spacr.crop_store import format_channel_roles, parse_channel_roles
+
+    text = format_channel_roles(annotate_mod.CHANNEL_ROLES_EXAMPLE)
+    assert text == "0:image:blue; 1:image:green:gamma=1.5; mask:outline:yellow:width=2"
+    assert parse_channel_roles(text) == [dict(r) for r in annotate_mod.CHANNEL_ROLES_EXAMPLE]
+    dialog = annotate_mod._SettingsDialog(_settings(project))
+    qtbot.addWidget(dialog)
+    assert dialog._channel_roles.placeholderText() == text

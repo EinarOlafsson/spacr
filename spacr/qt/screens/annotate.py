@@ -3781,6 +3781,16 @@ def _usable_example_database(destination) -> bool:
     return database.is_file()
 
 
+#: The channel-roles example the Annotate settings show (items 983/984). It is
+#: syntax, not prose, so it is written by the parser's own formatter and stays
+#: the same in every language.
+CHANNEL_ROLES_EXAMPLE = (
+    {"channel": 0, "role": "image", "colour": "blue"},
+    {"channel": 1, "role": "image", "colour": "green", "gamma": 1.5},
+    {"channel": "mask", "role": "outline", "colour": "yellow", "width": 2},
+)
+
+
 def _load_thumb_image_worker(row, src, settings, should_stop=None):
     """Load one thumbnail from an immutable page-request snapshot.
 
@@ -4906,8 +4916,7 @@ class _SettingsDialog(QDialog):
         layout.addWidget(self._role_preset)
         self._channel_roles = QLineEdit(
             format_channel_roles(settings.channel_roles or []), row)
-        self._channel_roles.setPlaceholderText(
-            "0:image:blue; 1:image:green:gamma=1.5; mask:outline:yellow:width=2")
+        self._channel_roles.setPlaceholderText(format_channel_roles(CHANNEL_ROLES_EXAMPLE))
         self._channel_roles.setToolTip(
             "How OME-Zarr crops are drawn: any number of channels, separated by "
             "';'. Each is channel:role:colour, then options. An image role "
