@@ -66,22 +66,22 @@ def test_a_table_without_a_feature_column_still_yields_its_groups():
     assert keys == {}
 
 
-def test_no_condition_column_yields_nothing():
-    """The guard above the loop: without labels there are no control groups."""
+@pytest.mark.parametrize('records, effect', [
+    pytest.param(
+        {'effect': [0.1, 0.2]}, 'effect',
+        id='test_no_condition_column_yields_nothing',
+    ),
+    pytest.param(
+        {'condition': ['nc'], 'effect': [0.1]}, None,
+        id='test_no_effect_column_yields_nothing',
+    ),
+])
+def test_missing_control_inputs_keep_the_original_empty_mappings(records, effect):
+    """Keep each original missing control input paired with two empty mappings."""
     from spacr.figures.fast_render import _control_groups
 
-    frame = pd.DataFrame({"effect": [0.1, 0.2]})
-
-    assert _control_groups(frame, "effect") == ({}, {})
-
-
-def test_no_effect_column_yields_nothing():
-    """The other half of the same guard."""
-    from spacr.figures.fast_render import _control_groups
-
-    frame = pd.DataFrame({"condition": ["nc"], "effect": [0.1]})
-
-    assert _control_groups(frame, None) == ({}, {})
+    frame = pd.DataFrame(records)
+    assert _control_groups(frame, effect) == ({}, {})
 
 
 def test_the_condition_column_is_found_under_any_of_its_names():

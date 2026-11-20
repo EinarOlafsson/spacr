@@ -1,0 +1,189 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_the_control_groups_split_by_the_fits_own_labels.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_no_condition_column_yields_nothing": "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_missing_control_inputs_keep_the_original_empty_mappings[test_no_condition_column_yields_nothing]",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_no_effect_column_yields_nothing": "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_missing_control_inputs_keep_the_original_empty_mappings[test_no_effect_column_yields_nothing]"
+  },
+  "control_frame_and_effect_contracts": {
+    "test_no_condition_column_yields_nothing": [
+      {
+        "effect": [
+          0.1,
+          0.2
+        ]
+      },
+      "effect"
+    ],
+    "test_no_effect_column_yields_nothing": [
+      {
+        "condition": [
+          "nc"
+        ],
+        "effect": [
+          0.1
+        ]
+      },
+      null
+    ]
+  },
+  "case_contract_representations": {
+    "test_no_condition_column_yields_nothing": "({'effect': [0.1, 0.2]}, 'effect')",
+    "test_no_effect_column_yields_nothing": "({'condition': ['nc'], 'effect': [0.1]}, None)"
+  },
+  "contract_scope": "Exact local _control_groups import, ordered float/string DataFrame records, frame assignment, original effect-string/None positional argument and native equality to the tuple of two empty dicts retained. The None argument is preserved even though that original frame has an effect column.",
+  "collected_before": [
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_the_labels_match_the_paper_figures_names",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_the_condition_column_is_found_under_any_of_its_names",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_no_effect_column_yields_nothing",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_no_condition_column_yields_nothing",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_a_table_without_a_feature_column_still_yields_its_groups",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_a_group_with_no_rows_is_left_out_entirely"
+  ],
+  "collected_after": [
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_missing_control_inputs_keep_the_original_empty_mappings[test_no_condition_column_yields_nothing]",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_a_group_with_no_rows_is_left_out_entirely",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_the_labels_match_the_paper_figures_names",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_missing_control_inputs_keep_the_original_empty_mappings[test_no_effect_column_yields_nothing]",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_the_condition_column_is_found_under_any_of_its_names",
+    "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_a_table_without_a_feature_column_still_yields_its_groups"
+  ],
+  "tests_before": {
+    "passed": 6,
+    "seconds": 4.97
+  },
+  "tests_after": {
+    "passed": 6,
+    "seconds": 5.53
+  },
+  "coverage_scope": "spacr.figures.fast_render under the complete selected six-case control-data grouping/input-guard/label/key/alias module; not full-suite coverage. Only data splitting is called; no chart creation/rendering, model fits or GPU work.",
+  "coverage_before": {
+    "covered_lines": 41,
+    "num_statements": 200,
+    "percent_covered": 16.78082191780822,
+    "percent_covered_display": "17",
+    "missing_lines": 159,
+    "excluded_lines": 0,
+    "percent_statements_covered": 20.5,
+    "percent_statements_covered_display": "20",
+    "num_branches": 92,
+    "num_partial_branches": 0,
+    "covered_branches": 8,
+    "missing_branches": 84,
+    "percent_branches_covered": 8.695652173913043,
+    "percent_branches_covered_display": "9"
+  },
+  "coverage_after": {
+    "covered_lines": 41,
+    "num_statements": 200,
+    "percent_covered": 16.78082191780822,
+    "percent_covered_display": "17",
+    "missing_lines": 159,
+    "excluded_lines": 0,
+    "percent_statements_covered": 20.5,
+    "percent_statements_covered_display": "20",
+    "num_branches": 92,
+    "num_partial_branches": 0,
+    "covered_branches": 8,
+    "missing_branches": 84,
+    "percent_branches_covered": 8.695652173913043,
+    "percent_branches_covered_display": "9"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "55d80187743fbec60fd4c12117e8838f01285374c3502c05b7343bf7d6d2c72c",
+  "production_source_sha256": "af69ed8485891acf6fe7bc524e4d2aba69d71b0b59d0e854fe2358b958114597",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_labels_nonempty_groups_feature_keys_and_condition_alias_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "missing-condition-guard-lost",
+      "source_variant": {
+        "path": "spacr/figures/fast_render.py",
+        "line": 264,
+        "old": "if effect is None or condition is None:",
+        "new": "if effect is None:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_no_condition_column_yields_nothing"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_no_condition_column_yields_nothing"
+        ],
+        "application_markers": 3
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_missing_control_inputs_keep_the_original_empty_mappings[test_no_condition_column_yields_nothing]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_missing_control_inputs_keep_the_original_empty_mappings[test_no_condition_column_yields_nothing]"
+        ],
+        "application_markers": 3
+      }
+    },
+    {
+      "mutant": "missing-effect-guard-lost",
+      "source_variant": {
+        "path": "spacr/figures/fast_render.py",
+        "line": 264,
+        "old": "if effect is None or condition is None:",
+        "new": "if condition is None:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_no_effect_column_yields_nothing"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_no_effect_column_yields_nothing"
+        ],
+        "application_markers": 3
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_missing_control_inputs_keep_the_original_empty_mappings[test_no_effect_column_yields_nothing]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_control_groups_split_by_the_fits_own_labels.py::test_missing_control_inputs_keep_the_original_empty_mappings[test_no_effect_column_yields_nothing]"
+        ],
+        "application_markers": 3
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in _control_groups before and after: condition-absence guard omitted; effect-absence guard omitted. Each fault selects the same one original/mapped case before/after and must fail with KeyError: None from the lost guard. The original empty-pair equality assertions are unchanged. Repository production files unchanged; no rendering function is called.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "mandatory_ratchet_evidence": {
+    "log": "/tmp/spacr-codex-work-audit40/ratchets-passed-first.log",
+    "sha256": "f59fa24edaeaf30872ed0e1244bbbd5c9a63792866bac01c736cbac245f62229",
+    "note": "All six ratchets passed on the first run. Report serialization then failed on a normal-run log filename mismatch. Normal logs were copied byte-for-byte to the expected filenames and the verified completed ratchet result reused without rerunning tests; production, ratchet files and final test body unchanged."
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_the_control_groups_split_by_the_fits_own_labels.py",
+      "line": 80,
+      "symbol": "test_missing_control_inputs_keep_the_original_empty_mappings",
+      "new": "Keep each original missing control input paired with two empty mappings.",
+      "old": {
+        "test_no_condition_column_yields_nothing": "The guard above the loop: without labels there are no control groups.",
+        "test_no_effect_column_yields_nothing": "The other half of the same guard."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
