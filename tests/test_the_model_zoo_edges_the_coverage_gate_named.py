@@ -89,15 +89,25 @@ def test_a_shared_catalogue_row_that_is_not_a_mapping_is_skipped(
     assert "skipping a shared catalogue entry" in caplog.text
 
 
-def test_a_scorecard_with_a_finetuned_number_and_no_stock_number():
+@pytest.mark.parametrize('metrics, finetuned, stock', [
+    pytest.param(
+        {'f1': {'finetuned': 0.91234, 'vanilla': None}}, '<b>0.9123</b>', 'not recorded',
+        id='test_a_scorecard_with_a_finetuned_number_and_no_stock_number',
+    ),
+    pytest.param(
+        {'f1': {'finetuned': '0.9 (n=3)', 'vanilla': 0.81234}}, '<b>0.9 (n=3)</b>', '0.8123',
+        id='test_a_scorecard_with_a_text_number_and_a_float_stock_number',
+    ),
+])
+def test_scorecard_metrics_keep_their_original_html_fragments(metrics, finetuned, stock):
+    """Preserve the original metric types and both scorecard HTML fragments."""
     entry = SimpleNamespace(
-        metrics={"f1": {"finetuned": 0.91234, "vanilla": None}},
-        display_name="demo", trained_on="", model_card_url="")
+        metrics=metrics, display_name="demo", trained_on="", model_card_url="")
 
     html = mz.scorecard_html(entry)
 
-    assert "<b>0.9123</b>" in html
-    assert "not recorded" in html
+    assert finetuned in html
+    assert stock in html
 
 
 def test_a_missing_weights_file_is_not_verified(tmp_path):
@@ -206,17 +216,6 @@ def test_tiles_without_a_progress_callback(tmp_path):
                                 device="cpu", min_size=1, tile=128, halo=16)
 
     np.testing.assert_array_equal(labels > 0, image < 128)
-
-
-def test_a_scorecard_with_a_text_number_and_a_float_stock_number():
-    entry = SimpleNamespace(
-        metrics={"f1": {"finetuned": "0.9 (n=3)", "vanilla": 0.81234}},
-        display_name="demo", trained_on="", model_card_url="")
-
-    html = mz.scorecard_html(entry)
-
-    assert "<b>0.9 (n=3)</b>" in html
-    assert "0.8123" in html
 
 
 def test_weights_asked_for_in_a_folder_that_does_not_exist(tmp_path):
