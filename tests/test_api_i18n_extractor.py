@@ -1589,9 +1589,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-11-05 items 791, 770, 771: +22/-0, sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, the spacr.division_analysis module and its fourteen functions, and batch_correction's EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
     # 2026-11-13 items 936/940: +2/-0, the spacr.stitch_core module docstring and spacr.stitch_core.StripRegistration.shift
     # (the ten new callables, twelve with item 940 part 2's two phenotype seed readers, are in 936_940_stitch_core_api_arrivals_2026-11-13.json; nine-language records on spacr-translations translations-936-940-1113).
-    # 2026-11-20 item 987b (landing train 4): +1/-0, the spacr._mask_batches module docstring
-    # (nine-language records on spacr-translations ws-offload-codex-tr-987b-tip2).
-    expected = 13_218
+    expected = 13_217
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
@@ -2580,6 +2578,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in insitu_arrivals} == insitu_arrivals
     assert not insitu_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **insitu_arrivals}
+    mask_batch_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "987b_mask_batches_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert set(mask_batch_arrivals) == {"spacr._mask_batches"}
+    assert {key: docs[key] for key in mask_batch_arrivals} == mask_batch_arrivals
+    assert not mask_batch_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **mask_batch_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

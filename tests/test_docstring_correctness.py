@@ -6818,6 +6818,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("964_ops_feature_screen_api_arrivals_2026-11-17.json", 2),
         ("codex_issues_1119_api_arrivals_2026-11-19.json", 2),
         ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
+        ("987b_mask_batches_api_arrivals_2026-11-20.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6958,13 +6959,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
     # 2026-11-13 items 936/940: 13179 -> 13181, the spacr.stitch_core module
     # docstring and StripRegistration.shift.
-    # 2026-11-20 item 987b: 13181 -> 13182, the spacr._mask_batches module docstring.
     assert len((historical_docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) | retired_home.keys()) == 13182
+               - zoo_additions.keys()) | retired_home.keys()) == 13181
     # 2026-10-31: 13,138 -> 13,149, +11 documented symbols: the eight public
     # callables above plus the nested helpers _CrampedScroll._fit_content.tallest
     # and MakeMasksScreen._hold_the_title_bar_to_its_text.measure and
@@ -7435,7 +7435,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
                      "974_spacr_store_api_arrivals_2026-11-17.json",
                      "964_ops_feature_screen_api_arrivals_2026-11-17.json",
-                     "codex_issues_1119_api_arrivals_2026-11-19.json"):
+                     "codex_issues_1119_api_arrivals_2026-11-19.json",
+                     "987b_mask_batches_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7592,7 +7593,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
                      "974_spacr_store_api_arrivals_2026-11-17.json",
                      "964_ops_feature_screen_api_arrivals_2026-11-17.json",
-                     "codex_issues_1119_api_arrivals_2026-11-19.json"):
+                     "codex_issues_1119_api_arrivals_2026-11-19.json",
+                     "987b_mask_batches_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
