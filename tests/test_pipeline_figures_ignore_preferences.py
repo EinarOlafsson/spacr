@@ -101,10 +101,13 @@ def test_a_gui_launched_run_keeps_the_preferences(tmp_path, chosen,
     assert open(gui, "rb").read() == open(styled, "rb").read()
 
 
-def test_run_ops_and_the_cli_run_inside_the_context():
+def test_run_ops_and_the_cli_run_inside_the_context(monkeypatch):
     from spacr import cli, ops_engine
     from spacr.qt import bridge
 
+    # An earlier test in the same worker may have left a QApplication, which
+    # makes this process count as the GUI; this test is about a script run.
+    monkeypatch.setattr(style, "_gui_process", lambda: False)
     assert ops_engine._in_pipeline_figures(style._pipeline_figures_active)()
     assert ops_engine.run_ops.__wrapped__.__name__ == "run_ops"
     import inspect

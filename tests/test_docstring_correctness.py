@@ -5458,7 +5458,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 20,264 -> 20,265 on 2026-11-14: item 938's optional `progress_share` of
     # spacr.object.generate_cellpose_masks_sam (defaulted), the serial mask
     # path's per-batch progress lines.
-    assert sum(len(item.parameters) for item in callables) == 20265
+    # 20,265 -> 20,266 on 2026-11-19: the optional `preferences` keyword of
+    # spacr.plot.save_figure (defaulted), figures of runs outside the GUI.
+    assert sum(len(item.parameters) for item in callables) == 20266
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5802,7 +5804,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # changed parameters; new callables are checked by their arrival contracts.
     # Moved 2026-11-14 for item 938 (was 17089b9e...): the optional
     # `progress_share` of spacr.object.generate_cellpose_masks_sam.
-) == '6e569df7200c40ec836404fed5c2d8efbec245e64bf77f9c9249cc293be5bccc'
+    # Moved 2026-11-19 for figure preferences (was 6e569df7...): the optional
+    # `preferences` keyword of spacr.plot.save_figure.
+) == '92d3a011f48d22c16d8a10318e58a69ab8cc5dc14d70447a0cb9f7e933b0f893'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
