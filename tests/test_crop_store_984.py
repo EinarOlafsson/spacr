@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -166,16 +168,137 @@ def test_a_stale_measured_mask_record_is_reported(tmp_path):
     assert measured_masks_state(path) == "stale"
 
 
-def test_batched_reads_equal_one_by_one_reads_in_any_row_order(tmp_path):
+@pytest.mark.parametrize("positions", [(3, 0, 2, 1), (2, 0, 2, 3)],
+                         ids=["dense", "sparse-duplicate"])
+def test_batched_reads_equal_one_by_one_reads_in_any_row_order(tmp_path, positions):
+    """Real pools retain pixels and row order for dense and sparse duplicate requests."""
     from spacr.crop_store import OmeZarrCropSource, read_crops
 
     _image, _labels, rows = _write(tmp_path, per_shard=3)
-    order = [rows[i] for i in (3, 0, 2, 1)]
-    for kwargs in ({}, {"context": False}, {"size": (16, 20)}):
+    order = [rows[i] for i in positions]
+    for kwargs in ({}, {"context": False}, {"size": (16, 20)},
+                   {"context": False, "size": (16, 20)}):
         batch = read_crops(tmp_path, order, **kwargs)
+        assert len(batch) == len(order)
         for row, (pixels, mask) in zip(order, batch):
             want_pixels, want_mask = read_crop(tmp_path, row, **kwargs)
             assert pixels.dtype == want_pixels.dtype and np.array_equal(pixels, want_pixels)
             assert mask.dtype == want_mask.dtype and np.array_equal(mask, want_mask)
     source = OmeZarrCropSource(str(tmp_path))
     assert all(np.array_equal(a, source.get(r)) for a, r in zip(source.get_many(order), order))
+
+
+class _RecordedCropArray:
+    """An array whose public slices are recorded before returning independent read buffers."""
+
+    def __init__(self, values, chunks):
+        """Keep deterministic stored pixels and an empty slice log."""
+        self.values = values
+        self.shape = values.shape
+        self.chunks = chunks
+        self.reads = []
+
+    def __getitem__(self, selection):
+        """Record the exact public array selection, as a Zarr read would receive it."""
+        self.reads.append(selection)
+        return self.values[selection].copy()
+
+
+@pytest.fixture
+def recorded_crop_pools(monkeypatch, tmp_path):
+    """Replace only array opening with two deterministic pools and independent mask offsets."""
+    from spacr import ome_zarr
+
+    arrays, opened = {}, []
+    for number, store in enumerate(("a.zarr", "b.zarr")):
+        pixels = np.arange(256, dtype=np.uint16).reshape(2, 128) + 1000 * number
+        mask = (np.arange(128) * 3 + number) % 7 < 3
+        arrays[store + "/cell/pool/0"] = _RecordedCropArray(pixels, (2, 8))
+        arrays[store + "/cell/mask/0"] = _RecordedCropArray(mask, (4,))
+
+    def open_array(path, mode):
+        """Resolve the requested array while recording exactly one open per caller."""
+        assert mode == "r"
+        relative = Path(path).relative_to(tmp_path).as_posix()
+        opened.append(relative)
+        return arrays[relative]
+
+    def require_zarr():
+        """Provide the recorded public array opener without importing a storage backend."""
+        return SimpleNamespace(open_array=open_array)
+
+    monkeypatch.setattr(ome_zarr, "require_zarr", require_zarr)
+    return arrays, opened
+
+
+def _pool_row(store, offset, mask_offset, *, height=2, width=2):
+    """Build one public crop row with separately addressable image and mask ranges."""
+    return {"crop_store": store, "crop_array": "cell/pool/0", "offset": offset,
+            "mask_offset": mask_offset, "height": height, "width": width}
+
+
+def test_dense_crop_ranges_use_one_slice_with_overlap_and_duplicates(tmp_path, recorded_crop_pools):
+    """Unordered contiguous requests keep one read per array and every requested result."""
+    from spacr.crop_store import read_crops
+
+    arrays, opened = recorded_crop_pools
+    rows = [_pool_row("a.zarr", offset, mask_offset)
+            for offset, mask_offset in ((8, 24), (0, 16), (4, 20), (4, 20), (2, 18))]
+    actual = read_crops(tmp_path, iter(rows))
+    assert opened == ["a.zarr/cell/pool/0", "a.zarr/cell/mask/0"]
+    assert arrays[opened[0]].reads == [(slice(None), slice(0, 12))]
+    assert arrays[opened[1]].reads == [slice(16, 28)]
+    assert len(actual) == len(rows)
+    for row, (pixels, mask) in zip(rows, actual):
+        want_pixels, want_mask = read_crop(tmp_path, row)
+        assert pixels.dtype == want_pixels.dtype and np.array_equal(pixels, want_pixels)
+        assert mask.dtype == want_mask.dtype and np.array_equal(mask, want_mask)
+
+
+@pytest.mark.parametrize("context,size", [(True, None), (False, None),
+                                          (True, (3, 5)), (False, (3, 5))])
+def test_sparse_crop_ranges_skip_gaps_and_keep_independent_mask_order(
+        tmp_path, recorded_crop_pools, context, size):
+    """Read sparse ranges once, preserving cross-pool order, duplicates and finishing options."""
+    from spacr.crop_store import read_crops
+
+    arrays, opened = recorded_crop_pools
+    rows = [_pool_row("a.zarr", 96, 20),
+            _pool_row("b.zarr", 4, 64, width=3),
+            _pool_row("a.zarr", 0, 96),
+            _pool_row("a.zarr", 4, 0),
+            _pool_row("a.zarr", 96, 20),
+            _pool_row("b.zarr", 10, 0)]
+    actual = read_crops(tmp_path, iter(rows), context=context, size=size)
+    assert opened == ["a.zarr/cell/pool/0", "a.zarr/cell/mask/0",
+                      "b.zarr/cell/pool/0", "b.zarr/cell/mask/0"]
+    assert arrays["a.zarr/cell/pool/0"].reads == [(slice(None), slice(0, 8)),
+                                                (slice(None), slice(96, 100))]
+    assert arrays["a.zarr/cell/mask/0"].reads == [slice(0, 4), slice(20, 24), slice(96, 100)]
+    assert arrays["b.zarr/cell/pool/0"].reads == [(slice(None), slice(4, 14))]
+    assert arrays["b.zarr/cell/mask/0"].reads == [slice(0, 4), slice(64, 70)]
+    assert len(actual) == len(rows)
+    for row, (pixels, mask) in zip(rows, actual):
+        want_pixels, want_mask = read_crop(tmp_path, row, context=context, size=size)
+        assert pixels.dtype == want_pixels.dtype and np.array_equal(pixels, want_pixels)
+        assert mask.dtype == want_mask.dtype and np.array_equal(mask, want_mask)
+
+
+def test_disjoint_crops_share_reads_only_across_requested_inner_chunks(
+        tmp_path, recorded_crop_pools):
+    """Merge shared/adjacent chunk requests while leaving a complete unused chunk unread."""
+    from spacr.crop_store import read_crops
+
+    arrays, opened = recorded_crop_pools
+    rows = [_pool_row("a.zarr", offset, offset, height=1, width=2)
+            for offset in (24, 6, 16, 1, 6)]
+    actual = read_crops(tmp_path, rows)
+    assert opened == ["a.zarr/cell/pool/0", "a.zarr/cell/mask/0"]
+    assert arrays["a.zarr/cell/pool/0"].reads == [(slice(None), slice(1, 8)),
+                                                (slice(None), slice(16, 26))]
+    assert arrays["a.zarr/cell/mask/0"].reads == [slice(1, 8), slice(16, 18), slice(24, 26)]
+    assert len(actual) == len(rows)
+    for row, (pixels, mask) in zip(rows, actual):
+        want_pixels, want_mask = read_crop(tmp_path, row)
+        assert pixels.dtype == want_pixels.dtype and np.array_equal(pixels, want_pixels)
+        assert mask.dtype == want_mask.dtype and np.array_equal(mask, want_mask)

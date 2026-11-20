@@ -145,6 +145,7 @@ from __future__ import annotations
 
 import base64
 import bz2
+import collections
 import gzip
 import itertools
 import json
@@ -153,6 +154,7 @@ import math
 import os
 import re
 import shutil
+import threading
 import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -1738,6 +1740,84 @@ def _zarr_is_installed() -> bool:
     return True
 
 
+_OPEN_ARRAY_LIMIT = 128
+_OPEN_ARRAY_PID = os.getpid()
+_OPEN_ARRAY_CACHE = collections.OrderedDict()
+_OPEN_ARRAY_LOCK = threading.RLock()
+
+
+def _reset_open_array_cache() -> None:
+    """Discard process-local handles and locks without acquiring an inherited lock."""
+    global _OPEN_ARRAY_PID, _OPEN_ARRAY_CACHE, _OPEN_ARRAY_LOCK
+    _OPEN_ARRAY_PID = os.getpid()
+    _OPEN_ARRAY_CACHE = collections.OrderedDict()
+    _OPEN_ARRAY_LOCK = threading.RLock()
+
+
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(after_in_child=_reset_open_array_cache)
+
+
+def _local_array_signature(store: Path) -> tuple:
+    """Identify a directory generation and every possible local array metadata file."""
+    result = []
+    for path in (store, *(store / name for name in
+                         ("zarr.json", ".zarray", ".zattrs", ".zgroup"))):
+        try:
+            info = path.stat()
+        except FileNotFoundError:
+            result.append(None)
+        else:
+            result.append((info.st_dev, info.st_ino, info.st_size,
+                           info.st_mtime_ns, info.st_ctime_ns))
+    return tuple(result)
+
+
+def _opened_local_array(store: Path):
+    """Reuse a bounded read-only Zarr handle while metadata and public config agree.
+
+    Only local handles are retained; pixel arrays are never cached. Unsupported
+    configuration snapshots use the original open path. Opening happens outside
+    the cache lock, and each published handle has its own read lock.
+    """
+    if _OPEN_ARRAY_PID != os.getpid():
+        _reset_open_array_cache()
+    zarr = require_zarr()
+    opener = zarr.open
+    try:
+        location = store.resolve()
+        configuration = json.dumps(zarr.config.to_dict(), sort_keys=True,
+                                   separators=(",", ":"), allow_nan=False)
+        signature = _local_array_signature(location)
+    except Exception:
+        return opener(str(store), mode="r"), None
+    key = (str(location), id(opener), configuration)
+    with _OPEN_ARRAY_LOCK:
+        entry = _OPEN_ARRAY_CACHE.get(key)
+        if entry is not None and entry[0] == signature:
+            _OPEN_ARRAY_CACHE.move_to_end(key)
+            return entry[1], entry[2]
+        _OPEN_ARRAY_CACHE.pop(key, None)
+    array = opener(str(location), mode="r")
+    try:
+        unchanged = (signature == _local_array_signature(location)
+                     and configuration == json.dumps(zarr.config.to_dict(), sort_keys=True,
+                                                     separators=(",", ":"), allow_nan=False))
+    except Exception:
+        unchanged = False
+    if not unchanged:
+        return array, None
+    with _OPEN_ARRAY_LOCK:
+        entry = _OPEN_ARRAY_CACHE.get(key)
+        if entry is None or entry[0] != signature:
+            entry = (signature, array, threading.RLock(), opener)
+            _OPEN_ARRAY_CACHE[key] = entry
+        _OPEN_ARRAY_CACHE.move_to_end(key)
+        while len(_OPEN_ARRAY_CACHE) > _OPEN_ARRAY_LIMIT:
+            _OPEN_ARRAY_CACHE.popitem(last=False)
+        return entry[1], entry[2]
+
+
 def _read_with_zarr(store: Path, box: Sequence[Tuple[int, int]]) -> np.ndarray:
     """Read a box through :mod:`zarr` — the preferred path when it is there.
 
@@ -1745,9 +1825,12 @@ def _read_with_zarr(store: Path, box: Sequence[Tuple[int, int]]) -> np.ndarray:
     :param box: ``((start, stop), ...)`` per axis.
     :returns: the region as a numpy array.
     """
-    zarr = require_zarr()
-    array = zarr.open(str(store), mode="r")
-    return np.asarray(array[tuple(slice(a, b) for a, b in box)])
+    array, lock = _opened_local_array(store)
+    region = tuple(slice(a, b) for a, b in box)
+    if lock is None:
+        return np.asarray(array[region])
+    with lock:
+        return np.asarray(array[region])
 
 
 
