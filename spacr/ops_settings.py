@@ -494,7 +494,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_tuning_grid": None,
     "ops_prefix_nearmiss_decoy_k": 0,
     "ops_prefix_fdr_calibration": "none",
-    "ops_prefix_minority_min_reads": 0,
+    "ops_prefix_minority_min_reads": 3,
     "ops_prefix_distance_weight": "off",
     "ops_prefix_distance_decay_px": 8.0,
     "ops_prefix_distance_interior_px": 0.0,
@@ -3853,8 +3853,10 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "call, and a cell whose top barcode is a decoy is still not "
         "genotyped. Matters for ops_prefix_quality_method 'recipe_simple', "
         "where one stray read otherwise makes the cell bad. site_summary.csv "
-        "counts the rescued cells. 3 is the tested value; 0 is off. "
-        "Default 0. Alpha.",
+        "counts the rescued cells. 0 is off. With ops_prefix_quality_method "
+        "'weighted_majority' set 0, since the two rules are alternatives. "
+        "Default 3 (item 967); settings files saved before this default "
+        "keep 0. Alpha.",
     "ops_prefix_distance_weight":
         "(str) - Under ops_prefix_quality_method 'weighted_majority', weights "
         "each read by its distance to the nucleus of its cell. The distance "

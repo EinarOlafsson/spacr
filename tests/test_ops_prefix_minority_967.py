@@ -1,9 +1,10 @@
-"""Item 967: the spacer-prefix cell call ignores minority stray barcodes (alpha, off by default).
+"""Item 967: the spacer-prefix cell call ignores minority stray barcodes (alpha, default 3 since schema 945).
 
 Inside a cell, a barcode with fewer than ``ops_prefix_minority_min_reads``
 reads is left out of the call when another barcode has strictly more reads;
 ties still block the call and a decoy-top cell is still not genotyped. 0 (the
-default) writes what the decode wrote before, byte for byte.
+default before schema 945, and the direct-call fallback of prefix_settings)
+writes what the decode wrote before, byte for byte.
 """
 from __future__ import annotations
 
@@ -82,11 +83,11 @@ def test_the_spacr_classes_keep_their_calls():
         P._called_counts(reads, "spacr")
 
 
-def test_the_setting_is_alpha_and_off_by_default():
+def test_the_setting_is_alpha_with_a_registered_default_of_3():
     from spacr.ops_settings import OPS_DEFAULTS, OPS_TOOLTIPS
     from spacr.settings import ALPHA_FEATURES
 
-    assert OPS_DEFAULTS["ops_prefix_minority_min_reads"] == 0
+    assert OPS_DEFAULTS["ops_prefix_minority_min_reads"] == 3
     assert ALPHA_FEATURES[967]["settings"] == ("ops_prefix_minority_min_reads",)
     assert "Alpha." in OPS_TOOLTIPS["ops_prefix_minority_min_reads"]
     base = {"ops_library": "x.csv"}

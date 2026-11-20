@@ -2540,7 +2540,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 946
+SETTINGS_SCHEMA_VERSION = 947
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2566,6 +2566,7 @@ DEFAULT_CHANGES = {
           'ops_prefix_decoy_k': 0, 'ops_prefix_fdr_target_pct': 0.1},
     945: {'batch_size': 50},
     946: {'ops_etest_mode': 'empirical_null'},
+    947: {'ops_prefix_minority_min_reads': 0},
 }
 
 
@@ -2660,6 +2661,9 @@ def _fold_older_defaults(settings, version, known=None):
     945 is item 987b's automatic ``batch_size`` of Make Masks (0, the largest
     batch that fits the free GPU and RAM; was 50): files stamped before keep
     50, so their masks, normalised per batch, are unchanged.
+    947 is item 967's minority-read rule on the spacer-prefix decode:
+    ``ops_prefix_minority_min_reads`` 3 (was 0, off); files stamped before
+    keep 0, so every barcode of a cell counts in its call as before.
 
     :param settings: the file's settings under today's names, edited in
         place.

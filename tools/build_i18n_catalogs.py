@@ -4755,6 +4755,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "ml.py")
     paths.add(ROOT / "spacr" / "power_model.py")
     paths.add(ROOT / "spacr" / "gene_measurement_compare.py")
+    paths.add(ROOT / "spacr" / "ops_prefix.py")
     paths.add(ROOT / "spacr" / "uniprot.py")
     paths.add(ROOT / "spacr" / "validate.py")
     paths.add(ROOT / "spacr" / "torch_artifacts.py")
