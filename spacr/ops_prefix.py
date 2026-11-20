@@ -1243,10 +1243,12 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
     minority = int(minority_min_reads or 0) > 1
     weighted = method == "weighted_majority"
     if weighted and minority:
-        raise ValueError("ops_prefix_minority_min_reads and ops_prefix_quality_method "
-                         "'weighted_majority' are alternatives; set "
-                         "ops_prefix_minority_min_reads to 0 (its default is 3) "
-                         "or choose another quality method")
+        from .qt.i18n import tr
+
+        raise ValueError(tr("ops_prefix_minority_min_reads and ops_prefix_quality_method "
+                            "'weighted_majority' are alternatives; set "
+                            "ops_prefix_minority_min_reads to 0 (its default is 3) "
+                            "or choose another quality method"))
     if distance_weight not in READ_WEIGHT_MODES:
         raise ValueError(f"ops_prefix_distance_weight must be one of {list(READ_WEIGHT_MODES)}; "
                          f"got {distance_weight!r}")
@@ -2036,10 +2038,12 @@ def _check_weight_settings(out: Mapping[str, Any]) -> None:
                          "the weighted majority; set ops_prefix_quality_method "
                          "'weighted_majority'")
     if weighted and out["ops_prefix_minority_min_reads"] > 1:
-        raise ValueError("ops_prefix_minority_min_reads and ops_prefix_quality_method "
-                         "'weighted_majority' are alternatives; set "
-                         "ops_prefix_minority_min_reads to 0 (its default is 3) "
-                         "or choose another quality method")
+        from .qt.i18n import tr
+
+        raise ValueError(tr("ops_prefix_minority_min_reads and ops_prefix_quality_method "
+                            "'weighted_majority' are alternatives; set "
+                            "ops_prefix_minority_min_reads to 0 (its default is 3) "
+                            "or choose another quality method"))
 
 
 def site_labels(template: Optional[str], *, plate: str, well: str, well_id: str,
