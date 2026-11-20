@@ -101,22 +101,15 @@ def test_a_multi_plane_activation_map_is_returned_unchanged():
     assert out.shape == (8, 16, 16)
 
 
-def test_a_single_plane_map_is_unwrapped():
-    """The first taken side."""
+@pytest.mark.parametrize("shape, expected", [
+    pytest.param((1, 16, 16), (16, 16), id="test_a_single_plane_map_is_unwrapped"),
+    pytest.param((3, 16, 16), (16, 16, 3),
+                 id="test_a_three_plane_map_is_moved_to_channels_last"),
+    pytest.param((16, 16), (16, 16),
+                 id="test_a_map_that_is_already_two_dimensional_is_returned_as_is"),
+])
+def test_activation_arrays_keep_their_original_output_shapes(shape, expected):
+    """Keep each original input shape mapped to the same output shape."""
     from spacr.utils import _activation_map_to_2d
 
-    assert _activation_map_to_2d(np.zeros((1, 16, 16))).shape == (16, 16)
-
-
-def test_a_three_plane_map_is_moved_to_channels_last():
-    """The second, which is what makes it drawable as RGB."""
-    from spacr.utils import _activation_map_to_2d
-
-    assert _activation_map_to_2d(np.zeros((3, 16, 16))).shape == (16, 16, 3)
-
-
-def test_a_map_that_is_already_two_dimensional_is_returned_as_is():
-    """The guard above all three."""
-    from spacr.utils import _activation_map_to_2d
-
-    assert _activation_map_to_2d(np.zeros((16, 16))).shape == (16, 16)
+    assert _activation_map_to_2d(np.zeros(shape)).shape == expected
