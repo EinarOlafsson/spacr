@@ -1984,7 +1984,8 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
     except re.error as exc:
         raise _OverviewValidationError(str(exc)) from exc
     if custom is not None and "wellID" not in custom.groupindex:
-        raise _OverviewValidationError(tr("The filename regex must include a wellID group."))
+        raise _OverviewValidationError(tr("The filename regex must include a wellID group.\n\n"
+                                          "Add a named wellID group to the filename regex, then reload the source."))
     layout = _overview_well_layout(well_layout)
     acquisitions = {}
     groups = {}
@@ -2281,7 +2282,8 @@ def _overview_index_sources(source, pattern="", convention="auto", cancelled=Non
     if folder_names:
         matched = _overview_matched_fields(fields, pattern, patterns)
         if any(not field.well or field.unresolved for field in matched):
-            raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
+            raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image.\n\n"
+                                              "Correct the filename regex so every image maps to a well, then reload the source."))
     return tuple(fields), detection
 
 
@@ -2639,7 +2641,8 @@ def _overview_read_channel_info(field):
     separate = any(key for key, _ in field.files)
     if (not field.files or (not separate and len(field.files) != 1)
             or (separate and any(not key for key, _ in field.files))):
-        raise _OverviewValidationError(tr("This field has ambiguous image files."))
+        raise _OverviewValidationError(tr("This field has ambiguous image files.\n\n"
+                                          "Choose a source with one unambiguous image per field and channel, or refine the filename regex."))
     for key, path in field.files:
         suffix = Path(path).suffix.lower()
         if suffix == ".npy":
@@ -2654,7 +2657,8 @@ def _overview_read_channel_info(field):
                     shape, dtype, axes = series.shape, series.dtype, series.axes
                     pixel_size = _overview_tiff_pixel_size(image)
             except getattr(tifffile, "TiffFileError", ValueError) as error:
-                raise _OverviewValidationError(tr("This file is not a readable TIFF image: {name}",
+                raise _OverviewValidationError(tr("This file is not a readable TIFF image: {name}\n\n"
+                                                  "Restore an intact TIFF or choose another readable file.",
                                                   name=Path(path).name)) from error
         else:
             with Image.open(path) as image:
@@ -2666,7 +2670,8 @@ def _overview_read_channel_info(field):
         axes = str(axes).upper().replace("S", "C")
         if (len(axes) != len(shape) or len(set(axes)) != len(axes)
                 or set(axes) - set("TZCYX") or axes.replace("T", "").replace("Z", "").replace("C", "") != "YX"):
-            raise _OverviewValidationError(tr("The image channel axis is unresolved."))
+            raise _OverviewValidationError(tr("The image channel axis is unresolved.\n\n"
+                                              "Choose a source with explicit channel and spatial axes, then reopen the overview."))
         channel_axis = axes.find("C")
         records.append(dict(path=path, file_channel=key, shape=tuple(shape),
                             axes=axes, dtype=str(np.dtype(dtype)),
@@ -2789,7 +2794,8 @@ def _overview_sparse_rows(path, page, stride, byteorder):
                 os.lseek(descriptor, offset + row * row_bytes, os.SEEK_SET)
                 data = os.read(descriptor, row_bytes)
             if len(data) != row_bytes:
-                raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes."))
+                raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes.\n\n"
+                                                  "Choose a supported TIFF with explicit spatial axes before reopening the source."))
             plane[index] = np.frombuffer(data, dtype=dtype)
     finally:
         os.close(descriptor)
@@ -2806,7 +2812,8 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=
         series = tif.series[0]
         page_axes = series.pages[0].axes.upper().replace("S", "C")
         if not axes.endswith(page_axes):
-            raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes."))
+            raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes.\n\n"
+                                              "Choose a supported TIFF with explicit spatial axes before reopening the source."))
         leading = axes[:-len(page_axes)]
         leading_shape = series.shape[:len(leading)]
         z_values = (range(record["z_count"]) if "Z" in axes and z_mode != "plane"
@@ -2835,7 +2842,8 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=
                     plane = tifffile.memmap(record["path"], page=page.index, mode="r")
                 else:
                     if math.prod(page.shape) * np.dtype(page.dtype).itemsize > 128 * 1024 ** 2:
-                        raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
+                        raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit.\n\n"
+                                                          "Use a smaller source image or a layout that supports bounded plane reads."))
                     plane = page.asarray()
                 if method is not None:
                     _overview_record_read(record["path"], method, time.perf_counter() - started)
@@ -2848,13 +2856,15 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=
                 stride = max(1, math.ceil(max(plane.shape) / max(1, edge)))
                 plane = plane[::stride, ::stride]
             if plane.nbytes > 128 * 1024 ** 2:
-                raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
+                raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit.\n\n"
+                                                  "Use a smaller source image or a layout that supports bounded plane reads."))
             if z_mode == "plane" or "Z" not in axes:
                 return plane
             if result is None:
                 result_dtype = np.dtype(np.float64 if z_mode == "mean" else plane.dtype)
                 if plane.size * result_dtype.itemsize > 128 * 1024 ** 2:
-                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
+                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit.\n\n"
+                                                      "Use a smaller source image or a layout that supports bounded plane reads."))
                 result = np.array(plane, dtype=result_dtype)
             elif z_mode == "max":
                 np.maximum(result, plane, out=result)
@@ -2877,10 +2887,12 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
         raise _OverviewValidationError(tr("Choose one or more nonnegative channel indices.")) from exc
     for channel in channels:
         if channel < 0:
-            raise _OverviewValidationError(tr("Channel indices must be zero or greater."))
+            raise _OverviewValidationError(tr("Channel indices must be zero or greater.\n\n"
+                                              "Enter nonnegative channel indices, then refresh the preview."))
         if channel not in info["channels"]:
             raise _OverviewValidationError(tr(
-                "Channel {channel} is missing or ambiguous. Available channels: {available}.",
+                "Channel {channel} is missing or ambiguous. Available channels: {available}.\n\n"
+                "Select an available channel or correct the source channel assignments, then refresh the preview.",
                 channel=channel, available=", ".join(map(str, info["channels"])) or "—"))
     if z_mode not in ("plane", "max", "mean"):
         raise _OverviewValidationError(tr("Choose an explicit Z plane or a maximum or mean projection."))
@@ -2895,7 +2907,8 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
         selections = {}
         for axis, chosen in (("T", time_index), ("Z", z_index)):
             if axis not in axes and chosen not in (None, 0) and (axis != "Z" or z_mode == "plane"):
-                raise _OverviewValidationError(tr("This channel has no image at the selected time or Z plane."))
+                raise _OverviewValidationError(tr("This channel has no image at the selected time or Z plane.\n\n"
+                                                  "Choose a time and Z plane that exist for this channel, then refresh the preview."))
             if axis not in axes or (axis == "Z" and z_mode != "plane"):
                 continue
             if chosen is None:
@@ -2906,7 +2919,8 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
             except TypeError as exc:
                 raise _OverviewValidationError(tr("Choose explicit time and Z positions before reading this image.")) from exc
             if not 0 <= chosen < count:
-                raise _OverviewValidationError(tr("Axis {axis} index {index} is unavailable; valid indices are 0 to {maximum}.",
+                raise _OverviewValidationError(tr("Axis {axis} index {index} is unavailable; valid indices are 0 to {maximum}.\n\n"
+                                                  "Choose an index in the displayed valid range, then refresh the preview.",
                                     axis=axis, index=chosen, maximum=count - 1))
             selections[axis] = int(chosen)
         if path != decoded_path:
@@ -2921,7 +2935,8 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
             else:
                 with Image.open(path) as image:
                     if image.width * image.height > 32 * 1024 ** 2:
-                        raise _OverviewValidationError(tr("This image exceeds the preview decode limit."))
+                        raise _OverviewValidationError(tr("This image exceeds the preview decode limit.\n\n"
+                                                          "Use a smaller source image or a layout that supports bounded plane reads."))
                     array = np.asarray(image)
             decoded_path, decoded_array = path, array
         array = decoded_array
@@ -2940,7 +2955,8 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
             result = None
             for index, plane in enumerate(stack):
                 if plane.nbytes > 128 * 1024 ** 2:
-                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
+                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit.\n\n"
+                                                      "Use a smaller source image or a layout that supports bounded plane reads."))
                 if result is None:
                     result = np.array(plane, dtype=np.float64 if z_mode == "mean" else plane.dtype, copy=True)
                 elif z_mode == "mean":
@@ -2950,9 +2966,11 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
             array = result / len(stack) if z_mode == "mean" else result
         plane_size = math.prod(record["shape"][axes.index(axis)] for axis in "YX") * array.dtype.itemsize
         if region is None and edge is None and plane_size > 128 * 1024 ** 2:
-            raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
+            raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit.\n\n"
+                                              "Use a smaller source image or a layout that supports bounded plane reads."))
         if array.nbytes > 128 * 1024 ** 2:
-            raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
+            raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit.\n\n"
+                                              "Use a smaller source image or a layout that supports bounded plane reads."))
         if edge is not None:
             stride = max(1, math.ceil(max(array.shape) / max(1, edge)))
             array = array[::stride, ::stride]
@@ -3297,7 +3315,8 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
     for item in read_selected(field, channels):
         total_bytes += item[2].nbytes
         if total_bytes > 128 * 1024 ** 2:
-            raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
+            raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit.\n\n"
+                                              "Use a smaller source image or a layout that supports bounded plane reads."))
         source_planes.append(item)
     limits = dict((channel_limits or {}).get(image_key) or {})
     channel_overrides = override.get("channels") or {}
@@ -3332,7 +3351,8 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         plane = np.array(array[::stride, ::stride], dtype=np.float32, copy=True)
         finite = np.isfinite(plane)
         if not finite.any():
-            raise _OverviewValidationError(tr("This channel has no finite pixels."))
+            raise _OverviewValidationError(tr("This channel has no finite pixels.\n\n"
+                                              "Choose a channel with finite image pixels or correct the source image before previewing it."))
         if channel in limits:
             low, high = (float(value) for value in limits[channel])
         elif normalization is not None or advanced_normalization is not None:
@@ -3350,7 +3370,8 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         plane = _overview_override_plane(plane, channel_overrides.get(channel, channel_overrides.get(str(channel))))
         planes.append(np.uint8(np.clip(plane, 0, 1) * 255))
     if not planes or any(plane.shape != planes[0].shape for plane in planes):
-        raise _OverviewValidationError(tr("Selected channels must have matching image sizes."))
+        raise _OverviewValidationError(tr("Selected channels must have matching image sizes.\n\n"
+                                          "Select channels with matching pixel dimensions, then refresh the preview."))
     if channel_views:
         return tuple((channel, np.repeat(plane[..., None], 3, axis=2))
                      for channel, plane in zip(channels, planes))
@@ -3494,7 +3515,8 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
                 record.update({"roi_" + key.replace("-", "_"): value[0].item()
                                for key, value in geometry.items()})
             elif plane.shape != shape:
-                raise ValueError(tr("Selected channels must have matching image sizes."))
+                raise ValueError(tr("Selected channels must have matching image sizes.\n\n"
+                                    "Select channels with matching pixel dimensions, then refresh the preview."))
             finite = np.isfinite(plane)
             count = int(np.count_nonzero(finite))
             prefix = "channel_" + str(channel) + "_"
@@ -3503,7 +3525,8 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
                            prefix + "finite_pixel_count": count,
                            prefix + "nonfinite_pixel_count": int(plane.size - count)})
             if not count:
-                raise ValueError(tr("This channel has no finite pixels."))
+                raise ValueError(tr("This channel has no finite pixels.\n\n"
+                                    "Choose a channel with finite image pixels or correct the source image before previewing it."))
             collected[channel] = plane
         if shape is None:
             raise ValueError(tr("Choose one or more nonnegative channel indices."))
@@ -3570,22 +3593,26 @@ def _overview_channel_normalization(options, channel):
     gamma = float(values.get("gamma", 1.))
     baseline = float(baseline)
     if not math.isfinite(gamma) or gamma <= 0 or not math.isfinite(baseline):
-        raise ValueError(tr("Gamma must be positive and the baseline must be finite."))
+        raise ValueError(tr("Gamma must be positive and the baseline must be finite.\n\n"
+                            "Enter finite values with gamma greater than zero, then refresh the preview."))
     values.update(method=method, baseline=baseline, gamma=gamma)
     if method in ("ratio", "difference"):
         reference = int(values.get("reference_channel", 0))
         epsilon = float(values.get("epsilon", 1e-8))
         if reference < 0 or epsilon <= 0 or not math.isfinite(epsilon):
-            raise ValueError(tr("Reference channel must be nonnegative and epsilon must be positive and finite."))
+            raise ValueError(tr("Reference channel must be nonnegative and epsilon must be positive and finite.\n\n"
+                                "Choose an existing reference channel and enter a positive finite epsilon, then refresh the preview."))
         values.update(reference_channel=reference, epsilon=epsilon)
     if method in ("percentile", "log", "asinh", "ratio", "difference"):
         low, high = float(values.get("low", 1.)), float(values.get("high", 99.))
         if not 0 <= low < high <= 100:
-            raise ValueError(tr("Percentiles must satisfy 0 ≤ low < high ≤ 100."))
+            raise ValueError(tr("Percentiles must satisfy 0 ≤ low < high ≤ 100.\n\n"
+                                "Enter increasing lower and upper percentiles within this range, then refresh the preview."))
     if method == "manual":
         low, high = float(values.get("low", 0.)), float(values.get("high", 255.))
         if not math.isfinite(low) or not math.isfinite(high) or low >= high:
-            raise ValueError(tr("Manual limits must be finite and low must be below high."))
+            raise ValueError(tr("Manual limits must be finite and low must be below high.\n\n"
+                                "Enter finite display limits with the lower value below the upper value, then refresh the preview."))
     return values
 
 def _overview_transform(values, options):
@@ -3614,7 +3641,8 @@ def _overview_reference_transform(field, channel, original, options, selection, 
         else:
             reference = next((read_planes or _overview_raw_planes)(field, (reference_channel,)))[2]
         if reference.shape != original.shape:
-            raise ValueError(tr("The reference channel must have the same image size."))
+            raise ValueError(tr("The reference channel must have the same image size.\n\n"
+                                "Select a reference channel with matching pixel dimensions, then refresh the preview."))
         reference = np.asarray(reference[selection], dtype=np.float64)
         invalid = ~np.isfinite(reference)
         near_zero = np.abs(reference) <= options["epsilon"]
@@ -3636,7 +3664,8 @@ def _overview_normalization_bounds(samples, options, transformed=False):
     """Derive display limits from finite transformed samples."""
     values = np.asarray(samples) if transformed else _overview_transform(samples, options)
     if not values.size:
-        raise ValueError(tr("This channel has no finite pixels after normalization."))
+        raise ValueError(tr("This channel has no finite pixels after normalization.\n\n"
+                            "Choose different normalization limits or a channel with finite pixels, then refresh the preview."))
     method = options["method"]
     if method == "manual":
         low, high = float(options.get("low", 0.)), float(options.get("high", 255.))
@@ -3683,7 +3712,8 @@ def _overview_advanced_normalization(fields, channels, options, annotations=None
                     (slice(None, None, stride), slice(None, None, stride)), diagnostics, read_planes).reshape(-1)
                 values = values[np.isfinite(values)]
                 if not values.size:
-                    raise ValueError(tr("This channel has no finite pixels."))
+                    raise ValueError(tr("This channel has no finite pixels.\n\n"
+                                        "Choose a channel with finite image pixels or correct the source image before previewing it."))
                 key = (group, str(channel))
                 if key not in samples and (len(samples) + 1) * per_group_limit > total_limit:
                     count = 2 ** math.ceil(math.log2(len(samples) + 1))
@@ -3728,7 +3758,8 @@ def _overview_advanced_planes(field, planes, model, sample_reader, reference_rea
         settings = _overview_channel_normalization(options, channel)
         limits = bounds.get(str(channel))
         if limits is None:
-            raise _OverviewValidationError(tr("No normalization samples are available for this channel."))
+            raise _OverviewValidationError(tr("No normalization samples are available for this channel.\n\n"
+                                              "Select source fields that contain this channel, then refresh the preview."))
         values = _overview_reference_transform(field, channel, raw, settings,
             (slice(None), slice(None)), read_planes=reference_reader)
         scaled = np.nan_to_num((values - limits["low"]) / max(limits["high"] - limits["low"],
@@ -10682,7 +10713,8 @@ class _FieldOverview(QWidget):
             low, high = self._global_display["percentile_low"], self._global_display["percentile_high"]
         limits = (low, high) if self.normalise.isChecked() else None
         if limits is not None and limits[0] >= limits[1]:
-            raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile."))
+            raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile.\n\n"
+                                              "Enter a lower percentile below the upper percentile, then refresh the preview."))
         return channels, limits
 
     def _browse(self):
@@ -10758,7 +10790,8 @@ class _FieldOverview(QWidget):
                 well_layout=well_layout, use_subfolders=use_subfolders, excluded=excluded,
                 patterns=patterns)[0], regex, patterns)
             if any(not field.well or field.unresolved for field in fields):
-                raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
+                raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image.\n\n"
+                                                  "Correct the filename regex so every image maps to a well, then reload the source."))
             return fields
         source_paths = _overview_source_paths(source)
         def indexed(fields):
@@ -14112,13 +14145,15 @@ def _overview_normalization_plan(fields, channels, options, read_planes, cancell
         raise _OverviewValidationError(tr("Choose a supported normalization mode."))
     percentiles = tuple(float(value) for value in options.get("percentiles", (1., 99.)))
     if len(percentiles) != 2 or not 0 <= percentiles[0] < percentiles[1] <= 100:
-        raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile."))
+        raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile.\n\n"
+                                          "Enter a lower percentile below the upper percentile, then refresh the preview."))
     channels = tuple(channels)
     if not channels or len(set(channels)) != len(channels):
         raise _OverviewValidationError(tr("Choose at least one distinct available channel."))
     reference_channel = options.get("reference_channel")
     if reference_channel is not None and reference_channel not in channels:
-        raise _OverviewValidationError(tr("The reference channel must be selected for display."))
+        raise _OverviewValidationError(tr("The reference channel must be selected for display.\n\n"
+                                          "Select the reference channel for display or turn off channel-reference scaling."))
     mean_match = bool(options.get("mean_match", False))
     if mean_match and reference_channel is None:
         raise _OverviewValidationError(tr("Choose a reference channel before enabling mean-matched display scaling."))
@@ -14131,7 +14166,8 @@ def _overview_normalization_plan(fields, channels, options, read_planes, cancell
         selected = tuple(field for field in selected
                          if _overview_reference_key(field, mode, conditions) == reference)
         if not selected or reference in (None, ""):
-            raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
+            raise _OverviewValidationError(tr("The selected normalization reference has no fields.\n\n"
+                                              "Select a normalization reference containing source fields, then refresh the preview."))
     indices = np.linspace(0, len(selected) - 1, min(128, len(selected)), dtype=int)
     sampled = tuple(selected[index] for index in indices)
     bounds = {}
@@ -14149,7 +14185,8 @@ def _overview_normalization_plan(fields, channels, options, read_planes, cancell
                 if cancelled is not None and cancelled.is_set():
                     raise CancelledError()
                 if channel not in samples or channel in found:
-                    raise _OverviewValidationError(tr("The normalization sample has ambiguous channels."))
+                    raise _OverviewValidationError(tr("The normalization sample has ambiguous channels.\n\n"
+                                                      "Resolve duplicate channel assignments or choose an unambiguous source, then refresh the preview."))
                 found.add(channel)
                 values = np.asarray(raw).ravel()
                 values = values[np.isfinite(values)]
@@ -14161,7 +14198,8 @@ def _overview_normalization_plan(fields, channels, options, read_planes, cancell
         pooled = {}
         for channel, pieces in samples.items():
             if not pieces:
-                raise _OverviewValidationError(tr("This channel has no finite pixels."))
+                raise _OverviewValidationError(tr("This channel has no finite pixels.\n\n"
+                                                  "Choose a channel with finite image pixels or correct the source image before previewing it."))
             pooled[channel] = np.concatenate(pieces)
             if mode != "image":
                 bounds[channel] = tuple(float(value) for value in np.percentile(
@@ -14201,19 +14239,22 @@ def _overview_normalized_planes(planes, plan, field=None):
             source = np.asarray(raw)
             values = source[np.isfinite(source)]
             if not values.size:
-                raise _OverviewValidationError(tr("This channel has no finite pixels."))
+                raise _OverviewValidationError(tr("This channel has no finite pixels.\n\n"
+                                                  "Choose a channel with finite image pixels or correct the source image before previewing it."))
             image_bounds[channel] = np.percentile(values, plan["percentiles"])
         reference_channel = plan.get("reference_channel")
         if reference_channel is not None:
             if reference_channel not in image_bounds:
-                raise _OverviewValidationError(tr("The reference channel must be selected for display."))
+                raise _OverviewValidationError(tr("The reference channel must be selected for display.\n\n"
+                                                  "Select the reference channel for display or turn off channel-reference scaling."))
             image_bounds = {channel: image_bounds[reference_channel] for channel in image_bounds}
     output = []
     for channel, path, raw in planes:
         source = np.asarray(raw)
         finite = np.isfinite(source)
         if not finite.any():
-            raise _OverviewValidationError(tr("This channel has no finite pixels."))
+            raise _OverviewValidationError(tr("This channel has no finite pixels.\n\n"
+                                              "Choose a channel with finite image pixels or correct the source image before previewing it."))
         if plan["mode"] == "image":
             low, high = image_bounds[channel]
         else:
@@ -15539,7 +15580,8 @@ class _OverviewMetadataWizard(QWidget):
         valid = bool(self._fields) and all(field.well and not field.unresolved for field in self._fields)
         self.next.setEnabled(valid)
         if not valid:
-            self.status.setText(tr("The filename regex must include a valid wellID for every image."))
+            self.status.setText(tr("The filename regex must include a valid wellID for every image.\n\n"
+                                   "Correct the filename regex so every image maps to a well, then reload the source."))
         self._readout_timer.start(0)
 
     def _readouts_gone(self, *_):
@@ -15775,11 +15817,13 @@ class _OverviewMetadataWizard(QWidget):
                 "({rows} rows, {columns} columns required).",
                 rows=rows_required, columns=columns_required))
         if not self.low.value() < self.high.value():
-            raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile."))
+            raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile.\n\n"
+                                              "Enter a lower percentile below the upper percentile, then refresh the preview."))
         mode = self.mode.currentData()
         reference = self.reference.currentData()
         if mode.startswith("reference_") and reference is None:
-            raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
+            raise _OverviewValidationError(tr("The selected normalization reference has no fields.\n\n"
+                                              "Select a normalization reference containing source fields, then refresh the preview."))
         gain = self.gain.currentData()
         if mode == "reference_average" and (gain is not None or self.mean_match.isChecked()):
             raise _OverviewValidationError(tr(
@@ -15787,7 +15831,8 @@ class _OverviewMetadataWizard(QWidget):
         if self.mean_match.isChecked() and gain is None:
             raise _OverviewValidationError(tr("Choose a reference channel before enabling mean-matched display scaling."))
         if gain is not None and gain not in channels:
-            raise _OverviewValidationError(tr("The reference channel must be selected for display."))
+            raise _OverviewValidationError(tr("The reference channel must be selected for display.\n\n"
+                                              "Select the reference channel for display or turn off channel-reference scaling."))
         channel_names, channel_colors = self._channel_display()
         return {"source": self.source.text(), "custom_regex": self._base_regex(),
                 "plate_names": dict(self._plate_names), "use_subfolders": tuple(sorted(self._use_subfolders)),
@@ -15917,7 +15962,8 @@ class _OverviewWellMeanContext:
             raise _OverviewValidationError(tr("Choose a supported normalization mode."))
         reference = options.get("reference")
         if not isinstance(reference, (list, tuple)) or len(reference) != 2:
-            raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
+            raise _OverviewValidationError(tr("The selected normalization reference has no fields.\n\n"
+                                              "Select a normalization reference containing source fields, then refresh the preview."))
         self._reference = tuple(reference)
         self._plate = self._reference[0]
         self._selection = dict(options.get("selection") or {})
@@ -15930,7 +15976,8 @@ class _OverviewWellMeanContext:
         self._fields = {}
         selected = tuple(field for field in fields if field.plate == self._plate)
         if not selected:
-            raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
+            raise _OverviewValidationError(tr("The selected normalization reference has no fields.\n\n"
+                                              "Select a normalization reference containing source fields, then refresh the preview."))
         if (len({getattr(field, "time_id", "") for field in selected}) > 1
                 or len({getattr(field, "z_id", "") for field in selected}) > 1):
             raise _OverviewValidationError(tr(
@@ -15946,7 +15993,8 @@ class _OverviewWellMeanContext:
         self._reference_keys = tuple(sorted({(field.plate, field.well) for field in selected
             if _overview_reference_key(field, self._reference_kind, conditions) == self._reference}))
         if not self._reference_keys:
-            raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
+            raise _OverviewValidationError(tr("The selected normalization reference has no fields.\n\n"
+                                              "Select a normalization reference containing source fields, then refresh the preview."))
         budget = 262144 // len(self._reference_keys)
         if budget < 1:
             raise _OverviewValidationError(tr("The reference group is too large for bounded sampling."))
@@ -16023,12 +16071,14 @@ class _OverviewWellMeanContext:
                 _overview_cancelled(self._cancelled)
                 _overview_cancelled(cancelled)
                 if channel not in field_means or channel in found:
-                    raise _OverviewValidationError(tr("The normalization sample has ambiguous channels."))
+                    raise _OverviewValidationError(tr("The normalization sample has ambiguous channels.\n\n"
+                                                      "Resolve duplicate channel assignments or choose an unambiguous source, then refresh the preview."))
                 found.add(channel)
                 values = np.asarray(raw).ravel()
                 values = values[np.isfinite(values)]
                 if not values.size:
-                    raise _OverviewValidationError(tr("This channel has no finite pixels."))
+                    raise _OverviewValidationError(tr("This channel has no finite pixels.\n\n"
+                                                      "Choose a channel with finite image pixels or correct the source image before previewing it."))
                 positions = np.linspace(0, values.size - 1, min(2048, values.size), dtype=int)
                 values = np.asarray(values[positions], dtype=np.float64)
                 field_means[channel].append(_overview_sample_mean(values))
