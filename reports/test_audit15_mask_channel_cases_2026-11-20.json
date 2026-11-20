@@ -1,0 +1,234 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_mask_channel_positions.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 3,
+  "case_mapping": {
+    "tests/test_mask_channel_positions.py::test_the_usual_layout_is_unchanged": "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_the_usual_layout_is_unchanged]",
+    "tests/test_mask_channel_positions.py::test_a_channel_used_by_two_roles_gets_one_position": "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_a_channel_used_by_two_roles_gets_one_position]",
+    "tests/test_mask_channel_positions.py::test_string_channels_are_coerced_like_the_writer_does": "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_string_channels_are_coerced_like_the_writer_does]",
+    "tests/test_mask_channel_positions.py::test_unusable_channels_are_absent_rather_than_guessed": "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_unusable_channels_are_absent_rather_than_guessed]"
+  },
+  "settings_and_dense_position_contracts": {
+    "test_the_usual_layout_is_unchanged": [
+      {
+        "nucleus_channel": 0,
+        "cell_channel": 1,
+        "pathogen_channel": 2,
+        "organelle_channel": null
+      },
+      {
+        "0": 0,
+        "1": 1,
+        "2": 2
+      }
+    ],
+    "test_a_channel_used_by_two_roles_gets_one_position": [
+      {
+        "nucleus_channel": 1,
+        "cell_channel": 1,
+        "pathogen_channel": 0,
+        "organelle_channel": null
+      },
+      {
+        "1": 0,
+        "0": 1
+      }
+    ],
+    "test_string_channels_are_coerced_like_the_writer_does": [
+      {
+        "nucleus_channel": "1",
+        "cell_channel": "0",
+        "pathogen_channel": null,
+        "organelle_channel": null
+      },
+      {
+        "1": 0,
+        "0": 1
+      }
+    ],
+    "test_unusable_channels_are_absent_rather_than_guessed": [
+      {
+        "nucleus_channel": null,
+        "cell_channel": "not a channel",
+        "pathogen_channel": 3,
+        "organelle_channel": null
+      },
+      {
+        "3": 0
+      }
+    ]
+  },
+  "case_contract_representations": {
+    "test_the_usual_layout_is_unchanged": "({'nucleus_channel': 0, 'cell_channel': 1, 'pathogen_channel': 2, 'organelle_channel': None}, {0: 0, 1: 1, 2: 2})",
+    "test_a_channel_used_by_two_roles_gets_one_position": "({'nucleus_channel': 1, 'cell_channel': 1, 'pathogen_channel': 0, 'organelle_channel': None}, {1: 0, 0: 1})",
+    "test_string_channels_are_coerced_like_the_writer_does": "({'nucleus_channel': '1', 'cell_channel': '0', 'pathogen_channel': None, 'organelle_channel': None}, {1: 0, 0: 1})",
+    "test_unusable_channels_are_absent_rather_than_guessed": "({'nucleus_channel': None, 'cell_channel': 'not a channel', 'pathogen_channel': 3, 'organelle_channel': None}, {3: 0})"
+  },
+  "contract_scope": "Exact role-key order, integer/string/None settings values and expected dense-position mappings; original equality assertions retained.",
+  "collected_before": [
+    "tests/test_mask_channel_positions.py::test_the_organelle_falls_back_to_its_role_order_position[settings2-2]",
+    "tests/test_mask_channel_positions.py::test_the_usual_layout_is_unchanged",
+    "tests/test_mask_channel_positions.py::test_the_organelle_falls_back_to_its_role_order_position[settings1-2]",
+    "tests/test_mask_channel_positions.py::test_the_recorded_dense_position_wins_when_it_exists",
+    "tests/test_mask_channel_positions.py::test_role_order_not_sorted_order",
+    "tests/test_mask_channel_positions.py::test_unusable_channels_are_absent_rather_than_guessed",
+    "tests/test_mask_channel_positions.py::test_the_role_order_matches_what_the_writer_walks",
+    "tests/test_mask_channel_positions.py::test_a_channel_used_by_two_roles_gets_one_position",
+    "tests/test_mask_channel_positions.py::test_string_channels_are_coerced_like_the_writer_does",
+    "tests/test_mask_channel_positions.py::test_the_organelle_falls_back_to_its_role_order_position[settings0-2]",
+    "tests/test_mask_channel_positions.py::test_the_organelle_falls_back_to_its_role_order_position[settings3-0]"
+  ],
+  "collected_after": [
+    "tests/test_mask_channel_positions.py::test_the_organelle_falls_back_to_its_role_order_position[settings0-2]",
+    "tests/test_mask_channel_positions.py::test_the_organelle_falls_back_to_its_role_order_position[settings3-0]",
+    "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_the_usual_layout_is_unchanged]",
+    "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_unusable_channels_are_absent_rather_than_guessed]",
+    "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_string_channels_are_coerced_like_the_writer_does]",
+    "tests/test_mask_channel_positions.py::test_role_order_not_sorted_order",
+    "tests/test_mask_channel_positions.py::test_the_organelle_falls_back_to_its_role_order_position[settings1-2]",
+    "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_a_channel_used_by_two_roles_gets_one_position]",
+    "tests/test_mask_channel_positions.py::test_the_organelle_falls_back_to_its_role_order_position[settings2-2]",
+    "tests/test_mask_channel_positions.py::test_the_recorded_dense_position_wins_when_it_exists",
+    "tests/test_mask_channel_positions.py::test_the_role_order_matches_what_the_writer_walks"
+  ],
+  "tests_before": {
+    "passed": 11,
+    "seconds": 13.9
+  },
+  "tests_after": {
+    "passed": 11,
+    "seconds": 9.56
+  },
+  "coverage_scope": "spacr.utils under the complete selected mask-channel position test module; not full-suite coverage. The retained writer test inspects io source and does not execute a mask-writing pipeline.",
+  "coverage_before": {
+    "covered_lines": 471,
+    "num_statements": 5180,
+    "percent_covered": 6.634214186369959,
+    "percent_covered_display": "7",
+    "missing_lines": 4709,
+    "excluded_lines": 0,
+    "percent_statements_covered": 9.092664092664092,
+    "percent_statements_covered_display": "9",
+    "num_branches": 2010,
+    "num_partial_branches": 0,
+    "covered_branches": 6,
+    "missing_branches": 2004,
+    "percent_branches_covered": 0.29850746268656714,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_after": {
+    "covered_lines": 471,
+    "num_statements": 5180,
+    "percent_covered": 6.634214186369959,
+    "percent_covered_display": "7",
+    "missing_lines": 4709,
+    "excluded_lines": 0,
+    "percent_statements_covered": 9.092664092664092,
+    "percent_statements_covered_display": "9",
+    "num_branches": 2010,
+    "num_partial_branches": 0,
+    "covered_branches": 6,
+    "missing_branches": 2004,
+    "percent_branches_covered": 0.29850746268656714,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "96b39a098bcddb7c7147c9d889e32b67ed13917c4cf4d392a0698e6604829406",
+  "production_source_sha256": {
+    "spacr/utils.py": "0c70e2ead9dc17c482db30e126ceaf6946603ce974a152856cc6138cf25bdd5b",
+    "spacr/io.py": "44ea1682be348444b193aba1a5e75b4af45dc3070ae160fea1dc52119dc7e0d3"
+  },
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "role_order_writer_source_pin_recorded_position_and_organelle_fallback_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "string-coercion-skipped",
+      "source_variant": {
+        "path": "spacr/utils.py",
+        "line": 3569,
+        "old": "try:\n            raw = int(raw)\n        except (TypeError, ValueError):\n            continue\n        if raw not in positions:",
+        "new": "try:\n            raw = raw if isinstance(raw, str) else int(raw)\n        except (TypeError, ValueError):\n            continue\n        if raw not in positions:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_mask_channel_positions.py::test_unusable_channels_are_absent_rather_than_guessed"
+        ],
+        "failure_summary_lines": [
+          "tests/test_mask_channel_positions.py::test_unusable_channels_are_absent_rather_than_guessed"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_unusable_channels_are_absent_rather_than_guessed]",
+          "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_string_channels_are_coerced_like_the_writer_does]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_unusable_channels_are_absent_rather_than_guessed]",
+          "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_string_channels_are_coerced_like_the_writer_does]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "duplicate-role-overwrites-position",
+      "source_variant": {
+        "path": "spacr/utils.py",
+        "line": 3573,
+        "old": "if raw not in positions:\n            positions[raw] = len(positions)",
+        "new": "if True:\n            positions[raw] = len(positions)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_mask_channel_positions.py::test_a_channel_used_by_two_roles_gets_one_position"
+        ],
+        "failure_summary_lines": [
+          "tests/test_mask_channel_positions.py::test_a_channel_used_by_two_roles_gets_one_position"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_a_channel_used_by_two_roles_gets_one_position]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_mask_channel_positions.py::test_channel_settings_keep_their_original_dense_positions[test_a_channel_used_by_two_roles_gets_one_position]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the four affected channel-position cases before and after; repository production files unchanged.",
+  "table_placement_note": "Four adjacent examples are replaced at the original first-case location; restoring their original definitions reproduces the complete original module AST.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_mask_channel_positions.py",
+      "line": 58,
+      "symbol": "test_channel_settings_keep_their_original_dense_positions",
+      "new": "Keep each original channel layout mapped to the same dense positions.",
+      "old": {
+        "test_the_usual_layout_is_unchanged": "nucleus=0, cell=1 is why this went unnoticed: both readings agree.",
+        "test_a_channel_used_by_two_roles_gets_one_position": "The writer deduplicates, so the reader must too -- otherwise every\nposition after the repeat is off by one.",
+        "test_string_channels_are_coerced_like_the_writer_does": "A settings CSV round-trips channel indices as strings, and\nio.preprocess_img_data int()s them before keying `seen`.",
+        "test_unusable_channels_are_absent_rather_than_guessed": null
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

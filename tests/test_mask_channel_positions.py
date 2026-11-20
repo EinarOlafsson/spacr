@@ -40,33 +40,23 @@ def test_role_order_not_sorted_order():
     assert sorted_reading != positions, "pick a case where the two differ"
 
 
-def test_the_usual_layout_is_unchanged():
-    """nucleus=0, cell=1 is why this went unnoticed: both readings agree."""
-    settings = {"nucleus_channel": 0, "cell_channel": 1,
-                "pathogen_channel": 2, "organelle_channel": None}
-    assert dense_mask_channel_positions(settings) == {0: 0, 1: 1, 2: 2}
-
-
-def test_a_channel_used_by_two_roles_gets_one_position():
-    """The writer deduplicates, so the reader must too -- otherwise every
-    position after the repeat is off by one."""
-    settings = {"nucleus_channel": 1, "cell_channel": 1,
-                "pathogen_channel": 0, "organelle_channel": None}
-    assert dense_mask_channel_positions(settings) == {1: 0, 0: 1}
-
-
-def test_string_channels_are_coerced_like_the_writer_does():
-    """A settings CSV round-trips channel indices as strings, and
-    io.preprocess_img_data int()s them before keying `seen`."""
-    settings = {"nucleus_channel": "1", "cell_channel": "0",
-                "pathogen_channel": None, "organelle_channel": None}
-    assert dense_mask_channel_positions(settings) == {1: 0, 0: 1}
-
-
-def test_unusable_channels_are_absent_rather_than_guessed():
-    settings = {"nucleus_channel": None, "cell_channel": "not a channel",
-                "pathogen_channel": 3, "organelle_channel": None}
-    assert dense_mask_channel_positions(settings) == {3: 0}
+@pytest.mark.parametrize("settings, expected", [
+    pytest.param({"nucleus_channel": 0, "cell_channel": 1,
+                  "pathogen_channel": 2, "organelle_channel": None},
+                 {0: 0, 1: 1, 2: 2}, id="test_the_usual_layout_is_unchanged"),
+    pytest.param({"nucleus_channel": 1, "cell_channel": 1,
+                  "pathogen_channel": 0, "organelle_channel": None},
+                 {1: 0, 0: 1}, id="test_a_channel_used_by_two_roles_gets_one_position"),
+    pytest.param({"nucleus_channel": "1", "cell_channel": "0",
+                  "pathogen_channel": None, "organelle_channel": None},
+                 {1: 0, 0: 1}, id="test_string_channels_are_coerced_like_the_writer_does"),
+    pytest.param({"nucleus_channel": None, "cell_channel": "not a channel",
+                  "pathogen_channel": 3, "organelle_channel": None},
+                 {3: 0}, id="test_unusable_channels_are_absent_rather_than_guessed"),
+])
+def test_channel_settings_keep_their_original_dense_positions(settings, expected):
+    """Keep each original channel layout mapped to the same dense positions."""
+    assert dense_mask_channel_positions(settings) == expected
 
 
 def test_the_role_order_matches_what_the_writer_walks():
