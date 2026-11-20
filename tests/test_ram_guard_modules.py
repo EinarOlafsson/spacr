@@ -146,6 +146,7 @@ GUARDED = [
     ('spacr.ops_clusters', 'pairs_bootstrap_consensus', '"ops_consensus"'),
     ('spacr.ops_grid_search', '_run_grid_search', '"ops_decode"'),
     ('spacr.power_ops', 'scan_ops_designs', '"ops_power_sim"'),
+    ('spacr.image_store', 'run_fields', '"image_store"'),
 ]
 
 

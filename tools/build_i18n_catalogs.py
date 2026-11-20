@@ -4748,6 +4748,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "channel_sorting.py")
     paths.add(ROOT / "spacr" / "image_import.py")
     paths.add(ROOT / "spacr" / "convert.py")
+    # Item 985: the OME-Zarr project converter reports through tr().
+    paths.add(ROOT / "spacr" / "ome_zarr_convert.py")
     paths.add(ROOT / "spacr" / "regression_backends.py")
     paths.add(ROOT / "spacr" / "object_classifier.py")
     paths.add(ROOT / "spacr" / "core.py")

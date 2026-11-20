@@ -13193,6 +13193,14 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
               encoding="utf-8") as handle:
         json.dump(layout, handle, indent=2, sort_keys=True)
         handle.write("\n")
+    image_format = str(settings.get("mask_image_format") or "npy").strip().lower()
+    image_report = None
+    if image_format != "npy":
+        from .image_store import export_merged
+
+        tick = time.perf_counter()
+        image_report = export_merged(dst, image_format)
+        seconds["images"] = time.perf_counter() - tick
     db = os.path.join(dst, "measurements", "measurements.db")
     _st_replace_plate_rows(db, "spatial_fields",
                            pd.DataFrame(field_rows), sample)
@@ -13201,6 +13209,10 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
     report = {
         "platform": slide["platform"], "source": folder, "dst": dst,
         "db": db, "plate": sample, "image": slide["channels"][0],
+        "image_format": image_format,
+        "image_store": (None if image_report is None else {
+            k: v.get("written", len(v)) if isinstance(v, dict) else len(v)
+            for k, v in image_report.items()}),
         "level": level, "microns_per_pixel": microns,
         "region_px": [int(col0), int(row0), int(canvas[1]), int(canvas[0])],
         "segmenter": "custom" if segment is not None else method,

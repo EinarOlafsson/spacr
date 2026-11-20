@@ -357,6 +357,9 @@ from spacr.gene_knowledge import _DEFAULTS as GENE_KNOWLEDGE_DEFAULTS  # noqa: E
 KEYS_ADDED_BY_REGROUP = frozenset({
     # 977, alpha: ops_phases, a settings file names its own OPS phases (OPS input).
     "ops_phases",
+    # 983 and 984, alpha: the image and crop formats, filed under Object Crops.
+    "mask_image_format", "crop_image_format", "crops_per_shard",
+    "crop_margin_px", "crop_zero_outside",
     # 879-882, alpha: the OPS profile path from stored cell tables and its
     # retrieval metrics, filed under OPS phenotype with the rest of 752.
     "ops_profile_cells", "ops_profile_wells", "ops_profile_run",

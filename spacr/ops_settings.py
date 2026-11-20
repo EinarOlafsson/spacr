@@ -4168,6 +4168,7 @@ SPATIAL_MASK_DEFAULTS: Dict[str, object] = {
     "spatial_diameter": None,
     "spatial_cell_expansion_um": 5.0,
     "spatial_gpu": False,
+    "mask_image_format": "npy",
 }
 
 SPATIAL_MAP_DEFAULTS: Dict[str, object] = {
@@ -4199,6 +4200,7 @@ SPATIAL_TYPES: Dict[str, object] = {
     "spatial_diameter": (float, int, type(None)),
     "spatial_cell_expansion_um": (float, int),
     "spatial_gpu": bool,
+    "mask_image_format": str,
     "spatial_masks_dir": (str, type(None)),
     "spatial_bin_um": int,
     "spatial_min_qv": (float, int),
@@ -4411,6 +4413,7 @@ def register_spatial(replace: bool = False) -> bool:
     :returns: True when this call did the registering.
     """
     from .settings import has_registered_defaults, register_defaults
+    from .settings import tooltips as shared_tooltips
 
     done = False
     for key, factory, keys, cats, text in (
@@ -4423,7 +4426,8 @@ def register_spatial(replace: bool = False) -> bool:
         register_defaults(
             key, factory, replace=True,
             expected_types={k: SPATIAL_TYPES[k] for k in keys},
-            tooltips={k: SPATIAL_TOOLTIPS[k] for k in keys},
+            tooltips={k: SPATIAL_TOOLTIPS[k] if k in SPATIAL_TOOLTIPS
+                      else shared_tooltips[k] for k in keys},
             categories=cats, description=text)
         done = True
     return done

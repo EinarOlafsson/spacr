@@ -135,6 +135,9 @@ __all__ = [
     "PngCropSource",
     "MergedCropSource",
     "resolve_crop_source",
+    "measured_masks_state",
+    "measured_masks_path",
+    "read_crop_array",
     "CROP_FORMAT_LEGACY_BGR",
     "CROP_FORMAT_RGB",
     "CROP_FORMAT_CURRENT",
@@ -221,11 +224,20 @@ class PlaneLayoutConflict(CropError):
 _MEASURED_MASKS_DIR = ".spacr_measured_masks"
 
 
-def _measured_masks_path(merged_path: str) -> str:
-    """The measured-mask record for the field at ``merged_path``."""
+def measured_masks_path(merged_path: str) -> str:
+    """The measured-mask record for the field at ``merged_path``.
+
+    :param merged_path: the ``merged/<field>.npy``.
+    :returns: the record's path, ``merged/.spacr_measured_masks/<field>.npz``;
+        it may not exist.
+    """
     folder, name = os.path.split(os.fspath(merged_path))
     return os.path.join(folder, _MEASURED_MASKS_DIR,
                         os.path.splitext(name)[0] + ".npz")
+
+
+#: The former private name, kept for existing callers.
+_measured_masks_path = measured_masks_path
 
 
 def _label_planes_digest(array, dims: Sequence[int]) -> str:
@@ -288,6 +300,50 @@ def _measured_masks_stamp(merged_path: str) -> Optional[Tuple[int, int]]:
     return (int(st.st_mtime_ns), int(st.st_size))
 
 
+#: Stale measured-mask records already reported in this process.
+_STALE_MEASURED_NOTED: set = set()
+
+
+def _note_stale_measured_masks(path: str) -> None:
+    """Say once per record that a stale measured-mask record is being ignored."""
+    if path in _STALE_MEASURED_NOTED:
+        return
+    _STALE_MEASURED_NOTED.add(path)
+    print(f"crops: {path} was made from older label planes than the field now "
+          f"holds (segmented again since Measure ran); its crops are cut from the "
+          f"field's current labels, which the measurements may not describe")
+
+
+def measured_masks_state(merged_path: str) -> str:
+    """Whether a field's measured-mask record applies to the field as it is now.
+
+    :class:`MergedField` uses a current record and ignores a stale one (the
+    field was segmented again after Measure ran), cutting crops from the
+    field's own labels. A converter or an exporter that must reproduce what
+    Measure measured asks here first and refuses ``'stale'``.
+
+    :param merged_path: the ``merged/<field>.npy``.
+    :returns: ``'none'`` (no record), ``'current'`` or ``'stale'``.
+    :raises CorruptMergedFile: the record exists but cannot be read.
+    """
+    path = _measured_masks_path(merged_path)
+    if not os.path.isfile(path):
+        return "none"
+    array = np.load(merged_path, mmap_mode="r", allow_pickle=False)
+    if array.ndim == 4 and array.shape[0] == 1:
+        array = array[0]
+    try:
+        with np.load(path, allow_pickle=False) as record:
+            dims = [int(dim) for dim in record["source_dims"]]
+            if any(not 0 <= dim < int(array.shape[-1]) for dim in dims):
+                return "stale"
+            digest = str(record["source_digest"])
+    except (OSError, KeyError, ValueError) as exc:
+        raise CorruptMergedFile(
+            f"cannot read measured-mask record {path}: {exc}") from exc
+    return "current" if digest == _label_planes_digest(array, dims) else "stale"
+
+
 def _read_measured_masks(merged_path: str, array) -> Dict[Any, np.ndarray]:
     """The measured planes recorded for a field, keyed by plane index.
 
@@ -309,6 +365,7 @@ def _read_measured_masks(merged_path: str, array) -> Dict[Any, np.ndarray]:
             if any(not 0 <= dim < int(array.shape[-1]) for dim in dims):
                 return {}
             if str(record["source_digest"]) != _label_planes_digest(array, dims):
+                _note_stale_measured_masks(path)
                 return {}
             out: Dict[Any, np.ndarray] = {
                 int(key[len("plane_"):]): record[key]
@@ -1641,7 +1698,7 @@ def _resolve_crop_intensity(settings: Mapping[str, Any]) -> str:
     return "raw"
 
 
-def _read_crop_array(source: Any) -> np.ndarray:
+def read_crop_array(source: Any) -> np.ndarray:
     """Decode a crop PNG at its stored bit depth, in the file's slot order.
 
     PIL narrows a 16-bit colour PNG to 8 bit when it opens it, so a raw crop
@@ -1668,6 +1725,10 @@ def _read_crop_array(source: Any) -> np.ndarray:
     if arr.shape[2] == 4:
         arr = arr[:, :, :3]
     return np.ascontiguousarray(arr[:, :, ::-1])
+
+
+#: The former private name, kept for existing callers.
+_read_crop_array = read_crop_array
 
 
 def _stretched_view(arr: np.ndarray) -> np.ndarray:

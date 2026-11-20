@@ -3821,6 +3821,42 @@ def _validated_codex_issues_1119_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_ome_zarr_983_callables(callables):
+    """Check the public callables of items 983/984 (spacr.image_store, spacr.crop_store and three spacr.crops functions) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
+    assert len(entries) == 49 and "spacr.crop_store.OmeZarrCropSource.get" in entries
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys() - {"spacr.crop_store", "spacr.image_store"}
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_ome_zarr_convert_985_callables(callables):
+    """Check the public callables of item 985 (the OME-Zarr converter, spacr.ome_zarr_convert) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "985_ome_zarr_convert_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.ome_zarr_convert", "spacr.ome_zarr_convert.convert_project"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == {"spacr.ome_zarr_convert.convert_project"}
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_ops_power_sim_968_callables(callables):
     """Check the public callables of item 968 (the OPS power simulation) against their source."""
     import json
@@ -4090,6 +4126,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_spacr_store_974_callables(callables)
     callables = _validated_feature_screen_964_callables(callables)
     callables = _validated_codex_issues_1119_callables(callables)
+    callables = _validated_ome_zarr_983_callables(callables)
+    callables = _validated_ome_zarr_convert_985_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5590,7 +5628,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # (all defaulted, so the required total below does not move).
     # 20,259 -> 20,260 on 2026-11-20 (landing train 5): the optional `preferences`
     # keyword of spacr.plot.save_figure (figprefs), figures of runs outside the GUI.
-    assert sum(len(item.parameters) for item in callables) == 20260
+    # 20,260 -> 20,262 on 2026-11-20 (landing train 5): items 983/984's optional
+    # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr (both defaulted).
+    assert sum(len(item.parameters) for item in callables) == 20262
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5942,7 +5982,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-19 by landing train 3 (was a1e21142...): CustomCellClassifier
     # dropped pathogen_channel, use_attention and dropout_rate (rule 41, the
     # Codex issues branch), merged with item 987's change above.
-) == '88be4536742e797def198f48411c2ee5a4035445979dc686f1a89c13488239a2'
+    # Moved 2026-11-20 for items 983/984 (was 88be4536...): the optional
+    # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr.
+) == '515b2062d9bc7f40db5d17273b11e13036407c2045ef4fc279c6657dd1eab7f7'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -6881,6 +6923,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("codex_issues_1119_api_arrivals_2026-11-19.json", 2),
         ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
         ("987b_mask_batches_api_arrivals_2026-11-20.json", 1),
+        ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
+        ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7501,7 +7545,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "964_ops_feature_screen_api_arrivals_2026-11-17.json",
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
                      "987b_mask_batches_api_arrivals_2026-11-20.json",
-                     "cachepos_ops_field_cache_api_arrivals_2026-11-20.json"):
+                     "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
+                     "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
+                     "985_ome_zarr_convert_api_arrivals_2026-11-19.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7662,7 +7708,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "964_ops_feature_screen_api_arrivals_2026-11-17.json",
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
                      "987b_mask_batches_api_arrivals_2026-11-20.json",
-                     "cachepos_ops_field_cache_api_arrivals_2026-11-20.json"):
+                     "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
+                     "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
+                     "985_ome_zarr_convert_api_arrivals_2026-11-19.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

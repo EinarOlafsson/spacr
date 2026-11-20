@@ -122,8 +122,9 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-19: Voyager3's enrichment method (980) makes 167.
     # 2026-11-19: in situ sequencing modes of the prefix decode (961) make 168.
     # 2026-11-19: ops_phases, a settings file names its own OPS phases (977), makes 169.
+    # 2026-11-20: OME-Zarr images and crops (983) make 170.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    assert count == 169
+    assert count == 170
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

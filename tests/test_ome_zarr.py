@@ -974,8 +974,10 @@ def test_bad_write_arguments_are_refused_with_the_fix_in_the_message(tmp_path):
         write_ome_zarr(tmp_path / "b.zarr", data, levels=0)
     with pytest.raises(OmeZarrError, match="spacr.layers.Spacing"):
         write_ome_zarr(tmp_path / "c.zarr", data, spacing=(0.65, 0.65))
+    # Item 983: 0.5 (zarr-format 3, sharded) is written too; an unknown
+    # version is still refused by number.
     with pytest.raises(OmeZarrError, match="spaCR writes OME-NGFF 0.4"):
-        write_ome_zarr(tmp_path / "d.zarr", data, ngff_version="0.5")
+        write_ome_zarr(tmp_path / "d.zarr", data, ngff_version="0.6")
     with pytest.raises(OmeZarrError, match="chunks"):
         write_ome_zarr(tmp_path / "e.zarr", data, chunks=(2, 2, 2))
     with pytest.raises(OmeZarrError, match="downsample_axes names"):
