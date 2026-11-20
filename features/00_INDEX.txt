@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-766 Lifecycle: new, 184 Lifecycle: future in features/feature_list/.
+767 Lifecycle: new, 184 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -2132,7 +2132,7 @@ NEW FEATURES
        974_spacr_store.txt
   975  MEASURE WRITES THE spaCR STORE, AND THE CROP LOADER READS IT
        975_measure_store.txt
-  982  OPS SPACER-PREFIX TUNING: SMALL WELLS KEEP THE READ-QUALITY FLOOR AT 0.1
-       982_ops_prefix_small_well_guard.txt
   977  OPS: A SETTINGS FILE NAMES ITS OWN PHASES (ops_phases), AND THE PROFILES TEST ARCHIVE
        977_ops_phases_setting_and_profiles_archive.txt
+  982  OPS SPACER-PREFIX TUNING: SMALL WELLS KEEP THE READ-QUALITY FLOOR AT 0.1
+       982_ops_prefix_small_well_guard.txt
