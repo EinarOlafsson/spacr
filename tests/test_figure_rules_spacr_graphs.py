@@ -24,6 +24,16 @@ from matplotlib.figure import Figure  # noqa: E402
 from spacr.figures import style  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _close_figures():
+    """Close the pyplot figures the spaCR writers open, so none leak into
+    later tests in the same worker (which count open figures)."""
+    yield
+    import matplotlib.pyplot as plt
+
+    plt.close("all")
+
+
 def _frame(groups, per, seed=0):
     rng = np.random.default_rng(seed)
     return pd.DataFrame({"g": np.repeat([f"c{i}" for i in range(groups)], per),
