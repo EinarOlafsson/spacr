@@ -58,14 +58,19 @@ def test_a_list_with_one_real_entry_is_not_empty(tmp_path):
 # same_path
 # ---------------------------------------------------------------------------
 
-def test_a_list_and_a_string_naming_one_folder_are_the_same():
-    """Classify keeps its source in a list and every other module keeps it
-    as a string. Calling those different records a pin every time a Classify
-    screen is seeded with its own auto-chained value -- and a pin wins
-    forever, so the screen stops following the upstream."""
+@pytest.mark.parametrize("left, right, expected", [
+    pytest.param(["/plate"], "/plate", True,
+                 id="test_a_list_and_a_string_naming_one_folder_are_the_same"),
+    pytest.param("/plate1", "/plate2", False,
+                 id="test_two_different_folders_are_different"),
+    pytest.param(["/a", "/b"], ["/a", "/b"], True,
+                 id="test_order_within_a_list_is_not_a_difference"),
+])
+def test_path_pairs_keep_their_original_identity_results(left, right, expected):
+    """Compare each original path pair with the same Boolean identity check."""
     from spacr.chaining import same_path
 
-    assert same_path(["/plate"], "/plate") is True
+    assert same_path(left, right) is expected
 
 
 def test_trailing_separators_and_dot_segments_do_not_matter():
@@ -75,25 +80,11 @@ def test_trailing_separators_and_dot_segments_do_not_matter():
     assert same_path("/plate/./sub", "/plate/sub") is True
 
 
-def test_two_different_folders_are_different():
-    from spacr.chaining import same_path
-
-    assert same_path("/plate1", "/plate2") is False
-
-
 def test_nothing_equals_nothing_and_not_something():
     from spacr.chaining import same_path
 
     assert same_path(None, []) is True
     assert same_path(None, "/plate") is False
-
-
-def test_order_within_a_list_is_not_a_difference():
-    """A settings CSV and a screen can hold the same two sources in either
-    order, and that is not the user editing anything."""
-    from spacr.chaining import same_path
-
-    assert same_path(["/a", "/b"], ["/a", "/b"]) is True
 
 
 # ---------------------------------------------------------------------------
