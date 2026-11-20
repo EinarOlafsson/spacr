@@ -2,7 +2,7 @@
 
 A plate is one store, ``<root>/<plate>.ome.zarr``, laid out the HCS way:
 row, column (the well) and field groups, each field an OME-NGFF 0.5 image
-(zarr-format 3, one zstd shard per field) with its masks under ``labels/``.
+(zarr-format 3, unsharded Blosc LZ4 chunks) with its masks under ``labels/``.
 
 ONE WRITER PER FILE. Field workers never write the store. They return their
 arrays through the process pool's result pipe; the parent process, the only
@@ -103,7 +103,9 @@ class PlateWriter:
 
     Fields are written whole with :meth:`write_field`; the plate and well
     metadata are rewritten from the ledger after each field, so a reader
-    opening the store mid-run sees only committed fields.
+    opening the store mid-run sees only committed fields. Each image channel
+    and label image uses one unsharded whole-field chunk, compressed with
+    Blosc LZ4 and byte shuffle.
     """
 
     def __init__(self, root: Any, plate: str, *,
@@ -180,7 +182,7 @@ class PlateWriter:
             self._atomic(target, lambda tmp: write_ome_zarr(
                 tmp, data, axes=axes, spacing=self.spacing,
                 channel_names=self.channel_names if data.ndim == 3 else None,
-                ngff_version="0.5", name=key, chunks=_field_chunks(data.shape),
+                ngff_version="0.5", name=key, chunks=_field_chunks(data.shape), shards=False,
                 compressor=FIELD_CODEC, compression_level=FIELD_CODEC_LEVEL))
         else:
             self.zarr.open_group(str(target), mode="w", zarr_format=3)
@@ -192,7 +194,7 @@ class PlateWriter:
             self._atomic(label_dir, lambda tmp, m=mask: write_ome_zarr(
                 tmp, m, axes=["y", "x"], spacing=self.spacing,
                 downsample="stride", ngff_version="0.5", name=str(name),
-                chunks=_field_chunks(m.shape), compressor=FIELD_CODEC,
+                chunks=_field_chunks(m.shape), shards=False, compressor=FIELD_CODEC,
                 compression_level=FIELD_CODEC_LEVEL))
             self._set_attrs(label_dir, {"image-label": {"version": "0.5"}})
             names.append(str(name))
