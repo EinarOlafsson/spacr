@@ -73,14 +73,21 @@ def test_the_same_design_and_seed_draw_the_same_screen(calibration):
 
 @pytest.mark.parametrize("mode", ["empirical", "parametric"])
 def test_a_strong_effect_is_found_and_nothing_is_found_without_one(calibration, mode):
+    """The simulator's recovery check, scored with the pooled null.
+
+    The synthetic run has no spread between guides, so the pooled null is
+    valid here, and its 40 control guides are too few for whole-guide
+    permutations to reach the p-values a 60-gene BH needs; the guide null's
+    calibration is tested in test_guide_null_calibration_978.
+    """
     cal = po.load_calibration(calibration)
     strong = po.simulate_ops_screen(cal, {"n_genes": 60, "cells_per_gene": 200, "effect_size": 1.0,
                                           "effect_dims": 5, "penetrance": 1.0, "hit_fraction": 0.2,
-                                          "mode": mode}, 0)
+                                          "mode": mode, "etest_mode": "empirical_null"}, 0)
     row = po.score_ops_screen(strong, ["etest"], 0)
     assert row["etest_power"] >= 0.95
     null = po.simulate_ops_screen(cal, {"n_genes": 60, "cells_per_gene": 200, "hit_fraction": 0.0,
-                                        "mode": mode}, 1)
+                                        "mode": mode, "etest_mode": "empirical_null"}, 1)
     row = po.score_ops_screen(null, ["etest"], 1)
     assert row["etest_fpr_null_genes"] <= 0.05
 

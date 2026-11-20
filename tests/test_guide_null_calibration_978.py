@@ -538,6 +538,11 @@ def _marginal_acceptance(evidence):
     }
 
 
+def _json_value(value):
+    """NumPy scalars (NumPy 2 names its boolean ``bool``) as plain Python values for the recorded evidence."""
+    return value.item() if hasattr(value, "item") else str(value)
+
+
 def test_default_guide_null_calibrates_across_independent_screens_and_finds_planted_effects(
         record_property):
     """Fifty independent screen rates estimate marginal error without treating shared fits as independent."""
@@ -574,7 +579,7 @@ def test_default_guide_null_calibrates_across_independent_screens_and_finds_plan
                 }
             result["profiles"][count] = metrics
         screens.append(result)
-        record_property(f"guide_null_marginal_screen_{screen:02d}", json.dumps(result, sort_keys=True))
+        record_property(f"guide_null_marginal_screen_{screen:02d}", json.dumps(result, sort_keys=True, default=_json_value))
     critical = float(t.ppf(0.975, CALIBRATION_SCREENS - 1))
     profiles = {}
     for count in GUIDE_COUNTS:
@@ -607,5 +612,5 @@ def test_default_guide_null_calibrates_across_independent_screens_and_finds_plan
         "profiles": profiles,
     }
     evidence["acceptance"] = _marginal_acceptance(evidence)
-    record_property("guide_null_marginal_calibration", json.dumps(evidence, sort_keys=True))
+    record_property("guide_null_marginal_calibration", json.dumps(evidence, sort_keys=True, default=_json_value))
     assert evidence["acceptance"]["revised_pass"], evidence
