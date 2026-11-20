@@ -1,0 +1,272 @@
+{
+  "source_commit": "4fc43e0ab78ec5e937c10964bc1b38bbc64ada0d",
+  "reference": "2a696122ea",
+  "valid_shared_identity": true,
+  "masks": 15,
+  "npz_files": 12,
+  "raw_md5_and_sha256_equal": true,
+  "npz_file_bytes_equal": true,
+  "baseline_repeat_equal": true,
+  "shrink_warning_grep_matches": [],
+  "all_original_cellpose_callables": true,
+  "settings": {
+    "phenotype_tiles": 8,
+    "sequencing_tiles": 16,
+    "field_batch": 3,
+    "precision": "auto"
+  },
+  "rows": [
+    {
+      "path": "objects_windows/A1/w0_0.npz",
+      "mask": "labels",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "int32",
+      "md5": "680cebe91d8050df5535a6cb44b14269",
+      "sha256": "295564d2041d03213fbabfccd03371d160b35e08b93cf454177a45c557d25ee1"
+    },
+    {
+      "path": "objects_windows/A1/w0_1856.npz",
+      "mask": "labels",
+      "shape": [
+        1024,
+        900
+      ],
+      "dtype": "int32",
+      "md5": "7b3ba1b1b5fedb562f08fe3428e99dc2",
+      "sha256": "0c660f2bd3eff3150dd0040789abe2291613b9af319df870203d4f77a4913a5f"
+    },
+    {
+      "path": "objects_windows/A1/w0_928.npz",
+      "mask": "labels",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "int32",
+      "md5": "547650517caee07a0caec76f8317ac81",
+      "sha256": "d6b724c812961c07871099411a0dc8db0b49c8337780c809583f5ee4906dfb53"
+    },
+    {
+      "path": "objects_windows/A1/w1856_0.npz",
+      "mask": "labels",
+      "shape": [
+        901,
+        1024
+      ],
+      "dtype": "int32",
+      "md5": "269a1bbcf32788b798b27c7645a5fcdf",
+      "sha256": "db0fa1e180db895cb5065db663dd7ffaa7862e09b9be312753db359e7d8bcd4c"
+    },
+    {
+      "path": "objects_windows/A1/w1856_1856.npz",
+      "mask": "labels",
+      "shape": [
+        901,
+        900
+      ],
+      "dtype": "int32",
+      "md5": "20ce90f4a028232960123c43e3e5d236",
+      "sha256": "632ee3f3a6241e846849d5778c1c2e8f8cae17ab7999676fb17d578b17728993"
+    },
+    {
+      "path": "objects_windows/A1/w1856_928.npz",
+      "mask": "labels",
+      "shape": [
+        901,
+        1024
+      ],
+      "dtype": "int32",
+      "md5": "4d87ac4d2feb0b41765293f13ca6a5e0",
+      "sha256": "6630dc63ddf5b1d69e7401d2cdfc7db1cecbd40a2e483bc7274f2be45fb89e90"
+    },
+    {
+      "path": "objects_windows/A1/w928_0.npz",
+      "mask": "labels",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "int32",
+      "md5": "785e91cfc8e8fe6cc9a0c538ad260d84",
+      "sha256": "8edeccfd9d8d7f11e134baf28e107c8c67aacd411c7485dbd3f5f2c2c804e8a2"
+    },
+    {
+      "path": "objects_windows/A1/w928_1856.npz",
+      "mask": "labels",
+      "shape": [
+        1024,
+        900
+      ],
+      "dtype": "int32",
+      "md5": "a1ee079775bbc8a08c4ab92d8467f640",
+      "sha256": "9cbb30385ae816b9046abdfae14c2f8dc848d5bda496f3c93653d71cd86626c4"
+    },
+    {
+      "path": "objects_windows/A1/w928_928.npz",
+      "mask": "labels",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "int32",
+      "md5": "aeff5003fecdaf5bdce9d60db6b5e092",
+      "sha256": "3588613fc4aadcb125e18491533a69cf7f953e5a2b321f9146eca50df9b9e966"
+    },
+    {
+      "path": "A1/phenotype_masks/site-1255.npz",
+      "mask": "nuclei",
+      "shape": [
+        2960,
+        2960
+      ],
+      "dtype": "uint32",
+      "md5": "d77da8fb06549dbcbf99d08652039690",
+      "sha256": "f3e35ba076f1a027569237da80b65eba7ff3771f69ead43cd3e4762dde2b8f42"
+    },
+    {
+      "path": "A1/phenotype_masks/site-1255.npz",
+      "mask": "cells",
+      "shape": [
+        2960,
+        2960
+      ],
+      "dtype": "uint32",
+      "md5": "a3873e900dcb7f8b2b0d64dabffe4b57",
+      "sha256": "c4e62b618366271918d05bb9d15b7dade568b3cb847d72fa1f07405a0a7e4c77"
+    },
+    {
+      "path": "A1/phenotype_masks/site-1264.npz",
+      "mask": "nuclei",
+      "shape": [
+        2960,
+        2960
+      ],
+      "dtype": "uint32",
+      "md5": "077e9269e8a16384e465d4318373d7cb",
+      "sha256": "70e9b4935f52f5dd47805581518b4fa7e7d85efa80ee921b7b4afaf65200763a"
+    },
+    {
+      "path": "A1/phenotype_masks/site-1264.npz",
+      "mask": "cells",
+      "shape": [
+        2960,
+        2960
+      ],
+      "dtype": "uint32",
+      "md5": "b4e587a4a5defd73cfd32900beb9c919",
+      "sha256": "080b3c871cc78d3397e3d82ed12da7447be14c41345f6bf1e2925e27bdd0c91d"
+    },
+    {
+      "path": "A1/phenotype_masks/site-1280.npz",
+      "mask": "nuclei",
+      "shape": [
+        2960,
+        2960
+      ],
+      "dtype": "uint32",
+      "md5": "62d355a6e9b1bca0beeec115e7532d33",
+      "sha256": "99550379d79a11267baec7ad24dff54d11eb7221fab6be89fc15f517656d233f"
+    },
+    {
+      "path": "A1/phenotype_masks/site-1280.npz",
+      "mask": "cells",
+      "shape": [
+        2960,
+        2960
+      ],
+      "dtype": "uint32",
+      "md5": "62d355a6e9b1bca0beeec115e7532d33",
+      "sha256": "99550379d79a11267baec7ad24dff54d11eb7221fab6be89fc15f517656d233f"
+    }
+  ],
+  "npz_md5": {
+    "objects_windows/A1/w0_0.npz": "8b4f892e90bed2bac4114b5839732aeb",
+    "objects_windows/A1/w0_1856.npz": "1d24c32c7503c17ad873f50f3f537928",
+    "objects_windows/A1/w0_928.npz": "4f01b6e298dd452b95ca717317500591",
+    "objects_windows/A1/w1856_0.npz": "e8db7a154cc4ba50c6d46ed7b4aafee5",
+    "objects_windows/A1/w1856_1856.npz": "70a1aa1c79a7b36dde2a02a4017d6cae",
+    "objects_windows/A1/w1856_928.npz": "3f0f27e1eaba9e3b1c8dd7ca53f4fc93",
+    "objects_windows/A1/w928_0.npz": "77aafd1f76f142e7300fcef4211705b1",
+    "objects_windows/A1/w928_1856.npz": "e07057562ff12b9e253bee3b2551e8fd",
+    "objects_windows/A1/w928_928.npz": "eb9b40a3cbd198c0a15bd4a99b7c9a67",
+    "A1/phenotype_masks/site-1255.npz": "261373c593f22c3a6f42ca8adadee226",
+    "A1/phenotype_masks/site-1264.npz": "db5487fee44a0ab335594a8248c93b4e",
+    "A1/phenotype_masks/site-1280.npz": "57cce6d04eeac9b441ce931402aa92cb"
+  },
+  "governor_reference": {
+    "objects": {
+      "wall_seconds": null,
+      "phases_seconds": null,
+      "phase_calls": null,
+      "report": null,
+      "governor": {
+        "items": 9,
+        "gpu_items": 9,
+        "cpu_items": 0,
+        "shrinks": 0,
+        "waits": 0,
+        "oom_retries": 0,
+        "halvings": 0,
+        "cpu_fallbacks": 0,
+        "ramp_ups": 0
+      }
+    },
+    "ph_segment": {
+      "wall_seconds": null,
+      "phases_seconds": null,
+      "phase_calls": null,
+      "report": null,
+      "governor": {
+        "items": 15,
+        "gpu_items": 15,
+        "cpu_items": 0,
+        "shrinks": 0,
+        "waits": 0,
+        "oom_retries": 0,
+        "halvings": 0,
+        "cpu_fallbacks": 0,
+        "ramp_ups": 0
+      }
+    }
+  },
+  "governor_candidate": {
+    "objects": {
+      "wall_seconds": null,
+      "phases_seconds": null,
+      "phase_calls": null,
+      "report": null,
+      "governor": {
+        "items": 9,
+        "gpu_items": 9,
+        "cpu_items": 0,
+        "shrinks": 0,
+        "waits": 0,
+        "oom_retries": 0,
+        "halvings": 0,
+        "cpu_fallbacks": 0,
+        "ramp_ups": 0
+      }
+    },
+    "ph_segment": {
+      "wall_seconds": null,
+      "phases_seconds": null,
+      "phase_calls": null,
+      "report": null,
+      "governor": {
+        "items": 15,
+        "gpu_items": 15,
+        "cpu_items": 0,
+        "shrinks": 0,
+        "waits": 0,
+        "oom_retries": 0,
+        "halvings": 0,
+        "cpu_fallbacks": 0,
+        "ramp_ups": 0
+      }
+    }
+  },
+  "timing": "Not measured on the shared card; exclusive pair remains queued."
+}

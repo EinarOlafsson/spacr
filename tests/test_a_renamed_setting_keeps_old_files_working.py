@@ -88,6 +88,10 @@ FACTORIES = {
     # 2026-11-17, item 969: `cellpose_model` became `ops_sbs_nucleus_model`.
     # OPS registers its own factory in `spacr.ops_settings`.
     "ops_sbs_nucleus_model": "spacr.ops_settings.ops_defaults",
+    # 2026-11-20, TASK X: the OPS phenotype tile batch `ops_ph_batch_size`
+    # became `ops_ph_tile_batch`, the phenotype override of the shared mask
+    # tile batch. OPS registers its own factory in `spacr.ops_settings`.
+    "ops_ph_tile_batch": "spacr.ops_settings.ops_defaults",
 }
 
 

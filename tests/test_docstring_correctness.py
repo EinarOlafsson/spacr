@@ -6819,6 +6819,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("codex_issues_1119_api_arrivals_2026-11-19.json", 2),
         ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
         ("987b_mask_batches_api_arrivals_2026-11-20.json", 1),
+        ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7436,7 +7437,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "974_spacr_store_api_arrivals_2026-11-17.json",
                      "964_ops_feature_screen_api_arrivals_2026-11-17.json",
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
-                     "987b_mask_batches_api_arrivals_2026-11-20.json"):
+                     "987b_mask_batches_api_arrivals_2026-11-20.json",
+                     "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7594,7 +7596,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "974_spacr_store_api_arrivals_2026-11-17.json",
                      "964_ops_feature_screen_api_arrivals_2026-11-17.json",
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
-                     "987b_mask_batches_api_arrivals_2026-11-20.json"):
+                     "987b_mask_batches_api_arrivals_2026-11-20.json",
+                     "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

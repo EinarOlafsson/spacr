@@ -283,7 +283,9 @@ def _effective_settings(form: Mapping[str, Any]
     """
     from .ops_settings import OPS_DEFAULTS
 
-    form = dict(form or {})
+    from .settings import _fold_renamed_settings
+
+    form = _fold_renamed_settings(dict(form or {}))
     source = form.get("genotype_source")
     if source and os.path.isdir(str(source)):
         return form, None
@@ -298,7 +300,7 @@ def _effective_settings(form: Mapping[str, Any]
             settings[key] = value
         elif key not in OPS_DEFAULTS and key not in settings:
             settings[key] = value
-    return settings, root
+    return _fold_renamed_settings(settings), root
 
 
 def _workspace(settings: Mapping[str, Any]) -> Path:
@@ -484,7 +486,8 @@ def _model(ctx: _Context, key: str = "ops_sbs_nucleus_model"):
     from .ops_engine import _cellpose_model
 
     gpu = bool(ctx.settings.get("ops_gpu", False))
-    name = (str(ctx.settings.get(key) or ""), gpu)
+    name = (str(ctx.settings.get(key) or ""), gpu,
+            ctx.settings.get("mask_inference_precision"))
     held = ctx.cache.setdefault("_models", {})
     if name not in held:
         if len(held) > 3:
@@ -875,19 +878,29 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     dapi = np.ascontiguousarray(dapi[y0:y0 + size, x0:x0 + size])
     nuclei_key = json.dumps([site, align["crop"], ctx.settings.get("ops_sbs_nucleus_model"),
                              ctx.settings.get("cellpose_diameter"),
-                             ctx.settings.get("ops_gpu")], default=str)
+                             ctx.settings.get("ops_gpu"),
+                             ctx.settings.get("mask_eval_batch_size"),
+                             ctx.settings.get("ops_sbs_tile_batch"),
+                             ctx.settings.get("mask_inference_precision")], default=str)
     held = ctx.cache.get("_sbs_nuclei")
     if held is not None and held[0] == nuclei_key:
         nuclei = held[1]
     else:
-        from ._gpu_governor import _governed_eval
-
         model = _model(ctx, "ops_sbs_nucleus_model")
         diameter = ctx.settings.get("cellpose_diameter")
         extra = {"diameter": float(diameter)} if diameter else {}
-        nuclei = np.asarray(_governed_eval(model, dapi, site="ops_stitched",
-                                           settings=ctx.settings, batch_size=16,
-                                           **extra)[0], np.int32)
+        from ._mask_array_batches import _array_batches
+
+        def load_dapi(_record):
+            """Retain the current OPS crop and its public normalisation."""
+            return dapi, None
+
+        with _array_batches([site], load_dapi, ctx.settings,
+                            gpu=bool(ctx.settings.get("ops_gpu"))) as resident:
+            for _site, image, _metadata, field_count in resident:
+                nuclei = np.asarray(engine._ops_mask_eval(
+                    model, image, ctx.settings, site="ops_stitched",
+                    field_count=field_count, **extra)[0], np.int32)
         ctx.cache["_sbs_nuclei"] = (nuclei_key, nuclei)
     _check(cancelled)
     labels = np.unique(nuclei)
@@ -1021,7 +1034,8 @@ def _run_objects(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     masks_key = json.dumps([key, info["shape"], (row, column, size)] + [
         ctx.settings.get(name) for name in (
             "ops_ph_nucleus_model", "ops_ph_cell_model", "ops_ph_nucleus_diameter",
-            "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
+            "ops_ph_cell_diameter", "ops_ph_downsample", "mask_eval_batch_size",
+            "ops_ph_tile_batch", "mask_inference_precision", "batch_size",
             "ops_ph_cell_channel", "ops_gpu")], default=str)
     held = ctx.cache.get("_ph_masks")
     if held is not None and held[0] == masks_key:
@@ -1033,8 +1047,17 @@ def _run_objects(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         models = (nucleus_model, nucleus_model if same else
                   _model(ctx, "ops_ph_cell_model"))
         _check(cancelled)
-        nuclei, cells, _paired = engine._ph_segment_field(crop, channels, models,
-                                                          ctx.settings)
+        from ._mask_array_batches import _array_batches
+
+        def load_crop(_record):
+            """Keep the same prepared phenotype crop for its two mask roles."""
+            return crop, None
+
+        with _array_batches([field_info['site']], load_crop, ctx.settings,
+                            gpu=bool(ctx.settings.get("ops_gpu"))) as resident:
+            for _site, image, _metadata, field_count in resident:
+                nuclei, cells, _paired = engine._ph_segment_field(
+                    image, channels, models, ctx.settings, field_count=field_count)
         ctx.cache["_ph_masks"] = (masks_key, (nuclei, cells))
     _check(cancelled)
     layers: Dict[str, np.ndarray] = {}

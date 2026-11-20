@@ -22,7 +22,6 @@ import re
 import time
 from collections import Counter
 from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
-from ._gpu_governor import _governed_eval
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -2131,9 +2130,10 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
     """The Cellpose model the objects are segmented with.
 
     :param settings: read for ``key``. Empty or ``cpsam`` builds
-        the library's own default model, which is how the well was validated;
+        the default library model, which is how the well was validated;
         any other name is passed to Cellpose as the model to load.
-    :param gpu: put it on this machine's card through
+        ``mask_inference_precision`` uses the shared auto/bf16/fp32 policy.
+    :param gpu: put it on the card on this machine through
         :func:`spacr.accelerator.cellpose_kwargs`, or keep it on the CPU.
     :param key: the setting naming the model; the phenotype phases pass
         ``ops_ph_nucleus_model`` and ``ops_ph_cell_model``.
@@ -2147,6 +2147,9 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
 
         kwargs = cellpose_kwargs()
     from .model_zoo import _resolve_pinned_model_file
+    from .object import _with_inference_precision
+
+    kwargs = _with_inference_precision(kwargs, settings)
 
     pinned = _resolve_pinned_model_file(settings, key, kinds=("cellpose",))
     name = (str(pinned) if pinned is not None
@@ -2154,6 +2157,61 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
     if name in ("", "cpsam"):
         return models.CellposeModel(**kwargs)
     return models.CellposeModel(pretrained_model=name, **kwargs)
+
+
+_OPS_MASK_SETTINGS = ("batch_size", "mask_eval_batch_size",
+                      "mask_inference_precision", "gpu_memory_margin_gb",
+                      "ops_sbs_tile_batch")
+
+#: The per-path tile batch override each OPS segmentation site reads.
+_OPS_TILE_BATCH_KEYS = {"ops_phenotype": "ops_ph_tile_batch",
+                        "ops_spatial": "spatial_tile_batch"}
+
+
+def _ops_tile_batch(settings, site, field_count):
+    """The Cellpose tile batch of one OPS segmentation site.
+
+    ``ops_ph_tile_batch`` (phenotype nuclei, cells and objects),
+    ``ops_sbs_tile_batch`` (the sequencing nuclei: stitched windows and the
+    live spot preview) and ``spatial_tile_batch`` (Spatial Mask Generation)
+    override the shared ``mask_eval_batch_size`` for their own path. 0 or
+    empty uses the shared rule. Settings files stamped before settings
+    version 948 get 8, 16 and 16, the tile batches those paths always ran
+    at, so they reproduce their masks.
+
+    :param settings: the run settings.
+    :param site: the OPS segmentation site.
+    :param field_count: inputs in the current resident batch.
+    :returns: the ``batch_size`` handed to Cellpose's ``eval``.
+    :raises ValueError: when the override is negative or not a whole number.
+    """
+    from ._mask_array_batches import _tile_override
+    from .object import _eval_tile_batch
+
+    key = _OPS_TILE_BATCH_KEYS.get(site, "ops_sbs_tile_batch")
+    return _tile_override(settings, key) or _eval_tile_batch(settings, field_count)
+
+
+def _ops_mask_eval(model, image, settings, *, site, field_count=1, **extra):
+    """Run an OPS image through the shared mask tile policy and governor.
+
+    OPS keeps its existing input preparation and public Cellpose
+    normalisation. The mask site prefix enables the same full-tile-batch
+    wait as Make Masks before memory pressure can change a tile batch.
+
+    :param model: the original Cellpose model.
+    :param image: the unchanged OPS plane or channel-last image.
+    :param settings: the shared field, tile, precision and memory settings,
+        and the per-path override (:func:`_ops_tile_batch`).
+    :param site: the OPS segmentation site, prefixed with ``mask_``.
+    :param field_count: inputs in the current resident batch.
+    :param extra: the existing OPS public eval options.
+    :returns: the original public eval result.
+    """
+    from .object import _mask_eval
+
+    return _mask_eval(model, image, site='mask_' + site, settings=settings,
+                       batch_size=_ops_tile_batch(settings, site, field_count), **extra)
 
 
 def _compose_blend(settings: Mapping[str, Any]) -> str:
@@ -2225,8 +2283,9 @@ def _objects_window_basis(settings: Mapping[str, Any], blend: str,
         cellpose = metadata.version("cellpose")
     except metadata.PackageNotFoundError:
         cellpose = ""
-    return {"format": 1, "spacr_version": __version__, "cellpose": cellpose,
+    return {"format": 2, "spacr_version": __version__, "cellpose": cellpose,
             "model": model, "eval": dict(extra), "blend": blend,
+            "mask_settings": {key: settings.get(key) for key in _OPS_MASK_SETTINGS},
             "canvas": [int(canvas[0]), int(canvas[1])],
             "tile_shape": [int(shape[0]), int(shape[1])]}
 
@@ -2326,10 +2385,10 @@ def _objects_window_save(folder: str, window, key: str, labels: np.ndarray,
 
 
 def _objects_windows_clear(folder: str) -> int:
-    """Delete a well's window files and its folder once empty (item 958).
+    """Delete window files, the batch plan and the empty folder for one well.
 
-    :param folder: the well's window folder.
-    :returns: how many files were deleted.
+    :param folder: the window folder for the well.
+    :returns: how many mask and done-marker files were deleted.
     """
     if not os.path.isdir(folder):
         return 0
@@ -2338,6 +2397,10 @@ def _objects_windows_clear(folder: str) -> int:
         if re.fullmatch(r"w\d+_\d+\.(npz|done\.json)(\.part)?", name):
             os.remove(os.path.join(folder, name))
             deleted += 1
+    for name in ('mask_batch_plan.json', 'mask_batch_plan.json.part'):
+        path = os.path.join(folder, name)
+        if os.path.isfile(path):
+            os.remove(path)
     parent = os.path.dirname(folder)
     for path in ((folder, parent) if os.path.basename(parent) == "objects_windows"
                  else (folder,)):
@@ -2429,7 +2492,10 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     observations: list = []
     gains = []
     empty = 0
-    for count, window in enumerate(windows, start=1):
+    from ._mask_array_batches import _array_batches
+
+    def load_window(window):
+        """Compose the existing covered input once, or reuse its saved mask."""
         key, saved = None, None
         if folder:
             key, touched = _objects_window_key(basis, window, usable, sources,
@@ -2437,35 +2503,49 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
             saved = (_objects_window_load(folder, window, key)
                      if touched else None)
         if saved is not None:
-            masks, gain, area = saved
-            gains.append((gain, area))
-            kept["reused"] += 1
-        else:
-            tick = time.perf_counter()
-            image, coverage = compose_window(window, usable, read,
-                                             tile_shape=shape, blend=blend)
-            seconds["compose"] += time.perf_counter() - tick
-            covered = coverage > 0
-            if not covered.any():
-                empty += 1
-                continue
-            gains.append((overlap_gain(coverage), int(covered.sum())))
-            fill = image.copy()
-            fill[~covered] = float(np.median(image[covered]))
-            tick = time.perf_counter()
-            masks = np.asarray(_governed_eval(model, fill, site='ops_stitched',
-                                              settings=settings, batch_size=16, **extra)[0], np.int32)
-            seconds["segment"] += time.perf_counter() - tick
-            masks[~covered] = 0
-            if folder:
-                _objects_window_save(folder, window, key, masks, *gains[-1])
-                kept["computed"] += 1
+            return None, (key, saved, None)
         tick = time.perf_counter()
-        observations.extend(objects_in_window(window, masks, canvas=canvas))
-        seconds["objects_in_window"] += time.perf_counter() - tick
-        if count % 50 == 0:
-            _say(f"{well} objects: {count} of {len(windows)} windows, "
-                 f"{len(observations)} observations")
+        image, coverage = compose_window(window, usable, read,
+                                         tile_shape=shape, blend=blend)
+        seconds["compose"] += time.perf_counter() - tick
+        covered = coverage > 0
+        if not covered.any():
+            return None, (key, None, None)
+        gain = (overlap_gain(coverage), int(covered.sum()))
+        fill = image.copy()
+        fill[~covered] = float(np.median(image[covered]))
+        return fill, (key, gain, covered)
+
+    plan_path = os.path.join(folder, 'mask_batch_plan.json') if folder else None
+    with _array_batches(windows, load_window, settings, gpu=gpu,
+                        plan_path=plan_path) as resident:
+        for count, (window, fill, details, field_count) in enumerate(resident, start=1):
+            key, value, covered = details
+            if fill is None:
+                if value is None:
+                    empty += 1
+                    continue
+                masks, gain, area = value
+                gains.append((gain, area))
+                kept["reused"] += 1
+            else:
+                gains.append(value)
+                tick = time.perf_counter()
+                masks = np.asarray(_ops_mask_eval(
+                    model, fill, settings, site='ops_stitched',
+                    field_count=field_count, **extra)[0], np.int32)
+                seconds["segment"] += time.perf_counter() - tick
+                masks[~covered] = 0
+                if folder:
+                    _objects_window_save(folder, window, key, masks, *gains[-1])
+                    kept["computed"] += 1
+            tick = time.perf_counter()
+            observations.extend(objects_in_window(window, masks, canvas=canvas))
+            seconds["objects_in_window"] += time.perf_counter() - tick
+            if count % 50 == 0:
+                _say(f"{well} objects: {count} of {len(windows)} windows, "
+                     f"{len(observations)} observations")
+            del fill
 
     tick = time.perf_counter()
     groups = sew(observations)
@@ -4425,14 +4505,15 @@ def _ph_upscale(mask: np.ndarray, factor: int, shape) -> np.ndarray:
 
 
 def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
-                      settings: Mapping[str, Any]):
+                      settings: Mapping[str, Any], *, field_count=1):
     """Nuclei and cells of one field, paired so nucleus k is in cell k.
 
     :param stack: the ``(H, W, C)`` field.
-    :param channels: the stack's channel names.
+    :param channels: channel names in the stack.
     :param models: ``(nucleus_model, cell_model)``.
     :param settings: read for ``ops_ph_cell_channel``, ``ops_ph_downsample``,
-        ``ops_ph_batch_size`` and the two diameters.
+        ``mask_eval_batch_size`` and the two diameters.
+    :param field_count: fields in the current resident batch.
     :returns: ``(nuclei, cells, counts)``.
 
     NUCLEI ON DAPI, CELLS ON THE CELL STAIN WITH DAPI AS THE SECOND
@@ -4447,8 +4528,6 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
 
     factor = max(1, int(_setting_number(settings.get("ops_ph_downsample"),
                                         "ops_ph_downsample", 2)))
-    batch = max(1, int(_setting_number(settings.get("ops_ph_batch_size"),
-                                       "ops_ph_batch_size", 8)))
     cell_channel = str(settings.get("ops_ph_cell_channel") or "AF750")
     if _NUCLEAR not in channels or cell_channel not in channels:
         raise ValueError(tr(
@@ -4463,12 +4542,11 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
         value = settings.get(key)
         extra[name] = {"diameter": float(value) / factor} if value else {}
     nucleus_model, cell_model = models
-    nuclei = _governed_eval(nucleus_model, dna, site='ops_phenotype',
-                            settings=settings, batch_size=batch,
+    nuclei = _ops_mask_eval(nucleus_model, dna, settings, site='ops_phenotype',
+                            field_count=field_count,
                             **extra["nucleus"])[0]
-    cells = _governed_eval(cell_model, np.stack([body, dna], axis=-1),
-                           site='ops_phenotype', settings=settings,
-                           batch_size=batch, channel_axis=-1,
+    cells = _ops_mask_eval(cell_model, np.stack([body, dna], axis=-1), settings,
+                           site='ops_phenotype', field_count=field_count, channel_axis=-1,
                            **extra["cell"])[0]
     shape = stack.shape[:2]
     return pair_nuclei_with_cells(_ph_upscale(nuclei, factor, shape),
@@ -4555,13 +4633,13 @@ def _ph_object_eval(image: np.ndarray, model, settings: Mapping[str, Any],
 
     :param image: the plane or tile.
     :param model: the Cellpose model.
-    :param settings: passed to :func:`spacr._gpu_governor._governed_eval`.
-    :param batch: the Cellpose batch size.
+    :param settings: the shared mask settings passed to :func:`_ops_mask_eval`.
+    :param batch: fields in the resident batch; the shared setting chooses tiles.
     :param extra: further Cellpose arguments (the diameter).
     """
-    return np.asarray(_governed_eval(
-        model, image, site='ops_phenotype', settings=settings,
-        batch_size=batch, **extra)[0], np.int32)
+    return np.asarray(_ops_mask_eval(
+        model, image, settings, site='ops_phenotype', field_count=batch,
+        **extra)[0], np.int32)
 
 
 def _ph_object_cellpose(model, plane: np.ndarray, settings: Mapping[str, Any],
@@ -4581,23 +4659,24 @@ def _ph_object_cellpose(model, plane: np.ndarray, settings: Mapping[str, Any],
 
 def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
                         settings: Mapping[str, Any], gpu: bool,
-                        cache: Dict[str, Any], *, tile=None
+                        cache: Dict[str, Any], *, tile=None, field_count=1
                         ) -> Dict[str, np.ndarray]:
     """Pathogens and organelles of one field, as Mask Generation segments them (item 970).
 
     :param stack: the ``(H, W, C)`` field.
-    :param channels: the stack's channel names.
+    :param channels: channel names in the stack.
     :param settings: read for the object settings
-        (:func:`_ph_object_settings`) and ``ops_ph_batch_size``.
+        (:func:`_ph_object_settings`) and ``mask_eval_batch_size``.
     :param gpu: run Cellpose on the card.
     :param cache: Cellpose models by name (:func:`_ph_object_model`).
     :param tile: ``tile(plane, segment)`` runs a Cellpose ``segment`` over
         ``plane`` piece by piece, as the large-site path does
-        (:func:`spacr.ops_large_sites.segment_tiled`); None, the phenotype
-        path's, runs it on the whole field. Classical organelle methods
+        (:func:`spacr.ops_large_sites.segment_tiled`); None runs it on the
+        whole field, as in the phenotype path. Classical organelle methods
         always see the whole field, since their thresholds are global.
+    :param field_count: fields in the current resident batch.
     :returns: ``{class: labels}`` for the classes :func:`_ph_object_roles`
-        names, each the field's shape; empty when none is set.
+        names, each with the field shape; empty when none is set.
     :raises ValueError: for a channel that is not in ``channels``, or an
         organelle morphology and method Mask Generation does not pair.
 
@@ -4605,12 +4684,12 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
     segmented by Cellpose on the pathogen channel with
     ``ops_ph_pathogen_model`` and ``ops_ph_pathogen_diameter``, as
     ``pathogen_model`` and ``pathogen_diameter`` are in Mask Generation.
-    Organelles take Mask Generation's organelle route
+    Organelles take the organelle route from Mask Generation
     (:func:`spacr.object.generate_organelle_masks_sam`):
     ``ops_ph_organelle_morphology`` (spots, network, irregular or ring) and
     ``ops_ph_organelle_method``, a classical method
     (:func:`spacr.object._segment_single_image`, with the other
-    ``organelle_*`` settings at Mask Generation's defaults) or ``cellpose``
+    ``organelle_*`` settings at the Mask Generation defaults) or ``cellpose``
     with ``ops_ph_organelle_model``. Both then go through
     :func:`spacr.object.merge_split_filter_masks` with their minimum area.
     Nuclei and cells are block-averaged by ``ops_ph_downsample`` first;
@@ -4624,8 +4703,7 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
     from .qt.i18n import tr
 
     out: Dict[str, np.ndarray] = {}
-    batch = max(1, int(_setting_number(settings.get("ops_ph_batch_size"),
-                                       "ops_ph_batch_size", 8)))
+    batch = field_count
 
     for role, given in _ph_object_settings(settings).items():
         if given["channel"] not in channels:
@@ -4801,14 +4879,15 @@ def _ph_options_marker(folder: str, options: Mapping[str, Any]) -> None:
     """Refuse to mix per-field parts made with different options.
 
     :param folder: a folder of per-field parts.
-    :param options: what this run makes the parts with; every option's
-        default is None or False.
+    :param options: what this run makes the parts with. Missing historical
+        keys are None or False; an explicit shared mask setting therefore
+        refuses parts whose original tile count or precision was not saved.
     :raises ValueError: when parts made with other options are already
         there. A field that is not redone keeps its part, so a well would
         otherwise mix corrected and uncorrected fields without notice.
 
-    A folder with parts but no marker was made before the options existed,
-    so with every option at its default.
+    A folder with parts but no marker is treated as missing every option.
+    Shared mask settings must be recorded before those parts can be reused.
     """
     from .qt.i18n import tr
 
@@ -5257,23 +5336,28 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     :param measure: run ``ph_measure``.
     :returns: the report.
 
-    RESUMABLE PER FIELD. Each field's masks go to
+    RESUMABLE PER FIELD. Masks for each field go to
     ``<well>/phenotype_masks/site-<n>.npz`` and its cells to
     ``<well>/phenotype_cells/site-<n>.parquet``; a field whose file exists
-    is not redone, so a run stopped at field 900 resumes at 901. The well's
+    is not redone, so a run stopped at field 900 resumes at 901. The well
     table, ``ops_phenotype_cells_<well>.parquet``, is the concatenation and
     is rewritten at the end.
 
     SEGMENTATION RUNS IN THIS PROCESS AND MEASUREMENT IN WORKERS: Cellpose
-    already uses every core (or the card), while spaCR's measurement of a
-    field is one core for a few minutes on the reference plate's 2,960 px
+    already uses every core (or the card), while spaCR measurement of a
+    field is one core for a few minutes on the 2,960 px reference plate
     fields, so measuring fields side by side is what keeps the machine busy.
+
+    Segmentation loads one resident batch using the shared automatic
+    ``batch_size``, RAM admission and GPU-fit helpers. All roles finish
+    before that batch is freed in ``finally`` and the next batch is read.
+    OPS channel preparation and public Cellpose normalisation are unchanged.
 
     FIELD BY FIELD WHEN ASKED (item 872, B1 and B2). ``ops_ph_pipeline``
     hands each field to the measurement workers as soon as its masks are
     saved, so the card segments field n + 1 while field n is measured, in
     place of segmenting the whole well first. ``ops_ph_stage_dir`` stages
-    each field's maximum projection on local disk with
+    the maximum projection of each field on local disk with
     ``ops_ph_stage_threads`` reader threads, at most ``ops_ph_stage_ahead``
     fields ahead (:class:`spacr.ops_run_infra.FieldStager`): each raw file
     is then read once, not once to segment and once to measure, and the
@@ -5324,8 +5408,18 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     secondary = _ph_secondary_by_site(db, plate, well, settings)
     object_roles = _ph_object_roles(settings)
     object_models: Dict[str, Any] = {}
-    if segment and object_roles:
-        _ph_options_marker(mask_dir, {"objects": _ph_object_options(settings)})
+    if segment:
+        from .object import _eval_tile_batch
+
+        tile_setting = _eval_tile_batch(settings, 0)
+        precision = str(settings.get("mask_inference_precision") or 'auto').strip().lower()
+        mask_options = {
+            "mask_eval_batch_size": tile_setting,
+            "ops_ph_tile_batch": _ops_tile_batch(settings, "ops_phenotype", 0),
+            "mask_inference_precision": precision}
+        if object_roles:
+            mask_options["objects"] = _ph_object_options(settings)
+        _ph_options_marker(mask_dir, mask_options)
     flat_folder = None
     options: Dict[str, Any] = {}
     if measure:
@@ -5441,10 +5535,12 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             counts = Counter()
             order = ([s for s in sites if s in todo or s in to_measure]
                      if streamed else todo)
-            for count, site in enumerate(order, start=1):
+            from ._mask_array_batches import _array_batches
+
+            def load_field(site):
+                """Read one unchanged OPS field once for every segmentation role."""
                 if site not in todo:
-                    measure_now(site)
-                    continue
+                    return None, None
                 tick = time.perf_counter()
                 before = len(unreadable)
                 if stager is not None:
@@ -5457,45 +5553,57 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 if stack is None:
                     found[site] = "; ".join(str(r) for _p, r in
                                             unreadable[before:]) or "unreadable"
-                    continue
-                field_shape = field_shape or stack.shape[:2]
-                if models is None:
-                    nucleus_model = _cellpose_model(settings, gpu,
-                                                    "ops_ph_nucleus_model")
-                    same = (str(settings.get("ops_ph_cell_model") or "cpsam")
-                            == str(settings.get("ops_ph_nucleus_model")
-                                   or "cpsam"))
-                    models = (nucleus_model, nucleus_model if same else
-                              _cellpose_model(settings, gpu,
-                                              "ops_ph_cell_model"))
-                    object_models[str(settings.get("ops_ph_nucleus_model")
-                                      or "cpsam").strip() or "cpsam"] = (
-                        nucleus_model)
-                tick = time.perf_counter()
-                nuclei, cells, paired = _ph_segment_field(stack, channels,
-                                                          models, settings)
-                seconds["segment"] += time.perf_counter() - tick
-                counts.update(paired)
-                arrays = {"nuclei": nuclei.astype(np.uint32),
-                          "cells": cells.astype(np.uint32)}
-                if object_roles:
+                return stack, None
+
+            with _array_batches(order, load_field, settings, gpu=gpu,
+                                max_fields=stager.ahead if stager is not None else None,
+                                plan_path=os.path.join(mask_dir, 'mask_batch_plan.json')) as resident:
+                for count, (site, stack, _metadata, field_count) in enumerate(resident, start=1):
+                    if site not in todo:
+                        measure_now(site)
+                        continue
+                    if stack is None:
+                        continue
+                    field_shape = field_shape or stack.shape[:2]
+                    if models is None:
+                        nucleus_model = _cellpose_model(settings, gpu,
+                                                        "ops_ph_nucleus_model")
+                        same = (str(settings.get("ops_ph_cell_model") or "cpsam")
+                                == str(settings.get("ops_ph_nucleus_model")
+                                       or "cpsam"))
+                        models = (nucleus_model, nucleus_model if same else
+                                  _cellpose_model(settings, gpu,
+                                                  "ops_ph_cell_model"))
+                        object_models[str(settings.get("ops_ph_nucleus_model")
+                                          or "cpsam").strip() or "cpsam"] = (
+                            nucleus_model)
                     tick = time.perf_counter()
-                    objects = _ph_segment_objects(stack, channels, settings,
-                                                  gpu, object_models)
-                    seconds["objects"] += time.perf_counter() - tick
-                    for role, labels in objects.items():
-                        counts[role] += int(len(np.unique(labels[labels > 0])))
-                        arrays[role] = labels.astype(np.uint32)
-                np.savez_compressed(mask_path(site) + ".part.npz", **arrays)
-                os.replace(mask_path(site) + ".part.npz", mask_path(site))
-                _say(tr("{well} ph_segment: site {site}, {cells} cells, "
-                        "{count} of {total}", well=well, site=site,
-                        cells=paired["paired"], count=count,
-                        total=len(order)))
-                if streamed and site in to_measure:
-                    measure_now(site)
-                elif stager is not None:
-                    stager.release(site)
+                    nuclei, cells, paired = _ph_segment_field(
+                        stack, channels, models, settings, field_count=field_count)
+                    seconds["segment"] += time.perf_counter() - tick
+                    counts.update(paired)
+                    arrays = {"nuclei": nuclei.astype(np.uint32),
+                              "cells": cells.astype(np.uint32)}
+                    if object_roles:
+                        tick = time.perf_counter()
+                        objects = _ph_segment_objects(
+                            stack, channels, settings, gpu, object_models,
+                            field_count=field_count)
+                        seconds["objects"] += time.perf_counter() - tick
+                        for role, labels in objects.items():
+                            counts[role] += int(len(np.unique(labels[labels > 0])))
+                            arrays[role] = labels.astype(np.uint32)
+                    np.savez_compressed(mask_path(site) + ".part.npz", **arrays)
+                    os.replace(mask_path(site) + ".part.npz", mask_path(site))
+                    _say(tr("{well} ph_segment: site {site}, {cells} cells, "
+                            "{count} of {total}", well=well, site=site,
+                            cells=paired["paired"], count=count,
+                            total=len(order)))
+                    if streamed and site in to_measure:
+                        measure_now(site)
+                    elif stager is not None:
+                        stager.release(site)
+                    del stack
             fresh = sum(1 for s in todo if os.path.isfile(mask_path(s)))
             _ph_record_missing(plate, well, destination, found)
             report["ph_segment"] = {
@@ -10559,12 +10667,10 @@ def run_ops(settings: Mapping[str, Any], *,
     :raises ValueError: when the source holds no tiles this can name, an
         unknown phase or well is asked for, or a phase's input is missing.
     """
-    settings = dict(settings or {})
-    if "cellpose_model" in settings:
-        from . import ops_settings  # noqa: F401
-        from .settings import _fold_renamed_settings
+    from . import ops_settings  # noqa: F401
+    from .settings import _fold_renamed_settings
 
-        _fold_renamed_settings(settings)
+    settings = _fold_renamed_settings(dict(settings or {}))
     if settings.get("ops_gpu_admission") and not _OPS_ADMITTED.get():
         return _ops_admitted_run(settings, wells=wells, phases=phases,
                                  library=library)
@@ -13053,18 +13159,26 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
                     settings, "spatial_cellpose_model", kinds=("cellpose",))
                 model = _cellpose_model(
                     {"ops_sbs_nucleus_model": str(pinned) if pinned is not None
-                     else settings.get("spatial_cellpose_model")},
+                     else settings.get("spatial_cellpose_model"),
+                     "mask_inference_precision": settings.get("mask_inference_precision")},
                     bool(settings.get("spatial_gpu", False)))
             extra: Dict[str, Any] = {}
             if diameter:
                 extra["diameter"] = float(diameter)
             if image.ndim == 3:
                 extra["channel_axis"] = -1
-            nuclei = np.asarray(_governed_eval(model, image,
-                                               site='ops_spatial',
-                                               settings=settings,
-                                               batch_size=16, **extra)[0],
-                                dtype=np.int32)
+            from ._mask_array_batches import _array_batches
+
+            def load_spatial(_record):
+                """Keep the prepared spatial stain unchanged for shared residency."""
+                return image, None
+
+            with _array_batches([index], load_spatial, settings,
+                                gpu=bool(settings.get("spatial_gpu", False))) as resident:
+                for _index, prepared, _metadata, field_count in resident:
+                    nuclei = np.asarray(_ops_mask_eval(
+                        model, prepared, settings, site='ops_spatial',
+                        field_count=field_count, **extra)[0], dtype=np.int32)
         seconds["segment"] += time.perf_counter() - tick
         cells = (expand_labels(nuclei, distance=expansion_px).astype(np.int32)
                  if expansion_px > 0 else nuclei)

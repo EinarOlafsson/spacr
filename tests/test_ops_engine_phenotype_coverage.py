@@ -188,7 +188,7 @@ def test_segmentation_pairs_each_nucleus_with_its_cell():
     nucleus, cell = _ThresholdModel(), _ThresholdModel(grow=5)
     nuclei, cells, counts = ops_engine._ph_segment_field(
         stack, ("DAPI", "AF750"), (nucleus, cell),
-        {"ops_ph_downsample": 2, "ops_ph_batch_size": 3,
+        {"ops_ph_downsample": 2, "mask_eval_batch_size": 3,
          "ops_ph_nucleus_diameter": 20, "ops_ph_cell_diameter": 40})
     assert counts["paired"] == len(CENTRES)
     assert nuclei.shape == cells.shape == (SIZE, SIZE)

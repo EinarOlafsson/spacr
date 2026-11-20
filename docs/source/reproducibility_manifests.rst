@@ -144,6 +144,13 @@ default after a higher-numbered item takes the next free number:
   the log or raw read and its thresholds from decoy calls at a 1 % decoy FDR.
   The OPS barcode decode reads an empty ``ops_read_mode`` as ``'log'``, so
   Funk-style runs are unchanged.
+- 948 (TASK X): ``ops_ph_tile_batch`` was ``8``, ``ops_sbs_tile_batch``
+  ``16`` and ``spatial_tile_batch`` ``16``, the Cellpose tile batches the OPS
+  phenotype, sequencing and Spatial Mask Generation paths always ran at; they
+  are now ``0``, which uses the shared ``mask_eval_batch_size`` (one tile per
+  field in the resident batch when that is 0). An old file's
+  ``ops_ph_batch_size`` is renamed to ``ops_ph_tile_batch``, so it still sets
+  only the phenotype path. 946 and 947 belong to other items.
 
 Public API
 ----------
