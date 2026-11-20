@@ -1,0 +1,299 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_cov_w3_7_row_exclusions.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 4,
+  "case_mapping": {
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_scalar_value_becomes_a_one_item_list": "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_a_scalar_value_becomes_a_one_item_list]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_blank_column_name_is_dropped": "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_a_blank_column_name_is_dropped]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_column_with_no_values_left_is_dropped": "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_a_column_with_no_values_left_is_dropped]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_repeated_values_are_deduplicated_but_types_are_kept_apart": "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_repeated_values_are_deduplicated_but_types_are_kept_apart]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_column_name_is_stripped": "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_the_column_name_is_stripped]"
+  },
+  "normalization_contracts": {
+    "test_a_scalar_value_becomes_a_one_item_list": [
+      {
+        "columnID": "c1"
+      },
+      {
+        "columnID": [
+          "c1"
+        ]
+      }
+    ],
+    "test_a_blank_column_name_is_dropped": [
+      {
+        "  ": [
+          "c1"
+        ],
+        "columnID": [
+          "c2"
+        ]
+      },
+      {
+        "columnID": [
+          "c2"
+        ]
+      }
+    ],
+    "test_a_column_with_no_values_left_is_dropped": [
+      {
+        "columnID": []
+      },
+      {}
+    ],
+    "test_repeated_values_are_deduplicated_but_types_are_kept_apart": [
+      {
+        "col": [
+          1,
+          1,
+          "1",
+          "1",
+          true
+        ]
+      },
+      {
+        "col": [
+          1,
+          "1",
+          true
+        ]
+      }
+    ],
+    "test_the_column_name_is_stripped": [
+      {
+        "  columnID  ": [
+          "c1"
+        ]
+      },
+      {
+        "columnID": [
+          "c1"
+        ]
+      }
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_scalar_value_becomes_a_one_item_list": "({'columnID': 'c1'}, {'columnID': ['c1']})",
+    "test_a_blank_column_name_is_dropped": "({'  ': ['c1'], 'columnID': ['c2']}, {'columnID': ['c2']})",
+    "test_a_column_with_no_values_left_is_dropped": "({'columnID': []}, {})",
+    "test_repeated_values_are_deduplicated_but_types_are_kept_apart": "({'col': [1, 1, '1', '1', True]}, {'col': [1, '1', True]})",
+    "test_the_column_name_is_stripped": "({'  columnID  ': ['c1']}, {'columnID': ['c1']})"
+  },
+  "contract_scope": "Exact ordered rule mappings, scalar/list values and normalized output mappings; integer/string/bool distinctions and original dictionary equality assertions retained.",
+  "collected_before": [
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[blanks]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_text_rules_are_parsed_as_json_or_a_python_literal[python-literal-text]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[none]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[word-NULL]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_very_wide_table_truncates_the_column_list",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_unknown_column_lists_the_ones_that_exist",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[padded-word-none]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_no_rules_returns_the_frame_untouched",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[word-none]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_column_name_is_stripped",
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_column_with_no_values_left_is_dropped",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[empty-list]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_any_container_of_values_is_accepted[list]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[empty-dict]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_any_container_of_values_is_accepted[frozenset]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_scalar_value_becomes_a_one_item_list",
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_blank_column_name_is_dropped",
+    "tests/test_cov_w3_7_row_exclusions.py::test_something_that_is_not_a_mapping_is_refused",
+    "tests/test_cov_w3_7_row_exclusions.py::test_missing_values_are_excluded_when_the_rule_asks_for_them",
+    "tests/test_cov_w3_7_row_exclusions.py::test_any_container_of_values_is_accepted[set]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_text_value_matches_a_numeric_column",
+    "tests/test_cov_w3_7_row_exclusions.py::test_excluding_everything_is_refused",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_identifier_that_looks_numeric_is_not_renumbered",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_written_forms_of_a_missing_value_also_match[nan]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_text_rules_are_parsed_as_json_or_a_python_literal[json-text]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_any_container_of_values_is_accepted[tuple]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_written_forms_of_a_missing_value_also_match[none]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_row_removed_twice_is_counted_once",
+    "tests/test_cov_w3_7_row_exclusions.py::test_matching_rows_are_dropped_and_counted",
+    "tests/test_cov_w3_7_row_exclusions.py::test_text_that_is_neither_json_nor_a_literal_says_what_is_wanted",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[word-null]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_repeated_values_are_deduplicated_but_types_are_kept_apart",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_written_forms_of_a_missing_value_also_match[NULL]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[word-None]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_written_forms_of_a_missing_value_also_match[<NA>]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_filtered_frame_is_a_copy",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[empty-string]"
+  ],
+  "collected_after": [
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_text_value_matches_a_numeric_column",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[padded-word-none]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_repeated_values_are_deduplicated_but_types_are_kept_apart]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_no_rules_returns_the_frame_untouched",
+    "tests/test_cov_w3_7_row_exclusions.py::test_text_rules_are_parsed_as_json_or_a_python_literal[json-text]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_identifier_that_looks_numeric_is_not_renumbered",
+    "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_a_column_with_no_values_left_is_dropped]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[blanks]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_excluding_everything_is_refused",
+    "tests/test_cov_w3_7_row_exclusions.py::test_any_container_of_values_is_accepted[tuple]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_a_blank_column_name_is_dropped]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_row_removed_twice_is_counted_once",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[word-null]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_any_container_of_values_is_accepted[list]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_matching_rows_are_dropped_and_counted",
+    "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_the_column_name_is_stripped]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_any_container_of_values_is_accepted[set]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[word-None]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_text_rules_are_parsed_as_json_or_a_python_literal[python-literal-text]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[none]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[word-NULL]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_written_forms_of_a_missing_value_also_match[none]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_written_forms_of_a_missing_value_also_match[<NA>]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_filtered_frame_is_a_copy",
+    "tests/test_cov_w3_7_row_exclusions.py::test_any_container_of_values_is_accepted[frozenset]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[word-none]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_unknown_column_lists_the_ones_that_exist",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_written_forms_of_a_missing_value_also_match[NULL]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_a_very_wide_table_truncates_the_column_list",
+    "tests/test_cov_w3_7_row_exclusions.py::test_the_written_forms_of_a_missing_value_also_match[nan]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[empty-string]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[empty-dict]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_text_that_is_neither_json_nor_a_literal_says_what_is_wanted",
+    "tests/test_cov_w3_7_row_exclusions.py::test_an_absent_rule_is_no_exclusions[empty-list]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_something_that_is_not_a_mapping_is_refused",
+    "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_a_scalar_value_becomes_a_one_item_list]",
+    "tests/test_cov_w3_7_row_exclusions.py::test_missing_values_are_excluded_when_the_rule_asks_for_them"
+  ],
+  "tests_before": {
+    "passed": 37,
+    "seconds": 3.02
+  },
+  "tests_after": {
+    "passed": 37,
+    "seconds": 3.32
+  },
+  "coverage_scope": "spacr.row_exclusions under the complete selected normalization/filtering test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 68,
+    "num_statements": 68,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 32,
+    "num_partial_branches": 0,
+    "covered_branches": 32,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_after": {
+    "covered_lines": 68,
+    "num_statements": 68,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 32,
+    "num_partial_branches": 0,
+    "covered_branches": 32,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "e8d06ae566ccaa5127ffe635482cdeb12c37f8f5c7a87d310b9ae84c034c63ee",
+  "production_source_sha256": "263f5e0b2f4aab4db2c462b60fbddef991b22da6097a61ed78d371956a5c2f15",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "absent_text_container_and_dataframe_filtering_copy_recovery_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "typed-values-collapsed",
+      "source_variant": {
+        "path": "spacr/row_exclusions.py",
+        "line": 56,
+        "old": "token = (type(item).__name__, repr(item))",
+        "new": "token = str(item)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w3_7_row_exclusions.py::test_repeated_values_are_deduplicated_but_types_are_kept_apart"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w3_7_row_exclusions.py::test_repeated_values_are_deduplicated_but_types_are_kept_apart"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_repeated_values_are_deduplicated_but_types_are_kept_apart]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_repeated_values_are_deduplicated_but_types_are_kept_apart]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "column-whitespace-kept",
+      "source_variant": {
+        "path": "spacr/row_exclusions.py",
+        "line": 46,
+        "old": "column = str(raw_column).strip()",
+        "new": "column = str(raw_column)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w3_7_row_exclusions.py::test_the_column_name_is_stripped",
+          "tests/test_cov_w3_7_row_exclusions.py::test_a_blank_column_name_is_dropped"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w3_7_row_exclusions.py::test_the_column_name_is_stripped",
+          "tests/test_cov_w3_7_row_exclusions.py::test_a_blank_column_name_is_dropped"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_a_blank_column_name_is_dropped]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w3_7_row_exclusions.py::test_normalized_rules_keep_their_original_keys_types_and_values[test_a_blank_column_name_is_dropped]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the five affected normalization cases before and after; repository production files unchanged.",
+  "table_placement_note": "The five literal normalization cases are grouped at the original scalar-case location. Existing container cases and every other definition retain their relative order and unchanged AST; no fixture state is shared by grouped cases.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_w3_7_row_exclusions.py",
+      "line": 75,
+      "symbol": "test_normalized_rules_keep_their_original_keys_types_and_values",
+      "new": "Normalize each original rule to the same ordered keys and typed values.",
+      "old": {
+        "test_a_scalar_value_becomes_a_one_item_list": "Hand-written settings stay convenient: one value need not be a list.",
+        "test_a_blank_column_name_is_dropped": "An empty key cannot name a column, so it is skipped rather than raised.",
+        "test_a_column_with_no_values_left_is_dropped": "A column mapped to nothing excludes nothing and is not carried forward.",
+        "test_repeated_values_are_deduplicated_but_types_are_kept_apart": "``1`` and ``\"1\"`` are different exclusions and both survive.",
+        "test_the_column_name_is_stripped": "Trailing whitespace in a settings key is a typo, not a different column."
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

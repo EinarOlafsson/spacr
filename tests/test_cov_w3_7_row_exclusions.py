@@ -59,9 +59,21 @@ def test_something_that_is_not_a_mapping_is_refused():
         normalize_row_exclusions("[1, 2, 3]")
 
 
-def test_a_scalar_value_becomes_a_one_item_list():
-    """Hand-written settings stay convenient: one value need not be a list."""
-    assert normalize_row_exclusions({"columnID": "c1"}) == {"columnID": ["c1"]}
+@pytest.mark.parametrize("value, expected", [
+    pytest.param({"columnID": "c1"}, {"columnID": ["c1"]},
+                 id="test_a_scalar_value_becomes_a_one_item_list"),
+    pytest.param({"  ": ["c1"], "columnID": ["c2"]}, {"columnID": ["c2"]},
+                 id="test_a_blank_column_name_is_dropped"),
+    pytest.param({"columnID": []}, {},
+                 id="test_a_column_with_no_values_left_is_dropped"),
+    pytest.param({"col": [1, 1, "1", "1", True]}, {"col": [1, "1", True]},
+                 id="test_repeated_values_are_deduplicated_but_types_are_kept_apart"),
+    pytest.param({"  columnID  ": ["c1"]}, {"columnID": ["c1"]},
+                 id="test_the_column_name_is_stripped"),
+])
+def test_normalized_rules_keep_their_original_keys_types_and_values(value, expected):
+    """Normalize each original rule to the same ordered keys and typed values."""
+    assert normalize_row_exclusions(value) == expected
 
 
 @pytest.mark.parametrize("container", [list, tuple, set, frozenset])
@@ -69,29 +81,6 @@ def test_any_container_of_values_is_accepted(container):
     """A set from a widget and a list from a file mean the same thing."""
     assert normalize_row_exclusions(
         {"columnID": container(["c1"])}) == {"columnID": ["c1"]}
-
-
-def test_a_blank_column_name_is_dropped():
-    """An empty key cannot name a column, so it is skipped rather than raised."""
-    assert normalize_row_exclusions({"  ": ["c1"], "columnID": ["c2"]}) == {
-        "columnID": ["c2"]}
-
-
-def test_a_column_with_no_values_left_is_dropped():
-    """A column mapped to nothing excludes nothing and is not carried forward."""
-    assert normalize_row_exclusions({"columnID": []}) == {}
-
-
-def test_repeated_values_are_deduplicated_but_types_are_kept_apart():
-    """``1`` and ``"1"`` are different exclusions and both survive."""
-    assert normalize_row_exclusions({"col": [1, 1, "1", "1", True]}) == {
-        "col": [1, "1", True]}
-
-
-def test_the_column_name_is_stripped():
-    """Trailing whitespace in a settings key is a typo, not a different column."""
-    assert normalize_row_exclusions({"  columnID  ": ["c1"]}) == {
-        "columnID": ["c1"]}
 
 
 # --------------------------------------------------------------------------
