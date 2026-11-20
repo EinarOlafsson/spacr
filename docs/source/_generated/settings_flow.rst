@@ -27550,7 +27550,7 @@ Read by ``etest_phase``, ``ops_defaults``.
 ops_etest_mode
 --------------
 
-'empirical_null' tests each gene against pseudo-genes of random non-targeting cells; 'guide_null' against pseudo-genes of four non-targeting guides, the shape of a gene, which keeps guide-level structure in the null (the guides are split in halves for the null and the held-out control); 'permutation' permutes the gene's cells with the reference (scPerturb's E-test, ops_etest_permutations times; slow). Default 'empirical_null'. Alpha.
+How each gene's E-test null is built. 'guide_null' compares each gene with pseudo-genes of distinct non-targeting guides holding the same cells per guide as the gene, so the null keeps guide-to-guide spread; reference, null and held-out control use separate guides. 'empirical_null' uses random non-targeting cells, ignores that spread and calls most genes at OPS depth without an effect (kept for comparison; older settings files keep it). 'permutation' permutes each gene's cells with the reference (scPerturb's E-test, ops_etest_permutations times; slow). Default 'guide_null'. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
