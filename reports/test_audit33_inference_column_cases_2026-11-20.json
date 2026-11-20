@@ -1,0 +1,184 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_inference_results_know_which_well_they_came_from.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_the_object_id_is_the_last_component": "tests/test_inference_results_know_which_well_they_came_from.py::test_result_columns_keep_their_original_ordered_values[test_the_object_id_is_the_last_component]",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_the_threshold_still_binarises": "tests/test_inference_results_know_which_well_they_came_from.py::test_result_columns_keep_their_original_ordered_values[test_the_threshold_still_binarises]"
+  },
+  "fixture_column_list_contracts": {
+    "test_the_object_id_is_the_last_component": [
+      "object",
+      [
+        "250",
+        "517",
+        "106"
+      ]
+    ],
+    "test_the_threshold_still_binarises": [
+      "cv_predictions",
+      [
+        1,
+        0,
+        1
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_the_object_id_is_the_last_component": "('object', ['250', '517', '106'])",
+    "test_the_threshold_still_binarises": "('cv_predictions', [1, 0, 1])"
+  },
+  "contract_scope": "Exact original scored fixture argument, result-column name, list conversion, ordered str/int expected list and equality retained. Original function-scoped scored fixture, ordered CROPS, predictions and process_vision_results threshold/call are AST-identical.",
+  "collected_before": [
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_the_object_id_is_the_last_component",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_a_timelapse_crop_keeps_its_field",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_the_threshold_still_binarises",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_a_full_path_parses_the_same_as_a_bare_name",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_no_row_comes_back_as_an_error",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_the_well_key_is_composed_not_pasted",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_the_identity_is_the_one_the_object_tables_carry",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_the_field_parser_is_not_used_on_a_crop_name"
+  ],
+  "collected_after": [
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_the_identity_is_the_one_the_object_tables_carry",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_no_row_comes_back_as_an_error",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_a_timelapse_crop_keeps_its_field",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_result_columns_keep_their_original_ordered_values[test_the_object_id_is_the_last_component]",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_the_field_parser_is_not_used_on_a_crop_name",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_the_well_key_is_composed_not_pasted",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_a_full_path_parses_the_same_as_a_bare_name",
+    "tests/test_inference_results_know_which_well_they_came_from.py::test_result_columns_keep_their_original_ordered_values[test_the_threshold_still_binarises]"
+  ],
+  "tests_before": {
+    "passed": 8,
+    "seconds": 12.07
+  },
+  "tests_after": {
+    "passed": 8,
+    "seconds": 10.08
+  },
+  "coverage_scope": "spacr.utils under the complete selected inference-result identity/field/path/object/threshold/timelapse/parser-guard test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 472,
+    "num_statements": 5180,
+    "percent_covered": 6.578581363004172,
+    "percent_covered_display": "7",
+    "missing_lines": 4708,
+    "excluded_lines": 0,
+    "percent_statements_covered": 9.111969111969112,
+    "percent_statements_covered_display": "9",
+    "num_branches": 2010,
+    "num_partial_branches": 1,
+    "covered_branches": 1,
+    "missing_branches": 2009,
+    "percent_branches_covered": 0.04975124378109453,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_after": {
+    "covered_lines": 472,
+    "num_statements": 5180,
+    "percent_covered": 6.578581363004172,
+    "percent_covered_display": "7",
+    "missing_lines": 4708,
+    "excluded_lines": 0,
+    "percent_statements_covered": 9.111969111969112,
+    "percent_statements_covered_display": "9",
+    "num_branches": 2010,
+    "num_partial_branches": 1,
+    "covered_branches": 1,
+    "missing_branches": 2009,
+    "percent_branches_covered": 0.04975124378109453,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "c439c6e073f9e45ca5bb85ac93818b34367506e7be8dee37010f6e4015f55a48",
+  "production_source_sha256": "0c70e2ead9dc17c482db30e126ceaf6946603ce974a152856cc6138cf25bdd5b",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "original_scored_fixture_CROPS_and_other_identity_path_field_timelapse_parser_guards_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "object-id-taken-from-prefix",
+      "source_variant": {
+        "path": "spacr/utils.py",
+        "line": 9888,
+        "old": "df['object'] = (df['path'].str.rsplit('/', n=1).str[-1]\n                    .str.split('.').str[0].str.rsplit('_', n=1).str[-1])",
+        "new": "df['object'] = (df['path'].str.rsplit('/', n=1).str[-1]\n                    .str.split('.').str[0].str.rsplit('_', n=1).str[0])"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_inference_results_know_which_well_they_came_from.py::test_the_object_id_is_the_last_component"
+        ],
+        "failure_summary_lines": [
+          "tests/test_inference_results_know_which_well_they_came_from.py::test_the_object_id_is_the_last_component"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_inference_results_know_which_well_they_came_from.py::test_result_columns_keep_their_original_ordered_values[test_the_object_id_is_the_last_component]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_inference_results_know_which_well_they_came_from.py::test_result_columns_keep_their_original_ordered_values[test_the_object_id_is_the_last_component]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "threshold-comparison-reversed",
+      "source_variant": {
+        "path": "spacr/utils.py",
+        "line": 9891,
+        "old": "df['cv_predictions'] = (df['pred'] >= threshold).astype(int)",
+        "new": "df['cv_predictions'] = (df['pred'] < threshold).astype(int)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_inference_results_know_which_well_they_came_from.py::test_the_threshold_still_binarises"
+        ],
+        "failure_summary_lines": [
+          "tests/test_inference_results_know_which_well_they_came_from.py::test_the_threshold_still_binarises"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_inference_results_know_which_well_they_came_from.py::test_result_columns_keep_their_original_ordered_values[test_the_threshold_still_binarises]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_inference_results_know_which_well_they_came_from.py::test_result_columns_keep_their_original_ordered_values[test_the_threshold_still_binarises]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults before and after: object id taken from the filename prefix instead of its final component; prediction-threshold comparison reversed. Repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_inference_results_know_which_well_they_came_from.py",
+      "line": 69,
+      "symbol": "test_result_columns_keep_their_original_ordered_values",
+      "new": "Keep each original inference column paired with the same ordered values.",
+      "old": {
+        "test_the_object_id_is_the_last_component": "Not the fourth: on a timelapse crop the fourth is the timepoint.",
+        "test_the_threshold_still_binarises": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

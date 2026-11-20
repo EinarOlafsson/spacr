@@ -55,9 +55,19 @@ def test_the_identity_is_the_one_the_object_tables_carry(scored):
     assert list(scored["fieldID"]) == ["f18", "f9", "f1"]
 
 
-def test_the_object_id_is_the_last_component(scored):
-    """Not the fourth: on a timelapse crop the fourth is the timepoint."""
-    assert list(scored["object"]) == ["250", "517", "106"]
+@pytest.mark.parametrize("column, expected", [
+    pytest.param(
+        "object", ["250", "517", "106"],
+        id="test_the_object_id_is_the_last_component",
+    ),
+    pytest.param(
+        "cv_predictions", [1, 0, 1],
+        id="test_the_threshold_still_binarises",
+    ),
+])
+def test_result_columns_keep_their_original_ordered_values(scored, column, expected):
+    """Keep each original inference column paired with the same ordered values."""
+    assert list(scored[column]) == expected
 
 
 def test_a_full_path_parses_the_same_as_a_bare_name(scored):
@@ -69,10 +79,6 @@ def test_a_full_path_parses_the_same_as_a_bare_name(scored):
 def test_the_well_key_is_composed_not_pasted(scored):
     """`compose_prc_column` escapes a plate id that contains the separator."""
     assert set(scored["prc"]) == {"plate1_r5_c1"}
-
-
-def test_the_threshold_still_binarises(scored):
-    assert list(scored["cv_predictions"]) == [1, 0, 1]
 
 
 def test_a_timelapse_crop_keeps_its_field(scored):
