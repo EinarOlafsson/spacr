@@ -162,14 +162,15 @@ def _remember_column_kinds(frame: pd.DataFrame, kinds: Dict[str, str]) -> None:
 
 def _classify_columns_uncached(frame: pd.DataFrame) -> Dict[str, str]:
     """The rule itself, so the cache is one wrapper that can be tested
-    against the thing it wraps."""
+    against the thing it wraps.
+
+    A repeated column name selects several columns at once, so it cannot be
+    filtered or plotted by name; it is skipped rather than raising "The truth
+    value of a Series is ambiguous"."""
     kinds: Dict[str, str] = {}
     repeated = set(frame.columns[frame.columns.duplicated()])
     for position, name in enumerate(frame.columns):
         if name in _IDENTITY_COLUMNS or name in repeated:
-            # A repeated name selects several columns at once, so it cannot be
-            # filtered or plotted by name; it is left out rather than raising
-            # "The truth value of a Series is ambiguous".
             kinds[name] = "skip"
             continue
         series = frame.iloc[:, position]

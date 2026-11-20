@@ -1304,7 +1304,8 @@ def _merge_crops(merged: pd.DataFrame, png: pd.DataFrame,
     Besides the path, every column an annotator or the Annotate screen wrote
     (``annotate``, ``annotate_verdict``, ``condition`` ...) is carried as
     ``png_list_<column>``. Crop metadata and per-class model probabilities
-    (:func:`_png_annotation_columns`) are not.
+    (:func:`_png_annotation_columns`) are not. An object cropped more than
+    once keeps the crop somebody labelled.
     """
     from .utils import PNG_OBJECT_ID_COLUMNS
 
@@ -1333,7 +1334,6 @@ def _merge_crops(merged: pd.DataFrame, png: pd.DataFrame,
     on = [c for c in list(keys) + [OBJECT_COLUMN] if c in side.columns]
     carried = [c for c in side.columns if c not in on]
     if carried:
-        # An object cropped twice keeps the crop somebody labelled.
         labelled = side[carried].notna().sum(axis=1)
         side = side.loc[labelled.sort_values(ascending=False, kind="stable").index]
     side = side.drop_duplicates(subset=on).sort_index()

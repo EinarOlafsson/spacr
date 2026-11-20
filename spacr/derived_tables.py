@@ -339,6 +339,11 @@ def execute(path, definition):
 def _execute_prepared(path, definition):
     """Apply a prepared merge recipe and return its frame and diagnostics.
 
+    Base columns get the base table's name as a prefix, except a column whose
+    prefixed name the base already has: a base carrying both ``cell_id`` and
+    ``pathogen_cell_id`` keeps the unprefixed one under its own name instead
+    of ending up with two columns called ``pathogen_cell_id``.
+
     :param path: source database read through the active source-frame context.
     :param definition: default, custom or filename-enrichment recipe to copy and apply.
     :returns: output DataFrame and merge diagnostic mapping, including image provenance.
@@ -373,9 +378,6 @@ def _execute_prepared(path, definition):
                          "Use Customize merging for external data without image provenance.")
     keep = set(definition["base_keys"]) | set(IDENTITY) | {OBJECT_COLUMN, "prcf", "prcfo", "timeID", "time_id"}
     keep.update(c for join in definition["joins"] for c in join["left_keys"])
-    # A base that already carries both ``cell_id`` and ``pathogen_cell_id``
-    # would otherwise get two columns called ``pathogen_cell_id``; the
-    # unprefixed one keeps its own name instead.
     rename = {c: (c if c.startswith(base_name + "_") or base_name + "_" + c in base
                   else base_name + "_" + c)
               for c in base if c not in keep}
