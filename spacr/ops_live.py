@@ -124,6 +124,25 @@ class _Cancelled(Exception):
     """The pass was cancelled between two of its steps."""
 
 
+class _NotReady(ValueError):
+    """A tab's input is not there yet; the tab says what to run first.
+
+    :param reason: what is missing: ``"run"`` (no finished run in
+        ``dst_root``), ``"rows"`` (the run lacks a table), ``"fields"`` (no
+        phenotype field is placed), ``"phenotype"`` (no phenotype folder),
+        ``"genes"`` (no gene table) or ``"few_genes"`` (too few genes to
+        cluster).
+    :param detail: the values the tab's sentence names, such as a path.
+    """
+
+    def __init__(self, reason: str, **detail: Any):
+        """Keep the reason and its details beside the English message."""
+        self.reason = str(reason)
+        self.detail = dict(detail)
+        super().__init__(f"{self.reason}: " + ", ".join(
+            f"{key}={value}" for key, value in sorted(self.detail.items())))
+
+
 def _steps_of(key: str, category: str) -> Tuple[str, ...]:
     """The tabs a setting belongs to, read from its registry category.
 
@@ -234,6 +253,26 @@ def _test_data_root() -> Optional[Path]:
     return None
 
 
+def _test_root_of(source: Any) -> Optional[Path]:
+    """The OPS test data folder ``source`` lies in, or None.
+
+    A ``genotype_source`` pointing into the downloaded test data is the test
+    data, whatever else the form says, so the tabs that read a finished run
+    use the stored step outputs the test data carries.
+
+    :param source: a folder, usually the form's ``genotype_source``.
+    """
+    try:
+        folder = Path(str(source)).resolve()
+    except (OSError, RuntimeError, ValueError):
+        return None
+    for candidate in (folder, *folder.parents):
+        if (candidate / "settings" / "ops_testdata_settings.json").is_file() and (
+                candidate / "reference" / "PROVENANCE_rev2_addendum.json").is_file():
+            return candidate
+    return None
+
+
 def _test_settings(root: Path) -> Dict[str, Any]:
     """The test data's shipped settings, with its paths made absolute.
 
@@ -276,7 +315,8 @@ def _effective_settings(form: Mapping[str, Any]
 
     :param form: the settings on the OPS form.
     :returns: ``(settings, test root)``. With a sequencing folder on the form
-        the form is used as it is. Without one the test data's shipped
+        the form is used as it is; the test root is the test data folder the
+        sequencing folder lies in, if any. Without one the test data's shipped
         settings are the base and every form value that differs from the OPS
         default is laid over them, so an edit on the form is what the preview
         tests.
@@ -288,7 +328,7 @@ def _effective_settings(form: Mapping[str, Any]
     form = _fold_renamed_settings(dict(form or {}))
     source = form.get("genotype_source")
     if source and os.path.isdir(str(source)):
-        return form, None
+        return form, _test_root_of(source)
     root = _test_data_root()
     if root is None:
         return form, None
@@ -655,6 +695,12 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     last = aligned.kept[-1]
     before = (np.mean(raw[reference], axis=0), np.mean(raw[last], axis=0))
     after = (aligned.stack[0].mean(axis=0), aligned.stack[-1].mean(axis=0))
+    seam = _seam(ctx, index, reference, tiles, shape)
+    _check(cancelled)
+    sbs_dapi = _read(ctx, _plane_sources(index[reference][crop_site]).get(_NUCLEAR))
+    placement = (_placement(ctx, sample_field, tiles, crop_site, crop,
+                            sbs_dapi[y0:y0 + size, x0:x0 + size])
+                 if sbs_dapi is not None else None)
     return {
         "db": db, "plate": plate, "reference": reference, "block": block,
         "tiles": tiles, "tile_shape": shape, "origin": (top, left),
@@ -664,6 +710,7 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         "kept": list(aligned.kept), "refused": list(aligned.refused),
         "missing": list(aligned.missing), "last_cycle": int(last),
         "before": before, "after": after, "notes": notes,
+        "seam": seam, "placement": placement,
         "phases": phases, "sample_block": settings["ops_sites"],
     }
 
@@ -1009,23 +1056,11 @@ def _run_objects(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     if field_info is None:
         files = _ph_index(ctx)
         if not files:
-            raise ValueError("no phenotype_source, so there is no field to segment")
+            raise _NotReady("phenotype")
         site = sorted(files)[0]
         field_info = {"site": site, "files": files[site], "shape": None}
     channels = engine._ph_channels(ctx.settings)
-    secondary = None
-    unreadable: list = []
-    key = ("_ph_stack", int(field_info["site"]), tuple(channels))
-    held = ctx.cache.get("_ph_stack")
-    if held is not None and held[0] == key:
-        stack = held[1]
-    else:
-        stack = engine._ph_read_field(field_info["files"], channels, unreadable,
-                                      secondary)
-        if stack is None:
-            raise ValueError(f"phenotype field {field_info['site']} could not be "
-                             f"read: {unreadable[:1]}")
-        ctx.cache["_ph_stack"] = (key, stack)
+    stack, key = _ph_stack(ctx, field_info, channels)
     _check(cancelled)
     info = dict(field_info)
     info["shape"] = stack.shape[:2]
@@ -1078,6 +1113,173 @@ def _run_objects(ctx: _Context, cancelled=None) -> Dict[str, Any]:
             "cell_channel": str(ctx.settings.get("ops_ph_cell_channel") or "AF750")}
 
 
+def _ph_stack(ctx: _Context, field_info: Mapping[str, Any],
+              channels: Sequence[str]) -> Tuple[np.ndarray, tuple]:
+    """One phenotype field's channel stack, read once and kept.
+
+    :param ctx: the pass context; the stack is kept in its cache.
+    :param field_info: the field, with its ``site`` and ``files``.
+    :param channels: the phenotype channels, in stack order.
+    :returns: ``(stack, key)``; the key names the field and its channels.
+    :raises ValueError: when the field cannot be read.
+    """
+    from . import ops_engine as engine
+
+    key = ("_ph_stack", int(field_info["site"]), tuple(channels))
+    held = ctx.cache.get("_ph_stack")
+    if held is not None and held[0] == key:
+        return held[1], key
+    unreadable: list = []
+    stack = engine._ph_read_field(field_info["files"], list(channels), unreadable,
+                                  None)
+    if stack is None:
+        raise ValueError(f"phenotype field {field_info['site']} could not be "
+                         f"read: {unreadable[:1]}")
+    ctx.cache["_ph_stack"] = (key, stack)
+    return stack, key
+
+
+def _neighbour_pair(tiles: Mapping[int, Tuple[float, float]],
+                    shape: Tuple[int, int]) -> Optional[Tuple[int, int, int]]:
+    """Two tiles that share a seam, and which axis the seam runs along.
+
+    :param tiles: ``site -> (y, x)`` placements of the reference cycle.
+    :param shape: the tile shape.
+    :returns: ``(first, second, axis)`` with the second tile right of
+        (``axis`` 1) or below (``axis`` 0) the first, the closest such pair;
+        None for a single tile.
+    """
+    best = None
+    for axis in (1, 0):
+        other = 1 - axis
+        for a, (ya, xa) in tiles.items():
+            for b, (yb, xb) in tiles.items():
+                gap = (yb, xb)[axis] - (ya, xa)[axis]
+                if a == b or gap <= 0 or gap >= shape[axis]:
+                    continue
+                if abs((yb, xb)[other] - (ya, xa)[other]) > shape[other] / 2:
+                    continue
+                if best is None or gap < best[0]:
+                    best = (gap, int(a), int(b), axis)
+        if best is not None:
+            return best[1:]
+    return None
+
+
+def _shifted(plane: np.ndarray, window: Tuple[int, int, int, int],
+             offset: Tuple[float, float]) -> np.ndarray:
+    """The part of a tile under a window of its neighbour, at an offset.
+
+    :param plane: the second tile's plane.
+    :param window: ``(top, bottom, left, right)`` in the first tile's pixels.
+    :param offset: the second tile's ``(dy, dx)`` from the first.
+    :returns: the window's pixels of ``plane``, zero where it has none.
+    """
+    top, bottom, left, right = window
+    out = np.zeros((bottom - top, right - left), np.float32)
+    dy, dx = int(round(offset[0])), int(round(offset[1]))
+    rows = np.arange(top, bottom) - dy
+    cols = np.arange(left, right) - dx
+    keep_r = (rows >= 0) & (rows < plane.shape[0])
+    keep_c = (cols >= 0) & (cols < plane.shape[1])
+    if keep_r.any() and keep_c.any():
+        out[np.ix_(keep_r, keep_c)] = plane[np.ix_(rows[keep_r], cols[keep_c])]
+    return out
+
+
+def _seam(ctx: _Context, index, reference: int,
+          tiles: Mapping[int, Tuple[float, float]], shape: Tuple[int, int]
+          ) -> Optional[Dict[str, Any]]:
+    """Two neighbouring tiles' overlap on the raster grid and once stitched.
+
+    The raster grid puts the second tile ``tile size - ops_raster_overlap``
+    pixels from the first, straight along the seam; the stitch moves it to
+    where its nuclei meet the first tile's. Both are drawn over the same
+    window of the first tile.
+
+    :returns: the two sites, the axis, both offsets and the window's two
+        planes at each offset; None when no two tiles share a seam.
+    """
+    from .ops_engine import _NUCLEAR, _plane_sources, _setting_number
+
+    pair = _neighbour_pair(tiles, shape)
+    if pair is None:
+        return None
+    first, second, axis = pair
+    planes = [_read(ctx, _plane_sources(index[reference][site]).get(_NUCLEAR))
+              for site in (first, second)]
+    if any(plane is None for plane in planes):
+        return None
+    overlap = int(_setting_number(ctx.settings.get("ops_raster_overlap"),
+                                  "ops_raster_overlap", 213))
+    nominal = [0.0, 0.0]
+    nominal[axis] = float(shape[axis] - overlap)
+    stitched = (tiles[second][0] - tiles[first][0],
+                tiles[second][1] - tiles[first][1])
+    margin = 48
+    half = min(shape[1 - axis] // 2, 240)
+    middle = shape[1 - axis] // 2
+    start = int(max(0, min(nominal[axis], stitched[axis]) - margin))
+    if axis == 1:
+        window = (middle - half, middle + half, start, shape[1])
+    else:
+        window = (start, shape[0], middle - half, middle + half)
+    top, bottom, left, right = window
+    own = np.asarray(planes[0], np.float32)[top:bottom, left:right]
+    return {"sites": (first, second), "axis": axis, "overlap": overlap,
+            "nominal": tuple(nominal), "stitched": tuple(stitched),
+            "window": window,
+            "before": (own, _shifted(np.asarray(planes[1], np.float32), window,
+                                     nominal)),
+            "after": (own, _shifted(np.asarray(planes[1], np.float32), window,
+                                    stitched))}
+
+
+def _placement(ctx: _Context, field_info: Optional[Mapping[str, Any]],
+               tiles: Mapping[int, Tuple[float, float]], crop_site: int,
+               crop: Tuple[int, int, int], sbs: np.ndarray
+               ) -> Optional[Dict[str, Any]]:
+    """The sampled phenotype field's DNA resampled onto the sequencing crop.
+
+    Each pixel of the sequencing crop is mapped into the field by the
+    inverse of the field's placement (:func:`spacr.ops_merge.field_transform`)
+    and read there, so where the placement is right the two images' nuclei
+    coincide.
+
+    :param sbs: the crop of the reference cycle's DAPI plane.
+    :returns: the field's site, scale, rotation and centre and the two
+        planes; None when no field is placed or it cannot be read.
+    """
+    from scipy import ndimage
+
+    from . import ops_engine as engine
+    from .ops_merge import field_transform
+
+    if not field_info or not field_info.get("files"):
+        return None
+    channels = engine._ph_channels(ctx.settings)
+    try:
+        stack, _key = _ph_stack(ctx, field_info, channels)
+    except ValueError:
+        return None
+    dna = stack[..., channels.index("DAPI")] if "DAPI" in channels else stack[..., 0]
+    scale, rotation, translation = field_transform(
+        field_info["scale"], field_info["rotation"], field_info["centre"],
+        dna.shape[:2])
+    y0, x0, size = crop
+    ty, tx = tiles[crop_site]
+    rows, cols = np.mgrid[0:size, 0:size].astype(float)
+    well = np.stack([rows.ravel() + ty + y0, cols.ravel() + tx + x0], axis=1)
+    inside = (np.asarray(rotation, float).T @ (well - translation).T).T / scale
+    sampled = ndimage.map_coordinates(np.asarray(dna, np.float32),
+                                      [inside[:, 0], inside[:, 1]], order=1,
+                                      cval=0.0).reshape(size, size)
+    return {"site": int(field_info["site"]), "scale": float(field_info["scale"]),
+            "rotation": float(field_info["rotation"]),
+            "centre": tuple(float(v) for v in field_info["centre"]),
+            "sbs": np.asarray(sbs, np.float32), "phenotype": sampled}
+
+
 def _aggregation_inputs(ctx: _Context, db: str, plate: str
                         ) -> Dict[str, Any]:
     """Put the aggregation set's nuclei, calls and cells in the workspace.
@@ -1087,7 +1289,7 @@ def _aggregation_inputs(ctx: _Context, db: str, plate: str
     (``dst_root``), read and copied, never written.
 
     :returns: what was used, for the tab to say.
-    :raises ValueError: when there is no finished run to read.
+    :raises _NotReady: when there is no finished run to read.
     """
     import shutil
 
@@ -1114,12 +1316,15 @@ def _aggregation_inputs(ctx: _Context, db: str, plate: str
     run_db = os.path.join(run, "measurements.db")
     cells = _ph_cells_path(run, ctx.well)
     if not (os.path.isfile(run_db) and os.path.isfile(cells)):
-        raise ValueError("merge and aggregation need a finished run in dst_root "
-                         "(measurements.db and the phenotype cell table)")
+        raise _NotReady("run", path=run or "dst_root",
+                        missing=", ".join(name for name, there in (
+                            ("measurements.db", os.path.isfile(run_db)),
+                            (os.path.basename(cells), os.path.isfile(cells)))
+                            if not there))
     for table in ("ops_objects", "ops_barcodes"):
         rows = _rows(run_db, table, plate, ctx.well)
         if rows is None or rows.empty:
-            raise ValueError(f"the run in dst_root has no {table} rows")
+            raise _NotReady("rows", path=run, table=table)
         _replace_well_rows(db, table, rows, plate, ctx.well)
     shutil.copy(cells, target)
     maskpass = os.path.join(run, f"ops_maskpass_{ctx.well}.parquet")
@@ -1145,7 +1350,7 @@ def _run_merge(ctx: _Context, cancelled=None) -> Dict[str, Any]:
 
     align = _result(ctx, "align", cancelled)
     if not align["fields"]:
-        raise ValueError("no phenotype field is placed, so there is nothing to merge")
+        raise _NotReady("fields")
     db, plate = align["db"], align["plate"]
     used = _aggregation_inputs(ctx, db, plate)
     settings = _preview_settings(ctx.settings, ctx.folder)
@@ -1280,7 +1485,7 @@ def _run_cluster(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     merged = _result(ctx, "merge", cancelled)
     genes = merged["genes"]
     if genes is None or genes.empty:
-        raise ValueError("the aggregate phase wrote no gene table")
+        raise _NotReady("genes")
     floor = int(_first(ctx.settings.get("ops_profile_min_cells"), int, 0))
     kept = genes
     if "n_cells" in genes.columns:
@@ -1293,8 +1498,7 @@ def _run_cluster(ctx: _Context, cancelled=None) -> Dict[str, Any]:
                and np.issubdtype(kept[c].dtype, np.number)
                and not c.startswith(("p_", "q_", "n_"))]
     if len(kept) < 5 or not numeric:
-        raise ValueError(f"{len(kept)} genes have at least {floor} cells "
-                         "(ops_profile_min_cells); clustering needs 5 or more")
+        raise _NotReady("few_genes", n=len(kept), floor=floor)
     seed = int(_first(ctx.settings.get("ops_cluster_seeds"), int,
                       _first(ctx.settings.get("ops_cluster_seed"), int, 42)))
     components, n_components, n_features = embed_profiles(kept, numeric, seed=seed)

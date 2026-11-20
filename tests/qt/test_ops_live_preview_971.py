@@ -97,15 +97,23 @@ def _colours():
 
 @pytest.mark.parametrize("step", STEPS)
 def test_each_tab_draws_its_step_on_a_tiny_fixture(qapp, step):
-    """Every tab's picture has the same geometry and its table its header."""
+    """Every tab draws its pictures and graphs, and its table has its header.
+
+    Item 1000: pictures are RGB arrays for the zoomable view and graphs are
+    specs for the Qt graphs; merge and clustering are graphs only.
+    """
     from spacr.qt.widgets.ops_live_preview import _DRAW
 
-    picture, header, rows, sample = _DRAW[step](_fake_result(step), _colours(),
-                                                (540, 150))
-    assert picture.shape == (150, 540, 3) and picture.dtype == np.uint8
-    assert picture.std() > 0, "the picture is not blank"
+    drawn = _DRAW[step](_fake_result(step), _colours())
+    for _title, picture in drawn["images"]:
+        assert picture.ndim == 3 and picture.shape[2] == 3
+        assert picture.dtype == np.uint8 and picture.std() > 0, "not blank"
+    assert bool(drawn["images"]) == (step in ("align", "spots", "objects"))
+    assert drawn["graphs"] and all(g["kind"] in ("bars", "grouped", "scatter", "message")
+                                   for g in drawn["graphs"])
+    header, rows = drawn["header"], drawn["rows"]
     assert header and all(len(row) <= len(header) for row in rows)
-    assert isinstance(sample, str) and sample
+    assert isinstance(drawn["sample"], str) and drawn["sample"]
 
 
 def test_the_clustering_tab_says_why_when_the_extra_is_missing(qapp):
@@ -113,8 +121,10 @@ def test_the_clustering_tab_says_why_when_the_extra_is_missing(qapp):
 
     result = dict(_fake_result("cluster"), labels=None,
                   note="install the clustering extra")
-    picture, header, rows, _sample = _DRAW["cluster"](result, _colours(), (540, 150))
-    assert picture.shape == (150, 540, 3) and rows == []
+    drawn = _DRAW["cluster"](result, _colours())
+    assert drawn["rows"] == []
+    assert drawn["graphs"][-1]["kind"] == "message"
+    assert "spacr[clustering]" in drawn["graphs"][-1]["text"]
 
 
 class _Recorder:
@@ -171,7 +181,7 @@ def test_switching_live_on_runs_the_tab_on_view(qtbot, make_panel):
     panel.set_live(True)
     qtbot.waitUntil(lambda: recorder.calls == ["align"], timeout=10000)
     _idle(qtbot, panel)
-    assert not panel.page("align").picture.pixmap().isNull()
+    assert panel.page("align").shown_size(0) is not None
     assert "align" not in panel.stale_steps()
 
 
@@ -184,7 +194,9 @@ def test_every_tab_renders_through_the_panel(qtbot, make_panel, step):
     qtbot.waitUntil(lambda: step not in panel.stale_steps(), timeout=10000)
     _idle(qtbot, panel)
     page = panel.page(step)
-    assert not page.picture.pixmap().isNull()
+    if step in ("align", "spots", "objects"):
+        assert page.shown_size(0) is not None
+    assert any(graph.isVisibleTo(page) for graph in page.graphs)
     assert page.table.columnCount() > 0 and page.sample.text()
 
 
@@ -238,8 +250,9 @@ def test_cancel_drops_the_pass_in_flight(qtbot, make_panel):
     hold.set()
     qtbot.wait(30)
     page = panel.page("align")
-    assert page.picture.pixmap().isNull(), "a cancelled pass draws nothing"
+    assert page.shown_size(0) is None, "a cancelled pass draws nothing"
     assert "align" in panel.stale_steps()
+    assert not page.is_running(), "a cancelled tab no longer says it runs"
 
 
 def test_a_newer_request_supersedes_the_pass_in_flight(qtbot, make_panel):
@@ -253,8 +266,8 @@ def test_a_newer_request_supersedes_the_pass_in_flight(qtbot, make_panel):
     panel.run_preview()
     qtbot.waitUntil(lambda: recorder.calls == ["align", "spots"], timeout=10000)
     _idle(qtbot, panel)
-    assert panel.page("align").picture.pixmap().isNull()
-    assert not panel.page("spots").picture.pixmap().isNull()
+    assert panel.page("align").shown_size(0) is None
+    assert panel.page("spots").shown_size(0) is not None
 
 
 def test_every_ops_setting_finds_its_tab_in_the_registry():
@@ -372,14 +385,14 @@ def test_the_call_table_names_what_each_column_counts(qtbot, make_panel):
                         "barcode": "CGTAGTGGGAA", "reads": 8, "agreeing": 2,
                         "fraction": 1.0, "quality": 0.084, "decoy": False,
                         "pixels": False}]
-    _picture, header, rows, _sample = _DRAW["spots"](result, _colours(), (540, 150))
+    drawn = _DRAW["spots"](result, _colours())
+    header, rows = drawn["header"], drawn["rows"]
     labels = [h[0] for h in header]
     assert labels[3:6] == ["Reads (all)", "Reads for guide", "Vote share"]
     assert all(isinstance(h, tuple) and h[1] for h in header)
     assert rows[0][3:6] == ["8", "2", "1.00"]
     panel = make_panel(_Recorder())
-    panel.page("spots").show_result({"picture": _picture, "header": header,
-                                     "rows": rows, "sample": "s", "seconds": 0})
+    panel.page("spots").show_result(dict(drawn, sample="s", seconds=0))
     table = panel.page("spots").table
     assert table.horizontalHeaderItem(5).text() == "Vote share"
     assert "library guide" in table.horizontalHeaderItem(5).toolTip()

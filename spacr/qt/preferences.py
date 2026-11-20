@@ -197,6 +197,7 @@ _KEY_LOG_CONSOLE_LEVELS = "prefs/log_console_levels"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
 _KEY_DOCK_MODE   = "prefs/dock_mode"
 _KEY_EASY_MODE = "prefs/easy_mode"
+_KEY_SETTINGS_VIEW_DEFAULT = "prefs/settings_view_default"
 _KEY_EASY_MODE_DOCK = "prefs/easy_mode_dock"
 _KEY_DOCK_WIDTH  = "prefs/dock_width"
 _KEY_RUNTIME_TEXT_SCALE = "prefs/runtime_text_scale"
@@ -5470,6 +5471,39 @@ DEFAULT_DOCK_MODE = "hidden"
 #: default changing underneath them is not a reason to take theirs away.
 RETIRED_DOCK_MODES = {"auto": "locked"}
 
+
+
+def _get_settings_view_default() -> str:
+    """The view a settings form opens on without a choice of its own.
+
+    :returns: ``"essentials"`` (the default) or ``"all"``.
+    """
+    raw = str(_settings().value(_KEY_SETTINGS_VIEW_DEFAULT, "essentials")
+              or "essentials").strip().lower()
+    return "all" if raw == "all" else "essentials"
+
+
+def _set_settings_view_default(view: str) -> bool:
+    """Choose the view settings forms open on, for every module.
+
+    A change forgets every module's remembered Essentials/All choice, so
+    the new default reaches each module the next time its form is built;
+    a switch made on a form afterwards is remembered for that module again.
+
+    :param view: ``"all"``; anything else means ``"essentials"``.
+    :returns: whether the default changed.
+    """
+    view = "all" if str(view or "").strip().lower() == "all" else "essentials"
+    if view == _get_settings_view_default():
+        return False
+    _settings().setValue(_KEY_SETTINGS_VIEW_DEFAULT, view)
+    try:
+        from .settings_search import forget_disclosure
+
+        forget_disclosure()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not forget the per-module settings views", exc_info=True)
+    return True
 
 
 def get_easy_mode() -> bool:
@@ -11178,6 +11212,18 @@ class PreferencesDialog:
         maturity_col.addWidget(alpha_features_check)
         maturity_col.addWidget(alpha_species_check)
         modules.addRow(tr("Module visibility"), _hbox_wrap(maturity_col))
+        settings_view_combo = QComboBox()
+        settings_view_combo.setObjectName("SettingsViewDefault")
+        settings_view_combo.addItem(tr("Essentials"), "essentials")
+        settings_view_combo.addItem(tr("All"), "all")
+        settings_view_combo.setCurrentIndex(
+            max(0, settings_view_combo.findData(_get_settings_view_default())))
+        settings_view_combo.setToolTip(tr(
+            "Which settings a module's form shows when it opens: Essentials, "
+            "the inputs and main choices, or All of them. The switch above "
+            "every form still changes it for that module. Default "
+            "Essentials."))
+        modules.addRow(tr("Settings forms open on"), settings_view_combo)
 
         figure_save_mode_combo = QComboBox()
         figure_save_mode_combo.setObjectName("FigureSaveMode")
@@ -12265,6 +12311,7 @@ class PreferencesDialog:
                 reduce_motion_check.setChecked(get_reduce_motion())
                 focus_check.setChecked(get_strong_focus())
                 _select(language_combo, get_language())
+                _select(settings_view_combo, _get_settings_view_default())
                 _select(theme_combo, get_theme_choice())
                 _select(ambient_theme_combo, get_ambient_animation())
                 _select(ambient_palette_combo, get_ambient_palette())
@@ -12381,6 +12428,7 @@ class PreferencesDialog:
             _set_popup_backdrop_darkness(popup_darkness_slider.value() / 100.0)
             _tell_the_cards_the_rim_changed()
             set_language(language_combo.currentData())
+            _set_settings_view_default(settings_view_combo.currentData())
             set_theme_choice(theme_combo.currentData())
             _remember_the_theme_before_contrast(theme_combo.currentData(),
                                                 theme_before_contrast[0])
