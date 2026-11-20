@@ -6958,12 +6958,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
     # 2026-11-13 items 936/940: 13179 -> 13181, the spacr.stitch_core module
     # docstring and StripRegistration.shift.
+    # 2026-11-20 item 987b: 13181 -> 13182, the spacr._mask_batches module docstring.
     assert len((historical_docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) | retired_home.keys()) == 13181
+               - zoo_additions.keys()) | retired_home.keys()) == 13182
     # 2026-10-31: 13,138 -> 13,149, +11 documented symbols: the eight public
     # callables above plus the nested helpers _CrampedScroll._fit_content.tallest
     # and MakeMasksScreen._hold_the_title_bar_to_its_text.measure and
