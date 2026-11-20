@@ -18,16 +18,19 @@ import pytest
 from spacr import portable_paths
 
 
-def test_a_blank_path_is_returned_untouched(tmp_path):
-    """Whitespace is not a path; it comes back unchanged with no prefix."""
-    assert portable_paths._reroot_with_prefix("   ", str(tmp_path)) == \
-        ("   ", None)
-
-
-def test_a_non_string_path_is_returned_untouched(tmp_path):
-    """A NaN or None in a path column is handed straight back."""
-    assert portable_paths._reroot_with_prefix(None, str(tmp_path)) == \
-        (None, None)
+@pytest.mark.parametrize('value, expected', [
+    pytest.param(
+        '   ', ('   ', None),
+        id='test_a_blank_path_is_returned_untouched',
+    ),
+    pytest.param(
+        None, (None, None),
+        id='test_a_non_string_path_is_returned_untouched',
+    ),
+])
+def test_unusable_paths_keep_their_original_values_and_absent_prefixes(tmp_path, value, expected):
+    """Preserve the original values and absent prefixes for unusable paths."""
+    assert portable_paths._reroot_with_prefix(value, str(tmp_path)) == expected
 
 
 def test_a_report_counts_as_its_moved_number():

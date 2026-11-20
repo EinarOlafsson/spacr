@@ -1,0 +1,178 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_cov_14_portable_paths.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_14_portable_paths.py::test_a_blank_path_is_returned_untouched": "tests/test_cov_14_portable_paths.py::test_unusable_paths_keep_their_original_values_and_absent_prefixes[test_a_blank_path_is_returned_untouched]",
+    "tests/test_cov_14_portable_paths.py::test_a_non_string_path_is_returned_untouched": "tests/test_cov_14_portable_paths.py::test_unusable_paths_keep_their_original_values_and_absent_prefixes[test_a_non_string_path_is_returned_untouched]"
+  },
+  "path_sentinel_and_native_output_tuple_contracts": {
+    "test_a_blank_path_is_returned_untouched": [
+      "   ",
+      [
+        "   ",
+        null
+      ]
+    ],
+    "test_a_non_string_path_is_returned_untouched": [
+      null,
+      [
+        null,
+        null
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_blank_path_is_returned_untouched": "('   ', ('   ', None))",
+    "test_a_non_string_path_is_returned_untouched": "(None, (None, None))"
+  },
+  "contract_scope": "Exact three-space string or None input, independent original (value,None) expected tuple, tmp_path fixture and str(tmp_path), portable_paths._reroot_with_prefix positional call and native ordered tuple equality retained. All other imports/report metadata/source-root/existing-crop cases retain AST and relative order.",
+  "collected_before": [
+    "tests/test_cov_14_portable_paths.py::test_no_database_path_has_no_source_root",
+    "tests/test_cov_14_portable_paths.py::test_a_blank_path_is_returned_untouched",
+    "tests/test_cov_14_portable_paths.py::test_a_database_path_yields_the_folder_above_measurements",
+    "tests/test_cov_14_portable_paths.py::test_an_existing_crop_path_is_neither_moved_nor_reported_missing",
+    "tests/test_cov_14_portable_paths.py::test_a_non_string_path_is_returned_untouched",
+    "tests/test_cov_14_portable_paths.py::test_a_report_counts_as_its_moved_number"
+  ],
+  "collected_after": [
+    "tests/test_cov_14_portable_paths.py::test_an_existing_crop_path_is_neither_moved_nor_reported_missing",
+    "tests/test_cov_14_portable_paths.py::test_no_database_path_has_no_source_root",
+    "tests/test_cov_14_portable_paths.py::test_unusable_paths_keep_their_original_values_and_absent_prefixes[test_a_non_string_path_is_returned_untouched]",
+    "tests/test_cov_14_portable_paths.py::test_a_database_path_yields_the_folder_above_measurements",
+    "tests/test_cov_14_portable_paths.py::test_unusable_paths_keep_their_original_values_and_absent_prefixes[test_a_blank_path_is_returned_untouched]",
+    "tests/test_cov_14_portable_paths.py::test_a_report_counts_as_its_moved_number"
+  ],
+  "tests_before": {
+    "passed": 6,
+    "seconds": 3.64
+  },
+  "tests_after": {
+    "passed": 6,
+    "seconds": 3.71
+  },
+  "coverage_scope": "spacr.portable_paths under the complete selected path-sentinel/report/source-root/existing-crop module; not full-suite coverage. Only existing tiny local files and DataFrame fixtures; no new production reader, GUI/chart rendering, model training, network or GPU work.",
+  "coverage_before": {
+    "covered_lines": 94,
+    "num_statements": 318,
+    "percent_covered": 24.481327800829874,
+    "percent_covered_display": "24",
+    "missing_lines": 224,
+    "excluded_lines": 0,
+    "percent_statements_covered": 29.559748427672957,
+    "percent_statements_covered_display": "30",
+    "num_branches": 164,
+    "num_partial_branches": 16,
+    "covered_branches": 24,
+    "missing_branches": 140,
+    "percent_branches_covered": 14.634146341463415,
+    "percent_branches_covered_display": "15"
+  },
+  "coverage_after": {
+    "covered_lines": 94,
+    "num_statements": 318,
+    "percent_covered": 24.481327800829874,
+    "percent_covered_display": "24",
+    "missing_lines": 224,
+    "excluded_lines": 0,
+    "percent_statements_covered": 29.559748427672957,
+    "percent_statements_covered_display": "30",
+    "num_branches": 164,
+    "num_partial_branches": 16,
+    "covered_branches": 24,
+    "missing_branches": 140,
+    "percent_branches_covered": 14.634146341463415,
+    "percent_branches_covered_display": "15"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "aab74c04b914bb3ee1a5d11d740696beae6a8599135ffa926d476146c2c150c7",
+  "production_source_sha256": "ee7182c138c5f50625a001f16b5e73e4c84546a6bb8b13122e7a0f3e85d0750f",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_report_metadata_source_root_existing_crop_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "blank-path-trimmed",
+      "source_variant": {
+        "path": "spacr/portable_paths.py",
+        "line": 159,
+        "old": "if not path or not isinstance(path, str) or not path.strip():\n        return path, None",
+        "new": "if not path or not isinstance(path, str) or not path.strip():\n        return path.strip() if isinstance(path, str) else path, None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_14_portable_paths.py::test_a_blank_path_is_returned_untouched"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_14_portable_paths.py::test_a_blank_path_is_returned_untouched"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_14_portable_paths.py::test_unusable_paths_keep_their_original_values_and_absent_prefixes[test_a_blank_path_is_returned_untouched]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_14_portable_paths.py::test_unusable_paths_keep_their_original_values_and_absent_prefixes[test_a_blank_path_is_returned_untouched]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "missing-path-stringified",
+      "source_variant": {
+        "path": "spacr/portable_paths.py",
+        "line": 159,
+        "old": "if not path or not isinstance(path, str) or not path.strip():\n        return path, None",
+        "new": "if not path or not isinstance(path, str) or not path.strip():\n        return str(path), None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_14_portable_paths.py::test_a_non_string_path_is_returned_untouched"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_14_portable_paths.py::test_a_non_string_path_is_returned_untouched"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_14_portable_paths.py::test_unusable_paths_keep_their_original_values_and_absent_prefixes[test_a_non_string_path_is_returned_untouched]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_14_portable_paths.py::test_unusable_paths_keep_their_original_values_and_absent_prefixes[test_a_non_string_path_is_returned_untouched]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in _reroot_with_prefix before and after: strip a blank string before returning it; stringify None before returning it. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native ordered tuple equality. Exact three-space/None input types, expected sentinel tuples and temporary-root fixture retained. Repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_14_portable_paths.py",
+      "line": 32,
+      "symbol": "test_unusable_paths_keep_their_original_values_and_absent_prefixes",
+      "new": "Preserve the original values and absent prefixes for unusable paths.",
+      "old": {
+        "test_a_blank_path_is_returned_untouched": "Whitespace is not a path; it comes back unchanged with no prefix.",
+        "test_a_non_string_path_is_returned_untouched": "A NaN or None in a path column is handed straight back."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
