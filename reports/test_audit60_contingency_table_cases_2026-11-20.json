@@ -1,0 +1,224 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_coverage_fill_stats.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_coverage_fill_stats.py::test_chi_pairwise_quiet": "tests/test_coverage_fill_stats.py::test_original_contingency_tables_keep_their_pairwise_results[test_chi_pairwise_quiet]",
+    "tests/test_coverage_fill_stats.py::test_chi_pairwise_large_table_chi_square": "tests/test_coverage_fill_stats.py::test_original_contingency_tables_keep_their_pairwise_results[test_chi_pairwise_large_table_chi_square]"
+  },
+  "count_records_index_labels_and_native_result_contracts": {
+    "test_chi_pairwise_quiet": [
+      {
+        "a": [
+          5,
+          10
+        ],
+        "b": [
+          8,
+          6
+        ]
+      },
+      [
+        "p",
+        "q"
+      ]
+    ],
+    "test_chi_pairwise_large_table_chi_square": [
+      {
+        "cond_a": [
+          30,
+          25,
+          40,
+          15
+        ],
+        "cond_b": [
+          20,
+          35,
+          10,
+          45
+        ],
+        "cond_c": [
+          15,
+          20,
+          25,
+          30
+        ]
+      },
+      [
+        "w",
+        "x",
+        "y",
+        "z"
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_chi_pairwise_quiet": "({'a': [5, 10], 'b': [8, 6]}, ['p', 'q'])",
+    "test_chi_pairwise_large_table_chi_square": "({'cond_a': [30, 25, 40, 15], 'cond_b': [20, 35, 10, 45], 'cond_c': [15, 20, 25, 30]}, ['w', 'x', 'y', 'z'])"
+  },
+  "contract_scope": "Exact original ordered integer count columns and string index lists, fresh pd.DataFrame(records,index=index), raw assignment, ST.chi_pairwise(raw,verbose=False), out assignment and native assert out is not None retained. Every other import/helper/seeded normality/group comparison/paired/posthoc/verbose/tiny-sample case retains AST and relative order. Original assertions are not strengthened or weakened.",
+  "collected_before": [
+    "tests/test_coverage_fill_stats.py::test_stat_tests_paired_branch",
+    "tests/test_coverage_fill_stats.py::test_stat_tests_multi_group_non_normal_kruskal",
+    "tests/test_coverage_fill_stats.py::test_posthoc_test_follows_normality[dunn-when-not-normal]",
+    "tests/test_coverage_fill_stats.py::test_normality_small_sample_shapiro",
+    "tests/test_coverage_fill_stats.py::test_chi_pairwise_large_table_chi_square",
+    "tests/test_coverage_fill_stats.py::test_stat_tests_multi_group_anova_or_kruskal",
+    "tests/test_coverage_fill_stats.py::test_normality_tiny_group_uses_shapiro",
+    "tests/test_coverage_fill_stats.py::test_stat_tests_two_group_ttest_or_mwu",
+    "tests/test_coverage_fill_stats.py::test_chi_pairwise_verbose",
+    "tests/test_coverage_fill_stats.py::test_normality_large_sample_dagostino",
+    "tests/test_coverage_fill_stats.py::test_stat_tests_two_group_non_normal_mwu",
+    "tests/test_coverage_fill_stats.py::test_chi_pairwise_quiet",
+    "tests/test_coverage_fill_stats.py::test_posthoc_test_follows_normality[tukey-when-normal]",
+    "tests/test_coverage_fill_stats.py::test_posthoc_two_groups_returns_empty"
+  ],
+  "collected_after": [
+    "tests/test_coverage_fill_stats.py::test_original_contingency_tables_keep_their_pairwise_results[test_chi_pairwise_large_table_chi_square]",
+    "tests/test_coverage_fill_stats.py::test_stat_tests_multi_group_anova_or_kruskal",
+    "tests/test_coverage_fill_stats.py::test_stat_tests_paired_branch",
+    "tests/test_coverage_fill_stats.py::test_stat_tests_two_group_non_normal_mwu",
+    "tests/test_coverage_fill_stats.py::test_chi_pairwise_verbose",
+    "tests/test_coverage_fill_stats.py::test_original_contingency_tables_keep_their_pairwise_results[test_chi_pairwise_quiet]",
+    "tests/test_coverage_fill_stats.py::test_posthoc_two_groups_returns_empty",
+    "tests/test_coverage_fill_stats.py::test_normality_small_sample_shapiro",
+    "tests/test_coverage_fill_stats.py::test_posthoc_test_follows_normality[tukey-when-normal]",
+    "tests/test_coverage_fill_stats.py::test_normality_large_sample_dagostino",
+    "tests/test_coverage_fill_stats.py::test_stat_tests_multi_group_non_normal_kruskal",
+    "tests/test_coverage_fill_stats.py::test_normality_tiny_group_uses_shapiro",
+    "tests/test_coverage_fill_stats.py::test_stat_tests_two_group_ttest_or_mwu",
+    "tests/test_coverage_fill_stats.py::test_posthoc_test_follows_normality[dunn-when-not-normal]"
+  ],
+  "tests_before": {
+    "passed": 14,
+    "seconds": 8.81
+  },
+  "tests_after": {
+    "passed": 14,
+    "seconds": 6.41
+  },
+  "coverage_scope": "spacr.sp_stats under the complete selected normality/group-comparison/posthoc/contingency module; not full-suite coverage. Existing tiny seeded NumPy/Pandas data and CPU statistical tests only; no chart creation/rendering, model training, new reader, network or GPU work. Production settings unchanged.",
+  "coverage_before": {
+    "covered_lines": 422,
+    "num_statements": 3947,
+    "percent_covered": 8.670849971477468,
+    "percent_covered_display": "9",
+    "missing_lines": 3525,
+    "excluded_lines": 0,
+    "percent_statements_covered": 10.6916645553585,
+    "percent_statements_covered_display": "11",
+    "num_branches": 1312,
+    "num_partial_branches": 6,
+    "covered_branches": 34,
+    "missing_branches": 1278,
+    "percent_branches_covered": 2.591463414634146,
+    "percent_branches_covered_display": "3"
+  },
+  "coverage_after": {
+    "covered_lines": 422,
+    "num_statements": 3947,
+    "percent_covered": 8.670849971477468,
+    "percent_covered_display": "9",
+    "missing_lines": 3525,
+    "excluded_lines": 0,
+    "percent_statements_covered": 10.6916645553585,
+    "percent_statements_covered_display": "11",
+    "num_branches": 1312,
+    "num_partial_branches": 6,
+    "covered_branches": 34,
+    "missing_branches": 1278,
+    "percent_branches_covered": 2.591463414634146,
+    "percent_branches_covered_display": "3"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "ee8c1e3f9f27aeaeac4b5bb25564acd762ed5b973ca54348ac954ef88ff688a4",
+  "production_source_sha256": "cf8364771377311e6617c0aab4625390797d1a322455ef727aaf7a90285b741d",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_helpers_seeded_normality_group_comparison_paired_posthoc_verbose_tiny_sample_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "two-category-result-discarded",
+      "source_variant": {
+        "path": "spacr/sp_stats.py",
+        "line": 460,
+        "old": "return pairwise_df",
+        "new": "return None if raw_counts.shape[1] == 2 else pairwise_df"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_coverage_fill_stats.py::test_chi_pairwise_quiet"
+        ],
+        "failure_summary_lines": [
+          "tests/test_coverage_fill_stats.py::test_chi_pairwise_quiet - assert No..."
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_coverage_fill_stats.py::test_original_contingency_tables_keep_their_pairwise_results[test_chi_pairwise_quiet]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_coverage_fill_stats.py::test_original_contingency_tables_keep_their_pairwise_results[test_chi_pairwise_quiet]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "three-category-result-discarded",
+      "source_variant": {
+        "path": "spacr/sp_stats.py",
+        "line": 460,
+        "old": "return pairwise_df",
+        "new": "return None if raw_counts.shape[1] > 2 else pairwise_df"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_coverage_fill_stats.py::test_chi_pairwise_large_table_chi_square"
+        ],
+        "failure_summary_lines": [
+          "tests/test_coverage_fill_stats.py::test_chi_pairwise_large_table_chi_square"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_coverage_fill_stats.py::test_original_contingency_tables_keep_their_pairwise_results[test_chi_pairwise_large_table_chi_square]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_coverage_fill_stats.py::test_original_contingency_tables_keep_their_pairwise_results[test_chi_pairwise_large_table_chi_square]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in chi_pairwise before and after: discard the computed result for raw tables with two categories; discard the result for raw tables with more than two categories. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native assert out is not None. This sample checks preservation of the original result-presence assertions; it makes no stronger statistical correctness claim. Original count/index types and order retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_coverage_fill_stats.py",
+      "line": 163,
+      "symbol": "test_original_contingency_tables_keep_their_pairwise_results",
+      "new": "Retain a pairwise result for each original contingency table.",
+      "old": {
+        "test_chi_pairwise_quiet": null,
+        "test_chi_pairwise_large_table_chi_square": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

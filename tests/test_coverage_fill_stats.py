@@ -149,8 +149,19 @@ def test_chi_pairwise_verbose(capsys):
     assert out is not None
 
 
-def test_chi_pairwise_quiet():
-    raw = pd.DataFrame({"a": [5, 10], "b": [8, 6]}, index=["p", "q"])
+@pytest.mark.parametrize('records, index', [
+    pytest.param(
+        {'a': [5, 10], 'b': [8, 6]}, ['p', 'q'],
+        id='test_chi_pairwise_quiet',
+    ),
+    pytest.param(
+        {'cond_a': [30, 25, 40, 15], 'cond_b': [20, 35, 10, 45], 'cond_c': [15, 20, 25, 30]}, ['w', 'x', 'y', 'z'],
+        id='test_chi_pairwise_large_table_chi_square',
+    ),
+])
+def test_original_contingency_tables_keep_their_pairwise_results(records, index):
+    """Retain a pairwise result for each original contingency table."""
+    raw = pd.DataFrame(records, index=index)
     out = ST.chi_pairwise(raw, verbose=False)
     assert out is not None
 
@@ -164,15 +175,3 @@ def test_normality_tiny_group_uses_shapiro():
     is_normal, results = ST.perform_normality_tests(df, "grp", ["val"])
     names = [r.get("Test") or r.get("Test Name") for r in results]
     assert any("Shapiro" in str(n) for n in names) or results
-
-
-def test_chi_pairwise_large_table_chi_square():
-    # A contingency table larger than 2x2 uses the Chi-Square branch
-    # (225-226) rather than Fisher's exact.
-    raw = pd.DataFrame({
-        "cond_a": [30, 25, 40, 15],
-        "cond_b": [20, 35, 10, 45],
-        "cond_c": [15, 20, 25, 30],
-    }, index=["w", "x", "y", "z"])
-    out = ST.chi_pairwise(raw, verbose=False)
-    assert out is not None
