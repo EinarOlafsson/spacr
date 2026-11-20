@@ -16374,7 +16374,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 10480,
+    "line": 10476,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -16383,7 +16383,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 10811,
+    "line": 10807,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ops_admitted_run"
@@ -20571,7 +20571,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "genotype_source",
-    "line": 10474,
+    "line": 10470,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -20580,7 +20580,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "genotype_source",
-    "line": 10811,
+    "line": 10807,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ops_admitted_run"
@@ -38578,7 +38578,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_archive_delete_local",
-    "line": 10684,
+    "line": 10680,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -38587,7 +38587,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_archive_delete_local",
-    "line": 10886,
+    "line": 10882,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_archive_resume"
@@ -38607,7 +38607,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_archive_root",
-    "line": 10573,
+    "line": 10569,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -38636,7 +38636,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_archive_verify",
-    "line": 10845,
+    "line": 10841,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_archive_verify"
@@ -39628,7 +39628,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_compare_match",
-    "line": 10467,
+    "line": 10463,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -39795,7 +39795,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_compare_tables",
-    "line": 10698,
+    "line": 10694,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -40434,7 +40434,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_control_prefix",
-    "line": 10736,
+    "line": 10732,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -41510,7 +41510,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_deterministic_blas",
-    "line": 10415,
+    "line": 10411,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -41519,7 +41519,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_deterministic_blas",
-    "line": 10434,
+    "line": 10430,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -41528,7 +41528,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_deterministic_blas",
-    "line": 10453,
+    "line": 10449,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -41537,7 +41537,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_deterministic_blas",
-    "line": 10463,
+    "line": 10459,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -43167,7 +43167,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu",
-    "line": 10491,
+    "line": 10487,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -43232,7 +43232,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu_admission",
-    "line": 10402,
+    "line": 10398,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -43241,7 +43241,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu_admission",
-    "line": 10581,
+    "line": 10577,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -43901,7 +43901,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_layout",
-    "line": 10419,
+    "line": 10415,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -43939,7 +43939,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_library",
-    "line": 10495,
+    "line": 10491,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -46864,7 +46864,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_secondary_channels",
-    "line": 10544,
+    "line": 10540,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -46873,7 +46873,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_ph_secondary_channels",
-    "line": 10545,
+    "line": 10541,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -47672,7 +47672,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_sim",
-    "line": 10409,
+    "line": 10405,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -50349,7 +50349,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_stress_report",
-    "line": 10731,
+    "line": 10727,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -61807,7 +61807,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "phenotype_source",
-    "line": 10524,
+    "line": 10520,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -62676,7 +62676,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate",
-    "line": 10489,
+    "line": 10485,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -62685,7 +62685,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate",
-    "line": 10813,
+    "line": 10809,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ops_admitted_run"
@@ -72201,7 +72201,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_anndata",
-    "line": 13260,
+    "line": 13256,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72221,7 +72221,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 13138,
+    "line": 13134,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72230,7 +72230,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 13200,
+    "line": 13196,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72268,7 +72268,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_cell_expansion_um",
-    "line": 12830,
+    "line": 12826,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72288,7 +72288,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_cellpose_model",
-    "line": 12877,
+    "line": 12873,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72380,7 +72380,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_diameter",
-    "line": 12828,
+    "line": 12824,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72490,7 +72490,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_dst",
-    "line": 12808,
+    "line": 12804,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72510,7 +72510,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_gene",
-    "line": 13293,
+    "line": 13289,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72530,7 +72530,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_gpu",
-    "line": 12878,
+    "line": 12874,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72550,7 +72550,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_level",
-    "line": 12789,
+    "line": 12785,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72570,7 +72570,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_masks_dir",
-    "line": 13097,
+    "line": 13093,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72619,7 +72619,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_min_pathogen_transcripts",
-    "line": 13258,
+    "line": 13254,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72639,7 +72639,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_min_qv",
-    "line": 13139,
+    "line": 13135,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72648,7 +72648,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_min_qv",
-    "line": 13140,
+    "line": 13136,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72688,7 +72688,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_objects",
-    "line": 13129,
+    "line": 13125,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72708,7 +72708,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_pathogen_genes",
-    "line": 13257,
+    "line": 13253,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72728,7 +72728,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_platform",
-    "line": 12786,
+    "line": 12782,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72737,7 +72737,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_platform",
-    "line": 13137,
+    "line": 13133,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72766,7 +72766,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_sample",
-    "line": 12810,
+    "line": 12806,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72786,7 +72786,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_segmenter",
-    "line": 12824,
+    "line": 12820,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72806,7 +72806,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_source",
-    "line": 12781,
+    "line": 12777,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72815,7 +72815,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_source",
-    "line": 13096,
+    "line": 13092,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -72844,7 +72844,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_stain",
-    "line": 12823,
+    "line": 12819,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72864,7 +72864,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_tile_overlap",
-    "line": 12801,
+    "line": 12797,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72884,7 +72884,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_tile_size",
-    "line": 12800,
+    "line": 12796,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72904,7 +72904,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_window",
-    "line": 12793,
+    "line": 12789,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -72924,7 +72924,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_window_unit",
-    "line": 12794,
+    "line": 12790,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
