@@ -72,7 +72,7 @@ def _batch_plan(path, settings):
              'mask_eval_batch_size': _eval_tile_batch(settings, 0)}
     plan = {'format': 1, 'settings': basis, 'groups': []}
     if path is not None and path.is_file():
-        plan = json.loads(path.read_text())
+        plan = json.loads(path.read_text(encoding='utf-8'))
         if plan.get('format') != 1 or plan.get('settings') != basis:
             from .qt.i18n import tr
 
@@ -145,7 +145,7 @@ def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields):
             known.update((name, group) for name in group['records'])
             plan_path.parent.mkdir(parents=True, exist_ok=True)
             temporary = plan_path.with_name(plan_path.name + '.part')
-            temporary.write_text(json.dumps(plan, indent=1))
+            temporary.write_text(json.dumps(plan, indent=1), encoding='utf-8')
             os.replace(temporary, plan_path)
         packed = np.concatenate([np.ascontiguousarray(value).view(np.uint8).reshape(-1)
                                  for value in images])
