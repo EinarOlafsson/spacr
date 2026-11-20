@@ -1,0 +1,229 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_test_directory": "tests (root-level module only)",
+  "changed_file": "tests/test_cov_r8_single_gap_modules_a.py",
+  "definition_reduction": 2,
+  "change": "Generalize interior, below-floor and above-ceiling clamp cases with exact float values, bounds, results, assertions and original names.",
+  "case_mapping": {
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_a_value_inside_the_range_comes_back_unchanged": "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_values_keep_the_original_clamp_bounds[test_a_value_inside_the_range_comes_back_unchanged]",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_below_the_floor_returns_the_floor": "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_values_keep_the_original_clamp_bounds[test_below_the_floor_returns_the_floor]",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_above_the_ceiling_returns_the_ceiling": "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_values_keep_the_original_clamp_bounds[test_above_the_ceiling_returns_the_ceiling]"
+  },
+  "case_contracts_value_low_high_expected": {
+    "test_a_value_inside_the_range_comes_back_unchanged": [
+      2.5,
+      1.0,
+      6.0,
+      2.5
+    ],
+    "test_below_the_floor_returns_the_floor": [
+      -100.0,
+      1.0,
+      6.0,
+      1.0
+    ],
+    "test_above_the_ceiling_returns_the_ceiling": [
+      1000000000.0,
+      1.0,
+      6.0,
+      6.0
+    ]
+  },
+  "collected_before": [
+    "tests/test_cov_r8_single_gap_modules_a.py::TestExplainingAPresetThatNamesNothing::test_a_member_less_preset_prints_no_covers_line",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestExplainingAPresetThatNamesNothing::test_custom_is_the_preset_with_no_members",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_above_the_ceiling_returns_the_ceiling",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_the_bounds_themselves_are_inside",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_below_the_floor_returns_the_floor",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_a_value_inside_the_range_comes_back_unchanged",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_the_defaults_it_exists_to_hold_are_within_their_own_range",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestTheClimbNeverRepeatsItself::test_the_duplicate_guard_cannot_fire"
+  ],
+  "collected_after": [
+    "tests/test_cov_r8_single_gap_modules_a.py::TestTheClimbNeverRepeatsItself::test_the_duplicate_guard_cannot_fire",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_the_defaults_it_exists_to_hold_are_within_their_own_range",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_values_keep_the_original_clamp_bounds[test_below_the_floor_returns_the_floor]",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_values_keep_the_original_clamp_bounds[test_a_value_inside_the_range_comes_back_unchanged]",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_the_bounds_themselves_are_inside",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_values_keep_the_original_clamp_bounds[test_above_the_ceiling_returns_the_ceiling]",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestExplainingAPresetThatNamesNothing::test_custom_is_the_preset_with_no_members",
+    "tests/test_cov_r8_single_gap_modules_a.py::TestExplainingAPresetThatNamesNothing::test_a_member_less_preset_prints_no_covers_line"
+  ],
+  "tests_before": {
+    "passed": 8,
+    "seconds": 3.16
+  },
+  "tests_after": {
+    "passed": 8,
+    "seconds": 3.64
+  },
+  "coverage_scope": "The three modules exercised or inspected by the complete existing test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 142,
+    "num_statements": 561,
+    "percent_covered": 19.311193111931118,
+    "percent_covered_display": "19",
+    "missing_lines": 419,
+    "excluded_lines": 0,
+    "percent_statements_covered": 25.311942959001783,
+    "percent_statements_covered_display": "25",
+    "num_branches": 252,
+    "num_partial_branches": 7,
+    "covered_branches": 15,
+    "missing_branches": 237,
+    "percent_branches_covered": 5.9523809523809526,
+    "percent_branches_covered_display": "6"
+  },
+  "coverage_after": {
+    "covered_lines": 142,
+    "num_statements": 561,
+    "percent_covered": 19.311193111931118,
+    "percent_covered_display": "19",
+    "missing_lines": 419,
+    "excluded_lines": 0,
+    "percent_statements_covered": 25.311942959001783,
+    "percent_statements_covered_display": "25",
+    "num_branches": 252,
+    "num_partial_branches": 7,
+    "covered_branches": 15,
+    "missing_branches": 237,
+    "percent_branches_covered": 5.9523809523809526,
+    "percent_branches_covered_display": "6"
+  },
+  "coverage_by_module": {
+    "spacr/qt/fractal_defaults.py": {
+      "covered_lines": 23,
+      "num_statements": 23,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100",
+      "num_branches": 0,
+      "num_partial_branches": 0,
+      "covered_branches": 0,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100"
+    },
+    "spacr/organelle_types.py": {
+      "covered_lines": 74,
+      "num_statements": 220,
+      "percent_covered": 28.896103896103895,
+      "percent_covered_display": "29",
+      "missing_lines": 146,
+      "excluded_lines": 0,
+      "percent_statements_covered": 33.63636363636363,
+      "percent_statements_covered_display": "34",
+      "num_branches": 88,
+      "num_partial_branches": 7,
+      "covered_branches": 15,
+      "missing_branches": 73,
+      "percent_branches_covered": 17.045454545454547,
+      "percent_branches_covered_display": "17"
+    },
+    "spacr/portable_paths.py": {
+      "covered_lines": 45,
+      "num_statements": 318,
+      "percent_covered": 9.336099585062241,
+      "percent_covered_display": "9",
+      "missing_lines": 273,
+      "excluded_lines": 0,
+      "percent_statements_covered": 14.150943396226415,
+      "percent_statements_covered_display": "14",
+      "num_branches": 164,
+      "num_partial_branches": 0,
+      "covered_branches": 0,
+      "missing_branches": 164,
+      "percent_branches_covered": 0.0,
+      "percent_branches_covered_display": "0"
+    }
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "clamp_arc_note": "coverage.py reports no separate branch arcs for the one-line conditional expression in clamp. Its module has all 23 lines covered. Exact scalar contracts and two independent bound faults verify the three clamp behaviors; combined and per-module coverage are unchanged.",
+  "coverage_collector_warnings": {
+    "before": [
+      "........                                                                 [100%]/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/inorout.py:558: CoverageWarning: Module spacr.portable_paths was never imported. (module-not-imported); see https://coverage.readthedocs.io/en/7.16.0/messages.html#warning-module-not-imported"
+    ],
+    "after": [
+      "........                                                                 [100%]/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/inorout.py:558: CoverageWarning: Module spacr.portable_paths was never imported. (module-not-imported); see https://coverage.readthedocs.io/en/7.16.0/messages.html#warning-module-not-imported"
+    ]
+  },
+  "coverage_warning_note": "A worker assigned other cases can report an unimported source package. The combined report includes all three module files and their unchanged executed sets.",
+  "production_source_sha256": {
+    "spacr/qt/fractal_defaults.py": "12e3393f4b3f123e8265c6ebf2a642e4842009878fd22ebd5ed01f5ac7252a1b",
+    "spacr/organelle_types.py": "d4816adc45f239783f0df293a88d3efde7bbac7575186a4024ecfe1f5cd79b78",
+    "spacr/portable_paths.py": "ee7182c138c5f50625a001f16b5e73e4c84546a6bb8b13122e7a0f3e85d0750f"
+  },
+  "production_source_unchanged": true,
+  "endpoint_default_and_other_class_cases_unchanged": true,
+  "portable_paths_source_pin_unchanged": true,
+  "added_test_framework_import": "import pytest; required for the new parameter table; every other import has the original AST",
+  "mutation_sample": [
+    {
+      "mutant": "lower-clamp-skipped",
+      "source_variant": {
+        "path": "spacr/qt/fractal_defaults.py",
+        "line": 93,
+        "old": "return low if value < low else high if value > high else value",
+        "new": "return value if value < low else high if value > high else value"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_below_the_floor_returns_the_floor"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_values_keep_the_original_clamp_bounds[test_below_the_floor_returns_the_floor]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "upper-clamp-skipped",
+      "source_variant": {
+        "path": "spacr/qt/fractal_defaults.py",
+        "line": 93,
+        "old": "return low if value < low else high if value > high else value",
+        "new": "return low if value < low else value if value > high else value"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_above_the_ceiling_returns_the_ceiling"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_single_gap_modules_a.py::TestClamp::test_values_keep_the_original_clamp_bounds[test_above_the_ceiling_returns_the_ceiling]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader source faults tested against the three affected clamp cases before and after; no repository production files modified.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "new_test_docstring": {
+    "path": "tests/test_cov_r8_single_gap_modules_a.py",
+    "line": 36,
+    "text": "Clamp each original scalar at the same lower and upper bounds.",
+    "old": null
+  },
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}

@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import inspect
 
+import pytest
+
 
 # ---------------------------------------------------------------------------
 # spacr/qt/fractal_defaults.py -- clamp
@@ -22,20 +24,19 @@ class TestClamp:
     number no slider can produce.
     """
 
-    def test_a_value_inside_the_range_comes_back_unchanged(self):
+    @pytest.mark.parametrize("value, expected", [
+        pytest.param(2.5, 2.5,
+                     id="test_a_value_inside_the_range_comes_back_unchanged"),
+        pytest.param(-100.0, 1.0,
+                     id="test_below_the_floor_returns_the_floor"),
+        pytest.param(1e9, 6.0,
+                     id="test_above_the_ceiling_returns_the_ceiling"),
+    ])
+    def test_values_keep_the_original_clamp_bounds(self, value, expected):
+        """Clamp each original scalar at the same lower and upper bounds."""
         from spacr.qt.fractal_defaults import clamp
 
-        assert clamp(2.5, 1.0, 6.0) == 2.5
-
-    def test_below_the_floor_returns_the_floor(self):
-        from spacr.qt.fractal_defaults import clamp
-
-        assert clamp(-100.0, 1.0, 6.0) == 1.0
-
-    def test_above_the_ceiling_returns_the_ceiling(self):
-        from spacr.qt.fractal_defaults import clamp
-
-        assert clamp(1e9, 1.0, 6.0) == 6.0
+        assert clamp(value, 1.0, 6.0) == expected
 
     def test_the_bounds_themselves_are_inside(self):
         from spacr.qt.fractal_defaults import clamp
