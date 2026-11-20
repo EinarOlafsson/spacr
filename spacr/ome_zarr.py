@@ -159,7 +159,7 @@ import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
-from typing import (Any, Callable, Dict, Iterable, List, Mapping, Optional,
+from typing import (Any, Callable, Dict, Iterable, List, Literal, Mapping, Optional,
                     Sequence, Tuple, Union)
 
 import numpy as np
@@ -2249,7 +2249,7 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
                    channel_colors: Optional[Sequence[str]] = None,
                    overwrite: bool = False,
                    ngff_version: str = "0.4",
-                   shards: Optional[Sequence[int]] = None) -> OmeZarrImage:
+                   shards: Optional[Union[Sequence[int], Literal[False]]] = None) -> OmeZarrImage:
     """Write an array as an OME-NGFF 0.4 or 0.5 multiscale image.
 
     The defaults are chosen for compatibility with other NGFF readers:
@@ -2319,7 +2319,7 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
         pyramid's levels leaves the leftover deeper levels of the old one in
         place, and they read back as part of the new image.
     :param ngff_version: ``"0.4"`` (the default; zarr-format 2, written by
-        this module alone) or ``"0.5"`` (zarr-format 3 with sharding,
+        this module alone) or ``"0.5"`` (zarr-format 3, sharded by default,
         written through :mod:`zarr`, so it needs ``spacr[zarr]``; item 983).
         With 0.5 the default ``compressor`` is zstd at ``compression_level``
         3 unless another one is named; ``"lz4"`` (Blosc LZ4 with byte
@@ -2327,6 +2327,9 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
     :param shards: 0.5 only: the shard shape, one per axis, each a
         multiple of the chunk shape. Defaults to one shard holding the
         whole level, so one field is one file and one writer owns it.
+        Pass ``False`` to store each chunk separately without sharding;
+        ``None`` retains the whole-level shard default. The chunk shape
+        and compression settings are unchanged by this choice.
     :returns: the group, reopened with :func:`read_ome_zarr` — so the return
         value is a *read* of what was actually written, not a description of
         what was intended.
@@ -2474,13 +2477,13 @@ def _zarr_v3_group(target: Path):
 
 def _write_zarr_v3_array(group, name: str, array: np.ndarray,
                          chunks: Sequence[int],
-                         shards: Optional[Sequence[int]],
+                         shards: Optional[Union[Sequence[int], Literal[False]]],
                          compressor: Optional[str], level: int,
                          fill_value: Any, write_empty_chunks: bool) -> None:
-    """Write one level as a sharded zarr-format 3 array (item 983).
+    """Write one level as a zarr-format 3 array, sharded by default (item 983).
 
     :param shards: the shard shape, or None for one shard over the level,
-        rounded up to whole chunks.
+        rounded up to whole chunks. False stores chunks without sharding.
     :param compressor: ``"zstd"`` (also chosen for ``None`` and the 0.4
         default ``"zlib"``, so a 0.5 store is zstd unless asked otherwise),
         ``"lz4"`` (Blosc LZ4 with byte shuffle at ``level``, the fastest to
@@ -2501,7 +2504,9 @@ def _write_zarr_v3_array(group, name: str, array: np.ndarray,
         raise OmeZarrError(
             f"compressor={compressor!r} for OME-NGFF 0.5; use 'zstd', "
             f"'lz4', 'gzip' or 'none'")
-    if shards is None:
+    if shards is False:
+        shard_shape = None
+    elif shards is None:
         shard_shape = tuple(-(-int(s) // int(c)) * int(c) if s else int(c)
                             for s, c in zip(array.shape, chunks))
     else:
