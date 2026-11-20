@@ -1,3 +1,12 @@
+"""Batch plans for mask generation: which fields form each Cellpose batch, and the batches in memory.
+
+Mask generation records its batches in ``masks/batch_plan.json`` instead of
+writing ``.npz`` image stacks: the plan lists each batch's fields, channels
+and normalisation, and each batch is built in memory from the source images
+when it is segmented. The batch size is chosen to fit the free GPU memory and
+RAM when ``batch_size`` is automatic. Internal to :mod:`spacr.io`,
+:mod:`spacr.core` and :mod:`spacr.object`.
+"""
 from __future__ import annotations
 
 import json
