@@ -29,6 +29,13 @@ def test_standard_is_a_reviewed_same_spelling_word_in_swedish_german_and_french(
         assert not builder._translation_rejection_reasons('Standard', 'Standard', language, force=True)
 
 
+def test_phases_is_a_reviewed_same_spelling_word_in_french():
+    import build_i18n_catalogs as builder
+
+    assert builder._reviewed_translation('Phases', 'fr') == 'Phases'
+    assert not builder._translation_rejection_reasons('Phases', 'Phases', 'fr', force=True)
+
+
 def test_pdf_plural_preserves_format_identity_without_forcing_english_grammar():
     import build_i18n_catalogs as builder
 

@@ -3773,6 +3773,13 @@ MANUAL_UI['Load the example images…'] = {
 }
 
 
+# 2026-11-20 (item 977): French spells the ops.ops_phases setting label "Phases"
+# as English does, so the exact-English gate would refuse the right answer.
+# Written here, not in MANUAL_UI: a MANUAL_UI row is also a static UI caption,
+# and "Phases" is only a setting label.
+MANUAL_TRANSLATIONS["Phases"] = {"fr": "Phases"}
+
+
 MANUAL_TRANSLATIONS["Power hit rate"] = {
     "sv": "Effektens träfffrekvens",
     "de": "Trefferquote der Teststärke",

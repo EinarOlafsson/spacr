@@ -1156,11 +1156,77 @@ def _run_merge(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         per_field.append({"site": int(site), "cells": int(len(group)),
                           "matched": int(matched)})
     placed = pd.concat(points, ignore_index=True) if points else pd.DataFrame()
+    profiles = _profiles_root() if ctx.test_root is not None else None
+    if profiles is not None:
+        genes, used = _profile_genes(ctx.settings, profiles), {
+            "kind": "profiles", "path": str(profiles), "base": used}
     return {"report": merge_report, "used": used, "genes": genes,
             "merged": merged, "objects": objects, "cells": placed,
             "per_field": per_field, "align": align,
             "aggregate": {k: v for k, v in (aggregate.get("aggregate") or {}).items()
                           if not isinstance(v, (dict, list))}}
+
+
+def _profiles_root() -> Optional[Path]:
+    """The unpacked OPS profiles archive (item 977), or None.
+
+    It unpacks beside the full tier of the OPS end-to-end test data and holds
+    the cells of 98 CORUM-complex genes and the non-targeting guides of wells
+    A1-A3, enough cells per gene for the aggregation and clustering tabs.
+    """
+    from .example_archives import OPS_E2E_FULL_FOLDER, example_set_folder
+
+    root = (example_set_folder("ops_e2e").parent / OPS_E2E_FULL_FOLDER
+            / "ops_testdata_funk2022_A1_profiles")
+    return root if (root / "profiles_cells.parquet").is_file() else None
+
+
+def _profile_genes(settings: Mapping[str, Any], root: Path):
+    """The profiles archive's cells reduced to genes, as the aggregate phase reduces them.
+
+    Every feature becomes a robust z against the same well's non-targeting
+    cells, a guide is the median of its cells and a gene the median of its
+    guides (or of its cells, with ``ops_aggregate_level`` 'cells'), with the
+    functions :func:`spacr.ops_engine._ph_aggregate` uses.
+
+    :param settings: read for ``ops_control_prefix`` and ``ops_aggregate_level``.
+    :param root: from :func:`_profiles_root`.
+    :returns: one row per gene with ``n_cells``.
+    """
+    import pandas as pd
+
+    from .gene_measurement_compare import (aggregate_genes, aggregate_guides,
+                                           robust_z_to_controls)
+    from .ops_engine import _ph_feature_columns
+
+    cells = pd.read_parquet(root / "profiles_cells.parquet")
+    features = [c for c in _ph_feature_columns(cells.columns)
+                if pd.api.types.is_numeric_dtype(cells[c])]
+    prefix = str(settings.get("ops_control_prefix") or "nontargeting").lower()
+    control = cells["gene"].astype(str).str.lower().str.startswith(prefix)
+    scored = pd.concat([cells[["well", "sgRNA", "gene"]].reset_index(drop=True),
+                        robust_z_to_controls(cells, features, control=control
+                                             ).reset_index(drop=True)], axis=1)
+    level = str(settings.get("ops_aggregate_level") or "guides").strip().lower()
+    guides = aggregate_guides(scored, features, guide="sgRNA", gene="gene")
+    return aggregate_genes(guides, features, level=level, cells=scored)
+
+
+def _string_score(genes: Sequence[str], labels, prefix: str) -> Optional[Dict[str, float]]:
+    """STRING precision and recall of the pairs that share a cluster, or None.
+
+    Read from the profiles archive's ``references/string_pair_benchmark.tsv``
+    with :func:`spacr.ops_clusters.string_cluster_pairs`; KEGG and CORUM are
+    not shipped, so STRING alone scores the preview.
+    """
+    root = _profiles_root()
+    table = root / "references" / "string_pair_benchmark.tsv" if root else None
+    if labels is None or table is None or not table.is_file():
+        return None
+    from .ops_clusters import read_benchmark, string_cluster_pairs, string_positives
+
+    return string_cluster_pairs(string_positives(read_benchmark(str(table))),
+                                list(genes), np.asarray(labels), control_prefix=prefix)
 
 
 def _first(value: Any, cast, fallback):
@@ -1223,6 +1289,7 @@ def _run_cluster(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     except ImportError:
         note = "install the clustering extra (pip install spacr[clustering]) to see the clusters"
     return {"genes": kept["gene"].astype(str).tolist(), "components": components,
+            "string": _string_score(kept["gene"].astype(str).tolist(), labels, prefix),
             "n_components": n_components, "n_features": n_features,
             "labels": labels, "kind": kind, "k": k, "resolution": resolution,
             "seed": seed, "floor": floor, "note": note,

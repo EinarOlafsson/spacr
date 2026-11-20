@@ -440,9 +440,13 @@ def _draw_merge(result: Mapping[str, Any], colours, size):
             for _i, r in ordered.head(_TABLE_ROWS).iterrows()]
     report = result.get("report") or {}
     used = result.get("used") or {}
-    inputs = (tr("the test data's stored nuclei, calls and cells")
-              if used.get("kind") == "test" else
-              tr("the run in {path}", path=used.get("path", "")))
+    if used.get("kind") == "profiles":
+        inputs = tr("the test data's stored nuclei, calls and cells; "
+                    "genes from the OPS profiles archive (wells A1-A3)")
+    elif used.get("kind") == "test":
+        inputs = tr("the test data's stored nuclei, calls and cells")
+    else:
+        inputs = tr("the run in {path}", path=used.get("path", ""))
     sample = tr("{merged} of {cells} cells matched; inputs: {used}",
                 merged=report.get("merged", "?"), cells=report.get("cells", "?"),
                 used=inputs)
@@ -488,7 +492,11 @@ def _draw_cluster(result: Mapping[str, Any], colours, size):
             members = genes[np.asarray(labels) == cluster]
             rows.append([str(int(cluster)), str(len(members)),
                          ", ".join(members[:12]) + (" …" if len(members) > 12 else "")])
-    sizes_ax.set_title(tr("Cluster sizes"), fontsize=8)
+    string = result.get("string")
+    sizes_ax.set_title(tr("Cluster sizes") if not string else tr(
+        "Cluster sizes; STRING pairs in clusters: precision {p:.2f}, recall {r:.2f}",
+        p=float(string.get("precision", 0.0)), r=float(string.get("recall", 0.0))),
+        fontsize=8)
     header = [tr("Cluster"), tr("Genes"), tr("Members")]
     sample = tr("{n} of {total} genes with at least {floor} cells",
                 n=len(components), total=result["total_genes"], floor=result["floor"])

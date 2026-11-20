@@ -1,0 +1,25 @@
+OPS: A SETTINGS FILE NAMES ITS OWN PHASES (ops_phases), AND THE PROFILES TEST ARCHIVE
+=====================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-18 (ops_phases), alpha (ALPHA_FEATURES[977]). The profiles archive ops_testdata_funk2022_A1_profiles is built from a spaCR settings-file run and waits for the maintainer's publish. spacr/ops_engine.py (_run_phases), spacr/ops_settings.py, spacr/settings.py, tests/test_ops_phases_setting_977.py.
+Requested: maintainer decision 2026-11-17/18 (via the master session): the OPS Live preview's aggregation and clustering need a deeper test set, built by spaCR itself from a settings file that reruns to identical output.
+Owner: master lane claude-977-1118.
+Related: 971 (OPS Live preview), 940 (phenotype placement seed), 951 (ops_sites).
+
+PROBLEM
+spacr-run ops <file> calls run_ops(settings) with no phase list, so it
+always ran stitch, phenotype, objects and decode. A settings file could not
+reproduce a run that went on to segment and measure the phenotype fields,
+merge them with the calls and aggregate them.
+
+BUILD
+- ops_phases (str, list or None; default None): the phases a run without
+  its own phase list runs, in order. run_ops resolves them with
+  _run_phases: the caller's phases win; an empty setting keeps the four
+  default phases (the default run is byte-identical); an unknown phase is
+  refused by name before any folder is read or written.
+
+NOTES
+- 2026-11-18: built; the archive's per-well settings files name their
+  phases, and its README records the spacr-run identity check.

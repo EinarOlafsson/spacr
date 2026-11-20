@@ -89,7 +89,10 @@ CANCELLED = "Cancelled by user."
 
 _OPS_TEST_FOLDER = "ops_testdata_funk2022_A1"
 
-_OPS_TEST_ARCHIVES = (OPS_E2E_FULL_ARCHIVE, OPS_E2E_REFERENCE_ARCHIVES["full"])
+_OPS_TEST_ARCHIVES = (OPS_E2E_FULL_ARCHIVE, OPS_E2E_REFERENCE_ARCHIVES["full"],
+                      "ops_testdata_funk2022_A1_profiles.tar")
+
+_OPS_PROFILES_FOLDER = "ops_testdata_funk2022_A1_profiles"
 
 
 def example_folder(which: str) -> Path:
@@ -132,8 +135,9 @@ def _ops_test_files(folder: Path) -> List[str]:
     """Every file the OPS test data's ``SHA256SUMS`` lists, under ``folder``.
 
     :param folder: where the OPS test data was unpacked.
-    :returns: paths relative to ``folder``; empty when the checksum list or
-        the revision-2 reference addendum is missing.
+    :returns: paths relative to ``folder``, the profiles archive's (item 977)
+        included; empty when a checksum list or the revision-2 reference
+        addendum is missing.
     """
     root = folder / _OPS_TEST_FOLDER
     sums = root / "SHA256SUMS"
@@ -146,7 +150,15 @@ def _ops_test_files(folder: Path) -> List[str]:
         return []
     names = [line.split(None, 1)[1].strip().lstrip("*") for line in lines
              if len(line.split(None, 1)) == 2]
-    return [f"{_OPS_TEST_FOLDER}/{name}" for name in names]
+    profiles = folder / _OPS_PROFILES_FOLDER / "SHA256SUMS"
+    try:
+        extra = profiles.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    more = [line.split(None, 1)[1].strip().lstrip("*") for line in extra
+            if len(line.split(None, 1)) == 2]
+    return ([f"{_OPS_TEST_FOLDER}/{name}" for name in names]
+            + [f"{_OPS_PROFILES_FOLDER}/{name.lstrip('./')}" for name in more])
 
 
 def is_present(folder) -> bool:

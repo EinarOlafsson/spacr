@@ -88,6 +88,10 @@ def _write_ops_sample(folder: Path) -> None:
     listed = [n[len(_OPS_ROOT) + 1:] for n in names] + list(extra)
     (folder / _OPS_ROOT / "SHA256SUMS").write_text(
         "".join(f"{'0' * 64}  {name}\n" for name in listed), encoding="utf-8")
+    profiles = folder / "ops_testdata_funk2022_A1_profiles"
+    profiles.mkdir(parents=True, exist_ok=True)
+    (profiles / "README.md").write_text("profiles", encoding="utf-8")
+    (profiles / "SHA256SUMS").write_text(f"{'0' * 64}  ./README.md\n", encoding="utf-8")
 
 
 def _write_sample(folder: Path, which: str) -> None:
@@ -247,13 +251,14 @@ def test_the_worker_fetches_its_own_archive_and_unpacks_it(
     dest = tmp_path / "dest"
     hub = _unpack_with_the_real_worker(monkeypatch, archive, dest, which)
     if which == "ops":
-        from spacr.example_archives import (OPS_E2E_EXAMPLE_REPO,
-                                            OPS_E2E_REFERENCE_ARCHIVES,
-                                            OPS_E2E_REVISION)
+        from spacr.example_archives import (EXAMPLE_ARCHIVE_REVISIONS,
+                                            OPS_E2E_EXAMPLE_REPO,
+                                            OPS_E2E_REFERENCE_ARCHIVES)
         assert hub.requested == [
             f"https://huggingface.co/datasets/{OPS_E2E_EXAMPLE_REPO}/resolve/"
-            f"{OPS_E2E_REVISION}/{name}?download=true"
-            for name in (OPS_E2E_FULL_ARCHIVE, OPS_E2E_REFERENCE_ARCHIVES["full"])]
+            f"{EXAMPLE_ARCHIVE_REVISIONS[name]}/{name}?download=true"
+            for name in (OPS_E2E_FULL_ARCHIVE, OPS_E2E_REFERENCE_ARCHIVES["full"],
+                         "ops_testdata_funk2022_A1_profiles.tar")]
     else:
         assert hub.requested == [
             f"https://huggingface.co/datasets/{repo}/resolve/main/"
@@ -505,7 +510,8 @@ def test_the_ops_test_data_is_two_pinned_archives_of_the_e2e_repo():
     worker = demo._WORKERS["ops"](Path("/nonexistent"))
     assert worker.repo == OPS_E2E_EXAMPLE_REPO
     assert worker._archives == [OPS_E2E_FULL_ARCHIVE,
-                                OPS_E2E_REFERENCE_ARCHIVES["full"]]
+                                OPS_E2E_REFERENCE_ARCHIVES["full"],
+                                "ops_testdata_funk2022_A1_profiles.tar"]
     assert all(name in EXAMPLE_ARCHIVE_SHA256 for name in worker._archives)
 
 
