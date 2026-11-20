@@ -29,14 +29,20 @@ def clean_registry(monkeypatch):
 
 class TestAPresentationCannotBeAnonymous:
 
-    def test_a_blank_review_is_refused(self, clean_registry):
-        with pytest.raises(ValueError, match="review status"):
-            clean_registry.register("sv", ("En paragraf.",), "")
+    @pytest.mark.parametrize("code, paragraphs, message", [
+        pytest.param("sv", ("En paragraf.",), "review status",
+                     id="test_a_blank_review_is_refused"),
+        pytest.param("ko", ("한 문단.",), "^ko:",
+                     id="test_the_refusal_names_the_language"),
+    ])
+    def test_empty_reviews_keep_their_specific_refusal(
+            self, clean_registry, code, paragraphs, message):
+        """Refuse empty review notes with the original message for each language.
 
-    def test_the_refusal_names_the_language(self, clean_registry):
-        """A run registering nine locales has to say which one was wrong."""
-        with pytest.raises(ValueError, match="^ko:"):
-            clean_registry.register("ko", ("한 문단.",), "")
+        A run registering nine locales has to say which one was wrong.
+        """
+        with pytest.raises(ValueError, match=message):
+            clean_registry.register(code, paragraphs, "")
 
     def test_a_machine_draft_is_allowed_when_it_says_so(self, clean_registry):
         """The rule is that the status is RECORDED, not that it is human.

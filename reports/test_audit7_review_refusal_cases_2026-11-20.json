@@ -1,0 +1,175 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_test_directory": "tests (root-level module only)",
+  "changed_file": "tests/test_a_translated_agreement_records_its_review.py",
+  "definition_reduction": 1,
+  "change": "Generalize two empty-review refusals while retaining language codes, exact paragraph tuples, empty review note and exception/message contracts.",
+  "case_mapping": {
+    "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_a_blank_review_is_refused": "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_empty_reviews_keep_their_specific_refusal[test_a_blank_review_is_refused]",
+    "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_the_refusal_names_the_language": "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_empty_reviews_keep_their_specific_refusal[test_the_refusal_names_the_language]"
+  },
+  "case_contracts": {
+    "test_a_blank_review_is_refused": {
+      "code": "sv",
+      "paragraphs": [
+        "En paragraf."
+      ],
+      "paragraphs_type": "tuple",
+      "review": "",
+      "error_type": "ValueError",
+      "match": "review status"
+    },
+    "test_the_refusal_names_the_language": {
+      "code": "ko",
+      "paragraphs": [
+        "한 문단."
+      ],
+      "paragraphs_type": "tuple",
+      "review": "",
+      "error_type": "ValueError",
+      "match": "^ko:"
+    }
+  },
+  "collected_before": [
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unreadable_accepted_license_does_not_become_the_current_license[current-license-unreadable]",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unreadable_profile_language_displays_english_without_accepting",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unavailable_translation_displays_english_without_accepting[missing]",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unavailable_translation_displays_english_without_accepting[failed]",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unreadable_accepted_license_does_not_become_the_current_license[historic-bsd]",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unreadable_accepted_license_does_not_become_the_current_license[never-accepted]",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unreadable_accepted_license_does_not_become_the_current_license[historic-noncommercial]",
+    "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_a_machine_draft_is_allowed_when_it_says_so",
+    "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_a_blank_review_is_refused",
+    "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_the_refusal_names_the_language",
+    "tests/test_a_translated_agreement_records_its_review.py::TestWhatIsRegisteredComesBack::test_the_paragraphs_round_trip_in_order",
+    "tests/test_a_translated_agreement_records_its_review.py::TestWhatIsRegisteredComesBack::test_the_code_is_stored_as_text",
+    "tests/test_a_translated_agreement_records_its_review.py::TestWhatIsRegisteredComesBack::test_available_is_sorted_so_the_picker_is_stable",
+    "tests/test_a_translated_agreement_records_its_review.py::TestWhatIsRegisteredComesBack::test_a_second_registration_replaces_the_first",
+    "tests/test_a_translated_agreement_records_its_review.py::TestALanguageWithNoPresentationFallsBackQuietly::test_available_is_empty_and_sorted_when_nothing_is_registered",
+    "tests/test_a_translated_agreement_records_its_review.py::TestALanguageWithNoPresentationFallsBackQuietly::test_the_review_note_is_empty_rather_than_missing",
+    "tests/test_a_translated_agreement_records_its_review.py::TestALanguageWithNoPresentationFallsBackQuietly::test_paragraphs_answers_None_rather_than_raising"
+  ],
+  "collected_after": [
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unreadable_accepted_license_does_not_become_the_current_license[historic-bsd]",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unavailable_translation_displays_english_without_accepting[failed]",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unreadable_accepted_license_does_not_become_the_current_license[current-license-unreadable]",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unreadable_accepted_license_does_not_become_the_current_license[never-accepted]",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unreadable_profile_language_displays_english_without_accepting",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unavailable_translation_displays_english_without_accepting[missing]",
+    "tests/test_a_translated_agreement_records_its_review.py::test_an_unreadable_accepted_license_does_not_become_the_current_license[historic-noncommercial]",
+    "tests/test_a_translated_agreement_records_its_review.py::TestALanguageWithNoPresentationFallsBackQuietly::test_the_review_note_is_empty_rather_than_missing",
+    "tests/test_a_translated_agreement_records_its_review.py::TestALanguageWithNoPresentationFallsBackQuietly::test_available_is_empty_and_sorted_when_nothing_is_registered",
+    "tests/test_a_translated_agreement_records_its_review.py::TestALanguageWithNoPresentationFallsBackQuietly::test_paragraphs_answers_None_rather_than_raising",
+    "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_empty_reviews_keep_their_specific_refusal[test_the_refusal_names_the_language]",
+    "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_empty_reviews_keep_their_specific_refusal[test_a_blank_review_is_refused]",
+    "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_a_machine_draft_is_allowed_when_it_says_so",
+    "tests/test_a_translated_agreement_records_its_review.py::TestWhatIsRegisteredComesBack::test_available_is_sorted_so_the_picker_is_stable",
+    "tests/test_a_translated_agreement_records_its_review.py::TestWhatIsRegisteredComesBack::test_a_second_registration_replaces_the_first",
+    "tests/test_a_translated_agreement_records_its_review.py::TestWhatIsRegisteredComesBack::test_the_paragraphs_round_trip_in_order",
+    "tests/test_a_translated_agreement_records_its_review.py::TestWhatIsRegisteredComesBack::test_the_code_is_stored_as_text"
+  ],
+  "tests_before": {
+    "passed": 17,
+    "seconds": 3.64
+  },
+  "tests_after": {
+    "passed": 17,
+    "seconds": 3.57
+  },
+  "coverage_scope": "spacr.qt.terms_i18n; complete selected test module including unchanged agreement-state integration cases, not full-suite coverage",
+  "coverage_before": {
+    "covered_lines": 15,
+    "num_statements": 15,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 2,
+    "num_partial_branches": 0,
+    "covered_branches": 2,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_after": {
+    "covered_lines": 15,
+    "num_statements": 15,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 2,
+    "num_partial_branches": 0,
+    "covered_branches": 2,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "production_source_sha256": "9cf128020322fdf399d77712e6021947d5e07c4a125bd969b3903ccfac43d48e",
+  "production_source_unchanged": true,
+  "other_tests_helpers_fixtures_imports_unchanged": true,
+  "mutation_sample": [
+    {
+      "mutant": "empty-review-accepted",
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_a_blank_review_is_refused",
+          "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_the_refusal_names_the_language"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_empty_reviews_keep_their_specific_refusal[test_the_refusal_names_the_language]",
+          "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_empty_reviews_keep_their_specific_refusal[test_a_blank_review_is_refused]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "refusal-names-wrong-language",
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_the_refusal_names_the_language"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_translated_agreement_records_its_review.py::TestAPresentationCannotBeAnonymous::test_empty_reviews_keep_their_specific_refusal[test_the_refusal_names_the_language]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader source faults tested against the two affected cases before and after; no repository production files modified.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstring": {
+    "path": "tests/test_a_translated_agreement_records_its_review.py",
+    "line": 40,
+    "new": "Refuse empty review notes with the original message for each language.\n\nA run registering nine locales has to say which one was wrong.",
+    "old": {
+      "test_a_blank_review_is_refused": null,
+      "test_the_refusal_names_the_language": "A run registering nine locales has to say which one was wrong."
+    }
+  },
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}
