@@ -151,14 +151,18 @@ def test_one_dependency_written_as_a_bare_string_is_still_a_list():
     assert job.depends_on == ["mask-1"]
 
 
-def test_a_queue_document_that_is_not_an_object_is_refused():
-    with pytest.raises(QueueError, match="must hold an object"):
-        Queue.from_dict([{"module": "mask"}])
-
-
-def test_a_format_version_that_is_not_a_number_is_refused():
-    with pytest.raises(QueueError, match="version number"):
-        Queue.from_dict({"spacr_queue": "one", "jobs": []})
+@pytest.mark.parametrize("document, message", [
+    pytest.param([{"module": "mask"}], "must hold an object",
+                 id="test_a_queue_document_that_is_not_an_object_is_refused"),
+    pytest.param({"spacr_queue": "one", "jobs": []}, "version number",
+                 id="test_a_format_version_that_is_not_a_number_is_refused"),
+    pytest.param({"jobs": {"module": "mask"}}, '"jobs" must be a list',
+                 id="test_a_jobs_key_that_is_not_a_list_is_refused"),
+])
+def test_invalid_queue_documents_keep_their_original_refusals(document, message):
+    """Keep each invalid queue document paired with its original refusal."""
+    with pytest.raises(QueueError, match=message):
+        Queue.from_dict(document)
 
 
 def test_a_queue_from_a_future_spacr_says_to_upgrade():
@@ -168,11 +172,6 @@ def test_a_queue_from_a_future_spacr_says_to_upgrade():
 
 def test_a_queue_file_with_no_jobs_key_loads_as_an_empty_queue():
     assert len(Queue.from_dict({"spacr_queue": batch.QUEUE_FORMAT})) == 0
-
-
-def test_a_jobs_key_that_is_not_a_list_is_refused():
-    with pytest.raises(QueueError, match='"jobs" must be a list'):
-        Queue.from_dict({"jobs": {"module": "mask"}})
 
 
 def test_a_hand_written_job_gets_an_id_and_a_label_of_its_own():

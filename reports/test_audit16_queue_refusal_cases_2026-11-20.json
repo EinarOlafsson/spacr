@@ -1,0 +1,329 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_cov_w2_6_batch.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 2,
+  "case_mapping": {
+    "tests/test_cov_w2_6_batch.py::test_a_queue_document_that_is_not_an_object_is_refused": "tests/test_cov_w2_6_batch.py::test_invalid_queue_documents_keep_their_original_refusals[test_a_queue_document_that_is_not_an_object_is_refused]",
+    "tests/test_cov_w2_6_batch.py::test_a_format_version_that_is_not_a_number_is_refused": "tests/test_cov_w2_6_batch.py::test_invalid_queue_documents_keep_their_original_refusals[test_a_format_version_that_is_not_a_number_is_refused]",
+    "tests/test_cov_w2_6_batch.py::test_a_jobs_key_that_is_not_a_list_is_refused": "tests/test_cov_w2_6_batch.py::test_invalid_queue_documents_keep_their_original_refusals[test_a_jobs_key_that_is_not_a_list_is_refused]"
+  },
+  "invalid_document_and_message_contracts": {
+    "test_a_queue_document_that_is_not_an_object_is_refused": [
+      [
+        {
+          "module": "mask"
+        }
+      ],
+      "must hold an object"
+    ],
+    "test_a_format_version_that_is_not_a_number_is_refused": [
+      {
+        "spacr_queue": "one",
+        "jobs": []
+      },
+      "version number"
+    ],
+    "test_a_jobs_key_that_is_not_a_list_is_refused": [
+      {
+        "jobs": {
+          "module": "mask"
+        }
+      },
+      "\"jobs\" must be a list"
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_queue_document_that_is_not_an_object_is_refused": "([{'module': 'mask'}], 'must hold an object')",
+    "test_a_format_version_that_is_not_a_number_is_refused": "({'spacr_queue': 'one', 'jobs': []}, 'version number')",
+    "test_a_jobs_key_that_is_not_a_list_is_refused": "({'jobs': {'module': 'mask'}}, '\"jobs\" must be a list')"
+  },
+  "contract_scope": "Exact invalid list/mapping documents, QueueError and original regex messages; dictionary key order and literal types retained.",
+  "collected_before": [
+    "tests/test_cov_w2_6_batch.py::test_a_jobs_key_that_is_not_a_list_is_refused",
+    "tests/test_cov_w2_6_batch.py::test_moving_a_job_that_is_not_there_reports_that",
+    "tests/test_cov_w2_6_batch.py::test_the_in_process_runner_honours_a_sys_exit_from_the_cli",
+    "tests/test_cov_w2_6_batch.py::test_the_plan_says_what_it_could_not_read_rather_than_omitting_it",
+    "tests/test_cov_w2_6_batch.py::test_warnings_are_reported_beside_the_errors_not_instead_of_them",
+    "tests/test_cov_w2_6_batch.py::test_a_dependency_whose_settings_will_not_resolve_contributes_no_roots",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_document_that_is_not_an_object_is_refused",
+    "tests/test_cov_w2_6_batch.py::test_one_dependency_written_as_a_bare_string_is_still_a_list",
+    "tests/test_cov_w2_6_batch.py::test_an_empty_queue_is_a_warning_not_an_error",
+    "tests/test_cov_w2_6_batch.py::test_an_artifact_with_no_new_stamp_contributes_nothing",
+    "tests/test_cov_w2_6_batch.py::test_resetting_a_queue_clears_every_job_of_its_history",
+    "tests/test_cov_w2_6_batch.py::test_removing_a_job_that_is_not_there_reports_that",
+    "tests/test_cov_w2_6_batch.py::test_a_dependency_cycle_is_reported_as_one",
+    "tests/test_cov_w2_6_batch.py::test_a_write_that_completes_leaves_no_temporary_behind",
+    "tests/test_cov_w2_6_batch.py::test_a_job_with_no_id_at_all_is_reported",
+    "tests/test_cov_w2_6_batch.py::test_a_folder_is_not_a_queue_file",
+    "tests/test_cov_w2_6_batch.py::test_a_setting_that_is_a_number_in_a_string_is_not_a_path",
+    "tests/test_cov_w2_6_batch.py::test_a_detailed_plan_says_when_the_detail_is_unavailable",
+    "tests/test_cov_w2_6_batch.py::test_a_dependency_that_is_not_in_the_queue_does_not_block",
+    "tests/test_cov_w2_6_batch.py::test_a_stop_pressed_mid_job_stops_the_child_and_says_so[child_that_ignores_a_polite_stop]",
+    "tests/test_cov_w2_6_batch.py::test_a_job_naming_a_module_that_does_not_exist_cannot_be_resolved",
+    "tests/test_cov_w2_6_batch.py::test_a_detailed_plan_renders_what_each_job_would_actually_do",
+    "tests/test_cov_w2_6_batch.py::test_src_is_normalised_to_a_list_however_it_was_written[value1-expected1]",
+    "tests/test_cov_w2_6_batch.py::test_a_job_with_no_dependencies_has_no_upstream_roots",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_file_that_cannot_be_read_says_so_in_a_sentence",
+    "tests/test_cov_w2_6_batch.py::test_a_job_entry_that_is_not_an_object_says_what_one_looks_like",
+    "tests/test_cov_w2_6_batch.py::test_a_stamp_that_attempted_nothing_is_empty_not_complete",
+    "tests/test_cov_w2_6_batch.py::test_upstream_roots_are_transitive_and_survive_a_broken_link",
+    "tests/test_cov_w2_6_batch.py::test_a_path_is_inside_the_folder_it_lives_under",
+    "tests/test_cov_w2_6_batch.py::test_the_summary_is_printed_when_the_caller_asks_for_it",
+    "tests/test_cov_w2_6_batch.py::test_a_failed_rename_reports_itself_rather_than_the_tidy_up",
+    "tests/test_cov_w2_6_batch.py::test_src_is_normalised_to_a_list_however_it_was_written[-expected2]",
+    "tests/test_cov_w2_6_batch.py::test_a_job_process_runs_and_its_output_lands_in_its_own_log",
+    "tests/test_cov_w2_6_batch.py::test_an_existing_resume_override_is_replaced_not_duplicated",
+    "tests/test_cov_w2_6_batch.py::test_a_usage_failure_with_nothing_in_the_log_still_names_itself",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_file_with_no_jobs_key_loads_as_an_empty_queue",
+    "tests/test_cov_w2_6_batch.py::test_a_module_with_no_field_checkpoints_is_not_given_resume",
+    "tests/test_cov_w2_6_batch.py::test_a_job_that_never_finished_has_no_duration",
+    "tests/test_cov_w2_6_batch.py::test_a_dependency_that_comes_later_would_always_skip_the_job",
+    "tests/test_cov_w2_6_batch.py::test_a_stop_pressed_during_a_job_leaves_it_resumable",
+    "tests/test_cov_w2_6_batch.py::test_a_job_entry_with_no_module_is_refused",
+    "tests/test_cov_w2_6_batch.py::test_a_process_that_will_not_start_is_a_usage_failure",
+    "tests/test_cov_w2_6_batch.py::test_a_job_written_with_a_mapping_of_overrides_keeps_that_shape",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_file_that_cannot_be_stamped_does_not_lose_the_result",
+    "tests/test_cov_w2_6_batch.py::test_settings_that_are_neither_a_path_nor_a_mapping_are_refused",
+    "tests/test_cov_w2_6_batch.py::test_a_missing_queue_file_says_which_one",
+    "tests/test_cov_w2_6_batch.py::test_a_timestamp_that_is_not_one_is_read_as_no_timestamp",
+    "tests/test_cov_w2_6_batch.py::test_a_path_that_cannot_be_resolved_is_not_inside_anything",
+    "tests/test_cov_w2_6_batch.py::test_an_unreadable_settings_file_can_stop_the_whole_queue",
+    "tests/test_cov_w2_6_batch.py::test_a_job_whose_settings_went_missing_fails_without_being_run",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_that_never_started_has_no_duration",
+    "tests/test_cov_w2_6_batch.py::test_dependency_rules_only_apply_inside_a_queue",
+    "tests/test_cov_w2_6_batch.py::test_two_jobs_cannot_share_an_id",
+    "tests/test_cov_w2_6_batch.py::test_a_run_status_sidecar_beside_the_plate_is_an_artifact",
+    "tests/test_cov_w2_6_batch.py::test_a_job_that_was_running_when_the_machine_died_is_resumed",
+    "tests/test_cov_w2_6_batch.py::test_a_job_with_no_settings_is_warned_about_not_refused",
+    "tests/test_cov_w2_6_batch.py::test_ctrl_c_during_a_job_marks_it_interrupted_and_halts_the_rest",
+    "tests/test_cov_w2_6_batch.py::test_src_is_normalised_to_a_list_however_it_was_written[None-expected3]",
+    "tests/test_cov_w2_6_batch.py::test_a_running_job_is_polled_so_a_stop_can_be_honoured",
+    "tests/test_cov_w2_6_batch.py::test_repeated_settings_failures_stop_the_queue_as_systematic",
+    "tests/test_cov_w2_6_batch.py::test_the_in_process_runner_calls_the_cli_and_tees_its_output",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_file_that_cannot_be_written_does_not_end_the_night",
+    "tests/test_cov_w2_6_batch.py::test_a_hand_written_job_gets_an_id_and_a_label_of_its_own",
+    "tests/test_cov_w2_6_batch.py::test_a_dependency_that_is_not_in_the_queue_lists_the_ones_that_are",
+    "tests/test_cov_w2_6_batch.py::test_a_log_that_is_not_there_has_no_tail",
+    "tests/test_cov_w2_6_batch.py::test_the_plan_shows_the_overrides_and_a_job_that_already_ran",
+    "tests/test_cov_w2_6_batch.py::test_a_format_version_that_is_not_a_number_is_refused",
+    "tests/test_cov_w2_6_batch.py::test_moving_a_job_past_the_ends_clamps_rather_than_wraps",
+    "tests/test_cov_w2_6_batch.py::test_a_status_nobody_defined_is_refused_by_name",
+    "tests/test_cov_w2_6_batch.py::test_a_job_that_depends_on_itself_is_refused",
+    "tests/test_cov_w2_6_batch.py::test_a_stop_pressed_mid_job_stops_the_child_and_says_so[mid_job_stop]",
+    "tests/test_cov_w2_6_batch.py::test_src_is_normalised_to_a_list_however_it_was_written[17-expected4]",
+    "tests/test_cov_w2_6_batch.py::test_a_job_that_was_still_running_when_the_queue_halted_is_not_run",
+    "tests/test_cov_w2_6_batch.py::test_src_is_normalised_to_a_list_however_it_was_written[/data/plate1-expected0]",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_from_a_future_spacr_says_to_upgrade"
+  ],
+  "collected_after": [
+    "tests/test_cov_w2_6_batch.py::test_resetting_a_queue_clears_every_job_of_its_history",
+    "tests/test_cov_w2_6_batch.py::test_an_existing_resume_override_is_replaced_not_duplicated",
+    "tests/test_cov_w2_6_batch.py::test_invalid_queue_documents_keep_their_original_refusals[test_a_format_version_that_is_not_a_number_is_refused]",
+    "tests/test_cov_w2_6_batch.py::test_a_write_that_completes_leaves_no_temporary_behind",
+    "tests/test_cov_w2_6_batch.py::test_a_module_with_no_field_checkpoints_is_not_given_resume",
+    "tests/test_cov_w2_6_batch.py::test_a_dependency_cycle_is_reported_as_one",
+    "tests/test_cov_w2_6_batch.py::test_a_detailed_plan_says_when_the_detail_is_unavailable",
+    "tests/test_cov_w2_6_batch.py::test_a_stop_pressed_mid_job_stops_the_child_and_says_so[child_that_ignores_a_polite_stop]",
+    "tests/test_cov_w2_6_batch.py::test_src_is_normalised_to_a_list_however_it_was_written[-expected2]",
+    "tests/test_cov_w2_6_batch.py::test_upstream_roots_are_transitive_and_survive_a_broken_link",
+    "tests/test_cov_w2_6_batch.py::test_an_artifact_with_no_new_stamp_contributes_nothing",
+    "tests/test_cov_w2_6_batch.py::test_a_log_that_is_not_there_has_no_tail",
+    "tests/test_cov_w2_6_batch.py::test_a_dependency_whose_settings_will_not_resolve_contributes_no_roots",
+    "tests/test_cov_w2_6_batch.py::test_a_stop_pressed_during_a_job_leaves_it_resumable",
+    "tests/test_cov_w2_6_batch.py::test_a_run_status_sidecar_beside_the_plate_is_an_artifact",
+    "tests/test_cov_w2_6_batch.py::test_the_summary_is_printed_when_the_caller_asks_for_it",
+    "tests/test_cov_w2_6_batch.py::test_src_is_normalised_to_a_list_however_it_was_written[17-expected4]",
+    "tests/test_cov_w2_6_batch.py::test_moving_a_job_that_is_not_there_reports_that",
+    "tests/test_cov_w2_6_batch.py::test_a_stop_pressed_mid_job_stops_the_child_and_says_so[mid_job_stop]",
+    "tests/test_cov_w2_6_batch.py::test_a_detailed_plan_renders_what_each_job_would_actually_do",
+    "tests/test_cov_w2_6_batch.py::test_removing_a_job_that_is_not_there_reports_that",
+    "tests/test_cov_w2_6_batch.py::test_a_folder_is_not_a_queue_file",
+    "tests/test_cov_w2_6_batch.py::test_ctrl_c_during_a_job_marks_it_interrupted_and_halts_the_rest",
+    "tests/test_cov_w2_6_batch.py::test_an_unreadable_settings_file_can_stop_the_whole_queue",
+    "tests/test_cov_w2_6_batch.py::test_an_empty_queue_is_a_warning_not_an_error",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_file_that_cannot_be_written_does_not_end_the_night",
+    "tests/test_cov_w2_6_batch.py::test_a_path_is_inside_the_folder_it_lives_under",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_file_that_cannot_be_stamped_does_not_lose_the_result",
+    "tests/test_cov_w2_6_batch.py::test_a_job_written_with_a_mapping_of_overrides_keeps_that_shape",
+    "tests/test_cov_w2_6_batch.py::test_a_job_with_no_dependencies_has_no_upstream_roots",
+    "tests/test_cov_w2_6_batch.py::test_a_job_that_never_finished_has_no_duration",
+    "tests/test_cov_w2_6_batch.py::test_a_usage_failure_with_nothing_in_the_log_still_names_itself",
+    "tests/test_cov_w2_6_batch.py::test_one_dependency_written_as_a_bare_string_is_still_a_list",
+    "tests/test_cov_w2_6_batch.py::test_a_missing_queue_file_says_which_one",
+    "tests/test_cov_w2_6_batch.py::test_invalid_queue_documents_keep_their_original_refusals[test_a_queue_document_that_is_not_an_object_is_refused]",
+    "tests/test_cov_w2_6_batch.py::test_a_job_that_depends_on_itself_is_refused",
+    "tests/test_cov_w2_6_batch.py::test_a_job_whose_settings_went_missing_fails_without_being_run",
+    "tests/test_cov_w2_6_batch.py::test_settings_that_are_neither_a_path_nor_a_mapping_are_refused",
+    "tests/test_cov_w2_6_batch.py::test_the_in_process_runner_honours_a_sys_exit_from_the_cli",
+    "tests/test_cov_w2_6_batch.py::test_a_hand_written_job_gets_an_id_and_a_label_of_its_own",
+    "tests/test_cov_w2_6_batch.py::test_a_job_that_was_still_running_when_the_queue_halted_is_not_run",
+    "tests/test_cov_w2_6_batch.py::test_invalid_queue_documents_keep_their_original_refusals[test_a_jobs_key_that_is_not_a_list_is_refused]",
+    "tests/test_cov_w2_6_batch.py::test_a_dependency_that_is_not_in_the_queue_lists_the_ones_that_are",
+    "tests/test_cov_w2_6_batch.py::test_two_jobs_cannot_share_an_id",
+    "tests/test_cov_w2_6_batch.py::test_src_is_normalised_to_a_list_however_it_was_written[/data/plate1-expected0]",
+    "tests/test_cov_w2_6_batch.py::test_a_job_with_no_settings_is_warned_about_not_refused",
+    "tests/test_cov_w2_6_batch.py::test_the_plan_shows_the_overrides_and_a_job_that_already_ran",
+    "tests/test_cov_w2_6_batch.py::test_the_plan_says_what_it_could_not_read_rather_than_omitting_it",
+    "tests/test_cov_w2_6_batch.py::test_the_in_process_runner_calls_the_cli_and_tees_its_output",
+    "tests/test_cov_w2_6_batch.py::test_repeated_settings_failures_stop_the_queue_as_systematic",
+    "tests/test_cov_w2_6_batch.py::test_a_job_entry_with_no_module_is_refused",
+    "tests/test_cov_w2_6_batch.py::test_moving_a_job_past_the_ends_clamps_rather_than_wraps",
+    "tests/test_cov_w2_6_batch.py::test_a_process_that_will_not_start_is_a_usage_failure",
+    "tests/test_cov_w2_6_batch.py::test_a_job_with_no_id_at_all_is_reported",
+    "tests/test_cov_w2_6_batch.py::test_a_job_that_was_running_when_the_machine_died_is_resumed",
+    "tests/test_cov_w2_6_batch.py::test_a_status_nobody_defined_is_refused_by_name",
+    "tests/test_cov_w2_6_batch.py::test_a_job_entry_that_is_not_an_object_says_what_one_looks_like",
+    "tests/test_cov_w2_6_batch.py::test_a_dependency_that_is_not_in_the_queue_does_not_block",
+    "tests/test_cov_w2_6_batch.py::test_a_path_that_cannot_be_resolved_is_not_inside_anything",
+    "tests/test_cov_w2_6_batch.py::test_a_setting_that_is_a_number_in_a_string_is_not_a_path",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_from_a_future_spacr_says_to_upgrade",
+    "tests/test_cov_w2_6_batch.py::test_a_running_job_is_polled_so_a_stop_can_be_honoured",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_file_that_cannot_be_read_says_so_in_a_sentence",
+    "tests/test_cov_w2_6_batch.py::test_src_is_normalised_to_a_list_however_it_was_written[None-expected3]",
+    "tests/test_cov_w2_6_batch.py::test_a_dependency_that_comes_later_would_always_skip_the_job",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_that_never_started_has_no_duration",
+    "tests/test_cov_w2_6_batch.py::test_dependency_rules_only_apply_inside_a_queue",
+    "tests/test_cov_w2_6_batch.py::test_a_failed_rename_reports_itself_rather_than_the_tidy_up",
+    "tests/test_cov_w2_6_batch.py::test_a_job_naming_a_module_that_does_not_exist_cannot_be_resolved",
+    "tests/test_cov_w2_6_batch.py::test_src_is_normalised_to_a_list_however_it_was_written[value1-expected1]",
+    "tests/test_cov_w2_6_batch.py::test_warnings_are_reported_beside_the_errors_not_instead_of_them",
+    "tests/test_cov_w2_6_batch.py::test_a_stamp_that_attempted_nothing_is_empty_not_complete",
+    "tests/test_cov_w2_6_batch.py::test_a_job_process_runs_and_its_output_lands_in_its_own_log",
+    "tests/test_cov_w2_6_batch.py::test_a_timestamp_that_is_not_one_is_read_as_no_timestamp",
+    "tests/test_cov_w2_6_batch.py::test_a_queue_file_with_no_jobs_key_loads_as_an_empty_queue"
+  ],
+  "tests_before": {
+    "passed": 75,
+    "seconds": 8.45
+  },
+  "tests_after": {
+    "passed": 75,
+    "seconds": 9.41
+  },
+  "coverage_scope": "spacr.batch under the complete selected queue lifecycle/refusal test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 819,
+    "num_statements": 915,
+    "percent_covered": 87.46987951807229,
+    "percent_covered_display": "87",
+    "missing_lines": 96,
+    "excluded_lines": 0,
+    "percent_statements_covered": 89.50819672131148,
+    "percent_statements_covered_display": "90",
+    "num_branches": 330,
+    "num_partial_branches": 36,
+    "covered_branches": 270,
+    "missing_branches": 60,
+    "percent_branches_covered": 81.81818181818181,
+    "percent_branches_covered_display": "82"
+  },
+  "coverage_after": {
+    "covered_lines": 819,
+    "num_statements": 915,
+    "percent_covered": 87.46987951807229,
+    "percent_covered_display": "87",
+    "missing_lines": 96,
+    "excluded_lines": 0,
+    "percent_statements_covered": 89.50819672131148,
+    "percent_statements_covered_display": "90",
+    "num_branches": 330,
+    "num_partial_branches": 36,
+    "covered_branches": 270,
+    "missing_branches": 60,
+    "percent_branches_covered": 81.81818181818181,
+    "percent_branches_covered_display": "82"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "8dc12ceb3005bae57fefa0bb8ddb2afaddd3fca6ac41dae63cbe74ac194f74b3",
+  "production_source_sha256": "968f9426320cd6d030bef2e7e6d7e7f7b9ceeb4e57e5a55a537ad250a8681f9e",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "other_queue_lifecycle_settings_cancellation_subprocess_and_resume_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "invalid-version-not-wrapped",
+      "source_variant": {
+        "path": "spacr/batch.py",
+        "line": 625,
+        "old": "version = int(version)\n        except (TypeError, ValueError):",
+        "new": "version = int(version)\n        except (TypeError,):"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_6_batch.py::test_a_format_version_that_is_not_a_number_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_6_batch.py::test_a_format_version_that_is_not_a_number_is_refused"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_6_batch.py::test_invalid_queue_documents_keep_their_original_refusals[test_a_format_version_that_is_not_a_number_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_6_batch.py::test_invalid_queue_documents_keep_their_original_refusals[test_a_format_version_that_is_not_a_number_is_refused]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "jobs-shape-preflight-skipped",
+      "source_variant": {
+        "path": "spacr/batch.py",
+        "line": 638,
+        "old": "if not isinstance(raw_jobs, (list, tuple)):",
+        "new": "if False and not isinstance(raw_jobs, (list, tuple)):"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_6_batch.py::test_a_jobs_key_that_is_not_a_list_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_6_batch.py::test_a_jobs_key_that_is_not_a_list_is_refused"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_6_batch.py::test_invalid_queue_documents_keep_their_original_refusals[test_a_jobs_key_that_is_not_a_list_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_6_batch.py::test_invalid_queue_documents_keep_their_original_refusals[test_a_jobs_key_that_is_not_a_list_is_refused]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the three affected queue-document refusal cases before and after; repository production files unchanged.",
+  "table_placement_note": "Three literal refusal cases are grouped at the original non-object document case. Every other definition retains its relative order and unchanged AST; grouped cases share no fixture state.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_w2_6_batch.py",
+      "line": 163,
+      "symbol": "test_invalid_queue_documents_keep_their_original_refusals",
+      "new": "Keep each invalid queue document paired with its original refusal.",
+      "old": {
+        "test_a_queue_document_that_is_not_an_object_is_refused": null,
+        "test_a_format_version_that_is_not_a_number_is_refused": null,
+        "test_a_jobs_key_that_is_not_a_list_is_refused": null
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}
