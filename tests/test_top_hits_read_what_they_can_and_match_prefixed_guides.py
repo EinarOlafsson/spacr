@@ -14,6 +14,7 @@ opens on. Three inputs the ordinary tests do not give it:
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 
 from spacr.well_scope import _top_hits
 
@@ -30,13 +31,18 @@ def test_an_unreadable_results_file_gives_no_hits(tmp_path):
     assert _top_hits(_objects(), str(broken)) == []
 
 
-def test_a_table_without_p_values_gives_no_hits():
-    table = pd.DataFrame({"feature": ["grna[T.TGGT1_2_1]"],
-                          "coefficient": [2.0]})
-    assert _top_hits(_objects(), table) == []
-
-
-def test_a_prefixed_guide_is_found_by_its_bare_name():
-    table = pd.DataFrame({"feature": ["grna[T.TGGT1_2_1]"],
-                          "p_value": [0.001]})
-    assert _top_hits(_objects(), table) == ["lib1_TGGT1_2_1"]
+@pytest.mark.parametrize("records, expected", [
+    pytest.param(
+        {"feature": ["grna[T.TGGT1_2_1]"], "coefficient": [2.0]}, [],
+        id="test_a_table_without_p_values_gives_no_hits",
+    ),
+    pytest.param(
+        {"feature": ["grna[T.TGGT1_2_1]"], "p_value": [0.001]},
+        ["lib1_TGGT1_2_1"],
+        id="test_a_prefixed_guide_is_found_by_its_bare_name",
+    ),
+])
+def test_result_tables_keep_their_original_selected_guides(records, expected):
+    """Keep each original result table paired with the same ordered selected guides."""
+    table = pd.DataFrame(records)
+    assert _top_hits(_objects(), table) == expected
