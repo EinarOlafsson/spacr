@@ -345,24 +345,17 @@ def test_every_way_of_naming_objects_produces_the_same_keys():
     assert list(as_key_index(pd.Series(expected))) == expected
 
 
-def test_a_single_key_string_is_one_object_not_one_per_character():
-    """A str is iterable; letting it fall through opens 13 nonexistent objects.
-
-    That failure is silent — a grid of empty tiles, not an exception — which
-    is exactly why it is special-cased and pinned here.
-    """
-    assert list(as_key_index("p1_r1_c1_f1_1")) == ["p1_r1_c1_f1_1"]
-
-
-def test_keys_keep_the_callers_order_and_lose_duplicates():
-    """Order carries "worst errors first"; a duplicate would draw a crop twice."""
-    keys = as_key_index(["b_key", "a_key", "b_key", "c_key"])
-    assert list(keys) == ["b_key", "a_key", "c_key"]
-
-
-def test_non_string_keys_are_stringified_so_they_can_match():
-    """`object_keys` joins with `str`, so a caller passing ints must agree."""
-    assert list(as_key_index([1, 2])) == ["1", "2"]
+@pytest.mark.parametrize('value, expected', [
+    pytest.param('p1_r1_c1_f1_1', ['p1_r1_c1_f1_1'],
+                 id='test_a_single_key_string_is_one_object_not_one_per_character'),
+    pytest.param(['b_key', 'a_key', 'b_key', 'c_key'], ['b_key', 'a_key', 'c_key'],
+                 id='test_keys_keep_the_callers_order_and_lose_duplicates'),
+    pytest.param([1, 2], ['1', '2'],
+                 id='test_non_string_keys_are_stringified_so_they_can_match'),
+])
+def test_key_inputs_keep_their_original_ordered_strings(value, expected):
+    """Keep each original key input paired with the same ordered, deduplicated strings."""
+    assert list(as_key_index(value)) == expected
 
 
 def test_a_resting_selection_cannot_be_opened():
@@ -725,31 +718,32 @@ def test_match_keys_answers_the_same_question_as_mask_for():
                  if wanted else [False] * len(keys))
 
 
-def test_a_typed_publisher_reaches_an_untyped_subscriber():
-    """The failure this replaced a bare `isin` for.
-
-    The database browser knows it is showing the `cell` table and says so in
-    its keys; the UMAP's points come from a `prcfo` that states nothing.
-    Under exact equality the table highlighted NOTHING in the UMAP — which on
-    a scatter plot is indistinguishable from the user having lassoed empty
-    space, so it would have been found by somebody's confusion, not by a test.
-    """
-    untyped_points = ["p1_r1_c1_f1_1", "p1_r1_c1_f1_2", "p1_r1_c1_f1_3"]
-    published = ["p1_r1_c1_f1_cell2"]
-    assert list(match_keys(untyped_points, published)) == [False, True, False]
-
-
-def test_an_untyped_publisher_reaches_every_type_it_names():
-    typed_points = ["p1_r1_c1_f1_cell1", "p1_r1_c1_f1_nucleus1",
-                    "p1_r1_c1_f1_pathogen1", "p1_r1_c1_f1_pathogen2"]
-    assert list(match_keys(typed_points, ["p1_r1_c1_f1_1"])) == \
-        [True, True, True, False]
-
-
-def test_two_typed_sides_never_reach_across():
-    typed_points = ["p1_r1_c1_f1_nucleus1", "p1_r1_c1_f1_pathogen1"]
-    assert list(match_keys(typed_points, ["p1_r1_c1_f1_nucleus1"])) == \
-        [True, False]
+@pytest.mark.parametrize('keys, wanted, expected', [
+    pytest.param(
+        ['p1_r1_c1_f1_1', 'p1_r1_c1_f1_2', 'p1_r1_c1_f1_3'],
+        ['p1_r1_c1_f1_cell2'],
+        [False, True, False],
+        id='test_a_typed_publisher_reaches_an_untyped_subscriber',
+    ),
+    pytest.param(
+        ['p1_r1_c1_f1_cell1',
+         'p1_r1_c1_f1_nucleus1',
+         'p1_r1_c1_f1_pathogen1',
+         'p1_r1_c1_f1_pathogen2'],
+        ['p1_r1_c1_f1_1'],
+        [True, True, True, False],
+        id='test_an_untyped_publisher_reaches_every_type_it_names',
+    ),
+    pytest.param(
+        ['p1_r1_c1_f1_nucleus1', 'p1_r1_c1_f1_pathogen1'],
+        ['p1_r1_c1_f1_nucleus1'],
+        [True, False],
+        id='test_two_typed_sides_never_reach_across',
+    ),
+])
+def test_typed_and_untyped_keys_keep_their_original_routing_masks(keys, wanted, expected):
+    """Retain every original typed and untyped routing mask."""
+    assert list(match_keys(keys, wanted)) == expected
 
 
 def test_match_keys_leaves_a_path_shaped_key_alone():

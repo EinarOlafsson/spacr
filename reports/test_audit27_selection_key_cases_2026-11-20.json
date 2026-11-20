@@ -1,0 +1,403 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_selection.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 4,
+  "case_mapping": {
+    "tests/test_selection.py::test_a_single_key_string_is_one_object_not_one_per_character": "tests/test_selection.py::test_key_inputs_keep_their_original_ordered_strings[test_a_single_key_string_is_one_object_not_one_per_character]",
+    "tests/test_selection.py::test_keys_keep_the_callers_order_and_lose_duplicates": "tests/test_selection.py::test_key_inputs_keep_their_original_ordered_strings[test_keys_keep_the_callers_order_and_lose_duplicates]",
+    "tests/test_selection.py::test_non_string_keys_are_stringified_so_they_can_match": "tests/test_selection.py::test_key_inputs_keep_their_original_ordered_strings[test_non_string_keys_are_stringified_so_they_can_match]",
+    "tests/test_selection.py::test_a_typed_publisher_reaches_an_untyped_subscriber": "tests/test_selection.py::test_typed_and_untyped_keys_keep_their_original_routing_masks[test_a_typed_publisher_reaches_an_untyped_subscriber]",
+    "tests/test_selection.py::test_an_untyped_publisher_reaches_every_type_it_names": "tests/test_selection.py::test_typed_and_untyped_keys_keep_their_original_routing_masks[test_an_untyped_publisher_reaches_every_type_it_names]",
+    "tests/test_selection.py::test_two_typed_sides_never_reach_across": "tests/test_selection.py::test_typed_and_untyped_keys_keep_their_original_routing_masks[test_two_typed_sides_never_reach_across]"
+  },
+  "key_input_output_contracts": {
+    "test_key_inputs_keep_their_original_ordered_strings": {
+      "test_a_single_key_string_is_one_object_not_one_per_character": [
+        "p1_r1_c1_f1_1",
+        [
+          "p1_r1_c1_f1_1"
+        ]
+      ],
+      "test_keys_keep_the_callers_order_and_lose_duplicates": [
+        [
+          "b_key",
+          "a_key",
+          "b_key",
+          "c_key"
+        ],
+        [
+          "b_key",
+          "a_key",
+          "c_key"
+        ]
+      ],
+      "test_non_string_keys_are_stringified_so_they_can_match": [
+        [
+          1,
+          2
+        ],
+        [
+          "1",
+          "2"
+        ]
+      ]
+    },
+    "test_typed_and_untyped_keys_keep_their_original_routing_masks": {
+      "test_a_typed_publisher_reaches_an_untyped_subscriber": [
+        [
+          "p1_r1_c1_f1_1",
+          "p1_r1_c1_f1_2",
+          "p1_r1_c1_f1_3"
+        ],
+        [
+          "p1_r1_c1_f1_cell2"
+        ],
+        [
+          false,
+          true,
+          false
+        ]
+      ],
+      "test_an_untyped_publisher_reaches_every_type_it_names": [
+        [
+          "p1_r1_c1_f1_cell1",
+          "p1_r1_c1_f1_nucleus1",
+          "p1_r1_c1_f1_pathogen1",
+          "p1_r1_c1_f1_pathogen2"
+        ],
+        [
+          "p1_r1_c1_f1_1"
+        ],
+        [
+          true,
+          true,
+          true,
+          false
+        ]
+      ],
+      "test_two_typed_sides_never_reach_across": [
+        [
+          "p1_r1_c1_f1_nucleus1",
+          "p1_r1_c1_f1_pathogen1"
+        ],
+        [
+          "p1_r1_c1_f1_nucleus1"
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    }
+  },
+  "case_contract_representations": {
+    "test_key_inputs_keep_their_original_ordered_strings": {
+      "test_a_single_key_string_is_one_object_not_one_per_character": "('p1_r1_c1_f1_1', ['p1_r1_c1_f1_1'])",
+      "test_keys_keep_the_callers_order_and_lose_duplicates": "(['b_key', 'a_key', 'b_key', 'c_key'], ['b_key', 'a_key', 'c_key'])",
+      "test_non_string_keys_are_stringified_so_they_can_match": "([1, 2], ['1', '2'])"
+    },
+    "test_typed_and_untyped_keys_keep_their_original_routing_masks": {
+      "test_a_typed_publisher_reaches_an_untyped_subscriber": "(['p1_r1_c1_f1_1', 'p1_r1_c1_f1_2', 'p1_r1_c1_f1_3'], ['p1_r1_c1_f1_cell2'], [False, True, False])",
+      "test_an_untyped_publisher_reaches_every_type_it_names": "(['p1_r1_c1_f1_cell1', 'p1_r1_c1_f1_nucleus1', 'p1_r1_c1_f1_pathogen1', 'p1_r1_c1_f1_pathogen2'], ['p1_r1_c1_f1_1'], [True, True, True, False])",
+      "test_two_typed_sides_never_reach_across": "(['p1_r1_c1_f1_nucleus1', 'p1_r1_c1_f1_pathogen1'], ['p1_r1_c1_f1_nucleus1'], [True, False])"
+    }
+  },
+  "contract_scope": "Exact six original literal key-conversion/routing input/output contracts with str/list/int/bool types and order, direct global API calls, list conversion and equality retained.",
+  "normalization_proof": "Only pure literal assignments and one explicitly checked as_key_index result alias, each used once, are expanded to their exact API-call/list/equality AST. All six original normalized assertions match their complete literal contracts.",
+  "collected_before": [
+    "tests/test_selection.py::test_every_way_of_naming_objects_produces_the_same_keys",
+    "tests/test_selection.py::test_a_category_filter_on_a_missing_column_raises",
+    "tests/test_selection.py::test_a_non_numeric_column_coerces_rather_than_crashing",
+    "tests/test_selection.py::test_a_blank_type_column_leaves_those_rows_untyped",
+    "tests/test_selection.py::test_describe_says_how_many_and_why_and_who_asked",
+    "tests/test_selection.py::test_a_prcfo_reduces_to_the_same_object_as_a_measurement_key",
+    "tests/test_selection.py::test_a_range_on_a_missing_column_raises",
+    "tests/test_selection.py::test_object_keys_are_unique_per_object",
+    "tests/test_selection.py::test_a_missing_key_column_raises_rather_than_guessing",
+    "tests/test_selection.py::test_select_from_returns_the_requests_order_not_the_tables",
+    "tests/test_selection.py::test_an_empty_selection_is_still_openable_and_empty",
+    "tests/test_selection.py::test_key_object_type_never_guesses",
+    "tests/test_selection.py::test_match_keys_leaves_a_path_shaped_key_alone",
+    "tests/test_selection.py::test_timelapse_keys_reach_as_key_index_too",
+    "tests/test_selection.py::test_selection_on_an_empty_frame_is_empty",
+    "tests/test_selection.py::test_a_request_normalises_whatever_it_was_built_from",
+    "tests/test_selection.py::test_untyped_object_key_leaves_a_crop_path_alone",
+    "tests/test_selection.py::test_a_nucleus_and_a_pathogen_with_one_label_are_two_objects",
+    "tests/test_selection.py::test_an_empty_request_is_legal",
+    "tests/test_selection.py::test_the_reader_states_the_type_because_the_frame_cannot",
+    "tests/test_selection.py::test_range_describe_covers_every_bound_combination",
+    "tests/test_selection.py::test_a_typed_publisher_reaches_an_untyped_subscriber",
+    "tests/test_selection.py::test_range_filter_owns_the_mask_it_refines",
+    "tests/test_selection.py::test_a_request_built_from_an_old_key_still_opens_something",
+    "tests/test_selection.py::test_clauses_are_anded",
+    "tests/test_selection.py::test_object_keys_are_distinct_per_object[percent-in-an-identifier-is-the-one-respelled-key]",
+    "tests/test_selection.py::test_two_typed_sides_never_reach_across",
+    "tests/test_selection.py::test_a_single_key_string_is_one_object_not_one_per_character",
+    "tests/test_selection.py::test_an_empty_category_selection_keeps_nothing",
+    "tests/test_selection.py::test_a_selection_from_another_table_simply_matches_nothing",
+    "tests/test_selection.py::test_object_keys_use_the_schema_columns_in_order",
+    "tests/test_selection.py::test_a_reason_is_stripped_because_it_is_shown_verbatim",
+    "tests/test_selection.py::test_a_requests_context_cannot_be_changed_from_either_side",
+    "tests/test_selection.py::test_something_that_cannot_name_objects_raises_typeerror",
+    "tests/test_selection.py::test_a_filter_naming_an_absent_column_raises_on_apply",
+    "tests/test_selection.py::test_no_selection_is_distinct_from_an_empty_one",
+    "tests/test_selection.py::test_category_describe_truncates_a_long_value_list",
+    "tests/test_selection.py::test_keys_keep_the_callers_order_and_lose_duplicates",
+    "tests/test_selection.py::test_category_filter_keeps_only_the_named_values",
+    "tests/test_selection.py::test_select_from_drops_keys_the_table_does_not_have",
+    "tests/test_selection.py::test_a_resting_selection_cannot_be_opened",
+    "tests/test_selection.py::test_remove_and_clear",
+    "tests/test_selection.py::test_category_matching_is_by_string_so_1_and_str_1_agree",
+    "tests/test_selection.py::test_object_keys_on_an_empty_frame_is_empty_not_an_error",
+    "tests/test_selection.py::test_no_selection_masks_everything_in",
+    "tests/test_selection.py::test_match_keys_answers_the_same_question_as_mask_for",
+    "tests/test_selection.py::test_adding_the_same_column_twice_replaces_rather_than_stacks",
+    "tests/test_selection.py::test_selection_round_trips_through_keys",
+    "tests/test_selection.py::test_a_request_becomes_a_selection_carrying_its_source",
+    "tests/test_selection.py::test_a_selection_survives_a_different_row_order",
+    "tests/test_selection.py::test_stamping_a_table_that_is_not_an_object_table_is_a_no_op",
+    "tests/test_selection.py::test_a_typed_key_does_not_reach_across_to_another_type",
+    "tests/test_selection.py::test_a_typed_key_still_finds_a_row_that_has_not_said_what_it_is",
+    "tests/test_selection.py::test_an_untyped_publisher_reaches_every_type_it_names",
+    "tests/test_selection.py::test_select_from_an_empty_table_is_empty_rather_than_a_key_error",
+    "tests/test_selection.py::test_select_from_honours_the_timelapse_flag",
+    "tests/test_selection.py::test_non_string_keys_are_stringified_so_they_can_match",
+    "tests/test_selection.py::test_a_request_opens_the_children_as_different_objects",
+    "tests/test_selection.py::test_nan_never_passes_a_range",
+    "tests/test_selection.py::test_object_keys_are_distinct_per_object[separator-inside-a-component-no-longer-merges-two-objects]",
+    "tests/test_selection.py::test_timelapse_keys_keep_the_frames_apart",
+    "tests/test_selection.py::test_an_untyped_key_selects_the_object_whatever_its_type",
+    "tests/test_selection.py::test_range_filter_keeps_the_closed_interval",
+    "tests/test_selection.py::test_a_request_without_a_reason_is_refused",
+    "tests/test_selection.py::test_an_empty_filter_is_the_identity",
+    "tests/test_selection.py::test_describe_says_what_is_filtered",
+    "tests/test_selection.py::test_selection_from_keys_matches_selection_from_frame",
+    "tests/test_selection.py::test_a_clean_frame_pays_nothing_for_the_escape",
+    "tests/test_selection.py::test_without_the_type_the_four_objects_collapse_to_three",
+    "tests/test_selection.py::test_object_keys_are_distinct_per_object[timelapse-keys-carry-the-type-too]",
+    "tests/test_selection.py::test_an_open_bound_means_unbounded_not_excluded",
+    "tests/test_selection.py::test_a_typed_key_selects_only_that_type",
+    "tests/test_selection.py::test_an_undeclared_object_type_passed_explicitly_is_refused"
+  ],
+  "collected_after": [
+    "tests/test_selection.py::test_key_inputs_keep_their_original_ordered_strings[test_keys_keep_the_callers_order_and_lose_duplicates]",
+    "tests/test_selection.py::test_a_filter_naming_an_absent_column_raises_on_apply",
+    "tests/test_selection.py::test_a_blank_type_column_leaves_those_rows_untyped",
+    "tests/test_selection.py::test_key_inputs_keep_their_original_ordered_strings[test_non_string_keys_are_stringified_so_they_can_match]",
+    "tests/test_selection.py::test_selection_on_an_empty_frame_is_empty",
+    "tests/test_selection.py::test_key_object_type_never_guesses",
+    "tests/test_selection.py::test_select_from_returns_the_requests_order_not_the_tables",
+    "tests/test_selection.py::test_a_request_becomes_a_selection_carrying_its_source",
+    "tests/test_selection.py::test_a_typed_key_selects_only_that_type",
+    "tests/test_selection.py::test_a_typed_key_does_not_reach_across_to_another_type",
+    "tests/test_selection.py::test_range_filter_owns_the_mask_it_refines",
+    "tests/test_selection.py::test_category_filter_keeps_only_the_named_values",
+    "tests/test_selection.py::test_an_empty_selection_is_still_openable_and_empty",
+    "tests/test_selection.py::test_describe_says_what_is_filtered",
+    "tests/test_selection.py::test_an_empty_category_selection_keeps_nothing",
+    "tests/test_selection.py::test_a_nucleus_and_a_pathogen_with_one_label_are_two_objects",
+    "tests/test_selection.py::test_an_open_bound_means_unbounded_not_excluded",
+    "tests/test_selection.py::test_selection_round_trips_through_keys",
+    "tests/test_selection.py::test_a_requests_context_cannot_be_changed_from_either_side",
+    "tests/test_selection.py::test_an_undeclared_object_type_passed_explicitly_is_refused",
+    "tests/test_selection.py::test_typed_and_untyped_keys_keep_their_original_routing_masks[test_two_typed_sides_never_reach_across]",
+    "tests/test_selection.py::test_object_keys_are_distinct_per_object[percent-in-an-identifier-is-the-one-respelled-key]",
+    "tests/test_selection.py::test_range_describe_covers_every_bound_combination",
+    "tests/test_selection.py::test_a_typed_key_still_finds_a_row_that_has_not_said_what_it_is",
+    "tests/test_selection.py::test_range_filter_keeps_the_closed_interval",
+    "tests/test_selection.py::test_something_that_cannot_name_objects_raises_typeerror",
+    "tests/test_selection.py::test_a_selection_from_another_table_simply_matches_nothing",
+    "tests/test_selection.py::test_key_inputs_keep_their_original_ordered_strings[test_a_single_key_string_is_one_object_not_one_per_character]",
+    "tests/test_selection.py::test_a_request_built_from_an_old_key_still_opens_something",
+    "tests/test_selection.py::test_nan_never_passes_a_range",
+    "tests/test_selection.py::test_a_selection_survives_a_different_row_order",
+    "tests/test_selection.py::test_timelapse_keys_reach_as_key_index_too",
+    "tests/test_selection.py::test_a_missing_key_column_raises_rather_than_guessing",
+    "tests/test_selection.py::test_a_prcfo_reduces_to_the_same_object_as_a_measurement_key",
+    "tests/test_selection.py::test_the_reader_states_the_type_because_the_frame_cannot",
+    "tests/test_selection.py::test_select_from_honours_the_timelapse_flag",
+    "tests/test_selection.py::test_match_keys_leaves_a_path_shaped_key_alone",
+    "tests/test_selection.py::test_no_selection_masks_everything_in",
+    "tests/test_selection.py::test_a_request_opens_the_children_as_different_objects",
+    "tests/test_selection.py::test_describe_says_how_many_and_why_and_who_asked",
+    "tests/test_selection.py::test_category_describe_truncates_a_long_value_list",
+    "tests/test_selection.py::test_selection_from_keys_matches_selection_from_frame",
+    "tests/test_selection.py::test_a_category_filter_on_a_missing_column_raises",
+    "tests/test_selection.py::test_select_from_drops_keys_the_table_does_not_have",
+    "tests/test_selection.py::test_typed_and_untyped_keys_keep_their_original_routing_masks[test_an_untyped_publisher_reaches_every_type_it_names]",
+    "tests/test_selection.py::test_adding_the_same_column_twice_replaces_rather_than_stacks",
+    "tests/test_selection.py::test_object_keys_are_distinct_per_object[separator-inside-a-component-no-longer-merges-two-objects]",
+    "tests/test_selection.py::test_object_keys_on_an_empty_frame_is_empty_not_an_error",
+    "tests/test_selection.py::test_category_matching_is_by_string_so_1_and_str_1_agree",
+    "tests/test_selection.py::test_a_clean_frame_pays_nothing_for_the_escape",
+    "tests/test_selection.py::test_a_request_without_a_reason_is_refused",
+    "tests/test_selection.py::test_a_request_normalises_whatever_it_was_built_from",
+    "tests/test_selection.py::test_a_resting_selection_cannot_be_opened",
+    "tests/test_selection.py::test_an_empty_request_is_legal",
+    "tests/test_selection.py::test_no_selection_is_distinct_from_an_empty_one",
+    "tests/test_selection.py::test_a_non_numeric_column_coerces_rather_than_crashing",
+    "tests/test_selection.py::test_select_from_an_empty_table_is_empty_rather_than_a_key_error",
+    "tests/test_selection.py::test_a_reason_is_stripped_because_it_is_shown_verbatim",
+    "tests/test_selection.py::test_object_keys_are_distinct_per_object[timelapse-keys-carry-the-type-too]",
+    "tests/test_selection.py::test_object_keys_use_the_schema_columns_in_order",
+    "tests/test_selection.py::test_an_empty_filter_is_the_identity",
+    "tests/test_selection.py::test_stamping_a_table_that_is_not_an_object_table_is_a_no_op",
+    "tests/test_selection.py::test_remove_and_clear",
+    "tests/test_selection.py::test_without_the_type_the_four_objects_collapse_to_three",
+    "tests/test_selection.py::test_clauses_are_anded",
+    "tests/test_selection.py::test_every_way_of_naming_objects_produces_the_same_keys",
+    "tests/test_selection.py::test_match_keys_answers_the_same_question_as_mask_for",
+    "tests/test_selection.py::test_untyped_object_key_leaves_a_crop_path_alone",
+    "tests/test_selection.py::test_timelapse_keys_keep_the_frames_apart",
+    "tests/test_selection.py::test_typed_and_untyped_keys_keep_their_original_routing_masks[test_a_typed_publisher_reaches_an_untyped_subscriber]",
+    "tests/test_selection.py::test_a_range_on_a_missing_column_raises",
+    "tests/test_selection.py::test_an_untyped_key_selects_the_object_whatever_its_type",
+    "tests/test_selection.py::test_object_keys_are_unique_per_object"
+  ],
+  "tests_before": {
+    "passed": 73,
+    "seconds": 5.3
+  },
+  "tests_after": {
+    "passed": 73,
+    "seconds": 4.86
+  },
+  "coverage_scope": "spacr.selection under the complete selected filter/selection/identity/request/key-routing model test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 286,
+    "num_statements": 296,
+    "percent_covered": 95.5,
+    "percent_covered_display": "96",
+    "missing_lines": 10,
+    "excluded_lines": 0,
+    "percent_statements_covered": 96.62162162162163,
+    "percent_statements_covered_display": "97",
+    "num_branches": 104,
+    "num_partial_branches": 6,
+    "covered_branches": 96,
+    "missing_branches": 8,
+    "percent_branches_covered": 92.3076923076923,
+    "percent_branches_covered_display": "92"
+  },
+  "coverage_after": {
+    "covered_lines": 286,
+    "num_statements": 296,
+    "percent_covered": 95.5,
+    "percent_covered_display": "96",
+    "missing_lines": 10,
+    "excluded_lines": 0,
+    "percent_statements_covered": 96.62162162162163,
+    "percent_statements_covered_display": "97",
+    "num_branches": 104,
+    "num_partial_branches": 6,
+    "covered_branches": 96,
+    "missing_branches": 8,
+    "percent_branches_covered": 92.3076923076923,
+    "percent_branches_covered_display": "92"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "d2046bdf4643db1622b79501bcfc75ccea8797c3616b77acb19aa17d16e5a5a7",
+  "production_source_sha256": "859cdd370cd0eb6431ab17ec1615dd5368d5f582c85ca7d5952274d51e64ff42",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "other_filter_range_category_identity_request_type_timelapse_path_and_existing_parameter_cases_unchanged_and_passed": true,
+  "no_gui_gpu_reader_or_figure_work_added": true,
+  "mutation_sample": [
+    {
+      "mutant": "key-string-split-into-characters",
+      "source_variant": {
+        "path": "spacr/selection.py",
+        "line": 875,
+        "old": "elif isinstance(keys, str):\n        values = [keys]",
+        "new": "elif isinstance(keys, str):\n        values = list(keys)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_selection.py::test_a_single_key_string_is_one_object_not_one_per_character"
+        ],
+        "failure_summary_lines": [
+          "tests/test_selection.py::test_a_single_key_string_is_one_object_not_one_per_character"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_selection.py::test_key_inputs_keep_their_original_ordered_strings[test_a_single_key_string_is_one_object_not_one_per_character]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_selection.py::test_key_inputs_keep_their_original_ordered_strings[test_a_single_key_string_is_one_object_not_one_per_character]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "typed-row-restriction-lost",
+      "source_variant": {
+        "path": "spacr/selection.py",
+        "line": 636,
+        "old": "row_untyped = np.asarray(typed_rows) == np.asarray(plain)",
+        "new": "row_untyped = np.ones(len(typed_rows), dtype=bool)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_selection.py::test_two_typed_sides_never_reach_across"
+        ],
+        "failure_summary_lines": [
+          "tests/test_selection.py::test_two_typed_sides_never_reach_across - ass..."
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_selection.py::test_typed_and_untyped_keys_keep_their_original_routing_masks[test_two_typed_sides_never_reach_across]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_selection.py::test_typed_and_untyped_keys_keep_their_original_routing_masks[test_two_typed_sides_never_reach_across]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the six affected key conversion/routing examples before and after; repository production files unchanged.",
+  "table_placement_note": "Each three-row table occupies the first of its three adjacent original examples. Every other definition retains its AST and relative order; rows share no fixture state.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_selection.py",
+      "line": 357,
+      "symbol": "test_key_inputs_keep_their_original_ordered_strings",
+      "new": "Keep each original key input paired with the same ordered, deduplicated strings.",
+      "old": {
+        "test_a_single_key_string_is_one_object_not_one_per_character": "A str is iterable; letting it fall through opens 13 nonexistent objects.\n\nThat failure is silent \u2014 a grid of empty tiles, not an exception \u2014 which\nis exactly why it is special-cased and pinned here.",
+        "test_keys_keep_the_callers_order_and_lose_duplicates": "Order carries \"worst errors first\"; a duplicate would draw a crop twice.",
+        "test_non_string_keys_are_stringified_so_they_can_match": "`object_keys` joins with `str`, so a caller passing ints must agree."
+      }
+    },
+    {
+      "path": "tests/test_selection.py",
+      "line": 745,
+      "symbol": "test_typed_and_untyped_keys_keep_their_original_routing_masks",
+      "new": "Retain every original typed and untyped routing mask.",
+      "old": {
+        "test_a_typed_publisher_reaches_an_untyped_subscriber": "The failure this replaced a bare `isin` for.\n\nThe database browser knows it is showing the `cell` table and says so in\nits keys; the UMAP's points come from a `prcfo` that states nothing.\nUnder exact equality the table highlighted NOTHING in the UMAP \u2014 which on\na scatter plot is indistinguishable from the user having lassoed empty\nspace, so it would have been found by somebody's confusion, not by a test.",
+        "test_an_untyped_publisher_reaches_every_type_it_names": null,
+        "test_two_typed_sides_never_reach_across": null
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}
