@@ -1,0 +1,53 @@
+CLI PREFLIGHT REFUSALS RETAIN THEIR PROBLEMS WITHOUT AUTOMATIC CRASH REPORTS
+=========================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED AND VALIDATED on the Home temporary delivery branch;
+        main/nightly integration and release are owned by the master.
+        The original two input problems are unknown.
+Requested: maintainer, 2026-11-20, Home inbox issue194 task.
+Owner: Home Codex, ws-offload-codex-home-issue194.
+Related: GitHub #194; 700 anonymous reporting; AGENTS rule 39.
+
+PROBLEM
+The anonymous report contains only "pre-flight found 2 errors; refusing to
+start." The CLI already prints each validation problem and suggested fix,
+but its summary and bypass-advice error records carry no validation metadata.
+The automatic reporter treats these expected input refusals as generic faults.
+No available evidence identifies the original two settings or input problems.
+
+REQUIREMENTS
+- Carry the actual preflight problems and fixes through the existing privacy
+  scrubber before they enter an anonymous report or retained report context.
+- Expected preflight refusals do not automatically file issues, including
+  permissive reporting modes. Explicit manual reporting remains available.
+- Preserve the console problem/fix list, refusal exit status, no-execution
+  behavior, and normal reporting of unrelated exceptions and configuration errors.
+- Keep the reporting metadata scoped to this refusal; no stdout parsing,
+  stack-local inspection, stale thread state, raw settings or image/table data.
+- Retain the scrubbed refusal in the existing bounded diagnostic log so an
+  explicit spacr-crashreport bundle can include it after the CLI has exited.
+  Do not add an automatic upload, new settings, or a new CLI reporting mode.
+
+ACCEPTANCE
+Focused tests exercise two distinct real Problem objects through the CLI
+refusal, exact console messages/fixes, scrubbed report detail, both emitted
+error records, automatic-report suppression, explicit manual submission,
+privacy/consent limits, and unaffected ordinary fault reporting. Use CPU-only
+targeted pytest with two workers, then normal instruction-index generation.
+Publish the temporary branch and report its SHA; issue comments and closure
+are already handled by the master.
+
+DELIVERED BEHAVIOR
+The CLI refusal sends bounded, scrubbed messages and suggested fixes to the
+existing rotating diagnostic log. An explicit spacr-crashreport command includes
+that log in its local ZIP; this does not make the entire diagnostic bundle
+anonymous. The anonymous-summary API also accepts the scrubbed context. Neither
+refusal error line allocates an automatic report, even in permissive modes.
+Unrelated errors and real exceptions retain their existing reporting behavior.
+An unwritable diagnostic log leaves the normal refusal exit and console intact.
+No new user-facing English templates, settings, parser options or public API.
+
+2026-11-20: Requirements recorded before implementation on f04495e887. Inbox v62 explicitly authorizes the narrow cmd_run preflight-refusal callsite exception in cli.py and reserves feature 993. Wrap only the two refusal logs in the scoped reporting context; preserve all other frozen boundaries.
+2026-11-20: The first focused cohort passed 21 tests in 11.63 seconds. Final review found that the explicit-report test bypassed the CLI handoff and its scrubbed context was discarded on return. Preserve those results, add the actual CLI-to-log-to-manual-bundle regression, and correct that handoff before publication.
+2026-11-20: Corrected the real CLI-to-log-to-explicit-ZIP handoff. All six affected checks passed in 11.37 seconds, including private-text scrubbing, an actual ZIP, unwritable-log refusal, force, preflight bypass and dry-run behavior; unchanged passing checks from the original cohort are retained. CPU-only, two workers, nice 19, 8 GiB cap; all network and AI transports mocked or disabled. Normal index generation and temporary-branch publication complete the Home delivery; the master owns landing and release.
