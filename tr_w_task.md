@@ -1,18 +1,18 @@
 # TASK W translation and arrival-contract handover
 
-Source branch: ws-offload-codex-work-masktrace. Implementation: a681b9a73b694d5b408df7e528221b5783650d5e. Evidence checkpoint: d97cbe6a240327b5ee1816150d6ba18d2914f858. Base: ef603c010373e769be01b839d88fcf9f7ce9a045. Evidence and handover commits do not change these source strings.
+Source branch: ws-offload-codex-work-masktrace2. Rebased implementation: 29df45608e. Base: 723dfae527a40b5d8be60f4454d57be7341e65bf (landed X and 987b). The original W branch at 675bce9de2 and its report retain the historical ef603c0103 measurements. Fresh rebase validation is recorded separately in reports/task_w_rebase_identity_2026-11-20.json.
 
-W lands after X on the train-4 base. The speed measurements are descriptive (n = 2 per mode and worker count), not a performance claim. Re-extract source/context/hash pairs if the landing changes an admitted block.
+W is replayed after X on the specified train-4 descendant. All three replayed patches match the original W commits. Historical speed measurements remain descriptive (n = 2 per mode and worker count). The fresh single timing pair is descriptive only and supplies no speed claim. Re-extract source/context/hash pairs if a later landing changes an admitted block.
 
 Languages: sv, de, es, zh_CN, pt, hi, ko, is, fr. Only admitted public API docstrings and admitted tr() runtime strings need source-bound arrival contracts and records. Use the established explicit AI-review label with no human or native-speaker signoff. Preserve code identifiers, placeholders and Sphinx markup.
 
-All 35 inventoried docstrings were matched to the current AST by source line and exact text, then checked against the real canonical API extractor. Admission counts: {"canonical API": 1, "private-nested": 9, "test": 25}.
+All 35 inventoried docstrings were matched to the rebased AST by source line and exact text. Their exact source text is unchanged from the original W handover, whose admission was checked against the canonical API extractor. Admission counts: {"canonical API": 1, "private-nested": 9, "test": 25}.
 
 Every private, nested and test entry below is explicitly marked "no records". Do not create orphan records or widen source admission for this handover. New or changed runtime strings: none. There are no runtime-not-admitted entries.
 
 Canonical blocks below give the exact source, context and SHA-256 accepted by the extractor. Validate each record against that source. Supersede changed admitted evidence through the established overlay process while retaining archived files. Skip docs assembly.
 
-Extraction used only read-only public_docstrings(), translatable_blocks() and extract_static_ui_sources(). The import-only ensure_review_inputs hydration hook was suppressed because the pinned cache is unavailable on this checkout; no extractor/admission/record validator was bypassed and no documentation was assembled.
+The original admission check used only read-only public_docstrings(), translatable_blocks() and extract_static_ui_sources(). The import-only ensure_review_inputs hydration hook was suppressed because the pinned cache is unavailable on this checkout; no extractor/admission/record validator was bypassed and no documentation was assembled.
 
 ## Exact inventory
 
