@@ -124,23 +124,22 @@ def test_child_parent_links_are_optional_but_typed_when_present():
         schema.validate_object_table_frame(invalid_link, "pathogen")
 
 
-def test_prcf_must_match_its_identity_components():
+@pytest.mark.parametrize('column, value, match', [
+    pytest.param(
+        'prcf', 'plate9_r9_c9_f9', 'cell\\.prcf disagrees.*expected',
+        id='test_prcf_must_match_its_identity_components',
+    ),
+    pytest.param(
+        'object_label', 1, 'one-row-per-object.*duplicated keys',
+        id='test_duplicate_object_keys_are_rejected_before_database_write',
+    ),
+])
+def test_invalid_object_identities_keep_their_original_refusals(column, value, match):
+    """Preserve each original object identity edit and its typed refusal."""
     frame = _frame("cell")
-    frame.loc[1, "prcf"] = "plate9_r9_c9_f9"
+    frame.loc[1, column] = value
 
-    with pytest.raises(
-            schema.ObjectTableSchemaError,
-            match=r"cell\.prcf disagrees.*expected"):
-        schema.validate_object_table_frame(frame, "cell")
-
-
-def test_duplicate_object_keys_are_rejected_before_database_write():
-    frame = _frame("cell")
-    frame.loc[1, "object_label"] = 1
-
-    with pytest.raises(
-            schema.ObjectTableSchemaError,
-            match=r"one-row-per-object.*duplicated keys"):
+    with pytest.raises(schema.ObjectTableSchemaError, match=match):
         schema.validate_object_table_frame(frame, "cell")
 
 

@@ -1,0 +1,210 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_object_table_schema.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_object_table_schema.py::test_prcf_must_match_its_identity_components": "tests/test_object_table_schema.py::test_invalid_object_identities_keep_their_original_refusals[test_prcf_must_match_its_identity_components]",
+    "tests/test_object_table_schema.py::test_duplicate_object_keys_are_rejected_before_database_write": "tests/test_object_table_schema.py::test_invalid_object_identities_keep_their_original_refusals[test_duplicate_object_keys_are_rejected_before_database_write]"
+  },
+  "object_frame_column_value_and_native_exception_regex_contracts": {
+    "test_prcf_must_match_its_identity_components": [
+      "prcf",
+      "plate9_r9_c9_f9",
+      "cell\\.prcf disagrees.*expected"
+    ],
+    "test_duplicate_object_keys_are_rejected_before_database_write": [
+      "object_label",
+      1,
+      "one-row-per-object.*duplicated keys"
+    ]
+  },
+  "case_contract_representations": {
+    "test_prcf_must_match_its_identity_components": "('prcf', 'plate9_r9_c9_f9', 'cell\\\\.prcf disagrees.*expected')",
+    "test_duplicate_object_keys_are_rejected_before_database_write": "('object_label', 1, 'one-row-per-object.*duplicated keys')"
+  },
+  "contract_scope": "Exact fresh _frame(\"cell\") construction, frame assignment, row 1, original prcf string/object_label integer edits and native pytest.raises(schema.ObjectTableSchemaError,match=original_regex) retained. Every other original import/helper/subtest/object-table/parent-link/timelapse/stamp/feature/writer case retains AST and relative order. Production settings/schema and timelapse code unchanged.",
+  "collected_before": [
+    "tests/test_object_table_schema.py::test_measurement_stamp_values_are_typed[measurement_units-meters-measurement_units must be one of]",
+    "tests/test_object_table_schema.py::test_measurement_stamp_values_are_typed[voxel_size_xy_um--0.5-positive numeric values or NULL]",
+    "tests/test_object_table_schema.py::test_object_labels_must_be_positive_integers[0]",
+    "tests/test_object_table_schema.py::test_object_labels_must_be_positive_integers[-1]",
+    "tests/test_object_table_schema.py::test_prcf_must_match_its_identity_components",
+    "tests/test_object_table_schema.py::test_missing_required_columns_are_named",
+    "tests/test_object_table_schema.py::test_measurement_writer_enforces_the_schema_before_sqlite",
+    "tests/test_object_table_schema.py::test_two_dimensional_stamp_has_canonical_units_and_depth",
+    "tests/test_object_table_schema.py::test_object_labels_must_be_positive_integers[one]",
+    "tests/test_object_table_schema.py::test_valid_object_frames_pass_and_preserve_dynamic_features",
+    "tests/test_object_table_schema.py::test_legacy_metadata_spelling_is_canonicalised_on_return",
+    "tests/test_object_table_schema.py::test_duplicate_object_keys_are_rejected_before_database_write",
+    "tests/test_object_table_schema.py::test_measurement_stamp_is_all_or_none",
+    "tests/test_object_table_schema.py::test_timelapse_contract_requires_time_and_includes_it_in_the_key",
+    "tests/test_object_table_schema.py::test_measurement_stamp_values_are_typed[n_z-0-n_z must contain positive integer]",
+    "tests/test_object_table_schema.py::test_measurement_stamp_values_are_typed[measurement_ndim-4-measurement_ndim must be 2 or 3]",
+    "tests/test_object_table_schema.py::test_object_labels_must_be_positive_integers[None]",
+    "tests/test_object_table_schema.py::test_unknown_tables_receive_an_actionable_error",
+    "tests/test_object_table_schema.py::test_object_labels_must_be_positive_integers[1.5]",
+    "tests/test_object_table_schema.py::test_all_analysis_tables_have_declarative_schemas",
+    "tests/test_object_table_schema.py::test_child_parent_links_are_optional_but_typed_when_present",
+    "tests/test_object_table_schema.py::test_foreign_features_and_non_numeric_owned_features_are_rejected"
+  ],
+  "collected_after": [
+    "tests/test_object_table_schema.py::test_object_labels_must_be_positive_integers[None]",
+    "tests/test_object_table_schema.py::test_invalid_object_identities_keep_their_original_refusals[test_prcf_must_match_its_identity_components]",
+    "tests/test_object_table_schema.py::test_missing_required_columns_are_named",
+    "tests/test_object_table_schema.py::test_object_labels_must_be_positive_integers[-1]",
+    "tests/test_object_table_schema.py::test_object_labels_must_be_positive_integers[one]",
+    "tests/test_object_table_schema.py::test_measurement_stamp_values_are_typed[voxel_size_xy_um--0.5-positive numeric values or NULL]",
+    "tests/test_object_table_schema.py::test_measurement_stamp_values_are_typed[measurement_units-meters-measurement_units must be one of]",
+    "tests/test_object_table_schema.py::test_measurement_writer_enforces_the_schema_before_sqlite",
+    "tests/test_object_table_schema.py::test_measurement_stamp_is_all_or_none",
+    "tests/test_object_table_schema.py::test_measurement_stamp_values_are_typed[n_z-0-n_z must contain positive integer]",
+    "tests/test_object_table_schema.py::test_timelapse_contract_requires_time_and_includes_it_in_the_key",
+    "tests/test_object_table_schema.py::test_unknown_tables_receive_an_actionable_error",
+    "tests/test_object_table_schema.py::test_valid_object_frames_pass_and_preserve_dynamic_features",
+    "tests/test_object_table_schema.py::test_object_labels_must_be_positive_integers[0]",
+    "tests/test_object_table_schema.py::test_invalid_object_identities_keep_their_original_refusals[test_duplicate_object_keys_are_rejected_before_database_write]",
+    "tests/test_object_table_schema.py::test_all_analysis_tables_have_declarative_schemas",
+    "tests/test_object_table_schema.py::test_two_dimensional_stamp_has_canonical_units_and_depth",
+    "tests/test_object_table_schema.py::test_object_labels_must_be_positive_integers[1.5]",
+    "tests/test_object_table_schema.py::test_child_parent_links_are_optional_but_typed_when_present",
+    "tests/test_object_table_schema.py::test_measurement_stamp_values_are_typed[measurement_ndim-4-measurement_ndim must be 2 or 3]",
+    "tests/test_object_table_schema.py::test_legacy_metadata_spelling_is_canonicalised_on_return",
+    "tests/test_object_table_schema.py::test_foreign_features_and_non_numeric_owned_features_are_rejected"
+  ],
+  "tests_before": {
+    "passed": 22,
+    "seconds": 13.06
+  },
+  "tests_after": {
+    "passed": 22,
+    "seconds": 16.38
+  },
+  "normal_test_summary_before_after": {
+    "before": "22 passed, 706 subtests passed in 13.06s",
+    "after": "22 passed, 706 subtests passed in 16.38s"
+  },
+  "coverage_scope": "spacr.schema under the complete selected object-table contract module; not full-suite coverage. Existing tiny DataFrames, declarative contracts, subtests and local SQLite writer refusal only; no image processing, chart rendering, fitting, new production reader, network or GPU work. Production schema/settings files unchanged.",
+  "coverage_before": {
+    "covered_lines": 433,
+    "num_statements": 1014,
+    "percent_covered": 36.8421052631579,
+    "percent_covered_display": "37",
+    "missing_lines": 581,
+    "excluded_lines": 0,
+    "percent_statements_covered": 42.70216962524655,
+    "percent_statements_covered_display": "43",
+    "num_branches": 430,
+    "num_partial_branches": 29,
+    "covered_branches": 99,
+    "missing_branches": 331,
+    "percent_branches_covered": 23.023255813953487,
+    "percent_branches_covered_display": "23"
+  },
+  "coverage_after": {
+    "covered_lines": 433,
+    "num_statements": 1014,
+    "percent_covered": 36.8421052631579,
+    "percent_covered_display": "37",
+    "missing_lines": 581,
+    "excluded_lines": 0,
+    "percent_statements_covered": 42.70216962524655,
+    "percent_statements_covered_display": "43",
+    "num_branches": 430,
+    "num_partial_branches": 29,
+    "covered_branches": 99,
+    "missing_branches": 331,
+    "percent_branches_covered": 23.023255813953487,
+    "percent_branches_covered_display": "23"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "73f8155f9f3458a3e1ce1e61f62281f2aa348b4e69cb2bd5de8c81b92f6195b1",
+  "production_source_sha256": "7fff651abd6b4926600c838452339a8c241fcb68d5845b758499b6da121cedb3",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_helpers_subtests_object_tables_links_timelapse_stamps_features_writer_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "component-identity-refusal-bypassed",
+      "source_variant": {
+        "path": "spacr/schema.py",
+        "line": 3105,
+        "old": "    if mismatch.any():",
+        "new": "    if False:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_object_table_schema.py::test_prcf_must_match_its_identity_components"
+        ],
+        "failure_summary_lines": [
+          "tests/test_object_table_schema.py::test_prcf_must_match_its_identity_components"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_object_table_schema.py::test_invalid_object_identities_keep_their_original_refusals[test_prcf_must_match_its_identity_components]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_object_table_schema.py::test_invalid_object_identities_keep_their_original_refusals[test_prcf_must_match_its_identity_components]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "duplicate-key-refusal-bypassed",
+      "source_variant": {
+        "path": "spacr/schema.py",
+        "line": 3120,
+        "old": "    if duplicated.any():",
+        "new": "    if False:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_object_table_schema.py::test_duplicate_object_keys_are_rejected_before_database_write"
+        ],
+        "failure_summary_lines": [
+          "tests/test_object_table_schema.py::test_duplicate_object_keys_are_rejected_before_database_write"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_object_table_schema.py::test_invalid_object_identities_keep_their_original_refusals[test_duplicate_object_keys_are_rejected_before_database_write]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_object_table_schema.py::test_invalid_object_identities_keep_their_original_refusals[test_duplicate_object_keys_are_rejected_before_database_write]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in validate_object_table_frame before and after: bypass refusal of prcf/component disagreement; bypass refusal of duplicated object keys. Each fault selects the same one original/mapped case before/after and must fail with DID NOT RAISE from unchanged native pytest.raises(schema.ObjectTableSchemaError,match=original_regex). Fresh frame, exact row/column and original str/int values retained. Repository production/settings/schema files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_object_table_schema.py",
+      "line": 138,
+      "symbol": "test_invalid_object_identities_keep_their_original_refusals",
+      "new": "Preserve each original object identity edit and its typed refusal.",
+      "old": {
+        "test_prcf_must_match_its_identity_components": null,
+        "test_duplicate_object_keys_are_rejected_before_database_write": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
