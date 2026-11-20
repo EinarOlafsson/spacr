@@ -620,17 +620,20 @@ def test_an_annotation_is_written_like_any_other_filter(cell_db):
     assert set(written[column].dropna()) == set(labels)
 
 
-def test_annotating_from_no_gates_says_so(cell_db):
+@pytest.mark.parametrize('names, mode, match', [
+    pytest.param(
+        [], 'binary', 'at least one gate',
+        id='test_annotating_from_no_gates_says_so',
+    ),
+    pytest.param(
+        ['low'], 'fuzzy', 'not one of',
+        id='test_an_unknown_annotation_mode_is_refused',
+    ),
+])
+def test_invalid_annotation_requests_keep_their_original_refusals(cell_db, names, mode, match):
+    """Keep each invalid annotation request paired with its original refusal."""
     from spacr.filters import annotate_from_gates
 
     frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
-    with pytest.raises(FilterError, match="at least one gate"):
-        annotate_from_gates(frame, _two_gates(), [], mode="binary")
-
-
-def test_an_unknown_annotation_mode_is_refused(cell_db):
-    from spacr.filters import annotate_from_gates
-
-    frame = pd.read_sql_query("SELECT * FROM cell", sqlite3.connect(cell_db))
-    with pytest.raises(FilterError, match="not one of"):
-        annotate_from_gates(frame, _two_gates(), ["low"], mode="fuzzy")
+    with pytest.raises(FilterError, match=match):
+        annotate_from_gates(frame, _two_gates(), names, mode=mode)
