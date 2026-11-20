@@ -4736,7 +4736,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 8791,
+    "line": 8838,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -4745,7 +4745,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 8793,
+    "line": 8840,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -6097,7 +6097,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 4941,
+    "line": 4943,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -6106,7 +6106,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 4960,
+    "line": 4962,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -6115,7 +6115,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 4961,
+    "line": 4963,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -6124,7 +6124,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 4964,
+    "line": 4966,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -6431,7 +6431,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 8518,
+    "line": 8565,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -6440,7 +6440,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 8520,
+    "line": 8567,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -6772,7 +6772,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 8518,
+    "line": 8565,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -6781,7 +6781,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 8519,
+    "line": 8566,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -8169,7 +8169,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 8551,
+    "line": 8598,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -8178,7 +8178,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 8552,
+    "line": 8599,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -8864,7 +8864,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "channels",
-    "line": 8791,
+    "line": 8838,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -8873,7 +8873,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 8792,
+    "line": 8839,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -10245,7 +10245,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cmap",
-    "line": 4977,
+    "line": 4979,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -10254,7 +10254,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 4984,
+    "line": 4986,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -14577,7 +14577,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8550,
+    "line": 8597,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -14586,7 +14586,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8555,
+    "line": 8602,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -14595,25 +14595,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8556,
-    "module": "spacr.plot",
-    "nested": false,
-    "qualname": "plot_data_from_db"
-   },
-   {
-    "form": "keyword",
-    "function_depth": 1,
-    "key": "data_column",
-    "line": 8563,
-    "module": "spacr.plot",
-    "nested": false,
-    "qualname": "plot_data_from_db"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "data_column",
-    "line": 8563,
+    "line": 8603,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -14622,7 +14604,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8579,
+    "line": 8610,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -14631,7 +14613,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8582,
+    "line": 8610,
+    "module": "spacr.plot",
+    "nested": false,
+    "qualname": "plot_data_from_db"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "data_column",
+    "line": 8626,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -14640,7 +14631,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8681,
+    "line": 8629,
+    "module": "spacr.plot",
+    "nested": false,
+    "qualname": "plot_data_from_db"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "data_column",
+    "line": 8728,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -14649,7 +14649,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8686,
+    "line": 8733,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -14658,7 +14658,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8686,
+    "line": 8733,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -14667,7 +14667,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8693,
+    "line": 8740,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -14676,7 +14676,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8696,
+    "line": 8743,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -14685,7 +14685,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 9011,
+    "line": 9058,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -14694,7 +14694,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 9012,
+    "line": 9059,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -14703,7 +14703,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "data_column",
-    "line": 9017,
+    "line": 9064,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -14712,7 +14712,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 9020,
+    "line": 9067,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -16201,7 +16201,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 8500,
+    "line": 8547,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -19382,7 +19382,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 4977,
+    "line": 4979,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -19391,7 +19391,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 4981,
+    "line": 4983,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -19886,7 +19886,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "filter_min_max",
-    "line": 4963,
+    "line": 4965,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -19895,7 +19895,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "filter_min_max",
-    "line": 4964,
+    "line": 4966,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -28225,7 +28225,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "log_x",
-    "line": 8693,
+    "line": 8740,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -28234,7 +28234,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "log_x",
-    "line": 8705,
+    "line": 8752,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -28272,7 +28272,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "log_y",
-    "line": 8693,
+    "line": 8740,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -28281,7 +28281,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "log_y",
-    "line": 8704,
+    "line": 8751,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -32594,7 +32594,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "mode",
-    "line": 8791,
+    "line": 8838,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -32603,7 +32603,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
-    "line": 8800,
+    "line": 8847,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -35188,7 +35188,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 4966,
+    "line": 4968,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -35197,7 +35197,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 4969,
+    "line": 4971,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -35550,7 +35550,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "normalize",
-    "line": 4966,
+    "line": 4968,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -35559,7 +35559,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 4968,
+    "line": 4970,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -35999,7 +35999,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nr",
-    "line": 4975,
+    "line": 4977,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36091,7 +36091,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 4963,
+    "line": 4965,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36100,7 +36100,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 4964,
+    "line": 4966,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36109,7 +36109,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 8512,
+    "line": 8559,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -36118,7 +36118,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 8515,
+    "line": 8562,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -36740,7 +36740,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 8791,
+    "line": 8838,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -36749,7 +36749,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 8794,
+    "line": 8841,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -37501,7 +37501,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 4942,
+    "line": 4944,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -37510,7 +37510,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 4961,
+    "line": 4963,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -37519,7 +37519,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 4964,
+    "line": 4966,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -52704,7 +52704,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_method",
-    "line": 4299,
+    "line": 4301,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_organelle_output"
@@ -53074,7 +53074,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_morphology",
-    "line": 4298,
+    "line": 4300,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_organelle_output"
@@ -56655,7 +56655,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outline_color",
-    "line": 4938,
+    "line": 4940,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -56724,7 +56724,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "outline_thickness",
-    "line": 4966,
+    "line": 4968,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -56733,7 +56733,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outline_thickness",
-    "line": 4974,
+    "line": 4976,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -57096,7 +57096,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "overlay",
-    "line": 4966,
+    "line": 4968,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -57105,7 +57105,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "overlay",
-    "line": 4970,
+    "line": 4972,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -57114,7 +57114,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "overlay",
-    "line": 4977,
+    "line": 4979,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -57123,7 +57123,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "overlay",
-    "line": 4977,
+    "line": 4979,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -57152,7 +57152,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "overlay_chans",
-    "line": 4966,
+    "line": 4968,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -57161,7 +57161,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "overlay_chans",
-    "line": 4971,
+    "line": 4973,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -59469,7 +59469,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 8791,
+    "line": 8838,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -59478,7 +59478,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 8795,
+    "line": 8842,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -59967,7 +59967,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 4951,
+    "line": 4953,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -59976,7 +59976,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 4959,
+    "line": 4961,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -59985,7 +59985,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 4963,
+    "line": 4965,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -59994,7 +59994,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 4964,
+    "line": 4966,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -60003,7 +60003,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 8512,
+    "line": 8559,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -60012,7 +60012,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 8516,
+    "line": 8563,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -60484,7 +60484,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 4943,
+    "line": 4945,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -60493,7 +60493,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 4950,
+    "line": 4952,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -60502,7 +60502,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 4960,
+    "line": 4962,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -60511,7 +60511,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 4961,
+    "line": 4963,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -60520,7 +60520,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 4964,
+    "line": 4966,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -60901,7 +60901,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 8518,
+    "line": 8565,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -60910,7 +60910,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 8522,
+    "line": 8569,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -61242,7 +61242,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 8518,
+    "line": 8565,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -61251,7 +61251,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 8521,
+    "line": 8568,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -61578,7 +61578,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8780,
+    "line": 8827,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -61587,7 +61587,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8780,
+    "line": 8827,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -61596,7 +61596,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8785,
+    "line": 8832,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -61605,7 +61605,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8785,
+    "line": 8832,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -61614,7 +61614,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8791,
+    "line": 8838,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -61623,7 +61623,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8797,
+    "line": 8844,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -67588,7 +67588,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "remove_background",
-    "line": 4966,
+    "line": 4968,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -67597,7 +67597,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_background",
-    "line": 4967,
+    "line": 4969,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -70054,7 +70054,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save",
-    "line": 8579,
+    "line": 8626,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -70063,7 +70063,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 8588,
+    "line": 8635,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -70072,7 +70072,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save",
-    "line": 8693,
+    "line": 8740,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -70081,7 +70081,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 8702,
+    "line": 8749,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -70090,7 +70090,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save",
-    "line": 9017,
+    "line": 9064,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -70099,7 +70099,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 9026,
+    "line": 9073,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -74743,7 +74743,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8490,
+    "line": 8537,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -74752,7 +74752,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8491,
+    "line": 8538,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -74761,7 +74761,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8492,
+    "line": 8539,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -74770,7 +74770,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8493,
+    "line": 8540,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -74779,7 +74779,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8645,
+    "line": 8692,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -74788,7 +74788,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8646,
+    "line": 8693,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -74797,7 +74797,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8647,
+    "line": 8694,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -74806,7 +74806,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8648,
+    "line": 8695,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -74815,7 +74815,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8759,
+    "line": 8806,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -74824,7 +74824,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8762,
+    "line": 8809,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -74833,7 +74833,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "src",
-    "line": 8764,
+    "line": 8811,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -74842,7 +74842,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8764,
+    "line": 8811,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -74851,7 +74851,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8768,
+    "line": 8815,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -74860,7 +74860,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8771,
+    "line": 8818,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -74869,7 +74869,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8803,
+    "line": 8850,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -74878,7 +74878,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8999,
+    "line": 9046,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -84100,7 +84100,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 8518,
+    "line": 8565,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -84109,7 +84109,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 8524,
+    "line": 8571,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -84345,7 +84345,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatments",
-    "line": 8518,
+    "line": 8565,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -84354,7 +84354,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatments",
-    "line": 8523,
+    "line": 8570,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -86837,7 +86837,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4947,
+    "line": 4949,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -86846,7 +86846,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 8512,
+    "line": 8559,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -86855,7 +86855,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 8514,
+    "line": 8561,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -86864,7 +86864,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 8683,
+    "line": 8730,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -86873,7 +86873,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 9253,
+    "line": 9300,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_proportion_stacked_bars"
@@ -86882,7 +86882,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 9253,
+    "line": 9300,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_proportion_stacked_bars"
