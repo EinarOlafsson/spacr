@@ -52,78 +52,38 @@ class _Process:
         return _Info(self._rss)
 
 
-def test_uss_is_preferred_when_the_platform_gives_it():
-    """First in the order, and the least misleading figure of the three."""
+@pytest.mark.parametrize("values, expected", [
+    pytest.param({'uss': 100, 'pss': 200, 'rss': 300}, (100, 'uss'),
+                 id='test_uss_is_preferred_when_the_platform_gives_it'),
+    pytest.param({'pss': 200, 'rss': 300}, (200, 'pss'),
+                 id='test_pss_is_next_when_uss_is_absent'),
+    pytest.param({'rss': 300}, (300, 'rss'),
+                 id='test_rss_is_last_and_is_still_named'),
+    pytest.param({'uss': None, 'pss': '200', 'rss': 300}, (300, 'rss'),
+                 id='test_a_non_integer_measure_is_passed_over'),
+])
+def test_full_memory_figures_keep_their_original_preference(values, expected):
+    """Keep each platform memory result paired with its original value and measure."""
     from spacr.resource_log import _memory
 
-    value, measure = _memory(_Psutil, _Process(full=_Full(uss=100, pss=200,
-                                                       rss=300)))
+    value, measure = _memory(_Psutil, _Process(full=_Full(**values)))
 
-    assert (value, measure) == (100, "uss")
+    assert (value, measure) == expected
 
 
-def test_pss_is_next_when_uss_is_absent():
-    """Linux without USS still reports PSS, which at least shares fairly."""
+@pytest.mark.parametrize("rss, expected", [
+    pytest.param(300, (300, 'rss'),
+                 id='test_private_figures_that_are_refused_fall_back_to_resident'),
+    pytest.param(None, (None, None),
+                 id='test_a_process_that_reports_no_resident_size_reports_nothing'),
+])
+def test_unavailable_private_memory_keeps_the_original_resident_fallback(rss, expected):
+    """Keep permission failures paired with the original resident-memory fallback."""
     from spacr.resource_log import _memory
 
-    value, measure = _memory(_Psutil, _Process(full=_Full(pss=200, rss=300)))
+    value, measure = _memory(_Psutil, _Process(full_raises=True, rss=rss))
 
-    assert (value, measure) == (200, "pss")
-
-
-def test_rss_is_last_and_is_still_named():
-    """The fallback the docstring warns about.
-
-    RSS double-counts the pages a fork shares, so a sweep of eight children
-    reads far larger than it is. Reporting it is fine; reporting it WITHOUT
-    saying so is what makes two machines incomparable.
-    """
-    from spacr.resource_log import _memory
-
-    value, measure = _memory(_Psutil, _Process(full=_Full(rss=300)))
-
-    assert (value, measure) == (300, "rss")
-
-
-def test_a_non_integer_measure_is_passed_over():
-    """The ``isinstance(value, int)`` check.
-
-    A mock, a None from a platform that declares the attribute without
-    filling it, or a float from a future psutil would otherwise be recorded as
-    a byte count.
-    """
-    from spacr.resource_log import _memory
-
-    value, measure = _memory(_Psutil, _Process(full=_Full(uss=None, pss="200",
-                                                       rss=300)))
-
-    assert (value, measure) == (300, "rss")
-
-
-def test_private_figures_that_are_refused_fall_back_to_resident():
-    """The except: private memory needs permissions the resident one does not.
-
-    Reading another user's process, or a hardened container, raises here --
-    and the sample must still carry a number rather than nothing.
-    """
-    from spacr.resource_log import _memory
-
-    value, measure = _memory(_Psutil, _Process(full_raises=True, rss=300))
-
-    assert (value, measure) == (300, "rss")
-
-
-def test_a_process_that_reports_no_resident_size_reports_nothing():
-    """Both None, which is the documented "could not read this one".
-
-    A zero would read as a process using no memory, which is never true and
-    would drag a peak down.
-    """
-    from spacr.resource_log import _memory
-
-    value, measure = _memory(_Psutil, _Process(full_raises=True, rss=None))
-
-    assert (value, measure) == (None, None)
+    assert (value, measure) == expected
 
 
 # ---------------------------------------------------------------------------
