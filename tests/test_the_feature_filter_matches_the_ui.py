@@ -35,26 +35,29 @@ def test_morphology_selects_shape_columns_and_no_intensities():
     assert not [c for c in picked if "mean_intensity" in c]
 
 
-def test_a_single_channel_selects_only_that_channel():
-    """An int, which is what the settings panel stores for one channel."""
+@pytest.mark.parametrize("filter_by, first, second, excluded", [
+    pytest.param(
+        1,
+        "cell_channel_1_mean_intensity", "nucleus_channel_1_mean_intensity",
+        "cell_channel_0_mean_intensity",
+        id="test_a_single_channel_selects_only_that_channel",
+    ),
+    pytest.param(
+        [0, 2],
+        "cell_channel_0_mean_intensity", "cell_channel_2_mean_intensity",
+        "cell_channel_1_mean_intensity",
+        id="test_several_channels_select_all_of_them",
+    ),
+])
+def test_channel_filters_keep_their_original_membership_checks(
+        filter_by, first, second, excluded):
+    """Keep each original channel filter paired with its included and excluded columns."""
     from spacr.utils import _feature_filter_matches
 
-    picked = _feature_filter_matches(COLUMNS, 1)
-
-    assert "cell_channel_1_mean_intensity" in picked
-    assert "nucleus_channel_1_mean_intensity" in picked
-    assert "cell_channel_0_mean_intensity" not in picked
-
-
-def test_several_channels_select_all_of_them():
-    """A list, which is the multi-channel selection."""
-    from spacr.utils import _feature_filter_matches
-
-    picked = _feature_filter_matches(COLUMNS, [0, 2])
-
-    assert "cell_channel_0_mean_intensity" in picked
-    assert "cell_channel_2_mean_intensity" in picked
-    assert "cell_channel_1_mean_intensity" not in picked
+    picked = _feature_filter_matches(COLUMNS, filter_by)
+    assert first in picked
+    assert second in picked
+    assert excluded not in picked
 
 
 def test_free_text_selects_by_substring():

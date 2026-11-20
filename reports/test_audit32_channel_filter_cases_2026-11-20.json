@@ -1,0 +1,179 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_the_feature_filter_matches_the_ui.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_the_feature_filter_matches_the_ui.py::test_a_single_channel_selects_only_that_channel": "tests/test_the_feature_filter_matches_the_ui.py::test_channel_filters_keep_their_original_membership_checks[test_a_single_channel_selects_only_that_channel]",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_several_channels_select_all_of_them": "tests/test_the_feature_filter_matches_the_ui.py::test_channel_filters_keep_their_original_membership_checks[test_several_channels_select_all_of_them]"
+  },
+  "channel_filter_membership_contracts": {
+    "test_a_single_channel_selects_only_that_channel": [
+      1,
+      "cell_channel_1_mean_intensity",
+      "nucleus_channel_1_mean_intensity",
+      "cell_channel_0_mean_intensity"
+    ],
+    "test_several_channels_select_all_of_them": [
+      [
+        0,
+        2
+      ],
+      "cell_channel_0_mean_intensity",
+      "cell_channel_2_mean_intensity",
+      "cell_channel_1_mean_intensity"
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_single_channel_selects_only_that_channel": "(1, 'cell_channel_1_mean_intensity', 'nucleus_channel_1_mean_intensity', 'cell_channel_0_mean_intensity')",
+    "test_several_channels_select_all_of_them": "([0, 2], 'cell_channel_0_mean_intensity', 'cell_channel_2_mean_intensity', 'cell_channel_1_mean_intensity')"
+  },
+  "contract_scope": "Exact local _feature_filter_matches import, unchanged ordered COLUMNS, scalar int/list-of-int filter values, positional call, two native in assertions and one native not-in assertion retained.",
+  "collected_before": [
+    "tests/test_the_feature_filter_matches_the_ui.py::test_a_filter_matching_nothing_selects_nothing",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_morphology_selects_shape_columns_and_no_intensities",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_a_non_string_column_name_does_not_break_the_match",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_free_text_selects_by_substring",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_a_single_channel_selects_only_that_channel",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_several_channels_select_all_of_them"
+  ],
+  "collected_after": [
+    "tests/test_the_feature_filter_matches_the_ui.py::test_channel_filters_keep_their_original_membership_checks[test_a_single_channel_selects_only_that_channel]",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_a_non_string_column_name_does_not_break_the_match",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_morphology_selects_shape_columns_and_no_intensities",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_a_filter_matching_nothing_selects_nothing",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_free_text_selects_by_substring",
+    "tests/test_the_feature_filter_matches_the_ui.py::test_channel_filters_keep_their_original_membership_checks[test_several_channels_select_all_of_them]"
+  ],
+  "tests_before": {
+    "passed": 6,
+    "seconds": 12.69
+  },
+  "tests_after": {
+    "passed": 6,
+    "seconds": 11.63
+  },
+  "coverage_scope": "spacr.utils under the complete selected morphology/channel/substring/unmatched/header feature-filter test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 468,
+    "num_statements": 5180,
+    "percent_covered": 6.592489568845619,
+    "percent_covered_display": "7",
+    "missing_lines": 4712,
+    "excluded_lines": 0,
+    "percent_statements_covered": 9.034749034749035,
+    "percent_statements_covered_display": "9",
+    "num_branches": 2010,
+    "num_partial_branches": 0,
+    "covered_branches": 6,
+    "missing_branches": 2004,
+    "percent_branches_covered": 0.29850746268656714,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_after": {
+    "covered_lines": 468,
+    "num_statements": 5180,
+    "percent_covered": 6.592489568845619,
+    "percent_covered_display": "7",
+    "missing_lines": 4712,
+    "excluded_lines": 0,
+    "percent_statements_covered": 9.034749034749035,
+    "percent_statements_covered_display": "9",
+    "num_branches": 2010,
+    "num_partial_branches": 0,
+    "covered_branches": 6,
+    "missing_branches": 2004,
+    "percent_branches_covered": 0.29850746268656714,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "32a79b44a02818a9abd33a6a8adede191bb4852b573b1c3adccdd257686ce37c",
+  "production_source_sha256": "0c70e2ead9dc17c482db30e126ceaf6946603ce974a152856cc6138cf25bdd5b",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "other_morphology_substring_unmatched_and_non_string_header_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "scalar-channel-offset-by-one",
+      "source_variant": {
+        "path": "spacr/utils.py",
+        "line": 8615,
+        "old": "terms = [f\"channel_{filter_by}\"]",
+        "new": "terms = [f\"channel_{filter_by + 1}\"]"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_feature_filter_matches_the_ui.py::test_a_single_channel_selects_only_that_channel"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_feature_filter_matches_the_ui.py::test_a_single_channel_selects_only_that_channel"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_feature_filter_matches_the_ui.py::test_channel_filters_keep_their_original_membership_checks[test_a_single_channel_selects_only_that_channel]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_feature_filter_matches_the_ui.py::test_channel_filters_keep_their_original_membership_checks[test_a_single_channel_selects_only_that_channel]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "channel-list-truncated-to-first",
+      "source_variant": {
+        "path": "spacr/utils.py",
+        "line": 8613,
+        "old": "terms = [f\"channel_{channel}\" for channel in filter_by]",
+        "new": "terms = [f\"channel_{channel}\" for channel in filter_by[:1]]"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_feature_filter_matches_the_ui.py::test_several_channels_select_all_of_them"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_feature_filter_matches_the_ui.py::test_several_channels_select_all_of_them"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_feature_filter_matches_the_ui.py::test_channel_filters_keep_their_original_membership_checks[test_several_channels_select_all_of_them]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_feature_filter_matches_the_ui.py::test_channel_filters_keep_their_original_membership_checks[test_several_channels_select_all_of_them]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults before and after: scalar channel index offset by one; list channel selection truncated to its first member. Repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_the_feature_filter_matches_the_ui.py",
+      "line": 54,
+      "symbol": "test_channel_filters_keep_their_original_membership_checks",
+      "new": "Keep each original channel filter paired with its included and excluded columns.",
+      "old": {
+        "test_a_single_channel_selects_only_that_channel": "An int, which is what the settings panel stores for one channel.",
+        "test_several_channels_select_all_of_them": "A list, which is the multi-channel selection."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
