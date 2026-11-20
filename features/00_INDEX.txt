@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-763 Lifecycle: new, 183 Lifecycle: future in features/feature_list/.
+766 Lifecycle: new, 184 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -594,6 +594,9 @@ FUTURE FEATURES
 
   967  OPS SPACER-PREFIX CELL CALL: MINORITY STRAY BARCODES IGNORED (RULE F1)
        967_ops_prefix_minority_read_rule.txt
+
+  988  OPS GUIDE CALL: NEIGHBOUR-BLEED DISCOUNT AND DISTANCE-AWARE READ WEIGHTS (N1 + QUALITY x DISTANCE)
+       988_ops_distance_weighted_guide_calls.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -2125,3 +2128,9 @@ NEW FEATURES
        971_ops_live_preview.txt
   973  OPS VOYAGER3: A BIOLOGICAL ROLE FOR EVERY GENE CLUSTER, FROM FETCHED UNIPROT FACTS, THROUGH THE USER'S OWN AI PROVIDER
        973_ops_voyager3_cluster_annotation.txt
+  974  THE spaCR STORE: PARQUET TABLES, ZARR CROPS, ONE DUCKDB CATALOG
+       974_spacr_store.txt
+  975  MEASURE WRITES THE spaCR STORE, AND THE CROP LOADER READS IT
+       975_measure_store.txt
+  982  OPS SPACER-PREFIX TUNING: SMALL WELLS KEEP THE READ-QUALITY FLOOR AT 0.1
+       982_ops_prefix_small_well_guard.txt

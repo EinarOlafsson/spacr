@@ -251,6 +251,7 @@ function Test-SpacrGpuFits {
 }
 
 function Invoke-SpacrGpuConcurrent {
+    <# .SYNOPSIS Run a declared job after checking the current power cap and available capacity. #>
     param([string]$TurnLabel, [string[]]$TurnCommand, [double]$NeedGb,
         [string]$Directory = (Join-Path $env:ProgramData 'spaCR\gpu'), [int]$PollSeconds = 15)
     if (-not $TurnLabel -or -not $TurnCommand.Count) { throw 'usage: gpu_turn.ps1 [--vram-gb N] <label> <command...>' }
@@ -268,11 +269,6 @@ function Invoke-SpacrGpuConcurrent {
         [IO.File]::AppendAllText($log, $line + [Environment]::NewLine)
         [Console]::Error.WriteLine($line)
     }
-    $power = Get-SpacrGpuReading 'power.limit'
-    if ($null -eq $power -or [double]$power -ne $limit) {
-        Write-TurnLog "REFUSED: --vram-gb needs the GPU power limit at $limit W; nvidia-smi reports '$power' W. Set it (nvidia-smi -pl $limit, as administrator) and try again."
-        return 3
-    }
     $mutex = [Threading.Mutex]::new($false, ((Get-SpacrGpuMutexName $Directory) + '-vram'))
     $mine = Join-Path $reserve ([string]$PID)
     Write-TurnLog "queued concurrently (pid $PID, $(Get-Location)); needs $NeedGb GB + $margin GB margin"
@@ -280,6 +276,12 @@ function Invoke-SpacrGpuConcurrent {
     try {
         while ($true) {
             try { [void]$mutex.WaitOne() } catch [Threading.AbandonedMutexException] { }
+            $power = Get-SpacrGpuReading 'power.limit'
+            if ($null -eq $power -or [double]$power -ne $limit) {
+                $mutex.ReleaseMutex()
+                Write-TurnLog "REFUSED: --vram-gb needs the GPU power limit at $limit W; nvidia-smi reports '$power' W. Set it (nvidia-smi -pl $limit, as administrator) and try again."
+                return 3
+            }
             $now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
             $reserved = 0.0
             foreach ($file in [IO.Directory]::GetFiles($reserve)) {

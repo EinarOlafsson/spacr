@@ -94,6 +94,10 @@ _DEFAULTS: Dict[str, Any] = {
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
     "ops_decode_qc": False,
+    "ops_read_distance_decay_px": 4.0,
+    "ops_read_distance_interior_px": 0.0,
+    "ops_read_distance_min_weight": 0.05,
+    "ops_read_neighbour_discount": 1.0,
 }
 
 #: How far from a nucleus boundary a fallback pixel is kept at all, in
@@ -187,8 +191,11 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
     :param settings: settings after :func:`resolve_settings`.
     :returns: the parameters :func:`field_calls` takes, plus ``active`` --
         True when any rule of this module is on, which routes the well
-        through :func:`field_calls` -- and ``decoy_k``.
-    :raises ValueError: for a negative count or a fraction outside (0, 1].
+        through :func:`field_calls` -- and ``decoy_k``. With the item-988
+        distance weight or neighbour discount on (alpha), ``read_weight``
+        holds their settings.
+    :raises ValueError: for a negative count or a fraction outside (0, 1],
+        or for the item-988 weighting without the decode rules.
     """
     rule = {
         "calibration": _flag(settings, "ops_decode_library_calibration"),
@@ -227,7 +234,45 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
                          f"{rule['pixel_min_fraction']}")
     rule["active"] = bool(rule["decoy_k"] > 0 or any(
         _flag(settings, key) for key in _RULE_SWITCHES))
+    weighting = _read_weighting(settings)
+    if weighting is not None:
+        if not rule["active"]:
+            raise ValueError("ops_read_distance_weight and ops_read_neighbour_discount act in "
+                             "the decode rules' read vote; turn the rules on, for example "
+                             "with ops_decode_preset 'rule_a_s2'")
+        rule["read_weight"] = weighting
     return rule
+
+
+def _read_weighting(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """The read-vote weighting of item 988, or None while it is off.
+
+    :param settings: settings after :func:`resolve_settings`.
+    :returns: ``distance_weight``, ``decay_px``, ``interior_px``,
+        ``min_weight`` and ``neighbour_discount``, read from the
+        ``ops_read_distance_*`` settings and ``ops_read_neighbour_discount``;
+        None when the distance weight is ``'off'`` and the discount is 1.
+    :raises ValueError: for an unknown mode or a value out of range.
+    """
+    mode = str(settings.get("ops_read_distance_weight") or "off").strip().lower()
+    discount = _number(settings, "ops_read_neighbour_discount")
+    if mode not in ("off", "decay", "distance_only"):
+        raise ValueError("ops_read_distance_weight must be 'off', 'decay' or "
+                         f"'distance_only'; got {mode!r}")
+    if not 0 <= discount <= 1:
+        raise ValueError("ops_read_neighbour_discount must lie in [0, 1] (1 = off)")
+    if mode == "off" and discount == 1.0:
+        return None
+    out = {"distance_weight": mode,
+           "decay_px": _number(settings, "ops_read_distance_decay_px"),
+           "interior_px": _number(settings, "ops_read_distance_interior_px"),
+           "min_weight": _number(settings, "ops_read_distance_min_weight"),
+           "neighbour_discount": discount}
+    if not out["decay_px"] > 0 or out["interior_px"] < 0 or not 0 <= out["min_weight"] <= 1:
+        raise ValueError("ops_read_distance_decay_px must be above 0, "
+                         "ops_read_distance_interior_px 0 or more and "
+                         "ops_read_distance_min_weight in [0, 1]")
+    return out
 
 
 def nuclei_with_read(evidence: Mapping[str, np.ndarray], threshold: float) -> int:
@@ -526,6 +571,7 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
     objects = first[rows]
     distance = max(int(max_distance), 1) if rule["runner_up"] else int(max_distance)
     tallies: Optional[dict] = {} if evidence_rows else None
+    weighting = _vote_weighting(rule, gap[rows, 0])
     primary = vote_mapped_reads(
         objects, [codes[i] for i in rows], quality[rows], data[rows],
         margin[rows], matcher, max_distance=distance,
@@ -534,7 +580,7 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         weight_floor=float(rule["weight_floor"]), min_fraction=min_fraction,
         single_read_quality=single_read_quality,
         impute_missing=bool(rule["impute"]),
-        strength=strength[selected][rows], evidence=tallies)
+        strength=strength[selected][rows], evidence=tallies, **weighting)
     pixel: Dict[float, Dict[int, dict]] = {q: {} for q in pixel_qualities}
     if rule["pixels"] and "pix_values" in evidence and len(evidence["pix_values"]):
         _, pixel_codes, _, pixel_quality = _call(
@@ -557,6 +603,29 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
             "reads": int(selected.sum()), "reads_owned": int(len(rows)),
             "reads_near": int(near.sum()),
             "reads_ambiguous": int(ambiguous.sum())}
+
+
+def _vote_weighting(rule: Mapping[str, Any], gaps: np.ndarray) -> Dict[str, Any]:
+    """The item-988 keyword arguments of :func:`spacr.ops_sbs.vote_mapped_reads`.
+
+    :param rule: from :func:`decode_rule`; the field's ``neighbours``
+        (:func:`spacr.ops_sbs._disc_neighbours`) added by the engine.
+    :param gaps: the owned reads' gaps to their nucleus disc.
+    :returns: no arguments while the weighting is off.
+    :raises ValueError: for a neighbour discount without the field's
+        neighbours, as in a field cache decoded again.
+    """
+    weighting = rule.get("read_weight")
+    if not weighting:
+        return {}
+    if weighting["neighbour_discount"] != 1.0 and rule.get("neighbours") is None:
+        raise ValueError("ops_read_neighbour_discount needs the field's nucleus positions; "
+                         "a stored field cache does not hold them")
+    return {"gaps": np.maximum(np.asarray(gaps, float), 0.0),
+            "distance_weight": weighting["distance_weight"],
+            "decay_px": weighting["decay_px"], "interior_px": weighting["interior_px"],
+            "min_weight": weighting["min_weight"], "neighbours": rule.get("neighbours"),
+            "neighbour_discount": weighting["neighbour_discount"]}
 
 
 def _assemble_calls(primary: Mapping[int, dict], pixel: Mapping[int, dict],

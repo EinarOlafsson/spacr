@@ -463,7 +463,7 @@ This linked reference contains the full generated setting descriptions. Return t
 
 #### Measurement Backend α
 
-- **`measurement_backend`** *(optional)* — (str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite. Default: `'sqlite'`.
+- **`measurement_backend`** *(optional)* — (str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. spacr_store writes each object table and its crops as the spaCR store in the measurements folder, one Parquet part and one Zarr crop store per well, which spacr.store.open reads. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite. Default: `'sqlite'`.
 - **`measurement_backend_target`** *(optional)* — (str) - The DuckDB file, Parquet folder or PostgreSQL connection string the measurements are copied to. Blank puts measurements.duckdb or measurements.parquetdb beside measurements.db, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for sqlite. Default blank. Default: `''`.
 
 </details>

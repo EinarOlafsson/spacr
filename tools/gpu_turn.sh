@@ -223,22 +223,23 @@ co_running() {
     echo "compute=[${apps:-none}] turn_holder=[${holder:-none}]"
 }
 
+# Run a declared job after checking the current power cap and available capacity.
 run_concurrent() {
     local limit free temp spare margin max_temp power alert why last_why=""
     limit=${GPU_POWER_LIMIT_W:-280}
     margin=${GPU_VRAM_MARGIN_GB:-2}
     max_temp=${GPU_MAX_TEMP_C:-80}
     alert=${GPU_RAM_ALERT:-$HOME/.claude/ram_guard/ALERT}
-    power=$(gpu_reading power.limit)
-    if ! awk -v p="$power" -v l="$limit" 'BEGIN{exit !(p != "" && p + 0 == l + 0)}'; then
-        say "REFUSED: --vram-gb needs the GPU power limit at ${limit} W; nvidia-smi reports '${power:-nothing}' W. Set it (sudo nvidia-smi -pl ${limit}) and try again."
-        exit 3
-    fi
     mkdir -p "$DIR/reserve"
     exec 8>"$DIR/vram.lock"
     say "queued concurrently (pid $$, $(pwd)); needs ${VRAM_GB} GB + ${margin} GB margin"
     while true; do
         flock 8
+        power=$(gpu_reading power.limit)
+        if ! awk -v p="$power" -v l="$limit" 'BEGIN{exit !(p != "" && p + 0 == l + 0)}'; then
+            say "REFUSED: --vram-gb needs the GPU power limit at ${limit} W; nvidia-smi reports '${power:-nothing}' W. Set it (sudo nvidia-smi -pl ${limit}) and try again."
+            exit 3
+        fi
         free=$(gpu_reading memory.free)
         temp=$(gpu_reading temperature.gpu)
         spare=$(awk -v f="${free:-0}" -v r="$(reserved_gb)" 'BEGIN{printf "%.1f", f / 1024 - r}')

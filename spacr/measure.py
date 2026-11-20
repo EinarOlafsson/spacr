@@ -12572,7 +12572,8 @@ def _archive_measurement_run(settings):
     from .database_concurrency import connect, transaction
 
     plans = _measurement_run_archive_plan(settings)
-    if plans and str(settings.get('measurement_backend') or 'sqlite').lower() != 'sqlite':
+    if plans and str(settings.get('measurement_backend') or 'sqlite').lower() not in (
+            'sqlite', 'spacr_store'):
         from .qt.i18n import tr
         raise ConfigurationError(tr(
             'A fresh run with a non-SQLite backend needs a separate project folder to avoid mixing previous results.'))
@@ -13065,7 +13066,8 @@ def measure_crop(settings):
                 writer = None
                 writer_started = False
                 queued_sqlite = str(settings.get('measurement_backend') or
-                                    'sqlite').lower() == 'sqlite'
+                                    'sqlite').lower() in ('sqlite',
+                                                          'spacr_store')
 
                 def record_verdict(item, error=None, stage='measure'):
                     """Count each field once, after its actual final outcome."""
@@ -13322,8 +13324,11 @@ def measure_crop(settings):
                         _emit_per_cell_export(settings, db_path)
                     if settings.get('profiling'):
                         _emit_profiles(settings, db_path)
-                    if (str(settings.get('measurement_backend') or 'sqlite')
-                            != 'sqlite' and os.path.isfile(db_path)):
+                    backend = str(settings.get('measurement_backend')
+                                  or 'sqlite').lower()
+                    if backend == 'spacr_store' and os.path.isfile(db_path):
+                        _write_measure_store(db_path, settings)
+                    elif backend != 'sqlite' and os.path.isfile(db_path):
                         _copy_to_measurement_backend(db_path, settings)
                     print("Successfully completed run")
 
@@ -13396,6 +13401,171 @@ def _copy_to_measurement_backend(db_path, settings):
     print(f"Measurement backend: measurements copied to "
           f"{settings.get('measurement_backend')}.")
     return target
+
+
+#: The Measure tables the spaCR store receives, one table per object class.
+_MEASURE_STORE_SKIP = frozenset({'png_list', 'intensity_rescale'})
+
+
+def _measure_store_tables(db_path):
+    """The per-object tables of ``db_path`` that go to the spaCR store."""
+    from .resume import MEASURE_OWNED_TABLES
+    from .tabular import database_tables
+
+    present = set(database_tables(db_path))
+    return sorted(present & (MEASURE_OWNED_TABLES - _MEASURE_STORE_SKIP))
+
+
+def _measure_object_keys(prcfo):
+    """An integer key per object from its ``prcfo``, unique within a run.
+
+    :param prcfo: the objects' keys.
+    :returns: ``integer_cell_key`` of row, column, field and label, or the
+        row position plus 2**62 where a key does not parse.
+    """
+    from . import schema
+    from .ops_run_infra import integer_cell_key
+
+    out = np.empty(len(prcfo), dtype=np.int64)
+    for position, text in enumerate(prcfo):
+        try:
+            parsed = schema.parse_prcfo(text)
+            out[position] = int(integer_cell_key(
+                int(str(parsed.rowID)[1:]), int(str(parsed.columnID)[1:]),
+                int(str(parsed.fieldID)[1:]),
+                int(schema.object_index(parsed.objectID)))[()])
+        except Exception:
+            out[position] = 2 ** 62 + position
+    return out
+
+
+class _MeasureCrops:
+    """A table's crop PNGs as an array the store reads in chunks.
+
+    :param paths: one PNG per crop.
+    :param formats: each PNG's crop format.
+    :param shape: ``(C, H, W)`` of one crop.
+    :param dtype: the stored dtype.
+    """
+
+    def __init__(self, paths, formats, shape, dtype):
+        """Hold the paths; each PNG is decoded only when its row is read."""
+        self.paths = list(paths)
+        self.formats = list(formats)
+        self.shape = (len(self.paths),) + tuple(shape)
+        self.dtype = np.dtype(dtype)
+
+    def __getitem__(self, rows):
+        """The crops of ``rows`` as ``(n, C, H, W)``."""
+        out = np.empty((len(rows),) + self.shape[1:], dtype=self.dtype)
+        for position, row in enumerate(rows):
+            out[position] = _measure_crop_chw(self.paths[int(row)],
+                                              self.formats[int(row)])
+        return out
+
+
+def _measure_crop_chw(path, fmt):
+    """One crop PNG at its stored bit depth, channels first, in declared order."""
+    from .crops import _FORMAT_IS_DECLARED_ORDER, CROP_FORMAT_CURRENT, _read_crop_array
+
+    arr = _read_crop_array(path)
+    if (fmt is not None and _FORMAT_IS_DECLARED_ORDER.get(int(fmt), True)
+            is not _FORMAT_IS_DECLARED_ORDER[CROP_FORMAT_CURRENT]):
+        arr = arr[:, :, ::-1]
+    return np.ascontiguousarray(np.moveaxis(arr, -1, 0))
+
+
+def _write_measure_store(db_path, settings):
+    """Write a finished Measure run's tables and crops to the spaCR store.
+
+    Each per-object table goes to ``<run>/measurements/`` as one part per
+    plate and well, sorted by ``condition`` (when present) and an integer
+    ``object_key`` made from ``prcfo``; the crops ``png_list`` lists for that
+    object class are copied at their stored bit depth into the well's Zarr
+    store, so each row carries ``crop_store`` and ``crop_index``.
+    ``measurements.db`` stays the working copy every later step reads. A
+    failed write is reported and the run still succeeds.
+
+    :param db_path: the run's ``measurements.db``.
+    :param settings: the run settings.
+    :returns: the store's report, or ``None`` on failure.
+    """
+    import uuid
+
+    from . import store
+    from .crops import crop_format_for_png
+    from .tabular import read_table
+    from .utils import PNG_OBJECT_ID_COLUMNS
+
+    project = os.path.dirname(os.path.abspath(db_path))
+    run_id = uuid.uuid4().hex
+    report = {"project": project, "tables": {}, "missing_crops": 0}
+    try:
+        crops = None
+        from .tabular import database_tables
+
+        if 'png_list' in set(database_tables(db_path)):
+            crops = read_table(db_path, table='png_list', canonicalise=False,
+                               report=None)
+        for table in _measure_store_tables(db_path):
+            frame = read_table(db_path, table=table, canonicalise=False,
+                               report=None)
+            if frame.empty or 'prcfo' not in frame.columns:
+                continue
+            frame = frame.reset_index(drop=True)
+            frame['object_key'] = _measure_object_keys(frame['prcfo'].tolist())
+            plates = (frame['plateID'].astype(str) if 'plateID' in frame
+                      else frame['prcfo'].astype(str).str.split('_').str[0])
+            wells = ((frame['rowID'].astype(str) + frame['columnID'].astype(str))
+                     if {'rowID', 'columnID'} <= set(frame.columns)
+                     else frame['prcfo'].astype(str).str.split('_').str[1:3].str.join(''))
+            column = PNG_OBJECT_ID_COLUMNS.get(table)
+            mine = None
+            if crops is not None and column and column in crops.columns:
+                mine = crops[crops[column].notna()]
+                mine = mine.drop_duplicates('prcfo', keep='last').set_index('prcfo')
+            counts = {}
+            for (plate, well), rows in frame.groupby([plates, wells], sort=True):
+                part = rows.drop(columns=[c for c in ('plateID',)
+                                          if c in rows.columns]).reset_index(drop=True)
+                part = part.rename(columns={c: f'{c}_measured' for c in
+                                            ('plate', 'well', 'crop_store',
+                                             'crop_index') if c in part.columns})
+                stack = rows_with = None
+                if mine is not None:
+                    hits = [(i, mine.at[p, 'png_path']) for i, p in
+                            enumerate(part['prcfo']) if p in mine.index]
+                    present = [(i, path) for i, path in hits
+                               if isinstance(path, str) and os.path.isfile(path)]
+                    report["missing_crops"] += len(hits) - len(present)
+                    if present:
+                        formats = [crop_format_for_png(path, db_path=db_path)
+                                   for _i, path in present]
+                        first = _measure_crop_chw(present[0][1], formats[0])
+                        stack = _MeasureCrops([p for _i, p in present], formats,
+                                              first.shape, first.dtype)
+                        rows_with = np.asarray([i for i, _p in present])
+                        part['crop_format'] = pd.array(
+                            [None] * len(part), dtype='Int64')
+                        part.loc[rows_with, 'crop_format'] = [
+                            int(f) if f is not None else None for f in formats]
+                store.write_part(project, table, part, plate=plate, well=well,
+                                 sort_by=('condition', 'object_key'),
+                                 key_columns=tuple(c for c in (
+                                     'prcfo', 'rowID', 'columnID', 'fieldID',
+                                     'condition', 'object_key', 'crop_format')
+                                     if c in part.columns),
+                                 crops=stack, crop_rows=rows_with,
+                                 run_id=run_id)
+                counts[f'{plate}/{well}'] = int(len(part))
+            report["tables"][table] = counts
+        report["registered"] = store.register(project, run={
+            "run_id": run_id, "settings": dict(settings)})
+    except Exception as exc:
+        print(f"spaCR store: write failed ({type(exc).__name__}: {exc}).")
+        return None
+    print(f"spaCR store: {len(report['tables'])} table(s) written to {project}.")
+    return report
 
 
 def _run_plate_barcode_step(settings, fetch=None):

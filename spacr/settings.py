@@ -5903,7 +5903,7 @@ tooltips = {
     "measure_gpu_check": "(bool) - Before a measure_gpu run, measure the first field on the CPU and on the GPU and compare every column; when a column differs by more than measure_gpu_check_rtol, the run stops before any field is measured and lists the columns. Only read with measure_gpu on and a CUDA device visible. The OPS setting ops_ph_measure_gpu_check runs the same check. Default True.",
     "measure_gpu_check_rtol": "(float) - The relative tolerance of measure_gpu_check: a column passes when every value is within this fraction of its CPU value, or both are missing. Default 0.0001.",
     "measure_gpu": "(bool) - Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. With cuCIM installed (the 'gpu' extra), the per-object morphology table is computed on the GPU too; without it, morphology stays on the CPU. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
-    "measurement_backend": "(str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
+    "measurement_backend": "(str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. spacr_store writes each object table and its crops as the spaCR store in the measurements folder, one Parquet part and one Zarr crop store per well, which spacr.store.open reads. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
     "measurement_backend_target": "(str) - The DuckDB file, Parquet folder or PostgreSQL connection string the measurements are copied to. Blank puts measurements.duckdb or measurements.parquetdb beside measurements.db, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for sqlite. Default blank.",
     "wound_closure": "(bool) - Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
     "wound_source": "(str) - How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
@@ -9495,6 +9495,9 @@ ALPHA_FEATURES = {
         'settings': ('ops_objects_resume', 'ops_objects_keep_windows',
                      'ops_objects_windows_dir'),
     },
+    974: {
+        'settings': ('ops_storage', 'ops_store_row_copy'),
+    },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },
@@ -9761,6 +9764,18 @@ ALPHA_FEATURES = {
         'settings': ('ops_grid_search', 'ops_grid_params', 'ops_grid_tiles',
                      'ops_grid_tile_mode', 'ops_grid_n_tiles', 'ops_grid_seed',
                      'ops_grid_run_id'),
+    },
+    988: {
+        'settings': ('ops_read_distance_weight', 'ops_read_distance_decay_px',
+                     'ops_read_distance_interior_px', 'ops_read_distance_min_weight',
+                     'ops_read_neighbour_discount', 'ops_prefix_distance_weight',
+                     'ops_prefix_distance_decay_px', 'ops_prefix_distance_interior_px',
+                     'ops_prefix_distance_min_weight', 'ops_prefix_weighted_quality',
+                     'ops_prefix_weighted_min_share', 'ops_prefix_nuclei_masks',
+                     'ops_keep_multi_guide_cells', 'ops_multi_guide_min_reads'),
+    },
+    982: {
+        'settings': ('ops_prefix_tuning_min_sites',),
     },
 }
 

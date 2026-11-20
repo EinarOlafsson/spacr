@@ -44,7 +44,8 @@ stage names.
 """
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Sequence, Tuple
+import math
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -1083,6 +1084,81 @@ def nearest_boundaries(points: np.ndarray, centroids: np.ndarray,
     return gap, index
 
 
+def _distance_term(gap: float, decay_px: float, interior_px: float,
+                   min_weight: float) -> float:
+    """One read's distance term in the guide vote (item 988).
+
+    :param gap: the read's distance to its object's boundary in pixels; a
+        negative gap (inside the object's disc) counts as 0.
+    :param decay_px: the decay length.
+    :param interior_px: the distance with full weight.
+    :param min_weight: the smallest term.
+    :returns: ``max(exp(-(g - interior_px) / decay_px), min_weight)``, with
+        ``g - interior_px`` floored at 0.
+    """
+    excess = max(max(float(gap), 0.0) - float(interior_px), 0.0)
+    return max(math.exp(-excess / float(decay_px)), float(min_weight))
+
+
+def _discount_neighbour_bleed(votes, exact, corrected, neighbours: Mapping[int, Any],
+                              discount: float) -> None:
+    """Weigh down the minority guides that are a neighbour's top guide (item 988).
+
+    An object's guide is discounted when it has strictly fewer reads than
+    the object's top guide and is a top guide, by reads with ties kept, of a
+    neighbouring object. Decoy guides count like library guides.
+
+    :param votes: object -> guide -> summed vote, changed in place.
+    :param exact: object -> guide -> exact reads.
+    :param corrected: object -> guide -> corrected reads.
+    :param neighbours: object -> its neighbouring objects.
+    :param discount: the factor a discounted vote is multiplied by.
+    """
+    reads = {owner: {g: exact[owner].get(g, 0) + corrected[owner].get(g, 0) for g in tally}
+             for owner, tally in votes.items()}
+    tops = {}
+    for owner, per in reads.items():
+        most = max(per.values())
+        tops[owner] = {g for g, n in per.items() if n == most}
+    for owner, tally in votes.items():
+        near = set()
+        for other in neighbours.get(owner, ()):
+            near |= tops.get(int(other), set())
+        if not near:
+            continue
+        most = max(reads[owner].values())
+        for guide in list(tally):
+            if guide in near and reads[owner][guide] < most:
+                tally[guide] *= discount
+
+
+def _disc_neighbours(ids: np.ndarray, centroids: np.ndarray, areas: np.ndarray,
+                    reach: float) -> Dict[int, set]:
+    """The objects whose equal-area discs come within ``reach`` of each other (item 988).
+
+    :param ids: one id per object.
+    :param centroids: ``(M, 2)`` object centroids.
+    :param areas: ``(M,)`` object areas in pixels.
+    :param reach: the largest gap between two disc edges, in pixels
+        (``ops_footprint``).
+    :returns: object id -> the ids of its neighbours.
+    """
+    from scipy.spatial import cKDTree
+
+    ids = np.asarray(ids, np.int64).reshape(-1)
+    centres = np.asarray(centroids, float).reshape(-1, 2)
+    radius = np.sqrt(np.maximum(np.asarray(areas, float).reshape(-1), 0) / np.pi)
+    out: Dict[int, set] = {}
+    if len(ids) < 2:
+        return out
+    span = 2.0 * float(radius.max()) + float(reach)
+    for i, j in cKDTree(centres).query_pairs(r=span):
+        if np.hypot(*(centres[i] - centres[j])) - radius[i] - radius[j] <= reach:
+            out.setdefault(int(ids[i]), set()).add(int(ids[j]))
+            out.setdefault(int(ids[j]), set()).add(int(ids[i]))
+    return out
+
+
 def vote_mapped_reads(objects: np.ndarray, barcodes: Sequence[str],
                       quality: np.ndarray, data: np.ndarray,
                       margin: np.ndarray, matcher: LibraryMatcher, *,
@@ -1095,7 +1171,14 @@ def vote_mapped_reads(objects: np.ndarray, barcodes: Sequence[str],
                       impute_missing: bool = True,
                       strength: Optional[np.ndarray] = None,
                       evidence: Optional[dict] = None,
-                      bases: Sequence[str] = BASES) -> Dict[int, dict]:
+                      bases: Sequence[str] = BASES,
+                      gaps: Optional[np.ndarray] = None,
+                      distance_weight: str = "off",
+                      decay_px: float = 4.0,
+                      interior_px: float = 0.0,
+                      min_weight: float = 0.05,
+                      neighbours: Optional[Mapping[int, Any]] = None,
+                      neighbour_discount: float = 1.0) -> Dict[int, dict]:
     """Each object's guide from its reads, matched to the library first.
 
     Every read is matched (:class:`LibraryMatcher`); a read at distance one
@@ -1129,6 +1212,28 @@ def vote_mapped_reads(objects: np.ndarray, barcodes: Sequence[str],
         ``qualities``, ``strength`` and ``matched`` -- for objects assigned
         or not; None keeps none.
     :param bases: the letter for each channel, in channel order.
+    :param gaps: one distance per read, in pixels, from the read to its
+        object's boundary, 0 inside (item 988). Only read when
+        ``distance_weight`` is on.
+    :param distance_weight: ``ops_read_distance_weight`` (item 988, alpha).
+        ``'off'`` keeps the weights above. ``'decay'`` multiplies each
+        read's weight by its distance term, and ``'distance_only'`` uses
+        the distance term alone. The distance term is 1 up to
+        ``interior_px`` and ``exp(-(g - interior_px) / decay_px)`` beyond
+        it, at least ``min_weight``. A one-read guide then needs its
+        quality times its distance term to reach ``single_read_quality``.
+    :param decay_px: the decay length in pixels
+        (``ops_read_distance_decay_px``).
+    :param interior_px: the distance with full weight
+        (``ops_read_distance_interior_px``).
+    :param min_weight: the smallest distance term
+        (``ops_read_distance_min_weight``).
+    :param neighbours: object -> the objects whose boundaries come within
+        the footprint of it, for the neighbour discount; None for none.
+    :param neighbour_discount: ``ops_read_neighbour_discount`` (item 988,
+        alpha). A guide with strictly fewer reads in the object than its
+        top guide has its vote multiplied by this when it is a top guide
+        of a neighbour, by reads with ties kept. 1 is off.
     :returns: ``{object: {"guide", "fraction", "n_support", "n_exact",
         "n_corrected", "n_matched", "n_guides", "vote_top", "vote_total",
         "runner_margin", "quality", "barcode"}}``; ``barcode`` is the
@@ -1145,6 +1250,12 @@ def vote_mapped_reads(objects: np.ndarray, barcodes: Sequence[str],
     qualities: Dict[int, Dict[str, list]] = defaultdict(lambda: defaultdict(list))
     brightest: Dict[int, Dict[str, float]] = defaultdict(lambda: defaultdict(float))
     matched: Counter = Counter()
+    decay = distance_weight != "off"
+    if distance_weight not in ("off", "decay", "distance_only"):
+        raise ValueError("ops_read_distance_weight must be 'off', 'decay' or "
+                         f"'distance_only'; got {distance_weight!r}")
+    if decay and gaps is None:
+        raise ValueError("ops_read_distance_weight needs each read's distance")
     for i, (owner, read) in enumerate(zip(objects, barcodes)):
         if not impute_missing and "N" in read:
             continue
@@ -1161,9 +1272,14 @@ def vote_mapped_reads(objects: np.ndarray, barcodes: Sequence[str],
         else:
             exact[owner][guide] += 1
         weight = (float(min(1.0, max(quality[i], 0.0)) + weight_floor)
-                  if quality_weighted else 1.0)
+                  if quality_weighted and distance_weight != "distance_only" else 1.0)
+        floor_quality = quality[i]
+        if decay:
+            term = _distance_term(float(gaps[i]), decay_px, interior_px, min_weight)
+            weight *= term
+            floor_quality = quality[i] * term
         votes[owner][guide] += weight
-        best[owner][guide] = max(best[owner][guide], quality[i])
+        best[owner][guide] = max(best[owner][guide], floor_quality)
         raw[owner][guide][read] += 1
         matched[owner] += 1
         if evidence is not None:
@@ -1171,6 +1287,9 @@ def vote_mapped_reads(objects: np.ndarray, barcodes: Sequence[str],
             if strength is not None:
                 brightest[owner][guide] = max(brightest[owner][guide],
                                               float(strength[i]))
+    if float(neighbour_discount) != 1.0:
+        _discount_neighbour_bleed(votes, exact, corrected, neighbours or {},
+                                  float(neighbour_discount))
     if evidence is not None:
         evidence.update({"votes": votes, "exact": exact, "corrected": corrected,
                          "best": best, "qualities": qualities,
