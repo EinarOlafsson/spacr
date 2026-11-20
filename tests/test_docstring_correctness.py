@@ -6926,6 +6926,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("codex_issues_1119_api_arrivals_2026-11-19.json", 2),
         ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
         ("987b_mask_batches_api_arrivals_2026-11-20.json", 1),
+        ("993_cli_preflight_reporting_api_arrivals_2026-11-20.json", 1),
         ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
     ):
@@ -7548,6 +7549,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "964_ops_feature_screen_api_arrivals_2026-11-17.json",
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
                      "987b_mask_batches_api_arrivals_2026-11-20.json",
+                     "993_cli_preflight_reporting_api_arrivals_2026-11-20.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json"):
@@ -7711,6 +7713,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "964_ops_feature_screen_api_arrivals_2026-11-17.json",
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
                      "987b_mask_batches_api_arrivals_2026-11-20.json",
+                     "993_cli_preflight_reporting_api_arrivals_2026-11-20.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json"):

@@ -3831,7 +3831,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("871_911_bmc_paper_items_api_arrivals_2026-11-09.json", 171),
         ("884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json", 376),
         ("912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json", 54),
-        ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 107),
+        ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 112),
         ("annotate_jump_api_arrivals_2026-11-11.json", 4),
         ("issue_186_png_list_annotations_api_arrivals_2026-11-11.json", 3),
         ("gate_editor_png_list_annotations_api_arrivals_2026-11-12.json", 1),
@@ -3869,6 +3869,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("codex_issues_1119_api_arrivals_2026-11-19.json", 2),
         ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
         ("987b_mask_batches_api_arrivals_2026-11-20.json", 1),
+        ("993_cli_preflight_reporting_api_arrivals_2026-11-20.json", 1),
         ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
     ):

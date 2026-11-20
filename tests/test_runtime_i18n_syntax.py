@@ -728,9 +728,11 @@ def _requested_detection_retirements(language, filename):
                == row['source_sha256'] for row in retired)
     # 2026-10-16, item 707: Make Masks layout captions retired the same way.
     # 2026-10-17, item 678: factual app-text rewrite retired the same way.
+    # 2026-11-19, error-message batches 1-5: next-step rewrites retired the same way.
     n678 = {row['source'] for row in current.get('retired_records', [])
             if str(row.get('retired', '')).startswith(
-                ('2026-10-11', '2026-10-16', '2026-10-17', '2026-10-31', '2026-11-01', '2026-11-06', '2026-11-17', TUTORIAL_RENDERER_RETIRED))}
+                ('2026-10-11', '2026-10-16', '2026-10-17', '2026-10-31', '2026-11-01', '2026-11-06', '2026-11-17',
+                 '2026-11-19', TUTORIAL_RENDERER_RETIRED))}
     published = _published_panel_retirements(language, filename)
     automatic_reports = _automatic_report_retirements(language, filename, original)
     compact_rows = _compact_install_consent_retirements(language, filename)
@@ -817,7 +819,8 @@ def _theme_cohort_retirements(language, filename):
     n678 = {row['source'] for row in json.loads((folder / filename).read_text(encoding="utf-8"))
             .get('retired_records', [])
             if str(row.get('retired', '')).startswith(
-                ('2026-10-11', '2026-10-16', '2026-10-17', '2026-10-31', '2026-11-01', '2026-11-06', '2026-11-17', TUTORIAL_RENDERER_RETIRED))}
+                ('2026-10-11', '2026-10-16', '2026-10-17', '2026-10-31', '2026-11-01', '2026-11-06', '2026-11-17',
+                 '2026-11-19', TUTORIAL_RENDERER_RETIRED))}
     figure_retired = _figure_export_retirements(language, filename)
     published = _published_panel_retirements(language, filename)
     compact_rows = _compact_install_consent_retirements(language, filename)

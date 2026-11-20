@@ -2602,6 +2602,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in mask_batch_arrivals} == mask_batch_arrivals
     assert not mask_batch_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **mask_batch_arrivals}
+    preflight_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "993_cli_preflight_reporting_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert set(preflight_arrivals) == {"spacr.crashreport._record_validation_refusal.failed"}
+    assert {key: docs[key] for key in preflight_arrivals} == preflight_arrivals
+    assert not preflight_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **preflight_arrivals}
     ome_zarr_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
     assert len(ome_zarr_arrivals) == 49
