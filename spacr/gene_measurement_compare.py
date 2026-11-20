@@ -4314,8 +4314,8 @@ class EnergyTest:
         assigned once among compatible strata, weighted by query counts.
         Strata without NT guides keep their query blocks fixed.
         Exchangeability is conditional on these counts and this allocation;
-        cells never move between guide blocks. Cached rows and sparse pair
-        sums have eight-entry and conservative 64 MiB accounting limits.
+        cells never move between guide blocks. Cached rows and pair sums
+        have eight-entry and conservative 64 MiB accounting limits.
         """
         profile = tuple(int(count) for count in profile)
         if profile in self._permutation_banks:
@@ -4350,7 +4350,7 @@ class EnergyTest:
         size = sum(row.nbytes + 320 for row in rows) + cross.nbytes + 1024 + 1024 * len(strata)
         bank = {"profile": profile, "supported": True, "rows": rows, "strata": tuple(strata),
                 "cross": cross, "pairs": {}, "cached": False, "bytes": size}
-        limit = 64 * 1024 ** 2
+        limit = getattr(self, "_guide_profile_limit", 64 * 1024 ** 2)
         while self._permutation_banks and (len(self._permutation_banks) >= 8
                                          or self._permutation_bank_bytes + size > limit):
             removed = self._permutation_banks.pop(next(iter(self._permutation_banks)))
@@ -4402,29 +4402,260 @@ class EnergyTest:
                     "permutation_exact": exact, "permutation_supported": True}
         return assignments, metadata
 
+    def _guide_cell_geometry(self):
+        """Cache squared NT cell distances for batched exact rectangle lookups.
+
+        Small rectangles retain the original einsum reduction, including
+        diagonal and nonfinite values. The cell matrix and guide-pair LRU
+        share a 512 MiB budget; larger banks keep the bounded pairwise path.
+        """
+        if hasattr(self, "_guide_cell_distances"):
+            return self._guide_cell_distances
+        self._guide_cell_distances = None
+        self._guide_cell_bytes = 0
+        positions = self._half_positions[0]
+        total = int(self._pool_sizes[positions].sum())
+        size = 8 * total * total + 8 * len(self._pool_rows) + 512
+        limit = 512 * 1024 ** 2
+        if size > limit:
+            return None
+        cache = getattr(self, "_guide_geometry_cache", {})
+        while cache and getattr(self, "_guide_geometry_bytes", 0) + size > limit:
+            removed = cache.pop(next(iter(cache)))
+            self._guide_geometry_bytes -= removed.nbytes + 512
+            del removed
+        offsets = np.full(len(self._pool_rows), -1, dtype=np.int64)
+        offsets[positions] = np.r_[0, np.cumsum(self._pool_sizes[positions])[:-1]]
+        rows = np.concatenate([self._pool_rows[position] for position in positions])
+        distances = np.empty((total, total), dtype=np.float64)
+        dimension = max(1, self.reference.reference.shape[1])
+        embedded = self._rows(rows) if total * dimension <= 1048576 else None
+        width = max(1, 1048576 // dimension)
+        with np.errstate(over="ignore", invalid="ignore"):
+            for row in range(total):
+                a = embedded[row:row + 1] if embedded is not None else self._rows(rows[row:row + 1])
+                for start in range(row, total, width):
+                    stop = min(start + width, total)
+                    b = embedded[start:stop] if embedded is not None else self._rows(rows[start:stop])
+                    differences = a[None, :, None, :] - b[None, None, :, :]
+                    squared = np.einsum("bijd,bijd->bij", differences, differences)[0, 0]
+                    distances[row, start:stop] = squared
+                    distances[start:stop, row] = squared
+        self._guide_cell_offsets = offsets
+        self._guide_cell_size = total
+        self._guide_cell_bytes = size
+        self._guide_cell_distances = distances
+        return distances
+
+    def _guide_distance_geometry(self, left, right, prefix):
+        """Cache stable NT cell distances across profiles within a 512 MiB LRU.
+
+        The direct-subtraction and cdist kernels retain separate entries so
+        sampled rectangles use their original arithmetic. Full-guide work
+        is tiled, and oversized entries fall back to the sampled reducer.
+        Nonfinite unused cells are checked only after sampling a rectangle.
+        """
+        from scipy.spatial.distance import cdist
+
+        reverse = left > right
+        left, right = min(left, right), max(left, right)
+        key = (left, right, prefix)
+        if not hasattr(self, "_guide_geometry_cache"):
+            self._guide_geometry_cache = {}
+            self._guide_geometry_bytes = 0
+        cache = self._guide_geometry_cache
+        if key in cache:
+            distances = cache.pop(key)
+            cache[key] = distances
+            return distances.transpose(0, 2, 1) if reverse else distances
+        left_rows, right_rows = self._pool_rows[left], self._pool_rows[right]
+        size = 16 * len(left_rows) * len(right_rows) + 512
+        limit = getattr(self, "_guide_geometry_limit",
+                        512 * 1024 ** 2 - getattr(self, "_guide_cell_bytes", 0))
+        if size > limit:
+            return None
+        while cache and self._guide_geometry_bytes + size > limit:
+            removed = cache.pop(next(iter(cache)))
+            self._guide_geometry_bytes -= removed.nbytes + 512
+            del removed
+        distances = np.empty((2, len(left_rows), len(right_rows)), dtype=np.float64)
+        dimension = max(1, self.reference.reference.shape[1])
+        right_width = max(1, min(len(right_rows), 1048576 // dimension))
+        left_width = max(1, min(len(left_rows), 1048576 // (right_width * dimension)))
+        with np.errstate(over="ignore", invalid="ignore"):
+            for right_start in range(0, len(right_rows), right_width):
+                right_stop = min(right_start + right_width, len(right_rows))
+                b = self._rows(right_rows[right_start:right_stop])
+                for left_start in range(0, len(left_rows), left_width):
+                    left_stop = min(left_start + left_width, len(left_rows))
+                    a = self._rows(left_rows[left_start:left_stop])
+                    if prefix:
+                        squared = cdist(a, b, metric="sqeuclidean")
+                    else:
+                        differences = a[None, :, None, :] - b[None, None, :, :]
+                        squared = np.einsum("bijd,bijd->bij", differences, differences)[0]
+                    distances[0, left_start:left_stop, right_start:right_stop] = squared
+                    np.sqrt(squared, out=distances[1, left_start:left_stop, right_start:right_stop])
+        cache[key] = distances
+        self._guide_geometry_bytes += size
+        return distances.transpose(0, 2, 1) if reverse else distances
+
+    def _guide_cached_pair_sums(self, left, right, left_positions, right_positions, prefix):
+        """Reduce sampled cached NT distances in the original cell order and precision."""
+        from .qt.i18n import tr
+
+        distances = self._guide_distance_geometry(left, right, prefix)
+        if distances is None:
+            return None
+        if not prefix:
+            selected = np.ascontiguousarray(distances[:, left_positions[:, None], right_positions[None, :]])
+            if not np.isfinite(selected[0]).all():
+                raise ValueError(tr("Guide-null distances must be finite; repair nonfinite or overflowing embedding values."))
+            return selected.sum(axis=(1, 2))
+        carry = np.zeros((len(right_positions), 2), dtype=np.float64)
+        width = max(1, min(256, 1048576 // len(right_positions)))
+        for start in range(0, len(left_positions), width):
+            selected = np.ascontiguousarray(
+                distances[:, left_positions[start:start + width, None], right_positions[None, :]])
+            if not np.isfinite(selected[0]).all():
+                raise ValueError(tr("Guide-null distances must be finite; repair nonfinite or overflowing embedding values."))
+            for metric in range(2):
+                cumulative = selected[metric].cumsum(axis=0).cumsum(axis=1)
+                cumulative += carry[:, metric]
+                carry[:, metric] = cumulative[-1]
+        return carry[-1]
+
+    def _guide_pair_cache(self, bank, count):
+        """Reserve a compact pair table inside the existing 64 MiB profile budget."""
+        if "pair_values" in bank:
+            return bank["pair_values"]
+        size = 16 * count * count + 512
+        if (not bank["cached"] or bank["pairs"] or count * count > 100000
+                or self._permutation_bank_bytes + size > getattr(self, "_guide_profile_limit", 64 * 1024 ** 2)):
+            return None
+        values = np.full((count, count, 2), np.nan, dtype=np.float64)
+        bank["pair_values"] = values
+        bank["bytes"] += size
+        self._permutation_bank_bytes += size
+        return values
+
     def _guide_pair_sums(self, groups, pairs, bank, query_count, local):
         """Compute only requested guide-pair sums using bounded direct subtraction.
 
-        Pairs with identical block sizes share vectorized distance work.
-        Large individual rectangles use the bounded cdist prefix reducer.
-        NT-only sums can be reused across genes; conservative per-entry
-        accounting includes dictionary, key, scalar and array overhead.
+        Matched NT rectangles share cell geometry and batch reductions.
+        Query rectangles use direct cdist differences; large rectangles keep
+        their original prefix reducer. Compact profile tables and sparse
+        fallback sums share the existing 64 MiB accounting budget.
         """
+        from scipy.spatial.distance import cdist
         from .qt.i18n import tr
 
         total = len(groups)
         result = np.empty((len(pairs), 2), dtype=np.float64)
-        missing = {}
-        for number, encoded in enumerate(pairs):
-            left, right = divmod(int(encoded), total)
-            nt_key = (left - query_count, right - query_count)
-            value = bank["pairs"].get(nt_key) if left >= query_count else local.get(int(encoded))
+        left_ids, right_ids = np.divmod(np.asarray(pairs, dtype=np.int64), total)
+        nt_pairs = left_ids >= query_count
+        pending = np.ones(len(pairs), dtype=bool)
+        pair_values = self._guide_pair_cache(bank, total - query_count)
+        if pair_values is not None:
+            numbers = np.flatnonzero(nt_pairs)
+            values = pair_values[left_ids[numbers] - query_count, right_ids[numbers] - query_count]
+            ready = ~np.isnan(values[:, 0])
+            result[numbers[ready]] = values[ready]
+            pending[numbers[ready]] = False
+            numbers = np.flatnonzero(~nt_pairs)
+        else:
+            numbers = np.arange(len(pairs))
+        for number in numbers:
+            left, right = left_ids[number], right_ids[number]
+            value = (bank["pairs"].get((int(left - query_count), int(right - query_count)))
+                     if left >= query_count else local.get(int(pairs[number])))
             if value is None:
-                missing.setdefault((len(groups[left]), len(groups[right])), []).append((number, left, right))
-            else:
-                result[number] = value
+                continue
+            result[number] = value
+            pending[number] = False
+        counts = np.asarray([len(rows) for rows in groups], dtype=np.int64)
+        numbers = np.flatnonzero(pending)
+        shapes = np.column_stack((counts[left_ids[numbers]], counts[right_ids[numbers]]))
+        distinct, inverse = np.unique(shapes, axis=0, return_inverse=True)
+        missing = {}
+        for slot, shape in enumerate(distinct):
+            selected = numbers[inverse == slot]
+            missing[tuple(shape)] = np.column_stack((selected, left_ids[selected], right_ids[selected]))
         dimension = self.reference.reference.shape[1]
+        geometry = {}
+        if any(left >= query_count for requests in missing.values() for _, left, _ in requests):
+            pool_positions = self._pools.index.get_indexer(
+                self._guides[[rows[0] for rows in groups[query_count:]]])
+            for number, (rows, position) in enumerate(zip(groups[query_count:], pool_positions), query_count):
+                full = self._pool_rows[position]
+                indices = np.searchsorted(full, rows)
+                assert position >= 0 and np.array_equal(full[indices], rows)
+                geometry[number] = (int(position), indices)
+        cell_distances = None
+        if any(left_count * right_count * dimension <= 1048576
+               and any(left >= query_count for _, left, _ in requests)
+               for (left_count, right_count), requests in missing.items()):
+            cell_distances = self._guide_cell_geometry()
+        cell_indices = None
+        if cell_distances is not None and geometry:
+            longest = max(len(indices) for _, indices in geometry.values())
+            if total * longest <= 1048576:
+                cell_indices = np.empty((total, longest), dtype=np.int64)
+                for number, (position, indices) in geometry.items():
+                    cell_indices[number, :len(indices)] = indices + self._guide_cell_offsets[position]
         for (left_count, right_count), requests in missing.items():
+            if cell_distances is not None and left_count * right_count * dimension <= 1048576:
+                retained = requests[requests[:, 1] >= query_count]
+                width = max(1, 1048576 // (left_count * right_count))
+                for start in range(0, len(retained), width):
+                    selected = retained[start:start + width]
+                    if cell_indices is not None:
+                        left_rows = cell_indices[selected[:, 1], :left_count]
+                        right_rows = cell_indices[selected[:, 2], :right_count]
+                    else:
+                        left_rows = np.stack([geometry[left][1] + self._guide_cell_offsets[geometry[left][0]]
+                                              for _, left, _ in selected])
+                        right_rows = np.stack([geometry[right][1] + self._guide_cell_offsets[geometry[right][0]]
+                                               for _, _, right in selected])
+                    squared = cell_distances[left_rows[:, :, None], right_rows[:, None, :]]
+                    if not np.isfinite(squared).all():
+                        raise ValueError(tr("Guide-null distances must be finite; repair nonfinite or overflowing embedding values."))
+                    values = np.empty((len(selected), 2), dtype=np.float64)
+                    values[:, 0] = squared.sum(axis=(1, 2))
+                    np.sqrt(squared, out=squared)
+                    values[:, 1] = squared.sum(axis=(1, 2))
+                    result[selected[:, 0]] = values
+                    if pair_values is not None:
+                        pair_values[selected[:, 1] - query_count, selected[:, 2] - query_count] = values
+                    elif bank["cached"]:
+                        for (_, left, right), value in zip(selected, values):
+                            if (len(bank["pairs"]) < 100000
+                                    and self._permutation_bank_bytes + 320 <= getattr(self, "_guide_profile_limit", 64 * 1024 ** 2)):
+                                bank["pairs"][(left - query_count, right - query_count)] = (float(value[0]), float(value[1]))
+                                bank["bytes"] += 320
+                                self._permutation_bank_bytes += 320
+                requests = requests[requests[:, 1] < query_count]
+            uncached = []
+            for number, left, right in requests:
+                value = None
+                if left >= query_count:
+                    left_guide, left_positions = geometry[left]
+                    right_guide, right_positions = geometry[right]
+                    value = self._guide_cached_pair_sums(
+                        left_guide, right_guide, left_positions, right_positions,
+                        left_count * right_count * dimension > 1048576)
+                if value is None:
+                    uncached.append((number, left, right))
+                    continue
+                result[number] = value
+                if pair_values is not None:
+                    pair_values[left - query_count, right - query_count] = value
+                elif (bank["cached"] and len(bank["pairs"]) < 100000
+                        and self._permutation_bank_bytes + 320 <= getattr(self, "_guide_profile_limit", 64 * 1024 ** 2)):
+                    bank["pairs"][(left - query_count, right - query_count)] = (float(value[0]), float(value[1]))
+                    bank["bytes"] += 320
+                    self._permutation_bank_bytes += 320
+            requests = uncached
             width = max(1, 1048576 // max(1, left_count * right_count * dimension))
             for start in range(0, len(requests), width):
                 selected = requests[start:start + width]
@@ -4433,12 +4664,14 @@ class EnergyTest:
                         groups[left], groups[right], np.array([left_count]), np.array([right_count]))[0]
                         for _, left, right in selected])
                 else:
-                    left_rows = np.stack([groups[left] for _, left, _ in selected])
-                    right_rows = np.stack([groups[right] for _, _, right in selected])
-                    left = self._rows(left_rows)
-                    right = self._rows(right_rows)
-                    differences = left[:, :, None, :] - right[:, None, :, :]
-                    squared = np.einsum("bijd,bijd->bij", differences, differences)
+                    squared = np.empty((len(selected), left_count, right_count), dtype=np.float64)
+                    for position, (_, left, right) in enumerate(selected):
+                        a, b = self._rows(groups[left]), self._rows(groups[right])
+                        if left < query_count:
+                            squared[position] = cdist(a, b, metric="sqeuclidean")
+                        else:
+                            differences = a[None, :, None, :] - b[None, None, :, :]
+                            squared[position] = np.einsum("bijd,bijd->bij", differences, differences)[0]
                     if not np.isfinite(squared).all():
                         raise ValueError(tr("Guide-null distances must be finite; repair nonfinite or overflowing embedding values."))
                     values = np.empty((len(selected), 2))
@@ -4449,8 +4682,10 @@ class EnergyTest:
                     result[number] = value
                     retained = (float(value[0]), float(value[1]))
                     if left >= query_count:
-                        if (bank["cached"] and len(bank["pairs"]) < 100000
-                                and self._permutation_bank_bytes + 320 <= 64 * 1024 ** 2):
+                        if pair_values is not None:
+                            pair_values[left - query_count, right - query_count] = value
+                        elif (bank["cached"] and len(bank["pairs"]) < 100000
+                                and self._permutation_bank_bytes + 320 <= getattr(self, "_guide_profile_limit", 64 * 1024 ** 2)):
                             bank["pairs"][(left - query_count, right - query_count)] = retained
                             bank["bytes"] += 320
                             self._permutation_bank_bytes += 320
@@ -4459,7 +4694,7 @@ class EnergyTest:
         return result
 
     def _guide_assignment_energies(self, groups, assignments, bank):
-        """Evaluate whole-guide selections without dense guide or cell distance matrices."""
+        """Evaluate whole-guide selections from only the requested guide-pair sums."""
         query_count = len(groups) - len(bank["rows"])
         query_rows = np.concatenate(groups[:query_count])
         starts = np.r_[0, np.cumsum([len(row) for row in groups[:query_count]])[:-1]]
@@ -4496,24 +4731,37 @@ class EnergyTest:
             scales[start:stop] = np.abs(between) + np.abs(within) + np.abs(fixed)
         return values, scales
 
-    def _guide_permutation_test(self, index, rng):
-        """Test one exact post-cap profile by query-inclusive whole-guide permutations."""
-        from .qt.i18n import tr
-
+    def _guide_permutation_plan(self, index, rng):
+        """Prepare one query and consume its assignment draws on the calling thread."""
         codes, names = pd.factorize(self._guides[index], sort=True)
         query = [np.asarray(index)[codes == number] for number in range(len(names))]
         query.sort(key=len, reverse=True)
         profile = tuple(len(rows) for rows in query)
         bank = self._guide_permutation_bank(profile)
         if not bank["supported"]:
-            observed = self._prefix_energies([index], [[len(index)]])[0]
-            return observed, np.ones(2), {"permutation_space": "1", "permutation_draws": 0,
+            metadata = {"permutation_space": "1", "permutation_draws": 0,
                 "permutation_resolution": 1.0, "permutation_exact": True,
                 "permutation_supported": False, "matched_controls": 0, "stratum_counts": ()}
+            return {"index": index, "query": tuple(query), "profile": profile,
+                    "assignments": None, "metadata": metadata}
         strata = tuple((np.r_[np.flatnonzero(np.asarray(profile) == item["cells"]),
                               np.asarray(item["nt_indices"], dtype=np.int64) + len(query)], item["query_count"])
                        for item in bank["strata"])
         assignments, metadata = self._guide_permutation_assignments(strata, rng)
+        return {"index": index, "query": tuple(query), "profile": profile,
+                "assignments": assignments, "metadata": metadata}
+
+    def _guide_evaluate_plan(self, plan):
+        """Evaluate a prepared query using private caches without consuming permutation draws."""
+        from .qt.i18n import tr
+
+        index, query = plan["index"], plan["query"]
+        metadata = dict(plan["metadata"])
+        if not metadata["permutation_supported"]:
+            observed = self._prefix_energies([index], [[len(index)]])[0]
+            return observed, np.ones(2), metadata
+        bank = self._guide_permutation_bank(plan["profile"])
+        assignments = plan["assignments"]
         selections = np.vstack([np.arange(len(query)), assignments])
         values, scales = self._guide_assignment_energies(tuple(query) + bank["rows"], selections, bank)
         if not np.isfinite(values).all():
@@ -4528,6 +4776,104 @@ class EnergyTest:
         metadata["stratum_counts"] = tuple((item["cells"], item["query_count"], len(item["nt_indices"]))
                                             for item in bank["strata"])
         return values[0], pvalues, metadata
+
+    def _guide_permutation_test(self, index, rng):
+        """Test one exact post-cap profile by serial planning and evaluation."""
+        return self._guide_evaluate_plan(self._guide_permutation_plan(index, rng))
+
+    def _guide_worker_count(self, job_count):
+        """Bound outer scoring threads by job count, CPU availability and actual BLAS limits."""
+        import os
+
+        if job_count < 32:
+            return 1
+        try:
+            from threadpoolctl import threadpool_info
+        except ImportError:
+            return 1
+        native = min((int(pool["num_threads"]) for pool in threadpool_info()
+                      if pool.get("user_api") == "blas" and int(pool.get("num_threads") or 0) > 0), default=1)
+        try:
+            available = len(os.sched_getaffinity(0))
+        except (AttributeError, OSError):
+            available = os.cpu_count() or 1
+        return max(1, min(4, available, native))
+
+    def _guide_context(self, geometry_limit, profile_limit):
+        """Share read-only inputs while giving a planner or worker independent bounded caches."""
+        context = object.__new__(type(self))
+        context.__dict__.update(self.__dict__)
+        context._permutation_banks = {}
+        context._permutation_bank_bytes = 0
+        context._guide_geometry_cache = {}
+        context._guide_geometry_bytes = 0
+        context._eligibility_sets = {}
+        context._control_cross = None
+        context._nulls = {}
+        context.__dict__.pop("_last_prefix_scale", None)
+        context._guide_geometry_limit = int(geometry_limit)
+        context._guide_profile_limit = int(profile_limit)
+        return context
+
+    def _guide_run_plans(self, jobs, rng, job_count):
+        """Yield ordered tagged results with main-thread planning and at most eight futures.
+
+        Jobs yield a caller-owned tag and cell indices. Parent caches retain
+        their reservations; one independent planner and the workers divide
+        the remaining profile budget. Only workers reserve the remaining
+        geometry budget, sharing the parent's dense NT matrix without writes.
+        Shared guide-index lookup state is initialized before concurrent reads.
+        """
+        from collections import deque
+        from concurrent.futures import ThreadPoolExecutor
+        import threading
+
+        workers = self._guide_worker_count(job_count)
+        if workers <= 1:
+            for tag, index in jobs:
+                yield tag, len(index), self._guide_permutation_test(index, rng)
+            return
+        self._guide_cell_geometry()
+        self._pools.index.get_indexer(self._halves[0])
+        remaining_geometry = max(0, getattr(self, "_guide_geometry_limit",
+                                           512 * 1024 ** 2 - self._guide_cell_bytes)
+                                 - getattr(self, "_guide_geometry_bytes", 0))
+        remaining_profiles = max(0, getattr(self, "_guide_profile_limit", 64 * 1024 ** 2)
+                                 - self._permutation_bank_bytes)
+        geometry_limit = remaining_geometry // workers
+        profile_limit = remaining_profiles // (workers + 1)
+        planner = self._guide_context(0, profile_limit)
+        local = threading.local()
+
+        def initialize():
+            """Create one cache-isolated context per executor thread."""
+            local.context = self._guide_context(geometry_limit, profile_limit)
+
+        def evaluate(plan):
+            """Evaluate one already sampled plan in this thread's private context."""
+            return local.context._guide_evaluate_plan(plan)
+
+        pending = deque()
+        iterator = iter(jobs)
+        executor = ThreadPoolExecutor(max_workers=workers, initializer=initialize)
+        try:
+            exhausted = False
+            while pending or not exhausted:
+                while len(pending) < 8 and not exhausted:
+                    try:
+                        tag, index = next(iterator)
+                    except StopIteration:
+                        exhausted = True
+                        break
+                    plan = planner._guide_permutation_plan(index, rng)
+                    pending.append((tag, len(index), executor.submit(evaluate, plan)))
+                if pending:
+                    tag, count, future = pending.popleft()
+                    yield tag, count, future.result()
+        finally:
+            for _tag, _count, future in pending:
+                future.cancel()
+            executor.shutdown(wait=True, cancel_futures=True)
 
     def null(self, n: int) -> Tuple[np.ndarray, np.ndarray]:
         """The null and held-out E-statistics of ``n``-cell control pseudo-genes.
@@ -4595,17 +4941,23 @@ class EnergyTest:
                      if name in heldout_names)
         permute = np.random.default_rng(self.seed + 300 + int(subsample_seed))
         rows, row_pvalues, metadata, gene_profiles, gene_flags = [], [], [], [], []
-        for name, index, is_gene in items:
-            if n is not None and len(index) > n:
-                index = draw.choice(index, n, replace=False)
-            if len(index) < 2 or is_gene and len(index) < self.min_cells:
-                continue
-            if is_gene:
-                gene_profiles.append(self._profile(index))
-            values, pvalues, details = self._guide_permutation_test(index, permute)
+
+        def gene_jobs():
+            """Apply caps and retain real-gene profiles in the original scoring order."""
+            for name, index, is_gene in items:
+                if n is not None and len(index) > n:
+                    index = draw.choice(index, n, replace=False)
+                if len(index) < 2 or is_gene and len(index) < self.min_cells:
+                    continue
+                if is_gene:
+                    gene_profiles.append(self._profile(index))
+                yield (name, is_gene), index
+
+        for (name, is_gene), count, result in self._guide_run_plans(gene_jobs(), permute, len(items)):
+            values, pvalues, details = result
             if not is_gene and not details["permutation_supported"]:
                 pvalues = np.full(2, np.nan)
-            rows.append((name, len(index), values[0], values[1]))
+            rows.append((name, count, values[0], values[1]))
             row_pvalues.append(pvalues)
             metadata.append(details)
             gene_flags.append(is_gene)
@@ -4638,14 +4990,20 @@ class EnergyTest:
         draw = np.random.default_rng(self.seed + 200 + int(subsample_seed))
         held_pvalues = np.full((self.n_holdout, 2), np.nan)
         held_low_resolution = 0
-        for number in range(self.n_holdout):
-            profile = gene_profiles[int(draw.integers(len(gene_profiles)))]
-            try:
-                self._guide_eligibility(profile, self._halves[1])
-            except ValueError:
-                continue
-            index = self._pseudo_gene(draw, self._halves[1], profile)
-            _, pvalues, details = self._guide_permutation_test(index, permute)
+
+        def heldout_jobs():
+            """Preserve profile draws, unsupported skips and held-out guide sampling order."""
+            for number in range(self.n_holdout):
+                profile = gene_profiles[int(draw.integers(len(gene_profiles)))]
+                try:
+                    self._guide_eligibility(profile, self._halves[1])
+                except ValueError:
+                    continue
+                index = self._pseudo_gene(draw, self._halves[1], profile)
+                yield number, index
+
+        for number, _count, result in self._guide_run_plans(heldout_jobs(), permute, self.n_holdout):
+            _, pvalues, details = result
             if details["permutation_supported"]:
                 held_pvalues[number] = pvalues
                 held_low_resolution += details["permutation_resolution"] >= 0.05
