@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-767 Lifecycle: new, 184 Lifecycle: future in features/feature_list/.
+769 Lifecycle: new, 184 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -2112,6 +2112,8 @@ NEW FEATURES
        958_ops_objects_resume.txt
   960  OPS PARAMETER GRID SEARCH ON REPRESENTATIVE TILES
        960_ops_parameter_grid_search.txt
+  961  OPS IN SITU SEQUENCING MODES: COMBINATORIAL BARCODES, PEAK-PRIORITISED CALLING, READ COMPARTMENTS
+       961_ops_insitu_seq_modes.txt
   962  OPS MERGE ROUTES: TILE PATTERN HASH, WELL MOSAIC FROM STAGE POSITIONS, AND AN AUTOMATIC FALLBACK
        962_ops_merge_strategy.txt
   963  ANNOTATE: PICK THE BEST CLASSIFIER, AND A CONFIDENCE THRESHOLD PER CLASS
@@ -2134,5 +2136,7 @@ NEW FEATURES
        974_spacr_store.txt
   975  MEASURE WRITES THE spaCR STORE, AND THE CROP LOADER READS IT
        975_measure_store.txt
+  980  OPS VOYAGER3 ENRICHMENT METHOD: A MODEL-FREE CLUSTER ANNOTATION (HYPERGEOMETRIC + BH OVER UNIPROT GO/KEYWORDS, CORUM, REACTOME)
+       980_ops_voyager3_enrichment.txt
   982  OPS SPACER-PREFIX TUNING: SMALL WELLS KEEP THE READ-QUALITY FLOOR AT 0.1
        982_ops_prefix_small_well_guard.txt
