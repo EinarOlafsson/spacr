@@ -6,6 +6,7 @@ import os
 import sqlite3
 
 import numpy as np
+import pytest
 from PIL import Image
 
 
@@ -160,18 +161,22 @@ def test_crop_objects_single_channel_repeats_to_rgb():
     assert out and out[0]["crop"].shape[2] == 3     # 1→repeat
 
 
-def test_crop_objects_two_channels_pad_to_rgb():
+@pytest.mark.parametrize('count, channels', [
+    pytest.param(
+        2, (0, 1),
+        id='test_crop_objects_two_channels_pad_to_rgb',
+    ),
+    pytest.param(
+        4, (0, 1, 2, 3),
+        id='test_crop_objects_more_than_three_channels_truncated',
+    ),
+])
+def test_selected_channels_keep_their_original_rgb_channel_count(count, channels):
+    """Keep each original channel selection paired with the same RGB channel count."""
     from spacr.measure import crop_objects_from_array
-    data, mdim = _array_with_mask(2)
-    out = crop_objects_from_array(data, mask_dim=mdim, channels=(0, 1))
-    assert out[0]["crop"].shape[2] == 3             # 2→pad blue
-
-
-def test_crop_objects_more_than_three_channels_truncated():
-    from spacr.measure import crop_objects_from_array
-    data, mdim = _array_with_mask(4)
-    out = crop_objects_from_array(data, mask_dim=mdim, channels=(0, 1, 2, 3))
-    assert out[0]["crop"].shape[2] == 3             # >3→first 3
+    data, mdim = _array_with_mask(count)
+    out = crop_objects_from_array(data, mask_dim=mdim, channels=channels)
+    assert out[0]["crop"].shape[2] == 3
 
 
 def test_crop_objects_area_filter_and_limit():
