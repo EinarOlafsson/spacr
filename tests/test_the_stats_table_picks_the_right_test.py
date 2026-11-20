@@ -228,16 +228,20 @@ def test_the_table_shows_its_working():
 #  Refusals and edges
 # --------------------------------------------------------------------------- #
 
-def test_one_group_is_refused_not_returned_as_nan():
-    """A comparison that could not be made is not a comparison with an
-    unknown answer."""
-    with pytest.raises(ValueError, match="at least two groups"):
-        compare({"only": [1.0, 2.0, 3.0]})
-
-
-def test_a_group_of_one_is_refused():
-    with pytest.raises(ValueError, match="fewer than"):
-        compare({"a": [1.0], "b": [1.0, 2.0, 3.0]})
+@pytest.mark.parametrize('groups, match', [
+    pytest.param(
+        {'only': [1.0, 2.0, 3.0]}, 'at least two groups',
+        id='test_one_group_is_refused_not_returned_as_nan',
+    ),
+    pytest.param(
+        {'a': [1.0], 'b': [1.0, 2.0, 3.0]}, 'fewer than',
+        id='test_a_group_of_one_is_refused',
+    ),
+])
+def test_invalid_group_layouts_keep_their_original_refusals(groups, match):
+    """Keep each original invalid group layout paired with its ValueError message."""
+    with pytest.raises(ValueError, match=match):
+        compare(groups)
 
 
 def test_forcing_a_test_overrides_the_choice():
