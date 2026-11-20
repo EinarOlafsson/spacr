@@ -511,6 +511,9 @@ DIALOG_CAPTIONS = (
     "The update stopped before installing, because an older copy of spaCR "
     "could not be removed:",
     "Upgrade unavailable: {error}",
+    "This installation cannot stage a verified update. Nothing was changed. "
+    "Save your work, then update spaCR using the installer or package manager "
+    "used for this installation.",
 )
 
 #: The reasons ``spacr.install_cleanup`` gives that an in-app update can show,
@@ -622,7 +625,7 @@ def test_the_update_messages_translate_spacr_reasons_and_leave_others_as_they_ca
 
     assert messages.warnings[-2][1] == _marked(
         DIALOG_CAPTIONS[6].format(error=_marked(REASONS[-1])))
-    assert messages.warnings[-1][1] == _marked(DIALOG_CAPTIONS[4])
+    assert messages.warnings[-1][1] == _marked(DIALOG_CAPTIONS[7])
     assert messages.informations == []
 
 
