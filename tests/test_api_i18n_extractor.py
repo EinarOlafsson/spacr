@@ -2536,6 +2536,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in voyager3_arrivals} == voyager3_arrivals
     assert not voyager3_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **voyager3_arrivals}
+    cache_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "cachepos_ops_field_cache_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert len(cache_arrivals) == 1
+    assert {key: docs[key] for key in cache_arrivals} == cache_arrivals
+    assert not cache_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **cache_arrivals}
     ops_live_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "971_ops_live_preview_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
     assert len(ops_live_arrivals) == 2

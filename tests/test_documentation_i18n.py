@@ -3858,6 +3858,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json", 1),
         ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
+        ("cachepos_ops_field_cache_api_arrivals_2026-11-20.json", 1),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
         ("960_ops_grid_search_api_arrivals_2026-11-17.json", 2),
         ("968_ops_power_sim_api_arrivals_2026-11-17.json", 11),

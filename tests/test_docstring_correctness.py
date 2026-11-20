@@ -3686,6 +3686,24 @@ def _validated_voyager3_973_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_field_cache_callables(callables):
+    """Check the new public callable of the field-cache nucleus positions against its source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "cachepos_ops_field_cache_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.ops_decode.cached_neighbours"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_r2_nuclei_965_callables(callables):
     """Check the public callable of item 965 (the small-nucleus merge of the large-site path) against its source."""
     import json
@@ -4029,6 +4047,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_r2_nuclei_965_callables(callables)
     callables = _validated_ops_settings_layout_969_callables(callables)
     callables = _validated_voyager3_973_callables(callables)
+    callables = _validated_field_cache_callables(callables)
     callables = _validated_ops_power_sim_968_callables(callables)
     callables = _validated_spacr_store_974_callables(callables)
     callables = _validated_feature_screen_964_callables(callables)
@@ -6811,6 +6830,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json", 1),
         ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
+        ("cachepos_ops_field_cache_api_arrivals_2026-11-20.json", 1),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
         ("960_ops_grid_search_api_arrivals_2026-11-17.json", 2),
         ("968_ops_power_sim_api_arrivals_2026-11-17.json", 11),
@@ -7436,7 +7456,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "974_spacr_store_api_arrivals_2026-11-17.json",
                      "964_ops_feature_screen_api_arrivals_2026-11-17.json",
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
-                     "987b_mask_batches_api_arrivals_2026-11-20.json"):
+                     "987b_mask_batches_api_arrivals_2026-11-20.json",
+                     "cachepos_ops_field_cache_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7594,7 +7615,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "974_spacr_store_api_arrivals_2026-11-17.json",
                      "964_ops_feature_screen_api_arrivals_2026-11-17.json",
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
-                     "987b_mask_batches_api_arrivals_2026-11-20.json"):
+                     "987b_mask_batches_api_arrivals_2026-11-20.json",
+                     "cachepos_ops_field_cache_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
