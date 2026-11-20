@@ -45,14 +45,19 @@ def test_an_unknown_imaging_split_names_the_two_that_exist():
     assert "abundance" in message and "uniform" in message
 
 
-def test_zero_cells_imaged_per_well_is_refused():
-    """No imaged cells means no positive-rate observation to fit."""
-    assert "Cells imaged per well" in _joined(cells_per_well=0.0)
-
-
-def test_a_negative_cell_count_is_refused_too():
-    """The bound is strictly positive, not merely non-negative."""
-    assert "Cells imaged per well" in _joined(cells_per_well=-5.0)
+@pytest.mark.parametrize('cells_per_well', [
+    pytest.param(
+        0.0,
+        id='test_zero_cells_imaged_per_well_is_refused',
+    ),
+    pytest.param(
+        -5.0,
+        id='test_a_negative_cell_count_is_refused_too',
+    ),
+])
+def test_nonpositive_cell_counts_keep_their_original_refusal(cells_per_well):
+    """Preserve the original refusal for each nonpositive cell count."""
+    assert "Cells imaged per well" in _joined(cells_per_well=cells_per_well)
 
 
 def test_zero_constructs_per_well_is_refused():

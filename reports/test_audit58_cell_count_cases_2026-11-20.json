@@ -1,0 +1,176 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_cov_6_power_design.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_6_power_design.py::test_zero_cells_imaged_per_well_is_refused": "tests/test_cov_6_power_design.py::test_nonpositive_cell_counts_keep_their_original_refusal[test_zero_cells_imaged_per_well_is_refused]",
+    "tests/test_cov_6_power_design.py::test_a_negative_cell_count_is_refused_too": "tests/test_cov_6_power_design.py::test_nonpositive_cell_counts_keep_their_original_refusal[test_a_negative_cell_count_is_refused_too]"
+  },
+  "float_cell_count_and_native_message_membership_contracts": {
+    "test_zero_cells_imaged_per_well_is_refused": [
+      0.0
+    ],
+    "test_a_negative_cell_count_is_refused_too": [
+      -5.0
+    ]
+  },
+  "case_contract_representations": {
+    "test_zero_cells_imaged_per_well_is_refused": "(0.0,)",
+    "test_a_negative_cell_count_is_refused_too": "(-5.0,)"
+  },
+  "contract_scope": "Exact original float 0.0/-5.0 inputs, _joined(cells_per_well=value) call and native Cells imaged per well substring membership retained. Every other import, original pytest.importorskip(PySide6) guard, _problems/_joined helper and library/guide/imaging-split/construct/hit-prevalence/read-count case retains AST and relative order. If the optional dependency skips the original module, do not apply the proposal.",
+  "collected_before": [
+    "tests/test_cov_6_power_design.py::test_negative_reads_per_well_is_refused",
+    "tests/test_cov_6_power_design.py::test_a_hit_prevalence_outside_zero_to_one_is_refused[1.5]",
+    "tests/test_cov_6_power_design.py::test_a_negative_cell_count_is_refused_too",
+    "tests/test_cov_6_power_design.py::test_zero_cells_imaged_per_well_is_refused",
+    "tests/test_cov_6_power_design.py::test_zero_constructs_per_well_is_refused",
+    "tests/test_cov_6_power_design.py::test_zero_guides_per_gene_is_refused",
+    "tests/test_cov_6_power_design.py::test_a_library_of_one_gene_is_refused",
+    "tests/test_cov_6_power_design.py::test_an_unknown_imaging_split_names_the_two_that_exist",
+    "tests/test_cov_6_power_design.py::test_a_hit_prevalence_outside_zero_to_one_is_refused[-0.1]"
+  ],
+  "collected_after": [
+    "tests/test_cov_6_power_design.py::test_zero_guides_per_gene_is_refused",
+    "tests/test_cov_6_power_design.py::test_a_hit_prevalence_outside_zero_to_one_is_refused[-0.1]",
+    "tests/test_cov_6_power_design.py::test_zero_constructs_per_well_is_refused",
+    "tests/test_cov_6_power_design.py::test_a_hit_prevalence_outside_zero_to_one_is_refused[1.5]",
+    "tests/test_cov_6_power_design.py::test_an_unknown_imaging_split_names_the_two_that_exist",
+    "tests/test_cov_6_power_design.py::test_nonpositive_cell_counts_keep_their_original_refusal[test_a_negative_cell_count_is_refused_too]",
+    "tests/test_cov_6_power_design.py::test_nonpositive_cell_counts_keep_their_original_refusal[test_zero_cells_imaged_per_well_is_refused]",
+    "tests/test_cov_6_power_design.py::test_negative_reads_per_well_is_refused",
+    "tests/test_cov_6_power_design.py::test_a_library_of_one_gene_is_refused"
+  ],
+  "tests_before": {
+    "passed": 9,
+    "seconds": 5.79
+  },
+  "tests_after": {
+    "passed": 9,
+    "seconds": 4.7
+  },
+  "coverage_scope": "spacr.qt.widgets.power_design under the complete selected DesignSpec validation module; not full-suite coverage. Plain dataclass validation and original numeric/string overrides only. The source imports NumPy/pandas and defines data helpers; these tests create no widgets/figures, run no power simulations/fits, construct no trained models and use no reader/network/GPU. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 100,
+    "num_statements": 161,
+    "percent_covered": 58.604651162790695,
+    "percent_covered_display": "59",
+    "missing_lines": 61,
+    "excluded_lines": 0,
+    "percent_statements_covered": 62.11180124223603,
+    "percent_statements_covered_display": "62",
+    "num_branches": 54,
+    "num_partial_branches": 8,
+    "covered_branches": 26,
+    "missing_branches": 28,
+    "percent_branches_covered": 48.148148148148145,
+    "percent_branches_covered_display": "48"
+  },
+  "coverage_after": {
+    "covered_lines": 100,
+    "num_statements": 161,
+    "percent_covered": 58.604651162790695,
+    "percent_covered_display": "59",
+    "missing_lines": 61,
+    "excluded_lines": 0,
+    "percent_statements_covered": 62.11180124223603,
+    "percent_statements_covered_display": "62",
+    "num_branches": 54,
+    "num_partial_branches": 8,
+    "covered_branches": 26,
+    "missing_branches": 28,
+    "percent_branches_covered": 48.148148148148145,
+    "percent_branches_covered_display": "48"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "4c4fa5ce7ab9aaed541714be7f10c83d207ad7005c865dc8af2e31114613ec9d",
+  "production_source_sha256": "79bcb73fd8be8ffd7dc7fd5e6bf037c534278f4f241b8e36733fdc3cb2d161f1",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_optional_dependency_guard_helpers_library_guides_split_constructs_prevalence_reads_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "zero-cell-count-accepted",
+      "source_variant": {
+        "path": "spacr/qt/widgets/power_design.py",
+        "line": 515,
+        "old": "if not 0.0 < float(self.cells_per_well):",
+        "new": "if not 0.0 <= float(self.cells_per_well):"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_6_power_design.py::test_zero_cells_imaged_per_well_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_6_power_design.py::test_zero_cells_imaged_per_well_is_refused"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_6_power_design.py::test_nonpositive_cell_counts_keep_their_original_refusal[test_zero_cells_imaged_per_well_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_6_power_design.py::test_nonpositive_cell_counts_keep_their_original_refusal[test_zero_cells_imaged_per_well_is_refused]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "negative-cell-count-accepted",
+      "source_variant": {
+        "path": "spacr/qt/widgets/power_design.py",
+        "line": 515,
+        "old": "if not 0.0 < float(self.cells_per_well):",
+        "new": "if 0.0 == float(self.cells_per_well):"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_6_power_design.py::test_a_negative_cell_count_is_refused_too"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_6_power_design.py::test_a_negative_cell_count_is_refused_too"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_6_power_design.py::test_nonpositive_cell_counts_keep_their_original_refusal[test_a_negative_cell_count_is_refused_too]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_6_power_design.py::test_nonpositive_cell_counts_keep_their_original_refusal[test_a_negative_cell_count_is_refused_too]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in DesignSpec.validate before and after: accept a zero cell count by making the bound nonnegative; accept a negative cell count by refusing only zero. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native message membership. Original float types, literal values, cells_per_well keyword and _joined/_problems/DesignSpec helper calls retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_6_power_design.py",
+      "line": 59,
+      "symbol": "test_nonpositive_cell_counts_keep_their_original_refusal",
+      "new": "Preserve the original refusal for each nonpositive cell count.",
+      "old": {
+        "test_zero_cells_imaged_per_well_is_refused": "No imaged cells means no positive-rate observation to fit.",
+        "test_a_negative_cell_count_is_refused_too": "The bound is strictly positive, not merely non-negative."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
