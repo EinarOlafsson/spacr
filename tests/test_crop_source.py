@@ -307,11 +307,22 @@ def test_both_training_modes_validate_from_the_panels_own_defaults():
         {"src": "/tmp/screen", "image_source": "stream_images"})) == "merged"
 
 
-def test_streaming_without_channels_is_refused_before_training():
-    """Discovering it after an hour of dataset building is a worse failure."""
-    with pytest.raises(CropSourceError, match="channel_arrays"):
-        validate({"crop_source": "merged", "object_array": "cell",
-                  "cell_mask_dim": 2})
+@pytest.mark.parametrize("settings, message", [
+    pytest.param({"crop_source": "merged", "object_array": "cell",
+                  "cell_mask_dim": 2}, "channel_arrays",
+                 id="test_streaming_without_channels_is_refused_before_training"),
+    pytest.param({"crop_source": "merged", "extract_channels": [0],
+                  "coordinate_columns": ["y", "x"], "crop_shape": "object",
+                  "image_size": 64}, "bounding boxes",
+                 id="test_database_objects_can_only_be_bounding_boxes"),
+    pytest.param({"crop_source": "merged", "extract_channels": [0],
+                  "coordinate_columns": ["y", "x"]}, "image_size",
+                 id="test_coordinate_crops_need_a_size"),
+])
+def test_training_crop_settings_keep_their_original_refusals(settings, message):
+    """Keep each invalid training crop setup paired with its original refusal."""
+    with pytest.raises(CropSourceError, match=message):
+        validate(settings)
 
 
 def test_the_planes_are_read_under_either_name():
@@ -323,21 +334,6 @@ def test_the_planes_are_read_under_either_name():
         == [3]
     assert validate({"crop_source": "merged", "channel_arrays": [0, 1],
                      "object_array": "cell", "cell_mask_dim": 2}) == "merged"
-
-
-def test_database_objects_can_only_be_bounding_boxes():
-    """A coordinate has no outline, so a crop claiming to be object-shaped
-    would be a rectangle wearing the wrong name."""
-    with pytest.raises(CropSourceError, match="bounding boxes"):
-        validate({"crop_source": "merged", "extract_channels": [0],
-                  "coordinate_columns": ["y", "x"], "crop_shape": "object",
-                  "image_size": 64})
-
-
-def test_coordinate_crops_need_a_size():
-    with pytest.raises(CropSourceError, match="image_size"):
-        validate({"crop_source": "merged", "extract_channels": [0],
-                  "coordinate_columns": ["y", "x"]})
 
 
 def test_one_coordinate_column_names_the_object_itself():

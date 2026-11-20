@@ -1,0 +1,290 @@
+{
+  "base": "f04495e887dbc5b9211cb76c7692b7e7da5d3568",
+  "changed_file": "tests/test_crop_source.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 2,
+  "case_mapping": {
+    "tests/test_crop_source.py::test_streaming_without_channels_is_refused_before_training": "tests/test_crop_source.py::test_training_crop_settings_keep_their_original_refusals[test_streaming_without_channels_is_refused_before_training]",
+    "tests/test_crop_source.py::test_database_objects_can_only_be_bounding_boxes": "tests/test_crop_source.py::test_training_crop_settings_keep_their_original_refusals[test_database_objects_can_only_be_bounding_boxes]",
+    "tests/test_crop_source.py::test_coordinate_crops_need_a_size": "tests/test_crop_source.py::test_training_crop_settings_keep_their_original_refusals[test_coordinate_crops_need_a_size]"
+  },
+  "invalid_settings_and_message_contracts": {
+    "test_streaming_without_channels_is_refused_before_training": [
+      {
+        "crop_source": "merged",
+        "object_array": "cell",
+        "cell_mask_dim": 2
+      },
+      "channel_arrays"
+    ],
+    "test_database_objects_can_only_be_bounding_boxes": [
+      {
+        "crop_source": "merged",
+        "extract_channels": [
+          0
+        ],
+        "coordinate_columns": [
+          "y",
+          "x"
+        ],
+        "crop_shape": "object",
+        "image_size": 64
+      },
+      "bounding boxes"
+    ],
+    "test_coordinate_crops_need_a_size": [
+      {
+        "crop_source": "merged",
+        "extract_channels": [
+          0
+        ],
+        "coordinate_columns": [
+          "y",
+          "x"
+        ]
+      },
+      "image_size"
+    ]
+  },
+  "case_contract_representations": {
+    "test_streaming_without_channels_is_refused_before_training": "({'crop_source': 'merged', 'object_array': 'cell', 'cell_mask_dim': 2}, 'channel_arrays')",
+    "test_database_objects_can_only_be_bounding_boxes": "({'crop_source': 'merged', 'extract_channels': [0], 'coordinate_columns': ['y', 'x'], 'crop_shape': 'object', 'image_size': 64}, 'bounding boxes')",
+    "test_coordinate_crops_need_a_size": "({'crop_source': 'merged', 'extract_channels': [0], 'coordinate_columns': ['y', 'x']}, 'image_size')"
+  },
+  "contract_scope": "Exact ordered training crop settings with current/legacy plane keys, coordinate columns, CropSourceError and original regex messages retained.",
+  "collected_before": [
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[stream-merged]",
+    "tests/test_crop_source.py::test_path_and_format_are_independent_filters",
+    "tests/test_crop_source.py::test_a_plane_the_array_does_not_have_is_named",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[pre_generated-png]",
+    "tests/test_crop_source.py::test_one_coordinate_column_names_the_object_itself",
+    "tests/test_crop_source.py::test_png_type_is_still_accepted_as_the_path_filter",
+    "tests/test_crop_source.py::test_an_object_with_no_mask_plane_names_the_setting",
+    "tests/test_crop_source.py::test_the_mask_plane_comes_from_the_mask_step_settings",
+    "tests/test_crop_source.py::test_the_planes_are_read_under_either_name",
+    "tests/test_crop_source.py::test_a_load_images_setup_with_a_bad_extension_is_refused",
+    "tests/test_crop_source.py::test_file_type_names_an_extension[.PNG-png]",
+    "tests/test_crop_source.py::test_every_word_the_settings_panel_can_produce_resolves",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[merged-merged]",
+    "tests/test_crop_source.py::test_the_two_readers_share_one_table",
+    "tests/test_crop_source.py::test_a_format_spacr_cannot_read_is_named",
+    "tests/test_crop_source.py::test_an_unknown_source_is_refused",
+    "tests/test_crop_source.py::test_the_panel_offers_the_two_names_in_words",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[load_images-png]",
+    "tests/test_crop_source.py::test_a_crop_is_the_objects_own_bounding_box",
+    "tests/test_crop_source.py::test_validate_passes_a_workable_streaming_setup",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[on_demand-merged]",
+    "tests/test_crop_source.py::test_database_objects_can_only_be_bounding_boxes",
+    "tests/test_crop_source.py::test_only_the_named_planes_become_channels",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[None-png]",
+    "tests/test_crop_source.py::test_coordinate_crops_need_a_size",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[-png]",
+    "tests/test_crop_source.py::test_file_type_names_an_extension[tif-tif]",
+    "tests/test_crop_source.py::test_a_crop_can_be_resized",
+    "tests/test_crop_source.py::test_file_type_names_an_extension[TIFF-tiff]",
+    "tests/test_crop_source.py::test_both_training_modes_validate_from_the_panels_own_defaults",
+    "tests/test_crop_source.py::test_file_type_names_an_extension[png-png]",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[auto-png]",
+    "tests/test_crop_source.py::test_a_coordinate_outside_the_image_gives_nothing",
+    "tests/test_crop_source.py::test_each_source_greys_the_others_settings",
+    "tests/test_crop_source.py::test_a_coordinate_at_the_edge_is_zero_padded_to_the_fixed_size",
+    "tests/test_crop_source.py::test_file_type_names_an_extension[-]",
+    "tests/test_crop_source.py::test_a_coordinate_crop_is_a_fixed_box",
+    "tests/test_crop_source.py::test_an_object_crop_masks_the_background_away",
+    "tests/test_crop_source.py::test_every_object_is_cut_from_one_merged_array",
+    "tests/test_crop_source.py::test_a_missing_object_gives_nothing_rather_than_an_empty_image",
+    "tests/test_crop_source.py::test_only_the_requested_objects_are_cut",
+    "tests/test_crop_source.py::test_the_channel_order_is_the_order_given",
+    "tests/test_crop_source.py::test_greying_reads_the_stored_value_whatever_its_spelling",
+    "tests/test_crop_source.py::test_streaming_without_channels_is_refused_before_training",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[generate-generate]",
+    "tests/test_crop_source.py::test_tif_and_tiff_are_the_same_format",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[stream_images-merged]",
+    "tests/test_crop_source.py::test_the_old_object_png_value_still_reads",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[png-png]"
+  ],
+  "collected_after": [
+    "tests/test_crop_source.py::test_the_planes_are_read_under_either_name",
+    "tests/test_crop_source.py::test_every_object_is_cut_from_one_merged_array",
+    "tests/test_crop_source.py::test_training_crop_settings_keep_their_original_refusals[test_streaming_without_channels_is_refused_before_training]",
+    "tests/test_crop_source.py::test_file_type_names_an_extension[.PNG-png]",
+    "tests/test_crop_source.py::test_file_type_names_an_extension[TIFF-tiff]",
+    "tests/test_crop_source.py::test_a_coordinate_at_the_edge_is_zero_padded_to_the_fixed_size",
+    "tests/test_crop_source.py::test_tif_and_tiff_are_the_same_format",
+    "tests/test_crop_source.py::test_every_word_the_settings_panel_can_produce_resolves",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[png-png]",
+    "tests/test_crop_source.py::test_both_training_modes_validate_from_the_panels_own_defaults",
+    "tests/test_crop_source.py::test_the_old_object_png_value_still_reads",
+    "tests/test_crop_source.py::test_training_crop_settings_keep_their_original_refusals[test_coordinate_crops_need_a_size]",
+    "tests/test_crop_source.py::test_greying_reads_the_stored_value_whatever_its_spelling",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[auto-png]",
+    "tests/test_crop_source.py::test_only_the_named_planes_become_channels",
+    "tests/test_crop_source.py::test_a_crop_is_the_objects_own_bounding_box",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[load_images-png]",
+    "tests/test_crop_source.py::test_a_coordinate_crop_is_a_fixed_box",
+    "tests/test_crop_source.py::test_the_channel_order_is_the_order_given",
+    "tests/test_crop_source.py::test_a_missing_object_gives_nothing_rather_than_an_empty_image",
+    "tests/test_crop_source.py::test_the_two_readers_share_one_table",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[generate-generate]",
+    "tests/test_crop_source.py::test_a_coordinate_outside_the_image_gives_nothing",
+    "tests/test_crop_source.py::test_an_object_crop_masks_the_background_away",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[None-png]",
+    "tests/test_crop_source.py::test_an_object_with_no_mask_plane_names_the_setting",
+    "tests/test_crop_source.py::test_only_the_requested_objects_are_cut",
+    "tests/test_crop_source.py::test_path_and_format_are_independent_filters",
+    "tests/test_crop_source.py::test_a_crop_can_be_resized",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[pre_generated-png]",
+    "tests/test_crop_source.py::test_a_format_spacr_cannot_read_is_named",
+    "tests/test_crop_source.py::test_each_source_greys_the_others_settings",
+    "tests/test_crop_source.py::test_file_type_names_an_extension[-]",
+    "tests/test_crop_source.py::test_validate_passes_a_workable_streaming_setup",
+    "tests/test_crop_source.py::test_file_type_names_an_extension[png-png]",
+    "tests/test_crop_source.py::test_a_plane_the_array_does_not_have_is_named",
+    "tests/test_crop_source.py::test_file_type_names_an_extension[tif-tif]",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[on_demand-merged]",
+    "tests/test_crop_source.py::test_training_crop_settings_keep_their_original_refusals[test_database_objects_can_only_be_bounding_boxes]",
+    "tests/test_crop_source.py::test_the_panel_offers_the_two_names_in_words",
+    "tests/test_crop_source.py::test_the_mask_plane_comes_from_the_mask_step_settings",
+    "tests/test_crop_source.py::test_png_type_is_still_accepted_as_the_path_filter",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[merged-merged]",
+    "tests/test_crop_source.py::test_a_load_images_setup_with_a_bad_extension_is_refused",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[stream-merged]",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[stream_images-merged]",
+    "tests/test_crop_source.py::test_the_source_is_resolved_explicitly[-png]",
+    "tests/test_crop_source.py::test_one_coordinate_column_names_the_object_itself",
+    "tests/test_crop_source.py::test_an_unknown_source_is_refused"
+  ],
+  "tests_before": {
+    "passed": 49,
+    "seconds": 11.12
+  },
+  "tests_after": {
+    "passed": 49,
+    "seconds": 8.78
+  },
+  "coverage_scope": "spacr.crop_source under the complete selected training crop-source compatibility/pixel test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 148,
+    "num_statements": 166,
+    "percent_covered": 87.71186440677967,
+    "percent_covered_display": "88",
+    "missing_lines": 18,
+    "excluded_lines": 0,
+    "percent_statements_covered": 89.1566265060241,
+    "percent_statements_covered_display": "89",
+    "num_branches": 70,
+    "num_partial_branches": 11,
+    "covered_branches": 59,
+    "missing_branches": 11,
+    "percent_branches_covered": 84.28571428571429,
+    "percent_branches_covered_display": "84"
+  },
+  "coverage_after": {
+    "covered_lines": 148,
+    "num_statements": 166,
+    "percent_covered": 87.71186440677967,
+    "percent_covered_display": "88",
+    "missing_lines": 18,
+    "excluded_lines": 0,
+    "percent_statements_covered": 89.1566265060241,
+    "percent_statements_covered_display": "89",
+    "num_branches": 70,
+    "num_partial_branches": 11,
+    "covered_branches": 59,
+    "missing_branches": 11,
+    "percent_branches_covered": 84.28571428571429,
+    "percent_branches_covered_display": "84"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "6e0245025df71f9c48cb3457c6def3d72b6abcc3ad9cfa1c51610f4591ff85a8",
+  "production_source_sha256": "5f652cd9bab803f1c6198bd78e26b71c1a0b566bc82d2c9309dedcbaf4110055",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "other_compatibility_alias_viewer_pixel_crop_and_valid_configuration_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "coordinate-outline-preflight-skipped",
+      "source_variant": {
+        "path": "spacr/crop_source.py",
+        "line": 503,
+        "old": "if coordinates:\n        if shape != \"bounding_box\":",
+        "new": "if coordinates:\n        if False and shape != \"bounding_box\":"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_crop_source.py::test_database_objects_can_only_be_bounding_boxes"
+        ],
+        "failure_summary_lines": [
+          "tests/test_crop_source.py::test_database_objects_can_only_be_bounding_boxes"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_crop_source.py::test_training_crop_settings_keep_their_original_refusals[test_database_objects_can_only_be_bounding_boxes]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_crop_source.py::test_training_crop_settings_keep_their_original_refusals[test_database_objects_can_only_be_bounding_boxes]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "coordinate-size-preflight-skipped",
+      "source_variant": {
+        "path": "spacr/crop_source.py",
+        "line": 508,
+        "old": "if not settings.get(\"image_size\"):",
+        "new": "if False and not settings.get(\"image_size\"):"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_crop_source.py::test_coordinate_crops_need_a_size"
+        ],
+        "failure_summary_lines": [
+          "tests/test_crop_source.py::test_coordinate_crops_need_a_size - Failed:..."
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_crop_source.py::test_training_crop_settings_keep_their_original_refusals[test_coordinate_crops_need_a_size]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_crop_source.py::test_training_crop_settings_keep_their_original_refusals[test_coordinate_crops_need_a_size]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults against the three affected training crop-setting refusal cases before and after; repository production files unchanged.",
+  "table_placement_note": "Three literal refusal cases are grouped at the original missing-channel case. Every other definition retains its relative order and unchanged AST; grouped cases share no fixture state.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_crop_source.py",
+      "line": 323,
+      "symbol": "test_training_crop_settings_keep_their_original_refusals",
+      "new": "Keep each invalid training crop setup paired with its original refusal.",
+      "old": {
+        "test_streaming_without_channels_is_refused_before_training": "Discovering it after an hour of dataset building is a worse failure.",
+        "test_database_objects_can_only_be_bounding_boxes": "A coordinate has no outline, so a crop claiming to be object-shaped\nwould be a rectangle wearing the wrong name.",
+        "test_coordinate_crops_need_a_size": null
+      }
+    }
+  ],
+  "resources": "can_start 8 0, MemoryMax 8G, nice19, CUDA hidden, pytest -n2"
+}
