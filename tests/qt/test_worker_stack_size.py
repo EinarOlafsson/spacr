@@ -28,44 +28,37 @@ from spacr.qt import bridge
 
 
 class TestWidenWorkerStack:
-    def test_asks_for_the_documented_size(self, monkeypatch):
+    @pytest.mark.parametrize(
+        ("env_value", "expected_mb"),
+        [
+            pytest.param(None, None, id="absent"),
+            pytest.param("8", 8, id="positive"),
+            pytest.param("", None, id="empty"),
+            pytest.param("  ", None, id="whitespace"),
+            pytest.param("banana", None, id="malformed"),
+            pytest.param("-1", None, id="negative"),
+            pytest.param("0", None, id="zero"),
+        ],
+    )
+    def test_requested_stack_size(self, monkeypatch, env_value, expected_mb):
+        """Request the default or a positive override, retaining invalid-value fallbacks."""
         asked = []
         thread = QThread()
         monkeypatch.setattr(type(thread), "setStackSize",
                             lambda self, n: asked.append(n), raising=False)
-        monkeypatch.delenv("SPACR_WORKER_STACK_MB", raising=False)
+        if env_value is None:
+            monkeypatch.delenv("SPACR_WORKER_STACK_MB", raising=False)
+        else:
+            monkeypatch.setenv("SPACR_WORKER_STACK_MB", env_value)
 
         bridge._widen_worker_stack(thread)
 
-        assert asked == [bridge.WORKER_STACK_BYTES]
+        expected = bridge.WORKER_STACK_BYTES if expected_mb is None else expected_mb * 1024 * 1024
+        assert asked == [expected]
 
     def test_the_default_clears_the_crashing_size(self):
         """544 KB was not enough. Anything in this range must be far above it."""
         assert bridge.WORKER_STACK_BYTES >= 16 * 1024 * 1024
-
-    def test_env_override_is_honoured(self, monkeypatch):
-        asked = []
-        thread = QThread()
-        monkeypatch.setattr(type(thread), "setStackSize",
-                            lambda self, n: asked.append(n), raising=False)
-        monkeypatch.setenv("SPACR_WORKER_STACK_MB", "8")
-
-        bridge._widen_worker_stack(thread)
-
-        assert asked == [8 * 1024 * 1024]
-
-    @pytest.mark.parametrize("value", ["", "  ", "banana", "-1", "0"])
-    def test_a_junk_override_never_shrinks_the_stack(self, monkeypatch, value):
-        """An unparseable or absurd value must not leave a smaller stack."""
-        asked = []
-        thread = QThread()
-        monkeypatch.setattr(type(thread), "setStackSize",
-                            lambda self, n: asked.append(n), raising=False)
-        monkeypatch.setenv("SPACR_WORKER_STACK_MB", value)
-
-        bridge._widen_worker_stack(thread)
-
-        assert asked == [bridge.WORKER_STACK_BYTES]
 
     def test_a_refusing_platform_costs_the_run_nothing(self, monkeypatch):
         """INVARIANTS §10 — this must not be able to end a run."""
