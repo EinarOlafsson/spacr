@@ -29,14 +29,20 @@ def test_an_impossible_edge_cannot_steal_the_closest_valid_match():
     assert link_by_timeflows(source, target, prediction) == {7: 71}
 
 
-def test_a_source_with_no_admissible_target_does_not_change_other_links():
-    source, target, prediction = scene(points=((21.5, 11.5), (21.5, -100)))
-    assert link_by_timeflows(source, target, prediction) == {7: 71}
-
-
-def test_global_matching_can_use_two_admissible_edges():
-    source, target, prediction = scene(points=((21.5, 12.5), (21.5, 20.5)))
-    assert link_by_timeflows(source, target, prediction) == {7: 71, 9000000001: 81}
+@pytest.mark.parametrize("points, expected", [
+    pytest.param(
+        ((21.5, 11.5), (21.5, -100)), {7: 71},
+        id="test_a_source_with_no_admissible_target_does_not_change_other_links",
+    ),
+    pytest.param(
+        ((21.5, 12.5), (21.5, 20.5)), {7: 71, 9000000001: 81},
+        id="test_global_matching_can_use_two_admissible_edges",
+    ),
+])
+def test_explicit_scenes_keep_their_original_admissible_links(points, expected):
+    """Keep each original scene paired with the same admissible identity links."""
+    source, target, prediction = scene(points=points)
+    assert link_by_timeflows(source, target, prediction) == expected
 
 
 def test_successor_threshold_is_inclusive_and_can_abstain():
