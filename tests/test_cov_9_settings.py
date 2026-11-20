@@ -171,17 +171,19 @@ def test_outlier_criteria_are_the_built_in_four_and_cannot_fail_to_import():
 # parse_list
 # ---------------------------------------------------------------------------
 
-def test_a_typed_tuple_becomes_the_list_it_means():
-    """``(1, 2, 3)`` typed into a list control is that list of three."""
-    assert settings_mod.parse_list('(1, 2, 3)') == [1, 2, 3]
-
-
-def test_a_one_element_tuple_keeps_its_single_value():
-    """``(3,)`` is python's spelling of one value, not an empty container.
-
-    Flattening it away would silently drop the only entry the user typed.
-    """
-    assert settings_mod.parse_list('(3,)') == [3]
+@pytest.mark.parametrize('text, expected', [
+    pytest.param(
+        '(1, 2, 3)', [1, 2, 3],
+        id='test_a_typed_tuple_becomes_the_list_it_means',
+    ),
+    pytest.param(
+        '(3,)', [3],
+        id='test_a_one_element_tuple_keeps_its_single_value',
+    ),
+])
+def test_typed_tuple_literals_keep_their_original_ordered_lists(text, expected):
+    """Preserve the original ordered list for each typed tuple literal."""
+    assert settings_mod.parse_list(text) == expected
 
 
 def test_a_bare_scalar_is_refused_by_a_list_control():

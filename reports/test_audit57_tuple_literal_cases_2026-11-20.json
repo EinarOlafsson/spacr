@@ -1,0 +1,200 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_cov_9_settings.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_9_settings.py::test_a_typed_tuple_becomes_the_list_it_means": "tests/test_cov_9_settings.py::test_typed_tuple_literals_keep_their_original_ordered_lists[test_a_typed_tuple_becomes_the_list_it_means]",
+    "tests/test_cov_9_settings.py::test_a_one_element_tuple_keeps_its_single_value": "tests/test_cov_9_settings.py::test_typed_tuple_literals_keep_their_original_ordered_lists[test_a_one_element_tuple_keeps_its_single_value]"
+  },
+  "tuple_literal_text_and_native_integer_list_contracts": {
+    "test_a_typed_tuple_becomes_the_list_it_means": [
+      "(1, 2, 3)",
+      [
+        1,
+        2,
+        3
+      ]
+    ],
+    "test_a_one_element_tuple_keeps_its_single_value": [
+      "(3,)",
+      [
+        3
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_typed_tuple_becomes_the_list_it_means": "('(1, 2, 3)', [1, 2, 3])",
+    "test_a_one_element_tuple_keeps_its_single_value": "('(3,)', [3])"
+  },
+  "contract_scope": "Exact original tuple strings (1, 2, 3) and (3,), settings_mod.parse_list positional call and native ordered integer-list equality against independent original expected lists retained. Every other import/helper/organelle-translation/legacy-penalty/optional-helper/outlier-criteria/scalar-refusal case retains AST and relative order.",
+  "collected_before": [
+    "tests/test_cov_9_settings.py::test_a_typed_tuple_becomes_the_list_it_means",
+    "tests/test_cov_9_settings.py::test_a_legacy_penalty_under_another_family_is_converted_silently",
+    "tests/test_cov_9_settings.py::test_an_organelle_key_still_translates_to_the_named_slot",
+    "tests/test_cov_9_settings.py::test_a_one_element_tuple_keeps_its_single_value",
+    "tests/test_cov_9_settings.py::test_a_legacy_group_lasso_penalty_says_so_when_that_family_is_selected",
+    "tests/test_cov_9_settings.py::test_analysis_excluded_wells_fall_back_to_filter_value_when_the_block_spec_fails",
+    "tests/test_cov_9_settings.py::test_an_unreadable_coordinate_column_yields_no_coordinate_setting",
+    "tests/test_cov_9_settings.py::test_classes_are_left_alone_when_the_class_folder_cannot_fold",
+    "tests/test_cov_9_settings.py::test_outlier_criteria_are_the_built_in_four_and_cannot_fail_to_import",
+    "tests/test_cov_9_settings.py::test_a_non_organelle_key_is_refused_by_the_slot_translator",
+    "tests/test_cov_9_settings.py::test_a_bare_scalar_is_refused_by_a_list_control"
+  ],
+  "collected_after": [
+    "tests/test_cov_9_settings.py::test_classes_are_left_alone_when_the_class_folder_cannot_fold",
+    "tests/test_cov_9_settings.py::test_an_organelle_key_still_translates_to_the_named_slot",
+    "tests/test_cov_9_settings.py::test_a_legacy_penalty_under_another_family_is_converted_silently",
+    "tests/test_cov_9_settings.py::test_analysis_excluded_wells_fall_back_to_filter_value_when_the_block_spec_fails",
+    "tests/test_cov_9_settings.py::test_a_legacy_group_lasso_penalty_says_so_when_that_family_is_selected",
+    "tests/test_cov_9_settings.py::test_typed_tuple_literals_keep_their_original_ordered_lists[test_a_typed_tuple_becomes_the_list_it_means]",
+    "tests/test_cov_9_settings.py::test_a_bare_scalar_is_refused_by_a_list_control",
+    "tests/test_cov_9_settings.py::test_outlier_criteria_are_the_built_in_four_and_cannot_fail_to_import",
+    "tests/test_cov_9_settings.py::test_an_unreadable_coordinate_column_yields_no_coordinate_setting",
+    "tests/test_cov_9_settings.py::test_a_non_organelle_key_is_refused_by_the_slot_translator",
+    "tests/test_cov_9_settings.py::test_typed_tuple_literals_keep_their_original_ordered_lists[test_a_one_element_tuple_keeps_its_single_value]"
+  ],
+  "tests_before": {
+    "passed": 11,
+    "seconds": 5.85
+  },
+  "tests_after": {
+    "passed": 11,
+    "seconds": 5.1
+  },
+  "coverage_scope": "spacr.settings under the complete selected organelle-translation/legacy-penalty/optional-helper/outlier-criteria/tuple-parser/scalar-refusal module; not full-suite coverage. Existing plain settings dictionaries, helper refusal stubs and literal strings only; no fitting, actual model construction, GUI/chart rendering, new reader, network or GPU work. No production settings name/default/schema/category changes.",
+  "coverage_before": {
+    "covered_lines": 579,
+    "num_statements": 2958,
+    "percent_covered": 19.269102990033222,
+    "percent_covered_display": "19",
+    "missing_lines": 2379,
+    "excluded_lines": 0,
+    "percent_statements_covered": 19.574036511156187,
+    "percent_statements_covered_display": "20",
+    "num_branches": 654,
+    "num_partial_branches": 43,
+    "covered_branches": 117,
+    "missing_branches": 537,
+    "percent_branches_covered": 17.889908256880734,
+    "percent_branches_covered_display": "18"
+  },
+  "coverage_after": {
+    "covered_lines": 579,
+    "num_statements": 2958,
+    "percent_covered": 19.269102990033222,
+    "percent_covered_display": "19",
+    "missing_lines": 2379,
+    "excluded_lines": 0,
+    "percent_statements_covered": 19.574036511156187,
+    "percent_statements_covered_display": "20",
+    "num_branches": 654,
+    "num_partial_branches": 43,
+    "covered_branches": 117,
+    "missing_branches": 537,
+    "percent_branches_covered": 17.889908256880734,
+    "percent_branches_covered_display": "18"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "35f21ee0f3f1c9cb7da6cb96c0c6d5826186c44a0915965251805e9aeeb30858",
+  "production_source_sha256": "81051f799ef86d95d7a3bb3f1df227389991ad2f334f90f4d7115471e137fcbe",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_helpers_organelle_translation_legacy_penalty_optional_helpers_outlier_criteria_scalar_refusal_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "multiple-tuple-values-truncated",
+      "source_variant": {
+        "path": "spacr/settings.py",
+        "line": 7710,
+        "old": "return list(parsed_value) if len(parsed_value) > 1 else [parsed_value[0]]",
+        "new": "return list(parsed_value[:1]) if len(parsed_value) > 1 else [parsed_value[0]]"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_9_settings.py::test_a_typed_tuple_becomes_the_list_it_means"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_9_settings.py::test_a_typed_tuple_becomes_the_list_it_means"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_9_settings.py::test_typed_tuple_literals_keep_their_original_ordered_lists[test_a_typed_tuple_becomes_the_list_it_means]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_9_settings.py::test_typed_tuple_literals_keep_their_original_ordered_lists[test_a_typed_tuple_becomes_the_list_it_means]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "single-tuple-value-discarded",
+      "source_variant": {
+        "path": "spacr/settings.py",
+        "line": 7710,
+        "old": "return list(parsed_value) if len(parsed_value) > 1 else [parsed_value[0]]",
+        "new": "return list(parsed_value) if len(parsed_value) > 1 else []"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_9_settings.py::test_a_one_element_tuple_keeps_its_single_value"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_9_settings.py::test_a_one_element_tuple_keeps_its_single_value"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_9_settings.py::test_typed_tuple_literals_keep_their_original_ordered_lists[test_a_one_element_tuple_keeps_its_single_value]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_9_settings.py::test_typed_tuple_literals_keep_their_original_ordered_lists[test_a_one_element_tuple_keeps_its_single_value]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in parse_list before and after: truncate a multi-value tuple to its first value; discard the single value of a one-element tuple. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native ordered integer-list equality. Exact original tuple text including spaces/trailing comma and independent expected lists retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_9_settings.py",
+      "line": 185,
+      "symbol": "test_typed_tuple_literals_keep_their_original_ordered_lists",
+      "new": "Preserve the original ordered list for each typed tuple literal.",
+      "old": {
+        "test_a_typed_tuple_becomes_the_list_it_means": "``(1, 2, 3)`` typed into a list control is that list of three.",
+        "test_a_one_element_tuple_keeps_its_single_value": "``(3,)`` is python's spelling of one value, not an empty container.\n\nFlattening it away would silently drop the only entry the user typed."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS",
+  "mandatory_ratchet_warning_evidence": {
+    "summary": "157 passed, 16 warnings in 131.92s (0:02:11)",
+    "existing_windows_installer_syntax_warning_count": 14,
+    "additional_runtime_warning_count": 2,
+    "test_ids": [
+      "tests/test_test_suite_hygiene.py::test_no_dataframe_subclass_overrides_constructor_alone",
+      "tests/test_nested_functions_are_documented.py::test_no_module_exceeds_its_budget"
+    ],
+    "message": "the real QSettings files changed while a test ran, but this process was correctly sandboxed: ['<user home>/.config/spacr/qt.conf', '<user home>/.config/spacr']. Another process is writing them.",
+    "scope": "The original conftest guard explicitly confirmed this test process was correctly sandboxed and attributed real-file changes to another process. No conftest, real QSettings file or other process was changed. Passing tests were not repeated for an external-write warning.",
+    "path_note": "User home prefix redacted here; exact warning retained in private finish-report.log."
+  }
+}
