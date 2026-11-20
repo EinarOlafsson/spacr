@@ -340,7 +340,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Output &amp; Storage (7 settings)</summary>
+<summary>Output &amp; Storage (8 settings)</summary>
 
 #### Output & Storage
 
@@ -349,6 +349,7 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`keep_intermediate`** *(optional)* — (bool) - Keep the intermediate stack/ and masks/ folders after the merged/ arrays are built. Off by default: only merged/ is kept (masks are embedded in merged and recorded in the database). Default: `False`.
 - **`keep_original_images`** *(optional)* — (bool) - Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files. Default: `True`.
 - **`save_original_images`** *(optional)* — (bool) - After each batch is MIP-projected and merged into stack/, either move the raw input images into src/orig/ (True) or delete them so the pixels live only in stack/ (False). Set False on large screens where the duplicate raw copy will not fit on disk; the deletion is not reversible. Default True. Default: `True`.
+- **`mask_image_format`** *(optional)* — (str) - The format Mask Generation also writes its merged fields in. 'npy' writes only merged/*.npy, as before. 'ome-zarr' adds one OME-Zarr 0.5 store per plate under images/, with every field's channels named and its masks stored as labels, which napari and Fiji open. 'tiff' adds merged_tiff/&lt;field&gt;.tif and one &lt;field&gt;_&lt;object&gt;_mask.tif per object. The merged .npy files stay, so later steps read them as before. Default 'npy'. Alpha. Default: `'npy'`.
 - **`filter`** *(optional)* — (bool) - Legacy switch for the old post-Cellpose cleanup pass, which re-ran size/intensity/border filtering and logged '_after_filtration' object counts to the database. The current Cellpose-SAM segmentation path never reads it, so toggling it changes nothing; use the per-object &lt;object&gt;_min_area, &lt;object&gt;_max_area and &lt;object&gt;_perimeter_fraction settings instead. Default False. Default: `False`.
 - **`merge_pathogens`** *(optional)* — (bool) - Legacy option that merged two touching pathogen labels into one when their shared boundary exceeded 66% of the smaller object's perimeter, so a single PV split by Cellpose counted once. The current Cellpose-SAM path ignores it - use pathogen_perimeter_fraction instead. Default True. Default: `True`.
 

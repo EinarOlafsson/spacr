@@ -381,7 +381,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Crop Output (9 settings)</summary>
+<summary>Crop Output (13 settings)</summary>
 
 #### Crop Output
 
@@ -394,6 +394,10 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`use_bounding_box`** *(optional)* — (bool) - Crop the object's rectangular bounding box padded by 10 px instead of its mask, so neighbouring cells and background inside the box are kept rather than zeroed out. Enable when the classifier should see local context; leave off to isolate a single object on a black background. Default False. Default: `False`.
 - **`normalize_by`** *(optional)* — (str) - Percentile source used to rescale cropped PNGs, and only active when 'normalize' is a [low, high] percentile pair: 'png' stretches each crop to its own percentiles, maximising per-object contrast; 'fov' uses percentiles from the whole field, keeping brightness comparable between objects. Choose 'fov' if crop intensities will be compared. Default 'png'. Default: `'png'`.
 - **`crop_intensity`** *(optional)* — (str) - Intensities written into the crop PNGs. 'raw' keeps the stored values and bit depth, usually uint16, and sets only the pixels outside the object to 0. 'stretch' rescales each crop to its own percentiles, which is what spaCR did before November 2026. 'auto' writes raw crops unless normalize is a [low, high] percentile pair. spaCR's own readers show raw crops with the old stretch, so Annotate, Classify and existing models see the same pixels. Other programs see the raw values, which keep intensity differences between cells. Default 'auto'. Default: `'auto'`.
+- **`crop_image_format`** *(optional)* — (str) - The format Measure writes object crops in. 'png' writes the PNG folders as before (default). 'ome-zarr' writes each object's bounding box plus crop_margin_px, at full bit depth and every channel, with its own mask, into one store per well: crops/plate=&lt;plate&gt;/well=&lt;well&gt;.zarr, listed in measurements.db table ssCell_Crops. Crops keep their raw intensities; nothing is stretched. Alpha. Default: `'png'`.
+- **`crops_per_shard`** *(optional)* — (int) - How many crops go into one stored shard when crop_image_format is 'ome-zarr'. Larger shards mean fewer files; each shard is held in RAM before it is written. Lowered automatically, with a log line, when free RAM is short. Default 4096. Alpha. Default: `4096`.
+- **`crop_margin_px`** *(optional)* — (int) - Pixels kept around each object's bounding box in OME-Zarr crops, clipped at the image edge. Default 0. Alpha. Default: `0`.
+- **`crop_zero_outside`** *(optional)* — (bool) - Store OME-Zarr crops with every pixel outside the object set to 0. Off by default: the pixels around the object are kept, and a reader can still hide them with the stored mask. Alpha. Default: `False`.
 
 </details>
 

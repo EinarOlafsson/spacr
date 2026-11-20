@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-770 Lifecycle: new, 184 Lifecycle: future in features/feature_list/.
+773 Lifecycle: new, 184 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -2142,5 +2142,9 @@ NEW FEATURES
        980_ops_voyager3_enrichment.txt
   982  OPS SPACER-PREFIX TUNING: SMALL WELLS KEEP THE READ-QUALITY FLOOR AT 0.1
        982_ops_prefix_small_well_guard.txt
+  983  OME-ZARR IMAGES AND CROPS: MASK GENERATION FIELDS AS AN HCS PLATE, MEASURE CROPS AS RAGGED PER-WELL POOLS (983, 984)
+       983_ome_zarr_images_and_crops.txt
   987  CELLPOSE MASK BATCHES STAY IN MEMORY AND keep_npz IS REMOVED
        987_cellpose_batches_in_memory.txt
+  993  CLI PREFLIGHT REFUSALS RETAIN THEIR PROBLEMS WITHOUT AUTOMATIC CRASH REPORTS
+       993_cli_preflight_reporting.txt
