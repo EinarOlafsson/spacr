@@ -4767,7 +4767,7 @@ def _ph_saved_objects(saved, roles: Sequence[str], path: str
                       ) -> Dict[str, np.ndarray]:
     """The object labels ``roles`` names from one field's mask file (item 970).
 
-    :param saved: the open ``np.load`` of the field's masks.
+    :param saved: the saved label arrays, as a mapping or an open NPZ file.
     :param roles: the classes to read.
     :param path: the mask file, named in the error.
     :raises ValueError: when the file was made without one of them, so a
@@ -4775,13 +4775,114 @@ def _ph_saved_objects(saved, roles: Sequence[str], path: str
     """
     from .qt.i18n import tr
 
-    missing = [role for role in roles if role not in saved.files]
+    missing = [role for role in roles if role not in getattr(saved, "files", saved)]
     if missing:
         raise ValueError(tr(
             "{path} has no {missing} masks: it was segmented without them. "
             "Move phenotype_masks away and rerun ph_segment, or clear the "
             "ops_ph_*_channel settings", path=path, missing=missing))
     return {role: saved[role].astype(np.int32) for role in roles}
+
+
+def _ph_image_format(settings: Mapping[str, Any]) -> str:
+    """The selected phenotype image format, checked before any output is written.
+
+    :param settings: read for ``ops_ph_image_format``.
+    :returns: ``ome-zarr`` or the explicit legacy format ``npz``.
+    """
+    from .qt.i18n import tr
+
+    value = str(settings.get("ops_ph_image_format") or "ome-zarr").strip().lower()
+    if value not in ("ome-zarr", "npz"):
+        raise ValueError(tr("ops_ph_image_format must be ome-zarr or npz; got {value}",
+                            value=value))
+    return value
+
+
+def _ph_crop_format(settings: Mapping[str, Any]) -> str:
+    """The selected crop format, checked before any output is written.
+
+    :param settings: read for ``ops_crop_image_format``.
+    :returns: ``ome-zarr`` or the explicit legacy format ``tiff-tar``.
+    """
+    from .qt.i18n import tr
+
+    value = str(settings.get("ops_crop_image_format") or "ome-zarr").strip().lower()
+    if value not in ("ome-zarr", "tiff-tar"):
+        raise ValueError(tr("ops_crop_image_format must be ome-zarr or tiff-tar; got {value}",
+                            value=value))
+    return value
+
+
+def _ph_committed_fields(folder: str, plate: str, well: str) -> Dict[int, str]:
+    """Committed HCS field paths with their image and label groups still present.
+
+    :param folder: the folder holding the plate store.
+    :param plate: the plate name.
+    :param well: the well whose fields are required.
+    :returns: field number to actual OME-Zarr field group path.
+    """
+    from .image_store import field_key
+
+    store = os.path.join(folder, f"{plate}.ome.zarr")
+    ledger = os.path.join(store, "spacr_commits.jsonl")
+    if not os.path.isfile(ledger):
+        return {}
+    entries = {}
+    with open(ledger, encoding="utf-8") as handle:
+        for line in handle:
+            if line.strip():
+                record = json.loads(line)
+                if str(record.get("well")) == str(well):
+                    entries[int(record["field"])] = record
+    paths = {}
+    for site, record in entries.items():
+        path = os.path.join(store, field_key(well, site))
+        groups = [path] + [os.path.join(path, "labels", name)
+                           for name in record.get("labels", ())]
+        arrays = ([path] if record.get("image") else []) + groups[1:]
+        groups += [os.path.join(group, "0") for group in arrays]
+        if all(os.path.isfile(os.path.join(group, "zarr.json")) for group in groups):
+            paths[site] = path
+    return paths
+
+
+def _ph_mask_paths(destination: str, plate: str, well: str,
+                   settings: Mapping[str, Any]) -> Dict[int, str]:
+    """Available phenotype masks, preferring the selected format per field.
+
+    :param destination: the run folder.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param settings: read for ``ops_ph_image_format``; the other format is
+        used when the selected format has no committed field.
+    :returns: site to NPZ file or committed OME-Zarr field group.
+    """
+    folder = os.path.join(destination, str(well), "phenotype_masks")
+    legacy = {}
+    if os.path.isdir(folder):
+        legacy = {int(name[5:-4]): os.path.join(folder, name)
+                  for name in os.listdir(folder)
+                  if re.fullmatch(r"site-\d+\.npz", name)}
+    native = _ph_committed_fields(folder, plate, well)
+    return ({**legacy, **native} if _ph_image_format(settings) == "ome-zarr"
+            else {**native, **legacy})
+
+
+def _ph_read_masks(path: str) -> Dict[str, np.ndarray]:
+    """Read an existing NPZ mask bundle or named labels through the shared reader.
+
+    :param path: a mask bundle or committed OME-Zarr field group.
+    :returns: label names mapped to arrays, preserving dtype and values.
+    """
+    if os.path.isfile(path):
+        with np.load(path, allow_pickle=False) as saved:
+            return {name: saved[name] for name in saved.files}
+    from .image_store import read_labels
+
+    labels = os.path.join(path, "labels")
+    return {name: read_labels(path, name) for name in sorted(os.listdir(labels))
+            if os.path.isfile(os.path.join(labels, name, "zarr.json"))}
 
 
 def _ph_cells_path(destination: str, well: str) -> str:
@@ -4875,13 +4976,16 @@ def _ph_flat_folder(settings: Mapping[str, Any], destination: str) -> str:
                or os.path.join(destination, "flatfield"))
 
 
-def _ph_options_marker(folder: str, options: Mapping[str, Any]) -> None:
+def _ph_options_marker(folder: str, options: Mapping[str, Any], *,
+                        existing_parts: bool = False) -> None:
     """Refuse to mix per-field parts made with different options.
 
     :param folder: a folder of per-field parts.
     :param options: what this run makes the parts with. Missing historical
         keys are None or False; an explicit shared mask setting therefore
         refuses parts whose original tile count or precision was not saved.
+    :param existing_parts: committed native fields also use this marker,
+        even when their arrays live below a plate store rather than beside it.
     :raises ValueError: when parts made with other options are already
         there. A field that is not redone keeps its part, so a well would
         otherwise mix corrected and uncorrected fields without notice.
@@ -4899,7 +5003,7 @@ def _ph_options_marker(folder: str, options: Mapping[str, Any]) -> None:
             earlier = json.load(handle)
         earlier = {**{key: (False if isinstance(value, bool) else None)
                       for key, value in now.items()}, **earlier}
-    elif any(name.endswith((".parquet", ".npz")) for name in os.listdir(folder)):
+    elif existing_parts or any(name.endswith((".parquet", ".npz")) for name in os.listdir(folder)):
         earlier = {key: (False if isinstance(value, bool) else None)
                    for key, value in now.items()}
     if earlier is not None and earlier != now:
@@ -5039,9 +5143,9 @@ def _ph_mask_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     """The mask pass of one field; the ``ph_masks`` worker."""
     from .ops_flatfield import mask_pass
 
-    with np.load(task["mask_path"]) as saved:
-        nuclei = saved["nuclei"]
-        cells = saved["cells"]
+    saved = _ph_read_masks(task["mask_path"])
+    nuclei = saved["nuclei"]
+    cells = saved["cells"]
     inverse = None
     if task.get("flat_folder"):
         inverse = _ph_flat_planes(task["flat_folder"], task["channels"],
@@ -5087,9 +5191,8 @@ def _ph_masks(plate: str, well: str, settings: Mapping[str, Any],
         raise ValueError(tr(
             "well {well} has no masks in {folder}; run ph_segment first",
             well=well, folder=mask_dir))
-    sites = sorted(int(name[5:-4]) for name in os.listdir(mask_dir)
-                   if name.startswith("site-") and name.endswith(".npz")
-                   and ".part" not in name)
+    mask_paths = _ph_mask_paths(destination, plate, well, settings)
+    sites = sorted(mask_paths)
     wanted = _ph_sites(settings.get("ops_ph_sites"))
     if wanted is not None:
         sites = [s for s in sites if s in wanted]
@@ -5108,7 +5211,7 @@ def _ph_masks(plate: str, well: str, settings: Mapping[str, Any],
 
     parts = {s: os.path.join(part_dir, f"site-{s}.parquet") for s in sites}
 
-    tasks = [{"site": s, "mask_path": os.path.join(mask_dir, f"site-{s}.npz"),
+    tasks = [{"site": s, "mask_path": mask_paths[s],
               "part_path": parts[s], "flat_folder": flat_folder,
               "channels": channels}
              for s in sites if not os.path.isfile(parts[s])]
@@ -5168,11 +5271,11 @@ def _ph_measure_table(task: Mapping[str, Any]):
                                task.get("secondary"))
     if stack is None:
         return None, unreadable, None
-    with np.load(task["mask_path"]) as saved:
-        nuclei = saved["nuclei"].astype(np.int32)
-        cells = saved["cells"].astype(np.int32)
-        objects = _ph_saved_objects(saved, task.get("objects") or (),
-                                    task["mask_path"])
+    saved = _ph_read_masks(task["mask_path"])
+    nuclei = saved["nuclei"].astype(np.int32)
+    cells = saved["cells"].astype(np.int32)
+    objects = _ph_saved_objects(saved, task.get("objects") or (),
+                                task["mask_path"])
     if task.get("flat_folder"):
         from .ops_flatfield import correct_field
 
@@ -5336,9 +5439,10 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     :param measure: run ``ph_measure``.
     :returns: the report.
 
-    RESUMABLE PER FIELD. Masks for each field go to
-    ``<well>/phenotype_masks/site-<n>.npz`` and its cells to
-    ``<well>/phenotype_cells/site-<n>.parquet``; a field whose file exists
+    RESUMABLE PER FIELD. Masks for each field go to a committed OME-Zarr
+    plate under ``<well>/phenotype_masks/``, or to ``site-<n>.npz`` with
+    ``ops_ph_image_format='npz'``. Cells go to
+    ``<well>/phenotype_cells/site-<n>.parquet``; a committed field
     is not redone, so a run stopped at field 900 resumes at 901. The well
     table, ``ops_phenotype_cells_<well>.parquet``, is the concatenation and
     is rewritten at the end.
@@ -5393,9 +5497,26 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     cell_dir = os.path.join(destination, well, "phenotype_cells")
     os.makedirs(mask_dir, exist_ok=True)
     os.makedirs(cell_dir, exist_ok=True)
+    image_format = _ph_image_format(settings)
+    mask_writer = None
+    stored_masks = _ph_mask_paths(destination, plate, well, settings)
+    if segment and image_format == "ome-zarr":
+        from .image_store import PlateWriter
+
+        mask_writer = PlateWriter(mask_dir, plate, channel_names=channels)
+        stored_masks = _ph_committed_fields(mask_dir, plate, well)
+    elif segment:
+        stored_masks = {site: path for site, path in stored_masks.items()
+                        if path.endswith(".npz")}
 
     def mask_path(site: int) -> str:
-        """Where one field's masks are kept."""
+        """The selected output path, or the existing source for measurement."""
+        if site in stored_masks:
+            return stored_masks[site]
+        if image_format == "ome-zarr":
+            from .image_store import field_key
+
+            return os.path.join(mask_dir, f"{plate}.ome.zarr", field_key(well, site))
         return os.path.join(mask_dir, f"site-{site}.npz")
 
     def cell_path(site: int) -> str:
@@ -5419,7 +5540,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "mask_inference_precision": precision}
         if object_roles:
             mask_options["objects"] = _ph_object_options(settings)
-        _ph_options_marker(mask_dir, mask_options)
+        _ph_options_marker(mask_dir, mask_options, existing_parts=bool(stored_masks))
     flat_folder = None
     options: Dict[str, Any] = {}
     if measure:
@@ -5468,7 +5589,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     if segment:
         missing = ({} if settings.get("ops_retry_missing")
                    else _ph_missing_fields(destination, well))
-        todo = [s for s in sites if not os.path.isfile(mask_path(s))
+        todo = [s for s in sites if s not in stored_masks
                 and s not in missing]
         found = {
             int(s): "no file for the site in phenotype_source"
@@ -5476,7 +5597,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             if (wanted is None or int(s) in wanted) and int(s) not in files
             and int(s) not in missing}
     to_measure = ({s for s in sites if not os.path.isfile(cell_path(s))
-                   and (os.path.isfile(mask_path(s)) or s in todo)}
+                   and (s in stored_masks or s in todo)}
                   if measure else set())
     stager = None
     if stage_dir:
@@ -5593,8 +5714,12 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                         for role, labels in objects.items():
                             counts[role] += int(len(np.unique(labels[labels > 0])))
                             arrays[role] = labels.astype(np.uint32)
-                    np.savez_compressed(mask_path(site) + ".part.npz", **arrays)
-                    os.replace(mask_path(site) + ".part.npz", mask_path(site))
+                    if mask_writer is None:
+                        np.savez_compressed(mask_path(site) + ".part.npz", **arrays)
+                        os.replace(mask_path(site) + ".part.npz", mask_path(site))
+                    else:
+                        mask_writer.write_field(well, site, None, arrays)
+                    stored_masks[site] = mask_path(site)
                     _say(tr("{well} ph_segment: site {site}, {cells} cells, "
                             "{count} of {total}", well=well, site=site,
                             cells=paired["paired"], count=count,
@@ -5604,13 +5729,13 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                     elif stager is not None:
                         stager.release(site)
                     del stack
-            fresh = sum(1 for s in todo if os.path.isfile(mask_path(s)))
+            fresh = sum(1 for s in todo if s in stored_masks)
             _ph_record_missing(plate, well, destination, found)
             report["ph_segment"] = {
                 "missing_recorded": sorted(found),
                 "missing_skipped": sorted(
                     s for s in missing if (wanted is None or s in wanted)
-                    and not os.path.isfile(mask_path(s))),
+                    and s not in stored_masks),
                 "segmented": fresh, "resumed": len(sites) - len(todo),
                 "objects": dict(counts),
                 "seconds": {k: round(v, 1) for k, v in seconds.items()},
@@ -5640,7 +5765,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
         tick = time.perf_counter()
         if not streamed:
             tasks = [measure_task(s) for s in sites
-                     if os.path.isfile(mask_path(s))
+                     if s in stored_masks
                      and not os.path.isfile(cell_path(s))]
             if check_gpu and tasks:
                 report["ph_measure_gpu_check"] = _ph_gpu_check(tasks[0])
@@ -7708,10 +7833,45 @@ def _ph_merged_root(settings: Mapping[str, Any], destination: str) -> str:
     return str(settings.get("ops_merged_root") or destination)
 
 
-def _ph_merged_path(root: str, plate: str, well: str, site: int) -> str:
-    """One field's merged arrays: ``merged/phenotype/<plate>/<well>/<site>.npz``."""
+def _ph_merged_path(root: str, plate: str, well: str, site: int,
+                    image_format: str = "npz") -> str:
+    """The merged field path in the selected format.
+
+    :param root: the merged output root.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param site: the field number.
+    :param image_format: ``ome-zarr`` or the legacy ``npz``.
+    :returns: the field group or file path.
+    """
+    if image_format == "ome-zarr":
+        from .image_store import field_key
+
+        return os.path.join(root, "merged", "phenotype", f"{plate}.ome.zarr",
+                            field_key(well, site))
     return os.path.join(root, "merged", "phenotype", str(plate), str(well),
                         f"{int(site)}.npz")
+
+
+def _ph_merged_paths(root: str, plate: str, well: str,
+                     settings: Mapping[str, Any]) -> Dict[int, str]:
+    """Available merged fields, preferring the selected format per field.
+
+    :param root: the merged output root.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param settings: read for ``ops_ph_image_format``.
+    :returns: field number to a complete merged file or field group.
+    """
+    folder = os.path.dirname(_ph_merged_path(root, plate, well, 0))
+    legacy = ({int(name[:-4]): os.path.join(folder, name)
+               for name in os.listdir(folder) if re.fullmatch(r"\d+\.npz", name)}
+              if os.path.isdir(folder) else {})
+    native = {site: path for site, path in _ph_committed_fields(
+        os.path.join(root, "merged", "phenotype"), plate, well).items()
+        if os.path.isfile(os.path.join(path, "ops_field.json"))}
+    return ({**legacy, **native} if _ph_image_format(settings) == "ome-zarr"
+            else {**native, **legacy})
 
 
 def _ph_owned_flags(destination: str, well: str, settings: Mapping[str, Any]):
@@ -7807,9 +7967,9 @@ def _ph_merged_field(task: Mapping[str, Any]) -> Dict[str, Any]:
                            task.get("secondary"))
     if stack is None:
         return {"site": task["site"], "cells": None, "unreadable": unreadable}
-    with np.load(task["mask_path"]) as saved:
-        nuclei = saved["nuclei"].astype(np.int32)
-        cells = saved["cells"].astype(np.int32)
+    saved = _ph_read_masks(task["mask_path"])
+    nuclei = saved["nuclei"].astype(np.int32)
+    cells = saved["cells"].astype(np.int32)
     if task.get("flat_folder"):
         from .ops_flatfield import correct_field
 
@@ -7830,6 +7990,14 @@ def _ph_merged_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     owned[_ph_edge_labels(cells)] = 2
     image = _ph_image_row(stored, task["channels"], nuclei, cells)
     meta = dict(task["meta"], image=image)
+    if task.get("image_format") == "ome-zarr":
+        return {"site": task["site"], "cells": int(present.size),
+                "unreadable": unreadable, "image": image,
+                "payload": {"channels": np.moveaxis(stored, -1, 0),
+                            "labels": {"nuclei": nuclei.astype(np.uint32),
+                                       "cells": cells.astype(np.uint32),
+                                       "cytoplasm": cytoplasm.astype(np.uint32)},
+                            "owned": owned, "meta": meta}}
     part = task["out_path"] + ".part.npz"
     os.makedirs(os.path.dirname(task["out_path"]), exist_ok=True)
     np.savez_compressed(part, channels=np.moveaxis(stored, -1, 0),
@@ -7845,10 +8013,18 @@ def _ph_merged_field(task: Mapping[str, Any]) -> Dict[str, Any]:
 def _ph_read_merged(path: str) -> Dict[str, Any]:
     """One ``ops_merged_v1`` field: its arrays and its decoded ``meta``.
 
-    :param path: a ``merged/phenotype/<plate>/<well>/<site>.npz``.
+    :param path: a merged NPZ file or committed OME-Zarr field group.
     :returns: ``channels`` as ``(C, H, W)``, ``nuclei``, ``cells``,
         ``cytoplasm``, ``owned`` and ``meta`` (a dict).
     """
+    if os.path.isdir(path):
+        from .image_store import read_image
+
+        with open(os.path.join(path, "ops_field.json"), encoding="utf-8") as handle:
+            record = json.load(handle)
+        return {"channels": read_image(path), **_ph_read_masks(path),
+                "owned": np.asarray(record["owned"], dtype=np.uint8),
+                "meta": record["meta"]}
     with np.load(path) as saved:
         out = {name: saved[name] for name in saved.files if name != "meta"}
         out["meta"] = json.loads(str(saved["meta"]))
@@ -7886,7 +8062,11 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
     :param destination: the run folder.
     :returns: the report.
 
-    One ``np.savez_compressed`` file per placed, segmented field, at
+    By default a parent writer commits each field to
+    ``<ops_merged_root>/merged/phenotype/<plate>.ome.zarr``. Images and
+    label masks use the shared HCS writer; ``ops_field.json`` retains
+    ownership flags and metadata without converting them to image planes.
+    With ``ops_ph_image_format='npz'``, one legacy file per field goes to
     ``<ops_merged_root>/merged/phenotype/<plate>/<well>/<site>.npz``:
     ``channels`` (``ops_ph_channels`` order, ``(C, H, W)``; flat-field
     corrected as ``(I - b) / F + b`` with ``ops_merged_flatfield`` when the
@@ -7923,9 +8103,8 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
             "well {well} has no masks in {folder}; run ph_segment first",
             well=well, folder=mask_dir))
     files = phenotype_files.get(min(phenotype_files), {}) if phenotype_files else {}
-    sites = sorted(int(name[5:-4]) for name in os.listdir(mask_dir)
-                   if name.startswith("site-") and name.endswith(".npz")
-                   and ".part" not in name)
+    mask_paths = _ph_mask_paths(destination, plate, well, settings)
+    sites = sorted(mask_paths)
     wanted = _ph_sites(settings.get("ops_ph_sites"))
     sites = [s for s in sites if (wanted is None or s in wanted)]
     missing_files = [s for s in sites if s not in files]
@@ -7948,9 +8127,11 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
     secondary = _ph_secondary_by_site(db, plate, well, settings)
     if secondary:
         options["secondary"] = _ph_secondary(settings)
+    image_format = _ph_image_format(settings)
     out_dir = os.path.dirname(_ph_merged_path(root, plate, well, 0))
     os.makedirs(out_dir, exist_ok=True)
-    _ph_options_marker(out_dir, options)
+    completed = _ph_merged_paths(root, plate, well, settings)
+    _ph_options_marker(out_dir, options, existing_parts=bool(completed))
     os.makedirs(os.path.join(root, "merged"), exist_ok=True)
     layout_path = os.path.join(root, "merged", "LAYOUT.json")
     with open(layout_path + ".part", "w", encoding="utf-8") as handle:
@@ -7959,7 +8140,9 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
                    "flags": {"owned": {"0": "copy owned by another field",
                                        "1": "owned by this field",
                                        "2": "touches the field edge"}},
-                   "dtype": dtype, "axes": "CYX"}, handle, indent=1)
+                   "dtype": dtype, "axes": "CYX",
+                   **({"image_format": "ome-zarr", "field_metadata": "ops_field.json"}
+                      if image_format == "ome-zarr" else {})}, handle, indent=1)
     os.replace(layout_path + ".part", layout_path)
     placed = _ph_transforms(db, plate, well, destination)
     by_site = {int(r["site"]): r for r in placed.to_dict("records")}
@@ -7967,10 +8150,16 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
     commit = _git_hash()
     from . import __version__
 
+    writer = None
+    if image_format == "ome-zarr":
+        from .image_store import PlateWriter
+
+        writer = PlateWriter(os.path.join(root, "merged", "phenotype"), plate,
+                              channel_names=channels)
     tasks = []
     for site in sites:
-        out_path = _ph_merged_path(root, plate, well, site)
-        if os.path.isfile(out_path):
+        out_path = _ph_merged_path(root, plate, well, site, image_format)
+        if completed.get(site) == out_path:
             continue
         record = by_site.get(site, {})
         transform = {key: record.get(key) for key in record
@@ -7978,7 +8167,7 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
                      or str(key).startswith(("refined_", "secondary_"))}
         tasks.append({
             "site": site, "files": files[site], "channels": channels,
-            "mask_path": os.path.join(mask_dir, f"site-{site}.npz"),
+            "mask_path": mask_paths[site], "image_format": image_format,
             "out_path": out_path, "flat_folder": flat_folder, "dtype": dtype,
             "owned": (None if owned is None else
                       {label: flag for (s, label), flag in owned.items()
@@ -7989,12 +8178,29 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
                      "spacr_commit": commit}})
     workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks) or 1))
     results = []
+
+    def persist(result):
+        """Commit one worker payload in the parent and retain only its small report."""
+        payload = result.pop("payload", None)
+        if payload is not None:
+            key = writer.write_field(well, result["site"], payload["channels"],
+                                      payload["labels"])
+            record_path = os.path.join(str(writer.path), key, "ops_field.json")
+            with open(record_path + ".part", "w", encoding="utf-8") as handle:
+                json.dump({"owned": payload["owned"].tolist(), "meta": payload["meta"]},
+                          handle, default=str)
+            os.replace(record_path + ".part", record_path)
+        results.append(result)
+
     if workers == 1:
-        results = [_ph_merged_field(task) for task in tasks]
+        for task in tasks:
+            persist(_ph_merged_field(task))
     else:
         context = multiprocessing.get_context("spawn")
         with ProcessPoolExecutor(workers, mp_context=context) as pool:
-            results = list(pool.map(_ph_merged_field, tasks))
+            for start in range(0, len(tasks), 2 * workers):
+                for result in pool.map(_ph_merged_field, tasks[start:start + 2 * workers]):
+                    persist(result)
     unreadable = [item for r in results for item in r["unreadable"]]
     report = {"fields": len(sites), "written": sum(
         1 for r in results if r["cells"] is not None),
@@ -8310,15 +8516,15 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
         merged_root = _ph_merged_root(settings, destination)
         image_rows = []
         for well, _cell_path, _owned in plans:
-            field_dir = os.path.dirname(_ph_merged_path(merged_root, plate,
-                                                        well, 0))
-            if not os.path.isdir(field_dir):
-                continue
-            for name in sorted(os.listdir(field_dir)):
-                if not name.endswith(".npz") or ".part" in name:
-                    continue
-                with np.load(os.path.join(field_dir, name)) as saved:
-                    meta = json.loads(str(saved["meta"]))
+            for _site, field_path in sorted(_ph_merged_paths(
+                    merged_root, plate, well, settings).items(),
+                    key=lambda item: f"{item[0]}.npz"):
+                if os.path.isdir(field_path):
+                    with open(os.path.join(field_path, "ops_field.json"), encoding="utf-8") as handle:
+                        meta = json.load(handle)["meta"]
+                else:
+                    with np.load(field_path) as saved:
+                        meta = json.loads(str(saved["meta"]))
                 image_rows.append(_ph_image_record(plate, well,
                                                    int(meta["site"]),
                                                    meta.get("image") or {}))
@@ -8608,9 +8814,9 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         stack = correct_field(stack, planes, offsets, task["channels"])
     keep = [task["channels"].index(c) for c in task["crop_channels"]]
     stack = np.clip(np.rint(stack[..., keep]), 0, 65535).astype(np.uint16)
-    with np.load(task["mask_path"]) as saved:
-        nuclei = saved["nuclei"].astype(np.int32)
-        cells = saved["cells"].astype(np.int32)
+    saved = _ph_read_masks(task["mask_path"])
+    nuclei = saved["nuclei"].astype(np.int32)
+    cells = saved["cells"].astype(np.int32)
     boxes = ndimage.find_objects(cells)
     row, column = schema.parse_well(task["well"])
     members = []
@@ -8625,14 +8831,84 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         name = (f"site-{task['site']}/"
                 f"{schema.escape_filename_component(task['plate'])}"
                 f"{prcfo[len(str(task['plate'])):]}.tif")
-        members.append((name, _ph_crop_bytes(crop, mask,
-                                             task["crop_channels"]),
+        payload = ((crop, mask) if task.get("crop_format") == "ome-zarr"
+                   else _ph_crop_bytes(crop, mask, task["crop_channels"]))
+        members.append((name, payload,
                         {"prcfo": prcfo, "plate": task["plate"],
                          "well": task["well"], "site": int(task["site"]),
                          "label": int(label), "object_id": object_id,
                          "cy": cy, "cx": cx, "window_edge": edge,
                          "reason": reason}))
     return {"site": task["site"], "members": members, "unreadable": unreadable}
+
+
+def _ph_crop_commit(root: str, plate: str, well: str):
+    """The OPS crop commit when every listed image and mask pool is present.
+
+    :param root: the crop project root.
+    :param plate: the plate name.
+    :param well: the well name.
+    :returns: the existing commit, or None for incomplete/non-OPS output.
+    """
+    from .crop_store import class_dir, read_commit
+
+    record = read_commit(root, plate, well, "cell")
+    if not record or record.get("attributes", {}).get("source") != "ops_ph_crops":
+        return None
+    base = class_dir(root, plate, well, "cell")
+    if not all((base / kind / str(pool) / "zarr.json").is_file()
+               for pool in record["pools"] for kind in ("pool", "mask")):
+        return None
+    return record
+
+
+def _ph_write_crop_pool(root: str, plate: str, well: str, results,
+                        channels: Sequence[str], cap: int, options):
+    """Commit native OPS crops in plan order without appending a previous run.
+
+    :param root: the crop project root.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param results: ordered field worker results with native pixels and masks.
+    :param channels: the channel names.
+    :param cap: maximum crops in a pool.
+    :param options: the options recorded with this run.
+    :returns: crop count, pool count and unreadable inputs.
+    """
+    import shutil
+
+    from .crop_store import CropPoolWriter, class_dir, pool_attributes
+    from .qt.i18n import tr
+
+    base = class_dir(root, plate, well, "cell")
+    if base.exists():
+        if pool_attributes(root, plate, well, "cell").get("source") != "ops_ph_crops":
+            raise ValueError(tr(
+                "OPS crops would replace another crop source at {path}; choose a separate ops_merged_root.",
+                path=str(base)))
+        shutil.rmtree(base)
+    writer = CropPoolWriter(
+        root, plate, well, "cell", len(channels), np.uint16,
+        mask_dtype=np.uint8, crops_per_shard=cap,
+        attributes={"source": "ops_ph_crops", "channel_names": list(channels),
+                    "options": options})
+    unreadable = []
+    for result in results:
+        unreadable.extend(result["unreadable"])
+        for _name, (pixels, mask), record in result["members"]:
+            height, width = pixels.shape[1:]
+            top, left = record["cy"] - height // 2, record["cx"] - width // 2
+            crop = {**record, "object_id": record["prcfo"],
+                    "ops_object_id": record["object_id"], "ops_crop": True,
+                    "object_label": record["label"], "field": record["site"],
+                    "pixels": pixels, "has_mask": mask is not None,
+                    "mask": mask if mask is not None else np.zeros((height, width), np.uint8),
+                    "bbox_y0": top, "bbox_x0": left,
+                    "bbox_y1": top + height, "bbox_x1": left + width,
+                    "margin_px": 0, "clipped_at_edge": bool(record["window_edge"])}
+            writer.add([crop])
+    committed = writer.commit()
+    return int(committed["n_rows"]), len(committed["pools"]), unreadable
 
 
 def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
@@ -8659,7 +8935,12 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     ``hash(plate, well, site, label)`` falls below it, linked or not, so a
     cell a later decoder calls is still represented.
 
-    Each crop is a TIFF member (``site-<n>/<prcfo>.tif``; page 0 the
+    New runs commit crops to per-well OME-Zarr pools through
+    :class:`spacr.crop_store.CropPoolWriter`, preserving uint16 images and
+    optional uint8 masks (0 background, 1 cell, 2 nucleus). A crop commit
+    and matching options are required for resume. The explicit legacy
+    ``ops_crop_image_format='tiff-tar'`` keeps each crop as a TIFF member
+    (``site-<n>/<prcfo>.tif``; page 0 the
     ``(C, H, W)`` uint16 crop, page 1 the mask when ``ops_crop_masks``) of a
     tar shard under
     ``<ops_merged_root>/data/cell/<plate>/<well>/shard-NNNN.tar`` with a
@@ -8694,6 +8975,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     fraction = float(_setting_number(settings.get("ops_crop_control_fraction"),
                                      "ops_crop_control_fraction", 0.01))
     with_masks = bool(settings.get("ops_crop_masks", False))
+    crop_format = _ph_crop_format(settings)
     root = _ph_merged_root(settings, destination)
     flat_folder = None
     if bool(settings.get("ops_crop_flatfield", True)):
@@ -8717,10 +8999,19 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     for well in wells:
         done_path = os.path.join(root, "data", "cell", str(plate), str(well),
                                  "CROPS_DONE.json")
+        native_commit = None
+        if crop_format == "ome-zarr":
+            from .crop_store import class_dir
+
+            done_path = str(class_dir(root, plate, well, "cell") / "CROPS_DONE.json")
+            native_commit = _ph_crop_commit(root, plate, well)
         if os.path.isfile(done_path):
             with open(done_path, encoding="utf-8") as handle:
                 done = json.load(handle)
-            if done.get("options") == json.loads(json.dumps(options)):
+            if (done.get("options") == json.loads(json.dumps(options))
+                    and (crop_format == "tiff-tar" or (
+                        native_commit is not None
+                        and native_commit["n_rows"] == done.get("crops")))):
                 report["wells"][well] = {"resumed": True,
                                          "crops": done.get("crops")}
                 continue
@@ -8770,16 +9061,16 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
             if reason is not None:
                 chosen.setdefault(site, {})[label] = (reason, object_id)
         secondary = _ph_secondary_by_site(db, plate, well, settings)
+        mask_paths = _ph_mask_paths(destination, plate, well, settings)
         tasks = [{"site": site, "files": files[site], "channels": channels,
                   "crop_channels": crop_channels,
-                  "mask_path": os.path.join(mask_dir, f"site-{site}.npz"),
+                  "mask_path": mask_paths[site], "crop_format": crop_format,
                   "labels": labels, "size": size, "flat_folder": flat_folder,
                   "masks": with_masks, "secondary": secondary.get(site),
                   "flat_mean_one": options["flat_mean_one"],
                   "plate": plate, "well": well}
                  for site, labels in sorted(chosen.items())
-                 if site in files and os.path.isfile(
-                     os.path.join(mask_dir, f"site-{site}.npz"))]
+                 if site in files and site in mask_paths]
         workers = max(1, min(int(settings.get("n_workers") or 1),
                              len(tasks) or 1))
         if workers == 1:
@@ -8788,9 +9079,18 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
         else:
             pool = ProcessPoolExecutor(
                 workers, mp_context=multiprocessing.get_context("spawn"))
-            results = pool.map(_ph_crop_field, tasks)
+            def ordered_results():
+                """Bound native result arrays to two fields per worker."""
+                for start in range(0, len(tasks), 2 * workers):
+                    yield from pool.map(_ph_crop_field, tasks[start:start + 2 * workers])
+
+            results = ordered_results() if crop_format == "ome-zarr" else pool.map(_ph_crop_field, tasks)
         shard, pending, crops, unreadable, indexes = 0, [], 0, [], []
         try:
+            if crop_format == "ome-zarr":
+                crops, shard, unreadable = _ph_write_crop_pool(
+                    root, plate, well, results, crop_channels, cap, options)
+                results = ()
             for result in results:
                 unreadable.extend(result["unreadable"])
                 pending.extend(result["members"])
@@ -8845,24 +9145,33 @@ def _ops_storage(settings: Mapping[str, Any]) -> str:
 
 
 class _ShardCrops:
-    """A well's tar-shard crops as an array the store reads row by row.
+    """Saved OPS crops as an array the store reads row by row.
 
-    :param members: ``(shard path, offset, size)`` per crop.
+    :param members: ``(shard path, offset, size)`` per legacy crop, or native rows.
     :param shape: ``(C, H, W)`` of one crop.
     :param dtype: the crops' dtype.
     :param masks: read the masks (page 1) instead of the images.
+    :param project: the project root for native pool rows; None for TIFF shards.
     """
 
-    def __init__(self, members, shape, dtype, masks: bool = False):
+    def __init__(self, members, shape, dtype, masks: bool = False, project=None):
         """Hold the members; each crop is read only when its row is asked for."""
         self.members = list(members)
         self.shape = (len(self.members),) + tuple(shape)
         self.dtype = np.dtype(dtype)
         self.masks = masks
+        self.project = project
 
     def __getitem__(self, rows) -> np.ndarray:
         """The crops (or masks) of ``rows``, stacked."""
         out = np.empty((len(rows),) + self.shape[1:], dtype=self.dtype)
+        if self.project is not None:
+            from .crop_store import read_crops
+
+            for position, (image, mask) in enumerate(read_crops(
+                    self.project, [self.members[int(row)] for row in rows])):
+                out[position] = mask if self.masks else image
+            return out
         for position, row in enumerate(rows):
             image, mask = _ph_read_crop(*self.members[int(row)])
             out[position] = mask if self.masks else image
@@ -8879,6 +9188,20 @@ def _ops_store_crops(root: str, plate: str, well: str, prcfo):
 
     from .tabular import read_table
 
+    native = _ph_crop_commit(root, plate, well)
+    if native is not None:
+        from .crop_store import read_crop
+
+        row_of = {str(p): i for i, p in enumerate(prcfo)}
+        members = [row for row in native["rows"] if str(row["prcfo"]) in row_of]
+        if not members:
+            return None, None, None
+        rows = np.asarray([row_of[str(row["prcfo"])] for row in members], dtype=np.int64)
+        image, mask = read_crop(root, members[0])
+        crops = _ShardCrops(members, image.shape, image.dtype, project=root)
+        masks = (_ShardCrops(members, mask.shape, mask.dtype, masks=True, project=root)
+                 if members[0].get("has_mask") else None)
+        return crops, rows, masks
     base = os.path.join(root, "data", "cell", str(plate), str(well))
     indexes = sorted(globbing.glob(os.path.join(globbing.escape(base), "**",
                                                 "shard-*.index.parquet"),
@@ -9346,11 +9669,11 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
             "well {well} has no ops_phenotype rows in {db}; run the "
             "phenotype phase first", well=well, db=db))
     by_site = {site: group for site, group in passed.groupby("site")}
+    mask_paths = _ph_mask_paths(destination, plate, well, settings)
     fields: Dict[int, Dict[str, Any]] = {}
     for record in placed.to_dict("records"):
         site = int(record["site"])
-        if site not in by_site or not os.path.isfile(
-                os.path.join(mask_dir, f"site-{site}.npz")):
+        if site not in by_site or site not in mask_paths:
             continue
         table = by_site[site]
         fields[site] = {
@@ -9362,8 +9685,7 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
 
     def load(site: int) -> np.ndarray:
         """One field's cell labels."""
-        with np.load(os.path.join(mask_dir, f"site-{site}.npz")) as saved:
-            return saved["cells"]
+        return _ph_read_masks(mask_paths[site])["cells"]
 
     def log(count: int, total: int) -> None:
         """A progress line."""
@@ -10097,8 +10419,8 @@ def _ph_neighbour_effects(settings: Mapping[str, Any], cells, embedding, pcs: Se
         ``sgRNA`` and ``gene``, in the row order of ``embedding``.
     :param embedding: their TVN components.
     :param pcs: the component names.
-    :param destination: the run folder: each well's
-        ``<well>/phenotype_masks/site-<n>.npz`` cell masks and
+    :param destination: the run folder: each well's committed OME-Zarr
+        cell masks or legacy ``<well>/phenotype_masks/site-<n>.npz`` and
         ``ops_maskpass_<well>.parquet`` nucleus centroids are read from it,
         and the tables go to its ``results/ops_neighbours``.
     :param control_prefix: the control gene prefix.
@@ -10148,6 +10470,9 @@ def _ph_neighbour_effects(settings: Mapping[str, Any], cells, embedding, pcs: Se
                        pd.DataFrame(np.asarray(embedding), columns=list(pcs))], axis=1)
     frame["well"] = frame["well"].astype(str)
     wells: Dict[str, Any] = {}
+    plate = str(settings.get("plate") or (
+        cells["plate"].iloc[0] if "plate" in cells and len(cells) else
+        os.path.basename(os.path.normpath(str(settings.get("genotype_source") or "")))))
     centre = None
     for well, part in frame.groupby("well", sort=True):
         path = _ph_maskpass_path(destination, well)
@@ -10163,14 +10488,15 @@ def _ph_neighbour_effects(settings: Mapping[str, Any], cells, embedding, pcs: Se
                 "{count} cells of well {well} have no nucleus centroid in {path}",
                 count=int(located["nucleus_cy"].isna().sum()), well=well, path=path))
         pairs, table = [], []
+        mask_paths = _ph_mask_paths(destination, plate, well, settings)
         for site, here in located.groupby("site", sort=True):
-            mask_file = os.path.join(destination, well, "phenotype_masks", f"site-{int(site)}.npz")
-            if not os.path.isfile(mask_file):
+            mask_file = mask_paths.get(int(site))
+            if mask_file is None:
                 raise ValueError(tr(
                     "ops_neighbour_effects needs the cell masks at {path}; run "
-                    "the ph_segment phase first", path=mask_file))
-            with np.load(mask_file) as stored:
-                mask = stored["cells"]
+                    "the ph_segment phase first", path=os.path.join(
+                        destination, well, "phenotype_masks")))
+            mask = _ph_read_masks(mask_file)["cells"]
             centre = float(mask.shape[0]) / 2 if centre is None else centre
             p, r = mask_neighbours(mask, here["label"].to_numpy(),
                                    here[["nucleus_cy", "nucleus_cx"]].to_numpy(float),
@@ -13263,7 +13589,7 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
               encoding="utf-8") as handle:
         json.dump(layout, handle, indent=2, sort_keys=True)
         handle.write("\n")
-    image_format = str(settings.get("mask_image_format") or "npy").strip().lower()
+    image_format = str(settings.get("mask_image_format") or "ome-zarr").strip().lower()
     image_report = None
     if image_format != "npy":
         from .image_store import export_merged

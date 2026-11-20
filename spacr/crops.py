@@ -3790,6 +3790,9 @@ def _has_png_folder(root: str) -> bool:
 LOAD_IMAGES = "png"
 LOAD_IMAGES_LABEL = "load images"
 
+OME_ZARR_IMAGES = "ome-zarr"
+OME_ZARR_IMAGES_LABEL = "OME-Zarr crops"
+
 #: Cut them out of ``merged/*.npy`` as it goes, locating each object by the
 #: LABEL it carries in a mask plane of that array.
 #:
@@ -3811,6 +3814,7 @@ STREAM_FROM_DB_LABEL = "stream images (database)"
 
 #: ``(value, label)`` in the order a panel should offer them.
 PICTURE_SOURCES: Tuple[Tuple[str, str], ...] = (
+    (OME_ZARR_IMAGES, OME_ZARR_IMAGES_LABEL),
     (LOAD_IMAGES, LOAD_IMAGES_LABEL),
     (STREAM_IMAGES, STREAM_IMAGES_LABEL),
     (STREAM_FROM_DB, STREAM_FROM_DB_LABEL),
@@ -3946,8 +3950,8 @@ def _store_crop_source(project: str, object_type: str,
         return None
 
 
-def _ome_zarr_crop_source(root: str, db_path: str):
-    """Item 983's OME-Zarr crop source for ``root``, or None without one."""
+def _ome_zarr_crop_source(root: str, db_path: str, settings=None):
+    """Open stored OME-Zarr crops with explicit display overrides, or return None."""
     try:
         from .crop_store import OmeZarrCropSource, ome_zarr_crops_exist
     except ImportError:
@@ -3955,8 +3959,16 @@ def _ome_zarr_crop_source(root: str, db_path: str):
     try:
         if not ome_zarr_crops_exist(root):
             return None
+        from .qt.i18n import tr
+
+        values = settings or {}
+        size = values.get("crop_size")
+        if isinstance(size, (int, np.integer)):
+            size = (int(size), int(size))
         return OmeZarrCropSource(root=root, db_path=db_path,
-                                 reason=f"OME-Zarr crops under {root}")
+                                reason=tr("OME-Zarr crops: stored native pixels"),
+                                channels=values.get("channels"), size=size,
+                                context=values.get("context", True))
     except Exception:
         return None
 
@@ -4065,9 +4077,13 @@ def resolve_crop_source(
     if stored is not None:
         return stored
     if choice in ("auto", "ome-zarr"):
-        zarr_crops = _ome_zarr_crop_source(root, db_path)
+        zarr_crops = _ome_zarr_crop_source(root, db_path, settings)
         if zarr_crops is not None:
             return zarr_crops
+    fallback = ""
+    if choice == "ome-zarr":
+        from .qt.i18n import tr
+        fallback = tr("OME-Zarr crops are unavailable; using the legacy crop source.") + " "
     if choice in ("store", "ome-zarr"):
         choice = "auto"
 
@@ -4079,7 +4095,7 @@ def resolve_crop_source(
     if choice == "auto" and has_png:
         return PngCropSource(
             root=root,
-            reason=f"{LOAD_IMAGES_LABEL}: pre-generated crops found under "
+            reason=fallback + f"{LOAD_IMAGES_LABEL}: pre-generated crops found under "
                    f"{os.path.join(root, 'data')}")
 
     if not has_merged:
@@ -4126,7 +4142,7 @@ def resolve_crop_source(
     if saved:
         reason += " (crop settings recovered from measurements.db)"
     return MergedCropSource(spec=spec, merged_root=merged_dir,
-                            object_type=object_type, reason=reason)
+                            object_type=object_type, reason=fallback + reason)
 
 
 if __name__ == "__main__":

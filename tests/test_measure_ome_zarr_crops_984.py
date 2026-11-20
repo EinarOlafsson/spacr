@@ -47,12 +47,14 @@ def _crop_table(root):
         return pd.read_sql("SELECT * FROM ssCell_Crops", conn)
 
 
-def test_the_crop_settings_default_to_png_and_refuse_unknown_formats():
+def test_the_crop_settings_default_to_ome_zarr_and_refuse_unknown_formats():
+    """Fresh Measure defaults select native crops and reject unsupported formats."""
     from spacr.measure import _crop_image_format
     from spacr.settings import get_measure_crop_settings
 
     settings = get_measure_crop_settings({})
-    assert settings["crop_image_format"] == "png"
+    assert settings["crop_image_format"] == "ome-zarr"
+    assert _crop_image_format({}) == "ome-zarr"
     assert settings["crops_per_shard"] == 4096
     assert settings["crop_margin_px"] == 0 and settings["crop_zero_outside"] is False
     with pytest.raises(ValueError, match="crop_image_format must be one of"):
@@ -89,11 +91,12 @@ def test_measure_writes_ome_zarr_crops_pixel_exact(tmp_path):
     assert not (tmp_path / "data").exists()
 
 
-def test_the_png_default_writes_no_crop_store(tmp_path):
+def test_explicit_legacy_png_writes_no_crop_store(tmp_path):
+    """Explicit PNG selection preserves legacy folders without creating a native store."""
     from spacr.measure import measure_crop
 
     merged, _image, _cells = _plate(tmp_path)
-    measure_crop(_settings(merged, png_size=[16, 16]))
+    measure_crop(_settings(merged, crop_image_format="png", png_size=[16, 16]))
     assert not (tmp_path / "crops").exists()
     with sqlite3.connect(str(tmp_path / "measurements" / "measurements.db")) as conn:
         names = {r[0] for r in conn.execute("SELECT name FROM sqlite_master")}

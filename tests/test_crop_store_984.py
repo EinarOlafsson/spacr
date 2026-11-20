@@ -44,6 +44,7 @@ def test_ragged_crops_read_back_exactly_the_box_plus_margin(tmp_path):
         y0, x0, y1, x1 = (row[k] for k in ("bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1"))
         pixels, mask = read_crop(tmp_path, row)
         assert pixels.dtype == image.dtype
+        assert mask.dtype == np.dtype(bool)
         assert np.array_equal(pixels, image[:, y0:y1, x0:x1])
         assert np.array_equal(mask, labels[y0:y1, x0:x1] == row["object_label"])
         assert (row["height"], row["width"]) == (y1 - y0, x1 - x0)
@@ -113,6 +114,7 @@ def test_commit_records_pools_and_rows_and_a_stopped_run_is_discarded(tmp_path):
     again = read_commit(tmp_path, "plate1", "B03", "cell")
     assert again["rows"] == json.loads(json.dumps(record["rows"])) and again["pools"] == ["0", "1"]
     stored = pool_attributes(tmp_path, "plate1", "B03", "cell")
+    assert "mask_dtype" not in stored
     assert stored["channel_names"] == ["DAPI", "GFP", "AF750"]
     assert stored["dtype"] == "<u2" and stored["channels"] == 3 and stored["spacr_version"]
     stopped = CropPoolWriter(tmp_path, "plate1", "B03", "cell", 3, crops_per_shard=2,
@@ -186,6 +188,157 @@ def test_batched_reads_equal_one_by_one_reads_in_any_row_order(tmp_path, positio
             assert mask.dtype == want_mask.dtype and np.array_equal(mask, want_mask)
     source = OmeZarrCropSource(str(tmp_path))
     assert all(np.array_equal(a, source.get(r)) for a, r in zip(source.get_many(order), order))
+
+
+def _ternary_crops():
+    """Two differently sized crops with background, cell and nucleus labels."""
+    masks = (np.array([[0, 1, 2, 0], [1, 2, 2, 1], [0, 1, 0, 2]], np.uint8),
+             np.array([[2, 1, 0], [0, 2, 1]], np.uint8))
+    crops = []
+    for label, mask in enumerate(masks, start=1):
+        height, width = mask.shape
+        pixels = np.arange(2 * height * width, dtype=np.uint16).reshape(2, height, width)
+        crops.append({"object_label": label, "pixels": pixels + 100 * label,
+                      "mask": mask, "bbox_y0": 0, "bbox_x0": 0,
+                      "bbox_y1": height, "bbox_x1": width, "margin_px": 0,
+                      "clipped_at_edge": False})
+    return crops
+
+
+def test_uint8_masks_keep_labels_through_scalar_batch_raw_context_and_resize(tmp_path):
+    """Every public raw read preserves ternary labels and treats both labels as foreground."""
+    from spacr.crop_store import OmeZarrCropSource, read_crops
+
+    crops = _ternary_crops()
+    writer = CropPoolWriter(tmp_path, "plate1", "B03", "cell", 2, mask_dtype=np.uint8)
+    writer.add(crops, field=1)
+    record = writer.commit()
+    assert record["attributes"]["mask_dtype"] == np.dtype(np.uint8).str
+    order = (1, 0, 1)
+    rows = [record["rows"][index] for index in order]
+    for context in (True, False):
+        for size in (None, (6, 8)):
+            source = OmeZarrCropSource(str(tmp_path), context=context, size=size)
+            batch = read_crops(tmp_path, rows, context=context, size=size)
+            for index, row, batched in zip(order, rows, batch):
+                crop = crops[index]
+                expected_pixels, expected_mask = crop["pixels"].copy(), crop["mask"]
+                if not context:
+                    expected_pixels[:, expected_mask == 0] = 0
+                if size is not None:
+                    ys = [0, 0, 1, 1, 2, 2] if index == 0 else [0, 0, 0, 1, 1, 1]
+                    xs = [0, 0, 1, 1, 2, 2, 3, 3] if index == 0 else [0, 0, 0, 1, 1, 1, 2, 2]
+                    expected_pixels = expected_pixels[:, ys][:, :, xs]
+                    expected_mask = expected_mask[ys][:, xs]
+                for pixels, mask in (batched, source.get_raw(row),
+                                     read_crop(tmp_path, row, context=context, size=size)):
+                    assert pixels.dtype == np.dtype(np.uint16)
+                    assert mask.dtype == np.dtype(np.uint8)
+                    np.testing.assert_array_equal(pixels, expected_pixels)
+                    np.testing.assert_array_equal(mask, expected_mask)
+                    assert set(np.unique(mask)) == {0, 1, 2}
+
+
+@pytest.mark.parametrize("absent_flag,present_flag", [(False, True), (np.bool_(False), np.bool_(True)),
+                                                     (0, 1)], ids=["json", "numpy", "sqlite"])
+def test_absent_mask_placeholders_keep_pixels_in_scalar_batch_and_source_views(
+        tmp_path, absent_flag, present_flag):
+    """Explicit absent masks preserve pixels under context removal without changing genuine masks."""
+    from spacr.crop_store import OmeZarrCropSource, read_crops
+
+    absent, present = _ternary_crops()
+    absent.update(mask=np.zeros_like(absent["mask"]), has_mask=False)
+    present["has_mask"] = True
+    writer = CropPoolWriter(tmp_path, "plate1", "B03", "cell", 2, mask_dtype=np.uint8)
+    writer.add([absent, present], field=1)
+    rows = writer.commit()["rows"]
+    rows[0]["has_mask"], rows[1]["has_mask"] = absent_flag, present_flag
+    order = (0, 1, 0)
+    for size in (None, (6, 8)):
+        source = OmeZarrCropSource(str(tmp_path), context=False, size=size)
+        batch = read_crops(tmp_path, [rows[index] for index in order], context=False, size=size)
+        for index, batched in zip(order, batch):
+            crop = (absent, present)[index]
+            expected, mask = crop["pixels"].copy(), crop["mask"]
+            if index == 1:
+                expected[:, mask == 0] = 0
+            if size is not None:
+                ys = [0, 0, 1, 1, 2, 2] if index == 0 else [0, 0, 0, 1, 1, 1]
+                xs = [0, 0, 1, 1, 2, 2, 3, 3] if index == 0 else [0, 0, 0, 1, 1, 1, 2, 2]
+                expected, mask = expected[:, ys][:, :, xs], mask[ys][:, xs]
+            for pixels, actual_mask in (batched, source.get_raw(rows[index]),
+                                       read_crop(tmp_path, rows[index], context=False, size=size)):
+                assert pixels.dtype == np.dtype(np.uint16)
+                assert actual_mask.dtype == np.dtype(np.uint8)
+                np.testing.assert_array_equal(pixels, expected)
+                np.testing.assert_array_equal(actual_mask, mask)
+                if index == 0:
+                    assert pixels.any() and not actual_mask.any()
+    for flag in (None, "", "False", 0.0):
+        pixels, mask = read_crop(tmp_path, {**rows[0], "has_mask": flag}, context=False)
+        assert not pixels.any() and not mask.any()
+
+
+@pytest.mark.parametrize("mask_dtype, conflicting", [(bool, np.uint8), (np.uint8, bool)],
+                         ids=["legacy-bool", "labelled-uint8"])
+def test_mask_dtype_resume_preserves_old_pools_and_refuses_conflicts(tmp_path, mask_dtype, conflicting):
+    """A resumed class keeps its mask representation, including legacy implicit Boolean metadata."""
+    from spacr.crop_store import class_dir, pool_attributes
+
+    crops = _ternary_crops()
+    writer = CropPoolWriter(tmp_path, "plate1", "B03", "cell", 2, mask_dtype=mask_dtype)
+    writer.add(crops[:1], field=1)
+    first = writer.commit()
+    base = class_dir(tmp_path, "plate1", "B03", "cell")
+    original = {path: path.read_bytes() for kind in ("pool", "mask")
+                for path in (base / kind / "0").rglob("*") if path.is_file()}
+    metadata = (base / "zarr.json").read_bytes()
+    with pytest.raises(ValueError, match="mask_dtype"):
+        CropPoolWriter(tmp_path, "plate1", "B03", "cell", 2, mask_dtype=conflicting)
+    with pytest.raises(ValueError, match="mask_dtype"):
+        CropPoolWriter(tmp_path, "plate1", "B03", "cell", 2, mask_dtype=mask_dtype,
+                       attributes={"mask_dtype": np.dtype(conflicting).str})
+    assert (base / "zarr.json").read_bytes() == metadata
+    resumed = CropPoolWriter(tmp_path, "plate1", "B03", "cell", 2, mask_dtype=mask_dtype)
+    resumed.add(crops[1:], field=2)
+    final = resumed.commit()
+    assert final["n_rows"] == 2 and final["pools"] == ["0", "1"]
+    assert final["rows"][0] == first["rows"][0]
+    assert all(path.read_bytes() == contents for path, contents in original.items())
+    assert ("mask_dtype" in pool_attributes(tmp_path, "plate1", "B03", "cell")) == (mask_dtype is np.uint8)
+    for row, crop in zip(final["rows"], crops):
+        pixels, mask = read_crop(tmp_path, row)
+        assert mask.dtype == np.dtype(mask_dtype)
+        np.testing.assert_array_equal(pixels, crop["pixels"])
+        np.testing.assert_array_equal(mask, crop["mask"].astype(mask_dtype))
+
+
+def test_measure_sink_keeps_uint8_masks_of_untouched_fields(tmp_path):
+    """Replacing another field cannot collapse carried cell/nucleus labels to Boolean."""
+    from spacr.crop_store import CropSink
+
+    crops = _ternary_crops()
+    writer = CropPoolWriter(tmp_path, "plate1", "B03", "cell", 2, mask_dtype=np.uint8)
+    writer.add(crops, field=1)
+    writer.commit()
+    rows = CropSink(tmp_path, ["plate1_B03_2.npy"]).close()
+    assert len(rows) == len(crops)
+    for row, crop in zip(rows, crops):
+        pixels, mask = read_crop(tmp_path, row)
+        assert row["field"] == 1 and mask.dtype == np.dtype(np.uint8)
+        np.testing.assert_array_equal(pixels, crop["pixels"])
+        np.testing.assert_array_equal(mask, crop["mask"])
+
+
+@pytest.mark.parametrize("invalid", [-1, 256, 1.5])
+def test_uint8_masks_refuse_values_that_would_be_lost_on_cast(tmp_path, invalid):
+    """Opt-in labelled masks reject wraparound and fractional truncation before buffering."""
+    crop = _ternary_crops()[0]
+    crop["mask"] = np.full(crop["mask"].shape, invalid)
+    writer = CropPoolWriter(tmp_path, "plate1", "B03", "cell", 2, mask_dtype=np.uint8)
+    with pytest.raises(ValueError, match="integers from 0 to 255"):
+        writer.add([crop], field=1)
+    assert writer.close() == []
 
 
 class _RecordedCropArray:

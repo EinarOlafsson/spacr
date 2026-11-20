@@ -2924,7 +2924,8 @@ def dataset_class_balance(src, classes=None):
 
     Reads the ``train/<class>/`` and ``test/<class>/`` folder tree
     :func:`spacr.io.generate_dataset` writes, because that tree *is* the
-    training set — a class balance quoted from the settings would describe
+    training set, or the selected rows of ``crop_index.csv`` for native OME-Zarr
+    datasets. A class balance quoted from the settings would describe
     what was requested rather than what ended up on disk.
 
     :param src: dataset root holding ``train/`` (and optionally ``test/``).
@@ -2937,6 +2938,13 @@ def dataset_class_balance(src, classes=None):
     for split in ('train', 'test', 'val', 'validation'):
         split_dir = os.path.join(root, split)
         if not os.path.isdir(split_dir):
+            continue
+        from .classification_pixels import _indexed_crop_samples
+        indexed = _indexed_crop_samples(split_dir, classes)
+        if indexed is not None:
+            _references, labels = indexed
+            names = list(map(str, classes)) if classes else sorted(set(labels))
+            out[split] = {name: labels.count(name) for name in names}
             continue
         names = [str(c) for c in classes] if classes else sorted(
             d for d in os.listdir(split_dir)

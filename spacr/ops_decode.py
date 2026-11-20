@@ -3638,7 +3638,11 @@ def _mask_path(template: str, *, plate: str, well: str, site: int, obj: str, roo
 
 
 def _read_labels(path: str, obj: str) -> np.ndarray:
-    """One label image: a TIFF, or an object's array of a spaCR mask ``.npz``."""
+    """One label image: TIFF, an object's array of a spaCR ``.npz``, or an OME-Zarr field."""
+    if os.path.isdir(path):
+        from .image_store import read_labels
+
+        return read_labels(path, MASK_OBJECT_KEYS.get(obj.lower(), obj.lower()))
     if path.endswith(".npz"):
         with np.load(path) as saved:
             key = MASK_OBJECT_KEYS.get(obj.lower(), obj.lower())
@@ -3729,8 +3733,9 @@ def run_compare_masks(settings: Mapping[str, Any], report: Optional[Any] = None)
         ``ops_compare_reference_masks`` (a path template with ``{plate}``,
         ``{well}``, ``{site}`` or ``{tile}`` and ``{object}``),
         ``ops_compare_spacr_masks`` (the same; ``.npz`` files are spaCR
-        phenotype masks; default
-        ``{dst_root}/{well}/phenotype_masks/site-{site}.npz``),
+        phenotype masks and directories may name OME-Zarr fields; when
+        omitted, discover committed phenotype fields or legacy
+        ``{dst_root}/{well}/phenotype_masks/site-{site}.npz`` files),
         ``ops_compare_reference_objects``, ``ops_compare_iou``,
         ``ops_compare_edge_policy``, ``ops_compare_mask_scale``,
         ``ops_compare_reference_calls``, ``ops_compare_call_columns``,
@@ -3760,8 +3765,7 @@ def run_compare_masks(settings: Mapping[str, Any], report: Optional[Any] = None)
         raise ValueError("ops_compare_match 'mask_overlap' needs ops_compare_reference_masks, a path "
                          "template with {well}, {site} and {object}")
     plate = str(settings.get("plate") or "")
-    spacr_template = (settings.get("ops_compare_spacr_masks")
-                      or os.path.join("{dst_root}", "{well}", "phenotype_masks", "site-{site}.npz"))
+    spacr_template = settings.get("ops_compare_spacr_masks")
     objects = list(settings.get("ops_compare_reference_objects") or ["Cells", "Nuclei"])
     threshold = float(settings.get("ops_compare_iou", 0.5))
     policy = str(settings.get("ops_compare_edge_policy") or "exclude")
@@ -3788,12 +3792,19 @@ def run_compare_masks(settings: Mapping[str, Any], report: Optional[Any] = None)
     call_object = next((o for o in objects if o.lower() == "cells"), objects[0])
     shuffled = shuffle_calls_within_site(ref_calls, seed) if ref_calls is not None else None
     matches_all, agreement, pairs_obs, pairs_shuf, centroid_rows, id_rows = [], [], [], [], [], []
+    mask_paths = {}
     for number, (well, site) in enumerate(fields, 1):
+        if not spacr_template and well not in mask_paths:
+            from .ops_engine import _ph_mask_paths
+
+            mask_paths[well] = _ph_mask_paths(root, plate, well, settings)
         for obj in objects:
             ref_path = _mask_path(template, plate=plate, well=well, site=site, obj=obj, root=root)
-            mine_path = _mask_path(spacr_template, plate=plate, well=well, site=site, obj=obj, root=root)
+            mine_path = (_mask_path(spacr_template, plate=plate, well=well, site=site, obj=obj, root=root)
+                         if spacr_template else mask_paths[well].get(site, os.path.join(
+                             root, well, "phenotype_masks", f"site-{site}.npz")))
             for path in (ref_path, mine_path):
-                if not os.path.isfile(path):
+                if not os.path.isfile(path) and not os.path.isdir(path):
                     raise ValueError(f"compare_calls (mask_overlap) needs {path}")
             theirs = _read_labels(ref_path, obj)
             mine = _rescale_labels(_read_labels(mine_path, obj), theirs.shape,

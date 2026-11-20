@@ -3822,7 +3822,8 @@ def _load_thumb_image_worker(row, src, settings, should_stop=None):
         annotation = row.get("annotation")
     else:
         path, annotation = row
-        row = {"png_path": path}
+        identity = "object_id" if getattr(src, "kind", "") == "ome-zarr" else "png_path"
+        row = {identity: path}
 
     s = settings
     composited = False
@@ -3929,6 +3930,7 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
             s.threshold_direction if isinstance(s.threshold_direction, list)
             else [s.threshold_direction],
             s.image_type,
+            table=s.png_table,
         )
         return {"filtered_rows": rows, "total": len(rows),
                 "queue_summary": "", "note": ""}
@@ -4324,23 +4326,25 @@ class _SettingsDialog(QDialog):
         form.addRow("Crop size (px)", self._img_size)
 
         from ...crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
-                              STREAM_IMAGES_LABEL)
+                              STREAM_IMAGES_LABEL, OME_ZARR_IMAGES)
 
         self._crop_source = QComboBox()
+        self._crop_source.addItem(tr("OME-Zarr crops"), OME_ZARR_IMAGES)
         self._crop_source.addItem(
             f"{LOAD_IMAGES_LABEL} \u2014 crops already in data/", LOAD_IMAGES)
         self._crop_source.addItem(
             f"{STREAM_IMAGES_LABEL} \u2014 cut from merged/*.npy",
             STREAM_IMAGES)
-        self._crop_source.setToolTip(
-            "LOAD IMAGES reads the crops the measure step exported under "
-            "data/. STREAM IMAGES cuts them out of merged/*.npy as the page "
-            "is drawn, which needs no export. Either mode falls back to the "
-            "other when its folder is missing, and says which route drew.")
+        self._crop_source.addItem(tr("Automatic source"), "auto")
+        self._crop_source.setToolTip(tr(
+            "OME-Zarr reads stored native crops. LOAD IMAGES reads exported "
+            "crops under data/. STREAM IMAGES cuts crops from merged/*.npy. "
+            "If OME-Zarr crops are unavailable, exported crops or merged "
+            "arrays are used and the selected source is reported."))
         stored = str(getattr(settings, "crop_source", "") or "").strip().lower()
         self._crop_source.setCurrentIndex(
-            1 if stored in ("merged", "stream", "stream_images", "on_demand")
-            else 0)
+            2 if stored in ("merged", "stream", "stream_images", "on_demand")
+            else (0 if stored == OME_ZARR_IMAGES else (3 if stored == "auto" else 1)))
         form.addRow("Image source", self._crop_source)
 
         self._image_type = QLineEdit(settings.image_type or "")
@@ -4982,7 +4986,7 @@ class _SettingsDialog(QDialog):
         s.annotation_column = self._ann_col.text().strip() or "annotate"
         size = int(self._img_size.value())
         s.image_size = (size, size)
-        s.crop_source = str(self._crop_source.currentData() or "png")
+        s.crop_source = str(self._crop_source.currentData() or "ome-zarr")
         s.image_type = self._image_type.text().strip() or None
         s.channels = _csv_to_list(self._channels.text())
         s.stored_channel_order = str(
@@ -7059,10 +7063,21 @@ class AnnotateScreen(QWidget):
                 tr("Database not found"),
                 _missing_annotation_database_message(db_path))
             return
+        table = self._settings.png_table
+        if table == "ssCell_Crops":
+            table = "png_list"
+        from ...crops import resolve_crop_source, CropError
+        try:
+            source = resolve_crop_source({"src": src,
+                                          "crop_source": self._settings.crop_source})
+        except CropError:
+            source = None
+        if source is not None and source.kind == "ome-zarr":
+            table = "ssCell_Crops"
         try:
             _require_writable_annotation_database(db_path)
             ensure_annotation_column(db_path, self._settings.annotation_column,
-                                     table=self._settings.png_table)
+                                     table=table)
         except DatabaseBusy:
             LOG.warning("Annotate did not open %s: database locked",
                         db_path, exc_info=True)
@@ -7087,6 +7102,7 @@ class AnnotateScreen(QWidget):
             self._worker = None
         self._settings.src = src
         self._settings.db_path = db_path
+        self._settings.png_table = table
         _ask_about_the_folder(src)
         self._pending_verdicts.clear()
         self._verdict_ready = None
@@ -7718,12 +7734,14 @@ class AnnotateScreen(QWidget):
                 return
             old_src = self._settings.src
             old_col = self._settings.annotation_column
+            old_mode = self._settings.crop_source
             nothing_open = self._worker is None
             self._settings = dlg.collect()
             self._rebuild_grid()
             if self._settings.src and (
                     nothing_open
                     or self._settings.src != old_src
+                    or self._settings.crop_source != old_mode
                     or self._settings.annotation_column != old_col):
                 self._open_source(self._settings.src)
             else:
@@ -9052,6 +9070,7 @@ class AnnotateScreen(QWidget):
         seed = {
             "src": self._settings.src,
             "annotation_column": self._settings.annotation_column,
+            "image_source": self._settings.crop_source,
             "dataset_mode": "annotation",
             "generate_training_dataset": True,
             "train": True,
@@ -9805,9 +9824,8 @@ class AnnotateScreen(QWidget):
     def _crop_source(self):
         """Resolve the crop source once per settings change, then cache it.
 
-        'auto' keeps today's behaviour: the PNG folder is used whenever one
-        exists, and only a project without one falls back to cutting crops out
-        of merged/*.npy. See spacr.crops.resolve_crop_source.
+        Automatic selection retains the shared store, OME-Zarr, PNG and merged
+        priority. See :func:`spacr.crops.resolve_crop_source`.
         """
         s = self._settings
         key = (s.db_path, getattr(s, "crop_source", "auto"), s.image_type)

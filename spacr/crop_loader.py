@@ -20,12 +20,15 @@ decides whether to read pre-generated crops or cut them from
 ``merged/*.npy``, and a legacy folder is corrected on load as it is
 elsewhere.
 
-The output is one ``(objects, height, width, channels)`` uint8 array,
-which is the layout :func:`spacr.embeddings.embed_array` documents and
+The output is one ``(objects, height, width, channels)`` array, the layout
+:func:`spacr.embeddings.embed_array` documents and
 :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` requires, plus
 a JSON-serialisable ``record`` of what was actually read -- how many matched,
 how many were taken, the crop shape, and how many crops had to be conformed
 to it.
+
+OME-Zarr crops retain their stored dtype and channels; legacy display crops
+are uint8.
 
 The array can be passed to the Embeddings screen or to
 :func:`spacr.embeddings.embed_array`.
@@ -159,7 +162,7 @@ class CropQuery:
     where: str = ""
     limit: int = DEFAULT_CROP_LIMIT
     page_size: int = DEFAULT_PAGE_SIZE
-    prefer: str = ""
+    prefer: str = "ome-zarr"
 
     def describe(self) -> str:
         """One line naming everything this query asked for.
@@ -322,15 +325,20 @@ def _table_columns(conn, table: str) -> Tuple[str, ...]:
 def object_classes(db_path: str, table: str = CROP_TABLE) -> Tuple[str, ...]:
     """Return the object classes this database has crops for.
 
-    A class is offered only when its id column is present AND holds at least
-    one value, because a ``png_list`` written for cells carries an empty
+    A legacy class is offered only when its id column holds at least one
+    value, because a ``png_list`` written for cells carries an empty
     ``nucleus_id`` column on some schemas and offering it would put a choice
     in the panel that can only ever return nothing.
+
+    Default discovery includes recorded native and legacy classes together,
+    so native metadata cannot hide legacy choices when PNG is selected or
+    native stores are unavailable. Pixel source selection belongs to the plan.
 
     :param db_path: the ``measurements.db``.
     :param table: the crop table; ``'png_list'``.
     :returns: class names in :data:`spacr.png_list.PNG_LIST_ID_COLUMNS`
-        order. Empty when the database has no crop table.
+        order, followed by other recorded native classes in sorted order.
+        Empty when the database has no crop records.
     """
     import sqlite3
 
@@ -338,8 +346,12 @@ def object_classes(db_path: str, table: str = CROP_TABLE) -> Tuple[str, ...]:
 
     conn = _connect(db_path)
     try:
+        found = set()
+        if table == CROP_TABLE and "object_type" in _table_columns(conn, "ssCell_Crops"):
+            found.update(str(row[0]) for row in conn.execute(
+                'SELECT DISTINCT object_type FROM "ssCell_Crops" '
+                'WHERE object_type IS NOT NULL ORDER BY object_type'))
         columns = set(_table_columns(conn, table))
-        found: List[str] = []
         for name, column in PNG_LIST_ID_COLUMNS.items():
             if column not in columns:
                 continue
@@ -350,8 +362,9 @@ def object_classes(db_path: str, table: str = CROP_TABLE) -> Tuple[str, ...]:
             except sqlite3.Error:
                 continue
             if row is not None:
-                found.append(name)
-        return tuple(found)
+                found.add(name)
+        known = tuple(name for name in PNG_LIST_ID_COLUMNS if name in found)
+        return known + tuple(sorted(found - set(PNG_LIST_ID_COLUMNS)))
     finally:
         conn.close()
 
@@ -359,24 +372,30 @@ def object_classes(db_path: str, table: str = CROP_TABLE) -> Tuple[str, ...]:
 def plates(db_path: str, table: str = CROP_TABLE) -> Tuple[str, ...]:
     """Every plate the crop table names, sorted.
 
+    Default discovery includes native and legacy records together; source
+    selection remains the responsibility of the crop plan.
+
     :param db_path: the ``measurements.db``.
     :param table: the crop table; ``'png_list'``.
-    :returns: plate identifiers as strings. Empty when the table has no
-        ``plateID`` column, which is how a database written before plate keys
-        existed reads rather than an error.
+    :returns: plate identifiers as strings. Empty when neither the selected
+        legacy table nor the default native table records plate identifiers.
     """
     import sqlite3
 
     conn = _connect(db_path)
     try:
-        if "plateID" not in _table_columns(conn, table):
-            return ()
-        try:
-            rows = conn.execute(
-                f'SELECT DISTINCT plateID FROM "{table}" '
-                f'WHERE plateID IS NOT NULL').fetchall()
-        except sqlite3.Error:
-            return ()
+        rows = []
+        if table == CROP_TABLE and "plate" in _table_columns(conn, "ssCell_Crops"):
+            rows.extend(conn.execute(
+                'SELECT DISTINCT plate FROM "ssCell_Crops" '
+                'WHERE plate IS NOT NULL ORDER BY plate'))
+        if "plateID" in _table_columns(conn, table):
+            try:
+                rows.extend(conn.execute(
+                    f'SELECT DISTINCT plateID FROM "{table}" '
+                    f'WHERE plateID IS NOT NULL'))
+            except sqlite3.Error:
+                pass
     finally:
         conn.close()
     return tuple(sorted({str(row[0]) for row in rows}))
@@ -420,16 +439,20 @@ def _database_conditions(query: CropQuery, columns: Sequence[str]
     values: List[Any] = []
     id_column = PNG_LIST_ID_COLUMNS.get(str(query.object_type))
     classed = any(column in columns for column in PNG_LIST_ID_COLUMNS.values())
-    if id_column and id_column in columns:
+    if "object_type" in columns:
+        terms.append('"object_type" = ?')
+        values.append(str(query.object_type))
+    elif id_column and id_column in columns:
         terms.append(f'"{id_column}" IS NOT NULL')
     elif classed:
         terms.append("0 = 1")
     if query.plate:
-        if "plateID" not in columns:
+        plate_column = "plate" if "plate" in columns else "plateID"
+        if plate_column not in columns:
             raise CropLoadError(
                 f'{CROP_TABLE} has no "plateID" column, so it cannot be '
                 f"filtered to plate {query.plate!r}")
-        terms.append('"plateID" = ?')
+        terms.append(f'"{plate_column}" = ?')
         values.append(str(query.plate))
     predicate = _checked_predicate(query.where)
     if predicate:
@@ -504,9 +527,11 @@ def plan_from_database(query: CropQuery) -> CropPlan:
 
     db_path = _require_file(query.path, "measurements database")
     query = _replace_path(query, db_path)
+    source = _pixel_source(query, db_path)
+    table = "ssCell_Crops" if source.kind == "ome-zarr" else CROP_TABLE
     conn = _connect(db_path)
     try:
-        columns = _table_columns(conn, CROP_TABLE)
+        columns = _table_columns(conn, table)
         if not columns:
             raise CropLoadError(
                 f"{os.path.basename(db_path)} has no {CROP_TABLE!r} table, so "
@@ -514,26 +539,33 @@ def plan_from_database(query: CropQuery) -> CropPlan:
                 f"database written by a Measure run that saved crops.")
         terms, values = _database_conditions(query, columns)
         clause = f" WHERE {' AND '.join(terms)}" if terms else ""
-        matched = int(_run(conn, f'SELECT COUNT(*) FROM "{CROP_TABLE}"{clause}',
+        matched = int(_run(conn, f'SELECT COUNT(*) FROM "{table}"{clause}',
                            values).fetchone()[0])
         if matched == 0:
+            if table == "ssCell_Crops":
+                from .qt.i18n import tr
+                return CropPlan(query=query, source_label=source.describe(),
+                                empty_reason=tr("No OME-Zarr crops match the selected object class, plate and filter."))
             return CropPlan(query=query,
                             empty_reason=_empty_database_reason(conn, query,
                                                                 columns))
         limit = int(query.limit or 0)
         tail = f" LIMIT {max(0, limit)}" if limit > 0 else ""
-        cursor = _run(conn, f'SELECT * FROM "{CROP_TABLE}"{clause}{tail}',
+        cursor = _run(conn, f'SELECT * FROM "{table}"{clause} ORDER BY rowid{tail}',
                       values)
         names = [str(d[0]) for d in cursor.description]
         frame = pd.DataFrame(cursor.fetchall(), columns=names)
     finally:
         conn.close()
 
-    frame = _normalised(frame)
+    if source.kind != "ome-zarr":
+        frame = _normalised(frame)
     selected = int(len(frame))
-    source = _pixel_source(query, db_path)
-    rows = _crop_rows(db_path, frame, query.object_type,
-                      streaming=source.kind != "png")
+    if source.kind == "ome-zarr":
+        rows = [_plain_row(row) for row in frame.to_dict("records")]
+    else:
+        rows = _crop_rows(db_path, frame, query.object_type,
+                          streaming=source.kind != "png")
     if not rows:
         return CropPlan(
             query=query, matched=matched, selected=selected,
@@ -888,7 +920,10 @@ def load_page(plan: CropPlan, start: int, stop: int,
     if not rows:
         raise CropLoadError(f"page {start}:{stop} of this plan is empty")
     try:
-        crops = source.get_many(rows)
+        if getattr(source, "kind", None) == "ome-zarr":
+            crops = [np.moveaxis(source.get_raw(row)[0], 0, -1) for row in rows]
+        else:
+            crops = source.get_many(rows)
     except CropError as exc:
         raise CropLoadError(
             f"crops {start}-{stop} could not be read from the "
@@ -908,6 +943,10 @@ def load_page(plan: CropPlan, start: int, stop: int,
     conformed = 0
     for index, crop in enumerate(crops):
         array = np.asarray(crop)
+        if getattr(source, "kind", None) == "ome-zarr" and array.dtype != first.dtype:
+            from .qt.i18n import tr
+            raise CropLoadError(tr(
+                "OME-Zarr crops have different stored dtypes. Load matching crop types separately to preserve their native values."))
         if array.ndim == 2:
             array = array[:, :, None]
         if int(array.shape[2]) != channels:
@@ -994,6 +1033,10 @@ def load_crops(plan: CropPlan, *,
                 shape = (int(page.shape[1]), int(page.shape[2]),
                          int(page.shape[3]))
                 out = np.empty((total,) + shape, dtype=page.dtype)
+            elif getattr(plan._source, "kind", None) == "ome-zarr" and out.dtype != page.dtype:
+                from .qt.i18n import tr
+                raise CropLoadError(tr(
+                    "OME-Zarr crop pages have different stored dtypes. Load matching crop types separately to preserve their native values."))
             out[start:stop] = page
             done = stop
             if progress is not None:

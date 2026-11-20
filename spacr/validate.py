@@ -1930,17 +1930,19 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 "parasite size can pass the filter."))
 
     if app in ("classify", "classify_merged", "ml_analyze"):
-        problems.extend(_check_annotation_column_in_png_list(settings))
+        problems.extend(_check_annotation_column_in_png_list(
+            settings, native=app in ("classify", "classify_merged")))
 
     return problems
 
 
-def _check_annotation_column_in_png_list(settings: Dict[str, Any]) -> List[Problem]:
-    """An annotation-mode run whose column is in no plate's ``png_list``.
+def _check_annotation_column_in_png_list(settings: Dict[str, Any], *, native=False) -> List[Problem]:
+    """Check annotation columns against the crop table selected by the run.
 
     Issue #186: labels made in Graph Builder stayed on the annotated table, and
     the run failed later inside :func:`spacr.ml.generate_ml_scores`. Only
-    databases that exist and have a ``png_list`` are read.
+    databases that exist and have a ``png_list`` are read for legacy modes.
+    Native CNN sources use ``ssCell_Crops``; ML keeps its existing table contract.
     """
     from .classify import _annotation_column_named
     from .training_basis import _annotation_column_absent, resolve_basis
@@ -1956,6 +1958,33 @@ def _check_annotation_column_in_png_list(settings: Dict[str, Any]) -> List[Probl
         sources = [sources]
     databases = [os.path.join(str(src), "measurements", "measurements.db")
                  for src in sources or () if src]
+    if native:
+        from .crops import CropError, resolve_crop_source
+        from .crop_source import CROP_SOURCE_ALIASES
+        from .qt.i18n import tr
+        from .tabular import read_database
+
+        legacy_databases = []
+        for database in databases:
+            value = str(settings.get("image_source") or settings.get("crop_source") or "auto").strip().lower()
+            choice = value if value == "auto" else CROP_SOURCE_ALIASES.get(value, value)
+            try:
+                source = resolve_crop_source({
+                    "src": os.path.dirname(os.path.dirname(database)),
+                    "crop_source": choice})
+            except CropError:
+                source = None
+            if source is None or source.kind != "ome-zarr":
+                legacy_databases.append(database)
+                continue
+            frame = read_database(database, "ssCell_Crops", canonicalise=False,
+                                  migrate=False, read_only=True, limit=0, report=None)[0]
+            if column and column not in frame.columns:
+                return [Problem(ERROR, "annotation_column", tr(
+                    "Annotation column {column!r} is absent from ssCell_Crops in {database}.").format(
+                        column=column, database=database), tr(
+                    "Save annotations to the OME-Zarr crop table in Annotate, or select an annotation column present in ssCell_Crops."))]
+        databases = legacy_databases
     message = _annotation_column_absent(databases, str(column or "").strip())
     if not message:
         return []

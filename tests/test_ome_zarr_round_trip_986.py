@@ -8,6 +8,7 @@ store, class membership matches png_list exactly, a shuffled index does not
 from __future__ import annotations
 
 import hashlib
+import json
 import sqlite3
 from pathlib import Path
 
@@ -38,22 +39,33 @@ def _plate(root: Path) -> Path:
     return merged
 
 
-def _measure(root: Path, fmt: str, **over) -> Path:
+def _measure(root: Path, fmt: str | None = None, *, saved_version=None, **over) -> Path:
+    """Run the real writer with fresh defaults, an explicit format or an older saved file."""
     from spacr.measure import measure_crop
     from spacr.settings import get_measure_crop_settings
 
     merged = _plate(root)
-    settings = get_measure_crop_settings({})
-    settings.update({
+    selected = {
         "src": str(merged), "channels": [0, 1], "cell_mask_dim": 2,
         "nucleus_mask_dim": 3, "pathogen_mask_dim": None, "cell_min_size": 0,
         "nucleus_min_size": 0, "pathogen_min_size": 0, "cytoplasm_min_size": 0,
         "cytoplasm": False, "save_png": True, "crop_mode": ["cell", "nucleus"],
         "png_size": [PNG_SIZE, PNG_SIZE], "png_channel_mapping": dict(MAPPING),
         "crop_intensity": "raw", "normalize": False, "save_arrays": False,
-        "plot": False, "verbose": False, "n_jobs": 1,
-        "crop_image_format": fmt})
-    settings.update(over)
+        "plot": False, "verbose": False, "n_jobs": 1}
+    if fmt is not None:
+        selected['crop_image_format'] = fmt
+    selected.update(over)
+    if saved_version is None:
+        settings = get_measure_crop_settings(selected)
+    else:
+        from spacr.cli import resolve_module, resolve_settings
+        from spacr.settings import SETTINGS_VERSION_KEY
+
+        selected[SETTINGS_VERSION_KEY] = saved_version
+        saved = root / 'old-settings.json'
+        saved.write_text(json.dumps(selected), encoding='utf-8')
+        settings = resolve_settings(resolve_module('measure'), str(saved))
     measure_crop(settings)
     return root
 
@@ -105,8 +117,9 @@ def _table(root: Path) -> pd.DataFrame:
 def runs(tmp_path_factory):
     base = tmp_path_factory.mktemp("rt986")
     return {"png": _measure(base / "png", "png"),
-            "zarr": _measure(base / "zarr", "ome-zarr"),
-            "again": _measure(base / "again", "ome-zarr")}
+            "zarr": _measure(base / "zarr"),
+            "again": _measure(base / "again"),
+            "old": _measure(base / "old", saved_version=944)}
 
 
 def test_every_png_crop_is_rebuilt_pixel_exact_from_ome_zarr(runs):
@@ -133,6 +146,17 @@ def test_the_crop_table_matches_png_list_membership_and_a_shuffle_does_not(runs)
 def test_png_mode_writes_no_crop_store_and_ome_zarr_writes_no_pngs(runs):
     assert not (runs["png"] / "crops").exists()
     assert not list(runs["zarr"].rglob("*_png/*.png"))
+
+
+def test_an_old_stamped_run_keeps_the_exact_legacy_png_files(runs):
+    """A saved file predating the format switch reproduces explicit legacy output bytes."""
+    old = {str(path.relative_to(runs['old'])): path.read_bytes()
+           for path in runs['old'].rglob('*_png/*.png')}
+    explicit = {str(path.relative_to(runs['png'])): path.read_bytes()
+                for path in runs['png'].rglob('*_png/*.png')}
+    assert old and old == explicit
+    assert _png_list_counts(runs['old']) == _png_list_counts(runs['png'])
+    assert not (runs['old'] / 'crops').exists()
 
 
 def test_a_rerun_writes_byte_identical_crop_stores(runs):

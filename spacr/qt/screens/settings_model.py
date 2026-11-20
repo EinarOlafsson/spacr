@@ -813,6 +813,8 @@ _BATCH_MISSING_CONTROL_OPTIONS = ["error", "skip"]
 #: The stored values stay 'png' and 'merged' -- `spacr.crops` reads those,
 #: and no settings file written before this changes meaning.
 _CROP_SOURCE_OPTIONS = [
+    ("ome-zarr", "OME-Zarr crops"),
+    ("auto", "Automatic source"),
     ("png", "load images — crops already in data/"),
     ("merged", "stream images — cut from merged/"),
 ]
@@ -855,34 +857,19 @@ _CROP_SOURCE_OPTIONS = [
 #: `_image_source_the_panel_offers` exists to prevent, so 'generate' is
 #: treated here exactly as every other retired spelling is.
 _IMAGE_SOURCE_OPTIONS = [
+    ("ome-zarr", "OME-Zarr crops"),
+    ("auto", "Automatic source"),
     ("load_images", "load images — crops already in data/"),
     ("stream_images", "stream images — cut from merged/"),
 ]
 
 
 def _image_source_the_panel_offers(value) -> str:
-    """Which of the two offered modes a stored ``image_source`` selects.
+    """Select the offered mode through the same aliases used by the pipeline.
 
-    A combo whose stored value matches no item keeps that value as a new
-    first item (see ``_widget_for``), which is right for a free alphabet and
-    wrong for this one: a settings CSV carrying ``'on_demand'`` put a THIRD
-    entry, spelled in a retired vocabulary, in front of a user who is being
-    asked a two-way question. That is the two-name rule's failure in the one
-    panel the whole migration was for.
-
-    RESOLVED, NOT REFUSED, and resolved through the table the pipeline reads
-    -- `spacr.settings._canonical_image_source` -- so the panel and the run
-    cannot disagree about what an old file means. Every retired spelling
-    still loads; it just selects the mode it has always meant.
-
-    ``'auto'`` comes back from that function as itself, because
-    `crops.resolve_crop_source` still computes "what is available here". It
-    is NOT an answer a user is offered -- it is an action, not a source -- so here it
-    selects LOAD IMAGES -- rule A, the default is a named mode -- and rule
-    B's fallback is what keeps a project with no ``data/`` drawing: LOAD
-    IMAGES with nothing to load streams instead and says so. Anything else
-    unrecognised lands on LOAD IMAGES for the same reason the normaliser
-    does.
+    Preserve explicit ``'ome-zarr'`` and ``'auto'`` values. Automatic selection
+    retains the shared resolver priority when old settings are opened and saved.
+    Retired load/stream spellings retain their existing meanings.
     """
     offered = [stored for stored, _label in _IMAGE_SOURCE_OPTIONS]
     try:
@@ -890,7 +877,7 @@ def _image_source_the_panel_offers(value) -> str:
         resolved = _canonical_image_source(value)
     except Exception:                                            # noqa: BLE001
         resolved = str(value or "").strip().lower()
-    return resolved if resolved in offered else offered[0]
+    return resolved if resolved in offered else "load_images"
 
 
 def _image_source_seeded_from_crop_source(values):

@@ -83,6 +83,42 @@ def test_the_table_is_one_row_per_change_and_names_old_defaults():
     assert OPS_DEFAULTS["ops_compose_blend"] != DEFAULT_CHANGES[931]["ops_compose_blend"]
 
 
+@pytest.mark.parametrize('selected, expected', [
+    ({}, 'load_images'),
+    ({'crop_source': 'png'}, 'load_images'),
+    ({'crop_source': 'on_demand'}, 'stream_images'),
+    ({'crop_source': 'merged'}, 'stream_images'),
+    ({'crop_source': 'auto'}, 'auto'),
+    ({'crop_source': 'merged', 'image_source': 'load_images'}, 'load_images'),
+    ({'crop_source': 'png', 'image_source': 'ome-zarr'}, 'ome-zarr'),
+])
+def test_old_classification_source_aliases_survive_the_ome_default(
+        tmp_path, selected, expected):
+    """Resolving a saved file preserves its explicit source before filling an older default."""
+    from spacr.cli import resolve_module, resolve_settings
+
+    saved = tmp_path / 'classification.json'
+    saved.write_text(json.dumps({SETTINGS_VERSION_KEY: 944, **selected}), encoding='utf-8')
+    settings = resolve_settings(resolve_module('classify'), str(saved))
+    assert settings['image_source'] == expected
+    if 'crop_source' in selected:
+        assert settings['crop_source'] == selected['crop_source']
+    else:
+        assert settings['crop_source'] == 'auto'
+
+
+def test_current_saved_and_fresh_classification_defaults_select_ome_zarr(tmp_path):
+    """A current stamp keeps the new source, while old source choices remain explicit options."""
+    from spacr.cli import resolve_module, resolve_settings
+
+    module = resolve_module('classify')
+    saved = tmp_path / 'classification.json'
+    saved.write_text(json.dumps({SETTINGS_VERSION_KEY: SETTINGS_SCHEMA_VERSION}), encoding='utf-8')
+    for path in (None, str(saved)):
+        settings = resolve_settings(module, path)
+        assert settings['image_source'] == settings['crop_source'] == 'ome-zarr'
+
+
 def test_a_pre_931_journal_replays_with_average(tmp_path, monkeypatch, caplog):
     """THE CASE THIS EXISTS FOR. A journal from before 931 recorded every
     OPS key of its time and no ops_compose_blend; its replay composes as

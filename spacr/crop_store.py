@@ -106,6 +106,10 @@ class CropPoolWriter:
     :param object_type: the object class, such as ``'cell'``.
     :param channels: the number of channels.
     :param dtype: the pixel dtype.
+    :param mask_dtype: ``bool`` by default, or ``uint8`` to preserve integer
+        mask labels from 0 to 255. Zero is background; nonzero labels are
+        foreground when reading without context. A class cannot mix mask
+        dtypes across resumed writes.
     :param crops_per_shard: crops per pool shard (default 4096). Each shard
         is buffered until full (or :meth:`close`) and written whole, so no
         shard is ever rewritten.
@@ -113,8 +117,9 @@ class CropPoolWriter:
         group under ``spacr`` (for example ``channel_names``,
         ``pixel_size_um``, ``settings_hash``, ``relationship_columns``,
         ``source``). ``dtype``, ``channels``, ``compression``,
-        ``crops_per_shard`` and ``spacr_version`` are added. A key that is
-        already stored with another value is refused, so pools of one class
+        ``crops_per_shard`` and ``spacr_version`` are added. ``mask_dtype``
+        is also stored for non-Boolean masks; its absence means Boolean.
+        A key that is already stored with another value is refused, so pools of one class
         never mix channel orders or settings.
 
     Pools are written whole as they fill. :meth:`commit` then records them,
@@ -126,6 +131,7 @@ class CropPoolWriter:
 
     def __init__(self, project: Any, plate: str, well: str, object_type: str,
                  channels: int, dtype: Any = np.uint16, *,
+                 mask_dtype: Any = np.bool_,
                  crops_per_shard: int = DEFAULT_CROPS_PER_SHARD,
                  attributes: Optional[Mapping[str, Any]] = None):
         """Open the well's crop store and start an empty shard buffer."""
@@ -138,6 +144,10 @@ class CropPoolWriter:
         self.object_type = str(object_type)
         self.channels = int(channels)
         self.dtype = np.dtype(dtype)
+        self.mask_dtype = np.dtype(mask_dtype)
+        if self.mask_dtype not in (np.dtype(bool), np.dtype(np.uint8)):
+            from .qt.i18n import tr
+            raise ValueError(tr("Crop mask_dtype must be bool or uint8."))
         self.crops_per_shard = max(1, int(crops_per_shard))
         self.relative = (Path("crops") / f"plate={_encoded(plate)}"
                          / f"well={_encoded(well)}.zarr")
@@ -161,9 +171,19 @@ class CropPoolWriter:
         group_path.mkdir(parents=True, exist_ok=True)
         group = self.zarr.open_group(str(group_path), mode="a", zarr_format=3)
         stored = dict(group.attrs.get("spacr") or {})
+        if ((stored and np.dtype(stored.get("mask_dtype", bool)) != self.mask_dtype)
+                or ("mask_dtype" in attributes
+                    and np.dtype(attributes["mask_dtype"]) != self.mask_dtype)):
+            from .qt.i18n import tr
+            raise ValueError(tr(
+                "Crop mask_dtype conflicts with the stored pools or supplied metadata; "
+                "write this class to a new store."))
+        attributes.pop("mask_dtype", None)
         wanted = {"dtype": self.dtype.str, "channels": self.channels,
                   "compression": "zstd-3", "crops_per_shard": self.crops_per_shard,
                   **json.loads(json.dumps(attributes, default=str))}
+        if self.mask_dtype != np.dtype(bool):
+            wanted["mask_dtype"] = self.mask_dtype.str
         fixed = ("dtype", "channels", "compression", "channel_names",
                  "pixel_size_um", "settings_hash", "relationship_columns")
         for key, value in wanted.items():
@@ -211,11 +231,17 @@ class CropPoolWriter:
             crop of this call shares.
 
         :param crops: crops from :func:`cut_crops`, in the order they are stored.
+            With ``mask_dtype=uint8``, masks must contain integers from 0 to 255.
         """
         for crop in crops:
             pixels = np.asarray(crop["pixels"])
             if pixels.shape[0] != self.channels:
                 raise ValueError(f"crop has {pixels.shape[0]} channels, the pool {self.channels}")
+            if self.mask_dtype == np.dtype(np.uint8):
+                mask = np.asarray(crop["mask"])
+                if mask.dtype.kind not in "biu" or np.any(mask < 0) or np.any(mask > 255):
+                    from .qt.i18n import tr
+                    raise ValueError(tr("Crop uint8 masks must contain integers from 0 to 255."))
             self._buffer.append({**identity, **crop})
             if len(self._buffer) >= self.crops_per_shard:
                 self._flush()
@@ -234,7 +260,7 @@ class CropPoolWriter:
         sizes = [int(c["pixels"].shape[1] * c["pixels"].shape[2]) for c in crops]
         total = int(sum(sizes))
         pool = np.empty((self.channels, total), self.dtype)
-        mask = np.empty(total, bool)
+        mask = np.empty(total, self.mask_dtype)
         offset = 0
         offsets = []
         for crop, size in zip(crops, sizes):
@@ -436,9 +462,12 @@ def read_crop(project: Any, row: Mapping[str, Any], *, context: bool = True,
     :param row: the crop's table row (``crop_store``, ``crop_array``,
         ``offset``, ``height``, ``width``, ``mask_offset``).
     :param context: keep the pixels around the object; False zeroes them.
+        A row with ``has_mask=False`` keeps its pixels because its stored
+        zero mask is a placeholder, which is still returned unchanged.
     :param size: ``(h, w)`` to resize to, nearest-neighbour and therefore
         deterministic; the stored size when None.
-    :returns: ``(pixels (C, h, w), mask (h, w) bool)``.
+    :returns: ``(pixels (C, h, w), mask (h, w))``, preserving both stored
+        dtypes and mask labels.
     """
     from .ome_zarr import require_zarr
 
@@ -453,7 +482,13 @@ def read_crop(project: Any, row: Mapping[str, Any], *, context: bool = True,
     moff = int(row["mask_offset"])
     mask = np.asarray(zarr.open_array(str(store / mask_array), mode="r")[
         moff:moff + n]).reshape(height, width)
-    return _finish_crop(pixels, mask, context, size)
+    return _finish_crop(pixels, mask, context or _mask_is_absent(row), size)
+
+
+def _mask_is_absent(row: Mapping[str, Any]) -> bool:
+    """Recognize an explicit absent-mask flag, including its NumPy and SQLite forms."""
+    value = row.get("has_mask")
+    return isinstance(value, (bool, np.bool_, int, np.integer)) and value == 0
 
 
 def _finish_crop(pixels: np.ndarray, mask: np.ndarray, context: bool,
@@ -461,7 +496,7 @@ def _finish_crop(pixels: np.ndarray, mask: np.ndarray, context: bool,
     """Apply :func:`read_crop`'s ``context`` and ``size`` to one stored crop."""
     if not context:
         pixels = pixels.copy()
-        pixels[:, ~mask] = 0
+        pixels[:, mask == 0] = 0
     if size is not None:
         height, width = mask.shape
         ys = (np.arange(int(size[0])) * height // int(size[0])).astype(np.int64)
@@ -500,8 +535,11 @@ def read_crops(project: Any, rows: Iterable[Mapping[str, Any]], *, context: bool
     :param project: the project folder.
     :param rows: ``ssCell_Crops`` rows.
     :param context: keep the pixels around each object; False zeroes them.
+        Rows with ``has_mask=False`` keep their pixels and return the stored
+        zero placeholder mask, as :func:`read_crop` does.
     :param size: ``(h, w)`` to resize every crop to (nearest-neighbour).
-    :returns: one ``(pixels (C, h, w), mask (h, w) bool)`` per row.
+    :returns: one ``(pixels (C, h, w), mask (h, w))`` per row, preserving
+        both stored dtypes and mask labels.
     """
     from .ome_zarr import require_zarr
 
@@ -532,8 +570,9 @@ def read_crops(project: Any, rows: Iterable[Mapping[str, Any]], *, context: bool
                 i = indices[member]
                 height, width = int(rows[i]["height"]), int(rows[i]["width"])
                 start, n = mstarts[member] - lo, sizes[member]
-                mask = block[start:start + n].reshape(height, width).astype(bool)
-                out[i] = _finish_crop(pixels[member], mask, context, size)
+                mask = block[start:start + n].reshape(height, width).copy()
+                out[i] = _finish_crop(
+                    pixels[member], mask, context or _mask_is_absent(rows[i]), size)
     return out
 
 
@@ -707,7 +746,9 @@ class CropSink:
         if class_dir.exists():
             shutil.rmtree(class_dir)
         writer = CropPoolWriter(self.project, plate, well, object_type, channels,
-                                dtype, crops_per_shard=self.crops_per_shard)
+                                dtype, crops_per_shard=self.crops_per_shard,
+                                mask_dtype=(prior or {}).get("attributes", {}).get(
+                                    "mask_dtype", bool))
         for crop, identity in kept:
             writer.add([crop], **identity)
         return writer
@@ -948,7 +989,7 @@ class OmeZarrCropSource(_lazy_crop_source_base()):
         if all(_row_field(row, k) is not None for k in ("crop_store", "crop_array", "offset")):
             return {k: _row_field(row, k) for k in ("crop_store", "crop_array", "offset",
                                           "height", "width", "mask_offset",
-                                          "object_id")}
+                                          "object_id", "has_mask")}
         object_id = _row_field(row, "object_id")
         if object_id is None:
             parts = [_row_field(row, k) for k in ("plate", "well", "field", "object_type",
@@ -973,7 +1014,7 @@ class OmeZarrCropSource(_lazy_crop_source_base()):
         return f"{crop['crop_store']}::{crop['crop_array']}@{int(crop['offset'])}"
 
     def get_raw(self, row: Any) -> Tuple[np.ndarray, np.ndarray]:
-        """The stored crop: ``(pixels (C, h, w) in its dtype, mask (h, w) bool)``.
+        """The stored crop: ``(pixels (C, h, w), mask (h, w))`` in their stored dtypes.
 
         :param row: as for :meth:`get`.
         """

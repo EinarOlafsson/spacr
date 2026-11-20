@@ -309,6 +309,111 @@ def test_mask_generation_exports_exactly_when_on(tmp_path, no_segmentation,
     assert "spaCR Mask Generation" in readme
 
 
+def test_new_mask_defaults_write_ome_zarr_and_old_settings_keep_exact_npy(
+        tmp_path, no_segmentation):
+    """Run the real merge/export path with fresh defaults and a pre-switch settings file."""
+    from spacr.cli import resolve_module, resolve_settings
+    from spacr.core import preprocess_generate_masks
+    from spacr.image_store import read_image, read_labels
+    from spacr.settings import SETTINGS_VERSION_KEY
+
+    fresh, image, cells = _mask_plate(tmp_path / 'fresh')
+    _, _, nuclei = _field()
+    old, _, _ = _mask_plate(tmp_path / 'old')
+    old_file = old / 'old-settings.json'
+    old_file.write_text(json.dumps(dict(_mask_settings(old),
+                                       **{SETTINGS_VERSION_KEY: 944})), encoding='utf-8')
+    old_settings = resolve_settings(resolve_module('mask'), str(old_file))
+    assert old_settings['mask_image_format'] == 'npy'
+    preprocess_generate_masks(_mask_settings(fresh))
+    preprocess_generate_masks(old_settings)
+    store = fresh / 'images' / 'plate1.ome.zarr'
+    assert store.is_dir() and not (old / 'images').exists()
+    for well in ('A01', 'B02'):
+        name = f'plate1_{well}_1.npy'
+        assert (fresh / 'merged' / name).read_bytes() == (old / 'merged' / name).read_bytes()
+        np.testing.assert_array_equal(read_image(store, key=(well, 1)),
+                                      np.moveaxis(image, -1, 0))
+        np.testing.assert_array_equal(read_labels(store, 'cell', key=(well, 1)), cells)
+        np.testing.assert_array_equal(
+            read_labels(store, 'nucleus', key=(well, 1)),
+            nuclei)
+
+
+@pytest.mark.parametrize("field_format", [None, "tiff"], ids=["fresh-ome", "explicit-tiff"])
+def test_timelapse_retains_distinct_frames_and_reaches_downstream(
+        tmp_path, no_segmentation, monkeypatch, capsys, field_format):
+    """Fresh OME defaults retain both timepoints, while explicit TIFF still exports them."""
+    import spacr.timelapse as timelapse
+    from spacr.core import preprocess_generate_masks
+    from spacr.image_store import read_image, split_field_name
+
+    names = ("plate1_A01_1_1", "plate1_A01_1_2")
+    src, image, cells = _mask_plate(tmp_path, fields=names)
+    _, _, nuclei = _field()
+    expected = {}
+    for timepoint, name in enumerate(names):
+        frame = image + np.uint16(timepoint * 500)
+        cell_mask = np.where(cells, cells + timepoint * 10, 0).astype(np.uint16)
+        nucleus_mask = np.where(nuclei, nuclei + timepoint * 10, 0).astype(np.uint16)
+        np.save(src / "stack" / f"{name}.npy", frame)
+        np.save(src / "masks" / "cell_mask_stack" / f"{name}.npy", cell_mask)
+        np.save(src / "masks" / "nucleus_mask_stack" / f"{name}.npy", nucleus_mask)
+        expected[name] = np.dstack([frame, cell_mask, nucleus_mask])
+    assert split_field_name(names[0]) == split_field_name(names[1])
+    callbacks = []
+
+    def check_frames():
+        """Check complete timepoint identities and pixels before downstream work begins."""
+        assert sorted(path.stem for path in (src / "merged").glob("*.npy")) == list(names)
+        for name, pixels in expected.items():
+            actual = np.load(src / "merged" / f"{name}.npy")
+            assert actual.dtype == pixels.dtype
+            np.testing.assert_array_equal(actual, pixels)
+
+    def motility(settings):
+        """Record the real pipeline handoff after checking its retained inputs."""
+        assert Path(settings["src"]) == src
+        assert settings["reuse_existing_measurements"] is False
+        check_frames()
+        callbacks.append("motility")
+
+    def events(source, settings):
+        """Record event dispatch only after both frames have survived export selection."""
+        assert Path(source) == src
+        assert settings["timelapse_events"]
+        check_frames()
+        callbacks.append("events")
+
+    monkeypatch.setattr(timelapse, "automated_motility_assay", motility)
+    monkeypatch.setattr(timelapse, "_run_event_detection_step", events)
+    settings = _mask_settings(src, timelapse=True, motility_analysis=True,
+                              timelapse_events=True)
+    if field_format is not None:
+        settings["mask_image_format"] = field_format
+    preprocess_generate_masks(settings)
+    assert callbacks == ["motility", "events"]
+    check_frames()
+    assert not (src / "images").exists()
+    notice = ("Spatial OME-Zarr export cannot represent timepoints. "
+              "Timelapse processing will use the retained merged NPY files.")
+    output = capsys.readouterr().out
+    if field_format is None:
+        assert notice in output
+        assert not (src / "merged_tiff").exists()
+    else:
+        assert notice not in output
+        assert len(list((src / "merged_tiff").glob("*.tif"))) == 6
+        for name, pixels in expected.items():
+            np.testing.assert_array_equal(
+                read_image(src / "merged_tiff" / f"{name}.tif"),
+                np.moveaxis(pixels[..., :2], -1, 0))
+            for role, plane in (("cell", 2), ("nucleus", 3)):
+                np.testing.assert_array_equal(
+                    read_image(src / "merged_tiff" / f"{name}_{role}_mask.tif"),
+                    pixels[..., plane])
+
+
 def test_merged_export_needs_the_plane_layout(tmp_path, capsys):
     from spacr.io import _export_vvvv_merged
 

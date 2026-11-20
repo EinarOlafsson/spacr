@@ -117,6 +117,7 @@ def _placed(db, sites=(0, 1)):
 SETTINGS = {"plate": PLATE, "ops_ph_channels": "DAPI,GFP,AF750",
             "ops_ph_downsample": 1, "ops_ph_texture": False, "n_workers": 1,
             "ops_gpu": False, "ops_ph_cell_model": "cyto3",
+            "ops_ph_image_format": "npz", "ops_crop_image_format": "tiff-tar",
             "ops_align_model": "similarity"}
 
 

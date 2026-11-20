@@ -466,8 +466,10 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
     :returns: per plate, what :func:`run_fields` reports; or ``tiff``, the
         files written.
 
-    The merged ``.npy`` stacks stay in place: Measure and the crop readers
-    read them until their readers move to :func:`read_image` (item 984).
+    The merged ``.npy`` stacks and plane layout stay in place for field
+    discovery and legacy readers. Measure reads committed spatial OME-Zarr
+    fields through :func:`read_image` when selected, with the retained
+    stacks as the fallback for missing or unsupported field layouts.
     """
     fmt = str(fmt or "npy").strip().lower()
     if fmt not in IMAGE_FORMATS:

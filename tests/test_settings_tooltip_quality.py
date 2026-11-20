@@ -132,10 +132,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "None", "['cell_id']", REPAIRED_TOOLTIP,
         "The classifier derives one object identifier from object_array.",
     ),
-    ("classify_merged", "crop_source"): DefaultVariant(
-        "'png'", "'load_images'", ACCURATE_SHARED,
-        "The tooltip already distinguishes viewer and training spellings.",
-    ),
     ("classify_merged", "loss_type"): DefaultVariant(
         "'focal_loss'", "'auto'", REPAIRED_TOOLTIP,
         "The merged classifier resolves auto from the output-head shape.",
@@ -288,10 +284,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "True", "False", REPAIRED_TOOLTIP,
         "Replication starts without detailed console output.",
     ),
-    ("umap", "crop_source"): DefaultVariant(
-        "'png'", "'auto'", REPAIRED_TOOLTIP,
-        "Image UMAP chooses PNGs first and otherwise streams merged arrays.",
-    ),
     ("umap", "tables"): DefaultVariant(
         "['cell', 'nucleus', 'pathogen', 'cytoplasm']",
         "['cell', 'cytoplasm', 'nucleus', 'pathogen']", ACCURATE_SHARED,
@@ -383,10 +375,6 @@ REPAIRED_TOOLTIP_FACTS = {
     ),
     ("replication", "verbose"): (
         "Invasion and Replication also start with console detail disabled",
-    ),
-    ("umap", "crop_source"): (
-        "Image UMAP starts at 'auto'",
-        "otherwise streaming from merged arrays",
     ),
 }
 
@@ -623,6 +611,8 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
 #: Items 983 and 984: the format defaults the tooltips claim, per app.
 FORMAT_ARRIVALS_983 = {
     ("mask", "mask_image_format"),
+    ("measure", "mask_image_format"), ("external_masks", "mask_image_format"),
+    ("measure", "crop_image_format"), ("external_masks", "crop_image_format"),
     ("measure", "crops_per_shard"), ("measure", "crop_margin_px"),
     ("external_masks", "crops_per_shard"), ("external_masks", "crop_margin_px")}
 
@@ -1526,7 +1516,7 @@ if app_key == "mask":
     # compared claim: 1004 -> 1005.
     # Items 983 and 984 (2026-11-19): the image and crop formats, all alpha.
     # Each claim is the resolved default, so none is a variant.
-    format_defaults = {"mask_image_format": "npy", "crop_image_format": "png",
+    format_defaults = {"mask_image_format": "ome-zarr", "crop_image_format": "ome-zarr",
                        "crops_per_shard": 4096, "crop_margin_px": 0,
                        "crop_zero_outside": False}
     format_arrivals = {pair for pair in compared_pairs
@@ -1655,7 +1645,9 @@ if app_key == "mask":
     # no plaque fact to keep.
     # Plaque Assay uses model scale (0); fine-tuning's 30 and model checks'
     # 40 are named separately, with this exception recorded by exact value.
-    assert len(variants) == 47
+    # OME-Zarr unifies the Classify and Image UMAP crop-source defaults;
+    # their two old exceptions are now exact comparisons above.
+    assert len(variants) == 45
     assert variants == expected
     assert {
         classification: sum(
@@ -1670,14 +1662,14 @@ if app_key == "mask":
         # was confused by the neighbouring percentile. Instruction 391
         # removed the setting and the neighbour both.
         # Plaque's explicit model-scale default adds one named exception.
-        ACCURATE_SHARED: 26,
+        ACCURATE_SHARED: 25,
         # 23 -> 22 on 2026-09-09, and it is the same one variant: the
         # `control_wells` split (357-Q6) took its repaired-tooltip entry
         # with it, because the tooltip it repaired documented two meanings
         # at once and there is now one tooltip per meaning.
         # 22 -> 21 on 2026-09-26, item 588: ("analyze_plaques", "fill_in")
         # went with its variant; see the 47 -> 46 note above.
-        REPAIRED_TOOLTIP: 21,
+        REPAIRED_TOOLTIP: 20,
         CONFIG_DEFECT: 0,
     }
     assert all(
@@ -1714,7 +1706,7 @@ def test_repaired_tooltips_state_each_module_value_and_behavior():
     # that moved only one of them would be a change nobody had understood.
     # 22 -> 21 on 2026-09-26, item 588: ("analyze_plaques", "fill_in"),
     # the same one entry as the variant count and the class count above.
-    assert len(REPAIRED_TOOLTIP_FACTS) == 21
+    assert len(REPAIRED_TOOLTIP_FACTS) == 20
     assert set(REPAIRED_TOOLTIP_FACTS) == repaired
 
     defaults_by_app = {}

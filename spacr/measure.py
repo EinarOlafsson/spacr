@@ -7,8 +7,11 @@ use -- which genes changed a phenotype, which cells to train a classifier on,
 which wells are reliable.
 
 What it needs: a ``merged/`` folder written by
-:func:`spacr.core.preprocess_generate_masks`: the intensity channels and the
-label masks for one field, saved together as ``.npy``. Which masks to measure
+:func:`spacr.core.preprocess_generate_masks`: retained ``.npy`` filenames,
+headers and plane layout identify each field. New runs read committed image
+pixels and label masks from the accompanying OME-Zarr stores; explicit legacy
+selection and fields without committed stores read the merged arrays.
+Which masks to measure
 is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``,
 ``pathogen_mask_dim`` and the organelle slots -- and an object with no mask
 dimension is not measured, rather than measured as empty.
@@ -20,7 +23,8 @@ What it produces:
   :mod:`spacr.schema` composes. The columns are shape, intensity, texture and
   SPATIAL features -- how many neighbours an object has within a radius, how
   far the nearest one is, what fraction of its border touches another.
-* Optionally, one PNG per object (``save_png``), cropped by the mask. Those
+* Optionally, OME-Zarr crops per object (``save_png``), or PNG when explicitly
+  selected with ``crop_image_format='png'``, cut by the measured mask. Those
   crops are what :func:`spacr.deep_spacr.deep_spacr` trains on and what
   Annotate shows, which is why the cropping lives here rather than beside the
   classifier: they must be cut by the same mask the measurements came from.
@@ -59,6 +63,7 @@ are, so an ordinary run is byte-identical to one from before they existed.
 
 import os, cv2, time, sqlite3, threading, traceback, shutil, inspect, contextlib
 import json
+from functools import lru_cache
 import re
 import numpy as np
 import pandas as pd
@@ -5280,9 +5285,26 @@ def _calibration_reference_hashes(settings, files):
     references = {}
     for filename, path in paths.items():
         digest = hashlib.sha256()
-        with open(path, 'rb') as stream:
-            for chunk in iter(lambda: stream.read(1 << 20), b''):
-                digest.update(chunk)
+        source = (None if filename == 'sessions_csv' or filename.startswith('beads/')
+                  else _measure_native_source(path, settings))
+        if source is None:
+            with open(path, 'rb') as stream:
+                for chunk in iter(lambda: stream.read(1 << 20), b''):
+                    digest.update(chunk)
+        else:
+            from pathlib import Path
+            from .crops import MERGED_LAYOUT_SIDECAR
+
+            group = Path(source[0])
+            inputs = [(item.relative_to(group).as_posix(), item)
+                      for item in sorted(group.rglob('*')) if item.is_file()]
+            inputs.append((MERGED_LAYOUT_SIDECAR, Path(path).parent / MERGED_LAYOUT_SIDECAR))
+            for key, item in inputs:
+                digest.update(key.encode('utf-8') + b'\0')
+                digest.update(str(item.stat().st_size).encode('ascii') + b'\0')
+                with item.open('rb') as stream:
+                    for chunk in iter(lambda: stream.read(1 << 20), b''):
+                        digest.update(chunk)
         references[filename] = digest.hexdigest()
     return references
 
@@ -5303,12 +5325,13 @@ def _prepare_measurement_calibration(settings, files):
     if not settings.get('intensity_calibration'):
         return None, None
     references = _calibration_reference_hashes(settings, files)
-    full_plan = build_plate_plan(settings['src'], files, settings)
+    full_plan = build_plate_plan(settings['src'], files, settings,
+                                 **_measure_plan_loader(settings))
     resolved = dict(settings)
     resolved[PLAN_SETTINGS_KEY] = {
         key: full_plan[key] for key in ('version', 'plates', 'failures')}
     calibration = _build_intensity_calibration_plan(
-        settings['src'], files, resolved)
+        settings['src'], files, resolved, **_measure_plan_loader(resolved))
     if _calibration_reference_hashes(settings, files) != references:
         raise ValueError('Intensity calibration reference files changed while '
                          'planning. Nothing was measured; retry after acquisition stops.')
@@ -7537,7 +7560,7 @@ def _write_nucleus_crops(root, nuclei, measured, settings, *, channel,
         resolved = _resolve_merged_path(path_name, merged_dir)
         if resolved is None:
             continue
-        data = np.load(resolved, mmap_mode='r')
+        data = _read_measure_field(resolved, settings, mmap_mode='r')
         if data.ndim == 4:
             data = np.asarray(data).max(axis=0)
         mask = np.asarray(data[..., mask_dim])
@@ -9400,7 +9423,7 @@ def _wound_closure_tables(merged_dir, settings, figures=None):
         def planes(items=items):
             """Yield this field's wound-analysis planes in time order."""
             for _time_id, path, _stem in items:
-                yield _wound_plane(np.load(path, mmap_mode='r'), settings)
+                yield _wound_plane(_read_measure_field(path, settings, mmap_mode='r'), settings)
 
         shown = sorted({0, len(items) // 2, len(items) - 1})
         frame, status, masks = _wound_series(
@@ -10942,9 +10965,141 @@ def _with_vacuole_counts(cell_frame, cell_mask, pathogen_mask, settings):
 CROP_IMAGE_FORMATS = ("png", "ome-zarr")
 
 
+@lru_cache(maxsize=32)
+def _measure_native_ledger(path, modified, size):
+    """Read one HCS commit ledger, cached only while its file identity stays fixed.
+
+    :param path: the commit ledger path.
+    :param modified: its modification time in nanoseconds, for invalidation.
+    :param size: its size in bytes, for invalidation.
+    :returns: the last committed record for each HCS field key.
+    """
+    with open(path, encoding='utf-8') as handle:
+        records = [json.loads(line) for line in handle if line.strip()]
+    return {record['key']: record for record in records}
+
+
+@lru_cache(maxsize=32)
+def _measure_native_identities(folder, modified):
+    """Map native field keys to unique retained names, never conflating timepoints.
+
+    :param folder: the retained merged directory.
+    :param modified: directory modification time in nanoseconds, for invalidation.
+    :returns: field keys mapped to basenames, or None when several names collide.
+    """
+    from .image_store import field_key, split_field_name
+
+    names = {}
+    for name in os.listdir(folder):
+        if not name.endswith('.npy') or name.startswith('.'):
+            continue
+        try:
+            plate, well, field = split_field_name(name)
+        except ValueError:
+            continue
+        key = plate, field_key(well, field)
+        names[key] = None if key in names else name
+    return names
+
+
+def _measure_native_source(path, settings):
+    """Locate a committed native field while retaining its original filename and layout.
+
+    :param path: the retained merged filename that supplies field identity.
+    :param settings: Measure settings; an explicit legacy image format keeps NPY.
+    :returns: ``(field_group, plane_layout)`` or None for a legacy-only field,
+        a time-lapse run, or retained names that collide in the native layout.
+    """
+    if (settings.get('timelapse')
+            or str(settings.get('mask_image_format') or 'ome-zarr').strip().lower() != 'ome-zarr'):
+        return None
+    layout = read_merged_plane_layout(os.fspath(path))
+    if layout is None:
+        return None
+    from .image_store import field_key, split_field_name
+
+    plate, well, field = split_field_name(os.path.basename(path))
+    store = os.path.join(os.path.dirname(os.path.dirname(path)), 'images', f'{plate}.ome.zarr')
+    ledger = os.path.join(store, 'spacr_commits.jsonl')
+    try:
+        stat = os.stat(ledger)
+    except FileNotFoundError:
+        return None
+    key = field_key(well, field)
+    record = _measure_native_ledger(ledger, stat.st_mtime_ns, stat.st_size).get(key)
+    if not record or not record.get('image'):
+        return None
+    folder = os.path.dirname(path)
+    names = _measure_native_identities(folder, os.stat(folder).st_mtime_ns)
+    if names.get((plate, key)) != os.path.basename(path):
+        return None
+    group = os.path.join(store, key)
+    arrays = [group] + [os.path.join(group, 'labels', role) for role in record.get('labels', ())]
+    if not all(os.path.isfile(os.path.join(array, '0', 'zarr.json')) for array in arrays):
+        return None
+    return group, layout
+
+
+def _read_measure_field(path, settings, *, mmap_mode=None):
+    """Read selected native images and masks in the exact existing Measure plane layout.
+
+    :param path: retained merged filename; its header supplies shape and dtype.
+    :param settings: Measure settings selecting the source format.
+    :param mmap_mode: legacy NPY mapping mode; native pixels use the shared reader.
+    :returns: the unchanged HWC field contract, from native data when committed.
+    """
+    source = _measure_native_source(os.fspath(path), settings)
+    if source is None:
+        return np.load(path, mmap_mode=mmap_mode)
+    from .image_store import read_image, read_labels
+    from .qt.i18n import tr
+
+    group, layout = source
+    header = np.load(path, mmap_mode='r')
+    shape, dtype = header.shape, header.dtype
+    if len(shape) != 3:
+        raise ConfigurationError(tr(
+            "OME-Zarr field {path} cannot represent the retained merged shape {shape}.",
+            path=group, shape=shape))
+    image = read_image(group)
+    intensity = len(layout['intensity_channels'])
+    dims = {role: dim for role, dim in layout['mask_dims'].items() if dim < shape[-1]}
+    if (image.shape != (intensity, *shape[:2]) or image.dtype != dtype
+            or set(range(intensity)) | set(dims.values()) != set(range(shape[-1]))):
+        raise ConfigurationError(tr(
+            "OME-Zarr field {path} does not match the retained merged shape, dtype or plane layout.",
+            path=group))
+    data = np.empty(shape, dtype=dtype)
+    data[..., :intensity] = np.moveaxis(image, 0, -1)
+    del image
+    for role, dim in dims.items():
+        labels = read_labels(group, role)
+        if labels.shape != shape[:2] or labels.dtype != dtype:
+            raise ConfigurationError(tr(
+                "OME-Zarr mask {role} at {path} does not match the retained merged shape or dtype.",
+                role=role, path=group))
+        data[..., dim] = labels
+    return data
+
+
+def _measure_plan_loader(settings):
+    """Pass native field selection to scale and calibration plans when native stores exist.
+
+    :param settings: Measure settings with the resolved merged source folder.
+    :returns: optional loader keywords, leaving legacy-only callers unchanged.
+    """
+    from functools import partial
+
+    images = os.path.join(os.path.dirname(os.path.normpath(settings['src'])), 'images')
+    if (str(settings.get('mask_image_format') or 'ome-zarr').strip().lower() == 'ome-zarr'
+            and os.path.isdir(images)):
+        return {'load_field': partial(_read_measure_field, settings=settings, mmap_mode='r')}
+    return {}
+
+
 def _crop_image_format(settings):
-    """``crop_image_format``, checked: ``'png'`` unless another format is asked for."""
-    value = str(settings.get('crop_image_format') or 'png').strip().lower()
+    """Check the crop format, using OME-Zarr when no format is selected."""
+    value = str(settings.get('crop_image_format') or 'ome-zarr').strip().lower()
     if value not in CROP_IMAGE_FORMATS:
         raise ValueError(f"crop_image_format must be one of {list(CROP_IMAGE_FORMATS)}; "
                          f"got {value!r}")
@@ -11032,7 +11187,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         source_folder = os.path.dirname(settings['src'])
 
         file_name = os.path.splitext(file)[0]
-        data = np.load(os.path.join(settings['src'], file))
+        data = _read_measure_field(os.path.join(settings['src'], file), settings)
         data_type_before = data.dtype
         vacuole_planes = _vacuole_planes(data, settings)
         rescale_record = _resolve_intensity_rescale_record(
@@ -12710,14 +12865,17 @@ def _prepare_measurement_crop_output(settings, archive_plan):
 
 
 def measure_crop(settings):
-    """Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.
+    """Extract per-object measurements and optional crops from images and masks.
 
     Consumes the ``merged/`` folder produced by
-    :func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks
-    saved as ``.npy``), computes shape, intensity, texture and spatial
+    :func:`spacr.core.preprocess_generate_masks`. Retained ``.npy`` filenames,
+    headers and the plane layout identify fields; committed OME-Zarr images
+    and masks supply the pixels by default. Explicit ``mask_image_format='npy'``
+    and fields without committed stores retain the legacy merged reader.
+    Computes shape, intensity, texture and spatial
     features per cell / nucleus / pathogen / cytoplasm object, and writes
     them to a SQLite ``measurements.db``. When ``save_png`` is enabled it
-    also crops per-object PNG thumbnails, which are the training input for
+    also writes per-object OME-Zarr crops by default, which are training input for
     :func:`spacr.deep_spacr.deep_spacr`.
 
     :param settings: Settings dict, canonicalized via
@@ -12754,8 +12912,10 @@ def measure_crop(settings):
           / ``cytoplasm_min_size`` — pixel-area cutoffs.
         - ``channels`` — list of intensity channels to measure.
         - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',
-          'cytoplasm']``; each entry produces one PNG per object.
-        - ``save_png`` — write per-object PNG thumbnails.
+          'cytoplasm']``; each entry produces one crop per object.
+        - ``save_png`` — write per-object crops in ``crop_image_format``.
+        - ``crop_image_format`` — ``'ome-zarr'`` by default, or ``'png'`` for
+          legacy thumbnails.
         - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.
         - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).
         - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.
@@ -12769,7 +12929,8 @@ def measure_crop(settings):
 
     :returns: ``None`` on a normal run, which writes
         ``measurements/measurements.db``, ``measure_crop_settings.csv``, and
-        (if ``save_png``) PNGs into per-object subfolders under ``src``. When
+        (if ``save_png``) OME-Zarr crops under ``crops/`` or legacy PNGs in
+        per-object subfolders under ``src``. When
         ``dry_run`` is set, the list of :class:`spacr.validate.Problem`
         returned by :func:`spacr.validate.run_preflight`, and nothing is
         written.
@@ -12798,7 +12959,7 @@ def measure_crop(settings):
 
     See Also:
         :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.
-        :func:`spacr.io.generate_dataset` — build a training set from the PNGs.
+        :func:`spacr.io.generate_dataset` — build a training set from the crops.
         :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops.
     """
     from .psf_pipeline import (_validate_unmix_plate_scope,
@@ -12895,11 +13056,22 @@ def measure_crop(settings):
                 _measurements_dir = os.path.join(
                     os.path.dirname(settings['src']), 'measurements')
                 files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
+                if _measure_plan_loader(settings):
+                    from .qt.i18n import tr
+
+                    if not files:
+                        raise ConfigurationError(tr(
+                            "Measure needs the retained merged field files and plane layout beside the OME-Zarr image stores. Restore merged/ from the Mask Generation output."))
                 from .image_quality import excluded_fields, ensure_no_retained_measurements
                 rejected_quality = excluded_fields(os.path.dirname(settings['src']))
                 ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
                 files = [name for name in files if name not in rejected_quality]
                 _check_measure_field_names(files, settings)
+                if _measure_plan_loader(settings):
+                    native_fields = sum(_measure_native_source(
+                        os.path.join(settings['src'], name), settings) is not None for name in files)
+                    print(tr("Measure reads {native} committed OME-Zarr fields and {legacy} legacy merged fields.",
+                             native=native_fields, legacy=len(files) - native_fields))
                 _full_rescale_plan, calibration = _prepare_measurement_calibration(settings, files)
                 _fresh_archive = _measurement_run_archive_plan(settings)
                 _prepare_measurement_crop_output(settings, _fresh_archive)
@@ -12923,9 +13095,9 @@ def measure_crop(settings):
                     validate_measurement_psf_history(
                         settings, os.path.join(_measurements_dir, 'measurements.db'), psf_plan)
                 validate_measurement_illumination_inputs(settings)
-                prepare_illumination_correction(settings)
+                prepare_illumination_correction(settings, **_measure_plan_loader(settings))
                 from .psf_pipeline import _prepare_measure_unmixing
-                _prepare_measure_unmixing(settings)
+                _prepare_measure_unmixing(settings, **_measure_plan_loader(settings))
 
                 if settings['cell_mask_dim'] is None:
                     settings['uninfected'] = True
@@ -13009,7 +13181,7 @@ def measure_crop(settings):
 
                 if _full_rescale_plan is None:
                     _full_rescale_plan = build_plate_plan(
-                        settings['src'], files, settings)
+                        settings['src'], files, settings, **_measure_plan_loader(settings))
                 settings[PLAN_SETTINGS_KEY] = {
                     'version': _full_rescale_plan['version'],
                     'plates': _full_rescale_plan['plates'],
@@ -13671,7 +13843,7 @@ def _cellprofiler_export(merged_folder, settings, dest):
         if not name.endswith('.npy'):
             continue
         stem = name[:-len('.npy')]
-        data = np.load(os.path.join(merged_folder, name), mmap_mode='r')
+        data = _read_measure_field(os.path.join(merged_folder, name), settings, mmap_mode='r')
         if data.ndim != 3:
             continue
         roles = _cellprofiler_roles(settings, data.shape[-1])
@@ -13792,8 +13964,8 @@ def _cellprofiler_tables(reply, merged_folder, settings):
     def field_masks(stem):
         """``{object type: label image}`` of one field, read once."""
         if stem not in masks:
-            data = np.load(os.path.join(merged_folder, f'{stem}.npy'),
-                           mmap_mode='r')
+            data = _read_measure_field(os.path.join(merged_folder, f'{stem}.npy'),
+                                       settings, mmap_mode='r')
             masks[stem] = {
                 role: np.asarray(data[..., plane])
                 for role, plane in _cellprofiler_roles(
