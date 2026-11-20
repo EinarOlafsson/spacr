@@ -68,14 +68,19 @@ def test_a_loaded_torchvision_namespace_adds_its_own_models(monkeypatch):
     assert "resnet50" in names
 
 
-def test_a_non_text_value_declines_the_value_keyed_table():
-    """A numeric ``level`` carries no vocabulary hint, so the lookup declines.
-
-    Returning a spec here would pin the setting to whichever vocabulary was
-    listed first, which is how one plot's ``level`` ends up offering the other
-    plot's choices.
-    """
-    assert settings_spec._value_special_cases("level", 3) is None
+@pytest.mark.parametrize('key, value', [
+    pytest.param(
+        'level', 3,
+        id='test_a_non_text_value_declines_the_value_keyed_table',
+    ),
+    pytest.param(
+        'nothing_like_it', 'words',
+        id='test_a_key_that_is_not_in_the_table_declines',
+    ),
+])
+def test_unsupported_value_lookups_keep_their_original_none_result(key, value):
+    """Preserve the original None result for each unsupported value lookup."""
+    assert settings_spec._value_special_cases(key, value) is None
 
 
 def test_a_text_value_still_picks_its_vocabulary():
@@ -93,8 +98,3 @@ def test_a_text_value_still_picks_its_vocabulary():
               for option in options]
     assert word in stored
     assert kind
-
-
-def test_a_key_that_is_not_in_the_table_declines():
-    """An unrelated setting name never reaches the value-keyed vocabularies."""
-    assert settings_spec._value_special_cases("nothing_like_it", "words") is None

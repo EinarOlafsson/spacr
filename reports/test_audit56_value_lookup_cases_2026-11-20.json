@@ -1,0 +1,172 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_cov_14_settings_spec.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_14_settings_spec.py::test_a_non_text_value_declines_the_value_keyed_table": "tests/test_cov_14_settings_spec.py::test_unsupported_value_lookups_keep_their_original_none_result[test_a_non_text_value_declines_the_value_keyed_table]",
+    "tests/test_cov_14_settings_spec.py::test_a_key_that_is_not_in_the_table_declines": "tests/test_cov_14_settings_spec.py::test_unsupported_value_lookups_keep_their_original_none_result[test_a_key_that_is_not_in_the_table_declines]"
+  },
+  "lookup_key_value_and_native_none_identity_contracts": {
+    "test_a_non_text_value_declines_the_value_keyed_table": [
+      "level",
+      3
+    ],
+    "test_a_key_that_is_not_in_the_table_declines": [
+      "nothing_like_it",
+      "words"
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_non_text_value_declines_the_value_keyed_table": "('level', 3)",
+    "test_a_key_that_is_not_in_the_table_declines": "('nothing_like_it', 'words')"
+  },
+  "contract_scope": "Exact original string keys level/nothing_like_it, int 3 or string words value, settings_spec._value_special_cases positional call and native is None identity retained. Every original import/class/helper, mocked torchvision namespace case and text vocabulary lookup retains AST and relative order.",
+  "collected_before": [
+    "tests/test_cov_14_settings_spec.py::test_a_loaded_torchvision_namespace_adds_its_own_models",
+    "tests/test_cov_14_settings_spec.py::test_a_non_text_value_declines_the_value_keyed_table",
+    "tests/test_cov_14_settings_spec.py::test_an_empty_torchvision_namespace_falls_back_too",
+    "tests/test_cov_14_settings_spec.py::test_a_key_that_is_not_in_the_table_declines",
+    "tests/test_cov_14_settings_spec.py::test_an_unreadable_torchvision_namespace_falls_back_to_the_curated_list",
+    "tests/test_cov_14_settings_spec.py::test_a_text_value_still_picks_its_vocabulary"
+  ],
+  "collected_after": [
+    "tests/test_cov_14_settings_spec.py::test_an_empty_torchvision_namespace_falls_back_too",
+    "tests/test_cov_14_settings_spec.py::test_unsupported_value_lookups_keep_their_original_none_result[test_a_non_text_value_declines_the_value_keyed_table]",
+    "tests/test_cov_14_settings_spec.py::test_a_loaded_torchvision_namespace_adds_its_own_models",
+    "tests/test_cov_14_settings_spec.py::test_unsupported_value_lookups_keep_their_original_none_result[test_a_key_that_is_not_in_the_table_declines]",
+    "tests/test_cov_14_settings_spec.py::test_a_text_value_still_picks_its_vocabulary",
+    "tests/test_cov_14_settings_spec.py::test_an_unreadable_torchvision_namespace_falls_back_to_the_curated_list"
+  ],
+  "tests_before": {
+    "passed": 6,
+    "seconds": 3.33
+  },
+  "tests_after": {
+    "passed": 6,
+    "seconds": 3.5
+  },
+  "coverage_scope": "spacr.settings_spec under the complete selected mocked-model-namespace/text-vocabulary/unsupported-key-and-value module; not full-suite coverage. Existing fake ModuleType namespaces and string/int fixtures only; no actual model construction, GUI/chart rendering, new reader, model training, network or GPU work. No production settings name/default/schema/category changes.",
+  "coverage_before": {
+    "covered_lines": 38,
+    "num_statements": 91,
+    "percent_covered": 35.87786259541985,
+    "percent_covered_display": "36",
+    "missing_lines": 53,
+    "excluded_lines": 0,
+    "percent_statements_covered": 41.75824175824176,
+    "percent_statements_covered_display": "42",
+    "num_branches": 40,
+    "num_partial_branches": 3,
+    "covered_branches": 9,
+    "missing_branches": 31,
+    "percent_branches_covered": 22.5,
+    "percent_branches_covered_display": "22"
+  },
+  "coverage_after": {
+    "covered_lines": 38,
+    "num_statements": 91,
+    "percent_covered": 35.87786259541985,
+    "percent_covered_display": "36",
+    "missing_lines": 53,
+    "excluded_lines": 0,
+    "percent_statements_covered": 41.75824175824176,
+    "percent_statements_covered_display": "42",
+    "num_branches": 40,
+    "num_partial_branches": 3,
+    "covered_branches": 9,
+    "missing_branches": 31,
+    "percent_branches_covered": 22.5,
+    "percent_branches_covered_display": "22"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "50e98141221c38be31919d67d3432935acd5368f255283e192c44338d43c9859",
+  "production_source_sha256": "1cb3d23c8397e3737dd558170bed02aa49b04203add12d07fb076c1f5751bfd4",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_classes_mocked_model_namespaces_text_vocabulary_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "nontext-value-fallback-changed",
+      "source_variant": {
+        "path": "spacr/settings_spec.py",
+        "line": 235,
+        "old": "if not isinstance(value, str):\n        return None",
+        "new": "if not isinstance(value, str):\n        return False"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_14_settings_spec.py::test_a_non_text_value_declines_the_value_keyed_table"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_14_settings_spec.py::test_a_non_text_value_declines_the_value_keyed_table"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_14_settings_spec.py::test_unsupported_value_lookups_keep_their_original_none_result[test_a_non_text_value_declines_the_value_keyed_table]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_14_settings_spec.py::test_unsupported_value_lookups_keep_their_original_none_result[test_a_non_text_value_declines_the_value_keyed_table]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "unknown-key-fallback-changed",
+      "source_variant": {
+        "path": "spacr/settings_spec.py",
+        "line": 232,
+        "old": "table = _VALUE_SPECIAL_CASES.get(key)\n    if not table:\n        return None",
+        "new": "table = _VALUE_SPECIAL_CASES.get(key)\n    if not table:\n        return False"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_14_settings_spec.py::test_a_key_that_is_not_in_the_table_declines"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_14_settings_spec.py::test_a_key_that_is_not_in_the_table_declines"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_14_settings_spec.py::test_unsupported_value_lookups_keep_their_original_none_result[test_a_key_that_is_not_in_the_table_declines]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_14_settings_spec.py::test_unsupported_value_lookups_keep_their_original_none_result[test_a_key_that_is_not_in_the_table_declines]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in _value_special_cases before and after: nontext-value guard returns False instead of None; unknown-key guard returns False instead of None. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native is None identity. Exact original string keys and int/string value types retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_14_settings_spec.py",
+      "line": 82,
+      "symbol": "test_unsupported_value_lookups_keep_their_original_none_result",
+      "new": "Preserve the original None result for each unsupported value lookup.",
+      "old": {
+        "test_a_non_text_value_declines_the_value_keyed_table": "A numeric ``level`` carries no vocabulary hint, so the lookup declines.\n\nReturning a spec here would pin the setting to whichever vocabulary was\nlisted first, which is how one plot's ``level`` ends up offering the other\nplot's choices.",
+        "test_a_key_that_is_not_in_the_table_declines": "An unrelated setting name never reaches the value-keyed vocabularies."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
