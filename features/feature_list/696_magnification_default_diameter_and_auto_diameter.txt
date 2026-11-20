@@ -297,3 +297,8 @@ Tutorials that show the Make Masks Input & Metadata rows need a re-record
 (WS lane): one new switch under Magnification.
 
 2026-10-28 — Retain d3812e82 API/Help delivery, the recorded 235 merged controls and later Calculate diameters implementation/documentation/translations. Broader release, tutorial and physical-input follow-ups remain with their owning items; no new native run is claimed.
+2026-11-19 — TASK T, normal priority, Codex Home: saved runs must retain exact data-resolved parameters and replay them without re-estimation; a fresh auto configuration still estimates.
+Persist exact per-image Cellpose 3/SAM diameters, including native-scale fallback, under stable field identity; the existing rounded batch-median journal text is insufficient for replay.
+Audit and record other data-derived values affecting segmentation, including cohort-dependent normalization bounds; retain explicit per-image modes and existing explicit numeric inputs.
+Acceptance: one site alone and within a full run from the same saved settings produces byte-identical CPU masks; saved values round-trip, fresh auto estimates, and parallel-worker results reach the parent record.
+2026-11-19 — Partial prerequisite on ws-offload-codex-home-autorecord: CSV and JSON now save the same stamped effective payload, retaining exact values without mutating the caller; 6 focused tests and 13 subtests pass. Exact replay metadata/schema and frozen-callsite authorization remain BLOCKED ON MAINTAINER; TASK T and byte-identical-mask acceptance are incomplete.

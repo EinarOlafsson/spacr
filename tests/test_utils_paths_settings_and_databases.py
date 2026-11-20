@@ -693,6 +693,39 @@ def test_save_settings_writes_a_headless_csv_copy_or_warns(tmp_path, subtests, m
             case(root, mp)
 
 
+@pytest.mark.parametrize('flags, saved_flags', [
+    pytest.param({'test_mode': True, 'plot': True},
+                 {'test_mode': False, 'plot': False}, id='test_run'),
+    pytest.param({'test_mode': False, 'plot': True},
+                 {'test_mode': False, 'plot': False}, id='full_run'),
+    pytest.param({'plot': True}, {'plot': True}, id='no_test_mode_setting'),
+])
+def test_csv_and_json_save_the_same_effective_settings(tmp_path, flags, saved_flags):
+    """Both snapshots preserve exact values and stamp the same headless copy."""
+    from spacr.settings import SETTINGS_SCHEMA_VERSION, SETTINGS_VERSION_KEY
+
+    diameter = 26.245000000000005
+    settings = {
+        'src': str(tmp_path),
+        SETTINGS_VERSION_KEY: 0,
+        'nucleus_diameter': diameter,
+        'pathogen_diameter': None,
+        'object_filters': {'nucleus': {'area': [diameter, None]}},
+        **flags,
+    }
+    original = json.loads(json.dumps(settings))
+
+    U.save_settings(settings, name='gen_mask_settings')
+
+    csv_path = tmp_path / 'settings' / 'gen_mask_settings.csv'
+    csv_settings = U.load_settings(str(csv_path))
+    json_settings = json.loads(csv_path.with_suffix('.json').read_text('utf-8'))
+    expected = {**original, SETTINGS_VERSION_KEY: SETTINGS_SCHEMA_VERSION,
+                **saved_flags}
+    assert csv_settings == json_settings == expected
+    assert settings == original
+
+
 def test_load_settings_parses_every_value_spelling(tmp_path, subtests):
     """Each settings-CSV value comes back as its Python type: booleans in any
     case and padding (matching the CLI loader), ints, floats, lists, tuples,

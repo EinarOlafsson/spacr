@@ -1641,7 +1641,7 @@ def save_settings(settings, name='settings', show=False):
                 os.fsync(handle.fileno())
             staged.chmod(mode)
             os.replace(staged, target)
-        _save_settings_json(settings, os.path.splitext(settings_csv)[0] + '.json')
+        _save_settings_json(settings_2, os.path.splitext(settings_csv)[0] + '.json')
     except (OSError, PermissionError) as e:
         print(console_safe(f"Warning: could not save settings to {settings_csv}: {e}. "
                            f"Continuing without writing the settings copy."))
