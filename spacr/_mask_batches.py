@@ -52,7 +52,8 @@ def _json_safe(settings):
     return kept
 
 
-def _write_plan(masks_dir, stack_dir, batches, channels, settings, save_dtype):
+def _write_plan(masks_dir, stack_dir, batches, channels, settings, save_dtype, *,
+                request=None, resolved=True, extra=None):
     """Write the batch plan next to where the archives used to go.
 
     :param masks_dir: the ``masks`` folder.
@@ -62,6 +63,10 @@ def _write_plan(masks_dir, stack_dir, batches, channels, settings, save_dtype):
     :param channels: the channel indices every batch keeps.
     :param settings: the preprocessing settings the normaliser reads.
     :param save_dtype: the dtype the normalised batches are returned in.
+    :param request: the ``batch_size`` asked for (None for automatic).
+    :param resolved: False when the batches are provisional and the masks stage still
+        has to fix the batch sizes against the free GPU and RAM (:func:`_resolve_plan`).
+    :param extra: further record fields (sizes, borrowed batches, normalisation).
     :returns: the path of the plan file.
     """
     from .io import _replace_atomically
@@ -75,6 +80,9 @@ def _write_plan(masks_dir, stack_dir, batches, channels, settings, save_dtype):
         'batches': [{'index': i, 'fields': [str(name) for name in names]}
                     for i, names in enumerate(batches)],
         'settings': _json_safe(settings),
+        'batch_size_request': request,
+        'resolved': bool(resolved),
+        **(extra or {}),
     }
     path = _plan_file(masks_dir)
     payload = json.dumps(record, indent=1).encode('utf-8')
@@ -176,13 +184,277 @@ def _load_batch(plan, index):
         stack = np.stack(padded)
     else:
         stack = np.stack(arrays)
+    settings = dict(plan['settings'])
+    record = {}
+    borrowed = int(index) in {int(i) for i in plan.get('borrowed', [])}
+    if borrowed:
+        settings['_normalization_fixed'] = _borrowed_values(plan, int(index))
+        print(f'Batch {int(index) + 1} has only {len(names)} field(s); it is normalised '
+              f'with the median percentiles of the other batches.')
+    else:
+        settings['_normalization_record'] = record
     normalised = _normalize_img_batch(
         stack=stack, channels=channels, save_dtype=np.dtype(plan['save_dtype']),
-        settings=plan['settings'],
+        settings=settings,
         progress=_normalizing_reporter(int(index), len(plan['batches'])))
+    if record:
+        _record_normalisation(masks_dir, int(index), record)
     normalised = normalised[..., channels]
     return {'data': normalised, 'filenames': np.asarray(names),
             'source_channels': np.asarray(channels, dtype=np.int64)}
+
+
+#: A last batch with fewer fields than this fraction of the median size of the
+#: other batches is "tiny": it is not given percentiles of its own (item 987b).
+_TINY_BATCH_FRACTION = 0.5
+
+#: The batch size the older, archive-based routes use when ``batch_size`` is automatic.
+_LEGACY_BATCH_SIZE = 50
+
+_AUTO_WORDS = ('', 'none', 'auto')
+
+
+def _batch_size_request(value):
+    """What the ``batch_size`` setting asks for.
+
+    :param value: 0, -1, None, ``'none'`` or ``'auto'`` (any case) mean automatic.
+    :returns: None for automatic, otherwise the positive whole number asked for.
+    :raises ValueError: for any other value.
+    """
+    if value is None or (isinstance(value, str) and value.strip().lower() in _AUTO_WORDS):
+        return None
+    try:
+        number = int(float(value))
+    except (TypeError, ValueError):
+        raise ValueError(f"batch_size must be a number of fields or 0, -1, None, 'none' or "
+                         f"'auto' for automatic, got {value!r}")
+    if number in (0, -1):
+        return None
+    if number < 0:
+        raise ValueError(f"batch_size must be positive, or 0, -1, None, 'none' or 'auto' "
+                         f"for automatic, got {value!r}")
+    return number
+
+
+def _legacy_batch_size(settings):
+    """Read ``batch_size`` once and leave the routes that need a number a number.
+
+    The request (None for automatic) goes into ``settings['_batch_size_request']``;
+    when it is automatic, ``settings['batch_size']`` becomes the legacy 50 for
+    the archive-based routes that need a whole number. A second call changes nothing.
+
+    :param settings: the run settings, changed in place.
+    :returns: the request.
+    """
+    if '_batch_size_request' in settings:
+        return settings['_batch_size_request']
+    request = _batch_size_request(settings.get('batch_size'))
+    settings['_batch_size_request'] = request
+    if request is None:
+        settings['batch_size'] = _LEGACY_BATCH_SIZE
+    return request
+
+
+def _field_costs(plan):
+    """Bytes per field of one batch on the GPU and in RAM, from the first field.
+
+    :param plan: from :func:`_read_plan`.
+    :returns: ``(gpu, ram)``: the kept channels as float32 on the card; the raw
+        stack, the full normalised stack and the kept channels in RAM.
+        ``(0, 0)`` when no field can be read.
+    """
+    masks_dir = plan['_masks_dir']
+    stack_dir = os.path.normpath(os.path.join(masks_dir, plan['stack_dir']))
+    for batch in plan['batches']:
+        for name in batch['fields']:
+            try:
+                first = np.load(os.path.join(stack_dir, name), mmap_mode='r')
+            except (OSError, ValueError):
+                return 0, 0
+            pixels = int(np.prod(first.shape[:-1]))
+            kept = pixels * len(plan['channels']) * 4
+            ram = pixels * first.shape[-1] * (first.dtype.itemsize + 4) + kept
+            return kept, ram
+    return 0, 0
+
+
+def _free_vram_bytes():
+    """Free memory on the current CUDA device, or None without one."""
+    try:
+        import torch
+
+        if not torch.cuda.is_available():
+            return None
+        return int(torch.cuda.mem_get_info()[0])
+    except Exception:                                       # noqa: BLE001
+        return None
+
+
+def _largest_fitting_size(n_fields, per_field_gpu, per_field_ram, *, free_vram, free_ram,
+                          margin_gb, tile_batch, model_loaded):
+    """The most fields whose normalised batch fits the GPU and RAM, with room to segment.
+
+    Decided before the batch is normalised: the batch on the card, the network
+    (unless this process already holds it), the eval working set for
+    ``tile_batch`` tiles (``0`` means one tile per field) and the governor
+    margin must fit in the free VRAM, and one batch must fit in RAM with 2 GiB spare.
+
+    :returns: a whole number from 1 to ``n_fields``.
+    """
+    gib = 2**30
+    limits = [n_fields]
+    if free_vram is not None and per_field_gpu:
+        spare = free_vram - margin_gb * gib - (0 if model_loaded else _MODEL_GIB * gib)
+        if tile_batch:
+            limits.append(int((spare - tile_batch * _TILE_GIB * gib) // per_field_gpu))
+        else:
+            limits.append(int(spare // (per_field_gpu + _TILE_GIB * gib)))
+    if free_ram is not None and per_field_ram:
+        limits.append(int((free_ram - 2 * gib) // per_field_ram))
+    return max(1, min(limits))
+
+
+def _batch_sizes(n_fields, size):
+    """Batch sizes for ``n_fields`` fields: full batches first, the remainder last."""
+    full, rest = divmod(n_fields, size)
+    return [size] * full + ([rest] if rest else [])
+
+
+def _borrowing_indices(sizes):
+    """Which batch borrows percentiles: the last, when it is tiny and not the only one.
+
+    :param sizes: the batch sizes in order.
+    :returns: ``[]`` or ``[last_index]``.
+    """
+    if len(sizes) < 2:
+        return []
+    others = sorted(sizes[:-1])
+    middle = len(others) // 2
+    median = others[middle] if len(others) % 2 else (others[middle - 1] + others[middle]) / 2
+    return [len(sizes) - 1] if sizes[-1] < _TINY_BATCH_FRACTION * median else []
+
+
+def _resolve_plan(masks_dir, settings, *, free_vram=None, free_ram=None, log=print):
+    """Fix the plan's batch sizes before any batch is normalised (item 987b).
+
+    A provisional plan (written by the preprocessing step) is cut into batches
+    here, from the free GPU memory and RAM. ``batch_size`` automatic takes the
+    largest batch that fits, quietly; a positive number that does not fit is
+    reduced with a console warning. The remainder is the last batch, and a
+    tiny last batch borrows the other batches' median percentiles. The sizes
+    are recorded in ``batch_plan.json`` (``batch_size_used``, ``sizes``,
+    ``borrowed``), and a plan that is already resolved for the same request is
+    kept, so a rerun or a resume uses the recorded batches.
+
+    :param masks_dir: the ``masks`` folder.
+    :param settings: the run settings (``batch_size``, ``gpu_memory_margin_gb``,
+        ``mask_eval_batch_size``).
+    :param free_vram: free GPU bytes (read from the card when None).
+    :param free_ram: free RAM bytes (read from the system when None).
+    :param log: callable taking one printed line.
+    :returns: the resolved plan, or None when the folder has no plan.
+    """
+    plan = _read_plan(masks_dir)
+    if plan is None:
+        return None
+    request = _legacy_batch_size(settings)
+    if plan.get('resolved') and plan.get('batch_size_request') == request:
+        return plan
+    fields = [name for batch in plan['batches'] for name in batch['fields']]
+    per_gpu, per_ram = _field_costs(plan)
+    from .object import _eval_tile_batch
+
+    tiles = int((settings or {}).get('mask_eval_batch_size') or 0)
+    if tiles:
+        tiles = _eval_tile_batch(settings, 1)
+    fit = _largest_fitting_size(
+        len(fields), per_gpu, per_ram,
+        free_vram=_free_vram_bytes() if free_vram is None else free_vram,
+        free_ram=_available_ram_bytes() if free_ram is None else free_ram,
+        margin_gb=float((settings or {}).get('gpu_memory_margin_gb') or 1.5),
+        tile_batch=tiles, model_loaded=_model_resident())
+    if request is None:
+        used = fit
+    elif request > fit:
+        used = fit
+        log(f'WARNING: batch_size {request} does not fit in the free memory '
+            f'({(free_vram if free_vram is not None else (_free_vram_bytes() or 0)) / 2**30:.1f} GiB '
+            f'free on the GPU); using {used}.')
+    else:
+        used = request
+    sizes = _batch_sizes(len(fields), used)
+    borrowed = _borrowing_indices(sizes)
+    batches, start = [], 0
+    for size in sizes:
+        batches.append(fields[start:start + size])
+        start += size
+    log(f'Batch size {used} ({"automatic" if request is None else "requested " + str(request)}): '
+        f'{len(batches)} batch(es) of {sizes}'
+        + (f'; the last has {sizes[-1]} field(s) and borrows the median percentiles of the others.'
+           if borrowed else '.'))
+    path = _write_plan(masks_dir, os.path.join(masks_dir, plan['stack_dir']), batches,
+                       plan['channels'], plan['settings'], plan['save_dtype'],
+                       request=request, resolved=True,
+                       extra={'batch_size_used': used, 'sizes': sizes,
+                              'borrowed': borrowed, 'normalisation': {}})
+    return _read_plan(masks_dir)
+
+
+def _model_resident():
+    """Whether this process already holds the network on the card."""
+    try:
+        import torch
+
+        return bool(torch.cuda.is_available()
+                    and torch.cuda.memory_allocated() > 0.5 * _MODEL_GIB * 2**30)
+    except Exception:                                       # noqa: BLE001
+        return False
+
+
+def _record_normalisation(masks_dir, index, values):
+    """Record one batch's per-channel lower and upper percentiles in the plan.
+
+    :param masks_dir: the ``masks`` folder.
+    :param index: the batch number.
+    :param values: ``{channel: [lower, upper]}``.
+    """
+    from .io import _replace_atomically
+
+    path = _plan_file(masks_dir)
+    try:
+        with open(path, encoding='utf-8') as handle:
+            record = json.load(handle)
+    except (OSError, ValueError):
+        return
+    record.setdefault('normalisation', {})[str(int(index))] = {
+        str(int(channel)): [float(low), float(high)] for channel, (low, high) in values.items()}
+    payload = json.dumps(record, indent=1).encode('utf-8')
+    _replace_atomically(path, lambda handle: handle.write(payload), prefix='.spacr_plan_')
+    _CACHE.pop(path, None)
+
+
+def _borrowed_values(plan, index):
+    """The median, per channel, of the other batches' lower and upper percentiles.
+
+    A batch whose percentiles are not recorded yet (a resume that skipped it)
+    is normalised once to get them.
+
+    :param plan: from :func:`_read_plan`.
+    :param index: the borrowing batch.
+    :returns: ``{channel: [lower, upper]}``.
+    """
+    masks_dir = plan['_masks_dir']
+    others = [i for i in range(len(plan['batches'])) if i != int(index)]
+    fresh = _read_plan(masks_dir) or plan
+    recorded = dict(fresh.get('normalisation', {}))
+    for i in others:
+        if str(i) not in recorded:
+            _load_batch(fresh, i)
+            recorded = dict((_read_plan(masks_dir) or fresh).get('normalisation', {}))
+    channels = sorted({channel for i in others for channel in recorded[str(i)]})
+    return {channel: [float(np.median([recorded[str(i)][channel][0] for i in others])),
+                      float(np.median([recorded[str(i)][channel][1] for i in others]))]
+            for channel in channels}
 
 
 class _InMemoryBatch:

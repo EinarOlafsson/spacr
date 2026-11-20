@@ -1218,7 +1218,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('masks', True)
     settings.setdefault('save', True)
     settings.setdefault('consolidate', False)
-    settings.setdefault('batch_size', 50)
+    settings.setdefault('batch_size', 0)
     settings.setdefault('test_mode', False)
     settings.setdefault('dry_run', False)
     settings.setdefault('test_images', 10)
@@ -2535,7 +2535,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 944
+SETTINGS_SCHEMA_VERSION = 945
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2559,6 +2559,7 @@ DEFAULT_CHANGES = {
           'seg_merge_small_nuclei_frac': 0.0},
     944: {'ops_read_mode': 'log', 'ops_prefix_threshold_tuning': 'none',
           'ops_prefix_decoy_k': 0, 'ops_prefix_fdr_target_pct': 0.1},
+    945: {'batch_size': 50},
 }
 
 
@@ -2650,6 +2651,9 @@ def _fold_older_defaults(settings, version, known=None):
     ``ops_prefix_fdr_target_pct`` 1.0 (was 0.1); files stamped before keep
     the fixed thresholds and the log read, and the OPS barcode decode reads
     an empty ``ops_read_mode`` as ``'log'`` either way.
+    945 is item 987b's automatic ``batch_size`` of Make Masks (0, the largest
+    batch that fits the free GPU and RAM; was 50): files stamped before keep
+    50, so their masks, normalised per batch, are unchanged.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -5517,7 +5521,7 @@ tooltips = {
     "nucleus_channel": "(int or None) - Zero-indexed raw acquisition channel segmented into nucleus masks, and the channel that nucleus_background, nucleus_signal_to_noise and remove_background_nucleus apply to. None means no nucleus masks, hence no nucleus table, no cell-to-nucleus linking, and nothing subtracted from the cytoplasm mask. Set it whenever a DNA stain was acquired. Default None.",
     "pathogen_channel": "(int or None) - Zero-indexed raw acquisition channel segmented into pathogen masks (Toxoplasma etc.), and the channel pathogen_background, pathogen_signal_to_noise and remove_background_pathogen apply to. None disables pathogen segmentation, the pathogen table, the infected-only filter (uninfected) and the adjust_cells step, which needs cell, nucleus and pathogen masks together. Default None.",
     "nucleus_mask_dim": "(int) - Position along the last axis of each merged/*.npy array where the nucleus label mask sits, one plane after the cell mask. With the default four image channels (0-3) that is 5; keep a different number of channels and it shifts by the same amount. None makes measure_crop skip nucleus measurements and cell-to-nucleus linking. Default 5.",
-    "batch_size": "(int) - How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. Defaults: 50 for mask generation, 64 for training.",
+    "batch_size": "(int) - How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. In mask generation 0, -1, None, 'none' or 'auto' choose the largest batch of fields that fits the free GPU memory and RAM, and a number that does not fit is reduced with a warning. A short last batch is normalised with the median percentiles of the other batches. The size used is recorded in masks/batch_plan.json. Defaults: 0 (automatic) for mask generation, 64 for training.",
     "pipeline_style": "(str) - Which mask pipeline runs. 'v1' is the disk-based chain (rename, per-channel folders, npy, npz, mask npy, merged/) that measure, annotate and every downstream tool expect, and is the fully tested path. 'v2' streams from the originals and writes one npy per field with masks appended in place, using roughly 60-80% less disk but producing no .npz. Default 'v1'.",
     "batch_fields": "(int) - Streaming pipeline only (pipeline_style='v2'): how many whole field stacks are loaded into RAM before one Cellpose batch is segmented. Larger values keep the GPU busier and cut the number of read passes over the plate, at a memory cost of roughly one full field stack each. Ignored entirely by the v1 pipeline. Default 8.",
     "CP_probability": "(int) - Cellpose cellprob_threshold used by the standalone apply/test-model submodules, where it carries this name instead of the per-object <object>_cellprob_threshold used by the Mask module. Only pixels whose predicted cell probability exceeds it join a mask, so raising it shrinks outlines and drops faint objects while lowering it grows them and recovers dim ones. Default 0.",

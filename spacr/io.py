@@ -1895,21 +1895,29 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
                     if workspace_dir is not None:
                         normalized_stack[..., output_column] = 0
                     continue
-                global_lower = np.percentile(
-                    non_zero_single_channel, settings['lower_percentile'],
-                    overwrite_input=True)
+                borrowed = (settings.get('_normalization_fixed') or {}).get(
+                    channel, (settings.get('_normalization_fixed') or {}).get(str(channel)))
+                if borrowed is not None:
+                    global_lower, global_upper = float(borrowed[0]), float(borrowed[1])
+                else:
+                    global_lower = np.percentile(
+                        non_zero_single_channel, settings['lower_percentile'],
+                        overwrite_input=True)
 
-                global_upper = None
-                for upper_p in np.linspace(98, 99.5, num=16):
-                    upper_value = np.percentile(
-                        non_zero_single_channel, upper_p, overwrite_input=True)
-                    if upper_value >= signal_threshold:
-                        global_upper = upper_value
-                        break
+                    global_upper = None
+                    for upper_p in np.linspace(98, 99.5, num=16):
+                        upper_value = np.percentile(
+                            non_zero_single_channel, upper_p, overwrite_input=True)
+                        if upper_value >= signal_threshold:
+                            global_upper = upper_value
+                            break
 
-                if global_upper is None:
-                    global_upper = np.percentile(
-                        non_zero_single_channel, 99.5, overwrite_input=True)
+                    if global_upper is None:
+                        global_upper = np.percentile(
+                            non_zero_single_channel, 99.5, overwrite_input=True)
+                if isinstance(settings.get('_normalization_record'), dict):
+                    settings['_normalization_record'][int(channel)] = [
+                        float(global_lower), float(global_upper)]
             finally:
                 try:
                     if workspace_dir is not None and quantile_path is not None:
@@ -2602,18 +2610,21 @@ def _concatenate_and_normalize_impl(
                 and _mask_batches_stay_in_memory(settings, paths)):
             from . import _mask_batches as mask_batches
 
-            size = int(settings['batch_size'])
+            request = (settings['_batch_size_request'] if '_batch_size_request' in settings
+                       else mask_batches._batch_size_request(settings.get('batch_size')))
             names = [os.path.basename(path) for path in paths]
+            size = int(request) if request else len(names)
             batches = [names[i:i + size] for i in range(0, len(names), size)]
             moved = mask_batches._supersede_archives(output_fldr, _listdir_visible)
             if moved:
                 print(f'Set {len(moved)} earlier normalised archive(s) aside as '
                       f'<name>.superseded: the batches are now built in memory.')
             mask_batches._write_plan(output_fldr, src, batches, channels, settings,
-                                    save_dtype)
-            print(f'Planned {len(batches)} normalised batch(es) of up to {size} '
-                  f'field(s); they are built in memory when each object is '
-                  f'segmented, and no archive is written to {output_fldr}.')
+                                    save_dtype, request=request, resolved=False)
+            print(f'Planned {len(names)} field(s) for in-memory normalised batches '
+                  f'({"automatic" if not request else "requested " + str(request)} batch size, '
+                  f'fixed when the masks start from the free GPU and RAM); no archive is '
+                  f'written to {output_fldr}.')
             print(f'All files concatenated and normalized. Saved to: {output_fldr}')
             ledger.finalize()
             return output_fldr
@@ -4404,6 +4415,8 @@ def preprocess_img_data(settings):
         :func:`spacr.core.preprocess_generate_masks` — full pipeline
         wrapper that calls this then generates masks.
     """
+    from ._mask_batches import _legacy_batch_size
+    _legacy_batch_size(settings)
     from .psf_pipeline import (_validate_unmix_plate_scope,
                                _validate_unmix_matrix_scope)
 

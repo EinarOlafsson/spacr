@@ -224,7 +224,8 @@ def _run_masks_batch_first(mask_src, src, settings, files_processed, files_to_pr
     """
     from ._mask_batches import _batch_paths, _batch_first, _read_plan
     from ._mask_workers import _roles_may_overlap, _sampled_ordinary_masks, _settings_after_role
-    from .io import _listdir_visible, check_mask_folder
+    from .io import _listdir_visible
+    from .utils import check_mask_folder
     from .object import _note_the_diameter, _run_seg_qc, generate_cellpose_masks_sam
     from .cancellation import checkpoint as cancellation_checkpoint
 
@@ -662,6 +663,10 @@ def preprocess_generate_masks(settings):
                     if settings['masks']:
                         mask_src = os.path.join(src, 'masks')
                         os.makedirs(mask_src, exist_ok=True)
+
+                        from ._mask_batches import _legacy_batch_size, _resolve_plan
+                        _legacy_batch_size(settings)
+                        _resolve_plan(mask_src, settings)
 
                         _check_archives_without_preprocessing(src, settings=settings)
                         if not settings['preprocess']:
