@@ -40,13 +40,22 @@ def test_the_default_is_the_mapping_spacr_already_shipped():
                        "b": DEFAULT_PNG_CHANNEL_MAPPING["b"]}
 
 
-def test_any_plane_can_feed_any_colour():
-    """The case named: planes 1, 2 and 4 of a five-plane array."""
+@pytest.mark.parametrize('red_channel, green_channel, blue_channel, expected', [
+    pytest.param(
+        1, 2, 4, {'r': 1, 'g': 2, 'b': 4},
+        id='test_any_plane_can_feed_any_colour',
+    ),
+    pytest.param(
+        3, 0, '', {'r': 3, 'g': 0, 'b': None},
+        id='test_a_blank_colour_is_not_drawn',
+    ),
+])
+def test_original_plane_choices_keep_their_channel_mappings(red_channel, green_channel, blue_channel, expected):
+    """Preserve each original plane choice and the omitted colour in its mapping."""
     mapping = to_crop_settings(
-        _streaming(red_channel=1, green_channel=2, blue_channel=4)
+        _streaming(red_channel=red_channel, green_channel=green_channel, blue_channel=blue_channel)
     )["png_channel_mapping"]
-
-    assert mapping == {"r": 1, "g": 2, "b": 4}
+    assert mapping == expected
 
 
 def test_the_order_can_be_reversed():
@@ -61,16 +70,6 @@ def test_the_order_can_be_reversed():
 
     assert mapping["r"] != flipped["r"]
     assert flipped == {"r": 0, "g": 1, "b": 2}
-
-
-def test_a_blank_colour_is_not_drawn():
-    """Two-channel pictures are asked for by leaving one empty, and a
-    blank must not fall back to the default and put a plane back."""
-    mapping = to_crop_settings(
-        _streaming(red_channel=3, green_channel=0, blue_channel="")
-    )["png_channel_mapping"]
-
-    assert mapping == {"r": 3, "g": 0, "b": None}
 
 
 def test_nonsense_in_a_field_leaves_that_colour_out():
