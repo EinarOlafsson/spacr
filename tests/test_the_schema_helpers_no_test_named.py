@@ -92,16 +92,18 @@ def test_the_collision_test_folds_case():
     assert "row" not in plan, plan
 
 
-def test_a_canonical_frame_needs_no_plan():
+@pytest.mark.parametrize("columns", [
+    pytest.param(
+        ["rowID", "columnID", "plateID"],
+        id="test_a_canonical_frame_needs_no_plan",
+    ),
+    pytest.param([], id="test_an_empty_frame_gives_an_empty_plan"),
+])
+def test_columns_needing_no_rename_keep_an_empty_plan(columns):
+    """Keep each original column list paired with an empty rename plan."""
     from spacr.schema import canonical_rename_plan
 
-    assert canonical_rename_plan(["rowID", "columnID", "plateID"]) == {}
-
-
-def test_an_empty_frame_gives_an_empty_plan():
-    from spacr.schema import canonical_rename_plan
-
-    assert canonical_rename_plan([]) == {}
+    assert canonical_rename_plan(columns) == {}
 
 
 def test_an_explicit_target_overrules_the_derived_one():

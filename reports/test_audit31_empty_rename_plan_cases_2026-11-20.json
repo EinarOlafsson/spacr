@@ -1,0 +1,202 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_the_schema_helpers_no_test_named.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_the_schema_helpers_no_test_named.py::test_a_canonical_frame_needs_no_plan": "tests/test_the_schema_helpers_no_test_named.py::test_columns_needing_no_rename_keep_an_empty_plan[test_a_canonical_frame_needs_no_plan]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_an_empty_frame_gives_an_empty_plan": "tests/test_the_schema_helpers_no_test_named.py::test_columns_needing_no_rename_keep_an_empty_plan[test_an_empty_frame_gives_an_empty_plan]"
+  },
+  "ordered_column_input_contracts": {
+    "test_a_canonical_frame_needs_no_plan": [
+      [
+        "rowID",
+        "columnID",
+        "plateID"
+      ]
+    ],
+    "test_an_empty_frame_gives_an_empty_plan": [
+      []
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_canonical_frame_needs_no_plan": "(['rowID', 'columnID', 'plateID'],)",
+    "test_an_empty_frame_gives_an_empty_plan": "([],)"
+  },
+  "contract_scope": "Exact local canonical_rename_plan import, ordered literal string lists including empty input, positional API call and equality to an empty dict retained.",
+  "collected_before": [
+    "tests/test_the_schema_helpers_no_test_named.py::test_the_collision_test_folds_case",
+    "tests/test_the_schema_helpers_no_test_named.py::test_missing_is_its_own_value_and_they_all_agree[None]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_missing_is_its_own_value_and_they_all_agree[nan]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_a_frame_that_already_has_the_canonical_column_is_left_alone",
+    "tests/test_the_schema_helpers_no_test_named.py::test_missing_is_its_own_value_and_they_all_agree[   ]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[ 1 ]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_a_legacy_spelling_is_planned_for_rename",
+    "tests/test_the_schema_helpers_no_test_named.py::test_an_explicit_target_that_already_exists_is_still_refused",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[1_0]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_two_different_wells_do_not_compare_equal",
+    "tests/test_the_schema_helpers_no_test_named.py::test_the_result_is_hashable_because_it_is_used_as_a_key",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[1_1]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_a_canonical_frame_needs_no_plan",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[01]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[1.0_1]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_an_explicit_target_overrules_the_derived_one",
+    "tests/test_the_schema_helpers_no_test_named.py::test_missing_is_its_own_value_and_they_all_agree[]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[1.0_0]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_a_column_is_reduced_element_by_element",
+    "tests/test_the_schema_helpers_no_test_named.py::test_an_empty_frame_gives_an_empty_plan"
+  ],
+  "collected_after": [
+    "tests/test_the_schema_helpers_no_test_named.py::test_a_legacy_spelling_is_planned_for_rename",
+    "tests/test_the_schema_helpers_no_test_named.py::test_columns_needing_no_rename_keep_an_empty_plan[test_a_canonical_frame_needs_no_plan]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_the_result_is_hashable_because_it_is_used_as_a_key",
+    "tests/test_the_schema_helpers_no_test_named.py::test_an_explicit_target_that_already_exists_is_still_refused",
+    "tests/test_the_schema_helpers_no_test_named.py::test_columns_needing_no_rename_keep_an_empty_plan[test_an_empty_frame_gives_an_empty_plan]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_a_column_is_reduced_element_by_element",
+    "tests/test_the_schema_helpers_no_test_named.py::test_the_collision_test_folds_case",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[1.0_0]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[ 1 ]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[1.0_1]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_an_explicit_target_overrules_the_derived_one",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[01]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[1_1]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_two_different_wells_do_not_compare_equal",
+    "tests/test_the_schema_helpers_no_test_named.py::test_every_spelling_of_one_well_compares_equal[1_0]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_missing_is_its_own_value_and_they_all_agree[nan]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_missing_is_its_own_value_and_they_all_agree[   ]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_missing_is_its_own_value_and_they_all_agree[]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_missing_is_its_own_value_and_they_all_agree[None]",
+    "tests/test_the_schema_helpers_no_test_named.py::test_a_frame_that_already_has_the_canonical_column_is_left_alone"
+  ],
+  "tests_before": {
+    "passed": 20,
+    "seconds": 4.22
+  },
+  "tests_after": {
+    "passed": 20,
+    "seconds": 3.17
+  },
+  "coverage_scope": "spacr.schema under the complete selected key-comparison/rename-plan/collision/requested-target test module; not full-suite coverage.",
+  "coverage_before": {
+    "covered_lines": 286,
+    "num_statements": 1014,
+    "percent_covered": 22.022160664819946,
+    "percent_covered_display": "22",
+    "missing_lines": 728,
+    "excluded_lines": 0,
+    "percent_statements_covered": 28.205128205128204,
+    "percent_statements_covered_display": "28",
+    "num_branches": 430,
+    "num_partial_branches": 6,
+    "covered_branches": 32,
+    "missing_branches": 398,
+    "percent_branches_covered": 7.441860465116279,
+    "percent_branches_covered_display": "7"
+  },
+  "coverage_after": {
+    "covered_lines": 286,
+    "num_statements": 1014,
+    "percent_covered": 22.022160664819946,
+    "percent_covered_display": "22",
+    "missing_lines": 728,
+    "excluded_lines": 0,
+    "percent_statements_covered": 28.205128205128204,
+    "percent_statements_covered_display": "28",
+    "num_branches": 430,
+    "num_partial_branches": 6,
+    "covered_branches": 32,
+    "missing_branches": 398,
+    "percent_branches_covered": 7.441860465116279,
+    "percent_branches_covered_display": "7"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "1b9b3050e5c52d1a5f8c813cbaa05113f2478581f356ace65c6574ac8410fc49",
+  "production_source_sha256": "7fff651abd6b4926600c838452339a8c241fcb68d5845b758499b6da121cedb3",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "other_key_comparison_alias_collision_and_requested_target_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "canonical-columns-renamed-to-themselves",
+      "source_variant": {
+        "path": "spacr/schema.py",
+        "line": 2488,
+        "old": "if canonical == name:\n            continue",
+        "new": "if False and canonical == name:\n            continue"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_schema_helpers_no_test_named.py::test_a_canonical_frame_needs_no_plan"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_schema_helpers_no_test_named.py::test_a_canonical_frame_needs_no_plan"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_schema_helpers_no_test_named.py::test_columns_needing_no_rename_keep_an_empty_plan[test_a_canonical_frame_needs_no_plan]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_schema_helpers_no_test_named.py::test_columns_needing_no_rename_keep_an_empty_plan[test_a_canonical_frame_needs_no_plan]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "empty-columns-return-none",
+      "source_variant": {
+        "path": "spacr/schema.py",
+        "line": 2494,
+        "old": "taken.add(canonical)\n    return mapping",
+        "new": "taken.add(canonical)\n    return mapping if have else None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_schema_helpers_no_test_named.py::test_an_empty_frame_gives_an_empty_plan"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_schema_helpers_no_test_named.py::test_an_empty_frame_gives_an_empty_plan"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_schema_helpers_no_test_named.py::test_columns_needing_no_rename_keep_an_empty_plan[test_an_empty_frame_gives_an_empty_plan]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_schema_helpers_no_test_named.py::test_columns_needing_no_rename_keep_an_empty_plan[test_an_empty_frame_gives_an_empty_plan]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults before and after: canonical columns renamed to themselves; empty columns return None instead of an empty dict. Repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_the_schema_helpers_no_test_named.py",
+      "line": 103,
+      "symbol": "test_columns_needing_no_rename_keep_an_empty_plan",
+      "new": "Keep each original column list paired with an empty rename plan.",
+      "old": {
+        "test_a_canonical_frame_needs_no_plan": null,
+        "test_an_empty_frame_gives_an_empty_plan": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
