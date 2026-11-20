@@ -340,13 +340,13 @@ def test_raise_if_worse_than_fires_above_the_threshold():
     assert 'RUN INCOMPLETE' in text
 
 
-def test_raise_if_worse_than_does_not_fire_below_the_threshold():
-    ledger = _ledger_with_rate(n_fail=1, n_ok=9)     # 10% failed
-    assert ledger.raise_if_worse_than(0.5) is ledger
-
-
-def test_raise_if_worse_than_does_not_fire_exactly_at_the_threshold():
-    ledger = _ledger_with_rate(n_fail=1, n_ok=1)     # exactly 50%
+@pytest.mark.parametrize('n_ok', [
+    pytest.param(9, id='test_raise_if_worse_than_does_not_fire_below_the_threshold'),
+    pytest.param(1, id='test_raise_if_worse_than_does_not_fire_exactly_at_the_threshold'),
+])
+def test_rates_at_or_below_the_threshold_return_the_ledger(n_ok):
+    """Failure rates below or equal to the limit return the same ledger."""
+    ledger = _ledger_with_rate(n_fail=1, n_ok=n_ok)
     assert ledger.raise_if_worse_than(0.5) is ledger
 
 
