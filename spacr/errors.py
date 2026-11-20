@@ -341,7 +341,9 @@ class RunLedger:
         failure = Failure(item=str(item), stage=stage_name, exc_type=exc_type,
                           message=message, traceback_str=tb)
         self._failures.append(failure)
-        self._log.error('[%s] FAILED %s (stage %s): %s: %s',
+        self._log.error('[%s] FAILED %s (stage %s): %s: %s. Read the failure '
+                        'details for this item and stage, resolve the reported '
+                        'cause, then rerun the affected item.',
                         self.name, failure.item, stage_name, exc_type, message)
         if tb:
             self._log.debug('[%s] traceback for %s:\n%s',
@@ -499,7 +501,10 @@ class RunLedger:
         text = self.summary()
         if self._failures:
             self._log.error('[%s] RUN INCOMPLETE — %d of %d items failed '
-                            '(%.1f%%); artifacts are partial',
+                            '(%.1f%%); artifacts are partial. Read the failed-item '
+                            'list in the run report. Resolve those failures and '
+                            'rerun the affected items before using the artifacts '
+                            'as a complete result.',
                             self.name, self.n_failed, self.n_attempted,
                             self.failure_rate * 100)
             print(text, file=sys.stdout)

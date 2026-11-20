@@ -2049,8 +2049,12 @@ class ModelZooPicker(QDialog):
         try:
             os.makedirs(folder, exist_ok=True)
         except OSError as exc:
-            QMessageBox.warning(self, "Model zoo",
-                                f"Cannot write to {folder}:\n{exc}")
+            QMessageBox.warning(
+                self, 'Model zoo',
+                tr(
+                    "Cannot write to {folder}:\n{error}\n\nUse Browse to choose a "
+                    "writable model folder, then download again.",
+                    folder=folder, error=str(exc)))
             return
 
         import time
@@ -2165,8 +2169,14 @@ class ModelZooPicker(QDialog):
 
         :param message: the failure text.
         """
-        QMessageBox.warning(self, "Model zoo",
-                            f"Could not download:\n{message}")
+        QMessageBox.warning(
+            self, 'Model zoo',
+            tr(
+                "Could not download:\n{message}\n\nCheck the network connection and "
+                "write access to the model folder, then retry the download. If a "
+                "checksum mismatch persists, report the model name and this "
+                "error.",
+                message=message))
         self._finish_download(f"Download failed: {message}")
 
     def _accept_selected(self) -> None:

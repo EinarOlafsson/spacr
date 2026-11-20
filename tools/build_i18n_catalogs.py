@@ -4866,6 +4866,14 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_calibrated_measurement_checkpoint",
                              "_publish_calibrated_measurement_directory",
                              "_calibrated_cell_statistics", "measure_calibrated_cells",
+                             "resolve_n_jobs", "resolve_measurement_spacing",
+                             "_measurement_channel_names", "_granularity_frames",
+                             "_promote_merged_to_uint16", "_measure_field_confluency",
+                             "_fit_dna_content", "_fucci_states",
+                             "_resolve_cell_cycle_methods", "_wound_condition_lookup",
+                             "_well_roles", "_read_plate_map", "_classify_viability",
+                             "_checked_intensity", "_checked_label",
+                             "write_field_table_project",
                          }]
         if path == source_root / "channel_sorting.py":
             tree.body = [node for node in tree.body

@@ -1089,7 +1089,10 @@ def _describe_plain(path: str) -> Dict[str, Any]:
     with Image.open(_long_path(path)) as image:
         if (getattr(image, 'n_frames', 1) != 1
                 or len(image.info.get('sizes', ())) > 1):
-            raise ConfigurationError(tr("Multi-frame raster images need explicit frame or axis selection; no frames were imported."))
+            raise ConfigurationError(tr(
+                    'Multi-frame raster images need explicit frame or axis selection;'
+                    ' no frames were imported. Export the required frame as a '
+                    'single-frame TIFF or PNG, then import that file.'))
         width, height = image.size
         mode = image.mode
         if mode in ('P', 'PA'):
@@ -1116,24 +1119,45 @@ def _describe_npy(path: str) -> Dict[str, Any]:
     from .qt.i18n import tr
 
     if os.path.basename(path).lower().endswith('_seg.npy'):
-        raise ConfigurationError(tr("Cellpose *_seg.npy bundles use their separate editor route."))
+        raise ConfigurationError(tr(
+                'Cellpose *_seg.npy bundles use their separate editor route. Open'
+                ' this bundle in Make Masks, or choose an image file for '
+                'conversion.'))
     with open(_long_path(path), 'rb') as handle:
         prefix = handle.read(12)
     if (len(prefix) < 10 or prefix[:6] != b'\x93NUMPY'
             or prefix[6:8] not in (b'\x01\x00', b'\x02\x00', b'\x03\x00')):
-        raise ConfigurationError(tr("NPY header is missing, invalid, or too large: {path}", path=path))
+        raise ConfigurationError(tr(
+                'NPY header is missing, invalid, or too large: {path}. Choose a '
+                'valid NPY image, or export it again from the original data, then'
+                ' preview the import again.',
+                path=path))
     header_size = int.from_bytes(prefix[8:10] if prefix[6] == 1 else prefix[8:12], 'little')
     if header_size > 65536:
-        raise ConfigurationError(tr("NPY header is missing, invalid, or too large: {path}", path=path))
+        raise ConfigurationError(tr(
+                'NPY header is missing, invalid, or too large: {path}. Choose a '
+                'valid NPY image, or export it again from the original data, then'
+                ' preview the import again.',
+                path=path))
     header = read_npy_header(_long_path(path))
     dtype = np.dtype(header['descr'])
     if dtype.hasobject or dtype.fields is not None or dtype.kind not in 'buif':
-        raise ConfigurationError(tr("NPY import requires a real numeric array without objects or structured fields."))
+        raise ConfigurationError(tr(
+                'NPY import requires a real numeric array without objects or '
+                'structured fields. Export the image as a numeric NPY array or '
+                'TIFF, then preview the import again.'))
     shape = tuple(header['shape'])
     if len(shape) != 2 or any(size <= 0 for size in shape):
-        raise ConfigurationError(tr("NPY import requires a two-dimensional YX image; arrays with other dimensions need explicit axis selection."))
+        raise ConfigurationError(tr(
+                'NPY import requires a two-dimensional YX image; arrays with '
+                'other dimensions need explicit axis selection. Select an image '
+                'plane and export it as a two-dimensional NPY or TIFF, then '
+                'preview the import again.'))
     if header['expected_bytes'] is None or header['actual_bytes'] < header['expected_bytes']:
-        raise ConfigurationError(tr("NPY data is truncated: {path}", path=path))
+        raise ConfigurationError(tr(
+                'NPY data is truncated: {path}. Restore or export the complete '
+                'file from the original data, then preview the import again.',
+                path=path))
     return {'shape': shape, 'axes': 'YX', 'dtype': str(dtype), 'n_t': 1,
             'n_z': 1, 'n_c': 1, 'n_series': 1, 'axes_assumed': '',
             'reader': 'numpy', 'fortran_order': header['fortran_order']}
@@ -1587,24 +1611,31 @@ def _convention_key(metadata_type: Optional[str],
         hold, and for ``'custom'`` with no pattern.
     """
     from . import regex_infer
+    from .qt.i18n import tr
 
     key = str(metadata_type or '').strip()
     if key in ('', 'auto'):
         return None
     if regex_infer._metadata_convention(key) is None:
-        raise ConfigurationError(
-            f'Unknown metadata_type {key!r}; expected one of '
-            f'{", ".join(regex_infer._metadata_convention_keys())}')
+        raise ConfigurationError(tr(
+            'Unknown metadata_type {key!r}; expected one of {choices}. '
+            'Select a supported filename convention from the listed choices, '
+            'then preview the input again.',
+            key=key, choices=', '.join(regex_infer._metadata_convention_keys())))
     if key == 'custom':
         if not str(custom_regex or '').strip():
-            raise ConfigurationError(
+            raise ConfigurationError(tr(
                 "metadata_type='custom' needs custom_regex: a pattern with "
-                "named groups wellID, fieldID and chanID.")
+                'named groups wellID, fieldID and chanID. Enter custom_regex '
+                'with these named groups, or select a built-in filename '
+                'convention, then preview the input again.'))
         try:
             re.compile(str(custom_regex))
         except re.error as exc:
-            raise ConfigurationError(
-                f'custom_regex does not compile: {exc}') from exc
+            raise ConfigurationError(tr(
+                'custom_regex does not compile: {error}. Correct the reported '
+                'syntax error in custom_regex, then preview the input again.',
+                error=exc)) from exc
     return key
 
 
@@ -1623,7 +1654,10 @@ def _indexed_well_map(path, required):
     if any(index is None for _, index in required):
         raise ValueError(tr("Every indexed ScanR image must match its filename convention."))
     if not path:
-        raise ValueError(tr("Indexed ScanR requires a CSV map with plate, index and well columns."))
+        raise ValueError(tr(
+            'Indexed ScanR requires a CSV map with plate, index and well '
+            'columns. Create or select a local well map CSV that assigns every '
+            'acquired plate/W index to its physical well, then preview again.'))
     if isinstance(path, Mapping):
         if any(not isinstance(key, tuple) or len(key) != 2 for key in path):
             raise ValueError(tr("Indexed ScanR well assignments must include both plate and W index."))
@@ -1634,7 +1668,10 @@ def _indexed_well_map(path, required):
         table = read_table(path, canonicalise=False, report=None, dtype=str,
                            keep_default_na=False)
         if list(table.columns) != ['plate', 'index', 'well']:
-            raise ValueError(tr("The well map must have exactly plate,index,well columns."))
+            raise ValueError(tr(
+                'The well map must have exactly plate,index,well columns. '
+                'Choose or create a CSV with only these three columns in '
+                'this order, then preview again.'))
         rows = table.itertuples(index=False, name=None)
     result = {}
     destinations = set()
@@ -1643,17 +1680,27 @@ def _indexed_well_map(path, required):
         match = re.fullmatch(r'W(\d{5})', index)
         address = re.fullmatch(r'([A-Z]+)([1-9]\d*|0[1-9])', well)
         if not plate or match is None or int(match.group(1)) < 1 or address is None:
-            raise ValueError(tr("The well map contains an invalid plate, W index or physical well."))
+            raise ValueError(tr(
+                'The well map contains an invalid plate, W index or physical '
+                'well. Enter a nonempty plate name, a W index such as W00001, '
+                'and a physical well such as A01 for each row, then preview '
+                'again.'))
         well = address.group(1) + str(int(address.group(2))).zfill(2)
         key, destination = (plate, index), (plate, well)
         if key in result or destination in destinations:
-            raise ValueError(tr("The well map repeats a plate/index or physical well."))
+            raise ValueError(tr(
+                'The well map repeats a plate/index or physical well. Give each '
+                'plate/index one row and each physical well one index per '
+                'plate, then preview again.'))
         result[key] = well
         destinations.add(destination)
     missing = required.difference(result)
     if missing:
         names = ', '.join(f'{plate}/{index}' for plate, index in sorted(missing))
-        raise ValueError(tr("The well map has no assignment for: {indices}", indices=names))
+        raise ValueError(tr(
+            'The well map has no assignment for: {indices}. Add the missing '
+            'plate/index rows with their physical well assignments, then '
+            'preview again.', indices=names))
     return result
 
 
@@ -1825,11 +1872,18 @@ def scan(src: str, layout: str = 'auto',
         ``layout`` is not recognised, or ``metadata_type`` names no
         convention.
     """
+    from .qt.i18n import tr
+
     if not src or not os.path.isdir(src):
-        raise ConfigurationError(f'Source folder does not exist: {src!r}')
+        raise ConfigurationError(tr(
+                'Source folder does not exist: {src!r}. Choose an existing image '
+                'folder, then preview the import again.',
+                src=src))
     if layout not in LAYOUTS:
-        raise ConfigurationError(
-            f'Unknown layout {layout!r}; expected one of {", ".join(LAYOUTS)}')
+        raise ConfigurationError(tr(
+            'Unknown layout {layout!r}; expected one of {choices}. Select one '
+            'of the listed layouts to match the source folders, then preview '
+            'again.', layout=layout, choices=', '.join(LAYOUTS)))
     convention = _convention_key(metadata_type, custom_regex)
 
     exts = tuple(extensions) if extensions else _image_extensions()
@@ -2015,13 +2069,18 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
     :raises ConfigurationError: for an unknown ``z_handling`` or
         ``plate_naming``.
     """
+    from .qt.i18n import tr
+
     if z_handling not in Z_HANDLING:
-        raise ConfigurationError(
-            f'Unknown z_handling {z_handling!r}; expected one of '
-            f'{", ".join(Z_HANDLING)}')
+        raise ConfigurationError(tr(
+            'Unknown z_handling {z_handling!r}; expected one of {choices}. '
+            'Select one of the listed Z handling options, then preview again.',
+            z_handling=z_handling, choices=', '.join(Z_HANDLING)))
     if plate_naming not in ('index', 'name'):
-        raise ConfigurationError(
-            f'Unknown plate_naming {plate_naming!r}; expected "index" or "name"')
+        raise ConfigurationError(tr(
+            'Unknown plate_naming {plate_naming!r}; expected "index" or "name". '
+            'Set plate_naming to index or name, then preview again.',
+            plate_naming=plate_naming))
 
     result = ConversionPlan(z_handling=z_handling)
     readable = [s for s in sources if s.readable]
@@ -2318,7 +2377,10 @@ def _read_plain(source: SourceImage) -> np.ndarray:
     expected_shape = source.meta.get('shape')
     if ((expected_shape is not None and tuple(described['shape']) != tuple(expected_shape))
             or described['n_c'] != source.n_channels):
-        raise ConfigurationError(tr("Raster image dimensions or channels changed after the import preview: {path}", path=source.path))
+        raise ConfigurationError(tr(
+            'Raster image dimensions or channels changed after the import '
+            'preview: {path}. Keep the source file unchanged and preview the '
+            'import again before converting.', path=source.path))
     with Image.open(_long_path(source.path)) as image:
         if image.mode in ('P', 'PA', 'CMYK', 'YCbCr', 'LAB', 'HSV'):
             image = image.convert(described['dtype'])
@@ -2337,7 +2399,10 @@ def _read_npy(source: SourceImage) -> np.ndarray:
     current = _describe_npy(source.path)
     if (tuple(current['shape']) != tuple(source.meta.get('shape', ()))
             or current['dtype'] != source.meta.get('dtype')):
-        raise ConfigurationError(tr("NPY source shape or dtype changed after the import preview: {path}", path=source.path))
+        raise ConfigurationError(tr(
+            'NPY source shape or dtype changed after the import preview: '
+            '{path}. Keep the source file unchanged and preview the import '
+            'again before converting.', path=source.path))
     array = np.load(_long_path(source.path), mmap_mode='r', allow_pickle=False)
     return array[None, None, None, ...]
 
@@ -2749,16 +2814,22 @@ def read_map(path: str) -> pd.DataFrame:
         spaCR conversion map — a wrong path here would otherwise
         populate a database with somebody else's columns.
     """
+    from .qt.i18n import tr
+
     target = Path(path)
     if not target.is_file():
-        raise ConfigurationError(f'Map file does not exist: {path}')
+        raise ConfigurationError(tr(
+            'Map file does not exist: {path}. Select an existing conversion '
+            'map CSV from the conversion output folder, then retry.', path=path))
     try:
         from .tabular import read_table
 
         frame = read_table(target, canonicalise=False, report=None)
     except Exception as exc:
-        raise ConfigurationError(
-            f'{path} could not be read as a conversion map: {exc}') from exc
+        raise ConfigurationError(tr(
+            '{path} could not be read as a conversion map: {exc}. Check that '
+            'the file is readable and select the conversion map CSV written '
+            'by spaCR, then retry.', path=path, exc=exc)) from exc
     missing = [c for c in _REQUIRED_MAP_COLUMNS if c not in frame.columns]
     if missing:
         raise ConfigurationError(
@@ -2820,13 +2891,21 @@ def populate_db_from_map(db_path: str, map_path: str,
 
 def _barcode_input_bytes(path):
     """Read a bounded local linkage input without interpreting identifier text."""
+    from .qt.i18n import tr
+
     path = Path(path).resolve()
     if not path.is_file():
-        raise ConfigurationError(f'Plate barcode input is not a local file: {path}')
+        raise ConfigurationError(tr(
+            'Plate barcode input is not a local file: {path}. Provide the '
+            'intended barcode input as an existing local file at this path, '
+            'then preview again.', path=path))
     with path.open('rb') as handle:
         data = handle.read(16 * 1024 * 1024 + 1)
     if len(data) > 16 * 1024 * 1024:
-        raise ConfigurationError(f'Plate barcode input exceeds 16 MiB: {path}')
+        raise ConfigurationError(tr(
+            'Plate barcode input exceeds 16 MiB: {path}. Create a smaller '
+            'input file containing the records needed for this conversion, '
+            'at most 16 MiB, then preview again.', path=path))
     return data
 
 
@@ -2848,11 +2927,15 @@ def _conversion_barcode_sidecar_bytes(path):
     :raises ConfigurationError: for linked, nonregular or oversized sidecars.
     """
     import stat
+    from .qt.i18n import tr
 
     if not os.path.lexists(path):
         return None
     if Path(path).is_symlink():
-        raise ConfigurationError(f'Barcode sidecars must not be symbolic links: {path}')
+        raise ConfigurationError(tr(
+            'Barcode sidecars must not be symbolic links: {path}. Copy the '
+            'intended barcode text into a regular barcode.txt file at this '
+            'path, then preview again.', path=path))
     flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
     try:
         descriptor = os.open(path, flags)
@@ -2861,15 +2944,27 @@ def _conversion_barcode_sidecar_bytes(path):
             current = os.stat(path, follow_symlinks=False)
             if (not stat.S_ISREG(before.st_mode) or not stat.S_ISREG(current.st_mode)
                     or (before.st_dev, before.st_ino) != (current.st_dev, current.st_ino)):
-                raise ConfigurationError(f'Barcode sidecar must be a stable regular file: {path}')
+                raise ConfigurationError(tr(
+                    'Barcode sidecar must be a stable regular file: {path}. '
+                    'Use a regular barcode.txt file at this path and keep it '
+                    'unchanged during preview and conversion.', path=path))
             data = handle.read(64 * 1024 + 1)
             after = os.fstat(handle.fileno())
     except OSError as exc:
-        raise ConfigurationError(f'Cannot safely read barcode sidecar {path}: {exc}') from exc
+        raise ConfigurationError(tr(
+            'Cannot safely read barcode sidecar {path}: {exc}. Check that '
+            'barcode.txt is readable and is a regular file, then preview '
+            'again.', path=path, exc=exc)) from exc
     if len(data) > 64 * 1024:
-        raise ConfigurationError(f'Barcode sidecar exceeds 64 KiB: {path}')
+        raise ConfigurationError(tr(
+            'Barcode sidecar exceeds 64 KiB: {path}. Keep only barcode '
+            'assignments for these source plates in barcode.txt, with a total '
+            'size of at most 64 KiB, then preview again.', path=path))
     if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
-        raise ConfigurationError(f'Barcode sidecar changed while being read: {path}')
+        raise ConfigurationError(tr(
+            'Barcode sidecar changed while being read: {path}. Finish saving '
+            'barcode.txt, preview again, and keep the file unchanged during '
+            'preview and conversion.', path=path))
     return data
 
 
@@ -2882,25 +2977,43 @@ def _conversion_sidecar_assignments(data, source_plates, path):
     :returns: source-plate-to-barcode assignments; plain text needs one plate.
     :raises ConfigurationError: for malformed, ambiguous or conflicting text.
     """
+    from .qt.i18n import tr
+
     try:
         text = data.decode('utf-8-sig').strip()
     except UnicodeError as exc:
-        raise ConfigurationError(f'Barcode sidecar must contain UTF-8 text: {path}') from exc
+        raise ConfigurationError(tr(
+            'Barcode sidecar must contain UTF-8 text: {path}. Save barcode.txt '
+            'as UTF-8 plain text, then preview the input again.', path=path)) from exc
     if not text or any(ord(char) < 32 and char not in '\n\r\t' for char in text):
-        raise ConfigurationError(f'Barcode sidecar is empty or contains control characters: {path}')
+        raise ConfigurationError(tr(
+            'Barcode sidecar is empty or contains control characters: {path}. '
+            'Enter a barcode or source_plate=barcode assignments in '
+            'barcode.txt and remove non-text control characters, then '
+            'preview again.', path=path))
     if '=' not in text:
         if len(source_plates) != 1 or any(mark in text for mark in '\n\r;,'):
-            raise ConfigurationError(f'Barcode sidecar needs source_plate=barcode entries: {path}')
+            raise ConfigurationError(tr(
+                'Barcode sidecar needs source_plate=barcode entries: {path}. '
+                'Write one source_plate=barcode assignment per line, using '
+                'the source plate names shown in the preview.', path=path))
         return {next(iter(source_plates)): text}
     assignments = {}
     for part in re.split(r'[;,\n]', text):
         if not part.strip():
             continue
         if part.count('=') != 1:
-            raise ConfigurationError(f'Barcode sidecar needs source_plate=barcode entries: {path}')
+            raise ConfigurationError(tr(
+                'Barcode sidecar needs source_plate=barcode entries: {path}. '
+                'Write one source_plate=barcode assignment per line, using '
+                'the source plate names shown in the preview.', path=path))
         plate, barcode = (value.strip() for value in part.split('=', 1))
         if plate not in source_plates or not barcode or plate in assignments:
-            raise ConfigurationError(f'Barcode sidecar has unknown, empty or duplicate assignments: {path}')
+            raise ConfigurationError(tr(
+                'Barcode sidecar has unknown, empty or duplicate assignments: '
+                '{path}. Use known source plate names, provide a barcode '
+                "after each '=', and remove repeated assignments, then "
+                'preview again.', path=path))
         assignments[plate] = barcode
     return assignments
 
@@ -2915,6 +3028,7 @@ def _discover_conversion_barcodes(conversion_plan, src, explicit):
     :raises ConfigurationError: for ambiguous folder ownership or disagreements.
     """
     import hashlib
+    from .qt.i18n import tr
 
     root = Path(src).resolve()
     source_map, layouts = {}, {}
@@ -2927,12 +3041,19 @@ def _discover_conversion_barcodes(conversion_plan, src, explicit):
         folders[root].add(source_plate)
         image = Path(mapping.source).resolve()
         if not image.is_relative_to(root):
-            raise ConfigurationError('Barcode discovery requires source images inside the source tree.')
+            raise ConfigurationError(tr(
+                'Barcode discovery requires source images inside the source '
+                'tree. Select a source folder containing every source image, '
+                'or copy linked images into that folder, then preview again.'))
         choices = layouts.get(str(image), set())
         if choices == {'plate_well'}:
             relative = image.relative_to(root)
             if len(relative.parts) < 3:
-                raise ConfigurationError('Barcode discovery cannot identify this source plate folder.')
+                raise ConfigurationError(tr(
+                    'Barcode discovery cannot identify this source plate '
+                    'folder. For the plate/well layout, put each well folder '
+                    'inside a plate folder in the source folder, or select a '
+                    'layout matching the source folders, then preview again.'))
             folders.setdefault(root / relative.parts[0], set()).add(source_plate)
         elif choices not in ({'well'}, {'flat'}):
             raise ConfigurationError('Barcode discovery requires unambiguous scanned source layout metadata.')
@@ -2951,7 +3072,11 @@ def _discover_conversion_barcodes(conversion_plan, src, explicit):
         for source_plate, barcode in assignments.items():
             output = next(iter(source_map[source_plate]))
             if output in result and result[output] != barcode:
-                raise ConfigurationError(f'Conflicting barcode assignments for output plate {output}: {path}')
+                raise ConfigurationError(tr(
+                    'Conflicting barcode assignments for output plate '
+                    '{output}: {path}. Make the explicit output plate barcode '
+                    'and all barcode.txt assignments for this plate agree, '
+                    'then preview again.', output=output, path=path))
             result[output] = barcode
             origins.setdefault(output, []).append({'kind': 'barcode.txt', 'path': str(path),
                                                   'source_plate': source_plate})
@@ -2966,12 +3091,16 @@ def _check_conversion_barcode_sidecars(snapshots):
     :raises ConfigurationError: when discovery evidence has changed.
     """
     import hashlib
+    from .qt.i18n import tr
 
     for path, expected in snapshots.items():
         data = _conversion_barcode_sidecar_bytes(path)
         actual = hashlib.sha256(data).hexdigest() if data is not None else None
         if actual != expected:
-            raise ConfigurationError(f'Barcode sidecar changed during conversion: {path}')
+            raise ConfigurationError(tr(
+                'Barcode sidecar changed during conversion: {path}. Finish '
+                'editing barcode.txt, preview the input again, and keep the '
+                'file unchanged until conversion finishes.', path=path))
 
 
 def _prepare_conversion_barcodes(resolved, conversion_plan, src, dst):
@@ -2979,19 +3108,29 @@ def _prepare_conversion_barcodes(resolved, conversion_plan, src, dst):
     import hashlib
     import io
     from .plate_qc import _parse_barcode_assignments, _link_barcode_wells
+    from .qt.i18n import tr
 
     source = str(resolved.get('plate_barcode_source') or '').strip()
     if not source:
         return None
     if '://' in source or Path(source).suffix.lower() != '.csv':
-        raise ConfigurationError('Convert plate_barcode_source must be a local CSV file.')
+        raise ConfigurationError(tr(
+            'Convert plate_barcode_source must be a local CSV file. Save or '
+            'export the barcode records as a CSV on this computer and select '
+            'that file, then preview again.'))
     source_root, destination = Path(src).resolve(), Path(dst).resolve()
     if (destination.is_relative_to(source_root)
             or source_root.is_relative_to(destination)):
-        raise ConfigurationError('Barcode linkage needs a destination separate from the source tree.')
+        raise ConfigurationError(tr(
+            'Barcode linkage needs a destination separate from the source '
+            'tree. Choose a destination outside the source folder that also '
+            'does not contain the source folder, then preview again.'))
     bundle = destination / 'plate_barcode_linkage'
     if os.path.lexists(bundle):
-        raise ConfigurationError(f'Plate barcode bundle already exists: {bundle}')
+        raise ConfigurationError(tr(
+            'Plate barcode bundle already exists: {bundle}. Choose a new '
+            'destination folder, then preview again to preserve the existing '
+            'barcode bundle.', bundle=bundle))
     map_name = str(resolved.get('map_name') or MAP_FILENAME)
     if Path(map_name).name != map_name:
         raise ConfigurationError('Barcode linkage requires map_name to be a filename in the destination.')
@@ -3023,15 +3162,21 @@ def _prepare_conversion_barcodes(resolved, conversion_plan, src, dst):
         raise ConfigurationError(f'Cannot read plate barcode CSV: {exc}') from exc
     imaged = _conversion_barcode_wells([m.to_row() for m in conversion_plan.mappings])
     if imaged.empty:
-        raise ConfigurationError('No planned image wells to link by barcode.')
+        raise ConfigurationError(tr(
+            'No planned image wells to link by barcode. Select a source '
+            'folder containing readable supported images, resolve any scan '
+            'errors, and preview again before linking barcodes.'))
     explicit = _parse_barcode_assignments(resolved.get('plate_barcodes'))
     barcodes, origins, sidecars = _discover_conversion_barcodes(
         conversion_plan, source_root, explicit)
     inputs.update({path: digest for path, digest in sidecars.items() if digest is not None})
     plates = set(imaged['plateID'])
     if set(barcodes) != plates:
-        raise ConfigurationError('plate_barcodes or unambiguous barcode.txt inputs must name '
-                                 f'every output plate, and no others: {sorted(plates)}')
+        raise ConfigurationError(tr(
+            'plate_barcodes or unambiguous barcode.txt inputs must name every '
+            'output plate, and no others: {plates}. Enter an output barcode '
+            'for each listed plate, remove assignments for other output '
+            'plates, and preview again.', plates=sorted(plates)))
     column = str(resolved.get('plate_barcode_column') or '').strip() or None
     _link_barcode_wells(imaged, barcodes, records, barcode_column=column,
                         existing_maps=existing)
@@ -3055,14 +3200,22 @@ def _finish_conversion_barcodes(prepared, result):
     import hashlib
     from .cancellation import checkpoint
     from .plate_qc import _link_barcode_wells
+    from .qt.i18n import tr
 
     if prepared is None:
         return
     if not result.is_complete:
-        raise ConfigurationError('Conversion is incomplete; no plate barcode bundle was written.')
+        raise ConfigurationError(tr(
+            'Conversion is incomplete; no plate barcode bundle was written. '
+            'Review the skipped or failed images in the conversion report, '
+            'resolve those failures, and preview and run the conversion '
+            'again before linking barcodes.'))
     for path, digest in prepared['inputs'].items():
         if hashlib.sha256(_barcode_input_bytes(path)).hexdigest() != digest:
-            raise ConfigurationError(f'Plate barcode input changed during conversion: {path}')
+            raise ConfigurationError(tr(
+                'Plate barcode input changed during conversion: {path}. '
+                'Finish editing this input, preview again, and keep all '
+                'barcode inputs unchanged until conversion finishes.', path=path))
     _check_conversion_barcode_sidecars(prepared.get('barcode_sidecars', {}))
     rows = [row for row in result.rows() if row['status'] in ('converted', 'existing')]
     imaged = _conversion_barcode_wells(rows)

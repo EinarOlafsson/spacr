@@ -986,7 +986,10 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
     except Exception as e:
         logging.getLogger('spacr.deep_spacr').error(
             'macro average-precision could not be computed (%s: %s); '
-            'prauc will be NaN for this evaluation',
+            'prauc will be NaN for this evaluation. Check the evaluation '
+            'labels, class coverage and prediction scores for the reported '
+            'error, then recompute the evaluation before interpreting average '
+            'precision.',
             type(e).__name__, e)
         ap_macro = np.nan
 

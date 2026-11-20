@@ -217,10 +217,18 @@ def resolve_db_path(path: str) -> str:
         ):
             if os.path.isfile(candidate):
                 return candidate
-        raise FileNotFoundError(
-            f"No {DB_FILENAME} under {p} — expected "
-            f"{os.path.join(p, _MEASUREMENTS_SUBDIR, DB_FILENAME)}")
-    raise FileNotFoundError(f"No such file or folder: {p}")
+        raise FileNotFoundError(tr(
+            "No {filename} under {folder}; expected {expected}. Choose a "
+            "measurements.db file from a completed run, or select the run "
+            "folder containing measurements/measurements.db.",
+            filename=DB_FILENAME,
+            folder=p,
+            expected=os.path.join(p, _MEASUREMENTS_SUBDIR, DB_FILENAME)))
+    raise FileNotFoundError(tr(
+        "No such file or folder: {path}. Check that the drive is "
+        "connected, then choose an existing measurements.db file or its "
+        "run folder.",
+        path=p))
 
 
 def _read_only_uri(path: str) -> str:
@@ -301,11 +309,16 @@ def build_where(column: str, op: str, value: Any,
     :raises ValueError: for an unknown column or operator.
     """
     if column not in set(columns):
-        raise ValueError(
-            f"Unknown column {column!r} — not in this table's schema.")
+        raise ValueError(tr(
+            "Unknown column {column!r} in this table. Reload the table and "
+            "choose a column from the filter list.",
+            column=column))
     spec = OPERATORS.get(op)
     if spec is None:
-        raise ValueError(f"Unknown operator {op!r}.")
+        raise ValueError(tr(
+            "Unknown operator {op!r}. Choose an operator from the filter "
+            "list, such as = or contains.",
+            op=op))
     template, nargs, transform = spec
     sql = template.format(col=quote_ident(column))
     if nargs == 0:
@@ -340,14 +353,20 @@ def validate_raw_predicate(text: str) -> str:
         raise ValueError("Raw filter is empty — type a condition or untick "
                          "'raw SQL'.")
     if ";" in t:
-        raise ValueError("';' is not allowed — the filter is one condition, "
-                         "not a script.")
+        raise ValueError(tr(
+            "';' is not allowed in a filter. Remove the semicolon and enter "
+            "one condition, such as cell_area > 100."))
     if "--" in t or "/*" in t:
-        raise ValueError("SQL comments are not allowed in the filter.")
+        raise ValueError(tr(
+            "SQL comments are not allowed in the filter. Remove comment text "
+            "and enter only the condition to apply."))
     m = _FORBIDDEN_RAW.search(t)
     if m:
-        raise ValueError(
-            f"{m.group(1).upper()} is not allowed — filters only read.")
+        raise ValueError(tr(
+            "{keyword} is not allowed; filters only read. Enter a condition "
+            "such as cell_area > 100, or turn off raw SQL and use the "
+            "column/operator controls.",
+            keyword=m.group(1).upper()))
     return t
 
 
@@ -415,9 +434,12 @@ def coerce_for_column(text: Any, decl_type: Optional[str],
     label = decl or "untyped"
     s = "" if text is None else str(text)
     if "BLOB" in decl.upper():
-        raise ValueError(
-            f"{column!r} is declared {label} — binary values cannot be "
-            f"edited as text.")
+        raise ValueError(tr(
+            "{column!r} is declared {label}; binary values cannot be edited "
+            "as text. Leave this value unchanged, or use a database editor "
+            "that supports binary fields.",
+            column=column,
+            label=label))
     if not s.strip():
         return None
     stripped = s.strip()
@@ -425,14 +447,23 @@ def coerce_for_column(text: Any, decl_type: Optional[str],
     if affinity == "INTEGER":
         if _INT_RE.match(stripped):
             return int(stripped)
-        raise ValueError(
-            f"{s!r} is not a whole number, and {column!r} is declared "
-            f"{label}.")
+        raise ValueError(tr(
+            "{value!r} is not a whole number, and {column!r} is declared "
+            "{label}. Enter a whole number without a decimal point, such as "
+            "1.",
+            value=s,
+            column=column,
+            label=label))
     if affinity == "REAL":
         if _FLOAT_RE.match(stripped):
             return float(stripped)
-        raise ValueError(
-            f"{s!r} is not a number, and {column!r} is declared {label}.")
+        raise ValueError(tr(
+            "{value!r} is not a number, and {column!r} is declared {label}. "
+            "Enter a number such as 1.5, using a dot as the decimal "
+            "separator.",
+            value=s,
+            column=column,
+            label=label))
     if affinity == "TEXT":
         return s
     if _INT_RE.match(stripped):
@@ -460,9 +491,11 @@ def build_update(table: str, column: str,
         thousands of rows.
     """
     if not key_columns:
-        raise EditRefused(
-            f"{table!r} has no rowid and no primary key — an UPDATE could "
-            f"not be limited to one row, so spaCR will not run one.")
+        raise EditRefused(tr(
+            "{table!r} has no rowid and no primary key, so spaCR cannot limit"
+            " an edit to one row. Choose a table with a rowid or primary key;"
+            " keep this table in read-only mode.",
+            table=table))
     where = " AND ".join(f"{quote_ident(k)} = ?" for k in key_columns)
     return (f"UPDATE {quote_ident(table)} SET {quote_ident(column)} = ? "
             f"WHERE {where}")
@@ -553,7 +586,12 @@ class ReadOnlyDb:
         :raises ValueError: when the live schema has no such table or view.
         """
         if table not in self.tables():
-            raise ValueError(f"No table named {table!r} in {os.path.basename(self.path)}.")
+            raise ValueError(tr(
+                "No table named {table!r} in {database}. Reload the database and "
+                "choose a table from its table list, or open the database that "
+                "contains the required table.",
+                table=table,
+                database=os.path.basename(self.path)))
         return table
 
     def table_info(self, table: str) -> List[tuple]:
@@ -605,8 +643,11 @@ class ReadOnlyDb:
         chosen = [c for c in columns if c in known]
         unknown = [c for c in columns if c not in known]
         if unknown:
-            raise ValueError(
-                f"Unknown column(s) for {table!r}: {', '.join(map(repr, unknown))}")
+            raise ValueError(tr(
+                "Unknown column(s) for {table!r}: {columns}. Reload the table and"
+                " select columns shown in its column list.",
+                table=table,
+                columns=', '.join(map(repr, unknown))))
         return chosen or real
 
     def row_key(self, table: str) -> Tuple[str, List[str]]:
@@ -944,13 +985,15 @@ class WritableDb:
             (constraint violation, read-only file, locked database).
         """
         if not key_columns:
-            raise EditRefused(
-                f"{table!r} has no rowid and no primary key — an UPDATE "
-                f"could not be limited to one row, so spaCR will not run one.")
+            raise EditRefused(tr(
+                "{table!r} has no rowid and no primary key, so spaCR cannot limit"
+                " an edit to one row. Choose a table with a rowid or primary key;"
+                " keep this table in read-only mode.",
+                table=table))
         if len(key_columns) != len(key_values):
-            raise EditRefused(
-                "Row address is incomplete — refusing to guess which row "
-                "you meant.")
+            raise EditRefused(tr(
+                "Row address is incomplete; the edit was refused. Reload the "
+                "table, select the row again, and retry the edit."))
         sql = build_update(table, column, key_columns)
         self.last_sql = sql
         con = self.connect()
@@ -989,9 +1032,12 @@ class WritableDb:
                         f"to write. Reload the table and try again.")
                 cur = con.execute(sql, (value,) + tuple(key_values))
                 if cur.rowcount != 1:
-                    raise EditRefused(
-                        f"the UPDATE would have touched {cur.rowcount} rows, "
-                        f"not 1 — rolled back.")
+                    raise EditRefused(tr(
+                        "The UPDATE would have touched {rows} rows instead of one; it was"
+                        " rolled back. Reload the table and select the row again before "
+                        "retrying. If this repeats, stop editing and report the table "
+                        "name and this error.",
+                        rows=cur.rowcount))
         finally:
             con.close()
         return sql

@@ -416,13 +416,20 @@ def preprocess_generate_masks(settings):
     from .qt.mask_engine import object_filter_area_floor
     from .cancellation import checkpoint as cancellation_checkpoint
 
+    from .qt.i18n import tr
+
     reset_cellpose_model_reports()
 
     if 'src' in settings:
         if not isinstance(settings['src'], (str, list)):
-            raise ValueError('src must be a string or a list of strings')
+            raise ValueError(tr(
+                    'src must be a string or a list of strings. Choose a source '
+                    'folder in Mask, or supply src as a folder path or list of folder'
+                    ' paths.'))
     else:
-        raise ValueError('src is a required parameter')
+        raise ValueError(tr(
+                'src is a required parameter. Choose a source image folder before'
+                ' starting Mask.'))
 
     settings['src'] = normalize_src_path(settings['src'])
 

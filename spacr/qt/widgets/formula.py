@@ -236,7 +236,9 @@ def tokenize(expression: str) -> Tuple[_Token, ...]:
         raise FormulaError(
             f"this formula is {len(text):,} characters; the limit is "
             f"{MAX_LENGTH:,}. A formula that long is a script, and this is an "
-            f"expression language")
+            f"expression language"
+            "\n\nSplit the calculation into shorter named computed columns, then "
+            "refer to those columns in this formula.")
     tokens: List[_Token] = []
     position = 0
     while position < len(text):
@@ -252,7 +254,9 @@ def tokenize(expression: str) -> Tuple[_Token, ...]:
                 hint = hint.format(example="0.5")
             detail = f": {hint}" if hint else " is not part of this language"
             raise FormulaError(
-                f"{character!r} at position {position + 1}{detail}")
+                f"{character!r} at position {position + 1}{detail}"
+                "\n\nReplace the unsupported character using the hint above, or use a "
+                "supported operator and a column name from this table.")
         position = match.end()
         kind = match.lastgroup
         body = match.group()
@@ -263,7 +267,9 @@ def tokenize(expression: str) -> Tuple[_Token, ...]:
             if not name.strip():
                 raise FormulaError(
                     f"empty column name in backticks at position "
-                    f"{match.start() + 1}")
+                    f"{match.start() + 1}"
+                    "\n\nPut an existing column name between the backticks, such as `cell "
+                    "area`.")
             tokens.append(_Token(_NAME, name, match.start()))
             continue
         mapping = {"number": _NUMBER, "name": _NAME, "op": _OP,
@@ -630,7 +636,9 @@ class _Parser:
                 extra = f" — {token.text!r} joins two comparisons"
             raise FormulaError(
                 f"unexpected {token.text!r}{self._where(token)}{extra}; the "
-                f"expression already ended before it")
+                f"expression already ended before it"
+                "\n\nRemove the extra token, or insert the missing operator between the"
+                " two expressions.")
         return node
 
     def _nest(self, method):
@@ -744,23 +752,31 @@ class _Parser:
             if closing.kind != _RPAREN:
                 raise FormulaError(
                     f"missing ')' — the '(' at position {token.at + 1} is "
-                    f"never closed")
+                    f"never closed"
+                    "\n\nAdd the closing parenthesis after the grouped expression, then try"
+                    " the formula again.")
             return node
         if token.kind == _NAME:
             if token.text in KEYWORDS:
                 raise FormulaError(
                     f"{token.text!r}{self._where(token)} needs something "
-                    f"before it; it joins two expressions")
+                    f"before it; it joins two expressions"
+                    "\n\nWrite a comparison on each side of this keyword, for example area "
+                    "> 10 and area < 100.")
             if self._current.kind == _LPAREN:
                 return self._call(token)
             return self._count(Column(token.text))
         if token.kind == _END:
             raise FormulaError(
-                "the formula ends early — something is missing after "
+                ("the formula ends early — something is missing after "
                 f"{self._previous_text()!r}"
-                if self._at > 1 else "the formula is empty")
+                if self._at > 1 else "the formula is empty") + (
+                "\n\nComplete the expression with a number, column name, or function "
+                "call after the final operator."))
         raise FormulaError(
-            f"unexpected {token.text!r}{self._where(token)}")
+            f"unexpected {token.text!r}{self._where(token)}"
+            "\n\nReplace this token with a number, column name, function call, or "
+            "parenthesised expression.")
 
     def _previous_text(self) -> str:
         """The text just consumed, for an error that has to quote it.
@@ -783,7 +799,9 @@ class _Parser:
             raise FormulaError(
                 f"there is no function called {name}(){self._where(name_token)}"
                 f"{suggestion} The functions are: "
-                f"{', '.join(sorted(FUNCTIONS))}")
+                f"{', '.join(sorted(FUNCTIONS))}"
+                "\n\nReplace the function name with one of the supported names listed "
+                "above.")
         self._advance()
         args: List[Node] = []
         if self._current.kind != _RPAREN:
@@ -794,13 +812,16 @@ class _Parser:
         closing = self._advance()
         if closing.kind != _RPAREN:
             raise FormulaError(
-                f"missing ')' after the arguments of {name}()")
+                f"missing ')' after the arguments of {name}()"
+                "\n\nAdd a closing parenthesis after the final argument, then try the "
+                "formula again.")
         _fn, low, high, _agg = FUNCTIONS[name]
         if not low <= len(args) <= high:
             wanted = (f"{low}" if low == high else f"{low} to {high}")
             raise FormulaError(
                 f"{name}() takes {wanted} argument(s), not {len(args)} — "
-                f"{FUNCTION_HELP.get(name, name)}")
+                f"{FUNCTION_HELP.get(name, name)}"
+                "\n\nAdd or remove arguments to match the function signature above.")
         return self._count(Call(name, tuple(args)))
 
 
@@ -883,7 +904,9 @@ def _numeric_column(frame: pd.DataFrame, name: str) -> np.ndarray:
                       if close else "")
         raise FormulaError(
             f"there is no column called {name!r} in this table (it has "
-            f"{len(frame.columns)} columns){suggestion}")
+            f"{len(frame.columns)} columns){suggestion}"
+            "\n\nChoose an existing column from this table and use its exact name; "
+            "put names containing spaces in backticks.")
     series = frame[name]
     if pd.api.types.is_bool_dtype(series):
         return series.to_numpy(dtype=float)
@@ -1017,7 +1040,9 @@ def _call(item: Call, args: List[Any], length: int) -> Any:
         raise
     except Exception as exc:
         raise FormulaError(
-            f"{item.func}() could not be computed: {exc}") from None
+            f"{item.func}() could not be computed: {exc}"
+            "\n\nCheck the function arguments and selected column values, correct "
+            "the error above, then evaluate the formula again.") from None
 
 
 
@@ -1033,16 +1058,20 @@ def _valid_name(name: str) -> str:
     """
     text = str(name).strip()
     if not text:
-        raise FormulaError("a computed column needs a name")
+        raise FormulaError("a computed column needs a name"
+            "\n\nEnter a name for the new column, such as area_ratio.")
     if not _SAFE_NAME.match(text):
         raise FormulaError(
             f"{text!r} is not a usable column name — letters, digits and "
             f"underscores, not starting with a digit. Anything else has to be "
-            f"quoted everywhere it is used")
+            f"quoted everywhere it is used"
+            "\n\nRename the new column to a bare name such as area_ratio.")
     if text in FUNCTIONS or text in KEYWORDS:
         raise FormulaError(
             f"{text!r} is already the name of a function in this language; a "
-            f"column called that could never be referred to")
+            f"column called that could never be referred to"
+            "\n\nChoose a column name that is not a function or keyword, such as "
+            "measured_area.")
     return text
 
 
@@ -1247,7 +1276,9 @@ def _apply_one(frame: pd.DataFrame, formula: ColumnFormula) -> ColumnResult:
         raise FormulaError(
             f"{formula.name!r} refers to itself and there is no column called "
             f"that to read; a computed column cannot be defined in terms of "
-            f"its own previous value")
+            f"its own previous value"
+            "\n\nUse an existing input column in the expression, or compute the "
+            "prerequisite columns first.")
     raw = evaluate(formula.ast, frame)
     values = _as_array(raw, len(frame))
     is_boolean = values.dtype == bool

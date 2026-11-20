@@ -5432,7 +5432,12 @@ class AppScreen(QWidget):
                     field.setText(previous_field)
             if previous is not None:
                 model._model_metadata = deepcopy(previous.get("model_metadata"))
-            QMessageBox.warning(self, tr("Model zoo"), str(exc))
+            QMessageBox.warning(
+                self, tr('Model zoo'),
+                tr(
+                    "{error}\n\nChoose a model compatible with this module in Model "
+                    "zoo, then press Use this model again.",
+                    error=str(exc)))
 
     def _with_a_settings_advisor(self, widget, key):
         """Add the regression settings-advisor button beside ``inference``.
@@ -9649,11 +9654,13 @@ class AppScreen(QWidget):
                  **({} if failure is None else {"error": failure})})
             if failure is not None:
                 QMessageBox.warning(
-                    self, tr("Could not load the pipeline"),
-                    tr("The '{app}' pipeline could not be loaded: {error}\n\n"
-                       "The log has the full error.",
-                       app=self.app_key, error=failure[:400]),
-                )
+                    self, tr('Could not load the pipeline'),
+                    tr(
+                        "The '{app}' pipeline could not be loaded: {error}\n\nOpen the log "
+                        "for the full error and follow any dependency instructions there."
+                        " If it remains unavailable, report the error with the spaCR "
+                        "version.",
+                        app=self.app_key, error=failure[:400]))
                 return
             QMessageBox.information(
                 self, tr("Not runnable"),
@@ -9669,7 +9676,12 @@ class AppScreen(QWidget):
             log_button_press(
                 f"{self.app_key}.Run",
                 {"result": "bad_settings", "error": str(e)})
-            QMessageBox.warning(self, tr("Bad settings"), str(e))
+            QMessageBox.warning(
+                self, tr('Bad settings'),
+                tr(
+                    "{error}\n\nCorrect the setting named above in this module, then "
+                    "press Run again.",
+                    error=str(e)))
             return
 
         if self.app_key == "regression":
@@ -13487,7 +13499,12 @@ class AppScreen(QWidget):
             )
             self._warn_about_moved_settings(loaded)
         except Exception as e:
-            QMessageBox.warning(self, tr("Import failed"), str(e))
+            QMessageBox.warning(
+                self, tr('Import failed'),
+                tr(
+                    "{error}\n\nChoose a readable settings CSV exported from spaCR for "
+                    "this module, then import it again.",
+                    error=str(e)))
 
     def _in_its_own_era(self, loaded: dict) -> dict:
         """An imported file with the defaults of the version that wrote it.
@@ -13527,14 +13544,24 @@ class AppScreen(QWidget):
             settings = _capture_model_metadata(
                 self.app_key, dict(self._settings_model.collect()))
         except Exception as e:
-            QMessageBox.warning(self, tr("Bad settings"), str(e))
+            QMessageBox.warning(
+                self, tr('Bad settings'),
+                tr(
+                    "{error}\n\nCorrect the setting or model path named above, then "
+                    "export the settings again.",
+                    error=str(e)))
             return
         default = default_settings_csv_path(
             self.app_key, self._settings_src_path())
         try:
             written = export_settings_csv(self, settings, default)
         except Exception as e:
-            QMessageBox.warning(self, tr("Export failed"), str(e))
+            QMessageBox.warning(
+                self, tr('Export failed'),
+                tr(
+                    "{error}\n\nChoose an existing folder you can write to and check "
+                    "free disk space, then export the settings again.",
+                    error=str(e)))
             return
         if written:
             self._console.append_notice(

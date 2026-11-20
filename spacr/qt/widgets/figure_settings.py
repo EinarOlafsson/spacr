@@ -1254,7 +1254,10 @@ def load_graph_style(path: str) -> tuple:
         data = json.load(handle)
     if not isinstance(data, dict) or \
             data.get("spacr_style_kind") != GRAPH_STYLE_FILE_KIND:
-        raise ValueError(f"{path} is not a spaCR graph style")
+        raise ValueError(tr(
+            "{path} is not a spaCR graph style. Choose a JSON file created "
+            "with Save graph style, then load it again.",
+            path=path))
     general = data.get("general")
     per_graph = data.get("per_graph")
     return (dict(general) if isinstance(general, dict) else {},
@@ -1317,7 +1320,12 @@ def add_graph_style_file_entries(menu, parent=None, *, on_change=None) -> None:
         try:
             general, per_graph = load_graph_style(path)
         except (OSError, ValueError, JSONDecodeError) as error:
-            QMessageBox.warning(owner, "Load graph style", str(error))
+            QMessageBox.warning(
+                owner, 'Load graph style',
+                tr(
+                    "{error}\n\nChoose a readable JSON file created with Save graph "
+                    "style, then load it again.",
+                    error=str(error)))
             return
         apply_graph_style(general, per_graph)
         if callable(on_change):
@@ -2907,7 +2915,12 @@ class FigureStylePreferences(QWidget):
         try:
             general, per_graph = load_graph_style(path)
         except (OSError, ValueError, JSONDecodeError) as error:
-            QMessageBox.warning(self, "Load graph style", str(error))
+            QMessageBox.warning(
+                self, 'Load graph style',
+                tr(
+                    "{error}\n\nChoose a readable JSON file created with Save graph "
+                    "style, then load it again.",
+                    error=str(error)))
             return
         self.apply_values(general, per_graph)
 

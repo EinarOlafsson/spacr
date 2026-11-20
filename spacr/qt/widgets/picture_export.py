@@ -317,8 +317,12 @@ def save_as(view, picture, stem: str, want: str) -> str:
         path = os.path.splitext(path)[0] + want
     if save_picture(picture, path):
         return path
-    QMessageBox.warning(view, "Not saved",
-                        f"{os.path.basename(path)} could not be written.")
+    QMessageBox.warning(
+        view, 'Not saved',
+        tr(
+            "{name} could not be written. Choose an existing folder you can "
+            "write to and check free disk space, then save the picture again.",
+            name=os.path.basename(path)))
     return ""
 
 
@@ -643,7 +647,9 @@ class _CanvasLayout:
         :raises ValueError: when the mapping is not a canvas layout.
         """
         if not isinstance(data, dict) or data.get("schema") != _CANVAS_LAYOUT_SCHEMA:
-            raise ValueError(tr("This file is not a spaCR canvas layout."))
+            raise ValueError(tr(
+                "This file is not a spaCR canvas layout. Choose a JSON file "
+                "created with Save layout in the custom export window."))
         layout = cls()
         layout._apply(data)
         return layout
@@ -725,7 +731,10 @@ def _canvas_file_pixels(path, edge=None):
     if pixels.ndim == 3 and pixels.shape[-1] not in (3, 4):
         pixels = pixels[..., 0]
     if pixels.ndim not in (2, 3) or pixels.size == 0:
-        raise ValueError(tr("{name} holds no image.", name=os.path.basename(path)))
+        raise ValueError(tr(
+            "{name} holds no image. Use Add image to choose a nonempty TIFF, "
+            "PNG, JPEG, or BMP image that opens correctly in an image viewer.",
+            name=os.path.basename(path)))
     if pixels.dtype != np.uint8:
         values = pixels.astype(np.float64)
         low, high = float(np.nanmin(values)), float(np.nanmax(values))
@@ -1055,7 +1064,11 @@ def _canvas_box_pixels(box, edge, field_pixels):
             return field_pixels(box, edge)
         return _canvas_file_pixels(source.get("path", ""), edge)
     if field_pixels is None:
-        raise ValueError(tr("The image source is not loaded: {label}", label=box.get("label") or "?"))
+        raise ValueError(tr(
+            "The image source is not loaded: {label}. Reload the source image"
+            " in Overview and reopen custom export, or replace this box with "
+            "an image file using Add image.",
+            label=box.get('label') or '?'))
     return field_pixels(box, edge)
 
 

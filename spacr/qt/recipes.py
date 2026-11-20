@@ -217,16 +217,23 @@ class Recipe:
             ``package.json`` is not applied as settings.
         """
         if not isinstance(data, dict) or "spacr_recipe" not in data:
-            raise ValueError(tr("not a spaCR settings template"))
+            raise ValueError(tr(
+                "not a spaCR settings template. Choose a JSON file created with "
+                "Share template in spaCR."))
         version = data.get("spacr_recipe")
         if not isinstance(version, int) or version > FORMAT_VERSION:
-            raise ValueError(
-                tr("Template format {version} is newer than this spaCR "
-                   "version reads (it reads formats up to {supported}).",
-                   version=repr(version), supported=FORMAT_VERSION))
+            raise ValueError(tr(
+                "Template format {version} is newer than this spaCR version reads"
+                " (it reads formats up to {supported}). Choose a template created"
+                " by this spaCR version, or open it with the spaCR version that "
+                "saved it.",
+                version=repr(version),
+                supported=FORMAT_VERSION))
         settings = data.get("settings")
         if not isinstance(settings, dict):
-            raise ValueError(tr("template has no settings"))
+            raise ValueError(tr(
+                "template has no settings. Save and share the template again from"
+                " its original module, then import the new JSON file."))
         return cls(
             name=str(data.get("name") or "Untitled"),
             app_key=str(data.get("app_key") or ""),
@@ -269,7 +276,12 @@ def load_recipe(path: str) -> Recipe:
         with open(path, "r", encoding="utf-8") as handle:
             data = json.load(handle)
     except json.JSONDecodeError as exc:
-        raise ValueError(f"{os.path.basename(path)} is not valid JSON: {exc}")
+        raise ValueError(tr(
+            "{name} is not valid JSON: {error}\n\nChoose an intact JSON file "
+            "created with Share template in spaCR, or export the template "
+            "again from its original module.",
+            name=os.path.basename(path),
+            error=str(exc)))
     return Recipe.from_json(data, path=path)
 
 
@@ -323,15 +335,19 @@ def _rename_recipe(recipe: Recipe, new_name: str) -> str:
     """
     name = str(new_name or "").strip()
     if not name:
-        raise ValueError(tr("A template needs a name."))
+        raise ValueError(tr(
+            "A template needs a name. Enter a nonempty name in Rename "
+            "template, then confirm again."))
     root = os.path.dirname(recipe.path) if recipe.path \
         else recipes_dir(recipe.app_key)
     target = os.path.join(root, f"{_slug(name) or 'recipe'}.json")
     old = recipe.path
     same_file = bool(old) and os.path.abspath(old) == os.path.abspath(target)
     if os.path.exists(target) and not same_file:
-        raise ValueError(
-            tr("A template called {name} already exists.", name=repr(name)))
+        raise ValueError(tr(
+            "A template called {name} already exists. Enter a different name,"
+            " or cancel and select the existing template.",
+            name=repr(name)))
     old_name = recipe.name
     recipe.name = name
     try:
@@ -364,7 +380,9 @@ def _recipe_from_settings_csv(path: str, app_key: str, screen=None) -> Recipe:
         from spacr.utils import load_settings
         settings = load_settings(path, setting_key="Key", setting_value="Value")
     if not settings:
-        raise ValueError(tr("That file holds no settings."))
+        raise ValueError(tr(
+            "That file holds no settings. Export a settings CSV from the "
+            "source module in spaCR, then import that file as a template."))
     stem = os.path.splitext(os.path.basename(path))[0]
     return Recipe(name=stem or "Untitled", app_key=str(app_key or ""),
                   settings=dict(settings))
@@ -434,12 +452,16 @@ def apply_recipe(recipe: Recipe, screen) -> int:
     """
     app_key = str(getattr(screen, "app_key", "") or "")
     if recipe.app_key and app_key and recipe.app_key != app_key:
-        raise ValueError(
-            tr("This template is for the {source} module, not {target}.",
-               source=repr(recipe.app_key), target=repr(app_key)))
+        raise ValueError(tr(
+            "This template is for the {source} module, not {target}. Open "
+            "{source} to apply it, or choose a template saved for {target}.",
+            source=repr(recipe.app_key),
+            target=repr(app_key)))
     apply_dict = getattr(screen, "apply_settings_dict", None)
     if not callable(apply_dict):
-        raise ValueError("this screen cannot take settings")
+        raise ValueError(tr(
+            "this screen cannot take settings. Open a module with a settings "
+            "panel, then select a template for that module."))
     return int(apply_dict(dict(recipe.settings)) or 0)
 
 
@@ -458,7 +480,9 @@ def capture_recipe(screen, name: str, notes: str = "") -> Recipe:
     """
     model = getattr(screen, "_settings_model", None)
     if model is None:
-        raise ValueError("this screen has no settings to capture")
+        raise ValueError(tr(
+            "this screen has no settings to capture. Open a module with a "
+            "settings panel, set its values, then use Save template."))
     return Recipe(
         name=str(name or "Untitled"),
         app_key=str(getattr(screen, "app_key", "") or ""),
@@ -639,7 +663,12 @@ class RecipeDialog(QDialog):
             recipe = capture_recipe(self._screen, str(name).strip())
             saved_path = os.path.abspath(save_recipe(recipe))
         except Exception as exc:
-            QMessageBox.warning(self, tr("Could not save template"), str(exc))
+            QMessageBox.warning(
+                self, tr('Could not save template'),
+                tr(
+                    "{error}\n\nReview the current settings and check that the template"
+                    " folder is writable, then save again.",
+                    error=str(exc)))
             return
         self.reload()
         for row, saved in enumerate(self._recipes):
@@ -673,7 +702,12 @@ class RecipeDialog(QDialog):
         try:
             applied = apply_recipe(recipe, self._screen)
         except Exception as exc:
-            QMessageBox.warning(self, tr("Could not apply template"), str(exc))
+            QMessageBox.warning(
+                self, tr('Could not apply template'),
+                tr(
+                    "{error}\n\nChoose a template saved for this module, or correct the"
+                    " settings named above before applying it again.",
+                    error=str(exc)))
             return
         self._detail.setText(
             f"Applied “{recipe.name}” — {applied} settings written.")
@@ -693,7 +727,12 @@ class RecipeDialog(QDialog):
             Path(path).parent.stat()
             _atomic_write_text(Path(path), text)
         except Exception as exc:
-            QMessageBox.warning(self, "Could not write the file", str(exc))
+            QMessageBox.warning(
+                self, 'Could not write the file',
+                tr(
+                    "{error}\n\nChoose an existing folder you can write to and check "
+                    "free disk space, then share the template again.",
+                    error=str(exc)))
 
     def _on_import(self) -> None:
         """Load a recipe from a JSON file or a settings CSV into this module.
@@ -717,12 +756,20 @@ class RecipeDialog(QDialog):
                 recipe = load_recipe(path)
             if recipe.app_key and self._app_key and \
                     recipe.app_key != self._app_key:
-                raise ValueError(
-                    tr("That template is for the {module} module.", module=repr(recipe.app_key)))
+                raise ValueError(tr(
+                    "That template is for the {module} module. Open {module} to "
+                    "import it, or choose a template for the current module.",
+                    module=repr(recipe.app_key)))
             recipe.app_key = recipe.app_key or self._app_key
             save_recipe(recipe)
         except Exception as exc:
-            QMessageBox.warning(self, tr("Could not import template"), str(exc))
+            QMessageBox.warning(
+                self, tr('Could not import template'),
+                tr(
+                    "{error}\n\nChoose a spaCR template JSON or settings CSV for this "
+                    "module. Check that the file is readable and the template folder "
+                    "is writable, then import again.",
+                    error=str(exc)))
             return
         self.reload()
 
@@ -739,7 +786,12 @@ class RecipeDialog(QDialog):
         try:
             _rename_recipe(recipe, str(name))
         except Exception as exc:
-            QMessageBox.warning(self, tr("Could not rename template"), str(exc))
+            QMessageBox.warning(
+                self, tr('Could not rename template'),
+                tr(
+                    "{error}\n\nChoose a name not already used by another template and "
+                    "check that the template folder is writable, then rename again.",
+                    error=str(exc)))
             return
         self.reload()
 
@@ -751,7 +803,12 @@ class RecipeDialog(QDialog):
         try:
             delete_recipe(recipe)
         except Exception as exc:
-            QMessageBox.warning(self, tr("Could not delete template"), str(exc))
+            QMessageBox.warning(
+                self, tr('Could not delete template'),
+                tr(
+                    "{error}\n\nCheck write permission for the template folder, then "
+                    "select the template and delete it again.",
+                    error=str(exc)))
             return
         self.reload()
 

@@ -244,7 +244,11 @@ def test_multiclass_metrics_scores_every_split_exactly(subtests):
         assert got["class_support"] == [1, 1]
         assert len(records) == 1
         assert records[0].startswith("macro average-precision could not be computed (")
-        assert records[0].endswith("prauc will be NaN for this evaluation")
+        assert "prauc will be NaN for this evaluation." in records[0]
+        assert records[0].endswith(
+            "Check the evaluation labels, class coverage and prediction scores "
+            "for the reported error, then recompute the evaluation before "
+            "interpreting average precision.")
 
 
 # ===========================================================================

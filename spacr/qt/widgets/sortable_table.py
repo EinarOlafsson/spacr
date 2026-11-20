@@ -1165,8 +1165,13 @@ def _save_table(table, frame, filename):
         return tabular._publish(selected[0], lambda pending: tabular.write_table(
             current, pending, canonicalise=False))
     except Exception as error:
-        QMessageBox.warning(table, tr("Export failed"),
-                            tr("Export failed: {error}", error=str(error)))
+        QMessageBox.warning(
+            table, tr('Export failed'),
+            tr(
+                "Export failed: {error}\n\nChoose an existing folder you can write "
+                "to and check free disk space, then save the table again. If the "
+                "selected format needs an unavailable package, choose CSV.",
+                error=str(error)))
         return None
 
 

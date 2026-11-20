@@ -9556,14 +9556,18 @@ def generate_ml_scores(settings):
         save_settings(settings, name='generate_ml_scores', show=True)
         return run_ml_evaluation(settings)
     from .object_roles import ALL_ROLES
+    from .qt.i18n import tr
     tables = settings.get('tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     allowed_tables = frozenset(ALL_ROLES) | {'png_list'}
     if (not isinstance(tables, (list, tuple)) or not tables
             or any(not isinstance(name, str) or name not in allowed_tables for name in tables)
             or len(set(tables)) != len(tables)
             or not set(tables).intersection(ALL_ROLES)):
-        from .qt.i18n import tr
-        raise ValueError(tr("Bad settings") + f": tables={tables!r}")
+        raise ValueError(tr(
+                'Bad settings: tables={tables!r}. Select at least one measured '
+                'object table in Tables and remove duplicate or unsupported '
+                'names.',
+                tables=tables))
     tables = list(tables)
     save_settings(settings, name='generate_ml_scores', show=True)
     _flowview_advance("tables")
@@ -9614,9 +9618,11 @@ def generate_ml_scores(settings):
     if _basis == 'annotation':
         if not settings.get('annotation_column'):
             raise ValueError(
-                "dataset_mode='annotation' needs annotation_column set to a "
-                "column of png_list. Nothing else in these settings says "
-                "which labels to train on.")
+                tr(
+                    "dataset_mode='annotation' needs annotation_column set to a "
+                    'column of png_list. Nothing else in these settings says which '
+                    'labels to train on. Choose the annotation column in the ML '
+                    'settings, or label objects in Annotate before training.'))
 
         _label_column = settings['annotation_column']
 
@@ -9631,9 +9637,12 @@ def generate_ml_scores(settings):
         png_list_df = pd.concat(png_frames, ignore_index=True, sort=False)
         if not {'prcfo', _label_column}.issubset(png_list_df.columns):
             raise ValueError(
-                f"png_list needs the columns 'prcfo' and {_label_column!r} to "
-                f"train on annotations; it has: "
-                f"{', '.join(map(str, png_list_df.columns))}.")
+                tr(
+                    "png_list needs the columns 'prcfo' and {annotation_column!r} to "
+                    'train on annotations; it has: {columns}. Choose a database from '
+                    'a completed Measure run and an annotation column created in '
+                    'Annotate.',
+                    annotation_column=_label_column, columns=', '.join(map(str, png_list_df.columns))))
         annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
         measurement_rows = len(df)
         annotation_rows = len(annotated_df)

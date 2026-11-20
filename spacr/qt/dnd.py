@@ -1019,7 +1019,13 @@ def _apply_settings_csv(path: Path, screen,
         "Export a settings CSV from spaCR, or verify that the file has "
         "Key/Value or setting_key/setting_value columns.",
     )
-    QMessageBox.warning(screen, "CSV import failed", str(failure))
+    QMessageBox.warning(
+        screen, 'CSV import failed',
+        (
+            "{error}\n\nExport a settings CSV from spaCR, or check for "
+            "Key/Value or setting_key/setting_value columns, then drop the "
+            "file again.").format(
+            error=str(failure)))
 
 
 

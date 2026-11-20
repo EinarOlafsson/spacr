@@ -33,6 +33,7 @@ from spacr.cancellation import (
     CancellationToken, PipelineCancelled, installed_token,
 )
 
+from ..i18n import tr
 from ..plate_queue import (
     PlateQueue, QueueItem, Status, import_plates_from_csv,
 )
@@ -274,8 +275,13 @@ class QueueScreen(QWidget):
             try:
                 app_key, settings = callback()
             except Exception as e:
-                QMessageBox.warning(self, "Queue",
-                                     f"Couldn't add current plate: {e}")
+                QMessageBox.warning(
+                    self, 'Queue',
+                    tr(
+                        "Could not add current plate: {error}\n\nOpen the module for this "
+                        "plate, correct its input folder and any settings named above, "
+                        "then use Add current plate again.",
+                        error=str(e)))
                 return
             if not settings.get("src"):
                 QMessageBox.information(self, "Queue",
@@ -389,8 +395,13 @@ class QueueScreen(QWidget):
             items = import_plates_from_csv(path, base_settings={},
                                              app_key="mask")
         except Exception as e:
-            QMessageBox.warning(self, "Queue import",
-                                 f"Couldn't import {path}:\n{e}")
+            QMessageBox.warning(
+                self, 'Queue import',
+                tr(
+                    "Could not import {path}:\n{error}\n\nChoose a readable plate-list "
+                    "CSV with a src column containing the input folder for each "
+                    "plate, then import again.",
+                    path=path, error=str(e)))
             return
         for it in items:
             self._queue.add(it)

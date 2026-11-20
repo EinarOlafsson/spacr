@@ -399,7 +399,9 @@ def _connect(db_path: str) -> sqlite3.Connection:
         raise ValueError("No database path given.")
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
     if not os.path.isfile(path):
-        raise FileNotFoundError(f"No such database: {path}")
+        raise FileNotFoundError(
+            f"No such database: {path}. Select an existing measurements.db "
+            "file or the project folder containing it, then reopen Plate View.")
     con = sqlite3.connect(_read_only_uri(path), uri=True, timeout=30)
     con.execute("PRAGMA query_only = ON")
     return con
@@ -434,7 +436,8 @@ def table_columns(db_path: str, table: str) -> List[str]:
     if table not in known:
         raise ValueError(
             f"{os.path.basename(str(db_path))} has no {table!r} table "
-            f"(found: {', '.join(known) or 'nothing'}).")
+            f"(found: {', '.join(known) or 'nothing'}). Reopen the database "
+            "and select one of the listed tables before rendering the plate.")
     con = _connect(db_path)
     try:
         rows = con.execute(f"PRAGMA table_info({_quote_ident(table)})").fetchall()
@@ -506,13 +509,17 @@ def load_plate_frame(db_path: str, table: str, value_col: str,
         raise ValueError(
             f"{table!r} has no column {value_col!r}. "
             f"Available: {', '.join(real[:20]) or 'nothing'}"
-            f"{'…' if len(real) > 20 else ''}")
+            f"{'…' if len(real) > 20 else ''}. Reopen the database and "
+            "select an available measurement column, then render the "
+            "plate again.")
     ids = [c for c in WELL_ID_COLUMNS if c in real and c != value_col]
     if not ids:
         raise ValueError(
             f"{table!r} carries no well identifier — expected one of "
             f"{', '.join(WELL_ID_COLUMNS[:6])}. Without it there is no way "
-            f"to say which well a row belongs to.")
+            "to say which well a row belongs to. Select a table containing "
+            "well identifiers, or restore the well columns from the original "
+            "measurement export before loading it again.")
     select = ", ".join(_quote_ident(c) for c in ids + [value_col])
     sql = f"SELECT {select} FROM {_quote_ident(table)}"
     params: Tuple = ()
@@ -604,7 +611,10 @@ def _identify_wells(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
             raise ValueError(
                 "The 'prc' column does not look like "
                 "'plateID_rowID_columnID' — no row/column pair in it parses "
-                "as a well position.")
+                "as a well position. Restore the original well identities "
+                "from the source records as prc values such as plate1_r1_c1, "
+                "or provide the corresponding rowID and columnID columns, "
+                "then reload the table.")
         source = "prc"
         out["plateID"] = parts["plateID"]
         out["rowID"] = parts["rowID"]
@@ -620,7 +630,10 @@ def _identify_wells(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
     else:
         raise ValueError(
             "No well identifier in this table — expected 'prc', a "
-            "rowID/columnID pair, or a 'well' column such as 'A01'.")
+            "rowID/columnID pair, or a 'well' column such as 'A01'. Provide "
+            "the original well identities from the source or acquisition "
+            "records in a well column or both rowID and columnID, then "
+            "reload the table.")
 
     notes.append(f"Wells located from {source}.")
     return out, notes
@@ -1750,9 +1763,15 @@ def _lims_origin(url):
 
     parsed = urlsplit(url)
     if parsed.scheme.lower() not in ('http', 'https') or not parsed.hostname:
-        raise ValueError('LIMS page links must use HTTP or HTTPS')
+        raise ValueError(
+            'LIMS page links must use HTTP or HTTPS. Use a valid HTTP or '
+            'HTTPS LIMS address; ask the service administrator to correct '
+            'invalid pagination or redirect links.')
     if parsed.username is not None or parsed.password is not None:
-        raise ValueError('LIMS page links must not contain user credentials')
+        raise ValueError(
+            'LIMS page links must not contain user credentials. Remove '
+            'credentials from the LIMS URL and use plate_barcode_token_env '
+            'for the supported bearer-token authentication.')
     return (parsed.scheme.lower(), parsed.hostname.lower(),
             parsed.port or (443 if parsed.scheme.lower() == 'https' else 80))
 
@@ -1774,13 +1793,23 @@ def _lims_next_url(payload, current, initial):
         if isinstance(candidate, dict):
             candidate = candidate.get('href')
         if not isinstance(candidate, str) or not candidate.strip():
-            raise ValueError('LIMS next-page value must be a URL or null')
+            raise ValueError(
+                'LIMS next-page value must be a URL or null. Ask the LIMS '
+                'administrator to return a next-page URL string or null, '
+                'then retry the lookup.')
         url = urldefrag(urljoin(current, candidate.strip()))[0]
         if _lims_origin(url) != _lims_origin(initial):
-            raise ValueError('LIMS next-page link must stay on the original service origin')
+            raise ValueError(
+                'LIMS next-page link must stay on the original service '
+                'origin. Ask the LIMS administrator to keep pagination on '
+                'the same scheme, host and port as the configured service, '
+                'then retry.')
         urls.add(url)
     if len(urls) > 1:
-        raise ValueError('LIMS response contains conflicting next-page links')
+        raise ValueError(
+            'LIMS response contains conflicting next-page links. Ask the '
+            'LIMS administrator to return one consistent next-page URL '
+            'across the pagination fields, then retry.')
     return next(iter(urls), None)
 
 
@@ -1796,14 +1825,21 @@ def _default_lims_fetch(url: str, headers: Dict[str, str]) -> bytes:
         def redirect_request(self, req, fp, code, msg, response_headers, newurl):
             """Refuse a redirected request that changes the LIMS origin."""
             if _lims_origin(newurl) != _lims_origin(url):
-                raise ValueError('LIMS redirect must stay on the original service origin')
+                raise ValueError(
+                    'LIMS redirect must stay on the original service origin. '
+                    'Ask the LIMS administrator to keep redirects on the '
+                    'same scheme, host and port as the configured service, '
+                    'then retry.')
             return super().redirect_request(req, fp, code, msg, response_headers, newurl)
 
     with build_opener(SameOriginRedirect()).open(Request(url, headers=headers), timeout=30) as reply:
         body = reply.read(_LIMS_MAX_PAGE_BYTES + 1)
         response_url = reply.geturl()
     if len(body) > _LIMS_MAX_PAGE_BYTES:
-        raise ValueError('LIMS response exceeds the page byte limit')
+        raise ValueError(
+            'LIMS response exceeds the page byte limit. Ask the LIMS '
+            'administrator to use smaller paginated responses containing '
+            'only the needed well-record fields, then retry.')
     return _LimsPage(body, response_url)
 
 
@@ -1837,14 +1873,19 @@ def _lims_payload_records(payload: Any, barcode: str,
         if key is None:
             raise ValueError(
                 f"The LIMS answer for barcode {barcode!r} has no list of "
-                f"well records (wells, records, results, data or items).")
+                "well records (wells, records, results, data or items). "
+                "Select the well-records API endpoint, or ask the LIMS "
+                "administrator to return records under one of the listed "
+                "keys, then retry.")
         shared = {k: v for k, v in payload.items()
                   if k not in _LIMS_PAGING_FIELDS and not isinstance(v, (list, dict))}
         records = payload[key]
     if not isinstance(records, list):
         raise ValueError(
             f"The LIMS answer for barcode {barcode!r} is not a list of "
-            f"well records.")
+            "well records. Select the well-records API endpoint, or ask the "
+            "LIMS administrator to return a JSON list of well records, "
+            "then retry.")
     out = []
     for record in records:
         if isinstance(record, dict):
@@ -1895,22 +1936,36 @@ def _lims_records(source: str, barcodes: Sequence[str], *,
         shared = {}
         while url is not None:
             if url in seen:
-                raise ValueError('LIMS pagination repeats a previously requested page')
+                raise ValueError(
+                    'LIMS pagination repeats a previously requested page. '
+                    'Ask the LIMS administrator to correct the repeating '
+                    'next-page link, then retry the lookup.')
             if len(seen) >= _LIMS_MAX_PAGES:
-                raise ValueError('LIMS pagination exceeds the page limit')
+                raise ValueError(
+                    'LIMS pagination exceeds the page limit. Ask the LIMS '
+                    'administrator to limit each lookup to the requested '
+                    'barcode and correct pagination so it completes within '
+                    'the page limit.')
             seen.add(url)
             body = fetch(url, dict(headers))
             effective_url = getattr(body, 'response_url', url)
             if effective_url != url:
                 if effective_url in seen:
-                    raise ValueError('LIMS redirect repeats a previously requested page')
+                    raise ValueError(
+                        'LIMS redirect repeats a previously requested page. '
+                        'Ask the LIMS administrator to correct the redirect '
+                        'back to an earlier page, then retry the lookup.')
                 if _lims_origin(effective_url) != _lims_origin(initial):
                     raise ValueError('LIMS response must stay on the original service origin')
                 seen.add(effective_url)
             size = len(body) if isinstance(body, bytes) else len(str(body).encode('utf-8'))
             total_bytes += size
             if size > _LIMS_MAX_PAGE_BYTES or total_bytes > _LIMS_MAX_TOTAL_BYTES:
-                raise ValueError('LIMS response exceeds the byte limit')
+                raise ValueError(
+                    'LIMS response exceeds the byte limit. Ask the LIMS '
+                    'administrator to return only the requested plate '
+                    'barcodes and required well-record fields within the '
+                    'byte limit, then retry.')
             if isinstance(body, bytes):
                 body = body.decode("utf-8")
             try:
@@ -1918,7 +1973,9 @@ def _lims_records(source: str, barcodes: Sequence[str], *,
             except json.JSONDecodeError as exc:
                 raise ValueError(
                     f"The LIMS answer for barcode {barcode!r} is not JSON: "
-                    f"{exc}.") from None
+                    f"{exc}. Check the LIMS API address and authentication "
+                    "settings, then ask the service administrator to return "
+                    "JSON well records.") from None
             next_url = _lims_next_url(payload, effective_url, initial)
             if isinstance(payload, dict):
                 shared.update({k: v for k, v in payload.items()
@@ -1926,7 +1983,11 @@ def _lims_records(source: str, barcodes: Sequence[str], *,
                                and not isinstance(v, (list, dict))})
             page = _lims_payload_records(payload, barcode, barcode_column)
             if len(records) + len(page) > _LIMS_MAX_RECORDS:
-                raise ValueError('LIMS response exceeds the record limit')
+                raise ValueError(
+                    'LIMS response exceeds the record limit. Ask the LIMS '
+                    'administrator to restrict results to the requested '
+                    'plate barcodes and split an oversized selection into '
+                    'smaller complete lookups, then retry.')
             records.extend({**shared, **record} for record in page)
             url = next_url
     return pd.DataFrame(records)
@@ -2007,7 +2068,10 @@ def _link_plate_barcodes(src: str, source: str, *, barcodes: Any = None,
     """
     imaged = _imaged_wells(src, timelapse=timelapse)
     if imaged.empty:
-        raise ValueError(f"No merged field arrays to link in {src}.")
+        raise ValueError(
+            f"No merged field arrays to link in {src}. Run Make Masks on "
+            "the source images and select the resulting project with a "
+            "populated merged folder, then rerun barcode linkage.")
     plates = sorted(imaged["plateID"].unique())
     plate_codes = _plate_barcodes(src, plates, barcodes)
     wanted = barcode_column or "barcode"
@@ -2036,7 +2100,10 @@ def _link_barcode_wells(imaged, plate_codes, records, *, barcode_column=None,
     if column is None:
         raise ValueError(
             f"The sample records have no {barcode_column or 'barcode'} "
-            f"column; they have {list(records.columns)}.")
+            f"column; they have {list(records.columns)}. Select the "
+            "sample-records column that contains plate barcodes in "
+            "plate_barcode_column, or add that column to the records, "
+            "then retry.")
     mismatches: List[Tuple[str, str, str, str, str]] = []
     by_code: Dict[str, List[str]] = {}
     for plate, code in plate_codes.items():

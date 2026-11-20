@@ -239,4 +239,7 @@ def test_partial_apply_failure_restores_the_previous_settings(
     assert accepted.count() == 0
     assert dialog._apply_confirmation is None
     assert messages == [
-        "Could not apply settings. Previous settings restored."]
+        "Could not apply settings. Previous settings restored. Check the "
+        "log for the failed setting, correct it in Preferences, then apply "
+        "again. If the log reports a write error, check write access to the "
+        "configuration folder."]

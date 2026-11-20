@@ -393,9 +393,13 @@ def resolve_n_jobs(n_jobs, cpu_count=None):
         return max(1, cores - N_JOBS_HEADROOM)
 
     if isinstance(n_jobs, bool) or not isinstance(n_jobs, (int, np.integer)):
-        raise ConfigurationError(
-            f"settings['n_jobs'] = {n_jobs!r} must be an integer number of "
-            f"worker processes, or None to let spaCR choose.")
+        from .qt.i18n import tr
+
+        raise ConfigurationError(tr(
+            "settings['n_jobs'] = {n_jobs!r} must be an integer number of "
+            "worker processes, or None to let spaCR choose. Set n_jobs to a "
+            "positive whole number, or leave it blank to choose the worker "
+            "count automatically.", n_jobs=n_jobs))
 
     n_jobs = int(n_jobs)
     if n_jobs < 1:
@@ -476,9 +480,13 @@ def resolve_measurement_spacing(settings, ndim, n_z=1):
             return None
         value = float(value)
         if not np.isfinite(value) or value <= 0:
-            raise ConfigurationError(
-                f"settings['{name}'] = {cfg.get(name)!r} must be a finite "
-                f"number > 0 (a physical size in micrometres).")
+            from .qt.i18n import tr
+
+            raise ConfigurationError(tr(
+                "settings['{name}'] = {value!r} must be a finite number > 0 "
+                "(a physical size in micrometres). Enter the recorded "
+                "microscope voxel size in micrometres for this setting, "
+                "then run Measure again.", name=name, value=cfg.get(name)))
         return value
 
     dz = _positive('voxel_size_z_um')
@@ -487,9 +495,13 @@ def resolve_measurement_spacing(settings, ndim, n_z=1):
     if anisotropy is not None:
         anisotropy = float(anisotropy)
         if not np.isfinite(anisotropy) or anisotropy <= 0:
-            raise ConfigurationError(
-                f"settings['anisotropy'] = {cfg.get('anisotropy')!r} must be a "
-                f"finite number > 0; it is the ratio dz / dxy.")
+            from .qt.i18n import tr
+
+            raise ConfigurationError(tr(
+                "settings['anisotropy'] = {value!r} must be a finite number "
+                "> 0; it is the ratio dz / dxy. Set anisotropy to the recorded "
+                "Z step divided by the XY pixel size, then run Measure "
+                "again.", value=cfg.get('anisotropy')))
 
     if dz is not None and dxy is not None:
         stamp['measurement_units'] = UNITS_UM
@@ -2472,7 +2484,12 @@ def _measurement_channel_names(settings):
                 f"channel_names: {name!r} cannot name a column; use letters, "
                 f"digits and underscores.")
     if len(set(names)) != len(names):
-        raise ValueError(f"channel_names repeats a name: {names}")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "channel_names repeats a name: {names}. Give every measured "
+            "channel a distinct name in channel_names, then rerun Measure.",
+            names=names))
     return names
 
 
@@ -4459,7 +4476,12 @@ def _granularity_frames(masks, image, spectrum_length=16,
     footprint = disk(int(background_radius))
     scale = float(subsample)
     if not 0 < scale <= 1:
-        raise ValueError(f"granularity subsample must be in (0, 1]; got {subsample}")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "granularity subsample must be in (0, 1]; got {subsample}. Set "
+            "profile_granularity_subsample to a number greater than 0 and "
+            "at most 1, then rerun Measure.", subsample=subsample))
     full = image.shape[:2]
     for c in range(image.shape[-1]):
         plane = image[..., c]
@@ -5229,10 +5251,15 @@ def _promote_merged_to_uint16(data, settings, *, rescale_factor=None):
         if arr[..., plane].size:
             top = float(np.nanmax(arr[..., plane]))
             if top > np.iinfo(np.uint16).max:
-                raise ValueError(
-                    f"label plane {plane} holds object id {top:g}, which does "
-                    f"not fit Measure's uint16 working array; labels are not "
-                    f"clipped or renumbered")
+                from .qt.i18n import tr
+
+                raise ValueError(tr(
+                    "label plane {plane} holds object id {top:g}, which does "
+                    "not fit the Measure uint16 working array; labels are "
+                    "not clipped or renumbered. Regenerate a compatible "
+                    "image-and-mask project with labels in the supported "
+                    "range; split fields with more than 65535 objects before "
+                    "measuring again.", plane=plane, top=top))
     out = np.zeros(arr.shape, dtype=np.uint16)
     for plane in range(int(arr.shape[-1])):
         values = np.nan_to_num(arr[..., plane].astype(np.float64),
@@ -6110,9 +6137,14 @@ def _measure_field_confluency(data, settings, channel_arrays=None,
         plane = np.asarray(channel_arrays[..., measured.index(channel)])
     else:
         if channel >= data.shape[-1]:
-            raise ValueError(
-                f"Setting: confluency_channel is {channel}, but the merged "
-                f"array has {data.shape[-1]} planes.")
+            from .qt.i18n import tr
+
+            raise ValueError(tr(
+                "Setting: confluency_channel is {channel}, but the merged "
+                "array has {planes} planes. Choose confluency_channel from "
+                "the merged-array intensity planes, using zero-based "
+                "indices, then rerun Measure.", channel=channel,
+                planes=data.shape[-1]))
         plane = np.asarray(data[..., channel])
     if source == 'masks':
         if cell_mask is None:
@@ -6910,16 +6942,26 @@ def _fit_dna_content(content, *, gates=None, max_iter=300, tol=1e-7):
     x = np.asarray(content, dtype=float)
     x = x[np.isfinite(x) & (x > 0)]
     if x.size < _CELL_CYCLE_MIN_FIT:
-        raise ValueError(
-            f"A DNA-content histogram needs at least {_CELL_CYCLE_MIN_FIT} "
-            f"nuclei with a positive DNA signal; this one has {x.size}.")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "A DNA-content histogram needs at least {minimum} nuclei with "
+            "a positive DNA signal; this one has {count}. Check the DNA "
+            "stain channel and nucleus masks, and measure more nuclei with "
+            "a positive DNA signal before rerunning cell-cycle analysis.",
+            minimum=_CELL_CYCLE_MIN_FIT, count=x.size))
     g1 = _dna_seed(x)
     x = x[(x >= _CELL_CYCLE_FIT_RANGE[0] * g1)
           & (x <= _CELL_CYCLE_FIT_RANGE[1] * g1)]
     if x.size < _CELL_CYCLE_MIN_FIT:
-        raise ValueError(
-            f"A DNA-content histogram needs at least {_CELL_CYCLE_MIN_FIT} "
-            f"nuclei near its G1 and G2 peaks; this one has {x.size}.")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "A DNA-content histogram needs at least {minimum} nuclei near "
+            "its G1 and G2 peaks; this one has {count}. Check the DNA stain "
+            "channel and nucleus masks, and measure enough nuclei spanning "
+            "the G1 and G2 populations before rerunning cell-cycle analysis.",
+            minimum=_CELL_CYCLE_MIN_FIT, count=x.size))
     low, high = _CELL_CYCLE_RATIO_BOUNDS
     g2 = _dna_g2_seed(x, g1)
     cv = 0.08
@@ -6959,13 +7001,21 @@ def _fit_dna_content(content, *, gates=None, max_iter=300, tol=1e-7):
     try:
         first, second = (float(v) for v in gates)
     except (TypeError, ValueError):
-        raise ValueError(
-            f"Setting: cell_cycle_gates must be two numbers in DNA content "
-            f"units, such as [2.5, 3.5]; got {gates!r}.") from None
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "Setting: cell_cycle_gates must be two numbers in DNA content "
+            "units, such as [2.5, 3.5]; got {gates!r}. Enter [G1/S, S/G2] "
+            "in cell_cycle_gates, or leave it blank to fit the gates "
+            "automatically.", gates=gates)) from None
     if not 0 < first < second:
-        raise ValueError(
-            f"Setting: cell_cycle_gates must be two increasing positive "
-            f"numbers, G1/S then S/G2; got {gates!r}.")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "Setting: cell_cycle_gates must be two increasing positive "
+            "numbers, G1/S then S/G2; got {gates!r}. Enter a positive G1/S "
+            "gate smaller than the S/G2 gate, or leave cell_cycle_gates "
+            "blank to fit the gates automatically.", gates=gates))
     fit.gates = (first * g1 / 2.0, second * g1 / 2.0)
     fit.fitted_gates = False
     return fit
@@ -7193,9 +7243,14 @@ def _fucci_states(nuclei, settings, channels):
     from skimage.filters import threshold_otsu
 
     if channels is None or len(channels) != 2:
-        raise ValueError(
-            f"Setting: cell_cycle_fucci_channels needs two channels, the G1 "
-            f"reporter then the S/G2/M reporter; got {channels!r}.")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "Setting: cell_cycle_fucci_channels needs two channels, the G1 "
+            "reporter then the S–G2–M reporter; got {channels!r}. Set "
+            "cell_cycle_fucci_channels to [G1 channel, S–G2–M channel] using "
+            "two measured channel indices, then rerun cell-cycle analysis.",
+            channels=channels))
     positive = []
     for channel in channels:
         column = _measured_channel_column(settings, channel)
@@ -7940,9 +7995,13 @@ def _resolve_cell_cycle_methods(method):
     """
     method = str(method or 'measurements').strip().lower()
     if method not in _CELL_CYCLE_CHOICES:
-        raise ValueError(
-            f"Setting: cell_cycle_method must be one of "
-            f"{list(_CELL_CYCLE_CHOICES)}; got {method!r}.")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "Setting: cell_cycle_method must be one of {choices}; got "
+            "{method!r}. Choose one of the listed cell_cycle_method values, "
+            "then rerun cell-cycle analysis.", choices=list(_CELL_CYCLE_CHOICES),
+            method=method))
     if method == 'all':
         return _CELL_CYCLE_METHODS
     if method == 'measurements':
@@ -8944,14 +9003,22 @@ def _wound_condition_lookup(conditions):
         try:
             cells = parse(wells, layout=1536)
         except WellSpecError as exc:
-            raise ValueError(
-                f"Setting: wound_conditions[{name!r}]: {exc}") from None
+            from .qt.i18n import tr
+
+            raise ValueError(tr(
+                "Setting: wound_conditions[{name!r}]: {exc}. Use well names "
+                "such as B03, row tokens such as r2, or column tokens such as "
+                "c3 in this condition, then retry.", name=name, exc=exc)) from None
         for cell in cells:
             if cell in lookup and lookup[cell] != str(name):
-                raise ValueError(
-                    f"Setting: wound_conditions puts one well in both "
-                    f"{lookup[cell]!r} and {name!r}; a well can belong to "
-                    f"one condition only.")
+                from .qt.i18n import tr
+
+                raise ValueError(tr(
+                    "Setting: wound_conditions puts one well in both "
+                    "{previous!r} and {name!r}; a well can belong to one "
+                    "condition only. Remove the overlapping well from one "
+                    "condition in wound_conditions, then retry.",
+                    previous=lookup[cell], name=name))
             lookup[cell] = str(name)
     return lookup
 
@@ -9802,9 +9869,13 @@ def _viability_manual(value):
     if isinstance(value, str):
         value = [v.strip() for v in value.strip('[]').split(',')]
     if not isinstance(value, (list, tuple)) or not 1 <= len(value) <= 2:
-        raise ValueError(
-            f"Setting: viability_thresholds must be [dead, live] with a "
-            f"number or None for each; got {value!r}.")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "Setting: viability_thresholds must be [dead, live] with a "
+            "number or None for each; got {value!r}. Enter "
+            "viability_thresholds as [dead, live], using a numeric threshold "
+            "or None for automatic selection in each position.", value=value))
     out = []
     for item in list(value) + [None] * (2 - len(value)):
         if item in (None, '', 'None', 'none', 'auto'):
@@ -9813,9 +9884,13 @@ def _viability_manual(value):
         try:
             number = float(item)
         except (TypeError, ValueError):
-            raise ValueError(
-                f"Setting: viability_thresholds entries must be numbers or "
-                f"None; got {item!r}.") from None
+            from .qt.i18n import tr
+
+            raise ValueError(tr(
+                "Setting: viability_thresholds entries must be numbers or "
+                "None; got {item!r}. Replace the invalid entry with a numeric "
+                "threshold or None for automatic selection, then rerun "
+                "viability analysis.", item=item)) from None
         if not np.isfinite(number):
             from .qt.i18n import tr
 
@@ -9853,9 +9928,13 @@ def _well_roles(frame, settings):
     positive = _viability_wells(settings.get('viability_positive_wells'))
     both = negative & positive
     if both:
-        raise ValueError(
-            f"{len(both)} well(s) are named both viability_negative_wells "
-            f"and viability_positive_wells.")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "{count} well(s) are named both viability_negative_wells and "
+            "viability_positive_wells. Assign each control well to only one "
+            "of these two settings, then rerun viability analysis.",
+            count=len(both)))
     rows = frame['rowID'].map(plate_qc.parse_row_label)
     cols = frame['columnID'].map(plate_qc.parse_column_label)
     roles = []
@@ -10246,11 +10325,15 @@ def _read_plate_map(path, wells):
     dose = next((lower[c] for c in _VIABILITY_DOSE_COLUMNS if c in lower),
                 None)
     if compound is None or dose is None:
-        raise ValueError(
-            f"The plate map {path} needs a compound column (one of "
-            f"{list(_VIABILITY_COMPOUND_COLUMNS)}) and a concentration column "
-            f"(one of {list(_VIABILITY_DOSE_COLUMNS)}); it has "
-            f"{list(plate_map.columns)}.")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "The plate map {path} needs a compound column (one of "
+            "{compounds}) and a concentration column (one of {doses}); it "
+            "has {columns}. Add a compound column and a concentration "
+            "column using the listed names, save the plate map, and select "
+            "it again.", path=path, compounds=list(_VIABILITY_COMPOUND_COLUMNS),
+            doses=list(_VIABILITY_DOSE_COLUMNS), columns=list(plate_map.columns)))
     has_plate = any(c in plate_map.columns for c in
                     ('plateID', 'plate_name', 'plate', 'prc'))
     located, _notes = plate_qc._identify_wells(plate_map)
@@ -10530,9 +10613,13 @@ def _classify_viability(db_path, settings, *, plot=None):
     elif 'cell' in tables:
         unit = 'cell'
     else:
-        raise ValueError(
-            f"{db_path} has no nucleus or cell table; live/dead calls are "
-            f"made on measured nuclei or cells.")
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "{db_path} has no nucleus or cell table; live/dead calls are "
+            "made on measured nuclei or cells. Measure cell or nucleus "
+            "masks first by setting cell_mask_dim or nucleus_mask_dim, then "
+            "rerun viability analysis.", db_path=db_path))
     objects = read_table(db_path, table=unit, report=None)
     objects = objects.reset_index(drop=True)
     table = objects[[k for k in (*_CELL_CYCLE_KEYS, 'timeID', 'prcf',
@@ -15965,8 +16052,13 @@ def _checked_intensity(plane, stem, path):
     """
     if np.issubdtype(plane.dtype, np.floating):
         if not np.all(np.isfinite(plane)):
-            raise ConfigurationError(
-                f"{path}: {stem} intensity data contain NaN or infinity.")
+            from .qt.i18n import tr
+
+            raise ConfigurationError(tr(
+                "{path}: {stem} intensity data contain NaN or infinity. "
+                "Correct the source image export so every intensity is "
+                "finite, then select the corrected file in the measurement "
+                "table.", path=path, stem=stem))
         if not np.all(plane == np.floor(plane)):
             raise ConfigurationError(
                 f"{path}: {stem} has floating-point intensities that would "
@@ -15983,17 +16075,31 @@ def _checked_intensity(plane, stem, path):
 def _checked_label(plane, stem, path, shape):
     """Return ``plane`` as a uint16 label image, or say why it cannot be one."""
     if plane.shape != shape:
-        raise ConfigurationError(
-            f"{path}: mask shape {plane.shape} does not match the intensity "
-            f"shape {shape} for {stem}.")
+        from .qt.i18n import tr
+
+        raise ConfigurationError(tr(
+            "{path}: mask shape {mask_shape} does not match the intensity "
+            "shape {shape} for {stem}. Select an aligned mask and intensity "
+            "image from the same field with matching pixel dimensions, then "
+            "retry.", path=path, mask_shape=plane.shape, shape=shape, stem=stem))
     if np.any(plane < 0):
-        raise ConfigurationError(
-            f"{path}: label masks cannot contain negative IDs.")
+        from .qt.i18n import tr
+
+        raise ConfigurationError(tr(
+            "{path}: label masks cannot contain negative IDs. Re-export the "
+            "labelled mask with zero background and positive object IDs, "
+            "keeping it paired with the matching source images, then "
+            "retry.", path=path))
     maximum = int(np.max(plane, initial=0))
     if maximum > np.iinfo(np.uint16).max:
-        raise ConfigurationError(
-            f"{path}: label ID {maximum} exceeds the maximum 65535 supported "
-            "by the Measure array contract.")
+        from .qt.i18n import tr
+
+        raise ConfigurationError(tr(
+            "{path}: label ID {maximum} exceeds the maximum 65535 supported "
+            "by the Measure array contract. Regenerate a compatible "
+            "image-and-mask project with labels in the supported range; "
+            "split fields with more than 65535 objects before measuring "
+            "again.", path=path, maximum=maximum))
     return plane.astype(np.uint16, copy=False)
 
 
@@ -16043,9 +16149,15 @@ def write_field_table_project(table, dst):
         shape = planes[0].shape
         for index, plane in enumerate(planes):
             if plane.shape != shape:
-                raise ConfigurationError(
-                    f"{row.channels[index]}: channel {index + 1} of {stem} "
-                    f"has shape {plane.shape}, but channel 1 has {shape}.")
+                from .qt.i18n import tr
+
+                raise ConfigurationError(tr(
+                    "{path}: channel {channel} of {stem} has shape "
+                    "{channel_shape}, but channel 1 has {shape}. Select "
+                    "aligned channel images from the same field with "
+                    "matching pixel dimensions, then retry.",
+                    path=row.channels[index], channel=index + 1, stem=stem,
+                    channel_shape=plane.shape, shape=shape))
 
         labels = []
         for role in roles:

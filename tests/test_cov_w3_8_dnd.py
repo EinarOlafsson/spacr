@@ -221,7 +221,10 @@ def test_a_settings_csv_that_will_not_load_says_so_in_a_dialog(
 
     _answer_modal(qtbot, dismiss)
     dnd._apply_settings_csv(csv_path, screen)
-    assert seen == ["column mismatch"]
+    assert seen == [
+        "column mismatch\n\nExport a settings CSV from spaCR, or check for "
+        "Key/Value or setting_key/setting_value columns, then drop the file "
+        "again."]
     assert "Settings CSV import failed" in screen._summary.toPlainText()
 
 

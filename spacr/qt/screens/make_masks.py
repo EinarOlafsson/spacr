@@ -1113,7 +1113,10 @@ def _copy_paired_layout(pairs, destination, cancelled=None):
 
     rows = list(pairs.items()) if isinstance(pairs, dict) else list(pairs)
     if not rows or any(len(row) != 2 for row in rows):
-        raise ValueError(tr("Each image must have exactly one matching mask."))
+        raise ValueError(tr(
+            "Each image must have exactly one matching mask. Select one mask "
+            "per image with a matching field name, and remove duplicate or "
+            "unmatched selections before copying."))
     rows = [(os.path.abspath(os.fspath(image)), os.path.abspath(os.fspath(mask)))
             for image, mask in rows]
     images, masks = zip(*rows)
@@ -1123,20 +1126,33 @@ def _copy_paired_layout(pairs, destination, cancelled=None):
     if (len(set(pairing_stems)) != len(rows) or len(set(images)) != len(rows) or len(set(masks)) != len(rows)
             or set(images) & set(masks) or len(set(stems)) != len(rows)
             or len({name.casefold() for name in names}) != len(rows)):
-        raise ValueError(tr("Image and mask names are ambiguous or collide in the new folder."))
+        raise ValueError(tr(
+            "Image and mask names are ambiguous or collide in the new folder."
+            " Give each image/mask pair a unique field name, then select the "
+            "renamed files and copy again."))
     for image, mask in rows:
         check_cancelled()
         for path in (image, mask):
             if not os.path.isfile(path) or not dc._is_image(path):
-                raise ValueError(tr("Image or mask is missing or unsupported: {path}", path=path))
+                raise ValueError(tr(
+                    "Image or mask is missing or unsupported: {path}. Check that both"
+                    " files exist and can be opened as images, then select the pair "
+                    "again.",
+                    path=path))
         candidates = [candidate for candidate in masks
                       if (dc._image_stem(candidate) == dc._image_stem(image)
                           or dc._mask_stem(candidate) == dc._image_stem(image))]
         if candidates != [mask]:
-            raise ValueError(tr("Each image must have exactly one matching mask."))
+            raise ValueError(tr(
+                "Each image must have exactly one matching mask. Select one mask "
+                "per image with a matching field name, and remove duplicate or "
+                "unmatched selections before copying."))
     destination = os.path.abspath(os.fspath(destination))
     if os.path.lexists(destination):
-        raise FileExistsError(tr("The destination already exists: {path}", path=destination))
+        raise FileExistsError(tr(
+            "The destination already exists: {path}. Choose a new folder name"
+            " that does not already exist, then copy again.",
+            path=destination))
     stage = tempfile.mkdtemp(prefix=".spacr-paired-", dir=os.path.dirname(destination))
     created = False
     try:
@@ -1147,7 +1163,11 @@ def _copy_paired_layout(pairs, destination, cancelled=None):
             check_cancelled()
             shape = cs.image_shape(image)
             if shape is None or not (len(shape) == 2 or (len(shape) == 3 and shape[-1] in (1, 3, 4))):
-                raise ValueError(tr("Image and mask dimensions are incompatible: {image}", image=image))
+                raise ValueError(tr(
+                    "Image and mask dimensions are incompatible: {image}. Choose a 2D"
+                    " image or an image with 1, 3, or 4 channels on the last axis, "
+                    "and a mask with matching height and width.",
+                    image=image))
             labels = engine._as_field_mask(
                 imread(mask), shape[:2], mask, os.path.basename(image))
             check_cancelled()
@@ -1161,7 +1181,11 @@ def _copy_paired_layout(pairs, destination, cancelled=None):
                     target.write(block)
             after = os.stat(image)
             if (source_stamp.st_size, source_stamp.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
-                raise ValueError(tr("The source changed while it was being copied: {path}", path=image))
+                raise ValueError(tr(
+                    "The source changed while it was being copied: {path}. Wait for "
+                    "acquisition or any other process writing this image to finish, "
+                    "then copy again.",
+                    path=image))
             shutil.copystat(image, os.path.join(image_dir, os.path.basename(image)))
             mask_name = engine.field_stem(os.path.basename(image)) + ".tif"
             write_tiff(os.path.join(mask_dir, mask_name), labels)

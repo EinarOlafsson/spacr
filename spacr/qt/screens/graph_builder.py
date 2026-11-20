@@ -1084,7 +1084,12 @@ class GraphBuilderScreen(DerivedTableSource, _PngListAnnotationSaves, QWidget):
             try:
                 self.apply_condition_definition(definition)
             except ValueError as exc:
-                QMessageBox.warning(self, tr("Annotate conditions"), str(exc))
+                QMessageBox.warning(
+                    self, tr('Annotate conditions'),
+                    tr(
+                        "{error}\n\nReopen Annotate conditions, correct the label or column"
+                        " named above, then apply the annotations again.",
+                        error=str(exc)))
 
     def _open_selection(self) -> None:
         """Send the brushed objects to whatever shows crops.

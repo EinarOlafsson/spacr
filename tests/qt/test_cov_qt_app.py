@@ -976,7 +976,9 @@ def test_an_update_check_without_an_upgrade_reports_on_the_gui_thread(
     cases = [
         # id, UpdateInfo, expected warnings, expected information
         ("unreachable-server", _update_info(latest=None, error="timed out"),
-         [("Updates", "Couldn't reach update server:\ntimed out")], []),
+         [("Updates", "Could not reach update server:\ntimed out\n\nCheck the "
+           "internet connection and proxy settings, then check for updates "
+           "again. If the server remains unavailable, try again later.")], []),
         ("up-to-date", _update_info(installed="9.9.9", latest="9.9.9"),
          [], [("Updates", "You're on 9.9.9. No updates.")]),
     ]

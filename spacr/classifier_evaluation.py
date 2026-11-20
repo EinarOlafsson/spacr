@@ -212,6 +212,8 @@ def split_group_values(*, group_by: Any = "well",
                 f"Cannot split {table} by {level}: row {int(row)} has no "
                 f"{wanted[int(column)]} identity. A random fallback would "
                 "report an optimistic score as grouped."
+                ' Fill in the missing acquisition identity from the source records,'
+                ' then rerun the grouped evaluation.'
             )
         return level, metadata.astype(str).agg("\x1f".join, axis=1).to_numpy()
 
@@ -274,7 +276,9 @@ def _frame_well_keys(frame: pd.DataFrame, source: str) -> List[str]:
         raise ValueError(
             f"{source} has no well identity: it needs a plateID column and "
             "either rowID and columnID or wellID (for example plate1, A01). "
-            f"Its columns are {sorted(map(str, frame.columns))}.")
+            f"Its columns are {sorted(map(str, frame.columns))}."
+            ' Add the plate and well columns from the acquisition records, then'
+            ' reload the well metadata table.')
     return [schema.compose_prc(plate, row, column)
             for plate, row, column in rows]
 
@@ -309,7 +313,9 @@ def _well_metadata_lookup(metadata_path: Any, columns: Sequence[str]
         if name not in frame.columns:
             raise ValueError(
                 f"well_metadata_path {metadata_path} has no column "
-                f"{column!r}; it has {sorted(map(str, frame.columns))}.")
+                f"{column!r}; it has {sorted(map(str, frame.columns))}."
+                ' Choose a metadata column present in this table, or supply a well '
+                'metadata table containing the requested column.')
         names.append(name)
     keys = _frame_well_keys(frame, f"well_metadata_path {metadata_path}")
     lookup: Dict[str, Tuple[Optional[str], ...]] = {}
@@ -322,7 +328,10 @@ def _well_metadata_lookup(metadata_path: Any, columns: Sequence[str]
             raise ValueError(
                 f"well_metadata_path {metadata_path} gives well {key} two "
                 f"different values for {list(columns)}: {previous} and "
-                f"{values}.")
+                f"{values}."
+                ' Correct the conflicting entries using the acquisition records so '
+                'each well has one consistent set of metadata values, then reload '
+                'the table.')
         lookup[key] = values
     return lookup
 
@@ -344,6 +353,8 @@ def _crop_well_keys(paths: Sequence[Any], table: str) -> List[str]:
             raise ValueError(
                 f"Cannot look up {table} row {position} ({path!r}) by well: "
                 f"the name does not encode plate_well_field_object ({exc})."
+                ' Use the original spaCR crop filenames from the matching Measure '
+                'run, then repeat the metadata lookup.'
             ) from exc
     return keys
 
@@ -381,7 +392,9 @@ def _crop_metadata_values(paths: Sequence[Any], column: str,
             f"{len(missing)} of {len(values)} {table} crops have no {name!r} "
             f"value in well_metadata_path {metadata_path}; the first is "
             f"{paths[first]!r} (well {keys[first]}). Every crop needs a value, "
-            "or its fold would be invented.")
+            "or its fold would be invented."
+            ' Complete the requested metadata column for every crop well using '
+            'the acquisition records, then rerun the grouped evaluation.')
     return np.asarray(values, dtype=object)
 
 
@@ -577,7 +590,9 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
     group_values = np.asarray(groups, dtype=object)
     fraction = float(holdout)
     if not np.isfinite(fraction) or not 0.0 < fraction < 1.0:
-        raise ValueError("holdout must be a finite fraction strictly between 0 and 1")
+        raise ValueError("holdout must be a finite fraction strictly between 0 and 1"
+                         '. Set holdout to a fraction greater than 0 and less than 1, then '
+                         'run the split again.')
 
     if len(y) == 0:
         raise ValueError(
@@ -603,11 +618,15 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
         if not test_mask.any():
             raise ValueError(
                 f"none of the held-out {level}(s) {sorted(wanted)} appear in "
-                f"the data; it has {sorted(set(as_text))[:8]}")
+                f"the data; it has {sorted(set(as_text))[:8]}"
+                '. Choose hold-out groups listed in the input data, then run the '
+                'split again.')
         if test_mask.all():
             raise ValueError(
                 f"the held-out {level}(s) {sorted(wanted)} are ALL of the "
-                f"data, so there is nothing left to train on")
+                f"data, so there is nothing left to train on"
+                '. Choose a proper subset of the available groups for hold-out, '
+                'leaving labelled groups for training.')
         train_idx = np.where(~test_mask)[0]
         test_idx = np.where(test_mask)[0]
         for side, name in ((train_idx, "training"), (test_idx, "held-out")):
@@ -616,7 +635,10 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
                 raise ValueError(
                     f"holding out {level}(s) {sorted(wanted)} leaves the "
                     f"{name} side without class(es) {sorted(missing)}, so the "
-                    f"score would not mean what it says")
+                    f"score would not mean what it says"
+                    '. Choose a hold-out design with every required class in both '
+                    'training and evaluation, adding labelled data from independent '
+                    'groups if needed.')
         total_groups = len(set(as_text))
         test_groups = len(set(as_text[test_mask]))
         report = SplitReport(
@@ -661,6 +683,9 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
                 f"labelled cell comes from one {unit} ({where}). A random "
                 "cell split would only measure how well the model memorised "
                 f"this {unit}, not whether it transfers."
+                ' Add labelled data from another independent group at this split '
+                'level, with the required classes on both sides, then rerun the '
+                'grouped evaluation.'
             )
 
         candidates: List[Tuple[np.ndarray, np.ndarray, str]] = []
@@ -1418,6 +1443,8 @@ def normalize_probabilities(
         raise ValueError(
             f"Probability matrix has {matrix.shape[1]} columns but "
             f"{n_classes} classes were declared."
+            ' Use prediction probabilities and class names from the same '
+            'trained model, with one probability column per declared class.'
         )
     if not np.isfinite(matrix).all():
         raise ValueError("probabilities contain NaN or infinite values.")

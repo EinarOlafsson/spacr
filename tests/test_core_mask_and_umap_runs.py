@@ -130,11 +130,14 @@ def _mask_folder(src, name, n=3):
 def test_preprocess_generate_masks_refuses_a_missing_or_mistyped_src(subtests):
     """``src`` is required and must be a string or a list of strings."""
     cases = [
-        ("no src key", {}, "src is a required parameter"),
+        ("no src key", {}, "src is a required parameter. Choose a source "
+         "image folder before starting Mask."),
         ("an integer src", {"src": 12345},
-         "src must be a string or a list of strings"),
+         "src must be a string or a list of strings. Choose a source folder "
+         "in Mask, or supply src as a folder path or list of folder paths."),
         ("a None src", {"src": None},
-         "src must be a string or a list of strings"),
+         "src must be a string or a list of strings. Choose a source folder "
+         "in Mask, or supply src as a folder path or list of folder paths."),
     ]
     for case_id, settings, message in cases:
         with subtests.test(msg=case_id):
