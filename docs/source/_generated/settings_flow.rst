@@ -1864,7 +1864,7 @@ Read by ``run_synthetic_pooled``.
 batch_size
 ----------
 
-(int) - How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. In mask generation 0, -1, None, 'none' or 'auto' choose the largest batch of fields that fits the free GPU memory and RAM, and a number that does not fit is reduced with a warning. A short last batch is normalised with the median percentiles of the other batches. The size used is recorded in masks/batch_plan.json. Defaults: 0 (automatic) for mask generation, 64 for training.
+(int) - How many images are processed together in one pass: field stacks in normalization and Cellpose segmentation, crops per step in classifier training and activation maps. Larger is faster but uses more RAM/VRAM; lower it on out-of-memory errors. For mask generation, 0 or 'auto' picks the largest batch that fits the free GPU memory and RAM, and a number that does not fit is reduced with a warning. Defaults: 0 (automatic) for mask generation, 64 for training.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

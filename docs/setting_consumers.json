@@ -3143,7 +3143,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 251,
+    "line": 260,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_legacy_batch_size"
@@ -3152,7 +3152,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 254,
+    "line": 263,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_legacy_batch_size"
@@ -9706,7 +9706,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 14109,
+    "line": 14112,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -9715,7 +9715,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 14120,
+    "line": 14123,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -12330,7 +12330,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 14432,
+    "line": 14435,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -21020,7 +21020,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "gpu_memory_margin_gb",
-    "line": 374,
+    "line": 383,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_resolve_plan"
@@ -21029,7 +21029,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "gpu_memory_margin_gb",
-    "line": 913,
+    "line": 922,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_batch_first"
@@ -28793,7 +28793,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mask_eval_batch_size",
-    "line": 367,
+    "line": 376,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_resolve_plan"
@@ -59779,7 +59779,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 14427,
+    "line": 14430,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
