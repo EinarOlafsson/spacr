@@ -3880,15 +3880,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "ops_prefix_decoy_k above 0. Default 'none'. Alpha.",
     "ops_prefix_minority_min_reads":
         "(int) - Lets a cell be called when a second barcode has only a few "
-        "stray reads. Inside a cell, a barcode with fewer reads than this is "
-        "ignored when another barcode has more reads; a tie still blocks the "
-        "call, and a cell whose top barcode is a decoy is still not "
-        "genotyped. Matters for ops_prefix_quality_method 'recipe_simple', "
-        "where one stray read otherwise makes the cell bad. site_summary.csv "
-        "counts the rescued cells. 0 is off. With ops_prefix_quality_method "
-        "'weighted_majority' set 0, since the two rules are alternatives. "
-        "Default 3 (item 967); settings files saved before this default "
-        "keep 0. Alpha.",
+        "stray reads: in a cell, a barcode with fewer reads than this is "
+        "ignored when another barcode has more. A tie still blocks the call, "
+        "and a cell whose top barcode is a decoy is not genotyped. Matters for "
+        "ops_prefix_quality_method 'recipe_simple', where one stray read "
+        "otherwise makes the cell bad; site_summary.csv counts the rescued "
+        "cells. 0 is off; set 0 with 'weighted_majority', since the two rules "
+        "are alternatives. Default 3 (item 967); older settings files keep 0. "
+        "Alpha.",
     "ops_prefix_distance_weight":
         "(str) - Under ops_prefix_quality_method 'weighted_majority', weights "
         "each read by its distance to the nucleus of its cell. The distance "

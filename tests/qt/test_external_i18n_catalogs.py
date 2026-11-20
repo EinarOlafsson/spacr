@@ -235,10 +235,9 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
 # list is empty again.
 # 988 (2026-11-18): the catalog rebuild that pins the nine-language reviews
 # of the new read-weight tooltips carries them, so the list is empty again.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    # Item 919 frame fix (2026-11-19): tooltips owed by the next catalog rebuild.
-    "cpg_align_source", "cpg_align_table", "ops_prefix_masks_frame",
-})
+#: Setting tooltips owed by the next catalog rebuild. Empty since landing train 5
+#: (2026-11-20) rebuilt the catalogs with item 919's three tooltips.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
 
 
 def _assert_setting_tooltip_inventory(sources, en):

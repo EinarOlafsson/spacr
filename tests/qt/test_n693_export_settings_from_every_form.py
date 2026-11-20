@@ -315,7 +315,8 @@ def test_export_reports_settings_it_cannot_collect(qtbot, monkeypatch):
         lambda *a, **k: pytest.fail("the dialog opened")))
     screen._on_export_settings()
     assert [args[1:] for args in seen] == [
-        ("Bad settings", "batch_size must be a number")]
+        ("Bad settings", "batch_size must be a number\n\nCorrect the setting or model "
+                         "path named above, then export the settings again.")]
 
 
 def test_export_reports_a_file_it_cannot_write(qtbot, monkeypatch, tmp_path):
@@ -330,7 +331,8 @@ def test_export_reports_a_file_it_cannot_write(qtbot, monkeypatch, tmp_path):
     monkeypatch.setattr("spacr.cli.write_settings_file", broken)
     screen._on_export_settings()
     assert [args[1:] for args in seen] == [
-        ("Export failed", "read-only share")]
+        ("Export failed", "read-only share\n\nChoose an existing folder you can write "
+                          "to and check free disk space, then export the settings again.")]
 
 
 def test_default_path_follows_src_then_last_folder_then_home(
