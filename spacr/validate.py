@@ -1114,7 +1114,7 @@ _APP_EXTRA_KEYS: Dict[str, frozenset] = {
 #: A value is the replacement's name, a TUPLE of names when the setting
 #: was split in two, or an empty string when there is no replacement.
 RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
-    "ops_ph_batch_size": "mask_eval_batch_size",
+    "ops_ph_batch_size": "ops_ph_tile_batch",
     "gradient_accumulation": "gradient_accumulation_steps",
     "expected_end": "window_length",
     "min_n": "min_observations_per_hit",

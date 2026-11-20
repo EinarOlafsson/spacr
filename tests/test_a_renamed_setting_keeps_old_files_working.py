@@ -86,10 +86,22 @@ FACTORIES = {
     # removal. The barcode-mapping factory folds before it fills comp_level.
     "comp_level": "set_default_generate_barecode_mapping",
     # 2026-11-20, TASK X: the OPS phenotype tile batch `ops_ph_batch_size`
-    # became the shared mask tile batch `mask_eval_batch_size`, which the
-    # Make Masks factory declares and folds before it fills.
-    "mask_eval_batch_size": "set_default_settings_preprocess_generate_masks",
+    # became `ops_ph_tile_batch`, the phenotype override of the shared mask
+    # tile batch. OPS registers its own factory in `spacr.ops_settings`.
+    "ops_ph_tile_batch": "spacr.ops_settings.ops_defaults",
 }
+
+
+def _factory(name):
+    """The factory ``name`` names: a ``spacr.settings`` function, or a dotted path."""
+    import importlib
+
+    import spacr.settings as module
+
+    if "." not in name:
+        return getattr(module, name)
+    owner, _, attr = name.rpartition(".")
+    return getattr(importlib.import_module(owner), attr)
 
 
 def test_every_rename_names_the_factory_that_declares_it():
@@ -198,7 +210,7 @@ def test_the_fold_runs_before_the_defaults_are_filled_in():
         # this string" -- `control_wells` maps to a TUPLE, and asking for
         # an exact match raised StopIteration on both of its halves.
         old = _an_old_name_leading_to(new)
-        factory = getattr(module, factory_name)
+        factory = _factory(factory_name)
         default = factory({}).get(new)
         # A PROBE THE DEFAULT CANNOT BE. Comparing "not the default" was
         # not enough: a setting whose default is None -- and

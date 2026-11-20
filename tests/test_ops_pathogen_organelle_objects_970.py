@@ -198,7 +198,7 @@ def test_the_default_run_writes_what_it_wrote_before(tmp_path, models):
         assert set(saved.files) == {"nuclei", "cells"}
     mask_options = json.loads((tmp_path / "A1" / "phenotype_masks"
                                / "part_options.json").read_text())
-    assert mask_options == {"mask_eval_batch_size": 0,
+    assert mask_options == {"mask_eval_batch_size": 0, "ops_ph_tile_batch": 0,
                             "mask_inference_precision": "auto"}
     marker = json.loads((tmp_path / "A1" / "phenotype_cells"
                          / "part_options.json").read_text())

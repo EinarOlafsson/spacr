@@ -879,6 +879,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
                              ctx.settings.get("cellpose_diameter"),
                              ctx.settings.get("ops_gpu"),
                              ctx.settings.get("mask_eval_batch_size"),
+                             ctx.settings.get("ops_sbs_tile_batch"),
                              ctx.settings.get("mask_inference_precision")], default=str)
     held = ctx.cache.get("_sbs_nuclei")
     if held is not None and held[0] == nuclei_key:
@@ -1033,7 +1034,7 @@ def _run_objects(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         ctx.settings.get(name) for name in (
             "ops_ph_nucleus_model", "ops_ph_cell_model", "ops_ph_nucleus_diameter",
             "ops_ph_cell_diameter", "ops_ph_downsample", "mask_eval_batch_size",
-            "mask_inference_precision", "batch_size",
+            "ops_ph_tile_batch", "mask_inference_precision", "batch_size",
             "ops_ph_cell_channel", "ops_gpu")], default=str)
     held = ctx.cache.get("_ph_masks")
     if held is not None and held[0] == masks_key:

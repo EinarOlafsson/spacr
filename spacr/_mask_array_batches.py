@@ -10,6 +10,31 @@ import numpy as np
 from . import _mask_batches as batches
 
 
+def _tile_override(settings, key):
+    """A per-path tile batch override, 0 when it is unset.
+
+    :param settings: the run settings.
+    :param key: the override setting, such as ``ops_ph_tile_batch``.
+    :returns: the tile count, or 0 to use ``mask_eval_batch_size``.
+    :raises ValueError: when the value is negative or not a whole number.
+    """
+    value = (settings or {}).get(key)
+    if value in (None, ''):
+        return 0
+    try:
+        tiles = int(value)
+    except (TypeError, ValueError):
+        tiles = -1
+    if tiles < 0 or isinstance(value, bool) or (
+            isinstance(value, float) and not value.is_integer()):
+        from .qt.i18n import tr
+
+        raise ValueError(tr('{key} must be 0, which uses mask_eval_batch_size, or a '
+                            'positive whole number of tiles, got {value}.',
+                            key=key, value=repr(value)))
+    return tiles
+
+
 def _batch_limit(settings, image, remaining, gpu):
     """Resolve the shared field count before loading the rest of one batch.
 

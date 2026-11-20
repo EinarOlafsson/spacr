@@ -132,6 +132,9 @@ EXACT_LABELS = {
     "power_wells_per_plate": "Statistical power — wells per plate",
     "zernike": "Zernike moments",
     "ops_ph_zernike": "Ops ph Zernike moments",
+    "ops_ph_tile_batch": "Ops phenotype Cellpose tile batch",
+    "ops_sbs_tile_batch": "Ops SBS Cellpose tile batch",
+    "spatial_tile_batch": "Spatial Cellpose tile batch",
 }
 
 CASED_TERMS = {

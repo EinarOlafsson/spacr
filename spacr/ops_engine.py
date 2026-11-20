@@ -2154,7 +2154,36 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
 
 
 _OPS_MASK_SETTINGS = ("batch_size", "mask_eval_batch_size",
-                      "mask_inference_precision", "gpu_memory_margin_gb")
+                      "mask_inference_precision", "gpu_memory_margin_gb",
+                      "ops_sbs_tile_batch")
+
+#: The per-path tile batch override each OPS segmentation site reads.
+_OPS_TILE_BATCH_KEYS = {"ops_phenotype": "ops_ph_tile_batch",
+                        "ops_spatial": "spatial_tile_batch"}
+
+
+def _ops_tile_batch(settings, site, field_count):
+    """The Cellpose tile batch of one OPS segmentation site.
+
+    ``ops_ph_tile_batch`` (phenotype nuclei, cells and objects),
+    ``ops_sbs_tile_batch`` (the sequencing nuclei: stitched windows and the
+    live spot preview) and ``spatial_tile_batch`` (Spatial Mask Generation)
+    override the shared ``mask_eval_batch_size`` for their own path. 0 or
+    empty uses the shared rule. Settings files stamped before settings
+    version 948 get 8, 16 and 16, the tile batches those paths always ran
+    at, so they reproduce their masks.
+
+    :param settings: the run settings.
+    :param site: the OPS segmentation site.
+    :param field_count: inputs in the current resident batch.
+    :returns: the ``batch_size`` handed to Cellpose's ``eval``.
+    :raises ValueError: when the override is negative or not a whole number.
+    """
+    from ._mask_array_batches import _tile_override
+    from .object import _eval_tile_batch
+
+    key = _OPS_TILE_BATCH_KEYS.get(site, "ops_sbs_tile_batch")
+    return _tile_override(settings, key) or _eval_tile_batch(settings, field_count)
 
 
 def _ops_mask_eval(model, image, settings, *, site, field_count=1, **extra):
@@ -2166,16 +2195,17 @@ def _ops_mask_eval(model, image, settings, *, site, field_count=1, **extra):
 
     :param model: the original Cellpose model.
     :param image: the unchanged OPS plane or channel-last image.
-    :param settings: the shared field, tile, precision and memory settings.
+    :param settings: the shared field, tile, precision and memory settings,
+        and the per-path override (:func:`_ops_tile_batch`).
     :param site: the OPS segmentation site, prefixed with ``mask_``.
     :param field_count: inputs in the current resident batch.
     :param extra: the existing OPS public eval options.
     :returns: the original public eval result.
     """
-    from .object import _eval_tile_batch, _mask_eval
+    from .object import _mask_eval
 
     return _mask_eval(model, image, site='mask_' + site, settings=settings,
-                       batch_size=_eval_tile_batch(settings, field_count), **extra)
+                       batch_size=_ops_tile_batch(settings, site, field_count), **extra)
 
 
 def _compose_blend(settings: Mapping[str, Any]) -> str:
@@ -5373,6 +5403,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
         precision = str(settings.get("mask_inference_precision") or 'auto').strip().lower()
         mask_options = {
             "mask_eval_batch_size": tile_setting,
+            "ops_ph_tile_batch": _ops_tile_batch(settings, "ops_phenotype", 0),
             "mask_inference_precision": precision}
         if object_roles:
             mask_options["objects"] = _ph_object_options(settings)

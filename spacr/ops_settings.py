@@ -32,6 +32,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "n_workers": 26,
     "cellpose_model": "cpsam",
     "cellpose_diameter": None,
+    "ops_sbs_tile_batch": 0,
     "ops_library": None,
     "ops_base_channels": "CY3,A594,CY5,CY7",
     "ops_read_threshold": 315.0,
@@ -71,6 +72,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_nucleus_diameter": None,
     "ops_ph_cell_diameter": None,
     "ops_ph_downsample": 2,
+    "ops_ph_tile_batch": 0,
     "batch_size": 0,
     "mask_eval_batch_size": 0,
     "mask_inference_precision": "auto",
@@ -519,6 +521,7 @@ OPS_TYPES: Dict[str, object] = {
     "plate": str,
     "cellpose_model": str,
     "cellpose_diameter": (float, int, type(None)),
+    "ops_sbs_tile_batch": (int, type(None)),
     "n_workers": int,
     "ops_gpu": bool,
     "ops_library": (str, type(None)),
@@ -560,6 +563,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_nucleus_diameter": (float, int, type(None)),
     "ops_ph_cell_diameter": (float, int, type(None)),
     "ops_ph_downsample": int,
+    "ops_ph_tile_batch": (int, type(None)),
     "ops_ph_sites": (str, list, int, type(None)),
     "ops_ph_texture": bool,
     "ops_ph_pathogen_channel": (str, type(None)),
@@ -991,7 +995,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "cpg_sbs_dapi", "cpg_sbs_resample", "cpg_missing", "cpg_md5",
     ],
     "OPS alignment": [
-        "cellpose_model", "cellpose_diameter", "ops_raster_overlap",
+        "cellpose_model", "cellpose_diameter", "ops_sbs_tile_batch",
+        "ops_raster_overlap",
         "ops_window_overlap", "ops_compose_blend",
         "ops_stitch_read_threads", "ops_stitch_edge_workers",
         "ops_placement_seed", "ops_placement_seed_mode",
@@ -1091,7 +1096,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS phenotype": [
         "ops_ph_channels", "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
-        "ops_ph_cell_diameter", "ops_ph_downsample",
+        "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_tile_batch",
         "ops_ph_sites", "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
         "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
         "ops_ph_pathogen_diameter", "ops_ph_pathogen_min_area",
@@ -1306,6 +1311,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "rescaled so that this diameter becomes the 30 pixels the model "
         "expects; empty segments the windows at their own scale. "
         "Default None.",
+    "ops_sbs_tile_batch":
+        "(int) - How many 256-pixel tiles Cellpose passes through the "
+        "network at once when it segments the sequencing nuclei of each "
+        "stitched well and of the live spot preview. 0 uses "
+        "mask_eval_batch_size. The tile batch can move a few mask pixels, so "
+        "set it to keep a run identical to an earlier one. Settings files "
+        "from before this setting get 16, the value the sequencing path "
+        "always used. Default 0.",
     "cellpose_model":
         "(str) - Which Cellpose model segments the nuclei of each stitched "
         "well. 'cpsam' runs the default model of the installed Cellpose; any "
@@ -1606,6 +1619,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "across and costs a quarter of full resolution; 1 is full resolution; "
         "4 is about the sequencing resolution and blockier outlines. "
         "Measurement always uses the full-resolution pixels. Default 2. Alpha.",
+    "ops_ph_tile_batch":
+        "(int) - How many 256-pixel tiles Cellpose passes through the "
+        "network at once when it segments phenotype nuclei, cells, pathogens "
+        "and organelles. 0 uses mask_eval_batch_size. The tile batch can move "
+        "a few mask pixels, so set it to keep a run identical to an earlier "
+        "one. Settings files from before this setting get 8, the value the "
+        "phenotype path always used. Default 0. Alpha.",
     "ops_ph_sites":
         "(str or None) - Restrict the phenotype phases to these sites, as "
         "'520-525,555'. Used for a pilot on part of a well; empty runs every "
@@ -3798,6 +3818,7 @@ SPATIAL_MASK_DEFAULTS: Dict[str, object] = {
     "spatial_stain": "auto",
     "spatial_cellpose_model": "cpsam",
     "spatial_diameter": None,
+    "spatial_tile_batch": 0,
     "spatial_cell_expansion_um": 5.0,
     "spatial_gpu": False,
 }
@@ -3829,6 +3850,7 @@ SPATIAL_TYPES: Dict[str, object] = {
     "spatial_stain": str,
     "spatial_cellpose_model": str,
     "spatial_diameter": (float, int, type(None)),
+    "spatial_tile_batch": (int, type(None)),
     "spatial_cell_expansion_um": (float, int),
     "spatial_gpu": bool,
     "spatial_masks_dir": (str, type(None)),
@@ -3852,7 +3874,8 @@ SPATIAL_MASK_CATEGORIES: Dict[str, List[str]] = {
     ],
     "Spatial segmentation": [
         "spatial_segmenter", "spatial_stain", "spatial_cellpose_model",
-        "spatial_diameter", "spatial_cell_expansion_um", "spatial_gpu",
+        "spatial_diameter", "spatial_tile_batch", "spatial_cell_expansion_um",
+        "spatial_gpu",
     ],
 }
 
@@ -3939,6 +3962,13 @@ SPATIAL_TOOLTIPS: Dict[str, str] = {
         "chosen level. Given, each window is rescaled so that this "
         "diameter becomes the size Cellpose expects; empty segments at the "
         "image's own scale. Default None.",
+    "spatial_tile_batch":
+        "(int) - How many 256-pixel tiles Cellpose passes through the "
+        "network at once when it segments the stain. 0 uses one tile per "
+        "image, or mask_eval_batch_size when that is set. The tile batch can "
+        "move a few mask pixels, so set it to keep a run identical to an "
+        "earlier one. Settings files from before this setting get 16, the "
+        "value Spatial Mask Generation always used. Default 0.",
     "spatial_cell_expansion_um":
         "(float) - How far each nucleus is grown into a cell, in "
         "micrometres, without crossing a neighbour (Xenium's own default is "
