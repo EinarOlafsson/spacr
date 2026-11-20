@@ -597,6 +597,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 718 -> 719 on 2026-11-20, +1/-0, TASK X: OPS Cellpose through the
         # shared mask batches (spacr/_mask_array_batches.py).
         'spacr/_mask_array_batches.py',
+        # 719 -> 720 on 2026-11-20, +1/-0, TASK W: public mask tracing
+        # orchestration (spacr/_mask_tracing.py).
+        'spacr/_mask_tracing.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -621,11 +624,12 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 716)
+            - len(retired_since_608) == 717)
     # 711 -> 712 on 2026-11-19: spacr/_mask_batches.py (item 987b).
     # 712 -> 715 on 2026-11-20: spacr/image_store.py, spacr/crop_store.py and
     # spacr/ome_zarr_convert.py (items 983-985).
     # 715 -> 716 on 2026-11-20: spacr/_mask_array_batches.py (TASK X).
+    # 716 -> 717 on 2026-11-20: spacr/_mask_tracing.py (TASK W).
     # 708 -> 709 on 2026-11-19: spacr/store.py (item 974, the spaCR store).
     # 709 -> 710 on 2026-11-19: spacr/ops_feature_info.py (item 964, the
     # feature-information screen).
@@ -1187,8 +1191,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # spacr/ome_zarr_convert.py (items 983-985), moved with the workflow in one commit.
     # 718 -> 719 on 2026-11-20: spacr/_mask_array_batches.py (TASK X), moved
     # with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 719
-    assert "--expected-file-count 719" in combine_script
+    # 719 -> 720 on 2026-11-20: spacr/_mask_tracing.py (TASK W), moved
+    # with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 720
+    assert "--expected-file-count 720" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
