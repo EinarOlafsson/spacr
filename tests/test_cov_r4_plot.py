@@ -486,11 +486,10 @@ def _case_removing_outliers_says_nothing_when_there_are_none():
 
 
 def _case_a_wide_panel_stops_growing_with_the_number_of_groups():
-    """The figure side is ``max(6, 2n)/4`` with a floor of 10 inches, so it
-    is pinned at 10 up to nineteen groups and grows from twenty on. Without
-    the floor a two-group plot would be a 3-inch square with unreadable
-    labels; without the growth a fifty-group plot would be 10 inches of
-    overlapping ticks. Both sides of the hinge are measured here."""
+    """The plot area is one 0.22-inch slot per group (spacr-graphs rules,
+    2026-11-19): a two-group figure is narrow and a 24-group one grows by
+    exactly 22 slots, so graphs with the same number of groups are the
+    same width."""
     from spacr.plot import spacrGraph
 
     few = spacrGraph(_frame([("a", 0.0), ("b", 3.0)], n=6), "grp", "val",
@@ -503,8 +502,8 @@ def _case_a_wide_panel_stops_growing_with_the_number_of_groups():
     many.create_plot()
     side = many.fig.axes[0].figure.get_size_inches()[0]
 
-    assert side > 10.0
-    return (few_size, side, many.fig.axes[0].get_xlim())
+    return (tuple(round(float(v), 4) for v in few_size), round(float(side), 4),
+            many.fig.axes[0].get_xlim())
 
 
 def _case_a_results_table_with_no_pairwise_row_names_no_pair():
@@ -987,7 +986,7 @@ _TICK = ["a", "b"]
         (0, 1, True), id="graph-outlier-removal-only-trims-real-outliers"),
     pytest.param(
         _case_a_wide_panel_stops_growing_with_the_number_of_groups,
-        ((10.0, 10.0), pytest.approx(24 * 2 / 4), (-0.5, 23.5)),
+        ((1.44, 2.9), 6.28, (-0.5, 23.5)),
         id="graph-figure-side-floor-then-growth"),
     pytest.param(
         _case_a_results_table_with_no_pairwise_row_names_no_pair,

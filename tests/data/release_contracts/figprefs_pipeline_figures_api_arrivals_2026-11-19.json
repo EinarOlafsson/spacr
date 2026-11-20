@@ -1,0 +1,3 @@
+{
+ "spacr.figures.style.pipeline_figures": "Save figures in the plain house style, ignoring the figure preferences.\n\nRuns outside the GUI (``spacr-run``, and :func:`spacr.ops_engine.run_ops`\ncalled from a script) save their figures inside this, so a settings-file\nrerun gives byte-identical files whatever the user chose in Preferences.\nIn the GUI process it changes nothing: figures the GUI saves, including\nthose of the pipelines it runs, keep the preferences."
+}

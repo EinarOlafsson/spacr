@@ -3704,6 +3704,42 @@ def _validated_field_cache_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_figprefs_callables(callables):
+    """Check spacr.figures.style.pipeline_figures (figures of runs outside the GUI ignore the preferences) against its source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "figprefs_pipeline_figures_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.figures.style.pipeline_figures"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_figstyle_callables(callables):
+    """Check the figure-layer callables of the spacr-graphs rules (spacr.figures.style) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "figstyle_spacr_graphs_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
+    assert len(entries) == 9
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_r2_nuclei_965_callables(callables):
     """Check the public callable of item 965 (the small-nucleus merge of the large-site path) against its source."""
     import json
@@ -4046,6 +4082,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_pairs_consensus_948_callables(callables)
     callables = _validated_r2_nuclei_965_callables(callables)
     callables = _validated_ops_settings_layout_969_callables(callables)
+    callables = _validated_figprefs_callables(callables)
+    callables = _validated_figstyle_callables(callables)
     callables = _validated_voyager3_973_callables(callables)
     callables = _validated_field_cache_callables(callables)
     callables = _validated_ops_power_sim_968_callables(callables)
@@ -5550,7 +5588,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 20,262 -> 20,259 on 2026-11-19 (rule 41): CustomCellClassifier drops its
     # accepted-but-ignored pathogen_channel, use_attention and dropout_rate
     # (all defaulted, so the required total below does not move).
-    assert sum(len(item.parameters) for item in callables) == 20259
+    # 20,259 -> 20,260 on 2026-11-20 (landing train 5): the optional `preferences`
+    # keyword of spacr.plot.save_figure (figprefs), figures of runs outside the GUI.
+    assert sum(len(item.parameters) for item in callables) == 20260
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -6829,6 +6869,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("948_ops_pairs_consensus_api_arrivals_2026-11-15.json", 6),
         ("965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json", 1),
         ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
+        ("figprefs_pipeline_figures_api_arrivals_2026-11-19.json", 1),
+        ("figstyle_spacr_graphs_api_arrivals_2026-11-19.json", 9),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
         ("cachepos_ops_field_cache_api_arrivals_2026-11-20.json", 1),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
@@ -7451,6 +7493,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "948_ops_pairs_consensus_api_arrivals_2026-11-15.json",
                      "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json",
                      "969_ops_settings_layout_api_arrivals_2026-11-17.json",
+                     "figprefs_pipeline_figures_api_arrivals_2026-11-19.json",
+                     "figstyle_spacr_graphs_api_arrivals_2026-11-19.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
                      "974_spacr_store_api_arrivals_2026-11-17.json",
@@ -7610,6 +7654,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "948_ops_pairs_consensus_api_arrivals_2026-11-15.json",
                      "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json",
                      "969_ops_settings_layout_api_arrivals_2026-11-17.json",
+                     "figprefs_pipeline_figures_api_arrivals_2026-11-19.json",
+                     "figstyle_spacr_graphs_api_arrivals_2026-11-19.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
                      "974_spacr_store_api_arrivals_2026-11-17.json",

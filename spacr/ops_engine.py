@@ -10440,6 +10440,18 @@ def _rows_for_wells(db: str, table: str, plate: str, wells: Sequence[str]):
     return frame[keep].reset_index(drop=True)
 
 
+def _in_pipeline_figures(function):
+    """Run ``function`` inside :func:`spacr.figures.style.pipeline_figures`.
+
+    The context manager is its own decorator, so each call enters a fresh
+    context and no wrapper is defined here.
+    """
+    from .figures.style import pipeline_figures
+
+    return pipeline_figures()(function)
+
+
+@_in_pipeline_figures
 def run_ops(settings: Mapping[str, Any], *,
             wells: Optional[Sequence[str]] = None,
             phases: Optional[Sequence[str]] = None,

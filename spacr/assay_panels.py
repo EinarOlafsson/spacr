@@ -68,23 +68,22 @@ __all__ = [
 
 ALPHA = 0.05
 WELL_KEYS: Tuple[str, ...] = ("plateID", "rowID", "columnID")
-_DEFAULT_COLORS = ["#4C72B0", "#2A9D8F", "#8C8C8C", "#264653", "#7FA7C9", "#A8DADC",
-                   "#5E548E", "#B5838D"]
+_DEFAULT_COLORS = ["#0A77B8", "#0A9878", "#283868", "#C878A8", "#78AED2", "#F0A830"]
 STYLE = dict(
     palette=_DEFAULT_COLORS,
     bar_alpha=0.6,
-    edge_shade=0.6,
-    edge_lw=0.8,
-    bar_width=0.7,
-    dot_size=22.0,
-    dot_alpha=0.65,
-    dot_shade=0.55,
-    dot_edge="white",
-    dot_edge_lw=0.35,
-    jitter=0.12,
-    err_color="#333333",
+    edge_shade=1.0,
+    edge_lw=0.0,
+    bar_width=0.6,
+    dot_size=4.0,
+    dot_alpha=0.6,
+    dot_shade=1.0,
+    dot_edge="none",
+    dot_edge_lw=0.0,
+    jitter=0.24,
+    err_color="black",
     err_lw=0.8,
-    capsize=2.0,
+    capsize=0.0,
     bracket_lw=0.7,
     grid_alpha=0.3,
     grid_lw=0.5,
@@ -93,7 +92,7 @@ STYLE = dict(
     stacked_lw=0.5,
     show_test=False,
     show_title=False,
-    annot_pt=7.0,
+    annot_pt=8.0,
     annot_line_pt=9.0,
 )
 

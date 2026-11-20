@@ -186,11 +186,11 @@ class TestTheGroupedRenderersReadIt:
         assert _group_colours(5, palette) == drawn
 
     def test_spacr_graph_draws_by_the_rule(self, chosen_colouring):
-        """The one-grey house rule for a single column, replaced by the
-        user's choice when they made one."""
+        """The one-accent house rule for a single column (spacr-graphs),
+        replaced by the user's choice when they made one."""
         from types import SimpleNamespace
 
-        from spacr.figures.style import ROLES
+        from spacr.figures.style import Palette
         from spacr.plot import spacrGraph
 
         graph = SimpleNamespace(colors=None, data_column=["value"],
@@ -198,7 +198,7 @@ class TestTheGroupedRenderersReadIt:
                                 sns_palette=["#000001", "#000002",
                                              "#000003"])
         chosen_colouring("group")
-        assert spacrGraph._plot_palette(graph, 3) == [ROLES["data"]] * 3
+        assert spacrGraph._plot_palette(graph, 3) == [Palette.ACCENT] * 3
         chosen_colouring("random")
         drawn = spacrGraph._plot_palette(graph, 3)
         assert len(set(drawn)) == 3

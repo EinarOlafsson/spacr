@@ -3857,6 +3857,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("948_ops_pairs_consensus_api_arrivals_2026-11-15.json", 6),
         ("965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json", 1),
         ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
+        ("figprefs_pipeline_figures_api_arrivals_2026-11-19.json", 1),
+        ("figstyle_spacr_graphs_api_arrivals_2026-11-19.json", 9),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
         ("cachepos_ops_field_cache_api_arrivals_2026-11-20.json", 1),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
