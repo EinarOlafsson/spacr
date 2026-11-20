@@ -11,6 +11,24 @@ Status:    OPEN 2026-10-07 — completed hosted numerical and compatibility
            gates pass; full ordinary CI and final-source serial remain open.
            No failed test shard or native crash is waived.
 
+HOME TEST AUDIT — 2026-11-20
+Owner: Home Codex, ws-offload-codex-home-audit1, on newest nightly f04495e887.
+Consolidate the duplicated optional-Qt checks in tests/flowview without losing
+their constructor refusals, install guidance, optional exports or cleanup.
+Before and after, run that directory with two workers and branch coverage for
+all spacr.flowview modules, using the unchanged coverage configuration. Accept
+at most a one-percentage-point branch-coverage drop and no loss among the eight
+predeclared mutation detections. Retain issue regressions, ratchets and test
+meaning; collection errors and skips do not count as killed mutants. No runtime
+speed claim follows from fewer test lines. Full green-CI acceptance stays open.
+Before and after on f04495e887: 172 tests pass, with branch coverage unchanged
+at 321/334 (96.1078%) across all 14 FlowView modules. No executed branch is lost,
+and all eight fixed mutants are detected in both runs by assertion failures
+with companion controls passing. One shared helper and two parametrized cases
+replace the duplicated checks, removing 26 test lines. Source, configuration,
+ratchets and case count are unchanged. This batch meets its branch and mutation
+criteria; the whole-item green-CI and per-module coverage work remains open.
+
 Previous status (superseded 2026-10-07):    OPEN 2026-10-06 — the prior complete 664-module aggregate passes
            the absolute-count ratchet, but required passed-shard acceptance
            and the final-source hosted verdict remain incomplete.

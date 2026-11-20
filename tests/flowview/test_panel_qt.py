@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-import builtins
 import importlib.util
 import os
-import sys
 from pathlib import Path
-from types import ModuleType
 
 import pytest
 
@@ -28,44 +25,6 @@ if HAS_QT:
     from PySide6.QtWidgets import QFileDialog, QGraphicsScene  # noqa: E402
 
     from spacr.flowview import panel  # noqa: E402
-
-
-def _load_with_qt_blocked(module: ModuleType, monkeypatch: pytest.MonkeyPatch) -> ModuleType:
-    real_import = builtins.__import__
-
-    def blocked_import(
-        name: str,
-        globals_: object = None,
-        locals_: object = None,
-        fromlist: object = (),
-        level: int = 0,
-    ) -> object:
-        if name.startswith("PySide6"):
-            raise ImportError("PySide6 deliberately hidden")
-        return real_import(name, globals_, locals_, fromlist, level)
-
-    monkeypatch.setattr(builtins, "__import__", blocked_import)
-    alias = f"{module.__package__}._without_qt_panel"
-    spec = importlib.util.spec_from_file_location(alias, module.__file__)
-    assert spec is not None and spec.loader is not None
-    loaded = importlib.util.module_from_spec(spec)
-    sys.modules[alias] = loaded
-    try:
-        spec.loader.exec_module(loaded)
-    finally:
-        sys.modules.pop(alias, None)
-    return loaded
-
-
-@pytest.mark.skipif(not HAS_QT, reason="normal module path needs PySide6")
-def test_panel_module_imports_without_qt_and_names_exact_remediation(monkeypatch):
-    blocked = _load_with_qt_blocked(panel, monkeypatch)
-
-    assert blocked.QT_AVAILABLE is False
-    assert "inspector_text" not in blocked.__all__
-    for widget_class in (blocked.FlowGraphicsView, blocked.FlowViewPanel):
-        with pytest.raises(ImportError, match=r"pip install spacr\[flowview\]"):
-            widget_class("ignored", keyword="ignored")
 
 
 def _graph() -> RunGraph:

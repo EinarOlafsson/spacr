@@ -22,6 +22,7 @@ if HAS_QT:
 
 
 def _load_with_qt_blocked(module: ModuleType, monkeypatch: pytest.MonkeyPatch) -> ModuleType:
+    """Load either normal module under a temporary alias with Qt imports blocked."""
     real_import = builtins.__import__
 
     def blocked_import(
@@ -31,12 +32,14 @@ def _load_with_qt_blocked(module: ModuleType, monkeypatch: pytest.MonkeyPatch) -
         fromlist: object = (),
         level: int = 0,
     ) -> object:
+        """Hide PySide6 while forwarding every unrelated import unchanged."""
         if name.startswith("PySide6"):
             raise ImportError("PySide6 deliberately hidden")
         return real_import(name, globals_, locals_, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", blocked_import)
-    alias = f"{module.__package__}._without_qt_items"
+    module_name = module.__name__.rsplit(".", 1)[-1]
+    alias = f"{module.__package__}._without_qt_{module_name}"
     spec = importlib.util.spec_from_file_location(alias, module.__file__)
     assert spec is not None and spec.loader is not None
     loaded = importlib.util.module_from_spec(spec)
@@ -49,14 +52,26 @@ def _load_with_qt_blocked(module: ModuleType, monkeypatch: pytest.MonkeyPatch) -
 
 
 @pytest.mark.skipif(not HAS_QT, reason="normal module path needs PySide6")
-def test_items_module_imports_without_qt_and_names_exact_remediation(monkeypatch):
-    blocked = _load_with_qt_blocked(items, monkeypatch)
+@pytest.mark.parametrize(
+    ("module_name", "constructors", "excluded_export"),
+    [
+        ("items", ("NodeItem", "EdgeItem"), "edge_width"),
+        ("panel", ("FlowGraphicsView", "FlowViewPanel"), "inspector_text"),
+    ],
+    ids=("items", "panel"),
+)
+def test_optional_module_imports_without_qt_and_names_exact_remediation(
+    module_name, constructors, excluded_export, monkeypatch
+):
+    """Check each module's headless exports and both actionable constructors."""
+    module = importlib.import_module(f"spacr.flowview.{module_name}")
+    blocked = _load_with_qt_blocked(module, monkeypatch)
 
     assert blocked.QT_AVAILABLE is False
-    assert "edge_width" not in blocked.__all__
-    for item_class in (blocked.NodeItem, blocked.EdgeItem):
+    assert excluded_export not in blocked.__all__
+    for constructor in constructors:
         with pytest.raises(ImportError, match=r"pip install spacr\[flowview\]"):
-            item_class("ignored", keyword="ignored")
+            getattr(blocked, constructor)("ignored", keyword="ignored")
 
 
 def _graph(thumbnail: str) -> RunGraph:
