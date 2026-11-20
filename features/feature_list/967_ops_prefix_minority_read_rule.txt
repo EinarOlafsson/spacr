@@ -2,7 +2,7 @@ OPS SPACER-PREFIX CELL CALL: MINORITY STRAY BARCODES IGNORED (RULE F1)
 =======================================================================
 
 Lifecycle: future
-Status: IMPLEMENTED 2026-11-17 on branch claude-967-1117, alpha (ALPHA_FEATURES[967]). DEFAULT 3 since 2026-11-19 (maintainer decision; branch claude-967default-1119): OPS_DEFAULTS ops_prefix_minority_min_reads 3, SETTINGS_SCHEMA_VERSION 945, DEFAULT_CHANGES[945] = 0, so files stamped before 945 keep the rule off and rerun byte for byte. Ready per proposals/READINESS.md (2026-11-19). spacr/ops_prefix.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_prefix_minority_967.py, tests/test_ops_prefix_minority_default_967.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item967_proof/REPORT.md; k grid: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item967_alpha/REPORT.md.
+Status: IMPLEMENTED 2026-11-17 on branch claude-967-1117, alpha (ALPHA_FEATURES[967]). DEFAULT 3 since 2026-11-19 (maintainer decision; branch claude-967default-1119): OPS_DEFAULTS ops_prefix_minority_min_reads 3, SETTINGS_SCHEMA_VERSION 947, DEFAULT_CHANGES[947] = 0, so files stamped before 947 keep the rule off and rerun byte for byte. Ready per proposals/READINESS.md (2026-11-19). spacr/ops_prefix.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_prefix_minority_967.py, tests/test_ops_prefix_minority_default_967.py. Proof check: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item967_proof/REPORT.md; k grid: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item967_alpha/REPORT.md.
 Requested: maintainer decision 2026-11-17 "Land 966 now, F1 next". Number reserved by master 2026-11-17.
 Owner: master lane claude-967-1117.
 Source: proposals/bmc_paper_items/ITEM_ops_prefix_minority_read_rule.md.
