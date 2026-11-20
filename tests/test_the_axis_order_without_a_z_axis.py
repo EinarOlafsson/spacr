@@ -31,32 +31,20 @@ def test_a_flat_time_series_validates_without_a_z_axis():
     assert order.t_axis == 0
 
 
-def test_a_flat_time_series_is_named_tyx():
-    """Arc 1618 -> 1620: no Z letter in the name.
-
-    The name is what gets written next to the tracks, so a TYX movie labelled
-    TZYX would misdescribe the data it came from in the run's own record.
-    """
+@pytest.mark.parametrize("axes, expected", [
+    pytest.param({'t_axis': 0, 'z_axis': None, 'y_axis': 1, 'x_axis': 2}, 'TYX',
+                 id='test_a_flat_time_series_is_named_tyx'),
+    pytest.param({'t_axis': 0, 'z_axis': 1, 'y_axis': 2, 'x_axis': 3}, 'TZYX',
+                 id='test_a_volume_time_series_is_named_tzyx'),
+    pytest.param({'t_axis': 0, 'z_axis': 1, 'y_axis': 3, 'x_axis': 4,
+                  'channel_axis': 2}, 'TZCYX',
+                 id='test_a_channel_axis_is_named_and_ordered'),
+])
+def test_named_axis_orders_keep_their_original_letters(axes, expected):
+    """Keep each original axis mapping paired with the same ordered name."""
     from spacr.zstack import AxisOrder
 
-    assert AxisOrder(t_axis=0, z_axis=None, y_axis=1, x_axis=2).name == "TYX"
-
-
-def test_a_volume_time_series_is_named_tzyx():
-    """The taken side, so the absence above is visibly a decision."""
-    from spacr.zstack import AxisOrder
-
-    assert AxisOrder(t_axis=0, z_axis=1, y_axis=2,
-                     x_axis=3).name == "TZYX"
-
-
-def test_a_channel_axis_is_named_and_ordered():
-    """Both optional axes together, in ascending axis order as documented."""
-    from spacr.zstack import AxisOrder
-
-    order = AxisOrder(t_axis=0, z_axis=1, y_axis=3, x_axis=4, channel_axis=2)
-
-    assert order.name == "TZCYX"
+    assert AxisOrder(**axes).name == expected
 
 
 def test_an_axis_used_twice_is_refused():
