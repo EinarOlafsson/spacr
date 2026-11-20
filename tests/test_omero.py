@@ -837,9 +837,20 @@ def test_a_missing_setting_is_refused_and_names_the_variable(env, variable):
         omero.connection_settings(env=env)
 
 
-def test_a_password_without_a_user_name_is_refused():
-    with pytest.raises(omero.OmeroConnectionError, match="user name"):
-        omero.connection_settings(env={"OMERO_HOST": "h", "OMERO_PASSWORD": "p"})
+@pytest.mark.parametrize('env, match', [
+    pytest.param(
+        {'OMERO_HOST': 'h', 'OMERO_PASSWORD': 'p'}, 'user name',
+        id='test_a_password_without_a_user_name_is_refused',
+    ),
+    pytest.param(
+        {'OMERO_HOST': 'h', 'OMERO_USER': 'u', 'OMERO_PASSWORD': 'p', 'OMERO_SECURE': 'maybe'}, 'yes/no',
+        id='test_an_unreadable_secure_flag_is_refused',
+    ),
+])
+def test_invalid_connection_environments_keep_their_original_refusals(env, match):
+    """Keep each invalid connection environment paired with its original refusal."""
+    with pytest.raises(omero.OmeroConnectionError, match=match):
+        omero.connection_settings(env=env)
 
 
 @pytest.mark.parametrize("port", ["0", "70000", "-1", "not-a-port"])
@@ -848,13 +859,6 @@ def test_an_impossible_port_is_refused(port):
         omero.connection_settings(
             env={"OMERO_HOST": "h", "OMERO_USER": "u", "OMERO_PASSWORD": "p",
                  "OMERO_PORT": port})
-
-
-def test_an_unreadable_secure_flag_is_refused():
-    with pytest.raises(omero.OmeroConnectionError, match="yes/no"):
-        omero.connection_settings(
-            env={"OMERO_HOST": "h", "OMERO_USER": "u", "OMERO_PASSWORD": "p",
-                 "OMERO_SECURE": "maybe"})
 
 
 PASSWORD = "correct-horse-battery-staple"
