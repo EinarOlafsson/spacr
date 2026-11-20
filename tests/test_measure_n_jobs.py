@@ -50,14 +50,19 @@ def test_n_jobs_above_the_core_count_is_clamped_and_says_so(capsys):
     assert 'exceeds the 8 available cores' in out
 
 
-def test_zero_and_negative_n_jobs_are_refused():
-    for bad in (0, -1, -8):
-        with pytest.raises(ConfigurationError):
-            M.resolve_n_jobs(bad, cpu_count=16)
-
-
-def test_a_non_integer_n_jobs_is_refused():
-    for bad in ('4', 4.5, True, [4]):
+@pytest.mark.parametrize('bad_values', [
+    pytest.param(
+        (0, -1, -8),
+        id='test_zero_and_negative_n_jobs_are_refused',
+    ),
+    pytest.param(
+        ('4', 4.5, True, [4]),
+        id='test_a_non_integer_n_jobs_is_refused',
+    ),
+])
+def test_invalid_worker_requests_keep_their_original_refusals(bad_values):
+    """Reject each original set of invalid worker requests with ConfigurationError."""
+    for bad in bad_values:
         with pytest.raises(ConfigurationError):
             M.resolve_n_jobs(bad, cpu_count=16)
 

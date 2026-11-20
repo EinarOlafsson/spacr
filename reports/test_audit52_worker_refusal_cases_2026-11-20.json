@@ -1,0 +1,207 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_measure_n_jobs.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_measure_n_jobs.py::test_zero_and_negative_n_jobs_are_refused": "tests/test_measure_n_jobs.py::test_invalid_worker_requests_keep_their_original_refusals[test_zero_and_negative_n_jobs_are_refused]",
+    "tests/test_measure_n_jobs.py::test_a_non_integer_n_jobs_is_refused": "tests/test_measure_n_jobs.py::test_invalid_worker_requests_keep_their_original_refusals[test_a_non_integer_n_jobs_is_refused]"
+  },
+  "typed_worker_loop_and_native_refusal_contracts": {
+    "test_zero_and_negative_n_jobs_are_refused": [
+      [
+        0,
+        -1,
+        -8
+      ]
+    ],
+    "test_a_non_integer_n_jobs_is_refused": [
+      [
+        "4",
+        4.5,
+        true,
+        [
+          4
+        ]
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_zero_and_negative_n_jobs_are_refused": "((0, -1, -8),)",
+    "test_a_non_integer_n_jobs_is_refused": "(('4', 4.5, True, [4]),)"
+  },
+  "contract_scope": "Exact ordered tuples (0,-1,-8) and (string 4,float 4.5,bool True,list [4]), original for-bad loop and local bad variable, native pytest.raises(ConfigurationError) without a regex and M.resolve_n_jobs(bad,cpu_count=16) retained. All other imports/helpers/fake pools/resolver/measurement/progress cases retain AST and relative order. Seven original loop values remain in two original collected cases.",
+  "collected_before": [
+    "tests/test_measure_n_jobs.py::test_zero_and_negative_n_jobs_are_refused",
+    "tests/test_measure_n_jobs.py::test_n_jobs_above_the_core_count_is_clamped_and_says_so",
+    "tests/test_measure_n_jobs.py::test_explicit_n_jobs_is_honoured",
+    "tests/test_measure_n_jobs.py::test_blank_n_jobs_leaves_headroom_and_never_raises",
+    "tests/test_measure_n_jobs.py::test_measure_crop_time_left_uses_the_pool_the_ram_guard_left",
+    "tests/test_measure_n_jobs.py::test_a_small_machine_still_gets_at_least_one_worker[3]",
+    "tests/test_measure_n_jobs.py::test_a_small_machine_still_gets_at_least_one_worker[2]",
+    "tests/test_measure_n_jobs.py::test_measure_crop_builds_the_pool_the_request_allows[exactly-one]",
+    "tests/test_measure_n_jobs.py::test_a_small_machine_still_gets_at_least_one_worker[1]",
+    "tests/test_measure_n_jobs.py::test_a_small_machine_still_gets_at_least_one_worker[4]",
+    "tests/test_measure_n_jobs.py::test_measure_crop_progress_and_pool_agree",
+    "tests/test_measure_n_jobs.py::test_measure_crop_refuses_zero_workers",
+    "tests/test_measure_n_jobs.py::test_measure_crop_builds_the_pool_the_request_allows[oversized-request-is-clamped]",
+    "tests/test_measure_n_jobs.py::test_measure_crop_blank_n_jobs_reaches_the_pool",
+    "tests/test_measure_n_jobs.py::test_a_small_machine_still_gets_at_least_one_worker[5]",
+    "tests/test_measure_n_jobs.py::test_resolve_n_jobs_defaults_to_the_real_cpu_count",
+    "tests/test_measure_n_jobs.py::test_a_non_integer_n_jobs_is_refused"
+  ],
+  "collected_after": [
+    "tests/test_measure_n_jobs.py::test_measure_crop_refuses_zero_workers",
+    "tests/test_measure_n_jobs.py::test_n_jobs_above_the_core_count_is_clamped_and_says_so",
+    "tests/test_measure_n_jobs.py::test_invalid_worker_requests_keep_their_original_refusals[test_a_non_integer_n_jobs_is_refused]",
+    "tests/test_measure_n_jobs.py::test_a_small_machine_still_gets_at_least_one_worker[4]",
+    "tests/test_measure_n_jobs.py::test_a_small_machine_still_gets_at_least_one_worker[5]",
+    "tests/test_measure_n_jobs.py::test_measure_crop_builds_the_pool_the_request_allows[oversized-request-is-clamped]",
+    "tests/test_measure_n_jobs.py::test_a_small_machine_still_gets_at_least_one_worker[3]",
+    "tests/test_measure_n_jobs.py::test_a_small_machine_still_gets_at_least_one_worker[2]",
+    "tests/test_measure_n_jobs.py::test_explicit_n_jobs_is_honoured",
+    "tests/test_measure_n_jobs.py::test_resolve_n_jobs_defaults_to_the_real_cpu_count",
+    "tests/test_measure_n_jobs.py::test_a_small_machine_still_gets_at_least_one_worker[1]",
+    "tests/test_measure_n_jobs.py::test_measure_crop_progress_and_pool_agree",
+    "tests/test_measure_n_jobs.py::test_invalid_worker_requests_keep_their_original_refusals[test_zero_and_negative_n_jobs_are_refused]",
+    "tests/test_measure_n_jobs.py::test_blank_n_jobs_leaves_headroom_and_never_raises",
+    "tests/test_measure_n_jobs.py::test_measure_crop_blank_n_jobs_reaches_the_pool",
+    "tests/test_measure_n_jobs.py::test_measure_crop_time_left_uses_the_pool_the_ram_guard_left",
+    "tests/test_measure_n_jobs.py::test_measure_crop_builds_the_pool_the_request_allows[exactly-one]"
+  ],
+  "tests_before": {
+    "passed": 17,
+    "seconds": 23.34
+  },
+  "tests_after": {
+    "passed": 17,
+    "seconds": 12.86
+  },
+  "normal_test_summary_before_after": {
+    "before": "17 passed, 5 warnings in 23.34s",
+    "after": "17 passed, 5 warnings in 12.86s"
+  },
+  "coverage_scope": "spacr.measure under the complete selected worker-resolver/fake-pool/measurement/progress module; not full-suite coverage. Existing fake pools run no measurement jobs and use tiny local merged-array fixtures only; no new production reader, GUI/chart rendering, model training, network or GPU work.",
+  "coverage_before": {
+    "covered_lines": 1190,
+    "num_statements": 9333,
+    "percent_covered": 10.561444837063211,
+    "percent_covered_display": "11",
+    "missing_lines": 8143,
+    "excluded_lines": 0,
+    "percent_statements_covered": 12.750455373406194,
+    "percent_statements_covered_display": "13",
+    "num_branches": 3402,
+    "num_partial_branches": 99,
+    "covered_branches": 155,
+    "missing_branches": 3247,
+    "percent_branches_covered": 4.556143445032334,
+    "percent_branches_covered_display": "5"
+  },
+  "coverage_after": {
+    "covered_lines": 1190,
+    "num_statements": 9333,
+    "percent_covered": 10.561444837063211,
+    "percent_covered_display": "11",
+    "missing_lines": 8143,
+    "excluded_lines": 0,
+    "percent_statements_covered": 12.750455373406194,
+    "percent_statements_covered_display": "13",
+    "num_branches": 3402,
+    "num_partial_branches": 99,
+    "covered_branches": 155,
+    "missing_branches": 3247,
+    "percent_branches_covered": 4.556143445032334,
+    "percent_branches_covered_display": "5"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "5204ce185691eea0951c490f58212d99c75ce1b491c943f9c8dbe4efb610db8e",
+  "production_source_sha256": "0813e700ca3b3ed63ddbece680e6c5a1cc8bc71552807565cfb1a5a4cba8c8e2",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_helpers_fake_pools_resolver_measurement_progress_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "nonpositive-worker-refusal-bypassed",
+      "source_variant": {
+        "path": "spacr/measure.py",
+        "line": 402,
+        "old": "raise ConfigurationError(\n            f\"settings['n_jobs'] = {n_jobs} must be at least 1. A pool of \"\n            f\"{n_jobs} workers would measure nothing; leave n_jobs blank \"\n            f\"(None) to let spaCR choose.\")",
+        "new": "return None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_measure_n_jobs.py::test_zero_and_negative_n_jobs_are_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_measure_n_jobs.py::test_zero_and_negative_n_jobs_are_refused"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_measure_n_jobs.py::test_invalid_worker_requests_keep_their_original_refusals[test_zero_and_negative_n_jobs_are_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_measure_n_jobs.py::test_invalid_worker_requests_keep_their_original_refusals[test_zero_and_negative_n_jobs_are_refused]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "noninteger-worker-refusal-bypassed",
+      "source_variant": {
+        "path": "spacr/measure.py",
+        "line": 396,
+        "old": "raise ConfigurationError(\n            f\"settings['n_jobs'] = {n_jobs!r} must be an integer number of \"\n            f\"worker processes, or None to let spaCR choose.\")",
+        "new": "return None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_measure_n_jobs.py::test_a_non_integer_n_jobs_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_measure_n_jobs.py::test_a_non_integer_n_jobs_is_refused - F..."
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_measure_n_jobs.py::test_invalid_worker_requests_keep_their_original_refusals[test_a_non_integer_n_jobs_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_measure_n_jobs.py::test_invalid_worker_requests_keep_their_original_refusals[test_a_non_integer_n_jobs_is_refused]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in resolve_n_jobs before and after: return None in nonpositive-worker refusal; return None in noninteger-worker refusal. Each fault selects the same one original/mapped loop case before/after and must fail with DID NOT RAISE from unchanged native pytest.raises(ConfigurationError). All seven typed loop values, order, cpu_count=16 and native call retained. Repository production files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_measure_n_jobs.py",
+      "line": 64,
+      "symbol": "test_invalid_worker_requests_keep_their_original_refusals",
+      "new": "Reject each original set of invalid worker requests with ConfigurationError.",
+      "old": {
+        "test_zero_and_negative_n_jobs_are_refused": null,
+        "test_a_non_integer_n_jobs_is_refused": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
