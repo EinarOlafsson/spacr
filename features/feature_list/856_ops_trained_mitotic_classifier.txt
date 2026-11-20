@@ -4,7 +4,7 @@ OPS TRAINED MITOTIC CLASSIFIER
 Lifecycle: future
 Status: DONE 2026-11-08 (alpha, under ALPHA_FEATURES[752]) — spacr.ops_mitotic trains a gradient-boosting mitotic classifier on labelled cells (read_mitotic_labels, sampling_weights), validated with folds by well or field and a shuffled-label control; ops_mitotic_model makes the aggregate phase call mitotic cells with it instead of the DNA rule. spacr/ops_mitotic.py, spacr/ops_engine.py, tests/test_ops_mitotic.py.
 Requested: maintainer via paper session, 2026-11-07.
-Owner: paper session.
+Owner: paper session; Codex Home owns the 2026-11-19 full-population normalization correction (TASK Q2).
 Source: plate A OPS pilot.
 Related: 752.
 
@@ -21,3 +21,9 @@ WHAT TO DO
 RULE
 The paper session builds this under the identical-output rule: with the new
 option off, outputs stay identical to today's.
+
+2026-11-19 P1: fit training normalization on full reference wells when labels are enriched; retain training statistics for inspection only.
+Prediction must normalize current complete wells or an explicit full reference, including another plate with the same well names; old bundles load with a warning.
+Acceptance: a 50% enriched label set recovers a 3% population and cross-plate batch correction; unchanged engine/TVN full-screen callers remain valid.
+2026-11-19 Q2 validation: 43 focused cases pass, including cross-plate normalization, enriched labels, old-bundle warnings and unchanged engine/TVN callers.
+2026-11-19 Q2 source checks: callable/API contracts and the comment guard pass; existing API expectations updated, frozen engine/TVN and settings unchanged.

@@ -132,6 +132,7 @@ EXACT_LABELS = {
     "power_wells_per_plate": "Statistical power — wells per plate",
     "zernike": "Zernike moments",
     "ops_ph_zernike": "Ops ph Zernike moments",
+    "ops_sbs_nucleus_model": "Ops SBS nucleus segmentation model",
 }
 
 CASED_TERMS = {

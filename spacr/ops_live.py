@@ -47,6 +47,7 @@ _STEM_STEPS: Tuple[Tuple[str, str], ...] = (
     ("ops_sites", "align"),
     ("ops_compose_", "align"),
     ("cellpose_", "spots"),
+    ("ops_sbs_nucleus_model", "spots"),
     ("ops_objects_", "spots"),
     ("ops_window_", "spots"),
     ("ops_merge", "merge"),
@@ -473,7 +474,7 @@ def _result(ctx: _Context, step: str,
     return out
 
 
-def _model(ctx: _Context, key: str = "cellpose_model"):
+def _model(ctx: _Context, key: str = "ops_sbs_nucleus_model"):
     """The Cellpose model a setting names, built once and kept.
 
     :param ctx: the pass context; the model is kept in its cache.
@@ -872,7 +873,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     if dapi is None:
         raise ValueError(f"tile {site} has no readable DAPI plane")
     dapi = np.ascontiguousarray(dapi[y0:y0 + size, x0:x0 + size])
-    nuclei_key = json.dumps([site, align["crop"], ctx.settings.get("cellpose_model"),
+    nuclei_key = json.dumps([site, align["crop"], ctx.settings.get("ops_sbs_nucleus_model"),
                              ctx.settings.get("cellpose_diameter"),
                              ctx.settings.get("ops_gpu")], default=str)
     held = ctx.cache.get("_sbs_nuclei")
@@ -881,7 +882,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     else:
         from ._gpu_governor import _governed_eval
 
-        model = _model(ctx, "cellpose_model")
+        model = _model(ctx, "ops_sbs_nucleus_model")
         diameter = ctx.settings.get("cellpose_diameter")
         extra = {"diameter": float(diameter)} if diameter else {}
         nuclei = np.asarray(_governed_eval(model, dapi, site="ops_stitched",

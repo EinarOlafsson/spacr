@@ -337,6 +337,14 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     },
 }
 
+#: Item 969: the e-test power curve is drawn by the Power module's OPS power
+#: curve section. The keys stay OPS settings, so the OPS panel still carries
+#: their values (defaults, or what a loaded file says) into the run.
+_APP_HIDDEN_KEYS["ops"] = {
+    "ops_power_cells", "ops_power_seeds", "ops_power_retrieval",
+    "ops_power_gene_list", "ops_power_reference_rows",
+}
+
 _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
     "classify": {"Cellpose"},
     "mask": {"Timelapse", "Motility (beta)", "Motility Advanced (beta)"},
@@ -1376,7 +1384,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Quality Control", (
             "@Segmentation QC",
             "save", "delete_intermediate", "keep_intermediate",
-            "keep_original_images", "save_original_images", "keep_npz",
+            "keep_original_images", "save_original_images",
             "filter", "merge_pathogens",
             "strict_errors", "max_failure_rate", "on_error",
             "on_error_attempts", "on_error_backoff", "random_seed", "verbose", "n_jobs", "ram_guard",
@@ -1619,7 +1627,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Output & Storage", (
             "save", "delete_intermediate", "keep_intermediate",
-            "keep_original_images", "save_original_images", "keep_npz",
+            "keep_original_images", "save_original_images",
             "filter", "merge_pathogens",
         )),
         ("Runtime & Reliability", (
@@ -2336,6 +2344,44 @@ for _cellpose_app in ('cellpose_masks', 'cellpose_all'):
         'Image Geometry': 'Image Preprocessing',
         'Background & Denoising': 'Image Preprocessing',
     }
+#: The OPS heading each subcategory is drawn under, item 969: the categories
+#: of :data:`spacr.ops_settings.OPS_CATEGORIES`, nested as Mask generation's
+#: Image Preprocessing is. OPS input
+#: keeps its own five rows and gains its subcategories below them; the other
+#: headings are umbrellas with no rows of their own, drawn where their first
+#: subcategory falls.
+_APP_CATEGORY_PARENTS["ops"] = {
+    **{title: "OPS input" for title in (
+        "Plate Layout & Controls", "Cell Painting Gallery input",
+        "OPS performance", "Archive")},
+    **{title: "OPS alignment" for title in (
+        "Stitching", "Placement seeds", "Nuclei segmentation")},
+    **{title: "OPS decoding" for title in (
+        "Spot detection & registration", "Base calling", "Read assignment",
+        "Pixel fallback", "Decoys & auto thresholds",
+        "Call quality & confidence", "Spacer-prefix library",
+        "Spacer-prefix FDR & tuning", "Prefix FDR sweep", "Grid search",
+        "Comparison with other pipelines")},
+    **{title: "OPS phenotype" for title in (
+        "Phenotype segmentation", "Additional phenotype objects",
+        "Phenotype acquisitions",
+        "Feature families", "Flat-field correction", "Flat-field map fit",
+        "Flat-field validation", "Merged images & tables",
+        "Single-cell crops")},
+    **{title: "OPS merge" for title in (
+        "Field alignment", "Cell ownership", "Yield report")},
+    **{title: "OPS aggregate" for title in (
+        "Pooling & normalisation", "Gene tests & hits",
+        "Cell cycle & mitosis", "Penetrance, escapers & neighbours",
+        "Profile weighting & shrinkage", "Profile run", "Energy-distance test",
+        "Power simulation")},
+    **{title: "OPS cluster" for title in (
+        "Cluster benchmark", "Resolution sweep", "Consensus clustering",
+        "Consensus inputs", "Calibrated cluster test",
+        "Module atlas & MitoCarta", "Voyager3 cluster annotation")},
+    **{title: "OPS evaluation" for title in (
+        "Profile scoring", "Scoring references", "Reference evaluation")},
+}
 _APP_CATEGORY_PARENTS['train_cellpose'] = {
     'Validation Data': 'Training Data',
     'Image Preprocessing': 'Input & Channels',
@@ -2924,17 +2970,235 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "acquisition rather than preferences, and the run reports the "
         "library match rate that says whether they are right.",
     "OPS PERFORMANCE":
-        "How much of the machine the run may use: whether the graphics card "
-        "is used, and how many fields are decoded at once. Nothing here "
-        "changes the result, only what it costs.",
+        "How much of the machine the run may use and how it waits for it: "
+        "the graphics card, parallel workers, BLAS threads, local staging of "
+        "phenotype fields and the wait for a free card. These change what a "
+        "run costs; with deterministic BLAS on they leave its tables as "
+        "they are.",
     "OPS PHENOTYPE":
-        "How the phenotype acquisition is measured and joined to the "
-        "sequencing calls: which channels are measured, which channel and "
-        "models segment the cells and nuclei and at what size, how far a "
-        "phenotype nucleus may lie from a sequencing nucleus and still be "
-        "the same cell, and how the guide design, the non-targeting "
-        "controls and the bootstrap turn cells into per-guide and per-gene "
-        "results.",
+        "How the phenotype acquisition is segmented, corrected and measured: "
+        "the channels and Cellpose models for cells and nuclei, a second "
+        "acquisition's channels, the feature families, the flat-field maps "
+        "and their check, and the merged images, tables and crops written "
+        "from the measured cells.",
+    "OPS MERGE":
+        "How each phenotype field is joined to the sequencing well: the "
+        "route and model that align its nuclei to the sequencing nuclei, "
+        "which copy of a cell imaged twice is kept, and the yield report "
+        "that counts cells from nuclei to genotyped phenotypes.",
+    "OPS AGGREGATE":
+        "How genotyped cells become guide and gene profiles and gene calls: "
+        "pooling and normalisation, per-gene tests and hit lists, cell-cycle "
+        "resolved profiles, penetrance and neighbour effects, profile "
+        "weighting, the stored-profile run and the e-test.",
+    "OPS CLUSTER":
+        "How gene profiles are clustered and the clusters tested: the "
+        "benchmark against complexes and pathways, the Leiden resolution "
+        "sweep, guide-bootstrap consensus clustering, the calibrated cluster "
+        "test and the module atlas.",
+    "OPS EVALUATION":
+        "How profiles and clusterings are scored against reference gene "
+        "sets: the copairs and EFAAR scores of the score phase, the CORUM "
+        "and STRING files they read, and the held-out evaluation of the "
+        "evaluate phase.",
+    "CELL PAINTING GALLERY INPUT":
+        "Where a Cell Painting Gallery plate is read when OPS layout is "
+        "cpg_cropped: the cropped-image folder, its wells and sites, the "
+        "painting channels and sequencing cycles stacked from it, and what "
+        "to do with a missing or mismatched plane.",
+    "ARCHIVE":
+        "Copies each finished well to archive storage, checks the copy and "
+        "can free the local disk. A rerun resumes from the wells already "
+        "archived.",
+    "STITCHING":
+        "How the sequencing tiles of a well are placed and blended into one "
+        "nuclear image: the tile overlap, the blend, the reading and "
+        "registration workers, and which sites are run.",
+    "PLACEMENT SEEDS":
+        "Reuse the tile placement of an earlier full run instead of "
+        "registering every tile again, with checks that the seed still "
+        "fits; and export a seed from this run.",
+    "NUCLEI SEGMENTATION":
+        "Which Cellpose model and diameter segment the nuclei of the "
+        "stitched sequencing well, how the segmentation windows overlap, and "
+        "whether finished windows are kept so an interrupted well resumes. "
+        "The reads are assigned to these nuclei.",
+    "SPOT DETECTION & REGISTRATION":
+        "Which channel carries which base, how bright a spot must be to be "
+        "a read, which spot detector runs, and how each cycle's channels are "
+        "registered before the bases are read.",
+    "BASE CALLING":
+        "How each spot's four channel values become a base: the read mode, "
+        "the dye crosstalk correction, the calibration of each cycle from "
+        "the library, a named preset, and whether every read is stored.",
+    "READ ASSIGNMENT":
+        "How reads become a nucleus's guide: how far a read may lie from a "
+        "nucleus, the cell rule, mismatches, read counts and fractions, the "
+        "near-miss runner-up, tie handling and quality-weighted votes.",
+    "PIXEL FALLBACK":
+        "For a nucleus no read reached, call the brightest nearby pixels "
+        "like reads, with its own percentile, radius, pixel count, share and "
+        "quality limits. Off leaves such nuclei uncalled.",
+    "DECOYS & AUTO THRESHOLDS":
+        "Decoy barcodes estimate the false-call rate, and auto thresholds "
+        "pick the decode settings that keep it under a target: the decoy "
+        "count, FDR scale, target, grid, tuning split, objective and "
+        "fallback.",
+    "CALL QUALITY & CONFIDENCE":
+        "After the decode, a model of what makes a call a decoy, and a "
+        "calibrated probability that each genotype call is right, with an "
+        "optional floor that drops the weakest calls.",
+    "SPACER-PREFIX LIBRARY":
+        "For libraries read by the first cycles of the spacer itself: the "
+        "library columns, prefix length and cycles, masked cycles, prefix "
+        "collisions, the read correction metric and distance, and each "
+        "cell's quality class.",
+    "SPACER-PREFIX FDR & TUNING":
+        "The controls and thresholds of the spacer-prefix decode: a "
+        "shuffled-whitelist control, decoy prefixes and their FDR scale, the "
+        "weakest read called, and per-well threshold tuning to an FDR "
+        "target.",
+    "PREFIX FDR SWEEP":
+        "The prefix_fdr_sweep phase: the FDR targets, distances, read "
+        "counts, rules and quality cuts it tries, with site-bootstrap "
+        "intervals and shuffled-whitelist controls, on the read tables "
+        "named.",
+    "GRID SEARCH":
+        "Before a full spacer-prefix run, score a grid of spot and decode "
+        "settings on a few tiles: the grid, the tiles and how they are "
+        "picked, the seed, and the grid run whose point was applied.",
+    "POWER SIMULATION":
+        "The power_sim phase: simulated screens with planted effects of known "
+        "size, calibrated on a real run, scored by the OPS analysis steps, "
+        "with the designs, seeds, effect types and scorers it sweeps.",
+    "COMPARISON WITH OTHER PIPELINES":
+        "Match spaCR's cells and calls with another pipeline's on the same "
+        "fields, by centroid distance or mask overlap, and report agreement "
+        "with a shuffled-call control.",
+    "PHENOTYPE SEGMENTATION":
+        "Which phenotype channels are measured and which channel and "
+        "Cellpose models segment the cells and nuclei, at what diameter, "
+        "downsampling and batch size, on which sites.",
+    "ADDITIONAL PHENOTYPE OBJECTS":
+        "Optional pathogen and organelle objects in the phenotype fields: "
+        "the channel each is found on, the Cellpose model, diameter and "
+        "smallest area, and for organelles the morphology and the method "
+        "that finds them, as in Mask Generation.",
+    "PHENOTYPE ACQUISITIONS":
+        "For a plate whose phenotype channels were imaged in more than one "
+        "acquisition: which acquisition holds which channels, and how a "
+        "second acquisition is registered onto the first.",
+    "FEATURE FAMILIES":
+        "Which feature families are measured beyond the standard intensity "
+        "and shape set: texture, Zernike moments, Funk et al. 2022's "
+        "features and spaCR's profiling families.",
+    "FLAT-FIELD CORRECTION":
+        "How uneven illumination of the phenotype fields is corrected: the "
+        "method, the plate's maps and the fields they are built from, and "
+        "the nuclear-median map of the DNA channel.",
+    "FLAT-FIELD MAP FIT":
+        "How the nuclear-median flat-field map is fitted: block size, fit "
+        "method and width, ridge, floor, the central normalisation square "
+        "and how the map is read at field pixels.",
+    "FLAT-FIELD VALIDATION":
+        "Checks a flat-field map on fields left out of it: which and how "
+        "many fields, their images and masks, other maps compared, and the "
+        "radial table with bootstrap intervals.",
+    "MERGED IMAGES & TABLES":
+        "What the ph_merged and ph_tables phases write: the merged channel "
+        "stacks, their correction and data type, and the layout of the "
+        "cell, nucleus and cytoplasm tables.",
+    "SINGLE-CELL CROPS":
+        "What the ph_crops phase cuts: how many cells per guide, the crop "
+        "size, channels and correction, the controls kept, the masks stored "
+        "and how the crop store is sharded.",
+    "FIELD ALIGNMENT":
+        "How each phenotype field is placed on the sequencing well: the "
+        "route, the stitch source, the pattern-match votes and fallback, "
+        "and the per-tile alignment model and its matching radius.",
+    "CELL OWNERSHIP":
+        "Which copy of a cell seen in two overlapping fields is kept, how "
+        "copies are found and scored, and whether cells of unregistered "
+        "fields are dropped.",
+    "YIELD REPORT":
+        "The report phase: the yield funnel from nuclei to genotyped "
+        "phenotypes, the overlap-zone match rates, and counts compared with "
+        "a published table under a shuffled-label control.",
+    "POOLING & NORMALISATION":
+        "Which wells and cells are pooled, which features and rows are "
+        "dropped, how profiles are normalised, and how the TVN alignment to "
+        "the controls is fitted.",
+    "GENE TESTS & HITS":
+        "How each gene is tested against the non-targeting guides and how "
+        "hits are called: bootstrap replicates, the null, the features "
+        "tested, and the expression-based hit lists.",
+    "CELL CYCLE & MITOSIS":
+        "How mitotic cells are called, whether profiles are split by "
+        "cell-cycle phase, the per-phase gene tests, and the mitotic-index "
+        "test against a published table.",
+    "PENETRANCE, ESCAPERS & NEIGHBOURS":
+        "Per-gene penetrance, genes whose cells split into responders and "
+        "escapers, and the effect of a knockout on its unperturbed "
+        "neighbours, with their nulls.",
+    "PROFILE WEIGHTING & SHRINKAGE":
+        "How gene profiles are weighted, corrected for guide efficacy, "
+        "shrunk toward the controls and cleared of generic axes, and how "
+        "gene similarity is written.",
+    "PROFILE RUN":
+        "The stored-profile path: which per-well cell tables are profiled, "
+        "the run name and recipe, the minimum cells, the cell state and "
+        "gene universe, and extra embedding or fusion blocks.",
+    "ENERGY-DISTANCE TEST":
+        "The per-gene energy-distance test of the etest phase: the cells it "
+        "reads, the distance, the reference and null pseudo-genes, and the "
+        "test mode. Its power curve is set in the Power module.",
+    "OPS POWER CURVE":
+        "How many cells per gene an optical pooled screen needs: the e-test "
+        "of a finished profile run, repeated on cells drawn down to each cap, "
+        "with an optional retrieval curve against reference gene sets. It is "
+        "set and run in the Power module.",
+    "CLUSTER BENCHMARK":
+        "Cluster the gene profiles as Funk et al. 2022 did and score the "
+        "clusters against CORUM, KEGG and STRING, or a published "
+        "clustering, at a chosen cluster count.",
+    "RESOLUTION SWEEP":
+        "The cluster_sweep phase: the graphs, neighbours, Leiden resolutions "
+        "and seeds tried, the shuffled-label controls, and published "
+        "clusterings compared on the same genes.",
+    "CONSENSUS CLUSTERING":
+        "Guide-bootstrap consensus clustering: the bootstraps and seeds, the "
+        "graph and cluster count, how the co-clustering matrix is cut, and "
+        "which genes are left unassigned.",
+    "CONSENSUS INPUTS":
+        "What the consensus clusters: the guide rows, the profile space, "
+        "the profile or gene-pairs mode, and its search, workers and cell "
+        "tables.",
+    "CALIBRATED CLUSTER TEST":
+        "The cluster_bench_test phase: paired replicates, the jitter gate "
+        "that calibrates it, the test level and margin, the reference half "
+        "and the size-matched null.",
+    "MODULE ATLAS & MITOCARTA":
+        "The modules phase, which clusters gene profiles into a module "
+        "atlas, and the mitocarta phase, which scores clusterings against "
+        "MitoCarta and published module tables.",
+    "VOYAGER3 CLUSTER ANNOTATION":
+        "Voyager3 names the role each gene cluster shares from the genes' "
+        "reviewed UniProt facts and the AI chosen under Preferences: which "
+        "cluster table and clusters, the organism and context, the provider, "
+        "model and timeout, a shuffled-gene control, and where the answers "
+        "are kept so a run resumes.",
+    "PROFILE SCORING":
+        "The score phase: which analyses and genes are scored, the copairs "
+        "and EFAAR metrics, the null size, complex size, cluster jitter, "
+        "workers and figures.",
+    "SCORING REFERENCES":
+        "The reference files and choices the score phase reads: the CORUM "
+        "and STRING files, STRING thresholds, complex coverage, PCA variance "
+        "and the benchmark genes and seed.",
+    "REFERENCE EVALUATION":
+        "The evaluate phase: the references gene profiles are scored "
+        "against, the half used, the null size, held-out complexes, "
+        "fitness-matched decoys, the time split and covariates.",
     "SPATIAL INPUT":
         "Which spatial transcriptomics run is read and where its results "
         "go: the Xenium or Visium HD output folder, the platform that wrote "
@@ -4123,6 +4387,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
 #: Per-module overrides for headings that mean different things per module.
 #: Missing entries fall through to :data:`CATEGORY_TOOLTIPS`.
 CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
+    "ops": {
+        "PLATE LAYOUT & CONTROLS":
+            "Which plate this is and which guides and genes are controls: "
+            "the plate name, the guide design table with its gene symbols, "
+            "the gene-name prefix of the non-targeting controls, and an "
+            "optional genotype table that replaces the decode's calls.",
+    },
     "mask": {
         "QUALITY CONTROL":
             "Automatic pass/fail checks on the finished masks, what the run "
@@ -5122,6 +5393,33 @@ def _type_hint(key: str) -> str:
     return _TYPE_NAMES.get(t, getattr(t, "__name__", str(t)))
 
 
+#: Words a module's panel drops from the front of its own settings' labels.
+#:
+#: Item 969: every OPS key starts with ``ops_``, so every OPS label started
+#: with "Ops" -- on a panel whose headings already say OPS. The key keeps the
+#: prefix (settings files, the API and other modules still read it); only
+#: the label on this module's panel loses it, and the catalogue builder reads
+#: the label from :meth:`SettingsWidgets._label_for`, so the translations are
+#: catalogued for the label actually shown.
+_APP_LABEL_PREFIXES: Dict[str, str] = {"ops": "Ops "}
+
+
+def app_setting_label(app_key: str, key: str) -> str:
+    """The label ``key`` is shown under on ``app_key``'s panel.
+
+    :param app_key: the module drawing the panel.
+    :param key: the setting key.
+    :returns: :func:`spacr.object_roles.setting_label`, without the leading
+        word the module drops (:data:`_APP_LABEL_PREFIXES`).
+    """
+    label = setting_label(key)
+    prefix = _APP_LABEL_PREFIXES.get(str(app_key or ""))
+    if prefix and label.lower().startswith(prefix.lower()) and len(label) > len(prefix):
+        rest = label[len(prefix):]
+        label = rest[:1].upper() + rest[1:]
+    return label
+
+
 def _humanize(key: str) -> str:
     """Render a setting key as its human label.
 
@@ -5322,7 +5620,8 @@ def _translated_setting_name(
 
     from ..i18n import _ROWS, _TERM_ROWS, tr
 
-    source = _humanize(key.removeprefix("make_masks_") if app_key == "make_masks" else key)
+    source = (_humanize(key.removeprefix("make_masks_")) if app_key == "make_masks"
+              else app_setting_label(app_key, key) if key else "")
     if source in _ROWS or source in _TERM_ROWS:
         resolved = tr(source, code)
     else:
@@ -12075,7 +12374,7 @@ class SettingsWidgets:
                 return labels[key]
         if self.app_key == "regression" and key == "src":
             return "Output directory"
-        return setting_label(key)
+        return app_setting_label(self.app_key, key)
 
     def _widget_for(self, kind: str, options: Any, default: Any,
                     key: str) -> Optional[QWidget]:

@@ -211,7 +211,7 @@ def test_v2_corrects_a_private_selection_and_commits_after_the_stack(
 
     PV.stream_masks_from_stack(
         [stack], channels_for_cellpose=(1, 0, 1), batch_fields=1,
-        keep_npz=True, illumination_session=session,
+        illumination_session=session,
     )
 
     selected = session.raw_selected[stack.field_id]
@@ -221,8 +221,7 @@ def test_v2_corrects_a_private_selection_and_commits_after_the_stack(
         _CaptureModel.received[0], corrected / corrected.max())
     stored = np.load(stack.path)
     assert np.array_equal(stored[..., :2], _raw())
-    scratch = np.load(stack.path.parent / "_scratch" / "batch_0000.npz")
-    assert np.array_equal(scratch[stack.field_id], _raw())
+    assert not (stack.path.parent / "_scratch").exists()
     assert session.events == [
         ("correct", stack.field_id, stack.path.name, (1, 0)),
         ("complete", stack.field_id),

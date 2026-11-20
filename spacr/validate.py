@@ -1123,6 +1123,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "controls": "nontargeting_control_grnas",
     "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
     "denoise": "",
+    "keep_npz": "",
     "load_path_regex": "",
     "mask_array": "",
     "normalization": "",
@@ -1169,6 +1170,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "zscore_thresh": "track_outlier_zscore",
     "overview_measure_saturation": "",
     "overview_original_on_open": "overview_preview_resolution",
+    "cellpose_model": "ops_sbs_nucleus_model",
     **{f"{obj}_{bound}": "object_filters"
        for obj in ("cell", "nucleus", "pathogen")
        for bound in ("min_area", "max_area", "min_intensity",

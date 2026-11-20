@@ -118,9 +118,10 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-19: the small-well guard of the prefix decode's tuning (982)
     # makes 164.
     # 2026-11-19: the spaCR store as an OPS output (974) makes 165.
-    # 2026-11-19: ops_phases, a settings file names its own OPS phases (977), makes 166.
+    # 2026-11-19: the GPU feature-information screen (964) makes 166.
+    # 2026-11-19: ops_phases, a settings file names its own OPS phases (977), makes 167.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    assert count == 166
+    assert count == 167
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

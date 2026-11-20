@@ -665,97 +665,12 @@ def _plain_row(row: Mapping[str, Any]) -> Dict[str, Any]:
     return out
 
 
-class _StoreCropSource:
-    """Crops read from a run's spaCR store by ``prcfo`` (item 975).
-
-    Returns what :class:`spacr.crops.PngCropSource` returns for the same
-    object: ``(H, W, 3)`` uint8 in declared channel order, a raw-format crop
-    stretched for display as :func:`spacr.crops.read_crop_png` stretches it.
-
-    :param project: the folder holding ``spacr.duckdb``.
-    :param table: the object class.
-    """
-
-    kind = "store"
-
-    def __init__(self, project: str, table: str):
-        """Open the store; the crops are read per batch of rows."""
-        from . import store
-
-        self.project = project
-        self.table = table
-        self.reason = f"the spaCR store in {project}"
-        self._store = store.open(project, verify="none")
-
-    def get(self, row: Any) -> np.ndarray:
-        """The crop of one row."""
-        return self.get_many([row])[0]
-
-    def get_many(self, rows) -> List[np.ndarray]:
-        """The crops of ``rows``, in order.
-
-        :raises spacr.crops.CropError: a row has no ``prcfo`` or no crop in
-            the store.
-        """
-        from .crops import (
-            _CROP_FORMAT_DECLARED_RAW,
-            CropError,
-            _stretched_view,
-            narrow_to_uint8,
-        )
-
-        rows = list(rows)
-        keys = []
-        for row in rows:
-            key = row.get("prcfo") if isinstance(row, Mapping) else None
-            if not key:
-                raise CropError("a store crop needs the row's prcfo")
-            keys.append(str(key))
-        result, stack = self._store.query({"prcfo": sorted(set(keys))},
-                                          table=self.table, features=[],
-                                          crops=True, as_="arrow")
-        found = {str(k): i for i, k in
-                 enumerate(result.column("prcfo").to_pylist())}
-        stored = result.column("crop_store").to_pylist()
-        formats = (result.column("crop_format").to_pylist()
-                   if "crop_format" in result.column_names
-                   else [None] * result.num_rows)
-        out = []
-        for key in keys:
-            position = found.get(key)
-            if position is None or not stored[position]:
-                raise CropError(f"{key} has no crop in {self.reason}")
-            arr = np.moveaxis(stack[position], 0, -1)
-            if formats[position] == _CROP_FORMAT_DECLARED_RAW:
-                arr = _stretched_view(arr)
-            else:
-                arr = narrow_to_uint8(arr)
-                if arr.shape[2] == 1:
-                    arr = np.repeat(arr, 3, axis=2)
-            out.append(np.ascontiguousarray(arr))
-        return out
-
-    def describe(self) -> str:
-        """One line for logs and the status bar."""
-        return f"{self.kind} crop source ({self.reason})"
-
-
 def _store_source(query: CropQuery, db_path: str):
     """The spaCR store's crop source for ``query``, or None without one."""
-    from .store import CATALOG
+    from .crops import _store_crop_source
 
-    project = os.path.dirname(os.path.abspath(db_path))
-    prefer = str(query.prefer or "").strip().lower()
-    if prefer not in ("", "store") or not os.path.isfile(
-            os.path.join(project, CATALOG)):
-        return None
-    try:
-        source = _StoreCropSource(project, str(query.object_type))
-    except Exception:                                            # noqa: BLE001
-        LOG.debug("the spaCR store in %s could not be opened", project,
-                  exc_info=True)
-        return None
-    return source if str(query.object_type) in source._store.tables() else None
+    return _store_crop_source(os.path.dirname(os.path.abspath(db_path)),
+                              str(query.object_type), query.prefer)
 
 
 def _pixel_source(query: CropQuery, db_path: str):

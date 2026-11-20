@@ -3724,6 +3724,30 @@ def _validated_spacr_store_974_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_ops_settings_layout_969_callables(callables):
+    """Check the public callables of item 969 (OPS panel labels and the Power module's OPS power curve) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "969_ops_settings_layout_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.qt.screens.power.ops_power_settings",
+                            "spacr.qt.screens.power.run_ops_power_curve",
+                            "spacr.qt.screens.settings_model.app_setting_label"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    # The Power screen's module names its public functions in ``__all__``
+    # and the two new ones are not listed there, so this callable inventory
+    # does not see them; the API catalog, which reads every documented
+    # function, does, and the other contract checks count all three.
+    assert found.keys() == {"spacr.qt.screens.settings_model.app_setting_label"}
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_ops_power_sim_968_callables(callables):
     """Check the public callables of item 968 (the OPS power simulation) against their source."""
     import json
@@ -3735,6 +3759,24 @@ def _validated_ops_power_sim_968_callables(callables):
     assert all(symbol.split(".")[:2] == ["spacr", "power_ops"] for symbol in entries)
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert len(found) == 10
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_feature_screen_964_callables(callables):
+    """Check the public callable of item 964 (the feature-information screen) against its source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "964_ops_feature_screen_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.ops_feature_info", "spacr.ops_feature_info.screen"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == {"spacr.ops_feature_info.screen"}
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
         assert item.parameters == item.accepted_documented_parameters
@@ -3966,9 +4008,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_point_mode_957_callables(callables)
     callables = _validated_pairs_consensus_948_callables(callables)
     callables = _validated_r2_nuclei_965_callables(callables)
+    callables = _validated_ops_settings_layout_969_callables(callables)
     callables = _validated_voyager3_973_callables(callables)
     callables = _validated_ops_power_sim_968_callables(callables)
     callables = _validated_spacr_store_974_callables(callables)
+    callables = _validated_feature_screen_964_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5460,7 +5504,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 20,264 -> 20,265 on 2026-11-14: item 938's optional `progress_share` of
     # spacr.object.generate_cellpose_masks_sam (defaulted), the serial mask
     # path's per-batch progress lines.
-    assert sum(len(item.parameters) for item in callables) == 20265
+    # 20,265 -> 20,262 on 2026-11-18: item 987 removed the `keep_npz` keyword of
+    # spacr.pipeline_v2.run_v2 and the `keep_npz` and `npz_dir` keywords of
+    # spacr.pipeline_v2.stream_masks_from_stack (the scratch NPZ is gone).
+    assert sum(len(item.parameters) for item in callables) == 20262
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5804,7 +5851,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # changed parameters; new callables are checked by their arrival contracts.
     # Moved 2026-11-14 for item 938 (was 17089b9e...): the optional
     # `progress_share` of spacr.object.generate_cellpose_masks_sam.
-) == '6e569df7200c40ec836404fed5c2d8efbec245e64bf77f9c9249cc293be5bccc'
+    # Moved 2026-11-18 for item 987 (was 6e569df7...): run_v2 and
+    # stream_masks_from_stack lost `keep_npz` and `npz_dir`.
+) == 'a1e211425beb740dde4db5c5ef8bc1123370546e1a08163ebda6fc16e221c625'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -6730,11 +6779,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("957_make_masks_point_mode_api_arrivals_2026-11-15.json", 23),
         ("948_ops_pairs_consensus_api_arrivals_2026-11-15.json", 6),
         ("965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json", 1),
+        ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
         ("960_ops_grid_search_api_arrivals_2026-11-17.json", 2),
         ("968_ops_power_sim_api_arrivals_2026-11-17.json", 11),
         ("974_spacr_store_api_arrivals_2026-11-17.json", 16),
+        ("964_ops_feature_screen_api_arrivals_2026-11-17.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7346,9 +7397,11 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "957_make_masks_point_mode_api_arrivals_2026-11-15.json",
                      "948_ops_pairs_consensus_api_arrivals_2026-11-15.json",
                      "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json",
+                     "969_ops_settings_layout_api_arrivals_2026-11-17.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
-                     "974_spacr_store_api_arrivals_2026-11-17.json"):
+                     "974_spacr_store_api_arrivals_2026-11-17.json",
+                     "964_ops_feature_screen_api_arrivals_2026-11-17.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7500,9 +7553,11 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "957_make_masks_point_mode_api_arrivals_2026-11-15.json",
                      "948_ops_pairs_consensus_api_arrivals_2026-11-15.json",
                      "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json",
+                     "969_ops_settings_layout_api_arrivals_2026-11-17.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
-                     "974_spacr_store_api_arrivals_2026-11-17.json"):
+                     "974_spacr_store_api_arrivals_2026-11-17.json",
+                     "964_ops_feature_screen_api_arrivals_2026-11-17.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

@@ -2524,6 +2524,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in r2_arrivals} == r2_arrivals
     assert not r2_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **r2_arrivals}
+    layout_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "969_ops_settings_layout_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert len(layout_arrivals) == 3
+    assert {key: docs[key] for key in layout_arrivals} == layout_arrivals
+    assert not layout_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **layout_arrivals}
     voyager3_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "973_ops_voyager3_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
     assert len(voyager3_arrivals) == 9
@@ -2554,6 +2560,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in store_arrivals} == store_arrivals
     assert not store_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **store_arrivals}
+    screen_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "964_ops_feature_screen_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
+    assert len(screen_arrivals) == 2
+    assert {key: docs[key] for key in screen_arrivals} == screen_arrivals
+    assert not screen_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **screen_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

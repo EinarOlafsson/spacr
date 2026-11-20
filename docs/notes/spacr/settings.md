@@ -1154,7 +1154,6 @@ v2-only: how many field stacks to load into memory per Cellpose batch. Bigger = 
 ### lines 912-913
 
 ```python
-settings.setdefault('keep_npz', False)
 ```
 
 v2-only: keep the in-memory NPZ batch on disk under merged/_scratch/ for debugging. Default False → NPZ never touches disk.
