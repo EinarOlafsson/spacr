@@ -545,17 +545,21 @@ def test_a_catalogue_that_cannot_be_opened_names_the_file(tmp_path,
         mz.load_catalogue_file(path)
 
 
-def test_a_catalogue_that_is_not_a_list_of_entries_says_what_it_got(tmp_path):
+@pytest.mark.parametrize('document, match', [
+    pytest.param(
+        {'models': {'a': 1}}, 'not a model catalogue',
+        id='test_a_catalogue_that_is_not_a_list_of_entries_says_what_it_got',
+    ),
+    pytest.param(
+        [{'name': 'a.CP_model'}, 'oops'], 'entry 1 is a str',
+        id='test_an_entry_that_is_not_an_object_names_its_position',
+    ),
+])
+def test_original_malformed_catalogues_keep_their_typed_refusals(tmp_path, document, match):
+    """Preserve each original malformed catalogue and its typed refusal."""
     path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps({"models": {"a": 1}}), encoding="utf-8")
-    with pytest.raises(mz.ModelZooError, match="not a model catalogue"):
-        mz.load_catalogue_file(path)
-
-
-def test_an_entry_that_is_not_an_object_names_its_position(tmp_path):
-    path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps([{"name": "a.CP_model"}, "oops"]), encoding="utf-8")
-    with pytest.raises(mz.ModelZooError, match="entry 1 is a str"):
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(mz.ModelZooError, match=match):
         mz.load_catalogue_file(path)
 
 
