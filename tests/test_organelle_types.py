@@ -160,19 +160,20 @@ def test_naming_a_type_gives_you_its_recommendation():
     assert out["organelle_method"] == "log"
 
 
-def test_a_value_you_set_yourself_is_never_overwritten():
-    """"A user who then changes organelle_method keeps that change; the type
-    does not silently reassert itself"."""
-    out = _set_organelle_defaults({"organelle_type": "punctate",
-                                   "organelle_method": "adaptive"})
-    assert out["organelle_method"] == "adaptive"
-
-
-def test_your_morphology_wins_over_the_types():
-    out = _set_organelle_defaults({"organelle_type": "punctate",
-                                   "organelle_morphology": "irregular",
-                                   "organelle_method": "otsu"})
-    assert out["organelle_morphology"] == "irregular"
+@pytest.mark.parametrize('settings, key, expected', [
+    pytest.param(
+        {'organelle_type': 'punctate', 'organelle_method': 'adaptive'}, 'organelle_method', 'adaptive',
+        id='test_a_value_you_set_yourself_is_never_overwritten',
+    ),
+    pytest.param(
+        {'organelle_type': 'punctate', 'organelle_morphology': 'irregular', 'organelle_method': 'otsu'}, 'organelle_morphology', 'irregular',
+        id='test_your_morphology_wins_over_the_types',
+    ),
+])
+def test_explicit_organelle_choices_keep_their_original_values(settings, key, expected):
+    """Preserve each original explicit organelle choice over its preset."""
+    out = _set_organelle_defaults(settings)
+    assert out[key] == expected
 
 
 def test_the_precedence_is_user_then_preset_then_default():

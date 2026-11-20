@@ -1,0 +1,305 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_organelle_types.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_organelle_types.py::test_a_value_you_set_yourself_is_never_overwritten": "tests/test_organelle_types.py::test_explicit_organelle_choices_keep_their_original_values[test_a_value_you_set_yourself_is_never_overwritten]",
+    "tests/test_organelle_types.py::test_your_morphology_wins_over_the_types": "tests/test_organelle_types.py::test_explicit_organelle_choices_keep_their_original_values[test_your_morphology_wins_over_the_types]"
+  },
+  "explicit_choice_dictionaries_keys_and_native_string_equality_contracts": {
+    "test_a_value_you_set_yourself_is_never_overwritten": [
+      {
+        "organelle_type": "punctate",
+        "organelle_method": "adaptive"
+      },
+      "organelle_method",
+      "adaptive"
+    ],
+    "test_your_morphology_wins_over_the_types": [
+      {
+        "organelle_type": "punctate",
+        "organelle_morphology": "irregular",
+        "organelle_method": "otsu"
+      },
+      "organelle_morphology",
+      "irregular"
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_value_you_set_yourself_is_never_overwritten": "({'organelle_type': 'punctate', 'organelle_method': 'adaptive'}, 'organelle_method', 'adaptive')",
+    "test_your_morphology_wins_over_the_types": "({'organelle_type': 'punctate', 'organelle_morphology': 'irregular', 'organelle_method': 'otsu'}, 'organelle_morphology', 'irregular')"
+  },
+  "contract_scope": "Exact original ordered string settings dictionaries, _set_organelle_defaults call and out assignment, original organelle_method/organelle_morphology key and adaptive/irregular expected string retained with native indexed equality. Each row retains its original separately created dictionary. Every other original import/helper/subtest/preset/validator/precedence/explanation/category/reachability/type-resolution case retains AST and relative order. Production settings names/defaults/schema/categories unchanged.",
+  "collected_before": [
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings6]",
+    "tests/test_organelle_types.py::test_an_unknown_type_raises_and_names_the_known_ones",
+    "tests/test_organelle_types.py::test_no_detection_parameter_leaked_into_the_basic_heading",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[punctate]",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[toroidal]",
+    "tests/test_organelle_types.py::test_vesicular_is_a_dot_when_small_and_a_ring_when_large",
+    "tests/test_organelle_types.py::test_the_mirrored_table_still_matches_the_validator",
+    "tests/test_organelle_types.py::test_the_type_is_resolved_not_string_matched",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings7]",
+    "tests/test_organelle_types.py::test_apply_preset_does_not_mutate_the_caller",
+    "tests/test_organelle_types.py::test_the_console_explains_what_the_preset_did",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[tubular]",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_type]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings5]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[crescent]",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_remove_border]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings4]",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_min_area]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[filamentous]",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[reticular]",
+    "tests/test_organelle_types.py::test_the_default_type_recommends_nothing",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[spherical]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[tubular]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings11]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[reticular]",
+    "tests/test_organelle_types.py::test_spherical_splits_too",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[vesicular]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings1]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings10]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings0]",
+    "tests/test_organelle_types.py::test_the_types_with_no_dedicated_detector_say_so[crescent]",
+    "tests/test_organelle_types.py::test_your_morphology_wins_over_the_types",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings12]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings2]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[cisternal]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings13]",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[cisternal]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings3]",
+    "tests/test_organelle_types.py::test_every_preset_passes_the_real_validator",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings9]",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[crescent]",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_diameter]",
+    "tests/test_organelle_types.py::test_an_unknown_diameter_picks_the_small_reading",
+    "tests/test_organelle_types.py::test_every_maintainer_category_is_present",
+    "tests/test_organelle_types.py::test_a_measure_only_run_needs_no_shape_assumption",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings8]",
+    "tests/test_organelle_types.py::test_the_explanation_marks_what_it_did_not_touch",
+    "tests/test_organelle_types.py::test_naming_a_type_gives_you_its_recommendation",
+    "tests/test_organelle_types.py::test_the_precedence_is_user_then_preset_then_default",
+    "tests/test_organelle_types.py::test_the_defaults_helper_still_fills_in_place",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_mask_within_cells]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[toroidal]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[punctate]",
+    "tests/test_organelle_types.py::test_the_default_type_does_not_shadow_an_explicit_morphology",
+    "tests/test_organelle_types.py::test_the_method_stays_legal_when_size_flips_the_morphology",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_channel]",
+    "tests/test_organelle_types.py::test_a_value_you_set_yourself_is_never_overwritten",
+    "tests/test_organelle_types.py::test_custom_and_unknown_types_defer_to_the_morphology",
+    "tests/test_organelle_types.py::test_vesicular_warns_that_lysosomes_are_the_exception",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[filamentous]",
+    "tests/test_organelle_types.py::test_the_visible_count_went_down_and_this_is_the_number",
+    "tests/test_organelle_types.py::test_the_types_with_no_dedicated_detector_say_so[toroidal]",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_max_area]",
+    "tests/test_organelle_types.py::test_everything_is_still_reachable",
+    "tests/test_organelle_types.py::test_the_types_with_no_dedicated_detector_say_so[cisternal]",
+    "tests/test_organelle_types.py::test_a_settings_file_written_before_this_existed_is_unchanged"
+  ],
+  "collected_after": [
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_diameter]",
+    "tests/test_organelle_types.py::test_the_default_type_does_not_shadow_an_explicit_morphology",
+    "tests/test_organelle_types.py::test_the_method_stays_legal_when_size_flips_the_morphology",
+    "tests/test_organelle_types.py::test_an_unknown_diameter_picks_the_small_reading",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[cisternal]",
+    "tests/test_organelle_types.py::test_the_defaults_helper_still_fills_in_place",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[crescent]",
+    "tests/test_organelle_types.py::test_vesicular_warns_that_lysosomes_are_the_exception",
+    "tests/test_organelle_types.py::test_the_explanation_marks_what_it_did_not_touch",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[reticular]",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_mask_within_cells]",
+    "tests/test_organelle_types.py::test_a_settings_file_written_before_this_existed_is_unchanged",
+    "tests/test_organelle_types.py::test_custom_and_unknown_types_defer_to_the_morphology",
+    "tests/test_organelle_types.py::test_everything_is_still_reachable",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[punctate]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[toroidal]",
+    "tests/test_organelle_types.py::test_the_types_with_no_dedicated_detector_say_so[cisternal]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings9]",
+    "tests/test_organelle_types.py::test_an_unknown_type_raises_and_names_the_known_ones",
+    "tests/test_organelle_types.py::test_every_preset_passes_the_real_validator",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_max_area]",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[tubular]",
+    "tests/test_organelle_types.py::test_the_types_with_no_dedicated_detector_say_so[toroidal]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings8]",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_type]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings2]",
+    "tests/test_organelle_types.py::test_naming_a_type_gives_you_its_recommendation",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_channel]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings13]",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[filamentous]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[tubular]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[filamentous]",
+    "tests/test_organelle_types.py::test_explicit_organelle_choices_keep_their_original_values[test_your_morphology_wins_over_the_types]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings12]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings3]",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[punctate]",
+    "tests/test_organelle_types.py::test_the_types_that_do_not_split_are_stable_across_size[toroidal]",
+    "tests/test_organelle_types.py::test_apply_preset_does_not_mutate_the_caller",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings10]",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_min_area]",
+    "tests/test_organelle_types.py::test_spherical_splits_too",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings1]",
+    "tests/test_organelle_types.py::test_the_type_is_resolved_not_string_matched",
+    "tests/test_organelle_types.py::test_no_detection_parameter_leaked_into_the_basic_heading",
+    "tests/test_organelle_types.py::test_the_console_explains_what_the_preset_did",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings0]",
+    "tests/test_organelle_types.py::test_the_default_type_recommends_nothing",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings11]",
+    "tests/test_organelle_types.py::test_vesicular_is_a_dot_when_small_and_a_ring_when_large",
+    "tests/test_organelle_types.py::test_the_precedence_is_user_then_preset_then_default",
+    "tests/test_organelle_types.py::test_every_maintainer_category_is_present",
+    "tests/test_organelle_types.py::test_explicit_organelle_choices_keep_their_original_values[test_a_value_you_set_yourself_is_never_overwritten]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings5]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[crescent]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings4]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[cisternal]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings6]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[reticular]",
+    "tests/test_organelle_types.py::test_the_mirrored_table_still_matches_the_validator",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[vesicular]",
+    "tests/test_organelle_types.py::test_every_named_type_lists_the_structures_it_covers[spherical]",
+    "tests/test_organelle_types.py::test_the_basic_set_is_what_a_biologist_recognises[organelle_remove_border]",
+    "tests/test_organelle_types.py::test_the_visible_count_went_down_and_this_is_the_number",
+    "tests/test_organelle_types.py::test_a_measure_only_run_needs_no_shape_assumption",
+    "tests/test_organelle_types.py::test_the_types_with_no_dedicated_detector_say_so[crescent]",
+    "tests/test_organelle_types.py::test_type_never_switches_off_requested_spatial_measurements[settings7]"
+  ],
+  "tests_before": {
+    "passed": 66,
+    "seconds": 11.87
+  },
+  "tests_after": {
+    "passed": 66,
+    "seconds": 14.86
+  },
+  "normal_test_summary_before_after": {
+    "before": "66 passed, 80 subtests passed in 11.87s",
+    "after": "66 passed, 80 subtests passed in 14.86s"
+  },
+  "coverage_scope": "spacr.organelle_types under the complete selected preset/validator/precedence/explanation/category/reachability/resolution module; not full-suite coverage. Existing small string dictionaries, pure preset/validation helpers and subtests only; no actual segmentation, chart rendering, fitting, new reader, network or GPU work. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 162,
+    "num_statements": 220,
+    "percent_covered": 71.1038961038961,
+    "percent_covered_display": "71",
+    "missing_lines": 58,
+    "excluded_lines": 0,
+    "percent_statements_covered": 73.63636363636364,
+    "percent_statements_covered_display": "74",
+    "num_branches": 88,
+    "num_partial_branches": 13,
+    "covered_branches": 57,
+    "missing_branches": 31,
+    "percent_branches_covered": 64.77272727272727,
+    "percent_branches_covered_display": "65"
+  },
+  "coverage_after": {
+    "covered_lines": 162,
+    "num_statements": 220,
+    "percent_covered": 71.1038961038961,
+    "percent_covered_display": "71",
+    "missing_lines": 58,
+    "excluded_lines": 0,
+    "percent_statements_covered": 73.63636363636364,
+    "percent_statements_covered_display": "74",
+    "num_branches": 88,
+    "num_partial_branches": 13,
+    "covered_branches": 57,
+    "missing_branches": 31,
+    "percent_branches_covered": 64.77272727272727,
+    "percent_branches_covered_display": "65"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "6451563f7d9df618d60761a241a230c80c2ab626abe0130f6f7f7394716b0853",
+  "production_source_sha256": "d4816adc45f239783f0df293a88d3efde7bbac7575186a4024ecfe1f5cd79b78",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_imports_helpers_subtests_presets_validator_precedence_explanation_categories_reachability_resolution_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "explicit-method-overwritten",
+      "source_variant": {
+        "path": "spacr/organelle_types.py",
+        "line": 402,
+        "old": "if key in out and out[key] is not None:",
+        "new": "if key in out and out[key] is not None and key != 'organelle_method':"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_organelle_types.py::test_a_value_you_set_yourself_is_never_overwritten"
+        ],
+        "failure_summary_lines": [
+          "tests/test_organelle_types.py::test_a_value_you_set_yourself_is_never_overwritten"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_organelle_types.py::test_explicit_organelle_choices_keep_their_original_values[test_a_value_you_set_yourself_is_never_overwritten]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_organelle_types.py::test_explicit_organelle_choices_keep_their_original_values[test_a_value_you_set_yourself_is_never_overwritten]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "explicit-morphology-overwritten",
+      "source_variant": {
+        "path": "spacr/organelle_types.py",
+        "line": 402,
+        "old": "if key in out and out[key] is not None:",
+        "new": "if key in out and out[key] is not None and key != 'organelle_morphology':"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_organelle_types.py::test_your_morphology_wins_over_the_types"
+        ],
+        "failure_summary_lines": [
+          "tests/test_organelle_types.py::test_your_morphology_wins_over_the_types"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_organelle_types.py::test_explicit_organelle_choices_keep_their_original_values[test_your_morphology_wins_over_the_types]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_organelle_types.py::test_explicit_organelle_choices_keep_their_original_values[test_your_morphology_wins_over_the_types]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in apply_preset before and after: overwrite an explicit method with the preset; overwrite an explicit morphology with the preset. Each fault selects the same one original/mapped case before/after and must fail with AssertionError from unchanged native indexed string equality. Original ordered string dictionaries, key/value types and defaults-helper call retained. Repository production/settings/schema/categories files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_organelle_types.py",
+      "line": 174,
+      "symbol": "test_explicit_organelle_choices_keep_their_original_values",
+      "new": "Preserve each original explicit organelle choice over its preset.",
+      "old": {
+        "test_a_value_you_set_yourself_is_never_overwritten": "\"A user who then changes organelle_method keeps that change; the type\ndoes not silently reassert itself\".",
+        "test_your_morphology_wins_over_the_types": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
