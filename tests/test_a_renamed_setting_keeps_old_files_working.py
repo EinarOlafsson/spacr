@@ -85,6 +85,10 @@ FACTORIES = {
     # misspelling of the live `comp_level`, so it is a rename rather than a
     # removal. The barcode-mapping factory folds before it fills comp_level.
     "comp_level": "set_default_generate_barecode_mapping",
+    # 2026-11-20, TASK X: the OPS phenotype tile batch `ops_ph_batch_size`
+    # became the shared mask tile batch `mask_eval_batch_size`, which the
+    # Make Masks factory declares and folds before it fills.
+    "mask_eval_batch_size": "set_default_settings_preprocess_generate_masks",
 }
 
 

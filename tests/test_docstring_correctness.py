@@ -6718,6 +6718,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
         ("960_ops_grid_search_api_arrivals_2026-11-17.json", 2),
         ("968_ops_power_sim_api_arrivals_2026-11-17.json", 11),
+        ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7330,7 +7331,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "948_ops_pairs_consensus_api_arrivals_2026-11-15.json",
                      "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
-                     "968_ops_power_sim_api_arrivals_2026-11-17.json"):
+                     "968_ops_power_sim_api_arrivals_2026-11-17.json",
+                     "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7483,7 +7485,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "948_ops_pairs_consensus_api_arrivals_2026-11-15.json",
                      "965_ops_large_site_r2_nuclei_api_arrivals_2026-11-16.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
-                     "968_ops_power_sim_api_arrivals_2026-11-17.json"):
+                     "968_ops_power_sim_api_arrivals_2026-11-17.json",
+                     "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

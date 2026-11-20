@@ -1,0 +1,6 @@
+{
+ "spacr._mask_array_batches": "Give array-based mask inputs the same memory limits as prepared batches.",
+ "spacr.ops_engine._objects.load_window": "Compose the existing covered input once, or reuse its saved mask.",
+ "spacr.ops_engine._ph_fields.load_field": "Read one unchanged OPS field once for every segmentation role.",
+ "spacr.ops_engine.run_spatial_masks.load_spatial": "Keep the prepared spatial stain unchanged for shared residency."
+}

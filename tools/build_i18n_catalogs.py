@@ -4754,6 +4754,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "regression_failure.py")
     paths.add(ROOT / "spacr" / "ml.py")
     paths.add(ROOT / "spacr" / "power_model.py")
+    paths.add(ROOT / "spacr" / "_mask_array_batches.py")
     paths.add(ROOT / "spacr" / "uniprot.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"

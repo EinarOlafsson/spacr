@@ -49,9 +49,11 @@ def _batch_plan(path, settings):
     if path is not None and path.is_file():
         plan = json.loads(path.read_text())
         if plan.get('format') != 1 or plan.get('settings') != basis:
-            raise ValueError(f'{path} uses different mask batch settings. '
-                             'Use the saved settings or move the mask checkpoint folder '
-                             'away before starting a new segmentation run.')
+            from .qt.i18n import tr
+
+            raise ValueError(tr('{path} uses different mask batch settings. '
+                                'Use the saved settings or move the mask checkpoint folder '
+                                'away before starting a new segmentation run.', path=path))
     return path, plan
 
 
