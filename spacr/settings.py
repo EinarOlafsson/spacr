@@ -2352,6 +2352,7 @@ def _set_classifier_evaluation_defaults(settings):
 #: -- seven at once is one commit nobody can review and one mistake nobody
 #: can bisect.
 RENAMED_SETTINGS = {
+    "ops_ph_batch_size": "ops_ph_tile_batch",
     "expected_end": "window_length",
     "min_n": "min_observations_per_hit",
     "min_cell_count": "min_cells_per_well",
@@ -2545,7 +2546,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 947
+SETTINGS_SCHEMA_VERSION = 948
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2572,6 +2573,8 @@ DEFAULT_CHANGES = {
     945: {'batch_size': 50},
     946: {'ops_etest_mode': 'empirical_null'},
     947: {'ops_prefix_minority_min_reads': 0},
+    948: {'ops_ph_tile_batch': 8, 'ops_sbs_tile_batch': 16,
+          'spatial_tile_batch': 16},
 }
 
 
@@ -2669,6 +2672,14 @@ def _fold_older_defaults(settings, version, known=None):
     947 is item 967's minority-read rule on the spacer-prefix decode:
     ``ops_prefix_minority_min_reads`` 3 (was 0, off); files stamped before
     keep 0, so every barcode of a cell counts in its call as before.
+    948 is TASK X's routing of OPS Cellpose through the shared mask tile
+    batch (``mask_eval_batch_size``; 0 is one tile per field in the resident
+    batch). Files stamped before get the tile batches the OPS paths always
+    ran at: ``ops_ph_tile_batch`` 8 (the phenotype path's
+    ``ops_ph_batch_size``, which an old file that sets it keeps, since it is
+    renamed to this key), ``ops_sbs_tile_batch`` 16 (stitched sequencing
+    nuclei) and ``spatial_tile_batch`` 16 (Spatial Mask Generation). 946 and
+    947 belong to other items, so this takes 948.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -8978,7 +8989,7 @@ ALPHA_FEATURES = {
         'settings': ('ops_ph_channels', 'ops_ph_cell_channel',
                      'ops_ph_nucleus_model', 'ops_ph_cell_model',
                      'ops_ph_nucleus_diameter', 'ops_ph_cell_diameter',
-                     'ops_ph_downsample', 'ops_ph_batch_size',
+                     'ops_ph_downsample', 'ops_ph_tile_batch',
                      'ops_ph_sites', 'ops_ph_texture', 'ops_merge_threshold',
                      'ops_design', 'ops_control_prefix', 'ops_bootstrap',
                      'ops_pvalue_null', 'ops_test_features',

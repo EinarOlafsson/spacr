@@ -2620,6 +2620,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in converter_arrivals} == converter_arrivals
     assert not converter_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **converter_arrivals}
+    ops_cellpose_x_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert len(ops_cellpose_x_arrivals) == 4
+    assert {key: docs[key] for key in ops_cellpose_x_arrivals} == ops_cellpose_x_arrivals
+    assert not ops_cellpose_x_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **ops_cellpose_x_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

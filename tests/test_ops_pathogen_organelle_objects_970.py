@@ -190,13 +190,16 @@ def test_planted_objects_are_segmented_and_summarised_per_cell(tmp_path,
 
 
 def test_the_default_run_writes_what_it_wrote_before(tmp_path, models):
+    """The same mask classes are saved with a shared tile/precision resume marker."""
     report, table, _index = _run(tmp_path, SETTINGS)
     assert not {"pathogen", "organelle"} & set(report["ph_segment"]["objects"])
     assert "objects" not in report["ph_segment"]["seconds"]
     with np.load(tmp_path / "A1" / "phenotype_masks" / "site-0.npz") as saved:
         assert set(saved.files) == {"nuclei", "cells"}
-    assert not (tmp_path / "A1" / "phenotype_masks"
-                / "part_options.json").exists()
+    mask_options = json.loads((tmp_path / "A1" / "phenotype_masks"
+                               / "part_options.json").read_text())
+    assert mask_options == {"mask_eval_batch_size": 0, "ops_ph_tile_batch": 0,
+                            "mask_inference_precision": "auto"}
     marker = json.loads((tmp_path / "A1" / "phenotype_cells"
                          / "part_options.json").read_text())
     assert "objects" not in marker

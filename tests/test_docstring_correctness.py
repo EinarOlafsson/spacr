@@ -6929,6 +6929,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("993_cli_preflight_reporting_api_arrivals_2026-11-20.json", 1),
         ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
+        ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7552,7 +7553,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "993_cli_preflight_reporting_api_arrivals_2026-11-20.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
-                     "985_ome_zarr_convert_api_arrivals_2026-11-19.json"):
+                     "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
+                     "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7716,7 +7718,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "993_cli_preflight_reporting_api_arrivals_2026-11-20.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
-                     "985_ome_zarr_convert_api_arrivals_2026-11-19.json"):
+                     "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
+                     "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
