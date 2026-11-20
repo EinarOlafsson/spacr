@@ -915,13 +915,13 @@ def _smooth_surface(stat: np.ndarray, shape: Tuple[int, int],
 
 
 def _read_binned_field(path: str, channels: Sequence[int],
-                       factor: Optional[int], grid: int
+                       factor: Optional[int], grid: int, *, load_field=None
                        ) -> Tuple[np.ndarray, int, Tuple[int, int]]:
     """Load one merged field and return its binned intensity channels.
 
     :returns: ``(binned (C, y, x), factor, full (Y, X) shape)``.
     """
-    data = np.load(path, mmap_mode='r')
+    data = load_field(path) if load_field is not None else np.load(path, mmap_mode='r')
     if data.ndim not in (3, 4):
         raise IlluminationError(
             f"{path!r} is a {data.ndim}-D array; a merged field is (Y, X, C) "
@@ -969,7 +969,7 @@ def estimate_illumination(src, channels: Sequence[int], *,
                           max_fields: int = 50,
                           grid: int = 256,
                           dark: float = 0.0,
-                          verbose: bool = True) -> IlluminationModel:
+                          verbose: bool = True, load_field=None) -> IlluminationModel:
     """Estimate the illumination field from the merged fields in ``src``.
 
     Retrospective: the field is estimated from the same images it corrects,
@@ -999,6 +999,7 @@ def estimate_illumination(src, channels: Sequence[int], *,
     :param dark: additive camera offset subtracted before dividing, in raw
         counts. Not estimated -- see the module docstring.
     :param verbose: print one line per estimated field.
+    :param load_field: optional selected-source loader; the default reads merged NPY.
     :returns: an :class:`IlluminationModel`.
     :raises IlluminationError: when ``src`` holds no merged fields, or a field
         is unreadable in a way that would make the estimate meaningless.
@@ -1035,7 +1036,7 @@ def estimate_illumination(src, channels: Sequence[int], *,
         skipped = 0
         for path in paths:
             binned, factor, shape = _read_binned_field(path, channels, factor,
-                                                       grid)
+                grid, **({'load_field': load_field} if load_field is not None else {}))
             if full_shape is None:
                 full_shape = shape
             elif shape != full_shape:
@@ -1167,7 +1168,7 @@ def _nuclear_column(channel: int) -> str:
 
 
 def _nuclei_from_merged(paths: Sequence[str], channel: int,
-                        mask_dim: int) -> Tuple[Any, Tuple[int, int]]:
+                        mask_dim: int, *, load_field=None) -> Tuple[Any, Tuple[int, int]]:
     """Per nucleus of the merged fields: centroid and raw mean of ``channel``.
 
     :returns: ``(table, (H, W))``: one row per nucleus with ``plate``,
@@ -1180,7 +1181,7 @@ def _nuclei_from_merged(paths: Sequence[str], channel: int,
     index = _field_index(os.path.splitext(os.path.basename(p))[0] for p in paths)
     parts, shape = [], None
     for path in sorted(paths):
-        data = np.load(path, mmap_mode='r')
+        data = load_field(path) if load_field is not None else np.load(path, mmap_mode='r')
         if data.ndim != 3:
             raise IlluminationError(
                 f"{path!r} is a {data.ndim}-D array; the nuclear-median map "
@@ -1270,7 +1271,7 @@ def _nuclei_from_database(path: str, channel: int):
 
 
 def _nuclei_table(nuclei, channel: int, *, paths: Sequence[str],
-                  mask_dim: Optional[int], run_root: str):
+                  mask_dim: Optional[int], run_root: str, load_field=None):
     """The per-nucleus table the map is fitted to, from wherever it is.
 
     ``nuclei`` may be a DataFrame, a ``.db`` (a spaCR measurements
@@ -1282,7 +1283,8 @@ def _nuclei_table(nuclei, channel: int, *, paths: Sequence[str],
 
     if nuclei is None or (isinstance(nuclei, str) and not nuclei.strip()):
         if mask_dim is not None and str(mask_dim).strip() != '':
-            return _nuclei_from_merged(paths, channel, int(mask_dim))[0]
+            return _nuclei_from_merged(paths, channel, int(mask_dim),
+                **({'load_field': load_field} if load_field is not None else {}))[0]
         database = os.path.join(run_root, 'measurements', 'measurements.db')
         if os.path.isfile(database):
             return _nuclei_from_database(database, channel)
@@ -1381,7 +1383,7 @@ def estimate_nuclear_illumination(src, channels: Sequence[int], *,
                                   degree: int = 4,
                                   max_fields: int = 50,
                                   grid: int = 256,
-                                  verbose: bool = True) -> IlluminationModel:
+                                  verbose: bool = True, load_field=None) -> IlluminationModel:
     """Estimate an illumination model whose nuclear channel is a nuclear-median map.
 
     The OPS flat-field of item 912 in the general correction (item 933).
@@ -1424,6 +1426,7 @@ def estimate_nuclear_illumination(src, channels: Sequence[int], *,
         uses the nuclei of every field.
     :param grid: see :func:`estimate_illumination`.
     :param verbose: print one line per channel and plate.
+    :param load_field: optional selected-source loader; external nucleus tables are unchanged.
     :returns: an :class:`IlluminationModel` of
         :class:`NuclearIlluminationField` items.
     :raises IlluminationError: for a missing channel, offset, nucleus table
@@ -1447,11 +1450,13 @@ def estimate_nuclear_illumination(src, channels: Sequence[int], *,
     others = [c for c in channels if c != nuclear_channel]
     other_model = (estimate_illumination(
         src, others, per_plate=per_plate, estimator=other_estimator, degree=degree,
-        max_fields=max_fields, grid=grid, dark=dark, verbose=False) if others else None)
+        max_fields=max_fields, grid=grid, dark=dark, verbose=False,
+        **({'load_field': load_field} if load_field is not None else {})) if others else None)
     run_root = os.path.dirname(_source_folders(src)[0])
     every_path = [p for paths in grouped.values() for p in paths]
     table = _nuclei_table(nuclei, nuclear_channel, paths=every_path,
-                          mask_dim=nucleus_mask_dim, run_root=run_root)
+        mask_dim=nucleus_mask_dim, run_root=run_root,
+        **({'load_field': load_field} if load_field is not None else {}))
     column = _nuclear_column(nuclear_channel)
     if column not in table.columns:
         raise IlluminationError(f"the nucleus table lacks {column!r}.")
@@ -1564,7 +1569,7 @@ def _nuclear_channel_setting(settings: Mapping[str, Any]) -> int:
 
 
 def _estimate_from_settings(settings: Mapping[str, Any], source, wanted,
-                            talk) -> IlluminationModel:
+                            talk, *, load_field=None) -> IlluminationModel:
     """The nuclear-median model the settings describe."""
     return estimate_nuclear_illumination(
         source, wanted,
@@ -1577,13 +1582,13 @@ def _estimate_from_settings(settings: Mapping[str, Any], source, wanted,
         per_plate=bool(settings.get('illumination_per_plate', True)),
         degree=int(settings.get('illumination_degree', 4)),
         max_fields=int(settings.get('illumination_max_fields', 50)),
-        verbose=talk)
+        verbose=talk, **({'load_field': load_field} if load_field is not None else {}))
 
 
 def validate_illumination(settings: Mapping[str, Any], *,
                           save_dir: Optional[str] = None,
                           bootstrap: int = 2000,
-                          verbose: Optional[bool] = None):
+                          verbose: Optional[bool] = None, load_field=None):
     """Check a nuclear-median map on held-out fields, against the polynomial.
 
     Per plate, ``illumination_holdout_n`` fields are drawn
@@ -1614,6 +1619,7 @@ validate_nuclear_flat`): ``(I - b) / F + b`` per pixel, then the nuclear
         ``heldout_nuclei.csv`` go; ``<run>/illumination/validation`` when
         None, ``''`` to write nothing.
     :param bootstrap: field bootstraps for the 95 % intervals.
+    :param load_field: optional selected-source loader for held-out fields and masks.
     :param verbose: overrides ``settings['verbose']``.
     :returns: the radial table of every plate (column ``plate`` added). Its
         ``attrs['summary']`` holds each plate's summary: the largest ring
@@ -1642,10 +1648,12 @@ validate_nuclear_flat`): ``(I - b) / F + b`` per pixel, then the nuclear
     polynomial = estimate_illumination(
         source, [channel], per_plate=bool(settings.get('illumination_per_plate', True)),
         estimator='polynomial', degree=int(settings.get('illumination_degree', 4)),
-        max_fields=int(settings.get('illumination_max_fields', 50)), verbose=False)
+        max_fields=int(settings.get('illumination_max_fields', 50)), verbose=False,
+        **({'load_field': load_field} if load_field is not None else {}))
     tables, summaries, cells_out = [], {}, []
     for plate in sorted(grouped):
-        table, shape = _nuclei_from_merged(grouped[plate], channel, int(mask_dim))
+        table, shape = _nuclei_from_merged(grouped[plate], channel, int(mask_dim),
+            **({'load_field': load_field} if load_field is not None else {}))
         fields = sorted({(str(w), int(s)) for w, s in zip(table['well'], table['site'])})
         held = holdout_fields(fields, int(settings.get('illumination_holdout_n') or 24),
                               int(settings.get('illumination_seed') or 0))
@@ -1657,7 +1665,8 @@ validate_nuclear_flat`): ``(I - b) / F + b`` per pixel, then the nuclear
         folder = os.path.dirname(grouped[plate][0])
         images = {}
         for well, site in held:
-            data = np.load(os.path.join(folder, files[(well, site)] + '.npy'), mmap_mode='r')
+            path = os.path.join(folder, files[(well, site)] + '.npy')
+            data = load_field(path) if load_field is not None else np.load(path, mmap_mode='r')
             images[(well, site)] = (np.asarray(data[..., channel], dtype=np.float64),
                                     np.asarray(data[..., int(mask_dim)]))
         maps = {'nuclear_median': flat,
@@ -3133,7 +3142,7 @@ def illumination_qc(model: IlluminationModel, src, *,
                     save_dir: Optional[str] = None,
                     max_fields: int = 25,
                     verbose: bool = True,
-                    stage: Optional[str] = None) -> Dict[str, Any]:
+                    stage: Optional[str] = None, load_field=None) -> Dict[str, Any]:
     """Plot and quantify the position-dependent bias before and after correction.
 
     Three things, per plate and per channel:
@@ -3155,6 +3164,7 @@ def illumination_qc(model: IlluminationModel, src, *,
         compute only the numbers.
     :param max_fields: fields per plate to measure the trend over.
     :param verbose: print the per-channel summary.
+    :param load_field: optional selected-source loader used for the QC image pixels.
     :param stage: optional consumer label such as ``'segmentation_input'``.
         When supplied it appears in the figure title and filename, preventing
         segmentation and measurement QC artifacts from being confused.
@@ -3188,7 +3198,7 @@ def illumination_qc(model: IlluminationModel, src, *,
         factor = item.bin_size
         for path in paths:
             binned, _factor, shape = _read_binned_field(path, wanted, factor,
-                                                        256)
+                256, **({'load_field': load_field} if load_field is not None else {}))
             if shape == item.shape:
                 stack.append(binned)
         if not stack:
@@ -3330,7 +3340,7 @@ def prepare_illumination_model(
         settings: Mapping[str, Any], *, src=None,
         channels: Optional[Sequence[int]] = None,
         qc_stage: Optional[str] = None,
-        verbose: Optional[bool] = None) -> Optional[PreparedIllumination]:
+        verbose: Optional[bool] = None, load_field=None) -> Optional[PreparedIllumination]:
     """Prepare one reusable optical model without installing a Measure hook.
 
     This is the direct consumer of the ``illumination_*`` settings.  It
@@ -3347,6 +3357,7 @@ def prepare_illumination_model(
     :param channels: optional persisted intensity-axis positions. Defaults to
         ``settings['channels']``.
     :param qc_stage: optional stage label included in QC filenames/titles.
+    :param load_field: optional selected-source loader for estimation, validation and QC.
     :param verbose: override ``settings['verbose']``.
     :returns: a prepared model/corrector, or ``None`` when correction is off.
     """
@@ -3380,7 +3391,8 @@ def prepare_illumination_model(
             verbose=talk)
         model_path = os.path.join(folder, 'illumination_model.npz')
     elif str(settings.get('illumination_estimator', '')) == NUCLEAR_ESTIMATOR:
-        model = _estimate_from_settings(settings, source, wanted, talk)
+        model = _estimate_from_settings(settings, source, wanted, talk,
+            **({'load_field': load_field} if load_field is not None else {}))
         model_path = os.path.join(folder, 'illumination_model.npz')
     else:
         model = estimate_illumination(
@@ -3391,13 +3403,13 @@ def prepare_illumination_model(
             degree=int(settings.get('illumination_degree', 4)),
             max_fields=int(settings.get('illumination_max_fields', 50)),
             dark=float(settings.get('illumination_dark', 0.0)),
-            verbose=talk)
+            verbose=talk, **({'load_field': load_field} if load_field is not None else {}))
         model_path = os.path.join(folder, 'illumination_model.npz')
     qc_artifacts = ()
     if settings.get('illumination_qc', True):
         report = illumination_qc(
             model, source, channels=wanted, save_dir=folder, verbose=talk,
-            stage=qc_stage)
+            stage=qc_stage, **({'load_field': load_field} if load_field is not None else {}))
         qc_artifacts = tuple(sorted(
             str(path) for path in report.get('_figures', {}).values()))
     if not existing:
@@ -3405,7 +3417,8 @@ def prepare_illumination_model(
     if (settings.get('illumination_validate', False) and not existing
             and str(settings.get('illumination_estimator', '')) == NUCLEAR_ESTIMATOR):
         validate_illumination({**dict(settings), 'src': source},
-                              save_dir=os.path.join(folder, 'validation'), verbose=talk)
+            save_dir=os.path.join(folder, 'validation'), verbose=talk,
+            **({'load_field': load_field} if load_field is not None else {}))
 
     on_missing = str(settings.get('illumination_on_missing', 'error'))
     corrector = IlluminationCorrector(
@@ -3420,7 +3433,7 @@ def prepare_illumination_model(
 
 
 def prepare_illumination_correction(settings: Mapping[str, Any], *,
-                                    verbose: Optional[bool] = None):
+                                    verbose: Optional[bool] = None, load_field=None):
     """Estimate, save, enable and QC the Measure correction.
 
     A pipeline calls this before ``measure_crop``. The Illumination button on
@@ -3443,10 +3456,12 @@ def prepare_illumination_correction(settings: Mapping[str, Any], *,
         ``illumination_qc``, ``illumination_vendor_profile``,
         ``illumination_vendor_channel_map``, plus ``src`` and ``channels``.
     :param verbose: overrides ``settings['verbose']``.
+    :param load_field: optional selected-source loader forwarded to estimation and QC.
     :returns: the :class:`IlluminationModel` that was enabled, or None.
     """
     talk = settings.get('verbose', True) if verbose is None else verbose
-    prepared = prepare_illumination_model(settings, verbose=verbose)
+    prepared = prepare_illumination_model(settings, verbose=verbose,
+        **({'load_field': load_field} if load_field is not None else {}))
     if prepared is None:
         return None
     enable_illumination_correction(

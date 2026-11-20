@@ -1408,7 +1408,7 @@ def _describe_unmixing(plan):
         print(f'{channel:>6}' + ''.join(f'{value:9.4f}' for value in row))
 
 
-def _prepare_measure_unmixing(settings):
+def _prepare_measure_unmixing(settings, *, load_field=None):
     """Estimate Measure's unmixing plan once and record it in ``settings``.
 
     The plan spans the measured ``channels`` of the merged fields in
@@ -1417,6 +1417,7 @@ def _prepare_measure_unmixing(settings):
     the same one, and is written to ``measurements/bleed_through.json``.
 
     :param settings: Measure settings, updated in place.
+    :param load_field: optional selected-source loader for retained field paths.
     :returns: the plan, or None when ``unmix`` is off.
     """
     if settings.get('unmix_calibration'):
@@ -1427,7 +1428,8 @@ def _prepare_measure_unmixing(settings):
     if not settings.get('unmix', False):
         return None
     plan = _prepare_unmixing(settings, settings['src'],
-                             channels=settings['channels'])
+                             channels=settings['channels'],
+                             **({'load': load_field} if load_field is not None else {}))
     if plan is None:
         return None
     record = plan.provenance()

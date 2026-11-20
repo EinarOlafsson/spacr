@@ -65,7 +65,7 @@ def test_every_word_the_settings_panel_can_produce_resolves():
     assert produced, "the normaliser produced nothing to check"
     for spelling in sorted(produced):
         assert resolve_source({"crop_source": spelling}) in {
-            "png", "merged", "generate"}
+            "ome-zarr", "png", "merged", "generate"}
 
 
 def test_the_two_readers_share_one_table():
@@ -82,16 +82,16 @@ def test_the_two_readers_share_one_table():
         assert VIEWER_ALIASES[name] == CROP_SOURCE_ALIASES[name], name
 
 
-def test_the_panel_offers_the_two_names_in_words():
-    """A stored value is not a sentence. The panel shows LOAD IMAGES first,
-    because it is the default, and says where each one reads from."""
+def test_the_panel_offers_native_crops_and_legacy_sources():
+    """Native crops are first while explicit legacy modes remain available."""
     values = [value for value, _label in CROP_SOURCE_OPTIONS]
     labels = [label for _value, label in CROP_SOURCE_OPTIONS]
 
-    assert values == ["png", "merged", "generate"]
-    assert labels[0].startswith("load images")
-    assert labels[1].startswith("stream images")
-    assert "data/" in labels[0] and "merged/" in labels[1]
+    assert values == ["ome-zarr", "png", "merged", "generate"]
+    assert labels[0] == "OME-Zarr crops"
+    assert labels[1].startswith("load images")
+    assert labels[2].startswith("stream images")
+    assert "data/" in labels[1] and "merged/" in labels[2]
 
 
 def test_an_unknown_source_is_refused():
@@ -302,7 +302,9 @@ def test_both_training_modes_validate_from_the_panels_own_defaults():
     started writing the two names, so neither mode could start."""
     from spacr.settings import deep_spacr_defaults
 
-    assert validate(deep_spacr_defaults({"src": "/tmp/screen"})) == "png"
+    assert validate(deep_spacr_defaults({"src": "/tmp/screen"})) == "ome-zarr"
+    assert validate(deep_spacr_defaults(
+        {"src": "/tmp/screen", "image_source": "load_images"})) == "png"
     assert validate(deep_spacr_defaults(
         {"src": "/tmp/screen", "image_source": "stream_images"})) == "merged"
 

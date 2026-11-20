@@ -727,9 +727,11 @@ class NoClassDataset(Dataset):
 
 
 class spacrDataset(Dataset):
-    """Image classification dataset that reads class subfolders under ``data_dir``.
+    """Read class subfolders or the native crop index for the requested split.
 
-    :param data_dir: Root directory containing one subdirectory per class.
+    :param data_dir: Split directory containing one subdirectory per class.
+        A parent ``crop_index.csv`` supplies native crop references without
+        requiring per-object files in those directories.
     :param loader_classes: Ordered list of class names — the index in
         this list becomes the integer label.
     :param transform: Optional callable applied to each PIL image.
@@ -762,16 +764,22 @@ class spacrDataset(Dataset):
             self.filenames = specific_files
             self.labels = specific_labels
         else:
-            for class_name in self.classes:
-                class_path = os.path.join(data_dir, class_name)
-                if not os.path.isdir(class_path):
-                    continue
-                with os.scandir(class_path) as entries:
-                    class_files = sorted(entry.path for entry in entries
-                                         if not entry.name.startswith('.')
-                                         and entry.is_file())
-                self.filenames.extend(class_files)
-                self.labels.extend([self.classes.index(class_name)] * len(class_files))
+            from .classification_pixels import _indexed_crop_samples
+            indexed = _indexed_crop_samples(data_dir, self.classes)
+            if indexed is not None:
+                self.filenames, named_labels = indexed
+                self.labels = [list(map(str, self.classes)).index(label) for label in named_labels]
+            else:
+                for class_name in self.classes:
+                    class_path = os.path.join(data_dir, class_name)
+                    if not os.path.isdir(class_path):
+                        continue
+                    with os.scandir(class_path) as entries:
+                        class_files = sorted(entry.path for entry in entries
+                                             if not entry.name.startswith('.')
+                                             and entry.is_file())
+                    self.filenames.extend(class_files)
+                    self.labels.extend([self.classes.index(class_name)] * len(class_files))
         
         if not self.filenames:
             looked = []
@@ -847,7 +855,7 @@ class spacrDataset(Dataset):
         else:
             img = self.load_image(self.filenames[index])
         label = self.labels[index]
-        filename = self.filenames[index]
+        filename = str(self.filenames[index])
         if self.transform:
             img = self.transform(img)
         return img, label, filename
@@ -6282,6 +6290,15 @@ def _copy_misclassified(df):
     misclassified = df[df['true_label'] != df['predicted_label']]
     for _, row in misclassified.iterrows():
         original_path = row['filename']
+        from .classification_pixels import _native_crop_reference, read_classification_image
+        native = _native_crop_reference(original_path)
+        if native is not None:
+            destination = os.path.join(os.path.dirname(native.index),
+                                       str(native.row['split']), MISCLASSIFIED_FOLDER,
+                                       str(native.row['class']), native.name)
+            os.makedirs(os.path.dirname(destination), exist_ok=True)
+            read_classification_image(native).save(destination)
+            continue
         filename = os.path.basename(original_path)
         class_folder = os.path.dirname(original_path)
         dest_folder = os.path.dirname(class_folder)
@@ -7083,8 +7100,8 @@ def open_crop_source(settings, src=None, object_type=None, verbose=True):
     """Return the :class:`spacr.crops.CropSource` a run should read crops from.
 
     Thin, non-raising wrapper over :func:`spacr.crops.resolve_crop_source`:
-    it reads ``settings['crop_source']`` (``'auto'`` | ``'png'`` |
-    ``'merged'``), prints which source was chosen and why, and returns None
+    it reads ``settings['crop_source']`` (including ``'ome-zarr'``, ``'auto'``,
+    ``'png'`` and ``'merged'``), prints which source was chosen and why, and returns None
     when neither is available -- so a caller can fall back to whatever it did
     before instead of failing on a project that predates ``merged/``.
 
@@ -7120,6 +7137,10 @@ def open_crop_source(settings, src=None, object_type=None, verbose=True):
         return None
     request['src'] = src
     request['crop_source'] = choice
+    if choice == 'ome-zarr':
+        for key in ('crop_size', 'context'):
+            if key in settings:
+                request[key] = settings[key]
     try:
         source = crops.resolve_crop_source(request, object_type=object_type)
     except crops.CropError as exc:
@@ -7407,8 +7428,9 @@ def crop_refs_for_rows(source, df, object_type='cell', name_column=None):
     names = _col(name_column)
 
     refs = []
+    native_rows = df.to_dict('records') if getattr(source, 'kind', None) == 'ome-zarr' else None
     for i in range(n):
-        entry = {'object_type': object_type}
+        entry = dict(native_rows[i]) if native_rows is not None else {'object_type': object_type}
         if not _missing(png_paths[i]):
             entry['png_path'] = png_paths[i]
         if not _missing(path_names[i]):
@@ -7420,7 +7442,10 @@ def crop_refs_for_rows(source, df, object_type='cell', name_column=None):
         elif not _missing(png_paths[i]):
             name = os.path.basename(str(png_paths[i]))
         else:
-            name = ''
+            name = (crop_png_name(
+                f"{entry['plate']}_{entry['well']}_{entry['field']}",
+                entry['object_type'], entry['object_label'],
+                entry.get('parent_cell_id')) if native_rows is not None else '')
         refs.append(LazyCropPNG(source, entry, name=name))
     return refs
 
@@ -7474,12 +7499,13 @@ def generate_dataset(settings=None):
     Use this to produce the ``tar_path`` consumed by
     :func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``.
 
-    ``crop_source`` chooses where the images come from. ``'png'`` (and
-    ``'auto'`` wherever a crop folder exists) is the behaviour above,
+    ``crop_source`` chooses where the images come from. ``'ome-zarr'`` reads
+    stored native crops and exports their RGB display view to this explicit
+    legacy archive. ``'auto'`` retains the shared source-resolution priority.
+    ``'png'`` is the behaviour above,
     unchanged for uniform source formats: files are byte-copied into the tar
     with their format marker. Mixed formats are decoded into declared uint8
-    copies in the archive only. ``'merged'`` (and
-    ``'auto'`` on a project with no crop folder) cuts every crop out of
+    copies in the archive only. ``'merged'`` cuts every crop out of
     ``merged/*.npy`` through :mod:`spacr.crops` instead, so the tar can be
     built with no PNG folder on disk at all, and is rebuilt at the *current*
     crop settings rather than whatever the folder was generated with. The
@@ -7498,7 +7524,7 @@ def generate_dataset(settings=None):
         - ``sample`` — ``int`` or ``[int]`` cap on selected PNGs
           (random subsample); omit for all.
         - ``experiment`` — string suffix used in the tar filename.
-        - ``crop_source`` — ``'auto'`` | ``'png'`` | ``'merged'``.
+        - ``crop_source`` — ``'ome-zarr'`` | ``'auto'`` | ``'png'`` | ``'merged'``.
 
     :returns: Absolute path to the created ``…/datasets/<date>_<
         experiment>.tar``.
@@ -7568,7 +7594,7 @@ def generate_dataset(settings=None):
             if i == 0:
                 dst = os.path.join(src, 'datasets')
             source = open_crop_source(settings, src, object_type=object_type)
-            if source is not None and getattr(source, 'kind', 'png') == 'merged':
+            if source is not None and getattr(source, 'kind', 'png') in ('merged', 'ome-zarr'):
                 refs = _dataset_crop_refs(db_path, source, settings, object_type)
                 n_on_demand += len(refs)
                 all_paths.extend(refs)
@@ -7712,6 +7738,12 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
     :returns: list of :class:`LazyCropPNG`.
     """
     file_metadata = settings.get('file_metadata')
+    if source.kind == 'ome-zarr':
+        rows = _ome_crop_rows(db_path, object_type)
+        if file_metadata and str(file_metadata) not in (object_type, f'{object_type}_png'):
+            from .qt.i18n import tr
+            raise ValueError(tr("OME-Zarr crop export requires an object class as file_metadata. Select the class or clear that filter."))
+        return crop_refs_for_rows(source, rows, object_type)
     png_df = None
     if os.path.isfile(db_path):
         from .database_concurrency import connect as _connect_database
@@ -7757,6 +7789,20 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
         rows = _filter(rows, 'png_path')
     return crop_refs_for_rows(source, rows, object_type,
                               name_column='png_name')
+
+
+def _ome_crop_rows(db_path, object_type):
+    """Read native crop identities and annotations through the shared table reader.
+
+    :param db_path: measurement database containing ``ssCell_Crops``.
+    :param object_type: object class to retain without a join or reordering.
+    :returns: the selected rows with native identity and nullable annotations.
+    """
+    from .tabular import read_database
+
+    frame = read_database(db_path, 'ssCell_Crops', canonicalise=False,
+                          report=None, migrate=False, read_only=True)[0]
+    return frame.loc[frame['object_type'] == object_type].copy()
 
 
 def _write_crop_tar(items, tar_name, settings=None):
@@ -7906,7 +7952,7 @@ def dataset_filenames(dataset):
         return [parent[i] for i in dataset.indices]
     names = getattr(dataset, 'filenames', None)
     if names is not None:
-        return [str(v) for v in names]
+        return list(names)
     return [str(item[2]) for item in dataset]
 
 
@@ -9141,9 +9187,12 @@ def generate_training_dataset(settings):
         positives, or every unannotated row when there are fewer; with none, no class is added.
       - Optional: persist that random selection into DB as a new INT column named '<column>_random' with 1's.
 
-    ``crop_source`` chooses where the pixels come from. ``'png'`` (and
-    ``'auto'`` wherever a crop folder exists) copies the pre-generated PNGs,
-    unchanged. ``'merged'`` (and ``'auto'`` with no crop folder) cuts each
+    ``crop_source`` chooses where the pixels come from. ``'ome-zarr'`` reads
+    labels and identities from ``ssCell_Crops`` and writes one ``crop_index.csv``
+    instead of per-object images. The normal loaders read stored native pixels
+    through the shared crop reader before applying the existing model transforms.
+    ``'auto'`` retains the shared source-resolution priority. ``'png'`` copies
+    the pre-generated PNGs unchanged. ``'merged'`` cuts each
     selected crop out of ``merged/*.npy`` through :mod:`spacr.crops` instead:
     the labels still come from ``png_list``, but the pixels are cut fresh at
     the current crop settings, so the training set costs no standing disk and
@@ -9162,7 +9211,7 @@ def generate_training_dataset(settings):
           train/test boundary. Default ``'well'``.
         - ``path_string`` (legacy alias ``png_type``): substring a crop path
           must contain. Default ``'cell_png'``.
-        - ``crop_source``: ``'auto'``, ``'png'`` or ``'merged'``, as above.
+        - ``crop_source``: ``'ome-zarr'``, ``'auto'``, ``'png'`` or ``'merged'``, as above.
         - ``balance_to_smallest``: downsample every class to the smallest one.
           Default True.
         - ``random_seed``: seeds balancing and random-class sampling.
@@ -9366,7 +9415,7 @@ def generate_training_dataset(settings):
         names, lists = [], []
 
         df = png_df.copy()
-        keep_cols = ['png_path'] + (
+        keep_cols = [name for name in ('png_path', 'object_id') if name in df.columns] + (
             [CROP_REF_COLUMN] if CROP_REF_COLUMN in df.columns else []
         ) + [c for c in ann_cols if c in df.columns]
         df = df[keep_cols]
@@ -9418,21 +9467,23 @@ def generate_training_dataset(settings):
                 if write_rand_col and db_path:
                     rand_col = f"{col}_random"
                     qcol = rand_col.replace('"', '""')
+                    table = 'ssCell_Crops' if 'object_id' in df.columns else 'png_list'
+                    identity = 'object_id' if table == 'ssCell_Crops' else 'png_path'
                     with sqlite3.connect(db_path, timeout=30) as conn:
                         cur = conn.cursor()
-                        cur.execute('PRAGMA table_info("png_list")')
+                        cur.execute(f'PRAGMA table_info("{table}")')
                         existing = {r[1] for r in cur.fetchall()}
                         if rand_col not in existing:
-                            cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{qcol}" INTEGER')
+                            cur.execute(f'ALTER TABLE "{table}" ADD COLUMN "{qcol}" INTEGER')
                             conn.commit()
 
                         for p in rand_paths:
-                            png_path = (p.row.get('png_path')
+                            png_path = (p.row.get(identity)
                                         if isinstance(p, LazyCropPNG) else p)
                             if not png_path:
                                 continue
                             cur.execute(
-                                f'UPDATE "png_list" SET "{qcol}" = 1 WHERE png_path = ?',
+                                f'UPDATE "{table}" SET "{qcol}" = 1 WHERE "{identity}" = ?',
                                 (png_path,)
                             )
                         conn.commit()
@@ -9452,18 +9503,18 @@ def generate_training_dataset(settings):
         db_path = os.path.join(src, 'measurements', 'measurements.db')
 
         object_type = crop_object_type(png_type)
-        png_df = _load_png_table(db_path, object_type)
-        if png_df.empty or 'png_path' not in png_df.columns:
-            raise _no_training_crops_error(src, db_path, object_type, png_type)
-
-        fixed_paths = [ _fix_path_under_src(src, p) for p in png_df['png_path'] ]
-        png_df['png_path'] = fixed_paths
-
-        if png_type:
-            png_df = png_df[png_df['png_path'].astype(str).str.contains(png_type, na=False)]
-
         source = open_crop_source(settings, src, object_type=object_type)
-        if source is not None and getattr(source, 'kind', 'png') == 'merged':
+        if source is not None and source.kind == 'ome-zarr':
+            png_df = _ome_crop_rows(db_path, object_type)
+            png_df[CROP_REF_COLUMN] = crop_refs_for_rows(source, png_df, object_type)
+        else:
+            png_df = _load_png_table(db_path, object_type)
+            if png_df.empty or 'png_path' not in png_df.columns:
+                raise _no_training_crops_error(src, db_path, object_type, png_type)
+            png_df['png_path'] = [_fix_path_under_src(src, p) for p in png_df['png_path']]
+            if png_type:
+                png_df = png_df[png_df['png_path'].astype(str).str.contains(png_type, na=False)]
+        if source is not None and source.kind == 'merged':
             rows = crop_rows_from_png_list(db_path, png_df, object_type)
             refs = crop_refs_for_rows(source, rows, object_type)
             rows = rows.copy()
@@ -9860,6 +9911,10 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
     The two are interchangeable, so a training set can be built with no crop
     folder on disk at all.
 
+    Native OME-Zarr handles instead write one ``crop_index.csv`` containing
+    relative project paths, object identities, class names and grouped splits.
+    Their pixels stay in the existing pools and are read by the normal loaders.
+
     Each destination class folder is stamped before it is filled. Uniform
     source formats keep their original bytes and marker. Mixed source formats
     are decoded into declared uint8 crops in the destination only, so no
@@ -9890,6 +9945,9 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
     failed = 0
 
     every_item = [item for data in class_data for item in data]
+    native_index = any(isinstance(item, LazyCropPNG) and item.source.kind == 'ome-zarr'
+                       for item in every_item)
+    index_rows = []
     fmt = _crop_format_of_items(every_item, db_path=db_path)
     canonicalize = bool(every_item and fmt is None)
     if canonicalize:
@@ -9898,7 +9956,7 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         fmt = CROP_FORMAT_CURRENT
         print(f"This dataset mixes crops of more than one format; writing "
               f"declared-order uint8 copies into {dst}. Source images are unchanged.")
-    if every_item:
+    if every_item and not native_index:
         os.makedirs(dst, exist_ok=True)
         from .crops import write_crop_folder_marker
 
@@ -9958,15 +10016,20 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         if not data:
             print(f"Class {cls!r} selected no crops; its folders are empty.")
             continue
-        write_crop_folder_marker(train_class_dir, fmt=fmt)
-        write_crop_folder_marker(test_class_dir, fmt=fmt)
+        if not native_index:
+            write_crop_folder_marker(train_class_dir, fmt=fmt)
+            write_crop_folder_marker(test_class_dir, fmt=fmt)
         train_data, test_data = grouped_splits[class_index]
 
         for item in train_data:
             start = time.time()
             try:
-                _write_class_item(item, train_class_dir, canonicalize=canonicalize,
-                                   db_path=db_path)
+                if native_index:
+                    index_rows.append(_dataset_index_row(item, dst, cls, 'train',
+                                                          train_class_dir, canonicalize, db_path))
+                else:
+                    _write_class_item(item, train_class_dir, canonicalize=canonicalize,
+                                       db_path=db_path)
             except Exception as exc:
                 failed += 1
                 if failed <= 5:
@@ -9979,8 +10042,12 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         for item in test_data:
             start = time.time()
             try:
-                _write_class_item(item, test_class_dir, canonicalize=canonicalize,
-                                   db_path=db_path)
+                if native_index:
+                    index_rows.append(_dataset_index_row(item, dst, cls, 'test',
+                                                          test_class_dir, canonicalize, db_path))
+                else:
+                    _write_class_item(item, test_class_dir, canonicalize=canonicalize,
+                                       db_path=db_path)
             except Exception as exc:
                 failed += 1
                 if failed <= 5:
@@ -9990,12 +10057,22 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
             print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Test dataset")
             processed_files += 1
 
+    if native_index:
+        from .tabular import write_table
+        if failed:
+            from .qt.i18n import tr
+            raise RuntimeError(tr("The native crop dataset index could not include every selected object. Correct the reported source error and generate the dataset again."))
+        write_table(pd.DataFrame(index_rows, dtype=object), os.path.join(dst, 'crop_index.csv'),
+                    canonicalise=False, index=False)
     empty = []
     for cls in classes:
         train_class_dir = os.path.join(dst, f'train/{cls}')
         test_class_dir = os.path.join(dst, f'test/{cls}')
         n_train = len([f for f in os.listdir(train_class_dir) if not f.startswith('.')])
         n_test = len([f for f in os.listdir(test_class_dir) if not f.startswith('.')])
+        if native_index:
+            n_train = sum(row['class'] == str(cls) and row['split'] == 'train' for row in index_rows)
+            n_test = sum(row['class'] == str(cls) and row['split'] == 'test' for row in index_rows)
         print(f'Train class {cls}: {n_train}, Test class {cls}: {n_test}')
         if n_train == 0:
             empty.append(cls)
@@ -10014,6 +10091,28 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
               f"training images; the model cannot learn them.")
 
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
+
+
+def _dataset_index_row(item, root, class_name, split, destination, canonicalize, db_path):
+    """Describe one selected crop without exporting native OME pixels.
+
+    :param item: selected path or lazy crop.
+    :param root: generated dataset folder, the base of relative source paths.
+    :param class_name: selected class name.
+    :param split: the existing grouped train/test assignment.
+    :param destination: class folder used only for a legacy fallback export.
+    :param canonicalize: existing mixed-format PNG export policy.
+    :param db_path: legacy export database.
+    :returns: one serialisable row for the shared tabular dataset index.
+    """
+    if isinstance(item, LazyCropPNG) and item.source.kind == 'ome-zarr':
+        return {**item.row, 'source_kind': 'ome-zarr',
+                'source': os.path.relpath(item.source.root, root),
+                'class': str(class_name), 'split': split, 'crop_name': item.name}
+    path = _write_class_item(item, destination, canonicalize=canonicalize, db_path=db_path)
+    return {'source_kind': 'png', 'source': '.', 'class': str(class_name),
+            'split': split, 'crop_name': os.path.basename(path),
+            'legacy_path': os.path.relpath(path, root)}
 
 def _next_synthetic_yokogawa_well(used_wells, n_wells=384):
     """Return the next free ``plate<N>_<well>`` id, and claim it.

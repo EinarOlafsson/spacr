@@ -862,7 +862,7 @@ class AnnotateSettings:
     queue_measure: str = "entropy"
     queue_diversity: str = "well"
     queue_limit: int = 0
-    crop_source: str = "png"
+    crop_source: str = "ome-zarr"
     #: The annotation column holds counts rather than classes. Values are
     #: stored as entered, 10 and above included, and none of them is read as
     #: a model suggestion.
@@ -873,6 +873,25 @@ class AnnotateSettings:
         """Number of thumbnails per page (``grid_rows * grid_cols``, min 1)."""
         return max(1, self.grid_rows * self.grid_cols)
 
+
+
+def _annotation_identity(table: str) -> str:
+    """Return the existing identity column for the selected crop table."""
+    return "object_id" if table == "ssCell_Crops" else "png_path"
+
+
+def _annotation_filter(expression, table):
+    """Apply the existing filter grammar to paths or stored object classes.
+
+    :param expression: image-type expression from Annotate.
+    :param table: selected crop table.
+    :returns: SQL and bound values, without inventing crop paths.
+    """
+    where, values = parse_image_type(expression)
+    if table == "ssCell_Crops":
+        where = where.replace("png_path", "object_type")
+        values = [value.replace("_png", "") for value in values]
+    return where, values
 
 
 def _missing_annotation_database_message(db_path: str) -> str:
@@ -935,8 +954,10 @@ def ensure_annotation_column(db_path: str, column: str, *,
                 if column not in cols:
                     cur.execute(
                         f'ALTER TABLE "{table}" ADD COLUMN "{safe}" INTEGER')
-                cur.execute(f'CREATE INDEX IF NOT EXISTS idx_png_path '
-                            f'ON "{table}" (png_path)')
+                identity = _annotation_identity(table)
+                index = "idx_ome_crop_object_id" if table == "ssCell_Crops" else "idx_png_path"
+                cur.execute(f'CREATE INDEX IF NOT EXISTS "{index}" '
+                            f'ON "{table}" ("{identity}")')
         except sqlite3.OperationalError as exc:
             if is_busy_error(exc) and not isinstance(exc, DatabaseBusy):
                 raise DatabaseBusy(
@@ -981,9 +1002,10 @@ def _annotation_schema_ready(db_path: str, column: str, table: str) -> bool:
             f'PRAGMA table_info("{table}")')}
         if column not in cols:
             return False
+        index = "idx_ome_crop_object_id" if table == "ssCell_Crops" else "idx_png_path"
         return conn.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'index' "
-            "AND name = 'idx_png_path'").fetchone() is not None
+            "AND name = ?", (index,)).fetchone() is not None
     except sqlite3.Error:
         return False
     finally:
@@ -1129,7 +1151,7 @@ def count_rows(db_path: str, image_type: Optional[str] = None, *,
             connect_database(db_path, readonly=True, timeout=30)
         ) as conn:
             cur = conn.cursor()
-            where, params = parse_image_type(image_type)
+            where, params = _annotation_filter(image_type, table)
             clause = f" WHERE {where}" if where else ""
             cur.execute(f'SELECT COUNT(*) FROM "{table}"{clause}', params)
             return int(cur.fetchone()[0])
@@ -1162,11 +1184,12 @@ def fetch_page(
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
-        where, params = parse_image_type(image_type)
+        where, params = _annotation_filter(image_type, table)
         clause = f"WHERE {where} " if where else ""
+        identity = _annotation_identity(table)
         cur.execute(
-            f'SELECT png_path, "{col}" FROM "{table}" '
-            f'{clause}LIMIT ? OFFSET ?',
+            f'SELECT "{identity}", "{col}" FROM "{table}" '
+            f'{clause}ORDER BY rowid LIMIT ? OFFSET ?',
             (*params, page_size, offset),
         )
         return cur.fetchall()
@@ -1227,10 +1250,16 @@ def fetch_filtered_paths(
     """
     if not os.path.isfile(db_path) or not measurements or not thresholds:
         return []
-    where, params = parse_image_type(image_type)
+    where, params = _annotation_filter(image_type, table)
     from spacr.io import _read_and_join_tables, _read_db
-    df = _read_and_join_tables(db_path)
-    if "png_path" not in df.columns:
+    identity = _annotation_identity(table)
+    if table == "ssCell_Crops":
+        from spacr.tabular import read_database
+        df = read_database(db_path, table, canonicalise=False, report=None,
+                           migrate=False, read_only=True)[0]
+    else:
+        df = _read_and_join_tables(db_path)
+    if table != "ssCell_Crops" and "png_path" not in df.columns:
         png_df = _read_db(db_path, tables=["png_list"])[0]
         if "prcfo" not in df.columns and df.index.name == "prcfo":
             df = df.reset_index()
@@ -1258,18 +1287,18 @@ def fetch_filtered_paths(
             f"threshold and direction to apply to all of them.")
     for col, thr, direction in zip(measurements, thresholds, directions):
         df = _apply_threshold(df, col, thr, direction)
-    if "png_path" not in df.columns:
+    if identity not in df.columns:
         return []
-    df = df.dropna(subset=["png_path"])
+    df = df.dropna(subset=[identity])
     if where:
         quoted_table = str(table).replace('"', '""')
         with contextlib.closing(
             connect_database(db_path, readonly=True, timeout=30)
         ) as conn:
             paths = {row[0] for row in conn.execute(
-                f'SELECT png_path FROM "{quoted_table}" WHERE {where}', params)}
-        df = df[df["png_path"].isin(paths)]
-    return df[["png_path", annotation_column]].values.tolist()
+                f'SELECT "{identity}" FROM "{quoted_table}" WHERE {where}', params)}
+        df = df[df[identity].isin(paths)]
+    return df[[identity, annotation_column]].values.tolist()
 
 
 
@@ -1342,7 +1371,7 @@ def paths_by_metadata(db_path: str, column: str,
         if column not in {row[1] for row in cur.fetchall()}:
             return []
         cur.execute(
-            f'SELECT png_path FROM "{table}" '
+            f'SELECT "{_annotation_identity(table)}" FROM "{table}" '
             f'WHERE CAST("{column}" AS TEXT) IN ({placeholders})', wanted)
         return [row[0] for row in cur.fetchall()]
 
@@ -1402,8 +1431,14 @@ def gate_paths(db_path: str, gates: Sequence[Any], *,
     from spacr.io import _read_and_join_tables, _read_db
     from .widgets.gate_spec import GateClause
 
-    frame = _read_and_join_tables(db_path)
-    if "png_path" not in frame.columns:
+    identity = _annotation_identity(table)
+    if table == "ssCell_Crops":
+        from spacr.tabular import read_database
+        frame = read_database(db_path, table, canonicalise=False, report=None,
+                              migrate=False, read_only=True)[0]
+    else:
+        frame = _read_and_join_tables(db_path)
+    if table != "ssCell_Crops" and "png_path" not in frame.columns:
         png_df = _read_db(db_path, tables=["png_list"])[0]
         if "prcfo" not in frame.columns and frame.index.name == "prcfo":
             frame = frame.reset_index()
@@ -1412,10 +1447,10 @@ def gate_paths(db_path: str, gates: Sequence[Any], *,
         if "prcfo" in frame.columns and "prcfo" in png_df.columns:
             frame = frame.merge(png_df[["prcfo", "png_path"]], on="prcfo",
                                 how="left", validate="one_to_one")
-    if "png_path" not in frame.columns:
+    if identity not in frame.columns:
         return []
     keep = GateClause(tuple(gates)).mask(frame)
-    return frame.loc[keep, "png_path"].dropna().astype(str).tolist()
+    return frame.loc[keep, identity].dropna().astype(str).tolist()
 
 
 def annotation_batch(paths: Iterable[str],
@@ -1508,9 +1543,9 @@ def find_last_annotated_offset(
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
-        where, params = parse_image_type(image_type)
+        where, params = _annotation_filter(image_type, table)
         clause = f" WHERE {where}" if where else ""
-        cur.execute(f'SELECT "{col}" FROM "{table}"{clause}', params)
+        cur.execute(f'SELECT "{col}" FROM "{table}"{clause} ORDER BY rowid', params)
         rows = cur.fetchall()
     last = None
     for i, (val,) in enumerate(rows):
@@ -1720,13 +1755,13 @@ class SaveWorker:
         if to_null:
             cur.executemany(
                 f'UPDATE "{self.table}" SET "{col}" = NULL '
-                'WHERE png_path = ?',
+                f'WHERE "{_annotation_identity(self.table)}" = ?',
                 [(p,) for p in to_null],
             )
         if to_set:
             cur.executemany(
                 f'UPDATE "{self.table}" SET "{col}" = ? '
-                'WHERE png_path = ?',
+                f'WHERE "{_annotation_identity(self.table)}" = ?',
                 to_set,
             )
 

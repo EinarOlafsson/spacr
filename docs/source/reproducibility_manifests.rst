@@ -157,6 +157,23 @@ default after a higher-numbered item takes the next free number:
   field in the resident batch when that is 0). An old file's
   ``ops_ph_batch_size`` is renamed to ``ops_ph_tile_batch``, so it still sets
   only the phenotype path. 946 and 947 belong to other items.
+- 949 (OME-Zarr defaults): new spatial Mask Generation field output and
+  Measure field input and crop output use ``'ome-zarr'``. Older files retain ``mask_image_format='npy'``
+  and ``crop_image_format='png'``. New OPS phenotype fields and crops use
+  ``ops_ph_image_format='ome-zarr'`` and ``ops_crop_image_format='ome-zarr'``;
+  older files retain ``'npz'`` and ``'tiff-tar'`` respectively. This does not
+  change ``ops_storage``. New Annotate, Image UMAP and classification source
+  settings select OME-Zarr; older files retain ``crop_source='auto'`` and
+  ``image_source='load_images'`` when absent. An explicit older ``crop_source``
+  alias supplies a missing ``image_source`` before that default is filled.
+  Measure still needs retained merged filenames, headers and plane layout;
+  unavailable or uncommitted native fields, time-series and ambiguous spatial
+  identities use NPY. A committed native field with an incompatible shape,
+  dtype or plane layout raises an error. Timelapse keeps the legacy NPY field
+  path because the spatial HCS store has no time axis.
+  Explicit source selections always win. Native classification datasets keep
+  one ``crop_index.csv`` pointing to committed crops instead of exporting an
+  image file per object; keep the source project with the dataset when moving it.
 
 Public API
 ----------

@@ -67,6 +67,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_min_fraction": 0.6,
     "ops_single_read_quality": 0.03,
     "ops_ph_channels": "DAPI,GFP,A594,AF750",
+    "ops_ph_image_format": "ome-zarr",
     "ops_ph_cell_channel": "AF750",
     "ops_ph_nucleus_model": "cpsam",
     "ops_ph_cell_model": "cpsam",
@@ -185,6 +186,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_tables_parquet_threshold": 5000000,
     "ops_crop_per_guide": None,
     "ops_crop_size": 96,
+    "ops_crop_image_format": "ome-zarr",
     "ops_crop_channels": None,
     "ops_crop_flatfield": True,
     "ops_crop_seed": 0,
@@ -604,6 +606,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_min_fraction": (float, int),
     "ops_single_read_quality": (float, int),
     "ops_ph_channels": str,
+    "ops_ph_image_format": str,
     "ops_ph_cell_channel": str,
     "ops_ph_nucleus_model": str,
     "ops_ph_cell_model": str,
@@ -718,6 +721,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_tables_parquet_threshold": int,
     "ops_crop_per_guide": (int, type(None)),
     "ops_crop_size": int,
+    "ops_crop_image_format": str,
     "ops_crop_channels": (str, type(None)),
     "ops_crop_flatfield": bool,
     "ops_crop_seed": int,
@@ -1223,7 +1227,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_compare_control_seed",
     ],
     "Phenotype segmentation": [
-        "ops_ph_channels", "ops_ph_cell_channel", "ops_ph_nucleus_model",
+        "ops_ph_channels", "ops_ph_image_format", "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_tile_batch",
         "ops_ph_sites", "ops_retry_missing",
@@ -1279,7 +1283,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_store_row_copy",
     ],
     "Single-cell crops": [
-        "ops_crop_per_guide", "ops_crop_size", "ops_crop_channels",
+        "ops_crop_per_guide", "ops_crop_size", "ops_crop_image_format", "ops_crop_channels",
         "ops_crop_flatfield", "ops_crop_flat_mean_one", "ops_crop_seed",
         "ops_crop_all_nt", "ops_crop_control_fraction", "ops_crop_masks",
         "ops_max_files_per_folder",
@@ -1725,6 +1729,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "job -- a shared GPU is the common case, and an out-of-memory in the "
         "middle of a plate costs more than the time the GPU saves. "
         "Default True.",
+    "ops_ph_image_format":
+        "(str) - Format for phenotype masks and merged field images. "
+        "ome-zarr keeps the images and named label masks in plate stores; "
+        "npz keeps the legacy files. Saved settings from before schema 949 "
+        "retain npz. Default ome-zarr. Alpha.",
     "ops_ph_channels":
         "(str) - The phenotype channels in the order the cell table names "
         "them, separated by commas, matched against the channel tokens of the "
@@ -2976,6 +2985,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int or None) - How many cells of each targeting guide the "
         "ph_crops phase cuts per well, chosen at random with ops_crop_seed. "
         "Empty cuts every owned, linked cell. Default None. Alpha.",
+    "ops_crop_image_format":
+        "(str) - Format for phenotype cell crops. ome-zarr keeps native "
+        "pixels and optional cell/nucleus masks in committed per-well "
+        "pools; tiff-tar keeps the legacy TIFF shards. Saved settings from "
+        "before schema 949 retain tiff-tar. Default ome-zarr. Alpha.",
     "ops_crop_size":
         "(int) - Side of each crop in phenotype pixels, centred on the cell "
         "mask's centroid; pixels outside the cell are 0. Larger crops show "

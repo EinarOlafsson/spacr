@@ -5,7 +5,10 @@ LOAD IMAGES and STREAM IMAGES. Training previously used its own terms
 (``pre_generated`` / ``on_demand``) for the same choice, so the annotation
 and training panels presented one setting under two sets of names.
 
-``png`` — load pre-generated images (default)
+``ome-zarr`` — read stored native crops
+    Use existing OME-Zarr crop pools through the shared reader. Legacy formats
+    remain available when the project has no OME-Zarr crop pools.
+``png`` — load pre-generated images
     Read crops previously written by the measurement workflow.
     ``path_string`` filters paths by substring and ``file_type`` filters by
     image extension. This source performs no cropping.
@@ -51,7 +54,7 @@ LOG = logging.getLogger("spacr.crop_source")
 
 #: What a crop source can be, in the order the settings panel offers them.
 #: LOAD IMAGES first, because it is the default.
-CROP_SOURCES: Tuple[str, ...] = ("png", "merged", "generate")
+CROP_SOURCES: Tuple[str, ...] = ("ome-zarr", "png", "merged", "generate")
 
 #: Every spelling a settings file has ever carried, and the source it names.
 #:
@@ -70,6 +73,7 @@ CROP_SOURCES: Tuple[str, ...] = ("png", "merged", "generate")
 #: offered, because "what is available here" is not an answer to which mode
 #: they want.
 CROP_SOURCE_ALIASES: Dict[str, str] = {
+    "ome-zarr": "ome-zarr",
     "auto": "png",
     "png": "png",
     "load_images": "png",
@@ -86,6 +90,7 @@ CROP_SOURCE_ALIASES: Dict[str, str] = {
 #: The same words the annotation and montage panels use, because it is the
 #: same question. A panel that renders these renders LOAD IMAGES first.
 CROP_SOURCE_OPTIONS: Tuple[Tuple[str, str], ...] = (
+    ("ome-zarr", "OME-Zarr crops"),
     ("png", "load images — crops already in data/"),
     ("merged", "stream images — cut from merged/"),
     ("generate", "generate crops — write a crop set, then load it"),
@@ -105,6 +110,7 @@ CROP_SHAPES: Tuple[str, ...] = ("bounding_box", "object")
 #: Settings each source reads. Drives the greying -- a control the user can
 #: edit that changes nothing is worse than one that is not there.
 SOURCE_SETTINGS: Dict[str, Tuple[str, ...]] = {
+    "ome-zarr": ("path_string", "image_size"),
     "png": ("path_string", "file_type", "file_metadata", "tar_path"),
     "merged": ("extract_channels", "object_array", "coordinate_columns",
                "crop_shape", "image_size"),
@@ -118,11 +124,11 @@ class CropSourceError(ValueError):
 
 
 def resolve_source(settings: Mapping[str, Any]) -> str:
-    """Return the canonical crop source (``png``, ``merged`` or ``generate``).
+    """Return the canonical crop source, including native ``ome-zarr`` crops.
 
     Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file
     written by any released spaCR panel is accepted. An unset value means LOAD
-    IMAGES, the default in every panel.
+    IMAGES for compatibility; current panels supply an explicit default.
 
     :param settings: the settings mapping; its ``crop_source`` value is looked
         up in :data:`CROP_SOURCE_ALIASES`, and an empty value means ``png``.
@@ -488,6 +494,8 @@ def validate(settings: Mapping[str, Any]) -> str:
     :raises CropSourceError: with what to change.
     """
     source = resolve_source(settings)
+    if source == "ome-zarr":
+        return source
     if source == "png":
         if settings.get("file_type"):
             normalise_extension(settings.get("file_type"))

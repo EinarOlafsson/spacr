@@ -2,7 +2,7 @@ OME-ZARR IMAGES AND CROPS: MASK GENERATION FIELDS AS AN HCS PLATE, MEASURE CROPS
 =================================================================================================================
 
 Lifecycle: new
-Status: IMPLEMENTED 2026-11-19 on claude-983-impl-1119, alpha (ALPHA_FEATURES[983]); off by default, so every run writes exactly what it wrote before. 986 switches the defaults once 983-985 pass. spacr/ome_zarr.py (OME-NGFF 0.5 writer and reader), spacr/image_store.py, spacr/crop_store.py, spacr/core.py (Mask Generation hook), spacr/measure.py (Measure hook), spacr/database_concurrency.py, spacr/qt/screens/annotate.py, spacr/qt/annotate_engine.py, spacr/settings.py, spacr/settings_spec.py, spacr/qt/screens/settings_model.py. Tests: tests/test_ome_zarr_v05_983.py, tests/test_image_store_983.py, tests/test_crop_store_984.py, tests/test_measure_ome_zarr_crops_984.py, tests/test_crop_roles_984.py, tests/qt/test_annotate_ome_zarr_roles_984.py, tests/test_ome_zarr_round_trip_986.py.
+Status: IMPLEMENTED 2026-11-19 on claude-983-impl-1119, alpha (ALPHA_FEATURES[983]); initially off by default. TASK P implementation and focused validation are complete on ws-offload-codex-home-default986; landing, broader acceptance and the Mask timelapse owner decision remain pending. spacr/ome_zarr.py (OME-NGFF 0.5 writer and reader), spacr/image_store.py, spacr/crop_store.py, spacr/core.py (Mask Generation hook), spacr/measure.py (Measure hook), spacr/database_concurrency.py, spacr/qt/screens/annotate.py, spacr/qt/annotate_engine.py, spacr/settings.py, spacr/settings_spec.py, spacr/qt/screens/settings_model.py. Tests: tests/test_ome_zarr_v05_983.py, tests/test_image_store_983.py, tests/test_crop_store_984.py, tests/test_measure_ome_zarr_crops_984.py, tests/test_crop_roles_984.py, tests/qt/test_annotate_ome_zarr_roles_984.py, tests/test_ome_zarr_round_trip_986.py.
 Requested: maintainer, plan approved 2026-11-19 ("Build in the order you listed"); crops in 974's per-well stores (spec decision 6).
 Owner: master lane claude-983-impl-1119.
 Source: proposals/bmc_paper_items/ITEM_ome_zarr_images.md.
@@ -17,8 +17,9 @@ BUILD
   then rename), run_fields (workers compute, the parent writes, plan order
   through a reorder window, spawn and forkserver safe, resume skips committed
   fields), read_image / read_labels for npy, npz, tif, png and zarr.
-- mask_image_format ('npy' default, 'tiff', 'ome-zarr'): Mask Generation also
-  writes images/<plate>.ome.zarr or merged_tiff/; merged/*.npy stays.
+- mask_image_format ('ome-zarr' for new settings, historical 'npy', 'tiff'
+  also available): Mask Generation writes images/<plate>.ome.zarr or
+  merged_tiff/; merged/*.npy stays.
 - spacr.crop_store: cut_crops (bounding box + crop_margin_px, own mask,
   crop_zero_outside), CropPoolWriter (crops/plate=<P>/well=<W>.zarr, one pool
   per class, crops_per_shard per shard written whole), ssCell_Crops table with
@@ -26,7 +27,7 @@ BUILD
   export_crops (tiff, npy), legacy_png_view (the PNG (Legacy) window, rebuilt),
   pool attributes, commit / read_commit / discard_uncommitted (whole-well
   commit and resume, for 985), spacr.crops.measured_masks_state.
-- crop_image_format ('png' default, 'ome-zarr'), crops_per_shard (4096,
+- crop_image_format ('ome-zarr' for new settings, historical 'png'), crops_per_shard (4096,
   halved under low RAM), crop_margin_px (0), crop_zero_outside (off). Measure
   workers send each field's crops in its write packet; the parent's CropSink
   commits fields in plan order.
@@ -61,22 +62,66 @@ TASK V2: UNSHARDED PLATE FIELDS (P1, MAINTAINER 2026-11-20, INBOX V87)
 - Use P1 declared resources and the retained 16-field example. Item 986
   waits for V2; a passing subtest does not complete the whole performance goal.
 
+TASK P: OME-ZARR DEFAULTS (986, P1, MAINTAINER 2026-11-20, INBOX V90)
+- Home Codex owns ws-offload-codex-home-default986 on TASK X b2a12f3f4d,
+  merged with V 28e2796a74 and accepted V2 layout 073df184da. Preserve X
+  checkpoint, precision and residency behavior and its existing 976 resolver.
+  The maintainer accepted V2 at 1.70 times NPY for landing;
+  retain the original 1.5-times threshold failure in its evidence.
+- New Mask Generation runs default to OME-Zarr field images and masks;
+  Measure defaults to OME-Zarr object crops. Annotate, Load and Stream
+  select the OME-Zarr source while still reading existing legacy formats.
+- Measure must read the selected field pixels for measurements, calibration,
+  illumination and unmixing; old saved Measure files retain NPY. Retained
+  merged names, headers and plane layout remain required for discovery.
+  Time-series and ambiguous spatial identities cannot use the spatial HCS
+  reader. Preserve their legacy path; the proposed logged Mask timelapse
+  export fallback awaits the landing owner decision, with no native time-axis claim.
+- The same switch must reach OPS phenotype masks and crops, including
+  their resume and downstream readers. Coordinate the overlapping TASK X
+  Cellpose work through HOME_STATUS.md; reuse the existing storage APIs.
+- Schema 949 is assigned. Its historical defaults are mask_image_format=npy,
+  crop_image_format=png, crop_source=auto and image_source=load_images;
+  explicitly saved crop-source aliases seed image_source before migration.
+  OPS adds ops_ph_image_format (ome-zarr new, npz historical) and
+  ops_crop_image_format (ome-zarr new, tiff-tar historical); ops_storage
+  keeps its existing meaning. Register the names, types, categories and help.
+- Native classification uses one crop_index.csv through spacr.tabular,
+  shared OME readers and the existing grouped split. Verify real Load,
+  Stream, CV and annotation preflight without per-object image exports.
+  CropPoolWriter may opt into uint8 0/1/2 masks; default Boolean layout
+  and metadata remain unchanged. Preserve all crop-mask values on read.
+- Measure reruns commit through CropSink.close(); _fresh_writer replaces
+  crops of planned fields and preserves committed crops of other fields,
+  including clearing classes with no new objects. The focused byte-identical
+  rerun and one/two-worker crop contracts pass under the new defaults.
+- Prove a new default run writes OME-Zarr, old settings retain pixel-exact
+  legacy PNG/TIFF/NPY outputs, and the existing 983/984 round-trip contracts
+  still pass. Include OPS mask/crop identity and resume/read coverage.
+- Add the release-note line, list new or changed English for later review,
+  run the smallest relevant CPU tests with two workers through the P1
+  scheduler, generate affected indexes once, and publish the assigned branch.
+- V3 tiling/NAS/codec/reader/thread comparisons are a later item, not part
+  of this default switch. T replay provenance remains separately pending.
+
 NOT YET
-- Annotate, Image-UMAP and Classify read OME-Zarr crops once 976 adds
-  OmeZarrCropSource to resolve_crop_source; the reader-equivalence proof runs
-  then.
+- Landing-owner acceptance of TASK P, including the implemented and tested
+  Mask timelapse fallback: report that spatial OME-Zarr has no time axis,
+  keep the merged NPY frames, skip spatial export and continue motility/events.
+  Explicit TIFF export remains available. The owner decision is pending;
+  these tests do not establish native time-series support.
 - Pre-set proof on Funk A1 and a Mask Generation/Measure example (md5 off
   identity, on equality, settings-file rerun, cost against PNG with a control
   row; published comparator "n/a in paper").
 - Cross-OS nightly job (windows-latest, macos-latest).
-- OPS reading mask_image_format as ops_image_format (spec decision 1).
-- Measure rerun into the same project replaces the plan's wells' crops
-  (CropSink uses close(), not commit(); a rerun appends pools).
 - Time and depth axes in the HCS writer (refused today, never flattened).
-- Nine-language records: Codex, task in codex_inbox/tr_983_task.md (branch ws-offload-codex-tr-983).
+- Nine-language records for the new TASK P English remain to be assigned.
+  The earlier 983 and 985 reviews were published on ws-offload-codex-tr-983
+  at 0ff0560d667b and ws-offload-codex-tr-985 at 46b67b455e0c;
+  they cover source 3aee09fc2a, not the later P changes.
 
-2026-11-20 TASK V history (requested 2026-11-19, P1): Home Codex owns the read-speed follow-up on ws-offload-codex-home-zarrspeed, based on 3aee09fc2a; preserve image, mask and crop contracts. Target whole-field reads within about 1.5x NPY, no batched-crop regression and pixel-exact round trips; use the existing 16-field Measure example through heavy_slot. Rebase only when the master provides the landing SHA. Implementation under inbox v77: bounded array-handle reuse in ome_zarr.py and sparse crop-chunk coalescing in crop_store.py preserve invalidation, dense batching, order and duplicates. After the missed field target was reported, v83 authorized the exact shards=False opt-out in write_ome_zarr for NGFF0.5, four new and three retained writer cases, and a matched 16-field Blosc-LZ4 sharded/unsharded comparison through the declared scheduler; v85 corrected V priority to P1 with unchanged CPU/RAM declarations. Home Codex must report exact pixels, metadata, external Reader checks, disk, partial and whole-field timings against NPY, retained crop timings, and a proposed default. Existing defaults, codecs, image_store, crop_store, settings and runtime strings remain unchanged by this extension; broader acceptance remains open. Audits run only while higher-priority work waits for a slot.
-2026-11-20 Retained baseline history: V0/L1 NGFF0.5 layouts missed the target; L2 NGFF0.4 per-channel chunks measured 0.723109 s versus NPY 0.517421 s (1.3975x), at 890727910 bytes versus LZ4 298462313 bytes, with broad ranges. C0 dense batch/individual medians were 0.180698/2.158947 s; sparse batch/individual medians were 0.173421/0.065742 s, with 35.27x logical span/requested bytes. C1 compressed NGFF0.4 measured 3.226523 s versus NPY 1.493290 s (2.1607x), using 436614620 bytes; codec framing, shuffle and version differed too. Array and representative external-reader checks passed; default/layout selection remains a maintainer decision.
+2026-11-20 TASK V history (requested 2026-11-19, P1): Home Codex owns the read-speed follow-up on ws-offload-codex-home-zarrspeed, based on 3aee09fc2a; preserve image, mask and crop contracts. Target whole-field reads within about 1.5x NPY, no batched-crop regression and pixel-exact round trips; use the existing 16-field Measure example through heavy_slot. Rebase only when the master provides the landing SHA. Implementation under inbox v77: bounded array-handle reuse in ome_zarr.py and sparse crop-chunk coalescing in crop_store.py preserve invalidation, dense batching, order and duplicates. After the missed field target was reported, v83 authorized the exact shards=False opt-out in write_ome_zarr for NGFF0.5, four new and three retained writer cases, and a matched 16-field Blosc-LZ4 sharded/unsharded comparison through the declared scheduler; v85 corrected V priority to P1 with unchanged CPU/RAM declarations. Home Codex must report exact pixels, metadata, external Reader checks, disk, partial and whole-field timings against NPY, retained crop timings, and a proposed default. Existing defaults, codecs, image_store, crop_store, settings and runtime strings remain unchanged by this extension; broader acceptance remains open. Audits run only while higher-priority work waits for a slot. Retained baseline history: V0/L1 NGFF0.5 layouts missed the target; L2 NGFF0.4 per-channel chunks measured 0.723109 s versus NPY 0.517421 s (1.3975x), at 890727910 bytes versus LZ4 298462313 bytes, with broad ranges. C0 dense batch/individual medians were 0.180698/2.158947 s; sparse batch/individual medians were 0.173421/0.065742 s, with 35.27x logical span/requested bytes. C1 compressed NGFF0.4 measured 3.226523 s versus NPY 1.493290 s (2.1607x), using 436614620 bytes; codec framing, shuffle and version differed too. Array and representative external-reader checks passed; default/layout selection remains a maintainer decision.
 2026-11-20 R0 on unchanged retained stores: five-repeat medians after a separate first pass were NPY 1.129063 s, original fields 3.555990 s and changed fields 3.335423 s (2.9542x NPY; target NOT met and reported). Dense 256-crop original/changed medians were 0.649233/0.623876 s; sparse eight-crop medians were 0.611385/0.166634 s. All 18 field passes, 24 crop passes and eight duplicate/context/resize checks were exact. These are loaded-host warm-store timings with verification outside timing, not cold I/O, a statistical speed guarantee or end-to-end Measure timing; the old export read_s included reference loads and verification.
 2026-11-20 Validation: retained 34 focused tests plus nine subtests and 166 image/crop/legacy round-trip tests passed before the writer extension; its seven W1 writer cases pass with no skips. Matched U1 medians (NPY/sharded LZ4/unsharded LZ4) are whole-field 0.902840/2.944139/2.194158 s, channel0 1.275735/0.618547/0.438101 s and central256 1.025863/1.386606/1.047568 s. All 54 timed passes, matched metadata apart from sharding, four external Reader pixel checks and input guards pass. Unsharded/sharded storage is 298426329/298462313 bytes in 240/192 files. U1 used actual P1/2CPU/6GiB/nice19/swap0/VRAM0 limits and peaked at 4356059136 bytes. Whole-field unsharded/NPY is 2.4303x, so the 1.5x target remains unmet. No new runtime strings; two read_crops and two write_ome_zarr API prose blocks changed. HOME_STATUS.md and owned .codex-audit reports retain scripts, ranges, resource measurements and exact English. Defaults and broader acceptance remain open.
 2026-11-20 TASK V2: PlateWriter now passes shards=False for field images and masks, retaining whole-field channel/mask chunks, Blosc LZ4 level 5 with byte shuffle, HCS metadata, exact pixels and resume behavior. Crop code/layouts and persisted settings are unchanged; this physical layout change is described by array metadata and the release note, with no new setting or schema field. Six focused layout/round-trip/resume/Mask Generation tests pass. B0 used three fresh matched trial processes with separate warmups on 16 real fields: median NPY/V2 reads 1.514012/2.573900 s, ratio 1.700053 (FAIL against 1.5); dense 256-crop published/V2 medians 0.725140/0.607108 s (0.837228), sparse eight-crop 0.201627/0.180312 s (0.894282). Ratios of medians were the fixed primary metrics; the dense median paired ratio is 1.131347. Crop code is identical, so the warm shared-host variation is not a new optimization or statistical noninferiority proof. All 18 timed reads, eight crop edge checks, 64 array metadata checks and four external Reader checks pass exactly; the full three-run table and failed criterion were reported before widening. New HCS storage is 298435569 bytes in 264 files; P1/2CPU/5GiB execution peaked at 4145795072 bytes. O0 additionally reads all 64 arrays and four external Reader cases exactly with installed Zarr 3.1.6, ome-zarr 0.18.0, NumPy 2.4.6 and numcodecs 0.16.5 (P1/1CPU/1GiB, 23.39 s, peak 724017152 bytes); source, stores and environment remain unchanged. This verifies those versions only, not Zarr 2 or every older release. No runtime strings changed; image_store module and PlateWriter prose plus one release-note line changed. Field-speed acceptance remains unmet; Fused activation, global pools and fork policy were not changed. Item 983 and the broader performance goal remain open.
+2026-11-20 TASK P: Schema 949 switches fresh Mask/Measure field and crop formats, Annotate/Image-UMAP/Classify sources and the two OPS output formats to OME-Zarr while preserving historical NPY/PNG, crop_source=auto, image_source=load_images, OPS NPZ/TIFF-in-TAR and explicit crop-source alias seeding. The inherited 976 auto order is unchanged. Measure uses the selected native pixels for measurements, calibration, illumination and unmixing, with retained NPY discovery and fallback for unavailable or uncommitted native fields and temporal or ambiguous spatial identities. Committed-field shape, dtype and plane-layout mismatches remain errors. Native training uses one exact crop_index.csv, shared readers, grouped splits and pixel-based leakage checks; mixed legacy rows preserve integer locators and mask flags. OPS pools retain uint8 0/1/2 masks, absent-mask placeholders do not blank pixels, and ordinary Boolean pools remain compatible. Retained P0 evidence covers 144 unrepeated passes, compile/input guards and the clean-stack legacy OPS comparison of arrays, typed identities/tables and legacy container artifacts, with run version/commit metadata reported separately. P1 passes all 35 targeted cases: all 21 P0 failures/errors are resolved, 13 native-reader passes are rechecked and one exact-integer metadata case is added. Real Measure output, illumination/unmixing, one/two-worker crops, byte-identical reruns, native Annotate save/reopen, loader/CV behavior and OPS identity/resume contracts pass; no skips or errors remain in this cohort. The prior Manager failure was an overlong temporary socket path, corrected in the test harness without changing the process-start policy. P1 used P1/2CPU/5GiB/native1/nice19/swap0/VRAM0, took 157.79 s overall (140.54 s pytest) and peaked at 2865303552 bytes. Implementation and focused validation are complete on ws-offload-codex-home-default986; landing, the logged Mask timelapse fallback owner decision, real Funk/example proof, cross-OS coverage, native time/depth support and later English translation review remain open.

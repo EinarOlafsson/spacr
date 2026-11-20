@@ -946,8 +946,16 @@ def _identity_sets(paths: Iterable[Any]) -> Dict[str, set]:
 
 
 def _content_sha256(path: Any) -> Tuple[str, str]:
-    """Return ``(sha256, error)`` for one file without loading it into memory."""
+    """Hash file bytes or native crop dtype, shape and pixels for leakage checks."""
     try:
+        from .classification_pixels import _native_crop_reference
+        native = _native_crop_reference(path)
+        if native is not None:
+            pixels = np.ascontiguousarray(native.raw())
+            digest = hashlib.sha256()
+            digest.update(str((pixels.dtype.str, pixels.shape)).encode('ascii'))
+            digest.update(memoryview(pixels).cast('B'))
+            return digest.hexdigest(), ""
         if path is None or str(path) == "":
             return "", "no file path given (empty path)"
         candidate = Path(str(path))
@@ -958,7 +966,7 @@ def _content_sha256(path: Any) -> Tuple[str, str]:
             for chunk in iter(lambda: handle.read(1024 * 1024), b""):
                 digest.update(chunk)
         return digest.hexdigest(), ""
-    except OSError as exc:
+    except (OSError, ValueError, KeyError, IndexError) as exc:
         return "", f"{path}: {type(exc).__name__}: {exc}"
 
 
@@ -1324,15 +1332,20 @@ def audit_cv_folds(
 
 
 def dataset_split_paths(root: Any, split: str) -> List[str]:
-    """Return sorted image paths under ``root/<split>/<class>/``.
+    """Return indexed native references or sorted image paths for one split.
 
     :param root: dataset folder that contains the split folders; ``~`` is
         expanded.
     :param split: name of the split subfolder, such as ``train`` or ``test``. A
         missing folder returns an empty list; files with an image or ``.npy``
-        suffix are collected recursively below it.
+        suffix are collected recursively below it. A parent ``crop_index.csv``
+        supplies references in recorded row order instead of file discovery.
     """
     folder = Path(str(root)).expanduser() / str(split)
+    from .classification_pixels import _indexed_crop_samples
+    indexed = _indexed_crop_samples(folder)
+    if indexed is not None:
+        return indexed[0]
     if not folder.is_dir():
         return []
     suffixes = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".npy"}
@@ -1355,7 +1368,9 @@ def audit_dataset_splits(
     :param root: dataset directory holding ``train/`` and ``test/``. Both are
         searched recursively, and only ``.png``, ``.jpg``, ``.jpeg``, ``.tif``,
         ``.tiff``, ``.bmp`` and ``.npy`` files are collected, so a folder of
-        any other format audits as empty.
+        any other format audits as empty unless ``crop_index.csv`` supplies
+        native crop references. Those references are hashed from their stored
+        pixel dtype, shape and values rather than from locator text.
     :param group_by: identity level that may not appear on both sides --
         ``none``, ``field``, ``well`` or ``plate``. The default ``well`` still
         permits the same plate in train and test. It is validated only after

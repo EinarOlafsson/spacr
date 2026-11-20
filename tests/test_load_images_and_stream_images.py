@@ -14,6 +14,7 @@ import numpy as np
 import pytest
 
 from spacr.crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, PICTURE_SOURCES,
+                         OME_ZARR_IMAGES, OME_ZARR_IMAGES_LABEL,
                          STREAM_IMAGES, STREAM_IMAGES_LABEL, CropError,
                          picture_source_label, resolve_crop_source)
 
@@ -37,7 +38,7 @@ def test_the_stored_values_did_not_change():
     assert STREAM_IMAGES == "merged"
 
 
-def test_load_images_is_offered_first():
+def test_native_crops_are_offered_first():
     """Two names for the two things, and streaming now says which route.
 
     "stream images" became "stream images (array)" when the database route
@@ -45,7 +46,7 @@ def test_load_images_is_offered_first():
     object is found, so a label that named neither could not tell the user
     which one they had picked.
     """
-    assert PICTURE_SOURCES[0] == (LOAD_IMAGES, LOAD_IMAGES_LABEL)
+    assert PICTURE_SOURCES[0] == (OME_ZARR_IMAGES, OME_ZARR_IMAGES_LABEL)
     assert picture_source_label("png") == "load images"
     assert picture_source_label("merged").startswith("stream images")
     assert "array" in picture_source_label("merged")
@@ -112,19 +113,15 @@ def test_auto_still_answers_what_is_available(tmp_path):
 # ------------------------------------------------ the annotation app's choice
 
 
-def test_the_annotation_app_defaults_to_load_images():
-    """"in the annotation app how do i choose to stream images from database
-    or dataset" -- the answer was that you did not: it shipped 'auto', which
-    takes the PNG folder whenever one exists, and the choice was never
-    offered."""
+def test_the_annotation_app_defaults_to_native_crops():
+    """New Annotate settings select native crops explicitly."""
     from spacr.settings import set_annotate_default_settings
 
-    assert set_annotate_default_settings({})["crop_source"] == LOAD_IMAGES
+    assert set_annotate_default_settings({})["crop_source"] == OME_ZARR_IMAGES
 
 
-def test_the_panel_offers_the_two_modes_and_not_auto():
-    """'auto' answers what is AVAILABLE, which is not an answer to somebody
-    asked which mode they want."""
+def test_the_panel_offers_native_automatic_and_legacy_choices():
+    """The panel preserves existing automatic settings alongside explicit sources."""
     import spacr.qt.screens.settings_model as model
 
     offered = None
@@ -141,8 +138,7 @@ def test_the_panel_offers_the_two_modes_and_not_auto():
     # are offered and that 'auto' is not one of them.
     stored = [o[0] if isinstance(o, tuple) else o for o in (offered or [])]
 
-    assert stored == [LOAD_IMAGES, STREAM_IMAGES]
-    assert "auto" not in stored
+    assert stored == [OME_ZARR_IMAGES, "auto", LOAD_IMAGES, STREAM_IMAGES]
     # And the labels really are the words, where labels are given.
     labels = " ".join(o[1] for o in (offered or []) if isinstance(o, tuple))
     if labels:
@@ -163,7 +159,7 @@ def test_the_tooltip_names_both_modes():
     from spacr.settings import tooltips
 
     text = tooltips["crop_source"]
-    assert "LOAD IMAGES" in text and "STREAM IMAGES" in text
+    assert "ome-zarr" in text and "stored crop pools" in text
     assert "'png'" in text and "'merged'" in text
 
 
@@ -191,8 +187,7 @@ def test_the_tooltip_does_not_teach_the_retired_training_vocabulary():
         assert retired in CROP_SOURCE_ALIASES
         assert retired in _IMAGE_SOURCES
 
-    assert "load_images" in text and "stream_images" in text, (
-        "the two names training writes are what the tooltip migrates onto")
+    assert "'png'" in text and "'merged'" in text
 
 
 # --------------------------------- the annotation app's PANEL, not its table
@@ -217,24 +212,26 @@ def test_the_annotate_settings_window_offers_the_two_modes(qtbot):
 
     offered = [combo.itemData(i) for i in range(combo.count())]
     labels = " ".join(combo.itemText(i) for i in range(combo.count())).lower()
-    assert offered == [LOAD_IMAGES, STREAM_IMAGES]
+    assert offered == [OME_ZARR_IMAGES, LOAD_IMAGES, STREAM_IMAGES, "auto"]
     assert "load images" in labels and "stream images" in labels
-    assert "auto" not in offered
+    assert "ome-zarr" in labels
 
 
-def test_the_annotate_settings_window_opens_on_load_images(qtbot):
-    """LOAD IMAGES is the default, and a stored 'auto' still selects it."""
+def test_the_annotate_settings_window_preserves_each_source(qtbot):
+    """Fresh settings use native crops; automatic and legacy choices remain explicit."""
     pytest.importorskip("PySide6")
     from spacr.qt.annotate_engine import AnnotateSettings
     from spacr.qt.screens.annotate import _SettingsDialog
 
-    for stored in (None, "", "auto", "png", "pre_generated"):
+    for stored, expected in ((None, OME_ZARR_IMAGES), ("", LOAD_IMAGES),
+                             ("auto", "auto"), ("png", LOAD_IMAGES),
+                             ("pre_generated", LOAD_IMAGES)):
         settings = AnnotateSettings()
         if stored is not None:
             settings.crop_source = stored
         dialog = _SettingsDialog(settings)
         qtbot.addWidget(dialog)
-        assert dialog._crop_source.currentData() == LOAD_IMAGES, stored
+        assert dialog._crop_source.currentData() == expected, stored
 
 
 def test_the_annotate_window_writes_the_mode_back(qtbot):
@@ -269,7 +266,7 @@ TRAINING_STREAM_IMAGES = "stream_images"
 RETIRED_SPELLINGS = [
     (None, TRAINING_LOAD_IMAGES),
     ("", TRAINING_LOAD_IMAGES),
-    ("auto", TRAINING_LOAD_IMAGES),
+    ("auto", "auto"),
     ("png", TRAINING_LOAD_IMAGES),
     ("pre_generated", TRAINING_LOAD_IMAGES),
     ("generate", TRAINING_LOAD_IMAGES),
@@ -317,13 +314,14 @@ def test_the_training_panel_offers_the_two_modes_and_not_a_text_box(qtbot,
         f"the two names are not offered -- they are typed")
     offered = [widget.itemData(i) for i in range(widget.count())]
     labels = [widget.itemText(i).lower() for i in range(widget.count())]
-    assert offered == [TRAINING_LOAD_IMAGES, TRAINING_STREAM_IMAGES]
-    assert labels[0].startswith("load images"), labels
-    assert labels[1].startswith("stream images"), labels
+    assert offered == [OME_ZARR_IMAGES, "auto", TRAINING_LOAD_IMAGES, TRAINING_STREAM_IMAGES]
+    assert labels[0] == "ome-zarr crops"
+    assert labels[2].startswith("load images"), labels
+    assert labels[3].startswith("stream images"), labels
     # AND NOTHING ELSE. 'auto' answers what is available (rule E) and
     # 'generate' is an ACTION rather than a source (rule D); neither is an
     # answer to which mode the user wants.
-    for retired in ("pre_generated", "on_demand", "auto", "generate"):
+    for retired in ("pre_generated", "on_demand", "generate"):
         assert retired not in offered, retired
         assert retired not in " ".join(labels), retired
 
@@ -337,23 +335,22 @@ def test_the_training_panel_says_the_same_sentences_as_the_viewers():
     assert [label for _v, label in _IMAGE_SOURCE_OPTIONS] == [
         label for _v, label in _CROP_SOURCE_OPTIONS], (
         "the training panel and the viewers word the same choice differently")
-    assert [v for v, _l in _CROP_SOURCE_OPTIONS] == [LOAD_IMAGES,
-                                                     STREAM_IMAGES]
-    assert [v for v, _l in _IMAGE_SOURCE_OPTIONS] == [TRAINING_LOAD_IMAGES,
-                                                      TRAINING_STREAM_IMAGES]
+    assert [v for v, _l in _CROP_SOURCE_OPTIONS] == [OME_ZARR_IMAGES, "auto",
+                                                    LOAD_IMAGES, STREAM_IMAGES]
+    assert [v for v, _l in _IMAGE_SOURCE_OPTIONS] == [OME_ZARR_IMAGES, "auto",
+                                                     TRAINING_LOAD_IMAGES, TRAINING_STREAM_IMAGES]
 
 
 @pytest.mark.parametrize("app_key", ["classify", "classify_merged"])
-def test_the_training_panel_opens_on_load_images(qtbot, app_key):
-    """LOAD IMAGES IS THE DEFAULT (rule A), in the panel and not only in the
-    settings dict."""
+def test_the_training_panel_opens_on_native_crops(qtbot, app_key):
+    """The training panel and fresh settings agree on native crops."""
     pytest.importorskip("PySide6")
 
     model, widget = _training_image_source_widget(app_key)
     qtbot.addWidget(widget)
 
-    assert model._defaults["image_source"] == TRAINING_LOAD_IMAGES
-    assert widget.currentData() == TRAINING_LOAD_IMAGES
+    assert model._defaults["image_source"] == OME_ZARR_IMAGES
+    assert widget.currentData() == OME_ZARR_IMAGES
     assert widget.currentIndex() == 0
 
 
@@ -375,7 +372,7 @@ def test_an_older_settings_file_selects_its_mode_not_a_third_item(qtbot,
     qtbot.addWidget(widget)
 
     offered = [widget.itemData(i) for i in range(widget.count())]
-    assert offered == [TRAINING_LOAD_IMAGES, TRAINING_STREAM_IMAGES], (
+    assert offered == [OME_ZARR_IMAGES, "auto", TRAINING_LOAD_IMAGES, TRAINING_STREAM_IMAGES], (
         f"crop_source={stored!r} added a third, retired spelling to the panel")
     assert widget.currentData() == selects, stored
     # And what the panel COLLECTS is the selected mode, so saving a screen
@@ -400,7 +397,8 @@ def test_every_value_the_training_panel_offers_reaches_a_source():
     for stored, _label in _IMAGE_SOURCE_OPTIONS:
         assert stored in CROP_SOURCE_ALIASES, stored
         landed[stored] = _canonical_crop_source(stored)
-    assert landed == {TRAINING_LOAD_IMAGES: LOAD_IMAGES,
+    assert landed == {OME_ZARR_IMAGES: OME_ZARR_IMAGES, "auto": "auto",
+                      TRAINING_LOAD_IMAGES: LOAD_IMAGES,
                       TRAINING_STREAM_IMAGES: STREAM_IMAGES}
 
 
@@ -471,19 +469,19 @@ def test_the_training_modes_drive_the_panel_and_are_not_a_label(qtbot,
     qtbot.addWidget(combo)
     stream_only = model._widgets["stream_method"]
 
-    assert combo.currentData() == TRAINING_LOAD_IMAGES
+    assert combo.currentData() == OME_ZARR_IMAGES
     assert not stream_only.isEnabled(), (
         "stream_method is read only while streaming, and the panel opened on "
         "LOAD IMAGES")
 
-    combo.setCurrentIndex(1)
+    combo.setCurrentIndex(combo.findData(TRAINING_STREAM_IMAGES))
     assert combo.currentData() == TRAINING_STREAM_IMAGES
     assert stream_only.isEnabled(), (
         "choosing STREAM IMAGES left the streaming settings greyed out")
 
     # And back, so the rule is bound to the CHOICE rather than to having been
     # touched once.
-    combo.setCurrentIndex(0)
+    combo.setCurrentIndex(combo.findData(TRAINING_LOAD_IMAGES))
     assert combo.currentData() == TRAINING_LOAD_IMAGES
     assert not stream_only.isEnabled(), (
         "going back to LOAD IMAGES left the streaming settings editable")

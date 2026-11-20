@@ -15,8 +15,8 @@ that are not phases themselves:
   copy a finished well to archive storage, verify the copy by size and MD5
   and write the ``WELL_DONE`` / ``PLATE_DONE`` markers a resumed run starts
   from (B9);
-* :func:`crop_index` and :func:`stream_crops` read the sharded crop store
-  whole shard by whole shard, shuffled within and between shards, as a
+* :func:`crop_index` and :func:`stream_crops` read native crop pools or the
+  legacy sharded store, shuffled within and between pools or shards, as a
   training loader does (WebDataset style; Aizman et al. 2019,
   arXiv:2001.01858) (B16);
 * :func:`integer_cell_key` is the integer join key of the measurement
@@ -431,22 +431,61 @@ def mark_plate_done(archive_root: str, plate: str, wells: Sequence[str]
     return path
 
 
+def _native_crop_rows(root: str, plate: str, wells: Optional[Sequence[str]]):
+    """Project committed OPS crop-pool rows onto OPS identities, including empty native wells."""
+    if not os.path.isdir(os.path.join(root, "crops")):
+        return [], set()
+    from urllib.parse import unquote
+
+    from .crop_store import class_dir
+    from .ops_engine import _ph_crop_commit
+
+    rows, native_wells = [], set()
+    wanted = None if wells is None else set(map(str, wells))
+    plate_dir = class_dir(root, plate, "_", "cell").parent.parent
+    for path in sorted(plate_dir.glob("well=*.zarr")):
+        well = unquote(path.name[len("well="):-len(".zarr")])
+        if wanted is not None and well not in wanted:
+            continue
+        commit = _ph_crop_commit(root, plate, well)
+        if not commit or commit.get("attributes", {}).get("source") != "ops_ph_crops":
+            continue
+        native_wells.add(well)
+        for row in commit["rows"]:
+            if row.get("ops_crop") is not True:
+                continue
+            rows.append({**row, "crop_format": "ome-zarr",
+                         "crop_object_id": row["object_id"],
+                         "object_id": row.get("ops_object_id"),
+                         "shard": os.path.join(root, row["crop_store"], row["crop_array"]),
+                         "member": row["prcfo"]})
+    return rows, native_wells
+
+
 def crop_index(root: str, plate: str, wells: Optional[Sequence[str]] = None):
-    """Every crop of the sharded store, as one table.
+    """Every committed OPS crop, from native pools or the legacy sharded store, as one table.
 
     :param root: the crop store's root (``ops_merged_root`` or ``dst_root``).
     :param plate: the plate name.
     :param wells: the wells; every well in the store when None.
     :returns: the shard indexes concatenated, with a ``shard`` column (the
-        tar's path), ordered by shard and position in it.
+        tar's path), ordered by shard and position in it. Native rows have
+        ``crop_format='ome-zarr'`` and their crop-pool locator columns;
+        ``shard`` is the pool array path and ``member`` is ``prcfo``.
+        ``object_id`` retains the sequencing identity, while
+        ``crop_object_id`` is the crop's unique identity. A committed native
+        OPS well supersedes its legacy tar indexes, including an empty well.
     """
     import pandas as pd
 
+    native, native_wells = _native_crop_rows(root, plate, wells)
     base = os.path.join(root, "data", "cell", str(plate))
     frames = []
     if os.path.isdir(base):
         for here, _folders, files in sorted(os.walk(base)):
             well = os.path.relpath(here, base).split(os.sep)[0]
+            if well in native_wells:
+                continue
             if wells is not None and well not in set(map(str, wells)):
                 continue
             for name in sorted(files):
@@ -455,6 +494,10 @@ def crop_index(root: str, plate: str, wells: Optional[Sequence[str]] = None):
                     frame.insert(0, "shard", os.path.join(
                         here, name[:-len(".index.parquet")] + ".tar"))
                     frames.append(frame)
+    if native:
+        frame = pd.DataFrame(native)
+        frame["object_id"] = pd.Series([row["object_id"] for row in native], dtype=object)
+        frames.append(frame)
     if not frames:
         return pd.DataFrame(columns=["shard", "member", "offset_data", "size"])
     return pd.concat(frames, ignore_index=True)
@@ -470,11 +513,53 @@ def _decode_crop(data: bytes):
     return image, mask
 
 
+def _crop_group_values(root: str, rows: List[Dict[str, Any]], batch_size: int):
+    """Read one native pool in bounded batches or one legacy tar through its existing decoder."""
+    if rows[0].get("crop_format") == "ome-zarr":
+        from .crop_store import read_crops
+
+        for start in range(0, len(rows), batch_size):
+            batch = rows[start:start + batch_size]
+            for row, (image, mask) in zip(batch, read_crops(root, batch)):
+                yield row, image, mask if row.get("has_mask", True) else None
+        return
+    records = {row["member"]: row for row in rows}
+    shard = rows[0]["shard"]
+    with tarfile.open(shard, "r|") as tar:
+        for member in tar:
+            if member.isfile():
+                image, mask = _decode_crop(tar.extractfile(member).read())
+                yield records.get(member.name, {"shard": shard, "member": member.name}), image, mask
+
+
+def _stream_pool_crops(root: str, index, shuffle: bool, seed: int, buffer: int):
+    """Stream mixed native and legacy groups with the same bounded seeded shuffle contract."""
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    for row in index.to_dict("records"):
+        groups.setdefault(row["shard"], []).append(row)
+    shards = list(groups)
+    rng = random.Random(seed)
+    if shuffle:
+        rng.shuffle(shards)
+    pending = []
+    limit = max(1, int(buffer))
+    for shard in shards:
+        for item in _crop_group_values(root, groups[shard], min(limit, 128)):
+            if not shuffle:
+                yield item
+                continue
+            pending.append(item)
+            if len(pending) >= limit:
+                yield pending.pop(rng.randrange(len(pending)))
+    while pending:
+        yield pending.pop(rng.randrange(len(pending)))
+
+
 def stream_crops(root: str, plate: str, wells: Optional[Sequence[str]] = None,
                  *, shuffle: bool = True, seed: int = 0, buffer: int = 1000
                  ) -> Iterator[Tuple[Dict[str, Any], np.ndarray,
                                      Optional[np.ndarray]]]:
-    """Every crop of the store, read shard by shard, as a training loader would.
+    """Every crop, read one native pool or legacy shard at a time, as a training loader would.
 
     :param root: the crop store's root.
     :param plate: the plate name.
@@ -489,8 +574,14 @@ def stream_crops(root: str, plate: str, wells: Optional[Sequence[str]] = None,
     Each shard is read once, front to back (``tarfile`` stream mode), which
     is what makes network storage fast: the reference plate's 2 GB shards
     streamed at 842 crops/s against 17 crops/s for a seek per crop.
+    Native pools use :func:`spacr.crop_store.read_crops` in batches of at
+    most 128 rows, bounded further by ``buffer``. Their masks retain their
+    stored labels and dtype; ``has_mask=False`` yields None.
     """
     index = crop_index(root, plate, wells)
+    if "crop_format" in index and index["crop_format"].eq("ome-zarr").any():
+        yield from _stream_pool_crops(root, index, shuffle, seed, buffer)
+        return
     records = {(row["shard"], row["member"]): row
                for row in index.to_dict("records")}
     shards = list(dict.fromkeys(index["shard"]))
@@ -662,7 +753,9 @@ def stress_rows(destination: str, plate: str, wells: Sequence[str],
                     (row_id, column_id))
             finally:
                 conn.close()
-        crops = index[index["shard"].str.contains(
+        tar_index = (index[~index["crop_format"].eq("ome-zarr")]
+                     if "crop_format" in index else index)
+        crops = tar_index[tar_index["shard"].str.contains(
             os.sep + str(well) + os.sep, regex=False)] if len(index) else index
         if len(crops):
             row["tar_shards"] = int(crops["shard"].nunique())
@@ -688,7 +781,14 @@ def stress_rows(destination: str, plate: str, wells: Sequence[str],
         plate_files.extend(os.path.join(destination, p)
                            for p in well_outputs(destination, well))
     if len(index):
-        plate_files.extend(dict.fromkeys(index["shard"]))
+        if "crop_format" in index:
+            native = index["crop_format"].eq("ome-zarr")
+            plate_files.extend(dict.fromkeys(index.loc[~native, "shard"]))
+            for path in dict.fromkeys(index.loc[native, "crop_store"]):
+                for here, _folders, files in os.walk(os.path.join(crop_root, path)):
+                    plate_files.extend(os.path.join(here, name) for name in files)
+        else:
+            plate_files.extend(dict.fromkeys(index["shard"]))
     nbytes, nfiles = _folder_size(plate_files)
     rows.append({"level": "plate", "plate": plate, "well": None,
                  "nas_plate_bytes": nbytes, "nas_plate_files": nfiles,

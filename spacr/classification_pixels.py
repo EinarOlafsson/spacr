@@ -18,6 +18,142 @@ RAW_FIXED_SCALE = "raw_fixed_scale_v1"
 _RAW_FORMAT = 4
 
 
+class _NativeCropReference(str):
+    """A sortable acquisition name carrying one shared OME crop locator in memory."""
+
+    def __new__(cls, name, root, row, index=None, position=None):
+        """Retain native identity separately from the filename used for grouping."""
+        identity = (f"{index}::crop={int(position)}/{name}" if index is not None
+                    else f"ome-zarr:{root}/{row['crop_store']}::{row['crop_array']}@{int(row['offset'])}/{name}")
+        value = super().__new__(cls, identity)
+        value.name = str(name)
+        value.root = str(root)
+        value.row = dict(row)
+        value.index = None if index is None else str(index)
+        value.position = position
+        return value
+
+    def __reduce__(self):
+        """Preserve the locator when a DataLoader sends a reference to a worker."""
+        return type(self), (self.name, self.root, self.row, self.index, self.position)
+
+    def raw(self):
+        """Read native HWC values through the shared crop reader without stretching."""
+        from .crop_store import OmeZarrCropSource
+        from .qt.i18n import tr
+
+        store = Path(self.root) / self.row['crop_store']
+        if not store.is_dir():
+            raise FileNotFoundError(tr(
+                "The indexed OME-Zarr crop store is missing: {path}. Move the project with its dataset or regenerate the dataset index from the original project.").format(path=store))
+        pixels, _mask = OmeZarrCropSource(root=self.root).get_raw(self.row)
+        return np.moveaxis(pixels, 0, -1)
+
+
+def _read_crop_index(index):
+    """Read the tabular dataset index without altering its identifiers or row order."""
+    from .tabular import read_table
+    from .qt.i18n import tr
+
+    integer_columns = ('offset', 'height', 'width', 'mask_offset', 'crop_index')
+    frame = read_table(index, canonicalise=False, report=None,
+                       keep_default_na=False,
+                       dtype={'source': str, 'object_id': str, 'class': str,
+                              'split': str, 'crop_name': str, 'source_kind': str,
+                              **dict.fromkeys(integer_columns, str)})
+    required = {'source', 'class', 'split', 'crop_name', 'source_kind'}
+    if not required.issubset(frame.columns):
+        raise ValueError(tr("The crop dataset index is incomplete. Regenerate it from the source project."))
+    native = frame['source_kind'] == 'ome-zarr'
+    if native.any():
+        required_native = {'crop_store', 'crop_array', 'offset', 'height', 'width', 'mask_offset'}
+        if not required_native.issubset(frame.columns):
+            raise ValueError(tr("The crop dataset index is incomplete. Regenerate it from the source project."))
+        for column in integer_columns:
+            if column in frame.columns:
+                frame[column] = frame[column].astype(object)
+                frame.loc[native, column] = [
+                    _crop_index_integer(value, column)
+                    for value in frame.loc[native, column]]
+    if 'has_mask' in frame.columns:
+        frame['has_mask'] = frame['has_mask'].astype(object)
+        flags = {'False': False, 'True': True, '0': False, '1': True}
+        frame.loc[native, 'has_mask'] = [
+            flags.get(value, value) if isinstance(value, str) else value
+            for value in frame.loc[native, 'has_mask']]
+    return frame
+
+
+def _crop_index_integer(value, column):
+    """Restore integral CSV locator values exactly, without rounding fractional or nonfinite text."""
+    from decimal import Decimal, InvalidOperation
+    from .qt.i18n import tr
+
+    try:
+        number = Decimal(str(value))
+        if not number.is_finite() or number != number.to_integral_value():
+            raise ValueError(value)
+        return int(number)
+    except (InvalidOperation, ValueError, OverflowError) as exc:
+        raise ValueError(tr(
+            "The native crop dataset index has an invalid integer in {column}. Regenerate it from the source project.").format(column=column)) from exc
+
+
+def _native_crop_reference(value):
+    """Recover a shared native reference after a locator was serialised as text."""
+    if isinstance(value, _NativeCropReference):
+        return value
+    if not isinstance(value, str) or '::crop=' not in value:
+        return None
+    from .qt.i18n import tr
+
+    index_name, token = value.rsplit('::crop=', 1)
+    try:
+        position, name = token.split('/', 1)
+        position = int(position)
+        if position < 0:
+            raise ValueError(position)
+    except ValueError as exc:
+        raise ValueError(tr("The native crop locator is invalid. Regenerate the dataset index from the source project.")) from exc
+    index = Path(index_name)
+    row = _read_crop_index(index).iloc[position].to_dict()
+    if row['source_kind'] != 'ome-zarr' or str(row['crop_name']) != name:
+        raise ValueError(tr("The crop dataset index no longer matches this sample. Regenerate the dataset before training."))
+    root = (index.parent / row['source']).resolve()
+    return _NativeCropReference(name, root, row, index, position)
+
+
+def _indexed_crop_samples(data_dir, classes=None):
+    """Read one split of the generated tabular crop index, retaining row order.
+
+    :param data_dir: existing train/test split directory.
+    :param classes: optional ordered subset of class names.
+    :returns: ``(references, class_names)`` or None for a legacy folder dataset.
+    """
+    from .qt.i18n import tr
+
+    directory = Path(data_dir).resolve()
+    index = directory.parent / 'crop_index.csv'
+    if not index.is_file():
+        return None
+    frame = _read_crop_index(index)
+    selected = frame.loc[frame['split'] == directory.name]
+    if classes is not None:
+        selected = selected.loc[selected['class'].isin(list(map(str, classes)))]
+    references, labels = [], []
+    for position, row in zip(selected.index, selected.to_dict('records')):
+        root = (index.parent / row['source']).resolve()
+        if row['source_kind'] == 'ome-zarr':
+            reference = _NativeCropReference(row['crop_name'], root, row, index, int(position))
+        elif row['source_kind'] == 'png':
+            reference = str((index.parent / row['legacy_path']).resolve())
+        else:
+            raise ValueError(tr("The crop dataset index names an unsupported source. Regenerate it from the source project."))
+        references.append(reference)
+        labels.append(str(row['class']))
+    return references, labels
+
+
 def validate_policy(policy):
     """Accept only implemented crop decoding policies; never guess a new one.
 
@@ -69,7 +205,8 @@ def read_classification_image(source, policy=DECLARED_UINT8, *, fmt=None,
                               legacy_orient=False):
     """Decode a path or archive stream using the model's recorded policy.
 
-    :param source: image path or seekable binary stream, as accepted by PIL.
+    :param source: image path, indexed native crop reference, or seekable binary
+        stream as accepted by PIL. Native references use the shared crop reader.
     :param policy: declared uint8 decoding or historical stored PIL RGB.
     :param fmt: source format; None resolves the path's per-file crop marker.
         Archive callers must supply a format (1 when unmarked).
@@ -82,6 +219,14 @@ def read_classification_image(source, policy=DECLARED_UINT8, *, fmt=None,
     validate_policy(policy)
     if policy == RAW_FIXED_SCALE:
         return _read_raw_classification_array(source, fmt)
+    native = _native_crop_reference(source)
+    if native is not None:
+        from .crops import _stretched_view
+
+        pixels = _stretched_view(native.raw())
+        if pixels.shape[2] == 2:
+            pixels = np.concatenate((pixels, np.zeros_like(pixels[..., :1])), axis=2)
+        return Image.fromarray(pixels[..., :3])
     if policy == STORED_PIL:
         if fmt is None and not hasattr(source, "read"):
             from .crops import crop_format_for_png
@@ -196,6 +341,11 @@ def _read_raw_classification_array(source, fmt=None):
         applied to it.
     """
     from .crops import _read_crop_array, crop_format_for_png
+
+    native = _native_crop_reference(source)
+    if native is not None:
+        arr = native.raw().astype(np.float32)
+        return np.repeat(arr, 3, axis=2) if arr.shape[2] == 1 else arr
 
     if fmt is None:
         fmt = crop_format_for_png(source)

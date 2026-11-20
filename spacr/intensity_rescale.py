@@ -92,12 +92,14 @@ def _kind(dtype: np.dtype, top: float, has_intensity: bool) -> str:
 
 
 def build_plate_plan(src: os.PathLike | str, filenames: Iterable[str],
-                     settings: Mapping[str, Any]) -> Dict[str, Any]:
+                     settings: Mapping[str, Any], *, load_field=None) -> Dict[str, Any]:
     """Inspect all fields and return a JSON/pickle-safe plate scaling plan.
 
     :param src: directory containing the merged array files.
     :param filenames: merged-array filenames to inspect as one plate set.
     :param settings: resolved parsing and mask-plane settings.
+    :param load_field: optional shared field loader taking one merged path;
+        the default retains the legacy memory-mapped NPY reader.
 
     Raw-valued fields on a plate share ``65535 / plate_max`` when any one of
     them exceeds the uint16 ceiling.  Normalised floating-point fields retain
@@ -118,7 +120,7 @@ def build_plate_plan(src: os.PathLike | str, filenames: Iterable[str],
         """
         path = os.path.join(root, filename)
         try:
-            data = np.load(path, mmap_mode="r")
+            data = load_field(path) if load_field is not None else np.load(path, mmap_mode="r")
             if data.ndim < 3:
                 raise ValueError(
                     f"expected a merged array with a channel axis, got {data.shape}")
@@ -393,12 +395,12 @@ def _calibration_inputs(src, filenames, settings):
             "external_beads": bool(folder.strip())}
 
 
-def _external_reference_planes(path, expected, settings):
+def _external_reference_planes(path, expected, settings, *, load_field=None):
     """Read merged NPY or unambiguously tagged image-only TIFF reference planes."""
     from pathlib import Path
 
     if Path(path).suffix.lower() == ".npy":
-        data = np.asarray(np.load(path, mmap_mode="r"))
+        data = np.asarray(load_field(path) if load_field is not None else np.load(path, mmap_mode="r"))
         if data.ndim < 3:
             _calibration_input_error("intensity_calibration_beads", "merged_shape", data.shape)
         planes = tuple(index for index in range(data.shape[-1])
@@ -427,12 +429,13 @@ def _external_reference_planes(path, expected, settings):
     return [data[..., index] for index in range(data.shape[-1])]
 
 
-def _session_calibration_plan(src, filenames, settings):
+def _session_calibration_plan(src, filenames, settings, *, load_field=None):
     """Compute the existing gain statistic for explicitly mapped acquisition sessions."""
     inputs = _calibration_inputs(src, filenames, settings)
     grouped = {}
     for name, session in inputs["field_sessions"].items():
-        data = np.asarray(np.load(os.path.join(src, name), mmap_mode="r"))
+        path = os.path.join(src, name)
+        data = np.asarray(load_field(path) if load_field is not None else np.load(path, mmap_mode="r"))
         if data.ndim < 3:
             _calibration_input_error("intensity_calibration_sessions", "merged_shape", data.shape)
         planes = tuple(index for index in range(data.shape[-1])
@@ -459,7 +462,9 @@ def _session_calibration_plan(src, filenames, settings):
     for row in inputs["references"]:
         session = row["sessionID"]
         planes, factor, normalized = grouped[session]
-        values = _external_reference_planes(row["path"], planes, settings)
+        values = _external_reference_planes(
+            row["path"], planes, settings,
+            load_field=None if inputs["external_beads"] else load_field)
         per_plane = samples.setdefault(session, {})
         for index, plane in zip(planes, values):
             finite = np.asarray(plane)[np.isfinite(plane)]
@@ -506,7 +511,7 @@ def _session_calibration_plan(src, filenames, settings):
 
 
 def _build_calibration_plan(src: os.PathLike | str, filenames: Iterable[str],
-                            settings: Mapping[str, Any]) -> Dict[str, Any]:
+                            settings: Mapping[str, Any], *, load_field=None) -> Dict[str, Any]:
     """Measure reference wells and return plate or explicit-session gains.
 
     With blank optional session and bead inputs, every plate is one imaging
@@ -522,6 +527,8 @@ def _build_calibration_plan(src: os.PathLike | str, filenames: Iterable[str],
     :param filenames: the merged-array filenames of this run.
     :param settings: Measure settings holding the ``intensity_calibration_*``
         values, the mask dimensions and the uint16 rescale plan.
+    :param load_field: optional shared loader for retained merged field paths;
+        external bead images keep their explicitly selected file reader.
     Explicit session metadata or external references instead produce a version2
     plan binding every measured filename to its acquisition session. Session
     reference selection and compatible working units are validated before gains.
@@ -534,7 +541,7 @@ def _build_calibration_plan(src: os.PathLike | str, filenames: Iterable[str],
     if any(settings.get(key) for key in ("intensity_calibration_sessions",
                                         "intensity_calibration_beads",
                                         "intensity_calibration_reference_session")):
-        return _session_calibration_plan(src, filenames, settings)
+        return _session_calibration_plan(src, filenames, settings, load_field=load_field)
     statistic = str(settings.get("intensity_calibration_statistic")
                     or "foreground")
     if statistic not in CALIBRATION_STATISTICS:
@@ -552,7 +559,8 @@ def _build_calibration_plan(src: os.PathLike | str, filenames: Iterable[str],
         plates.add(field.plateID)
         if (field.rowID, field.columnID) not in wells:
             continue
-        data = np.asarray(np.load(os.path.join(root, filename), mmap_mode="r"))
+        path = os.path.join(root, filename)
+        data = np.asarray(load_field(path) if load_field is not None else np.load(path, mmap_mode="r"))
         factor = float(resolve_record(data, filename, settings)["rescale_factor"])
         labels = mask_planes(data, settings)
         per_plane = samples.setdefault(field.plateID, {})

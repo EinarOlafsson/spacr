@@ -17,6 +17,7 @@ from typing import Dict, Optional, Tuple
 from .crops import (DEFAULT_PERCENTILES, DEFAULT_PNG_CHANNEL_MAPPING,
                     LOAD_IMAGES,
                     LOAD_IMAGES_LABEL, STREAM_FROM_DB,
+                    OME_ZARR_IMAGES, OME_ZARR_IMAGES_LABEL,
                     STREAM_FROM_DB_LABEL, STREAM_IMAGES,
                     STREAM_IMAGES_LABEL, STREAMING_SOURCES,
                     percentile_pair)
@@ -51,7 +52,7 @@ BOTH_MODES: Tuple[str, ...] = (
 OWN_DEFAULTS: Dict[str, object] = {
     "show_all_in_well": True,
     "object_type": "cell",
-    "crop_source": LOAD_IMAGES,
+    "crop_source": OME_ZARR_IMAGES,
     "object_array": "",
     "red_channel": DEFAULT_PNG_CHANNEL_MAPPING.get("r", 2),
     "green_channel": DEFAULT_PNG_CHANNEL_MAPPING.get("g", 1),
@@ -212,7 +213,8 @@ def modes() -> Tuple[Tuple[str, str], ...]:
     follow an outline, so it is a choice the user makes here rather than
     something inferred from which other settings happen to be filled.
     """
-    return ((LOAD_IMAGES, LOAD_IMAGES_LABEL),
+    return ((OME_ZARR_IMAGES, OME_ZARR_IMAGES_LABEL),
+            (LOAD_IMAGES, LOAD_IMAGES_LABEL),
             (STREAM_IMAGES, STREAM_IMAGES_LABEL),
             (STREAM_FROM_DB, STREAM_FROM_DB_LABEL))
 
@@ -243,15 +245,15 @@ def applies_to(key: str, mode: str) -> bool:
     chosen = str(mode or LOAD_IMAGES).strip().lower()
     streaming = chosen in STREAMING_SOURCES
     if name in LOAD_ONLY:
-        return not streaming
+        return not streaming and chosen != OME_ZARR_IMAGES
     if name == "object_array":
         return chosen == STREAM_IMAGES
     if name in DATABASE_ONLY:
-        return chosen == STREAM_FROM_DB
+        return chosen in (STREAM_FROM_DB, OME_ZARR_IMAGES)
     if name == "crop_shape":
         return chosen != STREAM_FROM_DB
     if name in STREAM_ONLY:
-        return streaming
+        return streaming or chosen == OME_ZARR_IMAGES
     return True
 
 
@@ -382,6 +384,15 @@ def to_crop_settings(picture) -> Dict[str, object]:
         return {}
     mode = str(items.get("crop_source") or LOAD_IMAGES).strip().lower()
     out: Dict[str, object] = {}
+    if mode == OME_ZARR_IMAGES:
+        channels = _as_indices(items.get("channels"))
+        if channels is not None:
+            out["channels"] = channels
+        size = items.get("crop_size")
+        if size not in (None, "", [], ()):
+            out["crop_size"] = size
+        out["context"] = str(items.get("crop_shape") or "").lower() != "object"
+        return out
     for mine, theirs in CUT_SETTINGS.items():
         if not applies_to(mine, mode):
             continue

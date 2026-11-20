@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from PIL import Image
 
 pytest.importorskip("zarr")
 
@@ -34,7 +35,7 @@ def project(tmp_path: Path) -> Path:
     writer.add(cut_crops(image, labels, margin=2), field=1)
     (tmp_path / "measurements").mkdir()
     with sqlite3.connect(str(tmp_path / "measurements" / "measurements.db")) as conn:
-        pd.DataFrame(writer.close()).to_sql("ssCell_Crops", conn, index=False)
+        pd.DataFrame(writer.commit()["rows"]).to_sql("ssCell_Crops", conn, index=False)
     return tmp_path
 
 
@@ -93,3 +94,67 @@ def test_the_roles_example_is_valid_syntax_and_not_a_translatable_string(qtbot, 
     dialog = annotate_mod._SettingsDialog(_settings(project))
     qtbot.addWidget(dialog)
     assert dialog._channel_roles.placeholderText() == text
+
+
+def test_native_annotation_page_save_and_reopen_use_object_ids(project):
+    """Real table pages and asynchronous saves work without png_list or PNG paths."""
+    from spacr.crops import resolve_crop_source
+
+    settings = _settings(project, ROLES)
+    settings.png_table = "ssCell_Crops"
+    engine.ensure_annotation_column(settings.db_path, "annotate", table=settings.png_table)
+    assert engine.count_rows(settings.db_path, "cell_png", table=settings.png_table) == 2
+    page = engine.fetch_page(settings.db_path, "annotate", 0, 1, "cell_png",
+                             table=settings.png_table)
+    assert len(page) == 1
+    identity, annotation = page[0]
+    assert identity.startswith("plate1_A01_1_cell_")
+    assert annotation is None
+    source = resolve_crop_source({"src": str(project), "crop_source": "ome-zarr"})
+    thumbnail, annotation = annotate_mod._load_thumb_image_worker(page[0], source, settings)
+    pixels, mask = source.get_raw({"object_id": identity})
+    expected = Image.fromarray(composite_crop(pixels, ROLES, mask=mask)).resize(settings.image_size)
+    np.testing.assert_array_equal(np.asarray(thumbnail), np.asarray(expected))
+    worker = engine.SaveWorker(settings.db_path, "annotate", table=settings.png_table)
+    worker.start()
+    other_identity = engine.fetch_page(settings.db_path, "annotate", 1, 1, "cell_png",
+                                       table=settings.png_table)[0][0]
+    worker.submit({identity: 2, other_identity: 12})
+    worker.stop(wait=True)
+    assert worker.last_error is None
+    assert engine.fetch_page(settings.db_path, "annotate", 0, 1, "cell_png",
+                             table=settings.png_table) == [(identity, 2)]
+    assert engine.fetch_page(settings.db_path, "annotate", 1, 1, "cell_png",
+                             table=settings.png_table) == [(other_identity, 12)]
+    assert engine.class_counts(settings.db_path, "annotate", table=settings.png_table) == [(2, 1)]
+    assert engine.find_last_annotated_offset(settings.db_path, "annotate", 1, "cell_png",
+                                             table=settings.png_table) == 1
+    with sqlite3.connect(settings.db_path) as conn:
+        assert conn.execute("SELECT name FROM sqlite_master WHERE name='png_list'").fetchone() is None
+
+
+def test_native_annotation_screen_opens_the_real_crop_table(qtbot, project, monkeypatch):
+    """The normal source-open path selects ssCell_Crops before creating its save worker."""
+    screen = annotate_mod.AnnotateScreen()
+    qtbot.addWidget(screen)
+    def defer_population(**kwargs):
+        """Keep this source-opening assertion independent of background pagination."""
+        return None
+    monkeypatch.setattr(screen, "_refresh_total", defer_population)
+    screen._settings = _settings(project)
+    screen._settings.crop_source = "ome-zarr"
+    screen._open_source(str(project))
+    assert screen._settings.png_table == "ssCell_Crops"
+    assert screen._worker.table == "ssCell_Crops"
+    assert screen._crop_source().kind == "ome-zarr"
+    screen._worker.stop(wait=True)
+    screen._worker = None
+
+
+def test_annotation_settings_keep_existing_automatic_selection(qtbot, project):
+    """Opening and saving settings preserves the inherited automatic resolver."""
+    settings = _settings(project)
+    settings.crop_source = "auto"
+    dialog = annotate_mod._SettingsDialog(settings)
+    qtbot.addWidget(dialog)
+    assert dialog.collect().crop_source == "auto"

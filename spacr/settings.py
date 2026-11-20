@@ -1390,7 +1390,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('gpu_adaptive_batch', True)
     settings.setdefault('gpu_fallback_policy', 'per_item')
     settings.setdefault('export_vvvv', False)
-    settings.setdefault('mask_image_format', 'npy')
+    settings.setdefault('mask_image_format', 'ome-zarr')
     settings.setdefault('watch_folder', False)
     settings.setdefault('watch_pipeline', 'mask')
     settings.setdefault('watch_normalization_pool', 'per_field')
@@ -1927,7 +1927,7 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('analyze_clusters', False)
     settings.setdefault('resnet_features', False)
     settings.setdefault('verbose',True)
-    settings.setdefault('crop_source', 'auto')
+    settings.setdefault('crop_source', 'ome-zarr')
     return settings
 
 #: Measure's size floors in pixels before item 800, fixed for 40-60x.
@@ -2016,6 +2016,7 @@ def get_measure_crop_settings(settings=None):
         from .crops import png_dims_to_channel_mapping
         settings['png_channel_mapping'] = png_dims_to_channel_mapping(legacy_png_dims)
     settings.setdefault('src', 'path')
+    settings.setdefault('mask_image_format', 'ome-zarr')
 
     settings.setdefault('verbose', False)
     settings.setdefault('experiment', 'experiment')
@@ -2149,7 +2150,7 @@ def get_measure_crop_settings(settings=None):
 
     settings.setdefault('save_arrays', False)
     settings.setdefault('save_png',True)
-    settings.setdefault('crop_image_format', 'png')
+    settings.setdefault('crop_image_format', 'ome-zarr')
     settings.setdefault('crops_per_shard', 4096)
     settings.setdefault('crop_margin_px', 0)
     settings.setdefault('crop_zero_outside', False)
@@ -2546,7 +2547,7 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 948
+SETTINGS_SCHEMA_VERSION = 949
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2575,6 +2576,9 @@ DEFAULT_CHANGES = {
     947: {'ops_prefix_minority_min_reads': 0},
     948: {'ops_ph_tile_batch': 8, 'ops_sbs_tile_batch': 16,
           'spatial_tile_batch': 16},
+    949: {'mask_image_format': 'npy', 'crop_image_format': 'png',
+          'crop_source': 'auto', 'image_source': 'load_images',
+          'ops_ph_image_format': 'npz', 'ops_crop_image_format': 'tiff-tar'},
 }
 
 
@@ -2690,7 +2694,9 @@ def _fold_older_defaults(settings, version, known=None):
     :returns: ``key -> (old default, version that changed it)`` for every key
         filled in. A key the file sets is never touched. When a key changed
         more than once, the default of the earliest change after ``version``
-        is the one the file was written under.
+        is the one the file was written under. An explicit legacy
+        ``crop_source`` supplies a missing ``image_source`` before its old
+        default is inserted, preserving the requested source mode.
     """
     applied = {}
     for changed in sorted(DEFAULT_CHANGES):
@@ -2700,6 +2706,9 @@ def _fold_older_defaults(settings, version, known=None):
             if key in settings or key in applied:
                 continue
             if known is not None and key not in known:
+                continue
+            if key == 'image_source' and settings.get('crop_source'):
+                settings[key] = _canonical_image_source(settings['crop_source'])
                 continue
             applied[key] = (old, changed)
     for key, (old, _changed) in applied.items():
@@ -3027,7 +3036,7 @@ def set_default_train_test_model(settings):
     _set_classifier_evaluation_defaults(settings)
     settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
-    settings.setdefault('crop_source', 'auto')
+    settings.setdefault('crop_source', 'ome-zarr')
     return settings
 
 def set_generate_training_dataset_defaults(settings):
@@ -3037,6 +3046,7 @@ def set_generate_training_dataset_defaults(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('src','path')
+    settings.setdefault('crop_source', 'ome-zarr')
     settings.setdefault('tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
@@ -3149,7 +3159,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('n_top_examples',20)
     settings.setdefault('random_seed',42)
     settings.setdefault('image_source', settings.get('crop_source')
-                        or 'load_images')
+                        or 'ome-zarr')
     settings['image_source'] = _canonical_image_source(
         settings['image_source'])
     settings['crop_source'] = settings['image_source']
@@ -3411,7 +3421,7 @@ def set_generate_dataset_defaults(settings):
     settings.setdefault('file_metadata',None)
     settings.setdefault('experiment','experiment_1')
     settings.setdefault('sample',None)
-    settings.setdefault('crop_source', 'auto')
+    settings.setdefault('crop_source', 'ome-zarr')
     return settings
 
 #: ``inference`` -> the ``analysis_mode`` it selects. 'auto' is decided from
@@ -5193,6 +5203,7 @@ DYNAMIC_ORGANELLE_SETTINGS = frozenset(
 #: The old `crop_source` spellings and what they mean now. ACCEPTED, NOT
 #: REFUSED: every settings CSV in existence carries one of them.
 _IMAGE_SOURCES = {
+    "ome-zarr": "ome-zarr",
     "pre_generated": "load_images",
     "generate": "load_images",
     "png": "load_images",
@@ -5207,7 +5218,7 @@ _IMAGE_SOURCES = {
 
 
 def _canonical_image_source(value) -> str:
-    """One of ``load_images`` / ``stream_images`` / ``auto``.
+    """One of ``ome-zarr`` / ``load_images`` / ``stream_images`` / ``auto``.
 
     An unrecognised value falls back to loading rather than raising: a
     settings file naming a source spaCR never had should still open the
@@ -5328,11 +5339,12 @@ tooltips = {
     'enhance_sharpen_radius': "(float) - Blur radius in pixels the unsharp mask is built from, above 0: about the scale of the edges to sharpen. Unused unless enhance_sharpen is on. Default 1.0.",
     'enhance_sharpen_amount': "(float) - How much of the unsharp mask is added back, at least 0. One is a normal sharpen; above 2 the halos around objects start to become objects of their own. Default 1.0.",
     'image_source':
-        "(str) - Source of classification images. 'load_images' reads "
-        "previously exported object crops; 'stream_images' generates crops "
-        "from merged image and mask arrays during training. Streaming avoids "
-        "creating a separate export for each object, channel, and crop-shape "
-        "combination. Default 'load_images'.",
+        "(str) - Source of classification images. 'ome-zarr' reads stored "
+        "object crops through the shared loader. 'load_images' reads exported "
+        "crop files; 'stream_images' cuts crops from merged image and mask "
+        "arrays. 'auto' checks the spaCR store, OME-Zarr crops, exported "
+        "PNGs and merged arrays in that order. Default "
+        "'ome-zarr'; older saved settings retain their selected source.",
     'stream_method':
         "(str) - Method used to locate objects for streamed crops. 'column' "
         "uses coordinates stored in the object table and requires "
@@ -6082,8 +6094,8 @@ tooltips = {
     "save_arrays": "(bool) - Also save each object as a raw .npy array - all channels, cropped to its bounding box, unnormalised - under a region_array/ folder. Enable when you need full bit depth or channels beyond png_dims for custom analysis; it uses far more disk than PNGs. Requires save_png to be True as well. Default False.",
     "save_figure": "(bool) - Write the embedding, plus the cluster grid when plot_cluster_grids is on, as vector PDFs to <src>/results/<METHOD>_embedding.pdf and <METHOD>_grid.pdf. Enable it when you want the figure for a paper or a record of the run; either way the plots are still displayed on screen. Default False.",
     "save_measurements": "(bool) - Master switch for the measurement half of measure_crop: compute morphology and intensity features for every cell, nucleus, pathogen, organelle and cytoplasm object and write them to the plate's SQLite database. Set it False when you only want cropped PNGs or filtered masks -- segmentation and cropping still run, but no measurement tables are written. Default True.",
-    "mask_image_format": "(str) - The format Mask Generation also writes its merged fields in. 'npy' writes only merged/*.npy, as before. 'ome-zarr' adds one OME-Zarr 0.5 store per plate under images/, with every field's channels named and its masks stored as labels, which napari and Fiji open. 'tiff' adds merged_tiff/<field>.tif and one <field>_<object>_mask.tif per object. The merged .npy files stay, so later steps read them as before. Default 'npy'. Alpha.",
-"crop_image_format": "(str) - The format Measure writes object crops in. 'png' writes the PNG folders as before (default). 'ome-zarr' writes each object's bounding box plus crop_margin_px, at full bit depth and every channel, with its own mask, into one store per well: crops/plate=<plate>/well=<well>.zarr, listed in measurements.db table ssCell_Crops. Crops keep their raw intensities; nothing is stretched. Alpha.",
+    "mask_image_format": "(str) - Mask Generation field output and Measure field source. 'ome-zarr' writes one OME-Zarr 0.5 plate store under images/, with named channels and mask labels. 'tiff' writes merged_tiff/<field>.tif and <field>_<object>_mask.tif; 'npy' writes only merged/*.npy. Measure reads committed spatial OME-Zarr fields in 'ome-zarr' mode, with NPY fallback; other modes and timelapse read NPY. Retained NPY names and plane layout remain required. Default 'ome-zarr'; older saved settings keep their format. Alpha.",
+    "crop_image_format": "(str) - The format Measure writes object crops in. 'ome-zarr' stores each bounding box plus crop_margin_px at full bit depth, with every channel and the object mask, in crops/plate=<plate>/well=<well>.zarr and lists it in measurements.db table ssCell_Crops. Stored intensities are not stretched. 'png' writes the legacy PNG folders. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.",
     "crops_per_shard": "(int) - How many crops go into one stored shard when crop_image_format is 'ome-zarr'. Larger shards mean fewer files; each shard is held in RAM before it is written. Lowered automatically, with a log line, when free RAM is short. Default 4096. Alpha.",
     "crop_margin_px": "(int) - Pixels kept around each object's bounding box in OME-Zarr crops, clipped at the image edge. Default 0. Alpha.",
     "crop_zero_outside": "(bool) - Store OME-Zarr crops with every pixel outside the object set to 0. Off by default: the pixels around the object are kept, and a reader can still hide them with the stored mask. Alpha.",
@@ -6570,7 +6582,7 @@ tooltips = {
     'pathogen_loc': "(list of lists) - Well locations of each pathogen condition, one inner list per name in pathogens, read by annotate_filter_vision when labelling vision-model score CSVs. Every entry must be a row or column ID string such as 'c1' or 'r3'; ranges are not expanded and unmatched entries leave those wells NaN. Set it alongside pathogens, or leave both None. Default None.",
     'pathogens': "(list) - Names of the pathogen conditions scored by annotate_filter_vision, e.g. ['wt','mutant']. Element i is written into the pathogen column for every well in pathogen_loc[i] and folded into the combined condition label. Must match pathogen_loc element for element; if pathogen_loc is None, only the first name is applied to every row. Default None.",
     'path_string': "(str) - Substring that must occur in a crop path for that crop to enter the dataset, for example 'cell_png' or 'nucleus_png'. The legacy name png_type remains accepted, although the setting performs only path filtering. Default 'cell_png'.",
-    'crop_source': "(str) - Select where image crops come from. Viewers use 'png' (LOAD IMAGES) for exported crops in data/ or 'merged' (STREAM IMAGES) to cut from merged/*.npy using the measurements database. These viewer modes correspond to training's 'load_images' and 'stream_images' sources. spaCR reports any fallback, and controls that do not apply to the selected source are disabled. Default 'png' in viewers and 'load_images' in training. Image UMAP starts at 'auto', preferring exported PNGs when available and otherwise streaming from merged arrays.",
+    'crop_source': "(str) - Select where image crops come from. 'ome-zarr' reads stored crop pools. 'png' loads exported crops, and 'merged' cuts crops from merged arrays using the measurements database. 'auto' checks the spaCR store, OME-Zarr crops, exported PNGs and merged arrays in that order. spaCR reports any fallback. Default 'ome-zarr'. Older saved settings retain their selected source.",
     'object_array': "(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'.",
     'coordinate_columns': "(list or None) - Database columns used to locate an object for on-demand cropping. Two columns may give a centroid row and column; one column may identify a labeled object whose mask supplies its extent. Coordinate-backed routes support only bounding-box crops. None uses the configured mask plane instead. Default None. Merged Classifier derives one identifier from object_array, initially ['cell_id'], so the single-column form is valid rather than an incomplete coordinate pair.",
     'crop_shape': "(str) - 'bounding_box' cuts the smallest rectangle containing the object; 'object' masks everything outside it away. Database-sourced crops can only be bounding boxes. Default 'bounding_box'.",
@@ -7945,7 +7957,7 @@ def set_annotate_default_settings(settings):
     settings.setdefault('measurement', '')
     settings.setdefault('threshold', '')
     settings.setdefault('threshold_direction', 'higher')
-    settings.setdefault('crop_source', 'png')
+    settings.setdefault('crop_source', 'ome-zarr')
     settings.setdefault('queue_by_uncertainty', False)
     settings.setdefault('queue_measure', 'entropy')
     settings.setdefault('queue_diversity', 'well')

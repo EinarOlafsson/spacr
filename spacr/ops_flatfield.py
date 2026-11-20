@@ -1362,7 +1362,8 @@ def run_flat_phases(settings: Mapping[str, object], phases: Sequence[str] = FLAT
         ``ops_flatfield_holdout_images`` (a folder, or ``{plate: folder}``,
         of ``*<well>_<site>.npy`` raw images of the channel),
         ``ops_flatfield_holdout_masks`` (the run folder holding
-        ``<well>/phenotype_masks/site-<n>.npz``; ``dst_root`` when empty),
+        ``<well>/phenotype_masks/site-<n>.npz`` or committed OME-Zarr
+        phenotype fields; ``dst_root`` when empty),
         ``ops_flatfield_compare_maps`` (``{name: .npy}`` read by zoom),
         ``ops_flatfield_radial_edges``, ``ops_flatfield_bootstrap``,
         ``ops_flatfield_bootstrap_seed`` and ``ops_flatfield_min_bin_cells``.
@@ -1422,10 +1423,16 @@ def run_flat_phases(settings: Mapping[str, object], phases: Sequence[str] = FLAT
                                  "held-out fields")
             masks_root = str(_per_plate(settings.get("ops_flatfield_holdout_masks"), plate)
                              or settings.get("dst_root") or "")
+            from .ops_engine import _ph_mask_paths, _ph_read_masks
+
             fields = {}
+            mask_paths = {}
             for well, site in held:
-                with np.load(os.path.join(masks_root, well, "phenotype_masks", f"site-{site}.npz")) as saved:
-                    labels = saved["nuclei"]
+                if well not in mask_paths:
+                    mask_paths[well] = _ph_mask_paths(masks_root, plate, well, settings)
+                path = mask_paths[well].get(site, os.path.join(
+                    masks_root, well, "phenotype_masks", f"site-{site}.npz"))
+                labels = _ph_read_masks(path)["nuclei"]
                 fields[(well, site)] = (_field_image(str(images), well, site), labels)
             gain = f"nucleus_{channel}_g" if "earlier" in compare else None
             ordered = ({"earlier": compare.pop("earlier"), **compare} if "earlier" in compare else compare)

@@ -7,7 +7,7 @@ means, which is what 145 exists to stop.
 """
 import pytest
 
-from spacr.crops import LOAD_IMAGES, STREAM_IMAGES
+from spacr.crops import LOAD_IMAGES, STREAM_IMAGES, OME_ZARR_IMAGES
 from spacr.picture_settings import (ALL_KEYS, BOTH_MODES, applies_to,
                                     bounding_box_only, greyed_in, modes,
                                     why_not)
@@ -15,14 +15,16 @@ from spacr.picture_settings import (ALL_KEYS, BOTH_MODES, applies_to,
 from tests import locale_cases
 
 
-def test_load_images_is_offered_first():
-    assert modes()[0][0] == LOAD_IMAGES
-    assert modes()[0][1] == "load images"
+def test_native_crops_are_first_with_both_legacy_streams_retained():
+    """The new default leaves explicit PNG and both stream choices available."""
+    assert modes()[0] == (OME_ZARR_IMAGES, "OME-Zarr crops")
+    assert modes()[1][0] == LOAD_IMAGES
+    assert modes()[1][1] == "load images"
     # THREE MODES SINCE THE STREAM SPLIT IN TWO: the array route reads an
     # object's label out of a mask plane, the database route reads its row
     # in the measurements table, and only the first can follow an outline.
-    assert modes()[1][1] == "stream images (array)"
-    assert modes()[2][1] == "stream images (database)"
+    assert modes()[2][1] == "stream images (array)"
+    assert modes()[3][1] == "stream images (database)"
 
 
 def _the_shared_settings_apply_to_both_case(key, mode):

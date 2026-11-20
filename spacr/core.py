@@ -892,10 +892,15 @@ def preprocess_generate_masks(settings):
                             cancellation_checkpoint()
                             from .io import _export_vvvv_merged
                             _export_vvvv_merged(src)
-                        if str(settings.get('mask_image_format') or 'npy').lower() != 'npy':
+                        field_format = str(settings.get('mask_image_format') or 'ome-zarr').strip().lower()
+                        if settings['timelapse'] and field_format == 'ome-zarr':
+                            from .qt.i18n import tr
+
+                            print(tr("Spatial OME-Zarr export cannot represent timepoints. Timelapse processing will use the retained merged NPY files."))
+                        elif field_format != 'npy':
                             cancellation_checkpoint()
                             from .image_store import export_merged
-                            export_merged(src, settings['mask_image_format'],
+                            export_merged(src, field_format,
                                           workers=max(1, int(settings.get('n_jobs') or 1)))
 
                         if settings['timelapse'] and settings.get('motility_analysis', False):
