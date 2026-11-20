@@ -147,44 +147,28 @@ class TestSearchSpace:
 
 
 class TestSearchSpaceErrors:
-    def test_empty_space_is_explained(self):
+    @pytest.mark.parametrize("parameters, fragments", [
+        pytest.param({}, ("empty", "at least one parameter", "n_neighbors"),
+                     id="test_empty_space_is_explained"),
+        pytest.param({"n_neighbors": []},
+                     ("'n_neighbors'", "empty value list", "at least one value"),
+                     id="test_parameter_with_no_values_is_explained"),
+        pytest.param({"n_neighbors": 15}, ("must be a list or tuple", "int", "[15]"),
+                     id="test_bare_value_instead_of_a_list_is_explained"),
+        pytest.param({"metric": "euclidean"}, ("list or tuple",),
+                     id="test_string_value_is_not_mistaken_for_a_sequence"),
+        pytest.param([("a", [1])], ("must be a mapping",),
+                     id="test_non_mapping_is_explained"),
+        pytest.param({"  ": [1]}, ("non-empty strings",),
+                     id="test_blank_parameter_name_is_explained"),
+    ])
+    def test_invalid_search_spaces_keep_their_explanations(self, parameters, fragments):
+        """Keep every refusal and guidance fragment paired with its invalid input."""
         with pytest.raises(ValueError) as e:
-            SearchSpace({})
+            SearchSpace(parameters)
         msg = str(e.value)
-        assert "empty" in msg
-        assert "at least one parameter" in msg
-        assert "n_neighbors" in msg          # shows the caller what to write
-
-    def test_parameter_with_no_values_is_explained(self):
-        with pytest.raises(ValueError) as e:
-            SearchSpace({"n_neighbors": []})
-        msg = str(e.value)
-        assert "'n_neighbors'" in msg
-        assert "empty value list" in msg
-        assert "at least one value" in msg
-
-    def test_bare_value_instead_of_a_list_is_explained(self):
-        with pytest.raises(ValueError) as e:
-            SearchSpace({"n_neighbors": 15})
-        msg = str(e.value)
-        assert "must be a list or tuple" in msg
-        assert "int" in msg
-        assert "[15]" in msg                 # tells them the fix
-
-    def test_string_value_is_not_mistaken_for_a_sequence(self):
-        with pytest.raises(ValueError) as e:
-            SearchSpace({"metric": "euclidean"})
-        assert "list or tuple" in str(e.value)
-
-    def test_non_mapping_is_explained(self):
-        with pytest.raises(ValueError) as e:
-            SearchSpace([("a", [1])])
-        assert "must be a mapping" in str(e.value)
-
-    def test_blank_parameter_name_is_explained(self):
-        with pytest.raises(ValueError) as e:
-            SearchSpace({"  ": [1]})
-        assert "non-empty strings" in str(e.value)
+        for fragment in fragments:
+            assert fragment in msg
 
 
 # ---------------------------------------------------------------------------
