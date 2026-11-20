@@ -3863,6 +3863,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("968_ops_power_sim_api_arrivals_2026-11-17.json", 11),
         ("974_spacr_store_api_arrivals_2026-11-17.json", 16),
         ("964_ops_feature_screen_api_arrivals_2026-11-17.json", 2),
+        ("codex_issues_1119_api_arrivals_2026-11-19.json", 2),
+        ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

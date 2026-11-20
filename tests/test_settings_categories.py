@@ -830,6 +830,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_grid_search", "ops_grid_params", "ops_grid_tiles",
     "ops_grid_tile_mode", "ops_grid_n_tiles", "ops_grid_seed",
     "ops_grid_run_id",
+    # Item 961 (2026-11-17): in situ sequencing modes of the prefix decode.
+    "ops_insitu_preset", "ops_barcode_layout", "ops_barcode_layout_file",
+    "ops_call_sort", "ops_read_compartment", "ops_recomb_min_quality",
     # Items 936 and 940 (2026-11-13): stitch reader threads and edge
     # workers, and the placement seed file.
     "ops_stitch_read_threads",
@@ -898,6 +901,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_voyager3_model", "ops_voyager3_timeout",
     "ops_voyager3_shuffle_control", "ops_voyager3_resume",
     "ops_voyager3_answers_dir",
+    # Item 980 (2026-11-18): Voyager3's model-free enrichment method.
+    "ops_voyager3_method", "ops_voyager3_reactome", "ops_voyager3_corum",
+    "ops_voyager3_enrichment_fdr",
     # Item 934 (2026-11-13): the OPS measurement switches in Measure --
     # Funk et al.'s object features, the explicit Zernike switch and
     # channel-named columns under Measurements, and the CPU/GPU self-check

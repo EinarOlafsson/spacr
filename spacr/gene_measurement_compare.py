@@ -1702,6 +1702,192 @@ def bootstrap_gene_pvalues(control_values: pd.DataFrame,
 _PSEUDO_PREFIXES: Tuple[str, ...] = ("ntpseudo",)
 
 
+def _integrated_cdf_difference(guide_values: np.ndarray,
+                               control_values: np.ndarray) -> float:
+    """The signed area between the control and guide empirical CDFs.
+
+    The integral of ``F_control(x) - F_guide(x)`` over the score range,
+    evaluated exactly on the step functions. It equals
+    ``mean(guide) - mean(control)``, so it is negative when the guide shifts
+    the score down.
+
+    :param guide_values: the score of every cell of the guide.
+    :param control_values: the score of every non-targeting cell.
+    :returns: the signed area.
+    """
+    grid = np.union1d(guide_values, control_values)
+    if grid.size < 2:
+        return 0.0
+    left = grid[:-1]
+    guide_cdf = np.searchsorted(np.sort(guide_values), left, side="right"
+                                ) / guide_values.size
+    control_cdf = np.searchsorted(np.sort(control_values), left, side="right"
+                                  ) / control_values.size
+    return float(np.sum((control_cdf - guide_cdf) * np.diff(grid)))
+
+
+def _permuted_mean_shifts(guide_values: Sequence[np.ndarray],
+                          control_values: np.ndarray, permutations: int,
+                          rng: np.random.Generator, *,
+                          chunk: int = 256) -> np.ndarray:
+    """A gene statistic under random relabelling of its cells and the controls.
+
+    Each permutation pools the cells of every guide of the gene with the
+    non-targeting cells, draws as many cells as each guide has, without
+    replacement, as that guide, and keeps the rest as the control. The gene
+    statistic is the mean over guides of the guide mean minus the control
+    mean, which is what the integrated CDF difference equals. Relabelling the
+    guides jointly keeps the shared control in every guide, so the null has
+    the same spread as the observed statistic.
+
+    :param guide_values: the scores of the cells of each guide.
+    :param control_values: the score of every non-targeting cell.
+    :param permutations: how many relabellings.
+    :param rng: the random generator.
+    :param chunk: relabellings drawn at once, bounding memory to
+        ``chunk`` times the pooled cell count.
+    :returns: one null gene statistic per permutation.
+    """
+    sizes = [values.size for values in guide_values]
+    pooled = np.concatenate([*guide_values, control_values])
+    total, drawn = pooled.sum(), int(sum(sizes))
+    rest = pooled.size - drawn
+    edges = np.cumsum([0, *sizes])
+    out = np.empty(permutations, dtype=float)
+    for start in range(0, permutations, chunk):
+        count = min(chunk, permutations - start)
+        keys = rng.random((count, pooled.size))
+        picked = np.argpartition(keys, drawn - 1, axis=1)[:, :drawn]
+        order = np.argsort(np.take_along_axis(keys, picked, axis=1), axis=1)
+        values = pooled[np.take_along_axis(picked, order, axis=1)]
+        control_mean = (total - values.sum(axis=1)) / rest
+        guide_means = np.stack(
+            [values[:, edges[i]:edges[i + 1]].mean(axis=1)
+             for i in range(len(sizes))], axis=1)
+        out[start:start + count] = guide_means.mean(axis=1) - control_mean
+    return out
+
+
+def translocation_gene_scores(cells: pd.DataFrame, score: str, *,
+                              guide: str = "guide", gene: str = "gene",
+                              group: Optional[str] = None,
+                              control_prefix: str = "nontargeting",
+                              min_cells: int = 20,
+                              permutations: int = 10000, seed: int = 0,
+                              fdr_method: str = "fdr_bh"
+                              ) -> Dict[str, pd.DataFrame]:
+    """Per-gene translocation scores against non-targeting cells, with FDR.
+
+    The gene score of Feldman et al. (2019) for a per-cell translocation
+    readout such as the nuclear DNA-marker correlation. For each guide with
+    at least ``min_cells`` cells, the score is the integrated difference
+    between the cumulative distribution of the non-targeting cells and that
+    of the guide cells, negative when the guide lowers the readout (a
+    translocation defect). The sign is fixed: a NEGATIVE score always means a
+    translocation defect and a positive one a gain, whatever way the
+    integral is written elsewhere. A gene scores the mean of its guides. Its P value
+    comes from relabelling the cells of all its guides jointly with the
+    non-targeting cells, and is two-sided with resolution
+    ``1 / (permutations + 1)``. Mann-Whitney P values of all
+    the cells of the gene against the non-targeting cells are reported
+    beside it.
+    Both P values are corrected across the genes of each group.
+
+    :param cells: one row per cell with a confident guide call.
+    :param score: the per-cell readout column.
+    :param guide: the guide column.
+    :param gene: the gene column.
+    :param group: an optional column (for example the stimulus) scored
+        separately; ``None`` scores all cells together.
+    :param control_prefix: genes starting with this, in any case, are the
+        non-targeting controls.
+    :param min_cells: guides with fewer scored cells are left out.
+    :param permutations: relabellings per gene.
+    :param seed: the random seed, so a rerun gives the same tables.
+    :param fdr_method: the correction, any name accepted by
+        :func:`spacr.multiple_testing.adjust_p_values`.
+    :returns: ``{"guides": ..., "genes": ...}``. Guides: ``group, gene,
+        guide, n_cells, score``. Genes: ``group, gene, score, n_guides,
+        n_cells, p, q, mannwhitney_p, mannwhitney_q``, sorted by group and
+        score.
+    :raises KeyError: when a named column is missing.
+    :raises ValueError: when a group has no non-targeting cells with a
+        finite score, or ``permutations`` or ``min_cells`` is below 1.
+    """
+    from scipy.stats import mannwhitneyu
+
+    from .multiple_testing import adjust_p_values
+
+    if int(permutations) < 1 or int(min_cells) < 1:
+        raise ValueError("permutations and min_cells must both be at least 1")
+    columns = [score, guide, gene] + ([group] if group is not None else [])
+    missing = [name for name in columns if name not in cells.columns]
+    if missing:
+        raise KeyError(f"cells lack the columns {missing}")
+    table = cells[columns].copy()
+    table[score] = pd.to_numeric(table[score], errors="coerce")
+    table = table[np.isfinite(table[score].to_numpy(dtype=float))]
+    groups = ([(None, table)] if group is None
+              else list(table.groupby(group, sort=True, observed=True)))
+    rng = np.random.default_rng(int(seed))
+    guide_rows, gene_rows = [], []
+    for label, part in groups:
+        control = _control_rows(part[gene].to_numpy(), control_prefix)
+        control_values = part.loc[control, score].to_numpy(dtype=float)
+        if control_values.size == 0:
+            raise ValueError(
+                f"no non-targeting cells (gene starting {control_prefix!r}) "
+                f"with a finite {score!r} in group {label!r}")
+        targeted = part[~control]
+        per_gene: Dict[Any, List[Tuple[float, np.ndarray]]] = {}
+        for (gene_name, guide_name), cells_of in targeted.groupby(
+                [gene, guide], sort=True, observed=True):
+            values = cells_of[score].to_numpy(dtype=float)
+            if values.size < int(min_cells):
+                continue
+            observed = _integrated_cdf_difference(values, control_values)
+            per_gene.setdefault(gene_name, []).append((observed, values))
+            guide_rows.append({"group": label, "gene": gene_name,
+                               "guide": guide_name, "n_cells": values.size,
+                               "score": observed})
+        for gene_name, entries in per_gene.items():
+            observed = float(np.mean([entry[0] for entry in entries]))
+            null = _permuted_mean_shifts([entry[1] for entry in entries],
+                                         control_values, int(permutations), rng)
+            exceed = int(np.sum(np.abs(null) >= abs(observed) - 1e-12))
+            gene_cells = targeted.loc[targeted[gene] == gene_name, score
+                                      ].to_numpy(dtype=float)
+            gene_rows.append({
+                "group": label, "gene": gene_name, "score": observed,
+                "n_guides": len(entries),
+                "n_cells": int(sum(entry[1].size for entry in entries)),
+                "p": (exceed + 1) / (int(permutations) + 1),
+                "mannwhitney_p": float(mannwhitneyu(
+                    gene_cells, control_values, alternative="two-sided").pvalue),
+            })
+    guides = pd.DataFrame(guide_rows, columns=["group", "gene", "guide",
+                                               "n_cells", "score"])
+    genes = pd.DataFrame(gene_rows, columns=["group", "gene", "score",
+                                             "n_guides", "n_cells", "p",
+                                             "mannwhitney_p"])
+    genes["q"] = np.nan
+    genes["mannwhitney_q"] = np.nan
+    families = pd.Series([repr(value) for value in genes["group"]],
+                         index=genes.index, dtype=object)
+    for family in pd.unique(families):
+        index = families.index[families == family]
+        for p_column, q_column in (("p", "q"),
+                                   ("mannwhitney_p", "mannwhitney_q")):
+            genes.loc[index, q_column] = adjust_p_values(
+                genes.loc[index, p_column].to_numpy(dtype=float),
+                method=fdr_method)[0]
+    genes = genes[["group", "gene", "score", "n_guides", "n_cells", "p", "q",
+                   "mannwhitney_p", "mannwhitney_q"]]
+    return {"guides": guides.reset_index(drop=True),
+            "genes": genes.sort_values(["group", "score"], na_position="first",
+                                       kind="mergesort").reset_index(drop=True)}
+
+
 def _control_rows(names: Sequence, control_prefix: str = "nontargeting"
                   ) -> np.ndarray:
     """True for every name that marks a non-targeting row (any case).

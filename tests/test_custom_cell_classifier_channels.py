@@ -31,9 +31,12 @@ def test_custom_classifier_logits_can_be_negative():
     assert (out < 0).any(), "a ReLU on the logits would clamp these to 0"
 
 
-def test_custom_classifier_keeps_the_old_positional_signature():
-    model = U.CustomCellClassifier(2, 1, True, False, 0.1)
-    assert model.num_classes == 2 and model.in_channels == 3
+def test_custom_classifier_refuses_the_removed_arguments():
+    with pytest.raises(TypeError):
+        U.CustomCellClassifier(2, 1, True, False, 0.1)
+    for removed in ("pathogen_channel", "use_attention", "dropout_rate"):
+        with pytest.raises(TypeError):
+            U.CustomCellClassifier(num_classes=2, **{removed: 1})
 
 
 @pytest.mark.parametrize("channels", [1, 3, 4, 5])

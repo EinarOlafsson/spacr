@@ -228,10 +228,49 @@ def use_open_sans_for_figures() -> bool:
 
     _registered = True
     if FAMILY not in available:
+        _warn_open_sans_missing()
         return False
 
     globals()["_resolved"] = True
     return True
+
+
+def _warn_open_sans_missing() -> None:
+    """Say once, by name, that figures will not be drawn in Open Sans.
+
+    The fallback is still silent for drawing, so a missing font never stops a
+    figure, but it is no longer silent for the person reading the log: a
+    different face at the same point size makes titles and labels look a
+    different size between two runs, which reads as a figure-style bug.
+    """
+    import logging
+
+    logging.getLogger(__name__).warning(
+        "Figures will not use Open Sans: the bundled font files were not "
+        "found or could not be loaded from %s (%d found). Matplotlib falls "
+        "back to another sans-serif face, so text may look a different size "
+        "than in other spaCR figures. Reinstall spaCR to restore the fonts.",
+        font_dir(), len(bundled_faces()))
+
+
+def require_figure_font() -> str:
+    """Make sure the bundled Open Sans resolves, for tests and checks.
+
+    :returns: the path matplotlib resolves for Open Sans.
+    :raises RuntimeError: when the bundled faces are missing or matplotlib
+        cannot resolve Open Sans after registering them.
+    """
+    if not bundled_faces():
+        raise RuntimeError(
+            f"spaCR ships no Open Sans faces in {font_dir()}; the package "
+            "data is incomplete.")
+    if not use_open_sans_for_figures():
+        raise RuntimeError(
+            f"Open Sans was registered from {font_dir()} but matplotlib "
+            "still cannot resolve it.")
+    font_manager = _figure_font_manager()
+    return font_manager.findfont(
+        font_manager.FontProperties(family=FAMILY), fallback_to_default=False)
 
 
 

@@ -315,6 +315,7 @@ def test_time_enable_merges_later_lineage_and_skips_corrupt_metadata(screen):
 
 
 def test_conflicting_next_frame_metadata_keeps_the_current_transaction(qtbot, screen):
+    """A frame-identity conflict keeps the current edits and reports the revised message."""
     enable_time(screen)
     click_pixel(screen, (10, 10))
     assert screen._save_label_time_if_needed()
@@ -330,7 +331,7 @@ def test_conflicting_next_frame_metadata_keeps_the_current_transaction(qtbot, sc
     before = _edit_snapshot(screen)
     wheel(screen, 2)
     wait_idle(qtbot, screen)
-    assert "frame's identity" in screen._status_label.text()
+    assert "frame identity" in screen._status_label.text()
     assert "current edits are kept" in screen._status_label.text()
     assert not screen._canvas.label_time_busy
     assert _edit_snapshot(screen) == before
@@ -1114,4 +1115,3 @@ def test_selected_mother_continues_through_its_daughter_with_undo_and_reopen(qtb
         saved = imageio.imread(engine.mask_save_path(screen._folder, f"frame_{index}.tif"))
         assert saved.dtype == np.uint32 and int(saved[10, 10]) == 61
     fresh.close()
-

@@ -106,13 +106,12 @@ def test_error_message_keeps_the_active_tool_and_traceback_as_data():
 import pytest
 
 
-@pytest.mark.parametrize('provider', ['claude', 'codex'])
-def test_tool_approval_instructions_match_the_provider_capability(provider):
+@pytest.mark.parametrize('provider', ['claude', 'codex', 'gemini'])
+def test_tool_approval_note_says_every_provider_runs_without_tools(provider):
+    # 981 (2026-11-18): every vendor CLI runs with tools off, so the note is the
+    # same for all providers and never mentions an approval dialog (GitHub #147).
     note = prompts.tool_approval_note(provider)
-    assert 'non-interactively inside spaCR' in note
-    assert 'do not ask the user to approve a prompt' in note
-    if provider == 'claude':
-        assert 'approval dialog after your reply' in note and 'resumes' in note
-    else:
-        assert 'no approval prompt can be shown' in note
-        assert 'exact command to run in their own terminal' in note
+    assert 'non-interactively inside spaCR with no tools' in note
+    assert 'exact command to run in' in note and 'their own terminal' in note
+    assert 'approv' not in note
+    assert note == prompts.tool_approval_note('claude')

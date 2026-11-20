@@ -9571,6 +9571,10 @@ ALPHA_FEATURES = {
                      'ops_voyager3_provider', 'ops_voyager3_model', 'ops_voyager3_timeout',
                      'ops_voyager3_shuffle_control', 'ops_voyager3_resume', 'ops_voyager3_answers_dir'),
     },
+    980: {
+        'settings': ('ops_voyager3_method', 'ops_voyager3_reactome', 'ops_voyager3_corum',
+                     'ops_voyager3_enrichment_fdr'),
+    },
     971: {
         'widgets': ('OpsLiveSwitch',),
     },
@@ -9806,6 +9810,10 @@ ALPHA_FEATURES = {
     },
     982: {
         'settings': ('ops_prefix_tuning_min_sites',),
+    },
+    961: {
+        'settings': ('ops_insitu_preset', 'ops_barcode_layout', 'ops_barcode_layout_file',
+                     'ops_call_sort', 'ops_read_compartment', 'ops_recomb_min_quality'),
     },
 }
 

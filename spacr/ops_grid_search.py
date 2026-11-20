@@ -52,6 +52,15 @@ _GRID_KEYS: Dict[str, Callable[[Any], Any]] = {
     "ops_prefix_max_distance": int,
     "ops_quality_min_reads": int,
     "ops_prefix_crosstalk": str,
+    "ops_call_sort": str,
+    "ops_read_compartment": str,
+}
+
+#: The values the item-961 keys take in a grid; ``'none'`` is the decode's
+#: own cell rule.
+_GRID_CHOICES: Dict[str, Tuple[str, ...]] = {
+    "ops_call_sort": ("none", "count", "quality", "peak"),
+    "ops_read_compartment": ("cell", "nucleus", "cytoplasm"),
 }
 
 #: How the tiles are chosen, the first being the default.
@@ -112,6 +121,11 @@ def _cast(key: str, value: Any) -> Any:
         if out not in ("log", "raw"):
             raise ValueError("ops_grid_params: ops_read_mode takes 'log' and 'raw'; "
                              "'auto' chooses per well and is the default point itself")
+    if key in _GRID_CHOICES:
+        out = out.lower()
+        if out not in _GRID_CHOICES[key]:
+            raise ValueError(f"ops_grid_params: {key} takes {list(_GRID_CHOICES[key])}; "
+                             f"got {value!r}")
     return out
 
 
@@ -310,16 +324,20 @@ def _default_points(settings: Mapping[str, Any], tiles: Sequence[Tuple[str, str,
         :data:`_GRID_KEYS` setting and any tuned weight settings; ``engine``
         holds the decode ``site_summary.csv`` rows and seconds when it ran.
     """
+    from .ops_insitu import _insitu_options
     from .ops_prefix import (WEIGHT_GRID_KEYS, _prefix_read_mode, prefix_settings,
                              run_prefix_decode)
 
     chosen = prefix_settings(settings)
+    insitu = _insitu_options(settings, chosen)
     mode = _prefix_read_mode(settings, chosen)
     base = {"ops_read_threshold": chosen["ops_read_threshold"], "ops_read_mode": mode,
             "ops_prefix_min_read_quality": chosen["ops_prefix_min_read_quality"],
             "ops_prefix_max_distance": chosen["ops_prefix_max_distance"],
-            "ops_quality_min_reads": chosen["ops_quality_min_reads"],
-            "ops_prefix_crosstalk": chosen["ops_prefix_crosstalk"]}
+            "ops_quality_min_reads": insitu["min_reads"] or chosen["ops_quality_min_reads"],
+            "ops_prefix_crosstalk": chosen["ops_prefix_crosstalk"],
+            "ops_call_sort": insitu["call_sort"] or "none",
+            "ops_read_compartment": insitu["compartment"]}
     wells = sorted({(p, w, wid) for p, w, wid, _s in tiles})
     points = {(p, wid): dict(base) for p, _w, wid in wells}
     engine: Dict[str, Any] = {"ran": False, "rows": [], "seconds": 0.0}
@@ -444,8 +462,21 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
     if any(p["ops_read_mode"] == "raw" for p in points):
         held["raw"] = _raw_candidates(stack, held["log"])
     del loaded, stack
+    from .ops_insitu import _compartment_labels, _insitu_options
+
+    options = _insitu_options(settings, chosen)
+    cells_of: Dict[str, np.ndarray] = {}
+    n_labelled_of: Dict[str, int] = {}
+    for compartment in sorted({p["ops_read_compartment"] for p in points}):
+        masked = _compartment_labels(labels, {**options, "compartment": compartment},
+                                     plate=plate, well=well, well_id=well_id, site=site,
+                                     destination=str(settings.get("dst_root") or ""))
+        cells_of[compartment] = (
+            np.asarray(masked)[peaks[:, 0], peaks[:, 1]].astype(np.int64)
+            if masked is not None and len(peaks) else np.zeros(len(peaks), np.int64))
+        n_labelled_of[compartment] = _labelled_cells(masked, pd.DataFrame())
     labelled = labels is not None
-    n_labelled = _labelled_cells(labels, pd.DataFrame())
+    want_peak = any(p["ops_call_sort"] == "peak" for p in points)
     detect_s = time.perf_counter() - started
     memo: Dict[str, tuple] = {}
     shuffle_memo: Dict[Tuple[int, int], Dict[str, tuple]] = {}
@@ -456,12 +487,13 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
         began = time.perf_counter()
         here = {**chosen, **{k: point[k] for k in ("ops_quality_min_reads",)}}
         key = (point["ops_read_mode"], float(point["ops_read_threshold"]),
-               point["ops_prefix_crosstalk"])
+               point["ops_prefix_crosstalk"], point["ops_read_compartment"])
         if key not in frames:
             frames[key] = _site_tuning_reads(
-                held[key[0]], matching, memo, bases=pinned["cpg_sbs_bases"],
-                threshold=key[1], crosstalk=key[2], metric=metric,
-                max_distance=task["loosest"], read_mode=key[0], extra=extra)
+                held[key[0]][:3] + (cells_of[key[3]],), matching, memo,
+                bases=pinned["cpg_sbs_bases"], threshold=key[1], crosstalk=key[2],
+                metric=metric, max_distance=task["loosest"], read_mode=key[0],
+                extra=extra, peak=want_peak)
         frame = frames[key]
         distance = int(point["ops_prefix_max_distance"])
         reads = _at_setting(frame, float(point["ops_prefix_min_read_quality"]),
@@ -485,17 +517,21 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
                      if plan["weighted"] else {})
         row, _cells = _site_row(
             reads, plate=plate, well_id=well_id, site=site, chosen=here, method=method,
-            class_names=class_names, labelled=labelled, n_labelled=n_labelled,
+            class_names=class_names, labelled=labelled,
+            n_labelled=n_labelled_of[point["ops_read_compartment"]],
             decoy_k=chosen["ops_prefix_decoy_k"], nearmiss_k=chosen["ops_prefix_nearmiss_decoy_k"],
             scale=chosen["ops_prefix_fdr_scale"],
             shuffled=shuffled if chosen["ops_prefix_fdr_calibration"] == "shuffle" else None,
+            sort=None if point["ops_call_sort"] == "none" else point["ops_call_sort"],
             weighting=weighting)
         hit = reads["status"].isin(("exact", "corrected")) & ~reads["gene"].isin(
             (DECOY_GENE, NEARMISS_GENE))
         row.update({"spots": int(len(frame)), "mapped_reads": int(hit.sum()),
                     "shuffle_called": shuffled})
         if chosen["ops_prefix_decoy_k"] < 1:
-            row.setdefault("cells_in_labels", int(n_labelled or row["cells_with_reads"]))
+            row.setdefault("cells_in_labels",
+                           int(n_labelled_of[point["ops_read_compartment"]]
+                               or row["cells_with_reads"]))
             row["cells_real"] = int((_cells["quality"].isin(("perfect", "great"))
                                      & ~_cells["gene"].isin((DECOY_GENE, NEARMISS_GENE))).sum())
         rows.append(row)
@@ -811,11 +847,15 @@ def _apply_grid_choice(settings: Mapping[str, Any], result: Any, point: int) -> 
     if int(point) != 0:
         per_well = False
         for key in _GRID_KEYS:
+            if key not in row.index:
+                continue
             value = row[key]
             if isinstance(value, str) and value == "per well":
                 per_well = True
                 continue
             out[key] = _cast(key, value)
+        if out.get("ops_call_sort") == "none":
+            out["ops_call_sort"] = None
         out["ops_prefix_threshold_tuning"] = "per_well_decoy" if per_well else "none"
         if per_well:
             out["ops_prefix_tuning_grid"] = _pinned_tuning_grid(settings, out, row)

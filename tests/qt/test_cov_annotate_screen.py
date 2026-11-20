@@ -422,31 +422,34 @@ def test_picking_a_source_opens_it(bare_screen, monkeypatch, experiment: Path):
     assert bare_screen._settings.src == str(experiment)
 
 
-def test_a_folder_with_no_measurements_database_is_refused_when_declined(
+def test_a_folder_with_no_measurements_database_is_refused(
         bare_screen, monkeypatch, tmp_path: Path):
-    """The question is worth asking -- a mistyped folder is the usual cause --
-    and answering No must leave the previous experiment open."""
-    ask = _Recorder(answer=QMessageBox.No)
-    monkeypatch.setattr(QMessageBox, "question", staticmethod(ask))
+    """A missing database receives an actionable warning before startup."""
+    warning = _Recorder()
+    monkeypatch.setattr(QMessageBox, "warning", staticmethod(warning))
     empty = tmp_path / "not-an-experiment"
     empty.mkdir()
     bare_screen._open_source(str(empty))
-    assert ask.shown
-    assert "measurements.db" in ask.body()
+    assert warning.shown
+    assert "measurements.db" in warning.body()
+    assert "Select the experiment folder" in warning.body()
     assert bare_screen._settings.src == ""
     assert bare_screen._worker is None
 
 
-def test_a_folder_with_no_database_is_opened_anyway_when_confirmed(
+def test_a_folder_with_no_database_never_offers_to_open_anyway(
         bare_screen, monkeypatch, tmp_path: Path):
-    """Measure may not have run yet; the user is allowed to say so."""
-    monkeypatch.setattr(QMessageBox, "question",
-                        staticmethod(_Recorder(answer=QMessageBox.Yes)))
+    """A missing Measure output cannot become an empty annotation database."""
+    question = _Recorder(answer=QMessageBox.Yes)
+    monkeypatch.setattr(QMessageBox, "question", staticmethod(question))
+    monkeypatch.setattr(QMessageBox, "warning", staticmethod(_Recorder()))
     empty = tmp_path / "future-experiment"
-    empty.mkdir()
+    (empty / "measurements").mkdir(parents=True)
     bare_screen._open_source(str(empty))
-    assert bare_screen._settings.src == str(empty)
-    assert bare_screen._worker is not None
+    assert not question.shown
+    assert bare_screen._settings.src == ""
+    assert bare_screen._worker is None
+    assert not (empty / "measurements" / "measurements.db").exists()
 
 
 # ---------------------------------------------------------------------------

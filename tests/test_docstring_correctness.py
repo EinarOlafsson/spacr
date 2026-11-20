@@ -3748,6 +3748,25 @@ def _validated_ops_settings_layout_969_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_codex_issues_1119_callables(callables):
+    """Check the public callables of the issue #188-#193 landing (figure font, translocation score) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "codex_issues_1119_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.figure_font.require_figure_font",
+                            "spacr.gene_measurement_compare.translocation_gene_scores"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert len(found) == 2
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_ops_power_sim_968_callables(callables):
     """Check the public callables of item 968 (the OPS power simulation) against their source."""
     import json
@@ -4013,6 +4032,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_ops_power_sim_968_callables(callables)
     callables = _validated_spacr_store_974_callables(callables)
     callables = _validated_feature_screen_964_callables(callables)
+    callables = _validated_codex_issues_1119_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5507,7 +5527,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 20,265 -> 20,262 on 2026-11-18: item 987 removed the `keep_npz` keyword of
     # spacr.pipeline_v2.run_v2 and the `keep_npz` and `npz_dir` keywords of
     # spacr.pipeline_v2.stream_masks_from_stack (the scratch NPZ is gone).
-    assert sum(len(item.parameters) for item in callables) == 20262
+    # 20,262 -> 20,259 on 2026-11-19 (rule 41): CustomCellClassifier drops its
+    # accepted-but-ignored pathogen_channel, use_attention and dropout_rate
+    # (all defaulted, so the required total below does not move).
+    assert sum(len(item.parameters) for item in callables) == 20259
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5616,6 +5639,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Toggle.changeEvent; no existing row changed.
     # Moved 2026-11-13 for item 932 (was 530b264e...): spacr.ops_cycles.align_field's
     # three new optional parameters (item 932); the parameter total above
+    # moves by the same three and the required total does not.
+    # Moved 2026-11-19 (was 6e569df7...): CustomCellClassifier drops its three
+    # ignored optional parameters under rule 41, the parameter total above
     # moves by the same three and the required total does not.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
@@ -5853,7 +5879,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `progress_share` of spacr.object.generate_cellpose_masks_sam.
     # Moved 2026-11-18 for item 987 (was 6e569df7...): run_v2 and
     # stream_masks_from_stack lost `keep_npz` and `npz_dir`.
-) == 'a1e211425beb740dde4db5c5ef8bc1123370546e1a08163ebda6fc16e221c625'
+    # Moved 2026-11-19 by landing train 3 (was a1e21142...): CustomCellClassifier
+    # dropped pathogen_channel, use_attention and dropout_rate (rule 41, the
+    # Codex issues branch), merged with item 987's change above.
+) == '88be4536742e797def198f48411c2ee5a4035445979dc686f1a89c13488239a2'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -6786,6 +6815,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("968_ops_power_sim_api_arrivals_2026-11-17.json", 11),
         ("974_spacr_store_api_arrivals_2026-11-17.json", 16),
         ("964_ops_feature_screen_api_arrivals_2026-11-17.json", 2),
+        ("codex_issues_1119_api_arrivals_2026-11-19.json", 2),
+        ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7401,7 +7432,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
                      "974_spacr_store_api_arrivals_2026-11-17.json",
-                     "964_ops_feature_screen_api_arrivals_2026-11-17.json"):
+                     "964_ops_feature_screen_api_arrivals_2026-11-17.json",
+                     "codex_issues_1119_api_arrivals_2026-11-19.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7557,7 +7589,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
                      "974_spacr_store_api_arrivals_2026-11-17.json",
-                     "964_ops_feature_screen_api_arrivals_2026-11-17.json"):
+                     "964_ops_feature_screen_api_arrivals_2026-11-17.json",
+                     "codex_issues_1119_api_arrivals_2026-11-19.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

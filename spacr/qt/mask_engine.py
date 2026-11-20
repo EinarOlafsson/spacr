@@ -94,7 +94,9 @@ def validate_lineage(state: Optional[dict] = None) -> dict:
     try:
         result = json.loads(json.dumps(state, allow_nan=False))
     except (KeyError, TypeError, ValueError, AttributeError, OverflowError) as error:
-        raise ValueError(tr("Invalid or unsupported embedded lineage metadata: {reason}",
+        raise ValueError(tr("Invalid or unsupported embedded lineage metadata: {reason}\n\n"
+            "Open matching lineage data saved by a compatible spaCR version, or restore an "
+            "intact backup.",
                             reason=str(error))) from error
     return _checked_lineage(result)
 
@@ -191,7 +193,9 @@ def _checked_lineage(result) -> dict:
                 raise ValueError("frame revision")
         return result
     except (KeyError, TypeError, ValueError, AttributeError, OverflowError) as error:
-        raise ValueError(tr("Invalid or unsupported embedded lineage metadata: {reason}",
+        raise ValueError(tr("Invalid or unsupported embedded lineage metadata: {reason}\n\n"
+            "Open matching lineage data saved by a compatible spaCR version, or restore an "
+            "intact backup.",
                             reason=str(error))) from error
 
 
@@ -220,7 +224,8 @@ def assign_lineage_label(state: dict, frame: str, label: int,
     stamp = _next_lineage_revision(result)
     if isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
             or not 0 <= int(label) <= MAX_MASK_LABEL:
-        raise ValueError(tr("Labels must be whole numbers from 0 through 4294967295."))
+        raise ValueError(tr("Labels must be whole numbers from 0 through 4294967295.\n\n"
+            "Enter a whole-number label within this range."))
     frame = os.path.abspath(os.fspath(frame))
     mapping = result["frames"].setdefault(frame, {})
     if label:
@@ -228,7 +233,8 @@ def assign_lineage_label(state: dict, frame: str, label: int,
             raise ValueError(tr("Choose an existing lineage cell before assigning its label."))
         occupied = mapping.get(str(int(label)))
         if occupied is not None and occupied != cell_uuid:
-            raise ValueError(tr("This frame label already belongs to another lineage cell."))
+            raise ValueError(tr("This frame label already belongs to another lineage cell.\n\n"
+                "Choose a label that is unused by other cells in the affected frames."))
     if old_label is not None:
         mapping.pop(str(int(old_label)), None)
     if label:
@@ -254,7 +260,8 @@ def _swap_frame_identities(state: dict, frame: str, first: int, second: int) -> 
     mapping = dict(result["frames"].get(frame, {}))
     keys = (str(int(first)), str(int(second)))
     if keys[0] == keys[1] or not all(key in mapping for key in keys):
-        raise ValueError(tr("Both objects need a lineage cell before they can swap."))
+        raise ValueError(tr("Both objects need a lineage cell before they can swap.\n\n"
+            "Assign each object to a different lineage cell, then retry the swap."))
     mapping[keys[0]], mapping[keys[1]] = mapping[keys[1]], mapping[keys[0]]
     result["frames"][frame] = mapping
     result["frame_revisions"][frame] = _next_lineage_revision(result)
@@ -277,7 +284,8 @@ def new_lineage_cell(state: Optional[dict], name: str, label: int,
     if not isinstance(name, str) or not name.strip() \
             or isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
             or not 1 <= int(label) <= MAX_MASK_LABEL:
-        raise ValueError(tr("A lineage cell needs a name and a nonzero uint32 label."))
+        raise ValueError(tr("A lineage cell needs a name and a nonzero uint32 label.\n\n"
+            "Enter a cell name and an integer label from 1 to 4294967295."))
     stamp = _next_lineage_revision(result)
     identity = str(uuid4())
     result["cells"][identity] = {
@@ -305,7 +313,8 @@ def assign_tracked_object(mask: np.ndarray, x: int, y: int, state: dict,
         raise ValueError(tr("Choose an existing lineage cell before assigning its label."))
     if any(isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral)
            for value in (x, y)):
-        raise ValueError(tr("Object coordinates must be integer pixels."))
+        raise ValueError(tr("Object coordinates must be integer pixels.\n\n"
+            "Select a pixel in the image or enter whole-number pixel coordinates."))
     labels = canonical_labels(mask, preserve_ids=True)
     if not (0 <= y < labels.shape[0] and 0 <= x < labels.shape[1]):
         return labels, result, 0, 0
@@ -337,12 +346,14 @@ def assign_tracked_object(mask: np.ndarray, x: int, y: int, state: dict,
     if any(value == identity and int(local) != original and np.any(labels == int(local))
            for local, value in mapping.items()):
         raise ValueError(tr(
-            "{name} already labels another object in this frame; one identity can "
-            "mark only one object per frame.", name=selected["name"]))
+            "{name} already labels another object in this frame; one identity can mark only one object per frame.\n\n"
+                "Choose a different lineage cell for this object, or correct the existing "
+                "assignment first.", name=selected["name"]))
     target = selected["label"] if preferred_label is None else preferred_label
     if isinstance(target, (bool, np.bool_)) or not isinstance(target, Integral) \
             or not 1 <= int(target) <= MAX_MASK_LABEL:
-        raise ValueError(tr("A lineage cell needs a nonzero uint32 label."))
+        raise ValueError(tr("A lineage cell needs a nonzero uint32 label.\n\n"
+            "Enter an integer label from 1 to 4294967295."))
     target = int(target)
     if target != original and (np.any(labels == target) or str(target) in mapping):
         target = original
@@ -383,8 +394,9 @@ def _merge_continuation(state: dict, mother: str, daughter: str) -> dict:
             or any(mother in mapping.values() and daughter in mapping.values()
                    for mapping in result["frames"].values()):
         raise ValueError(tr(
-            "{old} cannot become part of {name}: one cell cannot appear twice in a "
-            "frame or divide twice.", old=gone["name"], name=keep["name"]))
+            "{old} cannot become part of {name}: one cell cannot appear twice in a frame or divide twice.\n\n"
+                "Review the frame assignments and divisions, then select cells with compatible "
+                "histories.", old=gone["name"], name=keep["name"]))
     stamp = _next_lineage_revision(result)
     for frame, mapping in result["frames"].items():
         if daughter in mapping.values():
@@ -420,7 +432,8 @@ def _unused_movie_label(state: Optional[dict], excluded=()) -> int:
     while value in used:
         value += 1
     if value > MAX_MASK_LABEL:
-        raise ValueError(tr("No unused 32-bit label remains."))
+        raise ValueError(tr("No unused 32-bit label remains.\n\n"
+            "Split the data into smaller masks before adding more objects."))
     return value
 
 
@@ -448,14 +461,16 @@ def _relabel_lineage_cell(state: dict, cell_uuid: str, label: int) -> dict:
         raise ValueError(tr("Choose an existing lineage cell before assigning its label."))
     if isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
             or not 1 <= int(label) <= MAX_MASK_LABEL:
-        raise ValueError(tr("A lineage cell needs a nonzero uint32 label."))
+        raise ValueError(tr("A lineage cell needs a nonzero uint32 label.\n\n"
+            "Enter an integer label from 1 to 4294967295."))
     key = str(int(label))
     stamp = _next_lineage_revision(result)
     for frame, mapping in result["frames"].items():
         if cell_uuid not in mapping.values() or mapping.get(key) == cell_uuid:
             continue
         if mapping.get(key) is not None:
-            raise ValueError(tr("This frame label already belongs to another lineage cell."))
+            raise ValueError(tr("This frame label already belongs to another lineage cell.\n\n"
+                "Choose a label that is unused by other cells in the affected frames."))
         result["frames"][frame] = {(key if identity == cell_uuid else local): identity
                                    for local, identity in mapping.items()}
         result["frame_revisions"][frame] = stamp
@@ -554,11 +569,13 @@ def divide_lineage_cell(state: dict, parent_uuid: str, frame: str,
     if parent_uuid not in result["cells"] or result["cells"][parent_uuid].get("children"):
         raise ValueError(tr("Choose a lineage cell that has not already divided."))
     if len(daughter_names) != 2 or len(labels) != 2 or labels[0] == labels[1]:
-        raise ValueError(tr("A division needs two daughter names and distinct nonzero labels."))
+        raise ValueError(tr("A division needs two daughter names and distinct nonzero labels.\n\n"
+            "Enter a name and a different positive integer label for each daughter cell."))
     if any(not isinstance(name, str) or not name.strip() for name in daughter_names) \
             or any(isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral)
                    or not 1 <= int(label) <= MAX_MASK_LABEL for label in labels):
-        raise ValueError(tr("A division needs two daughter names and distinct nonzero labels."))
+        raise ValueError(tr("A division needs two daughter names and distinct nonzero labels.\n\n"
+            "Enter a name and a different positive integer label for each daughter cell."))
     frame = os.path.abspath(frame)
     parent = result["cells"][parent_uuid]
     children = (str(uuid4()), str(uuid4()))
@@ -618,7 +635,8 @@ def _merge_validated_lineage(active: dict, incoming: dict,
                 source_paths[path] = known[identity]
         elif identity not in known and path in active["frame_ids"] \
                 and active["frame_ids"][path] != identity:
-            raise ValueError(tr("Embedded lineage snapshots disagree about a frame's identity."))
+            raise ValueError(tr("Embedded lineage snapshots disagree about frame identity.\n\n"
+                "Open masks and lineage metadata from the same saved movie."))
     result = (_lineage_frame_view(_remap_lineage_frames(active, active_paths)) if active_paths
               else _lineage_frame_view(active))
     source = (_remap_lineage_frames(incoming, source_paths) if source_paths
@@ -636,7 +654,9 @@ def _merge_validated_lineage(active: dict, incoming: dict,
                 old.get("revision", 0) == cell.get("revision", 0) and any(
                     old.get(key) != cell.get(key) for key in (
                         "parent_uuid", "children", "division_frame_id"))):
-            raise ValueError(tr("Embedded lineage snapshots disagree about a cell's ancestry."))
+            raise ValueError(tr("Embedded lineage snapshots disagree about cell ancestry.\n\n"
+                "Open masks from one consistent lineage history, or restore a matching set from"
+                " backup."))
         newer = cell if cell.get("revision", 0) > old.get("revision", 0) else old
         result["cells"][identity] = dict(newer)
     for identity, revision in result["deleted_cells"].items():
@@ -742,12 +762,16 @@ def _remap_lineage_frames(state: dict, paths: dict) -> dict:
     for path, identity in result["frame_ids"].items():
         target = paths.get(path, path)
         if target in identities and identities[target] != identity:
-            raise ValueError(tr("Moved lineage frames would share an incompatible frame identity."))
+            raise ValueError(tr("Moved lineage frames would share an incompatible frame identity.\n\n"
+                "Choose a destination that does not merge frames from different lineage "
+                "histories."))
         identities[target] = identity
     for frame, mapping in result["frames"].items():
         target = paths.get(frame, frame)
         if target in frames and frames[target] != mapping:
-            raise ValueError(tr("Moved lineage frames would share an incompatible frame identity."))
+            raise ValueError(tr("Moved lineage frames would share an incompatible frame identity.\n\n"
+                "Choose a destination that does not merge frames from different lineage "
+                "histories."))
         frames[target] = mapping
         revisions[target] = result["frame_revisions"].get(frame, 0)
     result.update(frames=frames, frame_revisions=revisions, frame_ids=identities)
@@ -820,10 +844,12 @@ def _read_mask_metadata(folder: str, filename: str, masks_dir=None, cache=None) 
             metadata = json.loads(description).get("spacr_mask", {})
         except (ValueError, AttributeError) as error:
             if "spacr_mask" in description:
-                raise ValueError(tr("The embedded mask metadata cannot be read.")) from error
+                raise ValueError(tr("The embedded mask metadata cannot be read.\n\n"
+                    "Restore the original mask file or open an intact backup.")) from error
             return {}
     if not isinstance(metadata, dict) or (metadata and metadata.get("schema") != "spacr.mask/v1"):
-        raise ValueError(tr("Invalid or unsupported embedded mask metadata."))
+        raise ValueError(tr("Invalid or unsupported embedded mask metadata.\n\n"
+            "Open an unmodified mask exported by a compatible spaCR version."))
     if metadata.get("lineage") is not None:
         key = None if cache is None else json.dumps(metadata["lineage"])
         if key is None or cache.get("key") != key:
@@ -835,7 +861,8 @@ def _read_mask_metadata(folder: str, filename: str, masks_dir=None, cache=None) 
         current = os.path.abspath(os.path.join(folder, filename))
         if metadata.get("frame_id") is not None and metadata["frame_id"] \
                 != metadata["lineage"]["frame_ids"].get(original):
-            raise ValueError(tr("Invalid or unsupported embedded mask metadata."))
+            raise ValueError(tr("Invalid or unsupported embedded mask metadata.\n\n"
+                "Open an unmodified mask exported by a compatible spaCR version."))
         if isinstance(original, str) and original != current and key is None:
             metadata["lineage"] = _relocate_lineage_frame(metadata["lineage"], original, current)
         elif isinstance(original, str) and original != current:
@@ -909,7 +936,8 @@ def _source_identity(path):
 
     revision = os.stat(path)
     if not stat.S_ISREG(revision.st_mode):
-        raise ValueError(tr('The image source is not a regular file.'))
+        raise ValueError(tr("The image source is not a regular file.\n\n"
+            "Select an existing image file instead of a folder or device."))
     return (revision.st_dev, revision.st_ino, revision.st_size,
             revision.st_mtime_ns, revision.st_ctime_ns)
 
@@ -1211,7 +1239,8 @@ def _set_container_image_view(header, series=0, time=0, z=0, channel=0, axes=Non
             raise ValueError(tr('Choose a valid time, Z plane and image channel.'))
     width, height = (entry['shape'][stored.index('X')], entry['shape'][stored.index('Y')]) if 'X' in stored and 'Y' in stored else entry['shape'][-1::-1][:2]
     if int(width) * int(height) * 8 > 256 * 1024 * 1024:
-        raise ValueError(tr('The selected image plane exceeds the 256 MiB editor limit.'))
+        raise ValueError(tr("The selected image plane exceeds the 256 MiB editor limit.\n\n"
+            "Use Import to prepare a smaller image before opening it in the editor."))
     path = header['path']
     revision = hashlib.sha256(repr(header['identity']).encode('ascii')).hexdigest()[:16]
     suffix = f'_S{series}_T{time}_Z{z}_C{channel}_{stored}_{revision}'
@@ -1303,7 +1332,8 @@ def _read_container_image_view(path, masks_dir=None, channel=None):
                 image = image.T
     if (image.shape != view['shape'] or image.dtype.kind not in 'buif'
             or image.nbytes > 256 * 1024 * 1024 or _source_identity(path) != header['identity']):
-        raise ValueError(tr('The reader returned an invalid or changed image plane.'))
+        raise ValueError(tr("The reader returned an invalid or changed image plane.\n\n"
+            "Reopen the source and select a valid image plane."))
     return np.array(image, copy=True)
 
 
@@ -1916,11 +1946,15 @@ def _center_puncta_candidates(image, parent_labels, params):
     im = np.asarray(image, dtype=np.float32)
     parents = np.asarray(parent_labels)
     if im.ndim != 2 or parents.shape != im.shape:
-        raise ValueError(tr('Puncta detection requires a 2-D image and matching parent mask.'))
+        raise ValueError(tr("Puncta detection requires a 2-D image and matching parent mask.\n\n"
+            "Load a two-dimensional image and a parent mask with the same height and width."))
     if not np.isfinite(im).all() or not np.isfinite(parents).all():
-        raise ValueError(tr('Image and parent mask must contain finite values.'))
+        raise ValueError(tr("Image and parent mask must contain finite values.\n\n"
+            "Load an image and parent mask without NaN or infinite values."))
     if np.any(parents < 0) or not np.equal(parents, np.floor(parents)).all():
-        raise ValueError(tr('Parent masks must contain nonnegative integer labels.'))
+        raise ValueError(tr("Parent masks must contain nonnegative integer labels.\n\n"
+            "Load a labelled mask with zero for background and positive whole numbers for "
+            "objects."))
     sigmas = tuple(float(s) for s in params.puncta_sigmas)
     scalars = (params.puncta_k, params.puncta_min_corrected, params.puncta_edge_margin,
                params.puncta_min_distance, params.puncta_center_pixels)
@@ -1931,7 +1965,9 @@ def _center_puncta_candidates(image, parent_labels, params):
             or int(params.puncta_center_pixels) != params.puncta_center_pixels
             or params.puncta_min_distance < 1
             or int(params.puncta_min_distance) != params.puncta_min_distance):
-        raise ValueError(tr('Invalid puncta scale, threshold, centre-pixel or spacing settings.'))
+        raise ValueError(tr("Invalid puncta scale, threshold, centre-pixel or spacing settings.\n\n"
+            "Enter finite values: positive scales and k, a nonnegative edge margin, 1 to 81"
+            " centre pixels, and integer spacing of at least 1 pixel."))
     columns = ['candidate_id', 'object_label', 'parent_id', 'cyst_id', 'y', 'x',
                'z', 'sigma', 'peak', 'center3', 'disc13', 'center10', 'center20', 'center40', 'center_mean',
                'center_pixels', 'center_corrected', 'corr10', 'corrected20', 'corr40', 'cy', 'cx', 'local_bg', 'cyst_bg',
@@ -2209,7 +2245,9 @@ def _as_field_mask(mask: np.ndarray, shape, mask_path: str,
     if maximum > MAX_MASK_LABEL:
         from .i18n import tr
 
-        raise ValueError(tr("Mask label {label} exceeds uint32 capacity: {path}",
+        raise ValueError(tr("Mask label {label} exceeds uint32 capacity: {path}\n\n"
+            "Use a mask with labels no greater than 4294967295; keep the object-identity "
+            "mapping when converting it.",
                             label=maximum, path=mask_path))
     dtype = np.uint32 if maximum > 65535 or mask.dtype == np.uint32 else (
         np.uint8 if maximum <= 255 else np.uint16)
@@ -3586,7 +3624,9 @@ def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndar
         if int(m.max()) > MAX_MASK_LABEL:
             from .i18n import tr
 
-            raise ValueError(tr("Exact mask IDs must fit in uint16 or uint32; labels were not renumbered."))
+            raise ValueError(tr("Exact mask IDs must fit in uint16 or uint32; labels were not renumbered.\n\n"
+                "Export the mask with valid uint16 or uint32 labels while preserving object "
+                "identities."))
         dtype = np.uint32 if int(m.max()) > 65535 or m.dtype == np.uint32 else np.uint16
         return m.astype(dtype, copy=True)
     boxes = None
@@ -3712,7 +3752,8 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
         from .i18n import tr
 
         if is_seg_bundle(filename):
-            raise ValueError(tr("Time labels require TIFF masks with embedded lineage."))
+            raise ValueError(tr("Time labels require TIFF masks with embedded lineage.\n\n"
+                "Save the time-series mask as TIFF so the lineage metadata is retained."))
         frame = os.path.abspath(os.path.join(folder, filename))
         lineage = prune_lineage_frame(lineage, frame, labels)
         labels = labels.astype(np.uint32, copy=False)
@@ -4279,7 +4320,8 @@ def _available_labels(mask: np.ndarray):
     used = set(map(int, np.unique(mask))) - {0}
     largest = max(used, default=0)
     if largest > MAX_MASK_LABEL or min(used, default=0) < 0:
-        raise ValueError(tr("Mask IDs must be non-negative uint32 integers."))
+        raise ValueError(tr("Mask IDs must be non-negative uint32 integers.\n\n"
+            "Load a label mask whose object IDs are whole numbers from 0 to 4294967295."))
     candidate = largest + 1 if largest < MAX_MASK_LABEL else 1
     while len(used) < MAX_MASK_LABEL:
         while candidate in used:
@@ -4287,7 +4329,8 @@ def _available_labels(mask: np.ndarray):
         used.add(candidate)
         yield candidate
         candidate = candidate + 1 if candidate < MAX_MASK_LABEL else 1
-    raise ValueError(tr("No unused 32-bit label remains."))
+    raise ValueError(tr("No unused 32-bit label remains.\n\n"
+        "Split the data into smaller masks before adding more objects."))
 
 
 def next_label(mask: np.ndarray) -> int:
@@ -4314,7 +4357,8 @@ def _fit_label_width(out: np.ndarray, like: np.ndarray) -> np.ndarray:
     if top > MAX_MASK_LABEL or (out.size and int(out.min()) < 0):
         from .i18n import tr
 
-        raise ValueError(tr("Mask label {label} is outside unsigned uint32 capacity.", label=top))
+        raise ValueError(tr("Mask label {label} is outside unsigned uint32 capacity.\n\n"
+            "Use integer labels from 0 to 4294967295 before editing this mask.", label=top))
     if np.issubdtype(like.dtype, np.integer) and top <= np.iinfo(like.dtype).max:
         return out.astype(like.dtype)
     return out.astype(np.uint8 if top <= 255 else (
@@ -4594,10 +4638,12 @@ def assign_object_label(mask: np.ndarray, x: int, y: int,
 
     if isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
             or not 0 <= int(label) <= MAX_MASK_LABEL:
-        raise ValueError(tr("Labels must be whole numbers from 0 through 4294967295."))
+        raise ValueError(tr("Labels must be whole numbers from 0 through 4294967295.\n\n"
+            "Enter a whole-number label within this range."))
     if any(isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral)
            for value in (x, y)):
-        raise ValueError(tr("Object coordinates must be integer pixels."))
+        raise ValueError(tr("Object coordinates must be integer pixels.\n\n"
+            "Select a pixel in the image or enter whole-number pixel coordinates."))
     labels = canonical_labels(mask, preserve_ids=True)
     if int(label) > 65535:
         labels = labels.astype(np.uint32, copy=False)
@@ -4610,7 +4656,8 @@ def assign_object_label(mask: np.ndarray, x: int, y: int,
         return labels, original
     if target and np.any(labels == target):
         raise ValueError(tr(
-            "Label {label} already belongs to another object in this frame.",
+            "Label {label} already belongs to another object in this frame.\n\n"
+                "Choose an unused label for this object.",
             label=target))
     labels[labels == original] = target
     return labels, original
@@ -7162,24 +7209,36 @@ class VolumeMaskSession:
                 or image.size == 0 or image.size > self.MAX_VOXELS
                 or image.nbytes > 256 * 1024 * 1024
                 or image.dtype.kind not in 'uif' or not np.isfinite(image).all()):
-            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+            raise ValueError(tr("3D masks require a finite numeric spatial TIFF within the volume memory budget.\n\n"
+                "Open a finite numeric 3D volume with at most 16,777,216 voxels and 256 MiB of "
+                "decoded data."))
         try:
             distances = tuple(float(value) for value in spacing)
         except (TypeError, ValueError) as exc:
-            raise ValueError(tr('Voxel spacing must contain three positive finite distances.')) from exc
+            raise ValueError(tr("Voxel spacing must contain three positive finite distances.\n\n"
+                "Enter one positive spacing value for each spatial axis, in the stored axis "
+                "order.")) from exc
         if (len(distances) != 3 or not all(np.isfinite(value) and value > 0 for value in distances)
                 or any(isinstance(value, (bool, np.bool_)) for value in spacing)):
-            raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
+            raise ValueError(tr("Voxel spacing must contain three positive finite distances.\n\n"
+                "Enter one positive spacing value for each spatial axis, in the stored axis "
+                "order."))
         if not all(np.isfinite(float(length) * distance) for length, distance in zip(image.shape, distances)):
-            raise ValueError(tr('The physical image bounds must be finite.'))
+            raise ValueError(tr("The physical image bounds must be finite.\n\n"
+                "Check the image dimensions and voxel spacing, then reopen the volume with "
+                "valid physical dimensions."))
         if (labels.shape != image.shape or labels.dtype.kind not in 'ui'
                 or labels.min() < 0 or labels.max() > 65535):
-            raise ValueError(tr('The volume mask must contain matching nonnegative integer object labels up to 65535.'))
+            raise ValueError(tr("The volume mask must contain matching nonnegative integer object labels up to 65535.\n\n"
+                "Load a mask with the same shape as the volume and integer labels from 0 to "
+                "65535."))
         stack = (image,) if channels is None else tuple(np.asarray(plane) for plane in channels)
         if (not stack or any(plane.shape != image.shape or plane.dtype.kind not in 'uif'
                              or not np.isfinite(plane).all() for plane in stack)
                 or sum(plane.nbytes for plane in stack) > 256 * 1024 * 1024):
-            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+            raise ValueError(tr("3D masks require a finite numeric spatial TIFF within the volume memory budget.\n\n"
+                "Open a finite numeric 3D volume with at most 16,777,216 voxels and 256 MiB of "
+                "decoded data."))
         self.image = image
         self.channels = stack
         self.mask = np.array(labels, copy=True, order="C")
@@ -7213,7 +7272,9 @@ class VolumeMaskSession:
         for value in range(1, maximum + 1):
             if value not in occupied:
                 return value
-        raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+        raise ValueError(tr("No unused object identifier fits this mask dtype.\n\n"
+            "Work on a smaller mask with fewer object identifiers before adding more "
+            "objects."))
 
     def geometry_for_label(self, label):
         """Return saved geometry or an exact closed voxel-boundary mesh.
@@ -7306,7 +7367,9 @@ class VolumeMaskSession:
             selected = tuple(coordinates[:, inside])
             existing = output[selected]
             if np.any((existing != 0) & (existing != label)):
-                raise ValueError(tr('The edited volume overlaps another object; no labels were changed.'))
+                raise ValueError(tr("The edited volume overlaps another object; no labels were changed.\n\n"
+                    "Move or resize the edited boundary so it does not overlap another object, then"
+                    " apply it again."))
             output[selected] = label
 
     def apply_geometry(self, label, gate):
@@ -7326,7 +7389,9 @@ class VolumeMaskSession:
                 or not 0 < label <= min(65535, np.iinfo(self.mask.dtype).max)
                 or not isinstance(gate, EditableVolumeGate) or gate.columns != ('X', 'Y', 'Z')
                 or gate.parent is not None or gate.name != str(label)):
-            raise ValueError(tr('Volume geometry needs one valid object ID and physical X/Y/Z coordinates.'))
+            raise ValueError(tr("Volume geometry needs one valid object ID and physical X, Y and Z coordinates.\n\n"
+                "Select a valid object and edit its boundary in the physical X, Y and Z coordinate "
+                "system."))
         output = self.mask.copy()
         output[output == label] = 0
         self._paint_geometry(output, label, gate)
@@ -7351,7 +7416,8 @@ class VolumeMaskSession:
         new = output.ravel()[changed].copy()
         cost = changed.nbytes + old.nbytes + new.nbytes
         if cost > self.MAX_HISTORY_BYTES:
-            raise ValueError(tr('This edit exceeds the volume undo memory budget; no labels were changed.'))
+            raise ValueError(tr("This edit exceeds the volume undo memory budget; no labels were changed.\n\n"
+                "Apply the change in smaller steps or work on a smaller volume."))
         before = dict(self.geometries)
         if after is None:
             touched = set(map(int, np.unique(np.concatenate((old, new)))))
@@ -7401,7 +7467,8 @@ class VolumeMaskSession:
         position = self.axes.index(axis)
         if (not isinstance(index, Integral) or isinstance(index, (bool, np.bool_))
                 or not 0 <= index < array.shape[position]):
-            raise ValueError(tr('The section index lies outside the volume.'))
+            raise ValueError(tr("The section index lies outside the volume.\n\n"
+                "Select a section within the displayed range for the chosen axis."))
         key = [slice(None)] * 3
         key[position] = int(index)
         section = array[tuple(key)]
@@ -7460,7 +7527,8 @@ class VolumeMaskSession:
         view = self._section(output, axis, index)
         for pixels in (erase, paint):
             if pixels is not None and np.shape(pixels) != view.shape:
-                raise ValueError(tr('The drawn section does not match the volume section.'))
+                raise ValueError(tr("The drawn section does not match the volume section.\n\n"
+                    "Redraw the section on the current volume plane with matching dimensions."))
         if erase is not None:
             view[np.asarray(erase, dtype=bool)] = 0
         if paint is not None:
@@ -7490,7 +7558,8 @@ class VolumeMaskSession:
         view = self._section(output, axis, index)
         edited = np.asarray(labels)
         if edited.shape != view.shape or edited.dtype.kind not in 'uib':
-            raise ValueError(tr('The drawn section does not match the volume section.'))
+            raise ValueError(tr("The drawn section does not match the volume section.\n\n"
+                "Redraw the section on the current volume plane with matching dimensions."))
         edited = edited.astype(np.int64)
         if edited.min(initial=0) < 0 or edited.max(initial=0) > min(65535, np.iinfo(self.mask.dtype).max):
             raise ValueError(tr('Choose a positive object ID that the mask can store.'))
@@ -7506,7 +7575,9 @@ class VolumeMaskSession:
                 while candidate in occupied:
                     candidate += 1
                 if candidate > maximum:
-                    raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+                    raise ValueError(tr("No unused object identifier fits this mask dtype.\n\n"
+                        "Work on a smaller mask with fewer object identifiers before adding more "
+                        "objects."))
                 edited[edited == value] = candidate
                 occupied.add(candidate)
         view[...] = edited
@@ -7526,10 +7597,14 @@ class VolumeMaskSession:
         incoming = np.asarray(labels)
         if (incoming.shape != self.mask.shape or incoming.dtype.kind not in 'uib'
                 or (incoming.size and int(incoming.min()) < 0)):
-            raise ValueError(tr('The detected labels do not match the volume.'))
+            raise ValueError(tr("The detected labels do not match the volume.\n\n"
+                "Run detection again on the current volume and use labels with the same "
+                "dimensions."))
         top = int(incoming.max()) if incoming.size else 0
         if top > min(65535, np.iinfo(self.mask.dtype).max):
-            raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+            raise ValueError(tr("No unused object identifier fits this mask dtype.\n\n"
+                "Work on a smaller mask with fewer object identifiers before adding more "
+                "objects."))
         return self._commit(np.ascontiguousarray(incoming, dtype=self.mask.dtype))
 
     def delete_label(self, label):
@@ -7604,7 +7679,9 @@ class VolumeMaskSession:
                 while candidate in occupied:
                     candidate += 1
                 if candidate > maximum:
-                    raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+                    raise ValueError(tr("No unused object identifier fits this mask dtype.\n\n"
+                        "Work on a smaller mask with fewer object identifiers before adding more "
+                        "objects."))
                 output[parts == part] = candidate
                 occupied.add(candidate)
         changed = self._commit(output)
@@ -7621,7 +7698,9 @@ class VolumeMaskSession:
                     or not isinstance(gate, EditableVolumeGate)
                     or gate.name != str(label) or gate.columns != ('X', 'Y', 'Z')
                     or gate.parent is not None):
-                raise ValueError(tr('The volume sidecar contains invalid object geometry.'))
+                raise ValueError(tr("The volume sidecar contains invalid object geometry.\n\n"
+                    "Restore the matching geometry sidecar from a valid saved volume, then reopen "
+                    "it."))
             output = self.mask.copy()
             output[output == label] = 0
             self._paint_geometry(output, label, gate)
@@ -7707,7 +7786,9 @@ def _read_tiff_volume(source):
             for axis in 'XY':
                 value = handle.pages[0].tags[axis + 'Resolution'].value
                 if value[0] <= 0 or value[1] <= 0:
-                    raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
+                    raise ValueError(tr("Voxel spacing must contain three positive finite distances.\n\n"
+                        "Enter one positive spacing value for each spatial axis, in the stored axis "
+                        "order."))
                 distances[axis] = value[1] / value[0]
             spacing = tuple(distances[axis] for axis in axes)
         if len(series.shape) != 3 + (channel >= 0) or sorted(axes) != ['X', 'Y', 'Z']:
@@ -7738,7 +7819,9 @@ def _read_mrc_volume(source):
         if data.size > VolumeMaskSession.MAX_VOXELS or data.nbytes > 256 * 1024 * 1024:
             raise ValueError(tr('This volume exceeds the native volume memory budget.'))
         if data.dtype.kind not in 'uif':
-            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+            raise ValueError(tr("3D masks require a finite numeric spatial TIFF within the volume memory budget.\n\n"
+                "Open a finite numeric 3D volume with at most 16,777,216 voxels and 256 MiB of "
+                "decoded data."))
         image = np.array(data, dtype=data.dtype.newbyteorder('='))
         size = handle.voxel_size
         angstrom = (float(size.z), float(size.y), float(size.x))
@@ -7794,7 +7877,8 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
         with tifffile.TiffFile(mask_path) as handle:
             mask_series = handle.series[0]
             if _spatial_page_axes(mask_series.axes) != axes:
-                raise ValueError(tr('The saved mask axes do not match the spatial source.'))
+                raise ValueError(tr("The saved mask axes do not match the spatial source.\n\n"
+                    "Choose the mask saved for this volume with the same spatial axis order."))
             if (mask_series.shape != image.shape or mask_series.dtype.kind not in 'ui'
                     or math.prod(mask_series.shape) * mask_series.dtype.itemsize > 256 * 1024 * 1024):
                 raise ValueError(tr('The saved spatial mask shape, integer dtype or decoded size does not match this volume.'))
@@ -7804,7 +7888,8 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
     session = VolumeMaskSession(image, labels, axes=axes, spacing=spacing, unit=unit, channels=channels)
     session.source_path, session.source_sha256, session.mask_path = str(source), digest, str(mask_path)
     if _yolo_source_hash(source) != digest:
-        raise ValueError(tr('The source volume changed while opening it.'))
+        raise ValueError(tr("The source volume changed while opening it.\n\n"
+            "Wait until the source file is stable, then reopen the volume."))
     sidecar = mask_path.with_suffix(mask_path.suffix + '.volume.json')
     session._saved_mask_sha256 = _yolo_source_hash(mask_path) if mask_path.exists() else None
     session._saved_geometry_sha256 = _yolo_source_hash(sidecar) if sidecar.exists() else None
@@ -7813,19 +7898,24 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
         expected = {'source_sha256': digest, 'shape': list(image.shape), 'axes': axes,
                     'spacing': list(session.spacing), 'mask_sha256': hashlib.sha256(session.mask.tobytes(order='C')).hexdigest()}
         if any(record.get(key) != value for key, value in expected.items()) or record.get('version') != 1:
-            raise ValueError(tr('The saved volume geometry does not match these source and mask pixels.'))
+            raise ValueError(tr("The saved volume geometry does not match these source and mask pixels.\n\n"
+                "Open the matching source, mask and geometry sidecar from the same saved "
+                "volume."))
         geometries = GateSet.from_dict(record.get('geometry', {}))
         for gate in geometries.gates:
             if (not isinstance(gate, EditableVolumeGate) or not gate.name.isdecimal()
                     or not 0 < int(gate.name) <= 65535 or gate.columns != ('X', 'Y', 'Z')
                     or gate.parent is not None):
-                raise ValueError(tr('The volume sidecar contains invalid object geometry.'))
+                raise ValueError(tr("The volume sidecar contains invalid object geometry.\n\n"
+                    "Restore the matching geometry sidecar from a valid saved volume, then reopen "
+                    "it."))
             session.geometries[int(gate.name)] = gate
         controls = record.get('editor_controls', session._editor_controls)
         if (not isinstance(controls, dict) or set(controls) != {'anchor_density', 'show_anchors'}
                 or type(controls['anchor_density']) is not int or not 1 <= controls['anchor_density'] <= 8
                 or type(controls['show_anchors']) is not bool):
-            raise ValueError(tr('The saved volume anchor controls are invalid.'))
+            raise ValueError(tr("The saved volume anchor controls are invalid.\n\n"
+                "Open a saved volume with valid anchor controls, or restore a matching backup."))
         session._editor_controls = dict(controls)
         session._validate_boundaries()
     return session
@@ -7859,13 +7949,15 @@ def save_volume_mask(session):
 
     if (not isinstance(session, VolumeMaskSession) or not session.source_path
             or _yolo_source_hash(Path(session.source_path)) != session.source_sha256):
-        raise ValueError(tr('The source volume changed; no mask was saved.'))
+        raise ValueError(tr("The source volume changed; no mask was saved.\n\n"
+            "Reload the current source volume before editing and saving its mask."))
     session._validate_boundaries()
     target = Path(session.mask_path)
     target.parent.mkdir(parents=True, exist_ok=True)
     sidecar = target.with_suffix(target.suffix + '.volume.json')
     if target.resolve() == Path(session.source_path).resolve():
-        raise ValueError(tr('The mask output must not overwrite the source volume.'))
+        raise ValueError(tr("The mask output must not overwrite the source volume.\n\n"
+            "Choose a different output file for the mask."))
     record = {'version': 1, 'source_sha256': session.source_sha256,
               'mask_sha256': hashlib.sha256(session.mask.tobytes(order='C')).hexdigest(),
               'shape': list(session.mask.shape), 'axes': session.axes,
@@ -7876,11 +7968,13 @@ def save_volume_mask(session):
     try:
         descriptor = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     except FileExistsError as exc:
-        raise ValueError(tr('This volume is already being saved.')) from exc
+        raise ValueError(tr("This volume is already being saved.\n\n"
+            "Wait for the current save to finish before saving again.")) from exc
     try:
         if ((_yolo_source_hash(target) if target.exists() else None) != session._saved_mask_sha256
                 or (_yolo_source_hash(sidecar) if sidecar.exists() else None) != session._saved_geometry_sha256):
-            raise ValueError(tr('The saved volume changed outside this session; no mask was overwritten.'))
+            raise ValueError(tr("The saved volume changed outside this session; no mask was overwritten.\n\n"
+                "Reopen the latest saved volume before making further edits."))
         stamps = {path: _volume_file_stamp(path) for path in (Path(session.source_path), target, sidecar)}
         with tempfile.TemporaryDirectory(dir=target.parent, prefix='.spacr-volume-') as folder:
             folder = Path(folder)
@@ -7899,7 +7993,8 @@ def save_volume_mask(session):
                     or _yolo_source_hash(Path(session.source_path)) != session.source_sha256
                     or (_yolo_source_hash(target) if target.exists() else None) != session._saved_mask_sha256
                     or (_yolo_source_hash(sidecar) if sidecar.exists() else None) != session._saved_geometry_sha256):
-                raise ValueError(tr('The volume files changed during saving; no output was replaced.'))
+                raise ValueError(tr("The volume files changed during saving; no output was replaced.\n\n"
+                    "Stop other writes to these files, reopen the current volume, and save again."))
             os.replace(staged_mask, target)
             try:
                 os.replace(staged_json, sidecar)
