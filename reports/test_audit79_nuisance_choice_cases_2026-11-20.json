@@ -1,0 +1,204 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_position_is_removed_before_permuting.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_row_and_column_are_the_default": "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_original_nuisance_choices_keep_their_ordered_columns[test_row_and_column_are_the_default]",
+    "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_an_explicit_choice_still_wins": "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_original_nuisance_choices_keep_their_ordered_columns[test_an_explicit_choice_still_wins]"
+  },
+  "literal_class_case_contracts": {
+    "test_row_and_column_are_the_default": [
+      {},
+      [
+        "rowID",
+        "columnID"
+      ]
+    ],
+    "test_an_explicit_choice_still_wins": [
+      {
+        "guide_nuisance_columns": []
+      },
+      []
+    ]
+  },
+  "case_contract_representations": {
+    "test_row_and_column_are_the_default": "({}, ['rowID', 'columnID'])",
+    "test_an_explicit_choice_still_wins": "({'guide_nuisance_columns': []}, [])"
+  },
+  "contract_scope": "Exact original TestTheDefault class/self scope, local spacr.settings import alias, original empty dictionary or explicit guide_nuisance_columns empty list, get_perform_regression_default_settings call, nuisance-key lookup/chosen assignment and native ordered-list equality retained. Every other original class/method/helper/nested residual function/import/missing-column/report/design case retains AST and relative order.",
+  "collected_before": [
+    "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_row_and_column_are_the_default",
+    "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_an_explicit_choice_still_wins",
+    "tests/test_position_is_removed_before_permuting.py::TestItReachesTheDesign::test_the_prepared_frame_carries_the_nuisance_columns",
+    "tests/test_position_is_removed_before_permuting.py::TestItReachesTheDesign::test_removing_position_reduces_the_autocorrelation",
+    "tests/test_position_is_removed_before_permuting.py::TestAnAbsentColumnIsSaidNotRaised::test_the_missing_ones_are_reported",
+    "tests/test_position_is_removed_before_permuting.py::TestAnAbsentColumnIsSaidNotRaised::test_nothing_is_said_when_nothing_is_missing",
+    "tests/test_position_is_removed_before_permuting.py::TestAnAbsentColumnIsSaidNotRaised::test_an_empty_choice_is_not_reported_as_missing",
+    "tests/test_position_is_removed_before_permuting.py::TestAnAbsentColumnIsSaidNotRaised::test_only_the_present_ones_are_used"
+  ],
+  "collected_after": [
+    "tests/test_position_is_removed_before_permuting.py::TestItReachesTheDesign::test_the_prepared_frame_carries_the_nuisance_columns",
+    "tests/test_position_is_removed_before_permuting.py::TestItReachesTheDesign::test_removing_position_reduces_the_autocorrelation",
+    "tests/test_position_is_removed_before_permuting.py::TestAnAbsentColumnIsSaidNotRaised::test_the_missing_ones_are_reported",
+    "tests/test_position_is_removed_before_permuting.py::TestAnAbsentColumnIsSaidNotRaised::test_only_the_present_ones_are_used",
+    "tests/test_position_is_removed_before_permuting.py::TestAnAbsentColumnIsSaidNotRaised::test_an_empty_choice_is_not_reported_as_missing",
+    "tests/test_position_is_removed_before_permuting.py::TestAnAbsentColumnIsSaidNotRaised::test_nothing_is_said_when_nothing_is_missing",
+    "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_original_nuisance_choices_keep_their_ordered_columns[test_an_explicit_choice_still_wins]",
+    "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_original_nuisance_choices_keep_their_ordered_columns[test_row_and_column_are_the_default]"
+  ],
+  "tests_before": {
+    "passed": 8,
+    "seconds": 8.77
+  },
+  "tests_after": {
+    "passed": 8,
+    "seconds": 12.05
+  },
+  "coverage_scope": "spacr.settings under the complete selected nuisance-default/column-reporting/design-projection module; not guide_permutation or full-suite coverage. Existing seeded 120-well/360-guide-row DataFrames, nuisance design construction, NumPy QR residual projection and Durbin-Watson arithmetic retained. No permutation simulation, statistical/model estimator fitting, scientific chart construction/rendering, new reader, network or GPU work. Production settings names/defaults/schema/categories unchanged. Normal coverage warnings, if any, are separately reconciled with read-only original per-worker SQLite arc counts; empty target workers do not imply missing combined coverage. Before/after combined source files/totals/executed sets must match exactly. Original warning lines and worker counts are recorded; no passing run repeated.",
+  "coverage_before": {
+    "covered_lines": 556,
+    "num_statements": 2963,
+    "percent_covered": 18.440696709980646,
+    "percent_covered_display": "18",
+    "missing_lines": 2407,
+    "excluded_lines": 0,
+    "percent_statements_covered": 18.764765440431994,
+    "percent_statements_covered_display": "19",
+    "num_branches": 654,
+    "num_partial_branches": 43,
+    "covered_branches": 111,
+    "missing_branches": 543,
+    "percent_branches_covered": 16.972477064220183,
+    "percent_branches_covered_display": "17"
+  },
+  "coverage_after": {
+    "covered_lines": 556,
+    "num_statements": 2963,
+    "percent_covered": 18.440696709980646,
+    "percent_covered_display": "18",
+    "missing_lines": 2407,
+    "excluded_lines": 0,
+    "percent_statements_covered": 18.764765440431994,
+    "percent_statements_covered_display": "19",
+    "num_branches": 654,
+    "num_partial_branches": 43,
+    "covered_branches": 111,
+    "missing_branches": 543,
+    "percent_branches_covered": 16.972477064220183,
+    "percent_branches_covered_display": "17"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "c71acce16c14615d3fc715362b71bfce690ed26989e386cd58afdb8dfd533dd0",
+  "production_source_sha256": "06a1be77c5a5b3de5a28585f9f4e7aab6a4a4bc273bd0d05c5517a3b4a870a1f",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "absent-nuisance-choice-defaults-empty",
+      "source_variant": {
+        "path": "spacr/settings.py",
+        "line": 3675,
+        "old": "settings.setdefault('guide_nuisance_columns', ['rowID', 'columnID'])",
+        "new": "settings.setdefault('guide_nuisance_columns', [])"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_row_and_column_are_the_default"
+        ],
+        "failure_summary_lines": [
+          "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_row_and_column_are_the_default"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_original_nuisance_choices_keep_their_ordered_columns[test_row_and_column_are_the_default]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_original_nuisance_choices_keep_their_ordered_columns[test_row_and_column_are_the_default]"
+        ],
+        "application_markers": 1
+      }
+    },
+    {
+      "mutant": "explicit-empty-nuisance-choice-overwritten",
+      "source_variant": {
+        "path": "spacr/settings.py",
+        "line": 3675,
+        "old": "settings.setdefault('guide_nuisance_columns', ['rowID', 'columnID'])",
+        "new": "settings['guide_nuisance_columns'] = ['rowID', 'columnID']"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_an_explicit_choice_still_wins"
+        ],
+        "failure_summary_lines": [
+          "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_an_explicit_choice_still_wins"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_original_nuisance_choices_keep_their_ordered_columns[test_an_explicit_choice_still_wins]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_position_is_removed_before_permuting.py::TestTheDefault::test_original_nuisance_choices_keep_their_ordered_columns[test_an_explicit_choice_still_wins]"
+        ],
+        "application_markers": 1
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in get_perform_regression_default_settings before and after: default an absent nuisance choice to an empty list; overwrite an explicit empty choice with row/column names. Each fault selects the same one original/mapped class case and must fail with AssertionError from unchanged native ordered-list equality. Original fresh mutable dictionaries/list values, local module import, key lookup and result types/order retained. Only private loaded source variants are changed; repository production settings/defaults/schema/categories remain byte-identical.",
+  "normal_coverage_warning_evidence": {
+    "before": {
+      "coverage_warning_lines": [
+        "........                                                                 [100%]/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/inorout.py:558: CoverageWarning: Module spacr.settings was never imported. (module-not-imported); see https://coverage.readthedocs.io/en/7.16.0/messages.html#warning-module-not-imported",
+        "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/control.py:967: CoverageWarning: No data was collected. (no-data-collected); see https://coverage.readthedocs.io/en/7.16.0/messages.html#warning-no-data-collected"
+      ],
+      "worker_arc_rows": {
+        "gw0": 6950,
+        "gw1": 0
+      }
+    },
+    "after": {
+      "coverage_warning_lines": [
+        "........                                                                 [100%]/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/inorout.py:558: CoverageWarning: Module spacr.settings was never imported. (module-not-imported); see https://coverage.readthedocs.io/en/7.16.0/messages.html#warning-module-not-imported",
+        "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/coverage/control.py:967: CoverageWarning: No data was collected. (no-data-collected); see https://coverage.readthedocs.io/en/7.16.0/messages.html#warning-no-data-collected"
+      ],
+      "worker_arc_rows": {
+        "gw0": 6950,
+        "gw1": 0
+      }
+    },
+    "scope": "Normal coverage warnings arise only from a worker that did not import the selected target. Original per-worker SQLite arc counts read in mode=ro; combined coverage files/totals/executed sets independently verified identical. No passing tests or measurements rerun."
+  },
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_position_is_removed_before_permuting.py",
+      "line": 40,
+      "symbol": "test_original_nuisance_choices_keep_their_ordered_columns",
+      "new": "Preserve each original nuisance-column choice and ordered result.",
+      "old": {
+        "test_row_and_column_are_the_default": null,
+        "test_an_explicit_choice_still_wins": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
