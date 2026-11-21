@@ -1320,7 +1320,15 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 655, 2026-10-04: Preferences > Appearance > Theme's High contrast entry
 # and its tooltip sentence.
 # 643/644/646, 2026-10-04: Preferences > Storage's "Measure sizes" button.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+# 995, 2026-11-21: the five field-centring refusals, bound to their owners by
+# the runtime scanner, wait for the catalog rebuild that pins their reviews.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Setting: cell_cycle_fit_group must be one of {choices}; got {value!r}. Choose plate for one DNA-content fit per plate, or well for one fit per well.",
+    "The field-centred cell-cycle call needs the cell-table columns {columns}, which are missing. Measure the nuclear DNA stain and keep the well, site and mitotic-call columns in the cell tables.",
+    "Setting: cell_cycle_field_min_cells must be a whole number of at least 1. Enter the non-mitotic nuclei a field needs to be centred, such as 50.",
+    "Setting: cell_cycle_mitotic_column names {column!r}, which is not a column of the nucleus table. Add the mitotic call (True for a mitotic nucleus) to the nucleus table, or leave cell_cycle_mitotic_column blank to call M by condensation.",
+    "ops_profile_cell_cycle_method must be empty or measure_fc; got {value}",
+})
 
 
 
