@@ -3935,6 +3935,24 @@ def _validated_ops_power_sim_968_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_cpg_measure_998_callables(callables):
+    """Check the public callables of item 998 (PERISCOPE painting features in the mask frame) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "998_cpg_measure_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert len(entries) == 9 and "spacr.cpg_measure" in entries
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys() - {"spacr.cpg_measure"}
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_feature_screen_964_callables(callables):
     """Check the public callable of item 964 (the feature-information screen) against its source."""
     import json
@@ -4190,6 +4208,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_ops_maxproj_992_callables(callables)
     callables = _validated_ops_cell_cycle_990_callables(callables)
     callables = _validated_ops_flatfield_channel_fit_1006_callables(callables)
+    callables = _validated_cpg_measure_998_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -6999,6 +7018,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("992_ops_maxproj_api_arrivals_2026-11-20.json", 14),
         ("990_ops_cell_cycle_api_arrivals_2026-11-21.json", 20),
         ("1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json", 4),
+        ("998_cpg_measure_api_arrivals_2026-11-20.json", 9),
         ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
@@ -7636,6 +7656,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "992_ops_maxproj_api_arrivals_2026-11-20.json",
                      "990_ops_cell_cycle_api_arrivals_2026-11-21.json",
                      "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json",
+                     "998_cpg_measure_api_arrivals_2026-11-20.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
@@ -7805,6 +7826,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "992_ops_maxproj_api_arrivals_2026-11-20.json",
                      "990_ops_cell_cycle_api_arrivals_2026-11-21.json",
                      "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json",
+                     "998_cpg_measure_api_arrivals_2026-11-20.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",

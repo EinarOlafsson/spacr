@@ -518,6 +518,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "cpg_md5": False,
     "cpg_align_source": "periscope_logged",
     "cpg_align_table": None,
+    "cpg_painting_frame_shift": "periscope_logged",
     "ops_library_mode": "barcode",
     "ops_library_sequence_col": "sgRNA",
     "ops_library_gene_col": "gene_symbol",
@@ -1087,6 +1088,7 @@ OPS_TYPES: Dict[str, object] = {
     "cpg_sbs_resample": str,
     "cpg_align_source": str,
     "cpg_align_table": (str, type(None)),
+    "cpg_painting_frame_shift": str,
     "cpg_missing": str,
     "cpg_md5": bool,
     "ops_library_mode": str,
@@ -1187,6 +1189,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "cpg_root", "cpg_wells", "cpg_sites", "cpg_phenotype_channels",
         "cpg_sbs_cycles", "cpg_sbs_bases", "cpg_sbs_dapi", "cpg_sbs_resample",
         "cpg_missing", "cpg_md5", "cpg_align_source", "cpg_align_table",
+        "cpg_painting_frame_shift",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers", "ops_deterministic_blas", "ops_blas_threads",
@@ -4050,6 +4053,17 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "{plate}, {well}, {well_number} and {site} fields. Empty finds it from "
         "cpg_root in the cpg0021 layout (workspace/analysis/<batch>/"
         "<plate>-Well<N>-<site>/Image.csv). Default None. Alpha.",
+    "cpg_painting_frame_shift":
+        "(str) - How painting images are moved into the frame of the masks "
+        "before the cpg_measure phase measures them. 'periscope_logged' uses the "
+        "shift PERISCOPE recorded for each site (its Image.csv, or "
+        "cpg_align_table), 'register' measures it from the images, and 'none' "
+        "applies no shift and is only valid for masks drawn on the painting "
+        "images (ops_prefix_masks_frame 'painting'). Masks in the sequencing "
+        "frame with 'none' are refused, and so is a site without a recorded "
+        "shift. Every shift is written to painting_frame_shift_<plate>_<well>.csv, "
+        "and cells that touch the band the shift fills with zeros are flagged in "
+        "painting_shift_border. Default 'periscope_logged'. Alpha.",
     "ops_library_mode":
         "(str) - What the library holds. 'barcode' is a separate barcode "
         "per guide, matched by the tile decode. 'spacer_prefix' reads the "

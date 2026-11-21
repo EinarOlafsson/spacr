@@ -6,6 +6,81 @@ from pathlib import Path
 import pytest
 
 
+def test_cpg_painting_frame_messages_resolve_module_constants(extract_backend_sources):
+    """All eight real painting-frame messages reach the normal static extractor."""
+    path = Path(__file__).resolve().parents[1] / "spacr" / "cpg_measure.py"
+    source = path.read_text(encoding="utf-8")
+    names = {"_NO_RECORD", "_GUARD", "_PAINTING_MASKS", "_UNKNOWN_MODE",
+             "_UNKNOWN_FRAME", "_NO_MASKS", "_SHAPES", "_NO_DESTINATION"}
+    captions = {node.value.value for node in ast.parse(source).body
+                if isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id in names}
+    assert len(captions) == 8
+    assert extract_backend_sources("cpg_measure.py", source) == captions
+
+
+def test_cpg_painting_frame_messages_keep_exact_owners(extract_backend_sources):
+    """Other scopes, constants and presentation calls cannot add captions."""
+    source = '''
+_NO_RECORD = "The assigned missing shift message."
+_GUARD = "A constant from another owner."
+_OTHER = "Unrelated module metadata."
+tr(_OTHER)
+def site_painting_shift():
+    tr(_NO_RECORD)
+    tr(_GUARD)
+    tr(_OTHER)
+    tr("An unrelated literal.")
+    ui.tr(_OTHER)
+    def nested():
+        tr(_OTHER)
+    return lambda: tr(_OTHER)
+def unrelated():
+    tr(_GUARD)
+    def painting_frame_mode():
+        tr(_GUARD)
+class Unrelated:
+    def painting_frame_mode(self):
+        tr(_GUARD)
+'''
+    assert extract_backend_sources("cpg_measure.py", source) == {
+        "The assigned missing shift message."}
+    nested = '''
+_NO_RECORD = "The nested missing shift message."
+def site_painting_shift():
+    ui.tr(_NO_RECORD)
+    def nested():
+        tr(_NO_RECORD)
+    class Nested:
+        def message(self):
+            tr(_NO_RECORD)
+    return lambda: tr(_NO_RECORD)
+'''
+    assert extract_backend_sources("cpg_measure.py", nested) == set()
+    assert extract_backend_sources("cpg_measure.py", "") == set()
+    assert extract_backend_sources("unregistered.py", source) == set()
+
+
+@pytest.mark.parametrize("binding", [
+    "_NO_RECORD = 'A local replacement.'",
+    "from elsewhere import _NO_RECORD",
+    "def _NO_RECORD():\n        return 'A local function.'",
+])
+def test_cpg_painting_frame_constants_cannot_be_shadowed(
+        extract_backend_sources, binding):
+    """A local binding cannot be mistaken for the module's source constant."""
+    source = ("_NO_RECORD = 'The module missing shift message.'\n"
+              "def site_painting_shift():\n"
+              f"    {binding}\n"
+              "    tr(_NO_RECORD)\n")
+    assert extract_backend_sources("cpg_measure.py", source) == set()
+    assert extract_backend_sources("cpg_measure.py",
+        "_NO_RECORD = 'The module missing shift message.'\n"
+        "def site_painting_shift(_NO_RECORD):\n"
+        "    tr(_NO_RECORD)\n") == set()
+
+
 @pytest.fixture
 def extract_backend_sources(tmp_path, monkeypatch):
     """Run the production extractor over a small source tree, without catalogs."""
@@ -30,6 +105,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "uniprot.py", "validate.py", "torch_artifacts.py",
         "classification_pixels.py", "crop_loader.py", "crop_store.py",
         "crops.py", "ops_engine.py", "ops_flatfield.py",
+        "cpg_measure.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)

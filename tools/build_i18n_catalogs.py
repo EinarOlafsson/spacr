@@ -4799,6 +4799,54 @@ def _flatfield_fit_runtime_sources(tree: ast.Module, owners: set[str]) -> set[st
     return found
 
 
+def _cpg_measure_runtime_sources(tree: ast.Module) -> set[str]:
+    """Return painting-frame messages from their module constants and owners."""
+    owners = {
+        "painting_frame_mode": {"_UNKNOWN_MODE", "_UNKNOWN_FRAME", "_GUARD",
+                                "_PAINTING_MASKS"},
+        "site_painting_shift": {"_NO_RECORD"},
+        "_site_masks": {"_NO_MASKS"},
+        "run_cpg_measure": {"_NO_DESTINATION", "_SHAPES"},
+    }
+    constants = {
+        node.targets[0].id: _literal(node.value)
+        for node in tree.body
+        if isinstance(node, ast.Assign) and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Name)
+    }
+    found: set[str] = set()
+    for owner in tree.body:
+        if not isinstance(owner, ast.FunctionDef) or owner.name not in owners:
+            continue
+        shadowed = {node.arg for node in ast.walk(owner.args)
+                    if isinstance(node, ast.arg)}
+        referenced: set[str] = set()
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                shadowed.add(node.name)
+                continue
+            if isinstance(node, ast.Lambda):
+                continue
+            if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+                shadowed.add(node.id)
+            if isinstance(node, (ast.Import, ast.ImportFrom)):
+                shadowed.update(alias.asname or alias.name.split(".")[0]
+                                for alias in node.names)
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name) and node.func.id == "tr"
+                    and isinstance(node.args[0], ast.Name)
+                    and node.args[0].id in owners[owner.name]):
+                referenced.add(node.args[0].id)
+            pending.extend(ast.iter_child_nodes(node))
+        for name in referenced - shadowed:
+            value = constants.get(name)
+            if value is not None and _looks_translatable(value):
+                found.add(value.strip())
+    return found
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     # Compact-catalog ownership is registered lazily by the screens that own
@@ -4861,6 +4909,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "ops_flatfield.py")
     # Item 990: the OPS cell-cycle option's refusals, report text and Home job go through tr().
     paths.add(ROOT / "spacr" / "ops_cell_cycle.py")
+    paths.add(ROOT / "spacr" / "cpg_measure.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4877,6 +4926,9 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             continue
         if path == source_root / "ops_flatfield.py":
             found.update(_flatfield_fit_runtime_sources(tree, {"load_flat_maps"}))
+            continue
+        if path == source_root / "cpg_measure.py":
+            found.update(_cpg_measure_runtime_sources(tree))
             continue
         if path.parent == source_root and path.name in {"settings.py", "object.py"}:
             diagnostic_owners = {"_own_diameter", "_eval_diameter", "_note_the_diameter"}

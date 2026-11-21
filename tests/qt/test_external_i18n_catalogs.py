@@ -243,6 +243,8 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "cell_cycle_field_centre", "cell_cycle_field_min_cells",
     "cell_cycle_fit_group", "cell_cycle_mitotic_column",
     "ops_profile_cell_cycle_method",
+    # Item 998 (2026-11-20): the painting frame shift tooltip, owed by the next catalog rebuild.
+    "cpg_painting_frame_shift",
 })
 
 

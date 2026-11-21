@@ -325,7 +325,7 @@ _FEATURE_SCREEN_PHASES = ("ops_feature_screen",)
 #: (alpha, item 960) scores a grid of decode settings on a few tiles, and is
 #: the only phase a run with ``ops_grid_search`` on runs.
 _CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode", "prefix_fdr_sweep",
-               "prefix_grid_search")
+               "prefix_grid_search", "cpg_measure")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
@@ -387,6 +387,10 @@ def _run_cpg(settings: Mapping[str, Any], phases: Sequence[str]) -> Dict[str, An
         result = _run_grid_search(settings, report=_say)
         out["prefix_grid_search"] = {key: value for key, value in result.items()
                                      if key != "table"}
+    if "cpg_measure" in phases:
+        from .cpg_measure import run_cpg_measure
+
+        out["cpg_measure"] = run_cpg_measure(settings, report=_say)
     return out
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity

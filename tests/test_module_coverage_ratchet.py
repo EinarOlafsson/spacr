@@ -600,10 +600,13 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 719 -> 720 on 2026-11-20, +1/-0, TASK W: public mask tracing
         # orchestration (spacr/_mask_tracing.py).
         'spacr/_mask_tracing.py',
-        # 720 -> 721 on 2026-11-21, +1/-0, item 992: max-projection clustering
+        # 720 -> 721 on 2026-11-20, +1/-0, item 998: PERISCOPE painting
+        # features measured through sequencing-frame masks (spacr/cpg_measure.py).
+        'spacr/cpg_measure.py',
+        # 721 -> 722 on 2026-11-21, +1/-0, item 992: max-projection clustering
         # over feature views (spacr/ops_maxproj.py).
         'spacr/ops_maxproj.py',
-        # 721 -> 722 on 2026-11-21, +1/-0, item 990: the OPS cell-cycle option
+        # 722 -> 723 on 2026-11-21, +1/-0, item 990: the OPS cell-cycle option
         # (spacr/ops_cell_cycle.py).
         'spacr/ops_cell_cycle.py',
     }
@@ -630,9 +633,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 719)
-    # 717 -> 718 on 2026-11-21: spacr/ops_maxproj.py (item 992).
-    # 718 -> 719 on 2026-11-21: spacr/ops_cell_cycle.py (item 990).
+            - len(retired_since_608) == 720)
+    # 717 -> 718 on 2026-11-20: spacr/cpg_measure.py (item 998).
+    # 718 -> 719 on 2026-11-21: spacr/ops_maxproj.py (item 992).
+    # 719 -> 720 on 2026-11-21: spacr/ops_cell_cycle.py (item 990).
     # 711 -> 712 on 2026-11-19: spacr/_mask_batches.py (item 987b).
     # 712 -> 715 on 2026-11-20: spacr/image_store.py, spacr/crop_store.py and
     # spacr/ome_zarr_convert.py (items 983-985).
@@ -1201,11 +1205,11 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # with the workflow in one commit.
     # 719 -> 720 on 2026-11-20: spacr/_mask_tracing.py (TASK W), moved
     # with the workflow in one commit.
-    # 720 -> 722 on 2026-11-21: spacr/ops_maxproj.py (item 992) and
-    # spacr/ops_cell_cycle.py (item 990); the workflow's --expected-file-count
-    # moves to 722 with them at landing.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 722
-    assert "--expected-file-count 722" in combine_script
+    # 720 -> 723 on 2026-11-21 (landing train 8): spacr/cpg_measure.py (item 998),
+    # spacr/ops_maxproj.py (item 992) and spacr/ops_cell_cycle.py (item 990); the
+    # workflow's --expected-file-count moves to 723 with them at landing.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 723
+    assert "--expected-file-count 723" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
