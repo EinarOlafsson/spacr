@@ -45,17 +45,21 @@ class TestTheOptionIsGone:
         assert set(options) == {"annotation", "metadata"}
         assert default == "metadata"
 
-    def test_the_rules_setting_is_gone(self):
+    @pytest.mark.parametrize('key', [
+        pytest.param(
+            'measurement_rules',
+            id='test_the_rules_setting_is_gone',
+        ),
+        pytest.param(
+            'metadata_type_by',
+            id='test_the_metadata_type_by_setting_is_gone',
+        ),
+    ])
+    def test_original_retired_keys_stay_absent_from_both_settings_tables(self, key):
+        """Preserve each original retired key and both native table-membership checks."""
         from spacr.settings import descriptions, tooltips
-
         for table in (descriptions, tooltips):
-            assert "measurement_rules" not in table
-
-    def test_the_metadata_type_by_setting_is_gone(self):
-        from spacr.settings import descriptions, tooltips
-
-        for table in (descriptions, tooltips):
-            assert "metadata_type_by" not in table
+            assert key not in table
 
     def test_the_code_path_is_gone(self):
         import spacr.ml as ml
