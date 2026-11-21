@@ -148,6 +148,7 @@ def project(tmp_path_factory):
         "cell_mask_dim": 4, "nucleus_mask_dim": 5, "pathogen_mask_dim": 6,
         "png_dims": [0, 1, 2], "png_size": [40, 40],
         "save_measurements": True, "save_png": True, "save_arrays": False,
+        "crop_image_format": "png",
         "plot": False, "verbose": False, "timelapse": False,
         "crop_mode": ["cell"], "normalize": [1, 99], "normalize_by": "png",
         "experiment": "exp", "n_jobs": 1, "test_mode": False,

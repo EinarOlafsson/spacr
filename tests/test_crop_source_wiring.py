@@ -103,6 +103,7 @@ def _build_project(root):
         "cell_mask_dim": 4, "nucleus_mask_dim": 5, "pathogen_mask_dim": 6,
         "png_dims": [0, 1, 2], "png_size": [48, 48],
         "save_measurements": True, "save_png": True, "save_arrays": False,
+        "crop_image_format": "png",
         "plot": False, "verbose": False, "timelapse": False,
         "crop_mode": ["cell"], "normalize": [1, 99], "normalize_by": "png",
         "experiment": "exp", "n_jobs": 1, "test_mode": False, "cytoplasm": True,
@@ -249,7 +250,7 @@ def test_crop_source_is_declared_by_the_settings_the_wiring_serves():
                                 set_generate_dataset_defaults)
     for fn in (set_default_umap_image_settings, set_default_train_test_model,
                set_generate_dataset_defaults):
-        assert fn({}).get("crop_source") == "auto", fn.__name__
+        assert fn({}).get("crop_source") == "ome-zarr", fn.__name__
 
 
 # ---------------------------------------------------------------------------
@@ -1246,7 +1247,8 @@ def test_every_source_the_normaliser_can_produce_is_a_word_the_reader_knows():
         f"io.CROP_SOURCE_ALIASES does not translate. resolve_crop_source "
         f"will raise on it and open_crop_source will swallow the error.")
     # And every alias has to name a word resolve_crop_source really takes.
-    assert set(CROP_SOURCE_ALIASES.values()) <= {"png", "merged", "auto"}
+    assert set(CROP_SOURCE_ALIASES.values()) <= {"png", "merged", "auto",
+                                                 "store", "ome-zarr"}
 
 
 def test_a_crop_that_cannot_be_written_into_the_test_split_is_also_survived(

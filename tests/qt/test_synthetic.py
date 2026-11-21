@@ -363,7 +363,6 @@ def test_crop_demo_runs_end_to_end_through_measure_crop(tmp_path: Path):
     # switched on), so the truth has to be read off the stack while the
     # settings still describe the folder on disk.
     arr = np.load(layout.merged_files[0])
-    png_size = list(settings["png_size"])
     truth = {role: int(np.count_nonzero(
                  np.unique(arr[..., settings[f"{role}_mask_dim"]])))
              for role in syn.MASK_ROLE_ORDER}
@@ -388,16 +387,11 @@ def test_crop_demo_runs_end_to_end_through_measure_crop(tmp_path: Path):
     # mask and a size floor, and is cell minus its nucleus/pathogen/organelle.
     assert counts["cytoplasm"] == truth["cell"]
     # save_png=True is the whole difference between the crop and measure demos.
-    assert counts["png_list"] == truth["cell"]
-
-    pngs = sorted(layout.src.rglob("*.png"))
-    assert len(pngs) == truth["cell"], [p.name for p in pngs]
-    for p in pngs:
-        # measure_crop appends f"{crop_mode}_png/" — the leaf
-        # spacr.io.generate_training_dataset's png_type filter selects on.
-        assert p.parent.name == "cell_png", p
-    from PIL import Image
-    assert Image.open(pngs[0]).size == tuple(png_size)
+    # Since settings schema 949 the crops are native OME-Zarr: one row per
+    # cell in ssCell_Crops and per-well stores under crops/, no PNG folders.
+    assert counts["ssCell_Crops"] == truth["cell"]
+    assert list((layout.src / "crops").glob("plate=*/well=*.zarr"))
+    assert not list(layout.src.rglob("*.png"))
 
 
 @pytest.mark.integration
