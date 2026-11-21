@@ -13,7 +13,8 @@ from tests.conftest import check_cellpose_eval_call
 
 import spacr.object as objects
 from spacr.io import _normalize_img_batch, concatenate_and_normalize
-from spacr.settings import set_default_settings_preprocess_generate_masks
+from spacr.settings import (RESOLVED_PARAMETERS_KEY,
+                            set_default_settings_preprocess_generate_masks)
 from spacr.utils import MASK_CHANNEL_ROLE_ORDER
 from tests.test_cov_object_masks_sam import fake_model as fake_model
 
@@ -56,6 +57,9 @@ def test_three_sequential_roles_keep_checkpoint_and_normalized_raw_pixels(
     if stale_positions:
         for role in roles:
             settings['cellpose_' + role + '_channel'] = settings[role + '_channel']
+    # A saved settings file of a fresh run; carrying the normalization records
+    # over would make it a schema-950 replay with no recorded diameters.
+    settings.pop(RESOLVED_PARAMETERS_KEY, None)
     settings = json.loads(json.dumps(settings))
     monkeypatch.setattr(objects.accelerator, 'is_gpu', lambda: False)
     monkeypatch.setattr(objects.accelerator, 'cellpose_kwargs', lambda: {'gpu': False})

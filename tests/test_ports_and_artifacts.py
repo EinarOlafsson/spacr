@@ -1175,6 +1175,9 @@ def test_a_finished_mask_run_registers_its_outputs(tmp_path, monkeypatch):
         "adjust_cells": False, "consolidate": False,
         "batch_size": 10, "save": True, "custom_regex": None,
         "randomize": True, "examples_to_plot": 2, "cell_diameter": 30,
+        # The merge pass is stubbed, so no plane layout exists for the
+        # schema-949 OME-Zarr field export; its own tests cover that path.
+        "mask_image_format": "npy",
     })
 
     assert (root / artifacts.ARTIFACTS_DB_NAME).is_file()

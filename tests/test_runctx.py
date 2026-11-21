@@ -794,6 +794,9 @@ def _mask_settings(roots, **over):
         "consolidate": False, "batch_size": 10,
         "save": True, "custom_regex": None, "randomize": True,
         "examples_to_plot": 2, "strict_errors": False,
+        # The merge pass is stubbed, so no plane layout exists for the
+        # schema-949 OME-Zarr field export; its own tests cover that path.
+        "mask_image_format": "npy",
     }
     values.update(over)
     return values

@@ -390,7 +390,8 @@ def test_make_masks_hands_per_image_diameters_its_site_and_settings(
 
     seen = []
 
-    def per_image(model, images, eval_kwargs, fallback, *, site, settings):
+    def per_image(model, images, eval_kwargs, fallback, *, site, settings, field_ids=None,
+                  object_type=''):
         seen.append((site, settings['mask_workers_per_gpu']))
         masks = [np.zeros(image.shape[:2], np.uint16) for image in images]
         return masks, [np.zeros(mask.shape, np.float32) for mask in masks], [0] * len(masks)

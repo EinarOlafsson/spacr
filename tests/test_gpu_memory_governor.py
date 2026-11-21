@@ -549,7 +549,8 @@ def _calls_in(path, function):
 
 
 @pytest.mark.parametrize("path, function, helper", [
-    ("spacr/object.py", "generate_cellpose_masks", "_governed_eval"),
+    ("spacr/object.py", "generate_cellpose_masks", "_diameter_eval"),
+    ("spacr/object.py", "_diameter_eval", "_mask_eval"),
     ("spacr/spacr_cellpose.py", "identify_masks_finetune", "_governed_eval"),
     ("spacr/spacr_cellpose.py", "generate_masks_from_imgs", "_governed_eval"),
     ("spacr/ops_engine.py", "_ph_segment_field", "_ops_mask_eval"),
