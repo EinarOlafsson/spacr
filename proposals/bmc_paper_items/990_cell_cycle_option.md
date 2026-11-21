@@ -132,8 +132,9 @@ automatic self-checks. An optional labelling job (about 100 cells) on the Home s
 
 ## 5. Self-checks and collapse rule (run automatically, per plate, every run)
 
-The pass criteria were fixed on 2026-11-19. The reference values come from plate A (transfer card 20261119); the
-numbers are recomputed from the base model card at build time.
+The pass criteria were fixed on 2026-11-19. The reference values (S1, S4) come from 990's own plate A run of each
+base model with item 995's per-well DNA fit, stored in the base model card as `card["reference"]` (acceptance A2,
+restated 2026-11-21); the transfer card 20261119 rows are reported for orientation only.
 
 | ID | Check | Stage(s) judged | Pass |
 |---|---|---|---|
@@ -231,7 +232,23 @@ numbers are recomputed from the base model card at build time.
 
 - **A1:** on plate A, a spaCR settings run with `ops_cell_cycle='DNA+MT'`, tabular HGB, gives stages identical to
   the reference script calls (`cellcycle_validation_1119` 4-class model on the same features, same seed).
-- **A2:** the self-checks reproduce the transfer card's reference rows on plate A (identical numbers, same seeds).
+- **A2 (restated 2026-11-21, maintainer decision): 990's own plate A self-checks set the reference values.**
+  - Method: the DNA fit is item 995's per-well field-centred fit (`_dna_phases`), as the 2026-11-20 amendment
+    requires. The transfer card's 75-field `h_phase.fit_dj` midpoint is not reproduced and is not a target.
+  - Run: for each shipped base model (`'DNA+MT'` and `'DNA'`), one spaCR settings run on all 6 wells of plate A
+    (tabular HGB, seed 0, no user labels, default arrest set, 500 permutations).
+  - Stored references: that run's S1 (4N share of prometaphase + metaphase calls) and S4 (field overdispersion φ)
+    are written into the model's card as `card["reference"] = {"S1": …, "S4": …}`, with the run journal and the
+    SHA-256 of its inputs. Section 5 then judges every later plate against them: S1 ≥ max(0.70, reference − 0.15)
+    and φ ≤ 2 × reference.
+  - Pass: (a) the references are written by the run, not by hand; (b) on that run plate A passes its own S1, S2
+    (scored on the card's 75 R1 fields, seed 0, which carry nucleus centroids), S4 and S6; (c) a rerun of the
+    same settings file on the 75 R1 fields gives identical S1, S2, S4, S5 and S6 values (same seeds).
+  - The transfer card's plate A rows (R1: S1 0.924, φ 1.72) are reported next to the 990 values for
+    orientation only, not as a criterion.
+  - Status: the references are set once the held base-model plate A runs finish. Values from the strict 4-class
+    models, for orientation only: S1 0.873 / φ 1.68 (DNA+MT), S1 0.860 / φ 1.77 (DNA)
+    (`reanalysis/item990_acceptance/REPORT.md`, sections 4–5).
 - **A3:** CP186A with `'DNA'`: the self-check table matches the transfer test (card 20261119_cellcycle_transfer_cp186a).
 - **A4:** the model-grid card (20261119_cellcycle_model_grid, SIGNED 2026-11-19) picks the default family.
   - Its terms: fixed settings for every model, no tuning; the 4-class scheme now and the 7-class scheme after the enriched labels; the granularity test skipped.
