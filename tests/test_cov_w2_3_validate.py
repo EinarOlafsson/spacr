@@ -225,24 +225,27 @@ def test_a_number_outside_its_useful_range_is_reported(key, value, severity):
     assert matching[0].severity == severity
 
 
-def test_a_percentile_outside_zero_to_one_hundred_is_an_error():
-    """Percentile lists are percentages, so 0-100 is the whole range."""
-    problems = V._check_numeric_list("normalize", [5, 140])
+@pytest.mark.parametrize('key, values, match', [
+    pytest.param(
+        'normalize', [5, 140], 'outside 0-100',
+        id='test_a_percentile_outside_zero_to_one_hundred_is_an_error',
+    ),
+    pytest.param(
+        'png_size', [[224, 0]], 'non-positive size',
+        id='test_a_png_size_of_zero_pixels_is_an_error',
+    ),
+])
+def test_original_invalid_numeric_lists_keep_their_error_messages(key, values, match):
+    """Preserve each original invalid numeric list and its error-message checks."""
+    problems = V._check_numeric_list(key, values)
     assert problems and problems[0].is_error
-    assert "outside 0-100" in problems[0].message
+    assert match in problems[0].message
 
 
 def test_a_percentile_list_with_an_unreadable_entry_is_left_alone():
     """One unparseable entry means the list is not a percentile pair to judge."""
     assert V._check_numeric_list("normalize", ["low", 99]) == []
     assert V._check_numeric_list("normalize", []) == []
-
-
-def test_a_png_size_of_zero_pixels_is_an_error():
-    """Crops are sized in pixels, so a non-positive edge cannot be honoured."""
-    problems = V._check_numeric_list("png_size", [[224, 0]])
-    assert problems and problems[0].is_error
-    assert "non-positive size" in problems[0].message
 
 
 # ---------------------------------------------------------------------------
