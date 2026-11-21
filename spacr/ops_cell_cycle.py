@@ -206,8 +206,9 @@ def train_cell_cycle_model(cells: pd.DataFrame, labels: Sequence[str], *, input_
                            data_files: Sequence[str] = ()) -> Dict[str, Any]:
     """A base cell-cycle model and its card, from labelled cells (the one call that trains it).
 
-    :param cells: the labelled cells: ``well``, the field column of ``groups`` and the
-        feature columns of the cell tables.
+    :param cells: the labelled cells: ``well``, the field column of ``groups``, the feature
+        columns of the cell tables and, for the plate-held-out score of two or more plates,
+        ``plate``.
     :param labels: one stage of :data:`CLASSES` per cell.
     :param input_mode: ``'DNA'`` or ``'DNA+MT'``.
     :param dna: the DNA channel name in the feature columns.
@@ -220,7 +221,10 @@ def train_cell_cycle_model(cells: pd.DataFrame, labels: Sequence[str], *, input_
     :param permutations: shuffled-label models of the control.
     :param data_files: the training data files, recorded with their SHA-256 in the card.
     :returns: ``{"model", "features", "card", "training"}``; ``training`` keeps the labelled
-        rows (features and labels) that fine-tuning refits on.
+        rows (features and labels) that fine-tuning refits on. The card's ``cv`` holds the
+        field-grouped repeats, per-class F1 with field-bootstrap intervals, the shuffled-label
+        control and, with two or more plates, ``plate_held_out`` (each plate predicted by a
+        model trained on the others).
     :raises ValueError: for an unknown mode or stage, or 'DNA+MT' without ``mt``.
     """
     if input_mode not in ("DNA", "DNA+MT"):
@@ -240,6 +244,11 @@ def train_cell_cycle_model(cells: pd.DataFrame, labels: Sequence[str], *, input_
     predicted = _out_of_fold(tabular, seed, x, y, groups)
     shuffled, _per = _shuffled_f1(tabular, seed, x, y, groups, None, np.ones(len(y), bool),
                                   int(permutations))
+    plates = cells["plate"].astype(str).to_numpy() if "plate" in cells.columns else None
+    held_out = None
+    if plates is not None and len(np.unique(plates)) >= 2:
+        by_plate = _out_of_fold(tabular, seed, x, y, plates, n_splits=len(np.unique(plates)))
+        held_out = {"macro_f1": _macro_f1(y, by_plate), "f1": _per_class_f1(y, by_plate)}
     card = {"format": CHECKPOINT_FORMAT, "family": "tabular", "tabular": tabular,
             "input": input_mode, "classes": list(CLASSES), "parents": PARENTS,
             "features": list(features), "dna": dna, "mt": mt,
@@ -252,6 +261,7 @@ def train_cell_cycle_model(cells: pd.DataFrame, labels: Sequence[str], *, input_
                    "f1_ci95": _bootstrap_f1(y, predicted, groups, seed),
                    "shuffled_macro_f1_p975": (float(np.percentile(shuffled, 97.5))
                                               if len(shuffled) else None),
+                   "plate_held_out": held_out,
                    "permutations": int(permutations)},
             "seed": int(seed), "spacr_version": _version()}
     model = _fit(tabular, seed, x, y)
@@ -358,32 +368,78 @@ def load_cell_cycle_checkpoint(path: str) -> Dict[str, Any]:
 
 
 def fine_tune(base: Mapping[str, Any], cells: pd.DataFrame, labels: Sequence[str], *,
-              seed: int = 0, tabular: Optional[str] = None) -> Dict[str, Any]:
+              seed: int = 0, tabular: Optional[str] = None,
+              pooled: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
     """The base model refitted on its own labels plus the screen's, the screen's weighted ×5.
 
-    :param base: from :func:`load_cell_cycle_checkpoint` (its ``training`` rows are used).
-    :param cells: the screen's labelled cells.
+    :param base: from :func:`load_cell_cycle_checkpoint` (its ``training`` rows are used), or a
+        bundle with ``features``, ``card`` and no ``training`` to fit on the screen's labels
+        alone.
+    :param cells: this plate's labelled cells.
     :param labels: their stages.
     :param seed: the learner seed.
     :param tabular: the learner; the base card's when None.
-    :returns: a bundle for :func:`save_cell_cycle_checkpoint`, its card recording the base.
+    :param pooled: other plates' labelled rows (the model's features, already robust z, and
+        ``stage``) for a fine-tune of the whole screen; None refits on this plate's alone.
+    :returns: a bundle for :func:`save_cell_cycle_checkpoint`, its card recording the base;
+        ``weights`` are the sample weights, the screen rows (other plates first, this plate
+        last) after the base rows.
     """
     tabular = tabular or base["card"].get("tabular", "hgb")
     features = list(base["features"])
-    x_screen = _matrix(cells, features)
-    y_screen = _encode(labels)
+    x_plate = _matrix(cells, features)
+    y_plate = _encode(labels)
     training = base.get("training")
     x_base = training[features].to_numpy() if training is not None else np.empty((0, len(features)))
     y_base = _encode(training["stage"]) if training is not None else np.empty(0, int)
-    x = np.vstack([x_base, x_screen])
-    y = np.concatenate([y_base, y_screen])
-    weight = np.concatenate([np.ones(len(y_base)), np.full(len(y_screen), SCREEN_WEIGHT)])
+    x_pool = (pooled[features].to_numpy() if pooled is not None and len(pooled)
+              else np.empty((0, len(features))))
+    y_pool = (_encode(pooled["stage"]) if pooled is not None and len(pooled)
+              else np.empty(0, int))
+    x = np.vstack([x_base, x_pool, x_plate])
+    y = np.concatenate([y_base, y_pool, y_plate])
+    weight = np.concatenate([np.ones(len(y_base)),
+                             np.full(len(y_pool) + len(y_plate), SCREEN_WEIGHT)])
     model = _fit(tabular, seed, x, y, weight)
-    card = dict(base["card"], fine_tuned=True, screen_labels=int(len(y_screen)),
+    card = dict(base["card"], fine_tuned=True, screen_labels=int(len(y_pool) + len(y_plate)),
                 screen_weight=SCREEN_WEIGHT, seed=int(seed), tabular=tabular)
     rows = pd.DataFrame(x, columns=features)
     rows["stage"] = [CLASSES[i] for i in y]
-    return {"model": model, "features": features, "card": card, "training": rows}
+    return {"model": model, "features": features, "card": card, "training": rows,
+            "weights": weight}
+
+
+def _labelled_rows(cells: pd.DataFrame, labels: pd.Series, features: Sequence[str],
+                   plate: str) -> pd.DataFrame:
+    """One plate's labelled cells as model rows: keys, robust-z features and stage."""
+    rows = pd.DataFrame(_matrix(cells, features), columns=list(features))
+    for key in KEY:
+        rows[key] = cells[key].to_numpy()
+    rows["plate"] = str(plate)
+    rows["stage"] = np.asarray(labels)
+    return rows
+
+
+def _screen_pool(path: str, plate: str, rows: pd.DataFrame, features: Sequence[str]
+                 ) -> pd.DataFrame:
+    """The screen's labelled rows of every other plate, with this plate's replaced in the pool.
+
+    The pool file sits beside the labels file, so every plate of a screen (each its own run)
+    adds to the same one; rows of another feature set are dropped.
+
+    :returns: the other plates' rows, in plate order.
+    """
+    from .tabular import read_table, write_table
+
+    pool = (read_table(path, canonicalise=False, report=None) if os.path.isfile(path)
+            else pd.DataFrame(columns=[*KEY, *features, "stage"]))
+    if set(features) - set(pool.columns):
+        pool = pd.DataFrame(columns=[*KEY, *features, "stage"])
+    pool["plate"] = pool["plate"].astype(str)
+    others = pool[pool["plate"] != str(plate)]
+    write_table(pd.concat([others, rows[[*KEY, *features, "stage"]]], ignore_index=True)
+                .sort_values(KEY, kind="stable"), path, canonicalise=False)
+    return others.sort_values(KEY, kind="stable").reset_index(drop=True)
 
 
 def predict_stages(bundle: Mapping[str, Any], cells: pd.DataFrame) -> pd.DataFrame:
@@ -952,14 +1008,25 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
         labels = read_cell_cycle_labels(options["labels"])
         joined = cells.reset_index().merge(labels, on=KEY, how="inner")
         if len(joined) and options["finetune"] != "none":
-            if base is not None:
-                model = fine_tune(base, joined, joined["stage"], seed=options["seed"],
-                                  tabular=options["tabular"])
-            else:
-                model = train_cell_cycle_model(joined, joined["stage"], input_mode=options["mode"],
-                                               dna=dna, mt=options["mt"],
-                                               tabular=options["tabular"], seed=options["seed"],
-                                               repeats=1, permutations=0)
+            start = base if base is not None else {
+                "features": _features(cells.columns, dna,
+                                      options["mt"] if options["mode"] == "DNA+MT" else None),
+                "training": None,
+                "card": {"format": CHECKPOINT_FORMAT, "family": "tabular",
+                         "tabular": options["tabular"], "input": options["mode"],
+                         "classes": list(CLASSES), "parents": PARENTS, "dna": dna,
+                         "mt": options["mt"], "seed": options["seed"],
+                         "spacr_version": _version(), "trained_on": "screen labels only"}}
+            pooled = None
+            if options["finetune"] == "screen":
+                pooled = _screen_pool(f"{options['labels']}.features.parquet", plate,
+                                      _labelled_rows(joined, joined["stage"],
+                                                     start["features"], plate),
+                                      start["features"])
+                notes.append(f"fine-tuned on the screen's labels: {len(joined)} of this plate "
+                             f"and {len(pooled)} of other plates")
+            model = fine_tune(start, joined, joined["stage"], seed=options["seed"],
+                              tabular=options["tabular"], pooled=pooled)
             labelled = _labelled_scores(model, joined, options)
     stages = predict_stages(model, cells)
     excluded = stages["model_stage"].to_numpy() != "interphase"
@@ -1028,15 +1095,18 @@ def _labelled_scores(model: Mapping[str, Any], joined: pd.DataFrame,
     y = _encode(joined["stage"])
     groups = (joined["well"].astype(str) + "/" + joined["site"].astype(str)).to_numpy()
     training = model.get("training")
+    weights = model.get("weights")
     if training is not None and len(training) > len(y):
         x_base = training[features].to_numpy()[:len(training) - len(y)]
         y_base = _encode(training["stage"])[:len(training) - len(y)]
+        w_base = (np.asarray(weights, float)[:len(training) - len(y)] if weights is not None
+                  else np.ones(len(y_base)))
     else:
-        x_base, y_base = np.empty((0, len(features))), np.empty(0, int)
+        x_base, y_base, w_base = np.empty((0, len(features))), np.empty(0, int), np.empty(0)
     x_all = np.vstack([x_base, x])
     y_all = np.concatenate([y_base, y])
-    g_all = np.concatenate([np.array(["base"] * len(y_base), object), groups])
-    w_all = np.concatenate([np.ones(len(y_base)), np.full(len(y), SCREEN_WEIGHT)])
+    g_all = np.concatenate([np.array(["fixed"] * len(y_base), object), groups])
+    w_all = np.concatenate([w_base, np.full(len(y), SCREEN_WEIGHT)])
     scored = np.concatenate([np.zeros(len(y_base), bool), np.ones(len(y), bool)])
     predicted = _out_of_fold(options["tabular"], options["seed"], x_all, y_all, g_all, w_all,
                              scored)[scored]

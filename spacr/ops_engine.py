@@ -8931,7 +8931,8 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
     ``cell_id`` and, when ``ph_crops`` cut the cell, its crop pointer, the
     crop copied pixel for pixel from the shard into the well's Zarr store;
     ``reads`` and ``barcodes``, the well's rows of ``ops_reads`` and
-    ``ops_barcodes``. The parts are registered in one catalog transaction
+    ``ops_barcodes``; and ``cell_cycle``, its rows of ``ops_cell_cycle`` when
+    the cell-cycle option ran. The parts are registered in one catalog transaction
     with the run's settings.
 
     :param db: the run's measurements database.
@@ -8993,15 +8994,17 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
             counts["cells"] = int(len(frame))
             counts["crops"] = 0 if crop_rows is None else int(len(crop_rows))
             del frame
-        for table, name, order in (("ops_reads", "reads", ("object_id",)),
-                                   ("ops_barcodes", "barcodes",
-                                    ("mapped_guide", "object_id"))):
+        for table, name, order, key in (
+                ("ops_reads", "reads", ("object_id",), ("object_id",)),
+                ("ops_barcodes", "barcodes", ("mapped_guide", "object_id"),
+                 ("object_id",)),
+                ("ops_cell_cycle", "cell_cycle", ("site", "label"),
+                 ("site", "label"))):
             rows = _well_rows(db, table, plate, well)
             if rows is None or rows.empty:
                 continue
             store.write_part(destination, name, rows, plate=plate, well=well,
-                             sort_by=order, key_columns=("object_id",),
-                             run_id=run_id)
+                             sort_by=order, key_columns=key, run_id=run_id)
             counts[name] = int(len(rows))
         report["wells"][well] = counts
     report["registered"] = store.register(destination, run={
