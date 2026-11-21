@@ -1,0 +1,353 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_plugins_contracts.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_plugins_contracts.py::test_categories_must_map_a_tab_name_to_setting_keys": "tests/test_plugins_contracts.py::test_original_invalid_plugin_categories_keep_their_messages[test_categories_must_map_a_tab_name_to_setting_keys]",
+    "tests/test_plugins_contracts.py::test_categories_report_which_tab_held_the_bad_keys": "tests/test_plugins_contracts.py::test_original_invalid_plugin_categories_keep_their_messages[test_categories_report_which_tab_held_the_bad_keys]"
+  },
+  "literal_case_contracts": {
+    "test_categories_must_map_a_tab_name_to_setting_keys": [
+      [
+        "src"
+      ],
+      "categories must be a mapping"
+    ],
+    "test_categories_report_which_tab_held_the_bad_keys": [
+      {
+        "Input": [
+          "src"
+        ],
+        "Detection": "distance_px"
+      },
+      "categories\\['Detection'\\]"
+    ]
+  },
+  "case_contract_representations": {
+    "test_categories_must_map_a_tab_name_to_setting_keys": "(['src'], 'categories must be a mapping')",
+    "test_categories_report_which_tab_held_the_bad_keys": "({'Input': ['src'], 'Detection': 'distance_px'}, \"categories\\\\['Detection'\\\\]\")"
+  },
+  "contract_scope": "Exact original ordered category list or nested mapping,string values,_manifest(categories=...) helper call and native pytest.raises(TypeError,match=original_regex) retained. Every other original manifest/SDK validation,discovery/cache/diagnostic case,helper,fixture,import,decorator and fake class retains AST and relative order. The original fresh GOOD_APP copy and registry restore fixture stay unchanged.",
+  "collected_before": [
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_bare_string[requires]",
+    "tests/test_plugins_contracts.py::test_categories_must_map_a_tab_name_to_setting_keys",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_blank_entry[writes]",
+    "tests/test_plugins_contracts.py::test_a_plugin_needs_a_name_and_a_version[name]",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_bare_string[writes]",
+    "tests/test_plugins_contracts.py::test_plugin_records_document_every_generated_constructor_field[PluginDiagnostic]",
+    "tests/test_plugins_contracts.py::test_the_four_closed_vocabularies_name_the_value_they_rejected[call_style-positional-invalid call_style]",
+    "tests/test_plugins_contracts.py::test_a_broken_entry_point_group_is_reported_rather_than_raised",
+    "tests/test_plugins_contracts.py::test_an_entry_point_may_return_a_ready_made_plugin",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[defaults-not a reference-invalid defaults reference]",
+    "tests/test_plugins_contracts.py::test_a_module_reference_without_a_colon_looks_for_a_plugin_attribute",
+    "tests/test_plugins_contracts.py::test_a_second_plugin_reusing_a_key_loses_without_taking_the_first_down[apps-second0]",
+    "tests/test_plugins_contracts.py::test_plugin_records_document_every_generated_constructor_field[ReportContext]",
+    "tests/test_plugins_contracts.py::test_categories_report_which_tab_held_the_bad_keys",
+    "tests/test_plugins_contracts.py::test_every_documented_member_of_each_vocabulary_is_accepted[section]",
+    "tests/test_plugins_contracts.py::test_an_entry_point_may_return_a_zero_argument_factory",
+    "tests/test_plugins_contracts.py::test_sequence_fields_default_to_empty_and_strip_their_entries[writes]",
+    "tests/test_plugins_contracts.py::test_record_diagnostic_reaches_the_reader_without_raising",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[None]",
+    "tests/test_plugins_contracts.py::test_a_hand_built_plugin_with_non_mapping_translations_is_refused",
+    "tests/test_plugins_contracts.py::test_a_contribution_list_entry_must_be_a_contribution_or_a_mapping[apps]",
+    "tests/test_plugins_contracts.py::test_reload_discards_diagnostics_recorded_against_the_old_registry",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[contact-assay]",
+    "tests/test_plugins_contracts.py::test_the_disable_switch_yields_an_empty_registry[ yes ]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[screen_factory-not a reference-invalid screen_factory reference]",
+    "tests/test_plugins_contracts.py::test_a_matching_major_api_version_is_enough",
+    "tests/test_plugins_contracts.py::test_every_documented_member_of_each_vocabulary_is_accepted[call_style]",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[]",
+    "tests/test_plugins_contracts.py::test_a_report_section_defaults_to_following_the_statistics_section",
+    "tests/test_plugins_contracts.py::test_the_disable_switch_yields_an_empty_registry[1]",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[json:dumps]",
+    "tests/test_plugins_contracts.py::test_one_plugin_may_not_repeat_a_key_within_a_group[report section-report_sections-entries2]",
+    "tests/test_plugins_contracts.py::test_a_report_section_needs_a_key_a_title_and_a_builder[entry2-report section builder must be]",
+    "tests/test_plugins_contracts.py::test_the_disable_switch_yields_an_empty_registry[TRUE]",
+    "tests/test_plugins_contracts.py::test_the_optional_reference_fields_may_be_left_empty[validator]",
+    "tests/test_plugins_contracts.py::test_the_optional_reference_fields_may_be_left_empty[drop_handler]",
+    "tests/test_plugins_contracts.py::test_a_falsey_disable_switch_leaves_plugins_on[]",
+    "tests/test_plugins_contracts.py::test_a_report_section_needs_a_key_a_title_and_a_builder[entry0-report section needs a valid key and title]",
+    "tests/test_plugins_contracts.py::test_load_object_names_the_reference_it_refused",
+    "tests/test_plugins_contracts.py::test_string_maps_refuse_a_non_mapping[labels]",
+    "tests/test_plugins_contracts.py::test_a_plugin_needs_a_name_and_a_version[version]",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[1contact]",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[json:1bad]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[validator-not a reference-invalid validator reference]",
+    "tests/test_plugins_contracts.py::test_load_object_resolves_a_nested_attribute_path",
+    "tests/test_plugins_contracts.py::test_an_entry_point_returning_something_else_is_isolated",
+    "tests/test_plugins_contracts.py::test_installed_entry_points_are_loaded_in_a_deterministic_order",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[name-   -needs a name and description]",
+    "tests/test_plugins_contracts.py::test_a_contribution_list_entry_must_be_a_contribution_or_a_mapping[report-sections]",
+    "tests/test_plugins_contracts.py::test_a_contribution_list_entry_must_be_a_contribution_or_a_mapping[translations]",
+    "tests/test_plugins_contracts.py::test_the_four_closed_vocabularies_name_the_value_they_rejected[kind-widget-unknown kind 'widget']",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_blank_entry[aliases]",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[Contact]",
+    "tests/test_plugins_contracts.py::test_record_diagnostic_keeps_the_severity_it_was_given",
+    "tests/test_plugins_contracts.py::test_a_second_plugin_reusing_a_key_loses_without_taking_the_first_down[model_providers-second1]",
+    "tests/test_plugins_contracts.py::test_the_disable_switch_yields_an_empty_registry[true]",
+    "tests/test_plugins_contracts.py::test_every_documented_member_of_each_vocabulary_is_accepted[kind]",
+    "tests/test_plugins_contracts.py::test_the_disable_switch_yields_an_empty_registry[on]",
+    "tests/test_plugins_contracts.py::test_string_maps_refuse_a_non_mapping[tooltips]",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_blank_entry[requires]",
+    "tests/test_plugins_contracts.py::test_the_four_closed_vocabularies_name_the_value_they_rejected[stage-prerelease-unknown stage 'prerelease']",
+    "tests/test_plugins_contracts.py::test_a_falsey_disable_switch_leaves_plugins_on[  ]",
+    "tests/test_plugins_contracts.py::test_the_optional_reference_fields_may_be_left_empty[screen_factory]",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[json:]",
+    "tests/test_plugins_contracts.py::test_the_same_key_in_two_different_groups_is_fine",
+    "tests/test_plugins_contracts.py::test_one_bad_language_is_named_by_its_code",
+    "tests/test_plugins_contracts.py::test_one_plugin_may_not_repeat_a_key_within_a_group[model provider-model_providers-entries1]",
+    "tests/test_plugins_contracts.py::test_a_model_provider_needs_a_valid_key_and_callable_reference[entry0]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[description-   -needs a name and description]",
+    "tests/test_plugins_contracts.py::test_a_falsey_disable_switch_leaves_plugins_on[off]",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[c]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[entrypoint-not a reference-invalid entrypoint reference]",
+    "tests/test_plugins_contracts.py::test_a_second_plugin_reusing_a_key_loses_without_taking_the_first_down[report_sections-second2]",
+    "tests/test_plugins_contracts.py::test_string_maps_coerce_keys_and_values_to_strings[tooltips]",
+    "tests/test_plugins_contracts.py::test_one_plugin_may_not_repeat_a_key_within_a_group[app-apps-entries0]",
+    "tests/test_plugins_contracts.py::test_a_model_provider_needs_a_valid_key_and_callable_reference[entry1]",
+    "tests/test_plugins_contracts.py::test_string_maps_coerce_keys_and_values_to_strings[labels]",
+    "tests/test_plugins_contracts.py::test_a_report_section_needs_a_key_a_title_and_a_builder[entry1-report section needs a valid key and title]",
+    "tests/test_plugins_contracts.py::test_a_sixty_four_character_key_is_still_accepted",
+    "tests/test_plugins_contracts.py::test_sequence_fields_default_to_empty_and_strip_their_entries[requires]",
+    "tests/test_plugins_contracts.py::test_sequence_fields_default_to_empty_and_strip_their_entries[aliases]",
+    "tests/test_plugins_contracts.py::test_the_four_closed_vocabularies_name_the_value_they_rejected[section-nowhere-unknown section 'nowhere']",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_bare_string[aliases]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[drop_handler-not a reference-invalid drop_handler reference]",
+    "tests/test_plugins_contracts.py::test_a_manifest_must_be_a_mapping",
+    "tests/test_plugins_contracts.py::test_an_already_built_contribution_is_validated_too",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[json.dumps]",
+    "tests/test_plugins_contracts.py::test_a_falsey_disable_switch_leaves_plugins_on[0]",
+    "tests/test_plugins_contracts.py::test_every_documented_member_of_each_vocabulary_is_accepted[stage]",
+    "tests/test_plugins_contracts.py::test_plugin_records_document_every_generated_constructor_field[SpacrPlugin]",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[:dumps]",
+    "tests/test_plugins_contracts.py::test_a_contribution_list_entry_must_be_a_contribution_or_a_mapping[model-providers]",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[xxxxxxxxxxxxxxxxxxxxxxxx...[65:78c741ddc4]]"
+  ],
+  "collected_after": [
+    "tests/test_plugins_contracts.py::test_load_object_names_the_reference_it_refused",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[json:]",
+    "tests/test_plugins_contracts.py::test_a_model_provider_needs_a_valid_key_and_callable_reference[entry1]",
+    "tests/test_plugins_contracts.py::test_one_plugin_may_not_repeat_a_key_within_a_group[app-apps-entries0]",
+    "tests/test_plugins_contracts.py::test_a_falsey_disable_switch_leaves_plugins_on[]",
+    "tests/test_plugins_contracts.py::test_the_four_closed_vocabularies_name_the_value_they_rejected[kind-widget-unknown kind 'widget']",
+    "tests/test_plugins_contracts.py::test_a_contribution_list_entry_must_be_a_contribution_or_a_mapping[model-providers]",
+    "tests/test_plugins_contracts.py::test_a_falsey_disable_switch_leaves_plugins_on[  ]",
+    "tests/test_plugins_contracts.py::test_every_documented_member_of_each_vocabulary_is_accepted[stage]",
+    "tests/test_plugins_contracts.py::test_a_plugin_needs_a_name_and_a_version[version]",
+    "tests/test_plugins_contracts.py::test_an_entry_point_may_return_a_zero_argument_factory",
+    "tests/test_plugins_contracts.py::test_a_report_section_needs_a_key_a_title_and_a_builder[entry2-report section builder must be]",
+    "tests/test_plugins_contracts.py::test_a_model_provider_needs_a_valid_key_and_callable_reference[entry0]",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_bare_string[requires]",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[json:1bad]",
+    "tests/test_plugins_contracts.py::test_plugin_records_document_every_generated_constructor_field[PluginDiagnostic]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[defaults-not a reference-invalid defaults reference]",
+    "tests/test_plugins_contracts.py::test_the_four_closed_vocabularies_name_the_value_they_rejected[section-nowhere-unknown section 'nowhere']",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[]",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_blank_entry[aliases]",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[xxxxxxxxxxxxxxxxxxxxxxxx...[65:78c741ddc4]]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[screen_factory-not a reference-invalid screen_factory reference]",
+    "tests/test_plugins_contracts.py::test_original_invalid_plugin_categories_keep_their_messages[test_categories_report_which_tab_held_the_bad_keys]",
+    "tests/test_plugins_contracts.py::test_a_report_section_needs_a_key_a_title_and_a_builder[entry0-report section needs a valid key and title]",
+    "tests/test_plugins_contracts.py::test_string_maps_coerce_keys_and_values_to_strings[tooltips]",
+    "tests/test_plugins_contracts.py::test_sequence_fields_default_to_empty_and_strip_their_entries[requires]",
+    "tests/test_plugins_contracts.py::test_sequence_fields_default_to_empty_and_strip_their_entries[aliases]",
+    "tests/test_plugins_contracts.py::test_a_manifest_must_be_a_mapping",
+    "tests/test_plugins_contracts.py::test_one_plugin_may_not_repeat_a_key_within_a_group[report section-report_sections-entries2]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[name-   -needs a name and description]",
+    "tests/test_plugins_contracts.py::test_sequence_fields_default_to_empty_and_strip_their_entries[writes]",
+    "tests/test_plugins_contracts.py::test_an_entry_point_returning_something_else_is_isolated",
+    "tests/test_plugins_contracts.py::test_the_optional_reference_fields_may_be_left_empty[screen_factory]",
+    "tests/test_plugins_contracts.py::test_plugin_records_document_every_generated_constructor_field[SpacrPlugin]",
+    "tests/test_plugins_contracts.py::test_a_broken_entry_point_group_is_reported_rather_than_raised",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_bare_string[aliases]",
+    "tests/test_plugins_contracts.py::test_every_documented_member_of_each_vocabulary_is_accepted[kind]",
+    "tests/test_plugins_contracts.py::test_a_second_plugin_reusing_a_key_loses_without_taking_the_first_down[apps-second0]",
+    "tests/test_plugins_contracts.py::test_the_disable_switch_yields_an_empty_registry[TRUE]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[validator-not a reference-invalid validator reference]",
+    "tests/test_plugins_contracts.py::test_record_diagnostic_reaches_the_reader_without_raising",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_bare_string[writes]",
+    "tests/test_plugins_contracts.py::test_a_contribution_list_entry_must_be_a_contribution_or_a_mapping[report-sections]",
+    "tests/test_plugins_contracts.py::test_installed_entry_points_are_loaded_in_a_deterministic_order",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[json:dumps]",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_blank_entry[writes]",
+    "tests/test_plugins_contracts.py::test_the_disable_switch_yields_an_empty_registry[1]",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[c]",
+    "tests/test_plugins_contracts.py::test_a_falsey_disable_switch_leaves_plugins_on[0]",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[None]",
+    "tests/test_plugins_contracts.py::test_a_report_section_needs_a_key_a_title_and_a_builder[entry1-report section needs a valid key and title]",
+    "tests/test_plugins_contracts.py::test_a_plugin_needs_a_name_and_a_version[name]",
+    "tests/test_plugins_contracts.py::test_the_optional_reference_fields_may_be_left_empty[drop_handler]",
+    "tests/test_plugins_contracts.py::test_a_second_plugin_reusing_a_key_loses_without_taking_the_first_down[report_sections-second2]",
+    "tests/test_plugins_contracts.py::test_one_plugin_may_not_repeat_a_key_within_a_group[model provider-model_providers-entries1]",
+    "tests/test_plugins_contracts.py::test_one_bad_language_is_named_by_its_code",
+    "tests/test_plugins_contracts.py::test_string_maps_coerce_keys_and_values_to_strings[labels]",
+    "tests/test_plugins_contracts.py::test_the_optional_reference_fields_may_be_left_empty[validator]",
+    "tests/test_plugins_contracts.py::test_the_four_closed_vocabularies_name_the_value_they_rejected[stage-prerelease-unknown stage 'prerelease']",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[drop_handler-not a reference-invalid drop_handler reference]",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[Contact]",
+    "tests/test_plugins_contracts.py::test_the_disable_switch_yields_an_empty_registry[true]",
+    "tests/test_plugins_contracts.py::test_a_contribution_list_entry_must_be_a_contribution_or_a_mapping[translations]",
+    "tests/test_plugins_contracts.py::test_a_report_section_defaults_to_following_the_statistics_section",
+    "tests/test_plugins_contracts.py::test_an_entry_point_may_return_a_ready_made_plugin",
+    "tests/test_plugins_contracts.py::test_record_diagnostic_keeps_the_severity_it_was_given",
+    "tests/test_plugins_contracts.py::test_original_invalid_plugin_categories_keep_their_messages[test_categories_must_map_a_tab_name_to_setting_keys]",
+    "tests/test_plugins_contracts.py::test_sequence_fields_refuse_a_blank_entry[requires]",
+    "tests/test_plugins_contracts.py::test_a_sixty_four_character_key_is_still_accepted",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[contact-assay]",
+    "tests/test_plugins_contracts.py::test_every_documented_member_of_each_vocabulary_is_accepted[call_style]",
+    "tests/test_plugins_contracts.py::test_reload_discards_diagnostics_recorded_against_the_old_registry",
+    "tests/test_plugins_contracts.py::test_the_same_key_in_two_different_groups_is_fine",
+    "tests/test_plugins_contracts.py::test_the_disable_switch_yields_an_empty_registry[on]",
+    "tests/test_plugins_contracts.py::test_app_keys_are_lowercase_identifiers_of_two_to_sixty_four_characters[1contact]",
+    "tests/test_plugins_contracts.py::test_a_hand_built_plugin_with_non_mapping_translations_is_refused",
+    "tests/test_plugins_contracts.py::test_string_maps_refuse_a_non_mapping[tooltips]",
+    "tests/test_plugins_contracts.py::test_every_documented_member_of_each_vocabulary_is_accepted[section]",
+    "tests/test_plugins_contracts.py::test_a_falsey_disable_switch_leaves_plugins_on[off]",
+    "tests/test_plugins_contracts.py::test_a_module_reference_without_a_colon_looks_for_a_plugin_attribute",
+    "tests/test_plugins_contracts.py::test_the_four_closed_vocabularies_name_the_value_they_rejected[call_style-positional-invalid call_style]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[description-   -needs a name and description]",
+    "tests/test_plugins_contracts.py::test_an_app_field_that_cannot_be_used_is_refused_and_names_itself[entrypoint-not a reference-invalid entrypoint reference]",
+    "tests/test_plugins_contracts.py::test_a_matching_major_api_version_is_enough",
+    "tests/test_plugins_contracts.py::test_an_already_built_contribution_is_validated_too",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[:dumps]",
+    "tests/test_plugins_contracts.py::test_string_maps_refuse_a_non_mapping[labels]",
+    "tests/test_plugins_contracts.py::test_load_object_resolves_a_nested_attribute_path",
+    "tests/test_plugins_contracts.py::test_a_contribution_list_entry_must_be_a_contribution_or_a_mapping[apps]",
+    "tests/test_plugins_contracts.py::test_the_disable_switch_yields_an_empty_registry[ yes ]",
+    "tests/test_plugins_contracts.py::test_a_second_plugin_reusing_a_key_loses_without_taking_the_first_down[model_providers-second1]",
+    "tests/test_plugins_contracts.py::test_load_object_refuses_anything_that_is_not_module_colon_attribute[json.dumps]",
+    "tests/test_plugins_contracts.py::test_plugin_records_document_every_generated_constructor_field[ReportContext]"
+  ],
+  "tests_before": {
+    "passed": 93,
+    "seconds": 5.9
+  },
+  "tests_after": {
+    "passed": 93,
+    "seconds": 5.76
+  },
+  "coverage_scope": "spacr.plugins under the complete selected SDK contract/discovery/diagnostic module; not full-suite coverage. Original literal manifests,dataclass metadata,stdlib JSON load_object examples,fake modules/factories/entry points and registry reset contexts only. Model-provider/report-builder/application/default references are validated strings; no model weights,analysis workflow,model fitting/training,image loading,scientific chart construction/rendering,new reader,network or GPU execution. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 333,
+    "num_statements": 540,
+    "percent_covered": 58.42391304347826,
+    "percent_covered_display": "58",
+    "missing_lines": 207,
+    "excluded_lines": 0,
+    "percent_statements_covered": 61.666666666666664,
+    "percent_statements_covered_display": "62",
+    "num_branches": 196,
+    "num_partial_branches": 7,
+    "covered_branches": 97,
+    "missing_branches": 99,
+    "percent_branches_covered": 49.48979591836735,
+    "percent_branches_covered_display": "49"
+  },
+  "coverage_after": {
+    "covered_lines": 333,
+    "num_statements": 540,
+    "percent_covered": 58.42391304347826,
+    "percent_covered_display": "58",
+    "missing_lines": 207,
+    "excluded_lines": 0,
+    "percent_statements_covered": 61.666666666666664,
+    "percent_statements_covered_display": "62",
+    "num_branches": 196,
+    "num_partial_branches": 7,
+    "covered_branches": 97,
+    "missing_branches": 99,
+    "percent_branches_covered": 49.48979591836735,
+    "percent_branches_covered_display": "49"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "714ee226b81e90bcf1515a5f5a45e169ee001656dd39ec386f5228037a5e601c",
+  "production_source_sha256": "271d6006d85d42879dc85da66626c463426f1f91d11bb8ebb6b52bf5f7e615c4",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "invalid-category-map-message-loses-context",
+      "source_variant": {
+        "path": "spacr/plugins.py",
+        "line": 336,
+        "old": "raise TypeError(\"categories must be a mapping of tab names to setting keys\")",
+        "new": "raise TypeError(\"wrong category\")"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_plugins_contracts.py::test_categories_must_map_a_tab_name_to_setting_keys"
+        ],
+        "failure_summary_lines": [
+          "tests/test_plugins_contracts.py::test_categories_must_map_a_tab_name_to_setting_keys"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_plugins_contracts.py::test_original_invalid_plugin_categories_keep_their_messages[test_categories_must_map_a_tab_name_to_setting_keys]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_plugins_contracts.py::test_original_invalid_plugin_categories_keep_their_messages[test_categories_must_map_a_tab_name_to_setting_keys]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "invalid-category-tab-message-loses-context",
+      "source_variant": {
+        "path": "spacr/plugins.py",
+        "line": 307,
+        "old": "raise TypeError(f\"{field_name} must be a sequence of strings\")",
+        "new": "raise TypeError(\"wrong category\")"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_plugins_contracts.py::test_categories_report_which_tab_held_the_bad_keys"
+        ],
+        "failure_summary_lines": [
+          "tests/test_plugins_contracts.py::test_categories_report_which_tab_held_the_bad_keys"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_plugins_contracts.py::test_original_invalid_plugin_categories_keep_their_messages[test_categories_report_which_tab_held_the_bad_keys]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_plugins_contracts.py::test_original_invalid_plugin_categories_keep_their_messages[test_categories_report_which_tab_held_the_bad_keys]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader message faults before and after: replace the invalid-category-map TypeError text; replace the invalid-tab-sequence TypeError text. Each fault selects the same one original/mapped case,retains TypeError and must fail with the native pytest.raises regex-mismatch assertion. This measures original message sensitivity only; it does not claim bypass detection. Exact category values/helper path/regex and exception type retained. Repository production/settings/category files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_plugins_contracts.py",
+      "line": 165,
+      "symbol": "test_original_invalid_plugin_categories_keep_their_messages",
+      "new": "Preserve each original invalid plugin category shape and its message.",
+      "old": {
+        "test_categories_must_map_a_tab_name_to_setting_keys": null,
+        "test_categories_report_which_tab_held_the_bad_keys": "A manifest with ten tabs must say which one is wrong."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
