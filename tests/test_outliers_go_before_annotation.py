@@ -62,12 +62,19 @@ class TestOffByDefault:
     objects is a filter that will be forgotten and then blamed on the
     annotation"."""
 
-    def test_no_settings_removes_nothing(self, cells):
-        out, report = apply(cells, {})
-        assert len(out) == len(cells) and report == []
-
-    def test_none_is_off(self, cells):
-        out, report = apply(cells, {"cell_area_outlier_mads": None})
+    @pytest.mark.parametrize('settings', [
+        pytest.param(
+            {},
+            id='test_no_settings_removes_nothing',
+        ),
+        pytest.param(
+            {'cell_area_outlier_mads': None},
+            id='test_none_is_off',
+        ),
+    ])
+    def test_original_off_settings_keep_their_row_count_and_empty_report(self, cells, settings):
+        """Preserve the original row count and empty report for each off setting."""
+        out, report = apply(cells, settings)
         assert len(out) == len(cells) and report == []
 
     def test_the_spacr_default_is_none(self):
