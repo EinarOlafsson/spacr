@@ -471,15 +471,31 @@ def _finish_crop(pixels: np.ndarray, mask: np.ndarray, context: bool,
     return pixels, mask
 
 
+def _crop_ranges(starts: Sequence[int], sizes: Sequence[int], chunk_size: int
+                 ) -> List[Tuple[int, int, List[int]]]:
+    """Group requests sharing or touching inner chunks, without spanning unused chunks."""
+    ranges: List[Tuple[int, int, List[int]]] = []
+    for index in sorted(range(len(starts)), key=starts.__getitem__):
+        start, stop = starts[index], starts[index] + sizes[index]
+        if ranges and start // chunk_size <= (ranges[-1][1] - 1) // chunk_size + 1:
+            lo, hi, members = ranges[-1]
+            members.append(index)
+            ranges[-1] = (lo, max(hi, stop), members)
+        else:
+            ranges.append((start, stop, [index]))
+    return ranges
+
+
 def read_crops(project: Any, rows: Iterable[Mapping[str, Any]], *, context: bool = True,
                size: Optional[Tuple[int, int]] = None
                ) -> List[Tuple[np.ndarray, np.ndarray]]:
-    """Many crops at once, each pool opened once and read in one slice.
+    """Many crops at once, each pool opened once and requested chunk ranges read together.
 
     The same crops as :func:`read_crop` row by row, in the order given.
     Reading crop by crop opens the pool and decodes its chunk again for every
-    crop; here the rows of one pool are read together, as one slice from the
-    first to the last of them.
+    crop; here ranges sharing or touching chunks are read together, while
+    unrequested chunks between groups are left unread. Contiguous selections
+    use one slice. Pixel and mask ranges use their own offsets and chunk sizes.
 
     :param project: the project folder.
     :param rows: ``ssCell_Crops`` rows.
@@ -500,16 +516,24 @@ def read_crops(project: Any, rows: Iterable[Mapping[str, Any]], *, context: bool
         sizes = [int(rows[i]["height"]) * int(rows[i]["width"]) for i in indices]
         starts = [int(rows[i]["offset"]) for i in indices]
         mstarts = [int(rows[i]["mask_offset"]) for i in indices]
-        lo, hi = min(starts), max(a + n for a, n in zip(starts, sizes))
-        mlo, mhi = min(mstarts), max(a + n for a, n in zip(mstarts, sizes))
-        pool = np.asarray(zarr.open_array(str(base / array), mode="r")[:, lo:hi])
-        masks = np.asarray(zarr.open_array(
-            str(base / array.replace("/pool/", "/mask/")), mode="r")[mlo:mhi])
-        for i, start, mstart, n in zip(indices, starts, mstarts, sizes):
-            height, width = int(rows[i]["height"]), int(rows[i]["width"])
-            pixels = pool[:, start - lo:start - lo + n].reshape(pool.shape[0], height, width)
-            mask = masks[mstart - mlo:mstart - mlo + n].reshape(height, width).astype(bool)
-            out[i] = _finish_crop(pixels, mask, context, size)
+        pool = zarr.open_array(str(base / array), mode="r")
+        pixels: List[Any] = [None] * len(indices)
+        for lo, hi, members in _crop_ranges(starts, sizes, pool.chunks[-1]):
+            block = np.asarray(pool[:, lo:hi])
+            for member in members:
+                i = indices[member]
+                height, width = int(rows[i]["height"]), int(rows[i]["width"])
+                start, n = starts[member] - lo, sizes[member]
+                pixels[member] = block[:, start:start + n].reshape(pool.shape[0], height, width)
+        masks = zarr.open_array(str(base / array.replace("/pool/", "/mask/")), mode="r")
+        for lo, hi, members in _crop_ranges(mstarts, sizes, masks.chunks[-1]):
+            block = np.asarray(masks[lo:hi])
+            for member in members:
+                i = indices[member]
+                height, width = int(rows[i]["height"]), int(rows[i]["width"])
+                start, n = mstarts[member] - lo, sizes[member]
+                mask = block[start:start + n].reshape(height, width).astype(bool)
+                out[i] = _finish_crop(pixels[member], mask, context, size)
     return out
 
 

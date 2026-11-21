@@ -1,4 +1,4 @@
-"""Item 983: OME-NGFF 0.5 (zarr-format 3, sharded) written by spacr.ome_zarr."""
+"""Item 983: OME-NGFF 0.5 (zarr-format 3, sharded by default) written by spacr.ome_zarr."""
 from __future__ import annotations
 
 import json
@@ -78,3 +78,56 @@ def test_the_default_still_writes_04_and_shards_need_05(tmp_path):
     with pytest.raises(OmeZarrError, match="0.4 .* or 0.5"):
         write_ome_zarr(tmp_path / "z.zarr", _field(shape=(1, 8, 8)),
                        axes=["c", "y", "x"], ngff_version="0.6")
+
+
+@pytest.mark.parametrize("shards", [None, (1, 8, 10), False],
+                         ids=["whole-level-default", "explicit-shards", "unsharded"])
+def test_shard_layout_preserves_lz4_pixels_and_pyramid_metadata(tmp_path, shards):
+    """Only shard grouping changes: odd edges, codecs and public region reads remain exact."""
+    data = np.arange(2 * 13 * 17, dtype=np.uint16).reshape(2, 13, 17)
+    path = tmp_path / "layout.zarr"
+    image = write_ome_zarr(
+        path, data, axes=("c", "y", "x"), channel_names=("DAPI", "GFP"),
+        ngff_version="0.5", chunks=(1, 4, 5), shards=shards,
+        compressor="lz4", compression_level=5, levels=2, downsample="stride")
+    group = json.loads((path / "zarr.json").read_text())
+    assert group["zarr_format"] == 3
+    ome = group["attributes"]["ome"]
+    assert ome["version"] == "0.5"
+    assert [axis["name"] for axis in ome["multiscales"][0]["axes"]] == ["c", "y", "x"]
+    assert [channel["label"] for channel in ome["omero"]["channels"]] == ["DAPI", "GFP"]
+    assert [row["path"] for row in ome["multiscales"][0]["datasets"]] == ["0", "1"]
+    for level, expected in enumerate((data, data[:, ::2, ::2])):
+        metadata = json.loads((path / str(level) / "zarr.json").read_text())
+        assert metadata["shape"] == list(expected.shape)
+        if shards is False:
+            assert metadata["chunk_grid"]["configuration"]["chunk_shape"] == [1, 4, 5]
+            codecs = metadata["codecs"]
+        else:
+            wanted = ([1, 8, 10] if shards is not None else
+                      [int(np.ceil(size / chunk)) * chunk
+                       for size, chunk in zip(expected.shape, (1, 4, 5))])
+            assert metadata["chunk_grid"]["configuration"]["chunk_shape"] == wanted
+            assert [codec["name"] for codec in metadata["codecs"]] == ["sharding_indexed"]
+            shard = metadata["codecs"][0]["configuration"]
+            assert shard["chunk_shape"] == [1, 4, 5]
+            codecs = shard["codecs"]
+        assert [codec["name"] for codec in codecs] == ["bytes", "blosc"]
+        settings = codecs[1]["configuration"]
+        assert (settings["cname"], settings["clevel"], settings["shuffle"]) == ("lz4", 5, "shuffle")
+        restored = image.read(level)
+        assert restored.dtype == expected.dtype
+        np.testing.assert_array_equal(restored, expected)
+        region = {"c": (1, 2), "y": (1, expected.shape[1] - 1), "x": (2, expected.shape[2] - 1)}
+        partial = read_ome_zarr(path).read(level, region=region)
+        assert partial.dtype == expected.dtype
+        np.testing.assert_array_equal(partial, expected[1:2, 1:-1, 2:-1])
+
+
+def test_shards_false_is_rejected_for_04_before_creating_store(tmp_path):
+    """The unsharded opt-out belongs only to 0.5 and cannot silently change 0.4 writes."""
+    path = tmp_path / "unsupported.zarr"
+    with pytest.raises(OmeZarrError, match="needs ngff_version='0.5'"):
+        write_ome_zarr(path, np.ones((8, 8), dtype=np.uint16),
+                       axes=("y", "x"), ngff_version="0.4", shards=False)
+    assert not path.exists()
