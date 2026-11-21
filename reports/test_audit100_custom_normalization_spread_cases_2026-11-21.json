@@ -1,0 +1,247 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_normalization.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_normalization.py::test_a_zero_spread_is_replaced_rather_than_divided_by": "tests/test_normalization.py::test_original_custom_spreads_keep_their_native_tuple_results[test_a_zero_spread_is_replaced_rather_than_divided_by]",
+    "tests/test_normalization.py::test_a_negative_spread_is_read_as_its_size": "tests/test_normalization.py::test_original_custom_spreads_keep_their_native_tuple_results[test_a_negative_spread_is_read_as_its_size]"
+  },
+  "native_literal_contracts": {
+    "test_a_zero_spread_is_replaced_rather_than_divided_by": {
+      "python_types": [
+        "dict",
+        "tuple"
+      ],
+      "literal_repr": "({'mean': [0.1, 0.2], 'std': [0.5, 0.0]}, (0.5, 1.0))"
+    },
+    "test_a_negative_spread_is_read_as_its_size": {
+      "python_types": [
+        "dict",
+        "tuple"
+      ],
+      "literal_repr": "({'mean': [0.1], 'std': [-0.25], 'channels': 1}, (0.25,))"
+    }
+  },
+  "case_contract_representations": {
+    "test_a_zero_spread_is_replaced_rather_than_divided_by": "({'mean': [0.1, 0.2], 'std': [0.5, 0.0]}, (0.5, 1.0))",
+    "test_a_negative_spread_is_read_as_its_size": "({'mean': [0.1], 'std': [-0.25], 'channels': 1}, (0.25,))"
+  },
+  "contract_scope": "Exact original custom mode,ordered mean/std float lists,optional channels keyword presence/order,normalization_stats call,two-target _mean/std unpacking and native equality to the original float tuple retained. Literal kwargs unpack to exactly the original keywords with no new default. Every other original dtype/preset/broadcast/dataset-statistics/settings-tooltip/source-AST case,helper,fixture,import and pre-existing parametrisation retains AST and relative order. Disjoint from audit35 description cases in this module. Typed literal repr/roundtrip report and upfront typed worker payload/repr evidence preserve native tuples; actual test inputs/results are never JSON-decoded. No assertion on the unused mean is added.",
+  "collected_before": [
+    "tests/test_normalization.py::test_every_offered_dtype_works[original]",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[symmetric]",
+    "tests/test_normalization.py::test_a_dtype_already_correct_is_returned_untouched",
+    "tests/test_normalization.py::test_one_value_is_broadcast_to_every_channel",
+    "tests/test_normalization.py::test_original_is_the_default_and_changes_nothing",
+    "tests/test_normalization.py::test_the_two_are_genuinely_different_and_that_is_the_point",
+    "tests/test_normalization.py::test_widening_is_a_cast_and_not_a_stretch",
+    "tests/test_normalization.py::test_the_description_names_imagenet_so_a_model_card_records_it",
+    "tests/test_normalization.py::test_narrowing_goes_through_the_one_rule",
+    "tests/test_normalization.py::test_none_applies_nothing",
+    "tests/test_normalization.py::test_dataset_statistics_recover_a_known_distribution",
+    "tests/test_normalization.py::test_it_accepts_the_tuple_a_dataloader_yields",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[clip]",
+    "tests/test_normalization.py::test_a_constant_channel_gets_a_spread_of_one",
+    "tests/test_normalization.py::test_every_offered_dtype_works[uint16]",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[imagenet]",
+    "tests/test_normalization.py::test_every_offered_dtype_works[uint8]",
+    "tests/test_normalization.py::test_symmetric_is_named_as_the_convention_it_is",
+    "tests/test_normalization.py::test_custom_without_numbers_is_refused_rather_than_falling_back",
+    "tests/test_normalization.py::test_symmetric_is_what_spacr_has_always_done",
+    "tests/test_normalization.py::test_max_batches_stops_early",
+    "tests/test_normalization.py::test_it_is_per_channel_and_not_one_number",
+    "tests/test_normalization.py::test_custom_takes_the_numbers_the_user_supplies",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[dataset]",
+    "tests/test_normalization.py::test_it_streams_rather_than_holding_the_dataset",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[none]",
+    "tests/test_normalization.py::test_an_unknown_dtype_keeps_the_original_rather_than_guessing",
+    "tests/test_normalization.py::test_the_tooltip_says_the_dtype_is_not_a_precision_choice",
+    "tests/test_normalization.py::test_a_zero_spread_is_replaced_rather_than_divided_by",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[custom]",
+    "tests/test_normalization.py::test_both_settings_are_registered_with_a_type_and_a_tooltip",
+    "tests/test_normalization.py::test_a_loader_that_yields_nothing_is_an_error_not_a_zero",
+    "tests/test_normalization.py::test_a_float_crop_widens_through_the_same_rule",
+    "tests/test_normalization.py::test_clip_is_offered_and_is_not_imagenet",
+    "tests/test_normalization.py::test_imagenet_is_what_a_pretrained_model_was_fitted_on",
+    "tests/test_normalization.py::test_no_loader_hard_codes_the_symmetric_statistics",
+    "tests/test_normalization.py::test_an_unknown_mode_falls_back_to_what_spacr_did_before",
+    "tests/test_normalization.py::test_normalize_input_is_still_the_on_off_it_always_was",
+    "tests/test_normalization.py::test_the_defaults_reproduce_todays_behaviour_exactly",
+    "tests/test_normalization.py::test_a_negative_spread_is_read_as_its_size"
+  ],
+  "collected_after": [
+    "tests/test_normalization.py::test_the_defaults_reproduce_todays_behaviour_exactly",
+    "tests/test_normalization.py::test_original_is_the_default_and_changes_nothing",
+    "tests/test_normalization.py::test_every_offered_dtype_works[uint8]",
+    "tests/test_normalization.py::test_a_float_crop_widens_through_the_same_rule",
+    "tests/test_normalization.py::test_max_batches_stops_early",
+    "tests/test_normalization.py::test_custom_takes_the_numbers_the_user_supplies",
+    "tests/test_normalization.py::test_it_streams_rather_than_holding_the_dataset",
+    "tests/test_normalization.py::test_the_tooltip_says_the_dtype_is_not_a_precision_choice",
+    "tests/test_normalization.py::test_no_loader_hard_codes_the_symmetric_statistics",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[dataset]",
+    "tests/test_normalization.py::test_narrowing_goes_through_the_one_rule",
+    "tests/test_normalization.py::test_an_unknown_mode_falls_back_to_what_spacr_did_before",
+    "tests/test_normalization.py::test_every_offered_dtype_works[original]",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[none]",
+    "tests/test_normalization.py::test_a_loader_that_yields_nothing_is_an_error_not_a_zero",
+    "tests/test_normalization.py::test_the_description_names_imagenet_so_a_model_card_records_it",
+    "tests/test_normalization.py::test_a_constant_channel_gets_a_spread_of_one",
+    "tests/test_normalization.py::test_the_two_are_genuinely_different_and_that_is_the_point",
+    "tests/test_normalization.py::test_dataset_statistics_recover_a_known_distribution",
+    "tests/test_normalization.py::test_none_applies_nothing",
+    "tests/test_normalization.py::test_both_settings_are_registered_with_a_type_and_a_tooltip",
+    "tests/test_normalization.py::test_symmetric_is_named_as_the_convention_it_is",
+    "tests/test_normalization.py::test_a_dtype_already_correct_is_returned_untouched",
+    "tests/test_normalization.py::test_it_is_per_channel_and_not_one_number",
+    "tests/test_normalization.py::test_clip_is_offered_and_is_not_imagenet",
+    "tests/test_normalization.py::test_symmetric_is_what_spacr_has_always_done",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[clip]",
+    "tests/test_normalization.py::test_one_value_is_broadcast_to_every_channel",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[custom]",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[symmetric]",
+    "tests/test_normalization.py::test_original_custom_spreads_keep_their_native_tuple_results[test_a_zero_spread_is_replaced_rather_than_divided_by]",
+    "tests/test_normalization.py::test_original_custom_spreads_keep_their_native_tuple_results[test_a_negative_spread_is_read_as_its_size]",
+    "tests/test_normalization.py::test_every_offered_dtype_works[uint16]",
+    "tests/test_normalization.py::test_every_offered_mode_describes_itself[imagenet]",
+    "tests/test_normalization.py::test_imagenet_is_what_a_pretrained_model_was_fitted_on",
+    "tests/test_normalization.py::test_an_unknown_dtype_keeps_the_original_rather_than_guessing",
+    "tests/test_normalization.py::test_normalize_input_is_still_the_on_off_it_always_was",
+    "tests/test_normalization.py::test_widening_is_a_cast_and_not_a_stretch",
+    "tests/test_normalization.py::test_it_accepts_the_tuple_a_dataloader_yields",
+    "tests/test_normalization.py::test_custom_without_numbers_is_refused_rather_than_falling_back"
+  ],
+  "tests_before": {
+    "passed": 40,
+    "seconds": 41.1
+  },
+  "tests_after": {
+    "passed": 40,
+    "seconds": 40.92
+  },
+  "coverage_scope": "spacr.normalization under the complete selected normalization test module; not classifier training or full-suite coverage. Complete test module and normalization helper reviewed and byte-identical to reviewed audit99 baseline. Existing small NumPy dtype conversions,seeded synthetic batches (largest six 16x3x32x32 arrays),streaming sum/sum-of-squares arithmetic,literal statistics,settings metadata and read-only package AST checks only. No source image file is read,no actual dataloader/model/analysis workflow/fitting/training/scientific chart/new reader/GPU execution. Upfront private SPACR_MODEL_DOWNLOAD=0 in all phases prevents background model-catalogue discovery from existing settings imports. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 101,
+    "num_statements": 104,
+    "percent_covered": 96.0,
+    "percent_covered_display": "96",
+    "missing_lines": 3,
+    "excluded_lines": 0,
+    "percent_statements_covered": 97.11538461538461,
+    "percent_statements_covered_display": "97",
+    "num_branches": 46,
+    "num_partial_branches": 3,
+    "covered_branches": 43,
+    "missing_branches": 3,
+    "percent_branches_covered": 93.47826086956522,
+    "percent_branches_covered_display": "93"
+  },
+  "coverage_after": {
+    "covered_lines": 101,
+    "num_statements": 104,
+    "percent_covered": 96.0,
+    "percent_covered_display": "96",
+    "missing_lines": 3,
+    "excluded_lines": 0,
+    "percent_statements_covered": 97.11538461538461,
+    "percent_statements_covered_display": "97",
+    "num_branches": 46,
+    "num_partial_branches": 3,
+    "covered_branches": 43,
+    "missing_branches": 3,
+    "percent_branches_covered": 93.47826086956522,
+    "percent_branches_covered_display": "93"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "92762dd0394d08f3f5d842dd72165ed6743ffa6c8d80d0bbbeb1b0fccfdf1aa4",
+  "production_source_sha256": "6768ccf5112a91afd82c5cd1714eb257b31dd8ba09a9c4b7cb3edaac61136617",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "constant-channel-keeps-a-zero-spread",
+      "source_variant": {
+        "path": "spacr/normalization.py",
+        "line": 188,
+        "old": "number = 1.0",
+        "new": "number = 0.0"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_normalization.py::test_a_zero_spread_is_replaced_rather_than_divided_by"
+        ],
+        "failure_summary_lines": [
+          "tests/test_normalization.py::test_a_zero_spread_is_replaced_rather_than_divided_by"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_normalization.py::test_original_custom_spreads_keep_their_native_tuple_results[test_a_zero_spread_is_replaced_rather_than_divided_by]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_normalization.py::test_original_custom_spreads_keep_their_native_tuple_results[test_a_zero_spread_is_replaced_rather_than_divided_by]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "negative-spread-loses-its-magnitude",
+      "source_variant": {
+        "path": "spacr/normalization.py",
+        "line": 183,
+        "old": "number = abs(float(value))",
+        "new": "number = float(value)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_normalization.py::test_a_negative_spread_is_read_as_its_size"
+        ],
+        "failure_summary_lines": [
+          "tests/test_normalization.py::test_a_negative_spread_is_read_as_its_size"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_normalization.py::test_original_custom_spreads_keep_their_native_tuple_results[test_a_negative_spread_is_read_as_its_size]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_normalization.py::test_original_custom_spreads_keep_their_native_tuple_results[test_a_negative_spread_is_read_as_its_size]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults before and after: leave a constant channel with zero spread; omit the absolute-value conversion for a negative spread. Each selects the same one original/mapped zero/negative-spread case and must fail its unchanged native std-tuple equality. Exact float literals,native tuple/list/dictionary types and optional channel keyword presence retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "typed_parameter_payloads_verified": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_normalization.py",
+      "line": 216,
+      "symbol": "test_original_custom_spreads_keep_their_native_tuple_results",
+      "new": "Preserve each original custom spread input and its native tuple result.",
+      "old": {
+        "test_a_zero_spread_is_replaced_rather_than_divided_by": "A constant channel divided by its own zero spread gives inf, then a\nnan loss several minutes into training, with nothing saying why.",
+        "test_a_negative_spread_is_read_as_its_size": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
