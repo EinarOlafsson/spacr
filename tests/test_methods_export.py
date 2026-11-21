@@ -261,17 +261,22 @@ def test_the_caveats_name_the_seed_the_policy_and_the_correction(digest):
     assert "Illumination correction was applied" in joined
 
 
-def test_no_seed_is_itself_a_caveat():
-    digest = build_digest(settings={"random_seed": None})
-
-    assert any("not bit-for-bit reproducible" in c for c in digest["caveats"])
-
-
-def test_illumination_not_running_is_a_caveat():
-    digest = build_digest(settings={"illumination_correction": False})
-
-    assert any("Illumination correction was not applied" in c
-               for c in digest["caveats"])
+@pytest.mark.parametrize('settings, fragment', [
+    pytest.param(
+        {'random_seed': None}, 'not bit-for-bit reproducible',
+        id='test_no_seed_is_itself_a_caveat',
+    ),
+    pytest.param(
+        {'illumination_correction': False},
+        'Illumination correction was not applied',
+        id='test_illumination_not_running_is_a_caveat',
+    ),
+])
+def test_original_digest_settings_keep_their_required_caveat_fragments(
+        settings, fragment):
+    """Preserve each original digest setting and its required caveat fragment."""
+    digest = build_digest(settings=settings)
+    assert any(fragment in c for c in digest["caveats"])
 
 
 # ---------------------------------------------------------------------------
