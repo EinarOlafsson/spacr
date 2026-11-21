@@ -4717,6 +4717,38 @@ def _metadata_type_status_sources(
     return found
 
 
+def _ngff06_runtime_sources(tree: ast.Module, owners: set[str]) -> set[str]:
+    """Return direct literal captions from the declared NGFF 0.6 owners.
+
+    :param tree: parsed source module, without importing storage code.
+    :param owners: top-level function names or class-qualified method names.
+    :returns: stripped captions, excluding unrelated and nested definitions.
+    """
+    roots = []
+    for owner in tree.body:
+        if isinstance(owner, ast.FunctionDef) and owner.name in owners:
+            roots.append(owner)
+        elif isinstance(owner, ast.ClassDef):
+            roots.extend(method for method in owner.body
+                         if isinstance(method, ast.FunctionDef)
+                         and f"{owner.name}.{method.name}" in owners)
+    found: set[str] = set()
+    for owner in roots:
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef, ast.Lambda)):
+                continue
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name) and node.func.id == "tr"):
+                source = _literal(node.args[0])
+                if isinstance(source, str) and _looks_translatable(source):
+                    found.add(source.strip())
+            pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     # Compact-catalog ownership is registered lazily by the screens that own
@@ -4776,6 +4808,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "crop_store.py")
     paths.add(ROOT / "spacr" / "crops.py")
     paths.add(ROOT / "spacr" / "ops_engine.py")
+    paths.add(ROOT / "spacr" / "ome_zarr.py")
+    paths.add(ROOT / "spacr" / "image_store.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4785,6 +4819,19 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except SyntaxError:
             continue
+        if path == source_root / "ome_zarr.py":
+            found.update(_ngff06_runtime_sources(tree, {
+                "_warn_transform_once", "_ngff06_endpoint", "_check_ngff06_transform",
+                "_ngff06_layout", "write_ome_zarr", "multiscale_to_ngff06",
+                "_check_extra_ngff06", "_dataset_to_ngff06", "multiscale_to_ngff05",
+                "_transform_values", "_transform_stored", "_matrix",
+            }))
+            continue
+        if path == source_root / "image_store.py":
+            found.update(_ngff06_runtime_sources(tree, {"PlateWriter.__init__"}))
+            continue
+        if path == source_root / "ops_engine.py":
+            found.update(_ngff06_runtime_sources(tree, {"_ph_ngff_version"}))
         if path.parent == source_root and path.name in {"settings.py", "object.py"}:
             diagnostic_owners = {"_own_diameter", "_eval_diameter", "_note_the_diameter"}
             if path.name == "object.py":

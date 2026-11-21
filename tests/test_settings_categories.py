@@ -1635,6 +1635,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTINGS, not a regrouping (item 986, schema 949, alpha): the OPS
     # phenotype field and crop formats.
     "ops_ph_image_format", "ops_crop_image_format",
+    # NEW SETTING, not a regrouping (item 1007, 2026-11-21, alpha): the
+    # OME-Zarr version of the OPS phenotype plate stores.
+    "ome_zarr_ngff_version",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

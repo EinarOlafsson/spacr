@@ -124,7 +124,8 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-19: ops_phases, a settings file names its own OPS phases (977), makes 169.
     # 2026-11-20: OME-Zarr images and crops (983) make 170.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    assert count == 170
+    # 2026-11-21: the OME-Zarr 0.6 write option (1007) makes 171.
+    assert count == 171
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

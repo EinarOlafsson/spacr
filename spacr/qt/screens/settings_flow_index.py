@@ -1182,6 +1182,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'occlusion_stride',
     'occlusion_window',
     'offset_start',
+    'ome_zarr_ngff_version',
     'on_conflict',
     'on_error',
     'on_error_attempts',

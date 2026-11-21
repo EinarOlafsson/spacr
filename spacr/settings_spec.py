@@ -285,6 +285,7 @@ def convert_settings_dict_for_gui(settings):
         'ops_merge_strategy': ('combo', ['current', 'tile', 'stitch', 'auto'], 'current'),
         'ops_storage': ('combo', ['current', 'spacr_store'], 'current'),
         'ops_ph_image_format': ('combo', ['ome-zarr', 'npz'], 'ome-zarr'),
+        'ome_zarr_ngff_version': ('combo', ['0.5', '0.6'], '0.5'),
         'ops_crop_image_format': ('combo', ['ome-zarr', 'tiff-tar'], 'ome-zarr'),
         'ops_merge_stitch_source': ('combo', ['metadata', 'registered'], 'metadata'),
         'mask_image_format': ('combo', ['ome-zarr', 'npy', 'tiff'], 'ome-zarr'),

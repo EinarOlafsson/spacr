@@ -4814,6 +4814,21 @@ def _ph_crop_format(settings: Mapping[str, Any]) -> str:
     return value
 
 
+def _ph_ngff_version(settings: Mapping[str, Any]) -> str:
+    """The OME-Zarr version the phenotype images and masks are written in (item 1007).
+
+    :param settings: read for ``ome_zarr_ngff_version``.
+    :returns: ``'0.5'`` (the default) or ``'0.6'``.
+    """
+    from .qt.i18n import tr
+
+    value = str(settings.get("ome_zarr_ngff_version") or "0.5").strip()
+    if value not in ("0.5", "0.6"):
+        raise ValueError(tr("ome_zarr_ngff_version must be 0.5 or 0.6; got {value}",
+                            value=value))
+    return value
+
+
 def _ph_committed_fields(folder: str, plate: str, well: str) -> Dict[int, str]:
     """Committed HCS field paths with their image and label groups still present.
 
@@ -5498,12 +5513,14 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     os.makedirs(mask_dir, exist_ok=True)
     os.makedirs(cell_dir, exist_ok=True)
     image_format = _ph_image_format(settings)
+    ngff_version = _ph_ngff_version(settings)
     mask_writer = None
     stored_masks = _ph_mask_paths(destination, plate, well, settings)
     if segment and image_format == "ome-zarr":
         from .image_store import PlateWriter
 
-        mask_writer = PlateWriter(mask_dir, plate, channel_names=channels)
+        mask_writer = PlateWriter(mask_dir, plate, channel_names=channels,
+                                  ngff_version=ngff_version)
         stored_masks = _ph_committed_fields(mask_dir, plate, well)
     elif segment:
         stored_masks = {site: path for site, path in stored_masks.items()
@@ -8155,7 +8172,8 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
         from .image_store import PlateWriter
 
         writer = PlateWriter(os.path.join(root, "merged", "phenotype"), plate,
-                              channel_names=channels)
+                              channel_names=channels,
+                              ngff_version=_ph_ngff_version(settings))
     tasks = []
     for site in sites:
         out_path = _ph_merged_path(root, plate, well, site, image_format)

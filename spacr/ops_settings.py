@@ -68,6 +68,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_single_read_quality": 0.03,
     "ops_ph_channels": "DAPI,GFP,A594,AF750",
     "ops_ph_image_format": "ome-zarr",
+    "ome_zarr_ngff_version": "0.5",
     "ops_ph_cell_channel": "AF750",
     "ops_ph_nucleus_model": "cpsam",
     "ops_ph_cell_model": "cpsam",
@@ -609,6 +610,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_single_read_quality": (float, int),
     "ops_ph_channels": str,
     "ops_ph_image_format": str,
+    "ome_zarr_ngff_version": str,
     "ops_ph_cell_channel": str,
     "ops_ph_nucleus_model": str,
     "ops_ph_cell_model": str,
@@ -1229,7 +1231,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_compare_control_seed",
     ],
     "Phenotype segmentation": [
-        "ops_ph_channels", "ops_ph_image_format", "ops_ph_cell_channel", "ops_ph_nucleus_model",
+        "ops_ph_channels", "ops_ph_image_format", "ome_zarr_ngff_version",
+        "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_tile_batch",
         "ops_ph_sites", "ops_retry_missing",
@@ -1736,6 +1739,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "ome-zarr keeps the images and named label masks in plate stores; "
         "npz keeps the legacy files. Saved settings from before schema 949 "
         "retain npz. Default ome-zarr. Alpha.",
+    "ome_zarr_ngff_version":
+        "(str) - The OME-Zarr version of the phenotype plate stores, the "
+        "merged field images and their masks, when ops_ph_image_format is "
+        "ome-zarr. '0.5' writes the current spaCR format; '0.6' writes the "
+        "same pixels with the version 0.6 metadata (named coordinate "
+        "systems), which other OME-Zarr 0.6 tools read. One store holds one "
+        "version, so a store started in the other version is refused. The "
+        "cell crop pools are not OME-Zarr images and do not change. "
+        "Default 0.5. Alpha.",
     "ops_ph_channels":
         "(str) - The phenotype channels in the order the cell table names "
         "them, separated by commas, matched against the channel tokens of the "

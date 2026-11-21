@@ -178,6 +178,9 @@ __all__ = [
     "DEFAULT_TILE",
     "DEFAULT_Z_CHUNK",
     "Level",
+    "NGFF06_FIELD_TRANSFORMS",
+    "NGFF06_INTRINSIC_SYSTEM",
+    "NGFF06_MATRIX_TRANSFORMS",
     "NGFF_SPACE_UNITS",
     "NGFF_TIME_UNITS",
     "NGFF_UNIT_TO_SPACR",
@@ -188,10 +191,13 @@ __all__ = [
     "STDLIB_CODECS",
     "SUPPORTED_NGFF_VERSIONS",
     "SUPPORTED_ZARR_FORMATS",
+    "WRITABLE_NGFF_VERSIONS",
     "ZARR_EXTRA",
     "ZARR_MISSING_MESSAGE",
     "ZarrExtraMissing",
     "axes_from_spacing",
+    "multiscale_to_ngff05",
+    "multiscale_to_ngff06",
     "ngff_unit_to_spacr",
     "read_ome_zarr",
     "read_ome_zarr_array",
@@ -199,6 +205,7 @@ __all__ = [
     "require_zarr",
     "spacing_from_axes",
     "spacr_unit_to_ngff",
+    "transformation_matrix",
     "write_ome_zarr",
 ]
 
@@ -471,8 +478,29 @@ AXIS_TYPES: Tuple[str, ...] = (AXIS_TIME, AXIS_CHANNEL, AXIS_SPACE)
 CANONICAL_AXIS_ORDER: Tuple[str, ...] = ("t", "c", "z", "y", "x")
 
 #: NGFF versions this module claims to handle. 0.4 is implemented properly;
-#: 0.5 is parsed and read where the standard library can decode its chunks.
-SUPPORTED_NGFF_VERSIONS: Tuple[str, ...] = ("0.4", "0.5")
+#: 0.5 is parsed and read where the standard library can decode its chunks;
+#: 0.6 (released 2026-09-14) adds named coordinate systems and
+#: transformations, read always and written when asked (item 1007).
+SUPPORTED_NGFF_VERSIONS: Tuple[str, ...] = ("0.4", "0.5", "0.6")
+
+#: The NGFF versions :func:`write_ome_zarr` writes. 0.5 is the default of the
+#: settings that choose one; 0.6 is written only when asked (item 1007).
+WRITABLE_NGFF_VERSIONS: Tuple[str, ...] = ("0.4", "0.5", "0.6")
+
+#: The name a 0.6 store written by spaCR gives its intrinsic coordinate
+#: system, the one every level's transformation maps into.
+NGFF06_INTRINSIC_SYSTEM = "physical"
+
+#: The 0.6 transformation types :func:`transformation_matrix` reduces to a
+#: matrix. A reader MUST parse identity, scale, translation and sequences of
+#: them and SHOULD parse mapAxis, affine, rotation and byDimension.
+NGFF06_MATRIX_TRANSFORMS: Tuple[str, ...] = (
+    "identity", "scale", "translation", "sequence", "affine", "rotation",
+    "mapAxis", "byDimension", "projectAxis", "bijection")
+
+#: The other 0.6 transformation types. They are kept in the metadata and
+#: reported once, never applied: a field of vectors is not a matrix.
+NGFF06_FIELD_TRANSFORMS: Tuple[str, ...] = ("displacements", "coordinates")
 
 #: Zarr storage formats this module reads. 2 is what OME-NGFF 0.4 is; 3 is
 #: what 0.5 is. Read out of ``.zgroup`` / ``.zarray`` / ``zarr.json`` rather
@@ -637,6 +665,10 @@ class Axis:
         per-level values live on :class:`Level`; this one is the reference the
         :class:`spacr.layers.Spacing` is built from.
     :param translate: world coordinate of element 0 at level 0.
+    :param discrete: the NGFF 0.6 ``discrete`` flag, or ``None`` when the
+        file does not say. Read from 0.6 files only.
+    :param long_name: the NGFF 0.6 ``longName``, or ``None``. Read from 0.6
+        files only.
     """
 
     name: str
@@ -644,6 +676,8 @@ class Axis:
     unit: Optional[str] = None
     scale: float = 1.0
     translate: float = 0.0
+    discrete: Optional[bool] = None
+    long_name: Optional[str] = None
 
     def __post_init__(self) -> None:
         """Normalise the axis and reject a step that cannot address anything.
@@ -756,10 +790,15 @@ class Axis:
         :returns: ``{"name": ..., "type": ...}`` plus ``"unit"`` when there is
             one. A channel axis never gets a unit, whatever it was read with —
             the spec forbids it and a viewer that trusts it would be misled.
+            ``"discrete"`` and ``"longName"`` (NGFF 0.6) are added when set.
         """
         entry: Dict[str, Any] = {"name": self.name, "type": self.type}
         if self.unit and self.type != AXIS_CHANNEL:
             entry["unit"] = self.unit
+        if self.discrete is not None:
+            entry["discrete"] = bool(self.discrete)
+        if self.long_name:
+            entry["longName"] = str(self.long_name)
         return entry
 
     def describe(self) -> str:
@@ -775,8 +814,11 @@ class Axis:
         return f"{self.name}: {self.type}, {step}"
 
 
-def _axis_from_ngff(entry: Any, index: int) -> Axis:
-    """Build an :class:`Axis` from one ``axes`` entry, inferring what is absent."""
+def _axis_from_ngff(entry: Any, index: int, *, ngff06: bool = False) -> Axis:
+    """Build an :class:`Axis` from one ``axes`` entry, inferring what is absent.
+
+    :param ngff06: also keep the 0.6 ``discrete`` and ``longName`` fields.
+    """
     if isinstance(entry, str):
         name = entry
         kind = _TYPE_BY_AXIS_NAME.get(name.lower(), AXIS_SPACE)
@@ -790,7 +832,13 @@ def _axis_from_ngff(entry: Any, index: int) -> Axis:
         raise OmeZarrError(f"axes[{index}] has no \"name\"; NGFF requires it")
     kind = entry.get("type") or _TYPE_BY_AXIS_NAME.get(str(name).lower(),
                                                        AXIS_SPACE)
-    return Axis(name=str(name), type=str(kind), unit=entry.get("unit"))
+    if not ngff06:
+        return Axis(name=str(name), type=str(kind), unit=entry.get("unit"))
+    discrete = entry.get("discrete")
+    long_name = entry.get("longName")
+    return Axis(name=str(name), type=str(kind), unit=entry.get("unit"),
+                discrete=None if discrete is None else bool(discrete),
+                long_name=None if long_name is None else str(long_name))
 
 
 def spacing_from_axes(axes: Sequence[Axis]) -> Spacing:
@@ -1395,6 +1443,13 @@ class OmeZarrImage:
         because it said pixels. Never quietly upgraded to micrometers.
     :param multiscale: the raw ``multiscales`` entry, for anything this class
         does not model.
+    :param coordinate_systems: NGFF 0.6 only: every named coordinate system
+        of the multiscales entry, as written. Empty for 0.4 and 0.5.
+    :param transformations: NGFF 0.6 only: the multiscale-level
+        transformations, as written. They map the intrinsic system to other
+        named systems (a registration, say) and do not change :attr:`axes`
+        or the levels; :func:`transformation_matrix` reduces one to a
+        matrix. Empty for 0.4 and 0.5.
 
     An image opened from cloud storage also keeps the opened location, with
     the credentials it was opened with, so that :meth:`read` reaches the
@@ -1410,6 +1465,8 @@ class OmeZarrImage:
     omero: Mapping[str, Any] = field(default_factory=dict)
     units_declared: bool = True
     multiscale: Mapping[str, Any] = field(default_factory=dict)
+    coordinate_systems: Tuple[Mapping[str, Any], ...] = ()
+    transformations: Tuple[Mapping[str, Any], ...] = ()
     _store: Any = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
@@ -1427,6 +1484,10 @@ class OmeZarrImage:
         object.__setattr__(self, "omero", MappingProxyType(dict(self.omero)))
         object.__setattr__(self, "multiscale",
                            MappingProxyType(dict(self.multiscale)))
+        object.__setattr__(self, "coordinate_systems",
+                           tuple(self.coordinate_systems))
+        object.__setattr__(self, "transformations",
+                           tuple(self.transformations))
         if not self.levels:
             raise OmeZarrError(
                 f"{self.path}: the multiscales block lists no datasets, so "
@@ -1903,6 +1964,205 @@ def _compose(group_transforms: Sequence[Mapping[str, Any]],
     return scale, translation
 
 
+_WARNED_TRANSFORM_TYPES: set = set()
+
+
+def _warn_transform_once(kind: str, where: str) -> None:
+    """Warn once per process that a 0.6 transformation type is kept, not applied."""
+    import warnings
+
+    from .qt.i18n import tr
+
+    if kind in _WARNED_TRANSFORM_TYPES:
+        return
+    _WARNED_TRANSFORM_TYPES.add(kind)
+    warnings.warn(tr(
+        "{where}: the OME-Zarr 0.6 transformation type {kind!r} is kept in "
+        "the metadata but not applied; the pixels are read as stored.",
+        where=where, kind=kind), stacklevel=3)
+
+
+def _ngff06_endpoint(value: Any, key: str, where: str) -> Dict[str, Any]:
+    """One 0.6 transformation endpoint, refused in the 0.5 string spelling."""
+    from .qt.i18n import tr
+
+    if value is None:
+        return {}
+    if not isinstance(value, Mapping):
+        raise OmeZarrError(tr(
+            "{where}: {key!r} is {value!r}. OME-Zarr 0.6 writes every "
+            "transformation endpoint as an object with \"name\" and/or "
+            "\"path\"; a plain string is the 0.5 spelling. Rewrite the store "
+            "as 0.6 or declare it 0.5.", where=where, key=key, value=value))
+    return dict(value)
+
+
+def _check_ngff06_transform(obj: Any, where: str, *,
+                            wrapped: bool = False) -> None:
+    """Refuse a 0.6 transformation in an old spelling; warn on one not applied.
+
+    :param obj: one transformation object.
+    :param where: the location named in messages.
+    :param wrapped: the object sits inside a sequence, bijection or
+        byDimension, where ``input`` and ``output`` may be omitted.
+    :raises OmeZarrError: on a non-object, a missing ``type``, string
+        endpoints, the removed ``inverseOf`` type, or ``byDimension`` items
+        spelled ``input_axes`` / ``output_axes``.
+    """
+    from .qt.i18n import tr
+
+    if not isinstance(obj, Mapping) or not obj.get("type"):
+        raise OmeZarrError(tr(
+            "{where}: coordinateTransformations entry {value!r} is not an "
+            "object with a \"type\".", where=where, value=obj))
+    kind = str(obj["type"])
+    for key in ("input", "output"):
+        _ngff06_endpoint(obj.get(key), key, where)
+    if kind == "inverseOf":
+        raise OmeZarrError(tr(
+            "{where}: the transformation type \"inverseOf\" was removed "
+            "before OME-Zarr 0.6; write the inverse transformation itself.",
+            where=where))
+    if kind == "sequence":
+        inner = obj.get("transformations")
+        if not isinstance(inner, list) or not inner:
+            raise OmeZarrError(tr(
+                "{where}: a sequence needs a non-empty \"transformations\" "
+                "list.", where=where))
+        for i, item in enumerate(inner):
+            _check_ngff06_transform(item, f"{where} > transformations[{i}]",
+                                    wrapped=True)
+    elif kind == "bijection":
+        for key in ("forward", "inverse"):
+            _check_ngff06_transform(obj.get(key), f"{where} > {key}",
+                                    wrapped=True)
+    elif kind == "byDimension":
+        inner = obj.get("transformations")
+        if not isinstance(inner, list) or not inner:
+            raise OmeZarrError(tr(
+                "{where}: byDimension needs a non-empty \"transformations\" "
+                "list.", where=where))
+        for i, item in enumerate(inner):
+            here = f"{where} > transformations[{i}]"
+            if not isinstance(item, Mapping):
+                raise OmeZarrError(tr(
+                    "{where}: a byDimension item must be an object.",
+                    where=here))
+            for old, new in (("input_axes", "inputAxes"),
+                             ("output_axes", "outputAxes")):
+                if old in item:
+                    raise OmeZarrError(tr(
+                        "{where}: {old!r} is the spelling before OME-Zarr "
+                        "0.6; 0.6 calls it {new!r}.",
+                        where=here, old=old, new=new))
+            for key in ("inputAxes", "outputAxes", "transformation"):
+                if key not in item:
+                    raise OmeZarrError(tr(
+                        "{where}: a byDimension item needs {key!r}.",
+                        where=here, key=key))
+            _check_ngff06_transform(item["transformation"],
+                                    f"{here} > transformation", wrapped=True)
+    elif kind not in NGFF06_MATRIX_TRANSFORMS:
+        _warn_transform_once(kind, where)
+
+
+def _ngff06_layout(entry: Mapping[str, Any], where: str
+                   ) -> Tuple[List[Any], List[List[Mapping[str, Any]]],
+                              Tuple[Dict[str, Any], ...],
+                              Tuple[Dict[str, Any], ...]]:
+    """Read a 0.6 multiscales entry into the 0.5 shapes the reader composes.
+
+    :returns: the intrinsic system's axes, each dataset's transformations
+        flattened to identity/scale/translation, every coordinate system,
+        and the multiscale-level transformations, kept verbatim. Those map
+        the intrinsic system to other named systems and are NOT folded into
+        the level spacing, unlike the 0.4 and 0.5 group transformations.
+    :raises OmeZarrError: when ``coordinateSystems`` is missing (with
+        ``axes`` named when the entry uses the 0.5 layout) or the datasets'
+        transformations break the 0.6 rules.
+    """
+    from .qt.i18n import tr
+
+    for removed in ("arrayCoordinateSystems",):
+        if removed in entry:
+            raise OmeZarrError(tr(
+                "{where}: {key!r} was removed in OME-Zarr 0.6; express array "
+                "coordinates as a named coordinate system instead.",
+                where=where, key=removed))
+    systems = entry.get("coordinateSystems")
+    if not isinstance(systems, list) or not systems:
+        hint = (tr(" It has \"axes\", the 0.5 layout: declare it 0.5 or "
+                   "convert it.") if "axes" in entry else "")
+        raise OmeZarrError(tr(
+            "{where}: an OME-Zarr 0.6 multiscales entry needs a non-empty "
+            "\"coordinateSystems\" list.", where=where) + hint)
+    by_name: Dict[str, Dict[str, Any]] = {}
+    for i, system in enumerate(systems):
+        name = system.get("name") if isinstance(system, Mapping) else None
+        if not name or not isinstance(system.get("axes"), list):
+            raise OmeZarrError(tr(
+                "{where}: coordinateSystems[{index}] needs a non-empty "
+                "\"name\" and an \"axes\" list.", where=where, index=i))
+        if str(name) in by_name:
+            raise OmeZarrError(tr(
+                "{where}: two coordinate systems are named {name!r}; names "
+                "must be unique.", where=where, name=name))
+        by_name[str(name)] = dict(system)
+
+    intrinsic: Optional[str] = None
+    flattened: List[List[Mapping[str, Any]]] = []
+    for i, dataset in enumerate(entry.get("datasets") or []):
+        here = f"{where} > datasets[{i}]"
+        transforms = (dataset.get("coordinateTransformations")
+                      if isinstance(dataset, Mapping) else None) or []
+        if len(transforms) != 1:
+            raise OmeZarrError(tr(
+                "{where}: an OME-Zarr 0.6 level has exactly one "
+                "transformation (scale, identity, or a sequence of scale "
+                "and translation); found {count}.",
+                where=here, count=len(transforms)))
+        outer = transforms[0]
+        _check_ngff06_transform(outer, here)
+        source = _ngff06_endpoint(outer.get("input"), "input", here)
+        target = _ngff06_endpoint(outer.get("output"), "output", here)
+        if source.get("path") not in (None, dataset.get("path")):
+            raise OmeZarrError(tr(
+                "{where}: input path {value!r} is not the dataset path "
+                "{path!r}.", where=here, value=source.get("path"),
+                path=dataset.get("path")))
+        name = target.get("name")
+        if not name or str(name) not in by_name:
+            raise OmeZarrError(tr(
+                "{where}: output name {value!r} is not one of the "
+                "coordinate systems {names}.", where=here, value=name,
+                names=sorted(by_name)))
+        if intrinsic is None:
+            intrinsic = str(name)
+        elif str(name) != intrinsic:
+            raise OmeZarrError(tr(
+                "{where}: every level must map into the same coordinate "
+                "system; {first!r} and {other!r} differ.", where=here,
+                first=intrinsic, other=name))
+        inner = (outer.get("transformations")
+                 if outer.get("type") == "sequence" else [outer])
+        for item in inner:
+            if item.get("type") not in ("identity", "scale", "translation"):
+                raise OmeZarrError(tr(
+                    "{where}: a level transformation of type {kind!r}; "
+                    "OME-Zarr 0.6 allows scale, identity, or a sequence of "
+                    "scale and translation here.", where=here,
+                    kind=item.get("type")))
+        flattened.append([dict(item) for item in inner])
+
+    group = entry.get("coordinateTransformations") or []
+    for i, item in enumerate(group):
+        _check_ngff06_transform(
+            item, f"{where} > coordinateTransformations[{i}]")
+    axes = list(by_name[intrinsic]["axes"]) if intrinsic else []
+    return (axes, flattened, tuple(by_name[n] for n in by_name),
+            tuple(dict(item) for item in group))
+
+
 def _group_attributes(root: Path) -> Tuple[Dict[str, Any], int]:
     """Read a group's attributes and its zarr format, from whichever file has them."""
     zgroup, zjson = root / ".zgroup", root / "zarr.json"
@@ -2008,6 +2268,8 @@ def _open_ome_zarr(path: Any, *, multiscale_index: int = 0,
 
     version = str(entry.get("version") or ome.get("version")
                   or ("0.5" if zarr_format == 3 else "0.4"))
+    if str(ome.get("version") or "") == "0.6":
+        version = "0.6"
     datasets = entry.get("datasets")
     if not datasets:
         raise OmeZarrError(
@@ -2023,9 +2285,19 @@ def _open_ome_zarr(path: Any, *, multiscale_index: int = 0,
         arrays.append((str(dataset["path"]), dataset, _ZarrArray.open(sub)))
 
     ndim = len(arrays[0][2].shape)
-    raw_axes = entry.get("axes")
+    ngff06 = version == "0.6"
+    systems: Tuple[Dict[str, Any], ...] = ()
+    transformations: Tuple[Dict[str, Any], ...] = ()
+    if ngff06:
+        raw_axes, level_transforms, systems, transformations = _ngff06_layout(
+            entry, f"{root}: multiscales[{multiscale_index}]")
+    else:
+        raw_axes = entry.get("axes")
+        level_transforms = [d.get("coordinateTransformations") or []
+                            for _n, d, _a in arrays]
     if raw_axes:
-        axes = [_axis_from_ngff(a, i) for i, a in enumerate(raw_axes)]
+        axes = [_axis_from_ngff(a, i, ngff06=ngff06)
+                for i, a in enumerate(raw_axes)]
     else:
         axes = [Axis(name=n, type=_TYPE_BY_AXIS_NAME.get(n, AXIS_SPACE))
                 for n in CANONICAL_AXIS_ORDER[len(CANONICAL_AXIS_ORDER) - ndim:]]
@@ -2035,17 +2307,17 @@ def _open_ome_zarr(path: Any, *, multiscale_index: int = 0,
             f"({[a.name for a in axes]}) but dataset "
             f"{arrays[0][0]!r} is {ndim}-dimensional {arrays[0][2].shape}.")
 
-    group_transforms = entry.get("coordinateTransformations") or []
+    group_transforms = ([] if ngff06
+                        else entry.get("coordinateTransformations") or [])
     levels: List[Level] = []
-    for name, dataset, array in arrays:
+    for (name, dataset, array), own in zip(arrays, level_transforms):
         if len(array.shape) != ndim:
             raise OmeZarrError(
                 f"{root}: dataset {name!r} is {len(array.shape)}-dimensional "
                 f"but dataset {arrays[0][0]!r} is {ndim}-dimensional. Every "
                 f"level of a multiscale image describes the same data.")
-        scale, translation = _compose(
-            group_transforms, dataset.get("coordinateTransformations") or [],
-            ndim, f"{root}/{name}")
+        scale, translation = _compose(group_transforms, own, ndim,
+                                      f"{root}/{name}")
         levels.append(Level(path=name, shape=array.shape, chunks=array.chunks,
                             dtype=array.dtype.str, scale=scale,
                             translation=translation,
@@ -2054,7 +2326,8 @@ def _open_ome_zarr(path: Any, *, multiscale_index: int = 0,
 
     base = levels[0]
     axes = [Axis(name=a.name, type=a.type, unit=a.unit, scale=base.scale[i],
-                 translate=base.translation[i]) for i, a in enumerate(axes)]
+                 translate=base.translation[i], discrete=a.discrete,
+                 long_name=a.long_name) for i, a in enumerate(axes)]
     if check_units:
         spacing_from_axes(axes)
 
@@ -2073,6 +2346,8 @@ def _open_ome_zarr(path: Any, *, multiscale_index: int = 0,
                         ngff_version=version, name=str(entry.get("name") or ""),
                         channel_names=channel_names, omero=dict(omero),
                         units_declared=bool(declared), multiscale=dict(entry),
+                        coordinate_systems=systems,
+                        transformations=transformations,
                         _store=root if isinstance(root, _CloudPath) else None)
 
 
@@ -2249,8 +2524,11 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
                    channel_colors: Optional[Sequence[str]] = None,
                    overwrite: bool = False,
                    ngff_version: str = "0.4",
-                   shards: Optional[Union[Sequence[int], Literal[False]]] = None) -> OmeZarrImage:
-    """Write an array as an OME-NGFF 0.4 or 0.5 multiscale image.
+                   shards: Optional[Union[Sequence[int], Literal[False]]] = None,
+                   coordinate_systems: Optional[Sequence[Mapping[str, Any]]] = None,
+                   coordinate_transformations: Optional[Sequence[Mapping[str, Any]]] = None
+                   ) -> OmeZarrImage:
+    """Write an array as an OME-NGFF 0.4, 0.5 or 0.6 multiscale image.
 
     The defaults are chosen for compatibility with other NGFF readers:
     zarr-format 2, ``zlib`` chunks (which need no extra), ``/`` separators,
@@ -2323,13 +2601,22 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
         written through :mod:`zarr`, so it needs ``spacr[zarr]``; item 983).
         With 0.5 the default ``compressor`` is zstd at ``compression_level``
         3 unless another one is named; ``"lz4"`` (Blosc LZ4 with byte
-        shuffle) is also offered there.
-    :param shards: 0.5 only: the shard shape, one per axis, each a
+        shuffle) is also offered there. ``"0.6"`` writes the same arrays as
+        0.5 with the 0.6 metadata (item 1007): the version only at
+        ``ome.version``, the axes as the coordinate system ``"physical"``,
+        and each level's transformation with ``{"path"}`` and ``{"name"}``
+        endpoints (see :func:`multiscale_to_ngff06`).
+    :param shards: 0.5 and 0.6 only: the shard shape, one per axis, each a
         multiple of the chunk shape. Defaults to one shard holding the
         whole level, so one field is one file and one writer owns it.
         Pass ``False`` to store each chunk separately without sharding;
         ``None`` retains the whole-level shard default. The chunk shape
         and compression settings are unchanged by this choice.
+    :param coordinate_systems: 0.6 only: more named coordinate systems,
+        appended after ``"physical"``, each ``{"name": ..., "axes": [...]}``.
+    :param coordinate_transformations: 0.6 only: multiscale-level
+        transformations between ``"physical"`` and those systems, with
+        object endpoints such as ``{"name": "physical"}``.
     :returns: the group, reopened with :func:`read_ome_zarr` — so the return
         value is a *read* of what was actually written, not a description of
         what was intended.
@@ -2346,13 +2633,20 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
             f"cannot write dtype {data.dtype!r} as an OME-Zarr; NGFF images "
             f"hold numeric or boolean data.")
     version = str(ngff_version)
-    if version not in ("0.4", "0.5"):
+    if version not in WRITABLE_NGFF_VERSIONS:
         raise OmeZarrError(
-            f"spaCR writes OME-NGFF 0.4 (zarr-format 2) or 0.5 (zarr-format "
-            f"3, sharded), not {ngff_version!r}; it *reads* "
+            f"spaCR writes OME-NGFF 0.4 (zarr-format 2), 0.5 or 0.6 "
+            f"(zarr-format 3, sharded), not {ngff_version!r}; it *reads* "
             f"{SUPPORTED_NGFF_VERSIONS}.")
     if version == "0.4" and shards is not None:
         raise OmeZarrError("shards= needs ngff_version='0.5' (zarr-format 3)")
+    if version != "0.6" and (coordinate_systems or coordinate_transformations):
+        from .qt.i18n import tr
+        raise OmeZarrError(tr(
+            "Named coordinate systems and multiscale transformations need "
+            "ngff_version='0.6'; got {version!r}.", version=version))
+    if version == "0.6":
+        _check_extra_ngff06(coordinate_systems, coordinate_transformations)
     method = str(downsample).lower()
     if method not in ("mean", "stride"):
         raise OmeZarrError(
@@ -2408,7 +2702,7 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
             f"{data.ndim}-dimensional array")
 
     group = None
-    if version == "0.5":
+    if version in ("0.5", "0.6"):
         group = _zarr_v3_group(target)
     datasets: List[Dict[str, Any]] = []
     for k, level_array in enumerate(pyramid):
@@ -2462,11 +2756,312 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
 
     if group is not None:
         multiscale.pop("version")
-        group.attrs.update({"ome": {"version": "0.5", **attrs}})
+        if version == "0.6":
+            converted = multiscale_to_ngff06(multiscale)
+            converted["coordinateSystems"].extend(
+                json.loads(json.dumps(list(coordinate_systems or ()))))
+            if coordinate_transformations:
+                converted["coordinateTransformations"] = json.loads(
+                    json.dumps(list(coordinate_transformations)))
+            attrs["multiscales"] = [converted]
+        group.attrs.update({"ome": {"version": version, **attrs}})
         return read_ome_zarr(target)
     _write_json(target / ".zgroup", {"zarr_format": 2})
     _write_json(target / ".zattrs", attrs)
     return read_ome_zarr(target)
+
+
+def multiscale_to_ngff06(entry: Mapping[str, Any], *,
+                         system: str = NGFF06_INTRINSIC_SYSTEM) -> Dict[str, Any]:
+    """Map one OME-Zarr 0.5 ``multiscales`` entry to its 0.6 form, losslessly.
+
+    ``axes`` becomes ``coordinateSystems: [{"name": system, "axes": ...}]`` at
+    the same place, and each level's ``[scale]`` or ``[scale, translation]``
+    becomes one ``scale`` or one ``sequence`` with ``input: {"path": <level
+    path>}`` and ``output: {"name": system}``. Every other key is kept as it
+    is. :func:`multiscale_to_ngff05` maps the result back to the original.
+
+    :param entry: the 0.5 entry, as JSON.
+    :param system: the name of the intrinsic coordinate system.
+    :returns: a new 0.6 entry; ``entry`` is not changed.
+    :raises OmeZarrError: naming the key that has no lossless 0.6 form: a
+        ``version`` inside the entry (0.6 keeps it only at ``ome.version``),
+        multiscale-level ``coordinateTransformations`` (in 0.6 these map to
+        other coordinate systems, so folding them into the levels would
+        change the file), missing ``axes``, or a level transformation list
+        that is not ``[scale]`` or ``[scale, translation]``.
+    """
+    from .qt.i18n import tr
+
+    source = json.loads(json.dumps(dict(entry)))
+    for key in ("version", "coordinateTransformations"):
+        if key in source:
+            raise OmeZarrError(tr(
+                "The 0.5 multiscales key {key!r} has no lossless OME-Zarr 0.6 "
+                "form; nothing was converted.", key=key))
+    if not isinstance(source.get("axes"), list):
+        raise OmeZarrError(tr(
+            "The 0.5 multiscales entry has no \"axes\" list to become the "
+            "0.6 coordinate system; nothing was converted."))
+    out: Dict[str, Any] = {}
+    for key, value in source.items():
+        if key == "axes":
+            out["coordinateSystems"] = [{"name": str(system), "axes": value}]
+        elif key == "datasets":
+            out["datasets"] = [_dataset_to_ngff06(d, i, str(system))
+                               for i, d in enumerate(value or [])]
+        else:
+            out[key] = value
+    return out
+
+
+
+def _check_extra_ngff06(systems: Optional[Sequence[Mapping[str, Any]]],
+                        transforms: Optional[Sequence[Mapping[str, Any]]]) -> None:
+    """Refuse extra 0.6 systems or transformations before any chunk is written."""
+    from .qt.i18n import tr
+
+    names = {NGFF06_INTRINSIC_SYSTEM}
+    for i, system in enumerate(systems or ()):
+        name = system.get("name") if isinstance(system, Mapping) else None
+        if not name or not isinstance(system.get("axes"), list) or name in names:
+            raise OmeZarrError(tr(
+                "coordinate_systems[{index}] needs a unique non-empty \"name\" "
+                "(not {taken}) and an \"axes\" list.", index=i,
+                taken=sorted(names)))
+        names.add(str(name))
+    for i, item in enumerate(transforms or ()):
+        _check_ngff06_transform(item, f"coordinate_transformations[{i}]")
+
+
+def _dataset_to_ngff06(dataset: Any, index: int, system: str) -> Dict[str, Any]:
+    """One 0.5 ``datasets`` entry in its 0.6 form (see :func:`multiscale_to_ngff06`)."""
+    from .qt.i18n import tr
+
+    if not isinstance(dataset, Mapping) or not dataset.get("path"):
+        raise OmeZarrError(tr(
+            "datasets[{index}] has no \"path\"; nothing was converted.",
+            index=index))
+    transforms = list(dataset.get("coordinateTransformations") or [])
+    kinds = [t.get("type") if isinstance(t, Mapping) else None
+             for t in transforms]
+    if kinds not in (["scale"], ["scale", "translation"]):
+        raise OmeZarrError(tr(
+            "datasets[{index}] has the transformations {kinds}; only [scale] "
+            "or [scale, translation] map losslessly to OME-Zarr 0.6. Nothing "
+            "was converted.", index=index, kinds=kinds))
+    for item in transforms:
+        if set(item) - {"type", "scale", "translation"}:
+            raise OmeZarrError(tr(
+                "datasets[{index}]: a transformation carries the keys {keys}, "
+                "which have no lossless OME-Zarr 0.6 form inside a level "
+                "transformation. Nothing was converted.", index=index,
+                keys=sorted(set(item) - {"type", "scale", "translation"})))
+    ends = {"input": {"path": str(dataset["path"])}, "output": {"name": system}}
+    if len(transforms) == 1:
+        outer = {"type": "scale", **ends, "scale": transforms[0]["scale"]}
+    else:
+        outer = {"type": "sequence", **ends,
+                 "transformations": [dict(t) for t in transforms]}
+    out: Dict[str, Any] = {}
+    for key, value in dataset.items():
+        out[key] = [outer] if key == "coordinateTransformations" else value
+    return out
+
+
+def multiscale_to_ngff05(entry: Mapping[str, Any]) -> Dict[str, Any]:
+    """Map one OME-Zarr 0.6 ``multiscales`` entry back to 0.5, where lossless.
+
+    The inverse of :func:`multiscale_to_ngff06`: the intrinsic coordinate
+    system's ``axes`` take the place of ``coordinateSystems``, and each
+    level's ``scale``, ``identity`` (written as a scale of ones) or
+    ``sequence`` of scale and translation becomes the 0.5 list.
+
+    :param entry: the 0.6 entry, as JSON.
+    :returns: a new 0.5 entry; ``entry`` is not changed.
+    :raises OmeZarrError: naming what 0.5 cannot hold: more than one
+        coordinate system, multiscale-level ``coordinateTransformations``,
+        or a level transformation other than those above.
+    """
+    from .qt.i18n import tr
+
+    source = json.loads(json.dumps(dict(entry)))
+    axes, levels, systems, group = _ngff06_layout(source, "multiscales")
+    if len(systems) != 1:
+        raise OmeZarrError(tr(
+            "The 0.6 entry has {count} coordinate systems; OME-Zarr 0.5 holds "
+            "one. Nothing was converted.", count=len(systems)))
+    if group:
+        raise OmeZarrError(tr(
+            "The 0.6 multiscales key \"coordinateTransformations\" maps to "
+            "other coordinate systems, which OME-Zarr 0.5 cannot hold. "
+            "Nothing was converted."))
+    ndim = len(axes)
+    out: Dict[str, Any] = {}
+    for key, value in source.items():
+        if key == "coordinateSystems":
+            out["axes"] = axes
+        elif key == "datasets":
+            rows = []
+            for dataset, inner in zip(value, levels):
+                kinds = [t.get("type") for t in inner]
+                if kinds == ["identity"]:
+                    inner = [{"type": "scale", "scale": [1.0] * ndim}]
+                elif kinds not in (["scale"], ["scale", "translation"]):
+                    raise OmeZarrError(tr(
+                        "A level transformation {kinds} has no OME-Zarr 0.5 "
+                        "form. Nothing was converted.", kinds=kinds))
+                inner = [{k: v for k, v in t.items()
+                          if k not in ("input", "output")} for t in inner]
+                rows.append({k: (inner if k == "coordinateTransformations"
+                                 else v) for k, v in dataset.items()})
+            out["datasets"] = rows
+        else:
+            out[key] = value
+    return out
+
+
+def transformation_matrix(transform: Mapping[str, Any], ndim: int, *,
+                          root: Optional[Union[str, os.PathLike]] = None
+                          ) -> Optional[np.ndarray]:
+    """Reduce one OME-Zarr 0.6 transformation to a homogeneous matrix.
+
+    ``identity``, ``scale``, ``translation``, ``affine``, ``rotation``,
+    ``mapAxis`` (output axis *i* is input axis ``mapAxis[i]``),
+    ``projectAxis`` (dropped inputs removed, created outputs set to 0),
+    ``byDimension`` (``inputAxes`` / ``outputAxes`` as axis indices),
+    ``bijection`` (its ``forward``) and ``sequence`` (applied in order) are
+    reduced. A field of vectors (``displacements``, ``coordinates``) is not a
+    matrix: it returns ``None`` and warns once.
+
+    :param transform: the transformation object.
+    :param ndim: the number of input axes.
+    :param root: the store directory an ``affine`` or ``rotation`` stored
+        by ``path`` is read relative to.
+    :returns: an ``(M + 1, ndim + 1)`` float64 matrix, ``M`` the number of
+        output axes, mapping homogeneous input coordinates to output ones;
+        or ``None`` as above.
+    :raises OmeZarrError: on an old spelling, a parameter of the wrong
+        shape, or a ``path`` with no ``root``.
+    """
+    _check_ngff06_transform(transform, "transformation", wrapped=True)
+    return _matrix(transform, int(ndim), root)
+
+
+def _transform_values(obj: Mapping[str, Any], key: str, length: int) -> List[float]:
+    """A transformation's parameter list of the given length, as floats."""
+    from .qt.i18n import tr
+
+    values = obj.get(key)
+    if not isinstance(values, list) or len(values) != length:
+        raise OmeZarrError(tr(
+            "A {kind} transformation needs {count} values in {key!r}; "
+            "got {value!r}.", kind=obj.get("type"), count=length, key=key,
+            value=values))
+    return [float(v) for v in values]
+
+
+def _transform_stored(obj: Mapping[str, Any], key: str, root: Any) -> np.ndarray:
+    """A transformation's matrix, given inline or as a Zarr array by ``path``."""
+    from .qt.i18n import tr
+
+    if key in obj:
+        return np.asarray(obj[key], dtype=np.float64)
+    if obj.get("path") is None or root is None:
+        raise OmeZarrError(tr(
+            "A {kind} transformation needs {key!r} or a \"path\" read "
+            "relative to the store.", kind=obj.get("type"), key=key))
+    stored = _ZarrArray.open(Path(root) / str(obj["path"]))
+    return np.asarray(stored.read_region([(0, int(n)) for n in stored.shape]),
+                      dtype=np.float64)
+
+
+def _matrix(obj: Mapping[str, Any], ndim: int, root: Any) -> Optional[np.ndarray]:
+    """The matrix of one checked transformation (see :func:`transformation_matrix`)."""
+    from .qt.i18n import tr
+
+    kind = str(obj["type"])
+    eye = np.eye(ndim + 1)
+    if kind == "identity":
+        return eye
+    if kind == "scale":
+        out = eye.copy()
+        out[:ndim, :ndim] = np.diag(_transform_values(obj, "scale", ndim))
+        return out
+    if kind == "translation":
+        out = eye.copy()
+        out[:ndim, ndim] = _transform_values(obj, "translation", ndim)
+        return out
+    if kind == "affine":
+        rows = _transform_stored(obj, "affine", root)
+        if rows.ndim != 2 or rows.shape[1] != ndim + 1:
+            raise OmeZarrError(tr(
+                "An affine on {ndim} axes needs rows of {width} values; got "
+                "shape {shape}.", ndim=ndim, width=ndim + 1,
+                shape=tuple(rows.shape)))
+        return np.vstack([rows, np.eye(1, ndim + 1, ndim)])
+    if kind == "rotation":
+        rows = _transform_stored(obj, "rotation", root)
+        if rows.shape != (ndim, ndim):
+            raise OmeZarrError(tr(
+                "A rotation on {ndim} axes needs a {ndim} x {ndim} matrix; got "
+                "shape {shape}.", ndim=ndim, shape=tuple(rows.shape)))
+        out = eye.copy()
+        out[:ndim, :ndim] = rows
+        return out
+    if kind == "mapAxis":
+        order = [int(v) for v in obj.get("mapAxis") or []]
+        if sorted(order) != list(range(ndim)):
+            raise OmeZarrError(tr(
+                "mapAxis {value!r} must list each of the {ndim} input axes "
+                "exactly once.", value=obj.get("mapAxis"), ndim=ndim))
+        out = np.zeros((ndim + 1, ndim + 1))
+        for i, j in enumerate(order):
+            out[i, j] = 1.0
+        out[ndim, ndim] = 1.0
+        return out
+    if kind == "projectAxis":
+        dropped = sorted(int(v) for v in obj.get("droppedInputs") or [])
+        created = sorted(int(v) for v in obj.get("createdOutputs") or [])
+        kept = [j for j in range(ndim) if j not in dropped]
+        n_out = len(kept) + len(created)
+        out = np.zeros((n_out + 1, ndim + 1))
+        rows = [i for i in range(n_out) if i not in created]
+        for i, j in zip(rows, kept):
+            out[i, j] = 1.0
+        out[n_out, ndim] = 1.0
+        return out
+    if kind == "byDimension":
+        out = np.zeros((ndim + 1, ndim + 1))
+        out[ndim, ndim] = 1.0
+        for item in obj["transformations"]:
+            ins = [int(v) for v in item["inputAxes"]]
+            outs = [int(v) for v in item["outputAxes"]]
+            inner = _matrix(item["transformation"], len(ins), root)
+            if inner is None:
+                return None
+            if inner.shape != (len(outs) + 1, len(ins) + 1):
+                raise OmeZarrError(tr(
+                    "A byDimension item maps {n_in} axes to {n_out}; its "
+                    "transformation does not.", n_in=len(ins),
+                    n_out=len(outs)))
+            for a, i in enumerate(outs):
+                for b, j in enumerate(ins):
+                    out[i, j] = inner[a, b]
+                out[i, ndim] = inner[a, len(ins)]
+        return out
+    if kind == "bijection":
+        return _matrix(obj["forward"], ndim, root)
+    if kind == "sequence":
+        out = eye
+        for item in obj["transformations"]:
+            step = _matrix(item, out.shape[0] - 1, root)
+            if step is None:
+                return None
+            out = step @ out
+        return out
+    _warn_transform_once(kind, "transformation")
+    return None
 
 
 def _zarr_v3_group(target: Path):

@@ -3829,8 +3829,30 @@ def _validated_ome_zarr_983_callables(callables):
     entries = json.loads((root / "tests/data/release_contracts"
         / "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
     assert len(entries) == 49 and "spacr.crop_store.OmeZarrCropSource.get" in entries
+    from tests.test_documentation_i18n import _current_1007_ome_zarr_api
+    entries = _current_1007_ome_zarr_api(entries)
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert found.keys() == entries.keys() - {"spacr.crop_store", "spacr.image_store"}
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_ome_zarr_ngff06_1007_callables(callables):
+    """Check the public callables of item 1007 (OME-Zarr NGFF 0.6, spacr.ome_zarr) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.ome_zarr.multiscale_to_ngff05",
+                            "spacr.ome_zarr.multiscale_to_ngff06",
+                            "spacr.ome_zarr.transformation_matrix"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
         assert item.parameters == item.accepted_documented_parameters
@@ -4128,6 +4150,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_codex_issues_1119_callables(callables)
     callables = _validated_ome_zarr_983_callables(callables)
     callables = _validated_ome_zarr_convert_985_callables(callables)
+    callables = _validated_ome_zarr_ngff06_1007_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5635,7 +5658,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # illumination_qc, prepare_illumination_correction, prepare_illumination_model
     # and spacr.intensity_rescale.build_plate_plan (defaulted; the 933/983
     # contracts cover the other three new keywords).
-    assert sum(len(item.parameters) for item in callables) == 20267
+    # 20,267 -> 20,273 on 2026-11-21 (item 1007 lane A, NGFF 0.6): the optional
+    # `discrete` and `long_name` fields of spacr.ome_zarr.Axis, the optional
+    # `coordinate_systems` and `transformations` fields of OmeZarrImage, and the
+    # optional `coordinate_systems` and `coordinate_transformations` keywords of
+    # spacr.ome_zarr.write_ome_zarr (all defaulted).
+    assert sum(len(item.parameters) for item in callables) == 20273
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5994,7 +6022,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr.
     # Moved 2026-11-21 by landing train 7 (was 361a1012...): item 986 P's
     # optional `load_field` of five illumination/intensity_rescale planners.
-) == 'ae0adfd78a2a55213026232359b5f788ffbbc38639454ae8dc3b9ac6d60284cf'
+    # Moved 2026-11-21 for item 1007 lane A (was ae0adfd7...): the optional
+    # `discrete` and `long_name` of spacr.ome_zarr.Axis, `coordinate_systems` and
+    # `transformations` of OmeZarrImage, and `coordinate_systems` and
+    # `coordinate_transformations` of spacr.ome_zarr.write_ome_zarr.
+) == 'd2d9fcfe2231caa28395d681abbdc7378b3993b629d265660674e570decf6bba'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -6938,6 +6970,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
+        ("1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json", 3),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6949,6 +6982,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         if contract == "733_easy_mode_api_arrivals_2026_10_26.json":
             from tests.test_documentation_i18n import _current_733_easy_mode_api
             additions = _current_733_easy_mode_api(additions, docs)
+        if contract == "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json":
+            from tests.test_documentation_i18n import _current_1007_ome_zarr_api
+            additions = _current_1007_ome_zarr_api(additions, docs)
         assert len(additions) == expected_count
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()
@@ -7572,7 +7608,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
-                     "w_mask_tracing_api_arrivals_2026-11-20.json"):
+                     "w_mask_tracing_api_arrivals_2026-11-20.json",
+                     "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7738,7 +7775,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
-                     "w_mask_tracing_api_arrivals_2026-11-20.json"):
+                     "w_mask_tracing_api_arrivals_2026-11-20.json",
+                     "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

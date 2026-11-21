@@ -2619,6 +2619,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **preflight_arrivals}
     ome_zarr_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
+    from tests.test_documentation_i18n import _current_1007_ome_zarr_api
+    ome_zarr_arrivals = _current_1007_ome_zarr_api(ome_zarr_arrivals, docs)
     assert len(ome_zarr_arrivals) == 49
     assert {key: docs[key] for key in ome_zarr_arrivals} == ome_zarr_arrivals
     assert not ome_zarr_arrivals.keys() & zoo_arrivals.keys()
@@ -2641,6 +2643,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in mask_tracing_w_arrivals} == mask_tracing_w_arrivals
     assert not mask_tracing_w_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **mask_tracing_w_arrivals}
+    ngff06_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(ngff06_arrivals) == {"spacr.ome_zarr.multiscale_to_ngff05",
+                                    "spacr.ome_zarr.multiscale_to_ngff06",
+                                    "spacr.ome_zarr.transformation_matrix"}
+    assert {key: docs[key] for key in ngff06_arrivals} == ngff06_arrivals
+    assert not ngff06_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **ngff06_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

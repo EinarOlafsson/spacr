@@ -100,6 +100,9 @@ class PlateWriter:
     :param channel_names: the image channels' names, written to ``omero``.
     :param spacing: a :class:`spacr.layers.Spacing` for the pixel size, or
         None to record pixels with no physical unit.
+    :param ngff_version: ``'0.5'`` (the default) or ``'0.6'`` (item 1007):
+        the OME-Zarr version of every group in the store. One store holds
+        one version, so a store started in the other one is refused.
 
     Fields are written whole with :meth:`write_field`; the plate and well
     metadata are rewritten from the ledger after each field, so a reader
@@ -110,18 +113,34 @@ class PlateWriter:
 
     def __init__(self, root: Any, plate: str, *,
                  channel_names: Optional[Sequence[str]] = None,
-                 spacing=None):
+                 spacing=None, ngff_version: str = "0.5"):
         """Open (or start) the plate store and read its commit ledger."""
         from .ome_zarr import require_zarr
+        from .qt.i18n import tr
 
         self.zarr = require_zarr()
         self.plate = str(plate)
         self.path = Path(root) / f"{self.plate}.ome.zarr"
         self.channel_names = list(channel_names) if channel_names else None
         self.spacing = spacing
+        self.ngff_version = str(ngff_version)
+        if self.ngff_version not in ("0.5", "0.6"):
+            raise ValueError(tr(
+                "The plate store writes OME-Zarr 0.5 or 0.6, not {value!r}.",
+                value=ngff_version))
         self.path.mkdir(parents=True, exist_ok=True)
-        if not (self.path / "zarr.json").is_file():
+        root_json = self.path / "zarr.json"
+        if not root_json.is_file():
             self.zarr.open_group(str(self.path), mode="w", zarr_format=3)
+        else:
+            stored = (json.loads(root_json.read_text(encoding="utf-8"))
+                      .get("attributes", {}).get("ome", {}).get("version"))
+            if stored and str(stored) != self.ngff_version:
+                raise ValueError(tr(
+                    "{path} is an OME-Zarr {stored} store; it cannot take "
+                    "OME-Zarr {wanted} fields, because one store holds one "
+                    "version. Write to a new folder or convert the store.",
+                    path=self.path, stored=stored, wanted=self.ngff_version))
         self._committed: Dict[str, Dict[str, Any]] = {}
         ledger = self.path / _LEDGER
         if ledger.is_file():
@@ -182,7 +201,8 @@ class PlateWriter:
             self._atomic(target, lambda tmp: write_ome_zarr(
                 tmp, data, axes=axes, spacing=self.spacing,
                 channel_names=self.channel_names if data.ndim == 3 else None,
-                ngff_version="0.5", name=key, chunks=_field_chunks(data.shape), shards=False,
+                ngff_version=self.ngff_version, name=key,
+                chunks=_field_chunks(data.shape), shards=False,
                 compressor=FIELD_CODEC, compression_level=FIELD_CODEC_LEVEL))
         else:
             self.zarr.open_group(str(target), mode="w", zarr_format=3)
@@ -193,15 +213,16 @@ class PlateWriter:
             label_dir.parent.mkdir(parents=True, exist_ok=True)
             self._atomic(label_dir, lambda tmp, m=mask: write_ome_zarr(
                 tmp, m, axes=["y", "x"], spacing=self.spacing,
-                downsample="stride", ngff_version="0.5", name=str(name),
+                downsample="stride", ngff_version=self.ngff_version, name=str(name),
                 chunks=_field_chunks(m.shape), shards=False, compressor=FIELD_CODEC,
                 compression_level=FIELD_CODEC_LEVEL))
-            self._set_attrs(label_dir, {"image-label": {"version": "0.5"}})
+            self._set_attrs(label_dir, {"image-label": (
+                {"version": "0.5"} if self.ngff_version == "0.5" else {})})
             names.append(str(name))
         if names:
             self.zarr.open_group(str(target / "labels"), mode="a",
                                  zarr_format=3).attrs.update(
-                {"ome": {"version": "0.5", "labels": names}})
+                {"ome": {"version": self.ngff_version, "labels": names}})
         self._commit(key, well, field, names, image is not None)
         return key
 
@@ -216,7 +237,7 @@ class PlateWriter:
         os.replace(tmp, target)
 
     def _set_attrs(self, group_path: Path, extra: Mapping[str, Any]) -> None:
-        """Merge ``extra`` into a 0.5 group's ``ome`` attributes."""
+        """Merge ``extra`` into a 0.5 or 0.6 group's ``ome`` attributes."""
         group = self.zarr.open_group(str(group_path), mode="a", zarr_format=3)
         ome = dict(group.attrs.get("ome", {}))
         ome.update(extra)
@@ -246,12 +267,12 @@ class PlateWriter:
         for (row, column), fields in wells.items():
             group = self.zarr.open_group(str(self.path / row / column),
                                          mode="a", zarr_format=3)
-            group.attrs.update({"ome": {"version": "0.5", "well": {
+            group.attrs.update({"ome": {"version": self.ngff_version, "well": {
                 "images": [{"path": str(f)} for f in sorted(fields)]}}})
             self.zarr.open_group(str(self.path / row), mode="a",
                                  zarr_format=3)
         root = self.zarr.open_group(str(self.path), mode="a", zarr_format=3)
-        root.attrs.update({"ome": {"version": "0.5", "plate": {
+        root.attrs.update({"ome": {"version": self.ngff_version, "plate": {
             "name": self.plate,
             "rows": [{"name": r} for r in rows],
             "columns": [{"name": c} for c in columns],
