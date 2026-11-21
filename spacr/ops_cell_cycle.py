@@ -479,12 +479,15 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
     :param permutations: permutations of S2, S3 and S5.
     :param labelled: ``{"truth", "predicted", "shuffled_macro"}`` for S3; None skips it.
     :returns: one row per check: ``check``, ``stages`` (judged), ``value``, ``control``,
-        ``threshold``, ``passed`` (True, False or None when skipped) and ``note``.
+        ``threshold``, ``passed`` (True, False or None when skipped) and ``note``; the frame's
+        ``attrs["samples"]`` keeps S2's observed share and its permutation shares for the
+        report.
     """
     rng = np.random.default_rng(seed)
     stage = stages["model_stage"].to_numpy()
     reference = dict(card.get("reference") or {})
     rows = []
+    samples: Dict[str, Any] = {}
     centred = dna["dna_content_centred"].to_numpy(float)
     log2_dna = np.log2(np.clip(centred, 1e-12, None))
     midpoint = np.full(len(cells), np.nan)
@@ -514,6 +517,7 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
                 shuffled[idx] = late[rng.permutation(idx)]
             null.append(_pair_share(cells, shuffled, two_n, log2_dna))
         control = float(np.nanpercentile(null, 97.5))
+        samples["S2"] = (observed, [float(v) for v in null])
         rows.append({"check": "S2", "stages": "ana_telo_cyto", "value": observed,
                      "control": control, "threshold": control,
                      "passed": bool(observed > control), "note": "2N daughter pairs"})
@@ -598,7 +602,9 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
                  "note": f"lowest fit R2; G2/G1 {min(ratios, default=float('nan')):.3f}-"
                          f"{max(ratios, default=float('nan')):.3f} (pass {G2_G1_RANGE[0]}-"
                          f"{G2_G1_RANGE[1]})" + ("" if ratio_ok else "; ratio out of range")})
-    return pd.DataFrame(rows)
+    frame = pd.DataFrame(rows)
+    frame.attrs["samples"] = samples
+    return frame
 
 
 def _verdict(value: Any) -> Optional[bool]:
@@ -763,8 +769,97 @@ def _html_table(frame: pd.DataFrame) -> str:
     return frame.to_html(index=False, float_format=lambda v: f"{v:.4g}", na_rep="")
 
 
+def _png_data(figure) -> str:
+    """A figure as an inline ``data:`` URI, without a timestamp, so reruns write the same bytes."""
+    import base64
+    import io
+
+    buffer = io.BytesIO()
+    figure.savefig(buffer, format="png", dpi=150, bbox_inches="tight",
+                   metadata={"Software": None})
+    return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode("ascii")
+
+
+def _dna_figure(cells: pd.DataFrame, dna: pd.DataFrame, fits: Mapping[str, Any]) -> str:
+    """Each well's DNA-content histogram with its fitted G1, S and G2 and the gates."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    from matplotlib.figure import Figure
+
+    from .figures.style import DATA_ALPHA, SERIES, figure_style
+
+    wells = sorted(fits)
+    with figure_style("print"):
+        figure = Figure(figsize=(2.2 * max(len(wells), 1), 2.0))
+        axes = np.atleast_1d(figure.subplots(1, max(len(wells), 1), sharey=True))
+        for ax, well in zip(axes, wells):
+            fit = fits[well]["fit"]
+            here = (cells["well"].astype(str) == str(well)).to_numpy()
+            content = dna["dna_content_centred"].to_numpy(float)[here]
+            content = content[np.isfinite(content) & (content > 0)]
+            if not len(content):
+                continue
+            edges = np.linspace(*np.percentile(content, [0.5, 99.5]), 81)
+            ax.hist(content, edges, color=SERIES[0], alpha=DATA_ALPHA, label="cells")
+            centres = (edges[:-1] + edges[1:]) / 2
+            density = fit.densities(centres) * len(content) * np.diff(edges)[0]
+            for k, (name, colour) in enumerate(zip(("G1", "S", "G2"), SERIES[1:4])):
+                ax.plot(centres, density[:, k], color=colour, lw=1.0, label=name)
+            for gate in fit.gates:
+                ax.axvline(gate, color="#231F20", lw=0.6, ls=(0, (2, 2)))
+            ax.set_title(f"well {well}  G2/G1 {fit.g2 / fit.g1:.2f}", fontsize=8)
+            ax.set_xlabel("DNA content (field-centred)", fontsize=8)
+        axes[0].set_ylabel("cells", fontsize=8)
+        axes[0].legend(fontsize=7, frameon=False)
+        return _png_data(figure)
+
+
+def _checks_figure(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
+                   fits: Mapping[str, Any], checks: pd.DataFrame) -> str:
+    """S1 and S2 as bars with points, each against its control."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    from matplotlib.figure import Figure
+
+    from .figures.style import condition_plot, figure_style
+
+    centred = dna["dna_content_centred"].to_numpy(float)
+    midpoint = np.array([(fits[str(w)]["fit"].g1 + fits[str(w)]["fit"].g2) / 2
+                         if str(w) in fits else np.nan for w in cells["well"]])
+    above = centred > midpoint
+    stage = stages["model_stage"].to_numpy()
+    fields = (cells["well"].astype(str) + "/" + cells["site"].astype(str)).to_numpy()
+    condensed = np.isin(stage, ("prometaphase", "metaphase"))
+    mitotic_share = [float(above[(fields == f) & condensed].mean()) for f in np.unique(fields)
+                     if ((fields == f) & condensed).any()]
+    all_share = [float(above[fields == f].mean()) for f in np.unique(fields)]
+    samples = checks.attrs.get("samples", {})
+    with figure_style("print"):
+        figure = Figure(figsize=(4.2, 2.2))
+        left, right = figure.subplots(1, 2)
+        condition_plot(left, [all_share, mitotic_share], control=0)
+        left.set_xticks([0, 1])
+        left.set_xticklabels(["all cells\n(control)", "prometaphase\n+ metaphase"], fontsize=7)
+        left.set_ylabel("share above the G1/G2 midpoint\n(per field)", fontsize=8)
+        left.set_ylim(0, 1.05)
+        if "S2" in samples:
+            observed, null = samples["S2"]
+            condition_plot(right, [null, [observed]], control=0)
+            right.set_xticks([0, 1])
+            right.set_xticklabels(["shuffled\n(control)", "ana_telo\n_cyto"], fontsize=7)
+            right.set_ylim(0, 1.05)
+            right.set_ylabel("2N calls with a 2N partner", fontsize=8)
+        else:
+            right.set_axis_off()
+        figure.tight_layout()
+        return _png_data(figure)
+
+
 def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
-                 failed: Sequence[str], notes: Sequence[str], card: Mapping[str, Any]) -> str:
+                 failed: Sequence[str], notes: Sequence[str], card: Mapping[str, Any],
+                 figures: Sequence[Tuple[str, str]] = ()) -> str:
     """``ops_cell_cycle_report.html``: checks with their controls, stage counts and notes."""
     import html
 
@@ -783,6 +878,8 @@ def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
             "<h2>Base model cross-validation F1</h2>", table(f1) if len(f1) else "<p>none</p>",
             "<p>Shuffled-label control, 97.5th percentile of macro F1: "
             f"{card.get('cv', {}).get('shuffled_macro_f1_p975')}</p>",
+            *[f"<h2>{html.escape(title)}</h2><img src='{uri}' alt='{html.escape(title)}'>"
+              for title, uri in figures],
             "<h2>Notes</h2><ul>" + "".join(f"<li>{html.escape(n)}</li>" for n in notes) + "</ul>"]
     with open(path, "w", encoding="utf-8") as handle:
         handle.write("<!doctype html><meta charset='utf-8'><title>Cell cycle</title>"
@@ -900,8 +997,12 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
                   "labels": options["labels"] or os.path.join(destination, "cell_cycle_labels",
                                                               "labels.csv")}
     counts = table["cell_cycle_stage"].value_counts().sort_index()
+    figures = [("DNA content per well, with the fitted G1, S and G2 and the gates",
+                _dna_figure(cells, dna_frame, fits)),
+               ("4N in mitosis (S1) and 2N daughter pairs (S2), each against its control",
+                _checks_figure(cells, stages, dna_frame, fits, checks))]
     report = _report_html(os.path.join(destination, f"ops_cell_cycle_report_{plate}.html"),
-                          plate, checks, counts, union, notes, model["card"])
+                          plate, checks, counts, union, notes, model["card"], figures)
     return {"cells": int(len(table)), "collapsed": union, "plate_collapsed": failed,
             "stages": {k: int(v) for k, v in counts.items()}, "notes": notes,
             "report": report, "model_id": model_id, "label_queue": queued}
