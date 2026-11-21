@@ -237,7 +237,13 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
 # of the new read-weight tooltips carries them, so the list is empty again.
 #: Setting tooltips owed by the next catalog rebuild. Empty since landing train 5
 #: (2026-11-20) rebuilt the catalogs with item 919's three tooltips.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+# 995 (2026-11-20): the field-centring tooltips wait for the runtime catalog
+# rebuild that pins their nine-language reviews; master empties this then.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "cell_cycle_field_centre", "cell_cycle_field_min_cells",
+    "cell_cycle_fit_group", "cell_cycle_mitotic_column",
+    "ops_profile_cell_cycle_method",
+})
 
 
 def _assert_setting_tooltip_inventory(sources, en):

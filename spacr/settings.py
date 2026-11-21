@@ -2079,6 +2079,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('cell_cycle_labels', '')
     settings.setdefault('cell_cycle_model', '')
     settings.setdefault('cell_cycle_epochs', 20)
+    settings.setdefault('cell_cycle_field_centre', False)
+    settings.setdefault('cell_cycle_field_min_cells', 50)
+    settings.setdefault('cell_cycle_fit_group', 'plate')
+    settings.setdefault('cell_cycle_mitotic_column', '')
     settings.setdefault('wound_closure', False)
     settings.setdefault('wound_source', 'texture')
     settings.setdefault('wound_channel', None)
@@ -4465,6 +4469,10 @@ expected_types = {
     "cell_cycle_labels": str,
     "cell_cycle_model": str,
     "cell_cycle_epochs": int,
+    "cell_cycle_field_centre": bool,
+    "cell_cycle_field_min_cells": int,
+    "cell_cycle_fit_group": str,
+    "cell_cycle_mitotic_column": str,
     "wound_closure": bool,
     "wound_source": str,
     "wound_channel": (int, type(None)),
@@ -5996,6 +6004,10 @@ tooltips = {
     "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, so the learned methods reproduce the gate calls; annotated prophase and anaphase nuclei add information the gates do not provide. Default blank.",
     "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
     "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+    "cell_cycle_field_centre": "(bool) - Centre every field on its own G1 peak before the DNA-content fit, so differences in DNA-stain brightness between fields do not broaden the G1 and G2 peaks. Each field's G1 peak is found on its non-mitotic nuclei and shifted onto the median peak of its plate or well (cell_cycle_fit_group); a field with fewer than cell_cycle_field_min_cells such nuclei is not shifted. Writes field_offset_log2 and dna_content_centred per nucleus and the fitted peaks per group to measurements.db:cell_cycle_fit. Default False.",
+    "cell_cycle_field_min_cells": "(int) - The non-mitotic nuclei a field needs before cell_cycle_field_centre shifts it; fields with fewer keep their DNA content as measured. Default 50.",
+    "cell_cycle_fit_group": "(str) - Which nuclei share one DNA-content fit: plate fits each plate (and time point) once; well fits every well on its own, which follows staining differences between wells. Default plate.",
+    "cell_cycle_mitotic_column": "(str) - A True/False column of the nucleus table that marks mitotic nuclei, for example the call of a trained mitotic classifier. These nuclei are called M and are left out of the field peaks and the DNA-content fit, and cell_cycle_mitotic_ratio is then not used. Blank calls M from chromatin condensation as before. Default blank.",
     'intensity_calibration': '(bool) - Calibrate intensities before measuring, using beads or reference wells acquired in each imaging session. By default each plate is a session. An optional sessions CSV assigns fields independently of plates; an external bead folder can supply the reference images. Gains match the selected reference session or plate; blank choices keep the first-by-name default. The existing camera-offset gain method is unchanged. Gains and reference content identities are recorded in measurements.db:intensity_rescale. Default False.',
     'intensity_calibration_wells': "(list or None) - Wells holding the same calibration sample in each acquisition session, such as ['A01'] or ['A01', 'P24']. References come from the selected external bead folder, or otherwise the measured merged folder. Every measured session must have a usable reference field. In-source reference wells are measured like any other well. Default None.",
     'intensity_calibration_reference_plate': '(str or None) - Exact reference plate identifier from merged filenames, such as plate2. Without a sessions CSV, blank keeps the first plate by name. With explicit sessions, this plate must belong to one session, or pair it with an exact reference session on that plate. The selected plate must be present in the measured run. Default blank.',
@@ -6907,7 +6919,9 @@ categories = {
         "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
         "cell_cycle_gates", "cell_cycle_mitotic_ratio",
         "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
-        "cell_cycle_epochs",
+        "cell_cycle_epochs", "cell_cycle_field_centre",
+        "cell_cycle_field_min_cells", "cell_cycle_fit_group",
+        "cell_cycle_mitotic_column",
     ],
 
     "Wound Closure α": [
@@ -9845,6 +9859,11 @@ ALPHA_FEATURES = {
         'settings': ('ops_grid_search', 'ops_grid_params', 'ops_grid_tiles',
                      'ops_grid_tile_mode', 'ops_grid_n_tiles', 'ops_grid_seed',
                      'ops_grid_run_id'),
+    },
+    995: {
+        'settings': ('cell_cycle_field_centre', 'cell_cycle_field_min_cells',
+                     'cell_cycle_fit_group', 'cell_cycle_mitotic_column',
+                     'ops_profile_cell_cycle_method'),
     },
     988: {
         'settings': ('ops_read_distance_weight', 'ops_read_distance_decay_px',

@@ -1,0 +1,43 @@
+MEASURE CELL CYCLE: FIELD-CENTRED DNA-CONTENT FIT AND AN EXTERNAL MITOTIC CALL
+=============================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-20 on branch claude-995-impl, alpha (ALPHA_FEATURES[995]). Every new setting is off by default, so Measure and OPS outputs are byte-identical unless one is turned on (no DEFAULT_CHANGES row, no schema bump). Under development per proposals/READINESS.md until the master lands it. spacr/measure.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_cell_cycle_field_centring_995.py. Proof: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/item995_proof/ (identity_995.py, id_full_log2.json, id_full_raw.json).
+Requested: maintainer decision 2026-11-20: Funk et al. plate A G1/S/G2 calls use this path.
+Owner: lane claude-995-impl-1120.
+Source: proposals/bmc_paper_items/995_measure_dna_field_centring.md; reference implementation cellcycle_validation_1119/scripts/cc_measure_fc.py.
+Related: 535 (cell-cycle phase three ways), 856 (mitotic classifier), 890 (OPS cell-cycle profiles).
+
+PROBLEM
+DAPI scaling differs between fields of Funk plate A (field G1-mode SD
+0.04-0.13 log2), so one pooled histogram per plate broadens both peaks:
+Measure put G2/G1 at its 2.4 bound and called 0 % G2.
+
+BUILD
+- cell_cycle_field_centre (False): x = log2(max(DNA content, 1)); every field
+  (plate, time, row, column, field) with >= cell_cycle_field_min_cells (50)
+  non-mitotic nuclei is shifted by g1_mode(field) - median g1_mode of its fit
+  group; centred content 2 ** (x - offset). field_offset_log2 and
+  dna_content_centred per nucleus (spacr.measure._dna_field_offsets,
+  _field_centred_dna_phases).
+- cell_cycle_fit_group ('plate' | 'well'): one _fit_dna_content per group on
+  its non-mitotic nuclei (_cell_cycle_fit_groups).
+- cell_cycle_mitotic_column (''): a boolean nucleus-table column; those
+  nuclei are M, left out of the modes and the fit, and the condensation rule
+  is not applied (_external_mitotic_call).
+- Gates, subG1/>4N, confidence and posteriors unchanged (_gate_dna_content).
+- measurements.db:cell_cycle_fit: per group g1, g2, ratio, CV, weights,
+  gates, n, iterations, fields shifted (only on the centred path).
+- OPS: ops_profile_cell_cycle_method 'measure_fc' calls the same function on
+  the cell tables (_dna_integrated, well, site, mitotic) and folds
+  S/G2/>4N -> SG2, subG1 -> G1 for the phase profiles; the report carries the
+  fine call fractions and the per-well fits.
+
+ACCEPTANCE
+(a) Identity: 5,532,572 Funk plate A cells, 0 differ from
+    reference_measfc_calls.parquet; md5 of joined labels
+    bece7f3e5a97f78fb346727540c365ff = the frozen reference. On the float64
+    raw DAPI instead of the reference's float32 log2, 55 cells (0.001 %) at a
+    gate differ.
+(b) Off by default: the unchanged nightly code path; existing tests pass.
+(c) Settings rerun identical (test).

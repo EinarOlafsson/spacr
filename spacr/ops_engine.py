@@ -10220,6 +10220,12 @@ def _ph_neighbour_effects(settings: Mapping[str, Any], cells, embedding, pcs: Se
     return {**summary, "outputs": outputs}
 
 
+#: How ``ops_profile_cell_cycle_method 'measure_fc'`` folds Measure's calls
+#: into the profile phases G1, SG2 and M.
+_MEASURE_FC_PROFILE_PHASES = {"G1": "G1", "subG1": "G1", "S": "SG2",
+                              "G2": "SG2", ">4N": "SG2", "M": "M"}
+
+
 def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
                         guides, genes, destination: str, label: str,
                         control_prefix: str = "nontargeting"
@@ -10263,6 +10269,11 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
     similarity = None
 
     cycle = str(settings.get("ops_profile_cell_cycle") or "").strip() or None
+    cycle_method = str(settings.get("ops_profile_cell_cycle_method") or ""
+                       ).strip().lower()
+    if cycle_method not in ("", "measure_fc"):
+        raise ValueError(tr("ops_profile_cell_cycle_method must be empty or "
+                            "measure_fc; got {value}", value=cycle_method))
     source = str(settings.get("ops_mitotic_source") or "rule").strip().lower()
     if source not in ("rule", "classifier"):
         raise ValueError(tr("ops_mitotic_source must be rule or classifier; "
@@ -10282,12 +10293,30 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         split = float(_setting_number(
             settings.get("ops_profile_g1_sg2_split_log2"),
             "ops_profile_g1_sg2_split_log2", 0.30))
-        phases = cell_cycle_phases(cells, dna="_dna_integrated",
-                                   control=control, split_log2=split)["phase"]
-        report["cell_cycle"] = {
-            "split_log2": split, "mitotic_source": source,
-            "fractions": {p: round(float((phases == p).mean()), 4)
-                          for p in CELL_CYCLE_PHASES}}
+        if cycle_method == "measure_fc":
+            from .measure import (_cell_cycle_fit_rows,
+                                  _cell_table_phases_measure_fc)
+
+            called, fits = _cell_table_phases_measure_fc(cells)
+            fine = called["phase"]
+            phases = fine.map(_MEASURE_FC_PROFILE_PHASES)
+            report["cell_cycle"] = {
+                "method": cycle_method, "mitotic_source": source,
+                "fractions": {p: round(float((phases == p).mean()), 4)
+                              for p in CELL_CYCLE_PHASES},
+                "call_fractions": {
+                    p: round(float((fine == p).mean()), 4)
+                    for p in ("G1", "S", "G2", "subG1", ">4N", "M")},
+                "fits": _cell_cycle_fit_rows(fits, "well").to_dict(
+                    orient="records")}
+        else:
+            phases = cell_cycle_phases(cells, dna="_dna_integrated",
+                                       control=control,
+                                       split_log2=split)["phase"]
+            report["cell_cycle"] = {
+                "split_log2": split, "mitotic_source": source,
+                "fractions": {p: round(float((phases == p).mean()), 4)
+                              for p in CELL_CYCLE_PHASES}}
     if cycle:
         frame = pd.concat([cells[["well", "sgRNA", "gene"]].reset_index(drop=True),
                            pd.DataFrame(embedding, columns=pcs)], axis=1)

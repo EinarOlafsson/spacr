@@ -501,7 +501,8 @@ def test_the_settings_are_measure_defaults_and_alpha_registered():
                                 get_measure_crop_settings, tooltips)
 
     defaults = get_measure_crop_settings({})
-    keys = ALPHA_FEATURES[535]["settings"]
+    keys = ALPHA_FEATURES[535]["settings"] + tuple(
+        k for k in ALPHA_FEATURES[995]["settings"] if k.startswith("cell_cycle"))
     assert {k for k in defaults if k.startswith("cell_cycle")} == set(keys)
     assert defaults["cell_cycle"] is False
     assert defaults["cell_cycle_method"] == "measurements"
