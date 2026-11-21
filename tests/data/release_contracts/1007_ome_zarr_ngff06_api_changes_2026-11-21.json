@@ -1,0 +1,6 @@
+{
+  "spacr.image_store.PlateWriter": {
+    "before_sha256": "e2e08c277bc800ff3503bc3b6cd04d8104c22ab862ae7a9d04c2e10ecd354376",
+    "docstring": "The only writer of one plate's OME-Zarr store (item 983).\n\n:param root: the folder that holds ``<plate>.ome.zarr``.\n:param plate: the plate name.\n:param channel_names: the image channels' names, written to ``omero``.\n:param spacing: a :class:`spacr.layers.Spacing` for the pixel size, or\n    None to record pixels with no physical unit.\n:param ngff_version: ``'0.5'`` (the default) or ``'0.6'`` (item 1007):\n    the OME-Zarr version of every group in the store. One store holds\n    one version, so a store started in the other one is refused.\n\nFields are written whole with :meth:`write_field`; the plate and well\nmetadata are rewritten from the ledger after each field, so a reader\nopening the store mid-run sees only committed fields. Each image channel\nand label image uses one unsharded whole-field chunk, compressed with\nBlosc LZ4 and byte shuffle.\nOpen (or start) the plate store and read its commit ledger."
+  }
+}

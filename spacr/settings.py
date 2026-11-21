@@ -9308,6 +9308,9 @@ ALPHA_FEATURES = {
         'widgets': ('CellposeWorkbenchVirtualStain', 'MaskVirtualStainApply',
                     'MakeMasksVirtualStainApply'),
     },
+    1007: {
+        'settings': ('ome_zarr_ngff_version',),
+    },
     983: {
         'settings': ('mask_image_format', 'crop_image_format', 'crops_per_shard',
                      'crop_margin_px', 'crop_zero_outside'),

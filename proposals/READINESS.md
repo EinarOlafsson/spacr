@@ -83,6 +83,7 @@ Maintainer, 2026-11-12: every OPS stage is optimised for **quality first, then a
 | OPS image-model embedding V1 (`spacr_ops_transformer`) | OPS stage 4 (paper session) | Under development | Learning gate passed: +0.012 [0.007, 0.017] | E2 QC v2 checks pass | — |
 | Per-cell cell-cycle phase classifier | 856, OPS stage 3 (paper session) | Under development | F1 0.949 against hand labels; CDK1 and KIF11 4N controls | spaCR reproduces the phase calls on plate A (identical labels) | — |
 | OPS Live preview, one tab per step (GUI only; writes no results) | 971 | Under development | Branch claude-971-1117: five tabs on the OPS test data, each calling the run's own spaCR functions in a cache workspace; default OPS run byte-identical to nightly; CPU timings and both-theme screenshots in BMCspacr/reanalysis/item971_proof/REPORT.md | Maintainer review of the screenshots and timings | 372, 940 |
+| OME-Zarr NGFF 0.6 read and write of the OPS phenotype plate stores (`ome_zarr_ngff_version '0.6'`; alpha, default 0.5) | 1007 lane A | Under development | Branch claude-1007-impl: synthetic T1-T6, T11, T12; 0.6 chunks md5-identical to the 0.5 store of the same image; default path unchanged | Master lands lane A; independent reader check of a written 0.6 plate store; lanes B (converter) and C (registration) follow | 983, 986 |
 
 ## Proof order
 

@@ -75,9 +75,9 @@ def test_the_default_still_writes_04_and_shards_need_05(tmp_path):
         write_ome_zarr(tmp_path / "y.zarr", _field(shape=(1, 600, 600)),
                        axes=["c", "y", "x"], ngff_version="0.5",
                        chunks=(1, 256, 256), shards=(1, 300, 300))
-    with pytest.raises(OmeZarrError, match="0.4 .* or 0.5"):
+    with pytest.raises(OmeZarrError, match="0.4 .* 0.5 or 0.6"):
         write_ome_zarr(tmp_path / "z.zarr", _field(shape=(1, 8, 8)),
-                       axes=["c", "y", "x"], ngff_version="0.6")
+                       axes=["c", "y", "x"], ngff_version="0.7")
 
 
 @pytest.mark.parametrize("shards", [None, (1, 8, 10), False],

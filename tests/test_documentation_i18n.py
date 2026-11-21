@@ -453,6 +453,24 @@ def test_navigator_default_revision_preserves_the_historical_api_pin(mutation):
         _current_733_easy_mode_api(entries, current)
 
 
+def _current_1007_ome_zarr_api(entries, docs=None):
+    """Bind item 1007's rewritten PlateWriter docstring into item 983's fixture.
+
+    1007 (2026-11-21) documents ``PlateWriter(ngff_version=...)``. The 983
+    fixture keeps its original text; the change file pins that text by hash
+    and carries the current docstring.
+    """
+    changes = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "1007_ome_zarr_ngff06_api_changes_2026-11-21.json").read_text(encoding="utf-8"))
+    active = dict(entries)
+    for key, change in changes.items():
+        assert hashlib.sha256(active[key].encode()).hexdigest() == change["before_sha256"]
+        if docs is not None:
+            assert docs[key] == change["docstring"]
+        active[key] = change["docstring"]
+    return active
+
+
 def _current_718_metal_class_api(entries, docs):
     """Bind the three constructor summaries while retaining the original eight-entry fixture."""
     assert len(entries) == 8
@@ -3875,6 +3893,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
+        ("1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json", 3),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
@@ -3882,6 +3901,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
             arrivals = _posix_update_prepared_key_move(arrivals, docs)
         if filename == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
             arrivals = _current_718_metal_class_api(arrivals, docs)
+        if filename == "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json":
+            arrivals = _current_1007_ome_zarr_api(arrivals, docs)
         assert len(arrivals) == count
         source_docs = historical_docs if filename == "699_ssh_connection_worker_api_arrival_2026-10-14.json" else docs
         assert {key: source_docs[key] for key in arrivals} == arrivals

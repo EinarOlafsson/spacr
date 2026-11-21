@@ -549,7 +549,7 @@ def _verify_field(dst, entry, *, round_trip=False, ledger=None):
     image = None
     if entry["image"] is not None:
         metadata = read_ome_zarr(store / entry["key"])
-        if metadata.axis_names != ("c", "y", "x") or metadata.ngff_version != "0.5" or metadata.name != entry["key"]:
+        if metadata.axis_names != ("c", "y", "x") or metadata.ngff_version not in ("0.5", "0.6") or metadata.name != entry["key"]:
             raise ValueError(tr("Image metadata verification failed: {field}").format(field=entry["id"]))
         if entry["channel_names"] is not None and metadata.channel_names != tuple(entry["channel_names"]):
             raise ValueError(tr("Channel metadata verification failed: {field}").format(field=entry["id"]))
@@ -559,7 +559,7 @@ def _verify_field(dst, entry, *, round_trip=False, ledger=None):
     labels = {}
     for role, expected in entry["labels"].items():
         metadata = read_ome_zarr(store / entry["key"] / "labels" / role)
-        if metadata.axis_names != ("y", "x") or metadata.ngff_version != "0.5" or metadata.name != role:
+        if metadata.axis_names != ("y", "x") or metadata.ngff_version not in ("0.5", "0.6") or metadata.name != role:
             raise ValueError(tr("Label metadata verification failed: {field}/{role}").format(field=entry["id"], role=role))
         _verify_spacing(metadata, entry)
         labels[role] = image_store.read_labels(store, role, key=entry["key"])
