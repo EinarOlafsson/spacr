@@ -5633,7 +5633,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # keyword of spacr.plot.save_figure (figprefs), figures of runs outside the GUI.
     # 20,260 -> 20,262 on 2026-11-20 (landing train 5): items 983/984's optional
     # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr (both defaulted).
-    assert sum(len(item.parameters) for item in callables) == 20262
+    # 20,262 -> 20,265 on 2026-11-21 (item 1002): `strict` of spacr.cli.resolve_settings (defaulted) and `settings`, `app` of the new spacr.settings.unknown_setting_keys.
+    assert sum(len(item.parameters) for item in callables) == 20265
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
