@@ -4717,6 +4717,29 @@ def _metadata_type_status_sources(
     return found
 
 
+def _ops_profile_cell_cycle_method_sources(tree: ast.Module) -> set[str]:
+    """Return only the field-centred profile refusal from its top-level owner."""
+    caption = ("ops_profile_cell_cycle_method must be empty or "
+               "measure_fc; got {value}")
+    found: set[str] = set()
+    for owner in tree.body:
+        if not (isinstance(owner, ast.FunctionDef)
+                and owner.name == "_ph_profile_options"):
+            continue
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef, ast.Lambda)):
+                continue
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name) and node.func.id == "tr"
+                    and _literal(node.args[0]) == caption):
+                found.add(caption)
+            pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     # Compact-catalog ownership is registered lazily by the screens that own
@@ -4784,6 +4807,9 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         try:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except SyntaxError:
+            continue
+        if path == source_root / "ops_engine.py":
+            found.update(_ops_profile_cell_cycle_method_sources(tree))
             continue
         if path.parent == source_root and path.name in {"settings.py", "object.py"}:
             diagnostic_owners = {"_own_diameter", "_eval_diameter", "_note_the_diameter"}
@@ -4900,6 +4926,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_measurement_channel_names", "_granularity_frames",
                              "_promote_merged_to_uint16", "_measure_field_confluency",
                              "_fit_dna_content", "_fucci_states",
+                             "_cell_cycle_fit_groups", "_cell_table_phases_measure_fc",
+                             "_phases_by_centred_measurements", "_external_mitotic_call",
                              "_resolve_cell_cycle_methods", "_wound_condition_lookup",
                              "_well_roles", "_read_plate_map", "_classify_viability",
                              "_checked_intensity", "_checked_label",
