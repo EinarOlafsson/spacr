@@ -44,29 +44,21 @@ class TestGuideSupport:
         assert row["n_guides_significant"] == 0
         assert row["concordance"] == 1.0
 
-    def test_guides_disagreeing_in_direction_are_visible(self):
-        """No p-value threshold reveals this, and it is the strongest
-        argument that a hit is noise."""
+    @pytest.mark.parametrize('rows, gene, metric, expected', [
+        pytest.param(
+            [('fraction:grna[313330_1]', 1.0, 4.2e-05), ('fraction:grna[313330_2]', -1.2, 1.5e-05), ('gene_fraction:gene[313330]', -0.1, 8.6e-06)], '313330', 'concordance', 0.5,
+            id='test_guides_disagreeing_in_direction_are_visible',
+        ),
+        pytest.param(
+            [('fraction:grna[1_1]', -5.0, 0.001), ('fraction:grna[1_2]', 0.1, 0.9), ('fraction:grna[1_3]', 0.1, 0.9)], '1', 'n_same_direction', 1,
+            id='test_direction_is_taken_from_the_mean_not_the_biggest_guide',
+        ),
+    ])
+    def test_original_guide_groups_keep_their_direction_metrics(self, rows, gene, metric, expected):
+        """Preserve each original guide group and its native direction metric."""
         from spacr.guide_concordance import guide_support
-
-        support = guide_support(_frame([
-            ("fraction:grna[313330_1]", +1.0, 4.2e-05),
-            ("fraction:grna[313330_2]", -1.2, 1.5e-05),
-            ("gene_fraction:gene[313330]", -0.1, 8.6e-06),
-        ]))
-        assert support.loc["313330"]["concordance"] == 0.5
-
-    def test_direction_is_taken_from_the_mean_not_the_biggest_guide(self):
-        """Letting the strongest guide define 'correct' hides disagreement."""
-        from spacr.guide_concordance import guide_support
-
-        support = guide_support(_frame([
-            ("fraction:grna[1_1]", -5.0, 0.001),   # one large negative
-            ("fraction:grna[1_2]", +0.1, 0.9),
-            ("fraction:grna[1_3]", +0.1, 0.9),
-        ]))
-        # The mean is negative, so only the large guide agrees with it.
-        assert support.loc["1"]["n_same_direction"] == 1
+        support = guide_support(_frame(rows))
+        assert support.loc[gene][metric] == expected
 
     def test_an_empty_or_odd_table_returns_an_empty_frame(self):
         from spacr.guide_concordance import guide_support
