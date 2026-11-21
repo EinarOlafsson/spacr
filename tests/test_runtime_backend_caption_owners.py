@@ -17,12 +17,13 @@ def extract_backend_sources(tmp_path, monkeypatch):
     for filename in (
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
         "install_cleanup.py", "data_manager.py", "doctor.py", "updater.py",
-        "settings.py", "object.py", "remote_execution.py",
+        "settings.py", "object.py", "_mask_workers.py", "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
-        "psf_pipeline.py", "pipeline_v2.py", "convert.py",
+        "psf_pipeline.py", "pipeline_v2.py", "convert.py", "ome_zarr_convert.py",
         "_lineage_trees.py",
         "utils.py", "channel_sorting.py", "image_import.py", "run_journal.py", "ml.py",
         "regression_layout.py", "regression_failure.py", "regression_backends.py", "power_model.py", "io.py",
+        "gene_measurement_compare.py", "ops_prefix.py", "ops_decode.py",
         "uniprot.py", "validate.py", "torch_artifacts.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")

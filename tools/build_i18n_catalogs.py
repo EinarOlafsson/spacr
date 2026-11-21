@@ -4735,6 +4735,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "embeddings.py")
     paths.add(ROOT / "spacr" / "settings.py")
     paths.add(ROOT / "spacr" / "object.py")
+    paths.add(ROOT / "spacr" / "_mask_workers.py")
     paths.add(ROOT / "spacr" / "remote_execution.py")
     paths.add(ROOT / "spacr" / "install_cleanup.py")
     paths.add(ROOT / "spacr" / "data_manager.py")
@@ -4780,14 +4781,30 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             continue
         if path.parent == source_root and path.name in {"settings.py", "object.py"}:
             diagnostic_owners = {"_own_diameter", "_eval_diameter", "_note_the_diameter"}
+            if path.name == "object.py":
+                diagnostic_owners.update({"_diameter_bindings", "_remember_diameter",
+                                          "_cellpose3_resolved_sizes"})
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
+        if path == source_root / "_mask_workers.py":
+            diagnostic_methods = {
+                "_MaskBatchLedger": {"_resolved_receipt", "verified"},
+                "_MaskWorkerPool": {"_handle"},
+            }
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.ClassDef)
+                         and node.name in diagnostic_methods]
+            for node in tree.body:
+                node.body = [method for method in node.body
+                             if isinstance(method, ast.FunctionDef)
+                             and method.name in diagnostic_methods[node.name]]
         if path == source_root / "io.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in {"_validate_normalized_source_channels",
-                                           "_resume_normalized_archives"}]
+                                           "_resume_normalized_archives",
+                                           "_normalize_recorded_batch"}]
         if path == source_root / "data_manager.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
@@ -4817,11 +4834,14 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                          if isinstance(node, ast.FunctionDef)
                          and node.name == "annotation_for"]
         if path == source_root / "run_journal.py":
-            # Only the Windows owner-only secret refusal is catalogued here;
-            # the module's other captions reach the catalog through the GUI.
+            # Keep the Windows secret refusal and exact saved-run diagnostics;
+            # other captions reach the catalog through the GUI.
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name == "_restrict_to_owner"]
+                         and node.name in {"_restrict_to_owner", "_resolved_plain",
+                                           "_validate_resolved_parameters", "_resolved_field_id",
+                                           "_resolved_source", "_resolved_parameter",
+                                           "_record_resolved_parameter"}]
         if path == source_root / "utils.py":
             tree.body = [node for node in tree.body
                          if (isinstance(node, ast.FunctionDef)

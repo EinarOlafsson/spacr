@@ -22,7 +22,7 @@ Related:   spacr/utils.py _get_diam (2*mag+80 cell, 2*mag+120 cell_large,
            Mask object settings grid (ObjectSettingsGrid).
 
 --------------------------------------------------------------------------------
-TASK T: EXACT SAVED-RUN REPLAY (HOME CODEX, P1, INBOX V94, 2026-11-20)
+TASK T: EXACT SAVED-RUN REPLAY (HOME CODEX, P1, INBOX V96, 2026-11-20)
 --------------------------------------------------------------------------------
 
 Base the existing autorecord work on nightly 04ec46d370, which contains
@@ -53,6 +53,12 @@ propagation. Add the release-note line and exact English handoff, run the
 smallest relevant CPU cohort through the current P1 scheduler, generate
 normal affected artifacts and publish the assigned branch. No GPU or
 downloads are authorized.
+
+Inbox v96 authorizes the narrow runtime scanner follow-up on the same T
+branch. Register the 16 saved-run diagnostic literals, pass the catalog-builder
+and runtime-i18n tests, and publish that separate source commit. Then publish
+their nine-language runtime reviews and the five changed public API blocks
+on ws-offload-codex-tr-t, using the standard Codex review attribution.
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -336,4 +342,4 @@ Audit and record other data-derived values affecting segmentation, including coh
 Acceptance: one site alone and within a full run from the same saved settings produces byte-identical CPU masks; saved values round-trip, fresh auto estimates, and parallel-worker results reach the parent record.
 2026-11-19 — Partial prerequisite on ws-offload-codex-home-autorecord: CSV and JSON now save the same stamped effective payload, retaining exact values without mutating the caller; 6 focused tests and 13 subtests pass. Exact replay metadata/schema and frozen-callsite authorization was pending at this checkpoint; TASK T and byte-identical-mask acceptance were incomplete.
 2026-11-20 — Inbox v93 authorizes exactly the reserved provenance field, schema 950 without default changes, GUI retention and thin pipeline_v2 identity callsite requested on 2026-11-19. Inbox v94 moves the assigned base to landed nightly 04ec46d370, including the effective-settings prerequisite; schema 950 follows X/P at landing. Matching completed parallel archives must verify against per-field resolved records, while different cohort values are refused.
-2026-11-20 — TASK T implementation on ws-offload-codex-home-autorecord records exact normalization/diameter results, retains GUI metadata and resolved PSF/model/linkage scalars, isolates folder snapshots and refreshes plate illumination hooks. Targeted T1 resolves every T0 failure (29 tests and 37 subtests pass; unaffected T0 passes retained). Real CPU R1 on two fixed 192x192 DAPI crops from cached Mask Generation data passes CSV/JSON save-reload replay alone and together with identical complete NPY bytes, no replay estimation and fresh-auto estimation; source/model guards pass. The failed R0 empty-curation fixture remains recorded. After the v94 rebase, T2 passes 39 receipt, worker, schema, GUI and orchestration checks: matching saved receipts reuse masks, while different/missing values refuse. Evidence is in .codex-audit/replay-T1.report.json, replay-T2.report.json and real-R1/report.json; broader native/release/tutorial scope remains open.
+2026-11-20 — TASK T implementation on ws-offload-codex-home-autorecord records exact normalization/diameter results, retains GUI metadata and resolved PSF/model/linkage scalars, isolates folder snapshots and refreshes plate illumination hooks. Targeted T1 resolves every T0 failure (29 tests and 37 subtests pass; unaffected T0 passes retained). Real CPU R1 on two fixed 192x192 DAPI crops from cached Mask Generation data passes CSV/JSON save-reload replay alone and together with identical complete NPY bytes, no replay estimation and fresh-auto estimation; source/model guards pass. The failed R0 empty-curation fixture remains recorded. After the v94 rebase, T2 passes 39 receipt, worker, schema, GUI and orchestration checks: matching saved receipts reuse masks, while different/missing values refuse. Inbox v96 adds all 16 replay diagnostics to the runtime scanner and synchronizes its synthetic fixture inventory: 22 S1 tests pass, its fixture failure passes in S3 after correction, and all 16 canonical-source checks pass. Evidence is in .codex-audit/replay-T1.report.json, replay-T2.report.json, real-R1/report.json and scanner-S1/S3.report.json; nine-language reviews and broader native/release/tutorial scope remain open.
