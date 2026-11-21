@@ -512,15 +512,28 @@ def test_the_settings_are_measure_defaults_and_alpha_registered():
 
 
 def test_the_real_plate1_nuclei_fit_a_g1_and_a_g2_peak(tmp_path):
-    """The example plate's Hoechst nuclei: a 2N and a 4N peak, and S between."""
+    """The example plate's Hoechst nuclei: a 2N and a 4N peak, and S between.
+
+    The test needs a plate1 measurements database whose nucleus table has
+    the integrated DNA intensity; without one it skips and names the path,
+    since a database measured before that column was written cannot answer.
+    """
     source = Path(os.environ.get("SPACR_PLATE1_DB") or Path.home()
                   / ".cache/spacr/example_data/plate1/measurements"
                   / "measurements.db")
     if not source.is_file():
-        pytest.skip("plate1 example data not downloaded")
-    nuclei = pd.read_sql_query(
-        "SELECT * FROM nucleus", sqlite3.connect(f"file:{source}?mode=ro",
-                                                 uri=True))
+        pytest.skip(f"plate1 example data not downloaded: {source} is missing")
+    connection = sqlite3.connect(f"file:{source}?mode=ro", uri=True)
+    columns = {row[1] for row in connection.execute(
+        "PRAGMA table_info(nucleus)")}
+    needed = "nucleus_channel_0_integrated_intensity"
+    if needed not in columns:
+        connection.close()
+        pytest.skip(f"{source} has no {needed} column in its nucleus table; "
+                    "re-measure plate1 or set SPACR_PLATE1_DB to a database "
+                    "that has it")
+    nuclei = pd.read_sql_query("SELECT * FROM nucleus", connection)
+    connection.close()
     measured, fits = _phases_by_measurements(nuclei, column=0)
     fit = fits[("plate1",)]
     assert 1.8 <= fit.g2 / fit.g1 <= 2.2

@@ -57,7 +57,7 @@ def test_features_keeps_its_rows_and_nests_the_assays(qtbot):
     section = _tree(qtbot)["Features"]
     assert "save_measurements" in _own_keys(section)
     assert _children(section) == [
-        "Confluency α", "Cell Cycle α", "Wound Closure α",
+        "Vacuoles α", "Confluency α", "Cell Cycle α", "Wound Closure α",
         "Viability α", "CellProfiler α",
         "GPU Measurement α", "Time To Event α"]
 
