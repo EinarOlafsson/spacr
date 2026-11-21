@@ -406,17 +406,24 @@ def test_invalid_crop_settings_keep_their_original_refusals(settings, message):
         cs.validate(settings)
 
 
-def test_streaming_needs_planes_a_shape_and_a_mask_plane():
-    settings = {"crop_source": "merged", "channel_arrays": [0, 1],
-                "object_array": "cell", "cell_mask_dim": 2}
-    assert cs.validate(settings) == "merged"
-
-
-def test_a_coordinate_run_needs_an_image_size_and_no_mask_plane():
-    """A coordinate has no mask, so demanding one would refuse a valid run."""
-    settings = {"crop_source": "merged", "channel_arrays": [0, 1],
-                "coordinate_columns": ["cell_id"], "image_size": 64}
-    assert cs.validate(settings) == "merged"
+@pytest.mark.parametrize('settings, expected', [
+    pytest.param(
+        {'crop_source': 'merged', 'channel_arrays': [0, 1],
+         'object_array': 'cell', 'cell_mask_dim': 2},
+        'merged',
+        id='test_streaming_needs_planes_a_shape_and_a_mask_plane',
+    ),
+    pytest.param(
+        {'crop_source': 'merged', 'channel_arrays': [0, 1],
+         'coordinate_columns': ['cell_id'], 'image_size': 64},
+        'merged',
+        id='test_a_coordinate_run_needs_an_image_size_and_no_mask_plane',
+    ),
+])
+def test_original_valid_crop_settings_keep_their_resolved_source(
+        settings, expected):
+    """Preserve each original valid crop setup and its resolved source."""
+    assert cs.validate(settings) == expected
 
 
 def test_generating_is_validated_like_streaming():
