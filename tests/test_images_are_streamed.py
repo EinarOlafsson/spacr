@@ -135,22 +135,19 @@ class TestTheStreamMethod:
     def test_there_are_two(self):
         assert [m for m, _ in STREAM_METHODS] == ["column", "array"]
 
-    def test_column_needs_the_object_array_and_the_channels(self):
-        assert set(settings_for_method("column")) == {"object_array",
-                                                      "channel_arrays"}
-
-    def test_array_needs_the_plane_the_channels_and_the_box(self):
-        """AND THE PLANE IS `object_array`, WHICH IT ALWAYS WAS.
-
-        This asked for `mask_array` until 2026-09-09. That setting said
-        it named the labelled plane for this route, and `stream_dataset`
-        has always taken the plane from `object_array` -- for BOTH
-        methods -- so the route's own documented input was never read.
-        `picture_settings` even wrote it an integer plane index that
-        nothing consulted. Retired under 357-Q4.
-        """
-        assert set(settings_for_method("array")) == {
-            "object_array", "channel_arrays", "bounding_box"}
+    @pytest.mark.parametrize('method, expected', [
+        pytest.param(
+            'column', {'object_array', 'channel_arrays'},
+            id='test_column_needs_the_object_array_and_the_channels',
+        ),
+        pytest.param(
+            'array', {'bounding_box', 'object_array', 'channel_arrays'},
+            id='test_array_needs_the_plane_the_channels_and_the_box',
+        ),
+    ])
+    def test_stream_methods_keep_original_setting_sets(self, method, expected):
+        """Preserve each original stream method and native required-setting set."""
+        assert set(settings_for_method(method)) == expected
 
     def test_the_two_read_different_settings(self):
         """Which is why it is one control rather than a pair of flags."""
