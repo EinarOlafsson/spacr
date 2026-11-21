@@ -1149,8 +1149,12 @@ class RunningBanner(QFrame):
         self._sync_pause_control()
 
     def _on_open(self) -> None:
-        """Go to the module this banner is about."""
+        """Go to the module this banner is about, or run the job's own opener."""
         if self._handle is not None:
+            opener = getattr(self._handle, "open_job", None)
+            if callable(opener):
+                opener()
+                return
             self.open_requested.emit(self._handle.app_key)
 
     def _on_pause(self) -> None:

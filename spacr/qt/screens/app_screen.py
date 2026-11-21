@@ -13015,6 +13015,18 @@ class AppScreen(QWidget):
         self._on_run(override=settings)
         return True
 
+    def _offer_cell_cycle_label_job(self, payload) -> None:
+        """Put an OPS run's cell-cycle labelling queue on Home as a job that opens Annotate."""
+        queued = (payload.get("ph_cell_cycle") or {}).get("label_queue")
+        if not queued:
+            return
+        from functools import partial
+
+        from ...ops_cell_cycle import open_label_job, track_label_job
+
+        handle = track_label_job(queued["folder"], queued["cells"])
+        handle.open_job = partial(open_label_job, self.window(), queued)
+
     def _on_pipeline_result(self, payload) -> None:
         """Take the coefficient table straight from the run that made it.
 
@@ -13027,6 +13039,7 @@ class AppScreen(QWidget):
         """
         if not isinstance(payload, dict):
             return
+        self._offer_cell_cycle_label_job(payload)
         self._update_run_in_runs_tab(
             folder=str(payload.get("res_folder") or "") or None,
             n_results=(len(payload["results"])

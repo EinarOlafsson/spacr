@@ -331,7 +331,8 @@ def _label_enrichment(labels, reference_labels, reference_cells, weight):
 
 
 def _model(kind: str, seed: int, balanced: bool = True):
-    """The classifier named ``kind``."""
+    """The classifier named ``kind``: ``'hist_gradient_boosting'``, ``'logistic'`` or
+    ``'xgboost'`` (item 990; class balance comes from sample weights, not ``balanced``)."""
     weight = "balanced" if balanced else None
     if kind == "hist_gradient_boosting":
         from sklearn.ensemble import HistGradientBoostingClassifier
@@ -346,7 +347,16 @@ def _model(kind: str, seed: int, balanced: bool = True):
 
         return make_pipeline(SimpleImputer(strategy="median"), StandardScaler(),
                              LogisticRegression(max_iter=2000, class_weight=weight))
-    raise ValueError(f"model must be 'hist_gradient_boosting' or 'logistic'; got {kind!r}")
+    if kind == "xgboost":
+        from xgboost import XGBClassifier
+
+        from .ml import _xgboost_cpu_safe
+
+        return XGBClassifier(**_xgboost_cpu_safe({
+            "n_estimators": 300, "learning_rate": 0.1, "max_depth": 6, "random_state": seed,
+            "n_jobs": 1, "tree_method": "hist"}))
+    raise ValueError(f"model must be 'hist_gradient_boosting', 'logistic' or 'xgboost'; "
+                     f"got {kind!r}")
 
 
 def _fit(model, x, y, weight):
