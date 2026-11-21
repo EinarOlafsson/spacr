@@ -155,3 +155,46 @@ M: reader and writer about 400 lines, converter about 300, registration storage 
   - The final Funk runs set `ome_zarr_ngff_version '0.6'` explicitly in their settings file, so they do not need the flip.
   - Flipping the default would change the stores of every new OPS run and needs a DEFAULT_CHANGES row (schema 953 is reserved for 1007). It stays the maintainer's decision.
 - Whether the sidecar tables stay the source of truth for registration, or the store becomes it.
+
+
+## Lane A crop-benchmark correction: NGFF 0.6 reader interoperability (verified 2026-11-21)
+
+The validated independent metadata reader is **`ome-zarr-models==1.8.1`**.
+`open_ome_zarr(path, version="0.6")` accepts the spaCR plate, well, image,
+and label metadata. Use the spaCR OME-Zarr reader for pixel arrays.
+
+**`ome-zarr==0.21.0` does not declare NGFF 0.6 support.** Its
+[format registry, lines 24–32](https://github.com/ome/ome-zarr-py/blob/v0.21.0/ome_zarr/format.py#L24-L32)
+ends at 0.5. Its [multiscale reader, lines 279–287](https://github.com/ome/ome-zarr-py/blob/v0.21.0/ome_zarr/reader.py#L279-L287)
+reads the old per-multiscale version and axes keys. Their absence in a valid
+0.6 store selects the [five-axis fallback, lines 79–81](https://github.com/ome/ome-zarr-py/blob/v0.21.0/ome_zarr/axes.py#L79-L81),
+which causes the reported axis-4 error when assembling a three-dimensional
+plate field. Adding legacy axes to a 0.6 multiscale is not the correction.
+The interoperability test records the installed reader version and skips a
+format that the library does not support; a future reader that declares 0.6
+must open the plate and return identical pixels.
+
+New plate fields use the existing shared OME-Zarr chunk policy: one channel
+and at most 256 × 256 spatial pixels per unsharded chunk, with Blosc LZ4 and
+byte shuffle. A uint16 tile is 128 KiB. The tile edge aligns with common
+64- and 128-pixel cell crops. Images and masks retain their exact pixel
+bytes and dtype; the Zarr array metadata records the chunk shape. Existing
+committed fields are read and resumed without rewriting their chunks.
+
+
+### Synthetic crop benchmark (2026-11-21)
+
+A four-channel 1994 × 1994 uint16 field, 1,000 identical random 64 × 64
+crops, seed 20261121, local storage after one warm-up read. The comparison
+used one CPU thread, one Blosc thread, and Zarr async concurrency one.
+
+| Layout | Chunk shape (C, Y, X) | 1,000 crops |
+|---|---|---|
+| Previous PlateWriter | 1 × 1994 × 1994 | 7.811 s |
+| Shared default tiles | 1 × 256 × 256 | 1.936 s |
+
+This synthetic run was 4.04× faster. Full pixel bytes, dtype,
+random crop positions and crop checksums were identical. This is a local,
+warm-cache comparison; it does not reproduce the paper-session storage
+benchmark. The regression test allows 30 seconds for 1,000 crops on its
+smaller synthetic field.
