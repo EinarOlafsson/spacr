@@ -1325,6 +1325,9 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Unknown setting '{key}'",
     "Unknown setting '{key}' -> '{nearest}'",
+    "Unknown setting '{key}' ignored; nearest known setting: '{nearest}'.",
+    "Unknown setting '{key}' ignored.",
+    "Remove it from the settings file, or check the spelling.",
 })
 
 
