@@ -237,7 +237,10 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
 # of the new read-weight tooltips carries them, so the list is empty again.
 #: Setting tooltips owed by the next catalog rebuild. Empty since landing train 5
 #: (2026-11-20) rebuilt the catalogs with item 919's three tooltips.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # Item 998 (2026-11-20): the painting frame shift tooltip, owed by the next catalog rebuild.
+    "cpg_painting_frame_shift",
+})
 
 
 def _assert_setting_tooltip_inventory(sources, en):
