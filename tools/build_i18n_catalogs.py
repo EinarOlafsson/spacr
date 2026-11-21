@@ -4803,6 +4803,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "validate.py")
     paths.add(ROOT / "spacr" / "torch_artifacts.py")
     paths.add(ROOT / "spacr" / "ops_decode.py")
+    # Item 990: the OPS cell-cycle option's refusals, report text and Home job go through tr().
+    paths.add(ROOT / "spacr" / "ops_cell_cycle.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):

@@ -73,10 +73,12 @@ def screen_collapses(per_plate: Mapping[str, Sequence[str]]) -> List[str]:
 def _features(columns: Sequence[str], dna: str, mt: Optional[str]) -> List[str]:
     """The model's features: :func:`spacr.ops_mitotic.mitotic_features`."""
     from .ops_mitotic import mitotic_features
+    from .qt.i18n import tr
 
     features = mitotic_features(columns, dna=dna, tubulin=mt)
     if not features:
-        raise ValueError(f"the cell tables have no feature of the DNA channel {dna!r}")
+        raise ValueError(tr("the cell tables have no feature of the DNA channel {dna}",
+                            dna=repr(dna)))
     return features
 
 
@@ -91,9 +93,11 @@ def _matrix(cells: pd.DataFrame, features: Sequence[str]) -> np.ndarray:
 def _learner(tabular: str, seed: int):
     """An unfitted multiclass learner: :func:`spacr.ops_mitotic._model`."""
     from .ops_mitotic import _model
+    from .qt.i18n import tr
 
     if tabular not in TABULAR:
-        raise ValueError(f"ops_cell_cycle_tabular must be one of {list(TABULAR)}; got {tabular!r}")
+        raise ValueError(tr("ops_cell_cycle_tabular must be one of {allowed}; got {value}",
+                            allowed=list(TABULAR), value=repr(tabular)))
     return _model("hist_gradient_boosting" if tabular == "hgb" else "xgboost", seed)
 
 
@@ -115,10 +119,13 @@ def _probabilities(model, x: np.ndarray) -> np.ndarray:
 
 def _encode(labels: Sequence[Any]) -> np.ndarray:
     """Class indices of stage names; an unknown name raises ValueError."""
+    from .qt.i18n import tr
+
     index = {name: i for i, name in enumerate(CLASSES)}
     unknown = sorted({str(v) for v in labels} - set(index))
     if unknown:
-        raise ValueError(f"cell-cycle labels must be one of {list(CLASSES)}; got {unknown}")
+        raise ValueError(tr("cell-cycle labels must be one of {allowed}; got {unknown}",
+                            allowed=list(CLASSES), unknown=unknown))
     return np.array([index[str(v)] for v in labels], int)
 
 
@@ -227,10 +234,13 @@ def train_cell_cycle_model(cells: pd.DataFrame, labels: Sequence[str], *, input_
         model trained on the others).
     :raises ValueError: for an unknown mode or stage, or 'DNA+MT' without ``mt``.
     """
+    from .qt.i18n import tr
+
     if input_mode not in ("DNA", "DNA+MT"):
-        raise ValueError(f"input_mode must be 'DNA' or 'DNA+MT'; got {input_mode!r}")
+        raise ValueError(tr("input_mode must be 'DNA' or 'DNA+MT'; got {value}",
+                            value=repr(input_mode)))
     if input_mode == "DNA+MT" and not mt:
-        raise ValueError("'DNA+MT' needs the microtubule channel")
+        raise ValueError(tr("'DNA+MT' needs the microtubule channel"))
     features = _features(cells.columns, dna, mt if input_mode == "DNA+MT" else None)
     x = _matrix(cells, features)
     y = _encode(labels)
@@ -344,25 +354,31 @@ def load_cell_cycle_checkpoint(path: str) -> Dict[str, Any]:
 
     import joblib
 
+    from .qt.i18n import tr
+
     sums_path = os.path.join(path, "SHA256SUMS")
     if not os.path.isfile(sums_path):
-        raise ValueError(f"{path} is not a cell-cycle checkpoint: no SHA256SUMS")
+        raise ValueError(tr("{path} is not a cell-cycle checkpoint: no SHA256SUMS", path=path))
     with open(sums_path, encoding="utf-8") as handle:
         sums = dict(reversed(line.split()) for line in handle if line.strip())
     for name in ("card.json", "model.joblib"):
         target = os.path.join(path, name)
         if name not in sums or not os.path.isfile(target) or _sha256(target) != sums[name]:
-            raise ValueError(f"{name} of {path} does not match its SHA-256; refusing to load")
+            raise ValueError(tr("{name} of {path} does not match its SHA-256; refusing to load",
+                                name=name, path=path))
     with open(os.path.join(path, "card.json"), encoding="utf-8") as handle:
         card = json.load(handle)
     if card.get("format") != CHECKPOINT_FORMAT:
-        raise ValueError(f"{path} has format {card.get('format')!r}, not {CHECKPOINT_FORMAT!r}")
+        raise ValueError(tr("{path} has format {found}, not {expected}", path=path,
+                            found=repr(card.get("format")), expected=repr(CHECKPOINT_FORMAT)))
     if list(card.get("classes") or []) != list(CLASSES):
-        raise ValueError(f"{path} was trained on the classes {card.get('classes')}; this spaCR calls "
-                         f"{list(CLASSES)} (telophase_daughters became a stage of its own). "
-                         "Train the base model again with spacr.ops_cell_cycle.train_cell_cycle_model")
-    warnings.warn(f"loading the cell-cycle model {path}: unpickling runs code; load only "
-                  "checkpoints you trust", stacklevel=2)
+        raise ValueError(tr(
+            "{path} was trained on the classes {found}; this spaCR calls {classes} "
+            "(telophase_daughters became a stage of its own). Train the base model again with "
+            "spacr.ops_cell_cycle.train_cell_cycle_model", path=path,
+            found=card.get("classes"), classes=list(CLASSES)))
+    warnings.warn(tr("loading the cell-cycle model {path}: unpickling runs code; load only "
+                     "checkpoints you trust", path=path), stacklevel=2)
     held = joblib.load(os.path.join(path, "model.joblib"))
     return {**held, "card": card, "sha256": sums["model.joblib"]}
 
@@ -451,9 +467,12 @@ def predict_stages(bundle: Mapping[str, Any], cells: pd.DataFrame) -> pd.DataFra
         ``model_stage``.
     :raises ValueError: when a feature is missing.
     """
+    from .qt.i18n import tr
+
     missing = [f for f in bundle["features"] if f not in cells.columns]
     if missing:
-        raise ValueError(f"the cell tables lack the model's features {missing[:5]}")
+        raise ValueError(tr("the cell tables lack the model's features {missing}",
+                            missing=missing[:5]))
     p = _probabilities(bundle["model"], _matrix(cells, bundle["features"]))
     out = pd.DataFrame(p, index=cells.index, columns=[f"p_{c}" for c in CLASSES])
     out["model_stage"] = [CLASSES[i] for i in np.argmax(p, axis=1)]
@@ -546,6 +565,8 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
         ``attrs["samples"]`` keeps S2's observed share and its permutation shares for the
         report.
     """
+    from .qt.i18n import tr
+
     rng = np.random.default_rng(seed)
     stage = stages["model_stage"].to_numpy()
     reference = dict(card.get("reference") or {})
@@ -565,7 +586,7 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
                  "control": float(reference["S1"]) if "S1" in reference else float("nan"),
                  "threshold": s1_threshold,
                  "passed": None if not condensed.any() else bool(s1 >= s1_threshold),
-                 "note": "share of prometaphase and metaphase calls above the G1/G2 midpoint"})
+                 "note": tr("share of prometaphase and metaphase calls above the G1/G2 midpoint")})
     late = np.isin(stage, DAUGHTER_STAGES)
     needed = {"nucleus_centroid_y", "nucleus_centroid_x", "nucleus_area"}
     if late.sum() >= 2 and needed <= set(cells.columns):
@@ -583,21 +604,21 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
         samples["S2"] = (observed, [float(v) for v in null])
         rows.append({"check": "S2", "stages": ",".join(DAUGHTER_STAGES), "value": observed,
                      "control": control, "threshold": control,
-                     "passed": bool(observed > control), "note": "2N daughter pairs"})
+                     "passed": bool(observed > control), "note": tr("2N daughter pairs")})
     else:
         rows.append({"check": "S2", "stages": ",".join(DAUGHTER_STAGES), "value": float("nan"),
                      "control": float("nan"), "threshold": float("nan"), "passed": None,
-                     "note": "skipped: needs two daughter-stage calls and nucleus centroids"})
+                     "note": tr("skipped: needs two daughter-stage calls and nucleus centroids")})
     if labelled is not None:
         value = _macro_f1(labelled["truth"], labelled["predicted"])
         control = float(np.percentile(labelled["shuffled_macro"], 97.5))
         rows.append({"check": "S3", "stages": ",".join(CLASSES), "value": value,
                      "control": control, "threshold": control, "passed": bool(value > control),
-                     "note": "held-out macro F1 against shuffled-label models"})
+                     "note": tr("held-out macro F1 against shuffled-label models")})
     else:
         rows.append({"check": "S3", "stages": ",".join(CLASSES), "value": float("nan"),
                      "control": float("nan"), "threshold": float("nan"), "passed": None,
-                     "note": "skipped: no user labels"})
+                     "note": tr("skipped: no user labels")})
     mitotic = np.isin(stage, MITOTIC_STAGES)
     fields = (cells["well"].astype(str) + "/" + cells["site"].astype(str)).to_numpy()
     sizes = pd.Series(fields).value_counts()
@@ -613,12 +634,14 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
                      "control": float(reference.get("S4", float("nan"))), "threshold": limit,
                      "passed": (bool(phi <= limit) if np.isfinite(limit) and np.isfinite(phi)
                                 else None),
-                     "note": "overdispersion of the mitotic share across fields"
-                             + ("" if np.isfinite(limit) else "; no base-card φ, not judged")})
+                     "note": (tr("overdispersion of the mitotic share across fields")
+                              if np.isfinite(limit) else
+                              tr("overdispersion of the mitotic share across fields; no "
+                                 "base-card φ, not judged"))})
     else:
         rows.append({"check": "S4", "stages": ",".join(MITOTIC_STAGES), "value": float("nan"),
                      "control": float("nan"), "threshold": float("nan"), "passed": None,
-                     "note": "skipped: fewer than two fields with 50 cells"})
+                     "note": tr("skipped: fewer than two fields with 50 cells")})
     if arrest_genes and "gene" in cells.columns:
         genes = cells["gene"].astype(str).to_numpy()
         arrest = np.isin(np.char.upper(genes.astype(str)), [g.upper() for g in arrest_genes])
@@ -643,15 +666,16 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
             rows.append({"check": "S5", "stages": "prometaphase,metaphase", "value": observed,
                          "control": float(np.percentile(null, 95)), "threshold": 0.05,
                          "passed": bool(p_value < 0.05),
-                         "note": f"arrest knockouts vs non-targeting, permutation p = {p_value:.4f}"})
+                         "note": tr("arrest knockouts vs non-targeting, permutation p = {p}",
+                                    p=f"{p_value:.4f}")})
         else:
             rows.append({"check": "S5", "stages": "prometaphase,metaphase", "value": float("nan"),
                          "control": float("nan"), "threshold": float("nan"), "passed": None,
-                         "note": "skipped: fewer than 100 cells of the arrest set"})
+                         "note": tr("skipped: fewer than 100 cells of the arrest set")})
     else:
         rows.append({"check": "S5", "stages": "prometaphase,metaphase", "value": float("nan"),
                      "control": float("nan"), "threshold": float("nan"), "passed": None,
-                     "note": "skipped: no arrest set or no gene per cell"})
+                     "note": tr("skipped: no arrest set or no gene per cell")})
     quality = []
     for well, info in fits.items():
         here = (cells["well"].astype(str) == str(well)).to_numpy()
@@ -659,12 +683,16 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
     r2 = min((q[0] for q in quality if np.isfinite(q[0])), default=float("nan"))
     ratios = [q[1] for q in quality]
     ratio_ok = all(G2_G1_RANGE[0] <= r <= G2_G1_RANGE[1] for r in ratios)
+    span = {"low": f"{min(ratios, default=float('nan')):.3f}",
+            "high": f"{max(ratios, default=float('nan')):.3f}",
+            "lo": G2_G1_RANGE[0], "hi": G2_G1_RANGE[1]}
     rows.append({"check": "S6", "stages": "G1,S,G2", "value": r2,
                  "control": float(np.median(ratios)) if ratios else float("nan"),
                  "threshold": FIT_R2, "passed": bool(np.isfinite(r2) and r2 >= FIT_R2 and ratio_ok),
-                 "note": f"lowest fit R2; G2/G1 {min(ratios, default=float('nan')):.3f}-"
-                         f"{max(ratios, default=float('nan')):.3f} (pass {G2_G1_RANGE[0]}-"
-                         f"{G2_G1_RANGE[1]})" + ("" if ratio_ok else "; ratio out of range")})
+                 "note": (tr("lowest fit R2; G2/G1 {low}-{high} (pass {lo}-{hi})", **span)
+                          if ratio_ok else
+                          tr("lowest fit R2; G2/G1 {low}-{high} (pass {lo}-{hi}); ratio out of "
+                             "range", **span))})
     frame = pd.DataFrame(rows)
     frame.attrs["samples"] = samples
     return frame
@@ -793,7 +821,10 @@ def read_cell_cycle_labels(path: str) -> pd.DataFrame:
     table = read_table(str(path), canonicalise=False, report=None)
     missing = [c for c in (*KEY, "stage") if c not in table.columns]
     if missing:
-        raise ValueError(f"the cell-cycle labels {path} lack {missing}")
+        from .qt.i18n import tr
+
+        raise ValueError(tr("the cell-cycle labels {path} lack {missing}", path=path,
+                            missing=missing))
     _encode(table["stage"])
     table["plate"] = table["plate"].astype(str)
     table["well"] = table["well"].astype(str)
@@ -802,21 +833,27 @@ def read_cell_cycle_labels(path: str) -> pd.DataFrame:
 
 def _options(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """The ``ops_cell_cycle_*`` settings, checked."""
+    from .qt.i18n import tr
+
     mode = settings.get("ops_cell_cycle")
     family = str(settings.get("ops_cell_cycle_model_family") or "tabular").lower()
     tabular = str(settings.get("ops_cell_cycle_tabular") or "hgb").lower()
     finetune = str(settings.get("ops_cell_cycle_finetune") or "screen").lower()
     if mode not in ("DNA", "DNA+MT"):
-        raise ValueError(f"ops_cell_cycle must be None, 'DNA' or 'DNA+MT'; got {mode!r}")
+        raise ValueError(tr("ops_cell_cycle must be None, 'DNA' or 'DNA+MT'; got {value}",
+                            value=repr(mode)))
     if family not in FAMILIES:
-        raise ValueError(f"ops_cell_cycle_model_family must be one of {list(FAMILIES)}")
+        raise ValueError(tr("ops_cell_cycle_model_family must be one of {allowed}",
+                            allowed=list(FAMILIES)))
     if tabular not in TABULAR:
-        raise ValueError(f"ops_cell_cycle_tabular must be one of {list(TABULAR)}")
+        raise ValueError(tr("ops_cell_cycle_tabular must be one of {allowed}",
+                            allowed=list(TABULAR)))
     if finetune not in FINETUNE:
-        raise ValueError(f"ops_cell_cycle_finetune must be one of {list(FINETUNE)}")
+        raise ValueError(tr("ops_cell_cycle_finetune must be one of {allowed}",
+                            allowed=list(FINETUNE)))
     mt = settings.get("ops_cell_cycle_mt_channel") or None
     if mode == "DNA+MT" and not mt:
-        raise ValueError("ops_cell_cycle 'DNA+MT' needs ops_cell_cycle_mt_channel")
+        raise ValueError(tr("ops_cell_cycle 'DNA+MT' needs ops_cell_cycle_mt_channel"))
     arrest = settings.get("ops_cell_cycle_arrest_genes", "default")
     if isinstance(arrest, str):
         arrest = ARREST_GENES if arrest.strip().lower() in ("default", "") else [
@@ -927,27 +964,36 @@ def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
     """``ops_cell_cycle_report.html``: checks with their controls, stage counts and notes."""
     import html
 
+    from .qt.i18n import tr
+
     table = _html_table
+    esc = html.escape
     f1 = pd.DataFrame([{"stage": k, "F1": v, "CI low": card.get("cv", {}).get("f1_ci95", {})
                         .get(k, [np.nan, np.nan])[0], "CI high": card.get("cv", {})
                         .get("f1_ci95", {}).get(k, [np.nan, np.nan])[1]}
                        for k, v in card.get("cv", {}).get("f1", {}).items()])
-    body = [f"<h1>Cell cycle (OPS), plate {html.escape(str(plate))}</h1>",
-            "<p>Stages: G1, S, G2 (DNA-content fit); g2_prophase (G2 prophase, a flag class); "
-            "prometaphase; metaphase; ana_telo_cyto (anaphase, telophase and cytokinesis); "
-            "artefact. CI: 95 % field-bootstrap confidence interval. NT: non-targeting.</p>",
-            "<h2>Self-checks</h2>", table(checks),
-            f"<p>Collapsed: {html.escape(', '.join(failed) or 'none')}</p>",
-            "<h2>Cells per stage</h2>", table(counts.rename_axis("stage").reset_index(name="cells")),
-            "<h2>Base model cross-validation F1</h2>", table(f1) if len(f1) else "<p>none</p>",
-            "<p>Shuffled-label control, 97.5th percentile of macro F1: "
-            f"{card.get('cv', {}).get('shuffled_macro_f1_p975')}</p>",
-            *[f"<h2>{html.escape(title)}</h2><img src='{uri}' alt='{html.escape(title)}'>"
+    body = [f"<h1>{esc(tr('Cell cycle (OPS), plate {plate}', plate=str(plate)))}</h1>",
+            "<p>" + esc(tr(
+                "Stages: G1, S, G2 (DNA-content fit); g2_prophase (G2 prophase, a flag class); "
+                "prometaphase; metaphase; ana_telo_cyto (anaphase, telophase and cytokinesis); "
+                "telophase_daughters (the two 2N daughters); artefact. CI: 95 % "
+                "field-bootstrap confidence interval. NT: non-targeting.")) + "</p>",
+            f"<h2>{esc(tr('Self-checks'))}</h2>", table(checks),
+            "<p>" + esc(tr("Collapsed: {stages}", stages=", ".join(failed) or tr("none")))
+            + "</p>",
+            f"<h2>{esc(tr('Cells per stage'))}</h2>",
+            table(counts.rename_axis("stage").reset_index(name="cells")),
+            f"<h2>{esc(tr('Base model cross-validation F1'))}</h2>",
+            table(f1) if len(f1) else f"<p>{esc(tr('none'))}</p>",
+            "<p>" + esc(tr("Shuffled-label control, 97.5th percentile of macro F1: {value}",
+                           value=card.get("cv", {}).get("shuffled_macro_f1_p975"))) + "</p>",
+            *[f"<h2>{esc(title)}</h2><img src='{uri}' alt='{esc(title)}'>"
               for title, uri in figures],
-            "<h2>Notes</h2><ul>" + "".join(f"<li>{html.escape(n)}</li>" for n in notes) + "</ul>"]
+            f"<h2>{esc(tr('Notes'))}</h2><ul>" + "".join(f"<li>{esc(n)}</li>" for n in notes)
+            + "</ul>"]
     with open(path, "w", encoding="utf-8") as handle:
-        handle.write("<!doctype html><meta charset='utf-8'><title>Cell cycle</title>"
-                     + "".join(body))
+        handle.write("<!doctype html><meta charset='utf-8'><title>"
+                     + esc(tr("Cell cycle")) + "</title>" + "".join(body))
     return path
 
 
@@ -974,16 +1020,19 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
     :raises ValueError: for a bad setting, missing cell tables or no model to start from.
     """
     from .ops_engine import _ph_cells_path, _replace_well_rows, _rows_for_wells
+    from .qt.i18n import tr
     from .tabular import read_table
 
     options = _options(settings)
     notes: List[str] = []
     if options["family"] != "tabular":
-        notes.append(f"ops_cell_cycle_model_family {options['family']!r} is not available in "
-                     f"this build; the tabular learner {options['tabular']!r} was used")
+        notes.append(tr("ops_cell_cycle_model_family {family} is not available in this build; "
+                        "the tabular learner {tabular} was used",
+                        family=repr(options["family"]), tabular=repr(options["tabular"])))
     if not options["base"] and not options["labels"]:
-        raise ValueError("ops_cell_cycle needs a base model (ops_cell_cycle_base_model) or user "
-                         "labels (ops_cell_cycle_labels); no shipped base model is registered yet")
+        raise ValueError(tr("ops_cell_cycle needs a base model (ops_cell_cycle_base_model) or "
+                            "user labels (ops_cell_cycle_labels); no shipped base model is "
+                            "registered yet"))
     base = load_cell_cycle_checkpoint(options["base"]) if options["base"] else None
     frames = []
     for well in wells:
@@ -993,13 +1042,14 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
             frame["well"] = str(well)
             frames.append(frame)
     if not frames:
-        raise ValueError(f"no phenotype cell table for wells {list(wells)}")
+        raise ValueError(tr("no phenotype cell table for wells {wells}", wells=list(wells)))
     cells = pd.concat(frames, ignore_index=True)
     cells["plate"] = str(plate)
     dna = str(options["dna"] or "dapi").lower()
     integrated = f"nucleus_{dna}_integrated_intensity"
     if integrated not in cells.columns:
-        raise ValueError(f"the cell tables lack {integrated}, the DNA content the fit needs")
+        raise ValueError(tr("the cell tables lack {column}, the DNA content the fit needs",
+                            column=integrated))
     cells["_dna_integrated"] = cells[integrated].to_numpy(float)
     _attach_genes(cells, db, plate, wells, settings, _rows_for_wells)
     labelled = None
@@ -1023,8 +1073,9 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
                                       _labelled_rows(joined, joined["stage"],
                                                      start["features"], plate),
                                       start["features"])
-                notes.append(f"fine-tuned on the screen's labels: {len(joined)} of this plate "
-                             f"and {len(pooled)} of other plates")
+                notes.append(tr("fine-tuned on the screen's labels: {here} of this plate and "
+                                "{others} of other plates", here=len(joined),
+                                others=len(pooled)))
             model = fine_tune(start, joined, joined["stage"], seed=options["seed"],
                               tabular=options["tabular"], pooled=pooled)
             labelled = _labelled_scores(model, joined, options)
@@ -1076,9 +1127,9 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
                   "labels": options["labels"] or os.path.join(destination, "cell_cycle_labels",
                                                               "labels.csv")}
     counts = table["cell_cycle_stage"].value_counts().sort_index()
-    figures = [("DNA content per well, with the fitted G1, S and G2 and the gates",
+    figures = [(tr("DNA content per well, with the fitted G1, S and G2 and the gates"),
                 _dna_figure(cells, dna_frame, fits)),
-               ("4N in mitosis (S1) and 2N daughter pairs (S2), each against its control",
+               (tr("4N in mitosis (S1) and 2N daughter pairs (S2), each against its control"),
                 _checks_figure(cells, stages, dna_frame, fits, checks))]
     report = _report_html(os.path.join(destination, f"ops_cell_cycle_report_{plate}.html"),
                           plate, checks, counts, union, notes, model["card"], figures)
@@ -1229,18 +1280,21 @@ def write_label_queue(queue: pd.DataFrame, crop_root: str, folder: str, *,
     from .annotation_dataset import png_list_frame, write_png_list
     from .ops_run_infra import crop_index
     from .ops_engine import _ph_read_crop
+    from .qt.i18n import tr
     from .tabular import write_table
 
     crops = []
     for plate, rows in queue.groupby("plate", sort=False):
         index = crop_index(crop_root, str(plate), sorted(rows["well"].astype(str).unique()))
         if not len(index):
-            raise ValueError(f"no crops of plate {plate} under {crop_root}; run ph_crops first")
+            raise ValueError(tr("no crops of plate {plate} under {root}; run ph_crops first",
+                                plate=plate, root=crop_root))
         index = index.assign(well=[os.path.basename(os.path.dirname(s)) for s in index["shard"]])
         found = rows.astype({"well": str}).merge(index, on=["well", "site", "label"], how="left")
         if found["shard"].isna().any():
-            raise ValueError(f"{int(found['shard'].isna().sum())} queued cells of plate {plate} "
-                             "have no crop; run ph_crops for their wells")
+            raise ValueError(tr("{count} queued cells of plate {plate} have no crop; run "
+                                "ph_crops for their wells",
+                                count=int(found["shard"].isna().sum()), plate=plate))
         crops += [(row, _ph_read_crop(row.shard, row.offset_data, row.size)[0])
                   for row in found.itertuples()]
     stacked = [np.asarray(image, float) for _row, image in crops]
@@ -1280,7 +1334,8 @@ def collect_label_queue(folder: str, *, user: str = "") -> int:
 
     :param folder: from :func:`write_label_queue`.
     :param user: who labelled.
-    :returns: the rows appended (cells annotated 1 to 6).
+    :returns: the rows appended (cells annotated 1 to 7, the stages of :data:`CLASSES` as
+        :func:`write_label_queue` numbers them).
     """
     import csv
     import datetime
@@ -1321,11 +1376,12 @@ def track_label_job(folder: str, cells: int):
     :returns: the registry handle; its ``folder`` attribute names the queue.
     """
     from .qt.bridge import _track_external_job
+    from .qt.i18n import tr
 
-    handle = _track_external_job(f"Cell cycle: label {int(cells)} cells", None,
+    handle = _track_external_job(tr("Cell cycle: label {count} cells", count=int(cells)), None,
                                  blocks_shutdown=False, stop_on_quit=False, kind="external")
     handle.folder = str(folder)
-    handle.report(0, int(cells), f"queue in {folder}")
+    handle.report(0, int(cells), tr("queue in {folder}", folder=folder))
     return handle
 
 
@@ -1346,13 +1402,14 @@ def finish_label_job(handle, *, rerun=None, user: str = "",
     :param settings: the run's settings, written to the journal with the labels path.
     :returns: the answers appended.
     """
+    from .qt.i18n import tr
     from .run_journal import open_run
 
     try:
         appended = collect_label_queue(handle.folder, user=user)
         with open(os.path.join(handle.folder, "queue.json"), encoding="utf-8") as stream:
             labels = json.load(stream)["labels"]
-        handle.report(line=f"{appended} labels appended to {labels}")
+        handle.report(line=tr("{count} labels appended to {path}", count=appended, path=labels))
         if appended:
             journal = {**dict(settings or {}), "ops_cell_cycle_labels": labels,
                        "hash_inputs": True}
