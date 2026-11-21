@@ -332,7 +332,8 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
 def _measurement_settings(channels: int, texture: bool,
                           gpu: bool = False,
                           profile_features=None,
-                          granularity_subsample: float = 1.0
+                          granularity_subsample: float = 1.0,
+                          funk_features: bool = False
                           ) -> Dict[str, object]:
     """The measure settings one phenotype field is measured with.
 
@@ -344,9 +345,16 @@ def _measurement_settings(channels: int, texture: bool,
     :param profile_features: the measure setting ``profile_features``
         (:func:`spacr.measure.profile_feature_families`); with
         ``'colocalisation'`` among them the per-object Pearson and Manders
-        block (``calculate_correlation``) is on too.
+        block (``calculate_correlation``) is on too, as before. The blocks of
+        :data:`spacr.measure.MEASURE_BLOCK_FAMILIES` it names are switched on
+        by :func:`spacr.measure._intensity_measurements` itself, as in
+        Measure: ``coloc_block`` alone gives that Pearson and Manders block
+        without the slow ``colocalisation`` family.
     :param granularity_subsample: ``profile_granularity_subsample``, the
         ``subsample`` of :func:`spacr.measure.measure_granularity`.
+    :param funk_features: ``funk_object_features``: Funk et al. 2022's
+        object features from :func:`spacr.measure._add_funk_frames`, for
+        every compartment, as Measure writes them.
     :returns: the dict :func:`spacr.measure._morphological_measurements` and
         :func:`spacr.measure._intensity_measurements` read.
     """
@@ -355,6 +363,7 @@ def _measurement_settings(channels: int, texture: bool,
 
     families = profile_feature_families(profile_features)
     ops = {"ops_ph_texture": bool(texture), "ops_ph_measure_gpu": bool(gpu),
+           "ops_ph_funk_features": bool(funk_features),
            "ops_ph_profile_features": list(families) or None,
            "ops_ph_granularity_subsample": float(granularity_subsample)}
     return {
@@ -437,12 +446,14 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
         names in place of spaCR's ``channel_<i>``.
     :param texture: include the GLCM homogeneity block.
     :param funk_features: add Funk et al. 2022's features: the mass
-        displacement of every channel and the correlation of every channel
-        pair in the nucleus and the cell (:func:`funk_object_features`),
-        and ``nucleus_form_factor`` and ``cell_form_factor``,
-        ``4 * pi * area / perimeter ** 2`` (``shape_features['form_factor']``
-        of their ``ops/cp_emulator.py``) from spaCR's own area and
-        perimeter.
+        displacement of every channel, the correlation of every channel
+        pair and the form factor, ``4 * pi * area / perimeter ** 2``
+        (``shape_features['form_factor']`` of their ``ops/cp_emulator.py``),
+        in the nucleus, the cell and the cytoplasm. They come from
+        :func:`spacr.measure._add_funk_frames`, the code Measure's
+        ``funk_object_features`` runs, with the names
+        :func:`funk_object_features` gives (``<compartment>_<ch>_mass_displacement``,
+        ``<compartment>_correlation_<a>_<b>``, ``<compartment>_form_factor``).
     :param zernike: add the Zernike moments of degree 8
         (``zernike_0`` to ``zernike_24``) of the cell and the nucleus, as
         :func:`spacr.measure._calculate_zernike` computes them with mahotas;
@@ -472,8 +483,7 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     import pandas as pd
     from scipy import ndimage
 
-    from .measure import (_channel_named, _form_factor,
-                          _intensity_measurements,
+    from .measure import (_channel_named, _intensity_measurements,
                           _morphological_measurements)
 
     image = np.asarray(image, np.float32)
@@ -491,7 +501,8 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     cytoplasm = np.where(nuclei > 0, 0, cells).astype(np.int32)
     blank = np.zeros_like(cells)
     settings = _measurement_settings(image.shape[2], texture, gpu,
-                                     profile_features, granularity_subsample)
+                                     profile_features, granularity_subsample,
+                                     funk_features=funk_features)
     morphology = _morphological_measurements(
         cells, nuclei, blank, blank, cytoplasm, settings,
         zernike=bool(zernike))
@@ -528,18 +539,6 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
             frame = frame.assign(label=frame["label"].astype(np.int64))
             frame = frame.drop_duplicates(subset=["label"])
             out = out.merge(frame, on="label", how="left")
-    if funk_features:
-        for prefix, mask in (("nucleus", nuclei), ("cell", cells)):
-            funk = funk_object_features(mask, image, channel_names, prefix)
-            funk = funk.loc[:, [c for c in funk.columns
-                                if c == "label" or c not in out.columns]]
-            out = out.merge(funk, on="label", how="left")
-            area, perimeter = f"{prefix}_area", f"{prefix}_perimeter"
-            if (area in out and perimeter in out
-                    and f"{prefix}_form_factor" not in out):
-                out[f"{prefix}_form_factor"] = _form_factor(
-                    out[area].to_numpy(np.float64),
-                    out[perimeter].to_numpy(np.float64))
     keep = [c for c in out.columns if pd.api.types.is_numeric_dtype(out[c])]
     return out.loc[:, keep].reset_index(drop=True)
 
