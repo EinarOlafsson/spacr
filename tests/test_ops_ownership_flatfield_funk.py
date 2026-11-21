@@ -434,11 +434,14 @@ def test_measure_adds_funk_features_only_when_asked():
     funk = measure_phenotype_field(nuclei, cells, image, ["DAPI", "GFP"],
                                    texture=False, funk_features=True)
     added = sorted(set(funk.columns) - set(plain.columns))
+    # Item 1008: the features come from Measure's own code, so the cytoplasm has them too.
     assert added == sorted([
         "nucleus_dapi_mass_displacement", "nucleus_gfp_mass_displacement",
         "nucleus_correlation_dapi_gfp", "nucleus_form_factor",
         "cell_dapi_mass_displacement", "cell_gfp_mass_displacement",
-        "cell_correlation_dapi_gfp", "cell_form_factor"])
+        "cell_correlation_dapi_gfp", "cell_form_factor",
+        "cytoplasm_dapi_mass_displacement", "cytoplasm_gfp_mass_displacement",
+        "cytoplasm_correlation_dapi_gfp", "cytoplasm_form_factor"])
     pd.testing.assert_frame_equal(funk[plain.columns], plain)
     props = {r.label: r for r in regionprops(nuclei)}
     for row in funk.itertuples():
