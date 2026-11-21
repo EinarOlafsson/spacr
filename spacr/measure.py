@@ -1784,7 +1784,10 @@ def _intensity_measurements(
         ``homogeneity``, ``homogeneity_distances``, ``manders_thresholds``,
         ``distance_gaussian_sigma``, ``profile_features`` (the
         profiling families of :func:`measure_profile_features`, 2-D only;
-        empty adds nothing), ``profile_optional_families`` (the slow
+        empty adds nothing; the blocks it names,
+        :data:`MEASURE_BLOCK_FAMILIES`, switch ``calculate_correlation`` and
+        ``radial_dist`` on, each computed once when both name it),
+        ``profile_optional_families`` (the slow
         families ``'profiling'`` adds, :func:`profile_optional_families`),
         ``profile_granularity_subsample`` and the ``<object>_mask_dim`` toggles).
     :param sizes: Legacy size bins. Defaults to ``[3, 6, 12, 24]``.
@@ -1805,8 +1808,13 @@ def _intensity_measurements(
     """
     if sizes is None:
         sizes = [3, 6, 12, 24]
-    radial_dist = settings['radial_dist']
-    calculate_correlation = settings['calculate_correlation']
+    selected = profile_feature_families(
+        settings.get('profile_features'),
+        settings.get('profile_optional_families'))
+    blocks = measure_block_families(selected)
+    radial_dist = settings['radial_dist'] or 'legacy_radial' in blocks
+    calculate_correlation = (settings['calculate_correlation']
+                             or 'coloc_block' in blocks)
     homogeneity = settings['homogeneity']
     distances = settings['homogeneity_distances']
 
@@ -1957,9 +1965,8 @@ def _intensity_measurements(
                         coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
                         dfs[m].append(coloc_df)
 
-    families = tuple(name for name in profile_feature_families(
-        settings.get('profile_features'),
-        settings.get('profile_optional_families')) if name != 'neighbours')
+    families = tuple(name for name in selected
+                     if name != 'neighbours' and name not in blocks)
     if families and ndim == 2:
         _add_profile_frames(
             dfs, ls, labels, channel_arrays, families,
@@ -3344,6 +3351,15 @@ PROFILE_FEATURE_OPTIONAL = (
     'colocalisation_costes', 'granularity',
 )
 
+#: Blocks of spaCR's own per-object measurement that a ``profile_features``
+#: list may name besides the profiling families, so Measure and the OPS
+#: phenotype path switch them the same way: ``coloc_block`` is the per-object
+#: Pearson, Manders and overlap block of :func:`_calculate_correlation_object_level`
+#: (the ``calculate_correlation`` setting), ``legacy_radial`` the six-bin radial
+#: distribution of :func:`_calculate_radial_distribution` (``radial_dist``).
+#: ``'profiling'`` and ``'all'`` name none of them.
+MEASURE_BLOCK_FAMILIES = ('coloc_block', 'legacy_radial')
+
 #: Haralick's 13 statistics in mahotas' order (Haralick et al. 1973).
 _HARALICK_NAMES = (
     'asm', 'contrast', 'correlation', 'variance', 'idm', 'sum_average',
@@ -3401,13 +3417,15 @@ def profile_feature_families(value, optional=None):
         ``'profiling'`` for :data:`PROFILE_FEATURE_DEFAULT`; ``'all'`` for
         every family in :data:`PROFILE_FEATURE_FAMILIES`; otherwise family
         names, as a list or a comma-separated string, which may include
-        ``'profiling'``.
+        ``'profiling'`` and the blocks of :data:`MEASURE_BLOCK_FAMILIES`.
     :param optional: the ``profile_optional_families`` setting
         (:func:`profile_optional_families`): the slow families
         ``'profiling'`` also measures. Names and ``'all'`` are not changed
         by it, and without ``'profiling'`` it adds nothing.
-    :returns: the families in :data:`PROFILE_FEATURE_FAMILIES` order.
-    :raises ValueError: for a name that is not a family.
+    :returns: the families in :data:`PROFILE_FEATURE_FAMILIES` order, then
+        the named blocks in :data:`MEASURE_BLOCK_FAMILIES` order
+        (:func:`measure_block_families`).
+    :raises ValueError: for a name that is not a family or a block.
     """
     extra = profile_optional_families(optional)
     if value is None or value is False or value == '':
@@ -3423,14 +3441,29 @@ def profile_feature_families(value, optional=None):
             wanted.update(extra)
         elif name == 'all':
             wanted.update(PROFILE_FEATURE_FAMILIES)
-        elif name in PROFILE_FEATURE_FAMILIES:
+        elif name in PROFILE_FEATURE_FAMILIES or name in MEASURE_BLOCK_FAMILIES:
             wanted.add(name)
         else:
             raise ValueError(
                 f"profile_features: {name!r} is not a measurement family; "
                 f"use 'profiling', 'all' or names from "
-                f"{', '.join(PROFILE_FEATURE_FAMILIES)}")
-    return tuple(name for name in PROFILE_FEATURE_FAMILIES if name in wanted)
+                f"{', '.join(PROFILE_FEATURE_FAMILIES + MEASURE_BLOCK_FAMILIES)}")
+    return tuple(name for name in PROFILE_FEATURE_FAMILIES + MEASURE_BLOCK_FAMILIES
+                 if name in wanted)
+
+
+def measure_block_families(families):
+    """The blocks of :data:`MEASURE_BLOCK_FAMILIES` a family list names.
+
+    :param families: the families of :func:`profile_feature_families`, or a
+        ``profile_features`` setting, which is read through it.
+    :returns: the named blocks, in :data:`MEASURE_BLOCK_FAMILIES` order;
+        ``'profiling'`` and ``'all'`` name none.
+    :raises ValueError: for a name that is not a family or a block.
+    """
+    if not isinstance(families, tuple):
+        families = profile_feature_families(families)
+    return tuple(name for name in MEASURE_BLOCK_FAMILIES if name in families)
 
 
 def _profile_inputs(labels, image):
@@ -4706,7 +4739,9 @@ def measure_profile_features(labels, image, families='profiling',
     :param labels: 2-D label mask of one compartment.
     :param image: ``(H, W, C)`` intensities over it.
     :param families: as :func:`profile_feature_families` reads
-        ``profile_features``.
+        ``profile_features``; the blocks of :data:`MEASURE_BLOCK_FAMILIES`
+        are measured by :func:`_intensity_measurements`, not here, and add
+        no column.
     :param neighbour_radius: the radius of ``neighbours``.
     :param granularity_subsample: ``subsample`` of ``granularity``
         (:func:`measure_granularity`).

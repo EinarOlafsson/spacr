@@ -11,7 +11,7 @@ a sparse field stops matching" states the effect of raising or lowering it.
 """
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 #: The default of every setting :func:`spacr.ops_engine.run_ops` reads, and
 #: of nothing else. A key the engine does not read has no place in its panel:
@@ -560,6 +560,22 @@ OPS_TO_MEASURE_KEYS: Dict[str, str] = {
     "ops_ph_profile_optional_families": "profile_optional_families",
     "ops_ph_granularity_subsample": "profile_granularity_subsample",
 }
+
+#: The ``ops_ph_profile_features`` list of the final Funk runs (item 1008):
+#: the B2 set without granularity, Gabor, the slow colocalisation families
+#: and ``spatial`` (the same columns as ``neighbours``), with the fast Otsu
+#: colocalisation family and the old-spaCR blocks of
+#: :data:`spacr.measure.MEASURE_BLOCK_FAMILIES`. The runs pass the list
+#: itself, with ``ops_ph_texture``, ``ops_ph_funk_features`` and
+#: ``ops_ph_zernike`` on, so a family that adds no information to the
+#: clustering of known pairs and complexes is dropped by deleting its name.
+#: No code path reads it; it is the list for the documentation and the tests.
+FINAL_RUN_FAMILIES_1008: Tuple[str, ...] = (
+    "edge_intensity", "intensity_moments", "radial_distribution",
+    "shape_extended", "texture_haralick", "texture_pftas", "texture_lbp",
+    "periphery", "outside", "neighbours", "colocalisation_otsu",
+    "coloc_block", "legacy_radial", "cytoskeleton",
+)
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
 #:
