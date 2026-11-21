@@ -4717,6 +4717,37 @@ def _metadata_type_status_sources(
     return found
 
 
+def _unknown_settings_runtime_sources() -> set[str]:
+    """Return the three settings-file notices from their exact CLI owners."""
+    path = ROOT / "spacr" / "cli.py"
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except SyntaxError:
+        return set()
+    prefixes = {
+        "_report_unknown_keys": "Unknown setting '",
+        "_unknown_setting_fix": "Remove it from the settings file,",
+    }
+    found: set[str] = set()
+    for owner in tree.body:
+        if not (isinstance(owner, ast.FunctionDef) and owner.name in prefixes):
+            continue
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef, ast.Lambda)):
+                continue
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name) and node.func.id == "tr"):
+                text = _literal(node.args[0])
+                if (text is not None and text.startswith(prefixes[owner.name])
+                        and _looks_translatable(text)):
+                    found.add(text.strip())
+            pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     # Compact-catalog ownership is registered lazily by the screens that own
@@ -5111,6 +5142,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                 for value in _literal_strings(argument, constants):
                     if _looks_translatable(value):
                         found.add(value.strip())
+
+    found.update(_unknown_settings_runtime_sources())
 
     # These shared tables are applied indirectly after widget construction,
     # so no literal text-setting call points back to their values in the AST.
