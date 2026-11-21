@@ -2359,7 +2359,7 @@ for _cellpose_app in ('cellpose_masks', 'cellpose_all'):
 _APP_CATEGORY_PARENTS["ops"] = {
     **{title: "OPS input" for title in (
         "Plate Layout & Controls", "Cell Painting Gallery input",
-        "OPS performance", "Archive")},
+        "OPS performance", "GPU Memory α", "Archive")},
     **{title: "OPS alignment" for title in (
         "Stitching", "Placement seeds", "Nuclei segmentation")},
     **{title: "OPS decoding" for title in (
@@ -2748,6 +2748,13 @@ def categories_for_app(
 def _categories_for_app_uncached(app_key, categories, plugin_app):
     """Compute :func:`categories_for_app` without the memo.
 
+    On the OPS panel the shared mask inference settings OPS passes to its
+    Cellpose runs (``batch_size``, ``mask_eval_batch_size``,
+    ``mask_inference_precision``) sit with Phenotype segmentation rather
+    than in the shared "Advanced" heading, which would draw above OPS input,
+    and the shared "GPU Memory α" heading follows OPS performance, nested
+    under OPS input by :data:`_APP_CATEGORY_PARENTS`.
+
     :param app_key: the module's application key.
     :param categories: category title to ordered setting keys; not modified.
     :param plugin_app: the plugin registered under ``app_key``, or ``None``.
@@ -2790,6 +2797,24 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                     keys.remove(key)
         result["Plate & Batch Correction"] = list(batch_correction)
         result["UMAP Display"] = list(display)
+    if app_key == "ops" and "Phenotype segmentation" in result:
+        mask_keys = ("batch_size", "mask_eval_batch_size",
+                     "mask_inference_precision")
+        for name, keys in result.items():
+            if name != "Phenotype segmentation":
+                for key in mask_keys:
+                    while key in keys:
+                        keys.remove(key)
+        result["Phenotype segmentation"].extend(
+            k for k in mask_keys if k not in result["Phenotype segmentation"])
+        if "GPU Memory α" in result and "OPS performance" in result:
+            gpu = result.pop("GPU Memory α")
+            reordered = {}
+            for name, keys in result.items():
+                reordered[name] = keys
+                if name == "OPS performance":
+                    reordered["GPU Memory α"] = gpu
+            result = reordered
     if app_key in _APP_CATEGORY_SPECS:
         result = _categories_from_spec(result, _APP_CATEGORY_SPECS[app_key])
     if app_key in ("classify", "classify_merged"):
