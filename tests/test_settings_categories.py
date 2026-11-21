@@ -977,8 +977,6 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cell_cycle",
     "ops_cell_cycle_model_family",
     "ops_cell_cycle_tabular",
-    "ops_cell_cycle_transformer",
-    "ops_cell_cycle_finetune_backbone",
     "ops_cell_cycle_base_model",
     "ops_cell_cycle_finetune",
     "ops_cell_cycle_dna_channel",

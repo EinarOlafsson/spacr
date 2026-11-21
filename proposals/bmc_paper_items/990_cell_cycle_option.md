@@ -39,8 +39,6 @@ automatic self-checks. An optional labelling job (about 100 cells) on the Home s
 | `ops_cell_cycle` | `None` \| `'DNA'` \| `'DNA+MT'` | `None` | Off, DNA-stain model, or DNA + microtubule model. `None` leaves the run byte-identical to today's. |
 | `ops_cell_cycle_model_family` | `'tabular'` \| `'cnn'` \| `'transformer'` | `'tabular'` | The model family. `tabular` runs on the cell tables. `cnn` and `transformer` need crops (`ph_crops`) or streamed fields. |
 | `ops_cell_cycle_tabular` | `'hgb'` \| `'xgboost'` | `'hgb'` | The tabular learner: HistGradientBoosting (current) or XGBoost. When `cnn`/`transformer` is chosen but crops cannot be made or streamed, the run **falls back to this learner** and says so in the report. |
-| `ops_cell_cycle_transformer` | `'subcell'` | `'subcell'` | The SubCell ViT (Lundberg lab, Human Protein Atlas immunofluorescence), frozen embedding + head, or fine-tuned (next row). Channel variant, weights, licence and size: **pending verification** (separate agent). |
-| `ops_cell_cycle_finetune_backbone` | bool | `False` | Transformer and CNN only: fine-tune the backbone too, not just the head. |
 | `ops_cell_cycle_base_model` | path \| `''` | `''` (= the shipped base model for the chosen input) | The base checkpoint to start from. |
 | `ops_cell_cycle_finetune` | `'screen'` \| `'plate'` \| `'none'` | `'screen'` | Fine-tune once per screen (pooled plates) or per plate. Per well is not offered: a well has too few mitotic cells (plate A: about 25–70 labelled mitotic cells per well). `'screen'` is the default by maintainer decision (2026-11-19). The per-screen vs per-plate test was skipped, and the maintainer will test it later; `'plate'` stays available but unvalidated. |
 | `ops_cell_cycle_dna_channel` | channel name | `nucleus_channel` | The DNA stain. |
@@ -49,6 +47,12 @@ automatic self-checks. An optional labelling job (about 100 cells) on the Home s
 | `ops_cell_cycle_labels` | path \| `''` | `''` | User labels: written by the Home-screen job, or given by hand. |
 | `ops_cell_cycle_label_queue` | int | `0` (off) | Size of the labelling job to create (100 recommended). |
 | `ops_cell_cycle_seed` | int | `0` | Every random stream: folds, shuffles, model seed, queue draw. |
+
+> **Landing train 8 (2026-11-21, maintainer):** `ops_cell_cycle_transformer` and `ops_cell_cycle_finetune_backbone` are NOT shipped. Nothing read them yet, and dead settings must not be offered. They come back, with their wiring, when the CNN and transformer arms are built. Their tooltips are retired from tr_990. The rows they had in this table were:
+>
+> | `ops_cell_cycle_transformer` | `'subcell'` | `'subcell'` | The SubCell ViT (Lundberg lab, Human Protein Atlas immunofluorescence), frozen embedding + head, or fine-tuned (next row). Channel variant, weights, licence and size: **pending verification** (separate agent). |
+> | `ops_cell_cycle_finetune_backbone` | bool | `False` | Transformer and CNN only: fine-tune the backbone too, not just the head. |
+
 
 - **Name (approved by the maintainer 2026-11-19): `ops_cell_cycle`.** Measure already has a `cell_cycle` setting (bool, `get_measure_crop_settings`). The OPS option
   therefore takes the `ops_` prefix, like every OPS setting, so that one key never has two meanings.

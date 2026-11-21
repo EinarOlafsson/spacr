@@ -293,8 +293,6 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cell_cycle": None,
     "ops_cell_cycle_model_family": 'tabular',
     "ops_cell_cycle_tabular": 'hgb',
-    "ops_cell_cycle_transformer": 'subcell',
-    "ops_cell_cycle_finetune_backbone": False,
     "ops_cell_cycle_base_model": '',
     "ops_cell_cycle_finetune": 'screen',
     "ops_cell_cycle_dna_channel": None,
@@ -865,8 +863,6 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cell_cycle": (str, type(None)),
     "ops_cell_cycle_model_family": str,
     "ops_cell_cycle_tabular": str,
-    "ops_cell_cycle_transformer": str,
-    "ops_cell_cycle_finetune_backbone": bool,
     "ops_cell_cycle_base_model": str,
     "ops_cell_cycle_finetune": str,
     "ops_cell_cycle_dna_channel": (str, type(None)),
@@ -1409,8 +1405,6 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_cell_cycle",
         "ops_cell_cycle_model_family",
         "ops_cell_cycle_tabular",
-        "ops_cell_cycle_transformer",
-        "ops_cell_cycle_finetune_backbone",
         "ops_cell_cycle_base_model",
         "ops_cell_cycle_finetune",
         "ops_cell_cycle_dna_channel",
@@ -3726,13 +3720,6 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "'xgboost'. Changing it changes every stage call and probability, so "
         "a base model trained with one learner is refitted with the other "
         "when labels are given. Default 'hgb'. Alpha.",
-    "ops_cell_cycle_transformer":
-        "(str) - The transformer backbone of the 'transformer' family: "
-        "'subcell' (the SubCell vision transformer). Default 'subcell'. "
-        "Alpha.",
-    "ops_cell_cycle_finetune_backbone":
-        "(bool) - CNN and transformer families only: fine-tune the backbone "
-        "too, not just the head. Default False. Alpha.",
     "ops_cell_cycle_base_model":
         "(str) - The base checkpoint folder the model starts from, written by "
         "spacr.ops_cell_cycle.save_cell_cycle_checkpoint. Empty uses the "
@@ -4054,16 +4041,16 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "cpg_root in the cpg0021 layout (workspace/analysis/<batch>/"
         "<plate>-Well<N>-<site>/Image.csv). Default None. Alpha.",
     "cpg_painting_frame_shift":
-        "(str) - How painting images are moved into the frame of the masks "
-        "before the cpg_measure phase measures them. 'periscope_logged' uses the "
-        "shift PERISCOPE recorded for each site (its Image.csv, or "
-        "cpg_align_table), 'register' measures it from the images, and 'none' "
-        "applies no shift and is only valid for masks drawn on the painting "
-        "images (ops_prefix_masks_frame 'painting'). Masks in the sequencing "
-        "frame with 'none' are refused, and so is a site without a recorded "
-        "shift. Every shift is written to painting_frame_shift_<plate>_<well>.csv, "
-        "and cells that touch the band the shift fills with zeros are flagged in "
-        "painting_shift_border. Default 'periscope_logged'. Alpha.",
+        "(str) - How painting images are moved into the mask frame before "
+        "cpg_measure measures them. 'periscope_logged' uses the shift "
+        "PERISCOPE recorded per site (Image.csv or cpg_align_table); "
+        "'register' measures it from the images; 'none' applies no shift and "
+        "suits only masks drawn on the painting images "
+        "(ops_prefix_masks_frame 'painting'), so sequencing-frame masks with "
+        "'none', and sites with no recorded shift, are refused. Shifts are "
+        "written to painting_frame_shift_<plate>_<well>.csv; cells touching "
+        "the zero-filled band are flagged in painting_shift_border. Default "
+        "'periscope_logged'. Alpha.",
     "ops_library_mode":
         "(str) - What the library holds. 'barcode' is a separate barcode "
         "per guide, matched by the tile decode. 'spacer_prefix' reads the "

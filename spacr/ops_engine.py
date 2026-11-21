@@ -5167,8 +5167,8 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
 def _ph_channel_fits(settings: Mapping[str, Any], channels: Sequence[str]) -> Dict[str, str]:
     """``ops_flatfield_channel_fit``: each channel's flat-field fit (item 1006).
 
-    A channel the setting does not name takes the object median (maintainer decision
-    2026-11-21, the most accurate map on Funk plate A): ``'nuclear_median'`` for the DNA
+    A channel the setting does not name takes the object median (the most accurate
+    map on Funk plate A): ``'nuclear_median'`` for the DNA
     channel and the nuclear stains of ``ops_flatfield_nuclear_stains`` (default ``['A594']``),
     ``'cytoplasm_median'`` for every other channel. ``'legacy'`` gives the maps of the runs
     before (``'polynomial'`` for the DNA channel, ``'pixel_median'`` for the rest),

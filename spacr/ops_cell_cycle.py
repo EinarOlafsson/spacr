@@ -4,7 +4,7 @@ A tabular model (HistGradientBoosting or XGBoost on the DNA and microtubule feat
 :func:`spacr.ops_mitotic.mitotic_features`, each a robust z against all cells of its well)
 calls interphase, g2_prophase (a flag class, never counted as mitotic), prometaphase,
 metaphase, ana_telo_cyto (anaphase and telophase/cytokinesis), telophase_daughters (the two
-2N daughters, a stage of their own; maintainer 2026-11-20) and artefact. Interphase cells take G1, S or G2 from the field-centred DNA-content fit of
+2N daughters, a stage of their own) and artefact. Interphase cells take G1, S or G2 from the field-centred DNA-content fit of
 item 995 (:func:`_dna_phases`). Self-checks S1-S6 run on every plate; a stage that fails its
 check collapses into its parent (:data:`PARENTS`) and is flagged ``unresolved``, on every
 plate of the screen once any plate collapses it. A stage whose out-of-fold F1 on the user's
@@ -871,14 +871,23 @@ def _html_table(frame: pd.DataFrame) -> str:
 
 
 def _png_data(figure) -> str:
-    """A figure as an inline ``data:`` URI, without a timestamp, so reruns write the same bytes."""
-    import base64
-    import io
+    """A figure as an inline ``data:`` URI, without a timestamp, so reruns write the same bytes.
 
-    buffer = io.BytesIO()
-    figure.savefig(buffer, format="png", dpi=150, bbox_inches="tight",
-                   metadata={"Software": None})
-    return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode("ascii")
+    Written through :func:`spacr.plot.save_figure`, the one figure writer, as a
+    150 dpi PNG (the report embeds it, so the format is fixed).
+    """
+    import base64
+    import os
+    import tempfile
+
+    from .plot import save_figure
+
+    with tempfile.TemporaryDirectory(prefix="spacr_cell_cycle_") as folder:
+        path = save_figure(figure, os.path.join(folder, "figure.png"), fmt="png", dpi=150,
+                           bbox_inches="tight", metadata={"Software": None})
+        with open(path, "rb") as handle:
+            data = handle.read()
+    return "data:image/png;base64," + base64.b64encode(data).decode("ascii")
 
 
 def _dna_figure(cells: pd.DataFrame, dna: pd.DataFrame, fits: Mapping[str, Any]) -> str:
@@ -888,6 +897,7 @@ def _dna_figure(cells: pd.DataFrame, dna: pd.DataFrame, fits: Mapping[str, Any])
     matplotlib.use("Agg")
     from matplotlib.figure import Figure
 
+    from .figures.bundle import _register_figure_data
     from .figures.style import DATA_ALPHA, SERIES, figure_style
 
     wells = sorted(fits)
@@ -913,6 +923,12 @@ def _dna_figure(cells: pd.DataFrame, dna: pd.DataFrame, fits: Mapping[str, Any])
             ax.set_xlabel("DNA content (field-centred)", fontsize=8)
         axes[0].set_ylabel("cells", fontsize=8)
         axes[0].legend(fontsize=7, frameon=False)
+        _register_figure_data(
+            figure, lambda: pd.DataFrame({
+                "well": cells["well"].astype(str).to_numpy(),
+                "dna_content_centred": dna["dna_content_centred"].to_numpy(float)}),
+            x="dna_content_centred", hue="well", kind="histogram",
+            title="DNA content per well with the fitted G1, S and G2")
         return _png_data(figure)
 
 
@@ -924,6 +940,7 @@ def _checks_figure(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
     matplotlib.use("Agg")
     from matplotlib.figure import Figure
 
+    from .figures.bundle import _register_figure_data
     from .figures.style import condition_plot, figure_style
 
     centred = dna["dna_content_centred"].to_numpy(float)
@@ -955,7 +972,22 @@ def _checks_figure(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
         else:
             right.set_axis_off()
         figure.tight_layout()
+        _register_figure_data(
+            figure, lambda: _checks_rows(all_share, mitotic_share, samples),
+            x="group", y="value", hue="check", kind="bar",
+            title="Self-checks S1 and S2 against their controls")
         return _png_data(figure)
+
+
+def _checks_rows(all_share, mitotic_share, samples) -> pd.DataFrame:
+    """The tidy rows the self-check figure draws: one per field share or null draw."""
+    rows = [("S1", "all cells (control)", float(v)) for v in all_share]
+    rows += [("S1", "prometaphase + metaphase", float(v)) for v in mitotic_share]
+    if "S2" in samples:
+        observed, null = samples["S2"]
+        rows += [("S2", "shuffled (control)", float(v)) for v in null]
+        rows += [("S2", "daughter stages", float(observed))]
+    return pd.DataFrame(rows, columns=["check", "group", "value"])
 
 
 def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
