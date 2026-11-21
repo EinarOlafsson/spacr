@@ -1,0 +1,269 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_the_import_workbench_shows_before_it_writes.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_two_groups_claiming_one_role_is_refused_on_the_spot": "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_original_invalid_role_maps_keep_their_message_fragments[test_two_groups_claiming_one_role_is_refused_on_the_spot]",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_a_missing_required_role_is_named": "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_original_invalid_role_maps_keep_their_message_fragments[test_a_missing_required_role_is_named]"
+  },
+  "literal_class_case_contracts": {
+    "test_two_groups_claiming_one_role_is_refused_on_the_spot": [
+      {
+        "a": "wellID",
+        "b": "wellID",
+        "c": "fieldID",
+        "d": "chanID"
+      },
+      "a, b",
+      "wellID"
+    ],
+    "test_a_missing_required_role_is_named": [
+      {
+        "a": "wellID"
+      },
+      "fieldID",
+      "chanID"
+    ]
+  },
+  "case_contract_representations": {
+    "test_two_groups_claiming_one_role_is_refused_on_the_spot": "({'a': 'wellID', 'b': 'wellID', 'c': 'fieldID', 'd': 'chanID'}, 'a, b', 'wellID')",
+    "test_a_missing_required_role_is_named": "({'a': 'wellID'}, 'fieldID', 'chanID')"
+  },
+  "contract_scope": "Exact original TestTheRolesAreAClosedSet class/self scope,ordered string role mapping,role_trouble call/said assignment and native any(left in s and right in s for s in said) same-message conjunction retained. Original duplicate-group/wellID and missing-fieldID/chanID text fragments stay in order. Every other original class/method/import/helper/fixture/optional PySide6 guard/headless-plan/file-drop/regex/table/tree/dropdown/dialog/editor case retains AST and relative order. No stronger whole-message,problem-count or exception assertion is introduced.",
+  "collected_before": [
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_a_group_already_named_for_a_role_defaults_to_it",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_the_dropdowns_follow_the_regex",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_a_complete_assignment_says_nothing",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_changing_one_redraws_the_preview",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_nobody_types_a_group_name",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_one_per_group",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_two_groups_on_one_role_is_said_on_the_panel",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRegexIsProposedAndEditable::test_a_later_drop_does_not_overwrite_an_edited_one",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRegexIsProposedAndEditable::test_editing_it_redraws_without_a_button",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRegexIsProposedAndEditable::test_the_first_drop_proposes_one",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestFilesArriveByDrop::test_the_panel_accepts_drops",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestFilesArriveByDrop::test_the_same_file_twice_is_once",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestFilesArriveByDrop::test_a_folder_is_walked",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestFilesArriveByDrop::test_a_file_that_is_not_an_image_is_left_out",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestFilesArriveByDrop::test_clearing_empties_it",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestAFileThatDoesNotMatchIsNamed::test_the_summary_counts_both_sides",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestAFileThatDoesNotMatchIsNamed::test_an_empty_drop_says_so",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestAFileThatDoesNotMatchIsNamed::test_no_regex_at_all_matches_nothing_quietly",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestAFileThatDoesNotMatchIsNamed::test_it_is_listed_rather_than_dropped",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestAFileThatDoesNotMatchIsNamed::test_a_half_typed_regex_is_not_a_traceback",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_the_tree_reads_as_text_with_the_counts_in_it",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_nothing_is_written",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_the_new_name_is_the_import_s_OWN_rule",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_every_file_gets_a_new_name",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_the_tree_counts_at_every_level",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_a_plate_with_an_underscore_is_escaped",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheTableIsThePreview::test_an_unmatched_file_is_a_row_that_says_no_match",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheTableIsThePreview::test_one_row_per_file_with_its_new_name",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheTableIsThePreview::test_the_summary_names_both_counts",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheTableIsThePreview::test_the_tree_is_shown_beside_it",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheDialogHandsBackTheRegex::test_the_extension_is_stripped_because_get_regex_appends_one",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheDialogHandsBackTheRegex::test_it_returns_the_box_minus_the_extension",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheDialogHandsBackTheRegex::test_and_the_composed_pattern_matches_the_real_filenames",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheDialogHandsBackTheRegex::test_a_pattern_that_never_had_one_is_left_alone",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_the_groups_still_come_out",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_every_spelling_of_the_tail_comes_off",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_a_pattern_with_no_extension_is_untouched",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_the_editor_offers_the_workbench",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_the_detectors_own_answer_survives_get_regex",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_the_editor_saves_the_trimmed_one",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_and_it_did_not_before",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_the_role_wins_over_the_group_name",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_the_groups_are_read_in_order",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_a_broken_regex_has_no_groups_rather_than_raising",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_every_role_says_what_it_means",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_a_complete_assignment_is_silent",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_a_missing_required_role_is_named",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_two_groups_claiming_one_role_is_refused_on_the_spot",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_the_channel_meanings_the_ask_named_are_offered",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_the_required_three_are_the_ones_the_import_reads"
+  ],
+  "collected_after": [
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_original_invalid_role_maps_keep_their_message_fragments[test_two_groups_claiming_one_role_is_refused_on_the_spot]",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_a_broken_regex_has_no_groups_rather_than_raising",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_the_groups_are_read_in_order",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_every_role_says_what_it_means",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_a_complete_assignment_is_silent",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_the_role_wins_over_the_group_name",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_the_channel_meanings_the_ask_named_are_offered",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_the_required_three_are_the_ones_the_import_reads",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_original_invalid_role_maps_keep_their_message_fragments[test_a_missing_required_role_is_named]",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheDialogHandsBackTheRegex::test_it_returns_the_box_minus_the_extension",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheDialogHandsBackTheRegex::test_and_the_composed_pattern_matches_the_real_filenames",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheDialogHandsBackTheRegex::test_the_extension_is_stripped_because_get_regex_appends_one",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheDialogHandsBackTheRegex::test_a_pattern_that_never_had_one_is_left_alone",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRegexIsProposedAndEditable::test_a_later_drop_does_not_overwrite_an_edited_one",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRegexIsProposedAndEditable::test_editing_it_redraws_without_a_button",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRegexIsProposedAndEditable::test_the_first_drop_proposes_one",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_a_pattern_with_no_extension_is_untouched",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_the_groups_still_come_out",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_the_editor_offers_the_workbench",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_the_editor_saves_the_trimmed_one",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_the_detectors_own_answer_survives_get_regex",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_every_spelling_of_the_tail_comes_off",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestASavedRegexActuallyMatches::test_and_it_did_not_before",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_the_new_name_is_the_import_s_OWN_rule",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_nothing_is_written",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_every_file_gets_a_new_name",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_a_plate_with_an_underscore_is_escaped",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_the_tree_reads_as_text_with_the_counts_in_it",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestItSaysWhatWouldHappen::test_the_tree_counts_at_every_level",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheTableIsThePreview::test_an_unmatched_file_is_a_row_that_says_no_match",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheTableIsThePreview::test_one_row_per_file_with_its_new_name",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheTableIsThePreview::test_the_tree_is_shown_beside_it",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheTableIsThePreview::test_the_summary_names_both_counts",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestFilesArriveByDrop::test_the_same_file_twice_is_once",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestFilesArriveByDrop::test_a_folder_is_walked",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestFilesArriveByDrop::test_the_panel_accepts_drops",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestFilesArriveByDrop::test_clearing_empties_it",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestFilesArriveByDrop::test_a_file_that_is_not_an_image_is_left_out",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_a_complete_assignment_says_nothing",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_the_dropdowns_follow_the_regex",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_two_groups_on_one_role_is_said_on_the_panel",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_one_per_group",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_nobody_types_a_group_name",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_changing_one_redraws_the_preview",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRoleDropdowns::test_a_group_already_named_for_a_role_defaults_to_it",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestAFileThatDoesNotMatchIsNamed::test_an_empty_drop_says_so",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestAFileThatDoesNotMatchIsNamed::test_a_half_typed_regex_is_not_a_traceback",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestAFileThatDoesNotMatchIsNamed::test_the_summary_counts_both_sides",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestAFileThatDoesNotMatchIsNamed::test_it_is_listed_rather_than_dropped",
+    "tests/test_the_import_workbench_shows_before_it_writes.py::TestAFileThatDoesNotMatchIsNamed::test_no_regex_at_all_matches_nothing_quietly"
+  ],
+  "tests_before": {
+    "passed": 50,
+    "seconds": 14.56
+  },
+  "tests_after": {
+    "passed": 50,
+    "seconds": 11.77
+  },
+  "coverage_scope": "spacr.import_plan under the complete selected headless-plan/import-workbench/regex-editor module; not widget-module or full-suite coverage. Original eight-name synthetic lists,empty temporary image-named files,text note and offscreen Qt widgets/event processing/local asynchronous file walks retained. Preview is text tables/trees,not an image or scientific plot; no image pixels loaded,experiment import executed,model fitting/training,scientific chart construction/rendering,new reader,network or GPU work. Original PySide6 guard retained and must not skip on installed environment. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 115,
+    "num_statements": 115,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 38,
+    "num_partial_branches": 0,
+    "covered_branches": 38,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_after": {
+    "covered_lines": 115,
+    "num_statements": 115,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 38,
+    "num_partial_branches": 0,
+    "covered_branches": 38,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "eb345df5ee184b026aa60ffe17b07a04e93181e6f410c4ca5f2537d9e4737b2a",
+  "production_source_sha256": "3af959997d39c037675131cd15db678ee4c4c8e7ad4bce35fc752764c9045a1b",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "duplicate-role-message-dropped",
+      "source_variant": {
+        "path": "spacr/import_plan.py",
+        "line": 176,
+        "old": "said.append(f\"{', '.join(sorted(groups))} are all set to \"\n                        f\"{role!r}; a role belongs to one group\")",
+        "new": "pass"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_two_groups_claiming_one_role_is_refused_on_the_spot"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_two_groups_claiming_one_role_is_refused_on_the_spot"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_original_invalid_role_maps_keep_their_message_fragments[test_two_groups_claiming_one_role_is_refused_on_the_spot]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_original_invalid_role_maps_keep_their_message_fragments[test_two_groups_claiming_one_role_is_refused_on_the_spot]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "missing-role-message-dropped",
+      "source_variant": {
+        "path": "spacr/import_plan.py",
+        "line": 180,
+        "old": "said.append(f\"no group is the {', '.join(missing)}; spaCR cannot \"\n                    f\"organise a file without {'them' if len(missing) > 1 else 'it'}\")",
+        "new": "pass"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_a_missing_required_role_is_named"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_a_missing_required_role_is_named"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_original_invalid_role_maps_keep_their_message_fragments[test_a_missing_required_role_is_named]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_import_workbench_shows_before_it_writes.py::TestTheRolesAreAClosedSet::test_original_invalid_role_maps_keep_their_message_fragments[test_a_missing_required_role_is_named]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in role_trouble before and after: omit the duplicate-role message append; omit the missing-required-role message append. Each fault selects the same one original/mapped class case and must fail with AssertionError from unchanged native any/same-message substring conjunction. Original role mapping/string order,call/said assignment,generator variable and conjunction short-circuit order retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_the_import_workbench_shows_before_it_writes.py",
+      "line": 142,
+      "symbol": "test_original_invalid_role_maps_keep_their_message_fragments",
+      "new": "Preserve each original invalid role map and its paired message fragments.",
+      "old": {
+        "test_two_groups_claiming_one_role_is_refused_on_the_spot": "Not at run time, which is where it would otherwise appear -- as an\nimport that read one group and silently ignored the other.",
+        "test_a_missing_required_role_is_named": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
