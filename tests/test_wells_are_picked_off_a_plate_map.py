@@ -132,14 +132,19 @@ class TestWritingItBack:
     def test_a_whole_row_or_column_collapses_to_the_compact_form(self, text):
         assert to_text(parse(text, 96), 96) == text
 
-    def test_anything_else_is_listed_as_wells(self):
-        """Not a range: inventing A01:A06 would be a fifth spelling that
-        `parse` does not read, and a value the field cannot read back is
-        worse than a long one."""
-        assert to_text({(1, 1), (2, 2)}, 96) == "A01,B02"
-
-    def test_nothing_selected_is_the_empty_string(self):
-        assert to_text(set(), 96) == ""
+    @pytest.mark.parametrize('cells, expected', [
+        pytest.param(
+            {(1, 1), (2, 2)}, 'A01,B02',
+            id='test_anything_else_is_listed_as_wells',
+        ),
+        pytest.param(
+            set(), '',
+            id='test_nothing_selected_is_the_empty_string',
+        ),
+    ])
+    def test_original_well_sets_keep_their_serialized_selections(self, cells, expected):
+        """Preserve the original well-coordinate sets and their serialized selections."""
+        assert to_text(cells, 96) == expected
 
 
 class TestThePicker:

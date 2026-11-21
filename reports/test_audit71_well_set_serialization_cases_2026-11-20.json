@@ -1,0 +1,287 @@
+{
+  "base": "53e91b5b170707b0d68b0e0f480560e0a1d1ed69",
+  "changed_file": "tests/test_wells_are_picked_off_a_plate_map.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_anything_else_is_listed_as_wells": "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_original_well_sets_keep_their_serialized_selections[test_anything_else_is_listed_as_wells]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_nothing_selected_is_the_empty_string": "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_original_well_sets_keep_their_serialized_selections[test_nothing_selected_is_the_empty_string]"
+  },
+  "class_scope_native_coordinate_sets_and_text_contracts": {
+    "test_anything_else_is_listed_as_wells": [
+      {
+        "__spacr_audit_type__": "set",
+        "members": [
+          {
+            "__spacr_audit_type__": "tuple",
+            "items": [
+              1,
+              1
+            ]
+          },
+          {
+            "__spacr_audit_type__": "tuple",
+            "items": [
+              2,
+              2
+            ]
+          }
+        ]
+      },
+      "A01,B02"
+    ],
+    "test_nothing_selected_is_the_empty_string": [
+      {
+        "__spacr_audit_type__": "set",
+        "members": []
+      },
+      ""
+    ]
+  },
+  "case_contract_representations": {
+    "test_anything_else_is_listed_as_wells": "({'__spacr_audit_type__': 'set', 'members': [{'__spacr_audit_type__': 'tuple', 'items': [1, 1]}, {'__spacr_audit_type__': 'tuple', 'items': [2, 2]}]}, 'A01,B02')",
+    "test_nothing_selected_is_the_empty_string": "({'__spacr_audit_type__': 'set', 'members': []}, '')"
+  },
+  "contract_scope": "Exact original TestWritingItBack class/self scope, native set of integer coordinate tuples {(1,1),(2,2)} or empty set, fixed layout96 and native to_text string equality retained. Every other original class/method/import/helper/Qt fixture/parser/layout/audit/button case retains AST and relative order. Private JSON uses canonical sorted explicit set/tuple/int tags and independently checked round trips; test inputs remain native unordered sets without conversion. Canonical worker traces avoid depending on incidental set repr order.",
+  "collected_before": [
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_a_drag_over_a_whole_column_writes_the_compact_form",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_it_opens_on_384_by_default",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_changing_the_layout_keeps_what_still_fits_and_says_what_did_not",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_it_opens_showing_the_field_it_was_given_or_empty_if_it_will_not_parse[the-field-it-was-given]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_it_opens_showing_the_field_it_was_given_or_empty_if_it_will_not_parse[a-field-that-will-not-parse-opens-empty]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_a_drag_selects_a_rectangle",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_a_drag_begun_on_a_chosen_well_clears",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_the_three_buttons_the_ask_named",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[6]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[12]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_a_1536_needs_two_letter_rows",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[384]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_a_well_beyond_the_plate_is_refused",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[24]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_an_unknown_layout_is_refused_with_the_offer",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[96]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[1536]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_the_refusal_names_the_layout_and_its_corner",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_anything_else_is_listed_as_wells",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_it_round_trips[r1,c2]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_it_round_trips[A01]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_nothing_selected_is_the_empty_string",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_it_round_trips[A01,B02,C03]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_it_round_trips[r1]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_a_whole_row_or_column_collapses_to_the_compact_form[column]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_a_whole_row_or_column_collapses_to_the_compact_form[row]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_it_round_trips[c1]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheButtonReachesTheField::test_closing_without_choosing_leaves_the_field_alone",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheButtonReachesTheField::test_the_field_is_still_what_the_panel_collects",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheButtonReachesTheField::test_picking_writes_the_specification_into_the_field",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheButtonReachesTheField::test_a_setting_that_does_not_take_wells_is_untouched",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheAuditIsWrittenDown::test_the_well_only_list_is_a_subset",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheAuditIsWrittenDown::test_every_well_setting_is_a_real_setting",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheAuditIsWrittenDown::test_the_mixed_vocabulary_settings_are_deliberately_left_out",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheAuditIsWrittenDown::test_the_audit_still_matches_what_the_tooltips_say",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[r]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[-]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_blank_names_nothing[  ]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[row1]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[c]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[hello]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_none_is_no_wells_rather_than_an_error",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[1A]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_blank_names_nothing[]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_the_rc_well_spacr_already_writes",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_a_well_parses_on_the_layout_it_belongs_to[A01-expected0]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_a_well_parses_on_the_layout_it_belongs_to[H12-expected1]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_case_decides_between_a_column_and_a_well",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_a_row_is_the_whole_row",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_padding_does_not_matter",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_the_three_forms_mix_in_one_string",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_the_refusal_teaches_the_rule",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_a_column_is_the_whole_column"
+  ],
+  "collected_after": [
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_the_rc_well_spacr_already_writes",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_a_well_parses_on_the_layout_it_belongs_to[A01-expected0]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_a_row_is_the_whole_row",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_a_well_parses_on_the_layout_it_belongs_to[H12-expected1]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_padding_does_not_matter",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_a_column_is_the_whole_column",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_the_three_forms_mix_in_one_string",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_the_refusal_teaches_the_rule",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheFourSpellings::test_case_decides_between_a_column_and_a_well",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_original_well_sets_keep_their_serialized_selections[test_nothing_selected_is_the_empty_string]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_a_whole_row_or_column_collapses_to_the_compact_form[row]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_it_round_trips[r1,c2]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_it_round_trips[A01]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_a_whole_row_or_column_collapses_to_the_compact_form[column]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_original_well_sets_keep_their_serialized_selections[test_anything_else_is_listed_as_wells]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_it_round_trips[r1]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_it_round_trips[c1]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_it_round_trips[A01,B02,C03]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheAuditIsWrittenDown::test_the_well_only_list_is_a_subset",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheAuditIsWrittenDown::test_every_well_setting_is_a_real_setting",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheAuditIsWrittenDown::test_the_audit_still_matches_what_the_tooltips_say",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheAuditIsWrittenDown::test_the_mixed_vocabulary_settings_are_deliberately_left_out",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_a_drag_selects_a_rectangle",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_it_opens_showing_the_field_it_was_given_or_empty_if_it_will_not_parse[a-field-that-will-not-parse-opens-empty]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_changing_the_layout_keeps_what_still_fits_and_says_what_did_not",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_it_opens_showing_the_field_it_was_given_or_empty_if_it_will_not_parse[the-field-it-was-given]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_a_drag_begun_on_a_chosen_well_clears",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_the_three_buttons_the_ask_named",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_a_drag_over_a_whole_column_writes_the_compact_form",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestThePicker::test_it_opens_on_384_by_default",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheButtonReachesTheField::test_closing_without_choosing_leaves_the_field_alone",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheButtonReachesTheField::test_the_field_is_still_what_the_panel_collects",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheButtonReachesTheField::test_picking_writes_the_specification_into_the_field",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheButtonReachesTheField::test_a_setting_that_does_not_take_wells_is_untouched",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[12]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[6]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_a_well_beyond_the_plate_is_refused",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[24]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_an_unknown_layout_is_refused_with_the_offer",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[1536]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[96]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_a_1536_needs_two_letter_rows",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_the_refusal_names_the_layout_and_its_corner",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestTheLayoutIsPartOfTheQuestion::test_every_layout_has_a_first_and_a_last_well[384]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_blank_names_nothing[  ]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[row1]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[1A]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[-]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[hello]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[r]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_blank_names_nothing[]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_a_spelling_it_does_not_read_is_an_error[c]",
+    "tests/test_wells_are_picked_off_a_plate_map.py::TestNonsenseIsRefusedNotGuessed::test_none_is_no_wells_rather_than_an_error"
+  ],
+  "tests_before": {
+    "passed": 53,
+    "seconds": 9.7
+  },
+  "tests_after": {
+    "passed": 53,
+    "seconds": 7.75
+  },
+  "coverage_scope": "spacr.well_spec under the complete selected well-parser/layout/serialization/Qt-picker/settings-audit/button module; not full-suite coverage. Existing small coordinate sets and original offscreen Qt plate-picker/AppScreen settings smoke tests only; no experiment analysis/model fitting, source-image loading, scientific chart rendering, new reader, network or GPU work. Existing SPACR_MODEL_DOWNLOAD=0 is fixed upfront in the private scheduler environment for all phases to prevent settings menus from starting background catalogue requests. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 98,
+    "num_statements": 106,
+    "percent_covered": 90.41095890410959,
+    "percent_covered_display": "90",
+    "missing_lines": 8,
+    "excluded_lines": 0,
+    "percent_statements_covered": 92.45283018867924,
+    "percent_statements_covered_display": "92",
+    "num_branches": 40,
+    "num_partial_branches": 2,
+    "covered_branches": 34,
+    "missing_branches": 6,
+    "percent_branches_covered": 85.0,
+    "percent_branches_covered_display": "85"
+  },
+  "coverage_after": {
+    "covered_lines": 98,
+    "num_statements": 106,
+    "percent_covered": 90.41095890410959,
+    "percent_covered_display": "90",
+    "missing_lines": 8,
+    "excluded_lines": 0,
+    "percent_statements_covered": 92.45283018867924,
+    "percent_statements_covered_display": "92",
+    "num_branches": 40,
+    "num_partial_branches": 2,
+    "covered_branches": 34,
+    "missing_branches": 6,
+    "percent_branches_covered": 85.0,
+    "percent_branches_covered_display": "85"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "9da3e2c90d718c30c63ac0abd61773d528ed95d4317650d9cb684eabecae575e",
+  "production_source_sha256": "62224775fa7fd7f6a0ef4809cebb6f0be9ef072f09459f64b45e4597d86d80f5",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_methods_classes_imports_helpers_qt_fixtures_parser_layout_audit_button_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "individual-well-labels-omitted",
+      "source_variant": {
+        "path": "spacr/well_spec.py",
+        "line": 277,
+        "old": "parts.extend(well_label(r, c) for r, c in rest)",
+        "new": "parts.extend([])"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_anything_else_is_listed_as_wells"
+        ],
+        "failure_summary_lines": [
+          "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_anything_else_is_listed_as_wells"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_original_well_sets_keep_their_serialized_selections[test_anything_else_is_listed_as_wells]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_original_well_sets_keep_their_serialized_selections[test_anything_else_is_listed_as_wells]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "empty-selection-text-changed",
+      "source_variant": {
+        "path": "spacr/well_spec.py",
+        "line": 261,
+        "old": "if not chosen:\n        return \"\"",
+        "new": "if not chosen:\n        return \"all\""
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_nothing_selected_is_the_empty_string"
+        ],
+        "failure_summary_lines": [
+          "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_nothing_selected_is_the_empty_string"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_original_well_sets_keep_their_serialized_selections[test_nothing_selected_is_the_empty_string]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_wells_are_picked_off_a_plate_map.py::TestWritingItBack::test_original_well_sets_keep_their_serialized_selections[test_nothing_selected_is_the_empty_string]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in to_text before and after: omit individual well labels for the nonempty selection; return all instead of empty text for no selection. Each fault selects the same one original/mapped class method case before/after and must fail with AssertionError from unchanged native string equality. Exact native set/coordinate-tuple/int types, fixed layout and expected strings retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_wells_are_picked_off_a_plate_map.py",
+      "line": 146,
+      "symbol": "test_original_well_sets_keep_their_serialized_selections",
+      "new": "Preserve the original well-coordinate sets and their serialized selections.",
+      "old": {
+        "test_anything_else_is_listed_as_wells": "Not a range: inventing A01:A06 would be a fifth spelling that\n`parse` does not read, and a value the field cannot read back is\nworse than a long one.",
+        "test_nothing_selected_is_the_empty_string": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
