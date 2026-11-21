@@ -26,19 +26,21 @@ import pytest
 
 class TestTheDefault:
 
-    def test_row_and_column_are_the_default(self):
+    @pytest.mark.parametrize('options, expected', [
+        pytest.param(
+            {}, ['rowID', 'columnID'],
+            id='test_row_and_column_are_the_default',
+        ),
+        pytest.param(
+            {'guide_nuisance_columns': []}, [],
+            id='test_an_explicit_choice_still_wins',
+        ),
+    ])
+    def test_original_nuisance_choices_keep_their_ordered_columns(self, options, expected):
+        """Preserve each original nuisance-column choice and ordered result."""
         import spacr.settings as settings
-
-        chosen = settings.get_perform_regression_default_settings(
-            {})["guide_nuisance_columns"]
-        assert chosen == ["rowID", "columnID"]
-
-    def test_an_explicit_choice_still_wins(self):
-        import spacr.settings as settings
-
-        chosen = settings.get_perform_regression_default_settings(
-            {"guide_nuisance_columns": []})["guide_nuisance_columns"]
-        assert chosen == []
+        chosen = settings.get_perform_regression_default_settings(options)["guide_nuisance_columns"]
+        assert chosen == expected
 
 
 class TestAnAbsentColumnIsSaidNotRaised:
