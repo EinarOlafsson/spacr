@@ -100,6 +100,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py", "pipeline_v2.py", "convert.py", "ome_zarr_convert.py",
+        "ops_mitotic.py",
         "_lineage_trees.py",
         "utils.py", "channel_sorting.py", "image_import.py", "run_journal.py", "ml.py",
         "regression_layout.py", "regression_failure.py", "regression_backends.py", "power_model.py", "io.py",
