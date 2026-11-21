@@ -196,8 +196,20 @@ def test_the_migration_notice_stays_inside_the_report(tmp_path, capsys):
 
 
 def test_a_dry_run_report_names_what_moved(tmp_path, capsys):
-    """The same loss was on `spacr-run <module> --settings f --dry-run`."""
-    path = _file(tmp_path, [("src", str(tmp_path)), ("min_cell_count", "50")])
+    """The same loss was on `spacr-run <module> --settings f --dry-run`.
+
+    The file names a score and a count table, because the regression
+    pre-flight refuses a run without them (issue 193); the rename notice is
+    what this test is about.
+    """
+    score = tmp_path / "scores.csv"
+    score.write_text("plateID,rowID,columnID,pred\np1,r1,c1,0.5\n", encoding="utf-8")
+    count = tmp_path / "counts.csv"
+    count.write_text("plateID,rowID,columnID,grna,count\np1,r1,c1,g1,10\n",
+                     encoding="utf-8")
+    path = _file(tmp_path, [("src", str(tmp_path)), ("min_cell_count", "50"),
+                            ("score_data", repr([str(score)])),
+                            ("count_data", repr([str(count)]))])
     rc = cli.main(["regression", "--settings", path, "--dry-run"])
     out = capsys.readouterr().out
     assert rc == cli.EXIT_OK, out
