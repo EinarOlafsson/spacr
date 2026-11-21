@@ -2548,8 +2548,8 @@ def surviving_setting_name(key):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 950
-SETTINGS_FORMAT_VERSIONS = frozenset({950})
+SETTINGS_SCHEMA_VERSION = 951
+SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2689,6 +2689,10 @@ def _fold_older_defaults(settings, version, known=None):
     renamed to this key), ``ops_sbs_tile_batch`` 16 (stitched sequencing
     nuclei) and ``spatial_tile_batch`` 16 (Spatial Mask Generation). 946 and
     947 belong to other items, so this takes 948.
+    951 is item 992's nineteen ``ops_maxproj_*`` settings. They are all
+    new, so no default changed: 951 is a format-only version
+    (``SETTINGS_FORMAT_VERSIONS``), and files stamped before lack them and
+    take their defaults, the phase off.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9589,6 +9593,9 @@ ALPHA_FEATURES = {
     },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
+    },
+    992: {
+        'settings': ('ops_maxproj_enabled', 'ops_maxproj_rows', 'ops_maxproj_guides', 'ops_maxproj_views', 'ops_maxproj_pca_variance', 'ops_maxproj_similarity', 'ops_maxproj_bins', 'ops_maxproj_calibration_permutations', 'ops_maxproj_null_permutations', 'ops_maxproj_seed', 'ops_maxproj_graph', 'ops_maxproj_knn', 'ops_maxproj_edge_p', 'ops_maxproj_resolutions', 'ops_maxproj_leiden_seeds', 'ops_maxproj_k', 'ops_maxproj_consensus', 'ops_maxproj_save_views', 'ops_maxproj_workers',),
     },
     948: {
         'settings': ('ops_consensus_mode', 'ops_consensus_pairs_search', 'ops_consensus_workers', 'ops_consensus_cells', 'ops_consensus_view_columns',),

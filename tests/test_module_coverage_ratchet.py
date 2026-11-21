@@ -600,6 +600,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 719 -> 720 on 2026-11-20, +1/-0, TASK W: public mask tracing
         # orchestration (spacr/_mask_tracing.py).
         'spacr/_mask_tracing.py',
+        # 718 -> 719 on 2026-11-20, +1/-0, item 992: max-projection clustering
+        # over feature views (spacr/ops_maxproj.py).
+        'spacr/ops_maxproj.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online

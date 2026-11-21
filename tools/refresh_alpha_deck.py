@@ -135,8 +135,8 @@ GROUPS = (
         ("copairs and EFAAR scores, per-gene E-test and power", (913, 917, 968)),
     )),
     ("OPS genes and\nclusters", (
-        ("Clusters: Leiden sweep, bootstrap and gene-pairs consensus, test, atlas",
-         (916, 953, 959, 928, 948, 929, 888)),
+        ("Clusters: Leiden sweep, consensus, test, atlas, max projection",
+         (916, 953, 959, 928, 948, 929, 888, 992)),
         ("Gene map: profile clusters, labels, medoid crops", (918,)),
         ("Gene graph, protein knowledge, fusion hypotheses, gene-class training",
          (884, 885, 886, 889)),

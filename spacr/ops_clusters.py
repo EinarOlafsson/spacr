@@ -1297,15 +1297,31 @@ def gene_graph(rows: np.ndarray, kind: str = "phate", k: int = 12, seed: int = 4
         graph.es["weight"] = w.data[upper].tolist()
         return graph
     unit = rows / np.clip(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12, None)
-    similarity = unit @ unit.T
+    return _knn_graph(unit @ unit.T, k)
+
+
+def _knn_graph(similarity: np.ndarray, k: int):
+    """The union of every row's ``k`` most similar rows, as a weighted graph.
+
+    :param similarity: a symmetric rows-by-rows similarity; its diagonal is
+        ignored, and a pair at minus infinity is never an edge.
+    :param k: the neighbours of every row.
+    :returns: an undirected ``igraph.Graph``, each edge weighted by its
+        similarity clipped at 1e-6.
+    :raises ImportError: when the ``clustering`` extra is not installed.
+    """
+    igraph = _optional("igraph")
+    similarity = np.array(similarity, float)
     np.fill_diagonal(similarity, -np.inf)
     nearest = np.argpartition(-similarity, k, axis=1)[:, :k]
     edges: Dict[Tuple[int, int], float] = {}
-    for i in range(len(unit)):
+    for i in range(len(similarity)):
         for j in nearest[i]:
+            if not np.isfinite(similarity[i, j]):
+                continue
             a, b = (i, int(j)) if i < j else (int(j), i)
             edges[(a, b)] = max(float(similarity[a, b]), 1e-6)
-    graph = igraph.Graph(n=len(unit), edges=list(edges), directed=False)
+    graph = igraph.Graph(n=len(similarity), edges=list(edges), directed=False)
     graph.es["weight"] = list(edges.values())
     return graph
 
@@ -2025,18 +2041,46 @@ def guide_bootstrap_profiles(rows: np.ndarray, names: Sequence[str], guide_rows:
     :returns: the bootstrap rows, a new array.
     """
     names = np.asarray(names).astype(str)
-    guide_rows = np.asarray(guide_rows, float)
-    cells = np.asarray(guide_cells, float)
+    groups = _guide_groups(names, guide_genes, _is_control_row(names, control_prefix))
+    rng = np.random.default_rng(seed)
+    drawn = [rng.choice(ix, len(ix), replace=True) if len(ix) else ix for ix in groups]
+    return _guide_shift(rows, groups, drawn, guide_rows, guide_cells)
+
+
+def _guide_groups(names: Sequence[str], guide_genes: Sequence[str],
+                  control: np.ndarray) -> List[np.ndarray]:
+    """The guide indices of every profile row; empty for a control row or a gene without guides.
+
+    :param names: the row names.
+    :param guide_genes: each guide's gene.
+    :param control: True for the control rows.
+    :returns: one integer array per row, in guide order.
+    """
     members: Dict[str, List[int]] = {}
     for i, gene in enumerate(np.asarray(guide_genes).astype(str)):
         members.setdefault(gene, []).append(i)
-    control = _is_control_row(names, control_prefix)
     empty = np.array([], int)
-    groups = [np.array(members[g], int) if g in members and not control[i] else empty
-              for i, g in enumerate(names)]
-    rng = np.random.default_rng(seed)
-    drawn = [rng.choice(ix, len(ix), replace=True) if len(ix) else ix for ix in groups]
-    shift = np.zeros((len(names), guide_rows.shape[1]))
+    return [np.array(members[g], int) if g in members and not control[i] else empty
+            for i, g in enumerate(np.asarray(names).astype(str))]
+
+
+def _guide_shift(rows: np.ndarray, groups: Sequence[np.ndarray], drawn: Sequence[np.ndarray],
+                 guide_rows: np.ndarray, guide_cells: Sequence[float]) -> np.ndarray:
+    """A gene profile rebuilt from drawn guides.
+
+    Every row with guides moves by the cell-weighted mean of its drawn guides
+    minus the cell-weighted mean of its own guides.
+
+    :param rows: the gene profile.
+    :param groups: each row's own guide indices (:func:`_guide_groups`).
+    :param drawn: each row's drawn guide indices.
+    :param guide_rows: one row per guide.
+    :param guide_cells: each guide's cell count.
+    :returns: the shifted rows, a new array.
+    """
+    guide_rows = np.asarray(guide_rows, float)
+    cells = np.asarray(guide_cells, float)
+    shift = np.zeros((len(groups), guide_rows.shape[1]))
     for i, (ix, bx) in enumerate(zip(groups, drawn)):
         if len(ix):
             shift[i] = ((cells[bx] @ guide_rows[bx]) / cells[bx].sum()
@@ -2148,7 +2192,7 @@ def guide_bootstrap_consensus(draw, n_boot: int, k: int, mask: Optional[np.ndarr
                               seed: int = 100, knn: int = 10, method: str = "average",
                               min_cooc: float = 0.0, rows: Optional[np.ndarray] = None,
                               match: bool = True, force_genes: bool = True, min_stability: float = 0.5,
-                              n_jobs: int = 1, report=None) -> Dict[str, Any]:
+                              n_jobs: int = 1, report=None, graph_of=None) -> Dict[str, Any]:
     """Guide-bootstrap consensus clustering (item 928).
 
     Bootstrap ``b`` clusters ``draw(b)`` (a guide bootstrap of the profile,
@@ -2180,6 +2224,8 @@ def guide_bootstrap_consensus(draw, n_boot: int, k: int, mask: Optional[np.ndarr
     :param min_stability: see ``force_genes``.
     :param n_jobs: PHATE's worker count.
     :param report: called with one progress line per bootstrap.
+    :param graph_of: ``graph_of(rows, seed) -> graph`` builds each
+        bootstrap graph instead of PHATE (item 992); None keeps PHATE.
     :returns: ``{"labels", "cooc", "stability", "cut_labels", "runs",
         "adjusted", "unassigned", "cut"}``: the final labels (from 0), the
         co-clustering matrix, each row's stability, the labels of the cut
@@ -2201,7 +2247,8 @@ def guide_bootstrap_consensus(draw, n_boot: int, k: int, mask: Optional[np.ndarr
         boot = np.asarray(fetch(b), float)
         first = boot if first is None else first
         run_seed = int(seed) * CONSENSUS_SEED_STRIDE + b
-        graph = gene_graph(boot, "phate", seed=run_seed, knn=int(knn), n_jobs=n_jobs)
+        graph = (gene_graph(boot, "phate", seed=run_seed, knn=int(knn), n_jobs=n_jobs)
+                 if graph_of is None else graph_of(boot, run_seed))
         boot_mask = np.ones(len(boot), bool) if mask is None else np.asarray(mask, bool)
         labels, resolution = match_resolution(graph, int(k), run_seed, boot_mask)
         partitions.append(np.asarray(labels))
