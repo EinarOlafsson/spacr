@@ -17,6 +17,8 @@ def extract_backend_sources(tmp_path, monkeypatch):
     for filename in (
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
         "install_cleanup.py", "data_manager.py", "doctor.py", "updater.py",
+        "gene_measurement_compare.py", "ome_zarr_convert.py",
+        "ops_prefix.py", "ops_decode.py", "ops_engine.py", "ops_cell_cycle.py",
         "settings.py", "object.py", "_mask_workers.py", "_mask_array_batches.py",
         "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
@@ -793,3 +795,42 @@ def test_old_custom_classifier_refusals_enter_their_owners(extract_backend_sourc
     assert any(text.startswith("This custom classifier checkpoint records") for text in artifacts)
     utils = extract_backend_sources('utils.py', (root / "utils.py").read_text(encoding="utf-8"))
     assert any(text.startswith("This classifier was trained on {expected}-channel") for text in utils)
+
+
+def test_cell_cycle_engine_refusals_have_exact_scopes(extract_backend_sources):
+    """Only assigned literal messages in the two engine owners enter the catalog."""
+    captions = (
+        "ops_mitotic_source cell_cycle needs the ops_cell_cycle table; "
+        "set ops_cell_cycle or run the ph_cell_cycle phase first",
+        "ops_mitotic_source must be rule, classifier or cell_cycle; got {value}",
+    )
+    source = "\n".join((
+        f"METADATA = tr({captions[0]!r})",
+        "def _ph_aggregate():",
+        "    if True:",
+        f"        raise ValueError(tr({captions[0]!r}))",
+        "    tr('Unrelated aggregate refusal.')",
+        "    tr('ops_mitotic_source must be excluded from this owner')",
+        "    def nested():",
+        "        return tr('ops_mitotic_source cell_cycle needs nested exclusion')",
+        "    async def nested_async():",
+        "        return tr('ops_mitotic_source cell_cycle needs async exclusion')",
+        "    local = lambda: tr('ops_mitotic_source cell_cycle needs lambda exclusion')",
+        "    class Local:",
+        "        note = tr('ops_mitotic_source cell_cycle needs class exclusion')",
+        "def _ph_profile_options():",
+        f"    raise ValueError(tr({captions[1]!r}, value='other'))",
+        "    tr('Unrelated profile refusal.')",
+        "    tr('ops_mitotic_source cell_cycle needs the other owner')",
+        "    tr(dynamic_caption)",
+        "    tr('ops_mitotic_source must be ' + dynamic_value)",
+        "    other.tr('ops_mitotic_source must be excluded from another receiver')",
+        "def unrelated():",
+        "    tr('ops_mitotic_source cell_cycle needs an excluded owner')",
+        "    def _ph_aggregate():",
+        "        return tr('ops_mitotic_source cell_cycle needs nested-owner exclusion')",
+        "class Other:",
+        "    def _ph_profile_options(self):",
+        "        return tr('ops_mitotic_source must be excluded from a method')",
+    ))
+    assert extract_backend_sources('ops_engine.py', source) == set(captions)

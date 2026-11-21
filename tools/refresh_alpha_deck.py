@@ -122,7 +122,7 @@ GROUPS = (
         ("Profiles over all cells with NT rows, re-run from stored tables", (883, 879)),
         ("Guide noise: contrastive weighting, efficacy blend, reliability shrinkage",
          (907, 887, 902)),
-        ("Cell-cycle-resolved and cell-state profiles, mitotic index test", (890, 914)),
+        ("Cell-cycle profiles, mitotic index test, per-cell cell-cycle stages", (890, 914, 990)),
         ("Penetrance, escapers, responder fraction, distribution distances", (891, 905)),
         ("Fitness and generic-axis removal, embedding and fusion profiles", (903, 906)),
         ("Feature information screen: what new columns add about genes", (964,)),
