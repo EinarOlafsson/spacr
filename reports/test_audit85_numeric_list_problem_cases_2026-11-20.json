@@ -1,0 +1,316 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_cov_w2_3_validate.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_w2_3_validate.py::test_a_percentile_outside_zero_to_one_hundred_is_an_error": "tests/test_cov_w2_3_validate.py::test_original_invalid_numeric_lists_keep_their_error_messages[test_a_percentile_outside_zero_to_one_hundred_is_an_error]",
+    "tests/test_cov_w2_3_validate.py::test_a_png_size_of_zero_pixels_is_an_error": "tests/test_cov_w2_3_validate.py::test_original_invalid_numeric_lists_keep_their_error_messages[test_a_png_size_of_zero_pixels_is_an_error]"
+  },
+  "literal_case_contracts": {
+    "test_a_percentile_outside_zero_to_one_hundred_is_an_error": [
+      "normalize",
+      [
+        5,
+        140
+      ],
+      "outside 0-100"
+    ],
+    "test_a_png_size_of_zero_pixels_is_an_error": [
+      "png_size",
+      [
+        [
+          224,
+          0
+        ]
+      ],
+      "non-positive size"
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_percentile_outside_zero_to_one_hundred_is_an_error": "('normalize', [5, 140], 'outside 0-100')",
+    "test_a_png_size_of_zero_pixels_is_an_error": "('png_size', [[224, 0]], 'non-positive size')"
+  },
+  "contract_scope": "Exact original V import alias,normalize/png_size key strings,ordered integer list or nested integer list,_check_numeric_list call/problems assignment,native problems-and-first-is_error assertion and original message substring containment retained. Every other original import/helper/fixture/plugin-failure/private-reimport/path/inventory/type/default-key/plan/resource/coercion/preflight case retains AST and relative order. No inherited default-validation expectation is weakened or dropped; audit28 remains held independently.",
+  "collected_before": [
+    "tests/test_cov_w2_3_validate.py::test_a_channel_past_the_stored_planes_is_reported_when_no_raw_count_exists",
+    "tests/test_cov_w2_3_validate.py::test_both_offered_split_units_are_accepted[well]",
+    "tests/test_cov_w2_3_validate.py::test_a_src_is_split_only_when_it_is_one_list_literal[a-list-literal-splits]",
+    "tests/test_cov_w2_3_validate.py::test_every_offered_surrogate_family_is_accepted[random_forest]",
+    "tests/test_cov_w2_3_validate.py::test_a_custom_model_with_an_unreadable_pin_is_reported_missing",
+    "tests/test_cov_w2_3_validate.py::test_a_foreign_import_names_every_input_it_was_not_given",
+    "tests/test_cov_w2_3_validate.py::test_a_src_list_entry_that_is_not_a_path_string_is_named",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_validator_may_return_problems_or_the_mappings_for_them",
+    "tests/test_cov_w2_3_validate.py::test_a_resource_card_that_raises_does_not_deny_the_rest_of_the_preflight",
+    "tests/test_cov_w2_3_validate.py::test_generic_diameter_must_be_positive_while_object_zero_retains_auto[0]",
+    "tests/test_cov_w2_3_validate.py::test_external_masks_with_images_but_no_masks_says_which_role_is_missing",
+    "tests/test_cov_w2_3_validate.py::test_a_report_over_several_sources_counts_the_ones_it_did_not_name",
+    "tests/test_cov_w2_3_validate.py::test_a_boolean_channel_index_is_not_read_as_zero_or_one",
+    "tests/test_cov_w2_3_validate.py::test_a_pre_sam_pathogen_model_is_called_out_as_ignored",
+    "tests/test_cov_w2_3_validate.py::test_a_src_is_split_only_when_it_is_one_list_literal[bracketed-but-not-one-list-stays-one-path]",
+    "tests/test_cov_w2_3_validate.py::test_a_tuple_is_accepted_wherever_a_list_is_declared",
+    "tests/test_cov_w2_3_validate.py::test_a_source_that_is_not_on_disk_leaves_the_intensity_scan_out",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_validator_that_misbehaves_is_reported_as_a_plugin_failure[None-must be Problem objects or mappings]",
+    "tests/test_cov_w2_3_validate.py::test_explain_cv_refuses_an_unknown_surrogate_family_and_split",
+    "tests/test_cov_w2_3_validate.py::test_plugin_discovery_that_raises_leaves_the_built_in_table_intact",
+    "tests/test_cov_w2_3_validate.py::test_measure_preflight_explains_an_invalid_processed_psf",
+    "tests/test_cov_w2_3_validate.py::test_a_png_size_of_zero_pixels_is_an_error",
+    "tests/test_cov_w2_3_validate.py::test_generic_diameter_must_be_positive_while_object_zero_retains_auto[-3]",
+    "tests/test_cov_w2_3_validate.py::test_a_complete_investigate_hit_setup_raises_no_objection",
+    "tests/test_cov_w2_3_validate.py::test_external_masks_names_the_role_and_the_object_type_that_are_missing",
+    "tests/test_cov_w2_3_validate.py::test_a_number_outside_its_useful_range_is_reported[dropout_rate--0.5-error]",
+    "tests/test_cov_w2_3_validate.py::test_a_zero_dimensional_array_is_skipped_when_counting_planes",
+    "tests/test_cov_w2_3_validate.py::test_a_pattern_without_a_channel_group_scores_no_hits",
+    "tests/test_cov_w2_3_validate.py::test_a_single_problem_from_a_plugin_validator_is_not_iterated_apart",
+    "tests/test_cov_w2_3_validate.py::test_a_plan_counts_raw_files_no_regex_could_read",
+    "tests/test_cov_w2_3_validate.py::test_both_offered_split_units_are_accepted[plate]",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_validator_returning_nothing_adds_nothing",
+    "tests/test_cov_w2_3_validate.py::test_a_negative_mask_dim_is_an_error_and_a_vague_one_is_skipped",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_app_joins_the_function_table_and_the_alias_table",
+    "tests/test_cov_w2_3_validate.py::test_a_foreign_import_previewing_its_columns_is_not_nagged_about_them",
+    "tests/test_cov_w2_3_validate.py::test_a_value_is_shown_as_written_or_as_not_set",
+    "tests/test_cov_w2_3_validate.py::test_an_uncompilable_custom_regex_does_not_stop_the_scan",
+    "tests/test_cov_w2_3_validate.py::test_a_number_outside_its_useful_range_is_reported[learning_rate-0.0-error]",
+    "tests/test_cov_w2_3_validate.py::test_a_settings_helper_that_refuses_both_call_shapes_is_skipped",
+    "tests/test_cov_w2_3_validate.py::test_preflight_retains_numeric_and_typo_checks_when_cli_defaults_cannot_import",
+    "tests/test_cov_w2_3_validate.py::test_both_hit_directions_are_accepted[positive]",
+    "tests/test_cov_w2_3_validate.py::test_an_analysis_plan_says_which_database_it_would_read",
+    "tests/test_cov_w2_3_validate.py::test_a_foreign_import_is_told_about_images_not_about_src",
+    "tests/test_cov_w2_3_validate.py::test_a_number_outside_its_useful_range_is_reported[flow_threshold-9.0-warning]",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_registry_that_cannot_be_read_still_validates_the_built_ins",
+    "tests/test_cov_w2_3_validate.py::test_text_that_is_neither_yes_nor_no_or_a_list_stays_as_typed",
+    "tests/test_cov_w2_3_validate.py::test_a_plan_for_a_mask_run_names_the_model_and_the_channel_stacks",
+    "tests/test_cov_w2_3_validate.py::test_a_measure_plan_names_the_cytoplasm_and_the_crop_settings",
+    "tests/test_cov_w2_3_validate.py::test_a_src_is_split_only_when_it_is_one_list_literal[two-paths-split]",
+    "tests/test_cov_w2_3_validate.py::test_external_masks_with_nothing_dropped_says_so_once",
+    "tests/test_cov_w2_3_validate.py::test_every_offered_surrogate_family_is_accepted[xgboost]",
+    "tests/test_cov_w2_3_validate.py::test_a_number_outside_its_useful_range_is_reported[val_split-4.0-error]",
+    "tests/test_cov_w2_3_validate.py::test_the_plan_names_an_organelle_diameter_in_pixels",
+    "tests/test_cov_w2_3_validate.py::test_module_defaults_keep_valid_keys_if_one_provider_fails",
+    "tests/test_cov_w2_3_validate.py::test_a_src_is_split_only_when_it_is_one_list_literal[not-python-stays-one-path]",
+    "tests/test_cov_w2_3_validate.py::test_a_unet_organelle_without_a_model_file_is_an_error",
+    "tests/test_cov_w2_3_validate.py::test_a_hyphenated_plugin_alias_resolves_by_the_spelling_it_declared",
+    "tests/test_cov_w2_3_validate.py::test_a_settings_key_that_is_not_a_string_is_skipped_by_the_range_checks",
+    "tests/test_cov_w2_3_validate.py::test_every_offered_surrogate_family_is_accepted[hist_gradient_boosting]",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_validator_that_misbehaves_is_reported_as_a_plugin_failure[not a validator at all-is not callable]",
+    "tests/test_cov_w2_3_validate.py::test_a_non_string_app_key_is_no_app_at_all",
+    "tests/test_cov_w2_3_validate.py::test_a_replication_run_is_held_to_the_doubling_ladder",
+    "tests/test_cov_w2_3_validate.py::test_a_percentile_list_with_an_unreadable_entry_is_left_alone",
+    "tests/test_cov_w2_3_validate.py::test_an_intensity_scan_that_fails_is_reported_not_swallowed",
+    "tests/test_cov_w2_3_validate.py::test_a_percentile_outside_zero_to_one_hundred_is_an_error",
+    "tests/test_cov_w2_3_validate.py::test_more_dilation_ratios_than_crop_modes_are_reported_as_ignored",
+    "tests/test_cov_w2_3_validate.py::test_investigate_hit_requires_the_exact_files_it_was_handed",
+    "tests/test_cov_w2_3_validate.py::test_a_replication_run_on_the_ladder_is_left_alone",
+    "tests/test_cov_w2_3_validate.py::test_external_mask_groups_are_reduced_to_the_folders_they_live_in",
+    "tests/test_cov_w2_3_validate.py::test_settings_that_are_not_a_dict_are_reported_not_raised",
+    "tests/test_cov_w2_3_validate.py::test_a_preflight_prints_the_report_the_plan_and_the_resources",
+    "tests/test_cov_w2_3_validate.py::test_both_hit_directions_are_accepted[negative]",
+    "tests/test_cov_w2_3_validate.py::test_a_database_file_as_src_is_not_reported_as_the_wrong_kind_of_thing"
+  ],
+  "collected_after": [
+    "tests/test_cov_w2_3_validate.py::test_an_analysis_plan_says_which_database_it_would_read",
+    "tests/test_cov_w2_3_validate.py::test_external_masks_with_nothing_dropped_says_so_once",
+    "tests/test_cov_w2_3_validate.py::test_original_invalid_numeric_lists_keep_their_error_messages[test_a_png_size_of_zero_pixels_is_an_error]",
+    "tests/test_cov_w2_3_validate.py::test_plugin_discovery_that_raises_leaves_the_built_in_table_intact",
+    "tests/test_cov_w2_3_validate.py::test_external_masks_names_the_role_and_the_object_type_that_are_missing",
+    "tests/test_cov_w2_3_validate.py::test_a_value_is_shown_as_written_or_as_not_set",
+    "tests/test_cov_w2_3_validate.py::test_both_offered_split_units_are_accepted[well]",
+    "tests/test_cov_w2_3_validate.py::test_a_plan_for_a_mask_run_names_the_model_and_the_channel_stacks",
+    "tests/test_cov_w2_3_validate.py::test_the_plan_names_an_organelle_diameter_in_pixels",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_app_joins_the_function_table_and_the_alias_table",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_validator_that_misbehaves_is_reported_as_a_plugin_failure[None-must be Problem objects or mappings]",
+    "tests/test_cov_w2_3_validate.py::test_a_pre_sam_pathogen_model_is_called_out_as_ignored",
+    "tests/test_cov_w2_3_validate.py::test_a_hyphenated_plugin_alias_resolves_by_the_spelling_it_declared",
+    "tests/test_cov_w2_3_validate.py::test_settings_that_are_not_a_dict_are_reported_not_raised",
+    "tests/test_cov_w2_3_validate.py::test_a_measure_plan_names_the_cytoplasm_and_the_crop_settings",
+    "tests/test_cov_w2_3_validate.py::test_text_that_is_neither_yes_nor_no_or_a_list_stays_as_typed",
+    "tests/test_cov_w2_3_validate.py::test_a_report_over_several_sources_counts_the_ones_it_did_not_name",
+    "tests/test_cov_w2_3_validate.py::test_generic_diameter_must_be_positive_while_object_zero_retains_auto[-3]",
+    "tests/test_cov_w2_3_validate.py::test_a_plan_counts_raw_files_no_regex_could_read",
+    "tests/test_cov_w2_3_validate.py::test_a_src_is_split_only_when_it_is_one_list_literal[two-paths-split]",
+    "tests/test_cov_w2_3_validate.py::test_external_masks_with_images_but_no_masks_says_which_role_is_missing",
+    "tests/test_cov_w2_3_validate.py::test_a_number_outside_its_useful_range_is_reported[flow_threshold-9.0-warning]",
+    "tests/test_cov_w2_3_validate.py::test_a_preflight_prints_the_report_the_plan_and_the_resources",
+    "tests/test_cov_w2_3_validate.py::test_every_offered_surrogate_family_is_accepted[xgboost]",
+    "tests/test_cov_w2_3_validate.py::test_every_offered_surrogate_family_is_accepted[random_forest]",
+    "tests/test_cov_w2_3_validate.py::test_a_custom_model_with_an_unreadable_pin_is_reported_missing",
+    "tests/test_cov_w2_3_validate.py::test_generic_diameter_must_be_positive_while_object_zero_retains_auto[0]",
+    "tests/test_cov_w2_3_validate.py::test_a_resource_card_that_raises_does_not_deny_the_rest_of_the_preflight",
+    "tests/test_cov_w2_3_validate.py::test_more_dilation_ratios_than_crop_modes_are_reported_as_ignored",
+    "tests/test_cov_w2_3_validate.py::test_a_channel_past_the_stored_planes_is_reported_when_no_raw_count_exists",
+    "tests/test_cov_w2_3_validate.py::test_both_hit_directions_are_accepted[positive]",
+    "tests/test_cov_w2_3_validate.py::test_a_boolean_channel_index_is_not_read_as_zero_or_one",
+    "tests/test_cov_w2_3_validate.py::test_external_mask_groups_are_reduced_to_the_folders_they_live_in",
+    "tests/test_cov_w2_3_validate.py::test_a_replication_run_is_held_to_the_doubling_ladder",
+    "tests/test_cov_w2_3_validate.py::test_a_percentile_list_with_an_unreadable_entry_is_left_alone",
+    "tests/test_cov_w2_3_validate.py::test_original_invalid_numeric_lists_keep_their_error_messages[test_a_percentile_outside_zero_to_one_hundred_is_an_error]",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_validator_may_return_problems_or_the_mappings_for_them",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_validator_returning_nothing_adds_nothing",
+    "tests/test_cov_w2_3_validate.py::test_a_settings_helper_that_refuses_both_call_shapes_is_skipped",
+    "tests/test_cov_w2_3_validate.py::test_a_zero_dimensional_array_is_skipped_when_counting_planes",
+    "tests/test_cov_w2_3_validate.py::test_a_unet_organelle_without_a_model_file_is_an_error",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_validator_that_misbehaves_is_reported_as_a_plugin_failure[not a validator at all-is not callable]",
+    "tests/test_cov_w2_3_validate.py::test_a_replication_run_on_the_ladder_is_left_alone",
+    "tests/test_cov_w2_3_validate.py::test_a_database_file_as_src_is_not_reported_as_the_wrong_kind_of_thing",
+    "tests/test_cov_w2_3_validate.py::test_a_number_outside_its_useful_range_is_reported[val_split-4.0-error]",
+    "tests/test_cov_w2_3_validate.py::test_a_tuple_is_accepted_wherever_a_list_is_declared",
+    "tests/test_cov_w2_3_validate.py::test_a_foreign_import_is_told_about_images_not_about_src",
+    "tests/test_cov_w2_3_validate.py::test_an_intensity_scan_that_fails_is_reported_not_swallowed",
+    "tests/test_cov_w2_3_validate.py::test_a_settings_key_that_is_not_a_string_is_skipped_by_the_range_checks",
+    "tests/test_cov_w2_3_validate.py::test_explain_cv_refuses_an_unknown_surrogate_family_and_split",
+    "tests/test_cov_w2_3_validate.py::test_a_number_outside_its_useful_range_is_reported[learning_rate-0.0-error]",
+    "tests/test_cov_w2_3_validate.py::test_a_pattern_without_a_channel_group_scores_no_hits",
+    "tests/test_cov_w2_3_validate.py::test_an_uncompilable_custom_regex_does_not_stop_the_scan",
+    "tests/test_cov_w2_3_validate.py::test_a_single_problem_from_a_plugin_validator_is_not_iterated_apart",
+    "tests/test_cov_w2_3_validate.py::test_a_negative_mask_dim_is_an_error_and_a_vague_one_is_skipped",
+    "tests/test_cov_w2_3_validate.py::test_investigate_hit_requires_the_exact_files_it_was_handed",
+    "tests/test_cov_w2_3_validate.py::test_measure_preflight_explains_an_invalid_processed_psf",
+    "tests/test_cov_w2_3_validate.py::test_a_foreign_import_previewing_its_columns_is_not_nagged_about_them",
+    "tests/test_cov_w2_3_validate.py::test_a_plugin_registry_that_cannot_be_read_still_validates_the_built_ins",
+    "tests/test_cov_w2_3_validate.py::test_module_defaults_keep_valid_keys_if_one_provider_fails",
+    "tests/test_cov_w2_3_validate.py::test_preflight_retains_numeric_and_typo_checks_when_cli_defaults_cannot_import",
+    "tests/test_cov_w2_3_validate.py::test_a_source_that_is_not_on_disk_leaves_the_intensity_scan_out",
+    "tests/test_cov_w2_3_validate.py::test_a_src_is_split_only_when_it_is_one_list_literal[bracketed-but-not-one-list-stays-one-path]",
+    "tests/test_cov_w2_3_validate.py::test_a_number_outside_its_useful_range_is_reported[dropout_rate--0.5-error]",
+    "tests/test_cov_w2_3_validate.py::test_a_foreign_import_names_every_input_it_was_not_given",
+    "tests/test_cov_w2_3_validate.py::test_every_offered_surrogate_family_is_accepted[hist_gradient_boosting]",
+    "tests/test_cov_w2_3_validate.py::test_both_offered_split_units_are_accepted[plate]",
+    "tests/test_cov_w2_3_validate.py::test_a_src_is_split_only_when_it_is_one_list_literal[not-python-stays-one-path]",
+    "tests/test_cov_w2_3_validate.py::test_a_complete_investigate_hit_setup_raises_no_objection",
+    "tests/test_cov_w2_3_validate.py::test_both_hit_directions_are_accepted[negative]",
+    "tests/test_cov_w2_3_validate.py::test_a_src_is_split_only_when_it_is_one_list_literal[a-list-literal-splits]",
+    "tests/test_cov_w2_3_validate.py::test_a_non_string_app_key_is_no_app_at_all",
+    "tests/test_cov_w2_3_validate.py::test_a_src_list_entry_that_is_not_a_path_string_is_named"
+  ],
+  "tests_before": {
+    "passed": 73,
+    "seconds": 4.6
+  },
+  "tests_after": {
+    "passed": 73,
+    "seconds": 4.72
+  },
+  "coverage_scope": "spacr.validate under the complete selected preflight edge-case module; not full-suite coverage. Original tiny local arrays up to8x8 with a few planes,empty raw-file/header fixtures,small metadata files and settings/plugin/preflight/plan/resource helpers retained. Existing SPACR_MODEL_DOWNLOAD=0 fixed in private scheduler wrapper before baseline/all phases prevents settings-helper model-choice discovery from starting background community-catalogue requests. Plan/resource cards describe runs; no analysis/segmentation/classifier training/model fitting/scientific chart construction/rendering,new reader,network or GPU execution. Private original alias reimports retain the same source filename for coverage. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 1057,
+    "num_statements": 1431,
+    "percent_covered": 71.13543091655266,
+    "percent_covered_display": "71",
+    "missing_lines": 374,
+    "excluded_lines": 0,
+    "percent_statements_covered": 73.86443046820405,
+    "percent_statements_covered_display": "74",
+    "num_branches": 762,
+    "num_partial_branches": 123,
+    "covered_branches": 503,
+    "missing_branches": 259,
+    "percent_branches_covered": 66.01049868766404,
+    "percent_branches_covered_display": "66"
+  },
+  "coverage_after": {
+    "covered_lines": 1057,
+    "num_statements": 1431,
+    "percent_covered": 71.13543091655266,
+    "percent_covered_display": "71",
+    "missing_lines": 374,
+    "excluded_lines": 0,
+    "percent_statements_covered": 73.86443046820405,
+    "percent_statements_covered_display": "74",
+    "num_branches": 762,
+    "num_partial_branches": 123,
+    "covered_branches": 503,
+    "missing_branches": 259,
+    "percent_branches_covered": 66.01049868766404,
+    "percent_branches_covered_display": "66"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "991c1fa0c470b97aef8a0ca80d2616acae6e816c79c8af20f8aab097ca54aaaa",
+  "production_source_sha256": "ef9a657308dcebaab5045702dda9124fd21fd19c6b47edd512684899170cf7de",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "out-of-range-percentile-problem-dropped",
+      "source_variant": {
+        "path": "spacr/validate.py",
+        "line": 1539,
+        "old": "problems.append(Problem(\n                ERROR, key, f\"{key}={list(value)} contains values outside 0-100.\",\n                f\"{key} is a list of percentiles; every entry must be between 0 and 100.\"))",
+        "new": "pass"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_3_validate.py::test_a_percentile_outside_zero_to_one_hundred_is_an_error"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_3_validate.py::test_a_percentile_outside_zero_to_one_hundred_is_an_error"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_3_validate.py::test_original_invalid_numeric_lists_keep_their_error_messages[test_a_percentile_outside_zero_to_one_hundred_is_an_error]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_3_validate.py::test_original_invalid_numeric_lists_keep_their_error_messages[test_a_percentile_outside_zero_to_one_hundred_is_an_error]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "nonpositive-crop-size-problem-dropped",
+      "source_variant": {
+        "path": "spacr/validate.py",
+        "line": 1552,
+        "old": "problems.append(Problem(\n                ERROR, key, f\"png_size={list(value)} contains a non-positive size.\",\n                \"png_size is [width, height] in pixels, for example [224, 224].\"))",
+        "new": "pass"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_3_validate.py::test_a_png_size_of_zero_pixels_is_an_error"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_3_validate.py::test_a_png_size_of_zero_pixels_is_an_error"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_3_validate.py::test_original_invalid_numeric_lists_keep_their_error_messages[test_a_png_size_of_zero_pixels_is_an_error]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_3_validate.py::test_original_invalid_numeric_lists_keep_their_error_messages[test_a_png_size_of_zero_pixels_is_an_error]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in _check_numeric_list before and after: omit the out-of-range percentile Problem append; omit the nonpositive crop-size Problem append. Each fault selects the same one original/mapped case and must fail with AssertionError from unchanged native problems/first-is_error/message-containment assertions. Exact key/list/nested-list integer types/order and original substring text retained. Repository production/default-validation/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_w2_3_validate.py",
+      "line": 239,
+      "symbol": "test_original_invalid_numeric_lists_keep_their_error_messages",
+      "new": "Preserve each original invalid numeric list and its error-message checks.",
+      "old": {
+        "test_a_percentile_outside_zero_to_one_hundred_is_an_error": "Percentile lists are percentages, so 0-100 is the whole range.",
+        "test_a_png_size_of_zero_pixels_is_an_error": "Crops are sized in pixels, so a non-positive edge cannot be honoured."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
