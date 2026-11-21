@@ -946,6 +946,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_consensus_cells",
     "ops_consensus_view_columns",
     "ops_flatfield_channel_fit",
+    "ops_flatfield_nuclear_stains",
     "ops_flatfield_object_fields",
     "ops_consensus_guides",
     "ops_bench_replicates",

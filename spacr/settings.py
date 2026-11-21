@@ -2575,7 +2575,7 @@ DEFAULT_CHANGES = {
     947: {'ops_prefix_minority_min_reads': 0},
     948: {'ops_ph_tile_batch': 8, 'ops_sbs_tile_batch': 16,
           'spatial_tile_batch': 16},
-    952: {'ops_flatfield': 'none'},
+    952: {'ops_flatfield': 'none', 'ops_flatfield_channel_fit': 'legacy'},
 }
 
 
@@ -2682,9 +2682,12 @@ def _fold_older_defaults(settings, version, known=None):
     nuclei) and ``spatial_tile_batch`` 16 (Spatial Mask Generation). 946 and
     947 belong to other items, so this takes 948.
     952 is item 1006's flat-field correction on by default: ``ops_flatfield``
-    ``'exact'`` (was ``'none'``); files stamped before keep ``'none'``, so
-    their phenotype pixels are measured as acquired, as before. 949-951 belong
-    to other items.
+    ``'exact'`` (was ``'none'``) with every channel's map an object median
+    (``ops_flatfield_channel_fit``, which is ``'legacy'`` for older files:
+    the polynomial DNA map and the pixel-median maps of the other channels).
+    Files stamped before keep ``'none'``, so their phenotype pixels are
+    measured as acquired, and one that sets ``'exact'`` keeps the legacy maps.
+    949-951 belong to other items.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9579,7 +9582,8 @@ ALPHA_FEATURES = {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },
     1006: {
-        'settings': ('ops_flatfield_channel_fit', 'ops_flatfield_object_fields',),
+        'settings': ('ops_flatfield_channel_fit', 'ops_flatfield_nuclear_stains',
+                     'ops_flatfield_object_fields',),
     },
     948: {
         'settings': ('ops_consensus_mode', 'ops_consensus_pairs_search', 'ops_consensus_workers', 'ops_consensus_cells', 'ops_consensus_view_columns',),

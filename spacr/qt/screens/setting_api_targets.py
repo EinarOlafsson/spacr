@@ -910,6 +910,7 @@ SETTING_API_TARGETS = {
     'ops_flatfield_min_bin_cells': ('spacr.ops_flatfield', 'run_flat_phases', True),
     'ops_flatfield_nuclear_channel': ('spacr.ops_flatfield', 'run_flat_phases', True),
     'ops_flatfield_nuclear_maps': ('spacr.ops_settings', 'ops_defaults', True),
+    'ops_flatfield_nuclear_stains': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_flatfield_nuclei': ('spacr.ops_flatfield', 'nucleus_table', True),
     'ops_flatfield_object_fields': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_flatfield_radial_edges': ('spacr.ops_flatfield', 'run_flat_phases', True),

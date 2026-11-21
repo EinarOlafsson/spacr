@@ -3864,7 +3864,7 @@ def _validated_ops_flatfield_channel_fit_1006_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
-    names = ('complete_pending_flat', 'field_object_means', 'mark_pending')
+    names = ('complete_pending_flat', 'field_object_means', 'flat_peak', 'mark_pending')
     assert set(entries) == {f"spacr.ops_flatfield.{n}" for n in names}
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert found.keys() == entries.keys()
@@ -6947,7 +6947,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
         ("987b_mask_batches_api_arrivals_2026-11-20.json", 1),
         ("993_cli_preflight_reporting_api_arrivals_2026-11-20.json", 1),
-        ("1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json", 3),
+        ("1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json", 4),
         ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),

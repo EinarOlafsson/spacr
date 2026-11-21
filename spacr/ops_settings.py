@@ -131,6 +131,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_flatfield_maps": None,
     "ops_flatfield_fields": 204,
     "ops_flatfield_channel_fit": None,
+    "ops_flatfield_nuclear_stains": ['A594'],
     "ops_flatfield_object_fields": 'all',
     "ops_flatfield_field_list": None,
     "ops_flatfield_nuclear_channel": None,
@@ -665,7 +666,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_flatfield": str,
     "ops_flatfield_maps": (str, type(None)),
     "ops_flatfield_fields": int,
-    "ops_flatfield_channel_fit": (dict, type(None)),
+    "ops_flatfield_channel_fit": (dict, str, type(None)),
+    "ops_flatfield_nuclear_stains": (list, str, type(None)),
     "ops_flatfield_object_fields": (str, int),
     "ops_flatfield_field_list": (str, type(None)),
     "ops_flatfield_nuclear_channel": (str, type(None)),
@@ -1258,7 +1260,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "Flat-field correction": [
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
-        "ops_flatfield_channel_fit", "ops_flatfield_object_fields",
+        "ops_flatfield_channel_fit", "ops_flatfield_nuclear_stains",
+        "ops_flatfield_object_fields",
         "ops_flatfield_field_list", "ops_flatfield_nuclear_channel",
         "ops_flatfield_nuclei", "ops_flatfield_dark",
         "ops_flatfield_nuclear_maps",
@@ -2158,18 +2161,24 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "builds the maps from. Fewer fields leave cells in the median; 204 "
         "built the Funk et al. plate maps. Default 204. Alpha.",
     "ops_flatfield_channel_fit":
-        "(dict or None) - The flat-field fit of each phenotype channel, as "
-        "{channel: fit}: 'pixel_median' (the Gaussian-smoothed pixel median "
-        "of the drawn fields), 'polynomial' (that median fitted with a "
-        "4th-order polynomial), 'nuclear_median' (the median raw intensity of the "
-        "nuclei in each map cell) or 'cell_median' (of the cells). The last "
-        "two are built after segmentation by the ph_flatfield_objects phase, "
-        "and ph_measure refuses until it has run. A channel not named keeps "
-        "'polynomial' for DNA and 'pixel_median' otherwise. Default None. "
-        "Alpha.",
+        "(dict, str or None) - The flat-field fit of each phenotype channel, "
+        "as {channel: fit}: 'nuclear_median' (the median raw intensity of the "
+        "nuclei in each map cell), 'cytoplasm_median' (of the cytoplasm, at "
+        "the cell centre), 'pixel_median' (the smoothed pixel median of the "
+        "drawn fields) or 'polynomial' (that median, 4th-order polynomial). "
+        "A channel not named takes 'nuclear_median' if it is DNA or in "
+        "ops_flatfield_nuclear_stains, else 'cytoplasm_median', the most "
+        "accurate maps on Funk plate A, built by ph_flatfield_objects after "
+        "segmentation. 'legacy' gives the earlier maps. Default None. Alpha.",
+    "ops_flatfield_nuclear_stains":
+        "(list or None) - Channels other than DNA that stain the nucleus, "
+        "such as a nuclear antibody; their flat-field map is the nuclear "
+        "median unless ops_flatfield_channel_fit names them. Names not among "
+        "the phenotype channels are ignored. Default ['A594'], the gammaH2AX "
+        "stain of Funk et al. Alpha.",
     "ops_flatfield_object_fields":
         "(str or int) - The fields ph_flatfield_objects builds the nuclear- "
-        "and cell-median maps from: 'all', every segmented field of the wells "
+        "and cytoplasm-median maps from: 'all', every segmented field of the wells "
         "run; a number, that many drawn with seed 0; or a JSON file of [well, "
         "site] pairs. More fields put more objects in each map cell, at one "
         "image and mask read per field. Default 'all'. Alpha.",
