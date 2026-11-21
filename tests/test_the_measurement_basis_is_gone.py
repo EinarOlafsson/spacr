@@ -118,6 +118,7 @@ class TestTheColumnComesFromTheClasses:
             "classes": {"pc": {"column": "rowID", "value": "r2"}},
         }) == "condition"
 
+
 class TestTheSampleRename:
 
     def test_the_label_says_what_it_bounds(self):
