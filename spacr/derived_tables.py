@@ -217,7 +217,7 @@ def _align_explicit_keys(left, right, keys):
             right[key] = right[key].astype("string")
 
 
-def _align_png_list_keys(left, right, mapping):
+def _align_png_list_keys(left, right, mapping, base_name=None):
     """Read ``png_list``'s own spellings of an object and an image as spaCR's.
 
     ``png_list`` writes the object as text (``'o17'``) and ``file_name`` as
@@ -228,11 +228,29 @@ def _align_png_list_keys(left, right, mapping):
     :param left: base key frame.
     :param right: png_list rows, with keys already renamed to the base's names.
     :param mapping: png_list key name to the base key name it was mapped onto.
+    :param base_name: base table, to refuse a crop id mapped onto another
+        object type's own number.
+    :raises MergeError: ``png_list.cell_id`` mapped onto, say, a pathogen
+        table's ``object_label``. That pairs pathogen 5 with cell 5 in the
+        same image rather than with the cell it sits in; once ids and crop
+        names are read correctly it matches some rows, and those that match
+        by number but not by cell carry another cell's annotation.
     """
-    from .utils import PNG_OBJECT_ID_COLUMNS
+    from .utils import PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS
 
     object_ids = set(PNG_OBJECT_ID_COLUMNS.values()) | {OBJECT_COLUMN}
     for png_key, key in mapping.items():
+        crop_role = PNG_CROP_MODE_BY_ID_COLUMN.get(png_key)
+        if base_name and crop_role and key == OBJECT_COLUMN:
+            base_role = _table_role(base_name)
+            if base_role != crop_role and not (
+                    base_role in ONE_ROW_PER_CELL and crop_role in ONE_ROW_PER_CELL):
+                raise MergeError(
+                    f"{PNG_TABLE}.{png_key} numbers {crop_role} crops, but it is mapped "
+                    f"onto {base_name}.{OBJECT_COLUMN}, which numbers {base_role} objects: "
+                    f"{base_role} 5 would get the annotation of {crop_role} 5, not of the "
+                    f"{crop_role} it is in. Merge {PNG_TABLE} onto the {crop_role} table, "
+                    f"or map {png_key} onto a column that holds the {crop_role} id.")
         if png_key in object_ids:
             left[key] = object_keys(left[key])
             right[key] = object_keys(right[key])
@@ -241,13 +259,14 @@ def _align_png_list_keys(left, right, mapping):
                 CROP_SUFFIX, "", regex=True, case=False)
 
 
-def _join_diagnostics(base, child, join, *, standard=False):
+def _join_diagnostics(base, child, join, *, standard=False, base_name=None):
     """Validate key cardinality and count matched and unmatched source rows.
 
     :param base: Unique base observation frame.
     :param child: Unaggregated source child frame.
     :param join: Explicit key, relationship and join-type configuration.
     :param standard: Normalize spaCR object IDs only for established default schemas.
+    :param base_name: Base table name, used to check a png_list join's object link.
 
     A child may carry its own object_label while cell_id maps to the parent's
     object_label; that separate label is kept with its table prefix.
@@ -269,7 +288,8 @@ def _join_diagnostics(base, child, join, *, standard=False):
         _align_keys(left, renamed, left_keys)
     else:
         if _table_role(table) == PNG_TABLE:
-            _align_png_list_keys(left, renamed, dict(zip(right_keys, left_keys)))
+            _align_png_list_keys(left, renamed, dict(zip(right_keys, left_keys)),
+                                 base_name=base_name)
         _align_explicit_keys(left, renamed, left_keys)
     duplicates = int(renamed.duplicated(left_keys, keep=False).sum())
     if join["relationship"] not in ("one-to-one", "one-to-many"):
@@ -388,7 +408,8 @@ def _execute_prepared(path, definition):
         if mode == "default" and not _has_anchor(table):
             raise MergeError(f"{table}: no standard spaCR relationship; use Customize merging.")
         child = _read(path, table)
-        report, aligned = _join_diagnostics(base, child, join, standard=mode == "default")
+        report, aligned = _join_diagnostics(base, child, join, standard=mode == "default",
+                                             base_name=base_name)
         keys = join["left_keys"]
         identifiers = set(join.get("identifiers", ())) | set(_identifiers(aligned.columns))
         overrides = join.get("overrides", {})

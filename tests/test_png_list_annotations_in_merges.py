@@ -165,3 +165,35 @@ def test_column_classification_skips_a_repeated_name():
 
     assert kinds["x"] == "skip"
     assert kinds["label"] == "category"
+
+
+def _pathogen_onto_crops(db, pathogen_column):
+    definition = d.default_definition(db, ["pathogen", "png_list"], base="pathogen")
+    definition.update(mode="custom", acknowledged=True)
+    definition["joins"][0].update(
+        left_keys=list(IMAGE) + ["file_name", pathogen_column],
+        right_keys=list(IMAGE) + ["file_name", "cell_id"],
+        relationship="one-to-one", how="left")
+    return definition
+
+
+def test_a_cell_crop_mapped_onto_a_pathogen_number_is_refused(db):
+    """Pathogen 2 sits in cell 1, but this mapping would hand it cell 2's label."""
+    with pytest.raises(MergeError, match="pathogen 5 would get the annotation of cell 5"):
+        d.execute(db, _pathogen_onto_crops(db, "object_label"))
+
+
+def test_a_cell_crop_mapped_onto_a_cytoplasm_number_is_allowed(tmp_path):
+    """A cytoplasm carries its cell's number, so the link is the same object."""
+    path = str(tmp_path / "m.db")
+    with sqlite3.connect(path) as con:
+        _cells().rename(columns={"cell_area": "cytoplasm_area"}).to_sql(
+            "cytoplasm", con, index=False)
+        _crops().to_sql("png_list", con, index=False)
+    definition = d.default_definition(path, ["cytoplasm", "png_list"])
+    definition.update(mode="custom", acknowledged=True)
+    definition["joins"][0]["relationship"] = "one-to-one"
+
+    frame, _report = d.execute(path, definition)
+
+    assert sorted(frame["png_list_annotate"].tolist()) == [1, 2]
