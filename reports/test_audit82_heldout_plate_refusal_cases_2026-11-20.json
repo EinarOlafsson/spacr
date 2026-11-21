@@ -1,0 +1,220 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_the_five_proposed_settings.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_the_five_proposed_settings.py::test_holding_out_a_plate_that_is_not_there_is_refused": "tests/test_the_five_proposed_settings.py::test_original_invalid_heldout_plates_keep_their_refusals[test_holding_out_a_plate_that_is_not_there_is_refused]",
+    "tests/test_the_five_proposed_settings.py::test_holding_out_everything_is_refused": "tests/test_the_five_proposed_settings.py::test_original_invalid_heldout_plates_keep_their_refusals[test_holding_out_everything_is_refused]"
+  },
+  "literal_case_contracts": {
+    "test_holding_out_a_plate_that_is_not_there_is_refused": [
+      [
+        "plate9"
+      ],
+      "appear in the data"
+    ],
+    "test_holding_out_everything_is_refused": [
+      [
+        "plate1",
+        "plate2",
+        "plate3"
+      ],
+      "nothing left to train"
+    ]
+  },
+  "case_contract_representations": {
+    "test_holding_out_a_plate_that_is_not_there_is_refused": "(['plate9'], 'appear in the data')",
+    "test_holding_out_everything_is_refused": "(['plate1', 'plate2', 'plate3'], 'nothing left to train')"
+  },
+  "contract_scope": "Exact original three_plates fixture and groups/labels unpacking, local grouped_split import, original held-out string list, fixed0.2 split fraction/group_by plate keyword and native pytest.raises(ValueError,match=original_regex) context retained. Every other original field/bounds/barcode/group-split/settings-JSON/CSV case/import/helper/fixture/class retains AST and relative order. This batch selects different methods from audit81 in the same root test file; both branches are independently based on current nightly and their selected edits do not overlap.",
+  "collected_before": [
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[asked1-expected1]",
+    "tests/test_the_five_proposed_settings.py::test_the_run_records_its_settings_with_their_types",
+    "tests/test_the_five_proposed_settings.py::test_holding_out_everything_is_refused",
+    "tests/test_the_five_proposed_settings.py::test_a_minimum_alone_keeps_the_blow_up",
+    "tests/test_the_five_proposed_settings.py::test_the_csv_is_still_written",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[f1*-expected7]",
+    "tests/test_the_five_proposed_settings.py::test_no_bounds_removes_nothing",
+    "tests/test_the_five_proposed_settings.py::test_the_budget_is_what_decides[0-expected0]",
+    "tests/test_the_five_proposed_settings.py::test_the_named_plate_is_the_whole_test_side",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[asked5-expected5]",
+    "tests/test_the_five_proposed_settings.py::test_a_field_that_is_not_there_selects_nothing",
+    "tests/test_the_five_proposed_settings.py::test_holding_out_a_plate_that_is_not_there_is_refused",
+    "tests/test_the_five_proposed_settings.py::test_the_background_is_never_an_object",
+    "tests/test_the_five_proposed_settings.py::test_a_read_within_reach_of_two_barcodes_is_unassigned",
+    "tests/test_the_five_proposed_settings.py::test_an_exact_read_matches_at_every_budget",
+    "tests/test_the_five_proposed_settings.py::test_a_value_json_cannot_hold_does_not_lose_the_file",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[None-expected0]",
+    "tests/test_the_five_proposed_settings.py::test_a_holdout_missing_a_class_is_refused",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[f9-expected2]",
+    "tests/test_the_five_proposed_settings.py::test_the_budget_is_what_decides[2-expected2]",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[F009-expected4]",
+    "tests/test_the_five_proposed_settings.py::test_a_maximum_removes_it",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[asked3-expected3]",
+    "tests/test_the_five_proposed_settings.py::test_the_budget_is_what_decides[1-expected1]",
+    "tests/test_the_five_proposed_settings.py::test_the_default_processes_every_field",
+    "tests/test_the_five_proposed_settings.py::test_without_a_holdout_the_split_is_unchanged",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[f1,f9-expected6]"
+  ],
+  "collected_after": [
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[asked3-expected3]",
+    "tests/test_the_five_proposed_settings.py::test_the_budget_is_what_decides[2-expected2]",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[f1*-expected7]",
+    "tests/test_the_five_proposed_settings.py::test_the_budget_is_what_decides[1-expected1]",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[F009-expected4]",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[f1,f9-expected6]",
+    "tests/test_the_five_proposed_settings.py::test_a_value_json_cannot_hold_does_not_lose_the_file",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[None-expected0]",
+    "tests/test_the_five_proposed_settings.py::test_a_minimum_alone_keeps_the_blow_up",
+    "tests/test_the_five_proposed_settings.py::test_a_field_that_is_not_there_selects_nothing",
+    "tests/test_the_five_proposed_settings.py::test_a_maximum_removes_it",
+    "tests/test_the_five_proposed_settings.py::test_the_default_processes_every_field",
+    "tests/test_the_five_proposed_settings.py::test_original_invalid_heldout_plates_keep_their_refusals[test_holding_out_everything_is_refused]",
+    "tests/test_the_five_proposed_settings.py::test_without_a_holdout_the_split_is_unchanged",
+    "tests/test_the_five_proposed_settings.py::test_a_holdout_missing_a_class_is_refused",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[asked5-expected5]",
+    "tests/test_the_five_proposed_settings.py::test_no_bounds_removes_nothing",
+    "tests/test_the_five_proposed_settings.py::test_original_invalid_heldout_plates_keep_their_refusals[test_holding_out_a_plate_that_is_not_there_is_refused]",
+    "tests/test_the_five_proposed_settings.py::test_the_named_plate_is_the_whole_test_side",
+    "tests/test_the_five_proposed_settings.py::test_the_budget_is_what_decides[0-expected0]",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[f9-expected2]",
+    "tests/test_the_five_proposed_settings.py::test_a_run_can_be_limited_to_named_fields[asked1-expected1]",
+    "tests/test_the_five_proposed_settings.py::test_the_run_records_its_settings_with_their_types",
+    "tests/test_the_five_proposed_settings.py::test_the_background_is_never_an_object",
+    "tests/test_the_five_proposed_settings.py::test_the_csv_is_still_written",
+    "tests/test_the_five_proposed_settings.py::test_an_exact_read_matches_at_every_budget",
+    "tests/test_the_five_proposed_settings.py::test_a_read_within_reach_of_two_barcodes_is_unassigned"
+  ],
+  "tests_before": {
+    "passed": 27,
+    "seconds": 11.0
+  },
+  "tests_after": {
+    "passed": 27,
+    "seconds": 10.85
+  },
+  "coverage_scope": "spacr.classifier_evaluation under the complete selected five-settings helper module; not combined multi-module or full-suite coverage. Original tiny20x20 masks, short filenames/sequence lists, local CSV/JSON fixtures and60-row group splits retained. Group split construction only,no classifier/model estimator fitting or training,scientific chart construction/rendering,new reader,network or GPU work. Existing plot values in save_settings tests are serialized settings only. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 170,
+    "num_statements": 856,
+    "percent_covered": 16.808149405772497,
+    "percent_covered_display": "17",
+    "missing_lines": 686,
+    "excluded_lines": 0,
+    "percent_statements_covered": 19.85981308411215,
+    "percent_statements_covered_display": "20",
+    "num_branches": 322,
+    "num_partial_branches": 12,
+    "covered_branches": 28,
+    "missing_branches": 294,
+    "percent_branches_covered": 8.695652173913043,
+    "percent_branches_covered_display": "9"
+  },
+  "coverage_after": {
+    "covered_lines": 170,
+    "num_statements": 856,
+    "percent_covered": 16.808149405772497,
+    "percent_covered_display": "17",
+    "missing_lines": 686,
+    "excluded_lines": 0,
+    "percent_statements_covered": 19.85981308411215,
+    "percent_statements_covered_display": "20",
+    "num_branches": 322,
+    "num_partial_branches": 12,
+    "covered_branches": 28,
+    "missing_branches": 294,
+    "percent_branches_covered": 8.695652173913043,
+    "percent_branches_covered_display": "9"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "66a7be11e727e50e2cd625aa588484fb566d25ae0e6039d8ede3b03103181a4d",
+  "production_source_sha256": "425ed0055b8db72c603aa8291e9d67d4b3e42aa8e7f43e93779e6513e6f0f26c",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "unknown-heldout-plate-is-accepted",
+      "source_variant": {
+        "path": "spacr/classifier_evaluation.py",
+        "line": 619,
+        "old": "raise ValueError(\n                f\"none of the held-out {level}(s) {sorted(wanted)} appear in \"\n                f\"the data; it has {sorted(set(as_text))[:8]}\"\n                '. Choose hold-out groups listed in the input data, then run the '\n                'split again.')",
+        "new": "return None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_five_proposed_settings.py::test_holding_out_a_plate_that_is_not_there_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_five_proposed_settings.py::test_holding_out_a_plate_that_is_not_there_is_refused"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_five_proposed_settings.py::test_original_invalid_heldout_plates_keep_their_refusals[test_holding_out_a_plate_that_is_not_there_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_five_proposed_settings.py::test_original_invalid_heldout_plates_keep_their_refusals[test_holding_out_a_plate_that_is_not_there_is_refused]"
+        ],
+        "application_markers": 1
+      }
+    },
+    {
+      "mutant": "all-plates-heldout-is-accepted",
+      "source_variant": {
+        "path": "spacr/classifier_evaluation.py",
+        "line": 625,
+        "old": "raise ValueError(\n                f\"the held-out {level}(s) {sorted(wanted)} are ALL of the \"\n                f\"data, so there is nothing left to train on\"\n                '. Choose a proper subset of the available groups for hold-out, '\n                'leaving labelled groups for training.')",
+        "new": "return None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_five_proposed_settings.py::test_holding_out_everything_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_five_proposed_settings.py::test_holding_out_everything_is_refused"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_five_proposed_settings.py::test_original_invalid_heldout_plates_keep_their_refusals[test_holding_out_everything_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_five_proposed_settings.py::test_original_invalid_heldout_plates_keep_their_refusals[test_holding_out_everything_is_refused]"
+        ],
+        "application_markers": 1
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in grouped_split before and after: return instead of refusing a held-out plate absent from the data; return instead of refusing all available plates as held-out. Each fault selects the same one original/mapped case and must fail with DID NOT RAISE from unchanged native ValueError/regex context. Original fixture/unpacking,string-list types/order,split fraction,keyword arguments and regexes retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_the_five_proposed_settings.py",
+      "line": 191,
+      "symbol": "test_original_invalid_heldout_plates_keep_their_refusals",
+      "new": "Preserve each original held-out plate list and its split refusal.",
+      "old": {
+        "test_holding_out_a_plate_that_is_not_there_is_refused": null,
+        "test_holding_out_everything_is_refused": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
