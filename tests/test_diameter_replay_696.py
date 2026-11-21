@@ -7,6 +7,7 @@ import pytest
 from spacr import object as objects
 from spacr.cli import load_settings_file, write_settings_file
 from spacr.settings import RESOLVED_PARAMETERS_KEY
+from tests.conftest import MISSING_CHANNEL_AXIS
 
 
 class _Model:
@@ -19,8 +20,9 @@ class _Model:
         self.estimated_diameters = []
         self.allow_estimate = True
 
-    def eval(self, images, *, diameter=None, **kwargs):
+    def eval(self, images, *, diameter=None, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
         """Return deterministic masks and probabilities at the requested scale."""
+        self.channel_axes = getattr(self, 'channel_axes', []) + [channel_axis]
         self.calls.append((diameter, [np.asarray(image).copy() for image in images]))
         self.estimated_diameters = []
         masks, flows = [], []

@@ -60,6 +60,9 @@ def _mask_settings(src, **over):
         "adjust_cells": False, "consolidate": False,
         "batch_size": 10, "save": True, "custom_regex": None,
         "randomize": True, "examples_to_plot": 2,
+        # The merge pass is stubbed, so no plane layout exists for the
+        # schema-949 OME-Zarr field export; its own tests cover that path.
+        "mask_image_format": "npy",
     }
     s.update(over)
     return s
@@ -675,11 +678,10 @@ def test_timelapse_entry_forces_timelapse_on(run_dir, stubs, capsys):
     saved = pd.read_csv(run_dir / "settings" / "gen_mask_settings.csv")
     vals = dict(zip(saved["Key"], saved["Value"].astype(str)))
     assert vals["timelapse"] == "True"
-    # NOTE: gen_mask_settings.csv is written *before* the timelapse branch
-    # switches randomize off, so the CSV still records the incoming True.
-    # Reported, not changed here: moving save_settings past the
-    # normalisations would also change what the repro/diff CLI records.
-    assert vals["randomize"] == "True"
+    # Since schema 950 (item 696, TASK T) the run saves its effective
+    # settings again after the masks, so the CSV records randomize as the
+    # timelapse branch actually ran it: off.
+    assert vals["randomize"] == "False"
 
 
 def test_timelapse_entry_accepts_none(tmp_path, monkeypatch, stubs, capsys):

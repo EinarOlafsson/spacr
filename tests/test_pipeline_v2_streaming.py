@@ -523,8 +523,9 @@ def test_direct_prefixed_backend_keeps_normalization_and_diameter_in_caller_sett
             self.estimated_diameters = []
             self.diameters = []
 
-        def eval(self, images, *, diameter=None, **kwargs):
+        def eval(self, images, *, diameter=None, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
             """Return one spatial mask and full flow slots for every input."""
+            self.channel_axes = getattr(self, 'channel_axes', []) + [channel_axis]
             self.diameters.append(diameter)
             return ([np.zeros(image.shape[:2], np.uint16) for image in images],
                     [[None, None, None, None] for image in images], None)

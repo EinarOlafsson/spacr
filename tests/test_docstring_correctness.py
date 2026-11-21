@@ -5630,7 +5630,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # keyword of spacr.plot.save_figure (figprefs), figures of runs outside the GUI.
     # 20,260 -> 20,262 on 2026-11-20 (landing train 5): items 983/984's optional
     # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr (both defaulted).
-    assert sum(len(item.parameters) for item in callables) == 20262
+    # 20,262 -> 20,267 on 2026-11-21 (landing train 7, item 986 P): the optional
+    # `load_field` keyword of spacr.illumination.estimate_illumination,
+    # illumination_qc, prepare_illumination_correction, prepare_illumination_model
+    # and spacr.intensity_rescale.build_plate_plan (defaulted; the 933/983
+    # contracts cover the other three new keywords).
+    assert sum(len(item.parameters) for item in callables) == 20267
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5987,7 +5992,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-20 by landing train 5 (was 515b2062...): figprefs' optional
     # `preferences` of spacr.plot.save_figure and items 983/984's optional
     # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr.
-) == '361a1012cf6896b58afbea2989ee3464c5c656104ee9e41c4db09d61590401a3'
+    # Moved 2026-11-21 by landing train 7 (was 361a1012...): item 986 P's
+    # optional `load_field` of five illumination/intensity_rescale planners.
+) == 'ae0adfd78a2a55213026232359b5f788ffbbc38639454ae8dc3b9ac6d60284cf'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

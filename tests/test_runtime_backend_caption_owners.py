@@ -17,7 +17,8 @@ def extract_backend_sources(tmp_path, monkeypatch):
     for filename in (
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
         "install_cleanup.py", "data_manager.py", "doctor.py", "updater.py",
-        "settings.py", "object.py", "_mask_workers.py", "remote_execution.py",
+        "settings.py", "object.py", "_mask_workers.py", "_mask_array_batches.py",
+        "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py", "pipeline_v2.py", "convert.py", "ome_zarr_convert.py",
         "_lineage_trees.py",

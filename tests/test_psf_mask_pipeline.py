@@ -32,6 +32,16 @@ def _configuration(stack, operation='convolve'):
     return settings
 
 
+def _start_a_new_run(settings):
+    """Drop the previous run's resolved parameters, as a fresh run's settings have none.
+
+    Reusing them with changed PSF settings is a replay of another
+    configuration, which schema 950 refuses by design.
+    """
+    from spacr.settings import RESOLVED_PARAMETERS_KEY
+    settings.pop(RESOLVED_PARAMETERS_KEY, None)
+
+
 def _run(stack, settings, illumination=None):
     from spacr.io import concatenate_and_normalize
     session = _prepare_segmentation_psf(settings, stack.parent, [0, 1])
@@ -124,6 +134,7 @@ def test_switching_off_rebuilds_unprocessed_inputs_and_invalidates_old_masks(tmp
     settings = _configuration(stack)
     _run(stack, settings)
     settings['psf_operation'] = 'none'
+    _start_a_new_run(settings)
     assert not _resume_normalized_archives(settings, str(tmp_path), [0, 1])
     stale = tmp_path / 'masks/cell_mask_stack'
     stale.mkdir()
@@ -198,6 +209,7 @@ def test_preprocess_entry_rebuilds_changed_psf_and_then_reuses_exact_inputs(tmp_
     assert (tmp_path / 'psf/segmentation_application.json').read_bytes() == record
     assert next((tmp_path / 'masks').glob('*.npz')).read_bytes() == first
     settings['psf_fwhm_um'] = [2., 2.]
+    _start_a_new_run(settings)
     preprocess_img_data(settings)
     assert next((tmp_path / 'masks').glob('*.npz')).read_bytes() != first
 

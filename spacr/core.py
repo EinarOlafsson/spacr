@@ -591,13 +591,15 @@ def preprocess_generate_masks(settings):
         settings['src'] = [settings['src']]
 
     source_folders = settings['src']
+    caller_settings = settings
     requested_settings = deepcopy(settings)
     ledger = RunLedger('preprocess_generate_masks')
     module_key = 'timelapse' if settings.get('timelapse') else 'mask'
     from ._mask_workers import _MaskWorkerPool
     with run_context(module_key, settings, ledger=ledger) as run, _MaskWorkerPool() as mask_pool:
-        for source_folder in source_folders:
-            settings = deepcopy(requested_settings)
+        for folder_index, source_folder in enumerate(source_folders):
+            settings = (caller_settings if folder_index == 0
+                        else deepcopy(requested_settings))
             _resolved_parameters(settings).source_root = format_path_for_system(source_folder)
             for attempt in run.policy.attempts_for(source_folder,
                                                    stage='plate'):
