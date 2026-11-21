@@ -3584,9 +3584,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "stage. With labels the model is refitted, their stages can become "
         "verified, and the shuffled-label check runs. Default ''. Alpha.",
     "ops_cell_cycle_label_queue":
-        "(int) - How many cells to queue for labelling on the Home screen; 0 "
-        "queues none. 100 is recommended. Not yet available in this build. "
-        "Default 0. Alpha.",
+        "(int) - How many cells the run queues for labelling, the most "
+        "uncertain with every stage and plate represented. The queue goes to "
+        "cell_cycle_labels/<plate> in the run folder; the Home job built from "
+        "it opens the cells in Annotate, and its answers refit the model. 0 "
+        "queues none; 100 is recommended. Default 0. Alpha.",
     "ops_cell_cycle_seed":
         "(int) - The seed of every random draw of the option: folds, "
         "shuffles, the learner and the self-check permutations. Default 0. "
