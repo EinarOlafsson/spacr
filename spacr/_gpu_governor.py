@@ -74,7 +74,11 @@ _DEFAULTS = {
     'gpu_memory_margin_gb': 1.5,
     'gpu_adaptive_batch': True,
     'gpu_fallback_policy': 'per_item',
+    'gpu_vram_budget_gb': None,
 }
+
+#: The environment variable ``tools/gpu_turn.sh --vram-gb N`` sets for its child (item 1011).
+_BUDGET_ENV = 'SPACR_GPU_VRAM_GB'
 
 _FALLBACK_POLICIES = ('per_item', 'pause')
 
@@ -115,9 +119,9 @@ _COUNTS: Counter = Counter()
 def _config(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
     """Return the governor settings in force.
 
-    :param settings: run settings; any of the four governor keys they hold
+    :param settings: run settings; any of the governor keys they hold
         override the process-wide values set by :func:`_configure`.
-    :returns: a dict with the four governor keys.
+    :returns: a dict with the governor keys.
     """
     merged = dict(_STATE['config'])
     if isinstance(settings, Mapping):
@@ -128,12 +132,13 @@ def _config(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
 
 
 def _normalised(values: Mapping[str, Any]) -> Dict[str, Any]:
-    """Coerce the four governor values, falling back to the defaults.
+    """Coerce the governor values, falling back to the defaults.
 
     :param values: raw values, possibly from a settings file.
     :returns: the fraction as a float in (0, 1] or None, the margin as a
-        non-negative float, the switch as a bool and the fallback policy as
-        ``'per_item'`` or ``'pause'``.
+        non-negative float, the switch as a bool, the fallback policy as
+        ``'per_item'`` or ``'pause'``, and the declared VRAM budget in GB or
+        None (see :func:`_declared_budget_gb`).
     """
     fraction = values.get('gpu_memory_fraction')
     try:
@@ -151,7 +156,78 @@ def _normalised(values: Mapping[str, Any]) -> Dict[str, Any]:
     if policy not in _FALLBACK_POLICIES:
         policy = 'per_item'
     return {'gpu_memory_fraction': fraction, 'gpu_memory_margin_gb': margin,
-            'gpu_adaptive_batch': adaptive, 'gpu_fallback_policy': policy}
+            'gpu_adaptive_batch': adaptive, 'gpu_fallback_policy': policy,
+            'gpu_vram_budget_gb': _declared_budget_gb(values.get('gpu_vram_budget_gb'))}
+
+
+def _declared_budget_gb(value: Any) -> Optional[float]:
+    """The VRAM budget a run declares, in GB, or None when it declares none (item 1011).
+
+    ``gpu_vram_budget_gb`` wins; when it is empty, ``SPACR_GPU_VRAM_GB``
+    (which ``tools/gpu_turn.sh --vram-gb N`` exports to its child) is read.
+
+    :param value: the setting's raw value.
+    :returns: a positive float, or None when neither gives one.
+    """
+    for raw in (value, os.environ.get(_BUDGET_ENV)):
+        if raw in (None, ''):
+            continue
+        try:
+            budget = float(raw)
+        except (TypeError, ValueError):
+            continue
+        if budget > 0 and math.isfinite(budget):
+            return budget
+    return None
+
+
+def _effective_fraction(index: Optional[int], config: Mapping[str, Any]) -> Optional[float]:
+    """The fraction ceiling in force: ``gpu_memory_fraction``, lowered to a declared budget.
+
+    A declared budget of ``B`` GB on a card of ``T`` bytes caps this process
+    at ``min(fraction, B / T)`` through the same per-process fraction.
+
+    :param index: the CUDA device index, or None for no CUDA device.
+    :param config: the governor values in force.
+    :returns: a fraction in (0, 1], or None for no ceiling.
+    """
+    fraction = config.get('gpu_memory_fraction')
+    budget = config.get('gpu_vram_budget_gb')
+    if index is None or budget is None:
+        return fraction
+    info = _memory(index)
+    if info is None or info[1] <= 0:
+        return fraction
+    declared = min(1.0, budget * _GIB / float(info[1]))
+    return declared if fraction is None else min(fraction, declared)
+
+
+def _vram_budget(index: Optional[int], settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+    """The one VRAM budget a run sizes its batches from (item 1011).
+
+    The declared budget (``gpu_vram_budget_gb``, then ``SPACR_GPU_VRAM_GB``)
+    when one is set; otherwise the free memory of the card less what other
+    spaCR processes have announced in the ledger. The margin and the CUDA
+    context are NOT subtracted here; the caller does that once.
+
+    :param index: the CUDA device index, or None for no CUDA device.
+    :param settings: run settings carrying the governor keys.
+    :returns: ``{'bytes', 'source', 'total'}``; ``source`` is ``'declared'``,
+        ``'free'`` or ``'cpu'`` (no CUDA device, ``bytes`` and ``total`` None).
+    """
+    if index is None:
+        return {'bytes': None, 'source': 'cpu', 'total': None}
+    config = _config(settings)
+    info = _memory(index)
+    total = None if info is None else int(info[1])
+    if config['gpu_vram_budget_gb'] is not None:
+        return {'bytes': int(config['gpu_vram_budget_gb'] * _GIB), 'source': 'declared',
+                'total': total}
+    if info is None:
+        return {'bytes': None, 'source': 'cpu', 'total': None}
+    others = _ledger_others(index)
+    return {'bytes': max(0, int(info[0]) - _pending_elsewhere(others)), 'source': 'free',
+            'total': total}
 
 
 def _configure(settings: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
@@ -470,7 +546,7 @@ def _apply_fraction(index: Optional[int], config: Mapping[str, Any]) -> None:
     :param index: the CUDA device index, or None for no CUDA device.
     :param config: the governor values in force.
     """
-    fraction = config.get('gpu_memory_fraction')
+    fraction = _effective_fraction(index, config)
     if index is None or fraction is None:
         return
     fraction = max(fraction, _STATE['floors'].get(index, 0.0))
@@ -496,7 +572,7 @@ def _keep_headroom(index: Optional[int], config: Mapping[str, Any]) -> None:
     :param index: the CUDA device index.
     :param config: the governor values in force.
     """
-    fraction = config.get('gpu_memory_fraction')
+    fraction = _effective_fraction(index, config)
     if index is None or fraction is None:
         return
     info = _memory(index)
@@ -679,6 +755,25 @@ def _ledger_update(index: int, used: int = 0, want: int = 0,
         return {}
     return {name: entry for name, entry in entries.items()
             if name != key and int(entry.get('device', -1)) == int(index)}
+
+
+def _ledger_others(index: int, path: Optional[str] = None) -> Dict[str, Any]:
+    """The live ledger entries of the OTHER processes on one device, read without writing.
+
+    :param index: the CUDA device index.
+    :param path: the ledger file; the user cache one when omitted.
+    :returns: entries as :func:`_ledger_update` returns them.
+    """
+    path = path or _ledger_path()
+    key = f"{os.getpid()}:{index}"
+    try:
+        entries = _read_ledger(path)
+    except OSError:
+        return {}
+    return {name: entry for name, entry in entries.items()
+            if isinstance(entry, dict) and name != key
+            and int(entry.get('device', -1)) == int(index)
+            and _alive(entry.get('pid'), entry.get('started'))}
 
 
 def _pending_elsewhere(others: Mapping[str, Any]) -> int:
@@ -1023,7 +1118,7 @@ class _BatchController:
         others = self._post(index, want=0, used=_held(index), config=config)
         budget = (free - config['gpu_memory_margin_gb'] * _GIB
                   - _pending_elsewhere(others))
-        fraction = config.get('gpu_memory_fraction')
+        fraction = _effective_fraction(index, config)
         if fraction is not None:
             fraction = max(fraction, _STATE['floors'].get(index, 0.0))
             budget = min(budget, fraction * total - _reserved(index)[0])
@@ -1122,7 +1217,7 @@ class _BatchController:
                 and abs(used - last[3]) < _LEDGER_SLACK):
             return last[4]
         ceiling = 0
-        fraction = config.get('gpu_memory_fraction')
+        fraction = _effective_fraction(index, config)
         if fraction is not None:
             info = _memory(index)
             if info is not None:
