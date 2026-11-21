@@ -210,20 +210,25 @@ def test_an_absent_object_is_none_rather_than_an_empty_crop(merged):
     assert cs.crop_object(merged, mask, 99, channels=[0]) is None
 
 
-def test_a_crop_shape_that_is_not_one_is_refused(merged):
-    with pytest.raises(CropSourceError, match="crop_shape"):
-        cs.crop_object(merged, merged[:, :, 2], 1, channels=[0],
-                       shape="outline")
+@pytest.mark.parametrize('kwargs, match', [
+    pytest.param(
+        {'channels': [0], 'shape': 'outline'}, 'crop_shape',
+        id='test_a_crop_shape_that_is_not_one_is_refused',
+    ),
+    pytest.param(
+        {'channels': [0, 7]}, 'plane 7',
+        id='test_a_plane_the_array_does_not_have_is_refused_before_cutting',
+    ),
+])
+def test_original_invalid_object_crop_options_keep_their_refusals(merged, kwargs, match):
+    """Preserve each original invalid object crop option and its refusal."""
+    with pytest.raises(CropSourceError, match=match):
+        cs.crop_object(merged, merged[:, :, 2], 1, **kwargs)
 
 
 def test_a_two_dimensional_array_is_not_a_merged_stack(merged):
     with pytest.raises(CropSourceError, match="height, width, planes"):
         cs.crop_object(merged[:, :, 0], merged[:, :, 2], 1, channels=[0])
-
-
-def test_a_plane_the_array_does_not_have_is_refused_before_cutting(merged):
-    with pytest.raises(CropSourceError, match="plane 7"):
-        cs.crop_object(merged, merged[:, :, 2], 1, channels=[0, 7])
 
 
 # ---------------------------------------------------------------------------
