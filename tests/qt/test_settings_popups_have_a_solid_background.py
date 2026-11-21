@@ -214,8 +214,17 @@ def _builders():
         image = np.arange(64 * 64, dtype=np.uint16).reshape(64, 64)
         return _LevelsDialog(image, (1.0, 99.0))
 
+    def ops_live(qtbot):
+        from spacr.qt.widgets.ops_live_preview import (_OpsLivePanel,
+                                                       _StepSettingsDialog)
+        live_panel = _OpsLivePanel(lambda: {}, run_step=lambda *args, **kwargs: None)
+        qtbot.addWidget(live_panel)
+        return _StepSettingsDialog(live_panel, "spots")
+
     return {
         ("spacr/qt/widgets/live_preview.py", "LiveSettingsDialog"): live,
+        ("spacr/qt/widgets/ops_live_preview.py", "_StepSettingsDialog"):
+            ops_live,
         ("spacr/qt/preferences.py", "_PreferencesWindow"): preferences,
         ("spacr/qt/widgets/figure_settings.py", "FigureSettingsDialog"):
             figure_settings,
@@ -314,7 +323,7 @@ def test_every_settings_popup_in_the_source_has_a_builder():
         "settings popups without a builder", sorted(found - built_classes))
     by_marks = {key for key in BUILDERS if key not in found}
     assert {path for path, _ in by_marks} == marked
-    assert len(BUILDERS) == len(found) + len(by_marks) == 25
+    assert len(BUILDERS) == len(found) + len(by_marks) == 26
 
 
 def _open(qtbot, app, dialog):

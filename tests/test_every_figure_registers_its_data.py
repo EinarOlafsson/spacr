@@ -34,9 +34,6 @@ EXEMPT = {
         "a scratch figure each panel is test-drawn on and closed, never shown",
     ("qt/widgets/motility_preview.py", "render_motility_figure"):
         "rasterised to an RGB array for a preview label, never a figure",
-    ("qt/widgets/ops_live_preview.py", "_figure"):
-        "the OPS Live tabs' three panels, rasterised to an RGB array for a "
-        "preview label, never a figure (item 971)",
     ("qt/widgets/regression_results.py", "judge_homogeneity"):
         "a scratch figure the scale-location statistics are read from",
     ("report.py", "write_pdf"):

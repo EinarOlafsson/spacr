@@ -586,6 +586,11 @@ SCALED_EXEMPT = {
         "the blur, an internal downscale of the ambient buffer, which "
         "already carries the ratio it was allocated at and is blitted back "
         "up at the same density",
+    "widgets/live_preview.py":
+        "the image-quality slider (item 1000), which deliberately draws a "
+        "reduced copy of the full-resolution picture and maps it back onto "
+        "the picture's own pixels with a transform; at 100 the full pixmap "
+        "is shown unscaled",
 }
 
 
