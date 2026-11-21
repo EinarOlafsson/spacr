@@ -5658,7 +5658,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # illumination_qc, prepare_illumination_correction, prepare_illumination_model
     # and spacr.intensity_rescale.build_plate_plan (defaulted; the 933/983
     # contracts cover the other three new keywords).
-    assert sum(len(item.parameters) for item in callables) == 20267
+    # 20,267 -> 20,273 on 2026-11-21 (item 1007 lane A, NGFF 0.6): the optional
+    # `discrete` and `long_name` fields of spacr.ome_zarr.Axis, the optional
+    # `coordinate_systems` and `transformations` fields of OmeZarrImage, and the
+    # optional `coordinate_systems` and `coordinate_transformations` keywords of
+    # spacr.ome_zarr.write_ome_zarr (all defaulted).
+    assert sum(len(item.parameters) for item in callables) == 20273
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -6017,7 +6022,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr.
     # Moved 2026-11-21 by landing train 7 (was 361a1012...): item 986 P's
     # optional `load_field` of five illumination/intensity_rescale planners.
-) == 'ae0adfd78a2a55213026232359b5f788ffbbc38639454ae8dc3b9ac6d60284cf'
+    # Moved 2026-11-21 for item 1007 lane A (was ae0adfd7...): the optional
+    # `discrete` and `long_name` of spacr.ome_zarr.Axis, `coordinate_systems` and
+    # `transformations` of OmeZarrImage, and `coordinate_systems` and
+    # `coordinate_transformations` of spacr.ome_zarr.write_ome_zarr.
+) == 'd2d9fcfe2231caa28395d681abbdc7378b3993b629d265660674e570decf6bba'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
