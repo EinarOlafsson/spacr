@@ -27,32 +27,21 @@ import pytest
 # well_scope.wells_of — arc 66 -> 65, the loop going round again
 # ---------------------------------------------------------------------------
 
-def test_a_well_holding_two_selected_guides_is_listed_once():
-    """The de-duplicating branch, which only fires on a repeat.
-
-    Every earlier test gave each well one matching row, so ``value not in
-    seen`` was true every time and the ``seen`` set was never once consulted
-    in anger. A real object table has many objects per well, so the repeat is
-    the common case in production and was the missing case under test.
-    """
+@pytest.mark.parametrize('records, guides, expected', [
+    pytest.param(
+        {'well': ['A01', 'A02', 'A01', 'A03', 'A02'], 'grna': ['g1', 'g1', 'g2', 'g9', 'g2']}, ['g1', 'g2'], ['A01', 'A02'],
+        id='test_a_well_holding_two_selected_guides_is_listed_once',
+    ),
+    pytest.param(
+        {'well': ['B12', 'A01', 'B12', 'A01'], 'grna': ['g1', 'g1', 'g1', 'g1']}, ['g1'], ['B12', 'A01'],
+        id='test_wells_come_back_in_first_occurrence_order_not_sorted',
+    ),
+])
+def test_original_guide_selections_keep_their_unique_well_order(records, guides, expected):
+    """Preserve each original guide selection and its unique well order."""
     from spacr.well_scope import wells_of
-
-    frame = pd.DataFrame({
-        "well": ["A01", "A02", "A01", "A03", "A02"],
-        "grna": ["g1", "g1", "g2", "g9", "g2"],
-    })
-    assert wells_of(frame, ["g1", "g2"]) == ["A01", "A02"]
-
-
-def test_wells_come_back_in_first_occurrence_order_not_sorted():
-    """The order the docstring promises, which de-duplication could destroy."""
-    from spacr.well_scope import wells_of
-
-    frame = pd.DataFrame({
-        "well": ["B12", "A01", "B12", "A01"],
-        "grna": ["g1", "g1", "g1", "g1"],
-    })
-    assert wells_of(frame, ["g1"]) == ["B12", "A01"]
+    frame = pd.DataFrame(records)
+    assert wells_of(frame, guides) == expected
 
 
 # ---------------------------------------------------------------------------
