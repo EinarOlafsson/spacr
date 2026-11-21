@@ -26,4 +26,4 @@ option off, outputs stay identical to today's.
 Prediction must normalize current complete wells or an explicit full reference, including another plate with the same well names; old bundles load with a warning.
 Acceptance: a 50% enriched label set recovers a 3% population and cross-plate batch correction; unchanged engine/TVN full-screen callers remain valid.
 2026-11-19 Q2 validation: 43 focused cases pass, including cross-plate normalization, enriched labels, old-bundle warnings and unchanged engine/TVN callers.
-2026-11-19 Q2 source checks: callable/API contracts and the comment guard pass; existing API expectations updated, frozen engine/TVN and settings unchanged.
+2026-11-21 Q2b: the runtime scanner now includes the nine normalization diagnostics; its synthetic module inventory stays aligned and its owner-exclusion test passes. All 81 review records pass the exact-source gates, nine runtime loaders and API evidence check on nightly c9fddfc769 / translations 2cf1600741. Codex Home publishes via ws-offload-codex-home-q2b and ws-offload-codex-tr-q2b; generated catalogs and pins remain with landing. The 43 Q2 source checks remain passed.
