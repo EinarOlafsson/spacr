@@ -78,19 +78,23 @@ def test_provenance_without_field_keys_is_refused(tmp_path):
         _check(path, "abc")
 
 
-def test_measured_rows_without_field_keys_are_refused(tmp_path):
+@pytest.mark.parametrize('cell_columns', [
+    pytest.param(
+        ('plateID', 'area'),
+        id='test_measured_rows_without_field_keys_are_refused',
+    ),
+    pytest.param(
+        ('plateID', 'rowID', 'columnID', 'fieldID', 'timeID'),
+        id='test_timed_rows_need_timed_provenance',
+    ),
+])
+def test_original_unproven_measurement_fields_keep_their_refusals(
+        tmp_path, cell_columns):
+    """Preserve each original field column layout and its calibration refusal."""
     columns = ("plateID", "rowID", "columnID", "fieldID", "intensity_calibration")
-    path = _db(tmp_path, rescale_columns=columns, rescale=[(*FIELD, _matching())],
-               recorded={KEY: "abc"}, cell_columns=("plateID", "area"))
-    with pytest.raises(ValueError):
-        _check(path, "abc")
-
-
-def test_timed_rows_need_timed_provenance(tmp_path):
-    columns = ("plateID", "rowID", "columnID", "fieldID", "intensity_calibration")
-    path = _db(tmp_path, rescale_columns=columns, rescale=[(*FIELD, _matching())],
-               recorded={KEY: "abc"},
-               cell_columns=("plateID", "rowID", "columnID", "fieldID", "timeID"))
+    path = _db(tmp_path, rescale_columns=columns,
+               rescale=[(*FIELD, _matching())], recorded={KEY: "abc"},
+               cell_columns=cell_columns)
     with pytest.raises(ValueError):
         _check(path, "abc")
 
