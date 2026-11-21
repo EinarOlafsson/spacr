@@ -1,0 +1,221 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_the_classes_column_can_be_filled_in.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_the_defaults_write_them_back": "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_original_class_settings_keep_both_compatibility_values[test_the_defaults_write_them_back]",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_no_classes_leaves_the_defaults_alone": "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_original_class_settings_keep_both_compatibility_values[test_no_classes_leaves_the_defaults_alone]"
+  },
+  "literal_class_case_contracts": {
+    "test_the_defaults_write_them_back": [
+      {
+        "classes": {
+          "pc": {
+            "column": "rowID",
+            "value": "r2"
+          },
+          "nc": {
+            "column": "rowID",
+            "value": "r1"
+          }
+        }
+      },
+      "rowID",
+      [
+        [
+          "r2"
+        ],
+        [
+          "r1"
+        ]
+      ]
+    ],
+    "test_no_classes_leaves_the_defaults_alone": [
+      {},
+      "test",
+      [
+        [
+          "c1"
+        ],
+        [
+          "c2"
+        ]
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_the_defaults_write_them_back": "({'classes': {'pc': {'column': 'rowID', 'value': 'r2'}, 'nc': {'column': 'rowID', 'value': 'r1'}}}, 'rowID', [['r2'], ['r1']])",
+    "test_no_classes_leaves_the_defaults_alone": "({}, 'test', [['c1'], ['c2']])"
+  },
+  "contract_scope": "Both original native equalities remain in each TestTheClassesReplaceTheTwoSettings class/self case,in original order: annotation_column string first,class_metadata ordered nested string lists second. Original local set_generate_training_dataset_defaults import,fresh empty or ordered pc/nc nested class dictionary,default-helper call/got assignment and exact values retained. Every other original class/method/helper/import/PySide6 guard/module QApplication/editor fixture/typed-column/class-add/legacy-setting/SQL-button/source-inspection case retains AST and relative order.",
+  "collected_before": [
+    "tests/test_the_classes_column_can_be_filled_in.py::TestATypedColumnSurvives::test_a_typed_name_is_not_cleared_by_a_reload",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestATypedColumnSurvives::test_a_real_table_still_offers_its_columns",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestATypedColumnSurvives::test_a_typed_name_survives_a_basis_change",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheSqlButton::test_classes_is_registered_for_a_column_picker",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheSqlButton::test_a_bad_path_is_survivable",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheSqlButton::test_the_button_attaches",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_the_column_comes_from_the_classes",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_the_defaults_write_them_back",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_no_classes_leaves_the_defaults_alone",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_but_both_are_still_written",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_the_values_come_from_the_classes",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_neither_is_a_control_any_more",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_an_old_settings_file_is_untouched",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheBugItself::test_and_a_column_can_still_be_named",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheBugItself::test_and_more_than_one",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheBugItself::test_with_no_table_the_column_list_is_empty",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheBugItself::test_so_a_class_can_be_added"
+  ],
+  "collected_after": [
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheBugItself::test_so_a_class_can_be_added",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheBugItself::test_and_more_than_one",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheBugItself::test_with_no_table_the_column_list_is_empty",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheBugItself::test_and_a_column_can_still_be_named",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheSqlButton::test_the_button_attaches",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheSqlButton::test_classes_is_registered_for_a_column_picker",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheSqlButton::test_a_bad_path_is_survivable",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestATypedColumnSurvives::test_a_typed_name_survives_a_basis_change",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestATypedColumnSurvives::test_a_typed_name_is_not_cleared_by_a_reload",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestATypedColumnSurvives::test_a_real_table_still_offers_its_columns",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_the_column_comes_from_the_classes",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_the_values_come_from_the_classes",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_neither_is_a_control_any_more",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_original_class_settings_keep_both_compatibility_values[test_the_defaults_write_them_back]",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_original_class_settings_keep_both_compatibility_values[test_no_classes_leaves_the_defaults_alone]",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_an_old_settings_file_is_untouched",
+    "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_but_both_are_still_written"
+  ],
+  "tests_before": {
+    "passed": 17,
+    "seconds": 4.15
+  },
+  "tests_after": {
+    "passed": 17,
+    "seconds": 4.58
+  },
+  "coverage_scope": "spacr.classify_classes under the complete selected class-editor/legacy-compatibility/default-helper module; not settings/widget-module or full-suite coverage. Original tiny two-row DataFrame,literal class mappings and offscreen QApplication/ClassEditorWidget controls retained. SQL picker buttons attach to original nonexistent-path providers and remain unclicked; no database selection/query or dataset generation/training/model fitting/scientific chart construction/rendering,new reader,network or GPU work. Default helpers fill dictionaries only. Original PySide6 guard retained and must not skip on installed environment. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 67,
+    "num_statements": 205,
+    "percent_covered": 28.155339805825243,
+    "percent_covered_display": "28",
+    "missing_lines": 138,
+    "excluded_lines": 0,
+    "percent_statements_covered": 32.68292682926829,
+    "percent_statements_covered_display": "33",
+    "num_branches": 104,
+    "num_partial_branches": 12,
+    "covered_branches": 20,
+    "missing_branches": 84,
+    "percent_branches_covered": 19.23076923076923,
+    "percent_branches_covered_display": "19"
+  },
+  "coverage_after": {
+    "covered_lines": 67,
+    "num_statements": 205,
+    "percent_covered": 28.155339805825243,
+    "percent_covered_display": "28",
+    "missing_lines": 138,
+    "excluded_lines": 0,
+    "percent_statements_covered": 32.68292682926829,
+    "percent_statements_covered_display": "33",
+    "num_branches": 104,
+    "num_partial_branches": 12,
+    "covered_branches": 20,
+    "missing_branches": 84,
+    "percent_branches_covered": 19.23076923076923,
+    "percent_branches_covered_display": "19"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "79fb90dc4c3ec5727b9807ffbe874ee746c56bd114cee5f4796bce7fb8686bc8",
+  "production_source_sha256": "ed345f6821c688eabb97e6e5e2b790723befeaf63d627400bd88857d16a6d6cd",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "class-column-writeback-loses-derived-name",
+      "source_variant": {
+        "path": "spacr/classify_classes.py",
+        "line": 510,
+        "old": "settings[\"annotation_column\"] = column",
+        "new": "settings[\"annotation_column\"] = \"test\""
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_the_defaults_write_them_back"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_the_defaults_write_them_back"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_original_class_settings_keep_both_compatibility_values[test_the_defaults_write_them_back]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_original_class_settings_keep_both_compatibility_values[test_the_defaults_write_them_back]"
+        ],
+        "application_markers": 1
+      }
+    },
+    {
+      "mutant": "class-metadata-writeback-loses-original-values",
+      "source_variant": {
+        "path": "spacr/classify_classes.py",
+        "line": 513,
+        "old": "settings[\"class_metadata\"] = values",
+        "new": "settings[\"class_metadata\"] = [[\"wrong\"]]"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_no_classes_leaves_the_defaults_alone"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_no_classes_leaves_the_defaults_alone"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_original_class_settings_keep_both_compatibility_values[test_no_classes_leaves_the_defaults_alone]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_classes_column_can_be_filled_in.py::TestTheClassesReplaceTheTwoSettings::test_original_class_settings_keep_both_compatibility_values[test_no_classes_leaves_the_defaults_alone]"
+        ],
+        "application_markers": 1
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in fold_into_classes before and after: replace a derived class column with test; replace original class metadata values with a wrong nested string list. First fault selects the original/mapped classes-provided row and must fail its unchanged first column equality; second selects the original/mapped no-classes row and must fail its unchanged second metadata equality. Both original assertions remain in every normal case. Exact original nested mapping/list order,string types,local import and helper/got path retained. Repository production/settings/default/schema/category files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_the_classes_column_can_be_filled_in.py",
+      "line": 156,
+      "symbol": "test_original_class_settings_keep_both_compatibility_values",
+      "new": "Preserve both original compatibility values for each class-definition setting.",
+      "old": {
+        "test_the_defaults_write_them_back": "Derived values are WRITTEN rather than computed at every read:\nevery consumer downstream reads those two keys.",
+        "test_no_classes_leaves_the_defaults_alone": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
