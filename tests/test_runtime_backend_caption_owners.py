@@ -25,6 +25,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "utils.py", "channel_sorting.py", "image_import.py", "run_journal.py", "ml.py",
         "regression_layout.py", "regression_failure.py", "regression_backends.py", "power_model.py", "io.py",
         "uniprot.py", "validate.py", "torch_artifacts.py",
+        "ops_engine.py", "ops_flatfield.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
