@@ -137,14 +137,20 @@ def test_planes_may_be_one_number_a_list_or_a_numpy_integer():
     assert cs._as_indices(np.array([1, 0]), "extract_channels") == [1, 0]
 
 
-def test_unset_planes_name_the_setting_that_is_unset():
-    with pytest.raises(CropSourceError, match="extract_channels is not set"):
-        cs._as_indices(None, "extract_channels")
-
-
-def test_planes_that_are_not_numbers_are_refused():
-    with pytest.raises(CropSourceError, match="not a list of planes"):
-        cs._as_indices(["cell", "nucleus"], "extract_channels")
+@pytest.mark.parametrize('value, match', [
+    pytest.param(
+        None, 'extract_channels is not set',
+        id='test_unset_planes_name_the_setting_that_is_unset',
+    ),
+    pytest.param(
+        ['cell', 'nucleus'], 'not a list of planes',
+        id='test_planes_that_are_not_numbers_are_refused',
+    ),
+])
+def test_original_invalid_crop_planes_keep_their_refusals(value, match):
+    """Preserve each original invalid plane input and its named refusal."""
+    with pytest.raises(CropSourceError, match=match):
+        cs._as_indices(value, "extract_channels")
 
 
 # ---------------------------------------------------------------------------
