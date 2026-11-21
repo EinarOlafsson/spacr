@@ -200,30 +200,40 @@ def test_more_values_than_columns_pair_off_against_the_first_column():
     assert [r.column for r in rules] == ["annot_1", "annot_2", "annot_1"]
 
 
-def test_a_random_complement_takes_the_first_name_no_class_has_taken():
-    settings = {"dataset_mode": "annotation",
-                "annotation_column": "annot_1",
-                "annotation_values": [1],
-                "write_random_annotation_column": True,
-                "class_folder_names": ["infected", "uninfected"]}
-
+@pytest.mark.parametrize('settings_input, expected_names, complement_index', [
+    pytest.param(
+        {
+            'dataset_mode': 'annotation',
+            'annotation_column': 'annot_1',
+            'annotation_values': [1],
+            'write_random_annotation_column': True,
+            'class_folder_names': ['infected', 'uninfected'],
+        },
+        ['infected', 'uninfected'],
+        1,
+        id='test_a_random_complement_takes_the_first_name_no_class_has_taken',
+    ),
+    pytest.param(
+        {
+            'dataset_mode': 'annotation',
+            'annotation_column': 'annot_1',
+            'annotation_values': [0, 1],
+            'write_random_annotation_column': True,
+            'class_folder_names': ['nc', 'pc'],
+        },
+        ['nc', 'pc', 'random'],
+        -1,
+        id='test_a_complement_with_every_name_already_used_is_called_random',
+    ),
+])
+def test_original_complement_names_and_rule_identity_are_preserved(
+    settings_input, expected_names, complement_index,
+):
+    """Preserve each complement name list and original indexed boolean identity check."""
+    settings = settings_input
     rules = cc._rules_from_annotation(settings)
-
-    assert [r.name for r in rules] == ["infected", "uninfected"]
-    assert rules[1].random_complement is True
-
-
-def test_a_complement_with_every_name_already_used_is_called_random():
-    settings = {"dataset_mode": "annotation",
-                "annotation_column": "annot_1",
-                "annotation_values": [0, 1],
-                "write_random_annotation_column": True,
-                "class_folder_names": ["nc", "pc"]}
-
-    rules = cc._rules_from_annotation(settings)
-
-    assert [r.name for r in rules] == ["nc", "pc", "random"]
-    assert rules[-1].random_complement is True
+    assert [r.name for r in rules] == expected_names
+    assert rules[complement_index].random_complement is True
 
 
 def test_blank_annotation_column_entries_are_not_columns():
