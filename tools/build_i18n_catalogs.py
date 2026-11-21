@@ -4952,10 +4952,11 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         except SyntaxError:
             continue
         if path == source_root / "ops_engine.py":
+            # 995's and 1006's owners are read here; the file then goes on to the
+            # crop owners below (train 7), which a `continue` here skipped.
             found.update(_ops_profile_cell_cycle_method_sources(tree))
             found.update(_flatfield_fit_runtime_sources(
                 tree, {"_ph_channel_fits", "_ph_object_fields", "_ph_flatfield_objects"}))
-            continue
         if path == source_root / "ops_flatfield.py":
             found.update(_flatfield_fit_runtime_sources(tree, {"load_flat_maps"}))
             continue
