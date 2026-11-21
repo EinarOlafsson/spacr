@@ -3373,8 +3373,11 @@ def spacr_measure_run(spacr_pipeline_run):
         "cytoplasm": True,
         "n_jobs": 1, "batch_size": 8, "verbose": False,
         # save_png=True so downstream tests can chain into generate_dataset
-        # and apply_model on the resulting per-object crops.
+        # and apply_model on the resulting per-object crops. Measure writes
+        # OME-Zarr crops by default since settings schema 949; these tests
+        # cover the PNG route, so the format is selected explicitly.
         "plot": False, "save_png": True, "save_arrays": False,
+        "crop_image_format": "png",
     })
     # No try/skip: same reasoning as spacr_pipeline_run. measure_crop failing
     # on the output spaCR itself just produced IS the regression this fixture
