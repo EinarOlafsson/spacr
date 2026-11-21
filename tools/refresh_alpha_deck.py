@@ -60,7 +60,7 @@ GROUPS = (
         ("Illumination, enhancement and PSF settings", (591,)),
     )),
     ("Measurements and\nassays", (
-        ("Cell-cycle phase classification", (535,)),
+        ("Cell-cycle phase classification", (535, 995)),
         ("Viability, confluency, wound closure and colony / CFU counts",
          (540, 541, 536, 542)),
         ("Profiling: normalise, select, mAP, feature QC, TVN batch correction",

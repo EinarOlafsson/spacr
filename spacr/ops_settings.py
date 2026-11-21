@@ -285,6 +285,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_guide_efficacy_emax": 1.0,
     "ops_profile_cell_cycle": None,
     "ops_profile_g1_sg2_split_log2": 0.3,
+    "ops_profile_cell_cycle_method": "",
     "ops_mitotic_source": "rule",
     "ops_tvn_fit_cells": "pooled",
     "ops_penetrance": False,
@@ -839,6 +840,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_guide_efficacy_emax": (float, int),
     "ops_profile_cell_cycle": (str, type(None)),
     "ops_profile_g1_sg2_split_log2": (float, int),
+    "ops_profile_cell_cycle_method": str,
     "ops_mitotic_source": str,
     "ops_tvn_fit_cells": str,
     "ops_penetrance": bool,
@@ -1363,7 +1365,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Cell cycle & mitosis": [
         "ops_mitotic_dna_z", "ops_mitotic_model", "ops_mitotic_source",
         "ops_profile_cell_cycle", "ops_profile_g1_sg2_split_log2",
-        "ops_phase_tests", "ops_phase_null", "ops_mitotic_index_test",
+        "ops_profile_cell_cycle_method", "ops_phase_tests", "ops_phase_null", "ops_mitotic_index_test",
         "ops_mitotic_index_min_cells", "ops_mitotic_index_reference",
     ],
     "Penetrance, escapers & neighbours": [
@@ -3619,6 +3621,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "G1 peak of integrated nuclear DNA are S/G2, the rest G1. 0.30 is "
         "about 1.23 times G1 DNA, the dip of the control histogram on Funk "
         "plate A. Default 0.30. Alpha.",
+    "ops_profile_cell_cycle_method":
+        "(str) - How cells get their G1, S/G2 or M phase for cell-cycle "
+        "profiles. Blank splits interphase cells at "
+        "ops_profile_g1_sg2_split_log2 above their well's G1 peak. "
+        "'measure_fc' uses Measure's DNA-content fit instead: every site is "
+        "centred on its own G1 peak, one G1/S/G2 histogram is fitted per "
+        "well on the non-mitotic cells, and the mitotic call gives M; S, G2 "
+        "and >4N count as S/G2 and subG1 as G1. Default blank. Alpha.",
     "ops_mitotic_source":
         "(str) - Where the M phase of cell-cycle profiles comes from: "
         "'rule' (the DNA rule of ops_mitotic_dna_z, or the classifier when "

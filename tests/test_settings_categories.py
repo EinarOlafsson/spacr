@@ -801,6 +801,14 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 967 (2026-11-17): the spacer-prefix cell call ignores minority
     # stray barcodes.
     "ops_prefix_minority_min_reads",
+    # Item 995 (2026-11-20): field centring, a per-well fit and an external
+    # mitotic call for Measure's DNA-content cell-cycle fit, and its OPS
+    # profile method.
+    "cell_cycle_field_centre",
+    "cell_cycle_field_min_cells",
+    "cell_cycle_fit_group",
+    "cell_cycle_mitotic_column",
+    "ops_profile_cell_cycle_method",
     # Item 988 (2026-11-18): distance-aware read weights, the neighbour-bleed
     # discount and the multi-guide table in the guide call.
     "ops_read_distance_weight",

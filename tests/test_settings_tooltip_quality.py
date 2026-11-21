@@ -609,6 +609,10 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
 
 
 #: Items 983 and 984: the format defaults the tooltips claim, per app.
+CENTRING_ARRIVALS_995 = {
+    (app, key) for app in ("measure", "external_masks")
+    for key in ("cell_cycle_field_centre", "cell_cycle_field_min_cells",
+                "cell_cycle_mitotic_column")}
 FORMAT_ARRIVALS_983 = {
     ("mask", "mask_image_format"),
     ("measure", "mask_image_format"), ("external_masks", "mask_image_format"),
@@ -1522,6 +1526,21 @@ if app_key == "mask":
     for app, key in format_arrivals:
         assert resolve_default_settings(app)[key] == format_defaults[key]
     recognized_arrivals |= format_arrivals
+    # Item 995 (2026-11-20): field centring, the fit group and the external
+    # mitotic call of Measure's DNA-content fit, and its OPS profile method,
+    # all alpha. Each claim is the resolved default, so none is a variant.
+    centring_defaults = {"cell_cycle_field_centre": False,
+                         "cell_cycle_field_min_cells": 50,
+                         "cell_cycle_fit_group": "plate",
+                         "cell_cycle_mitotic_column": "",
+                         "ops_profile_cell_cycle_method": ""}
+    centring_arrivals = {pair for pair in compared_pairs
+                         if pair[1] in centring_defaults} - set(variants.keys())
+    assert centring_arrivals == CENTRING_ARRIVALS_995, sorted(centring_arrivals)
+    assert not centring_arrivals & recognized_arrivals
+    for app, key in centring_arrivals:
+        assert resolve_default_settings(app)[key] == centring_defaults[key]
+    recognized_arrivals |= centring_arrivals
     # Item 987 removed keep_npz (one claim in Mask), so one fewer comparison: 1005 -> 1004.
     # Item 987b added mask_inference_precision ("Default auto.") and
     # mask_eval_batch_size ("Default 0."), resolved by Mask; one of them is a
