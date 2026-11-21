@@ -168,14 +168,20 @@ class TestFieldIdentity:
         identity = field_identity('plate1_11_3')
         assert identity['rowID'] == '11' and identity['columnID'] == '11'
 
-    def test_too_few_parts_refuses_rather_than_guessing(self):
-        # A guessed key is a key that deletes the wrong rows.
-        with pytest.raises(ValueError, match='cannot identify a field'):
-            field_identity('junk')
-
-    def test_mapping_missing_keys_refuses(self):
-        with pytest.raises(ValueError, match='missing'):
-            field_identity({'plateID': 'plate1', 'rowID': 'r1'})
+    @pytest.mark.parametrize('field, match', [
+        pytest.param(
+            'junk', 'cannot identify a field',
+            id='test_too_few_parts_refuses_rather_than_guessing',
+        ),
+        pytest.param(
+            {'plateID': 'plate1', 'rowID': 'r1'}, 'missing',
+            id='test_mapping_missing_keys_refuses',
+        ),
+    ])
+    def test_original_invalid_identities_keep_their_specific_refusals(self, field, match):
+        """Preserve each original invalid field identity and its specific refusal."""
+        with pytest.raises(ValueError, match=match):
+            field_identity(field)
 
     def test_mapping_passthrough(self):
         identity = {'plateID': 'p', 'rowID': 'r1', 'columnID': 'c1',
