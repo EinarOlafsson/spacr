@@ -181,22 +181,22 @@ def test_the_named_plate_is_the_whole_test_side(three_plates):
     assert "plate3" in report.rule
 
 
-def test_holding_out_a_plate_that_is_not_there_is_refused(three_plates):
+@pytest.mark.parametrize('heldout, match', [
+    pytest.param(
+        ['plate9'], 'appear in the data',
+        id='test_holding_out_a_plate_that_is_not_there_is_refused',
+    ),
+    pytest.param(
+        ['plate1', 'plate2', 'plate3'], 'nothing left to train',
+        id='test_holding_out_everything_is_refused',
+    ),
+])
+def test_original_invalid_heldout_plates_keep_their_refusals(three_plates, heldout, match):
+    """Preserve each original held-out plate list and its split refusal."""
     from spacr.classifier_evaluation import grouped_split
-
     groups, labels = three_plates
-    with pytest.raises(ValueError, match="appear in the data"):
-        grouped_split(groups, labels, 0.2, group_by="plate",
-                      hold_out_groups=["plate9"])
-
-
-def test_holding_out_everything_is_refused(three_plates):
-    from spacr.classifier_evaluation import grouped_split
-
-    groups, labels = three_plates
-    with pytest.raises(ValueError, match="nothing left to train"):
-        grouped_split(groups, labels, 0.2, group_by="plate",
-                      hold_out_groups=["plate1", "plate2", "plate3"])
+    with pytest.raises(ValueError, match=match):
+        grouped_split(groups, labels, 0.2, group_by="plate", hold_out_groups=heldout)
 
 
 def test_a_holdout_missing_a_class_is_refused():
