@@ -58,8 +58,8 @@ def _fake_995(cells, *, dna="_dna_integrated", group="well", field="site", mitot
     return frame, fits
 
 
-SHARES = {"G1": 0.5, "S": 0.2, "G2": 0.18, "g2_prophase": 0.03, "prometaphase": 0.02,
-          "metaphase": 0.03, "ana_telo_cyto": 0.04}
+SHARES = {"G1": 0.5, "S": 0.2, "G2": 0.16, "g2_prophase": 0.03, "prometaphase": 0.02,
+          "metaphase": 0.03, "ana_telo_cyto": 0.03, "telophase_daughters": 0.03}
 
 
 def _cells(seed=0, wells=("A1", "A2"), sites=6, per_site=220, shuffle_stage=False):
@@ -73,21 +73,24 @@ def _cells(seed=0, wells=("A1", "A2"), sites=6, per_site=220, shuffle_stage=Fals
             for _ in range(per_site):
                 stage = names[rng.choice(len(names), p=shares / shares.sum())]
                 content = {"G1": 2.0, "S": rng.uniform(2.2, 3.8), "G2": 4.0, "g2_prophase": 4.0,
-                           "prometaphase": 4.0, "metaphase": 4.0, "ana_telo_cyto": 2.0}[stage]
+                           "prometaphase": 4.0, "metaphase": 4.0, "ana_telo_cyto": 2.0,
+                           "telophase_daughters": 2.0}[stage]
                 content *= np.exp(rng.normal(0, 0.05))
-                condensed = stage in ("prometaphase", "metaphase", "ana_telo_cyto")
+                condensed = stage in ("prometaphase", "metaphase", "ana_telo_cyto",
+                                      "telophase_daughters")
                 area = rng.normal({"prometaphase": 140, "metaphase": 80, "ana_telo_cyto": 90,
-                                   "g2_prophase": 230}.get(stage, 200), 8)
+                                   "telophase_daughters": 120, "g2_prophase": 230}.get(stage, 200), 8)
                 y, x = rng.uniform(0, 2000, 2)
                 spots = rng.normal({"g2_prophase": 8, "prometaphase": 5, "metaphase": 2,
                                     "ana_telo_cyto": 2}.get(stage, 1), 0.5)
-                for twin in range(2 if stage == "ana_telo_cyto" else 1):
+                for twin in range(2 if stage in ("ana_telo_cyto", "telophase_daughters") else 1):
                     label += 1
                     rows.append({"well": well, "site": site, "label": label,
                                  "stage": "interphase" if stage in ("G1", "S", "G2") else stage,
                                  "true_phase": stage, "nucleus_area": area,
                                  "nucleus_eccentricity": rng.normal(
-                                     {"prometaphase": 0.65, "metaphase": 0.9}.get(
+                                     {"prometaphase": 0.65, "metaphase": 0.9,
+                                      "telophase_daughters": 0.4}.get(
                                          stage, 0.8 if condensed else 0.5), 0.04),
                                  "nucleus_centroid_y": y + 12 * twin, "nucleus_centroid_x": x,
                                  "nucleus_dapi_integrated_intensity": 1000 * content,
@@ -142,14 +145,14 @@ def test_failed_checks_name_the_stages_to_collapse():
 
     assert cc.failed_stages(checks(S1=True, S2=True, S4=True, S6=True)) == []
     assert cc.failed_stages(checks(S1=False, S2=False, S4=True)) == [
-        "ana_telo_cyto", "metaphase", "prometaphase"]
+        "ana_telo_cyto", "metaphase", "prometaphase", "telophase_daughters"]
     assert "mitotic" in cc.failed_stages(checks(S1=False, S2=True, S4=False))
     assert cc.failed_stages(checks(S6=False)) == ["S/G2"]
     low = pd.DataFrame([{"check": "S6", "passed": False, "value": 0.5}])
     assert cc.failed_stages(low) == ["G1", "G2", "S"]
     assert cc.failed_stages(checks(S1=None, S2=None, S3=None)) == []
     assert cc.failed_stages(checks(S3=False)) == [
-        "ana_telo_cyto", "g2_prophase", "metaphase", "prometaphase"]
+        "ana_telo_cyto", "g2_prophase", "metaphase", "prometaphase", "telophase_daughters"]
 
 
 def test_planted_stages_pass_their_self_checks_and_are_called(tmp_path):
@@ -159,7 +162,7 @@ def test_planted_stages_pass_their_self_checks_and_are_called(tmp_path):
     assert passed["S1"] == 1 and passed["S2"] == 1 and passed["S6"] == 1
     called = cells[["well", "site", "label", "true_phase"]].merge(
         table[["well", "site", "label", "cell_cycle_stage"]], on=["well", "site", "label"])
-    for stage in ("metaphase", "ana_telo_cyto", "G1", "G2"):
+    for stage in ("metaphase", "ana_telo_cyto", "telophase_daughters", "G1", "G2"):
         rows = called[called["true_phase"] == stage]
         assert (rows["cell_cycle_stage"] == stage).mean() > 0.8, stage
     assert {"p_metaphase", "dna_log2_fc", "dna_phase_posterior_G1", "model_id"} <= set(table)
@@ -174,8 +177,10 @@ def test_shuffled_labels_fail_the_shuffled_check_and_collapse_to_parents(tmp_pat
     out, _cells_, table, checks = _run(tmp_path, _base(tmp_path),
                                        labels=str(tmp_path / "labels.csv"))
     assert dict(zip(checks["check"], checks["passed"]))["S3"] == 0
-    assert {"metaphase", "prometaphase", "ana_telo_cyto"} <= set(out["collapsed"])
-    assert not table["cell_cycle_stage"].isin(["metaphase", "ana_telo_cyto"]).any()
+    assert {"metaphase", "prometaphase", "ana_telo_cyto", "telophase_daughters"} <= set(
+        out["collapsed"])
+    assert not table["cell_cycle_stage"].isin(["metaphase", "ana_telo_cyto",
+                                               "telophase_daughters"]).any()
     assert (table.loc[table["cell_cycle_stage"] == "mitotic", "cell_cycle_flag"]
             == "unresolved").all()
 
@@ -475,3 +480,23 @@ def test_the_finished_job_journals_the_labels_file_hash(tmp_path, monkeypatch, q
     manifest = json.load(open(os.path.join(handle.journal, "manifest.json")))
     digest = hashlib.sha256(open(labels, "rb").read()).hexdigest()
     assert digest in json.dumps(manifest)
+
+
+def test_a_checkpoint_on_the_old_classes_is_refused_with_a_reason(tmp_path):
+    base = _base(tmp_path)
+    card = json.load(open(os.path.join(base, "card.json")))
+    card["classes"] = [c for c in cc.CLASSES if c != "telophase_daughters"]
+    json.dump(card, open(os.path.join(base, "card.json"), "w"))
+    import hashlib
+
+    sums = {name: hashlib.sha256(open(os.path.join(base, name), "rb").read()).hexdigest()
+            for name in ("card.json", "model.joblib")}
+    open(os.path.join(base, "SHA256SUMS"), "w").writelines(
+        f"{v}  {k}\n" for k, v in sorted(sums.items()))
+    with pytest.raises(ValueError, match="telophase_daughters became a stage"):
+        cc.load_cell_cycle_checkpoint(base)
+
+
+def test_telophase_daughters_count_as_mitotic_and_collapse_to_mitotic():
+    assert "telophase_daughters" in cc.MITOTIC_STAGES
+    assert cc.collapse_stage("telophase_daughters", ["telophase_daughters"]) == "mitotic"
