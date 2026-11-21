@@ -38,8 +38,10 @@ def objects():
 class TestTheSettingsAreRenamedAndMerged:
 
     def test_image_source_replaces_crop_source(self):
+        """Native OME-Zarr crops are the default since settings schema 949."""
         got = deep_spacr_defaults({})
-        assert got["image_source"] in ("load_images", "stream_images")
+        assert got["image_source"] in ("ome-zarr", "load_images",
+                                       "stream_images")
 
     def test_the_two_options_are_the_two_choices(self):
         assert deep_spacr_defaults(
@@ -80,7 +82,8 @@ class TestTheSettingsAreRenamedAndMerged:
         """The point of the merge was that an old CSV keeps working."""
         for old in ("path_string", "file_type", "file_metadata"):
             got = deep_spacr_defaults({old: "pathogen_png"})
-            assert got["image_source"] in ("load_images", "stream_images")
+            assert got["image_source"] in ("ome-zarr", "load_images",
+                                           "stream_images")
 
     def test_tables_defaults_to_the_four_objects(self):
         assert deep_spacr_defaults({})["tables"] == [

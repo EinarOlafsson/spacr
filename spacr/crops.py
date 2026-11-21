@@ -3927,7 +3927,9 @@ def _store_crop_source(project: str, object_type: str,
 
     :param project: the measurements folder.
     :param object_type: the object class.
-    :param prefer: ``''``, ``'auto'`` or ``'store'`` allow the store; any
+    :param prefer: ``''``, ``'auto'`` or ``'store'`` allow the store;
+        ``'ome-zarr'`` allows it only when the run has no OME-Zarr crops, so
+        the native default still reads a store-backed run's own crops; any
         other value asks for another source.
     :returns: a :class:`_StoreCropSource` when ``project`` holds a store whose
         table for ``object_type`` has crops, else None.
@@ -3935,9 +3937,16 @@ def _store_crop_source(project: str, object_type: str,
     from .store import CATALOG
 
     choice = str(prefer or "").strip().lower()
-    if choice not in ("", "auto", "store") or not os.path.isfile(
+    if choice not in ("", "auto", "store", "ome-zarr") or not os.path.isfile(
             os.path.join(project, CATALOG)):
         return None
+    if choice == "ome-zarr":
+        try:
+            from .crop_store import ome_zarr_crops_exist
+            if ome_zarr_crops_exist(os.path.dirname(os.path.abspath(project))):
+                return None
+        except ImportError:
+            pass
     try:
         source = _StoreCropSource(project, str(object_type or "cell"))
         if source.table not in source._store.tables():
@@ -4032,7 +4041,8 @@ def resolve_crop_source(
     1. an explicit ``prefer`` argument, then ``settings['crop_source']``
        (``'store'`` | ``'ome-zarr'`` | ``'png'`` | ``'merged'`` | ``'auto'``);
     2. ``'auto'`` and ``'store'`` take the run's spaCR store first when
-       ``measurements/spacr.duckdb`` holds crops for the object class;
+       ``measurements/spacr.duckdb`` holds crops for the object class, and
+       ``'ome-zarr'`` takes it when the run has no OME-Zarr crops;
     3. ``'auto'`` and ``'ome-zarr'`` then take OME-Zarr crops
        (:mod:`spacr.crop_store`) when the run has them;
     4. otherwise ``'auto'``: the PNG folder if one exists (nothing changes for

@@ -146,6 +146,12 @@ def _run(tmp_path, settings, sites=(0,)):
     return report, table, index
 
 
+def _saved_masks(tmp_path, settings, site=0):
+    """One field's saved masks, read through the shared reader in any format."""
+    path = ops_engine._ph_mask_paths(str(tmp_path), PLATE, "A1", settings)[site]
+    return ops_engine._ph_read_masks(path)
+
+
 def test_the_object_classes_follow_their_channel_settings():
     assert ops_engine._ph_object_roles({}) == []
     assert ops_engine._ph_object_roles(
@@ -161,9 +167,9 @@ def test_planted_objects_are_segmented_and_summarised_per_cell(tmp_path,
     objects = report["ph_segment"]["objects"]
     assert objects["pathogen"] == sum(PATHOGENS_PER_CELL) + 1
     assert objects["organelle"] == sum(ORGANELLES_PER_CELL)
-    with np.load(tmp_path / "A1" / "phenotype_masks" / "site-0.npz") as saved:
-        assert set(saved.files) == {"nuclei", "cells", "pathogen", "organelle"}
-        cells = saved["cells"].astype(np.int32)
+    saved = _saved_masks(tmp_path, ON)
+    assert set(saved) == {"nuclei", "cells", "pathogen", "organelle"}
+    cells = saved["cells"].astype(np.int32)
     table = table.set_index("label")
     for index, centre in enumerate(CENTRES):
         label = int(cells[centre])
@@ -194,8 +200,7 @@ def test_the_default_run_writes_what_it_wrote_before(tmp_path, models):
     report, table, _index = _run(tmp_path, SETTINGS)
     assert not {"pathogen", "organelle"} & set(report["ph_segment"]["objects"])
     assert "objects" not in report["ph_segment"]["seconds"]
-    with np.load(tmp_path / "A1" / "phenotype_masks" / "site-0.npz") as saved:
-        assert set(saved.files) == {"nuclei", "cells"}
+    assert set(_saved_masks(tmp_path, SETTINGS)) == {"nuclei", "cells"}
     mask_options = json.loads((tmp_path / "A1" / "phenotype_masks"
                                / "part_options.json").read_text())
     assert mask_options == {"mask_eval_batch_size": 0, "ops_ph_tile_batch": 0,
@@ -217,8 +222,8 @@ def test_objects_are_not_added_to_masks_made_without_them(tmp_path, models):
         ops_engine._ph_measure_table({
             "site": 0, "files": index["A1"][min(index["A1"])][0],
             "channels": tuple(CHANNELS.split(",")),
-            "mask_path": str(tmp_path / "A1" / "phenotype_masks"
-                             / "site-0.npz"),
+            "mask_path": ops_engine._ph_mask_paths(
+                str(tmp_path), PLATE, "A1", SETTINGS)[0],
             "texture": False, "objects": ["pathogen", "organelle"]})
 
 
