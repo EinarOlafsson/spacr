@@ -77,6 +77,17 @@ def test_the_upgrade_keeps_every_chunk_and_maps_the_metadata_back(tmp_path, link
     assert json.loads((dst / "ngff_upgrade.json").read_text())["status"] == "done"
 
 
+def test_the_link_mode_comes_from_the_settings_unless_link_is_given(tmp_path):
+    src = _store(tmp_path)
+    copied = convert.upgrade_ngff(src, tmp_path / "a.zarr", settings={"ome_zarr_upgrade_link": False})
+    assert copied["copied"] == copied["chunks"] and copied["linked"] == 0
+    linked = convert.upgrade_ngff(src, tmp_path / "b.zarr", settings={})
+    assert linked["linked"] == linked["chunks"]
+    forced = convert.upgrade_ngff(src, tmp_path / "c.zarr", link=True,
+                                  settings={"ome_zarr_upgrade_link": False})
+    assert forced["linked"] == forced["chunks"]
+
+
 def test_link_and_copy_give_the_same_verdict_and_chunk_list(tmp_path):
     src = _store(tmp_path)
     linked = convert.upgrade_ngff(src, tmp_path / "linked.zarr", link=True)

@@ -1778,7 +1778,7 @@ def _verify_upgrade(src, dst, groups, arrays, chunks, to, removed):
     return {"chunk_list_md5": hashlib.md5("\n".join(listing).encode("utf-8")).hexdigest()}
 
 
-def upgrade_ngff(src, dst, to="0.6", link=True):
+def upgrade_ngff(src, dst, to="0.6", link=None, settings=None):
     """Convert an OME-Zarr 0.5 store to 0.6, or a 0.6 store back to 0.5, without touching a pixel.
 
     Item 1007. Every chunk file is hard-linked into ``dst`` (copied when ``link`` is False or
@@ -1803,8 +1803,11 @@ def upgrade_ngff(src, dst, to="0.6", link=True):
     :param src: the store to convert, a Zarr v3 OME-Zarr 0.5 (or 0.6) group.
     :param dst: the new store; it must not exist, or hold an earlier run of the same upgrade.
     :param to: ``'0.6'`` (default) or ``'0.5'``.
-    :param link: hard-link the chunk files (setting ``ome_zarr_upgrade_link``, default True);
-        False copies them.
+    :param link: hard-link the chunk files (True) or copy them (False); None (default) reads
+        ``ome_zarr_upgrade_link`` from ``settings``, else its default in
+        :data:`spacr.ops_settings.OPS_DEFAULTS` (True).
+    :param settings: a settings dict, as a settings file or the Convert tab's Upgrade row gives
+        it; read for ``ome_zarr_upgrade_link``.
     :returns: the report: ``to``, ``groups``, ``arrays``, ``chunks``, ``linked``, ``copied``,
         ``chunk_list_md5`` (the md5 of the sorted ``path<TAB>md5`` list),
         ``removed_version_keys`` and ``verdict`` (``'verified'``).
@@ -1812,6 +1815,11 @@ def upgrade_ngff(src, dst, to="0.6", link=True):
         Zarr v2 store, a destination inside the source or holding other files, metadata
         without a lossless form, or a failed verification.
     """
+    from .ops_settings import OPS_DEFAULTS
+
+    if link is None:
+        link = dict(settings or {}).get("ome_zarr_upgrade_link",
+                                        OPS_DEFAULTS["ome_zarr_upgrade_link"])
     src, dst = _path(src).resolve(), _path(dst).resolve()
     to = str(to)
     if to not in _NGFF_STEPS:

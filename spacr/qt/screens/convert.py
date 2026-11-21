@@ -235,6 +235,11 @@ def _build_ngff_upgrade_controls(screen, outer):
     _apply_alpha_widgets(panel)
 
 
+def _ngff_upgrade_settings(screen):
+    """The Upgrade row's settings, captured on the GUI thread before the worker starts."""
+    return {"ome_zarr_upgrade_link": screen._ngff_link.isChecked()}
+
+
 def _ngff_paths_changed(screen, *_args):
     """Enable Upgrade once both paths are filled in."""
     screen._update_controls()
@@ -931,10 +936,10 @@ class ConvertScreen(QWidget):
         if not src or not dst:
             self._set_status(tr("Choose the OME-Zarr store and a new destination."), error=True)
             return False
-        link = self._ngff_link.isChecked()
+        settings = _ngff_upgrade_settings(self)
         self._set_status(tr("Upgrading {path} to OME-Zarr 0.6…").format(path=src))
-        return self._run_job(partial(ome_zarr_convert.upgrade_ngff, src, dst, to="0.6", link=link),
-                             self._on_ngff_upgraded)
+        return self._run_job(partial(ome_zarr_convert.upgrade_ngff, src, dst, to="0.6",
+                                     settings=settings), self._on_ngff_upgraded)
 
     def _on_ngff_upgraded(self, report) -> None:
         """Show a finished upgrade's report."""
