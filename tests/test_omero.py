@@ -960,19 +960,25 @@ def test_an_unplaced_well_is_counted_not_imported():
     assert "unplaced" in listing.describe()
 
 
-def test_a_bare_id_with_no_kind_is_refused():
-    with pytest.raises(omero.OmeroIdError, match="bare id"):
-        omero.inspect_container(FakeGateway(), 4711)
+@pytest.mark.parametrize('reference, match', [
+    pytest.param(
+        4711, 'bare id',
+        id='test_a_bare_id_with_no_kind_is_refused',
+    ),
+    pytest.param(
+        'Image:1', 'neither',
+        id='test_an_unsupported_kind_is_refused',
+    ),
+])
+def test_original_invalid_container_references_keep_their_refusals(reference, match):
+    """Preserve each original unusable container reference and its refusal."""
+    with pytest.raises(omero.OmeroIdError, match=match):
+        omero.inspect_container(FakeGateway(), reference)
 
 
 def test_a_contradicted_kind_is_refused():
     with pytest.raises(omero.OmeroIdError, match="Say it once"):
         omero.inspect_container(FakeGateway(), "Plate:1", kind="Dataset")
-
-
-def test_an_unsupported_kind_is_refused():
-    with pytest.raises(omero.OmeroIdError, match="neither"):
-        omero.inspect_container(FakeGateway(), "Image:1")
 
 
 def test_an_id_that_resolves_to_nothing_is_refused():
