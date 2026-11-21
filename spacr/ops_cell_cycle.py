@@ -3,8 +3,8 @@
 A tabular model (HistGradientBoosting or XGBoost on the DNA and microtubule features of
 :func:`spacr.ops_mitotic.mitotic_features`, each a robust z against all cells of its well)
 calls interphase, g2_prophase (a flag class, never counted as mitotic), prometaphase,
-metaphase, ana_telo_cyto (anaphase and telophase/cytokinesis, daughters included) and
-artefact. Interphase cells take G1, S or G2 from the field-centred DNA-content fit of
+metaphase, ana_telo_cyto (anaphase and telophase/cytokinesis), telophase_daughters (the two
+2N daughters, a stage of their own; maintainer 2026-11-20) and artefact. Interphase cells take G1, S or G2 from the field-centred DNA-content fit of
 item 995 (:func:`_dna_phases`). Self-checks S1-S6 run on every plate; a stage that fails its
 check collapses into its parent (:data:`PARENTS`) and is flagged ``unresolved``, on every
 plate of the screen once any plate collapses it. A stage whose out-of-fold F1 on the user's
@@ -25,10 +25,12 @@ import numpy as np
 import pandas as pd
 
 CLASSES = ("interphase", "g2_prophase", "prometaphase", "metaphase", "ana_telo_cyto",
-           "artefact")
-MITOTIC_STAGES = ("prometaphase", "metaphase", "ana_telo_cyto")
+           "telophase_daughters", "artefact")
+MITOTIC_STAGES = ("prometaphase", "metaphase", "ana_telo_cyto", "telophase_daughters")
+DAUGHTER_STAGES = ("ana_telo_cyto", "telophase_daughters")
 PHASES = ("G1", "S", "G2")
 PARENTS = {"prometaphase": "mitotic", "metaphase": "mitotic", "ana_telo_cyto": "mitotic",
+           "telophase_daughters": "mitotic",
            "mitotic": "G2/M", "g2_prophase": "G2", "G1": "interphase", "S": "interphase",
            "G2": "interphase"}
 CHECKPOINT_FORMAT = "spacr-ops-cell-cycle-1"
@@ -325,7 +327,8 @@ def load_cell_cycle_checkpoint(path: str) -> Dict[str, Any]:
 
     :param path: the checkpoint directory.
     :returns: ``{"model", "features", "training", "card", "sha256"}``.
-    :raises ValueError: for a missing file, a wrong format or a SHA-256 mismatch.
+    :raises ValueError: for a missing file, a wrong format, a SHA-256 mismatch or a class
+        list other than :data:`CLASSES`.
     """
     import warnings
 
@@ -344,6 +347,10 @@ def load_cell_cycle_checkpoint(path: str) -> Dict[str, Any]:
         card = json.load(handle)
     if card.get("format") != CHECKPOINT_FORMAT:
         raise ValueError(f"{path} has format {card.get('format')!r}, not {CHECKPOINT_FORMAT!r}")
+    if list(card.get("classes") or []) != list(CLASSES):
+        raise ValueError(f"{path} was trained on the classes {card.get('classes')}; this spaCR calls "
+                         f"{list(CLASSES)} (telophase_daughters became a stage of its own). "
+                         "Train the base model again with spacr.ops_cell_cycle.train_cell_cycle_model")
     warnings.warn(f"loading the cell-cycle model {path}: unpickling runs code; load only "
                   "checkpoints you trust", stacklevel=2)
     held = joblib.load(os.path.join(path, "model.joblib"))
@@ -439,7 +446,7 @@ def _nuclear_diameter(cells: pd.DataFrame) -> np.ndarray:
 
 def _pair_share(cells: pd.DataFrame, called: np.ndarray, two_n: np.ndarray,
                 log2_dna: np.ndarray) -> float:
-    """Share of 2N ana_telo_cyto calls with a 2N ana_telo_cyto partner nearby (S2's statistic)."""
+    """Share of 2N daughter-stage calls with a 2N daughter-stage partner nearby (S2's statistic)."""
     from scipy.spatial import cKDTree
 
     hits, total = 0, 0
@@ -503,7 +510,7 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
                  "threshold": s1_threshold,
                  "passed": None if not condensed.any() else bool(s1 >= s1_threshold),
                  "note": "share of prometaphase and metaphase calls above the G1/G2 midpoint"})
-    late = stage == "ana_telo_cyto"
+    late = np.isin(stage, DAUGHTER_STAGES)
     needed = {"nucleus_centroid_y", "nucleus_centroid_x", "nucleus_area"}
     if late.sum() >= 2 and needed <= set(cells.columns):
         two_n = ~four_n
@@ -518,13 +525,13 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
             null.append(_pair_share(cells, shuffled, two_n, log2_dna))
         control = float(np.nanpercentile(null, 97.5))
         samples["S2"] = (observed, [float(v) for v in null])
-        rows.append({"check": "S2", "stages": "ana_telo_cyto", "value": observed,
+        rows.append({"check": "S2", "stages": ",".join(DAUGHTER_STAGES), "value": observed,
                      "control": control, "threshold": control,
                      "passed": bool(observed > control), "note": "2N daughter pairs"})
     else:
-        rows.append({"check": "S2", "stages": "ana_telo_cyto", "value": float("nan"),
+        rows.append({"check": "S2", "stages": ",".join(DAUGHTER_STAGES), "value": float("nan"),
                      "control": float("nan"), "threshold": float("nan"), "passed": None,
-                     "note": "skipped: needs two ana_telo_cyto calls and nucleus centroids"})
+                     "note": "skipped: needs two daughter-stage calls and nucleus centroids"})
     if labelled is not None:
         value = _macro_f1(labelled["truth"], labelled["predicted"])
         control = float(np.percentile(labelled["shuffled_macro"], 97.5))
@@ -617,7 +624,8 @@ def _verdict(value: Any) -> Optional[bool]:
 def failed_stages(checks: pd.DataFrame) -> List[str]:
     """The stages to collapse from one plate's checks (the spec's section 5 rule).
 
-    S1 failing collapses prometaphase and metaphase, S2 ana_telo_cyto, S3 (which judges every
+    S1 failing collapses prometaphase and metaphase, S2 ana_telo_cyto and
+    telophase_daughters together (it judges their 2N pairs jointly), S3 (which judges every
     stage) each model stage one level; S1 and S2 both
     failing with S4 passing collapse to ``mitotic`` only, and S4 failing too collapses
     ``mitotic`` to ``G2/M``. S5 failing collapses prometaphase and metaphase. S6 failing on
@@ -632,7 +640,7 @@ def failed_stages(checks: pd.DataFrame) -> List[str]:
     if state.get("S1") is False or state.get("S5") is False:
         out |= {"prometaphase", "metaphase"}
     if state.get("S2") is False:
-        out.add("ana_telo_cyto")
+        out |= set(DAUGHTER_STAGES)
     if state.get("S3") is False:
         out |= {*MITOTIC_STAGES, "g2_prophase"}
     if state.get("S4") is False and (state.get("S1") is False or state.get("S2") is False):
@@ -848,7 +856,7 @@ def _checks_figure(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
             observed, null = samples["S2"]
             condition_plot(right, [null, [observed]], control=0)
             right.set_xticks([0, 1])
-            right.set_xticklabels(["shuffled\n(control)", "ana_telo\n_cyto"], fontsize=7)
+            right.set_xticklabels(["shuffled\n(control)", "daughter\nstages"], fontsize=7)
             right.set_ylim(0, 1.05)
             right.set_ylabel("2N calls with a 2N partner", fontsize=8)
         else:
@@ -1136,7 +1144,7 @@ def write_label_queue(queue: pd.DataFrame, crop_root: str, folder: str, *,
     Each queued cell's crop is read from the crop store of the ``ph_crops`` phase
     (:func:`spacr.ops_run_infra.crop_index`) and written as an 8-bit PNG with one fixed display
     range per channel, the 0.5th to 99.5th percentile of that channel over the whole queue (no
-    per-crop stretch). Annotation 1 to 6 are the stages of :data:`CLASSES`, in order.
+    per-crop stretch). Annotation 1 to 7 are the stages of :data:`CLASSES`, in order.
 
     :param queue: from :func:`build_label_queue`.
     :param crop_root: the crop store's root (``ops_merged_root`` or ``dst_root``).
