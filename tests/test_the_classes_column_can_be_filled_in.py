@@ -142,23 +142,22 @@ class TestTheClassesReplaceTheTwoSettings:
         assert annotation_column_of(old) == "test"
         assert class_metadata_of(old) == [["c1"]]
 
-    def test_the_defaults_write_them_back(self):
-        """Derived values are WRITTEN rather than computed at every read:
-        every consumer downstream reads those two keys."""
+    @pytest.mark.parametrize('options, column, metadata', [
+        pytest.param(
+            {'classes': {'pc': {'column': 'rowID', 'value': 'r2'}, 'nc': {'column': 'rowID', 'value': 'r1'}}}, 'rowID', [['r2'], ['r1']],
+            id='test_the_defaults_write_them_back',
+        ),
+        pytest.param(
+            {}, 'test', [['c1'], ['c2']],
+            id='test_no_classes_leaves_the_defaults_alone',
+        ),
+    ])
+    def test_original_class_settings_keep_both_compatibility_values(self, options, column, metadata):
+        """Preserve both original compatibility values for each class-definition setting."""
         from spacr.settings import set_generate_training_dataset_defaults
-
-        got = set_generate_training_dataset_defaults({"classes": {
-            "pc": {"column": "rowID", "value": "r2"},
-            "nc": {"column": "rowID", "value": "r1"}}})
-        assert got["annotation_column"] == "rowID"
-        assert got["class_metadata"] == [["r2"], ["r1"]]
-
-    def test_no_classes_leaves_the_defaults_alone(self):
-        from spacr.settings import set_generate_training_dataset_defaults
-
-        got = set_generate_training_dataset_defaults({})
-        assert got["annotation_column"] == "test"
-        assert got["class_metadata"] == [["c1"], ["c2"]]
+        got = set_generate_training_dataset_defaults(options)
+        assert got["annotation_column"] == column
+        assert got["class_metadata"] == metadata
 
     def test_neither_is_a_control_any_more(self):
         """A box for either was a second place to say the same thing."""
