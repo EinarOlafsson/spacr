@@ -71,11 +71,19 @@ def test_valid_supplied_metadata_roundtrips_without_enrichment_or_model_io(snaps
 
 
 def test_legacy_settings_without_model_metadata_never_call_pin_validator(snapshot, monkeypatch):
+    """A snapshot without pins skips the validator.
+
+    The saved JSON is the settings plus the schema version stamp that item
+    931 writes into every saved settings file, and nothing else.
+    """
     utils, settings, csv, js = snapshot
     del settings['model_metadata']
     original = deepcopy(settings)
     monkeypatch.setattr(zoo, '_validate_model_metadata', lambda *a, **k: pytest.fail('legacy snapshot validated absent pins'))
     utils.save_settings(settings, name='pipeline')
-    assert json.loads(js.read_text(encoding="utf-8")) == original
+    from spacr.settings import SETTINGS_SCHEMA_VERSION, SETTINGS_VERSION_KEY
+
+    assert json.loads(js.read_text(encoding="utf-8")) == {
+        SETTINGS_VERSION_KEY: SETTINGS_SCHEMA_VERSION, **original}
     assert 'model_metadata' not in pd.read_csv(csv)['Key'].tolist()
     assert settings == original
