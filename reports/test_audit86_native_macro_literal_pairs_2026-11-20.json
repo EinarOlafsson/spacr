@@ -1,0 +1,264 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_cov_w2_1_macro.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_w2_1_macro.py::test_a_one_element_tuple_keeps_its_trailing_comma": "tests/test_cov_w2_1_macro.py::test_original_native_literal_pairs_keep_both_renderings[test_a_one_element_tuple_keeps_its_trailing_comma]",
+    "tests/test_cov_w2_1_macro.py::test_an_empty_set_is_rendered_as_a_call_not_as_braces": "tests/test_cov_w2_1_macro.py::test_original_native_literal_pairs_keep_both_renderings[test_an_empty_set_is_rendered_as_a_call_not_as_braces]"
+  },
+  "native_tuple_set_pair_contracts": {
+    "test_a_one_element_tuple_keeps_its_trailing_comma": {
+      "python_types": [
+        "tuple",
+        "str",
+        "tuple",
+        "str"
+      ],
+      "literal_repr": "((3,), '(3,)', (3, 4), '(3, 4)')"
+    },
+    "test_an_empty_set_is_rendered_as_a_call_not_as_braces": {
+      "python_types": [
+        "set",
+        "str",
+        "set",
+        "str"
+      ],
+      "literal_repr": "(set(), 'set()', {7}, '{7}')"
+    }
+  },
+  "case_contract_representations": {
+    "test_a_one_element_tuple_keeps_its_trailing_comma": "((3,), '(3,)', (3, 4), '(3, 4)')",
+    "test_an_empty_set_is_rendered_as_a_call_not_as_braces": "(set(), 'set()', {7}, '{7}')"
+  },
+  "contract_scope": "Both original native equality assertions remain in each case,in the same order,using unchanged _render helper/_Threader setup. Original tuple(3,)/tuple(3,4) and empty set/set{7} values stay native Python tuple/set objects,with exact original expected strings. Every other original registry/default/recording/writing/coercion/AST-reader/summary case/import/helper/fixture/class retains AST and relative order. Empty and singleton sets have stable representations; reports record explicit Python type names and literal repr strings because JSON cannot represent native sets and distinguishes no tuples. Actual worker parameter reprs and executable AST prove native values; no test input is JSON-encoded or converted.",
+  "collected_before": [
+    "tests/test_cov_w2_1_macro.py::test_a_run_folder_that_will_not_take_the_script_is_logged",
+    "tests/test_cov_w2_1_macro.py::test_an_unknown_app_has_no_entry_point",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[pkg.mod:]",
+    "tests/test_cov_w2_1_macro.py::test_an_expression_the_reader_cannot_resolve_is_refused[call-the-reader-will-not-run]",
+    "tests/test_cov_w2_1_macro.py::test_run_control_defaults_missing_costs_only_the_seed",
+    "tests/test_cov_w2_1_macro.py::test_a_chain_says_what_it_is_and_how_long_it_is",
+    "tests/test_cov_w2_1_macro.py::test_a_capture_that_will_not_close_does_not_stop_the_record",
+    "tests/test_cov_w2_1_macro.py::test_the_project_falls_back_to_src_when_ports_cannot_answer",
+    "tests/test_cov_w2_1_macro.py::test_an_unreadable_version_is_recorded_as_unknown",
+    "tests/test_cov_w2_1_macro.py::test_a_module_name_that_is_not_an_identifier_still_names_a_constant[3d viewer-STEP_3D_VIEWER]",
+    "tests/test_cov_w2_1_macro.py::test_nothing_answers_when_no_source_is_importable",
+    "tests/test_cov_w2_1_macro.py::test_a_module_name_that_is_not_an_identifier_still_names_a_constant[!!!-STEP]",
+    "tests/test_cov_w2_1_macro.py::test_a_log_record_that_cannot_be_read_is_still_passed_on",
+    "tests/test_cov_w2_1_macro.py::test_assignments_the_reader_cannot_evaluate_are_skipped",
+    "tests/test_cov_w2_1_macro.py::test_a_script_that_is_not_a_readable_macro_is_refused[a-newer-schema-asks-for-a-newer-spacr]",
+    "tests/test_cov_w2_1_macro.py::test_something_with_no_readable_signature_is_offered_the_dict",
+    "tests/test_cov_w2_1_macro.py::test_an_empty_chain_continues_nothing",
+    "tests/test_cov_w2_1_macro.py::test_a_module_name_that_is_not_an_identifier_still_names_a_constant[-STEP]",
+    "tests/test_cov_w2_1_macro.py::test_a_recorder_that_cannot_start_is_a_no_op",
+    "tests/test_cov_w2_1_macro.py::test_a_module_key_that_is_blank_has_no_entry_point",
+    "tests/test_cov_w2_1_macro.py::test_a_broken_app_registry_registers_no_entry",
+    "tests/test_cov_w2_1_macro.py::test_a_broken_defaults_registry_falls_through",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[justoneword]",
+    "tests/test_cov_w2_1_macro.py::test_declared_outputs_that_cannot_be_resolved_are_none",
+    "tests/test_cov_w2_1_macro.py::test_a_one_element_tuple_keeps_its_trailing_comma",
+    "tests/test_cov_w2_1_macro.py::test_a_settings_hash_that_cannot_be_computed_is_blank",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[]",
+    "tests/test_cov_w2_1_macro.py::test_a_plugin_entrypoint_is_used_when_nothing_else_answers",
+    "tests/test_cov_w2_1_macro.py::test_the_shipped_table_being_unreadable_falls_through",
+    "tests/test_cov_w2_1_macro.py::test_a_plugin_whose_defaults_factory_raises_supplies_none",
+    "tests/test_cov_w2_1_macro.py::test_an_expression_the_reader_cannot_resolve_is_refused[unbound-name]",
+    "tests/test_cov_w2_1_macro.py::test_a_blank_module_key_has_no_defaults",
+    "tests/test_cov_w2_1_macro.py::test_a_value_that_is_not_a_literal_is_recorded_as_coerced",
+    "tests/test_cov_w2_1_macro.py::test_a_process_without_plugins_has_no_plugin_entry",
+    "tests/test_cov_w2_1_macro.py::test_the_summary_lists_what_a_step_produced",
+    "tests/test_cov_w2_1_macro.py::test_an_empty_set_is_rendered_as_a_call_not_as_braces",
+    "tests/test_cov_w2_1_macro.py::test_a_script_that_is_not_a_readable_macro_is_refused[a-file-with-no-record-is-not-a-macro]",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[:func]",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[pkg.mod:3bad]",
+    "tests/test_cov_w2_1_macro.py::test_a_defaults_factory_is_called_the_way_its_signature_asks",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[   ]",
+    "tests/test_cov_w2_1_macro.py::test_a_process_without_qt_registers_no_entry",
+    "tests/test_cov_w2_1_macro.py::test_a_plugin_supplies_the_defaults_when_nothing_else_does"
+  ],
+  "collected_after": [
+    "tests/test_cov_w2_1_macro.py::test_a_value_that_is_not_a_literal_is_recorded_as_coerced",
+    "tests/test_cov_w2_1_macro.py::test_declared_outputs_that_cannot_be_resolved_are_none",
+    "tests/test_cov_w2_1_macro.py::test_assignments_the_reader_cannot_evaluate_are_skipped",
+    "tests/test_cov_w2_1_macro.py::test_a_plugin_entrypoint_is_used_when_nothing_else_answers",
+    "tests/test_cov_w2_1_macro.py::test_a_settings_hash_that_cannot_be_computed_is_blank",
+    "tests/test_cov_w2_1_macro.py::test_original_native_literal_pairs_keep_both_renderings[test_an_empty_set_is_rendered_as_a_call_not_as_braces]",
+    "tests/test_cov_w2_1_macro.py::test_a_chain_says_what_it_is_and_how_long_it_is",
+    "tests/test_cov_w2_1_macro.py::test_a_plugin_whose_defaults_factory_raises_supplies_none",
+    "tests/test_cov_w2_1_macro.py::test_nothing_answers_when_no_source_is_importable",
+    "tests/test_cov_w2_1_macro.py::test_an_unreadable_version_is_recorded_as_unknown",
+    "tests/test_cov_w2_1_macro.py::test_a_broken_app_registry_registers_no_entry",
+    "tests/test_cov_w2_1_macro.py::test_a_recorder_that_cannot_start_is_a_no_op",
+    "tests/test_cov_w2_1_macro.py::test_a_module_name_that_is_not_an_identifier_still_names_a_constant[3d viewer-STEP_3D_VIEWER]",
+    "tests/test_cov_w2_1_macro.py::test_something_with_no_readable_signature_is_offered_the_dict",
+    "tests/test_cov_w2_1_macro.py::test_a_broken_defaults_registry_falls_through",
+    "tests/test_cov_w2_1_macro.py::test_a_module_key_that_is_blank_has_no_entry_point",
+    "tests/test_cov_w2_1_macro.py::test_a_script_that_is_not_a_readable_macro_is_refused[a-file-with-no-record-is-not-a-macro]",
+    "tests/test_cov_w2_1_macro.py::test_a_plugin_supplies_the_defaults_when_nothing_else_does",
+    "tests/test_cov_w2_1_macro.py::test_a_script_that_is_not_a_readable_macro_is_refused[a-newer-schema-asks-for-a-newer-spacr]",
+    "tests/test_cov_w2_1_macro.py::test_run_control_defaults_missing_costs_only_the_seed",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[justoneword]",
+    "tests/test_cov_w2_1_macro.py::test_the_project_falls_back_to_src_when_ports_cannot_answer",
+    "tests/test_cov_w2_1_macro.py::test_a_log_record_that_cannot_be_read_is_still_passed_on",
+    "tests/test_cov_w2_1_macro.py::test_a_capture_that_will_not_close_does_not_stop_the_record",
+    "tests/test_cov_w2_1_macro.py::test_the_summary_lists_what_a_step_produced",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[pkg.mod:]",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[   ]",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[:func]",
+    "tests/test_cov_w2_1_macro.py::test_a_blank_module_key_has_no_defaults",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[]",
+    "tests/test_cov_w2_1_macro.py::test_an_expression_the_reader_cannot_resolve_is_refused[call-the-reader-will-not-run]",
+    "tests/test_cov_w2_1_macro.py::test_an_entry_that_is_not_two_halves_is_no_entry[pkg.mod:3bad]",
+    "tests/test_cov_w2_1_macro.py::test_a_run_folder_that_will_not_take_the_script_is_logged",
+    "tests/test_cov_w2_1_macro.py::test_a_defaults_factory_is_called_the_way_its_signature_asks",
+    "tests/test_cov_w2_1_macro.py::test_a_module_name_that_is_not_an_identifier_still_names_a_constant[!!!-STEP]",
+    "tests/test_cov_w2_1_macro.py::test_an_unknown_app_has_no_entry_point",
+    "tests/test_cov_w2_1_macro.py::test_a_module_name_that_is_not_an_identifier_still_names_a_constant[-STEP]",
+    "tests/test_cov_w2_1_macro.py::test_a_process_without_qt_registers_no_entry",
+    "tests/test_cov_w2_1_macro.py::test_an_expression_the_reader_cannot_resolve_is_refused[unbound-name]",
+    "tests/test_cov_w2_1_macro.py::test_an_empty_chain_continues_nothing",
+    "tests/test_cov_w2_1_macro.py::test_the_shipped_table_being_unreadable_falls_through",
+    "tests/test_cov_w2_1_macro.py::test_a_process_without_plugins_has_no_plugin_entry",
+    "tests/test_cov_w2_1_macro.py::test_original_native_literal_pairs_keep_both_renderings[test_a_one_element_tuple_keeps_its_trailing_comma]"
+  ],
+  "tests_before": {
+    "passed": 43,
+    "seconds": 4.26
+  },
+  "tests_after": {
+    "passed": 43,
+    "seconds": 4.26
+  },
+  "coverage_scope": "spacr.macro under the complete selected recorder/registry/default/render/read/summary edge-case module; not full-suite coverage. Original small temporary macro scripts,logging capture,pure lookup/render/AST helpers and fake plugin/default providers retained. Scripts are rendered/parsed,never executed as analysis workflows. Existing private SPACR_MODEL_DOWNLOAD=0 fixed before baseline/all normal/fault/ratchet phases prevents unchanged default-discovery paths from starting background model-catalogue requests. No actual model fitting/training,image loading,scientific chart construction/rendering,new reader,network or GPU work. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 554,
+    "num_statements": 614,
+    "percent_covered": 88.0050505050505,
+    "percent_covered_display": "88",
+    "missing_lines": 60,
+    "excluded_lines": 0,
+    "percent_statements_covered": 90.22801302931596,
+    "percent_statements_covered_display": "90",
+    "num_branches": 178,
+    "num_partial_branches": 19,
+    "covered_branches": 143,
+    "missing_branches": 35,
+    "percent_branches_covered": 80.33707865168539,
+    "percent_branches_covered_display": "80"
+  },
+  "coverage_after": {
+    "covered_lines": 554,
+    "num_statements": 614,
+    "percent_covered": 88.0050505050505,
+    "percent_covered_display": "88",
+    "missing_lines": 60,
+    "excluded_lines": 0,
+    "percent_statements_covered": 90.22801302931596,
+    "percent_statements_covered_display": "90",
+    "num_branches": 178,
+    "num_partial_branches": 19,
+    "covered_branches": 143,
+    "missing_branches": 35,
+    "percent_branches_covered": 80.33707865168539,
+    "percent_branches_covered_display": "80"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "b966e046f2cba62892e72b9a2376c8218713c33f64df34185afaa3196f81b2fd",
+  "production_source_sha256": "56a44e7779242a95dbcb8935520dd86e3f5a80bfdc2b96f03bb701c6c3bda246",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "single-tuple-trailing-comma-is-lost",
+      "source_variant": {
+        "path": "spacr/macro.py",
+        "line": 1071,
+        "old": "return f\"({body},)\" if len(rendered) == 1 else f\"({body})\"",
+        "new": "return f\"({body})\""
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_1_macro.py::test_a_one_element_tuple_keeps_its_trailing_comma"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_1_macro.py::test_a_one_element_tuple_keeps_its_trailing_comma"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_1_macro.py::test_original_native_literal_pairs_keep_both_renderings[test_a_one_element_tuple_keeps_its_trailing_comma]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_1_macro.py::test_original_native_literal_pairs_keep_both_renderings[test_a_one_element_tuple_keeps_its_trailing_comma]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "empty-set-is-rendered-as-dict",
+      "source_variant": {
+        "path": "spacr/macro.py",
+        "line": 1073,
+        "old": "return \"set()\" if not rendered else \"{\" + \", \".join(rendered) + \"}\"",
+        "new": "return \"{}\" if not rendered else \"{\" + \", \".join(rendered) + \"}\""
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_1_macro.py::test_an_empty_set_is_rendered_as_a_call_not_as_braces"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_1_macro.py::test_an_empty_set_is_rendered_as_a_call_not_as_braces"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_1_macro.py::test_original_native_literal_pairs_keep_both_renderings[test_an_empty_set_is_rendered_as_a_call_not_as_braces]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_1_macro.py::test_original_native_literal_pairs_keep_both_renderings[test_an_empty_set_is_rendered_as_a_call_not_as_braces]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in _render_value before and after: omit the trailing comma for a one-element tuple; render an empty set as empty dictionary braces. Each fault selects the same one original/mapped case and must fail with AssertionError from its unchanged first native string equality; the second original equality remains and passes in the normal full-module runs. Native tuple/set/int/string types and original call/assertion order retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "private_collection_recovery": {
+    "status": "private collector error during collection; no tests ran",
+    "cause": "The original private JSON payload writer cannot encode native sets.",
+    "failed_log_sha256": "529713c32ae572c642853cb84334c5260159f655090111664c714c3bdfbc0a9f",
+    "original_collector_sha256": "b63b36f4a4a712e447c047ce609fe8e01c2d9f81ac9da4301a5a6db0b3829405",
+    "fixed_collector_sha256": "6e608ffc6ed4388dbebf2d416e650391aaac17f81c47eda93150d774119edf5e",
+    "resolution": "Private payload evidence now stores explicit type names and repr strings. Actual pytest inputs and repository files were unchanged. Retry is required because the failed attempt ran no tests. Existing successful baseline and fault measurements are retained."
+  },
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_w2_1_macro.py",
+      "line": 351,
+      "symbol": "test_original_native_literal_pairs_keep_both_renderings",
+      "new": "Preserve both original rendering assertions for each tuple or set pair.",
+      "old": {
+        "test_a_one_element_tuple_keeps_its_trailing_comma": "`(3)` is the number 3; the script has to say `(3,)`.",
+        "test_an_empty_set_is_rendered_as_a_call_not_as_braces": "`{}` is an empty dict, which is a different value."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

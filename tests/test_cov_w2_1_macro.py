@@ -337,16 +337,20 @@ def _render(value):
     return macro._render_value(value, macro._Threader([]), "")
 
 
-def test_a_one_element_tuple_keeps_its_trailing_comma():
-    """`(3)` is the number 3; the script has to say `(3,)`."""
-    assert _render((3,)) == "(3,)"
-    assert _render((3, 4)) == "(3, 4)"
-
-
-def test_an_empty_set_is_rendered_as_a_call_not_as_braces():
-    """`{}` is an empty dict, which is a different value."""
-    assert _render(set()) == "set()"
-    assert _render({7}) == "{7}"
+@pytest.mark.parametrize('first, expected_first, second, expected_second', [
+    pytest.param(
+        (3,), '(3,)', (3, 4), '(3, 4)',
+        id='test_a_one_element_tuple_keeps_its_trailing_comma',
+    ),
+    pytest.param(
+        set(), 'set()', {7}, '{7}',
+        id='test_an_empty_set_is_rendered_as_a_call_not_as_braces',
+    ),
+])
+def test_original_native_literal_pairs_keep_both_renderings(first, expected_first, second, expected_second):
+    """Preserve both original rendering assertions for each tuple or set pair."""
+    assert _render(first) == expected_first
+    assert _render(second) == expected_second
 
 
 def test_a_value_that_is_not_a_literal_is_recorded_as_coerced():
