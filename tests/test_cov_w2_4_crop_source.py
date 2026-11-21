@@ -111,19 +111,25 @@ def test_tif_and_tiff_are_the_same_format():
     assert cs.matches_path("/d/a.tif", file_type="tiff") is False
 
 
-def test_select_crops_keeps_the_order_it_was_given():
-    paths = ["/d/cell_png/c.png", "/d/nucleus_png/a.png",
-             "/d/cell_png/b.tif", "/d/cell_png/a.png"]
-    assert cs.select_crops(paths, {"path_string": "cell_png",
-                                   "file_type": "png"}) == [
-        "/d/cell_png/c.png", "/d/cell_png/a.png"]
-
-
-def test_select_crops_still_reads_the_old_png_type_spelling():
-    """Every old settings CSV holds it; refusing it refuses those runs."""
-    paths = ["/d/cell_png/a.png", "/d/nucleus_png/a.png"]
-    assert cs.select_crops(paths, {"png_type": "cell_png"}) == [
-        "/d/cell_png/a.png"]
+@pytest.mark.parametrize('paths, settings, expected', [
+    pytest.param(
+        ['/d/cell_png/c.png', '/d/nucleus_png/a.png',
+         '/d/cell_png/b.tif', '/d/cell_png/a.png'],
+        {'path_string': 'cell_png', 'file_type': 'png'},
+        ['/d/cell_png/c.png', '/d/cell_png/a.png'],
+        id='test_select_crops_keeps_the_order_it_was_given',
+    ),
+    pytest.param(
+        ['/d/cell_png/a.png', '/d/nucleus_png/a.png'],
+        {'png_type': 'cell_png'},
+        ['/d/cell_png/a.png'],
+        id='test_select_crops_still_reads_the_old_png_type_spelling',
+    ),
+])
+def test_original_crop_path_filters_keep_their_ordered_selection(
+        paths, settings, expected):
+    """Preserve each original crop path filter and its ordered selection."""
+    assert cs.select_crops(paths, settings) == expected
 
 
 # ---------------------------------------------------------------------------
