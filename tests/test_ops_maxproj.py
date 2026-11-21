@@ -65,8 +65,8 @@ def _views(path, spans, cols=60):
     return str(path)
 
 
-PLANTED_VIEWS = [("all", "whole", 0, 60), ("t", "narrow", 0, 5), ("n1", "narrow", 5, 20),
-                 ("b", "wide", 20, 60)]
+PLANTED_VIEWS = [("all", "W", 0, 60), ("t", "P2", 0, 5), ("n1", "P2", 5, 20),
+                 ("b", "P1", 20, 60)]
 
 
 def _settings(views, **extra):
@@ -90,13 +90,15 @@ def _arrays(gene, guide, spans):
             [np.arange(a, z) for a, z in spans])
 
 
-# 1
+# 1 (with 'shrunk'; with the default 'cosine' the max projection does not beat the whole profile on
+# this toy, the amendment proposed for the maintainer)
 def test_max_projection_finds_the_thin_and_the_broad_group_the_whole_profile_misses(tmp_path):
     gene, guide = _toy(thin=0.7)
     found = {}
     for tag, spans in (("views", PLANTED_VIEWS), ("whole", PLANTED_VIEWS[:1])):
         views = _views(tmp_path / f"{tag}.json", spans)
-        out = om.cluster_maxproj_phase(_settings(views), gene, guide, str(tmp_path / tag))
+        out = om.cluster_maxproj_phase(_settings(views, ops_maxproj_similarity="shrunk"), gene, guide,
+                                       str(tmp_path / tag))
         part = pd.read_csv(out["outputs"]["maxproj_partition"])
         found[tag] = part
     views, whole = found["views"], found["whole"]
@@ -330,5 +332,27 @@ def test_the_new_settings_are_alpha_with_short_tooltips():
     assert set(keys) == set(OPS_CATEGORIES["Max-projection clustering"])
     for key in keys:
         assert len(OPS_TOOLTIPS[key]) <= 600 and "Alpha" in OPS_TOOLTIPS[key]
-    assert OPS_DEFAULTS["ops_maxproj_seed"] == om.DEFAULT_SEED and OPS_DEFAULTS["ops_maxproj_similarity"] == "shrunk"
+    assert OPS_DEFAULTS["ops_maxproj_seed"] == om.DEFAULT_SEED and OPS_DEFAULTS["ops_maxproj_similarity"] == "cosine"
     assert SETTINGS_SCHEMA_VERSION >= 951 and DEFAULT_CHANGES[951] == {}
+
+
+def test_the_cluster_labels_follow_the_card_rule():
+    import igraph
+
+    views = [{"name": "W", "block": "W", "columns": list("abcdefgh")},
+             {"name": "p1", "block": "P1", "columns": list("a")},
+             {"name": "t", "block": "P2", "columns": list("a")},
+             {"name": "q", "block": "P2", "columns": list("ab")}]
+    labels = np.array([0, 0, 0, 1, 1, 1, 2, 2, 2])
+    edges = [(0, 1), (0, 2), (1, 2), (3, 4), (3, 5), (4, 5), (6, 7), (6, 8), (7, 8)]
+    graph = igraph.Graph(n=9, edges=edges)
+    view = np.zeros((9, 9), int)
+    for (a, b), v in zip(edges, [0, 0, 2, 1, 1, 2, 2, 3, 0]):
+        view[a, b] = view[b, a] = v
+    scores = [np.full((9, 9), float(v)) for v in range(4)]
+    null = np.zeros((1, len(om.SCORE_GRID) - 1), np.int64)
+    null[0, 100] = 1
+    shares, kinds = om.label_clusters_by_view(labels, graph, view, views, scores, null, 8)
+    assert list(kinds.label) == ["broad", "thin", "thin"]
+    assert list(kinds.views) == ["W;t", "p1;t", "W;t;q"]
+    assert shares.loc[(shares.cluster == 0) & (shares.view == "t"), "mean_score"].item() == 2.0

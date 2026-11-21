@@ -28,10 +28,11 @@ import pandas as pd
 SIMILARITY_GRID = np.linspace(-1.0, 1.0, 4001)
 SCORE_GRID = np.linspace(-12.0, 12.0, 4801)
 MAXPROJ_GRAPHS = ("knn", "phate")
-MAXPROJ_SIMILARITIES = ("shrunk", "cosine")
+MAXPROJ_SIMILARITIES = ("cosine", "shrunk")
 DEFAULT_SEED = 20261119
 DEFAULT_RESOLUTIONS = tuple(float(r) for r in np.logspace(np.log10(0.05), np.log10(50.0), 20))
-THIN_SHARE = 0.6
+THIN_COLUMNS = 100
+LISTED_SHARE = 0.2
 
 
 def read_views(path: str, columns: Sequence[str]) -> Tuple[List[Dict[str, Any]], str]:
@@ -96,7 +97,7 @@ def pair_bins(gene_bins: np.ndarray, bins: int) -> np.ndarray:
 
 
 def view_similarity(rows: np.ndarray, control: np.ndarray, variance: float, seed: int,
-                    similarity: str = "shrunk") -> np.ndarray:
+                    similarity: str = "cosine") -> np.ndarray:
     """The similarity of every gene pair within one view.
 
     The view's columns are embedded as the evaluate phase embeds a profile
@@ -112,7 +113,7 @@ def view_similarity(rows: np.ndarray, control: np.ndarray, variance: float, seed
     :param control: True for the non-targeting rows.
     :param variance: the PCA variance kept.
     :param seed: the PCA seed.
-    :param similarity: ``'shrunk'`` or ``'cosine'``.
+    :param similarity: ``'cosine'`` (the default) or ``'shrunk'``.
     :returns: a symmetric genes-by-genes matrix in [-1, 1].
     """
     from .ops_reference import embed_gene_profiles
@@ -250,39 +251,59 @@ def projected_graph(pvalues: np.ndarray, knn: int, edge_p: float):
 
 
 def label_clusters_by_view(labels: np.ndarray, graph, view: np.ndarray,
-                           views: Sequence[Mapping[str, Any]]) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """The share of each cluster's within-cluster edges by argmax view and view block.
+                           views: Sequence[Mapping[str, Any]], scores: Sequence[np.ndarray],
+                           null_counts: np.ndarray, n_columns: int, edge_p: float = 0.05
+                           ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Each cluster's within-cluster edges by argmax view, and its broad / thin / mixed label.
 
-    A cluster is ``thin`` when one view carries at least :data:`THIN_SHARE` of its edges and
-    that view has fewer columns than the median view, ``broad`` when that view has as many
-    columns as the median view or more, and ``mixed`` otherwise.
+    A view is broad when its block is ``W`` (the whole profile) or a ``P1`` block holding at
+    least a quarter of the ``n_columns`` columns, and thin when it has at most
+    :data:`THIN_COLUMNS` columns. A cluster is ``broad`` when its broad views carry at least
+    half of its within-cluster edges, else ``thin`` when its thin views do, else ``mixed``.
 
     :param labels: one cluster per gene.
     :param graph: from :func:`projected_graph`.
     :param view: the argmax view matrix from :func:`max_projection`.
     :param views: the views, as from :func:`read_views`.
-    :returns: ``(shares, kinds)``: one row per cluster and view with ``share`` and ``block``,
-        and one row per cluster with its ``label`` and edge count.
+    :param scores: each view's calibrated scores, as from :func:`calibrate_view`.
+    :param null_counts: the max null's counts (all pair bins pooled for the threshold).
+    :param n_columns: the profile's measurement columns.
+    :param edge_p: the p value the max-null threshold is read at.
+    :returns: ``(shares, kinds)``: one row per cluster and view with its ``block``, ``share``
+        of the edges, ``mean_score`` (the mean calibrated score of the within-cluster edges in
+        that view) and ``max_null_score`` (the max-null score at ``edge_p``); and one row per
+        cluster with its ``edges``, ``label`` and ``views`` (every view carrying at least
+        :data:`LISTED_SHARE`, ``;``-joined).
     """
     sizes = np.array([len(v["columns"]) for v in views])
-    median = float(np.median(sizes))
+    blocks = [str(v["block"]) for v in views]
+    broad = np.array([b == "W" or (b.startswith("P1") and size * 4 >= n_columns)
+                      for b, size in zip(blocks, sizes)])
+    thin = sizes <= THIN_COLUMNS
+    pooled = np.asarray(null_counts).sum(axis=0)
+    upper = np.cumsum(pooled[::-1])[::-1] / max(pooled.sum(), 1)
+    threshold = float(SCORE_GRID[min(int(np.argmax(upper <= edge_p)), len(SCORE_GRID) - 1)])
     rows, kinds = [], []
     edges = np.array(graph.get_edgelist(), int).reshape(-1, 2)
     for cluster in np.unique(labels):
         inside = (labels[edges[:, 0]] == cluster) & (labels[edges[:, 1]] == cluster)
-        from_view = view[edges[inside, 0], edges[inside, 1]]
+        a, b = edges[inside, 0], edges[inside, 1]
         n = int(inside.sum())
-        shares = np.bincount(from_view, minlength=len(views)) / max(n, 1)
-        for v, share in zip(views, shares):
+        shares = np.bincount(view[a, b], minlength=len(views)) / max(n, 1)
+        for v, share, score in zip(views, shares, scores):
             rows.append({"cluster": int(cluster), "view": v["name"], "block": v["block"],
-                         "share": float(share)})
-        top = int(np.argmax(shares)) if n else 0
-        if n and shares[top] >= THIN_SHARE:
-            kind = "thin" if sizes[top] < median else "broad"
+                         "share": float(share),
+                         "mean_score": float(score[a, b].mean()) if n else float("nan"),
+                         "max_null_score": threshold})
+        if n and shares[broad].sum() >= 0.5:
+            kind = "broad"
+        elif n and shares[thin].sum() >= 0.5:
+            kind = "thin"
         else:
             kind = "mixed"
+        listed = [v["name"] for v, share in zip(views, shares) if n and share >= LISTED_SHARE]
         kinds.append({"cluster": int(cluster), "edges": n, "label": kind,
-                      "top_view": views[top]["name"] if n else ""})
+                      "views": ";".join(listed)})
     return pd.DataFrame(rows), pd.DataFrame(kinds)
 
 
@@ -304,7 +325,7 @@ def _options(settings: Mapping[str, Any]) -> SimpleNamespace:
         null=int(get("ops_maxproj_null_permutations", 200)),
         seed=int(get("ops_maxproj_seed", DEFAULT_SEED)),
         graph=str(get("ops_maxproj_graph", "knn")).lower(),
-        similarity=str(get("ops_maxproj_similarity", "shrunk")).lower(),
+        similarity=str(get("ops_maxproj_similarity", "cosine")).lower(),
         knn=int(get("ops_maxproj_knn", 10)),
         edge_p=float(get("ops_maxproj_edge_p", 0.05)),
         resolutions=[float(r) for r in (settings.get("ops_maxproj_resolutions")
@@ -385,7 +406,7 @@ def _map(job, tasks: List[tuple], workers: int) -> List[Any]:
 def maxproj_scores(rows: np.ndarray, names: Sequence[str], n_cells: np.ndarray,
                    guide_rows: np.ndarray, guide_genes: Sequence[str], guide_cells: np.ndarray,
                    views_ix: Sequence[np.ndarray], *, variance: float = 0.99,
-                   similarity: str = "shrunk", bins: int = 3,
+                   similarity: str = "cosine", bins: int = 3,
                    calibration: int = 50, null: int = 200, seed: int = DEFAULT_SEED,
                    prefix: str = "nontargeting", workers: int = 1, report=None
                    ) -> Dict[str, Any]:
@@ -599,7 +620,8 @@ def cluster_maxproj_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFr
                                               seed=100, rows=rows, report=say,
                                               graph_of=partial(_graph_of, base))
         labels = np.asarray(consensus["labels"])
-    shares, kinds = label_clusters_by_view(labels, graph, result["view"], views)
+    shares, kinds = label_clusters_by_view(labels, graph, result["view"], views, result["scores"],
+                                           result["null_counts"], len(columns), options.edge_p)
     out_dir = os.path.join(folder, "results", "ops_maxproj")
     os.makedirs(out_dir, exist_ok=True)
     outputs: Dict[str, str] = {}
@@ -628,9 +650,10 @@ def cluster_maxproj_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFr
          for (s, r), lab in grid.items()]), os.path.join(out_dir, "leiden_grid.csv"),
         canonicalise=False)
     kind = dict(zip(kinds["cluster"], kinds["label"]))
+    listed = dict(zip(kinds["cluster"], kinds["views"]))
     outputs["maxproj_partition"] = write_table(pd.DataFrame(
         {"gene": names, "cluster": labels, "label": [kind[c] for c in labels],
-         "targeting": targeting}), os.path.join(out_dir, "maxproj_partition.csv"),
+         "views": [listed[c] for c in labels], "targeting": targeting}), os.path.join(out_dir, "maxproj_partition.csv"),
         canonicalise=False)
     outputs["cluster_views"] = write_table(shares, os.path.join(out_dir, "cluster_views.csv"),
                                            canonicalise=False)

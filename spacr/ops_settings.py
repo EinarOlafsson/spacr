@@ -428,7 +428,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_maxproj_guides": None,
     "ops_maxproj_views": None,
     "ops_maxproj_pca_variance": 0.99,
-    "ops_maxproj_similarity": 'shrunk',
+    "ops_maxproj_similarity": 'cosine',
     "ops_maxproj_bins": 3,
     "ops_maxproj_calibration_permutations": 50,
     "ops_maxproj_null_permutations": 200,
@@ -2825,11 +2825,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - The share of variance the PCA of each view keeps before it "
         "is whitened on the non-targeting genes. Default 0.99. Alpha.",
     "ops_maxproj_similarity":
-        "(str) - The pair similarity inside each view: 'shrunk', the inner "
-        "product of the whitened rows over their norms each enlarged by the "
-        "non-targeting genes' mean norm, so a gene no stronger than the "
-        "controls stays near zero; or 'cosine', which in a view of few columns "
-        "often scores unrelated genes as alike. Default 'shrunk'. Alpha.",
+        "(str) - The pair similarity inside each view: 'cosine', the cosine "
+        "of the whitened rows; or 'shrunk', their inner product over norms "
+        "each enlarged by the non-targeting genes' mean norm, so a gene no "
+        "stronger than the controls stays near zero, which in a view of few "
+        "columns finds thin phenotypes that cosine misses. Default 'cosine'. "
+        "Alpha.",
     "ops_maxproj_bins":
         "(int) - Cell-count bins per gene; a pair is calibrated against the "
         "null pairs of the same two bins, so well-measured genes are not "
