@@ -1,0 +1,194 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_cov_r8_methods_export_numbers.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_a_string_that_is_not_a_number_is_skipped": "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_original_digests_without_numbers_keep_an_empty_set[test_a_string_that_is_not_a_number_is_skipped]",
+    "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_an_empty_digest_yields_nothing": "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_original_digests_without_numbers_keep_an_empty_set[test_an_empty_digest_yields_nothing]"
+  },
+  "literal_class_case_contracts": {
+    "test_a_string_that_is_not_a_number_is_skipped": [
+      {
+        "note": "no numbers here"
+      }
+    ],
+    "test_an_empty_digest_yields_nothing": [
+      {}
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_string_that_is_not_a_number_is_skipped": "({'note': 'no numbers here'},)",
+    "test_an_empty_digest_yields_nothing": "({},)"
+  },
+  "contract_scope": "Exact original TestReadingTheDigestsOwnNumbers class/self scope, ordered native digest dictionaries and unchanged assert digest_numbers(digest) == set() retained. The expected empty set is still constructed by set() in the runtime assertion; it is not a parameter or private JSON input. Every other original class/method/import/numeric predicate/extraction/nested-leaf/finite-value/parser-search case retains executable AST and relative order. Original random.Random(20260831),200000 search iterations,character alphabet,token lengths and float precondition assertions retained without new seeds or search changes. Disjoint from audit109 caveat cases in another module. No identity, exception or stronger numeric completeness assertion is added.",
+  "collected_before": [
+    "tests/test_cov_r8_methods_export_numbers.py::TestExtractingNumbersFromProse::test_scientific_notation_is_read",
+    "tests/test_cov_r8_methods_export_numbers.py::TestExtractingNumbersFromProse::test_a_sentence_with_no_numbers_yields_none",
+    "tests/test_cov_r8_methods_export_numbers.py::TestExtractingNumbersFromProse::test_a_named_string_is_not_mistaken_for_a_number",
+    "tests/test_cov_r8_methods_export_numbers.py::TestExtractingNumbersFromProse::test_the_numbers_in_a_sentence_are_found_as_written",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[inf-parses-but-is-not-a-measurement]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[minus-inf-parses-but-is-not-a-measurement]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[a-number-the-digest-holds]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[nan-parses-but-is-not-a-measurement]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[text-is-not-a-number]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[a-version-string-is-not-a-number]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[empty-is-not-a-number]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[a-number-the-digest-does-not-hold]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[a-rounding-of-a-held-number-is-the-same-measurement]",
+    "tests/test_cov_r8_methods_export_numbers.py::TestTheNumericConversion::test_nothing_the_pattern_accepts_is_rejected_by_float",
+    "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_numbers_nested_anywhere_are_found",
+    "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_a_string_that_is_not_a_number_is_skipped",
+    "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_an_empty_digest_yields_nothing"
+  ],
+  "collected_after": [
+    "tests/test_cov_r8_methods_export_numbers.py::TestTheNumericConversion::test_nothing_the_pattern_accepts_is_rejected_by_float",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[a-version-string-is-not-a-number]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[text-is-not-a-number]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[empty-is-not-a-number]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[a-number-the-digest-does-not-hold]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[nan-parses-but-is-not-a-measurement]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[a-rounding-of-a-held-number-is-the-same-measurement]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[a-number-the-digest-holds]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[minus-inf-parses-but-is-not-a-measurement]",
+    "tests/test_cov_r8_methods_export_numbers.py::test_a_token_is_supported_only_when_the_digest_holds_that_measurement[inf-parses-but-is-not-a-measurement]",
+    "tests/test_cov_r8_methods_export_numbers.py::TestExtractingNumbersFromProse::test_the_numbers_in_a_sentence_are_found_as_written",
+    "tests/test_cov_r8_methods_export_numbers.py::TestExtractingNumbersFromProse::test_a_sentence_with_no_numbers_yields_none",
+    "tests/test_cov_r8_methods_export_numbers.py::TestExtractingNumbersFromProse::test_scientific_notation_is_read",
+    "tests/test_cov_r8_methods_export_numbers.py::TestExtractingNumbersFromProse::test_a_named_string_is_not_mistaken_for_a_number",
+    "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_original_digests_without_numbers_keep_an_empty_set[test_an_empty_digest_yields_nothing]",
+    "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_original_digests_without_numbers_keep_an_empty_set[test_a_string_that_is_not_a_number_is_skipped]",
+    "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_numbers_nested_anywhere_are_found"
+  ],
+  "tests_before": {
+    "passed": 17,
+    "seconds": 5.74
+  },
+  "tests_after": {
+    "passed": 17,
+    "seconds": 3.82
+  },
+  "coverage_scope": "spacr.methods_export under the complete selected numeric-token/digest helper module, not full-suite or scientific model coverage. Complete118line test module and digest_numbers,_walk,extract_numbers,_supported helpers read. Only tiny strings/dictionaries/native sets and the original deterministic200000-token standard-library search; that search parses regex-admitted strings with float and fits no model. All original search work remains inside the same scheduler allocation. No digest journal/model-card/LLM request,analysis workflow,scientific chart,image/new reader,network,download or GPU execution. Private upfront offline0 control fixed before every phase. Production/settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 104,
+    "num_statements": 436,
+    "percent_covered": 21.38364779874214,
+    "percent_covered_display": "21",
+    "missing_lines": 332,
+    "excluded_lines": 0,
+    "percent_statements_covered": 23.853211009174313,
+    "percent_statements_covered_display": "24",
+    "num_branches": 200,
+    "num_partial_branches": 6,
+    "covered_branches": 32,
+    "missing_branches": 168,
+    "percent_branches_covered": 16.0,
+    "percent_branches_covered_display": "16"
+  },
+  "coverage_after": {
+    "covered_lines": 104,
+    "num_statements": 436,
+    "percent_covered": 21.38364779874214,
+    "percent_covered_display": "21",
+    "missing_lines": 332,
+    "excluded_lines": 0,
+    "percent_statements_covered": 23.853211009174313,
+    "percent_statements_covered_display": "24",
+    "num_branches": 200,
+    "num_partial_branches": 6,
+    "covered_branches": 32,
+    "missing_branches": 168,
+    "percent_branches_covered": 16.0,
+    "percent_branches_covered_display": "16"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "e6920a16c8e3c72a4845ff548e953bb70645124106319b049374aaba72a6a9f8",
+  "production_source_sha256": "1432954183546fa710f2671f1bbdf0cdbf1b2208b1d74d56f37046c1a6c27029",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "nonnumeric-string-invents-a-numeric-leaf",
+      "source_variant": {
+        "path": "spacr/methods_export.py",
+        "line": 170,
+        "old": "if _NUMBER.fullmatch(token):\n                found.add(float(token))",
+        "new": "if _NUMBER.fullmatch(token):\n                found.add(float(token))\n            else:\n                found.add(0.0)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_a_string_that_is_not_a_number_is_skipped"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_a_string_that_is_not_a_number_is_skipped"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_original_digests_without_numbers_keep_an_empty_set[test_a_string_that_is_not_a_number_is_skipped]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_original_digests_without_numbers_keep_an_empty_set[test_a_string_that_is_not_a_number_is_skipped]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "empty-numeric-collector-starts-with-an-invented-value",
+      "source_variant": {
+        "path": "spacr/methods_export.py",
+        "line": 160,
+        "old": "found: Set[float] = set()",
+        "new": "found: Set[float] = {0.0}"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_an_empty_digest_yields_nothing"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_an_empty_digest_yields_nothing"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_original_digests_without_numbers_keep_an_empty_set[test_an_empty_digest_yields_nothing]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_r8_methods_export_numbers.py::TestReadingTheDigestsOwnNumbers::test_original_digests_without_numbers_keep_an_empty_set[test_an_empty_digest_yields_nothing]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in digest_numbers before and after: add0.0 for a nonnumeric string leaf; initialize the numeric set with0.0 instead of empty. Each selects the same one original/mapped nonnumeric-text or empty-digest case and must fail its unchanged native equality to set(). First establishes nonnumeric false-positive sensitivity;second establishes empty-initial-value sensitivity,not a stronger recursive-walker bypass or full supported-number correctness claim. Runtime set construction,exact digest maps and original class scope retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_r8_methods_export_numbers.py",
+      "line": 90,
+      "symbol": "test_original_digests_without_numbers_keep_an_empty_set",
+      "new": "Preserve each original digest and its native empty numeric set.",
+      "old": {
+        "test_a_string_that_is_not_a_number_is_skipped": null,
+        "test_an_empty_digest_yields_nothing": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
