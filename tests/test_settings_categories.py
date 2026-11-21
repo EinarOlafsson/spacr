@@ -1638,6 +1638,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTING, not a regrouping (item 1007, 2026-11-21, alpha): the
     # OME-Zarr version of the OPS phenotype plate stores.
     "ome_zarr_ngff_version",
+    # NEW SETTING (1007 lane C, 2026-11-21): stored registration metadata.
+    "ome_zarr_store_registration",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

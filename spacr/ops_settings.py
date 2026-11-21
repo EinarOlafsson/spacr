@@ -69,6 +69,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_channels": "DAPI,GFP,A594,AF750",
     "ops_ph_image_format": "ome-zarr",
     "ome_zarr_ngff_version": "0.5",
+    "ome_zarr_store_registration": False,
     "ops_ph_cell_channel": "AF750",
     "ops_ph_nucleus_model": "cpsam",
     "ops_ph_cell_model": "cpsam",
@@ -627,6 +628,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_channels": str,
     "ops_ph_image_format": str,
     "ome_zarr_ngff_version": str,
+    "ome_zarr_store_registration": bool,
     "ops_ph_cell_channel": str,
     "ops_ph_nucleus_model": str,
     "ops_ph_cell_model": str,
@@ -1248,6 +1250,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "Phenotype segmentation": [
         "ops_ph_channels", "ops_ph_image_format", "ome_zarr_ngff_version",
+        "ome_zarr_store_registration",
         "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_tile_batch",
@@ -1764,6 +1767,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "version, so a store started in the other version is refused. The "
         "cell crop pools are not OME-Zarr images and do not change. "
         "Default 0.5. Alpha.",
+    "ome_zarr_store_registration":
+        "(bool) - Store the applied phenotype-to-SBS placement, secondary "
+        "channel shifts and tile affine fits as named coordinate transformations "
+        "in merged OME-Zarr field images. Requires ome_zarr_ngff_version 0.6. "
+        "Pixels are unchanged; OPS sidecar tables remain the source of truth. "
+        "Default False. Alpha.",
     "ops_ph_channels":
         "(str) - The phenotype channels in the order the cell table names "
         "them, separated by commas, matched against the channel tokens of the "

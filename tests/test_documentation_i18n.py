@@ -454,20 +454,24 @@ def test_navigator_default_revision_preserves_the_historical_api_pin(mutation):
 
 
 def _current_1007_ome_zarr_api(entries, docs=None):
-    """Bind item 1007's rewritten PlateWriter docstring into item 983's fixture.
+    """Bind the 1007 A/C PlateWriter revisions while retaining the item 983 fixture.
 
     1007 (2026-11-21) documents ``PlateWriter(ngff_version=...)``. The 983
     fixture keeps its original text; the change file pins that text by hash
     and carries the current docstring.
     """
-    changes = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
-        / "1007_ome_zarr_ngff06_api_changes_2026-11-21.json").read_text(encoding="utf-8"))
     active = dict(entries)
-    for key, change in changes.items():
-        assert hashlib.sha256(active[key].encode()).hexdigest() == change["before_sha256"]
-        if docs is not None:
-            assert docs[key] == change["docstring"]
-        active[key] = change["docstring"]
+    for filename in ("1007_ome_zarr_ngff06_api_changes_2026-11-21.json",
+                     "1007c_ome_zarr_registration_api_changes_2026-11-21.json"):
+        changes = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+            / filename).read_text(encoding="utf-8"))
+        assert set(changes) == {"spacr.image_store.PlateWriter"}
+        for key, change in changes.items():
+            assert hashlib.sha256(active[key].encode()).hexdigest() == change["before_sha256"]
+            active[key] = change["docstring"]
+    if docs is not None:
+        for key in changes:
+            assert docs[key] == active[key]
     return active
 
 
@@ -3895,6 +3899,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
         ("1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json", 3),
         ("1008a_measure_block_families_api_arrivals_2026-11-21.json", 1),
+        ("1007c_ome_zarr_registration_api_arrivals_2026-11-21.json", 2),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

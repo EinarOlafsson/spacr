@@ -3838,6 +3838,11 @@ def _validated_ome_zarr_983_callables(callables):
         assert item.parameters == item.accepted_documented_parameters
         assert item.variant_count == 1 and item.docless_variant_count == 0
         assert item.docstring == entries[symbol]
+        if symbol == "spacr.image_store.PlateWriter":
+            assert item.parameters == {"root", "plate", "channel_names", "spacing",
+                                       "ngff_version", "registration"}
+            assert item.required_parameters == {"root", "plate"}
+            assert not item.accepts_arbitrary_keywords
     return [item for item in callables if item.symbol not in entries]
 
 
@@ -3871,6 +3876,25 @@ def _validated_ome_zarr_ngff06_1007_callables(callables):
                             "spacr.ome_zarr.transformation_matrix"}
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_ome_zarr_registration_1007c_callables(callables):
+    """Validate the exact new registration API before projecting the old pin."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.ome_zarr_registration",
+                            "spacr.ome_zarr_registration.registration_metadata"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == {"spacr.ome_zarr_registration.registration_metadata"}
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
         assert item.parameters == item.accepted_documented_parameters
@@ -4170,6 +4194,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_ome_zarr_convert_985_callables(callables)
     callables = _validated_ome_zarr_ngff06_1007_callables(callables)
     callables = _validated_measure_blocks_1008a_callables(callables)
+    callables = _validated_ome_zarr_registration_1007c_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5682,6 +5707,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `coordinate_systems` and `transformations` fields of OmeZarrImage, and the
     # optional `coordinate_systems` and `coordinate_transformations` keywords of
     # spacr.ome_zarr.write_ome_zarr (all defaulted).
+    # 2026-11-21 (1007 lane C): PlateWriter gains optional registration,
+    # checked by the 983/C arrival binding above and projected out of this
+    # inventory. The measured public parameter sum stays at 20,273.
     assert sum(len(item.parameters) for item in callables) == 20273
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
@@ -6045,6 +6073,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `discrete` and `long_name` of spacr.ome_zarr.Axis, `coordinate_systems` and
     # `transformations` of OmeZarrImage, and `coordinate_systems` and
     # `coordinate_transformations` of spacr.ome_zarr.write_ome_zarr.
+    # 2026-11-21 lane C: optional PlateWriter registration is checked by
+    # the 983/C arrival binding and projected out above; the measured
+    # signature digest stays unchanged (public-inventory test verified).
 ) == 'd2d9fcfe2231caa28395d681abbdc7378b3993b629d265660674e570decf6bba'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
@@ -6991,6 +7022,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
         ("1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json", 3),
         ("1008a_measure_block_families_api_arrivals_2026-11-21.json", 1),
+        ("1007c_ome_zarr_registration_api_arrivals_2026-11-21.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7630,7 +7662,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
                      "w_mask_tracing_api_arrivals_2026-11-20.json",
                      "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json",
-                     "1008a_measure_block_families_api_arrivals_2026-11-21.json"):
+                     "1008a_measure_block_families_api_arrivals_2026-11-21.json",
+                     "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7798,7 +7831,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
                      "w_mask_tracing_api_arrivals_2026-11-20.json",
                      "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json",
-                     "1008a_measure_block_families_api_arrivals_2026-11-21.json"):
+                     "1008a_measure_block_families_api_arrivals_2026-11-21.json",
+                     "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

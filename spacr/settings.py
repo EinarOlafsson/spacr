@@ -9309,7 +9309,7 @@ ALPHA_FEATURES = {
                     'MakeMasksVirtualStainApply'),
     },
     1007: {
-        'settings': ('ome_zarr_ngff_version',),
+        'settings': ('ome_zarr_ngff_version', 'ome_zarr_store_registration'),
     },
     983: {
         'settings': ('mask_image_format', 'crop_image_format', 'crops_per_shard',
