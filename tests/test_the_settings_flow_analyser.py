@@ -298,15 +298,31 @@ def test_the_page_stays_inside_the_docs_job_timeout(flow, data):
     The hosted docs job built the 9,417 page in about 15 minutes of its
     60. 283 of headroom is kept.
 
+    RAISED TO 13,900 ON 2026-11-21 (item 1005), for the OPS items landed
+    in trains 2 to 6, which took the page to 13,578. The ceiling was first
+    crossed by item 971 (a47d67189f, 9,461 to 10,947: spacr.ops_live hands
+    the OPS settings to spacr.ops_engine.run_ops, which every OPS setting's
+    section now links) and item 973 (6cfa1cf89d, +661 on its own); the rest
+    is the later OPS readers (spacr.ops_prefix.prefix_settings above all).
+    Measured on the WS with a whole-site build of 20e35b6846 plus the item
+    1005 test fixes (-W -E -b html --keep-going, English API catalogs, after
+    the docs job's Make Masks reference and --sources-only i18n steps) at a
+    load average of 33 to 41:
+
+        13,578 xrefs   17:50.71 wall   6,628,416 KB peak   0 warnings
+
+    That is inside the 9,417 page's 28:50 at load 28 and well inside the
+    docs job's 60 minutes, so 322 of headroom is kept.
+
     The builds also came back with ZERO warnings, which is the second
     thing this page can break: the docs job runs `-W`, so an xref the
     inventory cannot resolve fails it as surely as a timeout.
     """
     rst = flow.rst_for(data)
     xrefs = rst.count(":py:func:")
-    assert xrefs <= 9700, (
+    assert xrefs <= 13900, (
         f"{xrefs} cross-references on the settings-flow page, up from the "
-        "9,417 measured against a real sphinx-build on 2026-11-15. This is "
+        "13,578 measured against a real sphinx-build on 2026-11-21. This is "
         "the build-time ratchet; confirm a real sphinx-build before raising "
         "it, and record the wall clock in the docstring above")
 
