@@ -202,18 +202,20 @@ def test_custom_without_numbers_is_refused_rather_than_falling_back():
         normalization_stats("dataset")
 
 
-def test_a_zero_spread_is_replaced_rather_than_divided_by():
-    """A constant channel divided by its own zero spread gives inf, then a
-    nan loss several minutes into training, with nothing saying why."""
-    _mean, std = normalization_stats("custom", mean=[0.1, 0.2],
-                                     std=[0.5, 0.0])
-    assert std == (0.5, 1.0)
-
-
-def test_a_negative_spread_is_read_as_its_size():
-    _mean, std = normalization_stats("custom", mean=[0.1], std=[-0.25],
-                                     channels=1)
-    assert std == (0.25,)
+@pytest.mark.parametrize('kwargs, expected', [
+    pytest.param(
+        {'mean': [0.1, 0.2], 'std': [0.5, 0.0]}, (0.5, 1.0),
+        id='test_a_zero_spread_is_replaced_rather_than_divided_by',
+    ),
+    pytest.param(
+        {'mean': [0.1], 'std': [-0.25], 'channels': 1}, (0.25,),
+        id='test_a_negative_spread_is_read_as_its_size',
+    ),
+])
+def test_original_custom_spreads_keep_their_native_tuple_results(kwargs, expected):
+    """Preserve each original custom spread input and its native tuple result."""
+    _mean, std = normalization_stats("custom", **kwargs)
+    assert std == expected
 
 
 # ---------------------------------------------------------------------------
