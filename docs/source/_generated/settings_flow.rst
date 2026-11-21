@@ -10022,6 +10022,7 @@ Where measurements.db and each well's ops_report.json are written. Empty writes 
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_score_tile`` **-- reads it**
 | ``_aggregation_inputs`` **-- reads it**
+| ``_merged_placement_row`` **-- reads it**
 | ``_preview_settings`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
@@ -10133,7 +10134,7 @@ Where measurements.db and each well's ops_report.json are written. Empty writes 
 |         ``_describe_ops_power_plan`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``run_cpg_phases``, ``run_mitocarta_benchmark``, ``run_compare_masks``, ``_ops_admitted_run``, ``run_ops``, ``_run_feature_screen``, ``_nuclear_folder``, ``nucleus_table``, ``run_flat_phases``, ``_default_points``, ``_run_grid_search``, ``_score_tile``, ``_run_combinatorial_decode``, ``_aggregation_inputs``, ``_preview_settings``, ``_profile_folder``, ``_run_fdr_sweep_phase``, ``run_prefix_decode``, ``score_ops_profiles``, ``ops_defaults``, ``_profile_state``, ``run_profile_phases``, ``run_ops_power_sim``, ``_build_ops_power``, ``_check_ops_power_inputs``, ``_describe_ops_power_plan``, ``_read_clusters``, ``run_voyager3``.
+Read by ``run_cpg_phases``, ``run_mitocarta_benchmark``, ``run_compare_masks``, ``_ops_admitted_run``, ``run_ops``, ``_run_feature_screen``, ``_nuclear_folder``, ``nucleus_table``, ``run_flat_phases``, ``_default_points``, ``_run_grid_search``, ``_score_tile``, ``_run_combinatorial_decode``, ``_aggregation_inputs``, ``_merged_placement_row``, ``_preview_settings``, ``_profile_folder``, ``_run_fdr_sweep_phase``, ``run_prefix_decode``, ``score_ops_profiles``, ``ops_defaults``, ``_profile_state``, ``run_profile_phases``, ``run_ops_power_sim``, ``_build_ops_power``, ``_check_ops_power_inputs``, ``_describe_ops_power_plan``, ``_read_clusters``, ``run_voyager3``.
 
 .. _setting-flow-early_exaggeration:
 

@@ -279,12 +279,30 @@ def _draw_align(result: Mapping[str, Any], colours):
                      f"{stitched[1] - nominal[1]:+.1f}",
                      tr("stitch shift from the raster grid")])
     placement = result.get("placement")
-    if placement:
+    after = result.get("placed_after")
+    if placement and after:
+        source = (tr("the placement seed") if placement.get("source") == "seed"
+                  else tr("the raster fit"))
+        images.append((tr("Phenotype field {site} (blue) on the sequencing crop (teal) "
+                          "before tile-affine placement, at {source}",
+                          site=placement["site"], source=source),
+                       _two_tone(placement["sbs"], placement["phenotype"], colours)))
+        images.append((tr("The same field after tile-affine placement ({affine} "
+                          "affine; {dy:+.1f}, {dx:+.1f} px)",
+                          affine=tr("tile group") if after["affine"] == "tile"
+                          else tr("field"), dy=after["shift"][0], dx=after["shift"][1]),
+                       _two_tone(after["sbs"], after["phenotype"], colours)))
+        rows.append([tr("Field {site}", site=after["site"]), f"{after['shift'][0]:+.1f}",
+                     f"{after['shift'][1]:+.1f}", tr("tile-affine shift from the placement before")])
+    elif placement:
         images.append((tr("Phenotype field {site} (blue) on the sequencing crop "
                           "(teal): scale {scale:.3f}, rotation {rotation:+.2f} deg",
                           site=placement["site"], scale=placement["scale"],
                           rotation=placement["rotation"]),
                        _two_tone(placement["sbs"], placement["phenotype"], colours)))
+        rows.append([tr("Field {site}", site=placement["site"]), "", "",
+                     tr("run merge with ops_align_model 'tile_affine' to compare the "
+                        "placement before and after")])
     last = result["last_cycle"]
     images.append((tr("Cycle 1 (teal) and cycle {n} (blue), before", n=last),
                    _two_tone(*result["before"], colours)))
