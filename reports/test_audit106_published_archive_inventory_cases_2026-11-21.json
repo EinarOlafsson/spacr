@@ -1,0 +1,201 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_the_example_screen_picker_can_say_it_does_not_know.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_the_published_tars_come_back_and_nothing_else_does": "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_original_published_archive_inventories_keep_their_result_sets[test_the_published_tars_come_back_and_nothing_else_does]",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_a_repository_that_publishes_nothing_is_an_empty_set": "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_original_published_archive_inventories_keep_their_result_sets[test_a_repository_that_publishes_nothing_is_an_empty_set]"
+  },
+  "native_string_container_contracts": {
+    "test_the_published_tars_come_back_and_nothing_else_does": {
+      "inventory": {
+        "python_type": "list",
+        "items": [
+          "README.md",
+          ".gitattributes",
+          "plate1.tar",
+          "crops/plate2.tar",
+          "plate3.tar.sha256"
+        ]
+      },
+      "expected": {
+        "python_type": "set",
+        "items": [
+          "crops/plate2.tar",
+          "plate1.tar"
+        ]
+      }
+    },
+    "test_a_repository_that_publishes_nothing_is_an_empty_set": {
+      "inventory": {
+        "python_type": "list",
+        "items": [
+          "README.md"
+        ]
+      },
+      "expected": {
+        "python_type": "set",
+        "items": []
+      }
+    }
+  },
+  "case_contract_representations": {
+    "test_the_published_tars_come_back_and_nothing_else_does": "{'inventory': {'python_type': 'list', 'items': ['README.md', '.gitattributes', 'plate1.tar', 'crops/plate2.tar', 'plate3.tar.sha256']}, 'expected': {'python_type': 'set', 'items': ['crops/plate2.tar', 'plate1.tar']}}",
+    "test_a_repository_that_publishes_nothing_is_an_empty_set": "{'inventory': {'python_type': 'list', 'items': ['README.md']}, 'expected': {'python_type': 'set', 'items': []}}"
+  },
+  "contract_scope": "Exact original ordered lists of immutable filename strings, native expected string sets including set(), monkeypatch fixture, _hub call, callback arguments and published_archives(\"some/repo\") native equality retained. Callback [*inventory] builds a fresh list on every invocation, matching the original list literal rather than returning a shared mutable list. Private JSON evidence alone records list/set types and canonical set membership with verified round trips; actual test inputs are never JSON-decoded, sorted, or replaced. All other original imports, fake client/helper classes and methods, offline/client-error/malformed-inventory/optional-dependency/real-client mocked-transport timeout cases retain executable AST and relative order. No assertion is added or weakened.",
+  "collected_before": [
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_no_huggingface_hub_at_all_is_i_do_not_know",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_a_repository_that_publishes_nothing_is_an_empty_set",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_missing_or_malformed_inventory_is_unknown_not_a_known_empty_repo[siblings1]",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_the_timeout_is_passed_so_a_slow_network_cannot_hold_the_dialog",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_a_client_error_does_not_retry_without_the_timeout",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_the_published_tars_come_back_and_nothing_else_does",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_missing_or_malformed_inventory_is_unknown_not_a_known_empty_repo[None]",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_a_hub_that_does_not_answer_is_none_and_not_an_empty_set"
+  ],
+  "collected_after": [
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_missing_or_malformed_inventory_is_unknown_not_a_known_empty_repo[siblings1]",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_the_timeout_is_passed_so_a_slow_network_cannot_hold_the_dialog",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_missing_or_malformed_inventory_is_unknown_not_a_known_empty_repo[None]",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_a_client_error_does_not_retry_without_the_timeout",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_original_published_archive_inventories_keep_their_result_sets[test_the_published_tars_come_back_and_nothing_else_does]",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_original_published_archive_inventories_keep_their_result_sets[test_a_repository_that_publishes_nothing_is_an_empty_set]",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_no_huggingface_hub_at_all_is_i_do_not_know",
+    "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_a_hub_that_does_not_answer_is_none_and_not_an_empty_set"
+  ],
+  "tests_before": {
+    "passed": 8,
+    "seconds": 4.45
+  },
+  "tests_after": {
+    "passed": 8,
+    "seconds": 4.56
+  },
+  "coverage_scope": "spacr.screen_data under the complete selected archive-picker metadata module, not full-suite or download coverage. Whole current test module and screen_data source read and byte-compared against the reviewed train6 snapshot. Fake metadata endpoints return tiny filename inventories only; the installed client transport is replaced by the original Session.get that records the timeout and raises immediately. No actual hub/network requests, downloads, archive extraction, images, analysis, model fitting, segmentation, chart rendering, new reader or GPU work. Archive-size constants are metadata and no screen asset is downloaded or opened. SPACR_MODEL_DOWNLOAD=0 set in private scheduler wrapper before every phase. Production/settings names, defaults, schemas and categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 29,
+    "num_statements": 46,
+    "percent_covered": 53.7037037037037,
+    "percent_covered_display": "54",
+    "missing_lines": 17,
+    "excluded_lines": 0,
+    "percent_statements_covered": 63.04347826086956,
+    "percent_statements_covered_display": "63",
+    "num_branches": 8,
+    "num_partial_branches": 0,
+    "covered_branches": 0,
+    "missing_branches": 8,
+    "percent_branches_covered": 0.0,
+    "percent_branches_covered_display": "0"
+  },
+  "coverage_after": {
+    "covered_lines": 29,
+    "num_statements": 46,
+    "percent_covered": 53.7037037037037,
+    "percent_covered_display": "54",
+    "missing_lines": 17,
+    "excluded_lines": 0,
+    "percent_statements_covered": 63.04347826086956,
+    "percent_statements_covered_display": "63",
+    "num_branches": 8,
+    "num_partial_branches": 0,
+    "covered_branches": 0,
+    "missing_branches": 8,
+    "percent_branches_covered": 0.0,
+    "percent_branches_covered_display": "0"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "cf0aeb354501295aa00a53793bc8fd9575e1f18f76ce0a24ca6fa3dadc113324",
+  "production_source_sha256": "b2db53561b2d5709702f1b459723419c51dd5ce4f922642f044d0f38480f1de3",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "nonarchives-are-returned-as-published-archives",
+      "source_variant": {
+        "path": "spacr/screen_data.py",
+        "line": 141,
+        "old": "if sibling.rfilename.endswith(\".tar\")}",
+        "new": "if True}"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_the_published_tars_come_back_and_nothing_else_does"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_the_published_tars_come_back_and_nothing_else_does"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_original_published_archive_inventories_keep_their_result_sets[test_the_published_tars_come_back_and_nothing_else_does]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_original_published_archive_inventories_keep_their_result_sets[test_the_published_tars_come_back_and_nothing_else_does]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "known-empty-inventory-is-collapsed-to-unknown",
+      "source_variant": {
+        "path": "spacr/screen_data.py",
+        "line": 140,
+        "old": "return {sibling.rfilename for sibling in info.siblings\n                if sibling.rfilename.endswith(\".tar\")}",
+        "new": "return ({sibling.rfilename for sibling in info.siblings\n                 if sibling.rfilename.endswith(\".tar\")} or None)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_a_repository_that_publishes_nothing_is_an_empty_set"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_a_repository_that_publishes_nothing_is_an_empty_set"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_original_published_archive_inventories_keep_their_result_sets[test_a_repository_that_publishes_nothing_is_an_empty_set]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_example_screen_picker_can_say_it_does_not_know.py::test_original_published_archive_inventories_keep_their_result_sets[test_a_repository_that_publishes_nothing_is_an_empty_set]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults before and after: retain all inventory entries rather than only .tar names; return None for a known empty archive set. Each selects the same one original/mapped case and must fail its unchanged native set equality. These establish filename-filter and known-empty-result sensitivity, not actual downloader or transport failure coverage. Exact original filename strings, list order, callback freshness, native unordered set membership and empty-set type retained. Repository production/settings files unchanged.",
+  "native_string_container_payloads_verified": true,
+  "runtime_inputs_never_json_decoded": true,
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_the_example_screen_picker_can_say_it_does_not_know.py",
+      "line": 57,
+      "symbol": "test_original_published_archive_inventories_keep_their_result_sets",
+      "new": "Preserve each original archive inventory and its native result set.",
+      "old": {
+        "test_the_published_tars_come_back_and_nothing_else_does": "Only ``.tar`` archives; the repo also holds a README and a .gitattributes.",
+        "test_a_repository_that_publishes_nothing_is_an_empty_set": "Empty is an ANSWER: the picker greys the rows out and is right to."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
