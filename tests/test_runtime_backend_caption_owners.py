@@ -18,7 +18,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
         "install_cleanup.py", "data_manager.py", "doctor.py", "updater.py",
         "gene_measurement_compare.py", "ome_zarr_convert.py",
-        "ops_prefix.py", "ops_decode.py", "ops_engine.py",
+        "ops_prefix.py", "ops_decode.py", "ops_engine.py", "ops_cell_cycle.py",
         "settings.py", "object.py", "_mask_array_batches.py",
         "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
