@@ -443,7 +443,7 @@ def test_zero_diameter_is_auto_and_a_negative_one_is_an_error(tmp_path):
 
 
 @pytest.mark.parametrize("key, value", [
-    ("batch_size", 0),                          # below one
+    ("batch_size", -3),                         # below zero (0 is automatic, item 987b)
     ("cell_min_intensity_percentile", 140),     # outside 0-100
     ("n_jobs", 0),                              # unusable
 ])

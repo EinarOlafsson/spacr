@@ -962,6 +962,9 @@ _EXPECTED_TYPE_OVERRIDES: Dict[str, Any] = {
 
 _APP_TYPE_OVERRIDES: Dict[str, Dict[str, Any]] = {
     "foreign": {"masks": (str, list)},
+    "mask": {"batch_size": (int, str)},
+    "timelapse": {"batch_size": (int, str)},
+    "ops": {"batch_size": (int, str)},
 }
 
 
@@ -1460,7 +1463,29 @@ def _check_object_diameters(settings: Dict[str, Any]) -> List[Problem]:
     return problems
 
 
-def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
+#: The apps whose ``batch_size`` goes through the mask batch plan, where 0, -1, None,
+#: ``'none'`` and ``'auto'`` mean the largest batch that fits the free GPU memory and RAM.
+_AUTOMATIC_BATCH_APPS = ("mask", "ops")
+
+#: The apps whose ``diameter`` 0 means the model's own scale (Plaque Assay).
+_ZERO_DIAMETER_APPS = ("analyze_plaques",)
+
+
+def _automatic_batch_problems(value: Any) -> List[Problem]:
+    """The ``batch_size`` problem of a mask-plan app: what the plan refuses, and a fraction it would truncate."""
+    from ._mask_batches import _batch_size_request
+
+    try:
+        request = _batch_size_request(value)
+        if request is not None and float(value) != request:
+            raise ValueError(value)
+    except ValueError:
+        return [Problem(ERROR, "batch_size", f"batch_size={value} is not a batch size.",
+                        "Set batch_size to a positive whole number, or 0 for automatic.")]
+    return []
+
+
+def _check_numeric_sanity(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """Diameters, percentiles, thresholds and batch sizes are in usable ranges."""
     from .object_settings_table import _OBJECT_DIAMETER_KEYS
 
@@ -1472,13 +1497,16 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
         number = _numeric(value)
 
         if (number is not None and key not in _OBJECT_DIAMETER_KEYS
-                and (key.endswith("_diameter") or key == "diameter")):
+                and (key.endswith("_diameter") or key == "diameter")
+                and not (key == "diameter" and number == 0 and app in _ZERO_DIAMETER_APPS)):
             if number <= 0:
                 problems.append(Problem(
                     ERROR, key, f"{key}={value} must be greater than zero.",
                     "Give the expected object size in pixels, or None to let magnification derive it."))
 
-        if number is not None and key in (
+        if key == "batch_size" and app in _AUTOMATIC_BATCH_APPS:
+            problems.extend(_automatic_batch_problems(value))
+        elif number is not None and key in (
                 "batch_size", "test_images", "test_nr", "nr_imgs",
                 "epochs", "n_epochs", "image_size", "size", "chunk_size",
                 "magnification", "examples_to_plot", "guide_permutations"):
@@ -2211,7 +2239,7 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_types(settings, app))
     problems.extend(_check_unknown_keys(settings, app))
     problems.extend(_check_retired_keys(settings))
-    problems.extend(_check_numeric_sanity(settings))
+    problems.extend(_check_numeric_sanity(settings, app))
     problems.extend(_check_object_diameters(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))
