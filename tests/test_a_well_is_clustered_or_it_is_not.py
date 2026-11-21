@@ -228,13 +228,22 @@ class TestItRefusesRatherThanGuesses:
         with pytest.raises(ValueError, match="planar"):
             ripley_k(np.zeros((0, 2)), np.ones((8, 8, 8), bool), RADII)
 
-    def test_a_zero_radius_is_refused_with_the_reason(self):
-        with pytest.raises(ValueError, match="carries no information"):
-            ripley_k(np.zeros((0, 2)), _whole_field(), [0.0, 4.0])
-
-    def test_no_radii_is_refused(self):
-        with pytest.raises(ValueError, match="no radii"):
-            ripley_k(np.zeros((0, 2)), _whole_field(), [])
+    @pytest.mark.parametrize('radii_input, match_pattern', [
+        pytest.param(
+            [0.0, 4.0], 'carries no information',
+            id='test_a_zero_radius_is_refused_with_the_reason',
+        ),
+        pytest.param(
+            [], 'no radii',
+            id='test_no_radii_is_refused',
+        ),
+    ])
+    def test_invalid_radii_keep_original_refusal_matches(
+        self, radii_input, match_pattern,
+    ):
+        """Preserve each original invalid-radius list and native refusal match."""
+        with pytest.raises(ValueError, match=match_pattern):
+            ripley_k(np.zeros((0, 2)), _whole_field(), radii_input)
 
     def test_one_point_has_no_pattern_and_does_not_crash(self):
         got = ripley_k(np.array([[100, 100]]), _whole_field(), RADII)
