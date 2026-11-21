@@ -739,10 +739,25 @@ def test_a_dependency_that_is_not_in_the_queue_does_not_block(tmp_path):
 # resuming
 # --------------------------------------------------------------------------
 
-def test_a_module_with_no_field_checkpoints_is_not_given_resume():
-    job = Job(module="ml_analyze", overrides=["a=1"])
+@pytest.mark.parametrize(
+    'module, overrides, expected',
+    [
+        pytest.param(
+            'ml_analyze', ['a=1'], ['a=1'],
+            id='test_a_module_with_no_field_checkpoints_is_not_given_resume',
+        ),
+        pytest.param(
+            'measure', ['resume=False', 'diameter=30'],
+            ['diameter=30', 'resume=True'],
+            id='test_an_existing_resume_override_is_replaced_not_duplicated',
+        ),
+    ],
+)
+def test_field_resume_keeps_original_override_lists(module, overrides, expected):
+    """Preserve each original job and ordered resume override list."""
+    job = Job(module=module, overrides=overrides)
     batch._enable_field_resume(job)
-    assert job.override_args == ["a=1"]
+    assert job.override_args == expected
 
 
 def test_a_job_written_with_a_mapping_of_overrides_keeps_that_shape():
@@ -751,10 +766,6 @@ def test_a_job_written_with_a_mapping_of_overrides_keeps_that_shape():
     assert job.overrides == {"diameter": 30, "resume": True}
 
 
-def test_an_existing_resume_override_is_replaced_not_duplicated():
-    job = Job(module="measure", overrides=["resume=False", "diameter=30"])
-    batch._enable_field_resume(job)
-    assert job.override_args == ["diameter=30", "resume=True"]
 
 
 def test_a_job_that_was_running_when_the_machine_died_is_resumed(tmp_path):
