@@ -1,0 +1,275 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_a_control_is_a_gene_or_a_guide.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_a_control_that_matched_says_nothing": "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_original_quiet_control_cases_keep_their_warning_check[test_a_control_that_matched_says_nothing]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_an_empty_control_list_is_not_warned_about": "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_original_quiet_control_cases_keep_their_warning_check[test_an_empty_control_list_is_not_warned_about]"
+  },
+  "literal_class_case_contracts": {
+    "test_a_control_that_matched_says_nothing": [
+      {
+        "condition": [
+          "nc",
+          "other"
+        ]
+      },
+      "a"
+    ],
+    "test_an_empty_control_list_is_not_warned_about": [
+      {
+        "condition": [
+          "other"
+        ]
+      },
+      null
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_control_that_matched_says_nothing": "({'condition': ['nc', 'other']}, 'a')",
+    "test_an_empty_control_list_is_not_warned_about": "({'condition': ['other']}, None)"
+  },
+  "contract_scope": "Preserve the exact TestItSaysWhenAControlMatchedNothing class, self/capsys fixtures, local helper import, ordered native condition lists, negative-control string a or None, inline pd.DataFrame construction, original trailing None/None arguments and native \"WARNING\" not in capsys.readouterr().out assertion. Every other original class, method, import, library spelling, prefix calculation, Series/index case, strict refusal and warning-detail assertion retains executable AST and relative order. No exact-message, warning-count or stronger control-matching assertion is introduced.",
+  "collected_before": [
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_without_a_measured_prefix_a_two_part_name_is_a_guide",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_two_underscores_take_everything_after_the_first",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_no_underscore_is_a_gene[one_underscore_with_a_common_head]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_one_underscore_without_a_common_head_is_a_guide",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_no_underscore_is_a_gene[no_underscore]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_it_measures_the_prefix_itself_when_given_the_names",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_a_name_with_a_head_the_data_dropped_matches_whole_values_only[it_is_not_substring_matching_by_another_route]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_the_bare_gene_and_the_library_spelling_agree",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_a_name_with_a_head_the_data_dropped_matches_whole_values_only[a_head_the_library_does_use_is_left_alone]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_a_library_spelling_still_finds_the_gene",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_a_name_with_a_head_the_data_dropped_matches_whole_values_only[a_control_that_is_simply_wrong_is_not_rescued]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_a_name_with_a_head_the_data_dropped_matches_whole_values_only[a_name_that_is_nothing_but_a_trailing_separator_matches_nothing]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_the_same_name_still_raises_under_strict",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestNoControlIsALegalAnswer::test_a_blank_matches_no_row",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestNoControlIsALegalAnswer::test_blank_resolves_to_nothing[   ]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestNoControlIsALegalAnswer::test_blank_resolves_to_nothing[]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestNoControlIsALegalAnswer::test_blank_resolves_to_nothing[None]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestNoControlIsALegalAnswer::test_a_list_drops_its_blanks",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhatItMatched::test_the_note_names_the_level_and_the_value",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhatItMatched::test_the_note_carries_the_counts_when_it_has_them",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhatItMatched::test_a_spec_is_hashable_so_it_can_be_deduplicated",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItTakesTheContainersCallersActuallyHave::test_common_prefix_takes_a_series",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItTakesTheContainersCallersActuallyHave::test_a_series_of_names_is_accepted",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItTakesTheContainersCallersActuallyHave::test_a_series_of_controls_is_accepted",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItTakesTheContainersCallersActuallyHave::test_an_empty_series_is_no_controls",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_a_control_that_matches_nothing_is_named",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_strict_is_still_available_for_a_caller_that_knows",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_no_control_selects_no_rows_and_says_nothing",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_a_control_that_matched_says_nothing",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_an_empty_control_list_is_not_warned_about",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_the_share_is_adjustable_and_documented",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_it_counts_distinct_names_not_rows",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_a_library_with_no_shared_tag_has_no_prefix",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_an_empty_library_has_no_prefix",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_it_finds_the_organism_tag",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_a_minority_tag_is_not_common",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::test_the_resolved_control_documents_every_stored_field",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOneMatcherForEveryCallSite::test_the_guide_level_matcher_still_matches_whole_guides",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOneMatcherForEveryCallSite::test_the_level_matcher_reads_a_prefixed_control",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOneMatcherForEveryCallSite::test_no_controls_selects_nothing_rather_than_raising",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOneMatcherForEveryCallSite::test_a_gene_control_takes_every_guide_of_that_gene",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOnlyAThreePartNameCarriesASpeciesTag::test_a_single_guide_library_has_no_prefix",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOnlyAThreePartNameCarriesASpeciesTag::test_and_that_guide_still_resolves_as_a_guide",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOnlyAThreePartNameCarriesASpeciesTag::test_one_gene_two_guides_is_not_a_prefix_either[one_gene_two_guides_is_not_a_prefix_either]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOnlyAThreePartNameCarriesASpeciesTag::test_one_gene_two_guides_is_not_a_prefix_either[three_part_names_give_up_their_organism]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheMaintainersFourSpellings::test_the_two_guide_spellings_agree_too",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheMaintainersFourSpellings::test_they_all_land_on_the_same_thirty",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMixedFormsInOneList::test_each_entry_is_read_on_its_own",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMatching::test_a_gene_uses_the_gene_column_when_there_is_one",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMatching::test_a_guide_takes_exactly_one[a_guide_takes_exactly_one]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMatching::test_a_longer_gene_id_is_not_claimed_by_a_shorter_one",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMatching::test_a_gene_takes_every_guide_of_that_gene",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMatching::test_a_guide_takes_exactly_one[it_never_matches_a_substring]"
+  ],
+  "collected_after": [
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_no_control_selects_no_rows_and_says_nothing",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_a_control_that_matches_nothing_is_named",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_strict_is_still_available_for_a_caller_that_knows",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_original_quiet_control_cases_keep_their_warning_check[test_an_empty_control_list_is_not_warned_about]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_original_quiet_control_cases_keep_their_warning_check[test_a_control_that_matched_says_nothing]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOnlyAThreePartNameCarriesASpeciesTag::test_a_single_guide_library_has_no_prefix",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOnlyAThreePartNameCarriesASpeciesTag::test_and_that_guide_still_resolves_as_a_guide",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOnlyAThreePartNameCarriesASpeciesTag::test_one_gene_two_guides_is_not_a_prefix_either[one_gene_two_guides_is_not_a_prefix_either]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOnlyAThreePartNameCarriesASpeciesTag::test_one_gene_two_guides_is_not_a_prefix_either[three_part_names_give_up_their_organism]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_one_underscore_without_a_common_head_is_a_guide",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_no_underscore_is_a_gene[one_underscore_with_a_common_head]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_two_underscores_take_everything_after_the_first",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_it_measures_the_prefix_itself_when_given_the_names",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_without_a_measured_prefix_a_two_part_name_is_a_guide",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheFourCases::test_no_underscore_is_a_gene[no_underscore]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMixedFormsInOneList::test_each_entry_is_read_on_its_own",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestNoControlIsALegalAnswer::test_blank_resolves_to_nothing[]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestNoControlIsALegalAnswer::test_blank_resolves_to_nothing[None]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestNoControlIsALegalAnswer::test_a_blank_matches_no_row",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestNoControlIsALegalAnswer::test_blank_resolves_to_nothing[   ]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestNoControlIsALegalAnswer::test_a_list_drops_its_blanks",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItTakesTheContainersCallersActuallyHave::test_an_empty_series_is_no_controls",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItTakesTheContainersCallersActuallyHave::test_a_series_of_names_is_accepted",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItTakesTheContainersCallersActuallyHave::test_common_prefix_takes_a_series",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItTakesTheContainersCallersActuallyHave::test_a_series_of_controls_is_accepted",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::test_the_resolved_control_documents_every_stored_field",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheMaintainersFourSpellings::test_they_all_land_on_the_same_thirty",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheMaintainersFourSpellings::test_the_two_guide_spellings_agree_too",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_a_name_with_a_head_the_data_dropped_matches_whole_values_only[a_control_that_is_simply_wrong_is_not_rescued]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_the_bare_gene_and_the_library_spelling_agree",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_a_library_spelling_still_finds_the_gene",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_a_name_with_a_head_the_data_dropped_matches_whole_values_only[it_is_not_substring_matching_by_another_route]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_the_same_name_still_raises_under_strict",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_a_name_with_a_head_the_data_dropped_matches_whole_values_only[a_head_the_library_does_use_is_left_alone]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheDataHasAlreadyDroppedThePrefix::test_a_name_with_a_head_the_data_dropped_matches_whole_values_only[a_name_that_is_nothing_but_a_trailing_separator_matches_nothing]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhatItMatched::test_the_note_names_the_level_and_the_value",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhatItMatched::test_the_note_carries_the_counts_when_it_has_them",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhatItMatched::test_a_spec_is_hashable_so_it_can_be_deduplicated",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMatching::test_a_guide_takes_exactly_one[it_never_matches_a_substring]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMatching::test_a_longer_gene_id_is_not_claimed_by_a_shorter_one",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMatching::test_a_gene_takes_every_guide_of_that_gene",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMatching::test_a_guide_takes_exactly_one[a_guide_takes_exactly_one]",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestMatching::test_a_gene_uses_the_gene_column_when_there_is_one",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOneMatcherForEveryCallSite::test_the_guide_level_matcher_still_matches_whole_guides",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOneMatcherForEveryCallSite::test_no_controls_selects_nothing_rather_than_raising",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOneMatcherForEveryCallSite::test_the_level_matcher_reads_a_prefixed_control",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestOneMatcherForEveryCallSite::test_a_gene_control_takes_every_guide_of_that_gene",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_the_share_is_adjustable_and_documented",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_a_minority_tag_is_not_common",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_an_empty_library_has_no_prefix",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_it_counts_distinct_names_not_rows",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_it_finds_the_organism_tag",
+    "tests/test_a_control_is_a_gene_or_a_guide.py::TestTheCommonPrefixIsMeasured::test_a_library_with_no_shared_tag_has_no_prefix"
+  ],
+  "tests_before": {
+    "passed": 53,
+    "seconds": 9.2
+  },
+  "tests_after": {
+    "passed": 53,
+    "seconds": 8.46
+  },
+  "coverage_scope": "Cover spacr.ml under the complete selected control-name test module, rather than the full suite or fitted-model behavior. Read the complete 442-line test module, full control_names source, ML imports and the reached label_control_condition, _level_control_rows and _say_when_a_control_matched_nothing helpers. Existing tests use small string libraries, pandas Series/DataFrames, identifier parsing, row masks, simple label/count operations and captured console output. No model is fitted or trained, no scientific plot or GUI is constructed, and no image reader, database/file workflow, live network, download or GPU operation runs. Heavy ML libraries are imported through the existing module; their fitting workflows are not invoked. Set the private offline control before all scheduled phases and hide CUDA. Repository production/settings names, defaults, schemas and categories remain unchanged. The isolated worktree is on the required mnt2 disk and starts from the freshly fetched c9 nightly base.",
+  "coverage_before": {
+    "covered_lines": 348,
+    "num_statements": 4858,
+    "percent_covered": 5.548835802842455,
+    "percent_covered_display": "6",
+    "missing_lines": 4510,
+    "excluded_lines": 0,
+    "percent_statements_covered": 7.1634417455743105,
+    "percent_statements_covered_display": "7",
+    "num_branches": 1756,
+    "num_partial_branches": 5,
+    "covered_branches": 19,
+    "missing_branches": 1737,
+    "percent_branches_covered": 1.082004555808656,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_after": {
+    "covered_lines": 348,
+    "num_statements": 4858,
+    "percent_covered": 5.548835802842455,
+    "percent_covered_display": "6",
+    "missing_lines": 4510,
+    "excluded_lines": 0,
+    "percent_statements_covered": 7.1634417455743105,
+    "percent_statements_covered_display": "7",
+    "num_branches": 1756,
+    "num_partial_branches": 5,
+    "covered_branches": 19,
+    "missing_branches": 1737,
+    "percent_branches_covered": 1.082004555808656,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "24fd784dbf834e4614e850db296ad227aaf6cfc21c7d13fddc0095075c7f3a12",
+  "production_source_sha256": "82949b6836e634415613c75099b3c8dc841a194f8f2307eb1c102b712a8c2fcd",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "matched-controls-incorrectly-emit-a-warning",
+      "source_variant": {
+        "path": "spacr/ml.py",
+        "line": 2275,
+        "old": "if value in (None, '') or int(counts.get(tag, 0)):",
+        "new": "if value in (None, ''):"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_a_control_that_matched_says_nothing"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_a_control_that_matched_says_nothing"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_original_quiet_control_cases_keep_their_warning_check[test_a_control_that_matched_says_nothing]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_original_quiet_control_cases_keep_their_warning_check[test_a_control_that_matched_says_nothing]"
+        ],
+        "application_markers": 1
+      }
+    },
+    {
+      "mutant": "unspecified-controls-incorrectly-emit-a-warning",
+      "source_variant": {
+        "path": "spacr/ml.py",
+        "line": 2275,
+        "old": "if value in (None, '') or int(counts.get(tag, 0)):",
+        "new": "if int(counts.get(tag, 0)):"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_an_empty_control_list_is_not_warned_about"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_an_empty_control_list_is_not_warned_about"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_original_quiet_control_cases_keep_their_warning_check[test_an_empty_control_list_is_not_warned_about]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_control_is_a_gene_or_a_guide.py::TestItSaysWhenAControlMatchedNothing::test_original_quiet_control_cases_keep_their_warning_check[test_an_empty_control_list_is_not_warned_about]"
+        ],
+        "application_markers": 1
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Use two precise private import-loader faults in the existing warning guard before and after: remove the matched-row guard so an already matched control reaches the existing WARNING print; remove the absent-value guard so unspecified controls reach that print. Each selects the same one original/mapped matched or unspecified-control case and must fail the unchanged native substring-absence assertion on capsys output. These faults establish sensitivity to an unwanted WARNING, without claiming exact warning text/count, independent negative-versus-positive guard coverage or fitted-model correctness. Repository production/settings files remain unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_a_control_is_a_gene_or_a_guide.py",
+      "line": 368,
+      "symbol": "test_original_quiet_control_cases_keep_their_warning_check",
+      "new": "Preserve each original quiet control case and its native captured-warning check.",
+      "old": {
+        "test_a_control_that_matched_says_nothing": null,
+        "test_an_empty_control_list_is_not_warned_about": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
