@@ -388,3 +388,10 @@ def test_a_run_with_a_label_queue_writes_the_pending_queue(tmp_path):
                                    "ops_cell_cycle_label_queue": 50}, str(destination))
     pending = pd.read_csv(os.path.join(out["label_queue"]["folder"], "queue_pending.csv"))
     assert len(pending) == 50 and out["label_queue"]["labels"].endswith("labels.csv")
+
+
+def test_the_report_shows_the_dna_fit_and_the_checks_against_their_controls(tmp_path):
+    out, _cells_, _table, _checks = _run(tmp_path, _base(tmp_path))
+    page = open(out["report"], encoding="utf-8").read()
+    assert page.count("<img src='data:image/png;base64,") == 2
+    assert "against its control" in page and "S2" in page
