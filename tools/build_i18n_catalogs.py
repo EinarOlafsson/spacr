@@ -4783,6 +4783,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "convert.py")
     # Item 985: the OME-Zarr project converter reports through tr().
     paths.add(ROOT / "spacr" / "ome_zarr_convert.py")
+    paths.add(ROOT / "spacr" / "ome_zarr_registration.py")
     paths.add(ROOT / "spacr" / "regression_backends.py")
     paths.add(ROOT / "spacr" / "object_classifier.py")
     paths.add(ROOT / "spacr" / "core.py")
@@ -4828,7 +4829,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             }))
             continue
         if path == source_root / "image_store.py":
-            found.update(_ngff06_runtime_sources(tree, {"PlateWriter.__init__"}))
+            found.update(_ngff06_runtime_sources(tree, {"PlateWriter.__init__", "PlateWriter.write_field"}))
             continue
         if path == source_root / "ops_engine.py":
             found.update(_ngff06_runtime_sources(tree, {"_ph_ngff_version"}))

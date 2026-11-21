@@ -28,6 +28,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "uniprot.py", "validate.py", "torch_artifacts.py",
         "classification_pixels.py", "crop_loader.py", "crop_store.py",
         "crops.py", "ops_engine.py", "ome_zarr.py", "image_store.py",
+        "ome_zarr_registration.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)

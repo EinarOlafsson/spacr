@@ -103,6 +103,9 @@ class PlateWriter:
     :param ngff_version: ``'0.5'`` (the default) or ``'0.6'`` (item 1007):
         the OME-Zarr version of every group in the store. One store holds
         one version, so a store started in the other one is refused.
+    :param registration: optional field-number to OPS registration-row mapping.
+        Requires version 0.6 and pixel coordinates (spacing=None). Existing
+        stores must use the same registration mode.
 
     Fields are written whole with :meth:`write_field`; the plate and well
     metadata are rewritten from the ledger after each field, so a reader
@@ -113,7 +116,8 @@ class PlateWriter:
 
     def __init__(self, root: Any, plate: str, *,
                  channel_names: Optional[Sequence[str]] = None,
-                 spacing=None, ngff_version: str = "0.5"):
+                 spacing=None, ngff_version: str = "0.5",
+                 registration: Optional[Mapping[Any, Mapping[str, Any]]] = None):
         """Open (or start) the plate store and read its commit ledger."""
         from .ome_zarr import require_zarr
         from .qt.i18n import tr
@@ -128,6 +132,12 @@ class PlateWriter:
             raise ValueError(tr(
                 "The plate store writes OME-Zarr 0.5 or 0.6, not {value!r}.",
                 value=ngff_version))
+        self.registration = (None if registration is None else
+                             {str(key): value for key, value in registration.items()})
+        if self.registration is not None and (self.ngff_version != "0.6" or spacing is not None):
+            raise ValueError(tr(
+                "Stored registration requires OME-Zarr 0.6 and pixel coordinates; "
+                "use ngff_version='0.6' and spacing=None, or disable registration."))
         self.path.mkdir(parents=True, exist_ok=True)
         root_json = self.path / "zarr.json"
         if not root_json.is_file():
@@ -148,6 +158,11 @@ class PlateWriter:
                 if line.strip():
                     entry = json.loads(line)
                     self._committed[entry["key"]] = entry
+        if any(bool(entry.get("registration", False)) != (self.registration is not None)
+               for entry in self._committed.values()):
+            raise ValueError(tr(
+                "This plate store uses another registration mode; keep "
+                "ome_zarr_store_registration unchanged or write to a new folder."))
 
     def committed(self, well: str, field: Any) -> bool:
         """Whether the field is written and recorded.
@@ -190,6 +205,19 @@ class PlateWriter:
             if np.ndim(mask) != 2:
                 raise ValueError(f"field {well}/{field}: label image {name!r} has "
                                  f"{np.ndim(mask)} axes; only (Y, X) is written")
+        metadata, label_metadata = {}, {}
+        if self.registration is not None:
+            from .ome_zarr_registration import registration_metadata
+            from .qt.i18n import tr
+
+            record = self.registration.get(str(field))
+            if record is None:
+                raise ValueError(tr(
+                    "Field {field} has no registration table row; complete the "
+                    "OPS registration before exporting.", field=field))
+            axes = ["c", "y", "x"] if image is not None and np.ndim(image) == 3 else ["y", "x"]
+            metadata = registration_metadata(record, axes=axes, ngff_version=self.ngff_version)
+            label_metadata = registration_metadata(record, axes=["y", "x"], ngff_version=self.ngff_version)
         key = _field_key(well, field)
         target = self.path / key
         if target.exists():
@@ -203,7 +231,7 @@ class PlateWriter:
                 channel_names=self.channel_names if data.ndim == 3 else None,
                 ngff_version=self.ngff_version, name=key,
                 chunks=_field_chunks(data.shape), shards=False,
-                compressor=FIELD_CODEC, compression_level=FIELD_CODEC_LEVEL))
+                compressor=FIELD_CODEC, compression_level=FIELD_CODEC_LEVEL, **metadata))
         else:
             self.zarr.open_group(str(target), mode="w", zarr_format=3)
         names = []
@@ -215,7 +243,7 @@ class PlateWriter:
                 tmp, m, axes=["y", "x"], spacing=self.spacing,
                 downsample="stride", ngff_version=self.ngff_version, name=str(name),
                 chunks=_field_chunks(m.shape), shards=False, compressor=FIELD_CODEC,
-                compression_level=FIELD_CODEC_LEVEL))
+                compression_level=FIELD_CODEC_LEVEL, **label_metadata))
             self._set_attrs(label_dir, {"image-label": (
                 {"version": "0.5"} if self.ngff_version == "0.5" else {})})
             names.append(str(name))
@@ -248,6 +276,8 @@ class PlateWriter:
         """Record the field in the ledger and rewrite the plate metadata."""
         entry = {"key": key, "well": str(well), "field": int(field),
                  "labels": labels, "image": bool(has_image)}
+        if self.registration is not None:
+            entry["registration"] = True
         self._committed[key] = entry
         ledger = self.path / _LEDGER
         with open(ledger, "a", encoding="utf-8") as handle:

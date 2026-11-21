@@ -8173,7 +8173,9 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
 
         writer = PlateWriter(os.path.join(root, "merged", "phenotype"), plate,
                               channel_names=channels,
-                              ngff_version=_ph_ngff_version(settings))
+                              ngff_version=_ph_ngff_version(settings),
+                              registration=(by_site if settings.get("ome_zarr_store_registration")
+                                            else None))
     tasks = []
     for site in sites:
         out_path = _ph_merged_path(root, plate, well, site, image_format)
