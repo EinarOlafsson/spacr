@@ -1760,7 +1760,9 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
     print(f'All files concatenated and saved to:{channel_stack_loc}')
     return channel_stack_loc
 
-def _normalize_img_batch(stack, channels, save_dtype, settings, progress=None):
+def _normalize_img_batch(stack, channels, save_dtype, settings, progress=None,
+                         *, field_ids=None, field_shapes=None,
+                         source_channels=None, normalization_scope=None):
     """
     Normalize the stack of images.
 
@@ -1788,14 +1790,128 @@ def _normalize_img_batch(stack, channels, save_dtype, settings, progress=None):
         progress (callable, optional): called as ``progress(done, total)``
             after each channel instead of printing a ``Normalizing`` line, so
             a caller that normalizes in batches can count across the batches.
+        field_ids (sequence, optional): stable field identities for exact
+            saved-run normalization. Fresh runs retain cohort estimates;
+            replay uses the recorded bounds for each field.
+        field_shapes (sequence, optional): spatial shapes before batch padding,
+            so source identity does not depend on the surrounding fields.
+        source_channels (sequence, optional): original channel identities when
+            the caller remaps selected channels before normalization.
+        normalization_scope (str, optional): object role when separate role
+            passes select and normalize different channel sets.
 
     Returns:
         numpy.ndarray: The normalized stack.
     """
+    if field_ids is not None:
+        return _normalize_recorded_batch(
+            stack, channels, save_dtype, settings, field_ids, field_shapes,
+            source_channels, normalization_scope, progress)
     normalized_stack = np.zeros_like(stack, dtype=np.float32)
     return _normalize_img_channels(
         normalized_stack, channels, save_dtype, settings,
         lambda channel: stack[..., channel], progress=progress)
+
+
+def _normalization_profile(settings, channel):
+    """Return the effective floor, signal anchor and removal switch of a channel."""
+    from .organelle_types import _background_switch_key
+
+    background = settings.get('background', 100)
+    signal_threshold = settings.get('Signal_to_noise', 10) * background
+    remove_background = settings.get('remove_background', False)
+    for role in ('nucleus', 'cell', 'pathogen'):
+        if settings.get(f'{role}_channel') is not None and channel == settings[f'{role}_channel']:
+            background = settings[f'{role}_background']
+            signal_threshold = settings[f'{role}_signal_to_noise'] * background
+            remove_background = settings[f'remove_background_{role}']
+    for role in enabled_organelle_roles(settings):
+        if channel != settings.get(f'{role}_channel'):
+            continue
+        role_background = settings.get(f'{role}_background')
+        if role_background is not None:
+            background = role_background
+        role_signal_to_noise = settings.get(f'{role}_signal_to_noise')
+        if role_signal_to_noise is None:
+            role_signal_to_noise = settings.get('Signal_to_noise', 10)
+        signal_threshold = role_signal_to_noise * background
+        role_remove_background = settings.get(
+            _background_switch_key(role), settings.get(f'remove_background_{role}'))
+        if role_remove_background is not None:
+            remove_background = role_remove_background
+    return background, signal_threshold, remove_background
+
+
+def _normalize_recorded_batch(stack, channels, save_dtype, settings, field_ids,
+                              field_shapes, source_channels, scope, progress):
+    """Record cohort bounds per field or apply validated saved bounds without fitting."""
+    from .qt.i18n import tr
+    from .run_journal import (
+        _record_resolved_parameter, _resolved_parameter, _resolved_parameters,
+        _resolved_source)
+
+    channels = [int(channel) for channel in channels]
+    field_ids = [str(field_id) for field_id in field_ids]
+    shapes = ([tuple(shape) for shape in field_shapes] if field_shapes is not None
+              else [stack.shape[1:-1]] * len(stack))
+    if len(field_ids) != len(stack) or len(shapes) != len(stack):
+        raise ValueError(tr("Normalization field identities must match the image batch."))
+    configuration = {
+        'algorithm': 'cohort-percentile-v1',
+        'channels': channels,
+        'source_channels': list(source_channels) if source_channels is not None else channels,
+        'profiles': [list(_normalization_profile(settings, channel)) for channel in channels],
+        'lower_percentile': settings['lower_percentile'],
+        'save_dtype': np.dtype(save_dtype).str,
+    }
+    kind = 'normalization' if scope is None else f'normalization:{scope}'
+    _resolved_parameters(settings)
+    identities = []
+    records = []
+    for index, (field_id, shape) in enumerate(zip(field_ids, shapes)):
+        region = tuple(slice(0, size) for size in shape)
+        source = _resolved_source(stack[(index, *region, slice(None))][..., channels])
+        identities.append(source)
+        found, value = _resolved_parameter(settings, field_id, kind, source, configuration)
+        if found:
+            try:
+                saved_shape = tuple(int(size) for size in value['normalized_shape'])
+                value = {channel: [float(bound) for bound in value['bounds'][str(channel)]]
+                         for channel in channels}
+                if any(len(bounds) != 2 or not np.isfinite(bounds).all()
+                       for bounds in value.values()):
+                    raise ValueError
+            except (KeyError, TypeError, ValueError):
+                raise ValueError(tr("Saved normalization bounds for field {field} are incomplete or invalid.").format(field=field_id)) from None
+            if saved_shape != stack.shape[1:]:
+                raise ValueError(tr("Saved normalization for field {field} requires padded shape {saved}; the current batch uses {current}.").format(
+                    field=field_id, saved=saved_shape, current=stack.shape[1:]))
+        records.append(value if found else None)
+    normalized = np.zeros_like(stack, dtype=np.float32)
+    fresh_bounds = {}
+    if any(record is None for record in records):
+        fresh_settings = dict(settings, _normalization_record=fresh_bounds)
+        normalized = _normalize_img_channels(
+            normalized, channels, save_dtype, fresh_settings,
+            lambda channel: stack[..., channel], progress=progress)
+        if isinstance(settings.get('_normalization_record'), dict):
+            settings['_normalization_record'].update(fresh_bounds)
+    for index, (field_id, source, recorded) in enumerate(zip(field_ids, identities, records)):
+        if recorded is None:
+            _record_resolved_parameter(
+                settings, field_id, kind, source, configuration,
+                {'bounds': {str(channel): fresh_bounds.get(channel, [0.0, 0.0])
+                            for channel in channels},
+                 'normalized_shape': list(stack.shape[1:])})
+            continue
+        replay_settings = dict(settings, _normalization_fixed=recorded)
+        replay_settings.pop('_normalization_record', None)
+        normalized[index:index + 1] = _normalize_img_channels(
+            np.zeros_like(stack[index:index + 1], dtype=np.float32), channels,
+            save_dtype, replay_settings,
+            lambda channel: stack[index:index + 1, ..., channel],
+            progress=progress)
+    return normalized.astype(save_dtype, copy=False)
 
 
 def _normalizing_reporter(batch_number, batch_total):
@@ -1836,50 +1952,11 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
 
     channels = [int(c) for c in channels]
 
-    from .organelle_types import _background_switch_key
-
-    organelle_slot_channels = [
-        (role, settings.get(f'{role}_channel'))
-        for role in enabled_organelle_roles(settings)]
-
     time_ls = []
     for i, channel in enumerate(channels):
         output_column = channel if output_columns is None else output_columns[channel]
         start = time.time()
-        background = settings.get('background', 100)
-        signal_threshold = settings.get('Signal_to_noise', 10) * background
-        remove_background = settings.get('remove_background', False)
-
-        if settings.get('nucleus_channel') is not None and channel == settings['nucleus_channel']:
-            background = settings['nucleus_background']
-            signal_threshold = settings['nucleus_signal_to_noise']*settings['nucleus_background']
-            remove_background = settings['remove_background_nucleus']
-
-        if settings.get('cell_channel') is not None and channel == settings['cell_channel']:
-            background = settings['cell_background']
-            signal_threshold = settings['cell_signal_to_noise']*settings['cell_background']
-            remove_background = settings['remove_background_cell']
-
-        if settings.get('pathogen_channel') is not None and channel == settings['pathogen_channel']:
-            background = settings['pathogen_background']
-            signal_threshold = settings['pathogen_signal_to_noise']*settings['pathogen_background']
-            remove_background = settings['remove_background_pathogen']
-
-        for role, role_channel in organelle_slot_channels:
-            if channel != role_channel:
-                continue
-            role_background = settings.get(f'{role}_background')
-            if role_background is not None:
-                background = role_background
-            role_signal_to_noise = settings.get(f'{role}_signal_to_noise')
-            if role_signal_to_noise is None:
-                role_signal_to_noise = settings.get('Signal_to_noise', 10)
-            signal_threshold = role_signal_to_noise * background
-            role_remove_background = settings.get(
-                _background_switch_key(role),
-                settings.get(f'remove_background_{role}'))
-            if role_remove_background is not None:
-                remove_background = role_remove_background
+        background, signal_threshold, remove_background = _normalization_profile(settings, channel)
 
         single_channel = load_channel(channel)
         if workspace_dir is not None and not hasattr(single_channel, '_spacr_native_cleanup'):
@@ -2684,6 +2761,9 @@ def _concatenate_and_normalize_impl(
                 normalized_stack = _normalize_img_batch(
                     stack=stack, channels=channels, save_dtype=save_dtype,
                     settings=settings,
+                    field_ids=[os.path.splitext(filename)[0]
+                               for filename in filenames_batch],
+                    field_shapes=[array.shape[:-1] for array in stack_ls],
                     progress=_normalizing_reporter(
                         batch_index - first_batch_index,
                         -(-nr_files // int(settings['batch_size']))))

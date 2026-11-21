@@ -489,7 +489,7 @@ def test_stream_masks_from_stack_normalises_like_v1_with_postprocess_settings(
 
         roles = []
 
-        def recording_normalise(*, stack, channels, save_dtype, settings):
+        def recording_normalise(*, stack, channels, save_dtype, settings, **kwargs):
             roles.append({key: settings[key] for key in
                           ("cell_channel", "nucleus_channel")})
             return np.asarray(stack, dtype=np.float32)
@@ -506,6 +506,60 @@ def test_stream_masks_from_stack_normalises_like_v1_with_postprocess_settings(
                 postprocess_settings={"percentiles": [2, 98]})
         assert roles == [{"cell_channel": None, "nucleus_channel": 0},
                          {"cell_channel": 0, "nucleus_channel": 1}]
+
+
+def test_direct_prefixed_backend_keeps_normalization_and_diameter_in_caller_settings(
+        tmp_path, monkeypatch):
+    """Direct V2 callers share one resolution context across backend settings copies."""
+    from spacr import _segmentation_backends
+    from spacr.settings import RESOLVED_PARAMETERS_KEY
+
+    class Backend:
+        """Provide the normal Cellpose 3 return structure without a model download."""
+
+        def __init__(self):
+            """Expose a named model and record its actual diameter calls."""
+            self.model = 'cyto3'
+            self.estimated_diameters = []
+            self.diameters = []
+
+        def eval(self, images, *, diameter=None, **kwargs):
+            """Return one spatial mask and full flow slots for every input."""
+            self.diameters.append(diameter)
+            return ([np.zeros(image.shape[:2], np.uint16) for image in images],
+                    [[None, None, None, None] for image in images], None)
+
+    model = Backend()
+
+    def load_backend(name, **kwargs):
+        """Keep backend routing real while replacing only the inference model."""
+        assert name == 'cellpose3'
+        assert kwargs['model_name'] == 'cellpose3:cyto3'
+        return model
+
+    monkeypatch.setattr(_segmentation_backends, '_load_backend', load_backend)
+    _plate, stacks = _stacks_for(tmp_path, name='shared', channels=(0,))
+    originals = [np.load(stack.path).copy() for stack in stacks]
+    identities = [stack.field_id for stack in stacks]
+    settings = dict(_NORMALISE)
+    assert RESOLVED_PARAMETERS_KEY not in settings
+    PV.stream_masks_from_stack(
+        stacks, model_name='cellpose3:cyto3', channels_for_cellpose=(0,),
+        diameter=17.25, batch_fields=2, postprocess_settings=settings,
+        object_type='cell')
+    fields = settings[RESOLVED_PARAMETERS_KEY]['fields']
+    assert set(fields) == set(identities)
+    for identity in identities:
+        assert set(fields[identity]) == {'normalization:cell', 'diameter:cell'}
+        assert fields[identity]['diameter:cell']['value'] == 17.25
+        assert fields[identity]['normalization:cell']['value']['bounds']['0']
+    assert model.diameters == [17.25]
+    assert {key: value for key, value in settings.items()
+            if key != RESOLVED_PARAMETERS_KEY} == _NORMALISE
+    for stack, original in zip(stacks, originals):
+        pixels = np.load(stack.path)
+        np.testing.assert_array_equal(pixels[..., :1], original)
+        assert not np.any(pixels[..., -1])
 
 
 def test_run_v2_segments_a_plate_or_refuses_the_calibrated_route_early(

@@ -656,6 +656,10 @@ def stream_masks_from_stack(
     """
     if not stacks:
         return stacks
+    if postprocess_settings is not None:
+        from .run_journal import _resolved_parameters
+
+        _resolved_parameters(postprocess_settings)
     calibrated = bool(getattr(psf_session, "calibrated", False))
     partitioned = calibrated and bool(psf_session.configuration.get("plate_partition"))
     if partitioned:
@@ -786,11 +790,13 @@ def stream_masks_from_stack(
 
         if postprocess_settings is not None:
             from .io import _normalize_img_batch
+            from .run_journal import _resolved_parameters
 
             selected_images = [
                 image[..., np.newaxis] if image.ndim == 2 else image
                 for image in selected_images
             ]
+            field_shapes = [image.shape[:-1] for image in selected_images]
             max_height = max(image.shape[0] for image in selected_images)
             max_width = max(image.shape[1] for image in selected_images)
             if (calibrated and len(selected_images) * max_height * max_width
@@ -809,6 +815,7 @@ def stream_masks_from_stack(
                 )
                 for image in selected_images
             ]
+            _resolved_parameters(postprocess_settings)
             normalization_settings = dict(postprocess_settings)
             from .object_roles import SEGMENTED_ROLES
             for role in SEGMENTED_ROLES:
@@ -824,6 +831,10 @@ def stream_masks_from_stack(
                 channels=range(selected_stack.shape[-1]),
                 save_dtype=np.float32,
                 settings=normalization_settings,
+                field_ids=[field.field_id for field in batch],
+                field_shapes=field_shapes,
+                source_channels=indices,
+                normalization_scope=object_type,
             )
             intensity_per_field = [
                 normalized_stack[index]
@@ -850,23 +861,38 @@ def stream_masks_from_stack(
                     model, cellpose_images, backend_settings, object_type,
                     min_size=int(min_size),
                     default_diameter=backend_settings['_default_diameter'],
-                    batch_size=max(8, len(cellpose_images)))
+                    batch_size=max(8, len(cellpose_images)),
+                    field_ids=([field.field_id for field in batch]
+                               if postprocess_settings is not None else None))
                 out = (masks,)
             else:
-                from .object import _mask_eval
-                out = _mask_eval(
-                    model, cellpose_images, site='mask_v2',
-                    settings=postprocess_settings,
-                    batch_size=len(cellpose_images),
+                from .object import (_diameter_eval, _estimates_per_image,
+                                     _per_image_diameter_masks)
+
+                eval_keywords = dict(
                     normalize=False,
                     channel_axis=-1,
                     min_size=int(min_size),
                     progress=True,
-                    diameter=diameter,
                     flow_threshold=float(flow_threshold),
                     cellprob_threshold=float(cellprob_threshold),
                     resample=bool(resample),
                 )
+                identities = ([field.field_id for field in batch]
+                              if postprocess_settings is not None else None)
+                if (postprocess_settings is not None
+                        and _estimates_per_image(postprocess_settings, object_type)):
+                    masks, _flows, _diameters = _per_image_diameter_masks(
+                        model, cellpose_images, eval_keywords, diameter,
+                        site='mask_v2', settings=postprocess_settings,
+                        field_ids=identities, object_type=object_type)
+                    out = (masks,)
+                else:
+                    out = _diameter_eval(
+                        model, cellpose_images, site='mask_v2',
+                        settings=postprocess_settings, object_type=object_type,
+                        field_ids=identities, batch_size=len(cellpose_images),
+                        diameter=diameter, **eval_keywords)
             masks = out[0]
             if isinstance(masks, np.ndarray) and masks.ndim == 2:
                 masks = [masks]

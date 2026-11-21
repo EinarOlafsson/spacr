@@ -982,6 +982,62 @@ def test_link_distance_can_be_set_explicitly(tmp_path):
     assert split["vacuole_link_distance"] == pytest.approx(1.0)
 
 
+@pytest.mark.parametrize('source_as_list', [False, True], ids=['scalar-src', 'list-src'])
+def test_saved_replication_linkage_replays_on_a_subset(tmp_path, monkeypatch, source_as_list):
+    """Both saved formats preserve the resolved threshold and original stage name."""
+    from pathlib import Path
+
+    from spacr import run_journal
+    from spacr.cli import load_settings_file
+    from spacr.submodules import analyze_replication
+
+    src = write_db(tmp_path / 'plate1', [
+        {'row': 'r1', 'column': 'c1', 'field': 'f1', 'cell': 1, 'n': 4},
+        {'row': 'r1', 'column': 'c1', 'field': 'f2', 'cell': 1, 'n': 4},
+    ])
+    database = os.path.join(src, 'measurements', 'measurements.db')
+    with sqlite3.connect(database) as connection:
+        connection.execute(
+            "UPDATE pathogen SET pathogen_equivalent_diameter_area = "
+            "CASE fieldID WHEN 'f1' THEN 1.0 ELSE 40.0 END")
+    source = [src] if source_as_list else src
+    settings = settings_for(source)
+    published = []
+
+    def capture(values):
+        """Capture resolved replication settings before they are persisted."""
+        published.append(dict(values))
+
+    def refuse_derivation(*args, **kwargs):
+        """Reject recomputing a threshold from the reduced parasite population."""
+        raise AssertionError('saved replication linkage was estimated again')
+
+    monkeypatch.setattr(run_journal, '_publish_resolved_settings', capture)
+    original = analyze_replication(settings)
+    assert original['vacuole_link_distance'] == 30.75
+    assert published[-1]['src'] == source
+    assert published[-1]['vacuole_key'] == 'spatial'
+    assert published[-1]['vacuole_link_distance'] == 30.75
+    stem = 'analyze_replication_list' if source_as_list else 'analyze_replication'
+    settings_dir = Path(src) / 'settings'
+    assert {path.name for path in settings_dir.iterdir()} == {f'{stem}.csv', f'{stem}.json'}
+    reloaded = [load_settings_file(str(settings_dir / f'{stem}.{suffix}'))
+                for suffix in ('csv', 'json')]
+    assert reloaded[0] == reloaded[1]
+    assert reloaded[0]['src'] == source
+    with sqlite3.connect(database) as connection:
+        connection.execute("DELETE FROM pathogen WHERE fieldID = 'f2'")
+        connection.execute("DELETE FROM cell WHERE fieldID = 'f2'")
+    monkeypatch.setattr(spacr.submodules, '_derive_vacuole_link_distance', refuse_derivation)
+    expected = original['vacuoles'].loc[original['vacuoles']['fieldID'] == 'f1']
+    for restored in reloaded:
+        replay = analyze_replication(restored)
+        assert replay['vacuole_key'] == 'spatial'
+        assert replay['vacuole_link_distance'] == 30.75
+        pd.testing.assert_frame_equal(replay['vacuoles'].reset_index(drop=True),
+                                      expected.reset_index(drop=True), check_exact=True)
+
+
 def test_non_finite_centroids_become_their_own_vacuoles(tmp_path):
     """A parasite whose centroid could not be computed cannot be clustered;
     it must not silently join every other unplaceable object."""

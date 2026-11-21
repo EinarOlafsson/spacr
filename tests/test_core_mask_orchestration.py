@@ -130,6 +130,47 @@ def test_only_the_configured_channels_are_segmented(run_dir, stubs):
     assert stubs["organelle"].n == 0
 
 
+def test_each_source_saves_its_own_resolved_settings_after_segmentation(
+        tmp_path, stubs, monkeypatch):
+    """Equal field names in separate sources never share models or replay records."""
+    import json
+    from spacr import object as masks
+    from spacr.core import preprocess_generate_masks
+    from spacr.run_journal import _record_resolved_parameter
+    from spacr.utils import load_settings
+
+    roots = [tmp_path / name for name in ('plate-a', 'plate-b')]
+    for root in roots:
+        (root / 'stack').mkdir(parents=True)
+        np.save(root / 'stack' / 'field.npy', np.zeros((3, 8, 8), np.uint16))
+    seen = []
+
+    def segment(src, settings, role, **kwargs):
+        """Resolve distinct fitted paths and exact diameters for each source."""
+        assert settings.get('illumination_model') is None
+        assert settings['spacr_resolved_parameters']['fields'] == {}
+        number = len(seen) + 1
+        settings['illumination_model'] = str(roots[number - 1] / 'model.npz')
+        _record_resolved_parameter(settings, 'field', 'diameter:cell', {}, {}, number + .125)
+        seen.append(settings['src'])
+        settings['src'] = src
+
+    monkeypatch.setattr(masks, 'generate_cellpose_masks_sam', segment)
+    settings = _mask_settings(roots[0], nucleus_channel=None,
+                              illumination_model=None, save=True)
+    settings['src'] = list(map(str, roots))
+    preprocess_generate_masks(settings)
+    assert seen == list(map(str, roots))
+    for number, root in enumerate(roots, 1):
+        folder = root / 'settings'
+        for restored in (load_settings(str(folder / 'gen_mask_settings.csv')),
+                         json.loads((folder / 'gen_mask_settings.json').read_text())):
+            assert restored['illumination_model'] == str(root / 'model.npz')
+            assert restored['src'] == str(root)
+            assert restored['spacr_resolved_parameters']['fields']['field'][
+                'diameter:cell']['value'] == number + .125
+
+
 def test_organelle_channel_uses_the_organelle_segmenter(run_dir, stubs):
     """organelle_channel routes to generate_organelle_masks_sam, not cellpose."""
     from spacr.core import preprocess_generate_masks
@@ -159,6 +200,20 @@ def test_existing_masks_are_not_regenerated(run_dir, stubs):
         run_dir, cell_channel=1, nucleus_channel=0))
 
     assert [c[0][2] for c in stubs["cellpose"].calls] == ["nucleus"]
+
+
+def test_saved_replay_reaches_validation_even_when_all_masks_exist(run_dir, stubs):
+    """Existing mask shapes are insufficient evidence for a saved parameter replay."""
+    from spacr.core import preprocess_generate_masks
+
+    folder = run_dir / 'masks' / 'cell_mask_stack'
+    folder.mkdir(parents=True)
+    for index in range(3):
+        np.save(folder / f'f{index}.npy', np.zeros((8, 8), np.uint16))
+    settings = _mask_settings(run_dir, nucleus_channel=None)
+    settings['spacr_resolved_parameters'] = {'version': 1, 'fields': {}}
+    preprocess_generate_masks(settings)
+    assert [call[0][2] for call in stubs['cellpose'].calls] == ['cell']
 
 
 def test_partial_mask_folder_is_regenerated(run_dir, stubs):

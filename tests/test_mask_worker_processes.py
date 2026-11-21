@@ -39,6 +39,12 @@ def _cpu_segmenter(src, settings, object_type, *, batch_paths, on_batch_done, ru
             checkpoint()
         target = Path(src) / f'{Path(path).stem}.npy'
         np.save(target, np.array([[0, 1], [1, 1]], dtype=np.uint16))
+        if settings.get('record_parameters'):
+            from spacr.run_journal import _record_resolved_parameter
+
+            _record_resolved_parameter(settings, Path(path).stem,
+                                       f'diameter:{object_type}', {}, {},
+                                       None if selected == '7' else 26.2450135792468)
         if not settings.get('omit'):
             on_batch_done(path)
         if settings.get('duplicate'):
@@ -80,6 +86,28 @@ def test_processes_run_in_parallel_with_disjoint_inputs_and_private_environments
     assert len(list(tmp_path.glob('*.npz'))) == 4
     assert updates[0]['completed_batches'] == []
     assert updates[-1] == result
+
+
+def test_spawned_workers_deliver_exact_parameters_before_completed_archives(tmp_path):
+    """Parent progress never exposes a completed mask without its replay values."""
+    assignments, environments = _setup(tmp_path)
+    settings = {'record_parameters': True}
+    observed = []
+
+    def progress(state):
+        """Check the parent record at each actual completion callback."""
+        fields = settings['spacr_resolved_parameters']['fields']
+        for path in state['completed_batches']:
+            name = Path(path).stem
+            expected = None if path in assignments[0] else 26.2450135792468
+            assert fields[name]['diameter:cell']['value'] == expected
+            observed.append(name)
+
+    result = _run_mask_workers(str(tmp_path), settings, 'cell', assignments,
+                               environments, segmenter=_cpu_segmenter,
+                               on_progress=progress)
+    assert len(result['completed_batches']) == 4
+    assert set(observed) == {'batch0', 'batch1', 'batch2', 'batch3'}
 
 
 @pytest.mark.parametrize('failure', ['fail', 'crash', 'duplicate', 'silent', 'omit'])

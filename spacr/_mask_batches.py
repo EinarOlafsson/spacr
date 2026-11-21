@@ -53,6 +53,11 @@ def _json_safe(settings):
     """
     kept = {}
     for key, value in dict(settings).items():
+        if key == 'spacr_resolved_parameters':
+            from .run_journal import _RESOLVED_PARAMETERS_LOCK, _validate_resolved_parameters
+
+            with _RESOLVED_PARAMETERS_LOCK:
+                value = _validate_resolved_parameters(value)
         try:
             json.dumps(value)
         except (TypeError, ValueError):
@@ -79,8 +84,10 @@ def _write_plan(masks_dir, stack_dir, batches, channels, settings, save_dtype, *
     :returns: the path of the plan file.
     """
     from .io import _replace_atomically
+    from .run_journal import _resolved_parameters
 
     masks_dir = os.fspath(masks_dir)
+    _resolved_parameters(settings)
     record = {
         'version': _PLAN_VERSION,
         'stack_dir': os.path.relpath(os.fspath(stack_dir), masks_dir),
@@ -96,7 +103,9 @@ def _write_plan(masks_dir, stack_dir, batches, channels, settings, save_dtype, *
     path = _plan_file(masks_dir)
     payload = json.dumps(record, indent=1).encode('utf-8')
     _replace_atomically(path, lambda handle: handle.write(payload), prefix='.spacr_plan_')
-    _CACHE.pop(path, None)
+    record['_masks_dir'] = masks_dir
+    record['_runtime_settings'] = settings
+    _CACHE[path] = (os.stat(path).st_mtime_ns, record)
     return path
 
 
@@ -161,7 +170,7 @@ def _batch_index_of(path):
     return None
 
 
-def _load_batch(plan, index):
+def _load_batch(plan, index, settings=None):
     """Build one normalised batch from its fields, exactly as the archive writer did.
 
     The fields are loaded, padded to the largest field of the batch when
@@ -170,10 +179,12 @@ def _load_batch(plan, index):
 
     :param plan: from :func:`_read_plan`.
     :param index: the batch number.
+    :param settings: active run settings, preserving replay state across workers.
     :returns: ``{'data', 'filenames', 'source_channels'}`` as the archive
         held them.
     """
     from .io import _normalize_img_batch, _normalizing_reporter
+    from .run_journal import _resolved_parameters
 
     masks_dir = plan['_masks_dir']
     stack_dir = os.path.normpath(os.path.join(masks_dir, plan['stack_dir']))
@@ -193,23 +204,31 @@ def _load_batch(plan, index):
         stack = np.stack(padded)
     else:
         stack = np.stack(arrays)
-    settings = dict(plan['settings'])
+    active_settings = (settings if settings is not None else
+                       plan.get('_runtime_settings', plan['settings']))
+    context = _resolved_parameters(active_settings)
+    plan['_runtime_settings'] = active_settings
+    settings = dict(active_settings)
     record = {}
     borrowed = int(index) in {int(i) for i in plan.get('borrowed', [])}
-    if borrowed:
+    if borrowed and not context.replay:
         settings['_normalization_fixed'] = _borrowed_values(plan, int(index))
         print(f'Batch {int(index) + 1} has only {len(names)} field(s); it is normalised '
               f'with the median percentiles of the other batches.')
-    else:
+    elif not context.replay:
         settings['_normalization_record'] = record
     normalised = _normalize_img_batch(
         stack=stack, channels=channels, save_dtype=np.dtype(plan['save_dtype']),
         settings=settings,
+        field_ids=[os.path.splitext(name)[0] for name in names],
+        field_shapes=[array.shape[:-1] for array in arrays],
         progress=_normalizing_reporter(int(index), len(plan['batches'])))
-    if record:
-        _record_normalisation(masks_dir, int(index), record)
+    _record_normalisation(
+        masks_dir, int(index), record if not borrowed and not context.replay else None,
+        settings=active_settings)
     normalised = normalised[..., channels]
     return {'data': normalised, 'filenames': np.asarray(names),
+            'spacr_resolved_parameters': settings['spacr_resolved_parameters'],
             'source_channels': np.asarray(channels, dtype=np.int64)}
 
 
@@ -402,7 +421,8 @@ def _resolve_plan(masks_dir, settings, *, free_vram=None, free_ram=None, log=pri
         + (f'; the last has {sizes[-1]} field(s) and borrows the median percentiles of the others.'
            if borrowed else '.'))
     path = _write_plan(masks_dir, os.path.join(masks_dir, plan['stack_dir']), batches,
-                       plan['channels'], plan['settings'], plan['save_dtype'],
+                       plan['channels'], plan.get('_runtime_settings', plan['settings']),
+                       plan['save_dtype'],
                        request=request, resolved=True,
                        extra={'batch_size_used': used, 'sizes': sizes,
                               'borrowed': borrowed, 'normalisation': {}})
@@ -420,26 +440,40 @@ def _model_resident():
         return False
 
 
-def _record_normalisation(masks_dir, index, values):
+def _record_normalisation(masks_dir, index, values, *, settings=None):
     """Record one batch's per-channel lower and upper percentiles in the plan.
 
     :param masks_dir: the ``masks`` folder.
     :param index: the batch number.
-    :param values: ``{channel: [lower, upper]}``.
+    :param values: ``{channel: [lower, upper]}``, or None to retain donor records.
+    :param settings: runtime settings that produced these field records.
     """
     from .io import _replace_atomically
 
     path = _plan_file(masks_dir)
+    previous = _read_plan(masks_dir)
     try:
         with open(path, encoding='utf-8') as handle:
             record = json.load(handle)
     except (OSError, ValueError):
         return
-    record.setdefault('normalisation', {})[str(int(index))] = {
-        str(int(channel)): [float(low), float(high)] for channel, (low, high) in values.items()}
+    if values is not None:
+        record.setdefault('normalisation', {})[str(int(index))] = {
+            str(int(channel)): [float(low), float(high)] for channel, (low, high) in values.items()}
+    runtime_settings = (settings if settings is not None else
+                        previous.get('_runtime_settings') if previous is not None else None)
+    if runtime_settings is not None:
+        from .run_journal import _RESOLVED_PARAMETERS_LOCK, _validate_resolved_parameters
+
+        with _RESOLVED_PARAMETERS_LOCK:
+            record['settings']['spacr_resolved_parameters'] = _validate_resolved_parameters(
+                runtime_settings['spacr_resolved_parameters'])
     payload = json.dumps(record, indent=1).encode('utf-8')
     _replace_atomically(path, lambda handle: handle.write(payload), prefix='.spacr_plan_')
-    _CACHE.pop(path, None)
+    record['_masks_dir'] = os.fspath(masks_dir)
+    if runtime_settings is not None:
+        record['_runtime_settings'] = runtime_settings
+    _CACHE[path] = (os.stat(path).st_mtime_ns, record)
 
 
 def _borrowed_values(plan, index):
@@ -455,6 +489,8 @@ def _borrowed_values(plan, index):
     masks_dir = plan['_masks_dir']
     others = [i for i in range(len(plan['batches'])) if i != int(index)]
     fresh = _read_plan(masks_dir) or plan
+    if '_runtime_settings' in plan:
+        fresh['_runtime_settings'] = plan['_runtime_settings']
     recorded = dict(fresh.get('normalisation', {}))
     for i in others:
         if str(i) not in recorded:
@@ -499,12 +535,13 @@ class _InMemoryBatch:
         return list(self._arrays)
 
 
-def _open_batch(path, **kwargs):
+def _open_batch(path, *, settings=None, **kwargs):
     """Open a batch archive, or build the batch the path names from the plan.
 
     :param path: an archive path. A file is opened with :func:`numpy.load`;
         a ``stack_<n>_norm.npz`` name with no file behind it is built from
         the plan in its folder.
+    :param settings: active run settings for field normalization replay.
     :param kwargs: passed to :func:`numpy.load` for a real archive.
     :returns: an object usable in a ``with`` block that answers ``['data']``
         and ``['filenames']``.
@@ -513,6 +550,10 @@ def _open_batch(path, **kwargs):
     path = os.fspath(path)
     resident = _RESIDENT.get(os.path.abspath(path))
     if resident is not None:
+        if settings is not None and 'spacr_resolved_parameters' in resident:
+            from .run_journal import _merge_resolved_parameters
+
+            _merge_resolved_parameters(settings, resident['spacr_resolved_parameters'])
         return resident
     if os.path.isfile(path):
         return np.load(path, **kwargs)
@@ -520,7 +561,7 @@ def _open_batch(path, **kwargs):
     plan = _read_plan(os.path.dirname(path)) if index is not None else None
     if plan is None or not 0 <= index < len(plan['batches']):
         raise FileNotFoundError(path)
-    return _InMemoryBatch(_load_batch(plan, index))
+    return _InMemoryBatch(_load_batch(plan, index, settings=settings))
 
 
 def _batch_paths(masks_dir, listing):
@@ -578,6 +619,8 @@ def _plan_records(plan):
 
     masks_dir = plan['_masks_dir']
     stack_dir = os.path.normpath(os.path.join(masks_dir, plan['stack_dir']))
+    signature_settings = {key: value for key, value in plan['settings'].items()
+                          if key != 'spacr_resolved_parameters'}
     owners, records = {}, []
     for batch in plan['batches']:
         name = _virtual_batch_name(batch['index'])
@@ -596,7 +639,8 @@ def _plan_records(plan):
         digest = hashlib.sha256(json.dumps({
             'fields': batch['fields'], 'sizes': sizes, 'mtimes': stamps,
             'channels': plan['channels'], 'dtype': plan['save_dtype'],
-            'settings': plan['settings']}, sort_keys=True).encode('utf-8')).hexdigest()
+            'settings': signature_settings},
+            sort_keys=True).encode('utf-8')).hexdigest()
         records.append({'path': os.path.join(os.path.realpath(masks_dir), name),
                         'sha256': digest, 'bytes': int(sum(sizes)),
                         'fields': list(batch['fields']), 'planes': len(plan['channels'])})
@@ -915,6 +959,11 @@ def _batch_first(mask_src, paths, roles, run_role, *, feeder=None, settings=None
     :returns: the feeder, for its counters.
     """
     plan = _read_plan(mask_src)
+    if settings is not None:
+        from .run_journal import _resolved_parameters
+
+        _resolved_parameters(settings)
+        plan['_runtime_settings'] = settings
     indices = [_batch_index_of(path) for path in paths]
     if feeder is None:
         from .object import _eval_tile_batch
@@ -926,6 +975,11 @@ def _batch_first(mask_src, paths, roles, run_role, *, feeder=None, settings=None
     try:
         for path in paths:
             _index, resident = feeder.next()
+            if settings is not None and 'spacr_resolved_parameters' in resident:
+                from .run_journal import _merge_resolved_parameters, _publish_resolved_settings
+
+                _merge_resolved_parameters(settings, resident['spacr_resolved_parameters'])
+                _publish_resolved_settings(settings)
             key = os.path.abspath(path)
             _RESIDENT[key] = resident
             try:
