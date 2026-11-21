@@ -1,0 +1,203 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_suggest_answers_when_the_database_says_no.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_rejections_need_the_annotation_column_too": "tests/test_suggest_answers_when_the_database_says_no.py::test_original_rejection_table_layouts_keep_their_result_maps[test_rejections_need_the_annotation_column_too]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_rejection_that_is_not_a_number_is_skipped": "tests/test_suggest_answers_when_the_database_says_no.py::test_original_rejection_table_layouts_keep_their_result_maps[test_a_rejection_that_is_not_a_number_is_skipped]"
+  },
+  "native_literal_contracts": {
+    "test_rejections_need_the_annotation_column_too": {
+      "python_types": [
+        "list",
+        "list",
+        "dict"
+      ],
+      "literal_repr": "(['png_path TEXT', 'test_verdict INTEGER'], [('/a.png', -1)], {})"
+    },
+    "test_a_rejection_that_is_not_a_number_is_skipped": {
+      "python_types": [
+        "list",
+        "list",
+        "dict"
+      ],
+      "literal_repr": "(['png_path TEXT', 'test INTEGER', 'test_verdict TEXT'], [('/a.png', None, '-1'), ('/b.png', None, '-x')], {'/a.png': 1})"
+    }
+  },
+  "case_contract_representations": {
+    "test_rejections_need_the_annotation_column_too": "(['png_path TEXT', 'test_verdict INTEGER'], [('/a.png', -1)], {})",
+    "test_a_rejection_that_is_not_a_number_is_skipped": "(['png_path TEXT', 'test INTEGER', 'test_verdict TEXT'], [('/a.png', None, '-1'), ('/b.png', None, '-x')], {'/a.png': 1})"
+  },
+  "contract_scope": "Exact original ordered native SQL column-string lists,row lists of tuples including None/negative-int/text values,expected native rejection dictionaries,tmp_path fixture,_table helper call/db_path binding and suggest.rejected_suggestions(db_path,test) native equality retained. Every other original unreadable-pragma/read/alter/collision/write/verdict/judgement-count/authorizer case,helper,fixture,import and pandas guard retains AST and relative order. Disjoint from audit45 judgement-count cases in this same file. Native literal repr/roundtrip report and upfront typed worker payload/repr evidence preserve tuple rows;actual inputs never JSON-decoded. No database-identity or message assertion is added.",
+  "collected_before": [
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_verdicts_for_no_crops_or_no_column_are_empty",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_no_annotation_column_means_no_verdict_column",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_rejection_that_is_not_a_number_is_skipped",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_unreadable_verdicts_are_reported_as_none",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_table_whose_columns_cannot_be_listed_has_no_suggestions",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_rejections_need_the_annotation_column_too",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_missing_columns_keep_their_original_judgement_counts[test_judgement_counts_without_a_verdict_column]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_an_unreadable_annotation_column_has_no_suggestions",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_judgement_counts_report_zero_for_what_cannot_be_read[test-expected0]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_crop_table_that_cannot_be_listed_gets_no_verdict_column",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_unreadable_rejections_are_reported_as_none",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_verdict_that_is_not_a_number_is_skipped",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_judgement_counts_report_zero_for_what_cannot_be_read[test_verdict-expected1]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_missing_columns_keep_their_original_judgement_counts[test_judgement_counts_without_an_annotation_column]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_collision_check_that_cannot_read_still_writes_only_empty_rows",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_missing_crop_table_gets_no_verdict_column",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_crop_table_that_cannot_be_altered_gets_no_verdict_column"
+  ],
+  "collected_after": [
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_judgement_counts_report_zero_for_what_cannot_be_read[test-expected0]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_an_unreadable_annotation_column_has_no_suggestions",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_table_whose_columns_cannot_be_listed_has_no_suggestions",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_verdict_that_is_not_a_number_is_skipped",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_missing_crop_table_gets_no_verdict_column",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_no_annotation_column_means_no_verdict_column",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_unreadable_verdicts_are_reported_as_none",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_verdicts_for_no_crops_or_no_column_are_empty",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_missing_columns_keep_their_original_judgement_counts[test_judgement_counts_without_a_verdict_column]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_original_rejection_table_layouts_keep_their_result_maps[test_rejections_need_the_annotation_column_too]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_original_rejection_table_layouts_keep_their_result_maps[test_a_rejection_that_is_not_a_number_is_skipped]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_judgement_counts_report_zero_for_what_cannot_be_read[test_verdict-expected1]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_missing_columns_keep_their_original_judgement_counts[test_judgement_counts_without_an_annotation_column]",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_unreadable_rejections_are_reported_as_none",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_crop_table_that_cannot_be_listed_gets_no_verdict_column",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_crop_table_that_cannot_be_altered_gets_no_verdict_column",
+    "tests/test_suggest_answers_when_the_database_says_no.py::test_a_collision_check_that_cannot_read_still_writes_only_empty_rows"
+  ],
+  "tests_before": {
+    "passed": 17,
+    "seconds": 3.46
+  },
+  "tests_after": {
+    "passed": 17,
+    "seconds": 3.78
+  },
+  "coverage_scope": "spacr.suggest under the complete selected SQLite-refusal helper module;not model suggestion/training or full-suite coverage. Complete current train6 test module reviewed,including landed audit45 judgement-count parametrisation;both selected original rejection cases and all other AST apart from that landed group match the reviewed pre-train6 snapshot. Selected rejection reader and production Suggest bytes unchanged from reviewed04 source. Unmeasured prior preparation preserved separately;its waiting baseline was cancelled before admission,then the pristine branch fast-forwarded to c9fddfc769 before any test or comparison. Existing tiny temporary SQLite png_list tables,at most three synthetic rows,real per-connection SQLite authorizer refusals,one small pandas frame and native metadata maps only. Image paths remain strings and are never opened. Database writes are only the original writes to temporary fixtures. No model scoring/fitting/training/clustering/analysis workflow/scientific chart/image reader/new reader/network/GPU. Upfront private SPACR_MODEL_DOWNLOAD=0 fixed for all phases prevents background discovery from existing imports. Original pandas guard must not skip. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 149,
+    "num_statements": 355,
+    "percent_covered": 39.524838012958966,
+    "percent_covered_display": "40",
+    "missing_lines": 206,
+    "excluded_lines": 0,
+    "percent_statements_covered": 41.971830985915496,
+    "percent_statements_covered_display": "42",
+    "num_branches": 108,
+    "num_partial_branches": 8,
+    "covered_branches": 34,
+    "missing_branches": 74,
+    "percent_branches_covered": 31.48148148148148,
+    "percent_branches_covered_display": "31"
+  },
+  "coverage_after": {
+    "covered_lines": 149,
+    "num_statements": 355,
+    "percent_covered": 39.524838012958966,
+    "percent_covered_display": "40",
+    "missing_lines": 206,
+    "excluded_lines": 0,
+    "percent_statements_covered": 41.971830985915496,
+    "percent_statements_covered_display": "42",
+    "num_branches": 108,
+    "num_partial_branches": 8,
+    "covered_branches": 34,
+    "missing_branches": 74,
+    "percent_branches_covered": 31.48148148148148,
+    "percent_branches_covered_display": "31"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "aec96720ef38d3d9286ed6a4abda1cebf5f4e1d706bc9750f2d1be3bd520716a",
+  "production_source_sha256": "30db9a2d6cbdad2d78534c45df8edd9efdb7582b6700a532c86ffcdbb49465b3",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "missing-annotation-fallback-invents-a-rejection",
+      "source_variant": {
+        "path": "spacr/suggest.py",
+        "line": 589,
+        "old": "        if not _has_column(db, png_table, annotation_column):\n            return out",
+        "new": "        if not _has_column(db, png_table, annotation_column):\n            return {\"unexpected.png\": 1}"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_suggest_answers_when_the_database_says_no.py::test_rejections_need_the_annotation_column_too"
+        ],
+        "failure_summary_lines": [
+          "tests/test_suggest_answers_when_the_database_says_no.py::test_rejections_need_the_annotation_column_too"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_suggest_answers_when_the_database_says_no.py::test_original_rejection_table_layouts_keep_their_result_maps[test_rejections_need_the_annotation_column_too]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_suggest_answers_when_the_database_says_no.py::test_original_rejection_table_layouts_keep_their_result_maps[test_rejections_need_the_annotation_column_too]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "nonnumeric-rejection-is-recorded-as-class-one",
+      "source_variant": {
+        "path": "spacr/suggest.py",
+        "line": 600,
+        "old": "            out[str(path)] = -int(value)\n        except (TypeError, ValueError):\n            continue",
+        "new": "            out[str(path)] = -int(value)\n        except (TypeError, ValueError):\n            out[str(path)] = 1"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_suggest_answers_when_the_database_says_no.py::test_a_rejection_that_is_not_a_number_is_skipped"
+        ],
+        "failure_summary_lines": [
+          "tests/test_suggest_answers_when_the_database_says_no.py::test_a_rejection_that_is_not_a_number_is_skipped"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_suggest_answers_when_the_database_says_no.py::test_original_rejection_table_layouts_keep_their_result_maps[test_a_rejection_that_is_not_a_number_is_skipped]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_suggest_answers_when_the_database_says_no.py::test_original_rejection_table_layouts_keep_their_result_maps[test_a_rejection_that_is_not_a_number_is_skipped]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults before and after:return a fabricated rejection map instead of the empty missing-annotation fallback;record an unparseable textual rejection as class one instead of skipping it. Each selects the same one original/mapped missing-annotation/nonnumeric-row case and must fail its unchanged native result-dictionary equality. First fault measures fallback-value sensitivity,not a stronger query-bypass claim. Exact original SQL fixtures,row tuple types,values and order retained. Repository production/settings/database files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "typed_parameter_payloads_verified": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_suggest_answers_when_the_database_says_no.py",
+      "line": 200,
+      "symbol": "test_original_rejection_table_layouts_keep_their_result_maps",
+      "new": "Preserve each original rejection table layout and its native result mapping.",
+      "old": {
+        "test_rejections_need_the_annotation_column_too": null,
+        "test_a_rejection_that_is_not_a_number_is_skipped": "In a TEXT column, ``'-x' < 0`` is compared as text and is TRUE."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
