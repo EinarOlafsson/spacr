@@ -1,0 +1,166 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_regression_annotation_uncovered_paths.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_regression_annotation_uncovered_paths.py::TestAnInclusiveFitAtChance::test_it_says_so_instead_of_printing_a_ratio": "tests/test_regression_annotation_uncovered_paths.py::TestAnInclusiveFitAtChance::test_leakage_report_summaries_keep_original_text_checks[test_it_says_so_instead_of_printing_a_ratio]",
+    "tests/test_regression_annotation_uncovered_paths.py::TestAnInclusiveFitAtChance::test_a_real_survival_is_reported_as_a_percentage": "tests/test_regression_annotation_uncovered_paths.py::TestAnInclusiveFitAtChance::test_leakage_report_summaries_keep_original_text_checks[test_a_real_survival_is_reported_as_a_percentage]"
+  },
+  "literal_case_contract_representations": {
+    "test_it_says_so_instead_of_printing_a_ratio": "(0.5, 0.6, None, 'at chance, so retained lift cannot be calculated', \"% of the fit's lift\")",
+    "test_a_real_survival_is_reported_as_a_percentage": "(0.9, 0.7, 0.5, \"50% of the fit's lift over chance survives\", 'cannot be calculated')"
+  },
+  "collected_before": [
+    "tests/test_regression_annotation_uncovered_paths.py::TestResolvingAStrategyThatIsAlreadyOne::test_even_one_the_menu_does_not_carry",
+    "tests/test_regression_annotation_uncovered_paths.py::TestResolvingAStrategyThatIsAlreadyOne::test_an_entry_is_returned_unchanged",
+    "tests/test_regression_annotation_uncovered_paths.py::TestAnInclusiveFitAtChance::test_a_real_survival_is_reported_as_a_percentage",
+    "tests/test_regression_annotation_uncovered_paths.py::TestAnInclusiveFitAtChance::test_one_fit_alone_says_neither",
+    "tests/test_regression_annotation_uncovered_paths.py::TestAnInclusiveFitAtChance::test_it_says_so_instead_of_printing_a_ratio",
+    "tests/test_regression_annotation_uncovered_paths.py::TestAStrategyThatIsDeclaredButNotBuilt::test_the_sentence_is_appended",
+    "tests/test_regression_annotation_uncovered_paths.py::TestAStrategyThatIsDeclaredButNotBuilt::test_an_implemented_one_does_not_claim_to_be_unbuilt"
+  ],
+  "collected_after": [
+    "tests/test_regression_annotation_uncovered_paths.py::TestAStrategyThatIsDeclaredButNotBuilt::test_the_sentence_is_appended",
+    "tests/test_regression_annotation_uncovered_paths.py::TestAStrategyThatIsDeclaredButNotBuilt::test_an_implemented_one_does_not_claim_to_be_unbuilt",
+    "tests/test_regression_annotation_uncovered_paths.py::TestAnInclusiveFitAtChance::test_leakage_report_summaries_keep_original_text_checks[test_it_says_so_instead_of_printing_a_ratio]",
+    "tests/test_regression_annotation_uncovered_paths.py::TestAnInclusiveFitAtChance::test_one_fit_alone_says_neither",
+    "tests/test_regression_annotation_uncovered_paths.py::TestAnInclusiveFitAtChance::test_leakage_report_summaries_keep_original_text_checks[test_a_real_survival_is_reported_as_a_percentage]",
+    "tests/test_regression_annotation_uncovered_paths.py::TestResolvingAStrategyThatIsAlreadyOne::test_even_one_the_menu_does_not_carry",
+    "tests/test_regression_annotation_uncovered_paths.py::TestResolvingAStrategyThatIsAlreadyOne::test_an_entry_is_returned_unchanged"
+  ],
+  "tests_before": {
+    "exit": 0,
+    "passed": 7,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 3.458,
+    "snapshot": "original-tests.py"
+  },
+  "tests_after": {
+    "exit": 0,
+    "passed": 7,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 3.072,
+    "snapshot": "proposed-tests.py"
+  },
+  "coverage_before": {
+    "covered_lines": 190,
+    "num_statements": 895,
+    "percent_covered": 17.16481639624253,
+    "percent_covered_display": "17",
+    "missing_lines": 705,
+    "excluded_lines": 0,
+    "percent_statements_covered": 21.22905027932961,
+    "percent_statements_covered_display": "21",
+    "num_branches": 276,
+    "num_partial_branches": 3,
+    "covered_branches": 11,
+    "missing_branches": 265,
+    "percent_branches_covered": 3.9855072463768115,
+    "percent_branches_covered_display": "4"
+  },
+  "coverage_after": {
+    "covered_lines": 190,
+    "num_statements": 895,
+    "percent_covered": 17.16481639624253,
+    "percent_covered_display": "17",
+    "missing_lines": 705,
+    "excluded_lines": 0,
+    "percent_statements_covered": 21.22905027932961,
+    "percent_statements_covered_display": "21",
+    "num_branches": 276,
+    "num_partial_branches": 3,
+    "covered_branches": 11,
+    "missing_branches": 265,
+    "percent_branches_covered": 3.9855072463768115,
+    "percent_branches_covered_display": "4"
+  },
+  "executed_line_and_branch_sets_identical": true,
+  "coverage_delta_points": 0,
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_sample": [
+    {
+      "fault": "chance",
+      "before": {
+        "exit": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 2.956,
+        "snapshot": "original-tests.py"
+      },
+      "after": {
+        "exit": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 2.496,
+        "snapshot": "proposed-tests.py"
+      }
+    },
+    {
+      "fault": "percentage",
+      "before": {
+        "exit": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 2.776,
+        "snapshot": "original-tests.py"
+      },
+      "after": {
+        "exit": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 2.542,
+        "snapshot": "proposed-tests.py"
+      }
+    }
+  ],
+  "mutation_scope": "Two private import-loader faults change only existing LeakageReport.summary text fragments: at-chance wording becomes at-reference wording, or the retained-lift percentage sentence changes its original phrase. Both original and mapped cases fail their unchanged positive native in assertions. Both separate negative not-in checks remain in the normal tests; the sample does not independently fault those checks, percentage arithmetic or fitting behavior. Production bytes unchanged.",
+  "contract_scope": "Preserve self, local LeakageReport import, all original float/None values, mode and dropped tuple, keyword order, two self._fit calls, report/said bindings and both separately ordered native in/not-in assertions. _fit only constructs original FitReport metadata. All other classes/methods/helpers/imports retain AST and relative order. Add exactly one plain global import pytest for the decorator, proved separately; no other import changes.",
+  "coverage_scope": "Full134-line original test module read in full; seven cases construct small Strategy/FitReport/LeakageReport dataclasses and format text or check strategy identity. Reviewed module imports and all import-time calls/decorators/default expressions, Strategy.describe/strategy/registry, FitReport.lift/summary and LeakageReport.summary. The full2308-line source was not claimed as reviewed. NumPy/Pandas import normally, but no data arrays/frames, actual estimator fit/training/loading, chart, GUI, data/filesystem workflow, live network/download or GPU runs. No scientific data, fit count, seed or simulation settings changed. CUDA hidden and model discovery offline upfront.",
+  "original_tests_sha256": "f455924f66b17903146e3a21cf83deb6f9d9c9ba51569fcba2bdd3e41f5d06ba",
+  "production_source_sha256": "6ccb5b64015943955d85fcda11ced38d68e686b9169cc243e0826e7042932bbe",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "mandatory_ratchets": {
+    "exit": 0,
+    "passed": 157,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 116.952,
+    "snapshot": "proposed-tests.py"
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "added_imports": [
+    "import pytest"
+  ],
+  "private_fault_evidence_parser_repair": "The original percentage fault failed at its intended native positive assertion, but the private parser required the AssertionError type on the E assert line. Pytest printed E assert and the type on the source-location line. The controller stopped before proposal application. Preserved all raw evidence hashes, revalidated both original faults against their exact AST assertion line, native type, exit/JUnit counts, failed ID and exact source markers, and recorded the already-completed percentage phase without rerunning pytest. Baseline and chance-fault evidence remain unchanged. Continued only pending after phases and ratchets; no assertion, input, mutation or production change.",
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_regression_annotation_uncovered_paths.py",
+      "line": 128,
+      "symbol": "test_leakage_report_summaries_keep_original_text_checks",
+      "new": "Preserve each original leakage report and both native text checks.",
+      "old": {
+        "test_it_says_so_instead_of_printing_a_ratio": null,
+        "test_a_real_survival_is_reported_as_a_percentage": "The control: the sentence is the exception, not the rule."
+      }
+    }
+  ],
+  "timing_basis": "JUnit testsuite seconds; complete console summary timings remain in the persistent logs.",
+  "resources": "Two sequential sched jobs: original baseline/fault evidence, then pending after phases and ratchets following a private display-parser repair. Each uses owner codex, filler threads2 RAM8; pytest -n SCHED_THREADS, scheduler CPU/RAM/swap/nice controls, CUDA hidden and model downloads disabled. Package-wide coverage config disabled upfront; worker collection targets only spacr.regression_annotation."
+}
