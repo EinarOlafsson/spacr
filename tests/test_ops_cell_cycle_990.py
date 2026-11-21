@@ -395,3 +395,83 @@ def test_the_report_shows_the_dna_fit_and_the_checks_against_their_controls(tmp_
     page = open(out["report"], encoding="utf-8").read()
     assert page.count("<img src='data:image/png;base64,") == 2
     assert "against its control" in page and "S2" in page
+
+
+class _Screen:
+    """A stand-in Annotate screen that records what it opened."""
+
+    def __init__(self):
+        self.opened = []
+
+    def _open_source(self, folder):
+        """Record the folder."""
+        self.opened.append(folder)
+
+
+class _Window:
+    """A stand-in main window: open_module and its built screens."""
+
+    def __init__(self):
+        self.modules, self._screens = [], {"annotate": _Screen()}
+
+    def open_module(self, key):
+        """Record the module and return its key."""
+        self.modules.append(key)
+        return key
+
+
+def test_a_run_with_a_queue_puts_a_job_on_home_that_opens_annotate(tmp_path, monkeypatch, qapp):
+    from types import SimpleNamespace
+
+    from spacr.qt.bridge import registry
+    from spacr.qt.screens.app_screen import AppScreen
+
+    _queue, folder = _queue_folder(tmp_path, monkeypatch)
+    window = _Window()
+    screen = SimpleNamespace(window=lambda: window)
+    payload = {"ph_cell_cycle": {"label_queue": {
+        "folder": folder, "cells": 12, "pending": os.path.join(folder, "queue.csv"),
+        "crop_root": str(tmp_path), "labels": str(tmp_path / "labels.csv")}}}
+    before = set(registry().active())
+    AppScreen._offer_cell_cycle_label_job(screen, payload)
+    (handle,) = set(registry().active()) - before
+    assert handle.app_key == "Cell cycle: label 12 cells"
+    handle.open_job()
+    assert window.modules == ["annotate"] and window._screens["annotate"].opened == [folder]
+    AppScreen._offer_cell_cycle_label_job(screen, {"ph_cell_cycle": {"label_queue": None}})
+    assert set(registry().active()) - before == {handle}
+    handle.retire()
+
+
+def test_home_open_runs_a_jobs_own_opener(qapp):
+    from types import SimpleNamespace
+
+    from spacr.qt.widgets.home import RunningBanner
+
+    calls, emitted = [], []
+    banner = SimpleNamespace(_handle=SimpleNamespace(app_key="x", open_job=lambda: calls.append(1)),
+                             open_requested=SimpleNamespace(emit=emitted.append))
+    RunningBanner._on_open(banner)
+    assert calls == [1] and emitted == []
+    banner._handle = SimpleNamespace(app_key="ops")
+    RunningBanner._on_open(banner)
+    assert emitted == ["ops"]
+
+
+def test_the_finished_job_journals_the_labels_file_hash(tmp_path, monkeypatch, qapp):
+    import hashlib
+    import sqlite3
+
+    monkeypatch.setenv("SPACR_HOME", str(tmp_path / "home"))
+    _queue, folder = _queue_folder(tmp_path, monkeypatch)
+    with sqlite3.connect(os.path.join(folder, "measurements", "measurements.db")) as connection:
+        first = connection.execute("SELECT png_path FROM png_list").fetchone()[0]
+        connection.execute("UPDATE png_list SET annotate = 4 WHERE png_path = ?", (first,))
+    handle = cc.track_label_job(folder, 12)
+    reran = []
+    assert cc.finish_label_job(handle, rerun=reran.append, settings={"plate": PLATE}) == 1
+    labels = str(tmp_path / "labels.csv")
+    assert reran == [labels]
+    manifest = json.load(open(os.path.join(handle.journal, "manifest.json")))
+    digest = hashlib.sha256(open(labels, "rb").read()).hexdigest()
+    assert digest in json.dumps(manifest)

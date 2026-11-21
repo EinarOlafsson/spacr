@@ -993,7 +993,11 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
         pending = build_label_queue(table.assign(model_stage=stages["model_stage"].to_numpy()),
                                     size, options["seed"])
         write_table(pending, os.path.join(folder, "queue_pending.csv"), canonicalise=False)
+        from .ops_engine import _ph_merged_root
+
         queued = {"folder": folder, "cells": int(len(pending)),
+                  "pending": os.path.join(folder, "queue_pending.csv"),
+                  "crop_root": _ph_merged_root(settings, destination),
                   "labels": options["labels"] or os.path.join(destination, "cell_cycle_labels",
                                                               "labels.csv")}
     counts = table["cell_cycle_stage"].value_counts().sort_index()
@@ -1247,23 +1251,55 @@ def track_label_job(folder: str, cells: int):
     return handle
 
 
-def finish_label_job(handle, *, rerun=None, user: str = "") -> int:
-    """The job is done: append its answers to the labels file, refit, and retire the job.
+def finish_label_job(handle, *, rerun=None, user: str = "",
+                     settings: Optional[Mapping[str, Any]] = None) -> int:
+    """The job is done: append its answers, refit in a new run journal, and retire the job.
+
+    The refit runs inside its own run journal (:func:`spacr.run_journal.open_run`, app
+    ``ops_cell_cycle_labels``), whose settings carry ``ops_cell_cycle_labels`` and whose inputs
+    record the labels file's full SHA-256, so the journal names the exact labels the verified
+    state came from. The journal folder is kept as ``handle.journal``.
 
     :param handle: from :func:`track_label_job`.
     :param rerun: called with the labels file after the answers are appended, for example a
         rerun of :func:`run_cell_cycle_phase` with ``ops_cell_cycle_labels`` set to it, so a
         settings-file rerun reproduces the verified state; None skips the refit.
     :param user: who labelled.
+    :param settings: the run's settings, written to the journal with the labels path.
     :returns: the answers appended.
     """
+    from .run_journal import open_run
+
     try:
         appended = collect_label_queue(handle.folder, user=user)
         with open(os.path.join(handle.folder, "queue.json"), encoding="utf-8") as stream:
             labels = json.load(stream)["labels"]
         handle.report(line=f"{appended} labels appended to {labels}")
-        if rerun is not None and appended:
-            rerun(labels)
+        if appended:
+            journal = {**dict(settings or {}), "ops_cell_cycle_labels": labels,
+                       "hash_inputs": True}
+            with open_run("ops_cell_cycle_labels", journal) as run:
+                run.record_input(labels, setting_key="ops_cell_cycle_labels")
+                if rerun is not None:
+                    rerun(labels)
+                run.set_status("success")
+                handle.journal = str(run.dir)
         return appended
     finally:
         handle.retire()
+
+
+def open_label_job(window, queued: Mapping[str, Any]) -> None:
+    """Open a run's labelling queue in Annotate, writing its crops the first time.
+
+    :param window: the main window (``open_module`` and its built screens).
+    :param queued: the ``label_queue`` of :func:`run_cell_cycle_phase`'s report.
+    """
+    from .tabular import read_table
+
+    folder = str(queued["folder"])
+    if not os.path.isfile(os.path.join(folder, "queue.json")):
+        pending = read_table(str(queued["pending"]), canonicalise=False, report=None)
+        write_label_queue(pending, str(queued["crop_root"]), folder, labels=str(queued["labels"]))
+    key = window.open_module("annotate")
+    window._screens[key]._open_source(folder)

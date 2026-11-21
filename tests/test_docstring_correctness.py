@@ -3864,7 +3864,7 @@ def _validated_ops_cell_cycle_990_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "990_ops_cell_cycle_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
-    names = ('build_label_queue', 'collapse_stage', 'collect_label_queue', 'failed_stages', 'final_stages', 'fine_tune', 'finish_label_job', 'load_cell_cycle_checkpoint', 'predict_stages', 'read_cell_cycle_labels', 'run_cell_cycle_phase', 'save_cell_cycle_checkpoint', 'screen_collapses', 'self_checks', 'track_label_job', 'train_cell_cycle_model', 'verified_stages', 'write_label_queue')
+    names = ('build_label_queue', 'collapse_stage', 'collect_label_queue', 'failed_stages', 'final_stages', 'fine_tune', 'finish_label_job', 'load_cell_cycle_checkpoint', 'open_label_job', 'predict_stages', 'read_cell_cycle_labels', 'run_cell_cycle_phase', 'save_cell_cycle_checkpoint', 'screen_collapses', 'self_checks', 'track_label_job', 'train_cell_cycle_model', 'verified_stages', 'write_label_queue')
     assert set(entries) == {"spacr.ops_cell_cycle"} | {f"spacr.ops_cell_cycle.{n}" for n in names}
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert found.keys() == {f"spacr.ops_cell_cycle.{n}" for n in names}
@@ -6947,7 +6947,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
         ("987b_mask_batches_api_arrivals_2026-11-20.json", 1),
         ("993_cli_preflight_reporting_api_arrivals_2026-11-20.json", 1),
-        ("990_ops_cell_cycle_api_arrivals_2026-11-21.json", 19),
+        ("990_ops_cell_cycle_api_arrivals_2026-11-21.json", 20),
         ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
