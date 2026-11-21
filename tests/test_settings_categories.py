@@ -985,6 +985,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cell_cycle_labels",
     "ops_cell_cycle_label_queue",
     "ops_cell_cycle_seed",
+    "ops_flatfield_channel_fit",
+    "ops_flatfield_object_fields",
     "ops_consensus_guides",
     "ops_bench_replicates",
     "ops_bench_replicate_seed",

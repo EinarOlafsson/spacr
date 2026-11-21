@@ -123,7 +123,8 @@ def models(monkeypatch):
     return built
 
 
-SETTINGS = {"ops_ph_channels": CHANNELS, "ops_ph_downsample": 1,
+#: ops_flatfield is set: these fields have no flat-field maps, and the engine default is 'exact'.
+SETTINGS = {"ops_ph_channels": CHANNELS, "ops_ph_downsample": 1, "ops_flatfield": "none",
             "ops_ph_texture": False, "n_workers": 1,
             "ops_ph_cell_model": "cyto-like"}
 ON = {**SETTINGS, "ops_ph_pathogen_channel": "PATH",

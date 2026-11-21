@@ -282,14 +282,14 @@ _PHASES = ("stitch", "phenotype", "objects", "decode")
 #: cells onto the sequencing nuclei, and reduce cells to guides and genes.
 #: Not in the default run, because each needs the four above and a design
 #: table; a run includes them only when ``phases`` names them.
-_PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
+_PH_PHASES = ("ph_flatfield", "ph_segment", "ph_flatfield_objects", "ph_measure", "ph_masks",
               "ph_ownership", "merge", "ph_merged", "ph_cell_cycle", "aggregate",
               "ph_tables", "ph_crops", "report", "stress")
 
 #: The phenotype phases that run once per plate rather than per well; a
 #: well's archive marker (item 872, B9) records only the others.
-_PH_PLATE_PHASES = ("ph_flatfield", "ph_cell_cycle", "aggregate", "ph_tables",
-                    "ph_crops", "report", "stress")
+_PH_PLATE_PHASES = ("ph_flatfield", "ph_flatfield_objects", "ph_cell_cycle", "aggregate",
+                    "ph_tables", "ph_crops", "report", "stress")
 
 #: The profile path (alpha): stored per-well cell tables to gene profiles,
 #: then their retrieval metrics, their module atlas, the Leiden resolution
@@ -4953,15 +4953,21 @@ def _ph_ownership_rule(settings: Mapping[str, Any]) -> str:
     return rule
 
 
-#: The modes ``ops_flatfield`` may name, the first being the default.
+#: The modes ``ops_flatfield`` may name.
 _PH_FLATFIELD_MODES = ("none", "analytic", "exact")
 
 
 def _ph_flatfield_mode(settings: Mapping[str, Any]) -> str:
-    """The ``ops_flatfield`` mode, checked against :data:`_PH_FLATFIELD_MODES`."""
+    """The ``ops_flatfield`` mode, checked against :data:`_PH_FLATFIELD_MODES`.
+
+    An unset mode takes the default of :data:`spacr.ops_settings.OPS_DEFAULTS`, so
+    a call from the API runs as the command line, the application and a settings
+    file do.
+    """
+    from .ops_settings import OPS_DEFAULTS
     from .qt.i18n import tr
 
-    mode = str(settings.get("ops_flatfield") or "none").strip().lower()
+    mode = str(settings.get("ops_flatfield") or OPS_DEFAULTS["ops_flatfield"]).strip().lower()
     if mode not in _PH_FLATFIELD_MODES:
         raise ValueError(tr(
             "ops_flatfield must be one of {modes}; got {value}",
@@ -5081,10 +5087,17 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
     started = time.perf_counter()
     channels = _ph_channels(settings)
     folder = _ph_flat_folder(settings, destination)
+    fits = _ph_channel_fits(settings, channels)
     if os.path.isfile(os.path.join(folder, "flat_info.json")):
-        _maps, offsets, info = load_flat_maps(folder, channels)
-        return {"reused": folder, "md5": info.get("md5"),
-                "offsets": offsets, "n_fields": info.get("n_fields")}
+        with open(os.path.join(folder, "flat_info.json"), encoding="utf-8") as handle:
+            pending = {str(c).upper() for c in json.load(handle).get("pending") or []}
+        _maps, offsets, info = load_flat_maps(
+            folder, [c for c in channels if c.upper() not in pending])
+        reused = {"reused": folder, "md5": info.get("md5"),
+                  "offsets": offsets, "n_fields": info.get("n_fields")}
+        if pending:
+            reused["pending"] = sorted(pending)
+        return reused
     files = {}
     for well in wells:
         index = phenotype_index.get(well) or {}
@@ -5125,18 +5138,226 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
             "{count} flat-field fields could not be read, first {first}",
             count=len(unreadable), first=unreadable[0]))
     blocks = np.stack([r["blocks"] for r in results])
-    maps, method = build_flat_maps(blocks, channels,
-                                   polynomial_channels=(_NUCLEAR,))
-    info = write_flat_maps(folder, plate, maps, method, chosen, extra={
-        "wells_available": list(wells),
-        "built": time.strftime("%Y-%m-%dT%H:%M:%S%z")})
+    maps, method = build_flat_maps(
+        blocks, channels,
+        polynomial_channels=tuple(c for c in channels if fits[c] == "polynomial"))
+    extra = {"wells_available": list(wells),
+             "built": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
+    objects = {c: f for c, f in fits.items() if f in ("nuclear_median", "cell_median")}
+    if objects:
+        from .ops_flatfield import mark_pending
+
+        extra.update(pending=[mark_pending(maps, method, c, f) for c, f in objects.items()],
+                     channel_fit={c.upper(): f for c, f in objects.items()})
+    info = write_flat_maps(folder, plate, maps, method, chosen, extra=extra)
     _say(tr("{plate} flat-field maps from {fields} fields written to "
             "{folder}", plate=plate, fields=len(chosen), folder=folder))
     return {"built": folder, "md5": info["md5"], "n_fields": len(chosen),
+            **({"pending": info["pending"]} if info.get("pending") else {}),
             "fields_by_well": info["fields_by_well"],
             "offsets": {c: m["offset"] for c, m in method.items()},
             "workers": workers,
             "seconds": round(time.perf_counter() - started, 1)}
+
+
+def _ph_channel_fits(settings: Mapping[str, Any], channels: Sequence[str]) -> Dict[str, str]:
+    """``ops_flatfield_channel_fit``: each channel's flat-field fit (item 1006).
+
+    A channel the setting does not name keeps today's fit: ``'polynomial'`` for the DNA
+    channel, ``'pixel_median'`` for every other, so the default maps are unchanged.
+
+    :param settings: read for ``ops_flatfield_channel_fit``, ``{channel: fit}``.
+    :param channels: the phenotype channels.
+    :returns: ``{channel: fit}`` for every channel, each one of
+        :data:`spacr.ops_flatfield.CHANNEL_FITS`.
+    :raises ValueError: for an unknown channel or fit.
+    """
+    from .ops_flatfield import CHANNEL_FITS
+    from .qt.i18n import tr
+
+    asked = {str(k).upper(): str(v).strip().lower()
+             for k, v in dict(settings.get("ops_flatfield_channel_fit") or {}).items()}
+    unknown = sorted(set(asked) - {c.upper() for c in channels})
+    if unknown:
+        raise ValueError(tr("ops_flatfield_channel_fit names channels the phenotype path does not "
+                            "have: {unknown}; it has {channels}", unknown=unknown,
+                            channels=list(channels)))
+    bad = {k: v for k, v in asked.items() if v not in CHANNEL_FITS}
+    if bad:
+        raise ValueError(tr("ops_flatfield_channel_fit must give each channel one of {allowed}; "
+                            "got {bad}", allowed=list(CHANNEL_FITS), bad=bad))
+    return {c: asked.get(c.upper(), "polynomial" if c.upper() == _NUCLEAR else "pixel_median")
+            for c in channels}
+
+
+def _ph_object_means(task: Mapping[str, Any]) -> Dict[str, Any]:
+    """One field's objects for the object-median maps; the ``ph_flatfield_objects`` worker."""
+    from .ops_flatfield import field_object_means
+
+    unreadable: list = []
+    channels = list(task["fits"])
+    stack = _ph_read_field(task["files"], channels, unreadable)
+    if stack is None:
+        return {"tables": None, "unreadable": unreadable}
+    with np.load(task["mask_path"]) as saved:
+        nuclei, cells = saved["nuclei"], saved["cells"]
+    tables = {c: field_object_means(stack[..., i], nuclei, cells, well=task["well"],
+                                    site=task["site"], channel=c,
+                                    compartment="nucleus" if task["fits"][c] == "nuclear_median"
+                                    else "cell")
+              for i, c in enumerate(channels)}
+    return {"tables": tables, "unreadable": unreadable}
+
+
+def _ph_object_fields(settings: Mapping[str, Any], available: Sequence[Tuple[str, int]]
+                      ) -> List[Tuple[str, int]]:
+    """``ops_flatfield_object_fields``: ``'all'``, a count drawn with seed 0, or a field list."""
+    from .ops_flatfield import choose_flat_fields
+    from .qt.i18n import tr
+
+    asked = settings.get("ops_flatfield_object_fields", "all")
+    if asked in (None, "", "all"):
+        return list(available)
+    if isinstance(asked, (int, float)) or str(asked).strip().isdigit():
+        return choose_flat_fields(list(available), int(asked), seed=0)
+    with open(str(asked), encoding="utf-8") as handle:
+        listed = [(str(w), int(site)) for w, site in json.load(handle)]
+    missing = sorted(set(listed) - set(available))
+    if missing:
+        raise ValueError(tr("ops_flatfield_object_fields names fields without phenotype masks: "
+                            "{missing}", missing=missing[:5]))
+    return listed
+
+
+def _ph_channel_offset(settings: Mapping[str, Any], plate: str, channel: str,
+                       method: Mapping[str, Any]) -> Tuple[Optional[float], str]:
+    """A channel's camera offset: ``ops_flatfield_dark``, else the offset ``ph_flatfield`` measured.
+
+    ``ops_flatfield_dark`` is a number (every channel), ``{channel: number}``, or
+    ``{plate: number or {channel: number}}``.
+    """
+    dark = settings.get("ops_flatfield_dark")
+    if isinstance(dark, Mapping):
+        dark = {str(k).upper(): v for k, v in dark.items()}
+        if str(plate).upper() in dark:
+            dark = dark[str(plate).upper()]
+            if isinstance(dark, Mapping):
+                dark = {str(k).upper(): v for k, v in dark.items()}.get(channel.upper())
+        else:
+            dark = dark.get(channel.upper())
+    if dark is not None:
+        return float(dark), "ops_flatfield_dark"
+    measured = (method.get(channel.upper()) or {}).get("offset")
+    return (None if measured is None else float(measured)), "ph_flatfield"
+
+
+def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
+                          settings: Mapping[str, Any], destination: str) -> Dict[str, Any]:
+    """Build the pending object-median flat-field maps; the ``ph_flatfield_objects`` phase.
+
+    Item 1006. A channel whose ``ops_flatfield_channel_fit`` is ``'nuclear_median'`` or
+    ``'cell_median'`` is left pending by ``ph_flatfield``
+    (:func:`spacr.ops_flatfield.mark_pending`). This plate phase runs after ``ph_segment``:
+    for each chosen field (``ops_flatfield_object_fields``) it reads the pending channels' raw
+    planes and the field's ``ph_segment`` masks and takes every nucleus's (or cell's) raw mean,
+    centroid and edge flag (:func:`spacr.ops_flatfield.field_object_means`); per channel it
+    builds the map with :func:`spacr.ops_flatfield.build_nuclear_flat` (item 912's fit settings,
+    ``ops_flatfield_fit`` and the rest), the held-out fields (``ops_flatfield_holdout_fields``
+    or ``ops_flatfield_holdout_n``) left out, and writes it into the same maps folder
+    (:func:`spacr.ops_flatfield.complete_pending_flat`) with its object table next to it. The
+    camera offset is ``ops_flatfield_dark``, else the offset ``ph_flatfield`` measured; never 0.
+    A folder with nothing pending is left as it is.
+
+    :param plate: the plate name.
+    :param wells: the wells run.
+    :param phenotype_index: the phenotype tiles, ``{well: {cycle: {site: files}}}``.
+    :param settings: read for ``ops_flatfield_object_fields``, ``ops_flatfield_dark``, the
+        ``ops_flatfield_*`` fit and hold-out settings, ``ops_flatfield_maps`` and
+        ``n_workers``.
+    :param destination: the run folder holding ``<well>/phenotype_masks``.
+    :returns: the report, per channel: objects, objects per map cell, corner mean, % at floor,
+        md5 and offset.
+    :raises ValueError: when the maps folder or the masks are missing, a field is unreadable
+        or a channel has no offset.
+    """
+    import multiprocessing
+
+    import pandas as pd
+
+    from .ops_flatfield import _holdout, _nuclear_options, build_nuclear_flat, complete_pending_flat
+    from .qt.i18n import tr
+    from .resource_log import _parallel_process_executor as ProcessPoolExecutor
+    from .tabular import write_table
+
+    started = time.perf_counter()
+    folder = _ph_flat_folder(settings, destination)
+    info_path = os.path.join(folder, "flat_info.json")
+    if not os.path.isfile(info_path):
+        raise ValueError(tr("ph_flatfield_objects needs the maps folder {folder}; run "
+                            "ph_flatfield first", folder=folder))
+    with open(info_path, encoding="utf-8") as handle:
+        flat_info = json.load(handle)
+    method = {str(k).upper(): v for k, v in (flat_info.get("method") or {}).items()}
+    pending = [str(c).upper() for c in flat_info.get("pending") or []]
+    if not pending:
+        return {"reused": folder, "md5": dict(flat_info.get("md5") or {})}
+    fits = {c: method[c]["pending"] for c in pending}
+    offsets = {c: _ph_channel_offset(settings, plate, c, method) for c in pending}
+    missing = [c for c, (value, _src) in offsets.items() if value is None]
+    if missing:
+        raise ValueError(tr("ph_flatfield_objects needs the camera offset of {channels}; set "
+                            "ops_flatfield_dark", channels=missing))
+    available, files = [], {}
+    for well in wells:
+        index = phenotype_index.get(well) or {}
+        sites = index.get(min(index), {}) if index else {}
+        for site in sorted(sites):
+            mask = os.path.join(destination, well, "phenotype_masks", f"site-{site}.npz")
+            if os.path.isfile(mask):
+                available.append((well, int(site)))
+                files[(well, int(site))] = (sites[site], mask)
+    chosen = _ph_object_fields(settings, available)
+    if not chosen:
+        raise ValueError(tr("ph_flatfield_objects found no segmented field; run ph_segment first"))
+    tasks = [{"well": w, "site": s, "files": files[(w, s)][0], "mask_path": files[(w, s)][1],
+              "fits": fits} for w, s in chosen]
+    workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks)))
+    if workers == 1:
+        results = [_ph_object_means(task) for task in tasks]
+    else:
+        with ProcessPoolExecutor(workers, mp_context=multiprocessing.get_context("spawn")) as pool:
+            results = list(pool.map(_ph_object_means, tasks))
+    unreadable = [u for r in results for u in r["unreadable"]]
+    if unreadable:
+        raise ValueError(tr("{count} fields could not be read for the object-median maps, "
+                            "first {first}", count=len(unreadable), first=unreadable[0]))
+    report: Dict[str, Any] = {"built": folder, "fields": len(chosen), "workers": workers,
+                              "channels": {}}
+    options = _nuclear_options(settings)
+    for channel in pending:
+        compartment = "nucleus" if fits[channel] == "nuclear_median" else "cell"
+        table = pd.concat([r["tables"][channel] for r in results], ignore_index=True)
+        held = _holdout(settings, plate, table)
+        offset, source = offsets[channel]
+        flat, info = build_nuclear_flat(
+            table, column=f"{compartment}_{channel.lower()}_mean_intensity", offset=offset,
+            holdout=held, cy=f"{compartment}_cy", cx=f"{compartment}_cx", **options)
+        info.update(estimator=fits[channel], offset_source=source)
+        write_table(table, os.path.join(folder, f"objects_{plate}_{channel}.parquet"),
+                    canonicalise=False)
+        written = complete_pending_flat(folder, plate, channel, flat, info)
+        report["channels"][channel] = {
+            "fit": fits[channel], "md5": written["md5"][channel],
+            "objects": int(info["n_training_nuclei"]), "held_out_fields": len(held),
+            "held_out_objects": int(info["n_heldout_nuclei"]),
+            "objects_per_cell": info["nuclei_per_cell"], "corner_mean": info["corner_mean"],
+            "at_floor_pct": info["at_floor_pct"], "offset": offset, "offset_source": source}
+        _say(tr("{plate} {channel} {fit} map from {objects} objects in {fields} fields written "
+                "to {folder}", plate=plate, channel=channel, fit=fits[channel],
+                objects=report["channels"][channel]["objects"], fields=len(chosen),
+                folder=folder))
+    report["seconds"] = round(time.perf_counter() - started, 1)
+    return report
 
 
 def _ph_mask_field(task: Mapping[str, Any]) -> Dict[str, Any]:
@@ -11311,6 +11532,22 @@ def run_ops(settings: Mapping[str, Any], *,
         with open(os.path.join(destination, f"ops_flatfield_{plate}.json"),
                   "w", encoding="utf-8") as handle:
             json.dump(out["ph_flatfield"], handle, indent=1, default=str)
+    if "ph_flatfield_objects" in phases:
+        if "ph_segment" in phases:
+            for well in chosen:
+                if well not in phenotype_index:
+                    continue
+                os.makedirs(os.path.join(destination, well), exist_ok=True)
+                secondary = _ph_secondary(settings)
+                if secondary and secondary["registration"] != "none":
+                    _ph_secondary_shifts(db, plate, well, phenotype_index[well], settings)
+                _ph_fields(db, plate, well, phenotype_index[well], settings, gpu,
+                           destination, segment=True, measure=False)
+        out["ph_flatfield_objects"] = _ph_flatfield_objects(plate, chosen, phenotype_index,
+                                                            settings, destination)
+        with open(os.path.join(destination, f"ops_flatfield_objects_{plate}.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(out["ph_flatfield_objects"], handle, indent=1, default=str)
     archive_root = settings.get("ops_archive_root") or None
     well_phases = [p for p in phases if p not in _PH_PLATE_PHASES
                    and p not in ("decode_qc", "compare_calls")]

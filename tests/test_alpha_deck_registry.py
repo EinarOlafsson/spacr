@@ -128,7 +128,8 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-20: field centring and the external mitotic call for the
     # DNA-content cell-cycle fit (995) make 172.
     # 2026-11-21: the OPS cell-cycle option (990) makes 173.
-    assert count == 173
+    # 2026-11-21: per-channel flat-field fits (1006) make 174.
+    assert count == 174
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

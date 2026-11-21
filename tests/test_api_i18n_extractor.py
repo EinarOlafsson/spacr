@@ -2620,6 +2620,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in cell_cycle_arrivals} == cell_cycle_arrivals
     assert not cell_cycle_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **cell_cycle_arrivals}
+    channel_fit_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert len(channel_fit_arrivals) == 3
+    assert {key: docs[key] for key in channel_fit_arrivals} == channel_fit_arrivals
+    assert not channel_fit_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **channel_fit_arrivals}
     ome_zarr_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
     assert len(ome_zarr_arrivals) == 49

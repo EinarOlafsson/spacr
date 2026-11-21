@@ -174,6 +174,10 @@ default after a higher-numbered item takes the next free number:
   Explicit source selections always win. Native classification datasets keep
   one ``crop_index.csv`` pointing to committed crops instead of exporting an
   image file per object; keep the source project with the dataset when moving it.
+- 952 (item 1006): ``ops_flatfield`` was ``'none'``; it is now ``'exact'``, so
+  an OPS phenotype run divides every pixel by the plate's flat-field maps
+  before measuring and needs them (phase ``ph_flatfield``, or a prebuilt
+  ``ops_flatfield_maps`` folder). 949-951 belong to other items.
 
 Public API
 ----------
