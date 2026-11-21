@@ -1,0 +1,247 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_classify_classes_uncovered_paths.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_classify_classes_uncovered_paths.py::test_folding_keeps_a_legacy_column_when_the_classes_only_give_values": "tests/test_classify_classes_uncovered_paths.py::test_original_partial_definitions_keep_both_compatibility_fields[test_folding_keeps_a_legacy_column_when_the_classes_only_give_values]",
+    "tests/test_classify_classes_uncovered_paths.py::test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value": "tests/test_classify_classes_uncovered_paths.py::test_original_partial_definitions_keep_both_compatibility_fields[test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value]"
+  },
+  "literal_case_contracts": {
+    "test_folding_keeps_a_legacy_column_when_the_classes_only_give_values": [
+      {
+        "classes": {
+          "pc": {
+            "column": "",
+            "value": "c3"
+          }
+        },
+        "annotation_column": "test"
+      },
+      "test",
+      [
+        [
+          "c3"
+        ]
+      ]
+    ],
+    "test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value": [
+      {
+        "classes": {
+          "pc": {
+            "column": "rowID"
+          }
+        },
+        "class_metadata": [
+          [
+            "r2"
+          ]
+        ]
+      },
+      "rowID",
+      [
+        [
+          "r2"
+        ]
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_folding_keeps_a_legacy_column_when_the_classes_only_give_values": "({'classes': {'pc': {'column': '', 'value': 'c3'}}, 'annotation_column': 'test'}, 'test', [['c3']])",
+    "test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value": "({'classes': {'pc': {'column': 'rowID'}}, 'class_metadata': [['r2']]}, 'rowID', [['r2']])"
+  },
+  "contract_scope": "Preserve the exact ordered native settings dictionaries, missing-versus-present class fields, original string/nested-list values, local settings binding, out = cc.fold_into_classes(settings), and both separate native indexed equalities on annotation_column then class_metadata. Each row has a unique native input dictionary and separate expected literals. The original helper still mutates that same dictionary in place; no copy or added identity assertion is introduced. Every other original import, helper, existing parameter group, metadata-return case, folder-name case, refusal and seeded label-assignment check retains executable AST and relative order. This pair is disjoint from audit120.",
+  "collected_before": [
+    "tests/test_classify_classes_uncovered_paths.py::test_more_annotation_values_than_names_get_a_name_from_the_value",
+    "tests/test_classify_classes_uncovered_paths.py::test_folding_derives_both_compatibility_keys_from_the_classes",
+    "tests/test_classify_classes_uncovered_paths.py::test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value",
+    "tests/test_classify_classes_uncovered_paths.py::test_blank_annotation_column_entries_are_not_columns",
+    "tests/test_classify_classes_uncovered_paths.py::test_no_values_anywhere_is_an_empty_list_not_a_none",
+    "tests/test_classify_classes_uncovered_paths.py::test_metadata_controls_with_no_folder_names_are_named_after_the_setting",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_complement_with_every_name_already_used_is_called_random",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_class_defined_as_a_bare_value_names_itself_in_the_refusal",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_complement_with_no_explicit_class_takes_the_whole_pool",
+    "tests/test_classify_classes_uncovered_paths.py::test_annotation_column_uses_the_first_usable_rule_or_legacy_setting[test_no_rule_names_a_column_so_the_legacy_setting_still_decides]",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_legacy_column_of_none_reads_as_empty_rather_than_the_string_none",
+    "tests/test_classify_classes_uncovered_paths.py::test_the_first_rule_wins_when_two_claim_the_same_object",
+    "tests/test_classify_classes_uncovered_paths.py::test_annotation_column_uses_the_first_usable_rule_or_legacy_setting[test_a_class_defined_as_something_other_than_a_rule_is_skipped_over]",
+    "tests/test_classify_classes_uncovered_paths.py::test_recording_folders_with_no_classes_key_at_all_just_records",
+    "tests/test_classify_classes_uncovered_paths.py::test_recording_folders_leaves_a_definitions_dict_in_place",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_random_complement_takes_the_first_name_no_class_has_taken",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_legacy_metadata_tuple_is_returned_as_a_list",
+    "tests/test_classify_classes_uncovered_paths.py::test_an_absent_classes_key_is_no_rules_rather_than_an_error",
+    "tests/test_classify_classes_uncovered_paths.py::test_folding_a_settings_dict_with_nothing_to_derive_adds_no_keys",
+    "tests/test_classify_classes_uncovered_paths.py::test_more_values_than_columns_pair_off_against_the_first_column",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_metadata_run_with_no_location_column_derives_nothing",
+    "tests/test_classify_classes_uncovered_paths.py::test_recording_folders_retires_the_ambiguous_legacy_list",
+    "tests/test_classify_classes_uncovered_paths.py::test_the_complement_matches_the_largest_explicit_class",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_class_with_no_value_contributes_nothing_to_the_metadata",
+    "tests/test_classify_classes_uncovered_paths.py::test_with_neither_a_rule_nor_a_legacy_column_the_answer_is_empty",
+    "tests/test_classify_classes_uncovered_paths.py::test_the_complement_is_capped_by_what_is_left_unclaimed",
+    "tests/test_classify_classes_uncovered_paths.py::test_annotation_column_uses_the_first_usable_rule_or_legacy_setting[test_a_rule_with_a_blank_column_is_skipped_over]",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_dict_where_no_class_has_a_value_falls_back_to_the_legacy_list",
+    "tests/test_classify_classes_uncovered_paths.py::test_folding_keeps_a_legacy_column_when_the_classes_only_give_values"
+  ],
+  "collected_after": [
+    "tests/test_classify_classes_uncovered_paths.py::test_more_annotation_values_than_names_get_a_name_from_the_value",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_complement_with_no_explicit_class_takes_the_whole_pool",
+    "tests/test_classify_classes_uncovered_paths.py::test_recording_folders_retires_the_ambiguous_legacy_list",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_dict_where_no_class_has_a_value_falls_back_to_the_legacy_list",
+    "tests/test_classify_classes_uncovered_paths.py::test_recording_folders_leaves_a_definitions_dict_in_place",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_complement_with_every_name_already_used_is_called_random",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_class_defined_as_a_bare_value_names_itself_in_the_refusal",
+    "tests/test_classify_classes_uncovered_paths.py::test_blank_annotation_column_entries_are_not_columns",
+    "tests/test_classify_classes_uncovered_paths.py::test_annotation_column_uses_the_first_usable_rule_or_legacy_setting[test_a_class_defined_as_something_other_than_a_rule_is_skipped_over]",
+    "tests/test_classify_classes_uncovered_paths.py::test_no_values_anywhere_is_an_empty_list_not_a_none",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_class_with_no_value_contributes_nothing_to_the_metadata",
+    "tests/test_classify_classes_uncovered_paths.py::test_an_absent_classes_key_is_no_rules_rather_than_an_error",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_metadata_run_with_no_location_column_derives_nothing",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_random_complement_takes_the_first_name_no_class_has_taken",
+    "tests/test_classify_classes_uncovered_paths.py::test_folding_derives_both_compatibility_keys_from_the_classes",
+    "tests/test_classify_classes_uncovered_paths.py::test_the_complement_is_capped_by_what_is_left_unclaimed",
+    "tests/test_classify_classes_uncovered_paths.py::test_folding_a_settings_dict_with_nothing_to_derive_adds_no_keys",
+    "tests/test_classify_classes_uncovered_paths.py::test_more_values_than_columns_pair_off_against_the_first_column",
+    "tests/test_classify_classes_uncovered_paths.py::test_original_partial_definitions_keep_both_compatibility_fields[test_folding_keeps_a_legacy_column_when_the_classes_only_give_values]",
+    "tests/test_classify_classes_uncovered_paths.py::test_the_complement_matches_the_largest_explicit_class",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_legacy_column_of_none_reads_as_empty_rather_than_the_string_none",
+    "tests/test_classify_classes_uncovered_paths.py::test_annotation_column_uses_the_first_usable_rule_or_legacy_setting[test_no_rule_names_a_column_so_the_legacy_setting_still_decides]",
+    "tests/test_classify_classes_uncovered_paths.py::test_a_legacy_metadata_tuple_is_returned_as_a_list",
+    "tests/test_classify_classes_uncovered_paths.py::test_annotation_column_uses_the_first_usable_rule_or_legacy_setting[test_a_rule_with_a_blank_column_is_skipped_over]",
+    "tests/test_classify_classes_uncovered_paths.py::test_with_neither_a_rule_nor_a_legacy_column_the_answer_is_empty",
+    "tests/test_classify_classes_uncovered_paths.py::test_metadata_controls_with_no_folder_names_are_named_after_the_setting",
+    "tests/test_classify_classes_uncovered_paths.py::test_original_partial_definitions_keep_both_compatibility_fields[test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value]",
+    "tests/test_classify_classes_uncovered_paths.py::test_the_first_rule_wins_when_two_claim_the_same_object",
+    "tests/test_classify_classes_uncovered_paths.py::test_recording_folders_with_no_classes_key_at_all_just_records"
+  ],
+  "tests_before": {
+    "passed": 29,
+    "seconds": 3.23
+  },
+  "tests_after": {
+    "passed": 29,
+    "seconds": 4.21
+  },
+  "coverage_scope": "Cover spacr.classify_classes under the complete selected compatibility-helper module. Its original 322-line test snapshot and 514-line production source are byte-identical to the full review for audit120. Existing tests use tiny dictionaries, rule objects, list/tuple metadata and pandas tables of at most23 rows, with the original fixed complement-sampling seeds0 and7. Folder names are strings and recording them updates a dictionary. No model fitting/training, image reader/crop, database/file workflow, scientific chart, GUI, live network/download or GPU work runs. The existing private collection hook writes parameter JSON/repr before any test runs, so input evidence is captured before fold_into_classes mutates a row. Set the private offline control before every scheduled phase and hide CUDA. Repository production/settings names, defaults, schemas and categories remain unchanged. The checkout is on the required mnt2 disk and uses the freshly fetched c9 nightly base.",
+  "coverage_before": {
+    "covered_lines": 145,
+    "num_statements": 205,
+    "percent_covered": 67.63754045307444,
+    "percent_covered_display": "68",
+    "missing_lines": 60,
+    "excluded_lines": 0,
+    "percent_statements_covered": 70.73170731707317,
+    "percent_statements_covered_display": "71",
+    "num_branches": 104,
+    "num_partial_branches": 14,
+    "covered_branches": 64,
+    "missing_branches": 40,
+    "percent_branches_covered": 61.53846153846154,
+    "percent_branches_covered_display": "62"
+  },
+  "coverage_after": {
+    "covered_lines": 145,
+    "num_statements": 205,
+    "percent_covered": 67.63754045307444,
+    "percent_covered_display": "68",
+    "missing_lines": 60,
+    "excluded_lines": 0,
+    "percent_statements_covered": 70.73170731707317,
+    "percent_statements_covered_display": "71",
+    "num_branches": 104,
+    "num_partial_branches": 14,
+    "covered_branches": 64,
+    "missing_branches": 40,
+    "percent_branches_covered": 61.53846153846154,
+    "percent_branches_covered_display": "62"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "ea568d50569d3a433b17d0b054249f450a13501c0560a8f94b7aa14956260a1c",
+  "production_source_sha256": "ed345f6821c688eabb97e6e5e2b790723befeaf63d627400bd88857d16a6d6cd",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "folded-annotation-column-is-replaced-with-an-empty-string",
+      "source_variant": {
+        "path": "spacr/classify_classes.py",
+        "line": 510,
+        "old": "settings[\"annotation_column\"] = column",
+        "new": "settings[\"annotation_column\"] = \"\""
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_classes_uncovered_paths.py::test_folding_keeps_a_legacy_column_when_the_classes_only_give_values"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_classes_uncovered_paths.py::test_folding_keeps_a_legacy_column_when_the_classes_only_give_values"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_classes_uncovered_paths.py::test_original_partial_definitions_keep_both_compatibility_fields[test_folding_keeps_a_legacy_column_when_the_classes_only_give_values]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_classes_uncovered_paths.py::test_original_partial_definitions_keep_both_compatibility_fields[test_folding_keeps_a_legacy_column_when_the_classes_only_give_values]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "folded-class-metadata-is-replaced-with-an-empty-list",
+      "source_variant": {
+        "path": "spacr/classify_classes.py",
+        "line": 513,
+        "old": "settings[\"class_metadata\"] = values",
+        "new": "settings[\"class_metadata\"] = []"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_classes_uncovered_paths.py::test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_classes_uncovered_paths.py::test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_classify_classes_uncovered_paths.py::test_original_partial_definitions_keep_both_compatibility_fields[test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_classify_classes_uncovered_paths.py::test_original_partial_definitions_keep_both_compatibility_fields[test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Use two precise private import-loader faults in fold_into_classes before and after: store an empty string for annotation_column; store an empty list for class_metadata. The first selects the same original/mapped legacy-column case and fails its unchanged first indexed equality. The second selects the legacy-metadata case, preserves its first column check, and fails the unchanged second indexed equality. Both assertions remain in both normal cases. This establishes compatibility-field value sensitivity without claiming independent derivation provenance, alias identity or classifier correctness. Repository production/settings files remain unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_classify_classes_uncovered_paths.py",
+      "line": 131,
+      "symbol": "test_original_partial_definitions_keep_both_compatibility_fields",
+      "new": "Preserve each original partial class definition and both compatibility values.",
+      "old": {
+        "test_folding_keeps_a_legacy_column_when_the_classes_only_give_values": "One half derivable and the other not: the derived half is written and\nthe other is left exactly as the file had it.",
+        "test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
