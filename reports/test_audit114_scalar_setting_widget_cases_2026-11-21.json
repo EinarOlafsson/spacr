@@ -1,0 +1,188 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_gui_utils_and_core.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_int_and_float_become_entry": "tests/test_gui_utils_and_core.py::test_original_scalar_settings_keep_both_native_indexed_checks[test_convert_settings_dict_int_and_float_become_entry]",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_string_becomes_entry": "tests/test_gui_utils_and_core.py::test_original_scalar_settings_keep_both_native_indexed_checks[test_convert_settings_dict_string_becomes_entry]"
+  },
+  "literal_case_contracts": {
+    "test_convert_settings_dict_int_and_float_become_entry": [
+      {
+        "epochs": 10,
+        "lr": 0.001
+      },
+      "epochs",
+      "lr",
+      0,
+      "entry"
+    ],
+    "test_convert_settings_dict_string_becomes_entry": [
+      {
+        "src": "/tmp/x"
+      },
+      "src",
+      "src",
+      2,
+      "/tmp/x"
+    ]
+  },
+  "case_contract_representations": {
+    "test_convert_settings_dict_int_and_float_become_entry": "({'epochs': 10, 'lr': 0.001}, 'epochs', 'lr', 0, 'entry')",
+    "test_convert_settings_dict_string_becomes_entry": "({'src': '/tmp/x'}, 'src', 'src', 2, '/tmp/x')"
+  },
+  "contract_scope": "Exact original ordered native settings dictionaries with int/float/string values,GU.convert_settings_dict_for_gui call/out binding and both separate indexed equality assertions retained in original order. First kind check remains literal index0==entry;second retains its original key,index0-or2,and entry/default string. No generic assertion loop or extra checks. Every original import and every unrelated bool/None/list/container/metadata-option/organelle-option case retains executable AST and relative order. Exactly one plain top-level import pytest is added solely for parametrisation,verified by the existing audit54 AST pattern before comparing all remaining original syntax. No setting/schema/category/default value is changed.",
+  "collected_before": [
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_special_case_metadata_type_is_combo",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_int_and_float_become_entry",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_special_case_organelle_method_no_stardist",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_string_becomes_entry",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_none_becomes_entry",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_list_becomes_entry_string",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_unknown_container_stays_editable_as_text",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_bool_becomes_check"
+  ],
+  "collected_after": [
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_none_becomes_entry",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_unknown_container_stays_editable_as_text",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_list_becomes_entry_string",
+    "tests/test_gui_utils_and_core.py::test_original_scalar_settings_keep_both_native_indexed_checks[test_convert_settings_dict_string_becomes_entry]",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_bool_becomes_check",
+    "tests/test_gui_utils_and_core.py::test_original_scalar_settings_keep_both_native_indexed_checks[test_convert_settings_dict_int_and_float_become_entry]",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_special_case_organelle_method_no_stardist",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_special_case_metadata_type_is_combo"
+  ],
+  "tests_before": {
+    "passed": 8,
+    "seconds": 2.91
+  },
+  "tests_after": {
+    "passed": 8,
+    "seconds": 3.4
+  },
+  "coverage_scope": "spacr.settings_spec under the complete selected scalar/widget-metadata helper module,not full-suite or GUI coverage. Complete83line test module and complete459line settings_spec source read. Plain small dictionaries,scalar values,string/tuple/list metadata and existing enumerated option catalogues only. Factories list model/backend/filename-convention names without instantiating models,dispatching backends or reading images;frozen OPS/timelapse/Voyager names are metadata strings only. No Tk/Qt widget or window,scientific chart,image/new reader,segmentation,fit/training,analysis workflow,network/download or GPU work. Literal /tmp/x remains a string and is never opened. Upfront private offline0 control fixed before every phase. Production/settings names/defaults/schema/categories unchanged. One required test-only pytest import is explicitly proved;all original imports remain.",
+  "coverage_before": {
+    "covered_lines": 69,
+    "num_statements": 91,
+    "percent_covered": 72.51908396946565,
+    "percent_covered_display": "73",
+    "missing_lines": 22,
+    "excluded_lines": 0,
+    "percent_statements_covered": 75.82417582417582,
+    "percent_statements_covered_display": "76",
+    "num_branches": 40,
+    "num_partial_branches": 6,
+    "covered_branches": 26,
+    "missing_branches": 14,
+    "percent_branches_covered": 65.0,
+    "percent_branches_covered_display": "65"
+  },
+  "coverage_after": {
+    "covered_lines": 69,
+    "num_statements": 91,
+    "percent_covered": 72.51908396946565,
+    "percent_covered_display": "73",
+    "missing_lines": 22,
+    "excluded_lines": 0,
+    "percent_statements_covered": 75.82417582417582,
+    "percent_statements_covered_display": "76",
+    "num_branches": 40,
+    "num_partial_branches": 6,
+    "covered_branches": 26,
+    "missing_branches": 14,
+    "percent_branches_covered": 65.0,
+    "percent_branches_covered_display": "65"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "0e2b36ebe42be076cfeda30cc74c56b0d1a4ce2aceb2a4f3b168ccd93f68b8a4",
+  "production_source_sha256": "1d2736485ad39db06f39f00975c319f1f198225589f767b6405f25a551ea512e",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "one_top_level_pytest_import_added_for_parameter_decorator": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "numeric-entry-kind-is-replaced-by-a-check",
+      "source_variant": {
+        "path": "spacr/settings_spec.py",
+        "line": 448,
+        "old": "elif isinstance(value, int) or isinstance(value, float):\n            variables[key] = ('entry', None, value)",
+        "new": "elif isinstance(value, int) or isinstance(value, float):\n            variables[key] = ('check', None, value)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_gui_utils_and_core.py::test_convert_settings_dict_int_and_float_become_entry"
+        ],
+        "failure_summary_lines": [
+          "tests/test_gui_utils_and_core.py::test_convert_settings_dict_int_and_float_become_entry"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_gui_utils_and_core.py::test_original_scalar_settings_keep_both_native_indexed_checks[test_convert_settings_dict_int_and_float_become_entry]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_gui_utils_and_core.py::test_original_scalar_settings_keep_both_native_indexed_checks[test_convert_settings_dict_int_and_float_become_entry]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "string-entry-loses-its-original-default-value",
+      "source_variant": {
+        "path": "spacr/settings_spec.py",
+        "line": 450,
+        "old": "elif isinstance(value, str):\n            variables[key] = ('entry', None, value)",
+        "new": "elif isinstance(value, str):\n            variables[key] = ('entry', None, '')"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_gui_utils_and_core.py::test_convert_settings_dict_string_becomes_entry"
+        ],
+        "failure_summary_lines": [
+          "tests/test_gui_utils_and_core.py::test_convert_settings_dict_string_becomes_entry"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_gui_utils_and_core.py::test_original_scalar_settings_keep_both_native_indexed_checks[test_convert_settings_dict_string_becomes_entry]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_gui_utils_and_core.py::test_original_scalar_settings_keep_both_native_indexed_checks[test_convert_settings_dict_string_becomes_entry]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in convert_settings_dict_for_gui before and after:return check instead of entry for the numeric scalar branch;return an empty default string for the string branch while preserving entry kind. Each selects the same one original/mapped numeric or string case and must fail an unchanged native indexed equality. The second keeps the first kind assertion passing and fails the original default-value assertion. Numeric sample establishes numeric entry-kind sensitivity,not independent float-specific mutation coverage;both original numeric assertions remain and pass normally. No actual GUI/widget-rendering or stronger schema-validation claim. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_gui_utils_and_core.py",
+      "line": 46,
+      "symbol": "test_original_scalar_settings_keep_both_native_indexed_checks",
+      "new": "Preserve each original scalar setting map and both native indexed checks.",
+      "old": {
+        "test_convert_settings_dict_int_and_float_become_entry": null,
+        "test_convert_settings_dict_string_becomes_entry": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
