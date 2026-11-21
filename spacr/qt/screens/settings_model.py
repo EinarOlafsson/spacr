@@ -1481,8 +1481,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "png_channel_mapping",
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
             "normalize", "normalize_by", "crop_intensity",
-            "crop_image_format", "crops_per_shard", "crop_margin_px",
-            "crop_zero_outside",
+            "mask_image_format", "crop_image_format", "crops_per_shard",
+            "crop_margin_px", "crop_zero_outside",
         )),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
@@ -2777,6 +2777,16 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                     keys.remove(key)
         result["Plate & Batch Correction"] = list(batch_correction)
         result["UMAP Display"] = list(display)
+    if app_key == "ops" and "Single-cell crops" in result:
+        shared_crop_keys = ("crop_margin_px", "crop_zero_outside")
+        for keys in result.values():
+            for key in shared_crop_keys:
+                while key in keys:
+                    keys.remove(key)
+        crops = result["Single-cell crops"]
+        at = crops.index("ops_crop_masks") + 1 if "ops_crop_masks" in crops else len(crops)
+        crops[at:at] = list(shared_crop_keys)
+        result = {name: keys for name, keys in result.items() if keys}
     if app_key in _APP_CATEGORY_SPECS:
         result = _categories_from_spec(result, _APP_CATEGORY_SPECS[app_key])
     if app_key in ("classify", "classify_merged"):

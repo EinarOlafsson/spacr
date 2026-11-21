@@ -193,6 +193,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_crop_all_nt": True,
     "ops_crop_control_fraction": 0.01,
     "ops_crop_masks": False,
+    "crop_margin_px": None,
+    "crop_zero_outside": False,
     "ops_max_files_per_folder": 10000,
     "ops_ph_secondary_channels": None,
     "ops_ph_secondary_registration": 'none',

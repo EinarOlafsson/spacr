@@ -1632,6 +1632,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "label_import_channels", "cell_label_folder", "nucleus_label_folder",
     "pathogen_label_folder", "cell_label_regex", "nucleus_label_regex",
     "pathogen_label_regex",
+    # NEW SETTINGS, not a regrouping (item 986, schema 949, alpha): the OPS
+    # phenotype field and crop formats.
+    "ops_ph_image_format", "ops_crop_image_format",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

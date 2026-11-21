@@ -8695,6 +8695,39 @@ def _ph_crop_cell(stack: np.ndarray, cells: np.ndarray, nuclei: np.ndarray,
             (int(y0 + centre[0]), int(x0 + centre[1])), edge)
 
 
+def _ph_crop_box(cut: Mapping[str, Any], nuclei: np.ndarray, label: int,
+                 with_mask: bool):
+    """One cell's bounding box plus margin, cut as Measure cuts its crops.
+
+    :param cut: the cell's record from :func:`spacr.crop_store.cut_crops`
+        over the ``(C, H, W)`` field and its cell labels.
+    :param nuclei: the nucleus labels.
+    :param label: the cell's label.
+    :param with_mask: also return the uint8 mask, 1 the cell and 2 its
+        nucleus.
+    :returns: ``(crop (C, h, w), mask or None, (cy, cx), edge, box)``:
+        ``(cy, cx)`` the cell mask's centroid in field pixels, ``edge`` 1
+        when the margin was clipped at the field edge, and ``box`` the
+        ``bbox_y0/x0/y1/x1`` (end-exclusive) and ``margin_px`` of the cut.
+
+    :func:`spacr.crop_store.cut_crops` does the cut, so OPS and Measure
+    crops of one cell and margin hold the same pixels. Raw counts, no
+    stretch and no resize (item 772).
+    """
+    from scipy import ndimage
+
+    y0, x0, y1, x1 = cut["bbox_y0"], cut["bbox_x0"], cut["bbox_y1"], cut["bbox_x1"]
+    mask = None
+    if with_mask:
+        mask = cut["mask"].astype(np.uint8)
+        mask[(nuclei[y0:y1, x0:x1] == label) & cut["mask"]] = 2
+    cy, cx = np.round(ndimage.center_of_mass(cut["mask"])).astype(int) + (y0, x0)
+    box = {key: cut[key] for key in ("bbox_y0", "bbox_x0", "bbox_y1",
+                                     "bbox_x1", "margin_px")}
+    return (np.ascontiguousarray(cut["pixels"]), mask, (int(cy), int(cx)),
+            int(cut["clipped_at_edge"]), box)
+
+
 def _ph_crop_bytes(crop: np.ndarray, mask: Optional[np.ndarray],
                    channels: Sequence[str]) -> bytes:
     """One crop as a TIFF: page 0 the ``(C, H, W)`` uint16 image, page 1 the mask."""
@@ -8789,7 +8822,10 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         ``mask_path``, ``labels`` (``{label: (reason, object_id)}``),
         ``size``, ``flat_folder``, ``masks``, ``secondary``, ``plate``,
         ``well``; optionally ``flat_mean_one``, which scales each flat to
-        mean 1 over the field before it divides.
+        mean 1 over the field before it divides, and ``margin`` with
+        ``zero_outside``: a margin that is not None cuts each cell's
+        bounding box plus that margin (:func:`_ph_crop_box`) instead of the
+        fixed ``size`` square.
     :returns: ``site``, ``members`` (``(name, bytes, record)``) and
         ``unreadable``.
     """
@@ -8820,25 +8856,42 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     boxes = ndimage.find_objects(cells)
     row, column = schema.parse_well(task["well"])
     members = []
+    margin = task.get("margin")
+    cuts = {}
+    if margin is not None:
+        from .crop_store import cut_crops
+
+        wanted = [label for label in sorted(task["labels"])
+                  if label - 1 < len(boxes) and boxes[label - 1] is not None]
+        cuts = {cut["object_label"]: cut for cut in cut_crops(
+            np.moveaxis(stack, -1, 0), cells, margin=int(margin),
+            zero_outside=bool(task.get("zero_outside")), objects=wanted)}
     for label in sorted(task["labels"]):
         if label - 1 >= len(boxes) or boxes[label - 1] is None:
             continue
         reason, object_id = task["labels"][label]
-        crop, mask, (cy, cx), edge = _ph_crop_cell(
-            stack, cells, nuclei, boxes[label - 1], label, task["size"],
-            task["masks"])
+        box = None
+        if margin is None:
+            crop, mask, (cy, cx), edge = _ph_crop_cell(
+                stack, cells, nuclei, boxes[label - 1], label, task["size"],
+                task["masks"])
+        else:
+            crop, mask, (cy, cx), edge, box = _ph_crop_box(
+                cuts[label], nuclei, label, task["masks"])
         prcfo = _ph_prcfo(task["plate"], row, column, task["site"], label)
         name = (f"site-{task['site']}/"
                 f"{schema.escape_filename_component(task['plate'])}"
                 f"{prcfo[len(str(task['plate'])):]}.tif")
         payload = ((crop, mask) if task.get("crop_format") == "ome-zarr"
                    else _ph_crop_bytes(crop, mask, task["crop_channels"]))
-        members.append((name, payload,
-                        {"prcfo": prcfo, "plate": task["plate"],
-                         "well": task["well"], "site": int(task["site"]),
-                         "label": int(label), "object_id": object_id,
-                         "cy": cy, "cx": cx, "window_edge": edge,
-                         "reason": reason}))
+        record = {"prcfo": prcfo, "plate": task["plate"],
+                  "well": task["well"], "site": int(task["site"]),
+                  "label": int(label), "object_id": object_id,
+                  "cy": cy, "cx": cx, "window_edge": edge,
+                  "reason": reason}
+        if box is not None:
+            record.update(box)
+        members.append((name, payload, record))
     return {"site": task["site"], "members": members, "unreadable": unreadable}
 
 
@@ -8898,6 +8951,7 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
         for _name, (pixels, mask), record in result["members"]:
             height, width = pixels.shape[1:]
             top, left = record["cy"] - height // 2, record["cx"] - width // 2
+            top, left = record.get("bbox_y0", top), record.get("bbox_x0", left)
             crop = {**record, "object_id": record["prcfo"],
                     "ops_object_id": record["object_id"], "ops_crop": True,
                     "object_label": record["label"], "field": record["site"],
@@ -8905,7 +8959,8 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
                     "mask": mask if mask is not None else np.zeros((height, width), np.uint8),
                     "bbox_y0": top, "bbox_x0": left,
                     "bbox_y1": top + height, "bbox_x1": left + width,
-                    "margin_px": 0, "clipped_at_edge": bool(record["window_edge"])}
+                    "margin_px": int(record.get("margin_px", 0)),
+                    "clipped_at_edge": bool(record["window_edge"])}
             writer.add([crop])
     committed = writer.commit()
     return int(committed["n_rows"]), len(committed["pools"]), unreadable
@@ -8920,7 +8975,8 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     :param wells: the wells run.
     :param phenotype_index: the phenotype tile index.
     :param settings: read for ``ops_crop_per_guide``, ``ops_crop_size``,
-        ``ops_crop_channels``, ``ops_crop_flatfield``, ``ops_crop_seed``,
+        ``crop_margin_px``, ``crop_zero_outside``, ``ops_crop_channels``,
+        ``ops_crop_flatfield``, ``ops_crop_seed``,
         ``ops_crop_all_nt``, ``ops_crop_control_fraction``,
         ``ops_crop_masks``, ``ops_crop_flat_mean_one``, ``ops_max_files_per_folder``,
         ``ops_merged_root``, ``ops_design``, ``ops_genotype_table`` and the
@@ -8934,6 +8990,13 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     ``ops_crop_control_fraction`` above 0, every owned, whole cell whose
     ``hash(plate, well, site, label)`` falls below it, linked or not, so a
     cell a later decoder calls is still represented.
+
+    Which pixels: by default the fixed ``ops_crop_size`` square centred on
+    the cell, 0 outside it. With ``crop_margin_px`` set, the cell's bounding
+    box plus that margin, clipped at the field edge, with the pixels outside
+    the cell kept unless ``crop_zero_outside`` (the cut Measure makes, via
+    :func:`spacr.crop_store.cut_crops`); ``ops_crop_size`` is then unused,
+    as nothing here resizes. The bounding box is stored with each crop.
 
     New runs commit crops to per-well OME-Zarr pools through
     :class:`spacr.crop_store.CropPoolWriter`, preserving uint16 images and
@@ -8975,6 +9038,15 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     fraction = float(_setting_number(settings.get("ops_crop_control_fraction"),
                                      "ops_crop_control_fraction", 0.01))
     with_masks = bool(settings.get("ops_crop_masks", False))
+    margin = settings.get("crop_margin_px")
+    if margin in (None, ""):
+        margin = None
+    else:
+        margin = int(_setting_number(margin, "crop_margin_px", 0))
+        if margin < 0:
+            raise ValueError(tr("crop_margin_px must be 0 or more; got {value}",
+                                value=margin))
+    zero_outside = bool(settings.get("crop_zero_outside", False))
     crop_format = _ph_crop_format(settings)
     root = _ph_merged_root(settings, destination)
     flat_folder = None
@@ -8991,6 +9063,9 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                "flat_mean_one": bool(settings.get("ops_crop_flat_mean_one",
                                                   False)),
                "genotype": _ph_genotype_rule(settings)}
+    if margin is not None:
+        options.update({"size": None, "margin_px": margin,
+                        "zero_outside": zero_outside})
     design_path = settings.get("ops_design")
     sampled = (settings.get("ops_crop_per_guide") not in (None, "")
                and bool(design_path) and os.path.isfile(str(design_path)))
@@ -9068,6 +9143,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                   "labels": labels, "size": size, "flat_folder": flat_folder,
                   "masks": with_masks, "secondary": secondary.get(site),
                   "flat_mean_one": options["flat_mean_one"],
+                  "margin": margin, "zero_outside": zero_outside,
                   "plate": plate, "well": well}
                  for site, labels in sorted(chosen.items())
                  if site in files and site in mask_paths]
