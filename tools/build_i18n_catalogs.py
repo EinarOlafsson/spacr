@@ -4717,6 +4717,32 @@ def _metadata_type_status_sources(
     return found
 
 
+def _flatfield_fit_runtime_sources(tree: ast.Module, owners: set[str]) -> set[str]:
+    """Return direct flat-field captions from their declared top-level owners.
+
+    :param tree: parsed backend module, without importing runtime code.
+    :param owners: functions that own the per-channel flat-field messages.
+    :returns: literal captions, excluding nested definitions and unrelated calls.
+    """
+    found: set[str] = set()
+    for owner in tree.body:
+        if not isinstance(owner, ast.FunctionDef) or owner.name not in owners:
+            continue
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef, ast.Lambda)):
+                continue
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name) and node.func.id == "tr"):
+                source = _literal(node.args[0])
+                if isinstance(source, str) and _looks_translatable(source):
+                    found.add(source.strip())
+            pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     # Compact-catalog ownership is registered lazily by the screens that own
@@ -4770,6 +4796,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "validate.py")
     paths.add(ROOT / "spacr" / "torch_artifacts.py")
     paths.add(ROOT / "spacr" / "ops_decode.py")
+    paths.add(ROOT / "spacr" / "ops_engine.py")
+    paths.add(ROOT / "spacr" / "ops_flatfield.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4778,6 +4806,13 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         try:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except SyntaxError:
+            continue
+        if path == source_root / "ops_engine.py":
+            found.update(_flatfield_fit_runtime_sources(
+                tree, {"_ph_channel_fits", "_ph_object_fields", "_ph_flatfield_objects"}))
+            continue
+        if path == source_root / "ops_flatfield.py":
+            found.update(_flatfield_fit_runtime_sources(tree, {"load_flat_maps"}))
             continue
         if path.parent == source_root and path.name in {"settings.py", "object.py"}:
             diagnostic_owners = {"_own_diameter", "_eval_diameter", "_note_the_diameter"}
