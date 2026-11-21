@@ -1,0 +1,238 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_cov_w2_6_checkpoint.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_w2_6_checkpoint.py::test_a_completed_table_that_is_not_a_table_is_refused": "tests/test_cov_w2_6_checkpoint.py::test_original_malformed_checkpoint_mappings_keep_their_refusals[test_a_completed_table_that_is_not_a_table_is_refused]",
+    "tests/test_cov_w2_6_checkpoint.py::test_workflow_metadata_that_is_not_a_mapping_is_refused": "tests/test_cov_w2_6_checkpoint.py::test_original_malformed_checkpoint_mappings_keep_their_refusals[test_workflow_metadata_that_is_not_a_mapping_is_refused]"
+  },
+  "literal_case_contracts": {
+    "test_a_completed_table_that_is_not_a_table_is_refused": [
+      [
+        "f1"
+      ],
+      {},
+      "completed-unit table"
+    ],
+    "test_workflow_metadata_that_is_not_a_mapping_is_refused": [
+      {},
+      "round two",
+      "invalid workflow metadata"
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_completed_table_that_is_not_a_table_is_refused": "(['f1'], {}, 'completed-unit table')",
+    "test_workflow_metadata_that_is_not_a_mapping_is_refused": "({}, 'round two', 'invalid workflow metadata')"
+  },
+  "contract_scope": "Exact original tmp_path fixture,run.json path assignment,_write helper,ordered checkpoint mapping,live cp.CHECKPOINT_VERSION lookup,signature x-times64 expression,workflow/boundary strings,resume=True constructor and native pytest.raises(cp.CheckpointError,match=original_regex) retained. Only original completed/meta literal values and regex vary in the table. Every other original path/set/scalar/signature/lifecycle/resume/atomic-write/rollback/suffix/compatibility case/import/helper/fixture/class retains AST and relative order.",
+  "collected_before": [
+    "tests/test_cov_w2_6_checkpoint.py::test_a_failed_update_restores_nested_meta_and_status",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_checkpoint_from_a_future_format_is_refused_by_version",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_corrupt_checkpoint_says_to_keep_it_for_diagnosis",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[folder/file.npy]",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[folder\\\\file.npy]",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_checkpoint_from_another_workflow_is_refused_by_name",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_checkpoint_refuses_to_be_combined_with_what_it_does_not_match[different_safe_unit_boundary]",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[]",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_path_is_recorded_as_its_text_not_its_repr",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[../escape.npy]",
+    "tests/test_cov_w2_6_checkpoint.py::test_mapping_keys_that_normalise_to_the_same_text_are_refused[mapping1]",
+    "tests/test_cov_w2_6_checkpoint.py::test_returned_state_is_detached_at_every_nested_level",
+    "tests/test_cov_w2_6_checkpoint.py::test_mapping_keys_that_normalise_to_the_same_text_are_refused[mapping0]",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_resume_with_the_same_signature_finds_the_completed_units",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_fresh_store_writes_a_document_that_names_its_boundary",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[.]",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[\\x00npy]",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_temporary_that_cannot_be_removed_does_not_mask_the_real_failure",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_completed_table_that_is_not_a_table_is_refused",
+    "tests/test_cov_w2_6_checkpoint.py::test_updating_meta_alone_leaves_the_status_where_it_was",
+    "tests/test_cov_w2_6_checkpoint.py::test_two_equivalent_signatures_share_one_digest",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_failed_mark_cannot_leak_into_a_later_successful_write",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_checkpoint_refuses_to_be_combined_with_what_it_does_not_match[changed_settings]",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_set_is_recorded_in_a_stable_order",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_finished_workflow_keeps_its_state_and_says_it_is_done",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_path_is_a_digest_not_the_unit_name",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_noncallable_item_attribute_is_not_treated_as_a_scalar_converter",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_write_that_cannot_reach_the_disk_stops_the_workflow",
+    "tests/test_cov_w2_6_checkpoint.py::test_mapping_keys_are_sorted_as_strings_so_the_digest_is_stable",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_numpy_scalar_is_recorded_as_the_number_it_holds",
+    "tests/test_cov_w2_6_checkpoint.py::test_invalid_utf8_is_a_checkpoint_error_and_is_not_overwritten",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_failed_write_leaves_no_half_written_temporary_behind",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[..]",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_completed_unit_is_on_disk_before_the_call_returns",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_json_document_that_is_not_an_object_is_refused",
+    "tests/test_cov_w2_6_checkpoint.py::test_workflow_metadata_that_is_not_a_mapping_is_refused",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_object_whose_item_refuses_falls_back_to_its_text"
+  ],
+  "collected_after": [
+    "tests/test_cov_w2_6_checkpoint.py::test_a_corrupt_checkpoint_says_to_keep_it_for_diagnosis",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_set_is_recorded_in_a_stable_order",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_checkpoint_refuses_to_be_combined_with_what_it_does_not_match[changed_settings]",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_numpy_scalar_is_recorded_as_the_number_it_holds",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_path_is_a_digest_not_the_unit_name",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_failed_write_leaves_no_half_written_temporary_behind",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_temporary_that_cannot_be_removed_does_not_mask_the_real_failure",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_failed_update_restores_nested_meta_and_status",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_json_document_that_is_not_an_object_is_refused",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_finished_workflow_keeps_its_state_and_says_it_is_done",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_write_that_cannot_reach_the_disk_stops_the_workflow",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[folder\\\\file.npy]",
+    "tests/test_cov_w2_6_checkpoint.py::test_updating_meta_alone_leaves_the_status_where_it_was",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[.]",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_resume_with_the_same_signature_finds_the_completed_units",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[..]",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[folder/file.npy]",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[\\x00npy]",
+    "tests/test_cov_w2_6_checkpoint.py::test_returned_state_is_detached_at_every_nested_level",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_fresh_store_writes_a_document_that_names_its_boundary",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_failed_mark_cannot_leak_into_a_later_successful_write",
+    "tests/test_cov_w2_6_checkpoint.py::test_mapping_keys_that_normalise_to_the_same_text_are_refused[mapping0]",
+    "tests/test_cov_w2_6_checkpoint.py::test_original_malformed_checkpoint_mappings_keep_their_refusals[test_a_completed_table_that_is_not_a_table_is_refused]",
+    "tests/test_cov_w2_6_checkpoint.py::test_invalid_utf8_is_a_checkpoint_error_and_is_not_overwritten",
+    "tests/test_cov_w2_6_checkpoint.py::test_mapping_keys_that_normalise_to_the_same_text_are_refused[mapping1]",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[]",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_artifact_suffix_cannot_supply_path_syntax[../escape.npy]",
+    "tests/test_cov_w2_6_checkpoint.py::test_original_malformed_checkpoint_mappings_keep_their_refusals[test_workflow_metadata_that_is_not_a_mapping_is_refused]",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_path_is_recorded_as_its_text_not_its_repr",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_checkpoint_from_a_future_format_is_refused_by_version",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_checkpoint_from_another_workflow_is_refused_by_name",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_completed_unit_is_on_disk_before_the_call_returns",
+    "tests/test_cov_w2_6_checkpoint.py::test_two_equivalent_signatures_share_one_digest",
+    "tests/test_cov_w2_6_checkpoint.py::test_an_object_whose_item_refuses_falls_back_to_its_text",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_checkpoint_refuses_to_be_combined_with_what_it_does_not_match[different_safe_unit_boundary]",
+    "tests/test_cov_w2_6_checkpoint.py::test_mapping_keys_are_sorted_as_strings_so_the_digest_is_stable",
+    "tests/test_cov_w2_6_checkpoint.py::test_a_noncallable_item_attribute_is_not_treated_as_a_scalar_converter"
+  ],
+  "tests_before": {
+    "passed": 37,
+    "seconds": 3.55
+  },
+  "tests_after": {
+    "passed": 37,
+    "seconds": 4.37
+  },
+  "coverage_scope": "spacr.checkpoint under the complete selected JSON-checkpoint lifecycle/refusal/atomic-write/rollback module; not full-suite coverage. Existing small local JSON files/digests and NumPy scalar conversion only. Names such as mask,field,trial and umap_search are original metadata strings; no analysis workflow,segmentation,UMAP/model fitting,chart construction/rendering,new reader,network or GPU work. Existing fsync/unlink error injection remains confined to original monkeypatch contexts and temporary test files. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 157,
+    "num_statements": 157,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 40,
+    "num_partial_branches": 0,
+    "covered_branches": 40,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_after": {
+    "covered_lines": 157,
+    "num_statements": 157,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100",
+    "num_branches": 40,
+    "num_partial_branches": 0,
+    "covered_branches": 40,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "2ba863e06980d120c311a9173053dd8553416dc9b27fece34fe736476cb06c8d",
+  "production_source_sha256": "a4615139eb63e877e0392e0b965fe5a58e0d2bacb698a5a3b5b5b1af5039c3c3",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "invalid-completed-table-is-accepted",
+      "source_variant": {
+        "path": "spacr/checkpoint.py",
+        "line": 286,
+        "old": "raise CheckpointError(\n                f\"Checkpoint {self.path} has an invalid completed-unit table.\")",
+        "new": "return None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_6_checkpoint.py::test_a_completed_table_that_is_not_a_table_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_6_checkpoint.py::test_a_completed_table_that_is_not_a_table_is_refused"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_6_checkpoint.py::test_original_malformed_checkpoint_mappings_keep_their_refusals[test_a_completed_table_that_is_not_a_table_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_6_checkpoint.py::test_original_malformed_checkpoint_mappings_keep_their_refusals[test_a_completed_table_that_is_not_a_table_is_refused]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "invalid-workflow-metadata-is-accepted",
+      "source_variant": {
+        "path": "spacr/checkpoint.py",
+        "line": 289,
+        "old": "raise CheckpointError(\n                f\"Checkpoint {self.path} has invalid workflow metadata.\")",
+        "new": "return None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_6_checkpoint.py::test_workflow_metadata_that_is_not_a_mapping_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_6_checkpoint.py::test_workflow_metadata_that_is_not_a_mapping_is_refused"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_w2_6_checkpoint.py::test_original_malformed_checkpoint_mappings_keep_their_refusals[test_workflow_metadata_that_is_not_a_mapping_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_w2_6_checkpoint.py::test_original_malformed_checkpoint_mappings_keep_their_refusals[test_workflow_metadata_that_is_not_a_mapping_is_refused]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in CheckpointStore._validate before and after: return instead of refusing a non-mapping completed-unit table; return instead of refusing non-mapping workflow metadata. Each fault selects the same one original/mapped case and must fail with DID NOT RAISE from unchanged native CheckpointError/regex context. Exact runtime version lookup,signature expression,path/writer/constructor calls and ordered literal values/types retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_w2_6_checkpoint.py",
+      "line": 236,
+      "symbol": "test_original_malformed_checkpoint_mappings_keep_their_refusals",
+      "new": "Preserve each original malformed checkpoint mapping and its refusal.",
+      "old": {
+        "test_a_completed_table_that_is_not_a_table_is_refused": null,
+        "test_workflow_metadata_that_is_not_a_mapping_is_refused": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
