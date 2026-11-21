@@ -1318,6 +1318,9 @@ _PATH_LIST_KEYS = frozenset({"src"})
 
 _APP_TYPE_OVERRIDES: Dict[str, Dict[str, Tuple[type, ...]]] = {
     "foreign": {"masks": (str, list)},
+    "mask": {"batch_size": (int, str)},
+    "timelapse": {"batch_size": (int, str)},
+    "ops": {"batch_size": (int, str)},
 }
 
 _TRUE_WORDS = frozenset({"true", "t", "yes", "y", "on", "1"})

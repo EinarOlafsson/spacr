@@ -813,7 +813,7 @@ def test_preflight_retains_numeric_and_typo_checks_when_cli_defaults_cannot_impo
     import builtins
     import copy
 
-    settings = {'batch_size': 0, 'batch_siz': 3}
+    settings = {'batch_size': -2, 'batch_siz': 3}
     before = copy.deepcopy(settings)
     original = builtins.__import__
     refused = []
@@ -829,7 +829,7 @@ def test_preflight_retains_numeric_and_typo_checks_when_cli_defaults_cannot_impo
     monkeypatch.setattr(builtins, '__import__', importing)
     problems = V.validate_settings(settings, 'mask')
     assert refused
-    assert any(p.setting == 'batch_size' and p.is_error and 'at least 1' in p.message
+    assert any(p.setting == 'batch_size' and p.is_error and 'not a batch size' in p.message
                for p in problems)
     assert any(p.setting == 'batch_siz' and p.severity == V.WARNING
                and "did you mean 'batch_size'" in p.message for p in problems)
