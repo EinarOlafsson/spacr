@@ -108,16 +108,26 @@ def test_the_metadata_basis_offers_the_plate_coordinates():
     assert columns == METADATA_COLUMNS
 
 
-def test_a_metadata_column_the_table_lacks_is_not_offered():
-    columns = candidate_columns({"dataset_mode": "metadata"},
-                                available=["plateID", "columnID", "area"])
-    assert columns == ("plateID", "columnID")
-
-
-def test_the_annotation_basis_offers_the_tables_own_columns():
-    columns = candidate_columns({"dataset_mode": "annotation"},
-                                available=["annot_1", "annot_2"])
-    assert columns == ("annot_1", "annot_2")
+@pytest.mark.parametrize('settings_input, available_input, expected_columns', [
+    pytest.param(
+        {'dataset_mode': 'metadata'},
+        ['plateID', 'columnID', 'area'],
+        ('plateID', 'columnID'),
+        id='test_a_metadata_column_the_table_lacks_is_not_offered',
+    ),
+    pytest.param(
+        {'dataset_mode': 'annotation'},
+        ['annot_1', 'annot_2'],
+        ('annot_1', 'annot_2'),
+        id='test_the_annotation_basis_offers_the_tables_own_columns',
+    ),
+])
+def test_candidate_columns_keep_original_basis_and_available_columns(
+    settings_input, available_input, expected_columns,
+):
+    """Preserve each original available-column list and expected candidate tuple."""
+    columns = candidate_columns(settings_input, available=available_input)
+    assert columns == expected_columns
 
 
 # ---------------------------------------------------------------------------
