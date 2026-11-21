@@ -306,3 +306,85 @@ def test_the_settings_are_alpha_with_short_tooltips():
     for key in keys:
         assert len(OPS_TOOLTIPS[key]) <= 600 and "Alpha" in OPS_TOOLTIPS[key]
     assert "ops_mitotic_source 'cell_cycle'" in OPS_TOOLTIPS["ops_cell_cycle"]
+
+
+def _staged(n=400, seed=0):
+    """An ops_cell_cycle-like table with probabilities and model stages."""
+    rng = np.random.default_rng(seed)
+    p = rng.dirichlet(np.ones(len(cc.CLASSES)) * 0.3, n)
+    table = pd.DataFrame(p, columns=[f"p_{c}" for c in cc.CLASSES])
+    table["model_stage"] = [cc.CLASSES[i] for i in p.argmax(axis=1)]
+    table["plate"] = np.where(np.arange(n) < n - 3, "P1", "P2")
+    table["well"] = "A1"
+    table["site"] = np.arange(n) // 50
+    table["label"] = np.arange(n) % 50 + 1
+    return table
+
+
+def test_the_label_queue_covers_every_stage_and_plate_and_is_seeded():
+    table = _staged()
+    queue = cc.build_label_queue(table, 40, seed=1)
+    assert len(queue) == 40 and queue.equals(cc.build_label_queue(table, 40, seed=1))
+    for stage in cc.CLASSES:
+        assert (queue["model_stage"] == stage).sum() >= min(4, (table["model_stage"] == stage).sum())
+    assert set(queue["plate"]) == {"P1", "P2"}
+
+
+def _queue_folder(tmp_path, monkeypatch):
+    """A written label queue over a stand-in crop store."""
+    from spacr import ops_run_infra
+
+    table = _staged(60)
+    queue = cc.build_label_queue(table, 12, seed=0)
+    index = queue.assign(shard=str(tmp_path / "data" / "cell" / "P1" / "A1" / "shard-0000.tar"),
+                         offset_data=0, size=0)[["shard", "site", "label", "offset_data", "size"]]
+    monkeypatch.setattr(ops_run_infra, "crop_index", lambda root, plate, wells=None: index)
+    rng = np.random.default_rng(0)
+    monkeypatch.setattr(ops_engine, "_ph_read_crop",
+                        lambda shard, offset, size: (rng.integers(0, 4000, (2, 16, 16)), None))
+    folder = cc.write_label_queue(queue, str(tmp_path), str(tmp_path / "queue"),
+                                  labels=str(tmp_path / "labels.csv"))
+    return queue, folder
+
+
+def test_the_queue_round_trips_through_annotate_into_the_labels_file(tmp_path, monkeypatch):
+    import sqlite3
+
+    queue, folder = _queue_folder(tmp_path, monkeypatch)
+    db = os.path.join(folder, "measurements", "measurements.db")
+    with sqlite3.connect(db) as connection:
+        paths = [r[0] for r in connection.execute("SELECT png_path FROM png_list")]
+        assert len(paths) == 12 and all(os.path.isfile(p) for p in paths)
+        connection.executemany("UPDATE png_list SET annotate = ? WHERE png_path = ?",
+                               [(4, paths[0]), (1, paths[1])])
+    assert cc.collect_label_queue(folder, user="einar") == 2
+    labels = cc.read_cell_cycle_labels(str(tmp_path / "labels.csv"))
+    assert sorted(labels["stage"]) == ["interphase", "metaphase"]
+    assert cc.collect_label_queue(folder, user="einar") == 2
+    raw = pd.read_csv(tmp_path / "labels.csv")
+    assert len(raw) == 4 and set(raw["user"]) == {"einar"}
+
+
+def test_the_home_job_is_registered_and_retired(tmp_path, monkeypatch, qapp):
+    from spacr.qt.bridge import registry
+
+    _queue, folder = _queue_folder(tmp_path, monkeypatch)
+    handle = cc.track_label_job(folder, 12)
+    assert handle in registry().active() and handle.app_key == "Cell cycle: label 12 cells"
+    reran = []
+    assert cc.finish_label_job(handle, rerun=reran.append) == 0
+    assert handle not in registry().active() and reran == []
+
+
+def test_a_run_with_a_label_queue_writes_the_pending_queue(tmp_path):
+    destination = tmp_path / "run"
+    destination.mkdir()
+    for well, rows in _cells(seed=3).groupby("well"):
+        rows.drop(columns=["well", "stage", "true_phase"]).to_parquet(
+            ops_engine._ph_cells_path(str(destination), well), index=False)
+    out = cc.run_cell_cycle_phase(str(destination / "measurements.db"), PLATE, ["A1", "A2"],
+                                  {"ops_cell_cycle": "DNA", "nucleus_channel": "dapi",
+                                   "ops_cell_cycle_base_model": _base(tmp_path),
+                                   "ops_cell_cycle_label_queue": 50}, str(destination))
+    pending = pd.read_csv(os.path.join(out["label_queue"]["folder"], "queue_pending.csv"))
+    assert len(pending) == 50 and out["label_queue"]["labels"].endswith("labels.csv")

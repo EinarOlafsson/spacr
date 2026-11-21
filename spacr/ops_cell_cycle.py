@@ -798,7 +798,9 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
     labels when given), takes G1 / S / G2 from :func:`_dna_phases`, runs
     :func:`self_checks`, collapses failed stages over every plate of the screen in ``db`` and
     writes ``ops_cell_cycle`` (one row per cell), ``ops_cell_cycle_checks`` (one row per plate
-    and check) and ``ops_cell_cycle_report_<plate>.html``.
+    and check) and ``ops_cell_cycle_report_<plate>.html``. With ``ops_cell_cycle_label_queue``
+    above 0 it also draws the labelling queue (:func:`build_label_queue`) into
+    ``cell_cycle_labels/<plate>/queue_pending.csv``.
 
     :param db: the measurements database.
     :param plate: the plate.
@@ -806,7 +808,8 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
     :param settings: read for every ``ops_cell_cycle_*`` setting, ``nucleus_channel``,
         ``cell_cycle_field_min_cells``, ``ops_design`` and ``ops_control_prefix``.
     :param destination: the run folder holding the cell tables.
-    :returns: the phase report.
+    :returns: the phase report; ``label_queue`` names the queue folder, its size and the
+        labels file, or is None.
     :raises ValueError: for a bad setting, missing cell tables or no model to start from.
     """
     from .ops_engine import _ph_cells_path, _replace_well_rows, _rows_for_wells
@@ -883,12 +886,25 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
     table["model_id"] = model_id
     for well in wells:
         _replace_well_rows(db, "ops_cell_cycle", table[table["well"] == str(well)], plate, well)
+    queued = None
+    size = int(settings.get("ops_cell_cycle_label_queue") or 0)
+    if size > 0:
+        from .tabular import write_table
+
+        folder = os.path.join(destination, "cell_cycle_labels", str(plate))
+        os.makedirs(folder, exist_ok=True)
+        pending = build_label_queue(table.assign(model_stage=stages["model_stage"].to_numpy()),
+                                    size, options["seed"])
+        write_table(pending, os.path.join(folder, "queue_pending.csv"), canonicalise=False)
+        queued = {"folder": folder, "cells": int(len(pending)),
+                  "labels": options["labels"] or os.path.join(destination, "cell_cycle_labels",
+                                                              "labels.csv")}
     counts = table["cell_cycle_stage"].value_counts().sort_index()
     report = _report_html(os.path.join(destination, f"ops_cell_cycle_report_{plate}.html"),
                           plate, checks, counts, union, notes, model["card"])
     return {"cells": int(len(table)), "collapsed": union, "plate_collapsed": failed,
             "stages": {k: int(v) for k, v in counts.items()}, "notes": notes,
-            "report": report, "model_id": model_id}
+            "report": report, "model_id": model_id, "label_queue": queued}
 
 
 def _labelled_scores(model: Mapping[str, Any], joined: pd.DataFrame,
@@ -968,3 +984,185 @@ def _collapses_in(db: str) -> Dict[str, List[str]]:
     rows = read_table(db, "ops_cell_cycle_checks")[["plate", "collapsed"]].drop_duplicates()
     return {str(p): [s for s in str(c or "").split(",") if s and c == c]
             for p, c in zip(rows["plate"], rows["collapsed"])}
+
+
+def build_label_queue(table: pd.DataFrame, n: int, seed: int = 0) -> pd.DataFrame:
+    """The cells to label: the most uncertain, every stage and every plate represented.
+
+    The margin between a cell's two most probable classes ranks it
+    (:func:`spacr.active_learning.rank_by_uncertainty`, ties broken with ``seed``). Every model
+    stage first gets its ⌈n/10⌉ most uncertain cells, then every plate its most uncertain
+    cell, then the rest fill up to ``n`` in rank order.
+
+    :param table: ``ops_cell_cycle`` rows (``plate, well, site, label``, ``model_stage`` and
+        ``p_<class>``).
+    :param n: the queue size.
+    :param seed: the tie-break seed.
+    :returns: ``n`` rows (fewer when the table is smaller) with the keys, ``model_stage`` and
+        ``rank``, in rank order.
+    """
+    from .active_learning import rank_by_uncertainty
+
+    probabilities = table[[f"p_{c}" for c in CLASSES]].to_numpy(float)
+    order = np.asarray(rank_by_uncertainty(probabilities, "margin", seed=int(seed)), int)
+    rank = np.empty(len(order), int)
+    rank[order] = np.arange(len(order))
+    ranked = table.assign(rank=rank).sort_values("rank", kind="stable")
+    chosen: List[int] = []
+    per_stage = int(np.ceil(n / 10.0))
+    for stage in CLASSES:
+        chosen += list(ranked.index[ranked["model_stage"] == stage][:per_stage])
+    for _plate, rows in ranked.groupby("plate", sort=True):
+        if not set(rows.index) & set(chosen):
+            chosen.append(rows.index[0])
+    for index in ranked.index:
+        if len(set(chosen)) >= n:
+            break
+        if index not in chosen:
+            chosen.append(index)
+    picked = ranked.loc[list(dict.fromkeys(chosen))].sort_values("rank", kind="stable")
+    return picked.head(int(n))[[*KEY, "model_stage", "rank"]].reset_index(drop=True)
+
+
+def write_label_queue(queue: pd.DataFrame, crop_root: str, folder: str, *,
+                      labels: str) -> str:
+    """The queue as a project Annotate opens: PNG crops and their ``png_list``.
+
+    Each queued cell's crop is read from the crop store of the ``ph_crops`` phase
+    (:func:`spacr.ops_run_infra.crop_index`) and written as an 8-bit PNG with one fixed display
+    range per channel, the 0.5th to 99.5th percentile of that channel over the whole queue (no
+    per-crop stretch). Annotation 1 to 6 are the stages of :data:`CLASSES`, in order.
+
+    :param queue: from :func:`build_label_queue`.
+    :param crop_root: the crop store's root (``ops_merged_root`` or ``dst_root``).
+    :param folder: the project folder to make; ``measurements/measurements.db`` and
+        ``data/`` go in it, with ``queue.json`` naming the classes and the labels file.
+    :param labels: the labels CSV the job's answers are appended to.
+    :returns: ``folder``.
+    :raises ValueError: when a queued cell has no crop in the store.
+    """
+    from PIL import Image
+
+    from .annotation_dataset import png_list_frame, write_png_list
+    from .ops_run_infra import crop_index
+    from .ops_engine import _ph_read_crop
+    from .tabular import write_table
+
+    crops = []
+    for plate, rows in queue.groupby("plate", sort=False):
+        index = crop_index(crop_root, str(plate), sorted(rows["well"].astype(str).unique()))
+        if not len(index):
+            raise ValueError(f"no crops of plate {plate} under {crop_root}; run ph_crops first")
+        index = index.assign(well=[os.path.basename(os.path.dirname(s)) for s in index["shard"]])
+        found = rows.astype({"well": str}).merge(index, on=["well", "site", "label"], how="left")
+        if found["shard"].isna().any():
+            raise ValueError(f"{int(found['shard'].isna().sum())} queued cells of plate {plate} "
+                             "have no crop; run ph_crops for their wells")
+        crops += [(row, _ph_read_crop(row.shard, row.offset_data, row.size)[0])
+                  for row in found.itertuples()]
+    stacked = [np.asarray(image, float) for _row, image in crops]
+    channels = stacked[0].shape[0]
+    ranges = [np.percentile(np.concatenate([s[c].ravel() for s in stacked]), [0.5, 99.5])
+              for c in range(channels)]
+    data = os.path.join(folder, "data")
+    os.makedirs(data, exist_ok=True)
+    os.makedirs(os.path.join(folder, "measurements"), exist_ok=True)
+    paths = []
+    for (row, _image), image in zip(crops, stacked):
+        planes = [np.clip((image[c] - lo) / max(hi - lo, 1e-9), 0, 1) for c, (lo, hi)
+                  in enumerate(ranges)]
+        rgb = np.stack([planes[min(i, channels - 1)] if i < channels else np.zeros_like(planes[0])
+                        for i in range(3)], axis=-1)
+        path = os.path.join(data, f"{row.plate}_{row.well}_s{row.site}_l{row.label}.png")
+        Image.fromarray((rgb * 255).astype(np.uint8)).save(path)
+        paths.append(path)
+    selection = pd.DataFrame({"plateID": [r.plate for r, _ in crops],
+                              "rowID": [r.well for r, _ in crops],
+                              "columnID": [r.well for r, _ in crops],
+                              "fieldID": [r.site for r, _ in crops],
+                              "objectID": [r.label for r, _ in crops]})
+    write_png_list(os.path.join(folder, "measurements", "measurements.db"),
+                   png_list_frame(selection, paths))
+    write_table(queue.assign(png_path=paths), os.path.join(folder, "queue.csv"),
+                canonicalise=False)
+    with open(os.path.join(folder, "queue.json"), "w", encoding="utf-8") as handle:
+        json.dump({"classes": {str(i + 1): c for i, c in enumerate(CLASSES)},
+                   "labels": str(labels), "cells": int(len(queue)),
+                   "ranges": [list(map(float, r)) for r in ranges]}, handle, indent=1)
+    return folder
+
+
+def collect_label_queue(folder: str, *, user: str = "") -> int:
+    """Append the job's answers to its labels file (append-only, with user and time).
+
+    :param folder: from :func:`write_label_queue`.
+    :param user: who labelled.
+    :returns: the rows appended (cells annotated 1 to 6).
+    """
+    import csv
+    import datetime
+
+    from .tabular import read_database, read_table
+
+    with open(os.path.join(folder, "queue.json"), encoding="utf-8") as handle:
+        manifest = json.load(handle)
+    rows = read_database(os.path.join(folder, "measurements", "measurements.db"), "png_list",
+                         canonicalise=False, report=None)[0][["png_path", "annotate"]]
+    queue = read_table(os.path.join(folder, "queue.csv"), canonicalise=False, report=None)
+    answers = queue.merge(rows, on="png_path", how="inner")
+    answers = answers[answers["annotate"].notna()]
+    answers["stage"] = [manifest["classes"].get(str(int(v))) for v in answers["annotate"]]
+    answers = answers[answers["stage"].notna()]
+    if not len(answers):
+        return 0
+    stamp = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
+    out = answers[KEY + ["stage"]].assign(user=user, time=stamp)
+    path = manifest["labels"]
+    new = not os.path.isfile(path)
+    with open(path, "a", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        if new:
+            writer.writerow(list(out.columns))
+        writer.writerows(out.itertuples(index=False, name=None))
+    return int(len(out))
+
+
+def track_label_job(folder: str, cells: int):
+    """Register the labelling job on Home and in the Jobs window (a Qt application must run).
+
+    The job is titled "Cell cycle: label N cells"; it does not block closing spaCR and nothing
+    stops with it. :func:`finish_label_job` retires it.
+
+    :param folder: from :func:`write_label_queue`.
+    :param cells: the queue size, for the title.
+    :returns: the registry handle; its ``folder`` attribute names the queue.
+    """
+    from .qt.bridge import _track_external_job
+
+    handle = _track_external_job(f"Cell cycle: label {int(cells)} cells", None,
+                                 blocks_shutdown=False, stop_on_quit=False, kind="external")
+    handle.folder = str(folder)
+    handle.report(0, int(cells), f"queue in {folder}")
+    return handle
+
+
+def finish_label_job(handle, *, rerun=None, user: str = "") -> int:
+    """The job is done: append its answers to the labels file, refit, and retire the job.
+
+    :param handle: from :func:`track_label_job`.
+    :param rerun: called with the labels file after the answers are appended, for example a
+        rerun of :func:`run_cell_cycle_phase` with ``ops_cell_cycle_labels`` set to it, so a
+        settings-file rerun reproduces the verified state; None skips the refit.
+    :param user: who labelled.
+    :returns: the answers appended.
+    """
+    try:
+        appended = collect_label_queue(handle.folder, user=user)
+        with open(os.path.join(handle.folder, "queue.json"), encoding="utf-8") as stream:
+            labels = json.load(stream)["labels"]
+        handle.report(line=f"{appended} labels appended to {labels}")
+        if rerun is not None and appended:
+            rerun(labels)
+        return appended
+    finally:
+        handle.retire()
