@@ -306,7 +306,9 @@ def _channels():
     return [nucleus, cell, *organelles]
 
 
-def _label_the_painted_squares(src, settings, object_type, progress_share=None):
+def _label_the_painted_squares(src, settings, object_type, *, batch_paths=None,
+                               on_batch_done=None, run_qc=True,
+                               progress_share=None):
     """Stand-in for the Cellpose pass: label the painted cells or nuclei."""
     from scipy import ndimage
 
@@ -317,7 +319,9 @@ def _label_the_painted_squares(src, settings, object_type, progress_share=None):
     position = settings[f"cellpose_{object_type}_channel"]
     from spacr._mask_batches import _batch_paths, _open_batch
 
-    for path in sorted(_batch_paths(src, _listdir_visible)):
+    paths = batch_paths if batch_paths is not None else _batch_paths(
+        src, _listdir_visible)
+    for path in sorted(paths):
         with _open_batch(path, allow_pickle=True) as archive:
             data, files = archive["data"], archive["filenames"]
         for index, filename in enumerate(files):

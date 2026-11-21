@@ -224,10 +224,15 @@ def test_stage_1_mask_all_four_object_types(_masked_workspace):
 
 def _measure_settings(plate: Path, base: dict) -> dict:
     """Settings for measure_crop; enable save_png so downstream
-    training has crops to work with. Requires stage 1 output."""
+    training has crops to work with. Requires stage 1 output.
+
+    Measure writes OME-Zarr crops by default since settings schema 949;
+    this test covers the legacy PNG route (png_list, PNG files), so it
+    selects ``crop_image_format='png'`` explicitly."""
     s = dict(base)
     s["src"] = str(plate)
     s["save_png"] = True
+    s["crop_image_format"] = "png"
     s["crop_mode"] = ["cell", "nucleus", "pathogen"]
     s["cell_min_size"] = 10
     s["nucleus_min_size"] = 5

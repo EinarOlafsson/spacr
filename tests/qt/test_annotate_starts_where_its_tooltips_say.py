@@ -121,10 +121,12 @@ def test_annotate_opens_on_load_images_the_way_170_decided():
     factory_ships = set_annotate_default_settings(
         {"src": "/tmp/not-a-real-run"})["crop_source"]
 
-    assert screen_starts_at == "png", (
-        f"Annotate opens on crop_source={screen_starts_at!r}. Instructions "
-        f"170 and 171 chose LOAD IMAGES ('png'), and the factory ships "
-        f"{factory_ships!r}; the screen never reads the factory, so this "
+    # Settings schema 949 (items 983/986) moved the choice 170 and 171 made
+    # for LOAD IMAGES ('png') to native OME-Zarr crops, which fall back to
+    # the legacy source when a run has none.
+    assert screen_starts_at == "ome-zarr" == factory_ships, (
+        f"Annotate opens on crop_source={screen_starts_at!r} and the factory "
+        f"ships {factory_ships!r}; the screen never reads the factory, so this "
         f"field is the only place that choice can be made for a person "
         f"annotating."
     )

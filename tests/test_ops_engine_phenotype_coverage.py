@@ -235,7 +235,7 @@ def test_fields_are_segmented_measured_and_resumed(tmp_path, models):
     table = pd.read_parquet(tmp_path / "ops_phenotype_cells_A1.parquet")
     assert sorted(table["site"].unique()) == [0, 1]
     assert (table["plate"] == PLATE).all()
-    assert (tmp_path / "A1" / "phenotype_masks" / "site-1.npz").is_file()
+    assert 1 in ops_engine._ph_mask_paths(str(tmp_path), PLATE, "A1", SETTINGS)
     migrated = read_table(db, "ops_phenotype")
     assert migrated["field_height"].tolist() == [SIZE, SIZE]
     assert migrated["scale"].tolist() == [pytest.approx(0.25)] * 2

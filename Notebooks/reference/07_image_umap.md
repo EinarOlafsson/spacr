@@ -245,7 +245,7 @@ This linked reference contains the full generated setting descriptions. Return t
 
 #### Additional settings
 
-- **`crop_source`** *(optional)* — (str) - Select where image crops come from. Viewers use 'png' (LOAD IMAGES) for exported crops in data/ or 'merged' (STREAM IMAGES) to cut from merged/*.npy using the measurements database. These viewer modes correspond to training's 'load_images' and 'stream_images' sources. spaCR reports any fallback, and controls that do not apply to the selected source are disabled. Default 'png' in viewers and 'load_images' in training. Image UMAP starts at 'auto', preferring exported PNGs when available and otherwise streaming from merged arrays. Default: `'auto'`.
+- **`crop_source`** *(optional)* — (str) - Select where image crops come from. 'ome-zarr' reads stored crop pools. 'png' loads exported crops, and 'merged' cuts crops from merged arrays using the measurements database. 'auto' checks the spaCR store, OME-Zarr crops, exported PNGs and merged arrays in that order. spaCR reports any fallback. Default 'ome-zarr'. Older saved settings retain their selected source. Default: `'ome-zarr'`.
 - **`gpu`** *(optional)* — (bool) - Request RAPIDS acceleration for the main dimensionality reduction and Image UMAP hyperparameter search. Controlled by the GPU toggle beside Hyperparameter search; supported for UMAP, t-SNE and PCA, with the actual backend recorded. Default False. Default: `False`.
 
 </details>

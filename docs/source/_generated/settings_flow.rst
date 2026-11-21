@@ -28296,6 +28296,8 @@ Read by ``_ph_crops``, ``ops_defaults``.
 ops_crop_image_format
 ---------------------
 
+Format for phenotype cell crops. ome-zarr keeps native pixels and optional cell/nucleus masks in committed per-well pools; tiff-tar keeps the legacy TIFF shards. Saved settings from before schema 949 retain tiff-tar. Default ome-zarr. Alpha.
+
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ph_crops``
@@ -28304,12 +28306,13 @@ ops_crop_image_format
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ph_crops``
 |             ``_ph_crop_format`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ph_crops``
 |             ``_ph_crop_format`` **-- reads it**
 
-Read by ``_ph_crop_format``.
+Read by ``_ph_crop_format``, ``ops_defaults``.
 
 .. _setting-flow-ops_crop_masks:
 
@@ -33883,6 +33886,8 @@ Read by ``_ph_granularity_subsample``, ``ops_defaults``.
 ops_ph_image_format
 -------------------
 
+Format for phenotype masks and merged field images. ome-zarr keeps the images and named label masks in plate stores; npz keeps the legacy files. Saved settings from before schema 949 retain npz. Default ome-zarr. Alpha.
+
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.ops_decode.run_compare_masks`
@@ -33955,6 +33960,7 @@ ops_ph_image_format
 |             ``_ph_mask_paths``
 |                 ``_ph_image_format`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.ops_decode.run_compare_masks`
@@ -33992,7 +33998,7 @@ ops_ph_image_format
 |                 ``_ph_image_format`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by ``_ph_image_format``.
+Read by ``_ph_image_format``, ``ops_defaults``.
 
 .. _setting-flow-ops_ph_measure_gpu:
 

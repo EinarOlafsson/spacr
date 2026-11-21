@@ -1589,7 +1589,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-11-05 items 791, 770, 771: +22/-0, sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, the spacr.division_analysis module and its fourteen functions, and batch_correction's EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
     # 2026-11-13 items 936/940: +2/-0, the spacr.stitch_core module docstring and spacr.stitch_core.StripRegistration.shift
     # (the ten new callables, twelve with item 940 part 2's two phenotype seed readers, are in 936_940_stitch_core_api_arrivals_2026-11-13.json; nine-language records on spacr-translations translations-936-940-1113).
-    expected = 13_217
+    # 2026-11-21 train 7: +2/-0, the nested OPS helpers
+    # _ph_merged.persist and _ph_crops.ordered_results; exact prose below.
+    train7_nested_arrivals = {
+        "spacr.ops_engine._ph_merged.persist":
+            "Commit one worker payload in the parent and retain only its small report.",
+        "spacr.ops_engine._ph_crops.ordered_results":
+            "Bound native result arrays to two fields per worker.",
+    }
+    assert {key: docs[key] for key in train7_nested_arrivals} == train7_nested_arrivals
+    expected = 13_219
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
@@ -2718,7 +2727,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
     # 2026-11-03 item 749: 13,190 -> 13,193 with `expected` above.
     # 2026-11-05 items 791, 770, 771: 13,193 -> 13,215 with `expected` above.
-    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_217
+    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_219
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
