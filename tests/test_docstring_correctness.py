@@ -3857,6 +3857,27 @@ def _validated_ome_zarr_convert_985_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_ops_maxproj_992_callables(callables):
+    """Check the public callables of item 992 (max-projection clustering, spacr.ops_maxproj) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "992_ops_maxproj_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    names = ("calibrate_view", "cell_bins", "cluster_maxproj_phase", "label_clusters_by_view",
+             "max_null_pvalues", "max_projection", "maxproj_scores", "pair_bins", "permuted_rows",
+             "projected_graph", "projected_rows_graph", "read_views", "view_similarity")
+    assert set(entries) == {"spacr.ops_maxproj"} | {f"spacr.ops_maxproj.{n}" for n in names}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == {f"spacr.ops_maxproj.{n}" for n in names}
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_ops_power_sim_968_callables(callables):
     """Check the public callables of item 968 (the OPS power simulation) against their source."""
     import json
@@ -4128,6 +4149,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_codex_issues_1119_callables(callables)
     callables = _validated_ome_zarr_983_callables(callables)
     callables = _validated_ome_zarr_convert_985_callables(callables)
+    callables = _validated_ops_maxproj_992_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -6927,6 +6949,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
         ("987b_mask_batches_api_arrivals_2026-11-20.json", 1),
         ("993_cli_preflight_reporting_api_arrivals_2026-11-20.json", 1),
+        ("992_ops_maxproj_api_arrivals_2026-11-20.json", 14),
         ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
     ):
@@ -7550,6 +7573,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
                      "987b_mask_batches_api_arrivals_2026-11-20.json",
                      "993_cli_preflight_reporting_api_arrivals_2026-11-20.json",
+                     "992_ops_maxproj_api_arrivals_2026-11-20.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json"):
@@ -7714,6 +7738,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
                      "987b_mask_batches_api_arrivals_2026-11-20.json",
                      "993_cli_preflight_reporting_api_arrivals_2026-11-20.json",
+                     "992_ops_maxproj_api_arrivals_2026-11-20.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json"):

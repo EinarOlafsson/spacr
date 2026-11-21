@@ -1481,7 +1481,10 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
         (item 928, :func:`spacr.ops_clusters.cluster_consensus_phase`; also
         after ``"cluster_sweep"`` when ``ops_consensus_enabled`` is on) and
         ``"cluster_bench_test"`` (item 929,
-        :func:`spacr.ops_clusters.cluster_bench_test_phase`), which run after
+        :func:`spacr.ops_clusters.cluster_bench_test_phase`) and
+        ``"cluster_maxproj"`` (item 992,
+        :func:`spacr.ops_maxproj.cluster_maxproj_phase`; also after
+        ``"cluster_sweep"`` when ``ops_maxproj_enabled`` is on), which run after
         them under the same BLAS pin, and ``"voyager3"`` (item 973,
         :func:`spacr.voyager3.run_voyager3`, the clusters' biological roles
         from UniProt facts through the user's AI provider; also after a
@@ -1567,6 +1570,17 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
                 if wanted:
                     info[phase] = run_phase(settings, gene_rows, guide_rows, str(settings["dst_root"]), report=say)
                     outputs.update(info[phase]["outputs"])
+        if "cluster_maxproj" in phases or (
+                "cluster_sweep" in phases and bool(settings.get("ops_maxproj_enabled", False))):
+            from .ops_maxproj import cluster_maxproj_phase
+
+            first = "" if states == ["interphase_rule"] else f"_{states[0]}"
+            tables = [os.path.join(folder, f"{kind}{first}.parquet") for kind in ("genes", "guides")]
+            gene_rows, guide_rows = (read_table(path, canonicalise=False, report=None)
+                                     if os.path.isfile(path) else None for path in tables)
+            info["cluster_maxproj"] = cluster_maxproj_phase(settings, gene_rows, guide_rows,
+                                                            str(settings["dst_root"]), report=say)
+            outputs.update(info["cluster_maxproj"]["outputs"])
         if "voyager3" in phases or (bool(settings.get("ops_voyager3_enabled", False)) and any(
                 phase in phases for phase in ("cluster_sweep", "cluster_consensus", "cluster_bench_test"))):
             from .voyager3 import run_voyager3
@@ -1584,7 +1598,8 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
                                      ("cluster_bench_test", "ops_cluster_"),
                                      ("cluster_bench_test", "ops_consensus_"),
                                      ("cluster_bench_test", "ops_bench_")) if phase in phases) + (
-        ("ops_voyager3_",) if "voyager3" in info else ())
+        ("ops_voyager3_",) if "voyager3" in info else ()) + (
+        ("ops_maxproj_",) if "cluster_maxproj" in info else ())
     keys = sorted(k for k in settings if k.startswith(recorded)
                   or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas",
                            "ops_blas_threads"))

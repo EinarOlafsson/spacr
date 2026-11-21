@@ -2383,7 +2383,7 @@ _APP_CATEGORY_PARENTS["ops"] = {
         "Power simulation")},
     **{title: "OPS cluster" for title in (
         "Cluster benchmark", "Resolution sweep", "Consensus clustering",
-        "Consensus inputs", "Calibrated cluster test",
+        "Consensus inputs", "Calibrated cluster test", "Max-projection clustering",
         "Module atlas & MitoCarta", "Voyager3 cluster annotation")},
     **{title: "OPS evaluation" for title in (
         "Profile scoring", "Scoring references", "Reference evaluation")},
@@ -3183,6 +3183,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The cluster_bench_test phase: paired replicates, the jitter gate "
         "that calibrates it, the test level and margin, the reference half "
         "and the size-matched null.",
+    "MAX-PROJECTION CLUSTERING":
+        "The cluster_maxproj phase: the views file and its tables, each "
+        "view's similarity and permutation null, the max-statistic null, "
+        "the projected graph and its Leiden sweep, and the optional "
+        "consensus.",
     "MODULE ATLAS & MITOCARTA":
         "The modules phase, which clusters gene profiles into a module "
         "atlas, and the mitocarta phase, which scores clusterings against "

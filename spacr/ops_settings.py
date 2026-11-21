@@ -423,6 +423,25 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_bench_gate_arm": 'consensus',
     "ops_bench_half": 1,
     "ops_bench_null_permutations": 1000,
+    "ops_maxproj_enabled": False,
+    "ops_maxproj_rows": None,
+    "ops_maxproj_guides": None,
+    "ops_maxproj_views": None,
+    "ops_maxproj_pca_variance": 0.99,
+    "ops_maxproj_similarity": 'shrunk',
+    "ops_maxproj_bins": 3,
+    "ops_maxproj_calibration_permutations": 50,
+    "ops_maxproj_null_permutations": 200,
+    "ops_maxproj_seed": 20261119,
+    "ops_maxproj_graph": 'knn',
+    "ops_maxproj_knn": 10,
+    "ops_maxproj_edge_p": 0.05,
+    "ops_maxproj_resolutions": None,
+    "ops_maxproj_leiden_seeds": [42, 1, 2],
+    "ops_maxproj_k": None,
+    "ops_maxproj_consensus": False,
+    "ops_maxproj_save_views": True,
+    "ops_maxproj_workers": 1,
     "ops_voyager3_enabled": False,
     "ops_voyager3_clusters": None,
     "ops_voyager3_cluster_column": "cluster",
@@ -955,6 +974,25 @@ OPS_TYPES: Dict[str, object] = {
     "ops_bench_gate_arm": str,
     "ops_bench_half": (int, type(None)),
     "ops_bench_null_permutations": int,
+    "ops_maxproj_enabled": bool,
+    "ops_maxproj_rows": (str, type(None)),
+    "ops_maxproj_guides": (str, type(None)),
+    "ops_maxproj_views": (str, type(None)),
+    "ops_maxproj_pca_variance": (float, int),
+    "ops_maxproj_similarity": str,
+    "ops_maxproj_bins": int,
+    "ops_maxproj_calibration_permutations": int,
+    "ops_maxproj_null_permutations": int,
+    "ops_maxproj_seed": int,
+    "ops_maxproj_graph": str,
+    "ops_maxproj_knn": int,
+    "ops_maxproj_edge_p": (float, int),
+    "ops_maxproj_resolutions": (list, type(None)),
+    "ops_maxproj_leiden_seeds": list,
+    "ops_maxproj_k": (int, type(None)),
+    "ops_maxproj_consensus": bool,
+    "ops_maxproj_save_views": bool,
+    "ops_maxproj_workers": int,
     "ops_voyager3_enabled": bool,
     "ops_voyager3_clusters": (str, type(None)),
     "ops_voyager3_cluster_column": str,
@@ -1385,6 +1423,16 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_bench_gate_noise", "ops_bench_gate_alpha", "ops_bench_gate_limit",
         "ops_bench_margin_quantile", "ops_bench_gate_record",
         "ops_bench_gate_arm", "ops_bench_half", "ops_bench_null_permutations",
+    ],
+    "Max-projection clustering": [
+        "ops_maxproj_enabled", "ops_maxproj_rows", "ops_maxproj_guides",
+        "ops_maxproj_views", "ops_maxproj_pca_variance", "ops_maxproj_similarity",
+        "ops_maxproj_bins",
+        "ops_maxproj_calibration_permutations", "ops_maxproj_null_permutations",
+        "ops_maxproj_seed", "ops_maxproj_graph", "ops_maxproj_knn",
+        "ops_maxproj_edge_p", "ops_maxproj_resolutions", "ops_maxproj_leiden_seeds",
+        "ops_maxproj_k", "ops_maxproj_consensus", "ops_maxproj_save_views",
+        "ops_maxproj_workers",
     ],
     "Module atlas & MitoCarta": [
         "ops_modules_runs", "ops_modules_precomputed_embedding",
@@ -2754,6 +2802,82 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Carlo error left shuffled-label controls about 0.2 points below "
         "zero on complexes; the first 200 of the 1000 are the same. Settings "
         "files saved before item 954 rerun with 200. Default 1000. Alpha.",
+    "ops_maxproj_enabled":
+        "(bool) - Run the cluster_maxproj phase: cluster the genes on the "
+        "strongest calibrated similarity of every gene pair over several "
+        "feature views, so a phenotype carried by a few columns is not "
+        "drowned by the rest of the profile. Needs ops_maxproj_views. Default "
+        "False. Alpha.",
+    "ops_maxproj_rows":
+        "(str or None) - The gene table the phase clusters, in named "
+        "measurement columns with gene and n_cells. Empty uses the profile "
+        "phase's own gene table. Default None. Alpha.",
+    "ops_maxproj_guides":
+        "(str or None) - The guide table the permutations rebuild gene rows "
+        "from: guide, gene, n_cells and the gene table's columns. Empty uses "
+        "the profile phase's own guide table. Default None. Alpha.",
+    "ops_maxproj_views":
+        "(str or None) - The views file: a JSON list of views, each with a "
+        "name, a block and the columns it keeps. Every view is scored on its "
+        "own and the pairs keep their strongest view. Its md5 is written to "
+        "the summary. Required when the phase runs. Default None. Alpha.",
+    "ops_maxproj_pca_variance":
+        "(float) - The share of variance the PCA of each view keeps before it "
+        "is whitened on the non-targeting genes. Default 0.99. Alpha.",
+    "ops_maxproj_similarity":
+        "(str) - The pair similarity inside each view: 'shrunk', the inner "
+        "product of the whitened rows over their norms each enlarged by the "
+        "non-targeting genes' mean norm, so a gene no stronger than the "
+        "controls stays near zero; or 'cosine', which in a view of few columns "
+        "often scores unrelated genes as alike. Default 'shrunk'. Alpha.",
+    "ops_maxproj_bins":
+        "(int) - Cell-count bins per gene; a pair is calibrated against the "
+        "null pairs of the same two bins, so well-measured genes are not "
+        "favoured. Default 3. Alpha.",
+    "ops_maxproj_calibration_permutations":
+        "(int) - Guide-label permutations that give every view its own null "
+        "of pair similarities. Default 50. Alpha.",
+    "ops_maxproj_null_permutations":
+        "(int) - Joint permutations, one shuffle for every view, that give "
+        "the null of the strongest pair score over the views, which each "
+        "pair's p value is read from. Default 200. Alpha.",
+    "ops_maxproj_seed":
+        "(int) - The base seed: calibration permutation p uses seed + p and "
+        "null permutation p uses seed + 100000 + p. Default 20261119. Alpha.",
+    "ops_maxproj_graph":
+        "(str) - The graph Leiden clusters: 'knn', each gene's strongest "
+        "partners by p value, or 'phate', PHATE on the projected scores. "
+        "Default 'knn'. Alpha.",
+    "ops_maxproj_knn":
+        "(int) - Partners per gene in the projected graph (and PHATE's "
+        "neighbours). More partners join weaker pairs, so clusters grow and "
+        "fewer genes stay alone; fewer keep only the strongest pairs. Default "
+        "10. Alpha.",
+    "ops_maxproj_edge_p":
+        "(float) - A pair is an edge only below this p value of the max null; "
+        "every gene keeps its best partner. Default 0.05. Alpha.",
+    "ops_maxproj_resolutions":
+        "(list or None) - The Leiden resolutions of the sweep. Empty uses 20 "
+        "log-spaced values from 0.05 to 50. Default None. Alpha.",
+    "ops_maxproj_leiden_seeds":
+        "(list) - The Leiden seeds of the sweep; the first also seeds the "
+        "partition matched to the target count. Default [42, 1, 2]. Alpha.",
+    "ops_maxproj_k":
+        "(int or None) - The target cluster count. Empty uses 209 clusters "
+        "per 2,647 genes, as the consensus clustering does. Default None. "
+        "Alpha.",
+    "ops_maxproj_consensus":
+        "(bool) - Also cluster ops_consensus_bootstraps guide bootstraps on "
+        "the projected graph and keep their consensus partition. Default "
+        "False. Alpha.",
+    "ops_maxproj_save_views":
+        "(bool) - Save every view's calibrated pair scores "
+        "(per_view_scores.npz), the structure at each view. Default True. "
+        "Alpha.",
+    "ops_maxproj_workers":
+        "(int) - Processes for the permutations. More processes finish sooner "
+        "and need more memory, each holding a copy of the gene and guide "
+        "tables; the results do not depend on it. Default 1. Alpha.",
     "ops_etest":
         "(bool) - Keep the per-cell aligned embedding when the profile phase "
         "runs (cells_E.npy and cells_meta.parquet in its folder), which the "
