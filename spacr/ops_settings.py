@@ -2826,9 +2826,10 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "is whitened on the non-targeting genes. Default 0.99. Alpha.",
     "ops_maxproj_similarity":
         "(str) - The pair similarity inside each view: 'cosine', the cosine "
-        "of the whitened rows; or 'shrunk', their inner product over norms "
-        "each enlarged by the non-targeting genes' mean norm, so a gene no "
-        "stronger than the controls stays near zero, which in a view of few "
+        "of the whitened rows; or 'shrunk', their inner product divided by "
+        "the square root of the product of their squared norms, each plus the "
+        "non-targeting genes' mean squared norm, so a gene no stronger than "
+        "the controls stays near zero, which in a view of few "
         "columns finds thin phenotypes that cosine misses. Default 'cosine'. "
         "Alpha.",
     "ops_maxproj_bins":
