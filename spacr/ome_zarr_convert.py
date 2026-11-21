@@ -56,10 +56,16 @@ def _portable_name(name):
         raise ValueError(tr("Rename this nonportable project component before conversion: {name}").format(name=name))
 
 
-def _file_digest(path):
-    """Fingerprint file bytes while rejecting a mutation during the read."""
+def _file_digest(path, algorithm="sha256"):
+    """Fingerprint file bytes while rejecting a mutation during the read.
+
+    :param path: the file.
+    :param algorithm: a :mod:`hashlib` name; ``'md5'`` for the chunk check of
+        :func:`upgrade_ngff`.
+    :returns: ``{"size": bytes, algorithm: hex digest}``.
+    """
     before = path.stat()
-    digest = hashlib.sha256()
+    digest = hashlib.new(algorithm)
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
@@ -67,7 +73,7 @@ def _file_digest(path):
     if (before.st_size, before.st_mtime_ns, before.st_ino) != (
             after.st_size, after.st_mtime_ns, after.st_ino):
         raise ValueError(tr("Source changed while reading; close the project and retry: {path}").format(path=path))
-    return {"size": after.st_size, "sha256": digest.hexdigest()}
+    return {"size": after.st_size, algorithm: digest.hexdigest()}
 
 
 def _inventory(root, *, fingerprints=True):
@@ -367,11 +373,15 @@ def _plan(src, dst, what):
     return json.loads(json.dumps(plan, allow_nan=False))
 
 
-def _atomic_json(path, data):
-    """Publish a flushed JSON ledger atomically on the destination filesystem."""
+def _atomic_json(path, data, *, sort_keys=True):
+    """Publish a flushed JSON ledger atomically on the destination filesystem.
+
+    ``sort_keys=False`` keeps the key order, as :func:`upgrade_ngff` writes a
+    store's ``zarr.json``.
+    """
     tmp = path.with_name(f".{path.name}.tmp")
     with tmp.open("w", encoding="utf-8") as handle:
-        json.dump(data, handle, sort_keys=True, indent=2, allow_nan=False)
+        json.dump(data, handle, sort_keys=sort_keys, indent=2, allow_nan=False)
         handle.write("\n")
         handle.flush()
         os.fsync(handle.fileno())
@@ -1624,3 +1634,220 @@ def _verify_legacy_png(project, row, record, folder):
                 and _array_digest(image_store.read_image(target)) == record["png_container_view"])
     except (ValueError, TypeError, KeyError, IndexError, OSError, CropError):
         return False
+
+
+_UPGRADE_LEDGER = "ngff_upgrade.json"
+_NGFF_STEPS = {"0.6": "0.5", "0.5": "0.6"}
+_INNER_VERSIONED = ("multiscales", "plate", "well", "labels", "image-label")
+
+
+def _strip_inner_versions(ome, version, where, removed):
+    """Drop a ``version`` repeated inside the OME metadata, as OME-Zarr 0.6 keeps it only at ``ome.version``."""
+    out = {}
+    for key, value in ome.items():
+        entries = value if isinstance(value, list) else [value]
+        kept = []
+        for index, entry in enumerate(entries):
+            if key in _INNER_VERSIONED and isinstance(entry, dict) and "version" in entry:
+                if str(entry["version"]) != version:
+                    raise ValueError(tr(
+                        "{where}: {key} carries version {inner} inside a {version} store; the "
+                        "converter cannot tell which one is right, so nothing was converted.").format(
+                            where=where, key=key, inner=entry["version"], version=version))
+                entry = {k: v for k, v in entry.items() if k != "version"}
+                removed.append(f"{where}#{key}[{index}]" if isinstance(value, list) else f"{where}#{key}")
+            kept.append(entry)
+        out[key] = kept if isinstance(value, list) else kept[0]
+    return out
+
+
+def _upgrade_group(document, to, where, removed):
+    """One group ``zarr.json`` in the target version; a non-OME group is returned unchanged."""
+    from .ome_zarr import OmeZarrError, multiscale_to_ngff05, multiscale_to_ngff06
+
+    attributes = document.get("attributes")
+    ome = attributes.get("ome") if isinstance(attributes, dict) else None
+    if not isinstance(ome, dict):
+        return document
+    version = str(ome.get("version"))
+    if version != _NGFF_STEPS[to]:
+        raise ValueError(tr(
+            "{where} is OME-Zarr {version}; upgrade_ngff converts {source} to {target} only, so "
+            "nothing was converted.").format(where=where, version=version,
+                                             source=_NGFF_STEPS[to], target=to))
+    if to == "0.6":
+        ome = _strip_inner_versions(ome, version, where, removed)
+    mapper = multiscale_to_ngff06 if to == "0.6" else multiscale_to_ngff05
+    mapped = {}
+    for key, value in ome.items():
+        if key == "version":
+            mapped[key] = to
+        elif key == "multiscales":
+            try:
+                mapped[key] = [mapper(entry) for entry in value]
+            except OmeZarrError as error:
+                raise ValueError(f"{where}: {error}") from None
+        else:
+            mapped[key] = value
+    return {**document, "attributes": {**attributes, "ome": mapped}}
+
+
+def _upgrade_plan(src, to):
+    """Map every group of the store in memory; refuse before anything is written.
+
+    The report and lock an earlier upgrade left at the store root are not part of the store.
+    """
+    if not (src / "zarr.json").is_file():
+        raise ValueError(tr(
+            "{path} is not an OME-Zarr 0.5 or 0.6 store: it has no zarr.json (Zarr v3).").format(path=src))
+    groups, arrays, chunks, removed = {}, [], [], []
+    for path in sorted(src.rglob("*")):
+        if path.is_dir():
+            continue
+        relative = path.relative_to(src).as_posix()
+        if relative in (_UPGRADE_LEDGER, ".conversion.lock"):
+            continue
+        if path.name in (".zattrs", ".zgroup", ".zarray"):
+            raise ValueError(tr(
+                "{path} holds Zarr v2 metadata ({name}); upgrade_ngff converts OME-Zarr 0.5 and "
+                "0.6 stores, which are Zarr v3. Nothing was converted.").format(path=src, name=relative))
+        if path.name != "zarr.json":
+            chunks.append(relative)
+            continue
+        document = json.loads(path.read_text(encoding="utf-8"))
+        if document.get("node_type") == "array":
+            arrays.append(relative)
+        else:
+            if to == "0.5" and relative.split("/")[0] == "coordinateTransformations":
+                raise ValueError(tr(
+                    "{path} holds a coordinateTransformations group, which OME-Zarr 0.5 cannot "
+                    "hold. Nothing was converted.").format(path=src))
+            groups[relative] = (document, _upgrade_group(document, to, relative, removed))
+    return groups, arrays, chunks, removed
+
+
+def _place_chunk(source, target, link):
+    """Hard-link one stored file, or copy it when linking is refused; returns the mode used."""
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists():
+        if target.stat().st_size == source.stat().st_size:
+            return "kept"
+        target.unlink()
+    if link:
+        try:
+            os.link(source, target)
+            return "link"
+        except OSError:
+            pass
+    partial_path = target.with_name(f".{target.name}.part")
+    shutil.copyfile(source, partial_path)
+    os.replace(partial_path, target)
+    return "copy"
+
+
+def _write_group(path, document):
+    """Publish one group ``zarr.json`` atomically (:func:`_atomic_json`), keeping the source key order."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _atomic_json(path, document, sort_keys=False)
+
+
+def _verify_upgrade(src, dst, groups, arrays, chunks, to, removed):
+    """Compare every stored byte and map the metadata back; returns the report fields."""
+    listing = []
+    for relative in chunks:
+        source = _file_digest(src / relative, "md5")["md5"]
+        target = _file_digest(dst / relative, "md5")["md5"]
+        if source != target:
+            raise ValueError(tr("Chunk verification failed: {path}").format(path=relative))
+        listing.append(f"{relative}\t{source}")
+    for relative in arrays:
+        if (src / relative).read_bytes() != (dst / relative).read_bytes():
+            raise ValueError(tr("Array metadata verification failed: {path}").format(path=relative))
+    back = _NGFF_STEPS[to]
+    for relative, (original, _mapped) in groups.items():
+        written = json.loads((dst / relative).read_text(encoding="utf-8"))
+        expected = original
+        if removed and to == "0.6":
+            attributes = original.get("attributes") or {}
+            ome = attributes.get("ome")
+            if isinstance(ome, dict):
+                expected = {**original, "attributes": {**attributes, "ome": _strip_inner_versions(
+                    ome, str(ome.get("version")), relative, [])}}
+        if _upgrade_group(written, back, relative, []) != expected:
+            raise ValueError(tr("Metadata round trip failed: {path}").format(path=relative))
+    return {"chunk_list_md5": hashlib.md5("\n".join(listing).encode("utf-8")).hexdigest()}
+
+
+def upgrade_ngff(src, dst, to="0.6", link=True):
+    """Convert an OME-Zarr 0.5 store to 0.6, or a 0.6 store back to 0.5, without touching a pixel.
+
+    Item 1007. Every chunk file is hard-linked into ``dst`` (copied when ``link`` is False or
+    the filesystem refuses the link) and only the group ``zarr.json`` metadata is rewritten,
+    by :func:`spacr.ome_zarr.multiscale_to_ngff06` (or
+    :func:`spacr.ome_zarr.multiscale_to_ngff05` for ``to='0.5'``): ``ome.version`` becomes the
+    target, ``axes`` the intrinsic coordinate system and each level's transformations the
+    ``{"path"} -> {"name"}`` form. A ``version`` repeated inside ``multiscales``, ``plate``,
+    ``well`` or ``labels`` that equals the store version is dropped, as 0.6 keeps it only at
+    ``ome.version``, and listed in the report. Array metadata, the other OME keys and every
+    non-OME group are kept byte for byte or key for key.
+
+    Anything that has no lossless form in the target version is refused with the reason
+    before anything is written, and ``src`` is never changed. A hard-linked chunk is the same
+    file as the source's, so ``dst`` is a new view of the same pixels; edit neither in place.
+
+    After writing, the md5 of every chunk file in ``src`` and ``dst`` is compared and every
+    group is mapped back to the source version, which must give the original metadata (key
+    order aside). The report is written to ``dst/ngff_upgrade.json``. A run stopped part-way
+    resumes when called again with the same ``src``, ``dst`` and ``to``.
+
+    :param src: the store to convert, a Zarr v3 OME-Zarr 0.5 (or 0.6) group.
+    :param dst: the new store; it must not exist, or hold an earlier run of the same upgrade.
+    :param to: ``'0.6'`` (default) or ``'0.5'``.
+    :param link: hard-link the chunk files (setting ``ome_zarr_upgrade_link``, default True);
+        False copies them.
+    :returns: the report: ``to``, ``groups``, ``arrays``, ``chunks``, ``linked``, ``copied``,
+        ``chunk_list_md5`` (the md5 of the sorted ``path<TAB>md5`` list),
+        ``removed_version_keys`` and ``verdict`` (``'verified'``).
+    :raises ValueError: for an unknown target, a store that is not the source version, a
+        Zarr v2 store, a destination inside the source or holding other files, metadata
+        without a lossless form, or a failed verification.
+    """
+    src, dst = _path(src).resolve(), _path(dst).resolve()
+    to = str(to)
+    if to not in _NGFF_STEPS:
+        raise ValueError(tr("upgrade_ngff converts to '0.6' or '0.5'; got {target}").format(target=to))
+    if dst == src or src in dst.parents:
+        raise ValueError(tr("The destination {dst} must be outside the source store {src}.").format(
+            dst=dst, src=src))
+    ledger_path = dst / _UPGRADE_LEDGER
+    if dst.exists():
+        previous = json.loads(ledger_path.read_text(encoding="utf-8")) if ledger_path.is_file() else None
+        if previous is None and any(dst.iterdir()):
+            raise ValueError(tr(
+                "{dst} already holds files that are not an earlier upgrade; choose a new "
+                "destination.").format(dst=dst))
+        if previous is not None and (previous.get("src") != str(src) or previous.get("to") != to):
+            raise ValueError(tr(
+                "{dst} holds an upgrade of {other} to {version}; choose a new destination.").format(
+                    dst=dst, other=previous.get("src"), version=previous.get("to")))
+    groups, arrays, chunks, removed = _upgrade_plan(src, to)
+    dst.mkdir(parents=True, exist_ok=True)
+    with _lock(dst):
+        _atomic_json(ledger_path, {"schema": _SCHEMA, "src": str(src), "to": to,
+                                   "status": "running"})
+        modes = {"link": 0, "copy": 0, "kept": 0}
+        for relative in chunks:
+            modes[_place_chunk(src / relative, dst / relative, bool(link))] += 1
+        for relative in arrays:
+            target = dst / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(src / relative, target)
+        for relative, (_original, mapped) in groups.items():
+            _write_group(dst / relative, mapped)
+        verified = _verify_upgrade(src, dst, groups, arrays, chunks, to, removed)
+        report = {"schema": _SCHEMA, "src": str(src), "to": to, "status": "done",
+                  "groups": len(groups), "arrays": len(arrays), "chunks": len(chunks),
+                  "linked": modes["link"], "copied": modes["copy"], "kept": modes["kept"],
+                  "removed_version_keys": removed, "verdict": "verified", **verified}
+        _atomic_json(ledger_path, report)
+    return report

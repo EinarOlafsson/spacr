@@ -2651,6 +2651,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in ngff06_arrivals} == ngff06_arrivals
     assert not ngff06_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **ngff06_arrivals}
+    upgrade_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(upgrade_arrivals) == {"spacr.ome_zarr_convert.upgrade_ngff"}
+    assert {key: docs[key] for key in upgrade_arrivals} == upgrade_arrivals
+    assert not upgrade_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **upgrade_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

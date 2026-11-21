@@ -69,6 +69,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_channels": "DAPI,GFP,A594,AF750",
     "ops_ph_image_format": "ome-zarr",
     "ome_zarr_ngff_version": "0.5",
+    "ome_zarr_upgrade_link": True,
     "ops_ph_cell_channel": "AF750",
     "ops_ph_nucleus_model": "cpsam",
     "ops_ph_cell_model": "cpsam",
@@ -611,6 +612,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_channels": str,
     "ops_ph_image_format": str,
     "ome_zarr_ngff_version": str,
+    "ome_zarr_upgrade_link": bool,
     "ops_ph_cell_channel": str,
     "ops_ph_nucleus_model": str,
     "ops_ph_cell_model": str,
@@ -1232,6 +1234,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "Phenotype segmentation": [
         "ops_ph_channels", "ops_ph_image_format", "ome_zarr_ngff_version",
+        "ome_zarr_upgrade_link",
         "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_tile_batch",
@@ -1739,6 +1742,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "ome-zarr keeps the images and named label masks in plate stores; "
         "npz keeps the legacy files. Saved settings from before schema 949 "
         "retain npz. Default ome-zarr. Alpha.",
+    "ome_zarr_upgrade_link":
+        "(bool) - How the OME-Zarr 0.5 to 0.6 converter (Convert, Upgrade "
+        "OME-Zarr) puts the pixel chunks into the new store: True hard-links "
+        "each chunk file, so the new store takes almost no space and is the "
+        "same pixels; False copies them. Copies are made anyway where the "
+        "disk refuses a link. Only the metadata is rewritten; every chunk is "
+        "checked byte for byte. Default True. Alpha.",
     "ome_zarr_ngff_version":
         "(str) - The OME-Zarr version of the phenotype plate stores, the "
         "merged field images and their masks, when ops_ph_image_format is "

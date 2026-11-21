@@ -189,6 +189,67 @@ def _build_barcode_controls(screen, outer):
     _apply_alpha_widgets(panel)
 
 
+def _pick_ngff_folder(screen, edit, title, _checked=False):
+    """Choose an OME-Zarr folder on the GUI thread; a cancelled dialog keeps the text."""
+    path = QFileDialog.getExistingDirectory(screen, title, edit.text())
+    if path:
+        edit.setText(path)
+
+
+def _build_ngff_upgrade_controls(screen, outer):
+    """Add the alpha OME-Zarr 0.5 to 0.6 upgrade row (item 1007) to the Convert form."""
+    from ...ops_settings import OPS_DEFAULTS
+    from ..preferences import _apply_alpha_widgets
+
+    panel = QWidget(screen)
+    panel.setObjectName("ConvertNgffUpgrade")
+    layout = QVBoxLayout(panel)
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.addWidget(QLabel(tr("Upgrade an OME-Zarr store to 0.6 (Alpha)"), panel))
+    row = QHBoxLayout()
+    screen._ngff_src = QLineEdit(panel)
+    screen._ngff_src.setPlaceholderText(tr("OME-Zarr 0.5 store"))
+    screen._ngff_dst = QLineEdit(panel)
+    screen._ngff_dst.setPlaceholderText(tr("New 0.6 store"))
+    screen._ngff_src_pick = QPushButton(tr("Store…"), panel)
+    screen._ngff_src_pick.clicked.connect(partial(
+        _pick_ngff_folder, screen, screen._ngff_src, tr("Select the OME-Zarr 0.5 store")))
+    screen._ngff_dst_pick = QPushButton(tr("Destination…"), panel)
+    screen._ngff_dst_pick.clicked.connect(partial(
+        _pick_ngff_folder, screen, screen._ngff_dst, tr("Select the folder for the 0.6 store")))
+    screen._ngff_link = Toggle(tr("Hard-link chunks"), panel)
+    screen._ngff_link.setChecked(bool(OPS_DEFAULTS["ome_zarr_upgrade_link"]))
+    screen._ngff_link.setToolTip(tr(
+        "On: the new store links to the same chunk files and takes almost no space. Off: the "
+        "chunks are copied. Only the metadata is rewritten, and every chunk is checked."))
+    screen._btn_ngff_upgrade = QPushButton(tr("Upgrade"), panel)
+    screen._btn_ngff_upgrade.clicked.connect(screen.run_ngff_upgrade)
+    for widget in (screen._ngff_src, screen._ngff_src_pick, screen._ngff_dst,
+                   screen._ngff_dst_pick, screen._ngff_link, screen._btn_ngff_upgrade):
+        row.addWidget(widget, 1 if isinstance(widget, QLineEdit) else 0)
+    layout.addLayout(row)
+    for edit in (screen._ngff_src, screen._ngff_dst):
+        edit.textChanged.connect(partial(_ngff_paths_changed, screen))
+    screen._ngff_panel = panel
+    outer.addWidget(panel)
+    _apply_alpha_widgets(panel)
+
+
+def _ngff_paths_changed(screen, *_args):
+    """Enable Upgrade once both paths are filled in."""
+    screen._update_controls()
+
+
+def _ngff_upgrade_summary(report):
+    """The upgrade report as the Summary pane shows it."""
+    return "\n".join([
+        tr("OME-Zarr {version} store written and verified.").format(version=report["to"]),
+        tr("{groups} group(s), {arrays} array(s), {chunks} chunk file(s): {linked} linked, "
+           "{copied} copied, {kept} kept from an earlier run.").format(**report),
+        tr("md5 of the chunk list: {digest}").format(digest=report["chunk_list_md5"]),
+    ])
+
+
 def _barcode_settings(screen):
     """Capture linkage values on the GUI thread before launching a worker."""
     return {'plate_barcode_source': screen._barcode_source.text().strip(),
@@ -463,6 +524,7 @@ class ConvertScreen(QWidget):
         outer.addLayout(dst_row)
 
         _build_barcode_controls(self, outer)
+        _build_ngff_upgrade_controls(self, outer)
 
         self._model = PlanTableModel(self)
         split = CollapsibleSplitter(Qt.Vertical, self,
@@ -846,9 +908,38 @@ class ConvertScreen(QWidget):
                        self._layout_box, self._z_box, self._plate_box,
                        self._resume, self._metadata_well_map,
                        self._barcode_source, self._barcode_pick,
-                       self._barcode_assignments, self._barcode_column):
+                       self._barcode_assignments, self._barcode_column,
+                       self._ngff_src, self._ngff_src_pick, self._ngff_dst,
+                       self._ngff_dst_pick, self._ngff_link):
             widget.setEnabled(idle)
         self._btn_convert.setEnabled(idle and has_plan)
+        self._btn_ngff_upgrade.setEnabled(
+            idle and bool(self._ngff_src.text().strip()) and bool(self._ngff_dst.text().strip()))
+
+    def run_ngff_upgrade(self, _checked=False) -> bool:
+        """Upgrade the chosen OME-Zarr 0.5 store to 0.6 off the GUI thread (item 1007, alpha).
+
+        :func:`spacr.ome_zarr_convert.upgrade_ngff` writes a new store beside the source and
+        verifies every chunk; the report goes to the Summary pane, a refusal to the status
+        line.
+
+        :returns: True when the job was started (or, unthreaded, succeeded).
+        """
+        from ... import ome_zarr_convert
+
+        src, dst = self._ngff_src.text().strip(), self._ngff_dst.text().strip()
+        if not src or not dst:
+            self._set_status(tr("Choose the OME-Zarr store and a new destination."), error=True)
+            return False
+        link = self._ngff_link.isChecked()
+        self._set_status(tr("Upgrading {path} to OME-Zarr 0.6…").format(path=src))
+        return self._run_job(partial(ome_zarr_convert.upgrade_ngff, src, dst, to="0.6", link=link),
+                             self._on_ngff_upgraded)
+
+    def _on_ngff_upgraded(self, report) -> None:
+        """Show a finished upgrade's report."""
+        self._set_summary(_ngff_upgrade_summary(report))
+        self._set_status(tr("Upgrade verified: {path}").format(path=report.get("src", "")))
 
     def can_convert(self) -> bool:
         """True when the Convert button is live."""

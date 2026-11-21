@@ -3841,6 +3841,24 @@ def _validated_ome_zarr_983_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_ome_zarr_upgrade_1007b_callables(callables):
+    """Check the public callables of item 1007 lane B (the OME-Zarr 0.5 to 0.6 converter) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.ome_zarr_convert.upgrade_ngff"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_ome_zarr_ngff06_1007_callables(callables):
     """Check the public callables of item 1007 (OME-Zarr NGFF 0.6, spacr.ome_zarr) against their source."""
     import json
@@ -4151,6 +4169,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_ome_zarr_983_callables(callables)
     callables = _validated_ome_zarr_convert_985_callables(callables)
     callables = _validated_ome_zarr_ngff06_1007_callables(callables)
+    callables = _validated_ome_zarr_upgrade_1007b_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -6971,6 +6990,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
         ("1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json", 3),
+        ("1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7609,7 +7629,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
                      "w_mask_tracing_api_arrivals_2026-11-20.json",
-                     "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json"):
+                     "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json",
+                     "1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7776,7 +7797,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
                      "w_mask_tracing_api_arrivals_2026-11-20.json",
-                     "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json"):
+                     "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json",
+                     "1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
