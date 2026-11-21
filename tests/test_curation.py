@@ -375,16 +375,21 @@ def test_joining_tracks_that_overlap_in_time_is_refused():
     assert session.check() == []
 
 
-def test_joining_a_track_to_itself_is_refused():
-    session = TrackCuration(_tracks({1: [0, 1]}))
-    with pytest.raises(CurationError, match="itself"):
-        session.join(1, 1)
-
-
-def test_joining_an_unknown_track_says_which_ones_exist():
-    session = TrackCuration(_tracks({1: [0], 2: [1]}))
-    with pytest.raises(CurationError, match="no track 99"):
-        session.join(1, 99)
+@pytest.mark.parametrize('records, first, second, match', [
+    pytest.param(
+        {1: [0, 1]}, 1, 1, 'itself',
+        id='test_joining_a_track_to_itself_is_refused',
+    ),
+    pytest.param(
+        {1: [0], 2: [1]}, 1, 99, 'no track 99',
+        id='test_joining_an_unknown_track_says_which_ones_exist',
+    ),
+])
+def test_original_invalid_track_joins_keep_their_refusals(records, first, second, match):
+    """Preserve each original invalid track join and its refusal."""
+    session = TrackCuration(_tracks(records))
+    with pytest.raises(CurationError, match=match):
+        session.join(first, second)
 
 
 # -- split -------------------------------------------------------------------
