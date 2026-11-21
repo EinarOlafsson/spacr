@@ -485,18 +485,29 @@ def test_mask_run_with_no_segmentation_channel_is_an_error(tmp_path):
     assert [p for p in errors(problems) if "no segmentation channel" in p.message]
 
 
-def test_measure_rejects_an_unknown_normalize_by(tmp_path):
+@pytest.mark.parametrize(
+    'setting_name, setting_value',
+    [
+        pytest.param(
+            'normalize_by', 'field',
+            id='test_measure_rejects_an_unknown_normalize_by',
+        ),
+        pytest.param(
+            'crop_mode', ['cell', 'mitochondria'],
+            id='test_measure_rejects_an_unsupported_crop_mode',
+        ),
+    ],
+)
+def test_measure_setting_refusals_keep_original_keys_and_values(
+    tmp_path, setting_name, setting_value,
+):
+    """Preserve each original invalid setting and native error-selection check."""
     _plate, merged = make_merged_plate(tmp_path, n_planes=7)
     settings = valid_measure_settings(merged)
-    settings["normalize_by"] = "field"
-    assert settings_named(errors(validate_settings(settings, "measure")), "normalize_by")
+    settings[setting_name] = setting_value
+    assert settings_named(errors(validate_settings(settings, "measure")), setting_name)
 
 
-def test_measure_rejects_an_unsupported_crop_mode(tmp_path):
-    _plate, merged = make_merged_plate(tmp_path, n_planes=7)
-    settings = valid_measure_settings(merged)
-    settings["crop_mode"] = ["cell", "mitochondria"]
-    assert settings_named(errors(validate_settings(settings, "measure")), "crop_mode")
 
 
 def test_crop_mode_without_the_matching_mask_dim_is_an_error(tmp_path):
