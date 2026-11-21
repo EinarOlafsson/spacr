@@ -129,16 +129,20 @@ def test_the_default_is_the_pipelines_own_default(mapping):
     assert mapping.get_value() == dict(DEFAULT_PNG_CHANNEL_MAPPING)
 
 
-def test_a_dict_round_trips(mapping):
-    mapping.set_value({"r": 2, "g": 1, "b": 0})
-    assert mapping.get_value() == {"r": 2, "g": 1, "b": 0}
-
-
-def test_a_settings_csv_string_is_read_back(mapping):
-    """A settings CSV stores ``repr(value)``, so the mapping arrives as
-    TEXT -- the same round trip every other list-shaped key has to survive."""
-    mapping.set_value("{'r': 1, 'g': 0, 'b': 2}")
-    assert mapping.get_value() == {"r": 1, "g": 0, "b": 2}
+@pytest.mark.parametrize('value, expected', [
+    pytest.param(
+        {'r': 2, 'g': 1, 'b': 0}, {'r': 2, 'g': 1, 'b': 0},
+        id='test_a_dict_round_trips',
+    ),
+    pytest.param(
+        "{'r': 1, 'g': 0, 'b': 2}", {'r': 1, 'g': 0, 'b': 2},
+        id='test_a_settings_csv_string_is_read_back',
+    ),
+])
+def test_original_mapping_inputs_keep_their_round_trip_values(mapping, value, expected):
+    """Preserve each original mapping input and its exact round-trip value."""
+    mapping.set_value(value)
+    assert mapping.get_value() == expected
 
 
 def test_the_legacy_list_is_translated_the_way_the_pipeline_does(mapping):
