@@ -1,9 +1,8 @@
 """The OPS cell-cycle option (item 990, alpha): stage, probability and flag per cell.
 
 Synthetic nuclei carry planted 2N and 4N DNA content, condensed 4N metaphases, 2N
-ana_telo_cyto daughter pairs and G2 prophase cells. Item 995's field-centred fit
-(``spacr.measure._cell_table_phases_measure_fc``) is not on this base yet, so the tests
-stand in for it with the same EM fit per well and no field shift.
+ana_telo_cyto daughter pairs, telophase daughters and G2 prophase cells. G1/S/G2 come from
+item 995's field-centred fit (``spacr.measure._cell_table_phases_measure_fc``), called for real.
 """
 from __future__ import annotations
 
@@ -23,39 +22,8 @@ PLATE = "P1"
 
 @pytest.fixture(autouse=True)
 def _fast(monkeypatch):
-    """Few permutations, one BLAS thread and item 995's call stood in for."""
-    from spacr import measure
-
+    """Few permutations."""
     monkeypatch.setattr(cc, "PERMUTATIONS", 20)
-    monkeypatch.setattr(measure, "_cell_table_phases_measure_fc", _fake_995, raising=False)
-
-
-def _fake_995(cells, *, dna="_dna_integrated", group="well", field="site", mitotic="mitotic",
-              min_cells=50):
-    """Item 995's OPS entry point without the field shift: one EM fit per group."""
-    from spacr.measure import _fit_dna_content, _gate_dna_content
-
-    for column in (dna, group, field, mitotic):
-        if column not in cells.columns:
-            raise ValueError(column)
-    frame = pd.DataFrame(index=cells.index)
-    frame["field_offset_log2"] = 0.0
-    frame["dna_content_centred"] = cells[dna].to_numpy(float)
-    for name in ("phase", "confidence", "posterior_G1", "posterior_S", "posterior_G2"):
-        frame[name] = np.nan if name != "phase" else None
-    fits = {}
-    for name, index in cells.groupby(group).groups.items():
-        content = cells.loc[index, dna].to_numpy(float)
-        calm = ~cells.loc[index, mitotic].to_numpy(bool)
-        fit = _fit_dna_content(pd.Series(content[calm]))
-        phases, confidence, posterior = _gate_dna_content(content, fit)
-        phases = np.where(calm, phases, "M")
-        frame.loc[index, "phase"] = phases
-        frame.loc[index, "confidence"] = confidence
-        for k, ph in enumerate(("G1", "S", "G2")):
-            frame.loc[index, f"posterior_{ph}"] = posterior[:, k]
-        fits[name] = {"fit": fit, "fields_shifted": 0, "pooled": False}
-    return frame, fits
 
 
 SHARES = {"G1": 0.5, "S": 0.2, "G2": 0.16, "g2_prophase": 0.03, "prometaphase": 0.02,
@@ -259,8 +227,10 @@ def test_the_knockout_check_needs_the_arrest_set_enriched(tmp_path):
     genes[300:600] = "nontargeting"
     stages = pd.DataFrame({"model_stage": stage}, index=cells.index)
     dna = pd.DataFrame({"dna_content_centred": cells["nucleus_dapi_integrated_intensity"]})
-    fit = _fake_995(cells.assign(_dna_integrated=cells["nucleus_dapi_integrated_intensity"],
-                                 mitotic=False))[1]
+    from spacr.measure import _cell_table_phases_measure_fc
+
+    fit = _cell_table_phases_measure_fc(
+        cells.assign(_dna_integrated=cells["nucleus_dapi_integrated_intensity"], mitotic=False))[1]
     results = {}
     for fold in (1, 3):
         stage = np.full(len(cells), "interphase", object)
