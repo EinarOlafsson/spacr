@@ -1,0 +1,181 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_cov_g2_measure_calibration_history.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_cov_g2_measure_calibration_history.py::test_measured_rows_without_field_keys_are_refused": "tests/test_cov_g2_measure_calibration_history.py::test_original_unproven_measurement_fields_keep_their_refusals[test_measured_rows_without_field_keys_are_refused]",
+    "tests/test_cov_g2_measure_calibration_history.py::test_timed_rows_need_timed_provenance": "tests/test_cov_g2_measure_calibration_history.py::test_original_unproven_measurement_fields_keep_their_refusals[test_timed_rows_need_timed_provenance]"
+  },
+  "native_literal_contracts": {
+    "test_measured_rows_without_field_keys_are_refused": {
+      "python_types": [
+        "tuple"
+      ],
+      "literal_repr": "(('plateID', 'area'),)"
+    },
+    "test_timed_rows_need_timed_provenance": {
+      "python_types": [
+        "tuple"
+      ],
+      "literal_repr": "(('plateID', 'rowID', 'columnID', 'fieldID', 'timeID'),)"
+    }
+  },
+  "case_contract_representations": {
+    "test_measured_rows_without_field_keys_are_refused": "(('plateID', 'area'),)",
+    "test_timed_rows_need_timed_provenance": "(('plateID', 'rowID', 'columnID', 'fieldID', 'timeID'),)"
+  },
+  "contract_scope": "Exact original ordered native cell-column tuples,fixed rescale-column tuple,tmp_path fixture,_db call and original keyword order,rescale row unpacking from FIELD,_matching JSON,recorded KEY identity,local columns/path assignments and native pytest.raises(ValueError) context around _check(path,abc) retained. Every other original calibration-history refusal/accepted-provenance case,helper,fixture,import and module constant retains AST and relative order. Typed literal repr/roundtrip report and upfront typed worker payload/repr evidence preserve native tuples; actual test inputs are never JSON-decoded. No message or database-identity assertion is added.",
+  "collected_before": [
+    "tests/test_cov_g2_measure_calibration_history.py::test_provenance_without_field_keys_is_refused",
+    "tests/test_cov_g2_measure_calibration_history.py::test_unreadable_provenance_is_refused",
+    "tests/test_cov_g2_measure_calibration_history.py::test_measured_rows_without_field_keys_are_refused",
+    "tests/test_cov_g2_measure_calibration_history.py::test_a_field_without_calibration_is_refused_when_one_is_asked_for",
+    "tests/test_cov_g2_measure_calibration_history.py::test_legacy_calibrated_rows_cannot_prove_their_references",
+    "tests/test_cov_g2_measure_calibration_history.py::test_timed_rows_need_timed_provenance",
+    "tests/test_cov_g2_measure_calibration_history.py::test_calibration_without_a_provenance_column_is_refused",
+    "tests/test_cov_g2_measure_calibration_history.py::test_timed_rows_with_matching_timed_provenance_are_accepted"
+  ],
+  "collected_after": [
+    "tests/test_cov_g2_measure_calibration_history.py::test_calibration_without_a_provenance_column_is_refused",
+    "tests/test_cov_g2_measure_calibration_history.py::test_timed_rows_with_matching_timed_provenance_are_accepted",
+    "tests/test_cov_g2_measure_calibration_history.py::test_legacy_calibrated_rows_cannot_prove_their_references",
+    "tests/test_cov_g2_measure_calibration_history.py::test_provenance_without_field_keys_is_refused",
+    "tests/test_cov_g2_measure_calibration_history.py::test_original_unproven_measurement_fields_keep_their_refusals[test_measured_rows_without_field_keys_are_refused]",
+    "tests/test_cov_g2_measure_calibration_history.py::test_a_field_without_calibration_is_refused_when_one_is_asked_for",
+    "tests/test_cov_g2_measure_calibration_history.py::test_original_unproven_measurement_fields_keep_their_refusals[test_timed_rows_need_timed_provenance]",
+    "tests/test_cov_g2_measure_calibration_history.py::test_unreadable_provenance_is_refused"
+  ],
+  "tests_before": {
+    "passed": 8,
+    "seconds": 6.41
+  },
+  "tests_after": {
+    "passed": 8,
+    "seconds": 6.73
+  },
+  "coverage_scope": "spacr.measure under the complete selected eight-case calibration-history helper module; not measurement/calibration workflow or full-suite coverage. Complete test module,selected history validator and its readonly SQLite/settings-query paths reviewed; module and production source byte-identical to reviewed audit100 baseline. Existing tiny temporary SQLite cell/settings/intensity_rescale tables,one synthetic row per table,small JSON identity records and the original accepted-case database-byte equality only. Validator uses mode=ro/query_only connections and closes them; it does not perform measurements,reference hashing,calibration planning,image reading/cropping,model fitting/training,scientific charts,timelapse analysis,new readers,network or GPU work. timeID is existing provenance metadata only. Upfront private SPACR_MODEL_DOWNLOAD=0 fixed in all phases prevents model discovery from existing imports. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 788,
+    "num_statements": 9404,
+    "percent_covered": 6.394260761072988,
+    "percent_covered_display": "6",
+    "missing_lines": 8616,
+    "excluded_lines": 0,
+    "percent_statements_covered": 8.379413015737985,
+    "percent_statements_covered_display": "8",
+    "num_branches": 3420,
+    "num_partial_branches": 8,
+    "covered_branches": 32,
+    "missing_branches": 3388,
+    "percent_branches_covered": 0.935672514619883,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_after": {
+    "covered_lines": 788,
+    "num_statements": 9404,
+    "percent_covered": 6.394260761072988,
+    "percent_covered_display": "6",
+    "missing_lines": 8616,
+    "excluded_lines": 0,
+    "percent_statements_covered": 8.379413015737985,
+    "percent_statements_covered_display": "8",
+    "num_branches": 3420,
+    "num_partial_branches": 8,
+    "covered_branches": 32,
+    "missing_branches": 3388,
+    "percent_branches_covered": 0.935672514619883,
+    "percent_branches_covered_display": "1"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "a422496c470a37f70bc72bbcb1282cbb918948c4f4607aa99e345251bb0b5e23",
+  "production_source_sha256": "3bf53058a6c41474ac8810e5db0ff5833684ebeb1bdc5543fd2d1e710d994820",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "measured-field-key-refusal-is-bypassed",
+      "source_variant": {
+        "path": "spacr/measure.py",
+        "line": 5421,
+        "old": "            if not set(keys) <= field_columns:\n                raise ValueError(message)",
+        "new": "            if not set(keys) <= field_columns:\n                return"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_g2_measure_calibration_history.py::test_measured_rows_without_field_keys_are_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_g2_measure_calibration_history.py::test_measured_rows_without_field_keys_are_refused"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_g2_measure_calibration_history.py::test_original_unproven_measurement_fields_keep_their_refusals[test_measured_rows_without_field_keys_are_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_g2_measure_calibration_history.py::test_original_unproven_measurement_fields_keep_their_refusals[test_measured_rows_without_field_keys_are_refused]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "timed-provenance-refusal-is-bypassed",
+      "source_variant": {
+        "path": "spacr/measure.py",
+        "line": 5426,
+        "old": "                if 'timeID' not in columns:\n                    raise ValueError(message)",
+        "new": "                if 'timeID' not in columns:\n                    return"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_g2_measure_calibration_history.py::test_timed_rows_need_timed_provenance"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_g2_measure_calibration_history.py::test_timed_rows_need_timed_provenance"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_cov_g2_measure_calibration_history.py::test_original_unproven_measurement_fields_keep_their_refusals[test_timed_rows_need_timed_provenance]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_cov_g2_measure_calibration_history.py::test_original_unproven_measurement_fields_keep_their_refusals[test_timed_rows_need_timed_provenance]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults before and after: return instead of refusing measured rows without required field keys; return instead of refusing timed measured rows without timed calibration provenance. Each selects the same one original/mapped field-key/time-column case and must fail with DID NOT RAISE from its unchanged native ValueError context. Existing finally connection-close behavior remains in each private fault. Repository production/settings/database/timelapse files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "typed_parameter_payloads_verified": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_cov_g2_measure_calibration_history.py",
+      "line": 93,
+      "symbol": "test_original_unproven_measurement_fields_keep_their_refusals",
+      "new": "Preserve each original field column layout and its calibration refusal.",
+      "old": {
+        "test_measured_rows_without_field_keys_are_refused": null,
+        "test_timed_rows_need_timed_provenance": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
