@@ -147,40 +147,27 @@ def test_a_point_inside_the_field_samples_its_value():
 # fraction_calibration._disagreement — arc 142 -> 144, an unusable correction
 # ---------------------------------------------------------------------------
 
-def test_an_unusable_correction_leaves_the_measurement_alone(monkeypatch):
-    """The ``if fixed.get("usable"):`` branch not taken.
-
-    Rogan-Gladen can return a proportion outside [0, 1] when the classifier's
-    sensitivity and specificity do not support the observed rate, and it says
-    so with ``usable``. Using the number anyway would put an impossible
-    fraction into a calibration, so the branch that declines it is the one
-    protecting the result -- and it had never run.
-    """
+@pytest.mark.parametrize('usable, corrected, per_well, expected', [
+    pytest.param(
+        False, 99.0, {'A01': (0.5, 0.4), 'A02': (0.2, 0.3)}, 0.1,
+        id='test_an_unusable_correction_leaves_the_measurement_alone',
+    ),
+    pytest.param(
+        True, 0.5, {'A01': (0.5, 0.4)}, 0.0,
+        id='test_a_usable_correction_is_applied',
+    ),
+])
+def test_original_correction_callbacks_keep_their_disagreement_results(
+        monkeypatch, usable, corrected, per_well, expected):
+    """Preserve each original fresh correction callback and disagreement assertion."""
     from spacr import fraction_calibration as fc
     import spacr.classifier_quality as cq
-
-    monkeypatch.setattr(cq, "rogan_gladen",
-                        lambda *_a, **_k: {"usable": False, "corrected": 99.0})
-
-    per_well = {"A01": (0.50, 0.40), "A02": (0.20, 0.30)}
+    monkeypatch.setattr(
+        cq, "rogan_gladen",
+        lambda *_a, **_k: {"usable": usable, "corrected": corrected},
+    )
     gap = fc._disagreement(per_well, {"sensitivity": 0.9, "specificity": 0.9})
-
-    # Median of |0.40-0.50| and |0.30-0.20| — the RAW seen values, uncorrected.
-    assert gap == pytest.approx(0.10)
-
-
-def test_a_usable_correction_is_applied(monkeypatch):
-    """The taken side, so the refusal above is visibly a different outcome."""
-    from spacr import fraction_calibration as fc
-    import spacr.classifier_quality as cq
-
-    monkeypatch.setattr(cq, "rogan_gladen",
-                        lambda *_a, **_k: {"usable": True, "corrected": 0.50})
-
-    per_well = {"A01": (0.50, 0.40)}
-    gap = fc._disagreement(per_well, {"sensitivity": 0.9, "specificity": 0.9})
-
-    assert gap == pytest.approx(0.0)
+    assert gap == pytest.approx(expected)
 
 
 # ---------------------------------------------------------------------------
