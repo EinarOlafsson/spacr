@@ -2378,7 +2378,7 @@ _APP_CATEGORY_PARENTS["ops"] = {
         "Field alignment", "Cell ownership", "Yield report")},
     **{title: "OPS aggregate" for title in (
         "Pooling & normalisation", "Gene tests & hits",
-        "Cell cycle & mitosis", "Penetrance, escapers & neighbours",
+        "Cell cycle & mitosis", "Cell-cycle stages", "Penetrance, escapers & neighbours",
         "Profile weighting & shrinkage", "Profile run", "Energy-distance test",
         "Power simulation")},
     **{title: "OPS cluster" for title in (
@@ -3167,6 +3167,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How mitotic cells are called, whether profiles are split by "
         "cell-cycle phase, the per-phase gene tests, and the mitotic-index "
         "test against a published table.",
+    "CELL-CYCLE STAGES":
+        "The ops_cell_cycle option: each cell's stage, probability and flag "
+        "from a model and the DNA-content fit, the model it starts from, the "
+        "user's labels that refit and verify it, and its self-checks.",
     "PENETRANCE, ESCAPERS & NEIGHBOURS":
         "Per-gene penetrance, genes whose cells split into responders and "
         "escapers, and the effect of a knockout on its unperturbed "
