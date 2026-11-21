@@ -3857,6 +3857,25 @@ def _validated_ome_zarr_convert_985_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_ops_flatfield_channel_fit_1006_callables(callables):
+    """Check the public callables of item 1006 (per-channel OPS flat-field fits) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    names = ('complete_pending_flat', 'field_object_means', 'mark_pending')
+    assert set(entries) == {f"spacr.ops_flatfield.{n}" for n in names}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_ops_power_sim_968_callables(callables):
     """Check the public callables of item 968 (the OPS power simulation) against their source."""
     import json
@@ -4128,6 +4147,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_codex_issues_1119_callables(callables)
     callables = _validated_ome_zarr_983_callables(callables)
     callables = _validated_ome_zarr_convert_985_callables(callables)
+    callables = _validated_ops_flatfield_channel_fit_1006_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -6927,6 +6947,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
         ("987b_mask_batches_api_arrivals_2026-11-20.json", 1),
         ("993_cli_preflight_reporting_api_arrivals_2026-11-20.json", 1),
+        ("1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json", 3),
         ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
@@ -7552,6 +7573,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
                      "987b_mask_batches_api_arrivals_2026-11-20.json",
                      "993_cli_preflight_reporting_api_arrivals_2026-11-20.json",
+                     "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
@@ -7718,6 +7740,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
                      "987b_mask_batches_api_arrivals_2026-11-20.json",
                      "993_cli_preflight_reporting_api_arrivals_2026-11-20.json",
+                     "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",

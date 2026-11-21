@@ -104,7 +104,7 @@ GROUPS = (
         ("Phenotype store and crops, two acquisitions, yield funnel", (871, 947, 875)),
         ("Runs resume, run chosen sites, skip missing fields, add controls, count cells once",
          (872, 874, 951, 958, 977)),
-        ("DNA flat-field map from nuclei, held-out check", (912,)),
+        ("Flat-field map per channel, from pixels, nuclei or cells", (912, 1006)),
         ("Merge routes: tile pattern, well mosaic, automatic fallback", (962,)),
         ("Pathogen and organelle objects per cell, carried into gene profiles", (970,)),
         ("spaCR store: Parquet tables, Zarr crops, one DuckDB catalog", (974,)),

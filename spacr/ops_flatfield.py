@@ -234,6 +234,9 @@ def load_flat_maps(folder: str, channels: Sequence[str]
         ``{channel: b}``, and the info record with each map's md5 (computed
         here when the record lacks it).
     :raises FileNotFoundError: when the folder lacks the record or a map.
+    :raises ValueError: when a wanted channel's map is still pending
+        (:func:`mark_pending`); build it with the ``ph_flatfield_objects``
+        phase first.
     """
     info_path = os.path.join(folder, "flat_info.json")
     if not os.path.isfile(info_path):
@@ -249,8 +252,16 @@ def load_flat_maps(folder: str, channels: Sequence[str]
             files[name[:-4].rsplit("_", 1)[-1].upper()] = os.path.join(
                 folder, name)
     maps, offsets, digests = {}, {}, dict(info.get("md5") or {})
+    pending = {str(c).upper() for c in info.get("pending") or []}
     for channel in channels:
         key = str(channel).upper()
+        if key in pending:
+            from .qt.i18n import tr
+
+            raise ValueError(tr(
+                "the {channel} flat-field map in {folder} is still pending: run the "
+                "ph_flatfield_objects phase (after ph_segment) before anything uses it",
+                channel=channel, folder=folder))
         if key not in files or key not in method:
             raise FileNotFoundError(
                 f"{folder} has no flat-field map for channel {channel}")
@@ -966,17 +977,134 @@ def write_nuclear_flat(folder: str, plate: str, channel: str, flat: np.ndarray,
     record = {**dict(info), "md5": digests[channel.upper()], "spacr": spacr_version}
     with open(path[:-4] + ".json", "w", encoding="utf-8") as handle:
         json.dump(record, handle, indent=1)
-    method[channel.upper()] = {
-        "how": f"nuclear median, {info.get('fit')}, sigma {info.get('sigma_px')} px",
-        "offset": float(info["offset"]), "centre": info.get("centre_value"),
-        "flat_min": info.get("flat_min"), "flat_max": info.get("flat_max"),
-        "lookup": info.get("lookup", "block_centre"), "block": int(info.get("block", FLAT_BLOCK)),
-        "centre_offset": float(info.get("centre_offset", 8.0)), "estimator": "nuclear_median"}
+    method[channel.upper()] = _nuclear_method(info)
     flat_info = {"plate": plate, "method": method, "md5": digests, "immutable": True,
                  "md5_record": True, "copied_from": copied,
                  "held_out_fields": list(info.get("held_out_fields") or [])}
     with open(os.path.join(folder, "flat_info.json"), "w", encoding="utf-8") as handle:
         json.dump(flat_info, handle, indent=1)
+    return flat_info
+
+
+def _nuclear_method(info: Mapping[str, object]) -> dict:
+    """The ``flat_info.json`` method entry of a nuclear- (or cell-) median map."""
+    estimator = str(info.get("estimator") or "nuclear_median")
+    return {"how": f"{estimator.replace('_', ' ')}, {info.get('fit')}, sigma {info.get('sigma_px')} px",
+            "offset": float(info["offset"]), "centre": info.get("centre_value"),
+            "flat_min": info.get("flat_min"), "flat_max": info.get("flat_max"),
+            "lookup": info.get("lookup", "block_centre"), "block": int(info.get("block", FLAT_BLOCK)),
+            "centre_offset": float(info.get("centre_offset", 8.0)), "estimator": estimator}
+
+
+OBJECT_FITS = ("nuclear_median", "cell_median")
+CHANNEL_FITS = ("pixel_median", "polynomial", *OBJECT_FITS)
+
+
+def mark_pending(maps: Dict[str, np.ndarray], method: Dict[str, dict], channel: str,
+                 how: str) -> str:
+    """Hold a channel's map back as pending, keeping its measured offset (item 1006).
+
+    With ``ops_flatfield_channel_fit`` naming an object fit for a channel (``'nuclear_median'``
+    or ``'cell_median'``), the ``ph_flatfield`` phase builds every map as before but does not
+    write that channel's: it is built after segmentation by the ``ph_flatfield_objects`` phase
+    (:func:`complete_pending_flat`). The channel's method entry keeps the offset ``ph_flatfield``
+    measured, which that phase uses when ``ops_flatfield_dark`` does not give one.
+
+    :param maps: from :func:`build_flat_maps`; the channel's map is removed.
+    :param method: its method record; the channel's entry gains ``pending``.
+    :param channel: the channel.
+    :param how: the object fit, one of :data:`OBJECT_FITS`.
+    :returns: the channel in upper case, for ``flat_info.json``'s ``pending``.
+    """
+    if how not in OBJECT_FITS:
+        raise ValueError(f"the object fit must be one of {list(OBJECT_FITS)}; got {how!r}")
+    key = next((k for k in maps if str(k).upper() == str(channel).upper()), None)
+    if key is not None:
+        maps.pop(key)
+        method[key] = {"offset": float(method[key]["offset"]), "pending": how}
+    return str(channel).upper()
+
+
+def field_object_means(image: np.ndarray, nuclei: np.ndarray, cells: np.ndarray, *,
+                       well: str, site: int, channel: str, compartment: str = "nucleus"):
+    """One field's objects as rows of an object-median map's table (item 1006).
+
+    The centroids and edge flags are those of :func:`mask_pass`, the mean is the raw
+    (uncorrected) mean of the channel over the object (:func:`field_nucleus_means`): for the
+    nucleus compartment, the columns :func:`nucleus_table` assembles from a measured run.
+
+    :param image: the field's raw plane of the channel.
+    :param nuclei: its nucleus labels.
+    :param cells: its cell labels (nucleus ``k`` in cell ``k``).
+    :param well: the well.
+    :param site: the site.
+    :param channel: the channel, for the column name.
+    :param compartment: ``'nucleus'`` or ``'cell'``, the object the mean is taken over.
+    :returns: one row per object with ``well``, ``site``, ``label``, ``<compartment>_cy``,
+        ``<compartment>_cx``, the edge flag and ``<compartment>_<channel>_mean_intensity``.
+    """
+    if compartment not in ("nucleus", "cell"):
+        raise ValueError(f"the compartment must be 'nucleus' or 'cell'; got {compartment!r}")
+    geometry = mask_pass(nuclei, cells, None)
+    edge = "nucleus_touches_field_edge" if compartment == "nucleus" else "touches_field_edge"
+    keep = ["label", f"{compartment}_cy", f"{compartment}_cx", edge]
+    labels = nuclei if compartment == "nucleus" else cells
+    means = field_nucleus_means(image, labels, {}, 0.0)
+    column = f"{compartment}_{str(channel).lower()}_mean_intensity"
+    table = geometry[[c for c in keep if c in geometry.columns]].merge(
+        means.rename(columns={"raw_mean": column}), on="label", how="inner")
+    table.insert(0, "site", int(site))
+    table.insert(0, "well", str(well))
+    return table
+
+
+def complete_pending_flat(folder: str, plate: str, channel: str, flat: np.ndarray,
+                          info: Mapping[str, object]) -> dict:
+    """Write a pending channel's object-median map into its maps folder (item 1006).
+
+    The map and its sidecar record go next to the folder's other maps, written once and
+    never overwritten, as :func:`write_nuclear_flat` writes them; ``flat_info.json`` gains
+    the channel's method entry and md5, loses it from ``pending``, and carries
+    ``md5_record`` so every run that uses the maps keeps their md5
+    (:func:`record_flat_md5`).
+
+    :param folder: the maps folder :func:`write_flat_maps` wrote with the channel pending.
+    :param plate: the plate name used in the file names.
+    :param channel: the pending channel.
+    :param flat: the map from :func:`build_nuclear_flat`.
+    :param info: its record; ``estimator`` names the fit (``'nuclear_median'`` or
+        ``'cell_median'``).
+    :returns: the updated ``flat_info.json`` record.
+    :raises ValueError: when the channel is not pending in the folder.
+    :raises FileExistsError: when the channel's map already exists.
+    """
+    from . import __version__ as spacr_version
+
+    info_path = os.path.join(folder, "flat_info.json")
+    with open(info_path, encoding="utf-8") as handle:
+        flat_info = json.load(handle)
+    key = str(channel).upper()
+    pending = [str(c).upper() for c in flat_info.get("pending") or []]
+    if key not in pending:
+        raise ValueError(f"the {channel} map of {folder} is not pending")
+    path = os.path.join(folder, f"flat_{plate}_{channel}.npy")
+    if os.path.exists(path):
+        raise FileExistsError(f"{path} exists; flat-field maps are never overwritten")
+    np.save(path, np.asarray(flat, np.float32))
+    with open(path, "rb") as handle:
+        digest = hashlib.md5(handle.read()).hexdigest()
+    with open(path[:-4] + ".json", "w", encoding="utf-8") as handle:
+        json.dump({**dict(info), "md5": digest, "spacr": spacr_version}, handle, indent=1)
+    method = dict(flat_info.get("method") or {})
+    for name in [k for k in method if str(k).upper() == key]:
+        method.pop(name)
+    method[str(channel)] = _nuclear_method(info)
+    flat_info.update(method=method, md5={**dict(flat_info.get("md5") or {}), str(channel): digest},
+                     pending=[c for c in pending if c != key], md5_record=True,
+                     held_out_fields=list(info.get("held_out_fields") or []))
+    with open(info_path + ".part", "w", encoding="utf-8") as handle:
+        json.dump(flat_info, handle, indent=1)
+    os.replace(info_path + ".part", info_path)
     return flat_info
 
 

@@ -157,6 +157,10 @@ default after a higher-numbered item takes the next free number:
   field in the resident batch when that is 0). An old file's
   ``ops_ph_batch_size`` is renamed to ``ops_ph_tile_batch``, so it still sets
   only the phenotype path. 946 and 947 belong to other items.
+- 952 (item 1006): ``ops_flatfield`` was ``'none'``; it is now ``'exact'``, so
+  an OPS phenotype run divides every pixel by the plate's flat-field maps
+  before measuring and needs them (phase ``ph_flatfield``, or a prebuilt
+  ``ops_flatfield_maps`` folder). 949-951 belong to other items.
 
 Public API
 ----------
