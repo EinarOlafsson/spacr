@@ -128,18 +128,20 @@ class TestTheRolesAreAClosedSet:
         for value, why in ROLES:
             assert len(why) > 10, value
 
-    def test_two_groups_claiming_one_role_is_refused_on_the_spot(self):
-        """Not at run time, which is where it would otherwise appear -- as an
-        import that read one group and silently ignored the other."""
-        said = role_trouble({"a": "wellID", "b": "wellID", "c": "fieldID",
-                             "d": "chanID"})
-
-        assert any("a, b" in s and "wellID" in s for s in said)
-
-    def test_a_missing_required_role_is_named(self):
-        said = role_trouble({"a": "wellID"})
-
-        assert any("fieldID" in s and "chanID" in s for s in said)
+    @pytest.mark.parametrize('records, left_text, right_text', [
+        pytest.param(
+            {'a': 'wellID', 'b': 'wellID', 'c': 'fieldID', 'd': 'chanID'}, 'a, b', 'wellID',
+            id='test_two_groups_claiming_one_role_is_refused_on_the_spot',
+        ),
+        pytest.param(
+            {'a': 'wellID'}, 'fieldID', 'chanID',
+            id='test_a_missing_required_role_is_named',
+        ),
+    ])
+    def test_original_invalid_role_maps_keep_their_message_fragments(self, records, left_text, right_text):
+        """Preserve each original invalid role map and its paired message fragments."""
+        said = role_trouble(records)
+        assert any(left_text in s and right_text in s for s in said)
 
     def test_a_complete_assignment_is_silent(self):
         assert role_trouble({"a": "wellID", "b": "fieldID",
