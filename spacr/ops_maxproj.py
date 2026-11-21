@@ -397,9 +397,9 @@ def _map(job, tasks: List[tuple], workers: int) -> List[Any]:
     """``job`` over the tasks in task order, in ``workers`` processes."""
     if workers <= 1:
         return [job(t) for t in tasks]
-    from concurrent.futures import ProcessPoolExecutor
+    from .resource_log import _parallel_process_executor
 
-    with ProcessPoolExecutor(max_workers=workers) as pool:
+    with _parallel_process_executor(workers) as pool:
         return list(pool.map(job, tasks))
 
 

@@ -310,12 +310,12 @@ def test_the_settings_are_alpha_and_flatfield_is_on_by_default():
     assert SETTINGS_SCHEMA_VERSION >= 952 and DEFAULT_CHANGES[952] == {
         "ops_flatfield": "none", "ops_flatfield_channel_fit": "legacy"}
     old = {}
-    folded = _fold_older_defaults(old, 948)
+    folded = _fold_older_defaults(old, 951)
     assert folded["ops_flatfield"] == ("none", 952)
     assert folded["ops_flatfield_channel_fit"] == ("legacy", 952)
     assert old == {"ops_flatfield": "none", "ops_flatfield_channel_fit": "legacy"}
     exact = {"ops_flatfield": "exact"}
-    _fold_older_defaults(exact, 948)
+    _fold_older_defaults(exact, 951)
     assert ops_engine._ph_channel_fits(exact, ["DAPI", "GFP"]) == {
         "DAPI": "polynomial", "GFP": "pixel_median"}
     assert _fold_older_defaults({}, 952) == {}
