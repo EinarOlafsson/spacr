@@ -308,8 +308,10 @@ function Invoke-SpacrGpuConcurrent {
         }
         $arguments = @($TurnCommand | Select-Object -Skip 1)
         $global:LASTEXITCODE = 0
-        & $TurnCommand[0] @arguments | Out-Host
-        $succeeded = $?
+        # Item 1011: the declared VRAM becomes the child's budget (spaCR's gpu_vram_budget_gb).
+        $previousBudget = $env:SPACR_GPU_VRAM_GB
+        $env:SPACR_GPU_VRAM_GB = [string]::Format([Globalization.CultureInfo]::InvariantCulture, '{0}', $NeedGb)
+        try { & $TurnCommand[0] @arguments | Out-Host; $succeeded = $? } finally { $env:SPACR_GPU_VRAM_GB = $previousBudget }
         $result = $LASTEXITCODE
         if (-not $succeeded -and $result -eq 0) { $result = 1 }
         Write-TurnLog "FINISH concurrent rc=$result"

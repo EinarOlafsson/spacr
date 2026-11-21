@@ -259,7 +259,8 @@ run_concurrent() {
         flock -u 8
         sleep "$POLL_S"
     done
-    "$@"
+    # Item 1011: the declared VRAM becomes the child's budget (spaCR's gpu_vram_budget_gb).
+    SPACR_GPU_VRAM_GB="$VRAM_GB" "$@"
     rc=$?
     rm -f "$DIR/reserve/$$"
     say "FINISH concurrent rc=$rc"

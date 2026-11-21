@@ -9,8 +9,11 @@ RAM when ``batch_size`` is automatic. Internal to :mod:`spacr.io`,
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import math
 import os
+import random
 
 import numpy as np
 
@@ -239,37 +242,54 @@ _TINY_BATCH_FRACTION = 0.5
 #: The batch size the older, archive-based routes use when ``batch_size`` is automatic.
 _LEGACY_BATCH_SIZE = 50
 
-_AUTO_WORDS = ('', 'none', 'auto')
+_AUTO_WORDS = ('', 'none', 'auto', 'whole')
+
+#: The ``batch_size`` / ``mask_eval_batch_size`` request for VRAM-filling, even,
+#: seeded-random batches sized by a calibration pass (item 1011).
+_AUTO_VRAM = 'auto_vram'
+
+#: The tile batch cap and the field-order seed when the settings carry none (item 1011).
+_DEFAULT_TILE_CAP = 32
+_DEFAULT_BATCH_SEED = 42
+
+#: The tile batch of a run with no CUDA device, Cellpose's own default (item 1011).
+_CPU_TILE_BATCH = 8
 
 
 def _batch_size_request(value):
     """What the ``batch_size`` setting asks for.
 
-    :param value: 0, -1, None, ``'none'`` or ``'auto'`` (any case) mean automatic.
-    :returns: None for automatic, otherwise the positive whole number asked for.
+    :param value: ``'auto_vram'`` (item 1011); 0, -1, None, ``'none'``, ``'auto'``
+        or ``'whole'`` (any case) mean item 987b's automatic batch; or a
+        positive whole number.
+    :returns: ``'auto_vram'``, None for 987b's automatic batch, or the positive
+        whole number asked for.
     :raises ValueError: for any other value.
     """
+    if isinstance(value, str) and value.strip().lower() == _AUTO_VRAM:
+        return _AUTO_VRAM
     if value is None or (isinstance(value, str) and value.strip().lower() in _AUTO_WORDS):
         return None
     try:
         number = int(float(value))
     except (TypeError, ValueError):
-        raise ValueError(f"batch_size must be a number of fields or 0, -1, None, 'none' or "
-                         f"'auto' for automatic, got {value!r}")
+        raise ValueError(f"batch_size must be a number of fields, 'auto_vram', or 0, -1, None, "
+                         f"'none', 'auto' or 'whole' for automatic, got {value!r}")
     if number in (0, -1):
         return None
     if number < 0:
-        raise ValueError(f"batch_size must be positive, or 0, -1, None, 'none' or 'auto' "
-                         f"for automatic, got {value!r}")
+        raise ValueError(f"batch_size must be positive, 'auto_vram', or 0, -1, None, 'none', "
+                         f"'auto' or 'whole' for automatic, got {value!r}")
     return number
 
 
 def _legacy_batch_size(settings):
     """Read ``batch_size`` once and leave the routes that need a number a number.
 
-    The request (None for automatic) goes into ``settings['_batch_size_request']``;
-    when it is automatic, ``settings['batch_size']`` becomes the legacy 50 for
-    the archive-based routes that need a whole number. A second call changes nothing.
+    The request (None for automatic, ``'auto_vram'`` for item 1011) goes into
+    ``settings['_batch_size_request']``; when it is either automatic mode,
+    ``settings['batch_size']`` becomes the legacy 50 for the archive-based
+    routes that need a whole number. A second call changes nothing.
 
     :param settings: the run settings, changed in place.
     :returns: the request.
@@ -278,9 +298,122 @@ def _legacy_batch_size(settings):
         return settings['_batch_size_request']
     request = _batch_size_request(settings.get('batch_size'))
     settings['_batch_size_request'] = request
-    if request is None:
+    if request is None or request == _AUTO_VRAM:
         settings['batch_size'] = _LEGACY_BATCH_SIZE
     return request
+
+
+def _even_sizes(n, max_fields):
+    """Batch sizes for ``n`` fields that differ by at most one and none above ``max_fields`` (item 1011).
+
+    :param n: the number of fields.
+    :param max_fields: the most fields one batch may hold.
+    :returns: ``ceil(n / max_fields)`` sizes summing to ``n``, the larger ones first.
+    """
+    n = int(n)
+    if n <= 0:
+        return []
+    limit = max(1, int(max_fields))
+    count = -(-n // limit)
+    base, extra = divmod(n, count)
+    return [base + (1 if i < extra else 0) for i in range(count)]
+
+
+def _field_order(names, settings):
+    """The order fields are batched in: seeded random, or the given order (item 1011).
+
+    ``randomize`` (default True) is the switch; ``mask_batch_seed`` (default 42)
+    seeds one ``random.Random`` per call, so the order never depends on the
+    global random state and two processes agree.
+
+    :param names: the field names in acquisition order.
+    :param settings: the run settings.
+    :returns: a new list of the same names.
+    """
+    order = list(names)
+    settings = settings or {}
+    if settings.get('randomize', True) is False:
+        return order
+    random.Random(_batch_seed(settings)).shuffle(order)
+    return order
+
+
+def _batch_seed(settings):
+    """``mask_batch_seed`` as an int, 42 when it is unset.
+
+    :param settings: the run settings.
+    :returns: the seed.
+    :raises ValueError: when the value is not a whole number.
+    """
+    value = (settings or {}).get('mask_batch_seed')
+    if value in (None, ''):
+        return _DEFAULT_BATCH_SEED
+    if isinstance(value, bool) or (isinstance(value, float) and not value.is_integer()):
+        raise ValueError(f"mask_batch_seed must be a whole number, got {value!r}")
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"mask_batch_seed must be a whole number, got {value!r}")
+
+
+def _order_sha256(names):
+    """SHA-256 of the newline-joined field names, the record of one batch order.
+
+    :param names: the field names in batch order.
+    :returns: the hex digest.
+    """
+    return hashlib.sha256('\n'.join(str(name) for name in names).encode('utf-8')).hexdigest()
+
+
+def _tile_cap(settings):
+    """``mask_eval_batch_cap`` as a whole number of at least 1, 32 when it is unset.
+
+    :param settings: the run settings.
+    :returns: the cap.
+    :raises ValueError: when the value is below 1 or not a whole number.
+    """
+    value = (settings or {}).get('mask_eval_batch_cap')
+    if value in (None, ''):
+        return _DEFAULT_TILE_CAP
+    try:
+        cap = int(value)
+    except (TypeError, ValueError):
+        cap = 0
+    if cap < 1 or isinstance(value, bool) or (isinstance(value, float) and not value.is_integer()):
+        raise ValueError(f"mask_eval_batch_cap must be a whole number of at least 1, got {value!r}")
+    return cap
+
+
+def _wants_auto_tiles(settings):
+    """Whether ``mask_eval_batch_size`` asks for the VRAM-aware tile batch (item 1011).
+
+    :param settings: the run settings.
+    """
+    value = (settings or {}).get('mask_eval_batch_size')
+    return isinstance(value, str) and value.strip().lower() == _AUTO_VRAM
+
+
+def _resolved_tiles(settings, field_count):
+    """The tile batch the network runs at, reading item 1011's calibration when asked for.
+
+    ``mask_eval_batch_size: 'auto_vram'`` takes the calibrated ``tiles`` the run
+    holds in ``settings['_mask_calibration']``, or ``min(cap, 8)`` when nothing
+    was calibrated (no CUDA device). Any other value goes to
+    :func:`spacr.object._eval_tile_batch` unchanged.
+
+    :param settings: the run settings.
+    :param field_count: fields in the batch.
+    :returns: the ``batch_size`` handed to Cellpose's ``eval``.
+    """
+    if not _wants_auto_tiles(settings):
+        from .object import _eval_tile_batch
+
+        return _eval_tile_batch(settings, field_count)
+    calibration = (settings or {}).get('_mask_calibration') or {}
+    tiles = calibration.get('tiles')
+    if tiles:
+        return int(tiles)
+    return min(_tile_cap(settings), _CPU_TILE_BATCH)
 
 
 def _field_costs(plan):
@@ -306,16 +439,171 @@ def _field_costs(plan):
     return 0, 0
 
 
-def _free_vram_bytes():
-    """Free memory on the current CUDA device, or None without one."""
+def _free_vram_bytes(settings=None):
+    """Free memory on the current CUDA device, or None without one.
+
+    With a declared VRAM budget (``gpu_vram_budget_gb`` or ``SPACR_GPU_VRAM_GB``,
+    item 1011) it is the smaller of the free memory and that budget, read from
+    the governor's one budget source; without one it is the free memory as before.
+
+    :param settings: run settings carrying the governor keys.
+    """
     try:
         import torch
 
         if not torch.cuda.is_available():
             return None
-        return int(torch.cuda.mem_get_info()[0])
+        free = int(torch.cuda.mem_get_info()[0])
     except Exception:                                       # noqa: BLE001
         return None
+    from . import _gpu_governor as governor
+
+    budget = governor._vram_budget(governor._device_index(None), settings)
+    if budget['source'] == 'declared':
+        return min(free, int(budget['bytes']))
+    return free
+
+
+def _calibrate(model, sample, settings, *, site, evaluate=None, per_field=None,
+               governor=None):
+    """Measure one tile's and the fixed working set's GPU memory on the run's own data (item 1011).
+
+    Two probe evaluations of ``sample`` at tile batches ``t1 = 2`` and
+    ``t2 = min(8, cap)`` are measured with the governor's own rule (reserved
+    growth, never below 1.5 times the allocated growth, through
+    ``_BatchController._learn`` of ``site``); their results are discarded. A
+    linear fit gives ``per_tile`` and ``fixed`` (the weights the process holds,
+    image and flow buffers, the fixed working set), each floored at a tenth of
+    item 987b's constants. The budget ``B`` (declared, or free less the other
+    spaCR processes' announcements; less ``gpu_memory_margin_gb`` and the CUDA
+    context; divided by ``mask_workers_per_gpu``) then gives the tile batch
+    first, ``clamp(floor((B - fixed - per_field) / per_tile), 1, cap)``, and the
+    most fields of one resident batch, ``floor((B - fixed - tiles * per_tile) /
+    per_field)``. Without a CUDA device nothing is probed: ``tiles = min(cap, 8)``
+    and ``max_fields`` is None (the caller applies its RAM limit, capped at 50).
+
+    :param model: the loaded segmentation model.
+    :param sample: the first field of the seeded order, as the real call gets it.
+    :param settings: the run settings (``mask_eval_batch_cap``,
+        ``gpu_memory_margin_gb``, ``gpu_vram_budget_gb``, ``mask_workers_per_gpu``).
+    :param site: the governor call site the probes are measured on.
+    :param evaluate: callable ``tiles -> None`` running one evaluation of
+        ``sample`` at that tile batch; ``model.eval(sample, batch_size=tiles)``
+        when None.
+    :param per_field: bytes one field adds to a resident batch;
+        ``sample.nbytes`` when None.
+    :param governor: the governor module (:mod:`spacr._gpu_governor`), for tests.
+    :returns: the calibration record: ``tiles``, ``max_fields``, ``per_tile``,
+        ``fixed``, ``per_field``, ``budget`` (bytes), ``budget_source``
+        (``declared``, ``free`` or ``cpu``), ``cap``, ``probes``, ``device``,
+        ``total`` and the Cellpose and torch versions.
+    """
+    if governor is None:
+        from . import _gpu_governor as governor
+    settings = settings or {}
+    cap = _tile_cap(settings)
+    per_field = int(getattr(sample, 'nbytes', 0) if per_field is None else per_field)
+    device = governor._model_device(model)
+    index = governor._device_index(device)
+    record = {'cap': cap, 'per_field': per_field, 'versions': _library_versions()}
+    if index is None:
+        record.update({'tiles': min(cap, _CPU_TILE_BATCH), 'max_fields': None, 'per_tile': None,
+                       'fixed': None, 'budget': None, 'budget_source': 'cpu', 'probes': 0,
+                       'device': None if device is None else str(device), 'total': None})
+        return record
+    if evaluate is None:
+        def evaluate(tiles):
+            model.eval(sample, batch_size=int(tiles))
+    gib = 2**30
+    config = governor._config(settings)
+    controller = governor._controller(site, device)
+    held = int(governor._reserved(index)[0])
+
+    def need(tiles):
+        before = governor._allocated(index)
+        reserved_before = governor._reserved(index)
+        controller.per_unit = 0.0
+        evaluate(tiles)
+        controller._learn(index, tiles, before, reserved_before)
+        return held + controller.per_unit * tiles
+
+    t1, t2 = 2, max(2, min(8, cap))
+    floor_tile, floor_fixed = 0.1 * _TILE_GIB * gib, 0.1 * _MODEL_GIB * gib
+    probes = 0
+    need1 = need(t1)
+    probes += 1
+    try:
+        need2 = need(t2) if t2 > t1 else None
+        probes += need2 is not None
+    except Exception as error:                              # noqa: BLE001
+        if not governor._is_oom(error):
+            raise
+        governor._release()
+        need2 = None
+    if need2 is None:
+        per_tile = max(floor_tile, need1 / t1)
+        fixed = _MODEL_GIB * gib
+    else:
+        per_tile = max(floor_tile, (need2 - need1) / float(t2 - t1))
+        fixed = max(floor_fixed, need1 - t1 * per_tile)
+    budget = governor._vram_budget(index, settings)
+    usable = (budget['bytes'] if budget['bytes'] is not None else 0) - (
+        config['gpu_memory_margin_gb'] * gib + governor._CONTEXT_BYTES)
+    workers = int((settings.get('mask_workers_per_gpu') or 1))
+    usable = max(0.0, usable / max(1, workers))
+    tiles = int(max(1, min(cap, math.floor((usable - fixed - per_field) / per_tile))))
+    spare = usable - fixed - tiles * per_tile
+    max_fields = max(1, int(spare // per_field)) if per_field > 0 else None
+    record.update({'tiles': tiles, 'max_fields': max_fields, 'per_tile': float(per_tile),
+                   'fixed': float(fixed), 'budget': float(usable),
+                   'budget_source': budget['source'], 'probes': probes,
+                   'device': _device_name(governor, index), 'total': budget['total']})
+    return record
+
+
+def _library_versions():
+    """The Cellpose and torch versions a calibration was measured with."""
+    versions = {}
+    for name in ('cellpose', 'torch'):
+        try:
+            from importlib.metadata import version
+
+            versions[name] = version(name)
+        except Exception:                                   # noqa: BLE001
+            versions[name] = None
+    return versions
+
+
+def _device_name(governor, index):
+    """The CUDA device's name, or ``cuda:<index>`` when it cannot be read."""
+    torch = governor._torch()
+    try:
+        return str(torch.cuda.get_device_name(index))
+    except Exception:                                       # noqa: BLE001
+        return f'cuda:{index}'
+
+
+def _calibration_line(n_fields, sizes, calibration):
+    """The one console line that reports an ``'auto_vram'`` plan (item 1011).
+
+    :param n_fields: fields in the run.
+    :param sizes: the batch sizes.
+    :param calibration: from :func:`_calibrate`.
+    :returns: e.g. ``Mask batches: 1,281 fields -> 6 batches of 213-214 (...)``.
+    """
+    low, high = (min(sizes), max(sizes)) if sizes else (0, 0)
+    span = f'{low}' if low == high else f'{low}–{high}'
+    source = calibration.get('budget_source')
+    if source == 'cpu':
+        budget = 'no CUDA device'
+    else:
+        budget = (f"VRAM budget {float(calibration.get('budget') or 0) / 2**30:.1f} GB "
+                  f"{'declared' if source == 'declared' else 'free'}")
+    measured = ('' if not calibration.get('per_tile') else
+                f"; {float(calibration['per_tile']) / 2**30:.2f} GB per tile measured")
+    return (f"Mask batches: {n_fields:,} fields → {len(sizes)} batch"
+            f"{'es' if len(sizes) != 1 else ''} of {span} ({budget}; tile batch "
+            f"{calibration.get('tiles')} of cap {calibration.get('cap')}{measured}).")
 
 
 def _largest_fitting_size(n_fields, per_field_gpu, per_field_ram, *, free_vram, free_ram,
@@ -386,15 +674,20 @@ def _resolve_plan(masks_dir, settings, *, free_vram=None, free_ram=None, log=pri
     if plan is None:
         return None
     request = _legacy_batch_size(settings)
+    if request == _AUTO_VRAM:
+        return _resolve_auto_vram(masks_dir, plan, settings, free_ram=free_ram, log=log)
     if plan.get('resolved') and plan.get('batch_size_request') == request:
         return plan
     fields = [name for batch in plan['batches'] for name in batch['fields']]
     per_gpu, per_ram = _field_costs(plan)
     from .object import _eval_tile_batch
 
-    tiles = int((settings or {}).get('mask_eval_batch_size') or 0)
-    if tiles:
-        tiles = _eval_tile_batch(settings, 1)
+    if _wants_auto_tiles(settings):
+        tiles = _resolved_tiles(settings, 1)
+    else:
+        tiles = int((settings or {}).get('mask_eval_batch_size') or 0)
+        if tiles:
+            tiles = _eval_tile_batch(settings, 1)
     fit = _largest_fitting_size(
         len(fields), per_gpu, per_ram,
         free_vram=_free_vram_bytes() if free_vram is None else free_vram,
@@ -426,6 +719,86 @@ def _resolve_plan(masks_dir, settings, *, free_vram=None, free_ram=None, log=pri
                        request=request, resolved=True,
                        extra={'batch_size_used': used, 'sizes': sizes,
                               'borrowed': borrowed, 'normalisation': {}})
+    return _read_plan(masks_dir)
+
+
+def _needs_calibration(masks_dir, settings):
+    """Whether the masks stage must run :func:`_calibrate` before :func:`_resolve_plan` (item 1011).
+
+    Only an ``'auto_vram'`` request needs it, and not when ``batch_plan.json`` is
+    already resolved for it with the same seed (a resume or a replay keeps the
+    recorded calibration, so it probes nothing).
+
+    :param masks_dir: the ``masks`` folder.
+    :param settings: the run settings.
+    """
+    if _batch_size_request((settings or {}).get('_batch_size_request', (settings or {}).get(
+            'batch_size'))) != _AUTO_VRAM and not _wants_auto_tiles(settings):
+        return False
+    plan = _read_plan(masks_dir)
+    return not (plan is not None and plan.get('resolved')
+                and plan.get('batch_size_request') == _AUTO_VRAM
+                and plan.get('seed') == _batch_seed(settings) and plan.get('calibration'))
+
+
+def _resolve_auto_vram(masks_dir, plan, settings, *, free_ram=None, log=print):
+    """Cut a provisional plan into even batches from the run's calibration (item 1011).
+
+    The calibration is ``settings['_mask_calibration']`` (written by the masks
+    stage once the model is loaded, see :func:`_calibrate`); without one the
+    CPU rule applies. The field count per batch is the calibrated
+    ``max_fields`` (CPU: none), limited by RAM with 2 GiB spare and, on the CPU
+    route, by the legacy 50, then split evenly. A plan already resolved for
+    ``'auto_vram'`` with the same seed and budget source is kept, so a resume
+    or a replay does not calibrate again.
+
+    :param masks_dir: the ``masks`` folder.
+    :param plan: from :func:`_read_plan`.
+    :param settings: the run settings.
+    :param free_ram: free RAM bytes (read from the system when None).
+    :param log: callable taking one printed line.
+    :returns: the resolved plan.
+    """
+    calibration = dict((settings or {}).get('_mask_calibration') or {})
+    seed = _batch_seed(settings)
+    source = calibration.get('budget_source', 'cpu')
+    if (plan.get('resolved') and plan.get('batch_size_request') == _AUTO_VRAM
+            and plan.get('seed') == seed
+            and (plan.get('calibration') or {}).get('budget_source') == source):
+        if settings is not None and plan.get('calibration'):
+            settings['_mask_calibration'] = dict(plan['calibration'])
+        return plan
+    if not calibration:
+        calibration = {'tiles': min(_tile_cap(settings), _CPU_TILE_BATCH), 'max_fields': None,
+                       'budget_source': 'cpu', 'cap': _tile_cap(settings), 'probes': 0}
+        if settings is not None:
+            settings['_mask_calibration'] = dict(calibration)
+    fields = [name for batch in plan['batches'] for name in batch['fields']]
+    _per_gpu, per_ram = _field_costs(plan)
+    ram = _largest_fitting_size(
+        len(fields), 0, per_ram, free_vram=None,
+        free_ram=_available_ram_bytes() if free_ram is None else free_ram,
+        margin_gb=0.0, tile_batch=0, model_loaded=True)
+    limit = min(len(fields), ram)
+    if calibration.get('max_fields'):
+        limit = min(limit, int(calibration['max_fields']))
+    if calibration.get('budget_source') == 'cpu':
+        limit = min(limit, _LEGACY_BATCH_SIZE)
+    limit = max(1, limit)
+    sizes = _even_sizes(len(fields), limit)
+    batches, start = [], 0
+    for size in sizes:
+        batches.append(fields[start:start + size])
+        start += size
+    log(_calibration_line(len(fields), sizes, calibration))
+    _write_plan(masks_dir, os.path.join(masks_dir, plan['stack_dir']), batches,
+                plan['channels'], plan.get('_runtime_settings', plan['settings']),
+                plan['save_dtype'], request=_AUTO_VRAM, resolved=True,
+                extra={'batch_size_used': limit, 'sizes': sizes, 'borrowed': [],
+                       'normalisation': {}, 'seed': seed,
+                       'randomize': (settings or {}).get('randomize', True) is not False,
+                       'order_sha256': _order_sha256(fields),
+                       'calibration': _json_safe(calibration)})
     return _read_plan(masks_dir)
 
 
