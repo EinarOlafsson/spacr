@@ -763,16 +763,27 @@ class TestReadRecordedSettings:
         db = make_db(str(tmp_path / 'm' / 'measurements.db'), tables=('cell',))
         assert read_recorded_settings(db) == {}
 
-    def test_reads_a_key_value_csv(self, tmp_path):
-        path = tmp_path / 'gen_mask_settings.csv'
-        path.write_text('Key,Value\ncell_channel,0\nnucleus_channel,1\n', encoding="utf-8")
-        assert read_recorded_settings(str(path)) == {'cell_channel': '0',
-                                                     'nucleus_channel': '1'}
-
-    def test_reads_a_settings_json(self, tmp_path):
-        path = tmp_path / 'settings.json'
-        path.write_text('{"cell_mask_dim": 4}', encoding="utf-8")
-        assert read_recorded_settings(str(path)) == {'cell_mask_dim': 4}
+    @pytest.mark.parametrize('filename, text, expected', [
+        pytest.param(
+            'gen_mask_settings.csv',
+            'Key,Value\ncell_channel,0\nnucleus_channel,1\n',
+            {'cell_channel': '0', 'nucleus_channel': '1'},
+            id='test_reads_a_key_value_csv',
+        ),
+        pytest.param(
+            'settings.json',
+            '{"cell_mask_dim": 4}',
+            {'cell_mask_dim': 4},
+            id='test_reads_a_settings_json',
+        ),
+    ])
+    def test_recorded_setting_files_keep_original_values(
+        self, tmp_path, filename, text, expected,
+    ):
+        """Preserve original recorded-settings files and native result value types."""
+        path = tmp_path / filename
+        path.write_text(text, encoding="utf-8")
+        assert read_recorded_settings(str(path)) == expected
 
     def test_missing_and_empty_sources_read_as_empty(self, tmp_path):
         assert read_recorded_settings('') == {}

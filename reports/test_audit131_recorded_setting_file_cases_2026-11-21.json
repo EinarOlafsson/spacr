@@ -1,0 +1,363 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_resume.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_resume.py::TestReadRecordedSettings::test_reads_a_key_value_csv": "tests/test_resume.py::TestReadRecordedSettings::test_recorded_setting_files_keep_original_values[test_reads_a_key_value_csv]",
+    "tests/test_resume.py::TestReadRecordedSettings::test_reads_a_settings_json": "tests/test_resume.py::TestReadRecordedSettings::test_recorded_setting_files_keep_original_values[test_reads_a_settings_json]"
+  },
+  "literal_class_case_contracts": {
+    "test_reads_a_key_value_csv": [
+      "gen_mask_settings.csv",
+      "Key,Value\ncell_channel,0\nnucleus_channel,1\n",
+      {
+        "cell_channel": "0",
+        "nucleus_channel": "1"
+      }
+    ],
+    "test_reads_a_settings_json": [
+      "settings.json",
+      "{\"cell_mask_dim\": 4}",
+      {
+        "cell_mask_dim": 4
+      }
+    ]
+  },
+  "case_contract_representations": {
+    "test_reads_a_key_value_csv": "('gen_mask_settings.csv', 'Key,Value\\ncell_channel,0\\nnucleus_channel,1\\n', {'cell_channel': '0', 'nucleus_channel': '1'})",
+    "test_reads_a_settings_json": "('settings.json', '{\"cell_mask_dim\": 4}', {'cell_mask_dim': 4})"
+  },
+  "contract_scope": "Preserve self/tmp_path fixtures, exact original CSV/JSON filenames and text including CSV newlines, local path binding, path.write_text with encoding=utf-8, str(path) argument and native dictionary equality. CSV expected values remain strings0/1 in their original order; JSON expected cell_mask_dim remains integer4. No parsed values substituted into test inputs, changed file content, added assertion or moved I/O. Every other original class, method, helper, import, header/SQLite/settings/resume-plan/status, atomic-write/truncation, merge integration and cold-import check retains executable AST and relative order. These original cases are disjoint from audit72.",
+  "collected_before": [
+    "tests/test_resume.py::TestPlanMeasureResume::test_disabled_state_changes_nothing",
+    "tests/test_resume.py::TestPlanMeasureResume::test_no_database_yet_means_everything_is_pending",
+    "tests/test_resume.py::TestPlanMeasureResume::test_identical_settings_allow_the_resume",
+    "tests/test_resume.py::TestPlanMeasureResume::test_returns_none_when_resume_is_not_requested",
+    "tests/test_resume.py::TestPlanMeasureResume::test_clears_rows_of_a_partially_written_field_before_rerun",
+    "tests/test_resume.py::TestPlanMeasureResume::test_settings_change_refuses_the_resume",
+    "tests/test_resume.py::TestPlanMeasureResume::test_verbose_prints_the_plan_before_doing_anything",
+    "tests/test_resume.py::TestPlanMeasureResume::test_only_dirty_fields_are_cleared",
+    "tests/test_resume.py::TestPlanMeasureResume::test_min_planes_comes_from_the_settings",
+    "tests/test_resume.py::TestPlanMeasureResume::test_a_field_that_cannot_be_cleared_refuses_rather_than_doubling",
+    "tests/test_resume.py::TestPlanMeasureResume::test_missing_merged_folder_plans_nothing",
+    "tests/test_resume.py::TestPlanMeasureResume::test_truncated_merged_field_is_rerun_and_cleared",
+    "tests/test_resume.py::TestPlanMeasureResume::test_resume_enabled_accepts_strings_and_rejects_junk",
+    "tests/test_resume.py::TestPlanMeasureResume::test_skips_measured_fields_and_runs_the_rest",
+    "tests/test_resume.py::TestFieldIdentity::test_mapping_passthrough",
+    "tests/test_resume.py::TestFieldIdentity::test_numeric_well_falls_back_like_map_wells",
+    "tests/test_resume.py::TestFieldIdentity::test_f1_and_f10_are_different_identities",
+    "tests/test_resume.py::TestFieldIdentity::test_parses_plate_well_field",
+    "tests/test_resume.py::TestFieldIdentity::test_extension_and_directory_are_ignored",
+    "tests/test_resume.py::TestFieldIdentity::test_timelapse_without_time_component_refuses",
+    "tests/test_resume.py::TestFieldIdentity::test_agrees_with_utils_map_wells_timelapse",
+    "tests/test_resume.py::TestFieldIdentity::test_too_few_parts_refuses_rather_than_guessing",
+    "tests/test_resume.py::TestFieldIdentity::test_agrees_with_utils_map_wells",
+    "tests/test_resume.py::TestFieldIdentity::test_timelapse_adds_timepoint",
+    "tests/test_resume.py::TestFieldIdentity::test_mapping_missing_keys_refuses",
+    "tests/test_resume.py::TestResumeStateReport::test_format_lists_counts_and_reasons",
+    "tests/test_resume.py::TestResumeStateReport::test_many_rejections_are_elided",
+    "tests/test_resume.py::TestResumeStateReport::test_duplicate_candidates_are_collapsed",
+    "tests/test_resume.py::TestIoWiring::test_merged_arrays_are_written_atomically",
+    "tests/test_resume.py::TestIoWiring::test_load_and_concatenate_defaults_to_no_resume",
+    "tests/test_resume.py::TestIoWiring::test_resume_reports_the_plan_before_merging",
+    "tests/test_resume.py::TestIoWiring::test_resume_skips_complete_fields_and_redoes_the_rest",
+    "tests/test_resume.py::TestIoWiring::test_resume_off_redoes_every_field",
+    "tests/test_resume.py::TestIoWiring::test_save_settings_to_db_destroys_the_previous_record",
+    "tests/test_resume.py::TestIoWiring::test_measure_crop_orders_the_resume_before_the_settings_write",
+    "tests/test_resume.py::TestIoWiring::test_atomic_write_leaves_the_old_file_when_it_fails",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_without_candidates_returns_prcf_labels",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_field_in_every_table_is_done",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_unparseable_candidate_is_ignored",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_require_all_false_accepts_any_table",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_field_in_some_tables_is_partial_not_done",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_missing_database_yields_nothing",
+    "tests/test_resume.py::TestSettingsCompatibility::test_new_material_key_with_a_real_value_blocks",
+    "tests/test_resume.py::TestSettingsCompatibility::test_dropped_key_is_schema_drift_not_a_change",
+    "tests/test_resume.py::TestSettingsCompatibility::test_csv_string_round_trip_is_not_a_change",
+    "tests/test_resume.py::TestSettingsCompatibility::test_cosmetic_drift_alone_does_not_block",
+    "tests/test_resume.py::TestSettingsCompatibility::test_new_key_with_an_inert_value_does_not_block",
+    "tests/test_resume.py::TestSettingsCompatibility::test_channel_and_diameter_and_crop_changes_all_block",
+    "tests/test_resume.py::TestSettingsCompatibility::test_env_drift_alone_does_not_block",
+    "tests/test_resume.py::TestSettingsCompatibility::test_material_change_blocks_and_names_what_differs",
+    "tests/test_resume.py::TestSettingsCompatibility::test_cosmetic_set_contains_the_obvious_knobs",
+    "tests/test_resume.py::TestSettingsCompatibility::test_describe_lists_every_material_change",
+    "tests/test_resume.py::TestIdempotency::test_clear_then_rerun_leaves_other_fields_alone",
+    "tests/test_resume.py::TestIdempotency::test_rerunning_without_clear_doubles_rows",
+    "tests/test_resume.py::TestIdempotency::test_clear_then_rerun_gives_the_same_row_count",
+    "tests/test_resume.py::TestIdempotency::test_repeated_clear_and_rerun_never_grows",
+    "tests/test_resume.py::TestRunStatus::test_plan_reports_nothing_to_do_when_everything_is_measured",
+    "tests/test_resume.py::TestRunStatus::test_missing_database_is_not_complete",
+    "tests/test_resume.py::TestRunStatus::test_an_unstamped_artifact_is_not_complete",
+    "tests/test_resume.py::TestRunStatus::test_a_run_stamped_complete_needs_no_resume",
+    "tests/test_resume.py::TestRunStatus::test_a_partial_run_is_not_complete",
+    "tests/test_resume.py::TestValidation::test_header_reports_real_shape",
+    "tests/test_resume.py::TestValidation::test_zero_byte_npy_is_pending_and_counted_as_rejected",
+    "tests/test_resume.py::TestValidation::test_too_few_planes_rejected_against_explicit_floor",
+    "tests/test_resume.py::TestValidation::test_read_npy_header_rejects_empty_file",
+    "tests/test_resume.py::TestValidation::test_expected_min_planes_from_settings",
+    "tests/test_resume.py::TestValidation::test_numpy_also_refuses_to_load_the_truncated_file",
+    "tests/test_resume.py::TestValidation::test_complete_field_validates",
+    "tests/test_resume.py::TestValidation::test_missing_folder_yields_nothing",
+    "tests/test_resume.py::TestValidation::test_modal_plane_count_catches_the_odd_one_out",
+    "tests/test_resume.py::TestValidation::test_missing_file_is_missing",
+    "tests/test_resume.py::TestValidation::test_truncated_npy_is_pending_not_done",
+    "tests/test_resume.py::TestValidation::test_garbage_file_is_rejected",
+    "tests/test_resume.py::TestDiscoverFieldTables::test_excludes_tables_owned_by_other_stages",
+    "tests/test_resume.py::TestDiscoverFieldTables::test_non_field_tables_constant_covers_the_known_names",
+    "tests/test_resume.py::TestDiscoverFieldTables::test_missing_database_yields_nothing",
+    "tests/test_resume.py::TestDiscoverFieldTables::test_finds_every_per_field_table",
+    "tests/test_resume.py::TestDiscoverFieldTables::test_table_with_only_some_key_columns_is_not_a_field_table",
+    "tests/test_resume.py::test_mask_resume_requeues_a_truncated_array",
+    "tests/test_resume.py::test_mask_folder_counts_only_complete_fields_with_or_without_resume",
+    "tests/test_resume.py::test_resume_imports_no_torch_or_cellpose",
+    "tests/test_resume.py::TestPartiallyPopulatedMerged::test_pending_set_is_exactly_what_is_missing",
+    "tests/test_resume.py::TestPartiallyPopulatedMerged::test_filter_files_preserves_order_and_extension",
+    "tests/test_resume.py::TestClearFieldRows::test_deletes_from_every_table_the_field_touched",
+    "tests/test_resume.py::TestClearFieldRows::test_the_like_trap_is_real",
+    "tests/test_resume.py::TestClearFieldRows::test_non_field_tables_are_filtered_out_even_if_named",
+    "tests/test_resume.py::TestClearFieldRows::test_rolls_back_when_a_delete_fails_part_way",
+    "tests/test_resume.py::TestClearFieldRows::test_refuses_a_table_that_does_not_exist",
+    "tests/test_resume.py::TestClearFieldRows::test_missing_database_is_a_no_op",
+    "tests/test_resume.py::TestClearFieldRows::test_no_field_tables_is_a_no_op",
+    "tests/test_resume.py::TestClearFieldRows::test_refuses_a_table_without_the_key_columns",
+    "tests/test_resume.py::TestClearFieldRows::test_deleting_f1_does_not_touch_f10_through_f19",
+    "tests/test_resume.py::TestClearFieldRows::test_timelapse_clears_one_frame_only",
+    "tests/test_resume.py::TestReadRecordedSettings::test_missing_and_empty_sources_read_as_empty",
+    "tests/test_resume.py::TestReadRecordedSettings::test_reads_the_settings_table_measure_writes",
+    "tests/test_resume.py::TestReadRecordedSettings::test_database_without_a_settings_table_reads_as_no_information",
+    "tests/test_resume.py::TestReadRecordedSettings::test_reads_a_settings_json",
+    "tests/test_resume.py::TestReadRecordedSettings::test_reads_a_key_value_csv"
+  ],
+  "collected_after": [
+    "tests/test_resume.py::TestIoWiring::test_load_and_concatenate_defaults_to_no_resume",
+    "tests/test_resume.py::TestIoWiring::test_atomic_write_leaves_the_old_file_when_it_fails",
+    "tests/test_resume.py::TestIoWiring::test_resume_skips_complete_fields_and_redoes_the_rest",
+    "tests/test_resume.py::TestIoWiring::test_save_settings_to_db_destroys_the_previous_record",
+    "tests/test_resume.py::TestIoWiring::test_resume_off_redoes_every_field",
+    "tests/test_resume.py::TestIoWiring::test_resume_reports_the_plan_before_merging",
+    "tests/test_resume.py::TestIoWiring::test_merged_arrays_are_written_atomically",
+    "tests/test_resume.py::TestIoWiring::test_measure_crop_orders_the_resume_before_the_settings_write",
+    "tests/test_resume.py::TestFieldIdentity::test_extension_and_directory_are_ignored",
+    "tests/test_resume.py::TestFieldIdentity::test_agrees_with_utils_map_wells",
+    "tests/test_resume.py::TestFieldIdentity::test_timelapse_adds_timepoint",
+    "tests/test_resume.py::TestFieldIdentity::test_timelapse_without_time_component_refuses",
+    "tests/test_resume.py::TestFieldIdentity::test_agrees_with_utils_map_wells_timelapse",
+    "tests/test_resume.py::TestFieldIdentity::test_parses_plate_well_field",
+    "tests/test_resume.py::TestFieldIdentity::test_f1_and_f10_are_different_identities",
+    "tests/test_resume.py::TestFieldIdentity::test_numeric_well_falls_back_like_map_wells",
+    "tests/test_resume.py::TestFieldIdentity::test_mapping_passthrough",
+    "tests/test_resume.py::TestFieldIdentity::test_mapping_missing_keys_refuses",
+    "tests/test_resume.py::TestFieldIdentity::test_too_few_parts_refuses_rather_than_guessing",
+    "tests/test_resume.py::TestClearFieldRows::test_rolls_back_when_a_delete_fails_part_way",
+    "tests/test_resume.py::TestClearFieldRows::test_deleting_f1_does_not_touch_f10_through_f19",
+    "tests/test_resume.py::TestClearFieldRows::test_the_like_trap_is_real",
+    "tests/test_resume.py::TestClearFieldRows::test_timelapse_clears_one_frame_only",
+    "tests/test_resume.py::TestClearFieldRows::test_missing_database_is_a_no_op",
+    "tests/test_resume.py::TestClearFieldRows::test_refuses_a_table_without_the_key_columns",
+    "tests/test_resume.py::TestClearFieldRows::test_no_field_tables_is_a_no_op",
+    "tests/test_resume.py::TestClearFieldRows::test_non_field_tables_are_filtered_out_even_if_named",
+    "tests/test_resume.py::TestClearFieldRows::test_refuses_a_table_that_does_not_exist",
+    "tests/test_resume.py::TestClearFieldRows::test_deletes_from_every_table_the_field_touched",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_field_in_some_tables_is_partial_not_done",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_without_candidates_returns_prcf_labels",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_field_in_every_table_is_done",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_missing_database_yields_nothing",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_unparseable_candidate_is_ignored",
+    "tests/test_resume.py::TestCompletedFieldsInDb::test_require_all_false_accepts_any_table",
+    "tests/test_resume.py::TestIdempotency::test_clear_then_rerun_gives_the_same_row_count",
+    "tests/test_resume.py::TestIdempotency::test_repeated_clear_and_rerun_never_grows",
+    "tests/test_resume.py::TestIdempotency::test_clear_then_rerun_leaves_other_fields_alone",
+    "tests/test_resume.py::TestIdempotency::test_rerunning_without_clear_doubles_rows",
+    "tests/test_resume.py::test_mask_folder_counts_only_complete_fields_with_or_without_resume",
+    "tests/test_resume.py::test_mask_resume_requeues_a_truncated_array",
+    "tests/test_resume.py::test_resume_imports_no_torch_or_cellpose",
+    "tests/test_resume.py::TestResumeStateReport::test_format_lists_counts_and_reasons",
+    "tests/test_resume.py::TestResumeStateReport::test_duplicate_candidates_are_collapsed",
+    "tests/test_resume.py::TestResumeStateReport::test_many_rejections_are_elided",
+    "tests/test_resume.py::TestRunStatus::test_a_run_stamped_complete_needs_no_resume",
+    "tests/test_resume.py::TestRunStatus::test_a_partial_run_is_not_complete",
+    "tests/test_resume.py::TestRunStatus::test_missing_database_is_not_complete",
+    "tests/test_resume.py::TestRunStatus::test_an_unstamped_artifact_is_not_complete",
+    "tests/test_resume.py::TestRunStatus::test_plan_reports_nothing_to_do_when_everything_is_measured",
+    "tests/test_resume.py::TestValidation::test_header_reports_real_shape",
+    "tests/test_resume.py::TestValidation::test_truncated_npy_is_pending_not_done",
+    "tests/test_resume.py::TestValidation::test_modal_plane_count_catches_the_odd_one_out",
+    "tests/test_resume.py::TestValidation::test_garbage_file_is_rejected",
+    "tests/test_resume.py::TestValidation::test_expected_min_planes_from_settings",
+    "tests/test_resume.py::TestValidation::test_missing_folder_yields_nothing",
+    "tests/test_resume.py::TestValidation::test_too_few_planes_rejected_against_explicit_floor",
+    "tests/test_resume.py::TestValidation::test_missing_file_is_missing",
+    "tests/test_resume.py::TestValidation::test_zero_byte_npy_is_pending_and_counted_as_rejected",
+    "tests/test_resume.py::TestValidation::test_read_npy_header_rejects_empty_file",
+    "tests/test_resume.py::TestValidation::test_numpy_also_refuses_to_load_the_truncated_file",
+    "tests/test_resume.py::TestValidation::test_complete_field_validates",
+    "tests/test_resume.py::TestDiscoverFieldTables::test_non_field_tables_constant_covers_the_known_names",
+    "tests/test_resume.py::TestDiscoverFieldTables::test_excludes_tables_owned_by_other_stages",
+    "tests/test_resume.py::TestDiscoverFieldTables::test_missing_database_yields_nothing",
+    "tests/test_resume.py::TestDiscoverFieldTables::test_finds_every_per_field_table",
+    "tests/test_resume.py::TestDiscoverFieldTables::test_table_with_only_some_key_columns_is_not_a_field_table",
+    "tests/test_resume.py::TestSettingsCompatibility::test_channel_and_diameter_and_crop_changes_all_block",
+    "tests/test_resume.py::TestSettingsCompatibility::test_cosmetic_set_contains_the_obvious_knobs",
+    "tests/test_resume.py::TestSettingsCompatibility::test_new_key_with_an_inert_value_does_not_block",
+    "tests/test_resume.py::TestSettingsCompatibility::test_new_material_key_with_a_real_value_blocks",
+    "tests/test_resume.py::TestSettingsCompatibility::test_cosmetic_drift_alone_does_not_block",
+    "tests/test_resume.py::TestSettingsCompatibility::test_material_change_blocks_and_names_what_differs",
+    "tests/test_resume.py::TestSettingsCompatibility::test_csv_string_round_trip_is_not_a_change",
+    "tests/test_resume.py::TestSettingsCompatibility::test_env_drift_alone_does_not_block",
+    "tests/test_resume.py::TestSettingsCompatibility::test_dropped_key_is_schema_drift_not_a_change",
+    "tests/test_resume.py::TestSettingsCompatibility::test_describe_lists_every_material_change",
+    "tests/test_resume.py::TestPartiallyPopulatedMerged::test_pending_set_is_exactly_what_is_missing",
+    "tests/test_resume.py::TestPartiallyPopulatedMerged::test_filter_files_preserves_order_and_extension",
+    "tests/test_resume.py::TestReadRecordedSettings::test_missing_and_empty_sources_read_as_empty",
+    "tests/test_resume.py::TestReadRecordedSettings::test_database_without_a_settings_table_reads_as_no_information",
+    "tests/test_resume.py::TestReadRecordedSettings::test_reads_the_settings_table_measure_writes",
+    "tests/test_resume.py::TestReadRecordedSettings::test_recorded_setting_files_keep_original_values[test_reads_a_settings_json]",
+    "tests/test_resume.py::TestReadRecordedSettings::test_recorded_setting_files_keep_original_values[test_reads_a_key_value_csv]",
+    "tests/test_resume.py::TestPlanMeasureResume::test_skips_measured_fields_and_runs_the_rest",
+    "tests/test_resume.py::TestPlanMeasureResume::test_only_dirty_fields_are_cleared",
+    "tests/test_resume.py::TestPlanMeasureResume::test_min_planes_comes_from_the_settings",
+    "tests/test_resume.py::TestPlanMeasureResume::test_missing_merged_folder_plans_nothing",
+    "tests/test_resume.py::TestPlanMeasureResume::test_truncated_merged_field_is_rerun_and_cleared",
+    "tests/test_resume.py::TestPlanMeasureResume::test_a_field_that_cannot_be_cleared_refuses_rather_than_doubling",
+    "tests/test_resume.py::TestPlanMeasureResume::test_clears_rows_of_a_partially_written_field_before_rerun",
+    "tests/test_resume.py::TestPlanMeasureResume::test_disabled_state_changes_nothing",
+    "tests/test_resume.py::TestPlanMeasureResume::test_identical_settings_allow_the_resume",
+    "tests/test_resume.py::TestPlanMeasureResume::test_returns_none_when_resume_is_not_requested",
+    "tests/test_resume.py::TestPlanMeasureResume::test_resume_enabled_accepts_strings_and_rejects_junk",
+    "tests/test_resume.py::TestPlanMeasureResume::test_verbose_prints_the_plan_before_doing_anything",
+    "tests/test_resume.py::TestPlanMeasureResume::test_settings_change_refuses_the_resume",
+    "tests/test_resume.py::TestPlanMeasureResume::test_no_database_yet_means_everything_is_pending"
+  ],
+  "tests_before": {
+    "passed": 98,
+    "seconds": 13.42
+  },
+  "tests_after": {
+    "passed": 98,
+    "seconds": 13.95
+  },
+  "coverage_scope": "Cover spacr.resume under the complete 1294-line test module. The pristine test snapshot and production source are byte-identical to the reviewed audit72 snapshots; current source also matches exact audit72 base53e91b5b17 via git show. Freshly reviewed the selected class and read_recorded_settings/_legacy_text_encoding, plus integration tests. The reached io._check_masks/_save_array_atomic/_load_and_concatenate_arrays/_save_settings_to_db and utils.check_mask_folder bodies retain identical AST to that reviewed base. The complete module performs original tiny local SQLite/CSV/JSON/NumPy operations, atomic-write/truncation checks, and actual merge/resume tests with three fields of6x6x2 channel arrays plus6x6 masks producing6x6x3 outputs. Original conditional measure-wiring check remains; its wiring is present on current nightly. A clean import subprocess remains without separate child coverage credit. No actual mask generation, measurement pipeline, model fitting/training/loading, scientific chart, GUI, live network/download or GPU work runs. Broad I/O imports remain with CUDA hidden and private offline control upfront. No frozen production file or settings name/default/schema/category change. Single scheduler wrapper per heavy phase, filler t2/r8; required mnt2 worktree from freshly fetched nightly.",
+  "coverage_before": {
+    "covered_lines": 586,
+    "num_statements": 718,
+    "percent_covered": 80.90551181102362,
+    "percent_covered_display": "81",
+    "missing_lines": 132,
+    "excluded_lines": 0,
+    "percent_statements_covered": 81.61559888579387,
+    "percent_statements_covered_display": "82",
+    "num_branches": 298,
+    "num_partial_branches": 32,
+    "covered_branches": 236,
+    "missing_branches": 62,
+    "percent_branches_covered": 79.19463087248322,
+    "percent_branches_covered_display": "79"
+  },
+  "coverage_after": {
+    "covered_lines": 586,
+    "num_statements": 718,
+    "percent_covered": 80.90551181102362,
+    "percent_covered_display": "81",
+    "missing_lines": 132,
+    "excluded_lines": 0,
+    "percent_statements_covered": 81.61559888579387,
+    "percent_statements_covered_display": "82",
+    "num_branches": 298,
+    "num_partial_branches": 32,
+    "covered_branches": 236,
+    "missing_branches": 62,
+    "percent_branches_covered": 79.19463087248322,
+    "percent_branches_covered_display": "79"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "e166b81fd249a7ec591e220eae035640a3b2730d64e24822dcfb3cbbabbe4325",
+  "production_source_sha256": "e1d000311b496c1441e7b8d3d18942ec8c48a85393bab62a69621c7bae349292",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "csv-recorded-settings-are-emptied",
+      "source_variant": {
+        "path": "spacr/resume.py",
+        "line": 1642,
+        "old": "        return out\n    if path.lower().endswith('.json'):",
+        "new": "        return {}\n    if path.lower().endswith('.json'):"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_resume.py::TestReadRecordedSettings::test_reads_a_key_value_csv"
+        ],
+        "failure_summary_lines": [
+          "tests/test_resume.py::TestReadRecordedSettings::test_reads_a_key_value_csv"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_resume.py::TestReadRecordedSettings::test_recorded_setting_files_keep_original_values[test_reads_a_key_value_csv]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_resume.py::TestReadRecordedSettings::test_recorded_setting_files_keep_original_values[test_reads_a_key_value_csv]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "json-recorded-settings-are-emptied",
+      "source_variant": {
+        "path": "spacr/resume.py",
+        "line": 1650,
+        "old": "return dict(data) if isinstance(data, dict) else {}",
+        "new": "return {}"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_resume.py::TestReadRecordedSettings::test_reads_a_settings_json"
+        ],
+        "failure_summary_lines": [
+          "tests/test_resume.py::TestReadRecordedSettings::test_reads_a_settings_json"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_resume.py::TestReadRecordedSettings::test_recorded_setting_files_keep_original_values[test_reads_a_settings_json]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_resume.py::TestReadRecordedSettings::test_recorded_setting_files_keep_original_values[test_reads_a_settings_json]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Use two exact private import-loader faults in read_recorded_settings before and after. Return an empty dict at the end of the CSV branch while preserving the following JSON guard; select the original/mapped CSV case. Return an empty dict from the JSON mapping branch; select the original/mapped JSON case. Both reach the unchanged native dictionary-equality assertion and fail on the original expected contents. Establish returned recorded-value sensitivity only, without claiming independent CSV quoting, Unicode encoding, resume execution or byte identity of generated output. Repository production/settings files remain unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_resume.py",
+      "line": 783,
+      "symbol": "test_recorded_setting_files_keep_original_values",
+      "new": "Preserve original recorded-settings files and native result value types.",
+      "old": {
+        "test_reads_a_key_value_csv": null,
+        "test_reads_a_settings_json": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
