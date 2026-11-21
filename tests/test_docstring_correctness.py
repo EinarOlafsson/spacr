@@ -5748,6 +5748,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-19 (was 6e569df7...): CustomCellClassifier drops its three
     # ignored optional parameters under rule 41, the parameter total above
     # moves by the same three and the required total does not.
+    # Moved 2026-11-21 (was 361a1012...): item 1002 adds spacr.settings.unknown_setting_keys and the optional `strict` of spacr.cli.resolve_settings.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -5992,7 +5993,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-20 by landing train 5 (was 515b2062...): figprefs' optional
     # `preferences` of spacr.plot.save_figure and items 983/984's optional
     # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr.
-) == '361a1012cf6896b58afbea2989ee3464c5c656104ee9e41c4db09d61590401a3'
+) == '71d88d7c56eab931670a4279848613417ba1929e8ed2f69bbf203f632c27168b'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
