@@ -5699,7 +5699,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-07 item 772: 10,377 -> 10,372, -5 required: CustomCellClassifier's
     # num_classes, pathogen_channel, use_attention, use_checkpoint and
     # dropout_rate now have defaults (model_type='custom').
-    assert sum(len(item.required_parameters) for item in callables) == 10372
+    # 10,372 -> 10,373 on 2026-11-21 (item 1002): `settings` of spacr.settings.unknown_setting_keys has no default.
+    assert sum(len(item.required_parameters) for item in callables) == 10373
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
