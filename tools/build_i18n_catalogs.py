@@ -4771,6 +4771,11 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "validate.py")
     paths.add(ROOT / "spacr" / "torch_artifacts.py")
     paths.add(ROOT / "spacr" / "ops_decode.py")
+    paths.add(ROOT / "spacr" / "classification_pixels.py")
+    paths.add(ROOT / "spacr" / "crop_loader.py")
+    paths.add(ROOT / "spacr" / "crop_store.py")
+    paths.add(ROOT / "spacr" / "crops.py")
+    paths.add(ROOT / "spacr" / "ops_engine.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4805,7 +4810,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                          if isinstance(node, ast.FunctionDef)
                          and node.name in {"_validate_normalized_source_channels",
                                            "_resume_normalized_archives",
-                                           "_normalize_recorded_batch"}]
+                                           "_normalize_recorded_batch", "_dataset_crop_refs",
+                                           "generate_dataset_from_lists"}]
         if path == source_root / "data_manager.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
@@ -4827,7 +4833,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in {"_check_regression_inputs",
-                                           "_check_regression_score_columns"}]
+                                           "_check_regression_score_columns",
+                                           "_check_annotation_column_in_png_list"}]
         if path == source_root / "uniprot.py":
             # The busy-UniProt notice the gene annotation shows is the
             # module's only caption; cache and request prose stays internal.
@@ -4897,6 +4904,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_well_roles", "_read_plate_map", "_classify_viability",
                              "_checked_intensity", "_checked_label",
                              "write_field_table_project",
+                             "_read_measure_field", "measure_crop",
                          }]
         if path == source_root / "channel_sorting.py":
             tree.body = [node for node in tree.body
@@ -4945,6 +4953,32 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                          if isinstance(node, ast.FunctionDef)
                          and node.name == "_lineage_explicit_parents"]
         is_preferences = path == preferences_path
+        if path == source_root / "classification_pixels.py":
+            tree.body = [node for node in tree.body
+                         if (isinstance(node, ast.FunctionDef) and node.name in {
+                             "_read_crop_index", "_crop_index_integer",
+                             "_native_crop_reference", "_indexed_crop_samples"})
+                         or (isinstance(node, ast.ClassDef)
+                             and node.name == "_NativeCropReference")]
+            for node in tree.body:
+                if isinstance(node, ast.ClassDef):
+                    node.body = [method for method in node.body
+                                 if isinstance(method, ast.FunctionDef) and method.name == "raw"]
+        if path == source_root / "crop_store.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.ClassDef) and node.name == "CropPoolWriter"]
+            for node in tree.body:
+                node.body = [method for method in node.body
+                             if isinstance(method, ast.FunctionDef)
+                             and method.name in {"__init__", "_set_attributes", "add"}]
+        crop_owners = {
+            "crop_loader.py": {"plan_from_database", "load_page", "load_crops"},
+            "crops.py": {"_ome_zarr_crop_source", "resolve_crop_source"},
+            "ops_engine.py": {"_ph_crop_format", "_ph_image_format", "_ph_write_crop_pool", "_ph_crops"},
+        }
+        if path.parent == source_root and path.name in crop_owners:
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef) and node.name in crop_owners[path.name]]
         filename = path.name
         helper_module = path.relative_to(source_root).as_posix().removeprefix("qt/")
         constants: dict[str, ast.AST] = {}
