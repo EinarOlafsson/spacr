@@ -2339,7 +2339,7 @@ _APP_CATEGORY_PARENTS["measure"] = {
         "Intensity Calibration α",
         "Plate Barcode Linkage α")},
     **{title: "Features" for title in (
-        "Confluency α", "Cell Cycle α", "Wound Closure α", "Viability α",
+        "Vacuoles α", "Confluency α", "Cell Cycle α", "Wound Closure α", "Viability α",
         "CellProfiler α", "GPU Measurement α", "Time To Event α")},
     **{title: "Postprocessing" for title in (
         "Runtime & Reliability", "GPU Memory α", "Profiling α",
