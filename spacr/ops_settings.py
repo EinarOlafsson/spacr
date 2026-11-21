@@ -3563,10 +3563,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "shipped base model; none is registered yet, so a run then needs "
         "ops_cell_cycle_labels. Default ''. Alpha.",
     "ops_cell_cycle_finetune":
-        "(str) - How the user's labels refit the model: 'screen' (once, all "
-        "plates pooled), 'plate' (once per plate; not yet validated) or "
-        "'none' (the base model as is). Without labels nothing is refitted. "
-        "Default 'screen'. Alpha.",
+        "(str) - How the user's labels refit the model: 'screen' (every "
+        "plate's labels pooled; each plate's run adds its labelled cells to a "
+        "pool kept beside the labels file), 'plate' (this plate's labels "
+        "only) or 'none' (the base model as is). Without labels nothing is "
+        "refitted. Default 'screen'. Alpha.",
     "ops_cell_cycle_dna_channel":
         "(str or None) - The DNA stain's channel name in the cell tables. "
         "Empty uses nucleus_channel. Default None. Alpha.",

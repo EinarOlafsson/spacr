@@ -500,3 +500,72 @@ def test_a_checkpoint_on_the_old_classes_is_refused_with_a_reason(tmp_path):
 def test_telophase_daughters_count_as_mitotic_and_collapse_to_mitotic():
     assert "telophase_daughters" in cc.MITOTIC_STAGES
     assert cc.collapse_stage("telophase_daughters", ["telophase_daughters"]) == "mitotic"
+
+
+def test_the_store_gets_a_cell_cycle_part(tmp_path, monkeypatch):
+    from spacr import store
+    from spacr.ops_store import write_table
+
+    db = str(tmp_path / "measurements.db")
+    write_table(db, "ops_cell_cycle", pd.DataFrame({
+        "plate": PLATE, "well": "A1", "site": [2, 1], "label": [1, 1],
+        "cell_cycle_stage": ["G1", "metaphase"]}))
+    parts = []
+    monkeypatch.setattr(store, "write_part", lambda project, name, rows, **kw: parts.append(
+        (name, list(rows["site"]), kw["key_columns"])))
+    monkeypatch.setattr(store, "register", lambda project, run=None: 1)
+    ops_engine._ops_store_write(db, PLATE, ["A1"], {}, str(tmp_path))
+    assert parts == [("cell_cycle", [2, 1], ("site", "label"))]
+
+
+def _two_plate_labels(tmp_path):
+    """Labels for two plates in one labels file."""
+    rows = []
+    for plate, seed in (("P1", 3), ("P2", 4)):
+        cells = _cells(seed=seed)
+        picked = cells.groupby("stage", group_keys=False).apply(
+            lambda g: g.sample(min(len(g), 20), random_state=0))
+        rows.append(picked[["well", "site", "label", "stage"]].assign(plate=plate))
+    pd.concat(rows).to_csv(tmp_path / "labels.csv", index=False)
+    return str(tmp_path / "labels.csv")
+
+
+def _plate_run(tmp_path, base, labels, plate, seed, finetune):
+    """The phase on one plate of a two-plate screen."""
+    destination = tmp_path / plate
+    destination.mkdir(exist_ok=True)
+    for well, rows in _cells(seed=seed).groupby("well"):
+        rows.drop(columns=["well", "stage", "true_phase"]).to_parquet(
+            ops_engine._ph_cells_path(str(destination), well), index=False)
+    return cc.run_cell_cycle_phase(str(destination / "measurements.db"), plate, ["A1", "A2"],
+                                   {"ops_cell_cycle": "DNA", "nucleus_channel": "dapi",
+                                    "ops_cell_cycle_base_model": base,
+                                    "ops_cell_cycle_labels": labels,
+                                    "ops_cell_cycle_finetune": finetune}, str(destination))
+
+
+def test_screen_fine_tune_pools_the_plates_and_plate_fine_tune_does_not(tmp_path):
+    base = _base(tmp_path)
+    labels = _two_plate_labels(tmp_path)
+    _plate_run(tmp_path, base, labels, "P1", 3, "screen")
+    second = _plate_run(tmp_path, base, labels, "P2", 4, "screen")
+    assert any("of other plates" in n and not n.endswith(" 0 of other plates")
+               for n in second["notes"])
+    pool = pd.read_parquet(labels + ".features.parquet")
+    assert set(pool["plate"].astype(str)) == {"P1", "P2"}
+    os.remove(labels + ".features.parquet")
+    alone = _plate_run(tmp_path, base, labels, "P2", 4, "plate")
+    assert not os.path.isfile(labels + ".features.parquet")
+    assert not any("other plates" in n for n in alone["notes"])
+
+
+def test_two_plates_give_a_plate_held_out_score():
+    cells = pd.concat([_cells(seed=1, wells=("A1",), sites=3).assign(plate="P1"),
+                       _cells(seed=2, wells=("A1",), sites=3).assign(plate="P2")],
+                      ignore_index=True)
+    bundle = cc.train_cell_cycle_model(cells, cells["stage"], seed=0, repeats=1, permutations=2)
+    held = bundle["card"]["cv"]["plate_held_out"]
+    assert held is not None and held["f1"]["metaphase"] > 0.7
+    one = cc.train_cell_cycle_model(cells[cells["plate"] == "P1"], cells.loc[
+        cells["plate"] == "P1", "stage"], seed=0, repeats=1, permutations=2)
+    assert one["card"]["cv"]["plate_held_out"] is None
