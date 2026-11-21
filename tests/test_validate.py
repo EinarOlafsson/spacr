@@ -765,11 +765,24 @@ def test_describe_plan_for_mask_reports_app_source_counts_channels_and_output(tm
     assert "~4 fields" in plan
 
 
-def test_describe_plan_for_mask_names_the_diameter_when_set(tmp_path):
+@pytest.mark.parametrize('setting_key, setting_value, expected_text', [
+    pytest.param(
+        'cell_diameter', 60, 'diameter 60 px',
+        id='test_describe_plan_for_mask_names_the_diameter_when_set',
+    ),
+    pytest.param(
+        'test_mode', True, 'test mode',
+        id='test_describe_plan_flags_test_mode',
+    ),
+])
+def test_mask_plan_keeps_original_setting_details(
+    tmp_path, setting_key, setting_value, expected_text,
+):
+    """Preserve each original mask-plan setting update and native text assertion."""
     src = make_raw_plate(tmp_path, n_channels=3)
     settings = valid_mask_settings(src)
-    settings["cell_diameter"] = 60
-    assert "diameter 60 px" in describe_plan(settings, "mask")
+    settings[setting_key] = setting_value
+    assert expected_text in describe_plan(settings, "mask")
 
 
 def test_describe_plan_for_measure_reports_planes_objects_and_the_database(tmp_path):
@@ -790,13 +803,6 @@ def test_describe_plan_says_where_measure_would_actually_look(tmp_path):
     plate, merged = make_merged_plate(tmp_path, n_planes=7)
     plan = describe_plan(valid_measure_settings(plate), "measure")
     assert merged in plan
-
-
-def test_describe_plan_flags_test_mode(tmp_path):
-    src = make_raw_plate(tmp_path, n_channels=3)
-    settings = valid_mask_settings(src)
-    settings["test_mode"] = True
-    assert "test mode" in describe_plan(settings, "mask")
 
 
 def test_describe_plan_reports_a_missing_source_instead_of_raising(tmp_path):
