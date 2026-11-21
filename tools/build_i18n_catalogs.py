@@ -4740,6 +4740,39 @@ def _ops_profile_cell_cycle_method_sources(tree: ast.Module) -> set[str]:
     return found
 
 
+def _ops_cell_cycle_runtime_sources() -> set[str]:
+    """Return the two cell-cycle refusals from their exact engine owners."""
+    path = ROOT / "spacr" / "ops_engine.py"
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except SyntaxError:
+        return set()
+    prefixes = {
+        "_ph_aggregate": "ops_mitotic_source cell_cycle needs ",
+        "_ph_profile_options": "ops_mitotic_source must be ",
+    }
+    found: set[str] = set()
+    for owner in tree.body:
+        if not (isinstance(owner, ast.FunctionDef)
+                and owner.name in prefixes):
+            continue
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef, ast.Lambda)):
+                continue
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name)
+                    and node.func.id == "tr"):
+                text = _literal(node.args[0])
+                if (text is not None and _looks_translatable(text)
+                        and text.startswith(prefixes[owner.name])):
+                    found.add(text.strip())
+            pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     # Compact-catalog ownership is registered lazily by the screens that own
@@ -5140,6 +5173,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                 for value in _literal_strings(argument, constants):
                     if _looks_translatable(value):
                         found.add(value.strip())
+
+    found.update(_ops_cell_cycle_runtime_sources())
 
     # These shared tables are applied indirectly after widget construction,
     # so no literal text-setting call points back to their values in the AST.
