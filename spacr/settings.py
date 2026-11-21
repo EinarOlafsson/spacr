@@ -2585,7 +2585,7 @@ DEFAULT_CHANGES = {
     949: {'mask_image_format': 'npy', 'crop_image_format': 'png',
           'crop_source': 'auto', 'image_source': 'load_images',
           'ops_ph_image_format': 'npz', 'ops_crop_image_format': 'tiff-tar'},
-    952: {'ops_flatfield': 'none'},
+    952: {'ops_flatfield': 'none', 'ops_flatfield_channel_fit': 'legacy'},
 }
 
 
@@ -2699,9 +2699,12 @@ def _fold_older_defaults(settings, version, known=None):
     (``SETTINGS_FORMAT_VERSIONS``), and files stamped before lack them and
     take their defaults, the phase off.
     952 is item 1006's flat-field correction on by default: ``ops_flatfield``
-    ``'exact'`` (was ``'none'``); files stamped before keep ``'none'``, so
-    their phenotype pixels are measured as acquired, as before. 949-951 belong
-    to other items.
+    ``'exact'`` (was ``'none'``) with every channel's map an object median
+    (``ops_flatfield_channel_fit``, which is ``'legacy'`` for older files:
+    the polynomial DNA map and the pixel-median maps of the other channels).
+    Files stamped before keep ``'none'``, so their phenotype pixels are
+    measured as acquired, and one that sets ``'exact'`` keeps the legacy maps.
+    949-951 belong to other items.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9620,7 +9623,8 @@ ALPHA_FEATURES = {
         'settings': ('ops_cell_cycle', 'ops_cell_cycle_model_family', 'ops_cell_cycle_tabular', 'ops_cell_cycle_transformer', 'ops_cell_cycle_finetune_backbone', 'ops_cell_cycle_base_model', 'ops_cell_cycle_finetune', 'ops_cell_cycle_dna_channel', 'ops_cell_cycle_mt_channel', 'ops_cell_cycle_arrest_genes', 'ops_cell_cycle_labels', 'ops_cell_cycle_label_queue', 'ops_cell_cycle_seed',),
     },
     1006: {
-        'settings': ('ops_flatfield_channel_fit', 'ops_flatfield_object_fields',),
+        'settings': ('ops_flatfield_channel_fit', 'ops_flatfield_nuclear_stains',
+                     'ops_flatfield_object_fields',),
     },
     948: {
         'settings': ('ops_consensus_mode', 'ops_consensus_pairs_search', 'ops_consensus_workers', 'ops_consensus_cells', 'ops_consensus_view_columns',),

@@ -3873,7 +3873,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("993_cli_preflight_reporting_api_arrivals_2026-11-20.json", 1),
         ("992_ops_maxproj_api_arrivals_2026-11-20.json", 14),
         ("990_ops_cell_cycle_api_arrivals_2026-11-21.json", 20),
-        ("1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json", 3),
+        ("1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json", 4),
         ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),

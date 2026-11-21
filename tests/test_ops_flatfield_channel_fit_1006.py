@@ -4,6 +4,8 @@ A synthetic plate: a steep vignette on the nuclei's excitation (corners at 40 % 
 centre), nuclei of known DNA content, and between them a stray-light background with its own
 shallow profile (corners at 90 %). The nuclear-median map recovers the vignette at the
 corners within 1 %; the pixel-median polynomial map, made mostly of background pixels, does not.
+The cells grow 4 px around their nuclei, and a cytoplasmic stain under the same vignette is
+recovered by the cytoplasm-median map.
 """
 from __future__ import annotations
 
@@ -44,6 +46,26 @@ def _field(seed):
     signal = np.where(labels > 0, content * _vignette(), 300.0 * _vignette(0.1))
     image = OFFSET + signal + rng.normal(0, 2, (SIZE, SIZE))
     return image.astype(np.float32), labels
+
+
+def _cells(labels):
+    """The cells: each nucleus grown by 4 px, so nucleus ``k`` is in cell ``k``."""
+    from skimage.segmentation import expand_labels
+
+    return expand_labels(labels, 4).astype(np.int32)
+
+
+def _cytoplasm_field(seed):
+    """One field of a cytoplasmic stain under the vignette: ``(raw plane, nuclei, cells)``."""
+    rng = np.random.default_rng(1000 + seed)
+    _image, nuclei = _field(seed)
+    cells = _cells(nuclei)
+    cytoplasm = (cells > 0) & (nuclei == 0)
+    level = 800.0 * np.exp(rng.normal(0, 0.03, int(cells.max()) + 1))[cells]
+    signal = np.where(cytoplasm, level * _vignette(), np.where(nuclei > 0, 150.0, 300.0)
+                      * _vignette(0.1))
+    image = OFFSET + signal + rng.normal(0, 2, (SIZE, SIZE))
+    return image.astype(np.float32), nuclei, cells
 
 
 def _table(fields=24):
@@ -133,7 +155,7 @@ def _segmented_run(tmp_path, monkeypatch, sites=12):
         images[site] = np.stack([image, image * 0.5], -1)
         folder = tmp_path / "run" / "A1" / "phenotype_masks"
         folder.mkdir(parents=True, exist_ok=True)
-        np.savez(folder / f"site-{site}.npz", nuclei=labels, cells=labels)
+        np.savez(folder / f"site-{site}.npz", nuclei=labels, cells=_cells(labels))
     order = {"DAPI": 0, "GFP": 1}
     monkeypatch.setattr(ops_engine, "_ph_read_field",
                         lambda files, channels, unreadable, secondary=None:
@@ -143,7 +165,7 @@ def _segmented_run(tmp_path, monkeypatch, sites=12):
 
 
 def test_the_phase_builds_every_pending_map_once_and_keeps_its_md5(tmp_path, monkeypatch):
-    folder, _method = _pending_folder(tmp_path, {"DAPI": "nuclear_median", "GFP": "cell_median"})
+    folder, _method = _pending_folder(tmp_path, {"DAPI": "nuclear_median", "GFP": "cytoplasm_median"})
     index = _segmented_run(tmp_path, monkeypatch)
     settings = {"ops_flatfield_maps": folder, "ops_flatfield_dark": OFFSET,
                 "ops_flatfield_field_px": SIZE, "ops_flatfield_holdout_n": 2}
@@ -155,7 +177,11 @@ def test_the_phase_builds_every_pending_map_once_and_keeps_its_md5(tmp_path, mon
     maps, offsets, info = ff.load_flat_maps(folder, ["DAPI", "GFP"])
     assert offsets["DAPI"] == OFFSET and info["md5_record"] and not info["pending"]
     assert info["md5"]["DAPI"] == dapi["md5"]
-    assert info["method"]["GFP"]["estimator"] == "cell_median"
+    assert info["method"]["GFP"]["estimator"] == "cytoplasm_median"
+    for channel in ("DAPI", "GFP"):
+        peak = report["channels"][channel]["peak"]
+        assert peak["max"] == float(maps[channel].max())
+        assert peak["flagged"] == (peak["of_centre"] > ff.FLAT_PEAK_WARN)
     assert abs(_corners(maps["DAPI"]) / _corners(_truth_cells(maps["DAPI"].shape)) - 1) < 0.01
     for channel in ("DAPI", "GFP"):
         assert os.path.isfile(os.path.join(folder, f"objects_{PLATE}_{channel}.parquet"))
@@ -207,17 +233,65 @@ def test_the_field_choice_is_all_a_seeded_count_or_a_list(tmp_path):
         ops_engine._ph_object_fields({"ops_flatfield_object_fields": str(listed)}, available)
 
 
-def test_the_channel_fits_default_to_today_and_are_checked():
-    channels = ["DAPI", "GFP", "A594"]
+def test_the_channel_fits_default_to_the_object_medians_and_are_checked():
+    channels = ["DAPI", "GFP", "A594", "AF750"]
     assert ops_engine._ph_channel_fits({}, channels) == {
-        "DAPI": "polynomial", "GFP": "pixel_median", "A594": "pixel_median"}
+        "DAPI": "nuclear_median", "GFP": "cytoplasm_median", "A594": "nuclear_median",
+        "AF750": "cytoplasm_median"}
+    assert ops_engine._ph_channel_fits({"ops_flatfield_nuclear_stains": []}, channels)[
+        "A594"] == "cytoplasm_median"
+    assert ops_engine._ph_channel_fits({"ops_flatfield_nuclear_stains": "gfp,cy5"}, channels)[
+        "GFP"] == "nuclear_median"
+    assert ops_engine._ph_channel_fits({"ops_flatfield_channel_fit": "legacy"}, channels) == {
+        "DAPI": "polynomial", "GFP": "pixel_median", "A594": "pixel_median",
+        "AF750": "pixel_median"}
+    assert ops_engine._ph_channel_fits({"ops_flatfield_dna_fit": "polynomial"}, channels)[
+        "DAPI"] == "polynomial"
     fits = ops_engine._ph_channel_fits(
-        {"ops_flatfield_channel_fit": {"dapi": "Nuclear_Median", "A594": "cell_median"}}, channels)
-    assert fits == {"DAPI": "nuclear_median", "GFP": "pixel_median", "A594": "cell_median"}
+        {"ops_flatfield_channel_fit": {"dapi": "Polynomial", "A594": "pixel_median"}}, channels)
+    assert fits == {"DAPI": "polynomial", "GFP": "cytoplasm_median", "A594": "pixel_median",
+                    "AF750": "cytoplasm_median"}
     with pytest.raises(ValueError, match="does not have"):
         ops_engine._ph_channel_fits({"ops_flatfield_channel_fit": {"CY5": "polynomial"}}, channels)
     with pytest.raises(ValueError, match="must give each channel"):
-        ops_engine._ph_channel_fits({"ops_flatfield_channel_fit": {"GFP": "spline"}}, channels)
+        ops_engine._ph_channel_fits({"ops_flatfield_channel_fit": {"GFP": "cell_median"}}, channels)
+    with pytest.raises(ValueError, match="legacy"):
+        ops_engine._ph_channel_fits({"ops_flatfield_channel_fit": "pixel"}, channels)
+
+
+def test_the_cytoplasm_median_recovers_a_cytoplasmic_stain():
+    import pandas as pd
+
+    rows = []
+    for site in range(24):
+        image, nuclei, cells = _cytoplasm_field(site)
+        table = ff.field_object_means(image, nuclei, cells, well="A1", site=site, channel="GFP",
+                                      compartment="cytoplasm")
+        rows.append(table)
+    table = pd.concat(rows, ignore_index=True)
+    assert {"cell_cy", "cell_cx", "touches_field_edge", "cytoplasm_gfp_mean_intensity"} <= set(
+        table.columns)
+    image, nuclei, cells = _cytoplasm_field(0)
+    one = rows[0].iloc[0]
+    ring = (cells == one["label"]) & (nuclei == 0)
+    assert np.isclose(one["cytoplasm_gfp_mean_intensity"], image[ring].mean(), rtol=1e-6)
+    flat, _info = ff.build_nuclear_flat(table, column="cytoplasm_gfp_mean_intensity",
+                                        offset=OFFSET, cy="cell_cy", cx="cell_cx", field_px=SIZE)
+    assert abs(_corners(flat) / _corners(_truth_cells(flat.shape)) - 1) < 0.01
+    with pytest.raises(ValueError, match="cytoplasm"):
+        ff.field_object_means(image, nuclei, cells, well="A1", site=0, channel="GFP",
+                              compartment="cell")
+
+
+def test_the_largest_value_is_reported_and_flagged_and_the_map_is_not_changed():
+    flat = np.ones((40, 40))
+    flat[0, 3] = 1.51
+    before = flat.copy()
+    peak = ff.flat_peak(flat)
+    assert peak == {"max": 1.51, "cell": [0, 3], "of_centre": 1.51, "flagged": True}
+    assert np.array_equal(flat, before)
+    flat[0, 3] = 1.2
+    assert ff.flat_peak(flat)["flagged"] is False
 
 
 def test_the_settings_are_alpha_and_flatfield_is_on_by_default():
@@ -226,15 +300,24 @@ def test_the_settings_are_alpha_and_flatfield_is_on_by_default():
                                 _fold_older_defaults)
 
     assert set(ALPHA_FEATURES[1006]["settings"]) == {"ops_flatfield_channel_fit",
+                                                     "ops_flatfield_nuclear_stains",
                                                      "ops_flatfield_object_fields"}
     assert OPS_DEFAULTS["ops_flatfield_channel_fit"] is None
+    assert OPS_DEFAULTS["ops_flatfield_nuclear_stains"] == ["A594"]
     for key in ALPHA_FEATURES[1006]["settings"]:
         assert len(OPS_TOOLTIPS[key]) <= 600 and "Alpha" in OPS_TOOLTIPS[key]
     assert OPS_DEFAULTS["ops_flatfield"] == "exact" and "Default 'exact'" in OPS_TOOLTIPS["ops_flatfield"]
-    assert SETTINGS_SCHEMA_VERSION >= 952 and DEFAULT_CHANGES[952] == {"ops_flatfield": "none"}
+    assert SETTINGS_SCHEMA_VERSION >= 952 and DEFAULT_CHANGES[952] == {
+        "ops_flatfield": "none", "ops_flatfield_channel_fit": "legacy"}
     old = {}
-    assert _fold_older_defaults(old, 948)["ops_flatfield"] == ("none", 952)
-    assert old["ops_flatfield"] == "none"
+    folded = _fold_older_defaults(old, 948)
+    assert folded["ops_flatfield"] == ("none", 952)
+    assert folded["ops_flatfield_channel_fit"] == ("legacy", 952)
+    assert old == {"ops_flatfield": "none", "ops_flatfield_channel_fit": "legacy"}
+    exact = {"ops_flatfield": "exact"}
+    _fold_older_defaults(exact, 948)
+    assert ops_engine._ph_channel_fits(exact, ["DAPI", "GFP"]) == {
+        "DAPI": "polynomial", "GFP": "pixel_median"}
     assert _fold_older_defaults({}, 952) == {}
 
 
@@ -262,3 +345,46 @@ def test_the_api_fallback_is_the_ops_default():
     assert ops_engine._ph_flatfield_mode({}) == OPS_DEFAULTS["ops_flatfield"] == "exact"
     assert ops_engine._ph_flatfield_mode({"ops_flatfield": None}) == OPS_DEFAULTS["ops_flatfield"]
     assert ops_engine._ph_flatfield_mode({"ops_flatfield": "None"}) == "none"
+
+
+#: The reference object-median maps of Funk plate A (item 1006 spec, Acceptance): all fields,
+#: then with well A1 left out.
+REFERENCE_MD5 = {
+    "A594": ("nuclear_median", "5549dead81bb92ae86b811fc50e78a44", "c6ec5ff292241b490f2db896c5f8bcac"),
+    "GFP": ("cytoplasm_median", "eaf63b03f19592381712b1f68da9254a", "3a7d78a22e6cddd9cf74fd6ee2a35a62"),
+    "AF750": ("cytoplasm_median", "4049414862472bf58d7e4eb8ae0d698a", "b0600e423172223c9c07c8d96d716d26"),
+}
+
+
+@pytest.mark.skipif(not os.environ.get("SPACR_1006_TABLE"),
+                    reason="the plate A reference object table is at Home (SPACR_1006_TABLE)")
+@pytest.mark.parametrize("channel", sorted(REFERENCE_MD5))
+@pytest.mark.parametrize("left_out", [False, True])
+def test_home_check_reproduces_the_reference_object_maps(channel, left_out):
+    """Home's check of the non-DNA maps: SPACR_1006_TABLE holds one row per cell of plate A
+    with ``well``, ``site``, the nucleus and cell centroids (``nucleus_cy``/``nucleus_cx``,
+    ``cell_cy``/``cell_cx``) and ``nucleus_a594_mean_intensity``,
+    ``cytoplasm_gfp_mean_intensity`` and ``cytoplasm_af750_mean_intensity``;
+    SPACR_1006_OFFSETS is ``A594=b,GFP=b,AF750=b``. The A594 map of all fields keeps its top-edge
+    cell at 1.51 of the centre, flagged and not changed."""
+    from spacr.tabular import read_table
+
+    fit, every, without_a1 = REFERENCE_MD5[channel]
+    compartment, centroid = ff.OBJECT_COMPARTMENTS[fit]
+    table = read_table(os.environ["SPACR_1006_TABLE"], canonicalise=False, report=None)
+    offsets = dict(item.split("=") for item in os.environ["SPACR_1006_OFFSETS"].split(","))
+    held = sorted({(str(w), int(s)) for w, s in table.loc[table["well"] == "A1", ["well", "site"]]
+                   .itertuples(index=False)}) if left_out else []
+    flat, _info = ff.build_nuclear_flat(
+        table, column=f"{compartment}_{channel.lower()}_mean_intensity",
+        offset=float(offsets[channel]), holdout=held, cy=f"{centroid}_cy", cx=f"{centroid}_cx",
+        map_grid=os.environ.get("SPACR_1006_MAP_GRID", "lookup"),
+        lookup=os.environ.get("SPACR_1006_LOOKUP", "zoom_endpoints"))
+    path = os.path.join(os.environ.get("TMPDIR", "/tmp"), f"flat_1006_{channel}_{left_out}.npy")
+    np.save(path, np.asarray(flat, np.float32))
+    assert hashlib.md5(open(path, "rb").read()).hexdigest() == (without_a1 if left_out else every)
+    if channel == "A594" and not left_out:
+        before = np.asarray(flat).copy()
+        peak = ff.flat_peak(flat)
+        assert peak["cell"] == [0, 3] and round(peak["of_centre"], 2) == 1.51 and peak["flagged"]
+        assert np.array_equal(np.asarray(flat), before)

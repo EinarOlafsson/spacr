@@ -29,7 +29,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "gene_measurement_compare.py", "ops_prefix.py", "ops_decode.py",
         "uniprot.py", "validate.py", "torch_artifacts.py",
         "classification_pixels.py", "crop_loader.py", "crop_store.py",
-        "crops.py", "ops_engine.py",
+        "crops.py", "ops_engine.py", "ops_flatfield.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)

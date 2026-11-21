@@ -5079,7 +5079,7 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
     """
     import multiprocessing
 
-    from .ops_flatfield import (build_flat_maps, choose_flat_fields,
+    from .ops_flatfield import (OBJECT_FITS, build_flat_maps, choose_flat_fields,
                                 load_flat_maps, write_flat_maps)
     from .qt.i18n import tr
     from .resource_log import _parallel_process_executor as ProcessPoolExecutor
@@ -5143,7 +5143,7 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
         polynomial_channels=tuple(c for c in channels if fits[c] == "polynomial"))
     extra = {"wells_available": list(wells),
              "built": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
-    objects = {c: f for c, f in fits.items() if f in ("nuclear_median", "cell_median")}
+    objects = {c: f for c, f in fits.items() if f in OBJECT_FITS}
     if objects:
         from .ops_flatfield import mark_pending
 
@@ -5163,10 +5163,16 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
 def _ph_channel_fits(settings: Mapping[str, Any], channels: Sequence[str]) -> Dict[str, str]:
     """``ops_flatfield_channel_fit``: each channel's flat-field fit (item 1006).
 
-    A channel the setting does not name keeps today's fit: ``'polynomial'`` for the DNA
-    channel, ``'pixel_median'`` for every other, so the default maps are unchanged.
+    A channel the setting does not name takes the object median (maintainer decision
+    2026-11-21, the most accurate map on Funk plate A): ``'nuclear_median'`` for the DNA
+    channel and the nuclear stains of ``ops_flatfield_nuclear_stains`` (default ``['A594']``),
+    ``'cytoplasm_median'`` for every other channel. ``'legacy'`` gives the maps of the runs
+    before (``'polynomial'`` for the DNA channel, ``'pixel_median'`` for the rest),
+    byte-identical; settings files stamped before version 952 read it. A file with the draft
+    key ``ops_flatfield_dna_fit`` gives the DNA channel that fit.
 
-    :param settings: read for ``ops_flatfield_channel_fit``, ``{channel: fit}``.
+    :param settings: read for ``ops_flatfield_channel_fit`` (``{channel: fit}``, ``'legacy'``
+        or None), ``ops_flatfield_nuclear_stains`` and ``ops_flatfield_dna_fit``.
     :param channels: the phenotype channels.
     :returns: ``{channel: fit}`` for every channel, each one of
         :data:`spacr.ops_flatfield.CHANNEL_FITS`.
@@ -5175,8 +5181,16 @@ def _ph_channel_fits(settings: Mapping[str, Any], channels: Sequence[str]) -> Di
     from .ops_flatfield import CHANNEL_FITS
     from .qt.i18n import tr
 
-    asked = {str(k).upper(): str(v).strip().lower()
-             for k, v in dict(settings.get("ops_flatfield_channel_fit") or {}).items()}
+    value = settings.get("ops_flatfield_channel_fit")
+    if isinstance(value, str) and value.strip().lower() == "legacy":
+        return {c: "polynomial" if c.upper() == _NUCLEAR else "pixel_median" for c in channels}
+    if isinstance(value, str) and value.strip():
+        raise ValueError(tr("ops_flatfield_channel_fit must be a {channel: fit} mapping or "
+                            "'legacy'; got {value}", value=value))
+    asked = {str(k).upper(): str(v).strip().lower() for k, v in dict(value or {}).items()}
+    draft = settings.get("ops_flatfield_dna_fit")
+    if draft and _NUCLEAR not in asked:
+        asked[_NUCLEAR] = str(draft).strip().lower()
     unknown = sorted(set(asked) - {c.upper() for c in channels})
     if unknown:
         raise ValueError(tr("ops_flatfield_channel_fit names channels the phenotype path does not "
@@ -5186,13 +5200,18 @@ def _ph_channel_fits(settings: Mapping[str, Any], channels: Sequence[str]) -> Di
     if bad:
         raise ValueError(tr("ops_flatfield_channel_fit must give each channel one of {allowed}; "
                             "got {bad}", allowed=list(CHANNEL_FITS), bad=bad))
-    return {c: asked.get(c.upper(), "polynomial" if c.upper() == _NUCLEAR else "pixel_median")
+    stains = settings.get("ops_flatfield_nuclear_stains", ["A594"])
+    if isinstance(stains, str):
+        stains = stains.split(",")
+    nuclear = {_NUCLEAR} | {str(c).strip().upper() for c in stains or [] if str(c).strip()}
+    return {c: asked.get(c.upper(), "nuclear_median" if c.upper() in nuclear
+                         else "cytoplasm_median")
             for c in channels}
 
 
 def _ph_object_means(task: Mapping[str, Any]) -> Dict[str, Any]:
     """One field's objects for the object-median maps; the ``ph_flatfield_objects`` worker."""
-    from .ops_flatfield import field_object_means
+    from .ops_flatfield import OBJECT_COMPARTMENTS, field_object_means
 
     unreadable: list = []
     channels = list(task["fits"])
@@ -5203,8 +5222,7 @@ def _ph_object_means(task: Mapping[str, Any]) -> Dict[str, Any]:
         nuclei, cells = saved["nuclei"], saved["cells"]
     tables = {c: field_object_means(stack[..., i], nuclei, cells, well=task["well"],
                                     site=task["site"], channel=c,
-                                    compartment="nucleus" if task["fits"][c] == "nuclear_median"
-                                    else "cell")
+                                    compartment=OBJECT_COMPARTMENTS[task["fits"][c]][0])
               for i, c in enumerate(channels)}
     return {"tables": tables, "unreadable": unreadable}
 
@@ -5256,17 +5274,20 @@ def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
     """Build the pending object-median flat-field maps; the ``ph_flatfield_objects`` phase.
 
     Item 1006. A channel whose ``ops_flatfield_channel_fit`` is ``'nuclear_median'`` or
-    ``'cell_median'`` is left pending by ``ph_flatfield``
+    ``'cytoplasm_median'`` (every channel's default) is left pending by ``ph_flatfield``
     (:func:`spacr.ops_flatfield.mark_pending`). This plate phase runs after ``ph_segment``:
     for each chosen field (``ops_flatfield_object_fields``) it reads the pending channels' raw
-    planes and the field's ``ph_segment`` masks and takes every nucleus's (or cell's) raw mean,
-    centroid and edge flag (:func:`spacr.ops_flatfield.field_object_means`); per channel it
+    planes and the field's ``ph_segment`` masks and takes every nucleus's (or cytoplasm's, at
+    its cell's centroid) raw mean, centroid and edge flag (:func:`spacr.ops_flatfield.field_object_means`); per channel it
     builds the map with :func:`spacr.ops_flatfield.build_nuclear_flat` (item 912's fit settings,
     ``ops_flatfield_fit`` and the rest), the held-out fields (``ops_flatfield_holdout_fields``
     or ``ops_flatfield_holdout_n``) left out, and writes it into the same maps folder
     (:func:`spacr.ops_flatfield.complete_pending_flat`) with its object table next to it. The
     camera offset is ``ops_flatfield_dark``, else the offset ``ph_flatfield`` measured; never 0.
-    A folder with nothing pending is left as it is.
+    The map is never changed after the fit: the report gives its largest value, the map cell
+    and its multiple of the centre (:func:`spacr.ops_flatfield.flat_peak`), and a value above
+    :data:`spacr.ops_flatfield.FLAT_PEAK_WARN` of the centre is flagged with a warning. A
+    folder with nothing pending is left as it is.
 
     :param plate: the plate name.
     :param wells: the wells run.
@@ -5276,7 +5297,7 @@ def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
         ``n_workers``.
     :param destination: the run folder holding ``<well>/phenotype_masks``.
     :returns: the report, per channel: objects, objects per map cell, corner mean, % at floor,
-        md5 and offset.
+        the largest value (``peak``), md5 and offset.
     :raises ValueError: when the maps folder or the masks are missing, a field is unreadable
         or a channel has no offset.
     """
@@ -5284,7 +5305,8 @@ def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
 
     import pandas as pd
 
-    from .ops_flatfield import _holdout, _nuclear_options, build_nuclear_flat, complete_pending_flat
+    from .ops_flatfield import (OBJECT_COMPARTMENTS, _holdout, _nuclear_options,
+                                build_nuclear_flat, complete_pending_flat, flat_peak)
     from .qt.i18n import tr
     from .resource_log import _parallel_process_executor as ProcessPoolExecutor
     from .tabular import write_table
@@ -5335,13 +5357,14 @@ def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
                               "channels": {}}
     options = _nuclear_options(settings)
     for channel in pending:
-        compartment = "nucleus" if fits[channel] == "nuclear_median" else "cell"
+        compartment, centroid = OBJECT_COMPARTMENTS[fits[channel]]
         table = pd.concat([r["tables"][channel] for r in results], ignore_index=True)
         held = _holdout(settings, plate, table)
         offset, source = offsets[channel]
         flat, info = build_nuclear_flat(
             table, column=f"{compartment}_{channel.lower()}_mean_intensity", offset=offset,
-            holdout=held, cy=f"{compartment}_cy", cx=f"{compartment}_cx", **options)
+            holdout=held, cy=f"{centroid}_cy", cx=f"{centroid}_cx", **options)
+        peak = flat_peak(flat)
         info.update(estimator=fits[channel], offset_source=source)
         write_table(table, os.path.join(folder, f"objects_{plate}_{channel}.parquet"),
                     canonicalise=False)
@@ -5351,7 +5374,12 @@ def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
             "objects": int(info["n_training_nuclei"]), "held_out_fields": len(held),
             "held_out_objects": int(info["n_heldout_nuclei"]),
             "objects_per_cell": info["nuclei_per_cell"], "corner_mean": info["corner_mean"],
-            "at_floor_pct": info["at_floor_pct"], "offset": offset, "offset_source": source}
+            "at_floor_pct": info["at_floor_pct"], "peak": peak, "offset": offset,
+            "offset_source": source}
+        if peak["flagged"]:
+            _say(tr("warning: the {plate} {channel} flat-field map reaches {ratio:.2f} of its "
+                    "centre at map cell {cell}; the map is used as fitted", plate=plate,
+                    channel=channel, ratio=peak["of_centre"], cell=peak["cell"]))
         _say(tr("{plate} {channel} {fit} map from {objects} objects in {fields} fields written "
                 "to {folder}", plate=plate, channel=channel, fit=fits[channel],
                 objects=report["channels"][channel]["objects"], fields=len(chosen),
