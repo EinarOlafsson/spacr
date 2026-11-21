@@ -361,13 +361,19 @@ def test_a_mask_plane_beyond_the_array_is_refused_with_both_numbers(merged):
 # stream_planes
 # ---------------------------------------------------------------------------
 
-def test_the_current_spelling_wins_over_the_older_one():
-    assert cs.stream_planes({"channel_arrays": [1, 2],
-                             "extract_channels": [0]}) == [1, 2]
-
-
-def test_the_older_spelling_is_still_read():
-    assert cs.stream_planes({"extract_channels": [0, 3]}) == [0, 3]
+@pytest.mark.parametrize('settings, expected', [
+    pytest.param(
+        {'channel_arrays': [1, 2], 'extract_channels': [0]}, [1, 2],
+        id='test_the_current_spelling_wins_over_the_older_one',
+    ),
+    pytest.param(
+        {'extract_channels': [0, 3]}, [0, 3],
+        id='test_the_older_spelling_is_still_read',
+    ),
+])
+def test_original_crop_channel_settings_keep_their_ordered_planes(settings, expected):
+    """Preserve each original channel-setting spelling and its ordered planes."""
+    assert cs.stream_planes(settings) == expected
 
 
 def test_neither_spelling_set_names_the_one_to_set():
