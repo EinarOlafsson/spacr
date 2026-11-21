@@ -1,0 +1,216 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_a_retired_setting_says_so.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_a_retired_setting_says_so.py::test_a_healthy_settings_file_is_quiet": "tests/test_a_retired_setting_says_so.py::test_original_key_maps_without_retired_settings_stay_quiet[test_a_healthy_settings_file_is_quiet]",
+    "tests/test_a_retired_setting_says_so.py::test_a_non_string_key_does_not_raise": "tests/test_a_retired_setting_says_so.py::test_original_key_maps_without_retired_settings_stay_quiet[test_a_non_string_key_does_not_raise]"
+  },
+  "native_literal_contracts": {
+    "test_a_healthy_settings_file_is_quiet": {
+      "python_types": [
+        "dict"
+      ],
+      "literal_repr": "({'src': '/tmp', 'cell_channel': 0},)"
+    },
+    "test_a_non_string_key_does_not_raise": {
+      "python_types": [
+        "dict"
+      ],
+      "literal_repr": "({7: 'x', None: 'y'},)"
+    }
+  },
+  "case_contract_representations": {
+    "test_a_healthy_settings_file_is_quiet": "({'src': '/tmp', 'cell_channel': 0},)",
+    "test_a_non_string_key_does_not_raise": "({7: 'x', None: 'y'},)"
+  },
+  "contract_scope": "Exact original ordered native settings dictionaries including string/int/None keys and string/int values, direct _check_retired_keys call and native equality to the literal empty list retained. Native literal repr/roundtrip and upfront typed worker evidence preserve mixed key types and order; actual inputs are never JSON-decoded. Every other original import/helper/locale-case/typo/withdrawn/renamed/split/live-setting/replacement/subtest case retains executable AST and relative order. Original per-retired-name subtest loop retained with actual positive matching before/after subtest counts verified separately. Disjoint from audit85 and104 warning/numeric-list cases in another module. No identity, exception or warning-text assertion is added.",
+  "collected_before": [
+    "tests/test_a_retired_setting_says_so.py::test_a_split_setting_names_BOTH_of_its_replacements",
+    "tests/test_a_retired_setting_says_so.py::test_no_retired_name_is_also_a_live_setting",
+    "tests/test_a_retired_setting_says_so.py::test_a_non_string_key_does_not_raise",
+    "tests/test_a_retired_setting_says_so.py::test_each_retired_name_is_reported",
+    "tests/test_a_retired_setting_says_so.py::test_a_withdrawn_setting_is_reported",
+    "tests/test_a_retired_setting_says_so.py::test_the_report_says_the_value_does_nothing",
+    "tests/test_a_retired_setting_says_so.py::test_a_healthy_settings_file_is_quiet",
+    "tests/test_a_retired_setting_says_so.py::test_a_renamed_setting_names_its_replacement",
+    "tests/test_a_retired_setting_says_so.py::test_the_typo_check_really_is_blind_to_it",
+    "tests/test_a_retired_setting_says_so.py::test_every_named_replacement_is_a_live_setting"
+  ],
+  "collected_after": [
+    "tests/test_a_retired_setting_says_so.py::test_each_retired_name_is_reported",
+    "tests/test_a_retired_setting_says_so.py::test_the_report_says_the_value_does_nothing",
+    "tests/test_a_retired_setting_says_so.py::test_a_renamed_setting_names_its_replacement",
+    "tests/test_a_retired_setting_says_so.py::test_a_withdrawn_setting_is_reported",
+    "tests/test_a_retired_setting_says_so.py::test_no_retired_name_is_also_a_live_setting",
+    "tests/test_a_retired_setting_says_so.py::test_the_typo_check_really_is_blind_to_it",
+    "tests/test_a_retired_setting_says_so.py::test_a_split_setting_names_BOTH_of_its_replacements",
+    "tests/test_a_retired_setting_says_so.py::test_original_key_maps_without_retired_settings_stay_quiet[test_a_healthy_settings_file_is_quiet]",
+    "tests/test_a_retired_setting_says_so.py::test_every_named_replacement_is_a_live_setting",
+    "tests/test_a_retired_setting_says_so.py::test_original_key_maps_without_retired_settings_stay_quiet[test_a_non_string_key_does_not_raise]"
+  ],
+  "tests_before": {
+    "passed": 10,
+    "seconds": 5.31
+  },
+  "tests_after": {
+    "passed": 10,
+    "seconds": 4.79
+  },
+  "normal_test_summary_before_after": {
+    "before": "10 passed, 70 subtests passed in 5.31s",
+    "after": "10 passed, 70 subtests passed in 4.79s"
+  },
+  "coverage_scope": "spacr.validate under the complete selected retired-setting metadata module, not full-suite or validation-workflow coverage. Complete118line test module and selected retired-key source read; original small settings dictionaries, declared/live/replacement registries, string descriptions and existing locale subtests only. The literal /tmp value is a string argument, not image input. No actual analysis/segmentation/model fit/training/scientific chart/new reader/network/GPU execution. Private upfront SPACR_MODEL_DOWNLOAD=0 prevents background model discovery from existing settings imports. Native mixed-key private evidence and full subtest-summary proof fixed before baseline. Production/settings names/defaults/schema/categories/retired tables unchanged; audit28 default-validation failure remains held separately.",
+  "coverage_before": {
+    "covered_lines": 227,
+    "num_statements": 1444,
+    "percent_covered": 12.126696832579185,
+    "percent_covered_display": "12",
+    "missing_lines": 1217,
+    "excluded_lines": 0,
+    "percent_statements_covered": 15.720221606648199,
+    "percent_statements_covered_display": "16",
+    "num_branches": 766,
+    "num_partial_branches": 9,
+    "covered_branches": 41,
+    "missing_branches": 725,
+    "percent_branches_covered": 5.3524804177545695,
+    "percent_branches_covered_display": "5"
+  },
+  "coverage_after": {
+    "covered_lines": 227,
+    "num_statements": 1444,
+    "percent_covered": 12.126696832579185,
+    "percent_covered_display": "12",
+    "missing_lines": 1217,
+    "excluded_lines": 0,
+    "percent_statements_covered": 15.720221606648199,
+    "percent_statements_covered_display": "16",
+    "num_branches": 766,
+    "num_partial_branches": 9,
+    "covered_branches": 41,
+    "missing_branches": 725,
+    "percent_branches_covered": 5.3524804177545695,
+    "percent_branches_covered_display": "5"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "ad3b5b4fc0da2743cb5a1d5b02c47a10c2e82a6c01a0131f37cd21f4a0dc394d",
+  "production_source_sha256": "b9ced661c0f7e8a0c5281c781109c23e64eb94babbef466d0828248d4b5bad65",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "healthy-key-without-a-survivor-is-reported-as-retired",
+      "source_variant": {
+        "path": "spacr/validate.py",
+        "line": 1210,
+        "old": "gone = withdrawn_setting_reason(key)\n                if gone:",
+        "new": "gone = withdrawn_setting_reason(key)\n                if True:"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_retired_setting_says_so.py::test_a_healthy_settings_file_is_quiet"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_retired_setting_says_so.py::test_a_healthy_settings_file_is_quiet"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_retired_setting_says_so.py::test_original_key_maps_without_retired_settings_stay_quiet[test_a_healthy_settings_file_is_quiet]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_retired_setting_says_so.py::test_original_key_maps_without_retired_settings_stay_quiet[test_a_healthy_settings_file_is_quiet]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "nonstring-key-adds-an-unexpected-warning",
+      "source_variant": {
+        "path": "spacr/validate.py",
+        "line": 1198,
+        "old": "for key in settings:\n        if not isinstance(key, str):\n            continue\n        replacement = RETIRED_SETTINGS.get(key)",
+        "new": "for key in settings:\n        if not isinstance(key, str):\n            problems.append(Problem(WARNING, str(key), \"unexpected warning\", \"unexpected fix\"))\n            continue\n        replacement = RETIRED_SETTINGS.get(key)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_retired_setting_says_so.py::test_a_non_string_key_does_not_raise"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_retired_setting_says_so.py::test_a_non_string_key_does_not_raise"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_retired_setting_says_so.py::test_original_key_maps_without_retired_settings_stay_quiet[test_a_non_string_key_does_not_raise]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_retired_setting_says_so.py::test_original_key_maps_without_retired_settings_stay_quiet[test_a_non_string_key_does_not_raise]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults before and after: append a retired warning even when withdrawn_setting_reason finds none; append an unexpected warning in the non-string-key skip branch. Each selects the same one original/mapped healthy-settings or non-string-key case and must fail its unchanged native empty-list equality. These establish false-positive/report-value sensitivity only, not stronger file-loading, exception, warning-message or settings-validation correctness claims. Exact original string/int/None key types, dictionary order and literal empty expected list retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "typed_parameter_payloads_verified": true,
+  "private_fault_harness_recovery": {
+    "recorded_at": "2026-11-21T04:26:12-05:00",
+    "failed_original_pair_exit_code": 1,
+    "first_original_fault_native_assertion_passed_and_not_repeated": true,
+    "failed_second_fault_was_TypeError_missing_required_Problem_fix_and_excluded_from_score": true,
+    "private_constructor_corrected_to_all_four_required_arguments": true,
+    "after_normal_run_admitted_before_correction_and_preserved": {
+      "passed": 10,
+      "subtests_passed": 70,
+      "seconds": 4.79
+    },
+    "normal_green_runs_repeated": false,
+    "original_test_sha256": "ad3b5b4fc0da2743cb5a1d5b02c47a10c2e82a6c01a0131f37cd21f4a0dc394d",
+    "measured_proposal_sha256": "a8f1655a542254fde4eb063a59a6d96105b4082b957af659dfd94b62e9c2441a",
+    "before_coverage_sha256": "f2a061abad26ee59ff732e4b4013d1b9169489a13d72fb2176dc2b777d2e6481",
+    "after_coverage_sha256": "67e2136b0c8d145028e942e58d4c796eb359d4f6170d54733a13de39e7cf3d3e",
+    "successful_corrected_second_original_fault_pending": false,
+    "proposal_temporarily_restored_after_completed_normal_run_only": true,
+    "corrected_second_original_fault_native_assertion_verified": true,
+    "measured_proposal_restored_byte_identically": true,
+    "coverage_artifacts_unchanged_and_exact": true,
+    "both_normal_summaries_preserved": {
+      "before": "10 passed, 70 subtests passed in 5.31s",
+      "after": "10 passed, 70 subtests passed in 4.79s"
+    },
+    "summary": "The original fault pair exited1 because the second private mutation omitted the required Problem.fix argument and raised TypeError, not AssertionError. That invalid attempt is archived and excluded from the mutation score. The nonzero pair exit was mistakenly ignored and after normal coverage started early; its successful measurement was preserved. Only the invalid second original fault was rerun after fixing the private constructor. The exact original test was temporarily restored after completed after coverage, then the measured proposal restored byte-identically. Neither normal green measurement nor the successful first original fault was repeated. Original/after coverage hashes and positive70-subtest summaries are unchanged."
+  },
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_a_retired_setting_says_so.py",
+      "line": 113,
+      "symbol": "test_original_key_maps_without_retired_settings_stay_quiet",
+      "new": "Preserve each original key map and its empty report for retired settings.",
+      "old": {
+        "test_a_healthy_settings_file_is_quiet": null,
+        "test_a_non_string_key_does_not_raise": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
