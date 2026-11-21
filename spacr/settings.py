@@ -9587,6 +9587,9 @@ ALPHA_FEATURES = {
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },
+    990: {
+        'settings': ('ops_cell_cycle', 'ops_cell_cycle_model_family', 'ops_cell_cycle_tabular', 'ops_cell_cycle_transformer', 'ops_cell_cycle_finetune_backbone', 'ops_cell_cycle_base_model', 'ops_cell_cycle_finetune', 'ops_cell_cycle_dna_channel', 'ops_cell_cycle_mt_channel', 'ops_cell_cycle_arrest_genes', 'ops_cell_cycle_labels', 'ops_cell_cycle_label_queue', 'ops_cell_cycle_seed',),
+    },
     948: {
         'settings': ('ops_consensus_mode', 'ops_consensus_pairs_search', 'ops_consensus_workers', 'ops_consensus_cells', 'ops_consensus_view_columns',),
     },

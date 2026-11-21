@@ -283,13 +283,13 @@ _PHASES = ("stitch", "phenotype", "objects", "decode")
 #: Not in the default run, because each needs the four above and a design
 #: table; a run includes them only when ``phases`` names them.
 _PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
-              "ph_ownership", "merge", "ph_merged", "aggregate", "ph_tables",
-              "ph_crops", "report", "stress")
+              "ph_ownership", "merge", "ph_merged", "ph_cell_cycle", "aggregate",
+              "ph_tables", "ph_crops", "report", "stress")
 
 #: The phenotype phases that run once per plate rather than per well; a
 #: well's archive marker (item 872, B9) records only the others.
-_PH_PLATE_PHASES = ("ph_flatfield", "aggregate", "ph_tables", "ph_crops",
-                    "report", "stress")
+_PH_PLATE_PHASES = ("ph_flatfield", "ph_cell_cycle", "aggregate", "ph_tables",
+                    "ph_crops", "report", "stress")
 
 #: The profile path (alpha): stored per-well cell tables to gene profiles,
 #: then their retrieval metrics, their module atlas, the Leiden resolution
@@ -7207,7 +7207,21 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
 
         cells[dna_column] = correct_features(
             cells, cells, [dna_column], flat_offsets)[dna_column].to_numpy()
-    if mitotic_model is not None:
+    if str(settings.get("ops_mitotic_source") or "").strip().lower() == "cell_cycle":
+        from .ops_cell_cycle import MITOTIC_STAGES
+
+        staged = _rows_for_wells(db, "ops_cell_cycle", plate, pooled)
+        if staged is None:
+            raise ValueError(tr(
+                "ops_mitotic_source cell_cycle needs the ops_cell_cycle table; "
+                "set ops_cell_cycle or run the ph_cell_cycle phase first"))
+        staged = staged[["well", "site", "label", "cell_cycle_stage"]]
+        staged["well"] = staged["well"].astype(str)
+        joined = cells[["well", "site", "label"]].astype({"well": str}).merge(
+            staged, on=["well", "site", "label"], how="left")
+        cells["mitotic"] = joined["cell_cycle_stage"].isin(
+            (*MITOTIC_STAGES, "mitotic")).to_numpy()
+    elif mitotic_model is not None:
         from .ops_mitotic import predict_mitotic
         model_cells = cells
         if gain_columns:
@@ -10275,8 +10289,8 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         raise ValueError(tr("ops_profile_cell_cycle_method must be empty or "
                             "measure_fc; got {value}", value=cycle_method))
     source = str(settings.get("ops_mitotic_source") or "rule").strip().lower()
-    if source not in ("rule", "classifier"):
-        raise ValueError(tr("ops_mitotic_source must be rule or classifier; "
+    if source not in ("rule", "classifier", "cell_cycle"):
+        raise ValueError(tr("ops_mitotic_source must be rule, classifier or cell_cycle; "
                             "got {value}", value=source))
     if source == "classifier" and not settings.get("ops_mitotic_model"):
         raise ValueError(tr(
@@ -11029,6 +11043,15 @@ def run_ops(settings: Mapping[str, Any], *,
 
         out["archive_plate_done"] = mark_plate_done(str(archive_root), plate,
                                                     chosen)
+    if "ph_cell_cycle" in phases or (settings.get("ops_cell_cycle")
+                                      and "aggregate" in phases):
+        from .ops_cell_cycle import run_cell_cycle_phase
+
+        out["ph_cell_cycle"] = run_cell_cycle_phase(db, plate, chosen, settings,
+                                                    destination)
+        with open(os.path.join(destination, f"ops_ph_cell_cycle_{plate}.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(out["ph_cell_cycle"], handle, indent=1, default=str)
     if "aggregate" in phases:
         out["aggregate"] = _ph_aggregate(db, plate, chosen, settings,
                                          destination,

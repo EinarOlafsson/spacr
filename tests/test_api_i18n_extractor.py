@@ -2608,6 +2608,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in preflight_arrivals} == preflight_arrivals
     assert not preflight_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **preflight_arrivals}
+    cell_cycle_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "990_ops_cell_cycle_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert len(cell_cycle_arrivals) == 14
+    assert {key: docs[key] for key in cell_cycle_arrivals} == cell_cycle_arrivals
+    assert not cell_cycle_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **cell_cycle_arrivals}
     ome_zarr_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
     assert len(ome_zarr_arrivals) == 49

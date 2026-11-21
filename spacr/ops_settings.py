@@ -283,6 +283,19 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_g1_sg2_split_log2": 0.3,
     "ops_profile_cell_cycle_method": "",
     "ops_mitotic_source": "rule",
+    "ops_cell_cycle": None,
+    "ops_cell_cycle_model_family": 'tabular',
+    "ops_cell_cycle_tabular": 'hgb',
+    "ops_cell_cycle_transformer": 'subcell',
+    "ops_cell_cycle_finetune_backbone": False,
+    "ops_cell_cycle_base_model": '',
+    "ops_cell_cycle_finetune": 'screen',
+    "ops_cell_cycle_dna_channel": None,
+    "ops_cell_cycle_mt_channel": None,
+    "ops_cell_cycle_arrest_genes": 'default',
+    "ops_cell_cycle_labels": '',
+    "ops_cell_cycle_label_queue": 0,
+    "ops_cell_cycle_seed": 0,
     "ops_tvn_fit_cells": "pooled",
     "ops_penetrance": False,
     "ops_penetrance_folds": 5,
@@ -817,6 +830,19 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_g1_sg2_split_log2": (float, int),
     "ops_profile_cell_cycle_method": str,
     "ops_mitotic_source": str,
+    "ops_cell_cycle": (str, type(None)),
+    "ops_cell_cycle_model_family": str,
+    "ops_cell_cycle_tabular": str,
+    "ops_cell_cycle_transformer": str,
+    "ops_cell_cycle_finetune_backbone": bool,
+    "ops_cell_cycle_base_model": str,
+    "ops_cell_cycle_finetune": str,
+    "ops_cell_cycle_dna_channel": (str, type(None)),
+    "ops_cell_cycle_mt_channel": (str, type(None)),
+    "ops_cell_cycle_arrest_genes": (str, list, type(None)),
+    "ops_cell_cycle_labels": str,
+    "ops_cell_cycle_label_queue": int,
+    "ops_cell_cycle_seed": int,
     "ops_tvn_fit_cells": str,
     "ops_penetrance": bool,
     "ops_penetrance_folds": int,
@@ -1323,6 +1349,21 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_cell_cycle", "ops_profile_g1_sg2_split_log2",
         "ops_profile_cell_cycle_method", "ops_phase_tests", "ops_phase_null", "ops_mitotic_index_test",
         "ops_mitotic_index_min_cells", "ops_mitotic_index_reference",
+    ],
+    "Cell-cycle stages": [
+        "ops_cell_cycle",
+        "ops_cell_cycle_model_family",
+        "ops_cell_cycle_tabular",
+        "ops_cell_cycle_transformer",
+        "ops_cell_cycle_finetune_backbone",
+        "ops_cell_cycle_base_model",
+        "ops_cell_cycle_finetune",
+        "ops_cell_cycle_dna_channel",
+        "ops_cell_cycle_mt_channel",
+        "ops_cell_cycle_arrest_genes",
+        "ops_cell_cycle_labels",
+        "ops_cell_cycle_label_queue",
+        "ops_cell_cycle_seed",
     ],
     "Penetrance, escapers & neighbours": [
         "ops_penetrance", "ops_penetrance_folds", "ops_penetrance_nt_pool",
@@ -3492,6 +3533,64 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "'rule' (the DNA rule of ops_mitotic_dna_z, or the classifier when "
         "ops_mitotic_model is set) or 'classifier', which refuses to run "
         "without ops_mitotic_model. Default 'rule'. Alpha.",
+    "ops_cell_cycle":
+        "(str or None) - Call every cell's cell-cycle stage with a "
+        "probability and a flag: None (off; the run is unchanged), 'DNA' (a "
+        "DNA-stain model) or 'DNA+MT' (DNA and microtubule stains). G1, S and "
+        "G2 come from the field-centred DNA-content fit; ops_mitotic_source "
+        "'cell_cycle' takes the mitotic cells of profiles from these stages. "
+        "Default None. Alpha.",
+    "ops_cell_cycle_model_family":
+        "(str) - The model family: 'tabular' runs on the cell tables. 'cnn' "
+        "and 'transformer' are not available in this build; a run that asks "
+        "for them uses the tabular learner and says so in its report. Default "
+        "'tabular'. Alpha.",
+    "ops_cell_cycle_tabular":
+        "(str) - The tabular learner: 'hgb' (HistGradientBoosting) or "
+        "'xgboost'. Changing it changes every stage call and probability, so "
+        "a base model trained with one learner is refitted with the other "
+        "when labels are given. Default 'hgb'. Alpha.",
+    "ops_cell_cycle_transformer":
+        "(str) - The transformer backbone of the 'transformer' family: "
+        "'subcell' (the SubCell vision transformer). Default 'subcell'. "
+        "Alpha.",
+    "ops_cell_cycle_finetune_backbone":
+        "(bool) - CNN and transformer families only: fine-tune the backbone "
+        "too, not just the head. Default False. Alpha.",
+    "ops_cell_cycle_base_model":
+        "(str) - The base checkpoint folder the model starts from, written by "
+        "spacr.ops_cell_cycle.save_cell_cycle_checkpoint. Empty uses the "
+        "shipped base model; none is registered yet, so a run then needs "
+        "ops_cell_cycle_labels. Default ''. Alpha.",
+    "ops_cell_cycle_finetune":
+        "(str) - How the user's labels refit the model: 'screen' (once, all "
+        "plates pooled), 'plate' (once per plate; not yet validated) or "
+        "'none' (the base model as is). Without labels nothing is refitted. "
+        "Default 'screen'. Alpha.",
+    "ops_cell_cycle_dna_channel":
+        "(str or None) - The DNA stain's channel name in the cell tables. "
+        "Empty uses nucleus_channel. Default None. Alpha.",
+    "ops_cell_cycle_mt_channel":
+        "(str or None) - The microtubule (tubulin) stain's channel name; "
+        "required for 'DNA+MT', where its cell and cytoplasm features join "
+        "the DNA features the model reads. Default None. Alpha.",
+    "ops_cell_cycle_arrest_genes":
+        "(str, list or None) - Knockouts with a known mitotic arrest, for the "
+        "knockout self-check when the library has 100 of their cells: "
+        "'default' (21 spindle and APC/C genes), a list, or None to skip it. "
+        "Default 'default'. Alpha.",
+    "ops_cell_cycle_labels":
+        "(str) - The user's labels: a CSV with plate, well, site, label and "
+        "stage. With labels the model is refitted, their stages can become "
+        "verified, and the shuffled-label check runs. Default ''. Alpha.",
+    "ops_cell_cycle_label_queue":
+        "(int) - How many cells to queue for labelling on the Home screen; 0 "
+        "queues none. 100 is recommended. Not yet available in this build. "
+        "Default 0. Alpha.",
+    "ops_cell_cycle_seed":
+        "(int) - The seed of every random draw of the option: folds, "
+        "shuffles, the learner and the self-check permutations. Default 0. "
+        "Alpha.",
     "ops_tvn_fit_cells":
         "(str) - The cells the aggregate phase fits TVN on: 'pooled' (every "
         "pooled cell) or 'interphase' (the interphase cells, the fit then "
