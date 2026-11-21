@@ -9,6 +9,7 @@ RAM when ``batch_size`` is automatic. Internal to :mod:`spacr.io`,
 """
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 import math
@@ -512,21 +513,12 @@ def _calibrate(model, sample, settings, *, site, evaluate=None, per_field=None,
                        'device': None if device is None else str(device), 'total': None})
         return record
     if evaluate is None:
-        def evaluate(tiles):
-            model.eval(sample, batch_size=int(tiles))
+        evaluate = functools.partial(_evaluate_sample, model, sample)
     gib = 2**30
     config = governor._config(settings)
     controller = governor._controller(site, device)
     held = int(governor._reserved(index)[0])
-
-    def need(tiles):
-        before = governor._allocated(index)
-        reserved_before = governor._reserved(index)
-        controller.per_unit = 0.0
-        evaluate(tiles)
-        controller._learn(index, tiles, before, reserved_before)
-        return held + controller.per_unit * tiles
-
+    need = functools.partial(_probe_need, governor, controller, index, held, evaluate)
     t1, t2 = 2, max(2, min(8, cap))
     floor_tile, floor_fixed = 0.1 * _TILE_GIB * gib, 0.1 * _MODEL_GIB * gib
     probes = 0
@@ -559,6 +551,35 @@ def _calibrate(model, sample, settings, *, site, evaluate=None, per_field=None,
                    'budget_source': budget['source'], 'probes': probes,
                    'device': _device_name(governor, index), 'total': budget['total']})
     return record
+
+
+def _evaluate_sample(model, sample, tiles):
+    """One probe evaluation of ``sample`` at a tile batch of ``tiles``; the result is discarded.
+
+    :param model: the loaded segmentation model.
+    :param sample: the probe field.
+    :param tiles: the tile batch.
+    """
+    model.eval(sample, batch_size=int(tiles))
+
+
+def _probe_need(governor, controller, index, held, evaluate, tiles):
+    """The bytes one probe at ``tiles`` needs: what the process held plus the governor-measured growth.
+
+    :param governor: the governor module.
+    :param controller: the ``_BatchController`` of the probe site.
+    :param index: the CUDA device index.
+    :param held: bytes the process had reserved before the probes.
+    :param evaluate: callable ``tiles -> None`` running one evaluation.
+    :param tiles: the tile batch to probe.
+    :returns: the need in bytes.
+    """
+    before = governor._allocated(index)
+    reserved_before = governor._reserved(index)
+    controller.per_unit = 0.0
+    evaluate(tiles)
+    controller._learn(index, tiles, before, reserved_before)
+    return held + controller.per_unit * tiles
 
 
 def _library_versions():
