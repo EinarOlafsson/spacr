@@ -5065,7 +5065,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # of the paper items' public callables, which
     # _validated_bmc_paper_items_callables checks against the arrival
     # contract 871_911_bmc_paper_items_api_arrivals_2026-11-09.json.
-    assert len(callables) == len(by_symbol) == 10062
+    # 2026-11-21, item 1002: +1, spacr.settings.unknown_setting_keys (arrival
+    # contract 1002_settings_unknown_keys_api_arrivals_2026-11-20.json).
+    assert len(callables) == len(by_symbol) == 10063
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -5162,7 +5164,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # the rest of the BMC paper items' public callables, which the
         # arrival contract 871_911_bmc_paper_items_api_arrivals_2026-11-09.json
         # checks (-32 function, -1 method, -1 constructor).
-        "function": 4524,
+        "function": 4525,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         # Items 591-592: +2 method (the object grid's filter rows and the
@@ -5266,7 +5268,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3 autoapi, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17 autoapi, the functions named in the total.
         # 2026-11-06 item 773: +1 autoapi, IlluminationField.correct_window.
-        "autoapi": 10057,
+        "autoapi": 10058,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -5332,7 +5334,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
     # 2026-11-05 items 791, 770, 771: +17, one variant each: sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, and the fourteen spacr.division_analysis functions.
     # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-    assert sum(item.variant_count for item in callables) == 10069
+    # 2026-11-21 item 1002: +1, spacr.settings.unknown_setting_keys.
+    assert sum(item.variant_count for item in callables) == 10070
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -5362,7 +5365,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
         # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-        1: 10055,
+        1: 10056,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -5716,7 +5719,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # illumination_qc, prepare_illumination_correction, prepare_illumination_model
     # and spacr.intensity_rescale.build_plate_plan (defaulted; the 933/983
     # contracts cover the other three new keywords).
-    assert sum(len(item.parameters) for item in callables) == 20267
+    # 20,267 -> 20,270 on 2026-11-21 (landing train 8, item 1002): `strict` of spacr.cli.resolve_settings (defaulted) and `settings`, `app` of the new spacr.settings.unknown_setting_keys.
+    assert sum(len(item.parameters) for item in callables) == 20270
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5781,7 +5785,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-07 item 772: 10,377 -> 10,372, -5 required: CustomCellClassifier's
     # num_classes, pathogen_channel, use_attention, use_checkpoint and
     # dropout_rate now have defaults (model_type='custom').
-    assert sum(len(item.required_parameters) for item in callables) == 10372
+    # 10,372 -> 10,373 on 2026-11-21 (item 1002): `settings` of spacr.settings.unknown_setting_keys has no default.
+    assert sum(len(item.required_parameters) for item in callables) == 10373
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -5829,6 +5834,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-19 (was 6e569df7...): CustomCellClassifier drops its three
     # ignored optional parameters under rule 41, the parameter total above
     # moves by the same three and the required total does not.
+    # Moved 2026-11-21 (was 361a1012...): item 1002 adds spacr.settings.unknown_setting_keys and the optional `strict` of spacr.cli.resolve_settings.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -6075,7 +6081,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `ngff_version` and `shards` of spacr.ome_zarr.write_ome_zarr.
     # Moved 2026-11-21 by landing train 7 (was 361a1012...): item 986 P's
     # optional `load_field` of five illumination/intensity_rescale planners.
-) == 'ae0adfd78a2a55213026232359b5f788ffbbc38639454ae8dc3b9ac6d60284cf'
+    # Moved 2026-11-21 by landing train 8 (was ae0adfd7...): item 1002's `strict` of
+    # spacr.cli.resolve_settings and the new spacr.settings unknown-settings helper.
+) == 'DIGEST_TO_FILL'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -7023,6 +7031,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
+        ("1002_settings_unknown_keys_api_arrivals_2026-11-20.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7661,7 +7670,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
-                     "w_mask_tracing_api_arrivals_2026-11-20.json"):
+                     "w_mask_tracing_api_arrivals_2026-11-20.json",
+                     "1002_settings_unknown_keys_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7831,7 +7841,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
-                     "w_mask_tracing_api_arrivals_2026-11-20.json"):
+                     "w_mask_tracing_api_arrivals_2026-11-20.json",
+                     "1002_settings_unknown_keys_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

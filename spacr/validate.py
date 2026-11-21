@@ -1341,24 +1341,16 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
     section headings ("General", "Cell", ...) as blank rows, and a blank
     value changes nothing whatever its name.
     """
-    known = (_known_setting_keys() | _APP_EXTRA_KEYS.get(app, frozenset())
-             | _module_default_keys(app) | {"model_metadata"})
+    from .settings import _known_keys_for_app, unknown_setting_keys
+
+    known = _known_keys_for_app(app)
     try:
         from .plugins import get_app as _get_plugin_app
         plugin = bool(app) and _get_plugin_app(app) is not None
     except Exception:
         plugin = False
     problems: List[Problem] = []
-    for key in settings:
-        if not isinstance(key, str) or key in known:
-            continue
-        if key in RETIRED_SETTINGS:
-            continue
-        from .object_roles import withdrawn_setting_reason
-        from .settings import surviving_setting_name
-
-        if surviving_setting_name(key) or withdrawn_setting_reason(key):
-            continue
+    for key, _nearest in unknown_setting_keys(settings, app):
         close = difflib.get_close_matches(key, sorted(known), n=5, cutoff=0.85)
         mine = _object_role_in(key)
         if mine is not None:

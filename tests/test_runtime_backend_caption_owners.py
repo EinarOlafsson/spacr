@@ -91,6 +91,8 @@ def extract_backend_sources(tmp_path, monkeypatch):
     (source_root / "qt").mkdir(parents=True)
     for filename in (
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
+        "ome_zarr_convert.py", "gene_measurement_compare.py", "ops_prefix.py",
+        "_mask_array_batches.py", "ops_decode.py",
         "install_cleanup.py", "data_manager.py", "doctor.py", "updater.py",
         "gene_measurement_compare.py", "ome_zarr_convert.py",
         "ops_prefix.py", "ops_decode.py", "ops_engine.py", "ops_cell_cycle.py",
@@ -106,6 +108,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "classification_pixels.py", "crop_loader.py", "crop_store.py",
         "crops.py", "ops_engine.py", "ops_flatfield.py",
         "cpg_measure.py",
+        "cli.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -910,3 +913,47 @@ def test_cell_cycle_engine_refusals_have_exact_scopes(extract_backend_sources):
         "        return tr('ops_mitotic_source must be excluded from a method')",
     ))
     assert extract_backend_sources('ops_engine.py', source) == set(captions)
+
+
+def test_unknown_settings_notices_have_exact_cli_owners(extract_backend_sources):
+    """Admit all three actual notices without claiming the reused Bad settings caption."""
+    path = Path(__file__).resolve().parents[1] / "spacr" / "cli.py"
+    source = path.read_text(encoding="utf-8")
+    owners = {"_report_unknown_keys", "_unknown_setting_fix"}
+    selected = [node for node in ast.parse(source).body
+                if isinstance(node, ast.FunctionDef) and node.name in owners]
+    assert {node.name for node in selected} == owners
+    isolated = "\n".join(ast.get_source_segment(source, node) for node in selected)
+    assert extract_backend_sources("cli.py", isolated) == {
+        "Unknown setting '{key}' ignored; nearest known setting: '{nearest}'.",
+        "Unknown setting '{key}' ignored.",
+        "Remove it from the settings file, or check the spelling.",
+    }
+
+
+def test_unknown_settings_owner_excludes_other_cli_scopes(extract_backend_sources):
+    """Keep help, nested scopes, other owners and nonliteral calls outside this inventory."""
+    source = '''
+tr("Unknown setting '{key}' ignored.")
+def unrelated():
+    def _report_unknown_keys():
+        return tr("Unknown setting '{key}' ignored.")
+class Other:
+    def _unknown_setting_fix(self):
+        return tr("Remove it from the settings file, or check the spelling.")
+def _report_unknown_keys():
+    """Owner documentation is not a runtime notice."""
+    tr("Bad settings")
+    tr("An unrelated CLI diagnostic.")
+    parser.add_argument("--strict-settings", help="Unrelated argparse help.")
+    def inner():
+        return tr("Unknown setting '{key}' ignored.")
+    nested = lambda: tr("Unknown setting '{key}' ignored.")
+    return tr(f"Unknown setting '{key}' ignored.")
+def _unknown_setting_fix():
+    """The ordinary return and indirect calls are not literal tr notices."""
+    other.tr("Remove it from the settings file, or check the spelling.")
+    tr(caption)
+    return "Remove it from the settings file, or check the spelling."
+'''
+    assert extract_backend_sources("cli.py", source) == set()

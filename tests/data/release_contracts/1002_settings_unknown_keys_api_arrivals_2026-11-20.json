@@ -1,0 +1,3 @@
+{
+ "spacr.settings.unknown_setting_keys": "The keys of a settings mapping that spaCR does not read.\n\nOne definition of \"known\" for the CLI, the pre-flight and the GUI: the\ngeneric set, the app's own keys and the module's default keys. A retired,\nrenamed or withdrawn key is not unknown (its own notice speaks for it),\nand neither is a record-only key (:data:`RECORD_ONLY_SETTINGS`,\n:data:`RECORD_ONLY_PREFIXES`). Values are never looked at.\n\n:param settings: the mapping read from a settings file.\n:param app: canonical app key, or blank for the generic set only.\n:returns: ``(key, nearest known key or None)`` per unknown key, in file\n    order; the nearest key is a lexical hint, not a rename."
+}

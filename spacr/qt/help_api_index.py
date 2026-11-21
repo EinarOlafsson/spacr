@@ -13716,6 +13716,7 @@ API_ENTRIES = (
     ('spacr.settings.set_graph_importance_defaults', 'Populate default settings for the "graph importance" plot utility.'),
     ('spacr.settings.set_interpret_vision_model_defaults', 'Populate default settings for interpreting vision-model predictions.'),
     ('spacr.settings.surviving_setting_name', 'Return the current name(s) of ``key``, following every rename.'),
+    ('spacr.settings.unknown_setting_keys', 'The keys of a settings mapping that spaCR does not read.'),
     ('spacr.settings.unregister_defaults', 'Drop a registered defaults factory. ``True`` if there was one.'),
     ('spacr.settings_advisor', 'Inspect screen tables and propose regression settings.'),
     ('spacr.settings_advisor.Advice', 'Proposed settings, unresolved settings, and the reading behind them.'),

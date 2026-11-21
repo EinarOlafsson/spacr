@@ -1328,6 +1328,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Setting: cell_cycle_field_min_cells must be a whole number of at least 1. Enter the non-mitotic nuclei a field needs to be centred, such as 50.",
     "Setting: cell_cycle_mitotic_column names {column!r}, which is not a column of the nucleus table. Add the mitotic call (True for a mitotic nucleus) to the nucleus table, or leave cell_cycle_mitotic_column blank to call M by condensation.",
     "ops_profile_cell_cycle_method must be empty or measure_fc; got {value}",
+    # 1002, 2026-11-21: the settings-file unknown-key notices of the import
+    # screen; Codex records them in tr_1002_task.md.
+    "Unknown setting '{key}'",
+    "Unknown setting '{key}' -> '{nearest}'",
+    "Unknown setting '{key}' ignored; nearest known setting: '{nearest}'.",
+    "Unknown setting '{key}' ignored.",
+    "Remove it from the settings file, or check the spelling.",
 })
 
 
