@@ -5276,6 +5276,8 @@ def analyze_replication(settings):
           name).
         - ``vacuole_link_distance`` / ``vacuole_link_factor`` — the spatial
           clustering threshold, or the multiplier used to derive it.
+          Saved settings retain the resolved grouping and spatial threshold
+          so a later run does not derive them again from a different subset.
         - ``min_parasite_area`` / ``max_parasite_area`` — debris and
           merged-clump filters applied before counting.
         - ``max_parasites_per_vacuole`` — largest named power-of-two bucket.
@@ -5408,7 +5410,7 @@ def analyze_replication(settings):
     if apply_defaults is not None:
         settings = apply_defaults(settings)
     settings = _set_analyze_replication_defaults(settings)
-    save_settings(settings, name='analyze_replication', show=settings['verbose'])
+    settings_source = settings['src']
 
     if not isinstance(settings['src'], list):
         settings['src'] = [settings['src']]
@@ -5501,6 +5503,15 @@ def analyze_replication(settings):
         link_factor=settings['vacuole_link_factor'],
         verbose=settings['verbose'],
     )
+    settings['vacuole_key'] = vacuole_key_used
+    if link_distance is not None:
+        settings['vacuole_link_distance'] = link_distance
+    resolved_settings = dict(settings, src=settings_source)
+    from .run_journal import _publish_resolved_settings
+
+    _publish_resolved_settings(resolved_settings)
+    save_settings(resolved_settings, name='analyze_replication',
+                  show=settings['verbose'])
 
     if settings['parasite_count_column'] is not None:
         count_column = settings['parasite_count_column']

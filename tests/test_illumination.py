@@ -859,6 +859,22 @@ def test_enabling_twice_corrects_once(tmp_path):
     assert result[0, 0, 0] == 200        # x2 once, not x4
 
 
+def test_enabling_a_new_model_replaces_the_current_process_hook(tmp_path):
+    """Selecting another model updates parent/fork correction without duplication."""
+    array = np.full((4, 4, 1), 100, np.float32)
+    for index, flat in enumerate((0.5, 0.25)):
+        model = hand_model([np.full((4, 4), flat, np.float32)])
+        ill.enable_illumination_correction(
+            model, path=str(tmp_path / f'model-{index}.npz'), verbose=False)
+        hooks = mh.preprocessing_hooks()
+        assert len(hooks) == 1
+        assert hooks[0].name == ill.HOOK_NAME
+        assert hooks[0].source == 'env'
+        assert mh.warn_if_hooks_will_not_reach_workers('spawn') is False
+        np.testing.assert_array_equal(
+            mh.apply_preprocessing_hooks(array, context(channels=[0])), array / flat)
+
+
 def test_the_installer_refuses_an_environment_with_no_model(monkeypatch):
     """Named in SPACR_MEASURE_HOOKS with no model is a configuration error.
 
@@ -1899,6 +1915,57 @@ def test_a_saved_model_is_reused_and_nothing_is_re_estimated(tmp_path,
     assert [entry.name for entry in mh.preprocessing_hooks()] == [ill.HOOK_NAME]
 
 
+@pytest.mark.parametrize('suffix', ['csv', 'json'])
+def test_prepared_model_path_survives_settings_reload(tmp_path, monkeypatch, suffix):
+    """Saved effective settings reuse the fitted map on a smaller field subset."""
+    from pathlib import Path
+    from types import MappingProxyType
+
+    from spacr import run_journal
+    from spacr.cli import load_settings_file
+    from spacr.utils import save_settings
+
+    merged = write_plate(tmp_path / 'merged', quadratic_vignette((64, 64)),
+                         n_fields=6, radius=5, n_objects=4)
+    settings = ill.illumination_settings({
+        'src': merged, 'channels': [0], 'illumination_correction': True,
+        'illumination_qc': False, 'verbose': False})
+    published = []
+
+    def capture(values):
+        """Record the model path sent to the active run snapshot."""
+        published.append(dict(values))
+
+    def refuse_estimation(*args, **kwargs):
+        """Refuse any data-dependent fitting after loading resolved settings."""
+        raise AssertionError('saved illumination model was estimated again')
+
+    monkeypatch.setattr(run_journal, '_publish_resolved_settings', capture)
+    original = ill.prepare_illumination_model(settings)
+    assert settings['illumination_model'] == original.model_path
+    assert Path(original.model_path).is_absolute()
+    assert published[-1]['illumination_model'] == original.model_path
+    save_settings(settings, name='illumination_replay')
+    restored = load_settings_file(str(Path(merged) / 'settings' / f'illumination_replay.{suffix}'))
+    first_field = sorted(Path(merged).glob('*.npy'))[0]
+    subset = tmp_path / 'subset'
+    subset.mkdir()
+    (subset / first_field.name).write_bytes(first_field.read_bytes())
+    restored['src'] = str(subset)
+    monkeypatch.setattr(ill, 'estimate_illumination', refuse_estimation)
+    monkeypatch.setattr(ill, '_estimate_from_settings', refuse_estimation)
+    replay = ill.prepare_illumination_model(restored)
+
+    assert replay.model_path == original.model_path
+    assert replay.model_sha256 == original.model_sha256
+    image = np.load(first_field)[..., :1]
+    np.testing.assert_array_equal(
+        replay.model.field_for('plate1').correct_window(image, [0]),
+        original.model.field_for('plate1').correct_window(image, [0]))
+    immutable = MappingProxyType(dict(restored))
+    assert ill.prepare_illumination_model(immutable).model_sha256 == original.model_sha256
+
+
 # ---------------------------------------------------------------------------
 # The pipeline call: measure_crop installs the correction itself (item 4.1b)
 # ---------------------------------------------------------------------------
@@ -1987,6 +2054,90 @@ def test_measure_crop_prepares_the_correction_before_it_measures(
         "no spawned worker inherits it")
     assert seen['events'] == ['validate', 'prepare', 'pool']
     assert os.path.basename(seen['validated_src']) == 'merged'
+
+
+def test_measure_sources_keep_requested_scalars_and_save_their_own_models(
+        tmp_path, monkeypatch):
+    """Each plate fits, measures and saves its own model from the original request."""
+    from copy import deepcopy
+    from pathlib import Path
+
+    from spacr import measure as measure_mod
+    from spacr.cli import load_settings_file
+    from spacr.settings import get_measure_crop_settings
+
+    plates = [tmp_path / 'plate1', tmp_path / 'plate2']
+    for plate, strength in zip(plates, (0.15, 0.65)):
+        write_plate(plate / 'merged', quadratic_vignette((64, 64), strength),
+                    plate=plate.name, n_fields=1, n_objects=4, radius=5)
+    settings = get_measure_crop_settings(settings={})
+    requested = {'illumination_model': '', 'n2v_model': '',
+                 'psf_image_sampling_um': None, 'psf_fwhm_um': None}
+    settings.update({
+        'src': [str(plate) for plate in plates], 'channels': [0, 1],
+        'cell_mask_dim': 2, 'nucleus_mask_dim': 3, 'pathogen_mask_dim': 4,
+        'cell_min_size': 0, 'nucleus_min_size': 0, 'pathogen_min_size': 0,
+        'cytoplasm_min_size': 0, 'illumination_correction': True,
+        'illumination_qc': False, 'save_measurements': True,
+        'save_png': False, 'save_arrays': False, 'plot': False,
+        'verbose': False, 'timelapse': False, 'n_jobs': 1,
+        'test_mode': False, 'strict_errors': True, **requested})
+    original = deepcopy(settings)
+    seen = []
+    fitted_fields = []
+    prepare = ill.prepare_illumination_correction
+
+    def capture_then_prepare(effective, **kwargs):
+        """Check requested scalars and the actual installed per-plate correction."""
+        seen.append({key: deepcopy(effective.get(key)) for key in requested})
+        model = prepare(effective, **kwargs)
+        source = Path(effective['src'])
+        field = next(source.glob('*.npy'))
+        image = np.load(field)[..., :2].astype(np.float32)
+        fitted = model.field_for(source.parent.name)
+        fitted_fields.append(fitted.flatfield.copy())
+        hooks = mh.preprocessing_hooks()
+        assert len(hooks) == 1
+        assert hooks[0].name == ill.HOOK_NAME and hooks[0].source == 'env'
+        np.testing.assert_array_equal(
+            mh.apply_preprocessing_hooks(image, PreprocessingContext(
+                file_name=field.stem, channels=[0, 1], settings=effective)),
+            fitted.correct_window(image, [0, 1]))
+        return model
+
+    monkeypatch.setattr(ill, 'prepare_illumination_correction', capture_then_prepare)
+    measure_mod.measure_crop(settings)
+
+    assert seen == [requested, requested]
+    assert len(fitted_fields) == 2
+    assert not np.array_equal(*fitted_fields)
+    assert settings['src'] == original['src']
+    assert {key: settings[key] for key in requested} == requested
+    for plate in plates:
+        path = plate / 'settings' / 'measure_crop_settings.csv'
+        for suffix in ('csv', 'json'):
+            restored = load_settings_file(str(path.with_suffix('.' + suffix)))
+            assert restored['src'] == str(plate)
+            assert restored['illumination_model'] == str(
+                plate / 'illumination' / 'illumination_model.npz')
+            assert os.path.isfile(restored['illumination_model'])
+            assert restored['psf_image_sampling_um'] is None
+            assert restored['psf_fwhm_um'] is None
+            assert restored['n2v_model'] == (None if suffix == 'csv' else '')
+        database = plate / 'measurements' / 'measurements.db'
+        assert database.is_file()
+        connection = sqlite3.connect(str(database))
+        try:
+            status = connection.execute(
+                'SELECT status, n_succeeded, n_failed FROM run_status').fetchone()
+            measured = connection.execute(
+                'SELECT plateID, cell_channel_0_mean_intensity FROM cell').fetchall()
+        finally:
+            connection.close()
+        assert status == ('complete', 1, 0)
+        assert measured
+        assert {row[0] for row in measured} == {plate.name}
+        assert all(np.isfinite(row[1]) and row[1] > 0 for row in measured)
 
 
 def test_measure_crop_leaves_an_uncorrected_run_alone(tmp_path, monkeypatch):

@@ -15,6 +15,7 @@ from spacr.io import _mask_batch_manifest
 
 
 def _segment(src, settings, role, *, batch_paths, on_batch_done, run_qc):
+    """Write small CPU fixture masks and optionally report their resolved diameters."""
     from spacr.cancellation import checkpoint
 
     root = Path(src) / f'{role}_mask_stack'
@@ -28,6 +29,11 @@ def _segment(src, settings, role, *, batch_paths, on_batch_done, run_qc):
         with np.load(path, allow_pickle=False) as data:
             for name in data['filenames']:
                 np.save(root / name, np.ones((8, 9), np.uint16))
+                if settings.get('record_parameters'):
+                    from spacr.run_journal import _record_resolved_parameter
+
+                    _record_resolved_parameter(settings, str(name), f'diameter:{role}',
+                                               {}, {'mode': 'fixture'}, 23.125)
         on_batch_done(path)
 
 
@@ -85,6 +91,31 @@ def test_cancelled_process_run_resumes_only_unfinished_archives(tmp_path):
     document = resumed.store.path.read_text(encoding="utf-8")
     assert 'CUDA_VISIBLE_DEVICES' not in document
     assert 'manifest' in document
+
+
+def test_parent_receipts_bind_worker_values_before_saved_replay_reuses_masks(tmp_path):
+    """Actual worker events reach durable receipts before a later replay skips work."""
+    records = _setup(tmp_path)
+    assignments = {0: [record['path'] for record in records]}
+    environments = {0: {**os.environ, 'CUDA_VISIBLE_DEVICES': '7'}}
+    settings = {'record_parameters': True}
+    ledger = _ledger(tmp_path, records)
+    _run_checkpointed_mask_workers(str(tmp_path), settings, 'cell', assignments,
+                                   environments, ledger, segmenter=_segment)
+    for record in records:
+        receipt = ledger.store.completed[record['path']]['spacr_resolved_parameters']
+        identity = Path(record['fields'][0]).stem
+        assert receipt['fields'][identity]['diameter:cell']['value'] == 23.125
+    before = {path.name: (path.stat().st_mtime_ns, path.read_bytes())
+              for path in ledger.output_root.glob('*.npy')}
+    replay = json.loads(json.dumps(settings))
+    resumed = _ledger(tmp_path, records)
+    result = _run_checkpointed_mask_workers(
+        str(tmp_path), replay, 'cell', assignments, environments, resumed, segmenter=_segment)
+    assert result['workers'] == {}
+    assert result['completed_batches'] == sorted(assignments[0])
+    assert {path.name: (path.stat().st_mtime_ns, path.read_bytes())
+            for path in ledger.output_root.glob('*.npy')} == before
 
 
 @pytest.mark.parametrize('change', ['settings', 'input', 'selection'])

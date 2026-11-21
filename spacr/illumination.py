@@ -127,6 +127,7 @@ the module has no tile of its own.
 
 from __future__ import annotations
 
+from collections.abc import MutableMapping
 import hashlib
 import json
 import math
@@ -2977,7 +2978,8 @@ def enable_illumination_correction(model, *, path: Optional[str] = None,
     3. ``spacr.illumination:install`` is appended to ``SPACR_MEASURE_HOOKS``
        (appended, not assigned -- another extension may already be in there),
        and the registry is then consulted so that this process installs the
-       hook through that same environment route.
+       hook through that same environment route. An existing illumination
+       hook is replaced with the selected model before workers are started.
 
     :param model: an :class:`IlluminationModel`, or the path to a saved one.
     :param path: where to save ``model`` when it is not already a path.
@@ -3007,9 +3009,10 @@ def enable_illumination_correction(model, *, path: Optional[str] = None,
         entries.append(INSTALLER_ENTRY)
     os.environ[HOOKS_ENV_VAR] = ','.join(entries)
 
-    registered = [entry.name for entry in preprocessing_hooks()]
-    if HOOK_NAME not in registered:
-        install()
+    from .measure_hooks import _install_env_entry
+
+    preprocessing_hooks()
+    _install_env_entry(INSTALLER_ENTRY)
     if verbose:
         ok, message = worker_delivery_status()
         print(f"illumination correction ENABLED from {model_path}")
@@ -3342,7 +3345,9 @@ def prepare_illumination_model(
         non-empty ``illumination_vendor_profile`` replaces the estimate with
         the vendor's own flat field; ``illumination_vendor_channel_map``
         optionally assigns persisted channels to vendor channels/planes.
-        ``illumination_model`` still wins over both.
+        ``illumination_model`` still wins over both. After successful
+        preparation, mutable settings receive the absolute model path so
+        saving and reloading them reuses the fitted model.
     :param src: optional raw field folder override. Defaults to ``settings['src']``.
     :param channels: optional persisted intensity-axis positions. Defaults to
         ``settings['channels']``.
@@ -3410,13 +3415,19 @@ def prepare_illumination_model(
     on_missing = str(settings.get('illumination_on_missing', 'error'))
     corrector = IlluminationCorrector(
         model, on_missing=on_missing, verbose=talk)
-    return PreparedIllumination(
+    prepared = PreparedIllumination(
         model=model,
         corrector=corrector,
-        model_path=model_path,
+        model_path=os.path.abspath(model_path),
         model_sha256=_file_sha256(model_path),
         qc_artifacts=qc_artifacts,
     )
+    if isinstance(settings, MutableMapping):
+        from .run_journal import _publish_resolved_settings
+
+        settings['illumination_model'] = prepared.model_path
+        _publish_resolved_settings(settings)
+    return prepared
 
 
 def prepare_illumination_correction(settings: Mapping[str, Any], *,

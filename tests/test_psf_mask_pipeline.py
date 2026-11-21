@@ -268,6 +268,43 @@ def test_segmentation_infers_unset_gaussian_calibration_and_says_so(tmp_path, ca
     assert settings['psf_fwhm_um'] == [0.189429, 0.189429]
 
 
+@pytest.mark.parametrize('suffix', ['csv', 'json'])
+def test_saved_psf_calibration_replays_without_inference(tmp_path, monkeypatch, suffix):
+    """Saved numeric calibration reproduces pixels without consulting new optics."""
+    from spacr import point_spread, run_journal
+    from spacr.cli import load_settings_file
+    from spacr.utils import save_settings
+
+    stack = _input(tmp_path)
+    settings = _settings(stack)
+    settings.update(psf_operation='convolve')
+    published = []
+
+    def capture(values):
+        """Capture the exact effective scalar settings sent to the journal."""
+        published.append(dict(values))
+
+    def refuse_inference(*args, **kwargs):
+        """Fail if a settings-file replay estimates new optical parameters."""
+        raise AssertionError('saved PSF calibration was inferred again')
+
+    monkeypatch.setattr(run_journal, '_publish_resolved_settings', capture)
+    original = _prepare_segmentation_psf(settings, tmp_path, [0, 1])
+    assert published[-1]['psf_image_sampling_um'] == settings['psf_image_sampling_um']
+    assert published[-1]['psf_fwhm_um'] == settings['psf_fwhm_um']
+    save_settings(settings, name='psf_replay')
+    restored = load_settings_file(str(tmp_path / 'settings' / f'psf_replay.{suffix}'))
+    monkeypatch.setattr(point_spread, 'infer_optics', refuse_inference)
+    replay_root = tmp_path / 'subset'
+    replay_root.mkdir()
+    replay = _prepare_segmentation_psf(restored, replay_root, [0, 1])
+
+    assert replay.plan.provenance() == original.plan.provenance()
+    image = np.arange(15 * 17 * 2, dtype=np.float32).reshape(15, 17, 2)
+    np.testing.assert_array_equal(replay.correct(image), original.correct(image))
+    assert len(published) == 1
+
+
 def test_timelapse_processes_each_frame_independently(tmp_path):
     from spacr.io import concatenate_and_normalize
     stack = tmp_path / 'stack'

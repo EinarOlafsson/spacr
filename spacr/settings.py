@@ -2545,7 +2545,9 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 947
+RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
+SETTINGS_SCHEMA_VERSION = 950
+SETTINGS_FORMAT_VERSIONS = frozenset({950})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2591,7 +2593,7 @@ def _stamp_settings_version(settings):
 def _settings_file_version(settings):
     """Remove a loaded file's schema stamp and return its version.
 
-    The stamp says which defaults the file was written under; it is not a
+    The stamp identifies the saved format and defaults era; it is not a
     setting, so no pipeline ever sees it.
 
     :param settings: the mapping just read from a file, edited in place.
@@ -2629,6 +2631,9 @@ def _fold_older_defaults(settings, version, known=None):
     existing key, because files are already stamped with the current
     version; an item whose number is lower takes the next free number and
     is listed under that number in docs/source/reproducibility_manifests.rst.
+    A format-only change instead adds its version to
+    ``SETTINGS_FORMAT_VERSIONS`` and leaves ``DEFAULT_CHANGES`` unchanged.
+    Version 950 records exact resolved parameters without changing defaults.
     933 is item 930's switch of ``ops_align_model`` to ``'tile_affine'``:
     it landed after 932, so it could not take 930. 934 is item 937's
     ``aggregation_defaults`` ``'per_feature'`` (the screen pipeline's

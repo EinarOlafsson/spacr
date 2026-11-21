@@ -13491,6 +13491,9 @@ class AppScreen(QWidget):
             loaded = self._load_settings_csv(path)
             own = set(loaded)
             loaded = self._in_its_own_era(loaded)
+            from ...settings import RESOLVED_PARAMETERS_KEY
+
+            loaded.setdefault(RESOLVED_PARAMETERS_KEY, None)
             filled = len(set(loaded) - own)
             applied = self.apply_settings_dict(loaded)
             self._console.append_notice(

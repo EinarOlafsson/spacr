@@ -102,8 +102,183 @@ def _first_mask(masks):
     return np.asarray(masks[0])
 
 
+def _diameter_configuration(model, settings, object_type, keywords, mode):
+    """Bind a diameter to effective inference options and actual model bytes."""
+    from .model_zoo import sha256_file
+
+    identity = {'class': f'{type(model).__module__}.{type(model).__qualname__}'}
+    paths = []
+    wrapped = getattr(model, '_model', None)
+    for owner in (model, wrapped, getattr(wrapped, 'cp', None),
+                  getattr(wrapped, 'sz', None)):
+        if owner is None:
+            continue
+        for name in ('model', 'pretrained_model', 'pretrained_size',
+                     'model_type', 'name'):
+            value = getattr(owner, name, None)
+            if isinstance(value, (str, os.PathLike)):
+                text = os.fspath(value)
+                identity.setdefault(name, os.path.abspath(text) if os.path.isfile(text) else text)
+                if os.path.isfile(text) and text not in paths:
+                    paths.append(text)
+    if getattr(model, 'name', None) == 'cellpose3' and getattr(model, 'env', None):
+        from ._segmentation_backends import _CELLPOSE3_MODELS, _worker_env
+
+        name = str(getattr(model, 'model', ''))
+        identity['environment'] = os.fspath(model.env)
+        if name in _CELLPOSE3_MODELS:
+            directory = _worker_env('cellpose3', model.env)['CELLPOSE_LOCAL_MODELS_PATH']
+            basename = name if name == 'cyto3' else f'{name}torch_0'
+            paths.extend([os.path.join(directory, basename),
+                          os.path.join(directory, f'size_{basename}.npy')])
+    cached = getattr(model, '_spacr_diameter_model_hashes', {})
+    checkpoints = []
+    for path in paths:
+        try:
+            stat = os.stat(path)
+        except FileNotFoundError:
+            checkpoints.append({'path': os.path.abspath(path), 'sha256': None})
+            continue
+        stamp = (stat.st_dev, stat.st_ino, stat.st_size,
+                 stat.st_mtime_ns, stat.st_ctime_ns)
+        previous = cached.get(path)
+        digest = previous[1] if previous and previous[0] == stamp else sha256_file(path)
+        cached[path] = (stamp, digest)
+        checkpoints.append({'path': os.path.abspath(path), 'sha256': digest})
+    try:
+        model._spacr_diameter_model_hashes = cached
+    except AttributeError:
+        pass
+    identity['checkpoints'] = checkpoints
+    identity['options'] = getattr(model, 'options', {})
+    key = ('pathogen_model' if object_type == 'pathogen'
+           and settings.get('pathogen_model') is not None
+           else f'{object_type}_model_name')
+    if not checkpoints or any(record['sha256'] is None for record in checkpoints):
+        identity['requested'] = settings.get(key)
+        identity['metadata'] = (settings.get('model_metadata') or {}).get(
+            'settings', {}).get(key)
+    return {
+        'mode': mode, 'model': identity,
+        'backend': settings.get('segmentation_backend', 'cellpose'),
+        'precision': settings.get('mask_inference_precision', 'auto'),
+        'inference': {name: value for name, value in keywords.items()
+                      if name not in {'batch_size', 'progress'}},
+    }
+
+
+def _diameter_bindings(model, images, settings, object_type, field_ids,
+                       keywords, mode):
+    """Resolve all field bindings before inference, preserving explicit None."""
+    from .run_journal import (_resolved_parameter, _resolved_parameters,
+                              _resolved_source)
+    from .qt.i18n import tr
+
+    if field_ids is None:
+        return None
+    if settings is None or not object_type or len(field_ids) != len(images):
+        raise ValueError(tr("Diameter replay requires one field identity per model input and an object role."))
+    _resolved_parameters(settings)
+    configuration = _diameter_configuration(
+        model, settings, object_type, keywords, mode)
+    bindings = []
+    for field_id, image in zip(field_ids, images):
+        source = _resolved_source(image)
+        found, value = _resolved_parameter(
+            settings, field_id, f'diameter:{object_type}', source, configuration)
+        bindings.append((field_id, source, configuration, found, value))
+    return bindings
+
+
+def _mask_replay(settings):
+    """Keep requested spatial fields in a replay even when masks already exist."""
+    from .run_journal import _resolved_parameters
+
+    return _resolved_parameters(settings).replay
+
+
+def _publish_diameter_parameters(settings):
+    """Publish shared resolution records without replacing parent role settings."""
+    from .run_journal import _publish_resolved_settings, _resolved_parameters
+    from .settings import RESOLVED_PARAMETERS_KEY
+
+    _publish_resolved_settings({RESOLVED_PARAMETERS_KEY: _resolved_parameters(settings)})
+
+
+def _remember_diameter(settings, object_type, binding, value, model):
+    """Record an exact model diameter without rounding or pooling fields."""
+    from .run_journal import _record_resolved_parameter
+    from .qt.i18n import tr
+
+    if value is not None:
+        if isinstance(value, bool) or not np.isfinite(value) or value < 0:
+            raise ValueError(tr("The resolved diameter must be a finite nonnegative number or None."))
+        value = float(value)
+    field_id, source, configuration, found, _ = binding
+    if not found:
+        configuration = {**configuration, 'model': _diameter_configuration(
+            model, settings, object_type, configuration['inference'],
+            configuration['mode'])['model']}
+    _record_resolved_parameter(settings, field_id, f'diameter:{object_type}',
+                               source, configuration, value)
+
+
+def _cellpose3_resolved_sizes(model, count):
+    """Read one exact size-model result per image, or proven native checkpoints."""
+    from .qt.i18n import tr
+
+    values = list(getattr(model, 'estimated_diameters', None) or ())
+    if len(values) == count and all(
+            value is not None and np.isfinite(value) and value > 0
+            for value in values):
+        return values
+    if (not values and (getattr(model, '_sized', None) is False
+                        or os.path.isfile(str(getattr(model, 'model', ''))))):
+        return [None] * count
+    raise ValueError(tr("Cellpose 3 did not return one exact diameter per field. The run cannot be saved reproducibly."))
+
+
+def _diameter_eval(model, images, *, settings, object_type, field_ids=None,
+                   site, estimate=False, **keywords):
+    """Evaluate spatial images with exact field diameters, retaining raw flows."""
+    from .spacr_cellpose import parse_cellpose4_output
+
+    bindings = _diameter_bindings(
+        model, images, settings, object_type, field_ids, keywords,
+        'cellpose3-size-model' if estimate else 'fixed-or-native')
+    if bindings is None or not bindings:
+        return _mask_eval(model, images, site=site, settings=settings, **keywords)
+    if not any(binding[3] for binding in bindings):
+        output = _mask_eval(model, images, site=site, settings=settings, **keywords)
+        values = (_cellpose3_resolved_sizes(model, len(images)) if estimate
+                  else [keywords.get('diameter')] * len(images))
+        for binding, value in zip(bindings, values):
+            _remember_diameter(settings, object_type, binding, value, model)
+    elif not estimate and all(binding[3] and binding[4] == bindings[0][4]
+                              for binding in bindings):
+        output = _mask_eval(model, images, site=site, settings=settings,
+                            **{**keywords, 'diameter': bindings[0][4]})
+    else:
+        masks, flows = [], []
+        for image, binding in zip(images, bindings):
+            diameter = binding[4] if binding[3] else keywords.get('diameter')
+            result = _mask_eval(model, [image], site=site, settings=settings,
+                                **{**keywords, 'diameter': diameter})
+            if not binding[3]:
+                value = (_cellpose3_resolved_sizes(model, 1)[0] if estimate
+                         else diameter)
+                _remember_diameter(settings, object_type, binding, value, model)
+            parts = parse_cellpose4_output(result)
+            masks.append(_first_mask(parts[0]))
+            flows.append([values[0] for values in parts[1:]])
+        output = (masks, flows, None)
+    _publish_diameter_parameters(settings)
+    return output
+
+
 def _per_image_diameter_masks(model, images, eval_kwargs, fallback, *,
-                              site='mask_sam', settings=None):
+                              site='mask_sam', settings=None, field_ids=None,
+                              object_type=''):
     """Segment each image at the object diameter Cellpose finds in it.
 
     Cellpose-SAM has no size model, so each image is first segmented at
@@ -122,25 +297,38 @@ def _per_image_diameter_masks(model, images, eval_kwargs, fallback, *,
         when the worker shares its GPU, as for the batch call.
     :param settings: run settings holding the governor keys, so a worker
         process honours the run's memory budget too.
+    :param field_ids: optional stable field basenames for saved diameter replay.
+    :param object_type: object role bound to those saved field diameters.
     :returns: ``(masks, flows, diameters)``, one entry per image.
     """
     from cellpose.utils import diameters as cellpose_diameters
     from .spacr_cellpose import parse_cellpose4_output
 
     keywords = {**eval_kwargs, 'batch_size': 1}
+    bindings = _diameter_bindings(
+        model, images, settings, object_type, field_ids,
+        {**keywords, 'diameter': fallback}, 'sam-per-image')
     masks, flows, used = [], [], []
-    for image in images:
-        first = parse_cellpose4_output(_mask_eval(
-            model, [image], site=site, settings=settings,
-            **{**keywords, 'diameter': None}))[0]
-        estimate = float(cellpose_diameters(_first_mask(first))[0])
-        diameter = estimate if estimate > 0 else fallback
+    for index, image in enumerate(images):
+        binding = bindings[index] if bindings is not None else None
+        if binding is not None and binding[3]:
+            diameter = binding[4]
+        else:
+            first = parse_cellpose4_output(_mask_eval(
+                model, [image], site=site, settings=settings,
+                **{**keywords, 'diameter': None}))[0]
+            estimate = float(cellpose_diameters(_first_mask(first))[0])
+            diameter = estimate if np.isfinite(estimate) and estimate > 0 else fallback
         found, found_flows = parse_cellpose4_output(_mask_eval(
             model, [image], site=site, settings=settings,
             **{**keywords, 'diameter': diameter}))[:2]
         masks.append(_first_mask(found))
         flows.append(found_flows[0])
         used.append(diameter)
+        if binding is not None:
+            _remember_diameter(settings, object_type, binding, diameter, model)
+    if bindings is not None:
+        _publish_diameter_parameters(settings)
     return masks, flows, used
 
 
@@ -216,7 +404,8 @@ def _cellpose3_eval_settings(settings, object_type, default_diameter):
 
 
 def _cellpose3_masks(model, images, settings, object_type, *, min_size,
-                     default_diameter, batch_size=8, probabilities=False):
+                     default_diameter, batch_size=8, probabilities=False,
+                     field_ids=None):
     """Segment a batch with a Cellpose 3 model; return what Cellpose-SAM does.
 
     Mask generation's own function for Cellpose 3 (item 503). What differs
@@ -248,6 +437,7 @@ def _cellpose3_masks(model, images, settings, object_type, *, min_size,
     :param batch_size: tiles per network pass.
     :param probabilities: also return each image's cell probability, for
         the Live preview's cell probability view.
+    :param field_ids: optional stable field basenames for exact saved diameters.
     :returns: ``(masks, flows)``: one 2-D label image per input, and
         per-image flows in :func:`parse_cellpose4_output`'s layout; with
         ``probabilities``, ``(masks, flows, cell probabilities)``, one
@@ -266,7 +456,9 @@ def _cellpose3_masks(model, images, settings, object_type, *, min_size,
             shaped.append(image[..., 0])
         else:
             shaped.append(image)
-    output = _mask_eval(model, shaped, site='mask_cellpose3', settings=settings,
+    output = _diameter_eval(model, shaped, site='mask_cellpose3', settings=settings,
+                        object_type=object_type, field_ids=field_ids,
+                        estimate=keywords['diameter'] == 0.0,
                         batch_size=int(batch_size), channel_axis=-1,
                         min_size=min_size, **keywords)
     estimated = list(getattr(model, 'estimated_diameters', None) or ())
@@ -281,7 +473,7 @@ def _cellpose3_masks(model, images, settings, object_type, *, min_size,
 
 def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
                          default_diameter, batch_size=8,
-                         probabilities=False):
+                         probabilities=False, field_ids=None):
     """Segment a batch with a Cellpose-DINO model, as V1 does (item 525).
 
     The Cellpose-DINO backend answers the very ``eval`` call a Cellpose-SAM
@@ -315,8 +507,9 @@ def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
     for image in images:
         image = np.asarray(image)
         shaped.append(image[..., np.newaxis] if image.ndim == 2 else image)
-    output = _mask_eval(
+    output = _diameter_eval(
         model, shaped, site='mask_cellpose_dino', settings=settings,
+        object_type=object_type, field_ids=field_ids,
         batch_size=len(shaped),
         normalize=False,
         channel_axis=-1,
@@ -335,7 +528,8 @@ def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
 
 
 def _prefixed_masks(model, images, settings, object_type, *, min_size,
-                    default_diameter, batch_size=8, probabilities=False):
+                    default_diameter, batch_size=8, probabilities=False,
+                    field_ids=None):
     """Segment a batch with StarDist, InstanSeg or Omnipose (items 551-553).
 
     Each of those backends answers the ``eval`` call a Cellpose-SAM model
@@ -350,7 +544,7 @@ def _prefixed_masks(model, images, settings, object_type, *, min_size,
     return _cellpose_dino_masks(
         model, images, settings, object_type, min_size=min_size,
         default_diameter=default_diameter, batch_size=batch_size,
-        probabilities=probabilities)
+        probabilities=probabilities, field_ids=field_ids)
 
 
 def _prefixed_model_route(model_name, settings=None):
@@ -651,7 +845,7 @@ def _robustness_sample(src, settings, object_type):
     crop = int(settings.get('robustness_crop') or 0)
     chosen = []
     for path in rng.permutation(paths) if paths else []:
-        with open_mask_batch(path) as data:
+        with open_mask_batch(path, settings=settings) as data:
             stack, names = data['data'], data['filenames']
             for index in rng.permutation(len(stack)):
                 if len(chosen) >= wanted:
@@ -1384,7 +1578,7 @@ def _close_native_mask_workspace(handle, workspace):
 
 
 @contextmanager
-def _mask_archive_arrays(path, *, native=False, workspace=None):
+def _mask_archive_arrays(path, *, native=False, workspace=None, settings=None):
     """Borrow an archive's arrays until its complete Mask processing scope exits.
 
     Ordinary and legacy timelapse archives keep their eager loader. Native
@@ -1400,12 +1594,13 @@ def _mask_archive_arrays(path, *, native=False, workspace=None):
     :param native: enable private mapped storage only for native Z or T Mask.
     :param workspace: writable private staging parent; defaults to the archive
         directory. The generator supplies its already-created output folder.
+    :param settings: optional shared settings for batch normalization replay.
     :returns: a context yielding the source array, filenames and optional owner.
     """
     if not native:
         from ._mask_batches import _open_batch as open_batch
 
-        with open_batch(path) as archive:
+        with open_batch(path, settings=settings) as archive:
             stack, filenames = archive['data'], archive['filenames']
         yield stack, filenames, None
         return
@@ -1590,6 +1785,9 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
 
     settings['src'] = src
 
+    from .run_journal import _resolved_parameters
+
+    _resolved_parameters(settings)
     settings = set_default_settings_preprocess_generate_masks(settings)
 
     if settings['verbose']:
@@ -1694,7 +1892,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     if progress_share is not None:
         for archive in paths:
             try:
-                with open_mask_batch(archive, allow_pickle=True) as opened:
+                with open_mask_batch(archive, allow_pickle=True, settings=settings) as opened:
                     fields_in_all += len(opened['filenames'])
             except (OSError, KeyError, ValueError):
                 fields_in_all += 1
@@ -1710,7 +1908,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
 
         with _mask_archive_arrays(
                 path, native=(t_plan is not None or z_plan is not None)
-                and not timelapse, workspace=output_folder) as (stack, filenames, source_map):
+                and not timelapse, workspace=output_folder,
+                settings=settings) as (stack, filenames, source_map):
             clock = _add_stage(stages, 'load', clock)
             try:
                 archive_t_plan = t_plan
@@ -1730,7 +1929,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
 
                 for filename in filenames:
                     output_path = os.path.join(output_folder, filename)
-                    if os.path.exists(output_path):
+                    if os.path.exists(output_path) and not (
+                            z_plan is None and t_plan is None and _mask_replay(settings)):
                         print(f"File {filename} already exists in the output folder. Skipping...")
 
                 if timelapse:
@@ -1765,7 +1965,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                     from .image_quality import filter_batch
                     batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
 
-                    if not settings['plot']:
+                    if not settings['plot'] and not (
+                            z_plan is None and t_plan is None and _mask_replay(settings)):
                         batch, batch_filenames = _check_masks(
                             batch, batch_filenames, output_folder,
                             resume=settings.get('resume', False))
@@ -1792,7 +1993,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             model, batch_list, settings, object_type,
                             min_size=object_settings['min_size'],
                             default_diameter=object_settings['diameter'],
-                            batch_size=max(8, len(batch_list)))
+                            batch_size=max(8, len(batch_list)),
+                            field_ids=batch_filenames)
                     elif z_plan is None and t_plan is None and _estimates_per_image(
                             settings, object_type):
                         masks, flows, estimates = _per_image_diameter_masks(
@@ -1808,7 +2010,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                 object_type, object_settings['diameter']),
                             site=('mask_shared_gpu' if _shares_a_gpu(settings)
                                   else 'mask_sam'),
-                            settings=settings)
+                            settings=settings, field_ids=batch_filenames,
+                            object_type=object_type)
                         measured = [value for value in estimates if value]
                         if measured:
                             _note_the_diameter(
@@ -1826,11 +2029,12 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             flow_threshold=flow_threshold,
                             cellprob_threshold=cellprob_threshold,
                             resample=object_settings['resample'])
-                        output = _mask_eval(
+                        output = _diameter_eval(
                             model, batch_list,
                             site=('mask_shared_gpu' if _shares_a_gpu(settings)
                                   else 'mask_sam'),
                             settings=settings,
+                            object_type=object_type, field_ids=batch_filenames,
                             batch_size=_eval_tile_batch(settings, len(batch_list)),
                             **eval_kwargs)
 
@@ -2155,6 +2359,9 @@ def generate_cellpose_masks(src, settings, object_type):
         
     settings['src'] = src
     
+    from .run_journal import _resolved_parameters
+
+    _resolved_parameters(settings)
     settings = set_default_settings_preprocess_generate_masks(settings)
 
     _refuse_t_stack(settings, 'object.generate_cellpose_masks')
@@ -2229,14 +2436,14 @@ def generate_cellpose_masks(src, settings, object_type):
         os.makedirs(output_folder, exist_ok=True)
         overall_average_size = 0
         
-        with open_mask_batch(path) as data:
+        with open_mask_batch(path, settings=settings) as data:
             stack = data['data']
             filenames = data['filenames']
             
             for i, filename in enumerate(filenames):
                 output_path = os.path.join(output_folder, filename)
                 
-                if os.path.exists(output_path):
+                if os.path.exists(output_path) and not _mask_replay(settings):
                     print(f"File {filename} already exists in the output folder. Skipping...")
                     continue
         
@@ -2270,7 +2477,7 @@ def generate_cellpose_masks(src, settings, object_type):
             from .image_quality import filter_batch
             batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
 
-            if not settings['plot']:
+            if not settings['plot'] and not _mask_replay(settings):
                 batch, batch_filenames = _check_masks(
                     batch, batch_filenames, output_folder,
                     resume=settings.get('resume', False))
@@ -2286,10 +2493,9 @@ def generate_cellpose_masks(src, settings, object_type):
                 save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
                 _npz_to_movie(batch, batch_filenames, save_path, fps=2)
                         
-            from ._gpu_governor import _governed_eval
-
-            output = _governed_eval(model, batch_list,
+            output = _diameter_eval(model, batch_list,
                                 site='mask', settings=settings,
+                                object_type=object_type, field_ids=batch_filenames,
                                 batch_size=batch_size,
                                 normalize=False,
                                 channel_axis=-1,
@@ -2471,6 +2677,9 @@ def generate_organelle_masks_sam(src, settings, object_type):
 
     gc.collect()
 
+    from .run_journal import _resolved_parameters
+
+    _resolved_parameters(settings)
     settings = organelle_settings_view(
         _set_organelle_defaults(settings), object_type)
 
@@ -2568,7 +2777,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
         output_folder = os.path.join(os.path.dirname(path), f'{object_type}_mask_stack')
         os.makedirs(output_folder, exist_ok=True)
 
-        with open_mask_batch(path) as data:
+        with open_mask_batch(path, settings=settings) as data:
             stack = data['data']
             filenames = data['filenames']
 
@@ -2581,7 +2790,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
             batch_filenames = filenames[i: i + batch_size].tolist()
             from .image_quality import filter_batch
             batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
-            if not settings.get('plot', False):
+            if not settings.get('plot', False) and not _mask_replay(settings):
                 offered = len(batch_filenames)
                 batch, batch_filenames = _check_masks(
                     batch, batch_filenames, output_folder,
@@ -2841,7 +3050,7 @@ def _segment_cellpose(batch, batch_filenames, model, settings, object_type, outp
     else:
         cp_batch = np.stack([batch, batch], axis=-1).astype(batch.dtype)
 
-    if not settings.get('plot', False):
+    if not settings.get('plot', False) and not _mask_replay(settings):
         cp_batch, batch_filenames = _check_masks(
             cp_batch, batch_filenames, output_folder,
             resume=settings.get('resume', False))
@@ -2851,8 +3060,9 @@ def _segment_cellpose(batch, batch_filenames, model, settings, object_type, outp
     cp_batch = prepare_batch_for_segmentation(cp_batch)
     batch_list = [cp_batch[j] for j in range(cp_batch.shape[0])]
 
-    output = _mask_eval(
+    output = _diameter_eval(
         model, batch_list, site='mask_organelle', settings=settings,
+        object_type=object_type, field_ids=batch_filenames,
         batch_size=settings['batch_size'],
         normalize=False,
         channel_axis=-1,
@@ -2906,7 +3116,7 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
     else:
         raise ValueError(f"Expected batch with ndim 3 or 4, got ndim={batch.ndim}")
 
-    if not settings.get('plot', False):
+    if not settings.get('plot', False) and not _mask_replay(settings):
         cp_batch, batch_filenames = _check_masks(
             cp_batch, batch_filenames, output_folder,
             resume=settings.get('resume', False))
@@ -2916,8 +3126,9 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
     cp_batch = prepare_batch_for_segmentation(cp_batch)
     batch_list = [cp_batch[j] for j in range(cp_batch.shape[0])]
 
-    output = _mask_eval(
+    output = _diameter_eval(
         model, batch_list, site='mask_organelle', settings=settings,
+        object_type=object_type, field_ids=batch_filenames,
         batch_size=_eval_tile_batch(settings, len(batch_list)),
         normalize=False,
         channel_axis=-1,

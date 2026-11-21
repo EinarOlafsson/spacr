@@ -177,3 +177,35 @@ recorded paths. Replay creates a new journal but reuses recorded output
 destinations, so keep a copy of earlier results if needed. Successful
 completion does not automatically verify that the new results match the
 original run.
+
+Resolved automatic parameters
+-----------------------------
+
+Settings schema 950 adds ``spacr_resolved_parameters`` without changing any
+defaults. Spatial Mask Generation stores the exact normalization bounds of
+each field and the diameter used for each field and object role. A saved
+``None`` explicitly means native scale. The display summary may round a
+diameter; replay uses the full saved value.
+
+Load the completed run settings or its ``gen_mask_settings.csv`` or JSON
+copy to reuse those values. The GUI retains the record through loading and
+collecting settings. A selected field can reuse its original cohort bounds
+without rerunning the percentile or diameter estimator. Source pixels,
+channels, model weights and inference options must match. Missing fields,
+changed settings and different padded input shapes are refused rather than
+silently fitted again. To estimate again, load a fresh settings file without
+the reserved record and select the existing automatic inputs.
+Parallel checkpoints also verify these exact values before reusing completed
+masks; missing or different records require a separate output folder.
+
+Resolved PSF sampling and width, illumination and Noise2Void model paths,
+and replication linkage distance are saved in their existing scalar settings.
+Keep fitted model files available at the recorded paths. Each input folder
+keeps its own resolved settings; one folder does not seed another with its
+fitted model.
+For a run over several folders, load the settings file beside the folder
+to replay; the run snapshot holds the currently processed folder.
+
+This replay contract covers the spatial shared Mask Generation helpers.
+It does not establish byte identity for frozen OPS, time-lapse, native T/Z,
+or calibrated partition workflows, or across model/runtime changes.

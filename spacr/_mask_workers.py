@@ -67,6 +67,18 @@ def _model_label(identity):
     return f"{identity.get('backend', '?')} {identity.get('model', '?')}"
 
 
+def _mask_signature_settings(settings):
+    """Keep global signatures stable; archive receipts bind exact resolved values."""
+    from .artifacts import material_settings
+    from .run_journal import _RESOLVED_PARAMETERS_LOCK
+
+    with _RESOLVED_PARAMETERS_LOCK:
+        material = material_settings(settings)
+        for key in ('mask_parallel', 'mask_gpu_indices', 'spacr_resolved_parameters'):
+            material.pop(key, None)
+        return material
+
+
 def _prepare_mask_model(settings, object_type):
     """Resolve Cellpose weights once and sign their bytes with material settings.
 
@@ -77,7 +89,6 @@ def _prepare_mask_model(settings, object_type):
     served by another backend is refused here; :func:`_mask_model_contract`
     sends it to :func:`_resolved_backend_model`.
     """
-    from .artifacts import material_settings
     from .checkpoint import fingerprint
     from .model_zoo import _resolve_pinned_model_file
     from .utils import _resolve_cellpose_pretrained, cp_models
@@ -113,9 +124,7 @@ def _prepare_mask_model(settings, object_type):
         prepared[f'{object_type}_model_name'] = str(path)
         if object_type == 'pathogen' and prepared.get('pathogen_model') is not None:
             prepared['pathogen_model'] = str(path)
-    material = material_settings(prepared)
-    for key in ('mask_parallel', 'mask_gpu_indices'):
-        material.pop(key, None)
+    material = _mask_signature_settings(prepared)
     identity = {'path': str(path), 'sha256': digest, 'bytes': after.st_size}
     signature = fingerprint({'settings': material, 'model': identity,
                              'object_type': object_type})
@@ -236,7 +245,6 @@ def _resolved_backend_model(settings, object_type, *, root=None):
     :raises ModelZooError: when an explicit model has no exact compatible identity.
     """
     from . import _segmentation_backends as sb
-    from .artifacts import material_settings
     from .checkpoint import fingerprint
     from .settings import _get_object_settings, set_default_settings_preprocess_generate_masks
 
@@ -280,9 +288,7 @@ def _resolved_backend_model(settings, object_type, *, root=None):
             raise ValueError(f'The {backend} environment is not installed, so its '
                              f'stock model {model!r} cannot be resolved')
         identity.update(model=str(model), environment=fingerprint(record))
-    material = material_settings(prepared)
-    for name in ('mask_parallel', 'mask_gpu_indices'):
-        material.pop(name, None)
+    material = _mask_signature_settings(prepared)
     signature = fingerprint({'settings': material, 'model': identity,
                              'object_type': object_type})
     return prepared, signature, identity
@@ -337,6 +343,7 @@ class _MaskBatchLedger:
         if not self.records or len(self.records) != len(records):
             raise ValueError('A nonempty manifest with unique archive paths is required')
         self.output_root = root / f'{object_type}_mask_stack'
+        self.object_type = object_type
         excluded = set(excluded_fields)
         self.expected = {path: [name for name in record['fields'] if name not in excluded]
                          for path, record in self.records.items()}
@@ -351,21 +358,72 @@ class _MaskBatchLedger:
             raise ValueError('Mask checkpoint contains an unknown archive')
         self.store.update(meta={'manifest': records, 'expected_outputs': self.expected})
 
-    def verified(self):
+    def _resolved_receipt(self, path, settings):
+        """Snapshot the included fields and current role from active resolved settings."""
+        from .qt.i18n import tr
+        from .run_journal import (
+            _RESOLVED_PARAMETERS_LOCK, _resolved_field_id, _resolved_parameters,
+            _validate_resolved_parameters)
+
+        if settings is None:
+            return None
+        with _RESOLVED_PARAMETERS_LOCK:
+            context = _resolved_parameters(settings)
+            diameter = f'diameter:{self.object_type}'
+            kinds = {'normalization', f'normalization:{self.object_type}', diameter}
+            fields = {}
+            for name in self.expected[path]:
+                identity = _resolved_field_id(name)
+                parameters = context['fields'].get(identity, {})
+                if context.replay and diameter not in parameters:
+                    raise ValueError(tr("The saved run has no resolved {parameter} value for field {field}. Use the original field set or start with fresh automatic settings.").format(
+                        parameter=diameter, field=identity))
+                selected = {kind: record for kind, record in parameters.items() if kind in kinds}
+                if selected:
+                    fields[identity] = selected
+            return _validate_resolved_parameters({'version': 1, 'fields': fields})
+
+    def verified(self, settings=None):
         """Return durable completed archives whose saved masks still match.
 
         Missing/truncated files return an archive to pending work. A complete
         but changed file is refused: the generator would otherwise skip it as
         valid, silently accepting an edited or differently generated mask.
+        Active settings additionally verify exact per-field normalization and
+        role diameter records before saved replay can reuse completed outputs.
         """
         from .resume import validate_merged_field
+        from .qt.i18n import tr
+        from .run_journal import (
+            _merge_resolved_parameters, _resolved_field_id, _resolved_parameters,
+            _validate_resolved_parameters)
 
         complete = set()
         for path, payload in self.store.completed.items():
-            if not isinstance(payload, dict) or set(payload) != set(self.expected[path]):
+            reserved = 'spacr_resolved_parameters'
+            if (not isinstance(payload, dict)
+                    or set(payload) - {reserved} != set(self.expected[path])):
                 raise ValueError(f'Invalid output receipt for {path}')
+            recorded = payload.get(reserved)
+            if recorded is not None:
+                recorded = _validate_resolved_parameters(recorded)
+                identities = {_resolved_field_id(name) for name in self.expected[path]}
+                kinds = {'normalization', f'normalization:{self.object_type}',
+                         f'diameter:{self.object_type}'}
+                if (set(recorded['fields']) - identities
+                        or any(set(parameters) - kinds
+                               for parameters in recorded['fields'].values())):
+                    raise ValueError(f'Invalid output receipt for {path}')
+            if settings is not None:
+                expected_parameters = self._resolved_receipt(path, settings)
+                if _resolved_parameters(settings).replay and recorded != expected_parameters:
+                    raise ValueError(tr("Completed mask parameters for archive {archive} are missing or differ from the saved run. Use a separate output folder.").format(archive=path))
+                if recorded is not None:
+                    _merge_resolved_parameters(settings, recorded)
             intact = True
             for name, expected in payload.items():
+                if name == reserved:
+                    continue
                 output = self.output_root / name
                 if not validate_merged_field(str(output))[0]:
                     intact = False
@@ -377,12 +435,15 @@ class _MaskBatchLedger:
                 complete.add(path)
         return complete
 
-    def mark(self, path):
-        """Record completion only after every selected output validates and hashes."""
+    def mark(self, path, settings=None):
+        """Bind validated output hashes to exact parent records before completion."""
         from .cancellation import installed_token
 
         payload = {name: _mask_output_digest(self.output_root / name)
                    for name in self.expected[path]}
+        parameters = self._resolved_receipt(path, settings)
+        if parameters is not None:
+            payload['spacr_resolved_parameters'] = parameters
         with installed_token(None):
             self.store.mark(path, payload)
 
@@ -413,27 +474,29 @@ def _checkpointed_role(src, settings, object_type, assignments, ledger, *, on_pr
         raise ValueError('Worker assignments must cover the manifest exactly once')
     import functools
 
-    complete = ledger.verified()
+    complete = ledger.verified(settings=settings)
     pending = {device: [path for path in assigned if os.path.abspath(path) not in complete]
                for device, assigned in assignments.items()}
     ledger.store.update(status='running')
     return {'src': src, 'settings': settings, 'object_type': object_type,
             'assignments': pending,
-            'on_progress': functools.partial(_record_progress, ledger, complete, on_progress),
+            'on_progress': functools.partial(_record_progress, ledger, complete, on_progress,
+                                             settings=settings),
             'complete': complete, 'ledger': ledger}
 
 
-def _record_progress(ledger, complete, on_progress, state):
+def _record_progress(ledger, complete, on_progress, state, *, settings=None):
     """Persist each newly completed archive before publishing aggregate progress.
 
     :param ledger: the role's :class:`_MaskBatchLedger`.
     :param complete: the set of archives already recorded, extended here.
     :param on_progress: optional callable receiving the snapshot.
     :param state: the pool's progress snapshot, completed in place.
+    :param settings: the parent mapping already updated by resolved worker events.
     """
     for path in state['completed_batches']:
         if path not in complete:
-            ledger.mark(path)
+            ledger.mark(path, settings=settings)
             complete.add(path)
     state['completed_batches'] = sorted(complete)
     state['total_batches'] = len(ledger.records)
@@ -666,6 +729,13 @@ def _serve_mask_jobs(device, environment, messages, stop, jobs, segmenter=None,
             if job is None:
                 return
             src, settings, object_type, paths = job
+            settings = dict(settings)
+            recorded = set()
+            payload = settings.get('spacr_resolved_parameters')
+            if payload is not None:
+                recorded.update((identity, kind)
+                                for identity, parameters in payload['fields'].items()
+                                for kind in parameters)
             try:
                 if not bound:
                     imported = sys.modules.get('torch')
@@ -691,9 +761,12 @@ def _serve_mask_jobs(device, environment, messages, stop, jobs, segmenter=None,
                         bound = True
 
                     with installed_token(token):
-                        segmenter(src, dict(settings), object_type, batch_paths=paths,
-                                  on_batch_done=functools.partial(_report_batch, messages, device),
+                        segmenter(src, settings, object_type, batch_paths=paths,
+                                  on_batch_done=functools.partial(
+                                      _report_batch, messages, device,
+                                      settings=settings, recorded=recorded),
                                   run_qc=False)
+                _report_resolved_parameters(messages, device, settings, recorded)
                 messages.put(('finished', device, ('success', '')))
             except PipelineCancelled:
                 messages.put(('finished', device, ('cancelled', '')))
@@ -711,13 +784,35 @@ def _serve_mask_jobs(device, environment, messages, stop, jobs, segmenter=None,
                 return
 
 
-def _report_batch(messages, device, path):
+def _report_resolved_parameters(messages, device, settings, recorded):
+    """Send newly resolved field values before their masks become completed work."""
+    from .run_journal import _resolved_plain
+
+    payload = settings.get('spacr_resolved_parameters')
+    if payload is None:
+        return
+    fields = {}
+    for identity, parameters in payload['fields'].items():
+        for kind, record in parameters.items():
+            if (identity, kind) not in recorded:
+                fields.setdefault(identity, {})[kind] = _resolved_plain(record)
+                recorded.add((identity, kind))
+    if fields:
+        messages.put(('resolved', device, {'version': 1, 'fields': fields}))
+
+
+def _report_batch(messages, device, path, *, settings=None, recorded=None):
     """Publish an archive's completion only after the pipeline's save boundary.
 
     :param messages: queue receiving the worker's events.
     :param device: the worker name.
     :param path: the archive whose masks are saved.
+    :param settings: effective worker settings, including resolved field values.
+    :param recorded: field/parameter pairs already delivered to the parent.
     """
+    if settings is not None:
+        _report_resolved_parameters(messages, device, settings,
+                                    recorded if recorded is not None else set())
     messages.put(('batch', device, os.path.abspath(os.fspath(path))))
 
 
@@ -942,6 +1037,9 @@ class _MaskWorkerPool:
     @staticmethod
     def _role_run(role, environments):
         """Validate one role's assignments and give it fresh bookkeeping."""
+        from .run_journal import _resolved_parameters
+
+        _resolved_parameters(role['settings'])
         assignments = {device: [os.path.abspath(os.fspath(path)) for path in paths]
                        for device, paths in role['assignments'].items() if paths}
         owners = {}
@@ -1099,7 +1197,14 @@ class _MaskWorkerPool:
                 run['on_start'](time.monotonic())
         if device in self._retired:
             self._release(device)
-        job = (run['src'], run['settings'], run['object_type'], paths)
+        from .run_journal import _RESOLVED_PARAMETERS_LOCK
+
+        with _RESOLVED_PARAMETERS_LOCK:
+            job_settings = dict(run['settings'])
+            if 'spacr_resolved_parameters' in job_settings:
+                job_settings['spacr_resolved_parameters'] = copy.deepcopy(
+                    job_settings['spacr_resolved_parameters'])
+        job = (run['src'], job_settings, run['object_type'], paths)
         process = self._processes.get(device)
         if process is None:
             process = self._spawn(device, job)
@@ -1168,6 +1273,18 @@ class _MaskWorkerPool:
             self._bound.add(device)
             if jobs:
                 self._set_state(run, device, moment, state='running', pid=value)
+            return
+        if kind == 'resolved':
+            from .run_journal import _merge_resolved_parameters, _publish_resolved_settings
+            from .qt.i18n import tr
+
+            if not jobs:
+                raise RuntimeError(tr("Resolved mask parameters arrived without an active job."))
+            _merge_resolved_parameters(run['settings'], value)
+            target = run.get('resolved_settings', run['settings'])
+            if target is not run['settings']:
+                _merge_resolved_parameters(target, value)
+            _publish_resolved_settings(target)
             return
         if kind == 'batch':
             if not jobs or run['owners'].get(value) != device or value in run['completed']:
@@ -2220,7 +2337,9 @@ def _segment_role_group(mask_src, settings, group, plan, pool):
     """
     from .cancellation import PipelineCancelled
     from .io import _mask_batch_manifest
+    from .run_journal import _resolved_parameters, _merge_resolved_parameters
 
+    _resolved_parameters(settings)
     records = _mask_batch_manifest(mask_src)
     names = ', '.join(f'GPU {device} ({plan["names"].get(device, "?")})'
                       for device in plan['devices'])
@@ -2239,7 +2358,9 @@ def _segment_role_group(mask_src, settings, group, plan, pool):
         role = _checkpointed_role(mask_src, prepared, object_type,
                                   _partition_batches(records, plan['devices'], load), ledger,
                                   on_progress=monitor.progress)
-        role.update(on_start=monitor.start, on_event=monitor.event,
+        if prepared.get('spacr_resolved_parameters') is not None:
+            _merge_resolved_parameters(settings, prepared['spacr_resolved_parameters'])
+        role.update(resolved_settings=settings, on_start=monitor.start, on_event=monitor.event,
                     on_finished=monitor.finish, on_stages=monitor.stages)
         entries.append((object_type, ledger, monitor, role))
     import functools

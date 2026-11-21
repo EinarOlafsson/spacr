@@ -35,6 +35,7 @@ join the same provenance record.
 """
 from __future__ import annotations
 
+from collections.abc import MutableMapping
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 import hashlib
@@ -1551,6 +1552,9 @@ def _prepare_n2v(settings, root, channels, *, stack_dir=None, load=None,
     ``channel_<c>.ckpt`` files are used as they are.
 
     :param settings: ``n2v_denoise``, ``n2v_model`` and ``n2v_epochs``.
+        After every requested checkpoint is available, mutable settings
+        receive its absolute model folder in ``n2v_model``. Reloading those
+        settings reuses the checkpoints without training.
     :param root: experiment root.
     :param channels: selected channel indices, in the session's order.
     :param stack_dir: raw fields to train on; ``root/stack`` when None.
@@ -1599,6 +1603,11 @@ def _prepare_n2v(settings, root, channels, *, stack_dir=None, load=None,
         record['sha256'] = _digest(path)
         checkpoints[channel] = str(path)
         records[channel] = record
+    if checkpoints and isinstance(settings, MutableMapping):
+        from .run_journal import _publish_resolved_settings
+
+        settings['n2v_model'] = str(folder.resolve())
+        _publish_resolved_settings(settings)
     return _N2VPlan(channels=tuple(int(c) for c in channels),
                     checkpoints=checkpoints, records=records)
 
@@ -2005,6 +2014,10 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
         for line in describe_optics(inferred):
             print('  ' + line)
     plan = prepare_psf(settings)
+    if inferred is not None:
+        from .run_journal import _publish_resolved_settings
+
+        _publish_resolved_settings(settings)
     chain = prepare_chain(settings, plan)
     unmix = _prepare_unmixing(
         settings, stack_dir if stack_dir is not None else Path(root) / 'stack',

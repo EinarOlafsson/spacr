@@ -755,7 +755,8 @@ class Run:
     them directly.
 
     :ivar app_key: id of the pipeline app that opened the run.
-    :ivar settings: settings dict originally passed to the pipeline.
+    :ivar settings: effective pipeline settings, updated with resolved values
+        and field records as the run proceeds.
     :ivar dir: run folder path (``~/.spacr/runs/<ts>_<uuid>__<app>``).
     :ivar start_ts: unix epoch seconds when the run opened.
     :ivar end_ts: unix epoch seconds when the run closed (set by
@@ -813,6 +814,8 @@ class Run:
     _owner: Optional[Dict[str, str]] = field(default=None, init=False,
                                              repr=False)
     _ledgers: List[Dict[str, Any]] = field(default_factory=list, repr=False)
+    _settings_owner_pid: int = field(default_factory=os.getpid, init=False,
+                                     repr=False)
 
     def _note_ledger(self, ledger: Any) -> None:
         """Remember a finished item ledger's counts for the run's summary.
@@ -1312,8 +1315,183 @@ class Run:
 _RUN_LOCAL = threading.local()
 _ACTIVE_RUN_DIRS: Set[str] = set()
 _ACTIVE_RUNS_LOCK = threading.RLock()
+_RESOLVED_PARAMETERS_LOCK = threading.RLock()
 if hasattr(os, "register_at_fork"):
     os.register_at_fork(after_in_child=_ACTIVE_RUNS_LOCK._at_fork_reinit)
+    os.register_at_fork(after_in_child=_RESOLVED_PARAMETERS_LOCK._at_fork_reinit)
+
+
+class _ResolvedParameters(dict):
+    """Keep recording/replay mode in memory without adding it to saved settings."""
+
+    def __init__(self, value, *, replay):
+        """Wrap plain versioned records and retain mode through worker pickling."""
+        super().__init__(value)
+        self.replay = bool(replay)
+
+
+def _resolved_plain(value):
+    """Copy finite JSON values exactly, removing runtime dictionary subclasses."""
+    import math
+    from collections.abc import Mapping
+    from .qt.i18n import tr
+
+    if value is None or isinstance(value, (str, bool, int)):
+        return value
+    if isinstance(value, float):
+        if math.isfinite(value):
+            return value
+        raise ValueError(tr("Resolved parameters must contain finite JSON values."))
+    if isinstance(value, Mapping):
+        if not all(isinstance(key, str) for key in value):
+            raise ValueError(tr("Resolved parameters must contain finite JSON values."))
+        return {key: _resolved_plain(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_resolved_plain(item) for item in value]
+    if isinstance(value, os.PathLike):
+        return os.fspath(value)
+    if type(value).__module__.split('.')[0] == 'numpy' and hasattr(value, 'tolist'):
+        return _resolved_plain(value.tolist())
+    raise ValueError(tr("Resolved parameters must contain finite JSON values."))
+
+
+def _validate_resolved_parameters(value):
+    """Validate the sole versioned provenance field before using any saved result."""
+    from .qt.i18n import tr
+
+    plain = _resolved_plain(value)
+    valid = (isinstance(plain, dict) and set(plain) == {'version', 'fields'}
+             and type(plain['version']) is int and plain['version'] == 1
+             and isinstance(plain['fields'], dict))
+    if valid:
+        for field_id, parameters in plain['fields'].items():
+            if (not field_id or not isinstance(parameters, dict)
+                    or any(not kind or not isinstance(record, dict)
+                           or set(record) != {'source', 'configuration', 'value'}
+                           for kind, record in parameters.items())):
+                valid = False
+                break
+    if not valid:
+        raise ValueError(tr("The resolved-parameter record has an unsupported format. Start with fresh automatic settings."))
+    return plain
+
+
+def _resolved_parameters(settings):
+    """Return the shared runtime context; a plain loaded payload always means replay.
+
+    :param settings: mutable settings used by one run. Initialize this before
+        making shallow settings copies for batches or worker jobs.
+    :returns: a dict subclass whose mode is never included in JSON or CSV.
+    """
+    from .settings import RESOLVED_PARAMETERS_KEY
+
+    with _RESOLVED_PARAMETERS_LOCK:
+        value = settings.get(RESOLVED_PARAMETERS_KEY)
+        if isinstance(value, _ResolvedParameters):
+            return value
+        if RESOLVED_PARAMETERS_KEY not in settings:
+            context = _ResolvedParameters({'version': 1, 'fields': {}}, replay=False)
+        else:
+            context = _ResolvedParameters(_validate_resolved_parameters(value), replay=True)
+        settings[RESOLVED_PARAMETERS_KEY] = context
+        return context
+
+
+def _resolved_field_id(field_id):
+    """Use an existing field basename without its NPY suffix, retaining time/plane IDs."""
+    from .qt.i18n import tr
+
+    identity = str(field_id) if field_id is not None else ''
+    identity = identity[:-4] if identity.endswith('.npy') else identity
+    if (not identity or identity in {'.', '..'} or '\\' in identity or '/' in identity
+            or identity != identity.strip()):
+        raise ValueError(tr("Resolved field identities must be nonempty basenames."))
+    return identity
+
+
+def _resolved_source(array):
+    """Fingerprint existing in-memory pixels with exact shape, dtype and byte order."""
+    import numpy as np
+
+    pixels = np.ascontiguousarray(array)
+    if pixels.dtype.hasobject:
+        from .qt.i18n import tr
+        raise ValueError(tr("Resolved source pixels must have a numeric dtype."))
+    return {'shape': list(pixels.shape), 'dtype': pixels.dtype.str,
+            'sha256': hashlib.sha256(memoryview(pixels.reshape(-1)).cast('B')).hexdigest()}
+
+
+def _resolved_parameter(settings, field_id, kind, source, configuration):
+    """Return ``(found, value)`` for matching pixels/configuration, including saved None.
+
+    A fresh run may add another field. A loaded replay refuses missing or
+    mismatched records rather than estimating against a different cohort.
+    """
+    from .qt.i18n import tr
+
+    identity = _resolved_field_id(field_id)
+    with _RESOLVED_PARAMETERS_LOCK:
+        context = _resolved_parameters(settings)
+        record = context['fields'].get(identity, {}).get(kind)
+        if record is None:
+            if context.replay:
+                raise ValueError(tr("The saved run has no resolved {parameter} value for field {field}. Use the original field set or start with fresh automatic settings.").format(parameter=kind, field=identity))
+            return False, None
+        if (record['source'] != _resolved_plain(source)
+                or record['configuration'] != _resolved_plain(configuration)):
+            raise ValueError(tr("The source or configuration for {parameter} in field {field} differs from the saved run. Restore the recorded input and settings, or start with fresh automatic settings.").format(parameter=kind, field=identity))
+        return True, _resolved_plain(record['value'])
+
+
+def _record_resolved_parameter(settings, field_id, kind, source, configuration, value):
+    """Record one exact result, refusing conflicting or missing loaded-replay entries."""
+    from .qt.i18n import tr
+
+    identity = _resolved_field_id(field_id)
+    record = {'source': _resolved_plain(source),
+              'configuration': _resolved_plain(configuration),
+              'value': _resolved_plain(value)}
+    if not isinstance(kind, str) or not kind:
+        raise ValueError(tr("Resolved parameter names must be nonempty strings."))
+    with _RESOLVED_PARAMETERS_LOCK:
+        context = _resolved_parameters(settings)
+        previous = context['fields'].get(identity, {}).get(kind)
+        if previous is not None and previous != record:
+            raise ValueError(tr("Workers reported different resolved {parameter} values for field {field}. The run cannot be saved reproducibly.").format(parameter=kind, field=identity))
+        if previous is None and context.replay:
+            _resolved_parameter(settings, identity, kind, source, configuration)
+        context['fields'].setdefault(identity, {})[kind] = record
+
+
+def _merge_resolved_parameters(settings, payload):
+    """Merge a worker's reserved payload into the parent without losing exact None values."""
+    with _RESOLVED_PARAMETERS_LOCK:
+        plain = _validate_resolved_parameters(payload)
+        for identity, parameters in plain['fields'].items():
+            for kind, record in parameters.items():
+                _record_resolved_parameter(settings, identity, kind, record['source'],
+                                           record['configuration'], record['value'])
+
+
+def _publish_resolved_settings(settings):
+    """Write effective parent-run snapshots after resolution; child processes never write them."""
+    import copy
+    from .settings import RESOLVED_PARAMETERS_KEY
+
+    run = current_run()
+    if run is None or run._settings_owner_pid != os.getpid():
+        return
+    with _RESOLVED_PARAMETERS_LOCK:
+        values = copy.deepcopy({key: value for key, value in settings.items()
+                                if not str(key).startswith('_')})
+        source = getattr(settings.get(RESOLVED_PARAMETERS_KEY), 'source_root', None)
+        if source is not None:
+            values['src'] = source
+        if RESOLVED_PARAMETERS_KEY in values:
+            values[RESOLVED_PARAMETERS_KEY] = _validate_resolved_parameters(
+                values[RESOLVED_PARAMETERS_KEY])
+        run.settings.update(values)
+        run._write_settings()
 
 
 def _record_diameter(object_type: str, used: str,

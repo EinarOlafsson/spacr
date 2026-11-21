@@ -11514,6 +11514,18 @@ def _import_attribution_off_the_gui_thread() -> Optional[threading.Thread]:
     return thread
 
 
+def _plain_resolved_parameters(value):
+    """Copy saved resolved parameters without retaining runtime dict markers."""
+    from copy import deepcopy
+
+    if isinstance(value, dict):
+        return {key: _plain_resolved_parameters(item)
+                for key, item in value.items()}
+    if isinstance(value, list):
+        return [_plain_resolved_parameters(item) for item in value]
+    return deepcopy(value)
+
+
 class SettingsWidgets:
     """Container for the Qt widgets bound to a settings dict.
 
@@ -11555,6 +11567,10 @@ class SettingsWidgets:
 
         shipped = resolve_default_settings(app_key)
         current_values = {str(k): v for k, v in (current or {}).items()}
+        from ...settings import RESOLVED_PARAMETERS_KEY
+
+        self._resolved_parameters = _plain_resolved_parameters(
+            current_values.pop(RESOLVED_PARAMETERS_KEY, None))
         self._model_metadata = None
         if "model_metadata" in current_values:
             from ...model_zoo import _model_input_kinds, _validate_model_metadata
@@ -13099,6 +13115,11 @@ class SettingsWidgets:
             out["model_metadata"] = retained
             out["model_metadata"] = _validate_model_metadata(
                 out, model_kinds=_model_input_kinds(self.app_key, out))
+        resolved = getattr(self, "_resolved_parameters", None)
+        if resolved is not None:
+            from ...settings import RESOLVED_PARAMETERS_KEY
+
+            out[RESOLVED_PARAMETERS_KEY] = _plain_resolved_parameters(resolved)
         return out
 
     def _organelle_slots_worth_keeping(self,
@@ -13229,11 +13250,17 @@ class SettingsWidgets:
         and the key is a declared setting; foreign-app keys remain rejected.
 
         :param key: a known run setting, a declared organelle-slot key when
-            this form owns the count, or reserved ``model_metadata``.
+            this form owns the count, or reserved ``model_metadata`` or
+            ``spacr_resolved_parameters``.
             Other keys return ``False``.
         :param value: new value, coerced to the setting's expected type before
             it is stored.
         """
+        from ...settings import RESOLVED_PARAMETERS_KEY
+
+        if key == RESOLVED_PARAMETERS_KEY:
+            self._resolved_parameters = _plain_resolved_parameters(value)
+            return True
         if key == "model_metadata":
             from ...model_zoo import _model_input_kinds, _validate_model_metadata
 

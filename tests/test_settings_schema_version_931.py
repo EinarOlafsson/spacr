@@ -18,7 +18,7 @@ import logging
 import pytest
 
 from spacr import run_journal as rj
-from spacr.settings import (DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION,
+from spacr.settings import (DEFAULT_CHANGES, SETTINGS_FORMAT_VERSIONS, SETTINGS_SCHEMA_VERSION,
                             SETTINGS_VERSION_KEY, _fold_older_defaults,
                             _settings_file_version, _stamp_settings_version)
 
@@ -79,8 +79,26 @@ def test_the_table_is_one_row_per_change_and_names_old_defaults():
 
     assert DEFAULT_CHANGES[931] == {"ops_compose_blend": "average"}
     assert all(version <= SETTINGS_SCHEMA_VERSION for version in DEFAULT_CHANGES)
-    assert SETTINGS_SCHEMA_VERSION == max(DEFAULT_CHANGES)
+    assert set(DEFAULT_CHANGES).isdisjoint(SETTINGS_FORMAT_VERSIONS)
+    assert SETTINGS_SCHEMA_VERSION == max(
+        set(DEFAULT_CHANGES) | SETTINGS_FORMAT_VERSIONS)
     assert OPS_DEFAULTS["ops_compose_blend"] != DEFAULT_CHANGES[931]["ops_compose_blend"]
+
+
+def test_resolved_parameters_are_a_format_change_without_new_defaults():
+    """Schema 950 records provenance without inventing a default migration."""
+    from spacr.settings import RESOLVED_PARAMETERS_KEY
+
+    assert 950 in SETTINGS_FORMAT_VERSIONS
+    assert 950 not in DEFAULT_CHANGES
+    assert all(RESOLVED_PARAMETERS_KEY not in row
+               for row in DEFAULT_CHANGES.values())
+    payload = {"version": 1, "fields": {"field1": {
+        "diameter:nucleus": {"source": {}, "configuration": {}, "value": None}}}}
+    for version in (945, 949, 950):
+        settings = {RESOLVED_PARAMETERS_KEY: payload, "src": "/saved/plate"}
+        assert _fold_older_defaults(settings, version, known={"batch_size"}) == {}
+        assert settings == {RESOLVED_PARAMETERS_KEY: payload, "src": "/saved/plate"}
 
 
 def test_a_pre_931_journal_replays_with_average(tmp_path, monkeypatch, caplog):

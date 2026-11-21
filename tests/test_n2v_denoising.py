@@ -104,6 +104,43 @@ def test_a_named_model_folder_is_used_as_it_is(tmp_path):
                         train=trainer)
 
 
+@pytest.mark.parametrize('suffix', ['csv', 'json'])
+def test_saved_fitted_folder_replays_without_training(tmp_path, monkeypatch, suffix):
+    """A reload pins the fitted checkpoints even for another source subset."""
+    from spacr import run_journal
+    from spacr.cli import load_settings_file
+    from spacr.utils import save_settings
+
+    _stack(tmp_path / 'stack')
+    settings = _settings(src=str(tmp_path))
+    trainer = _Trainer()
+    published = []
+
+    def capture(values):
+        """Keep the exact model-folder setting published after training."""
+        published.append(dict(values))
+
+    def refuse_training(*args, **kwargs):
+        """Reject retraining or access to new training planes during replay."""
+        raise AssertionError('saved Noise2Void models were trained again')
+
+    monkeypatch.setattr(run_journal, '_publish_resolved_settings', capture)
+    original = PP._prepare_n2v(settings, tmp_path, [1, 0], train=trainer)
+    assert len(trainer.calls) == 2
+    assert settings['n2v_model'] == str((tmp_path / 'n2v').resolve())
+    assert published[-1]['n2v_model'] == settings['n2v_model']
+    save_settings(settings, name='n2v_replay')
+    restored = load_settings_file(str(tmp_path / 'settings' / f'n2v_replay.{suffix}'))
+    subset = _stack(tmp_path / 'subset' / 'stack', count=1)
+    restored['src'] = str(subset.parent)
+    monkeypatch.setattr(PP, '_n2v_training_planes', refuse_training)
+    replay = PP._prepare_n2v(restored, subset.parent, [1, 0], train=refuse_training)
+
+    assert replay.checkpoints == original.checkpoints
+    assert replay.provenance() == original.provenance()
+    assert not (subset.parent / 'n2v').exists()
+
+
 def test_bad_epochs_are_refused(tmp_path):
     with pytest.raises(ValueError, match="n2v_epochs"):
         PP._prepare_n2v(_settings(n2v_epochs=0), tmp_path, [0])

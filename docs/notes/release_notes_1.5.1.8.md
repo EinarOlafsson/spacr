@@ -4,6 +4,8 @@ This release writes raw crops and records how every classifier's inputs were pre
 
 ### Upgrading
 
+- **Spatial Mask Generation retains automatic results for replay.** Saved settings now keep exact per-field normalization bounds and per-field, per-role diameters, including native-scale `None`. Reloading uses those values and refuses mismatched pixels, configuration or padded shape. Resolved PSF values, fitted illumination and Noise2Void model paths, and replication linkage distance are also saved. Settings schema 950 adds this record without changing defaults; the GUI retains it. Use a fresh automatic settings file to estimate again.
+
 Upgrade an existing Python environment with:
 
 ```bash

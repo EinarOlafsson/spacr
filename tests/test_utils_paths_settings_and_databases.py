@@ -702,7 +702,9 @@ def test_save_settings_writes_a_headless_csv_copy_or_warns(tmp_path, subtests, m
 ])
 def test_csv_and_json_save_the_same_effective_settings(tmp_path, flags, saved_flags):
     """Both snapshots preserve exact values and stamp the same headless copy."""
-    from spacr.settings import SETTINGS_SCHEMA_VERSION, SETTINGS_VERSION_KEY
+    from spacr.cli import load_settings_file
+    from spacr.settings import (RESOLVED_PARAMETERS_KEY, SETTINGS_SCHEMA_VERSION,
+                                SETTINGS_VERSION_KEY)
 
     diameter = 26.245000000000005
     settings = {
@@ -711,6 +713,22 @@ def test_csv_and_json_save_the_same_effective_settings(tmp_path, flags, saved_fl
         'nucleus_diameter': diameter,
         'pathogen_diameter': None,
         'object_filters': {'nucleus': {'area': [diameter, None]}},
+        RESOLVED_PARAMETERS_KEY: {'version': 1, 'fields': {
+            'plate1/A/1/0': {
+                'normalization': {
+                    'source': {'path': '001.npy', 'identity': 'None'},
+                    'configuration': {'percentiles': [1.0, 99.5]},
+                    'value': [[0.00000000000000017, 65535.125], [0.0, 1.0]],
+                },
+                'diameter:nucleus': {
+                    'source': {'path': '001.npy'},
+                    'configuration': {'mode': 'per_image'}, 'value': diameter,
+                },
+                'diameter:cell': {
+                    'source': {'path': '001.npy'},
+                    'configuration': {'mode': 'native'}, 'value': None,
+                },
+            }}},
         **flags,
     }
     original = json.loads(json.dumps(settings))
@@ -723,6 +741,8 @@ def test_csv_and_json_save_the_same_effective_settings(tmp_path, flags, saved_fl
     expected = {**original, SETTINGS_VERSION_KEY: SETTINGS_SCHEMA_VERSION,
                 **saved_flags}
     assert csv_settings == json_settings == expected
+    assert load_settings_file(str(csv_path)) == expected
+    assert load_settings_file(str(csv_path.with_suffix('.json'))) == expected
     assert settings == original
 
 

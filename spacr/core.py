@@ -207,6 +207,15 @@ def _cells_from_nuclei(mask_src, settings):
 
 
 
+def _mask_role_pending(settings, src, folder):
+    """Always validate saved replay inputs; fresh runs keep ordinary completion checks."""
+    from .run_journal import _resolved_parameters
+    from .utils import check_mask_folder
+
+    return (_resolved_parameters(settings).replay
+            or check_mask_folder(src, folder, resume=settings.get('resume', False)))
+
+
 def _run_masks_batch_first(mask_src, src, settings, files_processed, files_to_process):
     """Run the cell, nucleus and pathogen masks batch by batch when the batches come from a plan.
 
@@ -228,6 +237,7 @@ def _run_masks_batch_first(mask_src, src, settings, files_processed, files_to_pr
     from .utils import check_mask_folder
     from .object import _note_the_diameter, _run_seg_qc, generate_cellpose_masks_sam
     from .cancellation import checkpoint as cancellation_checkpoint
+    from .run_journal import _resolved_parameters
 
     if _read_plan(mask_src) is None or not _roles_may_overlap(settings):
         return []
@@ -238,10 +248,11 @@ def _run_masks_batch_first(mask_src, src, settings, files_processed, files_to_pr
         if settings.get(f'{role}_channel') is None:
             continue
         cancellation_checkpoint()
-        if check_mask_folder(src, f'{role}_mask_stack', resume=settings.get('resume', False)):
+        if _mask_role_pending(settings, src, f'{role}_mask_stack'):
             roles.append(role)
     if not roles:
         return []
+    _resolved_parameters(settings)
     for role in roles:
         _note_the_diameter(settings, role)
     paths = _batch_paths(mask_src, _listdir_visible)
@@ -260,6 +271,16 @@ def _run_masks_batch_first(mask_src, src, settings, files_processed, files_to_pr
     for role in roles:
         _run_seg_qc(mask_src, settings, role)
     return roles
+
+
+def _save_resolved_mask_settings(settings, source):
+    """Save effective values against the plate input, never the transient masks folder."""
+    from .run_journal import _publish_resolved_settings
+    from .utils import save_settings
+
+    snapshot = dict(settings, src=source)
+    _publish_resolved_settings(snapshot)
+    save_settings(snapshot, name='gen_mask_settings')
 
 
 def preprocess_generate_masks(settings):
@@ -415,6 +436,8 @@ def preprocess_generate_masks(settings):
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
     from .qt.mask_engine import object_filter_area_floor
     from .cancellation import checkpoint as cancellation_checkpoint
+    from .run_journal import _resolved_parameters
+    from copy import deepcopy
 
     from .qt.i18n import tr
 
@@ -461,7 +484,11 @@ def preprocess_generate_masks(settings):
         _note_the_diameter(settings, 'cell')
         srcs = settings['src'] if isinstance(settings['src'], list) \
                                 else [settings['src']]
+        requested_settings = deepcopy(settings)
         for src in srcs:
+            settings = deepcopy(requested_settings)
+            settings['src'] = src
+            _resolved_parameters(settings).source_root = src
             channels, channel_names = v2_channels_from_settings(settings)
             cell_index = (
                 channel_names.index('cell') if 'cell' in channel_names else 0
@@ -536,6 +563,7 @@ def preprocess_generate_masks(settings):
                             note(str(status_error))
                     raise
                 continue
+            _save_resolved_mask_settings(settings, src)
             output_root = result.get('output_root', src)
             if 'output_root' in result:
                 from .qt.i18n import tr
@@ -563,11 +591,14 @@ def preprocess_generate_masks(settings):
         settings['src'] = [settings['src']]
 
     source_folders = settings['src']
+    requested_settings = deepcopy(settings)
     ledger = RunLedger('preprocess_generate_masks')
     module_key = 'timelapse' if settings.get('timelapse') else 'mask'
     from ._mask_workers import _MaskWorkerPool
     with run_context(module_key, settings, ledger=ledger) as run, _MaskWorkerPool() as mask_pool:
         for source_folder in source_folders:
+            settings = deepcopy(requested_settings)
+            _resolved_parameters(settings).source_root = format_path_for_system(source_folder)
             for attempt in run.policy.attempts_for(source_folder,
                                                    stage='plate'):
                 with attempt:
@@ -658,6 +689,7 @@ def preprocess_generate_masks(settings):
 
                     if settings['preprocess']:
                         settings, src = preprocess_img_data(settings)
+                        _save_resolved_mask_settings(settings, source_folder)
 
                     organelle_roles = enabled_organelle_roles(settings)
                     files_to_process = sum([
@@ -723,9 +755,7 @@ def preprocess_generate_masks(settings):
                             if settings[f'{parallel_role}_channel'] is None:
                                 continue
                             cancellation_checkpoint()
-                            if check_mask_folder(
-                                    src, f'{parallel_role}_mask_stack',
-                                    resume=settings.get('resume', False)):
+                            if _mask_role_pending(settings, src, f'{parallel_role}_mask_stack'):
                                 from .object import _note_the_diameter
                                 _note_the_diameter(settings, parallel_role)
                                 parallel_roles.append(parallel_role)
@@ -753,9 +783,7 @@ def preprocess_generate_masks(settings):
                         if gpu_plan is None and settings['cell_channel'] != None and 'cell' not in batch_first_roles:
                             cancellation_checkpoint()
                             time_ls=[]
-                            if check_mask_folder(
-                                    src, 'cell_mask_stack',
-                                    resume=settings.get('resume', False)):
+                            if _mask_role_pending(settings, src, 'cell_mask_stack'):
                                 start = time.time()
                                 from ._mask_workers import _sampled_ordinary_masks
                                 with _sampled_ordinary_masks(mask_src, 'cell'):
@@ -771,9 +799,7 @@ def preprocess_generate_masks(settings):
                         if gpu_plan is None and settings['nucleus_channel'] != None and 'nucleus' not in batch_first_roles:
                             cancellation_checkpoint()
                             time_ls=[]
-                            if check_mask_folder(
-                                    src, 'nucleus_mask_stack',
-                                    resume=settings.get('resume', False)):
+                            if _mask_role_pending(settings, src, 'nucleus_mask_stack'):
                                 start = time.time()
                                 from ._mask_workers import _sampled_ordinary_masks
                                 with _sampled_ordinary_masks(mask_src, 'nucleus'):
@@ -789,9 +815,7 @@ def preprocess_generate_masks(settings):
                         if gpu_plan is None and settings['pathogen_channel'] != None and 'pathogen' not in batch_first_roles:
                             cancellation_checkpoint()
                             time_ls=[]
-                            if check_mask_folder(
-                                    src, 'pathogen_mask_stack',
-                                    resume=settings.get('resume', False)):
+                            if _mask_role_pending(settings, src, 'pathogen_mask_stack'):
                                 start = time.time()
                                 from ._mask_workers import _sampled_ordinary_masks
                                 with _sampled_ordinary_masks(mask_src, 'pathogen'):
@@ -807,9 +831,7 @@ def preprocess_generate_masks(settings):
                         for organelle_role in organelle_roles:
                             cancellation_checkpoint()
                             time_ls=[]
-                            if check_mask_folder(
-                                    src, f'{organelle_role}_mask_stack',
-                                    resume=settings.get('resume', False)):
+                            if _mask_role_pending(settings, src, f'{organelle_role}_mask_stack'):
                                 start = time.time()
                                 generate_organelle_masks_sam(
                                     mask_src, settings, organelle_role)
@@ -969,6 +991,8 @@ def preprocess_generate_masks(settings):
                                 plot_ledger.finalize()
                             else:
                                 plot_arrays(src=os.path.join(src,'merged'), figuresize=settings['figuresize'], cmap=settings['cmap'], nr=settings['examples_to_plot'], normalize=settings['normalize'], q1=1, q2=99)
+
+                    _save_resolved_mask_settings(settings, source_folder)
 
                     torch.cuda.empty_cache()
                     gc.collect()
