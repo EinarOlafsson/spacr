@@ -6083,7 +6083,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # optional `load_field` of five illumination/intensity_rescale planners.
     # Moved 2026-11-21 by landing train 8 (was ae0adfd7...): item 1002's `strict` of
     # spacr.cli.resolve_settings and the new spacr.settings unknown-settings helper.
-) == 'DIGEST_TO_FILL'
+) == '3b951fe72187a02505608fff710ad2d4ae12a5dcdaf978198b91cbd010998433'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
