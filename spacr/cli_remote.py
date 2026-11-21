@@ -158,7 +158,8 @@ def _cmd_submit(args: argparse.Namespace) -> int:
             f"Unknown spaCR module {args.module!r}; use `spacr-run --list`."
         )
     try:
-        settings = resolve_settings(module, args.settings, args.set or [])
+        settings = resolve_settings(module, args.settings, args.set or [],
+                                    strict=getattr(args, "strict_settings", None))
     except SettingsError as exc:
         raise RemoteExecutionError(str(exc)) from exc
     job = _submit_job(RemoteJobManager(), module.key, settings, args.profile, args.allocation or "")

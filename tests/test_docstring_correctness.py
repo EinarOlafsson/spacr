@@ -4984,7 +4984,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # of the paper items' public callables, which
     # _validated_bmc_paper_items_callables checks against the arrival
     # contract 871_911_bmc_paper_items_api_arrivals_2026-11-09.json.
-    assert len(callables) == len(by_symbol) == 10062
+    # 2026-11-21, item 1002: +1, spacr.settings.unknown_setting_keys (arrival
+    # contract 1002_settings_unknown_keys_api_arrivals_2026-11-20.json).
+    assert len(callables) == len(by_symbol) == 10063
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -5081,7 +5083,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # the rest of the BMC paper items' public callables, which the
         # arrival contract 871_911_bmc_paper_items_api_arrivals_2026-11-09.json
         # checks (-32 function, -1 method, -1 constructor).
-        "function": 4524,
+        "function": 4525,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         # Items 591-592: +2 method (the object grid's filter rows and the
@@ -5185,7 +5187,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3 autoapi, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17 autoapi, the functions named in the total.
         # 2026-11-06 item 773: +1 autoapi, IlluminationField.correct_window.
-        "autoapi": 10057,
+        "autoapi": 10058,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -5251,7 +5253,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
     # 2026-11-05 items 791, 770, 771: +17, one variant each: sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, and the fourteen spacr.division_analysis functions.
     # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-    assert sum(item.variant_count for item in callables) == 10069
+    # 2026-11-21 item 1002: +1, spacr.settings.unknown_setting_keys.
+    assert sum(item.variant_count for item in callables) == 10070
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -5281,7 +5284,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
         # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-        1: 10055,
+        1: 10056,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -6931,6 +6934,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
+        ("1002_settings_unknown_keys_api_arrivals_2026-11-20.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7556,7 +7560,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
-                     "w_mask_tracing_api_arrivals_2026-11-20.json"):
+                     "w_mask_tracing_api_arrivals_2026-11-20.json",
+                     "1002_settings_unknown_keys_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7722,7 +7727,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
-                     "w_mask_tracing_api_arrivals_2026-11-20.json"):
+                     "w_mask_tracing_api_arrivals_2026-11-20.json",
+                     "1002_settings_unknown_keys_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

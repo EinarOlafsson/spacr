@@ -2632,6 +2632,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in mask_tracing_w_arrivals} == mask_tracing_w_arrivals
     assert not mask_tracing_w_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **mask_tracing_w_arrivals}
+    unknown_keys_1002_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1002_settings_unknown_keys_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert set(unknown_keys_1002_arrivals) == {"spacr.settings.unknown_setting_keys"}
+    assert {key: docs[key] for key in unknown_keys_1002_arrivals} == unknown_keys_1002_arrivals
+    assert not unknown_keys_1002_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **unknown_keys_1002_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

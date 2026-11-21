@@ -13490,6 +13490,7 @@ class AppScreen(QWidget):
         try:
             loaded = self._load_settings_csv(path)
             own = set(loaded)
+            file_keys = {key: loaded[key] for key in loaded}
             loaded = self._in_its_own_era(loaded)
             filled = len(set(loaded) - own)
             applied = self.apply_settings_dict(loaded)
@@ -13498,6 +13499,7 @@ class AppScreen(QWidget):
                 count=max(0, applied - filled), path=path,
             )
             self._warn_about_moved_settings(loaded)
+            self._notice_unknown_settings(file_keys)
         except Exception as e:
             QMessageBox.warning(
                 self, tr('Import failed'),
@@ -13644,6 +13646,30 @@ class AppScreen(QWidget):
         if isinstance(val, str):
             return val.strip().lower() in ("true", "1", "yes")
         return bool(val)
+
+    def _notice_unknown_settings(self, file_keys: dict) -> None:
+        """List the imported keys spaCR does not read, behind alpha. Never refuses.
+
+        One console row per key with its nearest known key. The keys stay out
+        of the form and nothing is dropped from the file.
+
+        :param file_keys: the mapping read from the file, as written.
+        """
+        from ..preferences import get_show_alpha
+
+        if not get_show_alpha():
+            return
+        from ...settings import unknown_setting_keys
+
+        for key, nearest in unknown_setting_keys(file_keys, self.app_key):
+            if file_keys.get(key) in (None, ""):
+                continue
+            if nearest:
+                self._console.append_notice(
+                    "Unknown setting '{key}' -> '{nearest}'\n", key=key, nearest=nearest)
+            else:
+                self._console.append_notice(
+                    "Unknown setting '{key}'\n", key=key)
 
     def _warn_about_moved_settings(self, loaded: dict) -> None:
         """Report imported tracking settings and unsupported motility flags.

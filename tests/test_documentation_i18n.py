@@ -3874,6 +3874,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
+        ("1002_settings_unknown_keys_api_arrivals_2026-11-20.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

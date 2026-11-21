@@ -1691,9 +1691,82 @@ def _under_todays_names(settings: Dict[str, Any],
     return settings
 
 
+def _unknown_setting_fix() -> str:
+    """The fix text every unknown-key notice carries, in the user's language."""
+    from .qt.i18n import tr
+
+    return tr("Remove it from the settings file, or check the spelling.")
+
+
+def _as_strict_flag(value: Any) -> Optional[bool]:
+    """The boolean a ``settings_strict`` value means; None when absent or blank."""
+    if value is None or value == "":
+        return None
+    if isinstance(value, str):
+        text = value.strip().lower()
+        if text in ("true", "1", "yes", "on"):
+            return True
+        if text in ("false", "0", "no", "off"):
+            return False
+        raise SettingsError(f"settings_strict={value!r} is not a boolean.")
+    return bool(value)
+
+
+def _split_strict_override(overrides: Sequence[str]) -> Tuple[List[str], Optional[bool]]:
+    """Take ``--set settings_strict=...`` out of the overrides.
+
+    The switch is a control key, not a setting, so ``apply_overrides`` would
+    refuse it. The last one given wins.
+    """
+    kept: List[str] = []
+    strict: Optional[bool] = None
+    for item in overrides:
+        if "=" in item and item.partition("=")[0].strip() == "settings_strict":
+            strict = _as_strict_flag(item.partition("=")[2])
+        else:
+            kept.append(item)
+    return kept, strict
+
+
+def _report_unknown_keys(from_file: Mapping[str, Any], app: str,
+                         strict: bool, moved: Optional[List[Any]]) -> None:
+    """Warn about, or refuse, the keys of a settings file that spaCR does not read.
+
+    A blank value is left alone, as in the pre-flight: older files carry their
+    section headings as blank rows. The dict is never changed.
+
+    :param from_file: the file's mapping, already under today's names.
+    :param app: the validate key of the module being run, or blank.
+    :param strict: raise one `SettingsError` naming every unknown key.
+    :param moved: list that receives one WARNING `Problem` per key, else log.
+    :raises SettingsError: in strict mode when any key is unknown.
+    """
+    from .qt.i18n import tr
+    from .settings import unknown_setting_keys
+    from .validate import WARNING, Problem
+
+    unknown = [(key, near) for key, near in
+               unknown_setting_keys(from_file, app)
+               if from_file.get(key) not in (None, "")]
+    if not unknown:
+        return
+    lines = [tr("Unknown setting '{key}' ignored; nearest known setting: '{nearest}'.",
+                key=key, nearest=near) if near
+             else tr("Unknown setting '{key}' ignored.", key=key)
+             for key, near in unknown]
+    if strict:
+        raise SettingsError(tr("Bad settings") + ":\n  " + "\n  ".join(lines))
+    for (key, _near), line in zip(unknown, lines):
+        if moved is None:
+            LOG.warning("%s", line)
+        else:
+            moved.append(Problem(WARNING, key, line, _unknown_setting_fix()))
+
+
 def resolve_settings(module: Module, settings_path: Optional[str],
                      overrides: Sequence[str] = (),
-                     moved: Optional[List[Any]] = None) -> Dict[str, Any]:
+                     moved: Optional[List[Any]] = None,
+                     strict: Optional[bool] = None) -> Dict[str, Any]:
     """Build the settings dict that the pipeline receives.
 
     Layered lowest-to-highest: the module's own defaults, the settings file,
@@ -1709,14 +1782,27 @@ def resolve_settings(module: Module, settings_path: Optional[str],
     :param moved: list to receive the migration notices, passed straight to
         :func:`_under_todays_names`; a caller that prints a pre-flight report
         hands these to :func:`_preflight` so the keys the fold consumed are
-        still named there.
+        still named there. The notices for keys of the file that spaCR does
+        not read (:func:`spacr.settings.unknown_setting_keys`) go there too,
+        one per key; without it they are logged.
+    :param strict: refuse unknown keys of the file with one `SettingsError`
+        instead of warning. None leaves it to ``--set settings_strict=...``,
+        then the file's ``settings_strict``, then off. The resolved dict is
+        the same in either mode and never carries ``settings_strict``.
     :returns: the fully-resolved settings dict.
     :raises SettingsError: on any unreadable file, unknown key or bad value.
     """
     resolved = module_defaults(module)
+    overrides, override_strict = _split_strict_override(overrides)
+    file_strict = None
     if settings_path:
-        resolved.update(_in_its_own_era(load_settings_file(settings_path),
-                                         resolved, moved))
+        from_file = _in_its_own_era(load_settings_file(settings_path),
+                                    resolved, moved)
+        file_strict = _as_strict_flag(from_file.pop("settings_strict", None))
+        if strict is None:
+            strict = override_strict if override_strict is not None else file_strict
+        _report_unknown_keys(from_file, module.validate_key, bool(strict), moved)
+        resolved.update(from_file)
     apply_overrides(resolved, overrides, module)
     from .object_settings_table import _canonical_diameters
     return _canonical_diameters(resolved)
@@ -2016,7 +2102,11 @@ def _preflight(settings: Mapping[str, Any], validate_key: str,
     """
     from .validate import describe_plan, format_report, validate_settings
 
-    problems = list(moved) + validate_settings(dict(settings), validate_key)
+    said = {p.setting for p in moved if getattr(p, "fix", "") == _unknown_setting_fix()}
+    found = [p for p in validate_settings(dict(settings), validate_key)
+             if not (p.setting in said and p.severity == "warning"
+                     and p.message.startswith(f"'{p.setting}' is not a"))]
+    problems = list(moved) + found
     printer(format_report(problems, dict(settings), validate_key))
     printer("")
     printer(describe_plan(dict(settings), validate_key))
@@ -2100,13 +2190,21 @@ def cmd_validate(args: argparse.Namespace) -> int:
     try:
         if module is not None:
             settings = resolve_settings(module, args.settings, args.set or [],
-                                        moved)
+                                        moved, strict=getattr(args, "strict_settings", None))
         else:
             from .settings import _settings_file_version
 
             settings = load_settings_file(args.settings)
             _settings_file_version(settings)
-            apply_overrides(settings, args.set or [], None)
+            overrides, override_strict = _split_strict_override(args.set or [])
+            strict = getattr(args, "strict_settings", None)
+            if strict is None:
+                strict = _as_strict_flag(settings.pop("settings_strict", None)) \
+                    if override_strict is None else override_strict
+            else:
+                settings.pop("settings_strict", None)
+            _report_unknown_keys(settings, "", bool(strict), moved)
+            apply_overrides(settings, overrides, None)
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE
@@ -2142,7 +2240,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     moved: List[Any] = []
     try:
         settings = resolve_settings(module, args.settings, args.set or [],
-                                    moved)
+                                    moved, strict=getattr(args, "strict_settings", None))
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE
@@ -2412,6 +2510,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--force", action="store_true",
         help="Run even when the pre-flight check reports errors.")
+    parser.add_argument(
+        "--strict-settings", dest="strict_settings", action="store_true",
+        default=None,
+        help="Refuse a settings file that carries keys spaCR does not read, "
+             "instead of warning about each one.")
+    parser.add_argument(
+        "--no-strict-settings", dest="strict_settings", action="store_false",
+        help="Only warn about unknown keys, even if the file says "
+             "settings_strict: true.")
     parser.add_argument(
         "--no-preflight", action="store_true",
         help="Skip the pre-flight check entirely.")

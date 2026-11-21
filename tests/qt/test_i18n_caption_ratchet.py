@@ -1320,7 +1320,12 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 655, 2026-10-04: Preferences > Appearance > Theme's High contrast entry
 # and its tooltip sentence.
 # 643/644/646, 2026-10-04: Preferences > Storage's "Measure sizes" button.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+# 1002, 2026-11-21: the settings-file unknown-key notices of the import
+# screen; Codex records them in tr_1002_task.md.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Unknown setting '{key}'",
+    "Unknown setting '{key}' -> '{nearest}'",
+})
 
 
 

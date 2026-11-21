@@ -2545,6 +2545,65 @@ def surviving_setting_name(key):
     return names
 
 
+#: Keys a settings file may carry that no pipeline reads: provenance, a run
+#: note, a tool's private option. They never warn and are never refused in
+#: strict mode. A name leaves this set when it becomes a real setting; the
+#: ratchet in tests/test_settings_unknown_keys.py fails while one is in both.
+RECORD_ONLY_SETTINGS = frozenset({
+    'spacr_settings_version', 'settings_strict',
+    'seg_cells_from_nucleus_seeds', 'seg_merge_small_nuclei_frac',
+    'seg_tile_overlap_px', 'seg_tile_px', 'seg_diameter_sites',
+})
+
+#: Prefixes of record-only keys (``_comment``, ``_comment_ops``, ``_meta_run``).
+RECORD_ONLY_PREFIXES = ('_comment', '_meta')
+
+
+def _known_keys_for_app(app=''):
+    """Every settings key spaCR reads for ``app`` (the generic set when blank)."""
+    from .validate import _APP_EXTRA_KEYS, _known_setting_keys, _module_default_keys
+
+    return (_known_setting_keys() | _APP_EXTRA_KEYS.get(app, frozenset())
+            | _module_default_keys(app) | {'model_metadata'})
+
+
+def unknown_setting_keys(settings, app=''):
+    """The keys of a settings mapping that spaCR does not read.
+
+    One definition of "known" for the CLI, the pre-flight and the GUI: the
+    generic set, the app's own keys and the module's default keys. A retired,
+    renamed or withdrawn key is not unknown (its own notice speaks for it),
+    and neither is a record-only key (:data:`RECORD_ONLY_SETTINGS`,
+    :data:`RECORD_ONLY_PREFIXES`). Values are never looked at.
+
+    :param settings: the mapping read from a settings file.
+    :param app: canonical app key, or blank for the generic set only.
+    :returns: ``(key, nearest known key or None)`` per unknown key, in file
+        order; the nearest key is a lexical hint, not a rename.
+    """
+    import difflib
+    from .object_roles import withdrawn_setting_reason
+    from .validate import RETIRED_SETTINGS
+
+    known = _known_keys_for_app(app)
+    nearest_pool = None
+    found = []
+    for key in settings:
+        if not isinstance(key, str) or key in known:
+            continue
+        if key in RECORD_ONLY_SETTINGS or key.startswith(RECORD_ONLY_PREFIXES):
+            continue
+        if key in RETIRED_SETTINGS:
+            continue
+        if surviving_setting_name(key) or withdrawn_setting_reason(key):
+            continue
+        if nearest_pool is None:
+            nearest_pool = sorted(known)
+        close = difflib.get_close_matches(key, nearest_pool, n=1, cutoff=0.6)
+        found.append((key, close[0] if close else None))
+    return found
+
+
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 SETTINGS_SCHEMA_VERSION = 948
 DEFAULT_CHANGES = {
