@@ -56,31 +56,27 @@ def test_original_count_frame_layouts_keep_their_returned_marker_counts(
     assert session.load_frame(frame) == expected
 
 
-def test_a_count_made_in_other_units_is_refused():
-    """The taken side, and the reason the guard is worth having."""
+@pytest.mark.parametrize('columns, fragment', [
+    pytest.param(
+        {'class': ['a'], 'y': [1.0], 'x': [2.0], 'units': ['um']},
+        'somewhere plausible and wrong',
+        id='test_a_count_made_in_other_units_is_refused',
+    ),
+    pytest.param(
+        {'class': ['a'], 'y': [1.0]}, "'x'",
+        id='test_a_frame_missing_a_coordinate_is_refused_by_name',
+    ),
+])
+def test_original_count_frame_refusals_keep_their_error_explanations(
+        columns, fragment):
+    """Preserve each original frame refusal and its required explanation fragment."""
     from spacr.layers import LayerError
 
-    frame = pd.DataFrame({"class": ["a"], "y": [1.0], "x": [2.0],
-                          "units": ["um"]})
-
+    frame = pd.DataFrame(columns)
     session = _session()
     with pytest.raises(LayerError) as excinfo:
         session.load_frame(frame)
-
-    assert "somewhere plausible and wrong" in str(excinfo.value)
-
-
-def test_a_frame_missing_a_coordinate_is_refused_by_name():
-    """The guard above both, which names what it needed and what it got."""
-    from spacr.layers import LayerError
-
-    frame = pd.DataFrame({"class": ["a"], "y": [1.0]})
-
-    session = _session()
-    with pytest.raises(LayerError) as excinfo:
-        session.load_frame(frame)
-
-    assert "'x'" in str(excinfo.value)
+    assert fragment in str(excinfo.value)
 
 
 def test_a_class_the_session_does_not_have_is_added_as_it_goes():
