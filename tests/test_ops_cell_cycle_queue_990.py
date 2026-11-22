@@ -301,7 +301,10 @@ def _current_inherited_module_api(entries):
     key = 'spacr.ops_cell_cycle'
     assert set(changes) == {key}
     change = changes[key]
-    assert hashlib.sha256(entries[key].encode()).hexdigest() == change['before_sha256']
+    # Landing train 8 (e2830d627f) already aligned the committed arrival, so an
+    # entry may arrive aligned; either way it must be one of the two bound texts.
+    assert hashlib.sha256(entries[key].encode()).hexdigest() in (
+        change['before_sha256'], change['after_sha256'])
     assert hashlib.sha256(change['docstring'].encode()).hexdigest() == change['after_sha256']
     tree = ast.parse((root / 'spacr/ops_cell_cycle.py').read_text())
     assert inspect.cleandoc(ast.get_docstring(tree, clean=False)).strip() == change['docstring']
@@ -316,8 +319,10 @@ def test_inherited_module_alignment_changes_only_the_known_annotation():
     aligned = _current_inherited_module_api(original)
     key = 'spacr.ops_cell_cycle'
     assert len(aligned) == len(original) == 20
-    assert {name for name in original if aligned[name] != original[name]} == {key}
-    assert original[key].replace('; maintainer 2026-11-20', '') == aligned[key]
+    # Since landing train 8 (e2830d627f) the committed arrival already carries
+    # the aligned module text, so aligning it changes nothing.
+    assert aligned == original
+    assert '; maintainer 2026-11-20' not in aligned[key]
     with pytest.raises(AssertionError):
         _current_inherited_module_api({**original, key: original[key] + ' extra'})
     other = 'spacr.ops_cell_cycle.collect_label_queue'
