@@ -3780,6 +3780,19 @@ MANUAL_UI['Load the example images…'] = {
 MANUAL_TRANSLATIONS["Phases"] = {"fr": "Phases"}
 
 
+MANUAL_TRANSLATIONS["Ome zarr store registration"] = {
+    "sv": "Lagra bildregistrering i OME-Zarr",
+    "de": "Bildregistrierung in OME-Zarr speichern",
+    "es": "Guardar el registro de imágenes en OME-Zarr",
+    "zh_CN": "在 OME-Zarr 中保存配准",
+    "pt": "Armazenar o registro de imagens em OME-Zarr",
+    "hi": "OME-Zarr में छवि संरेखण सहेजें",
+    "ko": "OME-Zarr 정합 저장",
+    "is": "Vista myndsamstillingu í OME-Zarr",
+    "fr": "Stocker le recalage dans OME-Zarr",
+}
+
+
 MANUAL_TRANSLATIONS["Power hit rate"] = {
     "sv": "Effektens träfffrekvens",
     "de": "Trefferquote der Teststärke",
