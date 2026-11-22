@@ -1,0 +1,203 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_deep_features.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_deep_features.py::TestCustomFeatures::test_call_feature_scalar_result": "tests/test_deep_features.py::TestCustomFeatures::test_original_feature_modules_keep_their_exact_output_mappings[test_call_feature_scalar_result]",
+    "tests/test_deep_features.py::TestCustomFeatures::test_call_feature_dict_result_gets_prefix": "tests/test_deep_features.py::TestCustomFeatures::test_original_feature_modules_keep_their_exact_output_mappings[test_call_feature_dict_result_gets_prefix]"
+  },
+  "literal_class_case_contracts": {
+    "test_call_feature_scalar_result": [
+      "s.py",
+      "def m(mask, image): return 7\n",
+      {
+        "m": 7
+      }
+    ],
+    "test_call_feature_dict_result_gets_prefix": [
+      "d.py",
+      "def stats(mask, image):\n    return {'mean': 1.0, 'std': 0.5}\n",
+      {
+        "stats_mean": 1.0,
+        "stats_std": 0.5
+      }
+    ]
+  },
+  "case_contract_representations": {
+    "test_call_feature_scalar_result": "('s.py', 'def m(mask, image): return 7\\n', {'m': 7})",
+    "test_call_feature_dict_result_gets_prefix": "('d.py', \"def stats(mask, image):\\n    return {'mean': 1.0, 'std': 0.5}\\n\", {'stats_mean': 1.0, 'stats_std': 0.5})"
+  },
+  "contract_scope": "Exact original TestCustomFeatures class/self and _redirect_features_dir fixture, autouse fixture unchanged, original temporary filename and Python source string bytes, utf-8 write_text call, discover_features()[0] cf binding, call_feature(cf, [], []) with two fresh list literals, out binding and native output-dictionary equality retained. Integer7 scalar output and ordered float1.0/0.5 prefixed entries preserve original types and order. Every other original class, method, import, nested stub/fixture, notebook assertion, updater mock and feature-discovery failure case retains executable AST and relative order.",
+  "collected_before": [
+    "tests/test_deep_features.py::TestCustomFeatures::test_discover_no_files_returns_empty",
+    "tests/test_deep_features.py::TestCustomFeatures::test_discover_picks_up_valid_feature",
+    "tests/test_deep_features.py::TestCustomFeatures::test_discover_skips_broken_file",
+    "tests/test_deep_features.py::TestCustomFeatures::test_call_feature_dict_result_gets_prefix",
+    "tests/test_deep_features.py::TestCustomFeatures::test_call_feature_swallows_exception",
+    "tests/test_deep_features.py::TestCustomFeatures::test_call_feature_scalar_result",
+    "tests/test_deep_features.py::TestCustomFeatures::test_discover_ignores_private_and_underscore",
+    "tests/test_deep_features.py::TestUpdaterCheck::test_pypi_hit_marks_upgrade_when_older",
+    "tests/test_deep_features.py::TestUpdaterCheck::test_network_error_returns_error_field",
+    "tests/test_deep_features.py::TestNotebookExport::test_export_run_unknown_app_still_produces_notebook",
+    "tests/test_deep_features.py::TestNotebookExport::test_export_run_missing_folder_raises",
+    "tests/test_deep_features.py::TestNotebookExport::test_export_run_measure_scaffolds_sqlite_cell",
+    "tests/test_deep_features.py::TestNotebookExport::test_export_run_writes_valid_notebook",
+    "tests/test_deep_features.py::TestVersionCompare::test_lt_three_part_ordering",
+    "tests/test_deep_features.py::TestVersionCompare::test_lt_four_part_orders_against_three_and_four_part[four-part-before-next-three-part]",
+    "tests/test_deep_features.py::TestVersionCompare::test_lt_four_part_orders_against_three_and_four_part[three-part-before-four-part]",
+    "tests/test_deep_features.py::TestVersionCompare::test_lt_four_part_orders_against_three_and_four_part[four-part-relative]",
+    "tests/test_deep_features.py::TestVersionCompare::test_lt_four_part_orders_against_three_and_four_part[four-part-beats-three-part]"
+  ],
+  "collected_after": [
+    "tests/test_deep_features.py::TestCustomFeatures::test_original_feature_modules_keep_their_exact_output_mappings[test_call_feature_scalar_result]",
+    "tests/test_deep_features.py::TestCustomFeatures::test_call_feature_swallows_exception",
+    "tests/test_deep_features.py::TestCustomFeatures::test_discover_skips_broken_file",
+    "tests/test_deep_features.py::TestCustomFeatures::test_discover_picks_up_valid_feature",
+    "tests/test_deep_features.py::TestCustomFeatures::test_discover_ignores_private_and_underscore",
+    "tests/test_deep_features.py::TestCustomFeatures::test_original_feature_modules_keep_their_exact_output_mappings[test_call_feature_dict_result_gets_prefix]",
+    "tests/test_deep_features.py::TestCustomFeatures::test_discover_no_files_returns_empty",
+    "tests/test_deep_features.py::TestNotebookExport::test_export_run_missing_folder_raises",
+    "tests/test_deep_features.py::TestNotebookExport::test_export_run_measure_scaffolds_sqlite_cell",
+    "tests/test_deep_features.py::TestNotebookExport::test_export_run_writes_valid_notebook",
+    "tests/test_deep_features.py::TestNotebookExport::test_export_run_unknown_app_still_produces_notebook",
+    "tests/test_deep_features.py::TestUpdaterCheck::test_network_error_returns_error_field",
+    "tests/test_deep_features.py::TestUpdaterCheck::test_pypi_hit_marks_upgrade_when_older",
+    "tests/test_deep_features.py::TestVersionCompare::test_lt_four_part_orders_against_three_and_four_part[three-part-before-four-part]",
+    "tests/test_deep_features.py::TestVersionCompare::test_lt_four_part_orders_against_three_and_four_part[four-part-beats-three-part]",
+    "tests/test_deep_features.py::TestVersionCompare::test_lt_four_part_orders_against_three_and_four_part[four-part-before-next-three-part]",
+    "tests/test_deep_features.py::TestVersionCompare::test_lt_three_part_ordering",
+    "tests/test_deep_features.py::TestVersionCompare::test_lt_four_part_orders_against_three_and_four_part[four-part-relative]"
+  ],
+  "tests_before": {
+    "passed": 18,
+    "seconds": 3.25
+  },
+  "tests_after": {
+    "passed": 18,
+    "seconds": 3.27
+  },
+  "coverage_scope": "spacr.custom_features under the complete selected deep-features test module, not full-suite, actual microscopy feature extraction or updater-install coverage. Complete256line test module/full custom_features source/full355line notebook_export source read; updater version/check/network-preference helper paths and full version source reviewed after recovering required helpers from a broad truncated updater read. Tiny temporary Python feature files and JSON journals/notebooks, function discovery and calls with empty lists, version metadata and mocked urllib.urlopen requests only. The original fixture redirects every feature directory to tmp_path; generated pipeline/chart code is text in notebook JSON and is never executed. Existing updater calls may read saved proxy/certificate preferences and adjust only worker environment; both actual requests use existing stubs. No package install/upgrade, notebook execution, actual model/fit/training, image pixels/new reader implementation, scientific chart, GUI/window, pipeline workflow, real network/download or GPU work. Private offline0 control fixed upfront for every phase. Repository production/settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 51,
+    "num_statements": 62,
+    "percent_covered": 81.25,
+    "percent_covered_display": "81",
+    "missing_lines": 11,
+    "excluded_lines": 0,
+    "percent_statements_covered": 82.25806451612904,
+    "percent_statements_covered_display": "82",
+    "num_branches": 18,
+    "num_partial_branches": 4,
+    "covered_branches": 14,
+    "missing_branches": 4,
+    "percent_branches_covered": 77.77777777777777,
+    "percent_branches_covered_display": "78"
+  },
+  "coverage_after": {
+    "covered_lines": 51,
+    "num_statements": 62,
+    "percent_covered": 81.25,
+    "percent_covered_display": "81",
+    "missing_lines": 11,
+    "excluded_lines": 0,
+    "percent_statements_covered": 82.25806451612904,
+    "percent_statements_covered_display": "82",
+    "num_branches": 18,
+    "num_partial_branches": 4,
+    "covered_branches": 14,
+    "missing_branches": 4,
+    "percent_branches_covered": 77.77777777777777,
+    "percent_branches_covered_display": "78"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "e58e7dca394955e4b2d34930601e1dff6650ca22225fd154374dc0c8b8b1679b",
+  "production_source_sha256": "c71bbfdefd72aed1f7450d5bba76f16cb99c564dc4fc73895fd31c95f520b925",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "scalar-feature-output-loses-its-original-name",
+      "source_variant": {
+        "path": "spacr/custom_features.py",
+        "line": 142,
+        "old": "return {cf.name: result}",
+        "new": "return {\"unexpected\": result}"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_deep_features.py::TestCustomFeatures::test_call_feature_scalar_result"
+        ],
+        "failure_summary_lines": [
+          "tests/test_deep_features.py::TestCustomFeatures::test_call_feature_scalar_result"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_deep_features.py::TestCustomFeatures::test_original_feature_modules_keep_their_exact_output_mappings[test_call_feature_scalar_result]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_deep_features.py::TestCustomFeatures::test_original_feature_modules_keep_their_exact_output_mappings[test_call_feature_scalar_result]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "mapping-feature-output-loses-its-name-prefix",
+      "source_variant": {
+        "path": "spacr/custom_features.py",
+        "line": 141,
+        "old": "return {f\"{cf.name}_{k}\": v for k, v in result.items()}",
+        "new": "return {k: v for k, v in result.items()}"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_deep_features.py::TestCustomFeatures::test_call_feature_dict_result_gets_prefix"
+        ],
+        "failure_summary_lines": [
+          "tests/test_deep_features.py::TestCustomFeatures::test_call_feature_dict_result_gets_prefix"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_deep_features.py::TestCustomFeatures::test_original_feature_modules_keep_their_exact_output_mappings[test_call_feature_dict_result_gets_prefix]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_deep_features.py::TestCustomFeatures::test_original_feature_modules_keep_their_exact_output_mappings[test_call_feature_dict_result_gets_prefix]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in call_feature before and after: replace the scalar result key with unexpected; omit the discovered function-name prefix from mapping keys. Each selects the same one original/mapped scalar or mapping case and must fail its unchanged native dictionary equality. Both retain original result values; the sample establishes output-key sensitivity rather than numerical feature correctness, arbitrary user-code containment or actual microscopy analysis coverage. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_deep_features.py",
+      "line": 249,
+      "symbol": "test_original_feature_modules_keep_their_exact_output_mappings",
+      "new": "Preserve each original feature module and its exact scalar or prefixed mapping.",
+      "old": {
+        "test_call_feature_scalar_result": null,
+        "test_call_feature_dict_result_gets_prefix": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
