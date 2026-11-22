@@ -1,0 +1,20 @@
+{
+  "base": "b9af1a272ba6f01a3aa8f6fd732e45c4cd2f0f3e",
+  "entire_current_per_file_body_retained": true,
+  "only_changes": [
+    "read passed text",
+    "return 6 outer file-loop exits"
+  ],
+  "outer_loop_exits": 6,
+  "all_current_paths_retained": true,
+  "all_trailing_owner_calls_retained": true,
+  "entire_current_public_docstring_parser_retained": true,
+  "final_tool_sha256": {
+    "tools/audit_i18n_coverage.py": "31db92f2f2fa15682fe00c3dcdc917ae2fe44461d505b6aacb6820dc729791ef",
+    "tools/build_documentation_i18n.py": "388e72abf675a8432b2f8fc23703c15bdf72ecf20a3eff68a9e1d822922a8b89",
+    "tools/build_i18n_catalogs.py": "1d8d69d651468e4eab2db3366454b2fecc15969fa7629d6554a258b081e61b35",
+    "tools/i18n_caption_arrivals.py": "7c9480a421159ce18e3d88415602d3840aa9198d31b41ebfa23a72799b823072",
+    "tools/nested_helper_docs.py": "a0f974c878c1f6f064ab6d5bc28fc4e8e98f73ceb82d780ecd83715809cc0b92",
+    "tools/i18n_language_pool.py": "52644b94dd4a7ed425ebc38e7e870aed6f59ded7d4ce613f77cdfbf213aaf245"
+  }
+}

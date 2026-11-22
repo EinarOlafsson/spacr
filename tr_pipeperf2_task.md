@@ -12,15 +12,29 @@ engine crop owners, measure_crop and _read_measure_field, beyond the examples
 listed in the assignment. The new owner callbacks participate in cache
 invalidation.
 
-No application source or generated catalog changes are included. Runtime and
-public API identities will be checked by exact before/after extraction during
-the required output proof. No translations are authored. The companion JSON
-lists the exact changed development documentation below.
+No application source or generated catalog changes are included. Exact
+before/after source snapshots preserve all 16,619 runtime records
+and 14,961 API bodies, with zero new, revised or retired application
+sources. No translations are authored. The companion JSON lists every changed
+development docstring and its location.
 
-Validation checkpoint: all 157 required source ratchets passed in 155.82 seconds;
-154 current caption, callback-cache, nested-helper and API-extractor tests passed
-in 203.57 seconds. The full current-base catalog/output byte and timing proof is
-in progress. This branch is not FINAL.
+Validation: 311 distinct tests passed, including all 157
+required source ratchets and 154 focused extractor/cache tests.
+Both runtime audits returned zero. The same physical current-pilot checkout
+and 10,963 identical original inputs
+produced 30 byte-identical data outputs,
+including all 20 language catalogs, arrivals, reports, source inventories,
+API history and audit diagnostics. The separate assembly cache stamp changes
+only the input fingerprint that binds it to generator source; both raw hashes
+are retained and the invalidation rule is unchanged.
+
+The complete table and measured timings are in
+[the output proof](reports/pipeperf2_current_output_identity_20261122.md).
+[The source proof](reports/pipeperf2_current_source_preservation_20261122.json)
+records the full current-loop and parser preservation checks. All operations
+ran through sched at P1 with four threads and a 16 GiB RAM grant; timings are
+single measurements on the shared workstation. The existing API freshness
+count, 14906/14961 per locale, remains identical in the coverage reports.
 
 ## Development documentation
 
