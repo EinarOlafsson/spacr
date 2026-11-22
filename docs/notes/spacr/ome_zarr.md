@@ -228,3 +228,28 @@ try:
 ```
 
 A checkout on PYTHONPATH may have no installed distribution metadata, but it still carries the release helper's synchronized version literal. Metadata remains authoritative for installed packages; this is only the source-tree fallback used when that lookup explicitly found none.
+
+
+## NGFF 0.6 reader interoperability (verified 2026-11-21)
+
+The validated independent metadata reader is **`ome-zarr-models==1.8.1`**.
+`open_ome_zarr(path, version="0.6")` accepts the spaCR plate, well, image,
+and label metadata. Use the spaCR OME-Zarr reader for pixel arrays.
+
+**`ome-zarr==0.21.0` does not declare NGFF 0.6 support.** Its
+[format registry, lines 24–32](https://github.com/ome/ome-zarr-py/blob/v0.21.0/ome_zarr/format.py#L24-L32)
+ends at 0.5. Its [multiscale reader, lines 279–287](https://github.com/ome/ome-zarr-py/blob/v0.21.0/ome_zarr/reader.py#L279-L287)
+reads the old per-multiscale version and axes keys. Their absence in a valid
+0.6 store selects the [five-axis fallback, lines 79–81](https://github.com/ome/ome-zarr-py/blob/v0.21.0/ome_zarr/axes.py#L79-L81),
+which causes the reported axis-4 error when assembling a three-dimensional
+plate field. Adding legacy axes to a 0.6 multiscale is not the correction.
+The interoperability test records the installed reader version and skips a
+format that the library does not support; a future reader that declares 0.6
+must open the plate and return identical pixels.
+
+New plate fields use the existing shared OME-Zarr chunk policy: one channel
+and at most 256 × 256 spatial pixels per unsharded chunk, with Blosc LZ4 and
+byte shuffle. A uint16 tile is 128 KiB. The tile edge aligns with common
+64- and 128-pixel cell crops. Images and masks retain their exact pixel
+bytes and dtype; the Zarr array metadata records the chunk shape. Existing
+committed fields are read and resumed without rewriting their chunks.

@@ -454,7 +454,7 @@ def test_navigator_default_revision_preserves_the_historical_api_pin(mutation):
 
 
 def _current_1007_ome_zarr_api(entries, docs=None):
-    """Bind the 1007 A/C PlateWriter revisions while retaining the item 983 fixture.
+    """Bind the 1007 PlateWriter revisions while retaining the item 983 fixture.
 
     1007 (2026-11-21) documents ``PlateWriter(ngff_version=...)``. The 983
     fixture keeps its original text; the change file pins that text by hash
@@ -462,7 +462,8 @@ def _current_1007_ome_zarr_api(entries, docs=None):
     """
     active = dict(entries)
     for filename in ("1007_ome_zarr_ngff06_api_changes_2026-11-21.json",
-                     "1007c_ome_zarr_registration_api_changes_2026-11-21.json"):
+                     "1007c_ome_zarr_registration_api_changes_2026-11-21.json",
+                     "1007a2_ome_zarr_plate_chunk_api_changes_2026-11-21.json"):
         changes = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
             / filename).read_text(encoding="utf-8"))
         assert set(changes) == {"spacr.image_store.PlateWriter"}

@@ -1,0 +1,17 @@
+{
+  "api_changed": {
+    "spacr.image_store.PlateWriter": "The only writer of one plate's OME-Zarr store (item 983).\n\n:param root: the folder that holds ``<plate>.ome.zarr``.\n:param plate: the plate name.\n:param channel_names: the image channels' names, written to ``omero``.\n:param spacing: a :class:`spacr.layers.Spacing` for the pixel size, or\n    None to record pixels with no physical unit.\n:param ngff_version: ``'0.5'`` (the default) or ``'0.6'`` (item 1007):\n    the OME-Zarr version of every group in the store. One store holds\n    one version, so a store started in the other one is refused.\n:param registration: optional field-number to OPS registration-row mapping.\n    Requires version 0.6 and pixel coordinates (spacing=None). Existing\n    stores must use the same registration mode.\n\nFields are written whole with :meth:`write_field`; the plate and well\nmetadata are rewritten from the ledger after each field, so a reader\nopening the store mid-run sees only committed fields. Image and label\narrays share the OME-Zarr default chunk policy: one channel and up to\n256 x 256 spatial pixels per chunk, clipped to the array shape. These\n128 KiB uint16 tiles align with 64- and 128-pixel cell crops and bound\nthe amount decoded for a region read. Chunks remain unsharded and use\nBlosc LZ4 with byte shuffle.\nOpen (or start) the plate store and read its commit ledger."
+  },
+  "api_sha256": "c887438cad237760ae0db873342f4bfb46047cbf9ceb493c0644d126bac95463",
+  "runtime_ui_added": [],
+  "signature_unchanged": true,
+  "source_sha256": "d0bd4f4384f4f943cf25f6000db5fc6a1921dc918d7e1cadc20d14da3b6c5de0",
+  "branch": "ws-offload-codex-work-1007a-fix",
+  "base": "c1d432ed0c6990f9cd24e188181340995acafb6b",
+  "implementation_commit": "a933e2fbc9898b22378dee4434f56ddd8081cc63",
+  "source_file": "spacr/image_store.py",
+  "location": "spacr/image_store.py:89",
+  "handover": "tr_1007a2_task.md",
+  "arrival_contract": "tests/data/release_contracts/1007a2_ome_zarr_plate_chunk_api_changes_2026-11-21.json",
+  "purpose": "Portable copy of the canonical source inventory already verified for the published A-fix; metadata-only v79/v80 follow-up."
+}

@@ -86,12 +86,6 @@ FIELD_CODEC = "lz4"
 FIELD_CODEC_LEVEL = 5
 
 
-def _field_chunks(shape: Sequence[int]) -> Tuple[int, ...]:
-    """One chunk per channel, the whole field: spaCR reads fields whole."""
-    return (1,) + tuple(int(v) for v in shape[1:]) if len(shape) == 3 else tuple(
-        int(v) for v in shape)
-
-
 class PlateWriter:
     """The only writer of one plate's OME-Zarr store (item 983).
 
@@ -109,9 +103,12 @@ class PlateWriter:
 
     Fields are written whole with :meth:`write_field`; the plate and well
     metadata are rewritten from the ledger after each field, so a reader
-    opening the store mid-run sees only committed fields. Each image channel
-    and label image uses one unsharded whole-field chunk, compressed with
-    Blosc LZ4 and byte shuffle.
+    opening the store mid-run sees only committed fields. Image and label
+    arrays share the OME-Zarr default chunk policy: one channel and up to
+    256 x 256 spatial pixels per chunk, clipped to the array shape. These
+    128 KiB uint16 tiles align with 64- and 128-pixel cell crops and bound
+    the amount decoded for a region read. Chunks remain unsharded and use
+    Blosc LZ4 with byte shuffle.
     """
 
     def __init__(self, root: Any, plate: str, *,
@@ -230,7 +227,7 @@ class PlateWriter:
                 tmp, data, axes=axes, spacing=self.spacing,
                 channel_names=self.channel_names if data.ndim == 3 else None,
                 ngff_version=self.ngff_version, name=key,
-                chunks=_field_chunks(data.shape), shards=False,
+                shards=False,
                 compressor=FIELD_CODEC, compression_level=FIELD_CODEC_LEVEL, **metadata))
         else:
             self.zarr.open_group(str(target), mode="w", zarr_format=3)
@@ -242,7 +239,7 @@ class PlateWriter:
             self._atomic(label_dir, lambda tmp, m=mask: write_ome_zarr(
                 tmp, m, axes=["y", "x"], spacing=self.spacing,
                 downsample="stride", ngff_version=self.ngff_version, name=str(name),
-                chunks=_field_chunks(m.shape), shards=False, compressor=FIELD_CODEC,
+                shards=False, compressor=FIELD_CODEC,
                 compression_level=FIELD_CODEC_LEVEL, **label_metadata))
             self._set_attrs(label_dir, {"image-label": (
                 {"version": "0.5"} if self.ngff_version == "0.5" else {})})
