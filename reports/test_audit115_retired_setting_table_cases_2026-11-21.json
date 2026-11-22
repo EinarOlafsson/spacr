@@ -1,0 +1,188 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_the_measurement_basis_is_gone.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_rules_setting_is_gone": "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_original_retired_keys_stay_absent_from_both_settings_tables[test_the_rules_setting_is_gone]",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_metadata_type_by_setting_is_gone": "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_original_retired_keys_stay_absent_from_both_settings_tables[test_the_metadata_type_by_setting_is_gone]"
+  },
+  "literal_class_case_contracts": {
+    "test_the_rules_setting_is_gone": [
+      "measurement_rules"
+    ],
+    "test_the_metadata_type_by_setting_is_gone": [
+      "metadata_type_by"
+    ]
+  },
+  "case_contract_representations": {
+    "test_the_rules_setting_is_gone": "('measurement_rules',)",
+    "test_the_metadata_type_by_setting_is_gone": "('metadata_type_by',)"
+  },
+  "contract_scope": "Exact original TestTheOptionIsGone class/self scope, local from spacr.settings import descriptions, tooltips, original string keys, ordered for table in (descriptions, tooltips) loop and native key-not-in-table assertion retained. Every other original class, method, import, helper, source-text check, settings-migration refusal and legacy class-column case retains executable AST and relative order. Both tables remain checked for each original key; no extra checks or generic assertion replacement is introduced.",
+  "collected_before": [
+    "tests/test_the_measurement_basis_is_gone.py::TestTheColumnComesFromTheClasses::test_the_default_is_what_it_always_was",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheColumnComesFromTheClasses::test_an_old_key_still_wins",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheColumnComesFromTheClasses::test_it_is_read_off_classes",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheSampleRename::test_the_label_says_what_it_bounds",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheSampleRename::test_the_key_is_untouched",
+    "tests/test_the_measurement_basis_is_gone.py::TestAnOldSettingsFileStillLoads::test_normalize_pins_the_migrated_value",
+    "tests/test_the_measurement_basis_is_gone.py::TestAnOldSettingsFileStillLoads::test_the_retired_basis_is_migrated_not_refused",
+    "tests/test_the_measurement_basis_is_gone.py::TestAnOldSettingsFileStillLoads::test_a_basis_that_never_existed_still_raises",
+    "tests/test_the_measurement_basis_is_gone.py::TestAnOldSettingsFileStillLoads::test_and_it_is_recorded_why",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_code_path_is_gone",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_metadata_type_by_setting_is_gone",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_spec_does_not_offer_it",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_it_is_not_in_the_bases",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_rules_setting_is_gone",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_settings_panel_does_not_offer_it_either"
+  ],
+  "collected_after": [
+    "tests/test_the_measurement_basis_is_gone.py::TestTheColumnComesFromTheClasses::test_an_old_key_still_wins",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheColumnComesFromTheClasses::test_the_default_is_what_it_always_was",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheColumnComesFromTheClasses::test_it_is_read_off_classes",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_spec_does_not_offer_it",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_original_retired_keys_stay_absent_from_both_settings_tables[test_the_rules_setting_is_gone]",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_original_retired_keys_stay_absent_from_both_settings_tables[test_the_metadata_type_by_setting_is_gone]",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_settings_panel_does_not_offer_it_either",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_code_path_is_gone",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_it_is_not_in_the_bases",
+    "tests/test_the_measurement_basis_is_gone.py::TestAnOldSettingsFileStillLoads::test_the_retired_basis_is_migrated_not_refused",
+    "tests/test_the_measurement_basis_is_gone.py::TestAnOldSettingsFileStillLoads::test_normalize_pins_the_migrated_value",
+    "tests/test_the_measurement_basis_is_gone.py::TestAnOldSettingsFileStillLoads::test_and_it_is_recorded_why",
+    "tests/test_the_measurement_basis_is_gone.py::TestAnOldSettingsFileStillLoads::test_a_basis_that_never_existed_still_raises",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheSampleRename::test_the_label_says_what_it_bounds",
+    "tests/test_the_measurement_basis_is_gone.py::TestTheSampleRename::test_the_key_is_untouched"
+  ],
+  "tests_before": {
+    "passed": 15,
+    "seconds": 14.02
+  },
+  "tests_after": {
+    "passed": 15,
+    "seconds": 11.15
+  },
+  "coverage_scope": "spacr.settings under the complete selected retired-training-basis test module, not full-suite, widget or training coverage. Complete129line test module read; settings imports, descriptions definition and all references to descriptions/tooltips inspected, alongside full training_basis source, settings_spec metadata paths reviewed for114, io._class_column and object_roles.setting_label metadata paths. Plain setting dictionaries, string/tuple/list catalogues, enum/label lookups, module/source inspection and an intentionally unknown training-basis refusal only. Model/backend/OPS/timelapse names are existing metadata strings; no model construction, backend dispatch, GUI/window, image/new reader, scientific chart, actual fitting/training, pipeline execution, network/download or GPU work. Private upfront offline0 control fixed for every phase. Repository production/settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 376,
+    "num_statements": 2963,
+    "percent_covered": 12.303013547138512,
+    "percent_covered_display": "12",
+    "missing_lines": 2587,
+    "excluded_lines": 0,
+    "percent_statements_covered": 12.689841376982788,
+    "percent_statements_covered_display": "13",
+    "num_branches": 654,
+    "num_partial_branches": 13,
+    "covered_branches": 69,
+    "missing_branches": 585,
+    "percent_branches_covered": 10.55045871559633,
+    "percent_branches_covered_display": "11"
+  },
+  "coverage_after": {
+    "covered_lines": 376,
+    "num_statements": 2963,
+    "percent_covered": 12.303013547138512,
+    "percent_covered_display": "12",
+    "missing_lines": 2587,
+    "excluded_lines": 0,
+    "percent_statements_covered": 12.689841376982788,
+    "percent_statements_covered_display": "13",
+    "num_branches": 654,
+    "num_partial_branches": 13,
+    "covered_branches": 69,
+    "missing_branches": 585,
+    "percent_branches_covered": 10.55045871559633,
+    "percent_branches_covered_display": "11"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "87d64315710702245c8e6e03c17e4e3701feb7da5a55027763fe5a512262a20e",
+  "production_source_sha256": "31e929317b9332cab660807d2a0e3568eaa0874a6e90d4ec4518afd4e01358c7",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "retired-measurement-rules-returns-to-descriptions",
+      "source_variant": {
+        "path": "spacr/settings.py",
+        "line": 3925,
+        "old": "descriptions = {",
+        "new": "descriptions = {\n    'measurement_rules': 'unexpected',"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_rules_setting_is_gone"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_rules_setting_is_gone"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_original_retired_keys_stay_absent_from_both_settings_tables[test_the_rules_setting_is_gone]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_original_retired_keys_stay_absent_from_both_settings_tables[test_the_rules_setting_is_gone]"
+        ],
+        "application_markers": 1
+      }
+    },
+    {
+      "mutant": "retired-metadata-type-by-returns-to-descriptions",
+      "source_variant": {
+        "path": "spacr/settings.py",
+        "line": 3925,
+        "old": "descriptions = {",
+        "new": "descriptions = {\n    'metadata_type_by': 'unexpected',"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_metadata_type_by_setting_is_gone"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_the_metadata_type_by_setting_is_gone"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_original_retired_keys_stay_absent_from_both_settings_tables[test_the_metadata_type_by_setting_is_gone]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_the_measurement_basis_is_gone.py::TestTheOptionIsGone::test_original_retired_keys_stay_absent_from_both_settings_tables[test_the_metadata_type_by_setting_is_gone]"
+        ],
+        "application_markers": 1
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in the settings descriptions literal before and after: add back measurement_rules; add back metadata_type_by. Each selects the same one original/mapped retired-key case and must fail its unchanged native membership assertion on the first descriptions-table iteration. Both original table iterations remain in normal tests. This establishes descriptions-membership sensitivity for both keys, not independent tooltip-specific fault coverage or a settings migration/backend execution claim. Private mutated imports are isolated; repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_the_measurement_basis_is_gone.py",
+      "line": 59,
+      "symbol": "test_original_retired_keys_stay_absent_from_both_settings_tables",
+      "new": "Preserve each original retired key and both native table-membership checks.",
+      "old": {
+        "test_the_rules_setting_is_gone": null,
+        "test_the_metadata_type_by_setting_is_gone": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
