@@ -1320,7 +1320,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 655, 2026-10-04: Preferences > Appearance > Theme's High contrast entry
 # and its tooltip sentence.
 # 643/644/646, 2026-10-04: Preferences > Storage's "Measure sizes" button.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({"Hard-link chunks"})
 
 
 

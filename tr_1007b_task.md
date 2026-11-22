@@ -177,8 +177,18 @@ upgrade_ngff converts to '0.6' or '0.5'; got {target}
 
 ## Other documentation
 
-35 changed private or test docstrings are inventoried in the companion JSON; they create no public API identities.
+36 changed private or test docstrings are inventoried in the companion JSON; they create no public API identities.
 
 ## Validation
 
-Final test counts and inherited landing deferrals are recorded in the commit body and WORK_STATUS.md.
+The 18 OME-Zarr/Convert owner files passed 401 tests and 24 subtests with CUDA hidden (61.75 s). With CUDA visibility unset and 2 GB VRAM reserved, the same owner files plus the eight settings-audit tests passed 409 tests and 24 subtests (68.33 s). Each run skipped one external-reader test because installed ome-zarr 0.21.0 advertises no NGFF 0.6 reader.
+
+The repaired full items group passed 1,599 tests and 960 subtests (10 skips, 533.87 s); full settings passed 630 tests and 369 subtests (two existing skips, 80.75 s). The reader audit now inspects only upgrade_ngff in addition to its original engine readers. All 13 assertions remain unchanged, and the same literal matcher admits only the new ome_zarr_upgrade_link key from that additional function.
+
+The full 4,201-node ratchet selection produced 4,089 passes, 76 existing skips and three report-only expected failures, with exactly 30 previously approved Home-catalog deferrals (1246.16 s). Three initial failures identified the new link tooltip and Hard-link chunks caption awaiting catalogs. The owner approved exactly those pending entries in the two Qt tests at 07:17. The three failed nodes then passed, together with the separately required hash-comment guard: four passes (34.93 s). The six required source-rule files total 157 passes. All 225 assertions in the two Qt files remain unchanged.
+
+All three strict native API inventory/extractor gates passed with zero production imports (22.85, 30.40 and 42.44 s). All 2,367 original assertions in the three frozen API consumers remain present; global inventory and signature pins are unchanged. The actual API inventory grows from 14,961 to 14,963 bodies: upgrade_ngff and the public ConvertScreen.run_ngff_upgrade method. The latter arrival was missing from lane B and is now bound in all three consumers.
+
+Home writes the nine-language records, rebuilds train 11 catalogs and clears the two approved awaiting sets at landing. The strict published-alpha PDF footer check remains deferred to that rebuild; focused hidden and visible runs each had 99 passes and that one expected PDF failure. The registry itself remains at 178 item IDs because the new control extends existing item 1007. No catalog, record, pin or published deck asset changes on this branch.
+
+Standard reference: [OME-NGFF 0.6](https://ngff.openmicroscopy.org/specifications/0.6/), checked on 2026-11-22. Conversion uses the existing landed metadata mappers.

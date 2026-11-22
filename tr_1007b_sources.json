@@ -1030,6 +1030,14 @@
       "before": null
     },
     {
+      "symbol": "tests.test_every_ops_setting_is_declared.test_the_engine_reads_every_setting_the_panel_offers",
+      "file": "tests/test_every_ops_setting_is_declared.py",
+      "line": 166,
+      "source": "Check every registered setting against its engine or delegated workflow.\n\nThe Convert upgrade action passes its captured link setting to\n`ome_zarr_convert.upgrade_ngff`. Include that reader alongside the\nengine phase readers; every declared key must still occur in a consumer.",
+      "source_sha256": "d3620d6815a0719d561599d0b650dad2a73ebc8c3e3bc52da5d55a1329c56dc9",
+      "before": "A setting the engine never reads is a control that changes nothing.\n\nThe module docstring of `spacr.ops_settings` makes that promise; this\nholds it to the source rather than to the promise. `plate` and\n`dst_root` are read through `settings.get` like the rest, so a plain\ntext search over the engine finds all of them."
+    },
+    {
       "symbol": "tests.test_ome_zarr_upgrade_1007",
       "file": "tests/test_ome_zarr_upgrade_1007.py",
       "line": 1,
@@ -1174,6 +1182,18 @@
     "tests/test_settings_categories.py": {
       "base_assertions_retained": 66,
       "current_assertions": 66
+    },
+    "tests/test_every_ops_setting_is_declared.py": {
+      "base_assertions_retained": 13,
+      "current_assertions": 13
+    },
+    "tests/qt/test_external_i18n_catalogs.py": {
+      "base_assertions_retained": 184,
+      "current_assertions": 184
+    },
+    "tests/qt/test_i18n_caption_ratchet.py": {
+      "base_assertions_retained": 41,
+      "current_assertions": 41
     }
   },
   "source_files": {
@@ -1184,9 +1204,12 @@
     "tests/data/release_contracts/1007b_convert_upgrade_api_arrivals_2026-11-22.json": "b0fb9f176304243969ec445b8d318da9359d44ea9fcccc2ed3283a3c1de5e195",
     "tests/data/release_contracts/1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json": "087ac04e7c9c7bace9c38be056483b219ef6bbaa6909168726bcdf48be747a44",
     "tests/qt/test_convert_ngff_upgrade_1007.py": "caedb4b41d3c276238fc38c738af1b66fc4715225fb0f71d3fe16accb0b8ab7a",
+    "tests/qt/test_external_i18n_catalogs.py": "f8299db4213a0befa6393c7d06775af81107e8a46cd252eccfd5dbd14f9421b6",
+    "tests/qt/test_i18n_caption_ratchet.py": "b9a143090c4d75b2fb7e84e6bbeeb865e4298aaa81ffa994525be16024b08f2a",
     "tests/test_api_i18n_extractor.py": "7b0dffd5d050893e2d475ed09559db373bd73930c37f9e245f4f8c5de90a2255",
     "tests/test_docstring_correctness.py": "d6b23f13142fff310025849beb3dd71a58e04bb58afb3a6db86d81877e35354d",
     "tests/test_documentation_i18n.py": "ae41da0271fd4b92bf4f2f2f1b8cfbadb9cb49504de9548da57b40051dee71d3",
+    "tests/test_every_ops_setting_is_declared.py": "e3698f38ad531b3da567b5afb3eea4f465d8646a30777db624fa298b6e7d6d1b",
     "tests/test_ome_zarr_upgrade_1007.py": "00cb15a74fc1dbb8537f13a0d04fd0461979a3ad045d394697f02d547e86d746",
     "tests/test_settings_categories.py": "719fd2da25c78d0ba7223a2305969bd6a5e8ed5364879e4d143c658be675a459"
   },
@@ -1194,5 +1217,178 @@
     "count": 178,
     "reason": "The registry counts item IDs; the new widget and setting extend existing item 1007.",
     "existing_registration_setting_retained": true
+  },
+  "validation": {
+    "application_source_commit": "c15ef9a8c818b79353ec9f66edf237144d2abfe0",
+    "application_source_unchanged_after_checkpoint": true,
+    "owner_regressions_hidden": {
+      "passed": 401,
+      "failed": 0,
+      "skipped": 1,
+      "xfailed": 0,
+      "subtests_passed": 24,
+      "seconds": 61.75,
+      "raw_summary": "401 passed, 1 skipped, 13 warnings, 24 subtests passed in 61.75s (0:01:01)",
+      "receipt": "owners-hidden.log"
+    },
+    "owner_regressions_visible_with_eight_audit_tests": {
+      "passed": 409,
+      "failed": 0,
+      "skipped": 1,
+      "xfailed": 0,
+      "subtests_passed": 24,
+      "seconds": 68.33,
+      "raw_summary": "409 passed, 1 skipped, 13 warnings, 24 subtests passed in 68.33s (0:01:08)",
+      "receipt": "owners-visible.log"
+    },
+    "full_items_repaired": {
+      "passed": 1599,
+      "failed": 0,
+      "skipped": 10,
+      "xfailed": 0,
+      "subtests_passed": 960,
+      "seconds": 533.87,
+      "raw_summary": "1599 passed, 10 skipped, 153 warnings, 960 subtests passed in 533.87s (0:08:53)",
+      "receipt": "repaired-full-groups/items.log"
+    },
+    "full_settings_repaired": {
+      "passed": 630,
+      "failed": 0,
+      "skipped": 2,
+      "xfailed": 0,
+      "subtests_passed": 369,
+      "seconds": 80.75,
+      "raw_summary": "630 passed, 2 skipped, 369 subtests passed in 80.75s (0:01:20)",
+      "receipt": "repaired-full-groups/settings.log"
+    },
+    "full_ratchets_raw": {
+      "passed": 4089,
+      "failed": 3,
+      "skipped": 76,
+      "xfailed": 3,
+      "subtests_passed": 0,
+      "seconds": 1246.16,
+      "raw_summary": "3 failed, 4089 passed, 76 skipped, 3 xfailed, 69 warnings in 1246.16s (0:20:46)",
+      "receipt": "filtered-ratchets/ratchets.log"
+    },
+    "approved_arrival_rechecks_and_hash_guard": {
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "subtests_passed": 0,
+      "seconds": 34.93,
+      "raw_summary": "4 passed in 34.93s",
+      "receipt": "final-four.log"
+    },
+    "mandatory_six_source_rules": {
+      "total_passed": 157,
+      "reason": "Five files passed in the full ratchet run; the omitted hash guard passed in final-four.xml.",
+      "mandatory_six_rules": {
+        "test_the_raw_reader_count_only_goes_down": {
+          "passed": 5
+        },
+        "test_nested_functions_are_documented": {
+          "passed": 87
+        },
+        "test_every_callable_in_the_package_is_documented": {
+          "passed": 3
+        },
+        "test_test_suite_hygiene": {
+          "passed": 36
+        },
+        "test_ci_suite_classification": {
+          "passed": 25
+        },
+        "test_no_new_hash_comments_in_spacr": {
+          "passed": 1
+        }
+      }
+    },
+    "native_source_api_gates": [
+      {
+        "module": "test_docstring_correctness",
+        "test": "test_public_callable_inventory_is_source_derived_not_docstring_derived",
+        "passed": true,
+        "seconds": 22.84971729099925,
+        "new_production_modules": []
+      },
+      {
+        "module": "test_docstring_correctness",
+        "test": "test_callable_boundary_is_cross_checked_with_i18n_extractor",
+        "passed": true,
+        "seconds": 30.39657498699671,
+        "new_production_modules": []
+      },
+      {
+        "module": "test_api_i18n_extractor",
+        "test": "test_public_docstrings_matches_reviewed_visible_coverage",
+        "passed": true,
+        "seconds": 42.4441985989979,
+        "new_production_modules": []
+      }
+    ],
+    "ratchet_deselections": [
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[de]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[en]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[es]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[fr]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[hi]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[is]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[ko]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[pt]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[sv]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[zh_CN]",
+      "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+      "tests/test_api_i18n_frontend.py::test_english_catalog_keys_are_exactly_joinable",
+      "tests/test_api_i18n_frontend.py::test_every_complete_real_catalog_renders_through_the_browser_selector",
+      "tests/test_api_reference_drops_deleted_modules.py::test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[de]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[en]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[es]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[fr]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[hi]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[is]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[ko]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[pt]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[sv]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[zh_CN]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_api_catalogs_cover_english_and_the_translated_languages",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_keeps_a_package_without_an_init",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_notices_a_module_that_disappears",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_starts_from_an_empty_generated_tree",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_treats_every_sphinx_warning_as_an_error",
+      "tests/test_built_nested_helper_api.py::test_empty_rollout_does_not_scan_or_touch_any_catalog"
+    ],
+    "initial_ratchet_failures_resolved": [
+      {
+        "classname": "tests.qt.test_external_i18n_catalogs",
+        "name": "test_runtime_source_inventory_is_complete_before_optional_module_imports",
+        "message": "AssertionError: assert {'CP_prob', '...t_cells', ...} == {'CP_prob', '...t_cells', ...}\n  \n  Extra items in the left set:\n  'ome_zarr_upgrade_link'\n  Use -v to get more diff",
+        "text": "def test_runtime_source_inventory_is_complete_before_optional_module_imports():\n        \"\"\"The inventory is the clean builder's, whatever this process imported.\n    \n        ``spacr.gene_graph`` and ``spacr.architecture_training`` are imported here\n        because an earlier test on the same worker importing them is what used to\n        add their script-only tooltips to an in-process inventory.\n        \"\"\"\n        import spacr.architecture_training  # noqa: F401\n        import spacr.gene_graph  # noqa: F401\n    \n        probes = {\n            \"Joining predictions to measured objects and fitting held-out surrogate…\",\n            \"Load table…\",\n            \"Well\",\n            \"Score the masks now\",\n        }\n        report = _fresh_inventory(probes=sorted(probes))\n        assert \"barcode_qc\" in report[\"setting_tooltips\"]\n        assert report[\"labels_are_short\"]\n        assert set(report[\"short_surface\"]) == probes\n>       _assert_setting_tooltip_inventory(report, report[\"en\"])\n\ntests/qt/test_external_i18n_catalogs.py:326: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nsources = {'setting_tooltips': ['CP_prob', 'CP_probability', 'FT', 'Signal_to_noise', 'activation', 'adjust_cells', ...], 'label... 'Well'], 'catalogued': ['CP_prob', 'CP_probability', 'FT', 'Signal_to_noise', 'activation', 'adjust_cells', ...], ...}\nen = namespace(SETTING_TOOLTIPS={'CP_prob': None, 'CP_probability': None, 'FT': None, 'Signal_to_noise': None, 'activation'..._axis': None, 'z_handling': None, 'z_projection': None, 'z_segmentation_mode': None, 'z_stack': None, 'zernike': None})\n\n    def _assert_setting_tooltip_inventory(sources, en):\n        \"\"\"The catalogs carry every setting tooltip except the ones owed.\"\"\"\n        catalogued = set(en.SETTING_TOOLTIPS)\n        assert not _AWAITING_CATALOG_REBUILD & catalogued\n        assert _AWAITING_CATALOG_REBUILD <= set(sources[\"setting_tooltips\"])\n>       assert set(sources[\"setting_tooltips\"]) - _AWAITING_CATALOG_REBUILD == catalogued\nE       AssertionError: assert {'CP_prob', '...t_cells', ...} == {'CP_prob', '...t_cells', ...}\nE         \nE         Extra items in the left set:\nE         'ome_zarr_upgrade_link'\nE         Use -v to get more diff\n\ntests/qt/test_external_i18n_catalogs.py:250: AssertionError"
+      },
+      {
+        "classname": "tests.qt.test_external_i18n_catalogs",
+        "name": "test_runtime_source_inventory_is_stable_after_runctx_import",
+        "message": "AssertionError: assert {'CP_prob', '...t_cells', ...} == {'CP_prob', '...t_cells', ...}\n  \n  Extra items in the left set:\n  'ome_zarr_upgrade_link'\n  Use -v to get more diff",
+        "text": "def test_runtime_source_inventory_is_stable_after_runctx_import():\n        \"\"\"Run controls are canonical regardless of prior module import order.\"\"\"\n        report = _fresh_inventory(preimports=[\"spacr.runctx\"])\n>       _assert_setting_tooltip_inventory(report, report[\"en\"])\n\ntests/qt/test_external_i18n_catalogs.py:332: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nsources = {'setting_tooltips': ['CP_prob', 'CP_probability', 'FT', 'Signal_to_noise', 'activation', 'adjust_cells', ...], 'label...ace': [], 'catalogued': ['CP_prob', 'CP_probability', 'FT', 'Signal_to_noise', 'activation', 'adjust_cells', ...], ...}\nen = namespace(SETTING_TOOLTIPS={'CP_prob': None, 'CP_probability': None, 'FT': None, 'Signal_to_noise': None, 'activation'..._axis': None, 'z_handling': None, 'z_projection': None, 'z_segmentation_mode': None, 'z_stack': None, 'zernike': None})\n\n    def _assert_setting_tooltip_inventory(sources, en):\n        \"\"\"The catalogs carry every setting tooltip except the ones owed.\"\"\"\n        catalogued = set(en.SETTING_TOOLTIPS)\n        assert not _AWAITING_CATALOG_REBUILD & catalogued\n        assert _AWAITING_CATALOG_REBUILD <= set(sources[\"setting_tooltips\"])\n>       assert set(sources[\"setting_tooltips\"]) - _AWAITING_CATALOG_REBUILD == catalogued\nE       AssertionError: assert {'CP_prob', '...t_cells', ...} == {'CP_prob', '...t_cells', ...}\nE         \nE         Extra items in the left set:\nE         'ome_zarr_upgrade_link'\nE         Use -v to get more diff\n\ntests/qt/test_external_i18n_catalogs.py:250: AssertionError"
+      },
+      {
+        "classname": "tests.qt.test_i18n_caption_ratchet",
+        "name": "test_custom_widgets_and_indirect_registries_enter_one_i18n_layer",
+        "message": "AssertionError: custom/indirect captions need exactly one compact or generated owner:\n    'Hard-link chunks'\nassert not ['Hard-link chunks']",
+        "text": "def test_custom_widgets_and_indirect_registries_enter_one_i18n_layer():\n        \"\"\"Dynamic/custom captions have exactly one explicit reviewed owner.\"\"\"\n        tools_dir = str(ROOT / \"tools\")\n        sys.path.insert(0, tools_dir)\n        try:\n            builder = import_module(\"build_i18n_catalogs\")\n        finally:\n            sys.path.remove(tools_dir)\n    \n        from spacr.qt.i18n import _ROWS, _TERM_ROWS\n        from spacr.qt.i18n_catalogs import CATALOG_LANGUAGES, en\n    \n        discovered = set(builder.extract_static_ui_sources())\n        independently_expected = (\n            _custom_widget_literal_captions() | _indirect_registry_captions()\n        ) - _AWAITING_CATALOG_REBUILD\n        compact = set(_ROWS) | set(_TERM_ROWS)\n        missing_ownership = sorted(\n            independently_expected\n            - _RUNTIME_IDENTITY_CAPTIONS\n            - compact\n            - discovered\n        )\n        assert not missing_ownership, (\n            \"custom/indirect runtime captions bypass both i18n layers:\\n  \"\n            + \"\\n  \".join(repr(value) for value in missing_ownership)\n        )\n    \n        ambiguous_ownership = sorted(\n            source\n            for source in independently_expected - _RUNTIME_IDENTITY_CAPTIONS\n            if int(source in compact) + int(source in en.UI_SOURCES) != 1\n        )\n>       assert not ambiguous_ownership, (\n            \"custom/indirect captions need exactly one compact or generated \"\n            \"owner:\\n  \"\n            + \"\\n  \".join(repr(value) for value in ambiguous_ownership)\n        )\nE       AssertionError: custom/indirect captions need exactly one compact or generated owner:\nE           'Hard-link chunks'\nE       assert not ['Hard-link chunks']\n\ntests/qt/test_i18n_caption_ratchet.py:1463: AssertionError"
+      }
+    ],
+    "approval": "WORK_TASKS ANSWER 2026-11-22 07:17, inbox SHA bcf3c1367af2ea44e58d481c39e7fc39f51c2611ee03d06c000d1d3d97063f25",
+    "remaining_landing_work": [
+      "Home writes the nine-language records and rebuilds train 11 catalogs, then clears the two approved awaiting sets.",
+      "The published alpha PDF footer remains deferred to the landing rebuild; registry count is 178 item IDs because the new control extends item 1007."
+    ]
+  },
+  "standards_reference": {
+    "url": "https://ngff.openmicroscopy.org/specifications/0.6/",
+    "checked": "2026-11-22",
+    "method": "Official current specification retrieved during integration; existing landed mappers remain the only transform implementation."
   }
 }
