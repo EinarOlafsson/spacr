@@ -99,12 +99,19 @@ def test_no_retired_name_is_also_a_live_setting():
     assert both == [], f"declared and retired at once: {both}"
 
 
-def test_a_healthy_settings_file_is_quiet():
-    assert _check_retired_keys({"src": "/tmp", "cell_channel": 0}) == []
-
-
-def test_a_non_string_key_does_not_raise():
-    assert _check_retired_keys({7: "x", None: "y"}) == []
+@pytest.mark.parametrize('settings', [
+    pytest.param(
+        {'src': '/tmp', 'cell_channel': 0},
+        id='test_a_healthy_settings_file_is_quiet',
+    ),
+    pytest.param(
+        {7: 'x', None: 'y'},
+        id='test_a_non_string_key_does_not_raise',
+    ),
+])
+def test_original_key_maps_without_retired_settings_stay_quiet(settings):
+    """Preserve each original key map and its empty report for retired settings."""
+    assert _check_retired_keys(settings) == []
 
 
 def _each_retired_name_is_reported_case(key):
