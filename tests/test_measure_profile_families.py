@@ -223,6 +223,7 @@ def test_granularity_sees_planted_granules():
 
 
 def test_profile_features_declares_its_columns_and_reruns_identically():
+    """Include every all-family column in registry order with identical reruns."""
     labels, image = _field(5)
     first = M.measure_profile_features(labels, image, "all")
     second = M.measure_profile_features(labels, image, "all")
@@ -243,6 +244,7 @@ def test_profile_features_declares_its_columns_and_reruns_identically():
         "colocalisation_extra": M.measure_colocalisation_extra(labels, image,
                                                                costes=False),
         "colocalisation_costes": M.measure_costes(labels, image),
+        "colocalisation_otsu": M.measure_colocalisation_otsu(labels, image),
         "neighbours": M.measure_neighbours(labels),
         "granularity": M.measure_granularity(labels, image),
     }

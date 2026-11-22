@@ -333,7 +333,9 @@ def _measurement_settings(channels: int, texture: bool,
                           gpu: bool = False,
                           profile_features=None,
                           granularity_subsample: float = 1.0,
-                          funk_features: bool = False
+                          funk_features: bool = False,
+                          cytoskeleton_channels=None,
+                          channel_names=None
                           ) -> Dict[str, object]:
     """The measure settings one phenotype field is measured with.
 
@@ -355,6 +357,9 @@ def _measurement_settings(channels: int, texture: bool,
     :param funk_features: ``funk_object_features``: Funk et al. 2022's
         object features from :func:`spacr.measure._add_funk_frames`, for
         every compartment, as Measure writes them.
+    :param cytoskeleton_channels: channel indices or names for the cell-only
+        cytoskeleton block; None measures every channel when selected.
+    :param channel_names: image channel names for resolving that selection.
     :returns: the dict :func:`spacr.measure._morphological_measurements` and
         :func:`spacr.measure._intensity_measurements` read.
     """
@@ -370,6 +375,8 @@ def _measurement_settings(channels: int, texture: bool,
         "cell_mask_dim": channels, "nucleus_mask_dim": channels + 1,
         "pathogen_mask_dim": None, "cytoplasm": True,
         "radial_dist": False,
+        "cytoskeleton_channels": cytoskeleton_channels,
+        "channel_names": channel_names,
         "calculate_correlation": "colocalisation" in families,
         "homogeneity_distances": [2, 4, 8],
         "distance_gaussian_sigma": 10, "spatial_measurements": False,
@@ -435,7 +442,8 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
                             zernike: bool = False,
                             gpu: bool = False,
                             profile_features=None,
-                            granularity_subsample: float = 1.0):
+                            granularity_subsample: float = 1.0,
+                            cytoskeleton_channels=None):
     """Per-cell features of one phenotype field, with spaCR's own measurement.
 
     :param nuclei: nucleus labels, paired with ``cells`` by
@@ -467,6 +475,9 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     :param granularity_subsample: the ``subsample`` of the granularity
         family (:func:`spacr.measure.measure_granularity`); 1.0 sieves at
         full resolution, 0.25 is CellProfiler's default.
+    :param cytoskeleton_channels: image channel indices or names for the
+        cell-only ``cytoskeleton`` block in ``profile_features``. None
+        selects every channel. The block is absent unless selected.
     :returns: one row per cell, keyed by ``label``, with ``nucleus_``,
         ``cell_`` and ``cytoplasm_`` columns and the nucleus centroid as
         ``centroid_row``/``centroid_col`` in field pixels.
@@ -502,7 +513,9 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     blank = np.zeros_like(cells)
     settings = _measurement_settings(image.shape[2], texture, gpu,
                                      profile_features, granularity_subsample,
-                                     funk_features=funk_features)
+                                     funk_features=funk_features,
+                                     cytoskeleton_channels=cytoskeleton_channels,
+                                     channel_names=channel_names)
     morphology = _morphological_measurements(
         cells, nuclei, blank, blank, cytoplasm, settings,
         zernike=bool(zernike))

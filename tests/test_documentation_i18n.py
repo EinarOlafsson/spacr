@@ -3910,6 +3910,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
             arrivals = _posix_update_prepared_key_move(arrivals, docs)
         if filename == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
             arrivals = _current_718_metal_class_api(arrivals, docs)
+        if filename == "ops_phenotype_path_api_arrivals_2026-11-05.json":
+            arrivals = _current_1008a2_ops_api(arrivals, docs)
         if filename == "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json":
             arrivals = _current_1007_ome_zarr_api(arrivals, docs)
         assert len(arrivals) == count
@@ -5499,3 +5501,31 @@ def test_audit_accepts_a_reviewed_formula_without_target_script():
         assert lacks(prose, prose, language, is_reviewed=True)
     assert not lacks("Draw it.", "绘制它。", "zh_CN", is_reviewed=False)
     assert not lacks(formula, formula, "fr", is_reviewed=False)
+
+
+def _current_1008a2_ops_api(entries, docs=None):
+    """Validate the exact cell-only channel keyword and hash-chained phenotype API body."""
+    import ast
+
+    change = json.loads((ROOT / "tests/data/release_contracts" /
+                         "1008a2_phenotype_cytoskeleton_api_change_2026-11-21.json").read_text())
+    symbol = "spacr.ops_sample.measure_phenotype_field"
+    assert change["symbol"] == symbol
+    assert hashlib.sha256(entries[symbol].encode()).hexdigest() == change["before_sha256"]
+    tree = ast.parse((ROOT / "spacr/ops_sample.py").read_text())
+    node, = [n for n in tree.body if isinstance(n, ast.FunctionDef)
+             and n.name == "measure_phenotype_field"]
+    assert [arg.arg for arg in node.args.args] == ["nuclei", "cells", "image", "channel_names"]
+    assert not node.args.posonlyargs and not node.args.defaults
+    assert node.args.vararg is None and node.args.kwarg is None
+    assert [arg.arg for arg in node.args.kwonlyargs] == [
+        "texture", "funk_features", "zernike", "gpu", "profile_features",
+        "granularity_subsample", "cytoskeleton_channels"]
+    defaults = [ast.literal_eval(value) for value in node.args.kw_defaults]
+    assert defaults == [True, False, False, False, None, 1.0, None]
+    assert [type(value) for value in defaults] == [bool, bool, bool, bool, type(None), float, type(None)]
+    assert ast.get_docstring(node) == change["after"]
+    assert hashlib.sha256(change["after"].encode()).hexdigest() == change["after_sha256"]
+    if docs is not None:
+        assert docs[symbol] == change["after"]
+    return {**entries, symbol: change["after"]}

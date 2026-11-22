@@ -130,6 +130,7 @@ PER_FEATURE_AGGREGATION_RULES: Tuple[Tuple[str, str], ...] = (
      r"cv_intensity|gini_intensity|mode_intensity|pearson_correlation|"
      r"correlation|spearman|icq|nmi|k1|k2|rwc1|rwc2|costes_m1|costes_m2|"
      r"manders_m1|manders_m2|manders_overlap_coefficient|"
+     r"lstsq_slope_ij|lstsq_slope_ji|raw_overlap|otsu_m1|otsu_m2|"
      r"puncta_overlap_ij|puncta_overlap_ji|nearest_neighbor_distance|"
      r"second_neighbor_distance|distance_to_[a-z_]+)(_|$)", MEAN),
 ) + AGGREGATION_RULES_V1
@@ -444,7 +445,7 @@ SUMMARY_AGGREGATION_RULES: Tuple[Tuple[str, str, str], ...] = (
      "numbers of cells, and <column>_sum keeps the total."),
     (r"(^|_)(fraction|frac_at_d_\d+|mean_frac_\d+|frac_high\d+|frac_low\d+|"
      r"percent_touching|eccentricity|solidity|extent|form_factor|"
-     r"manders_m[12]|costes_m[12]|rwc[12]|m[12]_correlation(_\d+)?|"
+     r"manders_m[12]|otsu_m[12]|raw_overlap|costes_m[12]|rwc[12]|m[12]_correlation(_\d+)?|"
      r"manders_overlap_coefficient|overlap_coefficient|puncta_overlap_ij|"
      r"puncta_overlap_ji)(_|$)", "mean",
      "A share bounded by 0 and 1: the mean is the expected share per cell "
@@ -453,7 +454,7 @@ SUMMARY_AGGREGATION_RULES: Tuple[Tuple[str, str, str], ...] = (
      "median",
      "A per-cell texture statistic; the median, as Brieflow and "
      "CellProfiler profiles use, resists outlier cells."),
-    (r"(^|_)(pearson_correlation|pearson|spearman|icq|nmi|k[12])$|"
+    (r"(^|_)(pearson_correlation|pearson|spearman|icq|nmi|k[12]|lstsq_slope_(ij|ji))$|"
      r"(^|_)correlation_[a-z0-9_]+$", "median",
      "A correlation coefficient: the median needs no Fisher transform, "
      "which breaks at r = +-1 in small objects; fisher_z_mean is an "

@@ -2119,6 +2119,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **indexed_scanr_arrivals}
     ops_phenotype_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "ops_phenotype_path_api_arrivals_2026-11-05.json").read_text(encoding="utf-8"))
+    from tests.test_documentation_i18n import _current_1008a2_ops_api
+    ops_phenotype_arrivals = _current_1008a2_ops_api(ops_phenotype_arrivals, docs)
     assert len(ops_phenotype_arrivals) == 14
     assert {key: docs[key] for key in ops_phenotype_arrivals} == ops_phenotype_arrivals
     assert not ops_phenotype_arrivals.keys() & (

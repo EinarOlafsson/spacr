@@ -2788,6 +2788,8 @@ def _validated_ops_phenotype_path_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "ops_phenotype_path_api_arrivals_2026-11-05.json").read_text(encoding="utf-8"))
+    from tests.test_documentation_i18n import _current_1008a2_ops_api
+    entries = _current_1008a2_ops_api(entries)
     # The two nested path helpers of ops_engine._ph_fields are not public callables.
     symbols = {key for key in entries if not key.startswith("spacr.ops_engine.")}
     assert len(symbols) == 12 and len(entries) == 14
@@ -7077,6 +7079,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         if contract == "733_easy_mode_api_arrivals_2026_10_26.json":
             from tests.test_documentation_i18n import _current_733_easy_mode_api
             additions = _current_733_easy_mode_api(additions, docs)
+        if contract == "ops_phenotype_path_api_arrivals_2026-11-05.json":
+            from tests.test_documentation_i18n import _current_1008a2_ops_api
+            additions = _current_1008a2_ops_api(additions, docs)
         if contract == "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json":
             from tests.test_documentation_i18n import _current_1007_ome_zarr_api
             additions = _current_1007_ome_zarr_api(additions, docs)

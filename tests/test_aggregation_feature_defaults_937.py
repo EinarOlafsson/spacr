@@ -378,3 +378,22 @@ def test_the_new_settings_are_alpha():
     entry = ALPHA_FEATURES[937]["module_settings"]["screen"]
     assert set(entry) == {"aggregation_defaults", "aggregation_count_sum",
                           "aggregation_report"}
+
+
+@pytest.mark.parametrize("style", ["channel_0_channel_1", "dapi_gfp"])
+@pytest.mark.parametrize("compartment", ["cell", "nucleus", "cytoplasm"])
+def test_otsu_colocalisation_has_explicit_shared_aggregation_rules(style, compartment):
+    """Summarise all nine new statistics with existing coefficient/share policies."""
+    stats = ["lstsq_slope_ij", "lstsq_slope_ji", "raw_overlap", "raw_k1", "raw_k2",
+             "otsu_m1", "otsu_m2", "otsu_rwc1", "otsu_rwc2"]
+    columns = [f"{compartment}_{style}_{stat}" for stat in stats]
+    frame = pd.DataFrame({"well": ["A1"] * 3,
+                          **{column: [0.0, 0.0, 0.9] for column in columns}})
+    plan = mt.summary_aggregation_plan(frame).set_index("column")
+    actual = mt.aggregate_by_feature(frame, "well")
+    for stat, column in zip(stats, columns):
+        method = "median" if stat.startswith(("lstsq_slope", "raw_k")) else "mean"
+        assert plan.loc[column, "method"] == method
+        assert plan.loc[column, "rule"] != "unruled"
+        assert actual[column].iloc[0] == pytest.approx(0.0 if method == "median" else 0.3)
+        assert mt.aggregation_for(column, defaults="per_feature") == mt.MEAN
