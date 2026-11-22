@@ -50,11 +50,25 @@ class TestTheSettingsAreRenamedAndMerged:
             {"crop_source": "pre_generated"})["image_source"] == \
             "load_images"
 
-    def test_an_unknown_source_still_opens_the_module(self):
-        """A settings file naming a source spaCR never had should not stop
-        the module opening; the panel shows what it resolved to."""
-        assert deep_spacr_defaults(
-            {"crop_source": "nonsense"})["image_source"] == "load_images"
+    @pytest.mark.parametrize('settings_input, setting_key, expected_value', [
+        pytest.param(
+            {'crop_source': 'nonsense'},
+            'image_source',
+            'load_images',
+            id='test_an_unknown_source_still_opens_the_module',
+        ),
+        pytest.param(
+            {},
+            'tables',
+            ['cell', 'nucleus', 'pathogen', 'cytoplasm'],
+            id='test_tables_defaults_to_the_four_objects',
+        ),
+    ])
+    def test_streaming_defaults_keep_original_inputs_and_values(
+        self, settings_input, setting_key, expected_value,
+    ):
+        """Preserve original settings inputs and native default-value equality checks."""
+        assert deep_spacr_defaults(settings_input)[setting_key] == expected_value
 
     def test_the_three_that_became_one_are_all_gone_now(self):
         """`file_metadata`, `path_string` and `file_type` described one
@@ -84,10 +98,6 @@ class TestTheSettingsAreRenamedAndMerged:
             got = deep_spacr_defaults({old: "pathogen_png"})
             assert got["image_source"] in ("ome-zarr", "load_images",
                                            "stream_images")
-
-    def test_tables_defaults_to_the_four_objects(self):
-        assert deep_spacr_defaults({})["tables"] == [
-            "cell", "nucleus", "pathogen", "cytoplasm"]
 
     def test_extract_channels_is_gone(self):
         from spacr.settings import expected_types, tooltips
@@ -138,22 +148,19 @@ class TestTheStreamMethod:
     def test_there_are_two(self):
         assert [m for m, _ in STREAM_METHODS] == ["column", "array"]
 
-    def test_column_needs_the_object_array_and_the_channels(self):
-        assert set(settings_for_method("column")) == {"object_array",
-                                                      "channel_arrays"}
-
-    def test_array_needs_the_plane_the_channels_and_the_box(self):
-        """AND THE PLANE IS `object_array`, WHICH IT ALWAYS WAS.
-
-        This asked for `mask_array` until 2026-09-09. That setting said
-        it named the labelled plane for this route, and `stream_dataset`
-        has always taken the plane from `object_array` -- for BOTH
-        methods -- so the route's own documented input was never read.
-        `picture_settings` even wrote it an integer plane index that
-        nothing consulted. Retired under 357-Q4.
-        """
-        assert set(settings_for_method("array")) == {
-            "object_array", "channel_arrays", "bounding_box"}
+    @pytest.mark.parametrize('method, expected', [
+        pytest.param(
+            'column', {'object_array', 'channel_arrays'},
+            id='test_column_needs_the_object_array_and_the_channels',
+        ),
+        pytest.param(
+            'array', {'bounding_box', 'object_array', 'channel_arrays'},
+            id='test_array_needs_the_plane_the_channels_and_the_box',
+        ),
+    ])
+    def test_stream_methods_keep_original_setting_sets(self, method, expected):
+        """Preserve each original stream method and native required-setting set."""
+        assert set(settings_for_method(method)) == expected
 
     def test_the_two_read_different_settings(self):
         """Which is why it is one control rather than a pair of flags."""

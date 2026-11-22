@@ -129,9 +129,23 @@ def test_a_setting_that_is_a_number_in_a_string_is_not_a_path():
 # reading a hand-edited file
 # --------------------------------------------------------------------------
 
-def test_a_job_entry_that_is_not_an_object_says_what_one_looks_like():
-    with pytest.raises(QueueError, match="not an object"):
-        Job.from_dict(["mask"])
+@pytest.mark.parametrize(
+    'document, message',
+    [
+        pytest.param(
+            ['mask'], 'not an object',
+            id='test_a_job_entry_that_is_not_an_object_says_what_one_looks_like',
+        ),
+        pytest.param(
+            {'module': 'mask', 'status': 'halfway'}, 'not one of',
+            id='test_a_status_nobody_defined_is_refused_by_name',
+        ),
+    ],
+)
+def test_invalid_jobs_keep_original_refusal_contexts(document, message):
+    """Preserve each original invalid job and native refusal context."""
+    with pytest.raises(QueueError, match=message):
+        Job.from_dict(document)
 
 
 def test_a_job_entry_with_no_module_is_refused():
@@ -141,9 +155,6 @@ def test_a_job_entry_with_no_module_is_refused():
         Job.from_dict({"module": "   "})
 
 
-def test_a_status_nobody_defined_is_refused_by_name():
-    with pytest.raises(QueueError, match="not one of"):
-        Job.from_dict({"module": "mask", "status": "halfway"})
 
 
 def test_one_dependency_written_as_a_bare_string_is_still_a_list():
@@ -739,10 +750,25 @@ def test_a_dependency_that_is_not_in_the_queue_does_not_block(tmp_path):
 # resuming
 # --------------------------------------------------------------------------
 
-def test_a_module_with_no_field_checkpoints_is_not_given_resume():
-    job = Job(module="ml_analyze", overrides=["a=1"])
+@pytest.mark.parametrize(
+    'module, overrides, expected',
+    [
+        pytest.param(
+            'ml_analyze', ['a=1'], ['a=1'],
+            id='test_a_module_with_no_field_checkpoints_is_not_given_resume',
+        ),
+        pytest.param(
+            'measure', ['resume=False', 'diameter=30'],
+            ['diameter=30', 'resume=True'],
+            id='test_an_existing_resume_override_is_replaced_not_duplicated',
+        ),
+    ],
+)
+def test_field_resume_keeps_original_override_lists(module, overrides, expected):
+    """Preserve each original job and ordered resume override list."""
+    job = Job(module=module, overrides=overrides)
     batch._enable_field_resume(job)
-    assert job.override_args == ["a=1"]
+    assert job.override_args == expected
 
 
 def test_a_job_written_with_a_mapping_of_overrides_keeps_that_shape():
@@ -751,10 +777,6 @@ def test_a_job_written_with_a_mapping_of_overrides_keeps_that_shape():
     assert job.overrides == {"diameter": 30, "resume": True}
 
 
-def test_an_existing_resume_override_is_replaced_not_duplicated():
-    job = Job(module="measure", overrides=["resume=False", "diameter=30"])
-    batch._enable_field_resume(job)
-    assert job.override_args == ["diameter=30", "resume=True"]
 
 
 def test_a_job_that_was_running_when_the_machine_died_is_resumed(tmp_path):

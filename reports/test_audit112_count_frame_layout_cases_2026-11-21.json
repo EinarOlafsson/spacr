@@ -1,0 +1,190 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_a_reloaded_count_lands_where_the_clicks_were.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_without_a_units_column_is_accepted": "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_layouts_keep_their_returned_marker_counts[test_a_frame_without_a_units_column_is_accepted]",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_an_empty_frame_with_units_is_accepted": "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_layouts_keep_their_returned_marker_counts[test_an_empty_frame_with_units_is_accepted]"
+  },
+  "literal_case_contracts": {
+    "test_a_frame_without_a_units_column_is_accepted": [
+      {
+        "class": [
+          "a",
+          "a"
+        ],
+        "y": [
+          1.0,
+          5.0
+        ],
+        "x": [
+          2.0,
+          6.0
+        ]
+      },
+      2
+    ],
+    "test_an_empty_frame_with_units_is_accepted": [
+      {
+        "class": [],
+        "y": [],
+        "x": [],
+        "units": []
+      },
+      0
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_frame_without_a_units_column_is_accepted": "({'class': ['a', 'a'], 'y': [1.0, 5.0], 'x': [2.0, 6.0]}, 2)",
+    "test_an_empty_frame_with_units_is_accepted": "({'class': [], 'y': [], 'x': [], 'units': []}, 0)"
+  },
+  "contract_scope": "Exact original ordered column dictionaries with native string/float lists and empty lists, pd.DataFrame constructor/frame binding, fresh _session() binding and native session.load_frame(frame) integer equality retained. Missing units column stays absent;empty frame retains units:[] rather than adding defaults. All other original imports/helper/default classes/roundtrip coordinates/unit-refusal/missing-coordinate/new-class cases retain executable AST and relative order. No marker identity, placement, exception or stronger coordinate semantics assertion is added;the original roundtrip case still checks its own coordinate values.",
+  "collected_before": [
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_without_a_units_column_is_accepted",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_count_made_in_other_units_is_refused",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_class_the_session_does_not_have_is_added_as_it_goes",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_an_empty_frame_with_units_is_accepted",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_missing_a_coordinate_is_refused_by_name",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_count_round_trips_through_its_own_frame"
+  ],
+  "collected_after": [
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_missing_a_coordinate_is_refused_by_name",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_layouts_keep_their_returned_marker_counts[test_an_empty_frame_with_units_is_accepted]",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_count_made_in_other_units_is_refused",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_class_the_session_does_not_have_is_added_as_it_goes",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_layouts_keep_their_returned_marker_counts[test_a_frame_without_a_units_column_is_accepted]",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_count_round_trips_through_its_own_frame"
+  ],
+  "tests_before": {
+    "passed": 6,
+    "seconds": 4.18
+  },
+  "tests_after": {
+    "passed": 6,
+    "seconds": 3.87
+  },
+  "coverage_scope": "spacr.counting under the complete selected count reload metadata module, not full-suite, image or GUI coverage. Complete102line test module plus CountingSession constructor/add/load_frame/to_frame/default-spacing/add-class helpers and LayerStack/PointsLayer construction/add/world/listener paths read. Original tiny in-memory pandas tables and point-coordinate arrays only,at most two markers per reload;fresh empty LayerStack sessions have no image layers or renderer subscribers. Metadata point layers are created,but no image pixels,GUI/canvas renderer or scientific chart is loaded/drawn. No segmentation,model fit/training,analysis workflow,new reader,network,download or GPU work. Private upfront offline0 control fixed before every phase. Production/settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 126,
+    "num_statements": 227,
+    "percent_covered": 51.79153094462541,
+    "percent_covered_display": "52",
+    "missing_lines": 101,
+    "excluded_lines": 0,
+    "percent_statements_covered": 55.50660792951542,
+    "percent_statements_covered_display": "56",
+    "num_branches": 80,
+    "num_partial_branches": 13,
+    "covered_branches": 33,
+    "missing_branches": 47,
+    "percent_branches_covered": 41.25,
+    "percent_branches_covered_display": "41"
+  },
+  "coverage_after": {
+    "covered_lines": 126,
+    "num_statements": 227,
+    "percent_covered": 51.79153094462541,
+    "percent_covered_display": "52",
+    "missing_lines": 101,
+    "excluded_lines": 0,
+    "percent_statements_covered": 55.50660792951542,
+    "percent_statements_covered_display": "56",
+    "num_branches": 80,
+    "num_partial_branches": 13,
+    "covered_branches": 33,
+    "missing_branches": 47,
+    "percent_branches_covered": 41.25,
+    "percent_branches_covered_display": "41"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "1d427e9cc54d487c65a08d7cb9b5e9097211326ed176d96fd68c56d6231c3f26",
+  "production_source_sha256": "7be755c7f3a0d7885f228855e9868806dbad94a2c5a9d4845c9b42d9ee0553ef",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "counted-frame-rows-are-not-loaded",
+      "source_variant": {
+        "path": "spacr/counting.py",
+        "line": 507,
+        "old": "placed = 0\n        for _index, row in frame.iterrows():",
+        "new": "placed = 0\n        for _index, row in frame.iloc[:0].iterrows():"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_without_a_units_column_is_accepted"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_without_a_units_column_is_accepted"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_layouts_keep_their_returned_marker_counts[test_a_frame_without_a_units_column_is_accepted]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_layouts_keep_their_returned_marker_counts[test_a_frame_without_a_units_column_is_accepted]"
+        ],
+        "application_markers": 1
+      }
+    },
+    {
+      "mutant": "loaded-marker-count-is-one-too-large",
+      "source_variant": {
+        "path": "spacr/counting.py",
+        "line": 514,
+        "old": "return placed",
+        "new": "return placed + 1"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_an_empty_frame_with_units_is_accepted"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_an_empty_frame_with_units_is_accepted"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_layouts_keep_their_returned_marker_counts[test_an_empty_frame_with_units_is_accepted]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_layouts_keep_their_returned_marker_counts[test_an_empty_frame_with_units_is_accepted]"
+        ],
+        "application_markers": 1
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in CountingSession.load_frame before and after:iterate an empty row slice rather than the supplied frame;return placed+1 rather than placed. Each selects the same one original/mapped units-absent or empty-units-frame case and must fail its unchanged native integer equality. These establish returned-count sensitivity to row omission and off-by-one results only,not a stronger marker identity/world-coordinate or unit-validation claim. Exact original column lists,key presence,empty frame and fresh session setup retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_a_reloaded_count_lands_where_the_clicks_were.py",
+      "line": 53,
+      "symbol": "test_original_count_frame_layouts_keep_their_returned_marker_counts",
+      "new": "Preserve each original frame layout and its returned marker count.",
+      "old": {
+        "test_a_frame_without_a_units_column_is_accepted": "Arc 426 -> 433: the unit check is skipped entirely.\n\nA hand-built frame, or one exported before units were recorded, has no\nunits column. Refusing it would make every older count unreloadable, and\nthe coordinates are still in the session's own units by assumption --\nwhich is exactly what the column exists to stop being an assumption.",
+        "test_an_empty_frame_with_units_is_accepted": "The ``and len(frame)`` half of the same guard.\n\nAn empty export carries a units column and no rows to disagree about, so\ncomparing the empty set against the session's units would refuse a frame\nthat says nothing at all."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

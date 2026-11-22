@@ -30,6 +30,8 @@ no fit at all. The line stays; this note is what it is worth instead of a
 test. 99.57 %, and the rest of the module is behaviour.
 """
 
+import pytest
+
 # --- four arcs the whole suite still never drove ---------------------------
 
 class TestAStrategyThatIsDeclaredButNotBuilt:
@@ -99,28 +101,43 @@ class TestAnInclusiveFitAtChance:
                          positive_share_train=0.5, positive_share_test=0.5,
                          label_source="test", split_summary="10/10")
 
-    def test_it_says_so_instead_of_printing_a_ratio(self):
+    @pytest.mark.parametrize(
+        'inclusive_auc, exclusive_auc, survival, expected, unexpected',
+        [
+            pytest.param(
+                0.5,
+                0.6,
+                None,
+                'at chance, so retained lift cannot be calculated',
+                "% of the fit's lift",
+                id='test_it_says_so_instead_of_printing_a_ratio',
+            ),
+            pytest.param(
+                0.9,
+                0.7,
+                0.5,
+                "50% of the fit's lift over chance survives",
+                'cannot be calculated',
+                id='test_a_real_survival_is_reported_as_a_percentage',
+            ),
+        ],
+    )
+    def test_leakage_report_summaries_keep_original_text_checks(
+        self, inclusive_auc, exclusive_auc, survival, expected, unexpected,
+    ):
+        """Preserve each original leakage report and both native text checks."""
         from spacr.regression_annotation import LeakageReport
 
-        report = LeakageReport(mode="strict", dropped=("score",),
-                               with_score_inputs=self._fit(0.5),
-                               without_score_inputs=self._fit(0.6),
-                               survival=None)
+        report = LeakageReport(
+            mode="strict", dropped=("score",),
+            with_score_inputs=self._fit(inclusive_auc),
+            without_score_inputs=self._fit(exclusive_auc),
+            survival=survival,
+        )
         said = report.summary()
-        assert "at chance, so retained lift cannot be calculated" in said
-        assert "% of the fit's lift" not in said
+        assert expected in said
+        assert unexpected not in said
 
-    def test_a_real_survival_is_reported_as_a_percentage(self):
-        """The control: the sentence is the exception, not the rule."""
-        from spacr.regression_annotation import LeakageReport
-
-        report = LeakageReport(mode="strict", dropped=("score",),
-                               with_score_inputs=self._fit(0.9),
-                               without_score_inputs=self._fit(0.7),
-                               survival=0.5)
-        said = report.summary()
-        assert "50% of the fit's lift over chance survives" in said
-        assert "cannot be calculated" not in said
 
     def test_one_fit_alone_says_neither(self):
         """Both fits are needed before the two can be compared at all."""

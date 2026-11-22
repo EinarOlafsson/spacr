@@ -108,16 +108,26 @@ def test_the_metadata_basis_offers_the_plate_coordinates():
     assert columns == METADATA_COLUMNS
 
 
-def test_a_metadata_column_the_table_lacks_is_not_offered():
-    columns = candidate_columns({"dataset_mode": "metadata"},
-                                available=["plateID", "columnID", "area"])
-    assert columns == ("plateID", "columnID")
-
-
-def test_the_annotation_basis_offers_the_tables_own_columns():
-    columns = candidate_columns({"dataset_mode": "annotation"},
-                                available=["annot_1", "annot_2"])
-    assert columns == ("annot_1", "annot_2")
+@pytest.mark.parametrize('settings_input, available_input, expected_columns', [
+    pytest.param(
+        {'dataset_mode': 'metadata'},
+        ['plateID', 'columnID', 'area'],
+        ('plateID', 'columnID'),
+        id='test_a_metadata_column_the_table_lacks_is_not_offered',
+    ),
+    pytest.param(
+        {'dataset_mode': 'annotation'},
+        ['annot_1', 'annot_2'],
+        ('annot_1', 'annot_2'),
+        id='test_the_annotation_basis_offers_the_tables_own_columns',
+    ),
+])
+def test_candidate_columns_keep_original_basis_and_available_columns(
+    settings_input, available_input, expected_columns,
+):
+    """Preserve each original available-column list and expected candidate tuple."""
+    columns = candidate_columns(settings_input, available=available_input)
+    assert columns == expected_columns
 
 
 # ---------------------------------------------------------------------------
@@ -157,11 +167,30 @@ def test_the_complement_is_reproducible():
     assert not first.equals(assign_classes(frame, settings, seed=8))
 
 
-def test_a_complement_with_nothing_left_says_so():
-    settings = {"classes": {"a": {"column": "annot_2", "value": 0},
-                            "b": {"column": "annot_2", "value": 1},
-                            "rest": {"random_complement": True}}}
-    with pytest.raises(ClassDefinitionError, match="already claimed"):
+@pytest.mark.parametrize('settings_input, match_pattern', [
+    pytest.param(
+        {
+            'classes': {
+                'a': {'column': 'annot_2', 'value': 0},
+                'b': {'column': 'annot_2', 'value': 1},
+                'rest': {'random_complement': True},
+            },
+        },
+        'already claimed',
+        id='test_a_complement_with_nothing_left_says_so',
+    ),
+    pytest.param(
+        {'classes': {'a': {'column': 'ghost', 'value': 1}}},
+        'ghost',
+        id='test_a_rule_on_a_column_the_table_lacks_names_it',
+    ),
+])
+def test_class_assignment_keeps_original_refusal_matches(
+    settings_input, match_pattern,
+):
+    """Preserve each class-assignment refusal and original exception match pattern."""
+    settings = settings_input
+    with pytest.raises(ClassDefinitionError, match=match_pattern):
         assign_classes(_annotated(), settings)
 
 
@@ -240,12 +269,6 @@ def test_downstream_still_gets_a_list_of_names():
         {"classes": {"a": {"column": "annot_1", "value": 1},
                      "b": {"column": "annot_1", "value": 2}}})
     assert settings["class_names"] == ["a", "b"]
-
-
-def test_a_rule_on_a_column_the_table_lacks_names_it():
-    settings = {"classes": {"a": {"column": "ghost", "value": 1}}}
-    with pytest.raises(ClassDefinitionError, match="ghost"):
-        assign_classes(_annotated(), settings)
 
 
 # ---------------------------------------------------------------------------
@@ -332,34 +355,33 @@ def test_folder_settings_keep_their_original_names_and_precedence(settings, expe
     assert folder_names(settings) == expected
 
 
-def test_a_defined_class_outranks_a_recorded_folder_list():
-    """The class field decides the folder names (instruction 229).
-
-    REVERSED DELIBERATELY. `class_folder_names` used to win here. It is a
-    RECORD of what a previous generation wrote to disk; a defined class is
-    the user's own statement of what they are training on, and letting the
-    record outrank the statement is how the folders on disk and the classes
-    in the panel come to disagree with nothing on screen saying so.
-
-    It still does NOT win over a list-shaped `classes` -- see
-    `test_a_legacy_list_beats_the_injected_folder_default` for why that
-    direction would silently retrain every settings file in existence.
-    """
+@pytest.mark.parametrize('settings_input, expected_names', [
+    pytest.param(
+        {
+            'classes': {'new': {'column': 'c', 'value': 1}},
+            'class_folder_names': ['new', 'newer'],
+        },
+        ['new'],
+        id='test_a_defined_class_outranks_a_recorded_folder_list',
+    ),
+    pytest.param(
+        {
+            'classes': {
+                'pc': {'column': 'columnID', 'value': 'c3'},
+                'nc': {'column': 'columnID', 'value': 'c1'},
+            },
+        },
+        ['pc', 'nc'],
+        id='test_defined_classes_name_their_own_folders',
+    ),
+])
+def test_defined_class_folders_keep_original_precedence_and_order(
+    settings_input, expected_names,
+):
+    """Preserve defined-class folder precedence and native definition order."""
     from spacr.classify_classes import folder_names
-
-    names = folder_names({"classes": {"new": {"column": "c", "value": 1}},
-                          "class_folder_names": ["new", "newer"]})
-    assert names == ["new"]
-
-
-def test_defined_classes_name_their_own_folders():
-    """With neither list set, the definitions are the answer, in order."""
-    from spacr.classify_classes import folder_names
-
-    names = folder_names({"classes": {
-        "pc": {"column": "columnID", "value": "c3"},
-        "nc": {"column": "columnID", "value": "c1"}}})
-    assert names == ["pc", "nc"]
+    names = folder_names(settings_input)
+    assert names == expected_names
 
 
 def test_an_empty_definition_still_derives_from_the_older_keys():

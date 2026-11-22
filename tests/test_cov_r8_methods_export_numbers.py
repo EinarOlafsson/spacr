@@ -76,11 +76,19 @@ class TestReadingTheDigestsOwnNumbers:
         found = digest_numbers(digest)
         assert {1234.0, 0.05, 7.0, 2.5} <= found
 
-    def test_a_string_that_is_not_a_number_is_skipped(self):
-        assert digest_numbers({"note": "no numbers here"}) == set()
-
-    def test_an_empty_digest_yields_nothing(self):
-        assert digest_numbers({}) == set()
+    @pytest.mark.parametrize('digest', [
+        pytest.param(
+            {'note': 'no numbers here'},
+            id='test_a_string_that_is_not_a_number_is_skipped',
+        ),
+        pytest.param(
+            {},
+            id='test_an_empty_digest_yields_nothing',
+        ),
+    ])
+    def test_original_digests_without_numbers_keep_an_empty_set(self, digest):
+        """Preserve each original digest and its native empty numeric set."""
+        assert digest_numbers(digest) == set()
 
 
 class TestTheNumericConversion:
@@ -115,4 +123,3 @@ class TestTheNumericConversion:
                     f"{token!r} matches _NUMBER but float() rejects it; the "
                     "ValueError guard in extract_numbers is now reachable")
         assert tried > 1000, "the search accepted too few tokens to mean much"
-

@@ -73,21 +73,27 @@ def test_original_stock_model_lists_keep_their_api_choices(monkeypatch, names, e
     assert S.cellpose_model_choices() == expected
 
 
-def test_a_user_registered_checkpoint_is_offered(monkeypatch):
-    """``cellpose.io.add_model`` writes the registry; this reads it."""
-    _fake_cellpose(monkeypatch, names=["cpsam"], user=["my_cells"])
-    assert S.cellpose_model_choices() == ("cpsam", "my_cells")
+@pytest.mark.parametrize('names, user, expected', [
+    pytest.param(
+        ['cpsam'], ['my_cells'], ('cpsam', 'my_cells'),
+        id='test_a_user_registered_checkpoint_is_offered',
+    ),
+    pytest.param(
+        ['cpsam'], ['cpsam', 'mine'], ('cpsam', 'mine'),
+        id='test_duplicates_between_the_stock_and_user_lists_collapse',
+    ),
+])
+def test_original_user_model_registries_keep_their_ordered_choices(
+        monkeypatch, names, user, expected):
+    """Preserve each original user registry and its ordered model choices."""
+    _fake_cellpose(monkeypatch, names=names, user=user)
+    assert S.cellpose_model_choices() == expected
 
 
 def test_the_default_model_is_always_first(monkeypatch):
     """Whatever order Cellpose reports, cpsam is the one preselected."""
     _fake_cellpose(monkeypatch, names=["zebra", "cpsam"], user=["mine"])
     assert S.cellpose_model_choices()[0] == "cpsam"
-
-
-def test_duplicates_between_the_stock_and_user_lists_collapse(monkeypatch):
-    _fake_cellpose(monkeypatch, names=["cpsam"], user=["cpsam", "mine"])
-    assert S.cellpose_model_choices() == ("cpsam", "mine")
 
 
 # ---------------------------------------------------------------------------

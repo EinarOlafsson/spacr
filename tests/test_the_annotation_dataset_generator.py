@@ -158,8 +158,19 @@ def _selection():
     })
 
 
-def test_nothing_set_filters_nothing():
-    assert len(filter_selection(_selection(), {})) == 4
+@pytest.mark.parametrize('settings_input', [
+    pytest.param(
+        {},
+        id='test_nothing_set_filters_nothing',
+    ),
+    pytest.param(
+        {'cell_min_size': 0, 'cell_max_size': 0},
+        id='test_zero_is_not_a_minimum',
+    ),
+])
+def test_unset_annotation_bounds_keep_original_row_counts(settings_input):
+    """Preserve each original unset-bound mapping and native four-row count."""
+    assert len(filter_selection(_selection(), settings_input)) == 4
 
 
 @pytest.mark.parametrize('settings, kept_ids', [
@@ -176,13 +187,6 @@ def test_selection_settings_keep_the_original_object_ids(settings, kept_ids):
     """Retain the exact object IDs selected by each original size or well filter."""
     kept = filter_selection(_selection(), settings)
     assert list(kept["objectID"]) == kept_ids
-
-
-def test_zero_is_not_a_minimum():
-    """The Measure panel writes 0 for an unset bound. Honouring it as a real
-    minimum would filter nothing while looking filtered."""
-    assert len(filter_selection(_selection(),
-                                {"cell_min_size": 0, "cell_max_size": 0})) == 4
 
 
 def test_a_cap_is_deterministic():

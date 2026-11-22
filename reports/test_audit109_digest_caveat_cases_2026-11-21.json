@@ -1,0 +1,244 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_methods_export.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_methods_export.py::test_no_seed_is_itself_a_caveat": "tests/test_methods_export.py::test_original_digest_settings_keep_their_required_caveat_fragments[test_no_seed_is_itself_a_caveat]",
+    "tests/test_methods_export.py::test_illumination_not_running_is_a_caveat": "tests/test_methods_export.py::test_original_digest_settings_keep_their_required_caveat_fragments[test_illumination_not_running_is_a_caveat]"
+  },
+  "literal_case_contracts": {
+    "test_no_seed_is_itself_a_caveat": [
+      {
+        "random_seed": null
+      },
+      "not bit-for-bit reproducible"
+    ],
+    "test_illumination_not_running_is_a_caveat": [
+      {
+        "illumination_correction": false
+      },
+      "Illumination correction was not applied"
+    ]
+  },
+  "case_contract_representations": {
+    "test_no_seed_is_itself_a_caveat": "({'random_seed': None}, 'not bit-for-bit reproducible')",
+    "test_illumination_not_running_is_a_caveat": "({'illumination_correction': False}, 'Illumination correction was not applied')"
+  },
+  "contract_scope": "Exact original ordered native settings dictionaries with None/bool values, build_digest(settings=...) call, digest local binding, caveats lookup, generator variable c and native any(fragment in c for c in digest[\"caveats\"]) assertions retained. Every other original import/helper/fixture/guard/fake hit/number verification/roundtrip/journal/macro/model-card/artifact/prompt-text case retains executable AST and relative order. No stronger sentence equality, caveat-count, digest-identity or semantic assertion is introduced.",
+  "collected_before": [
+    "tests/test_methods_export.py::test_the_digest_reads_the_artifact_registry",
+    "tests/test_methods_export.py::test_verification_is_json_serializable",
+    "tests/test_methods_export.py::test_the_caveats_name_the_seed_the_policy_and_the_correction",
+    "tests/test_methods_export.py::test_a_plausible_near_miss_is_still_an_invention",
+    "tests/test_methods_export.py::test_the_prompt_is_a_pure_function_of_the_digest",
+    "tests/test_methods_export.py::test_an_integer_is_a_count_and_a_count_is_exact",
+    "tests/test_methods_export.py::test_the_prompt_carries_the_digest_and_nothing_else",
+    "tests/test_methods_export.py::test_digest_numbers_reads_a_numeric_string_as_a_number",
+    "tests/test_methods_export.py::test_the_digest_reads_a_regression_results_folder",
+    "tests/test_methods_export.py::test_the_planted_number_survives_a_json_round_trip",
+    "tests/test_methods_export.py::test_the_digest_reads_a_model_card",
+    "tests/test_methods_export.py::test_a_correct_rounding_of_a_digest_number_is_allowed",
+    "tests/test_methods_export.py::test_quoting_a_digest_string_verbatim_is_not_an_invention",
+    "tests/test_methods_export.py::test_the_planted_number_reaches_the_prompt_verbatim",
+    "tests/test_methods_export.py::test_every_headline_statistic_reaches_the_results_section",
+    "tests/test_methods_export.py::test_digest_strings_are_longest_first",
+    "tests/test_methods_export.py::test_a_number_absent_from_the_digest_is_reported",
+    "tests/test_methods_export.py::test_structure_is_not_mistaken_for_a_claim",
+    "tests/test_methods_export.py::test_an_invented_number_is_caught_however_it_is_written",
+    "tests/test_methods_export.py::test_the_methods_section_states_every_caveat",
+    "tests/test_methods_export.py::test_the_digest_carries_its_schema_and_is_json_serializable",
+    "tests/test_methods_export.py::test_generated_caveats_are_not_quotable_cover_for_their_numbers",
+    "tests/test_methods_export.py::test_extra_material_reaches_the_digest",
+    "tests/test_methods_export.py::test_the_digest_has_every_top_level_section",
+    "tests/test_methods_export.py::test_extract_numbers_removes_quoted_strings_before_looking",
+    "tests/test_methods_export.py::test_only_the_structural_numbers_are_free",
+    "tests/test_methods_export.py::test_a_number_planted_in_the_digest_appears_in_the_results_verbatim",
+    "tests/test_methods_export.py::test_the_rendered_sections_pass_their_own_number_check",
+    "tests/test_methods_export.py::test_the_prompt_lists_the_caveats_the_model_must_state",
+    "tests/test_methods_export.py::test_illumination_not_running_is_a_caveat",
+    "tests/test_methods_export.py::test_the_digest_reads_the_emitted_macro",
+    "tests/test_methods_export.py::test_the_prompt_states_the_rule_it_will_be_held_to",
+    "tests/test_methods_export.py::test_the_hit_rows_reach_the_digest_and_the_prose",
+    "tests/test_methods_export.py::test_a_broken_macro_does_not_take_the_digest_down",
+    "tests/test_methods_export.py::test_the_digest_reads_a_real_run_journal",
+    "tests/test_methods_export.py::test_an_empty_digest_still_renders_both_sections",
+    "tests/test_methods_export.py::test_a_subsystem_that_cannot_answer_is_a_note_not_an_exception",
+    "tests/test_methods_export.py::test_no_seed_is_itself_a_caveat",
+    "tests/test_methods_export.py::test_a_methods_section_that_drops_a_caveat_fails",
+    "tests/test_methods_export.py::test_digest_numbers_ignores_booleans_and_non_finite_values"
+  ],
+  "collected_after": [
+    "tests/test_methods_export.py::test_digest_strings_are_longest_first",
+    "tests/test_methods_export.py::test_the_methods_section_states_every_caveat",
+    "tests/test_methods_export.py::test_the_prompt_carries_the_digest_and_nothing_else",
+    "tests/test_methods_export.py::test_every_headline_statistic_reaches_the_results_section",
+    "tests/test_methods_export.py::test_digest_numbers_ignores_booleans_and_non_finite_values",
+    "tests/test_methods_export.py::test_quoting_a_digest_string_verbatim_is_not_an_invention",
+    "tests/test_methods_export.py::test_structure_is_not_mistaken_for_a_claim",
+    "tests/test_methods_export.py::test_a_correct_rounding_of_a_digest_number_is_allowed",
+    "tests/test_methods_export.py::test_the_digest_reads_the_emitted_macro",
+    "tests/test_methods_export.py::test_generated_caveats_are_not_quotable_cover_for_their_numbers",
+    "tests/test_methods_export.py::test_the_digest_reads_a_real_run_journal",
+    "tests/test_methods_export.py::test_verification_is_json_serializable",
+    "tests/test_methods_export.py::test_the_prompt_states_the_rule_it_will_be_held_to",
+    "tests/test_methods_export.py::test_original_digest_settings_keep_their_required_caveat_fragments[test_illumination_not_running_is_a_caveat]",
+    "tests/test_methods_export.py::test_the_digest_reads_the_artifact_registry",
+    "tests/test_methods_export.py::test_a_methods_section_that_drops_a_caveat_fails",
+    "tests/test_methods_export.py::test_an_empty_digest_still_renders_both_sections",
+    "tests/test_methods_export.py::test_the_hit_rows_reach_the_digest_and_the_prose",
+    "tests/test_methods_export.py::test_extract_numbers_removes_quoted_strings_before_looking",
+    "tests/test_methods_export.py::test_the_caveats_name_the_seed_the_policy_and_the_correction",
+    "tests/test_methods_export.py::test_the_digest_reads_a_regression_results_folder",
+    "tests/test_methods_export.py::test_the_planted_number_reaches_the_prompt_verbatim",
+    "tests/test_methods_export.py::test_digest_numbers_reads_a_numeric_string_as_a_number",
+    "tests/test_methods_export.py::test_a_number_planted_in_the_digest_appears_in_the_results_verbatim",
+    "tests/test_methods_export.py::test_the_prompt_is_a_pure_function_of_the_digest",
+    "tests/test_methods_export.py::test_a_broken_macro_does_not_take_the_digest_down",
+    "tests/test_methods_export.py::test_original_digest_settings_keep_their_required_caveat_fragments[test_no_seed_is_itself_a_caveat]",
+    "tests/test_methods_export.py::test_a_subsystem_that_cannot_answer_is_a_note_not_an_exception",
+    "tests/test_methods_export.py::test_a_plausible_near_miss_is_still_an_invention",
+    "tests/test_methods_export.py::test_the_digest_reads_a_model_card",
+    "tests/test_methods_export.py::test_the_planted_number_survives_a_json_round_trip",
+    "tests/test_methods_export.py::test_the_digest_has_every_top_level_section",
+    "tests/test_methods_export.py::test_an_integer_is_a_count_and_a_count_is_exact",
+    "tests/test_methods_export.py::test_extra_material_reaches_the_digest",
+    "tests/test_methods_export.py::test_the_rendered_sections_pass_their_own_number_check",
+    "tests/test_methods_export.py::test_a_number_absent_from_the_digest_is_reported",
+    "tests/test_methods_export.py::test_an_invented_number_is_caught_however_it_is_written",
+    "tests/test_methods_export.py::test_only_the_structural_numbers_are_free",
+    "tests/test_methods_export.py::test_the_prompt_lists_the_caveats_the_model_must_state",
+    "tests/test_methods_export.py::test_the_digest_carries_its_schema_and_is_json_serializable"
+  ],
+  "tests_before": {
+    "passed": 40,
+    "seconds": 14.4
+  },
+  "tests_after": {
+    "passed": 40,
+    "seconds": 12.72
+  },
+  "coverage_scope": "spacr.methods_export under the complete selected digest/text helper module, not full-suite or scientific analysis coverage. Complete505line test module read; build_digest,caveats_for and optional source collectors read. Original synthetic fake hits, tiny two-row results CSV, temporary journal/macro metadata, temporary artifact registry and model-card JSON/text retained. Model marker contains only b\"weights\"; reviewed build/write/read_model_card manipulate metadata and never load weights or instantiate a model. Journal scopes record metadata without running a mask workflow; regression rows are already supplied, no regression fit. Prompt helpers construct strings only and never call a model/API. Existing render_methods/render_results produce text, not charts. No model training/fitting, segmentation, scientific plotting, new reader, network or GPU compute. Private upfront offline0 control fixed in scheduler wrapper before every phase. Production/settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 372,
+    "num_statements": 436,
+    "percent_covered": 82.38993710691824,
+    "percent_covered_display": "82",
+    "missing_lines": 64,
+    "excluded_lines": 0,
+    "percent_statements_covered": 85.3211009174312,
+    "percent_statements_covered_display": "85",
+    "num_branches": 200,
+    "num_partial_branches": 28,
+    "covered_branches": 152,
+    "missing_branches": 48,
+    "percent_branches_covered": 76.0,
+    "percent_branches_covered_display": "76"
+  },
+  "coverage_after": {
+    "covered_lines": 372,
+    "num_statements": 436,
+    "percent_covered": 82.38993710691824,
+    "percent_covered_display": "82",
+    "missing_lines": 64,
+    "excluded_lines": 0,
+    "percent_statements_covered": 85.3211009174312,
+    "percent_statements_covered_display": "85",
+    "num_branches": 200,
+    "num_partial_branches": 28,
+    "covered_branches": 152,
+    "missing_branches": 48,
+    "percent_branches_covered": 76.0,
+    "percent_branches_covered_display": "76"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "064c5b0fa76ffc0e36975a49e1d0f7d5564e79b8e66f20495d6b3a91d0743c14",
+  "production_source_sha256": "1432954183546fa710f2671f1bbdf0cdbf1b2208b1d74d56f37046c1a6c27029",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "missing-seed-caveat-loses-reproducibility-fragment",
+      "source_variant": {
+        "path": "spacr/methods_export.py",
+        "line": 815,
+        "old": "No random seed was set, so the run is not bit-for-bit ",
+        "new": "No random seed was set, so the run may not be "
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_methods_export.py::test_no_seed_is_itself_a_caveat"
+        ],
+        "failure_summary_lines": [
+          "tests/test_methods_export.py::test_no_seed_is_itself_a_caveat - assert..."
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_methods_export.py::test_original_digest_settings_keep_their_required_caveat_fragments[test_no_seed_is_itself_a_caveat]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_methods_export.py::test_original_digest_settings_keep_their_required_caveat_fragments[test_no_seed_is_itself_a_caveat]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "disabled-illumination-caveat-loses-its-original-fragment",
+      "source_variant": {
+        "path": "spacr/methods_export.py",
+        "line": 840,
+        "old": "Illumination correction was not applied, so uneven ",
+        "new": "Uneven illumination may persist because "
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_methods_export.py::test_illumination_not_running_is_a_caveat"
+        ],
+        "failure_summary_lines": [
+          "tests/test_methods_export.py::test_illumination_not_running_is_a_caveat"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_methods_export.py::test_original_digest_settings_keep_their_required_caveat_fragments[test_illumination_not_running_is_a_caveat]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_methods_export.py::test_original_digest_settings_keep_their_required_caveat_fragments[test_illumination_not_running_is_a_caveat]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader message faults before and after: remove the original reproducibility fragment from the missing-seed caveat; remove the original illumination-disabled fragment from its caveat. Each selects the same one original/mapped digest case and must fail its unchanged native any/substring assertion. These establish required-text sensitivity only, not a stronger branch-bypass, full caveat sentence or reproducibility/illumination correctness claim. Exact original settings, optional-key presence and native any generator retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_methods_export.py",
+      "line": 277,
+      "symbol": "test_original_digest_settings_keep_their_required_caveat_fragments",
+      "new": "Preserve each original digest setting and its required caveat fragment.",
+      "old": {
+        "test_no_seed_is_itself_a_caveat": null,
+        "test_illumination_not_running_is_a_caveat": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

@@ -1,0 +1,223 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_a_well_is_clustered_or_it_is_not.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_a_zero_radius_is_refused_with_the_reason": "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_invalid_radii_keep_original_refusal_matches[test_a_zero_radius_is_refused_with_the_reason]",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_no_radii_is_refused": "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_invalid_radii_keep_original_refusal_matches[test_no_radii_is_refused]"
+  },
+  "literal_class_case_contracts": {
+    "test_a_zero_radius_is_refused_with_the_reason": [
+      [
+        0.0,
+        4.0
+      ],
+      "carries no information"
+    ],
+    "test_no_radii_is_refused": [
+      [],
+      "no radii"
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_zero_radius_is_refused_with_the_reason": "([0.0, 4.0], 'carries no information')",
+    "test_no_radii_is_refused": "([], 'no radii')"
+  },
+  "contract_scope": "Preserve exact native radius lists [0.0,4.0] and [], including float types and order, the self argument, native pytest.raises(ValueError,match=...) contexts and exact original match strings carries no information and no radii. Each case still constructs np.zeros((0,2)) and _whole_field() afresh inside its exception context and calls ripley_k with the original positional arguments. No moved array/mask objects, regex-to-substring conversion or changed exception handling. Every other class, method, helper, import, fixed-seed simulation, radius/spacing check and known-pattern assertion retains executable AST and relative order.",
+  "collected_before": [
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheKnownPatternsComeBackKnown::test_a_lattice_leaves_it_downwards",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheKnownPatternsComeBackKnown::test_a_lattice_overshoots_at_its_own_spacing",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheKnownPatternsComeBackKnown::test_a_clustered_pattern_leaves_it_upwards",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheKnownPatternsComeBackKnown::test_a_random_pattern_stays_inside_its_envelope",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheKnownPatternsComeBackKnown::test_the_answer_does_not_depend_on_the_window_being_a_rectangle",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheShapeOfTheAnswer::test_l_is_the_square_root_of_k_over_pi",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheShapeOfTheAnswer::test_it_picks_its_own_radii_when_asked_for_none",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheShapeOfTheAnswer::test_the_same_seed_gives_the_same_envelope",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheShapeOfTheAnswer::test_the_test_reports_both_sides_and_the_envelope",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_no_radii_is_refused",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_a_zero_radius_is_refused_with_the_reason",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_one_point_has_no_pattern_and_does_not_crash",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_a_point_off_the_image_is_the_same_error",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_a_point_outside_the_window_is_an_error",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_a_volume_is_refused_because_l_is_planar",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_an_empty_well_is_nan_rather_than_zero",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheRadiiAndTheUnits::test_they_are_lengths_when_spacing_is_given",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheRadiiAndTheUnits::test_an_unusable_spacing_falls_back_to_pixels",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheRadiiAndTheUnits::test_the_suggested_radii_stop_a_quarter_of_the_way_across",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheRadiiAndTheUnits::test_the_default_simulation_count_gives_a_round_test_level",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheRadiiAndTheUnits::test_spacing_changes_the_numbers_not_the_verdict",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheNullRespectsTheMask::test_more_points_than_pixels_still_answers",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheNullRespectsTheMask::test_the_null_holds_no_duplicated_points",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheNullRespectsTheMask::test_the_envelope_is_scattered_in_the_mask_not_its_box",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheNullRespectsTheMask::test_the_envelope_brackets_its_own_mean",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestEdgeCorrectionIsThePartThatDecidesTheAnswer::test_without_it_a_random_pattern_reports_dispersion",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestEdgeCorrectionIsThePartThatDecidesTheAnswer::test_a_radius_no_point_survives_is_nan_not_zero",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestEdgeCorrectionIsThePartThatDecidesTheAnswer::test_the_correction_shrinks_the_evidence_and_says_so",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestEdgeCorrectionIsThePartThatDecidesTheAnswer::test_with_it_the_same_pattern_sits_at_zero",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestEdgeCorrectionIsThePartThatDecidesTheAnswer::test_the_frame_edge_counts_as_a_boundary"
+  ],
+  "collected_after": [
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_a_point_off_the_image_is_the_same_error",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_invalid_radii_keep_original_refusal_matches[test_a_zero_radius_is_refused_with_the_reason]",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_invalid_radii_keep_original_refusal_matches[test_no_radii_is_refused]",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_an_empty_well_is_nan_rather_than_zero",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_one_point_has_no_pattern_and_does_not_crash",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_a_volume_is_refused_because_l_is_planar",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_a_point_outside_the_window_is_an_error",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheShapeOfTheAnswer::test_the_test_reports_both_sides_and_the_envelope",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheShapeOfTheAnswer::test_it_picks_its_own_radii_when_asked_for_none",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheShapeOfTheAnswer::test_l_is_the_square_root_of_k_over_pi",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheShapeOfTheAnswer::test_the_same_seed_gives_the_same_envelope",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestEdgeCorrectionIsThePartThatDecidesTheAnswer::test_without_it_a_random_pattern_reports_dispersion",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestEdgeCorrectionIsThePartThatDecidesTheAnswer::test_with_it_the_same_pattern_sits_at_zero",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestEdgeCorrectionIsThePartThatDecidesTheAnswer::test_the_frame_edge_counts_as_a_boundary",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestEdgeCorrectionIsThePartThatDecidesTheAnswer::test_a_radius_no_point_survives_is_nan_not_zero",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestEdgeCorrectionIsThePartThatDecidesTheAnswer::test_the_correction_shrinks_the_evidence_and_says_so",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheRadiiAndTheUnits::test_the_suggested_radii_stop_a_quarter_of_the_way_across",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheRadiiAndTheUnits::test_spacing_changes_the_numbers_not_the_verdict",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheRadiiAndTheUnits::test_the_default_simulation_count_gives_a_round_test_level",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheRadiiAndTheUnits::test_an_unusable_spacing_falls_back_to_pixels",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheRadiiAndTheUnits::test_they_are_lengths_when_spacing_is_given",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheNullRespectsTheMask::test_the_envelope_is_scattered_in_the_mask_not_its_box",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheNullRespectsTheMask::test_the_null_holds_no_duplicated_points",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheNullRespectsTheMask::test_more_points_than_pixels_still_answers",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheNullRespectsTheMask::test_the_envelope_brackets_its_own_mean",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheKnownPatternsComeBackKnown::test_the_answer_does_not_depend_on_the_window_being_a_rectangle",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheKnownPatternsComeBackKnown::test_a_lattice_overshoots_at_its_own_spacing",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheKnownPatternsComeBackKnown::test_a_random_pattern_stays_inside_its_envelope",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheKnownPatternsComeBackKnown::test_a_clustered_pattern_leaves_it_upwards",
+    "tests/test_a_well_is_clustered_or_it_is_not.py::TestTheKnownPatternsComeBackKnown::test_a_lattice_leaves_it_downwards"
+  ],
+  "tests_before": {
+    "passed": 30,
+    "seconds": 5.3
+  },
+  "tests_after": {
+    "passed": 30,
+    "seconds": 4.68
+  },
+  "coverage_scope": "Cover spacr.point_patterns under the entire309-line test module and303-line production source, both read completely before measurement. The full module performs real SciPy cKDTree neighbour counts, distance transforms and fixed Monte Carlo null simulations, up to99 simulations per existing default envelope. Synthetic boolean masks are at most400x200 pixels; point arrays are at most289 rows. All original point-generation seeds, envelope seeds, simulation counts, radii and spacing values remain unchanged. The selected refusal cases use fresh empty point arrays and200x200 masks, and stop during radius validation. No model fitting/training, image reader/crop, file/database pipeline, chart rendering, GUI, live network/download or GPU work runs. Use a single scheduler wrapper per heavy phase, filler t2/r8, CUDA hidden and offline control set upfront. Production/settings names, defaults, schemas and categories remain unchanged; worktree on required mnt2 at freshly fetched nightly.",
+  "coverage_before": {
+    "covered_lines": 109,
+    "num_statements": 111,
+    "percent_covered": 96.5034965034965,
+    "percent_covered_display": "97",
+    "missing_lines": 2,
+    "excluded_lines": 0,
+    "percent_statements_covered": 98.1981981981982,
+    "percent_statements_covered_display": "98",
+    "num_branches": 32,
+    "num_partial_branches": 3,
+    "covered_branches": 29,
+    "missing_branches": 3,
+    "percent_branches_covered": 90.625,
+    "percent_branches_covered_display": "91"
+  },
+  "coverage_after": {
+    "covered_lines": 109,
+    "num_statements": 111,
+    "percent_covered": 96.5034965034965,
+    "percent_covered_display": "97",
+    "missing_lines": 2,
+    "excluded_lines": 0,
+    "percent_statements_covered": 98.1981981981982,
+    "percent_statements_covered_display": "98",
+    "num_branches": 32,
+    "num_partial_branches": 3,
+    "covered_branches": 29,
+    "missing_branches": 3,
+    "percent_branches_covered": 90.625,
+    "percent_branches_covered_display": "91"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "1d728337fb9115ae94ae39e305d7fc940bb18ae5a97ec060522ea362446166a6",
+  "production_source_sha256": "5a09f47bfb2abe95e4f9e6b9573bc56047dd84e8968934488dc1cc298036ccbf",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "nonpositive-radius-refusal-loses-original-match",
+      "source_variant": {
+        "path": "spacr/point_patterns.py",
+        "line": 289,
+        "old": "\"construction and carries no information\"",
+        "new": "\"construction and is uninformative\""
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_a_zero_radius_is_refused_with_the_reason"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_a_zero_radius_is_refused_with_the_reason"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_invalid_radii_keep_original_refusal_matches[test_a_zero_radius_is_refused_with_the_reason]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_invalid_radii_keep_original_refusal_matches[test_a_zero_radius_is_refused_with_the_reason]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "empty-radius-refusal-loses-original-match",
+      "source_variant": {
+        "path": "spacr/point_patterns.py",
+        "line": 286,
+        "old": "\"no radii to evaluate\"",
+        "new": "\"provide at least one radius\""
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_no_radii_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_no_radii_is_refused"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_invalid_radii_keep_original_refusal_matches[test_no_radii_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_well_is_clustered_or_it_is_not.py::TestItRefusesRatherThanGuesses::test_invalid_radii_keep_original_refusal_matches[test_no_radii_is_refused]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Use two exact private import-loader message faults in _as_radii before and after. Replace carries no information in the nonpositive-radius refusal and replace no radii in the empty-radius refusal. Select the corresponding original/mapped case each time. Both continue to raise ValueError at the original validation branch, and the unchanged native pytest.raises regex assertion catches the message mismatch. Establish original refusal-match sensitivity only, without claiming independent estimator or Monte Carlo correctness. Repository production/settings files remain unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_a_well_is_clustered_or_it_is_not.py",
+      "line": 244,
+      "symbol": "test_invalid_radii_keep_original_refusal_matches",
+      "new": "Preserve each original invalid-radius list and native refusal match.",
+      "old": {
+        "test_a_zero_radius_is_refused_with_the_reason": null,
+        "test_no_radii_is_refused": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

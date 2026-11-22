@@ -59,21 +59,28 @@ def test_a_legacy_column_of_none_reads_as_empty_rather_than_the_string_none():
 # class_metadata_of: the values, in class order, or the legacy list
 # ---------------------------------------------------------------------------
 
-def test_a_class_with_no_value_contributes_nothing_to_the_metadata():
-    settings = {"classes": {"complement": {"random_complement": True},
-                            "pc": {"column": "columnID", "value": "c3"}}}
-
-    assert cc.class_metadata_of(settings) == [["c3"]]
-
-
-def test_a_dict_where_no_class_has_a_value_falls_back_to_the_legacy_list():
-    """Every rule is a complement or a half-filled row: the dict cannot
-    describe the metadata, so the file's own list stands."""
-    settings = {"classes": {"complement": {"random_complement": True},
-                            "junk": "pc"},
-                "class_metadata": [["c1"], ["c2"]]}
-
-    assert cc.class_metadata_of(settings) == [["c1"], ["c2"]]
+@pytest.mark.parametrize('settings_input, expected', [
+    pytest.param(
+        {'classes': {
+            'complement': {'random_complement': True},
+            'pc': {'column': 'columnID', 'value': 'c3'},
+        }},
+        [['c3']],
+        id='test_a_class_with_no_value_contributes_nothing_to_the_metadata',
+    ),
+    pytest.param(
+        {'classes': {
+            'complement': {'random_complement': True},
+            'junk': 'pc',
+        }, 'class_metadata': [['c1'], ['c2']]},
+        [['c1'], ['c2']],
+        id='test_a_dict_where_no_class_has_a_value_falls_back_to_the_legacy_list',
+    ),
+])
+def test_original_class_definitions_keep_their_metadata_lists(settings_input, expected):
+    """Preserve each original class definition and its derived or legacy metadata list."""
+    settings = settings_input
+    assert cc.class_metadata_of(settings) == expected
 
 
 def test_no_values_anywhere_is_an_empty_list_not_a_none():
@@ -112,26 +119,27 @@ def test_folding_a_settings_dict_with_nothing_to_derive_adds_no_keys():
     assert "class_metadata" not in out
 
 
-def test_folding_keeps_a_legacy_column_when_the_classes_only_give_values():
-    """One half derivable and the other not: the derived half is written and
-    the other is left exactly as the file had it."""
-    settings = {"classes": {"pc": {"column": "", "value": "c3"}},
-                "annotation_column": "test"}
-
+@pytest.mark.parametrize('settings_input, expected_column, expected_metadata', [
+    pytest.param(
+        {'classes': {'pc': {'column': '', 'value': 'c3'}},
+         'annotation_column': 'test'},
+        'test', [['c3']],
+        id='test_folding_keeps_a_legacy_column_when_the_classes_only_give_values',
+    ),
+    pytest.param(
+        {'classes': {'pc': {'column': 'rowID'}},
+         'class_metadata': [['r2']]},
+        'rowID', [['r2']],
+        id='test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value',
+    ),
+])
+def test_original_partial_definitions_keep_both_compatibility_fields(
+        settings_input, expected_column, expected_metadata):
+    """Preserve each original partial class definition and both compatibility values."""
+    settings = settings_input
     out = cc.fold_into_classes(settings)
-
-    assert out["annotation_column"] == "test"
-    assert out["class_metadata"] == [["c3"]]
-
-
-def test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value():
-    settings = {"classes": {"pc": {"column": "rowID"}},
-                "class_metadata": [["r2"]]}
-
-    out = cc.fold_into_classes(settings)
-
-    assert out["annotation_column"] == "rowID"
-    assert out["class_metadata"] == [["r2"]]
+    assert out["annotation_column"] == expected_column
+    assert out["class_metadata"] == expected_metadata
 
 
 # ---------------------------------------------------------------------------
@@ -200,30 +208,40 @@ def test_more_values_than_columns_pair_off_against_the_first_column():
     assert [r.column for r in rules] == ["annot_1", "annot_2", "annot_1"]
 
 
-def test_a_random_complement_takes_the_first_name_no_class_has_taken():
-    settings = {"dataset_mode": "annotation",
-                "annotation_column": "annot_1",
-                "annotation_values": [1],
-                "write_random_annotation_column": True,
-                "class_folder_names": ["infected", "uninfected"]}
-
+@pytest.mark.parametrize('settings_input, expected_names, complement_index', [
+    pytest.param(
+        {
+            'dataset_mode': 'annotation',
+            'annotation_column': 'annot_1',
+            'annotation_values': [1],
+            'write_random_annotation_column': True,
+            'class_folder_names': ['infected', 'uninfected'],
+        },
+        ['infected', 'uninfected'],
+        1,
+        id='test_a_random_complement_takes_the_first_name_no_class_has_taken',
+    ),
+    pytest.param(
+        {
+            'dataset_mode': 'annotation',
+            'annotation_column': 'annot_1',
+            'annotation_values': [0, 1],
+            'write_random_annotation_column': True,
+            'class_folder_names': ['nc', 'pc'],
+        },
+        ['nc', 'pc', 'random'],
+        -1,
+        id='test_a_complement_with_every_name_already_used_is_called_random',
+    ),
+])
+def test_original_complement_names_and_rule_identity_are_preserved(
+    settings_input, expected_names, complement_index,
+):
+    """Preserve each complement name list and original indexed boolean identity check."""
+    settings = settings_input
     rules = cc._rules_from_annotation(settings)
-
-    assert [r.name for r in rules] == ["infected", "uninfected"]
-    assert rules[1].random_complement is True
-
-
-def test_a_complement_with_every_name_already_used_is_called_random():
-    settings = {"dataset_mode": "annotation",
-                "annotation_column": "annot_1",
-                "annotation_values": [0, 1],
-                "write_random_annotation_column": True,
-                "class_folder_names": ["nc", "pc"]}
-
-    rules = cc._rules_from_annotation(settings)
-
-    assert [r.name for r in rules] == ["nc", "pc", "random"]
-    assert rules[-1].random_complement is True
+    assert [r.name for r in rules] == expected_names
+    assert rules[complement_index].random_complement is True
 
 
 def test_blank_annotation_column_entries_are_not_columns():

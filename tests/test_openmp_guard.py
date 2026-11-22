@@ -453,21 +453,22 @@ class TestGuardedNJobs:
     the calling thread too.
     """
 
-    def test_clamps_when_duplicated(self, monkeypatch, clamping_platform):
+    @pytest.mark.parametrize('runtimes, expected', [
+        pytest.param(
+            ['/a/libomp.dylib', '/b/libomp.dylib'], 1,
+            id='test_clamps_when_duplicated',
+        ),
+        pytest.param(
+            ['/a/libomp.dylib'], -1,
+            id='test_leaves_the_request_alone_when_single',
+        ),
+    ])
+    def test_original_runtime_inventories_keep_their_guarded_job_counts(
+            self, monkeypatch, clamping_platform, runtimes, expected):
+        """Preserve each original runtime inventory and its guarded job count."""
         monkeypatch.setattr(
-            openmp_guard,
-            "resident_openmp_runtimes",
-            lambda: ["/a/libomp.dylib", "/b/libomp.dylib"],
-        )
-        assert openmp_guard.guarded_n_jobs(-1) == 1
-
-    def test_leaves_the_request_alone_when_single(
-        self, monkeypatch, clamping_platform
-    ):
-        monkeypatch.setattr(
-            openmp_guard, "resident_openmp_runtimes", lambda: ["/a/libomp.dylib"]
-        )
-        assert openmp_guard.guarded_n_jobs(-1) == -1
+            openmp_guard, "resident_openmp_runtimes", lambda: [*runtimes])
+        assert openmp_guard.guarded_n_jobs(-1) == expected
 
     def test_off_platform_leaves_the_request_alone(self, monkeypatch):
         monkeypatch.setattr(openmp_guard.sys, "platform", "linux")

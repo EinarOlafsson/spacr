@@ -17,6 +17,8 @@ rule -- so they stay, pointed at the real module.
 """
 from __future__ import annotations
 
+import pytest
+
 import spacr.settings_spec as GU
 
 
@@ -28,16 +30,23 @@ def test_convert_settings_dict_bool_becomes_check():
     assert out["plot"][2] is False
 
 
-def test_convert_settings_dict_int_and_float_become_entry():
-    out = GU.convert_settings_dict_for_gui({"epochs": 10, "lr": 0.001})
-    assert out["epochs"][0] == "entry"
-    assert out["lr"][0] == "entry"
-
-
-def test_convert_settings_dict_string_becomes_entry():
-    out = GU.convert_settings_dict_for_gui({"src": "/tmp/x"})
-    assert out["src"][0] == "entry"
-    assert out["src"][2] == "/tmp/x"
+@pytest.mark.parametrize(
+    'settings, first_key, second_key, second_index, second_expected', [
+    pytest.param(
+        {'epochs': 10, 'lr': 0.001}, 'epochs', 'lr', 0, 'entry',
+        id='test_convert_settings_dict_int_and_float_become_entry',
+    ),
+    pytest.param(
+        {'src': '/tmp/x'}, 'src', 'src', 2, '/tmp/x',
+        id='test_convert_settings_dict_string_becomes_entry',
+    ),
+])
+def test_original_scalar_settings_keep_both_native_indexed_checks(
+        settings, first_key, second_key, second_index, second_expected):
+    """Preserve each original scalar setting map and both native indexed checks."""
+    out = GU.convert_settings_dict_for_gui(settings)
+    assert out[first_key][0] == "entry"
+    assert out[second_key][second_index] == second_expected
 
 
 def test_convert_settings_dict_none_becomes_entry():

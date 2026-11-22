@@ -240,25 +240,22 @@ def test_a_run_that_took_no_measurable_time_reports_nan_throughput():
     assert instant.per_item_seconds == 0.0
 
 
-def test_the_core_count_is_read_from_the_machine_when_none_is_given(
-        monkeypatch):
-    monkeypatch.setattr(B.os, "cpu_count", lambda: 12)
-
+@pytest.mark.parametrize('reported, expected', [
+    pytest.param(
+        12, 12,
+        id='test_the_core_count_is_read_from_the_machine_when_none_is_given',
+    ),
+    pytest.param(
+        None, 1,
+        id='test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one',
+    ),
+])
+def test_original_cpu_count_answers_keep_both_recommendation_counts(monkeypatch, reported, expected):
+    """Preserve each original CPU-count answer and both recommended-count checks."""
+    monkeypatch.setattr(B.os, "cpu_count", lambda: reported)
     out = B.recommend_workers(None, available_bytes=64 * GIB)
-
-    assert out.cores == 12
-    assert out.workers == 12
-
-
-def test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one(
-        monkeypatch):
-    """`os.cpu_count()` returns None in some containers."""
-    monkeypatch.setattr(B.os, "cpu_count", lambda: None)
-
-    out = B.recommend_workers(None, available_bytes=64 * GIB)
-
-    assert out.cores == 1
-    assert out.workers == 1
+    assert out.cores == expected
+    assert out.workers == expected
 
 
 def test_a_negative_core_count_is_still_one_worker():

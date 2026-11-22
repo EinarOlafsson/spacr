@@ -166,14 +166,19 @@ class TestTheReachIsALengthNotAPixelCount:
                 == list(large["cell_is_bystander"]))
         assert list(small["cell_is_distal"]) == list(large["cell_is_distal"])
 
-    def test_a_reach_of_zero_makes_every_uninfected_cell_distal(self):
-        """Turning the split off without a second setting."""
-        frame = _cells(*_field(), bystander_reach_in_diameters=0.0)
-        assert frame["cell_is_bystander"].sum() == 0
-
-    def test_an_unreadable_reach_does_not_invent_bystanders(self):
-        """A mis-typed setting must not look like a finding."""
-        frame = _cells(*_field(), bystander_reach_in_diameters="wide")
+    @pytest.mark.parametrize('reach', [
+        pytest.param(
+            0.0,
+            id='test_a_reach_of_zero_makes_every_uninfected_cell_distal',
+        ),
+        pytest.param(
+            'wide',
+            id='test_an_unreadable_reach_does_not_invent_bystanders',
+        ),
+    ])
+    def test_original_zero_or_unreadable_reaches_keep_their_bystander_counts(self, reach):
+        """Preserve each original zero or unreadable reach and its native bystander-count check."""
+        frame = _cells(*_field(), bystander_reach_in_diameters=reach)
         assert frame["cell_is_bystander"].sum() == 0
 
     def test_a_wider_reach_catches_more(self):

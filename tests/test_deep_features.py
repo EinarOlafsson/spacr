@@ -232,22 +232,25 @@ class TestCustomFeatures:
         feats = custom_features.discover_features()
         assert any(f.name == "ok" for f in feats)
 
-    def test_call_feature_scalar_result(self, _redirect_features_dir):
-        (_redirect_features_dir / "s.py").write_text(
-            "def m(mask, image): return 7\n", encoding="utf-8")
+    @pytest.mark.parametrize('filename, source, expected', [
+        pytest.param(
+            's.py', 'def m(mask, image): return 7\n', {'m': 7},
+            id='test_call_feature_scalar_result',
+        ),
+        pytest.param(
+            'd.py',
+            "def stats(mask, image):\n    return {'mean': 1.0, 'std': 0.5}\n",
+            {'stats_mean': 1.0, 'stats_std': 0.5},
+            id='test_call_feature_dict_result_gets_prefix',
+        ),
+    ])
+    def test_original_feature_modules_keep_their_exact_output_mappings(
+            self, _redirect_features_dir, filename, source, expected):
+        """Preserve each original feature module and its exact scalar or prefixed mapping."""
+        (_redirect_features_dir / filename).write_text(source, encoding="utf-8")
         cf = custom_features.discover_features()[0]
         out = custom_features.call_feature(cf, [], [])
-        assert out == {"m": 7}
-
-    def test_call_feature_dict_result_gets_prefix(self,
-                                                    _redirect_features_dir):
-        (_redirect_features_dir / "d.py").write_text(
-            "def stats(mask, image):\n"
-            "    return {'mean': 1.0, 'std': 0.5}\n"
-        , encoding="utf-8")
-        cf = custom_features.discover_features()[0]
-        out = custom_features.call_feature(cf, [], [])
-        assert out == {"stats_mean": 1.0, "stats_std": 0.5}
+        assert out == expected
 
     def test_call_feature_swallows_exception(self, _redirect_features_dir):
         (_redirect_features_dir / "e.py").write_text(

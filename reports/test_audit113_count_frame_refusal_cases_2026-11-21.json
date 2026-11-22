@@ -1,0 +1,192 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_a_reloaded_count_lands_where_the_clicks_were.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_count_made_in_other_units_is_refused": "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_refusals_keep_their_error_explanations[test_a_count_made_in_other_units_is_refused]",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_missing_a_coordinate_is_refused_by_name": "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_refusals_keep_their_error_explanations[test_a_frame_missing_a_coordinate_is_refused_by_name]"
+  },
+  "literal_case_contracts": {
+    "test_a_count_made_in_other_units_is_refused": [
+      {
+        "class": [
+          "a"
+        ],
+        "y": [
+          1.0
+        ],
+        "x": [
+          2.0
+        ],
+        "units": [
+          "um"
+        ]
+      },
+      "somewhere plausible and wrong"
+    ],
+    "test_a_frame_missing_a_coordinate_is_refused_by_name": [
+      {
+        "class": [
+          "a"
+        ],
+        "y": [
+          1.0
+        ]
+      },
+      "'x'"
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_count_made_in_other_units_is_refused": "({'class': ['a'], 'y': [1.0], 'x': [2.0], 'units': ['um']}, 'somewhere plausible and wrong')",
+    "test_a_frame_missing_a_coordinate_is_refused_by_name": "({'class': ['a'], 'y': [1.0]}, \"'x'\")"
+  },
+  "contract_scope": "Exact original ordered string/float-list frame dictionaries,key presence,local LayerError import,pd.DataFrame frame binding,fresh _session binding,with pytest.raises(LayerError) as excinfo context,load_frame call and separate native substring-in-str(excinfo.value) assertion retained. Every other original import/helper/accepted frame/coordinate roundtrip/new-class case retains executable AST and relative order. Disjoint from audit112 acceptance pair. No whole-message,identity,exception-count or stronger coordinate semantics assertion is introduced.",
+  "collected_before": [
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_count_made_in_other_units_is_refused",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_without_a_units_column_is_accepted",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_an_empty_frame_with_units_is_accepted",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_missing_a_coordinate_is_refused_by_name",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_class_the_session_does_not_have_is_added_as_it_goes",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_count_round_trips_through_its_own_frame"
+  ],
+  "collected_after": [
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_refusals_keep_their_error_explanations[test_a_count_made_in_other_units_is_refused]",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_refusals_keep_their_error_explanations[test_a_frame_missing_a_coordinate_is_refused_by_name]",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_class_the_session_does_not_have_is_added_as_it_goes",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_count_round_trips_through_its_own_frame",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_without_a_units_column_is_accepted",
+    "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_an_empty_frame_with_units_is_accepted"
+  ],
+  "tests_before": {
+    "passed": 6,
+    "seconds": 4.28
+  },
+  "tests_after": {
+    "passed": 6,
+    "seconds": 4.63
+  },
+  "coverage_scope": "spacr.counting under the complete selected count reload metadata module,not full-suite,image or GUI coverage. Complete102line test module and selected CountingSession/LayerStack/PointsLayer metadata paths reviewed for audit112;current original test snapshot and production bytes identical to that reviewed version. Only tiny in-memory pandas tables and point-coordinate arrays,at most two markers per reload,fresh empty LayerStack sessions without image layers or renderer subscribers. No image pixels,GUI/canvas/scientific chart rendering,segmentation,model fitting/training,analysis workflow,new reader,network,download or GPU work. Private upfront offline0 control fixed before every phase. Production/settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 126,
+    "num_statements": 227,
+    "percent_covered": 51.79153094462541,
+    "percent_covered_display": "52",
+    "missing_lines": 101,
+    "excluded_lines": 0,
+    "percent_statements_covered": 55.50660792951542,
+    "percent_statements_covered_display": "56",
+    "num_branches": 80,
+    "num_partial_branches": 13,
+    "covered_branches": 33,
+    "missing_branches": 47,
+    "percent_branches_covered": 41.25,
+    "percent_branches_covered_display": "41"
+  },
+  "coverage_after": {
+    "covered_lines": 126,
+    "num_statements": 227,
+    "percent_covered": 51.79153094462541,
+    "percent_covered_display": "52",
+    "missing_lines": 101,
+    "excluded_lines": 0,
+    "percent_statements_covered": 55.50660792951542,
+    "percent_statements_covered_display": "56",
+    "num_branches": 80,
+    "num_partial_branches": 13,
+    "covered_branches": 33,
+    "missing_branches": 47,
+    "percent_branches_covered": 41.25,
+    "percent_branches_covered_display": "41"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "1d427e9cc54d487c65a08d7cb9b5e9097211326ed176d96fd68c56d6231c3f26",
+  "production_source_sha256": "7be755c7f3a0d7885f228855e9868806dbad94a2c5a9d4845c9b42d9ee0553ef",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "incompatible-units-error-loses-its-required-explanation",
+      "source_variant": {
+        "path": "spacr/counting.py",
+        "line": 506,
+        "old": "would put every marker somewhere plausible and wrong.",
+        "new": "would place every marker in incompatible coordinates."
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_count_made_in_other_units_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_count_made_in_other_units_is_refused"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_refusals_keep_their_error_explanations[test_a_count_made_in_other_units_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_refusals_keep_their_error_explanations[test_a_count_made_in_other_units_is_refused]"
+        ],
+        "application_markers": 1
+      }
+    },
+    {
+      "mutant": "missing-coordinate-error-no-longer-names-the-missing-column",
+      "source_variant": {
+        "path": "spacr/counting.py",
+        "line": 498,
+        "old": "f'a counted frame needs {missing} to be placed; it has '",
+        "new": "f'a counted frame has incompatible columns; it has '"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_missing_a_coordinate_is_refused_by_name"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_a_frame_missing_a_coordinate_is_refused_by_name"
+        ],
+        "application_markers": 1
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_refusals_keep_their_error_explanations[test_a_frame_missing_a_coordinate_is_refused_by_name]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_reloaded_count_lands_where_the_clicks_were.py::test_original_count_frame_refusals_keep_their_error_explanations[test_a_frame_missing_a_coordinate_is_refused_by_name]"
+        ],
+        "application_markers": 1
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader message faults before and after:change the original incompatible-units explanation fragment;omit the missing-coordinate list from the original error message while retaining the actual available columns. Each preserves the original LayerError refusal and selects the same one original/mapped units-mismatch or missing-coordinate case. Each must fail the unchanged separate native substring assertion with AssertionError. These establish required-text sensitivity only,not a stronger validation-bypass,marker identity,full-message or coordinate-correctness claim. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_a_reloaded_count_lands_where_the_clicks_were.py",
+      "line": 82,
+      "symbol": "test_original_count_frame_refusals_keep_their_error_explanations",
+      "new": "Preserve each original frame refusal and its required explanation fragment.",
+      "old": {
+        "test_a_count_made_in_other_units_is_refused": "The taken side, and the reason the guard is worth having.",
+        "test_a_frame_missing_a_coordinate_is_refused_by_name": "The guard above both, which names what it needed and what it got."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
