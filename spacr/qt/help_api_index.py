@@ -4486,6 +4486,7 @@ API_ENTRIES = (
     ('spacr.ops_sbs.find_peaks', 'Local maxima of ``score``, as an ``(N, 2)`` array of ``(y, x)``.'),
     ('spacr.ops_sbs.library_calibrated_bases', 'Call bases with per-cycle axes learnt from the reads the library names.'),
     ('spacr.ops_sbs.nearest_boundaries', 'The two nearest object boundaries of each point, and their objects.'),
+    ('spacr.ops_sbs.neighbour_bleed_flags', 'Identify minority barcode groups that match a top barcode in a neighbouring cell.'),
     ('spacr.ops_sbs.never_barcodes', 'Substitution-built barcodes that no cell in the guide library should carry.'),
     ('spacr.ops_sbs.runner_up_consistent', 'Whether a one-mismatch read may count for its guide.'),
     ('spacr.ops_sbs.vote_mapped_reads', "Each object's guide from its reads, matched to the library first."),
