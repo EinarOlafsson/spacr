@@ -2671,6 +2671,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in otsu_arrivals} == otsu_arrivals
     assert not otsu_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **otsu_arrivals}
+    cytoskeleton_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1008c_cytoskeleton_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(cytoskeleton_arrivals) == {"spacr.measure.measure_cytoskeleton"}
+    assert {key: docs[key] for key in cytoskeleton_arrivals} == cytoskeleton_arrivals
+    assert not cytoskeleton_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **cytoskeleton_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

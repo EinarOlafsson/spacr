@@ -14951,6 +14951,35 @@
     "qualname": "_describe_objects"
    }
   ],
+  "cytoskeleton_object_support": [
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "cytoskeleton_object_support",
+    "line": 3536,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_overview_measurement"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "cytoskeleton_object_support",
+    "line": 3538,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_overview_measurement"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "cytoskeleton_object_support",
+    "line": 1087,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "_overview_measurement_defaults"
+   }
+  ],
   "data_column": [
    {
     "form": "subscript",
@@ -92567,7 +92596,7 @@
  "exact_targets": 1426,
  "nested_consumers_only": 0,
  "no_consumer_found": 151,
- "setting_count": 2130,
+ "setting_count": 2131,
  "target_count": 1827,
  "targets": {
   "CP_prob": {
@@ -101859,6 +101888,6 @@
   "umap_stability_repeats",
   "umap_stability_weight"
  ],
- "with_addressable_consumer": 1979,
- "with_any_consumer": 1979
+ "with_addressable_consumer": 1980,
+ "with_any_consumer": 1980
 }

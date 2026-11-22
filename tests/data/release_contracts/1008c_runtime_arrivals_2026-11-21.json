@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "table": "ui",
+      "key": "Cytoskeleton channel {channel!r} is not available. Choose an image channel index or a name from channel_names.",
+      "source": "Cytoskeleton channel {channel!r} is not available. Choose an image channel index or a name from channel_names.",
+      "locations": [
+        "spacr/measure.py:856",
+        "spacr/measure.py:852"
+      ],
+      "source_sha256": "b818e527c1cf714b3f91b927ebe5280a39054b6b92b2b42e12d22e532f775f4e"
+    },
+    {
+      "table": "ui",
+      "key": "Cytoskeleton channel_names must give one distinct name per image channel.",
+      "source": "Cytoskeleton channel_names must give one distinct name per image channel.",
+      "locations": [
+        "spacr/measure.py:831"
+      ],
+      "source_sha256": "fc71195927bc4f63d4c2d32bbf2531e6bc760b534d931543bc56288ec719d828"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cytoskeleton_object_support",
+      "source": "Cytoskeleton object support",
+      "locations": [
+        "spacr/settings.py:964"
+      ],
+      "source_sha256": "35b526668725250e42ed5448c5158f5a993bffa67d21e7e31c60ca9797ebf797"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cytoskeleton_object_support",
+      "source": "Restrict cytoskeleton skeleton pixels to the object mask. Settings saved before schema 958 retain False to reproduce earlier counts. Default True.",
+      "locations": [
+        "spacr/settings.py:1013"
+      ],
+      "source_sha256": "c8fc806ef8018c603d8e552ca639b20fdb1a16cdda70cb861777dee148ecfff6"
+    }
+  ]
+}

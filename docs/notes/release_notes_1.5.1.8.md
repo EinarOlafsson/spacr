@@ -34,6 +34,8 @@ Desktop installers are listed under **Assets** below.
 
 ### Bug fixes
 
+- Measure no longer counts cytoskeleton skeleton pixels outside the object.
+
 - **spaCR's AI calls through Claude Code no longer give the model any tools.** A question sent from the AI Console or from Voyager3 through the Claude Code command-line tool could make the model try a shell command or a web search on your computer (most were refused or did nothing). Every call now runs with `--tools ""` and `--strict-mcp-config`, so the model can only answer in text. The Codex and Gemini command-line tools were not installed on the test machine, so their tool modes are not yet checked.
 - **Figures from `spacr-run` and scripts no longer depend on your figure preferences.** A run started outside the GUI (`spacr-run`, or `run_ops` and other pipeline functions called from Python) now saves its figures in spaCR's plain house style, ignoring the title size, font size, resolution, format, colours and save mode chosen in Preferences, so running the same settings file again gives byte-identical figures. Before, the same run could give a larger title or another resolution depending on what was set in Preferences at the time. Runs started from the GUI, and figures viewed and exported there, keep your preferences as before. A figure writer can also ask for the plain style with `save_figure(..., preferences=False)`.
 

@@ -292,6 +292,7 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
                        "target_size", "augment", "verbose"},
     "mask": {"pathogen_model", "export_vvvv"},
     "measure": {"export_vvvv"},
+    "overview": {"cytoskeleton_object_support"},
     "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
                   "mask_workers_per_gpu", "mask_inference_precision",
                   "mask_eval_batch_size",

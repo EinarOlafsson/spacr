@@ -961,6 +961,7 @@ _OVERVIEW_MEASUREMENT_DEFAULTS = {
     'overview_measure_export_format': 'csv',
     'overview_measure_homogeneity': False,
     'overview_measure_fibres': False,
+    'cytoskeleton_object_support': True,
     'overview_measure_embeddings': False,
     'overview_embedding_backbone': 'resnet18',
     'overview_embedding_size': 224,
@@ -995,6 +996,7 @@ _OVERVIEW_MEASUREMENT_TYPES = {
     'overview_measure_export_format': str,
     'overview_measure_homogeneity': bool,
     'overview_measure_fibres': bool,
+    'cytoskeleton_object_support': bool,
     'overview_measure_embeddings': bool,
     'overview_embedding_backbone': str,
     'overview_embedding_size': int,
@@ -1008,6 +1010,7 @@ _OVERVIEW_MEASUREMENT_TYPES = {
 }
 
 _OVERVIEW_MEASUREMENT_TOOLTIPS = {
+    'cytoskeleton_object_support': '(bool) - Restrict cytoskeleton skeleton pixels to the object mask. Settings saved before schema 958 retain False to reproduce earlier counts. Default True.',
     'overview_measure_intensity': '(bool) - Per-channel raw intensity of each whole image: minimum, maximum, mean, median, sum, spread, skewness and the 1st to 99th percentiles, and saturation: the fraction of pixels at the saturation level (the dtype maximum for integer images) and at the dtype minimum, which flags clipped and underexposed images. Cheap. Default True.',
     'overview_measure_focus': '(bool) - Sharpness scores per channel: Laplacian variance, Brenner and Tenengrad gradients, normalized variance, and the power-spectrum slope and high-frequency share of a full-resolution central crop. They fall when an image is out of focus. Cheap. Default True.',
     'overview_measure_texture': '(bool) - Haralick (GLCM) texture per channel: contrast, homogeneity, energy, correlation and entropy, computed on a copy reduced to at most 512 pixels. Moderate cost. Default True.',
@@ -2548,7 +2551,7 @@ def surviving_setting_name(key):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 950
+SETTINGS_SCHEMA_VERSION = 958
 SETTINGS_FORMAT_VERSIONS = frozenset({950})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2581,6 +2584,7 @@ DEFAULT_CHANGES = {
     949: {'mask_image_format': 'npy', 'crop_image_format': 'png',
           'crop_source': 'auto', 'image_source': 'load_images',
           'ops_ph_image_format': 'npz', 'ops_crop_image_format': 'tiff-tar'},
+    958: {'cytoskeleton_object_support': False},
 }
 
 
@@ -2689,6 +2693,10 @@ def _fold_older_defaults(settings, version, known=None):
     renamed to this key), ``ops_sbs_tile_batch`` 16 (stitched sequencing
     nuclei) and ``spatial_tile_batch`` 16 (Spatial Mask Generation). 946 and
     947 belong to other items, so this takes 948.
+
+    958 is item 1008: cytoskeleton skeletons are restricted to the object
+    mask. Older Overview settings keep ``cytoskeleton_object_support``
+    False so whole-image fibre counts retain their earlier values.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -4008,6 +4016,7 @@ descriptions = {
 
 
 expected_types = {
+    'cytoskeleton_object_support': bool,
     "psf_measurement_source": str,
     "psf_operation": str, "psf_source": str, "psf_objective": str,
     "psf_path": (str, type(None)),
