@@ -1,0 +1,202 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_benchmark_uncovered_paths.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_benchmark_uncovered_paths.py::test_the_core_count_is_read_from_the_machine_when_none_is_given": "tests/test_benchmark_uncovered_paths.py::test_original_cpu_count_answers_keep_both_recommendation_counts[test_the_core_count_is_read_from_the_machine_when_none_is_given]",
+    "tests/test_benchmark_uncovered_paths.py::test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one": "tests/test_benchmark_uncovered_paths.py::test_original_cpu_count_answers_keep_both_recommendation_counts[test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one]"
+  },
+  "literal_case_contracts": {
+    "test_the_core_count_is_read_from_the_machine_when_none_is_given": [
+      12,
+      12
+    ],
+    "test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one": [
+      null,
+      1
+    ]
+  },
+  "case_contract_representations": {
+    "test_the_core_count_is_read_from_the_machine_when_none_is_given": "(12, 12)",
+    "test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one": "(None, 1)"
+  },
+  "contract_scope": "Preserve the exact original monkeypatch fixture and B.os.cpu_count target, a fresh lambda returning the native integer 12 or None, the B.recommend_workers(None, available_bytes=64 * GIB) call, out binding, and both separate native integer equalities on out.cores and out.workers in their original order. Keep the original 64 * GIB expression and global GIB constant. Every other original import, helper, fake resource/CUDA object, benchmark callback, platform condition, memory-accounting case and warm-up case retains executable AST and relative order. No callback-call-count or stronger memory-budget assertion is added.",
+  "collected_before": [
+    "tests/test_benchmark_uncovered_paths.py::test_macos_reads_the_same_number_as_bytes",
+    "tests/test_benchmark_uncovered_paths.py::test_a_measurement_over_no_items_reports_nan_rather_than_dividing_by_zero",
+    "tests/test_benchmark_uncovered_paths.py::test_a_torch_without_a_device_is_reported_as_not_measured",
+    "tests/test_benchmark_uncovered_paths.py::test_a_meminfo_without_a_usable_memavailable_reports_zero[no-memavailable-line]",
+    "tests/test_benchmark_uncovered_paths.py::test_a_driver_that_raises_on_reset_does_not_end_the_benchmark",
+    "tests/test_benchmark_uncovered_paths.py::test_the_peak_from_an_earlier_run_is_not_reported_as_this_ones",
+    "tests/test_benchmark_uncovered_paths.py::test_linux_reads_ru_maxrss_as_kilobytes",
+    "tests/test_benchmark_uncovered_paths.py::test_reset_is_a_no_op_when_there_is_no_device",
+    "tests/test_benchmark_uncovered_paths.py::test_a_negative_core_count_is_still_one_worker",
+    "tests/test_benchmark_uncovered_paths.py::test_the_warm_up_item_is_run_before_the_clock_and_named_in_the_notes",
+    "tests/test_benchmark_uncovered_paths.py::test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one",
+    "tests/test_benchmark_uncovered_paths.py::test_the_recommendation_uses_meminfo_when_it_is_not_told_a_number",
+    "tests/test_benchmark_uncovered_paths.py::test_a_meminfo_without_a_usable_memavailable_reports_zero[not-a-number]",
+    "tests/test_benchmark_uncovered_paths.py::test_a_run_that_took_no_measurable_time_reports_nan_throughput",
+    "tests/test_benchmark_uncovered_paths.py::test_the_core_count_is_read_from_the_machine_when_none_is_given",
+    "tests/test_benchmark_uncovered_paths.py::test_no_resource_module_leaves_the_core_count_as_the_only_bound",
+    "tests/test_benchmark_uncovered_paths.py::test_memavailable_is_read_as_kilobytes",
+    "tests/test_benchmark_uncovered_paths.py::test_a_meminfo_without_a_usable_memavailable_reports_zero[truncated-line]",
+    "tests/test_benchmark_uncovered_paths.py::test_a_recommendation_prints_its_number_and_its_reason",
+    "tests/test_benchmark_uncovered_paths.py::test_a_platform_without_the_resource_module_reports_no_footprint",
+    "tests/test_benchmark_uncovered_paths.py::test_a_warm_up_note_is_absent_when_nothing_was_warmed_up"
+  ],
+  "collected_after": [
+    "tests/test_benchmark_uncovered_paths.py::test_macos_reads_the_same_number_as_bytes",
+    "tests/test_benchmark_uncovered_paths.py::test_linux_reads_ru_maxrss_as_kilobytes",
+    "tests/test_benchmark_uncovered_paths.py::test_a_measurement_over_no_items_reports_nan_rather_than_dividing_by_zero",
+    "tests/test_benchmark_uncovered_paths.py::test_original_cpu_count_answers_keep_both_recommendation_counts[test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one]",
+    "tests/test_benchmark_uncovered_paths.py::test_a_platform_without_the_resource_module_reports_no_footprint",
+    "tests/test_benchmark_uncovered_paths.py::test_the_warm_up_item_is_run_before_the_clock_and_named_in_the_notes",
+    "tests/test_benchmark_uncovered_paths.py::test_a_warm_up_note_is_absent_when_nothing_was_warmed_up",
+    "tests/test_benchmark_uncovered_paths.py::test_a_driver_that_raises_on_reset_does_not_end_the_benchmark",
+    "tests/test_benchmark_uncovered_paths.py::test_a_meminfo_without_a_usable_memavailable_reports_zero[not-a-number]",
+    "tests/test_benchmark_uncovered_paths.py::test_a_run_that_took_no_measurable_time_reports_nan_throughput",
+    "tests/test_benchmark_uncovered_paths.py::test_a_negative_core_count_is_still_one_worker",
+    "tests/test_benchmark_uncovered_paths.py::test_the_recommendation_uses_meminfo_when_it_is_not_told_a_number",
+    "tests/test_benchmark_uncovered_paths.py::test_original_cpu_count_answers_keep_both_recommendation_counts[test_the_core_count_is_read_from_the_machine_when_none_is_given]",
+    "tests/test_benchmark_uncovered_paths.py::test_a_meminfo_without_a_usable_memavailable_reports_zero[no-memavailable-line]",
+    "tests/test_benchmark_uncovered_paths.py::test_reset_is_a_no_op_when_there_is_no_device",
+    "tests/test_benchmark_uncovered_paths.py::test_memavailable_is_read_as_kilobytes",
+    "tests/test_benchmark_uncovered_paths.py::test_a_recommendation_prints_its_number_and_its_reason",
+    "tests/test_benchmark_uncovered_paths.py::test_a_torch_without_a_device_is_reported_as_not_measured",
+    "tests/test_benchmark_uncovered_paths.py::test_no_resource_module_leaves_the_core_count_as_the_only_bound",
+    "tests/test_benchmark_uncovered_paths.py::test_a_meminfo_without_a_usable_memavailable_reports_zero[truncated-line]",
+    "tests/test_benchmark_uncovered_paths.py::test_the_peak_from_an_earlier_run_is_not_reported_as_this_ones"
+  ],
+  "tests_before": {
+    "passed": 21,
+    "seconds": 6.39
+  },
+  "tests_after": {
+    "passed": 21,
+    "seconds": 5.45
+  },
+  "coverage_scope": "Cover spacr.benchmark under the complete selected benchmark-corner test module, rather than the full suite or real workload performance. Read the complete 293-line test module and complete production benchmark source. Existing tests use tiny integer/list callbacks and list appends, fake resource modules, mocked platform values, mocked /proc/meminfo text, plain Measurement/Recommendation objects and fake CUDA counters. GiB values in those fakes are numbers, not allocated memory. Some existing callbacks may import real Torch and query availability with CUDA hidden; CUDA counter tests install fake Torch modules. Real process RSS metadata is read where existing tests call the unmocked helper. No model fitting, image processing, chart, GUI, live network, package installation, actual GPU allocation or worker launch occurs. These recommendation values do not change scheduler admission or CPU limits. Fix the private offline control before every scheduled phase. Keep repository production/settings names, defaults, schemas and categories unchanged. The isolated checkout is on the required mnt2 disk, using the freshly fetched c9 nightly base.",
+  "coverage_before": {
+    "covered_lines": 98,
+    "num_statements": 116,
+    "percent_covered": 81.5068493150685,
+    "percent_covered_display": "82",
+    "missing_lines": 18,
+    "excluded_lines": 0,
+    "percent_statements_covered": 84.48275862068965,
+    "percent_statements_covered_display": "84",
+    "num_branches": 30,
+    "num_partial_branches": 3,
+    "covered_branches": 21,
+    "missing_branches": 9,
+    "percent_branches_covered": 70.0,
+    "percent_branches_covered_display": "70"
+  },
+  "coverage_after": {
+    "covered_lines": 98,
+    "num_statements": 116,
+    "percent_covered": 81.5068493150685,
+    "percent_covered_display": "82",
+    "missing_lines": 18,
+    "excluded_lines": 0,
+    "percent_statements_covered": 84.48275862068965,
+    "percent_statements_covered_display": "84",
+    "num_branches": 30,
+    "num_partial_branches": 3,
+    "covered_branches": 21,
+    "missing_branches": 9,
+    "percent_branches_covered": 70.0,
+    "percent_branches_covered_display": "70"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "d51807c5879d0f2c6da617cf0e7a95114cd81bc691ff4983a90b2528999a340d",
+  "production_source_sha256": "c0214a7d7519551a0afb975575064e5b320ab7229cec970f78435ac4405b356d",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "reported-core-count-is-replaced-with-one",
+      "source_variant": {
+        "path": "spacr/benchmark.py",
+        "line": 227,
+        "old": "cores = int(cores if cores is not None else (os.cpu_count() or 1))",
+        "new": "cores = int(cores if cores is not None else 1)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_benchmark_uncovered_paths.py::test_the_core_count_is_read_from_the_machine_when_none_is_given"
+        ],
+        "failure_summary_lines": [
+          "tests/test_benchmark_uncovered_paths.py::test_the_core_count_is_read_from_the_machine_when_none_is_given"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_benchmark_uncovered_paths.py::test_original_cpu_count_answers_keep_both_recommendation_counts[test_the_core_count_is_read_from_the_machine_when_none_is_given]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_benchmark_uncovered_paths.py::test_original_cpu_count_answers_keep_both_recommendation_counts[test_the_core_count_is_read_from_the_machine_when_none_is_given]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "unknown-core-count-falls-back-to-two",
+      "source_variant": {
+        "path": "spacr/benchmark.py",
+        "line": 227,
+        "old": "cores = int(cores if cores is not None else (os.cpu_count() or 1))",
+        "new": "cores = int(cores if cores is not None else (os.cpu_count() or 2))"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_benchmark_uncovered_paths.py::test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one"
+        ],
+        "failure_summary_lines": [
+          "tests/test_benchmark_uncovered_paths.py::test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_benchmark_uncovered_paths.py::test_original_cpu_count_answers_keep_both_recommendation_counts[test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_benchmark_uncovered_paths.py::test_original_cpu_count_answers_keep_both_recommendation_counts[test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Apply two precise private import-loader faults to recommend_workers before and after: replace the inferred core count with one; change the unknown-count fallback from one to two. Each selects the same original/mapped reported-12 or unknown-None case and must fail the unchanged native out.cores equality. Both original out.cores and out.workers assertions remain and pass normally. The sample establishes returned-count sensitivity, without claiming independent worker-field fault coverage, actual worker execution, memory containment or scheduler correctness. Repository production/settings files remain unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_benchmark_uncovered_paths.py",
+      "line": 254,
+      "symbol": "test_original_cpu_count_answers_keep_both_recommendation_counts",
+      "new": "Preserve each original CPU-count answer and both recommended-count checks.",
+      "old": {
+        "test_the_core_count_is_read_from_the_machine_when_none_is_given": null,
+        "test_a_machine_that_will_not_say_how_many_cores_it_has_gets_one": "`os.cpu_count()` returns None in some containers."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
