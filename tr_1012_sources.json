@@ -2089,117 +2089,7 @@
     "fr"
   ],
   "policy": "No translation records are authored here. Canonical API bodies are admitted by the approved exact adapters. New argument-validation exceptions follow the existing English numeric-API pattern and have no new GUI control or runtime UI admission.",
-  "checkpoint_status": "Source checkpoint only; planted and no-place full acceptance receipts remain pending. Not FINAL.",
-  "completed_code_gates": [
-    {
-      "name": "focused core",
-      "junit": {
-        "name": "pytest",
-        "errors": "0",
-        "failures": "0",
-        "skipped": "0",
-        "tests": "75",
-        "time": "70.096",
-        "timestamp": "2026-11-22T09:57:29.537071-05:00",
-        "hostname": "carruthers"
-      },
-      "console_summary": "75 passed, 20 warnings in 70.28s (0:01:10)"
-    },
-    {
-      "name": "source contracts",
-      "junit": {
-        "name": "pytest",
-        "errors": "0",
-        "failures": "0",
-        "skipped": "0",
-        "tests": "3",
-        "time": "7.253",
-        "timestamp": "2026-11-22T10:18:57.278888-05:00",
-        "hostname": "carruthers"
-      },
-      "console_summary": "3 passed in 7.46s"
-    },
-    {
-      "name": "full items",
-      "junit": {
-        "name": "pytest",
-        "errors": "0",
-        "failures": "0",
-        "skipped": "10",
-        "tests": "2569",
-        "time": "780.589",
-        "timestamp": "2026-11-22T10:27:29.721770-05:00",
-        "hostname": "carruthers"
-      },
-      "console_summary": "1599 passed, 10 skipped, 153 warnings, 960 subtests passed in 780.76s (0:13:00)"
-    },
-    {
-      "name": "full settings",
-      "junit": {
-        "name": "pytest",
-        "errors": "0",
-        "failures": "0",
-        "skipped": "2",
-        "tests": "1001",
-        "time": "128.564",
-        "timestamp": "2026-11-22T10:40:34.119546-05:00",
-        "hostname": "carruthers"
-      },
-      "console_summary": "630 passed, 2 skipped, 369 subtests passed in 128.84s (0:02:08)"
-    },
-    {
-      "name": "full ratchets",
-      "junit": {
-        "name": "pytest",
-        "errors": "0",
-        "failures": "0",
-        "skipped": "79",
-        "tests": "4172",
-        "time": "3106.167",
-        "timestamp": "2026-11-22T10:46:04.803933-05:00",
-        "hostname": "carruthers"
-      },
-      "console_summary": "4093 passed, 76 skipped, 3 xfailed, 71 warnings in 3106.29s (0:51:46)"
-    }
-  ],
-  "home_catalog_deselections": [
-    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[de]",
-    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[en]",
-    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[es]",
-    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[fr]",
-    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[hi]",
-    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[is]",
-    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[ko]",
-    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[pt]",
-    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[sv]",
-    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[zh_CN]",
-    "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
-    "tests/test_api_i18n_frontend.py::test_english_catalog_keys_are_exactly_joinable",
-    "tests/test_api_i18n_frontend.py::test_every_complete_real_catalog_renders_through_the_browser_selector",
-    "tests/test_api_reference_drops_deleted_modules.py::test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit",
-    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[de]",
-    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[en]",
-    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[es]",
-    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[fr]",
-    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[hi]",
-    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[is]",
-    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[ko]",
-    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[pt]",
-    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[sv]",
-    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[zh_CN]",
-    "tests/test_api_reference_drops_deleted_modules.py::test_the_api_catalogs_cover_english_and_the_translated_languages",
-    "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_keeps_a_package_without_an_init",
-    "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_notices_a_module_that_disappears",
-    "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_starts_from_an_empty_generated_tree",
-    "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_treats_every_sphinx_warning_as_an_error",
-    "tests/test_built_nested_helper_api.py::test_empty_rollout_does_not_scan_or_touch_any_catalog"
-  ],
-  "strict_source_checks_retained": [
-    "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
-    "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor",
-    "tests/test_the_raw_reader_count_only_goes_down.py",
-    "tests/test_nested_functions_are_documented.py"
-  ],
+  "validation_receipt": "reports/1012_external_maxproj/acceptance.json",
   "native_source_consumers": [
     {
       "module": "test_docstring_correctness",
@@ -2222,5 +2112,26 @@
       "seconds": 79.96266299799026,
       "new_production_modules": []
     }
-  ]
+  ],
+  "protected_consumer_approval": {
+    "owner_reply": "WORK_TASKS.md ANSWER 10:19, 2026-11-22",
+    "proposal_sha256": "23a618e19174c638865461fa696b0d64e316f1c2df8443f64ef8a7ed7ef7791a",
+    "applied_proof": {
+      "test_docstring_correctness.py": {
+        "proposed_sha256": "1981169a8a9839d478d753b1307e820042021daeb7f4d356f7369f2ce38eee1c",
+        "applied_sha256": "1981169a8a9839d478d753b1307e820042021daeb7f4d356f7369f2ce38eee1c",
+        "identical": true
+      },
+      "test_documentation_i18n.py": {
+        "proposed_sha256": "38f67d30460c0f4404862f748d74f73dc7e623a31d662288f6e51c240fb40018",
+        "applied_sha256": "38f67d30460c0f4404862f748d74f73dc7e623a31d662288f6e51c240fb40018",
+        "identical": true
+      },
+      "test_api_i18n_extractor.py": {
+        "proposed_sha256": "1db490ad9e2f9ffbec858e761ab05a4c2d72d7ee1d9ffa284bb3fdb52d6a054f",
+        "applied_sha256": "1db490ad9e2f9ffbec858e761ab05a4c2d72d7ee1d9ffa284bb3fdb52d6a054f",
+        "identical": true
+      }
+    }
+  }
 }

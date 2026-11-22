@@ -1,0 +1,105 @@
+arm,view,strength,control,complexes,complexes_recovered_pct,partner_in_cluster_pct
+no_plant,transcript,1.0,real,5,0.0,0.0
+no_plant,transcript,1.0,shuffled gene labels,5,0.0,0.0
+no_plant,transcript,2.0,real,5,0.0,5.0
+no_plant,transcript,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,transcript,4.0,real,5,0.0,5.0
+no_plant,transcript,4.0,shuffled gene labels,5,0.0,0.0
+no_plant,transcript,8.0,real,5,0.0,0.0
+no_plant,transcript,8.0,shuffled gene labels,5,0.0,0.0
+no_plant,translation,1.0,real,5,0.0,0.0
+no_plant,translation,1.0,shuffled gene labels,5,0.0,0.0
+no_plant,translation,2.0,real,5,0.0,0.0
+no_plant,translation,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,translation,4.0,real,5,0.0,0.0
+no_plant,translation,4.0,shuffled gene labels,5,0.0,0.0
+no_plant,translation,8.0,real,5,0.0,0.0
+no_plant,translation,8.0,shuffled gene labels,5,0.0,0.0
+no_plant,chromatin,1.0,real,5,0.0,5.0
+no_plant,chromatin,1.0,shuffled gene labels,5,0.0,0.0
+no_plant,chromatin,2.0,real,5,0.0,0.0
+no_plant,chromatin,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,chromatin,4.0,real,5,0.0,0.0
+no_plant,chromatin,4.0,shuffled gene labels,5,0.0,5.0
+no_plant,chromatin,8.0,real,5,0.0,0.0
+no_plant,chromatin,8.0,shuffled gene labels,5,0.0,5.0
+no_plant,protein_abundance,1.0,real,5,0.0,0.0
+no_plant,protein_abundance,1.0,shuffled gene labels,5,0.0,0.0
+no_plant,protein_abundance,2.0,real,5,0.0,0.0
+no_plant,protein_abundance,2.0,shuffled gene labels,5,0.0,5.0
+no_plant,protein_abundance,4.0,real,5,0.0,5.0
+no_plant,protein_abundance,4.0,shuffled gene labels,5,0.0,5.0
+no_plant,protein_abundance,8.0,real,5,0.0,0.0
+no_plant,protein_abundance,8.0,shuffled gene labels,5,0.0,0.0
+no_plant,fitness,1.0,real,5,0.0,0.0
+no_plant,fitness,1.0,shuffled gene labels,5,0.0,0.0
+no_plant,fitness,2.0,real,5,0.0,0.0
+no_plant,fitness,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,fitness,4.0,real,5,0.0,0.0
+no_plant,fitness,4.0,shuffled gene labels,5,0.0,0.0
+no_plant,fitness,8.0,real,5,0.0,0.0
+no_plant,fitness,8.0,shuffled gene labels,5,0.0,5.0
+no_plant,place,1.0,real,5,0.0,0.0
+no_plant,place,1.0,shuffled gene labels,5,0.0,0.0
+no_plant,place,2.0,real,5,0.0,0.0
+no_plant,place,2.0,shuffled gene labels,5,0.0,5.0
+no_plant,place,4.0,real,5,0.0,0.0
+no_plant,place,4.0,shuffled gene labels,5,0.0,0.0
+no_plant,place,8.0,real,5,0.0,0.0
+no_plant,place,8.0,shuffled gene labels,5,0.0,0.0
+no_plant,interaction,1.0,real,5,0.0,0.0
+no_plant,interaction,1.0,shuffled gene labels,5,0.0,0.0
+no_plant,interaction,2.0,real,5,0.0,0.0
+no_plant,interaction,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,interaction,4.0,real,5,0.0,0.0
+no_plant,interaction,4.0,shuffled gene labels,5,0.0,0.0
+no_plant,interaction,8.0,real,5,0.0,0.0
+no_plant,interaction,8.0,shuffled gene labels,5,0.0,0.0
+no_plant,sequence,1.0,real,5,0.0,5.0
+no_plant,sequence,1.0,shuffled gene labels,5,0.0,5.0
+no_plant,sequence,2.0,real,5,0.0,5.0
+no_plant,sequence,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,sequence,4.0,real,5,0.0,0.0
+no_plant,sequence,4.0,shuffled gene labels,5,0.0,5.0
+no_plant,sequence,8.0,real,5,0.0,0.0
+no_plant,sequence,8.0,shuffled gene labels,5,0.0,0.0
+no_plant,structure_computed,1.0,real,5,0.0,0.0
+no_plant,structure_computed,1.0,shuffled gene labels,5,0.0,0.0
+no_plant,structure_computed,2.0,real,5,0.0,0.0
+no_plant,structure_computed,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,structure_computed,4.0,real,5,0.0,0.0
+no_plant,structure_computed,4.0,shuffled gene labels,5,0.0,0.0
+no_plant,structure_computed,8.0,real,5,0.0,0.0
+no_plant,structure_computed,8.0,shuffled gene labels,5,0.0,0.0
+no_plant,conservation,1.0,real,5,0.0,0.0
+no_plant,conservation,1.0,shuffled gene labels,5,0.0,0.0
+no_plant,conservation,2.0,real,5,0.0,0.0
+no_plant,conservation,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,conservation,4.0,real,5,0.0,0.0
+no_plant,conservation,4.0,shuffled gene labels,5,0.0,0.0
+no_plant,conservation,8.0,real,5,0.0,0.0
+no_plant,conservation,8.0,shuffled gene labels,5,0.0,0.0
+no_plant,esm,1.0,real,5,0.0,5.0
+no_plant,esm,1.0,shuffled gene labels,5,0.0,5.0
+no_plant,esm,2.0,real,5,0.0,5.0
+no_plant,esm,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,esm,4.0,real,5,0.0,0.0
+no_plant,esm,4.0,shuffled gene labels,5,0.0,0.0
+no_plant,esm,8.0,real,5,0.0,0.0
+no_plant,esm,8.0,shuffled gene labels,5,0.0,0.0
+no_plant,secondary_structure,1.0,real,5,0.0,0.0
+no_plant,secondary_structure,1.0,shuffled gene labels,5,0.0,0.0
+no_plant,secondary_structure,2.0,real,5,0.0,0.0
+no_plant,secondary_structure,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,secondary_structure,4.0,real,5,0.0,0.0
+no_plant,secondary_structure,4.0,shuffled gene labels,5,0.0,10.0
+no_plant,secondary_structure,8.0,real,5,0.0,0.0
+no_plant,secondary_structure,8.0,shuffled gene labels,5,0.0,5.0
+no_plant,3di,1.0,real,5,0.0,5.0
+no_plant,3di,1.0,shuffled gene labels,5,0.0,5.0
+no_plant,3di,2.0,real,5,0.0,0.0
+no_plant,3di,2.0,shuffled gene labels,5,0.0,0.0
+no_plant,3di,4.0,real,5,0.0,0.0
+no_plant,3di,4.0,shuffled gene labels,5,0.0,5.0
+no_plant,3di,8.0,real,5,0.0,5.0
+no_plant,3di,8.0,shuffled gene labels,5,0.0,0.0

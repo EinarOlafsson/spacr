@@ -1,0 +1,3400 @@
+{
+  "task": "1012",
+  "base": "299179d9530ac618d82f11cc823f3ad8abd1c001",
+  "source_checkpoint_commit": "9b5aab33be6601b345542b4950c4cc25d3a313d3",
+  "acceptance_scripts_at_handoff": {
+    "run_full_acceptance.py": {
+      "path": "/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1012/run_full_acceptance.py",
+      "sha256": "bdcbd7c2542c639e8a224f3fea6d8f39f8bc597faf59ad947aa40ace9770ef9a"
+    },
+    "acceptance_inputs.py": {
+      "path": "/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1012/acceptance_inputs.py",
+      "sha256": "fbb92c00e7da19b65bf740e4b323e41c5d5840f2098fb06c3a766054b164bf8d"
+    }
+  },
+  "acceptance_policy": "Prescribed fixed parameters; report actual positive-control metrics. No numeric acceptance cutoff was supplied; no tuning or invented pass threshold.",
+  "scientific_limitation": {
+    "real_matched_complex_recovery_pct": 0.0,
+    "shuffled_matched_complex_recovery_pct": 0.0,
+    "all_52_real_view_strength_strata_zero": true,
+    "interpretation": "Zero recovery at the fixed matched partition, including 8x, requires maintainer review. Passing code gates do not establish successful full-size planted recovery. No defaults were tuned."
+  },
+  "prescribed_plant_adapter_audit": {
+    "complexes_checked": 260,
+    "unique_members": 2080,
+    "covered_members_per_complex": 8,
+    "exact_prescribed_shifted_values": true,
+    "no_off_view_changes": true,
+    "missingness_unchanged": true,
+    "benchmark_direction_records_exactly_reproduced": true,
+    "inputs_unchanged": true,
+    "changed_finite_values_per_view": {
+      "transcript": 25127,
+      "translation": 7120,
+      "chromatin": 468,
+      "protein_abundance": 2109,
+      "fitness": 4132,
+      "place": 320,
+      "interaction": 960,
+      "sequence": 1507,
+      "structure_computed": 290,
+      "conservation": 960,
+      "esm": 51200,
+      "secondary_structure": 1920,
+      "3di": 3200
+    },
+    "planted_arrays_differ_from_no_plant": {
+      "projected": true,
+      "view": true,
+      "p": true,
+      "q": true,
+      "pair_bins": false,
+      "null_counts": true,
+      "control": false
+    },
+    "no_extra_fit_or_scoring_run": true,
+    "conclusion": "The adapter implements the supplied unit-direction recipe exactly. The observed zero matched-partition recovery remains a scientific limitation; no parameter was tuned."
+  },
+  "groups": [
+    {
+      "name": "focused core and legacy identity",
+      "junit_counts_including_subtests": {
+        "tests": 75,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit_skip_reasons_including_expected_failures": {},
+      "seconds": 70.096,
+      "console_summary": "75 passed, 20 warnings in 70.28s (0:01:10)",
+      "xml_sha256": "fa224850163ff1aaf96a27c63a0d4f3d517a2cb12de80a352d9a5f4f48a63d87",
+      "log_sha256": "cbceb211bc37f184ab7871e359ed1db01d9c506793bfdfff692ddbc1c83ab6ea"
+    },
+    {
+      "name": "source-only arrival contracts",
+      "junit_counts_including_subtests": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "junit_skip_reasons_including_expected_failures": {},
+      "seconds": 7.253,
+      "console_summary": "3 passed in 7.46s",
+      "xml_sha256": "2ade67d5eb1be3705cc96e67c923a7f2e99168d9f97dcca2051733f8b551df11",
+      "log_sha256": "bc573822980eead14772dac6fa01066fa9e4f1217411db811986b62b05f2730c"
+    },
+    {
+      "name": "full items",
+      "junit_counts_including_subtests": {
+        "tests": 2569,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 10
+      },
+      "junit_skip_reasons_including_expected_failures": {
+        "needs a CUDA card": 1,
+        "no CUDA card usable through torch": 2,
+        "the plate A reference object table is at Home (SPACR_1006_TABLE)": 6,
+        "the 912 reference nucleus table is at Home (SPACR_912_NUCLEI)": 1
+      },
+      "seconds": 780.589,
+      "console_summary": "1599 passed, 10 skipped, 153 warnings, 960 subtests passed in 780.76s (0:13:00)",
+      "xml_sha256": "fd509c968624d90a0f64bec6a898886a903990afaa3bdf0542445cd0fcf1bd96",
+      "log_sha256": "46256c7e01fa3daa13c7b2c3831427743c3a6eaede8c5b0cc8144fd0c6293fba"
+    },
+    {
+      "name": "full settings",
+      "junit_counts_including_subtests": {
+        "tests": 1001,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 2
+      },
+      "junit_skip_reasons_including_expected_failures": {
+        "no settings argument": 2
+      },
+      "seconds": 128.564,
+      "console_summary": "630 passed, 2 skipped, 369 subtests passed in 128.84s (0:02:08)",
+      "xml_sha256": "2622269d7c74f7255b17992ecf221caba5f29f7c51f6de79b2d73667e1b3513b",
+      "log_sha256": "43628f895150a52325d11af32df73736bbfcc8a07fc928e9837601f165054249"
+    },
+    {
+      "name": "full ratchets",
+      "junit_counts_including_subtests": {
+        "tests": 4172,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 79
+      },
+      "junit_skip_reasons_including_expected_failures": {
+        "requires a fresh full docs build": 73,
+        "Opt-in preflight of not-yet-selected real helper documents": 1,
+        "translation incompatibility registered in .translation-reports (report-only)": 3,
+        "spacr/utils.py no longer passes max_iter= to TSNE": 1,
+        "native build validation needs PyInstaller": 1
+      },
+      "seconds": 3106.167,
+      "console_summary": "4093 passed, 76 skipped, 3 xfailed, 71 warnings in 3106.29s (0:51:46)",
+      "xml_sha256": "4007da4a681bf41f7f2017a2a76be2654bfa437ccc287869d7a0731005c243eb",
+      "log_sha256": "bcdf1beda872d10c8fbe714c00dc54b2ebb881d910b5cf40af720f1cc8a18cf8"
+    }
+  ],
+  "arms": {
+    "no_plant": {
+      "complete": true,
+      "config": {
+        "arm": "no_plant",
+        "variance": 0.99,
+        "similarity": "cosine",
+        "bins": 3,
+        "calibration": 50,
+        "null": 200,
+        "seed": 20261119,
+        "control": null,
+        "null_mode": "columns",
+        "dtype": "float32",
+        "packed": true,
+        "block_size": 1024,
+        "workers": 3,
+        "knn": 10,
+        "edge_p": 0.05,
+        "leiden_seeds": [
+          42,
+          1,
+          2
+        ],
+        "resolutions": [
+          0.049999999999999996,
+          0.07192249441438314,
+          0.10345690405573947,
+          0.14881757208156587,
+          0.21406661993596965,
+          0.30792410553301314,
+          0.4429333952050412,
+          0.6371374928515666,
+          0.9164903554162177,
+          1.3183254493651788,
+          1.8963450953661247,
+          2.727797390584258,
+          3.923799851757305,
+          5.64418945842344,
+          8.118883695943603,
+          11.678607345450605,
+          16.7990914314189,
+          24.164651192858756,
+          34.75963980887802,
+          49.99999999999999
+        ],
+        "shuffles": 1,
+        "plant_population_std_ddof": 0,
+        "all_generated_complexes_are_report_controls": true
+      },
+      "genes": 8140,
+      "raw_columns": 651,
+      "scored_columns": 651,
+      "views": [
+        "transcript",
+        "translation",
+        "chromatin",
+        "protein_abundance",
+        "fitness",
+        "place",
+        "interaction",
+        "sequence",
+        "structure_computed",
+        "conservation",
+        "esm",
+        "secondary_structure",
+        "3di"
+      ],
+      "niche_labels_scored": false,
+      "direct_pair_input_rows": 2842,
+      "unique_direct_pairs": 2842,
+      "EC_label_rows": 1313,
+      "niche_label_rows": 0,
+      "graph_edges": 80759,
+      "matched_target": 643,
+      "matched_clusters": 642,
+      "matched_resolution": 29.05944754064108,
+      "partitions": 61,
+      "score_rows": 122,
+      "planted_complexes": 260,
+      "scoring_seconds": 1954.591903944005,
+      "total_seconds": 3492.71210595101,
+      "parent_peak_rss_mib": 5276.19921875,
+      "child_peak_rss_mib": 4029.22265625,
+      "cgroup_memory_peak_bytes": 7125540864,
+      "input_sha256": {
+        "genes.parquet": "f862800a67050aff0fdff720a734bf498928ca849e75d141de60454dc5a9a59b",
+        "coverage.parquet": "4dd0a000102b6b370c9f74d7c8195ff76721cc52b0a5fcbd4933333a4d33141a",
+        "views.json": "8e6697a6434dc51bdc003929ea2b670c29d0b8e49d645a4fee18e1b89cd6347c",
+        "pairs.csv": "d1a6bbb0c60dba6d4c6067d87ea553e4947967730f77d7190205c7621c196095",
+        "markers.csv": "9b55dd8e7db3b56a12f61bd712a61d39fb533fda8c9650d8fa529f1d436ad0b2",
+        "planted.csv": "26b327538b3150bbfebfae1b3958e49203a51ca335cd974ca3241d32b1e332c1",
+        "labels.parquet": "d2e41e7692577addc16aa8549cf2948be21ee9d51504609bbde0040261b0b185",
+        "manifest.json": "aba323f3bfd5ef9cf5eda37e616f51e1d5b2cab26fdb81435864a743a17adb9d"
+      },
+      "inputs_unchanged": true,
+      "source_sha256": {
+        "spacr/ops_maxproj.py": "476e5d6c8a5fede3f85237eb0561d606131c86bc5de18a7fe170437381fb95fb",
+        "spacr/ops_clusters.py": "3bfc9c0c464f3371ec3e6cf4fc02ba037d4f6698fdc33357da54f010dce18656",
+        "spacr/ops_reference.py": "3ff3f6e8ca0698496d5bf80859ecbf9189da78f0a34b3ed8eb8521c41439e785"
+      },
+      "arrays": {
+        "projected": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "float32",
+          "sha256": "29f889cc2f097c82b67395f8d59aca0ddec450c3d64de68cdba3fad71a846701"
+        },
+        "view": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "int32",
+          "sha256": "cbed25a3c5885796d397b5f13cc11e784ba402b93c38118d69aad708ba59622d"
+        },
+        "p": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "float32",
+          "sha256": "486aa8aa1b6994e55df62bd29f899a7f5ce47e2f8ed3fd36d6d39983434f7602"
+        },
+        "q": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "float32",
+          "sha256": "122895e6480e3efc245e42ada79e82fa1229a0eb8453f53af5d8ee317414f673"
+        },
+        "pair_bins": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "uint8",
+          "sha256": "f7084e7c13114f66cfcec4ba7eb570ccad377834867c1702a30de2e605cddfa8"
+        },
+        "null_counts": {
+          "shape": [
+            9,
+            4800
+          ],
+          "dtype": "int64",
+          "sha256": "89c6c13ec70dee67258b18f6d2ec42128ca215a87adf57bebf2f8be7ce3ca00f"
+        },
+        "control": {
+          "shape": [
+            8140
+          ],
+          "dtype": "bool",
+          "sha256": "c26498e41587bf8708ff31e63c794efb53c3c1d3d1aef7f82840ff3eefc763f7"
+        }
+      },
+      "metric_roles": {
+        "CORUM_enrichment_slot": "EC groups",
+        "KEGG_enrichment_slot": "niche groups only without place",
+        "STRING_slot": "direct XL-MS/IP-MS pairs",
+        "complex_metrics": "generated planted complexes, all REPORT; no tuning"
+      },
+      "plant_record_count": 0,
+      "plant_records": [],
+      "plant_records_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "matched_metrics": [
+        {
+          "profile": "no_plant",
+          "clusters": 642,
+          "genes": 8140,
+          "EC_pct_enriched_head": 5.6,
+          "EC_pct_enriched_may2025": 5.6,
+          "direct_pair_precision": 0.0004,
+          "direct_pair_recall": 0.0091,
+          "direct_pair_f1": 0.0007663157894736,
+          "direct_pair_tp": 26,
+          "direct_pair_fp": 58849,
+          "direct_pair_fn": 2816,
+          "planted_REPORT_complexes": 260,
+          "planted_complexes_recovered_pct": 0.0,
+          "planted_partner_in_cluster_pct": 0.9615384615384616,
+          "graph": "matched",
+          "seed": 42,
+          "resolution": 29.05944754064108,
+          "control": "real"
+        },
+        {
+          "profile": "no_plant",
+          "clusters": 642,
+          "genes": 8140,
+          "EC_pct_enriched_head": 2.5,
+          "EC_pct_enriched_may2025": 2.5,
+          "direct_pair_precision": 0.0001,
+          "direct_pair_recall": 0.0021,
+          "direct_pair_f1": 0.000190909090909,
+          "direct_pair_tp": 6,
+          "direct_pair_fp": 58869,
+          "direct_pair_fn": 2836,
+          "planted_REPORT_complexes": 260,
+          "planted_complexes_recovered_pct": 0.0,
+          "planted_partner_in_cluster_pct": 1.153846153846154,
+          "graph": "matched",
+          "seed": 42,
+          "resolution": 29.05944754064108,
+          "control": "shuffled gene labels"
+        }
+      ],
+      "receipt_sha256": "2351d5e62c5ba8ceb4423034131efbdaa8c1485ffe56f4d233821e8a1c7848f0",
+      "output_sha256": {
+        "scores.csv": "14dc73293cb8cabbdc553cd0ed0088427904924af54bc3beae952c0935c97dc9",
+        "planted_strata.csv": "3a94b267eeb520fe27f9727a5029a4ec540ab744e183aba2ef4261c85ee3ebd7",
+        "cluster_view_shares.csv": "0b760467a40b83c61e665f7dc412d1cd84c8fc6ed956509410a4d2b0627ea63d",
+        "cluster_view_kinds.csv": "119e6c6a22097f469810f6e6a82ff64c69dff54aa1d6ead61f3a6c71dccdf66d",
+        "matched_partition.parquet": "550f3851fc910bddade93cc02ba4beeb823fbed4218e3a4fe83c711cb02bcdd4"
+      }
+    },
+    "planted": {
+      "complete": true,
+      "config": {
+        "arm": "planted",
+        "variance": 0.99,
+        "similarity": "cosine",
+        "bins": 3,
+        "calibration": 50,
+        "null": 200,
+        "seed": 20261119,
+        "control": null,
+        "null_mode": "columns",
+        "dtype": "float32",
+        "packed": true,
+        "block_size": 1024,
+        "workers": 3,
+        "knn": 10,
+        "edge_p": 0.05,
+        "leiden_seeds": [
+          42,
+          1,
+          2
+        ],
+        "resolutions": [
+          0.049999999999999996,
+          0.07192249441438314,
+          0.10345690405573947,
+          0.14881757208156587,
+          0.21406661993596965,
+          0.30792410553301314,
+          0.4429333952050412,
+          0.6371374928515666,
+          0.9164903554162177,
+          1.3183254493651788,
+          1.8963450953661247,
+          2.727797390584258,
+          3.923799851757305,
+          5.64418945842344,
+          8.118883695943603,
+          11.678607345450605,
+          16.7990914314189,
+          24.164651192858756,
+          34.75963980887802,
+          49.99999999999999
+        ],
+        "shuffles": 1,
+        "plant_population_std_ddof": 0,
+        "all_generated_complexes_are_report_controls": true
+      },
+      "genes": 8140,
+      "raw_columns": 651,
+      "scored_columns": 653,
+      "views": [
+        "transcript",
+        "translation",
+        "chromatin",
+        "protein_abundance",
+        "fitness",
+        "place",
+        "interaction",
+        "sequence",
+        "structure_computed",
+        "conservation",
+        "esm",
+        "secondary_structure",
+        "3di"
+      ],
+      "niche_labels_scored": false,
+      "direct_pair_input_rows": 2842,
+      "unique_direct_pairs": 2842,
+      "EC_label_rows": 1313,
+      "niche_label_rows": 0,
+      "graph_edges": 80693,
+      "matched_target": 643,
+      "matched_clusters": 646,
+      "matched_resolution": 28.772948938682806,
+      "partitions": 61,
+      "score_rows": 122,
+      "planted_complexes": 260,
+      "scoring_seconds": 3024.7623152480082,
+      "total_seconds": 4136.625469927007,
+      "parent_peak_rss_mib": 5272.8984375,
+      "child_peak_rss_mib": 4030.953125,
+      "cgroup_memory_peak_bytes": 7187136512,
+      "input_sha256": {
+        "genes.parquet": "f862800a67050aff0fdff720a734bf498928ca849e75d141de60454dc5a9a59b",
+        "coverage.parquet": "4dd0a000102b6b370c9f74d7c8195ff76721cc52b0a5fcbd4933333a4d33141a",
+        "views.json": "8e6697a6434dc51bdc003929ea2b670c29d0b8e49d645a4fee18e1b89cd6347c",
+        "pairs.csv": "d1a6bbb0c60dba6d4c6067d87ea553e4947967730f77d7190205c7621c196095",
+        "markers.csv": "9b55dd8e7db3b56a12f61bd712a61d39fb533fda8c9650d8fa529f1d436ad0b2",
+        "planted.csv": "26b327538b3150bbfebfae1b3958e49203a51ca335cd974ca3241d32b1e332c1",
+        "labels.parquet": "d2e41e7692577addc16aa8549cf2948be21ee9d51504609bbde0040261b0b185",
+        "manifest.json": "aba323f3bfd5ef9cf5eda37e616f51e1d5b2cab26fdb81435864a743a17adb9d"
+      },
+      "inputs_unchanged": true,
+      "source_sha256": {
+        "spacr/ops_maxproj.py": "476e5d6c8a5fede3f85237eb0561d606131c86bc5de18a7fe170437381fb95fb",
+        "spacr/ops_clusters.py": "3bfc9c0c464f3371ec3e6cf4fc02ba037d4f6698fdc33357da54f010dce18656",
+        "spacr/ops_reference.py": "3ff3f6e8ca0698496d5bf80859ecbf9189da78f0a34b3ed8eb8521c41439e785"
+      },
+      "arrays": {
+        "projected": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "float32",
+          "sha256": "de42a26ec53e12412f36c1179a5668f33ed2bb94645e9d5642b882aeccd2b6e0"
+        },
+        "view": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "int32",
+          "sha256": "424f6895a475d24d96d2dcad78cc0e4f84fe00a2b82702a545b3f4f072700d84"
+        },
+        "p": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "float32",
+          "sha256": "db242b3e3c8ceaa49eb3bb0dfdf5e52dc5ae010591403faac8403c14b9e15cf8"
+        },
+        "q": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "float32",
+          "sha256": "a8ff3e2a71d49ccf28c1acf7a3d9357d79ccc72d68a9a20a246e7357712efb15"
+        },
+        "pair_bins": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "uint8",
+          "sha256": "f7084e7c13114f66cfcec4ba7eb570ccad377834867c1702a30de2e605cddfa8"
+        },
+        "null_counts": {
+          "shape": [
+            9,
+            4800
+          ],
+          "dtype": "int64",
+          "sha256": "05027b7a1826afff5314f69fb7347309b2386d91429c814199bf6b71fe6a8c13"
+        },
+        "control": {
+          "shape": [
+            8140
+          ],
+          "dtype": "bool",
+          "sha256": "c26498e41587bf8708ff31e63c794efb53c3c1d3d1aef7f82840ff3eefc763f7"
+        }
+      },
+      "metric_roles": {
+        "CORUM_enrichment_slot": "EC groups",
+        "KEGG_enrichment_slot": "niche groups only without place",
+        "STRING_slot": "direct XL-MS/IP-MS pairs",
+        "complex_metrics": "generated planted complexes, all REPORT; no tuning"
+      },
+      "plant_record_count": 260,
+      "plant_records": [
+        {
+          "complex": "plant_transcript_s1_0",
+          "complex_index": 0,
+          "view": "transcript",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "8ece35dbde127146c14e8f542ab8ec1ac1489ab6a70970a13bd66b49d62d55b1"
+        },
+        {
+          "complex": "plant_transcript_s1_1",
+          "complex_index": 1,
+          "view": "transcript",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "efdd3d6400722a380d30d17d84678a2084e7bf53481a11d75a1302e414e2f251"
+        },
+        {
+          "complex": "plant_transcript_s1_2",
+          "complex_index": 2,
+          "view": "transcript",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b8d29c064787806f701b8f17bc148f9a99d815f9d6063a680bc734d619ceedd4"
+        },
+        {
+          "complex": "plant_transcript_s1_3",
+          "complex_index": 3,
+          "view": "transcript",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "abeea1351e2151c40741baba098af9843d6ff33139b736a7c611abee423d2482"
+        },
+        {
+          "complex": "plant_transcript_s1_4",
+          "complex_index": 4,
+          "view": "transcript",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "fa8fe438c5634e3ed1b322898002d0ccb61d724905d70cc4b1653126cb65d6e1"
+        },
+        {
+          "complex": "plant_transcript_s2_0",
+          "complex_index": 5,
+          "view": "transcript",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "e33341a474ed09bfc7b607a3a6ca01b35fed9fdf35496619d179a2a447b4121f"
+        },
+        {
+          "complex": "plant_transcript_s2_1",
+          "complex_index": 6,
+          "view": "transcript",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "fb6b4c074ffe64412f6607b24ebecf95cb8e24ef6633635ff44ccd3d351fd84b"
+        },
+        {
+          "complex": "plant_transcript_s2_2",
+          "complex_index": 7,
+          "view": "transcript",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "795dffaead3005dc93ff8c62c98c039294617a7f77a52933b6aac61f28d9130c"
+        },
+        {
+          "complex": "plant_transcript_s2_3",
+          "complex_index": 8,
+          "view": "transcript",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "4b8c2daeace2a4ba7edc4756e68a701ff526de0aae0a73234c3442b752d53b12"
+        },
+        {
+          "complex": "plant_transcript_s2_4",
+          "complex_index": 9,
+          "view": "transcript",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ca060a030dd6cadfa3bb42eba2d2c9154c961ee4b11188b73e22de8cf1005079"
+        },
+        {
+          "complex": "plant_transcript_s4_0",
+          "complex_index": 10,
+          "view": "transcript",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "580d02e068ee7cf05d668ac5b9e0582893c792ae2ccd03aa9bd8a2c81adb15ba"
+        },
+        {
+          "complex": "plant_transcript_s4_1",
+          "complex_index": 11,
+          "view": "transcript",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "892044b5d3414a372b226372c0cb6dfafe85ab8d53883563c57dd9e788942568"
+        },
+        {
+          "complex": "plant_transcript_s4_2",
+          "complex_index": 12,
+          "view": "transcript",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ac0d1c6638cba05e548691ffe32b0fd576f57e0f5adaf27d34d0d428a2256d3e"
+        },
+        {
+          "complex": "plant_transcript_s4_3",
+          "complex_index": 13,
+          "view": "transcript",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a5a73fe8698c70094797d2d6968772e53397f5116b0b0f9bac486c27f1623a63"
+        },
+        {
+          "complex": "plant_transcript_s4_4",
+          "complex_index": 14,
+          "view": "transcript",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "f504ac0ec2fefd8cee2a99c92382f7e8276be6a07be51331eecced247395837b"
+        },
+        {
+          "complex": "plant_transcript_s8_0",
+          "complex_index": 15,
+          "view": "transcript",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "7a259b40f4bc19a46f9b6ec115be87663705f911d2d80234e461e511f8e7c8ce"
+        },
+        {
+          "complex": "plant_transcript_s8_1",
+          "complex_index": 16,
+          "view": "transcript",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "68d641f36c1250a10f6dcee37ef395b49189267861761c29dee2431b2ab17c9e"
+        },
+        {
+          "complex": "plant_transcript_s8_2",
+          "complex_index": 17,
+          "view": "transcript",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "035e72d05a2ecd8c86f7b29ed21e510e525a44c8de6d20e1af52b3b6cc58ded9"
+        },
+        {
+          "complex": "plant_transcript_s8_3",
+          "complex_index": 18,
+          "view": "transcript",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "57e1668b41e1ce825f0b446a83630feb75acd302bc36a5b898c62ff683d80876"
+        },
+        {
+          "complex": "plant_transcript_s8_4",
+          "complex_index": 19,
+          "view": "transcript",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "c8887292b165ef890b6ee9c92ce7a3cbe2822bef8a004fce4a23b6a7be323560"
+        },
+        {
+          "complex": "plant_translation_s1_0",
+          "complex_index": 20,
+          "view": "translation",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "12fda95904dc4f878c51846b2151120ae5b4557b98c59055c3caee9ba3d1db21"
+        },
+        {
+          "complex": "plant_translation_s1_1",
+          "complex_index": 21,
+          "view": "translation",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "73fdcf330e5cc0bccee7cbed5d5f92b793eb7eb41a9609366589cf8caf9aaa9a"
+        },
+        {
+          "complex": "plant_translation_s1_2",
+          "complex_index": 22,
+          "view": "translation",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "33ee98256cf8301be638f7c4ad3e3b5f5d6ba5d04e012f7877cabf8839c1cc47"
+        },
+        {
+          "complex": "plant_translation_s1_3",
+          "complex_index": 23,
+          "view": "translation",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "52bd4fe411b73cf88c010816e532201885d23caba16b44caf2744154f9bcf9ce"
+        },
+        {
+          "complex": "plant_translation_s1_4",
+          "complex_index": 24,
+          "view": "translation",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "2bf4154ed63f67c8c5ea3485b38cf5b8f79abb2d02356aff9d4489de3f674d01"
+        },
+        {
+          "complex": "plant_translation_s2_0",
+          "complex_index": 25,
+          "view": "translation",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "50f2f39505317acfe66fe8acdbe2884cf41a07259448938acc6c797bbde8b6c3"
+        },
+        {
+          "complex": "plant_translation_s2_1",
+          "complex_index": 26,
+          "view": "translation",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d57281ed8768536f7fa898e21a73ce12362e6ea6ff2a02635b717e6b47f81fe4"
+        },
+        {
+          "complex": "plant_translation_s2_2",
+          "complex_index": 27,
+          "view": "translation",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "9e4723312574fb00ee284773a958711711c2d91853ad84d517fa6c4d2ca9dbcd"
+        },
+        {
+          "complex": "plant_translation_s2_3",
+          "complex_index": 28,
+          "view": "translation",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "396554719714bd09c0fd0ad9d47b562bcd5f83d01c0df5c2a01ef01137fd1fbd"
+        },
+        {
+          "complex": "plant_translation_s2_4",
+          "complex_index": 29,
+          "view": "translation",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "3b3347fb1c1200f5c4c2cc86157d025b949fbbc3ed2ac5256f85f556fe3d5bea"
+        },
+        {
+          "complex": "plant_translation_s4_0",
+          "complex_index": 30,
+          "view": "translation",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "7e0ddd306778756295463048bee25a31483bcba0dcbef1704ea0ec4d4733ef9a"
+        },
+        {
+          "complex": "plant_translation_s4_1",
+          "complex_index": 31,
+          "view": "translation",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "0db3777047e84c1f55166248016b1f965f29953af166daf41574adc2bf8a06f8"
+        },
+        {
+          "complex": "plant_translation_s4_2",
+          "complex_index": 32,
+          "view": "translation",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "19565f5eba8065d24c61f912723a552908f88ca2cb36d9ad585b379c9a7a3671"
+        },
+        {
+          "complex": "plant_translation_s4_3",
+          "complex_index": 33,
+          "view": "translation",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "478bd2b04a2e784c3812bfaf143bc09e1f6e8c4ad0a9ec378397d1ece6166276"
+        },
+        {
+          "complex": "plant_translation_s4_4",
+          "complex_index": 34,
+          "view": "translation",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "07f81d26ef890ad5477115df5770d2504eab69a66318f3caa24b24fffb9b2841"
+        },
+        {
+          "complex": "plant_translation_s8_0",
+          "complex_index": 35,
+          "view": "translation",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "1a6ed653916fe7e95e2b2fd70f472625091ee5f57c29a7ed446c88f9736c8864"
+        },
+        {
+          "complex": "plant_translation_s8_1",
+          "complex_index": 36,
+          "view": "translation",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "483409d432e397c89057fde26df4b399e31e4eb8d71f6bcee2dadffc74b7aded"
+        },
+        {
+          "complex": "plant_translation_s8_2",
+          "complex_index": 37,
+          "view": "translation",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "386c2ef74041ff4ab6ddcdad20d380b345227669c22377cef23114e854f2b768"
+        },
+        {
+          "complex": "plant_translation_s8_3",
+          "complex_index": 38,
+          "view": "translation",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d9c229d02f6995bd5147d5caaac950c8b73a4218772c1a5f5fb48ad01e71aed9"
+        },
+        {
+          "complex": "plant_translation_s8_4",
+          "complex_index": 39,
+          "view": "translation",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "f14f95ca0ef66f0013d3f7929938165add6bbbc7cfa7c87d1e8112ef1aaa78e8"
+        },
+        {
+          "complex": "plant_chromatin_s1_0",
+          "complex_index": 40,
+          "view": "chromatin",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "be27f6bf1fe43b7dccfb5f32769868553d22e4e61be0bd55d5b7b4a110b8a875"
+        },
+        {
+          "complex": "plant_chromatin_s1_1",
+          "complex_index": 41,
+          "view": "chromatin",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "de3786866e96ffe5ea1d6f10f81588dd8125dfe5d09b06a00c65d542dce8e1db"
+        },
+        {
+          "complex": "plant_chromatin_s1_2",
+          "complex_index": 42,
+          "view": "chromatin",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "efbf43ad4f71adaff8afe1153f843708986df0de03ed45d3f165930fb67c5452"
+        },
+        {
+          "complex": "plant_chromatin_s1_3",
+          "complex_index": 43,
+          "view": "chromatin",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "2f6c8af8b5476d0b6785571c9c271db9edad39ddda69bd5778b3340506b17a63"
+        },
+        {
+          "complex": "plant_chromatin_s1_4",
+          "complex_index": 44,
+          "view": "chromatin",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "f48a51b507ed74807e58b88de7ffe7a9b80285126c41c325b4adb4220c5ad4af"
+        },
+        {
+          "complex": "plant_chromatin_s2_0",
+          "complex_index": 45,
+          "view": "chromatin",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "1432aeceede464709ac1ab5ad3bebe336955424146ab031c66961fcbe03d6d58"
+        },
+        {
+          "complex": "plant_chromatin_s2_1",
+          "complex_index": 46,
+          "view": "chromatin",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a0612601db11b69b727109d72e0d7c700f7fd542acda0b30ffbd7a9c200a6adb"
+        },
+        {
+          "complex": "plant_chromatin_s2_2",
+          "complex_index": 47,
+          "view": "chromatin",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b22740c630269ae3a47a6f44320745ce0c1175a0e8eadd40dded18fd09fd7c1c"
+        },
+        {
+          "complex": "plant_chromatin_s2_3",
+          "complex_index": 48,
+          "view": "chromatin",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "131f16f6a88fb2c12f1b1c223d159e3910452ab2a1045cd3ca862a31c9e46c5f"
+        },
+        {
+          "complex": "plant_chromatin_s2_4",
+          "complex_index": 49,
+          "view": "chromatin",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "048e2374f485a19d0a3eb1d62720bbdc0cb87c878ff679885bdefa4a65a65982"
+        },
+        {
+          "complex": "plant_chromatin_s4_0",
+          "complex_index": 50,
+          "view": "chromatin",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "78de815d1f9b3cde0cee3fc5ddbd63057f4fd4df16e11829b28796340c25e0db"
+        },
+        {
+          "complex": "plant_chromatin_s4_1",
+          "complex_index": 51,
+          "view": "chromatin",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "6c24612a89c9750cfad511400301bb8dd498e0c36a5dd9d8a390496c0334e046"
+        },
+        {
+          "complex": "plant_chromatin_s4_2",
+          "complex_index": 52,
+          "view": "chromatin",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d211dc6ab08304fbbb6f79786306f8b22b80f2e17c7b606b17da1b0ff6bde6be"
+        },
+        {
+          "complex": "plant_chromatin_s4_3",
+          "complex_index": 53,
+          "view": "chromatin",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "2ec23042fd5913116b8933fc764d31157c693315152bf56c070f454690de77a4"
+        },
+        {
+          "complex": "plant_chromatin_s4_4",
+          "complex_index": 54,
+          "view": "chromatin",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ff6f16bb3caf2223857633bdced3681f7c6e9bf90ecc4c836cab2daeb1dc2107"
+        },
+        {
+          "complex": "plant_chromatin_s8_0",
+          "complex_index": 55,
+          "view": "chromatin",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a496661fb738e0abb2ba54e3ba80e1993af47410d30e118d3fe234398c2d275f"
+        },
+        {
+          "complex": "plant_chromatin_s8_1",
+          "complex_index": 56,
+          "view": "chromatin",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "4b6d747285b339040be2911700001e2c4d4d80ad25a20889aed52fa69d71d10b"
+        },
+        {
+          "complex": "plant_chromatin_s8_2",
+          "complex_index": 57,
+          "view": "chromatin",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ad458de3bba3dca2e199bda22bd6307a89107bf9ce5261ea09b2a3d2535d98b1"
+        },
+        {
+          "complex": "plant_chromatin_s8_3",
+          "complex_index": 58,
+          "view": "chromatin",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "e4237a668d4fbcaf1b905189aa3beddca767e1f26f83485a7623ddfe8c8ebe07"
+        },
+        {
+          "complex": "plant_chromatin_s8_4",
+          "complex_index": 59,
+          "view": "chromatin",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "012fa4321a2fbab737dd37194b45466bf3b312fdfa6e78faeffc633763307d17"
+        },
+        {
+          "complex": "plant_protein_abundance_s1_0",
+          "complex_index": 60,
+          "view": "protein_abundance",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "6ddb8f641b0eefcfaa2ec87ab9b7b7553763d1f83ebfca103af6d60af40e1427"
+        },
+        {
+          "complex": "plant_protein_abundance_s1_1",
+          "complex_index": 61,
+          "view": "protein_abundance",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "f2edb47142b164b5d95021ef5326de7d78e45609abc923c2f1db7bb8dcedfaf1"
+        },
+        {
+          "complex": "plant_protein_abundance_s1_2",
+          "complex_index": 62,
+          "view": "protein_abundance",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "0c9350f95831b1066c0e6c268d3367ace47e64acbedadbb40fa953dc6e5a3ee0"
+        },
+        {
+          "complex": "plant_protein_abundance_s1_3",
+          "complex_index": 63,
+          "view": "protein_abundance",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "9b0717bcfc997475fffe90a5e20b9eb73a8658c3e50e22fcabdbb853c543f06d"
+        },
+        {
+          "complex": "plant_protein_abundance_s1_4",
+          "complex_index": 64,
+          "view": "protein_abundance",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "028edf9557a1f52ea49edd387821df145900ad1c74db330781e6a535fec0a268"
+        },
+        {
+          "complex": "plant_protein_abundance_s2_0",
+          "complex_index": 65,
+          "view": "protein_abundance",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "2e5fc98f5eed9c1855824459fc7642ca5db41a7c56289b581791cf1324cb69b1"
+        },
+        {
+          "complex": "plant_protein_abundance_s2_1",
+          "complex_index": 66,
+          "view": "protein_abundance",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "4192b9eec76d26ffe4ccb43039e9232f87794c6c50f7f9c6a341a4f866cea177"
+        },
+        {
+          "complex": "plant_protein_abundance_s2_2",
+          "complex_index": 67,
+          "view": "protein_abundance",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "8209e6f5c13f0e93bae90dfdca94f58f046b9f2e9dbe843a9953f0b022d2778e"
+        },
+        {
+          "complex": "plant_protein_abundance_s2_3",
+          "complex_index": 68,
+          "view": "protein_abundance",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "260e16163bf596e8a85bc327e60bc692b5fce20f93a9e89a5403632c75617d0a"
+        },
+        {
+          "complex": "plant_protein_abundance_s2_4",
+          "complex_index": 69,
+          "view": "protein_abundance",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "55cd45021765b949e949afc2f97c034ae6f6dd29d66c03b9ea6b3bd889d0a504"
+        },
+        {
+          "complex": "plant_protein_abundance_s4_0",
+          "complex_index": 70,
+          "view": "protein_abundance",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "836551128dae3a97a9be29bfcafb744502da9538c8049ac5149bb0948d664212"
+        },
+        {
+          "complex": "plant_protein_abundance_s4_1",
+          "complex_index": 71,
+          "view": "protein_abundance",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "71d4b13db2811fc8b1580f8be974a53aba97001a2a68a266f86c90a1e9cb286b"
+        },
+        {
+          "complex": "plant_protein_abundance_s4_2",
+          "complex_index": 72,
+          "view": "protein_abundance",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "f89b527532ae044939cd76e152b305d66851a9e2185afb4abdaacc2c469ee9aa"
+        },
+        {
+          "complex": "plant_protein_abundance_s4_3",
+          "complex_index": 73,
+          "view": "protein_abundance",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "6bcc8ea93844e7355867ca83c8cc87dda25f2f874726729b08392b81279fbd89"
+        },
+        {
+          "complex": "plant_protein_abundance_s4_4",
+          "complex_index": 74,
+          "view": "protein_abundance",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "bc794ed87b17bea35b8dc76cb060da26ff90f638caa491168dce70d06cda779e"
+        },
+        {
+          "complex": "plant_protein_abundance_s8_0",
+          "complex_index": 75,
+          "view": "protein_abundance",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "601258ffa87472304ea56c90a756caec291aa720ed70a99018824c837051f4c3"
+        },
+        {
+          "complex": "plant_protein_abundance_s8_1",
+          "complex_index": 76,
+          "view": "protein_abundance",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "7c01b5fa00634d22c80699456019917f1045f548bb81e88f053a37d49f512e7b"
+        },
+        {
+          "complex": "plant_protein_abundance_s8_2",
+          "complex_index": 77,
+          "view": "protein_abundance",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b7351ec2494253410a42fd3538dff1ec1702b84004e891a499c268d0ccdb4c51"
+        },
+        {
+          "complex": "plant_protein_abundance_s8_3",
+          "complex_index": 78,
+          "view": "protein_abundance",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "11b023500c773771f9c9d8be9ca75a30ea827ae5c6fce25b7d6ba63584d9b8f8"
+        },
+        {
+          "complex": "plant_protein_abundance_s8_4",
+          "complex_index": 79,
+          "view": "protein_abundance",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "db4f11a581edc9b7e7d12f996e00f782b886e3882a028d32cea03999d5ef3b5b"
+        },
+        {
+          "complex": "plant_fitness_s1_0",
+          "complex_index": 80,
+          "view": "fitness",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "78cee4f259ac834176b0dea4fdb40e860b0a27c57b12491d44b0994239790ac9"
+        },
+        {
+          "complex": "plant_fitness_s1_1",
+          "complex_index": 81,
+          "view": "fitness",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "877b2a2d669421c3d321d74aafc9a2bc350ff16c05999b9d0e77727fa0e88e98"
+        },
+        {
+          "complex": "plant_fitness_s1_2",
+          "complex_index": 82,
+          "view": "fitness",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "874567cbe95064bfd65499e15a704c44daf35dbe0acb060f077aa8391755adf5"
+        },
+        {
+          "complex": "plant_fitness_s1_3",
+          "complex_index": 83,
+          "view": "fitness",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "457a108d4d36a000e2140fbebb1b8da5a00d3ee8a2e50445e90129c549d1686f"
+        },
+        {
+          "complex": "plant_fitness_s1_4",
+          "complex_index": 84,
+          "view": "fitness",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "1dc61e79c552b10f4573367993050232c36f4a27a2a35e771059a3b2cf8c34b8"
+        },
+        {
+          "complex": "plant_fitness_s2_0",
+          "complex_index": 85,
+          "view": "fitness",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "9afeb06e28dbb30f89c86f406f3fc80d792906419fd60f704c670b3b3c273685"
+        },
+        {
+          "complex": "plant_fitness_s2_1",
+          "complex_index": 86,
+          "view": "fitness",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "0a657300cf89152d7674f731abe06fbfbc326a46911d003f646ef8753bdc3817"
+        },
+        {
+          "complex": "plant_fitness_s2_2",
+          "complex_index": 87,
+          "view": "fitness",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "540bc904a47e9d68a33af6585db453e2aab896d587c5d09eeb3cdaf853e90028"
+        },
+        {
+          "complex": "plant_fitness_s2_3",
+          "complex_index": 88,
+          "view": "fitness",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "70f174a74ad14b13d9e7e877db9309794b3704fdbf5c40c03c47e89d3a5139df"
+        },
+        {
+          "complex": "plant_fitness_s2_4",
+          "complex_index": 89,
+          "view": "fitness",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "76ddccf31f638219262d2ad2833416a62449bb09b753ec70d3fd7761ea65e325"
+        },
+        {
+          "complex": "plant_fitness_s4_0",
+          "complex_index": 90,
+          "view": "fitness",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "bd4de89612965e1fd3c48ad4760771ce9624f0b32327b9c5e6f3cfbce796e837"
+        },
+        {
+          "complex": "plant_fitness_s4_1",
+          "complex_index": 91,
+          "view": "fitness",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "005a7233e8da81485f561e0ace74c972dc4d1f6e31e54b51fdcd964ace6542fb"
+        },
+        {
+          "complex": "plant_fitness_s4_2",
+          "complex_index": 92,
+          "view": "fitness",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "f9cbd6080318ddd084f7181441d24b88470f4f85f72cb5d051dc2c0e426e74c5"
+        },
+        {
+          "complex": "plant_fitness_s4_3",
+          "complex_index": 93,
+          "view": "fitness",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "f59a31be7937979de55a24148f38711bd8a557646acdb555c2466df3cc977327"
+        },
+        {
+          "complex": "plant_fitness_s4_4",
+          "complex_index": 94,
+          "view": "fitness",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "45bf5565ff6d0ddc3e7ef253773718df52c5ff4d6da6a045db38fbc514d58174"
+        },
+        {
+          "complex": "plant_fitness_s8_0",
+          "complex_index": 95,
+          "view": "fitness",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "8b716b3fbed63875d805121b7ba9a2a6f17d94c839b6d15adad245a4998a7d33"
+        },
+        {
+          "complex": "plant_fitness_s8_1",
+          "complex_index": 96,
+          "view": "fitness",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "075a06bf991ea952060f25715738340547bc569cac4f9867543b3c816a2a108a"
+        },
+        {
+          "complex": "plant_fitness_s8_2",
+          "complex_index": 97,
+          "view": "fitness",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d1634731351c905ec06739e31656d39f76c21ea26938fb0d0e414f47aae56355"
+        },
+        {
+          "complex": "plant_fitness_s8_3",
+          "complex_index": 98,
+          "view": "fitness",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "8601e12a973017ae89a9e872109944be464392c28a9580d138501cbf0c9ccce5"
+        },
+        {
+          "complex": "plant_fitness_s8_4",
+          "complex_index": 99,
+          "view": "fitness",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "19307c4cb2f99039c97de92d7d628634cacec05580d98cd4282b10a10a63e843"
+        },
+        {
+          "complex": "plant_place_s1_0",
+          "complex_index": 100,
+          "view": "place",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "6be2fd53b8c5b130221188ecd52984edfc605c24966e53e01a31afbdd873d574"
+        },
+        {
+          "complex": "plant_place_s1_1",
+          "complex_index": 101,
+          "view": "place",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "de29f0d626014d1bf5cdc870f4a52fca57db05673ef7c68ec7f75db1642edd85"
+        },
+        {
+          "complex": "plant_place_s1_2",
+          "complex_index": 102,
+          "view": "place",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "43f1cb8d2c15c206f06d615c5442514ca5627903a3c6f316d5729aa000948ffa"
+        },
+        {
+          "complex": "plant_place_s1_3",
+          "complex_index": 103,
+          "view": "place",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d08d6088ef8a777e8ecdd05be5b225c0f8a666850f200e4eb400107831ef35a2"
+        },
+        {
+          "complex": "plant_place_s1_4",
+          "complex_index": 104,
+          "view": "place",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "472801a8595f21062b835b69776cb45af14d064be9151d1137d7acf5498472b9"
+        },
+        {
+          "complex": "plant_place_s2_0",
+          "complex_index": 105,
+          "view": "place",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ad362e8b33a0a406d1727efe3aa1885dc3c8ce9062ec43be02b975c4bf9ae6f3"
+        },
+        {
+          "complex": "plant_place_s2_1",
+          "complex_index": 106,
+          "view": "place",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "8d27ca9d61c4dbf180f3088bc16b927716d55b901c13a367e61c2bef4608168f"
+        },
+        {
+          "complex": "plant_place_s2_2",
+          "complex_index": 107,
+          "view": "place",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "7cd29d9aa13f76462ea68044032d58ed5ade12c5d12bc8ad275b26867d0d988b"
+        },
+        {
+          "complex": "plant_place_s2_3",
+          "complex_index": 108,
+          "view": "place",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ddbc8f8e11b8b8b5edfee9fda22e3ccb9c933be6207bb4b55d94d3fb4b15497c"
+        },
+        {
+          "complex": "plant_place_s2_4",
+          "complex_index": 109,
+          "view": "place",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "019cf685b2511072d580155aeaeb6f5ae7c825f655c5f7bc924698bd94830e91"
+        },
+        {
+          "complex": "plant_place_s4_0",
+          "complex_index": 110,
+          "view": "place",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "4968faa79fafb52442ff8d8338e6b721a6bf1f44162e44ce8b57914735d899f3"
+        },
+        {
+          "complex": "plant_place_s4_1",
+          "complex_index": 111,
+          "view": "place",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "701d96bdcfe89ca10f49581e39e76e960d21d439acc4c2d78c18278bd84b9310"
+        },
+        {
+          "complex": "plant_place_s4_2",
+          "complex_index": 112,
+          "view": "place",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "224bab7c640ccff0379c69bf69ea377f491c43095cdc3f9d2c9dce46e59ee922"
+        },
+        {
+          "complex": "plant_place_s4_3",
+          "complex_index": 113,
+          "view": "place",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "19e8229cf70b4c3e421ecc3bd58a25b47af30487c8fea0c440883909df2d5bfa"
+        },
+        {
+          "complex": "plant_place_s4_4",
+          "complex_index": 114,
+          "view": "place",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "8354fcaf4bb51f7b9aa6d391afc2f90cac768861cbf86985cc452faf86d3f773"
+        },
+        {
+          "complex": "plant_place_s8_0",
+          "complex_index": 115,
+          "view": "place",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "6270770714159df41f91ab4415fa8459b3c89b91d658fe47ed7d01399c17064b"
+        },
+        {
+          "complex": "plant_place_s8_1",
+          "complex_index": 116,
+          "view": "place",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b7e8235954d1c20234e74cc16d1a1ff23de2853592909ea225cdeb4a6b108514"
+        },
+        {
+          "complex": "plant_place_s8_2",
+          "complex_index": 117,
+          "view": "place",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "112e471cb8d276f0ccedb6a0f9a7c097de6b5284c3219c94374b05cb1c28cf38"
+        },
+        {
+          "complex": "plant_place_s8_3",
+          "complex_index": 118,
+          "view": "place",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "469c1917a556fe3c9dcfc8bf6291a0355d4dc1b0c9de1c978b23c346fce8b980"
+        },
+        {
+          "complex": "plant_place_s8_4",
+          "complex_index": 119,
+          "view": "place",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "7d5f1a0c03d0446c502f34a14ff85b44eab88c7b370b487b656c65ecc34ea7e6"
+        },
+        {
+          "complex": "plant_interaction_s1_0",
+          "complex_index": 120,
+          "view": "interaction",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b5add5ff46c9f2bfe1439b9d7ff7e959c5253cf5011cf0ba981582aefb0be529"
+        },
+        {
+          "complex": "plant_interaction_s1_1",
+          "complex_index": 121,
+          "view": "interaction",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a06a8d6b4ab82986f1b70cc3247de36d78cade8ab8b7af518cbffafa01a0df88"
+        },
+        {
+          "complex": "plant_interaction_s1_2",
+          "complex_index": 122,
+          "view": "interaction",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "99bfc0577358bb4066de949483519f19a8c9d3cfa35167b2212c66576ce3d9bf"
+        },
+        {
+          "complex": "plant_interaction_s1_3",
+          "complex_index": 123,
+          "view": "interaction",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "0240f950c97bc233336897bd971bdb66c4547c604dee2c17aa01375eac111b6d"
+        },
+        {
+          "complex": "plant_interaction_s1_4",
+          "complex_index": 124,
+          "view": "interaction",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "9661262d72ab5bb791f740f3ba9f7f6de4ab37afca58fca977ce6892ffdc7e48"
+        },
+        {
+          "complex": "plant_interaction_s2_0",
+          "complex_index": 125,
+          "view": "interaction",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "7c38665f6242a72b4cd8c4ab4311a6ac57cf33a7678fb8560a2f362d6482be0c"
+        },
+        {
+          "complex": "plant_interaction_s2_1",
+          "complex_index": 126,
+          "view": "interaction",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ceb4ae1cee79e462b84777eaf76ec945c0c6172d2a679b79e65094ee007109d1"
+        },
+        {
+          "complex": "plant_interaction_s2_2",
+          "complex_index": 127,
+          "view": "interaction",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ddf6c52c7ba574c4183d540e827c36dda87749ff7930520cfd8d5b1cedce54ef"
+        },
+        {
+          "complex": "plant_interaction_s2_3",
+          "complex_index": 128,
+          "view": "interaction",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "91927a8a4e2c06ba478116609dce4c320de9d1955dc75c8e6bd92ea4fa324c53"
+        },
+        {
+          "complex": "plant_interaction_s2_4",
+          "complex_index": 129,
+          "view": "interaction",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "e27f109f6c1bf33ffaaa86b733a5edf919f9c0446bc6e6c0cc77f51f48ee78d2"
+        },
+        {
+          "complex": "plant_interaction_s4_0",
+          "complex_index": 130,
+          "view": "interaction",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "53186e3919bc3bb3499570b1eb6b6a0e848dfb87d34c1bbfd6bec8baf8f85815"
+        },
+        {
+          "complex": "plant_interaction_s4_1",
+          "complex_index": 131,
+          "view": "interaction",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "21cbd9e8ca0fdda6cfa44248949bfa3a1e02fc1364f098b1583e882803fdc6dd"
+        },
+        {
+          "complex": "plant_interaction_s4_2",
+          "complex_index": 132,
+          "view": "interaction",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "2d81ed094181bd9e3754e8d7840386c096ff7a8ad456a0e65d9dffe76293930f"
+        },
+        {
+          "complex": "plant_interaction_s4_3",
+          "complex_index": 133,
+          "view": "interaction",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "e43dac08928ae62d810bc87c5047d9cd798682fbcf96619ffa85e3fe91363101"
+        },
+        {
+          "complex": "plant_interaction_s4_4",
+          "complex_index": 134,
+          "view": "interaction",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "449dd7a551bdbc67cfc55751a7cd6608d36c72ea1174a269df66a717f09cfc39"
+        },
+        {
+          "complex": "plant_interaction_s8_0",
+          "complex_index": 135,
+          "view": "interaction",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "eec52c22f06ae814640d5d72c217270a5933f4d66a5b8ef2004727aeddb82ec0"
+        },
+        {
+          "complex": "plant_interaction_s8_1",
+          "complex_index": 136,
+          "view": "interaction",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "2415b3af35cd70070b785d324bde27c2e266999d8143fc2cc129ba35de8b1aab"
+        },
+        {
+          "complex": "plant_interaction_s8_2",
+          "complex_index": 137,
+          "view": "interaction",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "82ad623e170038d79dadff18ad1a4aa299775c138114be8c97aa20c825c1551c"
+        },
+        {
+          "complex": "plant_interaction_s8_3",
+          "complex_index": 138,
+          "view": "interaction",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "c08a7dccd45ceffd13151b1174b8bc94e8a19e6eadcfb8630e5fe77aa4bddc06"
+        },
+        {
+          "complex": "plant_interaction_s8_4",
+          "complex_index": 139,
+          "view": "interaction",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "0e5a407e64434e805eeb0f7150ccfefba44cd85f87cb0c600504dcf38083382a"
+        },
+        {
+          "complex": "plant_sequence_s1_0",
+          "complex_index": 140,
+          "view": "sequence",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "705e0c99b464348d778b47e140e7aa2faae9bd2ca68a48a1a69c28e18d036802"
+        },
+        {
+          "complex": "plant_sequence_s1_1",
+          "complex_index": 141,
+          "view": "sequence",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "9fa8b4412a1d358292b034208344ae0e839d9a075f627339fc326436fd2a4b5f"
+        },
+        {
+          "complex": "plant_sequence_s1_2",
+          "complex_index": 142,
+          "view": "sequence",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "982e81981c75b24eb646e3721b03394c908348c0493a846e9d74f18b4d018eb9"
+        },
+        {
+          "complex": "plant_sequence_s1_3",
+          "complex_index": 143,
+          "view": "sequence",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "7b453c34b8967a9b18f92df23a7b4cf914c4ad85e5751a4adca283fdec2b886a"
+        },
+        {
+          "complex": "plant_sequence_s1_4",
+          "complex_index": 144,
+          "view": "sequence",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "fec1acd24be6cfe2a0d5c945a11486656ea7acf18e72c4884a5e97bb726f6c29"
+        },
+        {
+          "complex": "plant_sequence_s2_0",
+          "complex_index": 145,
+          "view": "sequence",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "61eb0825963f35012d47909aed6cff1873dd9016826f99c2c2b0419d319e9bb5"
+        },
+        {
+          "complex": "plant_sequence_s2_1",
+          "complex_index": 146,
+          "view": "sequence",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "66a4e1814ddd1362f1d321f542f19be476c6647697023c4eb9c8f59ef7aced3e"
+        },
+        {
+          "complex": "plant_sequence_s2_2",
+          "complex_index": 147,
+          "view": "sequence",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "bfa14a0fa4b1f15cfea298139f64dac64bc1ff6b8a4ee26c3370530e7bfbd6e5"
+        },
+        {
+          "complex": "plant_sequence_s2_3",
+          "complex_index": 148,
+          "view": "sequence",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "842b660ea5b978f3915c0538daffad932a5e08298f98bfb6217ccb6aa1223ba3"
+        },
+        {
+          "complex": "plant_sequence_s2_4",
+          "complex_index": 149,
+          "view": "sequence",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "3f74667d2f47c4aed70012e9dbdf08a9a2a48aa714d88d9c66082b3657ac0726"
+        },
+        {
+          "complex": "plant_sequence_s4_0",
+          "complex_index": 150,
+          "view": "sequence",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "22a0eabef2fd9e7beac5ab367619f0b24ebe8ab485d98021eb05e40c571978f6"
+        },
+        {
+          "complex": "plant_sequence_s4_1",
+          "complex_index": 151,
+          "view": "sequence",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "4030f6ccff02722588fc93a6f7bf61aa7ce84f0abc5d46e8c2faa0b94f8da4c6"
+        },
+        {
+          "complex": "plant_sequence_s4_2",
+          "complex_index": 152,
+          "view": "sequence",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "e6323db598c8a41ba7758117213e62232d1899c1656abc366623d7de8dfd2d86"
+        },
+        {
+          "complex": "plant_sequence_s4_3",
+          "complex_index": 153,
+          "view": "sequence",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "4ed0df9347803e9197120aa223817a03586f583fa1dd8d3845e87ad93da9545e"
+        },
+        {
+          "complex": "plant_sequence_s4_4",
+          "complex_index": 154,
+          "view": "sequence",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "2d4ca80d66733c682471db5ab19312e9d64b4e344c6f4daee5f6d803fe5b4e4b"
+        },
+        {
+          "complex": "plant_sequence_s8_0",
+          "complex_index": 155,
+          "view": "sequence",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ad74b1b40c718a89c2e9ecfd73f6389d319ba309b2d2131c900bdbee633e15fa"
+        },
+        {
+          "complex": "plant_sequence_s8_1",
+          "complex_index": 156,
+          "view": "sequence",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "64e24f9cb09e9fe9b4681e9869a88aaa73bbe63d6074b182ff0c87d8a85f084f"
+        },
+        {
+          "complex": "plant_sequence_s8_2",
+          "complex_index": 157,
+          "view": "sequence",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "cacdfdf55b141ebf3bf0b513454474f349dc6256d1a405f57de29302bb120a50"
+        },
+        {
+          "complex": "plant_sequence_s8_3",
+          "complex_index": 158,
+          "view": "sequence",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "13a70c19fd8aa4db58bbe5aaec9aa79e4bf07126a2337e59525eb2b2a3999376"
+        },
+        {
+          "complex": "plant_sequence_s8_4",
+          "complex_index": 159,
+          "view": "sequence",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "e17642b46816c408d0c94ba8dd550a84e057ff2b5d6b4617672c6cd1d940bfed"
+        },
+        {
+          "complex": "plant_structure_computed_s1_0",
+          "complex_index": 160,
+          "view": "structure_computed",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "4866863e138bd676b4ae06662304b231814fb2d0bce0ed10faad48f1e68d9238"
+        },
+        {
+          "complex": "plant_structure_computed_s1_1",
+          "complex_index": 161,
+          "view": "structure_computed",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "32307d4553d6dc1bee5a1f62f5e4e8b436013f819654b5031b01734b8bea8970"
+        },
+        {
+          "complex": "plant_structure_computed_s1_2",
+          "complex_index": 162,
+          "view": "structure_computed",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a12bd3332dc1189f04d5302b0e7e2a695a387d73e6a9319865570acb7bbf1c38"
+        },
+        {
+          "complex": "plant_structure_computed_s1_3",
+          "complex_index": 163,
+          "view": "structure_computed",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "444fefb206b0c0bf1030337ec77794fa31c530f0a5c0f3996a2b1f9831fa5e13"
+        },
+        {
+          "complex": "plant_structure_computed_s1_4",
+          "complex_index": 164,
+          "view": "structure_computed",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "77e109c55dad9acb6ee9ed4758140d5d87fb1246ad40f3a2b8f49bd285dcea8c"
+        },
+        {
+          "complex": "plant_structure_computed_s2_0",
+          "complex_index": 165,
+          "view": "structure_computed",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "f171bf31c26c5e596f6719fb0b90e00a385930b7d6a19e067e5b77f430f3aa9e"
+        },
+        {
+          "complex": "plant_structure_computed_s2_1",
+          "complex_index": 166,
+          "view": "structure_computed",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d147a61a84495e5bcfdde094c3a538942e69d4b7a3fc0e0b78fde7fa18b1a007"
+        },
+        {
+          "complex": "plant_structure_computed_s2_2",
+          "complex_index": 167,
+          "view": "structure_computed",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "62b32c5e9c8553e78cdcbcd9d9122554da8c6644038ff22be05e57b382c0a814"
+        },
+        {
+          "complex": "plant_structure_computed_s2_3",
+          "complex_index": 168,
+          "view": "structure_computed",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a74890149fe72de7d6732cf6a2ac4bb6a3073775eb6a54e562f4f5bc9f402d0f"
+        },
+        {
+          "complex": "plant_structure_computed_s2_4",
+          "complex_index": 169,
+          "view": "structure_computed",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b44ee550fffe76567425e0935d82396a031005aab04b2eeffc96f4195056f58b"
+        },
+        {
+          "complex": "plant_structure_computed_s4_0",
+          "complex_index": 170,
+          "view": "structure_computed",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "849087aa585280dd8a818cb9f6ebbffcba47e979eb1ad551ceb2b616d696cbed"
+        },
+        {
+          "complex": "plant_structure_computed_s4_1",
+          "complex_index": 171,
+          "view": "structure_computed",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "064690f0717afb3fae4e2dd7479b24f8f9682f0df51e3dd5ecfe5d8ae19d1c19"
+        },
+        {
+          "complex": "plant_structure_computed_s4_2",
+          "complex_index": 172,
+          "view": "structure_computed",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "3c0847e2bf40f59588937f0c288ddd8c39fd6eabc2ab2e5439e91c45489e79b0"
+        },
+        {
+          "complex": "plant_structure_computed_s4_3",
+          "complex_index": 173,
+          "view": "structure_computed",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "9f795aa707caea1aeefe09f72243edc93b20043634586e30a3319a8b0ae441e2"
+        },
+        {
+          "complex": "plant_structure_computed_s4_4",
+          "complex_index": 174,
+          "view": "structure_computed",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a5445eeefcce43ab6993c162580a11de594c4fdb7137cbb531b10d579092893e"
+        },
+        {
+          "complex": "plant_structure_computed_s8_0",
+          "complex_index": 175,
+          "view": "structure_computed",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "304010a329c062c6282f1e5944d5eef1195fcd173b54083d54e8d54869fc0d6c"
+        },
+        {
+          "complex": "plant_structure_computed_s8_1",
+          "complex_index": 176,
+          "view": "structure_computed",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "3b175c79db41d418894430f0af58193937af10eaaeea8cd1f3d9e4192fdd1ef6"
+        },
+        {
+          "complex": "plant_structure_computed_s8_2",
+          "complex_index": 177,
+          "view": "structure_computed",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "3a958ff5ee599f8b38b2932539db827c60683c3b5c0c4cf7e4d008450784feac"
+        },
+        {
+          "complex": "plant_structure_computed_s8_3",
+          "complex_index": 178,
+          "view": "structure_computed",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b2853ddb31e1b43ec40d92e43236d6427e7a5fd8ec7a9694fa7a44e3f98e5b3b"
+        },
+        {
+          "complex": "plant_structure_computed_s8_4",
+          "complex_index": 179,
+          "view": "structure_computed",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "c6ace711e33348825c611f7af68b584b9cb29d63e80b65ca98f1bb2c8a982cf3"
+        },
+        {
+          "complex": "plant_conservation_s1_0",
+          "complex_index": 180,
+          "view": "conservation",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "9e3f5af86a9ce6d9468dbc4dda24c407fc28934432750c0abcf18e5264e654a6"
+        },
+        {
+          "complex": "plant_conservation_s1_1",
+          "complex_index": 181,
+          "view": "conservation",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "66f90fefacd3ed339954798738f56162b92127c6253cbf07ed981ba8103c5fb0"
+        },
+        {
+          "complex": "plant_conservation_s1_2",
+          "complex_index": 182,
+          "view": "conservation",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d763a0899e834ed976bfeac799e9a42e2559ff6f0ca7b9bd0bf654cd32606ee7"
+        },
+        {
+          "complex": "plant_conservation_s1_3",
+          "complex_index": 183,
+          "view": "conservation",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "3476e7d49ce61a1ff21b5f4fe5e60b729eb73cea22c6ce732880e1194de21a30"
+        },
+        {
+          "complex": "plant_conservation_s1_4",
+          "complex_index": 184,
+          "view": "conservation",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "01fdfeb09ac938d6f6787395c5ee0f47e886856ff9b23cc69f132ba67a775d61"
+        },
+        {
+          "complex": "plant_conservation_s2_0",
+          "complex_index": 185,
+          "view": "conservation",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "9c4a8deece8dc00d41e0c20d96cffd4a232a2cb4ce60a3df9922cd004334057a"
+        },
+        {
+          "complex": "plant_conservation_s2_1",
+          "complex_index": 186,
+          "view": "conservation",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b46f7a7ad04347cc0fc1389da5b626873e4186a5982b85597d49905fe5a0b186"
+        },
+        {
+          "complex": "plant_conservation_s2_2",
+          "complex_index": 187,
+          "view": "conservation",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a98fd7ac5c37d0aa97f9e7503190e96c68f064d33640046715f0d5f695cc4fec"
+        },
+        {
+          "complex": "plant_conservation_s2_3",
+          "complex_index": 188,
+          "view": "conservation",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "5c32f601c9e5495908bb6d6e126476924633290d9e22af2c45c3045eec047ab0"
+        },
+        {
+          "complex": "plant_conservation_s2_4",
+          "complex_index": 189,
+          "view": "conservation",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b77e2a45b111ad8678f94d05f78783bd288edd48da5966ef63e34c995697bfb1"
+        },
+        {
+          "complex": "plant_conservation_s4_0",
+          "complex_index": 190,
+          "view": "conservation",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "593c0437be4448500573179bd8afb24d497786d877afc7a64ba47cb1f1f2cab3"
+        },
+        {
+          "complex": "plant_conservation_s4_1",
+          "complex_index": 191,
+          "view": "conservation",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "35f03d80180bf1e094f794db349687759e2d53bcdcc87f3753eacdbfe9cb4aa1"
+        },
+        {
+          "complex": "plant_conservation_s4_2",
+          "complex_index": 192,
+          "view": "conservation",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "776e207ea89007ba91ed5bf42e1ddc3ea7de5d02e32990c33493090d359005cf"
+        },
+        {
+          "complex": "plant_conservation_s4_3",
+          "complex_index": 193,
+          "view": "conservation",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a414d47fe898e6b2117e7f68270b5b3d7bdcd3c6312ce40a5def367144fbee97"
+        },
+        {
+          "complex": "plant_conservation_s4_4",
+          "complex_index": 194,
+          "view": "conservation",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ba819e36a200bcc8380a784ba2a2a4f26c6055e2fece04f9b55a988ebb6235ea"
+        },
+        {
+          "complex": "plant_conservation_s8_0",
+          "complex_index": 195,
+          "view": "conservation",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "556de4fd7cf4bd9d545f1f96a1fc6035fe606569c0b01bebdbede42f3854f120"
+        },
+        {
+          "complex": "plant_conservation_s8_1",
+          "complex_index": 196,
+          "view": "conservation",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "debe1238902b260725859db326f5d51c4dd5bafd1cf20963d0f659175f679755"
+        },
+        {
+          "complex": "plant_conservation_s8_2",
+          "complex_index": 197,
+          "view": "conservation",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "668813e052a1588ff57b727131d694885003dbef068ccfe7a688e5a7941f41fb"
+        },
+        {
+          "complex": "plant_conservation_s8_3",
+          "complex_index": 198,
+          "view": "conservation",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "9f008f8d9faec968a43d01647cd975406a45725db4585b8d0825dd8f28f0222e"
+        },
+        {
+          "complex": "plant_conservation_s8_4",
+          "complex_index": 199,
+          "view": "conservation",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "bc5213f7ee5909336b9ed63b8ac23505ddd92339ce9008f73e55c3574e8fea4a"
+        },
+        {
+          "complex": "plant_esm_s1_0",
+          "complex_index": 200,
+          "view": "esm",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "40c35e3a5bb87869cb4e86a316761542f3b09d806c35a7b1272f8cf96c37f54a"
+        },
+        {
+          "complex": "plant_esm_s1_1",
+          "complex_index": 201,
+          "view": "esm",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "10f0e703298b738a78611ca5782264ea960905093aa678a94e77a616514b8609"
+        },
+        {
+          "complex": "plant_esm_s1_2",
+          "complex_index": 202,
+          "view": "esm",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "3446c29ae360e588ba1cf9750ce7f58a4b82bd606f8aade89e22c5abd3534778"
+        },
+        {
+          "complex": "plant_esm_s1_3",
+          "complex_index": 203,
+          "view": "esm",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b2a866cbf0d7970d0bc09aa0732406e783969cf38c6d6a269aaa97fc0266feec"
+        },
+        {
+          "complex": "plant_esm_s1_4",
+          "complex_index": 204,
+          "view": "esm",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d85f5222d696771c0a8a881d243783b6f061371c9c89c2e777ef3064907f9ee8"
+        },
+        {
+          "complex": "plant_esm_s2_0",
+          "complex_index": 205,
+          "view": "esm",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "fd792f85a15f4e4f099b9540ed02afa10b81424f0e837f67198831d4c809dcbe"
+        },
+        {
+          "complex": "plant_esm_s2_1",
+          "complex_index": 206,
+          "view": "esm",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d7ba5e088f61dee7c02a16240a9e02a855769108c3a8bd889ed7bc478b2a381c"
+        },
+        {
+          "complex": "plant_esm_s2_2",
+          "complex_index": 207,
+          "view": "esm",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "584297d5edc62a406cf8adad76467bb489fa8bdc5f5cc6dfd01616d80177d092"
+        },
+        {
+          "complex": "plant_esm_s2_3",
+          "complex_index": 208,
+          "view": "esm",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "226406b8ffb67cbd4e2c99dcb409ab3edbdb0db7b437076158435db07a85d2c3"
+        },
+        {
+          "complex": "plant_esm_s2_4",
+          "complex_index": 209,
+          "view": "esm",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a5d55ba52441af7022952f7c59c8043cfb90b97d96c611d5bce1e119141c0d58"
+        },
+        {
+          "complex": "plant_esm_s4_0",
+          "complex_index": 210,
+          "view": "esm",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "2eaae15bf117050e2db17035cefb30609f44a6e0dd47674b6d894fd916a69d9b"
+        },
+        {
+          "complex": "plant_esm_s4_1",
+          "complex_index": 211,
+          "view": "esm",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "236e39acd3a729af94398bac0b7d7b2029c28dcd25f45c9c99c67d83858a9b84"
+        },
+        {
+          "complex": "plant_esm_s4_2",
+          "complex_index": 212,
+          "view": "esm",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d845073030ee621c2c0b587187f9c260241667db6d9f97740a85d37dc647427f"
+        },
+        {
+          "complex": "plant_esm_s4_3",
+          "complex_index": 213,
+          "view": "esm",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "136cd1e582f0b34d38ec34723351949ce887538ece47de263158e6b1690fcfa5"
+        },
+        {
+          "complex": "plant_esm_s4_4",
+          "complex_index": 214,
+          "view": "esm",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "e47b5ceba2099aa1870eda615bb9f49c2c47f3b82e30eaaac9b2e557bb85b839"
+        },
+        {
+          "complex": "plant_esm_s8_0",
+          "complex_index": 215,
+          "view": "esm",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "89b9dd95f7f7c4515cae01f713e2cd660c4e323d07cde174608e6e070ec28c4f"
+        },
+        {
+          "complex": "plant_esm_s8_1",
+          "complex_index": 216,
+          "view": "esm",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "29a271f729d3adca4050390d86f35f4002ae3cbde44f313523fde5d1160a88a6"
+        },
+        {
+          "complex": "plant_esm_s8_2",
+          "complex_index": 217,
+          "view": "esm",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "bdc7c9fb4b6dd02425abafae36bb7e352d061eebe58db11f65c466e94ee95305"
+        },
+        {
+          "complex": "plant_esm_s8_3",
+          "complex_index": 218,
+          "view": "esm",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "7e4b4cf89fb3692baf7f0167a7835533bd2319125d601065668a3c6b4a479bef"
+        },
+        {
+          "complex": "plant_esm_s8_4",
+          "complex_index": 219,
+          "view": "esm",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "9e3b70909b5322799f846ff3d0b107e404a1a1009de5809365064a3f2137da3d"
+        },
+        {
+          "complex": "plant_secondary_structure_s1_0",
+          "complex_index": 220,
+          "view": "secondary_structure",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "3b2720af5a6e9121f487998a0ef28a0ce1f260ca96c37598a4cacd54360f3e8e"
+        },
+        {
+          "complex": "plant_secondary_structure_s1_1",
+          "complex_index": 221,
+          "view": "secondary_structure",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "78f676c831dff1a6daa2dc853b1bf1046caae3292d86b5e67a959b5f0a8b97ec"
+        },
+        {
+          "complex": "plant_secondary_structure_s1_2",
+          "complex_index": 222,
+          "view": "secondary_structure",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d665974117a506548d20f803420731834a7f987ece126c95ae5d9e75f744fed0"
+        },
+        {
+          "complex": "plant_secondary_structure_s1_3",
+          "complex_index": 223,
+          "view": "secondary_structure",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "274a76ce6cf8a151dee5aff20000461f0909badd4b7edf4aed57aa892f159e1e"
+        },
+        {
+          "complex": "plant_secondary_structure_s1_4",
+          "complex_index": 224,
+          "view": "secondary_structure",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "7aa56de8cfc0a4f575303502ee84e4cda44608b6c18c66c385b396e8a773bf07"
+        },
+        {
+          "complex": "plant_secondary_structure_s2_0",
+          "complex_index": 225,
+          "view": "secondary_structure",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "79ccffe1f5db9e8246359c4bc272303ed677bb4b334c97d36cd212c656eb970d"
+        },
+        {
+          "complex": "plant_secondary_structure_s2_1",
+          "complex_index": 226,
+          "view": "secondary_structure",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "e9c977886369b2bfb07627c62bf0f7adacca6ddfc45b3f6e3efb8e7128ad743b"
+        },
+        {
+          "complex": "plant_secondary_structure_s2_2",
+          "complex_index": 227,
+          "view": "secondary_structure",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "baa25c200ef974cbc85d0c3a70b39e12819f9f92dd5b38a7aee45cc83eff32e8"
+        },
+        {
+          "complex": "plant_secondary_structure_s2_3",
+          "complex_index": 228,
+          "view": "secondary_structure",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "e798dbd49eeca35bca4dba52e97618e44f13f859d3d53dfe9ac949d6b7fbba23"
+        },
+        {
+          "complex": "plant_secondary_structure_s2_4",
+          "complex_index": 229,
+          "view": "secondary_structure",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "fa4f01b2fe6638ef1638d02a36ad0c853f93ff2ed605e6e0b1ebfb6fc113d776"
+        },
+        {
+          "complex": "plant_secondary_structure_s4_0",
+          "complex_index": 230,
+          "view": "secondary_structure",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "99f4a0586b2cc964aae5374ced538aec4fde583640d2e5db93b0fb68499e7f2e"
+        },
+        {
+          "complex": "plant_secondary_structure_s4_1",
+          "complex_index": 231,
+          "view": "secondary_structure",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "891b51f45044f524c663787aff11a1997cc5e929c1de30089403de1790b27848"
+        },
+        {
+          "complex": "plant_secondary_structure_s4_2",
+          "complex_index": 232,
+          "view": "secondary_structure",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d6fa87501e2b5b33b27e09835848bb4aee34b27b1f8ac9f2ae3af3b10f079be7"
+        },
+        {
+          "complex": "plant_secondary_structure_s4_3",
+          "complex_index": 233,
+          "view": "secondary_structure",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "6fbad88b4d5de03fd7783f894e8ef2cc101767b5e0ddb2142660c8d5ad851745"
+        },
+        {
+          "complex": "plant_secondary_structure_s4_4",
+          "complex_index": 234,
+          "view": "secondary_structure",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ddc28fe2682acf6452dcbd128a2f0c9791076d4db2cfa31ea0abaf77fa758cba"
+        },
+        {
+          "complex": "plant_secondary_structure_s8_0",
+          "complex_index": 235,
+          "view": "secondary_structure",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "591edc0a5c7ec686808e78508a6200ccd95dc53584d1830c6ce2135e919d35be"
+        },
+        {
+          "complex": "plant_secondary_structure_s8_1",
+          "complex_index": 236,
+          "view": "secondary_structure",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a1122ce6cd17f2496073f20bc98b34900d396f3f5f8b47fee9bd969839e1e4c4"
+        },
+        {
+          "complex": "plant_secondary_structure_s8_2",
+          "complex_index": 237,
+          "view": "secondary_structure",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "4c9d69119c51d92b259e5ca00048978f3713c217ca2751d1ca0dea4fc6dde036"
+        },
+        {
+          "complex": "plant_secondary_structure_s8_3",
+          "complex_index": 238,
+          "view": "secondary_structure",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "bd1d568b1e02cc208116ad98face81c7b6a48624269768911ea020a0b072d0f9"
+        },
+        {
+          "complex": "plant_secondary_structure_s8_4",
+          "complex_index": 239,
+          "view": "secondary_structure",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b762410c1cf0ef2a8ff17d6a9a04a4a7a8e7fbcf72cb10b82a894323567b47fe"
+        },
+        {
+          "complex": "plant_3di_s1_0",
+          "complex_index": 240,
+          "view": "3di",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "337bbfb91f75f4cb9f2f678556d5c61d4bd2a584bae94ac851ef67f2be12558f"
+        },
+        {
+          "complex": "plant_3di_s1_1",
+          "complex_index": 241,
+          "view": "3di",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b7fd3691dee2dbe6a6dd9ea790c8588dcc4094770171f2b516a05343f4866c05"
+        },
+        {
+          "complex": "plant_3di_s1_2",
+          "complex_index": 242,
+          "view": "3di",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "4a507c84b9fa289499bb2a2b900aef3765fbba2e01bb84eac54d27e1b5b0e26e"
+        },
+        {
+          "complex": "plant_3di_s1_3",
+          "complex_index": 243,
+          "view": "3di",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "bbf378efeb00abff50b98a5dff03ca9009b3f85824a344a6afec728f405ed2d5"
+        },
+        {
+          "complex": "plant_3di_s1_4",
+          "complex_index": 244,
+          "view": "3di",
+          "strength": 1.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "35ebfa5f34b4bdba4b27a770a9e79084c4f646f919be59126632216324328bcf"
+        },
+        {
+          "complex": "plant_3di_s2_0",
+          "complex_index": 245,
+          "view": "3di",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "fd045dc8ab70bd99059437c7ee990f6331bf15cbc87a4203c2664fac41dbdae2"
+        },
+        {
+          "complex": "plant_3di_s2_1",
+          "complex_index": 246,
+          "view": "3di",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "ecbbc6152b583eab09a502cd33cd260511b275e38f8302ffe0ec12601d14d878"
+        },
+        {
+          "complex": "plant_3di_s2_2",
+          "complex_index": 247,
+          "view": "3di",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d30671e413404ba43998f077257dc5767bfd378d223777fbb86a1ce4ccafbdfb"
+        },
+        {
+          "complex": "plant_3di_s2_3",
+          "complex_index": 248,
+          "view": "3di",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "b2d146fbc7dc1015a6f710d902acdafeac92ff1d07334df38bad576afd74c677"
+        },
+        {
+          "complex": "plant_3di_s2_4",
+          "complex_index": 249,
+          "view": "3di",
+          "strength": 2.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "1b4eb2fd5c59791886c74251356c2702e89c3e2dd4783fe27a4d06b5c5aa5777"
+        },
+        {
+          "complex": "plant_3di_s4_0",
+          "complex_index": 250,
+          "view": "3di",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "49de459e2ebb40c2d79c967b82cc978817c28065a372f47f89ff40bbd0c4c093"
+        },
+        {
+          "complex": "plant_3di_s4_1",
+          "complex_index": 251,
+          "view": "3di",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "c19f4d691488ee8a5955f45a4f3e1f9e63741d99c12631b85c942045471d56b6"
+        },
+        {
+          "complex": "plant_3di_s4_2",
+          "complex_index": 252,
+          "view": "3di",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "384bcca76c2c9dd80af9cee07c55f9ad59169d203cbc3ea34ff6050005eaf4c5"
+        },
+        {
+          "complex": "plant_3di_s4_3",
+          "complex_index": 253,
+          "view": "3di",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "a2d8d97cb1e7424fc74228b0af13a10423110be1b42795b665775cc2651f1e51"
+        },
+        {
+          "complex": "plant_3di_s4_4",
+          "complex_index": 254,
+          "view": "3di",
+          "strength": 4.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "41852428b71b2f5b667ebb0fc42a420b9addcb08d9eb3d96bed4399489c02079"
+        },
+        {
+          "complex": "plant_3di_s8_0",
+          "complex_index": 255,
+          "view": "3di",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "5f743d345e2d9664d27a518bd9049c0b6f2e8ccd69630b041027c3587c36b1e1"
+        },
+        {
+          "complex": "plant_3di_s8_1",
+          "complex_index": 256,
+          "view": "3di",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "61789a9802a37d78964759ff4d2458c63e4400004c142be9cfd78b58034d371c"
+        },
+        {
+          "complex": "plant_3di_s8_2",
+          "complex_index": 257,
+          "view": "3di",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "53c8e997f884a99a32d5776dd0084a9d9e6127e4d1c3f922b93c139a667fc5f1"
+        },
+        {
+          "complex": "plant_3di_s8_3",
+          "complex_index": 258,
+          "view": "3di",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "e2ee160fc1f502146621498a8ebc18cee56c3b1b4143f6a3636fc2a171617058"
+        },
+        {
+          "complex": "plant_3di_s8_4",
+          "complex_index": 259,
+          "view": "3di",
+          "strength": 8.0,
+          "covered_members": 8,
+          "members": 8,
+          "direction_sha256": "d21b203dff765fad6f720d7a23fa149860c990eab3c1e744d5574afb6491266f"
+        }
+      ],
+      "plant_records_sha256": "cda87bd8eda2dd0f7073c73a8fe145bd6e4542381080a8f254f30264f42374cc",
+      "matched_metrics": [
+        {
+          "profile": "planted",
+          "clusters": 646,
+          "genes": 8140,
+          "EC_pct_enriched_head": 6.0,
+          "EC_pct_enriched_may2025": 6.0,
+          "direct_pair_precision": 0.0003,
+          "direct_pair_recall": 0.0067,
+          "direct_pair_f1": 0.0005742857142857,
+          "direct_pair_tp": 19,
+          "direct_pair_fp": 59751,
+          "direct_pair_fn": 2823,
+          "planted_REPORT_complexes": 260,
+          "planted_complexes_recovered_pct": 0.0,
+          "planted_partner_in_cluster_pct": 1.6346153846153848,
+          "graph": "matched",
+          "seed": 42,
+          "resolution": 28.77294893868281,
+          "control": "real"
+        },
+        {
+          "profile": "planted",
+          "clusters": 646,
+          "genes": 8140,
+          "EC_pct_enriched_head": 2.5,
+          "EC_pct_enriched_may2025": 2.5,
+          "direct_pair_precision": 0.0,
+          "direct_pair_recall": 0.0007,
+          "direct_pair_f1": 0.0,
+          "direct_pair_tp": 2,
+          "direct_pair_fp": 59768,
+          "direct_pair_fn": 2840,
+          "planted_REPORT_complexes": 260,
+          "planted_complexes_recovered_pct": 0.0,
+          "planted_partner_in_cluster_pct": 0.8653846153846154,
+          "graph": "matched",
+          "seed": 42,
+          "resolution": 28.77294893868281,
+          "control": "shuffled gene labels"
+        }
+      ],
+      "receipt_sha256": "1dbfe2993cc73048ca480fdf3ba955d3d36d2fc87cea49fc25a575939755fb1b",
+      "output_sha256": {
+        "scores.csv": "5fbffa71e234e7b3f68ff550b9ce17f0085bb1cc96cc1807b5278b444ad46708",
+        "planted_strata.csv": "a1798356cbad83f7a28f1a8175b45d954dd97b04e9a2e1e6bd65fe2f8dd5ee86",
+        "cluster_view_shares.csv": "b03fcda701397d0be4269fbcb4dab6157c9320c4e5d0f769fd0bb1e81d2ddecf",
+        "cluster_view_kinds.csv": "68f1ebb53f73c5d07acbda9830669554592d635ef9439b5bfd2f83293523babe",
+        "matched_partition.parquet": "410f5d4ac0e7cbeb4719d2d7b833daef81447070cdac9cc77552964cc8f25bfd"
+      }
+    },
+    "no_place": {
+      "complete": true,
+      "config": {
+        "arm": "no_place",
+        "variance": 0.99,
+        "similarity": "cosine",
+        "bins": 3,
+        "calibration": 50,
+        "null": 200,
+        "seed": 20261119,
+        "control": null,
+        "null_mode": "columns",
+        "dtype": "float32",
+        "packed": true,
+        "block_size": 1024,
+        "workers": 3,
+        "knn": 10,
+        "edge_p": 0.05,
+        "leiden_seeds": [
+          42,
+          1,
+          2
+        ],
+        "resolutions": [
+          0.049999999999999996,
+          0.07192249441438314,
+          0.10345690405573947,
+          0.14881757208156587,
+          0.21406661993596965,
+          0.30792410553301314,
+          0.4429333952050412,
+          0.6371374928515666,
+          0.9164903554162177,
+          1.3183254493651788,
+          1.8963450953661247,
+          2.727797390584258,
+          3.923799851757305,
+          5.64418945842344,
+          8.118883695943603,
+          11.678607345450605,
+          16.7990914314189,
+          24.164651192858756,
+          34.75963980887802,
+          49.99999999999999
+        ],
+        "shuffles": 1,
+        "plant_population_std_ddof": 0,
+        "all_generated_complexes_are_report_controls": true
+      },
+      "genes": 8140,
+      "raw_columns": 651,
+      "scored_columns": 651,
+      "views": [
+        "transcript",
+        "translation",
+        "chromatin",
+        "protein_abundance",
+        "fitness",
+        "interaction",
+        "sequence",
+        "structure_computed",
+        "conservation",
+        "esm",
+        "secondary_structure",
+        "3di"
+      ],
+      "niche_labels_scored": true,
+      "direct_pair_input_rows": 2842,
+      "unique_direct_pairs": 2842,
+      "EC_label_rows": 1313,
+      "niche_label_rows": 716,
+      "graph_edges": 80023,
+      "matched_target": 643,
+      "matched_clusters": 642,
+      "matched_resolution": 29.31788036763275,
+      "partitions": 61,
+      "score_rows": 122,
+      "planted_complexes": 260,
+      "scoring_seconds": 2989.3898754659895,
+      "total_seconds": 3826.6184852959996,
+      "parent_peak_rss_mib": 5106.3359375,
+      "child_peak_rss_mib": 3845.94140625,
+      "cgroup_memory_peak_bytes": 7066230784,
+      "input_sha256": {
+        "genes.parquet": "f862800a67050aff0fdff720a734bf498928ca849e75d141de60454dc5a9a59b",
+        "coverage.parquet": "4dd0a000102b6b370c9f74d7c8195ff76721cc52b0a5fcbd4933333a4d33141a",
+        "views.json": "8e6697a6434dc51bdc003929ea2b670c29d0b8e49d645a4fee18e1b89cd6347c",
+        "pairs.csv": "d1a6bbb0c60dba6d4c6067d87ea553e4947967730f77d7190205c7621c196095",
+        "markers.csv": "9b55dd8e7db3b56a12f61bd712a61d39fb533fda8c9650d8fa529f1d436ad0b2",
+        "planted.csv": "26b327538b3150bbfebfae1b3958e49203a51ca335cd974ca3241d32b1e332c1",
+        "labels.parquet": "d2e41e7692577addc16aa8549cf2948be21ee9d51504609bbde0040261b0b185",
+        "manifest.json": "aba323f3bfd5ef9cf5eda37e616f51e1d5b2cab26fdb81435864a743a17adb9d"
+      },
+      "inputs_unchanged": true,
+      "source_sha256": {
+        "spacr/ops_maxproj.py": "476e5d6c8a5fede3f85237eb0561d606131c86bc5de18a7fe170437381fb95fb",
+        "spacr/ops_clusters.py": "3bfc9c0c464f3371ec3e6cf4fc02ba037d4f6698fdc33357da54f010dce18656",
+        "spacr/ops_reference.py": "3ff3f6e8ca0698496d5bf80859ecbf9189da78f0a34b3ed8eb8521c41439e785"
+      },
+      "arrays": {
+        "projected": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "float32",
+          "sha256": "8cad3e231e3757d9bde3e25a4e6133140d77c5467eb5feb70dd4d4c514b00ed2"
+        },
+        "view": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "int32",
+          "sha256": "c1f2ea8af5dcd89623a80f7720c8057ee78a6a04cb61e3b0458c38cc17d8b48b"
+        },
+        "p": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "float32",
+          "sha256": "5f9340c1ca492e82e90235fde05178b3d0aee180b3927aff4bc5ce4a2982505d"
+        },
+        "q": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "float32",
+          "sha256": "87c1e7ee703d4ef8f5b416175095074a35f8488a2ea5e2ba96036a44843407bc"
+        },
+        "pair_bins": {
+          "shape": [
+            33125730
+          ],
+          "dtype": "uint8",
+          "sha256": "7f38ba7952a9cb6fa45428fe819dadf3b1b89ca83c803fd6b2c8c43b0be1829d"
+        },
+        "null_counts": {
+          "shape": [
+            9,
+            4800
+          ],
+          "dtype": "int64",
+          "sha256": "72918d8465237818ed698f7d2a0134d2fa5588c427166efe9dcbc0a3a6105376"
+        },
+        "control": {
+          "shape": [
+            8140
+          ],
+          "dtype": "bool",
+          "sha256": "c26498e41587bf8708ff31e63c794efb53c3c1d3d1aef7f82840ff3eefc763f7"
+        }
+      },
+      "metric_roles": {
+        "CORUM_enrichment_slot": "EC groups",
+        "KEGG_enrichment_slot": "niche groups only without place",
+        "STRING_slot": "direct XL-MS/IP-MS pairs",
+        "complex_metrics": "generated planted complexes, all REPORT; no tuning"
+      },
+      "plant_record_count": 0,
+      "plant_records": [],
+      "plant_records_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "matched_metrics": [
+        {
+          "profile": "no_place",
+          "clusters": 642,
+          "genes": 8140,
+          "EC_pct_enriched_head": 7.8,
+          "EC_pct_enriched_may2025": 7.8,
+          "niche_pct_enriched_head": 8.1,
+          "niche_pct_enriched_may2025": 8.1,
+          "direct_pair_precision": 0.0006,
+          "direct_pair_recall": 0.0162,
+          "direct_pair_f1": 0.0011571428571428,
+          "direct_pair_tp": 46,
+          "direct_pair_fp": 71966,
+          "direct_pair_fn": 2796,
+          "planted_REPORT_complexes": 260,
+          "planted_complexes_recovered_pct": 0.0,
+          "planted_partner_in_cluster_pct": 1.826923076923077,
+          "graph": "matched",
+          "seed": 42,
+          "resolution": 29.31788036763275,
+          "control": "real"
+        },
+        {
+          "profile": "no_place",
+          "clusters": 642,
+          "genes": 8140,
+          "EC_pct_enriched_head": 2.2,
+          "EC_pct_enriched_may2025": 2.2,
+          "niche_pct_enriched_head": 2.3,
+          "niche_pct_enriched_may2025": 2.3,
+          "direct_pair_precision": 0.0001,
+          "direct_pair_recall": 0.0018,
+          "direct_pair_f1": 0.0001894736842105,
+          "direct_pair_tp": 5,
+          "direct_pair_fp": 72007,
+          "direct_pair_fn": 2837,
+          "planted_REPORT_complexes": 260,
+          "planted_complexes_recovered_pct": 0.0,
+          "planted_partner_in_cluster_pct": 0.7692307692307693,
+          "graph": "matched",
+          "seed": 42,
+          "resolution": 29.31788036763275,
+          "control": "shuffled gene labels"
+        }
+      ],
+      "receipt_sha256": "ecd23256cd0f30bab850619cb11d608e506770ba5a7809d0221fbfb3957794de",
+      "output_sha256": {
+        "scores.csv": "14ea9beee309b7fd85a521f51cb7b588d8f4e24c5a472ce2599c2969d502ab3e",
+        "planted_strata.csv": "06002958fb6b5259f504d1122f08cc4c29c740c52d771cfdcce4dd256eedb318",
+        "cluster_view_shares.csv": "a6172cb26db96aed00bd749343080f571285045a85c5e9809cdd5c873f301cbc",
+        "cluster_view_kinds.csv": "37f073d4f20ce836d044f352f5d350366ff161dcad19029ce20e750e0bb8bf2d",
+        "matched_partition.parquet": "25ff466659bbfc4e9ffdb999f80d1475088a198a8eeaab8327da9f49496fde08"
+      }
+    }
+  },
+  "ratchets": {
+    "group_files": [
+      "tests/qt/test_a_missing_catalog_never_breaks_a_screen.py",
+      "tests/qt/test_a_settings_column_grows_with_the_font.py",
+      "tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py",
+      "tests/qt/test_after_runs_on_every_supported_pyside.py",
+      "tests/qt/test_alpha_features_gate.py",
+      "tests/qt/test_colour_picker.py",
+      "tests/qt/test_compute_total_runs_off_the_widget.py",
+      "tests/qt/test_every_cached_kernel_is_precompiled_20261020.py",
+      "tests/qt/test_every_figure_has_the_figure_menu.py",
+      "tests/qt/test_every_picture_is_drawn_for_the_screen_it_is_on.py",
+      "tests/qt/test_every_table_asks_for_the_sorting_contract.py",
+      "tests/qt/test_external_i18n_catalogs.py",
+      "tests/qt/test_flowview_has_no_black_box_and_no_yellow_rim.py",
+      "tests/qt/test_i18n_caption_ratchet.py",
+      "tests/qt/test_layout_walks_leave_no_item_wrappers.py",
+      "tests/qt/test_live_palette_consumers.py",
+      "tests/qt/test_no_control_says_aspect_ratio.py",
+      "tests/qt/test_no_information_dots.py",
+      "tests/qt/test_one_close_mark.py",
+      "tests/qt/test_one_settings_store.py",
+      "tests/qt/test_qt_worker_teardown.py",
+      "tests/qt/test_setting_animation_dot_removed.py",
+      "tests/qt/test_settings_popups_have_a_solid_background.py",
+      "tests/qt/test_taken_layout_items_release_their_widgets.py",
+      "tests/qt/test_the_download_progress_line_is_never_cut_off.py",
+      "tests/qt/test_the_level_never_changes_a_result.py",
+      "tests/qt/test_two_threads_never_import_torchvision_at_once_20261020.py",
+      "tests/qt/test_walkthrough.py",
+      "tests/qt/test_widget_qss_is_complete.py",
+      "tests/test_a_button_press_is_not_a_filename.py",
+      "tests/test_a_helper_does_not_hide_a_caption_from_the_catalog.py",
+      "tests/test_a_setting_that_did_nothing_is_retired.py",
+      "tests/test_api_documentation_contract.py",
+      "tests/test_api_i18n_extractor.py",
+      "tests/test_api_i18n_frontend.py",
+      "tests/test_api_reference_drops_deleted_modules.py",
+      "tests/test_app_registry_parity.py",
+      "tests/test_built_nested_helper_api.py",
+      "tests/test_ci_suite_classification.py",
+      "tests/test_database_connections_have_a_busy_timeout.py",
+      "tests/test_declared_dependencies_match_imports.py",
+      "tests/test_dependency_bounds.py",
+      "tests/test_docstring_correctness.py",
+      "tests/test_docstring_field_lists_are_parsed.py",
+      "tests/test_docstring_inline_markup_renders.py",
+      "tests/test_docstring_types_do_not_name_a_shape.py",
+      "tests/test_documented_assignment_prose.py",
+      "tests/test_errors.py",
+      "tests/test_every_callable_in_the_package_is_documented.py",
+      "tests/test_every_docstring_is_valid_rst.py",
+      "tests/test_every_figure_registers_its_data.py",
+      "tests/test_every_kept_figure_goes_through_one_writer.py",
+      "tests/test_every_module_exports_what_it_names.py",
+      "tests/test_every_text_open_names_its_encoding.py",
+      "tests/test_frozen_catalog_projection.py",
+      "tests/test_fsync_opens_files_for_writing.py",
+      "tests/test_gc_collect_goes_through_spacr_gc.py",
+      "tests/test_install_cleanup.py",
+      "tests/test_macro.py",
+      "tests/test_ml_sequencing_key_contracts.py",
+      "tests/test_module_coverage_ratchet.py",
+      "tests/test_navigation_buttons_have_no_tooltip.py",
+      "tests/test_nested_functions_are_documented.py",
+      "tests/test_nested_helper_docs.py",
+      "tests/test_no_figure_is_invisible_at_either_theme.py",
+      "tests/test_no_inert_settings_dataclasses.py",
+      "tests/test_no_library_show_blocks_headless.py",
+      "tests/test_no_paramiter_typo.py",
+      "tests/test_no_tensorflow.py",
+      "tests/test_no_tensorflow_guard.py",
+      "tests/test_normalization.py",
+      "tests/test_one_key_vocabulary.py",
+      "tests/test_one_vif_not_two.py",
+      "tests/test_one_visual_system_not_twelve.py",
+      "tests/test_one_volcano_for_each_job.py",
+      "tests/test_perf_guard.py",
+      "tests/test_python312_syntax.py",
+      "tests/test_real_data_drivers.py",
+      "tests/test_regressions.py",
+      "tests/test_skimage_026_contract.py",
+      "tests/test_smoke.py",
+      "tests/test_the_raw_reader_count_only_goes_down.py",
+      "tests/test_the_rows_expected_types_cannot_see_are_pinned.py",
+      "tests/test_theme_naming.py",
+      "tests/test_tiff_io.py",
+      "tests/test_timelapse_ultrack.py",
+      "tests/test_tutorial_link_and_install_recipe.py",
+      "tests/test_tutorial_media_stays_out_of_git.py",
+      "tests/test_two_fits_two_bh_families.py",
+      "tests/test_user_facing_docstrings.py",
+      "tests/test_test_suite_hygiene.py",
+      "tests/test_no_test_leaves_the_working_directory_changed.py",
+      "tests/test_no_new_hash_comments_in_spacr.py"
+    ],
+    "home_catalog_deselections": [
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[de]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[en]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[es]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[fr]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[hi]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[is]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[ko]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[pt]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[sv]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[zh_CN]",
+      "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+      "tests/test_api_i18n_frontend.py::test_english_catalog_keys_are_exactly_joinable",
+      "tests/test_api_i18n_frontend.py::test_every_complete_real_catalog_renders_through_the_browser_selector",
+      "tests/test_api_reference_drops_deleted_modules.py::test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[de]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[en]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[es]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[fr]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[hi]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[is]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[ko]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[pt]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[sv]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[zh_CN]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_api_catalogs_cover_english_and_the_translated_languages",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_keeps_a_package_without_an_init",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_notices_a_module_that_disappears",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_starts_from_an_empty_generated_tree",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_treats_every_sphinx_warning_as_an_error",
+      "tests/test_built_nested_helper_api.py::test_empty_rollout_does_not_scan_or_touch_any_catalog"
+    ],
+    "protected_strict_source_checks": [
+      "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+      "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor",
+      "tests/test_the_raw_reader_count_only_goes_down.py",
+      "tests/test_nested_functions_are_documented.py"
+    ],
+    "existing_build_dependent_skips": {
+      "count": 72,
+      "nodeids": [
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-full_catalog-de]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-full_catalog-es]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-full_catalog-fr]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-full_catalog-hi]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-full_catalog-is]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-full_catalog-ko]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-full_catalog-pt]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-full_catalog-sv]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-full_catalog-zh_CN]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-helper_slice-de]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-helper_slice-es]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-helper_slice-fr]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-helper_slice-hi]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-helper_slice-is]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-helper_slice-ko]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-helper_slice-pt]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-helper_slice-sv]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.object-3-hidden0-helper_slice-zh_CN]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-full_catalog-de]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-full_catalog-es]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-full_catalog-fr]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-full_catalog-hi]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-full_catalog-is]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-full_catalog-ko]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-full_catalog-pt]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-full_catalog-sv]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-full_catalog-zh_CN]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-helper_slice-de]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-helper_slice-es]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-helper_slice-fr]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-helper_slice-hi]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-helper_slice-is]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-helper_slice-ko]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-helper_slice-pt]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-helper_slice-sv]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.qt.command_palette-1-hidden3-helper_slice-zh_CN]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-full_catalog-de]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-full_catalog-es]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-full_catalog-fr]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-full_catalog-hi]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-full_catalog-is]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-full_catalog-ko]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-full_catalog-pt]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-full_catalog-sv]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-full_catalog-zh_CN]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-helper_slice-de]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-helper_slice-es]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-helper_slice-fr]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-helper_slice-hi]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-helper_slice-is]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-helper_slice-ko]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-helper_slice-pt]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-helper_slice-sv]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.tabular-1-hidden2-helper_slice-zh_CN]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-full_catalog-de]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-full_catalog-es]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-full_catalog-fr]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-full_catalog-hi]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-full_catalog-is]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-full_catalog-ko]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-full_catalog-pt]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-full_catalog-sv]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-full_catalog-zh_CN]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-helper_slice-de]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-helper_slice-es]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-helper_slice-fr]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-helper_slice-hi]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-helper_slice-is]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-helper_slice-ko]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-helper_slice-pt]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-helper_slice-sv]",
+        "tests/test_built_nested_helper_api.py::test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser[spacr.timeflows_model-9-hidden1-helper_slice-zh_CN]"
+      ],
+      "reason": "Existing skipif(not SPACR_DOCS_BUILT), requires fresh full docs build; no new exclusions or skips added."
+    }
+  },
+  "native_source_consumers": [
+    {
+      "module": "test_docstring_correctness",
+      "test": "test_public_callable_inventory_is_source_derived_not_docstring_derived",
+      "passed": true,
+      "seconds": 57.9980612770014,
+      "new_production_modules": []
+    },
+    {
+      "module": "test_docstring_correctness",
+      "test": "test_callable_boundary_is_cross_checked_with_i18n_extractor",
+      "passed": true,
+      "seconds": 52.44218200999603,
+      "new_production_modules": []
+    },
+    {
+      "module": "test_api_i18n_extractor",
+      "test": "test_public_docstrings_matches_reviewed_visible_coverage",
+      "passed": true,
+      "seconds": 79.96266299799026,
+      "new_production_modules": []
+    }
+  ],
+  "legacy_byte_identity": {
+    "passed": [
+      "cosine/seed0: all result fields byte-identical",
+      "cosine/seed17: all result fields byte-identical",
+      "shrunk/seed0: all result fields byte-identical",
+      "shrunk/seed17: all result fields byte-identical",
+      "packed float32 columns, coverage, missing guides and controls: passed"
+    ]
+  },
+  "resolved_implicit_parameters": {
+    "n_cells": null,
+    "pair_bin_covariate": "number of covered views per gene",
+    "guide_rows": null,
+    "guide_genes": null,
+    "guide_cells": null,
+    "max_missing_argument": null,
+    "column_mode_effective_max_missing": 1.0,
+    "score_partitions": {
+      "seed": 20261109,
+      "genes": null,
+      "control_prefix": "nontargeting",
+      "controls_background": false
+    },
+    "matched_search": {
+      "lo": 0.001,
+      "hi": 1000.0,
+      "iters": 22,
+      "passes": -1
+    },
+    "matched_mask": "all genes",
+    "matched_cluster_ratio": [
+      209,
+      2647
+    ],
+    "leiden_iterations": -1,
+    "leiden_weights": "weight",
+    "cluster_view_edge_p": 0.05
+  },
+  "local_evidence": "/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1012"
+}

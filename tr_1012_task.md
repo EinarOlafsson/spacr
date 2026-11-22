@@ -1,55 +1,93 @@
-# 1012 translation source checkpoint
-
-**Not FINAL: the planted and no-place full acceptance runs are pending.**
+# 1012 external max-projection translation task
 
 Branch: `ws-offload-codex-work-1012`; base: `299179d9530ac618d82f11cc823f3ad8abd1c001`.
-Home owns sv, de, es, zh_CN, pt, hi, ko, is and fr. Exact English bodies, source
-hashes and admission categories are in `tr_1012_sources.json`. No translation
-records, generated API catalogs or pins are authored here.
 
-The opt-in external caller adds column-wise null permutations, no-control
-embedding, coverage and packed float32 scoring. Existing guide-null outputs
-remain byte-identical. Shared embedding, graph and scoring owners are reused.
-No settings or schema change. See the short API/null/memory specification in
-`proposals/bmc_paper_items/1012_maxproj_external_caller.md`.
+**Scientific limitation: the fixed matched partition recovered 0% of the
+260 planted complexes, in every view/strength stratum including 8x; shuffled
+recovery was also 0%. Passing code gates do not establish successful full-size
+planted recovery. Maintainer review is required before landing.**
 
-The canonical inventory retains 14,961 bodies: nine revisions and 85 blocks,
-with no additions/removals. There are 66 changed/new documentation bodies
-including private, nested and test scopes, plus 25 validation expressions.
-Those exceptions follow the existing English numeric-API pattern; they have
-no runtime UI admission. No GUI control or runtime `tr` call is added.
+A separate one-CPU/2-GB scheduled audit verified the exact prescribed shifted
+values for all 260 complexes and 2,080 unique genes, all eight members covered,
+all direction seeds, untouched off-view values, preserved missingness and
+unchanged inputs. It added no fit, scoring arm or parameter adjustment.
 
-The exact 11 additive hooks in three protected consumers were explicitly
-approved at 10:19 on 2026-11-22 (proposal SHA256
-`23a618e19174c638865461fa696b0d64e316f1c2df8443f64ef8a7ed7ef7791a`).
-All 2,367 assertions remain intact. Historical 871/911 and 992 records remain
-immutable. The source adapter composes after the existing 1014 adapter;
-merge the additive train 11/12 calls. The owner requested no rebase.
+The owner approved the exact 11 additive arrival-hook lines at 10:19 on 2026-11-22.
+Historical 871/911 and 992 arrival records remain immutable. The new source adapter
+composes after the existing 1014 adapter. Merge the additive train 11/12 hooks;
+the owner explicitly requested no rebase.
 
-All code gates below passed; native source consumers also passed with zero
-new production imports. The full ratchets defer only the exact 30 standing
-Home-owned catalog selectors, retaining all mandatory strict source checks.
-Existing fresh-doc-build skips remain unchanged. No full suite or docs build.
+Home owns sv, de, es, zh_CN, pt, hi, ko, is and fr. Exact English source bodies,
+hashes, locations and admission categories are in `tr_1012_sources.json`.
+This branch authors no translation records, generated API catalogs or pins.
+
+## Behaviour and source admission
+
+The opt-in gene caller adds independent within-view column permutations, coverage
+masks, no-control embedding, float32 packed pair storage and blocked scoring.
+The existing guide-null OPS outputs remain byte-identical against frozen source,
+for both similarities and distinct seeds. The existing numerical embedding,
+KNN graph, Leiden and enrichment/recovery owners are reused. No settings or
+schema changes are included. See `proposals/bmc_paper_items/1012_maxproj_external_caller.md`.
+
+The canonical API inventory retains 14,961 bodies. Nine bodies change, comprising
+85 blocks, with no additions or removals. The remaining changed bodies are
+private/nested helpers and tests. The 25 argument-validation expressions follow
+the existing English numeric-API pattern and have no runtime UI admission.
+There are no new GUI controls or runtime `tr` calls. Native source consumers
+pass with zero new production imports; all 2,367 protected assertions remain intact.
+
+## Validation
 
 | Group | Console result |
 | --- | --- |
-| focused core | 75 passed, 20 warnings in 70.28s (0:01:10) |
-| source contracts | 3 passed in 7.46s |
+| focused core and legacy identity | 75 passed, 20 warnings in 70.28s (0:01:10) |
+| source-only arrival contracts | 3 passed in 7.46s |
 | full items | 1599 passed, 10 skipped, 153 warnings, 960 subtests passed in 780.76s (0:13:00) |
 | full settings | 630 passed, 2 skipped, 369 subtests passed in 128.84s (0:02:08) |
 | full ratchets | 4093 passed, 76 skipped, 3 xfailed, 71 warnings in 3106.29s (0:51:46) |
 
-The 76 skips comprise 73 fresh-doc-build cases, one opt-in real-document
+The full code-rule group retains all six mandatory ratchets and the strict
+source/native/raw-reader checks. Only the exact 30 standing Home-owned catalog
+selectors are deferred; their node IDs are in the receipt. Existing tests that
+require a fresh docs build retain their original skip conditions. No docs build
+or full pytest suite was run. Runs use scheduler P2, nice 19 and CUDA hidden;
+pytest uses at most two workers. Each full benchmark uses three scoring workers.
+
+The 76 ratchet skips comprise 73 fresh-doc-build cases, one opt-in real-document
 preflight, one obsolete TSNE-bound check and one missing-PyInstaller check.
 The three existing expected failures are registered translation incompatibilities.
-JUnit represents expected failures as skipped cases; console counts above keep them separate.
+JUnit counts encode expected failures as skipped; console counts keep them separate.
 
-The no-plant 50/200 acceptance is complete: 8,140 genes, 80,759 edges,
-642 matched clusters against the fixed target 643. Direct pair TP real/shuffled
-is 26/6; EC-enriched clusters are 5.6/2.5%; unapplied complex recovery is 0/0%.
-All eight input hashes and the three production source hashes are unchanged.
-No numeric acceptance cutoff was supplied and no parameter is tuned.
-The final handoff will replace this checkpoint and include all three receipts.
+## Fixed full-size acceptance
+
+All three prescribed arms use 8,140 genes, 50 calibration draws and 200 joint-null
+draws, cosine similarity, seed 20261119, 0.99 variance, three bins, KNN 10, edge
+p=0.05, the original 20-resolution/three-seed Leiden grid and existing matched-count
+search. All parameters remain fixed. No numeric acceptance cutoff was supplied;
+the receipt reports actual metrics without an invented threshold or tuning.
+
+The original inputs have 651 columns and 13 views. Planting uses independent
+per-view column copies (653 references) because `n_holes` belongs to three views.
+All 260 prescribed complexes are applied simultaneously at their supplied
+1x/2x/4x/8x strengths. Only covered members and finite measurements change.
+The no-plant arm applies no effects. Niche labels are scored only in the
+12-view no-place arm. Direct pairs, EC groups and generated complexes are scored
+through the existing 992 owners, with a shuffled-label control. All generated
+complexes are evaluation controls and select no parameter.
+
+Only the eight approved input files are read, and their hashes are unchanged
+before and after every arm. Manifest provenance paths are not followed. The
+receipt binds the exact production source hashes, input hashes, arrays, parameters,
+timings and measured memory. Aggregate full-grid and stratified metrics are
+committed under `reports/1012_external_maxproj/`; input tables and per-gene
+partitions remain outside the repository.
+
+| Arm | Views | Graph edges | Matched clusters | Scoring seconds | Total seconds |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| no_plant | 13 | 80759 | 642 | 1954.6 | 3492.7 |
+| planted | 13 | 80693 | 646 | 3024.8 | 4136.6 |
+| no_place | 12 | 80023 | 642 | 2989.4 | 3826.6 |
 
 ## Exact changed source locations
 
@@ -145,4 +183,4 @@ The final handoff will replace this checkpoint and include all three receipts.
 - `spacr/ops_clusters.py:1313` — `_knn_rows`: 'each streamed graph row must contain one value per vertex' (API exception, runtime not admitted).
 - `spacr/ops_clusters.py:1318` — `_knn_rows`: 'streamed graph has fewer rows than declared' (API exception, runtime not admitted).
 
-Machine-local proofs and logs: `/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1012/`.
+Machine-local full logs and proofs: `/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1012/`.
