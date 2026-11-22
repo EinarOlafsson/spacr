@@ -2141,6 +2141,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('homogeneity', True)
     settings.setdefault('homogeneity_distances', [8,16,32])
     settings.setdefault('profile_features', None)
+    settings.setdefault('cytoskeleton_channels', None)
     settings.setdefault('profile_optional_families', None)
     settings.setdefault('profile_granularity_subsample', 1.0)
     settings.setdefault('funk_object_features', False)
@@ -4547,6 +4548,7 @@ expected_types = {
     "homogeneity": bool,
     "homogeneity_distances": list,
     "profile_features": (str, list, type(None)),
+    "cytoskeleton_channels": (str, list, type(None)),
     "profile_optional_families": (bool, str, list, type(None)),
     "profile_granularity_subsample": (float, int),
     "funk_object_features": bool,
@@ -5875,7 +5877,8 @@ tooltips = {
     "grouping": "(str) - How per-object values collapse to one number per well in the plate heatmap: 'mean' averages heatmap_feature over the objects in a well, 'sum' totals them, 'count' ignores the feature and colors wells by object count. Use 'count' to spot uneven seeding or dropout, 'mean' for phenotype strength. Default 'mean'; any other value raises ValueError.",
     "heatmap_feature": "(str) - Numeric column that is aggregated per well and color-mapped in the plate heatmap after ML scoring, e.g. 'predictions' for the classifier score or 'recruitment' for the pathogen/cytoplasm intensity ratio. Must be a numeric column of the scored dataframe or the run raises ValueError listing the valid names. Default 'predictions'.",
     "homogeneity": "(bool) - Compute grey-level co-occurrence-matrix homogeneity for every object in every channel, adding one homogeneity_distance_<d> column per entry in homogeneity_distances. Homogeneity is high for smooth, evenly filled objects and low for punctate or grainy ones, so keep it on for texture phenotypes; disabling it noticeably speeds up measurement. Default True.",
-    "profile_features": "(str, list or None) - Add image-based profiling measurement families to every 2-D object. 'profiling' adds the fast families: edge intensity, intensity moments, radial distribution, extra shape, Haralick, PFTAS and LBP texture, periphery and outside-ring intensity, and neighbours. profile_optional_families adds the slow Gabor, colocalisation and granularity families to 'profiling'; 'all' adds every family. A list or comma-separated names picks families one by one. Empty adds nothing, so a settings file without it measures exactly as before. Default None.",
+    "profile_features": "(str, list or None) - Add per-object measurements to 2-D masks. 'profiling' selects the fast profiling families; profile_optional_families adds slow Gabor, colocalisation and granularity families. 'all' includes every profiling family, including colocalisation_otsu, but excludes measurement blocks. Lists or comma-separated names also accept coloc_block (Pearson, Manders and overlap), legacy_radial (six radial bins) and cytoskeleton (cell-only skeleton measurements using cytoskeleton_channels). Empty adds nothing. Default None.",
+    "cytoskeleton_channels": "(str, list or None) - Channels for the cell-only cytoskeleton block in profile_features. Use image channel indices or names from channel_names. None measures every image channel when cytoskeleton is selected; otherwise this setting has no effect. Default None.",
     "profile_optional_families": "(bool, str, list or None) - The slow families that 'profiling' in profile_features also measures: texture_gabor, colocalisation, colocalisation_extra, colocalisation_costes and granularity. Together they cost several times the rest of 'profiling' (granularity alone about 58,900 CPU seconds per 100,000 cells). True or 'all' adds all five, which reproduces Brieflow's full set; names pick them one by one. Family names and 'all' in profile_features are not changed by it. Settings files saved before this setting keep texture_gabor, colocalisation and colocalisation_extra. Default None.",
     "profile_granularity_subsample": "(float) - Sieve each field scaled by this factor for the granularity profiling family, as CellProfiler's image sample size. 0.25, CellProfiler's default, is about 16 times faster than 1.0, which sieves every pixel. Only read when granularity is among profile_features. Default 1.0.",
     "funk_object_features": "(bool) - Add the object features of Funk et al. 2022 (optical pooled screens) to every 2-D object: the mass displacement of every channel (the distance from the object's centroid to its intensity-weighted centroid), Pearson's r of every channel pair over the object's pixels (correlation_<a>_<b>), and the form factor (4 pi area / perimeter squared). The OPS setting ops_ph_funk_features gives the same values from the same functions. Mass displacement and form factor are not repeated when profile_features already writes them. Default False.",
@@ -6766,7 +6769,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "profile_optional_families", "profile_granularity_subsample", "funk_object_features", "zernike", "channel_names", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "cytoskeleton_channels", "profile_optional_families", "profile_granularity_subsample", "funk_object_features", "zernike", "channel_names", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map", "illumination_nuclear_channel", "illumination_nuclei", "illumination_dark_per_plate", "illumination_block_px", "illumination_fit", "illumination_sigma_px", "illumination_ridge", "illumination_floor", "illumination_centre_cells", "illumination_lookup", "illumination_map_grid", "illumination_centre_offset", "illumination_holdout_n", "illumination_seed", "illumination_validate"],
 
@@ -8798,7 +8801,7 @@ tooltips.update({
 
 
 ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
-               'module_settings')
+               'module_settings', 'families')
 
 
 ALPHA_FEATURES = {
@@ -9565,6 +9568,13 @@ ALPHA_FEATURES = {
         'settings': ('profile_optional_families',
                      'ops_ph_profile_optional_families'),
     },
+    1008: {
+        'settings': ('cytoskeleton_channels', 'ops_ph_cytoskeleton_channels'),
+        'families': {
+            'profile_features': ('colocalisation_otsu', 'coloc_block', 'legacy_radial', 'cytoskeleton'),
+            'ops_ph_profile_features': ('colocalisation_otsu', 'coloc_block', 'legacy_radial', 'cytoskeleton'),
+        },
+    },
     947: {
         'settings': ('ops_ph_use_acquisition',),
     },
@@ -9931,7 +9941,9 @@ def _alpha_names(kind, app_key=None):
     ``models`` (Model Zoo keys, names or family stems) and
     ``module_settings`` (``{module key: (settings keys,)}``, settings that are
     alpha on those modules' forms only, where the same key is an ordinary
-    setting of another module). A feature is marked in this one place and
+    setting of another module), and ``families`` (``{key: (family names,)}``
+    for typed feature lists, which have no dropdown entries to hide). A
+    feature is marked in this one place and
     promoted out of alpha by deleting its entry. Organism pages are listed
     in ``ALPHA_SPECIES`` instead and are included here too.
 

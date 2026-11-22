@@ -1510,6 +1510,16 @@ if app_key == "mask":
     for app, key in optional_arrivals:
         assert resolve_default_settings(app)[key] is None
     recognized_arrivals |= optional_arrivals
+    # Item 1008 (2026-11-21): the channel selector has the same default
+    # in Measure and External Masks; name both new claims, keeping the old census.
+    cytoskeleton_arrivals = {pair for pair in compared_pairs
+                             if pair[1] == "cytoskeleton_channels"} - set(variants)
+    assert cytoskeleton_arrivals == {(app, "cytoskeleton_channels")
+                                     for app in ("measure", "external_masks")}
+    assert not cytoskeleton_arrivals & recognized_arrivals
+    for app, key in cytoskeleton_arrivals:
+        assert resolve_default_settings(app)[key] is None
+    recognized_arrivals |= cytoskeleton_arrivals
     # Items 983 and 984 (2026-11-19): the image and crop formats, all alpha.
     # Each claim is the resolved default, so none is a variant.
     format_defaults = {"mask_image_format": "ome-zarr", "crop_image_format": "ome-zarr",

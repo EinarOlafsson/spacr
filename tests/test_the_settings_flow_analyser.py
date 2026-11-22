@@ -427,3 +427,23 @@ def test_trailing_underscore_setting_headings_are_distinct_literal_names(flow, m
         "cytoplasm", "cytoplasm_"]
     assert ".. _setting-flow-cytoplasm_:" in rst
     assert flow._index_module(rst).count("'cytoplasm_',") == 1
+
+
+def test_ops_source_help_fills_cold_catalog_gaps_without_replacing_existing_text(flow, tmp_path, monkeypatch):
+    """Use annotated OPS help for new keys while retaining catalog and global source priority."""
+    package = tmp_path / "spacr"
+    catalog = package / "qt/i18n_catalogs/en.py"
+    catalog.parent.mkdir(parents=True)
+    catalog.write_text("SETTING_TOOLTIPS = {'existing': 'Reviewed', 'shared': 'Old'}\n")
+    (package / "settings.py").write_text("tooltips = {'shared': 'Source setting'}\n")
+    (package / "ops_settings.py").write_text(
+        "OPS_TOOLTIPS: dict[str, str] = {'ops_source_only': 'Declared help', "
+        "'existing': 'Different OPS text', 'shared': 'Different shared text'}\n")
+    monkeypatch.setattr(flow, "ROOT", tmp_path)
+    flow._tooltips.cache_clear()
+    try:
+        actual = flow._tooltips()
+        assert actual == {'ops_source_only': 'Declared help', 'existing': 'Reviewed',
+                          'shared': 'Source setting'}
+    finally:
+        flow._tooltips.cache_clear()

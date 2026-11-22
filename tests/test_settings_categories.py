@@ -700,6 +700,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # sieve's subsampling.
     "profile_features", "profile_granularity_subsample",
     "ops_ph_profile_features", "ops_ph_granularity_subsample",
+    "cytoskeleton_channels", "ops_ph_cytoskeleton_channels",
     # Item 912: the nuclear-median DNA flat-field map (2026-11-10).
     "ops_flatfield_nuclear_channel", "ops_flatfield_nuclei",
     "ops_flatfield_dark", "ops_flatfield_nuclear_maps",
