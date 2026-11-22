@@ -3874,6 +3874,29 @@ def _validated_measure_blocks_1008a_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_ome_zarr_upgrade_1007b_callables(callables):
+    """Check the public callables of item 1007 lane B (the OME-Zarr 0.5 to 0.6 converter) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.ome_zarr_convert.upgrade_ngff"}
+    ui_entries = json.loads((root / "tests/data/release_contracts"
+        / "1007b_convert_upgrade_api_arrivals_2026-11-22.json").read_text(encoding="utf-8"))
+    assert set(ui_entries) == {"spacr.qt.screens.convert.ConvertScreen.run_ngff_upgrade"}
+    assert not entries.keys() & ui_entries.keys()
+    entries = {**entries, **ui_entries}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_ome_zarr_ngff06_1007_callables(callables):
     """Check the public callables of item 1007 (OME-Zarr NGFF 0.6, spacr.ome_zarr) against their source."""
     import json
@@ -4336,6 +4359,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_ome_zarr_registration_1007c_callables(callables)
     callables = _validated_colocalisation_otsu_1008b_callables(callables)
     callables = _validated_cytoskeleton_1008c_callables(callables)
+    callables = _validated_ome_zarr_upgrade_1007b_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -7182,6 +7206,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("1008b_colocalisation_otsu_api_arrivals_2026-11-21.json", 1),
         ("1008c_cytoskeleton_api_arrivals_2026-11-21.json", 1),
         ("1014_never_api_arrivals_2026-11-22.json", 2),
+        ("1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json", 1),
+        ("1007b_convert_upgrade_api_arrivals_2026-11-22.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7843,7 +7869,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json",
                      "1008b_colocalisation_otsu_api_arrivals_2026-11-21.json",
                      "1008c_cytoskeleton_api_arrivals_2026-11-21.json",
-                     "1014_never_api_arrivals_2026-11-22.json"):
+                     "1014_never_api_arrivals_2026-11-22.json",
+                     "1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json",
+                     "1007b_convert_upgrade_api_arrivals_2026-11-22.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -8020,7 +8048,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json",
                      "1008b_colocalisation_otsu_api_arrivals_2026-11-21.json",
                      "1008c_cytoskeleton_api_arrivals_2026-11-21.json",
-                     "1014_never_api_arrivals_2026-11-22.json"):
+                     "1014_never_api_arrivals_2026-11-22.json",
+                     "1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json",
+                     "1007b_convert_upgrade_api_arrivals_2026-11-22.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

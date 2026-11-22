@@ -1,0 +1,1394 @@
+{
+  "branch": "ws-offload-codex-work-1007b-int",
+  "base": "b9af1a272ba6f01a3aa8f6fd732e45c4cd2f0f3e",
+  "merged_lane": "origin/ws-offload-ws-1007b",
+  "merged_sha": "c49ab2979d7c46c9c70070131802aedaf90ad6c8",
+  "locales": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "api": {
+    "spacr.ome_zarr_convert.upgrade_ngff": {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1781,
+      "signature": "src, dst, to='0.6', link=None, settings=None",
+      "before": null,
+      "before_sha256": null,
+      "source": "Convert an OME-Zarr 0.5 store to 0.6, or a 0.6 store back to 0.5, without touching a pixel.\n\nItem 1007. Every chunk file is hard-linked into ``dst`` (copied when ``link`` is False or\nthe filesystem refuses the link) and only the group ``zarr.json`` metadata is rewritten,\nby :func:`spacr.ome_zarr.multiscale_to_ngff06` (or\n:func:`spacr.ome_zarr.multiscale_to_ngff05` for ``to='0.5'``): ``ome.version`` becomes the\ntarget, ``axes`` the intrinsic coordinate system and the transformations of each level the\n``{\"path\"} -> {\"name\"}`` form. A ``version`` repeated inside ``multiscales``, ``plate``,\n``well`` or ``labels`` that equals the store version is dropped, as 0.6 keeps it only at\n``ome.version``, and listed in the report. Array metadata, the other OME keys and every\nnon-OME group are kept byte for byte or key for key.\n\nAnything that has no lossless form in the target version is refused with the reason\nbefore anything is written, and ``src`` is never changed. A hard-linked chunk is the same\nfile as in the source, so ``dst`` is a new view of the same pixels; edit neither in place.\n\nAfter writing, the md5 of every chunk file in ``src`` and ``dst`` is compared and every\ngroup is mapped back to the source version, which must give the original metadata (key\norder aside). The report is written to ``dst/ngff_upgrade.json``. A run stopped part-way\nresumes when called again with the same ``src``, ``dst`` and ``to``.\n\n:param src: the store to convert, a Zarr v3 OME-Zarr 0.5 (or 0.6) group.\n:param dst: the new store; it must not exist, or hold an earlier run of the same upgrade.\n:param to: ``'0.6'`` (default) or ``'0.5'``.\n:param link: hard-link the chunk files (True) or copy them (False); None (default) reads\n    ``ome_zarr_upgrade_link`` from ``settings``, else its default in\n    :data:`spacr.ops_settings.OPS_DEFAULTS` (True).\n:param settings: a settings dict, as supplied by a settings file or the Upgrade row in the Convert tab; read for ``ome_zarr_upgrade_link``.\n:returns: the report: ``to``, ``groups``, ``arrays``, ``chunks``, ``linked``, ``copied``,\n    ``chunk_list_md5`` (the md5 of the sorted ``path<TAB>md5`` list),\n    ``removed_version_keys`` and ``verdict`` (``'verified'``).\n:raises ValueError: for an unknown target, a store that is not the source version, a\n    Zarr v2 store, a destination inside the source or holding other files, metadata\n    without a lossless form, or a failed verification.",
+      "source_sha256": "99be2a49714440a125259e91fc194813122a1e67f82f2c922828c6d85cd5722a",
+      "blocks": [
+        {
+          "source": "Convert an OME-Zarr 0.5 store to 0.6, or a 0.6 store back to 0.5, without touching a pixel.",
+          "source_sha256": "dc4bb9c979c645399ea7f5711c2334685cda4d1d94f92db180bc0b62050e8a8f"
+        },
+        {
+          "source": "Item 1007. Every chunk file is hard-linked into ``dst`` (copied when ``link`` is False or the filesystem refuses the link) and only the group ``zarr.json`` metadata is rewritten, by :func:`spacr.ome_zarr.multiscale_to_ngff06` (or :func:`spacr.ome_zarr.multiscale_to_ngff05` for ``to='0.5'``): ``ome.version`` becomes the target, ``axes`` the intrinsic coordinate system and the transformations of each level the ``{\"path\"} -> {\"name\"}`` form. A ``version`` repeated inside ``multiscales``, ``plate``, ``well`` or ``labels`` that equals the store version is dropped, as 0.6 keeps it only at ``ome.version``, and listed in the report. Array metadata, the other OME keys and every non-OME group are kept byte for byte or key for key.",
+          "source_sha256": "a7d6248897d1fbb1fe74aa6103bc7e669f84e98e1be6707ebad470d391069a1a"
+        },
+        {
+          "source": "Anything that has no lossless form in the target version is refused with the reason before anything is written, and ``src`` is never changed. A hard-linked chunk is the same file as in the source, so ``dst`` is a new view of the same pixels; edit neither in place.",
+          "source_sha256": "10e7cdc3334e6be6cae907097cb30942842466d35625716e78d81b60365ff215"
+        },
+        {
+          "source": "After writing, the md5 of every chunk file in ``src`` and ``dst`` is compared and every group is mapped back to the source version, which must give the original metadata (key order aside). The report is written to ``dst/ngff_upgrade.json``. A run stopped part-way resumes when called again with the same ``src``, ``dst`` and ``to``.",
+          "source_sha256": "cbcb4ef04f1c166a1bbede531a61fcd7c963ee9966c76a85811f351b56034aa9"
+        },
+        {
+          "source": "the store to convert, a Zarr v3 OME-Zarr 0.5 (or 0.6) group.",
+          "source_sha256": "30370355f6b990a07eed0eb7948925bc965ad2e7636e19a210bdea9827f98332"
+        },
+        {
+          "source": "the new store; it must not exist, or hold an earlier run of the same upgrade.",
+          "source_sha256": "3c1d3b5ee735d6fb045d2bae5807cb9c69ef120f789cbb1e3ec9234f79818e07"
+        },
+        {
+          "source": "``'0.6'`` (default) or ``'0.5'``.",
+          "source_sha256": "fad665dba2805adfc7f37af0ef4b1236c1b290fa0ba84d77195ae666584f184d"
+        },
+        {
+          "source": "hard-link the chunk files (True) or copy them (False); None (default) reads ``ome_zarr_upgrade_link`` from ``settings``, else its default in :data:`spacr.ops_settings.OPS_DEFAULTS` (True).",
+          "source_sha256": "5e56652346001c4a825c9a33ec0ff9a071f6b51f96b9f58db5d5d59088371a5b"
+        },
+        {
+          "source": "a settings dict, as supplied by a settings file or the Upgrade row in the Convert tab; read for ``ome_zarr_upgrade_link``.",
+          "source_sha256": "94008ec9d2ea17eb0f372b3448005aabe2615008debad2d3efdce134f38a8bae"
+        },
+        {
+          "source": "the report: ``to``, ``groups``, ``arrays``, ``chunks``, ``linked``, ``copied``, ``chunk_list_md5`` (the md5 of the sorted ``path<TAB>md5`` list), ``removed_version_keys`` and ``verdict`` (``'verified'``).",
+          "source_sha256": "2dee715097422e8359fe468761824b14b7fdf7070a100fa2164d0aaf8f0f332b"
+        },
+        {
+          "source": "for an unknown target, a store that is not the source version, a Zarr v2 store, a destination inside the source or holding other files, metadata without a lossless form, or a failed verification.",
+          "source_sha256": "b6d366a0da33313b5dad49a721e788dc040ad3420b0044ec76928d6cb6974622"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            2
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            3
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param src:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param dst:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param to:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param link:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param settings:",
+            [
+              8
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              9
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              10
+            ]
+          ]
+        ]
+      ]
+    },
+    "spacr.qt.screens.convert.ConvertScreen.run_ngff_upgrade": {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 924,
+      "signature": "self, _checked=False",
+      "before": null,
+      "before_sha256": null,
+      "source": "Upgrade the chosen OME-Zarr 0.5 store to 0.6 off the GUI thread (item 1007, alpha).\n\n:func:`spacr.ome_zarr_convert.upgrade_ngff` writes a new store beside the source and\nverifies every chunk; the report goes to the Summary pane, a refusal to the status\nline.\n\n:returns: True when the job was started (or, unthreaded, succeeded).",
+      "source_sha256": "a960f9b900e866a5f26eba6f590227125b3fbe8367ec13c6b09f1f4bd5a33e3b",
+      "blocks": [
+        {
+          "source": "Upgrade the chosen OME-Zarr 0.5 store to 0.6 off the GUI thread (item 1007, alpha).",
+          "source_sha256": "0716e42a04f4a0a9b77f3953dcf7c2ba6cb91b4eeb770ec3eaf3ad664e2f1e29"
+        },
+        {
+          "source": ":func:`spacr.ome_zarr_convert.upgrade_ngff` writes a new store beside the source and verifies every chunk; the report goes to the Summary pane, a refusal to the status line.",
+          "source_sha256": "21dc7848f7855e06ff21983483eda692596f7154e4c25a445539d28dfdc6e556"
+        },
+        {
+          "source": "True when the job was started (or, unthreaded, succeeded).",
+          "source_sha256": "d0957da24baf3497261b6867257ccc2094845a95f44c28d8622359cb2e40c341"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              2
+            ]
+          ]
+        ]
+      ]
+    }
+  },
+  "runtime_sources": [
+    {
+      "table": "setting_labels",
+      "key": "ome_zarr_upgrade_link",
+      "source": "Ome zarr upgrade link",
+      "source_sha256": "403eaeea31ff07014e35289038896108c279a5a4b9bd14467714822b7e77e791",
+      "locations": [
+        {
+          "file": "spacr/ops_settings.py",
+          "line": 73,
+          "derived_from_key": "ome_zarr_upgrade_link"
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ome_zarr_upgrade_link",
+      "source": "How the OME-Zarr 0.5 to 0.6 converter (Convert, Upgrade OME-Zarr) puts the pixel chunks into the new store: True hard-links each chunk file, so the new store takes almost no space and is the same pixels; False copies them. Copies are made anyway where the disk refuses a link. Only the metadata is rewritten; every chunk is checked byte for byte. Default True. Alpha.",
+      "source_sha256": "589862f4d0ba61babb86a4630f70783e2d29fb508f90f5dd5dc3474281698374",
+      "locations": [
+        {
+          "file": "spacr/ops_settings.py",
+          "line": 1887
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Array metadata verification failed: {path}",
+      "source": "Array metadata verification failed: {path}",
+      "source_sha256": "d0d867cb5a2d02435ebdd7c7adf61a64996ea70b66357d926ab9d40b20196d24",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1765
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Choose the OME-Zarr store and a new destination.",
+      "source": "Choose the OME-Zarr store and a new destination.",
+      "source_sha256": "f4408cd6799dee10ccbe3a15308fb69bea9512e33c537d60f54061d076085080",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 937
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Chunk verification failed: {path}",
+      "source": "Chunk verification failed: {path}",
+      "source_sha256": "ce6099746fe01b7dc1cdcddd1c8fdfc662214e87f0d15daf9ee075e5a65d8dd3",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1761
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Destination…",
+      "source": "Destination…",
+      "source_sha256": "f35c94e6b02d398da39617fd558af5ea6ea8cc6bea189d3d250b72a2b3e66237",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 217
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Hard-link chunks",
+      "source": "Hard-link chunks",
+      "source_sha256": "cdfa87833b5328688e4a23a3bd86ff8702123bbeee5b004c40ba9a0f215fa2fd",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 220
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Metadata round trip failed: {path}",
+      "source": "Metadata round trip failed: {path}",
+      "source_sha256": "8b9be6ca90bf87fa9485f585982604799a9ad756d6598758a9d92fee6083c5ab",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1777
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "New 0.6 store",
+      "source": "New 0.6 store",
+      "source_sha256": "a62c0bfe213939a3077fbccbb604be4ab59060fc37930c4deb8a035e6badbefb",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 213
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "OME-Zarr 0.5 store",
+      "source": "OME-Zarr 0.5 store",
+      "source_sha256": "f42792b86cbb2d528496d50757d127e3cf5f330f0d4ad094ba7061dfd59bf822",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1782
+        },
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 925
+        },
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 211
+        },
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 216
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "OME-Zarr {version} store written and verified.",
+      "source": "OME-Zarr {version} store written and verified.",
+      "source_sha256": "1e46d2eb289e03af11c5ee3887f9d0691f5b99f83603f8e88b4fabdb02f1c33f",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 251
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "On: the new store links to the same chunk files and takes almost no space. Off: the chunks are copied. Only the metadata is rewritten, and every chunk is checked.",
+      "source": "On: the new store links to the same chunk files and takes almost no space. Off: the chunks are copied. Only the metadata is rewritten, and every chunk is checked.",
+      "source_sha256": "ceb505e97ea85f0862ec5bfc829537201fdd2e3cfadfd55cb269ae560a2005b3",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 223
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Select the OME-Zarr 0.5 store",
+      "source": "Select the OME-Zarr 0.5 store",
+      "source_sha256": "449a34d38eccef544bed477e7038d6352d47a3518caf9732bb81143eab0c73e3",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 216
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Select the folder for the 0.6 store",
+      "source": "Select the folder for the 0.6 store",
+      "source_sha256": "c2ceda4156f8f41f1da5876919b104e4fcb6ba364d80b9d9e715a1270323de34",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 219
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Store…",
+      "source": "Store…",
+      "source_sha256": "404ec693cb69b38e67e12dffb0ae4298d380629c177720101983e0400ff9c218",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 214
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "The destination {dst} must be outside the source store {src}.",
+      "source": "The destination {dst} must be outside the source store {src}.",
+      "source_sha256": "13f0dafcbf2e9c0d9ade0125a24689f7a87e9bc77a5ef96594db7577356065ab",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1827
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Upgrade an OME-Zarr store to 0.6 (Alpha)",
+      "source": "Upgrade an OME-Zarr store to 0.6 (Alpha)",
+      "source_sha256": "4854c08bf56e19dd2b5ef8962d970dcca9b388f47dafda33da48604178f40507",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 208
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Upgrade verified: {path}",
+      "source": "Upgrade verified: {path}",
+      "source_sha256": "b58939d824d0963b0940ca39e8a8405671d2e509c23cc23afb2f378e4badc095",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 947
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "Upgrading {path} to OME-Zarr 0.6…",
+      "source": "Upgrading {path} to OME-Zarr 0.6…",
+      "source_sha256": "4882a096d9b7fed1b3dbc0b0e01ac78df17058d6c54d79e392915da6983b0681",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 940
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "md5 of the chunk list: {digest}",
+      "source": "md5 of the chunk list: {digest}",
+      "source_sha256": "f1ab046a348933f99bd41af2cf0d752fdaa630a84ae123631db1882148d91804",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 254
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "upgrade_ngff converts to '0.6' or '0.5'; got {target}",
+      "source": "upgrade_ngff converts to '0.6' or '0.5'; got {target}",
+      "source_sha256": "a28b5776a07205294eeae72e014cd578aff320d56318fa124c69dc9a7222f4fc",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1825
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "{dst} already holds files that are not an earlier upgrade; choose a new destination.",
+      "source": "{dst} already holds files that are not an earlier upgrade; choose a new destination.",
+      "source_sha256": "90e4745f4c48e3d7707891e07c00db247563ef6fb1f13f5711f9ed48706173c6",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1834
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "{dst} holds an upgrade of {other} to {version}; choose a new destination.",
+      "source": "{dst} holds an upgrade of {other} to {version}; choose a new destination.",
+      "source_sha256": "d2ed4515ccb7d74a1d5bd4a73efd9fbdf88312338d51a8d6c7b9fe91761d7d37",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1838
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "{groups} group(s), {arrays} array(s), {chunks} chunk file(s): {linked} linked, {copied} copied, {kept} kept from an earlier run.",
+      "source": "{groups} group(s), {arrays} array(s), {chunks} chunk file(s): {linked} linked, {copied} copied, {kept} kept from an earlier run.",
+      "source_sha256": "e7aca2118278d5cb4b895518cf47398812ab6126a4964aef972da19a687eb2ac",
+      "locations": [
+        {
+          "file": "spacr/qt/screens/convert.py",
+          "line": 252
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "{path} holds Zarr v2 metadata ({name}); upgrade_ngff converts OME-Zarr 0.5 and 0.6 stores, which are Zarr v3. Nothing was converted.",
+      "source": "{path} holds Zarr v2 metadata ({name}); upgrade_ngff converts OME-Zarr 0.5 and 0.6 stores, which are Zarr v3. Nothing was converted.",
+      "source_sha256": "6148889bd50a680d6579ae4c8c737dff9d01461d4fbed02008f4ebe3cda3589b",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1712
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "{path} holds a coordinateTransformations group, which OME-Zarr 0.5 cannot hold. Nothing was converted.",
+      "source": "{path} holds a coordinateTransformations group, which OME-Zarr 0.5 cannot hold. Nothing was converted.",
+      "source_sha256": "8f2110caa0fbc17453619c394e8948af1678778d039d9cb0b141493ea3049554",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1723
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "{path} is not an OME-Zarr 0.5 or 0.6 store: it has no zarr.json (Zarr v3).",
+      "source": "{path} is not an OME-Zarr 0.5 or 0.6 store: it has no zarr.json (Zarr v3).",
+      "source_sha256": "01604f830c21e49e9dfc11689f59cb320283b7582f7b69ad92441689a65f56e8",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1702
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "{where} is OME-Zarr {version}; upgrade_ngff converts {source} to {target} only, so nothing was converted.",
+      "source": "{where} is OME-Zarr {version}; upgrade_ngff converts {source} to {target} only, so nothing was converted.",
+      "source_sha256": "315c7311e6b231e04ab3ee72e5e06d047b2dd0e2f2ee7dbcf8364660356f88fa",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1675
+        }
+      ],
+      "before": null
+    },
+    {
+      "table": "ui",
+      "key": "{where}: {key} carries version {inner} inside a {version} store; the converter cannot tell which one is right, so nothing was converted.",
+      "source": "{where}: {key} carries version {inner} inside a {version} store; the converter cannot tell which one is right, so nothing was converted.",
+      "source_sha256": "b0a56cbf9f7cb99a5c0542ab754773b92bbc14123a6da7a9172aaa383dd38f6b",
+      "locations": [
+        {
+          "file": "spacr/ome_zarr_convert.py",
+          "line": 1654
+        }
+      ],
+      "before": null
+    }
+  ],
+  "new_tr_calls": [
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1675,
+      "source": "{where} is OME-Zarr {version}; upgrade_ngff converts {source} to {target} only, so nothing was converted.",
+      "source_sha256": "315c7311e6b231e04ab3ee72e5e06d047b2dd0e2f2ee7dbcf8364660356f88fa",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1702,
+      "source": "{path} is not an OME-Zarr 0.5 or 0.6 store: it has no zarr.json (Zarr v3).",
+      "source_sha256": "01604f830c21e49e9dfc11689f59cb320283b7582f7b69ad92441689a65f56e8",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1825,
+      "source": "upgrade_ngff converts to '0.6' or '0.5'; got {target}",
+      "source_sha256": "a28b5776a07205294eeae72e014cd578aff320d56318fa124c69dc9a7222f4fc",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1827,
+      "source": "The destination {dst} must be outside the source store {src}.",
+      "source_sha256": "13f0dafcbf2e9c0d9ade0125a24689f7a87e9bc77a5ef96594db7577356065ab",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1712,
+      "source": "{path} holds Zarr v2 metadata ({name}); upgrade_ngff converts OME-Zarr 0.5 and 0.6 stores, which are Zarr v3. Nothing was converted.",
+      "source_sha256": "6148889bd50a680d6579ae4c8c737dff9d01461d4fbed02008f4ebe3cda3589b",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1761,
+      "source": "Chunk verification failed: {path}",
+      "source_sha256": "ce6099746fe01b7dc1cdcddd1c8fdfc662214e87f0d15daf9ee075e5a65d8dd3",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1765,
+      "source": "Array metadata verification failed: {path}",
+      "source_sha256": "d0d867cb5a2d02435ebdd7c7adf61a64996ea70b66357d926ab9d40b20196d24",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1777,
+      "source": "Metadata round trip failed: {path}",
+      "source_sha256": "8b9be6ca90bf87fa9485f585982604799a9ad756d6598758a9d92fee6083c5ab",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1834,
+      "source": "{dst} already holds files that are not an earlier upgrade; choose a new destination.",
+      "source_sha256": "90e4745f4c48e3d7707891e07c00db247563ef6fb1f13f5711f9ed48706173c6",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1838,
+      "source": "{dst} holds an upgrade of {other} to {version}; choose a new destination.",
+      "source_sha256": "d2ed4515ccb7d74a1d5bd4a73efd9fbdf88312338d51a8d6c7b9fe91761d7d37",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1723,
+      "source": "{path} holds a coordinateTransformations group, which OME-Zarr 0.5 cannot hold. Nothing was converted.",
+      "source_sha256": "8f2110caa0fbc17453619c394e8948af1678778d039d9cb0b141493ea3049554",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1654,
+      "source": "{where}: {key} carries version {inner} inside a {version} store; the converter cannot tell which one is right, so nothing was converted.",
+      "source_sha256": "b0a56cbf9f7cb99a5c0542ab754773b92bbc14123a6da7a9172aaa383dd38f6b",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 211,
+      "source": "OME-Zarr 0.5 store",
+      "source_sha256": "f42792b86cbb2d528496d50757d127e3cf5f330f0d4ad094ba7061dfd59bf822",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 213,
+      "source": "New 0.6 store",
+      "source_sha256": "a62c0bfe213939a3077fbccbb604be4ab59060fc37930c4deb8a035e6badbefb",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 214,
+      "source": "Store…",
+      "source_sha256": "404ec693cb69b38e67e12dffb0ae4298d380629c177720101983e0400ff9c218",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 217,
+      "source": "Destination…",
+      "source_sha256": "f35c94e6b02d398da39617fd558af5ea6ea8cc6bea189d3d250b72a2b3e66237",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 220,
+      "source": "Hard-link chunks",
+      "source_sha256": "cdfa87833b5328688e4a23a3bd86ff8702123bbeee5b004c40ba9a0f215fa2fd",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 223,
+      "source": "On: the new store links to the same chunk files and takes almost no space. Off: the chunks are copied. Only the metadata is rewritten, and every chunk is checked.",
+      "source_sha256": "ceb505e97ea85f0862ec5bfc829537201fdd2e3cfadfd55cb269ae560a2005b3",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 225,
+      "source": "Upgrade",
+      "source_sha256": "7ec0261b8e8aa3e0b1affde5f18ca1930ae73d81a5303d667aae9ffd2803cbc7",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 208,
+      "source": "Upgrade an OME-Zarr store to 0.6 (Alpha)",
+      "source_sha256": "4854c08bf56e19dd2b5ef8962d970dcca9b388f47dafda33da48604178f40507",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 216,
+      "source": "Select the OME-Zarr 0.5 store",
+      "source_sha256": "449a34d38eccef544bed477e7038d6352d47a3518caf9732bb81143eab0c73e3",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 219,
+      "source": "Select the folder for the 0.6 store",
+      "source_sha256": "c2ceda4156f8f41f1da5876919b104e4fcb6ba364d80b9d9e715a1270323de34",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 937,
+      "source": "Choose the OME-Zarr store and a new destination.",
+      "source_sha256": "f4408cd6799dee10ccbe3a15308fb69bea9512e33c537d60f54061d076085080",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 251,
+      "source": "OME-Zarr {version} store written and verified.",
+      "source_sha256": "1e46d2eb289e03af11c5ee3887f9d0691f5b99f83603f8e88b4fabdb02f1c33f",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 252,
+      "source": "{groups} group(s), {arrays} array(s), {chunks} chunk file(s): {linked} linked, {copied} copied, {kept} kept from an earlier run.",
+      "source_sha256": "e7aca2118278d5cb4b895518cf47398812ab6126a4964aef972da19a687eb2ac",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 254,
+      "source": "md5 of the chunk list: {digest}",
+      "source_sha256": "f1ab046a348933f99bd41af2cf0d752fdaa630a84ae123631db1882148d91804",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 940,
+      "source": "Upgrading {path} to OME-Zarr 0.6…",
+      "source_sha256": "4882a096d9b7fed1b3dbc0b0e01ac78df17058d6c54d79e392915da6983b0681",
+      "canonical_tables": [
+        "ui"
+      ]
+    },
+    {
+      "file": "spacr/qt/screens/convert.py",
+      "line": 947,
+      "source": "Upgrade verified: {path}",
+      "source_sha256": "b58939d824d0963b0940ca39e8a8405671d2e509c23cc23afb2f378e4badc095",
+      "canonical_tables": [
+        "ui"
+      ]
+    }
+  ],
+  "private_and_test_docs": [
+    {
+      "symbol": "spacr.ome_zarr_convert._file_digest",
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 60,
+      "source": "Fingerprint file bytes while rejecting a mutation during the read.\n\n:param path: the file.\n:param algorithm: a :mod:`hashlib` name; ``'md5'`` for the chunk check of\n    :func:`upgrade_ngff`.\n:returns: ``{\"size\": bytes, algorithm: hex digest}``.",
+      "source_sha256": "5b1bfa4f4b09a1f968a6bed3b7a664de1fcf940efce83349e93fbdcb0750895c",
+      "before": "Fingerprint file bytes while rejecting a mutation during the read."
+    },
+    {
+      "symbol": "spacr.ome_zarr_convert._atomic_json",
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 377,
+      "source": "Publish a flushed JSON ledger atomically on the destination filesystem.\n\n``sort_keys=False`` keeps the key order, as :func:`upgrade_ngff` writes a\nstore's ``zarr.json``.",
+      "source_sha256": "8a95d179eea4adea586028cd0865d8bf3441336e73d4bef4577efaf4fe8fa084",
+      "before": "Publish a flushed JSON ledger atomically on the destination filesystem."
+    },
+    {
+      "symbol": "spacr.ome_zarr_convert._strip_inner_versions",
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1645,
+      "source": "Drop a ``version`` repeated inside the OME metadata, as OME-Zarr 0.6 keeps it only at ``ome.version``.",
+      "source_sha256": "089eb031a29368c99dd0f751250427800b106ff134f7f27ad7059cc8e1edb261",
+      "before": null
+    },
+    {
+      "symbol": "spacr.ome_zarr_convert._upgrade_group",
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1665,
+      "source": "One group ``zarr.json`` in the target version; a non-OME group is returned unchanged.",
+      "source_sha256": "adb90a67ccebdb2e2194894aec91dcfe32a4625e6c52294113e357ce40c68964",
+      "before": null
+    },
+    {
+      "symbol": "spacr.ome_zarr_convert._upgrade_plan",
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1696,
+      "source": "Map every group of the store in memory; refuse before anything is written.\n\nThe report and lock an earlier upgrade left at the store root are not part of the store.",
+      "source_sha256": "a0fd2b49fc836c28166f0428ecec131648e02b6704d8ffd99ff4c357b6174626",
+      "before": null
+    },
+    {
+      "symbol": "spacr.ome_zarr_convert._place_chunk",
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1730,
+      "source": "Hard-link one stored file, or copy it when linking is refused; returns the mode used.",
+      "source_sha256": "26c9feef9e7ff26dc02ed87241d0cd6eabe4fe34f7db724380e840968e544d02",
+      "before": null
+    },
+    {
+      "symbol": "spacr.ome_zarr_convert._write_group",
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1749,
+      "source": "Publish one group ``zarr.json`` atomically (:func:`_atomic_json`), keeping the source key order.",
+      "source_sha256": "53804b9df0f8939279a611ae9462f5516a6a32d43f602d3436d3e79814d50420",
+      "before": null
+    },
+    {
+      "symbol": "spacr.ome_zarr_convert._verify_upgrade",
+      "file": "spacr/ome_zarr_convert.py",
+      "line": 1755,
+      "source": "Compare every stored byte and map the metadata back; returns the report fields.",
+      "source_sha256": "8362d9446b64b88c606fc86ccf8e142e3f503076eee70e13369324ef2d330b01",
+      "before": null
+    },
+    {
+      "symbol": "spacr.qt.screens.convert._pick_ngff_folder",
+      "file": "spacr/qt/screens/convert.py",
+      "line": 193,
+      "source": "Choose an OME-Zarr folder on the GUI thread; a cancelled dialog keeps the text.",
+      "source_sha256": "dcecf57658e775475c2b3c5ecacfc6d6d6ae1308489ac0468737cd5ab3cb80c0",
+      "before": null
+    },
+    {
+      "symbol": "spacr.qt.screens.convert._build_ngff_upgrade_controls",
+      "file": "spacr/qt/screens/convert.py",
+      "line": 200,
+      "source": "Add the alpha OME-Zarr 0.5 to 0.6 upgrade row (item 1007) to the Convert form.",
+      "source_sha256": "8f6c31704b716eb2ab69e7d6b02bddd90654234dd8f0b7edf42a28a801220621",
+      "before": null
+    },
+    {
+      "symbol": "spacr.qt.screens.convert._ngff_upgrade_settings",
+      "file": "spacr/qt/screens/convert.py",
+      "line": 239,
+      "source": "The Upgrade row settings, captured on the GUI thread before the worker starts.",
+      "source_sha256": "747d7270f62a052ed2c66d96014400d948931bad585946883f8f6cd3265e1457",
+      "before": null
+    },
+    {
+      "symbol": "spacr.qt.screens.convert._ngff_paths_changed",
+      "file": "spacr/qt/screens/convert.py",
+      "line": 244,
+      "source": "Enable Upgrade once both paths are filled in.",
+      "source_sha256": "f14bcde844bd9a321d1b3b201a457bdb6f676869025bceaa6a366bad4c88c314",
+      "before": null
+    },
+    {
+      "symbol": "spacr.qt.screens.convert._ngff_upgrade_summary",
+      "file": "spacr/qt/screens/convert.py",
+      "line": 249,
+      "source": "The upgrade report as the Summary pane shows it.",
+      "source_sha256": "8f5f720e5e55c1d7cdd197a9eba30f69ae958b61f3faf41b1bee5cd781629e88",
+      "before": null
+    },
+    {
+      "symbol": "spacr.qt.screens.convert.ConvertScreen._on_ngff_upgraded",
+      "file": "spacr/qt/screens/convert.py",
+      "line": 945,
+      "source": "Show the report from a finished upgrade.",
+      "source_sha256": "24ec0de83fdd9c85e694e2d68da0159d6d2ea97881e0e6c88fe498f152c84ea9",
+      "before": null
+    },
+    {
+      "symbol": "tests.qt.test_convert_ngff_upgrade_1007",
+      "file": "tests/qt/test_convert_ngff_upgrade_1007.py",
+      "line": 1,
+      "source": "Item 1007 lane B: the Convert tab alpha OME-Zarr 0.6 upgrade runs upgrade_ngff.",
+      "source_sha256": "33846fea3742cf569fe6185506a519810e74fbf799aca38ad5b6ea1b5f38525d",
+      "before": null
+    },
+    {
+      "symbol": "tests.qt.test_convert_ngff_upgrade_1007.prefs",
+      "file": "tests/qt/test_convert_ngff_upgrade_1007.py",
+      "line": 18,
+      "source": "Keep feature visibility out of the user preference file.",
+      "source_sha256": "e66e21188b8360910c8dc1f19d1aeb0f9d6f521c5b13af48c98d481329814317",
+      "before": null
+    },
+    {
+      "symbol": "tests.qt.test_convert_ngff_upgrade_1007.test_the_upgrade_row_runs_the_converter_and_shows_its_report",
+      "file": "tests/qt/test_convert_ngff_upgrade_1007.py",
+      "line": 26,
+      "source": "Run the Convert row and display verification or a destination refusal.",
+      "source_sha256": "c2f7cc5d4166e28b87155d517191ca0fd80632014a5bd3ce88f15086e3c84752",
+      "before": null
+    },
+    {
+      "symbol": "tests.qt.test_convert_ngff_upgrade_1007.test_the_upgrade_row_is_alpha",
+      "file": "tests/qt/test_convert_ngff_upgrade_1007.py",
+      "line": 45,
+      "source": "Hide the upgrade row when alpha features are disabled.",
+      "source_sha256": "db31b3a1b8ccced046c7983c55cccc4e8c1d55a8a0d8c906ca6a194788bad526",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_docstring_correctness._validated_ome_zarr_upgrade_1007b_callables",
+      "file": "tests/test_docstring_correctness.py",
+      "line": 3878,
+      "source": "Check the public callables of item 1007 lane B (the OME-Zarr 0.5 to 0.6 converter) against their source.",
+      "source_sha256": "5fd2d79767eba8ffb17bb0772e56bf7e0b1e9ac64181fe9f69a226ab7792cbae",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_every_ops_setting_is_declared.test_the_engine_reads_every_setting_the_panel_offers",
+      "file": "tests/test_every_ops_setting_is_declared.py",
+      "line": 166,
+      "source": "Check every registered setting against its engine or delegated workflow.\n\nThe Convert upgrade action passes its captured link setting to\n`ome_zarr_convert.upgrade_ngff`. Include that reader alongside the\nengine phase readers; every declared key must still occur in a consumer.",
+      "source_sha256": "d3620d6815a0719d561599d0b650dad2a73ebc8c3e3bc52da5d55a1329c56dc9",
+      "before": "A setting the engine never reads is a control that changes nothing.\n\nThe module docstring of `spacr.ops_settings` makes that promise; this\nholds it to the source rather than to the promise. `plate` and\n`dst_root` are read through `settings.get` like the rest, so a plain\ntext search over the engine finds all of them."
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 1,
+      "source": "Item 1007 lane B: the lossless OME-Zarr 0.5 to 0.6 converter, ``upgrade_ngff``.\n\nT8: every chunk file keeps its md5, the metadata maps back to the original, and the\nhard-link and copy modes give the same verdict. T9: what has no lossless 0.6 form is\nrefused before anything is written, the source is never changed, and a stopped run resumes.\nT10: plate, well and labels groups convert and read.",
+      "source_sha256": "a111965328c505a948d6907d41c84c01823b6e73b48adb2b67077e6a7513f827",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007._image",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 25,
+      "source": "Create deterministic integer pixels for a small OME-Zarr fixture.",
+      "source_sha256": "5213bfe37128f6c358cde3c84a3ecaf92fc0421d3394e2d9132c11174da06deb",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007._store",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 31,
+      "source": "A 0.5 CYX image with two levels and a physical spacing.",
+      "source_sha256": "d83c9cb5217bee45be0684989c5d67645256baf886b79b5d83fc0b62b0b4b4b5",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007._snapshot",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 41,
+      "source": "Every file under ``root`` with its md5.",
+      "source_sha256": "abe527b17a82daf0f8a385d12300a91e2dc99b17450578559d0aafc6e0b9a465",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007._ome",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 47,
+      "source": "Read the OME attributes from fixture group metadata.",
+      "source_sha256": "4e9bc03056272f04cc58d1032f21e895bff33738c7bf60f16aa320c2ec5ca992",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007.test_the_upgrade_keeps_every_chunk_and_maps_the_metadata_back",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 53,
+      "source": "Verify unchanged pixels and metadata after forward and reverse conversion.",
+      "source_sha256": "4f3493cd6f64355ce2c7ae7eceb6bb1f845320d52850163fc7ee3209f36408ae",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007.test_the_link_mode_comes_from_the_settings_unless_link_is_given",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 84,
+      "source": "Honor the configured link mode and an explicit argument override.",
+      "source_sha256": "6f49b48b97f75b8a41710b947b6683514bdea19442a34e125ee37e56fce2f961",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007.test_link_and_copy_give_the_same_verdict_and_chunk_list",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 96,
+      "source": "Require matching verification results for linked and copied chunks.",
+      "source_sha256": "31c08e20832c171a074063e701e9d7019575924b31585015f5db230f94b8b789",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007._rewrite",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 105,
+      "source": "Apply one metadata change to an existing fixture group.",
+      "source_sha256": "b4702281c963ab75f3c33273c67cf4fb03989ac4a0a6f9cdce1e8bf5ffb0af67",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007.test_an_unmappable_attribute_is_refused_and_nothing_is_written",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 112,
+      "source": "Reject an unrepresentable transformation before creating the destination.",
+      "source_sha256": "c8327b571fc48d4fcfdcc6fab4eaff464ad25a91578aef90d597da28924b8ce2",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007.test_other_versions_v2_stores_and_bad_destinations_are_refused",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 124,
+      "source": "Refuse incompatible versions and destinations without replacing existing files.",
+      "source_sha256": "cf5288e5de5fff7d3dc617225d1089bb2caccd226e4dca1488efe2f1f97b37e7",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007.test_an_inner_version_is_dropped_when_it_repeats_the_store_and_refused_otherwise",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 144,
+      "source": "Remove repeated matching versions and reject conflicting versions.",
+      "source_sha256": "ce4a8e7952172a45210988c19c868edb15b5dad1f964c7bc7d139d7c3ebcda78",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007.test_a_stopped_run_resumes_and_a_different_upgrade_is_refused",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 157,
+      "source": "Resume interrupted conversion while refusing a different source store.",
+      "source_sha256": "3393260a79b4a7d3b83e91ec0481e5a06e25cad4f1f2977a32aa51d21bad8711",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007.test_a_stopped_run_resumes_and_a_different_upgrade_is_refused._stop",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 162,
+      "source": "Interrupt the write to exercise persistent resume state.",
+      "source_sha256": "97bd910764522acaa09f038e7dc40830b2d773f1b00c8cb6511cbc7bd0f92481",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007.test_plate_well_and_label_groups_convert_and_read",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 178,
+      "source": "T10: the version key moves to ome.version alone; the rest is unchanged.",
+      "source_sha256": "69c7823f85d0442547b9d0ea2e354272c6842492a038f20569626846411add44",
+      "before": null
+    },
+    {
+      "symbol": "tests.test_ome_zarr_upgrade_1007.test_the_link_setting_is_alpha_and_on_by_default",
+      "file": "tests/test_ome_zarr_upgrade_1007.py",
+      "line": 222,
+      "source": "Keep the link setting enabled by default and registered as alpha.",
+      "source_sha256": "724739fc65cdf90b0bb2b34976b1633a97a74b464d11558f6ea4e871dad24d13",
+      "before": null
+    }
+  ],
+  "assertion_preservation": {
+    "tests/test_api_i18n_extractor.py": {
+      "base_assertions_retained": 493,
+      "current_assertions": 499
+    },
+    "tests/test_docstring_correctness.py": {
+      "base_assertions_retained": 1099,
+      "current_assertions": 1107
+    },
+    "tests/test_documentation_i18n.py": {
+      "base_assertions_retained": 775,
+      "current_assertions": 775
+    },
+    "tests/test_settings_categories.py": {
+      "base_assertions_retained": 66,
+      "current_assertions": 66
+    },
+    "tests/test_every_ops_setting_is_declared.py": {
+      "base_assertions_retained": 13,
+      "current_assertions": 13
+    },
+    "tests/qt/test_external_i18n_catalogs.py": {
+      "base_assertions_retained": 184,
+      "current_assertions": 184
+    },
+    "tests/qt/test_i18n_caption_ratchet.py": {
+      "base_assertions_retained": 41,
+      "current_assertions": 41
+    }
+  },
+  "source_files": {
+    "spacr/ome_zarr_convert.py": "da1c78935e8f35dcbc02d2a2f8d7be59122f286b0968e2db3828314cf80c33aa",
+    "spacr/ops_settings.py": "dfe549bd251ee38e084013857044c7d09ea7bae8e7855c4eda25a554d397ac64",
+    "spacr/qt/screens/convert.py": "06e5fabbc534be54382048d3685efae04fd14bf50034f1bc7fd67b1afb78b7de",
+    "spacr/settings.py": "381860f43135a01ea03655510887e4d014b09331208e1e301739b9f58d0fe150",
+    "tests/data/release_contracts/1007b_convert_upgrade_api_arrivals_2026-11-22.json": "b0fb9f176304243969ec445b8d318da9359d44ea9fcccc2ed3283a3c1de5e195",
+    "tests/data/release_contracts/1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json": "087ac04e7c9c7bace9c38be056483b219ef6bbaa6909168726bcdf48be747a44",
+    "tests/qt/test_convert_ngff_upgrade_1007.py": "caedb4b41d3c276238fc38c738af1b66fc4715225fb0f71d3fe16accb0b8ab7a",
+    "tests/qt/test_external_i18n_catalogs.py": "f8299db4213a0befa6393c7d06775af81107e8a46cd252eccfd5dbd14f9421b6",
+    "tests/qt/test_i18n_caption_ratchet.py": "b9a143090c4d75b2fb7e84e6bbeeb865e4298aaa81ffa994525be16024b08f2a",
+    "tests/test_api_i18n_extractor.py": "7b0dffd5d050893e2d475ed09559db373bd73930c37f9e245f4f8c5de90a2255",
+    "tests/test_docstring_correctness.py": "d6b23f13142fff310025849beb3dd71a58e04bb58afb3a6db86d81877e35354d",
+    "tests/test_documentation_i18n.py": "ae41da0271fd4b92bf4f2f2f1b8cfbadb9cb49504de9548da57b40051dee71d3",
+    "tests/test_every_ops_setting_is_declared.py": "e3698f38ad531b3da567b5afb3eea4f465d8646a30777db624fa298b6e7d6d1b",
+    "tests/test_ome_zarr_upgrade_1007.py": "00cb15a74fc1dbb8537f13a0d04fd0461979a3ad045d394697f02d547e86d746",
+    "tests/test_settings_categories.py": "719fd2da25c78d0ba7223a2305969bd6a5e8ed5364879e4d143c658be675a459"
+  },
+  "alpha_registry": {
+    "count": 178,
+    "reason": "The registry counts item IDs; the new widget and setting extend existing item 1007.",
+    "existing_registration_setting_retained": true
+  },
+  "validation": {
+    "application_source_commit": "c15ef9a8c818b79353ec9f66edf237144d2abfe0",
+    "application_source_unchanged_after_checkpoint": true,
+    "owner_regressions_hidden": {
+      "passed": 401,
+      "failed": 0,
+      "skipped": 1,
+      "xfailed": 0,
+      "subtests_passed": 24,
+      "seconds": 61.75,
+      "raw_summary": "401 passed, 1 skipped, 13 warnings, 24 subtests passed in 61.75s (0:01:01)",
+      "receipt": "owners-hidden.log"
+    },
+    "owner_regressions_visible_with_eight_audit_tests": {
+      "passed": 409,
+      "failed": 0,
+      "skipped": 1,
+      "xfailed": 0,
+      "subtests_passed": 24,
+      "seconds": 68.33,
+      "raw_summary": "409 passed, 1 skipped, 13 warnings, 24 subtests passed in 68.33s (0:01:08)",
+      "receipt": "owners-visible.log"
+    },
+    "full_items_repaired": {
+      "passed": 1599,
+      "failed": 0,
+      "skipped": 10,
+      "xfailed": 0,
+      "subtests_passed": 960,
+      "seconds": 533.87,
+      "raw_summary": "1599 passed, 10 skipped, 153 warnings, 960 subtests passed in 533.87s (0:08:53)",
+      "receipt": "repaired-full-groups/items.log"
+    },
+    "full_settings_repaired": {
+      "passed": 630,
+      "failed": 0,
+      "skipped": 2,
+      "xfailed": 0,
+      "subtests_passed": 369,
+      "seconds": 80.75,
+      "raw_summary": "630 passed, 2 skipped, 369 subtests passed in 80.75s (0:01:20)",
+      "receipt": "repaired-full-groups/settings.log"
+    },
+    "full_ratchets_raw": {
+      "passed": 4089,
+      "failed": 3,
+      "skipped": 76,
+      "xfailed": 3,
+      "subtests_passed": 0,
+      "seconds": 1246.16,
+      "raw_summary": "3 failed, 4089 passed, 76 skipped, 3 xfailed, 69 warnings in 1246.16s (0:20:46)",
+      "receipt": "filtered-ratchets/ratchets.log"
+    },
+    "approved_arrival_rechecks_and_hash_guard": {
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "subtests_passed": 0,
+      "seconds": 34.93,
+      "raw_summary": "4 passed in 34.93s",
+      "receipt": "final-four.log"
+    },
+    "mandatory_six_source_rules": {
+      "total_passed": 157,
+      "reason": "Five files passed in the full ratchet run; the omitted hash guard passed in final-four.xml.",
+      "mandatory_six_rules": {
+        "test_the_raw_reader_count_only_goes_down": {
+          "passed": 5
+        },
+        "test_nested_functions_are_documented": {
+          "passed": 87
+        },
+        "test_every_callable_in_the_package_is_documented": {
+          "passed": 3
+        },
+        "test_test_suite_hygiene": {
+          "passed": 36
+        },
+        "test_ci_suite_classification": {
+          "passed": 25
+        },
+        "test_no_new_hash_comments_in_spacr": {
+          "passed": 1
+        }
+      }
+    },
+    "native_source_api_gates": [
+      {
+        "module": "test_docstring_correctness",
+        "test": "test_public_callable_inventory_is_source_derived_not_docstring_derived",
+        "passed": true,
+        "seconds": 22.84971729099925,
+        "new_production_modules": []
+      },
+      {
+        "module": "test_docstring_correctness",
+        "test": "test_callable_boundary_is_cross_checked_with_i18n_extractor",
+        "passed": true,
+        "seconds": 30.39657498699671,
+        "new_production_modules": []
+      },
+      {
+        "module": "test_api_i18n_extractor",
+        "test": "test_public_docstrings_matches_reviewed_visible_coverage",
+        "passed": true,
+        "seconds": 42.4441985989979,
+        "new_production_modules": []
+      }
+    ],
+    "ratchet_deselections": [
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[de]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[en]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[es]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[fr]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[hi]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[is]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[ko]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[pt]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[sv]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[zh_CN]",
+      "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+      "tests/test_api_i18n_frontend.py::test_english_catalog_keys_are_exactly_joinable",
+      "tests/test_api_i18n_frontend.py::test_every_complete_real_catalog_renders_through_the_browser_selector",
+      "tests/test_api_reference_drops_deleted_modules.py::test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[de]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[en]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[es]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[fr]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[hi]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[is]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[ko]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[pt]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[sv]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[zh_CN]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_api_catalogs_cover_english_and_the_translated_languages",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_keeps_a_package_without_an_init",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_notices_a_module_that_disappears",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_starts_from_an_empty_generated_tree",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_treats_every_sphinx_warning_as_an_error",
+      "tests/test_built_nested_helper_api.py::test_empty_rollout_does_not_scan_or_touch_any_catalog"
+    ],
+    "initial_ratchet_failures_resolved": [
+      {
+        "classname": "tests.qt.test_external_i18n_catalogs",
+        "name": "test_runtime_source_inventory_is_complete_before_optional_module_imports",
+        "message": "AssertionError: assert {'CP_prob', '...t_cells', ...} == {'CP_prob', '...t_cells', ...}\n  \n  Extra items in the left set:\n  'ome_zarr_upgrade_link'\n  Use -v to get more diff",
+        "text": "def test_runtime_source_inventory_is_complete_before_optional_module_imports():\n        \"\"\"The inventory is the clean builder's, whatever this process imported.\n    \n        ``spacr.gene_graph`` and ``spacr.architecture_training`` are imported here\n        because an earlier test on the same worker importing them is what used to\n        add their script-only tooltips to an in-process inventory.\n        \"\"\"\n        import spacr.architecture_training  # noqa: F401\n        import spacr.gene_graph  # noqa: F401\n    \n        probes = {\n            \"Joining predictions to measured objects and fitting held-out surrogate…\",\n            \"Load table…\",\n            \"Well\",\n            \"Score the masks now\",\n        }\n        report = _fresh_inventory(probes=sorted(probes))\n        assert \"barcode_qc\" in report[\"setting_tooltips\"]\n        assert report[\"labels_are_short\"]\n        assert set(report[\"short_surface\"]) == probes\n>       _assert_setting_tooltip_inventory(report, report[\"en\"])\n\ntests/qt/test_external_i18n_catalogs.py:326: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nsources = {'setting_tooltips': ['CP_prob', 'CP_probability', 'FT', 'Signal_to_noise', 'activation', 'adjust_cells', ...], 'label... 'Well'], 'catalogued': ['CP_prob', 'CP_probability', 'FT', 'Signal_to_noise', 'activation', 'adjust_cells', ...], ...}\nen = namespace(SETTING_TOOLTIPS={'CP_prob': None, 'CP_probability': None, 'FT': None, 'Signal_to_noise': None, 'activation'..._axis': None, 'z_handling': None, 'z_projection': None, 'z_segmentation_mode': None, 'z_stack': None, 'zernike': None})\n\n    def _assert_setting_tooltip_inventory(sources, en):\n        \"\"\"The catalogs carry every setting tooltip except the ones owed.\"\"\"\n        catalogued = set(en.SETTING_TOOLTIPS)\n        assert not _AWAITING_CATALOG_REBUILD & catalogued\n        assert _AWAITING_CATALOG_REBUILD <= set(sources[\"setting_tooltips\"])\n>       assert set(sources[\"setting_tooltips\"]) - _AWAITING_CATALOG_REBUILD == catalogued\nE       AssertionError: assert {'CP_prob', '...t_cells', ...} == {'CP_prob', '...t_cells', ...}\nE         \nE         Extra items in the left set:\nE         'ome_zarr_upgrade_link'\nE         Use -v to get more diff\n\ntests/qt/test_external_i18n_catalogs.py:250: AssertionError"
+      },
+      {
+        "classname": "tests.qt.test_external_i18n_catalogs",
+        "name": "test_runtime_source_inventory_is_stable_after_runctx_import",
+        "message": "AssertionError: assert {'CP_prob', '...t_cells', ...} == {'CP_prob', '...t_cells', ...}\n  \n  Extra items in the left set:\n  'ome_zarr_upgrade_link'\n  Use -v to get more diff",
+        "text": "def test_runtime_source_inventory_is_stable_after_runctx_import():\n        \"\"\"Run controls are canonical regardless of prior module import order.\"\"\"\n        report = _fresh_inventory(preimports=[\"spacr.runctx\"])\n>       _assert_setting_tooltip_inventory(report, report[\"en\"])\n\ntests/qt/test_external_i18n_catalogs.py:332: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nsources = {'setting_tooltips': ['CP_prob', 'CP_probability', 'FT', 'Signal_to_noise', 'activation', 'adjust_cells', ...], 'label...ace': [], 'catalogued': ['CP_prob', 'CP_probability', 'FT', 'Signal_to_noise', 'activation', 'adjust_cells', ...], ...}\nen = namespace(SETTING_TOOLTIPS={'CP_prob': None, 'CP_probability': None, 'FT': None, 'Signal_to_noise': None, 'activation'..._axis': None, 'z_handling': None, 'z_projection': None, 'z_segmentation_mode': None, 'z_stack': None, 'zernike': None})\n\n    def _assert_setting_tooltip_inventory(sources, en):\n        \"\"\"The catalogs carry every setting tooltip except the ones owed.\"\"\"\n        catalogued = set(en.SETTING_TOOLTIPS)\n        assert not _AWAITING_CATALOG_REBUILD & catalogued\n        assert _AWAITING_CATALOG_REBUILD <= set(sources[\"setting_tooltips\"])\n>       assert set(sources[\"setting_tooltips\"]) - _AWAITING_CATALOG_REBUILD == catalogued\nE       AssertionError: assert {'CP_prob', '...t_cells', ...} == {'CP_prob', '...t_cells', ...}\nE         \nE         Extra items in the left set:\nE         'ome_zarr_upgrade_link'\nE         Use -v to get more diff\n\ntests/qt/test_external_i18n_catalogs.py:250: AssertionError"
+      },
+      {
+        "classname": "tests.qt.test_i18n_caption_ratchet",
+        "name": "test_custom_widgets_and_indirect_registries_enter_one_i18n_layer",
+        "message": "AssertionError: custom/indirect captions need exactly one compact or generated owner:\n    'Hard-link chunks'\nassert not ['Hard-link chunks']",
+        "text": "def test_custom_widgets_and_indirect_registries_enter_one_i18n_layer():\n        \"\"\"Dynamic/custom captions have exactly one explicit reviewed owner.\"\"\"\n        tools_dir = str(ROOT / \"tools\")\n        sys.path.insert(0, tools_dir)\n        try:\n            builder = import_module(\"build_i18n_catalogs\")\n        finally:\n            sys.path.remove(tools_dir)\n    \n        from spacr.qt.i18n import _ROWS, _TERM_ROWS\n        from spacr.qt.i18n_catalogs import CATALOG_LANGUAGES, en\n    \n        discovered = set(builder.extract_static_ui_sources())\n        independently_expected = (\n            _custom_widget_literal_captions() | _indirect_registry_captions()\n        ) - _AWAITING_CATALOG_REBUILD\n        compact = set(_ROWS) | set(_TERM_ROWS)\n        missing_ownership = sorted(\n            independently_expected\n            - _RUNTIME_IDENTITY_CAPTIONS\n            - compact\n            - discovered\n        )\n        assert not missing_ownership, (\n            \"custom/indirect runtime captions bypass both i18n layers:\\n  \"\n            + \"\\n  \".join(repr(value) for value in missing_ownership)\n        )\n    \n        ambiguous_ownership = sorted(\n            source\n            for source in independently_expected - _RUNTIME_IDENTITY_CAPTIONS\n            if int(source in compact) + int(source in en.UI_SOURCES) != 1\n        )\n>       assert not ambiguous_ownership, (\n            \"custom/indirect captions need exactly one compact or generated \"\n            \"owner:\\n  \"\n            + \"\\n  \".join(repr(value) for value in ambiguous_ownership)\n        )\nE       AssertionError: custom/indirect captions need exactly one compact or generated owner:\nE           'Hard-link chunks'\nE       assert not ['Hard-link chunks']\n\ntests/qt/test_i18n_caption_ratchet.py:1463: AssertionError"
+      }
+    ],
+    "approval": "WORK_TASKS ANSWER 2026-11-22 07:17, inbox SHA bcf3c1367af2ea44e58d481c39e7fc39f51c2611ee03d06c000d1d3d97063f25",
+    "remaining_landing_work": [
+      "Home writes the nine-language records and rebuilds train 11 catalogs, then clears the two approved awaiting sets.",
+      "The published alpha PDF footer remains deferred to the landing rebuild; registry count is 178 item IDs because the new control extends item 1007."
+    ]
+  },
+  "standards_reference": {
+    "url": "https://ngff.openmicroscopy.org/specifications/0.6/",
+    "checked": "2026-11-22",
+    "method": "Official current specification retrieved during integration; existing landed mappers remain the only transform implementation."
+  }
+}

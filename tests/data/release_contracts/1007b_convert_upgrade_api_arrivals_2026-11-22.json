@@ -1,0 +1,3 @@
+{
+  "spacr.qt.screens.convert.ConvertScreen.run_ngff_upgrade": "Upgrade the chosen OME-Zarr 0.5 store to 0.6 off the GUI thread (item 1007, alpha).\n\n:func:`spacr.ome_zarr_convert.upgrade_ngff` writes a new store beside the source and\nverifies every chunk; the report goes to the Summary pane, a refusal to the status\nline.\n\n:returns: True when the job was started (or, unthreaded, succeeded)."
+}

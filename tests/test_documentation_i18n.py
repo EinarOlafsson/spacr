@@ -3909,6 +3909,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("1008b_colocalisation_otsu_api_arrivals_2026-11-21.json", 1),
         ("1008c_cytoskeleton_api_arrivals_2026-11-21.json", 1),
         ("1014_never_api_arrivals_2026-11-22.json", 2),
+        ("1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json", 1),
+        ("1007b_convert_upgrade_api_arrivals_2026-11-22.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

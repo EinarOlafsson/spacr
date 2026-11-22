@@ -2734,6 +2734,18 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in cytoskeleton_arrivals} == cytoskeleton_arrivals
     assert not cytoskeleton_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **cytoskeleton_arrivals}
+    upgrade_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(upgrade_arrivals) == {"spacr.ome_zarr_convert.upgrade_ngff"}
+    assert {key: docs[key] for key in upgrade_arrivals} == upgrade_arrivals
+    assert not upgrade_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **upgrade_arrivals}
+    upgrade_ui_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1007b_convert_upgrade_api_arrivals_2026-11-22.json").read_text(encoding="utf-8"))
+    assert set(upgrade_ui_arrivals) == {"spacr.qt.screens.convert.ConvertScreen.run_ngff_upgrade"}
+    assert {key: docs[key] for key in upgrade_ui_arrivals} == upgrade_ui_arrivals
+    assert not upgrade_ui_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **upgrade_ui_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

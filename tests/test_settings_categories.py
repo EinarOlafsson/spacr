@@ -1687,6 +1687,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ome_zarr_ngff_version",
     # NEW SETTING (1007 lane C, 2026-11-21): stored registration metadata.
     "ome_zarr_store_registration",
+    "ome_zarr_upgrade_link",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
